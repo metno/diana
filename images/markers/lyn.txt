@@ -1,0 +1,9 @@
+#lyn
+lw 2
+mvto -5,0
+lto 0,0
+lto 0,5 
+lto 0,0
+lto -10,10
+lto 0,10
+lto -10,20

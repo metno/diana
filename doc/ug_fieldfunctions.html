@@ -1,0 +1,279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Field fuctions</title>
+  </head>
+
+  <body>
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Field functions&nbsp;|&nbsp;
+<a href="ug_setupfile.html">Previous: Setup file</a>&nbsp;|&nbsp;
+<a href="ug_vcrossfunctions.html">Next: Vertical crossection functions</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+<p>
+
+
+    <h2>
+      <a NAME="Field functions"></a>Field computation/conversion functions</h2>
+
+<pre>
+//----------------------------------------------------------------------
+// Names used in functions:
+//-------------------------
+// plevel  = pressure levels
+// hlevel  = model hybrid levels, eta/hybrid(hirlam,ecmwf,...) and sigma_norlam
+// alevel  = model levels, any vertical coordinate with pressure field in each level
+// ilevel  = isentrpoic levels (constant potential temperature levels)
+// ozlevel = ocean depth levels
+//----------
+// Field names:
+//-------------
+// th    = potential temperature (Kelvin)
+// tk    = temperature (Kelvin)
+// tc    = temperature (Celsius)
+// tx    = any temperature
+// tdk   = dew point temperature (Kelvin)
+// tdc   = dew point temperature (Celsius)
+// rh    = relative humidity (%)
+// q     = specific humidity (kg/kg)
+// psurf = surface pressure (hPa) needed for hlevel functions
+// p     = pressure (hPa) needed in all levels for alevel functions
+// z     = height (m)
+// mpot  = Montgomery potential (in isentropic surfaces)
+// f     = any scalar field
+// u,v   = wind components in grid x- and y-direction (m/s)
+// salt  = water salt content in ppt
+//----------
+// Notes:
+//----------
+// Function argument and result names are just examples.
+// "const:name" means a float or an int number.
+// The last argument may be a variable number of constants; "const:name,..."
+// Constants are after all input fields (except for the last simple functions).
+// The number of result fields (1 or 2) is checked when the setup file is read.
+//----------
+// The real functions often need more arguments than used in setup.
+// Like constant pressure, the hybrid eta.A and eta.B, map ratios and coriolis parameter fields.
+// This is done automatic. Also the existence of any undefined/missing values in the input fields.
+// ---------
+// If the result field name also is among the input parameter/field names,
+// the function will not be activated when the input field is found.
+// The shortest "route" with fewest functions are chosen to make the final plot field.
+//----------------------------------------------------------------------
+</pre>
+<p>
+
+    <h3>
+      <a NAME="Pressure level functions"></a>Pressure level functions</h3>
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Resultfield(s)</b></td><td><b>Function(</b>argumet(s)<b>)</b></td></tr>
+  <tr><td>tc = </td><td><b>tc.plevel_th(</b>th<b>)</b></td></tr>
+  <tr><td>tk = </td><td><b>tk.plevel_th(</b>th<b>)</b></td></tr>
+  <tr><td>th = </td><td><b>th.plevel_tk(</b>tk<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat.plevel_tk(</b>tk<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat.plevel_th(</b>th<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the.plevel_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the.plevel_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>rh.plevel_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh.plevel_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q.plevel_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q.plevel_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.plevel_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.plevel_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.plevel_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.plevel_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.plevel_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.plevel_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.plevel_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.plevel_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>tcmean = </td><td><b>tcmean.plevel_z1_z2(</b>z1,z2<b>)</b></td></tr>
+  <tr><td>tkmean = </td><td><b>tkmean.plevel_z1_z2(</b>z1,z2<b>)</b></td></tr>
+  <tr><td>thmean = </td><td><b>thmean.plevel_z1_z2(</b>z1,z2<b>)</b></td></tr>
+  <tr><td>qvx,qvy = </td><td><b>qvector.plevel_z_tk(</b>z,tk<b>)</b></td></tr>
+  <tr><td>qvx,qvy = </td><td><b>qvector.plevel_z_th(</b>z,th<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.plevel_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.plevel_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.plevel_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.plevel_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>ug,vg = </td><td><b>geostrophic.wind.plevel_z(</b>z<b>)</b></td></tr>
+  <tr><td>gvort = </td><td><b>geostrophic.vorticity.plevel_z(</b>z<b>)</b></td></tr>
+  <tr><td>kindex = </td><td><b>kindex.plevel_tk_rh(</b>tk500,tk700,rh700,tk850,rh850<b>)</b></td></tr>
+  <tr><td>kindex = </td><td><b>kindex.plevel_th_rh(</b>th500,th700,rh700,th850,rh850<b>)</b></td></tr>
+  <tr><td>ductingindex = </td><td><b>ductingindex.plevel_tk_rh(</b>tk850,rh850<b>)</b></td></tr>
+  <tr><td>ductingindex = </td><td><b>ductingindex.plevel_th_rh(</b>th850,rh850<b>)</b></td></tr>
+  <tr><td>showalterindex = </td><td><b>showalterindex.plevel_tk_rh(</b>tk500,tk850,rh850<b>)</b></td></tr>
+  <tr><td>showalterindex = </td><td><b>showalterindex.plevel_th_rh(</b>th500,th850,rh850<b>)</b></td></tr>
+  <tr><td>boydenindex = </td><td><b>boydenindex.plevel_tk_z(</b>tk700,z700,z1000<b>)</b></td></tr>
+  <tr><td>boydenindex = </td><td><b>boydenindex.plevel_th_z(</b>th700,z700,z1000<b>)</b></td></tr>
+</table>
+<p>
+
+    <h3>
+      <a NAME="Hybrid level functions"></a>Hybrid (eta) level functions</h3>
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Resultfield(s)</b></td><td><b>Function(</b>argumet(s)<b>)</b></td></tr>
+  <tr><td>tc = </td><td><b>tc.hlevel_th_psurf(</b>th,psurf<b>)</b></td></tr>
+  <tr><td>tk = </td><td><b>tk.hlevel_th_psurf(</b>th,psurf<b>)</b></td></tr>
+  <tr><td>th = </td><td><b>th.hlevel_tk_psurf(</b>tk,psurf<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat.hlevel_tk_psurf(</b>tk,psurf<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat.hlevel_th_psurf(</b>th,psurf<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the.hlevel_tk_q_psurf(</b>tk,q,psurf<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the.hlevel_th_q_psurf(</b>th,q,psurf<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh.hlevel_tk_q_psurf(</b>tk,q,psurf<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh.hlevel_th_q_psurf(</b>th,q,psurf<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q.hlevel_tk_rh_psurf(</b>tk,rh,psurf<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q.hlevel_th_rh_psurf(</b>th,rh,psurf<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.hlevel_tk_q_psurf(</b>tk,q,psurf<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.hlevel_th_q_psurf(</b>th,q,psurf<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.hlevel_tk_rh_psurf(</b>tk,rh,psurf<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.hlevel_th_rh_psurf(</b>th,rh,psurf<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.hlevel_tk_q_psurf(</b>tk,q,psurf<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.hlevel_th_q_psurf(</b>th,q,psurf<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.hlevel_tk_rh_psurf(</b>tk,rh,psurf<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.hlevel_th_rh_psurf(</b>th,rh,psurf<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.hlevel_tk_q_psurf(</b>tk,q,psurf<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.hlevel_th_q_psurf(</b>th,q,psurf<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.hlevel_tk_rh_psurf(</b>tk,rh,psurf<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.hlevel_th_rh_psurf(</b>th,rh,psurf<b>)</b></td></tr>
+  <tr><td>p = </td><td><b>pressure.hlevel_xx_psurf(</b>xx,psurf<b>)</b></td></tr>
+</table>
+<p>
+
+    <h3>
+      <a NAME="Atmospheric model level functions"></a>Atmospheric model level functions</h3>
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Resultfield(s)</b></td><td><b>Function(</b>argumet(s)<b>)</b></td></tr>
+  <tr><td>tc = </td><td><b>tc.alevel_th_p(</b>th,p<b>)</b></td></tr>
+  <tr><td>tk = </td><td><b>tk.alevel_th_p(</b>th,p<b>)</b></td></tr>
+  <tr><td>th = </td><td><b>th.alevel_tk_p(</b>tk,p<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat.alevel_tk_p(</b>tk,p<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat.alevel_th_p(</b>th,p<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the.alevel_tk_q_p(</b>tk,q,p<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the.alevel_th_q_p(</b>th,q,p<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh.alevel_tk_q_p(</b>tk,q,p<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh.alevel_th_q_p(</b>th,q,p<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q.alevel_tk_rh_p(</b>tk,rh,p<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q.alevel_th_rh_p(</b>th,rh,p<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.alevel_tk_q_p(</b>tk,q,p<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.alevel_th_q_p(</b>th,q,p<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.alevel_tk_rh_p(</b>tk,rh,p<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.alevel_th_rh_p(</b>th,rh,p<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.alevel_tk_q_p(</b>tk,q,p<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.alevel_th_q_p(</b>th,q,p<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.alevel_tk_rh_p(</b>tk,rh,p<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.alevel_th_rh_p(</b>th,rh,p<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.alevel_tk_q_p(</b>tk,q,p<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.alevel_th_q_p(</b>th,q,p<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.alevel_tk_rh_p(</b>tk,rh,p<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting.alevel_th_rh_p(</b>th,rh,p<b>)</b></td></tr>
+</table>
+<p>
+
+    <h3>
+      <a NAME="Isentropic level functions"></a>Isentropic level functions</h3>
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Resultfield(s)</b></td><td><b>Function(</b>argumet(s)<b>)</b></td></tr>
+  <tr><td>ug,vg = </td><td><b>geostrophic_wind.ilevel_mpot(</b>mpot<b>)</b></td></tr>
+</table>
+<p>
+
+    <h3>
+      <a NAME="Ocean depth level functions"></a>Ocean constant depth level functions</h3>
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Resultfield(s)</b></td><td><b>Function(</b>argumet(s)<b>)</b></td></tr>
+  <tr><td>soundspeed = </td><td><b>sea.soundspeed.ozlevel_tc_salt(</b>seatemp.c,salt<b>)</b></td></tr>
+  <tr><td>soundspeed = </td><td><b>sea.soundspeed.ozlevel_tk_salt(</b>seatemp.k,salt<b>)</b></td></tr>
+</table>
+<p>
+
+    <h3>
+      <a NAME="General functions"></a>General (pressure/level independant) functions</h3>
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Resultfield(s)</b></td><td><b>Function(</b>argumet(s)<b>)</b></td></tr>
+  <tr><td>tc = </td><td><b>temp_k2c(</b>tk<b>)</b></td></tr>
+  <tr><td>tk = </td><td><b>temp_c2k(</b>tc<b>)</b></td></tr>
+  <tr><td>tc = </td><td><b>temp_k2c_possibly(</b>tk<b>)</b></td></tr>
+  <tr><td>tk = </td><td><b>temp_c2k_possibly(</b>tc<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk.tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc.tc_rh(</b>tc,rh<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh.tk_tdk(</b>tk,tdk<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh.tc_tdc(</b>tc,tdc<b>)</b></td></tr>
+  <tr><td>ff = </td><td><b>vector.abs(</b>u,v<b>)</b></td></tr>
+  <tr><td>relvort = </td><td><b>rel.vorticity(</b>u,v<b>)</b></td></tr>
+  <tr><td>absvort = </td><td><b>abs.vorticity(</b>u,v<b>)</b></td></tr>
+  <tr><td>divergence = </td><td><b>divergence(</b>u,v<b>)</b></td></tr>
+  <tr><td>advection(f) = </td><td><b>advection(</b>f,u,v,const:hours<b>)</b></td></tr>
+  <tr><td>df/dx = </td><td><b>d/dx(</b>f<b>)</b></td></tr>
+  <tr><td>df/dy = </td><td><b>d/dy(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>abs.del(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>del.square(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>minvalue.fields(</b>f1,f2<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>maxvalue.fields(</b>f1,f2<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>minvalue.field.const(</b>f,const:value<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>maxvalue.field.const(</b>f,const:value<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>abs(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>log10(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>pow10(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>log(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>exp(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>power(</b>f,const:exponent<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>shapiro2.filter(</b>f<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>smooth(</b>f,const:numsmooth<b>)</b></td></tr>
+  <tr><td>delta_t = </td><td><b>windcooling_tk_u_v(</b>tk2m,u10m,v10m<b>)</b></td></tr>
+  <tr><td>delta_t = </td><td><b>windcooling_tc_u_v(</b>tc2m,u10m,v10m<b>)</b></td></tr>
+  <tr><td>danger = </td><td><b>undercooled.rain(</b>precip,snow,tk,const:precipMin,const:snowRateMax,const:tcMax<b>)</b></td></tr>
+  <tr><td>tfp = </td><td><b>thermal.front.parameter_tx(</b>tx<b>)</b></td></tr>
+  <tr><td>flightlevel = </td><td><b>pressure2flightlevel(</b>p<b>)</b></td></tr>
+  <tr><td>m.comp = </td><td><b>momentum.x.coordinate(</b>v,const:coriolisMin<b>)</b></td></tr>
+  <tr><td>n.comp = </td><td><b>momentum.y.coordinate(</b>u,const:coriolisMin<b>)</b></td></tr>
+  <tr><td>jacobian = </td><td><b>jacobian(</b>fx,fy<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>replace.undefined(</b>f,const:value<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>replace.defined(</b>f,const:value<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>replace.all(</b>f,const:value<b>)</b></td></tr>
+  <tr><td>f_classes = </td><td><b>values2classes(</b>f,const:limits_low_to_high,...<b>)</b></td></tr>
+  <tr><td>field.diff = </td><td><b>field.diff.forecast.hour(</b>field,const:relHourFirst,const:relHourLast<b>)</b></td></tr>
+  <tr><td>accum.diff = </td><td><b>accum.diff.forecast.hour(</b>accumfield,const:relHourFirst,const:relHourLast<b>)</b></td></tr>
+  <tr><td>field_sum = </td><td><b>sum_of_forecast_hours(</b>field,const:forecastHours,...<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>add(</b>a,b<b>)</b></td></tr>
+</table>
+<p>
+
+    <h3>
+      <a NAME="Simple functions"></a>Simple functions where one of the argumets (a or b) may be a constant</h3>
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Resultfield</b></td><td><b>Function(</b>argumets<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>add(</b>a,b<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>subtract(</b>a,b<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>multiply(</b>a,b<b>)</b></td></tr>
+  <tr><td>f_res = </td><td><b>divide(</b>a,b<b>)</b></td></tr>
+</table>
+<p>
+
+
+
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Field functions&nbsp;|&nbsp;
+<a href="ug_setupfile.html">Previous: Setup file</a>&nbsp;|&nbsp;
+<a href="ug_vcrossfunctions.html">Next: Vertical crossection functions</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+<p>
+
+
+  </body>
+</html>

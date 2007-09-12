@@ -1,0 +1,20 @@
+/*! \mainpage
+ *
+ * 
+ * \section intro_sec DIANA
+ *
+ *  <b> Diana source code documentation </b>
+ *
+ *  <i> Documentation for users in  </i><b>Diana User Guide<b>
+ * 
+ * \section install_sec Installation
+ *
+ * \subsection Unpack	
+ * 
+ *  <i> tar xzvf diana.tar.gz </i>
+ *
+ * \subsubsection Build
+ * 
+ *  <i> see README </i>
+ *
+ */

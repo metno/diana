@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Observations </title>
+  </head>
+
+  <body>
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Observations &nbsp;|&nbsp;
+<a href="ug_fielddialogue.html">Previous: Fields </a>&nbsp;|&nbsp;
+<a href="ug_satdialogue.html">Next: Satellite and radar images</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+
+
+    <h2>
+      <a NAME="Observationdialogue"></a>
+      <img SRC="observations.png" align="MIDDLE" ALT="Observations">
+      Observations </h2>
+
+    <table WIDTH="100%" >
+      <tr VALIGN="TOP">
+	<td><img SRC="observationdialogue1.png" ALT="Observation dialogue 1">
+	<td>
+	  <ul>
+	    <li>
+	    	On the top line plot type is selected.</li>
+	    <li>
+	    	The next lines contain data types. Multiple types can be selected.</li>
+	    <li>
+	    	Then select the parameters which are to be plotted.</li>
+	    <li>
+	    	Show all positions - displays an x where there is no room to display the
+	    	observation. By clicking the x, the observation is displayed. PageUp
+	    	and PageDown are used to draw the observations which there are no room
+	    	for in the first picture.</li>
+	    <li>
+	    	Temp. as integers - shows the temperature, max/min temperature,
+	    dew point and sea temperature as integers (no decimals).</li>
+	    <li>
+	    	All observations (mixing different times)- displays
+	    	all observations within the given time interval. This
+	    	only applies to synoptic data, non-synoptic data are always displayed.
+	    	The observations are sorted so that the ones which fit best time-wise
+	    are displayed first.</li>
+	    <li>
+	    	PPPP - MSLP-field - during editing shows the difference between
+	    	observed pressure and the MSLP-field in the observation point. For
+	    	synop plots the difference is shown instead of the observed
+	    	pressure.</li>
+	    <li>
+	    Positions only - chosen marker is shown in all observation points.</li>
+	    <li>
+	    	Criteria - chosen criteria are used. Parameters which
+	    	have critera are marked with a different colour. Click "More &gt;&gt;"
+	    	to edit the criteria.</li>
+	  </ul>
+	</td>
+      </tr>
+    </table>
+      <!-- PAGEBREAK -->
+
+    <table WIDTH="100%">
+      <tr VALIGN="TOP">
+	  <td><img SRC="observationdialogue2.png" ALT="Observation dialogue 2"></td>
+	<td>
+	  <ul>
+	    <li>
+	    	For the plot type "Pressure", pressure level needs to be selected. Either
+	    	a particular level or the same as the field. (In practice the first
+	    	field displayed.)</li>
+	    <li>
+	    	Density - how close the observations are displayed.</li>
+	    <li>
+	    	Size - size of the observations.</li>
+	    <li>
+	    	Timediff - maximum allowed deviation between chosen time and
+	    	observation time. For synoptic data the file valid at the selected time
+	    	is used, while for non-synoptic data all files with data within the
+	    	selected time interval are read. The files validity time is set in the
+	    	<a href="ug_setupfile.html#OBSERVATION_FILES">setup-file</a>.
+	    </li>
+	    <li>
+	    	A priority list contains the name of preferred stations. The first
+	    	station in the list is displayed first, thereafter as many as there is
+	    	room for. Stations not in the list are also displayed if there are room.
+	    	Priority lists are defined in the <a href="ug_setupfile.html#OBSERVATION_PRIORITY_LISTS">setup file</a>.
+	    </li>
+	    <li>
+	    	Update - the list of files is reread.
+	    </li>
+	    <li>
+	    	Show all - Displays all plot types with the selected data types if clicked.
+	    	When not clicked, only the selected plot types are plotted.
+	    </li>
+	    <li>
+	      The <img SRC="synop_red.png" height="15" width="15" align="MIDDLE" ALT="red synop"> -
+	      button on the <a href="ug_statusline.html">Status line</a> updates the displayed
+	      observations if the relevant data files have changed since last read.
+	    </li>
+	  </ul>
+	</td>
+      </tr>
+    </table>
+
+
+      <!-- PAGEBREAK -->
+<br>
+
+
+<h4>Criteria</h4>
+  Criteria can be given for what stations to show, depending on the
+  value of individual parameters. The parameters or the observation can be
+  given a colour, depending on value.
+
+<br>
+<br>
+<img SRC="observationdialogue_criteria.png" ALT="Obs criterias">
+
+      <!-- PAGEBREAK -->
+
+  <ul>
+    <li>
+      <b>Criteria list</b> - Choose a list of criteria. The lists can be added
+      in the setup-file or made in the dialogue. All saved changes are logged.
+		</li>
+    <li>
+      <b>Criteria</b> - shows the criteria in the selected list. Selected
+      criteria can be altered or deleted. Add a new criterion by right-clicking
+      the parameter.
+    </li>
+    <li>
+      <b>Delete</b> - deletes selected criteria.
+    </li>
+    <li>
+      <b>Delete all</b> - deletes all criteria in the selected list.
+    </li>
+    <li>
+      <b>Plot</b> - the observation matching the criteria are plotted
+<ul>
+      <li><b>Colour - parameter</b> - parameters matching the criteria are
+      plotted in the selected colour.
+      <li><b>Colour - whole synop</b> - observations matching the criteria are
+      plotted in the selected colour.
+</ul>
+    </li>
+    <li>
+      <b>Colour</b> - Choose colour, only applies if "Colour" has been selected
+      above.
+    </li>
+    <li>
+      <b>Limit</b> - Select operator and limit value. If no operator is selected
+      and the parameter has been observed it will be plotted if "Plot" has been
+      selected, while if "Colour" has been selected, it will be plotted in the
+      selected colour. The precision of the limit value can be adjusted.
+    </li>
+    <li>
+      <b>Save list</b> - enter filename and click "Save".
+  </ul>
+
+    List of data types, data files etc. are in the <a
+    href="ug_setupfile.html#OBSERVATION_FILES">OBSERVATION_FILES</a> section in
+    the setup file. Predefined criterias are found in the
+    <a href="ug_setupfile.html#OBSERVATION_CRITERIA">OBSERVATION_CRITERIA</a> section. List of plot settings for observations for use in quick menues or in batch is found in the <a href="ug_bdiana.html#PLOTSETTINGS.OBSERVATIONS">batch-section</a>.
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Observations &nbsp;|&nbsp;
+<a href="ug_fielddialogue.html">Previous: Fields </a>&nbsp;|&nbsp;
+<a href="ug_satdialogue.html">Next: Satellite and radar images</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+  </body>
+</html>
+
+

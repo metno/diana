@@ -1,0 +1,226 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Standard"
+
+# variables
+[UTC=00,06,12,18
+
+#
+>Meteosat Visuell alfacut = 0.3, alfa = 1
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+SAT METEOSAT Visuell VIS_RAW cut=0.02 timediff=60 alfacut=0.3 alfa=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Meteosat Visuell alfacut = 0, alfa = 0.5
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+SAT METEOSAT Visuell VIS_RAW cut=0.02 timediff=60 alfacut=0 alfa=0.5
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Meteosat IR+V  alfacut=0.2 alfa=0.5
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+SAT METEOSAT Visuell IR+V cut=0.02 timediff=60 alfacut=0.2 alfa=0.5
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>NOAA alfacut=0.2 alfa=0.8
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+SAT NOAA N-Europa 2 cut=0.02 timediff=60 alfacut=0.2 alfa=0.8
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>NOAA alfacut=0.2 alfa=1.0
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+SAT NOAA N-Europa 2 cut=0.02 timediff=60 alfacut=0.2 alfa=1.0
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Klassifisert plot
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+SAT NOAA Klassifisert C cut=0.02 timediff=60
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Klassifisert plot, uten tabell
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+SAT NOAA Klassifisert C cut=0.02 timediff=60  classtable=0
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam MSLP and DZ(500-1000), Synops, Meteosat
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC MSLP colour=cyan linetype=solid linewidth=3 line.interval=5
+FIELD HIRLAM.@UTC DZ(500-1000) colour=red linetype=solid linewidth=1 line.interval=40
+OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,kjtegn density=1 scale=1 colour=black timediff=180
+SAT METEOSAT Visuell IR+V cut=0.02 timediff=60
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam MSLP and DZ(500-1000), Synops, NOAA
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC MSLP colour=cyan linetype=solid linewidth=3 line.interval=5
+FIELD HIRLAM.@UTC DZ(500-1000) colour=red linetype=solid linewidth=1 line.interval=40
+OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,kjtegn density=1 scale=1 colour=magenta showpos=true timediff=180
+SAT NOAA N-Europa 2 cut=0.02 timediff=60
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam MSLP and THE(850), Synops, NOAA
+MAP area=modell/sat-område backcolour=midnightBlue  map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC MSLP colour=cyan linetype=solid linewidth=3 line.interval=5
+FIELD HIRLAM.@UTC THE level=850hPa colour=red linetype=solid linewidth=1 line.interval=2.5
+OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,kjtegn density=1 scale=1 colour=blue showpos=true timediff=180
+SAT NOAA N-Europa 1+2+4 cut=0.02 timediff=60
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam MSLP and P-tendency, Synops
+MAP area=modell/sat-område backcolour=midnightBlue  map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC MSLP colour=cyan linetype=solid linewidth=3 line.interval=5
+FIELD HIRLAM.@UTC Tendens colour=red linetype=solid linewidth=1 line.interval=0.5
+OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,kjtegn density=1 scale=1 colour=white devField=true timediff=180
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam MSLP and PRECIP.6h, Synops, Meteosat
+MAP area=modell/sat-område backcolour=midnightBlue  map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC MSLP colour=cyan linetype=solid linewidth=3 line.interval=5
+FIELD HIRLAM.@UTC PRECIP.6H colour=red linetype=solid linewidth=1 line.interval=10
+OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,kjtegn density=1 scale=1 colour=blue timediff=180
+SAT METEOSAT Visuell IR+V cut=0.02 timediff=60
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam MSLP, VIND.10M and VIND(850), Meteosat
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC MSLP colour=cyan linetype=solid linewidth=3 line.interval=5
+FIELD HIRLAM.@UTC VIND.10M colour=red linetype=solid linewidth=1 density=0
+FIELD HIRLAM.@UTC VIND level=850hPa colour=lightBlue linetype=solid linewidth=1 density=0
+SAT METEOSAT IR IR+V cut=0.02 timediff=60
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam Z(500) and VIND(300), Meteosat
+MAP area=modell/sat-område backcolour=midnightBlue  map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC Z level=500hPa colour=cyan linetype=solid linewidth=3 line.interval=40
+FIELD HIRLAM.@UTC VIND level=300hPa colour=lightBlue linetype=solid linewidth=1 density=0
+SAT METEOSAT Vanndamp WV_CAL cut=0.02 timediff=60
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam PRECIP.6h LOW_CLOUDS MEDIUM_HIGH_CLOUDS
+MAP area=modell/sat-område backcolour=midnightBlue  map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC PRECIP.6H colour=red linetype=solid linewidth=1 line.interval=10
+FIELD HIRLAM.@UTC LOW_CLOUDS colour=white
+FIELD HIRLAM.@UTC MEDIUM_HIGH_CLOUDS colour=yellow
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam T.2m, Synops
+MAP area=modell/sat-område backcolour=midnightBlue  map=Fin cont.colour=white cont.linewidth=1
+MAP area=modell/sat-område backcolour=midnightBlue  map=Euro3 cont.colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC T.2M linetype=solid linewidth=1 line.interval=2 base=0
+OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,kjtegn density=1 scale=1 colour=yellow timediff=180
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Ecmwf VIND.10M, Synops
+OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,kjtegn  density=1 scale=1 colour=yellow timediff=180
+FIELD EC.@UTC VIND.10M
+MAP area=modell/sat-område backcolour=midnightBlue cont.colour=white map=Wvs.43m
+LABEL text="$day $date $hour UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+LABEL data fcolour=midnightBlue
+#
+>Hirlam VIND.10M.PIL
+FIELD HIRLAM.@UTC VIND.10M.PIL
+MAP area=modell/sat-område backcolour=midnightBlue cont.colour=white map=Vanlig
+LABEL text="$day $date $hour UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+LABEL data fcolour=midnightBlue
+#
+>Hirlam MSLP and VIND10m
+MAP area=Norge backcolour=orange map=Euro1 cont.colour=white cont.linewidth=2
+MAP backcolour=orange map=Euro3 cont.colour=white
+FIELD HIRLAM.@UTC FF.10M_farget colour=white
+FIELD HIRLAM.@UTC MSLP linewidth=2 colour=dnmiBlue linetype=solid
+LABEL data bcolour=yellow fcolour=orange:200 polystyle=fill halign=left valign=bottom margin=0.007 xoffset=0.01 yoffset=0.01
+LABEL text="$day $date $hour UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam MSLP, NOAA
+MAP area=modell/sat-område backcolour=dnmiBlue cont.colour=white map=Euro1 cont.linewidth=2
+MAP cont.colour=white map=Euro3 cont.linewidth=1
+FIELD HIRLAM.@UTC MSLP linewidth=2 colour=yellow linetype=dash
+SAT NOAA N-Europa 1+2+4 cut=0.02 timediff=90
+LABEL text="$day $date $hour UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam FF.KNOTS(500)
+MAP area=modell/sat-område backcolour=midnightBlue cont.colour=white map=Wvs.12m
+FIELD HIRLAM.@UTC FF.KNOP level=500hPa line.interval=10
+LABEL text="$day $date $hour UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+LABEL data fcolour=midnightBlue
+#
+>Ecmwf EPS PRECIP>5mm/24h
+MAP area=modell/sat-område backcolour=midnightBlue cont.colour=white map=Wvs.12m
+FIELD EC.EPS Probability_Precip>5mm/24h
+LABEL data fcolour=midnightBlue
+LABEL text="$day $date $hour UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Ecmwf.300 MSLP and FF10m
+MAP area=N.halvkule backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=2
+MAP map=Euro3 cont.colour=white
+FIELD EC.GEO.@UTC MSLP linewidth=2 linetype=solid colour=orange
+FIELD EC.GEO.@UTC FF.10M_farget linewidth=1 linetype=solid colour=white
+LABEL data colour=yellow fcolour=midnightBlue:200 polystyle=fill halign=left valign=bottom margin=0.007 xoffset=0.01 yoffset=0.01
+LABEL text="$day $date $hour UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Hirlam Z(500), VINDarrows(500) and FF(500)
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=2
+MAP map=Euro3 colour=white cont.linewidth=1
+FIELD HIRLAM.@UTC Z level=500hPa colour=cyan linetype=solid linewidth=1 line.interval=40
+FIELD HIRLAM.@UTC VIND.PIL level=500hPa colour=red linetype=solid linewidth=1 density=0 vector.unit=20 rel.size=1
+FIELD HIRLAM.@UTC FF.FARGET level=500hPa colour=yellow
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Ecom3d Sea-surface and average current
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 colour=white cont.linewidth=1
+FIELD ECOM3D.@UTC Sea_Surface colour=yellow linetype=solid linewidth=1 line.interval=0.1
+FIELD ECOM3D.@UTC Average_current colour=red linetype=solid linewidth=1 density=0 vector.unit=0.2 rel.size=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Wam Significant waveheight and mean direction
+MAP area=modell/sat-område backcolour=midnightBlue map=Euro1 cont.colour=white cont.linewidth=1
+MAP map=Euro3 cont.colour=white cont.linewidth=1
+FIELD WAM.@UTC Significant_Wave_Height colour=yellow linetype=solid linewidth=1 line.interval=1
+FIELD WAM.@UTC Mean_Direction colour=red linetype=solid linewidth=1 density=0 rel.size=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12

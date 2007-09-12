@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: File formats</title>
+  </head>
+
+  <body>
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: File formats&nbsp;|&nbsp;
+<a href="ug_vcrossfunctions.html">Previous: Vertical crossection functions</a>&nbsp;|&nbsp;
+<a href="ug_bdiana.html">Next: Batch plotting</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+
+    <h2>
+      <a NAME="setup"></a>Object files</h2>
+Weather objects (fronts, symbols, areas etc.) are stored in object
+files which will normally have the time as extension on the form
+<i>.yyyymmddhhmm.</i>
+
+An example of such a file is given below:
+
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+Date=200510070900;
+
+Object=Front;
+Type=Warm front;
+LongitudeLatitude=
+-9.02711,59.8912,
+-3.86701,62.8109,
+5.02399,65.9834;
+RGBA=255,0,0,255;
+!
+Object=Symbol;
+Type=Fog;
+Size=10;
+LongitudeLatitude=
+1.86341,66.0907;
+RGBA=128,128,0,255;
+!
+Object=Symbol;
+Type=Low pressure;
+Size=10;
+LongitudeLatitude=
+0,82.2265;
+RGBA=255,0,0,255;
+!
+Object=Symbol;
+Type=Texts;
+Text=F~9;
+Size=10;
+LongitudeLatitude=
+0.532281,75.0545;
+RGBA=0,0,0,255;
+!
+
+
+LABEL anno=&lt;text="Surface analysis for 2005-10-07 09 UTC"&gt; tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+
+</pre>
+</td></tr></table>
+
+<ul>
+<li>The files start with a line
+<pre>Date=<b>yyyymmddhhmm</b>;</pre>
+, e.g. <pre>Date=200510070900;</pre> There must be a semicolon at
+the end. This is followed by a blank line. </li>
+<li>Each new object description starts with the line <pre>Object=<b>TypeOfObject</b>;</pre>
+TypeOfObject can be Front, Symbol, or Area.</li>
+<li>Each object description ends with an exclamation mark and each
+line in the description ends with a semicolon.</li>
+      <!-- PAGEBREAK -->
+<li>A line describing the subtype, <pre>Type=<b>Subtype</b></pre>
+ is compulsory for each object.<br>
+The possible subtypes are:<br>
+<ul>
+<li><b>Fronts:</b>
+<i>Cold front, Warm front, Occlusion,Cold occlusion, Warm occlusion , Stationary
+front, Trough, Squall line, Significant weather</i>
+</li>
+<li><b>Areas:</b><i>
+ Precipitation, Showers, Clouds, Fog, Ice, Significant weather,
+ Generic area</i>
+</li>
+<li><b>Symbols:</b>
+<i>
+ Low pressure, High pressure, Cold, Warm, Fog, Drizzle, Freezing
+ drizzle, Freezing rain, Showers, Rain showers, Sleet showers, Hail
+ showers, Snow showers, Thunderstorm,
+ Thunderstorm with hail, Snow, Rain, Sleet, Hurricane, Disk, Circle, Cross, Text
+</i>
+</li>
+</ul>
+<li> A line giving the lon, lat coordinate(s),
+<pre>
+LongitudeLatitude=<b>Coordinates</b></pre>
+ is compulsory for each object.<br>
+Longitude and latitude for each point should be separated by a comma
+like this:<i> lon1,lat1,lon2,lat2,lon3,lat3;</i> and written in decimal
+format.</li>
+<li>A line describing the colour
+ <pre>RGBA=<b>r,g,b,a</b>;</pre> is optional. R,g,b and a, are the
+ red, green, blue and alpha components of the colour.<br>
+If this line is missing the default colour for this type of object will
+be used.</li>
+<li>A line describing the size can be used for symbols.
+<pre>Size=<b>Symbolsize</b></pre>
+Symbol size is the symbol's size in points.
+If this line is missing the default symbol size will be used.
+</li>
+<li>Symbols of type <i>text</i> have a line
+<pre>
+Text=<b>Symboltext</b>
+</pre>
+where Symbol text is the text to be displayed.
+</li>
+<li>A <b>LABEL</b> line can be used to write annotations on the plot.</li>
+
+</ul>
+
+
+    <h2>
+      <a NAME="OBSERVATION.ASCII.FILES"></a>Observation ascii files</h2>
+
+
+An example an observation ascii file is given below:
+
+<p>
+
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+[COLUMNS
+Date:d      Time:t     Lon:lon     Lat:lat      RRR:r   Station:s   Icon:image]
+
+[DATA]
+2004-11-20  12:00:00     10.86     59.55        0.4      "Dear home" wbkz_green
+2004-11-20  12:00:00     10.51     59.89        0.1      Home        wbkz_red
+2004-11-20  12:00:00      9.99     59.19        6.3      Somewhere   wbkz_white
+  
+
+
+</pre>
+</td></tr></table>
+
+
+<h3>Header</h3>
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Command</b></td><td><b>Example</b></td><td><b>Description</b></td></tr>
+  <tr><td>UNDEFINED</td><td><code>[UNDEFINED NaN,Inf]</code></td>
+  <td><code>NaN</code> and <code>Inf</code> are treated as
+    undefined values</td></tr>
+  <tr><td>SKIP_DATA_LINES</td><td><code>[SKIP_DATA_LINES 3]</code></td>
+	      <td>Skip first 3 data lines</td></tr>
+  <tr><td>LABEL</td><td><code>[LABEL text="Label text"] </code></td>'
+  <td>Syntax: see <a href="ug_bdiana.html#PLOTSETTINGS.ANNOTATIONS">Labels</a></td></tr>
+  <tr><td>COLUMNS</td><td><code>[COLUMNS Date:d        Time:t     Lon:r     Lat:r] </code></td>'
+  <td><code>name:type</code></a></td></tr>
+  <tr><td>DATA</td><td><code>[DATA] </code></td>'
+  <td>Start of data section</a></td></tr>
+
+</table>
+<p>
+
+<h3>Column types</h3>
+
+
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Column type</b></td><td><b>Description</b></td></tr>
+  <tr><td>r </td><td>Real number</td></tr>
+  <tr><td>i </td><td>Integer number</td></tr>
+  <tr><td>s </td><td>String</td></tr>
+  <tr><td>d </td><td>Date (yyyy-mm-dd)</td></tr>
+  <tr><td>t </td><td>Time (HH:MM:SS)</td></tr>
+  <tr><td>year  </td><td>yyyy</td></tr>
+  <tr><td>month </td><td>mm</td></tr>
+  <tr><td>day   </td><td>dd</td></tr>
+  <tr><td>hour  </td><td>HH</td></tr>
+  <tr><td>time  </td><td>MM</td></tr>
+  <tr><td>lat   </td><td>Latitude in degrees</td></tr>
+  <tr><td>lon   </td><td>Longitude in degrees</td></tr>
+  <tr><td>dd   </td><td>Wind direction in degrees <0,360]</td></tr>
+  <tr><td>ff   </td><td>Wind speed in m/s</td></tr>
+  <tr><td>ffk   </td><td>Wind speed in knots</td></tr>
+  <tr><td>image </td>
+  <td>Name of xpm, must be defined in <a href="ug_setupfile.html#IMAGE_GALLERY">setup</a></td></tr>
+</table>
+<p>
+
+<ul>
+<li>The column names are used in the dialogues and in the command strings.
+<li>The column types <code> lat </code> and <code> lon </code> are mandatory.
+
+<li>If column type <code>dd</code> and <code>ff/ffk</code> are present,
+the parameter <code>Wind</code> will be added, and wind arrows can be
+plotted.
+
+ </ul>
+
+<h3>Time</h3>
+<ul>
+<li>
+	If there are columns with  time information,
+	these observation times  will be used.
+<li>
+	If there are no time information in the file, but time
+        information from  the file name,
+	all observations will get observation time = file time.
+<li>	
+	If there is no time information,
+	the observations will have no time, and always be plotted.
+
+</li>
+</ul>
+
+<p>
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: File formats&nbsp;|&nbsp;
+<a href="ug_vcrossfunctions.html">Previous: Vertical crossection functions</a>&nbsp;|&nbsp;
+<a href="ug_bdiana.html">Next: Batch plotting</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+  </body>
+</html>

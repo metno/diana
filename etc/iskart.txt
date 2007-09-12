@@ -1,0 +1,40 @@
+LABEL \anno=<box,pstyle=both>\
+<box,vertical>\
+<image=metno_sort,size=0.12>\
+<text="    met.no">\
+<text="  ">\
+<\box>\
+<text="  ">\
+<box,vertical>\
+<text="METEOROLOGISK INSTITUTT">\
+<text="DATE: %Beng %dth %Y">\
+<text="">\
+<text="DEN NASJONALE ISKARTTJENESTEN",pstyle=both>\
+<text="">\
+<text="VERVARSLINGA FOR NORD-NORGE">\
+<text="Adress:9293 Tromsø">\
+<text="Teleph: +47 77 68 44 Telefax +47 68 90 04">\
+<\box>\
+<\box> \
+anno=<box,vertical,pstyle=fill>\
+<text="Map Projection: Stereographic Conformal">\
+<text="Data Source:">\
+<text="This Ice chart is produced on the basis of data">\
+<text="from the following sources:">\
+<text="- Observations from ships and aircraft">\
+<text="- 1.5 km resolution NOAA/AVHRR satellite data">\
+<text="- 25 km resolution DMSP/SSM/I satellite data">\
+<\box> \
+anno=<table,title="Ice Categories",pstyle=fill,fcolour=white><horalign=left> \
+tcolour=black bcolour=black fcolour=white polystyle=none halign=left \
+valign=top xoffset=0.002 yoffset=0.002 xratio=0.271143 \
+yratio=0.0805731  margin=0.01
+
+
+
+
+
+
+
+
+

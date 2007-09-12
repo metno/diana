@@ -1,0 +1,37 @@
+# Amdar_temp stations
+#
+latitude=58.8  longitude=5.6    height=37   name="SOLA"       longname="STAVANGER/SOLA"
+latitude=59.3  longitude=10.7   height=53   name="RYGGE"
+latitude=60.2  longitude=11.1   height=201  name="GARDERMOEN" longname="OSLO/GARDERMOEN"
+latitude=60.3  longitude=5.2    height=50   name="FLESLAND"   longname="BERGEN/FLESLAND"
+latitude=62.5  longitude=6.1    height=22   name="VIGRA"      longname="ÅLESUND/VIGRA"
+latitude=63.4  longitude=10.9   height=17   name="VÆRNES"     longname="TRONDHEIM/VÆRNES"
+latitude=63.7  longitude=9.6    height=10   name="ØRLAND"
+latitude=69.0  longitude=18.5   height=79   name="BARDUFOSS"
+latitude=69.7  longitude=18.9   height=10   name="TROMSØ"     longname="TROMSØ/LANGNES"
+#
+latitude=59.3  longitude=17.9   height=15   name="BROMMA"     longname="STOCKHOLM/BROMMA"
+latitude=57.7  longitude=11.8   height=18   name="GØTEBORG"   longname="GØTEBORG/SAVE"
+latitude=57.6  longitude=12.5   height=164  name="LANDVETTER"
+latitude=55.6  longitude=12.6   height=5    name="KASTRUP"    longname="KØBENHAVN/KASTRUP"
+latitude=55.5  longitude=13.0   height=20   name="MALMØ"
+latitude=52.3  longitude=4.7    height=0    name="SCHIPHOL"   longname="AMSTERDAM/SCHIPHOL"
+latitude=52.1  longitude=5.1    height=2    name="DE BILT"
+latitude=51.4  longitude=-0.4   height=24   name="HEATHROW"   longname="LONDON/HEATHROW"
+latitude=63.5  longitude=10.9   height=13   name="VÆRNES"     longname="TRONDHEIM/VÆRNES"
+latitude=63.5  longitude=10.9   height=24   name="HEATHROW"   longname="LONDON/HEATHROW"
+latitude=63.1  longitude=7.8    height=62   name="KRISTIANSUND"   longname="KRISTIANSUND"
+latitude=62.6  longitude=6.1    height=22   name="VIGRA"   longname="ÅLESUND/VIGRA"
+latitude=59.4  longitude=5.2    height=24   name="KARMØY"   longname="HAUGESUND/KARMØY"
+latitude=69.1  longitude=18.5   height=79   name="BARDUFOSS" 
+latitude=70.0  longitude=23.4   height=3    name="ALTA" 
+latitude=69.7  longitude=29.9   height=91   name="HØYBUKT"   longname="KIRKENES/HØYBUKT"
+latitude=68.5  longitude=16.7   height=23   name="FRAMNES"   longname="NARVIK/FRAMNES"
+latitude=78.3  longitude=15.5   height=29   name="LONGYEAR"   longname="SVALBARD/LONGYEAR"
+latitude=67.3  longitude=14.4   height=13    name="BODØ" 
+latitude=62.8  longitude=7.3    height=3   name="ÅRØ"   longname="MOLDE/ÅRØ"
+
+
+
+
+

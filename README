@@ -1,0 +1,241 @@
+#=========================================
+DIANA
+#=========================================
+
+Norwegian Meteorological Institute (met.no)
+Box 43 Blindern
+0313 OSLO
+NORWAY
+
+email: diana@met.no
+
+Contents:
+1. About Diana
+2. Install
+3. Running Diana
+4. Configuration
+5. File formats
+
+#-------------------------------------------
+# 1. About Diana
+#-------------------------------------------
+
+Diana is the core visualisation tool from met.no (Norwegian
+Meteorological Institute) and is distributed under the GPL
+license. See gpl.txt for details concerning the GPL license.
+
+Diana is a graphical viewer and editor developed for use with
+meteorological and oceanographic data.  It uses OpenGL for the
+graphics and Trolltech Qt for the user interface.
+
+Diana shows fields, observations and satellite and radar images on a
+map. 2D-trajectories can be computed from wind and ocean current
+fields.  The tool also displays vertical profiles (soundings),
+vertical crossections and wave spectrum data in separate windows, all
+from preprocessed data. Preprocessing software is however not a part
+of Diana.  The editor tools consist of a field editor and a drawing
+tool for fronts, symbols and area types.
+
+Diana supports multiple languages via the Qt linguist
+system. Additional languages can be added by preparing new
+diana/lang/diana_XX.ts files (using the Qt linguist program) and
+running "make languages"
+
+In addition to the interactive tool, there is also a command line
+version of Diana for batch plotting (bdiana).
+
+User Guide and documentation in
+file:metnolocal/src/diana/doc/index.html (and
+file:metnolocal/diana/doc/index.html after install).  Doxygen style
+source code documentation in file:metnolocal/src/diana/html/index.html
+
+
+In addition, as a special exception, permission is granted to link the
+code of this release of Diana with the ECMWF "EMOS" library, and
+distribute the linked executables.  You must obey the GNU General
+Public License in all respects for all of the code used other than
+"EMOS".  If you modify this file, you may extend this exception to
+your version of the file, but you are not obligated to do so.  If you
+do not wish to do so, delete this exception statement from your
+version. 
+
+Depends on:
+Trolltech Qt
+OpenGL
+
+
++++++++++++++
+
+
+#-------------------------------------------
+# 2. Install
+#-------------------------------------------
+
+External library versions used at met.no
+----------------------------------------
+freetype2      - freetype-2.1.10.tar.gz
+ftgl           - ftgl-2.1.2.tar.gz
+libtiff        - version 3.6
+libmysqlclient - mySql, unknown version
+shapelib       - shapelib-1.2.10.tar.gz
+libemos        - emos_000281.tar.gz  (from ECMWF)
+HDF            - HDF 4.2
+
+# create toplevel directory and put all tar-files there
+mkdir DIANA
+mv diana_*tar.gz DIANA/
+mv tseries_demodata.tar.gz DIANA/
+mv shapelib-1.2.10.tar.gz DIANA/
+mv ftgl-2.1.2.tar.gz DIANA/
+cd DIANA
+# from now on, all directories referred to are from *this* location
+
+# Install necessary external libraries
+
+# IMPORTANT: to make sure shared object libraries are
+# found in /usr/local/lib
+# (You might want to put this in your .bashrc)
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+# unpack source
+tar xzvf diana_src.tar.gz
+
+# unpack data files
+cd metnolocal
+tar xzvf ../diana_demodata.tar.gz
+tar xzvf ../diana_maps.tar.gz
+
+# directories:
+metnolocal/src
+metnolocal/src/libs/conf
+metnolocal/src/libs
+metnolocal/src/conf
+metnolocal/src/diana
+metnolocal/src/tseries
+metnolocal/src/coserver
+
+Configurations for make needs attention: All Makefiles use the $OSTYPE
+env variable to find correct configurations. We have prepared special
+configuration files for OSTYPE=export. Make any necessary changes to
+these files, located in: metnolocal/src/libs/libmi/make.$OSTYPE
+metnolocal/src/libs/conf/$OSTYPE.mk metnolocal/src/conf/$OSTYPE.mk
+(see export.mk etc.)
+
+Then:
+export OSTYPE=export
+cd metnolocal/src/libs/libmi
+make
+cd metnolocal/src/libs
+
+#coserver
+make normal
+cd metnolocal/src/coserver
+make
+make install
+
+# time series viewer!
+cd metnolocal/src/tseries
+make
+make install
+
+#diana
+cd metnolocal/src/diana
+make
+make install   
+
+# the Diana package is now installed under metnolocal/diana
+
+#-------------------------------------------
+# 3 Running Diana
+#-------------------------------------------
+
+remember LD_LIBRARY_PATH! see above
+
+1. Prepare setupfile with exact installation directory:
+ cd metnolocal/diana/etc
+ # change TOPDIR and OPDATA variables in file "diana.setup-EXPORT-DEMO"
+ # for example:
+ TOPDIR=/home/username/DIANA/metnolocal
+ OPDATA=/home/username/DIANA/metnolocal/demodata
+
+2. Running Diana with the prepared test datasets and setup file:
+ The map  data sets should be installed under metnolocal/maps/
+ The test data sets should be installed under metnolocal/demodata/
+
+3. Starting Diana:
+ cd metnolocal/diana
+ bin/diana            # looks for diana.setup in current directory
+ # or
+ bin/diana -s diana.setup
+ # or
+ bin/diana -s etc/diana.setup-EXPORT-DEMO
+
+ Language is preset to English (Norwegian is the only other option, in
+ the setup file).  User guide available under Help.
+
+-----------------
+
+running bdiana:
+run "bin/bdiana -example" and study the Diana User Guide bdiana chapter.
+
+#-------------------------------------------
+# 4 Configuration files for diana
+#-------------------------------------------
+
+All specifications of data access (incl. background map files) is in
+etc/diana.setup-EXPORT-DEMO
+
+Adding to the setup file:
+ Convenient to make changes to metnolocal/diana/diana.setup. This
+ setup file is small and "includes" the larger
+ metnolocal/diana/etc/diana.setup-EXPORT-DEMO.  To add a new field
+ file to diana.setup, put the following inside the <FIELD_FILES>
+ section:
+ #----------------------------------------------
+ filegroup=SURGE
+ m=TOPO f=/disk1/SURGE/ETOPO2/bathymetry.flt  t=MetnoFieldFile
+ #-----------------------------------------------
+
+ If you need to add a new field parameter, the
+ <METNOFIELDFILE_PARAMETERS> section is the correct place (Check
+ diana.setup-EXPORT-DEMO first for existing parameters). You will also
+ need to add a PLOT comand for your new parameter, see the
+ <FIELD_PLOT> section.
+
+
+#-------------------------------------------
+# 5 File formats for diana
+#-------------------------------------------
+
+Current version supports following file formats
+
+Fields:                MetnoFieldFile (proprietary met.no)
+Observations:          MetnoObs       (proprietary met.no)
+	               BUFR
+Image (sat.,radar):    mitiff         (proprietary met.no)
+Prognostic sounding:   vprof          (proprietary met.no)
+vertical crossections: vcross         (proprietary met.no)
+Wave spectrum:         wamspec        (proprietary met.no)
+
+
+#-------------------------------------------
+# 6.1 Running Tseries
+#-------------------------------------------
+
+running Tseries with the prepared test datasets and configurations:
+
+1. The test data sets should be installed under metnolocal/demodata/
+
+2. Starting Tseries:
+cd metnolocal/tseries
+bin/tseries -s tseries.ctl_export
+
+Select the language of preference under "Preferences | languages" in the menu.
+User guide available under Help.
+
+
+running btseries: The batch version of this plotting package is called
+btseries and will be installed in the same place as Tseries. Try
+"bin/btseries" for command line help, and "bin/btseries -example" to
+dump a complete job control file.
+

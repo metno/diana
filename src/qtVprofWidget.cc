@@ -1,0 +1,151 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  $Id$
+
+  Copyright (C) 2006 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+  
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+//#define DEBUGPRINT
+//#define DEBUGREDRAW
+
+#include <qapplication.h>
+#include <qlayout.h>
+#include <qframe.h>
+#include <qimage.h>
+
+#include <qtVprofWidget.h>
+#include <diVprofManager.h>
+
+
+VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
+			 QWidget* parent, const char* name )
+    : QGLWidget( fmt, parent, name ), vprofm(vpm)
+{
+
+  if ( !isValid() ) {
+    fatal("Failed to create OpenGL rendering context on this display");
+  }
+
+  setFocusPolicy(QWidget::StrongFocus);
+}
+
+
+//  Set up the OpenGL rendering state
+void VprofWidget::initializeGL()
+{
+#ifdef DEBUGPRINT
+  cerr << "VprofWidget::initializeGL" << endl;
+#endif
+
+  glShadeModel( GL_FLAT );
+  setAutoBufferSwap(false);
+  glDrawBuffer(GL_BACK);
+}
+
+
+void VprofWidget::paintGL()
+{
+#ifdef DEBUGPRINT
+  cerr << "VprofWidget::paintGL" << endl;
+#endif
+#ifdef DEBUGREDRAW
+  cerr << "VprofWidget::paintGL" << endl;
+#endif
+
+  if (!vprofm) return;
+
+  vprofm->plot();
+
+  swapBuffers();
+}
+
+
+//  Set up the OpenGL view port, matrix mode, etc.
+void VprofWidget::resizeGL( int w, int h )
+{
+#ifdef DEBUGPRINT
+  cerr << "VprofWidget::resizeGL  w=" << w << " h=" << h << endl;
+#endif
+  if (vprofm) vprofm->setPlotWindow(w,h);
+
+  glViewport( 0, 0, (GLint)w, (GLint)h );
+  //plotw= w;
+  //ploth= h;
+  updateGL();
+
+  setFocus();
+}
+
+// ---------------------- event callbacks -----------------
+
+void VprofWidget::keyPressEvent(QKeyEvent *me)
+{
+  if (me->key()==Key_Left  ||
+      me->key()==Key_Right ||
+      me->key()==Key_Down  ||
+      me->key()==Key_Up) {
+  
+    if (me->key()==Key_Left){
+      vprofm->setTime(-1);
+      emit timeChanged(-1);
+    } else if (me->key()==Key_Right){
+      vprofm->setTime(+1);
+      emit timeChanged(+1);
+    }else if (me->key()==Key_Down){
+      vprofm->setStation(-1);
+      emit stationChanged(-1);
+    }else if (me->key()==Key_Up){
+      vprofm->setStation(+1);
+      emit stationChanged(+1);
+    } 
+    updateGL();
+  }
+}
+
+
+bool VprofWidget::saveRasterImage(const miString fname,
+			          const miString format,
+			          const int quality)
+{
+  // problems on SGI - make sure plot is flushed properly
+  updateGL();
+  makeCurrent();
+  glFlush();
+
+#ifndef linux
+  QApplication::flushX();
+
+  updateGL();
+  makeCurrent();
+  glFlush();
+#endif
+
+  // test of new grabFrameBuffer command
+  QImage image= grabFrameBuffer(true); // withAlpha=TRUE
+  image.save(fname.cStr(), format.cStr(), quality );
+
+  return true;
+}

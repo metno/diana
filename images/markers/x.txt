@@ -1,0 +1,7 @@
+#kryss
+lw 2
+mvto -6,-6
+lto 6,6
+mvto 6,-6
+lto -6,6
+

@@ -1,0 +1,6 @@
+[NAME UALF_Lyn]
+[COLUMNS
+Ver:f Year:year Month:month Day:day Hour:hour Min:min Sec:sec Ns:f
+Lat:lat Lon:lon Pk:f Fd:f No_sens:f Df:f Ea:r Major:r Minor:r Chi:r
+Rise:r Pz:r Mrr:r Ci:f Ai:f Sig_i:f Ti:f]
+[DATA]

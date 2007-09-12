@@ -1,0 +1,135 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer 
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Ecmwf EPS"
+
+# variables
+[Bakgrunn= lightGray,black,orange]
+[Kartfarge= darkGreen,white,black]
+#[EC= blue,red,green,cyan,magenta,yellow,white,black]
+#[EPS= red,blue,green,cyan,magenta,yellow,white,black]
+#[EPS.Mean= magenta,blue,red,green,cyan,yellow,white,black]
+#
+>NEDB>5mm/døgn og NEDB>10mm/døgn
+FIELD EC.EPS Probability_Precip>5mm/24h colour=red linetype=solid linewidth=2 line.interval=20
+FIELD EC.EPS Probability_Precip>10mm/24h colour=blue linetype=solid linewidth=2 line.interval=20
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>NEDB>5mm/døgn og EC 12 24T.NEDBØR
+FIELD EC.EPS Probability_Precip>5mm/24h colour=red linetype=solid linewidth=2 line.interval=20
+FIELD EC.12 NEDBØR.24T colour=lightBlue linetype=solid linewidth=2 line.interval=10
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>VIND>10m/s og VIND>15m/s
+FIELD EC.EPS Probability_Wind>10m/s colour=red linetype=solid linewidth=2 line.interval=20
+FIELD EC.EPS Probability_Wind>15m/s colour=blue linetype=solid linewidth=2 line.interval=20
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>T850.ANOMALI<-4 og T850.ANOMALI>+4
+FIELD EC.EPS Probability_T850_Anomaly<-4 colour=blue linetype=solid linewidth=2 line.interval=20
+FIELD EC.EPS Probability_T850_Anomaly>+4 colour=red linetype=solid linewidth=2 line.interval=20
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>T.MEAN 850, cluster 1 og 2
+FIELD EC.EPS Tmean_850hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=3
+FIELD EC.EPS Tmean_850hPa level2=CL.2 colour=green linetype=solid linewidth=2 line.interval=3
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>T.MEAN 500, cluster 1 og 2
+FIELD EC.EPS Tmean_500hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=3
+FIELD EC.EPS Tmean_500hPa level2=CL.2 colour=green linetype=solid linewidth=2 line.interval=3
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Z.MEAN 1000, cluster 1 og 2
+FIELD EC.EPS Zmean_1000hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=40
+FIELD EC.EPS Zmean_1000hPa level2=CL.2 colour=green linetype=solid linewidth=2 line.interval=40
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Z.MEAN 500, cluster 1 og 2
+FIELD EC.EPS Zmean_500hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=40
+FIELD EC.EPS Zmean_500hPa level2=CL.2 colour=green linetype=solid linewidth=2 line.interval=40
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>T.MEAN 850, cluster 1 og middel av alle prognoser
+FIELD EC.EPS Tmean_850hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=3
+FIELD EC.EPS Tmean_850hPa level2=Middel colour=blue linetype=solid linewidth=2 line.interval=3
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Z.MEAN 1000, cluster 1 og middel av alle prognoser
+FIELD EC.EPS Zmean_1000hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=40
+FIELD EC.EPS Zmean_1000hPa level2=Middel colour=blue linetype=solid linewidth=2 line.interval=40
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Z.MEAN 500, cluster 1 og middel av alle prognoser
+FIELD EC.EPS Zmean_500hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=40
+FIELD EC.EPS Zmean_500hPa level2=Middel colour=blue linetype=solid linewidth=2 line.interval=40
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>T 850, standard EC 12 og middel av alle EPS prognoser
+FIELD EC.EPS Tmean_850hPa level2=Middel colour=yellow linetype=solid linewidth=2 line.interval=3
+FIELD EC.12 T level=850hPa colour=lightBlue linetype=solid linewidth=2 line.interval=3
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Z 1000, standard EC 12 og middel av alle EPS prognoser
+FIELD EC.EPS Zmean_1000hPa level2=Middel colour=yellow linetype=solid linewidth=2 line.interval=40
+FIELD EC.12 Z level=1000hPa colour=lightBlue linetype=solid linewidth=2 line.interval=40
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>Z 500, standard EC 12 og middel av alle EPS prognoser
+FIELD EC.EPS Zmean_500hPa level2=Middel colour=yellow linetype=solid linewidth=2 line.interval=40
+FIELD EC.12 Z level=500hPa colour=lightBlue linetype=solid linewidth=2 line.interval=40
+MAP area=modell/sat-område backcolour=@Bakgrunn map=Euro1 cont.colour=@Kartfarge cont.linewidth=1
+MAP map=Euro3 cont.colour=@Kartfarge cont.linewidth=1 
+LABEL data 
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#

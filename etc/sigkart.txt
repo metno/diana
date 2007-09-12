@@ -1,0 +1,37 @@
+LABEL anno=<text="SIGWX SFC -FL400"><horalign=center> \
+anno=<text="FIXED TIME PROGNOSTIC CHART "><horalign=center> \
+anno=<text="VALID %H UTC %d-%m-%Y"><horalign=center> \
+plotrequested=true tcolour=black \
+bcolour=black fcolour=white polystyle=both halign=right valign=top \
+font=Helvetica fontsize=12 face=bold xoffset=0.002 yoffset=0.002 margin=0.015 \
+linewidth=4 xratio=0.412143 yratio=0.0737501
+
+LABEL anno=<image=metno_sort_txt_big2,size=0.12><horalign=center> \
+plotrequested=true \
+tcolour=black bcolour=black fcolour=white polystyle=both halign=left \
+valign=top xoffset=0.002 yoffset=0.002 xratio=0.271143 yratio=0.0805731
+
+LABEL anno=<text=Symbols><symbol=119,font=Symbol,size=1.0><text=and>\
+<text=CB,face=bold><text="imply moderate"> text="or severe \
+turbulence, icing and hail..." \
+text="Units used:" text="Temperature: Deg C " text="Velocity:KT" \
+text="Visibility:m or km " \
+text="Altitude:FL or hectofeet above MSL." text="Jet streams and CAT \
+areas not included." \
+text="NSC: No clouds below 5000 ft, no CB/TCU." \
+plotrequested=true tcolour=black bcolour=black fcolour=white \
+polystyle=both halign=right valign=bottom font=Helvetica fontsize=10 \
+xoffset=0.002 yoffset=0.002 margin=0.015 xratio=0.403214 yratio=0.165
+
+MAP area=SIGkart backcolour=white map=Vanlig contour=on \
+cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
+land=off latlon=off frame=on
+
+
+
+
+
+
+
+
+

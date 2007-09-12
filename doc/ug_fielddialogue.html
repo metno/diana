@@ -1,0 +1,226 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Fields </title>
+  </head>
+
+  <body>
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Fields &nbsp;|&nbsp;
+<a href="ug_mapdialogue.html">Previous: Maps </a>&nbsp;|&nbsp;
+<a href="ug_obsdialogue.html">Next: Observations </a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+
+    <h2>
+      <a NAME="Fielddialogue"></a>
+      <img SRC="field_icon.png" align="MIDDLE" ALT="Field dialogue"> Fields </h2>
+    &nbsp;
+    <table BORDER="0">
+      <tr>
+	<td><img SRC="fielddialogue.png" align="MIDDLE" ALT="Field dialogue"></td>
+
+	<td>
+	  <ul>
+	    <li>
+	    <b>Model group</b> - when a model group is chosen, the available models are 
+	    shown.</li>
+	    <li>
+	      <b>Model</b> - when a model is chosen, one of the available field groups 
+	      with associated fields is shown.</li>
+	    <li>
+	      <b>Field group</b> - when a field group is chosen, the available fields 
+	    are shown.</li>
+	    <li>
+	      <b>Field</b> - when a field is chosen it will appear in "Selected fields".</li>
+	    <li>
+	      <b>Selected fields</b> - shows which fields have been chosen.&nbsp;<br><br>
+	      <img SRC="fieldbuttons1.png" ALT="Field buttons"></li>
+	    <li>
+	      <b>Delete</b> removes the marked field.</li>
+	    <li>
+	      <b>Delete all</b> removes all of the selected fields.</li>
+	    <li>
+	      <b>Model</b> changes model to the marked model under "models",
+	      applies to all fields with the same model as the marked one.</li>
+	    <li>
+	      <b>Copy</b> copies the marked fields. This allows for showing several 
+	      levels at the same time.<br><br>
+	      <img SRC="fieldbuttons2.png" ALT="Field buttons - earlier commands"></li>
+	    <li>
+	      <b>Up and down button</b> used to go through earlier commands (including 
+	      earlier Diana sessions). The command is shown under "Selected field".</li>
+	    <li>
+	      <b>OK</b> (when the button is red) is used to execute the command. (This 
+	      also checks whether the fields still exist).&nbsp;</li>
+	  </ul>
+		  <table>
+	  <tr>
+	  <td width="50" align="right">
+	    <img SRC="fieldbuttons3.png" ALT="Field buttons"><br>
+	  </td>
+	  <td>
+	  <ul>
+	    <li>
+	      <b>Up and down button</b> changes the order of the fields.</li>
+	    <li>
+	      <b>R</b> resets all attributes (colour, thickness, etc) of the selected field.</li>
+	    <li>
+	      <b>-</b> <b>The difference between two fields.</b> The selected field 
+	      is subtracted from the above field. Resolution and all attributes are 
+	      defined by the first field. Layer, time deviation and time difference are 
+	      the only attributes chosen separately for the two fields.<br><br>
+	      <img SRC="field-difference.png" ALT="Field difference">
+		  </li>
+	  </ul>
+	  </td>
+	  </tr>
+          </table>
+    
+	</td>
+      </tr>
+    </table>
+      
+      <!-- PAGEBREAK -->
+    <ul>
+      <li>
+  The vertical slider shows pressure, model, or other levels depending on the field group.</li>
+      <li>
+  The horizontal slider shows EPS cluster, member, or other type depending on the field group.</li>
+      <li>
+  Line colour - change colour of the contour lines for selected fields. If "off" is 
+  chosen, no contour lines are shown.
+      <li>
+  Line width - change line width for selected fields (inc. wind arrows 
+  and current).&nbsp;</li>
+      <li>
+	Line type - change line type for selected field (isolines).</li>
+      <li>
+  Line interval - change line interval for selected field (does not apply to 
+  precipitation,...).&nbsp;</li>
+      <li>
+  Density - change density of wind/vectors for selected field.</li>
+      <li>
+  Unit - change unit (length) of wind-arrow/current/vector for selected field.</li>
+      <li>
+  Min, max - choose whether to show L/H or C/W for extreme points in selected field.&nbsp;</li>
+      <li>
+	<b>All timesteps</b> is used to show all times when at least one of the two 
+	selected fields exist. Otherwise only times when all fields exist are 
+	shown.&nbsp;</li>
+      <li>
+	<b>More &gt &gt /&lt &lt Less</b> used to show more/less options, se below.</li>
+      <li>
+  The time slider will continuously be updated with the time steps which are 
+  <i>common</i> for the fields in "Selected fields". If <b>All timesteps</b> 
+  has been selected, the union of the time steps will be used.
+     </li>
+  </ul>     
+
+      <!-- PAGEBREAK -->
+
+    <h2>
+	<a NAME="Fieldadvanced"></a>
+	Fields, advanced part</h2> 
+	 This part of the dialogue is shown when the
+	<b>"More &gt &gt "</b>
+	 button is clicked, and disappears when the <b>" &lt &lt Less"</b> button is clicked.
+	<br>  
+    <table WIDTH="80%">
+      <tr>
+	      <td valign="top"><img SRC="fielddialogue-advanced.png"  ALT="Advanced fielddialogue"></td>
+
+	      <td>
+	  <ul>
+	    <li>
+	      Min, max size - size of marking (L/H, C/W).</li>
+	    <li>
+	      Min, max radius - search radius, will change the number of L/H, C/W shown.</li>
+	    <li>
+	    	Smooth lines - smoothes isolines by entering no. of extra points. Gives a 
+	    	nicer look, when a small field-area is displayed.</li>
+	    <li>
+	    	Smooth fields - smoothes fields before they are displayed (for 
+	    	wind-/vectorfields u and v are smoothed separately). No. of smoothing 
+	    	operations is selected. Method: "Low-bandpass filter", which removes 
+	    	short wavelengths ("noise").</li>
+	    <li>
+	    	Grid lines in selected resolution (1=all) shows lines along constant x 
+	    	and y axis.</li>
+	    <li>
+	    	Time offset is used to show fields with different times, the offset 
+	    	is given in hours relatively to "valid time" (negative=earlier, 
+	    	positive=later).</li>
+	    <li>
+	      Time diff. shows the maximum allowed difference between chosen time 
+	      and field time. The field closest in time is always chosen.</li>
+	    <li>
+	    	Undefined - marks undefined/missing values in fields, e.g. land point in 
+	    	wave model. Colour, line-thickness and -type can be selected.</li>
+	    <li>
+	    	Numbers on isolines can be turned on/off, and the no.-size can be altered
+	    	(relative standard-size).</li>
+	    <li>
+	    	Zero-line can be deleted from certain fields (defined in the 
+	    	setup-file). E.g. trend</li>
+	    <li>
+	      Table - annotation table on the map.
+	    </li>
+	    <li>
+	    	Repeat - the palette is cyclic.
+	    </li>
+      <!-- PAGEBREAK -->
+	    <li>
+	    	Palette - change colour palette for selected fields. If "off" is 
+	    	chosen, the field is not coloured. No. of colours in the palette can be 
+	    	chosen and interpolation is done between the first and the last colour 
+	    	"Auto" means the colours from the setup-file is used.
+	    </li>
+	    <li>
+	    	Palette (-) - Other colour palette under base value.
+	    </li>
+	    <li>
+	    	Pattern - the field is plotted with a pattern. If the colour is set to 
+	    	"auto", the colour from the palette (or the line colour) is used.
+	    </li>
+	    <li>
+	    	Alpha value - transparency for selected fields.
+	    </li>
+	    <li>
+	    	Base value - 
+	    </li>
+	    <li>
+	    	Min value - contour lines with values under min value are not displayed.
+	    </li>
+	    <li>
+	    	Max value - contour lines with values over max value are not displayed.
+	    </li>
+	    <li>
+	    	Extra contour lines - can be used e.g. to draw some contour lines with 
+	    	thicker lines or in other colours.
+	    </li>
+	  </ul>
+	</td>
+      </tr>
+    </table>
+    
+    <br>
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Fields &nbsp;|&nbsp;
+<a href="ug_mapdialogue.html">Previous: Maps </a>&nbsp;|&nbsp;
+<a href="ug_obsdialogue.html">Next: Observations </a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+
+  </body>
+</html>

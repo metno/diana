@@ -1,0 +1,7 @@
+#square
+lw 1
+mode fill
+mvto -8,-6
+lto 0,10
+lto 8,-6
+lto -8,-6

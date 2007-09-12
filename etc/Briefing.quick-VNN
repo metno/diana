@@ -1,0 +1,111 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Briefing"
+
+# variables
+[UTC=00,06,12,18
+[Bakgrunn=white,grayWhite,lightGray,black,orange
+[Kart=black,darkGreen,white
+
+#
+>Aktuell situasjon:
+#
+>Siste analyse med satellittbilde og observasjoner
+FIELD DNMI.ANA MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBS plot=Synop data=Synop,Dribu,Metar,QScat parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Kjtegn,St.nr,Tid  tempprecision=true density=1 scale=1 timediff=180 colour=black font=Helvetica face=normal
+SAT METEOSAT IR IR+V timediff=60 cut=0.02 alfacut=0 alfa=0.65 font=Helvetica face=normal
+SAT NOAA N-Europa day_night timediff=60 cut=0.02 alfacut=0 alfa=0.7 font=Helvetica face=normal
+SAT Radar Nordic_1h_dBz PSC_Z timediff=60 alfa=0.6 Table=0 hide=0,11,12,13, font=Helvetica face=normal
+OBJECTS NAME="DNMI Bakkeanalyse" types=front,symbol,area timediff=60 alfa=1
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>MSLP fra tre siste Hirlam00-kjøringer
+FIELD HIRLAM.00 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD HIRLAM.00-1 MSLP colour=red linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD HIRLAM.00-2 MSLP colour=green linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>MSLP fra Hirlam00, UK00 og EC12
+FIELD HIRLAM.00 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-UK.00 MSLP colour=darkGreen linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-EC.12 MSLP colour=red linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Nedbør fra Hirlam00, UKfin00 og EC12
+FIELD HIRLAM.00 NEDBØR.6T colour=blue linetype=solid linewidth=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-UKFIN.00 NEDBØR.6T colour=green linetype=solid linewidth=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-EC.12 NEDBØR.6T colour=red linetype=solid linewidth=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>MSLP fra Hirlam12, UK12 og EC12
+FIELD HIRLAM.12 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-UK.12 MSLP colour=darkGreen linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-EC.12 MSLP colour=red linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Nedbør fra Hirlam12, Ukfin12 og EC12
+FIELD HIRLAM.12 NEDBØR.6T colour=blue linetype=solid linewidth=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-UKFIN.12 NEDBØR.6T colour=green linetype=solid linewidth=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-EC.12 NEDBØR.6T colour=red linetype=solid linewidth=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Høydefelt Z 500 hPa og tykkelse 500-1000 fra Hirlam
+FIELD HIRLAM.@UTC Z level=500hPa colour=blue linetype=solid linewidth=2 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD HIRLAM.@UTC DZ(500-1000) colour=red linetype=dash linewidth=2 line.interval=40 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBS plot=Trykk data=Temp,Pilot,Aireps parameter=HHH  tempprecision=true level=500 density=1 scale=2 timediff=0 colour=black font=Helvetica face=normal
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>
+#
+>Langtidsvær:
+#
+>MSLP og nedbør fra EC12
+FIELD EC.12 Z level=1000hPa colour=blue linetype=solid linewidth=2 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.12 NEDBØR.12T colour=darkGreen linetype=solid linewidth=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.12 DZ(500-1000) colour=red linetype=dash linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Høydefelt Z 500 hPa og tykkelse 500-1000 fra EC12
+FIELD EC.12 Z level=500hPa colour=blue linetype=solid linewidth=2 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.12 DZ(500-1000) colour=red linetype=dash linewidth=2 line.interval=40 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Sammenligning av EC.EPS alle cluster samt hovedkjøringen
+FIELD EC.EPS Zmean_500hPa level2=CL.1 colour=red linetype=solid linewidth=2 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.EPS Zmean_500hPa level2=CL.2 colour=blue linetype=solid linewidth=2 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.EPS Zmean_500hPa level2=CL.3 colour=green linetype=solid linewidth=2 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.EPS Zmean_500hPa level2=CL.4 colour=magenta linetype=solid linewidth=2 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=0.8 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-EC.12 Z level=500hPa colour=gray linetype=solid linewidth=2 line.interval=20 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+MAP area=modell/sat-område backcolour=white showframe=yes map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12

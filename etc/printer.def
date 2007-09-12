@@ -1,0 +1,117 @@
+#  MANUAL POSTSCRIPT-COMMANDS
+#  -----------------------------------------------
+#  Syntax for printer definition file:
+#  -----------------------------------------------
+#  # comments starts with '#'
+#  # -- New Printer --
+#  printer=fou3, pagesize=A3
+#  COMMENT={{
+#  << commands to insert in comment-section >>
+#  }}
+#  PROLOG={{
+#  << commands to insert at start of prolog-section >>
+#  }}
+#  PAGE={{
+#  << commands to insert at start of each page >>
+#  }}
+#  TRAILER={{
+#  << commands to insert before %%EOF >>
+#  }}
+#  # -- New Printer --
+#  printer=farge
+#  PROLOG={{
+#  << .... >>
+#  }}
+#  -----------------------------------------------
+#  OBS: Write more specialized keys first!
+#  With:
+#     printer=fou3
+#     PROLOG={{
+#     ...........
+#     }}
+#     #
+#     printer=fou3, pagesize=A4
+#     PROLOG={{
+#     ...........
+#     }}
+#  the first entry will always be used for printer fou3!!!
+#
+#--------------------------------------------------------
+# FoU3
+printer=fargeva,pagesize=A3
+COMMENT={{
+%% A3 commands for fargeva
+#statusdict begin 3 setpapertray end
+/inch {72 mul} def
+/pagewidth 11.69 inch def
+/pageheight 16.5 inch def
+<< /PageSize [ pagewidth pageheight ] >> setpagedevice
+}}
+#
+#
+printer=fargeva,pagesize=A4
+COMMENT={{
+%% Comment A4 commands for fargeva
+}}
+PROLOG={{
+%% PROLOG A4 commands for fargeva
+}}
+PAGE={{
+%% PAGE A4 commands for fargeva
+}}
+TRAILER={{
+%% TRAILER A4 commands for fargeva
+}}
+#
+#
+printer=salen,pagesize=A3
+COMMENT={{
+%% A3 commands for salen
+#statusdict begin 3 setpapertray end
+/inch {72 mul} def
+/pagewidth 11.69 inch def
+/pageheight 16.5 inch def
+<< /PageSize [ pagewidth pageheight ] >> setpagedevice
+}}
+#
+#
+printer=salen,pagesize=A4
+COMMENT={{
+%% Comment A4 commands for salen
+}}
+PROLOG={{
+%% PROLOG A4 commands for salen
+}}
+PAGE={{
+%% PAGE A4 commands for salen
+}}
+TRAILER={{
+%% TRAILER A4 commands for salen
+}}
+#
+#
+printer=salto,pagesize=A3
+COMMENT={{
+%% A3 commands for salto
+#statusdict begin 3 setpapertray end
+/inch {72 mul} def
+/pagewidth 11.69 inch def
+/pageheight 16.5 inch def
+<< /PageSize [ pagewidth pageheight ] >> setpagedevice
+}}
+#
+#
+printer=salto,pagesize=A4
+COMMENT={{
+%% Comment A4 commands for salto
+}}
+PROLOG={{
+%% PROLOG A4 commands for salto
+}}
+PAGE={{
+%% PAGE A4 commands for salto
+}}
+TRAILER={{
+%% TRAILER A4 commands for salto
+}}
+
