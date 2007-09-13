@@ -568,6 +568,50 @@ vector<miTime> ObsManager::getObsTimes(const vector<miString>& pinfos)
 
 }
 
+
+//returns times where time - sat/obs-time < mindiff
+vector<miTime> ObsManager::timeIntersection(const vector<miString>& pinfos,
+					    const vector<miTime>& times)
+{
+
+  vector<miTime> oktimes = times;
+
+  int n= pinfos.size();
+  for (int i=0; i<n; i++){
+    vector<miString> tokens= pinfos[i].split('"','"');
+    int m= tokens.size();
+    if (m<3 || tokens[0].downcase() != "obs") continue;
+    vector<miString> obsTypes;
+    int timediff = 0;
+    for(int j=0; j<tokens.size();j++){
+      vector<miString> stokens= tokens[j].split("=");
+      if(stokens.size()==2 && stokens[0].downcase()=="data"){
+	obsTypes = stokens[1].split(",");
+      }
+      else if(stokens.size()==2 && stokens[0].downcase()=="timediff"){
+	timediff=stokens[1].toInt();
+      }
+    }
+
+    vector<miTime> obstimes = getTimes(obsTypes);
+    vector<miTime> tmptimes;
+    int nobs=obstimes.size();
+
+    for(int j=0; j<oktimes.size(); j++){
+      int k=0;
+      while( k<nobs && 
+	     abs(miTime::minDiff(oktimes[j],obstimes[k])) >timediff ) k++; 
+      if(k<nobs) tmptimes.push_back(times[j]); //time ok
+    }
+    
+    // update times 
+    oktimes = tmptimes;
+  }
+  
+  return oktimes;
+}
+
+
 // return observation times for list of obsTypes
 vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
 {

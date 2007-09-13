@@ -1054,6 +1054,46 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos)
   return timevec;
 }
 
+//returns times where time - sat/obs-time < mindiff
+vector<miTime> SatManager::timeIntersection(const vector<miString>& pinfos,
+					    const vector<miTime>& times)
+{
+
+  vector<miTime> oktimes=times;
+
+  int n= pinfos.size();
+  for (int i=0; i<n; i++){
+    vector<miString> tokens= pinfos[i].split('"','"');
+    int m= tokens.size();
+    if (m<3 || tokens[0].downcase() != "sat") continue;
+    miString satellite= tokens[1];
+    miString file = tokens[2];
+    vector<SatFileInfo> finfo = getFiles(satellite,file,false);
+    int timediff = 0;
+    for(int j=0; j<tokens.size();j++){
+      vector<miString> stokens= tokens[j].split("=");
+      if(stokens.size()==2 && stokens[0].downcase()=="timediff"){
+	timediff=stokens[1].toInt();
+      }
+    }
+    vector<miTime> tmptimes;
+    int nfinfo=finfo.size();
+
+    for(int j=0; j<oktimes.size(); j++){
+      int k=0;
+      while( k<nfinfo && 
+	     abs(miTime::minDiff(oktimes[j],finfo[k].time)) >timediff ) k++; 
+      if(k<nfinfo) tmptimes.push_back(times[j]); //time ok
+    }
+
+    // update times 
+    oktimes = tmptimes;
+  }
+  
+  return oktimes;
+
+}
+
 void SatManager::updateFiles(){
 
 //  * PURPOSE: sets flag to update filelists for all satellites   

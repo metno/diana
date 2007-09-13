@@ -169,6 +169,9 @@ public:
   bool parseSetup(SetupParser &);
 //return observation times for list of PlotInfo's
   vector<miTime> getTimes( vector<miString> pinfos);
+  ///returns times where time - sat/obs-time < mindiff
+  vector<miTime> timeIntersection(const vector<miString>& pinfos,
+				  const vector<miTime>& times);
 // return observation times for list of obsTypes
   vector<miTime> getObsTimes(const vector<miString>& obsTypes);
   bool obs_mslp(){return mslp;}

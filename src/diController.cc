@@ -641,6 +641,14 @@ const vector<SatFileInfo>& Controller::getSatFiles(const miString& satellite,
   return satm->getFiles(satellite,file,update);
 }
 
+vector<miTime> Controller::timeIntersection(const vector<miString> & pinfos,
+					    const vector<miTime>& times){
+  vector<miTime> t;
+  t = satm->timeIntersection(pinfos,times);
+  return obsm->timeIntersection(pinfos,t);
+}
+
+
 const vector<Colour>& Controller::getSatColours(const miString& satellite,
                                                    const miString& file){
   return satm->getColours(satellite,file);
@@ -732,6 +740,11 @@ void Controller::getAllFieldOptions(map<miString,miString>& fieldoptions,
 miString Controller::getFieldClassSpecifications(const miString& fieldname)
 {
   return fieldm->getFieldClassSpecifications(fieldname);
+}
+
+vector<miString> Controller::getFieldLevels(const miString& pinfo)
+{
+  return fieldm->getFieldLevels(pinfo);
 }
 
 void Controller::getFieldGroups(const miString& modelNameRequest,

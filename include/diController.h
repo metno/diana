@@ -127,6 +127,9 @@ public:
   /// return plottimes for fields, satellites,observations and edit products
   void getPlotTimes(vector<miTime>& ftimes,vector<miTime>& stimes,
 		    vector<miTime>& otimes,vector<miTime>& ptimes);
+  ///returns times where time - sat/obs-time < mindiff
+  vector<miTime> timeIntersection(const vector<miString>& pinfos,
+				  const vector<miTime>& times);
   /// returns the current product time
   bool getProductTime(miTime& t);
   /// returns the current product name
@@ -257,6 +260,8 @@ public:
   void getAllFieldOptions(map<miString,miString>& fieldoptions,
 			  set<miString>& fieldprefixes,
 			  set<miString>& fieldsuffixes);
+  ///return levels
+  vector<miString> getFieldLevels(const miString& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const miString& modelNameRequest,
 		      miString& modelName, vector<FieldGroupInfo>& vfgi);

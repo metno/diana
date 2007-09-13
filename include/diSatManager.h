@@ -127,6 +127,10 @@ public:
   bool setData(SatPlot *);
   vector<miTime> getSatTimes(const vector<miString>&);
 
+  ///returns times where time - sat/obs-time < mindiff
+  vector<miTime> timeIntersection(const vector<miString>& pinfos,
+				  const vector<miTime>& times);
+
   const vector<SatFileInfo> & getFiles(const miString &, 
 				       const miString &, 
 				       bool =false);
