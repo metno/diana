@@ -129,6 +129,11 @@ const miString com_trajectory_opt     = "trajectory_options";
 const miString com_trajectory_print   = "trajectory_print";
 const miString com_setup_field_info   = "setup_field_info";
 
+const miString com_time_opt           = "time_options";
+const miString com_time               = "time";
+const miString com_endtime            = "endtime";
+const miString com_level              = "level";
+const miString com_endlevel           = "endlevel";
 
 enum image_type {
   image_rgb= 0,
@@ -235,6 +240,8 @@ bool plot_trajectory=    false;
 bool trajectory_started= false;
 
 miString trajectory_options;
+
+miString time_options;
 
 // list of lists..
 vector<stringlist> lists;
@@ -671,6 +678,27 @@ void parse_spectrum_options(const vector<miString>& opts)
   }
 }
 
+/* Make union of all times and sort */
+vector<miTime> timeUnion(vector< vector< miTime> >& times)
+{
+
+  set<miTime> timeset;
+  vector<miTime> oktimes;
+
+  int n=times.size();
+  for(int i=0; i<n; i++){
+    int m=times[i].size();
+    for(int j=0; j<m; j++){
+      timeset.insert(times[i][j]);
+    }
+  }
+  if (timeset.size()>0) {
+    set<miTime>::iterator p= timeset.begin();
+    for (; p!=timeset.end(); p++) oktimes.push_back(*p);
+  }
+
+  return oktimes;
+}
 
 /*
   parse setupfile
@@ -1426,6 +1454,111 @@ int parseAndProcess(const miString& file)
 
       continue;
       
+    } else if (lines[k].downcase() == com_time ||
+	       lines[k].downcase() == com_level) {
+
+      // read setup
+      if (!setupread){
+	setupread= readSetup(setupfile, *printman);
+	if (!setupread){
+	  cerr << "ERROR, no setupinformation..exiting" << endl;
+	  return 99;
+	}
+      }
+      
+      // Make Controller
+      if (!main_controller){
+	main_controller= new Controller;
+	if (!main_controller->parseSetup()) {
+	  cerr << "ERROR, an error occured while main_controller parsed setup: "
+	       << setupfile << endl;
+	  return 99;
+          }
+      }
+
+      if (lines[k].downcase() == com_time){
+
+	if (verbose) cout << "- finding times" << endl;
+
+	//Find ENDTIME
+	vector<miString> pcom;
+	for (int i=k+1;
+	     i < linenum
+	       && lines[i].downcase()!=com_endtime;
+	     i++,k++)
+	  pcom.push_back(lines[i]);
+	k++;
+	
+	// necessary to set time before plotCommands()..?
+	thetime= miTime::nowTime();
+	main_controller->setPlotTime(thetime);
+	
+	if (verbose) cout << "- sending plotCommands" << endl;
+	main_controller->plotCommands(pcom);
+	
+	vector<miTime> ftimes, stimes, otimes, ptimes,oktimes;
+	main_controller->getPlotTimes(ftimes,stimes,otimes, ptimes);
+	
+	if(time_options =="union"){
+	  vector< vector< miTime> > alltimes;
+	  alltimes.push_back(ftimes);
+	  alltimes.push_back(stimes);
+	  alltimes.push_back(otimes);
+	  alltimes.push_back(ptimes);
+	  oktimes = timeUnion(alltimes);
+	} else {
+	  oktimes = main_controller->timeIntersection(pcom,ftimes);
+	}
+	
+	// open filestream
+	ofstream file(priop.fname.c_str());
+	if (!file){
+	  cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+	  return 1;
+	}
+	for(int i=0;i < oktimes.size(); i++){
+	  file << oktimes[i].isoTime()<<endl;
+	}
+	cerr << endl;
+	file.close();
+	
+      } else if (lines[k].downcase() == com_level) {
+
+	if (verbose) cout << "- finding levels" << endl;
+      
+	//Find ENDLEVEL
+	vector<miString> pcom;
+	for (int i=k+1;
+	     i < linenum
+	       && lines[i].downcase()!=com_endlevel;
+	     i++,k++)
+	  pcom.push_back(lines[i]);
+	k++;
+	
+	vector<miString> levels;
+	
+	// open filestream
+	ofstream file(priop.fname.c_str());
+	if (!file){
+	  cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+	  return 1;
+	}
+	
+	for(int i=0;i < pcom.size(); i++){
+	  levels=main_controller->getFieldLevels(pcom[i]);
+	  
+	  for(int i=0;i < levels.size(); i++){
+	    file << levels[i]<<endl;
+	  }
+	  file <<endl;
+	}
+	
+	file.close();
+
+      }
+
+      continue;
+
     } else if (lines[k].downcase()==com_print_document) {
       if (raster){
 	cerr << " ERROR, trying to print raster-image!" << endl;
@@ -1881,8 +2014,8 @@ int parseAndProcess(const miString& file)
     } else if (key==com_trajectory_print){
       main_controller->printTrajectoryPositions(value);
       
-//     } else if (key==com_setup_field_info){
-//       main_controller->printSetupFieldInfo(value);
+    } else if (key==com_time_opt){
+      time_options=value.downcase();
       
     } else {
       cerr << "WARNING, unknown command:" << lines[k]
