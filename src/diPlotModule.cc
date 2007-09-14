@@ -2660,7 +2660,7 @@ vector <miString> PlotModule::writeAnnotations(miString prodname){
 
 void PlotModule::updateEditLabels(vector <miString> productLabelstrings,
 			          miString productName, bool newProduct){
-  cerr <<"updateEditLabels"<<endl;
+  cerr <<"diPlotModule::updateEditLabels"<<endl;
   int n;
   vector <AnnotationPlot*> oldVap; //display object labels
   //read the old labels...
@@ -2677,9 +2677,7 @@ void PlotModule::updateEditLabels(vector <miString> productLabelstrings,
   for (int j=0; j<m; j++){
     AnnotationPlot* ap = new AnnotationPlot(productLabelstrings[j]);
     ap->setProductName(productName);
-    // here we compare the labels, take input from oldVap
-    for (int i = 0;i<n;i++)
-      ap->updateInputLabels(oldVap[i],newProduct);
+
 
     vector< vector<miString> > vvstr = ap->getAnnotationStrings();
     int nn=vvstr.size();
@@ -2690,7 +2688,12 @@ void PlotModule::updateEditLabels(vector <miString> productLabelstrings,
       }
     }
     ap->setAnnotationStrings(vvstr);
-
+    
+    // here we compare the labels, take input from oldVap
+    for (int i = 0;i<n;i++)
+      ap->updateInputLabels(oldVap[i],newProduct);
+    
+    
     editVap.push_back(ap);
   }
 
