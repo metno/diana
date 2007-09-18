@@ -2374,6 +2374,7 @@ m=HIRLAM.20KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn18.dat_* \
 			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm18.dat_* 
 
 
+
 filegroup=HIRLAM20km
 m=HIRLAM.20KM.00    f=$(OPDATA1)/hirlam20/grdn00.dat    f=$(OPDATA1)/hirlam20/grdnm00.dat    f=$(OPDATA1)/hirlam20/grdni00.dat
 m=HIRLAM.20KM.06    f=$(OPDATA1)/hirlam20/grdn06.dat    f=$(OPDATA1)/hirlam20/grdnm06.dat    f=$(OPDATA1)/hirlam20/grdni06.dat
@@ -2400,6 +2401,10 @@ m=met.no.PROG+18   f=$(OPDATA1)/diana/Prognose+18/DNMI-arkfelt.dat
 m=met.no.PROG+36   f=$(OPDATA1)/diana/Prognose+36/DNMI-arkfelt.dat
 m=DNMI.PROG+18   f=$(OPDATA1)/diana/Prognose+18/DNMI-arkfelt.dat
 m=DNMI.PROG+36   f=$(OPDATA1)/diana/Prognose+36/DNMI-arkfelt.dat
+
+
+
+
 
 filegroup=HIRLAM12km
 m=HIRLAM.12KM.00    f=$(OPDATA2)/hirlam12/h12sf00.dat \
@@ -2807,6 +2812,11 @@ m=UV_varslet+48 f=$(OPDATA1)/uv/mitiff/uv-fc.dat+2
 filegroup=SNAP
 m=SNAP.NRPA         f=$(OPDATA1)/snap/snap.felt
 
+
+filegroup=YR
+m=YR.00                  f=$(OPDATA2)/products/yr_hir00.dat
+m=YR.12                  f=$(OPDATA2)/products/yr_hir12.dat
+
 </FIELD_FILES>
 
 
@@ -2899,10 +2909,6 @@ PROD=aireps:HWIND_RST
 metnoobs=$(OPDATA2)/nordrad/mitiff/HWIND_RST_yyyymmddHHMM.obs
 timerange=-7,+8
 
-PROD=aireps:HWIND_AND
-metnoobs=$(OPDATA2)/nordrad/mitiff/HWIND_AND_yyyymmddHHMM.obs
-timerange=-7,+8 
-
 PROD=aireps:MET_AMV
 metnoobs=$(OPDATA2)/meteosat/bufr_obs/msg_amv_yyyymmddHHMM.dat
 timerange=-180,180
@@ -2915,24 +2921,8 @@ PROD=satob:QScat100km
 metnoobs=$(OPDATA3)/noaasat/qscat/Obs_100km/qscat100km_yyyymmddHH.dat
 timerange=-30,30
 
-PROD=satob:AScat25km
-metnoobs=$(OPDATA3)/scat/ascat/Obs_25km/ascat25km_yyyymmddHH.dat
-timerange=-30,30
-
-PROD=satob:AScat100km
-metnoobs=$(OPDATA3)/scat/ascat/Obs_100km/ascat100km_yyyymmddHH.dat
-timerange=-30,30
-
 PROD=satob:ERS
 metnoobs=$(OPDATA3)/noaasat/ers/Obs/ers_yyyymmddHH.dat
-timerange=-30,30
-
-PROD=aireps:Skydrift-cd
-metnoobs=$(OPDATA3)/satdata_polar/modis/obs/cdft_yyyymmddHHMM_*_ENTC.dat
-timerange=-30,30
-
-PROD=aireps:Skydrift-wv
-metnoobs=$(OPDATA3)/satdata_polar/modis/obs/wvap_yyyymmddHHMM_*_ENTC.dat
 timerange=-30,30
 
 PROD=metar:Metar
@@ -3052,11 +3042,6 @@ sub.type= M-Norge
       file= $(OPDATA3)/meos/mchannel/noaa[yyyymmddHHMM]msf.mitiff
   sub.type= N-Atlant
       file= $(OPDATA3)/meos/mchannel/noaa[yyyymmddHHMM]mis.mitiff
- channels= CLW
-  sub.type= TCLW-(CTG)-1h
-      file= $(OPDATA3)/atovs/tif/noaa??_amsu-a_[yyyymmddHH]_landx.tif   
-  sub.type= TCLW-(SMTH)-1h
-      file= $(OPDATA3)/atovs/tif/noaa??_amsu-a_[yyyymmddHH]_landxs.tif      
   channels= CLW
   sub.type= TCLW-(CTG) 
       file= $(OPDATA2)/atovs/tif/amsua_noaa??_[yyyymmdd]_[HHMM]_*.l1c.ascii.tif
@@ -3234,17 +3219,6 @@ image=QuickScat-25km
   channels= DIV
   sub.type= Divergens
       file=$(OPDATA3)/noaasat/qscat/tif_25km/div[yyyymmddHH].tiff
-
-image=AScat-25km
-  channels= Wspd(m/s)
-  sub.type= Vindstyrke
-      file=$(OPDATA3)/scat/ascat/tif_25km/ascat25km_spd[yyyymmddHH].tiff
-  channels= CURL
-  sub.type= Virvling
-      file=$(OPDATA3)/scat/ascat/tif_25km/ascat25km_curl[yyyymmddHH].tiff
-  channels= DIV
-  sub.type= Divergens
-      file=$(OPDATA3)/scat/ascat/tif_25km/ascat25km_div[yyyymmddHH].tiff 
 
 image=ERS
   channels= Wspd(m/s)
