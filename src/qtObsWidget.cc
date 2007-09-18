@@ -1298,10 +1298,28 @@ void ObsWidget::extensionSlot(bool on)
 
 ObsDialogInfo::CriteriaList ObsWidget::getCriteriaList()
 {
+
+  if(criteriaList.size()==0 || currentCriteria < 0){
+    ObsDialogInfo::CriteriaList cl;
+    return cl;
+  }
+
   savedCriteria = criteriaList[currentCriteria];
   return criteriaList[currentCriteria];
+
 }
 
+bool ObsWidget::setCurrentCriteria(int i)
+{
+
+  if( i<criteriaList.size() ){
+    currentCriteria=i;
+    return true;
+  }
+
+  return false;
+
+}
 
 void ObsWidget::saveCriteria(const vector<miString>& vstr)
 {

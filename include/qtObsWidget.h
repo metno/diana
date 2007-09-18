@@ -92,7 +92,7 @@ public:
   //Criteria
   ObsDialogInfo::CriteriaList getSavedCriteria(){return savedCriteria;}
   ObsDialogInfo::CriteriaList getCriteriaList();
-  void setCurrentCriteria(int i){currentCriteria=i;}
+  bool setCurrentCriteria(int i);
   int getCurrentCriteria(){return currentCriteria;}
   vector<miString> getCriteriaNames();
   void saveCriteria(const vector<miString>& criteria);
