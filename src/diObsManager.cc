@@ -843,6 +843,8 @@ ObsDialogInfo ObsManager::initDialog()
       pascii.misc =
 	"markerboxVisible orientation  parameterName=true";
 
+      pascii.criteriaList = criteriaList["ascii"];
+
       pascii.name= pr->second.dialogName;
       pascii.button.clear();
 
