@@ -365,7 +365,9 @@ void UffdaDialog::addPosition(float lat, float lon){
   satlist->clear();
   vector <miString> satnames = m_ctrl->getSatnames();
   for (int i=0; i<satnames.size(); i++){
-    satlist->insertItem(satnames[i].c_str());
+    QString satname=satnames[i].c_str();
+    satname=satname.simplifyWhiteSpace();
+    satlist->insertItem(satname);
     if (satnames[i]==sattime.latin1()) currIndex=i;
   }
   if (currIndex>-1){

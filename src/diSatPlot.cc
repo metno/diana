@@ -60,7 +60,7 @@ void SatPlot::getSatAnnotation(miString &str, Colour &col){
 
 void SatPlot::getSatName(miString &str){
   if (satdata->approved){
-    miString sat = miString(satdata->satellite_name);
+    miString sat = satdata->satellite_name + satdata->filetype;
     sat.trim();
     str = sat;
     if (satdata->mosaic)
