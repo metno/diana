@@ -2838,6 +2838,7 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo( "Regn som fryser",93,"red"));
   symbols.push_back(newEditToolInfo( "Byger",109,"green"));
   symbols.push_back(newEditToolInfo( "Regnbyger",110,"green"));
+  symbols.push_back(newEditToolInfo( "Regn",89,"green"));
   symbols.push_back(newEditToolInfo( "Sluddbyger",126,"green"));
   symbols.push_back(newEditToolInfo( "Haglbyger",117,"green"));
   symbols.push_back(newEditToolInfo( "Snøbyger",114,"green"));
