@@ -3982,6 +3982,8 @@ m=HIRLAM.10KM.12  f=$(OPDATA2)/hirlam10/vc10km12.dat
 
 m=SIMRA.Hammerfest.00   f=$(OPDATA2)/um1km/vcsimme00.dat
 m=SIMRA.Hammerfest.12   f=$(OPDATA2)/um1km/vcsimme12.dat
+m=SIMRA.Narvik.00       f=$(OPDATA2)/um1km/vcsimna00.dat
+m=SIMRA.Narvik.12       f=$(OPDATA2)/um1km/vcsimna12.dat
 m=SIMRA.Sandnessjøen.00 f=$(OPDATA2)/um1km/vcsimsa00.dat
 m=SIMRA.Sandnessjøen.12 f=$(OPDATA2)/um1km/vcsimsa12.dat
 m=SIMRA.Værnes.00       f=$(OPDATA2)/um1km/vcsimva00.dat
