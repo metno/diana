@@ -1,4 +1,4 @@
-70.62    23.40     # Innflygning Hammerfest (approach 048 + 228)
+emacs 70.62    23.40     # Innflygning Hammerfest (approach 048 + 228)
 70.67742 23.65868
 70.68186 23.67854
 70.76    24.03
@@ -33,8 +33,9 @@
 63.45825 10.94689
 63.458   10.978
 -999.999 -999.999
-68.333   17.32     # Innflyvning Narvik (approach 010 + 190)
+68.344   17.15     # Innflyvning Narvik (approach 010 + 190)
 68.43153 17.38207
 68.43847 17.38990
 68.508   17.451
 -999.999 -999.999
+
