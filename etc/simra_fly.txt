@@ -1,4 +1,4 @@
-emacs 70.62    23.40     # Innflygning Hammerfest (approach 048 + 228)
+70.62    23.40     # Innflygning Hammerfest (approach 048 + 228)
 70.67742 23.65868
 70.68186 23.67854
 70.76    24.03
