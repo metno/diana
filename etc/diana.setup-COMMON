@@ -2987,31 +2987,31 @@ timerange=-30,30
 # Observation ARCHIVES..............................
 
 PROD=synop:Synop
-archive_metnoobs=/$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/syno[HH].[yyyymmdd]
+archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/syno[HH].[yyyymmdd]
 timerange=-30,30
 
 PROD=dribu:Dribu
-archive_metnoobs=/$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/drau[HH].[yyyymmdd]
+archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/drau[HH].[yyyymmdd]
 timerange=-90,90
 
 PROD=temp:Temp
-archive_metnoobs=/$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/temp[HH].[yyyymmdd]
+archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/temp[HH].[yyyymmdd]
 timerange=-180,180
 
 PROD=pilot:Pilot
-archive_metnoobs=/$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/pilo[HH].[yyyymmdd]
+archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/pilo[HH].[yyyymmdd]
 timerange=-180,180
 
 PROD=aireps:Aireps
-archive_metnoobs=/$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/arep[HH].[yyyymmdd]
+archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/arep[HH].[yyyymmdd]
 timerange=-180,180
 
 PROD=metar:Metar
-archive_metnoobs=/$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/meta[XX].[yyyymmdd]  # XX=hour*2+min/30
+archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/meta[XX].[yyyymmdd]  # XX=hour*2+min/30
 timerange=-15,15
 
 PROD=satob:QScat25km
-archive_metnoobs=/$(STARC)/DNMI_NOAASAT/[yyyy]/[mm]/[dd]/qscat/Obs_25km/qscat25km_[yyyymmddHH].dat
+archive_metnoobs=$(STARC)/DNMI_NOAASAT/[yyyy]/[mm]/[dd]/qscat/Obs_25km/qscat25km_[yyyymmddHH].dat
 timerange=-30,30
 #---------------------------------------------------------------------
 
@@ -3118,6 +3118,8 @@ image=Radar-obs
       file= $(OPDATA2)/nordrad/mitiff/RRPPI_V_OSLO_500_[yyyymmddHHMM].mitiff
   sub.type = Hægebostad_500m_VRAD
       file= $(OPDATA2)/nordrad/mitiff/RRPPI_V_HæGEBOSTAD_500_[yyyymmddHHMM].mitiff
+sub.type = Andøya_500m_VRAD
+      file= $(OPDATA2)/nordrad/mitiff/RRPPI_V_ANDOYA_500_[yyyymmddHHMM].mitiff
 
 image=Radar-nedbør
    channels= PSC_RI
@@ -3324,84 +3326,100 @@ image=ARKIV
   #NOAA
   channels= day_night 2+4 1+2+4 2+3+4 3+4+5 5+4+3 1 2 3 4 5 6
   sub.type= NOAA::N-Europa
-      archivefile= /$(STARC)/DNMI_MEOS/[yyyy]/[mm]/[dd]/noaa[yyyymmddHHMM]mne.mitiff
+      archivefile= $(STARC)/DNMI_MEOS/[yyyy]/[mm]/[dd]/noaa[yyyymmddHHMM]mne.mitiff
   #METEOSAT
   channels= VIS_RAW IR+V
   sub.type= METEOSAT::Visuell
-      archivefile= /$(STARC)/DNMI_METEOSAT/[yyyy]/[mm]/[dd]/g*bv.tif
+      archivefile= $(STARC)/DNMI_METEOSAT/[yyyy]/[mm]/[dd]/g*bv.tif
   channels= IR_CAL IR+V
   sub.type= METEOSAT::IR
-      archivefile= /$(STARC)/DNMI_METEOSAT/[yyyy]/[mm]/[dd]/g*bi.tif
+      archivefile= $(STARC)/DNMI_METEOSAT/[yyyy]/[mm]/[dd]/g*bi.tif
   channels= WV_CAL
   sub.type= METEOSAT::Vanndamp
-      archivefile= /$(STARC)/DNMI_METEOSAT/[yyyy]/[mm]/[dd]/g*bw.tif
+      archivefile= $(STARC)/DNMI_METEOSAT/[yyyy]/[mm]/[dd]/g*bw.tif
 
   #Radar-obs
   channels= PSC_Z
   sub.type = Radar-obs::Norden_2km_dBZ
-      archivefile = /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPSC_Z_DNORDIC_2000_[yyyymmddHHMM].mitiff
+      archivefile = $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPSC_Z_DNORDIC_2000_[yyyymmddHHMM].mitiff
   sub.type = Radar-obs::Sørskandinavia_1km_dBZ
-      archivefile = /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPSC_Z_DSORSKAND_1000_[yyyymmddHHMM].mitiff
+      archivefile = $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPSC_Z_DSORSKAND_1000_[yyyymmddHHMM].mitiff
+  sub.type = Radar-obs::Nordland_Troms_1km_dBZ
+      archivefile = $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPSC_Z_IWEBNORDLTROMS_1000_[yyyymmddHHMM].mitiff
+
+sub.type = Radar-obs::Oslo_500m_VRAD
+      archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_OSLO_500_[yyyymmddHHMM].mitiff
+  sub.type = Radar-obs::Hægebostad_500m_VRAD
+      archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_HæGEBOSTAD_500_[yyyymmddHHMM].mitiff
+  sub.type = Radar-obs::Bømlo_500m_VRAD
+      archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_BøMLO_500_[yyyymmddHHMM].mitiff
+  sub.type = Radar-obs::Rissa_500m_VRAD
+      archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_RISSA_500_[yyyymmddHHMM].mitiff
+  sub.type = Radar-obs::Røst_500m_VRAD
+      archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_RøST_500_[yyyymmddHHMM].mitiff
+  sub.type = Radar-obs::Andøya_500m_VRAD
+      archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_ANDOYA_500_[yyyymmddHHMM].mitiff
+
 
   #Radar-nedbør
   channels= PSC_RI
   sub.type= Radar-nedbør::Nedbørintensitet_mm/h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/PSC_RI-N2-ALL_PS0E60N1_[yyyymmdd]T[HHMM].mitiff
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/PSC_RI-N2-ALL_PS0E60N1_[yyyymmdd]T[HHMM].mitiff
   channels= PSC_RS
   sub.type= Radar-nedbør::Norge_regn-snø_mm/h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/PSC_RS-N2-ALL_PS0E60N1_[yyyymmdd]T[HHMM].mitiff
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/PSC_RS-N2-ALL_PS0E60N1_[yyyymmdd]T[HHMM].mitiff
 
    channels= PSC_RA1h
    sub.type= Radar-nedbør::Hegebostad_nedbør_1h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-HGB_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-HGB_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Oslo_nedbør_1h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-OSL_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-OSL_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Bømlo_nedbør_1h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-BML_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-BML_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Rissa_nedbør_1h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-RSA_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-RSA_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Røst_nedbør_1h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-RST_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA1h-N2-RST_PS0E60N1_[yyyymmddHHMM]noneC.tif
 
    channels= PSC_RA6h
    sub.type= Radar-nedbør::Hegebostad_nedbør_6h
-      archivefile=/$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-HGB_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-HGB_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Oslo_nedbør_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-OSL_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-OSL_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Bømlo_nedbør_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-BML_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-BML_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Rissa_nedbør_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-RSA_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-RSA_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Røst_nedbør_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-RST_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA6h-N2-RST_PS0E60N1_[yyyymmddHHMM]noneC.tif
 
    channels= PSC_RA24h
    sub.type= Radar-nedbør::Hegebostad_nedbør_24h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-HGB_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-HGB_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Oslo_nedbør_24h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-OSL_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-OSL_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Bømlo_nedbør_24h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-BML_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-BML_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Rissa_nedbør_24h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-RSA_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RA24h-N2-RSA_PS0E60N1_[yyyymmddHHMM]noneC.tif
    sub.type= Radar-nedbør::Røst_nedbør_24h
-      archivefile= /$(STARC)/DNMI_RADAR/2007/[mm]/[dd]/acc/PSC_RA24h-N2-RST_PS0E60N1_[yyyymmddHHMM]noneC.tif
+      archivefile= $(STARC)/DNMI_RADAR/2007/[mm]/[dd]/acc/PSC_RA24h-N2-RST_PS0E60N1_[yyyymmddHHMM]noneC.tif
 
   channels= PSC_RS
   sub.type= Radar-nedbør::Hegebostad_regn-snø_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-HGB_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-HGB_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
   channels= PSC_RS
   sub.type= Radar-nedbør::Oslo_regn-snø_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-OSL_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-OSL_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
   channels= PSC_RS
   sub.type= Radar-nedbør::Bømlo_regn-snø_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-BML_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-BML_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
   channels= PSC_RS
   sub.type= Radar-nedbør::Rissa_regn-snø_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-RSA_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-RSA_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
   channels= PSC_RS
   sub.type= Radar-nedbør::Røst_regn-snø_6h
-      archivefile= /$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-RST_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
+      archivefile= $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/acc/PSC_RS6h-N2-RST_PS0E60N1_[yyyymmddHHMM]rain-snowC.tif
 
 </IMAGE>
 
@@ -3584,7 +3602,7 @@ name="met.no Swikart"       file=$(OPDATA1)/diana/Swikart/DNMI-objects/DNMI_SWId
 name="met.no Prognose+18"   file=$(OPDATA1)/diana/Prognose+18/DNMI-objects/DNMI_PROG18draw
 name="met.no Prognose+36"   file=$(OPDATA1)/diana/Prognose+36/DNMI-objects/DNMI_PROG36draw
 
-archive_name="ARKIV Bakkeanalyse"  file=/$(STARC)/DNMI_DIANA/*/*/*/DNMI_ANAdraw
+archive_name="ARKIV Bakkeanalyse"  file=$(STARC)/DNMI_DIANA/*/*/*/DNMI_ANAdraw
 
 name="TEST Bakkeanalyse"  file=./work/TEST_ANAdraw
 name="TEST Sigkart"       file=./work/TEST_SIGdraw
