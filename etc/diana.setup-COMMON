@@ -3107,6 +3107,7 @@ image=Radar-obs
       file = $(OPDATA2)/nordrad/mitiff/RRPSC_Z_DSORSKAND_1000_[yyyymmddHHMM].mitiff
   sub.type = Nordland_Troms_1km_dBZ 
       file = $(OPDATA3)/nordrad/mitiff/RRPSC_Z_IWEBNORDLTROMS_1000_[yyyymmddHHMM].mitiff 
+
   channels= PPI_V
   sub.type = Bømlo_500m_VRAD
       file= $(OPDATA2)/nordrad/mitiff/RRPPI_V_BøMLO_500_[yyyymmddHHMM].mitiff
@@ -3347,7 +3348,8 @@ image=ARKIV
   sub.type = Radar-obs::Nordland_Troms_1km_dBZ
       archivefile = $(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPSC_Z_IWEBNORDLTROMS_1000_[yyyymmddHHMM].mitiff
 
-sub.type = Radar-obs::Oslo_500m_VRAD
+  channels= PPI_V
+  sub.type = Radar-obs::Oslo_500m_VRAD
       archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_OSLO_500_[yyyymmddHHMM].mitiff
   sub.type = Radar-obs::Hægebostad_500m_VRAD
       archivefile=$(STARC)/DNMI_RADAR/[yyyy]/[mm]/[dd]/RRPPI_V_HæGEBOSTAD_500_[yyyymmddHHMM].mitiff
