@@ -112,8 +112,8 @@ m=ALT-HIRLAM.20KM.12-2  f=/opdata_routine/hirlam20/grdn12.dat-2  f=/opdata_routi
 filegroup=Bakkeanalyser
 m=met.no.ANA      f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
 m=VNN.ANA         f=/opdata/diana/Bakkeanalyse/VNN-arkfelt.dat
-m=VA.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/lastfinished.VA
-m=VV.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/lastfinished.VV
+m=VA.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/work/VA_ANAmslp.*
+m=VV.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/work/VV_ANAmslp.*
 m=ALT-met.no.ANA  f=$(OPDATA2)/diana/Bakkeanalyse/DNMI-arkfelt.dat
 m=DNMI.ANA        f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
 
@@ -809,7 +809,9 @@ map=Approach-area type=lines_simple_text file=$(DIANADIR)/etc/approach-area.txt
 </MAP_TYPE>
 
 <OBJECTS>
-#name="VNN Bakkeanalyse"   file=/opdata/diana/Bakkeanalyse/VNN-objects/VNN_ANAdraw
+name="ALT-met.no Bakkeanalyse"  file=$(OPDATA2)/diana/Bakkeanalyse/DNMI-objects/DNMI_ANAdraw
+name="ALT-VA Bakkeanalyse"    file=$(OPDATA2)/diana/Bakkeanalyse/VA-objects/VA_ANAdraw
+name="ALT-VV Bakkeanalyse"    file=$(OPDATA2)/diana/Bakkeanalyse/VV-objects/VV_ANAdraw
 </OBJECTS>
 
 <EDIT>
