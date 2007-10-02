@@ -811,7 +811,7 @@ map=Approach-area type=lines_simple_text file=$(DIANADIR)/etc/approach-area.txt
 <OBJECTS>
 name="ALT-met.no Bakkeanalyse"  file=$(OPDATA2)/diana/Bakkeanalyse/DNMI-objects/DNMI_ANAdraw
 name="ALT-VA Bakkeanalyse"    file=$(OPDATA2)/diana/Bakkeanalyse/VA-objects/VA_ANAdraw
-name="ALT-VV Bakkeanalyse"    file=$(OPDATA2)/diana/Bakkeanalyse/VV-objects/VV_ANAdraw
+name="ALT-VV Bakkeanalyse"    file=$(OPDATA2)/diana/Bakkeanalyse/work/VV_ANAdraw
 </OBJECTS>
 
 <EDIT>
