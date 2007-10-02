@@ -112,8 +112,8 @@ m=ALT-HIRLAM.20KM.12-2  f=/opdata_routine/hirlam20/grdn12.dat-2  f=/opdata_routi
 filegroup=Bakkeanalyser
 m=met.no.ANA      f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
 m=VNN.ANA         f=/opdata/diana/Bakkeanalyse/VNN-arkfelt.dat
-m=VA.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/VA-arkfelt.dat
-m=VV.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/VV-arkfelt.dat
+m=VA.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/lastfinished.VA
+m=VV.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/lastfinished.VV
 m=ALT-met.no.ANA  f=$(OPDATA2)/diana/Bakkeanalyse/DNMI-arkfelt.dat
 m=DNMI.ANA        f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
 
