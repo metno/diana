@@ -106,11 +106,12 @@ m=ALT-HIRLAM.20KM.00-2  f=/opdata_routine/hirlam20/grdn00.dat-2  f=/opdata_routi
 m=ALT-HIRLAM.20KM.12-2  f=/opdata_routine/hirlam20/grdn12.dat-2  f=/opdata_routine/hirlam20/grdnm12.dat-2  f=/opdata_routine/hirlam20/grdni12.dat-2
 
 filegroup=Bakkeanalyser
-m=met.no.ANA  f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
-#m=VA.ANA      f=/opdata/diana/Bakkeanalyse/VA-arkfelt.dat
-#m=VV.ANA      f=/opdata/diana/Bakkeanalyse/VV-arkfelt.dat
-m=VNN.ANA     f=/opdata/diana/Bakkeanalyse/VNN-arkfelt.dat
-m=DNMI.ANA    f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
+m=met.no.ANA      f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
+m=VNN.ANA         f=/opdata/diana/Bakkeanalyse/VNN-arkfelt.dat
+m=VA.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/VA-arkfelt.dat
+m=VV.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/VV-arkfelt.dat
+m=ALT-met.no.ANA  f=$(OPDATA2)/diana/Bakkeanalyse/DNMI-arkfelt.dat
+m=DNMI.ANA        f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
 
 filegroup=Subjektive.prognoser
 m=met.no.PROG+18   f=/opdata/diana/Prognose+18/DNMI-arkfelt.dat
