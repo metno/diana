@@ -276,6 +276,7 @@ file= $(DIANADIR)/etc/qmenu_eps.txt
 file= $(DIANADIR)/etc/qmenu_nedbor.txt
 file= $(DIANADIR)/etc/Briefing.quick
 file= $(DIANADIR)/etc/Produkter.quick
+file= $(DIANADIR)/etc/FDMD.quick
 </QUICKMENUS>
 
 
