@@ -968,7 +968,7 @@ end.field
 
 field=FF.10M.Beaufort
       text = "Vindstyrke i beaufort/kt"
-      minvalue=16.5 line.values=16.5,21.5,27.5,33.5,40.5,47.5,55.5,63.5
+      line.values=16.5,21.5,27.5,33.5,40.5,47.5,55.5,63.5
       plot=CONTOUR(ff10mknots)
 end.field 
 
@@ -2401,8 +2401,8 @@ m=HIRLAM.20KM.ARKIV.30D  f=$(OPDATA1)/hirlam20/arkhl4.dat  f=$(OPDATA1)/hirlam20
 filegroup=Bakkeanalyser
 m=met.no.ANA  f=$(OPDATA1)/diana/Bakkeanalyse/DNMI-arkfelt.dat
 m=VA.ANA      f=$(OPDATA1)/diana/Bakkeanalyse/VA-arkfelt.dat
-#m=VV.ANA      f=$(OPDATA1)/diana/Bakkeanalyse/VV-arkfelt.dat
-#m=VNN.ANA     f=$(OPDATA1)/diana/Bakkeanalyse/VNN-arkfelt.dat
+m=VV.ANA      f=$(OPDATA1)/diana/Bakkeanalyse/work/VV_ANAmslp.*
+m=VNN.ANA     f=$(OPDATA1)/diana/Bakkeanalyse/work/VNN_ANAmslp.*
 m=DNMI.ANA    f=$(OPDATA1)/diana/Bakkeanalyse/DNMI-arkfelt.dat
 
 filegroup=Subjektive.prognoser
@@ -3316,6 +3316,17 @@ image=UV-Indeks
    sub.type = UV_indeks_varslet_skydekke
        file= $(OPDATA2)/uv/mitiff/uvi-[yyyymmddHHMM]-uvifc.mitiff
 
+image=Foreign_satellite_data
+ channels=VIS IR WV VIS+IR
+ sub.type=GOES11
+     file=/opdata/meteosat/mchannel_fsd/GOES11_[yyyymmddHHMM]??.mitiff
+ sub.type=GOES12
+     file=/opdata/meteosat/mchannel_fsd/GOES12_[yyyymmddHHMM]??.mitiff
+ sub.type=MET7
+     file=/opdata/meteosat/mchannel_fsd/MET7_[yyyymmddHHMM]??.mitiff
+ sub.type=MTSAT1R
+     file=/opdata/meteosat/mchannel_fsd/MTSAT1R_[yyyymmddHHMM]??.mitiff
+
 image=UK_fax_charts
    channels= FAX
   sub.type= FAX
@@ -3564,8 +3575,8 @@ limit=0   file=$(ROOT)/maps/landwvs250k.dat# wvs(1:250.000)
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 #
 map=Kommuner   file=$(ROOT)/maps/land250kommune.dat    no.log
-map=Fylker     file=$(ROOT)/maps/land250fylke.dat      no.log
-map=Riksgrense file=$(ROOT)/maps/land250riksgrense.dat no.log
+map=Fylker     file=$(ROOT)/maps/land250fylke.dat      
+map=Riksgrense file=$(ROOT)/maps/land250riksgrense.dat 
 map=Kyst       file=$(ROOT)/maps/land250kyst.dat       no.log
 map=Høyde      file=$(ROOT)/maps/land250hoyde.dat      no.log
 map=Vann       file=$(ROOT)/maps/land250vann.dat       no.log
