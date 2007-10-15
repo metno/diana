@@ -18,6 +18,14 @@ MOCFILE=make.moc
 DEFINES=-DMETNOFIELDFILE -DNETCDF -DMETNOPRODDB -DMETNOOBS -DBUFROBS $(LOGGDEF)
 ##DEFINES=-DDISPLAY1024x768
 
+ifdef WEATHERDB
+DEFINES += -DWEATHERDB
+WEATHERDB_LIB=-ldiWeatherDB 
+WEATHERDB_EXTRA_LIB=-lboost_thread-mt \
+		    $(shell pkg-config --libs libpqxx) \
+		    -L$(shell pg_config --libdir)  -lpq 
+endif
+
 INCLUDE= -I. \
 	 -I$(INCDIR) \
 	 -I$(LOCALINC)/propoly \
@@ -47,6 +55,7 @@ INCLUDE= -I. \
 	 $(SHAPEINCLUDE) \
 	 $(XINCLUDE) 
 
+
 # Note: PNG library included in the Qt library (also used in batch version)
 
 # WARNING: library sequence may be very important due to path (-L) sequence
@@ -54,6 +63,7 @@ INCLUDE= -I. \
 LINKS = -L$(LOCALDIR)/$(LIBDIR) -lpropoly -lprofet -lprofetSQL -lproFunctions \
 	-lqUtilities -lpuDatatypes \
 	-lGLP -lglText -lrobs -ldiMItiff -ldiField -lmic -ldiSQL -lpuSQL \
+	$(WEATHERDB_LIB) \
 	-lpuTools \
 	-L$(QTDIR)/lib $(QT_LIBS) \
 	$(GLLIBDIR) -lGL -lGLU $(GLXTRALIBS) \
@@ -67,7 +77,9 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) -lpropoly -lprofet -lprofetSQL -lproFunctions \
 	$(LOGGLIBS) \
 	$(F2CLIB) -lm \
 	$(UDUNITSLIBDIR) $(UDUNITSLIB) \
-	$(NETCDFLIBDIR) $(NETCDFLIB)
+	$(NETCDFLIBDIR) $(NETCDFLIB) \
+	$(WEATHERDB_EXTRA_LIB)
+
 
 BLINKS= $(LINKS)
 
