@@ -3320,13 +3320,13 @@ image=UV-Indeks
 image=Foreign_satellite_data
  channels=VIS IR WV VIS+IR
  sub.type=GOES11
-     file=/opdata/meteosat/mchannel_fsd/GOES11_[yyyymmddHHMM]??.mitiff
+     file=$(OPDATA2)/meteosat/mchannel_fsd/GOES11_[yyyymmddHHMM]??.mitiff
  sub.type=GOES12
-     file=/opdata/meteosat/mchannel_fsd/GOES12_[yyyymmddHHMM]??.mitiff
+     file=$(OPDATA2)/meteosat/mchannel_fsd/GOES12_[yyyymmddHHMM]??.mitiff
  sub.type=MET7
-     file=/opdata/meteosat/mchannel_fsd/MET7_[yyyymmddHHMM]??.mitiff
+     file=$(OPDATA2)/meteosat/mchannel_fsd/MET7_[yyyymmddHHMM]??.mitiff
  sub.type=MTSAT1R
-     file=/opdata/meteosat/mchannel_fsd/MTSAT1R_[yyyymmddHHMM]??.mitiff
+     file=$(OPDATA2)/meteosat/mchannel_fsd/MTSAT1R_[yyyymmddHHMM]??.mitiff
 
 image=UK_fax_charts
    channels= FAX
