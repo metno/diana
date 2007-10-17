@@ -1039,6 +1039,26 @@ field=HØYE_SKYER_CONTOUR
       plot=CONTOUR(cloud.high)
 end.field
 
+field=TÅKE_CONTOUR_EQUIDISTANT
+      colour=white
+      plot=CONTOUR(cloud.fog)
+end.field
+
+field=LAVE_SKYER_CONTOUR_EQUIDISTANT
+      colour=white
+      plot=CONTOUR(cloud.low)
+end.field
+
+field=MIDDELS_HØYE_SKYER_CONTOUR_EQUIDISTANT
+      colour=red
+      plot=CONTOUR(cloud.medium)
+end.field
+
+field=HØYE_SKYER_CONTOUR_EQUIDISTANT
+      colour=red
+      plot=CONTOUR(cloud.high)
+end.field 
+
 field=TCLW
       colour=red linetype=solid linewidth=1 line.interval=0.1
       plot=CONTOUR(tclw)
@@ -1444,6 +1464,12 @@ end.field
 
 field=FF.KNOP
       colour=red linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(ffknots)
+end.field
+
+field=FF.Beaufort
+      text = "Vindstyrke i beaufort/kt"
+      line.values=16.5,21.5,27.5,33.5,40.5,47.5,55.5,63.5
       plot=CONTOUR(ffknots)
 end.field
 
