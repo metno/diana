@@ -87,6 +87,8 @@ public:
   void changeIdnum(const miString& idnum);
   /// switch on/off access to archives
   void archiveMode(bool on);
+  /// add modelgroups and models
+  void addModelGroup(const FieldDialogInfo& fdi);
   /// returns fiels command strings, one for each field
   vector<miString> getOKString();
   /// return a short text for quickmenue

@@ -116,7 +116,6 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 //#################################################################
 
   m_modelgroup = fdi;
-  int nr_modelgroup = fdi.size();
 
   // Colours
   colourInfo  = Colour::getColourInfo();
@@ -1111,8 +1110,18 @@ void FieldDialog::archiveMode( bool on )
 
   // show models in the first modelgroup
   modelGRboxActivated(0);
+
 }
 
+// add modelgroups and models
+void FieldDialog::addModelGroup(const FieldDialogInfo& fdi)
+{
+
+  m_modelgroup.insert(m_modelgroup.begin(),fdi);
+  archiveMode( useArchive );
+
+
+}
 
 void FieldDialog::modelGRboxActivated( int index )
 {
@@ -4746,8 +4755,9 @@ void FieldDialog::updateTime(){
       <<fieldtime.size()<<endl;
 #endif
   emit emitTimes("field",fieldtime);
-}
 
+  //  allTimeStepButton->setOn(false);
+}
 
 void FieldDialog::addField(miString str) 
 {
@@ -4912,8 +4922,14 @@ void FieldDialog::fieldEditUpdate(miString str) {
 void FieldDialog::allTimeStepToggled(bool on)
 {
   updateTime();
+  
+//   FieldDialogInfo fdi;
+//   fdi.groupName = "Agnes";
+//   fdi.archiveGroup=false;
+//   fdi.modelNames.push_back("Troll");
+//   fdi.modelNames.push_back("Tiger");
+//   addModelGroup(fdi);
 }
-
 
 void FieldDialog::applyClicked()
 {
