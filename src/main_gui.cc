@@ -52,6 +52,7 @@
 #include <miLogger/logger.h>
 #endif
 
+#include <diBuild.h>
 #include <diVersion.h>
 
 using namespace std;
@@ -72,7 +73,7 @@ Kommandolinje-argumenter:                                 \n\
 
 int main(int argc, char **argv)
 {
-  cerr << argv[0] << " : DIANA version " << version_string << endl;
+  cerr << argv[0] << " : DIANA version: " << version_string << "  build: "<<build_string<<endl;
   // parsing commandline-arguments
 
   vector<miCommandLine::option> opt;
@@ -113,6 +114,7 @@ int main(int argc, char **argv)
 
 
   miString ver_str= version_string;
+  miString build_str= build_string;
   miString lang;
   miString setupfile;
 
@@ -186,7 +188,7 @@ int main(int argc, char **argv)
     a.installTranslator( &qutil );
   }
 
-  DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,profetEnabled);
+  DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,profetEnabled);
 
   mw->start();
 

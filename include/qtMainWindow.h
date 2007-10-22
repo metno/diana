@@ -94,7 +94,10 @@ class DianaMainWindow: public QMainWindow
 {
   Q_OBJECT
 public:
-  DianaMainWindow(Controller*, const miString,bool profetEnabled=false);
+  DianaMainWindow(Controller*, 
+		  const miString ver_str,
+		  const miString buils_str,
+		  bool profetEnabled=false);
   ~DianaMainWindow();
 
   /// check if news file has changed since last startup
@@ -238,6 +241,7 @@ private:
   void PrintPS(vector <miString>& filestr );
 
   miString version_string;
+  miString build_string;
   int displayWidth,displayHeight;
 
   /// Actions
@@ -402,7 +406,8 @@ private:
   void writeLogFile();
   void readLogFile();
 
-  vector<miString> writeLog(const miString& thisVersion);
+  vector<miString> writeLog(const miString& thisVersion,
+			    const miString& thisBuild);
   void readLog(const vector<miString>& vstr,
 	       const miString& thisVersion,
 	       miString& logVersion);

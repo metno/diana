@@ -85,11 +85,11 @@ BALLOBJ= $(CCOBJ) $(COBJ) $(BOBJ)
 
 #----------------------------------------------------------------------------
 
-all: version $(BINDIR)/diana $(BINDIR)/bdiana
+all: build $(BINDIR)/diana $(BINDIR)/bdiana
 
-mkdiana:  version $(BINDIR)/diana
+mkdiana:  build $(BINDIR)/diana
 
-mkbdiana: version $(BINDIR)/bdiana
+mkbdiana: build $(BINDIR)/bdiana
 
 #----------------------------------------------------------------------------
 
@@ -135,23 +135,27 @@ $(BINDIR)/bdiana: $(BALLOBJ)
 
 #-----------------------------------------------------
 
-VERSIONHEADER=diVersion.h
+BUILDHEADER=diBuild.h
 
-version:
-	@if [ -s $(VERSIONHEADER) ]; then \
-	  olddate=`grep version_string $(VERSIONHEADER) | cut -f2 -d\"`; \
+build:
+	@if [ -s $(BUILDHEADER) ]; then \
+	  olddate=`grep build_string $(BUILDHEADER) | cut -f2 -d\"`; \
 	else \
 	  olddate="firsttime"; \
 	fi; \
 	today=`date +%Y-%m-%d`; \
 	if [ ! $$olddate = $$today ]; then \
-	  rm -f $(VERSIONHEADER); \
-	  echo '#ifndef _version_h_' > $(VERSIONHEADER); \
-	  echo '#define _version_h_' >> $(VERSIONHEADER); \
-	  echo 'const string version_string= "'$$today'";' >> $(VERSIONHEADER); \
-	  echo '#endif' >> $(VERSIONHEADER); \
-	  chmod 0664 $(VERSIONHEADER); \
-	  echo "UPDATED $(VERSIONHEADER) $$today"; \
+	  rm -f $(BUILDHEADER); \
+	  echo '#ifndef _build_h_' > $(BUILDHEADER); \
+	  echo '#define _build_h_' >> $(BUILDHEADER); \
+	  echo 'const string build_string= "'$$today'";' >> $(BUILDHEADER); \
+	  echo '#endif' >> $(BUILDHEADER); \
+	  chmod 0664 $(BUILDHEADER); \
+	  echo "UPDATED $(BUILDHEADER) $$today"; \
 	else \
-	  echo "UNCHANGED $(VERSIONHEADER) $$olddate"; \
+	  echo "UNCHANGED $(BUILDHEADER) $$olddate"; \
 	fi
+
+
+
+

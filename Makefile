@@ -107,7 +107,7 @@ directories:
 	then touch $(OBJDIR)/$(DEPENDSFILE) ; fi
 	if [ ! -f $(OBJDIR)/$(MOCFILE) ] ; \
 	then touch $(OBJDIR)/$(MOCFILE) ; fi
-	cd $(OBJDIR); make $(OPTIONS) version
+	cd $(OBJDIR); make $(OPTIONS) build
 
 mocs:
 	cd $(OBJDIR); make $(OPTIONS) mocs
@@ -156,3 +156,18 @@ TESTDESTNAME=dianaTEST
 TESTBINLINKS=dianaTEST.sh 
 
 include ../conf/install.mk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

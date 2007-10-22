@@ -129,7 +129,10 @@
 #include <paint_mode.xpm>
 
 
-DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str, bool ep)
+DianaMainWindow::DianaMainWindow(Controller *co, 
+				 const miString ver_str, 
+				 const miString build_str, 
+				 bool ep)
   : QMainWindow( 0, "DIANA main window"),
     contr(co),timeron(0),timeloop(false),timeout_ms(100),
     showelem(true),autoselect(false),push_command(true),browsing(false),
@@ -138,6 +141,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str, bool ep
 {
 
   version_string= ver_str;
+  build_string  = build_str;
 
   setCaption( tr("Diana") );
 
@@ -2243,7 +2247,7 @@ void DianaMainWindow::showNews()
 void DianaMainWindow::about()
 {
   QString str =
-    tr("Diana - a 2D presentation system for meteorological data, including fields, observations,\nsatellite- and radarimages, vertical profiles and cross sections.\nDiana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.")+"\n\n"+ tr("version:") + " " + version_string.c_str();
+    tr("Diana - a 2D presentation system for meteorological data, including fields, observations,\nsatellite- and radarimages, vertical profiles and cross sections.\nDiana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.")+"\n\n"+ tr("version:") + " " + version_string.c_str()+"\n"+ tr("build:") + " " + build_string.c_str();
 
   QMessageBox::about( this, tr("about Diana"), str );
 }
@@ -3262,6 +3266,7 @@ void DianaMainWindow::writeLogFile()
 
   miString logfile= "diana.log";
   miString thisVersion= version_string;
+  miString thisBuild= build_string;
 
   // open filestream
   ofstream file(logfile.c_str());
@@ -3273,7 +3278,7 @@ void DianaMainWindow::writeLogFile()
   vector<miString> vstr;
   int i,n;
 
-  vstr= writeLog(thisVersion);
+  vstr= writeLog(thisVersion,thisBuild);
   n= vstr.size();
   file << "[MAIN.LOG]" << endl;
   for (i=0; i<n; i++) file << vstr[i] << endl;
@@ -3473,13 +3478,16 @@ void DianaMainWindow::readLogFile()
 }
 
 
-vector<miString> DianaMainWindow::writeLog(const miString& thisVersion)
+vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
+					   const miString& thisBuild)
 {
   vector<miString> vstr;
   miString str;
 
   // version & time
   str= "VERSION " + thisVersion;
+  vstr.push_back(str);
+  str= "BUILD " + thisBuild;
   vstr.push_back(str);
   str= "LOGTIME " + miTime::nowTime().isoTime();
   vstr.push_back(str);
@@ -3621,7 +3629,7 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
     }
   }
 
-  if (logVersion.empty()) logVersion= "0000-00-00";
+  if (logVersion.empty()) logVersion= "0.0.0";
 
   if (logVersion!=thisVersion)
     cerr << "log from version " << logVersion << endl;
