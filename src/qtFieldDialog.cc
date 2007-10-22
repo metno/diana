@@ -53,6 +53,7 @@
 
 #include <diController.h>
 #include <diRectangle.h>
+#include <diPlotOptions.h>
 
 #include <iostream>
 #include <math.h>
@@ -107,7 +108,9 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   int i, n;
 
   // get all field plot options from setup file
-  m_ctrl->getAllFieldOptions(setupFieldOptions,fieldPrefixes,fieldSuffixes);
+  vector<miString> fieldNames;
+  m_ctrl->getAllFieldNames(fieldNames,fieldPrefixes,fieldSuffixes);
+  PlotOptions::getAllFieldOptions(fieldNames,setupFieldOptions);
 
 //#################################################################
 //  map<miString,miString>::iterator pfopt, pfend= setupFieldOptions.end();
@@ -181,6 +184,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   cp->addKey("zero.line",      "",0,CommandParser::cmdInt);
   cp->addKey("value.label",    "",0,CommandParser::cmdInt);
   cp->addKey("label.size",     "",0,CommandParser::cmdFloat);
+  cp->addKey("grid.value",     "",0,CommandParser::cmdInt);
   cp->addKey("grid.lines",     "",0,CommandParser::cmdInt);
   cp->addKey("grid.lines.max", "",0,CommandParser::cmdInt);
   cp->addKey("base",           "",0,CommandParser::cmdFloat);
@@ -656,7 +660,11 @@ void FieldDialog::toolTips()
 		 tr("all time steps / only common time steps") );
   QToolTip::add( valueLabelCheckBox,  tr("numbers on the contour lines") );
 
-  QToolTip::add( gridLinesMaxSpinBox, tr("Max grid lines") );
+  QToolTip::add( gridValueCheckBox,   
+		 tr("Grid values, but only when a few grid points are visible") );
+  QToolTip::add( gridLinesSpinBox,    tr("Grid lines, 1=all") );
+//   QToolTip::add( gridLinesMaxSpinBox, 
+// 		 tr("Grid lines, but only when a few grid points are visible") );
   QToolTip::add( undefColourCbox,     tr("Undef colour") );
   QToolTip::add( undefLinewidthCbox,  tr("Undef linewidth") );
   QToolTip::add( undefLinetypeCbox,   tr("Undef linetype") );
@@ -738,6 +746,14 @@ void FieldDialog::CreateAdvanced() {
   connect( labelSizeSpinBox, SIGNAL( valueChanged(int) ),
 	   SLOT( labelSizeChanged(int) ) );
 
+  // grid values
+  //  QLabel* gridLabel= TitleLabel( tr("Grid"), advFrame );
+  gridValueCheckBox= new QCheckBox(QString(tr("Grid value")), advFrame);
+  gridValueCheckBox->setChecked( false );
+  gridValueCheckBox->setEnabled( false );
+  connect( gridValueCheckBox, SIGNAL( toggled(bool) ),
+	   SLOT( gridValueCheckBoxToggled(bool) ) );
+
   // grid lines
   QLabel* gridLinesLabel= new QLabel( tr("Grid lines"), advFrame );
   gridLinesSpinBox= new QSpinBox( 0,50,1, advFrame );
@@ -748,13 +764,13 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( gridLinesChanged(int) ) );
 
   // grid lines max
-  //  QLabel* gridLinesMaxLabel= new QLabel( tr("Max grid l."), advFrame );
-  gridLinesMaxSpinBox= new QSpinBox( 0,200,5, advFrame );
-  gridLinesMaxSpinBox->setSpecialValueText(tr("All"));
-  gridLinesMaxSpinBox->setValue(0);
-  gridLinesMaxSpinBox->setEnabled( false );
-  connect( gridLinesMaxSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( gridLinesMaxChanged(int) ) );
+//   QLabel* gridLinesMaxLabel= new QLabel( tr("Max grid l."), advFrame );
+//   gridLinesMaxSpinBox= new QSpinBox( 0,200,5, advFrame );
+//   gridLinesMaxSpinBox->setSpecialValueText(tr("All"));
+//   gridLinesMaxSpinBox->setValue(0);
+//   gridLinesMaxSpinBox->setEnabled( false );
+//   connect( gridLinesMaxSpinBox, SIGNAL( valueChanged(int) ),
+// 	   SLOT( gridLinesMaxChanged(int) ) );
 
 
   QLabel* hourOffsetLabel= new QLabel( tr("Time offset"),  advFrame );
@@ -969,92 +985,123 @@ void FieldDialog::CreateAdvanced() {
   // layout......................................................
 
   QGridLayout* advLayout = new QGridLayout( 33, 3, 1 );
+  int line = 0;
+  advLayout->addWidget( extremeTypeLabel,    line, 0 );
+  advLayout->addWidget(extremeSizeLabel,     line, 1 );
+  advLayout->addWidget(extremeRadiusLabel,   line, 2 );
+  line++;
+  advLayout->addWidget( extremeTypeCbox,     line, 0 );
+  advLayout->addWidget(extremeSizeSpinBox,   line, 1 );
+  advLayout->addWidget(extremeRadiusSpinBox, line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addMultiCellWidget(line0,    line,line,0,2 );
 
-  advLayout->addWidget( extremeTypeLabel,    0, 0 );
-  advLayout->addWidget(extremeSizeLabel,     0, 1 );
-  advLayout->addWidget(extremeRadiusLabel,   0, 2 );
-  advLayout->addWidget( extremeTypeCbox,     1, 0 );
-  advLayout->addWidget(extremeSizeSpinBox,   1, 1 );
-  advLayout->addWidget(extremeRadiusSpinBox, 1, 2 );
-  advLayout->setRowStretch(2,5);;
-  advLayout->addMultiCellWidget(line0,    2,2,0,2 );
+  line++;
+  advLayout->addWidget(gridLinesLabel,      line, 0 );
+  advLayout->addWidget(gridLinesSpinBox,     line, 1 );
+  advLayout->addWidget(gridValueCheckBox,    line, 2 );
+  line++;
+  advLayout->addWidget(lineSmoothLabel,      line, 0 );
+  advLayout->addWidget(lineSmoothSpinBox,    line, 1 );
+  line++;
+  advLayout->addWidget(fieldSmoothLabel,     line, 0 );
+  advLayout->addWidget(fieldSmoothSpinBox,   line, 1 );
+  line++;
+  advLayout->addWidget(hourOffsetLabel,      line, 0 );
+  advLayout->addWidget(hourOffsetSpinBox,    line, 1 );
+  line++;
+  advLayout->addWidget(hourDiffLabel,        line, 0 );
+  advLayout->addWidget(hourDiffSpinBox,      line, 1 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addMultiCellWidget(line4,   line,line, 0,2 );
+  line++;
+  advLayout->addWidget(undefMaskingLabel,   line, 0 );
+  advLayout->addWidget(undefMaskingCbox,    line, 1 );
+  line++;
+  advLayout->addWidget(undefColourCbox,     line, 0 );
+  advLayout->addWidget(undefLinewidthCbox,  line, 1 );
+  advLayout->addWidget(undefLinetypeCbox,   line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addMultiCellWidget(line1,   line,line, 0,3 );
 
-  advLayout->addWidget(gridLinesLabel,       3, 0 );
-  advLayout->addWidget(gridLinesSpinBox,     3, 1 );
-  advLayout->addWidget(gridLinesMaxSpinBox,  3, 2 );
-  advLayout->addWidget(lineSmoothLabel,      4, 0 );
-  advLayout->addWidget(lineSmoothSpinBox,    4, 1 );
-  advLayout->addWidget(fieldSmoothLabel,     5, 0 );
-  advLayout->addWidget(fieldSmoothSpinBox,   5, 1 );
-  advLayout->addWidget(hourOffsetLabel,      6, 0 );
-  advLayout->addWidget(hourOffsetSpinBox,    6, 1 );
-  advLayout->addWidget(hourDiffLabel,        7, 0 );
-  advLayout->addWidget(hourDiffSpinBox,      7, 1 );
-  advLayout->setRowStretch(4,5);;
-  advLayout->addMultiCellWidget(line4,   8,8, 0,2 );
+  line++;
+  advLayout->addWidget(zeroLineCheckBox,    line, 0 );
+  advLayout->addWidget(valueLabelCheckBox,  line, 1 );
+  advLayout->addWidget(labelSizeSpinBox,    line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addMultiCellWidget(line2,   line,line, 0,2 );
 
-  advLayout->addWidget(undefMaskingLabel,   9, 0 );
-  advLayout->addWidget(undefMaskingCbox,    9, 1 );
-  advLayout->addWidget(undefColourCbox,     10, 0 );
-  advLayout->addWidget(undefLinewidthCbox,  10, 1 );
-  advLayout->addWidget(undefLinetypeCbox,   10, 2 );
-  advLayout->setRowStretch(11,5);;
-  advLayout->addMultiCellWidget(line1,   11,11, 0,3 );
+  line++;
+  advLayout->addWidget( tableCheckBox,      line, 0 );
+  advLayout->addWidget( repeatCheckBox,  line, 1 );
+  line++;
+  advLayout->addWidget( shadingLabel,       line, 0 );
+  advLayout->addWidget( shadingComboBox,    line, 1 );
+  advLayout->addWidget( shadingSpinBox,     line, 2 );
+  line++;
+  advLayout->addWidget( shadingcoldLabel,   line, 0 );
+  advLayout->addWidget( shadingcoldComboBox,line, 1 );
+  advLayout->addWidget( shadingcoldSpinBox, line, 2 );
+  line++;
+  advLayout->addWidget( patternLabel,       line, 0 );
+  advLayout->addWidget( patternComboBox,    line, 1 );
+  advLayout->addWidget( patternColourBox,   line, 2 );
+  line++;
+  advLayout->addWidget( alphaLabel,         line, 0 );
+  advLayout->addWidget( alphaSpinBox,       line, 1 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addMultiCellWidget(line6,   line,line, 0,2 );
 
-  advLayout->addWidget(zeroLineCheckBox,    12, 0 );
-  advLayout->addWidget(valueLabelCheckBox,  12, 1 );
-  advLayout->addWidget(labelSizeSpinBox,    12, 2 );
-  advLayout->setRowStretch(13,5);;
-  advLayout->addMultiCellWidget(line2,   13,13, 0,2 );
+  line++;
+  advLayout->addWidget( baseLabel,          line, 0 );
+  advLayout->addWidget( minLabel,           line, 1 );
+  advLayout->addWidget( maxLabel,           line, 2 );
+  line++;
+  advLayout->addWidget( zero1ComboBox,      line, 0 );
+  advLayout->addWidget( min1ComboBox,       line, 1 );
+  advLayout->addWidget( max1ComboBox,       line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addMultiCellWidget(line3,   line,line, 0,2 );
 
-  advLayout->addWidget( tableCheckBox,      14, 0 );
-  advLayout->addWidget( repeatCheckBox,  14, 1 );
-  advLayout->addWidget( shadingLabel,       15, 0 );
-  advLayout->addWidget( shadingComboBox,    15, 1 );
-  advLayout->addWidget( shadingSpinBox,     15, 2 );
-  advLayout->addWidget( shadingcoldLabel,   16, 0 );
-  advLayout->addWidget( shadingcoldComboBox,16, 1 );
-  advLayout->addWidget( shadingcoldSpinBox, 16, 2 );
-  advLayout->addWidget( patternLabel,       17, 0 );
-  advLayout->addWidget( patternComboBox,    17, 1 );
-  advLayout->addWidget( patternColourBox,   17, 2 );
-  advLayout->addWidget( alphaLabel,         18, 0 );
-  advLayout->addWidget( alphaSpinBox,       18, 1 );
-  advLayout->setRowStretch(19,5);;
-  advLayout->addMultiCellWidget(line6,   19,19, 0,2 );
+  line++;
+  advLayout->addMultiCellWidget(headLabel,line,line,0,1);
+  line++;
+  advLayout->addWidget( colourLabel,        line, 0 );
+  advLayout->addWidget( colour2ComboBox,    line, 1 );
+  line++;
+  advLayout->addWidget( intervalLabel,      line, 0 );
+  advLayout->addWidget( interval2ComboBox,  line, 1 );
+  line++;
+  advLayout->addWidget( linewidthLabel,     line, 0 );
+  advLayout->addWidget( linewidth2ComboBox, line, 1 );
+  line++;
+  advLayout->addWidget( linetypeLabel,      line, 0 );
+  advLayout->addWidget( linetype2ComboBox,  line, 1 );
+  line++;
+  advLayout->addWidget( base2Label,         line, 0 );
+  advLayout->addWidget( min2Label,          line, 1 );
+  advLayout->addWidget( max2Label,          line, 2 );
+  line++;
+  advLayout->addWidget( zero2ComboBox,      line, 0 );
+  advLayout->addWidget( min2ComboBox,       line, 1 );
+  advLayout->addWidget( max2ComboBox,       line, 2 );
 
-  advLayout->addWidget( baseLabel,          20, 0 );
-  advLayout->addWidget( minLabel,           20, 1 );
-  advLayout->addWidget( maxLabel,           20, 2 );
-  advLayout->addWidget( zero1ComboBox,      21, 0 );
-  advLayout->addWidget( min1ComboBox,       21, 1 );
-  advLayout->addWidget( max1ComboBox,       21, 2 );
-  advLayout->setRowStretch(22,5);;
-  advLayout->addMultiCellWidget(line3,   22,22, 0,2 );
-
-  advLayout->addMultiCellWidget(headLabel,23,23,0,1);
-  advLayout->addWidget( colourLabel,        24, 0 );
-  advLayout->addWidget( colour2ComboBox,    24, 1 );
-  advLayout->addWidget( intervalLabel,      25, 0 );
-  advLayout->addWidget( interval2ComboBox,  25, 1 );
-  advLayout->addWidget( linewidthLabel,     26, 0 );
-  advLayout->addWidget( linewidth2ComboBox, 26, 1 );
-  advLayout->addWidget( linetypeLabel,      27, 0 );
-  advLayout->addWidget( linetype2ComboBox,  27, 1 );
-  advLayout->addWidget( base2Label,         28, 0 );
-  advLayout->addWidget( min2Label,          28, 1 );
-  advLayout->addWidget( max2Label,          28, 2 );
-  advLayout->addWidget( zero2ComboBox,      29, 0 );
-  advLayout->addWidget( min2ComboBox,       29, 1 );
-  advLayout->addWidget( max2ComboBox,       29, 2 );
-
-  advLayout->setRowStretch(30,5);;
-  advLayout->addMultiCellWidget(line5,   30,30, 0,2 );
-  advLayout->addWidget( threeColourLabel,    31, 0 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addMultiCellWidget(line5,      line,line, 0,2 );
+  line++;
+  advLayout->addWidget( threeColourLabel,    line, 0 );
   //  advLayout->addWidget( threeColoursCheckBox, 38, 0 );
-  advLayout->addWidget( threeColourBox[0],    32, 0 );
-  advLayout->addWidget( threeColourBox[1],    32, 1 );
-  advLayout->addWidget( threeColourBox[2],    32, 2 );
+  line++;
+  advLayout->addWidget( threeColourBox[0],    line, 0 );
+  advLayout->addWidget( threeColourBox[1],    line, 1 );
+  advLayout->addWidget( threeColourBox[2],    line, 2 );
 
   // a separator
   QFrame* advSep= new QFrame( advFrame );
@@ -2187,6 +2234,21 @@ void FieldDialog::enableFieldOptions(){
     labelSizeSpinBox->setEnabled(false);
   }
 
+  nc=cp->findKey(vpcopt,"grid.value");
+  if (nc>=0) {
+    if (vpcopt[nc].allValue=="-1") {
+      nc=-1;
+    } else {
+      bool on= vpcopt[nc].allValue=="1";
+      gridValueCheckBox->setChecked( on );
+      gridValueCheckBox->setEnabled(true);
+    }
+  }
+  if (nc<0 && gridValueCheckBox->isEnabled()) {
+    gridValueCheckBox->setChecked( false );
+    gridValueCheckBox->setEnabled( false );
+  }
+
   if ((nc=cp->findKey(vpcopt,"grid.lines"))>=0) {
     if (!vpcopt[nc].intValue.empty()) i=vpcopt[nc].intValue[0];
     else i=0;
@@ -2197,15 +2259,15 @@ void FieldDialog::enableFieldOptions(){
     gridLinesSpinBox->setEnabled(false);
   }
 
-  if ((nc=cp->findKey(vpcopt,"grid.lines.max"))>=0) {
-    if (!vpcopt[nc].intValue.empty()) i=vpcopt[nc].intValue[0];
-    else i=0;
-    gridLinesMaxSpinBox->setValue(i);
-    gridLinesMaxSpinBox->setEnabled(true);
-  } else if (gridLinesMaxSpinBox->isEnabled()) {
-    gridLinesMaxSpinBox->setValue(0);
-    gridLinesMaxSpinBox->setEnabled(false);
-  }
+//   if ((nc=cp->findKey(vpcopt,"grid.lines.max"))>=0) {
+//     if (!vpcopt[nc].intValue.empty()) i=vpcopt[nc].intValue[0];
+//     else i=0;
+//     gridLinesMaxSpinBox->setValue(i);
+//     gridLinesMaxSpinBox->setEnabled(true);
+//   } else if (gridLinesMaxSpinBox->isEnabled()) {
+//     gridLinesMaxSpinBox->setValue(0);
+//     gridLinesMaxSpinBox->setEnabled(false);
+//   }
 
   // base
   miString base;
@@ -2489,11 +2551,14 @@ void FieldDialog::disableFieldOptions(int type)
   labelSizeSpinBox->setValue(100);
   labelSizeSpinBox->setEnabled( false );
 
+  gridValueCheckBox->setChecked( false );
+  gridValueCheckBox->setEnabled( false );
+
   gridLinesSpinBox->setValue(0);
   gridLinesSpinBox->setEnabled( false );
 
-  gridLinesMaxSpinBox->setValue(0);
-  gridLinesMaxSpinBox->setEnabled( false );
+//   gridLinesMaxSpinBox->setValue(0);
+//   gridLinesMaxSpinBox->setEnabled( false );
 
   zero1ComboBox->clear();
   zero1ComboBox->setEnabled( false );
@@ -2740,6 +2805,13 @@ void FieldDialog::labelSizeChanged(int value)
 }
 
 
+void FieldDialog::gridValueCheckBoxToggled(bool on)
+{
+  if (on) updateFieldOptions("grid.value","1");
+  else    updateFieldOptions("grid.value","0");
+}
+
+
 void FieldDialog::gridLinesChanged(int value)
 {
   miString str= miString( value );
@@ -2747,11 +2819,11 @@ void FieldDialog::gridLinesChanged(int value)
 }
 
 
-void FieldDialog::gridLinesMaxChanged(int value)
-{
-  miString str= miString( value );
-  updateFieldOptions("grid.lines.max",str);
-}
+// void FieldDialog::gridLinesMaxChanged(int value)
+// {
+//   miString str= miString( value );
+//   updateFieldOptions("grid.lines.max",str);
+// }
 
 
 void FieldDialog::baseoptionsActivated( int index )
@@ -4923,12 +4995,6 @@ void FieldDialog::allTimeStepToggled(bool on)
 {
   updateTime();
   
-//   FieldDialogInfo fdi;
-//   fdi.groupName = "Agnes";
-//   fdi.archiveGroup=false;
-//   fdi.modelNames.push_back("Troll");
-//   fdi.modelNames.push_back("Tiger");
-//   addModelGroup(fdi);
 }
 
 void FieldDialog::applyClicked()
@@ -4976,3 +5042,4 @@ void FieldDialog::highlightButton(QPushButton* button, bool on)
     }
   }
 }
+

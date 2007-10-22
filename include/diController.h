@@ -257,9 +257,9 @@ public:
   /// return model/file groups and contents to FieldDialog
   vector<FieldDialogInfo> initFieldDialog();
   /// return plot options for all defined plot fields in setup
-  void getAllFieldOptions(map<miString,miString>& fieldoptions,
-			  set<miString>& fieldprefixes,
-			  set<miString>& fieldsuffixes);
+  void getAllFieldNames(vector<miString>& fieldNames,
+			set<miString>& fieldprefixes,
+			set<miString>& fieldsuffixes);
   ///return levels
   vector<miString> getFieldLevels(const miString& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog

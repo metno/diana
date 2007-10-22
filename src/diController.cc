@@ -730,11 +730,11 @@ vector<FieldDialogInfo> Controller::initFieldDialog(){
   return fieldm->getFieldDialogInfo();
 }
 
-void Controller::getAllFieldOptions(map<miString,miString>& fieldoptions,
+void Controller::getAllFieldNames(vector<miString> & fieldNames,
 				    set<miString>& fieldprefixes,
 				    set<miString>& fieldsuffixes)
 {
-  fieldm->getAllFieldOptions(fieldoptions,fieldprefixes,fieldsuffixes);
+  fieldm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
 }
 
 miString Controller::getFieldClassSpecifications(const miString& fieldname)

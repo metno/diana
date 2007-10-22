@@ -493,6 +493,7 @@ bool FieldPlot::plot(){
 
   // should be below all real fields ???  colour etc ??????
   if (poptions.gridLines>0) plotGridLines();
+  if (poptions.gridValue>0) plotNumbers();
 
   if       (ptype==fpt_contour)          return plotContour();
   else if (ptype==fpt_wind)             return plotWind();
@@ -3750,7 +3751,7 @@ bool FieldPlot::plotNumbers(){
   if (iprec<0) iprec=0;
   miString str;
 
-  glColor3f(0.0,0.0,0.0);
+  glColor3ubv(poptions.linecolour.RGB());
 
   for (iy=iy1; iy<iy2; iy++) {
     for (ix=ix1; ix<ix2; ix++) {
@@ -3795,7 +3796,6 @@ bool FieldPlot::plotNumbers(){
   nx++;
   ny++;
 
-  glColor3f(0.2,0.2,0.2);
   glLineWidth(1.0);
 
   if (mapconvert==0 || mapconvert==1) {

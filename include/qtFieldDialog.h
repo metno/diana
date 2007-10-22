@@ -348,8 +348,9 @@ private slots:
   void lineSmoothChanged(int value);
   void fieldSmoothChanged(int value);
   void labelSizeChanged(int value);
+  void gridValueCheckBoxToggled(bool on);
   void gridLinesChanged(int value);
-  void gridLinesMaxChanged(int value);
+  //  void gridLinesMaxChanged(int value);
   void baseoptionsActivated( int index );
   void hourOffsetChanged(int value);
   void hourDiffChanged(int value);
@@ -382,14 +383,16 @@ private slots:
   void updatePaletteString();
 
 private:
+
   QWidget*   advFrame;
   QSpinBox*  extremeSizeSpinBox;
   QSpinBox*  extremeRadiusSpinBox;
   QSpinBox*  lineSmoothSpinBox;
   QSpinBox*  fieldSmoothSpinBox;
   QSpinBox*  labelSizeSpinBox;
+  QCheckBox* gridValueCheckBox;
   QSpinBox*  gridLinesSpinBox;
-  QSpinBox*  gridLinesMaxSpinBox;
+  //  QSpinBox*  gridLinesMaxSpinBox;
   QComboBox* baseoptionsCbox;
   QSpinBox*  hourOffsetSpinBox;
   QSpinBox*  hourDiffSpinBox;
