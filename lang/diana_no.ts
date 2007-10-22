@@ -336,6 +336,10 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <source>&amp;EditTime</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>build:</source>
+        <translation>Bygget:</translation>
+    </message>
 </context>
 <context>
     <name>EditComment</name>
@@ -1137,7 +1141,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>All</source>
-        <translation>Alle</translation>
+        <translation type="obsolete">Alle</translation>
     </message>
     <message>
         <source>Time offset</source>
@@ -1313,7 +1317,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Max grid lines</source>
-        <translation>Max gridlinjer</translation>
+        <translation type="obsolete">Max gridlinjer</translation>
     </message>
     <message>
         <source>Undef colour</source>
@@ -1330,6 +1334,18 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Three colours</source>
         <translation>Tre farger</translation>
+    </message>
+    <message>
+        <source>Grid values, but only when a few grid points are visible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid lines, 1=all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid value</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
