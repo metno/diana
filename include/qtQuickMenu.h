@@ -99,6 +99,9 @@ private:
   void getCommand(vector<miString>&);   // get command-text from comedit
   void timerEvent(QTimerEvent*);        // timer for demo-mode
   bool itemChanged(int menu, int item); // check changes in static menues
+  void replaceDynamicOptions(vector<miString>& oldCommand,
+			     vector<miString>& newCommand);
+
 
 signals:
   void QuickHide();   // request hide for this dialog

@@ -525,6 +525,7 @@ void QuickMenu::fillStaticMenues()
 
 void QuickMenu::updateButton()
 {
+
   int i= (lastcustom>0 ? lastcustom+1 : 1); // index to first static menu
   
   if (prev_listindex >= 0 && prev_plotindex >= 0){
@@ -601,6 +602,7 @@ void QuickMenu::updateButton()
       } else {
 	// set it..
 	if (vs.size()>0){
+	  replaceDynamicOptions(qm[activemenu].menuitems[idx].command,vs);
 	  qm[activemenu].menuitems[idx].command= vs;
 	  if (changename){
 	    qm[activemenu].menuitems[idx].name=
@@ -618,6 +620,37 @@ void QuickMenu::updateButton()
       listHighlight(idx);
     }
   }
+}
+
+void QuickMenu::replaceDynamicOptions(vector<miString>& oldCommand,
+				      vector<miString>& newCommand)
+{
+
+  int nold=oldCommand.size();
+  int nnew=oldCommand.size();
+
+  for(int i=0;i<nold && i<nnew;i++){
+    if(!oldCommand[i].contains("@")) continue;
+    vector<miString> token =oldCommand[i].split(" "); 
+    int ntoken = token.size();
+    for(int j=0;j<ntoken;j++){
+      if(!token[j].contains("@")) continue;
+      vector<miString> stoken = token[j].split("=");
+      if(stoken.size()!=2 || !stoken[1].contains("@")) continue;
+      //found item to replace
+      vector<miString> newtoken =newCommand[i].split(" "); 
+      int nnewtoken = newtoken.size();
+      if(nnewtoken<2 || token[0]!=newtoken[0]) continue;
+      for(int k=1;k<nnewtoken;k++){
+	vector<miString> snewtoken = newtoken[k].split("=");
+	if(snewtoken.size()==2 && snewtoken[0]==stoken[0]){
+	  newCommand[i].replace(newtoken[k],token[j]);
+	}
+      }
+    }
+  }
+    
+      
 }
 
 void QuickMenu::resetButton()
