@@ -514,11 +514,18 @@ GridEditManager::setObject(const fetBaseObject& fobj,
     //Set area
     ProjectablePolygon polygon = areaManager.getCurrentPolygon();
 
+//     fetObject ob;
+//     ob.set(fobj,
+// 	   "Derfor",polygon,executor.cleanCode(),"me",
+// 	   miTime::nowTime(),miTime::nowTime(),"MODEL",
+// 	   guikeys,nx,ny,"");
+    Area area;    // !!
+    proMask mask; // !!
     fetObject ob;
-    ob.set(fobj,
-	   "Derfor",polygon,executor.cleanCode(),"me",
-	   miTime::nowTime(),miTime::nowTime(),"MODEL",
-	   guikeys,nx,ny,"");
+    ob.setFromBaseObject(fobj,
+			 "Derfor",polygon,mask,nx,ny,area,executor.cleanCode(),"me",
+			 miTime::nowTime(),miTime::nowTime(),"PARAMETER",
+			 guikeys,"");
 
     rawObject = ob;
     prepareObject(components);
