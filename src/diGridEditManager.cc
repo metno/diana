@@ -523,7 +523,7 @@ GridEditManager::setObject(const fetBaseObject& fobj,
     proMask mask; // !!
     fetObject ob;
     ob.setFromBaseObject(fobj,
-			 "Derfor",polygon,mask,nx,ny,area,executor.cleanCode(),"me",
+			 "Derfor",polygon,nx,ny,area,executor.cleanCode(),"me",
 			 miTime::nowTime(),miTime::nowTime(),"PARAMETER",
 			 guikeys,"");
 
