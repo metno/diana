@@ -59,6 +59,7 @@ file= $(ROOT)/vnn/Polare_Lavtrykk_Ny.quick
 file= $(ROOT)/vnn/briefing.txt
 file= $(ROOT)/vnn/turbulens.txt
 file= $(ROOT)/vnn/Verifikasjon.quick
+file= $(ROOT)/vnn/Bedre_Byluft.quick 
 </QUICKMENUS>
 
 <FIELD_FILES>
