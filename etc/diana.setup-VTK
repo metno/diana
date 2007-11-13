@@ -435,7 +435,7 @@ product="SKVbrief"
   time_start_early= -12:00    # hour:minute (-=before,+=after product)
   time_start_late=  -04:00
 
-  commandfile=/home/guest/SKVkart.txt
+  commandfile=$(DIANADIR)/etc/SKVkart.txt
   standard_symbolsize=20
   complex_symbolsize=6
 
