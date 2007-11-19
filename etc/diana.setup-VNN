@@ -198,6 +198,7 @@ m=UM4EXP_00-2        f=$(OPDATA2)/um4exp/grdqe00.dat-2
 m=UM4EXP_12-2        f=$(OPDATA2)/um4exp/grdqe12.dat-2
 
 filegroup=UM.1km
+m=ALT-UM1KM.NN	            f=$(OPDATA2)/um1exp/um1nn00.dat
 m=UM.V-Finnmark.1km.00      f=$(OPDATA2)/um1km/um1hh00.dat
 m=UM.V-Finnmark.1km.12      f=$(OPDATA2)/um1km/um1hh12.dat
 m=UM.V-Finnmark.1km.00-1    f=$(OPDATA2)/um1km/um1hh00.dat-1
@@ -867,6 +868,14 @@ product="Iskant"
 end.product
 
 </EDIT>
+
+
+<VERTICAL_PROFILE_FILES>
+
+m=ALT.UM1KM.nn  f=$(OPDATA2)/um1exp/vprof.dat_um1nn
+
+</VERTICAL_PROFILE_FILES> 
+
 
 <VERTICAL_CROSSECTION_FILES>
 

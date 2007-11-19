@@ -4003,6 +4003,8 @@ m=HIRLAM.G.18   f=$(OPDATA1)/hirlam/vprof18.dat
 m=HIRLAM.10KM.00   f=$(OPDATA2)/hirlam10/vp10km00.dat
 m=HIRLAM.10KM.12   f=$(OPDATA2)/hirlam10/vp10km12.dat
 
+m=UM.4KM             f=/opdata/um4km/vpUM4km.dat
+
 m=MM5.OSLO.1KM       f=$(OPDATA2)/byluft/vpmm5oslo.dat
 m=MM5.DRAMMEN.1KM    f=$(OPDATA2)/byluft/vpmm5drammen.dat
 m=MM5.GRENLAND.1KM   f=$(OPDATA2)/byluft/vpmm5grenland.dat
@@ -4048,6 +4050,7 @@ m=HIRLAM.12KM.18  f=$(OPDATA1)/hirlam12/vc12km18.dat
 m=HIRLAM.10KM.00  f=$(OPDATA2)/hirlam10/vc10km00.dat
 m=HIRLAM.10KM.12  f=$(OPDATA2)/hirlam10/vc10km12.dat
 
+m=UM.4KM                f=/opdata/um4km/vcUM4km.dat
 m=SIMRA.Hammerfest.00   f=$(OPDATA2)/um1km/vcsimme00.dat
 m=SIMRA.Hammerfest.12   f=$(OPDATA2)/um1km/vcsimme12.dat
 m=SIMRA.Narvik.00       f=$(OPDATA2)/um1km/vcsimna00.dat
