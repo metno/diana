@@ -2547,6 +2547,10 @@ m=UM.Trondheim.1km.12-1     f=$(OPDATA2)/um1km/um1va12.dat-1
 m=UM.Trondheim.1km.00-2     f=$(OPDATA2)/um1km/um1va00.dat-2
 m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
 
+filegroup=UM.1km.exp
+m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
+m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
+
 filegroup=MM5.Byluft+Vindkraft
 m=MM5.OSLO.3KM       f=$(OPDATA2)/byluft/mm5stoslo3km.flt
 m=MM5.OSLO.1KM       f=$(OPDATA2)/byluft/mm5stoslo1km.flt
@@ -4004,6 +4008,8 @@ m=HIRLAM.10KM.00   f=$(OPDATA2)/hirlam10/vp10km00.dat
 m=HIRLAM.10KM.12   f=$(OPDATA2)/hirlam10/vp10km12.dat
 
 m=UM.4KM             f=/opdata/um4km/vpUM4km.dat
+m=UMEXP.S-Norge.1KM  f=/opdata/um1exp/vprof.dat_um1sn
+m=UMEXP.N-Norge.1KM  f=/opdata/um1exp/vprof.dat_um1nn
 
 m=MM5.OSLO.1KM       f=$(OPDATA2)/byluft/vpmm5oslo.dat
 m=MM5.DRAMMEN.1KM    f=$(OPDATA2)/byluft/vpmm5drammen.dat
@@ -4051,6 +4057,7 @@ m=HIRLAM.10KM.00  f=$(OPDATA2)/hirlam10/vc10km00.dat
 m=HIRLAM.10KM.12  f=$(OPDATA2)/hirlam10/vc10km12.dat
 
 m=UM.4KM                f=/opdata/um4km/vcUM4km.dat
+
 m=SIMRA.Hammerfest.00   f=$(OPDATA2)/um1km/vcsimme00.dat
 m=SIMRA.Hammerfest.12   f=$(OPDATA2)/um1km/vcsimme12.dat
 m=SIMRA.Narvik.00       f=$(OPDATA2)/um1km/vcsimna00.dat

@@ -242,6 +242,10 @@ m=UM.Trondheim.1km.12-1     f=$(OPDATA2)/um1km/um1va12.dat-1
 m=UM.Trondheim.1km.00-2     f=$(OPDATA2)/um1km/um1va00.dat-2
 m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
 
+filegroup=UM.1km.exp
+m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
+m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
+
 filegroup=MM5.Byluft+Vindkraft
 m=MM5.HAVØYSUND.3KM  f=/opdata_routine/vindkraft/mm5havoy3km.flt
 m=MM5.HAVØYSUND.1KM  f=/opdata_routine/vindkraft/mm5havoy1km.flt
