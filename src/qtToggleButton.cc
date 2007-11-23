@@ -41,13 +41,12 @@ ToggleButton::ToggleButton( QWidget* parent,
 
   if (color && &color[0] && &color[1]) {
     inPalette = QPalette( color[0], color[1] );
+    outPalette = this->palette();
+    this->setPalette( outPalette );
+    usePalette  = true;
   } else {
-    inPalette = QPalette( QColor( 100,200,200));
+    usePalette    = false;
   }
-
-  outPalette = this->palette();
-
-  this->setPalette( outPalette );
 
   this->setToggleButton ( TRUE );
 
@@ -61,13 +60,17 @@ ToggleButton::ToggleButton( QWidget* parent,
 			    QColor* color )
   : QPushButton( (name[1]).c_str(),  parent )
 {
+
+
   if (color && &color[0] && &color[1]) {
     inPalette = QPalette( color[0], color[1] );
+    outPalette = this->palette();
+    this->setPalette( outPalette );
+    usePalette  = true;
   } else {
-    inPalette = QPalette( QColor( 100,200,200));
+    usePalette  = false;
   }
 
-  outPalette = this->palette();
 
   NameChange = true;
 
@@ -75,8 +78,6 @@ ToggleButton::ToggleButton( QWidget* parent,
     m_inName  = name[0];
     m_outName = name[1];
   }
-
-  this->setPalette( outPalette );
 
   this->setToggleButton ( TRUE );
 
@@ -94,21 +95,12 @@ ToggleButton::ToggleButton( QWidget* parent,
 
   if (color && &color[0] && &color[1]) {
     inPalette = QPalette( color[0], color[1] );
+    outPalette = this->palette();
+    this->setPalette( outPalette );
+    usePalette  = true;
   } else {
-//  inPalette = QPalette( QColor( 100,200,200));
-//  inPalette = QPalette( QColor( 100,255,100));
-    inPalette = QPalette( QColor( 54,222,255));
-//  inPalette = QPalette( QColor(128,255,255));
+    usePalette  = false;
   }
-
-  outPalette = this->palette();
-
-//  this->setBackgroundMode( Qt::FixedColor );
-//  this->setPaletteBackgroundColor( QColor(255,255,255) );
-
-//  this->setBackgroundMode( Qt::PaletteLight );
-
-  this->setPalette( outPalette );
 
   this->setToggleButton ( TRUE );
 
@@ -120,13 +112,25 @@ ToggleButton::ToggleButton( QWidget* parent,
 void ToggleButton::Toggled( bool on )
 {
   if( on ){
-    this->setPalette( inPalette );
+    if( usePalette )
+      this->setPalette( inPalette );
     if( NameChange )
       this->setText( m_inName.c_str() );
   } else {
-    this->setPalette( outPalette );
+    if( usePalette )
+      this->setPalette( outPalette );
     if( NameChange )
       this->setText( m_outName.c_str() );
   }
 
+}
+
+void ToggleButton::mouseReleaseEvent( QMouseEvent *e )
+{
+
+  if ( e->button() == QMouseEvent::RightButton ){
+    emit rightButtonClicked(this);
+  }
+
+  QButton::mouseReleaseEvent(e);
 }
