@@ -234,7 +234,7 @@ void PlotModule::prepareFields(const vector<miString>& inp){
   // for now -- erase all fieldplots
   for (int i=0; i<vfp.size(); i++){
     // keep enable flag
-    str= vfp[i]->getPlotInfo();
+    str= vfp[i]->getPlotInfo(3);
     plotenabled[str]= vfp[i]->Enabled();
     // delete plot
     delete vfp[i];
@@ -246,8 +246,6 @@ void PlotModule::prepareFields(const vector<miString>& inp){
   for (int i=0; i<npi; i++){
     if(gridm->prepare(inp[i])) continue; // edit field
     FieldPlot *fp;
-    str= inp[i]; // check if disable
-    if (plotenabled.count(str)==0) plotenabled[str]= true;
     n= vfp.size();
     vfp.push_back(fp);
     vfp[n]= new FieldPlot();
@@ -267,6 +265,8 @@ void PlotModule::prepareFields(const vector<miString>& inp){
       delete vfp[n];
       vfp.pop_back();
     } else {
+      str= vfp[n]->getPlotInfo(3);
+      if (plotenabled.count(str)==0) plotenabled[str]= true;
       vfp[n]->enable(plotenabled[str] && vfp[n]->Enabled());
     }
   }
@@ -288,7 +288,7 @@ void PlotModule::prepareObs(const vector<miString>& inp){
   miString str;
   map<miString,bool> plotenabled;
   for (int i=0; i<vop.size(); i++){
-    str= vop[i]->getPlotInfo();
+    str= vop[i]->getPlotInfo(3);
     plotenabled[str]= vop[i]->Enabled();
   }
 
@@ -316,8 +316,6 @@ void PlotModule::prepareObs(const vector<miString>& inp){
   int n;
   ObsPlot *op;
   for (int i=0; i<npi; i++){
-    str= inp[i]; // check if disable
-    if (plotenabled.count(str)==0) plotenabled[str]= true;
     n= vop.size();
     vop.push_back(op);
     vop[n]= new ObsPlot();
@@ -325,6 +323,8 @@ void PlotModule::prepareObs(const vector<miString>& inp){
       delete vop[n];
       vop.pop_back();
     } else {
+      str= vop[n]->getPlotInfo(3);
+      if (plotenabled.count(str)==0) plotenabled[str]= true;
       vop[n]->enable(plotenabled[str] && vop[n]->Enabled());
 
       if(vobsTimes.size()==0){
@@ -354,7 +354,7 @@ void PlotModule::prepareSat(const vector<miString>& inp){
   miString str;
   map<miString,bool> plotenabled;
   for (int i=0; i<vsp.size(); i++){
-    str= vsp[i]->getPlotInfo();
+    str= vsp[i]->getPlotInfo(4);
     plotenabled[str]= vsp[i]->Enabled();
   }
 
@@ -363,7 +363,7 @@ void PlotModule::prepareSat(const vector<miString>& inp){
   }
 
   for (int i=0; i<vsp.size(); i++){
-    str= vsp[i]->getPlotInfo();
+    str= vsp[i]->getPlotInfo(4);
     if (plotenabled.count(str)==0) plotenabled[str]= true;
     vsp[i]->enable(plotenabled[str] && vsp[i]->Enabled());
   }
