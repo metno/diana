@@ -3502,6 +3502,8 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   vstr.push_back(str);
   str= "FieldDialog.pos " + miString(fm->x()) + " " + miString(fm->y());
   vstr.push_back(str);
+  str= "FieldDialog.size " + miString(fm->width()) + " " + miString(fm->height());
+  vstr.push_back(str);
   str= "ObsDialog.pos "   + miString(om->x()) + " " + miString(om->y());
   vstr.push_back(str);
   str= "ObsDialog.size " + miString(om->width()) + " " + miString(om->height());
@@ -3587,6 +3589,7 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
         if      (tokens[0]=="MainWindow.pos")  this->move(x,y);
         else if (tokens[0]=="QuickMenu.pos")   qm->move(x,y);
         else if (tokens[0]=="FieldDialog.pos") fm->move(x,y);
+        else if (tokens[0]=="FieldDialog.size")fm->resize(x,y);
         else if (tokens[0]=="ObsDialog.pos")   om->move(x,y);
         else if (tokens[0]=="ObsDialog.size")  om->resize(x,y);
         else if (tokens[0]=="SatDialog.pos")   sm->move(x,y);
