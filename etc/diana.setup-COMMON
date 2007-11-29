@@ -1378,7 +1378,8 @@ end.field
 
 field=Turbulens_if
       fieldgroup="Inflight"
-      colour=red linetype=solid linewidth=1 line.interval=0.5
+      classes=2:light,3:moderate,4:severe
+      colour=red line.interval=0.5
       plot=CONTOUR(turbulence.inflight)
 end.field
 
