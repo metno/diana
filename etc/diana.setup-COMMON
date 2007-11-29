@@ -1378,8 +1378,7 @@ end.field
 
 field=Turbulens_if
       fieldgroup="Inflight"
-      classes=2:light,3:moderate,4:severe
-      colour=red line.interval=0.5
+      colour=red linetype=solid linewidth=1 line.interval=0.5
       plot=CONTOUR(turbulence.inflight)
 end.field
 
@@ -3000,14 +2999,6 @@ timerange=-60,60
 PROD=ascii:Skogbrann
 ascii=$(OPDATA2)/varsler/wbkz.yyyymmddHH
 timerange=-360,1080    
-
-#PROD=ascii:ColorcodeMETAR
-#ascii=$(OPDATA2)/varsler/colorcode_metar.yyyymmddHH
-#timerange=-360,1080
-
-#PROD=ascii:ColorcodeTAF
-#ascii=$(OPDATA2)/varsler/colorcode_taf.yyyymmddHH
-#timerange=-360,1080
 
 PROD=ascii:Radiofyr
 ascii=$(DIANADIR)/etc/radiofyr.txt
