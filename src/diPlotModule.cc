@@ -250,13 +250,15 @@ void PlotModule::prepareFields(const vector<miString>& inp){
     vfp.push_back(fp);
     vfp[n]= new FieldPlot();
 
-    if (str.contains(" ( ") && str.contains(" - ") && str.contains(" ) ")) {
-      size_t p1= str.find(" ( ",0);
-      size_t p2= str.find(" - ",p1+3);
-      size_t p3= str.find(" ) ",p2+3);
+    if (inp[i].contains(" ( ") && 
+	inp[i].contains(" - ") && 
+	inp[i].contains(" ) ")) {
+      size_t p1= inp[i].find(" ( ",0);
+      size_t p2= inp[i].find(" - ",p1+3);
+      size_t p3= inp[i].find(" ) ",p2+3);
       if (p1!=string::npos && p2!=string::npos && p3!=string::npos) {
-        miString fspec1= str.substr(0,p1) + str.substr(p1+2,p2-p1-2);
-        miString fspec2= str.substr(0,p1) + str.substr(p2+2,p3-p2-2);
+        miString fspec1= inp[i].substr(0,p1) + inp[i].substr(p1+2,p2-p1-2);
+        miString fspec2= inp[i].substr(0,p1) + inp[i].substr(p2+2,p3-p2-2);
         vfp[n]->setDifference(fspec1,fspec2);
       }
     }
