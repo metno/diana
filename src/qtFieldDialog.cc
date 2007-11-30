@@ -679,6 +679,7 @@ void FieldDialog::advancedToggled(bool on){
   cerr<<"FieldDialog::advancedToggled  on= " << on <<endl;
 #endif
 
+  this->show();
   this->showExtension(on);
 
 }
