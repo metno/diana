@@ -3317,6 +3317,11 @@ image=SSM/I-regnflagg
   sub.type= Regnflagg
       file=$(OPDATA3)/ssmi_prod/tif/rflag??.tiff
 
+image=CLoudSAT
+  channels= CLFR
+  sub.type= CPR
+      file= $(OPDATA3)/satdata_polar/cloudsat/mitiff/cloudsat_l2_[yyyymmddHHMM]*.tiff
+
 image=NWCSAF_PPS
    channels= C
    sub.type= Skytype_Norskehavet
