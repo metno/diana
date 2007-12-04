@@ -21,9 +21,10 @@ DEFINES=-DMETNOFIELDFILE -DNETCDF -DMETNOPRODDB -DMETNOOBS -DBUFROBS $(LOGGDEF)
 ifdef WEATHERDB
 DEFINES += -DWEATHERDB
 WEATHERDB_LIB=-ldiWeatherDB 
-WEATHERDB_EXTRA_LIB=-lboost_thread-mt \
+WEATHERDB_EXTRA_LIB=-lboost_thread \
 		    $(shell pkg-config --libs libpqxx) \
-		    -L$(shell pg_config --libdir)  -lpq 
+		    -L$(shell pg_config --libdir)  -lpq \
+		    -lboost_date_time
 endif
 
 INCLUDE= -I. \
@@ -135,8 +136,8 @@ pretty:
 	find . \( -name 'core' -o -name '*~' \) -exec rm -f {} \;
 
 binclean:
-	rm $(BINDIR)/diana
-	rm $(BINDIR)/bdiana
+	rm -f $(BINDIR)/diana
+	rm -f $(BINDIR)/bdiana
 
 clean:
 	@make pretty
