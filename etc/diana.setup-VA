@@ -385,21 +385,21 @@ m=OBSFIELD.12-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/ob
 m=OBSFIELD.18-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs18.dat-2
 
 filegroup=EC.EPS
-m=EC.EPS_0.5.00     g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
-                    f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt \
-		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt
-m=EC.EPS_0.5.12     g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
-                    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt \
+m=EC.EPS_0.5.00     g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
+                    f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt \	    
+		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt \
+m=EC.EPS_0.5.12         g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
+		    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt \
 		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt
 m=EC.EPS.NY.00      f=$(OPDATA1)/ec/eceps00.dat
 m=EC.EPS.NY.12      f=$(OPDATA1)/ec/eceps12.dat
 m=EC.EPS            f=$(OPDATA1)/ec/greps12.dat
 m=EC.EPS.00         f=$(OPDATA1)/ec/greps00.dat
-m=EC.EPS_0.5.00-1   g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.00-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt-1 \
 		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt-1
-m=EC.EPS_0.5.12-1   g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
-                    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt-1 \
+m=EC.EPS_0.5.12-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
+		    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt-1 \
 		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt-1
 m=EC.EPS-1          f=$(OPDATA1)/ec/greps12.dat-1
 m=EC.EPS.00-1       f=$(OPDATA1)/ec/greps00.dat-1

@@ -418,18 +418,18 @@ m=EC.EPS.12      f=/opdata/ec/greps12.dat
 m=ALT-EC.EPS.NY.00   f=/opdata_routine/ec/eceps00.dat
 m=ALT-EC.EPS.NY.12   f=/opdata_routine/ec/eceps12.dat
 m=EC.EPS         f=/opdata/ec/greps12.dat
-m=EC.EPS_0.5.00     g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.00     g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt \
 		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt
-m=EC.EPS_0.5.12     g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.12     g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt \
 		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt
 m=EC.EPS.00-1       f=/opdata/ec/greps00.dat-1
 m=EC.EPS.12-1       f=/opdata/ec/greps12.dat-1
-m=EC.EPS_0.5.00-1   g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.00-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt-1 \
 		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt-1
-m=EC.EPS_0.5.12-1   g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.12-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt-1 \
 		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt-1
 
