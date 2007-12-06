@@ -217,7 +217,9 @@ float ObsSynop::potTemperature(const float& PoPoPoPo,
 			      const float& TTT)
 {
 
-  return ((TTT+273.15)*pow((PPPP/PoPoPoPo),(287./1004))-273.15);
+  float a=PPPP/PoPoPoPo;
+  float b=287./1004;
+  return ((TTT+273.15)*pow(a,b)-273.15);
 
 }
 
