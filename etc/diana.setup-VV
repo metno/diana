@@ -253,41 +253,37 @@ m=WAM.12-1              f=$(OPDATA1)/wave/gwave12.dat-1
 m=ECMWF.WAM.12-1        f=$(OPDATA1)/ec/grecw12.dat-1
 
 filegroup=SEA/ECOM3D
-m=ECOM3D.00             f=/opdata/sea/fsea00.dat
-m=ECOM3D.12             f=/opdata/sea/fsea12.dat
+m=ECOM3D.00             f=$(OPDATA1)/sea/fsea00.dat
+m=ECOM3D.12             f=$(OPDATA1)/sea/fsea12.dat
 m=ECOM3D.20KM.00        f=/opdata/sea/f3sea00.dat
 m=ECOM3D.20KM.12        f=/opdata/sea/f3sea12.dat
-m=ALT-ARCTIC.20km.00    f=/opdata_routine/sea/f20Arctic00.dat
-m=ALT-NORDIC.4KM.00     f=/opdata_routine/sea/f4Nordic00.dat
-m=ALT-NORDIC.4KM.A.00   f=/opdata_routine/sea/f4Nordic_sectionA00.dat
-m=ALT-NORDIC.4KM.BD.00  f=/opdata_routine/sea/f4Nordic_sectionBD00.dat
-m=ALT-NORDIC.4KM.C.00   f=/opdata_routine/sea/f4Nordic_sectionC00.dat
-m=ALT-NORDIC.4KM.E.00   f=/opdata_routine/sea/f4Nordic_sectionE00.dat
-m=ALT-Oslofjord.300M.00 f=/opdata_routine/sea/f0.3Oslofjord00.dat
-m=SKAGERRAK_1.5KM       f=/opdata_routine/sea/f1.5NSeaSkag00.dat
-m=VESTLAND_200M         f=/opdata_routine/sea/f0.2Vestland00.dat
-m=OFOTFJORD.500M.00     f=/opdata_routine/sea/f0.5Ofotfjord00.dat
-m=ECOM3D.00-1           f=/opdata/sea/fsea00.dat-1
-m=ECOM3D.12-1           f=/opdata/sea/fsea12.dat-1
-m=ECOM3D.20KM.ARKIV f=/opdata/sea/arksea3.dat  f=/opdata/sea/f3sea00.dat  f=/opdata/sea/f3sea12.dat
-m=BIO.20KM.FOAM          f=$(OPDATA2)/sea/f20NorthSea06.dat
-m=BIO.4KM.FOAM+SMHI      f=$(OPDATA2)/sea/f4NorthSea06.dat
-m=ALT-ark.SMHI.phys      f=/opdata_routine/sea/arkSMHI_phys.dat
-m=ALT-ark.SMHI.bio       f=/opdata_routine/sea/arkSMHI_bio.dat
-m=ALT-mipom.CONMAN4km.snap       f=/opdata_routine/sea/f4_mipom_CONMAN-1.dat
-m=ALT-roms.CONMAN4km.snap        f=/opdata_routine/sea/f4_roms_CONMAN-1.dat
-m=ALT-mipom.CONMAN4km.mean       f=/opdata_routine/sea/f4_mipom_CONMAN-2.dat
-m=ALT-roms.CONMAN4km.mean        f=/opdata_routine/sea/f4_roms_CONMAN-2.dat
-m=ALT-mipom.CONMAN4km.sectionI   f=/opdata_routine/sea/f4_mipom_CONMAN-3.dat
-m=ALT-mipom.CONMAN4km.sectionII  f=/opdata_routine/sea/f4_mipom_CONMAN-4.dat
-m=ALT-mipom.CONMAN4km.snap.geo   f=/opdata_routine/sea/f4_mipom_CONMAN-1_geo.dat
-m=ALT-mipom.CONMAN4km.mean.geo   f=/opdata_routine/sea/f4_mipom_CONMAN-2_geo.dat
-m=ALT-roms.CONMAN4km.snap.geo    f=/opdata_routine/sea/f4_roms_CONMAN-1_geo.dat
-m=ALT-roms.CONMAN4km.mean.geo    f=/opdata_routine/sea/f4_roms_CONMAN-2_geo.dat
-m=ALT-hycom.CONMAN4km.snap.geo   f=/opdata_routine/sea/f4_hycom_CONMAN-1_geo.dat
-m=ALT-hycom.CONMAN4km.mean.geo   f=/opdata_routine/sea/f4_hycom_CONMAN-2_geo.dat
-m=CLIMAT                 f=/opdata/sea/monthcli.dat
-m=CLIMAT2                f=/opdata/sea/monthcli2.dat
+m=ALT-ARCTIC.20km.00    f=$(OPDATA2)/sea/f20Arctic00.dat
+m=ALT-NORDIC.4KM.00     f=$(OPDATA2)/sea/f4Nordic00.dat
+m=ALT-NORDIC.4KM.12     f=$(OPDATA2)/sea/f4Nordic12.dat
+m=ALT-NORDIC.4KM.A.00   f=$(OPDATA2)/sea/f4Nordic_sectionA00.dat
+m=ALT-NORDIC.4KM.BD.00  f=$(OPDATA2)/sea/f4Nordic_sectionBD00.dat
+m=ALT-NORDIC.4KM.C.00   f=$(OPDATA2)/sea/f4Nordic_sectionC00.dat
+m=ALT-NORDIC.4KM.E.00   f=$(OPDATA2)/sea/f4Nordic_sectionE00.dat
+m=NORDIC.4KM.RESID.00   f=$(OPDATA2)/sea/f4Nordic_resid00.dat
+m=NORDIC.4KM.RESID.12   f=$(OPDATA2)/sea/f4Nordic_resid12.dat
+m=NORDIC.4KM.MEAN.12    f=$(OPDATA2)/sea/f4Nordic_24hrs_mean12.dat
+m=ALT-Oslofjord.300M.00 f=$(OPDATA2)/sea/f0.3Oslofjord00.dat
+m=SKAGERRAK_1.5KM       f=$(OPDATA2)/sea/f1.5NSeaSkag00.dat
+m=VESTLAND_200M         f=$(OPDATA2)/sea/f0.2Vestland00.dat
+m=OFOTFJORD.500M.00     f=$(OPDATA2)/sea/f0.5Ofotfjord00.dat
+m=Barents_1.5km         f=$(OPDATA2)/sea/f1.5Barents00.dat
+m=Bodo_Loppa.500m       f=$(OPDATA2)/sea/f0.5BodoLoppa00.dat
+m=ECOM3D.00-1           f=$(OPDATA1)/sea/fsea00.dat-1
+m=ECOM3D.12-1           f=$(OPDATA1)/sea/fsea12.dat-1
+m=ECOM3D.20KM.ARKIV     f=$(OPDATA2)/sea/arksea3.dat  \
+                        f=$(OPDATA2)/sea/f3sea00.dat  \
+                        f=$(OPDATA2)/sea/f3sea12.dat
+m=BIO.20KM.FOAM         f=$(OPDATA2)/sea/f20NorthSea06.dat
+m=BIO.4KM.FOAM+SMHI     f=$(OPDATA2)/sea/f4NorthSea06.dat
+m=ALT-ark.SMHI.phys     f=$(OPDATA2)/sea/arkSMHI_phys.dat
+m=ALT-ark.SMHI.bio      f=$(OPDATA2)/sea/arkSMHI_bio.dat
+m=CLIMAT                f=$(OPDATA1)/sea/monthcli.dat
+m=CLIMAT2               f=$(OPDATA1)/sea/monthcli2.dat
 m=NUCULA.1.5KM.00       f=/opdata/sea/f1.5Nucula00.dat 
 
 filegroup=UM.1km
