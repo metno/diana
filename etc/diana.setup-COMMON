@@ -3004,7 +3004,15 @@ timerange=-60,60
 
 PROD=ascii:Skogbrann
 ascii=$(OPDATA2)/varsler/wbkz.yyyymmddHH
-timerange=-360,1080    
+timerange=-360,1080
+
+PROD=ascii:Colorcode-METAR
+ascii=$(OPDATA2)/varsler/colorcodeMETAR.yyyymmddHH
+timerange=-360,1080
+
+PROD=ascii:Colorcode-TAF
+ascii=$(OPDATA2)/varsler/colorcodeTAF.yyyymmddHH
+timerange=-360,1080
 
 PROD=ascii:Radiofyr
 ascii=$(DIANADIR)/etc/radiofyr.txt
