@@ -2859,9 +2859,9 @@ m=YR.12                  f=$(OPDATA2)/products/yr_hir12.dat
 
 <OBSERVATION_FILES>
 
-PROD=synop:Surs
-bufr=$(OPDATA1)/obs_dec/rdb/surs/surs[yyyymmddHH]*.rdb
-timerange=-30,30
+#PROD=synop:Surs
+#bufr=$(OPDATA1)/obs_dec/rdb/surs/surs[yyyymmddHH]*.rdb
+#timerange=-30,30
 
 #PROD=synop:Surf
 #bufr=$(OPDATA1)/obs_dec/rdb/syno/surf[yyyymmddHH]*.rdb
