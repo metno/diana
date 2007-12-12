@@ -89,7 +89,7 @@ void VcrossOptions::setDefaults()
   markerlinesLinetype= "solid";
   markerlinesLinewidth= 3.;
 
-  pVerticalMarker= true;
+  pVerticalMarker= false;
   verticalMarkerColour= "black";
   verticalMarkerLinetype= "solid";
   verticalMarkerLinewidth= 1.;
