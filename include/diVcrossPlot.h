@@ -348,8 +348,8 @@ private:
   int nTotal;
   int iundef;
 
-  vector<int> idPar1d;
-  vector<int> idPar2d;
+  vector<int> idPar1d; //parm number of corresponding entry in cdata1d
+  vector<int> idPar2d; //parm number of corresponding entry in cdata2d
 
   vector<float*> cdata1d;
   vector<float*> cdata2d;

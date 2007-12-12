@@ -71,6 +71,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
   GEOPOS         =  tr("Geographical positions").latin1();
   VERTGRID       =  tr("Vertical gridlines").latin1();
   MARKERLINES    =  tr("Marker lines").latin1();
+  VERTICALMARKER =  tr("Vertical markers").latin1();
   EXTRAPOLP      =  tr("Extrapolate to fixed P").latin1();
   BOTTOMEXT      =  tr("Extrapolate to ocean floor").latin1();
   THINARROWS     =  tr("Thin arrows").latin1();
@@ -148,7 +149,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes/spinboxes
-  int numrows= 28;
+  int numrows= 29;
   glayout = new QGridLayout(numrows,4);
   glayout->setMargin( 5 );
   glayout->setSpacing( 2 );
@@ -186,6 +187,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups.push_back(new VcrossSetup(parent,vcrossm,SURFACE,glayout,nrow++,opts,true));
   vcSetups.push_back(new VcrossSetup(parent,vcrossm,VERTGRID,glayout,nrow++,opts,true));
   vcSetups.push_back(new VcrossSetup(parent,vcrossm,MARKERLINES,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,vcrossm,VERTICALMARKER,glayout,nrow++,opts,true));
 
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour | 
 	 VcrossSetup::useTextChoice | VcrossSetup::useTextChoice2);
@@ -362,6 +364,12 @@ void VcrossSetupDialog::setup(VcrossOptions *vcopt)
       vcSetups[i]->setLinewidth(vcopt->markerlinesLinewidth);
       vcSetups[i]->setLinetype (vcopt->markerlinesLinetype);
 
+    } else if (vcSetups[i]->name== VERTICALMARKER) {
+      vcSetups[i]->setOn       (vcopt->pVerticalMarker);
+      vcSetups[i]->setColour   (vcopt->verticalMarkerColour);
+      vcSetups[i]->setLinewidth(vcopt->verticalMarkerLinewidth);
+      vcSetups[i]->setLinetype (vcopt->verticalMarkerLinetype);
+
     } else if (vcSetups[i]->name== EXTRAPOLP) {
       vcSetups[i]->setOn(vcopt->extrapolateFixedLevels);
 
@@ -487,6 +495,12 @@ void VcrossSetupDialog::applySetup()
       vcopt->markerlinesColour=    vcSetups[i]->getColour().name;
       vcopt->markerlinesLinewidth= vcSetups[i]->getLinewidth();
       vcopt->markerlinesLinetype=  vcSetups[i]->getLinetype ();
+
+    } else if (vcSetups[i]->name== VERTICALMARKER) {
+      vcopt->pVerticalMarker=         vcSetups[i]->isOn();
+      vcopt->verticalMarkerColour=    vcSetups[i]->getColour().name;
+      vcopt->verticalMarkerLinewidth= vcSetups[i]->getLinewidth();
+      vcopt->verticalMarkerLinetype=  vcSetups[i]->getLinetype ();
 
     } else if (vcSetups[i]->name== EXTRAPOLP) {
       vcopt->extrapolateFixedLevels= vcSetups[i]->isOn();

@@ -84,6 +84,17 @@ void VcrossOptions::setDefaults()
   surfaceLinetype= "solid";
   surfaceLinewidth= 1.;
 
+  pMarkerlines= true;
+  markerlinesColour= "black";
+  markerlinesLinetype= "solid";
+  markerlinesLinewidth= 3.;
+
+  pVerticalMarker= true;
+  verticalMarkerColour= "black";
+  verticalMarkerLinetype= "solid";
+  verticalMarkerLinewidth= 1.;
+  verticalMarkerLimit= 1.;
+
   pDistance= false;
   distanceColour= "black";
   distanceUnit=   "km";
@@ -99,11 +110,6 @@ void VcrossOptions::setDefaults()
   vergridColour= "black";
   vergridLinetype= "solid";
   vergridLinewidth= 1.;
-
-  pMarkerlines= true;
-  markerlinesColour= "black";
-  markerlinesLinetype= "solid";
-  markerlinesLinewidth= 3.;
 
   extrapolateFixedLevels= false;
   extrapolateToBottom= true;
@@ -232,6 +238,13 @@ vector<miString> VcrossOptions::writeOptions()
   str+= " markerlinesLinewidth=" + miString(markerlinesLinewidth);
   vstr.push_back(str);
 
+  str=  "VerticalMarker=" + miString(pVerticalMarker ? "on" : "off");
+  str+= " verticalMarkerColour=" + verticalMarkerColour;
+  str+= " verticalMarkerLinetype=" + verticalMarkerLinetype;
+  str+= " verticalMarkerLinewidth=" + miString(verticalMarkerLinewidth);
+  str+= " verticalMarkerLimit=" + miString(verticalMarkerLimit);
+  vstr.push_back(str);
+
   str=  "extrapolateFixedLevels=" + miString(extrapolateFixedLevels ? "on" : "off");
   vstr.push_back(str);
   str=  "extrapolateToBottom=" + miString(extrapolateToBottom ? "on" : "off");
@@ -354,6 +367,17 @@ void VcrossOptions::readOptions(const vector<miString>& vstr)
 	else if (key=="markerlinesColour")     markerlinesColour= value;
 	else if (key=="markerlinesLinetype")   markerlinesLinetype= value;
 	else if (key=="markerlinesLinewidth")  markerlinesLinewidth= atof(value.cStr());
+
+	else if (key=="VerticalMarker")           
+	  pVerticalMarker= (value.downcase()=="on");
+	else if (key=="verticalMarkerColour")     
+	  verticalMarkerColour= value;
+	else if (key=="verticalMarkerLinetype")   
+	  verticalMarkerLinetype= value;
+	else if (key=="verticalMarkerLinewidth")  
+	  verticalMarkerLinewidth= atof(value.cStr());
+	else if (key=="verticalMarkerLimit")  
+	  verticalMarkerLimit= atof(value.cStr());
 
 	else if (key=="extrapolateFixedLevels") extrapolateFixedLevels= (value.downcase()=="on");
 	else if (key=="extrapolateToBottom")    extrapolateToBottom= (value.downcase()=="on");

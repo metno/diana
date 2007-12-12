@@ -1136,14 +1136,14 @@ void FieldDialog::archiveMode( bool on )
   int m= 0;
   if (useArchive) {
     for (int i=0; i<nr_m; i++) {
-      if (m_modelgroup[i].archiveGroup) {
+      if (m_modelgroup[i].archiveGroup && m_modelgroup[i].modelNames.size()>0) {
 	indexMGRtable.push_back(i);
         cvstr[m++]=  m_modelgroup[i].groupName.c_str();
       }
     }
   }
   for (int i=0; i<nr_m; i++) {
-    if (!m_modelgroup[i].archiveGroup) {
+    if (!m_modelgroup[i].archiveGroup && m_modelgroup[i].modelNames.size()>0) {
       indexMGRtable.push_back(i);
       cvstr[m++]=  m_modelgroup[i].groupName.c_str();
     }
