@@ -2473,6 +2473,16 @@ m=HIRLAM.10KM.00-2  f=$(OPDATA1)/hirlam10/grdl00.dat-2
 m=HIRLAM.10KM.12-2  f=$(OPDATA1)/hirlam10/grdl12.dat-2
 m=HIRLAM.10KM.ARK   f=$(OPDATA1)/hirlam10/ark10km.dat  f=$(OPDATA1)/hirlam10/grdl00.dat  f=$(OPDATA1)/hirlam10/grdl12.dat
 
+filegroup=HIRLAM8km
+m=HIRLAM.8KM.00    f=$(OPDATA2)/hirlam8/h8km00.dat
+m=HIRLAM.8KM.06    f=$(OPDATA2)/hirlam8/h8km06.dat 
+m=HIRLAM.8KM.12    f=$(OPDATA2)/hirlam8/h8km12.dat 
+m=HIRLAM.8KM.18    f=$(OPDATA2)/hirlam8/h8km18.dat 
+m=HIRLAM.8KM.00-1  f=$(OPDATA2)/hirlam8/h8km00.dat-1  
+m=HIRLAM.8KM.12-1  f=$(OPDATA2)/hirlam8/h8km12.dat-1  
+m=HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2  
+m=HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2 
+
 filegroup=HIRLAM4km
 m=HIRLAM.4KM.00    f=$(OPDATA2)/hirlam4/grdqh00.dat
 m=HIRLAM.4KM.12    f=$(OPDATA2)/hirlam4/grdqh12.dat
@@ -2494,6 +2504,11 @@ m=UM.MO.3KM.06-1  f=$(OPDATA1)/um4km/grdp06.dat-1
 m=UM.MO.3KM.18-1  f=$(OPDATA1)/um4km/grdp18.dat-1
 m=UM.MO.3KM.06-2  f=$(OPDATA1)/um4km/grdp06.dat-2
 m=UM.MO.3KM.18-2  f=$(OPDATA1)/um4km/grdp18.dat-2
+
+filegroup=UM4BX
+m=UM4BX_12           f=$(OPDATA2)/um4bx/um4bx12.dat
+m=UM4BX_12-1         f=$(OPDATA2)/um4bx/um4bx12.dat-1
+m=UM4BX_12-2         f=$(OPDATA2)/um4bx/um4bx12.dat-2
 
 filegroup=UM.4km.exp
 m=UM4EXP_00          f=$(OPDATA2)/um4exp/grdqe00.dat
