@@ -3017,11 +3017,11 @@ ascii=$(OPDATA2)/varsler/wbkz.yyyymmddHH
 timerange=-360,1080
 
 PROD=ascii:Fargekoding-METAR
-ascii=$(OPDATA2)/varsler/colorcodeMETAR.yyyymmddHH
+ascii=$(OPDATA2)/modflydb/colorcode/colorcode_metar.yyyymmddHHMM
 timerange=-360,1080
 
 PROD=ascii:Fargekoding-TAF
-ascii=$(OPDATA2)/varsler/colorcodeTAF.yyyymmddHH
+ascii=$(OPDATA2)/modflydb/colorcode/colorcode_taf.yyyymmddHHMM
 timerange=-360,1080
 
 PROD=ascii:Radiofyr
