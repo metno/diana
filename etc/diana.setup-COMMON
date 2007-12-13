@@ -3065,6 +3065,11 @@ PROD=metar:Metar
 archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/meta[XX].[yyyymmdd]  # XX=hour*2+min/30
 timerange=-15,15
 
+PROD=ascii:Lyn
+Archive_ascii=$(STARC)/DNMI_LYN/[yyyy]/[mm]/[dd]/lyndata[yyyymmddHH] 
+headerfile=$(DIANADIR)/etc/UALF_diana.header
+timerange=0,60
+
 PROD=satob:QScat25km
 archive_metnoobs=$(STARC)/DNMI_NOAASAT/[yyyy]/[mm]/[dd]/qscat/Obs_25km/qscat25km_[yyyymmddHH].dat
 timerange=-30,30
