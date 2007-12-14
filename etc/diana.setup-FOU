@@ -45,7 +45,8 @@ DATABASE        = "tempo.oslo.dnmi.no diana 19100"  # host base port
 
 # =============================================
 
-%include $(DIANADIR)/etc/diana.setup-COMMON
+#%include $(DIANADIR)/etc/diana.setup-COMMON
+%include  /home/martinls/local/src/diana/etc/diana.setup-COMMON
 
 # =============================================
 
