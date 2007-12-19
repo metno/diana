@@ -37,15 +37,16 @@
 #include <diSatManager.h>
 #include <diObjectManager.h>
 #include <diEditManager.h>
-#include <diGridEditManager.h>
+#include <diGridAreaManager.h>
 #include <diStationPlot.h>
 #include <diImageGallery.h>
 #include <diMapManager.h>
 
 // Default constructor
 Controller::Controller()
-  : plotm(0), fieldm(0), obsm(0), satm(0),
-    objm(0), editm(0), gridm(0),editoverride(false) {
+  : plotm(0), fieldm(0), obsm(0), satm(0), 
+    objm(0), editm(0), aream(0),editoverride(false),
+    profetController(0){
 #ifdef DEBUGPRINT
   cerr << "Controller Constructor" << endl;
 #endif
@@ -55,24 +56,24 @@ Controller::Controller()
   satm= new SatManager;
   // plot central
   plotm= new PlotModule();
-
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm);
-  gridm = new GridEditManager(plotm, fieldm);
-  plotm->setManagers(fieldm,obsm,satm,objm,editm,gridm);
+  aream = new GridAreaManager();
   paintModeEnabled = false;
+  plotm->setManagers(fieldm,obsm,satm,objm,editm,aream);
+//  profetController = new Profet::ProfetController(fieldm);
 }
 
 // Destructor
 Controller::~Controller(){
+  delete profetController;
   delete fieldm;
   delete obsm;
   delete satm;
   delete objm;
   delete editm;
-  delete gridm;
-
+  delete aream;
   delete plotm;
 }
 
@@ -464,15 +465,14 @@ void Controller::sendMouseEvent(const mouseEvent& me,
     // event. Pan and Zoom will now work when editing
     editoverride= true;
   }
-  
   // catch events to editmanager
   //-------------------------------------
   if ( (paintModeEnabled || inEdit) && !editoverride && !editpause){
 
     if(paintModeEnabled){
-
-      gridm->sendMouseEvent(me,res);
-
+    	float map_x,map_y;
+    	plotm->PhysToMap(me.x,me.y,map_x,map_y);
+        aream->sendMouseEvent(me,res,map_x,map_y);
     } else if (inEdit){
     
       editm->sendMouseEvent(me,res);
@@ -537,7 +537,7 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
   }
   
     //TESTING GRIDEDITMANAGER
-  gridm->sendKeyboardEvent(me,res);
+//  gridm->sendKeyboardEvent(me,res);
 
   // first check keys independent of mode
   //-------------------------------------
@@ -752,8 +752,6 @@ void Controller::getFieldGroups(const miString& modelNameRequest,
 				vector<FieldGroupInfo>& vfgi)
 {
 //   cerr <<"modelNameRequest: "<<modelNameRequest<<endl;
-  if(gridm->getFieldGroups(modelNameRequest, modelName, vfgi))
-    return;
 
   fieldm->getFieldGroups(modelNameRequest, modelName, vfgi);
 //   for(int i=0;i<vfgi.size();i++){
@@ -771,8 +769,6 @@ void Controller::getFieldGroups(const miString& modelNameRequest,
 vector<miTime> Controller::getFieldTime(const vector<FieldTimeRequest>& request,
 				        bool allTimeSteps)
 {
-  if(gridm->isEditField(request))
-    return gridm->getFieldTime(request, allTimeSteps);
   return fieldm->getFieldTime(request, allTimeSteps);
 }
 
@@ -952,5 +948,28 @@ void Controller::readLog(const vector<miString>& vstr,
 void Controller::setPaintModeEnabled(bool pm_enabled){
 	paintModeEnabled = pm_enabled;
 }
+
+bool Controller::initProfet(){
+  if(!fieldm) return false;
+  if(!profetController){
+    profetController = new Profet::ProfetController(fieldm);
+  }
+  return true;
+}
+
+bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
+	if(profetController){
+		profetController->setGUI(gui);
+		Profet::PodsUser u(miTime(),0,getenv("USER"),"","");
+		profetController->registerUser(u);
+		return true;
+	}
+	return false;
+}
+
+Profet::ProfetController * Controller::getProfetController(){
+	return profetController;
+}
+
 
 

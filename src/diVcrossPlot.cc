@@ -3435,34 +3435,6 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     }
   }
 
-  // vertical marker lines
-  if (vcopt->pVerticalMarker) {
-    if( ip2-ip1>3) {
-      c= Colour(vcopt->verticalMarkerColour);
-      if (c==backColour) c= contrastColour;
-      glColor3ubv(c.RGB());
-      glLineWidth(vcopt->verticalMarkerLinewidth);
-      linetype= Linetype(vcopt->verticalMarkerLinetype);
-      if (linetype.stipple) {
-	glEnable(GL_LINE_STIPPLE);
-	glLineStipple(linetype.factor,linetype.bmap);
-      }
-      glBegin(GL_LINES);
-      float delta1 = cdata1d[nxs][ip1+1]-cdata1d[nxs][ip1];
-      for (i=ip1+1; i<ip2; i++) {
-	float delta2 = cdata1d[nxs][i+1]-cdata1d[nxs][i];
-	if(fabs(delta1-delta2)>1.0){
-	  delta1=delta2;
-	  glVertex2f(cdata1d[nxs][i],yPlotmin);
-	  glVertex2f(cdata1d[nxs][i],yPlotmax);
-	}
-      }
-      glEnd();
-      UpdateOutput();
-      glDisable(GL_LINE_STIPPLE);
-    }
-  }
-
   //Annotations
   float xoffset= (xPlotmax-xPlotmin)/50;
   float yoffset= (yPlotmax-yPlotmin)/50;

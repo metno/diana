@@ -74,11 +74,12 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
   m_ctrl=lctrl;
 
-  vector<FieldDialogInfo> fdi= m_ctrl->initFieldDialog();
+  m_modelgroup = m_ctrl->initFieldDialog();
 
   setCaption(tr("Fields"));
 
   useArchive= false;
+  profetEnabled= false;
 
   numEditFields= 0;
   currentFieldOptsInEdit= false;
@@ -118,7 +119,6 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 //    cerr << pfopt->first << "   " << pfopt->second << endl;
 //#################################################################
 
-  m_modelgroup = fdi;
 
   // Colours
   colourInfo  = Colour::getColourInfo();
@@ -210,6 +210,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   cp->addKey("patterncolour",  "",0,CommandParser::cmdString);
   cp->addKey("repeat",      "",0,CommandParser::cmdInt);
   cp->addKey("alpha",          "",0,CommandParser::cmdInt);
+  cp->addKey("overlay",          "",0,CommandParser::cmdInt);
 
   // yet only from "external" (QuickMenu) commands
   cp->addKey("forecast.hour",     "",2,CommandParser::cmdInt);
@@ -635,7 +636,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   // tool tips
   toolTips();
 
-  archiveMode( false );
+  updateModelBoxes();
 
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::ConstructorCernel returned"<<endl;
@@ -679,7 +680,6 @@ void FieldDialog::advancedToggled(bool on){
   cerr<<"FieldDialog::advancedToggled  on= " << on <<endl;
 #endif
 
-  this->show();
   this->showExtension(on);
 
 }
@@ -1118,13 +1118,11 @@ void FieldDialog::CreateAdvanced() {
 }
 
 
-void FieldDialog::archiveMode( bool on )
+void FieldDialog::updateModelBoxes()
 {
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::archiveMode called"<<endl;
+  cerr<<"FieldDialog::updateModelBoxes called"<<endl;
 #endif
-
-  useArchive= on;
 
   modelGRbox->clear();
   indexMGRtable.clear();
@@ -1134,16 +1132,24 @@ void FieldDialog::archiveMode( bool on )
 
   const char** cvstr= new const char*[nr_m];
   int m= 0;
+  if (profetEnabled) {
+    for (int i=0; i<nr_m; i++) {
+      if (m_modelgroup[i].groupType=="profetfilegroup") {
+	indexMGRtable.push_back(i);
+        cvstr[m++]=  m_modelgroup[i].groupName.c_str();
+      }
+    }
+  }
   if (useArchive) {
     for (int i=0; i<nr_m; i++) {
-      if (m_modelgroup[i].archiveGroup && m_modelgroup[i].modelNames.size()>0) {
+      if (m_modelgroup[i].groupType=="archivefilegroup") {
 	indexMGRtable.push_back(i);
         cvstr[m++]=  m_modelgroup[i].groupName.c_str();
       }
     }
   }
   for (int i=0; i<nr_m; i++) {
-    if (!m_modelgroup[i].archiveGroup && m_modelgroup[i].modelNames.size()>0) {
+    if (m_modelgroup[i].groupType=="filegroup") {
       indexMGRtable.push_back(i);
       cvstr[m++]=  m_modelgroup[i].groupName.c_str();
     }
@@ -1161,14 +1167,24 @@ void FieldDialog::archiveMode( bool on )
 
 }
 
-// add modelgroups and models
-void FieldDialog::addModelGroup(const FieldDialogInfo& fdi)
+void FieldDialog::updateModels()
 {
+  m_modelgroup = m_ctrl->initFieldDialog();
+  updateModelBoxes();
+}
 
-  m_modelgroup.insert(m_modelgroup.begin(),fdi);
-  archiveMode( useArchive );
+void FieldDialog::archiveMode(bool on)
+{
+  cerr <<"void FieldDialog::archive(bool on)"<<endl;
+  useArchive=on;
+  updateModelBoxes();
+}
 
-
+void FieldDialog::enableProfet(bool on)
+{
+  cerr <<"void FieldDialog::enableProfet(bool on)"<<endl;
+  profetEnabled=on;
+  updateModelBoxes();
 }
 
 void FieldDialog::modelGRboxActivated( int index )
@@ -4242,7 +4258,7 @@ void FieldDialog::readLog(const vector<miString>& vstr,
 miString FieldDialog::checkFieldOptions(const miString& str)
 {
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::checkFieldOptions"<<endl;
+  cerr<<"FieldDialog::checkFieldOptions:"<<str<<endl;
 #endif
 
   miString newstr;
@@ -4295,9 +4311,10 @@ miString FieldDialog::checkFieldOptions(const miString& str)
       newstr+= " ";
       newstr+= cp->unParse(vpopt);
       // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
-      for (int i=2; i<nlog; i++) {
-	if (vplog[i].idNumber==2 || vplog[i].idNumber==3 || vplog[i].idNumber==-1)
+      for (int i=2; i<nlog; i++) {	
+	if (vplog[i].idNumber==2 || vplog[i].idNumber==3 || vplog[i].idNumber==-1){
 	  newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
+	}
       }
     }
   }
@@ -4836,14 +4853,21 @@ void FieldDialog::addField(miString str)
 {
 
   bool remove = false;
-  vector<miString> token = str.split(2," ",true);
+  vector<miString> token = str.split(1," ",true);
   if(token.size()==2 && token[0]=="REMOVE") {
     str = token[1];
     remove = true;
   }
 
   vector<miString> vstr = getOKString();
-  vector<miString>::iterator p=vstr.begin();;
+
+  //remove option overlay=1 from all strings
+  //(should be a more general setOption()
+  for(int i=0; i<vstr.size();i++){
+    vstr[i].replace("overlay=1","");
+  }
+ 
+  vector<miString>::iterator p=vstr.begin();
   for(;p!=vstr.end();p++){
     if((*p).contains(str)){
       p = vstr.erase(p);

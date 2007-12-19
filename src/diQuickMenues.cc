@@ -204,20 +204,6 @@ int updateSyntax(miString& line)
     return 1;
   }
    
-  if( line.contains("(74,504)")){
-    line.replace("(74,504)","(uk)");
-    return 1;
-  }
-  if( line.contains("(74,533)")){
-    line.replace("(74,533)","(uk)");
-    return 1;
-  }
-  if( line.contains("(74,604)")){
-    line.replace("(74,604)","(uk)");
-    return 1;
-  }
-
-
   return 0;
 
 }

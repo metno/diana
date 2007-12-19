@@ -61,6 +61,8 @@ public:
   	{ return difference; }
   void getDifference(miString& str1, miString& str2, int& vectorIdx) const
   	{ str1=fieldDiff1; str2=fieldDiff2; vectorIdx=vectorIndex; }
+  ///plot in overlay buffer
+  bool overlayBuffer(){return overlay;}
 
   bool getAnnotations(vector<miString>& anno);
   bool getDataAnnotations(vector<miString>& anno);
@@ -76,22 +78,22 @@ public:
   bool getShadePlot() const { return pshade; }
   bool getUndefinedPlot() const { return pundefined; }
   void getFieldAnnotation(miString&, Colour&);
-  vector<Field*> getFields() const {return fields; }
+  vector<Field*> getFields() {return fields; }
   miTime getTime() const {return ftime;}
   miTime getAnalysisTime() const {return analysisTime;}
-  void cleanFields();
   bool plotUndefined();
   bool plotNumbers();
-
   miString getModelName();
   miString getTrajectoryFieldName();
   bool fieldsOK();
 
 private:
-  vector<Field*> fields; // array of fields
+  vector<Field*> fields; // fields, stored elsewhere
+  vector<Field*> tmpfields; // tmp fields, stored here
   miTime ftime;          // current field time
   miTime analysisTime;   // time of model analysis
 
+  bool overlay; //plot in overlay;
   bool difference;
   miString fieldDiff1, fieldDiff2;
   int vectorIndex;
@@ -111,6 +113,7 @@ private:
 		   int maxElementsX, int& step, float& dist, bool& xStepComp);
   int xAutoStep(float* x, float* y, int ix1, int ix2, int iy, float sdist);
   void fixGeoVector(float* u, float* v);
+  void clearFields();
 
   // plotting methods
   bool plotWind();

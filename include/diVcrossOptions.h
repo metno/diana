@@ -92,17 +92,6 @@ private:
   miString surfaceLinetype;
   float    surfaceLinewidth;
 
-  bool     pMarkerlines;
-  miString markerlinesColour;
-  miString markerlinesLinetype;
-  float    markerlinesLinewidth;
-
-  bool     pVerticalMarker;
-  miString verticalMarkerColour;
-  miString verticalMarkerLinetype;
-  float    verticalMarkerLinewidth;
-  float    verticalMarkerLimit;
-
   bool     pDistance;
   miString distanceColour;
   miString distanceUnit;
@@ -118,6 +107,11 @@ private:
   miString vergridColour;
   miString vergridLinetype;
   float    vergridLinewidth;
+
+  bool     pMarkerlines;
+  miString markerlinesColour;
+  miString markerlinesLinetype;
+  float    markerlinesLinewidth;
 
   bool     extrapolateFixedLevels;
   bool     extrapolateToBottom;

@@ -1,10 +1,11 @@
 #!/bin/sh
 set -x
 
+input=$0
 dianadir="/metno/local/dianaTEST"
 test -d $dianadir || dianadir="/usr/local/diana"
 
-## export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/metno/local/lib
+export LD_LIBRARY_PATH=/metno/local/lib/mesa:$LD_LIBRARY_PATH
 ## export LD_LIBRARY_PATH=$dianadir/lib:$LD_LIBRARY_PATH
 
 export DIANADIR=$dianadir
@@ -55,11 +56,13 @@ ln -sf $dianadir/etc/ANAborders.* .
 ln -sf $dianadir/etc/synpltab.dat .
 ln -sf $dianadir/etc/metpltab.dat .
 #--------------------------------------------
-ln -sf $dianadir/etc/profet.setup-${region} diana.setup
+#ln -sf $dianadir/etc/profet.setup-${region} diana.setup
+ln -sf $dianadir/etc/diana.setup-${region} diana.setup
 
 tstart=`date`
 
-$dianadir/bin/diana -p -s $dianadir/etc/profet.setup-${region}
+$dianadir/bin/diana -p 
+#-s $dianadir/etc/profet.setup-${region}
 
 tstop=`date`
 
@@ -116,10 +119,3 @@ Mail -s "DIANA CRASH" $adr < mail.core
 fi
 
 exit
-
-
-
-
-
-
-

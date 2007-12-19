@@ -88,6 +88,7 @@ private:
 public:
 	GridArea();
 	GridArea(string id);
+        GridArea(string id, Area org_proj);
 	GridArea(string id, ProjectablePolygon area);
 	GridArea(string id, Area originalProjection, Polygon area);
 	ProjectablePolygon & getPolygon() ;

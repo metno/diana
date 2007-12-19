@@ -31,20 +31,22 @@
 
 #include <diPlotModule.h>
 #include <diObsPlot.h>
+
 #include <diFieldPlot.h>
 #include <diSatPlot.h>
 #include <diMapPlot.h>
 #include <diTrajectoryPlot.h>
-#include <diFieldManager.h>
+
 #include <diObsManager.h>
 #include <diSatManager.h>
 #include <diObjectManager.h>
 #include <diEditManager.h>
-#include <diGridEditManager.h>
+#include <diGridAreaManager.h>
 #include <diAnnotationPlot.h>
 #include <diWeatherArea.h>
 #include <diStationPlot.h>
 #include <diMapManager.h>
+#include <diFieldManager.h>
 
 #include <GL/gl.h>
 #include <sstream>
@@ -234,31 +236,30 @@ void PlotModule::prepareFields(const vector<miString>& inp){
   // for now -- erase all fieldplots
   for (int i=0; i<vfp.size(); i++){
     // keep enable flag
-    str= vfp[i]->getPlotInfo(3);
+    str= vfp[i]->getPlotInfo();
     plotenabled[str]= vfp[i]->Enabled();
-    // delete plot
+    // free old fields
+    fieldm->fieldcache->freeFields(vfp[i]->getFields());
     delete vfp[i];
   }
   vfp.clear();
 
   int n;
-  gridm->clear();
   for (int i=0; i<npi; i++){
-    if(gridm->prepare(inp[i])) continue; // edit field
     FieldPlot *fp;
+    str= inp[i]; // check if disable
+    if (plotenabled.count(str)==0) plotenabled[str]= true;
     n= vfp.size();
     vfp.push_back(fp);
     vfp[n]= new FieldPlot();
 
-    if (inp[i].contains(" ( ") && 
-	inp[i].contains(" - ") && 
-	inp[i].contains(" ) ")) {
-      size_t p1= inp[i].find(" ( ",0);
-      size_t p2= inp[i].find(" - ",p1+3);
-      size_t p3= inp[i].find(" ) ",p2+3);
+    if (str.contains(" ( ") && str.contains(" - ") && str.contains(" ) ")) {
+      size_t p1= str.find(" ( ",0);
+      size_t p2= str.find(" - ",p1+3);
+      size_t p3= str.find(" ) ",p2+3);
       if (p1!=string::npos && p2!=string::npos && p3!=string::npos) {
-        miString fspec1= inp[i].substr(0,p1) + inp[i].substr(p1+2,p2-p1-2);
-        miString fspec2= inp[i].substr(0,p1) + inp[i].substr(p2+2,p3-p2-2);
+        miString fspec1= str.substr(0,p1) + str.substr(p1+2,p2-p1-2);
+        miString fspec2= str.substr(0,p1) + str.substr(p2+2,p3-p2-2);
         vfp[n]->setDifference(fspec1,fspec2);
       }
     }
@@ -267,8 +268,6 @@ void PlotModule::prepareFields(const vector<miString>& inp){
       delete vfp[n];
       vfp.pop_back();
     } else {
-      str= vfp[n]->getPlotInfo(3);
-      if (plotenabled.count(str)==0) plotenabled[str]= true;
       vfp[n]->enable(plotenabled[str] && vfp[n]->Enabled());
     }
   }
@@ -290,7 +289,7 @@ void PlotModule::prepareObs(const vector<miString>& inp){
   miString str;
   map<miString,bool> plotenabled;
   for (int i=0; i<vop.size(); i++){
-    str= vop[i]->getPlotInfo(3);
+    str= vop[i]->getPlotInfo();
     plotenabled[str]= vop[i]->Enabled();
   }
 
@@ -318,6 +317,8 @@ void PlotModule::prepareObs(const vector<miString>& inp){
   int n;
   ObsPlot *op;
   for (int i=0; i<npi; i++){
+    str= inp[i]; // check if disable
+    if (plotenabled.count(str)==0) plotenabled[str]= true;
     n= vop.size();
     vop.push_back(op);
     vop[n]= new ObsPlot();
@@ -325,8 +326,6 @@ void PlotModule::prepareObs(const vector<miString>& inp){
       delete vop[n];
       vop.pop_back();
     } else {
-      str= vop[n]->getPlotInfo(3);
-      if (plotenabled.count(str)==0) plotenabled[str]= true;
       vop[n]->enable(plotenabled[str] && vop[n]->Enabled());
 
       if(vobsTimes.size()==0){
@@ -356,7 +355,7 @@ void PlotModule::prepareSat(const vector<miString>& inp){
   miString str;
   map<miString,bool> plotenabled;
   for (int i=0; i<vsp.size(); i++){
-    str= vsp[i]->getPlotInfo(4);
+    str= vsp[i]->getPlotInfo();
     plotenabled[str]= vsp[i]->Enabled();
   }
 
@@ -365,7 +364,7 @@ void PlotModule::prepareSat(const vector<miString>& inp){
   }
 
   for (int i=0; i<vsp.size(); i++){
-    str= vsp[i]->getPlotInfo(4);
+    str= vsp[i]->getPlotInfo();
     if (plotenabled.count(str)==0) plotenabled[str]= true;
     vsp[i]->enable(plotenabled[str] && vsp[i]->Enabled());
   }
@@ -443,9 +442,6 @@ vector<PlotElement>& PlotModule::getPlotElements()
     // add plotelement
     pel.push_back(PlotElement("FIELD",str,"FIELD",enabled));
   }
-
-  // get edit field names
-  gridm->getPlotElements(pel);
 
   // get obs names
   m= vop.size();
@@ -535,9 +531,7 @@ vector<PlotElement>& PlotModule::getPlotElements()
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
   miString str;
-  if (pe.type=="EDITFIELD"){
-    gridm->enablePlot(pe);
-  } else if (pe.type=="FIELD"){
+  if (pe.type=="FIELD"){
     for (int i=0; i<vfp.size(); i++){
       vfp[i]->getPlotName(str);
       str+= "# " + miString(i);
@@ -810,8 +804,10 @@ void PlotModule::updateLevel(const miString& levelSpec, const miString& levelSet
 				idnumSpecified,idnumCurrent,
 			        pressureLevel,oceanDepth);
       }
-      if (res) vfp[i]->setData(fv,t);
-      else     vfp[i]->cleanFields();
+      //free old fields
+      fieldm->fieldcache->freeFields(vfp[i]->getFields());
+      //set new fields
+      vfp[i]->setData(fv,t);
     }
   }
 
@@ -863,8 +859,10 @@ void PlotModule::updateIdnum(const miString& idnumSpec, const miString& idnumSet
 				idnumSpecified,idnumCurrent,
 			        pressureLevel,oceanDepth);
       }
-      if (res) vfp[i]->setData(fv,t);
-      else     vfp[i]->cleanFields();
+      //free old fields
+      fieldm->fieldcache->freeFields(vfp[i]->getFields());
+      //set new fields
+      vfp[i]->setData(fv,t);
     }
   }
 
@@ -888,8 +886,6 @@ void PlotModule::updatePlots()
   int pressureLevel= -1;
   int oceanDepth= -1;
 
-  // prepare data for edit field plots
-  gridm->setData(t);
 
   // prepare data for field plots
   n= vfp.size();
@@ -909,8 +905,10 @@ void PlotModule::updatePlots()
 				idnumSpecified,idnumCurrent,
 			        pressureLevel,oceanDepth);
       }
-      if (res) vfp[i]->setData(fv,t);
-      else     vfp[i]->cleanFields();
+      //free old fields
+      fieldm->fieldcache->freeFields(vfp[i]->getFields());
+      //set new fields
+      vfp[i]->setData(fv,t);
     }
   }
 
@@ -1404,11 +1402,10 @@ void PlotModule::plot(bool under, bool over)
     // plot fields (isolines, vectors etc. after map)
     n= vfp.size();
     for (i=0; i<n; i++){
-      if (!vfp[i]->getShadePlot()){
+      if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer()){
 #ifdef DEBUGPRINT
 	cerr << "Kaller plot til fieldplot number:" << i << endl;
 #endif
-
 	vfp[i]->plot();
       }
     }
@@ -1489,18 +1486,18 @@ void PlotModule::plot(bool under, bool over)
     if (hardcopy) splot.removeHCClipping();
   }
   
-  
-  // Testing GridEditManager
-  // ================================================
-  if(under) {
-    // plot underlay part of gridEditManager
-    gridm->plot(true);
-  }
+  // plot GridAreas (polygons)
+  if(aream && over) aream->plot();
+
+// Check this!!!  
   if(over) {
-    // plot overlay part of gridEditManager
-    gridm->plot(false);
+    n= vfp.size();
+    for (i=0; i<n; i++){
+      if (vfp[i]->overlayBuffer() && !vfp[i]->getShadePlot()){
+	vfp[i]->plot();
+      }
+    }
   }
-  // ================================================
 
   // plot active draw- and editobjects here
   if (inEdit && over){
@@ -1693,16 +1690,21 @@ void PlotModule::setPlotWindow(const int& w, const int& h){
 
 void PlotModule::cleanup(){
 
-#ifdef DEBUGPRINT
-  cerr << "++ PlotModule::cleanup ++" << endl;
-#endif
   int i,n;
   n= vmp.size();
   for (i=0; i<n; i++) delete vmp[i];
   vmp.clear();
 
   n= vfp.size();
-  for (i=0; i<n; i++) delete vfp[i];
+  
+  // Field deletion at the end is done in the cache. The cache destructor is called by
+  // FieldManagers destructor, which comes before this destructor. Basocally we try to
+  // destroy something in a dead pointer here....
+  for (i=0; i<n; i++){
+    vector<Field*> v=vfp[i]->getFields();
+    fieldm->fieldcache->freeFields(v);
+    delete vfp[i];
+  }
   vfp.clear();
 
   n= vsp.size();
@@ -1865,20 +1867,20 @@ void PlotModule::setManagers(FieldManager* fm,
 			     SatManager* sm,
 			     ObjectManager* obm,
 			     EditManager* edm,
-			     GridEditManager* gem){
+			     GridAreaManager* gam){
   fieldm= fm;
   obsm=   om;
   satm=   sm;
   objm=   obm;
   editm=  edm;
-  gridm=  gem;
+  aream=  gam;
 
   if (!fieldm) cerr << "PlotModule::ERROR fieldmanager==0" << endl;
   if (!obsm)   cerr << "PlotModule::ERROR obsmanager==0" << endl;
   if (!satm)   cerr << "PlotModule::ERROR satmanager==0" << endl;
   if (!objm)   cerr << "PlotModule::ERROR objectmanager==0" << endl;
   if (!editm)  cerr << "PlotModule::ERROR editmanager==0" << endl;
-  if (!gridm)  cerr << "PlotModule::ERROR grideditmanager==0" << endl;
+  if (!aream)  cerr << "PlotModule::ERROR gridareamanager==0" << endl;
 }
 
 
@@ -2837,9 +2839,8 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
     oldy= me.y;
 
     if (me.button == leftButton){
-    	//BKL: Disable zoom and rubber-band functions during drawing
-   	  dorubberband = !gridm->getGridAreaManager()->inDrawing;
-//   	  dorubberband = true;
+      if(aream) dorubberband = !aream->inDrawing;
+      else dorubberband = true;
       res.savebackground= true;
       res.background= true;
       res.repaint= true;

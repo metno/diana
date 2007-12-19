@@ -17,14 +17,18 @@ GridArea::GridArea(string id):Plot(),polygon(id),displayPolygon(),editPolygon(id
 	init(stdProj,stdProj);
 }
  
-GridArea::GridArea(string id, ProjectablePolygon area):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
-	init(area.getOriginalProjection(),area.getOriginalProjection());
-	polygon.setOriginalProjectionPoints(area);
+GridArea::GridArea(string id, Area org_proj):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
+	init(org_proj,org_proj);
+}
+ 
+GridArea::GridArea(string id, ProjectablePolygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
+	init(area_.getOriginalProjection(),area_.getOriginalProjection());
+	polygon.setOriginalProjectionPoints(area_);
 }
 
-GridArea::GridArea(string id, Area org_proj, Polygon area):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
+GridArea::GridArea(string id, Area org_proj, Polygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
 	init(org_proj,org_proj);
-	polygon.setOriginalProjectionPoints(area);
+	polygon.setOriginalProjectionPoints(area_);
 }
 
 void GridArea::init(Area orgProj, Area currentProj){
@@ -43,6 +47,11 @@ void GridArea::init(Area orgProj, Area currentProj){
 Area GridArea::getStandardProjection(){
 	Rectangle rect(-34.9654,350.661,-47.0971,524.112);
 	float pgf[6] = {11.045,-5.455,0.036,0.036,-24,66.5};
+
+// Hirlam20
+// 	Rectangle rect(1,468,1,378);
+// 	float pgf[6] = {-46.5,-36.5,0.2,0.2,0,65};
+
 	Projection proj(3,pgf);
 	Area a(proj,rect);
 	return a;

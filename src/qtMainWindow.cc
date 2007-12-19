@@ -83,7 +83,8 @@
 #include <qtObjectDialog.h>
 #include <qtTrajectoryDialog.h>
 #include <qtHelpDialog.h>
-#include <qtEditTimeDialog.h>
+//#include <qtEditTimeDialog.h>
+#include "qtDianaProfetGUI.h"
 #include <qtPrintManager.h>
 #include <qtBrowserBox.h>
 #include <qtAddtoMenu.h>
@@ -137,9 +138,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     contr(co),timeron(0),timeloop(false),timeout_ms(100),
     showelem(true),autoselect(false),push_command(true),browsing(false),
     markTrajPos(false),
-    vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep)
+    vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
 {
-
+  cerr << "Creating DianaMainWindow" << endl;
   version_string= ver_str;
   build_string  = build_str;
 
@@ -275,15 +276,16 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   togglePaintModeAction->setToggleAction(true);
   connect( togglePaintModeAction, SIGNAL( toggled(bool) ) , this, SLOT( togglePaintMode() ) );
   // ----------------------------------------------------------------
-  if(enableProfet) {showEditTimeDialogAction = 
-    new QAction( QPixmap(profet_xpm ),tr("&EditTime"),QKeySequence(), this );
+
+  if(enableProfet) {toggleProfetGUIAction = 
+    new QAction( QPixmap(profet_xpm ),tr("&Field Edit"),QKeySequence(), this );
   } else {
-    showEditTimeDialogAction = 
-      new QAction( QPixmap(),tr("&EditTime"),QKeySequence(), this );
+	  toggleProfetGUIAction = 
+      new QAction( QPixmap(),tr("&Field Edit"),QKeySequence(), this );
   }
-  showEditTimeDialogAction->setToggleAction(true);
-  connect( showEditTimeDialogAction, SIGNAL( activated() ) ,  this, SLOT( toggleEditTimeDialog() ) );
-  // connect( showEditTimeDialogAction, SIGNAL( activated() ) ,  this, SLOT( togglePaintMode()      ) );
+  toggleProfetGUIAction->setToggleAction(true);
+  connect( toggleProfetGUIAction, SIGNAL( activated() ) ,  this, SLOT( toggleProfetGUI() ) );
+  
   // --------------------------------------------------------------------
 
 
@@ -440,8 +442,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showProfilesDialogAction->     addTo( showmenu );
   showCrossSectionDialogAction-> addTo( showmenu );
   showWaveSpectrumDialogAction-> addTo( showmenu );
+
   if(enableProfet)
-    showEditTimeDialogAction->	 addTo( showmenu );
+    toggleProfetGUIAction->	 addTo( showmenu );
 
   if (uffda)
     showUffdaDialogAction->      addTo( showmenu );
@@ -493,7 +496,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showCrossSectionDialogAction-> addTo( mainToolbar );
   showWaveSpectrumDialogAction-> addTo( mainToolbar );
   if(enableProfet)
-    showEditTimeDialogAction->     addTo( mainToolbar );
+	  toggleProfetGUIAction->     addTo( mainToolbar );
 //  if(enableProfet)
 //    togglePaintModeAction->        addTo( mainToolbar );
 
@@ -676,10 +679,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(w->Glw(), SIGNAL(keyPress(const keyboardEvent)),
 	  SLOT(catchKeyPress(const keyboardEvent)));
 
-  connect(w->Glw(), SIGNAL(gridAreaChanged()),
-	  SLOT(catchGridAreaChanged()));
-  
-
   // ----------- init dialog-objects -------------------
 
   qm= new QuickMenu(this, contr, "QuickMenu");
@@ -705,22 +704,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   trajm = new TrajectoryDialog(this,contr);
   trajm->hide();
-
-  editTimeDialog= new EditTimeDialog(this, contr->getGridEditManager());
-  editTimeDialog->hide();
-  connect( editTimeDialog, SIGNAL( updateGL() ) , SLOT( updateGLSlot() ) );
-  connect( editTimeDialog, SIGNAL(gridAreaChanged()), 
-	   SLOT(catchGridAreaChanged()));
+  
   uffm = new UffdaDialog(this,contr);
   uffm->hide();
   
-  paintToolBar = new PaintToolBar(this,contr->getGridEditManager()->getGridAreaManager());
-  
-  connect( editTimeDialog, SIGNAL( paintMode(int)) , 
- 				   paintToolBar, SLOT( setPaintMode(int) ) );
+  paintToolBar = new PaintToolBar(this);
   paintToolBar->hide();
-  connect( paintToolBar, SIGNAL(hidePaintToolBar()), SLOT(disablePaintMode()) ); 
-  connect( paintToolBar, SIGNAL(updateGridAreaPlot()), SLOT(updateGLSlot()) ); 
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -772,7 +761,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
   connect( objm, SIGNAL(ObjHide()),  SLOT(objMenu()));
   connect( trajm, SIGNAL(TrajHide()),SLOT(trajMenu()));
-  connect( editTimeDialog, SIGNAL(hideDialog()),SLOT(toggleEditTimeDialog()));
+//  connect( editTimeDialog, SIGNAL(hideDialog()),SLOT(toggleEditTimeDialog()));
   connect( uffm, SIGNAL(uffdaHide()),SLOT(uffMenu()));
 
   //define shortcuts for all dialogs
@@ -940,16 +929,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   }
 
 
-  //Profet
-  connect( editTimeDialog, SIGNAL(showField(miString)), 
-	   fm, SLOT(addField(miString)));
-  connect( editTimeDialog, SIGNAL(apply()), 
-	    SLOT(MenuOK()));
-
-  connect( editTimeDialog, SIGNAL(setTime(const miTime&)), 
-	   tslider,SLOT(setTime(const miTime&)));
-
-
   //parse labels
   const miString label_name = "LABELS";
   vector<miString> sect_label;
@@ -970,6 +949,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   for(int i=0; i<sect_label.size(); i++) {
     vlabel.push_back(sect_label[i]);
   }
+  
+
+  cerr << "Creating DianaMainWindow done" << endl;
 
 // //HK - Eksempel på hvordan legge inn ekstra StationPlot
  //  vector <float> lon(3);
@@ -1181,9 +1163,9 @@ void DianaMainWindow::togglePaintMode()
   else            paintToolBar->hide();
   
 }
-void DianaMainWindow::disablePaintMode()
+void DianaMainWindow::setPaintMode(bool enabled)
 {
-  if(togglePaintModeAction->isOn())
+  if(togglePaintModeAction->isOn() != enabled)
     togglePaintModeAction->toggle();
 }
 
@@ -1288,7 +1270,7 @@ void DianaMainWindow::MenuOK()
   }
 
   // remove empty lines
-  cerr << "------- the final string from all dialogs:" << endl;
+  //  cerr << "------- the final string from all dialogs:" << endl;
   for (i=0; i<pstr.size(); i++){
     pstr[i].trim();
     if (!pstr[i].exists()){
@@ -1296,7 +1278,7 @@ void DianaMainWindow::MenuOK()
       i--;
       continue;
     }
-    cerr << pstr[i] << endl;
+    // cerr << pstr[i] << endl;
   }
 
   miTime t;
@@ -1542,24 +1524,60 @@ void DianaMainWindow::editMenu()
   showEditDialogAction->setOn( b );
 }
 
-void DianaMainWindow::toggleEditTimeDialog()
-{
-  static bool b = editTimeDialog->isVisible();
-  QApplication::setOverrideCursor( waitCursor );
-  if ( b ){
-    editTimeDialog->hide();
-  } else {
-    editTimeDialog->showDialog();
+bool DianaMainWindow::initProfet(){
+  cerr << "DianaMainWindow::initProfet()"<<endl;
+  if(!paintToolBar){
+    cerr << "Failed to init profet. PaintToolBar is NULL"<< endl;
+    return false;
   }
-
-  b = editTimeDialog->isVisible();
-
-  showEditTimeDialogAction->setOn( b );
-  togglePaintModeAction->setOn(b); 
-
-  QApplication::restoreOverrideCursor();
+  if(!contr->getAreaManager()){
+    cerr << "Failed to init profet. AreaManager is NULL"<< endl;
+    return false;
+  }
+  contr->initProfet();
+  if(contr->getProfetController()==0) {
+    cerr << "Failed to init ProfetController"<< endl;
+    return false;
+  }
+  profetGUI = new DianaProfetGUI(*contr->getProfetController(),
+      paintToolBar, contr->getAreaManager(), this);
+  contr->setProfetGUI(profetGUI);
+  if(!w->Glw() || !tslider){
+    cerr << "Profet signals not connected due to null-pointer"<< endl;
+    return false;
+  }
+  connect(w->Glw(), SIGNAL(gridAreaChanged()),
+    profetGUI, SLOT(gridAreaChanged()));
+  connect(profetGUI, SIGNAL(toggleProfetGui()),
+      this,SLOT(toggleProfetGUI()));
+  connect(profetGUI, SIGNAL(setPaintMode(bool)), 
+      this, SLOT(setPaintMode(bool)));
+  connect(profetGUI, SIGNAL(showProfetField(miString)), 
+      fm, SLOT(addField(miString)));
+  connect( profetGUI, SIGNAL(repaintMap()), 
+      SLOT(MenuOK()));
+  connect( profetGUI, SIGNAL(setTime(const miTime&)), 
+     tslider,SLOT(setTime(const miTime&)));
+  return true;
 }
 
+void DianaMainWindow::toggleProfetGUI(){
+  cerr << "DianaMainWindow: toggleProfetGUI "<<endl;
+  QApplication::setOverrideCursor( waitCursor );
+  if(!profetGUI){
+    bool inited = initProfet();
+    cerr << "DianaMainWindow: profet inited = " << inited<<endl;
+  }
+  bool turnOn = !(profetGUI->isVisible());
+  toggleProfetGUIAction->setOn(turnOn);
+  if(fm) fm->enableProfet(turnOn);
+  else cerr << "FieldManager is NULL " <<endl;
+    
+  profetGUI->setVisible(turnOn);
+  // Paint mode should not be possible when Profet is on
+  togglePaintModeAction->setEnabled(!turnOn);
+  QApplication::restoreOverrideCursor();
+}
 
 void DianaMainWindow::objMenu()
 {
@@ -2882,12 +2900,6 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
   if (needupdate) w->updateGL();
 }
 
-void DianaMainWindow::catchGridAreaChanged(){
-  editTimeDialog->catchGridAreaChanged();
-  paintToolBar->catchGridAreaChanged();
-}
-
-
 void DianaMainWindow::sendSelectedStations(const miString& command)
 {
   vector<miString> data;
@@ -3502,9 +3514,6 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   vstr.push_back(str);
   str= "FieldDialog.pos " + miString(fm->x()) + " " + miString(fm->y());
   vstr.push_back(str);
-  fm->advancedToggled(false);
-  str= "FieldDialog.size " + miString(fm->width()) + " " + miString(fm->height());
-  vstr.push_back(str);
   str= "ObsDialog.pos "   + miString(om->x()) + " " + miString(om->y());
   vstr.push_back(str);
   str= "ObsDialog.size " + miString(om->width()) + " " + miString(om->height());
@@ -3590,7 +3599,6 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
         if      (tokens[0]=="MainWindow.pos")  this->move(x,y);
         else if (tokens[0]=="QuickMenu.pos")   qm->move(x,y);
         else if (tokens[0]=="FieldDialog.pos") fm->move(x,y);
-        else if (tokens[0]=="FieldDialog.size")fm->resize(x,y);
         else if (tokens[0]=="ObsDialog.pos")   om->move(x,y);
         else if (tokens[0]=="ObsDialog.size")  om->resize(x,y);
         else if (tokens[0]=="SatDialog.pos")   sm->move(x,y);

@@ -15,16 +15,20 @@ LANGDIR=lang
 
 DEPENDSFILE=make.depends
 MOCFILE=make.moc
-DEFINES=-DMETNOFIELDFILE -DNETCDF -DMETNOPRODDB -DMETNOOBS -DBUFROBS $(LOGGDEF)
+DEFINES=-DMETNOFIELDFILE -DNETCDF -DMETNOPRODDB -DMETNOOBS -DBUFROBS $(LOGGDEF) $(CORBADEF)
 ##DEFINES=-DDISPLAY1024x768
 
 ifdef WEATHERDB
 DEFINES += -DWEATHERDB
 WEATHERDB_LIB=-ldiWeatherDB 
-WEATHERDB_EXTRA_LIB=-lboost_thread \
+WEATHERDB_EXTRA_LIB=-lboost_thread-mt \
 		    $(shell pkg-config --libs libpqxx) \
-		    -L$(shell pg_config --libdir)  -lpq \
-		    -lboost_date_time
+		    -L$(shell pg_config --libdir)  -lpq 
+endif
+
+PROFETLIBS=-lpropoly -lprofet
+ifdef OMNIORB_INST
+PROFETLIBS+= -lpods
 endif
 
 INCLUDE= -I. \
@@ -54,16 +58,17 @@ INCLUDE= -I. \
 	 $(FTGLINCLUDE) \
 	 $(FTINCLUDE) \
 	 $(SHAPEINCLUDE) \
-	 $(XINCLUDE) 
+	 $(XINCLUDE) \
+	 $(OMNI_INCLUDE)
 
 
 # Note: PNG library included in the Qt library (also used in batch version)
 
 # WARNING: library sequence may be very important due to path (-L) sequence
 
-LINKS = -L$(LOCALDIR)/$(LIBDIR) -lpropoly -lprofet -lprofetSQL -lproFunctions \
+LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	-lqUtilities -lpuDatatypes \
-	-lGLP -lglText -lrobs -ldiMItiff -ldiField -lmic -ldiSQL -lpuSQL \
+	-lGLP -lglText -lrobs -ldiMItiff -ldiField -lprofet -lprofetSQL -lproFunctions -lmic -ldiSQL -lpuSQL \
 	$(WEATHERDB_LIB) \
 	-lpuTools \
 	-L$(QTDIR)/lib $(QT_LIBS) \
@@ -79,7 +84,8 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) -lpropoly -lprofet -lprofetSQL -lproFunctions \
 	$(F2CLIB) -lm \
 	$(UDUNITSLIBDIR) $(UDUNITSLIB) \
 	$(NETCDFLIBDIR) $(NETCDFLIB) \
-	$(WEATHERDB_EXTRA_LIB)
+	$(WEATHERDB_EXTRA_LIB) \
+	$(OMNI_LIBS)
 
 
 BLINKS= $(LINKS)
@@ -136,8 +142,8 @@ pretty:
 	find . \( -name 'core' -o -name '*~' \) -exec rm -f {} \;
 
 binclean:
-	rm -f $(BINDIR)/diana
-	rm -f $(BINDIR)/bdiana
+	rm $(BINDIR)/diana
+	rm $(BINDIR)/bdiana
 
 clean:
 	@make pretty

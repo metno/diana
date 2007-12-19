@@ -58,7 +58,8 @@ class MapDialog;
 class ObjectDialog;
 class TrajectoryDialog;
 class UffdaDialog;
-class EditTimeDialog;
+//class EditTimeDialog;
+class DianaProfetGUI;
 class PaintToolBar;
 
 class EditDialog;
@@ -143,7 +144,7 @@ private slots:
   void spectrumMenu();
   void trajMenu();
   void quickMenu();
-  void toggleEditTimeDialog();
+  void toggleProfetGUI();
 
   void showHelp();
   void showAccels();
@@ -162,7 +163,7 @@ private slots:
   void catchMouseMovePos(const mouseEvent,bool);
   void catchKeyPress(const keyboardEvent);
   void catchElement(const mouseEvent);
-  void catchGridAreaChanged();
+//  void catchGridAreaChanged();
   void sendSelectedStations(const miString& command);
   void undo();
   void redo();
@@ -227,7 +228,7 @@ private slots:
   void inEdit(bool);
   void sendPrintClicked(int);
   void togglePaintMode();
-  void disablePaintMode();
+  void setPaintMode(bool);
 
 private:
   bool enableProfet;
@@ -277,7 +278,7 @@ private:
   QAction * showWaveSpectrumDialogAction;
   QAction * showUffdaDialogAction;
   QAction * togglePaintModeAction;
-  QAction * showEditTimeDialogAction;
+  QAction * toggleProfetGUIAction;
 
   QAction * helpDocAction;
   QAction * helpAccelAction;
@@ -328,7 +329,8 @@ private:
   TrajectoryDialog  * trajm;
   UffdaDialog       * uffm;
   HelpDialog        * help;
-  EditTimeDialog    * editTimeDialog;
+//  EditTimeDialog    * editTimeDialog;
+  DianaProfetGUI	* profetGUI;
   PaintToolBar	    * paintToolBar;
   
   bool                markTrajPos; //left mouse click -> mark trajectory position
@@ -418,6 +420,7 @@ private:
   void vcrossStartup();
   void spectrumStartup();
   void defineShortcuts(QAccel*);
+  bool initProfet();
 };
 
 

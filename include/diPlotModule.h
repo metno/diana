@@ -45,15 +45,15 @@
 
 class ObsPlot;
 class SatPlot;
-class FieldPlot;
 class MapPlot;
 class AnnotationPlot;
 class FieldManager;
+class FieldPlot;
 class ObsManager;
 class SatManager;
 class ObjectManager;
 class EditManager;
-class GridEditManager;
+class GridAreaManager;
 class Field;
 class TrajectoryPlot;
 class StationPlot;
@@ -73,12 +73,12 @@ using namespace std;
 
 class PlotModule {
 private:
-  FieldManager *fieldm;   // field manager
+ 
   ObsManager *obsm;       // observation manager
   SatManager *satm;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
-  GridEditManager *gridm; // profet edit manager for continuous drwaing/editing
+  GridAreaManager *aream; // Polygon edit manager for continuous drwaing/editing
 
   friend class EditManager;   // editing and drawing
 
@@ -98,6 +98,8 @@ private:
   DisplayObjects objects;             //objects to be displayed
   vector <AreaObjects> vareaobjects;  //QED areas
   AnnotationPlot* apEditmessage; // special edit message (region shown,...)
+
+  FieldManager *fieldm;   // field manager
 
   vector<miString> annotationStrings;//orig. strings from setup
 
@@ -238,7 +240,7 @@ public:
   void endHardcopy();
   /// set managers
   void setManagers(FieldManager*, ObsManager*, SatManager*,
-		   ObjectManager*, EditManager*, GridEditManager*);
+		   ObjectManager*, EditManager*, GridAreaManager*);
 
   /// return current plottime
   void getPlotTime(miString&);

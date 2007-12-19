@@ -89,7 +89,6 @@ private:
   miString GEOPOS;
   miString VERTGRID;
   miString MARKERLINES;
-  miString VERTICALMARKER;
   miString EXTRAPOLP;
   miString BOTTOMEXT;
   miString THINARROWS;

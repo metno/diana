@@ -18,7 +18,7 @@ diVprofManager.o diVprofPlot.o diVprofTables.o diVprofDiagram.o diVprofData.o \
 diVprofTemp.o diVprofPilot.o diVprofOptions.o diFtnVfile.o \
 diVcrossManager.o diVcrossPlot.o diVcrossOptions.o diVcrossFile.o \
 diSpectrumManager.o diSpectrumPlot.o diSpectrumOptions.o diSpectrumFile.o \
-diShapeObject.o diGridArea.o diGridEditManager.o diGridAreaManager.o
+diShapeObject.o diGridArea.o diGridAreaManager.o diProfetObjectFactory.o
 
 COBJ= \
 diTesselation.o
@@ -47,7 +47,8 @@ qtVcrossWindow.o qtVcrossWidget.o \
 qtVcrossDialog.o qtVcrossSetupDialog.o qtVcrossSetup.o \
 qtSpectrumWindow.o qtSpectrumWidget.o \
 qtSpectrumModelDialog.o qtSpectrumSetupDialog.o qtSpectrumSetup.o \
-qtEditTimeDialog.o qtPaintToolBar.o qtGridEditDialog.o qtGridEditWidget.o
+qtPaintToolBar.o qtProfetSessionDialog.o qtProfetSessionTable.o \
+qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o
 
 GOBJ= \
 main_gui.o \

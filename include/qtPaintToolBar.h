@@ -6,43 +6,35 @@
 #include <qaction.h>
 #include <diGridAreaManager.h>
 
+
+
 class PaintToolBar : public QToolBar {
-    Q_OBJECT
+  Q_OBJECT
+
 public:
-    PaintToolBar(QMainWindow *parent, GridAreaManager *gam);
+  enum PaintToolBarButtons{ALL,SELECT_ONLY,PAINT_ONLY,PAINT_AND_MODIFY};  
+  
+public:
+  PaintToolBar(QMainWindow *parent);
 	GridAreaManager::PaintMode getPaintMode();
-	void catchGridAreaChanged();
+	void enableButtons(PaintToolBarButtons);
 	
 private:
-	QMainWindow *mainwindow;
-	GridAreaManager *areaManager;
-
-    QActionGroup *modeActions;
-    QAction *selectAction;
-//  	QAction *newAction;
-//  	QAction *deleteAction;
-    QAction *drawAction;
-  	QAction *includeAction;
-  	QAction *cutAction;
-  	QAction *moveAction;
-//  	QAction *colorAction;
-//  	QAction *undoAction;
-//    QAction *closeAction;
+  QActionGroup *modeActions;
+  QAction *selectAction;
+  QAction *drawAction;
+	QAction *includeAction;
+	QAction *cutAction;
+	QAction *moveAction;
   	
-public slots:
-	void setPaintMode(int);
-	  	
 private slots:
-	void modeChanged();
-//	void newActionPerformed();
-//	void deleteActionPerformed();
-//	void colorActionPerformed();
-//	void undoActionPerformed();
-//	void closeActionPerformed();
-	
+  void sendPaintModeChanged();
+  
+public slots:
+	void setPaintMode(GridAreaManager::PaintMode);
+	  	
 signals:
-  	void hidePaintToolBar();
-  	void updateGridAreaPlot();
-  	
+  void paintModeChanged(GridAreaManager::PaintMode mode);
 };
+
 #endif /*QTPAINTTOOLBAR_H_*/

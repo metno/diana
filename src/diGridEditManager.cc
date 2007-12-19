@@ -141,7 +141,7 @@ bool GridEditManager::initSession(vector<miTime>&         timeLabel,
     puSQLwarning w;
     // first version hack... run "startdb"
     //if(!gate.open("profet","Localhost","audunc","",w,3306)){
-    if(!gate.open("profet","foutestdb","juergens","",w,19100)){
+    if(!gate.open("profet","describe ","juergens","",w,19100)){
       w.warnout();
       return false;
     } else {
@@ -514,19 +514,14 @@ GridEditManager::setObject(const fetBaseObject& fobj,
     //Set area
     ProjectablePolygon polygon = areaManager.getCurrentPolygon();
 
-//     fetObject ob;
-//     ob.set(fobj,
-// 	   "Derfor",polygon,executor.cleanCode(),"me",
-// 	   miTime::nowTime(),miTime::nowTime(),"MODEL",
-// 	   guikeys,nx,ny,"");
     Area area;    // !!
     proMask mask; // !!
     fetObject ob;
-//     ob.setFromBaseObject(fobj,
-// 			 "Derfor",polygon,nx,ny,area,executor.cleanCode(),"me",
-// 			 miTime::nowTime(),miTime::nowTime(),"PARAMETER",
-// 			 guikeys,"");
-
+    ob.setFromBaseObject(fobj,
+			 "Derfor",polygon,mask,nx,ny,area,executor.cleanCode(),"me",
+			 miTime::nowTime(),miTime::nowTime(),"PARAMETER",
+			 guikeys,"");
+    
     rawObject = ob;
     prepareObject(components);
 

@@ -77,6 +77,7 @@ private:
 	float newx,newy;
 	PaintMode paintMode;
 	bool changeCursor;
+        Area base_proj;
 	cursortype getCurrentCursor();
 	bool selectArea(Point p);
 	void saveHistory();
@@ -132,6 +133,8 @@ public:
 	bool setEnabled(miString id, bool enabled);
 	/// Clear / Remove all areas. No current area.
 	void clear();
+        /// Set projection of active field
+        void setBaseProjection(Area proj){base_proj = proj;}
 };
 
 

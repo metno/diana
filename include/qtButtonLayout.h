@@ -38,7 +38,7 @@
 #include <qpalette.h>
 #include <miString.h>
 #include <diCommonTypes.h>
-#include <qtToggleButton.h>
+#include <qtAdvancedButton.h>
 #include <vector>
 
 
@@ -75,7 +75,7 @@ public:
 
 private slots:
  void groupClicked( int id );
- void rightButtonClicked(ToggleButton* butto);
+ void rightButtonClicked(AdvancedButton* butto);
 
 signals:
   void inGroupClicked( int );
@@ -87,7 +87,7 @@ private:
 
   void setButton( int tt );
 
-  ToggleButton** b;
+  AdvancedButton** b;
   QButtonGroup* bgroup;
   QPalette extraPalette;
 

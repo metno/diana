@@ -494,10 +494,8 @@ bool SetupParser::getSection(const miString& sectname,
     setuplines= p->second.strlist;
     return true;
   }
-#ifdef DEBUGPRINT1
   cerr << "++SetupParser::getSection for unknown section: " <<
     sectname << endl;
-#endif
   setuplines.clear();
   return false;
 }

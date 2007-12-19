@@ -46,7 +46,7 @@ const int MaxArrowsAuto=55;
 // Default constructor
 FieldPlot::FieldPlot()
 :Plot(), pshade(false), pundefined(false), difference(false),
-         vectorIndex(-1), vectorAnnotationSize(0.) {
+ vectorIndex(-1), vectorAnnotationSize(0.), overlay(false) {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::Default Constructor" << endl;
 #endif
@@ -57,16 +57,17 @@ FieldPlot::~FieldPlot(){
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::Destructor" << endl;
 #endif
-  cleanFields();
+  clearFields();
 }
 
 
-void FieldPlot::cleanFields(){
+void FieldPlot::clearFields(){
 #ifdef DEBUGPRINT
-  cerr << " FieldPlot::cleanFields fields.size():" << fields.size() << endl;
+  cerr << " FieldPlot::clearFields fields.size():" << endl;
 #endif
-  int n= fields.size();
-  for (int i=0; i<n; i++) delete fields[i];
+  int n= tmpfields.size();
+  for (int i=0; i<n; i++) delete tmpfields[i];
+  tmpfields.clear();
   fields.clear();
 }
 
@@ -207,7 +208,9 @@ bool FieldPlot::prepare(const miString& pin)
 bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
 
   //  cerr <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime()<<endl;
-  cleanFields();
+
+  clearFields();
+
   int n= vf.size();
   for (int i=0; i<n; i++) fields.push_back(vf[i]);
   ftime= t;
@@ -520,37 +523,36 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
 
   float *u=0, *v=0;
 
-  int nf= fields.size();
+  int nf= tmpfields.size();
 
   if (fields[0]->area.P() == area.P()) {
     u= fields[0]->data;
     v= fields[1]->data;
-    if (nf==nfields+2) {
-      delete fields[nf-1];
-      delete fields[nf-2];
-      fields.pop_back();
-      fields.pop_back();
+    if (nf==2) {
+      delete tmpfields[0];
+      delete tmpfields[1];
+      tmpfields.clear();
     }
-  } else if (nf==nfields+2 &&
-  	     fields[nfields]->numSmoothed == fields[0]->numSmoothed &&
-  	     fields[nfields]->area.P() == area.P()) {
-    u= fields[nfields  ]->data;
-    v= fields[nfields+1]->data;
+  } else if (nf==2 &&
+  	     tmpfields[0]->numSmoothed == fields[0]->numSmoothed &&
+  	     tmpfields[0]->area.P() == area.P()) {
+    u= tmpfields[0]->data;
+    v= tmpfields[1]->data;
   } else {
-    if (nf==nfields) {
+    if (nf==0) {
       Field* utmp= new Field();
       Field* vtmp= new Field();
-      fields.push_back(utmp);
-      fields.push_back(vtmp);
+      tmpfields.push_back(utmp);
+      tmpfields.push_back(vtmp);
     }
-    *(fields[nfields  ])= *(fields[0]);
-    *(fields[nfields+1])= *(fields[1]);
-    u= fields[nfields  ]->data;
-    v= fields[nfields+1]->data;
+    *(tmpfields[0])= *(fields[0]);
+    *(tmpfields[1])= *(fields[1]);
+    u= tmpfields[0]->data;
+    v= tmpfields[1]->data;
     int npos= fields[0]->nx * fields[0]->ny;
-    gc.getVectors(fields[nfields]->area,area,npos,x,y,u,v);
-    fields[nfields  ]->area.setP(area.P());
-    fields[nfields+1]->area.setP(area.P());
+    gc.getVectors(tmpfields[0]->area,area,npos,x,y,u,v);
+    tmpfields[0]->area.setP(area.P());
+    tmpfields[1]->area.setP(area.P());
     fixGeoVector(u,v);
   }
   uv.push_back(u);
@@ -571,24 +573,27 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
 
   float *u=0, *v=0;
 
-  int nf= fields.size();
+  //tmpfields: fields in current projection
+  int nf= tmpfields.size();
 
-  if (nf==nfields+2 &&
-      fields[nfields]->numSmoothed == fields[0]->numSmoothed &&
-      fields[nfields]->area.P() == area.P()) {
-    u= fields[nfields  ]->data;
-    v= fields[nfields+1]->data;
+  if (nf==2 &&
+      tmpfields[0]->numSmoothed == fields[0]->numSmoothed &&
+      tmpfields[0]->area.P() == area.P()) {
+    //use fields in current projection
+    u= tmpfields[0]->data;
+    v= tmpfields[1]->data;
   } else {
-    if (nf==nfields) {
+    if (nf==2) {
       Field* utmp= new Field();
       Field* vtmp= new Field();
-      fields.push_back(utmp);
-      fields.push_back(vtmp);
+      tmpfields.push_back(utmp);
+      tmpfields.push_back(vtmp);
     }
-    *(fields[nfields  ])= *(fields[0]);
-    *(fields[nfields+1])= *(fields[0]);
-    u= fields[nfields  ]->data;
-    v= fields[nfields+1]->data;
+    //calc fields in current projection
+    *(tmpfields[0])= *(fields[0]);
+    *(tmpfields[1])= *(fields[1]);
+    u= tmpfields[0]->data;
+    v= tmpfields[1]->data; 
     int npos= fields[0]->nx * fields[0]->ny;
     for (int i=0; i<npos; i++)
       v[i]= 1.0f;
@@ -603,8 +608,8 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     //##################################################################
 
     gc.getDirectionVectors(area,turn,npos,x,y,u,v);
-    fields[nfields  ]->area.setP(area.P());
-    fields[nfields+1]->area.setP(area.P());
+    tmpfields[0]->area.setP(area.P());
+    tmpfields[1]->area.setP(area.P());
     fixGeoVector(u,v);
   }
   uv.push_back(u);

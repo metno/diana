@@ -45,6 +45,9 @@
 #include <set>
 #include <diColour.h>
 
+#include <profet/ProfetController.h>
+#include <profet/ProfetGUI.h>
+
 using namespace std;
 
 class PlotModule;
@@ -52,7 +55,7 @@ class FieldManager;
 class ObsManager;
 class SatManager;
 class EditManager;
-class GridEditManager;
+class GridAreaManager;
 class ObjectManager;
 class StationPlot;
 class MapManager;
@@ -78,7 +81,8 @@ private:
   SatManager    *satm;
   ObjectManager *objm;
   EditManager   *editm;
-  GridEditManager *gridm;
+  Profet::ProfetController * profetController;
+  GridAreaManager *aream;
 
   SetupParser setupParser;
 
@@ -90,7 +94,7 @@ public:
   ~Controller();
 
   EditManager*   getEditManager()   { return editm; };
-  GridEditManager* getGridEditManager()   { return gridm; };
+//  GridEditManager* getGridEditManager()   { return gridm; };
   ObjectManager* getObjectManager() { return objm; };
 
   /// parse setup
@@ -340,9 +344,10 @@ public:
  vector<miString> writeLog();
  void readLog(const vector<miString>& vstr,
 	      const miString& thisVersion, const miString& logVersion);
-    
-    
-    
+  bool initProfet();  
+  Profet::ProfetController * getProfetController(); 
+  bool setProfetGUI(Profet::ProfetGUI * gui); 
+  GridAreaManager * getAreaManager() { return aream; }
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);  
 

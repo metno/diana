@@ -60,8 +60,9 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res, flo
 		res.newcursor = getCurrentCursor();
 		changeCursor = false;
 	}
-	else
+	else{
 		res.newcursor = keep_it;
+	}
 	if (me.type == mousepress){
 		first_x = newx;
 		first_y = newy;
@@ -164,7 +165,7 @@ bool GridAreaManager::addArea(miString id){
 		LOG4CXX_WARN(logger,"Add area failed. Existing id " << id);
 		return false;
 	}
-	GridArea newArea(id);
+	GridArea newArea(id,base_proj);
 	newArea.updateCurrentProjection();
 	gridAreas[id] = newArea;
 	saveHistory();

@@ -223,18 +223,6 @@ void Plot::setPlotInfo(const miString& pin)
   enabled= poptions.enabled;
 }
 
-miString Plot::getPlotInfo(int n)
-{
-  //return current plot info string
-  if(n==0) return pinfo;
-  //return n elements of current plot info string
-  vector<miString> token = pinfo.split(n," ",true);
-  token.pop_back(); //remove last part
-  miString str;
-  str.join(token," ");
-  return str;
-}
-
 bool Plot::startPSoutput(const printOptions& po){
   if (hardcopy) return false;
   

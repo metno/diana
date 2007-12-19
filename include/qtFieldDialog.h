@@ -87,8 +87,8 @@ public:
   void changeIdnum(const miString& idnum);
   /// switch on/off access to archives
   void archiveMode(bool on);
-  /// add modelgroups and models
-  void addModelGroup(const FieldDialogInfo& fdi);
+  /// switch on/off access to profet fields
+  void enableProfet(bool on);
   /// returns fiels command strings, one for each field
   vector<miString> getOKString();
   /// return a short text for quickmenue
@@ -112,9 +112,9 @@ public:
   bool close(bool alsoDelete);
 
 public slots:
-  void advancedToggled(bool on);
   void fieldEditUpdate(miString str);
   void addField(miString str);
+  void updateModels();
 
 private:
 
@@ -136,6 +136,7 @@ private:
     bool minus;
   };
 
+  void updateModelBoxes();
   void disableFieldOptions(int type=0);
   void enableFieldOptions();
   void enableType2Options(bool);
@@ -164,6 +165,7 @@ private:
   Controller* m_ctrl;
 
   bool useArchive;
+  bool profetEnabled;
 
   bool levelInMotion;
   bool idnumInMotion;
@@ -342,6 +344,7 @@ private slots:
   void helpClicked();
 
   void allTimeStepToggled( bool on );
+  void advancedToggled(bool on);
 
   void extremeSizeChanged(int value);
   void extremeRadiusChanged(int value);

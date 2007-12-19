@@ -306,7 +306,6 @@ name=modell/sat-område   proj=undefined  grid=0:0:0:0
 name=Analyse   proj=pstereo_60  grid=115:148:237:0:0:0  area=58:180:56:140
 name=Nordic    proj=pstereo_60  grid=115:148:237:0:0:0  area=116:143:93:130
 name=Euro      proj=pstereo_60  grid=115:148:237:0:0:0  area=93:153:56:138
-name=SKVbrief  proj=pstereo_60  grid=115:148:237:0:0:0  area=117:129:97:107
 name=Orion-USA proj=pstereo_60  grid=115:148:237:0:0:0  area=-14:132:58:148
 
 
@@ -402,43 +401,3 @@ m=DUCT.10KM.12   f=/opdata/hirlam10/vcduct12_VTK.dat
 
 </VERTICAL_CROSSECTION_FILES>
 
-# CFENGINE prognostic data
-<VERTICAL_PROFILE_FILES>
-m=HIRLAM.20KM.geogrid.00   f=/opdata/hirlam20/vp20kmgeo00.dat
-m=HIRLAM.20KM.geogrid.06   f=/opdata/hirlam20/vp20kmgeo06.dat
-m=HIRLAM.20KM.geogrid.12   f=/opdata/hirlam20/vp20kmgeo12.dat
-m=HIRLAM.20KM.geogrid.18   f=/opdata/hirlam20/vp20kmgeo18.dat
-</VERTICAL_PROFILE_FILES>
-
-<EDIT>
-
-product="SKVbrief"
-  drawtools= Analyse, Sigkart
-  # save_dir is input/output
-  save_dir= ./work
-  # other input directories
-  input_dir= $(OPDATA1)/diana/SKVbrief/work
-  # combine input directory
-  combine_input_dir= $(OPDATA1)/diana/SKVbrief/work
-  #other products to fetch objects/fields from
-  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18
-
-  objects=  "SKVdraw"
-  comments= "SKVcomm"
-
-  local_idents= TEST
-  database_idents= ENBO
-
-  database= $(DATABASE)
-  name_in_database=SKVbrief
-
-  time_start_early= -12:00    # hour:minute (-=before,+=after product)
-  time_start_late=  -04:00
-
-  commandfile=$(DIANADIR)/etc/SKVkart.txt
-  standard_symbolsize=20
-  complex_symbolsize=6
-
-end.product
-
-</EDIT>
