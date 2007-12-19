@@ -68,13 +68,13 @@ Controller::Controller()
 // Destructor
 Controller::~Controller(){
   delete profetController;
+  delete plotm;
   delete fieldm;
   delete obsm;
   delete satm;
   delete objm;
   delete editm;
   delete aream;
-  delete plotm;
 }
 
 // hack: indices for colorIndex mode set from gui
