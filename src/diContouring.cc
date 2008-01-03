@@ -3930,8 +3930,8 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
       //changed by LB 2007-03-05
       //PROBLEM: both zmin and zmax between rline[n] and rline[n+1] 
       //-> no colour shading. This seems to solve the problem.
-//       if (ivalue<0 && (idraw==3 || idraw==4) && colourcut) 
-// 	cl->outer= false;
+      if (ivalue<0 && (idraw==3 || idraw==4) && colourcut) 
+	cl->outer= false;
 
       if (idraw==2) {
 	if (cl->ivalue==0  && !cl->highInside) cl->outer= false;
