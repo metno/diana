@@ -1190,9 +1190,9 @@ void DianaMainWindow::editApply()
 
 void DianaMainWindow::MenuOK()
 {
-  //#ifdef DEBUGREDRAW
+#ifdef DEBUGREDRAW
   cerr<<"DianaMainWindow::MenuOK"<<endl;
-  //#endif
+#endif
   int i;
   vector<miString> pstr;
   vector<miString> diagstr;
