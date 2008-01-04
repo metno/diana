@@ -114,7 +114,9 @@
 	<tr><td><a href="#QUICKMENUES">QUICKMENUES</a></td>
 	  <td>lists common (for all users) quick menues</td></tr>
 	<tr><td><a href="#METNOFIELDFILE_PARAMETERS">METNOFIELDFILE_PARAMETERS</a></td>
-	  <td>met.no specific: field parameters used in met.no field file format</td></tr>
+	  <td>Defines field parameters used in the met.no field file format</td></tr>
+	<tr><td><a href="#NETCDF_PARAMETERS">NETCDF_PARAMETERS</a></td>
+	  <td>NetCDF field parameters used in the NetCDF files</td></tr>
 	<tr><td><a href="#FIELD_COMPUTE">FIELD_COMPUTE</a></td>
 	  <td>defines common (for all sources) field computations </td></tr>
 	<tr><td><a href="#FIELD_PLOT">FIELD_PLOT</a></td>
@@ -296,6 +298,49 @@
     </pre>
     <p>
 
+    <a name="NETCDF_PARAMETERS"></a><h3>Section NETCDF_PARAMETERS</h3>
+
+
+    <b> Parameters</b>
+<p>
+    If not specified, the values of the attributes "standard_name" is
+    used.
+
+    <p>
+    syntax:
+    <pre>
+    diana_name = standard_name
+    </pre>
+Example:
+    <pre>
+       ice.concentration=sea_ice_concentration
+       salt=sea_water_salinity
+    </pre>
+Connects the name of variable used in diana with the attribute
+"standard_name" used in the NetCDF-files.
+
+    <p>
+
+    <b> Vertical coordinates</b>
+    
+ <p>
+     If not specified, the values of the attributes "standard_name" and
+      "units" of the variables with attribute "axis="Z"" is used.
+<p>
+    Syntax:
+<pre>
+    vertical_coordinate=A:B,C:D
+</pre>
+Where A is the name appearing in the dialog, B is the "standard_name"
+from the Netcdf files, C is "suffix" or "prefix", D is name of the
+suffix/prefix (units) 
+<p>
+    Example:
+
+<pre>
+    vertical_coordinate=Depth:depth,suffix:m
+<\pre>
+
     <a name="FIELD_COMPUTE"></a><h3>Section FIELD_COMPUTE</h3>
     defines common (for all sources) field computations.
     <p>
@@ -361,32 +406,33 @@ end.field
     <p>
 
     <a name="FIELD_FILES"></a><h3>Section FIELD_FILES</h3>
-    lists files or other sources for field data.
+    list of files or other sources of field data.
 
     <table border="1" cellpadding="1" cellspacing="0" >
 	<tr><td>Key</td><td>Value</td><td>Comment</td></tr>
-	<tr><td>Default_Filetype=</td><td>MetnoFieldFile</td><td>default field source type</td></tr>
+	<tr><td>Default_Filetype=</td><td>MetnoFieldFile, NetCDF, etc.</td><td>Type of field
+	Source</td></tr>
 	<tr><td>filegroup=</td><td>group name</td><td></td></tr>
-	<tr><td>archivefilegroup=</td><td>group name</td><td></td></tr>
-	<tr><td>m=</td><td>name</td><td>model name</td></td></tr>
-	<tr><td>t=</td><td>MetnoFieldFile</td><td>field source type</td></tr>
+	<tr><td>archivefilegroup=</td><td>group name</td><td>Only used
+	in archive mode</td></tr>
+	<tr><td>m=</td><td>name</td><td>Model name</td></td></tr>
+	<tr><td>t=</td><td>MetnoFieldFile, NetCDF, etc.</td><td>Type of field Source</td></tr>
 	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
 	<tr><td>g=</td><td>88:1234:Name</td><td>for MetnoFieldfiles: prod:grid:Name</td></tr>
     </table>
-    <p>
 
     <br>Example:
     <pre>
-Default_Filetype=MetnoFieldFile
-
 filegroup=HIRLAM20km
-m=HIRLAM.20KM.00  f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdnm00.dat  f=/opdata/hirlam20/grdni00.dat
+m=HIRLAM.20KM.00  t=MetnoFieldFile f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdnm00.dat  f=/opdata/hirlam20/grdni00.dat
 
 filegroup=HIRLAM4km
-m=HIRLAM.4KM.00  f=/opdata/explam/grdqh00.dat
-m=HIRLAM.4KM.12  f=/opdata/explam/grdqh12.dat
+m=HIRLAM.4KM.00  t=MetnoFieldFile f=/opdata/explam/grdqh00.dat
+m=HIRLAM.4KM.12  t=MetnoFieldFile f=/opdata/explam/grdqh12.dat
+
+filegroup=ice
+m=ice_sst t=NetCDF f=/disk1/tmp/iceSST.nc
     </pre>
-    <p>
 
       <!-- PAGEBREAK -->
 
