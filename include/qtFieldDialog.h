@@ -112,6 +112,7 @@ public:
   bool close(bool alsoDelete);
 
 public slots:
+  void advancedToggled(bool on);
   void fieldEditUpdate(miString str);
   void addField(miString str);
   void updateModels();
@@ -344,7 +345,6 @@ private slots:
   void helpClicked();
 
   void allTimeStepToggled( bool on );
-  void advancedToggled(bool on);
 
   void extremeSizeChanged(int value);
   void extremeRadiusChanged(int value);

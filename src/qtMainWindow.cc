@@ -1270,7 +1270,7 @@ void DianaMainWindow::MenuOK()
   }
 
   // remove empty lines
-  //  cerr << "------- the final string from all dialogs:" << endl;
+  cerr << "------- the final string from all dialogs:" << endl;
   for (i=0; i<pstr.size(); i++){
     pstr[i].trim();
     if (!pstr[i].exists()){
@@ -1278,7 +1278,7 @@ void DianaMainWindow::MenuOK()
       i--;
       continue;
     }
-    // cerr << pstr[i] << endl;
+    cerr << pstr[i] << endl;
   }
 
   miTime t;
@@ -3417,7 +3417,7 @@ void DianaMainWindow::readLogFile()
   // open filestream
   ifstream file(logfile.c_str());
   if (!file){
-    cerr << "ERROR OPEN (READ) " << logfile << endl;
+    cerr << "Can't open " << logfile << endl;
     return;
   }
 
@@ -3514,9 +3514,10 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   vstr.push_back(str);
   str= "FieldDialog.pos " + miString(fm->x()) + " " + miString(fm->y());
   vstr.push_back(str);
-  str= "ObsDialog.pos "   + miString(om->x()) + " " + miString(om->y());
+  fm->advancedToggled(false);
+  str= "FieldDialog.size " + miString(fm->width()) + " " + miString(fm->height());
   vstr.push_back(str);
-  str= "ObsDialog.size " + miString(om->width()) + " " + miString(om->height());
+  str= "ObsDialog.pos "   + miString(om->x()) + " " + miString(om->y());
   vstr.push_back(str);
   str= "SatDialog.pos "   + miString(sm->x()) + " " + miString(sm->y());
   vstr.push_back(str);
@@ -3599,8 +3600,8 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
         if      (tokens[0]=="MainWindow.pos")  this->move(x,y);
         else if (tokens[0]=="QuickMenu.pos")   qm->move(x,y);
         else if (tokens[0]=="FieldDialog.pos") fm->move(x,y);
+        else if (tokens[0]=="FieldDialog.size")fm->resize(x,y);
         else if (tokens[0]=="ObsDialog.pos")   om->move(x,y);
-        else if (tokens[0]=="ObsDialog.size")  om->resize(x,y);
         else if (tokens[0]=="SatDialog.pos")   sm->move(x,y);
         else if (tokens[0]=="MapDialog.pos")   mm->move(x,y);
         else if (tokens[0]=="EditDialog.pos")  em->move(x,y);
