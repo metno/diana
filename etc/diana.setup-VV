@@ -562,6 +562,9 @@ m=MM5.DRAMMEN.1KM    f=/opdata_routine/byluft/mm5drammen1km.flt
 m=MM5.GRENLAND.3KM   f=/opdata_routine/byluft/mm5grenland3km.flt
 m=MM5.GRENLAND.1KM   f=/opdata_routine/byluft/mm5grenland1km.flt
 
+profetfilegroup=PROFET
+m=profet	f=$(OPDATA1)/um4km/grdq00.dat
+m=profet.model	f=$(OPDATA1)/um4km/grdq00.dat
 
 </FIELD_FILES>
 
