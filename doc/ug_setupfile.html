@@ -302,16 +302,16 @@
 
 
     <b> Parameters</b>
-<p>
+<p />
     If not specified, the values of the attributes "standard_name" is
     used.
 
-    <p>
-    syntax:
+    <p />
+    Syntax:
     <pre>
     diana_name = standard_name
     </pre>
-Example:
+    Example:
     <pre>
        ice.concentration=sea_ice_concentration
        salt=sea_water_salinity
@@ -319,27 +319,45 @@ Example:
 Connects the name of variable used in diana with the attribute
 "standard_name" used in the NetCDF-files.
 
-    <p>
+    <p />
 
-    <b> Vertical coordinates</b>
+    <b>Vertical coordinates</b>
     
- <p>
+ <p />
      If not specified, the values of the attributes "standard_name" and
       "units" of the variables with attribute "axis="Z"" is used.
-<p>
+<p />
     Syntax:
 <pre>
     vertical_coordinate=A:B,C:D
 </pre>
 Where A is the name appearing in the dialog, B is the "standard_name"
-from the Netcdf files, C is "suffix" or "prefix", D is name of the
+from the Netcdf files, C is "suffix" or "prefix", and D is name of the
 suffix/prefix (units) 
-<p>
+<p />
     Example:
 
 <pre>
     vertical_coordinate=Depth:depth,suffix:m
-<\pre>
+</pre>
+    <p />
+
+    <b>IMPORTANT NOTES</b>
+    <p />
+
+    <ul>
+    <li>This is the first version of the NetCDF filereading capabillity, and you
+    may (and probably will) encounter some bugs.</li>
+    <li>Please report all bugs on <a
+    href="http://diana.bugs.met.no">http://diana.bugs.met.no</a>, or send
+    an e-mail to the Diana mailinglist.</li>
+    <li>The NetCDF-files must contain the metno_mapprojection_no and metno_grid_spec
+    attributes. The metno_mapprojection_no is a digit from 0 to 6, and
+    metno_grid_specs varies depending on which map projection that is selected.
+    See table in the <a href="#MAP_AREA">MAP_AREA-section</a> for further
+    information. This will hopefully not be necessary
+    in the next version of diField (Dianas field library).</li>
+    </ul>
 
     <a name="FIELD_COMPUTE"></a><h3>Section FIELD_COMPUTE</h3>
     defines common (for all sources) field computations.
