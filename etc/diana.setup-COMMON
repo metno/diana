@@ -2496,6 +2496,16 @@ m=HIRLAM.10KM.00-2  f=$(OPDATA1)/hirlam10/grdl00.dat-2
 m=HIRLAM.10KM.12-2  f=$(OPDATA1)/hirlam10/grdl12.dat-2
 m=HIRLAM.10KM.ARK   f=$(OPDATA1)/hirlam10/ark10km.dat  f=$(OPDATA1)/hirlam10/grdl00.dat  f=$(OPDATA1)/hirlam10/grdl12.dat
 
+filegroup=HIRLAM8km
+m=HIRLAM.8KM.00    f=$(OPDATA2)/hirlam8/h8km00.dat
+m=HIRLAM.8KM.06    f=$(OPDATA2)/hirlam8/h8km06.dat 
+m=HIRLAM.8KM.12    f=$(OPDATA2)/hirlam8/h8km12.dat 
+m=HIRLAM.8KM.18    f=$(OPDATA2)/hirlam8/h8km18.dat 
+m=HIRLAM.8KM.00-1  f=$(OPDATA2)/hirlam8/h8km00.dat-1  
+m=HIRLAM.8KM.12-1  f=$(OPDATA2)/hirlam8/h8km12.dat-1  
+m=HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2  
+m=HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2 
+
 filegroup=HIRLAM4km
 m=HIRLAM.4KM.00    f=$(OPDATA2)/hirlam4/grdqh00.dat
 m=HIRLAM.4KM.12    f=$(OPDATA2)/hirlam4/grdqh12.dat
@@ -2517,6 +2527,11 @@ m=UM.MO.3KM.06-1  f=$(OPDATA1)/um4km/grdp06.dat-1
 m=UM.MO.3KM.18-1  f=$(OPDATA1)/um4km/grdp18.dat-1
 m=UM.MO.3KM.06-2  f=$(OPDATA1)/um4km/grdp06.dat-2
 m=UM.MO.3KM.18-2  f=$(OPDATA1)/um4km/grdp18.dat-2
+
+filegroup=UM4BX
+m=UM4BX_12           f=$(OPDATA2)/um4bx/um4bx12.dat
+m=UM4BX_12-1         f=$(OPDATA2)/um4bx/um4bx12.dat-1
+m=UM4BX_12-2         f=$(OPDATA2)/um4bx/um4bx12.dat-2
 
 filegroup=UM.4km.exp
 m=UM4EXP_00          f=$(OPDATA2)/um4exp/grdqe00.dat
@@ -2569,6 +2584,10 @@ m=UM.Trondheim.1km.00-1     f=$(OPDATA2)/um1km/um1va00.dat-1
 m=UM.Trondheim.1km.12-1     f=$(OPDATA2)/um1km/um1va12.dat-1
 m=UM.Trondheim.1km.00-2     f=$(OPDATA2)/um1km/um1va00.dat-2
 m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
+
+filegroup=UM.1km.exp
+m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
+m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
 
 filegroup=MM5.Byluft+Vindkraft
 m=MM5.OSLO.3KM       f=$(OPDATA2)/byluft/mm5stoslo3km.flt
@@ -2667,44 +2686,48 @@ m=EC.18        g=98:504  f=$(OPDATA1)/ec/flte18.dat
 m=EC300.18     g=98:533  f=$(OPDATA1)/ec/flte18.dat
 
 filegroup=UK
-m=UK.GEO.00  g=74:255:Fin255  g=74:256:256  g=74:257:257  g=74:258:258  g=74:266:266  g=74:267:267  g=74:268:268  f=$(OPDATA1)/uk/gruk00.dat
-m=UK.GEO.12  g=74:255:Fin255  g=74:256:256  g=74:257:257  g=74:258:258  g=74:266:266  g=74:267:267  g=74:268:268  f=$(OPDATA1)/uk/gruk12.dat
-m=UK.00        g=74:504   f=$(OPDATA1)/uk/fltc00.dat
-m=UK300.00     g=74:533   f=$(OPDATA1)/uk/fltc00.dat
-m=UKFIN.00     g=74:604   f=$(OPDATA1)/uk/fltc00.dat
-m=UK.12        g=74:504   f=$(OPDATA1)/uk/fltc12.dat
-m=UK300.12     g=74:533   f=$(OPDATA1)/uk/fltc12.dat
-m=UKFIN.12     g=74:604   f=$(OPDATA1)/uk/fltc12.dat
-m=UK.00-1      g=74:504   f=$(OPDATA1)/uk/fltc00.dat-1
-m=UK300.00-1   g=74:533   f=$(OPDATA1)/uk/fltc00.dat-1
-m=UKFIN.00-1   g=74:604   f=$(OPDATA1)/uk/fltc00.dat-1
-m=UK.12-1      g=74:504   f=$(OPDATA1)/uk/fltc12.dat-1
-m=UK300.12-1   g=74:533   f=$(OPDATA1)/uk/fltc12.dat-1
-m=UKFIN.12-1   g=74:604   f=$(OPDATA1)/uk/fltc12.dat-1
-m=UK.00-2      g=74:504   f=$(OPDATA1)/uk/fltc00.dat-2
-m=UK300.00-2   g=74:533   f=$(OPDATA1)/uk/fltc00.dat-2
-m=UKFIN.00-2   g=74:604   f=$(OPDATA1)/uk/fltc00.dat-2
-m=UK.12-2      g=74:504   f=$(OPDATA1)/uk/fltc12.dat-2
-m=UK300.12-2   g=74:533   f=$(OPDATA1)/uk/fltc12.dat-2
-m=UKFIN.12-2   g=74:604   f=$(OPDATA1)/uk/fltc12.dat-2
-m=UK.00-3      g=74:504   f=$(OPDATA1)/uk/fltc00.dat-3
-m=UK300.00-3   g=74:533   f=$(OPDATA1)/uk/fltc00.dat-3
-m=UKFIN.00-3   g=74:604   f=$(OPDATA1)/uk/fltc00.dat-3
-m=UK.12-3      g=74:504   f=$(OPDATA1)/uk/fltc12.dat-3
-m=UK300.12-3   g=74:533   f=$(OPDATA1)/uk/fltc12.dat-3
-m=UKFIN.12-3   g=74:604   f=$(OPDATA1)/uk/fltc12.dat-3
-m=UK.00-4      g=74:504   f=$(OPDATA1)/uk/fltc00.dat-4
-m=UK300.00-4   g=74:533   f=$(OPDATA1)/uk/fltc00.dat-4
-m=UKFIN.00-4   g=74:604   f=$(OPDATA1)/uk/fltc00.dat-4
-m=UK.12-4      g=74:504   f=$(OPDATA1)/uk/fltc12.dat-4
-m=UK300.12-4   g=74:533   f=$(OPDATA1)/uk/fltc12.dat-4
-m=UKFIN.12-4   g=74:604   f=$(OPDATA1)/uk/fltc12.dat-4
-m=UK.00-5      g=74:504   f=$(OPDATA1)/uk/fltc00.dat-5
-m=UK300.00-5   g=74:533   f=$(OPDATA1)/uk/fltc00.dat-5
-m=UKFIN.00-5   g=74:604   f=$(OPDATA1)/uk/fltc00.dat-5
-m=UK.12-5      g=74:504   f=$(OPDATA1)/uk/fltc12.dat-5
-m=UK300.12-5   g=74:533   f=$(OPDATA1)/uk/fltc12.dat-5
-m=UKFIN.12-5   g=74:604   f=$(OPDATA1)/uk/fltc12.dat-5
+m=UK.GEO.00    g=74:255:Fin255  g=74:256:256  g=74:257:257  \
+	       g=74:258:258  g=74:266:266  g=74:267:267  g=74:268:268  \
+	       f=$(OPDATA1)/uk/gruk00.dat
+m=UK.GEO.12    g=74:255:Fin255  g=74:256:256  g=74:257:257 \
+	       g=74:258:258  g=74:266:266  g=74:267:267  g=74:268:268 \
+	       f=$(OPDATA1)/uk/gruk12.dat
+m=UK.00        g=74:504:uk      f=$(OPDATA1)/uk/fltc00.dat
+m=UK300.00     g=74:533:uk300   f=$(OPDATA1)/uk/fltc00.dat
+m=UKFIN.00     g=74:604:ukfin   f=$(OPDATA1)/uk/fltc00.dat
+m=UK.12        g=74:504:uk      f=$(OPDATA1)/uk/fltc12.dat
+m=UK300.12     g=74:533:uk300   f=$(OPDATA1)/uk/fltc12.dat
+m=UKFIN.12     g=74:604:ukfin   f=$(OPDATA1)/uk/fltc12.dat
+m=UK.00-1      g=74:504:uk      f=$(OPDATA1)/uk/fltc00.dat-1
+m=UK300.00-1   g=74:533:uk300   f=$(OPDATA1)/uk/fltc00.dat-1
+m=UKFIN.00-1   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc00.dat-1
+m=UK.12-1      g=74:504:uk      f=$(OPDATA1)/uk/fltc12.dat-1
+m=UK300.12-1   g=74:533:uk300   f=$(OPDATA1)/uk/fltc12.dat-1
+m=UKFIN.12-1   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc12.dat-1
+m=UK.00-2      g=74:504:uk      f=$(OPDATA1)/uk/fltc00.dat-2
+m=UK300.00-2   g=74:533:uk300   f=$(OPDATA1)/uk/fltc00.dat-2
+m=UKFIN.00-2   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc00.dat-2
+m=UK.12-2      g=74:504:uk      f=$(OPDATA1)/uk/fltc12.dat-2
+m=UK300.12-2   g=74:533:uk300   f=$(OPDATA1)/uk/fltc12.dat-2
+m=UKFIN.12-2   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc12.dat-2
+m=UK.00-3      g=74:504:uk      f=$(OPDATA1)/uk/fltc00.dat-3
+m=UK300.00-3   g=74:533:uk300   f=$(OPDATA1)/uk/fltc00.dat-3
+m=UKFIN.00-3   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc00.dat-3
+m=UK.12-3      g=74:504:uk      f=$(OPDATA1)/uk/fltc12.dat-3
+m=UK300.12-3   g=74:533:uk300   f=$(OPDATA1)/uk/fltc12.dat-3
+m=UKFIN.12-3   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc12.dat-3
+m=UK.00-4      g=74:504:uk      f=$(OPDATA1)/uk/fltc00.dat-4
+m=UK300.00-4   g=74:533:uk300   f=$(OPDATA1)/uk/fltc00.dat-4
+m=UKFIN.00-4   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc00.dat-4
+m=UK.12-4      g=74:504:uk      f=$(OPDATA1)/uk/fltc12.dat-4
+m=UK300.12-4   g=74:533:uk300   f=$(OPDATA1)/uk/fltc12.dat-4
+m=UKFIN.12-4   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc12.dat-4
+m=UK.00-5      g=74:504:uk      f=$(OPDATA1)/uk/fltc00.dat-5
+m=UK300.00-5   g=74:533:uk300   f=$(OPDATA1)/uk/fltc00.dat-5
+m=UKFIN.00-5   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc00.dat-5
+m=UK.12-5      g=74:504:uk      f=$(OPDATA1)/uk/fltc12.dat-5
+m=UK300.12-5   g=74:533:uk300   f=$(OPDATA1)/uk/fltc12.dat-5
+m=UKFIN.12-5   g=74:604:ukfin   f=$(OPDATA1)/uk/fltc12.dat-5
 
 filegroup=OBS.FIELDS
 m=OBSFIELD.00    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs00.dat
@@ -2721,20 +2744,22 @@ m=OBSFIELD.12-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/ob
 m=OBSFIELD.18-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs18.dat-2
 
 filegroup=EC.EPS
-m=EC.EPS_0.5.00     g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.00     g=98:111:northeast g=98:115:mean \
+		    g=98:117:member g=98:118:northwest \
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt \	    
-		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt \
-m=EC.EPS_0.5.12         g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt 
+m=EC.EPS_0.5.12         g=98:111:northeast g=98:115:mean \
+			g=98:117:member g=98:118:northwest \
 		    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt \
 		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt
 m=EC.EPS.NY.00      f=$(OPDATA1)/ec/eceps00.dat
 m=EC.EPS.NY.12      f=$(OPDATA1)/ec/eceps12.dat
 m=EC.EPS            f=$(OPDATA1)/ec/greps12.dat
 m=EC.EPS.00         f=$(OPDATA1)/ec/greps00.dat
-m=EC.EPS_0.5.00-1   g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.00-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt-1 \
 		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt-1
-m=EC.EPS_0.5.12-1   g=98:111:navn_1 g=98:115:navn_2 g=98:117:navn_3 g=98:118:navn_4 \
+m=EC.EPS_0.5.12-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
 		    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt-1 \
 		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt-1
 m=EC.EPS-1          f=$(OPDATA1)/ec/greps12.dat-1
@@ -2798,38 +2823,33 @@ m=ECMWF.WAM.12-1    f=$(OPDATA1)/ec/grecw12.dat-1
 filegroup=SEA/ECOM3D
 m=ECOM3D.00         f=$(OPDATA1)/sea/fsea00.dat
 m=ECOM3D.12         f=$(OPDATA1)/sea/fsea12.dat
-m=ECOM3D.20KM.00    f=$(OPDATA1)/sea/f3sea00.dat
-m=ECOM3D.20KM.12    f=$(OPDATA1)/sea/f3sea12.dat
-m=ARCTIC.20km.00    f=$(OPDATA1)/sea/f20Arctic00.dat
-m=NORDIC.4KM.00     f=$(OPDATA1)/sea/f4Nordic00.dat
-m=NORDIC.4KM.A.00   f=$(OPDATA1)/sea/f4Nordic_sectionA00.dat
-m=NORDIC.4KM.BD.00  f=$(OPDATA1)/sea/f4Nordic_sectionBD00.dat
-m=NORDIC.4KM.C.00   f=$(OPDATA1)/sea/f4Nordic_sectionC00.dat
-m=NORDIC.4KM.E.00   f=$(OPDATA1)/sea/f4Nordic_sectionE00.dat
-m=Barents.4km.00    f=$(OPDATA1)/sea/f4Barents00.dat
-m=Oslofjord.300M.00 f=$(OPDATA1)/sea/f0.3Oslofjord00.dat
-m=SKAGERRAK_1.5KM   f=$(OPDATA1)/sea/f1.5NSeaSkag00.dat
-m=VESTLAND_200M     f=$(OPDATA1)/sea/f0.2Vestland00.dat
-m=OFOTFJORD.500M.00 f=$(OPDATA1)/sea/f0.5Ofotfjord00.dat
+m=ECOM3D.20KM.00    f=$(OPDATA2)/sea/f3sea00.dat
+m=ECOM3D.20KM.12    f=$(OPDATA2)/sea/f3sea12.dat
+m=ARCTIC.20km.00    f=$(OPDATA2)/sea/f20Arctic00.dat
+m=NORDIC.4KM.00     f=$(OPDATA2)/sea/f4Nordic00.dat
+m=NORDIC.4KM.12     f=$(OPDATA2)/sea/f4Nordic12.dat
+m=NORDIC.4KM.A.00   f=$(OPDATA2)/sea/f4Nordic_sectionA00.dat
+m=NORDIC.4KM.BD.00  f=$(OPDATA2)/sea/f4Nordic_sectionBD00.dat
+m=NORDIC.4KM.C.00   f=$(OPDATA2)/sea/f4Nordic_sectionC00.dat
+m=NORDIC.4KM.E.00   f=$(OPDATA2)/sea/f4Nordic_sectionE00.dat
+m=NORDIC.4KM.RESID.00  f=$(OPDATA2)/sea/f4Nordic_resid00.dat
+m=NORDIC.4KM.RESID.12  f=$(OPDATA2)/sea/f4Nordic_resid12.dat
+m=NORDIC.4KM.MEAN.12   f=$(OPDATA2)/sea/f4Nordic_24hrs_mean12.dat
+m=Oslofjord.300M.00 f=$(OPDATA2)/sea/f0.3Oslofjord00.dat
+m=SKAGERRAK_1.5KM   f=$(OPDATA2)/sea/f1.5NSeaSkag00.dat
+m=VESTLAND_200M     f=$(OPDATA2)/sea/f0.2Vestland00.dat
+m=OFOTFJORD.500M.00 f=$(OPDATA2)/sea/f0.5Ofotfjord00.dat
+m=Barents_1.5km     f=$(OPDATA2)/sea/f1.5Barents00.dat
+m=Bodo_Loppa.500m   f=$(OPDATA2)/sea/f0.5BodoLoppa00.dat
 m=ECOM3D.00-1       f=$(OPDATA1)/sea/fsea00.dat-1
 m=ECOM3D.12-1       f=$(OPDATA1)/sea/fsea12.dat-1
-m=ECOM3D.20KM.ARKIV f=$(OPDATA1)/sea/arksea3.dat  f=$(OPDATA1)/sea/f3sea00.dat  f=$(OPDATA1)/sea/f3sea12.dat
+m=ECOM3D.20KM.ARKIV f=$(OPDATA1)/sea/arksea3.dat  \
+		    f=$(OPDATA1)/sea/f3sea00.dat  \
+		    f=$(OPDATA1)/sea/f3sea12.dat
 m=BIO.20KM.FOAM      f=$(OPDATA2)/sea/f20NorthSea06.dat
 m=BIO.4KM.FOAM+SMHI  f=$(OPDATA2)/sea/f4NorthSea06.dat
-m=ark.SMHI.phys      f=$(OPDATA1)/sea/arkSMHI_phys.dat
-m=ark.SMHI.bio       f=$(OPDATA1)/sea/arkSMHI_bio.dat
-m=mipom.CONMAN4km.snap       f=$(OPDATA1)/sea/f4_mipom_CONMAN-1.dat
-m=roms.CONMAN4km.snap        f=$(OPDATA1)/sea/f4_roms_CONMAN-1.dat
-m=mipom.CONMAN4km.mean       f=$(OPDATA1)/sea/f4_mipom_CONMAN-2.dat
-m=roms.CONMAN4km.mean        f=$(OPDATA1)/sea/f4_roms_CONMAN-2.dat
-m=mipom.CONMAN4km.sectionI   f=$(OPDATA1)/sea/f4_mipom_CONMAN-3.dat
-m=mipom.CONMAN4km.sectionII  f=$(OPDATA1)/sea/f4_mipom_CONMAN-4.dat
-m=mipom.CONMAN4km.snap.geo   f=$(OPDATA1)/sea/f4_mipom_CONMAN-1_geo.dat
-m=mipom.CONMAN4km.mean.geo   f=$(OPDATA1)/sea/f4_mipom_CONMAN-2_geo.dat
-m=roms.CONMAN4km.snap.geo    f=$(OPDATA1)/sea/f4_roms_CONMAN-1_geo.dat
-m=roms.CONMAN4km.mean.geo    f=$(OPDATA1)/sea/f4_roms_CONMAN-2_geo.dat
-m=hycom.CONMAN4km.snap.geo   f=$(OPDATA1)/sea/f4_hycom_CONMAN-1_geo.dat
-m=hycom.CONMAN4km.mean.geo   f=$(OPDATA1)/sea/f4_hycom_CONMAN-2_geo.dat
+m=ark.SMHI.phys      f=$(OPDATA2)/sea/arkSMHI_phys.dat
+m=ark.SMHI.bio       f=$(OPDATA2)/sea/arkSMHI_bio.dat
 m=CLIMAT             f=$(OPDATA1)/sea/monthcli.dat
 m=CLIMAT2            f=$(OPDATA1)/sea/monthcli2.dat
 
@@ -3022,7 +3042,15 @@ timerange=-60,60
 
 PROD=ascii:Skogbrann
 ascii=$(OPDATA2)/varsler/wbkz.yyyymmddHH
-timerange=-360,1080    
+timerange=-360,1080
+
+PROD=ascii:Fargekoding-METAR
+ascii=$(OPDATA2)/modflydb/colorcode/colorcode_metar.yyyymmddHHMM
+timerange=-360,1080
+
+PROD=ascii:Fargekoding-TAF
+ascii=$(OPDATA2)/modflydb/colorcode/colorcode_taf.yyyymmddHHMM
+timerange=-360,1080
 
 PROD=ascii:Radiofyr
 ascii=$(DIANADIR)/etc/radiofyr.txt
@@ -3064,6 +3092,11 @@ timerange=-180,180
 PROD=metar:Metar
 archive_metnoobs=$(STARC)/DNMI_OBS/[yyyy]/[mm]/[dd]/meta[XX].[yyyymmdd]  # XX=hour*2+min/30
 timerange=-15,15
+
+PROD=ascii:Lyn
+Archive_ascii=$(STARC)/DNMI_LYN/[yyyy]/[mm]/[dd]/lyndata[yyyymmddHH] 
+headerfile=$(DIANADIR)/etc/UALF_diana.header
+timerange=0,60
 
 PROD=satob:QScat25km
 archive_metnoobs=$(STARC)/DNMI_NOAASAT/[yyyy]/[mm]/[dd]/qscat/Obs_25km/qscat25km_[yyyymmddHH].dat
@@ -3340,6 +3373,11 @@ image=SSM/I-regnflagg
   channels= RFLAG
   sub.type= Regnflagg
       file=$(OPDATA3)/ssmi_prod/tif/rflag??.tiff
+
+image=CLoudSAT
+  channels= CLFR
+  sub.type= CPR
+      file= $(OPDATA3)/satdata_polar/cloudsat/mitiff/cloudsat_l2_[yyyymmddHHMM]*.tiff
 
 image=NWCSAF_PPS
    channels= C
@@ -4031,6 +4069,10 @@ m=HIRLAM.G.18   f=$(OPDATA1)/hirlam/vprof18.dat
 m=HIRLAM.10KM.00   f=$(OPDATA2)/hirlam10/vp10km00.dat
 m=HIRLAM.10KM.12   f=$(OPDATA2)/hirlam10/vp10km12.dat
 
+m=UM.4KM             f=$(OPDATA2)/um4km/vpUM4km.dat
+m=UMEXP.S-Norge.1KM  f=$(OPDATA2)/um1exp/vprof.dat_um1sn
+m=UMEXP.N-Norge.1KM  f=$(OPDATA2)/um1exp/vprof.dat_um1nn
+
 m=MM5.OSLO.1KM       f=$(OPDATA2)/byluft/vpmm5oslo.dat
 m=MM5.DRAMMEN.1KM    f=$(OPDATA2)/byluft/vpmm5drammen.dat
 m=MM5.GRENLAND.1KM   f=$(OPDATA2)/byluft/vpmm5grenland.dat
@@ -4068,13 +4110,15 @@ m=HIRLAM.20KM.06  f=$(OPDATA1)/hirlam20/vc20km06.dat
 m=HIRLAM.20KM.12  f=$(OPDATA1)/hirlam20/vc20km12.dat
 m=HIRLAM.20KM.18  f=$(OPDATA1)/hirlam20/vc20km18.dat
 
-m=HIRLAM.12KM.00  f=$(OPDATA1)/hirlam12/vc12km00.dat
-m=HIRLAM.12KM.06  f=$(OPDATA1)/hirlam12/vc12km06.dat
-m=HIRLAM.12KM.12  f=$(OPDATA1)/hirlam12/vc12km12.dat
-m=HIRLAM.12KM.18  f=$(OPDATA1)/hirlam12/vc12km18.dat 
+m=HIRLAM.12KM.00  f=$(OPDATA2)/hirlam12/vc12km00.dat
+m=HIRLAM.12KM.06  f=$(OPDATA2)/hirlam12/vc12km06.dat
+m=HIRLAM.12KM.12  f=$(OPDATA2)/hirlam12/vc12km12.dat
+m=HIRLAM.12KM.18  f=$(OPDATA2)/hirlam12/vc12km18.dat 
 
 m=HIRLAM.10KM.00  f=$(OPDATA2)/hirlam10/vc10km00.dat
 m=HIRLAM.10KM.12  f=$(OPDATA2)/hirlam10/vc10km12.dat
+
+m=UM.4KM          f=$(OPDATA2)/um4km/vcUM4km.dat
 
 m=SIMRA.Hammerfest.00   f=$(OPDATA2)/um1km/vcsimme00.dat
 m=SIMRA.Hammerfest.12   f=$(OPDATA2)/um1km/vcsimme12.dat
