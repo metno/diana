@@ -82,7 +82,7 @@ uname -a             >>mail.core
 echo "-------------" >>mail.core
 echo "START $tstart" >>mail.core
 echo "STOP  $tstop"  >>mail.core
-echo "Diana version (diana.news):" >>mail.core 
+echo "DianaTEST version (diana.news):" >>mail.core 
 cat diana.news       >>mail.core
 echo "-------------" >>mail.core
 pwd                  >>mail.core
