@@ -236,7 +236,7 @@ void PlotModule::prepareFields(const vector<miString>& inp){
   // for now -- erase all fieldplots
   for (int i=0; i<vfp.size(); i++){
     // keep enable flag
-    str= vfp[i]->getPlotInfo();
+    str= vfp[i]->getPlotInfo(3);
     plotenabled[str]= vfp[i]->Enabled();
     // free old fields
     fieldm->fieldcache->freeFields(vfp[i]->getFields());
@@ -247,19 +247,19 @@ void PlotModule::prepareFields(const vector<miString>& inp){
   int n;
   for (int i=0; i<npi; i++){
     FieldPlot *fp;
-    str= inp[i]; // check if disable
-    if (plotenabled.count(str)==0) plotenabled[str]= true;
     n= vfp.size();
     vfp.push_back(fp);
     vfp[n]= new FieldPlot();
 
-    if (str.contains(" ( ") && str.contains(" - ") && str.contains(" ) ")) {
-      size_t p1= str.find(" ( ",0);
-      size_t p2= str.find(" - ",p1+3);
-      size_t p3= str.find(" ) ",p2+3);
+    if (inp[i].contains(" ( ") && 
+	inp[i].contains(" - ") && 
+	inp[i].contains(" ) ")) {
+      size_t p1= inp[i].find(" ( ",0);
+      size_t p2= inp[i].find(" - ",p1+3);
+      size_t p3= inp[i].find(" ) ",p2+3);
       if (p1!=string::npos && p2!=string::npos && p3!=string::npos) {
-        miString fspec1= str.substr(0,p1) + str.substr(p1+2,p2-p1-2);
-        miString fspec2= str.substr(0,p1) + str.substr(p2+2,p3-p2-2);
+        miString fspec1= inp[i].substr(0,p1) + inp[i].substr(p1+2,p2-p1-2);
+        miString fspec2= inp[i].substr(0,p1) + inp[i].substr(p2+2,p3-p2-2);
         vfp[n]->setDifference(fspec1,fspec2);
       }
     }
@@ -268,6 +268,8 @@ void PlotModule::prepareFields(const vector<miString>& inp){
       delete vfp[n];
       vfp.pop_back();
     } else {
+      str= vfp[n]->getPlotInfo(3);
+      if (plotenabled.count(str)==0) plotenabled[str]= true;
       vfp[n]->enable(plotenabled[str] && vfp[n]->Enabled());
     }
   }
@@ -289,7 +291,7 @@ void PlotModule::prepareObs(const vector<miString>& inp){
   miString str;
   map<miString,bool> plotenabled;
   for (int i=0; i<vop.size(); i++){
-    str= vop[i]->getPlotInfo();
+    str= vop[i]->getPlotInfo(3);
     plotenabled[str]= vop[i]->Enabled();
   }
 
@@ -317,8 +319,6 @@ void PlotModule::prepareObs(const vector<miString>& inp){
   int n;
   ObsPlot *op;
   for (int i=0; i<npi; i++){
-    str= inp[i]; // check if disable
-    if (plotenabled.count(str)==0) plotenabled[str]= true;
     n= vop.size();
     vop.push_back(op);
     vop[n]= new ObsPlot();
@@ -326,6 +326,8 @@ void PlotModule::prepareObs(const vector<miString>& inp){
       delete vop[n];
       vop.pop_back();
     } else {
+      str= vop[n]->getPlotInfo(3);
+      if (plotenabled.count(str)==0) plotenabled[str]= true;
       vop[n]->enable(plotenabled[str] && vop[n]->Enabled());
 
       if(vobsTimes.size()==0){
@@ -355,7 +357,7 @@ void PlotModule::prepareSat(const vector<miString>& inp){
   miString str;
   map<miString,bool> plotenabled;
   for (int i=0; i<vsp.size(); i++){
-    str= vsp[i]->getPlotInfo();
+    str= vsp[i]->getPlotInfo(4);
     plotenabled[str]= vsp[i]->Enabled();
   }
 
@@ -364,7 +366,7 @@ void PlotModule::prepareSat(const vector<miString>& inp){
   }
 
   for (int i=0; i<vsp.size(); i++){
-    str= vsp[i]->getPlotInfo();
+    str= vsp[i]->getPlotInfo(4);
     if (plotenabled.count(str)==0) plotenabled[str]= true;
     vsp[i]->enable(plotenabled[str] && vsp[i]->Enabled());
   }
