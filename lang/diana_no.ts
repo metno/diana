@@ -333,12 +333,12 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation>Lat/Lon i desimalgrader</translation>
     </message>
     <message>
-        <source>&amp;EditTime</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>build:</source>
         <translation>Bygget:</translation>
+    </message>
+    <message>
+        <source>&amp;Field Edit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -937,20 +937,12 @@ Kan ikke starte produksjon</translation>
 <context>
     <name>EditTimeDialog</name>
     <message>
-        <source>Profet object timemanager</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Hide</source>
-        <translation type="unfinished">Skjul</translation>
-    </message>
-    <message>
-        <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Skjul</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished">Avslutt</translation>
+        <translation type="obsolete">Avslutt</translation>
     </message>
 </context>
 <context>
@@ -1351,52 +1343,8 @@ Kan ikke starte produksjon</translation>
 <context>
     <name>GridEditDialog</name>
     <message>
-        <source>Profet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Algorithms:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Area:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;New Object:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Draw</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose algorithm for the new object</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start a new object by drawing a new area</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start a new object by using the current area</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Choose Object:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Hide</source>
-        <translation type="unfinished">Skjul</translation>
-    </message>
-    <message>
-        <source>Delete algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Skjul</translation>
     </message>
 </context>
 <context>
@@ -1960,6 +1908,48 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>&amp;Select</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetObjectDialog</name>
+    <message>
+        <source>Current Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetSessionDialog</name>
+    <message>
+        <source>Edit Field Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Session: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Model: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="unfinished">Ny</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Slett</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Lukk</translation>
     </message>
 </context>
 <context>
