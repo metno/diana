@@ -379,11 +379,7 @@ m=WAM.00-1          f=$(OPDATA1)/wave/gwave00.dat-1
 m=WAM.12-1          f=$(OPDATA1)/wave/gwave12.dat-1
 m=ECMWF.WAM.12-1    f=$(OPDATA1)/ec/grecw12.dat-1
 
-filegroup=SEA/ECOM3D
-m=ECOM3D.00         f=/opdata/ma/sea/fsea00.dat
-m=ECOM3D.12         f=/opdata/ma/sea/fsea12.dat
-m=ECOM3D.20KM.00    f=/opdata/ma/sea/f3sea00.dat
-m=ECOM3D.20KM.12    f=/opdata/ma/sea/f3sea12.dat
+filegroup=SEA
 m=ARCTIC.20km.00    f=/opdata/ma/sea/f20Arctic00.dat
 m=NORDIC.4KM.00     f=/opdata/ma/sea/f4Nordic00.dat
 m=NORDIC.4KM.A.00   f=/opdata/ma/sea/f4Nordic_sectionA00.dat
@@ -395,9 +391,6 @@ m=Oslofjord.300M.00 f=/opdata/ma/sea/f0.3Oslofjord00.dat
 m=SKAGERRAK_1.5KM   f=/opdata/ma/sea/f1.5NSeaSkag00.dat
 m=VESTLAND_200M     f=/opdata/ma/sea/f0.2Vestland00.dat
 m=OFOTFJORD.500M.00 f=/opdata/ma/sea/f0.5Ofotfjord00.dat
-m=ECOM3D.00-1       f=/opdata/ma/sea/fsea00.dat-1
-m=ECOM3D.12-1       f=/opdata/ma/sea/fsea12.dat-1
-m=ECOM3D.20KM.ARKIV f=/opdata/ma/sea/arksea3.dat  f=/opdata/ma/sea/f3sea00.dat  f=/opdata/ma/sea/f3sea12.dat
 m=BIO.20KM.FOAM      f=$(OPDATA2)/sea/f20NorthSea06.dat
 m=BIO.4KM.FOAM+SMHI  f=$(OPDATA2)/sea/f4NorthSea06.dat
 m=ark.SMHI.phys      f=/opdata/ma/sea/arkSMHI_phys.dat

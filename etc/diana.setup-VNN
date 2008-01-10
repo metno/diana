@@ -506,11 +506,7 @@ m=WAM.00-1              f=$(OPDATA1)/wave/gwave00.dat-1
 m=WAM.12-1              f=$(OPDATA1)/wave/gwave12.dat-1
 m=ECMWF.WAM.12-1        f=$(OPDATA1)/ec/grecw12.dat-1
 
-filegroup=SEA/ECOM3D
-m=ECOM3D.00             f=$(OPDATA1)/sea/fsea00.dat
-m=ECOM3D.12             f=$(OPDATA1)/sea/fsea12.dat
-m=ALT-ECOM3D.20KM.00    f=$(OPDATA2)/sea/f3sea00.dat
-m=ALT-ECOM3D.20KM.12    f=$(OPDATA2)/sea/f3sea12.dat
+filegroup=SEA
 m=ALT-ARCTIC.20km.00    f=$(OPDATA2)/sea/f20Arctic00.dat
 m=ALT-NORDIC.4KM.00     f=$(OPDATA2)/sea/f4Nordic00.dat
 m=ALT-NORDIC.4KM.12     f=$(OPDATA2)/sea/f4Nordic12.dat
@@ -527,11 +523,6 @@ m=SKAGERRAK_1.5KM       f=$(OPDATA2)/sea/f1.5NSeaSkag00.dat
 m=VESTLAND_200M         f=$(OPDATA2)/sea/f0.2Vestland00.dat
 m=Barents_1.5km         f=$(OPDATA2)/sea/f1.5Barents00.dat
 m=Bodo_Loppa.500m       f=$(OPDATA2)/sea/f0.5BodoLoppa00.dat
-m=ECOM3D.00-1           f=$(OPDATA1)/sea/fsea00.dat-1
-m=ECOM3D.12-1           f=$(OPDATA1)/sea/fsea12.dat-1
-m=ECOM3D.20KM.ARKIV     f=$(OPDATA2)/sea/arksea3.dat  \
-                        f=$(OPDATA2)/sea/f3sea00.dat  \
-                        f=$(OPDATA2)/sea/f3sea12.dat
 m=BIO.20KM.FOAM         f=$(OPDATA2)/sea/f20NorthSea06.dat
 m=BIO.4KM.FOAM+SMHI     f=$(OPDATA2)/sea/f4NorthSea06.dat
 m=ALT-ark.SMHI.phys     f=$(OPDATA2)/sea/arkSMHI_phys.dat
