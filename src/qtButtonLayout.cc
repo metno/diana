@@ -57,14 +57,14 @@ ButtonLayout::ButtonLayout( QWidget* parent,
     nr_lines++;  
  
   bgroup = new QButtonGroup( this );
-  b      = new AdvancedButton*[nr_buttons];
+  b      = new ToggleButton*[nr_buttons];
   buttonOn.insert(buttonOn.end(),nr_buttons,false);
   buttonRightOn.insert(buttonRightOn.end(),nr_buttons,false);
   
   for( int i=0; i< nr_buttons; i++ ){
-    b[i] = new AdvancedButton( this, buttonList[i].name.c_str());
-    connect( b[i], SIGNAL(rightButtonClicked(AdvancedButton*)), 
-	     SLOT(rightButtonClicked(AdvancedButton* ))  );
+    b[i] = new ToggleButton( this, buttonList[i].name.c_str());
+    connect( b[i], SIGNAL(rightButtonClicked(ToggleButton*)), 
+	     SLOT(rightButtonClicked(ToggleButton* ))  );
     bgroup->insert( b[i] );
     if(!buttonList[i].tooltip.empty())
       QToolTip::add( b[i], buttonList[i].tooltip.c_str());
@@ -115,10 +115,6 @@ void ButtonLayout::setEnabled( bool enabled ){
 	b[i]->setEnabled( true );
 	if(buttonOn[i]){
 	  b[i]->setOn( true);
-	  if(buttonRightOn[i])
-	    b[i]->setPalette( extraPalette );
-	  else
-	    b[i]->setDefaultPalette();
 	}
       }
     }
@@ -127,7 +123,6 @@ void ButtonLayout::setEnabled( bool enabled ){
 	for( int i=0; i<nr_buttons; i++){
 	  b[i]->setOn( false );
 	  b[i]->setEnabled( false );
-	  b[i]->setDefaultPalette( false );
 	}
     }
 
@@ -142,10 +137,6 @@ void ButtonLayout::ALLClicked(){
     if(b[k]->isEnabled()){
       b[k]->setOn( TRUE );
       buttonOn[k] = true;
-      if(buttonRightOn[k])
-	b[k]->setPalette( extraPalette );
-      else
-	b[k]->setDefaultPalette();
     }
   }
 }
@@ -158,7 +149,6 @@ void ButtonLayout::NONEClicked(){
   for( int k=0; k< nr_buttons; k++ ){
     b[k]->setOn( FALSE );
     buttonOn[k]=false;
-    b[k]->setDefaultPalette( false );
     currentButton = -1;
   }
 }
@@ -172,15 +162,10 @@ void ButtonLayout::DEFAULTClicked(){
     if( buttonList[k].Default && b[k]->isEnabled()){
       b[k]->setOn( TRUE );
       buttonOn[k]=true;
-      if(buttonRightOn[k])
-	b[k]->setPalette( extraPalette );
-      else
-	b[k]->setDefaultPalette();
     }
     else{
       b[k]->setOn( FALSE );
       buttonOn[k]=false;
-      b[k]->setDefaultPalette( false );
     } 
   } 
 }
@@ -195,10 +180,6 @@ int ButtonLayout::setButtonOn( miString buttonName ){
       if(b[j]->isEnabled()){
 	b[j]->setOn( true );
 	buttonOn[j]=true;
-	if(buttonRightOn[j])
-	  b[j]->setPalette( extraPalette );
-	else
-	  b[j]->setDefaultPalette();
       } else {
 	buttonOn[j]=true;
       }
@@ -232,13 +213,8 @@ void ButtonLayout::enableButtons(vector<bool> bArr){
       b[i]->setEnabled(true);
       if(buttonOn[i]){
 	b[i]->setOn(true);
-	if(buttonRightOn[i])
-	  b[i]->setPalette( extraPalette );
-	else
-	  b[i]->setDefaultPalette();
       }else{
 	b[i]->setOn(false);
-	b[i]->setDefaultPalette( false );
       }
     }
 }
@@ -273,10 +249,6 @@ void ButtonLayout::setRightClicked(miString name,bool on  )
     for( int j=0; j<n; j++){
       buttonRightOn[j] = on;
       if(b[j]->isEnabled() && buttonOn[j]){
-	if(on)
-	  b[j]->setPalette( extraPalette );
-	else
-	  b[j]->setDefaultPalette();
       }
     }
   } else {
@@ -284,11 +256,6 @@ void ButtonLayout::setRightClicked(miString name,bool on  )
       if(name==buttonList[j].name){
 	buttonRightOn[j]=on;
 	if(b[j]->isEnabled() && buttonOn[j]){
-	  if(on){
-	    b[j]->setPalette( extraPalette );
-	  }else{
-	    b[j]->setDefaultPalette();
-	  }
 	}
 	return;
       }
@@ -297,7 +264,7 @@ void ButtonLayout::setRightClicked(miString name,bool on  )
 }
 
 
-void ButtonLayout::rightButtonClicked(AdvancedButton* butto  )
+void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 {
   //  cerr <<"rightButtonClicked"<<endl;
 
@@ -318,15 +285,10 @@ void ButtonLayout::groupClicked( int id )
   currentButton=id;
   
   if(b[currentButton]->isOn() ){
-    if(buttonRightOn[currentButton])
-      b[currentButton]->setPalette( extraPalette );
-    else
-      b[currentButton]->setDefaultPalette();
     buttonOn[currentButton]=true;
     emit inGroupClicked( currentButton );
   }
   else{
-    b[currentButton]->setDefaultPalette( false );
     buttonOn[currentButton]=false;
     emit outGroupClicked( currentButton );
   }
@@ -334,6 +296,34 @@ void ButtonLayout::groupClicked( int id )
   return;
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

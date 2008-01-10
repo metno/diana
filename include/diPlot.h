@@ -171,8 +171,9 @@ public:
 
   /// set the plot info string
   void setPlotInfo(const miString& pin);
-  /// return the current plot info string
-  const miString& getPlotInfo() const {return pinfo;}
+
+  /// return n elements of the current plot info string
+  miString getPlotInfo(int n=0);
 
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const { return poptions; }

@@ -1999,6 +1999,18 @@ void ObsPlot::plotList(int index)
       printUndef(xpos,ypos,align);
     }
   }
+  if( pFlag.count("t_red")){
+    ypos -= yStep;
+    if((f_p=dta.fdata.find("T_red")) != dta.fdata.end()){
+      if(ccriteria) checkColourCriteria("T_red",f_p->second);
+      if(tempPrecision)
+	printList(float2int(f_p->second),xpos,ypos,0,align);
+      else
+	printList(f_p->second,xpos,ypos,01,align);
+    }else{
+      printUndef(xpos,ypos,align);
+    }
+  }
   if( pFlag.count("id")){
     ypos -= yStep;
     if(ccriteria) checkColourCriteria("Id",0);

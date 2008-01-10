@@ -745,6 +745,7 @@ ObsDialogInfo ObsManager::initDialog()
   plist.button.pop_back();
   plist.button.pop_back();
   plist.button.pop_back();
+  plist.button.push_back(addButton("T_red","Potential temperature",-50,50));
   plist.button.push_back(addButton("Date","Date(mm-dd)",0,100));
   plist.button.push_back(addButton("Time","hh.mm  ",0,0,true));
   plist.button.push_back(addButton("Height","height of station",0,5000));
@@ -1239,7 +1240,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
   defProd["synop"].timeRangeMin=-30;
   defProd["synop"].timeRangeMax= 30;
   defProd["synop"].synoptic= true;
-  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,St.no(3),St.no(5),Pos,dd,ff,Date,Time,Height,Zone";
+  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone";
   defProd["synop"].parameter= parameter.split(",");
   defProd["aireps"].obsformat= ofmt_aireps;
   defProd["aireps"].timeRangeMin=-180;

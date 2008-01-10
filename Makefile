@@ -20,10 +20,11 @@ DEFINES=-DMETNOFIELDFILE -DNETCDF -DMETNOPRODDB -DMETNOOBS -DBUFROBS $(LOGGDEF) 
 
 ifdef WEATHERDB
 DEFINES += -DWEATHERDB
-WEATHERDB_LIB=-ldiWeatherDB 
-WEATHERDB_EXTRA_LIB=-lboost_thread-mt \
-		    $(shell pkg-config --libs libpqxx) \
-		    -L$(shell pg_config --libdir)  -lpq 
+WEATHERDB_LIB=-ldiWeatherDB
+WEATHERDB_EXTRA_LIB=-lboost_thread \
+                    $(shell pkg-config --libs libpqxx) \
+                    -L$(shell pg_config --libdir)  -lpq \
+                    -lboost_date_time
 endif
 
 PROFETLIBS=-lpropoly -lprofet

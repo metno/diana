@@ -51,7 +51,7 @@ class ToggleButton : public QPushButton
 {
     Q_OBJECT
 
- public:
+public:
 
  ToggleButton( QWidget* parent,
 	       miString name,
@@ -65,10 +65,17 @@ class ToggleButton : public QPushButton
 	       const QPixmap& pixmap,
                QColor* color = 0 );
 
- public slots:
+signals:
+  void rightButtonClicked(ToggleButton*);
+
+public slots:
  void Toggled( bool on );
 
- private:
+protected:
+ virtual void mouseReleaseEvent( QMouseEvent * );
+ 
+private:
+  bool usePalette;
   bool NameChange;
   miString m_outName;
   miString m_inName;

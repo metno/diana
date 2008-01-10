@@ -46,6 +46,9 @@ class ObsSynop : public synop {
 private:
   void putData(int,ObsData &);
   float visibility(int vv);
+  float potTemperature(const float& PPPP, 
+		       const float& PoPoPoPo,
+		       const float& TTT);
   float knots2ms(int ff) {return (float(ff)*1852.0/3600.0);}
 
 public:

@@ -1337,15 +1337,15 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Grid values, but only when a few grid points are visible</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gridverdier, men bare når få gridpunkter er synlige </translation>
     </message>
     <message>
         <source>Grid lines, 1=all</source>
-        <translation type="unfinished"></translation>
+        <translation>Gridlinjer, 1=alle</translation>
     </message>
     <message>
         <source>Grid value</source>
-        <translation type="unfinished"></translation>
+        <translation>Gridverdi</translation>
     </message>
 </context>
 <context>
@@ -3184,6 +3184,10 @@ Vil du sende før du avslutter?</translation>
     <message>
         <source>Thin arrows</source>
         <translation>Tynne piler</translation>
+    </message>
+    <message>
+        <source>Vertical markers</source>
+        <translation>Vertikale markeringslinjer </translation>
     </message>
 </context>
 <context>

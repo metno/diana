@@ -89,6 +89,12 @@ void ObsSynop::putData(int i, ObsData &d){
     d.fdata["TdTdTd"]= contents[i].data.TdTdTd;	// Celsius
   if(contents[i].data.PPPP != undef)
     d.fdata["PPPP"]  = contents[i].data.PPPP;	// (mb)
+  if(contents[i].data.PoPoPoPo != undef &&
+     contents[i].data.PPPP != undef &&
+     contents[i].data.TTT != undef)
+    d.fdata["T_red"]  = potTemperature(contents[i].data.PoPoPoPo,
+				       contents[i].data.PPPP,
+				       contents[i].data.TTT);	
   if(contents[i].data.hhh != undef)
     d.fdata["HHH"]   = (float)contents[i].data.hhh;       // Height(1000hPa)
   if(contents[i].data.a >= 0 && contents[i].data.a < 10)
@@ -205,6 +211,18 @@ float ObsSynop::visibility(int vv)
   }
   
 }
+
+float ObsSynop::potTemperature(const float& PoPoPoPo,
+			      const float& PPPP, 
+			      const float& TTT)
+{
+
+  float a=PPPP/PoPoPoPo;
+  float b=287./1004;
+  return ((TTT+273.15)*pow(a,b)-273.15);
+
+}
+
 
 
 #endif
