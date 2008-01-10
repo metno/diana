@@ -790,7 +790,7 @@ void printUsage(bool showexample)
     "                                                                  \n"
     "#- Optional: values for each option below are default-values      \n"
     "setupfile=diana.setup    # use a standard setup-file              \n"
-    "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG                 \n"
+    "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG                     \n"
     "colour=COLOUR            # GREYSCALE/COLOUR                       \n"
     "filename=tmp_diana.ps    # output filename                        \n"
     "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
@@ -812,10 +812,12 @@ void printUsage(bool showexample)
     "#--------------------------------------------------------------   \n"
     "# Product-examples:                                               \n"
     "# Products are made by one or more PLOT-sections seen below,      \n"
-    "# inbetween two PLOT-sections you may change any of the options   \n"
+    "# in between two PLOT-sections you may change any of the options   \n"
     "# described above.                                                \n"
     "# The data-time will be set from the TIME=\"isotime-string\"      \n"
     "# commandline parameter.                                          \n"
+    "# Output fielname may contain data-time, format see man date      \n"
+    "# Example: filename=diana_%Y%M%dT%H.ps                            \n"
     "#--------------------------------------------------------------   \n"
     "# STANDARD MAP-PRODUCT SECTION:                                   \n"
     "PLOT                     # start of plot-command for map-product  \n"
@@ -1380,6 +1382,11 @@ int parseAndProcess(const miString& file)
 	
       }
       // --------------------------------------------------------
+
+      //expand filename
+      if(priop.fname.contains("%")){
+	priop.fname = thetime.format(priop.fname);
+      }
 
       if (use_double_buffer){
 	// Double-buffering
