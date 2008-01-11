@@ -495,7 +495,7 @@ bool SetupParser::getSection(const miString& sectname,
     return true;
   }
 #ifdef DEBUGPRINT1
-  cerr << "++SetupParser::getSection for unknown section: " <<
+  cerr << "Warning: ++SetupParser::getSection for unknown or missing (from setupfile) section: " <<
     sectname << endl;
 #endif
   setuplines.clear();
