@@ -77,13 +77,7 @@ CLEAR
 Default_Filetype=MetnoFieldFile
 
 archivefilegroup=ARKIV
-m=DIANA.arkiv \
-f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_2002.arkfelt  \
-f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_2003.arkfelt  \
-f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_2004.arkfelt  \
-f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_2005.arkfelt  \
-f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_2006.arkfelt  \
-f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_2007.arkfelt
+m=DIANA.arkiv            f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_*.arkfelt  
 
 m=HIRLAM.20KM.arkiv      f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn??.dat_* \
 			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm??.dat_* 
