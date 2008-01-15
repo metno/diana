@@ -960,7 +960,7 @@ bool Controller::initProfet(){
 bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
 	if(profetController){
 		profetController->setGUI(gui);
-		Profet::PodsUser u(miTime(),0,getenv("USER"),"","");
+		Profet::PodsUser u(miTime::nowTime(),0,getenv("USER"),"","");
 		profetController->registerUser(u);
 		return true;
 	}
