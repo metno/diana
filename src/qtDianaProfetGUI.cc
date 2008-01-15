@@ -199,9 +199,9 @@ void DianaProfetGUI::dynamicGuiChanged(){
 }
 
 void DianaProfetGUI::sendMessage(const QString & m){
-  Profet::InstantMessage message(miTime(),0,user,"all",m.latin1());
+  Profet::InstantMessage message(miTime::nowTime(),0,user,"all",m.latin1());
   bool sent = controller.sendMessage(message);
-  if(!sent) sessionDialog.showMessage(Profet::InstantMessage(miTime(),0,
+  if(!sent) sessionDialog.showMessage(Profet::InstantMessage(miTime::nowTime(),0,
       "system","all","Error sending message"));
 }
 
