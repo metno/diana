@@ -4031,6 +4031,21 @@ end.product
 
 # prognostic data
 
+m=HIRLAM.12KM.00   f=$(OPDATA1)/hirlam12/vp12km00.dat
+m=HIRLAM.12KM.06   f=$(OPDATA1)/hirlam12/vp12km06.dat
+m=HIRLAM.12KM.12   f=$(OPDATA1)/hirlam12/vp12km12.dat
+m=HIRLAM.12KM.18   f=$(OPDATA1)/hirlam12/vp12km18.dat
+
+m=HIRLAM.geogrid.12KM.00   f=$(OPDATA1)/hirlam12/vp12kmgeo00.dat
+m=HIRLAM.geogrid.12KM.06   f=$(OPDATA1)/hirlam12/vp12kmgeo06.dat
+m=HIRLAM.geogrid.12KM.12   f=$(OPDATA1)/hirlam12/vp12kmgeo12.dat
+m=HIRLAM.geogrid.12KM.18   f=$(OPDATA1)/hirlam12/vp12kmgeo18.dat
+
+m=HIRLAM.8KM.00   f=$(OPDATA1)/hirlam8/vp8km00.dat
+m=HIRLAM.8KM.06   f=$(OPDATA1)/hirlam8/vp8km06.dat
+m=HIRLAM.8KM.12   f=$(OPDATA1)/hirlam8/vp8km12.dat
+m=HIRLAM.8KM.18   f=$(OPDATA1)/hirlam8/vp8km18.dat
+
 m=HIRLAM.20KM.00   f=$(OPDATA1)/hirlam20/vp20km00.dat
 m=HIRLAM.20KM.06   f=$(OPDATA1)/hirlam20/vp20km06.dat
 m=HIRLAM.20KM.12   f=$(OPDATA1)/hirlam20/vp20km12.dat
@@ -4040,16 +4055,6 @@ m=HIRLAM.20KM.geogrid.00   f=$(OPDATA2)/hirlam20/vp20kmgeo00.dat
 m=HIRLAM.20KM.geogrid.06   f=$(OPDATA2)/hirlam20/vp20kmgeo06.dat
 m=HIRLAM.20KM.geogrid.12   f=$(OPDATA2)/hirlam20/vp20kmgeo12.dat
 m=HIRLAM.20KM.geogrid.18   f=$(OPDATA2)/hirlam20/vp20kmgeo18.dat
-
-m=HIRLAM.00   f=$(OPDATA1)/hirlam/vprof00.dat
-m=HIRLAM.06   f=$(OPDATA1)/hirlam/vprof06.dat
-m=HIRLAM.12   f=$(OPDATA1)/hirlam/vprof12.dat
-m=HIRLAM.18   f=$(OPDATA1)/hirlam/vprof18.dat
-
-m=HIRLAM.G.00   f=$(OPDATA1)/hirlam/vprof00.dat
-m=HIRLAM.G.06   f=$(OPDATA1)/hirlam/vprof06.dat
-m=HIRLAM.G.12   f=$(OPDATA1)/hirlam/vprof12.dat
-m=HIRLAM.G.18   f=$(OPDATA1)/hirlam/vprof18.dat
 
 m=HIRLAM.10KM.00   f=$(OPDATA2)/hirlam10/vp10km00.dat
 m=HIRLAM.10KM.12   f=$(OPDATA2)/hirlam10/vp10km12.dat
@@ -4090,15 +4095,15 @@ metnoobs.pilot= $(OPDATA1)/obs_dec/pilo??.dat-2
 
 <VERTICAL_CROSSECTION_FILES>
 
-m=HIRLAM.20KM.00  f=$(OPDATA1)/hirlam20/vc20km00.dat
-m=HIRLAM.20KM.06  f=$(OPDATA1)/hirlam20/vc20km06.dat
-m=HIRLAM.20KM.12  f=$(OPDATA1)/hirlam20/vc20km12.dat
-m=HIRLAM.20KM.18  f=$(OPDATA1)/hirlam20/vc20km18.dat
-
 m=HIRLAM.12KM.00  f=$(OPDATA2)/hirlam12/vc12km00.dat
 m=HIRLAM.12KM.06  f=$(OPDATA2)/hirlam12/vc12km06.dat
 m=HIRLAM.12KM.12  f=$(OPDATA2)/hirlam12/vc12km12.dat
 m=HIRLAM.12KM.18  f=$(OPDATA2)/hirlam12/vc12km18.dat 
+
+m=HIRLAM.20KM.00  f=$(OPDATA1)/hirlam20/vc20km00.dat
+m=HIRLAM.20KM.06  f=$(OPDATA1)/hirlam20/vc20km06.dat
+m=HIRLAM.20KM.12  f=$(OPDATA1)/hirlam20/vc20km12.dat
+m=HIRLAM.20KM.18  f=$(OPDATA1)/hirlam20/vc20km18.dat
 
 m=HIRLAM.10KM.00  f=$(OPDATA2)/hirlam10/vc10km00.dat
 m=HIRLAM.10KM.12  f=$(OPDATA2)/hirlam10/vc10km12.dat
