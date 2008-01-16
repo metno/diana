@@ -583,7 +583,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     u= tmpfields[0]->data;
     v= tmpfields[1]->data;
   } else {
-    if (nf==2) {
+    if (nf==0) {
       Field* utmp= new Field();
       Field* vtmp= new Field();
       tmpfields.push_back(utmp);
@@ -591,7 +591,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     }
     //calc fields in current projection
     *(tmpfields[0])= *(fields[0]);
-    *(tmpfields[1])= *(fields[1]);
+    *(tmpfields[1])= *(fields[0]);
     u= tmpfields[0]->data;
     v= tmpfields[1]->data; 
     int npos= fields[0]->nx * fields[0]->ny;
