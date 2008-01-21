@@ -86,8 +86,7 @@ public:
   void setUsers(vector<Profet::PodsUser> users);
   void showMessage(const Profet::InstantMessage & msg);
   void setObjects(vector<fetObject> objects);
-
-  void setObjectSignatures( vector<fetObject::Signature> s){ sessionDialog.setObjectSignatures(s);}
+  void setObjectSignatures( vector<fetObject::Signature> s);
 
   void customEvent(QCustomEvent * e);
   /**

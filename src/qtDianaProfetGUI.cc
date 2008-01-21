@@ -117,18 +117,35 @@ void DianaProfetGUI::customEvent(QCustomEvent * e){
   }else if(e->type() == Profet::USER_LIST_EVENT){
     Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
     sessionDialog.setUserList(cle->users);
+  }else if(e->type() == Profet::UPDATE_MAP_EVENT){
+    emit repaintMap();
+  }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){
+    Profet::ObjectUpdateEvent * oue = (Profet::ObjectUpdateEvent*) e;
+    objects = oue->objects;
+    areaManager->clear();  
+    for(int i=0;i<objects.size();i++){
+      areaManager->addArea(objects[i].id(),objects[i].polygon(),false);
+    }
+    sessionDialog.setObjectList(objects);
+    if(objects.size()) objectSelected(objects[0].id());
+  }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){
+    Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
+    sessionDialog.setObjectSignatures(sue->objects);
   }
+  
+}
+// THREAD SAFE!
+void DianaProfetGUI::setObjects(vector<fetObject> obj){
+  Profet::ObjectUpdateEvent * oue = new Profet::ObjectUpdateEvent(obj);
+  QApplication::postEvent(this, oue);//thread-safe
+  QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
-void DianaProfetGUI::setObjects(vector<fetObject> obj){
-  LOG4CXX_INFO(logger,"setObjects " << obj.size());
-  objects = obj;
-  areaManager->clear();
-  for(int i=0;i<obj.size();i++){
-    areaManager->addArea(obj[i].id(),obj[i].polygon(),false);
-  }
-  sessionDialog.setObjectList(obj);
-  if(obj.size()) objectSelected(obj[0].id());
+
+void DianaProfetGUI::setObjectSignatures( vector<fetObject::Signature> s){ 
+  Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s);
+  QApplication::postEvent(this, sue);//thread-safe
+  QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
 void DianaProfetGUI::baseObjectSelected(miString id){
@@ -315,7 +332,8 @@ void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y){
 }
 
 void DianaProfetGUI::updateMap(){
-  emit repaintMap();
+  QApplication::postEvent(this, new QCustomEvent(Profet::UPDATE_MAP_EVENT));//thread-safe
+  QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
 miString DianaProfetGUI::getCurrentParameter(){
