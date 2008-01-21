@@ -133,8 +133,10 @@ public:
 	bool setEnabled(miString id, bool enabled);
 	/// Clear / Remove all areas. No current area.
 	void clear();
-        /// Set projection of active field
-        void setBaseProjection(Area proj){base_proj = proj;}
+	/// Set projection of active field
+	void setBaseProjection(Area proj){base_proj = proj;}
+	/// Get number of Areas
+	int getAreaCount(){ return gridAreas.size(); }
 };
 
 

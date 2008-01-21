@@ -122,12 +122,14 @@ void DianaProfetGUI::customEvent(QCustomEvent * e){
   }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){
     Profet::ObjectUpdateEvent * oue = (Profet::ObjectUpdateEvent*) e;
     objects = oue->objects;
+    bool removeAreas = (areaManager->getAreaCount() > 0);
     areaManager->clear();  
     for(int i=0;i<objects.size();i++){
       areaManager->addArea(objects[i].id(),objects[i].polygon(),false);
     }
     sessionDialog.setObjectList(objects);
-    if(objects.size()) objectSelected(objects[0].id());
+    if(objects.size()) objectSelected(objects[0].id()); // will update map
+    else if(removeAreas) updateMap(); // plot map without objects
   }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
     sessionDialog.setObjectSignatures(sue->objects);
