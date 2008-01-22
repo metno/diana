@@ -141,13 +141,10 @@ m=EC.00        g=98:504  f=/opdata/ec/flte00.dat
 m=EC300.00     g=98:533  f=/opdata/ec/flte00.dat
 
 filegroup=UK
-m=UK.00        g=74:504   f=/opdata/uk/fltc00.dat
-m=UK300.00     g=74:533   f=/opdata/uk/fltc00.dat
-m=UKFIN.00     g=74:604   f=/opdata/uk/fltc00.dat
-m=UK.12        g=74:504   f=/opdata/uk/fltc12.dat
-m=UK300.12     g=74:533   f=/opdata/uk/fltc12.dat
-m=UKFIN.12     g=74:604   f=/opdata/uk/fltc12.dat
-
+m=UK.00        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat	
+m=UK.12        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat
 
 filegroup=EC.EPS
 m=EC.EPS         f=/opdata/ec/greps12.dat

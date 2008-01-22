@@ -361,48 +361,35 @@ m=ALT-EC300.00     g=98:533  f=/opdata_routine/ec/flte00.dat
 # m=EC.GEO.00-2    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ec/grec00.dat-2
 
 filegroup=UK
-m=UK.00        g=74:504:uk      f=/opdata/uk/fltc00.dat
-m=UK300.00     g=74:533:uk300   f=/opdata/uk/fltc00.dat
-m=UKFIN.00     g=74:604:ukfin   f=/opdata/uk/fltc00.dat
-m=UK.12        g=74:504:uk      f=/opdata/uk/fltc12.dat
-m=UK300.12     g=74:533:uk300   f=/opdata/uk/fltc12.dat
-m=UKFIN.12     g=74:604:ukfin   f=/opdata/uk/fltc12.dat
-m=ALT-UK.00        g=74:504:uk      f=/opdata_routine/uk/fltc00.dat
-m=ALT-UK300.00     g=74:533:uk300   f=/opdata_routine/uk/fltc00.dat
-m=ALT-UKFIN.00     g=74:604:ukfin   f=/opdata_routine/uk/fltc00.dat
-m=ALT-UK.12        g=74:504:uk      f=/opdata_routine/uk/fltc12.dat
-m=ALT-UK300.12     g=74:533:uk300   f=/opdata_routine/uk/fltc12.dat
-m=ALT-UKFIN.12     g=74:604:ukfin   f=/opdata_routine/uk/fltc12.dat
-m=ALT-UK.00-1      g=74:504:uk      f=/opdata_routine/uk/fltc00.dat-1
-m=ALT-UK300.00-1   g=74:533:uk300   f=/opdata_routine/uk/fltc00.dat-1
-m=ALT-UKFIN.00-1   g=74:604:ukfin   f=/opdata_routine/uk/fltc00.dat-1
-m=ALT-UK.12-1      g=74:504:uk      f=/opdata_routine/uk/fltc12.dat-1
-m=ALT-UK300.12-1   g=74:533:uk300   f=/opdata_routine/uk/fltc12.dat-1
-m=ALT-UKFIN.12-1   g=74:604:ukfin   f=/opdata_routine/uk/fltc12.dat-1
-m=ALT-UK.00-2      g=74:504:uk      f=/opdata_routine/uk/fltc00.dat-2
-m=ALT-UK300.00-2   g=74:533:uk300   f=/opdata_routine/uk/fltc00.dat-2
-m=ALT-UKFIN.00-2   g=74:604:ukfin   f=/opdata_routine/uk/fltc00.dat-2
-m=ALT-UK.12-2      g=74:504:uk      f=/opdata_routine/uk/fltc12.dat-2
-m=ALT-UK300.12-2   g=74:533:uk300   f=/opdata_routine/uk/fltc12.dat-2
-m=ALT-UKFIN.12-2   g=74:604:ukfin   f=/opdata_routine/uk/fltc12.dat-2
-m=ALT-UK.00-3      g=74:504:uk      f=/opdata_routine/uk/fltc00.dat-3
-m=ALT-UK300.00-3   g=74:533:uk300   f=/opdata_routine/uk/fltc00.dat-3
-m=ALT-UKFIN.00-3   g=74:604:ukfin   f=/opdata_routine/uk/fltc00.dat-3
-m=ALT-UK.12-3      g=74:504:uk      f=/opdata_routine/uk/fltc12.dat-3
-m=ALT-UK300.12-3   g=74:533:uk300   f=/opdata_routine/uk/fltc12.dat-3
-m=ALT-UKFIN.12-3   g=74:604:ukfin   f=/opdata_routine/uk/fltc12.dat-3
-m=ALT-UK.00-4      g=74:504:uk      f=/opdata_routine/uk/fltc00.dat-4
-m=ALT-UK300.00-4   g=74:533:uk300   f=/opdata_routine/uk/fltc00.dat-4
-m=ALT-UKFIN.00-4   g=74:604:ukfin   f=/opdata_routine/uk/fltc00.dat-4
-m=ALT-UK.12-4      g=74:504:uk      f=/opdata_routine/uk/fltc12.dat-4
-m=ALT-UK300.12-4   g=74:533:uk300   f=/opdata_routine/uk/fltc12.dat-4
-m=ALT-UKFIN.12-4   g=74:604:ukfin   f=/opdata_routine/uk/fltc12.dat-4
-m=ALT-UK.00-5      g=74:504:uk      f=/opdata_routine/uk/fltc00.dat-5
-m=ALT-UK300.00-5   g=74:533:uk300   f=/opdata_routine/uk/fltc00.dat-5
-m=ALT-UKFIN.00-5   g=74:604:ukfin   f=/opdata_routine/uk/fltc00.dat-5
-m=ALT-UK.12-5      g=74:504:uk      f=/opdata_routine/uk/fltc12.dat-5
-m=ALT-UK300.12-5   g=74:533:uk300   f=/opdata_routine/uk/fltc12.dat-5
-m=ALT-UKFIN.12-5   g=74:604:ukfin   f=/opdata_routine/uk/fltc12.dat-5
+m=UK.00        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat	
+m=UK.12        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat
+m=ALT-UK.00    g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat	
+m=ALT-UK.12    g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat
+m=ALT-UK.00-1  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-1
+m=ALT-UK.12-1  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-1
+m=ALT-UK.00-2  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-2
+m=ALT-UK.12-2  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-2
+m=ALT-UK.00-3  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-3
+m=ALT-UK.12-3  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-3
+m=ALT-UK.00-4  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-4
+m=ALT-UK.12-4  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-4
+m=ALT-UK.00-5  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-5
+m=ALT-UK.12-5  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-5
+
 
 # filegroup=OBS.FIELDS
 # m=OBSFIELD.00    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs00.dat
