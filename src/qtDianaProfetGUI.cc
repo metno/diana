@@ -118,7 +118,7 @@ void DianaProfetGUI::customEvent(QCustomEvent * e){
     Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
     sessionDialog.setUserList(cle->users);
   }else if(e->type() == Profet::UPDATE_MAP_EVENT){
-    emit repaintMap();
+    emit repaintMap(true);
   }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){
     Profet::ObjectUpdateEvent * oue = (Profet::ObjectUpdateEvent*) e;
     objects = oue->objects;
@@ -128,8 +128,9 @@ void DianaProfetGUI::customEvent(QCustomEvent * e){
       areaManager->addArea(objects[i].id(),objects[i].polygon(),false);
     }
     sessionDialog.setObjectList(objects);
-    if(objects.size()) objectSelected(objects[0].id()); // will update map
-    else if(removeAreas) updateMap(); // plot map without objects
+    //TODO Select previous object. And ignore replot signal!
+//    if(objects.size()) objectSelected(objects[0].id()); // will update map
+//    else if(removeAreas) updateMap(); // plot map without objects
   }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
     sessionDialog.setObjectSignatures(sue->objects);
@@ -304,7 +305,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
       plotString += "FIELD ";
       plotString += "profet ";
       plotString += currentParam;
-      emit showProfetField(plotString);
+      emit showProfetField(plotString); //FieldManager->addField
     }
     
     // make plot string for new PROFET fieldPlot
@@ -313,13 +314,13 @@ void DianaProfetGUI::showField(miString param, miTime time){
     plotString += param;
     plotString += " overlay=1";
     LOG4CXX_INFO(logger,"showField: "<<plotString);
-    emit showProfetField(plotString);
+    emit showProfetField(plotString); //FieldManager->addField
   }
   
   currentParam = param;
   
   emit setTime(time);
-  emit repaintMap(); //??????
+//  emit repaintMap(false);
 }
 
 
@@ -433,7 +434,7 @@ void DianaProfetGUI::setVisible(bool visible){
     setObjectDialogVisible(showObjectDialog);
     sessionDialog.selectDefault();
     sessionDialog.show();
-    updateMap();
+    emit repaintMap(false);
   }
   else{
     // First, remove previous PROFET fieldPlot (if any)
@@ -441,7 +442,7 @@ void DianaProfetGUI::setVisible(bool visible){
       emit showProfetField("REMOVE FIELD profet " + currentParam);
     currentParam="";
     areaManager->clear();
-    updateMap();
+    emit repaintMap(false);
     sessionDialog.hide();
     objectDialog.hide();
     paintToolBar->hide();

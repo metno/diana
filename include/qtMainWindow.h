@@ -163,7 +163,6 @@ private slots:
   void catchMouseMovePos(const mouseEvent,bool);
   void catchKeyPress(const keyboardEvent);
   void catchElement(const mouseEvent);
-//  void catchGridAreaChanged();
   void sendSelectedStations(const miString& command);
   void undo();
   void redo();
@@ -229,6 +228,7 @@ private slots:
   void sendPrintClicked(int);
   void togglePaintMode();
   void setPaintMode(bool);
+  void plotProfetMap(bool objectsOnly);
 
 private:
   bool enableProfet;

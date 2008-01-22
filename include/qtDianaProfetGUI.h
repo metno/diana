@@ -158,7 +158,7 @@ signals:
   void setPaintMode(bool);
   void showProfetField(miString field);
   void setTime(const miTime & t);
-  void repaintMap();
+  void repaintMap(bool onlyObjects);
   void toggleProfetGui();
 };
 

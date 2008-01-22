@@ -1554,19 +1554,24 @@ bool DianaMainWindow::initProfet(){
       this, SLOT(setPaintMode(bool)));
   connect(profetGUI, SIGNAL(showProfetField(miString)), 
       fm, SLOT(addField(miString)));
-  connect( profetGUI, SIGNAL(repaintMap()), 
-      SLOT(MenuOK()));
+  connect( profetGUI, SIGNAL(repaintMap(bool)), 
+      SLOT(plotProfetMap(bool)));
   connect( profetGUI, SIGNAL(setTime(const miTime&)), 
      tslider,SLOT(setTime(const miTime&)));
   return true;
 }
 
+void DianaMainWindow::plotProfetMap(bool objectsOnly){
+//  if(objectsOnly) contr->plot(true,false); // Objects in overlay
+//  else MenuOK();
+  MenuOK();
+}
+
 void DianaMainWindow::toggleProfetGUI(){
-  cerr << "DianaMainWindow: toggleProfetGUI "<<endl;
   QApplication::setOverrideCursor( waitCursor );
   if(!profetGUI){
     bool inited = initProfet();
-    cerr << "DianaMainWindow: profet inited = " << inited<<endl;
+    if(!inited) cerr << "DianaMainWindow: Profet NOT INIT! " << endl;
   }
   bool turnOn = !(profetGUI->isVisible());
   toggleProfetGUIAction->setOn(turnOn);
