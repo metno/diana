@@ -34,38 +34,58 @@
 #include <qbuttongroup.h>
 
 ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
-  : QDialog(parent){
+  : QDialog(parent)
+{
   setCaption(tr("Current Object"));
+
   QVBoxLayout * mainLayout = new QVBoxLayout(this);
-  QHBox * titleBox = new QHBox(this);
-  parameterLabel = new QLabel(titleBox);
-  sessionLabel = new QLabel(titleBox);
+  QHBox * titleBox         = new QHBox(this);
+  parameterLabel           = new QLabel(titleBox);
+  sessionLabel             = new QLabel(titleBox);
+
   mainLayout->addWidget(titleBox);
-  algGroupBox = new QGroupBox(2,Qt::Vertical,"Algorithm",this);
-  baseComboBox = new QComboBox(algGroupBox);
-  algDescriptionLabel = new QLabel(algGroupBox);
+
+  algGroupBox              = new QGroupBox(2,Qt::Vertical,"Algorithm",this);
+  baseComboBox             = new QComboBox(algGroupBox);
+  algDescriptionLabel      = new QLabel(algGroupBox);
+
   mainLayout->addWidget(algGroupBox);
-  areaGroupBox = new QGroupBox(4,Qt::Vertical,"Area",this);
-  customAreaButton = new QRadioButton("Draw On Map",areaGroupBox);
-  QHBox * objectAreaBox = new QHBox(areaGroupBox);
-  objectAreaButton = new QRadioButton("From Object",objectAreaBox);
-  objectAreaComboBox = new QComboBox(objectAreaBox);
-  QHBox * fileAreaBox = new QHBox(areaGroupBox);
-  fileAreaButton = new QRadioButton("From File",fileAreaBox);
-  fileTextEdit = new QLineEdit(fileAreaBox);
-  areaInfoLabel = new QLabel("",areaGroupBox);
+
+  areaGroupBox             = new QGroupBox(4,Qt::Vertical,"Area",this);
+  customAreaButton         = new QRadioButton("Draw On Map",areaGroupBox);
+  QHBox * objectAreaBox    = new QHBox(areaGroupBox);
+  objectAreaButton         = new QRadioButton("From Object",objectAreaBox);
+  objectAreaComboBox       = new QComboBox(objectAreaBox);
+  QHBox * fileAreaBox      = new QHBox(areaGroupBox);
+  fileAreaButton           = new QRadioButton("From File",fileAreaBox);
+  fileTextEdit             = new QLineEdit(fileAreaBox);
+  areaInfoLabel            = new QLabel("",areaGroupBox);
+
   mainLayout->addWidget(areaGroupBox);
-  stackGroupBox = new QGroupBox(1,Qt::Vertical,"Parameters",this);
+
+  stackGroupBox            = new QGroupBox(1,Qt::Vertical,"Parameters",this);
   stackGroupBox->setInsideMargin(2);
   stackGroupBox->setInsideSpacing(2);
-  widgetStack = new QWidgetStack(stackGroupBox); 
+
+  widgetStack              = new QWidgetStack(stackGroupBox); 
+
   mainLayout->addWidget(stackGroupBox);
-  reasonGroupBox = new QGroupBox(1,Qt::Vertical,"Reason",this);
-  reasonText = new QTextEdit(reasonGroupBox);
+
+  reasonGroupBox           = new QGroupBox(1,Qt::Vertical,"Reason",this);
+  reasonText               = new QTextEdit(reasonGroupBox);
+
   mainLayout->addWidget(reasonGroupBox);
-  QHBox * buttonBox = new QHBox(this);
-  saveObjectButton = new QPushButton("Save",buttonBox);
-  cancelObjectButton = new QPushButton("Cancel",buttonBox);
+  
+  statGroupBox             = new QGroupBox(1,Qt::Vertical,"Statistics",this);
+  statisticLabel           = new QLabel("",statGroupBox);
+
+  mainLayout->addWidget(statGroupBox);
+
+
+  QHBox * buttonBox        = new QHBox(this);
+  saveObjectButton         = new QPushButton("Save",buttonBox);
+  cancelObjectButton       = new QPushButton("Cancel",buttonBox);
+
   mainLayout->addWidget(buttonBox);
   
   QButtonGroup * areaButtons = new QButtonGroup(0);
@@ -73,14 +93,15 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
   areaButtons->insert(objectAreaButton);
   areaButtons->insert(fileAreaButton);
   customAreaButton->setChecked(true);
+
   // Disable non-implemented functions
   objectAreaButton->setEnabled(false);
   objectAreaComboBox->setEnabled(false);
   fileTextEdit->setEnabled(false);
   fileAreaButton->setEnabled(false);
+
   connectSignals();
-  setAreaStatus(AREA_NOT_SELECTED);
-  
+  setAreaStatus(AREA_NOT_SELECTED);  
 }
 
 void ProfetObjectDialog::connectSignals(){
@@ -198,3 +219,37 @@ miString ProfetObjectDialog::getReason(){
   return r;
 }
 
+
+void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
+{
+  
+  if(!stat.size()) {
+    statisticLabel->setText("");
+    return;
+  }
+
+  if(!stat.count("size")) {
+    statisticLabel->setText("");
+    return;
+  }
+
+  if(stat["size"] < 1 ) {
+    statisticLabel->setText(tr("<font color=red><b>EMPTY OBJECT - NOTHING TO EDIT!</b></font>"));
+    return;
+  }
+
+  map<miString,float>::iterator itr=stat.begin();
+  ostringstream ost;
+  ost << "<table border=0>"; 
+  for(;itr!=stat.end();itr++) {
+    float value = itr->second;
+    int   prec  = ((int(value*100) == int(value)*100) ? 0 : 2);
+    
+    ost	<< "<tr><td><b>"<<itr->first.upcase() << ": </b> <td> " <<std::fixed << std::setprecision(prec) 
+	<< itr->second;
+  }
+  ost << "</table>";
+    
+  statisticLabel->setText(ost.str());
+  
+}

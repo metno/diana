@@ -58,30 +58,32 @@ class ProfetObjectDialog: public QDialog{
 public:
   enum AreaStatus {AREA_NOT_SELECTED,AREA_OK,AREA_NOT_VALID};
 private:
-  QLabel * parameterLabel;
-  QLabel * sessionLabel;
-  QLabel * algDescriptionLabel;
-  QComboBox * baseComboBox;
-  QRadioButton * customAreaButton;
-  QRadioButton * objectAreaButton;
-  QRadioButton * fileAreaButton;
-  QComboBox * objectAreaComboBox;
-  QLineEdit * fileTextEdit;
-  QLabel * areaInfoLabel;
-  QTextEdit * reasonText;
-  QButton * saveObjectButton;
-  QButton * cancelObjectButton;
-  QWidgetStack* widgetStack;
-  QGroupBox * algGroupBox;
-  QGroupBox * areaGroupBox;
-  QGroupBox * stackGroupBox;
-  QGroupBox * reasonGroupBox;
-  DynamicGuiMap dynamicGuiMap;
+  QLabel        *parameterLabel;
+  QLabel        *sessionLabel;
+  QLabel        *algDescriptionLabel;
+  QLabel        *statisticLabel;
+  QComboBox     *baseComboBox;
+  QRadioButton  *customAreaButton;
+  QRadioButton  *objectAreaButton;
+  QRadioButton  *fileAreaButton;
+  QComboBox     *objectAreaComboBox;
+  QLineEdit     *fileTextEdit;
+  QLabel        *areaInfoLabel;
+  QTextEdit     *reasonText;
+  QButton       *saveObjectButton;
+  QButton       *cancelObjectButton;
+  QWidgetStack  *widgetStack;
+  QGroupBox     *algGroupBox;
+  QGroupBox     *areaGroupBox;
+  QGroupBox     *stackGroupBox;
+  QGroupBox     *reasonGroupBox;
+  QGroupBox     *statGroupBox;
+  DynamicGuiMap  dynamicGuiMap;
   DescriptionMap descriptionMap;
-  miString selectedBaseObject;
+  miString       selectedBaseObject;
   
-  void connectSignals();
-  QString getAreaStatusString(AreaStatus);
+  void           connectSignals();
+  QString        getAreaStatusString(AreaStatus);
   
 protected:
   void closeEvent( QCloseEvent* );  
@@ -94,6 +96,7 @@ public:
   void setParameter(const miString & parameter);
   void setBaseObjects(const vector<fetBaseObject> & o);
   void setAreaStatus(AreaStatus);
+  void setStatistics(map<miString,float>&);
   miString getSelectedBaseObject();
   miString getReason();
   void selectDefault();

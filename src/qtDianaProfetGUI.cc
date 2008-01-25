@@ -464,3 +464,14 @@ int DianaProfetGUI::getObjectIndex(miString id){
       return i;
   return -1;
 }
+
+void  DianaProfetGUI::setStatistics(map<miString,float> m)
+{
+  objectDialog.setStatistics(m);
+}
+
+void  DianaProfetGUI::setActivePoints(vector<Point>)
+{
+
+}
+

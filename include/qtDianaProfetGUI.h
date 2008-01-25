@@ -130,7 +130,20 @@ public:
     return currentObject;
   }
 	
-			  
+	
+  /**
+   * set some statistic information for the current object
+   */
+  void setStatistics(map<miString,float>);
+  
+  /**
+   * set the list of Points which are actually affected bye the active
+   * object/mask
+   */
+  void setActivePoints(vector<Point>);
+
+
+		  
 private slots:
 // ObjectDialog
   void baseObjectSelected(miString name);
