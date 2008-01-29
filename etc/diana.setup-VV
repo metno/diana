@@ -246,7 +246,7 @@ m=ALT-WAM.12            f=$(OPDATA2)/wave/gwave12.dat
 m=ALT-WAM.18            f=$(OPDATA2)/wave/gwave18.dat
 m=ALT-WAM.10km.00       f=$(OPDATA2)/wave/g10kmwave00.dat
 m=ALT-WAM.10km.12       f=$(OPDATA2)/wave/g10kmwave12.dat
-m=ALT-WAM.10KM.18.EPS   f=$(OPDATA2)/wave_eps/g10kmwaveEPS_18.dat
+m=ALT-WAM.10KM.EPS.18   f=$(OPDATA2)/wave_eps/g10kmwaveEPS_18.dat
 m=ALT-ECMWF.WAM.00-0.25   f=$(OPDATA2)/ec/ec_wave_geo_00_mwp.felt
 m=ALT-ECMWF.WAM.12-0.25   f=$(OPDATA2)/ec/ec_wave_geo_12_mwp.felt
 m=ALT-ECMWF.WAM.12      f=$(OPDATA2)/ec/grecw12.dat
