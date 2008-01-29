@@ -354,6 +354,7 @@ m=WAM.12            f=$(OPDATA1)/wave/gwave12.dat
 m=WAM.18            f=$(OPDATA1)/wave/gwave18.dat
 m=WAM.10km.00       f=$(OPDATA1)/wave/g10kmwave00.dat
 m=WAM.10km.12       f=$(OPDATA1)/wave/g10kmwave12.dat
+m=WAM.10KM.18.EPS   f=$(OPDATA2)/wave_eps/g10kmwaveEPS_18.dat
 m=ECMWF.WAM.12      f=$(OPDATA1)/ec/grecw12.dat
 m=ECMWF.WAM.NY.00   f=$(OPDATA1)/ec/ec_wave_geo_00_i.felt
 m=ECMWF.WAM.NY.12   f=$(OPDATA1)/ec/ec_wave_geo_12_i.felt

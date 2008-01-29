@@ -443,33 +443,33 @@ filegroup=EC.MÅNED
 m=EC_MÅNED.00 f=$(OPDATA2)/ec/ec_mfs_geo_00_nmf.felt 
 
 filegroup=WAVE/WAM
-m=WAM.10km.00       f=/opdata/wave/g10kmwave00.dat
-m=WAM.10km.12       f=/opdata/wave/g10kmwave12.dat
-m=ECMWF.WAM.00-0.25   f=/opdata/ec/ec_wave_geo_00_mwp.felt
-m=ECMWF.WAM.12-0.25   f=/opdata/ec/ec_wave_geo_12_mwp.felt
-m=WAM.00            f=/opdata/wave/gwave00.dat
-m=WAM.06            f=/opdata/wave/gwave06.dat
-m=WAM.12            f=/opdata/wave/gwave12.dat
-m=WAM.18            f=/opdata/wave/gwave18.dat
-m=WAM.EC_WIND.12    f=/opdata/wave/g2wave12.dat
-m=ECMWF.WAM.12      f=/opdata/ec/grecw12.dat
-#m=ECMWF.WAM.NY.00   f=/opdata/ec/ec_wave_geo_00_i.felt
-#m=ECMWF.WAM.NY.12   f=/opdata/ec/ec_wave_geo_12_i.felt
-m=ECMWF.WAM.EPS.00-1deg  f=/opdata/ec/ec_wef_geo_00_mew.felt
-m=ECMWF.WAM.EPS.12-1deg  f=/opdata/ec/ec_wef_geo_12_mew.felt
-#m=ECMWF.WAM.EPS.00  f=/opdata/ec/ec_wef_geo_00_i.felt
-#m=ECMWF.WAM.EPS.12  f=/opdata/ec/ec_wef_geo_12_i.felt
 m=WAM.POL.00        g=88:1714:Stor  g=88:1501:Liten  f=/opdata/wave/fwave00.dat
 m=WAM.POL.06        g=88:1714:Stor  g=88:1501:Liten  f=/opdata/wave/fwave06.dat
 m=WAM.POL.12        g=88:1714:Stor  g=88:1501:Liten  f=/opdata/wave/fwave12.dat
 m=WAM.POL.18        g=88:1714:Stor  g=88:1501:Liten  f=/opdata/wave/fwave18.dat
+m=WAM.00            f=/opdata/wave/gwave00.dat
+m=WAM.06            f=/opdata/wave/gwave06.dat
+m=WAM.12            f=/opdata/wave/gwave12.dat
+m=WAM.18            f=/opdata/wave/gwave18.dat
+m=WAM.10km.00       f=/opdata/wave/g10kmwave00.dat
+m=WAM.10km.12       f=/opdata/wave/g10kmwave12.dat
+m=WAM.10KM.18.EPS   f=$(OPDATA2)/wave_eps/g10kmwaveEPS_18.dat
+m=ECMWF.WAM.00-0.25   f=$(OPDATA2)/ec/ec_wave_geo_00_mwp.felt
+m=ECMWF.WAM.12-0.25   f=$(OPDATA2)/ec/ec_wave_geo_12_mwp.felt
+m=ECMWF.WAM.12      f=$(OPDATA2)/ec/grecw12.dat
+m=ECMWF.WAM.NY.00   f=$(OPDATA2)/ec/ec_wave_geo_00_i.felt
+m=ECMWF.WAM.NY.12   f=$(OPDATA2)/ec/ec_wave_geo_12_i.felt
+m=ECMWF.WAM.EPS.00  f=$(OPDATA2)/ec/ec_wef_geo_00_i.felt
+m=ECMWF.WAM.EPS.12  f=$(OPDATA2)/ec/ec_wef_geo_12_i.felt
+m=ECMWF.WAM.EPS.00-1deg  f=$(OPDATA2)/ec/ec_wef_geo_00_mew.felt
+m=ECMWF.WAM.EPS.12-1deg  f=$(OPDATA2)/ec/ec_wef_geo_12_mew.felt
+m=SWAN.500m.00      f=$(OPDATA2)/wave/g500mwave00.dat
+m=SWAN.500m.12      f=$(OPDATA2)/wave/g500mwave12.dat
 m=WAM.00-1          f=/opdata/wave/gwave00.dat-1
 m=WAM.12-1          f=/opdata/wave/gwave12.dat-1
 m=WAM.EC_WIND.12-1  f=/opdata/wave/g2wave00.dat-1
 m=ECMWF.WAM.12-1    f=/opdata/ec/grecw12.dat-1
 m=WAM.8km.00-1      f=/opdata/wave/g3wave00.dat-1
-m=SWAN.500m.00      f=$(OPDATA2)/wave/g500mwave00.dat
-m=SWAN.500m.12      f=$(OPDATA2)/wave/g500mwave12.dat
 
 filegroup=SEA
 m=ARCTIC.20km.00    f=$(OPDATA2)/sea/f20Arctic00.dat
