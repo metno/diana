@@ -488,7 +488,6 @@ int SatDialog::addSelectedPicture(){
   lstate.mosaic=false;
   lstate.totalminutes=60;
 
-  sda->palette = files[0].palette;	
   int newIndex=-1;    
 
   //check if we tried to select an existing picture
