@@ -51,6 +51,10 @@ extern "C" {
 		     int* kerr, int len_cnames, int len_cunits, int len_cvals);
   extern void busel_(int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
 		     int* kerr);
+  extern void busel2_(int* ksubset, int * kelem, 
+		      int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
+		      const char* cnames, const char* cunits,
+		      int* kerr);
   extern void bus012_(int* ilen, int* ibuff, int* ksup,
 		      int* ksec0, int* ksec1, int* ksec2,int* kerr);
 
@@ -69,15 +73,21 @@ private:
 
   bool BUFRdecode(int* ibuff, int ilen, const miString& format);
   bool get_diana_data(int ktdexl, int *ktdexp, double* values,
-		      const char cvals[][80], int len_cvals, ObsData &d);
+		      const char cvals[][80], int len_cvals, 
+		      int subset, int kelem, ObsData &d);
+
   bool get_station_info(int ktdexl, int *ktdexp, double* values,
-		      const char cvals[][80], int len_cvals);
+			const char cvals[][80], int len_cvals,
+			int subset, int kelem);
 
   bool get_diana_data_level(int ktdexl, int *ktdexp, double* values,
-			    const char cvals[][80], int len_cvals, ObsData &d,
+			    const char cvals[][80], int len_cvals, 
+			    int subset, int kelem, ObsData &d,
 			    int level);
+
   bool get_data_level(int ktdexl, int *ktdexp, double* values,
-			    const char cvals[][80], int len_cvals, miTime time);
+		      const char cvals[][80], int len_cvals, 
+		      int subset, int kelem, miTime time);
 
   miString cloudAmount(int i);
   miString cloudHeight(int i);

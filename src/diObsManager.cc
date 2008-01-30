@@ -472,7 +472,7 @@ bool ObsManager::updateTimes(miString obsType)
 #endif
 	    } else if (Prod[obsType].pattern[j].fileType == "bufr") {
 #ifdef BUFROBS
-	    cerr<<"//read time from bufr-file"<<endl;
+	    //read time from bufr-file
 	      ObsBufr bufr;
 	      if(!bufr.ObsTime(finfo.filename,finfo.time))continue;
 #endif

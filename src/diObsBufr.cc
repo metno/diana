@@ -48,6 +48,7 @@ const double bufrMissing= 1.6e+38;
 bool ObsBufr::init(const miString& bufr_file, const miString& format)
 {
 
+//   cerr <<"ObsBufr::init:"<<bufr_file<<endl;
   obsTime = miTime(); //undef
   const int ibflen=200000;
   int ibuff[ibflen/4];
@@ -127,9 +128,11 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
   //read sec 0-2
   bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2,&kerr);
 
-  //HACK assumes files from year 1971 to 2070
+  //HACK if year has only two digits, files from year 1971 to 2070 is assumed
   int year = ksec1[8];
-  year = (year>70) ? year+1900 : year+2000;
+  if(year <1000) {
+    year = (year>70) ? year+1900 : year+2000;
+  }
   time = miTime(year,ksec1[9],ksec1[10],ksec1[11],ksec1[12],0);
 
   return true;
@@ -178,13 +181,13 @@ VprofPlot* ObsBufr::getVprofPlot(const miString& bufr_file,
 bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 {
   // Decode BUFR message into fully decoded form.
-  //  cerr <<"Decode BUFR message into fully decoded form."<<endl;
   
-  const int kelem=4000, kvals=200000;
+  const int kelem=160000; //length of subsection 
+  const int kvals=4096000; 
   
   const int len_cnames=64, len_cunits=24, len_cvals=80; 
   
-  static int ksup[9];
+  static int ksup[9]; 
   static int ksec0[3];
   static int ksec1[40];
   static int ksec2[64];
@@ -196,8 +199,8 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
   static char cvals[kvals][len_cvals];
   static double values[kvals];
   
-  static int ktdlst[kelem];
-  static int ktdexp[kelem];
+  static int ktdlst[2*kelem];
+  static int ktdexp[2*kelem];
   int ktdlen;
   int ktdexl;
   int kerr;
@@ -211,49 +214,58 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 	  len_cnames, len_cunits, len_cvals);
   if (kerr>0) cerr<<"ObsBufr::init: Error in BUFREX: KERR="<<kerr<<endl;
 
- 
-  //HACK assumes files from year 1971 to 2070
+  int nsubset= ksup[5];
+
+  //HACK if year has only two digits, files from year 1971 to 2070 is assumed
   if(obsTime.undef()){
     int year = ksec1[8];
-    year = (year>70) ? year+1900 : year+2000;
-    obsTime = miTime(year,ksec1[9],ksec1[10],ksec1[11],ksec1[12],0);
+    if(year <1000) {
+      year = (year>70) ? year+1900 : year+2000;
+      obsTime = miTime(year,ksec1[9],ksec1[10],ksec1[11],ksec1[12],0);
+    }
   }
 
   // Return list of Data Descriptors from Section 3 of Bufr message, and 
   // total/requested list of elements. BUFREX must have been called before BUSEL.
-  busel_(&ktdlen, ktdlst, &ktdexl, ktdexp, &kerr);
-  if (kerr>0) cerr<<"ObsBufr::init: Error in BUSEL: KERR="<<kerr<<endl;
   
-  if(format.downcase() == "obsplot"){
-    ObsData &obs = oplot->getNextObs();
-    if( oplot->getLevel() <-1){
-      if(!get_diana_data(ktdexl, ktdexp, values, cvals, len_cvals, obs)
-	 || !oplot->timeOK(obs.obsTime))
-	oplot->removeObs();
-    } else {
-      if(!get_diana_data_level(ktdexl, ktdexp, values, cvals,len_cvals, 
-			       obs, oplot->getLevel())
-	 || !oplot->timeOK(obs.obsTime))
-	oplot->removeObs();
+
+  for(int i=1; i<nsubset+1; i++){
+    
+    busel2_(&i, &kkelem, &ktdlen, ktdlst, &ktdexl, ktdexp, 
+	    &cnames[0][0], &cunits[0][0], &kerr);
+    if (kerr>0) cerr<<"ObsBufr::init: Error in BUSEL: KERR="<<kerr<<endl;
+
+    if(format.downcase() == "obsplot"){
+
+      ObsData &obs = oplot->getNextObs();
+
+      if( oplot->getLevel() <-1){
+	if(!get_diana_data(ktdexl, ktdexp, values, cvals, len_cvals, i-1, kelem, obs)
+	   || !oplot->timeOK(obs.obsTime))
+	  oplot->removeObs();
+      } else {
+	if(!get_diana_data_level(ktdexl, ktdexp, values, cvals,len_cvals, 
+				 i-1, kelem, obs, oplot->getLevel())
+	   || !oplot->timeOK(obs.obsTime))
+	  oplot->removeObs();
+      }
+    } else if(format.downcase() == "vprofplot"){
+      //will return without reading more subsets, fix later
+      return !get_data_level(ktdexl, ktdexp, values, cvals,len_cvals, i-1, kelem,obsTime);
+    } else if(format.downcase() == "stationinfo"){
+      get_station_info(ktdexl, ktdexp, values, cvals,len_cvals, i-1, kelem);
     }
-    return true;
+
   } 
 
-  if(format.downcase() == "vprofplot"){
-
-    return !get_data_level(ktdexl, ktdexp, values, cvals,len_cvals, obsTime);
-  }
-
-  if(format.downcase() == "stationinfo"){
-    return get_station_info(ktdexl, ktdexp, values, cvals,len_cvals);
-  }
-  // cerr <<"returning from Bufrdecode"<<endl;
+  return true;
 }
 
 bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values, 
-			     const char cvals[][80], int len_cvals, ObsData &d)
+			     const char cvals[][80], int len_cvals, 
+			     int subset, int kelem, ObsData &d)
 {
-  //  cerr <<"get_diana_data"<<endl;
+
   d.fdata.clear();
 
   // constants for changing to met.no units
@@ -268,37 +280,52 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   int hour=0;
   int minute=0;
   bool landStation= true;
+  float heightOfSensor=-1.0;
+  float depth=-1.0;
+  int timePeriodHour=-1;
+  int timePeriodMinute=-1;
+  int timeDisplacement=0;
   miString cloudStr;
   int c;
 
   d.CAVOK = false;
 
-  for (int i=0; i<ktdexl; i++) {
-
+  for (int i=0,j=kelem*subset; i<ktdexl; i++,j++) {
+    
     switch (ktdexp[i]) {
+
 
       //   1001  WMO BLOCK NUMBER
     case 1001:
-      wmoBlock = int(values[i]);
+      wmoBlock = int(values[j]);
       d.zone = wmoBlock;
       break;
 
       //   1002  WMO STATION NUMBER
     case 1002:
-      wmoStation = int(values[i]);
+      wmoStation = int(values[j]);
       break;
 
       //   1005 BUOY/PLATFORM IDENTIFIER 
     case 1005:
-        d.id = miString(values[i]);
+        d.id = miString(values[j]);
 	landStation= false;
     break;
+
+    // Not used in diana
+//     case 1015:
+//       c=0;
+//       while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
+// 	d.id += cvals[i][c];
+// 	c++;
+//       }
+//     break;
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
       c=0;
-      while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
-	d.id += cvals[i][c];
+      while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
+	d.id += cvals[j][c];
 	c++;
       }
       landStation= false;
@@ -306,175 +333,256 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
     case 1063:
       c=0;
-      while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
-	d.metarId += cvals[i][c];
+      while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
+	d.metarId += cvals[j][c];
 	c++;
       }
       break;
 
       //   1012  DIRECTION OF MOTION OF MOVING OBSERVING PLATFORM, DEGREE TRUE
     case 1012:
-      if(values[i] > 0 && values[i]<bufrMissing)
-	d.fdata["ds"] = values[i];
+      if(values[j] > 0 && values[j]<bufrMissing)
+	d.fdata["ds"] = values[j];
       break;
       
       //   1013  SPEED OF MOTION OF MOVING OBSERVING PLATFORM, M/S
     case 1013:
-      if( values[i]<bufrMissing)
-	d.fdata["vs"] = ms2code4451(values[i]);
+      if( values[j]<bufrMissing)
+	d.fdata["vs"] = ms2code4451(values[j]);
       break;
 
       //   2001 TYPE OF STATION 
     case 2001:
-      if (values[i]<bufrMissing)
-	  d.fdata["auto"]=values[i];
+      if (values[j]<bufrMissing)
+	  d.fdata["auto"]=values[j];
       break;
 
       //   4001  YEAR
     case 4001:
-      year= int(values[i]);
+      year= int(values[j]);
       break;
 
       //   4002  MONTH
     case 4002:
-      month= int(values[i]);
+      month= int(values[j]);
       break;
 
       //   4003  DAY
     case 4003:
-      day= int(values[i]);
+      day= int(values[j]);
       break;
 
       //   4004  HOUR
     case 4004:
-      hour= int(values[i]);
+      hour= int(values[j]);
       break;
 
       //   4005  MINUTE
     case 4005:
-      minute= int(values[i]);
+      minute= int(values[j]);
       break;
 
       //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
       //   5002  LATITUDE (COARSE ACCURACY), DEGREE
     case 5001:
     case 5002:
-      d.ypos= values[i];
+      d.ypos= values[j];
       break;
 
       //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
       //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
     case 6001:
     case 6002:
-      d.xpos= values[i];
+      d.xpos= values[j];
       break;
 
       //   7001  HEIGHT OF STATION, M
     case 7001:
-      if (values[i]<bufrMissing)
-	d.fdata["stationHeight"]= values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["stationHeight"]= values[j];
+      break;
+
+      //   7032  HEIGHT OF SENSOR, M
+    case 7032:
+      if (values[j]<bufrMissing)
+	heightOfSensor = values[j];
+      break;
+
+      //   7063  Depth, M
+    case 7063:
+      if (values[j]<bufrMissing)
+	depth = values[j];
+      break;
+
+      //   04024  Time period or displacement hour
+    case 4024:
+      if (values[j]<bufrMissing)
+	if(timeDisplacement>-1){
+	  timePeriodHour = int(values[j]);
+	  timeDisplacement = -10;
+	} else {
+	  timeDisplacement = int(values[j]);
+	}
+      break;
+
+      //   04025  Time period minute
+    case 4025:
+      if (values[j]<bufrMissing)
+	  timePeriodMinute = int(values[j]);
       break;
 
       // 010003 GEOPOTENTIAL, M**2/S**2  
     case 10003:
-      if (values[i]<bufrMissing){
-       	d.fdata["HHH"] = values[i]/9.8;
+      if (values[j]<bufrMissing){
+       	d.fdata["HHH"] = values[j]/9.8;
       }
       break;
 
       //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
     case 10051:
-      if (values[i]<bufrMissing)
-	d.fdata["PPPP"] = values[i] * pa2hpa;
+      if (values[j]<bufrMissing)
+	d.fdata["PPPP"] = values[j] * pa2hpa;
       break;
 
       //010052 ALTIMETER SETTING (QNH), Pa->hPa
     case 10052:
-      if (values[i]<bufrMissing)
-	d.fdata["PHPHPHPH"] = values[i] * pa2hpa;
+      if (values[j]<bufrMissing)
+	d.fdata["PHPHPHPH"] = values[j] * pa2hpa;
       break;
 
       //   10061  3 HOUR PRESSURE CHANGE, Pa->hpa
     case 10061:
-      if (values[i]<bufrMissing)
-	d.fdata["ppp"] = values[i] * pa2hpa;
+      if (values[j]<bufrMissing)
+	d.fdata["ppp"] = values[j] * pa2hpa;
       break;
 
       //   10063  CHARACTERISTIC OF PRESSURE TENDENCY
     case 10063:
-      if (values[i]<bufrMissing)
-	d.fdata["a"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["a"] = values[j];
       break;
 
       //   11011  WIND DIRECTION AT 10 M, DEGREE TRUE
     case 11011:
-      if (values[i]<bufrMissing)
-	d.fdata["dd"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["dd"] = values[j];
+      break;
+
+      // 011001 WIND DIRECTION
+    case 11001:
+      if (!d.fdata.count("dd") && values[j]<bufrMissing 
+	  && heightOfSensor<15 && heightOfSensor>8
+	  && timePeriodMinute==-10){
+	d.fdata["dd"] = values[j];
+      }
       break;
 
       //   11012  WIND SPEED AT 10 M, m/s 
     case 11012:
-      if (values[i]<bufrMissing)
-	d.fdata["ff"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["ff"] = values[j];
+      break;
+
+      // 011002 WIND SPEED
+    case 11002:
+	if (!d.fdata.count("ff") && values[j]<bufrMissing 
+	    && heightOfSensor<15 && heightOfSensor>8
+	    && timePeriodMinute==-10){
+	  d.fdata["ff"] = values[j];
+	}
       break;
 
       // 011016 EXTREME COUNTERCLOCKWISE WIND DIRECTION OF A VARIABLE WIND
     case 11016:
-      if (values[i]<bufrMissing)
-       	d.fdata["dndndn"] = values[i];
+      if (values[j]<bufrMissing)
+       	d.fdata["dndndn"] = values[j];
       break;
 
       // 011017 EXTREME CLOCKWISE WIND DIRECTIONOF A VARIABLE WIND       
     case 11017:
-      if (values[i]<bufrMissing)
-       	d.fdata["dxdxdx"] = values[i];
+      if (values[j]<bufrMissing)
+       	d.fdata["dxdxdx"] = values[j];
       break;
     
       // 011041 MAXIMUM WIND SPEED (GUSTS), m/s 
     case 11041:
-      if (values[i]<bufrMissing){
-	d.fdata["911ff"] = values[i];
-	d.fdata["fmfm"] = values[i];  //metar
+      if (values[j]<bufrMissing
+	  && heightOfSensor<15 && heightOfSensor>8
+	  && timePeriodMinute==-10){
+	d.fdata["911ff"] = values[j];
+	d.fdata["fmfm"] = values[j];  //metar
       }
       break;
 
       // 011042 MAXIMUM WIND SPEED (10 MIN MEAN WIND), m/s
     case 11042:
-      if (values[i]<bufrMissing)
-	d.fdata["fxfx"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["fxfx"] = values[j];
       break;
 
       //   12004  DRY BULB TEMPERATURE AT 2M, K->Celsius
     case 12004:
-      if (values[i]<bufrMissing)
-	d.fdata["TTT"] = values[i] - t0;
+      if (values[j]<bufrMissing)
+	d.fdata["TTT"] = values[j] - t0;
+      break;
+
+      //   12101  DRY BULB TEMPERATURE, K->Celsius
+    case 12101:
+      if (!d.fdata.count("TTT") && values[j]<bufrMissing 
+	  && heightOfSensor<2.5 && heightOfSensor>1.5)
+	d.fdata["TTT"] = values[j] - t0;
       break;
 
       //   12006  DEW POINT TEMPERATURE AT 2M, K->Celsius
     case 12006:
-      if (values[i]<bufrMissing)
-	d.fdata["TdTdTd"] = values[i] - t0;
+      if (values[j]<bufrMissing)
+	d.fdata["TdTdTd"] = values[j] - t0;
       break;
+
+    case 12103:
+      if (!d.fdata.count("TdTdTd") && values[j]<bufrMissing 
+	  && heightOfSensor<2.5 && heightOfSensor>1.5)
+	d.fdata["TdTdTd"] = values[j] - t0;
+      break;
+
 
       //   12014  MAX TEMPERATURE AT 2M, K->Celsius
     case 12014:
-      if (values[i]<bufrMissing && obsTime.hour() == 18)
-	d.fdata["TxTn"] = values[i] - t0;
+      if (values[j]<bufrMissing && obsTime.hour() == 18)
+	d.fdata["TxTn"] = values[j] - t0;
+      break;
+
+      //   12111  MAX TEMPERATURE, K->Celsius
+    case 12111:
+      if (!d.fdata.count("TxTn") && values[j]<bufrMissing 
+	  && obsTime.hour() == 18 
+	  && heightOfSensor < 2.5 && heightOfSensor > 1.5
+	  && timePeriodHour == -12 && timeDisplacement == 0)
+	d.fdata["TxTn"] = values[j] - t0;
       break;
 
       //   12015  MIN TEMPERATURE AT 2M, K->Celsius
     case 12015:
-      if (values[i]<bufrMissing && obsTime.hour() == 6)
-	d.fdata["TxTn"] = values[i] - t0;
+      if (values[j]<bufrMissing && obsTime.hour() == 6)
+	d.fdata["TxTn"] = values[j] - t0;
+      break;
+
+      //   12112  MIN TEMPERATURE, K->Celsius
+    case 12112:
+      if (!d.fdata.count("TxTn") && values[j]<bufrMissing 
+	  && obsTime.hour() == 6 
+	  && heightOfSensor < 2.5 && heightOfSensor > 1.5
+	  && timePeriodHour == -12 && timeDisplacement == 0)
+	d.fdata["TxTn"] = values[j] - t0;
       break;
 
       //   13013  Snow depth
     case 13013:
-      if (values[i]>0  && values[i]<bufrMissing)
-	d.fdata["sss"] = values[i]*100;
+      if (values[j]>0  && values[j]<bufrMissing)
+	d.fdata["sss"] = values[j]*100;
       break;
     case 13218: //Partially snow cover (spell ??)
-      if (values[i]<4){
+      if (values[j]<4){
 	d.fdata["sss"] = 0.;
       }
       break;
@@ -484,118 +592,131 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //13019 Total precipitation past 1 hour
     case 13019:
-      if (obsTime.hour()%6!=0 && values[i]<bufrMissing)
-	d.fdata["RRR"] = values[i];
+      if (obsTime.hour()%6!=0 && values[j]<bufrMissing)
+	d.fdata["RRR"] = values[j];
       break;
 
       //13020 Total precipitation past 3 hour
     case 13020: 
-      if (obsTime.hour()%6!=0 && values[i]<bufrMissing)
-	d.fdata["RRR"] = values[i];
+      if (obsTime.hour()%6!=0 && values[j]<bufrMissing)
+	d.fdata["RRR"] = values[j];
       break;
 
       //13021 Total precipitation past 6 hour
     case 13021:
-      if (obsTime.hour()!=6 && obsTime.hour()!=18 && values[i]<bufrMissing)
-	d.fdata["RRR"] = values[i];
+      if (obsTime.hour()!=6 && obsTime.hour()!=18 && values[j]<bufrMissing)
+	d.fdata["RRR"] = values[j];
       break;
 
       //13022 Total precipitation past 12 hour
     case 13022:
-      if (obsTime.hour()%12!=0 && values[i]<bufrMissing)
-	d.fdata["RRR"] = values[i];
+      if (obsTime.hour()%12!=0 && values[j]<bufrMissing)
+	d.fdata["RRR"] = values[j];
       break;
 
       //13023 Total precipitation past 24 hour
     case 13023:
-      if (obsTime.hour()%6!=0 && values[i]<bufrMissing)
-	d.fdata["RRR"] = values[i];
+      if (obsTime.hour()%6!=0 && values[j]<bufrMissing)
+	d.fdata["RRR"] = values[j];
+      break;
+
+      // 13011 Total precipitation / total water equivalent of snow
+    case 13011:
+      if(values[j]<bufrMissing){
+	if(d.fdata.count("RRR")==0) {
+	  if((hour == 6 || hour == 18) && timePeriodHour == 12
+	     || (hour == 0 || hour == 12) && timePeriodHour == 6
+	     || (hour != 0 || hour != 6 ||hour != 12 || hour != 18))
+	    d.fdata["RRR"] = values[j];
+	}
+      }
       break;
 
       //   20001  HORIZONTAL VISIBILITY M
     case 20001:
-      if (values[i]>0 && values[i]<bufrMissing){
-	d.fdata["VV"] = values[i];
+      if (values[j]>0 && values[j]<bufrMissing){
+	d.fdata["VV"] = values[j];
 	//Metar
-	if(values[i]>9999) //remove VVVV=0
+	if(values[j]>9999) //remove VVVV=0
 	  d.fdata["VVVV"] = 9999;
 	else
-	  d.fdata["VVVV"] = values[i];
+	  d.fdata["VVVV"] = values[j];
       }
       break;
 
       // 5021 BEARING OR AZIMUTH, DEGREE
     case 5021:	  //Metar
-      if (values[i]<bufrMissing)
-	d.fdata["Dv"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["Dv"] = values[j];
       break;
 
       //  20003  PRESENT WEATHER, CODE TABLE  20003  
     case 20003:
-      if (values[i]<200) //values>200 -> w1w1, ignored here 
-	d.fdata["ww"] = values[i];
+      if (values[j]<200) //values>200 -> w1w1, ignored here 
+	d.fdata["ww"] = values[j];
       break;
 
       //  20004 PAST WEATHER (1),  CODE TABLE  20004
     case 20004:
-      if (values[i]>2 && values[i]<20)
-	d.fdata["W1"] = values[i];
+      if (values[j]>2 && values[j]<20)
+	d.fdata["W1"] = values[j];
       break;
 
       //  20005  PAST WEATHER (2),  CODE TABLE  20005
     case 20005:
-      if (values[i]>2 && values[i]<20)
-	d.fdata["W2"] = values[i];
+      if (values[j]>2 && values[j]<20)
+	d.fdata["W2"] = values[j];
       break;
 
       //   Clouds
 
-    //CAVOK
+    // 020009 GENERAL WEATHER INDICATOR (TAF/METAR) 
     case 20009:
-      if (values[i]<bufrMissing)
-       	d.CAVOK = (int(values[i])==2);
+      if (values[j]<bufrMissing)
+       	d.CAVOK = (int(values[j])==2);
       break;
 
-      //HEIGHT OF BASE OF CLOUD (M)  
+      // 20013 HEIGHT OF BASE OF CLOUD (M)  
     case 20013:
-      if (values[i]<bufrMissing){
-	if (i<32)
-	  d.fdata["h"] = height_of_clouds(values[i]);
-	cloudStr += cloudHeight(int(values[i]));
+      if (!d.fdata.count("h") && values[j]<bufrMissing){
+	//	if (i<32)
+	  d.fdata["h"] = height_of_clouds(values[j]);
+	cloudStr += cloudHeight(int(values[j]));
       }
       break;
 
-      //CLOUD COVER (TOTAL %) 
+      // 20010 CLOUD COVER (TOTAL %) 
     case 20010: 
-      if (values[i]<bufrMissing)
-	d.fdata["N"] = values[i]/12.5 +0.5; //% -> oktas
+      if (values[j]<bufrMissing){
+	d.fdata["N"] = values[j]/12.5; //% -> oktas
+	  }
       break;
 
       //20011  CLOUD AMOUNT  
     case 20011:
-      if (values[i]<bufrMissing){
+      if (values[j]<bufrMissing){
 	if (i<32)	
-	  d.fdata["Nh"] = values[i];
+	  d.fdata["Nh"] = values[j];
 	if( cloudStr.exists()){
 	  d.cloud.push_back(cloudStr);
 	  cloudStr.clear();
 	}
-	cloudStr = cloudAmount(int(values[i]));
+	cloudStr = cloudAmount(int(values[j]));
       }
       break;
 
       // 20012 CLOUD TYPE, CODE TABLE  20012   
     case 20012:
-      if (values[i]<bufrMissing){
-	cloud_type(d,values[i]);
-	cloudStr += cloud_TCU_CB(int(values[i]));
+      if (values[j]<bufrMissing){
+	cloud_type(d,values[j]);
+	cloudStr += cloud_TCU_CB(int(values[j]));
       }
       break;
 
-      // 020020 SIGNIFICANT RECENT WEATHER PHENOMENA, CCITTIA5   
+      // 020019 SIGNIFICANT RECENT WEATHER PHENOMENA, CCITTIA5   
     case 20019:
       {
-	int index = int(values[i])/1000-1;
+	int index = int(values[j])/1000-1;
 	miString ww;
 	for(int j=0;j<9;j++)
 	  ww += cvals[index][j];
@@ -608,7 +729,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       // 020020 SIGNIFICANT RECENT WEATHER PHENOMENA, CCITTIA5 
     case 20020:
       {
-	int index = int(values[i])/1000-1;
+	int index = int(values[j])/1000-1;
         miString REww;
         for(int j=0;j<4;j++)
           REww += cvals[index][j];
@@ -620,57 +741,64 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       // 022011 PERIOD OF WAVES, s  
     case 22011:
-      if (values[i]<bufrMissing)
-	d.fdata["PwaPwa"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["PwaPwa"] = values[j];
       break;
 
       // 022021 HEIGHT OF WAVES, m 
     case 22021:
-      if (values[i]<bufrMissing)
-	d.fdata["HwaHwa"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["HwaHwa"] = values[j];
       break;
 
       // Not used in synop plot
 //       // 022012 PERIOD OF WIND WAVES, s  
 //     case 22012:
-//       if (values[i]<bufrMissing)
-// 	d.fdata["PwPw"] = values[i];
+//       if (values[j]<bufrMissing)
+// 	d.fdata["PwPw"] = values[j];
 //       break;
 
 //       // 022022 HEIGHT OF WIND WAVES, m 
 //     case 22022:
-//       if (values[i]<bufrMissing)
-// 	d.fdata["HwHw"] = values[i];
+//       if (values[j]<bufrMissing)
+// 	d.fdata["HwHw"] = values[j];
 //       break;
 
-      // 022013 PERIOD OF SWELL WAVES, s  
+      // 022013 PERIOD OF SWELL WAVES, s (first system of swell)  
     case 22013:
-      if (values[i]<bufrMissing)
-	d.fdata["Pw1Pw1"] = values[i];
+      if (!d.fdata.count("Pw1Pw1") && values[j]<bufrMissing)
+	d.fdata["Pw1Pw1"] = values[j];
       break;
 
       // 022023 HEIGHT OF SWELL WAVES, m 
     case 22023:
-      if (values[i]<bufrMissing)
-	d.fdata["Hw1Hw1"] = values[i];
+      if (!d.fdata.count("Hw1Hw1") && values[j]<bufrMissing)
+	d.fdata["Hw1Hw1"] = values[j];
       break;
 
       // 022003 DIRECTION OF SWELL WAVES, DEGREE   
     case 22003:
-      if (values[i]>0 && values[i]<bufrMissing)
-	d.fdata["dw1dw1"] = values[i];
+      if (!d.fdata.count("dw1dw1") && values[j]>0 && values[j]<bufrMissing)
+	d.fdata["dw1dw1"] = values[j];
       break;
 
       //   22042  SEA/WATER TEMPERATURE, K->Celsius
     case 22042:
-      if (values[i]<bufrMissing)
-	d.fdata["TwTwTw"] = values[i] - t0;
+      if (values[j]<bufrMissing)
+	d.fdata["TwTwTw"] = values[j] - t0;
+      break;
+
+      //   22043  SEA/WATER TEMPERATURE, K->Celsius
+    case 22043:
+      if (!d.fdata.count("TwTwTw") && values[j]<bufrMissing
+	  && depth < 1) //??
+	d.fdata["TwTwTw"] = values[j] - t0;
       break;
 
       // 022061 STATE OF THE SEA, CODE TABLE  22061
     case 22061:
-      if (values[i]<bufrMissing)
-	d.fdata["s"] = values[i];
+      if (values[j]<bufrMissing)
+	d.fdata["s"] = values[j];
       break;
 
     }
@@ -700,7 +828,8 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 }	
 
 bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values, 
-			     const char cvals[][80], int len_cvals)
+			       const char cvals[][80], int len_cvals,
+			       int subset, int kelem)
 {
 
   int wmoBlock=0;
@@ -715,38 +844,40 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   int nn=0;
   int c;
 
-  for (int i=0; i<ktdexl && nn<4; i++) {
+  for (int i=0,j=kelem*subset; i<ktdexl; i++,j++) {
 
     switch (ktdexp[i]) {
 
       //   1001  WMO BLOCK NUMBER
     case 1001:
-      wmoBlock = int(values[i]);
+      wmoBlock = int(values[j]);
       nn++;
       break;
 
       //   1002  WMO STATION NUMBER
     case 1002:
-      wmoStation = int(values[i]);
+      wmoStation = int(values[j]);
       nn++;
       break;
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
       c=0;
-      while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
-	station += cvals[i][c];
+      while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
+	station += cvals[j][c];
 	c++;
       }
-      landStation= false;
-      nn+=2;
+      if(station.exists()){
+	landStation= false;
+	nn+=2;
+      }
       break;
 
       //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
       //   5002  LATITUDE (COARSE ACCURACY), DEGREE
     case 5001:
     case 5002:
-      latitude.push_back(values[i]);
+      latitude.push_back(values[j]);
       nn++;
       break;
 
@@ -754,7 +885,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
       //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
     case 6001:
     case 6002:
-      longitude.push_back(values[i]);
+      longitude.push_back(values[j]);
       nn++;
       break;
 
@@ -784,10 +915,13 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
 }
 
 bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
-				   const char cvals[][80], int len_cvals, ObsData &d, int level)
+				   const char cvals[][80], int len_cvals, 
+				   int subset, int kelem, ObsData &d, int level)
 {
   //  cerr <<"get_diana_data"<<endl;
   d.fdata.clear();
+  d.id.clear();
+  d.zone=0;
 
   // constants for changing to met.no units
   const double pa2hpa=0.01;
@@ -801,12 +935,17 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   int hour=0;
   int minute=0;
   bool landStation= true;
+  int timePeriodHour=-1;
+  int timePeriodMinute=10;
+  int timeDisplacement=0;
+
   int c;
 
   bool found=false;
   bool stop=false;
 
-  for (int i=0; i<ktdexl; i++) {
+  for (int i=0,j=kelem*subset; i<ktdexl; i++,j++) {
+
     if(ktdexp[i]< 7000         // station info
        || found                // right pressure level
        || ktdexp[i]== 7004){   // next pressure level
@@ -815,125 +954,136 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 
 	//   1001  WMO BLOCK NUMBER
       case 1001:
-	wmoBlock = int(values[i]);
+	wmoBlock = int(values[j]);
 	d.zone = wmoBlock;
 	break;
 
 	//   1002  WMO STATION NUMBER
       case 1002:
-	wmoStation = int(values[i]);
+	wmoStation = int(values[j]);
 	break;
 
 	//  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
       case 1011:
+	cerr <<"ID:"<<d.id<<endl;
 	c=0;
-	while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
-	  d.id += cvals[i][c];
+	while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
+	  d.id += cvals[j][c];
 	  c++;
 	}
-	landStation= false;
+	if(d.id.exists()){
+	  cerr <<"ID:"<<d.id<<endl;
+	  landStation= false;
+	}
 	break;
 	
 	//   4001  YEAR
       case 4001:
-	year= int(values[i]);
+	year= int(values[j]);
 	break;
 	
 	//   4002  MONTH
       case 4002:
-	month= int(values[i]);
+	month= int(values[j]);
 	break;
 	
 	//   4003  DAY
       case 4003:
-	day= int(values[i]);
+	day= int(values[j]);
 	break;
 	
 	//   4004  HOUR
       case 4004:
-	hour= int(values[i]);
+	hour= int(values[j]);
 	break;
 	
 	//   4005  MINUTE
       case 4005:
-	minute= int(values[i]);
+	minute= int(values[j]);
 	break;
 	
 	//   5001  LATITUDE (HIGH ACCURACY),   DEGREE
 	//   5002  LATITUDE (COARSE ACCURACY), DEGREE
       case 5001:
       case 5002:
-	d.ypos= values[i];
+	d.ypos= values[j];
       break;
       
       //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
       //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
       case 6001:
       case 6002:
-	d.xpos= values[i];
+	d.xpos= values[j];
 	break;
 	
 	//   7001  HEIGHT OF STATION, M
       case 7001:
-	if (values[i]<bufrMissing)
-	  d.fdata["stationHeight"]= values[i];
+	if (values[j]<bufrMissing)
+	  d.fdata["stationHeight"]= values[j];
 	break;
 	
-	//   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
+      //   04024  Time period or displacement hour
+    case 4024:
+      if (values[j]<bufrMissing)
+	if(timeDisplacement>-1){
+	  timePeriodHour = int(values[j]);
+	  timeDisplacement = -10;
+	} else {
+	  timeDisplacement = int(values[j]);
+	}
+      break;
+
+      //   04025  Time period minute
+    case 4025:
+      if (values[j]<bufrMissing)
+	  timePeriodMinute = int(values[j]);
+      break;
+
+	//   007004  PRESSURE, Pa->hPa
       case 7004:
 	if(found){
 	  stop=true;
 	} else {
-	  if (values[i]<bufrMissing){
-	    if(int(values[i] * pa2hpa)==level){
+	  if (values[j]<bufrMissing){
+	    if(int(values[j] * pa2hpa)==level){
 	      found=true;
-	      d.fdata["PPPP"] = values[i] * pa2hpa;
+	      d.fdata["PPPP"] = values[j] * pa2hpa;
 	    }
 	  }
 	}
 	break;
 	
-	
-      //   12004  DRY BULB TEMPERATURE AT 2M, K->Celsius
-    case 12004:
-      if (values[i]<bufrMissing)
-	d.fdata["TTT"] = values[i] - t0;
+      // 011001 WIND DIRECTION
+    case 11001:
+      if (values[j]<bufrMissing ){
+	d.fdata["dd"] = values[j];
+      }
       break;
 
-      //   12006  DEW POINT TEMPERATURE AT 2M, K->Celsius
-    case 12006:
-      if (values[i]<bufrMissing)
-	d.fdata["TdTdTd"] = values[i] - t0;
+      // 011002 WIND SPEED
+    case 11002:
+	if (values[j]<bufrMissing ){
+	  d.fdata["ff"] = values[j];
+	}
       break;
 
-
-	//   11011  WIND DIRECTION AT 10 M, DEGREE TRUE
-      case 11001:
-	if (values[i]<bufrMissing)
-	  d.fdata["dd"] = values[i];
-	break;
-	
-	//   11012  WIND SPEED AT 10 M, m/s 
-      case 11002:
-	if (values[i]<bufrMissing)
-	  d.fdata["ff"] = values[i];
-	break;
-	
-	//   12004  DRY BULB TEMPERATURE AT 2M, K->Celsius
       case 12001:
-	if (values[i]<bufrMissing)
-	  d.fdata["TTT"] = values[i] - t0;
+      case 12101:
+	if (values[j]<bufrMissing)
+	  d.fdata["TTT"] = values[j] - t0;
 	break;
 	
 	//   12006  DEW POINT TEMPERATURE AT 2M, K->Celsius
       case 12003:
-	if (values[i]<bufrMissing)
-	  d.fdata["TdTdTd"] = values[i] - t0;
+      case 12103:
+	if (values[j]<bufrMissing)
+	  d.fdata["TdTdTd"] = values[j] - t0;
 	break;
 	
+	
       case 10003:
-	if (values[i]<bufrMissing){
-	  d.fdata["HHH"] = values[i]/9.8;
+	if (values[j]<bufrMissing){
+	  d.fdata["HHH"] = values[j]/9.8;
 	}
 	break;
 	
@@ -964,8 +1114,9 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 }	
 
 bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
-				   const char cvals[][80], int len_cvals, 
-				   miTime time)
+			     const char cvals[][80], int len_cvals, 
+			     int subset, int kelem, 
+			     miTime time)
 {
 
   // constants for changing to met.no units
@@ -994,7 +1145,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 
   bool ok=false;
 
-  for (int i=0; i<ktdexl; i++) {
+  for (int i=0,j=kelem*subset; i<ktdexl; i++,j++) {
 
     if(ktdexp[i]< 7000         // station info
        || ok                // pressure ok
@@ -1040,7 +1191,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 
 	//   1001  WMO BLOCK NUMBER
       case 1001:
-	if ( izone != int(values[i])) {
+	if ( izone != int(values[j])) {
 	  return false;
 	}
 	break;
@@ -1048,7 +1199,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 	//   1002  WMO STATION NUMBER
       case 1002:
 	
-	if( istation != int(values[i])) {
+	if( istation != int(values[j])) {
 	  return false;
 	}
 	if( index != ii){
@@ -1059,66 +1210,68 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 	break;
 
 	// 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
-      case 1011:
-	c=0;
-	station.clear();
-	while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
-	  station += cvals[i][c];
-	  c++;
-	}
-	if( strStation != station ) {
-	  return false;
-	}
-	if( index != ii){
-	  ii++;
-	  return false;
-	}
-	ii=0;
- 	break;
+//       case 1011:
+// 	c=0;
+// 	station.clear();
+// 	while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
+// 	  station += cvals[i][c];
+// 	  c++;
+// 	}
+// 	if( strStation != station ) {
+// 	  return false;
+// 	}
+// 	if( index != ii){
+// 	  ii++;
+// 	  return false;
+// 	}
+// 	//	if(station.exists()){
+// 	  ii=0;
+// 	  //	}
+	break;
 	
 	//   4001  YEAR
       case 4001:
-	year= int(values[i]);
+	year= int(values[j]);
 	break;
 	
 	//   4002  MONTH
       case 4002:
-	month= int(values[i]);
+	month= int(values[j]);
 	break;
 	
 	//   4003  DAY
       case 4003:
-	day= int(values[i]);
+	day= int(values[j]);
 	break;
 	
 	//   4004  HOUR
       case 4004:
-	hour= int(values[i]);
+	hour= int(values[j]);
 	break;
 	
 	//   4005  MINUTE
       case 4005:
-	minute= int(values[i]);
+	minute= int(values[j]);
 	break;
 	
 	//   5001  LATITUDE (HIGH ACCURACY),   DEGREE
 	//   5002  LATITUDE (COARSE ACCURACY), DEGREE
       case 5001:
       case 5002:
-	lat = values[i];
+	lat = values[j];
       break;
       
       //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
       //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
       case 6001:
       case 6002:
-	lon = values[i];
+	lon = values[j];
 	break;
 	
 	//   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
       case 7004:
-	if (values[i]<bufrMissing){
-	  p = int(values[i] * pa2hpa);
+	if (values[j]<bufrMissing){
+	  p = int(values[j] * pa2hpa);
 	  ok = (p>0. && p<1300.);
 	}
 	break;
@@ -1126,7 +1279,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 	
 	//   VERTICAL SOUNDING SIGNIFICANCE
       case 8001:
-	if (values[i]>31. && values[i]<64)
+	if (values[j]>31. && values[j]<64)
 	  bpart = 0;
 	else 
 	  bpart = 1;
@@ -1134,26 +1287,29 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 	
 	//   11011  WIND DIRECTION AT 10 M, DEGREE TRUE
       case 11001:
-	if (values[i]<bufrMissing)
-	  dd = int(values[i]);
+	if (values[j]<bufrMissing)
+	  dd = int(values[j]);
 	break;
 	
 	//   11012  WIND SPEED AT 10 M, m/s 
       case 11002:
-	if (values[i]<bufrMissing)
-          ff = int(values[i] * ms2knots + 0.5); //should be done elsewhere
+	if (values[j]<bufrMissing)
+          ff = int(values[j] * ms2knots + 0.5); //should be done elsewhere
 	break;
 	
 	//   12001  DRY BULB TEMPERATURE 
+      case 12101:
       case 12001:
-	if (values[i]<bufrMissing)
-	  tt = values[i] - t0;
+	if (values[j]<bufrMissing){
+	  tt = values[j] - t0;
+	}
 	break;
 	
 	//   12003  DEW POINT TEMPERATURE, K->Celsius
+      case 12103:
       case 12003:
-	if (values[i]<bufrMissing)
-	  td = values[i] - t0;
+	if (values[j]<bufrMissing)
+	  td = values[j] - t0;
 	break;
 	
       }

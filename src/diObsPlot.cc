@@ -469,7 +469,7 @@ bool ObsPlot::setData(void)
   }
 
     if(numObs<1){
-    //    cerr <<"ObsPlot::setData: no data"<<endl;
+//       cerr <<"ObsPlot::setData: no data"<<endl;
       return false;
     }
 
@@ -558,6 +558,7 @@ bool ObsPlot::setData(void)
         int angle = (int)(atan2f(u[i],v[i])*180/PI);
         if( obsp[i].fdata.count("dd") &&
 	    obsp[i].fdata["dd"] > 0 && obsp[i].fdata["dd"] <= 360 ){
+	  obsp[i].fdata["dd_orig"]=obsp[i].fdata["dd"];
 	  float dd = obsp[i].fdata["dd"] + angle;
 	  if( dd<1  ) dd += 360;
 	  if( dd>360) dd -= 360;
@@ -1689,9 +1690,9 @@ void ObsPlot::plotList(int index)
   }
   if( pFlag.count("dd")){
     ypos -= yStep;
-    if(dd_p != dta.fdata.end()){
-      if(ccriteria) checkColourCriteria("dd",dd_p->second);
-      printList(dd_p->second,xpos,ypos,0,align);
+    if((f_p=dta.fdata.find("dd_orig")) != dta.fdata.end()){
+      if(ccriteria) checkColourCriteria("dd",f_p->second);
+      printList(f_p->second,xpos,ypos,0,align);
     }else{
       printUndef(xpos,ypos,align);
     }
@@ -1851,9 +1852,9 @@ void ObsPlot::plotList(int index)
       printUndef(xpos,ypos,align);
     }
   }
-  if( pFlag.count("cl") ){
+  if( pFlag.count("ch") ){
     ypos -= yStep;
-    if((f_p=dta.fdata.find("Cl")) != dta.fdata.end()
+    if((f_p=dta.fdata.find("Ch")) != dta.fdata.end()
        && f_p->second > 0 && f_p->second < 10 ){
       if(ccriteria) checkColourCriteria("Cl",f_p->second);
       symbol(itab[190+(int)f_p->second],
@@ -1873,9 +1874,9 @@ void ObsPlot::plotList(int index)
     }else
       printUndef(xpos,ypos,align);
   }
-  if( pFlag.count("ch") ){
+  if( pFlag.count("cl") ){
     ypos -= yStep;
-    if((f_p=dta.fdata.find("Ch")) != dta.fdata.end()
+    if((f_p=dta.fdata.find("Cl")) != dta.fdata.end()
        && f_p->second > 0 && f_p->second < 10 ){
       if(ccriteria) checkColourCriteria("Ch",f_p->second);
       symbol(itab[170+(int)f_p->second],
