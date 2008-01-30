@@ -231,7 +231,7 @@ plotted.
 
     Diana supports reading fields from NetCDF files following the CF metadata standard (see http://cf-pcmdi.llnl.gov for specifications of the standard), with the following limitations:
     <h3>Supported map projections</h3>
-    Diana supports a subset of CF map projections:
+    Diana supports a subset of the map projections specified in the CF metadata standard:
     <ol>
       <li><b>Geographic projection</b><br>
 	Note that the x/longitude coordinate is ordered in Diana as [-180,180] degrees, and the fields will be recalculated to match this scheme if they are stored differently in the file (i.e. as [0,360] degrees). Likewise, the y/latitude coordinate is ordered as [-90,90] degrees in Diana, and you will experience some performance penalty if you order your data from [90,-90].<br>
@@ -244,7 +244,7 @@ plotted.
       </li>
 
       <li><b>Polar stereographic projection</b><br>
-	Diana also supports grid_mapping_name=stereographic with the limitation that latitude_of_projection_origin must be either -90 or 90. <br>
+	Diana also supports grid_mapping_name=stereographic with the limitation that latitude_of_projection_origin must be either -90 or 90, reducing the projection to a polar stereographic special case.<br>
 	The following attributes are supported:
 	<pre>
  grid_mapping_name=polar_stereographic
