@@ -3,21 +3,26 @@
   <head>
     <title>Diana User Guide: File formats</title>
   </head>
-
+  
   <body>
-<table border="0" cellpadding="3" cellspacing="0" width="100%" >
-<tr bgcolor="lightgrey">
-<td valign="center">&nbsp;Diana User Guide: File formats&nbsp;|&nbsp;
-<a href="ug_vcrossfunctions.html">Previous: Vertical crossection functions</a>&nbsp;|&nbsp;
-<a href="ug_bdiana.html">Next: Batch plotting</a>&nbsp;|&nbsp;
-<a href="index.html">Index</a></td>
-<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
-</tr>
-</table>
+    <table border="0" cellpadding="3" cellspacing="0" width="100%" >
+	<tr bgcolor="lightgrey">
+	  <td valign="center">&nbsp;Diana User Guide: File formats&nbsp;|&nbsp;
+	    <a href="ug_vcrossfunctions.html">Previous: Vertical crossection functions</a>&nbsp;|&nbsp;
+	    <a href="ug_bdiana.html">Next: Batch plotting</a>&nbsp;|&nbsp;
+	    <a href="index.html">Index</a></td>
+	  <td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+	</tr>
+    </table>
+    
+     <h2>Description and specification of supported file formats in Diana</h2>
+    <ul>
+      <li> <a href="ug_fileformats.html#OBJECT.ASCII.FILES">Object files</a>
+      <li> <a href="ug_fileformats.html#OBSERVATION.ASCII.FILES">Observation ascii files</a>
+      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF CF-standard format</a>
+    </ul>
 
-
-    <h2>
-      <a NAME="setup"></a>Object files</h2>
+    <h2><a NAME="OBJECT.ASCII.FILES"></a>Object files</h2>
 Weather objects (fronts, symbols, areas etc.) are stored in object
 files which will normally have the time as extension on the form
 <i>.yyyymmddhhmm.</i>
@@ -219,6 +224,59 @@ plotted.
 
 </li>
 </ul>
+
+    <hr>
+
+    <h2><a NAME="FIELD.NETCDF.FILES"></a>Fields in NetCDF CF-standard format</h2>
+
+    Diana supports reading fields from NetCDF files following the CF metadata standard (see http://cf-pcmdi.llnl.gov for specifications of the standard), with the following limitations:
+    <h3>Supported map projections</h3>
+    Diana supports a subset of CF map projections:
+    <ol>
+      <li><b>Geographic projection</b><br>
+	Note that the x/longitude coordinate is ordered in Diana as [-180,180] degrees, and the fields will be recalculated to match this scheme if they are stored differently in the file (i.e. as [0,360] degrees). Likewise, the y/latitude coordinate is ordered as [-90,90] degrees in Diana, and you will experience some performance penalty if you order your data from [90,-90].<br>
+	The following attributes are supported:
+	<pre>
+ grid_mapping_name=geographic
+ false_easting
+ false_northing
+	</pre>
+      </li>
+
+      <li><b>Polar stereographic projection</b><br>
+	Diana also supports grid_mapping_name=stereographic with the limitation that latitude_of_projection_origin must be either -90 or 90. <br>
+	The following attributes are supported:
+	<pre>
+ grid_mapping_name=polar_stereographic
+ latitude_of_projection_origin= [-90|90]
+ standard_parallel <b>OR</b> scale_factor_at_projection_origin
+ false_easting
+ false_northing
+	</pre>	
+      </li>
+
+      <li><b>Rotated latitude_longitude projection</b><br>
+	The following attributes are supported:
+	<pre>
+ grid_mapping_name=rotated_latitude_longitude
+ grid_north_pole_latitude
+ grid_north_pole_longitude
+	</pre>
+
+      </li>
+
+      <li><b>Mercator projection</b><br>
+	The following attributes are supported:
+	<pre>
+ grid_mapping_name=mercator
+ standard_parallel
+ longitude_of_central_meridian
+ false_easting
+ false_northing
+	</pre>
+      </li>
+    </ol>
+
 
 <p>
 
