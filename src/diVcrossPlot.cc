@@ -1749,9 +1749,9 @@ int VcrossPlot::findParam(const miString& var)
 int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
 			 vector<int> parloc)
 {
-  //#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
   cerr << "VcrossPlot::computer find " << var << endl;
-  //#endif
+#endif
 
   int   k,i,n,n1,n2,nu,nv,nrot1,nrot2,ntk,nth,nvn,compddz;
   float u,v,unitscale,s1;
@@ -1972,7 +1972,6 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
           }
         }
       }
-      cerr <<"compute:"<<compute<<endl;
       break;
 
     case vcf_knots_from_ms:
