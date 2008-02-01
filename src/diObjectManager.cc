@@ -142,6 +142,95 @@ vector<miString> ObjectManager::getObjectNames(bool archive) {
   return objNames;
 }
 
+vector<miTime> ObjectManager::getObjectTimes(const vector<miString>& pinfos)
+//  * PURPOSE:   return times for list of PlotInfo's
+{
+#ifdef DEBUGPRINT
+   cerr<<"ObjectManager----> getTimes "<<endl;
+#endif
+
+  set<miTime> timeset;
+
+  int nn= pinfos.size();
+  for (int i=0; i<nn; i++){
+    vector<miTime> tv = getObjectTimes(pinfos[i]);
+    for (int j=0; j<tv.size(); j++){
+      timeset.insert(tv[j]);
+    }
+  }
+
+  vector<miTime> timevec;
+  if (timeset.size()>0) {
+    set<miTime>::iterator p= timeset.begin();
+    for (; p!=timeset.end(); p++) timevec.push_back(*p);
+  }
+
+  return timevec;
+}
+
+vector<miTime> ObjectManager::getObjectTimes(const miString& pinfo)
+//  * PURPOSE:   return times for list of PlotInfo's
+{
+
+  vector<miTime> timevec;
+
+  vector<miString> tokens= pinfo.split('"','"');
+  int m= tokens.size();
+  for (int j=0; j<m; j++){
+    miString key,value;
+    SetupParser::splitKeyValue(tokens[j],key,value);
+    if (key=="name"){
+      vector<ObjFileInfo> ofi= getObjectFiles(value,true);
+      for (int k=0; k<ofi.size(); k++){
+	timevec.push_back(ofi[k].time);
+      }
+      break;
+    }
+  }
+
+  return timevec;
+}
+
+void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
+					miTime& constTime,
+					int& timediff,
+					const miString& pinfo)
+{
+  //Finding times from pinfo
+  //If pinfo contains "file=", return constTime
+
+  miString fileName;
+  miString objectname;
+  timediff=0;
+
+  vector<miString> tokens= pinfo.split('"','"');
+  int m= tokens.size();
+  for (int j=0; j<m; j++){ 
+    miString key,value;
+    SetupParser::splitKeyValue(tokens[j],key,value);
+    if (key=="name"){
+      objectname = value;
+    } else if( key=="timediff"){
+      timediff = value.toInt();
+    } else if( key=="file"){ //Product with no time
+      fileName=value;
+    }
+  }
+
+  if(fileName.exists() ){ //Product with const time
+    if(objectFiles.count(objectname)){
+      constTime = timeFilterFileName(fileName,objectFiles[objectname].filter);
+    }
+  } else { //Product with prog times
+    vector<ObjFileInfo> ofi= getObjectFiles(objectname,true);
+    int nfinfo=ofi.size();
+    for (int k=0; k<nfinfo; k++){
+      normalTimes.push_back(ofi[k].time);
+    }
+  }
+
+}
+
 
 PlotOptions ObjectManager::getPlotOptions(miString objectName){
   return objectFiles[objectName].poptions;

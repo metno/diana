@@ -128,12 +128,15 @@ public:
   void getPlotTime(miString&);
   /// return current plottime
   void getPlotTime(miTime&);
-  /// return plottimes for fields, satellites,observations and edit products
-  void getPlotTimes(vector<miTime>& ftimes,vector<miTime>& stimes,
-		    vector<miTime>& otimes,vector<miTime>& ptimes);
-  ///returns times where time - sat/obs-time < mindiff
-  vector<miTime> timeIntersection(const vector<miString>& pinfos,
-				  const vector<miTime>& times);
+  /// return data times (fields,images, observations, objects and editproducts)
+  void getPlotTimes(vector<miTime>& fieldtimes,vector<miTime>& sattimes,
+		    vector<miTime>& obstimes,vector<miTime>& objtimes,
+		    vector<miTime>& ptimes);
+  ///returns union or intersection of plot times from all pinfos
+  void getCapabilitiesTime(set<miTime>& okTimes,
+			   set<miTime>& constTimes,
+			   const vector<miString>& pinfos,
+			   bool allTimes=true);
   /// returns the current product time
   bool getProductTime(miTime& t);
   /// returns the current product name

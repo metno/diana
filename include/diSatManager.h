@@ -37,6 +37,7 @@
 #include <diCommonTypes.h>
 #include <diTimeFilter.h>
 #include <map>
+#include <set>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -127,9 +128,11 @@ public:
   bool setData(SatPlot *);
   vector<miTime> getSatTimes(const vector<miString>&);
 
-  ///returns times where time - sat/obs-time < mindiff
-  vector<miTime> timeIntersection(const vector<miString>& pinfos,
-				  const vector<miTime>& times);
+  ///returns union or intersection of plot times from all pinfos
+  void getCapabilitiesTime(vector<miTime>& progTimes,
+			   miTime& constTime,
+			   int& timediff,
+			   const miString& pinfo);
 
   const vector<SatFileInfo> & getFiles(const miString &, 
 				       const miString &, 

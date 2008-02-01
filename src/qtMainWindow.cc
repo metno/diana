@@ -1031,12 +1031,13 @@ void DianaMainWindow::quickMenuApply(const vector<miString>& s)
   QApplication::setOverrideCursor( waitCursor );
   contr->plotCommands(s);
 
-  vector<miTime> ftimes, stimes, otimes, ptimes;
-  contr->getPlotTimes(ftimes,stimes,otimes, ptimes);
+  vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
+  contr->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes);
 
-  tslider->insert("field", ftimes);
-  tslider->insert("sat", stimes);
-  tslider->insert("obs", otimes);
+  tslider->insert("field", fieldtimes);
+  tslider->insert("sat", sattimes);
+  tslider->insert("obs", obstimes);
+  tslider->insert("obs", objtimes);
   tslider->insert("product", ptimes);
 
   miTime t= tslider->Value();

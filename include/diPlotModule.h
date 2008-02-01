@@ -38,6 +38,7 @@
 #include <miTime.h>
 #include <diLocationPlot.h>
 #include <vector>
+#include <set>
 #include <deque>
 #include <diDisplayObjects.h>
 #include <diEditObjects.h>
@@ -246,9 +247,15 @@ public:
   void getPlotTime(miString&);
   /// return current plottime
   void getPlotTime(miTime&);
-  /// return data times (fields,images, observations and editproducts)
-  void getPlotTimes(vector<miTime>& ftimes,vector<miTime>& stimes,
-		    vector<miTime>& otimes,vector<miTime>& ptimes);
+  /// return data times (fields,images, observations, objects and editproducts)
+  void getPlotTimes(vector<miTime>& fieldtimes,vector<miTime>& sattimes,
+		    vector<miTime>& obstimes,vector<miTime>& objtimes,
+		    vector<miTime>& ptimes);
+  ///returns union or intersection of plot times from all pinfos
+  void getCapabilitiesTime(set<miTime>& okTimes,
+			   set<miTime>& constTimes,
+			   const vector<miString>& pinfos,
+			   bool allTimes=true);
 
   /// set plottime
   bool setPlotTime(miTime&);

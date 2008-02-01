@@ -933,7 +933,6 @@ const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
 						const miString & file,
 						bool update){
 
-//  cerr <<"getFiles"<<endl;
 
    //check if satellite exists, (name occurs in prod)
   if (Prod.find(satellite)==Prod.end()) {
@@ -1054,45 +1053,53 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos)
   return timevec;
 }
 
-//returns times where time - sat/obs-time < mindiff
-vector<miTime> SatManager::timeIntersection(const vector<miString>& pinfos,
-					    const vector<miTime>& times)
+void SatManager::getCapabilitiesTime(vector<miTime>& normalTimes,
+				     miTime& constTime,
+				     int& timediff,
+				     const miString& pinfo)
 {
+  //Finding times from pinfo
+  //If pinfo contains "file=", return constTime
 
-  vector<miTime> oktimes=times;
+  timediff=0;
 
-  int n= pinfos.size();
-  for (int i=0; i<n; i++){
-    vector<miString> tokens= pinfos[i].split('"','"');
-    int m= tokens.size();
-    if (m<3 || tokens[0].downcase() != "sat") continue;
-    miString satellite= tokens[1];
-    miString file = tokens[2];
-    vector<SatFileInfo> finfo = getFiles(satellite,file,false);
-    int timediff = 0;
-    for(int j=0; j<tokens.size();j++){
-      vector<miString> stokens= tokens[j].split("=");
-      if(stokens.size()==2 && stokens[0].downcase()=="timediff"){
-	timediff=stokens[1].toInt();
-      }
+  vector<miString> tokens= pinfo.split('"','"');
+  int m= tokens.size();
+  if (m<3) return;
+
+  miString satellite= tokens[1];
+  miString file = tokens[2];
+  miString filename;
+
+  for(int j=0; j<tokens.size();j++){
+    vector<miString> stokens= tokens[j].split("=");
+    if(stokens.size()==2 && stokens[0].downcase()=="file"){
+      filename = stokens[1];
     }
-    vector<miTime> tmptimes;
-    int nfinfo=finfo.size();
-
-    for(int j=0; j<oktimes.size(); j++){
-      int k=0;
-      while( k<nfinfo && 
-	     abs(miTime::minDiff(oktimes[j],finfo[k].time)) >timediff ) k++; 
-      if(k<nfinfo) tmptimes.push_back(times[j]); //time ok
+    if(stokens.size()==2 && stokens[0].downcase()=="timediff"){
+      timediff=stokens[1].toInt();
     }
-
-    // update times 
-    oktimes = tmptimes;
   }
-  
-  return oktimes;
+
+  if( filename.exists()){ //Product with const time
+
+    SatFileInfo sfi;
+    sfi.name = filename;
+    MItiff::readMItiffHeader(sfi);
+    constTime = sfi.time;
+
+  } else { //Product with prog times
+
+    vector<SatFileInfo> finfo = getFiles(satellite,file,true);
+    int nfinfo=finfo.size();
+    for (int k=0; k<nfinfo; k++){
+      normalTimes.push_back(finfo[k].time);
+    }
+
+  } 
 
 }
+
 
 void SatManager::updateFiles(){
 

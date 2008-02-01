@@ -130,6 +130,7 @@ const miString com_trajectory_print   = "trajectory_print";
 const miString com_setup_field_info   = "setup_field_info";
 
 const miString com_time_opt           = "time_options";
+const miString com_time_format        = "time_format";
 const miString com_time               = "time";
 const miString com_endtime            = "endtime";
 const miString com_level              = "level";
@@ -242,6 +243,7 @@ bool trajectory_started= false;
 miString trajectory_options;
 
 miString time_options;
+miString time_format="$time";
 
 // list of lists..
 vector<stringlist> lists;
@@ -678,28 +680,6 @@ void parse_spectrum_options(const vector<miString>& opts)
   }
 }
 
-/* Make union of all times and sort */
-vector<miTime> timeUnion(vector< vector< miTime> >& times)
-{
-
-  set<miTime> timeset;
-  vector<miTime> oktimes;
-
-  int n=times.size();
-  for(int i=0; i<n; i++){
-    int m=times[i].size();
-    for(int j=0; j<m; j++){
-      timeset.insert(times[i][j]);
-    }
-  }
-  if (timeset.size()>0) {
-    set<miTime>::iterator p= timeset.begin();
-    for (; p!=timeset.end(); p++) oktimes.push_back(*p);
-  }
-
-  return oktimes;
-}
-
 /*
   parse setupfile
   perform other initialisations based on setup information
@@ -1041,7 +1021,38 @@ void printUsage(bool showexample)
     "#  If a confirmative answer is required, add the command fifo=<name>, and\n"
     "#  bdiana will write the single character \'r\' to the named FIFO. NB: The \n"
     "#  FIFO must exist! \n"
-    "#--------------------------------------------------------------   \n"
+    "#--------------------------------------------------------------        \n"
+    "#* Get Capabilities *                                                  \n"
+    "#  Developed for use in WMS                                            \n"
+    "#  The syntax of the TIME- and LEVEL-sections are equal to the         \n"
+    "#  PLOT-sections. The plot options will be ignored.                    \n"
+    "#  The TIME-sections give available times,                             \n"
+    "#  both normal and constant times.                                     \n"
+    "#  The LEVEL-sections give available levels.                           \n"
+    "#  Valid options:                                                      \n"
+    "#  Normal times common to all products and  all constant times:        \n"
+    "#  time_options = intersection                                         \n"
+    "#  All normal times from all products:                                 \n"
+    "#  time_options = union                                                \n"
+    "#  Time format in outputfile                                           \n"
+    "#  time_format=%Y-%m-%dT%H:%M:%S                                       \n"
+    "#  TIME                                                                \n"
+    "#  FIELD HIRLAM.00 DZ(500-850) colour=yellow linetype=solid \\         \n"
+    "#  linewidth=1 line.interval=40 extreme.type=None extreme.size=1 \\   \n"
+    "#  extreme.radius=1 line.smooth=0 value.label=1 label.size=1  \\       \n"
+    "#  field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\   \n"
+    "#  undef.linewidth=1 undef.linetype=solid                              \n"
+    "#  FIELD DNMI.ANA MSLP                                                 \n"
+    "#  OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\ \n"
+    "#  VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\  \n"
+    "#  TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 \\       \n"
+    "#  scale=1 timediff=180 colour=black font=Helvetica face=normal        \n"
+    "#  OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area          \n"
+    "#  ENDTIME                                                             \n"
+    "#  LEVEL                                                               \n"
+    "#  FIELD HIRLAM.20KM.00 Z                                              \n"
+    "#  ENDLEVEL                                                            \n"
+    "#--------------------------------------------------------------      \n"
     "\n";
   
   if (!showexample)
@@ -1187,16 +1198,22 @@ int parseAndProcess(const miString& file)
 	if (verbose) cout << "- sending plotCommands" << endl;
 	main_controller->plotCommands(pcom);
 
-	vector<miTime> ftimes, stimes, otimes, ptimes;
-	main_controller->getPlotTimes(ftimes,stimes,otimes, ptimes);
-      
+	vector<miTime> fieldtimes, sattimes, obstimes, objtimes,ptimes;
+	main_controller->getPlotTimes(fieldtimes,
+				      sattimes,
+				      obstimes,
+				      objtimes,
+				      ptimes);
+	      
 	if (ptime.undef()){
-	  if (ftimes.size()>0)
-	    thetime= ftimes[ftimes.size()-1];
-	  else if (stimes.size()>0)
-	    thetime= stimes[stimes.size()-1];
-	  else if (otimes.size()>0)
-	    thetime= otimes[otimes.size()-1];
+	  if (fieldtimes.size()>0)
+	    thetime= fieldtimes[fieldtimes.size()-1];
+	  else if (sattimes.size()>0)
+	    thetime= sattimes[sattimes.size()-1];
+	  else if (obstimes.size()>0)
+	    thetime= obstimes[obstimes.size()-1];
+	  else if (objtimes.size()>0)
+	    thetime= objtimes[objtimes.size()-1];
 	  else if (ptimes.size()>0)
 	    thetime= ptimes[ptimes.size()-1];
 	} else	
@@ -1503,19 +1520,12 @@ int parseAndProcess(const miString& file)
 	if (verbose) cout << "- sending plotCommands" << endl;
 	main_controller->plotCommands(pcom);
 	
-	vector<miTime> ftimes, stimes, otimes, ptimes,oktimes;
-	main_controller->getPlotTimes(ftimes,stimes,otimes, ptimes);
-	
-	if(time_options =="union"){
-	  vector< vector< miTime> > alltimes;
-	  alltimes.push_back(ftimes);
-	  alltimes.push_back(stimes);
-	  alltimes.push_back(otimes);
-	  alltimes.push_back(ptimes);
-	  oktimes = timeUnion(alltimes);
-	} else {
-	  oktimes = main_controller->timeIntersection(pcom,ftimes);
-	}
+	set<miTime> okTimes;
+	set<miTime> constTimes;
+	main_controller->getCapabilitiesTime(okTimes,
+					     constTimes,
+					     pcom,
+					     time_options =="union");
 	
 	// open filestream
 	ofstream file(priop.fname.c_str());
@@ -1523,8 +1533,15 @@ int parseAndProcess(const miString& file)
 	  cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
 	  return 1;
 	}
-	for(int i=0;i < oktimes.size(); i++){
-	  file << oktimes[i].isoTime()<<endl;
+	file <<"PROG"<<endl;
+	set<miTime>::iterator p= okTimes.begin();
+	for(; p!=okTimes.end(); p++){
+	  file << (*p).format(time_format)<<endl;
+	}
+	file <<"CONST"<<endl;
+	p= constTimes.begin();
+	for(; p!=constTimes.end(); p++){
+	  file << (*p).format(time_format)<<endl;
 	}
 	cerr << endl;
 	file.close();
@@ -2023,6 +2040,9 @@ int parseAndProcess(const miString& file)
       
     } else if (key==com_time_opt){
       time_options=value.downcase();
+      
+    } else if (key==com_time_format){
+      time_format=value;
       
     } else {
       cerr << "WARNING, unknown command:" << lines[k]

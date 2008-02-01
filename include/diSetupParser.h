@@ -113,9 +113,9 @@ public:
   /// cleans a string
   void cleanstr(miString&);
   /// finds key=value in string
-  void splitKeyValue(const miString& s, miString& key, miString& value);
+  static void splitKeyValue(const miString& s, miString& key, miString& value);
   /// finds key=v1,v2,v3,... in string
-  void splitKeyValue(const miString& s, miString& key, vector<miString>& value);
+  static void splitKeyValue(const miString& s, miString& key, vector<miString>& value);
 
   /// recursively parse setupfiles
   bool parse(const miString& mainfilename );

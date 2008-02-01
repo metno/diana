@@ -343,8 +343,38 @@ ENDPLOT                  # End of plot-command
 #  If a confirmative answer is required, add the command fifo=&lt;name&gt;, and
 #  bdiana will write the single character 'r' to the named FIFO. NB: The 
 #  FIFO must exist! 
-#--------------------------------------------------------------   
-
+#--------------------------------------------------------------        
+#* Get Capabilities *                                                 
+#  Developed for use in WMS                                           
+#  The syntax of the TIME- and LEVEL-sections are equal to the        
+#  PLOT-sections. The plot options will be ignored.                   
+#  The TIME-sections give available times,                            
+#  both normal and constant times.                                     
+#  The LEVEL-sections give available levels.                          
+#  Valid options:                                                     
+#  Normal times common to all products and  all constant times:       
+#  time_options = intersection                                        
+#  All normal times from all products:                                
+#  time_options = union           
+#  Time format in outputfile                                    
+#  time_format=%Y-%m-%dT%H:%M:%S                                      
+#  TIME                                                               
+#  FIELD HIRLAM.00 DZ(500-850) colour=yellow linetype=solid \\        
+#  linewidth=1 line.interval=40 extreme.type=None extreme.size=1 \\   
+#  extreme.radius=1 line.smooth=0 value.label=1 label.size=1  \\      
+#  field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\  
+#  undef.linewidth=1 undef.linetype=solid                             
+#  FIELD DNMI.ANA MSLP                                                
+#  OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\
+#  VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\ 
+#  TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 \\      
+#  scale=1 timediff=180 colour=black font=Helvetica face=normal       
+#  OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area         
+#  ENDTIME                                                            
+#  LEVEL                                                              
+#  FIELD HIRLAM.20KM.00 Z                                             
+#  ENDLEVEL                                                           
+#--------------------------------------------------------------      
 
     </PRE>
     <h3>Plot settings</h3>

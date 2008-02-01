@@ -223,12 +223,13 @@ void Controller::getPlotTime(miTime& t){
   plotm->getPlotTime(t);
 }
 
-void Controller::getPlotTimes(vector<miTime>& ftimes,
-			      vector<miTime>& stimes,
-			      vector<miTime>& otimes,
+void Controller::getPlotTimes(vector<miTime>& fieldtimes,
+			      vector<miTime>& sattimes,
+			      vector<miTime>& obstimes,
+			      vector<miTime>& objtimes,
 			      vector<miTime>& ptimes)
 {
-  plotm->getPlotTimes(ftimes,stimes,otimes,ptimes);
+  plotm->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes);
 }
 
 bool Controller::getProductTime(miTime& t){
@@ -641,13 +642,15 @@ const vector<SatFileInfo>& Controller::getSatFiles(const miString& satellite,
   return satm->getFiles(satellite,file,update);
 }
 
-vector<miTime> Controller::timeIntersection(const vector<miString> & pinfos,
-					    const vector<miTime>& times){
-  vector<miTime> t;
-  t = satm->timeIntersection(pinfos,times);
-  return obsm->timeIntersection(pinfos,t);
-}
+//returns union or intersection of plot times from all pinfos
+void Controller::getCapabilitiesTime(set<miTime>& okTimes,
+				     set<miTime>& constTimes,
+				     const vector<miString>& pinfos,
+				     bool allTimes)
+{
+  return plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes);
 
+}
 
 const vector<Colour>& Controller::getSatColours(const miString& satellite,
                                                    const miString& file){
@@ -769,7 +772,8 @@ void Controller::getFieldGroups(const miString& modelNameRequest,
 vector<miTime> Controller::getFieldTime(const vector<FieldTimeRequest>& request,
 				        bool allTimeSteps)
 {
-  return fieldm->getFieldTime(request, allTimeSteps);
+  bool constT;
+  return fieldm->getFieldTime(request, allTimeSteps,constT);
 }
 
 MapDialogInfo Controller::initMapDialog(){

@@ -307,6 +307,7 @@ public:
   int getLevelDiff(){return leveldiff;}
   int getLevel(){return level;}
   void resetObs(int num){obsp.resize(num);}
+  int sizeObs(){return obsp.size();}
   void removeObs(){obsp.pop_back();}
   ObsData& getNextObs();
   void addObs(vector<ObsData> vdata){obsp = vdata;}

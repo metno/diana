@@ -1899,14 +1899,17 @@ void PlotModule::getPlotTime(miTime& t){
 }
 
 
-void PlotModule::getPlotTimes(vector<miTime>& ftimes,
-			      vector<miTime>& stimes,
-			      vector<miTime>& otimes,
+void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
+			      vector<miTime>& sattimes,
+			      vector<miTime>& obstimes,
+			      vector<miTime>& objtimes,
 			      vector<miTime>& ptimes)
 {
-  ftimes.clear();
-  stimes.clear();
-  otimes.clear();
+  
+  fieldtimes.clear();
+  sattimes.clear();
+  obstimes.clear();
+  objtimes.clear();
   ptimes.clear();
 
   // edit product proper time
@@ -1916,15 +1919,18 @@ void PlotModule::getPlotTimes(vector<miTime>& ftimes,
 
   vector<miString> pinfos;
   int n= vfp.size();
-  for (int i=0; i<n; i++)
+  for (int i=0; i<n; i++){
     pinfos.push_back(vfp[i]->getPlotInfo());
+    cerr <<"FIeld plotinfo:"<<vfp[i]->getPlotInfo()<<endl;
+  }
   if (pinfos.size()>0){
-    ftimes= fieldm->getFieldTime(pinfos);
+    bool constT;
+    fieldtimes= fieldm->getFieldTime(pinfos,constT);
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found fieldtimes:" << endl;
-  for (int i=0; i<ftimes.size(); i++)
-    cerr << ftimes[i] << endl;
+  for (int i=0; i<fieldtimes.size(); i++)
+    cerr << fieldtimes[i] << endl;
 #endif
 
   n= vsp.size();
@@ -1932,12 +1938,12 @@ void PlotModule::getPlotTimes(vector<miTime>& ftimes,
   for (int i=0; i<n; i++)
     pinfos.push_back(vsp[i]->getPlotInfo());
   if (pinfos.size()>0){
-    stimes= satm->getSatTimes(pinfos);
+    sattimes= satm->getSatTimes(pinfos);
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found sattimes:" << endl;
-  for (int i=0; i<stimes.size(); i++)
-    cerr << stimes[i] << endl;
+  for (int i=0; i<sattimes.size(); i++)
+    cerr << sattimes[i] << endl;
 #endif
 
   n= vop.size();
@@ -1945,15 +1951,93 @@ void PlotModule::getPlotTimes(vector<miTime>& ftimes,
   for (int i=0; i<n; i++)
     pinfos.push_back(vop[i]->getPlotInfo());
   if (pinfos.size()>0){
-    otimes= obsm->getObsTimes(pinfos);
+    obstimes= obsm->getObsTimes(pinfos);
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found obstimes:" << endl;
-  for (int i=0; i<otimes.size(); i++)
-    cerr << otimes[i] << endl;
+  for (int i=0; i<obstimes.size(); i++)
+    cerr << obstimes[i] << endl;
 #endif
+
+  pinfos.clear();
+  pinfos.push_back(objects.getPlotInfo());
+  if (pinfos.size()>0){
+    objtimes= objm->getObjectTimes(pinfos);
+  }
+#ifdef DEBUGPRINT
+  cerr << "--- Found objtimes:" << endl;
+  for (int i=0; i<objtimes.size(); i++)
+    cerr << objtimes[i] << endl;
+#endif
+
+
 }
 
+//returns union or intersection of plot times from all pinfos
+void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
+				     set<miTime>& constTimes,
+				     const vector<miString>& pinfos,
+				     bool allTimes)
+{
+  vector<miTime> normalTimes;
+  miTime constTime;
+  int timediff;
+  int n = pinfos.size();
+  bool normalTimesFound = false;
+  bool moreTimes=true;
+  for (int i=0; i<n; i++){
+    vector<miString> tokens= pinfos[i].split(1);
+    if (!tokens.empty()) {
+      miString type= tokens[0].upcase();
+      if(type=="FIELD") 
+	fieldm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
+      else if (type=="SAT")      
+	satm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
+      else if (type=="OBS")     
+	obsm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
+      else if (type=="OBJECTS")	
+	objm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
+    }
+
+    if( !constTime.undef() ) {     //insert constTime
+      
+      cerr <<"constTime:"<<constTime.isoTime()<<endl;
+      constTimes.insert(constTime);
+
+    } else if (moreTimes) {     //insert okTimes
+
+      if(( !normalTimesFound && normalTimes.size())) normalTimesFound=true;
+
+      //if intersection and no common times, no need to look for more times
+      if(( !allTimes && normalTimesFound && !normalTimes.size())) moreTimes=false;
+      
+      int nTimes = normalTimes.size();
+
+      if(allTimes || okTimes.size()==0){ // union or first el. of intersection
+	
+	for (int k=0; k<nTimes; k++){
+	  okTimes.insert(normalTimes[k]);
+	}
+	
+      } else {  //intersection 
+	
+	set<miTime> tmptimes;
+	set<miTime>::iterator p= okTimes.begin();
+	for(; p!=okTimes.end(); p++){
+	  int k=0;
+	  while( k<nTimes && 
+		 abs(miTime::minDiff(*p,normalTimes[k])) >timediff ) k++; 
+	  if(k<nTimes) tmptimes.insert(*p); //time ok
+	}
+	okTimes = tmptimes;
+      
+      }
+    } // if neither normalTimes nor constatTime, product is ignored
+    normalTimes.clear();
+    constTime = miTime();
+  }
+
+}
 
 // set plottime
 bool PlotModule::setPlotTime(miTime& t){

@@ -305,6 +305,14 @@ public:
   /// returns list of objectfiles for use in dialog
   vector <ObjFileInfo> getObjectFiles(const miString objectname,
 				      bool refresh);
+  /// returns list of times
+  vector<miTime> getObjectTimes(const vector<miString>&pinfos);
+  vector<miTime> getObjectTimes(const miString& pinfo);
+  ///returns union or intersection of plot times from all pinfos
+  void getCapabilitiesTime(vector<miTime>& normalTimes,
+			   miTime& constTime,
+			   int& timediff,
+			   const miString& pinfo);
   /// returns plot options for object file with name objectname
   PlotOptions getPlotOptions(miString objectName);
 
