@@ -19,7 +19,7 @@
     <ul>
       <li> <a href="ug_fileformats.html#OBJECT.ASCII.FILES">Object files</a>
       <li> <a href="ug_fileformats.html#OBSERVATION.ASCII.FILES">Observation ascii files</a>
-      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF CF-standard format</a>
+      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF following the CF metadata conventions</a>
     </ul>
 
     <h2><a NAME="OBJECT.ASCII.FILES"></a>Object files</h2>
@@ -227,14 +227,17 @@ plotted.
 
     <hr>
 
-    <h2><a NAME="FIELD.NETCDF.FILES"></a>Fields in NetCDF CF-standard format</h2>
+    <h2><a NAME="FIELD.NETCDF.FILES"></a>Fields in NetCDF following the CF metadata conventions</h2>
 
-    Diana supports reading fields from NetCDF files following the CF metadata standard (see http://cf-pcmdi.llnl.gov for specifications of the standard), with the following limitations:
-    <h3>Supported map projections</h3>
+    Diana supports reading fields from NetCDF files following the CF conventions for climate and forecast metadata (see http://cf-pcmdi.llnl.gov for specifications of the standard), with the following limitations:
+    <h4>Regular grids</h4>
+    Diana supports regular grids only
+
+    <h4>Supported map projections</h4>
     Diana supports a subset of the map projections specified in the CF metadata standard:
     <ol>
       <li><b>Geographic projection</b><br>
-	Note that the x/longitude coordinate is ordered in Diana as [-180,180] degrees, and the fields will be recalculated to match this scheme if they are stored differently in the file (i.e. as [0,360] degrees). Likewise, the y/latitude coordinate is ordered as [-90,90] degrees in Diana, and you will experience some performance penalty if you order your data from [90,-90].<br>
+	Note that the x/longitude dimension is ordered in Diana as [-180,180] degrees, and the fields will be recalculated to match this scheme if they are stored differently in the file (i.e. as [0,360] degrees). This will give some performance penalty when reading fields. Likewise, the y/latitude dimension is ordered as [-90,90] degrees in Diana, and you will find your grid flipped upside down if you order your data from [90,-90].<br>
 	The following attributes are supported:
 	<pre>
  grid_mapping_name=geographic
@@ -244,11 +247,11 @@ plotted.
       </li>
 
       <li><b>Polar stereographic projection</b><br>
-	Diana also supports grid_mapping_name=stereographic with the limitation that latitude_of_projection_origin must be either -90 or 90, reducing the projection to a polar stereographic special case.<br>
+	Diana also supports grid_mapping_name=stereographic with the limitation that latitude_of_projection_origin must be either -90 or 90, reducing the projection to a polar stereographic case.<br>
 	The following attributes are supported:
 	<pre>
  grid_mapping_name=polar_stereographic
- latitude_of_projection_origin= [-90|90]
+ latitude_of_projection_origin= -90 <b>OR</b> 90
  standard_parallel <b>OR</b> scale_factor_at_projection_origin
  false_easting
  false_northing
