@@ -35,6 +35,7 @@
 #include <diPattern.h>
 #include <diImageGallery.h>
 #include <list>
+#include <stdlib.h>
 
 const miString SectColours=     "COLOURS";
 const miString SectPalettes=    "PALETTES";
@@ -512,6 +513,7 @@ bool SetupParser::parseBasics(const miString& sectname){
   const miString key_imagepath="imagepath";
   const miString key_langpaths="languagepaths";
   const miString key_language= "language";
+  const miString key_setenv= "setenv";
 
   // default values
   miString langpaths="lang:/metno/local/translations:${QTDIR}/translations";
@@ -537,8 +539,14 @@ bool SetupParser::parseBasics(const miString& sectname){
     // everything into basic_values map
     basic_values[key] = value;
 
-    if (key==key_langpaths)
+    if (key==key_langpaths){
       langpaths= value;
+    } else if (key==key_setenv){
+      vector<miString> part = value.split(",");
+      if(part.size()==3){
+	setenv(part[0].cStr(),part[1].cStr(),part[2].toInt());
+      }
+    }
   }
 
   // fix language paths
