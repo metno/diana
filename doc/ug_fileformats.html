@@ -19,7 +19,7 @@
     <ul>
       <li> <a href="ug_fileformats.html#OBJECT.ASCII.FILES">Object files</a>
       <li> <a href="ug_fileformats.html#OBSERVATION.ASCII.FILES">Observation ascii files</a>
-      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF following the CF metadata conventions</a>
+      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF files (CF-1.1 compatible)</a>
     </ul>
 
     <h2><a NAME="OBJECT.ASCII.FILES"></a>Object files</h2>
@@ -227,9 +227,10 @@ plotted.
 
     <hr>
 
-    <h2><a NAME="FIELD.NETCDF.FILES"></a>Fields in NetCDF following the CF metadata conventions</h2>
+    <h2><a NAME="FIELD.NETCDF.FILES"></a>Fields in NetCDF files (CF-1.1 compatible)</h2>
 
-    Diana supports reading fields from NetCDF files following the CF conventions for climate and forecast metadata (see http://cf-pcmdi.llnl.gov for specifications of the standard), with the following limitations:
+    Diana supports reading fields from NetCDF files following the CF-1.1
+    conventions for climate and forecast metadata (see <a target="_blank" href="http://www.cfstandard.org">http://www.cfstandard.org</a> for specifications of the standard), with the following limitations:
     <h4>Regular grids</h4>
     Diana supports regular grids only
 
@@ -280,6 +281,19 @@ plotted.
       </li>
     </ol>
 
+<h4>IMPORTANT NOTES</h4>
+<p />
+
+  <ul>
+    <li>This is the first version of the NetCDF filereading capabillity, and you
+    may (and probably will) encounter some bugs.</li>
+    <li>Please report all bugs on <a
+    href="http://diana.bugs.met.no">http://diana.bugs.met.no</a>, or send
+    an e-mail to the Diana mailinglist.</li>
+    <li>For the time being we only support the map projections given above, but you
+    are welcome to send suggestions for any other projections you think we should 
+    support.</li>
+  </ul>
 
 <p>
 

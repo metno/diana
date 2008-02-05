@@ -354,12 +354,15 @@ suffix/prefix (units)
     <li>Please report all bugs on <a
     href="http://diana.bugs.met.no">http://diana.bugs.met.no</a>, or send
     an e-mail to the Diana mailinglist.</li>
-    <li>The NetCDF-files must contain the metno_mapprojection_no and metno_grid_spec
-    attributes. The metno_mapprojection_no is a digit from 0 to 6, and
+    <li>The NetCDF-files must conform to one of the following points: <br />
+    (i) Contain the metno_mapprojection_no, metno_grid_spec
+    and metno_grid_no attributes. The metno_mapprojection_no is a digit from 0 to 6, and
     metno_grid_specs varies depending on which map projection that is selected.
     See table in the <a href="#MAP_AREA">MAP_AREA-section</a> for further
-    information. This will hopefully not be necessary
-    in the next version of diField (Dianas field library).</li>
+    information.<br />
+    (ii) Follow the CF-1.1 standard. See the <a
+    href="ug_fileformats.html#FIELD.NETCDF.FILES">NetCDF-section</a> under
+    "File formats" in the index for further information.</li>
     </ul>
 
     <a name="FIELD_COMPUTE"></a><h3>Section FIELD_COMPUTE</h3>
