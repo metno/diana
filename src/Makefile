@@ -8,7 +8,7 @@ diMapManager.o diMapPlot.o diFilledMap.o diFieldPlot.o  \
 diContouring.o diCommandParser.o \
 diObsManager.o diObsPlot.o diObsSynop.o diObsDribu.o diObsTemp.o diObsPilot.o \
 diObsAireps.o diObsSatob.o diObsMetar.o diObsTide.o diObsOcea.o diObsAscii.o \
-diObsBufr.o diSatManager.o diSatPlot.o diSat.o diMItiff.o diLegendPlot.o \
+diSatManager.o diSatPlot.o diSat.o diMItiff.o diLegendPlot.o \
 diObjectManager.o diObjectPlot.o diWeatherArea.o diWeatherFront.o diUndoFront.o \
 diWeatherSymbol.o diAreaObjects.o diAreaBorder.o diWeatherObjects.o \
 diEditObjects.o diDisplayObjects.o diComplexSymbolPlot.o diObjectPoint.o \
@@ -19,6 +19,11 @@ diVprofTemp.o diVprofPilot.o diVprofOptions.o diFtnVfile.o \
 diVcrossManager.o diVcrossPlot.o diVcrossOptions.o diVcrossFile.o \
 diSpectrumManager.o diSpectrumPlot.o diSpectrumOptions.o diSpectrumFile.o \
 diShapeObject.o diGridArea.o diGridAreaManager.o diProfetObjectFactory.o
+
+ifdef BUFROBS
+CCOBJ += diObsBufr.o 
+endif
+
 
 COBJ= \
 diTesselation.o

@@ -29,7 +29,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifdef BUFROBS
 
 #include <iostream>
 #include <sstream>
@@ -1437,7 +1436,6 @@ float ObsBufr::ms2code4451(float v)
   return 9.0;
 }
 
-#endif
 
 
 

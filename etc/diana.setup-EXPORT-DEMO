@@ -33,8 +33,10 @@
 # valid within a section. Useful in local files which include the official setupfile
 #----------------------------------------------------------------------------------
 
-TOPDIR=/disk1/test/local
-OPDATA=/disk1/test/local/demodata
+#If you  install diana at /usr/local, just change TOPDIR 
+#TOPDIR=/usr/local
+TOPDIR=../
+OPDATA=../demodata
 
 <BASIC>
 docpath=$(TOPDIR)/diana/doc
@@ -42,6 +44,7 @@ obsPlotFilePath=$(TOPDIR)/diana/etc
 qserver=$(TOPDIR)/bin/coserver
 imagepath=$(TOPDIR)/diana/images/
 amdarStationList=$(TOPDIR)/diana/etc/amdar.stations
+setenv=BUFR_TABLES,$(TOPDIR)/bufrtables,0
 languagepaths=lang:../lang:$(TOPDIR)/translations:${QTDIR}/translations
 language=en
 </BASIC>
@@ -221,12 +224,6 @@ file= $(TOPDIR)/diana/etc/qmenu_nedbor.txt
 file= $(TOPDIR)/diana/etc/Briefing.quick
 file= $(TOPDIR)/diana/etc/Produkter.quick
 file= $(TOPDIR)/diana/etc/Verifikasjon.quick-VA
-file= $(TOPDIR)/va/VA_morgenbrief.quick
-file= $(TOPDIR)/vv/analyse-VV.quick
-file= $(TOPDIR)/vv/sammenligning-VV.quick
-file= $(TOPDIR)/vv/flymet-VV.quick
-file= $(TOPDIR)/vnn/polare_lavtrykk.quick
-file= $(TOPDIR)/vnn/briefing.txt
 </QUICKMENUS>
 
 

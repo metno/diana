@@ -154,14 +154,12 @@ veryclean:
 #	@make pretty
 	rm -rf $(OBJDIR)
 
-# install
+# install export
 DESTNAME=diana
-COPYFILES=bin/diana bin/bdiana diana.png diana.sh dianaTEST.sh
+COPYFILES=bin/diana bin/bdiana diana.png diana.setup
 COPYDIRS=doc
 COPYTREES=fonts images etc lang
-BINLINKS=diana.sh bin/diana bin/bdiana
-TESTDESTNAME=dianaTEST
-TESTBINLINKS=dianaTEST.sh 
+BINLINKS=bin/diana bin/bdiana
 
 include ../conf/install.mk
 
