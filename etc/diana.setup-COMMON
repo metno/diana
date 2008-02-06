@@ -613,8 +613,9 @@ uvi = 900,2,1000
 t.2m.season=163,2,1000
 
 t2m_anomali=801,2,1000
-t2m_anomali_mean=2801,2,1000
+#t2m_anomali_mean=2801,2,1000
 rr_weekly=812,2,1000 
+rr_anomali=802,2,1000 
 
 </METNOFIELDFILE_PARAMETERS>
 
@@ -2386,17 +2387,17 @@ field=T_ANOMALI.2M
       plot=CONTOUR(t2m_anomali)
 end.field
 
-field=T_MIDLET_ANOMALI.2M
-      text = "2m midlet temperatur anomali"
-      colour=red line.interval=0.5
-      plot=CONTOUR(t2m_anomali_mean)
-end.field
-
 field=NEDBØR.7D
       text = "Akkumulert nedbør 7 døgn"
       colour=red line.interval=10
       plot=CONTOUR(rr_weekly)
 end.field 
+
+field=RR_ANOMALI
+      text = "Ukentlig nedbør anomali"
+      colour=red line.interval=2
+      plot=CONTOUR(rr_anomali)
+end.field
 
 </FIELD_PLOT>
 
@@ -4025,20 +4026,20 @@ end.product
 
 # prognostic data
 
-m=HIRLAM.12KM.00   f=$(OPDATA1)/hirlam12/vp12km00.dat
-m=HIRLAM.12KM.06   f=$(OPDATA1)/hirlam12/vp12km06.dat
-m=HIRLAM.12KM.12   f=$(OPDATA1)/hirlam12/vp12km12.dat
-m=HIRLAM.12KM.18   f=$(OPDATA1)/hirlam12/vp12km18.dat
+m=HIRLAM.12KM.00   f=$(OPDATA2)/hirlam12/vp12km00.dat
+m=HIRLAM.12KM.06   f=$(OPDATA2)/hirlam12/vp12km06.dat
+m=HIRLAM.12KM.12   f=$(OPDATA2)/hirlam12/vp12km12.dat
+m=HIRLAM.12KM.18   f=$(OPDATA2)/hirlam12/vp12km18.dat
 
-m=HIRLAM.12KM.geogrid.00   f=$(OPDATA1)/hirlam12/vp12kmgeo00.dat
-m=HIRLAM.12KM.geogrid.06   f=$(OPDATA1)/hirlam12/vp12kmgeo06.dat
-m=HIRLAM.12KM.geogrid.12   f=$(OPDATA1)/hirlam12/vp12kmgeo12.dat
-m=HIRLAM.12KM.geogrid.18   f=$(OPDATA1)/hirlam12/vp12kmgeo18.dat
+m=HIRLAM.12KM.geogrid.00   f=$(OPDATA2)/hirlam12/vp12kmgeo00.dat
+m=HIRLAM.12KM.geogrid.06   f=$(OPDATA2)/hirlam12/vp12kmgeo06.dat
+m=HIRLAM.12KM.geogrid.12   f=$(OPDATA2)/hirlam12/vp12kmgeo12.dat
+m=HIRLAM.12KM.geogrid.18   f=$(OPDATA2)/hirlam12/vp12kmgeo18.dat
 
-m=HIRLAM.8KM.00   f=$(OPDATA1)/hirlam8/vp8km00.dat
-m=HIRLAM.8KM.06   f=$(OPDATA1)/hirlam8/vp8km06.dat
-m=HIRLAM.8KM.12   f=$(OPDATA1)/hirlam8/vp8km12.dat
-m=HIRLAM.8KM.18   f=$(OPDATA1)/hirlam8/vp8km18.dat
+m=HIRLAM.8KM.00   f=$(OPDATA2)/hirlam8/vp8km00.dat
+m=HIRLAM.8KM.06   f=$(OPDATA2)/hirlam8/vp8km06.dat
+m=HIRLAM.8KM.12   f=$(OPDATA2)/hirlam8/vp8km12.dat
+m=HIRLAM.8KM.18   f=$(OPDATA2)/hirlam8/vp8km18.dat
 
 m=HIRLAM.20KM.00   f=$(OPDATA1)/hirlam20/vp20km00.dat
 m=HIRLAM.20KM.06   f=$(OPDATA1)/hirlam20/vp20km06.dat

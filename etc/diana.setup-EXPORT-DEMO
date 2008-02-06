@@ -1855,7 +1855,7 @@ m=polar_stereo_depth  t=NetCDF f=$(OPDATA)/netcdf/metno_test_polar_stereographic
 ### PROD=obsFormat:obsName
 
 PROD=synop:Synop_BUFR
-bufr=$(OPDATA)/surf[yyyymmddHH]*.rdb
+bufr=$(OPDATA)/bufr/surf[yyyymmddHH]*.rdb
 timerange=-30,30
 
 PROD=synop:Synop

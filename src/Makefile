@@ -20,7 +20,7 @@ diVcrossManager.o diVcrossPlot.o diVcrossOptions.o diVcrossFile.o \
 diSpectrumManager.o diSpectrumPlot.o diSpectrumOptions.o diSpectrumFile.o \
 diShapeObject.o diGridArea.o diGridAreaManager.o diProfetObjectFactory.o
 
-ifdef BUFROBS
+ifndef NOBUFROBS
 CCOBJ += diObsBufr.o 
 endif
 

@@ -54,6 +54,7 @@ file= $(ROOT)/va/TRAJEKTORIER.quick
 file= $(DIANADIR)/etc/Verifikasjon.quick-VA
 file= $(ROOT)/va/VA_morgenbrief.quick
 file= $(ROOT)/va/fly-vær.quick
+file= $(ROOT)/va/etc/Energi.quick
 </QUICKMENUS>
 
 <FIELD_FILES>
