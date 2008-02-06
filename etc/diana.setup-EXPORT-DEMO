@@ -472,6 +472,14 @@ t.2m.season=163,2,1000
 
 </METNOFIELDFILE_PARAMETERS>
 
+<NETCDF_PARAMETERS>
+
+tk2m=Temperature
+mslp_pa=Pressure
+u=x_wind
+v=y_wind
+
+</NETCDF_PARAMETERS>
 
 <FIELD_COMPUTE>
 
@@ -700,6 +708,8 @@ osisaf.ice.concentration.classes=values2classes(osisaf.ice.concentration,0.0,0.1
 
 # Sesong-varsler
 t.2m.season_c=temp_k2c(t.2m.season)
+
+mslp=multiply(mslp_pa,0.01) 
 
 </FIELD_COMPUTE>
 
@@ -1830,6 +1840,13 @@ filegroup=SEA/ECOM3D
 m=ECOM3D.20KM.00    f=$(OPDATA)/sea/f3sea00.dat
 m=ECOM3D.20KM.12    f=$(OPDATA)/sea/f3sea12.dat
 
+
+filegroup=NetCDF
+m=rot_lat_long         t=NetCDF f=$(OPDATA)/netcdf/metno_test_rotated_latitude_longitude.nc
+m=geographic           t=NetCDF f=$(OPDATA)/netcdf/metno_test_geographic.nc
+m=polar_stereo         t=NetCDF f=$(OPDATA)/netcdf/metno_test_polar_stereographic.nc
+m=polar_stereo_depth  t=NetCDF f=$(OPDATA)/netcdf/metno_test_polar_stereographic_depth.nc
+
 </FIELD_FILES>
 
 
@@ -1837,29 +1854,9 @@ m=ECOM3D.20KM.12    f=$(OPDATA)/sea/f3sea12.dat
 
 ### PROD=obsFormat:obsName
 
-PROD=synop:Surs
-bufr=$(OPDATA)/obs_dec/rdb/surs/surs[yyyymmddHH]*.rdb
+PROD=synop:Synop_BUFR
+bufr=$(OPDATA)/surf[yyyymmddHH]*.rdb
 timerange=-30,30
-
-PROD=synop:Surf
-bufr=$(OPDATA)/obs_dec/rdb/syno/surf[yyyymmddHH]*.rdb
-timerange=-30,30
-
-PROD=metar:Metar-bufr
-bufr=$(OPDATA)/obs_dec/rdb/meta/metayyyymmddXX.rdb
-timerange=-15,15
-
-PROD=dribu:Dribu-bufr
-bufr=$(OPDATA)/obs_dec/rdb/drau/drauyyyymmddHH.rdb
-timerange=-90,90
-
-PROD=temp:Temp-bufr
-bufr=$(OPDATA)/obs_dec/rdb/temp/tempyyyymmddHH.rdb
-timerange=-180,180
-
-PROD=temp:Pilot-bufr
-bufr=$(OPDATA)/obs_dec/rdb/pilo/piloyyyymmddHH.rdb
-timerange=-180,180
 
 PROD=synop:Synop
 metnoobs=$(OPDATA)/obs_dec/synoHH.yyyymmdd
@@ -1868,6 +1865,10 @@ timerange=-30,30
 PROD=dribu:Dribu
 metnoobs=$(OPDATA)/obs_dec/drauHH.yyyymmdd
 timerange=-90,90
+
+PROD=metar:Metar
+bufr=$(OPDATA)/obs_dec/metaXX.yyyymmdd
+timerange=-15,15
 
 PROD=temp:Temp
 metnoobs=$(OPDATA)/obs_dec/tempHH.yyyymmdd
