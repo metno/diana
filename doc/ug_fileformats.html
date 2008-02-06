@@ -239,6 +239,9 @@ plotted.
     <h4>Regular grids</h4>
     Diana supports regular grids only
 
+    <h4>Supported parameters</h4>
+    There are no limitations on the parameters you can include in the NetCDF file. Just make sure all the parameters you intend to show in Diana are declared in the <a href=ug_setupfile.html#NETCDF_PARAMETERS>NETCDF_PARAMETERS</a> section in the setupfile. Also, remember to set correct filetype to your NetCDF-files in the <a href=ug_setupfile.html#FIELD_FILES>FIELD_FILES</a> section in the setupfile.
+
     <h4>Supported map projections</h4>
     Diana supports a subset of the map projections specified in the CF metadata standard:
     <ol>
@@ -270,27 +273,19 @@ plotted.
  grid_mapping_name=rotated_latitude_longitude
  grid_north_pole_latitude
  grid_north_pole_longitude
-	</pre>
-
-      </li>
-
-      <li><b>Mercator projection</b><br>
-	The following attributes are supported:
-	<pre>
- grid_mapping_name=mercator
- standard_parallel
- longitude_of_central_meridian
  false_easting
  false_northing
 	</pre>
+
       </li>
+
     </ol>
 
 <h4>IMPORTANT NOTES</h4>
 <p />
 
   <ul>
-    <li>This is the first version of the NetCDF filereading capabillity, and you
+    <li>This is the first version of the NetCDF file reading capability, and you
     may (and probably will) encounter some bugs.</li>
     <li>Please report all bugs on <a
     href="http://diana.bugs.met.no">http://diana.bugs.met.no</a>, or send
