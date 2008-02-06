@@ -80,7 +80,7 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	$(SHAPELIBDIR) -lshp \
 	$(XLIBDIR) -lXext -lXmu -lXt -lX11 \
 	-L$(LOCALDIR)/$(LIBDIR) -lmi \
-	$(EMOSLIBDIR) -lemos \
+	-L$(EMOSLIBDIR) -lemos \
 	$(LOGGLIBS) \
 	$(F2CLIB) -lm \
 	$(UDUNITSLIB) \
