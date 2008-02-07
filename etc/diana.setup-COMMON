@@ -42,7 +42,7 @@ qserver=$(ROOT)/bin/coserver
 imagepath=$(DIANADIR)/images/
 amdarStationList=$(DIANADIR)/etc/amdar.stations
 languagepaths=$(DIANADIR)/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
-setenv=BUFR_TABLES,/usr/local/etc/emos/bufrtables/,1
+#setenv=BUFR_TABLES,/usr/local/etc/emos/bufrtables/,1
 language=no
 </BASIC>
 
