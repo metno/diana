@@ -44,7 +44,7 @@ obsPlotFilePath=$(TOPDIR)/diana/etc
 qserver=$(TOPDIR)/bin/coserver
 imagepath=$(TOPDIR)/diana/images/
 amdarStationList=$(TOPDIR)/diana/etc/amdar.stations
-setenv=BUFR_TABLES,$(TOPDIR)/bufrtables,0
+setenv=BUFR_TABLES,$(TOPDIR)/bufrtables,1
 languagepaths=lang:../lang:$(TOPDIR)/translations:${QTDIR}/translations
 language=en
 </BASIC>

@@ -158,11 +158,11 @@ m=ALT-NORDIC.LEEWAY.4KM.ARKIV f=/opdata_routine/sea/arkNordic4km.dat
 
 # Oildrift
 PROD=ascii:OILDRIFT__siste
-file=/metno/BEREDT/share/simulations/oildrift-1/diana_asc_yyyy-mm-dd.HH:MM:??
+file=/metno/BEREDT/share/simulations/oildrift-1/diana_yyyy-mm-dd.HH:MM:??
 timerange=-30,30
 
 PROD=ascii:OILDRIFT__eget_valg
-file=/metno/BEREDT/share/simulations/oildrift-selected/diana_asc_yyyy-mm-dd.HH:MM:??
+file=/metno/BEREDT/share/simulations/oildrift-selected/diana_yyyy-mm-dd.HH:MM:??
 timerange=-30,30
 
 # Leeway
@@ -176,11 +176,11 @@ timerange=-30,30
 
 # Shipsdrift
 PROD=ascii:SHIPSDRIFT__siste
-file=/metno/BEREDT/share/simulations/shipsdrift-1/diana_asc_yyyy-mm-dd.HH:MM:??
+file=/metno/BEREDT/share/simulations/shipsdrift-1/diana_yyyy-mm-dd.HH:MM:??
 timerange=-30,30
 
 PROD=ascii:SHIPSDRIFT__eget_valg
-file=/metno/BEREDT/share/simulations/shipsdrift-selected/diana_asc_yyyy-mm-dd.HH:MM:??
+file=/metno/BEREDT/share/simulations/shipsdrift-selected/diana_yyyy-mm-dd.HH:MM:??
 timerange=-30,30
 
 # Include all simulations. This file is dynamically recreated after each simulation

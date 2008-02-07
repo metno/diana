@@ -40,6 +40,7 @@ OPDATA1         = /opdata
 OPDATA2         = /opdata
 OPDATA3         = /opdata
 STARC           = /starc   
+NETCDFDIR       =/fou/pu/data 
 DATABASE_IDENTS = VA,VV,VNN, DNMI
 DATABASE        = "tempo.oslo.dnmi.no diana 19100"  # host base port
 
@@ -48,6 +49,22 @@ DATABASE        = "tempo.oslo.dnmi.no diana 19100"  # host base port
 %include $(DIANADIR)/etc/diana.setup-COMMON
 
 # =============================================
+
+<NETCDF_PARAMETERS>
+
+tk2m=Temperature
+mslp_pa=Pressure
+u=x_wind
+v=y_wind
+
+</NETCDF_PARAMETERS>
+
+<FIELD_COMPUTE>
+
+mslp=multiply(mslp_pa,0.01) 
+
+</FIELD_COMPUTE>
+
 
 <FIELD_PLOT>
 
@@ -112,22 +129,11 @@ end.field
 
 <FIELD_FILES>
 
-
-#filegroup=Bakkeanalyser
-#m=VA.ANA      f=$(OPDATA1)/diana/Bakkeanalyse/VA-arkfelt.dat
-
-#filegroup=OBS.FIELDS
-#m=OBSFIELD.00    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs00.dat
-#m=OBSFIELD.06    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs06.dat
-#m=OBSFIELD.12    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs12.dat
-#m=OBSFIELD.18    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs18.dat
-#m=OBSFIELD.00-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs00.dat-1
-##m=OBSFIELD.12-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs12.dat-1
-#m=OBSFIELD.18-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs18.dat-1
-#m=OBSFIELD.00-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs00.dat-2
-#=OBSFIELD.06-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs06.dat-2
-#m=OBSFIELD.12-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs12.dat-2
-#m=OBSFIELD.18-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs18.dat-2
+filegroup=NetCDF
+m=rot_lat_long         t=NetCDF f=$(NETCDFDIR)/metno_test_rotated_latitude_longitude.nc
+m=geographic           t=NetCDF f=$(NETCDFDIR)/metno_test_geographic.nc
+m=polar_stereo         t=NetCDF f=$(NETCDFDIR)/metno_test_polar_stereographic.nc
+m=polar_stereo_depth  t=NetCDF f=$(NETCDFDIR)/metno_test_polar_stereographic_depth.nc
 
 </FIELD_FILES>
 
