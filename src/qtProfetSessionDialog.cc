@@ -205,7 +205,7 @@ void ProfetSessionDialog::setObjectList(const vector<fetObject> & obj){
   objectList->clear();
   noObjectSelected();
   for(int i=0;i<obj.size();i++){
-    objectList->insertItem(obj[i].id());
+    objectList->insertItem(obj[i].id().cStr());
   }
   if(obj.size()){
     emit objectSelected(currentObject);
@@ -229,8 +229,8 @@ void ProfetSessionDialog::initializeTable(  const vector<fetParameter> & p,
 bool ProfetSessionDialog::setCurrentObject(const fetObject & current){
   if(setSelectedObject(current.id())){
     objectAlgLabel->setText(current.name().cStr());
-    objectOwnerLabel->setText(current.user());
-    objectStatusLabel->setText(current.lock());
+    objectOwnerLabel->setText(current.user().cStr());
+    objectStatusLabel->setText(current.lock().cStr());
     lockedObjectSelected(current.is_locked());
   }
   else{

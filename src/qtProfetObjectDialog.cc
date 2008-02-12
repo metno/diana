@@ -136,7 +136,7 @@ void ProfetObjectDialog::editObjectMode(const fetObject & obj,
     vector<fetDynamicGui::GuiComponent> components){
   vector<fetBaseObject> fbo;
   setBaseObjects(fbo);//remove base objects/gui
-  baseComboBox->insertItem(obj.name(),0);
+  baseComboBox->insertItem(obj.name().cStr(),0);
   baseComboBox->setEnabled(false);
   addDymanicGui(components);
   reasonText->setText(obj.reason().cStr());
@@ -167,7 +167,8 @@ vector<fetDynamicGui::GuiComponent> ProfetObjectDialog::getCurrentGuiComponents(
 void ProfetObjectDialog::setSession(const miTime & time){
   ostringstream ost;
   ost << time.hour() << ":00 " << miString(time.date().format("%a %e.%b"));
-  sessionLabel->setText(ost.str());
+ // qt4 fix: setText takes QString as argument
+  sessionLabel->setText(QString(ost.str().c_str()));
 }
 
 void ProfetObjectDialog::setParameter(const miString & p){
@@ -183,8 +184,8 @@ void ProfetObjectDialog::setBaseObjects(const vector<fetBaseObject> & o){
   baseComboBox->clear();
   descriptionMap.clear();
   for(int i=0;i<o.size();i++){
-    baseComboBox->insertItem(o[i].name(),i);
-    descriptionMap[QString(o[i].name())] = QString(o[i].description());
+    baseComboBox->insertItem(o[i].name().cStr(),i);
+    descriptionMap[QString(o[i].name().cStr())] = QString(o[i].description().cStr());
   }
 }
 
@@ -254,6 +255,7 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
   }
   ost << "</table>";
     
-  statisticLabel->setText(ost.str());
+ // qt4 fix: setText takes QString as argument
+  statisticLabel->setText(QString(ost.str().c_str()));
   
 }

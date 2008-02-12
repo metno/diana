@@ -57,17 +57,17 @@ class ProfetSessionDialog: public QDialog{
 private:
   QLabel  * sessionLabel;
   QLabel  * modelLabel;
-  QButton * updateButton;
-  QButton * closeButton;
+  QPushButton * updateButton;
+  QPushButton * closeButton;
   Q3HBox   * objectBox;
   Q3ListBox * userList;
   Q3ListBox * objectList;
   QLabel  * objectAlgLabel;
   QLabel  * objectOwnerLabel;
   QLabel  * objectStatusLabel;
-  QButton * newObjectButton;
-  QButton * editObjectButton;
-  QButton * deleteObjectButton;
+  QPushButton * newObjectButton;
+  QPushButton * editObjectButton;
+  QPushButton * deleteObjectButton;
   QTabWidget * tabWidget;
   Q3TextEdit * chatOutput;
   QLineEdit * chatInput;

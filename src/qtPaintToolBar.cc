@@ -16,23 +16,23 @@
 PaintToolBar::PaintToolBar(Q3MainWindow *parent) 
 			: Q3ToolBar(tr("Paint Operations"), parent,Qt::DockBottom, FALSE,"painttoolbar") {
 	
-  selectAction = new QAction( QPixmap(paint_select_xpm),tr("&Select"),QKeySequence(), this );
+  selectAction = new Q3Action( QPixmap(paint_select_xpm),tr("&Select"),QKeySequence(), this );
 	selectAction->setToggleAction(true);
 	connect( selectAction, SIGNAL( activated() ) , 
 	    this, SLOT( sendPaintModeChanged() ) );
-	drawAction = new QAction( QPixmap(paint_draw_xpm),tr("&Draw"),QKeySequence(), this );
+	drawAction = new Q3Action( QPixmap(paint_draw_xpm),tr("&Draw"),QKeySequence(), this );
 	drawAction->setToggleAction(true);
 	connect( drawAction, SIGNAL( activated() ) , 
       this, SLOT( sendPaintModeChanged() ) );
-	includeAction = new QAction( QPixmap(paint_include_xpm),tr("&Include"),QKeySequence(), this );
+	includeAction = new Q3Action( QPixmap(paint_include_xpm),tr("&Include"),QKeySequence(), this );
 	includeAction->setToggleAction(true);
 	connect( includeAction, SIGNAL( activated() ) ,
       this, SLOT( sendPaintModeChanged() ) );
-	cutAction = new QAction( QPixmap(paint_cut_xpm),tr("&Cut"),QKeySequence(), this );
+	cutAction = new Q3Action( QPixmap(paint_cut_xpm),tr("&Cut"),QKeySequence(), this );
 	cutAction->setToggleAction(true);
 	connect( cutAction, SIGNAL( activated() ) , 
       this, SLOT( sendPaintModeChanged() ) );
-	moveAction = new QAction( QPixmap(paint_move_xpm),tr("&Move"),QKeySequence(), this );
+	moveAction = new Q3Action( QPixmap(paint_move_xpm),tr("&Move"),QKeySequence(), this );
 	moveAction->setToggleAction(true);
 	connect( moveAction, SIGNAL( activated() ) , 
       this, SLOT( sendPaintModeChanged() ) );

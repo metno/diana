@@ -347,7 +347,7 @@ int SpectrumSetup::getMaxValue(){
 
 void SpectrumSetup::forceMaxValue(int minvalue){
   if (maxvaluespinbox) {
-    int step=  maxvaluespinbox->lineStep();
+    int step=  maxvaluespinbox->singleStep();
     int value= maxvaluespinbox->value();
     if (minvalue > value - step)
       maxvaluespinbox->setValue(value+step);
@@ -357,7 +357,7 @@ void SpectrumSetup::forceMaxValue(int minvalue){
 
 void SpectrumSetup::forceMinValue(int maxvalue){
   if (minvaluespinbox) {
-    int step=  minvaluespinbox->lineStep();
+    int step=  minvaluespinbox->singleStep();
     int value= minvaluespinbox->value();
     if (maxvalue < value + step)
       minvaluespinbox->setValue(value-step);
@@ -377,7 +377,9 @@ void SpectrumSetup::defineText(const vector<miString>& texts,
     const char** cvstr= new const char*[n];
     for (int i=0; i<n; i++)
       cvstr[i]=  texts[i].cStr();
-    textbox->insertStrList( cvstr, n );
+    // qt4 fix: insertStrList() -> insertStringList()
+    // (uneffective, have to make QStringList and QString!)
+    textbox->insertStringList( QStringList(QString(cvstr[0])), n );
     textbox->setCurrentItem(defaultTextItem);
     delete[] cvstr;
     textbox->setEnabled(true);

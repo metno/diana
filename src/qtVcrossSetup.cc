@@ -361,7 +361,7 @@ int VcrossSetup::getMaxValue()
 void VcrossSetup::forceMaxValue(int minvalue)
 {
   if (maxvaluespinbox) {
-    int step=  maxvaluespinbox->lineStep();
+    int step=  maxvaluespinbox->singleStep();
     int value= maxvaluespinbox->value();
     if (minvalue > value - step)
       maxvaluespinbox->setValue(value+step);
@@ -372,7 +372,7 @@ void VcrossSetup::forceMaxValue(int minvalue)
 void VcrossSetup::forceMinValue(int maxvalue)
 {
   if (minvaluespinbox) {
-    int step=  minvaluespinbox->lineStep();
+    int step=  minvaluespinbox->singleStep();
     int value= minvaluespinbox->value();
     if (maxvalue < value + step)
       minvaluespinbox->setValue(value-step);
@@ -410,7 +410,9 @@ void VcrossSetup::defineTextChoice2(const vector<miString>& vchoice, int ndefaul
     const char** cvstr= new const char*[m];
     for (int i=0; i<m; i++)
       cvstr[i]= vTextChoice2[i].cStr();		
-    textchoicebox2->insertStrList( cvstr, m );
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+    textchoicebox2->insertStringList(QStringList(QString(cvstr[0])), m);
     textchoicebox2->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
       textchoicebox2->setCurrentItem(ndefault);

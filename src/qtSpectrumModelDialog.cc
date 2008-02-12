@@ -34,7 +34,8 @@
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include <qbuttongroup.h>
+// qt4 fix
+//#include <qvbuttongroup.h>
 #include <q3listbox.h>
 #include <qtToggleButton.h>
 #include <qtUtility.h>
@@ -43,6 +44,10 @@
 #include <Q3VBoxLayout>
 #include <diSpectrumManager.h>
 #include <qtSpectrumModelDialog.h>
+
+// qt4 fix
+#include <Q3VButtonGroup>
+#include <Q3HButtonGroup>
 
 #define HEIGHTLISTBOX 100
 
@@ -303,7 +308,8 @@ void SpectrumModelDialog::updateModelfileList(){
     vector <miString> modelnames =spectrumm->getModelNames();
     int nr_models = modelnames.size();
   //modelfileList->insertItem(OBS);
-    modelfileList->insertItem(ASFIELD);
+    // qt4 fix: Made QString of ASFIELD
+    modelfileList->insertItem(QString(ASFIELD.c_str()));
     for (int i=0; i<nr_models; i++)
       modelfileList->insertItem(modelnames[i].c_str());
 

@@ -48,7 +48,8 @@ SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
 {
 
   if ( !isValid() ) {
-    fatal("Failed to create OpenGL rendering context on this display");
+    // qt4 fix: fatal() -> qFatal
+    qFatal("Failed to create OpenGL rendering context on this display");
   }
 
   setFocusPolicy(Qt::StrongFocus);

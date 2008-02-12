@@ -72,8 +72,8 @@ private:
   QLineEdit     *fileTextEdit;
   QLabel        *areaInfoLabel;
   Q3TextEdit     *reasonText;
-  QButton       *saveObjectButton;
-  QButton       *cancelObjectButton;
+  QPushButton       *saveObjectButton;
+  QPushButton       *cancelObjectButton;
   Q3WidgetStack  *widgetStack;
   Q3GroupBox     *algGroupBox;
   Q3GroupBox     *areaGroupBox;

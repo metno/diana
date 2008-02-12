@@ -267,7 +267,8 @@ void ProfetTableCell::setCounter()
 {
   ostringstream ost;
   ost << "<b>" << objects.size() << "</b>";
-  setText(ost.str());
+ // qt4 fix: setText takes QString as argument
+   setText(QString(ost.str().c_str()));
   setStatus();
 }
 
@@ -288,6 +289,7 @@ void ProfetTableCell::setTooltip()
 	}
     
     
-    QToolTip::add(this,ost.str() ); 
+ // qt4 fix: QToolTip::add takes QString as argument
+    QToolTip::add(this, QString(ost.str().c_str())); 
   }
 }

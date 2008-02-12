@@ -644,7 +644,9 @@ void SpectrumWindow::updateStationBox()
   const char** cvstr= new const char*[n];
   for (int i=0; i<n; i++)
     cvstr[i]=  stations[i].c_str();		
-  stationBox->insertStrList(cvstr, n);
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  stationBox->insertStringList(QStringList(QString(cvstr[0])), n);
   delete[] cvstr;
 }
 
@@ -666,7 +668,9 @@ void SpectrumWindow::updateTimeBox()
   const char** cvstr= new const char*[n];
   for (int i=0; i<n; i++)
     cvstr[i]=  vt[i].c_str();		
-  timeBox->insertStrList(cvstr, n);
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  timeBox->insertStringList(QStringList(QString(cvstr[0])), n);
   delete[] cvstr;
 
   emit emitTimes("spectrum",times);

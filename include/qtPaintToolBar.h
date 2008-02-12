@@ -3,7 +3,7 @@
 
 #include <q3toolbar.h>
 #include <q3mainwindow.h>
-#include <qaction.h>
+#include <q3action.h>
 //Added by qt3to4:
 #include <Q3ActionGroup>
 #include <diGridAreaManager.h>
@@ -23,11 +23,11 @@ public:
 	
 private:
   Q3ActionGroup *modeActions;
-  QAction *selectAction;
-  QAction *drawAction;
-	QAction *includeAction;
-	QAction *cutAction;
-	QAction *moveAction;
+  Q3Action *selectAction;
+  Q3Action *drawAction;
+  Q3Action *includeAction;
+  Q3Action *cutAction;
+  Q3Action *moveAction;
   	
 private slots:
   void sendPaintModeChanged();
