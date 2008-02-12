@@ -34,6 +34,11 @@
 
 #include <qcolor.h>
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <QLabel>
+#include <Q3VBoxLayout>
 #include <diCommonTypes.h>
 #include <diController.h>
 #include <qtToggleButton.h>
@@ -45,13 +50,13 @@ class QSlider;
 class QLabel;
 class QComboBox;
 class QPushButton;
-class QVBoxLayout;
-class QHBoxLayout;
-class QGridLayout;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
+class Q3GridLayout;
 class QCheckBox;
 class QLCDNumber;
 class QCHeckBox;
-class QScrollView;
+class Q3ScrollView;
 
 class ButtonLayout;
 
@@ -132,7 +137,7 @@ private:
 
   ButtonLayout* datatypeButtons;
   ButtonLayout* parameterButtons;
-  QScrollView* sv;
+  Q3ScrollView* sv;
 
   QPushButton* allButton;
   QPushButton* noneButton;
@@ -211,10 +216,10 @@ private:
   miString shortname;
   bool nobutton;
 
-  QVBoxLayout *vlayout;
-  QVBoxLayout *vcommonlayout;
-  QHBoxLayout *parameterlayout;
-  QHBoxLayout *datatypelayout;
+  Q3VBoxLayout *vlayout;
+  Q3VBoxLayout *vcommonlayout;
+  Q3HBoxLayout *parameterlayout;
+  Q3HBoxLayout *datatypelayout;
 
   
 };

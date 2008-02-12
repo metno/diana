@@ -32,6 +32,9 @@
 #define VCROSSSETUPDIALOG_H
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 #include <diCommonTypes.h>
 #include <miString.h>
 #include <vector>
@@ -39,8 +42,8 @@
 using namespace std;
 
 class QFont;
-class QGridLayout;
-class QVBoxLayout;
+class Q3GridLayout;
+class Q3VBoxLayout;
 class VcrossManager;
 class VcrossOptions;
 class VcrossSetup;
@@ -69,8 +72,8 @@ private:
   void printSetup();
   void applySetup();
 
-  QGridLayout* glayout;
-  QVBoxLayout* vlayout;
+  Q3GridLayout* glayout;
+  Q3VBoxLayout* vlayout;
 
   vector<VcrossSetup*> vcSetups;
 

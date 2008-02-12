@@ -31,8 +31,8 @@
 #ifndef _ListBoxRichtextItem_h
 #define _ListBoxRichtextItem_h
 
-#include <qlistbox.h>
-#include <qsimplerichtext.h>
+#include <q3listbox.h>
+#include <q3simplerichtext.h>
 
 /**
    \brief Qt listbox richtext item
@@ -41,26 +41,26 @@
 
 */
 
-class ListBoxRichtextItem : public QListBoxItem {
+class ListBoxRichtextItem : public Q3ListBoxItem {
 public:
-  ListBoxRichtextItem(QSimpleRichText* t, QBrush* b, QString st,
-		      QListBox * listbox = 0 )
-    : QListBoxItem(listbox), srt(t), selectb(b)
+  ListBoxRichtextItem(Q3SimpleRichText* t, QBrush* b, QString st,
+		      Q3ListBox * listbox = 0 )
+    : Q3ListBoxItem(listbox), srt(t), selectb(b)
   {init(st);}
-  ListBoxRichtextItem(QSimpleRichText* t, QBrush* b, QString st,
-		      QListBox * listbox, QListBoxItem * after)
-    : QListBoxItem (listbox,after), srt(t), selectb(b)
+  ListBoxRichtextItem(Q3SimpleRichText* t, QBrush* b, QString st,
+		      Q3ListBox * listbox, Q3ListBoxItem * after)
+    : Q3ListBoxItem (listbox,after), srt(t), selectb(b)
   {init(st);}
   ~ListBoxRichtextItem()
   {delete srt; delete selectb;}
   
-  virtual int height ( const QListBox * ) const
+  virtual int height ( const Q3ListBox * ) const
   {return srt->height();}
-  virtual int width ( const QListBox * ) const
+  virtual int width ( const Q3ListBox * ) const
   {return srt->width();}
 
 protected:
-  QSimpleRichText* srt;
+  Q3SimpleRichText* srt;
   QBrush* selectb;
 
   void init(QString& sortt)

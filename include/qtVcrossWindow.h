@@ -31,7 +31,7 @@
 #ifndef _qt_vcrossmainwindow_
 #define _qt_vcrossmainwindow_
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qprinter.h>
 #include <qstring.h>
 #include <diCommonTypes.h>
@@ -43,7 +43,7 @@
 using namespace std;
 
 class QComboBox;
-class QToolBar;
+class Q3ToolBar;
 class ToggleButton;
 class VcrossWidget;
 class VcrossManager;
@@ -59,7 +59,7 @@ class QPrinter;
   Contains a crossection window, toolbars and menues.
   Receives and sends "events" from/to DianaMainWindow.
 */
-class VcrossWindow: public QMainWindow
+class VcrossWindow: public Q3MainWindow
 {
   Q_OBJECT
 
@@ -89,8 +89,8 @@ private:
   VcrossSetupDialog * vcSetupDialog;
 
   //qt widgets
-  QToolBar *vcToolbar;
-  QToolBar *tsToolbar;
+  Q3ToolBar *vcToolbar;
+  Q3ToolBar *tsToolbar;
   ToggleButton * dataButton;
   ToggleButton * setupButton;
   ToggleButton * timeGraphButton;

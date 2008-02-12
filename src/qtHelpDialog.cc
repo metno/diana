@@ -31,20 +31,24 @@
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
-#include <qtextbrowser.h>
+#include <q3textbrowser.h>
 #include <qmime.h> 
 #include <qapplication.h> 
 #include <qtooltip.h>
 
 #include <qtHelpDialog.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QPixmap>
+#include <Q3VBoxLayout>
 #include <miString.h>
 #include <iostream>
 
 #include <qpainter.h>
 #include <qprinter.h>
-#include <qsimplerichtext.h>
-#include <qpaintdevicemetrics.h>
-#include <qprogressdialog.h>
+#include <q3simplerichtext.h>
+#include <q3paintdevicemetrics.h>
+#include <q3progressdialog.h>
 
 #include <back.xpm>
 #include <forward.xpm>
@@ -67,9 +71,9 @@ void HelpDialog::ConstructorCernel( const miString& filepath,
 
   backwardbutton=forwardbutton=0;
 
-  tb = new QTextBrowser( this ); 
+  tb = new Q3TextBrowser( this ); 
   
-  QMimeSourceFactory::defaultFactory()->addFilePath(QString(filepath.c_str()) );
+  Q3MimeSourceFactory::defaultFactory()->addFilePath(QString(filepath.c_str()) );
  
   if ( source.exists() ) tb->setSource( QString(source.c_str()) );  
 
@@ -96,14 +100,14 @@ void HelpDialog::ConstructorCernel( const miString& filepath,
   QToolTip::add(printbutton,tr("Print current document"));
   connect( printbutton, SIGNAL( clicked()), this, SLOT( printHelp()) );
 
-  hlayout = new QHBoxLayout( 5 );    
+  hlayout = new Q3HBoxLayout( 5 );    
   hlayout->addWidget( backwardbutton );
   hlayout->addWidget( forwardbutton );
   hlayout->addWidget( closebutton );
   hlayout->addWidget( printbutton );
   hlayout->addStretch();
   
-  vlayout = new QVBoxLayout( this, 5, 5 );
+  vlayout = new Q3VBoxLayout( this, 5, 5 );
   vlayout->addLayout( hlayout );
   vlayout->addWidget( tb );
   
@@ -156,7 +160,7 @@ void HelpDialog::printHelp()
 
   if ( printer.setup( this ) ) {
     QPainter p( &printer );
-    QPaintDeviceMetrics metrics(p.device());
+    Q3PaintDeviceMetrics metrics(p.device());
     int dpix = metrics.logicalDpiX();
     int dpiy = metrics.logicalDpiY();
     const int margin = 40; // pt
@@ -170,11 +174,11 @@ void HelpDialog::printHelp()
     bool firstpage= true;
     int page = (usepagebreak ? 0 : 1);
 
-    QProgressDialog* progress = 0;
+    Q3ProgressDialog* progress = 0;
 
     if (usepagebreak && vs.size() > 1){
       // make a progress-dialog if more than one pages
-      progress= new QProgressDialog( tr("Printing document..."),
+      progress= new Q3ProgressDialog( tr("Printing document..."),
 				     tr("Cancel printing "), topage - frompage + 1,
 				     this, "printing", TRUE );
     }
@@ -211,7 +215,7 @@ void HelpDialog::printHelp()
 	  htmltext += QString("</body></html>");
       }
 
-      QSimpleRichText richText( htmltext, font,
+      Q3SimpleRichText richText( htmltext, font,
 				tb->context(), tb->styleSheet(),
 				tb->mimeSourceFactory(), body.height() );
       richText.setWidth( &p, body.width() );
@@ -239,7 +243,7 @@ void HelpDialog::printHelp()
 
 void HelpDialog::addFilePath( const miString& filepath )
 {
-  QMimeSourceFactory::defaultFactory()->addFilePath( QString(filepath.c_str()) );
+  Q3MimeSourceFactory::defaultFactory()->addFilePath( QString(filepath.c_str()) );
   return;
 }
 

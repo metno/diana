@@ -32,6 +32,10 @@
 #define _editnewdialog_h
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <QLabel>
+#include <Q3Frame>
 
 #include <vector>
 #include <diCommonTypes.h>
@@ -39,14 +43,14 @@
 
 using namespace std;
 
-class QVBoxLayout;
+class Q3VBoxLayout;
 class QLabel;
-class QListBox;
+class Q3ListBox;
 class QPushButton;
 class QRadioButton;
 class QComboBox;
 class QTabWidget;
-class QFrame;
+class Q3Frame;
 
 class TimeSpinbox;
 
@@ -128,11 +132,11 @@ private:
   QLabel* loginlabel;
   QLabel* availlabel;
   QTabWidget* twd;
-  QFrame* normaltab;
-  QFrame* combinetab;
+  Q3Frame* normaltab;
+  Q3Frame* combinetab;
   QLabel* normallabel;
   QLabel* combinelabel;
-  QListBox *cBox; // list of combine times
+  Q3ListBox *cBox; // list of combine times
   QPushButton *ok;
   QPushButton *help;
 

@@ -29,6 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "qtAdvancedButton.h"
+//Added by qt3to4:
+#include <QMouseEvent>
 #include <stdio.h>
 #include <iostream>
 
@@ -47,12 +49,12 @@ AdvancedButton::AdvancedButton(  QWidget* parent,
 
 void AdvancedButton::mouseReleaseEvent( QMouseEvent *e )
 {
-  if ( e->button() == QMouseEvent::RightButton ){
+  if ( e->button() == Qt::RightButton ){
     //    emit rightClicked(this);
     emit rightButtonClicked(this);
   }
 
-  QButton::mouseReleaseEvent(e);
+  QPushButton::mouseReleaseEvent(e);
 }
 
 

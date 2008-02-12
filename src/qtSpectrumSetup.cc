@@ -36,6 +36,8 @@
 #include <qlayout.h>
 #include <qpixmap.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
 #include <diCommonTypes.h>
 #include <diLinetype.h>
 #include <diSpectrumManager.h>
@@ -52,7 +54,7 @@ vector<miString>   SpectrumSetup::linetypes;
 
 
 SpectrumSetup::SpectrumSetup( QWidget* parent,SpectrumManager *vm, miString text,
-			QGridLayout * glayout, int row, int options, bool check)
+			Q3GridLayout * glayout, int row, int options, bool check)
   : QObject(parent),spectrumm(vm),name(text)
 {
   //a Qobject with a checkbox,and up to three comboboxes
@@ -99,7 +101,7 @@ SpectrumSetup::SpectrumSetup( QWidget* parent,SpectrumManager *vm, miString text
   } else{
     checkbox= 0;
     label = new QLabel(text.c_str(),parent);
-    glayout->addWidget(label,row,ncol,AlignLeft);
+    glayout->addWidget(label,row,ncol,Qt::AlignLeft);
     ncol++;
   }
 

@@ -32,6 +32,9 @@
 #define _qtGLwidget_h
 
 #include <qgl.h>
+//Added by qt3to4:
+#include <QMouseEvent>
+#include <QKeyEvent>
 #include <vector>
 #include <miString.h>
 #include <map>

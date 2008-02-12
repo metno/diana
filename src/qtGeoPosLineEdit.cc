@@ -45,13 +45,13 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
   // mixes of those above
 
   // zero length strings are ok
-  if (!input.length()) return QValidator::Valid;
+  if (!input.length()) return QValidator::Intermediate;
 
   // entered char
   QChar a= input[pos-1];
 
   // Hmmm..
-  if (pos > input.length()) return QValidator::Valid;
+  if (pos > input.length()) return QValidator::Intermediate;
   
   // check for illegal characters
   if (!a.isDigit() && a!='-' && a!='+' &&

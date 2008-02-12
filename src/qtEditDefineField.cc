@@ -29,13 +29,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qcombobox.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
-#include <qvbuttongroup.h>
+// qt4 fix
+//#include <qvbuttongroup.h>
 #include <qcheckbox.h>
 #include <qstring.h>
 
@@ -44,8 +45,15 @@
 #include <qtListBoxRichtextItem.h>
 #include <qtUtility.h>
 #include <qtEditDefineField.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 #include <diController.h>
 #include <diEditManager.h>
+
+// qt4 fix
+#include <Q3VButtonGroup>
+#include <Q3HButtonGroup>
 
 #include <iostream>
 
@@ -79,7 +87,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 	   SLOT( prodnameActivated(int) )  );
 
 
-  fBox= new QListBox(this,"fieldlist");
+  fBox= new Q3ListBox(this,"fieldlist");
   fBox->setMinimumWidth(250);
   fBox->setMinimumHeight(200);
 
@@ -91,7 +99,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
     tr("Locally stored") + "</i></font>";
   QLabel* xplabel= new QLabel(xps, this);
 
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5 );
+  Q3VBoxLayout* vlayout = new Q3VBoxLayout( this, 5, 5 );
 
   vlayout->addWidget( mainlabel );
   vlayout->addWidget( prodnamebox );
@@ -103,10 +111,10 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   vlayout->addWidget( xplabel );
   vlayout->addSpacing(10);
 
-  QFrame *line;
+  Q3Frame *line;
   // Create a horizontal frame line
-  line = new QFrame( this );
-  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  line = new Q3Frame( this );
+  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
   vlayout->addWidget( line );
 
 
@@ -115,7 +123,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
       filesLabel = TitleLabel(tr("Selected objects"), this);
   else
     filesLabel = TitleLabel(tr("Selected fields"), this);
-  filenames = new QListBox( this );
+  filenames = new Q3ListBox( this );
   filenames->setMinimumHeight(80);
   connect(filenames, SIGNAL(selectionChanged()), SLOT(filenameSlot()));
 
@@ -126,7 +134,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   if (num==-1){
     //*****  Checkboxes for selecting fronts/symbols/areas  **********
 
-    bgroupobjects= new QVButtonGroup(this);
+    bgroupobjects= new Q3VButtonGroup(this);
     
     cbs0= new QCheckBox(tr("Fronts"), bgroupobjects);
     cbs1= new QCheckBox(tr("Symbols"),bgroupobjects);
@@ -152,11 +160,11 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() )); 
 
   //place  "delete" and "refresh" buttons in hor.layout
-  QHBoxLayout* h0layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h0layout = new Q3HBoxLayout( 5 );
   h0layout->addWidget( Delete );
   h0layout->addWidget( refresh );
 
-  QHBoxLayout* hlayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout = new Q3HBoxLayout( 5 );
 
   ok= NormalPushButton( tr("OK"), this);
   //HK ?? help button not too useful here, modal dialog
@@ -267,8 +275,8 @@ void EditDefineFieldDialog::fillList()
       miString defcol= miString("<font color=\"") + col + miString("\"> ");
       miString txt= defcol + fields[i] + miString(" </font> ");
       
-      QSimpleRichText *rt = new
-	QSimpleRichText(txt.c_str(),
+      Q3SimpleRichText *rt = new
+	Q3SimpleRichText(txt.c_str(),
 			QFont("Helvetica", 10, QFont::Normal,italic));
       rt->setWidth(300);
       QColor b(150,150,150);
@@ -282,8 +290,8 @@ void EditDefineFieldDialog::fillList()
 	splist[i].ptime.isoTime() + miString(" </font> ");
       bool italic= (splist[i].source==data_local);
       
-      QSimpleRichText *rt = new
-	QSimpleRichText(txt.c_str(),
+      Q3SimpleRichText *rt = new
+	Q3SimpleRichText(txt.c_str(),
 			QFont("Helvetica", 10, QFont::Normal, italic));
       rt->setWidth(300);
       QColor b(150,150,150);

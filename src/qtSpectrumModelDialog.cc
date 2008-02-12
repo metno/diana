@@ -34,10 +34,13 @@
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include <qvbuttongroup.h>
-#include <qlistbox.h>
+#include <qbuttongroup.h>
+#include <q3listbox.h>
 #include <qtToggleButton.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 #include <diSpectrumManager.h>
 #include <qtSpectrumModelDialog.h>
 
@@ -76,16 +79,16 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 
   //********** the list of files/models to choose from **************
 
-  modelfileList = new QListBox( this);
+  modelfileList = new Q3ListBox( this);
   modelfileList->setMinimumHeight(HEIGHTLISTBOX);
-  modelfileList->setSelectionMode( QListBox::Multi );
+  modelfileList->setSelectionMode( Q3ListBox::Multi );
   modelfileList->setEnabled(true);  
   updateModelfileList();
 
-  modelfileBut = new QButtonGroup( this );
+  modelfileBut = new Q3ButtonGroup( this );
   modelButton = new ToggleButton(modelfileBut, tr("Model").latin1());
   fileButton = new ToggleButton(modelfileBut, tr("File").latin1());
-  QHBoxLayout* modelfileLayout = new QHBoxLayout(modelfileBut);
+  Q3HBoxLayout* modelfileLayout = new Q3HBoxLayout(modelfileBut);
   modelfileLayout->addWidget(modelButton);
   modelfileLayout->addWidget(fileButton);
   modelfileBut->setExclusive( true );
@@ -121,20 +124,20 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   // ************ place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
   hlayout1->addWidget( modelhelp );
   hlayout1->addWidget( deleteAll );
   hlayout1->addWidget( refresh );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
   hlayout2->addWidget( modelhide );
   hlayout2->addWidget( modelapplyhide );
   hlayout2->addWidget( modelapply );
 
 
   //create a vertical layout to put all widgets and layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 5, 5 );                     
+  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 5, 5 );                     
   vlayout->addWidget( modelfileBut );
   vlayout->addWidget( modelfileList );
   vlayout->addLayout( hlayout1 );

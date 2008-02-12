@@ -33,6 +33,10 @@
 
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QLabel>
+#include <Q3VBoxLayout>
 #include <diController.h>
 #include <vector>
 #include <miString.h>
@@ -40,10 +44,10 @@
 using namespace std;
 
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QLabel;
-class QVBoxLayout;
-class QHBoxLayout;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
 class ToggleButton;
 class QCheckBox;
 
@@ -142,7 +146,7 @@ private:
 
   // areas
   QLabel* arealabel;
-  QListBox* areabox;
+  Q3ListBox* areabox;
 
   // latlon options
   QLabel* ll_label;
@@ -187,9 +191,9 @@ private:
 
   // maps and selected maps
   QLabel* maplabel;
-  QListBox* mapbox;
+  Q3ListBox* mapbox;
   QLabel* selectedMaplabel;
-  QListBox* selectedMapbox;
+  Q3ListBox* selectedMapbox;
   QPushButton* mapdelete;
   QPushButton* mapalldelete;
 
@@ -222,7 +226,7 @@ private:
   QPushButton* maphelp;
 
   //toplayout
-  QVBoxLayout* vlayout;
+  Q3VBoxLayout* vlayout;
 
   QColor* pixcolor;
 

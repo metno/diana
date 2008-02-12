@@ -29,6 +29,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtToggleButton.h>
+//Added by qt3to4:
+#include <QMouseEvent>
+#include <QPixmap>
 #include <iostream>
 
 
@@ -128,9 +131,9 @@ void ToggleButton::Toggled( bool on )
 void ToggleButton::mouseReleaseEvent( QMouseEvent *e )
 {
 
-  if ( e->button() == QMouseEvent::RightButton ){
+  if ( e->button() == Qt::RightButton ){
     emit rightButtonClicked(this);
   }
 
-  QButton::mouseReleaseEvent(e);
+  QPushButton::mouseReleaseEvent(e);
 }

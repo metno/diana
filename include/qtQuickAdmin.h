@@ -32,17 +32,19 @@
 #define _qtQuickAdmin_h
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <QLabel>
 #include <vector>
 #include <diCommonTypes.h>
 #include <diQuickMenues.h>
 
 using namespace std; 
 
-class QListView;
-class QListViewItem;
+class Q3ListView;
+class Q3ListViewItem;
 class QLabel;
 class QPushButton;
-class QTextEdit;
+class Q3TextEdit;
 
 
 /**
@@ -68,8 +70,8 @@ private:
   QPushButton* copyButton;
   QPushButton* pasteButton;
   QPushButton* optionButton;
-  QListView* menulist;               // list of menues
-  QTextEdit* comedit;                // editor for command-text
+  Q3ListView* menulist;               // list of menues
+  Q3TextEdit* comedit;                // editor for command-text
   bool autochange;
 
   int activeMenu;
@@ -98,7 +100,7 @@ public:
   void help(const char* );  ///< activate help
 
 private slots:
-  void selectionChanged(QListViewItem *); // new selection in menulist
+  void selectionChanged(Q3ListViewItem *); // new selection in menulist
   void comChanged();   // command-text changed callback
   void helpClicked();  // help-button callback
   void upClicked();    // move item up

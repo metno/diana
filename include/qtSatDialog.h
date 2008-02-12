@@ -44,9 +44,9 @@ class QSlider;
 class SatDialogAdvanced;
 class ToggleButton;
 class PushButton;
-class QButtonGroup;
+class Q3ButtonGroup;
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QLCDNumber;
 
 
@@ -176,7 +176,7 @@ private:
   SatDialogInfo dialogInfo;
   
   QComboBox* namebox;
-  QListBox* fileGroup;
+  Q3ListBox* fileGroup;
   
   QLCDNumber* diffLcdnum;
   QSlider* diffSlider;
@@ -191,13 +191,13 @@ private:
   QPushButton* downPictureButton;
 
   
-  QButtonGroup* timefileBut;
+  Q3ButtonGroup* timefileBut;
   ToggleButton* autoButton;
   ToggleButton* timeButton;
   ToggleButton* fileButton;
-  QListBox* timefileList;
-  QListBox* channelbox;
-  QListBox* pictures;
+  Q3ListBox* timefileList;
+  Q3ListBox* channelbox;
+  Q3ListBox* pictures;
   
   QPushButton* satapply;
   QPushButton* satapplyhide;

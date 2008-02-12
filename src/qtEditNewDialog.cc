@@ -29,7 +29,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qcombobox.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
@@ -38,12 +38,18 @@
 #include <qlayout.h>
 #include <qmessagebox.h>
 #include <qtabwidget.h>
-#include <qvbox.h>
+#include <q3vbox.h>
 
 #include <qtEditNewDialog.h>
 #include <qtUtility.h>
 #include <qtEditDefineField.h>
 #include <qtTimeSpinbox.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <QPixmap>
+#include <Q3Frame>
+#include <Q3VBoxLayout>
 
 #include <miString.h>
 #include <iostream>
@@ -82,8 +88,8 @@ void EditNewDialog::ConstructorCernel(){
 
   first= true;
 
-  QFrame* pframe= new QFrame(this);
-  pframe->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  Q3Frame* pframe= new Q3Frame(this);
+  pframe->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
 
   prodlabel= new QLabel( tr("Product type:"), pframe );
   prodbox= new QComboBox(pframe);
@@ -108,7 +114,7 @@ void EditNewDialog::ConstructorCernel(){
   killb->setEnabled(false);
   connect(killb, SIGNAL(clicked()),  SLOT(kill_clicked()) );
 
-  QGridLayout* gridlayout = new QGridLayout( pframe, 4,3,5,5 );
+  Q3GridLayout* gridlayout = new Q3GridLayout( pframe, 4,3,5,5 );
   
   gridlayout->addWidget( prodlabel,0,0 );
   gridlayout->addWidget( prodbox,0,1 );
@@ -123,13 +129,13 @@ void EditNewDialog::ConstructorCernel(){
   twd = new QTabWidget( this );
 
   // NORMAL-TAB -------------------------------------------------
-  normaltab = new QFrame(twd,"normaltab");
-  normaltab->setFrameStyle( QFrame::NoFrame | QFrame::Plain );
-  QVBoxLayout* normallayout = new QVBoxLayout(normaltab,
+  normaltab = new Q3Frame(twd,"normaltab");
+  normaltab->setFrameStyle( Q3Frame::NoFrame | Q3Frame::Plain );
+  Q3VBoxLayout* normallayout = new Q3VBoxLayout(normaltab,
 					      5, 5, "normallayout" );
 
   normallabel= new QLabel( tr("Make product from:"), normaltab );
-  QGridLayout* fieldlayout = new QGridLayout(3,2,-1,"fieldlayout");
+  Q3GridLayout* fieldlayout = new Q3GridLayout(3,2,-1,"fieldlayout");
 
   for (int i=0; i<maxelements; i++){
     ebut[i]= new QPushButton(tr("Objects"),normaltab);
@@ -146,12 +152,12 @@ void EditNewDialog::ConstructorCernel(){
 
   // time widgets
   QLabel* timelabel= TitleLabel(tr("Product validity time:"), normaltab );
-  QHBoxLayout* h7layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h7layout = new Q3HBoxLayout( 5 );
   h7layout->addWidget(timelabel,0,Qt::AlignHCenter);
   
   timespin= new TimeSpinbox(false, normaltab, "timespin");
   connect(timespin, SIGNAL(valueChanged(int)), SLOT(prodtimechanged(int)));
-  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h2layout = new Q3HBoxLayout( 5 );
   h2layout->addWidget(timespin,0,Qt::AlignHCenter);
 
   normallayout->addWidget(normallabel);
@@ -163,33 +169,33 @@ void EditNewDialog::ConstructorCernel(){
   twd->addTab( normaltab, TABNAME_NORMAL );
 
   // COMBINE-TAB -------------------------------------------------
-  combinetab = new QFrame(twd, "combinetab");
-  combinetab->setFrameStyle( QFrame::NoFrame | QFrame::Plain );
-  QVBoxLayout* combinelayout = new QVBoxLayout(combinetab,
+  combinetab = new Q3Frame(twd, "combinetab");
+  combinetab->setFrameStyle( Q3Frame::NoFrame | Q3Frame::Plain );
+  Q3VBoxLayout* combinelayout = new Q3VBoxLayout(combinetab,
 					       5, 5, "combinelayout");
   
   //combinelabel= TitleLabel( "Kombinér produkter for tid:", combinetab );
   combinelabel= TitleLabel(tr("Combine products valid at:"), combinetab );
   combinelabel->setEnabled(false);
-  cBox=new QListBox(combinetab);
+  cBox=new Q3ListBox(combinetab);
   cBox->setEnabled(false);
   cBox->setMinimumHeight(100);
   connect(cBox, SIGNAL(highlighted(int)), SLOT(combineSelect(int)));
 
   QLabel* ctimelabel= TitleLabel(tr("Product validity time"), combinetab );
-  QHBoxLayout* h5layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h5layout = new Q3HBoxLayout( 5 );
   h5layout->addWidget(ctimelabel,0,Qt::AlignHCenter);
 
   cselectlabel= new QLabel(tr("Time undefined"), combinetab );
-  QHBoxLayout* h3layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h3layout = new Q3HBoxLayout( 5 );
   h3layout->addWidget(cselectlabel,0,Qt::AlignHCenter);
 
   QLabel* cpid1label= TitleLabel( tr("Product Ids to combine:"),combinetab );
-  QHBoxLayout* h6layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h6layout = new Q3HBoxLayout( 5 );
   h6layout->addWidget(cpid1label,0,Qt::AlignHCenter);
 
   cpid2label= new QLabel(tr("None"), combinetab );
-  QHBoxLayout* h4layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h4layout = new Q3HBoxLayout( 5 );
   h4layout->addWidget(cpid2label,0,Qt::AlignHCenter);
 
 
@@ -210,7 +216,7 @@ void EditNewDialog::ConstructorCernel(){
   // TAB-setup ended
 
   // lower buttons
-  QHBoxLayout* hlayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout = new Q3HBoxLayout( 5 );
   ok= NormalPushButton( tr("OK"), this);
 
   help = NormalPushButton(tr("Help"), this );
@@ -224,7 +230,7 @@ void EditNewDialog::ConstructorCernel(){
   connect( cancel, SIGNAL(clicked()), SLOT(cancel_clicked()) );
   
   // major layout
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5 );
+  Q3VBoxLayout* vlayout = new Q3VBoxLayout( this, 5, 5 );
 
   vlayout->addWidget( pframe );
   vlayout->addSpacing(10);
@@ -708,7 +714,7 @@ void EditNewDialog::kill_clicked()
 				   QMessageBox::Warning,
 				   QMessageBox::Yes,
 				   QMessageBox::Cancel | QMessageBox::Default,
-				   QMessageBox::NoButton,
+				   Qt::NoButton,
 				   this);
   mb->setButtonText( QMessageBox::Yes, tr("Yes") );
   mb->setButtonText( QMessageBox::Cancel, tr("Cancel")); 

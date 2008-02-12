@@ -33,10 +33,13 @@
 
 #include <qapplication.h>
 #include <qlayout.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qimage.h>
 
 #include <qtVcrossWidget.h>
+//Added by qt3to4:
+#include <QMouseEvent>
+#include <QKeyEvent>
 #include <diVcrossManager.h>
 #include <diVcrossPlot.h>
 
@@ -49,10 +52,11 @@ VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
 {
 
   if ( !isValid() ) {
-    fatal("Failed to create OpenGL rendering context on this display");
+    // qt4 fix: fatal() -> qFatal() (why did this work with qt3??)
+    qFatal("Failed to create OpenGL rendering context on this display");
   }
 
-  setFocusPolicy(QWidget::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(false);
 
   savebackground= false;
@@ -195,47 +199,47 @@ void VcrossWidget::keyPressEvent(QKeyEvent *me)
 
   bool change= true;
 
-  if (me->state() & ControlButton) {
+  if (me->state() & Qt::ControlModifier) {
 
-    if (me->key()==Key_Left && timeGraph){
+    if (me->key()==Qt::Key_Left && timeGraph){
       vcrossm->setTimeGraphPos(-1);
-    } else if (me->key()==Key_Right && timeGraph){
+    } else if (me->key()==Qt::Key_Right && timeGraph){
       vcrossm->setTimeGraphPos(+1);
-    } else if (me->key()==Key_Left){
+    } else if (me->key()==Qt::Key_Left){
       vcrossm->setTime(-1);
       emit timeChanged(-1);
-    } else if (me->key()==Key_Right){
+    } else if (me->key()==Qt::Key_Right){
       vcrossm->setTime(+1);
       emit timeChanged(+1);
-    } else if (me->key()==Key_Down){
+    } else if (me->key()==Qt::Key_Down){
       vcrossm->setCrossection(-1);
       emit crossectionChanged(-1);
-    } else if (me->key()==Key_Up){
+    } else if (me->key()==Qt::Key_Up){
       vcrossm->setCrossection(+1);
       emit crossectionChanged(+1);
     } else {
       change= false;
     } 
 
-  } else if (me->key()==Key_Left){
+  } else if (me->key()==Qt::Key_Left){
     VcrossPlot::movePart(-arrowKeyDirection*plotw/8, 0);
-  } else if (me->key()==Key_Right){
+  } else if (me->key()==Qt::Key_Right){
     VcrossPlot::movePart(arrowKeyDirection*plotw/8, 0);
-  } else if (me->key()==Key_Down){
+  } else if (me->key()==Qt::Key_Down){
     VcrossPlot::movePart(0, -arrowKeyDirection*ploth/8);
-  } else if (me->key()==Key_Up){
+  } else if (me->key()==Qt::Key_Up){
     VcrossPlot::movePart(0, arrowKeyDirection*ploth/8);
-  } else if (me->key()==Key_X) {
+  } else if (me->key()==Qt::Key_X) {
     VcrossPlot::increasePart();
-  } else if (me->key()==Key_Z && me->state() & ShiftButton) {
+  } else if (me->key()==Qt::Key_Z && me->state() & Qt::ShiftModifier) {
     VcrossPlot::increasePart();
-  } else if (me->key()==Key_Z) {
+  } else if (me->key()==Qt::Key_Z) {
     int dw= plotw - int(plotw/1.3);
     int dh= ploth - int(ploth/1.3);
     VcrossPlot::decreasePart(dw,dh,plotw-dw,ploth-dh);
-  } else if (me->key()==Key_Home) {
+  } else if (me->key()==Qt::Key_Home) {
     VcrossPlot::standardPart();
-  } else if (me->key()==Key_R) {
+  } else if (me->key()==Qt::Key_R) {
     if (arrowKeyDirection>0) arrowKeyDirection= -1;
     else                     arrowKeyDirection=  1;
     change= false;
@@ -252,7 +256,7 @@ void VcrossWidget::mousePressEvent(QMouseEvent* me)
   mousex= me->x();
   mousey= height() - me->y();
 
-  if (me->button()==LeftButton) {
+  if (me->button()==Qt::LeftButton) {
     if (startTimeGraph) {
       vcrossm->setTimeGraphPos(mousex,mousey);
       startTimeGraph= false;
@@ -263,11 +267,11 @@ void VcrossWidget::mousePressEvent(QMouseEvent* me)
       firstx= mousex;
       firsty= mousey;
     }
-  } else if (me->button()==MidButton) {
+  } else if (me->button()==Qt::MidButton) {
     dopanning= true;
     firstx= mousex;
     firsty= mousey;
-  } else if (me->button()==RightButton) {
+  } else if (me->button()==Qt::RightButton) {
     VcrossPlot::increasePart();
   }
 

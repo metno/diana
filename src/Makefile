@@ -82,12 +82,12 @@ BALLOBJ= $(CCOBJ) $(COBJ) $(BOBJ)
 # From .cc to .o
 .cc.o:
 	@echo -e "\n[0;34mCOMPILING ......................... $< [0m"
-	$(CXX) -c $(CCFLAGS) $(INCLUDE)   $<
+	$(CXX) -c $(CCFLAGS) $(INCLUDE) -DQT3_SUPPORT   $<
 
 # From .c to .o
 .c.o:
 	@echo -e "\n[0;34mCOMPILING ......................... $< [0m"
-	$(CC) -c $(CFLAGS) $(INCLUDE)   $<
+	$(CC) -c $(CFLAGS) $(INCLUDE) -DQT3_SUPPORT   $<
 
 #----------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ mocs:
 	do \
 	echo                                                                 >> $(MOCFILE) ; \
 	echo $${ENTRY%.h}_moc.cc: $(INCDIR)/$${ENTRY}                        >> $(MOCFILE) ; \
-	echo "	"$(QTDIR)/bin/moc $(INCDIR)/$${ENTRY} -o $${ENTRY%.h}_moc.cc >> $(MOCFILE) ; \
+	echo "	"$(QTDIR)/lib/qt4/bin/moc $(INCDIR)/$${ENTRY} -o $${ENTRY%.h}_moc.cc >> $(MOCFILE) ; \
 	done
 
 -include $(MOCFILE)
@@ -125,19 +125,19 @@ languages:
 depends:
 	rm -f $(DEPENDSFILE)
 	echo '# Automatically-generated dependencies list:' > $(DEPENDSFILE)
-	$(CXX) $(CCFLAGS) $(INCLUDE) -M $(ALLSRC) >> $(DEPENDSFILE)
+	$(CXX) $(CCFLAGS) $(INCLUDE) -DQT3_SUPPORT -M $(ALLSRC) >> $(DEPENDSFILE)
 
 -include $(DEPENDSFILE)
 
 #-----------------------------------------------------
 
 $(BINDIR)/diana: $(ALLOBJ) $(MOCOBJ)
-	$(CXX) $(LDFLAGS) $(ALLOBJ) $(LINKS) -o $@
+	$(CXX) $(LDFLAGS) -g -DQT3_SUPPORT $(ALLOBJ) $(LINKS) -o $@
 
 #-----------------------------------------------------
 
 $(BINDIR)/bdiana: $(BALLOBJ)
-	$(CXX) $(LDFLAGS) $(BALLOBJ) $(BLINKS) -o $@
+	$(CXX) $(LDFLAGS) -DQT3_SUPPORT $(BALLOBJ) $(BLINKS) -o $@
 
 #-----------------------------------------------------
 

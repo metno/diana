@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qapplication.h>
-#include <qfiledialog.h>
-#include <qtoolbar.h>
+#include <q3filedialog.h>
+#include <q3toolbar.h>
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -40,6 +40,8 @@
 #include <qmotifstyle.h>
 #include <qtUtility.h>
 #include <qtVcrossWindow.h>
+//Added by qt3to4:
+#include <QPixmap>
 #include <diLocationPlot.h>
 #include <qtVcrossWidget.h>
 #include <qtVcrossDialog.h>
@@ -51,7 +53,7 @@
 
 
 VcrossWindow::VcrossWindow()
-  : QMainWindow( 0, "DIANA Vcross window")
+  : Q3MainWindow( 0, "DIANA Vcross window")
 {
 #ifndef linux
   qApp->setStyle(new QMotifStyle);
@@ -74,13 +76,13 @@ VcrossWindow::VcrossWindow()
 
 
   //tool bar and buttons
-  vcToolbar = new QToolBar("vcTool", this,QMainWindow::Top, FALSE,"vcTool");
-  setDockEnabled( vcToolbar, Left, FALSE );
-  setDockEnabled( vcToolbar, Right, FALSE );
+  vcToolbar = new Q3ToolBar("vcTool", this,Qt::DockTop, FALSE,"vcTool");
+  setDockEnabled( vcToolbar, Qt::DockLeft, FALSE );
+  setDockEnabled( vcToolbar, Qt::DockRight, FALSE );
   //tool bar and for selecting time and crossection
-  tsToolbar = new QToolBar("vctsTool", this,QMainWindow::Top, FALSE,"vctsTool");
-  setDockEnabled( tsToolbar, Left, FALSE );
-  setDockEnabled( tsToolbar, Right, FALSE );
+  tsToolbar = new Q3ToolBar("vctsTool", this,Qt::DockTop, FALSE,"vctsTool");
+  setDockEnabled( tsToolbar, Qt::DockLeft, FALSE );
+  setDockEnabled( tsToolbar, Qt::DockRight, FALSE );
 
 
   //button for model/field dialog-starts new dialog
@@ -381,7 +383,7 @@ void VcrossWindow::printClicked(){
       priop.printer= qprt->printerName().latin1();
 
     // start the postscript production
-    QApplication::setOverrideCursor( waitCursor );
+    QApplication::setOverrideCursor( Qt::waitCursor );
 
     vcrossw->startHardcopy(priop);
     vcrossw->updateGL();
@@ -409,7 +411,7 @@ void VcrossWindow::printClicked(){
 void VcrossWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
-  QString s = QFileDialog::getSaveFileName(fname,
+  QString s = Q3FileDialog::getSaveFileName(fname,
 					   tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"),
 					   this, "save_file_dialog",
 					   tr("Save plot as image") );
@@ -441,7 +443,7 @@ void VcrossWindow::saveClicked()
 
 void VcrossWindow::makeEPS(const miString& filename)
 {
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -641,7 +643,9 @@ void VcrossWindow::updateCrossectionBox(){
   const char** cvstr= new const char*[n];
   for (int i=0; i<n; i++)
     cvstr[i]=  crossections[i].c_str();		
-  crossectionBox->insertStrList(cvstr, n);
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  crossectionBox->insertStringList(QStringList(QString(cvstr[0])), n);
   delete[] cvstr;
 }
 
@@ -662,8 +666,10 @@ void VcrossWindow::updateTimeBox(){
     vt[i]=  times[i].isoTime(false,false);		
   const char** cvstr= new const char*[n];
   for (int i=0; i<n; i++)
-    cvstr[i]=  vt[i].c_str();		
-  timeBox->insertStrList(cvstr, n);
+    cvstr[i]=  vt[i].c_str();
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)  
+  timeBox->insertStringList(QStringList(QString(cvstr[0])), n);
   delete[] cvstr;
 
   emit emitTimes("vcross",times);

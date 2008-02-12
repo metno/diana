@@ -33,22 +33,26 @@
 
 #include <qdialog.h>
 #include <qfont.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QLabel>
+#include <Q3VBoxLayout>
 #include <miString.h>
 #include <vector>
 #include <miString.h>
 #include <diController.h>
 
 class PushButton;
-class QListBox;
+class Q3ListBox;
 class QComboBox;
-class QVBoxLayout;
-class QHBoxLayout;
-class QVButtonGroup;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
+class Q3VButtonGroup;
 class QLabel;
 class QSlider;
 class QLCDNumber;
 class QCheckBox;
-class QButtonGroup;
+class Q3ButtonGroup;
 class EditComment;
 class AddtoDialog;
 class ObjectManager;
@@ -148,25 +152,25 @@ private:
 //************** q tWidgets that appear in the dialog  *******************
 
   // Combobox for selecting region name
-  QListBox * namebox;
+  Q3ListBox * namebox;
 
   //3 Buttons for selecting "auto"/"tid"/"fil"
-  QButtonGroup* timefileBut;
+  Q3ButtonGroup* timefileBut;
   ToggleButton* autoButton;
   ToggleButton* timeButton;
   ToggleButton* fileButton;
 
   //list of times/files
-  QListBox* timefileList; 
+  Q3ListBox* timefileList; 
 
 
  // the box showing which files have been choosen
   QLabel* filesLabel;
-  QListBox* filenames;  
+  Q3ListBox* filenames;  
  
 
  //Check boxes for selecting fronts/symbols/areas
-  QVButtonGroup * bgroupobjects; 
+  Q3VButtonGroup * bgroupobjects; 
   QCheckBox *cbs0;
   QCheckBox *cbs1;
   QCheckBox *cbs2;
@@ -201,15 +205,15 @@ private:
   //QPushButton* addtodialogbutton;
   
   //layouts for placing buttons
-  QVBoxLayout* v3layout;
-  QVBoxLayout* v5layout;
-  QHBoxLayout* hlayout;
-  QHBoxLayout* difflayout;
-  QHBoxLayout* alphalayout;
-  QHBoxLayout* hlayout2;
-  QHBoxLayout* hlayout3;
+  Q3VBoxLayout* v3layout;
+  Q3VBoxLayout* v5layout;
+  Q3HBoxLayout* hlayout;
+  Q3HBoxLayout* difflayout;
+  Q3HBoxLayout* alphalayout;
+  Q3HBoxLayout* hlayout2;
+  Q3HBoxLayout* hlayout3;
   //QHBoxLayout* hlayout4;
-  QVBoxLayout* vlayout;
+  Q3VBoxLayout* vlayout;
 
 
   EditComment* objcomment;

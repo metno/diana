@@ -33,10 +33,13 @@
 
 #include <qdialog.h>
 #include <qpushbutton.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 #include <diEditSpec.h>
 
@@ -57,12 +60,12 @@ public:
 
 private:
   editDBinfo dbi;
-  QVBoxLayout*   top_vlayout; // top layout
-  QVBoxLayout*   f_vlayout;   // frame  layout
-  QHBoxLayout*   h_hlayout;   // header layout
-  QHBoxLayout*   b_hlayout;   // buttons layout
+  Q3VBoxLayout*   top_vlayout; // top layout
+  Q3VBoxLayout*   f_vlayout;   // frame  layout
+  Q3HBoxLayout*   h_hlayout;   // header layout
+  Q3HBoxLayout*   b_hlayout;   // buttons layout
 
-  QFrame *ff;                 // main frame
+  Q3Frame *ff;                 // main frame
 
   QLineEdit* dbserver;
   QLineEdit* username;

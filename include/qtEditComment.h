@@ -37,7 +37,7 @@
 
 using namespace std; 
 
-class QMultiLineEdit;
+class Q3MultiLineEdit;
 class ToggleButton;
 class Controller;
 class ObjectManager;
@@ -59,8 +59,8 @@ private:
   Controller*    m_ctrl;
   ObjectManager* m_objm;
 
-  QMultiLineEdit * mEdit;
-  QMultiLineEdit * mEdit2;
+  Q3MultiLineEdit * mEdit;
+  Q3MultiLineEdit * mEdit2;
   QSplitter *split;
   ToggleButton *showOld;
 

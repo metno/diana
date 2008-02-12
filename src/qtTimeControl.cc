@@ -38,7 +38,10 @@
 #include <qtooltip.h>
 #include <qcheckbox.h>
 #include <qtUtility.h>
-#include <qframe.h>
+#include <q3frame.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 #include <iostream>
 
 
@@ -49,8 +52,8 @@ TimeControl::TimeControl(QWidget* parent)
   //m_font= QFont( IQ.fontName.c_str(), IQ.fontSize, IQ.fontWeight );
   m_font= QFont( "Helvetica", 12, 75 );
 
-  QFrame* frame= new QFrame(this,"frame");
-  frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  Q3Frame* frame= new Q3Frame(this,"frame");
+  frame->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
 
   timerangeCheckBox = new  QCheckBox( tr("Time interval"),frame);
   timerangeCheckBox->setChecked(false);
@@ -64,17 +67,17 @@ TimeControl::TimeControl(QWidget* parent)
   stopLabel->setMinimumSize(stopLabel->sizeHint());
 
   startTimeLabel= new QLabel("0000-00-00 00:00:00",frame,"starttl");
-  startTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  startTimeLabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
   startTimeLabel->setMinimumSize(startTimeLabel->sizeHint());
 
   stopTimeLabel= new QLabel("0000-00-00 00:00:00",frame,"stoptl");
-  stopTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  stopTimeLabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
   stopTimeLabel->setMinimumSize(stopTimeLabel->sizeHint());
       
-  startSlider= new QSlider( QSlider::Horizontal, frame, "startslider" );
+  startSlider= new QSlider( Qt::Horizontal, frame, "startslider" );
   startSlider->setMinimumWidth(150);
 
-  stopSlider= new QSlider( QSlider::Horizontal, frame, "stopslider" );
+  stopSlider= new QSlider( Qt::Horizontal, frame, "stopslider" );
   stopSlider->setMinimumWidth(150);
 
   connect( startSlider, SIGNAL( valueChanged(int)),SLOT(StartValue(int)));
@@ -82,7 +85,7 @@ TimeControl::TimeControl(QWidget* parent)
   connect( startSlider, SIGNAL( sliderReleased()),SLOT(minmaxSlot()));
   connect( stopSlider, SIGNAL( sliderReleased()),SLOT(minmaxSlot()));
 
-  QVBoxLayout* timeLayout = new QVBoxLayout(5); 
+  Q3VBoxLayout* timeLayout = new Q3VBoxLayout(5); 
   timeLayout->addWidget( timerangeCheckBox );
   timeLayout->addWidget( startLabel );
   timeLayout->addWidget( startTimeLabel );
@@ -91,10 +94,10 @@ TimeControl::TimeControl(QWidget* parent)
   timeLayout->addWidget( stopTimeLabel );
   timeLayout->addWidget( stopSlider );
 
-  QVBoxLayout* vblayout = new QVBoxLayout( frame,5, 5);
+  Q3VBoxLayout* vblayout = new Q3VBoxLayout( frame,5, 5);
   vblayout->addLayout( timeLayout );
 
-  QHBoxLayout* timerangelayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* timerangelayout = new Q3HBoxLayout( 5 );
   timerangelayout->addWidget(frame);
 
   QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this, "timeoutlabel");
@@ -140,7 +143,7 @@ TimeControl::TimeControl(QWidget* parent)
 //   QFrame *line = new QFrame( this );
 //   line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
-  QVBoxLayout* vlayout=new QVBoxLayout(this,10,10);
+  Q3VBoxLayout* vlayout=new Q3VBoxLayout(this,10,10);
   vlayout->addLayout( timerangelayout );
   vlayout->addSpacing(5);
   vlayout->addWidget( timeoutLabel );

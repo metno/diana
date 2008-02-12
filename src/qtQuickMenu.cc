@@ -34,15 +34,20 @@
 #include <qtQuickAdmin.h>
 
 #include <qpushbutton.h>
-#include <qlistbox.h>
-#include <qtextedit.h>
+#include <q3listbox.h>
+#include <q3textedit.h>
 #include <qcursor.h>
 #include <qlayout.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qlabel.h>
 #include <qspinbox.h>
 #include <qcombobox.h>
 #include <qapplication.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QTimerEvent>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 #include <miString.h>
 #include <iostream>
 #include <qmessagebox.h>
@@ -54,12 +59,16 @@
 #include <convert.xpm>
 #include <revert.xpm>
 
+// qt4 fix
+#include <QString>
+#include <QStringList>
+
 using namespace std; 
 
 const miString vprefix= "@";
 
 QuickMenu::QuickMenu( QWidget *parent, Controller* c,
-		      const char *name, WFlags f)
+		      const char *name, Qt::WFlags f)
   : QDialog( parent, name, FALSE, f), contr(c),
     timerinterval(10), timeron(false), activemenu(0),
     comset(false), browsing(false), instaticmenu(false),
@@ -70,20 +79,20 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   setCaption(tr("Quickmenu"));
   
   // Create top-level layout manager
-  QBoxLayout* tlayout = new QHBoxLayout( this, 5, 20, "tlayout");
+  Q3BoxLayout* tlayout = new Q3HBoxLayout( this, 5, 20, "tlayout");
 
   // make a nice frame
-  QFrame* frame= new QFrame(this, "frame");
-  frame->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+  Q3Frame* frame= new Q3Frame(this, "frame");
+  frame->setFrameStyle(Q3Frame::StyledPanel | Q3Frame::Raised);
 
   //  frame->setPalette( QPalette( QColor(255, 80, 80) ) );
   tlayout->addWidget(frame,1);
 
   // Create layout manager
-  QBoxLayout* vlayout = new QVBoxLayout(frame,10,10,"vlayout");
+  Q3BoxLayout* vlayout = new Q3VBoxLayout(frame,10,10,"vlayout");
 
   // create quickmenu optionmenu
-  QBoxLayout *l2= new QHBoxLayout(vlayout);
+  Q3BoxLayout *l2= new Q3HBoxLayout(vlayout);
   QLabel* menulistlabel= TitleLabel(tr("Menus"),frame);
 
   menulist= new QComboBox(FALSE, frame, "menulist");
@@ -111,14 +120,14 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   l2->addWidget(adminbut);
 
   // create menuitem list
-  list= new QListBox(frame, "itemlist");
+  list= new Q3ListBox(frame, "itemlist");
   connect(list, SIGNAL(highlighted(int)),SLOT(listHighlight(int)));
   connect(list, SIGNAL(selected(int)),SLOT(listSelect(int)));
   vlayout->addWidget(list, 10);
 
   // Create variables/options layout manager
   int half= maxoptions/2;
-  QGridLayout* varlayout = new QGridLayout(vlayout,2,maxoptions);
+  Q3GridLayout* varlayout = new Q3GridLayout(vlayout,2,maxoptions);
   for (int i=0; i<maxoptions; i++){
     optionlabel[i]= new QLabel("",frame,"optlabel");
     optionmenu[i]=  new QComboBox(FALSE, frame, "optionmenu");
@@ -128,27 +137,27 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
     varlayout->addWidget(optionmenu[i],row,col+1);//Qt::AlignLeft);
   }
 
-  QFrame *line;
+  Q3Frame *line;
   // Create a horizontal frame line
-  line = new QFrame( frame );
-  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  line = new Q3Frame( frame );
+  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
   vlayout->addWidget( line );
 
   // create commands-area
-  comedit= new QTextEdit(frame, "comedit");
-  comedit->setWordWrap(QTextEdit::NoWrap);
+  comedit= new Q3TextEdit(frame, "comedit");
+  comedit->setWordWrap(Q3TextEdit::NoWrap);
   comedit->setFont(QFont("Courier",12,QFont::Normal));
   comedit->setReadOnly(false);
   comedit->setMinimumHeight(150);
   connect(comedit, SIGNAL(textChanged()), SLOT(comChanged()));
   comlabel= new QLabel(comedit,tr("Command field"),frame,"comlabel");
   comlabel->setMinimumSize(comlabel->sizeHint());
-  comlabel->setAlignment(AlignBottom | AlignLeft);
+  comlabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
 
   comlabel->hide();
   comedit->hide();
 
-  QHBoxLayout* l3= new QHBoxLayout(5);
+  Q3HBoxLayout* l3= new Q3HBoxLayout(5);
   l3->addWidget(comlabel);
   l3->addStretch();
 
@@ -156,9 +165,9 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   vlayout->addWidget(comedit, 10);
 
   // buttons and stuff at the bottom
-  QBoxLayout *l= new QHBoxLayout(vlayout);
+  Q3BoxLayout *l= new Q3HBoxLayout(vlayout);
 
-  QButton* quickhide = new QPushButton( tr("&Hide"), frame );
+  QPushButton* quickhide = new QPushButton( tr("&Hide"), frame );
   connect( quickhide, SIGNAL(clicked()),SIGNAL( QuickHide()) );
   l->addWidget(quickhide);
 
@@ -178,16 +187,16 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   connect(interval, SIGNAL(valueChanged(int)),SLOT(intervalChanged(int)));
   l->addWidget(interval);
   
-  QButton* qhelp= new QPushButton(tr("&Help"), frame );
+  QPushButton* qhelp= new QPushButton(tr("&Help"), frame );
   connect( qhelp, SIGNAL(clicked()), SLOT( helpClicked() ));
   l->addWidget(qhelp);
   
-  QButton* plothidebut= new QPushButton(tr("Apply+Hide"), frame );
+  QPushButton* plothidebut= new QPushButton(tr("Apply+Hide"), frame );
   connect(plothidebut, SIGNAL(clicked()),SLOT(plotButton()));
   connect(plothidebut, SIGNAL(clicked()),SIGNAL( QuickHide()) );
   l->addWidget(plothidebut);
 
-  QButton* plotbut= new QPushButton(tr("&Apply"), frame );
+  QPushButton* plotbut= new QPushButton(tr("&Apply"), frame );
   connect(plotbut, SIGNAL(clicked()),SLOT(plotButton()));
   l->addWidget(plotbut);
   //  l->addStretch();
@@ -545,7 +554,7 @@ void QuickMenu::updateButton()
 		       QMessageBox::Information,
 		       QMessageBox::Yes | QMessageBox::Default,
 		       QMessageBox::Cancel | QMessageBox::Escape,
-		       QMessageBox::NoButton );
+		       Qt::NoButton );
 	mb.setButtonText( QMessageBox::Yes, tr("Yes") );
 	mb.setButtonText( QMessageBox::Cancel, tr("Cancel") );
 	switch( mb.exec() ) {
@@ -990,7 +999,8 @@ void QuickMenu::menulistActivate(int idx)
 	  if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
 	    defidx= j;
 	}
-	optionmenu[i]->insertStrList(itemlist, nopts);
+    // qt4 fix: insertStrList() -> insertStringList() (uneffective!!)
+	optionmenu[i]->insertStringList(QStringList(QString(itemlist[0])), nopts);
 	if (defidx>=0) optionmenu[i]->setCurrentItem(defidx);
 	delete[] itemlist;
       }

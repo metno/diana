@@ -1,15 +1,15 @@
 #include "qtProfetChatWidget.h"
 
-#include <qtextedit.h> 
+#include <q3textedit.h> 
 #include <qlineedit.h>
 #include <qpushbutton.h>
-#include <qstylesheet.h>
+#include <q3stylesheet.h>
 
 ProfetChatWidget::ProfetChatWidget( QWidget* parent ) 
-: QVBox(parent){
+: Q3VBox(parent){
   
   
-  textEdit = new QTextEdit(this);
+  textEdit = new Q3TextEdit(this);
   textEdit->setReadOnly(true);
   lineEdit = new QLineEdit(this);
   connect(lineEdit,SIGNAL(returnPressed()),this,SLOT(sendMessagePerformed()));
@@ -19,10 +19,10 @@ ProfetChatWidget::ProfetChatWidget( QWidget* parent )
 */  
 
   textEdit->setTextFormat( Qt::LogText );
-  QStyleSheetItem * systemStyle = new QStyleSheetItem( textEdit->styleSheet(), "sys" );
-  QStyleSheetItem * warnStyle = new QStyleSheetItem( textEdit->styleSheet(), "warn" );
-  QStyleSheetItem * messageStyle = new QStyleSheetItem( textEdit->styleSheet(), "msg" );
-  QStyleSheetItem * nameStyle = new QStyleSheetItem( textEdit->styleSheet(), "name" );
+  Q3StyleSheetItem * systemStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "sys" );
+  Q3StyleSheetItem * warnStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "warn" );
+  Q3StyleSheetItem * messageStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "msg" );
+  Q3StyleSheetItem * nameStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "name" );
   systemStyle->setColor("gray");
   warnStyle->setColor("red");
   messageStyle->setColor("black");

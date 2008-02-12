@@ -32,6 +32,9 @@
 #define _qtQuickMenu_h
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <QLabel>
+#include <QTimerEvent>
 #include <miString.h>
 #include <vector>
 #include <deque>
@@ -42,9 +45,9 @@
 using namespace std; 
 
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QLabel;
-class QTextEdit;
+class Q3TextEdit;
 
 /**
    \brief Quick menu
@@ -62,11 +65,11 @@ private:
   enum { maxplotsinstack= 100}; // size of history-stack
 
   QComboBox* menulist;     // main quickmenu-combobox
-  QListBox* list;          // list of plots in quickmenu
+  Q3ListBox* list;          // list of plots in quickmenu
   bool optionsexist;       // defined options in quickmenu
   QComboBox* optionmenu[maxoptions]; // options for quickmenu
   QLabel* optionlabel[maxoptions];   // ..label for this
-  QTextEdit* comedit;                // editor for command-text
+  Q3TextEdit* comedit;                // editor for command-text
   QLabel* comlabel;                  // ..label for this
   QPushButton* resetbut;             // reset static menu-item
   QPushButton* updatebut;            // update static menu-item
@@ -108,7 +111,7 @@ signals:
 
 public:
   QuickMenu(QWidget *parent, Controller* c,
-	    const char *name, WFlags f=0);
+	    const char *name, Qt::WFlags f=0);
   bool close(bool alsoDelete);
   void start();
 

@@ -36,13 +36,16 @@
 #include <diCommonTypes.h>
 #include <diColourShading.h>
 #include <diPattern.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <QLabel>
 
 using namespace std; 
 
 class QWidget;
 class QPushButton;
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QLabel;
 class QLCDNumber;
 class QCheckBox;
@@ -107,7 +110,7 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,  
 		 Qt::Orientation orient, QWidget* parent );
 
-void listBox( QListBox* box, vector<miString> vstr, int defItem=-1 );
+void listBox( Q3ListBox* box, vector<miString> vstr, int defItem=-1 );
 
 QPixmap* linePixmap(const miutil::miString& pattern, int linewidth);
 

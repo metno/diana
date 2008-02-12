@@ -41,9 +41,11 @@
 #include <qlayout.h>
 #include <qsplitter.h>
 #include <qtEditComment.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 #include <miString.h>
 #include <qstring.h>
-#include <qmultilineedit.h>
+#include <q3multilineedit.h>
 #include <qtToggleButton.h>
 #include <iostream>
 #include <diController.h>
@@ -72,15 +74,15 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
   if (inEditSession){
     setGeometry(100,100,480,480);
     setCaption(tr("Comments-editing"));
-    split = new QSplitter(Vertical,this);
+    split = new QSplitter(Qt::Vertical,this);
     split->setGeometry(10,10,460,380);
-    mEdit = new QMultiLineEdit(split);
-    mEdit2 = new QMultiLineEdit(split);
+    mEdit = new Q3MultiLineEdit(split);
+    mEdit2 = new Q3MultiLineEdit(split);
     mEdit2->hide();
     showOld = new ToggleButton(this,tr("Show previous comments").latin1());
     showOld->setOn(false);
     connect(showOld, SIGNAL( toggled(bool)),SLOT( showOldToggled( bool ) ));
-    QVBoxLayout * vlayout = new QVBoxLayout( this);
+    Q3VBoxLayout * vlayout = new Q3VBoxLayout( this);
     vlayout->addWidget(split);
     vlayout->addWidget(showOld);
   }
@@ -89,7 +91,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     setMinimumSize(480,400);
     setMaximumSize(480,400);
     setCaption(tr("Comments"));
-    mEdit2 = new QMultiLineEdit(this);
+    mEdit2 = new Q3MultiLineEdit(this);
     mEdit2->setGeometry(10,10,460,380);
   }
 

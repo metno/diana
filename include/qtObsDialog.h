@@ -32,24 +32,28 @@
 #define _obsdialog_h
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QLabel>
+#include <Q3VBoxLayout>
 #include <diController.h>
 #include <miString.h>
 
 class QComboBox;
-class QVBoxLayout;
-class QHBoxLayout;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
 class ObsWidget;
 class QPushButton;
 class QLabel;
 class ToggleButton;
 class AdvancedButton;
-class QListBox;
+class Q3ListBox;
 class QColor;
 class QLCDNumber;
 class QSlider;
 class QCheckBox;
 class QRadioButton;
-class QVButtonGroup;
+class Q3VButtonGroup;
 class QLineEdit;
 
 /**
@@ -129,12 +133,12 @@ private:
   int m_selected;
   QColor* colour;
   QComboBox* plotbox;
-  QVBoxLayout* vlayout;
-  QHBoxLayout* criterialayout;
-  QHBoxLayout* helplayout;
-  QHBoxLayout* applylayout;
-  QHBoxLayout* toplayout;
-  QHBoxLayout* obsWidgetlayout;
+  Q3VBoxLayout* vlayout;
+  Q3HBoxLayout* criterialayout;
+  Q3HBoxLayout* helplayout;
+  Q3HBoxLayout* applylayout;
+  Q3HBoxLayout* toplayout;
+  Q3HBoxLayout* obsWidgetlayout;
   ObsWidget** obsWidget;
   miString parameterSelected;
   QLabel * label;
@@ -150,13 +154,13 @@ private:
   QWidget* extension;
   //  QLabel* parameterLabel;
   QComboBox* criteriaBox;
-  QListBox* criteriaListbox;
+  Q3ListBox* criteriaListbox;
   miString parameter;
   QLCDNumber* limitLcd;
   QSlider* limitSlider;
   QComboBox* stepComboBox;
   QComboBox* signBox;
-  QVButtonGroup* radiogroup;
+  Q3VButtonGroup* radiogroup;
   QRadioButton* plotButton;
   QRadioButton* colourButton;
   QRadioButton* totalColourButton;

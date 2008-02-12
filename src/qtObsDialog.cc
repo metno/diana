@@ -34,23 +34,32 @@
 #include <qlabel.h>
 #include <qapplication.h>
 #include <qcolor.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qcheckbox.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qradiobutton.h>
-#include <qvbuttongroup.h>
+// qt4 fix
+//#include <qvbuttongroup.h>
 #include <qlineedit.h>
 #include <qtooltip.h>
 //#include <qtabwidget.h>
-#include <qframe.h>
+#include <q3frame.h>
 
 #include <qtObsDialog.h>
 #include <qtObsWidget.h>
 #include <qtUtility.h>
 #include <qtToggleButton.h>
 #include <qtAdvancedButton.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
+
+// qt4 fix
+#include <Q3VButtonGroup>
+#include <Q3HButtonGroup>
 
 #include <iostream>
 #include <qpushbutton.h>
@@ -136,17 +145,17 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   connect( obshelp, SIGNAL(clicked()), SLOT( helpClicked() ));
 
 
-  helplayout = new QHBoxLayout();
+  helplayout = new Q3HBoxLayout();
   helplayout->addWidget( obshelp );
   helplayout->addWidget( obsrefresh );
   helplayout->addWidget( multiplotButton );
 
-  applylayout = new QHBoxLayout();
+  applylayout = new Q3HBoxLayout();
   applylayout->addWidget( obshide );
   applylayout->addWidget(obsapplyhide );
   applylayout->addWidget( obsapply );
 
-  vlayout= new QVBoxLayout( this, 3, 3);
+  vlayout= new Q3VBoxLayout( this, 3, 3);
   vlayout->addWidget( plotbox );
   vlayout->addWidget( obsWidget[0] );
   vlayout->addLayout( helplayout );
@@ -158,7 +167,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
   this->hide();
   //  setOrientation(Horizontal);
-  setOrientation(Horizontal);
+  setOrientation(Qt::Horizontal);
   makeExtension();
   setExtension(extension);
   showExtension(false);
@@ -211,7 +220,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
     obsWidget[m_selected]->show();
     delete vlayout;
 
-    vlayout= new QVBoxLayout( this);
+    vlayout= new Q3VBoxLayout( this);
     vlayout->setMargin(10);
     vlayout->addWidget( plotbox );
     vlayout->addWidget( obsWidget[m_selected] );
@@ -235,7 +244,7 @@ void ObsDialog::getTimes(void){
   // Names of datatypes selected are sent to controller,
   // and times are returned
 
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
 
   vector<miString> dataName;
   if(multiplot){
@@ -515,14 +524,14 @@ void ObsDialog::makeExtension()
   criteriaBox = ComboBox( extension,critName,true);
 
   QLabel* criteriaLabel = TitleLabel(tr("Criteria"),extension);
-  criteriaListbox = new QListBox(extension);
+  criteriaListbox = new Q3ListBox(extension);
 
   QPushButton* delButton = NormalPushButton(tr("Delete"),extension);
   QPushButton* delallButton = NormalPushButton(tr("Delete all"),extension);
   QToolTip::add( delButton, tr("Delete selected criteria") );
   QToolTip::add( delallButton, tr("Delete all criteria") );
 
-  radiogroup  = new QVButtonGroup(extension);
+  radiogroup  = new Q3VButtonGroup(extension);
   plotButton =
     new QRadioButton(tr("Plot"),radiogroup);
   colourButton =
@@ -555,7 +564,7 @@ void ObsDialog::makeExtension()
   numberList(stepComboBox,1.0);
   QToolTip::add( stepComboBox,tr("Precision of limit") );
   limitLcd = LCDNumber(7,extension);
-  limitSlider = new QSlider(-100,100,1,0,QSlider::Horizontal, extension);
+  limitSlider = new QSlider(-100,100,1,0,Qt::Horizontal, extension);
 
 
   cInfo = Colour::getColourInfo();
@@ -563,7 +572,7 @@ void ObsDialog::makeExtension()
   markerBox = PixmapBox( extension, markerName);
 
   // Layout for colour
-  QGridLayout* colourlayout = new QGridLayout(2,5);
+  Q3GridLayout* colourlayout = new Q3GridLayout(2,5);
   colourlayout->addWidget( colourLabel, 0,0);
   colourlayout->addWidget( colourBox,   0,1);
   colourlayout->addWidget( markerLabel, 1,0);
@@ -602,10 +611,10 @@ void ObsDialog::makeExtension()
   connect( delallButton, SIGNAL(clicked()),SLOT(deleteAllSlot()));
   connect( saveButton, SIGNAL(clicked()),SLOT(saveSlot()));
 
-  QFrame *line0 = new QFrame( extension );
-  line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame *line0 = new Q3Frame( extension );
+  line0->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
-  QVBoxLayout *exLayout = new QVBoxLayout( 5 );
+  Q3VBoxLayout *exLayout = new Q3VBoxLayout( 5 );
   exLayout->addWidget( listLabel );
   exLayout->addWidget( criteriaBox );
   exLayout->addWidget( criteriaLabel );
@@ -620,11 +629,11 @@ void ObsDialog::makeExtension()
   exLayout->addWidget( saveButton );
 
   //separator
-  QFrame* verticalsep= new QFrame( extension );
-  verticalsep->setFrameStyle( QFrame::VLine | QFrame::Raised );
+  Q3Frame* verticalsep= new Q3Frame( extension );
+  verticalsep->setFrameStyle( Q3Frame::VLine | Q3Frame::Raised );
   verticalsep->setLineWidth( 5 );
 
-  QHBoxLayout *hLayout = new QHBoxLayout( extension,5,5 );
+  Q3HBoxLayout *hLayout = new Q3HBoxLayout( extension,5,5 );
 
   hLayout->addWidget(verticalsep);
   hLayout->addLayout(exLayout);
@@ -1092,7 +1101,9 @@ void ObsDialog::numberList( QComboBox* cBox, float number ){
   const char** cvstr= new const char*[nenormal];
   for (int i=0; i<nenormal; ++i) cvstr[i]= vnumber[i].c_str();
   cBox->clear();
-  cBox->insertStrList(cvstr,nenormal);
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  cBox->insertStringList(QStringList(QString(cvstr[0])),nenormal);
   cBox->setCurrentItem(nenormal/2-1);
   cBox->setEnabled(true);
   delete[] cvstr;

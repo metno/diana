@@ -88,8 +88,8 @@ void TimeSlider::setMinMax(const miTime& t1, const miTime& t2)
     useminmax= true;
     // change colours..
     QColorGroup cg= pal.active();
-    cg.setColor(QColorGroup::Foreground,red);
-    cg.setColor(QColorGroup::Button,red);
+    cg.setColor(QColorGroup::Foreground,Qt::red);
+    cg.setColor(QColorGroup::Button,Qt::red);
     QPalette p(cg,pal.disabled(),cg);
     setPalette(p);
   }
@@ -283,7 +283,8 @@ void TimeSlider::updateList(){
     if (iv==0) iv= 1;
     while (n/iv>maxticks) iv*= 2;
     
-    setTickmarks(TickSetting(Below));
+    // qt4 fix: Edited the line below (old line commented out)
+    setTickmarks(TicksBelow); //setTickmarks(TickSetting(Below));
     setTickInterval(iv);
     setSteps(1,iv);
     

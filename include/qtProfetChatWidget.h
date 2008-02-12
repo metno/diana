@@ -1,18 +1,18 @@
 #ifndef QTPROFETCHATWIDGET_H_
 #define QTPROFETCHATWIDGET_H_
 
-#include <qvbox.h>
+#include <q3vbox.h>
 #include <profet/ProfetCommon.h>
 
 
-class QTextEdit;
+class Q3TextEdit;
 class QLineEdit;
 class QPushButton;
 
-class ProfetChatWidget : public QVBox {
+class ProfetChatWidget : public Q3VBox {
   Q_OBJECT
 private:
-  QTextEdit * textEdit;
+  Q3TextEdit * textEdit;
   QLineEdit * lineEdit;
   QPushButton * sendButton;
   

@@ -28,6 +28,9 @@
 #include "qtProfetSessionTable.h"
 #include <qcolor.h>
 #include <qtooltip.h>
+//Added by qt3to4:
+#include <QFocusEvent>
+#include <QLabel>
 #include <sstream>
 
 namespace TABLECOLORS {
@@ -47,7 +50,7 @@ namespace TABLECOLORS {
 
 
 ProfetSessionTable::ProfetSessionTable(QWidget* parent) :
-  QTable(parent)
+  Q3Table(parent)
 {
 
 }
@@ -181,7 +184,7 @@ ProfetTableCell::ProfetTableCell(QWidget * parent,int row_, int col_, miString p
   visited         = false;
   current         = false;
  
-  setFocusPolicy(QWidget::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
   setAlignment(Qt::AlignHCenter);
   setTextFormat(Qt::RichText);
   setStatus();

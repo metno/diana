@@ -34,6 +34,13 @@
 #include <qdialog.h>
 #include <qfont.h>
 #include <qpalette.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QLabel>
+#include <Q3GridLayout>
+#include <QPixmap>
+#include <Q3Frame>
+#include <Q3VBoxLayout>
 
 #include <vector>
 #include <map>
@@ -50,13 +57,13 @@ using namespace std;
 
 class QPushButton;
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QLabel;
-class QVBoxLayout;
-class QHBoxLayout;
-class QGridLayout;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
+class Q3GridLayout;
 class QSlider;
-class QFrame;
+class Q3Frame;
 class QSpinBox;
 class QCheckBox;
 
@@ -230,10 +237,10 @@ private:
   QColor* color;
 
   QComboBox* modelGRbox;
-  QListBox*  modelbox;
+  Q3ListBox*  modelbox;
   QComboBox* fieldGRbox;
-  QListBox*  fieldbox;
-  QListBox*  selectedFieldbox;
+  Q3ListBox*  fieldbox;
+  Q3ListBox*  selectedFieldbox;
 
   QSlider* levelSlider;
   QLabel*  levelLabel;
@@ -285,17 +292,17 @@ private:
   void CreateAdvanced();
 
   // layout
-  QVBoxLayout* v1layout;
-  QHBoxLayout* v1h4layout;
-  QGridLayout* optlayout;
-  QVBoxLayout* levellayout;
-  QHBoxLayout* idnumlayout;
-  QHBoxLayout* h4layout;
-  QHBoxLayout* h5layout;
-  QHBoxLayout* h6layout;
+  Q3VBoxLayout* v1layout;
+  Q3HBoxLayout* v1h4layout;
+  Q3GridLayout* optlayout;
+  Q3VBoxLayout* levellayout;
+  Q3HBoxLayout* idnumlayout;
+  Q3HBoxLayout* h4layout;
+  Q3HBoxLayout* h5layout;
+  Q3HBoxLayout* h6layout;
 
   //toplayout
-  QVBoxLayout* vlayout;
+  Q3VBoxLayout* vlayout;
 
 signals:
   void FieldApply();

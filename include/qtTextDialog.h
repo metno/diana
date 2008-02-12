@@ -33,15 +33,18 @@
 
 #include <qdialog.h>
 #include <qfont.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 #include <diCommonTypes.h>
 
 using namespace std;
 
-class QVBoxLayout;
-class QHBoxLayout;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
 class QPushButton;
 class QCheckBox;
-class QTextBrowser;
+class Q3TextBrowser;
 
 /**
    \brief Ascii text viewer
@@ -64,14 +67,14 @@ public slots:
   void fixedfont();
 
 private:
-  QTextBrowser* tb;
+  Q3TextBrowser* tb;
   QCheckBox* fixedb;
   InfoFile infofile;
   miString path;
 
   //toplayout
-  QVBoxLayout* vlayout;
-  QHBoxLayout* hlayout;
+  Q3VBoxLayout* vlayout;
+  Q3HBoxLayout* hlayout;
 };
 
 

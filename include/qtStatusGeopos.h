@@ -32,6 +32,8 @@
 #define _qtStatusGeopos_h
 
 #include <qwidget.h>
+//Added by qt3to4:
+#include <QLabel>
 #include <miString.h>
 
 class QLabel;

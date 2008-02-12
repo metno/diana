@@ -31,20 +31,23 @@
 #include <qtTextView.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qvbox.h>
-#include <qscrollview.h>
+#include <q3vbox.h>
+#include <q3scrollview.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
 TextWidget::TextWidget(QWidget* parent, const miString& text, int id_)
   : QWidget(parent)
 { 
   id = id_;
-  QScrollView* scroll = new QScrollView(this);
-  scroll->setResizePolicy(QScrollView::AutoOneFit);
-  QVBox *box = new QVBox( scroll->viewport());
+  Q3ScrollView* scroll = new Q3ScrollView(this);
+  scroll->setResizePolicy(Q3ScrollView::AutoOneFit);
+  Q3VBox *box = new Q3VBox( scroll->viewport());
   scroll->addChild( box );
-  label = new QLabel(text, box);
+  // qt4 fix: sends QString as arg, not miString
+  label = new QLabel(QString(text.c_str()), box);
 
-  QVBoxLayout *vlayout = new QVBoxLayout( this, 5, 5);
+  Q3VBoxLayout *vlayout = new Q3VBoxLayout( this, 5, 5);
   vlayout->addWidget( scroll );
 
 }
@@ -57,7 +60,7 @@ void TextWidget::setText(miString text)
 }
 
 TextView::TextView(QWidget* parent)
-  : QTabDialog(parent)
+  : Q3TabDialog(parent)
 { 
   setDefaultButton(tr("Print"));
   setOKButton(tr("Hide"));

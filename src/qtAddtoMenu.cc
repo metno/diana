@@ -30,12 +30,16 @@
 */
 #include <qtAddtoMenu.h>
 #include <qtQuickMenu.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qinputdialog.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 #include <miString.h>
 #include <filenew.xpm>
@@ -45,16 +49,16 @@ using namespace std;
 AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   : QDialog(parent, "addtomenu", true), quick(qm)
 {
-  QHBoxLayout* b= new QHBoxLayout(this, 10, 10, "top_hlayout");
+  Q3HBoxLayout* b= new Q3HBoxLayout(this, 10, 10, "top_hlayout");
 
-  frame= new QFrame(this);
-  frame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  frame= new Q3Frame(this);
+  frame->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
 
   QString t= "<em><b>"+tr("Add current plot to a private quickmenu")+"</b></em>";
   QLabel* label= new QLabel(t, frame);
-  label->setFrameStyle(QFrame::Panel | QFrame::Raised);
+  label->setFrameStyle(Q3Frame::Panel | Q3Frame::Raised);
   
-  list= new QListBox(frame,"menulist");
+  list= new Q3ListBox(frame,"menulist");
   connect(list, SIGNAL(highlighted(int)),SLOT(menuSelected(int)));
   connect(list, SIGNAL(selected(int)),SLOT(okClicked()));
   list->setMinimumWidth(100);
@@ -63,13 +67,13 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   newButton->setEnabled( true );
   connect( newButton, SIGNAL(clicked()), SLOT(newClicked()));
   
-  QHBoxLayout* hl= new QHBoxLayout(5);
+  Q3HBoxLayout* hl= new Q3HBoxLayout(5);
   hl->addWidget(list);
   hl->addWidget(newButton);
 
   // a horizontal frame line
-  QFrame* line = new QFrame( frame );
-  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame* line = new Q3Frame( frame );
+  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
   // last row of buttons
   okButton= new QPushButton( tr("&OK"), frame );
@@ -78,11 +82,11 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   connect( okButton, SIGNAL(clicked()), SLOT(okClicked()) );
   connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
 
-  QHBoxLayout* hl2= new QHBoxLayout(5);
+  Q3HBoxLayout* hl2= new Q3HBoxLayout(5);
   hl2->addWidget(okButton);
   hl2->addWidget(cancel);
   
-  QVBoxLayout* vl= new QVBoxLayout(frame, 5,5);
+  Q3VBoxLayout* vl= new Q3VBoxLayout(frame, 5,5);
   vl->addWidget(label);
   vl->addLayout(hl);
   vl->addWidget(line);

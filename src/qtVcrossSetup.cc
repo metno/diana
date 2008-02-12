@@ -36,6 +36,8 @@
 #include <qlayout.h>
 #include <qpixmap.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
 #include <diCommonTypes.h>
 #include <diVcrossManager.h>
 #include <qtVcrossSetup.h>
@@ -51,7 +53,7 @@ vector<miString>   VcrossSetup::linetypes;
 
 
 VcrossSetup::VcrossSetup( QWidget* parent,VcrossManager *vm, miString text,
-			QGridLayout * glayout, int row, int options, bool check)
+			Q3GridLayout * glayout, int row, int options, bool check)
   : QObject(parent),vcrossm(vm),name(text)
 {
   //a Qobject with a checkbox,and up to three comboboxes
@@ -95,7 +97,7 @@ VcrossSetup::VcrossSetup( QWidget* parent,VcrossManager *vm, miString text,
   } else{
     checkbox= 0;
     label = new QLabel(text.c_str(),parent);
-    glayout->addWidget(label,row,ncol,AlignLeft);
+    glayout->addWidget(label,row,ncol,Qt::AlignLeft);
     ncol++;
   }
 
@@ -387,7 +389,9 @@ void VcrossSetup::defineTextChoice(const vector<miString>& vchoice, int ndefault
     const char** cvstr= new const char*[m];
     for (int i=0; i<m; i++)
       cvstr[i]= vTextChoice[i].cStr();		
-    textchoicebox->insertStrList( cvstr, m );
+    // qt4 fix: insertStrList() -> insertStringList()
+    // (uneffective, have to make QStringList and QString!)
+    textchoicebox->insertStringList( QStringList(QString(cvstr[0])), m );
     textchoicebox->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
       textchoicebox->setCurrentItem(ndefault);

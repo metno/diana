@@ -54,7 +54,7 @@ class TimeSlider : public QSlider {
 public:
   TimeSlider(QWidget*);
   
-  TimeSlider(Orientation, QWidget*, const char *name=0);
+  TimeSlider(Qt::Orientation, QWidget*, const char *name=0);
 
   void clear();
   ///Current time

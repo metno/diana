@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qapplication.h>
-#include <qfiledialog.h>
-#include <qtoolbar.h>
+#include <q3filedialog.h>
+#include <q3toolbar.h>
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -40,6 +40,8 @@
 #include <qmotifstyle.h>
 #include <qtUtility.h>
 #include <qtSpectrumWindow.h>
+//Added by qt3to4:
+#include <QPixmap>
 #include <diStationPlot.h>
 #include <qtSpectrumWidget.h>
 #include <qtSpectrumModelDialog.h>
@@ -51,7 +53,7 @@
 
 
 SpectrumWindow::SpectrumWindow()
-  : QMainWindow( 0, "DIANA Spectrum window")
+  : Q3MainWindow( 0, "DIANA Spectrum window")
 {
 #ifndef linux
   qApp->setStyle(new QMotifStyle);
@@ -74,13 +76,13 @@ SpectrumWindow::SpectrumWindow()
 
 
   //tool bar and buttons
-  spToolbar = new QToolBar(tr("Wavespectrum - control"), this,QMainWindow::Top, FALSE,"spTool");
-  setDockEnabled( spToolbar, Left, FALSE );
-  setDockEnabled( spToolbar, Right, FALSE );
+  spToolbar = new Q3ToolBar(tr("Wavespectrum - control"), this,Qt::DockTop, FALSE,"spTool");
+  setDockEnabled( spToolbar, Qt::DockLeft, FALSE );
+  setDockEnabled( spToolbar, Qt::DockRight, FALSE );
   //tool bar for selecting time and station
-  tsToolbar = new QToolBar(tr("Wavespectrum - position/time"), this,QMainWindow::Top, FALSE,"tsTool");
-  setDockEnabled( tsToolbar, Left, FALSE );
-  setDockEnabled( tsToolbar, Right, FALSE );
+  tsToolbar = new Q3ToolBar(tr("Wavespectrum - position/time"), this,Qt::DockTop, FALSE,"tsTool");
+  setDockEnabled( tsToolbar, Qt::DockLeft, FALSE );
+  setDockEnabled( tsToolbar, Qt::DockRight, FALSE );
 
 
   //button for modeldialog-starts new dialog
@@ -386,7 +388,7 @@ void SpectrumWindow::printClicked()
       priop.printer= qprt->printerName().latin1();
 
     // start the postscript production
-    QApplication::setOverrideCursor( waitCursor );
+    QApplication::setOverrideCursor( Qt::waitCursor );
 
     spectrumm->startHardcopy(priop);
     spectrumw->updateGL();
@@ -412,7 +414,7 @@ void SpectrumWindow::printClicked()
 void SpectrumWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
-  QString s = QFileDialog::getSaveFileName(fname,
+  QString s = Q3FileDialog::getSaveFileName(fname,
 					   tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"),
 					   this, "save_file_dialog",
 					   tr("Save plot as image") );
@@ -444,7 +446,7 @@ void SpectrumWindow::saveClicked()
 
 void SpectrumWindow::makeEPS(const miString& filename)
 {
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;

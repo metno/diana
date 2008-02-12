@@ -41,8 +41,8 @@ using namespace std;
 class QFont;
 class QPalette;
 class VprofManager;
-class QListBox;
-class QButtonGroup;
+class Q3ListBox;
+class Q3ButtonGroup;
 class ToggleButton;
 
 /**
@@ -65,10 +65,10 @@ private:
   VprofManager * vprofm;
 
   //qt widget
-  QButtonGroup* modelfileBut;
+  Q3ButtonGroup* modelfileBut;
   ToggleButton* modelButton;
   ToggleButton* fileButton;
-  QListBox * modelfileList;
+  Q3ListBox * modelfileList;
 
   //dialog indices, changed when something is clicked
   int m_modelfileButIndex;

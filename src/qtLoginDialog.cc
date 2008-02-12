@@ -30,31 +30,37 @@
 */
 
 #include <qtLoginDialog.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
+#include <QLabel>
+#include <Q3Frame>
 
 
 LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
   : QDialog( parent, "login", true ), dbi(d)
 {
 
-  top_vlayout = new QVBoxLayout(this, 10, 10, "top_vlayout");
+  top_vlayout = new Q3VBoxLayout(this, 10, 10, "top_vlayout");
 
-  ff = new QFrame( this, "loginframe" );
-  ff->setFrameStyle( QFrame::Sunken | QFrame::Panel );
+  ff = new Q3Frame( this, "loginframe" );
+  ff->setFrameStyle( Q3Frame::Sunken | Q3Frame::Panel );
   ff->setLineWidth( 1 );
   top_vlayout->addWidget( ff, 1 );
 
-  f_vlayout=  new QVBoxLayout(ff, 10, 10, "f_vlayout");
+  f_vlayout=  new Q3VBoxLayout(ff, 10, 10, "f_vlayout");
 
    // Create a layout manager for the label
-  h_hlayout = new QHBoxLayout(20, "h_hlayout");
+  h_hlayout = new Q3HBoxLayout(20, "h_hlayout");
   QLabel* label= new QLabel(tr("Diana db login"), ff,"label");
-  label->setFrameStyle( QFrame::Panel | QFrame::Raised );
+  label->setFrameStyle( Q3Frame::Panel | Q3Frame::Raised );
   label->setFont(QFont( "Helvetica", 14, QFont::Normal, true ));
   label->setPalette( QPalette( QColor(255, 89, 0) ) );
   h_hlayout->addWidget(label,0);
   f_vlayout->addLayout(h_hlayout, 0);
 
-  QGridLayout* glayout = new QGridLayout(3,2,5,"loglayout");
+  Q3GridLayout* glayout = new Q3GridLayout(3,2,5,"loglayout");
   
   int startwidget= 0;
   QLabel* server= new QLabel(tr("Database server:"), ff,"server"); 
@@ -89,7 +95,7 @@ LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
   connect(quitb, SIGNAL(clicked()), SLOT(reject()));
 
   // buttons layout
-  b_hlayout = new QHBoxLayout(20, "b_hlayout");
+  b_hlayout = new Q3HBoxLayout(20, "b_hlayout");
   b_hlayout->addWidget(okb, 10);
   b_hlayout->addWidget(quitb, 10);
 

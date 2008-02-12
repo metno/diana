@@ -32,15 +32,19 @@
 #include <qlayout.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
 #include <qstring.h> 
 #include <qtooltip.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qtUtility.h>
 #include <qtGeoPosLineEdit.h>
 #include <qtTrajectoryDialog.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 
 #include <math.h>
 #include <sstream>
@@ -120,8 +124,8 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
 		 tr("Lat Lon (deg:min:sec or decimal)") );
   connect( edit, SIGNAL( returnPressed()), SLOT( editDone() ));  
   
-  posList = new QListBox(this);
-  connect( posList, SIGNAL( clicked( QListBoxItem * ) ),   
+  posList = new Q3ListBox(this);
+  connect( posList, SIGNAL( clicked( Q3ListBoxItem * ) ),   
 	   SLOT( posListSlot( ) ) );
   
   //push button to delete last pos
@@ -133,7 +137,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   connect( deleteAllButton, SIGNAL(clicked()),SLOT(deleteAllClicked()));
   
   //place delete buttons in layout
-  QHBoxLayout* dellayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* dellayout = new Q3HBoxLayout( 5 );
   dellayout->addWidget( deleteButton );
   dellayout->addWidget( deleteAllButton );
   
@@ -143,7 +147,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   connect(startCalcButton, SIGNAL(clicked()), SLOT( startCalcButtonClicked()));
   
   fieldName = new QLabel(this);
-  fieldName->setAlignment(QLabel::AlignCenter);
+  fieldName->setAlignment(Qt::AlignCenter);
   /*****************************************************************/
   
   //push button to show help
@@ -156,7 +160,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
 		 tr("Print calc. positions to file: trajectory.txt") );
   connect(  print, SIGNAL(clicked()), SLOT( printClicked()));    
   
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
   hlayout2->addWidget( Help );
   hlayout2->addWidget( print );
 
@@ -168,16 +172,16 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   QPushButton * quit = NormalPushButton( tr("Quit"), this);
   connect(quit, SIGNAL(clicked()), SLOT( quitClicked()) );
   
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
   hlayout1->addWidget( Hide );
   hlayout1->addWidget( quit );
   
   // ********************* place all the widgets in layouts ****************
-  QFrame *line1 = new QFrame( this );
-  line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame *line1 = new Q3Frame( this );
+  line1->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
   
   //now create a grid layout 
-  QGridLayout* gridlayout = new QGridLayout( 6, 2, 1 );
+  Q3GridLayout* gridlayout = new Q3GridLayout( 6, 2, 1 );
   gridlayout->addWidget( collabel,       0, 0 );
   gridlayout->addWidget( colbox,         0, 1 );
   gridlayout->addWidget( lineWidthLabel, 1, 0 );
@@ -193,7 +197,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   gridlayout->addWidget( radiusSpin,     6, 1 );
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 5, 5 );         
+  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 5, 5 );         
   vlayout->addLayout( gridlayout ); 
   vlayout->addWidget( posButton ); 
   vlayout->addWidget( posLabel );
@@ -240,10 +244,16 @@ void TrajectoryDialog::radiusSpinChanged(int i){
   //this slot is called when the spin box is changed
 
   if(i==110){
-    radiusSpin->setSteps(50,50);
+    // qt4 fix: setSteps() is removed from QRangeControl
+    // using alternative method to set linestep(now called singlestep)
+    // pagestep is NOT set at all!
+    // Old line: radiusSpin->setSteps(50,50);
+    radiusSpin->setSingleStep(50);
+
     radiusSpin->setValue(150);
   } else if(i==100){
-    radiusSpin->setSteps(10,10);
+    // Old line: radiusSpin->setSteps(10,10);
+    radiusSpin->setSingleStep(10);
   }
 
   int current = posList->currentItem();
@@ -262,7 +272,8 @@ void TrajectoryDialog::posListSlot(){
   
   radiusSpin->setValue(positionVector[current].radius);
   if(positionVector[current].radius>100)
-    radiusSpin->setSteps(50,50);
+    // Old line: radiusSpin->setSteps(50,50);
+    radiusSpin->setSingleStep(50);
   if(positionVector[current].numPos == "5")
     numposBox->setCurrentItem(1);
   else if(positionVector[current].numPos == "1")
@@ -530,8 +541,9 @@ void TrajectoryDialog::update_posList(float lat, float lon) {
     ost << "'E";
   else
     ost << "'W";
-  
-  posList->insertItem(ost.str());
+ 
+  // qt4 fix: insertItem takes QString as argument 
+  posList->insertItem(QString(ost.str().c_str()));
   
 }
 /*********************************************/
@@ -670,7 +682,10 @@ void TrajectoryDialog::readLog(const vector<miString>& vstr,
 
   radiusSpin->setValue(radius);
   if(radius>100)
-    radiusSpin->setSteps(50,50);
+    // qt4 fix: insertStrList() -> insertStringList()
+    // (uneffective, have to make QStringList and QString!)
+    // Old line: radiusSpin->setSteps(50,50);
+    radiusSpin->setSingleStep(50);
   if(numPos == "5")
     numposBox->setCurrentItem(1);
   else if(numPos == "1")
