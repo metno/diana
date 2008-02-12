@@ -32,6 +32,8 @@
 
 #include <qdialog.h>
 #include <qlabel.h>
+//Added by qt3to4:
+#include <QCloseEvent>
 #include <profet/ProfetCommon.h>
 #include <profetSQL/fetModel.h>
 #include <profetSQL/fetSession.h>
@@ -43,10 +45,10 @@
 #include <vector>
 
 class QButton;
-class QListBox;
-class QHBox;
+class Q3ListBox;
+class Q3HBox;
 class QTabWidget;
-class QTextEdit;
+class Q3TextEdit;
 class QLineEdit;
 
 class ProfetSessionDialog: public QDialog{
@@ -57,9 +59,9 @@ private:
   QLabel  * modelLabel;
   QButton * updateButton;
   QButton * closeButton;
-  QHBox   * objectBox;
-  QListBox * userList;
-  QListBox * objectList;
+  Q3HBox   * objectBox;
+  Q3ListBox * userList;
+  Q3ListBox * objectList;
   QLabel  * objectAlgLabel;
   QLabel  * objectOwnerLabel;
   QLabel  * objectStatusLabel;
@@ -67,7 +69,7 @@ private:
   QButton * editObjectButton;
   QButton * deleteObjectButton;
   QTabWidget * tabWidget;
-  QTextEdit * chatOutput;
+  Q3TextEdit * chatOutput;
   QLineEdit * chatInput;
   ProfetChatWidget * chatWidget;
   ProfetSessionTable * table;

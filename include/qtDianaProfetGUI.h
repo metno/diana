@@ -31,6 +31,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qobject.h> 
+//Added by qt3to4:
+#include <QCustomEvent>
 #include <profet/ProfetController.h>
 #include <profet/ProfetGUI.h>
 #include "qtProfetEvents.h"

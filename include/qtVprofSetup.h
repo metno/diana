@@ -35,11 +35,14 @@
 #include <diCommonTypes.h>
 #include <vector>
 #include <qwidget.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
+#include <QLabel>
 
 using namespace std;
 
 class QFont;
-class QGridLayout;
+class Q3GridLayout;
 class QCheckBox;
 class QLabel;
 class QComboBox;
@@ -56,7 +59,7 @@ class VprofSetup: public QObject
 public:
 
   //the constructor
-  VprofSetup( QWidget* parent, VprofManager* vm, miString, QGridLayout *,
+  VprofSetup( QWidget* parent, VprofManager* vm, miString, Q3GridLayout *,
 	      int,int, bool);
 
   bool isOn();

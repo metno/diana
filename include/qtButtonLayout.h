@@ -34,7 +34,7 @@
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qpalette.h>
 #include <miString.h>
 #include <diCommonTypes.h>
@@ -88,7 +88,7 @@ private:
   void setButton( int tt );
 
   ToggleButton** b;
-  QButtonGroup* bgroup;
+  Q3ButtonGroup* bgroup;
   QPalette extraPalette;
 
   vector<bool> buttonOn;

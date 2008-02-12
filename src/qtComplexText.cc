@@ -39,6 +39,11 @@
 #include <qlabel.h>
 #include <qtComplexText.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <QPixmap>
+#include <Q3VBoxLayout>
 #include <miString.h>
 #include <qstring.h>
 #include <qtToggleButton.h>
@@ -95,12 +100,12 @@ vector <miString> & symbolText, vector <miString>  & xText,
   setCaption(tr("Write text"));
 
  //  //horizontal layout for holding grid layouts
-  QHBoxLayout * hglayout = new QHBoxLayout(20, "hglayout");
+  Q3HBoxLayout * hglayout = new Q3HBoxLayout(20, "hglayout");
   //grid layouts
   int ns = symbolText.size();
   int nx = xText.size();
   if (ns){
-    QGridLayout* glayout = new QGridLayout(ns,2,5,"symbol");
+    Q3GridLayout* glayout = new Q3GridLayout(ns,2,5,"symbol");
     hglayout->addLayout(glayout, 0);
 
     //set <miString> complexList = m_ctrl->getComplexList();
@@ -151,7 +156,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
 
   
   if (nx){
-    QGridLayout* glayout = new QGridLayout(nx,2,5,"xtext");
+    Q3GridLayout* glayout = new Q3GridLayout(nx,2,5,"xtext");
     hglayout->addLayout(glayout, 0);
     for (int i=0;i<nx;i++){
       miString ltext="X"+miString(i+1);
@@ -185,12 +190,12 @@ vector <miString> & symbolText, vector <miString>  & xText,
   quitb->setMaximumSize( width, height );
 
   // buttons layout
-  QHBoxLayout * hlayout = new QHBoxLayout(20, "hlayout");
+  Q3HBoxLayout * hlayout = new Q3HBoxLayout(20, "hlayout");
   hlayout->addWidget(okb, 10);
   hlayout->addWidget(quitb, 10);
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                            
+  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );                            
   vlayout->addLayout(hglayout, 0);
   vlayout->addLayout(hlayout,0);
 

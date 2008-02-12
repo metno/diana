@@ -32,6 +32,9 @@
 #define _editDefineFielddialog_h
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <QLabel>
 
 #include <diEditSpec.h>
 #include <miString.h>
@@ -42,12 +45,12 @@ using namespace std;
 
 class Controller;
 class EditManager;
-class QVBoxLayout;
+class Q3VBoxLayout;
 class QLabel;
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QPushButton;
-class QVButtonGroup;
+class Q3VButtonGroup;
 class QCheckBox;
 
 
@@ -96,11 +99,11 @@ private:
   EditManager* m_editm;
 
   QComboBox* prodnamebox;   //list of available products
-  QListBox *fBox;           // list of available fields
+  Q3ListBox *fBox;           // list of available fields
 
  // the box showing which files have been choosen
   QLabel* filesLabel;
-  QListBox* filenames;
+  Q3ListBox* filenames;
 
   //delete and refresh buttons
   QPushButton* Delete;
@@ -110,7 +113,7 @@ private:
   QPushButton *help;
 
   //Checkboxes for selecting fronts/symbols/areas
-  QVButtonGroup * bgroupobjects;
+  Q3VButtonGroup * bgroupobjects;
   QCheckBox *cbs0;
   QCheckBox *cbs1;
   QCheckBox *cbs2;

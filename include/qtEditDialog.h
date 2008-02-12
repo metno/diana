@@ -34,6 +34,10 @@
 
 #include <qdialog.h>
 #include <qpixmap.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QLabel>
+#include <Q3VBoxLayout>
 
 #include <miString.h>
 #include <vector>
@@ -43,15 +47,15 @@
 using namespace std;
 
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QLabel;
 class QSlider;
-class QVBox;
-class QVBoxLayout;
-class QHBoxLayout;
+class Q3VBox;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
 class ToggleButton;
-class QButtonGroup;
-class QVButtonGroup;
+class Q3ButtonGroup;
+class Q3VButtonGroup;
 class QPushButton;
 class QRadioButton;
 class QTabWidget;
@@ -100,7 +104,7 @@ private:
   void FrontTab();
   void CombineTab();
   void CombineEditMethods();
-  void ListBoxData( QListBox* list, int mindex, int index);
+  void ListBoxData( Q3ListBox* list, int mindex, int index);
   void ComboBoxData( QComboBox* box, int mindex);
   bool saveEverything(bool send);
   void updateLabels();
@@ -180,9 +184,9 @@ private:
   EditDialogInfo m_EditDI;
 
   QComboBox* m_Frontcm;
-  QListBox* m_Fronteditmethods;
-  QListBox* m_Fieldeditmethods;
-  QListBox* m_SelectAreas;
+  Q3ListBox* m_Fronteditmethods;
+  Q3ListBox* m_Fieldeditmethods;
+  Q3ListBox* m_SelectAreas;
   QMessageBox* mb;
   QMessageBox* mb2;
 
@@ -192,14 +196,14 @@ private:
   QLabel *prodlabel;
   QLabel *lStatus;
 
-  QButtonGroup* bgroupinfluence;
+  Q3ButtonGroup* bgroupinfluence;
   QRadioButton* rbInfluence[4];
 
   QLabel* ellipsenumber;
   QSlider* ellipseslider;
   vector<float> ellipsenumbers;
 
-  QButtonGroup* bgroup;
+  Q3ButtonGroup* bgroup;
   QPushButton** b;
   ToggleButton* commentbutton;
   ToggleButton* pausebutton;
@@ -218,15 +222,15 @@ private:
   QPixmap lockValuePixmap;
 
   //toplayout
-  QVBoxLayout* vlayout;
+  Q3VBoxLayout* vlayout;
   // tab widgets
-  QVBox* fieldtab;
-  QVBox* objecttab;
-  QVBox* combinetab;
+  Q3VBox* fieldtab;
+  Q3VBox* objecttab;
+  Q3VBox* combinetab;
 
   enum { maxfields=2 };
   int numfields, fieldIndex;
-  QButtonGroup* fgroup;
+  Q3ButtonGroup* fgroup;
   QPushButton** fbutton;
 
   int m_FrontcmIndex; // index of m_Frontcm;

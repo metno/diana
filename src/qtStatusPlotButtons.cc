@@ -31,10 +31,17 @@
 
 #include <qtStatusPlotButtons.h>
 #include <qtooltip.h>
-#include <qgrid.h>
+#include <q3grid.h>
 #include <qlayout.h>
 #include <qlabel.h>
-#include <qscrollview.h>
+#include <q3scrollview.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <QFocusEvent>
+#include <Q3Frame>
+#include <Q3PopupMenu>
+#include <QKeyEvent>
 #include <iostream>
 #include <qtImageGallery.h>
 #include <qimage.h>
@@ -121,21 +128,21 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent, const char* name)
   setMaximumHeight(35);
   //setFocusPolicy(QWidget::TabFocus);
 
-  QHBoxLayout* hl= new QHBoxLayout(this,0); // parent,margin
-  sv = new QScrollView(this);
-  sv->setFrameStyle(QFrame::NoFrame);
+  Q3HBoxLayout* hl= new Q3HBoxLayout(this,0); // parent,margin
+  sv = new Q3ScrollView(this);
+  sv->setFrameStyle(Q3Frame::NoFrame);
 
   hl->addWidget(sv);
 
   QWidget *w= new QWidget(sv->viewport());
   // rows, cols, border and space
-  grid= new QGridLayout(w, 1, MAXBUTTONS, 0, 0);
+  grid= new Q3GridLayout(w, 1, MAXBUTTONS, 0, 0);
 
   sv->addChild(w);
 
-  sv->setResizePolicy(QScrollView::AutoOneFit);
-  sv->setVScrollBarMode(QScrollView::AlwaysOff);
-  sv->setHScrollBarMode(QScrollView::AlwaysOff);
+  sv->setResizePolicy(Q3ScrollView::AutoOneFit);
+  sv->setVScrollBarMode(Q3ScrollView::AlwaysOff);
+  sv->setHScrollBarMode(Q3ScrollView::AlwaysOff);
 
   PlotElement pe;
   pe.enabled= true;
@@ -149,7 +156,7 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent, const char* name)
   }
   grid->activate();
   
-  showtip= new QPopupMenu(this);
+  showtip= new Q3PopupMenu(this);
   showtip->setPaletteBackgroundColor(QColor(255,250,205));
 }
 
@@ -215,23 +222,23 @@ void StatusPlotButtons::keyPressEvent ( QKeyEvent * e )
     return;
   }
 
-  if (e->key() == Key_Left){
+  if (e->key() == Qt::Key_Left){
     if (activebutton > 0){
       showActiveButton(false);
       activebutton--;
       showActiveButton(true);
     }
-  } else if (e->key() == Key_Right){
+  } else if (e->key() == Qt::Key_Right){
     if (activebutton < numbuttons-1){
       showActiveButton(false);
       activebutton++;
       showActiveButton(true);
     }
-  } else if (e->key() == Key_Up || e->key() == Key_Down){
+  } else if (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down){
     if (activebutton>=0 && activebutton < numbuttons){
       buttons[activebutton]->toggle();
     }
-  } else if (e->key() == Key_End){
+  } else if (e->key() == Qt::Key_End){
     releasefocus();
   } else {
     releasefocus();

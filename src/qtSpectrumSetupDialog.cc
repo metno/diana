@@ -34,12 +34,16 @@
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include <qvbuttongroup.h>
+#include <qbuttongroup.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
-#include <qvbox.h>
+#include <q3vbox.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 #include <diSpectrumManager.h>
 #include <qtSpectrumSetup.h>
 #include <qtSpectrumSetupDialog.h>
@@ -100,18 +104,18 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );
+  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );
   vlayout->addLayout( glayout );
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
@@ -134,7 +138,7 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   // for the checkboxes/comboboxes/spinboxes
   int numrows= 14;
 //glayout = new QGridLayout(numrows,4); // linewidth not used, yet...
-  glayout = new QGridLayout(numrows,3);
+  glayout = new Q3GridLayout(numrows,3);
   glayout->setMargin( 5 );
   glayout->setSpacing( 2 );
 

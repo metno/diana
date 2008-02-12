@@ -30,8 +30,10 @@
 */
 #include <qtButtonLayout.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
 #include <stdio.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <iostream>
 #include <qtooltip.h>
 
@@ -56,7 +58,7 @@ ButtonLayout::ButtonLayout( QWidget* parent,
   if( nr_buttons % nr_col )
     nr_lines++;  
  
-  bgroup = new QButtonGroup( this );
+  bgroup = new Q3ButtonGroup( this );
   b      = new ToggleButton*[nr_buttons];
   buttonOn.insert(buttonOn.end(),nr_buttons,false);
   buttonRightOn.insert(buttonRightOn.end(),nr_buttons,false);
@@ -76,7 +78,7 @@ ButtonLayout::ButtonLayout( QWidget* parent,
 
   bgroup->hide();
   
-  QGridLayout *layoutgrid = new QGridLayout(this, nr_lines, nr_col); 
+  Q3GridLayout *layoutgrid = new Q3GridLayout(this, nr_lines, nr_col); 
   for( int k=0; k<nr_lines; k++){ 
     for( int i=0; i<nr_col;i++ ){
       int index = i + k*nr_col;

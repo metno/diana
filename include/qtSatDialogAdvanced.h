@@ -33,13 +33,15 @@
 
 #include <qdialog.h>
 #include <qfont.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 #include <miString.h>
 #include <vector>
 #include <diController.h>
 #include <qlabel.h>
-#include <qgroupbox.h>
+#include <q3groupbox.h>
 #include <qlayout.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <diColour.h>
 #include <qtToggleButton.h>
 
@@ -137,10 +139,10 @@ private:
   SliderValues m_alphacut;
   SliderValues m_alpha;
 
-  QGroupBox *colourEdit;
-  QListBox * colourList;
+  Q3GroupBox *colourEdit;
+  Q3ListBox * colourList;
 
-  QVBoxLayout* vlayout;
+  Q3VBoxLayout* vlayout;
 
   miString picturestring; //string describing selected picture
 

@@ -34,6 +34,8 @@
 #include <qstring.h>
 #include <qapplication.h>
 #include <qeventloop.h>
+//Added by qt3to4:
+#include <QCustomEvent>
 
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) : 

@@ -33,23 +33,28 @@
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qslider.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qlayout.h>
 #include <qpushbutton.h>
 #include <qsplitter.h>
-#include <qgroupbox.h>
-#include <qvbox.h>
+#include <q3groupbox.h>
+#include <q3vbox.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
 #include <qtooltip.h>
-#include <qframe.h>
+#include <q3frame.h>
 
 #include <qtFieldDialog.h>
 #include <qtUtility.h>
 #include <qtToggleButton.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3GridLayout>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 #include <diController.h>
 #include <diRectangle.h>
@@ -63,6 +68,10 @@
 #include <up12x12.xpm>
 #include <down12x12.xpm>
 #include <minus12x12.xpm>
+
+// qt4 fix
+#include <QString>
+#include <QStringList>
 
 
 FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
@@ -231,7 +240,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   // modellabel
   QLabel *modellabel= TitleLabel( tr("Models"), this );
   //h1 modelbox
-  modelbox = new QListBox( this );
+  modelbox = new Q3ListBox( this );
 // #ifdef DISPLAY1024X768
 //   modelbox->setMinimumHeight( 60 );
 //   modelbox->setMaximumHeight( 60 );
@@ -256,7 +265,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   QLabel *fieldlabel= TitleLabel( tr("Fields"), this );
 
   // fieldbox
-  fieldbox = new QListBox( this );
+  fieldbox = new Q3ListBox( this );
 // #ifdef DISPLAY1024X768
 //   fieldbox->setMinimumHeight( 64 );
 //   fieldbox->setMaximumHeight( 64 );
@@ -264,7 +273,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 //   fieldbox->setMinimumHeight( 132 );
 //   fieldbox->setMaximumHeight( 132 );
 // #endif
-  fieldbox->setSelectionMode( QListBox::Multi );
+  fieldbox->setSelectionMode( Q3ListBox::Multi );
 
   connect( fieldbox, SIGNAL( selectionChanged() ),
   	   SLOT( fieldboxChanged() ) );
@@ -273,7 +282,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   QLabel *selectedFieldlabel= TitleLabel( tr("Selected fields"), this );
 
   // selectedFieldbox
-  selectedFieldbox = new QListBox( this );
+  selectedFieldbox = new Q3ListBox( this );
 // #ifdef DISPLAY1024X768
 //   selectedFieldbox->setMinimumHeight( 55 );
 //   selectedFieldbox->setMaximumHeight( 55 );
@@ -281,7 +290,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 //   selectedFieldbox->setMinimumHeight( 80 );
 //   selectedFieldbox->setMaximumHeight( 80 );
 // #endif
-  selectedFieldbox->setSelectionMode( QListBox::Single );
+  selectedFieldbox->setSelectionMode( Q3ListBox::Single );
   selectedFieldbox->setEnabled( true );
 
   connect( selectedFieldbox, SIGNAL( highlighted( int ) ),
@@ -295,11 +304,11 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 		             levelLabel->sizeHint().height()+10);
   levelLabel->setText(" ");
 
-  levelLabel->setFrameStyle( QFrame::Box | QFrame::Plain);
+  levelLabel->setFrameStyle( Q3Frame::Box | Q3Frame::Plain);
   levelLabel->setLineWidth(2);
   levelLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
-  levelSlider = new QSlider( 0, 1, 1, 0, QSlider::Vertical, this);
+  levelSlider = new QSlider( 0, 1, 1, 0, Qt::Vertical, this);
 
   levelSlider->setEnabled( false );
 
@@ -323,11 +332,11 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 		             idnumLabel->sizeHint().height()+10);
   idnumLabel->setText(" ");
 
-  idnumLabel->setFrameStyle( QFrame::Box | QFrame::Plain);
+  idnumLabel->setFrameStyle( Q3Frame::Box | Q3Frame::Plain);
   idnumLabel->setLineWidth(2);
   idnumLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
-  idnumSlider = new QSlider( 0, 1, 1, 0, QSlider::Horizontal, this);
+  idnumSlider = new QSlider( 0, 1, 1, 0, Qt::Horizontal, this);
 
   idnumSlider->setEnabled( false );
 
@@ -509,7 +518,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   connect( fieldapply, SIGNAL(clicked()), SLOT( applyClicked()));
 
   // layout
-  v1layout = new QVBoxLayout( 5 );
+  v1layout = new Q3VBoxLayout( 5 );
   v1layout->addWidget( modelGRlabel );
   v1layout->addWidget( modelGRbox );
   v1layout->addSpacing( 5 );
@@ -525,39 +534,39 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   v1layout->addWidget( selectedFieldlabel );
   v1layout->addWidget( selectedFieldbox,2 );
 
-  QVBoxLayout* h2layout= new QVBoxLayout( 2 );
+  Q3VBoxLayout* h2layout= new Q3VBoxLayout( 2 );
   h2layout->addWidget( upFieldButton );
   h2layout->addWidget( downFieldButton );
   h2layout->addWidget( resetOptionsButton );
   h2layout->addWidget( minusButton );
   h2layout->addStretch(1);
 
-  v1h4layout = new QHBoxLayout( 2 );
+  v1h4layout = new Q3HBoxLayout( 2 );
   v1h4layout->addWidget( Delete );
   v1h4layout->addWidget( copyField );
 
-  QHBoxLayout* vxh4layout = new QHBoxLayout( 2 );
+  Q3HBoxLayout* vxh4layout = new Q3HBoxLayout( 2 );
   vxh4layout->addWidget( deleteAll );
   vxh4layout->addWidget( changeModelButton );
 
-  QVBoxLayout* v3layout= new QVBoxLayout( 2 );
+  Q3VBoxLayout* v3layout= new Q3VBoxLayout( 2 );
   v3layout->addLayout( v1h4layout );
   v3layout->addLayout( vxh4layout );
 
-  QHBoxLayout* v1h5layout= new QHBoxLayout( 2 );
+  Q3HBoxLayout* v1h5layout= new Q3HBoxLayout( 2 );
   v1h5layout->addWidget( historyBackButton );
   v1h5layout->addWidget( historyForwardButton );
 
-  QVBoxLayout* v4layout= new QVBoxLayout( 2 );
+  Q3VBoxLayout* v4layout= new Q3VBoxLayout( 2 );
   v4layout->addLayout( v1h5layout );
   v4layout->addWidget( historyOkButton, 1 );
 
-  QHBoxLayout* h3layout= new QHBoxLayout( 2 );
+  Q3HBoxLayout* h3layout= new Q3HBoxLayout( 2 );
   h3layout->addLayout( v3layout );
   h3layout->addLayout( v4layout );
 
 
-  optlayout = new QGridLayout( 6, 2, 1 );
+  optlayout = new Q3GridLayout( 6, 2, 1 );
   optlayout->addWidget( colorlabel,       0, 0 );
   optlayout->addWidget( colorCbox,        0, 1 );
   optlayout->addWidget( linewidthlabel,   1, 0 );
@@ -571,48 +580,48 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   optlayout->addWidget( vectorunitlabel,  5, 0 );
   optlayout->addWidget( vectorunitCbox,   5, 1 );
 
-  QHBoxLayout* levelsliderlayout= new QHBoxLayout(0);
+  Q3HBoxLayout* levelsliderlayout= new Q3HBoxLayout(0);
   levelsliderlayout->setAlignment( Qt::AlignHCenter );
   levelsliderlayout->addWidget( levelSlider );
 
-  QHBoxLayout* levelsliderlabellayout= new QHBoxLayout(0);
+  Q3HBoxLayout* levelsliderlabellayout= new Q3HBoxLayout(0);
   levelsliderlabellayout->setAlignment( Qt::AlignHCenter );
   levelsliderlabellayout->addWidget( levelsliderlabel );
 
-  levellayout = new QVBoxLayout(3);
+  levellayout = new Q3VBoxLayout(3);
   levellayout->addWidget( levelLabel );
   levellayout->addLayout( levelsliderlayout );
   levellayout->addLayout( levelsliderlabellayout );
 
-  h4layout = new QHBoxLayout( 5 );
+  h4layout = new Q3HBoxLayout( 5 );
   h4layout->addLayout( h2layout );
   h4layout->addLayout( optlayout );
   h4layout->addLayout( levellayout );
 
-  idnumlayout = new QHBoxLayout(3);
+  idnumlayout = new Q3HBoxLayout(3);
   idnumlayout->addWidget( idnumLabel );
   idnumlayout->addWidget( idnumSlider );
   idnumlayout->addWidget( idnumsliderlabel );
 
-  h5layout = new QHBoxLayout( 2 );
+  h5layout = new Q3HBoxLayout( 2 );
   h5layout->addWidget( fieldhelp );
   h5layout->addWidget( allTimeStepButton );
   h5layout->addWidget( advanced );
 
-  h6layout = new QHBoxLayout( 2 );
+  h6layout = new Q3HBoxLayout( 2 );
   h6layout->addWidget( fieldhide );
   h6layout->addWidget( fieldapplyhide );
   h6layout->addWidget( fieldapply );
 
-  QVBoxLayout* v6layout= new QVBoxLayout( 2 );
+  Q3VBoxLayout* v6layout= new Q3VBoxLayout( 2 );
   v6layout->addLayout( h5layout );
   v6layout->addLayout( h6layout );
 
   // vlayout
 #ifdef DISPLAY1024X768
-  vlayout = new QVBoxLayout( this, 5, 5 );
+  vlayout = new Q3VBoxLayout( this, 5, 5 );
 #else
-  vlayout = new QVBoxLayout( this, 10, 10 );
+  vlayout = new Q3VBoxLayout( this, 10, 10 );
 #endif
   vlayout->addLayout( v1layout );
   vlayout->addLayout( h3layout );
@@ -967,25 +976,25 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( zeroLineCheckBoxToggled(bool) ) );
 
   // Create horizontal frame lines
-  QFrame *line0 = new QFrame( advFrame );
-  line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-  QFrame *line1 = new QFrame( advFrame );
-  line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-  QFrame *line2 = new QFrame( advFrame );
-  line2->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-  QFrame *line3 = new QFrame( advFrame );
-  line3->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-  QFrame *line4 = new QFrame( advFrame );
-  line4->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-  QFrame *line5 = new QFrame( advFrame );
-  line5->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-  QFrame *line6 = new QFrame( advFrame );
-  line6->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame *line0 = new Q3Frame( advFrame );
+  line0->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  Q3Frame *line1 = new Q3Frame( advFrame );
+  line1->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  Q3Frame *line2 = new Q3Frame( advFrame );
+  line2->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  Q3Frame *line3 = new Q3Frame( advFrame );
+  line3->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  Q3Frame *line4 = new Q3Frame( advFrame );
+  line4->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  Q3Frame *line5 = new Q3Frame( advFrame );
+  line5->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  Q3Frame *line6 = new Q3Frame( advFrame );
+  line6->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
 
   // layout......................................................
 
-  QGridLayout* advLayout = new QGridLayout( 33, 3, 1 );
+  Q3GridLayout* advLayout = new Q3GridLayout( 33, 3, 1 );
   int line = 0;
   advLayout->addWidget( extremeTypeLabel,    line, 0 );
   advLayout->addWidget(extremeSizeLabel,     line, 1 );
@@ -1105,11 +1114,11 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addWidget( threeColourBox[2],    line, 2 );
 
   // a separator
-  QFrame* advSep= new QFrame( advFrame );
-  advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
+  Q3Frame* advSep= new Q3Frame( advFrame );
+  advSep->setFrameStyle( Q3Frame::VLine | Q3Frame::Raised );
   advSep->setLineWidth( 5 );
 
-  QHBoxLayout *hLayout = new QHBoxLayout( advFrame,5,5 );
+  Q3HBoxLayout *hLayout = new Q3HBoxLayout( advFrame,5,5 );
 
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
@@ -1155,7 +1164,9 @@ void FieldDialog::updateModelBoxes()
     }
   }
 
-  modelGRbox->insertStrList( cvstr, m );
+  // qt4 fix: insertStrList -> insertStringList
+  // (uneffective, have to make QString and QStringList!)
+  modelGRbox->insertStringList( QStringList(QString(cvstr[0])), m );
   modelGRbox->setCurrentItem(0);
 
   delete[] cvstr;
@@ -1244,7 +1255,9 @@ void FieldDialog::modelboxHighlighted( int index ){
     const char** cvstr= new const char*[nvfgi];
     for (i=0; i<nvfgi; i++)
       cvstr[i]=  vfgi[i].groupName.c_str();
-    fieldGRbox->insertStrList( cvstr, nvfgi );
+    // qt4 fix: insertStrList -> insertStringList
+    // (uneffective, have to make QString and QStringList!)
+    fieldGRbox->insertStringList( QStringList(QString(cvstr[0])), nvfgi );
     fieldGRbox->setEnabled( true );
     delete[] cvstr;
     indexFGR= -1;
@@ -2126,7 +2139,9 @@ void FieldDialog::enableFieldOptions(){
   // wind/vector density
   if ((nc=cp->findKey(vpcopt,"density"))>=0) {
     if (!densityCbox->isEnabled()) {
-      densityCbox->insertStrList(cdensities, nr_densities);
+      // qt4 fix: insertStrList -> insertStringList
+      // (uneffective, have to make QString and QStringList!)
+      densityCbox->insertStringList(QStringList(QString(cdensities[0])), nr_densities);
       densityCbox->setEnabled(true);
     }
     miString s;
@@ -2150,7 +2165,9 @@ void FieldDialog::enableFieldOptions(){
 	for (i=0; i<nr_densities; i++)
 	  cdensities[i]= density[i].c_str();
 	densityCbox->clear();
-        densityCbox->insertStrList(cdensities, nr_densities);
+        // qt4 fix: insertStrList -> insertStringList
+        // (uneffective, have to make QString and QStringList!)
+        densityCbox->insertStringList(QStringList(QString(cdensities[0])), nr_densities);
       }
     }
     densityCbox->setCurrentItem(i);
@@ -2179,7 +2196,9 @@ void FieldDialog::enableFieldOptions(){
       const char** cvstr= new const char*[n];
       for (i=0; i<n; i++ )
         cvstr[i]=  extremeType[i].c_str();
-      extremeTypeCbox->insertStrList( cvstr, n );
+      // qt4 fix: insertStrList -> insertStringList
+      // (uneffective, have to make QString and QStringList!)
+      extremeTypeCbox->insertStringList( QStringList(QString(cvstr[0])), n );
       delete[] cvstr;
       extremeTypeCbox->setEnabled(true);
     }
@@ -2322,7 +2341,9 @@ void FieldDialog::enableFieldOptions(){
       const char** cvstr= new const char*[n];
       for (i=0; i<n; i++ )
         cvstr[i]=  undefMasking[i].c_str();
-      undefMaskingCbox->insertStrList( cvstr, n );
+      // qt4 fix: insertStrList -> insertStringList
+      // (uneffective, have to make QString and QStringList!)
+      undefMaskingCbox->insertStringList( QStringList(QString(cvstr[0])), n );
       delete[] cvstr;
       undefMaskingCbox->setEnabled(true);
     }
@@ -2659,7 +2680,9 @@ vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
   const char** cvstr= new const char*[n];
   for (i=0; i<n; ++i) cvstr[i]= vnumber[i].c_str();
   cBox->clear();
-  cBox->insertStrList(cvstr,n);
+  // qt4 fix: insertStrList -> insertStringList
+  // (uneffective, have to make QString and QStringList!)
+  cBox->insertStringList(QStringList(QString(cvstr[0])),n);
   cBox->setCurrentItem(nupdown);
   //  cBox->setEnabled(true);
   delete[] cvstr;
@@ -3217,7 +3240,7 @@ void FieldDialog::getFieldGroups(const miString& model,
 
   miString modelName;
 
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
 
   m_ctrl->getFieldGroups(model,modelName,vfg);
 

@@ -30,16 +30,18 @@
 #define QTPROFETOBJECTDIALOG_H_
 
 #include <qdialog.h>
-#include <qgroupbox.h>
+#include <q3groupbox.h>
 #include <qstring.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
-#include <qtable.h>
+#include <q3table.h>
 #include <qradiobutton.h>
 #include <qlineedit.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qcombobox.h>
-#include <qwidgetstack.h>
+#include <q3widgetstack.h>
+//Added by qt3to4:
+#include <QCloseEvent>
 #include <profetSQL/fetSession.h>
 #include <profetSQL/fetParameter.h>
 #include <profet/fetObject.h>
@@ -69,15 +71,15 @@ private:
   QComboBox     *objectAreaComboBox;
   QLineEdit     *fileTextEdit;
   QLabel        *areaInfoLabel;
-  QTextEdit     *reasonText;
+  Q3TextEdit     *reasonText;
   QButton       *saveObjectButton;
   QButton       *cancelObjectButton;
-  QWidgetStack  *widgetStack;
-  QGroupBox     *algGroupBox;
-  QGroupBox     *areaGroupBox;
-  QGroupBox     *stackGroupBox;
-  QGroupBox     *reasonGroupBox;
-  QGroupBox     *statGroupBox;
+  Q3WidgetStack  *widgetStack;
+  Q3GroupBox     *algGroupBox;
+  Q3GroupBox     *areaGroupBox;
+  Q3GroupBox     *stackGroupBox;
+  Q3GroupBox     *reasonGroupBox;
+  Q3GroupBox     *statGroupBox;
   DynamicGuiMap  dynamicGuiMap;
   DescriptionMap descriptionMap;
   miString       selectedBaseObject;

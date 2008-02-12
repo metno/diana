@@ -29,10 +29,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qcombobox.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qcheckbox.h>
 #include <qpainter.h>
 
@@ -40,6 +40,10 @@
 #include <qtUtility.h>
 #include <qtToggleButton.h>
 #include <qtooltip.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 
 #include <miString.h>
 #include <stdio.h>
@@ -122,7 +126,7 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   arealabel= TitleLabel( tr("Area/Projection"), this);
 
   // areabox
-  areabox= new QListBox(this);
+  areabox= new Q3ListBox(this);
   //areabox->setColumnMode(QListBox::FitToWidth);
   areabox->setMinimumHeight(HEIGHTLBSMALL);
   areabox->setMaximumHeight(HEIGHTLB);
@@ -153,8 +157,8 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   selectedMaplabel= TitleLabel( tr("Selected maps"), this);
 
   // mapbox
-  mapbox= new QListBox(this);
-  mapbox->setColumnMode(QListBox::FitToWidth);
+  mapbox= new Q3ListBox(this);
+  mapbox->setColumnMode(Q3ListBox::FitToWidth);
   mapbox->setMinimumHeight(HEIGHTLBSMALL);
   mapbox->setMaximumHeight(HEIGHTLB);
 
@@ -163,7 +167,7 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
     maps[i]=  m_MapDI.maps[i].name.c_str();
   mapbox->insertStrList( maps, numMaps );
   
-  mapbox->setSelectionMode( QListBox::Multi );
+  mapbox->setSelectionMode( Q3ListBox::Multi );
 
   // select default maps
   for( i=0; i<numMaps; i++ ){
@@ -195,7 +199,7 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
 
   // ==================================================
   // selectedMapbox
-  selectedMapbox= new QListBox(this);
+  selectedMapbox= new Q3ListBox(this);
   selectedMapbox->setMinimumHeight(HEIGHTLBXSMALL);
   selectedMapbox->setMaximumHeight(HEIGHTLBSMALL); // 50
 
@@ -207,8 +211,8 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
 
   // ==================================================
   // --- Contourlines options ------------------------------
-  QFrame* cont_frame= new QFrame(this,"cont_frame");
-  cont_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  Q3Frame* cont_frame= new Q3Frame(this,"cont_frame");
+  cont_frame->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
 
   // label
   cont_label= TitleLabel(tr("Contour lines"),cont_frame);
@@ -242,8 +246,8 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
 
   // ==================================================
   // --- Filled land options ------------------------------
-  QFrame* land_frame= new QFrame(this,"land_frame");
-  land_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  Q3Frame* land_frame= new Q3Frame(this,"land_frame");
+  land_frame->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
 
   // label
   land_label= TitleLabel(tr("Filled land"),land_frame);
@@ -319,8 +323,8 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
     ff_z= framez;
   }
 
-  QFrame* ll_frame= new QFrame(this,"ll_frame");
-  ll_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  Q3Frame* ll_frame= new Q3Frame(this,"ll_frame");
+  ll_frame->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
 
   // label
   ll_label= TitleLabel(tr("Lat/lon lines"),ll_frame);
@@ -363,8 +367,8 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   // =============================================================
 
   // frame on map...
-  QFrame* ff_frame= new QFrame(this,"ff_frame");
-  ff_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  Q3Frame* ff_frame= new Q3Frame(this,"ff_frame");
+  ff_frame->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
 
   // frame checkbox
   frameb= false;
@@ -435,12 +439,12 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   // ==================================================
   // Area and backgroundcolour
   // ==================================================
-  QVBoxLayout* v1layout = new QVBoxLayout( 5 );
+  Q3VBoxLayout* v1layout = new Q3VBoxLayout( 5 );
   v1layout->addWidget( arealabel );
   v1layout->addWidget( areabox ); 
  
   // background layout
-  QHBoxLayout* backlayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* backlayout = new Q3HBoxLayout( 5 );
   backlayout->addWidget( backcolorlabel );
   backlayout->addWidget( backcolorcbox );
   backlayout->addStretch();
@@ -449,19 +453,19 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   // ==================================================
   // Latlon-lines and frame
   // ==================================================
-  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h2layout = new Q3HBoxLayout( 5 );
   
   // Latlon layouts ---------
-  QHBoxLayout* latlonlayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* latlonlayout = new Q3HBoxLayout( 5 );
   latlonlayout->addWidget(ll_frame);
   
-  QVBoxLayout* h2h1v1layout= new QVBoxLayout(ll_frame, border, space);
-  QHBoxLayout* ll_h3vhlayout= new QHBoxLayout(h2h1v1layout,5);
+  Q3VBoxLayout* h2h1v1layout= new Q3VBoxLayout(ll_frame, border, space);
+  Q3HBoxLayout* ll_h3vhlayout= new Q3HBoxLayout(h2h1v1layout,5);
   ll_h3vhlayout->addWidget(latlon);
   ll_h3vhlayout->addWidget(ll_label);
   ll_h3vhlayout->addStretch();
   
-  QGridLayout* ll_h3vglayout= new QGridLayout(5,2,space);
+  Q3GridLayout* ll_h3vglayout= new Q3GridLayout(5,2,space);
   ll_h3vglayout->setColStretch(0,10);
   ll_h3vglayout->addWidget(ll_colorlabel,0,0);
   ll_h3vglayout->addWidget(ll_colorcbox ,0,1);
@@ -480,16 +484,16 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
 
 
   // frame layouts ---------
-  QHBoxLayout* framelayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* framelayout = new Q3HBoxLayout( 5 );
   framelayout->addWidget(ff_frame);
   
-  QVBoxLayout* h2h2v1layout= new QVBoxLayout(ff_frame, border, space);
-  QHBoxLayout* framehlayout= new QHBoxLayout(h2h2v1layout,5);
+  Q3VBoxLayout* h2h2v1layout= new Q3VBoxLayout(ff_frame, border, space);
+  Q3HBoxLayout* framehlayout= new Q3HBoxLayout(h2h2v1layout,5);
   framehlayout->addWidget( showframe );
   framehlayout->addWidget(framelabel);
   framehlayout->addStretch();
 
-  QGridLayout* ff_h3vglayout= new QGridLayout(4,2,space);
+  Q3GridLayout* ff_h3vglayout= new Q3GridLayout(4,2,space);
   ff_h3vglayout->setColStretch(0,10);
   ff_h3vglayout->addWidget(ff_colorlabel,0,0);
   ff_h3vglayout->addWidget(ff_colorcbox ,0,1);
@@ -509,9 +513,9 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   // Maps, selected maps with buttons and options
   // ==================================================
 
-  QHBoxLayout* h3layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h3layout = new Q3HBoxLayout( 5 );
   // maps layout
-  QVBoxLayout* mapsvlayout = new QVBoxLayout( 5 );
+  Q3VBoxLayout* mapsvlayout = new Q3VBoxLayout( 5 );
   mapsvlayout->addWidget( maplabel );
   mapsvlayout->addWidget( mapbox );
   mapsvlayout->addWidget( selectedMaplabel );
@@ -520,25 +524,25 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   h3layout->addLayout( mapsvlayout );
   
   // map buttons
-  QHBoxLayout* h4layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h4layout = new Q3HBoxLayout( 5 );
   h4layout->addWidget(mapdelete);
   h4layout->addWidget(mapalldelete);
 
 
   // contours and filled maps
-  QHBoxLayout* h5layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h5layout = new Q3HBoxLayout( 5 );
   
   // Contours layouts ---------
-  QHBoxLayout* cont_h3layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* cont_h3layout = new Q3HBoxLayout( 5 );
   cont_h3layout->addWidget(cont_frame);
   
-  QVBoxLayout* h3vlayout= new QVBoxLayout(cont_frame, border, space);
-  QHBoxLayout* h3vhlayout= new QHBoxLayout(h3vlayout,5);
+  Q3VBoxLayout* h3vlayout= new Q3VBoxLayout(cont_frame, border, space);
+  Q3HBoxLayout* h3vhlayout= new Q3HBoxLayout(h3vlayout,5);
   h3vhlayout->addWidget(contours);
   h3vhlayout->addWidget(cont_label);
   h3vhlayout->addStretch();
 
-  QGridLayout* h3vglayout= new QGridLayout(4,2,space);
+  Q3GridLayout* h3vglayout= new Q3GridLayout(4,2,space);
   h3vglayout->setColStretch(0,10);
   h3vglayout->addWidget(cont_colorlabel,0,0);
   h3vglayout->addWidget(cont_colorcbox ,0,1);
@@ -554,16 +558,16 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   h5layout->addLayout( cont_h3layout );
 
   // Land layouts ---------
-  QHBoxLayout* land_h3layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* land_h3layout = new Q3HBoxLayout( 5 );
   land_h3layout->addWidget(land_frame);
   
-  QVBoxLayout* land_h3vlayout= new QVBoxLayout(land_frame, border, space);
-  QHBoxLayout* land_h3vhlayout= new QHBoxLayout(land_h3vlayout,5);
+  Q3VBoxLayout* land_h3vlayout= new Q3VBoxLayout(land_frame, border, space);
+  Q3HBoxLayout* land_h3vhlayout= new Q3HBoxLayout(land_h3vlayout,5);
   land_h3vhlayout->addWidget(filledland);
   land_h3vhlayout->addWidget(land_label);
   land_h3vhlayout->addStretch();
   
-  QGridLayout* land_h3vglayout= new QGridLayout(2,2,space);
+  Q3GridLayout* land_h3vglayout= new Q3GridLayout(2,2,space);
   land_h3vglayout->setColStretch(0,10);
   land_h3vglayout->addWidget(land_colorlabel,0,0);
   land_h3vglayout->addWidget(land_colorcbox ,0,1);
@@ -577,7 +581,7 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
 
 
   // buttons layout
-  QGridLayout* buttonlayout= new QGridLayout(2, 3, space);
+  Q3GridLayout* buttonlayout= new Q3GridLayout(2, 3, space);
   buttonlayout->addWidget( maphelp,      0, 0 );
   buttonlayout->addWidget( savefavourite,0, 1 );
   buttonlayout->addWidget( usefavourite, 0, 2 );
@@ -587,7 +591,7 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   buttonlayout->addWidget( mapapply,     1, 2 ); 
 
   // vlayout
-  vlayout = new QVBoxLayout( this, 5, 10 );
+  vlayout = new Q3VBoxLayout( this, 5, 10 );
   vlayout->addLayout( v1layout );
   vlayout->addLayout( h2layout );
   vlayout->addLayout( h3layout );
@@ -979,7 +983,8 @@ vector<miString> MapDialog::getOKString(){
     int backc=backcolorcbox->currentItem();
     ostringstream ostr;
     ostr << "MAP";
-    ostr << " area=" << areabox->currentText()
+    // qt4 fix: added .toStdString()
+    ostr << " area=" << areabox->currentText().toStdString()
 	 << " backcolour="
 	 << (backc>=0 && backc<m_cInfo.size() ? m_cInfo[backc].name : "white");
 
@@ -1020,7 +1025,8 @@ vector<miString> MapDialog::getOKString(){
       ostr << "MAP";
       if (i==numselected-1) { // common options for last map only
 	int backc=backcolorcbox->currentItem();
-	ostr << " area=" << areabox->currentText()
+    // qt4 fix: added .toStdString()
+	ostr << " area=" << areabox->currentText().toStdString()
 	     << " backcolour="
 	     << (backc>=0 && backc<m_cInfo.size() ? m_cInfo[backc].name : "white");
 
@@ -1218,7 +1224,8 @@ vector<miString> MapDialog::writeLog()
   for( int i=0; i<n; i++ ){
     ostringstream ostr;
     if (i==n-1) { // common options for last map only
-      ostr << "area=" << areabox->text(areabox->currentItem())
+      // qt4 fix: added .toStdString()
+      ostr << "area=" << areabox->text(areabox->currentItem()).toStdString()
 	   << " backcolour=" << m_cInfo[backcolorcbox->currentItem()].name
 	   << " ";
       // set latlon options

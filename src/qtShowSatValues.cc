@@ -33,6 +33,9 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qtooltip.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3Frame>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -42,7 +45,7 @@ ShowSatValues::ShowSatValues(QWidget* parent, const char* name)
   : QWidget(parent,name) {
   
   // Create horisontal lay1out manager
-  QHBoxLayout* thlayout = new QHBoxLayout( this, 0, 0, "thlayout");
+  Q3HBoxLayout* thlayout = new Q3HBoxLayout( this, 0, 0, "thlayout");
   thlayout->setMargin(1);
   thlayout->setSpacing(5);
   
@@ -54,7 +57,7 @@ ShowSatValues::ShowSatValues(QWidget* parent, const char* name)
   thlayout->addWidget(channelbox);
 
   chlabel= new QLabel("XXXXXXXXXXXX",this,"xlabel");
-  chlabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  chlabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
   chlabel->setMinimumSize(chlabel->sizeHint());
   chlabel->setText("    "); 
   thlayout->addWidget(chlabel,0);

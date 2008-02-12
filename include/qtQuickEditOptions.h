@@ -33,6 +33,8 @@
 
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <QLabel>
 #include <vector>
 #include <diCommonTypes.h>
 #include <diQuickMenues.h>
@@ -42,7 +44,7 @@ using namespace std;
 class QLabel;
 class QPushButton;
 class QLineEdit;
-class QListBox;
+class Q3ListBox;
 
 /**
    \brief Administrate option lists for quick menues
@@ -55,7 +57,7 @@ class QuickEditOptions : public QDialog {
   Q_OBJECT
 private:
   vector<quickMenuOption> options;
-  QListBox* list;
+  Q3ListBox* list;
   QLineEdit* choices;
   QPushButton* upButton;
   QPushButton* downButton;

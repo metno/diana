@@ -33,10 +33,12 @@
 
 #include <qapplication.h>
 #include <qlayout.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qimage.h>
 
 #include <qtSpectrumWidget.h>
+//Added by qt3to4:
+#include <QKeyEvent>
 #include <diSpectrumManager.h>
 
 
@@ -49,7 +51,7 @@ SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
     fatal("Failed to create OpenGL rendering context on this display");
   }
 
-  setFocusPolicy(QWidget::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
 }
 
 
@@ -103,21 +105,21 @@ void SpectrumWidget::resizeGL( int w, int h )
 
 void SpectrumWidget::keyPressEvent(QKeyEvent *me)
 {
-  if (me->key()==Key_Left  ||
-      me->key()==Key_Right ||
-      me->key()==Key_Down  ||
-      me->key()==Key_Up) {
+  if (me->key()==Qt::Key_Left  ||
+      me->key()==Qt::Key_Right ||
+      me->key()==Qt::Key_Down  ||
+      me->key()==Qt::Key_Up) {
   
-    if (me->key()==Key_Left){
+    if (me->key()==Qt::Key_Left){
       spectrumm->setTime(-1);
       emit timeChanged(-1);
-    } else if (me->key()==Key_Right){
+    } else if (me->key()==Qt::Key_Right){
       spectrumm->setTime(+1);
       emit timeChanged(+1);
-    }else if (me->key()==Key_Down){
+    }else if (me->key()==Qt::Key_Down){
       spectrumm->setStation(-1);
       emit stationChanged(-1);
-    }else if (me->key()==Key_Up){
+    }else if (me->key()==Qt::Key_Up){
       spectrumm->setStation(+1);
       emit stationChanged(+1);
     } 

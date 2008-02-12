@@ -32,10 +32,12 @@
 #define _qtAddtoMenu_h
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3Frame>
 
 class QuickMenu;
-class QFrame;
-class QListBox;
+class Q3Frame;
+class Q3ListBox;
 class QPushButton;
 
 /**
@@ -48,8 +50,8 @@ class AddtoMenu : public QDialog {
   Q_OBJECT
 private:
   QuickMenu* quick;
-  QFrame* frame;
-  QListBox* list;
+  Q3Frame* frame;
+  Q3ListBox* list;
   QPushButton* newButton;
   QPushButton* okButton;
 

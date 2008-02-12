@@ -33,16 +33,20 @@
 
 #include <qdialog.h>
 #include <qfont.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
+#include <QLabel>
 #include <deque>
 #include <diController.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qtooltip.h>
 
 //using namespace std; 
 
 class PushButton;
-class QVBoxLayout;
-class QHBoxLayout;
+class Q3VBoxLayout;
+class Q3HBoxLayout;
 class QLabel;
 
 /**
@@ -110,14 +114,14 @@ private:
 //************** q tWidgets that appear in the dialog  *******************
 
   // listbox for selecting uffda class
-  QListBox * classlist;
+  Q3ListBox * classlist;
 
   //list of times/files
-  QListBox* satlist; 
+  Q3ListBox* satlist; 
 
  // the box showing which positions have been choosen
   QLabel* posLabel;
-  QListBox* poslist;  
+  Q3ListBox* poslist;  
  
 
   //delete and store buttons
@@ -131,11 +135,11 @@ private:
   QPushButton* sendb;
 
   //layouts for placing buttons
-  QVBoxLayout* v3layout;
-  QHBoxLayout* h1layout;
+  Q3VBoxLayout* v3layout;
+  Q3HBoxLayout* h1layout;
   //QHBoxLayout* h2layout;
 
-  QVBoxLayout* vlayout;
+  Q3VBoxLayout* vlayout;
 
   //deques of satellite positions , time,classes etc.
   deque <uffdaElement> v_uffda; 

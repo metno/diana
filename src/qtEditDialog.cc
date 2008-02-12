@@ -29,16 +29,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <iostream>
-#include <qvbox.h>
+#include <q3vbox.h>
 #include <qmessagebox.h>
 #include <qcombobox.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
-#include <qbuttongroup.h>
-#include <qvbuttongroup.h>
+#include <q3buttongroup.h>
+// qt4 fix
+//#include <qvbuttongroup.h>
 #include <qtabwidget.h>
 #include <qcheckbox.h>
 #include <qslider.h>
@@ -54,6 +55,10 @@
 #include <qtTimeStepSpinbox.h>
 #include <qtComplexText.h>
 #include <qtAnnoText.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3Frame>
+#include <Q3VBoxLayout>
 
 #include <diSetupParser.h>
 #include <diController.h>
@@ -169,7 +174,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   openValuePixmap= QPixmap(edit_open_value_xpm);
   lockValuePixmap= QPixmap(edit_lock_value_xpm);
 
-  bgroup = new QButtonGroup( 3, QGroupBox::Horizontal, this );
+  bgroup = new Q3ButtonGroup( 3, Qt::Horizontal, this );
   int m_nr_buttons=3;
   b = new QPushButton*[m_nr_buttons];
   vector<miString> vstr(3);
@@ -181,10 +186,10 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
  
   for( i=0; i< m_nr_buttons; i++ ){
     b[i] = NormalPushButton( vstr[i].c_str(), bgroup );
-    b[i]->setFocusPolicy(QWidget::ClickFocus);
+    b[i]->setFocusPolicy(Qt::ClickFocus);
   }
 
-  b[prodb]->setFocusPolicy(QWidget::StrongFocus);
+  b[prodb]->setFocusPolicy(Qt::StrongFocus);
   b[saveb]->setEnabled(false);
   b[sendb]->setEnabled(false);
 
@@ -221,7 +226,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   connect(  commentbutton, SIGNAL(toggled(bool)), 
 	    SLOT( commentClicked(bool) ));
 
-  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* h2layout = new Q3HBoxLayout( 5 );
   h2layout->addWidget(timelabel);
   h2layout->addWidget(timestepspin);
   h2layout->addWidget(pausebutton);
@@ -230,7 +235,8 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   editexit = NormalPushButton(tr("Exit"), this );
   connect(  editexit, SIGNAL(clicked()), SLOT( exitClicked() ));
   
-  QButton* edithide = NormalPushButton(tr("Hide"), this );
+  // qt4 fix: QButton -> QPushButton
+  QPushButton* edithide = NormalPushButton(tr("Hide"), this );
   connect( edithide, SIGNAL(clicked()), SIGNAL(EditHide()));
 
   edithelp = NormalPushButton(tr("Help"), this );
@@ -242,18 +248,18 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   prodlabel->setMaximumHeight(40);
   lStatus = new QLabel("", this);
 
-  QVBoxLayout* lvlayout= new QVBoxLayout();
+  Q3VBoxLayout* lvlayout= new Q3VBoxLayout();
   lvlayout->addWidget(prodlabel);
   lvlayout->addWidget(lStatus);
 
-  QHBoxLayout* hlayout = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout = new Q3HBoxLayout( 5 );
 
   hlayout->addWidget(editexit);
   hlayout->addWidget(edithide);
   hlayout->addWidget(edithelp);
   
   // vlayout
-  vlayout = new QVBoxLayout( this, 5, 5 );
+  vlayout = new Q3VBoxLayout( this, 5, 5 );
   vlayout->addLayout( lvlayout,1);
   vlayout->addWidget( bgroup );
   vlayout->addWidget( twd );
@@ -284,7 +290,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 		       QMessageBox::Warning,
 		       QMessageBox::Yes | QMessageBox::Default,
 		       QMessageBox::Cancel | QMessageBox::Escape,
-		       QMessageBox::NoButton,
+		       Qt::NoButton,
 		       this);
   mb->setButtonText( QMessageBox::Yes, tr("New") );
   mb->setButtonText( QMessageBox::Cancel, tr("Cancel")); 
@@ -303,11 +309,11 @@ void  EditDialog::FieldTab()
   int mymargin=5;
   int myspacing=5;
     
-  fieldtab = new QVBox(twd);
+  fieldtab = new Q3VBox(twd);
   fieldtab->setMargin( mymargin );
   fieldtab->setSpacing( myspacing );
 
-  fgroup = new QButtonGroup( maxfields, QGroupBox::Horizontal, fieldtab );
+  fgroup = new Q3ButtonGroup( maxfields, Qt::Horizontal, fieldtab );
   fbutton = new QPushButton*[maxfields];
 
   for (int i=0; i<maxfields; i++) {
@@ -321,7 +327,7 @@ void  EditDialog::FieldTab()
 
   connect( fgroup, SIGNAL(clicked(int)), SLOT(fgroupClicked(int)) );
 
-  m_Fieldeditmethods = new QListBox(fieldtab);
+  m_Fieldeditmethods = new Q3ListBox(fieldtab);
   m_Fieldeditmethods->setMinimumHeight(HEIGHTLISTBOX);
 
   connect( m_Fieldeditmethods, SIGNAL( highlighted(int) ),
@@ -334,7 +340,7 @@ void  EditDialog::FieldTab()
   // set default
 //m_Fieldeditmethods->setCurrentItem(0);
     
-  bgroupinfluence= new QButtonGroup(2,Qt::Vertical,fieldtab);
+  bgroupinfluence= new Q3ButtonGroup(2,Qt::Vertical,fieldtab);
 
   rbInfluence[0]= new QRadioButton(QString(tr("Circle")),         bgroupinfluence);
   rbInfluence[1]= new QRadioButton(QString(tr("Square")),         bgroupinfluence);
@@ -352,7 +358,7 @@ void  EditDialog::FieldTab()
   bgroupinfluence->setButton(0);
   changeInfluence(0); // needed as the above does not change anything
     
-  QHBox* ehbox = new QHBox(fieldtab);
+  Q3HBox* ehbox = new Q3HBox(fieldtab);
   ehbox->setMargin( mymargin );
   ehbox->setSpacing( myspacing/2 );
   
@@ -367,16 +373,16 @@ void  EditDialog::FieldTab()
   ellipsenumber = new QLabel( "    ", ehbox );
   ellipsenumber->setMinimumSize( 50, ellipsenumber->sizeHint().height() +6 );
   ellipsenumber->setMaximumSize( 50, ellipsenumber->sizeHint().height() +6 );
-  ellipsenumber->setFrameStyle( QFrame::Box | QFrame::Plain);
+  ellipsenumber->setFrameStyle( Q3Frame::Box | Q3Frame::Plain);
   ellipsenumber->setLineWidth(2);
-  ellipsenumber->setAlignment( AlignCenter | ExpandTabs );
+  ellipsenumber->setAlignment( Qt::AlignCenter | Qt::TextExpandTabs );
 
   int n= ellipsenumbers.size()-1;
   int index= (n+1)/2;
 
   ellipsenumber->setNum( double(ellipsenumbers[index]) );
 
-  ellipseslider  = new QSlider( 0, n, 1, index, QSlider::Horizontal, ehbox);
+  ellipseslider  = new QSlider( 0, n, 1, index, Qt::Horizontal, ehbox);
   ellipseslider->setMinimumHeight( 16 );
   ellipseslider->setMaximumHeight( 16 );
   ellipseslider->setEnabled( true );
@@ -401,7 +407,7 @@ void  EditDialog::FieldTab()
   // NOT USED YET....
   // QCheckBox* visible = new QCheckBox( "synlig", fieldtab );
 
-  QHBox* hbox = new QHBox(fieldtab);
+  Q3HBox* hbox = new Q3HBox(fieldtab);
   hbox->setMargin( mymargin );
   hbox->setSpacing( myspacing );
 
@@ -664,7 +670,7 @@ void  EditDialog::FrontTab()
   int mymargin=5;
   int myspacing=5;
 
-  objecttab = new QVBox(twd );
+  objecttab = new Q3VBox(twd );
   objecttab->setMargin( mymargin );
   objecttab->setSpacing( myspacing );
 
@@ -673,14 +679,14 @@ void  EditDialog::FrontTab()
   connect( m_Frontcm, SIGNAL( activated(int) ),
            SLOT( FrontTabBox(int) ) );
 
-  m_Fronteditmethods = new QListBox(objecttab);
+  m_Fronteditmethods = new Q3ListBox(objecttab);
 
-  connect( m_Fronteditmethods, SIGNAL(clicked(QListBoxItem *) ),
+  connect( m_Fronteditmethods, SIGNAL(clicked(Q3ListBoxItem *) ),
            SLOT( FrontEditClicked() ) );
-  connect( m_Fronteditmethods, SIGNAL(doubleClicked(QListBoxItem *) ),
+  connect( m_Fronteditmethods, SIGNAL(doubleClicked(Q3ListBoxItem *) ),
            SLOT( FrontEditDoubleClicked() ) );
 
-  QHBox* hbox = new QHBox(objecttab);
+  Q3HBox* hbox = new Q3HBox(objecttab);
   hbox->setMargin( mymargin );
   hbox->setSpacing( myspacing );
 
@@ -906,25 +912,25 @@ void  EditDialog::CombineTab()
   const int mymargin= 5;
   const int myspacing= 5;
 
-  combinetab = new QVBox(twd );
+  combinetab = new Q3VBox(twd );
   combinetab->setMargin( mymargin );
   combinetab->setSpacing( myspacing );
 
-  QGroupBox* group= new QGroupBox(2,Vertical,tr("Editing"), combinetab);
-  QVButtonGroup* bg= new QVButtonGroup(group);
-  bg->setFrameStyle(QFrame::NoFrame);
+  Q3GroupBox* group= new Q3GroupBox(2,Qt::Vertical,tr("Editing"), combinetab);
+  Q3VButtonGroup* bg= new Q3VButtonGroup(group);
+  bg->setFrameStyle(Q3Frame::NoFrame);
   QRadioButton* rb1= new QRadioButton(tr("Change borders"),bg,0);
   QRadioButton* rb2= new QRadioButton(tr("Set data sources"),bg,0);
   rb1->setChecked(true);
   connect(bg, SIGNAL(clicked(int)), SLOT(combine_action(int)));
 
-  m_SelectAreas = new QListBox(group);//listBox( group, 150, 75, false );
+  m_SelectAreas = new Q3ListBox(group);//listBox( group, 150, 75, false );
   m_SelectAreas->setMinimumHeight(100);
 
   connect( m_SelectAreas, SIGNAL( highlighted(int) ),
 	   SLOT( selectAreas(int) ) );
 
-  QHBox* hbox = new QHBox(combinetab);
+  Q3HBox* hbox = new Q3HBox(combinetab);
   hbox->setMargin( mymargin );
   hbox->setSpacing( myspacing );
   combinetab->setStretchFactor(hbox, 20);
@@ -1033,7 +1039,7 @@ void EditDialog::tabSelected( const QString& tabname)
 }
 
 
-void  EditDialog::ListBoxData( QListBox* list, int mindex, int index)
+void  EditDialog::ListBoxData( Q3ListBox* list, int mindex, int index)
 {
   list->clear();
   vector<miString> vstr;
@@ -1096,7 +1102,9 @@ void EditDialog::ComboBoxData(QComboBox* box, int mindex)
   const char** cvstr= new const char*[nr_box];
   for( int i=0; i<nr_box; i++ )
     cvstr[i]=  vstr[i].c_str();
-  m_Frontcm->insertStrList( cvstr, nr_box );
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  m_Frontcm->insertStringList( QStringList(QString(cvstr[0])), nr_box );
 }
 
 

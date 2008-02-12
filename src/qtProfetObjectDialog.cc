@@ -28,67 +28,71 @@
 */
 
 #include "qtProfetObjectDialog.h"
-#include <qhbox.h>
-#include <qvbox.h>
+#include <q3hbox.h>
+#include <q3vbox.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
+//Added by qt3to4:
+#include <QCloseEvent>
+#include <QLabel>
+#include <Q3VBoxLayout>
 
 ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
   : QDialog(parent)
 {
   setCaption(tr("Current Object"));
 
-  QVBoxLayout * mainLayout = new QVBoxLayout(this);
-  QHBox * titleBox         = new QHBox(this);
+  Q3VBoxLayout * mainLayout = new Q3VBoxLayout(this);
+  Q3HBox * titleBox         = new Q3HBox(this);
   parameterLabel           = new QLabel(titleBox);
   sessionLabel             = new QLabel(titleBox);
 
   mainLayout->addWidget(titleBox);
 
-  algGroupBox              = new QGroupBox(2,Qt::Vertical,"Algorithm",this);
+  algGroupBox              = new Q3GroupBox(2,Qt::Vertical,"Algorithm",this);
   baseComboBox             = new QComboBox(algGroupBox);
   algDescriptionLabel      = new QLabel(algGroupBox);
 
   mainLayout->addWidget(algGroupBox);
 
-  areaGroupBox             = new QGroupBox(4,Qt::Vertical,"Area",this);
+  areaGroupBox             = new Q3GroupBox(4,Qt::Vertical,"Area",this);
   customAreaButton         = new QRadioButton("Draw On Map",areaGroupBox);
-  QHBox * objectAreaBox    = new QHBox(areaGroupBox);
+  Q3HBox * objectAreaBox    = new Q3HBox(areaGroupBox);
   objectAreaButton         = new QRadioButton("From Object",objectAreaBox);
   objectAreaComboBox       = new QComboBox(objectAreaBox);
-  QHBox * fileAreaBox      = new QHBox(areaGroupBox);
+  Q3HBox * fileAreaBox      = new Q3HBox(areaGroupBox);
   fileAreaButton           = new QRadioButton("From File",fileAreaBox);
   fileTextEdit             = new QLineEdit(fileAreaBox);
   areaInfoLabel            = new QLabel("",areaGroupBox);
 
   mainLayout->addWidget(areaGroupBox);
 
-  stackGroupBox            = new QGroupBox(1,Qt::Vertical,"Parameters",this);
+  stackGroupBox            = new Q3GroupBox(1,Qt::Vertical,"Parameters",this);
   stackGroupBox->setInsideMargin(2);
   stackGroupBox->setInsideSpacing(2);
 
-  widgetStack              = new QWidgetStack(stackGroupBox); 
+  widgetStack              = new Q3WidgetStack(stackGroupBox); 
 
   mainLayout->addWidget(stackGroupBox);
 
-  reasonGroupBox           = new QGroupBox(1,Qt::Vertical,"Reason",this);
-  reasonText               = new QTextEdit(reasonGroupBox);
+  reasonGroupBox           = new Q3GroupBox(1,Qt::Vertical,"Reason",this);
+  reasonText               = new Q3TextEdit(reasonGroupBox);
 
   mainLayout->addWidget(reasonGroupBox);
   
-  statGroupBox             = new QGroupBox(1,Qt::Vertical,"Statistics",this);
+  statGroupBox             = new Q3GroupBox(1,Qt::Vertical,"Statistics",this);
   statisticLabel           = new QLabel("",statGroupBox);
 
   mainLayout->addWidget(statGroupBox);
 
 
-  QHBox * buttonBox        = new QHBox(this);
+  Q3HBox * buttonBox        = new Q3HBox(this);
   saveObjectButton         = new QPushButton("Save",buttonBox);
   cancelObjectButton       = new QPushButton("Cancel",buttonBox);
 
   mainLayout->addWidget(buttonBox);
   
-  QButtonGroup * areaButtons = new QButtonGroup(0);
+  Q3ButtonGroup * areaButtons = new Q3ButtonGroup(0);
   areaButtons->insert(customAreaButton);
   areaButtons->insert(objectAreaButton);
   areaButtons->insert(fileAreaButton);

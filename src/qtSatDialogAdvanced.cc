@@ -38,6 +38,11 @@
 #include <qtSatDialogAdvanced.h>
 #include <qtToggleButton.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3GridLayout>
+#include <Q3Frame>
+#include <QPixmap>
+#include <Q3VBoxLayout>
 
 #include <miString.h>
 #include <stdio.h>
@@ -64,7 +69,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   cutlcd = LCDNumber( 4, this);
   
   scut  = Slider( m_cut.minValue, m_cut.maxValue, 1, m_cut.value, 
-		  QSlider::Horizontal, this);
+		  Qt::Horizontal, this);
   
   connect( cutCheckBox, SIGNAL( toggled( bool )), SLOT( cutCheckBoxSlot( bool )));
   connect( cutCheckBox, SIGNAL( toggled( bool )), SIGNAL( SatChanged()));
@@ -84,7 +89,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   alphacutlcd = LCDNumber( 4, this);
   
   salphacut  = Slider( m_alphacut.minValue, m_alphacut.maxValue, 1,
-		      m_alphacut.value, QSlider::Horizontal, this);
+		      m_alphacut.value, Qt::Horizontal, this);
   
   connect( salphacut, SIGNAL( valueChanged( int )), 
 	   SLOT( alphacutDisplay( int )));
@@ -100,7 +105,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   alphalcd = LCDNumber( 4, this);
   
   salpha  = Slider( m_alpha.minValue, m_alpha.maxValue, 1, m_alpha.value, 
-		   QSlider::Horizontal, this);
+		   Qt::Horizontal, this);
   
   connect( salpha, SIGNAL( valueChanged( int )), 
 	   SLOT( alphaDisplay( int )));
@@ -119,17 +124,17 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect( standard, SIGNAL( clicked()), SLOT( setStandard()));
   connect( standard, SIGNAL( clicked()), SIGNAL( SatChanged()));
   
-  colourEdit = new QGroupBox(2,Vertical,this);
+  colourEdit = new Q3GroupBox(2,Qt::Vertical,this);
   colourstring= TitleLabel(tr("Hide colours"), colourEdit );
-  colourstring->setAlignment(AlignCenter);
-  colourList = new QListBox( colourEdit);
+  colourstring->setAlignment(Qt::AlignCenter);
+  colourList = new Q3ListBox( colourEdit);
   colourList->setMinimumHeight(HEIGHTLB);
-  colourList->setSelectionMode(QListBox::Multi);
-  connect(colourList, SIGNAL(clicked(QListBoxItem *))
+  colourList->setSelectionMode(Q3ListBox::Multi);
+  connect(colourList, SIGNAL(clicked(Q3ListBoxItem *))
    	  ,SIGNAL(SatChanged()));     
   connect(colourList, SIGNAL(selectionChanged ()),SLOT(colourcutOn()));     
 
-  QGridLayout*sliderlayout = new QGridLayout( 3, 4);
+  Q3GridLayout*sliderlayout = new Q3GridLayout( 3, 4);
   sliderlayout->addWidget( cut,   0,  0 );
   sliderlayout->addWidget( scut,  0, 1 );
   sliderlayout->addWidget( cutlcd,0, 2 );
@@ -146,10 +151,10 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
 
 
   // Create a horizontal frame line
-  QFrame *line = new QFrame( this );
-  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame *line = new Q3Frame( this );
+  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
-  vlayout = new QVBoxLayout( this, 5, 5 );
+  vlayout = new Q3VBoxLayout( this, 5, 5 );
   vlayout->addWidget( line );
   vlayout->addWidget( cutCheckBox );
   vlayout->addLayout( sliderlayout );
@@ -389,7 +394,7 @@ void SatDialogAdvanced::setColours(vector <Colour> &colours){
 
   colourList->clear();
   //  colourList->clearSelection();
-  colourList->setColumnMode(QListBox::FitToWidth);
+  colourList->setColumnMode(Q3ListBox::FitToWidth);
   int w = colourList->width();
   int itemwidth=int (w/8);
 

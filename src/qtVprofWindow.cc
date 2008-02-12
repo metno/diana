@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qapplication.h>
-#include <qfiledialog.h>
-#include <qtoolbar.h>
+#include <q3filedialog.h>
+#include <q3toolbar.h>
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -40,6 +40,8 @@
 #include <qmotifstyle.h>
 #include <qtUtility.h>
 #include <qtVprofWindow.h>
+//Added by qt3to4:
+#include <QPixmap>
 #include <diStationPlot.h>
 #include <qtVprofWidget.h>
 #include <qtVprofModelDialog.h>
@@ -51,7 +53,7 @@
 
 
 VprofWindow::VprofWindow()
-  : QMainWindow( 0, "DIANA Vprof window")
+  : Q3MainWindow( 0, "DIANA Vprof window")
 {
 #ifndef linux
   qApp->setStyle(new QMotifStyle);
@@ -74,16 +76,16 @@ VprofWindow::VprofWindow()
 
 
   // tool bar and buttons
-  vpToolbar = new QToolBar(tr("Vertical profiles - control"), this,
-			   QMainWindow::Top, FALSE,"vpTool");
-  setDockEnabled( vpToolbar, Left, FALSE );
-  setDockEnabled( vpToolbar, Right, FALSE );
+  vpToolbar = new Q3ToolBar(tr("Vertical profiles - control"), this,
+			   Qt::DockTop, FALSE,"vpTool");
+  setDockEnabled( vpToolbar, Qt::DockLeft, FALSE );
+  setDockEnabled( vpToolbar, Qt::DockRight, FALSE );
 
   // tool bar for selecting time and station
-  tsToolbar = new QToolBar(tr("Vertical profiles - station/time"), this,
-			   QMainWindow::Top, FALSE,"tsTool");
-  setDockEnabled( tsToolbar, Left, FALSE );
-  setDockEnabled( tsToolbar, Right, FALSE );
+  tsToolbar = new Q3ToolBar(tr("Vertical profiles - station/time"), this,
+			   Qt::DockTop, FALSE,"tsTool");
+  setDockEnabled( tsToolbar, Qt::DockLeft, FALSE );
+  setDockEnabled( tsToolbar, Qt::DockRight, FALSE );
 
 
   // button for modeldialog-starts new dialog
@@ -394,7 +396,7 @@ void VprofWindow::printClicked(){
       priop.printer= qprt->printerName().latin1();
 
     // start the postscript production
-    QApplication::setOverrideCursor( waitCursor );
+    QApplication::setOverrideCursor( Qt::waitCursor );
 
     vprofm->startHardcopy(priop);
     vprofw->updateGL();
@@ -422,7 +424,7 @@ void VprofWindow::printClicked(){
 void VprofWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
-  QString s = QFileDialog::getSaveFileName(fname,
+  QString s = Q3FileDialog::getSaveFileName(fname,
 					   tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"),
 					   this, "save_file_dialog",
 					   tr("Save plot as image") );
@@ -454,7 +456,7 @@ void VprofWindow::saveClicked()
 
 void VprofWindow::makeEPS(const miString& filename)
 {
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -661,7 +663,9 @@ void VprofWindow::updateStationBox(){
   const char** cvstr= new const char*[n];
   for (int i=0; i<n; i++)
     cvstr[i]=  stations[i].c_str();		
-  stationBox->insertStrList(cvstr, n);
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  stationBox->insertStringList(QStringList(QString(cvstr[0])), n);
   delete[] cvstr;
 }
 
@@ -684,7 +688,9 @@ void VprofWindow::updateTimeBox(){
   const char** cvstr= new const char*[n];
   for (int i=0; i<n; i++)
     cvstr[i]=  vt[i].c_str();		
-  timeBox->insertStrList(cvstr, n);
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  timeBox->insertStringList(QStringList(QString(cvstr[0])), n);
   delete[] cvstr;
 
   emit emitTimes("vprof",times);

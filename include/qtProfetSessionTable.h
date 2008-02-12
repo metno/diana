@@ -30,8 +30,10 @@
 */
 
 #include <qlabel.h>
-#include <qframe.h>
-#include <qtable.h>
+#include <q3frame.h>
+#include <q3table.h>
+//Added by qt3to4:
+#include <QFocusEvent>
 
 #include <vector>
 #include <map>
@@ -47,7 +49,7 @@ using namespace std;
 
 class ProfetTableCell;
 
-class ProfetSessionTable  : public QTable {
+class ProfetSessionTable  : public Q3Table {
   Q_OBJECT
   
 private:

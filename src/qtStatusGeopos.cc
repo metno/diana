@@ -31,6 +31,9 @@
 #include <qtStatusGeopos.h>
 #include <qlayout.h>
 #include <qlabel.h>
+//Added by qt3to4:
+#include <Q3Frame>
+#include <Q3HBoxLayout>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -43,7 +46,7 @@ StatusGeopos::StatusGeopos(QWidget* parent, const char* name)
   decimalMode= false;
   
   // Create horisontal layout manager
-  QHBoxLayout* thlayout = new QHBoxLayout( this, 0, 0, "thlayout");
+  Q3HBoxLayout* thlayout = new Q3HBoxLayout( this, 0, 0, "thlayout");
   thlayout->setMargin(1);
   thlayout->setSpacing(5);
 
@@ -52,7 +55,7 @@ StatusGeopos::StatusGeopos(QWidget* parent, const char* name)
   thlayout->addWidget(sxlabel,0);
 
   latlabel= new QLabel(" 00°00'N",this,"xlabel");
-  latlabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  latlabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
 //   latlabel->setPalette( QPalette( QColor(0, 54, 125) ) );
   latlabel->setMinimumSize(latlabel->sizeHint());
   thlayout->addWidget(latlabel,0);
@@ -64,7 +67,7 @@ StatusGeopos::StatusGeopos(QWidget* parent, const char* name)
   thlayout->addWidget(sylabel,0);
   
   lonlabel= new QLabel("000°00'W",this,"ylabel");
-  lonlabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  lonlabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
   lonlabel->setMinimumSize(lonlabel->sizeHint());
   thlayout->addWidget(lonlabel,0);
 

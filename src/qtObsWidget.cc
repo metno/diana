@@ -38,16 +38,20 @@
 #include <qcheckbox.h>
 #include <qpalette.h>
 #include <qtooltip.h>
-#include <qfocusdata.h>
-#include <qframe.h>
+//#include <qfocusdata.h>
+#include <q3frame.h>
 #include <qapplication.h>
 #include <qimage.h>
-#include <qscrollview.h>
-#include <qframe.h>
+#include <q3scrollview.h>
+#include <q3frame.h>
 
 #include <qtButtonLayout.h>
 #include <qtObsWidget.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 
 #include <stdio.h>
 #include <iostream>
@@ -180,7 +184,7 @@ ObsWidget::ObsWidget( Controller* ctrl,
   allButton  = NormalPushButton(tr("All"),this);
   noneButton = NormalPushButton(tr("None"),this);
   defButton  = NormalPushButton(tr("Default"),this);
-  QHBoxLayout* andLayout = new QHBoxLayout();
+  Q3HBoxLayout* andLayout = new Q3HBoxLayout();
   andLayout->addWidget( allButton  );
   andLayout->addWidget( noneButton );
   andLayout->addWidget( defButton  );
@@ -192,7 +196,7 @@ ObsWidget::ObsWidget( Controller* ctrl,
 	   parameterButtons,SLOT(DEFAULTClicked()));
 
   // PRESSURE LEVELS
-  QHBoxLayout* pressureLayout = new QHBoxLayout();
+  Q3HBoxLayout* pressureLayout = new Q3HBoxLayout();
 
   if(pressureLevels ){
     QLabel *pressureLabel;
@@ -257,7 +261,7 @@ ObsWidget::ObsWidget( Controller* ctrl,
   devColourBox2 = ColourBox( this, cInfo, true, devcol2Index );
   devColourBox1->hide();
   devColourBox2->hide();
-  QHBoxLayout* devLayout = new QHBoxLayout();
+  Q3HBoxLayout* devLayout = new Q3HBoxLayout();
   devLayout->addWidget(devFieldCheckBox);
   devLayout->addWidget(devColourBox1);
   devLayout->addWidget(devColourBox2);
@@ -271,7 +275,7 @@ ObsWidget::ObsWidget( Controller* ctrl,
   if( markerName.size() == 0 )
     onlyposCheckBox->setEnabled(false);
 
-  QHBoxLayout* onlyposLayout = new QHBoxLayout();
+  Q3HBoxLayout* onlyposLayout = new Q3HBoxLayout();
   onlyposLayout->addWidget( onlyposCheckBox );
   onlyposLayout->addWidget( markerBox );
 
@@ -293,7 +297,7 @@ ObsWidget::ObsWidget( Controller* ctrl,
     criteriaCheckBox->hide();
     moreButton->hide();
   }
-  QHBoxLayout* criteriaLayout = new QHBoxLayout();
+  Q3HBoxLayout* criteriaLayout = new Q3HBoxLayout();
   criteriaLayout->addWidget( criteriaCheckBox );
   criteriaLayout->addWidget( moreButton );
 
@@ -321,11 +325,11 @@ ObsWidget::ObsWidget( Controller* ctrl,
     time_slider2lcd.push_back(i*15);
 
   densitySlider = Slider( dialog.density.minValue, dialog.density.maxValue,
-			  1, dialog.density.value,QSlider::Horizontal, this);
+			  1, dialog.density.value,Qt::Horizontal, this);
   sizeSlider = Slider( dialog.size.minValue, dialog.size.maxValue,
-		       1, dialog.size.value, QSlider::Horizontal, this);
+		       1, dialog.size.value, Qt::Horizontal, this);
   diffSlider= Slider( 0,time_slider2lcd.size(), 1, 4,
-		      QSlider::Horizontal, this);
+		      Qt::Horizontal, this);
 
   diffComboBox = new QComboBox(this);
   diffComboBox->insertItem("3t");
@@ -334,7 +338,7 @@ ObsWidget::ObsWidget( Controller* ctrl,
 
   displayDiff(diffSlider->value());
 
-  QGridLayout*slidergrid = new QGridLayout( 3, 3);
+  Q3GridLayout*slidergrid = new Q3GridLayout( 3, 3);
   slidergrid->addWidget( densityLabel, 0, 0 );
   slidergrid->addWidget( densityLcdnum,0, 1 );
   slidergrid->addWidget( densitySlider,0, 2 );
@@ -367,28 +371,28 @@ ObsWidget::ObsWidget( Controller* ctrl,
 
 
   // Layout for priority list, colours, criteria and extension
-  QHBoxLayout* colourlayout = new QHBoxLayout();
+  Q3HBoxLayout* colourlayout = new Q3HBoxLayout();
   colourlayout->addWidget( pribox );
   colourlayout->addWidget( colourBox );
 
   // layout
-  datatypelayout = new QHBoxLayout(5);
+  datatypelayout = new Q3HBoxLayout(5);
   datatypelayout->setAlignment(Qt::AlignHCenter);
   datatypelayout->addWidget( datatypeButtons );
-  parameterlayout = new QHBoxLayout(5);
+  parameterlayout = new Q3HBoxLayout(5);
   parameterlayout->setAlignment(Qt::AlignHCenter);
   parameterlayout->addWidget( parameterButtons );
 //   parameterlayout->addWidget( sv );
 
 
   // Create horizontal frame lines
-  QFrame *line0 = new QFrame( this );
-  line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-  QFrame *line1 = new QFrame( this );
-  line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame *line0 = new Q3Frame( this );
+  line0->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  Q3Frame *line1 = new Q3Frame( this );
+  line1->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
   // LAYOUT
-  vcommonlayout= new QVBoxLayout(2);
+  vcommonlayout= new Q3VBoxLayout(2);
   vcommonlayout->addLayout( andLayout );
   vcommonlayout->addSpacing( 5 );
   vcommonlayout->addLayout( pressureLayout );
@@ -407,7 +411,7 @@ ObsWidget::ObsWidget( Controller* ctrl,
   vcommonlayout->addLayout( slidergrid );
   vcommonlayout->addLayout( colourlayout );
 
-  vlayout= new QVBoxLayout( this, 5 ,5);
+  vlayout= new Q3VBoxLayout( this, 5 ,5);
   vlayout->addSpacing( 5 );
   vlayout->addLayout( datatypelayout );
   if(parameterButtons)
@@ -596,7 +600,7 @@ void ObsWidget::inTopClicked( int id )
 
 
   // Names of datatypes selected are sent to controller
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
   emit getTimes();
   QApplication::restoreOverrideCursor();
 
@@ -622,7 +626,7 @@ void ObsWidget::outTopClicked( int id )
   }
 
   // Names of datatypes selected are sent to controller
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
   emit getTimes();
   QApplication::restoreOverrideCursor();
 
@@ -1260,11 +1264,11 @@ void ObsWidget::newParamButtons(ObsDialogInfo dialog, int nr)
   if(parameterButtons){
     parameterlayout->removeChild( parameterButtons );
     delete parameterlayout;
-    parameterlayout = new QHBoxLayout(5);
+    parameterlayout = new Q3HBoxLayout(5);
     parameterlayout->setAlignment(Qt::AlignHCenter);
     parameterlayout->addWidget( parameterButtons );
   }
-  vlayout= new QVBoxLayout( this, 5 ,5);
+  vlayout= new Q3VBoxLayout( this, 5 ,5);
   vlayout->addLayout( datatypelayout );
   if(parameterButtons)
     vlayout->addLayout( parameterlayout );

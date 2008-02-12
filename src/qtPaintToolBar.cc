@@ -1,6 +1,8 @@
 #include <qtPaintToolBar.h>
 #include <qpixmap.h>
 #include <qkeysequence.h> 
+//Added by qt3to4:
+#include <Q3ActionGroup>
 #include <miString.h>
 #include <paint_select.xpm>
 #include <paint_move.xpm>
@@ -11,8 +13,8 @@
 #include <paint_draw.xpm>
 //#include <paint_color.xpm>
 
-PaintToolBar::PaintToolBar(QMainWindow *parent) 
-			: QToolBar(tr("Paint Operations"), parent,QMainWindow::Bottom, FALSE,"painttoolbar") {
+PaintToolBar::PaintToolBar(Q3MainWindow *parent) 
+			: Q3ToolBar(tr("Paint Operations"), parent,Qt::DockBottom, FALSE,"painttoolbar") {
 	
   selectAction = new QAction( QPixmap(paint_select_xpm),tr("&Select"),QKeySequence(), this );
 	selectAction->setToggleAction(true);
@@ -35,7 +37,7 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
 	connect( moveAction, SIGNAL( activated() ) , 
       this, SLOT( sendPaintModeChanged() ) );
 	
-	modeActions = new QActionGroup(this,0);
+	modeActions = new Q3ActionGroup(this,0);
 	modeActions->add(selectAction);
 	modeActions->add(drawAction);
 	modeActions->add(includeAction);

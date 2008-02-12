@@ -31,13 +31,17 @@
 #include <qtTextDialog.h>
 #include <qlayout.h>
 #include <qpushbutton.h>
-#include <qtextbrowser.h>
+#include <q3textbrowser.h>
 #include <qprinter.h>
-#include <qfiledialog.h>
+#include <q3filedialog.h>
 #include <qcheckbox.h>
 
 #include <qtUtility.h>
 #include <qmime.h> 
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 #include <iostream>
 
 #include <kill.xpm>
@@ -46,10 +50,10 @@
 /*********************************************/
 TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
   : QDialog(parent,"textdialog",false,
-	    WStyle_Customize | WStyle_NormalBorder |
-	    WStyle_Title | WStyle_SysMenu | WDestructiveClose)
+	    Qt::WStyle_Customize | Qt::WStyle_NormalBorder |
+	    Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WDestructiveClose)
 {
-  tb = new QTextBrowser( this ); 
+  tb = new Q3TextBrowser( this ); 
 
   QPushButton* cb= new QPushButton( QPixmap(kill_xpm),
 				    tr("Close window"), this );
@@ -62,7 +66,7 @@ TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
   fixedb= new QCheckBox(tr("Use fixed font"), this);
   connect( fixedb, SIGNAL(clicked()), this, SLOT(fixedfont()));
 
-  hlayout = new QHBoxLayout( 10 );
+  hlayout = new Q3HBoxLayout( 10 );
   hlayout->addStretch();
   hlayout->addWidget( cb );
   hlayout->addStretch();
@@ -71,7 +75,7 @@ TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
   hlayout->addWidget( fixedb );
   hlayout->addStretch();
 
-  vlayout = new QVBoxLayout( this, 5, 5 );
+  vlayout = new Q3VBoxLayout( this, 5, 5 );
   vlayout->addWidget( tb );
   vlayout->addLayout( hlayout );
   
@@ -180,7 +184,7 @@ void TextDialog::openwild()
 {
   InfoFile f;
   QString filter= tr("Textfiles (*.txt *.text *.html);;All (*.*)");
-  QString s(QFileDialog::getOpenFileName(path.cStr(),filter,
+  QString s(Q3FileDialog::getOpenFileName(path.cStr(),filter,
 					 this, "openfile",
 					 tr("Open file")));
   if ( s.isEmpty() )

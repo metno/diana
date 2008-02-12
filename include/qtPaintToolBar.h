@@ -1,26 +1,28 @@
 #ifndef QTPAINTTOOLBAR_H_
 #define QTPAINTTOOLBAR_H_
 
-#include <qtoolbar.h>
-#include <qmainwindow.h>
+#include <q3toolbar.h>
+#include <q3mainwindow.h>
 #include <qaction.h>
+//Added by qt3to4:
+#include <Q3ActionGroup>
 #include <diGridAreaManager.h>
 
 
 
-class PaintToolBar : public QToolBar {
+class PaintToolBar : public Q3ToolBar {
   Q_OBJECT
 
 public:
   enum PaintToolBarButtons{ALL,SELECT_ONLY,PAINT_ONLY,PAINT_AND_MODIFY};  
   
 public:
-  PaintToolBar(QMainWindow *parent);
+  PaintToolBar(Q3MainWindow *parent);
 	GridAreaManager::PaintMode getPaintMode();
 	void enableButtons(PaintToolBarButtons);
 	
 private:
-  QActionGroup *modeActions;
+  Q3ActionGroup *modeActions;
   QAction *selectAction;
   QAction *drawAction;
 	QAction *includeAction;

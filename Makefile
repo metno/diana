@@ -38,7 +38,7 @@ INCLUDE= -I. \
 	 -I$(LOCALINC)/profet \
 	 -I$(LOCALINC)/profetSQL \
 	 -I$(LOCALINC)/proFunctions \
-	 -I$(LOCALINC)/qUtilities \
+	 -I$(LOCALINC)/qUtilities-coclient2 \
 	 -I$(LOCALINC)/puDatatypes \
 	 -I$(LOCALINC)/glp \
 	 -I$(LOCALINC)/glText \
@@ -68,7 +68,7 @@ INCLUDE= -I. \
 # WARNING: library sequence may be very important due to path (-L) sequence
 
 LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
-	-lqUtilities -lpuDatatypes \
+	-lqUtilities-coclient2 -lpuDatatypes \
 	-lGLP -lglText -lrobs -ldiMItiff -ldiField -lprofet -lprofetSQL -lproFunctions -lmic -ldiSQL -lpuSQL \
 	$(WEATHERDB_LIB) \
 	-lpuTools \

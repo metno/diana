@@ -32,18 +32,22 @@
 #include <qslider.h>
 #include <qradiobutton.h>
 #include <qcombobox.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qlcdnumber.h>
 #include <qmessagebox.h> 
 #include <qtooltip.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 
 #include <qtSatDialog.h>
 #include <qtSatDialogAdvanced.h>
 #include <qtToggleButton.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QPixmap>
+#include <Q3VBoxLayout>
 
 #include <miString.h>
 #include <stdio.h>
@@ -91,19 +95,19 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   //NOAA Europa N-Europa etc.
   //METEOSAT Visuell, IR
   //insert filetypes for default sat - m_image[0]-NOAA
-  fileGroup = new QListBox( this );
+  fileGroup = new Q3ListBox( this );
   fileGroup->setMinimumHeight(HEIGHTLISTBOX);
   fileGroup->setMaximumHeight(HEIGHTLISTBOX);
 
   updateFileGroup(0);
-  connect( fileGroup, SIGNAL( clicked( QListBoxItem * ) ),
+  connect( fileGroup, SIGNAL( clicked( Q3ListBoxItem * ) ),
 	   SLOT( fileGroupHighlighted() )  );
 
-  timefileBut = new QButtonGroup( this );
+  timefileBut = new Q3ButtonGroup( this );
   autoButton = new ToggleButton(timefileBut, tr("Auto").latin1());
   timeButton = new ToggleButton(timefileBut, tr("Time").latin1());
   fileButton = new ToggleButton(timefileBut, tr("File").latin1());
-  QHBoxLayout* timefileLayout = new QHBoxLayout(timefileBut);
+  Q3HBoxLayout* timefileLayout = new Q3HBoxLayout(timefileBut);
   timefileLayout->addWidget(autoButton);
   timefileLayout->addWidget(timeButton);
   timefileLayout->addWidget(fileButton);
@@ -116,33 +120,33 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   //list of times or files will be filled when "tid","fil" clicked
   // (in timefileClicked)
                   
-  timefileList = new QListBox( this);
+  timefileList = new Q3ListBox( this);
   timefileList->setMinimumHeight(HEIGHTLISTBOX);
 //   timefileList->setMaximumHeight(HEIGHTLISTBOX);
 
   //timefileListSlot called when an item (time of file) highlighted in
   // timefileList
-  connect( timefileList, SIGNAL(clicked(QListBoxItem *) ), 
+  connect( timefileList, SIGNAL(clicked(Q3ListBoxItem *) ), 
 	   SLOT( timefileListSlot( ) ) );
 
   
   //channelbox filled with available channels
   QLabel *channellabel= TitleLabel( tr("Channels").latin1(), this);
-  channelbox = new QListBox( this);
+  channelbox = new Q3ListBox( this);
   channelbox->setMinimumHeight(HEIGHTLISTBOX);
 
   //channelboxSlot called when an item highlighted in channelbox
-  connect( channelbox, SIGNAL( clicked( QListBoxItem * ) ), 
+  connect( channelbox, SIGNAL( clicked( Q3ListBoxItem * ) ), 
 	   SLOT( channelboxSlot() ) );
 
   //****
 
   //pictures contains one or more selected pictures !
       QLabel *picturesLabel = TitleLabel(tr("Selected pictures"), this);
-  pictures = new QListBox( this );
+  pictures = new Q3ListBox( this );
   pictures->setMinimumHeight(80);
 
-  connect( pictures, SIGNAL( clicked( QListBoxItem * ) ),   
+  connect( pictures, SIGNAL( clicked( Q3ListBoxItem * ) ),   
 	   SLOT( picturesSlot( ) ) );
 
 
@@ -188,8 +192,8 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   diffLcdnum= LCDNumber( difflength, this);
   diffSlider= Slider( dialogInfo.timediff.minValue, 
 		      dialogInfo.timediff.maxValue, 1, 
-		      dialogInfo.timediff.value, QSlider::Horizontal, this );
-  QHBoxLayout* difflayout = new QHBoxLayout(5);
+		      dialogInfo.timediff.value, Qt::Horizontal, this );
+  Q3HBoxLayout* difflayout = new Q3HBoxLayout(5);
   difflayout->addWidget( diffLabel,0,0 );
   difflayout->addWidget( diffLcdnum, 0,0 );
   difflayout->addWidget( diffSlider,0,0  );
@@ -214,27 +218,27 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   connect( satapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
   connect( satapply, SIGNAL(clicked()), SIGNAL( SatApply()) );
 
-  QHBoxLayout* hlayout2 = new QHBoxLayout();
+  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout();
   hlayout2->addWidget(upPictureButton);
   hlayout2->addWidget( Delete );
   hlayout2->addWidget( DeleteAll );
 
-  QHBoxLayout* hlayout1 = new QHBoxLayout();
+  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout();
   hlayout1->addWidget(downPictureButton);
   hlayout1->addWidget( multiPicture );
   hlayout1->addWidget( mosaic );
       
-  QHBoxLayout* hlayout4 = new QHBoxLayout();
+  Q3HBoxLayout* hlayout4 = new Q3HBoxLayout();
   hlayout4->addWidget( sathelp );
   hlayout4->addWidget( refresh  );
   hlayout4->addWidget( advanced );
 
-  QHBoxLayout* hlayout3 = new QHBoxLayout();
+  Q3HBoxLayout* hlayout3 = new Q3HBoxLayout();
   hlayout3->addWidget( sathide );
   hlayout3->addWidget( satapplyhide );
   hlayout3->addWidget( satapply );
 
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5);
+  Q3VBoxLayout* vlayout = new Q3VBoxLayout( this, 5, 5);
   vlayout->setMargin(10);
   vlayout->addWidget( namebox );
   vlayout->addWidget( fileGroup );
@@ -257,7 +261,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   doubleDisplayDiff(dialogInfo.timediff.value);
 
   this->hide();
-  setOrientation(Vertical);
+  setOrientation(Qt::Vertical);
   sda = new SatDialogAdvanced( this,  dialogInfo);
   int width=  sda->sizeHint().width();
   sda->setMinimumWidth(width);
@@ -306,7 +310,7 @@ void SatDialog::fileGroupHighlighted( ){
   cerr<<"SatDialog::fileGroupHighlighted called"<<endl;
 #endif
 
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
 
 
   int index = timefileBut->id(timefileBut->selected());
@@ -699,7 +703,7 @@ void SatDialog::Refresh(){
   cerr<<"SatDialog::Refresh() called; Filene blir hentet nytt fra disken"
       <<endl;
 #endif
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
 
   for (int i = 0;i<m_state.size();i++){
     //    if(m_state[i].filename.empty()){
@@ -1231,7 +1235,7 @@ void SatDialog::updateTimefileList(){
   timefileList->clear();
 
   //get new list of sat files
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
   files = 
     m_ctrl->getSatFiles( namebox->currentText().latin1(),
 		     fileGroup->currentText().latin1(),true);
@@ -1451,7 +1455,7 @@ void SatDialog::updateColours(){
 
 /*********************************************/
 void SatDialog::emitSatTimes(bool update){
-  QApplication::setOverrideCursor( waitCursor );
+  QApplication::setOverrideCursor( Qt::waitCursor );
   //    cerr <<"emitSatTimes"<<endl;
   times.clear();
   set<miTime> timeset;

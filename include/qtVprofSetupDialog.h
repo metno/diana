@@ -44,7 +44,7 @@ class QCheckBox;
 class QPixMap;
 class QSpinBox;
 class QTabWidget;
-class QVBox;
+class Q3VBox;
 class VprofManager;
 class VprofSetup;
 class VprofOptions;
@@ -78,7 +78,7 @@ private:
 
   //QT tab widgets
   QTabWidget* twd;
-  QVBox * datatab;
+  Q3VBox * datatab;
   QWidget* diagramtab;
   QWidget* colourtab;
 

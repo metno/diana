@@ -29,26 +29,31 @@
 
 
 #include <qpushbutton.h>
-#include <qtable.h>
-#include <qlistbox.h>
-#include <qhbox.h>
+#include <q3table.h>
+#include <q3listbox.h>
+#include <q3hbox.h>
 #include <qtabwidget.h>
 
 #include "qtProfetSessionDialog.h"
-#include <qvbox.h>
+#include <q3vbox.h>
 #include <qlayout.h>
 #include <qsplitter.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qlineedit.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QCloseEvent>
+#include <QLabel>
+#include <Q3VBoxLayout>
 
 
 ProfetSessionDialog::ProfetSessionDialog( QWidget* parent ) 
   : QDialog(parent ){
 
   setCaption(tr("Edit Field Session"));
-  QVBoxLayout * mainLayout = new QVBoxLayout(this);
-  QHBoxLayout * titleLayout = new QHBoxLayout(); 
-  QHBoxLayout * buttonLayout = new QHBoxLayout();
+  Q3VBoxLayout * mainLayout = new Q3VBoxLayout(this);
+  Q3HBoxLayout * titleLayout = new Q3HBoxLayout(); 
+  Q3HBoxLayout * buttonLayout = new Q3HBoxLayout();
   
   //Title
   QLabel* qls = new QTitleLabel(tr(" Session: "), this);
@@ -61,14 +66,14 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent )
   titleLayout->addWidget(qlm);
   titleLayout->addWidget(modelLabel);
   
-  QSplitter *split = new QSplitter(QSplitter::Vertical,this);
+  QSplitter *split = new QSplitter(Qt::Vertical,this);
   
   // Table
   table = new ProfetSessionTable(split);
   if(table){
-    table->setResizePolicy(QTable::Manual);
+    table->setResizePolicy(Q3Table::Manual);
     table->setReadOnly( true );
-    table->setSelectionMode( QTable::Single );
+    table->setSelectionMode( Q3Table::Single );
   }
 
   //Tab Widget
@@ -76,19 +81,19 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent )
   //In QT4: tabWidget->setTabPosition(QTabWidget::West)
   
   //User Panel
-  QHBox * userBox = new QHBox(tabWidget);
-  userList = new QListBox(userBox);
+  Q3HBox * userBox = new Q3HBox(tabWidget);
+  userList = new Q3ListBox(userBox);
   tabWidget->addTab(userBox,"&Users");
   chatWidget = new ProfetChatWidget(tabWidget);
   tabWidget->addTab(chatWidget,"&System");
   
   // Object Panel
-  objectBox = new QHBox(tabWidget);
+  objectBox = new Q3HBox(tabWidget);
   objectBox->setSpacing(5);
-  objectList = new QListBox(objectBox);
-  QVBox * objectLabelBox = new QVBox(objectBox);
-  QVBox * objectInfoBox = new QVBox(objectBox);
-  QVBox * objectButtonBox = new QVBox(objectBox);
+  objectList = new Q3ListBox(objectBox);
+  Q3VBox * objectLabelBox = new Q3VBox(objectBox);
+  Q3VBox * objectInfoBox = new Q3VBox(objectBox);
+  Q3VBox * objectButtonBox = new Q3VBox(objectBox);
   QLabel * aobl = new QTitleLabel("Algorithm : ", objectLabelBox);
   QLabel * oobl = new QTitleLabel("Owner : ", objectLabelBox);
   QLabel * sobl = new QTitleLabel("Locked by : ", objectLabelBox);

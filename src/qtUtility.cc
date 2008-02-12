@@ -31,7 +31,7 @@
 #include <iostream>
 
 #include <qcombobox.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
@@ -104,7 +104,7 @@ QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent,
 
   QPushButton* b = new QPushButton( parent );
 
-  b->setIconSet(QIconSet(pixmap));
+  b->setIconSet(QIcon(pixmap));
   
   int width  = pixmap.width()  + deltaWidth;
   int height = pixmap.height() + deltaHeight;
@@ -429,7 +429,7 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 
 
 /*********************************************/
-void listBox( QListBox* box, vector<miString> vstr, int defItem  ){
+void listBox( Q3ListBox* box, vector<miString> vstr, int defItem  ){
 
   if( box->count() )
     box->clear();

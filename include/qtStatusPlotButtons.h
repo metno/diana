@@ -35,14 +35,19 @@
 #include <qwidget.h>
 #include <qtoolbutton.h>
 #include <qdialog.h>
-#include <qpopupmenu.h>
-#include <qframe.h>
+#include <q3popupmenu.h>
+#include <q3frame.h>
 #include <qlabel.h>
+//Added by qt3to4:
+#include <QFocusEvent>
+#include <QKeyEvent>
+#include <Q3GridLayout>
+#include <Q3HBoxLayout>
 #include <miString.h>
 
-class QScrollView;
-class QGridLayout;
-class QHBoxLayout;
+class Q3ScrollView;
+class Q3GridLayout;
+class Q3HBoxLayout;
 
 using namespace std; 
 
@@ -103,10 +108,10 @@ public slots:
 protected:
   enum { MAXBUTTONS=30};
   int numbuttons;
-  QScrollView* sv;
-  QGridLayout* grid;
+  Q3ScrollView* sv;
+  Q3GridLayout* grid;
   PlotButton* buttons[MAXBUTTONS];
-  QPopupMenu* showtip;
+  Q3PopupMenu* showtip;
   QPoint tip_pos;
   int activebutton;
   void releasefocus();

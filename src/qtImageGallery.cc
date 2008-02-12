@@ -93,7 +93,7 @@ bool QtImageGallery::addImageToGallery(const miString name,
   for (int i=0; i<n; i++)
     a[i]= char(atoi(vs[i].cStr()));
 
-  QDataStream s( a, IO_ReadOnly );  // open on a's data
+  QDataStream s( a, QIODevice::ReadOnly );  // open on a's data
   QImage image;
   s >> image;                       // read raw bindata
 

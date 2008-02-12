@@ -32,21 +32,30 @@
 #include <qdialog.h>
 #include <qlayout.h>
 #include <qwidget.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
 #include <qlabel.h>
-#include <qvbuttongroup.h>
+// qt4 fix
+//#include <qvbuttongroup.h>
 #include <qcheckbox.h>
 #include <qslider.h>
 #include <qlcdnumber.h>
-#include <qfiledialog.h>
+#include <q3filedialog.h>
 #include <qtToggleButton.h>
 #include <qtObjectDialog.h>
 #include <qtEditComment.h>
 #include <qtAddtoDialog.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 #include <diObjectManager.h>
 #include <qtUtility.h>
+
+// qt4 fix
+#include <Q3VButtonGroup>
+#include <Q3HButtonGroup>
 
 
 /***************************************************************************/
@@ -68,7 +77,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 //********** create the various QT widgets to appear in dialog ***********
 
   // combobox for selecting object
-  namebox = new QListBox( this );
+  namebox = new Q3ListBox( this );
   namebox->setMinimumHeight(100);
 
   objectnames= m_ctrl->getObjectNames(useArchive);  
@@ -76,18 +85,18 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
     namebox->insertItem(objectnames[i].c_str());
   }
   
-  connect( namebox, SIGNAL(selectionChanged(QListBoxItem *) ), 
+  connect( namebox, SIGNAL(selectionChanged(Q3ListBoxItem *) ), 
 	   SLOT( nameActivated( ) ) );  
   namebox->setEnabled(true);
   m_nameboxIndex = -1;
 
   //**** the three buttons "auto", "tid", "fil" *************
 
-  timefileBut = new QButtonGroup( this );
+  timefileBut = new Q3ButtonGroup( this );
   autoButton = new ToggleButton(timefileBut, tr("Auto").latin1());
   timeButton = new ToggleButton(timefileBut, tr("Time").latin1());
   fileButton = new ToggleButton(timefileBut, tr("File").latin1());
-  QHBoxLayout* timefileLayout = new QHBoxLayout(timefileBut);
+  Q3HBoxLayout* timefileLayout = new Q3HBoxLayout(timefileBut);
   timefileLayout->addWidget(autoButton);
   timefileLayout->addWidget(timeButton);
   timefileLayout->addWidget(fileButton);
@@ -99,7 +108,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //********** the list of files/times to choose from **************
 
-  timefileList = new QListBox( this );
+  timefileList = new Q3ListBox( this );
   timefileList->setMinimumHeight(100);
 
   connect( timefileList, SIGNAL( highlighted( int ) ), 
@@ -108,7 +117,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //*****  Check boxes for selecting fronts/symbols/areas  **********
 
-  bgroupobjects= new QVButtonGroup(this);
+  bgroupobjects= new Q3VButtonGroup(this);
 
 
   cbs0= new QCheckBox(tr("Fronts"), bgroupobjects);
@@ -122,7 +131,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //the box (with label) showing which files have been choosen
   filesLabel = TitleLabel( tr("Selected files"), this);
-  filenames = new QListBox( this );
+  filenames = new Q3ListBox( this );
   filenames->setMinimumHeight(40);
 
   //********* slider/lcd number showing max time difference **********
@@ -138,7 +147,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   diffLabel = new QLabel( tr("    Time diff."), this );
   diffLcdnum= LCDNumber( difflength, this);
   diffSlider= Slider( timediff_minValue, timediff_maxValue, 1, 
-		      timediff_value, QSlider::Horizontal, this );
+		      timediff_value, Qt::Horizontal, this );
 
   connect(diffSlider,SIGNAL( valueChanged(int)),SLOT(doubleDisplayDiff(int))); 
 
@@ -159,7 +168,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   alphalcd = LCDNumber( 4, this);
   
   salpha  = Slider( alpha_minValue, alpha_maxValue, 1, alpha_value, 
-			    QSlider::Horizontal, this);
+			    Qt::Horizontal, this);
   
   connect( salpha, SIGNAL( valueChanged( int )), 
 	      SLOT( alphaDisplay( int )));
@@ -216,23 +225,23 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //place "auto","tid","fil" buttons group and list of times/files in
   //vertical layout
-  v3layout = new QVBoxLayout( 5 );
+  v3layout = new Q3VBoxLayout( 5 );
   v3layout->addWidget( timefileBut );
   v3layout->addWidget( timefileList );
 
   // place file name box and label in vertical layout
-  v5layout = new QVBoxLayout( 5 );
+  v5layout = new Q3VBoxLayout( 5 );
   v5layout->addWidget( filesLabel );
   v5layout->addWidget( filenames );
 
 
   //"delete" and "refresh" buttons in hor.layout
-  hlayout = new QHBoxLayout( 5 );
+  hlayout = new Q3HBoxLayout( 5 );
   hlayout->addWidget( Delete );
   //  hlayout->addWidget( refresh );
 
   //place lcd and slider in horizontal layout
-  QGridLayout* gridlayout = new QGridLayout( 3, 2); 
+  Q3GridLayout* gridlayout = new Q3GridLayout( 3, 2); 
   //  difflayout = new QHBoxLayout(5);
   gridlayout->addWidget( diffLabel,  0,0 );
   gridlayout->addWidget( diffLcdnum, 0,1 );
@@ -245,13 +254,13 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
 
   //place "help" button in horizontal layout
-  hlayout3 = new QHBoxLayout( 5 );
+  hlayout3 = new Q3HBoxLayout( 5 );
   hlayout3->addWidget( objhelp );
   hlayout3->addWidget( refresh  );
   hlayout3->addWidget( commentbutton );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  hlayout2 = new QHBoxLayout( 5 );
+  hlayout2 = new Q3HBoxLayout( 5 );
   hlayout2->addWidget( objhide );
   hlayout2->addWidget( objapplyhide );
   hlayout2->addWidget( objapply );
@@ -262,7 +271,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
 
   //now create a vertical layout to put all the other layouts in
-  vlayout = new QVBoxLayout( this,  5, 5);                            
+  vlayout = new Q3VBoxLayout( this,  5, 5);                            
   vlayout->addWidget( namebox ); 
   vlayout->addLayout( v3layout ); 
   vlayout->addLayout( v5layout ); 
@@ -535,7 +544,7 @@ void  ObjectDialog::newfileClicked(){
       newdir = filestring.substr(0,n-l);
     }
     //user input
-    QFileDialog *fdialog = new QFileDialog;
+    Q3FileDialog *fdialog = new Q3FileDialog;
     QString file =
       fdialog->getOpenFileName(newdir.c_str(),"*.*");
     delete fdialog;

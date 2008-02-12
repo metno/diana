@@ -29,27 +29,33 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtBrowserBox.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
+#include <QLabel>
+#include <Q3Frame>
+#include <QKeyEvent>
 
 
 BrowserBox::BrowserBox(QWidget* parent)
   : QDialog(parent, "browserbox", true,
-	    WStyle_Customize | WStyle_NoBorder)
+	    Qt::WStyle_Customize | Qt::WStyle_NoBorder)
   //	    WStyle_Customize | WStyle_NoBorderEx) | Qt::WX11BypassWM
 {
-  QHBoxLayout* b= new QHBoxLayout(this, 10, 10, "top_hlayout");
+  Q3HBoxLayout* b= new Q3HBoxLayout(this, 10, 10, "top_hlayout");
 
-  frame= new QFrame(this);
-  frame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  frame= new Q3Frame(this);
+  frame->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
   //frame->setPalette( QPalette( QColor(255, 255, 255) ) );
 
-  QVBoxLayout* vb= new QVBoxLayout(frame, 10, 10, "vlayout");
+  Q3VBoxLayout* vb= new Q3VBoxLayout(frame, 10, 10, "vlayout");
   listname= new QLabel("",frame);
   listname->setAlignment(Qt::AlignCenter);
-  listname->setFrameStyle(QFrame::Panel | QFrame::Raised);
+  listname->setFrameStyle(Q3Frame::Panel | Q3Frame::Raised);
   //listname->setPalette( QPalette( QColor(175, 175, 175) ) );
   vb->addWidget(listname,0);
 
-  QHBoxLayout* hb= new QHBoxLayout();
+  Q3HBoxLayout* hb= new Q3HBoxLayout();
   numlabel= new QLabel("99",frame);
   label= new QLabel("",frame);
   label->setAlignment(Qt::AlignCenter);
@@ -85,21 +91,21 @@ void BrowserBox::upDate(const miString& name,
 void BrowserBox::keyPressEvent(QKeyEvent *me)
 {
   switch (me->key()){
-  case Key_F10:
-  case Key_Left:
+  case Qt::Key_F10:
+  case Qt::Key_Left:
     emit(prevplot());
     break;
-  case Key_F11:
-  case Key_Right:
+  case Qt::Key_F11:
+  case Qt::Key_Right:
     emit(nextplot());
     break;
-  case Key_Up:
+  case Qt::Key_Up:
     emit(prevlist());
     break;
-  case Key_Down:
+  case Qt::Key_Down:
     emit(nextlist());
     break;
-  case Key_Escape:
+  case Qt::Key_Escape:
     emit(cancel());
     break;
   }
@@ -108,7 +114,7 @@ void BrowserBox::keyPressEvent(QKeyEvent *me)
 void BrowserBox::keyReleaseEvent(QKeyEvent *me)
 {
   switch (me->key()){
-  case Key_Alt:
+  case Qt::Key_Alt:
     emit(selectplot());
     break;
   }

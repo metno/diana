@@ -34,13 +34,18 @@
 
 #include <qpushbutton.h>
 #include <qlayout.h>
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qlabel.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qinputdialog.h>
-#include <qfiledialog.h>
-#include <qtextedit.h>
+#include <q3filedialog.h>
+#include <q3textedit.h>
 #include <qregexp.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <QPixmap>
+#include <Q3VBoxLayout>
 
 #include <up12x12.xpm>
 #include <down12x12.xpm>
@@ -53,24 +58,24 @@
 #include <qtUtility.h>
 
 
-class QuickListViewItem : public QListViewItem {
+class QuickListViewItem : public Q3ListViewItem {
 private:
   int menu;
   int item;
 public:
-  QuickListViewItem(QListView * parent, QString t, int m, int i):
-    QListViewItem(parent, t), menu(m), item(i)
+  QuickListViewItem(Q3ListView * parent, QString t, int m, int i):
+    Q3ListViewItem(parent, t), menu(m), item(i)
   {}
-  QuickListViewItem(QListViewItem * parent, QString t, int m, int i):
-    QListViewItem(parent, t) , menu(m), item(i)
+  QuickListViewItem(Q3ListViewItem * parent, QString t, int m, int i):
+    Q3ListViewItem(parent, t) , menu(m), item(i)
   {}
-  QuickListViewItem(QListView * parent, QListViewItem * after,
+  QuickListViewItem(Q3ListView * parent, Q3ListViewItem * after,
 		    QString t, int m, int i):
-    QListViewItem(parent, after, t), menu(m), item(i)
+    Q3ListViewItem(parent, after, t), menu(m), item(i)
   {}
-  QuickListViewItem(QListViewItem * parent, QListViewItem * after,
+  QuickListViewItem(Q3ListViewItem * parent, Q3ListViewItem * after,
 		    QString t, int m, int i):
-    QListViewItem(parent, after, t), menu(m), item(i)
+    Q3ListViewItem(parent, after, t), menu(m), item(i)
   {}
 
   int Menu() const {return menu;}
@@ -90,26 +95,26 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   QFont m_font= QFont( "Helvetica", 12, 75 );
 
   QLabel* mainlabel= new QLabel("<em><b>"+tr("Edit quickmenus")+"</b></em>", this);
-  mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+  mainlabel->setFrameStyle(Q3Frame::StyledPanel | Q3Frame::Raised);
 
-  menulist= new QListView(this, "listview");
+  menulist= new Q3ListView(this, "listview");
   menulist->setRootIsDecorated(true);
   menulist->setSorting(-1);
   menulist->addColumn(tr("Menus"));
-  connect(menulist, SIGNAL(selectionChanged(QListViewItem *)),
-	  this, SLOT(selectionChanged(QListViewItem *)));
+  connect(menulist, SIGNAL(selectionChanged(Q3ListViewItem *)),
+	  this, SLOT(selectionChanged(Q3ListViewItem *)));
 
   // up
   QPixmap upPicture = QPixmap(up12x12_xpm);
   upButton = PixmapButton( upPicture, this, 14, 12 );
   upButton->setEnabled( false );
-  upButton->setAccel(CTRL+Key_Up);
+  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
   connect( upButton, SIGNAL(clicked()), SLOT(upClicked()));
   // down
   QPixmap downPicture = QPixmap(down12x12_xpm);
   downButton = PixmapButton( downPicture, this, 14, 12 );
   downButton->setEnabled( false );
-  downButton->setAccel(CTRL+Key_Down);
+  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
   connect( downButton, SIGNAL(clicked()), SLOT(downClicked()));
 
   // Command buttons for menu-elements
@@ -132,32 +137,33 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   // erase
   eraseButton = new QPushButton(QPixmap(editcut_xpm), tr("Remove"), this );
   eraseButton->setEnabled( false );
-  eraseButton->setAccel(CTRL+Key_X);
+  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
   connect( eraseButton, SIGNAL(clicked()), SLOT(eraseClicked()));
   
   // copy
   copyButton = new QPushButton(QPixmap(editcopy_xpm), tr("Copy"), this );
   copyButton->setEnabled( false );
-  copyButton->setAccel(CTRL+Key_C);
+  copyButton->setAccel(Qt::CTRL+Qt::Key_C);
   connect( copyButton, SIGNAL(clicked()), SLOT(copyClicked()));
   
   // paste
   pasteButton = new QPushButton(QPixmap(editpaste_xpm), tr("Paste"), this );
   pasteButton->setEnabled( false );
-  pasteButton->setAccel(CTRL+Key_V);
+  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
   connect( pasteButton, SIGNAL(clicked()), SLOT(pasteClicked()));
   
   // a horizontal frame line
-  QFrame* line = new QFrame( this );
-  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame* line = new Q3Frame( this );
+  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
   // create commands-area
-  comedit= new QTextEdit(this, "comedit");
-  comedit->setWordWrap(QTextEdit::NoWrap);
+  comedit= new Q3TextEdit(this, "comedit");
+  comedit->setWordWrap(Q3TextEdit::NoWrap);
   comedit->setFont(QFont("Courier",12,QFont::Normal));
   comedit->setReadOnly(false);
   comedit->setMaximumHeight(150);
   connect(comedit, SIGNAL(textChanged()), SLOT(comChanged()));
+  // qt4 fix: Q3Frame -> QFrame
   QFrame* comlabel= new QLabel(comedit,tr("Command field"),this,"comlabel");
   comlabel->setMinimumSize(comlabel->sizeHint());
   //comlabel->setAlignment(AlignBottom | AlignLeft);
@@ -168,8 +174,8 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   connect( optionButton, SIGNAL(clicked()), SLOT(optionClicked()));
   
   // a horizontal frame line
-  QFrame* line2 = new QFrame( this );
-  line2->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame* line2 = new Q3Frame( this );
+  line2->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
   // last row of buttons
   QPushButton* ok= new QPushButton( tr("&OK"), this );
@@ -180,15 +186,15 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   //connect( help, SIGNAL(clicked()), SLOT(helpClicked()) );
 
 
-  QVBoxLayout* vl1= new QVBoxLayout(5);
+  Q3VBoxLayout* vl1= new Q3VBoxLayout(5);
   vl1->addWidget(upButton);
   vl1->addWidget(downButton);
 
-  QHBoxLayout* hl1= new QHBoxLayout(5);
+  Q3HBoxLayout* hl1= new Q3HBoxLayout(5);
   hl1->addWidget(menulist);
   hl1->addLayout(vl1);
   
-  QGridLayout* gl= new QGridLayout(2,3,5);
+  Q3GridLayout* gl= new Q3GridLayout(2,3,5);
   gl->addWidget(newButton,0,0);
   gl->addWidget(newfileButton,0,1);
   gl->addWidget(renameButton,0,2);
@@ -196,11 +202,11 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   gl->addWidget(copyButton,1,1);
   gl->addWidget(pasteButton,1,2);
 
-  QHBoxLayout* hl3= new QHBoxLayout(5);
+  Q3HBoxLayout* hl3= new Q3HBoxLayout(5);
   hl3->addWidget(optionButton);
   hl3->addStretch(1);
 
-  QHBoxLayout* hl4= new QHBoxLayout(5);
+  Q3HBoxLayout* hl4= new Q3HBoxLayout(5);
   hl4->addStretch();
   hl4->addWidget(ok);
   hl4->addStretch();
@@ -209,7 +215,7 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   //hl4->addWidget(help);
 
   // top layout
-  QVBoxLayout* vlayout=new QVBoxLayout(this,5,5);
+  Q3VBoxLayout* vlayout=new Q3VBoxLayout(this,5,5);
   
   vlayout->addWidget(mainlabel);
   vlayout->addLayout(hl1);
@@ -227,7 +233,7 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   resize(500,550);
 }
 
-void QuickAdmin::selectionChanged(QListViewItem *p)
+void QuickAdmin::selectionChanged(Q3ListViewItem *p)
 {
   if (p){
     QuickListViewItem* qp= (QuickListViewItem*)(p);
@@ -238,14 +244,14 @@ void QuickAdmin::selectionChanged(QListViewItem *p)
       newButton->setText(tr("&New menu.."));
       copyButton->setText(tr("Copy menu"));
       eraseButton->setText(tr("Remove menu.."));
-      copyButton->setAccel(CTRL+Key_C);
-      eraseButton->setAccel(CTRL+Key_X);
+      copyButton->setAccel(Qt::CTRL+Qt::Key_C);
+      eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
     } else {
       newButton->setText(tr("&New plot.."));
       copyButton->setText(tr("Copy plot"));
       eraseButton->setText(tr("Remove plot"));
-      copyButton->setAccel(CTRL+Key_C);
-      eraseButton->setAccel(CTRL+Key_X);
+      copyButton->setAccel(Qt::CTRL+Qt::Key_C);
+      eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
     }
     updateCommand();
 
@@ -335,7 +341,7 @@ void QuickAdmin::updateWidgets()
   
   int n= menues.size();
 
-  QListViewItem *tmp, *active= 0;
+  Q3ListViewItem *tmp, *active= 0;
   
   for (int i=n-1; i>=0; i--){
     miString mname= menues[i].name;
@@ -450,7 +456,7 @@ void QuickAdmin::newClicked()
 void QuickAdmin::newfileClicked()
 {
   QString filter= tr("Menus (*.quick);;All (*.*)");
-  QString s(QFileDialog::getOpenFileName("./",filter,
+  QString s(Q3FileDialog::getOpenFileName("./",filter,
 					 this, "openfile",
 					 tr("Add new menu from file")));
   if ( s.isEmpty() )
@@ -539,7 +545,7 @@ void QuickAdmin::copyClicked()
   else
     pasteButton->setText(tr("Paste plot"));
   
-  pasteButton->setAccel(CTRL+Key_V);
+  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
 
   if ((activeMenu >= firstcustom && activeMenu<= lastcustom)
       || (activeMenu==0 && activeElement==-1) )
@@ -580,7 +586,7 @@ void QuickAdmin::pasteClicked()
 
   pasteButton->setText(tr("Paste"));
   pasteButton->setEnabled(false);
-  pasteButton->setAccel(CTRL+Key_V);
+  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
   updateWidgets();
 }
 

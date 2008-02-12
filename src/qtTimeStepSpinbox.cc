@@ -37,7 +37,11 @@ TimeStepSpinbox::TimeStepSpinbox(QWidget* parent, const char* name):
 
 
 void TimeStepSpinbox::setTimeSteps(int l, int p){
-  setSteps(l,p);
+  // qt4 fix: setSteps() is removed from QRangeControl, using alternative method
+  // pagestep is no longer set!!
+  //setSteps(l,p);
+  setSingleStep(l);
+
   if(value()%l != 0) setValue(0);
 }
 

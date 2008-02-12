@@ -32,6 +32,8 @@
 #define _qtTimeControl_h
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <QLabel>
 #include <miTime.h>
 #include <miString.h>
 #include <map>

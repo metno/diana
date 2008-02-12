@@ -34,13 +34,18 @@
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include <qvbuttongroup.h>
+// qt4 fix
+//#include <qvbuttongroup.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
-#include <qvbox.h>
+#include <q3vbox.h>
 #include <qtabwidget.h>
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3GridLayout>
+#include <Q3VBoxLayout>
 #include <diVprofManager.h>
 #include <qtVprofSetup.h>
 #include <qtVprofSetupDialog.h>
@@ -125,18 +130,18 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                     
+  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );                     
   vlayout->addWidget( twd );
   vlayout->addLayout( hlayout1 ); 
   vlayout->addLayout( hlayout2 );
@@ -566,7 +571,7 @@ void VprofSetupDialog::applyhideClicked(){
 void VprofSetupDialog::initDatatab(){
   //cerr <<"initDatatab" << endl;
   //data tab (data setup could be different for each model)
-  datatab = new QVBox(twd);
+  datatab = new Q3VBox(twd);
 
   int mymargin=5;
   int myspacing=5;
@@ -582,7 +587,7 @@ void VprofSetupDialog::initDatatab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout(xwidget,15,4);
+  Q3GridLayout * glayout = new Q3GridLayout(xwidget,15,4);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -609,10 +614,11 @@ void VprofSetupDialog::initDatatab(){
   //spinbox for pressure and temperature range
   //value of spinLow must not exceed value of spinHigh
   
-  QLabel * pressurelabel = new QLabel(PRESSRANGE,xwidget);
-  QLabel * templabel = new QLabel(TEMPRANGE,xwidget);
-  pressurelabel->setAlignment(AlignLeft);
-  templabel->setAlignment(AlignLeft);
+  // qt4 fix: sending QStrings as arguments, not miStrings
+  QLabel * pressurelabel = new QLabel(QString(PRESSRANGE.cStr()),xwidget);
+  QLabel * templabel = new QLabel(QString(TEMPRANGE.cStr()),xwidget);
+  pressurelabel->setAlignment(Qt::AlignLeft);
+  templabel->setAlignment(Qt::AlignLeft);
   //pressure range 10-1200, steps of 50, init value 100-1050
   pressureSpinLow  = new QSpinBox(0,1200,50,xwidget);
   pressureSpinHigh = new QSpinBox(0,1200,50,xwidget);
@@ -670,7 +676,7 @@ void VprofSetupDialog::initDiagramtab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout(diagramtab,13,4);
+  Q3GridLayout * glayout = new Q3GridLayout(diagramtab,13,4);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -718,7 +724,7 @@ void VprofSetupDialog::initColourtab(){
 
   // make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout(colourtab,13,4);
+  Q3GridLayout * glayout = new Q3GridLayout(colourtab,13,4);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 

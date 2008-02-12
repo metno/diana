@@ -34,12 +34,16 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qlabel.h>
-#include <qframe.h>
+#include <q3frame.h>
 #include <qlineedit.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qinputdialog.h>
 
 #include <qtUtility.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 #include <up12x12.xpm>
 #include <down12x12.xpm>
@@ -55,22 +59,22 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   QFont m_font= QFont( "Helvetica", 12, 75 );
  
   QLabel* mainlabel= new QLabel("<em><b>"+tr("Change Dynamic Options")+"</b></em>", this);
-  mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+  mainlabel->setFrameStyle(Q3Frame::StyledPanel | Q3Frame::Raised);
 
   // up
   QPixmap upPicture = QPixmap(up12x12_xpm);
   upButton = PixmapButton( upPicture, this, 14, 12 );
   upButton->setEnabled( false );
-  upButton->setAccel(CTRL+Key_Up);
+  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
   connect( upButton, SIGNAL(clicked()), SLOT(upClicked()));
   // down
   QPixmap downPicture = QPixmap(down12x12_xpm);
   downButton = PixmapButton( downPicture, this, 14, 12 );
   downButton->setEnabled( false );
-  downButton->setAccel(CTRL+Key_Down);
+  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
   connect( downButton, SIGNAL(clicked()), SLOT(downClicked()));
 
-  list= new QListBox(this, "keylist");
+  list= new Q3ListBox(this, "keylist");
   connect(list, SIGNAL(highlighted(int)),SLOT(listHighlight(int)));
   list->setMinimumWidth(150);
 
@@ -88,7 +92,7 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   // erase
   eraseButton = new QPushButton(QPixmap(editcut_xpm), tr("Remove"), this );
   eraseButton->setEnabled( false );
-  eraseButton->setAccel(CTRL+Key_X);
+  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
   connect( eraseButton, SIGNAL(clicked()), SLOT(eraseClicked()));
   
   QLabel* clabel= new QLabel(tr("Options (comma separated)"), this);
@@ -99,8 +103,8 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
 	  this, SLOT(chChanged(const QString&)));
 
   // a horizontal frame line
-  QFrame* line = new QFrame( this );
-  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  Q3Frame* line = new Q3Frame( this );
+  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
 
   // last row of buttons
@@ -111,21 +115,21 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
   //connect( help, SIGNAL(clicked()), SLOT(helpClicked()) );
 
-  QVBoxLayout* vl1= new QVBoxLayout(5);
+  Q3VBoxLayout* vl1= new Q3VBoxLayout(5);
   vl1->addWidget(upButton);
   vl1->addWidget(downButton);
 
-  QVBoxLayout* vl2= new QVBoxLayout(5);
+  Q3VBoxLayout* vl2= new Q3VBoxLayout(5);
   vl2->addWidget(newButton);
   vl2->addWidget(renameButton);
   vl2->addWidget(eraseButton);
 
-  QHBoxLayout* hl1= new QHBoxLayout(5);
+  Q3HBoxLayout* hl1= new Q3HBoxLayout(5);
   hl1->addLayout(vl1);
   hl1->addWidget(list);
   hl1->addLayout(vl2);
   
-  QHBoxLayout* hl4= new QHBoxLayout(5);
+  Q3HBoxLayout* hl4= new Q3HBoxLayout(5);
   hl4->addStretch();
   hl4->addWidget(ok);
   hl4->addStretch();
@@ -134,7 +138,7 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   //hl4->addWidget(help);
 
   // top layout
-  QVBoxLayout* vlayout=new QVBoxLayout(this,5,5);
+  Q3VBoxLayout* vlayout=new Q3VBoxLayout(this,5,5);
   
   vlayout->addWidget(mainlabel);
   vlayout->addLayout(hl1);

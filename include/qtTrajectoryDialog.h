@@ -32,6 +32,8 @@
 #define TRAJECTORYDIALOG_H
 
 #include <qdialog.h>
+//Added by qt3to4:
+#include <QLabel>
 #include <miString.h>
 #include <vector>
 #include <diController.h>
@@ -39,7 +41,7 @@
 using namespace std;
 
 class QComboBox;
-class QListBox;
+class Q3ListBox;
 class QPushButton;
 class QSpinBox;
 class QLabel;
@@ -93,7 +95,7 @@ private:
   QComboBox* lineWidthBox;
   QComboBox* lineTypeBox;
   GeoPosLineEdit* edit;
-  QListBox* posList;
+  Q3ListBox* posList;
   QCheckBox* posButton;
   QSpinBox* radiusSpin;
   QSpinBox* timeSpin;

@@ -32,10 +32,13 @@
 #include <qdialog.h>
 #include <qlayout.h>
 #include <qwidget.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qmessagebox.h> 
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 #include <fstream>
 #include <qtUtility.h>
 #include <qtUffdaDialog.h>
@@ -57,17 +60,17 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   setCaption(tr("Uffda"));
     
   //********** the list of satellites to choose from **************
-  satlist = new QListBox( this );
+  satlist = new Q3ListBox( this );
   satlist->setMinimumHeight(HEIGHTLISTBOX);
   satlist->setMinimumWidth(WIDTHLISTBOX);
 
   connect( satlist, SIGNAL( selectionChanged( ) ), 
   SLOT( satlistSlot() ) );
-  connect( satlist, SIGNAL( clicked(QListBoxItem*) ), 
+  connect( satlist, SIGNAL( clicked(Q3ListBoxItem*) ), 
   SLOT( satlistSlot() ) );
 
   //********** the list of classes to choose from **************
-  classlist = new QListBox( this );
+  classlist = new Q3ListBox( this );
   classlist->setMinimumHeight(HEIGHTLISTBOX);
   classlist->setMinimumWidth(WIDTHLISTBOX);
 
@@ -84,15 +87,16 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
   connect( classlist, SIGNAL(selectionChanged( ) ), 
 	   SLOT( classlistSlot( ) ) );  
-  connect( classlist, SIGNAL(clicked(QListBoxItem*) ),  
+  connect( classlist, SIGNAL(clicked(Q3ListBoxItem*) ),  
 	   SLOT( classlistSlot( ) ) );  
 
-  t=new DynamicTip(classlist,vUffdaClassTip);
+  // qt4 fix: new routine to make ToolTip
+  //t=new DynamicTip(classlist,vUffdaClassTip);
 
 
   //****  the box (with label) showing which positions have been choosen ****
       posLabel = TitleLabel( tr("Selected positions"), this);
-  poslist = new QListBox( this );
+  poslist = new Q3ListBox( this );
   poslist->setMinimumHeight(HEIGHTLISTBOX);
   poslist->setMinimumWidth(WIDTHLISTBOX);
   connect(poslist, SIGNAL(selectionChanged() ), 
@@ -124,14 +128,14 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
 // ********************* place all the widgets in layouts ****************
 
-  v3layout = new QVBoxLayout( 5 );
+  v3layout = new Q3VBoxLayout( 5 );
   v3layout->addWidget(satlist );
   v3layout->addWidget(classlist,3 );
   v3layout->addWidget(posLabel );
   v3layout->addWidget(poslist,2 );
 
 
-  h1layout = new QHBoxLayout( 5 );
+  h1layout = new Q3HBoxLayout( 5 );
   h1layout->addWidget( Deleteb );
   h1layout->addWidget( DeleteAllb );
 
@@ -142,7 +146,7 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
 
   //now create a vertical layout to put all the other layouts in
-  vlayout = new QVBoxLayout( this,  5, 5);                            
+  vlayout = new Q3VBoxLayout( this,  5, 5);                            
   vlayout->addLayout( v3layout ); 
   vlayout->addLayout( h1layout );
   //stationplotpointer
@@ -365,9 +369,7 @@ void UffdaDialog::addPosition(float lat, float lon){
   satlist->clear();
   vector <miString> satnames = m_ctrl->getSatnames();
   for (int i=0; i<satnames.size(); i++){
-    QString satname=satnames[i].c_str();
-    satname=satname.simplifyWhiteSpace();
-    satlist->insertItem(satname);
+    satlist->insertItem(satnames[i].c_str());
     if (satnames[i]==sattime.latin1()) currIndex=i;
   }
   if (currIndex>-1){
@@ -493,20 +495,21 @@ void UffdaDialog::send(const miString& to,
 
 /********************************************/
 
-DynamicTip::DynamicTip( QWidget * parent,vector <miString> tips )
+/*DynamicTip::DynamicTip( QWidget * parent,vector <miString> tips )
     : QToolTip( parent )
 {
   int i, n=tips.size();
   for (i=0;i<n;i++){
   vClasstips.push_back(tips[i].c_str());
   }
-}
+}*/
 
-
-void DynamicTip::maybeTip( const QPoint &pos )
+// qt4 fix: ported to new QToolTip API
+// use each widgets setToolTip(const QString &) instead
+/*void DynamicTip::maybeTip( const QPoint &pos )
 {
-  QListBox * list ((QListBox*)parentWidget()) ;
-  QListBoxItem * it = list->itemAt(pos);
+  Q3ListBox * list ((Q3ListBox*)parentWidget()) ;
+  Q3ListBoxItem * it = list->itemAt(pos);
   if (it){
     int i= list->index(it);
     if (i>-1 && i<vClasstips.size()){
@@ -514,7 +517,7 @@ void DynamicTip::maybeTip( const QPoint &pos )
       tip(tr,vClasstips[i]);
     }
   }
-}
+}*/
 
 
 

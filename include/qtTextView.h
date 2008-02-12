@@ -31,10 +31,14 @@
 #ifndef _TextView_h
 #define _TextView_h
 
-#include <qtabdialog.h>
+#include <q3tabdialog.h>
 #include <qstring.h>
+//Added by qt3to4:
+#include <QLabel>
 #include <miString.h>
 
+// qt4 fix (why did it work without map-include before qt4??)
+#include <map>
 
 class QWidget;
 class QLabel;
@@ -65,7 +69,7 @@ public:
 
 */
 
-class TextView : public QTabDialog
+class TextView : public Q3TabDialog
 {
   Q_OBJECT
 private:
