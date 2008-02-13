@@ -108,7 +108,7 @@ mocs:
 	echo "	"$(MOC) $(INCDIR)/$${ENTRY} -o $${ENTRY%.h}_moc.cc >> $(MOCFILE) ; \
 	done
 
-include $(MOCFILE)
+-include $(MOCFILE)
 
 #----------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ depends:
 	echo '# Automatically-generated dependencies list:' > $(DEPENDSFILE)
 	$(CXX) $(CCFLAGS) $(INCLUDE) -DQT3_SUPPORT -M $(ALLSRC) >> $(DEPENDSFILE)
 
-include $(DEPENDSFILE)
+-include $(DEPENDSFILE)
 
 #-----------------------------------------------------
 

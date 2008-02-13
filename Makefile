@@ -38,7 +38,7 @@ INCLUDE= -I. \
 	 -I$(LOCALINC)/profet \
 	 -I$(LOCALINC)/profetSQL \
 	 -I$(LOCALINC)/proFunctions \
-	 -I$(LOCALINC)/qUtilities-coclient2 \
+	 -I$(LOCALINC)/qUtilities \
 	 -I$(LOCALINC)/puDatatypes \
 	 -I$(LOCALINC)/glp \
 	 -I$(LOCALINC)/glText \
@@ -68,8 +68,8 @@ INCLUDE= -I. \
 # WARNING: library sequence may be very important due to path (-L) sequence
 
 LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
-	-lqUtilities-coclient2 -lpuDatatypes \
-	-lGLP -lglText -lrobs -ldiMItiff -ldiField -lprofet -lprofetSQL -lproFunctions -lmic -ldiSQL -lpuSQL \
+	-lqUtilities -lpuDatatypes \
+	-lglp -lglText -lrobs -ldiMItiff -ldiField -lprofet -lprofetSQL -lproFunctions -lmic -ldiSQL -lpuSQL \
 	$(WEATHERDB_LIB) \
 	-lpuTools \
 	-L$(QTDIR)/lib $(QT_LIBS) \
@@ -97,7 +97,8 @@ OPTIONS="CXX=${CXX}" "CCFLAGS=${CXXFLAGS} ${DEFINES}" \
 	"DEPENDSFILE=${DEPENDSFILE}" "BINDIR=../${BINDIR}" \
 	"LOCALDIR=${LOCALDIR}" "INCDIR=${INCDIR}" \
 	"LINKS=${LINKS}" "BLINKS=${BLINKS}" \
-	"QTDIR=${QTDIR}" "MOCFILE=${MOCFILE}" "LANGDIR=../${LANGDIR}"
+	"QTDIR=${QTDIR}" "MOC=${MOC}" "MOCFILE=../${MOCFILE}" \
+	 "LANGDIR=../${LANGDIR}"
 
 
 all: directories mocs depends mark diana bmark bdiana

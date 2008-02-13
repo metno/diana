@@ -99,7 +99,7 @@
 #include <qtBrowserBox.h>
 #include <qtAddtoMenu.h>
 #include <qtUffdaDialog.h>
-#include <ClientButton2.h>
+#include <ClientButton.h>
 #include <qtTextView.h>
 #include <miMessage.h>
 #include <QLetterCommands.h>
@@ -644,7 +644,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   hqcTo = -1;
   qsocket = false;
   miString server = setup.basicValue("qserver");
-  pluginB = new ClientButton2(tr("Diana"),server.c_str(),statusBar());
+  pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
   pluginB->setMinimumWidth( hpixbutton );
   pluginB->setMaximumWidth( hpixbutton );
   connect(pluginB, SIGNAL(receivedMessage(miMessage&)),

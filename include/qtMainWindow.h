@@ -84,7 +84,7 @@ class VcrossWindow;
 class SpectrumWindow;
 class StatusPlotButtons;
 class BrowserBox;
-class ClientButton2;
+class ClientButton;
 class miMessage;
 class StationPlot;
 class TextView;
@@ -354,7 +354,7 @@ private:
   ShowSatValues     * showsatval;
   QPushButton       * obsUpdateB;
   QLabel            * archiveL;
-  ClientButton2     * pluginB;
+  ClientButton      * pluginB;
   bool                dialogChanged;
 
   vector<miString> vlabel;
