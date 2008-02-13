@@ -439,24 +439,52 @@ m=EC.EPS_0.5.12-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:no
                     f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt-1 \
 		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt-1
 
-filegroup="NORLAMEPS"
-m=LAMEPS.18       f=$(OPDATA2)/lameps/lameps18.dat \
-		  f=$(OPDATA2)/lameps/lameps_pred.dat 
-m=LAMEPS.18-1     f=$(OPDATA2)/lameps/lameps18.dat-1
-		  f=$(OPDATA2)/lameps/lameps_pred.dat-1 
-m=LAMEPS.18-2     f=$(OPDATA2)/lameps/lameps18.dat-2
-		  f=$(OPDATA2)/lameps/lameps_pred.dat-2 
-m=TEPS.12         f=$(OPDATA2)/lameps/teps12.dat \
-		  f=$(OPDATA2)/lameps/teps_pred.dat 
-m=TEPS.12-1       f=$(OPDATA2)/lameps/teps12.dat-1
-		  f=$(OPDATA2)/lameps/teps_pred.dat-1 
-m=TEPS.12-2       f=$(OPDATA2)/lameps/teps12.dat-2
-		  f=$(OPDATA2)/lameps/teps_pred.dat-2 
-m=NORLAMEPS.18    f=$(OPDATA2)/lameps/norlameps_pred.dat 
-m=NORLAMEPS.18-1  f=$(OPDATA2)/lameps/norlameps_pred.dat-1 
-m=NORLAMEPS.18-2  f=$(OPDATA2)/lameps/norlameps_pred.dat-2 
-m=lameps_prob     f=$(OPDATA2)/lameps/lameps_prob.dat
-m=norlameps_prob  f=$(OPDATA2)/lameps/norlameps_prob.dat 
+filegroup=NORLAMEPS
+m=LAMEPS.06                f=$(OPDATA2)/lameps/lameps06.dat \
+                           f=$(OPDATA2)/lameps/lameps_prob06.dat \
+                           f=$(OPDATA2)/lameps/lameps_pred06.dat
+m=LAMEPS.06-1              f=$(OPDATA2)/lameps/lameps06.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_prob06.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_pred06.dat-1
+m=LAMEPS.06-2              f=$(OPDATA2)/lameps/lameps06.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_prob06.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_pred06.dat-2
+m=TEPS.06                  f=$(OPDATA2)/lameps/teps_prob06.dat \
+                           f=$(OPDATA2)/lameps/teps_pred06.dat 
+m=TEPS.06-1                f=$(OPDATA2)/lameps/teps_prob06.dat-1 \
+                           f=$(OPDATA2)/lameps/teps_pred06.dat-1
+m=TEPS.06-2                f=$(OPDATA2)/lameps/teps_prob06.dat-2 \
+                           f=$(OPDATA2)/lameps/teps_pred06.dat-2
+m=NORLAMEPS.06             f=$(OPDATA2)/lameps/norlameps_prob06.dat \
+                           f=$(OPDATA2)/lameps/norlameps_pred06.dat
+m=NORLAMEPS.06-1           f=$(OPDATA2)/lameps/norlameps_prob06.dat-1 \ 
+                           f=$(OPDATA2)/lameps/norlameps_pred06.dat-1
+m=NORLAMEPS.06-2           f=$(OPDATA2)/lameps/norlameps_prob06.dat-2 \
+                           f=$(OPDATA2)/lameps/norlameps_pred06.dat-2
+m=TEPS.12                  f=$(OPDATA2)/lameps/teps12.dat
+m=TEPS.12-1                f=$(OPDATA2)/lameps/teps12.dat-1
+m=TEPS.12-2                f=$(OPDATA2)/lameps/teps12.dat-2
+m=LAMEPS.18                f=$(OPDATA2)/lameps/lameps18.dat \
+                           f=$(OPDATA2)/lameps/lameps_prob18.dat \
+                           f=$(OPDATA2)/lameps/lameps_pred18.dat
+m=LAMEPS.18-1              f=$(OPDATA2)/lameps/lameps18.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_prob18.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_pred18.dat-1
+m=LAMEPS.18-2              f=$(OPDATA2)/lameps/lameps18.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_prob18.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_pred18.dat-2
+m=TEPS.18                  f=$(OPDATA2)/lameps/teps_prob18.dat \
+                           f=$(OPDATA2)/lameps/teps_pred18.dat
+m=TEPS.18-1                f=$(OPDATA2)/lameps/teps_prob18.dat-1 \
+                           f=$(OPDATA2)/lameps/teps_pred18.dat-1
+m=TEPS.18-2                f=$(OPDATA2)/lameps/teps_prob18.dat-2 \
+                           f=$(OPDATA2)/lameps/teps_pred18.dat-2
+m=NORLAMEPS.18             f=$(OPDATA2)/lameps/norlameps_prob18.dat \
+                           f=$(OPDATA2)/lameps/norlameps_pred18.dat
+m=NORLAMEPS.18-1           f=$(OPDATA2)/lameps/norlameps_prob18.dat-1 \
+                           f=$(OPDATA2)/lameps/norlameps_pred18.dat-1
+m=NORLAMEPS.18-2           f=$(OPDATA2)/lameps/norlameps_prob18.dat-2 \
+                           f=$(OPDATA2)/lameps/norlameps_pred18.dat-2
 
 #filegroup=PEPS
 #m=PEPS.00        f=$(OPDATA2)/lameps/peps00.dat
