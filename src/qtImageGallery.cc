@@ -33,6 +33,9 @@
 #include <diSetupParser.h>
 #include <glob.h>
 
+// qt4 fix
+#include <QDataStream>
+
 map<miString,QImage> QtImageGallery::Images;
 
 QtImageGallery::QtImageGallery()
@@ -93,7 +96,8 @@ bool QtImageGallery::addImageToGallery(const miString name,
   for (int i=0; i<n; i++)
     a[i]= char(atoi(vs[i].cStr()));
 
-  QDataStream s( a, QIODevice::ReadOnly );  // open on a's data
+  // qt4 fix: Using pointer to a as arg
+  QDataStream s( &a, QIODevice::ReadOnly );  // open on a's data
   QImage image;
   s >> image;                       // read raw bindata
 

@@ -98,7 +98,7 @@ void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
 // THREAD SAFE!
 void DianaProfetGUI::showMessage(const Profet::InstantMessage & msg){
   QApplication::postEvent(this, new Profet::MessageEvent(msg));//thread-safe
-  QApplication::eventLoop()->wakeUp();//thread-safe
+  //  QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
 // THREAD SAFE!
@@ -109,7 +109,7 @@ void DianaProfetGUI::setUsers(vector<Profet::PodsUser> users){
     cle->users.push_back(users[i]); // or just clients=users?
   }
   QApplication::postEvent(this, cle);//thread-safe
-  QApplication::eventLoop()->wakeUp();//thread-safe
+//   QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
 void DianaProfetGUI::customEvent(QCustomEvent * e){
@@ -143,14 +143,14 @@ void DianaProfetGUI::customEvent(QCustomEvent * e){
 void DianaProfetGUI::setObjects(vector<fetObject> obj){
   Profet::ObjectUpdateEvent * oue = new Profet::ObjectUpdateEvent(obj);
   QApplication::postEvent(this, oue);//thread-safe
-  QApplication::eventLoop()->wakeUp();//thread-safe
+  //  QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
 
 void DianaProfetGUI::setObjectSignatures( vector<fetObject::Signature> s){ 
   Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s);
   QApplication::postEvent(this, sue);//thread-safe
-  QApplication::eventLoop()->wakeUp();//thread-safe
+  //  QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
 void DianaProfetGUI::baseObjectSelected(miString id){
@@ -338,7 +338,7 @@ void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y){
 
 void DianaProfetGUI::updateMap(){
   QApplication::postEvent(this, new QCustomEvent(Profet::UPDATE_MAP_EVENT));//thread-safe
-  QApplication::eventLoop()->wakeUp();//thread-safe
+  //  QApplication::eventLoop()->wakeUp();//thread-safe
 }
 
 miString DianaProfetGUI::getCurrentParameter(){

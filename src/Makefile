@@ -105,10 +105,10 @@ mocs:
 	do \
 	echo                                                                 >> $(MOCFILE) ; \
 	echo $${ENTRY%.h}_moc.cc: $(INCDIR)/$${ENTRY}                        >> $(MOCFILE) ; \
-	echo "	"$(QTDIR)/lib/qt4/bin/moc $(INCDIR)/$${ENTRY} -o $${ENTRY%.h}_moc.cc >> $(MOCFILE) ; \
+	echo "	"$(MOC) $(INCDIR)/$${ENTRY} -o $${ENTRY%.h}_moc.cc >> $(MOCFILE) ; \
 	done
 
--include $(MOCFILE)
+include $(MOCFILE)
 
 #----------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ depends:
 	echo '# Automatically-generated dependencies list:' > $(DEPENDSFILE)
 	$(CXX) $(CCFLAGS) $(INCLUDE) -DQT3_SUPPORT -M $(ALLSRC) >> $(DEPENDSFILE)
 
--include $(DEPENDSFILE)
+include $(DEPENDSFILE)
 
 #-----------------------------------------------------
 

@@ -129,7 +129,9 @@ QComboBox* ComboBox( QWidget* parent, vector<miString> vstr,
   for( int i=0; i<nr_box; i++ )
     cvstr[i]=  vstr[i].c_str();
 
-  box->insertStrList( cvstr, nr_box );
+  // qt4 fix: insertStrList() -> insertStringList()
+  // (uneffective, have to make QStringList and QString!)
+  box->insertStringList(QStringList(QString(cvstr[0])),nr_box );
    
   box->setEnabled( Enabled );
 

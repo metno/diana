@@ -154,7 +154,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   version_string= ver_str;
   build_string  = build_str;
 
-  //  setCaption( tr("Diana") );
+  setCaption( tr("Diana") );
 
   menuBar()->hide();// The menubar must be hidden to let the sentralwidget
                     // fill all the space
@@ -384,18 +384,14 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   */
 
   menuToolbar = new Q3ToolBar( this );
-//   addDockWindow( menuToolbar, tr( "Menuline" ), Qt::DockTop, FALSE );
-  addDockWindow( menuToolbar, tr( "Menuline" ));
+  addDockWindow( menuToolbar, tr( "Menuline" ), Qt::DockTop, FALSE );
 
   mainmenubar = new QMenuBar( menuToolbar );
-  //  mainmenubar->setFrameStyle( Q3Frame::NoFrame );
+  mainmenubar->setFrameStyle( Q3Frame::NoFrame );
 
   menuToolbar->setStretchableWidget( mainmenubar );
-//   setDockEnabled( menuToolbar, Qt::DockLeft, FALSE );
-//   setDockEnabled( menuToolbar, Qt::DockRight, FALSE );
-//   setDockEnabled( menuToolbar);
-//   setDockEnabled( menuToolbar);
-
+  setDockEnabled( menuToolbar, Qt::DockLeft, FALSE );
+  setDockEnabled( menuToolbar, Qt::DockRight, FALSE );
 
   //-------File menu
   filemenu = new Q3PopupMenu(this);
