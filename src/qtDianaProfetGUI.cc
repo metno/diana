@@ -32,10 +32,7 @@
 #include "qtDianaProfetGUI.h"
 #include "qtPaintToolBar.h"
 #include <qstring.h>
-#include <qapplication.h>
-#include <qeventloop.h>
-//Added by qt3to4:
-#include <QCustomEvent>
+#include <QCoreApplication>
 
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) : 
@@ -97,8 +94,7 @@ void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
 
 // THREAD SAFE!
 void DianaProfetGUI::showMessage(const Profet::InstantMessage & msg){
-  QApplication::postEvent(this, new Profet::MessageEvent(msg));//thread-safe
-  //  QApplication::eventLoop()->wakeUp();//thread-safe
+  QCoreApplication::postEvent(this,new Profet::MessageEvent(msg));//thread-safe
 }
 
 // THREAD SAFE!
@@ -108,11 +104,10 @@ void DianaProfetGUI::setUsers(vector<Profet::PodsUser> users){
   for(int i=0; i<users.size(); i++){
     cle->users.push_back(users[i]); // or just clients=users?
   }
-  QApplication::postEvent(this, cle);//thread-safe
-//   QApplication::eventLoop()->wakeUp();//thread-safe
+  QCoreApplication::postEvent(this, cle);//thread-safe
 }
 
-void DianaProfetGUI::customEvent(QCustomEvent * e){
+void DianaProfetGUI::customEvent(QEvent * e){
   if(e->type() == Profet::MESSAGE_EVENT){
     Profet::MessageEvent * me = (Profet::MessageEvent*) e;
     sessionDialog.showMessage(me->message);
@@ -142,15 +137,13 @@ void DianaProfetGUI::customEvent(QCustomEvent * e){
 // THREAD SAFE!
 void DianaProfetGUI::setObjects(vector<fetObject> obj){
   Profet::ObjectUpdateEvent * oue = new Profet::ObjectUpdateEvent(obj);
-  QApplication::postEvent(this, oue);//thread-safe
-  //  QApplication::eventLoop()->wakeUp();//thread-safe
+  QCoreApplication::postEvent(this, oue);//thread-safe
 }
 
 
 void DianaProfetGUI::setObjectSignatures( vector<fetObject::Signature> s){ 
   Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s);
-  QApplication::postEvent(this, sue);//thread-safe
-  //  QApplication::eventLoop()->wakeUp();//thread-safe
+  QCoreApplication::postEvent(this, sue);//thread-safe
 }
 
 void DianaProfetGUI::baseObjectSelected(miString id){
@@ -337,8 +330,8 @@ void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y){
 }
 
 void DianaProfetGUI::updateMap(){
-  QApplication::postEvent(this, new QCustomEvent(Profet::UPDATE_MAP_EVENT));//thread-safe
-  //  QApplication::eventLoop()->wakeUp();//thread-safe
+  QCoreApplication::postEvent(this, new QEvent(
+      QEvent::Type(Profet::UPDATE_MAP_EVENT)));//thread-safe
 }
 
 miString DianaProfetGUI::getCurrentParameter(){

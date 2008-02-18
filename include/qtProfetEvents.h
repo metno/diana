@@ -2,9 +2,7 @@
 #define QTPROFETEVENTS_H_
 
 #include <vector>
-#include <qevent.h>
-//Added by qt3to4:
-#include <QCustomEvent>
+#include <QEvent>
 #include <profet/ProfetCommon.h>
 #include <profet/fetObject.h>
 
@@ -18,40 +16,40 @@ namespace Profet{
   /**
    * Threadsafe event for incomming messages
    */  
-  class MessageEvent : public QCustomEvent {
+  class MessageEvent : public QEvent {
   public:
     Profet::InstantMessage message;
     MessageEvent(Profet::InstantMessage m)
-      :QCustomEvent(MESSAGE_EVENT),message(m){}
+      :QEvent(QEvent::Type(MESSAGE_EVENT)),message(m){}
   };
 
   /**
    * Threadsafe event for incomming UserList
    */
-  class UserListEvent : public QCustomEvent {
+  class UserListEvent : public QEvent {
   public:
     vector<Profet::PodsUser> users;
-    UserListEvent():QCustomEvent(USER_LIST_EVENT){}
+    UserListEvent():QEvent(QEvent::Type(USER_LIST_EVENT)){}
   };
 
   /**
    * Threadsafe event for incomming messages
    */  
-  class ObjectUpdateEvent : public QCustomEvent {
+  class ObjectUpdateEvent : public QEvent {
   public:
     vector<fetObject> objects;
     ObjectUpdateEvent(vector<fetObject> obj)
-      :QCustomEvent(OBJECT_UPDATE_EVENT),objects(obj){}
+      :QEvent(QEvent::Type(OBJECT_UPDATE_EVENT)),objects(obj){}
   };
   
   /**
    * Threadsafe event for incomming messages
    */  
-  class SignatureUpdateEvent : public QCustomEvent {
+  class SignatureUpdateEvent : public QEvent {
   public:
     vector<fetObject::Signature> objects;
     SignatureUpdateEvent(vector<fetObject::Signature> s)
-      :QCustomEvent(SIGNATURE_UPDATE_EVENT),objects(s){}
+      :QEvent(QEvent::Type(SIGNATURE_UPDATE_EVENT)),objects(s){}
   };
 
   

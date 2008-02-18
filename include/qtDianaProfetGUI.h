@@ -31,8 +31,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qobject.h> 
-//Added by qt3to4:
-#include <QCustomEvent>
+#include <QEvent>
 #include <profet/ProfetController.h>
 #include <profet/ProfetGUI.h>
 #include "qtProfetEvents.h"
@@ -90,7 +89,7 @@ public:
   void setObjects(vector<fetObject> objects);
   void setObjectSignatures( vector<fetObject::Signature> s);
 
-  void customEvent(QCustomEvent * e);
+  void customEvent(QEvent * e);
   /**
    * Plots specified field in Diana.
    * Field must be prepared in field-manager first
