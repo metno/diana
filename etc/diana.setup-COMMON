@@ -3085,6 +3085,9 @@ PROD=ascii:Fargekoding-TAF
 ascii=$(OPDATA2)/modflydb/colorcode/colorcode_taf.yyyymmddHHMM
 timerange=-360,1080
 
+PROD=ascii:Fartoydata
+ascii=$(DIANADIR)/etc/FartoyData1987-2007.txt
+
 PROD=ascii:Radiofyr
 ascii=$(DIANADIR)/etc/radiofyr.txt
 
