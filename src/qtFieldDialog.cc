@@ -70,8 +70,8 @@
 #include <minus12x12.xpm>
 
 // qt4 fix
-#include <QString>
-#include <QStringList>
+// #include <QString>
+// #include <QStringList>
 
 
 FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
@@ -152,17 +152,15 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   nr_linetypes= linetypes.size();
 
   // density (of arrows etc, 0=automatic)
-  vector<int> density_value;
-  for (i=0;  i<10; i++)   density_value.push_back(i);
-  for (i=10; i<60; i+=10) density_value.push_back(i);
-  density_value.push_back(100);
-  n=density_value.size();
-      density.push_back("Auto");
-  for (i=1; i<n; ++i) {
-      ostringstream ostr;
-      ostr << density_value[i];
-      density.push_back(ostr.str());
-    }
+  densityStringList << "Auto";
+    QString qs;
+  for (i=0;  i<10; i++) {
+    densityStringList << qs.setNum(i);
+  }
+  for (i=10;  i<60; i+=10) {
+    densityStringList << qs.setNum(i);
+  }
+    densityStringList << qs.setNum(100);
 
   //----------------------------------------------------------------
   cp = new CommandParser();
@@ -471,12 +469,6 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   QLabel* densitylabel= new QLabel( tr("Density"), this );
   densityCbox=  new QComboBox( false, this );
   densityCbox->setEnabled( false );
-  // values inserted when enabled (cleared when disabled)
-  nr_densities= density.size();
-  cdensities= new const char*[nr_densities];
-  for (i=0; i<nr_densities; i++)
-    cdensities[i]= density[i].c_str();
-
   connect( densityCbox, SIGNAL( activated(int) ),
 	   SLOT( densityCboxActivated(int) ) );
 
@@ -1139,13 +1131,12 @@ void FieldDialog::updateModelBoxes()
   int nr_m = m_modelgroup.size();
   if (nr_m==0) return;
 
-  const char** cvstr= new const char*[nr_m];
   int m= 0;
   if (profetEnabled) {
     for (int i=0; i<nr_m; i++) {
       if (m_modelgroup[i].groupType=="profetfilegroup") {
 	indexMGRtable.push_back(i);
-        cvstr[m++]=  m_modelgroup[i].groupName.c_str();
+	modelGRbox->addItem( QString(m_modelgroup[i].groupName.c_str()));
       }
     }
   }
@@ -1153,23 +1144,18 @@ void FieldDialog::updateModelBoxes()
     for (int i=0; i<nr_m; i++) {
       if (m_modelgroup[i].groupType=="archivefilegroup") {
 	indexMGRtable.push_back(i);
-        cvstr[m++]=  m_modelgroup[i].groupName.c_str();
+	modelGRbox->addItem( QString(m_modelgroup[i].groupName.c_str()));
       }
     }
   }
   for (int i=0; i<nr_m; i++) {
     if (m_modelgroup[i].groupType=="filegroup") {
       indexMGRtable.push_back(i);
-      cvstr[m++]=  m_modelgroup[i].groupName.c_str();
+      modelGRbox->addItem( QString(m_modelgroup[i].groupName.c_str()));
     }
   }
 
-  // qt4 fix: insertStrList -> insertStringList
-  // (uneffective, have to make QString and QStringList!)
-  modelGRbox->insertStringList( QStringList(QString(cvstr[0])), m );
-  modelGRbox->setCurrentItem(0);
-
-  delete[] cvstr;
+  modelGRbox->setCurrentIndex(0);
 
   if (selectedFields.size()>0) deleteAllSelected();
 
@@ -1252,14 +1238,11 @@ void FieldDialog::modelboxHighlighted( int index ){
   int i, indexFGR, nvfgi = vfgi.size();
 
   if (nvfgi>0) {
-    const char** cvstr= new const char*[nvfgi];
-    for (i=0; i<nvfgi; i++)
-      cvstr[i]=  vfgi[i].groupName.c_str();
-    // qt4 fix: insertStrList -> insertStringList
-    // (uneffective, have to make QString and QStringList!)
-    fieldGRbox->insertStringList( QStringList(QString(cvstr[0])), nvfgi );
+    for (i=0; i<nvfgi; i++){
+      fieldGRbox->addItem( QString(vfgi[i].groupName.c_str()));
+    }
     fieldGRbox->setEnabled( true );
-    delete[] cvstr;
+
     indexFGR= -1;
     i= 0;
     while (i<nvfgi && vfgi[i].groupName!=lastFieldGroupName) i++;
@@ -1279,7 +1262,7 @@ void FieldDialog::modelboxHighlighted( int index ){
     }
     if (indexFGR<0) indexFGR= 0;
     lastFieldGroupName= vfgi[indexFGR].groupName;
-    fieldGRbox->setCurrentItem(indexFGR);
+    fieldGRbox->setCurrentIndex(indexFGR);
     fieldGRboxActivated(indexFGR);
   }
 
@@ -2139,9 +2122,7 @@ void FieldDialog::enableFieldOptions(){
   // wind/vector density
   if ((nc=cp->findKey(vpcopt,"density"))>=0) {
     if (!densityCbox->isEnabled()) {
-      // qt4 fix: insertStrList -> insertStringList
-      // (uneffective, have to make QString and QStringList!)
-      densityCbox->insertStringList(QStringList(QString(cdensities[0])), nr_densities);
+      densityCbox->addItems(densityStringList);
       densityCbox->setEnabled(true);
     }
     miString s;
@@ -2154,20 +2135,11 @@ void FieldDialog::enableFieldOptions(){
     if (s=="0") {
       i=0;
     } else {
-      n=density.size();
-      i=1;
-      while (i<n && density[i]!=s) i++;
-      if (i==n) {
-        density.push_back(s);
-	delete[] cdensities;
-	nr_densities= n;
-	cdensities= new const char*[nr_densities];
-	for (i=0; i<nr_densities; i++)
-	  cdensities[i]= density[i].c_str();
-	densityCbox->clear();
-        // qt4 fix: insertStrList -> insertStringList
-        // (uneffective, have to make QString and QStringList!)
-        densityCbox->insertStringList(QStringList(QString(cdensities[0])), nr_densities);
+      i = densityStringList.indexOf(QString(s.cStr())); 
+      if (i==-1) {
+        densityStringList <<QString(s.cStr());
+	densityCbox->addItem(QString(s.cStr()));
+	i=densityCbox->count()-1;
       }
     }
     densityCbox->setCurrentItem(i);
@@ -2193,13 +2165,9 @@ void FieldDialog::enableFieldOptions(){
     extreme= true;
     n= extremeType.size();
     if (!extremeTypeCbox->isEnabled()) {
-      const char** cvstr= new const char*[n];
-      for (i=0; i<n; i++ )
-        cvstr[i]=  extremeType[i].c_str();
-      // qt4 fix: insertStrList -> insertStringList
-      // (uneffective, have to make QString and QStringList!)
-      extremeTypeCbox->insertStringList( QStringList(QString(cvstr[0])), n );
-      delete[] cvstr;
+      for (i=0; i<n; i++ ){
+	extremeTypeCbox->insertItem(QString(extremeType[i].c_str()));
+      }
       extremeTypeCbox->setEnabled(true);
     }
     i=0;
@@ -2208,7 +2176,7 @@ void FieldDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("extreme.type",extremeType[i]);
     }
-    extremeTypeCbox->setCurrentItem(i);
+    extremeTypeCbox->setCurrentIndex(i);
   } else if (extremeTypeCbox->isEnabled()) {
     extremeTypeCbox->clear();
     extremeTypeCbox->setEnabled(false);
@@ -2338,13 +2306,8 @@ void FieldDialog::enableFieldOptions(){
   if ((nc=cp->findKey(vpcopt,"undef.masking"))>=0) {
     n= undefMasking.size();
     if (!undefMaskingCbox->isEnabled()) {
-      const char** cvstr= new const char*[n];
       for (i=0; i<n; i++ )
-        cvstr[i]=  undefMasking[i].c_str();
-      // qt4 fix: insertStrList -> insertStringList
-      // (uneffective, have to make QString and QStringList!)
-      undefMaskingCbox->insertStringList( QStringList(QString(cvstr[0])), n );
-      delete[] cvstr;
+	undefMaskingCbox->addItem(QString(undefMasking[i].c_str()));
       undefMaskingCbox->setEnabled(true);
     }
     if (vpcopt[nc].intValue.size()==1) {
@@ -2641,8 +2604,10 @@ void FieldDialog::disableFieldOptions(int type)
 vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
 {
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::numberList called"<<endl;
+  cerr<<"FieldDialog::numberList called: "<<number<<endl;
 #endif
+
+  cBox->clear();
 
   vector<miString> vnumber;
 
@@ -2677,15 +2642,13 @@ vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
     vnumber.push_back(miString(enormal[k]*ex));
   }
   n=1+nupdown*2;
-  const char** cvstr= new const char*[n];
-  for (i=0; i<n; ++i) cvstr[i]= vnumber[i].c_str();
-  cBox->clear();
-  // qt4 fix: insertStrList -> insertStringList
-  // (uneffective, have to make QString and QStringList!)
-  cBox->insertStringList(QStringList(QString(cvstr[0])),n);
+
+  QString qs;
+  for (i=0; i<n; ++i) {
+    cBox->addItem(QString(vnumber[i].cStr()));
+  }
+
   cBox->setCurrentItem(nupdown);
-  //  cBox->setEnabled(true);
-  delete[] cvstr;
 
   return vnumber;
 }
@@ -2791,7 +2754,7 @@ void FieldDialog::lineintervalCboxActivated( int index )
 void FieldDialog::densityCboxActivated( int index )
 {
   if (index==0) updateFieldOptions("density","0");
-  else          updateFieldOptions("density",density[index]);
+  else  updateFieldOptions("density",densityCbox->currentText().latin1());
 }
 
 

@@ -214,10 +214,9 @@ private:
 
   vector<miString> linetypes;
   vector<miString> lineintervals;
-  vector<miString> density;
+  QStringList      densityStringList;
   vector<miString> vectorunit;
   vector<miString> extremeType;
-
   miString currentFieldOpts;
   bool     currentFieldOptsInEdit;
 
