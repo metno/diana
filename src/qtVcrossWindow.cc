@@ -640,13 +640,10 @@ void VcrossWindow::updateCrossectionBox(){
   vector<miString> crossections= vcrossm->getCrossectionList();
 
   int n =crossections.size();
-  const char** cvstr= new const char*[n];
-  for (int i=0; i<n; i++)
-    cvstr[i]=  crossections[i].c_str();		
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-  crossectionBox->insertStringList(QStringList(QString(cvstr[0])), n);
-  delete[] cvstr;
+  for (int i=0; i<n; i++){
+   crossectionBox->addItem(QString(crossections[i].c_str()));		
+  }
+
 }
 
 /***************************************************************************/
@@ -661,16 +658,9 @@ void VcrossWindow::updateTimeBox(){
   vector<miTime> times= vcrossm->getTimeList();
 
   int n =times.size();
-  vector<miString> vt(n);
-  for (int i=0; i<n; i++)
-    vt[i]=  times[i].isoTime(false,false);		
-  const char** cvstr= new const char*[n];
-  for (int i=0; i<n; i++)
-    cvstr[i]=  vt[i].c_str();
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)  
-  timeBox->insertStringList(QStringList(QString(cvstr[0])), n);
-  delete[] cvstr;
+  for (int i=0; i<n; i++){
+    timeBox->addItem(QString(times[i].isoTime(false,false).cStr()));
+  }
 
   emit emitTimes("vcross",times);
 }

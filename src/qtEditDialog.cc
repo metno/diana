@@ -1093,18 +1093,13 @@ void EditDialog::ComboBoxData(QComboBox* box, int mindex)
 {
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo.size();
   vector<miString> vstr;
-  for( int i=0; i<n; i++ ){
-    if (m_EditDI.mapmodeinfo[mindex].editmodeinfo[i].edittools.size())
-      vstr.push_back(m_EditDI.mapmodeinfo[1].editmodeinfo[i].editmode);
-  }
   m_Frontcm->clear();
-  int nr_box = vstr.size();
-  const char** cvstr= new const char*[nr_box];
-  for( int i=0; i<nr_box; i++ )
-    cvstr[i]=  vstr[i].c_str();
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-  m_Frontcm->insertStringList( QStringList(QString(cvstr[0])), nr_box );
+  for( int i=0; i<n; i++ ){
+    if (m_EditDI.mapmodeinfo[mindex].editmodeinfo[i].edittools.size()){
+      m_Frontcm->addItem(QString(m_EditDI.mapmodeinfo[1].editmodeinfo[i].editmode.cStr()));    
+    }
+  }
+
 }
 
 
@@ -1577,6 +1572,9 @@ void EditDialog::EditNewOk(EditProduct& ep,
   }
 
   this->show();
+  //qt4 fix
+  tabSelected(twd->tabText(twd->currentIndex()));
+
   ecomment->stopComment();
   ecomment->startComment();
   pausebutton->setOn(false);
@@ -1792,6 +1790,9 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   m_editm->editCombine();
 
   this->show();
+  //qt4 fix
+  tabSelected(twd->tabText(twd->currentIndex()));
+
   pausebutton->setOn(false);
   ecomment->stopComment();
   ecomment->startComment();

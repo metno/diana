@@ -74,11 +74,11 @@ class ObsWidget : public QWidget
   Q_OBJECT
 public:
   
-  ObsWidget( Controller* ctrl,
-	  ObsDialogInfo,
-	  int,
-	  QWidget* parent );
-  
+  ObsWidget(QWidget* parent );
+  ///init dialog
+  void setDialogInfo(Controller* ctrl, ObsDialogInfo,int index);
+  ///initialized?
+  bool initialized() {return initOK;}
   ///return command strings
   miString getOKString(bool forLog= false);
   ///insert command strings
@@ -131,6 +131,8 @@ signals:
 
 private:
   void ToolTip();
+  
+  bool initOK;
 
   vector<Colour::ColourInfo> cInfo;
   vector<miString> markerName;

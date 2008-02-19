@@ -55,6 +55,7 @@ class QCheckBox;
 class QRadioButton;
 class Q3VButtonGroup;
 class QLineEdit;
+class QStackedWidget;
 
 /**
 
@@ -117,7 +118,6 @@ signals:
   void setCriteria( miString, bool );
 
 private:
-  void ConstructorCernel( ObsDialogInfo plt );
   void makeExtension();
   void markButton(miString& );
   miString makeCriteriaString();
@@ -133,6 +133,7 @@ private:
   int m_selected;
   QColor* colour;
   QComboBox* plotbox;
+  QStackedWidget* stackedWidget;
   Q3VBoxLayout* vlayout;
   Q3HBoxLayout* criterialayout;
   Q3HBoxLayout* helplayout;

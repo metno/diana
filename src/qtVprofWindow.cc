@@ -660,13 +660,9 @@ void VprofWindow::updateStationBox(){
   stations.push_back("                        "); 
 
   int n =stations.size();
-  const char** cvstr= new const char*[n];
-  for (int i=0; i<n; i++)
-    cvstr[i]=  stations[i].c_str();		
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-  stationBox->insertStringList(QStringList(QString(cvstr[0])), n);
-  delete[] cvstr;
+  for (int i=0; i<n; i++){
+    stationBox->addItem(QString(stations[i].c_str()));		
+  }
 }
 
 
@@ -682,16 +678,9 @@ void VprofWindow::updateTimeBox(){
   vector<miTime> times= vprofm->getTimeList();
 
   int n =times.size();
-  vector<miString> vt(n);
-  for (int i=0; i<n; i++)
-    vt[i]=  times[i].isoTime(false,false);		
-  const char** cvstr= new const char*[n];
-  for (int i=0; i<n; i++)
-    cvstr[i]=  vt[i].c_str();		
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-  timeBox->insertStringList(QStringList(QString(cvstr[0])), n);
-  delete[] cvstr;
+  for (int i=0; i<n; i++){
+    timeBox->addItem(QString(times[i].isoTime(false,false).cStr()));
+  }		
 
   emit emitTimes("vprof",times);
 }

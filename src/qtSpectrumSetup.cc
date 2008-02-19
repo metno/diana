@@ -374,14 +374,10 @@ void SpectrumSetup::defineText(const vector<miString>& texts,
       defaultTextItem= defaultItem;
     else
       defaultTextItem= 0;
-    const char** cvstr= new const char*[n];
+
     for (int i=0; i<n; i++)
-      cvstr[i]=  texts[i].cStr();
-    // qt4 fix: insertStrList() -> insertStringList()
-    // (uneffective, have to make QStringList and QString!)
-    textbox->insertStringList( QStringList(QString(cvstr[0])), n );
+      textbox->addItem(QString(texts[i].cStr()));
     textbox->setCurrentItem(defaultTextItem);
-    delete[] cvstr;
     textbox->setEnabled(true);
   } else {
     textbox->setEnabled(false);

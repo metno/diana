@@ -38,6 +38,7 @@
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qcheckbox.h>
+#include <QStackedWidget>
 #include <q3frame.h>
 #include <qradiobutton.h>
 // qt4 fix
@@ -103,9 +104,12 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   obsWidget=0;
   obsWidget = new ObsWidget*[nr_plot];
 
+  stackedWidget = new QStackedWidget;
+
   for( int i=0; i < nr_plot; i++){
+    obsWidget[i] = new ObsWidget( this );
     if (dialog.plottype[i].button.size()>0) {
-      obsWidget[i] = new ObsWidget( m_ctrl, dialog, i, this );
+      obsWidget[i]->setDialogInfo( m_ctrl, dialog, i );
       connect(obsWidget[i],SIGNAL(getTimes()),
               SLOT(getTimes()));
       connect(obsWidget[i],SIGNAL(rightClicked(miString)),
@@ -114,9 +118,8 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
               SLOT(extensionToggled(bool)));
       connect(obsWidget[i],SIGNAL(criteriaOn()),
               SLOT(criteriaOn()));
-    } else {
-      obsWidget[i] = 0;  // ascii obs, wait until activated
     }
+    stackedWidget->addWidget(obsWidget[i]);
   }
 
   /* DESCRIPTION: This is used by the constructorcernels and shows/hides
@@ -157,7 +160,8 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
   vlayout= new Q3VBoxLayout( this, 3, 3);
   vlayout->addWidget( plotbox );
-  vlayout->addWidget( obsWidget[0] );
+  //  vlayout->addWidget( obsWidget[0] );
+  vlayout->addWidget( stackedWidget );
   vlayout->addLayout( helplayout );
   vlayout->addLayout( applylayout );
 
@@ -180,63 +184,49 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
 /* This function is called when a new plottype is selected and builds
    the screen up with a new obsWidget widget */
 
-    if( m_selected == index && obsWidget[index] ) return;
+  if( m_selected == index && obsWidget[index]->initialized() ) return;
 
     //criteria
-    if(obsWidget[m_selected]->moreToggled()){
-      showExtension(false);
+  if(obsWidget[m_selected]->moreToggled()){
+    showExtension(false);
+  }
+
+  if (!obsWidget[index]->initialized()) {
+    ObsDialogInfo dialog= m_ctrl->updateObsDialog(m_name[index]);
+    
+    obsWidget[index]->setDialogInfo( m_ctrl, dialog, index);
+    connect(obsWidget[index],SIGNAL(getTimes()),
+	    SLOT(getTimes()));
+    connect(obsWidget[index],SIGNAL(rightClicked(miString)),
+	    SLOT(rightButtonClicked(miString)));
+    connect(obsWidget[index],SIGNAL(extensionToggled(bool)),
+	    SLOT(extensionToggled(bool)));
+    connect(obsWidget[index],SIGNAL(criteriaOn()),
+	    SLOT(criteriaOn()));
+    
+    if (savelog[index].size()) {
+      obsWidget[index]->readLog(savelog[index]);
+      savelog[index].clear();
     }
+  }
+  
+  //Emit empty time list
+  vector<miTime> noTimes;
+  emit emitTimes( "obs",noTimes );
+ 
+  int oldselected = m_selected;
+  m_selected = index;
 
-    if (!obsWidget[index]) {
-      ObsDialogInfo dialog= m_ctrl->updateObsDialog(m_name[index]);
+  stackedWidget->setCurrentIndex(m_selected);    
 
-      obsWidget[index] = new ObsWidget( m_ctrl, dialog, index, this );
-      connect(obsWidget[index],SIGNAL(getTimes()),
-              SLOT(getTimes()));
-      connect(obsWidget[index],SIGNAL(rightClicked(miString)),
-              SLOT(rightButtonClicked(miString)));
-      connect(obsWidget[index],SIGNAL(extensionToggled(bool)),
-              SLOT(extensionToggled(bool)));
-      connect(obsWidget[index],SIGNAL(criteriaOn()),
-              SLOT(criteriaOn()));
-
-      if (savelog[index].size()) {
-        obsWidget[index]->readLog(savelog[index]);
-        savelog[index].clear();
-      }
-    }
-
-    //Emit empty time list
-//       vector<miTime> noTimes;
-//       emit emitTimes( "obs",noTimes );
-
-    int oldselected = m_selected;
-    m_selected = index;
-    obsWidget[oldselected]->hide();
-    vlayout->removeChild( plotbox );
-    vlayout->removeChild(obsWidget[oldselected]);
-    vlayout->removeChild( applylayout );
-    vlayout->removeChild( helplayout );
-    obsWidget[m_selected]->show();
-    delete vlayout;
-
-    vlayout= new Q3VBoxLayout( this);
-    vlayout->setMargin(10);
-    vlayout->addWidget( plotbox );
-    vlayout->addWidget( obsWidget[m_selected] );
-    vlayout->addLayout( helplayout );
-    vlayout->addLayout( applylayout );
-    //    vlayout->activate();
-    vlayout->freeze();
-
-    //criteria
-    if(obsWidget[m_selected]->moreToggled()){
-      showExtension(true);
-    }
-    updateExtension();
-
-    if(sendTimes)
-      getTimes();
+  //criteria
+  if(obsWidget[m_selected]->moreToggled()){
+    showExtension(true);
+  }
+  updateExtension();
+  
+  if(sendTimes)
+    getTimes();
 }
 
 void ObsDialog::getTimes(void){
@@ -251,7 +241,7 @@ void ObsDialog::getTimes(void){
 
     set<miString> nameset;
     for (int i=0; i<nr_plot; i++) {
-      if (obsWidget[i]) {
+      if (obsWidget[i]->initialized()) {
         vector<miString> name=obsWidget[i]->getDataTypes();
         vector<miString>::iterator p = name.begin();
         for(;p!=name.end();p++)
@@ -319,7 +309,7 @@ vector<miString> ObsDialog::getOKString(){
 
   if(multiplot) {
     for (int i=nr_plot-1; i>-1; i--) {
-      if (obsWidget[i]) {
+      if (obsWidget[i]->initialized()) {
         miString  tmpstr = obsWidget[i]->getOKString();
         if(tmpstr.exists()){
           //          tmpstr += getCriteriaOKString();
@@ -352,7 +342,7 @@ vector<miString> ObsDialog::writeLog(){
   //then the others
   for (int i=0; i<nr_plot; i++) {
     if (i != m_selected) {
-      if (obsWidget[i]) {
+      if (obsWidget[i]->initialized()) {
         str= obsWidget[i]->getOKString(true);
         vstr.push_back(str);
       } else if (savelog[i].size()>0) {
@@ -379,7 +369,7 @@ void ObsDialog::readLog(const vector<miString>& vstr,
 
     int index=findPlotnr(vstr[n]);
     if (index<nr_plot) {
-      if (obsWidget[index] || first) {
+      if (obsWidget[index]->initialized() || first) {
         if (first) {  //will be selected
           first = false;
           plotbox->setCurrentItem(index);
@@ -494,7 +484,7 @@ bool  ObsDialog::setPlottype(const miString& str, bool on)
     ObsDialogInfo dialog= m_ctrl->updateObsDialog(m_name[l]);
     obsWidget[l]->newParamButtons(dialog,l);
     plotSelected(selected);
-  } else if( obsWidget[l] ){
+  } else if( obsWidget[l]->initialized() ){
     obsWidget[l]->setFalse();
     ObsDialogInfo dialog;
     obsWidget[l]->newParamButtons(dialog, -1);
@@ -1089,23 +1079,18 @@ void ObsDialog::updateExtension()
 
 void ObsDialog::numberList( QComboBox* cBox, float number ){
 
-  vector<miString> vnumber;
+  cBox->clear();
+
+  vector<float> vnumber;
 
   const int nenormal = 8;
   const float enormal[nenormal] = { 0.001, 0.01, 0.1, 1.0, 10., 100., 1000.,
                                     10000.};
+  QString qs;
   for (int i=0; i<=nenormal; i++) {
-    vnumber.push_back(miString(enormal[i]*number));
+    cBox->addItem(qs.setNum(enormal[i]*number));
   }
-
-  const char** cvstr= new const char*[nenormal];
-  for (int i=0; i<nenormal; ++i) cvstr[i]= vnumber[i].c_str();
-  cBox->clear();
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-  cBox->insertStringList(QStringList(QString(cvstr[0])),nenormal);
-  cBox->setCurrentItem(nenormal/2-1);
+  cBox->setCurrentIndex(nenormal/2-1);
   cBox->setEnabled(true);
-  delete[] cvstr;
 
 }

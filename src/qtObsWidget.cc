@@ -68,15 +68,24 @@
   It also includes some sliders, checkboxes, comboboxes etc.
 */
 
-ObsWidget::ObsWidget( Controller* ctrl,
-                ObsDialogInfo dialog,
-		int plottype_nr,
-		QWidget* parent ):QWidget(parent){
+ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
+{
 
 #ifdef dObsDlg
   cerr<<"ObsWidget::ObsWidget called"<<endl;
 #endif
+  initOK=false;
+}
 
+void ObsWidget::setDialogInfo( Controller* ctrl,
+			  ObsDialogInfo dialog,
+			  int plottype_nr)
+{
+#ifdef dObsDlg
+  cerr<<"ObsWidget::setDialogInfo"<<endl;
+#endif
+
+  initOK=true;
   ObsDialogInfo::PlotType &dialogInfo = dialog.plottype[plottype_nr];
 
   plotType = dialogInfo.name;
