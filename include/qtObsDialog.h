@@ -32,16 +32,11 @@
 #define _obsdialog_h
 
 #include <qdialog.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
 #include <QLabel>
-#include <Q3VBoxLayout>
 #include <diController.h>
 #include <miString.h>
 
 class QComboBox;
-class Q3VBoxLayout;
-class Q3HBoxLayout;
 class ObsWidget;
 class QPushButton;
 class QLabel;
@@ -134,12 +129,6 @@ private:
   QColor* colour;
   QComboBox* plotbox;
   QStackedWidget* stackedWidget;
-  Q3VBoxLayout* vlayout;
-  Q3HBoxLayout* criterialayout;
-  Q3HBoxLayout* helplayout;
-  Q3HBoxLayout* applylayout;
-  Q3HBoxLayout* toplayout;
-  Q3HBoxLayout* obsWidgetlayout;
   ObsWidget** obsWidget;
   miString parameterSelected;
   QLabel * label;

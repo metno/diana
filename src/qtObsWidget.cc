@@ -44,14 +44,15 @@
 #include <qimage.h>
 #include <q3scrollview.h>
 #include <q3frame.h>
+#include <QScrollArea>
 
 #include <qtButtonLayout.h>
 #include <qtObsWidget.h>
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
+
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
 
 #include <stdio.h>
 #include <iostream>
@@ -174,9 +175,13 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
   // sv = new QScrollView(this);
 //     sv->setHScrollBarMode(QScrollView::AlwaysOff);
-    parameterButtons=
-      new ButtonLayout(this, button, 3);
+  parameterButtons=
+    new ButtonLayout(this, button, 3);
 //     sv->addChild(parameterButtons);
+
+  QScrollArea* scrollArea = new QScrollArea(this);
+  scrollArea->setWidget(parameterButtons);
+  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
   connect( datatypeButtons,SIGNAL(outGroupClicked(int)),
 	   SLOT(outTopClicked(int)));
@@ -193,7 +198,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   allButton  = NormalPushButton(tr("All"),this);
   noneButton = NormalPushButton(tr("None"),this);
   defButton  = NormalPushButton(tr("Default"),this);
-  Q3HBoxLayout* andLayout = new Q3HBoxLayout();
+  QHBoxLayout* andLayout = new QHBoxLayout();
   andLayout->addWidget( allButton  );
   andLayout->addWidget( noneButton );
   andLayout->addWidget( defButton  );
@@ -205,7 +210,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 	   parameterButtons,SLOT(DEFAULTClicked()));
 
   // PRESSURE LEVELS
-  Q3HBoxLayout* pressureLayout = new Q3HBoxLayout();
+  QHBoxLayout* pressureLayout = new QHBoxLayout();
 
   if(pressureLevels ){
     QLabel *pressureLabel;
@@ -270,7 +275,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   devColourBox2 = ColourBox( this, cInfo, true, devcol2Index );
   devColourBox1->hide();
   devColourBox2->hide();
-  Q3HBoxLayout* devLayout = new Q3HBoxLayout();
+  QHBoxLayout* devLayout = new QHBoxLayout();
   devLayout->addWidget(devFieldCheckBox);
   devLayout->addWidget(devColourBox1);
   devLayout->addWidget(devColourBox2);
@@ -284,7 +289,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   if( markerName.size() == 0 )
     onlyposCheckBox->setEnabled(false);
 
-  Q3HBoxLayout* onlyposLayout = new Q3HBoxLayout();
+  QHBoxLayout* onlyposLayout = new QHBoxLayout();
   onlyposLayout->addWidget( onlyposCheckBox );
   onlyposLayout->addWidget( markerBox );
 
@@ -306,7 +311,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     criteriaCheckBox->hide();
     moreButton->hide();
   }
-  Q3HBoxLayout* criteriaLayout = new Q3HBoxLayout();
+  QHBoxLayout* criteriaLayout = new QHBoxLayout();
   criteriaLayout->addWidget( criteriaCheckBox );
   criteriaLayout->addWidget( moreButton );
 
@@ -347,7 +352,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
   displayDiff(diffSlider->value());
 
-  Q3GridLayout*slidergrid = new Q3GridLayout( 3, 3);
+  QGridLayout*slidergrid = new QGridLayout( 3, 3);
   slidergrid->addWidget( densityLabel, 0, 0 );
   slidergrid->addWidget( densityLcdnum,0, 1 );
   slidergrid->addWidget( densitySlider,0, 2 );
@@ -380,17 +385,17 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
 
   // Layout for priority list, colours, criteria and extension
-  Q3HBoxLayout* colourlayout = new Q3HBoxLayout();
+  QHBoxLayout* colourlayout = new QHBoxLayout();
   colourlayout->addWidget( pribox );
   colourlayout->addWidget( colourBox );
 
   // layout
-  datatypelayout = new Q3HBoxLayout(5);
+  datatypelayout = new QHBoxLayout(5);
   datatypelayout->setAlignment(Qt::AlignHCenter);
   datatypelayout->addWidget( datatypeButtons );
-  parameterlayout = new Q3HBoxLayout(5);
-  parameterlayout->setAlignment(Qt::AlignHCenter);
-  parameterlayout->addWidget( parameterButtons );
+//   parameterlayout = new QHBoxLayout(5);
+//   parameterlayout->setAlignment(Qt::AlignHCenter);
+//   parameterlayout->addWidget( parameterButtons );
 //   parameterlayout->addWidget( sv );
 
 
@@ -401,7 +406,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   line1->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
   // LAYOUT
-  vcommonlayout= new Q3VBoxLayout(2);
+  vcommonlayout= new QVBoxLayout(2);
   vcommonlayout->addLayout( andLayout );
   vcommonlayout->addSpacing( 5 );
   vcommonlayout->addLayout( pressureLayout );
@@ -420,12 +425,14 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addLayout( slidergrid );
   vcommonlayout->addLayout( colourlayout );
 
-  vlayout= new Q3VBoxLayout( this, 5 ,5);
+  vlayout= new QVBoxLayout( this, 5 ,5);
   vlayout->addSpacing( 5 );
   vlayout->addLayout( datatypelayout );
   if(parameterButtons)
-    vlayout->addLayout( parameterlayout );
+    vlayout->addWidget( scrollArea );
+//     vlayout->addLayout( parameterlayout );
   vlayout->addLayout( vcommonlayout );
+  //  vlayout->setSizeConstraint(QLayout::SetNoConstraint);
 
   densityLcdnum->display(((double)dialog.density.value)*dialog.density.scale);
   sizeLcdnum->display( ((double)dialog.size.value)*dialog.size.scale) ;
@@ -1273,11 +1280,11 @@ void ObsWidget::newParamButtons(ObsDialogInfo dialog, int nr)
   if(parameterButtons){
     parameterlayout->removeChild( parameterButtons );
     delete parameterlayout;
-    parameterlayout = new Q3HBoxLayout(5);
+    parameterlayout = new QHBoxLayout(5);
     parameterlayout->setAlignment(Qt::AlignHCenter);
     parameterlayout->addWidget( parameterButtons );
   }
-  vlayout= new Q3VBoxLayout( this, 5 ,5);
+  vlayout= new QVBoxLayout( this, 5 ,5);
   vlayout->addLayout( datatypelayout );
   if(parameterButtons)
     vlayout->addLayout( parameterlayout );

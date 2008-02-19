@@ -29,7 +29,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtooltip.h>
-#include <qlayout.h>
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qapplication.h>
@@ -41,11 +40,8 @@
 #include <QStackedWidget>
 #include <q3frame.h>
 #include <qradiobutton.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
 #include <qlineedit.h>
 #include <qtooltip.h>
-//#include <qtabwidget.h>
 #include <q3frame.h>
 
 #include <qtObsDialog.h>
@@ -53,10 +49,9 @@
 #include <qtUtility.h>
 #include <qtToggleButton.h>
 #include <qtAdvancedButton.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
 
 // qt4 fix
 #include <Q3VButtonGroup>
@@ -105,7 +100,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   obsWidget = new ObsWidget*[nr_plot];
 
   stackedWidget = new QStackedWidget;
-
+ 
   for( int i=0; i < nr_plot; i++){
     obsWidget[i] = new ObsWidget( this );
     if (dialog.plottype[i].button.size()>0) {
@@ -122,12 +117,8 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
     stackedWidget->addWidget(obsWidget[i]);
   }
 
-  /* DESCRIPTION: This is used by the constructorcernels and shows/hides
-                  the values on the screen and manages the layout */
-
   for( int i=1; i < nr_plot; i++)
     if (obsWidget[i]) obsWidget[i]->hide();
-
 
   multiplot = false;
 
@@ -148,19 +139,18 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   connect( obshelp, SIGNAL(clicked()), SLOT( helpClicked() ));
 
 
-  helplayout = new Q3HBoxLayout();
+  QHBoxLayout* helplayout = new QHBoxLayout();
   helplayout->addWidget( obshelp );
   helplayout->addWidget( obsrefresh );
   helplayout->addWidget( multiplotButton );
 
-  applylayout = new Q3HBoxLayout();
+  QHBoxLayout* applylayout = new QHBoxLayout();
   applylayout->addWidget( obshide );
   applylayout->addWidget(obsapplyhide );
   applylayout->addWidget( obsapply );
 
-  vlayout= new Q3VBoxLayout( this, 3, 3);
+  QVBoxLayout* vlayout= new QVBoxLayout( this, 3, 3);
   vlayout->addWidget( plotbox );
-  //  vlayout->addWidget( obsWidget[0] );
   vlayout->addWidget( stackedWidget );
   vlayout->addLayout( helplayout );
   vlayout->addLayout( applylayout );
@@ -218,6 +208,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
   m_selected = index;
 
   stackedWidget->setCurrentIndex(m_selected);    
+  stackedWidget->adjustSize();
 
   //criteria
   if(obsWidget[m_selected]->moreToggled()){
@@ -562,7 +553,7 @@ void ObsDialog::makeExtension()
   markerBox = PixmapBox( extension, markerName);
 
   // Layout for colour
-  Q3GridLayout* colourlayout = new Q3GridLayout(2,5);
+  QGridLayout* colourlayout = new QGridLayout(2,5);
   colourlayout->addWidget( colourLabel, 0,0);
   colourlayout->addWidget( colourBox,   0,1);
   colourlayout->addWidget( markerLabel, 1,0);
@@ -604,7 +595,7 @@ void ObsDialog::makeExtension()
   Q3Frame *line0 = new Q3Frame( extension );
   line0->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
 
-  Q3VBoxLayout *exLayout = new Q3VBoxLayout( 5 );
+  QVBoxLayout *exLayout = new QVBoxLayout( 5 );
   exLayout->addWidget( listLabel );
   exLayout->addWidget( criteriaBox );
   exLayout->addWidget( criteriaLabel );
@@ -623,7 +614,7 @@ void ObsDialog::makeExtension()
   verticalsep->setFrameStyle( Q3Frame::VLine | Q3Frame::Raised );
   verticalsep->setLineWidth( 5 );
 
-  Q3HBoxLayout *hLayout = new Q3HBoxLayout( extension,5,5 );
+  QHBoxLayout *hLayout = new QHBoxLayout( extension,5,5 );
 
   hLayout->addWidget(verticalsep);
   hLayout->addLayout(exLayout);
