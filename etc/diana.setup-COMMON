@@ -3064,6 +3064,11 @@ metnoobs=$(OPDATA1)/obs_dec/metaXX.dat-1
 metnoobs=$(OPDATA1)/obs_dec/metaXX.dat-2
 timerange=-15,15
 
+# Wind velocities from ASAR (NERSC product)
+PROD=satob:ASAR_wind
+bufr=$(OPDATA2)/satdata_polar/envisat/asar/wind/bufr/nersc_asar_nws_wind_inst_obs_fyyyymmddHHMM_xxx.bufr
+timerange=-30,30 # ???
+
 PROD=ascii:Lyn
 ascii=$(OPDATA2)/lyndata/UALF/yyyy/mm/lyndatayyyymmddHH 
 headerfile=$(DIANADIR)/etc/UALF_diana.header
@@ -3444,6 +3449,18 @@ image=UV-Indeks
        file= $(OPDATA2)/uv/mitiff/uvi-[yyyymmddHHMM]-uvicc.mitiff
    sub.type = UV_indeks_varslet_skydekke
        file= $(OPDATA2)/uv/mitiff/uvi-[yyyymmddHHMM]-uvifc.mitiff
+
+image=Envisat
+   channels= ASAR
+   sub.type=ASAR_Windspeed
+   file=$(OPDATA2)/satdata_polar/envisat/asar/wind/mitiff/nersc_asar_nws_wind_inst_obs_fyyyymmddHHMM_xxx.mitiff
+
+sub.type=ASAR_Sigma0
+   file=$(OPDATA2)/satdata_polar/envisat/asar/sigma0/mitiff/nersc_asar_nws_sigma-0_inst_obs_fyyyymmddHHMM_xxx.mitiff
+
+   channels= MERIS
+   sub.type=MERIS_Chlora
+   file=$(OPDATA2)/satdata_polar/envisat/meris/chlora/mitiff/nersc_meris_nws_chlora_mn1d_obs_fyyyymmddHHMM_xxx.mitiff
 
 image=Foreign_satellite_data
  channels=VIS IR WV VIS+IR
