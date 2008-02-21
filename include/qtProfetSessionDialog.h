@@ -35,9 +35,9 @@
 //Added by qt3to4:
 #include <QCloseEvent>
 #include <profet/ProfetCommon.h>
-#include <profetSQL/fetModel.h>
-#include <profetSQL/fetSession.h>
-#include <profetSQL/fetParameter.h>
+#include <profet/fetModel.h>
+#include <profet/fetSession.h>
+#include <profet/fetParameter.h>
 #include <profet/fetObject.h>
 #include "qtProfetChatWidget.h"
 #include "qtProfetSessionTable.h"

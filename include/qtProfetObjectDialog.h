@@ -42,8 +42,8 @@
 #include <q3widgetstack.h>
 //Added by qt3to4:
 #include <QCloseEvent>
-#include <profetSQL/fetSession.h>
-#include <profetSQL/fetParameter.h>
+#include <profet/fetSession.h>
+#include <profet/fetParameter.h>
 #include <profet/fetObject.h>
 #include <profet/fetBaseObject.h>
 #include <profet/fetDynamicGui.h>

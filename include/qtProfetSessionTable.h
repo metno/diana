@@ -41,7 +41,7 @@
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
 
-#include <profetSQL/fetParameter.h>
+#include <profet/fetParameter.h>
 #include <profet/fetObject.h>
 
 
