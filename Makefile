@@ -36,7 +36,6 @@ INCLUDE= -I. \
 	 -I$(INCDIR) \
 	 -I$(LOCALINC)/propoly \
 	 -I$(LOCALINC)/profet \
-	 -I$(LOCALINC)/profetSQL \
 	 -I$(LOCALINC)/proFunctions \
 	 -I$(LOCALINC)/qUtilities \
 	 -I$(LOCALINC)/puDatatypes \
@@ -69,7 +68,7 @@ INCLUDE= -I. \
 
 LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	-lqUtilities -lpuDatatypes \
-	-lglp -lglText -lrobs -ldiMItiff -ldiField -lprofet -lprofetSQL -lproFunctions -lmic -ldiSQL -lpuSQL \
+	-lglp -lglText -lrobs -ldiMItiff -ldiField -lprofet -lproFunctions -lmic -ldiSQL -lpuSQL \
 	$(WEATHERDB_LIB) \
 	-lpuTools \
 	-L$(QTDIR)/lib $(QT_LIBS) \
