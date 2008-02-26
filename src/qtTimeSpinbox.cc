@@ -32,15 +32,19 @@
 #include <qtTimeSpinbox.h>
 
 
-TimeSpinbox::TimeSpinbox(bool w_s, QWidget* parent, const char* name):
-  QSpinBox(-INT_MAX,INT_MAX,1800,parent,name), with_sec(w_s)
+TimeSpinbox::TimeSpinbox(bool w_s, QWidget* parent):
+  QSpinBox(parent), with_sec(w_s)
 {
   ref= miTime::nowTime();
+  setRange(-INT_MAX,INT_MAX);
+  setSingleStep(1800);
   setValue(0);
 }
 
 miTime TimeSpinbox::Time()
 {
+  miTime time= ref;
+  time.addSec(value());
   return time;
 }
 
@@ -48,42 +52,33 @@ miTime TimeSpinbox::Time()
 void TimeSpinbox::setTime(const miTime& t)
 {
   if (!t.undef() && !ref.undef()){
-    time= t;
-    int v= miTime::secDiff(time, ref);
-    //   cerr << "setTime:" << t << " value:" << v << endl;
+    int v= miTime::secDiff(t, ref);
     setValue(v);
   }
 }
 
-QString TimeSpinbox::mapValueToText( int value )
+
+QString TimeSpinbox::textFromValue( int value ) const
 {
-  time= ref;
+  miTime time= ref;
   if (!time.undef()){
     time.addSec(value);
-    //     cerr << "mapValueToText: value:" << value
-    // 	 << " :" << time.isoTime() << endl;
     miString s= time.isoTime();
     if (!with_sec) s= s.substr(0,16);
-    return QString(s.cStr());
+   return QString(s.cStr());
   } else {
-//     cerr << "mapValueToText: udefinert" << endl;
     return tr("undefined");
   }
 }
 
-int TimeSpinbox::mapTextToValue( bool* ok )
+int TimeSpinbox::valueFromText( const QString& text ) const 
 {
-  miString s= text().latin1();
+  miString s= text.latin1();
   if (!with_sec) s+= ":00";
   if (!miTime::isValid(s)){
-    *ok= false;
-//     cerr << "mapTextToValue: not legal time:" << s << endl;
     return 0;
   } else {
-    time= miTime(s);
-    *ok= true;
-//     cerr << "mapTextToValue: text:" << s << " value:"
-// 	 << miTime::minDiff(time, ref) << endl;
+    miTime time= miTime(s);
     return miTime::secDiff(time, ref);
   }
 }

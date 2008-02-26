@@ -33,7 +33,7 @@
 
 #include <miString.h>
 #include <miTime.h>
-#include <qspinbox.h>
+#include <QSpinBox>
 
 using namespace std; 
 
@@ -47,7 +47,7 @@ class TimeSpinbox : public QSpinBox {
   Q_OBJECT
 
 public:
-  TimeSpinbox(bool w_s =false, QWidget *parent =0, const char *name =0);
+  TimeSpinbox(bool w_s =false, QWidget *parent =0);
   /// get spinbox time
   miTime Time();
 
@@ -58,9 +58,10 @@ public slots:
 protected:
   bool with_sec;
   miTime ref;
-  miTime time;
-  QString mapValueToText(int);
-  int mapTextToValue(bool*);
+
+  QString textFromValue(int) const; 
+  int valueFromText(const QString& text) const;
+
 };
 
 #endif

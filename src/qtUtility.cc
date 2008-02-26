@@ -31,7 +31,7 @@
 #include <iostream>
 
 #include <qcombobox.h>
-#include <q3listbox.h>
+#include <QListWidget>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
@@ -39,9 +39,10 @@
 #include <qcheckbox.h>
 #include <qslider.h>
 #include <qpixmap.h>
-#include <qpainter.h>
+#include <QPainter>
 #include <qimage.h>
 #include <qbrush.h>
+#include <QIcon>
 
 #include <qtUtility.h>
 #include <diLinetype.h>
@@ -172,8 +173,8 @@ QComboBox* ComboBox( QWidget* parent, QColor* pixcolor, int nr_colors,
 
 /*********************************************/
 QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
-		      bool Enabled, int defItem  ,
-		      miString firstItem ){
+		      bool Enabled, int defItem,
+		      miString firstItem, bool name ){
 
   QComboBox* box = new QComboBox( false, parent );
 
@@ -181,33 +182,21 @@ QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
     box->insertItem ( firstItem.cStr() );
 
   int nr_colors= cInfo.size();
-  QColor* pixcolor = new QColor[nr_colors];
-  for( int i=0; i<nr_colors; i++ )
-    pixcolor[i]=QColor(cInfo[i].rgb[0],cInfo[i].rgb[1],cInfo[i].rgb[2] );
+  QPixmap* pmap = new QPixmap( 20, 20 );
 
-  int t;
-  QPixmap** pmap = new QPixmap*[nr_colors];
-  for( t=0; t<nr_colors; t++ )
-    pmap[t] = new QPixmap( 20, 20 );
-
-  for( t=0; t<nr_colors; t++ )
-    pmap[t]->fill( pixcolor[t] );
-
-  
-  for( int i=0; i < nr_colors; i++){
-    box->insertItem ( *pmap[i] );
+  for( int t=0; t<nr_colors; t++ ){
+    QColor pixcolor=QColor(cInfo[t].rgb[0],cInfo[t].rgb[1],cInfo[t].rgb[2] );
+    pmap->fill( pixcolor );
+    QIcon qicon( *pmap );
+    QString qs;
+    if(name) qs = QString(cInfo[t].name.cStr());
+    box->addItem(qicon,qs);
   }
 
-  box->setEnabled( Enabled );
-  
+  box->setEnabled( Enabled );  
   box->setCurrentItem(defItem);
 
-  for( t=0; t<nr_colors; t++ ){
-    delete pmap[t];
-    pmap[t]=0;
-  }
-
-  delete[] pmap;
+  delete pmap;
   pmap=0;
 
   return box;
@@ -218,7 +207,8 @@ QComboBox* PaletteBox( QWidget* parent,
 		       const vector<ColourShading::ColourShadingInfo>& csInfo,
 		       bool Enabled, 
 		       int defItem,
-		       miString firstItem ){
+		       miString firstItem,
+		       bool name ){
 
   QComboBox* box = new QComboBox( false, parent );
 
@@ -231,12 +221,14 @@ QComboBox* PaletteBox( QWidget* parent,
     int nr_colours = csInfo[i].colour.size();
     if ( nr_colours == 0 )
       continue;
-    int factor = 40/nr_colours;
-    int width = nr_colours * factor;
+    int maxwidth=20;
+    int step = nr_colours/maxwidth+1;
+    int factor = maxwidth/(nr_colours/step);
+    int width = (nr_colours/step) * factor;
     QPixmap* pmap = new QPixmap( width, 20 );
     QPainter qp;
     qp.begin( pmap );
-    for( int j=0; j<nr_colours; j++ ){
+    for( int j=0; j<nr_colours; j+=step ){
       QColor pixcolor=QColor(csInfo[i].colour[j].R(),
 				     csInfo[i].colour[j].G(),
 				     csInfo[i].colour[j].B() );
@@ -246,7 +238,10 @@ QComboBox* PaletteBox( QWidget* parent,
     
     qp.end();
 
-    box->insertItem ( *pmap );
+    QIcon qicon( *pmap );
+    QString qs;
+    if(name) qs = QString(csInfo[i].name.cStr());
+    box->addItem(qicon,qs);
     delete pmap;
     pmap=0;
   }
@@ -263,7 +258,8 @@ QComboBox* PatternBox( QWidget* parent,
 		       const vector<Pattern::PatternInfo>& patternInfo,
 		       bool Enabled, 
 		       int defItem,
-		       miString firstItem ){
+		       miString firstItem,
+		       bool name ){
 
   QComboBox* box = new QComboBox( false, parent );
 
@@ -275,34 +271,13 @@ QComboBox* PatternBox( QWidget* parent,
     
   int nr_patterns= patternInfo.size();
   for( int i=0; i<nr_patterns; i++ ){
-    int nr_p = patternInfo[i].pattern.size();
-    int factor = 60/nr_p;
-    int width = nr_p * factor;
-    bool fileNotFound=false;
-
-    QPixmap* pmap = new QPixmap( width, 20 );
-    vector<QBrush> vbrush;
-    for( int j=0;j<nr_p; j++){
-      QBrush qbr(pixcolor);
-      miString filename = ig.getFilename(patternInfo[i].pattern[j],true);
-      if(filename.exists()){
-	QImage image(filename.cStr());
-	QPixmap p(image); 
-	qbr.setPixmap(p);
-      }
-      vbrush.push_back(qbr);
-    }
-    
-    QPainter qp;
-    qp.begin( pmap );
-    for( int j=0; j<nr_p; j++ ){
-      qp.fillRect( j*factor,0,factor,20,vbrush[j]);
-    }
-    qp.end();
-
-    box->insertItem ( *pmap );
-    delete pmap;
-    pmap=0;
+    int index = patternInfo[i].pattern.size()-1;
+    if(index<0) continue;
+    miString filename = ig.getFilename(patternInfo[i].pattern[index],true);
+    QIcon qicon(QString(filename.cStr()));
+    QString qs;
+    if(name) qs = QString(patternInfo[i].name.cStr());
+    box->addItem(qicon,qs);
   }
 
   box->setEnabled( Enabled );
@@ -424,24 +399,17 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 
 
 /*********************************************/
-void listBox( Q3ListBox* box, vector<miString> vstr, int defItem  ){
+void listWidget( QListWidget* listwidget, vector<miString> vstr, int defItem  ){
 
-  if( box->count() )
-    box->clear();
+  if( listwidget->count() )
+    listwidget->clear();
 
-  int nr_box = vstr.size();
+  for( int i=0; i<vstr.size(); i++ ){
+    listwidget->addItem( QString(vstr[i].cStr()) );
+  }
 
-  const char** cvstr= new const char*[nr_box];
-  for( int i=0; i<nr_box; i++ )
-    cvstr[i]=  vstr[i].c_str();
+  if( defItem> -1 ) listwidget->setCurrentRow( defItem );
 
-  box->insertStrList( cvstr, nr_box );
-
-  if( defItem> -1 ) 
-    box->setCurrentItem( defItem );
-
-  delete[] cvstr;
-  cvstr=0;
 }
 
 /*********************************************/

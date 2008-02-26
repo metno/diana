@@ -34,13 +34,12 @@
 #include <qdialog.h>
 #include <qfont.h>
 #include <qpalette.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QHBoxLayout>
 #include <QLabel>
-#include <Q3GridLayout>
+#include <QGridLayout>
 #include <QPixmap>
-#include <Q3Frame>
-#include <Q3VBoxLayout>
+#include <QFrame>
+#include <QVBoxLayout>
 
 #include <vector>
 #include <map>
@@ -57,13 +56,13 @@ using namespace std;
 
 class QPushButton;
 class QComboBox;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QLabel;
-class Q3VBoxLayout;
-class Q3HBoxLayout;
-class Q3GridLayout;
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
 class QSlider;
-class Q3Frame;
 class QSpinBox;
 class QCheckBox;
 
@@ -236,10 +235,10 @@ private:
   QColor* color;
 
   QComboBox* modelGRbox;
-  Q3ListBox*  modelbox;
+  QListWidget*  modelbox;
   QComboBox* fieldGRbox;
-  Q3ListBox*  fieldbox;
-  Q3ListBox*  selectedFieldbox;
+  QListWidget*  fieldbox;
+  QListWidget*  selectedFieldbox;
 
   QSlider* levelSlider;
   QLabel*  levelLabel;
@@ -261,14 +260,11 @@ private:
   int           historyPos;
 
   QComboBox* colorCbox;
-  QPixmap**  pmapColor;
-  int        nr_colors;
 
   QComboBox* lineWidthCbox;
   int        nr_linewidths;
 
   QComboBox* lineTypeCbox;
-  int        nr_linetypes;
 
   QComboBox* lineintervalCbox;
 
@@ -291,17 +287,17 @@ private:
   void CreateAdvanced();
 
   // layout
-  Q3VBoxLayout* v1layout;
-  Q3HBoxLayout* v1h4layout;
-  Q3GridLayout* optlayout;
-  Q3VBoxLayout* levellayout;
-  Q3HBoxLayout* idnumlayout;
-  Q3HBoxLayout* h4layout;
-  Q3HBoxLayout* h5layout;
-  Q3HBoxLayout* h6layout;
+  QVBoxLayout* v1layout;
+  QHBoxLayout* v1h4layout;
+  QGridLayout* optlayout;
+  QVBoxLayout* levellayout;
+  QHBoxLayout* idnumlayout;
+  QHBoxLayout* h4layout;
+  QHBoxLayout* h5layout;
+  QHBoxLayout* h6layout;
 
   //toplayout
-  Q3VBoxLayout* vlayout;
+  QVBoxLayout* vlayout;
 
 signals:
   void FieldApply();
@@ -311,12 +307,12 @@ signals:
 
 private slots:
   void modelGRboxActivated( int index );
-  void modelboxHighlighted( int index );
+  void modelboxClicked( QListWidgetItem * item );
 
   void fieldGRboxActivated( int index );
   void fieldboxChanged();
 
-  void selectedFieldboxHighlighted( int );
+  void selectedFieldboxClicked( QListWidgetItem * item );
 
   void upField();
   void downField();

@@ -1652,9 +1652,11 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   }
 
   // put combids into select-areas listbox
-  vector<miString> sc;
-  for (int i=0; i<combids.size(); i++) sc.push_back(combids[i]);
-  listBox(m_SelectAreas, sc, 0);
+  m_SelectAreas->clear();
+  for (int i=0; i<combids.size(); i++){
+    m_SelectAreas->insertItem(QString(combids[i].cStr()));
+  }
+  if(combids.size()) m_SelectAreas->setCurrentItem(0);
 
   inEdit= true;
   currprod= ep;

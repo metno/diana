@@ -154,6 +154,7 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent, const char* name)
 	    this, SLOT(enabled(PlotElement)));
     grid->addWidget(buttons[i], 0, i);
   }
+  grid->setColumnStretch(MAXBUTTONS-1,5);
   grid->activate();
   
   showtip= new Q3PopupMenu(this);

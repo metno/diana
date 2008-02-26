@@ -155,7 +155,7 @@ void EditNewDialog::ConstructorCernel(){
   Q3HBoxLayout* h7layout = new Q3HBoxLayout( 5 );
   h7layout->addWidget(timelabel,0,Qt::AlignHCenter);
   
-  timespin= new TimeSpinbox(false, normaltab, "timespin");
+  timespin= new TimeSpinbox(false, normaltab);
   connect(timespin, SIGNAL(valueChanged(int)), SLOT(prodtimechanged(int)));
   Q3HBoxLayout* h2layout = new Q3HBoxLayout( 5 );
   h2layout->addWidget(timespin,0,Qt::AlignHCenter);
@@ -297,7 +297,7 @@ void EditNewDialog::combineClear(){
 void EditNewDialog::prodtimechanged(int v)
 {
   prodtime= timespin->Time();
-  //cerr << "EditNewDialog::Prodtime changed:" << prodtime << endl;
+  //  cerr << "EditNewDialog::Prodtime changed:" << prodtime << endl;
   productfree= checkProductFree();
 }
 
@@ -646,19 +646,17 @@ bool EditNewDialog::load_combine(){
     vector<miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
     int n= vt.size();
     int index=0;
-    vector<miString> vstr;
+    cBox->clear();
     if (n>0) {
       for (int i=0; i<n; i++){
 	miString tstr= vt[i].isoTime();
-	vstr.push_back(tstr);
+	cBox->insertItem(QString(tstr.cStr()));
 	if (combinetime ==vt[i]) index=i; //selected time  
       }
-      listBox( cBox, vstr, 0);
       cBox->setCurrentItem(index);
     } else {
       cerr << "EditNewDialog::load - no analyses found"<<endl;
       checkStatus();
-      listBox( cBox, vstr, 0);
       combineClear();
       return false;
     }
