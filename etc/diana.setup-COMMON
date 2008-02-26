@@ -38,11 +38,11 @@
 fontpath=$(DIANADIR)/fonts
 docpath=$(DIANADIR)/doc
 obsPlotFilePath=$(DIANADIR)/etc
-qserver=$(ROOT)/bin/coserver2
+qserver=$(ROOT)/bin/coserver
 imagepath=$(DIANADIR)/images/
 amdarStationList=$(DIANADIR)/etc/amdar.stations
 languagepaths=$(DIANADIR)/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
-#setenv=BUFR_TABLES,/usr/local/etc/emos/bufrtables/,1
+setenv=BUFR_TABLES,/usr/local/lib/emos/bufrtables/,1
 language=no
 </BASIC>
 
@@ -4167,6 +4167,11 @@ m=HIRLAM.12KM.00  f=$(OPDATA1)/hirlam12/vc12km00.dat
 m=HIRLAM.12KM.06  f=$(OPDATA1)/hirlam12/vc12km06.dat
 m=HIRLAM.12KM.12  f=$(OPDATA1)/hirlam12/vc12km12.dat
 m=HIRLAM.12KM.18  f=$(OPDATA1)/hirlam12/vc12km18.dat 
+
+m=HIRLAM.8KM.00   f=$(OPDATA1)/hirlam8/vc8km00.dat
+m=HIRLAM.8KM.06   f=$(OPDATA1)/hirlam8/vc8km06.dat
+m=HIRLAM.8KM.12   f=$(OPDATA1)/hirlam8/vc8km12.dat
+m=HIRLAM.8KM.18   f=$(OPDATA1)/hirlam8/vc8km18.dat
 
 m=HIRLAM.20KM.00  f=$(OPDATA1)/hirlam20/vc20km00.dat
 m=HIRLAM.20KM.06  f=$(OPDATA1)/hirlam20/vc20km06.dat
