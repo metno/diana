@@ -1618,14 +1618,11 @@ void FieldDialog::fieldboxChanged(){
   // Note: multiselection list, current item may only be the last...
 
   int nf = vfgi[indexFGR].fieldNames.size();
-  cerr <<"indexFGR:"<<indexFGR<<"  nf:"<<nf<<endl;
 
   int last= -1;
   int lastdelete= -1;
 
   for (int indexF=0; indexF<nf; ++indexF) {
-
-    cerr <<"indexF:"<<indexF<<endl;
 
     if (fieldbox->item(indexF)->isSelected() && countSelected[indexF]==0) {
 
