@@ -17,47 +17,44 @@
 # variables
 
 #
->MSLP gårsdagens prognoser og dagens analyse + synop
-FIELD HIRLAM.20KM.00-1 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-FIELD HIRLAM.12KM.00-1(12) MSLP colour=red linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-FIELD EC.GEO.0.25.00-1 MSLP colour=dark_red linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-FIELD UM.HL.4KM.00-1 MSLP colour=magenta linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-FIELD met.no.ANA MSLP colour=black linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-OBS plot=Synop data=Synop parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1 image=lyn scale=1 tempprecision=true timediff=60
+>MSLP Gårsdagens prognoser og dagens analyse og synop
+FIELD HIRLAM.12KM.00-1(12) MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.GEO.0.25.00-1 MSLP colour=cyan linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD UM.HL.4KM.00-1 MSLP colour=magenta linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD met.no.ANA MSLP colour=black linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.8KM.00-1 MSLP colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+OBS plot=Synop data=Synop,Dribu,Metar,QScat25km parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=2.4 image=lyn scale=1 showpos=true tempprecision=true timediff=60
 MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=S-Norge backcolour=white map=Fylker contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=S-Norge backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
 #
->vind10m gårsdagens prognoser +synop 
-FIELD HIRLAM.20KM.00-1 VIND.10M colour=blue linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
-FIELD EC.GEO.0.25.00-1 VIND.10M colour=dark_red linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
-FIELD UM.HL.4KM.00-1 VIND.10M colour=magenta linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
-FIELD HIRLAM.12KM.00-1(12) VIND.10M colour=grey25 linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
-OBS plot=Synop data=Synop,QScat25km parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1 image=lyn scale=1 tempprecision=true timediff=60
+>Vind10m Gårsdagens prognoser samt observasjoner
+FIELD EC.GEO.0.25.00-1 VIND.10M colour=black linewidth=1 density=0 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 VIND.10M colour=magenta linewidth=1 density=0 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.12KM.00-1(12) VIND.10M colour=blue linewidth=1 density=0 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 VIND.10M colour=red linewidth=1 density=0 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Synop data=Synop,Dribu,Metar,QScat25km parameter=Wind,N,vs,ds,911ff,fxfx,Id,Time colour=black density=2.4 image=lyn scale=1 showpos=true tempprecision=true timediff=60
 MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=S-Norge backcolour=white map=Fylker contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=S-Norge backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
 #
->12t-nedbør gårsdagens prognoser +synop
-FIELD HIRLAM.20KM.00-1 NEDBØR.12T colour=blue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=magenta linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-FIELD EC.GEO.0.25.00-1 NEDBØR.12T colour=dark_red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=grey25 linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
-OBS plot=Synop data=Synop,QScat25km parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1 image=lyn scale=1 tempprecision=true timediff=60
+>obs + 12t-nedbør gårsdagens modeller
+FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=magenta linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.GEO.0.25.00-1 NEDBØR.12T colour=cyan linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=blue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.8KM.00-1 NEDBØR.12T colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+OBS plot=Synop data=Synop,Metar parameter=h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,sss,Time colour=black density=2.4 image=lyn scale=1 showpos=true tempprecision=true timediff=60
 MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=S-Norge backcolour=white map=Fylker contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=S-Norge backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
