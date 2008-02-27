@@ -38,7 +38,7 @@
 fontpath=$(DIANADIR)/fonts
 docpath=$(DIANADIR)/doc
 obsPlotFilePath=$(DIANADIR)/etc
-qserver=$(ROOT)/bin/coserver
+qserver=$(ROOT)/bin/coserver4
 imagepath=$(DIANADIR)/images/
 amdarStationList=$(DIANADIR)/etc/amdar.stations
 languagepaths=$(DIANADIR)/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
