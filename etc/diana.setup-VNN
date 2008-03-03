@@ -643,8 +643,6 @@ timerange=-60,60
 channels= day_night 2+4 4+2 1+2+4 2+3+4 3+4+5 5+4+3 2+6+4 6+4+5 5+4+6 1 2 3 4 5 6
 
 image=NOAA-OSLO
-  sub.type= Europa
-      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]meu.mitiff
   sub.type= N-Europa
       file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mne.mitiff
   sub.type= S-Norge-(SAF_SE)
@@ -661,6 +659,10 @@ image=NOAA-OSLO
       file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]msf.mitiff
   sub.type= N-Atlant
       file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mis.mitiff
+  sub.type= N-Polen
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mnpol.mitiff
+  sub.type= W-Atlant
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mwat.mitiff
 
 image=Istjenesten
   channels= Sigma-0

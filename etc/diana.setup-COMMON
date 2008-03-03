@@ -923,6 +923,12 @@ vessel_icing=divide(ppr_teller,ppr_nevner)
 
 windcooling_minus=subtract(0,windcooling) #For å vise graden av forfrysningsfare som felt. 
 
+#2m wetbulb temp from `1/3 rule`
+
+tctd=subtract(tc2m,tdc2m)
+tctd3=divide(tctd,3)
+wetbulb3=subtract(tc2m,tctd3)
+
 # for ocean model fields
 current.speed=vector.abs(u.current,v.current)
 average.current.speed=vector.abs(u.average.current,v.average.current)
@@ -1117,6 +1123,11 @@ end.field
 field=Vindavkjøling
      colour=red linetype=solid linewidth=1 line.interval=5.
      plot=CONTOUR(windcooling)
+end.field
+
+field=Twb.2M
+       colour=red line.interval=2.
+       plot=CONTOUR(wetbulb3)
 end.field
 
 field=K-INDEX
@@ -3200,6 +3211,10 @@ image=NOAA
       file= $(OPDATA3)/meos/mchannel/noaa[yyyymmddHHMM]msf.mitiff
   sub.type= N-Atlant
       file= $(OPDATA3)/meos/mchannel/noaa[yyyymmddHHMM]mis.mitiff
+  sub.type= N-Polen
+      file= $(OPDATA3)/meos/mchannel/noaa[yyyymmddHHMM]mnpol.mitiff
+  sub.type= W-Atlant
+      file= $(OPDATA3)/meos/mchannel/noaa[yyyymmddHHMM]mwat.mitiff
  channels= CLW
   sub.type= TCLW-(CTG)-1h
       file= $(OPDATA3)/atovs/tif/noaa??_amsu-a_[yyyymmddHH]_landx.tif   
@@ -4168,10 +4183,10 @@ m=HIRLAM.12KM.06  f=$(OPDATA1)/hirlam12/vc12km06.dat
 m=HIRLAM.12KM.12  f=$(OPDATA1)/hirlam12/vc12km12.dat
 m=HIRLAM.12KM.18  f=$(OPDATA1)/hirlam12/vc12km18.dat 
 
-m=HIRLAM.8KM.00   f=$(OPDATA2)/hirlam8/vc8km00.dat
-m=HIRLAM.8KM.06   f=$(OPDATA2)/hirlam8/vc8km06.dat
-m=HIRLAM.8KM.12   f=$(OPDATA2)/hirlam8/vc8km12.dat
-m=HIRLAM.8KM.18   f=$(OPDATA2)/hirlam8/vc8km18.dat
+m=HIRLAM.8KM.00   f=$(OPDATA1)/hirlam8/vc8km00.dat
+m=HIRLAM.8KM.06   f=$(OPDATA1)/hirlam8/vc8km06.dat
+m=HIRLAM.8KM.12   f=$(OPDATA1)/hirlam8/vc8km12.dat
+m=HIRLAM.8KM.18   f=$(OPDATA1)/hirlam8/vc8km18.dat
 
 m=HIRLAM.20KM.00  f=$(OPDATA1)/hirlam20/vc20km00.dat
 m=HIRLAM.20KM.06  f=$(OPDATA1)/hirlam20/vc20km06.dat
