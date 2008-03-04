@@ -42,7 +42,7 @@
 using namespace std;
 
 class QFont;
-class Q3GridLayout;
+class QGridLayout;
 class QCheckBox;
 class QLabel;
 class QComboBox;
@@ -59,7 +59,7 @@ class VprofSetup: public QObject
 public:
 
   //the constructor
-  VprofSetup( QWidget* parent, VprofManager* vm, miString, Q3GridLayout *,
+  VprofSetup( QWidget* parent, VprofManager* vm, miString, QGridLayout *,
 	      int,int, bool);
 
   bool isOn();

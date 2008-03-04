@@ -43,9 +43,9 @@
 #include <qtabwidget.h>
 #include <qtUtility.h>
 //Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
 #include <diVprofManager.h>
 #include <qtVprofSetup.h>
 #include <qtVprofSetupDialog.h>
@@ -130,18 +130,18 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );                     
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                     
   vlayout->addWidget( twd );
   vlayout->addLayout( hlayout1 ); 
   vlayout->addLayout( hlayout2 );
@@ -587,7 +587,7 @@ void VprofSetupDialog::initDatatab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  Q3GridLayout * glayout = new Q3GridLayout(xwidget,15,4);
+  QGridLayout * glayout = new QGridLayout(xwidget,13,4);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -676,7 +676,7 @@ void VprofSetupDialog::initDiagramtab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  Q3GridLayout * glayout = new Q3GridLayout(diagramtab,13,4);
+  QGridLayout * glayout = new QGridLayout(diagramtab,13,4);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -724,7 +724,7 @@ void VprofSetupDialog::initColourtab(){
 
   // make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  Q3GridLayout * glayout = new Q3GridLayout(colourtab,13,4);
+  QGridLayout * glayout = new QGridLayout(colourtab,9,4);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 

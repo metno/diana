@@ -36,7 +36,7 @@
 #include <qpixmap.h>
 #include <qtUtility.h>
 //Added by qt3to4:
-#include <Q3GridLayout>
+#include <QGridLayout>
 #include <diCommonTypes.h>
 #include <diVprofManager.h>
 #include <qtVprofSetup.h>
@@ -52,7 +52,7 @@ vector<miString>   VprofSetup::linetypes;
 
 
 VprofSetup::VprofSetup( QWidget* parent,VprofManager *vm,miString text, 
-			Q3GridLayout * glayout, int row, int ncombo, bool check)
+			QGridLayout * glayout, int row, int ncombo, bool check)
   : QObject(parent),vprofm(vm),name(text)
 {
   //a Qobject with a checkbox,and up to three comboboxes
