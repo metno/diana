@@ -76,9 +76,10 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
 {
   int nch = channel.size();
 
+  //  cerr << " ShowSatValues::SetChannels:"<<channel.size()<<endl;
   //try to remember currentItem
   int index = -1;
-  if(tooltip.size()>0){
+  if(tooltip.size( )> 0 && channelbox->count()>0  ){
     miString currentText = tooltip[channelbox->currentItem()];
     int i = 0;
     while(i<nch && channel[i]!=currentText) i++;
@@ -88,6 +89,7 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
   //refresh channelbox
   channelbox->clear();
   for(int i=0;i<nch;i++){
+    //    cerr <<"channel:"<<i<<"  "<<channel[i]<<endl;
     vector<miString> token = channel[i].split("|");
     if(token.size()==2){
       channelbox->insertItem(token[1].cStr());
@@ -111,9 +113,12 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
 
 void ShowSatValues::ShowValues(const vector<SatValues> &satval)
 {
+  if(!channelbox->count()) return;
   ostringstream svalue;
   int n = satval.size();
   int i=0;
+//   cerr <<"ShowValues:"<<n<<endl;
+//   cerr <<"channelbox->currentItem():"<<channelbox->currentItem()<<endl;
   while(i<n && satval[i].channel != tooltip[channelbox->currentItem()]) i++;
 
   //no value 
@@ -129,6 +134,7 @@ void ShowSatValues::ShowValues(const vector<SatValues> &satval)
    else
      svalue << setprecision(2) << setiosflags(ios::fixed)<< satval[i].value;
    //check values
+//    cerr <<"satval[i].value:"<<satval[i].value<<endl;
    if (satval[i].value < -999)   
      chlabel->setText(satval[i].text.c_str()); 
    else     

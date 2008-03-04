@@ -236,8 +236,7 @@ void Sat::setDefaultValues(const SatDialogInfo & Dialog){
 }
 
 
-/*
- * PURPOSE:   calculate and print the temperature or the albedo of 
+/* * PURPOSE:   calculate and print the temperature or the albedo of 
  *            the pixel pointed at  
  */
 void Sat::values(int x, int y, vector<SatValues>& satval)
@@ -289,7 +288,10 @@ void Sat::setCalibration(){
 
   cal_channels.clear();
   calibrationTable.clear();
-  
+
+  //palette tiff, but no palette info
+  if(palette && !paletteInfo.clname.size() ) return; 
+
   miString start = satellite_name + " " + filetype +"|";
 
   if (palette){
