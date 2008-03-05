@@ -61,7 +61,6 @@ private:
 
   Area fieldArea;           ///< field projection and covered area
   int nx,ny;                ///< field dimension
-  fetCodeExecutor executor; ///< the object executor
 
   /// outputs responce strings from executor
   void outputExecuteResponce(vector<fetCodeExecutor::responce> & rl);
@@ -87,7 +86,9 @@ public:
 		       const miString parameter,
 		       const miTime   validtime,
 		       const miString reason,
-		       const miString user);
+		       const miString user,
+		       const miString sessionID,
+		       const miString parent);
 
   /// update gui values in fetObject
   bool setGuiValues(fetObject& fetObj, 

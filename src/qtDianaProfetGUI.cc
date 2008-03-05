@@ -152,11 +152,16 @@ void DianaProfetGUI::baseObjectSelected(miString id){
     LOG4CXX_INFO(logger,"base object selected " << baseObjects[i].name());
     objectDialog.addDymanicGui(objectFactory.getGuiComponents(baseObjects[i]));
     if(areaManager->isAreaSelected()){
+
+      // TODO: fetch parent and sessionID from somewhere...
+      miString sessionID = "temporarySessionID";
+      miString parent = "";
+
       currentObject = objectFactory.makeObject(baseObjects[i],
           areaManager->getCurrentPolygon(),
           sessionDialog.getSelectedParameter(),
           sessionDialog.getSelectedTime(),
-          objectDialog.getReason(),user);
+					       objectDialog.getReason(),user,sessionID,parent);
       LOG4CXX_INFO(logger,"calling controller.objectChanged");
       controller.objectChanged(currentObject);
     }
@@ -366,11 +371,17 @@ void DianaProfetGUI::gridAreaChanged(){
       int i = getBaseObjectIndex(objectDialog.getSelectedBaseObject());
       if(i != -1){
         if(areaManager->isAreaSelected()){
+
+	  // TODO: fetch parent and sessionID from somewhere...
+	  miString sessionID = "temporarySessionID";
+	  miString parent = "";
+	  
           currentObject = objectFactory.makeObject(baseObjects[i],
-              areaManager->getCurrentPolygon(),
-              sessionDialog.getSelectedParameter(),
-              sessionDialog.getSelectedTime(),
-              objectDialog.getReason(),user);
+						   areaManager->getCurrentPolygon(),
+						   sessionDialog.getSelectedParameter(),
+						   sessionDialog.getSelectedTime(),
+						   objectDialog.getReason(),user,
+						   sessionID,parent);
         }
         else{
           LOG4CXX_WARN(logger,"gridAreaChanged: No Area Selected");

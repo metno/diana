@@ -69,42 +69,41 @@ ProfetObjectFactory::getGuiComponents(const fetBaseObject& baseobj)
 {
   LOG4CXX_INFO(logger,"getGuiComponents(fetBaseObject)");
 
+  fetCodeExecutor executor; ///< the object executor
   vector<fetCodeExecutor::responce> responcel; 
   vector<fetDynamicGui::GuiComponent> components;
   map<miString,miString> guikeys;
   bool onlygui=true;
 
   // compile and fetch gui components from code
-  bool ok = executor.compile( baseobj, responcel, components, guikeys, onlygui );
+  bool ok = executor.compile( baseobj, responcel, guikeys, onlygui );
   if ( !ok ){
     outputExecuteResponce(responcel);
   }
 
-  return components;
+  return executor.getGuiComponents();
 }
+
 
 vector<fetDynamicGui::GuiComponent>
 ProfetObjectFactory::getGuiComponents(const fetObject& fetobj) 
 {
   LOG4CXX_INFO(logger,"getGuiComponents(fetObject) for id="<< fetobj.id());
 
+  fetCodeExecutor executor; ///< the object executor
   fetBaseObject baseobject = fetobj.baseObject();
   vector<fetCodeExecutor::responce> responcel; 
   vector<fetDynamicGui::GuiComponent> components;
   map<miString,miString> guikeys = fetobj.guiElements();
-  bool onlygui = true;//false;
+  bool onlygui = true;
   
   // compile and fetch gui components from code
-  bool ok = executor.compile( baseobject, responcel, components, guikeys, onlygui );
+  bool ok = executor.compile( baseobject, responcel, guikeys, onlygui );
   if ( !ok ){
     outputExecuteResponce(responcel);
   }
 
-//   fetObj.setAlgorithm(executor.cleanCode());
-
-//   setGuiValues(fetObj, components);  
-
-  return components;
+  return executor.getGuiComponents();
 }
 
 
@@ -114,12 +113,14 @@ ProfetObjectFactory::getGuiComponents(const fetObject& fetobj)
    ===================================================
 */
 fetObject
-ProfetObjectFactory::makeObject(const fetBaseObject& baseObj,
-				ProjectablePolygon polygon,
-				const miString parameter,
-				const miTime   validtime,
-				const miString reason,
-				const miString user)
+ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
+				 ProjectablePolygon polygon,
+				 const miString parameter,
+				 const miTime   validtime,
+				 const miString reason,
+				 const miString user,
+				 const miString sessionID,
+				 const miString parent )
 {
   LOG4CXX_INFO(logger,"makeObject(fetBaseObject)");
 
@@ -129,29 +130,33 @@ ProfetObjectFactory::makeObject(const fetBaseObject& baseObj,
     return fetObj;
   }
   
+  fetCodeExecutor executor; ///< the object executor
   vector<fetCodeExecutor::responce> responcel; 
-  vector<fetDynamicGui::GuiComponent> components;
   map<miString,miString> guikeys;
   bool onlygui=false;
   miString id;
   miTime edittime = miTime::nowTime();
 
   // compile and fetch gui components from code
-  bool ok = executor.compile( baseObj, responcel, components, guikeys, onlygui );
+  bool ok = executor.compile( baseObj, responcel, guikeys, onlygui );
   if ( !ok ){
     outputExecuteResponce(responcel);
   }
+  vector<fetDynamicGui::GuiComponent> components = executor.getGuiComponents();
 
   // make object
   fetObj.setFromBaseObject(baseObj,
-			   reason,polygon,nx,ny,fieldArea,
+			   sessionID,parent,reason,polygon,nx,ny,fieldArea,
 			   executor.cleanCode(),executor.cleanCode(),user,
 			   validtime,edittime,parameter,guikeys,id);
+
+  // set local values
+  fetObj.setTimeVariables(executor.timevariables());
+  fetObj.setValuesForZeroImpact(executor.valuesforzeroimpact());
 
   setGuiValues(fetObj,components);
 
   return fetObj;
-
 }
 
 
@@ -167,6 +172,7 @@ bool ProfetObjectFactory::setGuiValues(fetObject& fetObj,
 
   LOG4CXX_INFO(logger,"setGuiValues");
 
+  fetCodeExecutor executor; ///< the object executor
   return executor.prepareCode(fetObj,components);
 
 }
