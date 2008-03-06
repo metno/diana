@@ -535,7 +535,7 @@ m=ALT-NORDIC.4KM.E.00   f=$(OPDATA2)/sea/f4Nordic_sectionE00.dat
 m=NORDIC.4KM.RESID.00   f=$(OPDATA2)/sea/f4Nordic_resid00.dat
 m=NORDIC.4KM.RESID.12   f=$(OPDATA2)/sea/f4Nordic_resid12.dat
 m=NORDIC.4KM.MEAN.12    f=$(OPDATA2)/sea/f4Nordic_24hrs_mean12.dat
-m=OFOTFJORD.500M.00     f=$(OPDATA2)/sea/f0.5Ofotfjord00.dat
+m=Trondheimsleia.500m   f=$(OPDATA2)/sea/f0.5Trheimsleia00.dat
 m=Oslofjord.300M.00     f=$(OPDATA2)/sea/f0.3Oslofjord00.dat
 m=SKAGERRAK_1.5KM       f=$(OPDATA2)/sea/f1.5NSeaSkag00.dat
 m=VESTLAND_200M         f=$(OPDATA2)/sea/f0.2Vestland00.dat

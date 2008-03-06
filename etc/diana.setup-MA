@@ -377,7 +377,7 @@ m=Barents.4km.00    f=/opdata/ma/sea/f4Barents00.dat
 m=Oslofjord.300M.00 f=/opdata/ma/sea/f0.3Oslofjord00.dat
 m=SKAGERRAK_1.5KM   f=/opdata/ma/sea/f1.5NSeaSkag00.dat
 m=VESTLAND_200M     f=/opdata/ma/sea/f0.2Vestland00.dat
-m=OFOTFJORD.500M.00 f=/opdata/ma/sea/f0.5Ofotfjord00.dat
+m=Trondheimsleia.500m  f=$(OPDATA2)/sea/f0.5Trheimsleia00.dat
 m=BIO.20KM.FOAM      f=$(OPDATA2)/sea/f20NorthSea06.dat
 m=BIO.4KM.FOAM+SMHI  f=$(OPDATA2)/sea/f4NorthSea06.dat
 m=ark.SMHI.phys      f=/opdata/ma/sea/arkSMHI_phys.dat
