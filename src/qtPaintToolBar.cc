@@ -1,8 +1,37 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  $Id$
+
+  Copyright (C) 2006 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 #include <qtPaintToolBar.h>
 #include <qpixmap.h>
 #include <qkeysequence.h> 
-//Added by qt3to4:
-#include <Q3ActionGroup>
+#include <QActionGroup>
 #include <miString.h>
 #include <paint_select.xpm>
 #include <paint_move.xpm>
@@ -13,42 +42,37 @@
 #include <paint_draw.xpm>
 //#include <paint_color.xpm>
 
-PaintToolBar::PaintToolBar(Q3MainWindow *parent) 
-			: Q3ToolBar(tr("Paint Operations"), parent,Qt::DockBottom, FALSE,"painttoolbar") {
+PaintToolBar::PaintToolBar(QMainWindow *parent) 
+			: QToolBar(tr("Paint Operations"), parent) {
 	
-  selectAction = new Q3Action( QPixmap(paint_select_xpm),tr("&Select"),QKeySequence(), this );
-	selectAction->setToggleAction(true);
-	connect( selectAction, SIGNAL( activated() ) , 
-	    this, SLOT( sendPaintModeChanged() ) );
-	drawAction = new Q3Action( QPixmap(paint_draw_xpm),tr("&Draw"),QKeySequence(), this );
-	drawAction->setToggleAction(true);
-	connect( drawAction, SIGNAL( activated() ) , 
-      this, SLOT( sendPaintModeChanged() ) );
-	includeAction = new Q3Action( QPixmap(paint_include_xpm),tr("&Include"),QKeySequence(), this );
-	includeAction->setToggleAction(true);
-	connect( includeAction, SIGNAL( activated() ) ,
-      this, SLOT( sendPaintModeChanged() ) );
-	cutAction = new Q3Action( QPixmap(paint_cut_xpm),tr("&Cut"),QKeySequence(), this );
-	cutAction->setToggleAction(true);
-	connect( cutAction, SIGNAL( activated() ) , 
-      this, SLOT( sendPaintModeChanged() ) );
-	moveAction = new Q3Action( QPixmap(paint_move_xpm),tr("&Move"),QKeySequence(), this );
-	moveAction->setToggleAction(true);
-	connect( moveAction, SIGNAL( activated() ) , 
-      this, SLOT( sendPaintModeChanged() ) );
+  selectAction = new QAction( QPixmap(paint_select_xpm),tr("&Select"),this );
+  selectAction->setToggleAction(true);
+  connect( selectAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  drawAction = new QAction( QPixmap(paint_draw_xpm),tr("&Draw"),this );
+  drawAction->setToggleAction(true);
+  connect( drawAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  includeAction = new QAction( QPixmap(paint_include_xpm),tr("&Include"),this );
+  includeAction->setToggleAction(true);
+  connect( includeAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  cutAction = new QAction( QPixmap(paint_cut_xpm),tr("&Cut"),this );
+  cutAction->setToggleAction(true);
+  connect( cutAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  moveAction = new QAction( QPixmap(paint_move_xpm),tr("&Move"),this );
+  moveAction->setToggleAction(true);
+  connect( moveAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
 	
-	modeActions = new Q3ActionGroup(this,0);
-	modeActions->add(selectAction);
-	modeActions->add(drawAction);
-	modeActions->add(includeAction);
-	modeActions->add(cutAction);
-	modeActions->add(moveAction);
+  modeActions = new QActionGroup(this);
+  modeActions->add(selectAction);
+  modeActions->add(drawAction);
+  modeActions->add(includeAction);
+  modeActions->add(cutAction);
+  modeActions->add(moveAction);
 	
-	selectAction->addTo(this);
-	drawAction->addTo(this);
-	includeAction->addTo(this);
-	cutAction->addTo(this);
-	moveAction->addTo(this);
+  selectAction->addTo(this);
+  drawAction->addTo(this);
+  includeAction->addTo(this);
+  cutAction->addTo(this);
+  moveAction->addTo(this);
 }
 
 void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
@@ -109,4 +133,19 @@ GridAreaManager::PaintMode PaintToolBar::getPaintMode(){
 void PaintToolBar::sendPaintModeChanged(){
   emit paintModeChanged(getPaintMode());
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

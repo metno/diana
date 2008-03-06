@@ -46,6 +46,7 @@
 #include <qpixmap.h>
 #include <qimage.h>
 #include <qinputdialog.h>
+#include <QAction>
 
 #include <qtEditDialog.h>
 #include <qtEditNewDialog.h>
@@ -143,6 +144,20 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Ice"]=tr("Ice"); //Is
   editTranslations["Significant weather"]=tr("Significant weather"); //Sig.vær
   editTranslations["Generic area"]=tr("Generic area"); //
+
+  // --------------------------------------------------------------------
+  editAction = new QAction(this);
+  editAction->setShortcut(Qt::CTRL+Qt::Key_E);
+  editAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect(editAction, SIGNAL( activated() ), SLOT(EditMarkedText()));
+  addAction( editAction );
+  // --------------------------------------------------------------------
+  deleteAction = new QAction(this);
+  deleteAction->setShortcut(Qt::CTRL+Qt::Key_Delete);
+  deleteAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect(deleteAction, SIGNAL( activated() ) , SLOT(DeleteMarkedAnnotation()));
+  addAction( deleteAction );
+
 
   ConstructorCernel( ll );
 
@@ -827,7 +842,7 @@ void EditDialog::autoJoinToggled(bool on)
 
 void EditDialog::EditMarkedText()
 {
-  //called from shortcut ctrl-e in main window
+  //called from shortcut ctrl-e 
   //changes all marked texts and objectmanagers current text !
   vector <miString> symbolText,xText,eText;
   miString text = m_objm->getMarkedText();

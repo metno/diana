@@ -1164,14 +1164,12 @@ void FieldDialog::updateModels()
 
 void FieldDialog::archiveMode(bool on)
 {
-  cerr <<"void FieldDialog::archive(bool on)"<<endl;
   useArchive=on;
   updateModelBoxes();
 }
 
 void FieldDialog::enableProfet(bool on)
 {
-  cerr <<"void FieldDialog::enableProfet(bool on)"<<endl;
   profetEnabled=on;
   updateModelBoxes();
 }

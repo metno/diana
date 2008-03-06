@@ -63,6 +63,7 @@ class EditNewDialog;
 class EditComment;
 class QMessageBox;
 class QCheckBox;
+class QAction;
 
 class Controller;
 class EditManager;
@@ -182,6 +183,9 @@ private:
   EditManager*   m_editm;
   ObjectManager* m_objm;
   EditDialogInfo m_EditDI;
+
+  QAction * editAction;
+  QAction * deleteAction;
 
   QComboBox* m_Frontcm;
   Q3ListBox* m_Fronteditmethods;

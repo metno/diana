@@ -33,9 +33,6 @@
 
 #include <fstream>
 
-#include <q3filedialog.h>
-#include <qprinter.h>
-#include <qaction.h>
 #include <qtTimeSlider.h>
 #include <qtTimeControl.h>
 #include <qtTimeStepSpinbox.h>
@@ -44,31 +41,33 @@
 #include <qtShowSatValues.h>
 #include <qtTextDialog.h>
 #include <qtImageGallery.h>
-#include <qapplication.h>
-//Added by qt3to4:
+
+#include <QFileDialog>
+#include <QPrinter>
+#include <QApplication>
 #include <QTimerEvent>
 #include <QFocusEvent>
-#include <Q3Frame>
+#include <QFrame>
+
 #include <glob.h>
 #include <qmotifstyle.h>
 #include <qwindowsstyle.h>
 
-// qt4 fix
-#include <Q3Action>
+#include <QAction>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDateTime>
 
 #include <qpushbutton.h>
 #include <qpixmap.h>
-#include <q3toolbar.h>
+#include <qtoolbar.h>
 #include <qtoolbutton.h>
-#include <q3popupmenu.h>
+#include <QMenu>
 #include <qmenubar.h>
 #include <qnamespace.h>
 #include <qstatusbar.h>
 #include <qmessagebox.h>
-#include <q3accel.h>
+#include <QShortcut>
 #include <qlabel.h>
 #include <qfontdialog.h>
 #include <qtooltip.h>
@@ -93,7 +92,6 @@
 #include <qtObjectDialog.h>
 #include <qtTrajectoryDialog.h>
 #include <qtHelpDialog.h>
-//#include <qtEditTimeDialog.h>
 #include "qtDianaProfetGUI.h"
 #include <qtPrintManager.h>
 #include <qtBrowserBox.h>
@@ -144,7 +142,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 				 const miString ver_str, 
 				 const miString build_str, 
 				 bool ep)
-  : Q3MainWindow( 0, "DIANA main window"),
+  : QMainWindow( 0, "DIANA main window"),
     contr(co),timeron(0),timeloop(false),timeout_ms(100),
     showelem(true),autoselect(false),push_command(true),browsing(false),
     markTrajPos(false),
@@ -156,226 +154,361 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   setCaption( tr("Diana") );
 
-  menuBar()->hide();// The menubar must be hidden to let the sentralwidget
-                    // fill all the space
-
   SetupParser setup;
 
-  /*
-    The Actions
-  */
+
+  //-------- The Actions ---------------------------------
+
   // file ========================
   // --------------------------------------------------------------------
-  fileSavePictAction = new Q3Action( QPixmap( ),tr("&Save picture..."),QKeySequence(),this );
-  connect( fileSavePictAction, SIGNAL( activated() ) , this, SLOT( saveraster() ) );
+  fileSavePictAction = new QAction( tr("&Save picture..."),this );
+  fileSavePictAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( fileSavePictAction, SIGNAL( activated() ) , SLOT( saveraster() ) );
   // --------------------------------------------------------------------
-  filePrintAction = new Q3Action( QPixmap( fileprint_xpm ),tr("&Print..."),Qt::CTRL+Qt::Key_P,this );
-  connect( filePrintAction, SIGNAL( activated() ) , this, SLOT( hardcopy() ) );
+  filePrintAction = new QAction( tr("&Print..."),this );
+  filePrintAction->setShortcut(Qt::CTRL+Qt::Key_P);
+  filePrintAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( filePrintAction, SIGNAL( activated() ) , SLOT( hardcopy() ) );
   // --------------------------------------------------------------------
-  fileQuitAction = new Q3Action( QPixmap( ),tr("&Quit..."),Qt::CTRL+Qt::Key_Q, this );
-  connect( fileQuitAction, SIGNAL( activated() ) , this, SLOT( filequit() ) );
+  fileQuitAction = new QAction( tr("&Quit..."), this );
+  fileQuitAction->setShortcut(Qt::CTRL+Qt::Key_Q);
+  fileQuitAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( fileQuitAction, SIGNAL( activated() ) , SLOT( filequit() ) );
 
 
   // options ======================
   // --------------------------------------------------------------------
-  optXYAction = new Q3Action( QPixmap( ),tr("&X,Y positions"),QKeySequence(), this );
+  optXYAction = new QAction(tr("&X,Y positions"), this );
+  optXYAction->setShortcutContext(Qt::ApplicationShortcut);
   optXYAction->setToggleAction(true);
-  connect( optXYAction, SIGNAL( activated() ) , this, SLOT( xyGeoPos() ) );
+  connect( optXYAction, SIGNAL( activated() ) , SLOT( xyGeoPos() ) );
   // --------------------------------------------------------------------
-  optLatLonAction = new Q3Action( QPixmap( ),
-				 tr("Lat/Lon in decimal degrees"),QKeySequence(), this );
+  optLatLonAction = new QAction( tr("Lat/Lon in decimal degrees"), this );
+  optLatLonAction->setShortcutContext(Qt::ApplicationShortcut);
   optLatLonAction->setToggleAction(true);
-  connect( optLatLonAction, SIGNAL( activated() ) , this, SLOT( latlonGeoPos() ) );
+  connect( optLatLonAction, SIGNAL( activated() ) , SLOT( latlonGeoPos() ) );
   // --------------------------------------------------------------------
-  optOnOffAction = new Q3Action( QPixmap( ),tr("S&peed buttons"),QKeySequence(), this );
+  optOnOffAction = new QAction( tr("S&peed buttons"), this );
+  optOnOffAction->setShortcutContext(Qt::ApplicationShortcut);
   optOnOffAction->setToggleAction(true);
-  connect( optOnOffAction, SIGNAL( activated() ) , this, SLOT( showElements() ) );
+  connect( optOnOffAction, SIGNAL( activated() ) ,  SLOT( showElements() ) );
   // --------------------------------------------------------------------
-  optArchiveAction = new Q3Action( QPixmap( ),tr("A&rchive mode"),QKeySequence(), this );
+  optArchiveAction = new QAction( tr("A&rchive mode"), this );
+  optArchiveAction->setShortcutContext(Qt::ApplicationShortcut);
   optArchiveAction->setToggleAction(true);
-  connect( optArchiveAction, SIGNAL( activated() ) , this, SLOT( archiveMode() ) );
+  connect( optArchiveAction, SIGNAL( activated() ) ,  SLOT( archiveMode() ) );
   // --------------------------------------------------------------------
-  optAutoElementAction = new Q3Action( QPixmap( ),tr("&Automatic element choice"),Qt::Key_Space, this );
+  optAutoElementAction = new QAction( tr("&Automatic element choice"), this );
+  optAutoElementAction->setShortcutContext(Qt::ApplicationShortcut);
+  optAutoElementAction->setShortcut(Qt::Key_Space);
   optAutoElementAction->setToggleAction(true);
-  connect( optAutoElementAction, SIGNAL( activated() ) , this, SLOT( autoElement() ) );
+  connect( optAutoElementAction, SIGNAL( activated() ), SLOT( autoElement() ) );
   // --------------------------------------------------------------------
-  optAnnotationAction = new Q3Action( QPixmap( ),tr("A&nnotations"),QKeySequence(), this );
+  optAnnotationAction = new QAction( tr("A&nnotations"), this );
+  optAnnotationAction->setShortcutContext(Qt::ApplicationShortcut);
   optAnnotationAction->setToggleAction(true);
-  connect( optAnnotationAction, SIGNAL( activated() ) , this, SLOT( showAnnotations() ) );
+  connect( optAnnotationAction, SIGNAL( activated() ), SLOT( showAnnotations() ) );
   // --------------------------------------------------------------------
-  optFontAction = new Q3Action( QPixmap( ),tr("Select &Font..."),QKeySequence(), this );
-  connect( optFontAction, SIGNAL( activated() ) , this, SLOT( chooseFont() ) );
+  optFontAction = new QAction( tr("Select &Font..."), this );
+  optFontAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( optFontAction, SIGNAL( activated() ) ,  SLOT( chooseFont() ) );
 
 
   // show ======================
   // --------------------------------------------------------------------
-  showResetAreaAction = new Q3Action( QPixmap(thumbs_up_xpm),tr("Reset area and replot"),QKeySequence(), this );
-  connect( showResetAreaAction, SIGNAL( activated() ) , this, SLOT( resetArea() ) );
+  showResetAreaAction = new QAction( QPixmap(thumbs_up_xpm),tr("Reset area and replot"), this );
+  showResetAreaAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( showResetAreaAction, SIGNAL( activated() ) ,  SLOT( resetArea() ) );
   //----------------------------------------------------------------------
-  showResetAllAction = new Q3Action( QPixmap(thumbs_down_xpm),tr("Reset all"),QKeySequence(), this );
-  connect( showResetAllAction, SIGNAL( activated() ) , this, SLOT( resetAll() ) );
+  showResetAllAction = new QAction( QPixmap(thumbs_down_xpm),tr("Reset all"), this );
+  showResetAllAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( showResetAllAction, SIGNAL( activated() ) ,  SLOT( resetAll() ) );
   // --------------------------------------------------------------------
-  showApplyAction = new Q3Action( QPixmap( ),tr("&Apply plot"),Qt::CTRL+Qt::Key_U, this );
-  connect( showApplyAction, SIGNAL( activated() ) , this, SLOT( MenuOK() ) );
+  showApplyAction = new QAction( tr("&Apply plot"), this );
+  showApplyAction->setShortcutContext(Qt::ApplicationShortcut);
+  showApplyAction->setShortcut(Qt::CTRL+Qt::Key_U);
+  connect( showApplyAction, SIGNAL( activated() ) ,  SLOT( MenuOK() ) );
   // --------------------------------------------------------------------
-  showAddQuickAction = new Q3Action( QPixmap( ),tr("Add to q&uickmenu"),Qt::Key_F9, this );
-  connect( showAddQuickAction, SIGNAL( activated() ) , this, SLOT( addToMenu() ) );
+  showAddQuickAction = new QAction( tr("Add to q&uickmenu"), this );
+  showAddQuickAction->setShortcutContext(Qt::ApplicationShortcut);
+  showAddQuickAction->setShortcut(Qt::Key_F9);
+  connect( showAddQuickAction, SIGNAL( activated() ) ,  SLOT( addToMenu() ) );
   // --------------------------------------------------------------------
-  showPrevPlotAction = new Q3Action( QPixmap( ),tr("P&revious plot"),Qt::Key_F10, this );
-  connect( showPrevPlotAction, SIGNAL( activated() ) , this, SLOT( prevHPlot() ) );
+  showPrevPlotAction = new QAction( tr("P&revious plot"), this );
+  showPrevPlotAction->setShortcutContext(Qt::ApplicationShortcut);
+  showPrevPlotAction->setShortcut(Qt::Key_F10);
+  connect( showPrevPlotAction, SIGNAL( activated() ) ,  SLOT( prevHPlot() ) );
   // --------------------------------------------------------------------
-  showNextPlotAction = new Q3Action( QPixmap( ),tr("&Next plot"),Qt::Key_F11, this );
-  connect( showNextPlotAction, SIGNAL( activated() ) , this, SLOT( nextHPlot() ) );
+  showNextPlotAction = new QAction( tr("&Next plot"), this );
+  showNextPlotAction->setShortcutContext(Qt::ApplicationShortcut);
+  showNextPlotAction->setShortcut(Qt::Key_F11);
+  connect( showNextPlotAction, SIGNAL( activated() ) ,  SLOT( nextHPlot() ) );
   // --------------------------------------------------------------------
-  showHideAllAction = new Q3Action( QPixmap( ),tr("&Hide All"),Qt::CTRL+Qt::Key_D, this );
-  showHideAllAction->setToggleAction(true);
-  connect( showHideAllAction, SIGNAL( activated() ) , this, SLOT( toggleDialogs() ) );
+  showHideAllAction = new QAction( tr("&Hide All"), this );
+  showHideAllAction->setShortcutContext(Qt::ApplicationShortcut);
+  showHideAllAction->setShortcut(Qt::CTRL+Qt::Key_D);
+  connect( showHideAllAction, SIGNAL( activated() ) ,  SLOT( toggleDialogs() ) );
 
   // --------------------------------------------------------------------
-  showQuickmenuAction = new Q3Action( QPixmap(pick_xpm ),tr("&Quickmenu"),Qt::Key_F12, this );
+  showQuickmenuAction = new QAction( QPixmap(pick_xpm ),tr("&Quickmenu"), this );
+  showQuickmenuAction->setShortcutContext(Qt::ApplicationShortcut);
+  showQuickmenuAction->setShortcut(Qt::Key_F12);
   showQuickmenuAction->setToggleAction(true);
-  connect( showQuickmenuAction, SIGNAL( activated() ) , this, SLOT( quickMenu() ) );
+  connect( showQuickmenuAction, SIGNAL( activated() ) ,  SLOT( quickMenu() ) );
   // --------------------------------------------------------------------
-  showMapDialogAction = new Q3Action( QPixmap(earth3_xpm ),tr("&Maps"),Qt::ALT+Qt::Key_K, this );
+  showMapDialogAction = new QAction( QPixmap(earth3_xpm ),tr("&Maps"), this );
+  showMapDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showMapDialogAction->setShortcut(Qt::ALT+Qt::Key_K);
   showMapDialogAction->setToggleAction(true);
-  connect( showMapDialogAction, SIGNAL( activated() ) , this, SLOT( mapMenu() ) );
+  connect( showMapDialogAction, SIGNAL( activated() ) ,  SLOT( mapMenu() ) );
   // --------------------------------------------------------------------
-  showFieldDialogAction = new Q3Action( QPixmap(felt_xpm ),tr("&Fields"),Qt::ALT+Qt::Key_F, this );
+  showFieldDialogAction = new QAction( QPixmap(felt_xpm ),tr("&Fields"), this );
+  showFieldDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showFieldDialogAction->setShortcut(Qt::ALT+Qt::Key_F);
   showFieldDialogAction->setToggleAction(true);
-  connect( showFieldDialogAction, SIGNAL( activated() ) , this, SLOT( fieldMenu() ) );
+  connect( showFieldDialogAction, SIGNAL( activated() ) ,  SLOT( fieldMenu() ) );
   // --------------------------------------------------------------------
-  showObsDialogAction = new Q3Action( QPixmap(synop_xpm ),tr("&Observations"),Qt::ALT+Qt::Key_O, this );
+  showObsDialogAction = new QAction( QPixmap(synop_xpm ),tr("&Observations"), this );
+  showObsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showObsDialogAction->setShortcut(Qt::ALT+Qt::Key_O);
   showObsDialogAction->setToggleAction(true);
-  connect( showObsDialogAction, SIGNAL( activated() ) , this, SLOT( obsMenu() ) );
+  connect( showObsDialogAction, SIGNAL( activated() ) ,  SLOT( obsMenu() ) );
   // --------------------------------------------------------------------
-  showSatDialogAction = new Q3Action( QPixmap(sat_xpm ),tr("&Satellites and Radar"),Qt::ALT+Qt::Key_S, this );
+  showSatDialogAction = new QAction( QPixmap(sat_xpm ),tr("&Satellites and Radar"), this );
+  showSatDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showSatDialogAction->setShortcut(Qt::ALT+Qt::Key_S);
   showSatDialogAction->setToggleAction(true);
-  connect( showSatDialogAction, SIGNAL( activated() ) , this, SLOT( satMenu() ) );
+  connect( showSatDialogAction, SIGNAL( activated() ) ,  SLOT( satMenu() ) );
   // --------------------------------------------------------------------
-  showEditDialogAction = new Q3Action( QPixmap(editmode_xpm ),tr("&Product Editing"),Qt::ALT+Qt::Key_E, this );
+  showEditDialogAction = new QAction( QPixmap(editmode_xpm ),tr("&Product Editing"), this );
+  showEditDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showEditDialogAction->setShortcut(Qt::ALT+Qt::Key_E);
   showEditDialogAction->setToggleAction(true);
-  connect( showEditDialogAction, SIGNAL( activated() ) , this, SLOT( editMenu() ) );
+  connect( showEditDialogAction, SIGNAL( activated() ) ,  SLOT( editMenu() ) );
   // --------------------------------------------------------------------
-  showObjectDialogAction = new Q3Action( QPixmap(front_xpm ),tr("O&bjects"),Qt::ALT+Qt::Key_J, this );
+  showObjectDialogAction = new QAction( QPixmap(front_xpm ),tr("O&bjects"), this );
+  showObjectDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showObjectDialogAction->setShortcut(Qt::ALT+Qt::Key_J);
   showObjectDialogAction->setToggleAction(true);
-  connect( showObjectDialogAction, SIGNAL( activated() ) , this, SLOT( objMenu() ) );
+  connect( showObjectDialogAction, SIGNAL( activated() ) ,  SLOT( objMenu() ) );
   // --------------------------------------------------------------------
-  showTrajecDialogAction = new Q3Action( QPixmap( traj_xpm),tr("&Trajectories"),Qt::ALT+Qt::Key_T, this );
+  showTrajecDialogAction = new QAction( QPixmap( traj_xpm),tr("&Trajectories"), this );
+  showTrajecDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showTrajecDialogAction->setShortcut(Qt::ALT+Qt::Key_T);
   showTrajecDialogAction->setToggleAction(true);
-  connect( showTrajecDialogAction, SIGNAL( activated() ) , this, SLOT( trajMenu() ) );
+  connect( showTrajecDialogAction, SIGNAL( activated() ) ,  SLOT( trajMenu() ) );
   // --------------------------------------------------------------------
-  showProfilesDialogAction = new Q3Action( QPixmap(balloon_xpm ),tr("&Vertical Profiles"),Qt::ALT+Qt::Key_V, this );
+  showProfilesDialogAction = new QAction( QPixmap(balloon_xpm ),tr("&Vertical Profiles"), this );
+  showProfilesDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showProfilesDialogAction->setShortcut(Qt::ALT+Qt::Key_V);
   showProfilesDialogAction->setToggleAction(false);
-  connect( showProfilesDialogAction, SIGNAL( activated() ) , this, SLOT( vprofMenu() ) );
+  connect( showProfilesDialogAction, SIGNAL( activated() ) ,  SLOT( vprofMenu() ) );
   // --------------------------------------------------------------------
-  showCrossSectionDialogAction = new Q3Action( QPixmap(vcross_xpm ),tr("Vertical &Cross sections"),Qt::ALT+Qt::Key_C, this );
+  showCrossSectionDialogAction = new QAction( QPixmap(vcross_xpm ),tr("Vertical &Cross sections"), this );
+  showCrossSectionDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showCrossSectionDialogAction->setShortcut(Qt::ALT+Qt::Key_C);
   showCrossSectionDialogAction->setToggleAction(false);
-  connect( showCrossSectionDialogAction, SIGNAL( activated() ) , this, SLOT( vcrossMenu() ) );
+  connect( showCrossSectionDialogAction, SIGNAL( activated() ) ,  SLOT( vcrossMenu() ) );
   // --------------------------------------------------------------------
-  showWaveSpectrumDialogAction = new Q3Action( QPixmap(spectrum_xpm ),tr("&Wave spectra"),Qt::ALT+Qt::Key_W, this );
+  showWaveSpectrumDialogAction = new QAction( QPixmap(spectrum_xpm ),tr("&Wave spectra"), this );
+  showWaveSpectrumDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showWaveSpectrumDialogAction->setShortcut(Qt::ALT+Qt::Key_W);
   showWaveSpectrumDialogAction->setToggleAction(false);
-  connect( showWaveSpectrumDialogAction, SIGNAL( activated() ) , this, SLOT( spectrumMenu() ) );
+  connect( showWaveSpectrumDialogAction, SIGNAL( activated() ) ,  SLOT( spectrumMenu() ) );
   // --------------------------------------------------------------------
-  showUffdaDialogAction = new Q3Action( QPixmap( ),tr("&Uffda Service"),Qt::ALT+Qt::Key_U, this );
+  showUffdaDialogAction = new QAction( tr("&Uffda Service"), this );
+  showUffdaDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showUffdaDialogAction->setShortcut(Qt::ALT+Qt::Key_U);
   showUffdaDialogAction->setToggleAction(true);
-  connect( showUffdaDialogAction, SIGNAL( activated() ) , this, SLOT( uffMenu() ) );
+  connect( showUffdaDialogAction, SIGNAL( activated() ), SLOT( uffMenu() ) );
   // ----------------------------------------------------------------
-  if(enableProfet) togglePaintModeAction = new Q3Action( QPixmap(paint_mode_xpm),tr("&Paint"),Qt::ALT+Qt::Key_P, this );
-  else togglePaintModeAction = new Q3Action( QPixmap( ),tr("&Paint"),QKeySequence(), this );
+  uffdaAction = new QAction( tr("&Uffda Service"), this );
+  uffdaAction->setShortcutContext(Qt::ApplicationShortcut);
+  uffdaAction->setShortcut(Qt::CTRL+Qt::Key_X);
+  connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
+  // ----------------------------------------------------------------
+  if(enableProfet){
+    togglePaintModeAction = new QAction( QPixmap(paint_mode_xpm),tr("&Paint"), this );
+  } else {
+    togglePaintModeAction = new QAction( tr("&Paint"), this );
+  }
+  togglePaintModeAction->setShortcutContext(Qt::ApplicationShortcut);
+  togglePaintModeAction->setShortcut(Qt::ALT+Qt::Key_P);
   togglePaintModeAction->setToggleAction(true);
-  connect( togglePaintModeAction, SIGNAL( toggled(bool) ) , this, SLOT( togglePaintMode() ) );
+  connect( togglePaintModeAction, SIGNAL( toggled(bool) ), SLOT( togglePaintMode() ) );
   // ----------------------------------------------------------------
 
-  if(enableProfet) {toggleProfetGUIAction = 
-    new Q3Action( QPixmap(profet_xpm ),tr("&Field Edit"),QKeySequence(), this );
+  if(enableProfet) {
+    toggleProfetGUIAction = new QAction( QPixmap(profet_xpm ),tr("&Field Edit"), this );
   } else {
-	  toggleProfetGUIAction = 
-      new Q3Action( QPixmap(),tr("&Field Edit"),QKeySequence(), this );
+    toggleProfetGUIAction = new QAction( QPixmap(),tr("&Field Edit"), this );
   }
+  toggleProfetGUIAction->setShortcutContext(Qt::ApplicationShortcut);
   toggleProfetGUIAction->setToggleAction(true);
-  connect( toggleProfetGUIAction, SIGNAL( activated() ) ,  this, SLOT( toggleProfetGUI() ) );
+  connect( toggleProfetGUIAction, SIGNAL( activated() ), SLOT( toggleProfetGUI()));
   
   // --------------------------------------------------------------------
 
 
   // help ======================
   // --------------------------------------------------------------------
-  helpDocAction = new Q3Action( QPixmap( ),tr("&Documentation"),Qt::Key_F1, this );
+  helpDocAction = new QAction( tr("&Documentation"), this );
+  helpDocAction->setShortcutContext(Qt::ApplicationShortcut);
+  helpDocAction->setShortcut(Qt::Key_F1);
   helpDocAction->setToggleAction(false);
-  connect( helpDocAction, SIGNAL( activated() ) , this, SLOT( showHelp() ) );
+  connect( helpDocAction, SIGNAL( activated() ) ,  SLOT( showHelp() ) );
   // --------------------------------------------------------------------
-  helpAccelAction = new Q3Action( QPixmap( ),tr("&Accelerators"),QKeySequence(), this );
+  helpAccelAction = new QAction( tr("&Accelerators"), this );
+  helpAccelAction->setShortcutContext(Qt::ApplicationShortcut);
   helpAccelAction->setToggleAction(false);
-  connect( helpAccelAction, SIGNAL( activated() ) , this, SLOT( showAccels() ) );
+  connect( helpAccelAction, SIGNAL( activated() ) ,  SLOT( showAccels() ) );
   // --------------------------------------------------------------------
-  helpNewsAction = new Q3Action( QPixmap( ),tr("&News"),QKeySequence(), this );
+  helpNewsAction = new QAction( tr("&News"), this );
+  helpNewsAction->setShortcutContext(Qt::ApplicationShortcut);
   helpNewsAction->setToggleAction(false);
-  connect( helpNewsAction, SIGNAL( activated() ) , this, SLOT( showNews() ) );
+  connect( helpNewsAction, SIGNAL( activated() ) ,  SLOT( showNews() ) );
   // --------------------------------------------------------------------
-  helpAboutAction = new Q3Action( QPixmap( ),tr("About Diana"),QKeySequence(), this );
+  helpAboutAction = new QAction( tr("About Diana"), this );
+  helpAboutAction->setShortcutContext(Qt::ApplicationShortcut);
   helpAboutAction->setToggleAction(false);
-  connect( helpAboutAction, SIGNAL( activated() ) , this, SLOT( about() ) );
+  connect( helpAboutAction, SIGNAL( activated() ) ,  SLOT( about() ) );
   // --------------------------------------------------------------------
 
 
   // timecommands ======================
   // --------------------------------------------------------------------
-  timeBackwardAction = new Q3Action( QPixmap(start_xpm ),tr("Run Backwards"),Qt::SHIFT+Qt::CTRL+Qt::Key_Left, this );
+  timeBackwardAction = new QAction( QPixmap(start_xpm ),tr("Run Backwards"), this);
+  timeBackwardAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeBackwardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Left);
   timeBackwardAction->setToggleAction(true);
-  connect( timeBackwardAction, SIGNAL( activated() ) , this, SLOT( animationBack() ) );
+  connect( timeBackwardAction, SIGNAL( activated() ) ,  SLOT( animationBack() ) );
   // --------------------------------------------------------------------
-  timeForewardAction = new Q3Action( QPixmap(slutt_xpm ),tr("Run Forewards"),Qt::SHIFT+Qt::CTRL+Qt::Key_Right, this );
+  timeForewardAction = new QAction( QPixmap(slutt_xpm ),tr("Run Forewards"), this );
+  timeForewardAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeForewardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Right);
   timeForewardAction->setToggleAction(true);
-  connect( timeForewardAction, SIGNAL( activated() ) , this, SLOT( animation() ) );
+  connect( timeForewardAction, SIGNAL( activated() ) ,  SLOT( animation() ) );
   // --------------------------------------------------------------------
-  timeStepBackwardAction = new Q3Action( QPixmap(bakover_xpm ),tr("Step Backwards"),Qt::CTRL+Qt::Key_Left, this );
+  timeStepBackwardAction = new QAction( QPixmap(bakover_xpm ),tr("Step Backwards"), this );
+  timeStepBackwardAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeStepBackwardAction->setShortcut(Qt::CTRL+Qt::Key_Left);
   timeStepBackwardAction->setToggleAction(false);
-  connect( timeStepBackwardAction, SIGNAL( activated() ) , this, SLOT( stepback() ) );
+  connect( timeStepBackwardAction, SIGNAL( activated() ) ,  SLOT( stepback() ) );
   // --------------------------------------------------------------------
-  timeStepForewardAction = new Q3Action( QPixmap(forward_xpm ),tr("Step Forewards"),Qt::CTRL+Qt::Key_Right, this );
+  timeStepForewardAction = new QAction( QPixmap(forward_xpm ),tr("Step Forewards"), this );
+  timeStepForewardAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeStepForewardAction->setShortcut(Qt::CTRL+Qt::Key_Right);
   timeStepForewardAction->setToggleAction(false);
-  connect( timeStepForewardAction, SIGNAL( activated() ) , this, SLOT( stepforward() ) );
+  connect( timeStepForewardAction, SIGNAL( activated() ) ,  SLOT( stepforward() ) );
   // --------------------------------------------------------------------
-  timeStopAction = new Q3Action( QPixmap(stop_xpm ),tr("Stop"),Qt::SHIFT+Qt::CTRL+Qt::Key_Down, this );
+  timeStopAction = new QAction( QPixmap(stop_xpm ),tr("Stop"), this );
+  timeStopAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeStopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Down);
   timeStopAction->setToggleAction(false);
-  connect( timeStopAction, SIGNAL( activated() ) , this, SLOT( animationStop() ) );
+  connect( timeStopAction, SIGNAL( activated() ) ,  SLOT( animationStop() ) );
   // --------------------------------------------------------------------
-  timeLoopAction = new Q3Action( QPixmap(loop_xpm ),tr("Run in loop"),Qt::SHIFT+Qt::CTRL+Qt::Key_Up, this );
+  timeLoopAction = new QAction( QPixmap(loop_xpm ),tr("Run in loop"), this );
+  timeLoopAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeLoopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Up);
   timeLoopAction->setToggleAction(true);
-  connect( timeLoopAction, SIGNAL( activated() ) , this, SLOT( animationLoop() ) );
+  connect( timeLoopAction, SIGNAL( activated() ) ,  SLOT( animationLoop() ) );
   // --------------------------------------------------------------------
-  timeControlAction = new Q3Action( QPixmap( clock_xpm ),tr("Time control"),QKeySequence(), this );
+  timeControlAction = new QAction( QPixmap( clock_xpm ),tr("Time control"), this );
+  timeControlAction->setShortcutContext(Qt::ApplicationShortcut);
   timeControlAction->setToggleAction(true);
   timeControlAction->setEnabled(false);
-  connect( timeControlAction, SIGNAL( activated() ) , this, SLOT( timecontrolslot() ) );
+  connect( timeControlAction, SIGNAL( activated() ) ,  SLOT( timecontrolslot() ) );
   // --------------------------------------------------------------------
+  timeStepUpAction = new QAction(tr("Time step up"),this);
+  timeStepUpAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeStepUpAction->setShortcut(Qt::CTRL+Qt::Key_Up);
+  connect( timeStepUpAction,  SIGNAL( activated() ) ,  SLOT(increaseTimeStep()) );
+  // --------------------------------------------------------------------
+  timeStepDownAction = new QAction(tr("Time step down"),this);
+  timeStepDownAction->setShortcutContext(Qt::ApplicationShortcut);
+  timeStepDownAction->setShortcut(Qt::CTRL+Qt::Key_Down);
+  connect( timeStepDownAction,  SIGNAL( activated() ) ,  SLOT(decreaseTimeStep()) );
 
 
   // other tools ======================
   // --------------------------------------------------------------------
-  toolLevelUpAction = new Q3Action( QPixmap(levelUp_xpm ),tr("Level up"),Qt::CTRL+Qt::Key_PageUp, this );
+  toolLevelUpAction = new QAction( QPixmap(levelUp_xpm ),tr("Level up"), this );
+  toolLevelUpAction->setShortcutContext(Qt::ApplicationShortcut);
+  toolLevelUpAction->setShortcut(Qt::CTRL+Qt::Key_PageUp);
   toolLevelUpAction->setToggleAction(false);
   toolLevelUpAction->setEnabled ( false );
-  connect( toolLevelUpAction, SIGNAL( activated() ) , this, SLOT( levelUp() ) );
+  connect( toolLevelUpAction, SIGNAL( activated() ) ,  SLOT( levelUp() ) );
   // --------------------------------------------------------------------
-  toolLevelDownAction = new Q3Action( QPixmap(levelDown_xpm ),tr("Level down"),Qt::CTRL+Qt::Key_PageDown, this );
+  toolLevelDownAction = new QAction( QPixmap(levelDown_xpm ),tr("Level down"), this );
+  toolLevelDownAction->setShortcutContext(Qt::ApplicationShortcut);
+  toolLevelDownAction->setShortcut(Qt::CTRL+Qt::Key_PageDown);
   toolLevelDownAction->setToggleAction(false);
   toolLevelDownAction->setEnabled ( false );
-  connect( toolLevelDownAction, SIGNAL( activated() ) , this, SLOT( levelDown() ) );
+  connect( toolLevelDownAction, SIGNAL( activated() ) ,  SLOT( levelDown() ) );
   // --------------------------------------------------------------------
-  toolIdnumUpAction = new Q3Action( QPixmap(idnumUp_xpm ),
-				   tr("EPS cluster/member etc up"),Qt::SHIFT+Qt::Key_PageUp, this );
+  toolIdnumUpAction = new QAction( QPixmap(idnumUp_xpm ),
+				   tr("EPS cluster/member etc up"), this );
+  toolIdnumUpAction->setShortcutContext(Qt::ApplicationShortcut);
+  toolIdnumUpAction->setShortcut(Qt::SHIFT+Qt::Key_PageUp);
   toolIdnumUpAction->setToggleAction(false);
   toolIdnumUpAction->setEnabled ( false );
-  connect( toolIdnumUpAction, SIGNAL( activated() ) , this, SLOT( idnumUp() ) );
+  connect( toolIdnumUpAction, SIGNAL( activated() ) ,  SLOT( idnumUp() ) );
   // --------------------------------------------------------------------
-  toolIdnumDownAction = new Q3Action( QPixmap(idnumDown_xpm ),
-				     tr("EPS cluster/member etc down"),Qt::SHIFT+Qt::Key_PageDown, this );
-  toolIdnumDownAction->setToggleAction(false);
+  toolIdnumDownAction = new QAction( QPixmap(idnumDown_xpm ),
+				     tr("EPS cluster/member etc down"), this );
+  toolIdnumDownAction->setShortcutContext(Qt::ApplicationShortcut);
+  toolIdnumDownAction->setShortcut(Qt::SHIFT+Qt::Key_PageDown);
   toolIdnumDownAction->setEnabled ( false );
-  connect( toolIdnumDownAction, SIGNAL( activated() ) , this, SLOT( idnumDown() ) );
-  // --------------------------------------------------------------------
+  connect( toolIdnumDownAction, SIGNAL( activated() ) ,  SLOT( idnumDown() ) );
 
+  // Status ===============================
+  // --------------------------------------------------------------------
+  obsUpdateAction = new QAction( QPixmap(synop_red_xpm), 
+				 tr("Update observations"), this );
+  connect( obsUpdateAction, SIGNAL( activated() ), SLOT(updateObs()));
+
+  // Browsin quick menus ===============================
+  // --------------------------------------------------------------------
+  leftBrowsingAction = new QAction( tr("Browsing quick menus"), this );
+  leftBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
+  leftBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Left);
+  connect( leftBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
+  // --------------------------------------------------------------------
+  rightBrowsingAction = new QAction( tr("Browsing quick menus"), this );
+  rightBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
+  rightBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Right);
+  connect( rightBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
+  // --------------------------------------------------------------------
+  upBrowsingAction = new QAction( tr("Browsing quick menus"), this );
+  upBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
+  upBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Up);
+  connect( upBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
+  // --------------------------------------------------------------------
+  downBrowsingAction = new QAction( tr("Browsing quick menus"), this );
+  downBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
+  downBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Down);
+  connect( downBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
+
+  // edit  ===============================
+  // --------------------------------------------------------------------
+  undoAction = new QAction(this);
+  undoAction->setShortcutContext(Qt::ApplicationShortcut);
+  undoAction->setShortcut(Qt::CTRL+Qt::Key_Z);
+  connect(undoAction, SIGNAL( activated() ), SLOT(undo()));
+  addAction( undoAction );
+  // --------------------------------------------------------------------
+  redoAction = new QAction(this);
+  redoAction->setShortcutContext(Qt::ApplicationShortcut);
+  redoAction->setShortcut(Qt::CTRL+Qt::Key_Y);
+  connect(redoAction, SIGNAL( activated() ), SLOT(redo()));
+  addAction( redoAction );
+  // --------------------------------------------------------------------
+  saveAction = new QAction(this);
+  saveAction->setShortcutContext(Qt::ApplicationShortcut);
+  saveAction->setShortcut(Qt::CTRL+Qt::Key_S);
+  connect(saveAction, SIGNAL( activated() ), SLOT(save()));
+  addAction( saveAction );
+  // --------------------------------------------------------------------
 
   /*
     ----------------------------------------------------------
@@ -383,91 +516,89 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     ----------------------------------------------------------
   */
 
-  menuToolbar = new Q3ToolBar( this );
-  addDockWindow( menuToolbar, tr( "Menuline" ), Qt::DockTop, FALSE );
-
-  mainmenubar = new QMenuBar( menuToolbar );
-  mainmenubar->setFrameStyle( Q3Frame::NoFrame );
-
-  menuToolbar->setStretchableWidget( mainmenubar );
-  setDockEnabled( menuToolbar, Qt::DockLeft, FALSE );
-  setDockEnabled( menuToolbar, Qt::DockRight, FALSE );
-
   //-------File menu
-  filemenu = new Q3PopupMenu(this);
-  mainmenubar->insertItem( tr("&File"), filemenu );
-  fileSavePictAction->     addTo( filemenu );
-  filePrintAction->        addTo( filemenu );
-  filemenu->insertSeparator();
-  fileQuitAction->         addTo( filemenu );
+  filemenu = menuBar()->addMenu(tr("&File"));
+  filemenu->addAction( fileSavePictAction );
+  filemenu->addAction( filePrintAction );
+  filemenu->addSeparator();
+  filemenu->addAction( fileQuitAction );
 
   //-------Options menu
-  optmenu = new Q3PopupMenu(this);
+  optmenu = menuBar()->addMenu(tr("O&ptions"));
   optmenu->setCheckable(true);
-  mainmenubar->insertItem( tr("O&ptions"),optmenu );
-  optXYAction ->           addTo( optmenu );
-  optLatLonAction ->       addTo( optmenu );
-  optOnOffAction ->        addTo( optmenu );
-  optArchiveAction ->      addTo( optmenu );
-  optAutoElementAction ->  addTo( optmenu );
-  optAnnotationAction ->   addTo( optmenu );
+  optmenu->addAction( optXYAction );
+  optmenu->addAction( optLatLonAction );
+  optmenu->addAction( optOnOffAction );
+  optmenu->addAction( optArchiveAction );
+  optmenu->addAction( optAutoElementAction );
+  optmenu->addAction( optAnnotationAction );
   optmenu->insertSeparator();
-  optFontAction ->         addTo( optmenu );
-
+  optmenu->addAction( optFontAction );
+  
   optOnOffAction->setOn( showelem );
   optAutoElementAction->setOn( autoselect );
   optAnnotationAction->setOn( true );
+  
 
-
-  rightclickmenu = new Q3PopupMenu(this);
-  connect(rightclickmenu,SIGNAL(aboutToShow()),this,
+  rightclickmenu = new QMenu(this);
+  connect(rightclickmenu,SIGNAL(aboutToShow()),
 	  SLOT(fillRightclickmenu()));
-  connect(rightclickmenu,SIGNAL(activated(int)),this,
+  connect(rightclickmenu,SIGNAL(activated(int)),
 	  SLOT(rightClickMenuActivated(int)));
   lastRightClicked= tr("Zoom out");
   uffda=contr->getUffdaEnabled();
 
+  QMenu* infomenu= new QMenu(tr("Info"),this);
+  infomenu->setIcon(QPixmap(info_xpm));
+  connect(infomenu, SIGNAL(activated(int)),
+	  SLOT(info_activated(int)));
+  infoFiles= contr->getInfoFiles();
+  if (infoFiles.size()>0){
+    for (int j=0; j<infoFiles.size(); j++){
+      infomenu->insertItem(infoFiles[j].name.cStr(),j);
+    }
+  }
+  //  infoB->setAccel(Qt::ALT+Qt::Key_N);
 
-  //-------Show menu
-  showmenu = new Q3PopupMenu(this);
+  //   //-------Show menu
+  showmenu = menuBar()->addMenu(tr("&Show"));
   showmenu->setCheckable(true);
-  mainmenubar->insertItem( tr("&Show"), showmenu );
-
-  showApplyAction->              addTo( showmenu );
-  showAddQuickAction->           addTo( showmenu );
-  showPrevPlotAction->           addTo( showmenu );
-  showNextPlotAction->           addTo( showmenu );
+  showmenu->addAction( showApplyAction              );
+  showmenu->addAction( showAddQuickAction           );
+  showmenu->addAction( showPrevPlotAction           );
+  showmenu->addAction( showNextPlotAction           );
   showmenu->insertSeparator();
-  showHideAllAction->            addTo( showmenu );
-  showQuickmenuAction->          addTo( showmenu );
-  showMapDialogAction->          addTo( showmenu );
-  showFieldDialogAction->        addTo( showmenu );
-  showObsDialogAction->          addTo( showmenu );
-  showSatDialogAction->          addTo( showmenu );
-  showEditDialogAction->         addTo( showmenu );
-  showObjectDialogAction->       addTo( showmenu );
-  showTrajecDialogAction->       addTo( showmenu );
-  showProfilesDialogAction->     addTo( showmenu );
-  showCrossSectionDialogAction-> addTo( showmenu );
-  showWaveSpectrumDialogAction-> addTo( showmenu );
+  showmenu->addAction( showHideAllAction            );
+  showmenu->addAction( showQuickmenuAction          );
+  showmenu->addAction( showMapDialogAction          );
+  showmenu->addAction( showFieldDialogAction        );
+  showmenu->addAction( showObsDialogAction          );
+  showmenu->addAction( showSatDialogAction          );
+  showmenu->addAction( showEditDialogAction         );
+  showmenu->addAction( showObjectDialogAction       );
+  showmenu->addAction( showTrajecDialogAction       );
+  showmenu->addAction( showProfilesDialogAction     );
+  showmenu->addAction( showCrossSectionDialogAction );
+  showmenu->addAction( showWaveSpectrumDialogAction );
 
-  if(enableProfet)
-    toggleProfetGUIAction->	 addTo( showmenu );
+  if(enableProfet){
+    showmenu->addAction(  toggleProfetGUIAction );
+    showmenu->addAction( togglePaintModeAction );
+  }
+  if (uffda){
+    showmenu->addAction( showUffdaDialogAction );
+  }
+  showmenu->addMenu( infomenu );
 
-  if (uffda)
-    showUffdaDialogAction->      addTo( showmenu );
-//  if(enableProfet)
-//    togglePaintModeAction->		 addTo( showmenu );
 
-  //-------Help menu
-  helpmenu = new Q3PopupMenu(this);
-  mainmenubar->insertItem( tr("&Help"), helpmenu );
-  helpDocAction->        addTo ( helpmenu );
+  //   //-------Help menu
+  helpmenu = menuBar()->addMenu(tr("&Help"));
+  helpmenu->addAction ( helpDocAction );
   helpmenu->insertSeparator();
-  helpAccelAction->      addTo ( helpmenu );
-  helpNewsAction->       addTo ( helpmenu );
+  helpmenu->addAction ( helpAccelAction );
+  helpmenu->addAction ( helpNewsAction );
   helpmenu->insertSeparator();
-  helpAboutAction->      addTo ( helpmenu );
+  helpmenu->addAction ( helpAboutAction );
 
 
   /*
@@ -476,85 +607,16 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     ----------------------------------------------------------
   */
 
-  mainToolbar = new Q3ToolBar(tr("Dataaccess/Tools"), this,
-			     Qt::DockRight, FALSE,
-			     "maintoolbar");
+  // ----------------Timer widgets -------------------------
 
-  timerToolbar= new Q3ToolBar(tr("Time control"), this,
-			     Qt::DockTop, FALSE,
-			     "timertoolbar");
-
-  setDockEnabled( timerToolbar, Qt::DockLeft, FALSE );
-  setDockEnabled( timerToolbar, Qt::DockRight, FALSE );
-
-  /**************** Toolbar Buttons *********************************************/
-
-  showResetAreaAction-> addTo( mainToolbar );
-
-  mainToolbar->addSeparator();
-
-  showQuickmenuAction->          addTo( mainToolbar );
-  showMapDialogAction->          addTo( mainToolbar );
-  showFieldDialogAction->        addTo( mainToolbar );
-  showObsDialogAction->          addTo( mainToolbar );
-  showSatDialogAction->          addTo( mainToolbar );
-  showObjectDialogAction->       addTo( mainToolbar );
-  showTrajecDialogAction->       addTo( mainToolbar );
-  showProfilesDialogAction->     addTo( mainToolbar );
-  showCrossSectionDialogAction-> addTo( mainToolbar );
-  showWaveSpectrumDialogAction-> addTo( mainToolbar );
-  if(enableProfet)
-	  toggleProfetGUIAction->     addTo( mainToolbar );
-//  if(enableProfet)
-//    togglePaintModeAction->        addTo( mainToolbar );
-
-  infoB = new QToolButton(QPixmap(info_xpm),
-			  tr("Information..."),
-			  "",
-			  0, 0,
-			  mainToolbar,
-			  tr("show information...") );
-
-  Q3PopupMenu* infomenu= new Q3PopupMenu(mainToolbar, "infomenu");
-  connect(infomenu, SIGNAL(activated(int)),
-	  this, SLOT(info_activated(int)));
-  infoFiles= contr->getInfoFiles();
-  if (infoFiles.size()>0){
-    for (int j=0; j<infoFiles.size(); j++){
-      infomenu->insertItem(infoFiles[j].name.cStr(),j);
-    }
-  }
-  infoB->setPopupDelay(100);
-  infoB->setPopup(infomenu);
-  infoB->setAccel(Qt::ALT+Qt::Key_N);
-
-  mainToolbar->addSeparator();
-
-  showEditDialogAction->  addTo( mainToolbar );
-
-  mainToolbar->addSeparator();
-
-  showResetAllAction-> addTo( mainToolbar );
-  // ---------------------------------------------------
-
-  timeBackwardAction->     addTo( timerToolbar );
-  timeStepBackwardAction-> addTo( timerToolbar );
-  timeStepForewardAction-> addTo( timerToolbar );
-  timeForewardAction->     addTo( timerToolbar );
-  timeStopAction->         addTo( timerToolbar );
-  timeLoopAction->         addTo( timerToolbar );
-
-  timerToolbar->addSeparator();
-
-  // ---------------------------------------------------
-  tslider= new TimeSlider(Qt::Horizontal,timerToolbar,"tslider");
+  tslider= new TimeSlider(Qt::Horizontal,this);
   tslider->setMinimumWidth(150);
+  tslider->setMaximumWidth(150);
   connect(tslider,SIGNAL(valueChanged(int)),SLOT(TimeChanged()));
   connect(tslider,SIGNAL(sliderReleased()),SLOT(TimeSelected()));
   connect(tslider,SIGNAL(sliderSet()),SLOT(SliderSet()));
 
-  timerToolbar->addSeparator();
-  timestep= new TimeStepSpinbox(timerToolbar, "timestep");
+  timestep= new TimeStepSpinbox(this);
   connect(tslider,SIGNAL(minInterval(int)),
 	  timestep,SLOT(setValue(int)));
   connect(tslider,SIGNAL(timeSteps(int,int)),
@@ -563,26 +625,13 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 	  timestep,SLOT(setEnabled(bool)));
   connect(timestep,SIGNAL(valueChanged(int)),
 	  tslider,SLOT(setInterval(int)));
-
-  // Accelerator for time, timestep and level
-  Q3Accel* taccel = new Q3Accel(this);
-  taccel->connectItem( taccel->insertItem( Qt::CTRL+Qt::Key_Down ), this,
-		       SLOT(decreaseTimeStep()) );
-  taccel->connectItem( taccel->insertItem( Qt::CTRL+Qt::Key_Up ), this,
-		       SLOT(increaseTimeStep()) );
-
-  timerToolbar->addSeparator();
-
-  timelabel= new QLabel("0000-00-00 00:00:00",timerToolbar,"timelabel");
-  timelabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
-  timelabel->setMinimumSize(timelabel->sizeHint());
-
-  timerToolbar->addSeparator();
-
-  timeControlAction->   addTo( timerToolbar );
-
   connect(tslider,SIGNAL(enableSpin(bool)),
 	  timeControlAction,SLOT(setEnabled(bool)));
+
+
+  timelabel= new QLabel("000%0-00-00 00:00:00",this);
+  timelabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  timelabel->setMinimumSize(timelabel->sizeHint());
 
   timecontrol = new TimeControl(this);
   connect(timecontrol, SIGNAL(timeoutChanged(float)),
@@ -596,61 +645,95 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(timecontrol, SIGNAL(data(miString)),
 	  tslider, SLOT(useData(miString)));
   connect(timecontrol, SIGNAL(timecontrolHide()),
-	   SLOT(timecontrolslot()));
+	  SLOT(timecontrolslot()));
 
-  timerToolbar->addSeparator();
+  timerToolbar= new QToolBar(this);
+  timeSliderToolbar= new QToolBar(this);
+  levelToolbar= new QToolBar(this);
+  addToolBar(Qt::TopToolBarArea,levelToolbar);
+  insertToolBar(levelToolbar,timeSliderToolbar);
+  insertToolBar(timeSliderToolbar,timerToolbar);
 
-  toolLevelUpAction->   addTo( timerToolbar );
-  toolLevelDownAction-> addTo( timerToolbar );
+  timerToolbar->addAction( timeBackwardAction    );
+  timerToolbar->addAction( timeStepBackwardAction );
+  timerToolbar->addAction( timeStepForewardAction );
+  timerToolbar->addAction( timeForewardAction  );
+  timerToolbar->addAction( timeStopAction      );
+  timerToolbar->addAction( timeLoopAction        );
 
-  timerToolbar->addSeparator();
+  timeSliderToolbar->addWidget( tslider );
 
-  toolIdnumUpAction->   addTo( timerToolbar );
-  toolIdnumDownAction-> addTo( timerToolbar );
+  levelToolbar->addAction( timeControlAction );
+  levelToolbar->addWidget( timestep );
+  levelToolbar->addWidget( timelabel );
+  levelToolbar->addAction( toolLevelUpAction );
+  levelToolbar->addAction( toolLevelDownAction );
+  levelToolbar->addSeparator();
+  levelToolbar->addAction( toolIdnumUpAction );
+  levelToolbar->addAction( toolIdnumDownAction );
+  levelToolbar->addSeparator();
+  levelToolbar->addAction( obsUpdateAction );
+  
+  /**************** Toolbar Buttons *********************************************/
+
+  mainToolbar = new QToolBar(this);
+  addToolBar(Qt::RightToolBarArea,mainToolbar);
+
+  mainToolbar->addAction( showResetAreaAction         );
+  mainToolbar->addAction( showQuickmenuAction         );
+  mainToolbar->addAction( showMapDialogAction         );
+  mainToolbar->addAction( showFieldDialogAction       );
+  mainToolbar->addAction( showObsDialogAction         );
+  mainToolbar->addAction( showSatDialogAction         );
+  mainToolbar->addAction( showObjectDialogAction      );
+  mainToolbar->addAction( showTrajecDialogAction      );
+  mainToolbar->addAction( showProfilesDialogAction    );
+  mainToolbar->addAction( showCrossSectionDialogAction);
+  mainToolbar->addAction( showWaveSpectrumDialogAction);
+  if(enableProfet){
+    mainToolbar->addAction( toggleProfetGUIAction       );
+    mainToolbar->addAction( togglePaintModeAction   );
+  }
+
+  mainToolbar->addSeparator();
+  mainToolbar->addAction( showEditDialogAction );
+  mainToolbar->addSeparator();
+  mainToolbar->addAction( showResetAllAction );
 
 
-  /***********************************************************/
   /****************** Status bar *****************************/
 
-  statusbuttons= new StatusPlotButtons(statusBar(),"statusbuttons");
+  statusbuttons= new StatusPlotButtons();
   connect(statusbuttons, SIGNAL(toggleElement(PlotElement)),
-	  this, SLOT(toggleElement(PlotElement)));
-  statusBar()->addWidget(statusbuttons,1,true);
+	  SLOT(toggleElement(PlotElement)));
+  statusBar()->addPermanentWidget(statusbuttons);
   if (!showelem) statusbuttons->hide();
 
 
-  showsatval = new ShowSatValues(statusBar(),"showsatval");
-  statusBar()->addWidget(showsatval,0,true);
+  showsatval = new ShowSatValues();
+  statusBar()->addPermanentWidget(showsatval);
 
-  sgeopos= new StatusGeopos(statusBar(),"sgeopos");
-  statusBar()->addWidget(sgeopos,0,true);
+  sgeopos= new StatusGeopos();
+  statusBar()->addPermanentWidget(sgeopos);
 
-  obsUpdateB = new QPushButton(QPixmap(synop_red_xpm),
-			       "",
-			       statusBar());
-  int hpixbutton=  obsUpdateB->sizeHint().height();
-  obsUpdateB->setMinimumWidth( hpixbutton );
-  obsUpdateB->setMaximumWidth( hpixbutton );
-  QToolTip::add(obsUpdateB,tr("Update observations"));
-
-  connect(obsUpdateB, SIGNAL(clicked()),SLOT(updateObs()));
-  statusBar()->addWidget(obsUpdateB,0,true);
 
   archiveL = new QLabel(tr("ARCHIVE"),statusBar());
-  statusBar()->addWidget(archiveL,0,true);
+  archiveL->setFrameStyle( QFrame::Panel );
+  archiveL->autoFillBackground();
   archiveL->setPaletteBackgroundColor("red");
-  archiveL->hide();
+  statusBar()->addPermanentWidget(archiveL);
+  //  archiveL->hide();
 
   hqcTo = -1;
   qsocket = false;
   miString server = setup.basicValue("qserver");
   pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
-  pluginB->setMinimumWidth( hpixbutton );
-  pluginB->setMaximumWidth( hpixbutton );
+//   pluginB->setMinimumWidth( hpixbutton );
+//   pluginB->setMaximumWidth( hpixbutton );
   connect(pluginB, SIGNAL(receivedMessage(miMessage&)),
 	  SLOT(processLetter(miMessage&)));
   connect(pluginB, SIGNAL(connectionClosed()),SLOT(connectionClosed()));
-  statusBar()->addWidget(pluginB,0,true);
+  statusBar()->addPermanentWidget(pluginB);
 
     QtImageGallery ig;
     QImage f_img(felt_xpm);
@@ -689,7 +772,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // ----------- init dialog-objects -------------------
 
-  qm= new QuickMenu(this, contr, "QuickMenu");
+  qm= new QuickMenu(this, contr);
   qm->hide();
 
   fm= new FieldDialog(this, contr);
@@ -769,33 +852,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
   connect( objm, SIGNAL(ObjHide()),  SLOT(objMenu()));
   connect( trajm, SIGNAL(TrajHide()),SLOT(trajMenu()));
-//  connect( editTimeDialog, SIGNAL(hideDialog()),SLOT(toggleEditTimeDialog()));
   connect( uffm, SIGNAL(uffdaHide()),SLOT(uffMenu()));
-
-  //define shortcuts for all dialogs
-  Q3Accel *mAccel = new Q3Accel(mm);
-  defineShortcuts(mAccel);
-  Q3Accel *fAccel = new Q3Accel(fm);
-  defineShortcuts(fAccel);
-  Q3Accel *oAccel = new Q3Accel(om);
-  defineShortcuts(oAccel);
-  Q3Accel *sAccel = new Q3Accel(sm);
-  defineShortcuts(sAccel);
-  Q3Accel *eAccel = new Q3Accel(em);
-  defineShortcuts(eAccel);
-  Q3Accel *objAccel = new Q3Accel(objm);
-  defineShortcuts(objAccel);
-  Q3Accel *hAccel = new Q3Accel(help);
-  defineShortcuts(hAccel);
-  Q3Accel *uAccel = new Q3Accel(uffm);
-  defineShortcuts(uAccel);
-
-  //problem with quickmenu alt-keys already defined
-  //QAccel *qAccel = new QAccel(qm);
-  //defineShortcuts(qAccel);
-  Q3Accel *tAccel = new Q3Accel(trajm);
-  defineShortcuts(tAccel);
-
 
   // update field dialog when editing field
   connect( em, SIGNAL(emitFieldEditUpdate(miString)),
@@ -824,36 +881,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
 
-  // accelerator
-  Q3Accel * edAccel = new Q3Accel(this);
-  edAccel->connectItem(edAccel->insertItem(Qt::CTRL+Qt::Key_Z),this,SLOT(undo()));
-  edAccel->connectItem(edAccel->insertItem(Qt::CTRL+Qt::Key_Y),this,SLOT(redo()));
-  edAccel->connectItem(edAccel->insertItem(Qt::CTRL+Qt::Key_S),this,SLOT(save()));
-  edAccel->connectItem(edAccel->insertItem(Qt::CTRL+Qt::Key_E),em,
-		       SLOT(EditMarkedText()));
-  edAccel->connectItem(edAccel->insertItem(Qt::CTRL+Qt::Key_Delete),em,
-		       SLOT(DeleteMarkedAnnotation()));
-
-
-
-  edAccel->connectItem(edAccel->insertItem(Qt::ALT+Qt::Key_Left),
-		       this,SLOT(startBrowsing()));
-  edAccel->connectItem(edAccel->insertItem(Qt::ALT+Qt::Key_Right),
-		       this,SLOT(startBrowsing()));
-  edAccel->connectItem(edAccel->insertItem(Qt::ALT+Qt::Key_Up),
-		       this,SLOT(startBrowsing()));
-  edAccel->connectItem(edAccel->insertItem(Qt::ALT+Qt::Key_Down),
-		       this,SLOT(startBrowsing()));
-
-  edAccel->connectItem(edAccel->insertItem(Qt::Key_End),
-		       statusbuttons,SLOT(setfocus()));
-
-  //uffda
-  Q3Accel * uffAccel = new Q3Accel(this);
-  uffAccel->connectItem(uffAccel->insertItem(Qt::CTRL+Qt::Key_X),this,SLOT(showUffda()));
-
   // print dialog
   qprt= new QPrinter();
+
 
   // vertical profiles
   // create a new main window
@@ -961,20 +991,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   cerr << "Creating DianaMainWindow done" << endl;
 
-// //HK - Eksempel på hvordan legge inn ekstra StationPlot
- //  vector <float> lon(3);
-//   vector <float> lat(3);
-//   vector <miString> names(3);
-//   vector <miString> images(3);
-//   lon[0]=18.93; lat[0]=69.65;names[0]="Tromsø"; images[0]="";
-//   lon[1]=10.72; lat[1]=59.95; names[1]="Oslo";images[1]="metno";
-//   lon[2]=5.23; lat[2]=60.20;names[2]="Bergen";images[2]="metno";
-//   StationPlot * sp = new StationPlot(names,lon,lat,images);
-//   sp->setName("dnmi");
-//   sp->setUseStationName(true,true);
-//   sp->setStationImageAndImage("vprof_normal","vprof_selected","Oslo");
-//   sp->setSelectedStation("Oslo");
-//   contr->putStations(sp);
 }
 
 
@@ -1428,7 +1444,7 @@ void DianaMainWindow::toggleDialogs()
     if (visi[2]= fm->isVisible())    fieldMenu();
     if (visi[3]= om->isVisible())    obsMenu();
     if (visi[4]= sm->isVisible())    satMenu();
-    //if (visi[5]= em->isVisible())    editMenu();
+    //    if (visi[5]= em->isVisible())    editMenu();
     if (visi[6]= objm->isVisible())  objMenu();
     if (visi[7]= trajm->isVisible()) trajMenu();
   } else {
@@ -1437,7 +1453,7 @@ void DianaMainWindow::toggleDialogs()
     if (visi[2]) fieldMenu();
     if (visi[3]) obsMenu();
     if (visi[4]) satMenu();
-    //if (visi[5]) editMenu();
+    //    if (visi[5]) editMenu();
     if (visi[6]) objMenu();
     if (visi[7]) trajMenu();
   }
@@ -1571,8 +1587,8 @@ bool DianaMainWindow::initProfet(){
 }
 
 void DianaMainWindow::plotProfetMap(bool objectsOnly){
-//  if(objectsOnly) contr->plot(true,false); // Objects in overlay
-//  else MenuOK();
+  if(objectsOnly) contr->plot(true,false); // Objects in overlay
+  else MenuOK();
   MenuOK();
 }
 
@@ -2531,10 +2547,12 @@ void DianaMainWindow::idnumChange(int increment)
 void DianaMainWindow::saveraster()
 {
   static QString fname = "./"; // keep users preferred image-path for later
-  QString s = Q3FileDialog::getSaveFileName(fname,
-					   tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"),
-					   this, "save_file_dialog",
-					   tr("Save plot as image") );
+
+  QString s = 
+    QFileDialog::getSaveFileName(this,
+				 tr("Save plot as image"),
+				 fname,
+				 tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -3120,30 +3138,12 @@ void DianaMainWindow::save()
   }
 }
 
-void DianaMainWindow::toggleMenuBar()
-{
-//   if ( tb2->isVisible() ) {//if ( menuBar()->isVisible() ) {
-//       //menuBar()->hide();
-//     tb2->hide();
-//     //showmenu->setItemChecked( mb, FALSE );
-//   } else {
-
-//     //menuBar()->show();
-//     tb2->show();
-//     //showmenu->setItemChecked( mb, TRUE );
-//   }
-}
-
-
 void DianaMainWindow::toggleToolBar()
 {
   if ( mainToolbar->isVisible() ) {
     mainToolbar->hide();
-    //showmenu->setItemChecked( tb, FALSE );
   } else {
     mainToolbar->show();
-    moveToolBar(mainToolbar);
-    //showmenu->setItemChecked( tb, TRUE );
   }
 }
 
@@ -3151,10 +3151,8 @@ void DianaMainWindow::toggleStatusBar()
 {
   if ( statusBar()->isVisible() ) {
     statusBar()->hide();
-    //showmenu->setItemChecked( sb, FALSE );
   } else {
     statusBar()->show();
-    //showmenu->setItemChecked( sb, TRUE );
   }
 }
 
@@ -3732,65 +3730,6 @@ void DianaMainWindow::latlonGeoPos()
 }
 
 
-void DianaMainWindow::defineShortcuts(Q3Accel * accel)
-{
-  //define shortcuts for use in dialogs - work same way as in mainWindow
-  //
-  accel->connectItem( accel->insertItem( Qt::Key_F1), this,SLOT(showHelp()));
-  accel->connectItem( accel->insertItem( Qt::Key_F12), this,SLOT(quickMenu()));
-  accel->connectItem( accel->insertItem( Qt::Key_F10), this,SLOT(prevHPlot()));
-  accel->connectItem( accel->insertItem( Qt::Key_F11), this,SLOT(nextHPlot()));
-  accel->connectItem( accel->insertItem( Qt::Key_End), statusbuttons,SLOT(setfocus()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_K),this, SLOT(mapMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_F),this, SLOT(fieldMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_O),this, SLOT(obsMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_S),this, SLOT(satMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_J),this, SLOT(objMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_T),this, SLOT(trajMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_V),this, SLOT(vprofMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_C),this, SLOT(vcrossMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_W),this, SLOT(spectrumMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_E),this, SLOT(editMenu()));
-  accel->connectItem( accel->insertItem( Qt::ALT+Qt::Key_U),this, SLOT(uffMenu()));
-  accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_U),this, SLOT(MenuOK()));
-  accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_P),this, SLOT(hardcopy()));
-  accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_Q),this, SLOT(filequit()));
-  accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_D),this,SLOT(toggleDialogs()));
-  accel->connectItem(accel->insertItem(Qt::CTRL+Qt::Key_X),this,SLOT(showUffda()));
-  //timestep
-  accel->connectItem(accel->insertItem( Qt::CTRL+Qt::Key_Left ), this,
-		       SLOT(stepback()) );
-  accel->connectItem(accel->insertItem( Qt::CTRL+Qt::Key_Right ), this,
-		       SLOT(stepforward()) );
-  accel->connectItem(accel->insertItem( Qt::CTRL+Qt::Key_Down ), this,
-		       SLOT(decreaseTimeStep()) );
-  accel->connectItem(accel->insertItem( Qt::CTRL+Qt::Key_Up ), this,
-		       SLOT(increaseTimeStep()) );
-  accel->connectItem(accel->insertItem( Qt::CTRL+Qt::Key_PageUp ), this,
-		       SLOT(levelUp()) );
-  accel->connectItem(accel->insertItem( Qt::CTRL+Qt::Key_PageDown ), this,
-		       SLOT(levelDown()) );
-  accel->connectItem(accel->insertItem( Qt::SHIFT+Qt::Key_PageUp ), this,
-		       SLOT(idnumUp()) );
-  accel->connectItem(accel->insertItem( Qt::SHIFT+Qt::Key_PageDown ), this,
-		       SLOT(idnumDown()) );
-  accel->connectItem(accel->insertItem( Qt::SHIFT+Qt::CTRL+Qt::Key_Left ), this,
-		       SLOT(animationBack()) );
-  accel->connectItem(accel->insertItem( Qt::SHIFT+Qt::CTRL+Qt::Key_Right ), this,
-		       SLOT(animation()) );
-  accel->connectItem(accel->insertItem( Qt::SHIFT+Qt::CTRL+Qt::Key_Down ), this,
-		       SLOT(animationStop()) );
-  accel->connectItem(accel->insertItem( Qt::SHIFT+Qt::CTRL+Qt::Key_Up ), this,
-		       SLOT(animationLoop()) );
-
-  //edit
-  accel->connectItem(accel->insertItem(Qt::CTRL+Qt::Key_Z),this,SLOT(undo()));
-  accel->connectItem(accel->insertItem(Qt::CTRL+Qt::Key_Y),this,SLOT(redo()));
-  accel->connectItem(accel->insertItem(Qt::CTRL+Qt::Key_S),this,SLOT(save()));
-  accel->connectItem(accel->insertItem(Qt::CTRL+Qt::Key_E),em,SLOT(EditMarkedText()));
-}
-
-
 void DianaMainWindow::toggleElement(PlotElement pe)
 {
   contr->enablePlotElement(pe);
@@ -3819,7 +3758,6 @@ void DianaMainWindow::showElements()
 void DianaMainWindow::archiveMode()
 {
   bool on= optArchiveAction->isOn();
-//   optArchiveAction->setOn( on );
 
   contr->archiveMode(on);
   fm->archiveMode(on);

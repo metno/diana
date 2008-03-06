@@ -111,7 +111,7 @@ signals:
 
 public:
   QuickMenu(QWidget *parent, Controller* c,
-	    const char *name, Qt::WFlags f=0);
+	    Qt::WFlags f=0);
   bool close(bool alsoDelete);
   void start();
 

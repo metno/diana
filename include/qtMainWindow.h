@@ -31,11 +31,9 @@
 #ifndef _qt_mainwindow_
 #define _qt_mainwindow_
 
-#include <q3mainwindow.h>
-//Added by qt3to4:
+#include <QMainWindow>
 #include <QTimerEvent>
 #include <QLabel>
-#include <Q3PopupMenu>
 #include <QFocusEvent>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
@@ -44,17 +42,14 @@
 #include <vector>
 #include <deque>
 
-// qt4 fix
-#include <Q3Accel>
-
 using namespace std;
 
 class QMenuBar;
-class Q3ToolBar;
+class QToolBar;
 class QToolButton;
-class Q3PopupMenu;
+class QMenu;
 class QLabel;
-class Q3Action;
+class QAction;
 class QPrinter;
 class QPushButton;
 class WorkArea;
@@ -66,7 +61,6 @@ class MapDialog;
 class ObjectDialog;
 class TrajectoryDialog;
 class UffdaDialog;
-//class EditTimeDialog;
 class DianaProfetGUI;
 class PaintToolBar;
 
@@ -88,7 +82,7 @@ class ClientButton;
 class miMessage;
 class StationPlot;
 class TextView;
-
+class QShortCut;
 /**
 
   \brief Main application window
@@ -99,7 +93,7 @@ class TextView;
 
 */
 
-class DianaMainWindow: public Q3MainWindow
+class DianaMainWindow: public QMainWindow
 {
   Q_OBJECT
 public:
@@ -122,7 +116,6 @@ protected:
 
 
 public slots:
-  void toggleMenuBar();
   void toggleToolBar();
 
 private slots:
@@ -254,71 +247,88 @@ private:
   int displayWidth,displayHeight;
 
   /// Actions
-  Q3Action * fileSavePictAction;
-  Q3Action * filePrintAction;
-  Q3Action * fileQuitAction;
+  QAction * fileSavePictAction;
+  QAction * filePrintAction;
+  QAction * fileQuitAction;
 
-  Q3Action * optXYAction;
-  Q3Action * optLatLonAction;
-  Q3Action * optOnOffAction;
-  Q3Action * optArchiveAction;
-  Q3Action * optAutoElementAction;
-  Q3Action * optAnnotationAction;
-  Q3Action * optFontAction;
+  QAction * optXYAction;
+  QAction * optLatLonAction;
+  QAction * optOnOffAction;
+  QAction * optArchiveAction;
+  QAction * optAutoElementAction;
+  QAction * optAnnotationAction;
+  QAction * optFontAction;
 
-  Q3Action * showResetAreaAction;
-  Q3Action * showResetAllAction;
-  Q3Action * showApplyAction;
-  Q3Action * showAddQuickAction;
-  Q3Action * showPrevPlotAction;
-  Q3Action * showNextPlotAction;
-  Q3Action * showHideAllAction;
-  Q3Action * showQuickmenuAction;
-  Q3Action * showMapDialogAction;
-  Q3Action * showFieldDialogAction;
-  Q3Action * showObsDialogAction;
-  Q3Action * showSatDialogAction;
-  Q3Action * showEditDialogAction;
-  Q3Action * showObjectDialogAction;
-  Q3Action * showTrajecDialogAction;
-  Q3Action * showProfilesDialogAction;
-  Q3Action * showCrossSectionDialogAction;
-  Q3Action * showWaveSpectrumDialogAction;
-  Q3Action * showUffdaDialogAction;
-  Q3Action * togglePaintModeAction;
-  Q3Action * toggleProfetGUIAction;
+  QAction * showResetAreaAction;
+  QAction * showResetAllAction;
+  QAction * showApplyAction;
+  QAction * showAddQuickAction;
+  QAction * showPrevPlotAction;
+  QAction * showNextPlotAction;
+  QAction * showHideAllAction;
+  QAction * showQuickmenuAction;
+  QAction * showMapDialogAction;
+  QAction * showFieldDialogAction;
+  QAction * showObsDialogAction;
+  QAction * showSatDialogAction;
+  QAction * showEditDialogAction;
+  QAction * showObjectDialogAction;
+  QAction * showTrajecDialogAction;
+  QAction * showProfilesDialogAction;
+  QAction * showCrossSectionDialogAction;
+  QAction * showWaveSpectrumDialogAction;
+  QAction * showUffdaDialogAction;
+  QAction * uffdaAction;
 
-  Q3Action * helpDocAction;
-  Q3Action * helpAccelAction;
-  Q3Action * helpNewsAction;
-  Q3Action * helpAboutAction;
+  QAction * togglePaintModeAction;
+  QAction * toggleProfetGUIAction;
 
-  Q3Action * timeBackwardAction;
-  Q3Action * timeForewardAction;
-  Q3Action * timeStepBackwardAction;
-  Q3Action * timeStepForewardAction;
-  Q3Action * timeStopAction;
-  Q3Action * timeLoopAction;
-  Q3Action * timeControlAction;
+  QAction * helpDocAction;
+  QAction * helpAccelAction;
+  QAction * helpNewsAction;
+  QAction * helpAboutAction;
 
-  Q3Action * toolLevelUpAction;
-  Q3Action * toolLevelDownAction;
+  QAction * timeBackwardAction;
+  QAction * timeForewardAction;
+  QAction * timeStepBackwardAction;
+  QAction * timeStepForewardAction;
+  QAction * timeStopAction;
+  QAction * timeLoopAction;
+  QAction * timeControlAction;
+  QAction * timeStepUpAction;
+  QAction * timeStepDownAction;
 
-  Q3Action * toolIdnumUpAction;
-  Q3Action * toolIdnumDownAction;
+  QAction * toolLevelUpAction;
+  QAction * toolLevelDownAction;
+
+  QAction * toolIdnumUpAction;
+  QAction * toolIdnumDownAction;
+
+  QAction * obsUpdateAction;
+
+  QAction * undoAction;
+  QAction * redoAction;
+  QAction * saveAction;
+
+  QAction * leftBrowsingAction;
+  QAction * rightBrowsingAction;
+  QAction * upBrowsingAction;
+  QAction * downBrowsingAction;
 
   QMenuBar   * mainmenubar;
 
-  Q3PopupMenu * filemenu;
-  Q3PopupMenu * optmenu;
-  Q3PopupMenu * showmenu;
-  Q3PopupMenu * helpmenu;
+  QMenu * filemenu;
+  QMenu * optmenu;
+  QMenu * showmenu;
+  QMenu * helpmenu;
 
-  Q3PopupMenu * rightclickmenu;
+  QMenu * rightclickmenu;
 
-  Q3ToolBar * menuToolbar;
-  Q3ToolBar * mainToolbar;
-  Q3ToolBar * timerToolbar;
+  QToolBar * menuToolbar;
+  QToolBar * mainToolbar;
+  QToolBar * timerToolbar;
+  QToolBar * timeSliderToolbar;
+  QToolBar * levelToolbar;
 
   // printerdefinitions
   printerManager pman;
@@ -427,7 +437,6 @@ private:
   void vprofStartup();
   void vcrossStartup();
   void spectrumStartup();
-  void defineShortcuts(Q3Accel*);
   bool initProfet();
 };
 

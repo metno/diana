@@ -38,9 +38,8 @@ TimeSlider::TimeSlider(QWidget* parent):
 }
 
 
-TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent,
-		       const char * name):
-  QSlider(ori, parent, name), loop(false){
+TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent):
+  QSlider(ori, parent), loop(false){
   init();
 }
 
