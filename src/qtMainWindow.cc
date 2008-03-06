@@ -719,10 +719,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   archiveL = new QLabel(tr("ARCHIVE"),statusBar());
   archiveL->setFrameStyle( QFrame::Panel );
-  archiveL->autoFillBackground();
+  archiveL->setAutoFillBackground(true);
   archiveL->setPaletteBackgroundColor("red");
   statusBar()->addPermanentWidget(archiveL);
-  //  archiveL->hide();
+  archiveL->hide();
 
   hqcTo = -1;
   qsocket = false;
