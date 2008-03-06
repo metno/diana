@@ -2939,6 +2939,7 @@ m=YR.12                  f=$(OPDATA2)/products/yr_hir12.dat
 			 
 profetfilegroup=PROFET
 m=profet	f=$(OPDATA1)/um4km/grdq00.dat
+m=profet.tmp	f=$(OPDATA1)/um4km/grdq00.dat
 m=profet.model	f=$(OPDATA1)/um4km/grdq00.dat
 
 </FIELD_FILES>
