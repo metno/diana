@@ -27,34 +27,28 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-#include <qpushbutton.h>
-#include <q3table.h>
-#include <q3listbox.h>
-#include <q3hbox.h>
-#include <qtabwidget.h>
-
 #include "qtProfetSessionDialog.h"
-#include <q3vbox.h>
-#include <qlayout.h>
-#include <qsplitter.h>
-#include <q3textedit.h>
-#include <qlineedit.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+
+#include <Q3Table>
+
+#include <QHBoxLayout>
 #include <QCloseEvent>
-#include <QLabel>
-#include <Q3VBoxLayout>
+#include <QVBoxLayout>
+#include <QSplitter>
 
 
-ProfetSessionDialog::ProfetSessionDialog( QWidget* parent ) 
+ProfetSessionDialog::ProfetSessionDialog( QWidget* parent) 
   : QDialog(parent ){
-
   setCaption(tr("Edit Field Session"));
-  Q3VBoxLayout * mainLayout = new Q3VBoxLayout(this);
-  Q3HBoxLayout * titleLayout = new Q3HBoxLayout(); 
-  Q3HBoxLayout * buttonLayout = new Q3HBoxLayout();
-  
+  QVBoxLayout * mainLayout = new QVBoxLayout(this);
+  mainLayout->setMargin(2);
+  QHBoxLayout * titleLayout = new QHBoxLayout();
+  QVBoxLayout * centerLayout = new QVBoxLayout();
+  QHBoxLayout * buttonLayout = new QHBoxLayout();
+  mainLayout->addLayout(titleLayout);
+  mainLayout->addLayout(centerLayout);
+  mainLayout->addLayout(buttonLayout);
+
   //Title
   QLabel* qls = new QTitleLabel(tr(" Session: "), this);
   QLabel* qlm = new QTitleLabel(tr(" Model: "), this);
@@ -67,59 +61,57 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent )
   titleLayout->addWidget(modelLabel);
   
   QSplitter *split = new QSplitter(Qt::Vertical,this);
+  // stretch table only
+  split->setStretchFactor(0,10);
+  split->setStretchFactor(1,0);
+  centerLayout->addWidget(split);
   
   // Table
   table = new ProfetSessionTable(split);
   if(table){
+    
     table->setResizePolicy(Q3Table::Manual);
     table->setReadOnly( true );
     table->setSelectionMode( Q3Table::Single );
   }
 
-  //Tab Widget
-  tabWidget = new QTabWidget(split);
-  //In QT4: tabWidget->setTabPosition(QTabWidget::West)
-  
-  //User Panel
-  Q3HBox * userBox = new Q3HBox(tabWidget);
-  userList = new Q3ListBox(userBox);
-  tabWidget->addTab(userBox,"&Users");
-  chatWidget = new ProfetChatWidget(tabWidget);
-  tabWidget->addTab(chatWidget,"&System");
+  QSplitter *h_split = new QSplitter(Qt::Horizontal,split);
+  chatWidget = new ProfetChatWidget(h_split);
   
   // Object Panel
-  objectBox = new Q3HBox(tabWidget);
-  objectBox->setSpacing(5);
-  objectList = new Q3ListBox(objectBox);
-  Q3VBox * objectLabelBox = new Q3VBox(objectBox);
-  Q3VBox * objectInfoBox = new Q3VBox(objectBox);
-  Q3VBox * objectButtonBox = new Q3VBox(objectBox);
-  QLabel * aobl = new QTitleLabel("Algorithm : ", objectLabelBox);
-  QLabel * oobl = new QTitleLabel("Owner : ", objectLabelBox);
-  QLabel * sobl = new QTitleLabel("Locked by : ", objectLabelBox);
-  objectAlgLabel = new QDataLabel("",objectInfoBox);
-  objectOwnerLabel = new QDataLabel("",objectInfoBox);
-  objectStatusLabel = new QDataLabel("",objectInfoBox);
-  newObjectButton = new QPushButton(tr("New"), objectButtonBox );
-  editObjectButton = new QPushButton(tr("Edit"), objectButtonBox );
-  deleteObjectButton = new QPushButton(tr("Delete"), objectButtonBox );
-  QLabel * emptyLabel = new QLabel("", objectBox);
-
-  tabWidget->addTab(objectBox,"&Objects");
+  QWidget *objectWidget = new QWidget(h_split);
+  QVBoxLayout * objectTitleLayout = new QVBoxLayout();
+  objectTitleLayout->setMargin(0);
+  objectTitleLayout->addWidget(new QLabel(tr("Objects")),0);
+  QHBoxLayout * objectWidgetLayout = new QHBoxLayout();
+  objectTitleLayout->addLayout(objectWidgetLayout,1);
+  objectList = new Q3ListBox();
+  objectWidgetLayout->addWidget(objectList,1);
+  QWidget *objectButtonWidget = new QWidget();
+  objectWidgetLayout->addWidget(objectButtonWidget,0);
+  QVBoxLayout *objectButtonWidgetLayout = new QVBoxLayout();
+  newObjectButton = new QPushButton(tr("New"));
+  editObjectButton = new QPushButton(tr("Edit"));
+  deleteObjectButton = new QPushButton(tr("Delete"));
+  objectButtonWidgetLayout->addWidget(newObjectButton);
+  objectButtonWidgetLayout->addWidget(editObjectButton);
+  objectButtonWidgetLayout->addWidget(deleteObjectButton);
+  
+  objectButtonWidget->setLayout(objectButtonWidgetLayout);
+  objectWidget->setLayout(objectTitleLayout);
   
   //Buttons
   updateButton = new QPushButton(tr("Update"), this );
+  updateButton->setDefault(false);
   closeButton = new QPushButton(tr("Close"), this );
+  closeButton->setDefault(false);
   buttonLayout->addWidget(new QLabel("", this));
   buttonLayout->addWidget(updateButton);
   buttonLayout->addWidget(closeButton);
   
-  mainLayout->addLayout(titleLayout);
-  mainLayout->addWidget(split);
-  mainLayout->addLayout(buttonLayout);
+
   lockedObjectSelected(true);
   noObjectSelected();
-  updateButton->setFocus();
   connectSignals();
 }
 
@@ -140,6 +132,11 @@ void ProfetSessionDialog::connectSignals(){
       this,SLOT(objectListChanged(const QString &)));
   connect(chatWidget,SIGNAL(sendMessage(const QString &)),
       this,SIGNAL(sendMessage(const QString &)));
+}
+
+
+void ProfetSessionDialog::setUserModel(QAbstractItemModel * userModel){
+  chatWidget->setUserModel(userModel);
 }
 
 miString ProfetSessionDialog::getSelectedParameter() const { 
@@ -185,20 +182,12 @@ void ProfetSessionDialog::setEditable(bool editable){
   if(table){
     table->setEnabled(editable);
   }
-  objectBox->setEnabled(editable);
+//  objectWidget->setEnabled(editable);
 }
 
 void ProfetSessionDialog::lockedObjectSelected(bool locked){
   editObjectButton->setEnabled(!locked);
   deleteObjectButton->setEnabled(!locked);
-}
-
-void ProfetSessionDialog::setUserList(const vector<Profet::PodsUser> & users){
-  cerr << "ProfetSessionDialog::setUserList " << users.size() << endl;
-  userList->clear();
-  for(int i=0;i<users.size();i++){
-    userList->insertItem(users[i].name.cStr());
-  }
 }
 
 void ProfetSessionDialog::setObjectList(const vector<fetObject> & obj){
@@ -228,9 +217,6 @@ void ProfetSessionDialog::initializeTable(  const vector<fetParameter> & p,
 
 bool ProfetSessionDialog::setCurrentObject(const fetObject & current){
   if(setSelectedObject(current.id())){
-    objectAlgLabel->setText(current.name().cStr());
-    objectOwnerLabel->setText(current.user().cStr());
-    objectStatusLabel->setText(current.lock().cStr());
     lockedObjectSelected(current.is_locked());
   }
   else{
@@ -257,10 +243,6 @@ void ProfetSessionDialog::objectListChanged(const QString & qs){
 
 
 void ProfetSessionDialog::noObjectSelected(){
-  QString noObj("No object selected");
-  objectAlgLabel->setText(noObj);
-  objectOwnerLabel->setText(noObj);
-  objectStatusLabel->setText(noObj);
   lockedObjectSelected(true);
 }
 

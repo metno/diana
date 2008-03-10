@@ -1,36 +1,42 @@
 #include "qtProfetChatWidget.h"
 
-#include <q3textedit.h> 
-#include <qlineedit.h>
-#include <qpushbutton.h>
-#include <q3stylesheet.h>
 
-ProfetChatWidget::ProfetChatWidget( QWidget* parent ) 
-: Q3VBox(parent){
-  
-  
-  textEdit = new Q3TextEdit(this);
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+
+ProfetChatWidget::ProfetChatWidget( QWidget* parent) 
+: QWidget(parent){
+  QHBoxLayout * mainLayout = new QHBoxLayout(this);
+  mainLayout->setMargin(0);
+  QVBoxLayout * leftLayout = new QVBoxLayout();
+  leftLayout->addWidget(new QLabel(tr("Messages")));
+  textEdit = new QTextEdit();
   textEdit->setReadOnly(true);
-  lineEdit = new QLineEdit(this);
-  connect(lineEdit,SIGNAL(returnPressed()),this,SLOT(sendMessagePerformed()));
-/*  
-  sendButton = new QPushButton("Send",this);
+  leftLayout->addWidget(textEdit,1);
+  QHBoxLayout * sendLayout = new QHBoxLayout();
+  lineEdit = new QLineEdit();
+  sendLayout->addWidget(lineEdit,1);
+  sendButton = new QPushButton(tr("&Send"));
+  sendLayout->addWidget(sendButton,0);
+  leftLayout->addLayout(sendLayout,0);
+  mainLayout->addLayout(leftLayout,1);
+  userList = new QListView();
+  QVBoxLayout * rightLayout = new QVBoxLayout();
+  rightLayout->addWidget(new QLabel(tr("Users")),0);
+  rightLayout->addWidget(userList,1);
+  mainLayout->addLayout(rightLayout,0);
+//  sendbutton emited on enter...  
+//  connect(lineEdit,SIGNAL(returnPressed()),this,SLOT(sendMessagePerformed()));
   connect(sendButton,SIGNAL(clicked()),this,SLOT(sendMessagePerformed()));
-*/  
-
-  textEdit->setTextFormat( Qt::LogText );
-  Q3StyleSheetItem * systemStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "sys" );
-  Q3StyleSheetItem * warnStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "warn" );
-  Q3StyleSheetItem * messageStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "msg" );
-  Q3StyleSheetItem * nameStyle = new Q3StyleSheetItem( textEdit->styleSheet(), "name" );
-  systemStyle->setColor("gray");
-  warnStyle->setColor("red");
-  messageStyle->setColor("black");
-  nameStyle->setColor("blue");
-  
 }
 
 ProfetChatWidget::~ProfetChatWidget(){
+}
+
+
+void ProfetChatWidget::setUserModel(QAbstractItemModel * userModel){
+  userList->setModel(userModel);
 }
 
 void ProfetChatWidget::setConnected(bool connected){
@@ -40,14 +46,14 @@ void ProfetChatWidget::setConnected(bool connected){
 }
 
 void ProfetChatWidget::showMessage(const Profet::InstantMessage & msg){
-  QString m = QString( "<name>%1</name><msg>: %2</msg>" )
+  QString m = QString( "<b>%1</b>: %2" )
                 .arg(msg.sender.cStr(),msg.message.cStr());
    textEdit->append(m);
 }
 
 void ProfetChatWidget::showErrorMessage(const QString & message){
-  textEdit->setText(   QString("<warn>") + 
-      message + QString("</warn>"));
+  textEdit->setText(   QString("<i>") + 
+      message + QString("</i>"));
 }
 
 void ProfetChatWidget::sendMessagePerformed(){

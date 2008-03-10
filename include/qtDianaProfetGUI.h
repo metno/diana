@@ -40,6 +40,7 @@
 #include "diMapMode.h"
 #include "diGridAreaManager.h"
 #include "diProfetObjectFactory.h"
+#include "qtProfetDataModels.h"
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>
@@ -49,6 +50,8 @@
 
 class PaintToolBar;
 class QString;
+
+using namespace Profet;
 
 class DianaProfetGUI : public QObject, public Profet::ProfetGUI  {
   Q_OBJECT
@@ -63,6 +66,7 @@ private:
   ProfetObjectFactory objectFactory;
   vector<fetObject> objects;
   vector<fetBaseObject> baseObjects;
+  UserListModel userModel;
   fetObject currentObject;
   miString currentParam;
   // needed to keep 'show-status' after hide
@@ -84,7 +88,7 @@ public:
   void setSessionInfo(fetModel model, vector<fetParameter> parameters,
 		      fetSession session);
   void setBaseObjects(vector<fetBaseObject> objects);
-  void setUsers(vector<Profet::PodsUser> users);
+  void setUsers(const vector<Profet::PodsUser> & users);
   void showMessage(const Profet::InstantMessage & msg);
   void setObjects(vector<fetObject> objects);
   void setObjectSignatures( vector<fetObject::Signature> s);

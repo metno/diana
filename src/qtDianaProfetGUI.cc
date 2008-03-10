@@ -37,11 +37,12 @@
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) : 
 QObject(), paintToolBar(ptb), areaManager(gam), 
-Profet::ProfetGUI(pc), sessionDialog(parent), 
+Profet::ProfetGUI(pc),sessionDialog(parent), userModel(parent), 
 objectDialog(parent), objectFactory(){
 #ifndef NOLOG4CXX
   logger = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("diana.DianaProfetGUI"));
 #endif
+  sessionDialog.setUserModel(&userModel);
   user=getenv("USER");
   connectSignals();
   showPaintToolBar = true;
@@ -98,12 +99,10 @@ void DianaProfetGUI::showMessage(const Profet::InstantMessage & msg){
 }
 
 // THREAD SAFE!
-void DianaProfetGUI::setUsers(vector<Profet::PodsUser> users){
+void DianaProfetGUI::setUsers(const vector<Profet::PodsUser> & users){
   LOG4CXX_INFO(logger,"setUsers " << users.size());
   Profet::UserListEvent * cle = new Profet::UserListEvent();
-  for(int i=0; i<users.size(); i++){
-    cle->users.push_back(users[i]); // or just clients=users?
-  }
+  cle->users = users;
   QCoreApplication::postEvent(this, cle);//thread-safe
 }
 
@@ -113,7 +112,7 @@ void DianaProfetGUI::customEvent(QEvent * e){
     sessionDialog.showMessage(me->message);
   }else if(e->type() == Profet::USER_LIST_EVENT){
     Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
-    sessionDialog.setUserList(cle->users);
+    userModel.setUsers(cle->users);
   }else if(e->type() == Profet::UPDATE_MAP_EVENT){
     emit repaintMap(true);
   }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){

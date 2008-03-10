@@ -1,24 +1,27 @@
 #ifndef QTPROFETCHATWIDGET_H_
 #define QTPROFETCHATWIDGET_H_
 
-#include <q3vbox.h>
 #include <profet/ProfetCommon.h>
+#include <QTextEdit>
+#include <QLineEdit>
+#include <QListView>
+#include <QPushButton>
 
-
-class Q3TextEdit;
-class QLineEdit;
-class QPushButton;
-
-class ProfetChatWidget : public Q3VBox {
+class ProfetChatWidget : public QWidget {
   Q_OBJECT
 private:
-  Q3TextEdit * textEdit;
+  QListView * userList;
+  QTextEdit * textEdit;
   QLineEdit * lineEdit;
   QPushButton * sendButton;
   
 public:
 	ProfetChatWidget(QWidget * parent);
-	virtual ~ProfetChatWidget(); 
+	virtual ~ProfetChatWidget();
+	/**
+	 * Model for user-list view
+	 */
+  void setUserModel(QAbstractItemModel * userModel);
 	/**
    * Display a message
    * @param msg The message to display

@@ -30,10 +30,13 @@
 #ifndef QTPROFETSESSIONDIALOG_H_
 #define QTPROFETSESSIONDIALOG_H_
 
-#include <qdialog.h>
-#include <qlabel.h>
-//Added by qt3to4:
+#include <QDialog>
+#include <QLabel>
+#include <QPushButton>
 #include <QCloseEvent>
+#include <QPushButton>
+#include <Q3ListBox>
+
 #include <profet/ProfetCommon.h>
 #include <profet/fetModel.h>
 #include <profet/fetSession.h>
@@ -44,13 +47,6 @@
 
 #include <vector>
 
-class QButton;
-class Q3ListBox;
-class Q3HBox;
-class QTabWidget;
-class Q3TextEdit;
-class QLineEdit;
-
 class ProfetSessionDialog: public QDialog{
   Q_OBJECT
   
@@ -59,18 +55,10 @@ private:
   QLabel  * modelLabel;
   QPushButton * updateButton;
   QPushButton * closeButton;
-  Q3HBox   * objectBox;
-  Q3ListBox * userList;
   Q3ListBox * objectList;
-  QLabel  * objectAlgLabel;
-  QLabel  * objectOwnerLabel;
-  QLabel  * objectStatusLabel;
   QPushButton * newObjectButton;
   QPushButton * editObjectButton;
   QPushButton * deleteObjectButton;
-  QTabWidget * tabWidget;
-  Q3TextEdit * chatOutput;
-  QLineEdit * chatInput;
   ProfetChatWidget * chatWidget;
   ProfetSessionTable * table;
   
@@ -89,7 +77,7 @@ public:
   ProfetSessionDialog(QWidget* parent);
   
   void setModel(const fetModel & model);
-  void setUserList(const vector<Profet::PodsUser> & users);
+  void setUserModel(QAbstractItemModel * userModel);
   void setObjectList(const vector<fetObject> & objects);
   bool setCurrentObject(const fetObject &);
   void setEditable(bool editable);

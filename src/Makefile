@@ -53,7 +53,8 @@ qtVcrossDialog.o qtVcrossSetupDialog.o qtVcrossSetup.o \
 qtSpectrumWindow.o qtSpectrumWidget.o \
 qtSpectrumModelDialog.o qtSpectrumSetupDialog.o qtSpectrumSetup.o \
 qtPaintToolBar.o qtProfetSessionDialog.o qtProfetSessionTable.o \
-qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o
+qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o \
+qtProfetDataModels.o
 
 GOBJ= \
 main_gui.o \
