@@ -37,12 +37,14 @@
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) : 
 QObject(), paintToolBar(ptb), areaManager(gam), 
-Profet::ProfetGUI(pc),sessionDialog(parent), userModel(parent), 
-objectDialog(parent), objectFactory(){
+Profet::ProfetGUI(pc),sessionDialog(parent), 
+objectDialog(parent), objectFactory(),
+userModel(parent), objectModel(parent){
 #ifndef NOLOG4CXX
   logger = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("diana.DianaProfetGUI"));
 #endif
   sessionDialog.setUserModel(&userModel);
+  sessionDialog.setObjectModel(&objectModel);
   user=getenv("USER");
   connectSignals();
   showPaintToolBar = true;
@@ -52,8 +54,8 @@ objectDialog(parent), objectFactory(){
 }
 
 void DianaProfetGUI::connectSignals(){
-  connect(&sessionDialog,SIGNAL(objectSelected(miString)),
-      this,SLOT(objectSelected(miString)));
+  connect(&sessionDialog,SIGNAL(objectSelected(const QModelIndex &)),
+      this,SLOT(objectSelected(const QModelIndex &)));
   connect(&sessionDialog,SIGNAL(paramAndTimeChanged(miString,miTime)),
       this,SLOT(paramAndTimeSelected(miString,miTime)));
   connect(paintToolBar,SIGNAL(paintModeChanged(GridAreaManager::PaintMode)),
@@ -117,16 +119,15 @@ void DianaProfetGUI::customEvent(QEvent * e){
     emit repaintMap(true);
   }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){
     Profet::ObjectUpdateEvent * oue = (Profet::ObjectUpdateEvent*) e;
-    objects = oue->objects;
+    objectModel.setObjects(oue->objects);
     bool removeAreas = (areaManager->getAreaCount() > 0);
-    areaManager->clear();  
-    for(int i=0;i<objects.size();i++){
-      areaManager->addArea(objects[i].id(),objects[i].polygon(),false);
+    areaManager->clear();
+    int nObjects = oue->objects.size();
+    for(int i=0;i<nObjects;i++){
+      areaManager->addArea(oue->objects[i].id(),oue->objects[i].polygon(),false);
     }
-    sessionDialog.setObjectList(objects);
+//    sessionDialog.setObjectList(objects);
     //TODO Select previous object. And ignore replot signal!
-//    if(objects.size()) objectSelected(objects[0].id()); // will update map
-//    else if(removeAreas) updateMap(); // plot map without objects
   }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
     sessionDialog.setObjectSignatures(sue->objects);
@@ -176,13 +177,16 @@ void DianaProfetGUI::baseObjectSelected(miString id){
   }
 }
 
-void DianaProfetGUI::objectSelected(miString id){
-  LOG4CXX_INFO(logger,"objectSelected "<<id);
-  int i = getObjectIndex(id);
-  if(i!=-1){ // object found with id
-    sessionDialog.setCurrentObject(objects[i]);
-    areaManager->setCurrentArea(id);
+void DianaProfetGUI::objectSelected(const QModelIndex & index){
+  cerr << "DianaProfetGUI::objectSelected" << endl;
+  LOG4CXX_INFO(logger,"objectSelected");
+  try{
+    fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
+    //TODO update status in sessionDialog?
+    areaManager->setCurrentArea(fo.id());
     updateMap();
+  }catch(InvalidIndexException & iie){
+    LOG4CXX_ERROR(logger,"editObject:" << iie.what());
   }
 }
 
@@ -246,44 +250,41 @@ void DianaProfetGUI::createNewObject(){
 
 void DianaProfetGUI::editObject(){
   LOG4CXX_INFO(logger,"editObject");
-  int index = getObjectIndex(sessionDialog.getSelectedObject());
-  if(index!=-1){
-    if(!objects[index].is_locked()){
-    objectDialog.setSession(getCurrentTime());
-    objectDialog.setParameter(getCurrentParameter());
-    objectDialog.setBaseObjects(baseObjects);
-    objectDialog.editObjectMode(objects[index],
-        objectFactory.getGuiComponents(objects[index]));
-      currentObject=objects[index];
+  try{
+    fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
+    if(!fo.is_locked()){
+      objectDialog.setSession(getCurrentTime());
+      objectDialog.setParameter(getCurrentParameter());
+      objectDialog.setBaseObjects(baseObjects);
+      objectDialog.editObjectMode(fo,objectFactory.getGuiComponents(fo));
+      currentObject=fo;
       controller.openObject(currentObject);
-    setObjectDialogVisible(true);
-    
-    paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
-    // Area always ok for a saved object(?)
-    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
+      setObjectDialogVisible(true);
+      paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
+      // Area always ok for a saved object(?)
+      objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
     }
     else{
       LOG4CXX_WARN(logger,"editObject: object is locked ("<<
-		    sessionDialog.getSelectedObject()<<")");
+        fo.id()<<")");
     }
-  }
-  else{
-    LOG4CXX_ERROR(logger,"editObject: object not found ("<<
-        sessionDialog.getSelectedObject()<<")");
+  }catch(InvalidIndexException & iie){
+    LOG4CXX_ERROR(logger,"editObject:" << iie.what());
   }
 }
 
 void DianaProfetGUI::deleteObject(){
   LOG4CXX_INFO(logger,"deleteObject");
-  int index = getObjectIndex(sessionDialog.getSelectedObject());
-  if(index!=-1){
-    if(!objects[index].is_locked()){
-      controller.deleteObject(sessionDialog.getSelectedObject());
+  try{
+    fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
+    if(!fo.is_locked()){
+      controller.deleteObject(fo.id());
     }
     else{
-      LOG4CXX_WARN(logger,"deleteObject():  Locked object " <<
-          sessionDialog.getSelectedObject() << " could not be deleted");
+      LOG4CXX_WARN(logger,"deleteObject: Locked object could not be deleted");
     }
+  }catch(InvalidIndexException & iie){
+    LOG4CXX_ERROR(logger,"deleteObject:" << iie.what());
   }
 }
 
@@ -353,10 +354,10 @@ void DianaProfetGUI::paintModeChanged(GridAreaManager::PaintMode mode){
 void DianaProfetGUI::gridAreaChanged(){
   LOG4CXX_INFO(logger,"gridAreaChanged");
   miString currentId = areaManager->getCurrentId();
-  if(currentId != "newArea" && currentId != sessionDialog.getSelectedObject()){
-    int index = getObjectIndex(currentId);
-    if(index!=-1) {
-      bool found = sessionDialog.setCurrentObject(objects[index]);
+  if(currentId != "newArea" && currentId != currentObject.id()){ //use currentObject??
+    QModelIndex modelIndex = objectModel.getIndexById(currentId);
+    if(modelIndex.isValid()){
+      sessionDialog.setSelectedObject(modelIndex);
     }
     return;
   }
@@ -462,14 +463,14 @@ int DianaProfetGUI::getBaseObjectIndex(miString name){
       return i;
   return -1;
 }
-
+/*
 int DianaProfetGUI::getObjectIndex(miString id){
   for(int i=0;i<objects.size();i++)
     if(objects[i].id() == id)
       return i;
   return -1;
 }
-
+*/
 void  DianaProfetGUI::setStatistics(map<miString,float> m)
 {
   objectDialog.setStatistics(m);

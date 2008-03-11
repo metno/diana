@@ -40,8 +40,6 @@ void ProfetChatWidget::setUserModel(QAbstractItemModel * userModel){
 }
 
 void ProfetChatWidget::setConnected(bool connected){
-//  if(connected) textEdit->append("<sys>Connected to server</sys>");
-//  else textEdit->append("<sys>Disconnected from server</sys>");
   lineEdit->setEnabled(connected);
 }
 

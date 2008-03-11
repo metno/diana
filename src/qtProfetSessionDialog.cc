@@ -85,7 +85,7 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   objectTitleLayout->addWidget(new QLabel(tr("Objects")),0);
   QHBoxLayout * objectWidgetLayout = new QHBoxLayout();
   objectTitleLayout->addLayout(objectWidgetLayout,1);
-  objectList = new Q3ListBox();
+  objectList = new FetObjectListView(this);
   objectWidgetLayout->addWidget(objectList,1);
   QWidget *objectButtonWidget = new QWidget();
   objectWidgetLayout->addWidget(objectButtonWidget,0);
@@ -111,7 +111,6 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   
 
   lockedObjectSelected(true);
-  noObjectSelected();
   connectSignals();
 }
 
@@ -128,12 +127,11 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(deleteObjectPerformed()));
   connect(closeButton,SIGNAL(clicked()),
       this,SIGNAL(closePerformed()));
-  connect(objectList,SIGNAL(highlighted(const QString &)),
-      this,SLOT(objectListChanged(const QString &)));
+  connect(objectList,SIGNAL(activated(const QModelIndex &)),
+      this,SIGNAL(objectSelected(const QModelIndex &)));
   connect(chatWidget,SIGNAL(sendMessage(const QString &)),
       this,SIGNAL(sendMessage(const QString &)));
 }
-
 
 void ProfetSessionDialog::setUserModel(QAbstractItemModel * userModel){
   chatWidget->setUserModel(userModel);
@@ -159,8 +157,12 @@ void ProfetSessionDialog::selectDefault(){
   }
 }
 
-miString ProfetSessionDialog::getSelectedObject(){ 
-  return currentObject;
+void ProfetSessionDialog::setSelectedObject(const QModelIndex & index){
+  objectList->setCurrentIndex(index);
+}
+
+QModelIndex ProfetSessionDialog::getCurrentObjectIndex(){
+  return objectList->currentIndex();
 }
 
 void ProfetSessionDialog::setObjectSignatures( vector<fetObject::Signature> s){
@@ -190,15 +192,8 @@ void ProfetSessionDialog::lockedObjectSelected(bool locked){
   deleteObjectButton->setEnabled(!locked);
 }
 
-void ProfetSessionDialog::setObjectList(const vector<fetObject> & obj){
-  objectList->clear();
-  noObjectSelected();
-  for(int i=0;i<obj.size();i++){
-    objectList->insertItem(obj[i].id().cStr());
-  }
-  if(obj.size()){
-    emit objectSelected(currentObject);
-  }
+void ProfetSessionDialog::setObjectModel(QAbstractItemModel * objectModel){
+  objectList->setModel(objectModel);
 }
 
 void ProfetSessionDialog::setModel(const fetModel & model){
@@ -214,6 +209,7 @@ void ProfetSessionDialog::initializeTable(  const vector<fetParameter> & p,
   }
 }
 
+/*
 
 bool ProfetSessionDialog::setCurrentObject(const fetObject & current){
   if(setSelectedObject(current.id())){
@@ -236,13 +232,6 @@ bool ProfetSessionDialog::setSelectedObject(const miString & id){
   return false;
 }
 
-void ProfetSessionDialog::objectListChanged(const QString & qs){
-  currentObject = qs.latin1();
-  emit objectSelected(currentObject);
-}
+*/
 
-
-void ProfetSessionDialog::noObjectSelected(){
-  lockedObjectSelected(true);
-}
 

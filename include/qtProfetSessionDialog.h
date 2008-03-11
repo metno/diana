@@ -35,7 +35,7 @@
 #include <QPushButton>
 #include <QCloseEvent>
 #include <QPushButton>
-#include <Q3ListBox>
+#include <QListView>
 
 #include <profet/ProfetCommon.h>
 #include <profet/fetModel.h>
@@ -47,6 +47,8 @@
 
 #include <vector>
 
+class FetObjectListView;
+
 class ProfetSessionDialog: public QDialog{
   Q_OBJECT
   
@@ -55,7 +57,7 @@ private:
   QLabel  * modelLabel;
   QPushButton * updateButton;
   QPushButton * closeButton;
-  Q3ListBox * objectList;
+  FetObjectListView * objectList;
   QPushButton * newObjectButton;
   QPushButton * editObjectButton;
   QPushButton * deleteObjectButton;
@@ -68,7 +70,7 @@ private:
   void connectSignals();
   /// Enables / disables gui components
   void lockedObjectSelected(bool locked);
-  bool setSelectedObject(const miString &);
+//  bool setSelectedObject(const miString &);
   
 protected:
   void closeEvent( QCloseEvent* );
@@ -78,33 +80,38 @@ public:
   
   void setModel(const fetModel & model);
   void setUserModel(QAbstractItemModel * userModel);
-  void setObjectList(const vector<fetObject> & objects);
-  bool setCurrentObject(const fetObject &);
+  void setObjectModel(QAbstractItemModel * objectModel);
+  void setSelectedObject(const QModelIndex & index);
+//  bool setCurrentObject(const fetObject &);
   void setEditable(bool editable);
-  void noObjectSelected();
 
   miString getSelectedParameter() const;
   miTime getSelectedTime() const;
   void selectDefault();
-  miString getSelectedObject();
+  QModelIndex getCurrentObjectIndex();
 
   void initializeTable( const vector<fetParameter> & parameters,
 			    const fetSession & session); 
 
   void setObjectSignatures( vector<fetObject::Signature> s);
   void showMessage(const Profet::InstantMessage & msg);
-
-private slots:
-  void objectListChanged(const QString &);  
-
+  
 signals:
   void sendMessage(const QString &);
   void paramAndTimeChanged(miString param, miTime time);
-  void objectSelected(miString id);
+  void objectSelected(const QModelIndex & index);
+//  void objectSelected(miString id);
   void newObjectPerformed();
   void editObjectPerformed();
   void deleteObjectPerformed();
   void closePerformed();
+};
+
+class FetObjectListView: public QListView{
+public:
+  FetObjectListView(QWidget * parent) : QListView(parent){}
+  void currentChanged ( const QModelIndex & current, 
+      const QModelIndex & previous ){ emit activated(current); }
 };
 
 class QTitleLabel: public QLabel{

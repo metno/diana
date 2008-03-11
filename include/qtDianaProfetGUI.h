@@ -64,7 +64,8 @@ private:
   GridAreaManager * areaManager;
   PaintToolBar * paintToolBar;
   ProfetObjectFactory objectFactory;
-  vector<fetObject> objects;
+  FetObjectListModel objectModel;
+//  vector<fetObject> objects;
   vector<fetBaseObject> baseObjects;
   UserListModel userModel;
   fetObject currentObject;
@@ -76,7 +77,7 @@ private:
   void connectSignals();
   /// gets baseObjects index by name. returns -1 if not found
   int getBaseObjectIndex(miString name);
-  int getObjectIndex(miString id);
+//  int getObjectIndex(miString id);
   
   miString user;
   
@@ -152,7 +153,7 @@ public:
 private slots:
 // ObjectDialog
   void baseObjectSelected(miString name);
-  void objectSelected(miString id);
+  void objectSelected(const QModelIndex &);
   void saveObject();
 //   void deleteObject(miString id);
   void cancelObjectDialog();
