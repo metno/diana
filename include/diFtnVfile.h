@@ -62,7 +62,7 @@ public:
   FtnVfile(miString filename, int bufferlength);
   ~FtnVfile();
   void init();
-  void setFilePosition(int record, int word);
+  bool setFilePosition(int record, int word);
   int        getInt     ();
   int*       getInt     (int length);
   vector<int> getIntVector(int length);

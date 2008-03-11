@@ -111,11 +111,16 @@ void FtnVfile::readBuffer() {
 }
 
 
-void FtnVfile::setFilePosition(int record, int word) {
+bool FtnVfile::setFilePosition(int record, int word) {
 #ifdef DEBUGPRINT
   cerr << "++ FtnVfile::setFilePosition" << endl;
 #endif
   long offset = (record-1) * bufferLength * 2;
+
+  if(offset<0){
+    cerr << "FtnVfile::setFilePosition ERROR " << fileName << endl;
+    return false;
+  }
 
   if (fseek(pfile, offset, SEEK_SET) != 0) {
     cerr << "FtnVfile::setFilePosition ERROR " << fileName << endl;
@@ -132,6 +137,7 @@ void FtnVfile::setFilePosition(int record, int word) {
   }
 
   index= word - 1;
+  return true;
 }
 
 

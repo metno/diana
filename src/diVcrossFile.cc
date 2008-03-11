@@ -572,8 +572,10 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
       // set start position in file ("fortran" record and word)
       int record= dataAddress[itime*numCross*2+iCross*2];
       int word=   dataAddress[itime*numCross*2+iCross*2+1];
-      vfile->setFilePosition(record,word);
-
+      if(!vfile->setFilePosition(record,word)){
+	vcp=0;
+	return  vcp;
+      }
       iundef= 0;
 
       // level values
