@@ -29,20 +29,18 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //#define dSatDlg 
-#include <qslider.h>
-#include <qlayout.h>
-#include <qlabel.h>
+#include <QSlider>
+#include <QLabel>
 #include <qcheckbox.h>
 #include <qmessagebox.h> 
 #include <qlcdnumber.h>
 #include <qtSatDialogAdvanced.h>
 #include <qtToggleButton.h>
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3GridLayout>
-#include <Q3Frame>
+#include <QGridLayout>
+#include <QFrame>
 #include <QPixmap>
-#include <Q3VBoxLayout>
+#include <QVBoxLayout>
 
 #include <miString.h>
 #include <stdio.h>
@@ -69,8 +67,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   cutlcd = LCDNumber( 4, this);
   
   scut  = Slider( m_cut.minValue, m_cut.maxValue, 1, m_cut.value, 
-		  Qt::Horizontal, this);
-  
+		  Qt::Horizontal, this);  
   connect( cutCheckBox, SIGNAL( toggled( bool )), SLOT( cutCheckBoxSlot( bool )));
   connect( cutCheckBox, SIGNAL( toggled( bool )), SIGNAL( SatChanged()));
 
@@ -112,8 +109,8 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect(salpha, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
   
   
-  classified = new ToggleButton( this,tr("Table").latin1() ); 
-  connect( classified, SIGNAL(clicked()),SIGNAL(SatChanged()));
+  legendButton = new ToggleButton( this,tr("Table").latin1() ); 
+  connect( legendButton, SIGNAL(clicked()),SIGNAL(SatChanged()));
   
   colourcut = new ToggleButton( this,tr("Colour cut").latin1() ); 
   connect( colourcut, SIGNAL(clicked()),SIGNAL(SatChanged()));
@@ -124,41 +121,28 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect( standard, SIGNAL( clicked()), SLOT( setStandard()));
   connect( standard, SIGNAL( clicked()), SIGNAL( SatChanged()));
   
-  colourEdit = new Q3GroupBox(2,Qt::Vertical,this);
-  colourstring= TitleLabel(tr("Hide colours"), colourEdit );
-  colourstring->setAlignment(Qt::AlignCenter);
-  colourList = new Q3ListBox( colourEdit);
-  colourList->setMinimumHeight(HEIGHTLB);
-  colourList->setSelectionMode(Q3ListBox::Multi);
-  connect(colourList, SIGNAL(clicked(Q3ListBoxItem *))
+  colourList = new QListWidget( this );
+  colourList->setSelectionMode(QAbstractItemView::MultiSelection);
+  connect(colourList, SIGNAL(itemClicked(QListWidgetItem *))
    	  ,SIGNAL(SatChanged()));     
-  connect(colourList, SIGNAL(selectionChanged ()),SLOT(colourcutOn()));     
+  connect(colourList, SIGNAL(itemSelectionChanged ()),SLOT(colourcutOn()));     
 
-  Q3GridLayout*sliderlayout = new Q3GridLayout( 3, 4);
-  sliderlayout->addWidget( cut,   0,  0 );
-  sliderlayout->addWidget( scut,  0, 1 );
-  sliderlayout->addWidget( cutlcd,0, 2 );
-  sliderlayout->addWidget( alphacut,   1, 0 );
-  sliderlayout->addWidget( salphacut,  1, 1 );
-  sliderlayout->addWidget( alphacutlcd,1, 2 );
-  sliderlayout->addWidget( alpha,   2, 0 );
-  sliderlayout->addWidget( salpha,  2, 1 );
-  sliderlayout->addWidget( alphalcd,2, 2 );  
-  sliderlayout->addWidget( classified, 3, 0 );
-  sliderlayout->addWidget( colourcut, 3, 1 );
-  sliderlayout->addWidget( standard, 3, 2 );
+  QGridLayout*sliderlayout = new QGridLayout( this );
+  sliderlayout->addWidget( cutCheckBox,0,0,1,3 );
+  sliderlayout->addWidget( cut,         1,  0 );
+  sliderlayout->addWidget( scut,        1, 1 );
+  sliderlayout->addWidget( cutlcd,      1, 2 );
+  sliderlayout->addWidget( alphacut,    2, 0 );
+  sliderlayout->addWidget( salphacut,   2, 1 );
+  sliderlayout->addWidget( alphacutlcd, 2, 2 );
+  sliderlayout->addWidget( alpha,       3, 0 );
+  sliderlayout->addWidget( salpha,      3, 1 );
+  sliderlayout->addWidget( alphalcd,    3, 2 );  
+  sliderlayout->addWidget( legendButton,4, 0 );
+  sliderlayout->addWidget( colourcut,   4, 1 );
+  sliderlayout->addWidget( standard,    4, 2 );
+  sliderlayout->addWidget( colourList, 6,0,1,3 );
 
-
-
-  // Create a horizontal frame line
-  Q3Frame *line = new Q3Frame( this );
-  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
-
-  vlayout = new Q3VBoxLayout( this, 5, 5 );
-  vlayout->addWidget( line );
-  vlayout->addWidget( cutCheckBox );
-  vlayout->addLayout( sliderlayout );
-  vlayout->addWidget(colourEdit);
 
   setOff();
   greyOptions();
@@ -243,13 +227,13 @@ void SatDialogAdvanced::setStandard(){
   //set standard dialog options for palette or rgb files
   if (palette){
     cut->setOn(false); greyCut( false );
-    classified->setOn(true);
+    legendButton->setOn(true);
     scut->setValue(  m_cut.minValue ); 
   }
   else{
     cutCheckBox->setChecked(false);
     cut->setOn(true); greyCut(true );
-    classified->setOn(false);
+    legendButton->setOn(false);
     scut->setValue(  m_cut.value ); 
   }
   salphacut->setValue(  m_alphacut.value ); 
@@ -259,7 +243,6 @@ void SatDialogAdvanced::setStandard(){
 
   colourcut->setOn(false);
   colourList->clearSelection();
-  //colourEdit->hide();
   blockSignals(false);
 }
 
@@ -275,11 +258,9 @@ void SatDialogAdvanced::setOff(){
   alphacut->setOn(false); greyAlphaCut( false );
   salpha->setValue(  m_alpha.value );
   alpha->setOn(false); greyAlpha( false );
-  classified->setOn(false);
+  legendButton->setOn(false);
   colourcut->setOn(false);
   colourList->clear();
-  colourList->clearSelection();
-  //colourEdit->hide();
   blockSignals(false);
 }
 /*********************************************/
@@ -295,50 +276,53 @@ void SatDialogAdvanced::colourcutClicked(bool on){
   }
 }
 /*********************************************/
-miString SatDialogAdvanced::getOKString(){
-    miString str;
-    ostringstream ostr;
-
-    if(!palette){
-      if( cutCheckBox->isChecked() )
-	ostr<<" cut=-0.5";
-      else if( cut->isOn() )
-	ostr<<" cut="<<m_cutnr;
-      else
-	ostr<<" cut=-1";
-      
-      if( alphacut->isOn() )
-	ostr<<" alphacut="<<m_alphacutnr;
-      else
-	ostr<<" alphacut=0";
-    }
-    
-    if( alpha->isOn() )
-	ostr<<" alpha="<<m_alphanr;
+miString SatDialogAdvanced::getOKString()
+{
+  miString str;
+  ostringstream ostr;
+  
+  if(!palette){
+    if( cutCheckBox->isChecked() )
+      ostr<<" cut=-0.5";
+    else if( cut->isOn() )
+      ostr<<" cut="<<m_cutnr;
     else
-	ostr<<" alpha=1";
-
-    if (palette){
-      if( classified->isOn())
-	ostr<<" Table=1";
-      else 
-	ostr<<" Table=0";
-
-      //colours to hide
-      if(colourcut->isOn()){
-	ostr << " hide=";
-	int n =colourList->count();
-	for (int i=0;i<n;i++){
-	  if (colourList->isSelected(i))
-	    ostr << i <<",";
-	}
+      ostr<<" cut=-1";
+    
+    if( alphacut->isOn() )
+      ostr<<" alphacut="<<m_alphacutnr;
+    else
+      ostr<<" alphacut=0";
+  }
+  
+  if( alpha->isOn() )
+    ostr<<" alpha="<<m_alphanr;
+  else
+    ostr<<" alpha=1";
+  
+  if (palette){
+    if( legendButton->isOn())
+      ostr<<" Table=1";
+    else 
+      ostr<<" Table=0";
+    
+    //colours to hide
+    if(colourcut->isOn()){
+      ostr << " hide=";
+      int n =colourList->count();
+      for (int i=0;i<n;i++){
+	if (colourList->item(i)!=0 &&
+	    colourList->item(i)->isSelected()){
+	  ostr << i<<",";
+	    }
       }
-      
     }
+  }
+  
 
-    str = ostr.str();
-
-    return str;
+  str = ostr.str();
+  
+  return str;
 
 }
 
@@ -358,19 +342,17 @@ void SatDialogAdvanced::greyOptions(){
     greyCut(false);
     alphacut->setEnabled(false);
     alpha->setEnabled(false);
-    classified->setEnabled(false);
+    legendButton->setEnabled(false);
     //    colourcut->setEnabled(false);
     standard->setEnabled(false);
     colourList->clear();
-    colourList->clearSelection();
-    //colourEdit->hide();
   }
   else if (palette){
     cutCheckBox->setEnabled(false);
     cut->setEnabled(false);
     alphacut->setEnabled(false);
     alpha->setEnabled(true);
-    classified->setEnabled(true);
+    legendButton->setEnabled(true);
     //    colourcut->setEnabled(true);
     standard->setEnabled(true);
   }
@@ -379,7 +361,7 @@ void SatDialogAdvanced::greyOptions(){
     cut->setEnabled(!cutCheckBox->isChecked());
     alphacut->setEnabled(true);
     alpha->setEnabled(true);
-    classified->setEnabled(false);
+    legendButton->setEnabled(false);
     //    colourcut->setEnabled(false);
     standard->setEnabled(true);
   }
@@ -389,32 +371,25 @@ void SatDialogAdvanced::greyOptions(){
 
 void SatDialogAdvanced::setColours(vector <Colour> &colours){
 
-  //HACK
-  palette = colours.size();
-
   colourList->clear();
-  //  colourList->clearSelection();
-  colourList->setColumnMode(Q3ListBox::FitToWidth);
-  int w = colourList->width();
-  int itemwidth=int (w/8);
-
+  palette = colours.size();
   if (colours.size()){
-    int nr_colors=colours.size();
-    QPixmap*  pmapColor= new QPixmap( itemwidth, 20 );
-    QColor pixcolor;
-    for(int i=0;i<nr_colors;i++){
-      pixcolor = QColor(colours[i].R(),colours[i].G(),
-			colours[i].B());
-      pmapColor->fill( pixcolor );       
-      colourList->insertItem(*pmapColor);
+    int nr_colours=colours.size();
+    QPixmap* pmap = new QPixmap( 20, 20 );
+    for(int i=0;i<nr_colours;i++){
+      pmap->fill( QColor(colours[i].R(),colours[i].G(),colours[i].B()) );
+      QIcon qicon( *pmap );
+      QString qs;
+      QListWidgetItem* item= new QListWidgetItem(qicon,qs);
+      colourList->addItem(item);
     }
-    delete pmapColor;
-  }
-  else{
+    delete pmap;
+    pmap=0;
+
+  } else {
     colourcut->setOn(false);
-    //colourEdit->hide();
   }
-  //  if (!colourcut->isOn()) colourList->setEnabled(false);
+
 }
 
 /*********************************************/
@@ -470,18 +445,19 @@ miString SatDialogAdvanced::putOKString(miString str){
 	  alpha->setOn(false); greyAlpha(false);
 	}
       }else if ( key=="table" && palette){
-	if (atoi(value.c_str())!=0) classified->setOn(true);
-	else classified->setOn(false);
+	if (atoi(value.c_str())!=0) legendButton->setOn(true);
+	else legendButton->setOn(false);
       }
       else if (key=="hide" && palette){
 	colourcut->setOn(true);
-	//colourEdit->show();
 	//set selected colours
 	vector <miString> stokens=value.split(',');
 	int m= stokens.size();
 	for (int j=0; j<m; j++){
-	  int ih = atoi(stokens[j].c_str());
-	  colourList->setSelected(ih,true);
+	  int icol=stokens[j].toInt();
+	  if(icol < colourList->count()){
+	    colourList->item(icol)->setSelected(true);
+	  }
 	}
       }else{
 	//anythig unknown, add to external string
@@ -489,7 +465,6 @@ miString SatDialogAdvanced::putOKString(miString str){
       }
     } else if (stokens.size() ==1 && stokens[0].downcase()=="hide"){
       //colourList should be visible
-      //colourEdit->show();
       colourcut->setOn(true);
     }else{
       //anythig unknown, add to external string
@@ -515,7 +490,7 @@ void SatDialogAdvanced::blockSignals(bool b){
   scut->blockSignals(b);
   salphacut->blockSignals(b);
   salpha->blockSignals(b);
-  classified->blockSignals(b);
+  legendButton->blockSignals(b);
   colourcut->blockSignals(b);
   standard->blockSignals(b);
   colourList->blockSignals(b);
@@ -526,7 +501,7 @@ void SatDialogAdvanced::blockSignals(bool b){
     cut->Toggled(cut->isOn());
     alphacut->Toggled(alphacut->isOn());
     alpha->Toggled(alpha->isOn());
-    classified->Toggled(classified->isOn());
+    legendButton->Toggled(legendButton->isOn());
     colourcut->Toggled(colourcut->isOn());
     cutDisplay(scut->value());
     alphacutDisplay(salphacut->value());

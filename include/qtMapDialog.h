@@ -32,11 +32,8 @@
 #define _mapdialog_h
 
 
-#include <qdialog.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <QLabel>
-#include <Q3VBoxLayout>
+#include <QDialog>
+
 #include <diController.h>
 #include <vector>
 #include <miString.h>
@@ -44,10 +41,9 @@
 using namespace std;
 
 class QComboBox;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QLabel;
-class Q3VBoxLayout;
-class Q3HBoxLayout;
 class ToggleButton;
 class QCheckBox;
 
@@ -88,9 +84,9 @@ private:
   void ConstructorCernel( const MapDialogInfo mdi );
 
 private slots:
-  void areaboxSelected( int index );
+//  void areaboxSelected( QListWidgetItem* item );
   void mapboxChanged();
-  void selectedMapboxHighlighted( int index );
+  void selectedMapboxClicked( QListWidgetItem* item );
   void mapdeleteClicked();
   void mapalldeleteClicked();
 
@@ -138,7 +134,7 @@ private:
   int activemap;              // active selected map
   vector<int> logmaps;        // selected maps ready for logging
   
-  vector<Colour::ColourInfo> m_cInfo; // all defined colours
+  vector<Colour::ColourInfo> cInfo; // all defined colours
   vector<miString> linetypes; // all defined linetypes
   vector<miString> zorders;   // all defined zorders
   vector<miString> densities; // latlon densities (degrees)
@@ -146,7 +142,7 @@ private:
 
   // areas
   QLabel* arealabel;
-  Q3ListBox* areabox;
+  QListWidget* areabox;
 
   // latlon options
   QLabel* ll_label;
@@ -191,9 +187,9 @@ private:
 
   // maps and selected maps
   QLabel* maplabel;
-  Q3ListBox* mapbox;
+  QListWidget* mapbox;
   QLabel* selectedMaplabel;
-  Q3ListBox* selectedMapbox;
+  QListWidget* selectedMapbox;
   QPushButton* mapdelete;
   QPushButton* mapalldelete;
 
@@ -224,9 +220,6 @@ private:
   QPushButton* mapapplyhide;
   QPushButton* maphide;
   QPushButton* maphelp;
-
-  //toplayout
-  Q3VBoxLayout* vlayout;
 
   QColor* pixcolor;
 

@@ -31,8 +31,8 @@
 #ifndef _satdialog_h
 #define _satdialog_h
 
-#include <qdialog.h>
-#include <qfont.h>
+#include <QDialog>
+
 #include <miString.h>
 #include <vector>
 #include <map>
@@ -41,13 +41,14 @@
 using namespace std;
 
 class QSlider;
-class SatDialogAdvanced;
 class ToggleButton;
 class PushButton;
-class Q3ButtonGroup;
+class QButtonGroup;
 class QComboBox;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QLCDNumber;
+class SatDialogAdvanced;
 
 
 /**
@@ -115,7 +116,7 @@ private:
   static miTime ztime;
 
 
-  void updateFileGroup(int);
+  void updateFileListWidget(int);
   void updateTimefileList();
   void updateChannelBox(bool select);
   void updatePictures(int index, bool updateAbove);
@@ -140,10 +141,10 @@ private slots:
   void nameActivated( int in );
   void timefileClicked(int tt);
   void Refresh();
-  void timefileListSlot();
-  void fileGroupHighlighted();
-  void channelboxSlot();
-  void picturesSlot();
+  void timefileListSlot(QListWidgetItem * item);
+  void fileListWidgetClicked(QListWidgetItem * item);
+  void channelboxSlot(QListWidgetItem * item);
+  void picturesSlot(QListWidgetItem * item);
   void doubleDisplayDiff( int number );
   void mosaicToggled(bool on);
   void helpClicked();
@@ -176,7 +177,7 @@ private:
   SatDialogInfo dialogInfo;
   
   QComboBox* namebox;
-  Q3ListBox* fileGroup;
+  QListWidget* fileListWidget;
   
   QLCDNumber* diffLcdnum;
   QSlider* diffSlider;
@@ -191,24 +192,17 @@ private:
   QPushButton* downPictureButton;
 
   
-  Q3ButtonGroup* timefileBut;
+  QButtonGroup* timefileBut;
   ToggleButton* autoButton;
   ToggleButton* timeButton;
   ToggleButton* fileButton;
-  Q3ListBox* timefileList;
-  Q3ListBox* channelbox;
-  Q3ListBox* pictures;
-  
-  QPushButton* satapply;
-  QPushButton* satapplyhide;
-  QPushButton* sathide;
-  
-  QPushButton* sathelp; 
-  
+  QListWidget*  timefileList;
+  QListWidget*  channelbox;
+  QListWidget*  pictures;
+    
   SatDialogAdvanced* sda;
   ToggleButton* advanced;
   
-  QWidget* m_parent;
 };
 
 #endif

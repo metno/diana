@@ -28,26 +28,26 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
-#include <qslider.h>
-#include <qradiobutton.h>
-#include <qcombobox.h>
-#include <q3listbox.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qlcdnumber.h>
+#include <QApplication>
+#include <QSlider>
+#include <QRadioButton>
+#include <QComboBox>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QLayout>
+#include <QLabel>
+#include <QLCDNumber>
 #include <qmessagebox.h> 
-#include <qtooltip.h>
-#include <q3buttongroup.h>
+#include <QToolTip>
+#include <QButtonGroup>
 
 #include <qtSatDialog.h>
 #include <qtSatDialogAdvanced.h>
 #include <qtToggleButton.h>
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QHBoxLayout>
 #include <QPixmap>
-#include <Q3VBoxLayout>
+#include <QVBoxLayout>
 
 #include <miString.h>
 #include <stdio.h>
@@ -58,11 +58,8 @@
 #include <down12x12.xpm>
 
 
-#ifdef DISPLAY1024X768
-  #define HEIGHTLISTBOX 45
-#else
-  #define HEIGHTLISTBOX 85
-#endif
+#define HEIGHTLISTBOX 45
+
 
 //static
 
@@ -70,10 +67,8 @@ miTime SatDialog::ztime = miTime(1970,1,1,0,0,0);
 
 /*********************************************/
 SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
-  : QDialog(parent), m_parent(parent)
+  : QDialog(parent), m_ctrl(llctrl)
 {
-
-  m_ctrl = llctrl;
 
   setCaption(tr("Satellite and radar"));
   
@@ -91,63 +86,64 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 
   //****
    
-  //fileGroup contains filetypes for each satellite
+  //fileListWidget contains filetypes for each satellite
   //NOAA Europa N-Europa etc.
   //METEOSAT Visuell, IR
   //insert filetypes for default sat - m_image[0]-NOAA
-  fileGroup = new Q3ListBox( this );
-  fileGroup->setMinimumHeight(HEIGHTLISTBOX);
-  fileGroup->setMaximumHeight(HEIGHTLISTBOX);
+  fileListWidget = new QListWidget( this );
+  fileListWidget->setMinimumHeight(HEIGHTLISTBOX);
 
-  updateFileGroup(0);
-  connect( fileGroup, SIGNAL( clicked( Q3ListBoxItem * ) ),
-	   SLOT( fileGroupHighlighted() )  );
+  updateFileListWidget(0);
+  connect( fileListWidget, SIGNAL( itemClicked( QListWidgetItem * ) ),
+	   SLOT( fileListWidgetClicked( QListWidgetItem * ) )  );
 
-  timefileBut = new Q3ButtonGroup( this );
-  autoButton = new ToggleButton(timefileBut, tr("Auto").latin1());
-  timeButton = new ToggleButton(timefileBut, tr("Time").latin1());
-  fileButton = new ToggleButton(timefileBut, tr("File").latin1());
-  Q3HBoxLayout* timefileLayout = new Q3HBoxLayout(timefileBut);
+  autoButton = new ToggleButton(this, tr("Auto").latin1());
+  timeButton = new ToggleButton(this, tr("Time").latin1());
+  fileButton = new ToggleButton(this, tr("File").latin1());
+  timefileBut = new QButtonGroup( this );
+  timefileBut->addButton(autoButton,0);
+  timefileBut->addButton(timeButton,1);
+  timefileBut->addButton(fileButton,2);
+  QHBoxLayout* timefileLayout = new QHBoxLayout();
   timefileLayout->addWidget(autoButton);
   timefileLayout->addWidget(timeButton);
   timefileLayout->addWidget(fileButton);
   timefileBut->setExclusive( true );
-  timefileBut->setButton(0);
+  autoButton->setChecked(true);
   //timefileClicked is called when auto,tid,fil buttons clicked 
-  connect( timefileBut, SIGNAL( clicked(int) ), 
+  connect( timefileBut, SIGNAL( buttonClicked(int) ), 
 	   SLOT( timefileClicked(int) ) );
 
   //list of times or files will be filled when "tid","fil" clicked
   // (in timefileClicked)
                   
-  timefileList = new Q3ListBox( this);
+  timefileList = new QListWidget( this);
   timefileList->setMinimumHeight(HEIGHTLISTBOX);
-//   timefileList->setMaximumHeight(HEIGHTLISTBOX);
 
   //timefileListSlot called when an item (time of file) highlighted in
   // timefileList
-  connect( timefileList, SIGNAL(clicked(Q3ListBoxItem *) ), 
-	   SLOT( timefileListSlot( ) ) );
+  connect( timefileList, SIGNAL(itemClicked(QListWidgetItem *) ), 
+	   SLOT( timefileListSlot( QListWidgetItem *) ) );
 
   
   //channelbox filled with available channels
   QLabel *channellabel= TitleLabel( tr("Channels").latin1(), this);
-  channelbox = new Q3ListBox( this);
+  channelbox = new QListWidget( this);
   channelbox->setMinimumHeight(HEIGHTLISTBOX);
 
   //channelboxSlot called when an item highlighted in channelbox
-  connect( channelbox, SIGNAL( clicked( Q3ListBoxItem * ) ), 
-	   SLOT( channelboxSlot() ) );
+  connect( channelbox, SIGNAL( itemClicked( QListWidgetItem * ) ), 
+	   SLOT( channelboxSlot( QListWidgetItem * ) ) );
 
   //****
 
   //pictures contains one or more selected pictures !
       QLabel *picturesLabel = TitleLabel(tr("Selected pictures"), this);
-  pictures = new Q3ListBox( this );
-  pictures->setMinimumHeight(80);
+  pictures = new QListWidget( this );
+  pictures->setMinimumHeight(HEIGHTLISTBOX);
 
-  connect( pictures, SIGNAL( clicked( Q3ListBoxItem * ) ),   
-	   SLOT( picturesSlot( ) ) );
+  connect( pictures, SIGNAL( itemClicked( QListWidgetItem * ) ),   
+	   SLOT( picturesSlot( QListWidgetItem * ) ) );
 
 
   //**  all the other QT buttons
@@ -193,23 +189,23 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   diffSlider= Slider( dialogInfo.timediff.minValue, 
 		      dialogInfo.timediff.maxValue, 1, 
 		      dialogInfo.timediff.value, Qt::Horizontal, this );
-  Q3HBoxLayout* difflayout = new Q3HBoxLayout(5);
+  QHBoxLayout* difflayout = new QHBoxLayout(5);
   difflayout->addWidget( diffLabel,0,0 );
   difflayout->addWidget( diffLcdnum, 0,0 );
   difflayout->addWidget( diffSlider,0,0  );
   connect( diffSlider, SIGNAL( valueChanged(int)), SLOT( doubleDisplayDiff(int) )); 
  
 
-  sathelp = NormalPushButton( tr("Help"), this );
+  QPushButton* sathelp = NormalPushButton( tr("Help"), this );
   refresh = NormalPushButton(tr("Refresh").latin1(), this);
 
   miString more_str[2] = { tr("<<Less").latin1(), tr("More>>").latin1() };
   advanced= new ToggleButton( this, more_str );
   advanced->setOn(false);    
     
-  sathide = NormalPushButton( tr("Hide"), this );
-  satapplyhide = NormalPushButton( tr("Apply+hide"), this );
-  satapply = NormalPushButton( tr("Apply"), this);
+  QPushButton* sathide = NormalPushButton( tr("Hide"), this );
+  QPushButton* satapplyhide = NormalPushButton( tr("Apply+hide"), this );
+  QPushButton* satapply = NormalPushButton( tr("Apply"), this);
       
   connect(  sathelp, SIGNAL(clicked()), SLOT( helpClicked()));
   connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() )); 
@@ -218,31 +214,31 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   connect( satapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
   connect( satapply, SIGNAL(clicked()), SIGNAL( SatApply()) );
 
-  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout();
+  QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget(upPictureButton);
   hlayout2->addWidget( Delete );
   hlayout2->addWidget( DeleteAll );
 
-  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout();
+  QHBoxLayout* hlayout1 = new QHBoxLayout();
   hlayout1->addWidget(downPictureButton);
   hlayout1->addWidget( multiPicture );
   hlayout1->addWidget( mosaic );
       
-  Q3HBoxLayout* hlayout4 = new Q3HBoxLayout();
+  QHBoxLayout* hlayout4 = new QHBoxLayout();
   hlayout4->addWidget( sathelp );
   hlayout4->addWidget( refresh  );
   hlayout4->addWidget( advanced );
 
-  Q3HBoxLayout* hlayout3 = new Q3HBoxLayout();
+  QHBoxLayout* hlayout3 = new QHBoxLayout();
   hlayout3->addWidget( sathide );
   hlayout3->addWidget( satapplyhide );
   hlayout3->addWidget( satapply );
 
-  Q3VBoxLayout* vlayout = new Q3VBoxLayout( this, 5, 5);
+  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5);
   vlayout->setMargin(10);
   vlayout->addWidget( namebox );
-  vlayout->addWidget( fileGroup );
-  vlayout->addWidget( timefileBut );
+  vlayout->addWidget( fileListWidget );
+  vlayout->addLayout( timefileLayout );
   vlayout->addWidget( timefileList );
   vlayout->addWidget( channellabel );
   vlayout->addWidget( channelbox );
@@ -261,11 +257,8 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   doubleDisplayDiff(dialogInfo.timediff.value);
 
   this->hide();
-  setOrientation(Qt::Vertical);
+  setOrientation(Qt::Horizontal);
   sda = new SatDialogAdvanced( this,  dialogInfo);
-  int width=  sda->sizeHint().width();
-  sda->setMinimumWidth(width);
-  sda->setMaximumWidth(width);
   setExtension(sda);
   advancedtoggled(false);
   connect(sda,SIGNAL(getSatColours()),SLOT(updateColours()));
@@ -289,9 +282,9 @@ void SatDialog::nameActivated( int in ){
   cerr<<"SatDialog::nameActivated called"<<endl;
 #endif
 
-  //insert in fileGroup the list of files for selected satellite 
+  //insert in fileListWidget the list of files for selected satellite 
   //but no file is selected, takes to much time
-   updateFileGroup(in);
+   updateFileListWidget(in);
    
   //clear timefileList and channelbox
   timefileList->clear();
@@ -305,37 +298,38 @@ void SatDialog::nameActivated( int in ){
 }
 
 /*********************************************/
-void SatDialog::fileGroupHighlighted( ){
+void SatDialog::fileListWidgetClicked( QListWidgetItem * item){
 #ifdef dSatDlg
-  cerr<<"SatDialog::fileGroupHighlighted called"<<endl;
+  cerr<<"SatDialog::fileListWidgetClicked called"<<endl;
 #endif
 
   QApplication::setOverrideCursor( Qt::waitCursor );
 
 
-  int index = timefileBut->id(timefileBut->selected());
+  int index = timefileBut->checkedId();
 
   //restore options if possible
   miString name = namebox->currentText().latin1();
-  miString area = fileGroup->currentText().latin1();
+  miString area = item->text().latin1();
   if(satoptions[name][area].exists()){
     vector<miString> tokens= satoptions[name][area].split(" ");
     state okVar = decodeString(tokens);
     putOptions(okVar);
     bool restore = multiPicture->isOn();
     multiPicture->setOn(false);
-    timefileBut->setButton(index);
+    timefileBut->button(index)->setChecked(true);
     timefileClicked(index);
     multiPicture->setOn(restore);
   } else { //no options saved
-    timefileBut->setButton(index);
+    timefileBut->button(index)->setChecked(true);
     timefileClicked(index);
   }
+
 
   QApplication::restoreOverrideCursor();
 
 #ifdef dSatDlg
-  cerr<<"fileGroupHighlighted returned"<<endl;
+  cerr<<"fileListWidgetClicked returned"<<endl;
 #endif
   return; 
 }
@@ -351,7 +345,7 @@ void SatDialog::timefileClicked(int tt){
   cerr<<" SatDialog::timefileClicked called:"<<tt<<endl;
 #endif
 
-  if( fileGroup->currentItem()==-1 ) return;
+  if( fileListWidget->currentRow()==-1 ) return;
 
     
   //update list of files
@@ -361,7 +355,7 @@ void SatDialog::timefileClicked(int tt){
     // AUTO clicked
       
     m_ctrl->setSatAuto(true,namebox->currentText().latin1(),
-		     fileGroup->currentText().latin1());
+		       fileListWidget->currentItem()->text().latin1());
 
     //    timefileList->setEnabled( false );
     updateChannelBox(true);
@@ -370,11 +364,11 @@ void SatDialog::timefileClicked(int tt){
     // "time"/"file" clicked
       
     m_ctrl->setSatAuto(false,namebox->currentText().latin1(),
-		     fileGroup->currentText().latin1());
+		       fileListWidget->currentItem()->text().latin1());
 
     //    timefileList->setEnabled ( true );
 
-    timefileListSlot();
+    timefileListSlot(timefileList->currentItem());
   }
 
     
@@ -386,7 +380,7 @@ void SatDialog::timefileClicked(int tt){
 
 
 /*********************************************/
-void SatDialog::timefileListSlot (){
+void SatDialog::timefileListSlot (QListWidgetItem *){
   /* DESCRIPTION: This function is called when the signal highlighted() is
      sent from the list of time/file and a new list item is highlighted
   */
@@ -394,7 +388,7 @@ void SatDialog::timefileListSlot (){
   cerr<<"SatDialog::timefileListSlot called"<<endl;
 #endif
 
-  int index = timefileList->currentItem();
+  int index = timefileList->currentRow();
 
   if(index<0 && timefileList->count()>0) index=0;
 
@@ -418,7 +412,7 @@ void SatDialog::timefileListSlot (){
 
 
 /*********************************************/
-void SatDialog::channelboxSlot(){
+void SatDialog::channelboxSlot(QListWidgetItem * item){
   /* DESCRIPTION: This function is called when a channel is selected
      -add new state to m_state (if picture already exists with this)
      satellite, just replace, else add.
@@ -430,8 +424,8 @@ void SatDialog::channelboxSlot(){
 #endif
 
   //currently selected channel
-  if(channelbox->currentItem() == -1) return;
-  m_channelstr= channelbox->currentText().latin1();
+  //  if(channelbox->currentRow() == -1) return;
+  m_channelstr= item->text().latin1();
 
   int newIndex = addSelectedPicture();
 
@@ -470,7 +464,7 @@ int SatDialog::addSelectedPicture(){
   miTime ltime;
   if(timeButton->isOn() || fileButton->isOn() ){
     //"time"/"file" clicked, find filename
-    int current=timefileList->currentItem();
+    int current=timefileList->currentRow();
     if( current > -1 && current < files.size() ){
       fstring=files[current].name;
       ltime = files[current].time;
@@ -480,14 +474,14 @@ int SatDialog::addSelectedPicture(){
   //define a new state !  
   state lstate;
   lstate.iname=namebox->currentItem();
-  lstate.iarea=fileGroup->currentItem();
-  lstate.iautotimefile=timefileBut->id(timefileBut->selected());
-  lstate.ifiletime=timefileList->currentItem();
-  lstate.ichannel=channelbox->currentItem();
+  lstate.iarea=fileListWidget->currentRow();
+  lstate.iautotimefile=timefileBut->checkedId();
+  lstate.ifiletime=timefileList->currentRow();
+  lstate.ichannel=channelbox->currentRow();
   lstate.name=namebox->currentText().latin1();
-  lstate.area = fileGroup->currentText().latin1();
+  lstate.area = fileListWidget->currentItem()->text().latin1();
   lstate.filetime = ltime;
-  lstate.channel = channelbox->currentText().latin1();
+  lstate.channel = channelbox->currentItem()->text().latin1();
   lstate.filename=fstring;
   lstate.mosaic=false;
   lstate.totalminutes=60;
@@ -505,7 +499,7 @@ int SatDialog::addSelectedPicture(){
 
 
   if(!multiPicture->isOn()){
-    int i = pictures->currentItem();
+    int i = pictures->currentRow();
     if( i>-1 && i<m_state.size()){
       //replace existing picture(same sat). advanced options saved 
       // get info about picture we are replacing
@@ -568,7 +562,7 @@ miString SatDialog::pictureString(state i_state, bool timefile){
 }
 
 /*********************************************/
-void SatDialog::picturesSlot(  ){
+void SatDialog::picturesSlot( QListWidgetItem * item ){
 #ifdef dSatDlg
   cerr<<"SatDialog::picturesSlot"<< endl;
   cerr <<"m_state.size:"<<m_state.size()<<endl;
@@ -576,33 +570,33 @@ void SatDialog::picturesSlot(  ){
 
   miString str,advanced;
   vector <Colour> colours;	
-  int index = pictures->currentItem();
+  int index = pictures->currentRow();
 
   if (index>-1) {
     vector<miString> vstr;
     vstr.push_back(m_state[index].OKString);
     namebox->setCurrentItem(m_state[index].iname);
-    nameActivated(m_state[index].iname); // update fileGroup
-    fileGroup->setCurrentItem(m_state[index].iarea);
+    nameActivated(m_state[index].iname); // update fileListWidget
+    fileListWidget->setCurrentRow(m_state[index].iarea);
     if(m_state[index].iautotimefile == 0){
       autoButton->setOn(true);
       m_ctrl->setSatAuto(true,namebox->currentText().latin1(),
-			 fileGroup->currentText().latin1());
+			 fileListWidget->currentItem()->text().latin1());
     } else{
       if(m_state[index].iautotimefile == 1) 
 	timeButton->setOn(true);
       else if(m_state[index].iautotimefile == 2) 
 	fileButton->setOn(true);
       m_ctrl->setSatAuto(false,namebox->currentText().latin1(),
-			 fileGroup->currentText().latin1());
+			 fileListWidget->currentItem()->text().latin1());
       updateTimefileList();
-      timefileList->setCurrentItem(m_state[index].ifiletime);
+      timefileList->setCurrentRow(m_state[index].ifiletime);
       vector<miTime> tt;
       tt.push_back(files[m_state[index].ifiletime].time);
       emit emitTimes("sat",tt,false);
     }	
     updateChannelBox(false);
-    channelbox->setCurrentItem(m_state[index].ichannel);
+    channelbox->setCurrentRow(m_state[index].ichannel);
     m_channelstr = m_state[index].channel;
     updateColours();
     str=pictureString(m_state[index],false);
@@ -657,9 +651,9 @@ void SatDialog::RefreshList(){
   cerr<<"SatDialog::RefreshList() called" <<endl;
 #endif
   // update the dialog and timeslider
-  int old_picturesIndex=pictures->currentItem();
+  int old_picturesIndex=pictures->currentRow();
   updateTimefileList();
-  pictures->setSelected(old_picturesIndex,true);
+  pictures->setCurrentRow(old_picturesIndex);
 
 
   //check if m_state - "Valgte bilder" contains pictures no longer existing
@@ -722,7 +716,7 @@ void SatDialog::Refresh(){
 
 void SatDialog::mosaicToggled(bool on){
 
-  int index = pictures->currentItem();
+  int index = pictures->currentRow();
   if (index>-1 && m_state.size()>index)
     m_state[index].mosaic=on;
   updatePictures(index,false);
@@ -734,7 +728,7 @@ void SatDialog::mosaicToggled(bool on){
 
 void SatDialog::advancedChanged(){
 
-  int index = pictures->currentItem();
+  int index = pictures->currentRow();
   miString advancedstring = sda->getOKString();
   if (index >-1)
     m_state[index].advanced=advancedstring;
@@ -745,7 +739,7 @@ void SatDialog::advancedChanged(){
 
 void SatDialog::upPicture(){
 
-  int index = pictures->currentItem();
+  int index = pictures->currentRow();
   state lstate = m_state[index];
   m_state[index]=m_state[index-1];
   m_state[index-1]=lstate;
@@ -757,7 +751,7 @@ void SatDialog::upPicture(){
 
 void SatDialog::downPicture(){
 
-  int index = pictures->currentItem();
+  int index = pictures->currentRow();
   state lstate = m_state[index];
   m_state[index]=m_state[index+1];
   m_state[index+1]=lstate;
@@ -770,7 +764,7 @@ void SatDialog::doubleDisplayDiff( int number ){
   /* This function is called when diffSlider sends a signald valueChanged(int) 
      and changes the numerical value in the lcd display diffLcdnum */
   int totalminutes=int(number*m_scalediff);
-  int index = pictures->currentItem();
+  int index = pictures->currentRow();
   if (index>-1 && m_state.size()>index)
     m_state[index].totalminutes=totalminutes;
   int hours = totalminutes/60;
@@ -788,7 +782,7 @@ void SatDialog::DeleteAllClicked(){
   cerr<<"SatDialog::DeleteAllClicked called"<<endl;
 #endif 
 
-  fileGroup->clearSelection();
+  fileListWidget->clearSelection();
   timefileList->clear();
   channelbox->clear();
 
@@ -827,15 +821,15 @@ void SatDialog::DeleteClicked(){
     // check needed when empty list was found
     DeleteAllClicked();
   } else {
-    if(pictures->currentItem()>-1){
+    if(pictures->currentRow()>-1){
       //remove from m_state and picture listbox
       vector<state>::iterator p;
-      p= m_state.begin()+pictures->currentItem();
+      p= m_state.begin()+pictures->currentRow();
       m_state.erase(p);
-      pictures->removeItem(pictures->currentItem());
+      pictures->takeItem(pictures->currentRow());
       //      if (m_picturesIndex > m_state.size()-1) m_picturesIndex--;
-      //      updatePictures(pictures->currentItem()); 
-      picturesSlot();
+      //      updatePictures(pictures->currentRow()); 
+      picturesSlot(pictures->currentItem());
       emitSatTimes();
     } 
   }
@@ -950,13 +944,13 @@ void SatDialog::putOKString(const vector<miString>& vstr){
     if (!found) continue;
 
     found=false;
-    int ng = fileGroup->count();
+    int ng = fileListWidget->count();
     for (int j=0;j<ng;j++ ){
-      QString qstr =  fileGroup->text(j);
+      QString qstr =  fileListWidget->item(j)->text();
       if(qstr.isNull()) continue;
       miString listname =  qstr.latin1();
       if (okVar.area==listname){
-	fileGroup->setSelected(j,true);
+	fileListWidget->setCurrentRow(j);
 	found=true;
       }
     }	  
@@ -972,25 +966,25 @@ void SatDialog::putOptions(const state okVar){
 
 
     if (!okVar.filetime.undef() && okVar.filetime!=ztime) {
-      timefileBut->setButton(1);
+      timefileBut->button(1)->setChecked(true);
       updateTimefileList();
       int nt=files.size();
       for (int j=0;j<nt;j++ ){
 	if (okVar.filetime==files[j].time){
-	  timefileList->setSelected(j,true);
+	  timefileList->setCurrentRow(j);
 	}
       }
     } else if (!okVar.filename.empty()) {
-      timefileBut->setButton(2);
+      timefileBut->button(2)->setChecked(true);;
       updateTimefileList();
       int nf = files.size();
       for (int j=0;j<nf;j++ ){
 	if (okVar.filename==files[j].name){
-	  timefileList->setSelected(j,true);
+	  timefileList->setCurrentRow(j);
 	}
       }   
     } else {
-      timefileBut->setButton(0); //auto
+      timefileBut->button(0)->setChecked(true); //auto
       updateTimefileList();
     }
     
@@ -998,13 +992,13 @@ void SatDialog::putOptions(const state okVar){
     bool found=false;
     int nc = channelbox->count();
     for (int j=0;j<nc;j++ ){
-      QString qstr = channelbox->text(j);
+      QString qstr = channelbox->item(j)->text();
       if(qstr.isNull()) continue;
       miString listchannel =  qstr.latin1();
       if (okVar.channel==listchannel) {
  	int np= m_state.size();
-	channelbox->setCurrentItem(j);
-	channelboxSlot();
+	channelbox->setCurrentRow(j);
+	channelboxSlot(channelbox->currentItem());
 	// check if new picture added.. 
 	found= (m_state.size() > np);
 	found= true;
@@ -1021,7 +1015,7 @@ void SatDialog::putOptions(const state okVar){
     mosaic->setOn(okVar.mosaic);    
 
     //advanced dialog
-    int index = pictures->currentItem();
+    int index = pictures->currentRow();
     if (index < 0 || index >=m_state.size())
       return;
     m_state[index].external = sda->putOKString(okVar.advanced);
@@ -1208,14 +1202,14 @@ void SatDialog::hideClicked(){
 
 /**********************************************/
 
-void SatDialog::updateFileGroup(int in){
-  // cerr <<"updateFileGroup:"<<in<<endl;
+void SatDialog::updateFileListWidget(int in){
+  // cerr <<"updateFileListWidget:"<<in<<endl;
 
-  fileGroup->clear();
-  //insert in fileGroup the list of files.. Europa,N-Europa etc...
+  fileListWidget->clear();
+  //insert in fileListWidget the list of files.. Europa,N-Europa etc...
   int nfile = dialogInfo.image[in].file.size();
   for( int k=0; k< nfile; k++ ){
-    fileGroup->insertItem( dialogInfo.image[in].file[k].name.cStr() );
+    fileListWidget->addItem( dialogInfo.image[in].file[k].name.cStr() );
   }
 
 }
@@ -1229,7 +1223,7 @@ void SatDialog::updateTimefileList(){
 #endif
 
   //if no file group selected, nothing to do
-  if(fileGroup->currentItem() == -1) return;
+  if(fileListWidget->currentRow() == -1) return;
 
   //clear box with list of files 
   timefileList->clear();
@@ -1238,7 +1232,7 @@ void SatDialog::updateTimefileList(){
   QApplication::setOverrideCursor( Qt::waitCursor );
   files = 
     m_ctrl->getSatFiles( namebox->currentText().latin1(),
-		     fileGroup->currentText().latin1(),true);
+			 fileListWidget->currentItem()->text().latin1(),true);
   QApplication::restoreOverrideCursor();
   
   if (autoButton->isOn()) return ;
@@ -1248,35 +1242,18 @@ void SatDialog::updateTimefileList(){
   int nr_file = files.size();
   if( nr_file == 0 ) return;
 
+  //insert times into timefileList
   if( timeButton->isOn()  ){
-    //insert times into timefileList
-    const char** ltid= new const char*[nr_file];
-    miString* tt= new miString[nr_file];
-      
+
     for( int i=0; i<nr_file; i++ ){
-      tt[i] =files[i].time.isoTime();
-      tt[i].trim();
-      ltid[i]= tt[i].c_str();
+      timefileList->addItem(QString(files[i].time.isoTime().cStr()));
     }
       
-    timefileList->insertStrList( ltid, nr_file );
-      
-    delete[] ltid;
-    ltid=0;
-    delete[] tt;
-    tt=0;
-            
   } else if( fileButton->isOn() ){
-    const char** lfil= new const char*[nr_file];
+
     for( int i=0; i<nr_file; i++ ){
-      files[i].name.trim();
-      lfil[i]= files[i].name.c_str();	      
+      timefileList->addItem(QString(files[i].name.c_str()));	      
     }  
-    
-    timefileList->insertStrList( lfil, nr_file );
-    
-    delete[] lfil;
-    lfil=0;
     
   }
   
@@ -1291,10 +1268,10 @@ void SatDialog::updateTimefileList(){
     
     //    m_timefileListIndex=timeDefIndex;
     if( timeDefIndex>-1 )
-      timefileList->setSelected( timeDefIndex,true );
+      timefileList->setCurrentRow( timeDefIndex );
     else {
       m_time=miTime();
-      timefileList->setSelected(0,true);
+      timefileList->setCurrentRow(0);
     }
   }
   
@@ -1324,48 +1301,41 @@ void SatDialog::updateChannelBox(bool select){
   if (autoButton->isOn()) 
     index = -1;
   else
-    index = timefileList->currentItem();
+    index = timefileList->currentRow();
     
   vstr = m_ctrl->getSatChannels(namebox->currentText().latin1(),
-				fileGroup->currentText().latin1(),index);
+				fileListWidget->currentItem()->text().latin1(),index);
 
 
   int nr_channel = vstr.size();
   if( nr_channel<=0 ) return;
     
-  const char** lchannel= new const char*[nr_channel];
-  
   for( int i=0; i<nr_channel; i++ ){
     vstr[i].trim();
-    lchannel[i]= vstr[i].c_str();    
+    channelbox->addItem(QString(vstr[i].c_str()));    
   }
     
   //insert string list in channelbox
   channelbox->setEnabled( true );
-  channelbox->insertStrList( lchannel, nr_channel );
-  
-  delete[] lchannel;
-  lchannel=0;
 
   if(!select) return;
   //HK ??? comment out this part which remembers selected channels
-
    
   m_channelstr.trim();
   
   //selct same channel as last time, if possible ...
   for( int i=0; i<nr_channel; i++ ){
-      if( m_channelstr == vstr[i] ){
-	channelbox->setSelected( i,true ); 
-	channelboxSlot();
-	return;
-      }
+    if( m_channelstr == vstr[i] ){
+      channelbox->setCurrentRow( i ); 
+      channelboxSlot(channelbox->currentItem());
+      return;
     }
+  }
 
 // ... or first channel
   m_channelstr = vstr[0];
-  channelbox->setSelected( 0,true ); 
-  channelboxSlot();
+  channelbox->setCurrentRow( 0 ); 
+  channelboxSlot(channelbox->currentItem());
 
   //  cerr <<"returning from updateChannelBox()"<<endl;    
 
@@ -1387,12 +1357,12 @@ void SatDialog::updatePictures(int index, bool updateAbove){
   for (int i = 0;i<m_state.size();i++){
     //insert item into picturebox
     miString str=pictureString(m_state[i],true);
-    pictures->insertItem(str.c_str());
+    pictures->addItem(str.c_str());
   }
 
   if (index > -1 && index < m_state.size()){
-    pictures->setSelected(index,true);
-    if(updateAbove) picturesSlot();
+    pictures->setCurrentRow(index);
+    if(updateAbove) picturesSlot(pictures->currentItem());
     updateColours();
     miString str=pictureString(m_state[index],false);
     sda->setPictures(str);
@@ -1444,7 +1414,7 @@ void SatDialog::updateColours(){
   cerr<<"SatDialog::updateColours called" <<endl;
 #endif
 
-  int index = pictures->currentItem();
+  int index = pictures->currentRow();
   if (index>-1){ 
     state lstate = m_state[index];
     vector <Colour> colours =

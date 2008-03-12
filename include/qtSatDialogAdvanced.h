@@ -33,15 +33,12 @@
 
 #include <qdialog.h>
 #include <qfont.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
 #include <miString.h>
 #include <vector>
 #include <diController.h>
 #include <qlabel.h>
-#include <q3groupbox.h>
 #include <qlayout.h>
-#include <q3listbox.h>
+#include <QListWidget>
 #include <diColour.h>
 #include <qtToggleButton.h>
 
@@ -116,8 +113,6 @@ private:
   float m_alphacutnr;
   float m_alphanr;
 
-  QLabel * colourstring;
-
   QLCDNumber* cutlcd;
   QLCDNumber* alphacutlcd;
   QLCDNumber* alphalcd;
@@ -130,7 +125,7 @@ private:
   ToggleButton* cut;
   ToggleButton* alphacut;
   ToggleButton* alpha;
-  ToggleButton* classified;
+  ToggleButton* legendButton;
   ToggleButton* colourcut;
 
   QPushButton* standard;
@@ -139,10 +134,7 @@ private:
   SliderValues m_alphacut;
   SliderValues m_alpha;
 
-  Q3GroupBox *colourEdit;
-  Q3ListBox * colourList;
-
-  Q3VBoxLayout* vlayout;
+  QListWidget * colourList;
 
   miString picturestring; //string describing selected picture
 
