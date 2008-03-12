@@ -28,35 +28,25 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
-#include <qdialog.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <q3listbox.h>
-#include <qpushbutton.h>
-#include <qcombobox.h>
-#include <qlabel.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
-#include <qcheckbox.h>
-#include <qslider.h>
-#include <qlcdnumber.h>
-#include <q3filedialog.h>
+
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QPushButton>
+#include <QLabel>
+#include <QCheckBox>
+#include <QSlider>
+#include <QLCDNumber>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QButtonGroup>
+#include <QGroupBox>
+
 #include <qtToggleButton.h>
 #include <qtObjectDialog.h>
 #include <qtEditComment.h>
-#include <qtAddtoDialog.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
 #include <diObjectManager.h>
 #include <qtUtility.h>
-
-// qt4 fix
-#include <Q3VButtonGroup>
-#include <Q3HButtonGroup>
-
 
 /***************************************************************************/
 ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
@@ -76,63 +66,67 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   useArchive=false;
 //********** create the various QT widgets to appear in dialog ***********
 
-  // combobox for selecting object
-  namebox = new Q3ListBox( this );
-  namebox->setMinimumHeight(100);
+  namebox = new QListWidget( this );
 
   objectnames= m_ctrl->getObjectNames(useArchive);  
   for (int i=0; i<objectnames.size(); i++){
-    namebox->insertItem(objectnames[i].c_str());
+    namebox->addItem(QString(objectnames[i].c_str()));
   }
   
-  connect( namebox, SIGNAL(selectionChanged(Q3ListBoxItem *) ), 
-	   SLOT( nameActivated( ) ) );  
-  namebox->setEnabled(true);
-  m_nameboxIndex = -1;
+  connect( namebox, SIGNAL(itemClicked(  QListWidgetItem * ) ), 
+	   SLOT( nameListClicked(  QListWidgetItem * ) ) );  
 
   //**** the three buttons "auto", "tid", "fil" *************
 
-  timefileBut = new Q3ButtonGroup( this );
-  autoButton = new ToggleButton(timefileBut, tr("Auto").latin1());
-  timeButton = new ToggleButton(timefileBut, tr("Time").latin1());
-  fileButton = new ToggleButton(timefileBut, tr("File").latin1());
-  Q3HBoxLayout* timefileLayout = new Q3HBoxLayout(timefileBut);
+  autoButton = new ToggleButton(this, tr("Auto").latin1());
+  timeButton = new ToggleButton(this, tr("Time").latin1());
+  fileButton = new ToggleButton(this, tr("File").latin1());
+  timefileBut = new QButtonGroup( this );
+  timefileBut->addButton(autoButton,0);
+  timefileBut->addButton(timeButton,1);
+  timefileBut->addButton(fileButton,2);
+  QHBoxLayout* timefileLayout = new QHBoxLayout();
   timefileLayout->addWidget(autoButton);
   timefileLayout->addWidget(timeButton);
   timefileLayout->addWidget(fileButton);
   timefileBut->setExclusive( true );
-  timefileBut->setButton(0);
-  timefileBut->setEnabled(false);
+  autoButton->setChecked(true);
   //timefileClicked is called when auto,tid,fil buttons clicked 
-  connect( timefileBut, SIGNAL( clicked(int) ),SLOT( timefileClicked(int) ) );
+  connect( timefileBut, SIGNAL( buttonClicked(int) ), 
+	   SLOT( timefileClicked(int) ) );
 
   //********** the list of files/times to choose from **************
 
-  timefileList = new Q3ListBox( this );
-  timefileList->setMinimumHeight(100);
+  timefileList = new QListWidget( this );
 
-  connect( timefileList, SIGNAL( highlighted( int ) ), 
-	   SLOT( timefileListSlot( int ) ) );
-  m_timefileListIndex = -1;  
+  connect( timefileList, SIGNAL( itemClicked( QListWidgetItem * ) ), 
+	   SLOT( timefileListSlot( QListWidgetItem * ) ) );
+
+
+  //the box (with label) showing which files have been choosen
+  QLabel* filesLabel = TitleLabel( tr("Selected files"), this);
+  selectedFileList = new QListWidget( this );
+
 
   //*****  Check boxes for selecting fronts/symbols/areas  **********
 
-  bgroupobjects= new Q3VButtonGroup(this);
-
-
-  cbs0= new QCheckBox(tr("Fronts"), bgroupobjects);
-  cbs1= new QCheckBox(tr("Symbols"),bgroupobjects);
-  cbs2= new QCheckBox(tr("Areas"), bgroupobjects);
-  cbs3= new QCheckBox(tr("Form"), bgroupobjects);
+  cbs0= new QCheckBox(tr("Fronts"), this);
+  cbs1= new QCheckBox(tr("Symbols"),this);
+  cbs2= new QCheckBox(tr("Areas"), this);
+  cbs3= new QCheckBox(tr("Form"), this);
+  QVBoxLayout* cbsLayout = new QVBoxLayout();
+  cbsLayout->addWidget(cbs0);
+  cbsLayout->addWidget(cbs1);
+  cbsLayout->addWidget(cbs2);
+  cbsLayout->addWidget(cbs3);
+  bgroupobjects= new QGroupBox();
+  bgroupobjects->setLayout( cbsLayout );
+  //  bgroupobjects->setExclusive( false );
   cbs0->setChecked(true);
   cbs1->setChecked(true);
   cbs2->setChecked(true);
   cbs3->setChecked(true);
 
-  //the box (with label) showing which files have been choosen
-  filesLabel = TitleLabel( tr("Selected files"), this);
-  filenames = new Q3ListBox( this );
-  filenames->setMinimumHeight(40);
 
   //********* slider/lcd number showing max time difference **********
 
@@ -144,7 +138,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   int difflength=timediff_maxValue/20 +5;
 
-  diffLabel = new QLabel( tr("    Time diff."), this );
+  QLabel* diffLabel = new QLabel( tr("    Time diff."), this );
   diffLcdnum= LCDNumber( difflength, this);
   diffSlider= Slider( timediff_minValue, timediff_maxValue, 1, 
 		      timediff_value, Qt::Horizontal, this );
@@ -179,17 +173,16 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   
   //************************* standard Buttons ***************************** 
 
-
    //push buttons to delete all selections
-  Delete = NormalPushButton( tr("Delete"), this );
-  connect( Delete, SIGNAL(clicked()), SLOT(DeleteClicked()));
+  QPushButton* deleteButton = NormalPushButton( tr("Delete"), this );
+  connect( deleteButton, SIGNAL(clicked()), SLOT(DeleteClicked()));
 
   //push button to refresh filelistsw
-  refresh =NormalPushButton( tr("Refresh"), this );
+  QPushButton* refresh =NormalPushButton( tr("Refresh"), this );
   connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() )); 
 
   //push button to show help
-  objhelp = NormalPushButton( tr("Help"), this);  
+  QPushButton* objhelp = NormalPushButton( tr("Help"), this);  
   connect(  objhelp, SIGNAL(clicked()), SLOT( helpClicked()));    
 
   //toggle button for comments 
@@ -199,101 +192,56 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
 
   //push button to hide dialog
-  objhide = NormalPushButton( tr("Hide"), this);
+  QPushButton* objhide = NormalPushButton( tr("Hide"), this);
   connect( objhide, SIGNAL(clicked()), SIGNAL(ObjHide()));
 
    //push button to apply the selected command and then hide dialog
-  objapplyhide = NormalPushButton(tr("Apply+Hide"), this );
+  QPushButton* objapplyhide = NormalPushButton(tr("Apply+Hide"), this );
   connect( objapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
  
   //push button to apply the selected command
-  objapply = NormalPushButton( tr("Apply"), this );
+  QPushButton* objapply = NormalPushButton( tr("Apply"), this );
   connect(objapply, SIGNAL(clicked()), SIGNAL( ObjApply()) );
-
-//   //push button for new files
-//   newfilebutton = NormalPushButton( tr("Velg ny fil"), this);      
-//   connect(  newfilebutton, SIGNAL(clicked()), 
-// 	    SLOT( newfileClicked() ));
-
-//   //push button for new dialog selections
-//   addtodialogbutton = NormalPushButton(tr("Legg til dialogvalg"), this);      
-//   connect(  addtodialogbutton, SIGNAL(clicked()), 
-// 	    SLOT( addtodialogClicked() ));
 
 
 // ********************* place all the widgets in layouts ****************
 
-  //place "auto","tid","fil" buttons group and list of times/files in
-  //vertical layout
-  v3layout = new Q3VBoxLayout( 5 );
-  v3layout->addWidget( timefileBut );
-  v3layout->addWidget( timefileList );
 
-  // place file name box and label in vertical layout
-  v5layout = new Q3VBoxLayout( 5 );
-  v5layout->addWidget( filesLabel );
-  v5layout->addWidget( filenames );
-
-
-  //"delete" and "refresh" buttons in hor.layout
-  hlayout = new Q3HBoxLayout( 5 );
-  hlayout->addWidget( Delete );
-  //  hlayout->addWidget( refresh );
-
-  //place lcd and slider in horizontal layout
-  Q3GridLayout* gridlayout = new Q3GridLayout( 3, 2); 
-  //  difflayout = new QHBoxLayout(5);
+  QGridLayout* gridlayout = new QGridLayout(); 
   gridlayout->addWidget( diffLabel,  0,0 );
   gridlayout->addWidget( diffLcdnum, 0,1 );
   gridlayout->addWidget( diffSlider, 0,2  );
-
-  //  alphalayout = new QHBoxLayout(5);
   gridlayout->addWidget( alpha,    1,0 );
   gridlayout->addWidget( alphalcd, 1,1 );  
   gridlayout->addWidget( salpha,   1,2 );
-
-
-  //place "help" button in horizontal layout
-  hlayout3 = new Q3HBoxLayout( 5 );
-  hlayout3->addWidget( objhelp );
-  hlayout3->addWidget( refresh  );
-  hlayout3->addWidget( commentbutton );
-
-  //place buttons "utfør", "help" etc. in horizontal layout
-  hlayout2 = new Q3HBoxLayout( 5 );
-  hlayout2->addWidget( objhide );
-  hlayout2->addWidget( objapplyhide );
-  hlayout2->addWidget( objapply );
-
-//   hlayout4 = new QHBoxLayout(5);
-//   hlayout4->addWidget( newfilebutton );
-//   hlayout4->addWidget( addtodialogbutton );
-
+  gridlayout->addWidget( objhelp,2,0 );
+  gridlayout->addWidget( refresh,2,1  );
+  gridlayout->addWidget( commentbutton,2,2 );
+  gridlayout->addWidget( objhide, 3, 0 );
+  gridlayout->addWidget( objapplyhide, 3,1 );
+  gridlayout->addWidget( objapply, 3,2 );
 
   //now create a vertical layout to put all the other layouts in
-  vlayout = new Q3VBoxLayout( this,  5, 5);                            
+  QVBoxLayout* vlayout = new QVBoxLayout( this);                            
   vlayout->addWidget( namebox ); 
-  vlayout->addLayout( v3layout ); 
-  vlayout->addLayout( v5layout ); 
-  vlayout->addWidget(bgroupobjects);
-  vlayout->addLayout( hlayout );
-//   vlayout->addLayout( difflayout );
-//   vlayout->addLayout( alphalayout );
+  vlayout->addLayout( timefileLayout );
+  vlayout->addWidget( timefileList );
+  vlayout->addWidget( filesLabel );
+  vlayout->addWidget( selectedFileList );
+  vlayout->addWidget( deleteButton );
+  vlayout->addWidget( bgroupobjects );
   vlayout->addLayout( gridlayout );
-  vlayout->addLayout( hlayout3 );
-  vlayout->addLayout( hlayout2 );
-  // vlayout->addLayout( hlayout4 );
 
 
   objcomment = new EditComment( this, m_ctrl,false );
   connect(objcomment,SIGNAL(CommentHide()),SLOT(hideComment()));
   objcomment->hide();
   
-  atd = new AddtoDialog(this,m_ctrl);
+  //  atd = new AddtoDialog(this,m_ctrl);
 
 
    //set the selected prefix and get time file list
-  filenames->clear();
+  selectedFileList->clear();
   // initialisation and default of timediff
   doubleDisplayDiff(timediff_value);
   
@@ -301,6 +249,23 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 }
 
 
+
+/*********************************************/
+void ObjectDialog::nameListClicked(  QListWidgetItem * item)
+{
+/* DESCRIPTION: This function is called when a value in namebox is 
+ selected (region names or file prefixes), and is returned without doing 
+anything if the new value  selected is equal to the old one.
+ (HK ?? not yet) */
+
+#ifdef dObjectDlg
+  cerr<<"ObjectDialog::nameListClicked called"<<endl;
+#endif
+
+  //update the time/file list
+  timefileClicked(timefileBut->checkedId());
+
+}
 
 /*********************************************/
 void ObjectDialog::timefileClicked(int tt){
@@ -313,120 +278,54 @@ void ObjectDialog::timefileClicked(int tt){
   //update list of files
   updateTimefileList(false);
 
-  //update the filenames box
-  updateFilenames();
+  //update the selectedFileList box
+  updateSelectedFileList();
 
-  if (tt==0) {
-
-    //AUTO clicked
-
-    //makes time animation work without pressing "utfør/apply"
-    m_ctrl->setObjAuto(true);
-    //timefilelist is the list of times/files when "auto" is chosen 
-    //it should not be possible to choose something from there 
-    timefileList->setEnabled( false );
-
-  } else  {
-
-    //stops time animation working without pressing "utfør/apply"
-    m_ctrl->setObjAuto(false);
-     //timefilelist is the list of times/files when "tid/fil" is chosen 
-    //it should  be possible to choose something from there 
-    timefileList->setEnabled ( true );
-
-  }
+  m_ctrl->setObjAuto(tt==0);
 
 }
 
 
 /*********************************************/
-void ObjectDialog::timefileListSlot( int index ){
+void ObjectDialog::timefileListSlot( QListWidgetItem * item  ){
 /* DESCRIPTION: This function is called when the signal highlighted() is
 sent from the list of time/file and a new list item is highlighted
 */
 #ifdef dObjectDlg
    cerr<<"SatDialog::timefileListSlot called"<<endl;
-   cerr<<"index "<<index<<endl;
-   cerr<<"m_timefileListIndex"<<m_timefileListIndex<<endl;
 #endif
 
-   if( index<0 ){
-#ifdef dObjectDlg
-     cerr<<"index er mindre enn 0"<<endl; 
-#endif
-     return;
-   }
 
-   //set currently selected index
-   m_timefileListIndex = index;
-   //update file time or name in filenames box
-   updateFilenames();
+   //update file time or name in selectedFileList box
+   updateSelectedFileList();
 
    //
    times.clear();
-   times.push_back(files[index].time);
-   emit emitTimes( "obj",times,false );
+   int index = timefileList->currentRow();
+   if(index>0){
+     times.push_back(files[index].time);
+     emit emitTimes( "obj",times,false );
+   }
 }
 
-
-/*********************************************/
-void ObjectDialog::nameActivated( ){
-/* DESCRIPTION: This function is called when a value in namebox is 
- selected (region names or file prefixes), and is returned without doing 
-anything if the new value  selected is equal to the old one.
- (HK ?? not yet) */
-
-#ifdef dObjectDlg
-     cerr<<"ObjectDialog::nameActivated called"<<endl;
-#endif
-
-     m_nameboxIndex = namebox->currentItem();
-
-     if (m_nameboxIndex>-1){
-       timefileBut->setEnabled(true);
-       //update the time/file list
-       timefileClicked(timefileBut->id(timefileBut->selected()));
-     }
-}
 
 /***************************************************************************/
 
 void ObjectDialog::DeleteClicked(){
-  //called when delete/slett button is called
-  //unselects and unhighlights everything
+  //unselects  everything
 #ifdef dObjectDlg 
     cerr<<"ObjectDialog::DeleteClicked called"<<endl;
 #endif 
-    namebox->clear();
-    //clearFocus, necessary to make sure no item
-    //selected in namebox
-    namebox->clearFocus();
 
-    //new Objectnames
-    objectnames= m_ctrl->getObjectNames(useArchive);
-    for (int i=0; i<objectnames.size(); i++){
-      namebox->insertItem(objectnames[i].c_str());
-    }
-    namebox->setEnabled(true);
-    m_nameboxIndex = -1;
+    namebox->currentItem()->setSelected(false);
 
-    //set the timefile button to auto and disable it
-    timefileBut->setEnabled(false);
-    autoButton->setOn(true);
-
-    //clear the list of files
     timefileList->clear();
-    //no selection of time/file yet
-    m_timefileListIndex = -1;
 
-    //clear the box with name of file
-    filenames->clear();
+    selectedFileList->clear();
 
     //Emit empty time list
     times.clear();
     emit emitTimes("obj",times,false );
-
-    namebox->setFocus();
 
 #ifdef dObjectDlg 
     cerr<<"ObjectDialog::DeleteClicked returned"<<endl;
@@ -446,10 +345,8 @@ void ObjectDialog::Refresh(){
   //update the timefileList
   updateTimefileList(true);
 
-  m_timefileListIndex = -1;  
-
-  //update the filenames box
-  updateFilenames();
+  //update the selectedFileList box
+  updateSelectedFileList();
 
 }
 
@@ -525,72 +422,6 @@ void  ObjectDialog::commentClicked(bool on ){
 
 /*********************************************/
 
-void  ObjectDialog::newfileClicked(){
-#ifdef dObjectDlg 
-  cerr << "ObjectDialog::newfileClicked !" << endl;
-#endif
-    //help user by putting in some probable choices  
-    miString newdir="/opdata/diana/Bakkeanalyse/DNMI-objects/";
-    miString filestring;
-    if (m_nameboxIndex>-1){ 
-      if (files.size()) filestring=files[0].name;   
-    }
-    else if (filenames->count())
-      filestring= filenames->currentText().latin1();
-    if (!filestring.empty()){
-      vector <miString> parts= filestring.split('/');
-      int l =parts.back().length();
-      int n = filestring.length();
-      newdir = filestring.substr(0,n-l);
-    }
-    //user input
-    Q3FileDialog *fdialog = new Q3FileDialog;
-    QString file =
-      fdialog->getOpenFileName(newdir.c_str(),"*.*");
-    delete fdialog;
-    if ( file.isEmpty() )
-      return; 
-    //clear all choices
-    DeleteClicked();
-    //put into filenames box
-    filenames->insertItem(file);
-    filenames->setCurrentItem( filenames->count() - 1 );
-}
-
-/*********************************************/
-
-void  ObjectDialog::addtodialogClicked(){
-  /* DESCRIPTION: This function is called when addtoDialog button is clicked.
-  A dialog box where user can input dialog name and file string is shown. If
-  OK is clicked this choice is added to the dialog   
-  */
-#ifdef dObjectDlg 
-  cerr << "ObjectDialog::addtodialogClicked !" << endl;
-#endif
-  //help user by putting in some probable choices  
-  miString file="/opdata/diana/Bakkeanalyse/DNMI-Objects/ANAdraw";
-  miString name= "MIN Analyse";
-  miString filestring;
-  if (m_nameboxIndex>-1){ 
-    name=objectnames[m_nameboxIndex];
-    if (files.size()) filestring=files[0].name;   
-  }
-  else if (filenames->count())
-    filestring= filenames->currentText().latin1();
-  vector <miString> parts= filestring.split('.');
-  if (parts.size()==2) file = parts[0];    
-  atd-> putName(name);
-  atd-> putFile(file);
-  if (atd->exec()){
-    name = atd->getName();
-    file = atd->getFile();
-    m_objm->insertObjectName(name,file);
-    DeleteClicked(); //updates namebox !
-  } 
-}
-
-/*********************************************/
-
 void ObjectDialog::showAll(){
   this->show();
   if(commentbutton ->isOn() )
@@ -612,107 +443,87 @@ void ObjectDialog::updateTimefileList(bool refresh){
   if (refresh) cerr << "refresh file list from disk" << endl;
 #endif
 
-  //no selection of time/file yet
-  m_timefileListIndex = -1;
-
   //clear box with list of files 
   timefileList->clear();
 
-  // get the list of object files
-  int index= namebox->currentItem();
+  int index= namebox->currentRow();
 
+  // get the list of object files
   if (index>=0 && index<objectnames.size())
     files= m_ctrl->getObjectFiles(objectnames[index],refresh);
   else
     files.clear();
 
-  times.clear();
   int nr_file =  files.size();
 
   // Put times into vector, sort, and emit
+  times.clear();
   for (int i=0; i<nr_file; i++)
     times.push_back(files[i].time);
 
   sort(times.begin(),times.end());
 
-  //HK ??? emitTimes call differs tt=0, tt=1..
   if (autoButton->isOn()) {
     emit emitTimes( "obj",times, true );
   } else {
-    //Emit empty time list
-    vector<miTime> noTimes;
+    vector<miTime> noTimes; //Emit empty time list
     emit emitTimes( "obj",noTimes,false );
   }
  
-  if (autoButton->isOn()) {
+  //update time/file list
+  if (timeButton->isOn()) {
 
-    filenames->clear();
-
-    if (index>=0 && index<objectnames.size())
-      filenames->insertItem(objectnames[index].c_str());
-
-  } else if (timeButton->isOn()) {
-
-    //make a string list with times to insert into timefileList
-    const char** ltid= new const char*[nr_file];
-    miString* tt= new miString[nr_file];
-      
     for (int i=0; i<nr_file; i++){
-      tt[i]=files[i].time.isoTime();
-      ltid[i]= tt[i].c_str();
+      timefileList->addItem(QString(files[i].time.isoTime().cStr()));
     }
-
-    //insert into timefilelist
-    timefileList->insertStrList( ltid, nr_file );
-
-    delete[] tt;
-    delete[] ltid;
-
+    
   } else if (fileButton->isOn()) {
       
-    const char** lfil= new const char*[nr_file];
-
-    for (int i=0; i<nr_file; i++)
-      lfil[i]= files[i].name.c_str();
-
-    timefileList->insertStrList( lfil, nr_file );
-      
-    delete[] lfil;
+    for (int i=0; i<nr_file; i++){
+      timefileList->addItem(QString(files[i].name.c_str()));
+    }
 
   }
+
+  //set current
+  if(timefileList->count()){
+    timefileList->setCurrentRow(0);
+  }
+
 }
 
 
 /*************************************************************************/
 
-void ObjectDialog::updateFilenames()
+void ObjectDialog::updateSelectedFileList()
 {
 
 #ifdef dObjectDlg
-  cerr <<"updateFilenames" << endl;
+  cerr <<"updateSelectedFileList" << endl;
 #endif
 
   //clear box with names of files
-  filenames->clear();
+  selectedFileList->clear();
 
   miString namestr;
 
+  int index= namebox->currentRow();
+  if(index<0) return;
+
+  int timefileListIndex = timefileList->currentRow();
+  cerr <<"timefileListIndex:"<<timefileListIndex<<endl;
   if (autoButton->isOn()) {
-    int index= namebox->currentItem();
-    if (index > -1 )
-      namestr= objectnames[index];
-  } else if (timeButton->isOn() && m_timefileListIndex>=0) {
-    int index= namebox->currentItem();
-    if (index > -1 ) 
-      namestr= objectnames[index] + " ";
-    namestr+= files[m_timefileListIndex].time.isoTime();
-  } else if (fileButton->isOn() && m_timefileListIndex>=0) {
-    namestr= files[m_timefileListIndex].name;
+    namestr= objectnames[index];
+  } else if (timeButton->isOn() && timefileListIndex>-1) {
+    namestr= objectnames[index] + " ";
+    namestr+= files[timefileListIndex].time.isoTime();
+  } else if (fileButton->isOn() && timefileListIndex>-1) {
+    namestr= files[timefileListIndex].name;
   }
 
   if (!namestr.empty()) {
-    filenames->insertItem(namestr.c_str());
-    filenames->setCurrentItem( filenames->count() - 1 );
+    selectedFileList->addItem(QString(namestr.c_str()));
+    selectedFileList->item( selectedFileList->count() - 1 )->setSelected(true);
   }
 
 #ifdef dObjectDlg
@@ -730,17 +541,18 @@ vector<miString> ObjectDialog::getOKString(){
 
   vector<miString> vstr;
 
-  if (filenames->count()){
+  if (selectedFileList->count()){
     miString str;
     str = "OBJECTS";
-    int index = m_nameboxIndex;
+    int index = namebox->currentRow();
+    int timefileListIndex = timefileList->currentRow();
     if (index>-1 && index<objectnames.size()){
       //item has been selected in dialog
       str+=(" NAME=\"" + objectnames[index] + "\"");
 
-      if ( m_timefileListIndex>-1 && m_timefileListIndex<files.size()) {
+      if ( timefileListIndex>-1 && timefileListIndex<files.size()) {
 
-	ObjFileInfo file=files[m_timefileListIndex];
+	ObjFileInfo file=files[timefileListIndex];
 
 	if (timeButton->isOn()){
 	  miTime time=file.time;
@@ -754,11 +566,6 @@ vector<miString> ObjectDialog::getOKString(){
       }
 
     }
-    //     else {  HK??? comment out 14/12/05 
-    //       //file chosen in filedialog
-    //       miString filestring= filenames->currentText().latin1();
-    //       str+= " FILE=" + filestring;	
-    //     }
 
     str+=" types=";
 
@@ -775,31 +582,10 @@ vector<miString> ObjectDialog::getOKString(){
 
     str+=plotVariables.external;
 
-//     //add plotoptions 
-//     PlotOptions po=m_objm->getPlotOptions(objectnames[index]);
-//     //only for shapefiles so far
-//     if (!po.palettename.empty() )
-//       str+=" palettecolours=" + po.palettename; 
-//     if (!po.fname.empty() )
-//       str+=" fname=" + po.fname; 
-//     int pfn=po.fdescr.size();
-//     if (pfn){
-//       str+=" fdescr='";
-// 	for (int i=0;i<pfn;i++){
-// 	  str+=po.fdescr[i];
-// 	  if (i<pfn-1)
-// 	    str+=":";
-// 	  else
-// 	    str+="'";
-// 	}
-//     }
-
-
     vstr.push_back(str);
 
     // clear external variables
     plotVariables.external.clear();
-
 
   } //end if on etc.
 
@@ -814,7 +600,6 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
 #ifdef dObjectDlg
   cerr << "ObjectDialog::putOKstring" << endl;
 #endif
-
 
   //clear plot
   DeleteClicked();
@@ -836,55 +621,39 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
    
   //update dialog
   bool found;
-  // only one plotVariables - one plot
-  if (plotVariables.objectname.empty()){
-    //HK ??? new ########################################################
-    //if only a file is selected- put it in filenames
-    if (!plotVariables.file.empty()) {
-      cerr << "only file selected -" << plotVariables.file << endl;
-      //put into filenames box
-      filenames->insertItem(plotVariables.file.c_str());
-      filenames->setCurrentItem( filenames->count() - 1 );
-    }    
-    //###################################################################
-  } else {
-    //cerr << "objectname =" << plotVariables.objectname << endl;
-    int nc = namebox->count();
-    for (int j=0;j<nc;j++ ){
-      miString listname =  namebox->text(j).latin1();
-      if (plotVariables.objectname==listname){
-	namebox->setSelected(j,true);
-	nameActivated();
-	found=true;
+  int nc = namebox->count();
+  for (int j=0;j<nc;j++ ){
+    miString listname =  namebox->item(j)->text().latin1();
+    if (plotVariables.objectname==listname){
+      namebox->item(j)->setSelected(true);
+      nameListClicked(namebox->item(j));
+      found=true;
+    }
+  }	  
+  if (!found) return;
+  if (!plotVariables.time.empty()) {
+    //cerr << "time =" << plotVariables.time << endl;
+    int nt=files.size();
+    for (int j=0;j<nt;j++ ){
+      miString listtime=stringFromTime(files[j].time);
+      if (plotVariables.time==listtime){
+	timefileBut->button(1)->setChecked(true);
+	timefileList->item(j)->setSelected(true);
       }
-    }	  
-    if (!found) return;
-    if (!plotVariables.time.empty()) {
-      //cerr << "time =" << plotVariables.time << endl;
-      int nt=files.size();
-      for (int j=0;j<nt;j++ ){
-	miString listtime=stringFromTime(files[j].time);
-	if (plotVariables.time==listtime){
-	  timefileBut->setButton(1);
-	  timefileList->setSelected(j,true);
-	}
+    }
+  } else if (!plotVariables.file.empty()) {
+    //cerr << "file =" << plotVariables.file << endl;
+    int nf = files.size();
+    for (int j=0;j<nf;j++ ){
+      miString listfile =  files[j].name;
+      if (plotVariables.file==listfile){
+	timefileBut->button(2)->setChecked(true);
+	timefileList->item(j)->setSelected(true);
       }
-    } else if (!plotVariables.file.empty()) {
-      //cerr << "file =" << plotVariables.file << endl;
-      int nf = files.size();
-      for (int j=0;j<nf;j++ ){
-	miString listfile =  files[j].name;
-	if (plotVariables.file==listfile){
-	  timefileBut->setButton(2);
-	  timefileList->setSelected(j,true);
-	}
-      } 
-    }    
+    } 
   }
   if (plotVariables.alphanr >=0){
     //cerr << "alpha =" << plotVariables.alphanr << endl;
-    //HK ??? warning 
-    //float alphavalue = plotVariables.alphanr/m_alphascale;
     int alphavalue = int(plotVariables.alphanr/m_alphascale + 0.5);
     salpha->setValue(  alphavalue );
     alpha->setOn(true);
@@ -892,8 +661,6 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
   }
   if (plotVariables.totalminutes >=0){
     //cerr << "totalminutes =" << plotVariables.totalminutes << endl;
-    //HK ??? warning 
-    //float number= int(plotVariables.totalminutes/m_scalediff + 0.5);
     int number= int(plotVariables.totalminutes/m_scalediff + 0.5);
     diffSlider->setValue( number);
   }    
@@ -914,7 +681,6 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
   else
     cbs3->setChecked(false);
        
-
 }
 
 
@@ -927,10 +693,7 @@ ObjectDialog::decodeString(const vector <miString> & tokens)
 
   PlotVariables okVar;
   okVar.totalminutes=-1;
-  //okVar.alphanr=-1.0;
-  //default is 1.0
   okVar.alphanr=1.0;
-
 
   int n= tokens.size();
   miString token;
@@ -1053,15 +816,18 @@ miString ObjectDialog::getShortname()
 #endif
   miString name;
 
-  if ( filenames->count() &&
-     (autoButton->isOn() || (m_timefileListIndex>=0 &&  
-				m_timefileListIndex<files.size()))) {
+  int nameboxIndex = namebox->currentRow();
+  int timefileListIndex = timefileList->currentRow();
+
+  if ( selectedFileList->count() &&
+     (autoButton->isOn() || (timefileListIndex>=0 &&  
+			     timefileListIndex<files.size()))) {
 
     
-    if (m_nameboxIndex > -1)
-      name += "" + objectnames[m_nameboxIndex] + " ";
+    if (nameboxIndex > -1)
+      name += "" + objectnames[nameboxIndex] + " ";
     else
-      name+= (" FILE=") + miString(filenames->currentText().latin1());	
+      name+= (" FILE=") + miString(selectedFileList->currentItem()->text().latin1());	
   }
   
   return name;

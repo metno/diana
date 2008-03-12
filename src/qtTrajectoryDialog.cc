@@ -28,30 +28,25 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <q3listbox.h>
-#include <qspinbox.h>
-#include <qcheckbox.h>
-#include <qstring.h> 
-#include <qtooltip.h>
-#include <q3frame.h>
+#include <QComboBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QListWidget>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QString> 
+#include <QToolTip>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
+
 #include <qtUtility.h>
 #include <qtGeoPosLineEdit.h>
 #include <qtTrajectoryDialog.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
 
 #include <math.h>
 #include <sstream>
-
-#define WIDTHLISTBOX 185
-#define HEIGHTLISTBOX 60
-
 
 TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), contr(llctrl)
@@ -79,6 +74,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   lineWidthBox= LinewidthBox( this );
   connect( lineWidthBox, SIGNAL( activated(int) ),
 	   SLOT( lineWidthSlot(int) ) );
+
   // line types
   linetypes = Linetype::getLinetypeNames();
   QLabel *lineTypeLabel= new QLabel( tr("Line type"), this );
@@ -86,7 +82,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   connect( lineTypeBox, SIGNAL( activated(int) ), 
 	   SLOT( lineTypeSlot(int) ) );
 
-  //timemarker
+  //time marker
   QLabel* timeLabel = new QLabel( tr("Time marks"), this );
   timeSpin = new QSpinBox(0,360,30,this);
   timeSpin->setSpecialValueText(tr("Off"));
@@ -124,8 +120,8 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
 		 tr("Lat Lon (deg:min:sec or decimal)") );
   connect( edit, SIGNAL( returnPressed()), SLOT( editDone() ));  
   
-  posList = new Q3ListBox(this);
-  connect( posList, SIGNAL( clicked( Q3ListBoxItem * ) ),   
+  posList = new QListWidget(this);
+  connect( posList, SIGNAL( itemClicked( QListWidgetItem * ) ),   
 	   SLOT( posListSlot( ) ) );
   
   //push button to delete last pos
@@ -136,19 +132,12 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   deleteAllButton = new QPushButton( tr("Delete all"), this);
   connect( deleteAllButton, SIGNAL(clicked()),SLOT(deleteAllClicked()));
   
-  //place delete buttons in layout
-  Q3HBoxLayout* dellayout = new Q3HBoxLayout( 5 );
-  dellayout->addWidget( deleteButton );
-  dellayout->addWidget( deleteAllButton );
-  
-  /*****************************************************************/
   //push button to start calculation
   startCalcButton = new QPushButton( tr("Start computation"), this );
   connect(startCalcButton, SIGNAL(clicked()), SLOT( startCalcButtonClicked()));
   
   fieldName = new QLabel(this);
   fieldName->setAlignment(Qt::AlignCenter);
-  /*****************************************************************/
   
   //push button to show help
   QPushButton * Help = NormalPushButton( tr("Help"), this);  
@@ -160,10 +149,6 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
 		 tr("Print calc. positions to file: trajectory.txt") );
   connect(  print, SIGNAL(clicked()), SLOT( printClicked()));    
   
-  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
-  hlayout2->addWidget( Help );
-  hlayout2->addWidget( print );
-
   //push button to hide dialog
   QPushButton * Hide = NormalPushButton(tr("Hide"), this);
   connect( Hide, SIGNAL(clicked()), SIGNAL(TrajHide()));
@@ -172,43 +157,37 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   QPushButton * quit = NormalPushButton( tr("Quit"), this);
   connect(quit, SIGNAL(clicked()), SLOT( quitClicked()) );
   
-  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
-  hlayout1->addWidget( Hide );
-  hlayout1->addWidget( quit );
-  
-  // ********************* place all the widgets in layouts ****************
-  Q3Frame *line1 = new Q3Frame( this );
-  line1->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  QFrame *line1 = new QFrame( this );
+  line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
   
   //now create a grid layout 
-  Q3GridLayout* gridlayout = new Q3GridLayout( 6, 2, 1 );
-  gridlayout->addWidget( collabel,       0, 0 );
-  gridlayout->addWidget( colbox,         0, 1 );
-  gridlayout->addWidget( lineWidthLabel, 1, 0 );
-  gridlayout->addWidget( lineWidthBox,   1, 1 );
-  gridlayout->addWidget( lineTypeLabel,  2, 0 );
-  gridlayout->addWidget( lineTypeBox,    2, 1 );
-  gridlayout->addWidget( timeLabel,      3, 0 );
-  gridlayout->addWidget( timeSpin,       3, 1 );
-  gridlayout->addMultiCellWidget(line1,  4,4,0,1 );
-  gridlayout->addWidget( numposLabel,    5, 0 );
-  gridlayout->addWidget( numposBox,      5, 1 );
-  gridlayout->addWidget( radiusLabel,    6, 0 );
-  gridlayout->addWidget( radiusSpin,     6, 1 );
-
-  //now create a vertical layout to put all the other layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 5, 5 );         
-  vlayout->addLayout( gridlayout ); 
-  vlayout->addWidget( posButton ); 
-  vlayout->addWidget( posLabel );
-  vlayout->addWidget( edit );
-  vlayout->addWidget( posList );
-  vlayout->addLayout( dellayout ); 
-  vlayout->addWidget( startCalcButton );
-  vlayout->addWidget( fieldName ); 
-//   vlayout->addWidget( Help );
-  vlayout->addLayout( hlayout2 ); 
-  vlayout->addLayout( hlayout1 ); 
+  QGridLayout* gridlayout = new QGridLayout(this);
+  gridlayout->setColumnStretch(1,1);
+  gridlayout->addWidget( collabel,        0, 0 );
+  gridlayout->addWidget( colbox,          0, 1 );
+  gridlayout->addWidget( lineWidthLabel,  1, 0 );
+  gridlayout->addWidget( lineWidthBox,    1, 1 );
+  gridlayout->addWidget( lineTypeLabel,   2, 0 );
+  gridlayout->addWidget( lineTypeBox,     2, 1 );
+  gridlayout->addWidget( timeLabel,       3, 0 );
+  gridlayout->addWidget( timeSpin,        3, 1 );
+  gridlayout->addWidget( line1,           4, 0, 1, 2 );
+  gridlayout->addWidget( numposLabel,     5, 0 );
+  gridlayout->addWidget( numposBox,       5, 1 );
+  gridlayout->addWidget( radiusLabel,     6, 0 );
+  gridlayout->addWidget( radiusSpin,      6, 1 );
+  gridlayout->addWidget( posButton,       7, 0, 1, 2); 
+  gridlayout->addWidget( posLabel,        8, 0, 1, 2); 
+  gridlayout->addWidget( edit,            9, 0, 1, 2); 
+  gridlayout->addWidget( posList,        10, 0, 1, 2); 
+  gridlayout->addWidget( deleteButton,   11, 0);
+  gridlayout->addWidget( deleteAllButton,11, 1);
+  gridlayout->addWidget( startCalcButton,12, 0, 1, 2); 
+  gridlayout->addWidget( fieldName,      13, 0, 1, 2); 
+  gridlayout->addWidget( Help,           14, 0 );
+  gridlayout->addWidget( print,          14,1);
+  gridlayout->addWidget( Hide,           15,0 );
+  gridlayout->addWidget( quit,           15,1 );
 
 }
 /********************************************************/  
@@ -231,7 +210,7 @@ void TrajectoryDialog::posButtonToggled(bool b){
 
 void TrajectoryDialog::numposSlot(int i){
 
-  int current = posList->currentItem();
+  int current = posList->currentRow();
   if(current<0) return; 
   
   positionVector[current].numPos=numposBox->currentText().latin1();
@@ -256,7 +235,7 @@ void TrajectoryDialog::radiusSpinChanged(int i){
     radiusSpin->setSingleStep(10);
   }
 
-  int current = posList->currentItem();
+  int current = posList->currentRow();
   if(current<0) return; 
   
   positionVector[current].radius=i;
@@ -267,7 +246,7 @@ void TrajectoryDialog::radiusSpinChanged(int i){
 /****************************************************************************/
 void TrajectoryDialog::posListSlot(){
 
-  int current = posList->currentItem();
+  int current = posList->currentRow();
   if(current<0) return; //empty list
   
   radiusSpin->setValue(positionVector[current].radius);
@@ -311,15 +290,15 @@ void TrajectoryDialog::editDone(){
 void TrajectoryDialog::deleteClicked(){
   //delete selected group of start positions
 
-  if(posList->currentItem()<0) return; //empty list
+  if(posList->currentRow()<0) return; //empty list
   
   if (positionVector.size()==1) {
     deleteAllClicked();
   }  else {
     vector<posStruct>::iterator p;
-    p= positionVector.begin()+posList->currentItem();
+    p= positionVector.begin()+posList->currentRow();
     positionVector.erase(p);
-    posList->removeItem(posList->currentItem());
+    posList->takeItem(posList->currentRow());
 
     vector<miString> vstr;
     vstr.push_back("clear");//delete all trajectories
@@ -362,15 +341,11 @@ void TrajectoryDialog::startCalcButtonClicked(){
   int nr_fields=fields.size();
   miString fName;
   //using first field if there is any field
-  if(nr_fields > 0)
-    fName = fields[0]; 
-  else
-    fName = "Ingen felt";
-  //insert field into list
-  //   fieldList->clear();
-  QString ffName = fName.c_str();
-  //   fieldList->insertItem(fieldName);
-  fieldName->setText(ffName);
+  if(nr_fields > 0){
+    fieldName->setText(QString(fields[0].cStr()));
+  } else {
+    fieldName->setText(tr("No field selected"));
+  }
   //send field name to TrajectoryPlot
   miString str = " field=\"";
   str+= fName;
@@ -543,7 +518,7 @@ void TrajectoryDialog::update_posList(float lat, float lon) {
     ost << "'W";
  
   // qt4 fix: insertItem takes QString as argument 
-  posList->insertItem(QString(ost.str().c_str()));
+  posList->addItem(QString(ost.str().c_str()));
   
 }
 /*********************************************/

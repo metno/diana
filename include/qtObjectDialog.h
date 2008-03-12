@@ -31,36 +31,28 @@
 #ifndef _objectDialog_h
 #define _objectDialog_h
 
-#include <qdialog.h>
-#include <qfont.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <QLabel>
-#include <Q3VBoxLayout>
-#include <miString.h>
+#include <QDialog>
+
 #include <vector>
 #include <miString.h>
 #include <diController.h>
 
 class PushButton;
-class Q3ListBox;
-class QComboBox;
-class Q3VBoxLayout;
-class Q3HBoxLayout;
-class Q3VButtonGroup;
-class QLabel;
+class QListWidget;
+class QListWidgetItem;
 class QSlider;
 class QLCDNumber;
 class QCheckBox;
-class Q3ButtonGroup;
+class QButtonGroup;
+class QGroupBox;
+
 class EditComment;
-class AddtoDialog;
 class ObjectManager;
 class ToggleButton;
 
 /**
 
-  \brief Dialogue for plotting weather objects
+  \brief Dialog for plotting weather objects
    
    Analyses, prognoses, sigcharts etc.
 
@@ -122,13 +114,7 @@ private:
 
   bool useArchive;
   vector<miString> objectnames;
-  //HK ??? what to do here?
-  map<miString,PlotOptions> mapPlotOptions;
 
-  //index of currently selected file
-  int m_timefileListIndex;
-  //index of namebox
-  int m_nameboxIndex; //HK ??? necessary ?
   //Emitted to TimeSlider 
   vector<miTime> times;  
   //list of object files currently selected
@@ -138,8 +124,8 @@ private:
 
   //update the list of files  (if refresh = true read from disk)
   void updateTimefileList(bool refresh);
-  //updates the text that appears in the filenames box
-  void updateFilenames();
+  //updates the text that appears in the selectedFileList box
+  void updateSelectedFileList();
 
   //decode part of OK string
   PlotVariables decodeString(const vector <miString> & tokens);
@@ -152,25 +138,23 @@ private:
 //************** q tWidgets that appear in the dialog  *******************
 
   // Combobox for selecting region name
-  Q3ListBox * namebox;
+  QListWidget * namebox;
 
   //3 Buttons for selecting "auto"/"tid"/"fil"
-  Q3ButtonGroup* timefileBut;
+  QButtonGroup* timefileBut;
   ToggleButton* autoButton;
   ToggleButton* timeButton;
   ToggleButton* fileButton;
 
   //list of times/files
-  Q3ListBox* timefileList; 
-
+  QListWidget* timefileList; 
 
  // the box showing which files have been choosen
-  QLabel* filesLabel;
-  Q3ListBox* filenames;  
+  QListWidget* selectedFileList;  
  
 
  //Check boxes for selecting fronts/symbols/areas
-  Q3VButtonGroup * bgroupobjects; 
+  QGroupBox * bgroupobjects; 
   QCheckBox *cbs0;
   QCheckBox *cbs1;
   QCheckBox *cbs2;
@@ -179,7 +163,6 @@ private:
 
 
   //lCD number/slider for showing/selecting max time diff.
-  QLabel* diffLabel;
   QLCDNumber* diffLcdnum;
   QSlider* diffSlider;
 
@@ -188,44 +171,16 @@ private:
   QLCDNumber* alphalcd;
   QSlider* salpha;
 
-  //delete and refresh buttons
-  QPushButton* Delete;
-  QPushButton* refresh;
-
-  //push buttons for apply/hide/help
-  QPushButton* objapply;
-  QPushButton* objapplyhide;
-  QPushButton* objhide;
-
-  //buttons for showing comments and help
   ToggleButton* commentbutton;
-  QPushButton* objhelp; 
-
-  //QPushButton* newfilebutton;
-  //QPushButton* addtodialogbutton;
-  
-  //layouts for placing buttons
-  Q3VBoxLayout* v3layout;
-  Q3VBoxLayout* v5layout;
-  Q3HBoxLayout* hlayout;
-  Q3HBoxLayout* difflayout;
-  Q3HBoxLayout* alphalayout;
-  Q3HBoxLayout* hlayout2;
-  Q3HBoxLayout* hlayout3;
-  //QHBoxLayout* hlayout4;
-  Q3VBoxLayout* vlayout;
-
 
   EditComment* objcomment;
-  AddtoDialog * atd;
-  
 
 private slots:
-  void DeleteClicked();
-  void nameActivated();
+  void nameListClicked(  QListWidgetItem * );
   void timefileClicked(int tt);
+  void timefileListSlot( QListWidgetItem * item );
+  void DeleteClicked();
   void Refresh();
-  void timefileListSlot( int index );
   void doubleDisplayDiff( int number );
   void applyhideClicked();
   void helpClicked();
@@ -233,8 +188,6 @@ private slots:
   void alphaDisplay( int number );
   void commentClicked(bool);
   void hideComment();
-  void newfileClicked();
-  void addtodialogClicked();
 
 signals:
   void ObjHide();
