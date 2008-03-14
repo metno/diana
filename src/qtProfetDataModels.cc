@@ -27,7 +27,15 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "qtProfetDataModels.h"
-
+#include <QIcon>
+#include <QPixmap>
+#include <fet_object_normal.xpm> 
+#include <fet_object_tmp.xpm>
+#include <fet_object_wind.xpm> 
+#include <fet_object_rain.xpm>
+#include <fet_object_p.xpm>
+#include <fet_object_sky.xpm>
+#include <user.xpm>
 namespace Profet{
 
 QVariant UserListModel::data(const QModelIndex &index, int role) const{
@@ -36,9 +44,11 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const{
   if (index.row() >= users.size())
     return QVariant();
   if (role == Qt::DisplayRole)
-      return QString(users[index.row()].name.cStr());
-  else
-      return QVariant();
+    return QString(users[index.row()].name.cStr());
+  else if (role == Qt::DecorationRole){
+    return QVariant(QIcon(QPixmap(user_xpm)));
+  }
+  return QVariant();
 }
 
 PodsUser UserListModel::getUser(const QModelIndex &index) const
@@ -52,7 +62,6 @@ void UserListModel::setUsers(const vector<PodsUser> & u){
   users = u;
   reset();
 }
-
 //  *** FetObjectListModel *** 
 
 QVariant FetObjectListModel::data(const QModelIndex &index, int role) const{
@@ -61,7 +70,21 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const{
   if (index.row() >= objects.size())
     return QVariant();
   if (role == Qt::DisplayRole)
-      return QString(objects[index.row()].id().cStr());
+    return QString(objects[index.row()].id().cStr());
+  else if (role == Qt::DecorationRole){
+    miString param = objects[index.row()].parameter(); 
+    if(param == "MSLP")
+      return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
+    else if(param == "T.2M")
+      return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
+    else if(param == "VIND.10M")
+      return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
+    else if(param == "TOTALT.SKYDEKKE")
+      return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
+    else if(param == "NEDBØR.3T")
+      return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
+    return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
+  }
   else
       return QVariant();
 }
@@ -70,7 +93,6 @@ QModelIndex FetObjectListModel::getIndexById(const miString & id) const{
   for(int i=0;i<objects.size();i++)
     if(objects[i].id() == id)
       return index(i,0);
-  //TODO is this index valid (without parent)?
   return QModelIndex();
 }
 

@@ -65,7 +65,6 @@ private:
   PaintToolBar * paintToolBar;
   ProfetObjectFactory objectFactory;
   FetObjectListModel objectModel;
-//  vector<fetObject> objects;
   vector<fetBaseObject> baseObjects;
   UserListModel userModel;
   fetObject currentObject;

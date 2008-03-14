@@ -178,7 +178,6 @@ void DianaProfetGUI::baseObjectSelected(miString id){
 }
 
 void DianaProfetGUI::objectSelected(const QModelIndex & index){
-  cerr << "DianaProfetGUI::objectSelected" << endl;
   LOG4CXX_INFO(logger,"objectSelected");
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
@@ -463,14 +462,7 @@ int DianaProfetGUI::getBaseObjectIndex(miString name){
       return i;
   return -1;
 }
-/*
-int DianaProfetGUI::getObjectIndex(miString id){
-  for(int i=0;i<objects.size();i++)
-    if(objects[i].id() == id)
-      return i;
-  return -1;
-}
-*/
+
 void  DianaProfetGUI::setStatistics(map<miString,float> m)
 {
   objectDialog.setStatistics(m);
