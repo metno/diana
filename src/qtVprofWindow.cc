@@ -177,10 +177,6 @@ VprofWindow::VprofWindow()
   connect(vpSetupDialog, SIGNAL(showdoc(const miString)),
 	  SIGNAL(showdoc(const miString)));
 
-  // print dialog
-  //contr->getPrinterDefinitions(printerdef);
-  qprt= new QPrinter();
-
   //initialize everything in startUp
   firstTime = true;
   active = false;
@@ -371,11 +367,13 @@ void VprofWindow::printClicked(){
   printerManager pman;
   //called when the print button is clicked
   miString command= pman.printCommand();
-  printOptions priop;
 
-  if (qprt->setup(this)){
-    if (qprt->outputToFile()) {
-      priop.fname= qprt->outputFileName().latin1();
+  QPrinter qprt;
+  fromPrintOption(qprt,priop);
+
+  if (qprt.setup(this)){
+    if (qprt.outputToFile()) {
+      priop.fname= qprt.outputFileName().latin1();
     } else if (command.substr(0,4)=="lpr ") {
       priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
@@ -389,11 +387,7 @@ void VprofWindow::printClicked(){
     }
 
     // fill printOption from qprinter-selections
-    fillPrintOption(qprt, priop);
-
-    // set printername
-    if (!qprt->outputToFile())
-      priop.printer= qprt->printerName().latin1();
+    toPrintOption(qprt, priop);
 
     // start the postscript production
     QApplication::setOverrideCursor( Qt::waitCursor );
@@ -404,18 +398,15 @@ void VprofWindow::printClicked(){
     vprofw->updateGL();
 
     // if output to printer: call appropriate command
-    if (!qprt->outputToFile()){
-      priop.numcopies= qprt->numCopies();
-
+    if (!qprt.outputToFile()){
+      priop.numcopies= qprt.numCopies();
+      
       // expand command-variables
       pman.expandCommand(command, priop);
-
+      
       system(command.c_str());
     }
     QApplication::restoreOverrideCursor();
-
-    // reset number of copies (saves a lot of paper)
-    qprt->setNumCopies(1);
   }
 }
 
@@ -818,14 +809,13 @@ vector<miString> VprofWindow::writeLog(const miString& logpart)
     vstr.push_back(str);
 
     // printer name & options...
-    QString qstr= qprt->printerName();
-    if (!qstr.isEmpty()) {
-      str= "PRINTER " + miString(qstr.latin1());
+    if (priop.printer.exists()){
+      str= "PRINTER " + priop.printer;
       vstr.push_back(str);
-      if (qprt->orientation()==QPrinter::Portrait)
-        str= "PRINTORIENTATION portrait";
+      if (priop.orientation==d_print::ori_portrait)
+	str= "PRINTORIENTATION portrait";
       else
-        str= "PRINTORIENTATION landscape";
+	str= "PRINTORIENTATION landscape";
       vstr.push_back(str);
     }
 
@@ -868,12 +858,12 @@ void VprofWindow::readLog(const miString& logpart, const vector<miString>& vstr,
       } else if (tokens.size()==2) {
 
         if (tokens[0]=="PRINTER") {
-          qprt->setPrinterName(QString(tokens[1].cStr()));
+          priop.printer=tokens[1];
         } else if (tokens[0]=="PRINTORIENTATION") {
 	  if (tokens[1]=="portrait")
-	    qprt->setOrientation(QPrinter::Portrait);
+	    priop.orientation=d_print::ori_portrait;
 	  else
-	    qprt->setOrientation(QPrinter::Landscape);
+	    priop.orientation=d_print::ori_landscape;
         }
 
       }
