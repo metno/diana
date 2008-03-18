@@ -100,7 +100,7 @@ private:
   void updateTimeBox();
 
   // printerdefinitions
-  QPrinter *qprt;
+  printOptions priop;
 
   miTime mainWindowTime;
   bool onlyObs; // if only observations, stations changes with time

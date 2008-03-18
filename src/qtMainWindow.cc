@@ -881,10 +881,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
 
-  // print dialog
-  qprt= new QPrinter();
-
-
   // vertical profiles
   // create a new main window
   vpWindow = new VprofWindow();
@@ -2604,12 +2600,15 @@ void DianaMainWindow::makeEPS(const miString& filename)
 
 void DianaMainWindow::hardcopy()
 {
+  QPrinter qprt;
   miString command= pman.printCommand();
-  printOptions priop;
+//   printOptions priop;
 
-  if (qprt->setup(this)){
-    if (qprt->outputToFile()) {
-      priop.fname= qprt->outputFileName().latin1();
+  fromPrintOption(qprt,priop);
+
+  if (qprt.setup(this)){
+    if (qprt.outputToFile()) {
+      priop.fname= qprt.outputFileName().latin1();
     } else if (command.substr(0,4)=="lpr ") {
       priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
@@ -2623,11 +2622,11 @@ void DianaMainWindow::hardcopy()
     }
 
     // fill printOption from qprinter-selections
-    fillPrintOption(qprt, priop);
+    toPrintOption(qprt, priop);
 
     // set printername
-    if (!qprt->outputToFile())
-      priop.printer= qprt->printerName().latin1();
+    if (!qprt.outputToFile())
+      priop.printer= qprt.printerName().latin1();
 
     // start the postscript production
     //statusBar()->message( tr("Starter utskrift"), 2000 );
@@ -2639,8 +2638,8 @@ void DianaMainWindow::hardcopy()
     w->updateGL();
 
     // if output to printer: call appropriate command
-    if (!qprt->outputToFile()){
-      priop.numcopies= qprt->numCopies();
+    if (!qprt.outputToFile()){
+      priop.numcopies= qprt.numCopies();
 
       // expand command-variables
       pman.expandCommand(command, priop);
@@ -2652,8 +2651,8 @@ void DianaMainWindow::hardcopy()
     }
     QApplication::restoreOverrideCursor();
 
-    // reset number of copies (saves a lot of paper)
-    qprt->setNumCopies(1);
+//     // reset number of copies (saves a lot of paper)
+//     qprt.setNumCopies(1);
   }
 }
 
@@ -3193,15 +3192,18 @@ void DianaMainWindow::timecontrolslot()
 
 void DianaMainWindow::PrintPS(miString& filestr )
 {
-  if (qprt->setup(this)){
+  QPrinter qprt;
+  fromPrintOption(qprt,priop);
+  
+  if (qprt.setup(this)){
 
     //statusBar()->message( tr("Starter utskrift"), 2000 );
     QApplication::setOverrideCursor( Qt::waitCursor );
 
-    if (!qprt->outputToFile()){
-      int numcopies= qprt->numCopies();
+    if (!qprt.outputToFile()){
+      int numcopies= qprt.numCopies();
       miString command= pman.printCommand();
-      miString printern= qprt->printerName().latin1();
+      miString printern= qprt.printerName().latin1();
 
 #ifndef linux
       if (command.substr(0,4)=="lpr ") {
@@ -3224,25 +3226,24 @@ void DianaMainWindow::PrintPS(miString& filestr )
       system(command.c_str());
     }
     QApplication::restoreOverrideCursor();
-
-    // reset number of copies (saves a lot of paper)
-    qprt->setNumCopies(1);
   }
 }
 
 
 void DianaMainWindow::PrintPS(vector <miString>& filenames )
 {
-  if (qprt->setup(this)){
+  QPrinter qprt;
+  fromPrintOption(qprt,priop);
 
+  if (qprt.setup(this)){
     //statusBar()->message( "Starter utskrift", 2000 );
     QApplication::setOverrideCursor( Qt::waitCursor );
 
-    if (!qprt->outputToFile()){
-      miString printern= qprt->printerName().latin1();
+    if (!qprt.outputToFile()){
+      miString printern= qprt.printerName().latin1();
       miString command;
       // Hmmm..should we really allow multiple copies here
-      int numcopies= qprt->numCopies();
+      int numcopies= qprt.numCopies();
       for (int j=0; j<numcopies; j++)
 	for (int i = 0;i<filenames.size();i++){
 	  command= pman.printCommand();
@@ -3269,9 +3270,6 @@ void DianaMainWindow::PrintPS(vector <miString>& filenames )
 	}
     }
     QApplication::restoreOverrideCursor();
-
-    // reset number of copies (saves a lot of paper)
-    qprt->setNumCopies(1);
   }
 }
 
@@ -3548,11 +3546,10 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   vstr.push_back("================");
 
   // printer name & options...
-  QString qstr= qprt->printerName();
-  if (!qstr.isEmpty()) {
-    str= "PRINTER " + miString(qstr.latin1());
+  if (priop.printer.exists()){
+    str= "PRINTER " + priop.printer;
     vstr.push_back(str);
-    if (qprt->orientation()==QPrinter::Portrait)
+    if (priop.orientation==d_print::ori_portrait)
       str= "PRINTORIENTATION portrait";
     else
       str= "PRINTORIENTATION landscape";
@@ -3633,12 +3630,12 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
     tokens= vstr[ivstr].split(' ');
     if (tokens.size()>=2) {
       if (tokens[0]=="PRINTER") {
-        qprt->setPrinterName(QString(tokens[1].cStr()));
+	priop.printer=tokens[1];
       } else if (tokens[0]=="PRINTORIENTATION") {
 	if (tokens[1]=="portrait")
-	  qprt->setOrientation(QPrinter::Portrait);
+	  priop.orientation=d_print::ori_portrait;
 	else
-	  qprt->setOrientation(QPrinter::Landscape);
+	  priop.orientation=d_print::ori_landscape;
       } else if (tokens[0]=="STATUSBUTTONS") {
 	showelem= (tokens[1]=="ON");
       } else if (tokens[0]=="AUTOSELECT") {

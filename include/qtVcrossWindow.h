@@ -101,7 +101,7 @@ private:
   void updateTimeBox();
 
   // printerdefinitions
-  QPrinter *qprt;
+  printOptions priop;
 
   void makeEPS(const miString& filename);
 

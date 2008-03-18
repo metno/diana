@@ -78,17 +78,70 @@ d_print::PageSize getPageSize(QPrinter::PageSize ps)
   return dps;
 }
 
+// conversion from diana-types to Qt-printing types
+QPrinter::Orientation getQPOrientation(d_print::Orientation ori)
+{
+  QPrinter::Orientation dori = QPrinter::Portrait;
+
+  if (ori==d_print::ori_landscape)
+    dori= QPrinter::Landscape;
+  else if (ori==d_print::ori_portrait)
+    dori= QPrinter::Portrait;
+
+  return dori;
+}
+
+QPrinter::ColorMode getQPColourMode(d_print::ColourOption cm)
+{
+  
+  QPrinter::ColorMode dcol = QPrinter::Color;
+
+  if (cm==d_print::incolour)
+    dcol= QPrinter::Color;
+  else if (cm==d_print::greyscale){
+    dcol= QPrinter::GrayScale;
+  }
+
+  return dcol;
+}
+
+QPrinter::PageSize getQPPageSize(d_print::PageSize ps)
+{
+  QPrinter::PageSize dps= QPrinter::A4;
+
+  if (ps==d_print::A4){
+    dps= QPrinter::A4;
+  } else if (ps==d_print::A3){
+    dps= QPrinter::A3;
+  } else if (ps==d_print::A2){
+    dps= QPrinter::A2;
+  } else if (ps==d_print::A1){
+    dps= QPrinter::A1;
+  } else if (ps==d_print::A0){
+    dps= QPrinter::A0;
+  }
+  
+  return dps;
+}
+
 
 // fill printOptions from QPrinter-selections
-void fillPrintOption(const QPrinter* qp, printOptions& priop)
+void toPrintOption(const QPrinter& qp, printOptions& priop)
 {
-  if (!qp) return;
-
-  priop.colop= getColourMode(qp->colorMode());
+  priop.printer= (qp.outputToFile()?"":qp.printerName().toStdString());
+  priop.colop= getColourMode(qp.colorMode());
   if (priop.colop==d_print::greyscale) priop.drawbackground= false;
 
-  priop.orientation= getOrientation(qp->orientation());
-  
-  priop.pagesize= getPageSize(qp->pageSize());
+  priop.orientation= getOrientation(qp.orientation());
+  priop.pagesize= getPageSize(qp.pageSize());
+}
+
+// set QPrinter-selections from printOptions
+void fromPrintOption(QPrinter& qp, printOptions& priop)
+{
+  if (priop.printer.exists()) qp.setPrinterName(priop.printer.c_str());
+  qp.setColorMode(getQPColourMode(priop.colop));
+  qp.setOrientation(getQPOrientation(priop.orientation));
+  qp.setPageSize(getQPPageSize(priop.pagesize));
 }
 

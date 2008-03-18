@@ -332,7 +332,7 @@ private:
 
   // printerdefinitions
   printerManager pman;
-  QPrinter *qprt;
+  printOptions priop;
 
   QToolButton * infoB;
 

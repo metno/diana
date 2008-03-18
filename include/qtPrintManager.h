@@ -43,7 +43,15 @@ d_print::Orientation getOrientation(QPrinter::Orientation ori);
 d_print::ColourOption getColourMode(QPrinter::ColorMode cm);
 d_print::PageSize getPageSize(QPrinter::PageSize ps);
 
+// conversion from diana printing-types to Qt types
+QPrinter::Orientation getQPOrientation(d_print::Orientation ori);
+QPrinter::ColorMode getQPColourMode(d_print::ColourOption cm);
+QPrinter::PageSize getQPPageSize(d_print::PageSize ps);
+
 // fill printOptions from QPrinter-selections
-void fillPrintOption(const QPrinter* qp, printOptions& priop);
+void toPrintOption(const QPrinter& qp, printOptions& priop);
+
+// set QPrinter-selections from printOptions
+void fromPrintOption(QPrinter& qp, printOptions& priop);
 
 #endif

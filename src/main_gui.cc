@@ -107,7 +107,8 @@ int main(int argc, char **argv)
   else {
 #ifndef NOLOG4CXX
     log4cxx::BasicConfigurator::configure();
-    log4cxx::Logger::getRootLogger()->setLevel(log4cxx::Level::WARN);
+    //log4cxx::Logger::getRootLogger()->setLevel(log4cxx::Level::WARN_INT);
+    log4cxx::Logger::getRootLogger()->setLevel(log4cxx::Level::getWarn());
 #endif
   }
 
