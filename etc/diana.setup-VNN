@@ -136,17 +136,41 @@ m=HIRLAM.20KM.00    f=/opdata/hirlam20/grdn00.dat    f=/opdata/hirlam20/grdni00.
 m=HIRLAM.20KM.06    f=/opdata/hirlam20/grdn06.dat    f=/opdata/hirlam20/grdni06.dat
 m=HIRLAM.20KM.12    f=/opdata/hirlam20/grdn12.dat    f=/opdata/hirlam20/grdni12.dat
 m=HIRLAM.20KM.18    f=/opdata/hirlam20/grdn18.dat    f=/opdata/hirlam20/grdni18.dat
-m=ALT-HIRLAM.20KM.00    f=/opdata_routine/hirlam20/grdn00.dat    f=/opdata_routine/hirlam20/grdnm00.dat    f=/opdata_routine/hirlam20/grdni00.dat
-m=ALT-HIRLAM.20KM.06    f=/opdata_routine/hirlam20/grdn06.dat    f=/opdata_routine/hirlam20/grdnm06.dat    f=/opdata_routine/hirlam20/grdni06.dat
-m=ALT-HIRLAM.20KM.12    f=/opdata_routine/hirlam20/grdn12.dat    f=/opdata_routine/hirlam20/grdnm12.dat    f=/opdata_routine/hirlam20/grdni12.dat
-m=ALT-HIRLAM.20KM.18    f=/opdata_routine/hirlam20/grdn18.dat    f=/opdata_routine/hirlam20/grdnm18.dat    f=/opdata_routine/hirlam20/grdni18.dat
-m=HIRLAM.20KM.ARKIV.7D   f=/opdata/hirlam20/arkhl1.dat  f=/opdata/hirlam20/arkhl3.dat  f=/opdata/hirlam20/arkhl5.dat  f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdni00.dat  f=/opdata/hirlam20/grdn06.dat  f=/opdata/hirlam20/grdni06.dat  f=/opdata/hirlam20/grdn12.dat  f=/opdata/hirlam20/grdni12.dat  f=/opdata/hirlam20/grdn18.dat  f=/opdata/hirlam20/grdni18.dat
-# m=HIRLAM.20KM.ARKIV.M7D  f=/opdata/hirlam20/arkhl2a.dat  f=/opdata/hirlam20/arkhl2b.dat  f=/opdata/hirlam20/arkhl2c.dat  f=/opdata/hirlam20/grdnm00.dat  f=/opdata/hirlam20/grdnm06.dat  f=/opdata/hirlam20/grdnm12.dat  f=/opdata/hirlam20/grdn18.dat
-# m=HIRLAM.20KM.ARKIV.30D  f=/opdata/hirlam20/arkhl4.dat  f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdn06.dat  f=/opdata/hirlam20/grdn12.dat  f=/opdata/hirlam20/grdn18.dat
-m=ALT-HIRLAM.20KM.00-1  f=/opdata_routine/hirlam20/grdn00.dat-1  f=/opdata_routine/hirlam20/grdnm00.dat-1  f=/opdata_routine/hirlam20/grdni00.dat-1
-m=ALT-HIRLAM.20KM.12-1  f=/opdata_routine/hirlam20/grdn12.dat-1  f=/opdata_routine/hirlam20/grdnm12.dat-1  f=/opdata_routine/hirlam20/grdni12.dat-1
-m=ALT-HIRLAM.20KM.00-2  f=/opdata_routine/hirlam20/grdn00.dat-2  f=/opdata_routine/hirlam20/grdnm00.dat-2  f=/opdata_routine/hirlam20/grdni00.dat-2
-m=ALT-HIRLAM.20KM.12-2  f=/opdata_routine/hirlam20/grdn12.dat-2  f=/opdata_routine/hirlam20/grdnm12.dat-2  f=/opdata_routine/hirlam20/grdni12.dat-2
+m=ALT-HIRLAM.20KM.00 f=/opdata_routine/hirlam20/grdnm00.dat \
+		     f=/opdata_routine/hirlam20/grdn00.dat \
+		     f=/opdata_routine/hirlam20/grdni00.dat
+m=ALT-HIRLAM.20KM.06 f=/opdata_routine/hirlam20/grdnm06.dat \   
+		     f=/opdata_routine/hirlam20/grdn06.dat  \  
+		     f=/opdata_routine/hirlam20/grdni06.dat
+m=ALT-HIRLAM.20KM.12 f=/opdata_routine/hirlam20/grdnm12.dat \
+		     f=/opdata_routine/hirlam20/grdn12.dat  \
+		     f=/opdata_routine/hirlam20/grdni12.dat
+m=ALT-HIRLAM.20KM.18 f=/opdata_routine/hirlam20/grdnm18.dat \
+		     f=/opdata_routine/hirlam20/grdn18.dat    \
+		     f=/opdata_routine/hirlam20/grdni18.dat
+m=HIRLAM.20KM.ARKIV.7D   f=/opdata/hirlam20/arkhl1.dat  \
+			 f=/opdata/hirlam20/arkhl3.dat  \
+			 f=/opdata/hirlam20/arkhl5.dat  \
+			 f=/opdata/hirlam20/grdn00.dat  \
+			 f=/opdata/hirlam20/grdni00.dat  \
+			 f=/opdata/hirlam20/grdn06.dat  \
+			 f=/opdata/hirlam20/grdni06.dat  \
+			 f=/opdata/hirlam20/grdn12.dat  \
+			 f=/opdata/hirlam20/grdni12.dat  \
+			 f=/opdata/hirlam20/grdn18.dat  \
+			 f=/opdata/hirlam20/grdni18.dat
+m=ALT-HIRLAM.20KM.00-1  f=/opdata_routine/hirlam20/grdnm00.dat-1  \
+			f=/opdata_routine/hirlam20/grdn00.dat-1  \
+			f=/opdata_routine/hirlam20/grdni00.dat-1
+m=ALT-HIRLAM.20KM.12-1  f=/opdata_routine/hirlam20/grdnm12.dat-1  \
+			f=/opdata_routine/hirlam20/grdn12.dat-1  \
+			f=/opdata_routine/hirlam20/grdni12.dat-1
+m=ALT-HIRLAM.20KM.00-2  f=/opdata_routine/hirlam20/grdnm00.dat-2  \
+			f=/opdata_routine/hirlam20/grdn00.dat-2  \
+			f=/opdata_routine/hirlam20/grdni00.dat-2
+m=ALT-HIRLAM.20KM.12-2  f=/opdata_routine/hirlam20/grdnm12.dat-2  \
+			f=/opdata_routine/hirlam20/grdn12.dat-2  \
+			f=/opdata_routine/hirlam20/grdni12.dat-2
 
 filegroup=Bakkeanalyser
 m=met.no.ANA      f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat

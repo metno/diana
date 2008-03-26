@@ -2503,17 +2503,53 @@ m=HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2
 m=HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2 
 
 filegroup=HIRLAM20km
-m=HIRLAM.20KM.00    f=$(OPDATA1)/hirlam20/grdn00.dat    f=$(OPDATA1)/hirlam20/grdnm00.dat    f=$(OPDATA1)/hirlam20/grdni00.dat
-m=HIRLAM.20KM.06    f=$(OPDATA1)/hirlam20/grdn06.dat    f=$(OPDATA1)/hirlam20/grdnm06.dat    f=$(OPDATA1)/hirlam20/grdni06.dat
-m=HIRLAM.20KM.12    f=$(OPDATA1)/hirlam20/grdn12.dat    f=$(OPDATA1)/hirlam20/grdnm12.dat    f=$(OPDATA1)/hirlam20/grdni12.dat
-m=HIRLAM.20KM.18    f=$(OPDATA1)/hirlam20/grdn18.dat    f=$(OPDATA1)/hirlam20/grdnm18.dat    f=$(OPDATA1)/hirlam20/grdni18.dat
-m=HIRLAM.20KM.00-1  f=$(OPDATA1)/hirlam20/grdn00.dat-1  f=$(OPDATA1)/hirlam20/grdnm00.dat-1  f=$(OPDATA1)/hirlam20/grdni00.dat-1
-m=HIRLAM.20KM.12-1  f=$(OPDATA1)/hirlam20/grdn12.dat-1  f=$(OPDATA1)/hirlam20/grdnm12.dat-1  f=$(OPDATA1)/hirlam20/grdni12.dat-1
-m=HIRLAM.20KM.00-2  f=$(OPDATA1)/hirlam20/grdn00.dat-2  f=$(OPDATA1)/hirlam20/grdnm00.dat-2  f=$(OPDATA1)/hirlam20/grdni00.dat-2
-m=HIRLAM.20KM.12-2  f=$(OPDATA1)/hirlam20/grdn12.dat-2  f=$(OPDATA1)/hirlam20/grdnm12.dat-2  f=$(OPDATA1)/hirlam20/grdni12.dat-2
-m=HIRLAM.20KM.ARKIV.7D   f=$(OPDATA1)/hirlam20/arkhl1.dat  f=$(OPDATA1)/hirlam20/arkhl3.dat  f=$(OPDATA1)/hirlam20/arkhl5.dat  f=$(OPDATA1)/hirlam20/grdn00.dat  f=$(OPDATA1)/hirlam20/grdni00.dat  f=$(OPDATA1)/hirlam20/grdn06.dat  f=$(OPDATA1)/hirlam20/grdni06.dat  f=$(OPDATA1)/hirlam20/grdn12.dat  f=$(OPDATA1)/hirlam20/grdni12.dat  f=$(OPDATA1)/hirlam20/grdn18.dat  f=$(OPDATA1)/hirlam20/grdni18.dat
-m=HIRLAM.20KM.ARKIV.M7D  f=$(OPDATA1)/hirlam20/arkhl2a.dat  f=$(OPDATA1)/hirlam20/arkhl2b.dat  f=$(OPDATA1)/hirlam20/arkhl2c.dat  f=$(OPDATA1)/hirlam20/grdnm00.dat  f=$(OPDATA1)/hirlam20/grdnm06.dat  f=$(OPDATA1)/hirlam20/grdnm12.dat  f=$(OPDATA1)/hirlam20/grdn18.dat
-m=HIRLAM.20KM.ARKIV.30D  f=$(OPDATA1)/hirlam20/arkhl4.dat  f=$(OPDATA1)/hirlam20/grdn00.dat  f=$(OPDATA1)/hirlam20/grdn06.dat  f=$(OPDATA1)/hirlam20/grdn12.dat  f=$(OPDATA1)/hirlam20/grdn18.dat
+m=HIRLAM.20KM.00    f=$(OPDATA1)/hirlam20/grdnm00.dat  \
+		    f=$(OPDATA1)/hirlam20/grdn00.dat \      
+		    f=$(OPDATA1)/hirlam20/grdni00.dat
+m=HIRLAM.20KM.06    f=$(OPDATA1)/hirlam20/grdnm06.dat \
+		    f=$(OPDATA1)/hirlam20/grdn06.dat   \     
+		    f=$(OPDATA1)/hirlam20/grdni06.dat
+m=HIRLAM.20KM.12    f=$(OPDATA1)/hirlam20/grdnm12.dat    \
+		    f=$(OPDATA1)/hirlam20/grdn12.dat    \
+		    f=$(OPDATA1)/hirlam20/grdni12.dat
+m=HIRLAM.20KM.18    f=$(OPDATA1)/hirlam20/grdnm18.dat   \ 
+		    f=$(OPDATA1)/hirlam20/grdn18.dat \
+		        f=$(OPDATA1)/hirlam20/grdni18.dat
+m=HIRLAM.20KM.00-1  f=$(OPDATA1)/hirlam20/grdnm00.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdn00.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdni00.dat-1
+m=HIRLAM.20KM.12-1  f=$(OPDATA1)/hirlam20/grdnm12.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdn12.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdni12.dat-1
+m=HIRLAM.20KM.00-2  f=$(OPDATA1)/hirlam20/grdnm00.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdn00.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdni00.dat-2
+m=HIRLAM.20KM.12-2  f=$(OPDATA1)/hirlam20/grdnm12.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdn12.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdni12.dat-2
+m=HIRLAM.20KM.ARKIV.7D   f=$(OPDATA1)/hirlam20/arkhl1.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl3.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl5.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn18.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni18.dat
+m=HIRLAM.20KM.ARKIV.M7D  f=$(OPDATA1)/hirlam20/arkhl2a.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl2b.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl2c.dat  \
+			 f=$(OPDATA1)/hirlam20/grdnm00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdnm06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdnm12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn18.dat
+m=HIRLAM.20KM.ARKIV.30D  f=$(OPDATA1)/hirlam20/arkhl4.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn18.dat
 
 
 filegroup=Bakkeanalyser
@@ -3477,6 +3513,36 @@ sub.type=ASAR_Sigma0
    channels= MERIS
    sub.type=MERIS_Chlora
    file=$(OPDATA2)/satdata_polar/envisat/meris/chlora/mitiff/nersc_meris_nws_chlora_mn1d_obs_fyyyymmddHHMM_xxx.mitiff
+
+image=SAFNWC-CMa
+ sub.type=CMa
+ channels=CMa
+     file=$(OPDATA2)/meteosat/safnwc/CMa_[yyyymmddHHMM].tif
+ sub.type=CMa_DUST
+ channels=CMa_DUST
+     file=$(OPDATA2)/meteosat/safnwc/CMa_DUST_[yyyymmddHHMM].tif
+ sub.type=CMa_VOLCANIC
+ channels=CMa_VOLCANIC
+     file=$(OPDATA2)/meteosat/safnwc/CMa_VOLCANIC_[yyyymmddHHMM].tif
+
+image=SAFNWC-CT
+ sub.type=CT
+ channels=CT
+     file=$(OPDATA2)/meteosat/safnwc/CT_[yyyymmddHHMM].tif
+
+image=SAFNWC-CTTH
+ sub.type=CTTH_HEIGHT
+ channels=CTTH_HEIGHT
+     file=$(OPDATA2)/meteosat/safnwc/CTTH_HEIGHT_[yyyymmddHHMM].tif
+ sub.type=CTTH_EFFECT
+ channels=CTTH_EFFECT
+     file=$(OPDATA2)/meteosat/safnwc/CTTH_EFFECT_[yyyymmddHHMM].tif
+ sub.type=CTTH_PRESS
+ channels=CTTH_PRESS
+     file=$(OPDATA2)/meteosat/safnwc/CTTH_PRESS_[yyyymmddHHMM].tif
+ sub.type=CTTH_TEMPER
+ channels=CTTH_TEMPER
+     file=$(OPDATA2)/meteosat/safnwc/CTTH_TEMPER_[yyyymmddHHMM].tif
 
 image=Foreign_satellite_data
  channels=VIS IR WV VIS+IR
