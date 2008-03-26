@@ -30,9 +30,12 @@
 #define QTPROFETDATAMODELS_H_
 
 #include <QAbstractListModel>
+#include <QColor>
 #include <profet/ProfetCommon.h>
 #include <profet/fetObject.h>
+#include <profet/fetParameter.h>
 #include <vector>
+#include <map>
 
 namespace Profet{
 
@@ -107,6 +110,48 @@ public:
    * Connected views are updated
    */
   void setObjects(const vector<fetObject> & obj);
+};
+
+class FetObjectTableModel : public QAbstractTableModel {
+  Q_OBJECT
+public:
+  enum CellType {CURRENT_CELL,EMPTY_CELL,WITH_DATA_CELL,UNREAD_DATA_CELL};
+private:
+  vector<fetObject::Signature> objects;
+  vector<fetParameter> parameters;
+  vector<miTime> times;
+  QModelIndex lastSelected;
+  map<miString,int> paramIndexMap;
+  map<miTime,int> timeIndexMap;
+  // map< timeIndex, map<paramIndex, signatureIndex> >
+  map< int, map< int, vector< int > > > signatureIndexMap;
+  // const access to signatureIndexMap
+  vector<int> getObjectIndexList(int timeIndex, int paramIndex) const;
+  QColor getCellBackgroundColor(CellType type, bool odd) const;
+  
+public:
+  FetObjectTableModel(QObject * parent): QAbstractTableModel(parent){
+    lastSelected = index(0,0);
+  }
+  int rowCount(const QModelIndex &parent = QModelIndex()) const{
+    return parameters.size();
+  }
+  int columnCount(const QModelIndex &parent = QModelIndex()) const{
+    return times.size();
+  }
+  QVariant headerData(int section, Qt::Orientation orientation,
+      int role = Qt::DisplayRole) const;
+  QVariant data(const QModelIndex &index, int role) const;
+  void initTable(const vector<miTime> & t, const vector<fetParameter> & param);
+  bool inited(){ return (parameters.size() && times.size()); }
+  void setLastSelectedIndex(const QModelIndex & lsi){ lastSelected = lsi; }
+  void setObjectSignatures(const vector<fetObject::Signature> & objects);
+  miTime getTime(const QModelIndex &index) const
+    throw(InvalidIndexException&);
+  fetParameter getParameter(const QModelIndex &index) const
+    throw(InvalidIndexException&);
+  miTime getCurrentTime() const throw(InvalidIndexException&);
+  fetParameter getCurrentParameter() const throw(InvalidIndexException&);
 };
 
 }

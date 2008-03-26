@@ -1,31 +1,31 @@
 /*
-  Diana - A Free Meteorological Visualisation Tool
+ Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+ Copyright (C) 2006 met.no
 
-  Contact information:
-  Norwegian Meteorological Institute
-  Box 43 Blindern
-  0313 OSLO
-  NORWAY
-  email: diana@met.no
-  
-  This file is part of Diana
+ Contact information:
+ Norwegian Meteorological Institute
+ Box 43 Blindern
+ 0313 OSLO
+ NORWAY
+ email: diana@met.no
+ 
+ This file is part of Diana
 
-  Diana is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+ Diana is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
 
-  Diana is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-  
-  You should have received a copy of the GNU General Public License
-  along with Diana; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ Diana is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with Diana; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 #include "qtProfetDataModels.h"
 #include <QIcon>
 #include <QPixmap>
@@ -36,76 +36,229 @@
 #include <fet_object_p.xpm>
 #include <fet_object_sky.xpm>
 #include <user.xpm>
-namespace Profet{
+namespace Profet {
 
-QVariant UserListModel::data(const QModelIndex &index, int role) const{
+QVariant UserListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
     return QVariant();
   if (index.row() >= users.size())
     return QVariant();
   if (role == Qt::DisplayRole)
     return QString(users[index.row()].name.cStr());
-  else if (role == Qt::DecorationRole){
+  else if (role == Qt::DecorationRole) {
     return QVariant(QIcon(QPixmap(user_xpm)));
   }
   return QVariant();
 }
 
-PodsUser UserListModel::getUser(const QModelIndex &index) const
-throw(InvalidIndexException&){
+PodsUser UserListModel::getUser(const QModelIndex &index) const throw(
+    InvalidIndexException&) {
   if (index.row() >= users.size() || index.row() < 0)
     throw new InvalidIndexException();
   return users[index.row()];
 }
 
-void UserListModel::setUsers(const vector<PodsUser> & u){
+void UserListModel::setUsers(const vector<PodsUser> & u) {
   users = u;
   reset();
 }
 //  *** FetObjectListModel *** 
 
-QVariant FetObjectListModel::data(const QModelIndex &index, int role) const{
+QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
     return QVariant();
   if (index.row() >= objects.size())
     return QVariant();
   if (role == Qt::DisplayRole)
     return QString(objects[index.row()].id().cStr());
-  else if (role == Qt::DecorationRole){
-    miString param = objects[index.row()].parameter(); 
-    if(param == "MSLP")
+  else if (role == Qt::DecorationRole) {
+    miString param = objects[index.row()].parameter();
+    if (param == "MSLP")
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
-    else if(param == "T.2M")
+    else if (param == "T.2M")
       return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
-    else if(param == "VIND.10M")
+    else if (param == "VIND.10M")
       return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
-    else if(param == "TOTALT.SKYDEKKE")
+    else if (param == "TOTALT.SKYDEKKE")
       return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
-    else if(param == "NEDBØR.3T")
+    else if (param == "NEDBØR.3T")
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
     return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
-  }
-  else
-      return QVariant();
+  } else
+    return QVariant();
 }
 
-QModelIndex FetObjectListModel::getIndexById(const miString & id) const{
-  for(int i=0;i<objects.size();i++)
-    if(objects[i].id() == id)
-      return index(i,0);
+QModelIndex FetObjectListModel::getIndexById(const miString & id) const {
+  for (int i=0; i<objects.size(); i++)
+    if (objects[i].id() == id)
+      return index(i, 0);
   return QModelIndex();
 }
 
-fetObject FetObjectListModel::getObject(const QModelIndex &index) const
-throw(InvalidIndexException&){
+fetObject FetObjectListModel::getObject(const QModelIndex &index) const throw(
+    InvalidIndexException&) {
   if (index.row() >= objects.size() || index.row() < 0)
     throw new InvalidIndexException();
   return objects[index.row()];
 }
 
-void FetObjectListModel::setObjects(const vector<fetObject> & obj){
+void FetObjectListModel::setObjects(const vector<fetObject> & obj) {
   objects = obj;
   reset();
+}
+
+//  *** FetObjectTableModel ***
+
+
+QVariant FetObjectTableModel::headerData(int section,
+    Qt::Orientation orientation, int role) const {
+  if (orientation == Qt::Vertical && parameters.size() <= section)
+    return QVariant();
+  else if (orientation == Qt::Horizontal && times.size() <= section)
+    return QVariant();
+
+  if (role == Qt::DisplayRole) {
+    if (orientation == Qt::Vertical)
+      return QString(parameters[section].name().cStr());
+    else
+      return QString(times[section].format("%a %k").cStr());
+  } else if (role == Qt::DecorationRole && orientation == Qt::Vertical) {
+    miString param = parameters[section].name();
+    if (param == "MSLP")
+      return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
+    else if (param == "T.2M")
+      return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
+    else if (param == "VIND.10M")
+      return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
+    else if (param == "TOTALT.SKYDEKKE")
+      return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
+    else if (param == "NEDBØR.3T")
+      return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
+    return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
+  }
+  return QVariant();
+}
+
+QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
+  if(role == Qt::DisplayRole) {
+    vector<int> oil = getObjectIndexList(index.column(),index.row());
+    if(oil.size()) return oil.size();
+  }
+  if(role == Qt::TextAlignmentRole) return Qt::AlignCenter;
+  if(role == Qt::BackgroundRole) {
+    bool oddDay = (times[index.column()].date().julianDay()%2) != 0;
+    if(index == lastSelected)
+      return getCellBackgroundColor(CURRENT_CELL, oddDay);
+    vector<int> oil = getObjectIndexList(index.column(),index.row());
+    if(oil.size())
+      return getCellBackgroundColor(WITH_DATA_CELL, oddDay);
+    else 
+      return getCellBackgroundColor(EMPTY_CELL, oddDay);
+  }
+  return QVariant();
+}
+
+vector<int> FetObjectTableModel::getObjectIndexList(
+    int timeIndex, int paramIndex) const{
+  vector<int> indexList;
+  map< int, map< int, vector< int > > >::const_iterator i; 
+  for(i=signatureIndexMap.begin();i!=signatureIndexMap.end();i++){
+    if((*i).first == timeIndex){
+      map< int, vector< int > >::const_iterator j;
+      for(j=(*i).second.begin(); j!=(*i).second.end(); j++){
+        if((*j).first == paramIndex){
+          return (*j).second;
+        }
+      }
+    }
+  }
+  vector<int> emptyIndex;
+  return emptyIndex;
+}
+
+void FetObjectTableModel::initTable(const vector<miTime> & t,
+    const vector<fetParameter> & param) {
+  times = t;
+  parameters = param;
+  int nParam = parameters.size();
+  for(int i=0;i<nParam; i++){
+    paramIndexMap[parameters[i].name()] = i;
+  }
+  int nTimes = times.size();
+  for(int i=0;i<nTimes;i++){
+    timeIndexMap[times[i]] = i;
+  }
+  signatureIndexMap[nTimes][nParam];
+  objects.clear();
+  reset();
+}
+
+void FetObjectTableModel::setObjectSignatures(
+    const vector<fetObject::Signature> & obj) {
+  objects = obj;
+  // build signatureIndexMap
+  signatureIndexMap.clear();
+  int nObj = objects.size();
+  for(int i=0;i<nObj; i++){
+    fetObject::Signature s = objects[i];
+    int tIndex = timeIndexMap[s.validTime];
+    int pIndex = paramIndexMap[s.parameter];
+    signatureIndexMap[tIndex][pIndex].push_back(i);
+  }
+  reset();
+}
+
+miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
+    InvalidIndexException&) {
+  int col = index.column();
+  if(col < 0)
+    throw new InvalidIndexException();
+  if (col >= times.size())
+    throw new InvalidIndexException();
+  return times[col];
+}
+
+fetParameter FetObjectTableModel::getParameter(const QModelIndex &index) const throw(
+    InvalidIndexException&) {
+  int row = index.row();
+  if(row < 0) 
+    throw new InvalidIndexException();
+  if (row >= parameters.size())
+    throw new InvalidIndexException();
+  return parameters[row];
+}
+
+
+miTime FetObjectTableModel::getCurrentTime() const throw(InvalidIndexException&){
+  try{ return getTime(lastSelected);}
+  catch(InvalidIndexException & iie){ throw iie; }
+}
+
+fetParameter FetObjectTableModel::getCurrentParameter() const throw(InvalidIndexException&){
+  try{ return getParameter(lastSelected); }
+  catch(InvalidIndexException & iie){ throw iie; }
+}
+
+QColor FetObjectTableModel::getCellBackgroundColor(CellType type, bool odd) const {
+  switch (type) {
+  case CURRENT_CELL:
+    if (odd)
+      return QColor(122, 122, 255);
+    else
+      return QColor(175, 175, 242);
+  case EMPTY_CELL:
+    if (odd)
+      return QColor(255, 255, 255);
+    else
+      return QColor(242, 242, 242);
+  case WITH_DATA_CELL:
+    if (odd)
+      return QColor(180, 255, 180);
+    else
+      return QColor(204, 242, 204);
+  default:
+    return QColor(255, 255, 255);
+  }
 }
 
 }

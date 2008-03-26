@@ -36,6 +36,7 @@
 #include <QCloseEvent>
 #include <QPushButton>
 #include <QListView>
+#include <QTableView>
 
 #include <profet/ProfetCommon.h>
 #include <profet/fetModel.h>
@@ -48,6 +49,7 @@
 #include <vector>
 
 class FetObjectListView;
+class FetObjectTableView;
 
 class ProfetSessionDialog: public QDialog{
   Q_OBJECT
@@ -62,7 +64,8 @@ private:
   QPushButton * editObjectButton;
   QPushButton * deleteObjectButton;
   ProfetChatWidget * chatWidget;
-  ProfetSessionTable * table;
+  FetObjectTableView * table;
+//  ProfetSessionTable * table;
   
   miString currentObject;
   
@@ -81,26 +84,25 @@ public:
   void setModel(const fetModel & model);
   void setUserModel(QAbstractItemModel * userModel);
   void setObjectModel(QAbstractItemModel * objectModel);
+  void setTableModel(QAbstractItemModel * tableModel);
   void setSelectedObject(const QModelIndex & index);
-//  bool setCurrentObject(const fetObject &);
   void setEditable(bool editable);
 
-  miString getSelectedParameter() const;
-  miTime getSelectedTime() const;
   void selectDefault();
   QModelIndex getCurrentObjectIndex();
 
   void initializeTable( const vector<fetParameter> & parameters,
 			    const fetSession & session); 
 
-  void setObjectSignatures( vector<fetObject::Signature> s);
   void showMessage(const Profet::InstantMessage & msg);
+  
+public slots:
+  void printSize(const QModelIndex &);
   
 signals:
   void sendMessage(const QString &);
-  void paramAndTimeChanged(miString param, miTime time);
+  void paramAndTimeChanged(const QModelIndex &);
   void objectSelected(const QModelIndex & index);
-//  void objectSelected(miString id);
   void newObjectPerformed();
   void editObjectPerformed();
   void deleteObjectPerformed();
@@ -112,6 +114,17 @@ public:
   FetObjectListView(QWidget * parent) : QListView(parent){}
   void currentChanged ( const QModelIndex & current, 
       const QModelIndex & previous ){ emit activated(current); }
+};
+
+class FetObjectTableView: public QTableView{
+  
+public:
+  FetObjectTableView(QWidget * parent) : QTableView(parent){}
+  void currentChanged ( const QModelIndex & current, 
+      const QModelIndex & previous ){
+    if(current.isValid())
+      emit activated(current); 
+    }
 };
 
 class QTitleLabel: public QLabel{

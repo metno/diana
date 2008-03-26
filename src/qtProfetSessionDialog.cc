@@ -29,17 +29,17 @@
 
 #include "qtProfetSessionDialog.h"
 
-#include <Q3Table>
-
 #include <QHBoxLayout>
 #include <QCloseEvent>
 #include <QVBoxLayout>
 #include <QSplitter>
+#include <QHeaderView>
 
 
 ProfetSessionDialog::ProfetSessionDialog( QWidget* parent) 
   : QDialog(parent ){
   setCaption(tr("Edit Field Session"));
+  setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
   QVBoxLayout * mainLayout = new QVBoxLayout(this);
   mainLayout->setMargin(2);
   QHBoxLayout * titleLayout = new QHBoxLayout();
@@ -61,18 +61,20 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   titleLayout->addWidget(modelLabel);
   
   QSplitter *split = new QSplitter(Qt::Vertical,this);
+  split->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
   // stretch table only
   split->setStretchFactor(0,10);
   split->setStretchFactor(1,0);
   centerLayout->addWidget(split);
   
   // Table
-  table = new ProfetSessionTable(split);
+  table = new FetObjectTableView(split);
   if(table){
-    
-    table->setResizePolicy(Q3Table::Manual);
-    table->setReadOnly( true );
-    table->setSelectionMode( Q3Table::Single );
+    table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    table->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
+    table->setSelectionMode(QAbstractItemView::SingleSelection);
+    table->setSelectionBehavior(QAbstractItemView::SelectItems);
   }
 
   QSplitter *h_split = new QSplitter(Qt::Horizontal,split);
@@ -116,8 +118,8 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
 
 void ProfetSessionDialog::connectSignals(){
   if(table){
-    connect(table,SIGNAL(paramAndTimeChanged(miString,miTime)),
-      this,SIGNAL(paramAndTimeChanged(miString,miTime)));
+    connect(table,SIGNAL(clicked(const QModelIndex &)),
+        this,SIGNAL(paramAndTimeChanged(const QModelIndex &)));
   }
   connect(newObjectButton,SIGNAL(clicked()),
       this,SIGNAL(newObjectPerformed()));
@@ -133,28 +135,22 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(sendMessage(const QString &)));
 }
 
+void ProfetSessionDialog::printSize(const QModelIndex &){
+  cerr << "size: " << table->size().height() << endl;
+  cerr << "minimumSize: " << table->minimumSize().height() << endl;
+  cerr << "columnWidth: " << table->columnWidth(1) << endl;
+}
+
 void ProfetSessionDialog::setUserModel(QAbstractItemModel * userModel){
   chatWidget->setUserModel(userModel);
 }
 
-miString ProfetSessionDialog::getSelectedParameter() const { 
-  if(table){
-    return table->selectedParameter();
-  }
-  return "T2M";
+void ProfetSessionDialog::setTableModel(QAbstractItemModel * tableModel){
+  table->setModel(tableModel);
 }
 
-miTime ProfetSessionDialog::getSelectedTime() const { 
-  if(table){
-    return table->selectedTime();
-  }
-  return miTime::nowTime();
-}
-
-void ProfetSessionDialog::selectDefault(){ 
-  if(table){
-    table->selectDefault();
-  }
+void ProfetSessionDialog::selectDefault(){
+  paramAndTimeChanged(table->model()->index(0,0));
 }
 
 void ProfetSessionDialog::setSelectedObject(const QModelIndex & index){
@@ -165,12 +161,6 @@ QModelIndex ProfetSessionDialog::getCurrentObjectIndex(){
   return objectList->currentIndex();
 }
 
-void ProfetSessionDialog::setObjectSignatures( vector<fetObject::Signature> s){
-  if(table){
-    table->setObjectSignatures(s);
-  }
-}
-  
 void ProfetSessionDialog::showMessage(const Profet::InstantMessage & msg){ 
   chatWidget->showMessage(msg); 
 }
@@ -182,7 +172,7 @@ void ProfetSessionDialog::closeEvent(QCloseEvent * e){
 
 void ProfetSessionDialog::setEditable(bool editable){
   if(table){
-    table->setEnabled(editable);
+//    table->setEnabled(editable);
   }
 //  objectWidget->setEnabled(editable);
 }
@@ -205,33 +195,9 @@ void ProfetSessionDialog::initializeTable(  const vector<fetParameter> & p,
   miString o= s.session().format("%k:00 %A %e.%b");
   sessionLabel->setText(o.cStr());
   if(table){
-    table->initialize(p,s.progs());
+//    table->initialize(p,s.progs());
   }
 }
 
-/*
-
-bool ProfetSessionDialog::setCurrentObject(const fetObject & current){
-  if(setSelectedObject(current.id())){
-    lockedObjectSelected(current.is_locked());
-  }
-  else{
-    return false;
-  }
-  return true;
-}
-
-bool ProfetSessionDialog::setSelectedObject(const miString & id){
-  for(int i=0;i<objectList->count();i++){
-    miString t = objectList->item(i)->text().latin1();
-    if(t==id){
-      objectList->setCurrentItem(i);
-      return true;
-    }
-  }
-  return false;
-}
-
-*/
 
 

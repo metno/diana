@@ -65,10 +65,15 @@ private:
   PaintToolBar * paintToolBar;
   ProfetObjectFactory objectFactory;
   FetObjectListModel objectModel;
+  FetObjectTableModel tableModel;
   vector<fetBaseObject> baseObjects;
   UserListModel userModel;
   fetObject currentObject;
+  // Cached because of many requests from multiple threads
   miString currentParam;
+  miTime currentTime;
+  // Used to compare selected parameter with previous on replot
+  miString prevParam;
   // needed to keep 'show-status' after hide
   bool showPaintToolBar;
   bool showObjectDialog;
@@ -160,7 +165,7 @@ private slots:
   
   // SessionDialog
   void sendMessage(const QString &);
-  void paramAndTimeSelected(miString p, miTime t);
+  void paramAndTimeSelected(const QModelIndex &);
   void createNewObject();
   void editObject();
   void deleteObject();

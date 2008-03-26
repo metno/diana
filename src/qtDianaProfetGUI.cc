@@ -39,12 +39,13 @@ PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) :
 QObject(), paintToolBar(ptb), areaManager(gam), 
 Profet::ProfetGUI(pc),sessionDialog(parent), 
 objectDialog(parent), objectFactory(),
-userModel(parent), objectModel(parent){
+userModel(parent), objectModel(parent), tableModel(parent){
 #ifndef NOLOG4CXX
   logger = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("diana.DianaProfetGUI"));
 #endif
   sessionDialog.setUserModel(&userModel);
   sessionDialog.setObjectModel(&objectModel);
+  sessionDialog.setTableModel(&tableModel);
   user=getenv("USER");
   connectSignals();
   showPaintToolBar = true;
@@ -56,8 +57,8 @@ userModel(parent), objectModel(parent){
 void DianaProfetGUI::connectSignals(){
   connect(&sessionDialog,SIGNAL(objectSelected(const QModelIndex &)),
       this,SLOT(objectSelected(const QModelIndex &)));
-  connect(&sessionDialog,SIGNAL(paramAndTimeChanged(miString,miTime)),
-      this,SLOT(paramAndTimeSelected(miString,miTime)));
+  connect(&sessionDialog,SIGNAL(paramAndTimeChanged(const QModelIndex &)),
+      this,SLOT(paramAndTimeSelected(const QModelIndex &)));
   connect(paintToolBar,SIGNAL(paintModeChanged(GridAreaManager::PaintMode)),
       this,SLOT(paintModeChanged(GridAreaManager::PaintMode)));
   connect(&sessionDialog,SIGNAL(newObjectPerformed()),
@@ -87,7 +88,8 @@ void DianaProfetGUI::setSessionInfo(fetModel model, vector<fetParameter> paramet
       fetSession session){
   LOG4CXX_INFO(logger,"setSessionInfo");
   sessionDialog.setModel(model);
-  sessionDialog.initializeTable(parameters,session);
+  tableModel.initTable(session.progs(),parameters);
+//  sessionDialog.initializeTable(parameters,session);
 }
 
 void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
@@ -126,11 +128,9 @@ void DianaProfetGUI::customEvent(QEvent * e){
     for(int i=0;i<nObjects;i++){
       areaManager->addArea(oue->objects[i].id(),oue->objects[i].polygon(),false);
     }
-//    sessionDialog.setObjectList(objects);
-    //TODO Select previous object. And ignore replot signal!
   }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
-    sessionDialog.setObjectSignatures(sue->objects);
+    tableModel.setObjectSignatures(sue->objects);
   }
   
 }
@@ -140,7 +140,9 @@ void DianaProfetGUI::setObjects(vector<fetObject> obj){
   QCoreApplication::postEvent(this, oue);//thread-safe
 }
 
-
+/**
+ * Called by multiple threads
+ */
 void DianaProfetGUI::setObjectSignatures( vector<fetObject::Signature> s){ 
   Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s);
   QCoreApplication::postEvent(this, sue);//thread-safe
@@ -159,8 +161,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
 
       currentObject = objectFactory.makeObject(baseObjects[i],
           areaManager->getCurrentPolygon(),
-          sessionDialog.getSelectedParameter(),
-          sessionDialog.getSelectedTime(),
+          getCurrentParameter(), getCurrentTime(),
 					       objectDialog.getReason(),user,sessionID,parent);
       LOG4CXX_INFO(logger,"calling controller.objectChanged");
       controller.objectChanged(currentObject);
@@ -227,9 +228,18 @@ void DianaProfetGUI::sendMessage(const QString & m){
       "system","all","Error sending message"));
 }
 
-void DianaProfetGUI::paramAndTimeSelected(miString p, miTime t){
-  LOG4CXX_INFO(logger,"paramAndTimeSelected "<<p<<", "<<t);
-	controller.parameterAndTimeChanged(p,t);
+void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
+  tableModel.setLastSelectedIndex(index);
+  bool tableInited = tableModel.inited();
+  if(tableInited) {
+    try{
+      currentParam = tableModel.getParameter(index).name();
+      currentTime = tableModel.getTime(index);
+      controller.parameterAndTimeChanged(currentParam,currentTime);
+    }catch(InvalidIndexException & iie){
+      LOG4CXX_ERROR(logger,"Invalid time/param index");
+    }
+  }
 }
 
 void DianaProfetGUI::createNewObject(){
@@ -293,17 +303,17 @@ void DianaProfetGUI::hideProfetPerformed(){
 
 void DianaProfetGUI::showField(miString param, miTime time){
   LOG4CXX_INFO(logger,"show field "<<param<<" "<<time);
-  if ( param != currentParam ){ // has parameter changed?
-    LOG4CXX_INFO(logger,"show field parameter changed from"<<currentParam << " to " <<
+  if ( param != prevParam ){ // has parameter changed?
+    LOG4CXX_INFO(logger,"show field parameter changed from "<< prevParam << " to " <<
 		  param);
     miString plotString;
     
     // First, remove previous PROFET fieldPlot (if any)
-    if ( currentParam.length() ){
+    if ( prevParam.length() ){
       plotString = "REMOVE ";
       plotString += "FIELD ";
       plotString += "profet ";
-      plotString += currentParam;
+      plotString += prevParam;
       emit showProfetField(plotString); //FieldManager->addField
     }
     
@@ -316,7 +326,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
     emit showProfetField(plotString); //FieldManager->addField
   }
   
-  currentParam = param;
+  prevParam = param;
   
   emit setTime(time);
 //  emit repaintMap(false);
@@ -337,13 +347,17 @@ void DianaProfetGUI::updateMap(){
   QCoreApplication::postEvent(this, new QEvent(
       QEvent::Type(Profet::UPDATE_MAP_EVENT)));//thread-safe
 }
-
+/**
+ * Called by multiple threads
+ */
 miString DianaProfetGUI::getCurrentParameter(){
-  return sessionDialog.getSelectedParameter();
+  return currentParam;
 }
-
+/**
+ * Called by multiple threads
+ */
 miTime DianaProfetGUI::getCurrentTime(){
-  return sessionDialog.getSelectedTime();
+  return currentTime;
 }
 
 void DianaProfetGUI::paintModeChanged(GridAreaManager::PaintMode mode){
@@ -370,15 +384,12 @@ void DianaProfetGUI::gridAreaChanged(){
       int i = getBaseObjectIndex(objectDialog.getSelectedBaseObject());
       if(i != -1){
         if(areaManager->isAreaSelected()){
-
-	  // TODO: fetch parent and sessionID from somewhere...
-	  miString sessionID = "temporarySessionID";
-	  miString parent = "";
-	  
+      	  // TODO: fetch parent and sessionID from somewhere...
+      	  miString sessionID = "temporarySessionID";
+      	  miString parent = "";
           currentObject = objectFactory.makeObject(baseObjects[i],
 						   areaManager->getCurrentPolygon(),
-						   sessionDialog.getSelectedParameter(),
-						   sessionDialog.getSelectedTime(),
+						   getCurrentParameter(), getCurrentTime(),
 						   objectDialog.getReason(),user,
 						   sessionID,parent);
         }
@@ -463,13 +474,11 @@ int DianaProfetGUI::getBaseObjectIndex(miString name){
   return -1;
 }
 
-void  DianaProfetGUI::setStatistics(map<miString,float> m)
-{
+void  DianaProfetGUI::setStatistics(map<miString,float> m){
   objectDialog.setStatistics(m);
 }
 
-void  DianaProfetGUI::setActivePoints(vector<Point>)
-{
+void  DianaProfetGUI::setActivePoints(vector<Point>){
 
 }
 
