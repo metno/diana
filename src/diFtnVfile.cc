@@ -173,6 +173,29 @@ int* FtnVfile::getInt(int length) {
 }
 
 
+int* FtnVfile::getIntDuo(int length) {
+#ifdef DEBUGPRINT
+  cerr << "++ FtnVfile::getIntDuo  length= " << length << endl;
+#endif
+
+  int* idata= new int[length];
+
+  int n, j, i=0, ilo, ihi;
+
+  if (index % 2) index++;
+  while (i<length) {
+    if (index>=bufferLength) readBuffer();
+    n= (length-i<(bufferLength-index)/2) ? length-i : (bufferLength-index)/2;
+    for (j=0; j<n; ++j) {
+      ilo= buffer[index++]; if (ilo<0) ilo += 65536;
+      ihi= buffer[index++];
+      idata[i++]= (ihi<<16) | ilo;
+    }
+  }
+  return idata;
+}
+
+
 vector<int> FtnVfile::getIntVector(int length) {
 #ifdef DEBUGPRINT
   cerr << "++ FtnVfile::getIntVector length= " << length << endl;

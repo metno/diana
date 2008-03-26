@@ -65,6 +65,7 @@ public:
   bool setFilePosition(int record, int word);
   int        getInt     ();
   int*       getInt     (int length);
+  int*       getIntDuo  (int length);
   vector<int> getIntVector(int length);
   short int* getShortInt(int length);
   float      getFloat   (int iscale, int iundef);

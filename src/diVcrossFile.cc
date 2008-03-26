@@ -138,7 +138,7 @@ bool VcrossFile::readFileHeader() {
     vfile->init();
     length= 4;
     head= vfile->getInt(length);
-    if (head[0]!=121 || head[1]!=1 || head[2]!=bufferlength*2)
+    if (head[0]!=121 || head[1]>2 || head[2]!=bufferlength*2)
       throw VfileError();
     length= head[3];
     if (length<25)
@@ -337,8 +337,11 @@ bool VcrossFile::readFileHeader() {
 
     // pointer to data for each crossection and time
     // (pointer as fortran record and word no.)
-    dataAddress= vfile->getInt(2*numCross*numTime);
-
+    if (head[1] == 1) {
+      dataAddress= vfile->getInt(2*numCross*numTime);
+    } else {
+      dataAddress= vfile->getIntDuo(2*numCross*numTime);
+    }
     // get map positions (in data grid units)....................
     // (some nasty stuff until program vcdata changed)
     nposmap= 0;
