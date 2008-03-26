@@ -79,6 +79,10 @@ bool SetupParser::checkSubstitutions(miString& t)
     n = substitutions[s];
 
   t.replace(r,n);
+
+  //next substitution
+  checkSubstitutions(t);
+
   return true;
 }
 
