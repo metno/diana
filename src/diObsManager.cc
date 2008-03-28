@@ -258,9 +258,9 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
       minTime.addMin(-1*oplot->getTimeDiff());
       maxTime.addMin(oplot->getTimeDiff());
       if( anno_synoptic){
-	if(timeRangeMin > minTime)
+	if(timeRangeMin > minTime || oplot->getTimeDiff()<0)
 	  minTime = timeRangeMin;
-	if(timeRangeMax < maxTime)
+	if(timeRangeMax < maxTime || oplot->getTimeDiff()<0)
 	  maxTime = timeRangeMax;
       }
       timeInterval = " (" + minTime.format("%H:%M")
