@@ -183,10 +183,10 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 
   //SLIDER FOR MAX TIME DIFFERENCE
   m_scalediff= dialogInfo.timediff.scale;
-  QLabel *diffLabel = new QLabel( tr("Max time diff"), this);
-  int difflength=dialogInfo.timediff.maxValue/20+3;
+  QLabel *diffLabel = new QLabel( tr("Time diff"), this);
+  int difflength=dialogInfo.timediff.maxValue/40+3;
   diffLcdnum= LCDNumber( difflength, this);
-  diffSlider= Slider( dialogInfo.timediff.minValue, 
+  diffSlider= new QSlider( dialogInfo.timediff.minValue, 
 		      dialogInfo.timediff.maxValue, 1, 
 		      dialogInfo.timediff.value, Qt::Horizontal, this );
   QHBoxLayout* difflayout = new QHBoxLayout(5);
@@ -606,15 +606,9 @@ void SatDialog::picturesSlot( QListWidgetItem * item ){
     sda->greyOptions();
     int number=int (m_state[index].totalminutes/m_scalediff);
     diffSlider->setValue(number);
-    //HK hardcoded, only NOAA mosaic allowed
-    if (!m_state[index].name.contains("NOAA")){
-      mosaic->setOn(false);
-      mosaic->setEnabled(false);
-    } else{
     bool mon=m_state[index].mosaic;
     mosaic->setOn(mon);
     mosaic->setEnabled(true);
-    }
   }
   else{
     sda->setPictures("");
@@ -1371,15 +1365,9 @@ void SatDialog::updatePictures(int index, bool updateAbove){
     sda->greyOptions();
     int number=int (m_state[index].totalminutes/m_scalediff);
     diffSlider->setValue(number);
-    //HK hardcoded, only NOAA mosaic allowed
-    if (!m_state[index].name.contains("NOAA")){
-      mosaic->setOn(false);
-      mosaic->setEnabled(false);
-    } else{
-      bool mon=m_state[index].mosaic;
-      mosaic->setOn(mon);
-      mosaic->setEnabled(true);
-    }
+    bool mon=m_state[index].mosaic;
+    mosaic->setOn(mon);
+    mosaic->setEnabled(true);
   }
 
 

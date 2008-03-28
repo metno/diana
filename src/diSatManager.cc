@@ -313,12 +313,13 @@ bool SatManager::readSatFile(){
   if(!MItiff::readMItiff(satdata->actualfile,*satdata))
     return false;
 
-  if(satdata->palette) return true;
+  if(!satdata->palette) {
 
-  if(satdata->plotChannels == "IR+V")
-    init_rgbindex_Meteosat(*satdata);
-  else
-    init_rgbindex(*satdata);
+    if(satdata->plotChannels == "IR+V")
+      init_rgbindex_Meteosat(*satdata);
+    else
+      init_rgbindex(*satdata);
+  }
 
   if (satdata->mosaic){
     getMosaicfiles();
@@ -629,6 +630,8 @@ void SatManager::addMosaicfiles(){
     color[0]= satdata->rawimage[satdata->rgbindex[0]];
     color[1]= satdata->rawimage[satdata->rgbindex[1]];
     color[2]= satdata->rawimage[satdata->rgbindex[2]];
+  } else {
+    color[0]= satdata->rawimage[0];
   }
 
   int n=mosaicfiles.size();
@@ -1240,7 +1243,7 @@ bool SatManager::parseSetup(SetupParser &sp) {
   Dialog.alpha.value=10;
   Dialog.alpha.scale=0.1;
   Dialog.timediff.minValue=0;
-  Dialog.timediff.maxValue=24;
+  Dialog.timediff.maxValue=96;
   Dialog.timediff.value=4;
   Dialog.timediff.scale=15;
 
