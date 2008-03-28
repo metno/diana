@@ -310,7 +310,7 @@ private slots:
   void modelboxClicked( QListWidgetItem * item );
 
   void fieldGRboxActivated( int index );
-  void fieldboxChanged();
+  void fieldboxChanged(QListWidgetItem*);
 
   void selectedFieldboxClicked( QListWidgetItem * item );
 

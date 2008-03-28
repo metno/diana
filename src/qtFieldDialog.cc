@@ -255,8 +255,8 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 // #endif
   fieldbox->setSelectionMode( QAbstractItemView::MultiSelection );
 
-  connect( fieldbox, SIGNAL( itemSelectionChanged() ),
-  	   SLOT( fieldboxChanged() ) );
+  connect( fieldbox, SIGNAL( itemClicked(QListWidgetItem*) ),
+  	   SLOT( fieldboxChanged(QListWidgetItem*) ) );
 
   // selectedFieldlabel
   QLabel *selectedFieldlabel= TitleLabel( tr("Selected fields"), this );
@@ -1597,8 +1597,7 @@ void FieldDialog::updateIdnum(){
   return;
 }
 
-
-void FieldDialog::fieldboxChanged(){
+void FieldDialog::fieldboxChanged(QListWidgetItem* item){
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::fieldboxChanged called:"<<fieldbox->count()<<endl;
 #endif
@@ -3886,7 +3885,7 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
           }
         }
       }
-      if (change) fieldboxChanged();
+      if (change) fieldboxChanged(fieldbox->currentItem());
     }
     selectedFieldbox->setCurrentRow(0);
     selectedFieldbox->item(0)->setSelected(true);
@@ -4331,7 +4330,7 @@ void FieldDialog::deleteSelected()
   if (indexF>=0) {
     fieldbox->setCurrentRow(indexF);
     fieldbox->item(indexF)->setSelected(false);
-    fieldboxChanged();
+    fieldboxChanged(fieldbox->currentItem());
   } else {
     selectedFieldbox->takeItem(index);
     for (int i=index; i<ns; i++)
@@ -4506,19 +4505,25 @@ void FieldDialog::changeModel()
   miString oldModel= selectedFields[index].modelName.downcase();
   miString newModel= vfgi[indexFGR].modelName.downcase();
   if (oldModel==newModel) return;
-
+  //ignore (gridnr)
+  newModel=newModel.substr(0,newModel.find("("));
+  oldModel=oldModel.substr(0,oldModel.find("("));
   fieldbox->blockSignals(true);
 
   int nvfgi= vfgi.size();
   int gbest,fbest,gnear,fnear;
 
   for (int i=0; i<n; i++) {
-    if (selectedFields[i].modelName.downcase()==oldModel) {
+    miString selectedModel=selectedFields[i].modelName.downcase();
+    selectedModel=selectedModel.substr(0,selectedModel.find("("));
+    if (selectedModel==oldModel) {
       // check if field exists for the new model
       gbest=fbest=gnear=fnear= -1;
       int j= 0;
       while (gbest<0 && j<nvfgi) {
-        if (vfgi[j].modelName.downcase()==newModel) {
+	miString model=vfgi[j].modelName.downcase();
+	model=model.substr(0,model.find("("));
+        if (model==newModel) {
  	  int m= vfgi[j].fieldNames.size();
 	  int k= 0;
 	  while (k<m && vfgi[j].fieldNames[k]!=
