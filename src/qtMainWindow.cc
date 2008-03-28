@@ -800,6 +800,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   uffm->hide();
   
   paintToolBar = new PaintToolBar(this);
+  addToolBar(Qt::BottomToolBarArea,paintToolBar);
   paintToolBar->hide();
 
   textview = new TextView(this);
