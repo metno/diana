@@ -653,12 +653,7 @@ void SatManager::addMosaicfiles(){
 
     bool ok = MItiff::readMItiff(mosaicfiles[i].name,sd);
 
-    if (sd.palette == true) {
-      // read palette files (colour index)
-      cerr << "Palette mosaic !!!" << endl;
-    } else if (!ok) {
-      continue;
-    }
+    if (!ok)   continue;
 
     int size =sd.nx*sd.ny;
     if (sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay ||
