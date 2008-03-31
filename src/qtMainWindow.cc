@@ -1705,6 +1705,7 @@ void DianaMainWindow::spectrumStartup()
   contr->getPlotTime(t);
   spWindow->startUp(t);
   spWindow->show();
+  contr->stationCommand("show","spectrum");
 }
 
 
