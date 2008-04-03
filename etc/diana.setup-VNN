@@ -72,7 +72,7 @@ archivefilegroup=ARKIV
 m=DIANA.arkiv            f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_*.arkfelt  
 
 m=HIRLAM.20KM.arkiv      f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn??.dat_* \
-			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm??.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm??.dat_* 
 
 m=HIRLAM.20KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn00.dat_* \
 		         f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm00.dat_* 
