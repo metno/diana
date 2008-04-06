@@ -93,6 +93,8 @@ public:
   void setSessionInfo(fetModel model, vector<fetParameter> parameters,
 		      fetSession session);
   void setBaseObjects(vector<fetBaseObject> objects);
+  void setUser(const Profet::PodsUser & user);
+  void removeUser(const Profet::PodsUser & user);
   void setUsers(const vector<Profet::PodsUser> & users);
   void showMessage(const Profet::InstantMessage & msg);
   void setObjects(vector<fetObject> objects);

@@ -102,10 +102,28 @@ void DianaProfetGUI::showMessage(const Profet::InstantMessage & msg){
   QCoreApplication::postEvent(this,new Profet::MessageEvent(msg));//thread-safe
 }
 
+
+void DianaProfetGUI::setUser(const Profet::PodsUser & user){
+  LOG4CXX_INFO(logger,"setUser " << user.name);
+  Profet::UserListEvent * cle = new Profet::UserListEvent();
+  cle->type = Profet::UserListEvent::SET_USER;
+  cle->user = user;
+  QCoreApplication::postEvent(this, cle);//thread-safe
+}
+
+void DianaProfetGUI::removeUser(const Profet::PodsUser & user){
+  LOG4CXX_INFO(logger,"removeUser " << user.name);
+  Profet::UserListEvent * cle = new Profet::UserListEvent();
+  cle->type = Profet::UserListEvent::REMOVE_USER;
+  cle->user = user;
+  QCoreApplication::postEvent(this, cle);//thread-safe
+}
+
 // THREAD SAFE!
 void DianaProfetGUI::setUsers(const vector<Profet::PodsUser> & users){
   LOG4CXX_INFO(logger,"setUsers " << users.size());
   Profet::UserListEvent * cle = new Profet::UserListEvent();
+  cle->type = Profet::UserListEvent::REPLACE_LIST;
   cle->users = users;
   QCoreApplication::postEvent(this, cle);//thread-safe
 }
@@ -116,7 +134,12 @@ void DianaProfetGUI::customEvent(QEvent * e){
     sessionDialog.showMessage(me->message);
   }else if(e->type() == Profet::USER_LIST_EVENT){
     Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
-    userModel.setUsers(cle->users);
+    if(cle->type == Profet::UserListEvent::REPLACE_LIST)
+      userModel.setUsers(cle->users);
+    else if(cle->type == Profet::UserListEvent::SET_USER)
+      userModel.setUser(cle->user);
+    else if(cle->type == Profet::UserListEvent::REMOVE_USER)
+      userModel.removeUser(cle->user);
   }else if(e->type() == Profet::UPDATE_MAP_EVENT){
     emit repaintMap(true);
   }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){

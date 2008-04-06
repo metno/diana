@@ -58,10 +58,35 @@ PodsUser UserListModel::getUser(const QModelIndex &index) const throw(
   return users[index.row()];
 }
 
+void UserListModel::setUser(const PodsUser & u) {
+  vector<PodsUser>::iterator iter;
+  for( iter = users.begin(); iter != users.end(); iter++ ){
+    if(*iter == u) {
+      *iter = u;
+      reset();
+      return;
+    }
+  }
+  users.push_back(u); // Not found: Adding new user
+  reset();
+}
+
 void UserListModel::setUsers(const vector<PodsUser> & u) {
   users = u;
   reset();
 }
+
+void UserListModel::removeUser(const PodsUser & u) {
+  vector<PodsUser>::iterator iter;
+  for( iter = users.begin(); iter != users.end(); iter++ ){
+    if(*iter == u) {
+      users.erase(iter);
+      reset();
+      return;
+    }
+  }
+}
+
 //  *** FetObjectListModel *** 
 
 QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {

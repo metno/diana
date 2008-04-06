@@ -964,7 +964,8 @@ bool Controller::initProfet(){
 bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
 	if(profetController){
 		profetController->setGUI(gui);
-		Profet::PodsUser u(miTime::nowTime(),0,getenv("USER"),"","");
+		// TODO Insert ROLE and SESSION
+		Profet::PodsUser u(miTime::nowTime(),getenv("USER"),"","");
 		profetController->registerUser(u);
 		return true;
 	}

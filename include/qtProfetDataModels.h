@@ -77,6 +77,8 @@ public:
    * Connected views are updated
    */
   void setUsers(const vector<PodsUser> & u);
+  void setUser(const PodsUser & u);
+  void removeUser(const PodsUser & u);
 };
 
 /**

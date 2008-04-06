@@ -28,7 +28,10 @@ namespace Profet{
    */
   class UserListEvent : public QEvent {
   public:
+    enum UserListEventType {REPLACE_LIST, SET_USER, REMOVE_USER};
+    UserListEventType type;
     vector<Profet::PodsUser> users;
+    Profet::PodsUser user;
     UserListEvent():QEvent(QEvent::Type(USER_LIST_EVENT)){}
   };
 
