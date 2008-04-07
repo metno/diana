@@ -33,21 +33,20 @@
 #include <qtQuickMenu.h>
 #include <qtQuickAdmin.h>
 
-#include <qpushbutton.h>
-#include <q3listbox.h>
-#include <q3textedit.h>
-#include <qcursor.h>
-#include <qlayout.h>
-#include <q3frame.h>
-#include <qlabel.h>
-#include <qspinbox.h>
-#include <qcombobox.h>
-#include <qapplication.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QPushButton>
+#include <QListWidget>
+#include <QTextEdit>
+//#include <QCursor>
+#include <QFrame>
+#include <QLabel>
+#include <QSpinBox>
+#include <QComboBox>
+//#include <QApplication>
+#include <QHBoxLayout>
 #include <QTimerEvent>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
+
 #include <miString.h>
 #include <iostream>
 #include <qmessagebox.h>
@@ -79,20 +78,20 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   setCaption(tr("Quickmenu"));
   
   // Create top-level layout manager
-  Q3BoxLayout* tlayout = new Q3HBoxLayout( this, 5, 20, "tlayout");
+  QBoxLayout* tlayout = new QHBoxLayout( this, 5, 20, "tlayout");
 
   // make a nice frame
-  Q3Frame* frame= new Q3Frame(this, "frame");
-  frame->setFrameStyle(Q3Frame::StyledPanel | Q3Frame::Raised);
+  QFrame* frame= new QFrame(this, "frame");
+  frame->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 
   //  frame->setPalette( QPalette( QColor(255, 80, 80) ) );
   tlayout->addWidget(frame,1);
 
   // Create layout manager
-  Q3BoxLayout* vlayout = new Q3VBoxLayout(frame,10,10,"vlayout");
+  QBoxLayout* vlayout = new QVBoxLayout(frame,10,10,"vlayout");
 
   // create quickmenu optionmenu
-  Q3BoxLayout *l2= new Q3HBoxLayout(vlayout);
+  QBoxLayout *l2= new QHBoxLayout(vlayout);
   QLabel* menulistlabel= TitleLabel(tr("Menus"),frame);
 
   menulist= new QComboBox(FALSE, frame, "menulist");
@@ -120,14 +119,16 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   l2->addWidget(adminbut);
 
   // create menuitem list
-  list= new Q3ListBox(frame, "itemlist");
-  connect(list, SIGNAL(highlighted(int)),SLOT(listHighlight(int)));
-  connect(list, SIGNAL(selected(int)),SLOT(listSelect(int)));
+  list= new QListWidget(frame);
+  connect(list, SIGNAL(itemClicked( QListWidgetItem * )),
+	  SLOT(listClicked( QListWidgetItem * )));
+  connect(list, SIGNAL(itemDoubleClicked( QListWidgetItem * )),
+	  SLOT(listDoubleClicked( QListWidgetItem * )));
   vlayout->addWidget(list, 10);
 
   // Create variables/options layout manager
   int half= maxoptions/2;
-  Q3GridLayout* varlayout = new Q3GridLayout(vlayout,2,maxoptions);
+  QGridLayout* varlayout = new QGridLayout(vlayout,2,maxoptions);
   for (int i=0; i<maxoptions; i++){
     optionlabel[i]= new QLabel("",frame,"optlabel");
     optionmenu[i]=  new QComboBox(FALSE, frame, "optionmenu");
@@ -137,15 +138,15 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
     varlayout->addWidget(optionmenu[i],row,col+1);//Qt::AlignLeft);
   }
 
-  Q3Frame *line;
+  QFrame *line;
   // Create a horizontal frame line
-  line = new Q3Frame( frame );
-  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  line = new QFrame( frame );
+  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
   vlayout->addWidget( line );
 
   // create commands-area
-  comedit= new Q3TextEdit(frame, "comedit");
-  comedit->setWordWrap(Q3TextEdit::NoWrap);
+  comedit= new QTextEdit(frame, "comedit");
+  comedit->setLineWrapMode(QTextEdit::NoWrap);
   comedit->setFont(QFont("Courier",12,QFont::Normal));
   comedit->setReadOnly(false);
   comedit->setMinimumHeight(150);
@@ -157,7 +158,7 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   comlabel->hide();
   comedit->hide();
 
-  Q3HBoxLayout* l3= new Q3HBoxLayout(5);
+  QHBoxLayout* l3= new QHBoxLayout(5);
   l3->addWidget(comlabel);
   l3->addStretch();
 
@@ -165,7 +166,7 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   vlayout->addWidget(comedit, 10);
 
   // buttons and stuff at the bottom
-  Q3BoxLayout *l= new Q3HBoxLayout(vlayout);
+  QBoxLayout *l= new QHBoxLayout(vlayout);
 
   QPushButton* quickhide = new QPushButton( tr("&Hide"), frame );
   connect( quickhide, SIGNAL(clicked()),SIGNAL( QuickHide()) );
@@ -343,7 +344,7 @@ bool QuickMenu::prevQPlot(){
     return false;
   
   qm[menu].plotindex++;
-  list->setCurrentItem(qm[menu].plotindex);
+  list->setCurrentRow(qm[menu].plotindex);
   return true;
 }
 
@@ -360,7 +361,7 @@ bool QuickMenu::prevHPlot(){
     if (n==0 || qm[menu].plotindex >= n-1 || qm[menu].plotindex<0)
       return false;
     qm[menu].plotindex++;
-    if (activemenu==menu) list->setCurrentItem(qm[menu].plotindex);
+    if (activemenu==menu) list->setCurrentRow(qm[menu].plotindex);
   } else {
     // Jumping back to History (plotindex intact)
     if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<0)
@@ -384,7 +385,7 @@ bool QuickMenu::nextQPlot(){
     return false;
   
   qm[menu].plotindex--;
-  list->setCurrentItem(qm[menu].plotindex);
+  list->setCurrentRow(qm[menu].plotindex);
   return true;
 }
 
@@ -401,7 +402,7 @@ bool QuickMenu::nextHPlot(){
     if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<=0)
       return false;
     qm[menu].plotindex--;
-    if (activemenu==menu) list->setCurrentItem(qm[menu].plotindex);
+    if (activemenu==menu) list->setCurrentRow(qm[menu].plotindex);
   } else {
     // Jumping back to History (plotindex intact)
     if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<0)
@@ -470,7 +471,7 @@ bool QuickMenu::applyItem(const miString& mlist, const miString& item)
   menulist->setCurrentItem(listIndex);
   menulistActivate(listIndex);
   qm[listIndex].plotindex=itemIndex;
-  list->setCurrentItem(itemIndex);
+  list->setCurrentRow(itemIndex);
   return true;
 }
 
@@ -626,7 +627,7 @@ void QuickMenu::updateButton()
       }
       
       setCurrentMenu(activemenu);
-      listHighlight(idx);
+      listClicked(list->item(idx));
     }
   }
 }
@@ -636,7 +637,7 @@ void QuickMenu::replaceDynamicOptions(vector<miString>& oldCommand,
 {
 
   int nold=oldCommand.size();
-  int nnew=oldCommand.size();
+  int nnew=newCommand.size();
 
   for(int i=0;i<nold && i<nnew;i++){
     if(!oldCommand[i].contains("@")) continue;
@@ -659,7 +660,6 @@ void QuickMenu::replaceDynamicOptions(vector<miString>& oldCommand,
     }
   }
     
-      
 }
 
 void QuickMenu::resetButton()
@@ -689,7 +689,7 @@ void QuickMenu::resetButton()
 	orig_qm[activemenu-i].menuitems[idx];
       
       setCurrentMenu(activemenu);
-      listHighlight(idx);
+      listClicked(list->item(idx));
     }
   }
 }
@@ -954,7 +954,7 @@ void QuickMenu::fillMenuList()
 
 void QuickMenu::menulistActivate(int idx)
 {
-  //   cerr << "Menulistactivate called:" << idx << endl;
+  //  cerr << "Menulistactivate called:" << idx << endl;
   if (qm.size() == 0) return;
   if (idx >= qm.size()) idx= qm.size()-1;
 
@@ -969,10 +969,11 @@ void QuickMenu::menulistActivate(int idx)
       qstr.replace(QRegExp("</*font[^>]*>"), "" );
       itemlist+= qstr;
     }
-    list->insertStringList(itemlist);
+    list->addItems(itemlist);
     if (qm[idx].plotindex >= qm[idx].menuitems.size())
       qm[idx].plotindex= 0;
-    list->setSelected(qm[idx].plotindex,true);
+    list->item(qm[idx].plotindex)->setSelected(true);
+    listClicked(list->item(qm[idx].plotindex));
   }
 
   // hide old options
@@ -993,16 +994,12 @@ void QuickMenu::menulistActivate(int idx)
       int nopts= qm[idx].opt[i].options.size();
       int defidx= -1;
       if (nopts > 0){
-	const char** itemlist= new const char*[nopts];
 	for(int j=0; j<nopts; j++){
-	  itemlist[j]=  qm[idx].opt[i].options[j].cStr();
+	  optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].cStr()));
 	  if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
 	    defidx= j;
 	}
-    // qt4 fix: insertStrList() -> insertStringList() (uneffective!!)
-	optionmenu[i]->insertStringList(QStringList(QString(itemlist[0])), nopts);
 	if (defidx>=0) optionmenu[i]->setCurrentItem(defidx);
-	delete[] itemlist;
       }
       optionmenu[i]->adjustSize();
       optionlabel[i]->show();
@@ -1033,11 +1030,12 @@ void QuickMenu::saveChanges(int midx, int lidx){
   oldmenu=  midx;
 }
 
-void QuickMenu::listHighlight(int idx)
+void QuickMenu::listClicked( QListWidgetItem * item)
 {
-  //   cerr << "list highlight:" << idx << endl;
+  int idx = list->row(item);
+
   saveChanges(activemenu, idx);
-  miString ts;
+  miString ts;  
   int n= qm[activemenu].menuitems[idx].command.size();
   for (int i=0; i<n; i++){
     ts += qm[activemenu].menuitems[idx].command[i];
@@ -1045,7 +1043,7 @@ void QuickMenu::listHighlight(int idx)
     ts+= miString("\n");
   }
   // set command into command-edit
-  comedit->setText(ts.cStr());
+  comedit->setText(QString(ts.cStr()));
   comset= true;
   qm[activemenu].plotindex= idx;
   // enable/disable resetButton
@@ -1068,20 +1066,25 @@ void QuickMenu::comChanged(){
 }
 
 
-void QuickMenu::listSelect(int idx)
+void QuickMenu::listDoubleClicked( QListWidgetItem * item)
 {
   plotButton();
 }
 
 void QuickMenu::getCommand(vector<miString>& s){
-  int ni= comedit->paragraphs();
+
+  miString text = comedit->text().latin1();
   s.clear();
+  s = text.split("\n");
+  //  int ni= comedit->paragraphs();
+  int ni = s.size();
   for (int i=0; i<ni; i++){
-    miString str= comedit->text(i).latin1();
-    str.trim();
-    if (str.contains("\n"))
-      str.erase(str.end()-1);
-    if (str.exists()) s.push_back(str);
+    s[i].trim();
+//     miString str= comedit->text(i).latin1();
+//     str.trim();
+//     if (str.contains("\n"))
+//       str.erase(str.end()-1);
+//     if (str.exists()) s.push_back(str);
   }
 }
 
@@ -1160,8 +1163,8 @@ void QuickMenu::demoButton(bool on)
     qm[activemenu].plotindex=0;//activeplot = 0;
     demoTimer= startTimer(timerinterval*1000);
     timeron = true;
-    list->setCurrentItem(0);
-    listSelect(0);
+    list->setCurrentRow(0);
+    listDoubleClicked(list->item(0));
   } else {
     killTimer(demoTimer);
     timeron = false;
@@ -1174,11 +1177,10 @@ void QuickMenu::timerEvent(QTimerEvent *e)
     qm[activemenu].plotindex++;//activeplot++;
     if (qm[activemenu].plotindex>=qm[activemenu].menuitems.size())
       qm[activemenu].plotindex=0;
-    list->setCurrentItem(qm[activemenu].plotindex);
-    listSelect(qm[activemenu].plotindex);
+    list->setCurrentRow(qm[activemenu].plotindex);
+    listDoubleClicked(list->item(qm[activemenu].plotindex));
   }
 }
-
 
 void QuickMenu::intervalChanged(int value)
 {

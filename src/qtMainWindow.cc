@@ -517,7 +517,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   */
 
   //-------File menu
-  filemenu = menuBar()->addMenu(tr("&File"));
+  filemenu = menuBar()->addMenu(tr("File"));
   filemenu->addAction( fileSavePictAction );
   filemenu->addAction( filePrintAction );
   filemenu->addSeparator();
@@ -561,7 +561,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   //  infoB->setAccel(Qt::ALT+Qt::Key_N);
 
   //   //-------Show menu
-  showmenu = menuBar()->addMenu(tr("&Show"));
+  showmenu = menuBar()->addMenu(tr("Show"));
   showmenu->setCheckable(true);
   showmenu->addAction( showApplyAction              );
   showmenu->addAction( showAddQuickAction           );
@@ -610,8 +610,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // ----------------Timer widgets -------------------------
 
   tslider= new TimeSlider(Qt::Horizontal,this);
-  tslider->setMinimumWidth(150);
-  tslider->setMaximumWidth(150);
+  tslider->setMinimumWidth(90);
+  tslider->setMaximumWidth(90);
   connect(tslider,SIGNAL(valueChanged(int)),SLOT(TimeChanged()));
   connect(tslider,SIGNAL(sliderReleased()),SLOT(TimeSelected()));
   connect(tslider,SIGNAL(sliderSet()),SLOT(SliderSet()));
@@ -706,7 +706,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   statusbuttons= new StatusPlotButtons();
   connect(statusbuttons, SIGNAL(toggleElement(PlotElement)),
 	  SLOT(toggleElement(PlotElement)));
-  statusBar()->addPermanentWidget(statusbuttons);
+  statusBar()->addWidget(statusbuttons);
   if (!showelem) statusbuttons->hide();
 
 

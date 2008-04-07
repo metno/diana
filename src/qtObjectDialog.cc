@@ -317,7 +317,8 @@ void ObjectDialog::DeleteClicked(){
     cerr<<"ObjectDialog::DeleteClicked called"<<endl;
 #endif 
 
-    namebox->currentItem()->setSelected(false);
+    if(namebox->currentItem())    
+      namebox->currentItem()->setSelected(false);
 
     timefileList->clear();
 

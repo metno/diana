@@ -32,20 +32,19 @@
 #include <qtQuickAdmin.h>
 #include <qtQuickEditOptions.h>
 
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <q3listview.h>
-#include <qlabel.h>
-#include <q3frame.h>
-#include <qinputdialog.h>
-#include <q3filedialog.h>
-#include <q3textedit.h>
-#include <qregexp.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
+#include <QPushButton>
+#include <QTreeWidget>
+#include <QLabel>
+#include <QFrame>
+#include <QInputDialog>
+#include <QFileDialog>
+#include <QTextEdit>
+#include <QRegExp>
+#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QPixmap>
-#include <Q3VBoxLayout>
+#include <QVBoxLayout>
+
 
 #include <up12x12.xpm>
 #include <down12x12.xpm>
@@ -58,25 +57,25 @@
 #include <qtUtility.h>
 
 
-class QuickListViewItem : public Q3ListViewItem {
+class QuickTreeWidgetItem : public QTreeWidgetItem {
 private:
   int menu;
   int item;
 public:
-  QuickListViewItem(Q3ListView * parent, QString t, int m, int i):
-    Q3ListViewItem(parent, t), menu(m), item(i)
+  QuickTreeWidgetItem(QTreeWidget * parent, QStringList t, int m, int i):
+    QTreeWidgetItem(parent, t), menu(m), item(i)
   {}
-  QuickListViewItem(Q3ListViewItem * parent, QString t, int m, int i):
-    Q3ListViewItem(parent, t) , menu(m), item(i)
+  QuickTreeWidgetItem(QTreeWidgetItem * parent, QStringList t, int m, int i):
+    QTreeWidgetItem(parent, t) , menu(m), item(i)
   {}
-  QuickListViewItem(Q3ListView * parent, Q3ListViewItem * after,
-		    QString t, int m, int i):
-    Q3ListViewItem(parent, after, t), menu(m), item(i)
-  {}
-  QuickListViewItem(Q3ListViewItem * parent, Q3ListViewItem * after,
-		    QString t, int m, int i):
-    Q3ListViewItem(parent, after, t), menu(m), item(i)
-  {}
+//   QuickTreeWidgetItem(QTreeWidget * parent, QTreeWidgetItem * after,
+// 		    QStringList t, int m, int i):
+//     QTreeWidgetItem(parent, after, t), menu(m), item(i)
+//   {}
+//   QuickTreeWidgetItem(QTreeWidgetItem * parent, QTreeWidgetItem * after,
+// 		    QStringList t, int m, int i):
+//     QTreeWidgetItem(parent, after, t), menu(m), item(i)
+//   {}
 
   int Menu() const {return menu;}
   int Item() const {return item;}
@@ -95,14 +94,15 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   QFont m_font= QFont( "Helvetica", 12, 75 );
 
   QLabel* mainlabel= new QLabel("<em><b>"+tr("Edit quickmenus")+"</b></em>", this);
-  mainlabel->setFrameStyle(Q3Frame::StyledPanel | Q3Frame::Raised);
+  mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 
-  menulist= new Q3ListView(this, "listview");
-  menulist->setRootIsDecorated(true);
-  menulist->setSorting(-1);
-  menulist->addColumn(tr("Menus"));
-  connect(menulist, SIGNAL(selectionChanged(Q3ListViewItem *)),
-	  this, SLOT(selectionChanged(Q3ListViewItem *)));
+  menutree= new QTreeWidget(this);
+  menutree->setRootIsDecorated(true);
+  menutree->setSortingEnabled(false);
+  menutree->setColumnCount(1);
+
+  connect(menutree, SIGNAL(itemClicked(QTreeWidgetItem * ,int)),
+	  this, SLOT(selectionChanged(QTreeWidgetItem * ,int)));
 
   // up
   QPixmap upPicture = QPixmap(up12x12_xpm);
@@ -153,17 +153,17 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   connect( pasteButton, SIGNAL(clicked()), SLOT(pasteClicked()));
   
   // a horizontal frame line
-  Q3Frame* line = new Q3Frame( this );
-  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  QFrame* line = new QFrame( this );
+  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
   // create commands-area
-  comedit= new Q3TextEdit(this, "comedit");
-  comedit->setWordWrap(Q3TextEdit::NoWrap);
+  comedit= new QTextEdit(this, "comedit");
+  comedit->setLineWrapMode(QTextEdit::NoWrap);
   comedit->setFont(QFont("Courier",12,QFont::Normal));
   comedit->setReadOnly(false);
   comedit->setMaximumHeight(150);
   connect(comedit, SIGNAL(textChanged()), SLOT(comChanged()));
-  // qt4 fix: Q3Frame -> QFrame
+  // qt4 fix: QFrame -> QFrame
   QFrame* comlabel= new QLabel(comedit,tr("Command field"),this,"comlabel");
   comlabel->setMinimumSize(comlabel->sizeHint());
   //comlabel->setAlignment(AlignBottom | AlignLeft);
@@ -174,8 +174,8 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   connect( optionButton, SIGNAL(clicked()), SLOT(optionClicked()));
   
   // a horizontal frame line
-  Q3Frame* line2 = new Q3Frame( this );
-  line2->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  QFrame* line2 = new QFrame( this );
+  line2->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
   // last row of buttons
   QPushButton* ok= new QPushButton( tr("&OK"), this );
@@ -186,15 +186,15 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   //connect( help, SIGNAL(clicked()), SLOT(helpClicked()) );
 
 
-  Q3VBoxLayout* vl1= new Q3VBoxLayout(5);
+  QBoxLayout* vl1= new QVBoxLayout();
   vl1->addWidget(upButton);
   vl1->addWidget(downButton);
 
-  Q3HBoxLayout* hl1= new Q3HBoxLayout(5);
-  hl1->addWidget(menulist);
+  QHBoxLayout* hl1= new QHBoxLayout();
+  hl1->addWidget(menutree);
   hl1->addLayout(vl1);
   
-  Q3GridLayout* gl= new Q3GridLayout(2,3,5);
+  QGridLayout* gl= new QGridLayout(2,3,5);
   gl->addWidget(newButton,0,0);
   gl->addWidget(newfileButton,0,1);
   gl->addWidget(renameButton,0,2);
@@ -202,11 +202,11 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   gl->addWidget(copyButton,1,1);
   gl->addWidget(pasteButton,1,2);
 
-  Q3HBoxLayout* hl3= new Q3HBoxLayout(5);
-  hl3->addWidget(optionButton);
-  hl3->addStretch(1);
+  QHBoxLayout* hl= new QHBoxLayout(5);
+  hl->addWidget(optionButton);
+  hl->addStretch(1);
 
-  Q3HBoxLayout* hl4= new Q3HBoxLayout(5);
+  QHBoxLayout* hl4= new QHBoxLayout(5);
   hl4->addStretch();
   hl4->addWidget(ok);
   hl4->addStretch();
@@ -215,7 +215,7 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   //hl4->addWidget(help);
 
   // top layout
-  Q3VBoxLayout* vlayout=new Q3VBoxLayout(this,5,5);
+  QVBoxLayout* vlayout=new QVBoxLayout(this,5,5);
   
   vlayout->addWidget(mainlabel);
   vlayout->addLayout(hl1);
@@ -223,7 +223,7 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   vlayout->addWidget(line);
   vlayout->addWidget(comlabel);
   vlayout->addWidget(comedit);
-  vlayout->addLayout(hl3);
+  vlayout->addLayout(hl);
   vlayout->addWidget(line2);
   vlayout->addLayout(hl4);
   
@@ -233,10 +233,17 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   resize(500,550);
 }
 
-void QuickAdmin::selectionChanged(Q3ListViewItem *p)
+void QuickAdmin::selectionChanged(QTreeWidgetItem *p ,int i)
 {
-  if (p){
-    QuickListViewItem* qp= (QuickListViewItem*)(p);
+//   cerr <<"selectionChanged()"<<endl;
+//   QTreeWidgetItem * p = menutree->currentItem();
+//   cerr <<"columnCount:"<<p->columnCount()<<endl;
+//   if(p->columnCount()>0) cerr <<p->text(0).latin1()<<endl;
+//   QList<QTreeWidgetItem *> lq = menutree->selectedItems();
+//   for(int i=0;i<lq.count();i++)
+//     cerr <<i<<"  "<<lq[i]->text(0).latin1()<<endl;
+ if (p){
+    QuickTreeWidgetItem* qp= (QuickTreeWidgetItem*)(p);
     activeMenu= qp->Menu();
     activeElement= qp->Item();
 
@@ -337,32 +344,34 @@ void QuickAdmin::selectionChanged(Q3ListViewItem *p)
 
 void QuickAdmin::updateWidgets()
 {
-  menulist->clear();
+
+  menutree->clear();
   
   int n= menues.size();
 
-  Q3ListViewItem *tmp, *active= 0;
+  QTreeWidgetItem *tmp, *active= 0;
   
-  for (int i=n-1; i>=0; i--){
-    miString mname= menues[i].name;
-    QuickListViewItem* pp= new QuickListViewItem( menulist,
-						  mname.cStr(),
-						  i,-1);
+  for (int i=0; i<n; i++){
+    QString mname(menues[i].name.cStr());
+    QuickTreeWidgetItem* pp= new QuickTreeWidgetItem( menutree,
+						      QStringList(mname),
+						      i,-1);
     if (activeMenu==i && activeElement==-1)
       active= pp;
     int m= menues[i].menuitems.size();
-    for (int j=m-1; j>=0; j--){
+    for (int j=0; j<m; j++){
       QString qstr= menues[i].menuitems[j].name.cStr();
       qstr.replace(QRegExp("</*font[^>]*>"), "" );
-      tmp= new QuickListViewItem( pp, qstr, i, j);
+	tmp= new QuickTreeWidgetItem( pp, QStringList(qstr), i, j);
       if (activeMenu==i && activeElement==j)
 	active= tmp;
     }
   }
-  if (active) {
-    menulist->setSelected(active, true);
-    menulist->ensureItemVisible(active);
-  }
+
+   if (active) {
+     active->setSelected(true);
+     menutree->scrollToItem(active,QAbstractItemView::EnsureVisible);
+   }
 }
 
 
@@ -456,9 +465,10 @@ void QuickAdmin::newClicked()
 void QuickAdmin::newfileClicked()
 {
   QString filter= tr("Menus (*.quick);;All (*.*)");
-  QString s(Q3FileDialog::getOpenFileName("./",filter,
-					 this, "openfile",
-					 tr("Add new menu from file")));
+  QString s(QFileDialog::getOpenFileName(this,
+					 tr("Add new menu from file"),
+					 "./",
+					 filter ));
   if ( s.isEmpty() )
     return;
   
@@ -612,16 +622,21 @@ void QuickAdmin::comChanged(){
   if (autochange) return;
   if (activeElement<0 || activeMenu<0) return;
 //   int ni= comedit->numLines();
-  int ni= comedit->paragraphs();
+//   int ni= comedit->paragraphs();
+//   vector<miString> s;
+//   for (int i=0; i<ni; i++){
+// //     miString str= comedit->textLine(i).latin1();
+//     miString str= comedit->text(i).latin1();
+//     str.trim();
+//     if (str.contains("\n"))
+//       str.erase(str.end()-1);
+//     if (str.exists()) s.push_back(str);
+//   }
+
+//Qt4
   vector<miString> s;
-  for (int i=0; i<ni; i++){
-//     miString str= comedit->textLine(i).latin1();
-    miString str= comedit->text(i).latin1();
-    str.trim();
-    if (str.contains("\n"))
-      str.erase(str.end()-1);
-    if (str.exists()) s.push_back(str);
-  }
+  miString str= comedit->text().latin1();
+  if (str.exists()) s.push_back(str);
   menues[activeMenu].menuitems[activeElement].command= s;
 }
 

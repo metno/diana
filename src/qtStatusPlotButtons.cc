@@ -30,45 +30,29 @@
 */
 
 #include <qtStatusPlotButtons.h>
-#include <qtooltip.h>
-#include <q3grid.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <q3scrollview.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
+
+#include <QToolTip>
+#include <QLabel>
+//#include <QScrollArea>
+#include <QHBoxLayout>
 #include <QFocusEvent>
-#include <Q3Frame>
-#include <Q3PopupMenu>
+#include <QFrame>
 #include <QKeyEvent>
+#include <QImage>
+#include <QPixmap>
+#include <QAction>
+#include <QMenu>
+
 #include <iostream>
 #include <qtImageGallery.h>
-#include <qimage.h>
-#include <qpixmap.h>
-
-// #include <earth3.xpm>
-// #include <weather_rain.xpm>
 #include <question.xpm>
-// #include <sun2.xpm>
-// #include <shuttle.xpm>
-// #include <synop.xpm>
-// #include <felt.xpm>
-// #include <sat.xpm>
-// #include <front.xpm>
-// #include <dialoger.xpm>
-// #include <balloon.xpm>
-// #include <traj.xpm>
-// #include <vcross.xpm>
-#include <qtooltip.h>
 
 static bool oktoemit;
 
 
 PlotButton::PlotButton(QWidget * parent,
-		       PlotElement& pe,
-		       const char * name)
-  : QToolButton(parent, name)
+		       PlotElement& pe)
+  : QToolButton(parent)
 {
   setMinimumWidth(30);
 
@@ -122,43 +106,43 @@ void PlotButton::highlight(bool b)
 }
 
 
-StatusPlotButtons::StatusPlotButtons(QWidget* parent, const char* name)
-  : QWidget(parent,name), numbuttons(0), activebutton(0) {
-  
+StatusPlotButtons::StatusPlotButtons(QWidget* parent)
+  : QWidget(parent), numbuttons(0), activebutton(0) {
   setMaximumHeight(35);
-  //setFocusPolicy(QWidget::TabFocus);
 
-  Q3HBoxLayout* hl= new Q3HBoxLayout(this,0); // parent,margin
-  sv = new Q3ScrollView(this);
-  sv->setFrameStyle(Q3Frame::NoFrame);
+//   sv = new QScrollArea(this);
+//   sv->setFrameStyle(QFrame::NoFrame);
 
-  hl->addWidget(sv);
+//   QWidget *w= new QWidget(this);
+//   sv->setWidget(w);
 
-  QWidget *w= new QWidget(sv->viewport());
-  // rows, cols, border and space
-  grid= new Q3GridLayout(w, 1, MAXBUTTONS, 0, 0);
-
-  sv->addChild(w);
-
-  sv->setResizePolicy(Q3ScrollView::AutoOneFit);
-  sv->setVScrollBarMode(Q3ScrollView::AlwaysOff);
-  sv->setHScrollBarMode(Q3ScrollView::AlwaysOff);
+//   sv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//   sv->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
   PlotElement pe;
   pe.enabled= true;
   oktoemit= false;
   
+  QHBoxLayout* hl= new QHBoxLayout(this,0); // parent,margin
   for (int i=0; i<MAXBUTTONS; i++){
-    buttons[i] = new PlotButton(w, pe);
+//     buttons[i] = new PlotButton(w, pe);
+    buttons[i] = new PlotButton(this, pe);
     connect(buttons[i], SIGNAL(enabled(PlotElement)),
 	    this, SLOT(enabled(PlotElement)));
-    grid->addWidget(buttons[i], 0, i);
+    hl->addWidget(buttons[i]);
   }
-  grid->setColumnStretch(MAXBUTTONS-1,5);
-  grid->activate();
   
-  showtip= new Q3PopupMenu(this);
+  showtip= new QMenu(this);
   showtip->setPaletteBackgroundColor(QColor(255,250,205));
+
+  //Action
+  plotButtonsAction = new QAction( this );
+  plotButtonsAction->setShortcutContext(Qt::ApplicationShortcut);
+  plotButtonsAction->setShortcut(Qt::Key_End);
+  connect( plotButtonsAction, SIGNAL( activated() ),SLOT(setfocus()));
+  addAction( plotButtonsAction );
+
+
 }
 
 void StatusPlotButtons::calcTipPos()
@@ -176,6 +160,7 @@ void StatusPlotButtons::calcTipPos()
 
 void StatusPlotButtons::setfocus()
 {
+
   grabKeyboard();
   activebutton= 0;
 
@@ -199,7 +184,7 @@ void StatusPlotButtons::showActiveButton(bool b)
     
     int x= buttons[activebutton]->x();
     int y= buttons[activebutton]->y();
-    sv->ensureVisible(x,y);
+    //    sv->ensureVisible(x,y);
 
     if (b) showText(buttons[activebutton]->tipText());
   }
@@ -282,15 +267,12 @@ void StatusPlotButtons::setPlotElements(const vector<PlotElement>& vpe)
 
   // add buttons
   for (int i=0; i<n; i++){
-    //if (vpe[i].type=="" || vpe[i].str=="") continue;
     buttons[i]->setPlotElement(vpe[i]);
     buttons[i]->show();
   }
   numbuttons= n;
-  grid->invalidate();
   oktoemit= true;
 
-  //sv->updateContents();
 }
 
 void StatusPlotButtons::enabled(PlotElement pe)

@@ -32,9 +32,8 @@
 #define _qtQuickEditOptions_h
 
 
-#include <qdialog.h>
-//Added by qt3to4:
-#include <QLabel>
+#include <QDialog>
+
 #include <vector>
 #include <diCommonTypes.h>
 #include <diQuickMenues.h>
@@ -44,7 +43,8 @@ using namespace std;
 class QLabel;
 class QPushButton;
 class QLineEdit;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 
 /**
    \brief Administrate option lists for quick menues
@@ -57,7 +57,7 @@ class QuickEditOptions : public QDialog {
   Q_OBJECT
 private:
   vector<quickMenuOption> options;
-  Q3ListBox* list;
+  QListWidget* list;
   QLineEdit* choices;
   QPushButton* upButton;
   QPushButton* downButton;
@@ -78,7 +78,7 @@ public:
 
 private slots:
   void helpClicked();  // help-button callback
-  void listHighlight(int); // new select in list
+  void listClicked ( QListWidgetItem * ); // new select in list
   void chChanged(const QString&); // choices-text changed callback
   void upClicked();    // move item up
   void downClicked();  // move item down
@@ -89,3 +89,7 @@ private slots:
 };
 
 #endif
+
+
+
+

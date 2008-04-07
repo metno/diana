@@ -31,10 +31,9 @@
 #ifndef _qtQuickMenu_h
 #define _qtQuickMenu_h
 
-#include <qdialog.h>
-//Added by qt3to4:
-#include <QLabel>
+#include <QDialog>
 #include <QTimerEvent>
+
 #include <miString.h>
 #include <vector>
 #include <deque>
@@ -45,9 +44,10 @@
 using namespace std; 
 
 class QComboBox;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QLabel;
-class Q3TextEdit;
+class QTextEdit;
 
 /**
    \brief Quick menu
@@ -65,11 +65,11 @@ private:
   enum { maxplotsinstack= 100}; // size of history-stack
 
   QComboBox* menulist;     // main quickmenu-combobox
-  Q3ListBox* list;          // list of plots in quickmenu
+  QListWidget* list;          // list of plots in quickmenu
   bool optionsexist;       // defined options in quickmenu
   QComboBox* optionmenu[maxoptions]; // options for quickmenu
   QLabel* optionlabel[maxoptions];   // ..label for this
-  Q3TextEdit* comedit;                // editor for command-text
+  QTextEdit* comedit;                // editor for command-text
   QLabel* comlabel;                  // ..label for this
   QPushButton* resetbut;             // reset static menu-item
   QPushButton* updatebut;            // update static menu-item
@@ -153,8 +153,8 @@ signals:
 
 private slots:
   void menulistActivate(int);       // quick-menu combobox activated
-  void listHighlight(int);          // single plot selected
-  void listSelect(int);             // single plot double-clicked
+  void listClicked( QListWidgetItem *);       // single plot selected
+  void listDoubleClicked( QListWidgetItem *); // single plot double-clicked
   void comChanged();                // command-text changed callback
   void adminButton();               // start admin dialog
   void resetButton();               // reset menu-item

@@ -31,23 +31,18 @@
 #ifndef _qtStatusPlotButtons_h
 #define _qtStatusPlotButtons_h
 
+#include <QWidget>
+#include <QToolButton>
+
 #include <diCommonTypes.h>
-#include <qwidget.h>
-#include <qtoolbutton.h>
-#include <qdialog.h>
-#include <q3popupmenu.h>
-#include <q3frame.h>
-#include <qlabel.h>
-//Added by qt3to4:
-#include <QFocusEvent>
-#include <QKeyEvent>
-#include <Q3GridLayout>
-#include <Q3HBoxLayout>
 #include <miString.h>
 
-class Q3ScrollView;
-class Q3GridLayout;
-class Q3HBoxLayout;
+//class QScrollArea;
+class QHBoxLayout;
+class QAction;
+class QMenu;
+class QFocusEvent;
+class QKeyEvent;
 
 using namespace std; 
 
@@ -62,7 +57,7 @@ using namespace std;
 class PlotButton : public QToolButton {
   Q_OBJECT
 public:
-  PlotButton(QWidget * parent, PlotElement& pe, const char * name = 0);
+  PlotButton(QWidget * parent, PlotElement& pe);
   
   /// Link this button to a specific PlotElement
   void setPlotElement(const PlotElement& pe);
@@ -95,7 +90,7 @@ signals:
 class StatusPlotButtons : public QWidget {
   Q_OBJECT
 public:
-  StatusPlotButtons(QWidget* parent = 0, const char* name = 0);
+  StatusPlotButtons(QWidget* parent = 0);
   
 public slots:
   /// add several buttons
@@ -108,12 +103,12 @@ public slots:
 protected:
   enum { MAXBUTTONS=30};
   int numbuttons;
-  Q3ScrollView* sv;
-  Q3GridLayout* grid;
+//   QScrollArea* sv;
   PlotButton* buttons[MAXBUTTONS];
-  Q3PopupMenu* showtip;
+  QMenu* showtip;
   QPoint tip_pos;
   int activebutton;
+  QAction * plotButtonsAction;
   void releasefocus();
   void calcTipPos();
   void showActiveButton(bool b);
