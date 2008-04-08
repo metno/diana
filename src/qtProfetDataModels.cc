@@ -80,7 +80,7 @@ void UserListModel::removeUser(const PodsUser & u) {
   vector<PodsUser>::iterator iter;
   for( iter = users.begin(); iter != users.end(); iter++ ){
     if(*iter == u) {
-      users.erase(iter);
+      iter = users.erase(iter);
       reset();
       return;
     }
