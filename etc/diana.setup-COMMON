@@ -240,9 +240,7 @@ temperature_cold=217:255:255,179:255:255,128:235:255,64:204:255,\
 temperature_warm=250:255:195,253:253:161,255:255:112,255:230:77,\
 255:215	:0,255:179:0.255:140:0,255:102:0,255:63:0,255:25:0,204:0:0,170:0:0
 precipitation=229:229:229,217:255:255,179:255:255,128:235:255,64:204:255,0:153:255,0:25:255,0:0:153
-colorful=78:180:0,160:206:0,247:228:0,255:0:0,\
-        178:51:0,160:32:240,0:255:255,0:0:255 
-	
+colorful=78:180:0,0:255:255,178:51:0,255:0:0,247:228:0,160:32:240,160:206:0,0:0:255 
 </PALETTES>
 
 
@@ -3875,7 +3873,7 @@ product="Bakkeanalyse1"
   # combine input directory
   combine_input_dir= $(OPDATA1)/diana/Bakkeanalyse/work
   #other products to fetch objects/fields from
-  input_products = Bakkeanalyse
+  input_products = Bakkeanalyse, Sigkart, Prognose+18, Prognose+36
 
   field=    "ANAmslp", "MSLP", 2,58,1000,0
   objects=  "ANAdraw"
@@ -3905,45 +3903,6 @@ product="Bakkeanalyse1"
 
 end.product
 
-product="Bakkeanalyse"
-  drawtools= Analyse, Sigkart
-  # save_dir is input/output
-  save_dir= ./work
-  # other input directories
-  input_dir= $(OPDATA1)/diana/Bakkeanalyse/work
-  # combine input directory
-  combine_input_dir= $(OPDATA1)/diana/Bakkeanalyse/work
-  #other products to fetch objects/fields from
-  input_products = Bakkeanalyse1
-
-  field=    "ANAmslp", "MSLP", 2,58,1000,0
-  field=    "ANAtend", "Tendens", 2,158,1000,0
-  objects=  "ANAdraw"
-  comments= "ANAcomm"
-
-  local_idents= TEST
-  database_idents=  $(DATABASE_IDENTS)
-
-  # combine_ident: output, input1,input2,... (output must be defined above)
-  combine_ident= DNMI, VA,VV,VNN
-  combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
-
-  database= $(DATABASE)
-  name_in_database=Bakkeanalyse
-
-  time_start_early=+00:00    # hour:minute (-=before,+=after product)
-  time_start_late= +03:00
-
-  # producer,grid, nx,ny, gridtype gridspec[6]
-  grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
-  # possibly minimize grid to remove undefined values along border
-  #grid.minimize
-
-  standard_symbolsize=30
-
-end.product
-
 product="Sigkart"
   drawtools= Analyse, Sigkart
   # save_dir is input/output
@@ -3953,7 +3912,7 @@ product="Sigkart"
   # combine input directory
   combine_input_dir= $(OPDATA1)/diana/Sigkart/work
   #other products to fetch objects/fields from
-  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18
+  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18, Prognose+36
 
   objects=  "SIGdraw"
   comments= "SIGcomm"
@@ -3982,7 +3941,8 @@ product="Swikart"
   # combine input directory
   combine_input_dir= $(OPDATA1)/diana/Swikart/work
   #other products to fetch objects/fields from
-  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18, Sigkart
+  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18, \
+  Prognose+36, Sigkart
 
   objects=  "SWIdraw"
   comments= "SWIcomm"
@@ -4007,7 +3967,7 @@ product="Prognose+18"
   # combine input directory
   combine_input_dir= $(OPDATA1)/diana/Prognose+18/work
   #other products to fetch objects/fields from
-  input_products = Bakkeanalyse
+  input_products = Bakkeanalyse, Sigkart, Prognose+36
 
   field=    "PROG18mslp", "MSLP", 2,58,1000,0
   objects=  "PROG18draw"
@@ -4040,7 +4000,7 @@ product="Prognose+36"
   # combine input directory
   combine_input_dir= $(OPDATA1)/diana/Prognose+36/work
   #other products to fetch objects/fields from
-  input_products = Prognose+18
+  input_products = Bakkeanalyse, Sigkart, Prognose+18
 
   field=    "PROG36mslp", "MSLP", 2,58,1000,0
   objects=  "PROG36draw"
@@ -4174,6 +4134,45 @@ product="Tegne"
   comments= "MAPcomm"
   local_idents= TEST
   standard_symbolsize=30
+end.product
+
+product="Bakkeanalyse"
+  drawtools= Analyse, Sigkart
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= $(OPDATA1)/diana/Bakkeanalyse/work
+  # combine input directory
+  combine_input_dir= $(OPDATA1)/diana/Bakkeanalyse/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse1, Sigkart, Prognose+18, Prognose+36
+
+  field=    "ANAmslp", "MSLP", 2,58,1000,0
+  field=    "ANAtend", "Tendens", 2,158,1000,0
+  objects=  "ANAdraw"
+  comments= "ANAcomm"
+
+  local_idents= TEST
+  database_idents=  $(DATABASE_IDENTS)
+
+  # combine_ident: output, input1,input2,... (output must be defined above)
+  combine_ident= DNMI, VA,VV,VNN
+  combine_ident= TEST, VA,VV,VNN
+  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
+
+  database= $(DATABASE)
+  name_in_database=Bakkeanalyse
+
+  time_start_early=+00:00    # hour:minute (-=before,+=after product)
+  time_start_late= +03:00
+
+  # producer,grid, nx,ny, gridtype gridspec[6]
+  grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
+  # possibly minimize grid to remove undefined values along border
+  #grid.minimize
+
+  standard_symbolsize=30
+
 end.product
 
 </EDIT>

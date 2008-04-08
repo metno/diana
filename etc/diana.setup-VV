@@ -92,19 +92,27 @@ m=HIRLAM.20KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn18.dat_* \
 			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm18.dat_* 
 
 filegroup=HIRLAM12km
-m=HIRLAM.12KM.00    f=$(OPDATA2)/hirlam12/h12sf00.dat \
+m=HIRLAM.12KM.00    f=$(OPDATA1)/hirlam12/h12sf00.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl00.dat
+m=HIRLAM.12KM.06    f=$(OPDATA1)/hirlam12/h12sf06.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl06.dat
+m=HIRLAM.12KM.12    f=$(OPDATA1)/hirlam12/h12sf12.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl12.dat
+m=HIRLAM.12KM.18    f=$(OPDATA1)/hirlam12/h12sf18.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl18.dat
+m=ALT-HIRLAM.12KM.00    f=$(OPDATA2)/hirlam12/h12sf00.dat \
 		    f=$(OPDATA2)/hirlam12/h12pl00.dat \		      
 		    f=$(OPDATA2)/hirlam12/h12ml00.dat \
 		    f=$(OPDATA2)/hirlam12/h12ie00.dat
-m=HIRLAM.12KM.06    f=$(OPDATA2)/hirlam12/h12sf06.dat \
+m=ALT-HIRLAM.12KM.06    f=$(OPDATA2)/hirlam12/h12sf06.dat \
 		    f=$(OPDATA2)/hirlam12/h12pl06.dat \
 		    f=$(OPDATA2)/hirlam12/h12ml06.dat \
 		    f=$(OPDATA2)/hirlam12/h12ie06.dat
-m=HIRLAM.12KM.12    f=$(OPDATA2)/hirlam12/h12sf12.dat \
+m=ALT-HIRLAM.12KM.12    f=$(OPDATA2)/hirlam12/h12sf12.dat \
 		    f=$(OPDATA2)/hirlam12/h12pl12.dat \
 		    f=$(OPDATA2)/hirlam12/h12ml12.dat \
 		    f=$(OPDATA2)/hirlam12/h12ie12.dat
-m=HIRLAM.12KM.18    f=$(OPDATA2)/hirlam12/h12sf18.dat \
+m=ALT-HIRLAM.12KM.18    f=$(OPDATA2)/hirlam12/h12sf18.dat \
 		    f=$(OPDATA2)/hirlam12/h12pl18.dat \
 		    f=$(OPDATA2)/hirlam12/h12ml18.dat \
 		    f=$(OPDATA2)/hirlam12/h12ie18.dat
