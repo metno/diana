@@ -18,13 +18,13 @@ MOCFILE=make.moc
 DEFINES+=-DMETNOFIELDFILE  -DMETNOPRODDB -DMETNOOBS \
 	$(NETCDFDEF) $(BUFROBSDEF) $(LOGGDEF) $(CORBADEF)
 
-ifdef WEATHERDB
-DEFINES += -DWEATHERDB
-WEATHERDB_LIB=-ldiWeatherDB
-WEATHERDB_EXTRA_LIB=-lboost_thread \
-                    $(shell pkg-config --libs libpqxx) \
-                    -L$(shell pg_config --libdir)  -lpq \
-                    -lboost_date_time
+ifdef WDB
+DEFINES += -DWDB
+WDB_LIB=-ldiWdb
+WDB_EXTRA_LIB=	-lboost_thread \
+                $(shell pkg-config --libs libpqxx) \
+                -L$(shell pg_config --libdir)  -lpq \
+                -lboost_date_time
 endif
 
 PROFETLIBS=-lpropoly -lprofet
@@ -69,7 +69,6 @@ INCLUDE= -I. \
 LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	-lqUtilities -lpuDatatypes \
 	-lglp -lglText -lrobs -ldiMItiff -ldiField -lprofet -lproFunctions -lmic -ldiSQL -lpuSQL \
-	$(WEATHERDB_LIB) \
 	-lpuTools \
 	-L$(QTDIR)/lib $(QT_LIBS) \
 	$(GLLIBDIR) -lGL -lGLU $(GLXTRALIBS) \
@@ -84,7 +83,8 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	$(F2CLIB) -lm \
 	$(UDUNITSLIB) \
 	$(NETCDFLIB) \
-	$(WEATHERDB_EXTRA_LIB) \
+	$(WDB_LIB) \
+	$(WDB_EXTRA_LIB) \
 	$(OMNI_LIBS)
 
 
