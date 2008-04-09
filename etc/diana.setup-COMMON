@@ -2972,11 +2972,22 @@ filegroup=YR
 m=YR.00                  f=$(OPDATA2)/products/yr_hir00.dat
 m=YR.12                  f=$(OPDATA2)/products/yr_hir12.dat
 
-			 
+filegroup=PROFF
+m=Ph12_00         f=$(OPDATA2)/proff/Ph12_00.dat    
+m=Ph12um4_00      f=$(OPDATA2)/proff/Ph12um4_00.dat
+m=Ph12h4_00       f=$(OPDATA2)/proff/Ph12h4_00.dat  
+m=Ph12h8um4_00    f=$(OPDATA2)/proff/Ph12h8um4_00.dat  
+                  
+m=Ph12_12         f=$(OPDATA2)/proff/Ph12_12.dat    
+m=Ph12um4_12      f=$(OPDATA2)/proff/Ph12um4_12.dat
+m=Ph12h4_12       f=$(OPDATA2)/proff/Ph12h4_12.dat     
+m=Ph12h8_12       f=$(OPDATA2)/proff/Ph12h8_12.dat     
+m=Ph12h8um4_12    f=$(OPDATA2)/proff/Ph12h8um4_12.dat
+
 profetfilegroup=PROFET
-m=profet	f=$(OPDATA1)/um4km/grdq00.dat
-m=profet.tmp	f=$(OPDATA1)/um4km/grdq00.dat
-m=profet.model	f=$(OPDATA1)/um4km/grdq00.dat
+m=profet	f=$(OPDATA2)/proff/Ph12_00.dat    
+m=profet.tmp	f=$(OPDATA2)/proff/Ph12_00.dat    
+m=profet.model	f=$(OPDATA2)/proff/Ph12_00.dat    
 
 </FIELD_FILES>
 
