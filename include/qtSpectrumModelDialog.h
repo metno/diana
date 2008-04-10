@@ -31,7 +31,8 @@
 #ifndef SPECTRUMMODELDIALOG_H
 #define SPECTRUMMODELDIALOG_H
 
-#include <qdialog.h>
+#include <QDialog>
+
 #include <diCommonTypes.h>
 #include <miString.h>
 #include <vector>
@@ -41,8 +42,8 @@ using namespace std;
 class QFont;
 class QPalette;
 class SpectrumManager;
-class Q3ListBox;
-class Q3ButtonGroup;
+class QListWidget;
+class QButtonGroup;
 class ToggleButton;
 
 /**
@@ -64,10 +65,10 @@ private:
   SpectrumManager * spectrumm;
 
   //qt widget
-  Q3ButtonGroup* modelfileBut;
+  QButtonGroup* modelfileBut;
   ToggleButton* modelButton;
   ToggleButton* fileButton;
-  Q3ListBox * modelfileList;
+  QListWidget * modelfileList;
 
   //dialog indices, changed when something is clicked
   int m_modelfileButIndex;
@@ -94,3 +95,4 @@ signals:
 };
 
 #endif
+

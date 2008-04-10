@@ -31,7 +31,7 @@
 #ifndef _qt_vprofmainwindow_
 #define _qt_vprofmainwindow_
 
-#include <q3mainwindow.h>
+#include <QMainWindow>
 #include <qprinter.h>
 #include <qstring.h>
 #include <diCommonTypes.h>
@@ -43,7 +43,7 @@
 using namespace std;
 
 class QComboBox;
-class Q3ToolBar;
+class QToolBar;
 class ToggleButton;
 class VprofWidget;
 class VprofManager;
@@ -58,7 +58,7 @@ class QPrinter;
   Contains a diagram window, toolbars and menues.
   Receives and sends "events" from/to DianaMainWindow.
 */
-class VprofWindow: public Q3MainWindow
+class VprofWindow: public QMainWindow
 {
   Q_OBJECT
 
@@ -88,8 +88,8 @@ private:
   VprofSetupDialog * vpSetupDialog;
 
   //qt widgets
-  Q3ToolBar *vpToolbar;
-  Q3ToolBar *tsToolbar;
+  QToolBar *vpToolbar;
+  QToolBar *tsToolbar;
 
   ToggleButton *modelButton;
   ToggleButton * setupButton;

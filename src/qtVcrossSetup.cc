@@ -28,16 +28,13 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
-#include <qlayout.h>
-#include <qpixmap.h>
+#include <QGridLayout>
+
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3GridLayout>
 #include <diCommonTypes.h>
 #include <diVcrossManager.h>
 #include <qtVcrossSetup.h>
@@ -51,10 +48,9 @@ int                VcrossSetup::nr_linewidths=0;
 int                VcrossSetup::nr_linetypes=0;
 vector<miString>   VcrossSetup::linetypes;
 
-
-VcrossSetup::VcrossSetup( QWidget* parent,VcrossManager *vm, miString text,
-			Q3GridLayout * glayout, int row, int options, bool check)
-  : QObject(parent),vcrossm(vm),name(text)
+VcrossSetup::VcrossSetup( QWidget* parent, miString text,
+			QGridLayout * glayout, int row, int options)
+  : QObject(parent),name(text)
 {
   //a Qobject with a checkbox,and up to three comboboxes
 #ifdef DEBUGPRINT
@@ -152,7 +148,7 @@ VcrossSetup::VcrossSetup( QWidget* parent,VcrossManager *vm, miString text,
 
   if (options & useTextChoice) {
     textchoicebox = new QComboBox(parent);
-    if (ncol<2) ncol=2;
+    //    if (ncol<2) ncol=2;
     glayout->addWidget(textchoicebox,row,ncol);
     ncol++;
   } else
@@ -386,18 +382,14 @@ void VcrossSetup::defineTextChoice(const vector<miString>& vchoice, int ndefault
     textchoicebox->clear();
     vTextChoice= vchoice;
     int m= vTextChoice.size();
-    const char** cvstr= new const char*[m];
-    for (int i=0; i<m; i++)
-      cvstr[i]= vTextChoice[i].cStr();		
-    // qt4 fix: insertStrList() -> insertStringList()
-    // (uneffective, have to make QStringList and QString!)
-    textchoicebox->insertStringList( QStringList(QString(cvstr[0])), m );
+    for (int i=0; i<m; i++){
+      textchoicebox->addItem(QString(vchoice[i].cStr()));
+    }
     textchoicebox->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
       textchoicebox->setCurrentItem(ndefault);
     else
       textchoicebox->setCurrentItem(0);
-    delete[] cvstr;
   }
 }
 
@@ -407,18 +399,13 @@ void VcrossSetup::defineTextChoice2(const vector<miString>& vchoice, int ndefaul
     textchoicebox2->clear();
     vTextChoice2= vchoice;
     int m= vTextChoice2.size();
-    const char** cvstr= new const char*[m];
     for (int i=0; i<m; i++)
-      cvstr[i]= vTextChoice2[i].cStr();		
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-    textchoicebox2->insertStringList(QStringList(QString(cvstr[0])), m);
+      textchoicebox2->addItem(QString(vTextChoice2[i].cStr()));		
     textchoicebox2->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
       textchoicebox2->setCurrentItem(ndefault);
     else
       textchoicebox2->setCurrentItem(0);
-    delete[] cvstr;
   }
 }
 

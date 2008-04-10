@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qapplication.h>
-#include <q3filedialog.h>
-#include <q3toolbar.h>
+#include <QFileDialog>
+#include <QToolBar>
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -53,7 +53,7 @@
 
 
 VcrossWindow::VcrossWindow()
-  : Q3MainWindow( 0, "DIANA Vcross window")
+  : QMainWindow( 0, "DIANA Vcross window")
 {
 #ifndef linux
   qApp->setStyle(new QMotifStyle);
@@ -76,73 +76,69 @@ VcrossWindow::VcrossWindow()
 
 
   //tool bar and buttons
-  vcToolbar = new Q3ToolBar("vcTool", this,Qt::DockTop, FALSE,"vcTool");
-  setDockEnabled( vcToolbar, Qt::DockLeft, FALSE );
-  setDockEnabled( vcToolbar, Qt::DockRight, FALSE );
-  //tool bar and for selecting time and crossection
-  tsToolbar = new Q3ToolBar("vctsTool", this,Qt::DockTop, FALSE,"vctsTool");
-  setDockEnabled( tsToolbar, Qt::DockLeft, FALSE );
-  setDockEnabled( tsToolbar, Qt::DockRight, FALSE );
+  // tool bar and buttons
+  vcToolbar = new QToolBar(this);
+  addToolBar(Qt::TopToolBarArea,vcToolbar);
+
+  // tool bar for selecting time and station
+  tsToolbar = new QToolBar(this);
+  addToolBar(Qt::TopToolBarArea,tsToolbar);
 
 
   //button for model/field dialog-starts new dialog
-  dataButton = new ToggleButton(vcToolbar,tr("Model/field").latin1());
+  dataButton = new ToggleButton(this,tr("Model/field").latin1());
   connect( dataButton, SIGNAL( toggled(bool)), SLOT( dataClicked( bool) ));
 
   //button for setup - starts setupdialog
-  setupButton = new ToggleButton(vcToolbar,tr("Settings").latin1());
+  setupButton = new ToggleButton(this,tr("Settings").latin1());
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
   //button for timeGraph
-  timeGraphButton = new ToggleButton(vcToolbar,tr("TimeGraph").latin1());
+  timeGraphButton = new ToggleButton(this,tr("TimeGraph").latin1());
   connect( timeGraphButton, SIGNAL( toggled(bool)), SLOT( timeGraphClicked( bool) ));
 
   //button to print - starts print dialog
-  QPushButton* printButton = NormalPushButton(tr("Print"),vcToolbar);
+  QPushButton* printButton = NormalPushButton(tr("Print"),this);
   connect( printButton, SIGNAL(clicked()), SLOT( printClicked() ));
 
   //button to save - starts save dialog
-  QPushButton* saveButton = NormalPushButton(tr("Save"),vcToolbar);
+  QPushButton* saveButton = NormalPushButton(tr("Save"),this);
   connect( saveButton, SIGNAL(clicked()), SLOT( saveClicked() ));
 
   //button for quit
-  QPushButton * quitButton = NormalPushButton(tr("Quit"),vcToolbar);
+  QPushButton * quitButton = NormalPushButton(tr("Quit"),this);
   connect( quitButton, SIGNAL(clicked()), SLOT(quitClicked()) );
 
   //button for help - pushbutton
-  QPushButton * helpButton = NormalPushButton(tr("Help"),vcToolbar);
+  QPushButton * helpButton = NormalPushButton(tr("Help"),this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
-
-  tsToolbar->addSeparator();
 
   QToolButton *leftCrossectionButton= new QToolButton(QPixmap(bakover_xpm),
 						      tr("previous crossections"), "",
 						      this, SLOT(leftCrossectionClicked()),
-						      tsToolbar, "vcCstepB" );
+						      this, "vcCstepB" );
   leftCrossectionButton->setUsesBigPixmap(false);
   leftCrossectionButton->setAutoRepeat(true);
 
   //combobox to select crossection
   vector<miString> dummycross;
   dummycross.push_back("                        ");
-  crossectionBox = ComboBox(tsToolbar, dummycross, true, 0);
+  crossectionBox = ComboBox(this, dummycross, true, 0);
   connect( crossectionBox, SIGNAL( activated(int) ),
 		       SLOT( crossectionBoxActivated(int) ) );
 
   QToolButton *rightCrossectionButton= new QToolButton(QPixmap(forward_xpm),
 						       tr("next crossection"), "",
 						       this, SLOT(rightCrossectionClicked()),
-						       tsToolbar, "vcCstepF" );
+						       this, "vcCstepF" );
   rightCrossectionButton->setUsesBigPixmap(false);
   rightCrossectionButton->setAutoRepeat(true);
   
-  tsToolbar->addSeparator();
-
   QToolButton *leftTimeButton= new QToolButton(QPixmap(bakover_xpm),
 					       tr("previous timestep"), "",
 					       this, SLOT(leftTimeClicked()),
-					       tsToolbar, "vcTstepB" );
+					       this, "vcTstepB" );
   leftTimeButton->setUsesBigPixmap(false);
   leftTimeButton->setAutoRepeat(true);
   
@@ -151,16 +147,33 @@ VcrossWindow::VcrossWindow()
   miTime tset= miTime(tnow.year(),tnow.month(),tnow.day(),0,0,0);
   vector<miString> dummytime;
   dummytime.push_back(tset.isoTime(false,false));
-  timeBox = ComboBox(tsToolbar, dummytime, true, 0);
+  timeBox = ComboBox(this, dummytime, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
 		    SLOT( timeBoxActivated(int) ) );
 
   QToolButton *rightTimeButton= new QToolButton(QPixmap(forward_xpm),
 						tr("next timestep"), "",
 						this, SLOT(rightTimeClicked()),
-						tsToolbar, "vcTstepF" );
+						this, "vcTstepF" );
   rightTimeButton->setUsesBigPixmap(false);
   rightTimeButton->setAutoRepeat(true);
+
+  vcToolbar->addWidget(dataButton);
+  vcToolbar->addWidget(setupButton);
+  vcToolbar->addWidget(timeGraphButton);
+  vcToolbar->addWidget(printButton);
+  vcToolbar->addWidget(saveButton);
+  vcToolbar->addWidget(quitButton);
+  vcToolbar->addWidget(helpButton);
+
+  insertToolBarBreak(tsToolbar);
+
+  tsToolbar->addWidget(leftCrossectionButton);
+  tsToolbar->addWidget(crossectionBox);
+  tsToolbar->addWidget(rightCrossectionButton);
+  tsToolbar->addWidget(leftTimeButton);
+  tsToolbar->addWidget(timeBox);
+  tsToolbar->addWidget(rightTimeButton);
 
   //connected dialogboxes
 
@@ -402,10 +415,10 @@ void VcrossWindow::printClicked(){
 void VcrossWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
-  QString s = Q3FileDialog::getSaveFileName(fname,
-					   tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"),
-					   this, "save_file_dialog",
-					   tr("Save plot as image") );
+  QString s = QFileDialog::getSaveFileName(this,
+				 tr("Save plot as image"),
+				 fname,
+				 tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
   
 
   if (!s.isNull()) {// got a filename

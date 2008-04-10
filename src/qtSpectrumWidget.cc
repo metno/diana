@@ -32,8 +32,7 @@
 //#define DEBUGREDRAW
 
 #include <qapplication.h>
-#include <qlayout.h>
-#include <q3frame.h>
+#include <QFrame>
 #include <qimage.h>
 
 #include <qtSpectrumWidget.h>
@@ -48,7 +47,6 @@ SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
 {
 
   if ( !isValid() ) {
-    // qt4 fix: fatal() -> qFatal
     qFatal("Failed to create OpenGL rendering context on this display");
   }
 

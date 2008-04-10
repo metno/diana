@@ -31,22 +31,20 @@
 #ifndef VPROFSETUPDIALOG_H
 #define VPROFSETUPDIALOG_H
 
-#include <qdialog.h>
+#include <QDialog>
+
 #include <diCommonTypes.h>
 #include <miString.h>
 #include <vector>
 
 using namespace std;
 
-class QFont;
 class QComboBox;
 class QCheckBox;
-class QPixMap;
 class QSpinBox;
 class QTabWidget;
-class Q3VBox;
 class VprofManager;
-class VprofSetup;
+class VcrossSetup;
 class VprofOptions;
 
 /**
@@ -78,7 +76,7 @@ private:
 
   //QT tab widgets
   QTabWidget* twd;
-  Q3VBox * datatab;
+  QWidget * datatab;
   QWidget* diagramtab;
   QWidget* colourtab;
 
@@ -98,7 +96,7 @@ private:
   int temperatureMin;
   int temperatureMax;
 
-  vector <VprofSetup*> vpSetups;
+  vector <VcrossSetup*> vpSetups;
 
   bool isInitialized;
 

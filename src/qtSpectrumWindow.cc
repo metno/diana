@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qapplication.h>
-#include <q3filedialog.h>
-#include <q3toolbar.h>
+#include <QFileDialog>
+#include <QToolBar>
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -53,7 +53,7 @@
 
 
 SpectrumWindow::SpectrumWindow()
-  : Q3MainWindow( 0, "DIANA Spectrum window")
+  : QMainWindow( 0)
 {
 #ifndef linux
   qApp->setStyle(new QMotifStyle);
@@ -76,88 +76,101 @@ SpectrumWindow::SpectrumWindow()
 
 
   //tool bar and buttons
-  spToolbar = new Q3ToolBar(tr("Wavespectrum - control"), this,Qt::DockTop, FALSE,"spTool");
-  setDockEnabled( spToolbar, Qt::DockLeft, FALSE );
-  setDockEnabled( spToolbar, Qt::DockRight, FALSE );
+  spToolbar = new QToolBar(this);
   //tool bar for selecting time and station
-  tsToolbar = new Q3ToolBar(tr("Wavespectrum - position/time"), this,Qt::DockTop, FALSE,"tsTool");
-  setDockEnabled( tsToolbar, Qt::DockLeft, FALSE );
-  setDockEnabled( tsToolbar, Qt::DockRight, FALSE );
+  tsToolbar = new QToolBar(this);
+  addToolBar(Qt::TopToolBarArea,spToolbar);
+  addToolBar(Qt::TopToolBarArea,tsToolbar);
+
 
 
   //button for modeldialog-starts new dialog
-  modelButton = new ToggleButton(spToolbar,tr("Model").latin1());
+  modelButton = new ToggleButton(this,tr("Model").latin1());
   connect( modelButton, SIGNAL( toggled(bool)), SLOT( modelClicked( bool) ));
 
   //button for setup - starts setupdialog
-  setupButton = new ToggleButton(spToolbar,tr("Settings").latin1());
+  setupButton = new ToggleButton(this,tr("Settings").latin1());
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
   //button for update
-  QPushButton * updateButton = NormalPushButton(tr("Refresh"),spToolbar);
+  QPushButton * updateButton = NormalPushButton(tr("Refresh"),this);
   connect( updateButton, SIGNAL(clicked()), SLOT(updateClicked()) );
 
   //button to print - starts print dialog
-  QPushButton* printButton = NormalPushButton(tr("Print"),spToolbar);
+  QPushButton* printButton = NormalPushButton(tr("Print"),this);
   connect( printButton, SIGNAL(clicked()), SLOT( printClicked() ));
 
   //button to save - starts save dialog
-  QPushButton* saveButton = NormalPushButton(tr("Save"),spToolbar);
+  QPushButton* saveButton = NormalPushButton(tr("Save"),this);
   connect( saveButton, SIGNAL(clicked()), SLOT( saveClicked() ));
 
   //button for quit
-  QPushButton * quitButton = NormalPushButton(tr("Quit"),spToolbar);
+  QPushButton * quitButton = NormalPushButton(tr("Quit"),this);
   connect( quitButton, SIGNAL(clicked()), SLOT(quitClicked()) );
 
   //button for help - pushbutton
-  QPushButton * helpButton = NormalPushButton(tr("Help"),spToolbar);
+  QPushButton * helpButton = NormalPushButton(tr("Help"),this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
-
-  tsToolbar->addSeparator();
 
   QToolButton *leftStationButton= new QToolButton(QPixmap(bakover_xpm),
 						  tr("previous station"), "",
 						  this, SLOT(leftStationClicked()),
-						  tsToolbar, "spSstepB" );
+						  this, "spSstepB" );
   leftStationButton->setUsesBigPixmap(false);
   leftStationButton->setAutoRepeat(true);
 
   //combobox to select station
   vector<miString> stations;
   stations.push_back("                        "); 
-  stationBox = ComboBox( tsToolbar, stations, true, 0);
+  stationBox = ComboBox( this, stations, true, 0);
   connect( stationBox, SIGNAL( activated(int) ),
 		       SLOT( stationBoxActivated(int) ) );
 
   QToolButton *rightStationButton= new QToolButton(QPixmap(forward_xpm),
 						   tr("next station"), "",
 						   this, SLOT(rightStationClicked()),
-						   tsToolbar, "spSstepF" );
+						   this, "spSstepF" );
   rightStationButton->setUsesBigPixmap(false);
   rightStationButton->setAutoRepeat(true);
-
-  tsToolbar->addSeparator();
 
   QToolButton *leftTimeButton= new QToolButton(QPixmap(bakover_xpm),
 					       tr("previous timestep"), "",
 					       this, SLOT(leftTimeClicked()),
-					       tsToolbar, "spTstepB" );
+					       this, "spTstepB" );
+
   leftTimeButton->setUsesBigPixmap(false);
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
   vector<miString> times;
   times.push_back("2002-01-01 00"); 
-  timeBox = ComboBox( tsToolbar, times, true, 0);
+  timeBox = ComboBox( this, times, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
 		    SLOT( timeBoxActivated(int) ) );
 
   QToolButton *rightTimeButton= new QToolButton(QPixmap(forward_xpm),
 						tr("next timestep"), "",
 						this, SLOT(rightTimeClicked()),
-						tsToolbar, "spTstepF" );
+						this, "spTstepF" );
   rightTimeButton->setUsesBigPixmap(false);
   rightTimeButton->setAutoRepeat(true);
+
+  spToolbar->addWidget(modelButton);
+  spToolbar->addWidget(setupButton);
+  spToolbar->addWidget(updateButton);
+  spToolbar->addWidget(printButton);
+  spToolbar->addWidget(saveButton);
+  spToolbar->addWidget(quitButton);
+  spToolbar->addWidget(helpButton);
+
+  insertToolBarBreak(tsToolbar);
+
+  tsToolbar->addWidget(leftStationButton);
+  tsToolbar->addWidget(stationBox);
+  tsToolbar->addWidget(rightStationButton);
+  tsToolbar->addWidget(leftTimeButton);
+  tsToolbar->addWidget(timeBox);
+  tsToolbar->addWidget(rightTimeButton);
 
   //connected dialogboxes
 
@@ -406,10 +419,11 @@ void SpectrumWindow::printClicked()
 void SpectrumWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
-  QString s = Q3FileDialog::getSaveFileName(fname,
-					   tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"),
-					   this, "save_file_dialog",
-					   tr("Save plot as image") );
+  QString s = QFileDialog::getSaveFileName(this,
+				 tr("Save plot as image"),
+				 fname,
+				 tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+
 
 
   if (!s.isNull()) {// got a filename

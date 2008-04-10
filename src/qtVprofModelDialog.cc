@@ -28,28 +28,23 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
-#include <qdialog.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
-#include <q3listbox.h>
-#include <qtToggleButton.h>
+
+
+#include <QPushButton>
+#include <QLabel>
+#include <QButtonGroup>
+#include <QListWidget>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+#include <qtToggleButton.h>
+
 #include <diVprofManager.h>
 #include <qtVprofModelDialog.h>
 
-// qt4 fix
-#include <Q3HButtonGroup>
-#include <Q3VButtonGroup>
 
-#define HEIGHTLISTBOX 100
+//#define HEIGHTLISTBOX 100
 
 /***************************************************************************/
 
@@ -84,28 +79,30 @@ VprofModelDialog::VprofModelDialog( QWidget* parent,VprofManager * vm )
   model.push_back(tr("Model").latin1());
   model.push_back(tr("File").latin1());
 
-  modelfileBut = new Q3ButtonGroup( this );
-  modelButton = new ToggleButton(modelfileBut, tr("Model").latin1());
-  fileButton = new ToggleButton(modelfileBut, tr("File").latin1());
-  Q3HBoxLayout* modelfileLayout = new Q3HBoxLayout(modelfileBut);
-  modelfileLayout->addWidget(modelButton);
-  modelfileLayout->addWidget(fileButton);
-  modelfileBut->setExclusive( true );
-  modelfileBut->setButton(0);
-  //modelfileClicked is called when model,file buttons clicked 
-  connect( modelfileBut, SIGNAL( clicked(int) ), 
-	   SLOT( modelfileClicked(int) ) );
-
   //if a model is selected- should be as model- else default model(hirlam)
 
   //********** the list of files/models to choose from **************
 
-  modelfileList = new Q3ListBox( this);
-  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
-  modelfileList->setSelectionMode( Q3ListBox::Multi );
+  modelfileList = new QListWidget( this);
+  //  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
+  modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
   modelfileList->setEnabled(true);  
-  m_modelfileButIndex = 0;
   updateModelfileList();
+
+  modelButton = new ToggleButton(this, tr("Model").latin1());
+  fileButton  = new ToggleButton(this, tr("File").latin1());
+  modelfileBut = new QButtonGroup( this );
+  modelfileBut->addButton(modelButton,0);
+  modelfileBut->addButton(fileButton,1);
+  QHBoxLayout* modelfileLayout = new QHBoxLayout();
+  modelfileLayout->addWidget(modelButton);
+  modelfileLayout->addWidget(fileButton);
+  modelfileBut->setExclusive( true );
+  modelButton->setChecked(true);
+
+  //modelfileClicked is called when auto,tid,fil buttons clicked 
+  connect( modelfileBut, SIGNAL( buttonClicked(int) ), 
+	   SLOT( modelfileClicked(int) ) );
 
   //push button to show help
   QPushButton * modelhelp = NormalPushButton( tr("Help"), this );
@@ -134,21 +131,21 @@ VprofModelDialog::VprofModelDialog( QWidget* parent,VprofManager * vm )
   // ************ place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
   hlayout1->addWidget( modelhelp );
   hlayout1->addWidget( deleteAll );
   hlayout1->addWidget( refresh );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
   hlayout2->addWidget( modelhide );
   hlayout2->addWidget( modelapplyhide );
   hlayout2->addWidget( modelapply );
 
 
   //create a vertical layout to put all widgets and layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 5, 5 );                     
-  vlayout->addWidget( modelfileBut );
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 5, 5 );                     
+  vlayout->addLayout( modelfileLayout );
   vlayout->addWidget( modelfileList );
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
@@ -239,8 +236,8 @@ void VprofModelDialog::setSelection(){
       miString model = models[i];
       int m = modelfileList->count();
       for (int j = 0;j<m;j++){
-	miString listModel =  modelfileList->text(j).latin1();
-	if (model==listModel) modelfileList->setSelected(j,true);
+	miString listModel =  modelfileList->item(j)->text().latin1();
+	if (model==listModel) modelfileList->item(j)->setSelected(true);
       }
     }
   }
@@ -262,8 +259,8 @@ void VprofModelDialog::setModel(){
     vector <miString> models;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
-      if(modelfileList->isSelected(i)){
-	miString model = modelfileList->text(i).latin1();
+      if(modelfileList->item(i)->isSelected()){
+	miString model = modelfileList->item(i)->text().latin1();
 	if(model==OBSTEMP)
 	  showObsTemp=true;
 	else if(model==OBSPILOT)
@@ -284,8 +281,8 @@ void VprofModelDialog::setModel(){
     vector <miString> files;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
-      if(modelfileList->isSelected(i)){
-	miString file = modelfileList->text(i).latin1(); 
+      if(modelfileList->item(i)->isSelected()){
+	miString file = modelfileList->item(i)->text().latin1(); 
 	files.push_back(file);
       }
     }
@@ -305,8 +302,8 @@ void VprofModelDialog::updateModelfileList(){
   int n= modelfileList->count();
   set<miString> current;
   for (int i=0; i<n; i++)
-    if (modelfileList->isSelected(i))
-      current.insert(miString(modelfileList->text(i).latin1()));
+    if (modelfileList->item(i)->isSelected())
+      current.insert(miString(modelfileList->item(i)->text().latin1()));
 
   //clear box with list of files 
   modelfileList->clear();
@@ -315,13 +312,12 @@ void VprofModelDialog::updateModelfileList(){
     //make a string list with models to insert into modelfileList
     vector <miString> modelnames =vprofm->getModelNames();
     int nr_models = modelnames.size();
-    // qt4 fix: sending QStrings as arguments, not miStrings
-    modelfileList->insertItem(QString(OBSTEMP.cStr()));
-    modelfileList->insertItem(QString(OBSPILOT.cStr()));
-    modelfileList->insertItem(QString(OBSAMDAR.cStr()));
-    modelfileList->insertItem(QString(ASFIELD.cStr()));
+    modelfileList->addItem(QString(OBSTEMP.cStr()));
+    modelfileList->addItem(QString(OBSPILOT.cStr()));
+    modelfileList->addItem(QString(OBSAMDAR.cStr()));
+    modelfileList->addItem(QString(ASFIELD.cStr()));
     for (int i = 0;i<nr_models;i++){
-      modelfileList->insertItem(modelnames[i].c_str());
+      modelfileList->addItem(modelnames[i].c_str());
     }
 
     //insert into modelfilelist
@@ -330,15 +326,15 @@ void VprofModelDialog::updateModelfileList(){
     vector <miString> modelfiles =vprofm->getModelFiles();
     int nr_files = modelfiles.size();
     for (int i = 0;i<nr_files;i++){
-      modelfileList->insertItem(modelfiles[i].c_str());
+      modelfileList->addItem(QString(modelfiles[i].c_str()));
     }
   }
 
   set<miString>::iterator pend= current.end();
   n= modelfileList->count();
   for (int i=0; i<n; i++)
-    if (current.find(miString(modelfileList->text(i).latin1()))!=pend)
-      modelfileList->setSelected(i,true);
+    if (current.find(miString(modelfileList->item(i)->text().latin1()))!=pend)
+      modelfileList->item(i)->setSelected(true);
   
 }
 

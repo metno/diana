@@ -30,8 +30,8 @@
 */
 #ifndef VPROFMODELDIALOG_H
 #define VPROFMODELDIALOG_H
+#include <QDialog>
 
-#include <qdialog.h>
 #include <diCommonTypes.h>
 #include <miString.h>
 #include <vector>
@@ -41,8 +41,8 @@ using namespace std;
 class QFont;
 class QPalette;
 class VprofManager;
-class Q3ListBox;
-class Q3ButtonGroup;
+class QListWidget;
+class QButtonGroup;
 class ToggleButton;
 
 /**
@@ -65,10 +65,10 @@ private:
   VprofManager * vprofm;
 
   //qt widget
-  Q3ButtonGroup* modelfileBut;
+  QButtonGroup* modelfileBut;
   ToggleButton* modelButton;
   ToggleButton* fileButton;
-  Q3ListBox * modelfileList;
+  QListWidget * modelfileList;
 
   //dialog indices, changed when something is clicked
   int m_modelfileButIndex;

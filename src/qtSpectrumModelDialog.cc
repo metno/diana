@@ -28,28 +28,22 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
-#include <qdialog.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
-#include <q3listbox.h>
-#include <qtToggleButton.h>
+
+
+#include <QPushButton>
+#include <QLabel>
+#include <QButtonGroup>
+#include <QListWidget>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+#include <qtToggleButton.h>
 #include <diSpectrumManager.h>
 #include <qtSpectrumModelDialog.h>
 
-// qt4 fix
-#include <Q3VButtonGroup>
-#include <Q3HButtonGroup>
 
-#define HEIGHTLISTBOX 100
+//#define HEIGHTLISTBOX 100
 
 /***************************************************************************/
 
@@ -84,22 +78,25 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 
   //********** the list of files/models to choose from **************
 
-  modelfileList = new Q3ListBox( this);
-  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
-  modelfileList->setSelectionMode( Q3ListBox::Multi );
+  modelfileList = new QListWidget( this);
+  //  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
+  modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
   modelfileList->setEnabled(true);  
   updateModelfileList();
 
-  modelfileBut = new Q3ButtonGroup( this );
-  modelButton = new ToggleButton(modelfileBut, tr("Model").latin1());
-  fileButton = new ToggleButton(modelfileBut, tr("File").latin1());
-  Q3HBoxLayout* modelfileLayout = new Q3HBoxLayout(modelfileBut);
+  modelButton = new ToggleButton(this, tr("Model").latin1());
+  fileButton  = new ToggleButton(this, tr("File").latin1());
+  modelfileBut = new QButtonGroup( this );
+  modelfileBut->addButton(modelButton,0);
+  modelfileBut->addButton(fileButton,1);
+  QHBoxLayout* modelfileLayout = new QHBoxLayout();
   modelfileLayout->addWidget(modelButton);
   modelfileLayout->addWidget(fileButton);
   modelfileBut->setExclusive( true );
-  modelfileBut->setButton(0);
+  modelButton->setChecked(true);
+
   //modelfileClicked is called when auto,tid,fil buttons clicked 
-  connect( modelfileBut, SIGNAL( clicked(int) ), 
+  connect( modelfileBut, SIGNAL( buttonClicked(int) ), 
 	   SLOT( modelfileClicked(int) ) );
 
   //push button to show help
@@ -129,21 +126,21 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   // ************ place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
   hlayout1->addWidget( modelhelp );
   hlayout1->addWidget( deleteAll );
   hlayout1->addWidget( refresh );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
   hlayout2->addWidget( modelhide );
   hlayout2->addWidget( modelapplyhide );
   hlayout2->addWidget( modelapply );
 
 
   //create a vertical layout to put all widgets and layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 5, 5 );                     
-  vlayout->addWidget( modelfileBut );
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 5, 5 );                     
+  vlayout->addLayout( modelfileLayout );
   vlayout->addWidget( modelfileList );
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
@@ -240,8 +237,8 @@ void SpectrumModelDialog::setSelection(){
       miString model = models[i];
       int m = modelfileList->count();
       for (int j = 0;j<m;j++){
-	miString listModel =  modelfileList->text(j).latin1();
-	if (model==listModel) modelfileList->setSelected(j,true);
+	miString listModel =  modelfileList->item(j)->text().latin1();
+	if (model==listModel) modelfileList->item(j)->setSelected(true);
       }
     }
   }
@@ -261,8 +258,8 @@ void SpectrumModelDialog::setModel(){
     vector <miString> models;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
-      if(modelfileList->isSelected(i)){
-	miString model = modelfileList->text(i).latin1();
+      if(modelfileList->item(i)->isSelected()){
+	miString model = modelfileList->item(i)->text().latin1();
 	if(model==OBS){
 	  showObs=true;
 	} else if (model==ASFIELD){
@@ -277,8 +274,8 @@ void SpectrumModelDialog::setModel(){
     vector <miString> files;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
-      if(modelfileList->isSelected(i)){
-	miString file = modelfileList->text(i).latin1(); 
+      if(modelfileList->item(i)->isSelected()){
+	miString file = modelfileList->item(i)->text().latin1(); 
 	files.push_back(file);
       }
     }
@@ -297,8 +294,8 @@ void SpectrumModelDialog::updateModelfileList(){
   int n= modelfileList->count();
   set<miString> current;
   for (int i=0; i<n; i++)
-    if (modelfileList->isSelected(i))
-      current.insert(miString(modelfileList->text(i).latin1()));
+    if (modelfileList->item(i)->isSelected())
+      current.insert(miString(modelfileList->item(i)->text().latin1()));
 
   //clear box with list of files 
   modelfileList->clear();
@@ -309,9 +306,9 @@ void SpectrumModelDialog::updateModelfileList(){
     int nr_models = modelnames.size();
   //modelfileList->insertItem(OBS);
     // qt4 fix: Made QString of ASFIELD
-    modelfileList->insertItem(QString(ASFIELD.c_str()));
+    modelfileList->addItem(QString(ASFIELD.c_str()));
     for (int i=0; i<nr_models; i++)
-      modelfileList->insertItem(modelnames[i].c_str());
+      modelfileList->addItem(QString(modelnames[i].c_str()));
 
     //insert into modelfilelist
   } else if (m_modelfileButIndex==1){
@@ -319,14 +316,14 @@ void SpectrumModelDialog::updateModelfileList(){
     vector <miString> modelfiles =spectrumm->getModelFiles();
     int nr_files = modelfiles.size();
     for (int i=0; i<nr_files; i++)
-      modelfileList->insertItem(modelfiles[i].c_str());
+      modelfileList->addItem(QString(modelfiles[i].c_str()));
   }
 
   set<miString>::iterator pend= current.end();
   n= modelfileList->count();
   for (int i=0; i<n; i++)
-    if (current.find(miString(modelfileList->text(i).latin1()))!=pend)
-      modelfileList->setSelected(i,true);
+    if (current.find(miString(modelfileList->item(i)->text().latin1()))!=pend)
+      modelfileList->item(i)->setSelected(true);
   
 }
 

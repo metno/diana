@@ -36,13 +36,13 @@
 #include <vector>
 #include <qwidget.h>
 //Added by qt3to4:
-#include <Q3GridLayout>
+#include <QGridLayout>
 #include <QLabel>
 
 using namespace std;
 
 class QFont;
-class Q3GridLayout;
+class QGridLayout;
 class QCheckBox;
 class QLabel;
 class QComboBox;
@@ -72,8 +72,9 @@ public:
   };
 
   //the constructor
-  VcrossSetup( QWidget* parent, VcrossManager* vm, miString text,
-	       Q3GridLayout* glayout,int row, int options, bool);
+
+  VcrossSetup( QWidget* parent, miString text,
+	       QGridLayout* glayout,int row, int options);
 
   bool isOn();
   Colour::ColourInfo getColour();

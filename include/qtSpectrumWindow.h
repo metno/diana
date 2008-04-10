@@ -31,9 +31,10 @@
 #ifndef _qt_spectrummainwindow_
 #define _qt_spectrummainwindow_
 
-#include <q3mainwindow.h>
-#include <qprinter.h>
-#include <qstring.h>
+#include <QMainWindow>
+#include <QPrinter>
+#include <QString>
+
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <miString.h>
@@ -43,7 +44,7 @@
 using namespace std;
 
 class QComboBox;
-class Q3ToolBar;
+class QToolBar;
 class ToggleButton;
 class SpectrumWidget;
 class SpectrumManager;
@@ -58,7 +59,7 @@ class QPrinter;
   Contains a diagram window, toolbars and menues.
   Receives and sends "events" from/to DianaMainWindow.
 */
-class SpectrumWindow: public Q3MainWindow
+class SpectrumWindow: public QMainWindow
 {
   Q_OBJECT
 public:
@@ -87,8 +88,8 @@ private:
   SpectrumSetupDialog * spSetupDialog;
 
   //qt widgets
-  Q3ToolBar *spToolbar;
-  Q3ToolBar *tsToolbar;
+  QToolBar *spToolbar;
+  QToolBar *tsToolbar;
 
 
   ToggleButton *modelButton;

@@ -28,24 +28,18 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
-#include <qdialog.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qbuttongroup.h>
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <qspinbox.h>
-#include <q3vbox.h>
+#include <QPushButton>
+#include <QLabel>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
+
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
 #include <diSpectrumManager.h>
-#include <qtSpectrumSetup.h>
+#include <qtVcrossSetup.h>
 #include <qtSpectrumSetupDialog.h>
 #include <diSpectrumOptions.h>
 
@@ -104,18 +98,18 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );
   vlayout->addLayout( glayout );
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
@@ -138,7 +132,7 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   // for the checkboxes/comboboxes/spinboxes
   int numrows= 14;
 //glayout = new QGridLayout(numrows,4); // linewidth not used, yet...
-  glayout = new Q3GridLayout(numrows,3);
+  glayout = new QGridLayout(numrows,3);
   glayout->setMargin( 5 );
   glayout->setSpacing( 2 );
 
@@ -156,28 +150,28 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
 
   int n,opts;
 
-  opts= (SpectrumSetup::useOnOff | SpectrumSetup::useColour);
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,TEXTPLOT,glayout,nrow++,opts,true));
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,FIXEDTEXT,glayout,nrow++,opts,true));
-  opts= (SpectrumSetup::useOnOff | SpectrumSetup::useColour |
-	 SpectrumSetup::useLineWidth);
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,FRAME,glayout,nrow++,opts,true));
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,SPECTRUMLINES,glayout,nrow++,opts,true));
-  opts= (SpectrumSetup::useOnOff);
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,SPECTRUMCOLOUR,glayout,nrow++,opts,true));
-  opts= (SpectrumSetup::useOnOff | SpectrumSetup::useColour |
-	 SpectrumSetup::useLineWidth);
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,ENERGYLINE,glayout,nrow++,opts,true));
-  opts= (SpectrumSetup::useOnOff | SpectrumSetup::useColour);
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,ENERGYCOLOUR,glayout,nrow++,opts,true));
-  opts= (SpectrumSetup::useOnOff | SpectrumSetup::useColour |
-	 SpectrumSetup::useLineWidth);
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,PLOTWIND,glayout,nrow++,opts,true));
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,PLOTPEAKDIREC,glayout,nrow++,opts,true));
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
+  spSetups.push_back(new VcrossSetup(parent,TEXTPLOT,glayout,nrow++,opts));
+  spSetups.push_back(new VcrossSetup(parent,FIXEDTEXT,glayout,nrow++,opts));
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
+	 VcrossSetup::useLineWidth);
+  spSetups.push_back(new VcrossSetup(parent,FRAME,glayout,nrow++,opts));
+  spSetups.push_back(new VcrossSetup(parent,SPECTRUMLINES,glayout,nrow++,opts));
+  opts= (VcrossSetup::useOnOff);
+  spSetups.push_back(new VcrossSetup(parent,SPECTRUMCOLOUR,glayout,nrow++,opts));
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
+	 VcrossSetup::useLineWidth);
+  spSetups.push_back(new VcrossSetup(parent,ENERGYLINE,glayout,nrow++,opts));
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
+  spSetups.push_back(new VcrossSetup(parent,ENERGYCOLOUR,glayout,nrow++,opts));
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
+	 VcrossSetup::useLineWidth);
+  spSetups.push_back(new VcrossSetup(parent,PLOTWIND,glayout,nrow++,opts));
+  spSetups.push_back(new VcrossSetup(parent,PLOTPEAKDIREC,glayout,nrow++,opts));
 
   nrow++;
-  opts= SpectrumSetup::useText;
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,FREQUENCYMAX,glayout,nrow++,opts,true));
+  opts= VcrossSetup::useTextChoice;
+  spSetups.push_back(new VcrossSetup(parent,FREQUENCYMAX,glayout,nrow++,opts));
   vector<miString> vfreq;
   vfreq.push_back(miString(0.50));
   vfreq.push_back(miString(0.45));
@@ -189,11 +183,11 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   vfreq.push_back(miString(0.15));
   vfreq.push_back(miString(0.10));
   n= spSetups.size()-1;
-  spSetups[n]->defineText(vfreq,4);
+  spSetups[n]->defineTextChoice(vfreq,4);
 
   nrow++;
-  opts= SpectrumSetup::useColour;
-  spSetups.push_back(new SpectrumSetup(parent,spectrumm,BACKCOLOUR,glayout,nrow++,opts,true));
+  opts= VcrossSetup::useColour;
+  spSetups.push_back(new VcrossSetup(parent,BACKCOLOUR,glayout,nrow++,opts));
 
   if (nrow!=numrows) {
     cerr<<"=================================================="<<endl;
@@ -279,7 +273,7 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
       spSetups[i]->setLinewidth(spopt->peakDirectionLinewidth);
 
     } else if (spSetups[i]->name== FREQUENCYMAX) {
-      spSetups[i]->setText(miString(spopt->freqMax));
+      spSetups[i]->setTextChoice(miString(spopt->freqMax));
 
     } else if (spSetups[i]->name== BACKCOLOUR) {
       spSetups[i]->setColour(spopt->backgroundColour);
@@ -345,7 +339,7 @@ void SpectrumSetupDialog::applySetup()
       spopt->peakDirectionLinewidth= spSetups[i]->getLinewidth();
 
     } else if (spSetups[i]->name== FREQUENCYMAX) {
-      miString str= spSetups[i]->getText();
+      miString str= spSetups[i]->getTextChoice();
       spopt->freqMax= atof(str.cStr());
 
     } else if (spSetups[i]->name== BACKCOLOUR) {

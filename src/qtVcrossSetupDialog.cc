@@ -29,23 +29,16 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <qapplication.h>
-#include <qdialog.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <qspinbox.h>
-#include <q3vbox.h>
+#include <QPushButton>
+#include <QLabel>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
+
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3VBoxLayout>
 #include <diVcrossManager.h>
 #include <qtVcrossSetup.h>
 #include <qtVcrossSetupDialog.h>
@@ -122,18 +115,18 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  Q3HBoxLayout* hlayout1 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfr", "help" etc. in horizontal layout
-  Q3HBoxLayout* hlayout2 = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );
   vlayout->addLayout( glayout );
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
@@ -155,7 +148,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes/spinboxes
   int numrows= 29;
-  glayout = new Q3GridLayout(numrows,4);
+  glayout = new QGridLayout(numrows,4);
   glayout->setMargin( 5 );
   glayout->setSpacing( 2 );
 
@@ -174,29 +167,29 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   int n,opts;
 
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,TEXTPLOT,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,POSNAMES,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,TEXTPLOT,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,POSNAMES,glayout,nrow++,opts));
   
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
 	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,FRAME,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,FRAME,glayout,nrow++,opts));
 
   opts= VcrossSetup::useOnOff;
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,LEVELNUMBERS,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,LEVELNUMBERS,glayout,nrow++,opts));
 
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
 	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,UPPERLEVEL,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,LOWERLEVEL,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,OTHERLEVELS,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,SURFACE,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,VERTGRID,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,MARKERLINES,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,VERTICALMARKER,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,UPPERLEVEL,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,LOWERLEVEL,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,OTHERLEVELS,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,SURFACE,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,VERTGRID,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,MARKERLINES,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,VERTICALMARKER,glayout,nrow++,opts));
 
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour | 
 	 VcrossSetup::useTextChoice | VcrossSetup::useTextChoice2);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,DISTANCE,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,DISTANCE,glayout,nrow++,opts));
   vector<miString> distunit;
   distunit.push_back("km");
   distunit.push_back("nm");
@@ -210,17 +203,17 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups[n]->defineTextChoice2(diststep,0);
   
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,GRIDPOS,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,GEOPOS,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,GRIDPOS,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,GEOPOS,glayout,nrow++,opts));
   opts= VcrossSetup::useOnOff;
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,EXTRAPOLP,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,BOTTOMEXT,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,EXTRAPOLP,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,BOTTOMEXT,glayout,nrow++,opts));
 
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,THINARROWS,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,THINARROWS,glayout,nrow++,opts));
 
   nrow++;
-  opts= VcrossSetup::useTextChoice;
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,VERTICALTYPE,glayout,nrow++,opts,true));
+  opts= VcrossSetup::useTextChoice2;
+  vcSetups.push_back(new VcrossSetup(parent,VERTICALTYPE,glayout,nrow++,opts));
   vector<miString> vchoice;
   vchoice.push_back("Standard/P");
   vchoice.push_back("Standard/FL");
@@ -229,35 +222,35 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vchoice.push_back("Height/m");
   vchoice.push_back("Height/Ft");
   n= vcSetups.size()-1;
-  vcSetups[n]->defineTextChoice(vchoice,0);
+  vcSetups[n]->defineTextChoice2(vchoice,0);
 
   nrow++;
   opts= (VcrossSetup::useOnOff | VcrossSetup::useValue);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,VHSCALE,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,VHSCALE,glayout,nrow++,opts));
   n= vcSetups.size()-1;
 //vcSetups[n]->defineValue(10,600,10,150,"","x");
   vcSetups[n]->defineValue(1,600,1,150,"","x");
 
   opts= (VcrossSetup::useOnOff | VcrossSetup::useMinValue | VcrossSetup::useMaxValue);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,STDVERAREA,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,STDVERAREA,glayout,nrow++,opts));
   n= vcSetups.size()-1;
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
 
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,STDHORAREA,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,STDHORAREA,glayout,nrow++,opts));
   n= vcSetups.size()-1;
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
 
   nrow++;
   opts= VcrossSetup::useColour;
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,BACKCOLOUR,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent,BACKCOLOUR,glayout,nrow++,opts));
 
   nrow++;
   opts= (VcrossSetup::useColour |
 	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm, ONMAPDRAW,glayout,nrow++,opts,true));
-  vcSetups.push_back(new VcrossSetup(parent,vcrossm,HITMAPDRAW,glayout,nrow++,opts,true));
+  vcSetups.push_back(new VcrossSetup(parent, ONMAPDRAW,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetup(parent,HITMAPDRAW,glayout,nrow++,opts));
 
   if (nrow!=numrows) {
     cerr<<"=================================================="<<endl;

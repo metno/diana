@@ -31,10 +31,8 @@
 #ifndef SPECTRUMSETUPDIALOG_H
 #define SPECTRUMSETUPDIALOG_H
 
-#include <qdialog.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3GridLayout>
+#include <QDialog>
+
 #include <diCommonTypes.h>
 #include <miString.h>
 #include <vector>
@@ -42,11 +40,10 @@
 using namespace std;
 
 class QFont;
-class Q3GridLayout;
-class Q3VBoxLayout;
+class QGridLayout;
 class SpectrumManager;
 class SpectrumOptions;
-class SpectrumSetup;
+class VcrossSetup;
 
 /**
    \brief Dialogue to select Wave Spectrum diagram and data options
@@ -72,10 +69,9 @@ private:
   void printSetup();
   void applySetup();
 
-  Q3GridLayout* glayout;
-  Q3VBoxLayout* vlayout;
+  QGridLayout* glayout;
 
-  vector<SpectrumSetup*> spSetups;
+  vector<VcrossSetup*> spSetups;
 
   bool isInitialized;
 

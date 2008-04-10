@@ -31,15 +31,11 @@
 //#define DEBUGPRINT
 //#define DEBUGREDRAW
 
-#include <qapplication.h>
-#include <qlayout.h>
-#include <q3frame.h>
-#include <qimage.h>
-
-#include <qtVcrossWidget.h>
-//Added by qt3to4:
+#include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
+
+#include <qtVcrossWidget.h>
 #include <diVcrossManager.h>
 #include <diVcrossPlot.h>
 
@@ -52,7 +48,6 @@ VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
 {
 
   if ( !isValid() ) {
-    // qt4 fix: fatal() -> qFatal() (why did this work with qt3??)
     qFatal("Failed to create OpenGL rendering context on this display");
   }
 

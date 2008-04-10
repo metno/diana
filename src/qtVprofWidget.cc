@@ -31,14 +31,10 @@
 //#define DEBUGPRINT
 //#define DEBUGREDRAW
 
-#include <qapplication.h>
-#include <qlayout.h>
-#include <q3frame.h>
-#include <qimage.h>
+#include <QImage>
+#include <QKeyEvent>
 
 #include <qtVprofWidget.h>
-//Added by qt3to4:
-#include <QKeyEvent>
 #include <diVprofManager.h>
 
 
@@ -48,7 +44,6 @@ VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
 {
 
   if ( !isValid() ) {
-    // qt4 fix: fatal() -> qFatal (why did fatal() work with qt3??)
     qFatal("Failed to create OpenGL rendering context on this display");
   }
 

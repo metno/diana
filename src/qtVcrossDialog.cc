@@ -31,31 +31,23 @@
 
 //#define DEBUGPRINT
 
-#include <qapplication.h>
 #include <qcombobox.h>
-#include <q3listbox.h>
-#include <qlayout.h>
+#include <QListWidget>
+#include <QListWidgetItem>
 #include <qlabel.h>
-#include <qpainter.h>
-#include <qlayout.h>
 #include <qpushbutton.h>
-#include <qsplitter.h>
-#include <q3groupbox.h>
-#include <q3vbox.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
 #include <qtooltip.h>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QPixmap>
+#include <QFrame>
+#include <QVBoxLayout>
 
 #include <qtVcrossDialog.h>
 #include <qtUtility.h>
 #include <qtToggleButton.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <QPixmap>
-#include <Q3Frame>
-#include <Q3VBoxLayout>
-
 #include <diVcrossManager.h>
 
 #include <iostream>
@@ -112,74 +104,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   csInfo      = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
 
-  nr_colors= colourInfo.size();
-  QColor pixcolor;
-  pmapColor = new QPixmap*[nr_colors];
-  for (i=0; i<nr_colors; i++) {
-    pixcolor= QColor( colourInfo[i].rgb[0], colourInfo[i].rgb[1],
-		      colourInfo[i].rgb[2] );
-    pmapColor[i] = new QPixmap( 20, 20 );
-    pmapColor[i]->fill( pixcolor );
-//#################################################################
-//cerr<<"VCROSSDIALOG  colour= "<< colourInfo[i].name<<endl;
-//#################################################################
-    // setup parsed to lowercase
-    colourInfo[i].name= colourInfo[i].name.downcase();
-  }
-
-  // Combinations of two colours
-  vector< vector<Colour::ColourInfo> > twoColourInfo=
-			       vcrossm->getMultiColourInfo(2);
-  twoColourNames.clear();
-  n= twoColourInfo.size();
-  pmapTwoColors = new QPixmap*[n];
-  for (i=0; i<n; i++) {
-    twoColourNames.push_back( twoColourInfo[i][0].name + "," +
-			      twoColourInfo[i][1].name );
-
-    QColor qc1= QColor( twoColourInfo[i][0].rgb[0],
-			twoColourInfo[i][0].rgb[1],
-		        twoColourInfo[i][0].rgb[2] );
-    QColor qc2= QColor( twoColourInfo[i][1].rgb[0],
-			twoColourInfo[i][1].rgb[1],
-		        twoColourInfo[i][1].rgb[2] );
-    pmapTwoColors[i] = new QPixmap( 30, 20 );
-    QPainter qp;
-    qp.begin( pmapTwoColors[i] );
-    qp.fillRect( 0,0,15,20,qc1);
-    qp.fillRect(15,0,15,20,qc2);
-    qp.end();
-  }
-
-  // Combinations of three colours
-  vector< vector<Colour::ColourInfo> > threeColourInfo=
-			       vcrossm->getMultiColourInfo(3);
-  threeColourNames.clear();
-  n= threeColourInfo.size();
-  pmapThreeColors = new QPixmap*[n];
-  for (i=0; i<n; i++) {
-    threeColourNames.push_back( threeColourInfo[i][0].name + "," +
-				threeColourInfo[i][1].name + "," +
-				threeColourInfo[i][2].name );
-
-    QColor qc1= QColor( threeColourInfo[i][0].rgb[0],
-			threeColourInfo[i][0].rgb[1],
-		        threeColourInfo[i][0].rgb[2] );
-    QColor qc2= QColor( threeColourInfo[i][1].rgb[0],
-			threeColourInfo[i][1].rgb[1],
-		        threeColourInfo[i][1].rgb[2] );
-    QColor qc3= QColor( threeColourInfo[i][2].rgb[0],
-			threeColourInfo[i][2].rgb[1],
-		        threeColourInfo[i][2].rgb[2] );
-    pmapThreeColors[i] = new QPixmap( 30, 20 );
-    QPainter qp;
-    qp.begin( pmapThreeColors[i] );
-    qp.fillRect( 0,0,10,20,qc1);
-    qp.fillRect(10,0,10,20,qc2);
-    qp.fillRect(20,0,10,20,qc3);
-    qp.end();
-  }
-
   // linewidths
    nr_linewidths= 12;
 
@@ -188,20 +112,15 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   nr_linetypes= linetypes.size();
 
   // density (of arrows etc, 0=automatic)
-  vector<int> density_value;
-  for (i=0;  i<10; i++)   density_value.push_back(i);
-  for (i=10; i<60; i+=10) density_value.push_back(i);
-  density_value.push_back(100);
-  n=density_value.size();
-  for (i=0; i<n; ++i) {
-    if (density_value[i]<=0)
-      density.push_back("Auto");
-    else {
-      ostringstream ostr;
-      ostr << density_value[i];
-      density.push_back(ostr.str());
-    }
+  densityStringList << "Auto";
+    QString qs;
+  for (i=0;  i<10; i++) {
+    densityStringList << qs.setNum(i);
   }
+  for (i=10;  i<60; i+=10) {
+    densityStringList << qs.setNum(i);
+  }
+  densityStringList << qs.setNum(100);
 
   //----------------------------------------------------------------
   cp = new CommandParser();
@@ -246,7 +165,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   // modellabel
   QLabel *modellabel= TitleLabel( tr("Models"), this );
   //h1 modelbox
-  modelbox = new Q3ListBox( this );
+  modelbox = new QListWidget( this );
 #ifdef DISPLAY1024X768
   modelbox->setMinimumHeight( 60 );
   modelbox->setMaximumHeight( 60 );
@@ -257,21 +176,18 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   n= models.size();
   if (n>0) {
-    const char** cvstr= new const char*[n];
     for (i=0; i<n; i++)
-      cvstr[i]= models[i].c_str();
-    modelbox->insertStrList( cvstr, n );
-    delete[] cvstr;
+      modelbox->addItem(QString(models[i].c_str()));
   }
 
-  connect( modelbox, SIGNAL( highlighted( int ) ),
-	   SLOT( modelboxHighlighted( int ) ) );
+  connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
+	   SLOT( modelboxClicked( QListWidgetItem * ) ) );
 
   // fieldlabel
   QLabel *fieldlabel= TitleLabel( tr("Fields"), this );
 
   // fieldbox
-  fieldbox = new Q3ListBox( this );
+  fieldbox = new QListWidget( this );
 #ifdef DISPLAY1024X768
   fieldbox->setMinimumHeight( 64 );
   fieldbox->setMaximumHeight( 64 );
@@ -279,16 +195,16 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   fieldbox->setMinimumHeight( 132 );
   fieldbox->setMaximumHeight( 132 );
 #endif
-  fieldbox->setSelectionMode( Q3ListBox::Multi );
+  fieldbox->setSelectionMode(QAbstractItemView::MultiSelection);
 
-  connect( fieldbox, SIGNAL( selectionChanged() ),
-  	   SLOT( fieldboxChanged() ) );
+  connect( fieldbox, SIGNAL( itemClicked(QListWidgetItem*) ),
+  	   SLOT( fieldboxChanged(QListWidgetItem*) ) );
 
   // selectedFieldlabel
   QLabel *selectedFieldlabel= TitleLabel( tr("Selected Fields"), this );
 
   // selectedFieldbox
-  selectedFieldbox = new Q3ListBox( this );
+  selectedFieldbox = new QListWidget( this );
 #ifdef DISPLAY1024X768
   selectedFieldbox->setMinimumHeight( 55 );
   selectedFieldbox->setMaximumHeight( 55 );
@@ -296,11 +212,10 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   selectedFieldbox->setMinimumHeight( 80 );
   selectedFieldbox->setMaximumHeight( 80 );
 #endif
-  selectedFieldbox->setSelectionMode( Q3ListBox::Single );
   selectedFieldbox->setEnabled( true );
 
-  connect( selectedFieldbox, SIGNAL( highlighted( int ) ),
-	   SLOT( selectedFieldboxHighlighted( int ) ) );
+  connect( selectedFieldbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
+	   SLOT( selectedFieldboxClicked( QListWidgetItem * ) ) );
 
   // deleteSelected
   Delete = NormalPushButton( tr("Delete"), this );
@@ -395,9 +310,9 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // colorCbox
   colorlabel= new QLabel( tr("Colour"), this );
-  colorCbox=  new QComboBox( false, this );
+  colorCbox= ColourBox(this,colourInfo,false,0,tr("off").latin1(),true);
+  colorCbox->setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   colorCbox->setEnabled( false );
-  multiColors=0;
 
   connect( colorCbox, SIGNAL( activated(int) ),
 	   SLOT( colorCboxActivated(int) ) );
@@ -430,11 +345,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   densitylabel= new QLabel( tr("Density"), this );
   densityCbox=  new QComboBox( false, this );
   densityCbox->setEnabled( false );
-  // values inserted when enabled (cleared when disabled)
-  nr_densities= density.size();
-  cdensities= new const char*[nr_densities];
-  for (i=0; i<nr_densities; i++)
-    cdensities[i]= density[i].c_str();
 
   connect( densityCbox, SIGNAL( activated(int) ),
 	   SLOT( densityCboxActivated(int) ) );
@@ -486,7 +396,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   connect( fieldapply, SIGNAL(clicked()), SLOT( applyClicked()));
 
   // layout
-  v1layout = new Q3VBoxLayout( 5 );
+  QVBoxLayout* v1layout = new QVBoxLayout( 5 );
   v1layout->addWidget( modellabel );
   v1layout->addWidget( modelbox );
   v1layout->addSpacing( 5 );
@@ -496,38 +406,38 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   v1layout->addWidget( selectedFieldlabel );
   v1layout->addWidget( selectedFieldbox );
 
-  Q3VBoxLayout* h2layout= new Q3VBoxLayout( 2 );
+  QVBoxLayout* h2layout= new QVBoxLayout( 2 );
   h2layout->addWidget( upFieldButton );
   h2layout->addWidget( downFieldButton );
   h2layout->addWidget( resetOptionsButton );
   h2layout->addStretch(1);
 
-  v1h4layout = new Q3HBoxLayout( 2 );
+  QHBoxLayout* v1h4layout = new QHBoxLayout( 2 );
   v1h4layout->addWidget( Delete );
   v1h4layout->addWidget( copyField );
 
-  Q3HBoxLayout* vxh4layout = new Q3HBoxLayout( 2 );
+  QHBoxLayout* vxh4layout = new QHBoxLayout( 2 );
   vxh4layout->addWidget( deleteAll );
   vxh4layout->addWidget( changeModelButton );
 
-  Q3VBoxLayout* v3layout= new Q3VBoxLayout( 2 );
+  QVBoxLayout* v3layout= new QVBoxLayout( 2 );
   v3layout->addLayout( v1h4layout );
   v3layout->addLayout( vxh4layout );
 
-  Q3HBoxLayout* v1h5layout= new Q3HBoxLayout( 2 );
+  QHBoxLayout* v1h5layout= new QHBoxLayout( 2 );
   v1h5layout->addWidget( historyBackButton );
   v1h5layout->addWidget( historyForwardButton );
 
-  Q3VBoxLayout* v4layout= new Q3VBoxLayout( 2 );
+  QVBoxLayout* v4layout= new QVBoxLayout( 2 );
   v4layout->addLayout( v1h5layout );
   v4layout->addWidget( historyOkButton, 1 );
 
-  Q3HBoxLayout* h3layout= new Q3HBoxLayout( 2 );
+  QHBoxLayout* h3layout= new QHBoxLayout( 2 );
   h3layout->addLayout( v3layout );
   h3layout->addLayout( v4layout );
 
   //optlayout = new QGridLayout( 7, 2, 1 );
-  optlayout = new Q3GridLayout( 6, 2, 1 );
+  QGridLayout* optlayout = new QGridLayout( 6, 2, 1 );
   optlayout->addWidget( colorlabel,       0, 0 );
   optlayout->addWidget( colorCbox,        0, 1 );
   optlayout->addWidget( linewidthlabel,   1, 0 );
@@ -543,29 +453,29 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //optlayout->addWidget( extremeTypeLabel, 6, 0 );
   //optlayout->addWidget( extremeTypeCbox,  6, 1 );
 
-  h4layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h4layout = new QHBoxLayout( 5 );
   h4layout->addLayout( h2layout );
   h4layout->addLayout( optlayout );
 
-  h5layout = new Q3HBoxLayout( 2 );
+  QHBoxLayout* h5layout = new QHBoxLayout( 2 );
   h5layout->addWidget( fieldhelp );
   //h5layout->addWidget( allTimeStepButton );
   h5layout->addWidget( advanced );
 
-  h6layout = new Q3HBoxLayout( 2 );
+  QHBoxLayout* h6layout = new QHBoxLayout( 2 );
   h6layout->addWidget( fieldhide );
   h6layout->addWidget( fieldapplyhide );
   h6layout->addWidget( fieldapply );
 
-  Q3VBoxLayout* v6layout= new Q3VBoxLayout( 2 );
+  QVBoxLayout* v6layout= new QVBoxLayout( 2 );
   v6layout->addLayout( h5layout );
   v6layout->addLayout( h6layout );
 
   // vlayout
 #ifdef DISPLAY1024X768
-  vlayout = new Q3VBoxLayout( this, 5, 5 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5 );
 #else
-  vlayout = new Q3VBoxLayout( this, 10, 10 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this, 10, 10 );
 #endif
   vlayout->addLayout( v1layout );
   vlayout->addLayout( h3layout );
@@ -793,7 +703,7 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 
   // layout......................................................
 
-  Q3VBoxLayout *adv1Layout = new Q3VBoxLayout( 1 );
+  QVBoxLayout *adv1Layout = new QVBoxLayout( 1 );
   int space= 6;
   adv1Layout->addStretch();
   adv1Layout->addWidget(lineSmoothLabel);
@@ -808,18 +718,17 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   adv1Layout->addWidget(zeroLineCheckBox);
   adv1Layout->addWidget(valueLabelCheckBox);
   adv1Layout->addSpacing(space);
-  adv1Layout->addWidget(shadingComboBox);
 
   // a separator
-  Q3Frame* advSep= new Q3Frame( advFrame );
-  advSep->setFrameStyle( Q3Frame::VLine | Q3Frame::Raised );
+  QFrame* advSep= new QFrame( advFrame );
+  advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
   advSep->setLineWidth( 5 );
 
-  Q3Frame* advSep2= new Q3Frame( advFrame );
-  advSep2->setFrameStyle( Q3Frame::HLine | Q3Frame::Raised );
+  QFrame* advSep2= new QFrame( advFrame );
+  advSep2->setFrameStyle( QFrame::HLine | QFrame::Raised );
   advSep2->setLineWidth( 5 );
 
-  Q3GridLayout* adv2Layout = new Q3GridLayout( 10, 3, 1 );
+  QGridLayout* adv2Layout = new QGridLayout( 10, 3);
   adv2Layout->addWidget(advSep2,               0, 0);
   adv2Layout->addWidget( tableCheckBox,      1, 0 );
   adv2Layout->addWidget( repeatCheckBox,  2, 0 );
@@ -841,11 +750,11 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   adv2Layout->addWidget( maxLabel,           9, 0 );
   adv2Layout->addWidget( max1ComboBox,       9, 1 );
 
-  Q3VBoxLayout *advLayout = new Q3VBoxLayout( 1 );
+  QVBoxLayout *advLayout = new QVBoxLayout( 1 );
   advLayout->addLayout(adv1Layout);
   advLayout->addLayout(adv2Layout);
 
-  Q3HBoxLayout *hLayout = new Q3HBoxLayout( advFrame,5,5 );
+  QHBoxLayout *hLayout = new QHBoxLayout( advFrame,5,5 );
 
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
@@ -854,10 +763,12 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 }
 
 
-void VcrossDialog::modelboxHighlighted( int index ){
+void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
 #ifdef DEBUGPRINT
   cerr<<"VcrossDialog::modelboxHighlighted called"<<endl;
 #endif
+
+  int index = modelbox->row(item);
 
   fields= vcrossm->getFieldNames(models[index]);
 
@@ -873,12 +784,9 @@ void VcrossDialog::modelboxHighlighted( int index ){
 
   fieldbox->blockSignals(true);
 
-  const char** cvstr= new const char*[nf];
   for (int i=0; i<nf; i++)
-    cvstr[i]=  fields[i].c_str();
-  fieldbox->insertStrList( cvstr, nf );
+      fieldbox->addItem(QString(fields[i].c_str()));
   fieldbox->setEnabled( true );
-  delete[] cvstr;
 
   countSelected.resize(nf);
   for (int i=0; i<nf; ++i) countSelected[i]= 0;
@@ -890,7 +798,7 @@ void VcrossDialog::modelboxHighlighted( int index ){
       j=0;
       while (j<nf && selectedFields[i].field!=fields[j]) j++;
       if (j<nf) {
-	fieldbox->setSelected(j,true);
+	fieldbox->item(j)->setSelected(true);
 	countSelected[j]++;
       }
     }
@@ -908,7 +816,8 @@ void VcrossDialog::modelboxHighlighted( int index ){
 }
 
 
-void VcrossDialog::fieldboxChanged(){
+void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
+{
 #ifdef DEBUGPRINT
   cerr<<"VcrossDialog::fieldboxChanged called"<<endl;
 #endif
@@ -916,7 +825,7 @@ void VcrossDialog::fieldboxChanged(){
   if (historyOkButton->isEnabled()) deleteAllSelected();
 
   int i, j, jp, n;
-  int indexM   = modelbox->currentItem();
+  int indexM   = modelbox->currentRow();
 
   // NOTE: multiselection list, current item may only be the last...
 
@@ -927,7 +836,7 @@ void VcrossDialog::fieldboxChanged(){
 
   for (int indexF=0; indexF<nf; ++indexF) {
 
-    if (fieldbox->isSelected(indexF) && countSelected[indexF]==0) {
+    if (fieldbox->item(indexF)->isSelected() && countSelected[indexF]==0) {
 
       SelectedField sf;
       sf.model=    models[indexM];
@@ -943,15 +852,15 @@ void VcrossDialog::fieldboxChanged(){
 
       countSelected[indexF]++;
 
-      selectedFieldbox->insertItem(modelbox->text(indexM) + " " +
-				   fieldbox->text(indexF));
+      selectedFieldbox->addItem(modelbox->item(indexM)->text() + " " +
+				fieldbox->item(indexF)->text());
       last= selectedFields.size()-1;
 
-    } else if (!fieldbox->isSelected(indexF) && countSelected[indexF]>0) {
+    } else if (!fieldbox->item(indexF)->isSelected() && countSelected[indexF]>0) {
 
       n= selectedFields.size();
       j= jp= -1;
-      int jsel=-1, isel= selectedFieldbox->currentItem();
+      int jsel=-1, isel= selectedFieldbox->currentRow();
       for (i=0; i<n; i++) {
 	if (selectedFields[i].model==models[indexM]  &&
 	    selectedFields[i].field==fields[indexF]) {
@@ -970,15 +879,15 @@ void VcrossDialog::fieldboxChanged(){
         }
 	if (jp>=0) {
 	  fieldbox->blockSignals(true);
-	  fieldbox->setCurrentItem(indexF);
-	  fieldbox->setSelected(indexF, true);
+	  fieldbox->setCurrentRow(indexF);
+	  fieldbox->item(indexF)->setSelected(true);
 	  fieldbox->blockSignals(false);
 	  lastdelete= jp;
 	} else {
 	  lastdelete= j;
 	}
 	countSelected[indexF]--;
-        selectedFieldbox->removeItem(j);
+        selectedFieldbox->takeItem(j);
 	for (i=j; i<n-1; i++)
 	  selectedFields[i]=selectedFields[i+1];
 	selectedFields.pop_back();
@@ -992,8 +901,8 @@ void VcrossDialog::fieldboxChanged(){
   }
 
   if (last>=0) {
-    selectedFieldbox->setCurrentItem(last);
-    selectedFieldbox->setSelected(last,true);
+    selectedFieldbox->setCurrentRow(last);
+    selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
   } else if (selectedFields.size()==0) {
     disableFieldOptions();
@@ -1014,7 +923,7 @@ void VcrossDialog::enableFieldOptions(){
   float e;
   int   index, lastindex, nc, i, j, k, n;
 
-  index= selectedFieldbox->currentItem();
+  index= selectedFieldbox->currentRow();
   lastindex= selectedFields.size()-1;
 
   if (index<0 || index>lastindex) {
@@ -1025,7 +934,7 @@ void VcrossDialog::enableFieldOptions(){
     return;
   }
 
-  int indexM= modelbox->currentItem();
+  int indexM= modelbox->currentRow();
 
   upFieldButton->setEnabled( (index>0) );
   downFieldButton->setEnabled( (index<lastindex) );
@@ -1084,63 +993,24 @@ void VcrossDialog::enableFieldOptions(){
 
   // colour(s)
   if ((nc=cp->findKey(vpcopt,"colour"))>=0) {
-    if (colorCbox->isEnabled() && multiColors!=1) {
-      colorCbox->clear();
-      colorCbox->setEnabled(false);
-    }
+    shadingComboBox->setEnabled(true);
+    shadingcoldComboBox->setEnabled(true);
     if (!colorCbox->isEnabled()) {
-      for( i=0; i<nr_colors; i++)
-        colorCbox->insertItem( *pmapColor[i] );
       colorCbox->setEnabled(true);
     }
-    multiColors= 1;
     i=0;
-    while (i<nr_colors && vpcopt[nc].allValue!=colourInfo[i].name) i++;
-    if (i==nr_colors) {
-      i=0;
+    if(vpcopt[nc].allValue.downcase() == "off" ||
+       vpcopt[nc].allValue.downcase() == "av" ){
+      updateFieldOptions("colour","off");
+      colorCbox->setCurrentItem(0);
+    } else {
+      while (i<nr_colors
+	     && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
+      if (i==nr_colors) i=0;
       updateFieldOptions("colour",colourInfo[i].name);
-    }
-    colorCbox->setCurrentItem(i);
-  } else if ((nc=cp->findKey(vpcopt,"colours"))>=0) {
-    int ncol= vpcopt[nc].strValue.size();
-    if (colorCbox->isEnabled() && multiColors!=ncol) {
-      colorCbox->clear();
-      colorCbox->setEnabled(false);
-    }
-    if (ncol==2) {
-      n= twoColourNames.size();
-      if (!colorCbox->isEnabled()) {
-        for( i=0; i<n; i++)
-          colorCbox->insertItem( *pmapTwoColors[i] );
-        colorCbox->setEnabled(true);
-      }
-      multiColors= 2;
-      i=0;
-      while (i<n && vpcopt[nc].allValue!=twoColourNames[i]) i++;
-      if (i==n) {
-        i=0;
-        updateFieldOptions("colours",twoColourNames[i],-1);
-      }
-      colorCbox->setCurrentItem(i);
-    } else if (ncol==3) {
-      n= threeColourNames.size();
-      if (!colorCbox->isEnabled()) {
-        for( i=0; i<n; i++)
-          colorCbox->insertItem( *pmapThreeColors[i] );
-        colorCbox->setEnabled(true);
-      }
-      multiColors= 3;
-      i=0;
-      while (i<n && vpcopt[nc].allValue!=threeColourNames[i]) i++;
-      if (i==n) {
-        i=0;
-        updateFieldOptions("colours",threeColourNames[i],-1);
-      }
-      colorCbox->setCurrentItem(i);
+      colorCbox->setCurrentItem(i+1);
     }
   } else if (colorCbox->isEnabled()) {
-    multiColors= 0;
-    colorCbox->clear();
     colorCbox->setEnabled(false);
   }
 
@@ -1304,6 +1174,7 @@ void VcrossDialog::enableFieldOptions(){
     if (vpcopt[nc].floatValue.size()>0) ekv=vpcopt[nc].floatValue[0];
     else ekv= 10.;
     lineintervals= numberList( lineintervalCbox, ekv);
+    lineintervalCbox->setEnabled(true);
   } else if (lineintervalCbox->isEnabled()) {
     lineintervalCbox->clear();
     lineintervalCbox->setEnabled(false);
@@ -1312,13 +1183,11 @@ void VcrossDialog::enableFieldOptions(){
   // wind/vector density
   if ((nc=cp->findKey(vpcopt,"density"))>=0) {
     if (!densityCbox->isEnabled()) {
-      // qt4 fix: insertStrList() -> insertStringList()
-      // (uneffective, have to make QStringList and QString!)
-      densityCbox->insertStringList(QStringList(QString(cdensities[0])), nr_densities);
+      densityCbox->addItems(densityStringList);
       densityCbox->setEnabled(true);
     }
     miString s;
-    if (vpcopt[nc].strValue.size()>0) {
+    if (!vpcopt[nc].strValue.empty()) {
       s= vpcopt[nc].strValue[0];
     } else {
       s= "0";
@@ -1327,20 +1196,11 @@ void VcrossDialog::enableFieldOptions(){
     if (s=="0") {
       i=0;
     } else {
-      n=density.size();
-      i=1;
-      while (i<n && density[i]!=s) i++;
-      if (i==n) {
-        density.push_back(s);
-	delete[] cdensities;
-	nr_densities= n;
-	cdensities= new const char*[nr_densities];
-	for (i=0; i<nr_densities; i++)
-	  cdensities[i]= density[i].c_str();
-	densityCbox->clear();
-        // qt4 fix: insertStrList() -> insertStringList()
-        // (uneffective, have to make QStringList and QString!)
-        densityCbox->insertStringList(QStringList(QString(cdensities[0])), nr_densities);
+      i = densityStringList.indexOf(QString(s.cStr())); 
+      if (i==-1) {
+        densityStringList <<QString(s.cStr());
+	densityCbox->addItem(QString(s.cStr()));
+	i=densityCbox->count()-1;
       }
     }
     densityCbox->setCurrentItem(i);
@@ -1690,6 +1550,8 @@ vector<miString> VcrossDialog::numberList( QComboBox* cBox, float number ){
   cerr<<"VcrossDialog::numberList called"<<endl;
 #endif
 
+  cBox->clear();
+
   vector<miString> vnumber;
 
   const int nenormal = 10;
@@ -1699,6 +1561,7 @@ vector<miString> VcrossDialog::numberList( QComboBox* cBox, float number ){
   int   i, j, k, n, ielog, nupdown;
 
   e= number;
+  if( e<=0 ) e=1.0;
   elog= log10f(e);
   if (elog>=0.) ielog= int(elog);
   else          ielog= int(elog-0.99999);
@@ -1722,15 +1585,13 @@ vector<miString> VcrossDialog::numberList( QComboBox* cBox, float number ){
     vnumber.push_back(miString(enormal[k]*ex));
   }
   n=1+nupdown*2;
-  const char** cvstr= new const char*[n];
-  for (i=0; i<n; ++i) cvstr[i]= vnumber[i].c_str();
-  cBox->clear();
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-  cBox->insertStringList(QStringList(QString(cvstr[0])),n);
+
+  QString qs;
+  for (i=0; i<n; ++i) {
+    cBox->addItem(QString(vnumber[i].cStr()));
+  }
+
   cBox->setCurrentItem(nupdown);
-  cBox->setEnabled(true);
-  delete[] cvstr;
 
   return vnumber;
 }
@@ -1742,56 +1603,47 @@ miString VcrossDialog::baseList( QComboBox* cBox,
 {
   miString str;
 
-//   if(onoff){
-//     cerr <<"base:"<<base<<endl;
-//     cerr <<"ekv:"<<ekv<<endl;
-//   }
   int n;
   if (base<0.) n= int(base/ekv - 0.5);
   else         n= int(base/ekv + 0.5);
   if (fabsf(base-ekv*float(n))>0.01*ekv) {
     base= ekv*float(n);
-    ostringstream ostr;
-    ostr << base;
-    str= ostr.str();
+    str = miString(base);
   }
   n=21;
   int k=n/2;
   int j=-k-1;
-  vector<miString> baseopts;
+
+  cBox->clear();
 
   if(onoff)
-    baseopts.push_back("Av");
+    cBox->insertItem(tr("Off"));
 
   for (int i=0; i<n; ++i) {
     j++;
     float e= base + ekv*float(j);
     if(fabs(e)<ekv/2)
-      baseopts.push_back("0");
-    else
-      baseopts.push_back(miString(e));
+    cBox->insertItem("0");
+    else{
+      miString estr(e);
+      cBox->insertItem(estr.cStr());
+    }
   }
-  const char** cvstr= new const char*[n];
-  for (int i=0; i<n; ++i)
-    cvstr[i]= baseopts[i].c_str();
-  cBox->clear();
-  // qt4 fix: insertStrList() -> insertStringList()
-  // (uneffective, have to make QStringList and QString!)
-  cBox->insertStringList(QStringList(QString(cvstr[0])), n);
+
   if(onoff)
     cBox->setCurrentItem(k+1);
   else
     cBox->setCurrentItem(k);
-  //  cBox->setEnabled(true);
-  delete[] cvstr;
 
   return str;
 }
 
-void VcrossDialog::selectedFieldboxHighlighted( int index ){
+void VcrossDialog::selectedFieldboxClicked( QListWidgetItem * item  )
+{
 #ifdef DEBUGPRINT
   cerr<<"VcrossDialog::selectedFieldboxHighlighted called"<<endl;
 #endif
+  int index = selectedFieldbox->row(item);
 
   // may get here when there is none selected fields (the last is removed)
   if (index<0 || selectedFields.size()==0) return;
@@ -1835,7 +1687,7 @@ void VcrossDialog::lineintervalCboxActivated( int index ){
 
 void VcrossDialog::densityCboxActivated( int index ){
   if (index==0) updateFieldOptions("density","0");
-  else          updateFieldOptions("density",density[index]);
+  else  updateFieldOptions("density",densityCbox->currentText().latin1());
 }
 
 
@@ -1877,7 +1729,7 @@ void VcrossDialog::labelSizeChanged(int value){
 
 
 void VcrossDialog::hourOffsetChanged(int value){
-  int n= selectedFieldbox->currentItem();
+  int n= selectedFieldbox->currentRow();
   selectedFields[n].hourOffset= value;
 }
 
@@ -2031,7 +1883,7 @@ void VcrossDialog::updateFieldOptions(const miString& name,
 
   if (currentFieldOpts.empty()) return;
 
-  int n= selectedFieldbox->currentItem();
+  int n= selectedFieldbox->currentRow();
 
   if(value == "remove")
     cp->removeValue(vpcopt,name);
@@ -2208,12 +2060,9 @@ void VcrossDialog::showHistory(int step) {
 
     int nvstr= vstr.size();
     if (nvstr>0) {
-      const char** cvstr = new const char*[nvstr];
       for (int i=0; i<nvstr; i++)
-	cvstr[i]= vstr[i].c_str();
-      selectedFieldbox->insertStrList(cvstr,nvstr);
+	  selectedFieldbox->addItem(QString(vstr[i].c_str()));
       deleteAll->setEnabled(true);
-      delete[] cvstr;
     }
 
     highlightButton(historyOkButton,true);
@@ -2314,7 +2163,7 @@ void VcrossDialog::putOKString(const vector<miString>& vstr,
 
       miString str= model + " " + field;
       QString qstr= str.c_str();
-      selectedFieldbox->insertItem(qstr);
+      selectedFieldbox->addItem(qstr);
     }
   }
 
@@ -2322,7 +2171,7 @@ void VcrossDialog::putOKString(const vector<miString>& vstr,
 
   if (m>0) {
     if (fields.size()>0) {
-      model= models[modelbox->currentItem()];
+      model= models[modelbox->currentRow()];
       n= fields.size();
       bool change= false;
       for (i=0; i<m; i++) {
@@ -2331,16 +2180,16 @@ void VcrossDialog::putOKString(const vector<miString>& vstr,
           while (j<n && fields[j]!=selectedFields[i].field) j++;
           if (j<n) {
             countSelected[j]++;
-            fieldbox->setSelected(j, true);
+            fieldbox->item(j)->setSelected(true);
 	    change= true;
           }
         }
       }
-      if (change) fieldboxChanged();
+      if (change)     fieldboxChanged(fieldbox->currentItem());
     }
     i= 0;
-    selectedFieldbox->setCurrentItem(i);
-    selectedFieldbox->setSelected(i,true);
+    selectedFieldbox->setCurrentRow(i);
+    selectedFieldbox->item(i)->setSelected(true);
     enableFieldOptions();
   }
 
@@ -2564,7 +2413,7 @@ void VcrossDialog::deleteSelected(){
   cerr<<"VcrossDialog::deleteSelected called"<<endl;
 #endif
 
-  int index = selectedFieldbox->currentItem();
+  int index = selectedFieldbox->currentRow();
 
   int i, ns= selectedFields.size() - 1;
 
@@ -2572,7 +2421,7 @@ void VcrossDialog::deleteSelected(){
 
   int indexF= -1;
   if (fields.size()>0) {
-    int indexM = modelbox->currentItem();
+    int indexM = modelbox->currentRow();
     int n=       fields.size();
     if (selectedFields[index].model==models[indexM]) {
       i=0;
@@ -2582,11 +2431,11 @@ void VcrossDialog::deleteSelected(){
   }
 
   if (indexF>=0) {
-    fieldbox->setCurrentItem(indexF);
-    fieldbox->setSelected(indexF, false);
-    fieldboxChanged();
+    fieldbox->setCurrentRow(indexF);
+    fieldbox->item(indexF)->setSelected(false);
+    fieldboxChanged(fieldbox->currentItem());
   } else {
-    selectedFieldbox->removeItem(index);
+    selectedFieldbox->takeItem(index);
     for (i=index; i<ns; i++)
       selectedFields[i]= selectedFields[i+1];
     selectedFields.pop_back();
@@ -2594,8 +2443,8 @@ void VcrossDialog::deleteSelected(){
 
   if (selectedFields.size()>0) {
     if (index>=selectedFields.size()) index= selectedFields.size()-1;
-    selectedFieldbox->setCurrentItem( index );
-    selectedFieldbox->setSelected( index, true );
+    selectedFieldbox->setCurrentRow( index );
+    selectedFieldbox->item(index)->setSelected( true );
     enableFieldOptions();
   } else {
     disableFieldOptions();
@@ -2659,10 +2508,10 @@ void VcrossDialog::copySelectedField(){
   int n= selectedFields.size();
   if (n==0) return;
 
-  int index= selectedFieldbox->currentItem();
+  int index= selectedFieldbox->currentRow();
 
   if (fields.size()>0) {
-    int indexM   = modelbox->currentItem();
+    int indexM   = modelbox->currentRow();
     int n=         fields.size();
     int i=0;
     while (i<n && fields[i]!=selectedFields[index].field) i++;
@@ -2672,9 +2521,9 @@ void VcrossDialog::copySelectedField(){
   selectedFields.push_back(selectedFields[index]);
   selectedFields[n].hourOffset= 0;
 
-  selectedFieldbox->insertItem(selectedFieldbox->text(index));
-  selectedFieldbox->setCurrentItem(n);
-  selectedFieldbox->setSelected( n, true );
+  selectedFieldbox->addItem(selectedFieldbox->item(index)->text());
+  selectedFieldbox->setCurrentRow(n);
+  selectedFieldbox->item(n)->setSelected( true );
   enableFieldOptions();
 
 #ifdef DEBUGPRINT
@@ -2693,12 +2542,12 @@ void VcrossDialog::changeModel(){
   int i, n= selectedFields.size();
   if (n==0) return;
 
-  int index= selectedFieldbox->currentItem();
+  int index= selectedFieldbox->currentRow();
   if (index<0 || index>=n) return;
 
   if (modelbox->count()==0) return;
 
-  int indexM= modelbox->currentItem();
+  int indexM= modelbox->currentRow();
   if (indexM<0) return;
 
   miString oldmodel= selectedFields[index].model;
@@ -2718,13 +2567,13 @@ void VcrossDialog::changeModel(){
 	countSelected[j]++;
 	if (countSelected[j]==1) {
 	  countSelected[j]++;
-	  fieldbox->setCurrentItem( indexF );
-	  fieldbox->setSelected( indexF, true );
+	  fieldbox->setCurrentRow( indexF );
+	  fieldbox->item(indexF)->setSelected( true );
 	}
         selectedFields[i].model= model;
         miString str= model + " " + fields[j];
-        QString qstr= str.c_str();
-        selectedFieldbox->changeItem(qstr,i);
+        QString qstr= str.c_str(); 
+        selectedFieldbox->item(i)->setText(qstr);
       }
       // if not ok, then not changing the model (at least yet...)
     }
@@ -2732,8 +2581,8 @@ void VcrossDialog::changeModel(){
 
   fieldbox->blockSignals(false);
 
-  selectedFieldbox->setCurrentItem( index );
-  selectedFieldbox->setSelected( index, true );
+  selectedFieldbox->setCurrentRow( index );
+  selectedFieldbox->item(index)->setSelected( true );
   enableFieldOptions();
 
 #ifdef DEBUGPRINT
@@ -2749,19 +2598,19 @@ void VcrossDialog::upField() {
   int n= selectedFields.size();
   if (n==0) return;
 
-  int index= selectedFieldbox->currentItem();
+  int index= selectedFieldbox->currentRow();
   if (index<1 || index>=n) return;
 
   SelectedField sf= selectedFields[index];
   selectedFields[index]= selectedFields[index-1];
   selectedFields[index-1]= sf;
 
-  QString qstr1= selectedFieldbox->text(index-1);
-  QString qstr2= selectedFieldbox->text(index);
-  selectedFieldbox->changeItem(qstr2,index-1);
-  selectedFieldbox->changeItem(qstr1,index);
+  QString qstr1= selectedFieldbox->item(index-1)->text();
+  QString qstr2= selectedFieldbox->item(index)->text();
+  selectedFieldbox->item(index-1)->setText(qstr2);
+  selectedFieldbox->item(index)->setText(qstr1);
 
-  selectedFieldbox->setCurrentItem( index-1 );
+  selectedFieldbox->setCurrentRow( index-1 );
 }
 
 
@@ -2771,19 +2620,19 @@ void VcrossDialog::downField() {
   int n= selectedFields.size();
   if (n==0) return;
 
-  int index= selectedFieldbox->currentItem();
+  int index= selectedFieldbox->currentRow();
   if (index<0 || index>=n-1) return;
 
   SelectedField sf= selectedFields[index];
   selectedFields[index]= selectedFields[index+1];
   selectedFields[index+1]= sf;
 
-  QString qstr1= selectedFieldbox->text(index);
-  QString qstr2= selectedFieldbox->text(index+1);
-  selectedFieldbox->changeItem(qstr2,index);
-  selectedFieldbox->changeItem(qstr1,index+1);
+  QString qstr1= selectedFieldbox->item(index)->text();
+  QString qstr2= selectedFieldbox->item(index+1)->text();
+  selectedFieldbox->item(index)->setText(qstr2);
+  selectedFieldbox->item(index+1)->setText(qstr1);
 
-  selectedFieldbox->setCurrentItem( index+1 );
+  selectedFieldbox->setCurrentRow( index+1 );
 }
 
 
@@ -2793,7 +2642,7 @@ void VcrossDialog::resetOptions() {
   int n= selectedFields.size();
   if (n==0) return;
 
-  int index= selectedFieldbox->currentItem();
+  int index= selectedFieldbox->currentRow();
   if (index<0 || index>=n) return;
 
   miString field= selectedFields[index].field;
@@ -2863,11 +2712,8 @@ void VcrossDialog::cleanup()
   modelbox->clear();
   int n= models.size();
   if (n>0) {
-    const char** cvstr= new const char*[n];
     for (int i=0; i<n; i++)
-      cvstr[i]= models[i].c_str();
-    modelbox->insertStrList( cvstr, n );
-    delete[] cvstr;
+	modelbox->addItem(QString(models[i].c_str()));
   }
   fieldbox->setFocus();
 }

@@ -31,15 +31,7 @@
 #ifndef _vcrossdialog_h
 #define _vcrossdialog_h
 
-#include <qdialog.h>
-#include <qfont.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <Q3Frame>
-#include <QPixmap>
-#include <QLabel>
-#include <Q3VBoxLayout>
+#include <QDialog>
 
 #include <vector>
 
@@ -53,12 +45,9 @@ using namespace std;
 
 class QPushButton;
 class QComboBox;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QLabel;
-class Q3VBoxLayout;
-class Q3HBoxLayout;
-class Q3GridLayout;
-class Q3Frame;
 class QSpinBox;
 class QCheckBox;
 
@@ -114,11 +103,10 @@ private:
 
   //** PRIVATE SLOTS ********************
 private slots:
-  void modelboxHighlighted( int index );
 
-  void fieldboxChanged();
-
-  void selectedFieldboxHighlighted( int );
+  void modelboxClicked( QListWidgetItem * item );
+  void fieldboxChanged(QListWidgetItem* item);
+  void selectedFieldboxClicked( QListWidgetItem * item );
 
   void upField();
   void downField();
@@ -181,7 +169,7 @@ private:
 
   vector<miString> linetypes;
   vector<miString> lineintervals;
-  vector<miString> density;
+  QStringList      densityStringList;
   vector<miString> vectorunit;
   //vector<miString> extremeType;
 
@@ -189,9 +177,9 @@ private:
 
   vector< vector<miString> > commandHistory;
 
-  Q3ListBox*  modelbox;
-  Q3ListBox*  fieldbox;
-  Q3ListBox*  selectedFieldbox;
+  QListWidget*  modelbox;
+  QListWidget*  fieldbox;
+  QListWidget*  selectedFieldbox;
 
   QPushButton*  upFieldButton;
   QPushButton*  downFieldButton;
@@ -245,16 +233,7 @@ private:
 
   void CreateAdvanced();
 
-  // layout
-  Q3VBoxLayout* v1layout;
-  Q3HBoxLayout* v1h4layout;
-  Q3GridLayout* optlayout;
-  Q3HBoxLayout* h4layout;
-  Q3HBoxLayout* h5layout;
-  Q3HBoxLayout* h6layout;
 
-  //toplayout
-  Q3VBoxLayout* vlayout;
 
 private slots:
   //void extremeSizeChanged(int value);

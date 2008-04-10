@@ -28,26 +28,20 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
-#include <qdialog.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <qspinbox.h>
-#include <q3vbox.h>
-#include <qtabwidget.h>
-#include <qtUtility.h>
-//Added by qt3to4:
+
+#include <QPushButton>
+#include <QLabel>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QTabWidget>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QVBoxLayout>
+
+#include <qtUtility.h>
 #include <diVprofManager.h>
-#include <qtVprofSetup.h>
+#include <qtVcrossSetup.h>
 #include <qtVprofSetupDialog.h>
 #include <diVprofOptions.h>
 
@@ -213,84 +207,84 @@ void VprofSetupDialog::setup(VprofOptions *vpopt){
 
   for (int i = 0;i<n;i++){    
     if (vpSetups[i]->name== TEMP)
-      vpSetups[i]->checkClicked(vpopt->ptttt);
+      vpSetups[i]->setOn(vpopt->ptttt);
     else if (vpSetups[i]->name== DEWPOINT)
-      vpSetups[i]->checkClicked(vpopt->ptdtd);
+      vpSetups[i]->setOn(vpopt->ptdtd);
     else if (vpSetups[i]->name== WIND)
-      vpSetups[i]->checkClicked(vpopt->pwind);
+      vpSetups[i]->setOn(vpopt->pwind);
     else if (vpSetups[i]->name== VERTWIND)
-      vpSetups[i]->checkClicked(vpopt->pvwind);
+      vpSetups[i]->setOn(vpopt->pvwind);
     else if (vpSetups[i]->name== RELHUM)
-      vpSetups[i]->checkClicked(vpopt->prelhum);
+      vpSetups[i]->setOn(vpopt->prelhum);
     else if (vpSetups[i]->name== DUCTING)
-      vpSetups[i]->checkClicked(vpopt->pducting);
+      vpSetups[i]->setOn(vpopt->pducting);
     else if (vpSetups[i]->name== KINDEX)
-      vpSetups[i]->checkClicked(vpopt->pkindex);
+      vpSetups[i]->setOn(vpopt->pkindex);
     else if (vpSetups[i]->name== SIGNWIND)
-     vpSetups[i]->checkClicked(vpopt->pslwind);
+     vpSetups[i]->setOn(vpopt->pslwind);
     else if (vpSetups[i]->name== TEXT)
-      vpSetups[i]->checkClicked(vpopt->ptext);
+      vpSetups[i]->setOn(vpopt->ptext);
     else if (vpSetups[i]->name== GEOPOS)
-      vpSetups[i]->checkClicked(vpopt->pgeotext);
+      vpSetups[i]->setOn(vpopt->pgeotext);
     else if (vpSetups[i]->name== PRESSLINES){
-      vpSetups[i]->checkClicked(vpopt->pplines);
+      vpSetups[i]->setOn(vpopt->pplines);
       vpSetups[i]->setColour(vpopt->pColour);
       vpSetups[i]->setLinewidth(vpopt->pLinewidth1);
       vpSetups[i]->setLinetype(vpopt->pLinetype);
     }
     else if (vpSetups[i]->name== LINEFLIGHT){
-      vpSetups[i]->checkClicked(vpopt->pplinesfl);
+      vpSetups[i]->setOn(vpopt->pplinesfl);
     }
     else if (vpSetups[i]->name== TEMPLINES){
-      vpSetups[i]->checkClicked(vpopt->ptlines);
+      vpSetups[i]->setOn(vpopt->ptlines);
       vpSetups[i]->setColour(vpopt->tColour);
       vpSetups[i]->setLinewidth(vpopt->tLinewidth1);
       vpSetups[i]->setLinetype(vpopt->tLinetype);
     }
     else if (vpSetups[i]->name== DRYADIABATS){
-      vpSetups[i]->checkClicked(vpopt->pdryadiabat);
+      vpSetups[i]->setOn(vpopt->pdryadiabat);
       vpSetups[i]->setColour(vpopt->dryadiabatColour);
       vpSetups[i]->setLinewidth(vpopt->dryadiabatLinewidth);
       vpSetups[i]->setLinetype(vpopt->dryadiabatLinetype);
     }
     else if (vpSetups[i]->name== WETADIABATS){
-      vpSetups[i]->checkClicked(vpopt->pwetadiabat);
+      vpSetups[i]->setOn(vpopt->pwetadiabat);
       vpSetups[i]->setColour(vpopt->wetadiabatColour);
       vpSetups[i]->setLinewidth(vpopt->wetadiabatLinewidth);
       vpSetups[i]->setLinetype(vpopt->wetadiabatLinetype);
     }
     else if (vpSetups[i]->name== MIXINGRATIO){
-      vpSetups[i]->checkClicked(vpopt->pmixingratio);
+      vpSetups[i]->setOn(vpopt->pmixingratio);
       vpSetups[i]->setColour(vpopt->mixingratioColour);
       vpSetups[i]->setLinewidth(vpopt->mixingratioLinewidth);
       vpSetups[i]->setLinetype(vpopt->mixingratioLinetype);
     }
     else if (vpSetups[i]->name== PTLABELS){
-      vpSetups[i]->checkClicked(vpopt->plabelp);
+      vpSetups[i]->setOn(vpopt->plabelp);
     }
     else if (vpSetups[i]->name== FRAME){
-      vpSetups[i]->checkClicked(vpopt->pframe);
+      vpSetups[i]->setOn(vpopt->pframe);
       vpSetups[i]->setColour(vpopt->frameColour);
       vpSetups[i]->setLinewidth(vpopt->frameLinewidth);
       vpSetups[i]->setLinetype(vpopt->frameLinetype);
     }
     else if (vpSetups[i]->name== FLIGHTLEVEL){
-      vpSetups[i]->checkClicked(vpopt->pflevels);
+      vpSetups[i]->setOn(vpopt->pflevels);
       vpSetups[i]->setColour(vpopt->flevelsColour);
       vpSetups[i]->setLinewidth(vpopt->flevelsLinewidth1);
       vpSetups[i]->setLinetype(vpopt->flevelsLinetype);
     }
     else if (vpSetups[i]->name== FLIGHTLABEL){
-      vpSetups[i]->checkClicked(vpopt->plabelflevels);
+      vpSetups[i]->setOn(vpopt->plabelflevels);
     }
     else if (vpSetups[i]->name== CONDTRAIL){
-      vpSetups[i]->checkClicked(vpopt->pcotrails);
+      vpSetups[i]->setOn(vpopt->pcotrails);
       vpSetups[i]->setColour(vpopt->cotrailsColour);
       vpSetups[i]->setLinewidth(vpopt->cotrailsLinewidth);
       vpSetups[i]->setLinetype(vpopt->cotrailsLinetype);
     }    
     else if (vpSetups[i]->name== SEPWIND){
-      vpSetups[i]->checkClicked(vpopt->windseparate);
+      vpSetups[i]->setOn(vpopt->windseparate);
     }
     else if (vpSetups[i]->name== BACKCOLOUR){
       vpSetups[i]->setColour(vpopt->backgroundColour);
@@ -569,62 +563,54 @@ void VprofSetupDialog::applyhideClicked(){
 /*********************************************/
 
 void VprofSetupDialog::initDatatab(){
-  //cerr <<"initDatatab" << endl;
-  //data tab (data setup could be different for each model)
-  datatab = new Q3VBox(twd);
+
+  datatab = new QWidget(twd);
+  twd->addTab( datatab, tr("Diagram") );
 
   int mymargin=5;
   int myspacing=5;
-  datatab->setMargin( mymargin );
-  datatab->setSpacing( myspacing );
-
-  twd->addTab( datatab, "Data" );
-
-  QWidget * xwidget = new QWidget(datatab);
-
-  mymargin=5;
-  myspacing=1;
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout(xwidget,13,4);
+  QGridLayout * glayout = new QGridLayout(datatab,13);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
   int nrow=0;
 
 
-  QLabel * label1 = new QLabel(tr("On/off"),xwidget);
+  QLabel * label1 = new QLabel(tr("On/off"),datatab);
 
   glayout->addWidget(label1,nrow,0);
   nrow++;
 
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,TEMP,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,DEWPOINT,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,WIND,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,VERTWIND,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,RELHUM,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,DUCTING,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,SIGNWIND,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,TEXT,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,KINDEX,glayout,nrow++,0,true));
-  vpSetups.push_back(new VprofSetup(xwidget,vprofm,GEOPOS,glayout,nrow++,0,true));
+  int opts= VcrossSetup::useOnOff;
+
+  vpSetups.push_back(new VcrossSetup(datatab,TEMP,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,DEWPOINT,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,WIND,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,VERTWIND,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,RELHUM,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,DUCTING,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,SIGNWIND,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,TEXT,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,KINDEX,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetup(datatab,GEOPOS,glayout,nrow++,opts));
 
 
   //spinbox for pressure and temperature range
   //value of spinLow must not exceed value of spinHigh
   
-  // qt4 fix: sending QStrings as arguments, not miStrings
-  QLabel * pressurelabel = new QLabel(QString(PRESSRANGE.cStr()),xwidget);
-  QLabel * templabel = new QLabel(QString(TEMPRANGE.cStr()),xwidget);
+  QLabel * pressurelabel = new QLabel(QString(PRESSRANGE.cStr()),datatab);
+  QLabel * templabel = new QLabel(QString(TEMPRANGE.cStr()),datatab);
   pressurelabel->setAlignment(Qt::AlignLeft);
   templabel->setAlignment(Qt::AlignLeft);
   //pressure range 10-1200, steps of 50, init value 100-1050
-  pressureSpinLow  = new QSpinBox(0,1200,50,xwidget);
-  pressureSpinHigh = new QSpinBox(0,1200,50,xwidget);
+  pressureSpinLow  = new QSpinBox(0,1200,50,datatab);
+  pressureSpinHigh = new QSpinBox(0,1200,50,datatab);
   //temperature range -70-70, steps of 5, init value -30-30
-  temperatureSpinLow = new QSpinBox(-70,70,5,xwidget);
-  temperatureSpinHigh = new QSpinBox(-70,70,5,xwidget);
+  temperatureSpinLow = new QSpinBox(-70,70,5,datatab);
+  temperatureSpinHigh = new QSpinBox(-70,70,5,datatab);
   //standardvalues
   pressureSpinLow->setValue(100);
   pressureSpinHigh->setValue(1050);
@@ -690,23 +676,55 @@ void VprofSetupDialog::initDiagramtab(){
   glayout->addWidget(label4,0,3);
 
 
-  //here each of setup lines are defined - each VprofSetup is a line with
+  //here each of setup lines are defined - each VcrossSetup is a line with
   //a checkbox and up to three comboboxes
 
   int nrow = 0;
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,PRESSLINES,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,TEMPLINES,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,LINEFLIGHT,glayout,++nrow,0,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,DRYADIABATS,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,WETADIABATS,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,MIXINGRATIO,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,PTLABELS,glayout,++nrow,0,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,FRAME,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,FLIGHTLEVEL,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,FLIGHTLABEL,glayout,++nrow,0,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,SEPWIND,glayout,++nrow,0,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,CONDTRAIL,glayout,++nrow,3,true));
-  vpSetups.push_back(new VprofSetup(diagramtab,vprofm,BACKCOLOUR,glayout,++nrow,1,false));
+  int opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
+	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,PRESSLINES,glayout,++nrow,opts));
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,TEMPLINES,glayout,++nrow,opts));
+
+  opts= VcrossSetup::useOnOff;
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,LINEFLIGHT,glayout,++nrow,opts));
+
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
+	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,DRYADIABATS,glayout,++nrow,opts));
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,WETADIABATS,glayout,++nrow,opts));
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,MIXINGRATIO,glayout,++nrow,opts));
+
+  opts= VcrossSetup::useOnOff;
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,PTLABELS,glayout,++nrow,opts));
+
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
+	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,FRAME,glayout,++nrow,opts));
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,FLIGHTLEVEL,glayout,++nrow,opts));
+
+  opts= VcrossSetup::useOnOff;
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,FLIGHTLABEL,glayout,++nrow,opts));
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,SEPWIND,glayout,++nrow,opts));
+
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
+	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,CONDTRAIL,glayout,++nrow,opts));
+
+  opts= (VcrossSetup::useColour);
+  vpSetups.push_back
+    (new VcrossSetup(diagramtab,BACKCOLOUR,glayout,++nrow,opts));
 
   //end diagramtab
 
@@ -736,14 +754,16 @@ void VprofSetupDialog::initColourtab(){
   glayout->addWidget(label3,0,2);
 
   int nrow = 0;
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data1",glayout,++nrow,2,false));
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data2",glayout,++nrow,2,false));
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data3",glayout,++nrow,2,false));
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data4",glayout,++nrow,2,false));
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data5",glayout,++nrow,2,false));
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data6",glayout,++nrow,2,false));
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data7",glayout,++nrow,2,false));
-  vpSetups.push_back(new VprofSetup(colourtab,vprofm,"Data8",glayout,++nrow,2,false));
+  int opts= (VcrossSetup::useColour | VcrossSetup::useLineWidth);
+
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data1",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data2",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data3",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data4",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data5",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data6",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data7",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetup(colourtab,"Data8",glayout,++nrow,opts));
 
 }
 
