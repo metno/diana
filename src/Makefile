@@ -47,11 +47,11 @@ qtEditDialog.o qtEditNewDialog.o qtEditComment.o qtLoginDialog.o \
 qtEditDefineField.o qtTextView.o qtComplexText.o \
 qtAnnoText.o qtUffdaDialog.o \
 qtVprofWindow.o qtVprofWidget.o \
-qtVprofModelDialog.o qtVprofSetupDialog.o qtVprofSetup.o \
+qtVprofModelDialog.o qtVprofSetupDialog.o \
 qtVcrossWindow.o qtVcrossWidget.o \
 qtVcrossDialog.o qtVcrossSetupDialog.o qtVcrossSetup.o \
 qtSpectrumWindow.o qtSpectrumWidget.o \
-qtSpectrumModelDialog.o qtSpectrumSetupDialog.o qtSpectrumSetup.o \
+qtSpectrumModelDialog.o qtSpectrumSetupDialog.o \
 qtPaintToolBar.o qtProfetSessionDialog.o qtProfetSessionTable.o \
 qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o \
 qtProfetDataModels.o
