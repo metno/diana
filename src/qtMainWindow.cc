@@ -835,7 +835,27 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
 
   // Documentation and Help
-  help = new HelpDialog(this, setup.basicValue("docpath"), "");
+
+  HelpDialog::Info info;
+  HelpDialog::Info::Source helpsource;
+  info.path= setup.basicValue("docpath");
+
+  helpsource.source= "index.html";
+  helpsource.name= "Help";
+  helpsource.defaultlink= "START";
+  info.src.push_back(helpsource);
+
+  helpsource.source= "ug_shortcutkeys.html";
+  helpsource.name="Accelerators";
+  helpsource.defaultlink= "";
+  info.src.push_back(helpsource);
+
+  helpsource.source= "news.html";
+  helpsource.name="News";
+  helpsource.defaultlink="";
+  info.src.push_back(helpsource);
+  
+  help= new HelpDialog(this, info);
   help->hide();
 
   connect( fm, SIGNAL(FieldApply()), SLOT(MenuOK()));
@@ -2275,19 +2295,19 @@ void DianaMainWindow::showHelp()
   if(help->isVisible())
     help->hide();
   else
-    help->showdoc("index.html");
+    help->showdoc(0,"index.html");
 }
 
 
 void DianaMainWindow::showAccels()
 {
-  help->showdoc("ug_shortcutkeys.html");
+  help->showdoc(1,"ug_shortcutkeys.html");
 }
 
 
 void DianaMainWindow::showNews()
 {
-  help->showdoc("news.html");
+  help->showdoc(2,"news.html");
 }
 
 void DianaMainWindow::about()

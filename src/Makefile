@@ -35,7 +35,7 @@ qtTimeStepSpinbox.o qtStatusGeopos.o qtStatusPlotButtons.o \
 qtShowSatValues.o \
 qtQuickMenu.o qtTextDialog.o qtBrowserBox.o qtQuickAdmin.o \
 qtQuickEditOptions.o qtAddtoMenu.o qtAddtoDialog.o \
-qtButtonLayout.o qtToggleButton.o qtHelpDialog.o \
+qtButtonLayout.o qtToggleButton.o \
 qtAdvancedButton.o \
 qtMapDialog.o \
 qtFieldDialog.o \
