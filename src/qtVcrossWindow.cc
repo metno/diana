@@ -180,15 +180,15 @@ VcrossWindow::VcrossWindow()
   vcDialog = new VcrossDialog(this,vcrossm);
   connect(vcDialog, SIGNAL(VcrossDialogApply(bool)),SLOT(changeFields(bool)));
   connect(vcDialog, SIGNAL(VcrossDialogHide()),SLOT(hideDialog()));
-  connect(vcDialog, SIGNAL(showdoc(const miString)),
-	  SIGNAL(showdoc(const miString)));
+  connect(vcDialog, SIGNAL(showsource(const miString, const miString)),
+	  SIGNAL(showsource(const miString, const miString)));
 
 
   vcSetupDialog = new VcrossSetupDialog(this,vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vcSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vcSetupDialog, SIGNAL(showdoc(const miString)),
-	  SIGNAL(showdoc(const miString)));
+  connect(vcSetupDialog, SIGNAL(showsource(const miString, const miString)),
+	  SIGNAL(showsource(const miString, const miString)));
 
 
   //inialize everything in startUp
@@ -530,7 +530,7 @@ void VcrossWindow::helpClicked(){
 #ifdef DEBUGPRINT
   cerr << "help clicked" << endl;
 #endif
-  emit showdoc("ug_verticalcrosssections.html");
+  emit showsource("ug_verticalcrosssections.html");
 }
 
 

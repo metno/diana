@@ -169,7 +169,7 @@ private slots:
 
 signals:
   void uffdaHide();
-  void showdoc(const miString); // activate help
+  void showsource(const miString, const miString=""); // activate help
   void stationPlotChanged();
 };
 

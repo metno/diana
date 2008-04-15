@@ -195,7 +195,7 @@ void SpectrumModelDialog::helpClicked(){
 #ifdef DEBUGPRINT
   cerr <<"SpectrumModelDialog::helpClicked()\n";
 #endif
-  emit showdoc("ug_spectrum.html");
+  emit showsource("ug_spectrum.html");
 }
 
 

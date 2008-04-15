@@ -96,7 +96,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showdoc(const miString); // activate help
+  void showsource(const miString, const miString=""); // activate help
 };
 
 #endif

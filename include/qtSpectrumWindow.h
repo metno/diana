@@ -132,7 +132,7 @@ private slots:
 
 signals:
   void SpectrumHide();
-  void showdoc(const miString); // activate help
+  void showsource(const miString, const miString=""); // activate help
   void spectrumChanged(const QString& );
   void spectrumSetChanged();
   void emitTimes( const miString&,const vector<miTime>& );

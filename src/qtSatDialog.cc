@@ -1180,7 +1180,7 @@ void SatDialog::applyhideClicked(){
 
 /********************************************/
 void SatDialog::helpClicked(){
-  emit showdoc("ug_satdialogue.html");
+  emit showsource("ug_satdialogue.html");
 }
 
 /********************************************/

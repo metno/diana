@@ -108,7 +108,7 @@ private slots:
 signals:
   void ObsApply();
   void ObsHide();
-  void showdoc(const miString);
+  void showsource(const miString, const miString="");
   void emitTimes( const miString&,const vector<miTime>& );
   void setCriteria( miString, bool );
 

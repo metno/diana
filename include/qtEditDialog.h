@@ -32,12 +32,8 @@
 #define _editdialog_h
 
 
-#include <qdialog.h>
+#include <QDialog>
 #include <qpixmap.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <QLabel>
-#include <Q3VBoxLayout>
 
 #include <miString.h>
 #include <vector>
@@ -47,15 +43,12 @@
 using namespace std;
 
 class QComboBox;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QLabel;
 class QSlider;
-class Q3VBox;
-class Q3VBoxLayout;
-class Q3HBoxLayout;
 class ToggleButton;
-class Q3ButtonGroup;
-class Q3VButtonGroup;
+class QButtonGroup;
 class QPushButton;
 class QRadioButton;
 class QTabWidget;
@@ -105,7 +98,7 @@ private:
   void FrontTab();
   void CombineTab();
   void CombineEditMethods();
-  void ListBoxData( Q3ListBox* list, int mindex, int index);
+  void ListWidgetData( QListWidget* list, int mindex, int index);
   void ComboBoxData( QComboBox* box, int mindex);
   bool saveEverything(bool send);
   void updateLabels();
@@ -113,7 +106,7 @@ private:
 private slots:
   // Field slots
   void fgroupClicked( int index );
-  void FieldEditMethods( int index );
+  void FieldEditMethods( QListWidgetItem * );
   void fieldEllipseChanged( int index );
   void fieldEllipseShape();
   void undoFieldsEnable();
@@ -137,7 +130,7 @@ private slots:
   // Combine slots
   void stopCombine();
   void combine_action(int);
-  void selectAreas(int);
+  void selectAreas(QListWidgetItem * );
   // Common slots
   void tabSelected( const QString& );
   void groupClicked( int );
@@ -170,7 +163,7 @@ signals:
  /// send plot-commands
   void Apply(const vector<miString>& s, bool);
   /// show documentation 
-  void showdoc(const miString);
+  void showsource(const miString, const miString="");
   /// emit edit times
   void emitTimes(const miString&,const vector<miTime>&);
   /// update field dialog
@@ -188,9 +181,9 @@ private:
   QAction * deleteAction;
 
   QComboBox* m_Frontcm;
-  Q3ListBox* m_Fronteditmethods;
-  Q3ListBox* m_Fieldeditmethods;
-  Q3ListBox* m_SelectAreas;
+  QListWidget* m_Fronteditmethods;
+  QListWidget* m_Fieldeditmethods;
+  QListWidget* m_SelectAreas;
   QMessageBox* mb;
   QMessageBox* mb2;
 
@@ -200,14 +193,14 @@ private:
   QLabel *prodlabel;
   QLabel *lStatus;
 
-  Q3ButtonGroup* bgroupinfluence;
+  QButtonGroup* bgroupinfluence;
   QRadioButton* rbInfluence[4];
 
   QLabel* ellipsenumber;
   QSlider* ellipseslider;
   vector<float> ellipsenumbers;
 
-  Q3ButtonGroup* bgroup;
+  QButtonGroup* bgroup;
   QPushButton** b;
   ToggleButton* commentbutton;
   ToggleButton* pausebutton;
@@ -226,15 +219,14 @@ private:
   QPixmap lockValuePixmap;
 
   //toplayout
-  Q3VBoxLayout* vlayout;
   // tab widgets
-  Q3VBox* fieldtab;
-  Q3VBox* objecttab;
-  Q3VBox* combinetab;
+  QWidget* fieldtab;
+  QWidget* objecttab;
+  QWidget* combinetab;
 
   enum { maxfields=2 };
   int numfields, fieldIndex;
-  Q3ButtonGroup* fgroup;
+  QButtonGroup* fgroup;
   QPushButton** fbutton;
 
   int m_FrontcmIndex; // index of m_Frontcm;

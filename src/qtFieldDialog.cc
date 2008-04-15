@@ -1117,6 +1117,9 @@ void FieldDialog::updateModelBoxes()
   cerr<<"FieldDialog::updateModelBoxes called"<<endl;
 #endif
 
+  //keep old plots
+  vector<miString> vstr=getOKString();
+
   modelGRbox->clear();
   indexMGRtable.clear();
 
@@ -1154,6 +1157,8 @@ void FieldDialog::updateModelBoxes()
   // show models in the first modelgroup
   modelGRboxActivated(0);
 
+  //replace old plots
+  putOKString(vstr);
 }
 
 void FieldDialog::updateModels()
@@ -5013,7 +5018,7 @@ void FieldDialog::hideClicked()
 
 void FieldDialog::helpClicked()
 {
-  emit showdoc("ug_fielddialogue.html");
+  emit showsource("ug_fielddialogue.html");
 }
 
 

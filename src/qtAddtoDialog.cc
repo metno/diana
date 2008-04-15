@@ -32,19 +32,17 @@
   Input for adding new choices to menus
 */
 
-#include <fstream>
-#include <qapplication.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
 #include <qtAddtoDialog.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3GridLayout>
-#include <Q3HBoxLayout>
+
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QString>
+
+#include <fstream>
 #include <miString.h>
-#include <qstring.h>
 #include <iostream>
 #include <diController.h>
 #include <diObjectManager.h>
@@ -64,7 +62,7 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
 
   setCaption(tr("Add to objectdialog"));
 
-  Q3GridLayout* glayout = new Q3GridLayout(2,2,5,"addtoLayout");
+  QGridLayout* glayout = new QGridLayout(2,2,5,"addtoLayout");
 
   QLabel* namelabel= new QLabel(tr("Dialog name:"), this,"namelabel"); 
   QLabel* filelabel = new QLabel(tr("File name:"),   this,"filelabel");
@@ -93,12 +91,12 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   quitb->setMaximumSize( width, height );
 
   // buttons layout
-  Q3HBoxLayout * hlayout = new Q3HBoxLayout(20, "hlayout");
+  QHBoxLayout * hlayout = new QHBoxLayout(20, "hlayout");
   hlayout->addWidget(okb, 10);
   hlayout->addWidget(quitb, 10);
 
   //now create a vertical layout to put all the other layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );                            
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                            
   vlayout->addLayout(glayout, 0);
   vlayout->addLayout(hlayout,0);
 }

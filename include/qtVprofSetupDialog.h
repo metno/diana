@@ -139,7 +139,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showdoc(const miString);
+  void showsource(const miString, const miString="");
 };
 
 #endif

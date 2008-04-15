@@ -194,7 +194,7 @@ void VprofModelDialog::helpClicked(){
 #ifdef DEBUGPRINT
   cerr <<"VprofModelDialog::helpClicked()\n";
 #endif
-  emit showdoc("ug_verticalprofiles.html");
+  emit showsource("ug_verticalprofiles.html");
 }
 
 

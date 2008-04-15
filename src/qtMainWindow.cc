@@ -880,24 +880,24 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 	   fm, SLOT(fieldEditUpdate(miString)));
 
   // HELP
-  connect( fm, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( om, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( sm, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( mm, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( em, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( qm, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( objm, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( trajm, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
-  connect( uffm, SIGNAL(showdoc(const miString)),
-	   help,SLOT(showdoc(const miString)));
+  connect( fm, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( om, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( sm, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( mm, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( em, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( qm, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( objm, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( trajm, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
+  connect( uffm, SIGNAL(showsource(const miString,const miString)),
+	   help,SLOT(showsource(const miString,const miString)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
@@ -906,8 +906,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   vpWindow = new VprofWindow();
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
-  connect(vpWindow,SIGNAL(showdoc(const miString)),
-	  help,SLOT(showdoc(const miString)));
+  connect(vpWindow,SIGNAL(showsource(const miString,const miString)),
+	  help,SLOT(showsource(const miString,const miString)));
   connect(vpWindow,SIGNAL(stationChanged(const QString &)),
 	  SLOT(stationChangedSlot(const QString &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
@@ -916,8 +916,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   vcWindow = new VcrossWindow();
   connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
-  connect(vcWindow,SIGNAL(showdoc(const miString)),
-	  help,SLOT(showdoc(const miString)));
+  connect(vcWindow,SIGNAL(showsource(const miString,const miString)),
+	  help,SLOT(showsource(const miString,const miString)));
   connect(vcWindow,SIGNAL(crossectionChanged(const QString &)),
 	  SLOT(crossectionChangedSlot(const QString &)));
   connect(vcWindow,SIGNAL(crossectionSetChanged()),
@@ -929,8 +929,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   spWindow = new SpectrumWindow();
   connect(spWindow,SIGNAL(SpectrumHide()),SLOT(hideSpectrumWindow()));
-  connect(spWindow,SIGNAL(showdoc(const miString)),
-	  help,SLOT(showdoc(const miString)));
+  connect(spWindow,SIGNAL(showsource(const miString,const miString)),
+	  help,SLOT(showsource(const miString,const miString)));
   connect(spWindow,SIGNAL(spectrumChanged(const QString &)),
 	             SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),

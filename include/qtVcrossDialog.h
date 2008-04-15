@@ -136,7 +136,7 @@ private slots:
 signals:
   void VcrossDialogApply(bool modelChange);
   void VcrossDialogHide();
-  void showdoc(const miString);
+  void showsource(const miString, const miString="");
   void emitVcrossTimes( vector<miTime> );
 
 private:

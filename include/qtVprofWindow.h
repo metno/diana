@@ -132,7 +132,7 @@ private slots:
 
 signals:
   void VprofHide();
-  void showdoc(const miString); // activate help
+  void showsource(const miString, const miString=""); // activate help
   void stationChanged(const QString& );
   void modelChanged();
   void emitTimes( const miString&,const vector<miTime>& );

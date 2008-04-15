@@ -123,7 +123,7 @@ private slots:
   signals:
   void MapApply();
   void MapHide();
-  void showdoc(const miString);
+  void showsource(const miString, const miString="");
  
 
 private:

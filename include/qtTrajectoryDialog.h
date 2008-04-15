@@ -132,7 +132,7 @@ signals:
   void markPos(bool);
   void TrajHide();
   void update();
-  void showdoc(const miString); // activate help
+  void showsource(const miString, const miString="");
 };
 
 #endif

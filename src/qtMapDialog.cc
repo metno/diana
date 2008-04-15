@@ -928,7 +928,7 @@ void MapDialog::applyhideClicked(){
 }
 
 void  MapDialog::helpClicked(){
-  emit showdoc("ug_mapdialogue.html"); 
+  emit showsource("ug_mapdialogue.html"); 
 }
 
 bool MapDialog::close(bool alsoDelete){

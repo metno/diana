@@ -28,26 +28,27 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <iostream>
-#include <q3vbox.h>
-#include <qmessagebox.h>
-#include <qcombobox.h>
-#include <q3listbox.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qradiobutton.h>
-#include <q3buttongroup.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
-#include <qtabwidget.h>
-#include <qcheckbox.h>
-#include <qslider.h>
-#include <qpixmap.h>
-#include <qimage.h>
-#include <qinputdialog.h>
-#include <QAction>
 
+#include <QMessageBox>
+#include <QComboBox>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QLabel>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QTabWidget>
+#include <QCheckBox>
+#include <QSlider>
+#include <QPixmap>
+#include <QImage>
+#include <QInputDialog>
+#include <QAction>
+#include <QHBoxLayout>
+#include <QFrame>
+#include <QVBoxLayout>
+
+#include <iostream>
 #include <qtEditDialog.h>
 #include <qtEditNewDialog.h>
 #include <qtEditComment.h>
@@ -57,9 +58,6 @@
 #include <qtComplexText.h>
 #include <qtAnnoText.h>
 //Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3Frame>
-#include <Q3VBoxLayout>
 
 #include <diSetupParser.h>
 #include <diController.h>
@@ -69,11 +67,6 @@
 #include <edit_open_value.xpm>
 #include <edit_lock_value.xpm>
 
-//####################################################
-#ifdef DEBUGPRINTONCE
-  static bool printalltools= true;
-#endif
-//####################################################
 
 /*********************************************/
 #define HEIGHTLISTBOX 120
@@ -189,7 +182,8 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   openValuePixmap= QPixmap(edit_open_value_xpm);
   lockValuePixmap= QPixmap(edit_lock_value_xpm);
 
-  bgroup = new Q3ButtonGroup( 3, Qt::Horizontal, this );
+  bgroup = new QButtonGroup( this );
+  QHBoxLayout* bgroupLayout = new QHBoxLayout();
   int m_nr_buttons=3;
   b = new QPushButton*[m_nr_buttons];
   vector<miString> vstr(3);
@@ -200,8 +194,10 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   int i;
  
   for( i=0; i< m_nr_buttons; i++ ){
-    b[i] = NormalPushButton( vstr[i].c_str(), bgroup );
+    b[i] = NormalPushButton( vstr[i].c_str(), this );
+    bgroup->addButton(b[i],i);
     b[i]->setFocusPolicy(Qt::ClickFocus);
+    bgroupLayout->addWidget(b[i]);
   }
 
   b[prodb]->setFocusPolicy(Qt::StrongFocus);
@@ -241,7 +237,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   connect(  commentbutton, SIGNAL(toggled(bool)), 
 	    SLOT( commentClicked(bool) ));
 
-  Q3HBoxLayout* h2layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
   h2layout->addWidget(timelabel);
   h2layout->addWidget(timestepspin);
   h2layout->addWidget(pausebutton);
@@ -257,32 +253,32 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   edithelp = NormalPushButton(tr("Help"), this );
   connect(  edithelp, SIGNAL(clicked()), SLOT( helpClicked() ));
 
-  connect( bgroup, SIGNAL(clicked(int)), SLOT(groupClicked( int ))  );
+  connect( bgroup, SIGNAL(buttonClicked(int)), SLOT(groupClicked( int ))  );
 
   prodlabel = new QLabel("" , this);
   prodlabel->setMaximumHeight(40);
   lStatus = new QLabel("", this);
 
-  Q3VBoxLayout* lvlayout= new Q3VBoxLayout();
+  QVBoxLayout* lvlayout= new QVBoxLayout();
   lvlayout->addWidget(prodlabel);
   lvlayout->addWidget(lStatus);
 
-  Q3HBoxLayout* hlayout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout = new QHBoxLayout( 5 );
 
   hlayout->addWidget(editexit);
   hlayout->addWidget(edithide);
   hlayout->addWidget(edithelp);
   
   // vlayout
-  vlayout = new Q3VBoxLayout( this, 5, 5 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this);
   vlayout->addLayout( lvlayout,1);
-  vlayout->addWidget( bgroup );
+  vlayout->addLayout( bgroupLayout );
   vlayout->addWidget( twd );
   vlayout->addLayout( h2layout );
   vlayout->addLayout( hlayout );
 
-  vlayout->activate(); 
-  vlayout->freeze();
+//   vlayout->activate(); 
+//   vlayout->freeze();
 
   enew = new EditNewDialog( static_cast<QWidget*>(parent()), m_ctrl );
   enew->hide();
@@ -324,60 +320,55 @@ void  EditDialog::FieldTab()
   int mymargin=5;
   int myspacing=5;
     
-  fieldtab = new Q3VBox(twd);
-  fieldtab->setMargin( mymargin );
-  fieldtab->setSpacing( myspacing );
+  fieldtab = new QWidget(twd);
 
-  fgroup = new Q3ButtonGroup( maxfields, Qt::Horizontal, fieldtab );
+
+  fgroup = new QButtonGroup( fieldtab );
   fbutton = new QPushButton*[maxfields];
+  QHBoxLayout* hLayout = new QHBoxLayout();
 
   for (int i=0; i<maxfields; i++) {
-    fbutton[i]= new QPushButton( "    ", fgroup );
+    fbutton[i]= new QPushButton( "    ", fieldtab );
     int height = fbutton[i]->sizeHint().height();
     fbutton[i]->setMinimumHeight( height );
     fbutton[i]->setMaximumHeight( height );
+    fgroup->addButton(fbutton[i],i);
     fbutton[i]->setEnabled(false);
+    hLayout->addWidget(fbutton[i]);
   }
   numfields= 0;
+  connect( fgroup, SIGNAL(buttonClicked(int)), SLOT(fgroupClicked(int)) );
 
-  connect( fgroup, SIGNAL(clicked(int)), SLOT(fgroupClicked(int)) );
-
-  m_Fieldeditmethods = new Q3ListBox(fieldtab);
+  m_Fieldeditmethods = new QListWidget(fieldtab);
   m_Fieldeditmethods->setMinimumHeight(HEIGHTLISTBOX);
 
-  connect( m_Fieldeditmethods, SIGNAL( highlighted(int) ),
-           SLOT( FieldEditMethods(int) ) );
+  connect( m_Fieldeditmethods, SIGNAL( itemClicked ( QListWidgetItem * ) ),
+           SLOT( FieldEditMethods(QListWidgetItem * ) ) );
 
-//  // double-click
-//  connect( m_Fieldeditmethods, SIGNAL( selected(int) ),
-//           SLOT( FieldEditMethods(int) ) );
+  QButtonGroup* bgroupinfluence= new QButtonGroup(fieldtab);
 
-  // set default
-//m_Fieldeditmethods->setCurrentItem(0);
-    
-  bgroupinfluence= new Q3ButtonGroup(2,Qt::Vertical,fieldtab);
-
-  rbInfluence[0]= new QRadioButton(QString(tr("Circle")),         bgroupinfluence);
-  rbInfluence[1]= new QRadioButton(QString(tr("Square")),         bgroupinfluence);
-  rbInfluence[2]= new QRadioButton(QString(tr("Ellipse(centre)")),bgroupinfluence);
-  rbInfluence[3]= new QRadioButton(QString(tr("Ellipse(focus)")), bgroupinfluence);
-
+  rbInfluence[0]= new QRadioButton(QString(tr("Circle")),         fieldtab);
+  rbInfluence[1]= new QRadioButton(QString(tr("Square")),         fieldtab);
+  rbInfluence[2]= new QRadioButton(QString(tr("Ellipse(centre)")),fieldtab);
+  rbInfluence[3]= new QRadioButton(QString(tr("Ellipse(focus)")), fieldtab);
+  QVBoxLayout* vLayout = new QVBoxLayout();
+  for (int i=0; i<4; i++) {
+    bgroupinfluence->addButton(rbInfluence[i],i);
+    vLayout->addWidget( rbInfluence[i] );
+  }
   bgroupinfluence->setExclusive(TRUE);
 
   rbInfluence[1]->setEnabled(false);
 
-  connect (bgroupinfluence, SIGNAL(clicked(int)),
+  connect (bgroupinfluence, SIGNAL(buttonClicked(int)),
            SLOT(changeInfluence(int)));
 
   // set default (dialog and use)
-  bgroupinfluence->setButton(0);
+  rbInfluence[0]->setChecked(true);
   changeInfluence(0); // needed as the above does not change anything
     
-  Q3HBox* ehbox = new Q3HBox(fieldtab);
-  ehbox->setMargin( mymargin );
-  ehbox->setSpacing( myspacing/2 );
   
-  QLabel* ellipseform = new QLabel(tr("Ellipse shape"), ehbox );
+  QLabel* ellipseform = new QLabel(tr("Ellipse shape"),this);
 
   ellipsenumbers.clear();
   int i;
@@ -385,10 +376,10 @@ void  EditDialog::FieldTab()
   for (i=70; i<85; i+=5)  ellipsenumbers.push_back(float(i)/100.);
   for (i=85; i<100; i++)  ellipsenumbers.push_back(float(i)/100.);
 
-  ellipsenumber = new QLabel( "    ", ehbox );
+  ellipsenumber = new QLabel( "    ", this );
   ellipsenumber->setMinimumSize( 50, ellipsenumber->sizeHint().height() +6 );
   ellipsenumber->setMaximumSize( 50, ellipsenumber->sizeHint().height() +6 );
-  ellipsenumber->setFrameStyle( Q3Frame::Box | Q3Frame::Plain);
+  ellipsenumber->setFrameStyle( QFrame::Box | QFrame::Plain);
   ellipsenumber->setLineWidth(2);
   ellipsenumber->setAlignment( Qt::AlignCenter | Qt::TextExpandTabs );
 
@@ -397,7 +388,7 @@ void  EditDialog::FieldTab()
 
   ellipsenumber->setNum( double(ellipsenumbers[index]) );
 
-  ellipseslider  = new QSlider( 0, n, 1, index, Qt::Horizontal, ehbox);
+  ellipseslider  = new QSlider( 0, n, 1, index, Qt::Horizontal, this);
   ellipseslider->setMinimumHeight( 16 );
   ellipseslider->setMaximumHeight( 16 );
   ellipseslider->setEnabled( true );
@@ -408,6 +399,12 @@ void  EditDialog::FieldTab()
   connect( ellipseslider, SIGNAL( sliderReleased() ), 
            SLOT( fieldEllipseShape()) );
 
+  QHBoxLayout* ehbox = new QHBoxLayout();
+  ehbox->setMargin( mymargin );
+  ehbox->setSpacing( myspacing/2 );
+  ehbox->addWidget(ellipseform);
+  ehbox->addWidget(ellipsenumber);
+  ehbox->addWidget(ellipseslider);
   // set default
   fieldEllipseShape();
 
@@ -422,12 +419,9 @@ void  EditDialog::FieldTab()
   // NOT USED YET....
   // QCheckBox* visible = new QCheckBox( "synlig", fieldtab );
 
-  Q3HBox* hbox = new Q3HBox(fieldtab);
-  hbox->setMargin( mymargin );
-  hbox->setSpacing( myspacing );
 
-  undoFieldButton = NormalPushButton( tr("Undo"), hbox);
-  redoFieldButton = NormalPushButton( tr("Redo"), hbox);
+  undoFieldButton = NormalPushButton( tr("Undo"), this);
+  redoFieldButton = NormalPushButton( tr("Redo"), this);
 
   undoFieldButton->setEnabled( false );
   redoFieldButton->setEnabled( false );
@@ -435,6 +429,22 @@ void  EditDialog::FieldTab()
   connect( undoFieldButton, SIGNAL(clicked()), SLOT(undofield()));
   connect( redoFieldButton, SIGNAL(clicked()), SLOT(redofield()));
     
+  QHBoxLayout* hbox = new QHBoxLayout();
+  hbox->setMargin( mymargin );
+  hbox->setSpacing( myspacing );
+  hbox->addWidget(undoFieldButton);
+  hbox->addWidget(redoFieldButton);
+
+  QVBoxLayout* vlayout = new QVBoxLayout( fieldtab);
+  vlayout->setMargin( mymargin );
+  vlayout->setSpacing( myspacing );
+  vlayout->addLayout( hLayout );
+  vlayout->addWidget( m_Fieldeditmethods );
+  vlayout->addLayout( vLayout );
+  vlayout->addLayout( ehbox );
+  vlayout->addWidget( exlineCheckBox );
+  vlayout->addLayout( hbox );
+
   twd->addTab( fieldtab, TABNAME_FIELD );
 }
 
@@ -535,68 +545,31 @@ void EditDialog::exlineCheckBoxToggled(bool on)
 }
 
 
-void EditDialog::FieldEditMethods( int index )
+void EditDialog::FieldEditMethods( QListWidgetItem * item  )
 {
 #ifdef DEBUGREDRAW
-  cerr<<"EditDialog::FieldEditMethods(index)  index= "<<index<<endl;
+  cerr<<"EditDialog::FieldEditMethods(index)  index= "<<m_Fieldeditmethods->currentRow()<<endl;
 #endif
+
+  if(m_Fieldeditmethods->count()==0) return;
+
+  int index = m_Fieldeditmethods->currentRow();
+  if(index<0) {
+    m_Fieldeditmethods->setCurrentRow(0);
+    index=0;
+  }
 
   int numClassValues= classValues.size();
 
-//------------------------------------------------------
   if (index<numFieldEditTools) {
-//------------------------------------------------------
 
-#ifdef DEBUGPRINTONCE
-cerr<<"FieldEditMethods.1 count,numEt,ncv,index,currIndex: "
-    <<m_Fieldeditmethods->count()
-    <<" "<<numFieldEditTools
-    <<" "<<numClassValues<<" "<<index
-    <<" "<<currFieldEditToolIndex<<endl;
-#endif
-
-//####################################################
-#ifdef DEBUGPRINTONCE
-    if (printalltools) {
-      printalltools= false;
-      cerr<<"-----------------------------------------------------------"<<endl;
-      cerr<<"m,n,i"<<endl;
-      cerr<<"m_EditDI.mapmodeinfo[m].mapmode"<<endl;
-      cerr<<"m_EditDI.mapmodeinfo[m].editmodeinfo[n].editmode"<<endl;
-      cerr<<"m_EditDI.mapmodeinfo[m].editmodeinfo[n].edittools[i].index"<<endl;
-      cerr<<"m_EditDI.mapmodeinfo[m].editmodeinfo[n].edittools[i].name"<<endl;
-      for (int m=0; m<m_EditDI.mapmodeinfo.size(); m++) {
-        for (int n=0; n<m_EditDI.mapmodeinfo[m].editmodeinfo.size(); n++) {
-          for (int i=0; i<m_EditDI.mapmodeinfo[m].editmodeinfo[n].edittools.size(); i++) {
-            cerr<<m<<" "<<n<<" "<<setw(2)<<i<<" : "
-                <<m_EditDI.mapmodeinfo[m].mapmode<<"  "
-                <<m_EditDI.mapmodeinfo[m].editmodeinfo[n].editmode<<" "<<setw(3)
-                <<m_EditDI.mapmodeinfo[m].editmodeinfo[n].edittools[i].index<<" = "
-                <<m_EditDI.mapmodeinfo[m].editmodeinfo[n].edittools[i].name<<endl;
-          }
-        }
-      }
-      cerr<<"-----------------------------------------------------------"<<endl;
-    }
-#endif
-//####################################################
-
-    currFieldEditToolIndex= index;
+      //    currFieldEditToolIndex= index;
 
     currMapmode= m_EditDI.mapmodeinfo[0].mapmode;
-
     currEditmode = m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].editmode;
-
     currEdittool=  m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[index].name;
-
     int tool= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[index].index;
 
-#ifdef DEBUGREDRAW
-    cerr<<"currMapmode,currEditmode,currEdittool,tool: "
-        <<currMapmode<<" "<<currEditmode<<" "<<currEdittool<<" "<<tool<<endl;
-#endif
-
-//  if (inEdit) m_editm->setEditMode(currMapmode,currEditmode,currEdittool);
     m_editm->setEditMode(currMapmode,currEditmode,currEdittool);
 
     EditEvent ee;
@@ -611,15 +584,7 @@ cerr<<"FieldEditMethods.1 count,numEt,ncv,index,currIndex: "
   } else if (fieldEditToolGroup==1 &&
 	     index<numFieldEditTools+numClassValues) {
 
-#ifdef DEBUGPRINTONCE
-cerr<<"FieldEditMethods.2 count,numEt,ncv,index,currIndex: "
-    <<m_Fieldeditmethods->count()
-    <<" "<<numFieldEditTools
-    <<" "<<numClassValues<<" "<<index
-    <<" "<<currFieldEditToolIndex<<endl;
-#endif
-
-    currFieldEditToolIndex= index;
+//    currFieldEditToolIndex= index;
 
     int n= index - numFieldEditTools;
     EditEvent ee;
@@ -634,30 +599,21 @@ cerr<<"FieldEditMethods.2 count,numEt,ncv,index,currIndex: "
   } else if (fieldEditToolGroup==1 &&
   	     index<numFieldEditTools+numClassValues*2) {
 
-#ifdef DEBUGPRINTONCE
-cerr<<"FieldEditMethods.3 count,numEt,ncv,index,currIndex: "
-    <<m_Fieldeditmethods->count()
-    <<" "<<numFieldEditTools
-    <<" "<<numClassValues<<" "<<index
-    <<" "<<currFieldEditToolIndex<<endl;
-#endif
-
     int n= index - numFieldEditTools - numClassValues;
     EditEvent ee;
 
     m_Fieldeditmethods->blockSignals(true);
 
-//  m_Fieldeditmethods->clearSelection();
-
-    m_Fieldeditmethods->setCurrentItem(currFieldEditToolIndex);
-//  m_Fieldeditmethods->setSelected(currFieldEditToolIndex,true);
+    //    m_Fieldeditmethods->clearSelection();
+    //    m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
+    //    m_Fieldeditmethods->item(currFieldEditToolIndex)->setSelected(true);
 
     if (classValuesLocked[n]) {
-      m_Fieldeditmethods->changeItem(openValuePixmap,classNames[n].cStr(),index);
+      m_Fieldeditmethods->item(index)->setIcon(QIcon(openValuePixmap));
       classValuesLocked[n]= false;
       ee.type= edit_open_value;
     } else {
-      m_Fieldeditmethods->changeItem(lockValuePixmap,classNames[n].cStr(),index);
+      m_Fieldeditmethods->item(index)->setIcon(QIcon(lockValuePixmap));
       classValuesLocked[n]= true;
       ee.type= edit_lock_value;
     }
@@ -685,31 +641,32 @@ void  EditDialog::FrontTab()
   int mymargin=5;
   int myspacing=5;
 
-  objecttab = new Q3VBox(twd );
-  objecttab->setMargin( mymargin );
-  objecttab->setSpacing( myspacing );
+  objecttab = new QWidget(twd );
 
   vector<miString> vstr;
   m_Frontcm = ComboBox( objecttab, vstr );
   connect( m_Frontcm, SIGNAL( activated(int) ),
            SLOT( FrontTabBox(int) ) );
 
-  m_Fronteditmethods = new Q3ListBox(objecttab);
+  m_Fronteditmethods = new QListWidget(objecttab);
 
-  connect( m_Fronteditmethods, SIGNAL(clicked(Q3ListBoxItem *) ),
+  connect( m_Fronteditmethods, SIGNAL(itemClicked(QListWidgetItem *) ),
            SLOT( FrontEditClicked() ) );
-  connect( m_Fronteditmethods, SIGNAL(doubleClicked(Q3ListBoxItem *) ),
+  connect( m_Fronteditmethods, SIGNAL(itemDoubleClicked(QListWidgetItem *) ),
            SLOT( FrontEditDoubleClicked() ) );
 
-  Q3HBox* hbox = new Q3HBox(objecttab);
-  hbox->setMargin( mymargin );
-  hbox->setSpacing( myspacing );
 
-  undoFrontButton = NormalPushButton( tr("Undo"), hbox);
-  redoFrontButton = NormalPushButton( tr("Redo"), hbox);
+  undoFrontButton = NormalPushButton( tr("Undo"), this);
+  redoFrontButton = NormalPushButton( tr("Redo"), this);
 
   connect( undoFrontButton, SIGNAL(clicked()), SLOT(undofront()));
   connect( redoFrontButton, SIGNAL(clicked()), SLOT(redofront()));
+
+  QHBoxLayout* hbox = new QHBoxLayout();
+  hbox->setMargin( mymargin );
+  hbox->setSpacing( myspacing );
+  hbox->addWidget(undoFrontButton);
+  hbox->addWidget(redoFrontButton);
 
   autoJoin = new QCheckBox( tr("Join fronts"), objecttab);
   autoJoin->setChecked(true);
@@ -717,6 +674,14 @@ void  EditDialog::FrontTab()
 
   // initialize colours and ok state
   autoJoinToggled(true);
+  QVBoxLayout* vlayout = new QVBoxLayout( objecttab);
+
+  vlayout->setMargin( mymargin );
+  vlayout->setSpacing( myspacing );
+  vlayout->addWidget( m_Frontcm );
+  vlayout->addWidget( m_Fronteditmethods );
+  vlayout->addWidget( autoJoin );
+  vlayout->addLayout( hbox );
 
   twd->addTab( objecttab, TABNAME_OBJECTS);
 }
@@ -727,11 +692,11 @@ void  EditDialog::FrontTabBox( int index )
   // called when an item in objects combo box selected
   if (index!=m_FrontcmIndex || m_Fronteditmethods->count()==0){
     m_FrontcmIndex=index;
-    ListBoxData( m_Fronteditmethods, 1, index);
+    ListWidgetData( m_Fronteditmethods, 1, index);
     m_FronteditIndex=-1;
-    m_Fronteditmethods->setSelected(0,true);
+    m_Fronteditmethods->item(0)->setSelected(true);
   } else if (m_FronteditIndex < m_Fronteditmethods->count()-1){
-    m_Fronteditmethods->setSelected(m_FronteditIndex,true);
+    m_Fronteditmethods->item(m_FronteditIndex)->setSelected(true);
   }
   currEditmode= miString(m_Frontcm->text(m_FrontcmIndex).latin1()); 
   FrontEditClicked();
@@ -744,8 +709,14 @@ void EditDialog::FrontEditClicked()
 {
   //cerr << "FrontEditClicked "  << endl; 
   //called when an item in the objects list box clicked
-  if (!inEdit) return;
-  int index = m_Fronteditmethods->currentItem();
+  if (!inEdit || m_Fronteditmethods->count()==0) return;
+
+  int index = m_Fronteditmethods->currentRow();
+  if(index<0) {
+    m_Fronteditmethods->setCurrentRow(0);
+      index=0;
+  }
+
   if (m_FronteditList.size()>index) currEdittool= m_FronteditList[index];
   m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
   if (index!=m_FronteditIndex){
@@ -927,31 +898,39 @@ void  EditDialog::CombineTab()
   const int mymargin= 5;
   const int myspacing= 5;
 
-  combinetab = new Q3VBox(twd );
-  combinetab->setMargin( mymargin );
-  combinetab->setSpacing( myspacing );
+  combinetab = new QWidget(twd );
 
-  Q3GroupBox* group= new Q3GroupBox(2,Qt::Vertical,tr("Editing"), combinetab);
-  Q3VButtonGroup* bg= new Q3VButtonGroup(group);
-  bg->setFrameStyle(Q3Frame::NoFrame);
-  QRadioButton* rb1= new QRadioButton(tr("Change borders"),bg,0);
-  QRadioButton* rb2= new QRadioButton(tr("Set data sources"),bg,0);
+  QButtonGroup* bg= new QButtonGroup(combinetab);
+  QRadioButton* rb1= new QRadioButton(tr("Change borders"),combinetab,0);
+  QRadioButton* rb2= new QRadioButton(tr("Set data sources"),combinetab,0);
+  bg->addButton(rb1);
+  bg->addButton(rb2);
+  QVBoxLayout* bgLayout = new QVBoxLayout();
+  bgLayout->addWidget(rb1);
+  bgLayout->addWidget(rb2);
   rb1->setChecked(true);
-  connect(bg, SIGNAL(clicked(int)), SLOT(combine_action(int)));
+  connect(bg, SIGNAL(buttonClicked(int)), SLOT(combine_action(int)));
 
-  m_SelectAreas = new Q3ListBox(group);//listBox( group, 150, 75, false );
+  m_SelectAreas = new QListWidget(combinetab);//listBox( group, 150, 75, false );
   m_SelectAreas->setMinimumHeight(100);
 
-  connect( m_SelectAreas, SIGNAL( highlighted(int) ),
-	   SLOT( selectAreas(int) ) );
+  connect( m_SelectAreas, SIGNAL( itemClicked ( QListWidgetItem *  ) ),
+	   SLOT( selectAreas(QListWidgetItem * ) ));
 
-  Q3HBox* hbox = new Q3HBox(combinetab);
-  hbox->setMargin( mymargin );
-  hbox->setSpacing( myspacing );
-  combinetab->setStretchFactor(hbox, 20);
+//   QHBoxLayout* hbox = new QHBoxLayout(combinetab);
+//   hbox->setMargin( mymargin );
+//   hbox->setSpacing( myspacing );
+//   combinetab->setStretchFactor(hbox, 20);
 
   stopCombineButton = new QPushButton( tr("Exit merge"), combinetab);
   connect(stopCombineButton, SIGNAL(clicked()), SLOT(stopCombine()));
+
+  QVBoxLayout* vlayout = new QVBoxLayout( combinetab);
+  vlayout->setMargin( mymargin );
+  vlayout->setSpacing( myspacing );
+  vlayout->addLayout( bgLayout );
+  vlayout->addWidget( m_SelectAreas );
+  vlayout->addWidget( stopCombineButton );
 
   twd->addTab( combinetab, TABNAME_COMBINE );
 }
@@ -979,9 +958,10 @@ void EditDialog::combine_action(int idx)
   CombineEditMethods();
 }
 
-void EditDialog::selectAreas(int index)
+void EditDialog::selectAreas(QListWidgetItem * item )
 {
-  miString tmp= miString( m_SelectAreas->text(index).latin1());
+  int index = m_SelectAreas->currentRow();
+  miString tmp= miString( m_SelectAreas->item(index)->text().latin1());
   if (tmp !=currEdittool){
     currEdittool= tmp;
     if (inEdit) m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
@@ -1003,7 +983,7 @@ void EditDialog::CombineEditMethods()
   } else if (combineAction==1){ // region selections
     m_SelectAreas->setEnabled(true);
     currEditmode= m_EditDI.mapmodeinfo[2].editmodeinfo[1].editmode;
-    currEdittool= miString( m_SelectAreas->text(m_SelectAreas->currentItem()).latin1());
+    currEdittool= miString( m_SelectAreas->currentItem()->text().latin1());
     if (inEdit) m_objm->createNewObject();
   } else {
     cerr << "EditDialog::CombineEditMethods    unknown combineAction:"
@@ -1054,11 +1034,14 @@ void EditDialog::tabSelected( const QString& tabname)
 }
 
 
-void  EditDialog::ListBoxData( Q3ListBox* list, int mindex, int index)
+void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 {
+
+  cerr <<"mindex:"<<mindex<<"  index:"<<index<<endl;
   list->clear();
   vector<miString> vstr;
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools.size();
+  list->setViewMode(QListView::ListMode);
   for ( int i=0; i<n; i++){
     miString etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
     vstr.push_back(etool);
@@ -1068,38 +1051,33 @@ void  EditDialog::ListBoxData( Q3ListBox* list, int mindex, int index)
       dialog_etool =editTranslations[etool];
     else
       dialog_etool = etool.cStr();
-    list->insertItem(dialog_etool);
+    list->addItem(QString(dialog_etool));
   }
+
   list->setCurrentItem(0);
+
   if (mindex==OBJECT_INDEX)
     m_FronteditList=vstr; //list of edit tools 
+
   if (mindex==OBJECT_INDEX && index==SIGMAP_INDEX){
     //for now, only sigmap symbols have images...
     list->clear();
-    list->setColumnMode(3);
-    int w = list->width();
-    int itemwidth=int (w/3.5);
+    cerr <<"CLEAR"<<endl;
+    list->setViewMode(QListView::IconMode);
     SetupParser sp;      
     for ( int i=0; i<n; i++){
       miString path = sp.basicValue("imagepath");
       miString filename = path+ m_FronteditList[i] + ".png";
-      QImage* pimage = new QImage(filename.c_str());
-      if (!pimage->isNull()){
-	int pwidth=pimage->width();
-	int pheight=pimage->height();
-	float ratio = float(pwidth)/float(itemwidth);
-	float fitemheight = float(pheight)/ratio;
-	int itemheight= (int) fitemheight;
-	QImage scaledpimage= pimage->smoothScale(itemwidth,itemheight);
-	QPixmap * pmap= new QPixmap(scaledpimage);
-	list->insertItem(*pmap);
-	delete pmap;
-      }else{
-	list->insertItem(m_FronteditList[i].c_str());
+      QPixmap pmap(filename.c_str());
+      if(!pmap.isNull()){
+	QListWidgetItem* item = new QListWidgetItem(QIcon(pmap),QString());
+	list->addItem(item);
+      } else {
+	list->addItem(QString(m_FronteditList[i].c_str()));
       }
-    delete pimage;
     }
   }
+
   return;
 }
 
@@ -1350,7 +1328,7 @@ void EditDialog::exitClicked()
 
 void EditDialog::helpClicked()
 {
-  emit showdoc("ug_editdialogue.html"); 
+  emit showsource("ug_editdialogue.html"); 
 }
 
 
@@ -1464,7 +1442,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   if (fieldEditToolGroup!=1) {
 
     //Fill field edit listbox
-    ListBoxData( m_Fieldeditmethods, 0, fieldEditToolGroup);
+    ListWidgetData( m_Fieldeditmethods, 0, fieldEditToolGroup);
 
     numFieldEditTools= m_Fieldeditmethods->count();
 
@@ -1478,7 +1456,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
     for (int i=0; i<n; i++) {
       miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
-      m_Fieldeditmethods->insertItem(ts.cStr());
+      m_Fieldeditmethods->addItem(QString(ts.cStr()));
     }
 
     numFieldEditTools= n;
@@ -1500,18 +1478,20 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
     for (int i=0; i<classNames.size(); i++) {
       miString estr= tr("New value:").latin1() +  classNames[i];
-      m_Fieldeditmethods->insertItem(estr.cStr());
+      m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 
     for (int i=0; i<classNames.size(); i++) {
-      m_Fieldeditmethods->insertItem(openValuePixmap,classNames[i].cStr());
+      QListWidgetItem* item 
+	= new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
+      m_Fieldeditmethods->addItem(item);
     }
 
     m_Fieldeditmethods->blockSignals(false);
-    currFieldEditToolIndex=0;
-    m_Fieldeditmethods->setCurrentItem(currFieldEditToolIndex);
+//     currFieldEditToolIndex=0;
+//     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
 
-    m_Fieldeditmethods->triggerUpdate(true);
+    //    m_FieldA//OBSeditmethods->triggerUpdate(true);
   }
 
 //########################################################################
@@ -1669,7 +1649,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   // put combids into select-areas listbox
   m_SelectAreas->clear();
   for (int i=0; i<combids.size(); i++){
-    m_SelectAreas->insertItem(QString(combids[i].cStr()));
+    m_SelectAreas->addItem(QString(combids[i].cStr()));
   }
   if(combids.size()) m_SelectAreas->setCurrentItem(0);
 
@@ -1718,7 +1698,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   if (fieldEditToolGroup!=1) {
 
     //Fill field edit listbox
-    ListBoxData( m_Fieldeditmethods, 0, fieldEditToolGroup);
+    ListWidgetData( m_Fieldeditmethods, 0, fieldEditToolGroup);
 
     numFieldEditTools= m_Fieldeditmethods->count();
 
@@ -1732,7 +1712,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     for (int i=0; i<n; i++) {
       miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
-      m_Fieldeditmethods->insertItem(ts.cStr());
+      m_Fieldeditmethods->addItem(QString(ts.cStr()));
     }
 
     numFieldEditTools= n;
@@ -1756,18 +1736,20 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     for (int i=0; i<classNames.size(); i++) {
       miString estr= tr("New value:").latin1() +  classNames[i];
-      m_Fieldeditmethods->insertItem(estr.cStr());
+      m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 
     for (int i=0; i<classNames.size(); i++) {
-      m_Fieldeditmethods->insertItem(openValuePixmap,classNames[i].cStr());
+      QListWidgetItem* item 
+	= new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
+      m_Fieldeditmethods->addItem(item);
     }
 
     m_Fieldeditmethods->blockSignals(false);
-    currFieldEditToolIndex=0;
-    m_Fieldeditmethods->setCurrentItem(currFieldEditToolIndex);
+//     currFieldEditToolIndex=0;
+//     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
 
-    m_Fieldeditmethods->triggerUpdate(true);
+    //OBS    m_Fieldeditmethods->triggerUpdate(true);
   }
  
   

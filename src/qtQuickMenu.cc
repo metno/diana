@@ -1193,7 +1193,7 @@ void QuickMenu::intervalChanged(int value)
 
 
 void QuickMenu::helpClicked(){
-  emit showdoc("ug_quickmenu.html"); 
+  emit showsource("ug_quickmenu.html"); 
 }
 
 

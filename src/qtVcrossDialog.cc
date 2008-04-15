@@ -2675,7 +2675,7 @@ void VcrossDialog::hideClicked(){
 
 
 void VcrossDialog::helpClicked(){
-  emit showdoc("ug_verticalcrosssections.html");
+  emit showsource("ug_verticalcrosssections.html");
 }
 
 

@@ -192,7 +192,7 @@ private slots:
 signals:
   void ObjHide();
   void ObjApply();
-  void showdoc(const miString);
+  void showsource(const miString, const miString="");
   void emitTimes( const miString&, const vector<miTime>& ,bool );
 
 };

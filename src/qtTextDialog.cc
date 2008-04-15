@@ -29,19 +29,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtTextDialog.h>
-#include <qlayout.h>
-#include <qpushbutton.h>
-#include <q3textbrowser.h>
-#include <qprinter.h>
-#include <q3filedialog.h>
-#include <qcheckbox.h>
+
+#include <QPushButton>
+#include <QTextBrowser>
+#include <QPrinter>
+#include <QFileDialog>
+#include <QCheckBox>
+#include <QPixmap>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <qtUtility.h>
-#include <qmime.h> 
-//Added by qt3to4:
-#include <QPixmap>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
 #include <iostream>
 
 #include <kill.xpm>
@@ -49,11 +47,11 @@
 
 /*********************************************/
 TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
-  : QDialog(parent,"textdialog",false,
+  : QDialog(parent,
 	    Qt::WStyle_Customize | Qt::WStyle_NormalBorder |
 	    Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WDestructiveClose)
 {
-  tb = new Q3TextBrowser( this ); 
+  tb = new QTextBrowser( this ); 
 
   QPushButton* cb= new QPushButton( QPixmap(kill_xpm),
 				    tr("Close window"), this );
@@ -66,7 +64,7 @@ TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
   fixedb= new QCheckBox(tr("Use fixed font"), this);
   connect( fixedb, SIGNAL(clicked()), this, SLOT(fixedfont()));
 
-  hlayout = new Q3HBoxLayout( 10 );
+  QHBoxLayout* hlayout = new QHBoxLayout();
   hlayout->addStretch();
   hlayout->addWidget( cb );
   hlayout->addStretch();
@@ -75,7 +73,7 @@ TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
   hlayout->addWidget( fixedb );
   hlayout->addStretch();
 
-  vlayout = new Q3VBoxLayout( this, 5, 5 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this);
   vlayout->addWidget( tb );
   vlayout->addLayout( hlayout );
   
@@ -105,21 +103,7 @@ void TextDialog::setSource(const InfoFile ifile){
       ext= vs[vs.size()-1];
       ext.trim();
     }
-    if ((ext=="xml" && infofile.doctype=="auto") ||
-	infofile.doctype=="xml"){
-      tb->mimeSourceFactory()->
-	setExtensionType(ext.cStr(),xml_type.cStr());
-    } else if (((ext=="txt" || ext=="text") && infofile.doctype=="auto") ||
-	       infofile.doctype=="text"){
-      tb->mimeSourceFactory()->
-	setExtensionType(ext.cStr(),txt_type.cStr());
-    } else if (ext!="htm" && ext!="html" && infofile.doctype=="auto"){
-      tb->mimeSourceFactory()->
-	setExtensionType(ext.cStr(),txt_type.cStr());
-    } else if (infofile.doctype=="html"){
-      tb->mimeSourceFactory()->
-	setExtensionType(ext.cStr(),htm_type.cStr());
-    }
+    
     // find path and filename
     if (infofile.filename.contains("/")){
       vs= infofile.filename.split("/");
@@ -131,7 +115,7 @@ void TextDialog::setSource(const InfoFile ifile){
       path = "./";
       file= infofile.filename;
     }
-    tb->mimeSourceFactory()->addFilePath(path.cStr());
+
     
     // set courier-font if fixed font selected
     if (infofile.fonttype=="fixed"){
@@ -142,7 +126,7 @@ void TextDialog::setSource(const InfoFile ifile){
       tb->unsetFont();
     }
 
-    tb->setSource(infofile.filename.cStr());
+    tb->setSource(QString(infofile.filename.cStr()));
 
     tb->update();
 
@@ -152,6 +136,8 @@ void TextDialog::setSource(const InfoFile ifile){
       fixedb->setChecked(false);
     }
   }
+
+
 }
 
 void TextDialog::finish()
@@ -184,9 +170,10 @@ void TextDialog::openwild()
 {
   InfoFile f;
   QString filter= tr("Textfiles (*.txt *.text *.html);;All (*.*)");
-  QString s(Q3FileDialog::getOpenFileName(path.cStr(),filter,
-					 this, "openfile",
-					 tr("Open file")));
+  QString s(QFileDialog::getOpenFileName(this,
+					 tr("Open file"),
+					 path.cStr(),
+					 filter));
   if ( s.isEmpty() )
     return;
   
@@ -212,5 +199,13 @@ void TextDialog::openwild()
 //     p.end();  // send job to printer
 //   }
 // }
+
+
+
+
+
+
+
+
 
 

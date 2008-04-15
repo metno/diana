@@ -268,7 +268,10 @@ void ObsDialog::applyhideClicked(){
 
 
 void ObsDialog::helpClicked(){
-  emit showdoc("ug_obsdialogue.html");
+  //  emit setSource("ug_obsdialogue.html");
+  emit showsource("ug_obsdialogue.html");
+
+
 }
 
 void ObsDialog::multiplotClicked(bool b){

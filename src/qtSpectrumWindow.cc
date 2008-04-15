@@ -177,15 +177,15 @@ SpectrumWindow::SpectrumWindow()
   spModelDialog = new SpectrumModelDialog(this,spectrumm);
   connect(spModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(spModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(spModelDialog, SIGNAL(showdoc(const miString)),
-	  SIGNAL(showdoc(const miString)));
+  connect(spModelDialog, SIGNAL(showsource(const miString, const miString)),
+	  SIGNAL(showsource(const miString, const miString)));
 
 
   spSetupDialog = new SpectrumSetupDialog(this,spectrumm);
   connect(spSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(spSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(spSetupDialog, SIGNAL(showdoc(const miString)),
-	  SIGNAL(showdoc(const miString)));
+  connect(spSetupDialog, SIGNAL(showsource(const miString, const miString)),
+	  SIGNAL(showsource(const miString, const miString)));
 
 
   //initialize everything in startUp
@@ -537,7 +537,7 @@ void SpectrumWindow::helpClicked()
 #ifdef DEBUGPRINT
     cerr << "help clicked" << endl;
 #endif
-    emit showdoc("ug_spectrum.html");
+    emit showsource("ug_spectrum.html");
 }
 
 

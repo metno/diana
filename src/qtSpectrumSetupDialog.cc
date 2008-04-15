@@ -360,7 +360,7 @@ void SpectrumSetupDialog::helpClicked()
 #ifdef DEBUGPRINT
   cerr <<"SpectrumSetupDialog::helpClicked()" << endl;
 #endif
-  emit showdoc("ug_spectrum.html");
+  emit showsource("ug_spectrum.html");
 }
 
 

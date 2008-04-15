@@ -363,7 +363,7 @@ void ObjectDialog::applyhideClicked(){
 
 /********************************************/
 void ObjectDialog::helpClicked(){
-  emit showdoc("ug_objectdialogue.html");
+  emit showsource("ug_objectdialogue.html");
 }
 
 /*********************************************/

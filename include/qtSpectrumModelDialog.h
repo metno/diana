@@ -91,7 +91,7 @@ private slots:
 signals:
   void ModelHide();
   void ModelApply();
-  void showdoc(const miString); // activate help
+  void showsource(const miString, const miString=""); // activate help
 };
 
 #endif

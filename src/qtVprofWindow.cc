@@ -176,15 +176,15 @@ VprofWindow::VprofWindow()
   vpModelDialog = new VprofModelDialog(this,vprofm);
   connect(vpModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(vpModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(vpModelDialog, SIGNAL(showdoc(const miString)),
-	  SIGNAL(showdoc(const miString)));
+  connect(vpModelDialog, SIGNAL(showsource(const miString, const miString)),
+	  SIGNAL(showsource(const miString, const miString)));
 
 
   vpSetupDialog = new VprofSetupDialog(this,vprofm);
   connect(vpSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vpSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vpSetupDialog, SIGNAL(showdoc(const miString)),
-	  SIGNAL(showdoc(const miString)));
+  connect(vpSetupDialog, SIGNAL(showsource(const miString, const miString)),
+	  SIGNAL(showsource(const miString, const miString)));
 
   //initialize everything in startUp
   firstTime = true;
@@ -543,7 +543,7 @@ void VprofWindow::helpClicked(){
 #ifdef DEBUGPRINT
     cerr << "help clicked" << endl;
 #endif
-    emit showdoc("ug_verticalprofiles.html");
+    emit showsource("ug_verticalprofiles.html");
 }
 
 

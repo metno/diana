@@ -149,7 +149,7 @@ signals:
   void Apply(const vector<miString>& s, bool); ///< send plot-commands
   void requestUpdate(const vector<miString>&,  ///< request static menu-item
 		     vector<miString>&);       // update: old,new
-  void showdoc(const miString); ///< activate help
+  void showsource(const miString, const miString=""); ///< activate help
 
 private slots:
   void menulistActivate(int);       // quick-menu combobox activated

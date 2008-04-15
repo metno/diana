@@ -129,7 +129,7 @@ private slots:
 
 signals:
   void VcrossHide();
-  void showdoc(const miString); // activate help
+  void showsource(const miString, const miString=""); // activate help
   void crossectionChanged(const QString& );
   void crossectionSetChanged();
   void crossectionSetUpdate();

@@ -30,16 +30,16 @@
 */
 #include <qtAddtoMenu.h>
 #include <qtQuickMenu.h>
-#include <q3frame.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <q3listbox.h>
-#include <qinputdialog.h>
-//Added by qt3to4:
+
+#include <QFrame>
+#include <QPushButton>
+#include <QLabel>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QInputDialog>
 #include <QPixmap>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <miString.h>
 #include <filenew.xpm>
@@ -49,31 +49,33 @@ using namespace std;
 AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   : QDialog(parent, "addtomenu", true), quick(qm)
 {
-  Q3HBoxLayout* b= new Q3HBoxLayout(this, 10, 10, "top_hlayout");
+  QHBoxLayout* b= new QHBoxLayout(this, 10, 10, "top_hlayout");
 
-  frame= new Q3Frame(this);
-  frame->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
+    QFrame* frame= new QFrame(this);
+  frame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
   QString t= "<em><b>"+tr("Add current plot to a private quickmenu")+"</b></em>";
   QLabel* label= new QLabel(t, frame);
-  label->setFrameStyle(Q3Frame::Panel | Q3Frame::Raised);
+  label->setFrameStyle(QFrame::Panel | QFrame::Raised);
   
-  list= new Q3ListBox(frame,"menulist");
-  connect(list, SIGNAL(highlighted(int)),SLOT(menuSelected(int)));
-  connect(list, SIGNAL(selected(int)),SLOT(okClicked()));
+  list= new QListWidget(frame);
+  connect(list, SIGNAL( itemClicked( QListWidgetItem * )),
+			SLOT(menuSelected( QListWidgetItem * )));
+  connect(list, SIGNAL(itemDoubleClicked( QListWidgetItem *  )),
+	  SLOT(okClicked()));
   list->setMinimumWidth(100);
   
   newButton = new QPushButton(QPixmap(filenew_xpm), tr("&Make new"), frame );
   newButton->setEnabled( true );
   connect( newButton, SIGNAL(clicked()), SLOT(newClicked()));
   
-  Q3HBoxLayout* hl= new Q3HBoxLayout(5);
+  QHBoxLayout* hl= new QHBoxLayout(5);
   hl->addWidget(list);
   hl->addWidget(newButton);
 
   // a horizontal frame line
-  Q3Frame* line = new Q3Frame( frame );
-  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  QFrame* line = new QFrame( frame );
+  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
   // last row of buttons
   okButton= new QPushButton( tr("&OK"), frame );
@@ -82,11 +84,11 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   connect( okButton, SIGNAL(clicked()), SLOT(okClicked()) );
   connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
 
-  Q3HBoxLayout* hl2= new Q3HBoxLayout(5);
+  QHBoxLayout* hl2= new QHBoxLayout(5);
   hl2->addWidget(okButton);
   hl2->addWidget(cancel);
   
-  Q3VBoxLayout* vl= new Q3VBoxLayout(frame, 5,5);
+  QVBoxLayout* vl= new QVBoxLayout(frame, 5,5);
   vl->addWidget(label);
   vl->addLayout(hl);
   vl->addWidget(line);
@@ -108,17 +110,18 @@ void AddtoMenu::fillMenu()
   vector<miString> vs= quick->getCustomMenues();
 
   for (int i=0; i<vs.size(); i++){
-    list->insertItem(vs[i].cStr());
+    list->addItem(QString(vs[i].cStr()));
   }
   if (vs.size()>0){
-    list->setCurrentItem(0);
-    list->setSelected(0,true);
+    list->setCurrentRow(0);
+    list->item(0)->setSelected(true);
+    okButton->setEnabled(true);
   }
 }
 
-void AddtoMenu::okClicked()
+void AddtoMenu::okClicked( )
 {
-  int idx= list->currentItem();
+  int idx= list->currentRow();
   if (quick->addToMenu(idx))
     accept();
 }
@@ -133,13 +136,14 @@ void AddtoMenu::newClicked()
   if ( ok && !text.isEmpty() ){
     if (quick->addMenu(text.latin1())){
       fillMenu();
-      list->setCurrentItem(list->count()-1);
-      list->setSelected(list->count()-1, true);
+      QListWidgetItem* item=list->item(list->count()-1);
+      list->setCurrentItem(item);
+      item->setSelected(true);
     }
   }
 }
 
-void AddtoMenu::menuSelected(int i)
+void AddtoMenu::menuSelected( QListWidgetItem * item )
 {
   okButton->setEnabled(true);
 }

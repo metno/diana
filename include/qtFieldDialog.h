@@ -302,7 +302,7 @@ private:
 signals:
   void FieldApply();
   void FieldHide();
-  void showdoc(const miString);
+  void showsource(const miString, const miString="");
   void emitTimes( const miString& ,const vector<miTime>& );
 
 private slots:

@@ -157,10 +157,10 @@ private slots:
   void updateColours();
 
 signals:
- void SatApply();
- void SatHide();
- void showdoc(const miString);
- void emitTimes( const miString& ,const vector<miTime>&,bool );
+  void SatApply();
+  void SatHide();
+  void showsource(const miString, const miString="");
+  void emitTimes( const miString& ,const vector<miTime>&,bool );
 
 private:
 

@@ -530,7 +530,7 @@ void VprofSetupDialog::helpClicked(){
 #ifdef DEBUGPRINT
   cerr <<"VprofSetupDialog::helpClicked()" << endl;
 #endif
-  emit showdoc("ug_verticalprofiles.html");
+  emit showsource("ug_verticalprofiles.html");
 }
 
 /*********************************************/

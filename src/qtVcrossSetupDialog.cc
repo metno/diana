@@ -554,7 +554,7 @@ void VcrossSetupDialog::helpClicked()
 #ifdef DEBUGPRINT
   cerr <<"VcrossSetupDialog::helpClicked()" << endl;
 #endif
-  emit showdoc("ug_verticalcrosssections.html");
+  emit showsource("ug_verticalcrosssections.html");
 }
 
 

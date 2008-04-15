@@ -320,7 +320,7 @@ void UffdaDialog::DeleteAllClicked(){
 
 /********************************************/
 void UffdaDialog::helpClicked(){
-  emit showdoc("uffda.html");
+  emit showsource("uffda.html");
 }
 
 

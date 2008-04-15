@@ -373,7 +373,7 @@ void TrajectoryDialog::quitClicked(){
 /*********************************************/
 
 void TrajectoryDialog::helpClicked(){
-  emit showdoc("ug_trajectories.html");
+  emit showsource("ug_trajectories.html");
 }
 
 /*********************************************/

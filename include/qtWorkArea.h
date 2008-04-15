@@ -33,15 +33,12 @@
 
 #include <qwidget.h>
 #include <qtGLwidget.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
 #include <miString.h>
 
 using namespace std;
 
 class Controller;
-class Q3VBoxLayout;
-
+class GLwidget;
 /** 
     \brief the main workarea
 
@@ -60,7 +57,6 @@ public slots:
   void updateGL();
 
 protected:
-  Q3VBoxLayout* vlayout;
   GLwidget *glw;
   Controller *contr;
 };
