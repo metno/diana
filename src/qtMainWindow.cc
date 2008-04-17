@@ -1590,6 +1590,11 @@ bool DianaMainWindow::initProfet(){
         profetGUI = new DianaProfetGUI(*contr->getProfetController(),
             paintToolBar, contr->getAreaManager(), this);
         contr->setProfetGUI(profetGUI);
+        Profet::PodsUser u(miTime::nowTime(),
+            loginDialog.username().toLatin1().data(),
+            loginDialog.role().toLatin1().data(),
+            "");
+        contr->registerProfetUser(u);
         QApplication::restoreOverrideCursor();
       }else{
         cerr << "Failed to init ProfetController"<< endl;
