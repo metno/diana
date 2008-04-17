@@ -105,6 +105,8 @@
 #include <miCommandLine.h>
 #include <qtPaintToolBar.h>
 #include <diGridAreaManager.h>
+#include <QErrorMessage>
+#include <profet/LoginDialog.h>
 
 #include <pick.xpm>
 #include <earth3.xpm>
@@ -327,6 +329,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   uffdaAction->setShortcut(Qt::CTRL+Qt::Key_X);
   connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
+
+  profetLoginError = new QErrorMessage(this);
   if(enableProfet){
     togglePaintModeAction = new QAction( QPixmap(paint_mode_xpm),tr("&Paint"), this );
   } else {
@@ -1576,31 +1580,44 @@ bool DianaMainWindow::initProfet(){
     cerr << "Failed to init profet. AreaManager is NULL"<< endl;
     return false;
   }
-  contr->initProfet();
-  if(contr->getProfetController()==0) {
-    cerr << "Failed to init ProfetController"<< endl;
-    return false;
+  Profet::LoginDialog loginDialog;
+  loginDialog.setUsername(QString(getenv("USER")));
+  if(loginDialog.exec()){ // OK button pressed
+    if(!loginDialog.username().isEmpty()){
+      QApplication::setOverrideCursor( Qt::waitCursor );
+      contr->initProfet();
+      if(contr->getProfetController()) {
+        profetGUI = new DianaProfetGUI(*contr->getProfetController(),
+            paintToolBar, contr->getAreaManager(), this);
+        contr->setProfetGUI(profetGUI);
+        QApplication::restoreOverrideCursor();
+      }else{
+        cerr << "Failed to init ProfetController"<< endl;
+        QApplication::restoreOverrideCursor();
+        return false;
+      }
+      if(!w->Glw() || !tslider){
+        cerr << "Profet signals not connected due to null-pointer"<< endl;
+        return false;
+      }
+      connect(w->Glw(), SIGNAL(gridAreaChanged()),
+        profetGUI, SLOT(gridAreaChanged()));
+      connect(profetGUI, SIGNAL(toggleProfetGui()),
+          this,SLOT(toggleProfetGUI()));
+      connect(profetGUI, SIGNAL(setPaintMode(bool)), 
+          this, SLOT(setPaintMode(bool)));
+      connect(profetGUI, SIGNAL(showProfetField(miString)), 
+          fm, SLOT(addField(miString)));
+      connect( profetGUI, SIGNAL(repaintMap(bool)), 
+          SLOT(plotProfetMap(bool)));
+      connect( profetGUI, SIGNAL(setTime(const miTime&)), 
+         tslider,SLOT(setTime(const miTime&)));
+      return true;
+    }else {
+      profetLoginError->showMessage(tr("Profet Login Failed"));
+    }
   }
-  profetGUI = new DianaProfetGUI(*contr->getProfetController(),
-      paintToolBar, contr->getAreaManager(), this);
-  contr->setProfetGUI(profetGUI);
-  if(!w->Glw() || !tslider){
-    cerr << "Profet signals not connected due to null-pointer"<< endl;
-    return false;
-  }
-  connect(w->Glw(), SIGNAL(gridAreaChanged()),
-    profetGUI, SLOT(gridAreaChanged()));
-  connect(profetGUI, SIGNAL(toggleProfetGui()),
-      this,SLOT(toggleProfetGUI()));
-  connect(profetGUI, SIGNAL(setPaintMode(bool)), 
-      this, SLOT(setPaintMode(bool)));
-  connect(profetGUI, SIGNAL(showProfetField(miString)), 
-      fm, SLOT(addField(miString)));
-  connect( profetGUI, SIGNAL(repaintMap(bool)), 
-      SLOT(plotProfetMap(bool)));
-  connect( profetGUI, SIGNAL(setTime(const miTime&)), 
-     tslider,SLOT(setTime(const miTime&)));
-  return true;
+  return false;
 }
 
 void DianaMainWindow::plotProfetMap(bool objectsOnly){
@@ -1610,10 +1627,9 @@ void DianaMainWindow::plotProfetMap(bool objectsOnly){
 }
 
 void DianaMainWindow::toggleProfetGUI(){
-  QApplication::setOverrideCursor( Qt::waitCursor );
   if(!profetGUI){
     bool inited = initProfet();
-    if(!inited) cerr << "DianaMainWindow: Profet NOT INIT! " << endl;
+    if(!inited) return;
   }
   bool turnOn = !(profetGUI->isVisible());
   toggleProfetGUIAction->setOn(turnOn);
@@ -1623,7 +1639,6 @@ void DianaMainWindow::toggleProfetGUI(){
   profetGUI->setVisible(turnOn);
   // Paint mode should not be possible when Profet is on
   togglePaintModeAction->setEnabled(!turnOn);
-  QApplication::restoreOverrideCursor();
 }
 
 void DianaMainWindow::objMenu()

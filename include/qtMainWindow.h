@@ -83,6 +83,7 @@ class miMessage;
 class StationPlot;
 class TextView;
 class QShortCut;
+class QErrorMessage;
 /**
 
   \brief Main application window
@@ -335,6 +336,8 @@ private:
   printOptions priop;
 
   QToolButton * infoB;
+  // Error dialog for profet login
+  QErrorMessage * profetLoginError;
 
   WorkArea          * w;
   QuickMenu         * qm;

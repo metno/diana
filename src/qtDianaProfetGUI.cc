@@ -88,7 +88,7 @@ void DianaProfetGUI::setSessionInfo(fetModel model, vector<fetParameter> paramet
       fetSession session){
   LOG4CXX_INFO(logger,"setSessionInfo");
   sessionDialog.setModel(model);
-  tableModel.initTable(session.progs(),parameters);
+  tableModel.initTable(session.times(),parameters);
 //  sessionDialog.initializeTable(parameters,session);
 }
 

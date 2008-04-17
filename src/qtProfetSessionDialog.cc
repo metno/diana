@@ -192,7 +192,7 @@ void ProfetSessionDialog::setModel(const fetModel & model){
 
 void ProfetSessionDialog::initializeTable(  const vector<fetParameter> & p,
     const fetSession & s){
-  miString o= s.session().format("%k:00 %A %e.%b");
+  miString o= s.approvedtime().format("%k:00 %A %e.%b");
   sessionLabel->setText(o.cStr());
   if(table){
 //    table->initialize(p,s.progs());
