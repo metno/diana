@@ -28,28 +28,26 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qcombobox.h>
-#include <q3listbox.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qradiobutton.h>
-#include <qcheckbox.h>
-#include <qlayout.h>
-#include <qmessagebox.h>
-#include <qtabwidget.h>
-#include <q3vbox.h>
+#include <QComboBox>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QLabel>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QCheckBox>
+#include <QMessageBox>
+#include <QTabWidget>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QPixmap>
+#include <QFrame>
+#include <QVBoxLayout>
 
 #include <qtEditNewDialog.h>
 #include <qtUtility.h>
 #include <qtEditDefineField.h>
 #include <qtTimeSpinbox.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <QPixmap>
-#include <Q3Frame>
-#include <Q3VBoxLayout>
+
 
 #include <miString.h>
 #include <iostream>
@@ -88,15 +86,15 @@ void EditNewDialog::ConstructorCernel(){
 
   first= true;
 
-  Q3Frame* pframe= new Q3Frame(this);
-  pframe->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
+  QFrame* pframe= new QFrame(this);
+  pframe->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
-  prodlabel= new QLabel( tr("Product type:"), pframe );
+  QLabel* prodlabel= new QLabel( tr("Product type:"), pframe );
   prodbox= new QComboBox(pframe);
   prodbox->setEnabled(false);
   connect(prodbox, SIGNAL(activated(int)), SLOT(prodBox(int)));
 
-  idlabel= new QLabel( tr("Product Id:"), pframe );
+  QLabel* idlabel= new QLabel( tr("Product Id:"), pframe );
   idbox= new QComboBox(pframe);
   idbox->setEnabled(false);
   connect(idbox, SIGNAL(activated(int)), SLOT(idBox(int)));
@@ -114,7 +112,7 @@ void EditNewDialog::ConstructorCernel(){
   killb->setEnabled(false);
   connect(killb, SIGNAL(clicked()),  SLOT(kill_clicked()) );
 
-  Q3GridLayout* gridlayout = new Q3GridLayout( pframe, 4,3,5,5 );
+  QGridLayout* gridlayout = new QGridLayout( pframe, 4,3,5,5 );
   
   gridlayout->addWidget( prodlabel,0,0 );
   gridlayout->addWidget( prodbox,0,1 );
@@ -129,14 +127,12 @@ void EditNewDialog::ConstructorCernel(){
   twd = new QTabWidget( this );
 
   // NORMAL-TAB -------------------------------------------------
-  normaltab = new Q3Frame(twd,"normaltab");
-  normaltab->setFrameStyle( Q3Frame::NoFrame | Q3Frame::Plain );
-  Q3VBoxLayout* normallayout = new Q3VBoxLayout(normaltab,
-					      5, 5, "normallayout" );
+  QWidget* normaltab = new QWidget(twd);
 
-  normallabel= new QLabel( tr("Make product from:"), normaltab );
-  Q3GridLayout* fieldlayout = new Q3GridLayout(3,2,-1,"fieldlayout");
+  QVBoxLayout* normallayout = new QVBoxLayout(normaltab);
 
+  QLabel* normallabel= new QLabel( tr("Make product from:"), normaltab );
+  QGridLayout* fieldlayout = new QGridLayout(3,2);
   for (int i=0; i<maxelements; i++){
     ebut[i]= new QPushButton(tr("Objects"),normaltab);
     elab[i]= new QLabel((i==0 ? tr("No startobjects"):tr("Field undefined")),normaltab);
@@ -152,12 +148,12 @@ void EditNewDialog::ConstructorCernel(){
 
   // time widgets
   QLabel* timelabel= TitleLabel(tr("Product validity time:"), normaltab );
-  Q3HBoxLayout* h7layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h7layout = new QHBoxLayout();
   h7layout->addWidget(timelabel,0,Qt::AlignHCenter);
   
   timespin= new TimeSpinbox(false, normaltab);
   connect(timespin, SIGNAL(valueChanged(int)), SLOT(prodtimechanged(int)));
-  Q3HBoxLayout* h2layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
   h2layout->addWidget(timespin,0,Qt::AlignHCenter);
 
   normallayout->addWidget(normallabel);
@@ -169,33 +165,33 @@ void EditNewDialog::ConstructorCernel(){
   twd->addTab( normaltab, TABNAME_NORMAL );
 
   // COMBINE-TAB -------------------------------------------------
-  combinetab = new Q3Frame(twd, "combinetab");
-  combinetab->setFrameStyle( Q3Frame::NoFrame | Q3Frame::Plain );
-  Q3VBoxLayout* combinelayout = new Q3VBoxLayout(combinetab,
-					       5, 5, "combinelayout");
+
+  combinetab = new QWidget(twd);
+
+  QVBoxLayout* combinelayout = new QVBoxLayout(combinetab);
   
-  //combinelabel= TitleLabel( "Kombinér produkter for tid:", combinetab );
-  combinelabel= TitleLabel(tr("Combine products valid at:"), combinetab );
+  QLabel* combinelabel= TitleLabel(tr("Combine products valid at:"), combinetab );
   combinelabel->setEnabled(false);
-  cBox=new Q3ListBox(combinetab);
+  cBox=new QListWidget(combinetab);
   cBox->setEnabled(false);
   cBox->setMinimumHeight(100);
-  connect(cBox, SIGNAL(highlighted(int)), SLOT(combineSelect(int)));
+  connect(cBox, SIGNAL(itemClicked ( QListWidgetItem * ) ),
+	  SLOT(combineSelect(QListWidgetItem * ) ));
 
   QLabel* ctimelabel= TitleLabel(tr("Product validity time"), combinetab );
-  Q3HBoxLayout* h5layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h5layout = new QHBoxLayout( 5 );
   h5layout->addWidget(ctimelabel,0,Qt::AlignHCenter);
 
   cselectlabel= new QLabel(tr("Time undefined"), combinetab );
-  Q3HBoxLayout* h3layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h3layout = new QHBoxLayout( 5 );
   h3layout->addWidget(cselectlabel,0,Qt::AlignHCenter);
 
   QLabel* cpid1label= TitleLabel( tr("Product Ids to combine:"),combinetab );
-  Q3HBoxLayout* h6layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h6layout = new QHBoxLayout( 5 );
   h6layout->addWidget(cpid1label,0,Qt::AlignHCenter);
 
   cpid2label= new QLabel(tr("None"), combinetab );
-  Q3HBoxLayout* h4layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h4layout = new QHBoxLayout( 5 );
   h4layout->addWidget(cpid2label,0,Qt::AlignHCenter);
 
 
@@ -209,14 +205,13 @@ void EditNewDialog::ConstructorCernel(){
 
   twd->addTab( combinetab, tr("Combine") );
   
-  //twd->setEnabled(false); // initially disabled
   connect( twd, SIGNAL(selected( const QString& )),
 	   SLOT( tabSelected( const QString& ) ));
   
   // TAB-setup ended
 
   // lower buttons
-  Q3HBoxLayout* hlayout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout = new QHBoxLayout( 5 );
   ok= NormalPushButton( tr("OK"), this);
 
   help = NormalPushButton(tr("Help"), this );
@@ -230,7 +225,7 @@ void EditNewDialog::ConstructorCernel(){
   connect( cancel, SIGNAL(clicked()), SLOT(cancel_clicked()) );
   
   // major layout
-  Q3VBoxLayout* vlayout = new Q3VBoxLayout( this, 5, 5 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5 );
 
   vlayout->addWidget( pframe );
   vlayout->addSpacing(10);
@@ -270,9 +265,10 @@ void EditNewDialog::tabSelected(const QString& name)
   checkStatus();
 }
 
-void EditNewDialog::combineSelect(int idx)
+void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
-  miString s= cBox->text(idx).latin1();
+  int idx = cBox->row(item);
+  miString s= cBox->item(idx)->text().latin1();
   //cerr << "EditNewDialog::Combineselect:" << s << endl;
   if (miTime::isValid(s)){
     combinetime= miTime(s);
@@ -313,7 +309,6 @@ bool EditNewDialog::checkStatus()
     && (!pid.sendable || dbi.loggedin)
     && (!pid.sendable || productfree);
     
-  normallabel->setEnabled(enable);
   for (int i=0; i<maxelements; i++){
     ebut[i]->setEnabled(enable);
   }
@@ -323,7 +318,6 @@ bool EditNewDialog::checkStatus()
     && (currprod>=0)
     && (!pid.sendable || dbi.loggedin)
     && (!pid.sendable || productfree);
-  combinelabel->setEnabled(enable);
   cBox->setEnabled(enable);
 
   // then check if ok to start
@@ -565,7 +559,6 @@ void EditNewDialog::handleObjectButton(int num)
   if( m_editm ){
     
     EditDefineFieldDialog edf(this,m_ctrl,-1,products[currprod]);
-    connect(&edf, SIGNAL(EditDefineHelp()), SLOT(help_clicked()));
     if (!edf.exec()) return;
   
     if (edf.productSelected()){
@@ -584,7 +577,6 @@ void EditNewDialog::handleFieldButton(int num)
 {
   if( m_editm ){    
     EditDefineFieldDialog edf(this,m_ctrl, num, products[currprod]);
-    connect(&edf, SIGNAL(EditDefineHelp()), SLOT(help_clicked()));
     if (!edf.exec()) return;
     
     miString s;
@@ -650,10 +642,10 @@ bool EditNewDialog::load_combine(){
     if (n>0) {
       for (int i=0; i<n; i++){
 	miString tstr= vt[i].isoTime();
-	cBox->insertItem(QString(tstr.cStr()));
+	cBox->addItem(QString(tstr.cStr()));
 	if (combinetime ==vt[i]) index=i; //selected time  
       }
-      cBox->setCurrentItem(index);
+      cBox->setCurrentRow(index);
     } else {
       cerr << "EditNewDialog::load - no analyses found"<<endl;
       checkStatus();
@@ -742,7 +734,7 @@ void EditNewDialog::setLoginLabel()
     if (i>0) ltext= dbi.host.substr(0, i);
     else ltext= dbi.host;
     ltext+= miString(" - ") + dbi.user;
-    loginlabel->setText(ltext.c_str());
+    loginlabel->setText(QString(ltext.c_str()));
   } else {
     loginlabel->setText("--------------");
   }

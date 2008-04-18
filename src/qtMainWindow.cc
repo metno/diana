@@ -54,6 +54,7 @@
 #include <qwindowsstyle.h>
 
 #include <QAction>
+#include <QShortcut>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDateTime>
@@ -324,9 +325,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showUffdaDialogAction->setToggleAction(true);
   connect( showUffdaDialogAction, SIGNAL( activated() ), SLOT( uffMenu() ) );
   // ----------------------------------------------------------------
-  uffdaAction = new QAction( tr("&Uffda Service"), this );
-  uffdaAction->setShortcutContext(Qt::ApplicationShortcut);
-  uffdaAction->setShortcut(Qt::CTRL+Qt::Key_X);
+  uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
   connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
 
@@ -471,28 +470,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 				 tr("Update observations"), this );
   connect( obsUpdateAction, SIGNAL( activated() ), SLOT(updateObs()));
 
-  // Browsin quick menus ===============================
-  // --------------------------------------------------------------------
-  leftBrowsingAction = new QAction( tr("Browsing quick menus"), this );
-  leftBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
-  leftBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Left);
-  connect( leftBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
-  // --------------------------------------------------------------------
-  rightBrowsingAction = new QAction( tr("Browsing quick menus"), this );
-  rightBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
-  rightBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Right);
-  connect( rightBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
-  // --------------------------------------------------------------------
-  upBrowsingAction = new QAction( tr("Browsing quick menus"), this );
-  upBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
-  upBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Up);
-  connect( upBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
-  // --------------------------------------------------------------------
-  downBrowsingAction = new QAction( tr("Browsing quick menus"), this );
-  downBrowsingAction->setShortcutContext(Qt::ApplicationShortcut);
-  downBrowsingAction->setShortcut(Qt::ALT+Qt::Key_Down);
-  connect( downBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
-
   // edit  ===============================
   // --------------------------------------------------------------------
   undoAction = new QAction(this);
@@ -513,6 +490,17 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(saveAction, SIGNAL( activated() ), SLOT(save()));
   addAction( saveAction );
   // --------------------------------------------------------------------
+
+  // Browsing quick menus ===============================
+  // --------------------------------------------------------------------
+  leftBrowsingAction = new QShortcut( Qt::ALT+Qt::Key_Left,this );
+  connect( leftBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
+  rightBrowsingAction = new QShortcut( Qt::ALT+Qt::Key_Right,this );
+  connect( rightBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
+  upBrowsingAction = new QShortcut( Qt::ALT+Qt::Key_Up,this );
+  connect( upBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
+  downBrowsingAction = new QShortcut( Qt::ALT+Qt::Key_Down,this );
+  connect( downBrowsingAction, SIGNAL( activated() ), SLOT( startBrowsing()));
 
   /*
     ----------------------------------------------------------

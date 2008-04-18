@@ -30,54 +30,56 @@
 */
 
 #include <qtLoginDialog.h>
-//Added by qt3to4:
-#include <Q3GridLayout>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+
+#include <QPushButton>
+#include <QLineEdit>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QLabel>
-#include <Q3Frame>
+#include <QFrame>
 
 
 LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
   : QDialog( parent, "login", true ), dbi(d)
 {
 
-  top_vlayout = new Q3VBoxLayout(this, 10, 10, "top_vlayout");
+  QVBoxLayout* top_vlayout = new QVBoxLayout(this);
 
-  ff = new Q3Frame( this, "loginframe" );
-  ff->setFrameStyle( Q3Frame::Sunken | Q3Frame::Panel );
+  QFrame* ff = new QFrame( this, "loginframe" );
+  ff->setFrameStyle( QFrame::Sunken | QFrame::Panel );
   ff->setLineWidth( 1 );
-  top_vlayout->addWidget( ff, 1 );
+  top_vlayout->addWidget( ff);
 
-  f_vlayout=  new Q3VBoxLayout(ff, 10, 10, "f_vlayout");
+  QVBoxLayout* f_vlayout=  new QVBoxLayout(ff);
 
    // Create a layout manager for the label
-  h_hlayout = new Q3HBoxLayout(20, "h_hlayout");
+  QHBoxLayout* h_hlayout = new QHBoxLayout(20, "h_hlayout");
   QLabel* label= new QLabel(tr("Diana db login"), ff,"label");
-  label->setFrameStyle( Q3Frame::Panel | Q3Frame::Raised );
+  label->setFrameStyle( QFrame::Panel | QFrame::Raised );
   label->setFont(QFont( "Helvetica", 14, QFont::Normal, true ));
   label->setPalette( QPalette( QColor(255, 89, 0) ) );
-  h_hlayout->addWidget(label,0);
-  f_vlayout->addLayout(h_hlayout, 0);
+  h_hlayout->addWidget(label);
+  f_vlayout->addLayout(h_hlayout);
 
-  Q3GridLayout* glayout = new Q3GridLayout(3,2,5,"loglayout");
+  QGridLayout* glayout = new QGridLayout(3,2);
   
   int startwidget= 0;
-  QLabel* server= new QLabel(tr("Database server:"), ff,"server"); 
-  QLabel* name= new QLabel(tr("Username:"), ff,"name"); 
-  QLabel* pwd= new QLabel(tr("Password:"), ff,"pwd");
+  QLabel* server= new QLabel(tr("Database server:"), ff); 
+  QLabel* name= new QLabel(tr("Username:"), ff); 
+  QLabel* pwd= new QLabel(tr("Password:"), ff);
   dbserver  = new QLineEdit(ff,"dbserver");
   dbserver->setMinimumWidth(200);
   if (dbi.host.length()>0){
     dbserver->setText(dbi.host.c_str());
     startwidget=1;
   }
-  username  = new QLineEdit(ff,"username");
+  username  = new QLineEdit(ff);
   if (dbi.user.length()>0){
     username->setText(dbi.user.c_str());
     startwidget= 2;
   }
-  passwd  = new QLineEdit(ff,"passwd");
+  passwd  = new QLineEdit(ff);
   passwd->setEchoMode(QLineEdit::Password);
 
   glayout->addWidget(server, 1,1);
@@ -95,11 +97,11 @@ LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
   connect(quitb, SIGNAL(clicked()), SLOT(reject()));
 
   // buttons layout
-  b_hlayout = new Q3HBoxLayout(20, "b_hlayout");
-  b_hlayout->addWidget(okb, 10);
-  b_hlayout->addWidget(quitb, 10);
+  QHBoxLayout* b_hlayout = new QHBoxLayout();
+  b_hlayout->addWidget(okb);
+  b_hlayout->addWidget(quitb);
 
-  f_vlayout->addLayout(b_hlayout,0);
+  f_vlayout->addLayout(b_hlayout);
 
   // Start the geometry management
   f_vlayout->activate();
@@ -124,3 +126,11 @@ editDBinfo LoginDialog::getDbInfo()
   dbi.pass= passwd->text().latin1();
   return dbi;
 }
+
+
+
+
+
+
+
+

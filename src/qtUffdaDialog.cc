@@ -28,24 +28,19 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qapplication.h>
-#include <qdialog.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <q3listbox.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qmessagebox.h> 
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QPushButton>
+#include <QLabel>
+#include <QMessageBox> 
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <fstream>
 #include <qtUtility.h>
 #include <qtUffdaDialog.h>
 #include <diStationPlot.h>
-
-#define WIDTHLISTBOX 500
-#define HEIGHTLISTBOX 100
 
 /***************************************************************************/
 
@@ -60,20 +55,13 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   setCaption(tr("Uffda"));
     
   //********** the list of satellites to choose from **************
-  satlist = new Q3ListBox( this );
-  satlist->setMinimumHeight(HEIGHTLISTBOX);
-  satlist->setMinimumWidth(WIDTHLISTBOX);
+  satlist = new QListWidget( this );
 
-  connect( satlist, SIGNAL( selectionChanged( ) ), 
-  SLOT( satlistSlot() ) );
-  connect( satlist, SIGNAL( clicked(Q3ListBoxItem*) ), 
-  SLOT( satlistSlot() ) );
+  connect( satlist, SIGNAL( itemClicked(QListWidgetItem* ) ), 
+  SLOT( satlistSlot(QListWidgetItem*) ) );
 
   //********** the list of classes to choose from **************
-  classlist = new Q3ListBox( this );
-  classlist->setMinimumHeight(HEIGHTLISTBOX);
-  classlist->setMinimumWidth(WIDTHLISTBOX);
-
+  classlist = new QListWidget( this );
 
   vector <miString> vUffdaClass;
   vector <miString> vUffdaClassTip;
@@ -82,13 +70,11 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   int n=vUffdaClass.size();
   int m=vUffdaClassTip.size();
   for (int i=0;i<n;i++){
-    classlist->insertItem(vUffdaClass[i].c_str());
+    classlist->addItem(QString(vUffdaClass[i].c_str()));
   }
 
-  connect( classlist, SIGNAL(selectionChanged( ) ), 
-	   SLOT( classlistSlot( ) ) );  
-  connect( classlist, SIGNAL(clicked(Q3ListBoxItem*) ),  
-	   SLOT( classlistSlot( ) ) );  
+  connect( classlist, SIGNAL( itemClicked(QListWidgetItem* ) ), 
+  SLOT( classlistSlot(QListWidgetItem*) ) );
 
   // qt4 fix: new routine to make ToolTip
   //t=new DynamicTip(classlist,vUffdaClassTip);
@@ -96,13 +82,12 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
   //****  the box (with label) showing which positions have been choosen ****
       posLabel = TitleLabel( tr("Selected positions"), this);
-  poslist = new Q3ListBox( this );
-  poslist->setMinimumHeight(HEIGHTLISTBOX);
-  poslist->setMinimumWidth(WIDTHLISTBOX);
-  connect(poslist, SIGNAL(selectionChanged() ), 
-	  SLOT( poslistSlot( ) ) );  
+  poslist = new QListWidget( this );
+//   poslist->setMinimumHeight(HEIGHTLISTBOX);
+//   poslist->setMinimumWidth(WIDTHLISTBOX);
+  connect( poslist, SIGNAL( itemClicked(QListWidgetItem* ) ), 
+  SLOT( poslistSlot(QListWidgetItem*) ) );
 
-  posIndex=-1;
   satIndex=-1;
   classIndex=-1;
 
@@ -128,14 +113,14 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
 // ********************* place all the widgets in layouts ****************
 
-  v3layout = new Q3VBoxLayout( 5 );
+  QVBoxLayout* v3layout = new QVBoxLayout();
   v3layout->addWidget(satlist );
   v3layout->addWidget(classlist,3 );
   v3layout->addWidget(posLabel );
   v3layout->addWidget(poslist,2 );
 
 
-  h1layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h1layout = new QHBoxLayout();
   h1layout->addWidget( Deleteb );
   h1layout->addWidget( DeleteAllb );
 
@@ -146,7 +131,7 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
 
   //now create a vertical layout to put all the other layouts in
-  vlayout = new Q3VBoxLayout( this,  5, 5);                            
+  QVBoxLayout* vlayout = new QVBoxLayout( this);                            
   vlayout->addLayout( v3layout ); 
   vlayout->addLayout( h1layout );
   //stationplotpointer
@@ -161,27 +146,27 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 }
 
 /***************************************************************************/
-void UffdaDialog::classlistSlot(){
+void UffdaDialog::classlistSlot(QListWidgetItem*){
   //called when an uffda class is selected
 #ifdef dUffdaDlg 
     cerr<<"UffdaDialog::classlistSlot called"<<endl;
 #endif 
+    int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
-    classIndex=classlist->currentItem();
-    QString satclass = classlist->text(classIndex);
+    QString satclass = classlist->currentItem()->text();
     v_uffda[posIndex].satclass=satclass;
     updatePoslist(v_uffda[posIndex],posIndex,false);
 }
 
 /***************************************************************************/
-void UffdaDialog::satlistSlot(){
+void UffdaDialog::satlistSlot(QListWidgetItem* item){
   //called when a satellite is selected
 #ifdef dUffdaDlg 
     cerr<<"UffdaDialog::satlistSlot called"<<endl;
 #endif 
+    int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
-    satIndex=satlist->currentItem();
-    QString sattime = satlist->text(satIndex);
+    QString sattime = satlist->currentItem()->text();
     v_uffda[posIndex].sattime=sattime;
     updatePoslist(v_uffda[posIndex],posIndex,false);
 }
@@ -189,12 +174,12 @@ void UffdaDialog::satlistSlot(){
 
 
 /***************************************************************************/
-void UffdaDialog::poslistSlot(){
+void UffdaDialog::poslistSlot(QListWidgetItem* item){
   //called when a satellite is selected
 #ifdef dUffdaDlg 
     cerr<<"UffdaDialog::poslistSlot called"<<endl;
 #endif 
-    posIndex=poslist->currentItem();
+    int posIndex=poslist->row(item);
     if (posIndex < 0) return;
     if (sp)
       sp->setSelectedStation(posIndex);
@@ -280,15 +265,16 @@ void UffdaDialog::DeleteClicked(){
     cerr<<"UffdaDialog::DeleteClicked called"<<endl;
 #endif 
     //clear uffda deque
+    int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
     v_uffda.erase(v_uffda.begin()+posIndex);
     //clear listbox
-    poslist->removeItem(posIndex);
+    poslist->takeItem(posIndex);
     //new stationPlot
     updateStationPlot();
     emit stationPlotChanged();
     posIndex--;
-    poslist->setCurrentItem(posIndex);
+    poslist->setCurrentRow(posIndex);
 }
 
 
@@ -312,7 +298,6 @@ void UffdaDialog::DeleteAllClicked(){
     sp->setName("uffda");
     m_ctrl->putStations(sp);
     emit stationPlotChanged();
-    posIndex=-1;
 }
 
 
@@ -364,23 +349,25 @@ void UffdaDialog::addPosition(float lat, float lon){
   ue.lon=lon;
 
   //index=satlist->currentItem();
-  if (satIndex > -1) sattime = satlist->text(satIndex);
+  if (satIndex > -1) sattime = satlist->item(satIndex)->text();
   //now get list of satellites available
   satlist->clear();
   vector <miString> satnames = m_ctrl->getSatnames();
   for (int i=0; i<satnames.size(); i++){
-    satlist->insertItem(satnames[i].c_str());
+    QString satname = QString(satnames[i].c_str());
+    satname=satname.simplifyWhiteSpace();
+    satlist->addItem(satname);
     if (satnames[i]==sattime.latin1()) currIndex=i;
   }
   if (currIndex>-1){
-    satlist->setCurrentItem(currIndex);
+    satlist->setCurrentRow(currIndex);
     ue.sattime=sattime;
   }
 
   //index=classlist->currentItem();
   if (classIndex > -1){
-    classlist->setCurrentItem(classIndex);
-    ue.satclass = classlist->text(classIndex);
+    classlist->setCurrentRow(classIndex);
+    ue.satclass = classlist->item(classIndex)->text();
   }
   updatePoslist(ue,0,true);
   v_uffda.push_front(ue);
@@ -418,10 +405,10 @@ void UffdaDialog::updatePoslist(uffdaElement &ue,int nr, bool newItem) {
   else
     ue.ok=false;
   if (newItem)
-    poslist->insertItem(uffStr,nr);
+    poslist->insertItem(0,uffStr);
   else
-    poslist->changeItem(uffStr,nr);
-  poslist->setCurrentItem(nr);
+    poslist->item(nr)->setText(uffStr);
+  poslist->setCurrentRow(nr);
 }
 
 /********************************************/
@@ -439,7 +426,7 @@ void UffdaDialog::updateStationPlot(){
   sp = new StationPlot(vname_uffda,vlon_uffda,vlat_uffda);
   sp->setName("uffda");
   m_ctrl->putStations(sp);
-  sp->setSelectedStation(posIndex);
+  sp->setSelectedStation(poslist->currentRow());
 }
 
 
@@ -458,7 +445,7 @@ void UffdaDialog::pointClicked(miString uffstation){
    int n= v_uffda.size();
    for (int i=0;i<n;i++){  
      if (v_uffda[i].posstring.latin1()== uffstation){
-       poslist->setCurrentItem(i);
+       poslist->setCurrentRow(i);
       return;
     }
   }  
@@ -471,7 +458,7 @@ miString UffdaDialog::getUffdaString(){
   int n= poslist->count();
   for (int i=0;i<n;i++){  
     if (i<v_uffda.size() && v_uffda[i].ok)
-      uffstr+= poslist->text(i).latin1() + miString("\n");
+      uffstr+= poslist->item(i)->text().latin1() + miString("\n");
   }  
   return uffstr;
 }

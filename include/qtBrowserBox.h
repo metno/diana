@@ -31,13 +31,12 @@
 #ifndef _qtBrowserBox_h
 #define _qtBrowserBox_h
 
-#include <qdialog.h>
-#include <q3frame.h>
-#include <qlabel.h>
-#include <qlayout.h>
-//Added by qt3to4:
-#include <QKeyEvent>
+#include <QDialog>
+
 #include <miString.h>
+
+class QLabel;
+  class QKeyEvent;
 
 using namespace std; 
 
@@ -52,7 +51,6 @@ using namespace std;
 class BrowserBox : public QDialog {
   Q_OBJECT
 private:
-  Q3Frame* frame;
   QLabel* listname;
   QLabel* label;
   QLabel* numlabel;

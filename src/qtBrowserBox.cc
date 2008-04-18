@@ -29,11 +29,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtBrowserBox.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QLabel>
-#include <Q3Frame>
+#include <QFrame>
 #include <QKeyEvent>
 
 
@@ -42,28 +41,24 @@ BrowserBox::BrowserBox(QWidget* parent)
 	    Qt::WStyle_Customize | Qt::WStyle_NoBorder)
   //	    WStyle_Customize | WStyle_NoBorderEx) | Qt::WX11BypassWM
 {
-  Q3HBoxLayout* b= new Q3HBoxLayout(this, 10, 10, "top_hlayout");
+  QHBoxLayout* b= new QHBoxLayout(this);
 
-  frame= new Q3Frame(this);
-  frame->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
-  //frame->setPalette( QPalette( QColor(255, 255, 255) ) );
+  QFrame* frame= new QFrame(this);
+  frame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
-  Q3VBoxLayout* vb= new Q3VBoxLayout(frame, 10, 10, "vlayout");
+  QVBoxLayout* vb= new QVBoxLayout(frame);
   listname= new QLabel("",frame);
   listname->setAlignment(Qt::AlignCenter);
-  listname->setFrameStyle(Q3Frame::Panel | Q3Frame::Raised);
-  //listname->setPalette( QPalette( QColor(175, 175, 175) ) );
-  vb->addWidget(listname,0);
+  listname->setFrameStyle(QFrame::Panel | QFrame::Raised);
+  vb->addWidget(listname);
 
-  Q3HBoxLayout* hb= new Q3HBoxLayout();
   numlabel= new QLabel("99",frame);
   label= new QLabel("",frame);
   label->setAlignment(Qt::AlignCenter);
 
-  hb->addWidget(numlabel,0);
-  hb->addWidget(label,1);
+  vb->addWidget(numlabel);
+  vb->addWidget(label);
   
-  vb->addLayout(hb,1);
   vb->activate();
 
   b->addWidget(frame);
@@ -80,12 +75,6 @@ void BrowserBox::upDate(const miString& name,
   listname->setText(caption.cStr());
   numlabel->setNum(num+1);
   label->setText(item.cStr());
-  
-  QRect r= geometry();
-  QRect pr= parentWidget()->geometry();
-  move(pr.x()+(pr.width()-r.width())/2,pr.y()+(pr.height()-r.height())/2);
-  //setActiveWindow();
-  //setFocus();
 }
 
 void BrowserBox::keyPressEvent(QKeyEvent *me)
@@ -119,4 +108,6 @@ void BrowserBox::keyReleaseEvent(QKeyEvent *me)
     break;
   }
 }
+
+
 

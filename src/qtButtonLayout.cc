@@ -30,10 +30,9 @@
 */
 #include <qtButtonLayout.h>
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3GridLayout>
+#include <QGridLayout>
 #include <stdio.h>
-#include <q3buttongroup.h>
+#include <QButtonGroup>
 #include <iostream>
 #include <qtooltip.h>
 
@@ -48,17 +47,12 @@ ButtonLayout::ButtonLayout( QWidget* parent,
  buttonList  =  buttons;
  int nr_buttons = buttonList.size();
  
- currentButton = -1;
-
- extraPalette = QPalette( QColor( 100,150,150),  QColor( 100,150,150));
-
-  
 // number of lines of buttons
   int nr_lines = nr_buttons/nr_col;
   if( nr_buttons % nr_col )
     nr_lines++;  
  
-  bgroup = new Q3ButtonGroup( this );
+  bgroup = new QButtonGroup( this );
   b      = new ToggleButton*[nr_buttons];
   buttonOn.insert(buttonOn.end(),nr_buttons,false);
   buttonRightOn.insert(buttonRightOn.end(),nr_buttons,false);
@@ -67,18 +61,19 @@ ButtonLayout::ButtonLayout( QWidget* parent,
     b[i] = new ToggleButton( this, buttonList[i].name.c_str());
     connect( b[i], SIGNAL(rightButtonClicked(ToggleButton*)), 
 	     SLOT(rightButtonClicked(ToggleButton* ))  );
-    bgroup->insert( b[i] );
+    bgroup->addButton( b[i] ,i);
     if(!buttonList[i].tooltip.empty())
       QToolTip::add( b[i], buttonList[i].tooltip.c_str());
   }
     
+  bgroup->setExclusive(false);
   for( int i=0; i< nr_buttons; i++ ){
     b[i]->setToggleButton ( TRUE );
   }
 
-  bgroup->hide();
+  //  bgroup->hide();
   
-  Q3GridLayout *layoutgrid = new Q3GridLayout(this, nr_lines, nr_col); 
+  QGridLayout *layoutgrid = new QGridLayout(this, nr_lines, nr_col); 
   for( int k=0; k<nr_lines; k++){ 
     for( int i=0; i<nr_col;i++ ){
       int index = i + k*nr_col;
@@ -88,7 +83,7 @@ ButtonLayout::ButtonLayout( QWidget* parent,
     }
   }
 
-  connect( bgroup, SIGNAL(clicked(int)), SLOT(groupClicked( int ))  );
+  connect( bgroup, SIGNAL(buttonClicked(int)), SLOT(groupClicked(int))  );
 
 }
 
@@ -151,7 +146,6 @@ void ButtonLayout::NONEClicked(){
   for( int k=0; k< nr_buttons; k++ ){
     b[k]->setOn( FALSE );
     buttonOn[k]=false;
-    currentButton = -1;
   }
 }
 
@@ -283,16 +277,13 @@ void ButtonLayout::groupClicked( int id )
 // This function is called when a button is clicked
 {
 
-  int oldbi= currentButton;
-  currentButton=id;
-  
-  if(b[currentButton]->isOn() ){
-    buttonOn[currentButton]=true;
-    emit inGroupClicked( currentButton );
+  if(b[id]->isOn() ){
+    buttonOn[id]=true;
+    emit inGroupClicked( id );
   }
   else{
-    buttonOn[currentButton]=false;
-    emit outGroupClicked( currentButton );
+    buttonOn[id]=false;
+    emit outGroupClicked( id );
   }
   
   return;

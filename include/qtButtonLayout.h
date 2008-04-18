@@ -34,9 +34,10 @@
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
-#include <q3buttongroup.h>
+#include <qbuttongroup.h>
 #include <qpalette.h>
 #include <miString.h>
+
 #include <diCommonTypes.h>
 #include <qtToggleButton.h>
 #include <vector>
@@ -74,7 +75,7 @@ public:
   void DEFAULTClicked();
 
 private slots:
- void groupClicked( int id );
+ void groupClicked( int );
  void rightButtonClicked(ToggleButton* butto);
 
 signals:
@@ -88,12 +89,10 @@ private:
   void setButton( int tt );
 
   ToggleButton** b;
-  Q3ButtonGroup* bgroup;
-  QPalette extraPalette;
+  QButtonGroup* bgroup;
 
   vector<bool> buttonOn;
   vector<bool> buttonRightOn;
-  int currentButton; //the selected button
   vector<ObsDialogInfo::Button> buttonList;
 
 };

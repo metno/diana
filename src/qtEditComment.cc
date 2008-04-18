@@ -35,17 +35,15 @@
   August 2001, two windows 
 */
 
-#include <fstream>
-#include <qapplication.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qsplitter.h>
-#include <qtEditComment.h>
 //Added by qt3to4:
-#include <Q3VBoxLayout>
+#include <QVBoxLayout>
+#include <QSplitter>
+#include <QString>
+#include <QTextEdit>
+
+#include <fstream>
+#include <qtEditComment.h>
 #include <miString.h>
-#include <qstring.h>
-#include <q3multilineedit.h>
 #include <qtToggleButton.h>
 #include <iostream>
 #include <diController.h>
@@ -76,13 +74,13 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     setCaption(tr("Comments-editing"));
     split = new QSplitter(Qt::Vertical,this);
     split->setGeometry(10,10,460,380);
-    mEdit = new Q3MultiLineEdit(split);
-    mEdit2 = new Q3MultiLineEdit(split);
+    mEdit = new QTextEdit(split);
+    mEdit2 = new QTextEdit(split);
     mEdit2->hide();
     showOld = new ToggleButton(this,tr("Show previous comments").latin1());
     showOld->setOn(false);
     connect(showOld, SIGNAL( toggled(bool)),SLOT( showOldToggled( bool ) ));
-    Q3VBoxLayout * vlayout = new Q3VBoxLayout( this);
+    QVBoxLayout * vlayout = new QVBoxLayout( this);
     vlayout->addWidget(split);
     vlayout->addWidget(showOld);
   }
@@ -91,7 +89,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     setMinimumSize(480,400);
     setMaximumSize(480,400);
     setCaption(tr("Comments"));
-    mEdit2 = new Q3MultiLineEdit(this);
+    mEdit2 = new QTextEdit(this);
     mEdit2->setGeometry(10,10,460,380);
   }
 
@@ -109,10 +107,10 @@ void EditComment::startComment()
   mEdit->clear();
   miString comments = m_objm->getComments();
   mEdit->setText(comments.c_str());
-  mEdit->insertLine("\n");
-  int n = mEdit->numLines();
-  mEdit->setCursorPosition(n,0);
-  mEdit->setEdited(false);
+//   mEdit->insertLine("\n");
+//   int n = mEdit->numLines();
+//   mEdit->setCursorPosition(n,0);
+  mEdit->setWindowModified(false);
   inComment = true;
   if (showOld->isOn()) readComment();
 }
@@ -125,9 +123,9 @@ void EditComment::readComment()
   mEdit2->clear();
   miString comments = m_objm->readComments(inEditSession);
   mEdit2->setText(comments.c_str());
-  mEdit2->insertLine("\n");
-  int n = mEdit2->numLines();
-  mEdit2->setCursorPosition(n,0);
+//   mEdit2->insertLine("\n");
+//   int n = mEdit2->numLines();
+//   mEdit2->setCursorPosition(n,0);
   mEdit2->setReadOnly(true);
 }
 
@@ -135,11 +133,11 @@ void EditComment::readComment()
 
 void EditComment::saveComment()
 {
-  if (inComment && mEdit->edited()){
+  if (inComment && mEdit->isWindowModified()){
     miString comments = miString(mEdit->text().latin1());
     //put comments into plotm->editobjects->comments;
     m_objm->putComments(comments);
-    mEdit->setEdited(false);
+    mEdit->setWindowModified(false);
   }
 }
 
@@ -147,7 +145,7 @@ void EditComment::saveComment()
 void EditComment::stopComment(){
   if (inEditSession){
     mEdit->clear();
-    mEdit->setEdited(false);
+    mEdit->setWindowModified(false);
   }
   mEdit2->clear();  
   inComment = false;

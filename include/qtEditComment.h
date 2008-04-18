@@ -31,13 +31,13 @@
 #ifndef _editComment_h
 #define _editComment_h
 
-#include <qdialog.h>
+#include <QDialog>
 #include <qsplitter.h>
 #include <miString.h>
 
 using namespace std; 
 
-class Q3MultiLineEdit;
+class QTextEdit;
 class ToggleButton;
 class Controller;
 class ObjectManager;
@@ -59,8 +59,8 @@ private:
   Controller*    m_ctrl;
   ObjectManager* m_objm;
 
-  Q3MultiLineEdit * mEdit;
-  Q3MultiLineEdit * mEdit2;
+  QTextEdit * mEdit;
+  QTextEdit * mEdit2;
   QSplitter *split;
   ToggleButton *showOld;
 

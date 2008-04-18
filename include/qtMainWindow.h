@@ -50,6 +50,7 @@ class QToolButton;
 class QMenu;
 class QLabel;
 class QAction;
+class QShortcut;
 class QPrinter;
 class QPushButton;
 class WorkArea;
@@ -279,7 +280,7 @@ private:
   QAction * showCrossSectionDialogAction;
   QAction * showWaveSpectrumDialogAction;
   QAction * showUffdaDialogAction;
-  QAction * uffdaAction;
+  QShortcut * uffdaAction;
 
   QAction * togglePaintModeAction;
   QAction * toggleProfetGUIAction;
@@ -311,10 +312,10 @@ private:
   QAction * redoAction;
   QAction * saveAction;
 
-  QAction * leftBrowsingAction;
-  QAction * rightBrowsingAction;
-  QAction * upBrowsingAction;
-  QAction * downBrowsingAction;
+  QShortcut * leftBrowsingAction;
+  QShortcut * rightBrowsingAction;
+  QShortcut * upBrowsingAction;
+  QShortcut * downBrowsingAction;
 
   QMenuBar   * mainmenubar;
 

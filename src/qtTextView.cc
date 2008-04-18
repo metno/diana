@@ -29,25 +29,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtTextView.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <q3vbox.h>
-#include <q3scrollview.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
+
+#include <QLabel>
+#include <QPushButton>
+#include <QTabWidget>
+#include <QScrollArea>
+#include <QVBoxLayout>
 
 TextWidget::TextWidget(QWidget* parent, const miString& text, int id_)
   : QWidget(parent)
 { 
   id = id_;
-  Q3ScrollView* scroll = new Q3ScrollView(this);
-  scroll->setResizePolicy(Q3ScrollView::AutoOneFit);
-  Q3VBox *box = new Q3VBox( scroll->viewport());
-  scroll->addChild( box );
-  // qt4 fix: sends QString as arg, not miString
-  label = new QLabel(QString(text.c_str()), box);
 
-  Q3VBoxLayout *vlayout = new Q3VBoxLayout( this, 5, 5);
+  label = new QLabel(QString(text.c_str()),this);
+  QScrollArea* scroll = new QScrollArea(this);
+  scroll->setWidget( label );
+
+  QVBoxLayout *vlayout = new QVBoxLayout( this, 5, 5);
   vlayout->addWidget( scroll );
 
 }
@@ -60,11 +58,14 @@ void TextWidget::setText(miString text)
 }
 
 TextView::TextView(QWidget* parent)
-  : Q3TabDialog(parent)
+  : QDialog(parent)
 { 
-  setDefaultButton(tr("Print"));
-  setOKButton(tr("Hide"));
-  connect( this,SIGNAL(defaultButtonPressed()), SLOT( printSlot() ));
+
+  tabwidget = new QTabWidget(this);
+  QPushButton* printButton = new QPushButton(tr("Print"),this);
+  connect( printButton,SIGNAL(clicked()), SLOT( printSlot() ));
+  QPushButton* hideButton = new QPushButton(tr("Hide"),this);
+  connect( hideButton,SIGNAL(clicked()), hideButton,SLOT( hide() ));
 
 }
 
@@ -74,7 +75,7 @@ void TextView::setText(int id, const miString& name,
   if(!idmap.count(id)){
     TextWidget* widget = new TextWidget(this,text,id);
     idmap[id]=widget;
-    addTab(widget,name.cStr());
+    tabwidget->addTab(widget,name.cStr());
   } else {
     idmap[id]->setText(text);
   }
@@ -84,7 +85,7 @@ void TextView::deleteTab(int id)
 {
 
   if(idmap.count(id)){
-    removePage(idmap[id]);
+    tabwidget->removePage(idmap[id]);
     idmap.erase(id);
   }
 
@@ -94,8 +95,8 @@ void TextView::deleteTab(int id)
 
 void TextView::printSlot()
 {
-  TextWidget* tw=(TextWidget*)currentPage();
-  emit printClicked(tw->id);
+  emit printClicked(tabwidget->currentIndex());
 }
+
 
 

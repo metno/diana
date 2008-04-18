@@ -31,8 +31,8 @@
 #ifndef _obsdialog_h
 #define _obsdialog_h
 
-#include <qdialog.h>
-#include <QLabel>
+#include <QDialog>
+
 #include <diController.h>
 #include <miString.h>
 
@@ -42,13 +42,14 @@ class QPushButton;
 class QLabel;
 class ToggleButton;
 class AdvancedButton;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QColor;
 class QLCDNumber;
 class QSlider;
 class QCheckBox;
 class QRadioButton;
-class Q3VButtonGroup;
+class QButtonGroup;
 class QLineEdit;
 class QStackedWidget;
 
@@ -96,7 +97,7 @@ private slots:
   void criteriaOn();
   void rightButtonClicked(miString);
   void criteriaListSelected(int);
-  void criteriaSelected(int);
+  void criteriaSelected(QListWidgetItem* );
   void signSlot(int);
   void sliderSlot(int);
   void stepSlot(int);
@@ -144,13 +145,13 @@ private:
   QWidget* extension;
   //  QLabel* parameterLabel;
   QComboBox* criteriaBox;
-  Q3ListBox* criteriaListbox;
+  QListWidget* criteriaListbox;
   miString parameter;
   QLCDNumber* limitLcd;
   QSlider* limitSlider;
   QComboBox* stepComboBox;
   QComboBox* signBox;
-  Q3VButtonGroup* radiogroup;
+  QButtonGroup* radiogroup;
   QRadioButton* plotButton;
   QRadioButton* colourButton;
   QRadioButton* totalColourButton;

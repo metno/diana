@@ -28,32 +28,22 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qcombobox.h>
-#include <q3listbox.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <q3frame.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-// qt4 fix
-//#include <qvbuttongroup.h>
-#include <qcheckbox.h>
-#include <qstring.h>
+#include <QComboBox>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QFont>
+#include <QLabel>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QString>
+#include <QToolTip>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
-#include <qtooltip.h>
-
-#include <qtListBoxRichtextItem.h>
 #include <qtUtility.h>
 #include <qtEditDefineField.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
 #include <diController.h>
 #include <diEditManager.h>
-
-// qt4 fix
-#include <Q3VButtonGroup>
-#include <Q3HButtonGroup>
 
 #include <iostream>
 
@@ -87,19 +77,17 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 	   SLOT( prodnameActivated(int) )  );
 
 
-  fBox= new Q3ListBox(this,"fieldlist");
-  fBox->setMinimumWidth(250);
-  fBox->setMinimumHeight(200);
+  fBox= new QListWidget(this);
 
-  connect(fBox, SIGNAL(selectionChanged()), SLOT(fieldselect()));
+  connect(fBox, SIGNAL(itemClicked(QListWidgetItem *)), 
+	  SLOT(fieldselect(QListWidgetItem *)));
 
 
-  QString xps= "<font color=\"red\">" +
-    tr("Official product") + " -- <i>" +
-    tr("Locally stored") + "</i></font>";
+  QString xps= tr("Official product") + " -- <i>" +
+    tr("Locally stored") ;
   QLabel* xplabel= new QLabel(xps, this);
 
-  Q3VBoxLayout* vlayout = new Q3VBoxLayout( this, 5, 5 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this);
 
   vlayout->addWidget( mainlabel );
   vlayout->addWidget( prodnamebox );
@@ -111,10 +99,10 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   vlayout->addWidget( xplabel );
   vlayout->addSpacing(10);
 
-  Q3Frame *line;
+  QFrame *line;
   // Create a horizontal frame line
-  line = new Q3Frame( this );
-  line->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  line = new QFrame( this );
+  line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
   vlayout->addWidget( line );
 
 
@@ -123,9 +111,9 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
       filesLabel = TitleLabel(tr("Selected objects"), this);
   else
     filesLabel = TitleLabel(tr("Selected fields"), this);
-  filenames = new Q3ListBox( this );
-  filenames->setMinimumHeight(80);
-  connect(filenames, SIGNAL(selectionChanged()), SLOT(filenameSlot()));
+  filenames = new QListWidget( this );
+  connect(filenames, SIGNAL(itemClicked( QListWidgetItem *)), 
+			    SLOT(filenameSlot(QListWidgetItem *)));
 
   vlayout->addWidget( filesLabel );
   vlayout->addWidget( filenames );
@@ -134,12 +122,10 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   if (num==-1){
     //*****  Checkboxes for selecting fronts/symbols/areas  **********
 
-    bgroupobjects= new Q3VButtonGroup(this);
-    
-    cbs0= new QCheckBox(tr("Fronts"), bgroupobjects);
-    cbs1= new QCheckBox(tr("Symbols"),bgroupobjects);
-    cbs2= new QCheckBox(tr("Areas"),  bgroupobjects);
-    cbs3= new QCheckBox(tr("Form"),   bgroupobjects);
+    cbs0= new QCheckBox(tr("Fronts"), this);
+    cbs1= new QCheckBox(tr("Symbols"),this);
+    cbs2= new QCheckBox(tr("Areas"),  this);
+    cbs3= new QCheckBox(tr("Form"),   this);
 
     connect(cbs0, SIGNAL(clicked()), SLOT(cbsClicked()));
     connect(cbs1, SIGNAL(clicked()), SLOT(cbsClicked()));
@@ -147,7 +133,10 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
     connect(cbs3, SIGNAL(clicked()), SLOT(cbsClicked()));
     initCbs();
 
-    vlayout->addWidget(bgroupobjects);
+    vlayout->addWidget(cbs0);
+    vlayout->addWidget(cbs1);
+    vlayout->addWidget(cbs2);
+    vlayout->addWidget(cbs3);
   }
 
 
@@ -160,29 +149,22 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() )); 
 
   //place  "delete" and "refresh" buttons in hor.layout
-  Q3HBoxLayout* h0layout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* h0layout = new QHBoxLayout();
   h0layout->addWidget( Delete );
   h0layout->addWidget( refresh );
 
-  Q3HBoxLayout* hlayout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* hlayout = new QHBoxLayout();
 
   ok= NormalPushButton( tr("OK"), this);
-  //HK ?? help button not too useful here, modal dialog
-  help = NormalPushButton( tr("Help"), this );
   QPushButton* cancel= NormalPushButton( tr("Cancel"), this);
   hlayout->addWidget( ok );
-  hlayout->addWidget( help );
   hlayout->addWidget( cancel );
   connect( ok, SIGNAL(clicked()),  SLOT(accept()) );
-  connect( help, SIGNAL(clicked()),  SLOT(help_clicked()) );  
   connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
   ok->setEnabled(false);
 
   vlayout->addLayout( h0layout );
   vlayout->addLayout( hlayout );
-
-  vlayout->activate(); 
-  vlayout->freeze();
 
   //check existing selections for product
   if (num==-1 && EdProd.objectprods.size())
@@ -270,50 +252,36 @@ void EditDefineFieldDialog::fillList()
   fBox->clearFocus();
   if (currentProductName==MODELFIELDS){
     for (int i=0; i<fields.size(); i++){
-      bool italic= false;
-      miString col= "blue";
-      miString defcol= miString("<font color=\"") + col + miString("\"> ");
-      miString txt= defcol + fields[i] + miString(" </font> ");
-      
-      Q3SimpleRichText *rt = new
-	Q3SimpleRichText(txt.c_str(),
-			QFont("Helvetica", 10, QFont::Normal,italic));
-      rt->setWidth(300);
-      QColor b(150,150,150);
-      new ListBoxRichtextItem(rt,new QBrush(b),fields[i].c_str(),fBox);
+      fBox->addItem(QString(fields[i].cStr()));
     }
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
     for (int i=0; i<splist.size(); i++){
-      miString defcol= miString("<font color=\"red\"> ");
-      miString txt= defcol + splist[i].pid + miString(" - ") +
-	splist[i].ptime.isoTime() + miString(" </font> ");
+      miString str = splist[i].pid + miString(" - ") +splist[i].ptime.isoTime();
+      QListWidgetItem* item = new QListWidgetItem(QString(str.cStr()));
       bool italic= (splist[i].source==data_local);
-      
-      Q3SimpleRichText *rt = new
-	Q3SimpleRichText(txt.c_str(),
-			QFont("Helvetica", 10, QFont::Normal, italic));
-      rt->setWidth(300);
-      QColor b(150,150,150);
-      new ListBoxRichtextItem(rt,new QBrush(b),"",fBox);
+      QFont font = item->font();
+      font.setItalic(italic);
+      item->setFont(font);
+      fBox->addItem(item);
     }
   }
 }
 
 /*********************************************/
 
-void EditDefineFieldDialog::fieldselect()
+void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
 {
 #ifdef dEditDlg 
   cout << "EditDefineFieldDialog::fieldselect" << endl;
 #endif
-  int i =fBox->currentItem();
+  int i =fBox->row(item);
   if (currentProductName==MODELFIELDS){
     selectedfield= fields[i];
     //clear selected products, not possible to have both fields and products
     vselectedprod.clear();
     updateFilenames();
-    if (filenames->count()) filenames->setSelected(0,true);
+    if (filenames->count()) filenames->item(0)->setSelected(true);
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
     savedProduct selectedprod = splist[i];
@@ -331,7 +299,7 @@ void EditDefineFieldDialog::fieldselect()
     selectedfield.clear();
     updateFilenames();
     if (selectedProdIndex>-1 && selectedProdIndex < filenames->count())
-      filenames->setSelected(selectedProdIndex,true);
+      filenames->item(selectedProdIndex)->setSelected(true);
   }
   ok->setEnabled(true);
 
@@ -347,14 +315,14 @@ void EditDefineFieldDialog::updateFilenames(){
   if (fieldSelected()){
     miString namestr=selectedfield;
     if (!namestr.empty()) {
-      filenames->insertItem(namestr.c_str());
+      filenames->addItem(QString(namestr.c_str()));
     }
   }
   if (productSelected()){
     for (int i = 0;i<vselectedprod.size();i++){
       miString namestr=m_editm->savedProductString(vselectedprod[i]);
       if (!namestr.empty()) {
-	filenames->insertItem(namestr.c_str());
+	filenames->addItem(QString(namestr.c_str()));
       }      
     }
   } 
@@ -362,11 +330,11 @@ void EditDefineFieldDialog::updateFilenames(){
 
 /*********************************************/
 
-void EditDefineFieldDialog::filenameSlot(){
+void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item){
 #ifdef dEditDlg 
   cout << "EditDefineFieldDialog::filenameSlot" << endl;
 #endif
-  selectedProdIndex=filenames->currentItem();
+  selectedProdIndex=filenames->row(item);
   if (num==-1){
     map<miString,bool> useEditobject = 
       m_ctrl->decodeTypeString(vselectedprod[selectedProdIndex].selectObjectTypes);
@@ -389,7 +357,7 @@ void EditDefineFieldDialog::DeleteClicked(){
     if (selectedProdIndex<0 && vselectedprod.size()) selectedProdIndex=0;
     updateFilenames();
     if (selectedProdIndex>-1 && selectedProdIndex < filenames->count())
-      filenames->setSelected(selectedProdIndex,true);
+      filenames->item(selectedProdIndex)->setSelected(true);
     else
       initCbs();
   }
@@ -419,7 +387,7 @@ void EditDefineFieldDialog::cbsClicked(){
       vselectedprod[selectedProdIndex].selectObjectTypes=selectedObjectTypes();
       updateFilenames();
       if (selectedProdIndex>-1 && selectedProdIndex < filenames->count())
-	filenames->setSelected(selectedProdIndex,true);
+	filenames->item(selectedProdIndex)->setSelected(true);
     }
   }
   if (vselectedprod.size() && selectedProdIndex > -1) ok->setEnabled(true);
@@ -474,9 +442,6 @@ miString EditDefineFieldDialog::selectedObjectTypes() {
 
 /***********************************************************/
 
-void EditDefineFieldDialog::help_clicked(){
-  emit EditDefineHelp(); 
-}
 
 
 

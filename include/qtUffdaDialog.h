@@ -31,22 +31,17 @@
 #ifndef _uffdaDialog_h
 #define _uffdaDialog_h
 
-#include <qdialog.h>
-#include <qfont.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
-#include <QLabel>
+#include <QDialog>
+#include <QToolTip>
+
 #include <deque>
 #include <diController.h>
-#include <q3listbox.h>
-#include <qtooltip.h>
 
 //using namespace std; 
 
 class PushButton;
-class Q3VBoxLayout;
-class Q3HBoxLayout;
+class QListWidget;
+class QListWidgetItem;
 class QLabel;
 
 /**
@@ -114,14 +109,14 @@ private:
 //************** q tWidgets that appear in the dialog  *******************
 
   // listbox for selecting uffda class
-  Q3ListBox * classlist;
+  QListWidget * classlist;
 
   //list of times/files
-  Q3ListBox* satlist; 
+  QListWidget* satlist; 
 
  // the box showing which positions have been choosen
   QLabel* posLabel;
-  Q3ListBox* poslist;  
+  QListWidget* poslist;  
  
 
   //delete and store buttons
@@ -134,13 +129,6 @@ private:
   QPushButton* hideb;
   QPushButton* sendb;
 
-  //layouts for placing buttons
-  Q3VBoxLayout* v3layout;
-  Q3HBoxLayout* h1layout;
-  //QHBoxLayout* h2layout;
-
-  Q3VBoxLayout* vlayout;
-
   //deques of satellite positions , time,classes etc.
   deque <uffdaElement> v_uffda; 
   StationPlot * sp;
@@ -152,7 +140,6 @@ private:
   miString getUffdaString();
   void send(const miString& to, const miString& subject,const miString& body);
 
-  int posIndex; //index of position list
   int satIndex; //index of sat list
   int classIndex; //index of class list
 
@@ -162,9 +149,9 @@ private slots:
   void helpClicked();
   void storeClicked();
   void sendClicked();
-  void classlistSlot();
-  void satlistSlot();
-  void poslistSlot();
+  void classlistSlot(QListWidgetItem*);
+  void satlistSlot(QListWidgetItem*);
+  void poslistSlot(QListWidgetItem*);
 
 
 signals:

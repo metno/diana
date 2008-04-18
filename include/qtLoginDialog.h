@@ -31,24 +31,20 @@
 #ifndef _qtLoginDialog_h
 #define _qtLoginDialog_h
 
-#include <qdialog.h>
+#include <QDialog>
 #include <qpushbutton.h>
-#include <q3frame.h>
-#include <qlabel.h>
 #include <qlineedit.h>
-#include <qlayout.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
-
 #include <diEditSpec.h>
 
 /**
-   \brief Login dialogue
+   \brief Login dialog
    
-   A login dialogue for use with database connections
+   A login dialog for use with database connections
 
 */
+
+class QPushButton;
+class QLineEdit;
 
 class LoginDialog : public QDialog 
 {
@@ -60,12 +56,6 @@ public:
 
 private:
   editDBinfo dbi;
-  Q3VBoxLayout*   top_vlayout; // top layout
-  Q3VBoxLayout*   f_vlayout;   // frame  layout
-  Q3HBoxLayout*   h_hlayout;   // header layout
-  Q3HBoxLayout*   b_hlayout;   // buttons layout
-
-  Q3Frame *ff;                 // main frame
 
   QLineEdit* dbserver;
   QLineEdit* username;

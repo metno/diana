@@ -28,12 +28,14 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qtooltip.h>
-#include <qcombobox.h>
-#include <qlabel.h>
-#include <qapplication.h>
-#include <qcolor.h>
-#include <q3listbox.h>
+
+#include <QApplication>
+#include <QToolTip>
+#include <QComboBox>
+#include <QLabel>
+//#include <qcolor.h>
+#include <QListWidget>
+#include <QListWidgetItem>
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qcheckbox.h>
@@ -53,9 +55,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-// qt4 fix
-#include <Q3VButtonGroup>
-#include <Q3HButtonGroup>
+#include <QButtonGroup>
 
 #include <iostream>
 #include <qpushbutton.h>
@@ -508,22 +508,31 @@ void ObsDialog::makeExtension()
   criteriaBox = ComboBox( extension,critName,true);
 
   QLabel* criteriaLabel = TitleLabel(tr("Criteria"),extension);
-  criteriaListbox = new Q3ListBox(extension);
+  criteriaListbox = new QListWidget(extension);
 
   QPushButton* delButton = NormalPushButton(tr("Delete"),extension);
   QPushButton* delallButton = NormalPushButton(tr("Delete all"),extension);
   QToolTip::add( delButton, tr("Delete selected criteria") );
   QToolTip::add( delallButton, tr("Delete all criteria") );
 
-  radiogroup  = new Q3VButtonGroup(extension);
+  radiogroup  = new QButtonGroup(extension);
   plotButton =
-    new QRadioButton(tr("Plot"),radiogroup);
+    new QRadioButton(tr("Plot"),this);
   colourButton =
-    new QRadioButton(tr("Colour - parameter"),radiogroup);
+    new QRadioButton(tr("Colour - parameter"),this);
   totalColourButton =
-    new QRadioButton(tr("Colour - observation"),radiogroup);
+    new QRadioButton(tr("Colour - observation"),this);
   markerButton =
-    new QRadioButton(tr("Marker"),radiogroup);
+    new QRadioButton(tr("Marker"),this);
+  radiogroup->addButton(plotButton);
+  radiogroup->addButton(colourButton);
+  radiogroup->addButton(totalColourButton);
+  radiogroup->addButton(markerButton);
+  QVBoxLayout *radioLayout = new QVBoxLayout();
+  radioLayout->addWidget(plotButton);
+  radioLayout->addWidget(colourButton);
+  radioLayout->addWidget(totalColourButton);
+  radioLayout->addWidget(markerButton);
   radiogroup->setExclusive(TRUE);
   plotButton->setChecked(true);
   QToolTip::add( plotButton,
@@ -576,8 +585,8 @@ void ObsDialog::makeExtension()
 
   connect(criteriaBox,SIGNAL(activated(int)),
 	   SLOT(criteriaListSelected(int)));
-  connect( criteriaListbox, SIGNAL(highlighted(int)),
-	   SLOT(criteriaSelected(int)));
+  connect( criteriaListbox, SIGNAL(itemClicked(QListWidgetItem*)),
+	   SLOT(criteriaSelected(QListWidgetItem*)));
   connect(signBox, SIGNAL(activated(int)),SLOT(signSlot(int)));
   connect(colourButton,SIGNAL(toggled(bool)),colourBox,SLOT(setEnabled(bool)));
   connect(totalColourButton,SIGNAL(toggled(bool)),
@@ -605,7 +614,7 @@ void ObsDialog::makeExtension()
   exLayout->addWidget( criteriaListbox );
   exLayout->addWidget( delButton );
   exLayout->addWidget( delallButton );
-  exLayout->addWidget( radiogroup );
+  exLayout->addLayout( radioLayout );
   exLayout->addLayout( colourlayout );
   exLayout->addWidget( line0 );
   exLayout->addWidget( editLabel );
@@ -644,12 +653,12 @@ void ObsDialog::criteriaListSelected(int index)
 
   lineedit->setText(critList.name.cStr());
   for(int j=0; j<n; j++){
-    criteriaListbox->insertItem(critList.criteria[j].cStr());
+    criteriaListbox->addItem(QString(critList.criteria[j].cStr()));
     markButton(critList.criteria[j]);
   }
   if(criteriaListbox->count()){
-    criteriaListbox->setSelected(0,true);
-    criteriaSelected(0);
+    criteriaListbox->item(0)->setSelected(true);
+    criteriaSelected(criteriaListbox->item(0));
   }
 
 }
@@ -713,12 +722,12 @@ void  ObsDialog::changeCriteriaString( )
   miString str=makeCriteriaString();
 
   if(str.exists()){
-    criteriaListbox->changeItem(str.c_str(),criteriaListbox->currentItem());
+   criteriaListbox->currentItem()->setText(QString(str.c_str()));
     // save changes
     int n=criteriaListbox->count();
     vector<miString> vstr;
     for( int i=0; i<n; i++){
-      vstr.push_back(criteriaListbox->text(i).latin1());
+      vstr.push_back(criteriaListbox->item(i)->text().latin1());
     }
     obsWidget[m_selected]->saveCriteria(vstr);
 
@@ -743,7 +752,7 @@ bool  ObsDialog::newCriteriaString( )
   bool found=false;
   int i=0;
   for( ; i<n; i++){
-    miString sstr = criteriaListbox->text(i).latin1();
+    miString sstr = criteriaListbox->item(i)->text().latin1();
     vector<miString> vstr;
     if(sstr.contains("<"))
       vstr=sstr.split("<");
@@ -761,13 +770,13 @@ bool  ObsDialog::newCriteriaString( )
     }
   }
 
-  criteriaListbox->insertItem(str.c_str(),i);
-  criteriaListbox->setCurrentItem(i);
+  criteriaListbox->insertItem(i,QString(str.c_str()));
+  criteriaListbox->setCurrentRow(i);
   // save changes
   n=criteriaListbox->count();
   vector<miString> vstr;
   for( int i=0; i<n; i++){
-    vstr.push_back(criteriaListbox->text(i).latin1());
+    vstr.push_back(criteriaListbox->item(i)->text().latin1());
   }
   obsWidget[m_selected]->saveCriteria(vstr);
 
@@ -812,20 +821,18 @@ miString ObsDialog::makeCriteriaString( )
 }
 
 
-void ObsDialog::criteriaSelected(int)
+void ObsDialog::criteriaSelected(QListWidgetItem* item)
 {
   if(freeze) return;
 
-  int item = criteriaListbox->currentItem();
-
-  if(item == -1) {
+  if(!item ) {
     parameter.clear();
     return;
   }
 
   freeze=true;
 
-  miString str = criteriaListbox->currentText().latin1();
+  miString str = item->text().latin1();
 
   vector<miString> sub = str.split(" ");
 
@@ -918,14 +925,14 @@ void ObsDialog::criteriaSelected(int)
 void ObsDialog::deleteSlot( )
 {
 
-  if(criteriaListbox->currentItem() == -1) return;
+  if(criteriaListbox->currentRow() == -1) return;
 
-  criteriaListbox->removeItem(criteriaListbox->currentItem());
-  int current = criteriaListbox->currentItem();
+  criteriaListbox->takeItem(criteriaListbox->currentRow());
+  int current = criteriaListbox->currentRow();
   int n=criteriaListbox->count();
   vector<miString> vstr;
   for( int i=0; i<n; i++){
-    vstr.push_back(criteriaListbox->text(i).latin1());
+    vstr.push_back(criteriaListbox->item(i)->text().latin1());
   }
   //save criterias and reread in order to get buttons marked right
   obsWidget[m_selected]->saveCriteria(vstr);
@@ -955,7 +962,7 @@ void ObsDialog::saveSlot( )
   int n=criteriaListbox->count();
   vector<miString> vstr;
   for( int i=0; i<n; i++){
-    vstr.push_back(criteriaListbox->text(i).latin1());
+    vstr.push_back(criteriaListbox->item(i)->text().latin1());
   }
 
   //save criterias and reread in order to get buttons marked right
@@ -1064,11 +1071,14 @@ void ObsDialog::updateExtension()
 
   vector<miString> criteriaList = cList.criteria;
   for(int j=0; j<criteriaList.size(); j++){
-    criteriaListbox->insertItem(criteriaList[j].cStr());
+    criteriaListbox->addItem(QString(criteriaList[j].cStr()));
     markButton(criteriaList[j]);
   }
-  if(criteriaListbox->count())
-    criteriaListbox->setSelected(0,true);
+  if(criteriaListbox->count()){
+    criteriaListbox->item(0)->setSelected(true);
+    criteriaListbox->setCurrentRow(0);
+    criteriaSelected(criteriaListbox->item(0));
+  }
 }
 
 void ObsDialog::numberList( QComboBox* cBox, float number ){

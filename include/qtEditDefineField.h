@@ -31,10 +31,7 @@
 #ifndef _editDefineFielddialog_h
 #define _editDefineFielddialog_h
 
-#include <qdialog.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <QLabel>
+#include <QDialog>
 
 #include <diEditSpec.h>
 #include <miString.h>
@@ -45,12 +42,11 @@ using namespace std;
 
 class Controller;
 class EditManager;
-class Q3VBoxLayout;
 class QLabel;
 class QComboBox;
-class Q3ListBox;
+class QListWidget;
+class QListWidgetItem;
 class QPushButton;
-class Q3VButtonGroup;
 class QCheckBox;
 
 
@@ -83,37 +79,31 @@ private:
 
 private slots:
   void prodnameActivated(int);
-  void fieldselect();
-  void filenameSlot();
+  void fieldselect(QListWidgetItem*);
+  void filenameSlot(QListWidgetItem*);
   void cbsClicked();
 
   void DeleteClicked();
   void Refresh();
-  void help_clicked();
-
-signals:
-  void EditDefineHelp();
 
 private:
   Controller* m_ctrl;
   EditManager* m_editm;
 
   QComboBox* prodnamebox;   //list of available products
-  Q3ListBox *fBox;           // list of available fields
+  QListWidget *fBox;           // list of available fields
 
  // the box showing which files have been choosen
   QLabel* filesLabel;
-  Q3ListBox* filenames;
+  QListWidget* filenames;
 
   //delete and refresh buttons
   QPushButton* Delete;
   QPushButton* refresh;
 
   QPushButton *ok;
-  QPushButton *help;
 
   //Checkboxes for selecting fronts/symbols/areas
-  Q3VButtonGroup * bgroupobjects;
   QCheckBox *cbs0;
   QCheckBox *cbs1;
   QCheckBox *cbs2;
