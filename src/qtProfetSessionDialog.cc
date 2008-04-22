@@ -128,6 +128,8 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(objectSelected(const QModelIndex &)));
   connect(chatWidget,SIGNAL(sendMessage(const QString &)),
       this,SIGNAL(sendMessage(const QString &)));
+  connect(sessionComboBox,SIGNAL(activated(int)),
+      this,SIGNAL(sessionSelected(int)));
 }
 
 void ProfetSessionDialog::printSize(const QModelIndex &){

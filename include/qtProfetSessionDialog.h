@@ -97,6 +97,7 @@ public slots:
   void printSize(const QModelIndex &);
   
 signals:
+  void sessionSelected(int);
   void sendMessage(const QString &);
   void paramAndTimeChanged(const QModelIndex &);
   void objectSelected(const QModelIndex & index);

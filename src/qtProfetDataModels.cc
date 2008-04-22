@@ -114,6 +114,14 @@ fetSession SessionListModel::getSession(const QModelIndex &index) const throw(
   return sessions[index.row()];
 }
 
+fetSession SessionListModel::getSession(int row_nr) const throw(InvalidIndexException&){
+  try{
+    QModelIndex i = index(row_nr,0);
+    return getSession(i);
+  }catch(...){ throw;}
+  return fetSession();
+}
+
 void SessionListModel::setSession(const fetSession & s) {
   vector<fetSession>::iterator iter;
   for( iter = sessions.begin(); iter != sessions.end(); iter++ ){

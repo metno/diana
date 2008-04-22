@@ -167,13 +167,13 @@ private slots:
   void dynamicGuiChanged(); //properties??
   
   // SessionDialog
+  void sessionSelected(int index);
   void sendMessage(const QString &);
   void paramAndTimeSelected(const QModelIndex &);
   void createNewObject();
   void editObject();
   void deleteObject();
   void hideProfetPerformed();
-  
 // PaintToolBar
   void paintModeChanged(GridAreaManager::PaintMode mode);
   

@@ -106,6 +106,12 @@ public:
   fetSession getSession(const QModelIndex &index) const
       throw(InvalidIndexException&);
   /**
+   * Gets fetSession in specified row
+   * @throw InvalidIndexException
+   */
+  fetSession getSession(int row) const
+        throw(InvalidIndexException&);
+  /**
    * Setting all sessions in model
    * Connected sessions are updated
    */

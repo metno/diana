@@ -73,6 +73,8 @@ void DianaProfetGUI::connectSignals(){
       this,SIGNAL(toggleProfetGui())); // only signaled when gui is visible
   connect(&sessionDialog,SIGNAL(sendMessage(const QString &)),
       this,SLOT(sendMessage(const QString &)));
+  connect(&sessionDialog,SIGNAL(sessionSelected(int)),
+      this,SLOT(sessionSelected(int)));
   connect(&objectDialog,SIGNAL(saveObjectClicked()),
       this,SLOT(saveObject()));
   connect(&objectDialog,SIGNAL(cancelObjectDialog()),
@@ -259,6 +261,14 @@ void DianaProfetGUI::dynamicGuiChanged(){
     objectFactory.setGuiValues(currentObject,
         objectDialog.getCurrentGuiComponents());
     controller.objectChanged(currentObject);
+  }
+}
+
+void DianaProfetGUI::sessionSelected(int index){
+  try{
+    controller.currentSessionChanged(sessionModel.getSession(index));
+  }catch(InvalidIndexException & iie){
+    cerr << "DianaProfetGUI::sessionSelected invalid index" << endl;
   }
 }
 
