@@ -88,8 +88,11 @@ DianaProfetGUI::~DianaProfetGUI(){
 
 
 void DianaProfetGUI::setCurrentSession(const fetSession & session){
-  sessionDialog.setCurrentSession(
-      sessionModel.getIndexByRefTime(session.referencetime()));
+  //Changing current session must be done in QT event queue 
+  //to be performed in the correct order...
+  Profet::CurrentSessionEvent * cse = new Profet::CurrentSessionEvent();
+  cse->refTime = session.referencetime();
+  QCoreApplication::postEvent(this, cse);
   tableModel.initTable(session.times(),session.parameters());
 }
 
@@ -165,6 +168,10 @@ void DianaProfetGUI::customEvent(QEvent * e){
     Profet::SessionListEvent * sle = (Profet::SessionListEvent*) e;
     if(sle->remove) sessionModel.removeSession(sle->session);
     else sessionModel.setSession(sle->session);
+  }else if(e->type() == Profet::CURRENT_SESSION_UPDATE_EVENT){
+    Profet::CurrentSessionEvent * cse = (Profet::CurrentSessionEvent*) e;
+    sessionDialog.setCurrentSession(
+        sessionModel.getIndexByRefTime(cse->refTime));
   }
   
 }
@@ -361,7 +368,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
   }
   
   prevParam = param;
-  
+  cerr << "*** DianaProfetGUI::showField setting time: " << time.isoTime() << endl;
   emit setTime(time);
 //  emit repaintMap(false);
 }
