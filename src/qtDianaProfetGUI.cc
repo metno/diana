@@ -39,11 +39,13 @@ PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) :
 QObject(), paintToolBar(ptb), areaManager(gam), 
 Profet::ProfetGUI(pc),sessionDialog(parent), 
 objectDialog(parent), objectFactory(),
-userModel(parent), objectModel(parent), tableModel(parent){
+userModel(parent), sessionModel(parent),
+objectModel(parent), tableModel(parent){
 #ifndef NOLOG4CXX
   logger = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("diana.DianaProfetGUI"));
 #endif
   sessionDialog.setUserModel(&userModel);
+  sessionDialog.setSessionModel(&sessionModel);
   sessionDialog.setObjectModel(&objectModel);
   sessionDialog.setTableModel(&tableModel);
   user=getenv("USER");
@@ -84,12 +86,11 @@ void DianaProfetGUI::connectSignals(){
 DianaProfetGUI::~DianaProfetGUI(){ 
 }
 
-void DianaProfetGUI::setSessionInfo(fetModel model, vector<fetParameter> parameters,
-      fetSession session){
-  LOG4CXX_INFO(logger,"setSessionInfo");
-  sessionDialog.setModel(model);
-  tableModel.initTable(session.times(),parameters);
-//  sessionDialog.initializeTable(parameters,session);
+
+void DianaProfetGUI::setCurrentSession(const fetSession & session){
+  sessionDialog.setCurrentSession(
+      sessionModel.getIndexByRefTime(session.referencetime()));
+  tableModel.initTable(session.times(),session.parameters());
 }
 
 void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
@@ -102,6 +103,12 @@ void DianaProfetGUI::showMessage(const Profet::InstantMessage & msg){
   QCoreApplication::postEvent(this,new Profet::MessageEvent(msg));//thread-safe
 }
 
+void DianaProfetGUI::setSession(const fetSession & session, bool remove){
+  Profet::SessionListEvent * sle = new Profet::SessionListEvent();
+  sle->remove = remove;
+  sle->session = session;
+  QCoreApplication::postEvent(this, sle);//thread-safe
+}
 
 void DianaProfetGUI::setUser(const Profet::PodsUser & user){
   LOG4CXX_INFO(logger,"setUser " << user.name);
@@ -154,6 +161,10 @@ void DianaProfetGUI::customEvent(QEvent * e){
   }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
     tableModel.setObjectSignatures(sue->objects);
+  }else if(e->type() == Profet::SESSION_LIST_EVENT){
+    Profet::SessionListEvent * sle = (Profet::SessionListEvent*) e;
+    if(sle->remove) sessionModel.removeSession(sle->session);
+    else sessionModel.setSession(sle->session);
   }
   
 }
@@ -256,7 +267,7 @@ void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
   bool tableInited = tableModel.inited();
   if(tableInited) {
     try{
-      currentParam = tableModel.getParameter(index).name();
+      currentParam = tableModel.getParameter(index);
       currentTime = tableModel.getTime(index);
       controller.parameterAndTimeChanged(currentParam,currentTime);
     }catch(InvalidIndexException & iie){

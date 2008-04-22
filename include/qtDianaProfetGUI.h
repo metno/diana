@@ -68,6 +68,7 @@ private:
   FetObjectTableModel tableModel;
   vector<fetBaseObject> baseObjects;
   UserListModel userModel;
+  SessionListModel sessionModel;
   fetObject currentObject;
   // Cached because of many requests from multiple threads
   miString currentParam;
@@ -90,12 +91,12 @@ public:
 		 PaintToolBar * ptb, GridAreaManager * gam, QWidget * parent);
   virtual ~DianaProfetGUI();
   
-  void setSessionInfo(fetModel model, vector<fetParameter> parameters,
-		      fetSession session);
+  void setCurrentSession(const fetSession & session);
   void setBaseObjects(vector<fetBaseObject> objects);
   void setUser(const Profet::PodsUser & user);
   void removeUser(const Profet::PodsUser & user);
   void setUsers(const vector<Profet::PodsUser> & users);
+  void setSession(const fetSession & session, bool remove = false);
   void showMessage(const Profet::InstantMessage & msg);
   void setObjects(vector<fetObject> objects);
   void setObjectSignatures( vector<fetObject::Signature> s);

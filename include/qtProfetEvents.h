@@ -10,6 +10,7 @@ namespace Profet{
 
   static int MESSAGE_EVENT = QEvent::User + 1;
   static int USER_LIST_EVENT = QEvent::User + 2;
+  static int SESSION_LIST_EVENT = QEvent::User + 6;
   static int UPDATE_MAP_EVENT = QEvent::User + 3;
   static int OBJECT_UPDATE_EVENT = QEvent::User + 4;
   static int SIGNATURE_UPDATE_EVENT = QEvent::User + 5;
@@ -23,6 +24,17 @@ namespace Profet{
       :QEvent(QEvent::Type(MESSAGE_EVENT)),message(m){}
   };
 
+  /**
+   * Threadsafe event for incomming SessionList changes
+   */
+  class SessionListEvent : public QEvent {
+  public:
+    bool remove;
+    fetSession session;
+    SessionListEvent():QEvent(
+        QEvent::Type(SESSION_LIST_EVENT)){remove = false;}
+  };
+  
   /**
    * Threadsafe event for incomming UserList
    */

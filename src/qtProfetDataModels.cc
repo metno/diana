@@ -87,6 +87,71 @@ void UserListModel::removeUser(const PodsUser & u) {
   }
 }
 
+//  *** FetSessionListModel ***
+
+
+QVariant SessionListModel::data(const QModelIndex &index, int role) const {
+  if (!index.isValid())
+    return QVariant();
+  if (index.row() >= sessions.size())
+    return QVariant();
+  if (role == Qt::DisplayRole){
+    miTime rt = sessions[index.row()].referencetime();
+    miString mn = sessions[index.row()].modelname();
+    miTime mt = sessions[index.row()].modeltime();
+    
+    QString str = QString("%1: %2, %3").arg(
+        rt.isoTime().cStr()).arg(mn.cStr()).arg(mt.isoTime().cStr());
+    return str;
+  }
+  return QVariant();
+}
+
+fetSession SessionListModel::getSession(const QModelIndex &index) const throw(
+    InvalidIndexException&) {
+  if (index.row() >= sessions.size() || index.row() < 0)
+    throw new InvalidIndexException();
+  return sessions[index.row()];
+}
+
+void SessionListModel::setSession(const fetSession & s) {
+  vector<fetSession>::iterator iter;
+  for( iter = sessions.begin(); iter != sessions.end(); iter++ ){
+    if((*iter).referencetime() == s.referencetime()) {
+      *iter = s;
+      reset();
+      return;
+    }
+  }
+  sessions.push_back(s); // Not found: Adding new user
+  reset();
+}
+
+void SessionListModel::setSessions(const vector<fetSession> & s) {
+  sessions = s;
+  reset();
+}
+
+void SessionListModel::removeSession(const fetSession & s) {
+  vector<fetSession>::iterator iter;
+  for( iter = sessions.begin(); iter != sessions.end(); iter++ ){
+    if((*iter).referencetime() == s.referencetime()) {
+      iter = sessions.erase(iter);
+      reset();
+      return;
+    }
+  }
+}
+
+
+QModelIndex SessionListModel::getIndexByRefTime(const miTime & t){
+  int n = sessions.size();
+  for (int i=0; i<n; i++)
+    if (sessions[i].referencetime() == t)
+      return index(i, 0);
+  return QModelIndex();
+}
+
 //  *** FetObjectListModel *** 
 
 QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
@@ -144,11 +209,11 @@ QVariant FetObjectTableModel::headerData(int section,
 
   if (role == Qt::DisplayRole) {
     if (orientation == Qt::Vertical)
-      return QString(parameters[section].name().cStr());
+      return QString(parameters[section].cStr());
     else
       return QString(times[section].format("%a %k").cStr());
   } else if (role == Qt::DecorationRole && orientation == Qt::Vertical) {
-    miString param = parameters[section].name();
+    miString param = parameters[section];
     if (param == "MSLP")
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
     else if (param == "T.2M")
@@ -202,12 +267,12 @@ vector<int> FetObjectTableModel::getObjectIndexList(
 }
 
 void FetObjectTableModel::initTable(const vector<miTime> & t,
-    const vector<fetParameter> & param) {
+    const vector<miString> & param) {
   times = t;
   parameters = param;
   int nParam = parameters.size();
   for(int i=0;i<nParam; i++){
-    paramIndexMap[parameters[i].name()] = i;
+    paramIndexMap[parameters[i]] = i;
   }
   int nTimes = times.size();
   for(int i=0;i<nTimes;i++){
@@ -243,7 +308,7 @@ miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
   return times[col];
 }
 
-fetParameter FetObjectTableModel::getParameter(const QModelIndex &index) const throw(
+miString FetObjectTableModel::getParameter(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   int row = index.row();
   if(row < 0) 
@@ -259,7 +324,7 @@ miTime FetObjectTableModel::getCurrentTime() const throw(InvalidIndexException&)
   catch(InvalidIndexException & iie){ throw iie; }
 }
 
-fetParameter FetObjectTableModel::getCurrentParameter() const throw(InvalidIndexException&){
+miString FetObjectTableModel::getCurrentParameter() const throw(InvalidIndexException&){
   try{ return getParameter(lastSelected); }
   catch(InvalidIndexException & iie){ throw iie; }
 }

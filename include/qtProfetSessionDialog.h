@@ -31,7 +31,7 @@
 #define QTPROFETSESSIONDIALOG_H_
 
 #include <QDialog>
-#include <QLabel>
+#include <QComboBox>
 #include <QPushButton>
 #include <QCloseEvent>
 #include <QPushButton>
@@ -55,8 +55,7 @@ class ProfetSessionDialog: public QDialog{
   Q_OBJECT
   
 private:
-  QLabel  * sessionLabel;
-  QLabel  * modelLabel;
+  QComboBox * sessionComboBox;
   QPushButton * updateButton;
   QPushButton * closeButton;
   FetObjectListView * objectList;
@@ -65,7 +64,6 @@ private:
   QPushButton * deleteObjectButton;
   ProfetChatWidget * chatWidget;
   FetObjectTableView * table;
-//  ProfetSessionTable * table;
   
   miString currentObject;
   
@@ -82,6 +80,7 @@ public:
   ProfetSessionDialog(QWidget* parent);
   
   void setModel(const fetModel & model);
+  void setSessionModel(QAbstractItemModel * sessionModel);
   void setUserModel(QAbstractItemModel * userModel);
   void setObjectModel(QAbstractItemModel * objectModel);
   void setTableModel(QAbstractItemModel * tableModel);
@@ -90,9 +89,7 @@ public:
 
   void selectDefault();
   QModelIndex getCurrentObjectIndex();
-
-  void initializeTable( const vector<fetParameter> & parameters,
-			    const fetSession & session); 
+  void setCurrentSession(const QModelIndex & index);
 
   void showMessage(const Profet::InstantMessage & msg);
   

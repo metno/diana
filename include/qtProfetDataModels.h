@@ -33,7 +33,8 @@
 #include <QColor>
 #include <profet/ProfetCommon.h>
 #include <profet/fetObject.h>
-#include <profet/fetParameter.h>
+#include <profet/fetSession.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <map>
 
@@ -81,6 +82,39 @@ public:
   void removeUser(const PodsUser & u);
 };
 
+
+/**
+ * Container for fetSession objects working as a model
+ * for list-views. 
+ */
+class SessionListModel : public QAbstractListModel {
+  Q_OBJECT
+private:
+  vector<fetSession> sessions;
+public:
+  SessionListModel(QObject * parent): QAbstractListModel(parent){}
+  int rowCount(const QModelIndex &parent = QModelIndex()) const{
+    return sessions.size();
+  }
+  QVariant headerData(int section, Qt::Orientation orientation,
+      int role = Qt::DisplayRole) const{ return QVariant(); }
+  QVariant data(const QModelIndex &index, int role) const;
+  /**
+   * Gets fetSession with specified index
+   * @throw InvalidIndexException
+   */
+  fetSession getSession(const QModelIndex &index) const
+      throw(InvalidIndexException&);
+  /**
+   * Setting all sessions in model
+   * Connected sessions are updated
+   */
+  void setSessions(const vector<fetSession> & s);
+  void setSession(const fetSession & s);
+  void removeSession(const fetSession & s);
+  QModelIndex getIndexByRefTime(const miTime & t);
+};
+
 /**
  * Container for fet-objects working as a model
  * for list-views. 
@@ -120,7 +154,7 @@ public:
   enum CellType {CURRENT_CELL,EMPTY_CELL,WITH_DATA_CELL,UNREAD_DATA_CELL};
 private:
   vector<fetObject::Signature> objects;
-  vector<fetParameter> parameters;
+  vector<miString> parameters;
   vector<miTime> times;
   QModelIndex lastSelected;
   map<miString,int> paramIndexMap;
@@ -144,16 +178,16 @@ public:
   QVariant headerData(int section, Qt::Orientation orientation,
       int role = Qt::DisplayRole) const;
   QVariant data(const QModelIndex &index, int role) const;
-  void initTable(const vector<miTime> & t, const vector<fetParameter> & param);
+  void initTable(const vector<miTime> & t, const vector<miString> & param);
   bool inited(){ return (parameters.size() && times.size()); }
   void setLastSelectedIndex(const QModelIndex & lsi){ lastSelected = lsi; }
   void setObjectSignatures(const vector<fetObject::Signature> & objects);
   miTime getTime(const QModelIndex &index) const
     throw(InvalidIndexException&);
-  fetParameter getParameter(const QModelIndex &index) const
+  miString getParameter(const QModelIndex &index) const
     throw(InvalidIndexException&);
   miTime getCurrentTime() const throw(InvalidIndexException&);
-  fetParameter getCurrentParameter() const throw(InvalidIndexException&);
+  miString getCurrentParameter() const throw(InvalidIndexException&);
 };
 
 }

@@ -49,16 +49,11 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   mainLayout->addLayout(centerLayout);
   mainLayout->addLayout(buttonLayout);
 
-  //Title
-  QLabel* qls = new QTitleLabel(tr(" Session: "), this);
-  QLabel* qlm = new QTitleLabel(tr(" Model: "), this);
-  sessionLabel = new QDataLabel("", this );
-  modelLabel = new QDataLabel("", this );
+  QLabel * qls = new QLabel("Session");
+  sessionComboBox = new QComboBox();
   
   titleLayout->addWidget(qls);
-  titleLayout->addWidget(sessionLabel);
-  titleLayout->addWidget(qlm);
-  titleLayout->addWidget(modelLabel);
+  titleLayout->addWidget(sessionComboBox);
   
   QSplitter *split = new QSplitter(Qt::Vertical,this);
   split->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
@@ -145,6 +140,11 @@ void ProfetSessionDialog::setUserModel(QAbstractItemModel * userModel){
   chatWidget->setUserModel(userModel);
 }
 
+
+void ProfetSessionDialog::setSessionModel(QAbstractItemModel * sessionModel){
+  sessionComboBox->setModel(sessionModel);
+}
+
 void ProfetSessionDialog::setTableModel(QAbstractItemModel * tableModel){
   table->setModel(tableModel);
 }
@@ -186,17 +186,8 @@ void ProfetSessionDialog::setObjectModel(QAbstractItemModel * objectModel){
   objectList->setModel(objectModel);
 }
 
-void ProfetSessionDialog::setModel(const fetModel & model){
-  modelLabel->setText(model.model().cStr());
-}
-
-void ProfetSessionDialog::initializeTable(  const vector<fetParameter> & p,
-    const fetSession & s){
-  miString o= s.approvedtime().format("%k:00 %A %e.%b");
-  sessionLabel->setText(o.cStr());
-  if(table){
-//    table->initialize(p,s.progs());
-  }
+void ProfetSessionDialog::setCurrentSession(const QModelIndex & index){
+  sessionComboBox->setCurrentIndex(index.row());
 }
 
 
