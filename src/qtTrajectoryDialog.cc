@@ -56,7 +56,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
 #endif
 
   //caption to appear on top of dialog
-  setCaption(tr("Trajectories"));
+  setWindowTitle(tr("Trajectories"));
    
   //define colours
   colourInfo = Colour::getColourInfo();
@@ -213,7 +213,7 @@ void TrajectoryDialog::numposSlot(int i){
   int current = posList->currentRow();
   if(current<0) return; 
   
-  positionVector[current].numPos=numposBox->currentText().latin1();
+  positionVector[current].numPos=numposBox->currentText().toStdString();
   emit update();
 }
 
@@ -343,8 +343,10 @@ void TrajectoryDialog::startCalcButtonClicked(){
   //using first field if there is any field
   if(nr_fields > 0){
     fieldName->setText(QString(fields[0].cStr()));
+    fName = fields[0];
   } else {
     fieldName->setText(tr("No field selected"));
+    fName ="No field selected";
   }
   //send field name to TrajectoryPlot
   miString str = " field=\"";
@@ -445,7 +447,7 @@ miString TrajectoryDialog::makeString() {
 
   ostringstream ss;
   ss <<" radius="<<radiusSpin->value();
-  ss <<" numpos="<<numposBox->currentText().latin1();
+  ss <<" numpos="<<numposBox->currentText().toStdString();
   str+= ss.str();
 
   return str;
@@ -464,7 +466,7 @@ void TrajectoryDialog::mapPos(float lat, float lon) {
   pos.lat=lat;
   pos.lon=lon;
   pos.radius=radiusSpin->value();
-  pos.numPos=numposBox->currentText().latin1();
+  pos.numPos=numposBox->currentText().toStdString();
   positionVector.push_back(pos);
 
   //Make string and insert in posList
