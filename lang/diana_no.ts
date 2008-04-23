@@ -266,8 +266,8 @@
         <translation>Zoom ut</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>V&amp;is</translation>
+        <source>Show</source>
+        <translation>Vis</translation>
     </message>
     <message>
         <source>&amp;Help</source>
