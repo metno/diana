@@ -119,7 +119,7 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
 				 const miTime   validtime,
 				 const miString reason,
 				 const miString user,
-				 const miString sessionID,
+				 const miTime   sessionreftime,
 				 const miString parent )
 {
   LOG4CXX_INFO(logger,"makeObject(fetBaseObject)");
@@ -146,7 +146,7 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
 
   // make object
   fetObj.setFromBaseObject(baseObj,
-			   sessionID,parent,reason,polygon,nx,ny,fieldArea,
+			   sessionreftime,parent,reason,polygon,nx,ny,fieldArea,
 			   executor.cleanCode(),executor.cleanCode(),user,
 			   validtime,edittime,parameter,guikeys,id);
 

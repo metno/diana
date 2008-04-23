@@ -87,7 +87,7 @@ public:
 		       const miTime   validtime,
 		       const miString reason,
 		       const miString user,
-		       const miString sessionID,
+		       const miTime   sessionreftime,
 		       const miString parent);
 
   /// update gui values in fetObject
