@@ -31,8 +31,8 @@
 #include <qtTimeStepSpinbox.h>
 
 
-TimeStepSpinbox::TimeStepSpinbox(QWidget* parent, const char* name):
-  QSpinBox(parent,name){
+TimeStepSpinbox::TimeStepSpinbox(QWidget* parent):
+  QSpinBox(parent){
 }
 
 

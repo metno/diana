@@ -81,7 +81,7 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   cerr<<"MapDialog::ConstructorCernel called"<<endl;
 #endif
   
-  setCaption(tr("Map and Area"));
+  setWindowTitle(tr("Map and Area"));
     
   // all defined maps etc.
   m_MapDI=mdi;
@@ -98,9 +98,9 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   cInfo = Colour::getColourInfo();
 
   // zorders
-  zorders.push_back(tr("lowest").latin1());  // nederst
-  zorders.push_back(tr("auto").latin1());    // auto
-  zorders.push_back(tr("highest").latin1()); // øverst
+  zorders.push_back(tr("lowest").toStdString());  // nederst
+  zorders.push_back(tr("auto").toStdString());    // auto
+  zorders.push_back(tr("highest").toStdString()); // øverst
 
   // latlon densities (degrees)
   densities.push_back("0.5");
@@ -1173,7 +1173,7 @@ miString MapDialog::getShortname()
 {
   miString name;
 
-  name= areabox->item(areabox->currentRow())->text().latin1() + miString(" ");
+  name= areabox->item(areabox->currentRow())->text().toStdString() + miString(" ");
   
   int numselected= selectedmaps.size();
   for( int i=0; i<numselected; i++){

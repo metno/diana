@@ -49,7 +49,7 @@ class WorkArea : public QWidget
 {
   Q_OBJECT
 public:
-  WorkArea(Controller *c,  QWidget* parent = 0, const char* name = 0 );
+  WorkArea(Controller *c,  QWidget* parent = 0);
   
   GLwidget* Glw(){return glw; }
 

@@ -60,7 +60,7 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
      
   m_objm= m_ctrl->getObjectManager();
 
-  setCaption(tr("Add to objectdialog"));
+  setWindowTitle(tr("Add to objectdialog"));
 
   QGridLayout* glayout = new QGridLayout(2,2,5,"addtoLayout");
 
@@ -103,12 +103,12 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
 
 
 miString AddtoDialog::getName(){
-  return name->text().latin1(); 
+  return name->text().toStdString(); 
 }
 
 
 miString AddtoDialog::getFile(){
-  return file->text().latin1(); 
+  return file->text().toStdString(); 
 }
 
 

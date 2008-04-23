@@ -82,7 +82,7 @@ void EditNewDialog::ConstructorCernel(){
   dbi.loggedin= false;
   productfree= false;
   
-  setCaption(tr("New product"));
+  setWindowTitle(tr("New product"));
 
   first= true;
 
@@ -245,7 +245,7 @@ void EditNewDialog::ConstructorCernel(){
 
 void EditNewDialog::tabSelected(const QString& name)
 {
-  //cerr << "EditNewDialog::Selected tab:" << name.latin1() << endl;
+  //cerr << "EditNewDialog::Selected tab:" << name.toStdString() << endl;
   normal= (name==TABNAME_NORMAL);
 
   if (normal)
@@ -268,7 +268,7 @@ void EditNewDialog::tabSelected(const QString& name)
 void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
   int idx = cBox->row(item);
-  miString s= cBox->item(idx)->text().latin1();
+  miString s= cBox->item(idx)->text().toStdString();
   //cerr << "EditNewDialog::Combineselect:" << s << endl;
   if (miTime::isValid(s)){
     combinetime= miTime(s);
@@ -517,7 +517,7 @@ bool EditNewDialog::setNormal()
 void EditNewDialog::setObjectLabel(){
   // set object label
   miString tmp = 
-    miString("<font color=\"blue\"> ") + tr("No startobjects").latin1() + miString(" </font> ");
+    miString("<font color=\"blue\"> ") + tr("No startobjects").toStdString() + miString(" </font> ");
   if (products[currprod].objectprods.size()){
     if (products[currprod].objectprods[0].filename.exists()){
       tmp= miString("<font color=\"red\"> ") +
@@ -540,7 +540,7 @@ void EditNewDialog::setFieldLabel(){
 	s= miString("<font color=\"blue\"> ") +
 	  products[currprod].fields[i].fromfname + miString(" </font> ");
       else
-	s= miString("<font color=\"blue\"> ") + tr("Field undefined").latin1() +
+	s= miString("<font color=\"blue\"> ") + tr("Field undefined").toStdString() +
 	  miString(" </font> ");
     }
     else
@@ -697,7 +697,7 @@ bool EditNewDialog::checkProductFree()
 
 void EditNewDialog::kill_clicked()
 {
-  miString message=tr("Are you sure you want to take over this product?\n").latin1();
+  miString message=tr("Are you sure you want to take over this product?\n").toStdString();
 
   QMessageBox *mb= new QMessageBox(tr("Warning!"),
 				   message.cStr(),
@@ -756,7 +756,7 @@ void EditNewDialog::login_clicked()
 
     miString message;
     if (!dbi.user.exists() || !dbi.host.exists()){
-      message= tr("Username and server required").latin1();
+      message= tr("Username and server required").toStdString();
       dbi.loggedin= false;
     } else {
 //       cerr << "Trying host:" << dbi.host << " User:" << dbi.user << " Pass:"
@@ -778,7 +778,7 @@ void EditNewDialog::login_clicked()
 
       return;
     } else {
-      message= miString(tr("Can not log in. Message from server:\n").latin1()) +message;
+      message= miString(tr("Can not log in. Message from server:\n").toStdString()) +message;
       QMessageBox::warning( this, "Diana database message",
 			    message.c_str());
       
@@ -803,7 +803,7 @@ void EditNewDialog::ok_clicked(){
 //        products[currprod].minutesStartLate<minutes))
 //     msg= "Produktet lages nå seinere enn normalt!";
 //   if (msg.exists()) {
-//     miString pname= prodbox->currentText().latin1();
+//     miString pname= prodbox->currentText().toStdString();
 //     miString message= pname + "\n" + msg;
 //     if (QMessageBox::warning( this, "Tid for produkt",message.c_str(),
 //     			     "Fortsett","Avbryt") != 0) return;

@@ -62,7 +62,7 @@ VcrossWindow::VcrossWindow()
   //HK ??? temporary create new VcrossManager here
   vcrossm = new VcrossManager();
 
-  setCaption( tr("Diana Vertical Crossections") );
+  setWindowTitle( tr("Diana Vertical Crossections") );
 
   QGLFormat fmt;
   fmt.setOverlay(false);
@@ -86,15 +86,15 @@ VcrossWindow::VcrossWindow()
 
 
   //button for model/field dialog-starts new dialog
-  dataButton = new ToggleButton(this,tr("Model/field").latin1());
+  dataButton = new ToggleButton(this,tr("Model/field").toStdString());
   connect( dataButton, SIGNAL( toggled(bool)), SLOT( dataClicked( bool) ));
 
   //button for setup - starts setupdialog
-  setupButton = new ToggleButton(this,tr("Settings").latin1());
+  setupButton = new ToggleButton(this,tr("Settings").toStdString());
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
   //button for timeGraph
-  timeGraphButton = new ToggleButton(this,tr("TimeGraph").latin1());
+  timeGraphButton = new ToggleButton(this,tr("TimeGraph").toStdString());
   connect( timeGraphButton, SIGNAL( toggled(bool)), SLOT( timeGraphClicked( bool) ));
 
   //button to print - starts print dialog
@@ -282,14 +282,14 @@ bool VcrossWindow::timeChangedSlot(int diff){
   miTime t = vcrossm->getTime();
   miString tstring=t.isoTime(false,false);
   if (!timeBox->count()) return false;
-  miString tbs=timeBox->currentText().latin1();
+  miString tbs=timeBox->currentText().toStdString();
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
     for (int i = 0; i<n;i++){      
-      if(tstring ==timeBox->text(i).latin1()){
+      if(tstring ==timeBox->text(i).toStdString()){
 	timeBox->setCurrentItem(i);
-	tbs=timeBox->currentText().latin1();
+	tbs=timeBox->currentText().toStdString();
 	break;
       }
     }
@@ -335,13 +335,13 @@ bool VcrossWindow::crossectionChangedSlot(int diff){
   if (!crossectionBox->count()) return false;
   //if no current crossection, use last crossection plotted
   if (s.empty()) s = vcrossm->getLastCrossection();
-  miString sbs=crossectionBox->currentText().latin1();
+  miString sbs=crossectionBox->currentText().toStdString();
   if (sbs!=s){
     int n = crossectionBox->count();
     for(int i = 0;i<n;i++){
-      if (s==crossectionBox->text(i).latin1()){
+      if (s==crossectionBox->text(i).toStdString()){
 	crossectionBox->setCurrentItem(i);
-	sbs=miString(crossectionBox->currentText().latin1());
+	sbs=miString(crossectionBox->currentText().toStdString());
 	break;
       }
     }
@@ -373,7 +373,7 @@ void VcrossWindow::printClicked(){
 
   if (qprt.setup(this)){
     if (qprt.outputToFile()) {
-      priop.fname= qprt.outputFileName().latin1();
+      priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
       priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
@@ -423,7 +423,7 @@ void VcrossWindow::saveClicked()
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miString filename= s.latin1();
+    miString filename= s.toStdString();
     miString format= "PNG";
     int quality= -1; // default quality
 
@@ -674,7 +674,7 @@ void VcrossWindow::updateTimeBox(){
 void VcrossWindow::crossectionBoxActivated(int index){
 
   //vector<miString> crossections= vcrossm->getCrossectionList();
-  miString cbs=crossectionBox->currentText().latin1();
+  miString cbs=crossectionBox->currentText().toStdString();
   //if (index>=0 && index<crossections.size()) {
   vcrossm->setCrossection(cbs);
   vcrossw->updateGL();

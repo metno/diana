@@ -30,34 +30,33 @@
 */
 #include <qtTimeControl.h>
 
-#include <qslider.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qtooltip.h>
-#include <qcheckbox.h>
+#include <QSlider>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QToolTip>
+#include <QCheckBox>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <qtUtility.h>
-#include <q3frame.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
 #include <iostream>
 
 
 
 TimeControl::TimeControl(QWidget* parent)
-  : QDialog( parent, "TimeControl") {
+  : QDialog( parent) {
 
   //m_font= QFont( IQ.fontName.c_str(), IQ.fontSize, IQ.fontWeight );
   m_font= QFont( "Helvetica", 12, 75 );
 
-  Q3Frame* frame= new Q3Frame(this,"frame");
-  frame->setFrameStyle(Q3Frame::Box | Q3Frame::Sunken);
+  QFrame* frame= new QFrame(this);
+  frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   timerangeCheckBox = new  QCheckBox( tr("Time interval"),frame);
   timerangeCheckBox->setChecked(false);
-  QToolTip::add(timerangeCheckBox , tr("Use time interval limits")); 
+  timerangeCheckBox->setToolTip(tr("Use time interval limits")); 
   connect(timerangeCheckBox,SIGNAL(toggled(bool)),SLOT(minmaxSlot()));
 
   QLabel* startLabel= new QLabel(tr("Start"),frame);
@@ -66,18 +65,18 @@ TimeControl::TimeControl(QWidget* parent)
   QLabel* stopLabel= new QLabel(tr("Stop"),frame);
   stopLabel->setMinimumSize(stopLabel->sizeHint());
 
-  startTimeLabel= new QLabel("0000-00-00 00:00:00",frame,"starttl");
-  startTimeLabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
+  startTimeLabel= new QLabel("0000-00-00 00:00:00",frame);
+  startTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   startTimeLabel->setMinimumSize(startTimeLabel->sizeHint());
 
-  stopTimeLabel= new QLabel("0000-00-00 00:00:00",frame,"stoptl");
-  stopTimeLabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
+  stopTimeLabel= new QLabel("0000-00-00 00:00:00",frame);
+  stopTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   stopTimeLabel->setMinimumSize(stopTimeLabel->sizeHint());
       
-  startSlider= new QSlider( Qt::Horizontal, frame, "startslider" );
+  startSlider= new QSlider( Qt::Horizontal, frame);
   startSlider->setMinimumWidth(150);
 
-  stopSlider= new QSlider( Qt::Horizontal, frame, "stopslider" );
+  stopSlider= new QSlider( Qt::Horizontal, frame);
   stopSlider->setMinimumWidth(150);
 
   connect( startSlider, SIGNAL( valueChanged(int)),SLOT(StartValue(int)));
@@ -85,7 +84,7 @@ TimeControl::TimeControl(QWidget* parent)
   connect( startSlider, SIGNAL( sliderReleased()),SLOT(minmaxSlot()));
   connect( stopSlider, SIGNAL( sliderReleased()),SLOT(minmaxSlot()));
 
-  Q3VBoxLayout* timeLayout = new Q3VBoxLayout(5); 
+  QVBoxLayout* timeLayout = new QVBoxLayout(); 
   timeLayout->addWidget( timerangeCheckBox );
   timeLayout->addWidget( startLabel );
   timeLayout->addWidget( startTimeLabel );
@@ -94,18 +93,18 @@ TimeControl::TimeControl(QWidget* parent)
   timeLayout->addWidget( stopTimeLabel );
   timeLayout->addWidget( stopSlider );
 
-  Q3VBoxLayout* vblayout = new Q3VBoxLayout( frame,5, 5);
+  QVBoxLayout* vblayout = new QVBoxLayout( frame);
   vblayout->addLayout( timeLayout );
 
-  Q3HBoxLayout* timerangelayout = new Q3HBoxLayout( 5 );
+  QHBoxLayout* timerangelayout = new QHBoxLayout();
   timerangelayout->addWidget(frame);
 
-  QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this, "timeoutlabel");
+  QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this);
   
   timeoutBox= new QComboBox(this);
   for(float f=0.2; f<2.1; f+=0.1){
     miString text(f,2);
-    timeoutBox->insertItem(text.cStr());
+    timeoutBox->addItem(text.cStr());
   }
 
   connect(timeoutBox, SIGNAL( highlighted(int)), SLOT(timeoutSlot(int)));
@@ -123,16 +122,14 @@ TimeControl::TimeControl(QWidget* parent)
   
   QLabel* dataLabel = new QLabel(tr("Data basis for time slider:"),this); 
   dataBox = new QComboBox(this);
-  dataBox->insertItem(tr("Field"));
-  dataBox->insertItem(tr("Satellite"));
-  dataBox->insertItem(tr("Observations"));
-  dataBox->insertItem(tr("Objects"));
-  dataBox->insertItem(tr("Vertical profiles"));
-  dataBox->insertItem(tr("Vertical cross-sections"));
-  dataBox->insertItem(tr("Wave spectra"));
-  dataBox->insertItem(tr("Products"));
-//   QToolTip::add( dataBox, 
-// 		 "Primært datagrunnlag for tidsslideren" );
+  dataBox->addItem(tr("Field"));
+  dataBox->addItem(tr("Satellite"));
+  dataBox->addItem(tr("Observations"));
+  dataBox->addItem(tr("Objects"));
+  dataBox->addItem(tr("Vertical profiles"));
+  dataBox->addItem(tr("Vertical cross-sections"));
+  dataBox->addItem(tr("Wave spectra"));
+  dataBox->addItem(tr("Products"));
 
   connect(dataBox, SIGNAL( activated(int)),SLOT(dataSlot(int)));
 
@@ -143,7 +140,7 @@ TimeControl::TimeControl(QWidget* parent)
 //   QFrame *line = new QFrame( this );
 //   line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
-  Q3VBoxLayout* vlayout=new Q3VBoxLayout(this,10,10);
+  QVBoxLayout* vlayout=new QVBoxLayout(this);
   vlayout->addLayout( timerangelayout );
   vlayout->addSpacing(5);
   vlayout->addWidget( timeoutLabel );
@@ -260,7 +257,7 @@ void TimeControl::useData(miString type, int id){
   int n= dataname.size();
   for(int i=0;i<n;i++){
     if(dataname[i]==type){
-      dataBox->setCurrentItem(i);
+      dataBox->setCurrentIndex(i);
       emit data(type);
       return;
     }
@@ -268,8 +265,8 @@ void TimeControl::useData(miString type, int id){
   //new dataname
   external_id[id]=type;
   dataname.push_back(type);
-  dataBox->insertItem(type.cStr());
-  dataBox->setCurrentItem(dataBox->count()-1);
+  dataBox->addItem(type.cStr());
+  dataBox->setCurrentIndex(dataBox->count()-1);
   emit data(type);
   
 }

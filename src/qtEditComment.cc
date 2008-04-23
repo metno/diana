@@ -71,13 +71,13 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
   // one window mEdit2 for showing old comments (also used in objectDialog)
   if (inEditSession){
     setGeometry(100,100,480,480);
-    setCaption(tr("Comments-editing"));
+    setWindowTitle(tr("Comments-editing"));
     split = new QSplitter(Qt::Vertical,this);
     split->setGeometry(10,10,460,380);
     mEdit = new QTextEdit(split);
     mEdit2 = new QTextEdit(split);
     mEdit2->hide();
-    showOld = new ToggleButton(this,tr("Show previous comments").latin1());
+    showOld = new ToggleButton(this,tr("Show previous comments").toStdString());
     showOld->setOn(false);
     connect(showOld, SIGNAL( toggled(bool)),SLOT( showOldToggled( bool ) ));
     QVBoxLayout * vlayout = new QVBoxLayout( this);
@@ -88,7 +88,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     setGeometry(100,100,480,400);
     setMinimumSize(480,400);
     setMaximumSize(480,400);
-    setCaption(tr("Comments"));
+    setWindowTitle(tr("Comments"));
     mEdit2 = new QTextEdit(this);
     mEdit2->setGeometry(10,10,460,380);
   }
@@ -134,7 +134,7 @@ void EditComment::readComment()
 void EditComment::saveComment()
 {
   if (inComment && mEdit->isWindowModified()){
-    miString comments = miString(mEdit->text().latin1());
+    miString comments = miString(mEdit->text().toStdString());
     //put comments into plotm->editobjects->comments;
     m_objm->putComments(comments);
     mEdit->setWindowModified(false);

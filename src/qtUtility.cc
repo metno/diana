@@ -71,7 +71,7 @@ int getIndex( vector<Colour::ColourInfo> cInfo, miString def_str  ){
 
 
 /*********************************************/
-QLabel* TitleLabel( const char* name, QWidget* parent){
+QLabel* TitleLabel(const QString& name, QWidget* parent){
   QLabel* label= new QLabel( name, parent );
   label->setPaletteForegroundColor ( QColor(0,0,128) );
 
@@ -80,7 +80,7 @@ QLabel* TitleLabel( const char* name, QWidget* parent){
 
 
 /*********************************************/
-QPushButton* SmallPushButton( const char* name, QWidget* parent){
+QPushButton* SmallPushButton(const QString& name, QWidget* parent){
   QPushButton* b = new QPushButton( name, parent);
 
   QString qstr=name;
@@ -93,7 +93,7 @@ QPushButton* SmallPushButton( const char* name, QWidget* parent){
 
 
 /*********************************************/
-QPushButton* NormalPushButton( const char* name, QWidget* parent){
+QPushButton* NormalPushButton(const QString& name, QWidget* parent){
   QPushButton* b = new QPushButton( name, parent);
   return b;
 }

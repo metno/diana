@@ -121,9 +121,9 @@ LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
 
 editDBinfo LoginDialog::getDbInfo()
 {
-  dbi.host= dbserver->text().latin1();
-  dbi.user= username->text().latin1();
-  dbi.pass= passwd->text().latin1();
+  dbi.host= dbserver->text().toStdString();
+  dbi.user= username->text().toStdString();
+  dbi.pass= passwd->text().toStdString();
   return dbi;
 }
 

@@ -52,20 +52,20 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
 #endif
 
   //caption to appear on top of dialog
-  setCaption( tr("Diana Wavespectrum - settings") );
+  setWindowTitle( tr("Diana Wavespectrum - settings") );
 
   // text constants
- TEXTPLOT         =  tr("Text").latin1();
- FIXEDTEXT        =  tr("Fixed text").latin1();
- FRAME            =  tr("Frame").latin1();
- SPECTRUMLINES    =  tr("Spectrum lines").latin1();
- SPECTRUMCOLOUR   =  tr("Spectrum coloured").latin1();
- ENERGYLINE       =  tr("Graph line").latin1();
- ENERGYCOLOUR     =  tr("Graph coloured").latin1();
- PLOTWIND         =  tr("Wind").latin1();
- PLOTPEAKDIREC    =  tr("Max direction").latin1();
- FREQUENCYMAX     =  tr("Max frequency").latin1();
- BACKCOLOUR       =  tr("Background colour").latin1();
+ TEXTPLOT         =  tr("Text").toStdString();
+ FIXEDTEXT        =  tr("Fixed text").toStdString();
+ FRAME            =  tr("Frame").toStdString();
+ SPECTRUMLINES    =  tr("Spectrum lines").toStdString();
+ SPECTRUMCOLOUR   =  tr("Spectrum coloured").toStdString();
+ ENERGYLINE       =  tr("Graph line").toStdString();
+ ENERGYCOLOUR     =  tr("Graph coloured").toStdString();
+ PLOTWIND         =  tr("Wind").toStdString();
+ PLOTPEAKDIREC    =  tr("Max direction").toStdString();
+ FREQUENCYMAX     =  tr("Max frequency").toStdString();
+ BACKCOLOUR       =  tr("Background colour").toStdString();
 
   //******** create the various QT widgets to appear in dialog *****
 

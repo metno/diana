@@ -37,8 +37,9 @@
 
 
 BrowserBox::BrowserBox(QWidget* parent)
-  : QDialog(parent, "browserbox", true,
-	    Qt::WStyle_Customize | Qt::WStyle_NoBorder)
+  : QDialog(parent)
+// , "browserbox", true,
+// 	    Qt::WStyle_Customize | Qt::WStyle_NoBorder)
   //	    WStyle_Customize | WStyle_NoBorderEx) | Qt::WX11BypassWM
 {
   QHBoxLayout* b= new QHBoxLayout(this);

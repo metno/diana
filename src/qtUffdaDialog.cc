@@ -52,7 +52,7 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 #endif
 
   //caption to appear on top of dialog
-  setCaption(tr("Uffda"));
+  setWindowTitle(tr("Uffda"));
     
   //********** the list of satellites to choose from **************
   satlist = new QListWidget( this );
@@ -357,7 +357,7 @@ void UffdaDialog::addPosition(float lat, float lon){
     QString satname = QString(satnames[i].c_str());
     satname=satname.simplifyWhiteSpace();
     satlist->addItem(satname);
-    if (satnames[i]==sattime.latin1()) currIndex=i;
+    if (satnames[i]==sattime.toStdString()) currIndex=i;
   }
   if (currIndex>-1){
     satlist->setCurrentRow(currIndex);
@@ -421,7 +421,7 @@ void UffdaDialog::updateStationPlot(){
   for (int i=0;i<n;i++){  
     vlat_uffda.push_back(v_uffda[i].lat);
     vlon_uffda.push_back(v_uffda[i].lon);
-    vname_uffda.push_back(v_uffda[i].posstring.latin1());
+    vname_uffda.push_back(v_uffda[i].posstring.toStdString());
   }
   sp = new StationPlot(vname_uffda,vlon_uffda,vlat_uffda);
   sp->setName("uffda");
@@ -444,7 +444,7 @@ void UffdaDialog::clearSelection(){
 void UffdaDialog::pointClicked(miString uffstation){
    int n= v_uffda.size();
    for (int i=0;i<n;i++){  
-     if (v_uffda[i].posstring.latin1()== uffstation){
+     if (v_uffda[i].posstring.toStdString()== uffstation){
        poslist->setCurrentRow(i);
       return;
     }
@@ -458,7 +458,7 @@ miString UffdaDialog::getUffdaString(){
   int n= poslist->count();
   for (int i=0;i<n;i++){  
     if (i<v_uffda.size() && v_uffda[i].ok)
-      uffstr+= poslist->item(i)->text().latin1() + miString("\n");
+      uffstr+= poslist->item(i)->text().toStdString() + miString("\n");
   }  
   return uffstr;
 }

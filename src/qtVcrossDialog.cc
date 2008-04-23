@@ -66,7 +66,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   cerr<<"VcrossDialog::VcrossDialog called"<<endl;
 #endif
 
-  setCaption( tr("Vertical Crossections"));
+  setWindowTitle( tr("Vertical Crossections"));
 
   m_advanced= false;
 
@@ -310,7 +310,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // colorCbox
   colorlabel= new QLabel( tr("Colour"), this );
-  colorCbox= ColourBox(this,colourInfo,false,0,tr("off").latin1(),true);
+  colorCbox= ColourBox(this,colourInfo,false,0,tr("off").toStdString(),true);
   colorCbox->setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   colorCbox->setEnabled( false );
 
@@ -378,7 +378,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //allTimeStepButton->setOn(false);
 
   // advanced
-  miString more_str[2] = { tr("<<Less").latin1(), tr("More>>").latin1() };
+  miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
   advanced= new ToggleButton( this, more_str);
   advanced->setOn(false);
   connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
@@ -645,7 +645,7 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 	   SLOT( repeatCheckBoxToggled(bool) ) );
 
   //shading
-  shadingComboBox=  PaletteBox( advFrame,csInfo,false,0,tr("Off").latin1() );
+  shadingComboBox=  PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString() );
   connect( shadingComboBox, SIGNAL( activated(int) ),
 	   SLOT( shadingChanged() ) );
 
@@ -655,7 +655,7 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
 	   SLOT( shadingChanged() ) );
 
-  shadingcoldComboBox=  PaletteBox( advFrame,csInfo,false,0,tr("Off").latin1() );
+  shadingcoldComboBox=  PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString() );
   connect( shadingcoldComboBox, SIGNAL( activated(int) ),
 	   SLOT( shadingChanged() ) );
 
@@ -666,12 +666,12 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 	   SLOT( shadingChanged() ) );
 
   //pattern
-  patternComboBox = PatternBox( advFrame,patternInfo,false,0,tr("Off").latin1() );
+  patternComboBox = PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString() );
   connect( patternComboBox, SIGNAL( activated(int) ),
 	   SLOT( patternComboBoxToggled(int) ) );
 
   //pattern colour
-  patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").latin1());
+  patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
   connect( patternColourBox, SIGNAL( activated(int) ),
 	   SLOT( patternColourBoxToggled(int) ) );
 
@@ -1687,7 +1687,7 @@ void VcrossDialog::lineintervalCboxActivated( int index ){
 
 void VcrossDialog::densityCboxActivated( int index ){
   if (index==0) updateFieldOptions("density","0");
-  else  updateFieldOptions("density",densityCbox->currentText().latin1());
+  else  updateFieldOptions("density",densityCbox->currentText().toStdString());
 }
 
 
@@ -1838,10 +1838,10 @@ void VcrossDialog::alphaChanged(int index){
 
 void VcrossDialog::zero1ComboBoxToggled(int index){
   if(!zero1ComboBox->currentText().isNull() ){
-    miString str = zero1ComboBox->currentText().latin1();
+    miString str = zero1ComboBox->currentText().toStdString();
     updateFieldOptions("base",str);
     float a = atof(str.cStr());
-    float b = atof(lineintervalCbox->currentText().latin1())/2.0;
+    float b = lineintervalCbox->currentText().toInt();
     baseList(zero1ComboBox,a,b,true);
   }
 }
@@ -1850,12 +1850,12 @@ void VcrossDialog::min1ComboBoxToggled(int index){
   if( index == 0 )
     updateFieldOptions("minvalue","off");
   else if(!min1ComboBox->currentText().isNull() ){
-    miString str = min1ComboBox->currentText().latin1();
+    miString str = min1ComboBox->currentText().toStdString();
     updateFieldOptions("minvalue",str);
     float a = atof(str.cStr());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
-      b = atof(lineintervalCbox->currentText().latin1());
+      b = lineintervalCbox->currentText().toInt();
     baseList(min1ComboBox,a,b,true);
   }
 }
@@ -1864,12 +1864,12 @@ void VcrossDialog::max1ComboBoxToggled(int index){
   if( index == 0 )
     updateFieldOptions("maxvalue","off");
   else if(!max1ComboBox->currentText().isNull() ){
-    miString str = max1ComboBox->currentText().latin1();
-    updateFieldOptions("maxvalue", max1ComboBox->currentText().latin1());
+    miString str = max1ComboBox->currentText().toStdString();
+    updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
     float a = atof(str.cStr());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
-      b = atof(lineintervalCbox->currentText().latin1());
+      b = lineintervalCbox->currentText().toInt();
     baseList(max1ComboBox,a,b,true);
   }
 }

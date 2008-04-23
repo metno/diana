@@ -53,33 +53,33 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
 #endif
 
   //caption to appear on top of dialog
-  setCaption( tr("Diana Vertical Crossections - settings"));
+  setWindowTitle( tr("Diana Vertical Crossections - settings"));
 
   // text constants
-  TEXTPLOT       =  tr("Text").latin1();
-  FRAME          =  tr("Frame").latin1();
-  POSNAMES       =  tr("Position names").latin1();
-  LEVELNUMBERS   =  tr("Number for level").latin1();
-  UPPERLEVEL     =  tr("Top level").latin1();
-  LOWERLEVEL     =  tr("Bottom level").latin1();
-  OTHERLEVELS    =  tr("Other levels").latin1();
-  SURFACE        =  tr("Ground pressure").latin1();
-  DISTANCE       =  tr("Distance").latin1();
-  GRIDPOS        =  tr("Grid x,y positions").latin1();
-  GEOPOS         =  tr("Geographical positions").latin1();
-  VERTGRID       =  tr("Vertical gridlines").latin1();
-  MARKERLINES    =  tr("Marker lines").latin1();
-  VERTICALMARKER =  tr("Vertical markers").latin1();
-  EXTRAPOLP      =  tr("Extrapolate to fixed P").latin1();
-  BOTTOMEXT      =  tr("Extrapolate to ocean floor").latin1();
-  THINARROWS     =  tr("Thin arrows").latin1();
-  VERTICALTYPE   =  tr("Vertical type").latin1();
-  VHSCALE        =  tr("Fixed vertical/horizontal scaling:").latin1();
-  STDVERAREA     =  tr("Default area vertically:").latin1();
-  STDHORAREA     =  tr("Default area horizontally:").latin1();
-  BACKCOLOUR     =  tr("Background colour").latin1();
-  ONMAPDRAW      =  tr("Crossections on map").latin1();
-  HITMAPDRAW     =  tr("Selected crossection on map").latin1();
+  TEXTPLOT       =  tr("Text").toStdString();
+  FRAME          =  tr("Frame").toStdString();
+  POSNAMES       =  tr("Position names").toStdString();
+  LEVELNUMBERS   =  tr("Number for level").toStdString();
+  UPPERLEVEL     =  tr("Top level").toStdString();
+  LOWERLEVEL     =  tr("Bottom level").toStdString();
+  OTHERLEVELS    =  tr("Other levels").toStdString();
+  SURFACE        =  tr("Ground pressure").toStdString();
+  DISTANCE       =  tr("Distance").toStdString();
+  GRIDPOS        =  tr("Grid x,y positions").toStdString();
+  GEOPOS         =  tr("Geographical positions").toStdString();
+  VERTGRID       =  tr("Vertical gridlines").toStdString();
+  MARKERLINES    =  tr("Marker lines").toStdString();
+  VERTICALMARKER =  tr("Vertical markers").toStdString();
+  EXTRAPOLP      =  tr("Extrapolate to fixed P").toStdString();
+  BOTTOMEXT      =  tr("Extrapolate to ocean floor").toStdString();
+  THINARROWS     =  tr("Thin arrows").toStdString();
+  VERTICALTYPE   =  tr("Vertical type").toStdString();
+  VHSCALE        =  tr("Fixed vertical/horizontal scaling:").toStdString();
+  STDVERAREA     =  tr("Default area vertically:").toStdString();
+  STDHORAREA     =  tr("Default area horizontally:").toStdString();
+  BACKCOLOUR     =  tr("Background colour").toStdString();
+  ONMAPDRAW      =  tr("Crossections on map").toStdString();
+  HITMAPDRAW     =  tr("Selected crossection on map").toStdString();
 
   //******** create the various QT widgets to appear in dialog *****
 

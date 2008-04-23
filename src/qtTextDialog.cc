@@ -47,9 +47,11 @@
 
 /*********************************************/
 TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
-  : QDialog(parent,
-	    Qt::WStyle_Customize | Qt::WStyle_NormalBorder |
-	    Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WDestructiveClose)
+  : QDialog(parent)
+
+// 	    Qt::WindowTitleHint | 
+// 	    Qt::WindowSystemMenuHint |  
+// 	    Qt::WA_DeleteOnClose)
 {
   tb = new QTextBrowser( this ); 
 
@@ -93,7 +95,7 @@ void TextDialog::setSource(const InfoFile ifile){
   
   infofile= ifile;
   if (infofile.name.exists()){
-    setCaption(infofile.name.cStr());
+    setWindowTitle(infofile.name.cStr());
 
     miString ext, file;
     path= "";
@@ -122,8 +124,8 @@ void TextDialog::setSource(const InfoFile ifile){
       int psize= font().pointSize();
       tb->setFont(QFont("Courier", psize, QFont::Normal));
     } else {
-      //tb->setFont(QFont("Helvetica", 10, QFont::Normal));
-      tb->unsetFont();
+      tb->setFont(QFont("Helvetica", 10, QFont::Normal));
+      //tb->unsetFont();
     }
 
     tb->setSource(QString(infofile.filename.cStr()));
@@ -152,8 +154,8 @@ void TextDialog::fixedfont()
     int psize= font().pointSize();
     tb->setFont(QFont("Courier", psize, QFont::Normal));
   } else {
-    tb->unsetFont();
-    //tb->setFont(QFont("Helvetica", 10, QFont::Normal));
+    //    tb->unsetFont();
+    tb->setFont(QFont("Helvetica", 10, QFont::Normal));
   }
   tb->update();
 
@@ -177,8 +179,8 @@ void TextDialog::openwild()
   if ( s.isEmpty() )
     return;
   
-  f.name= s.latin1();
-  f.filename= s.latin1();
+  f.name= s.toStdString();
+  f.filename= s.toStdString();
   f.doctype= "auto";
   f.fonttype= infofile.fonttype;
   setSource(f);

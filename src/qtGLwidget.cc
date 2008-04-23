@@ -31,15 +31,14 @@
 //#define DEBUGREDRAW
 
 #include <fstream>
-#include <qapplication.h>
-#include <qimage.h>
+
+#include <QApplication>
+#include <QImage>
 #include <qtGLwidget.h>
-//Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <diController.h>
 
-//#include <sgiimage.h>
 #include <math.h>
 #include <iostream>
 #include <qpixmap.h>
@@ -49,8 +48,8 @@
 
 // GLwidget constructor
 GLwidget::GLwidget(Controller* c,  const QGLFormat fmt,
-		   QWidget* parent, const char* name)
-  : QGLWidget(fmt, parent, name), contr(c), fbuffer(0),
+		   QWidget* parent)
+  : QGLWidget(fmt, parent), contr(c), fbuffer(0),
     curcursor(keep_it)
 {
   setFocusPolicy(Qt::StrongFocus);
@@ -182,30 +181,30 @@ void GLwidget::changeCursor(const cursortype c){
     switch (c){
     case edit_cursor:
 //    setCursor(crossCursor);
-      setCursor(Qt::arrowCursor);
+      setCursor(Qt::ArrowCursor);
       break;
     case edit_move_cursor:
 //    setCursor(crossCursor);
-      setCursor(Qt::arrowCursor);
+      setCursor(Qt::ArrowCursor);
       break;
     case edit_value_cursor:
-      setCursor(Qt::upArrowCursor);
+      setCursor(Qt::UpArrowCursor);
       break;
     case draw_cursor:
-      setCursor(Qt::pointingHandCursor);
+      setCursor(Qt::PointingHandCursor);
       break;
     case paint_select_cursor:
-      setCursor(Qt::upArrowCursor);
+      setCursor(Qt::UpArrowCursor);
       break;
     case paint_move_cursor:
-      setCursor(Qt::sizeAllCursor);
+      setCursor(Qt::SizeAllCursor);
       break;
     case paint_draw_cursor:
       setCursor(QCursor(QPixmap(paint_cursor_xpm),0,16));
       break;
     case normal_cursor:
     default:
-      setCursor(Qt::arrowCursor);
+      setCursor(Qt::ArrowCursor);
       break;
     }
     curcursor= c;
@@ -231,22 +230,22 @@ void GLwidget::fillMouseEvent(const QMouseEvent* me,
   } else {
     // if mouse-move event, button found in state-mask
     // NB: we only keep one button when moving!
-    if (me->state() & Qt::LeftButton)
+    if (me->buttons() & Qt::LeftButton)
       mev.button= leftButton;
-    else if (me->state() & Qt::MidButton)
+    else if (me->buttons() & Qt::MidButton)
       mev.button= midButton;
-    else if (me->state() & Qt::RightButton)
+    else if (me->buttons() & Qt::RightButton)
       mev.button= rightButton;
     else
       mev.button= noButton;
   }
 
   // set modifier
-  if (me->state() & Qt::ShiftModifier)
+  if (me->modifiers() & Qt::ShiftModifier)
     mev.modifier= key_Shift;
-  else if (me->state() & Qt::AltModifier)
+  else if (me->modifiers() & Qt::AltModifier)
     mev.modifier= key_Alt;
-  else if (me->state() & Qt::ControlModifier)
+  else if (me->modifiers() & Qt::ControlModifier)
     mev.modifier= key_Control;
   else mev.modifier= key_unknown;
 
@@ -326,11 +325,11 @@ void GLwidget::handleKeyEvents(QKeyEvent* me,const keyboardEventType ket){
 
   // set modifier
 
-  if (me->state() & Qt::ShiftModifier)
+  if (me->modifiers() & Qt::ShiftModifier)
     kev.modifier= key_Shift;
-  else if (me->state() & Qt::AltModifier)
+  else if (me->modifiers() & Qt::AltModifier)
     kev.modifier= key_Alt;
-  else if (me->state() & Qt::ControlModifier)
+  else if (me->modifiers() & Qt::ControlModifier)
     kev.modifier= key_Control;
   else kev.modifier= key_unknown;
 

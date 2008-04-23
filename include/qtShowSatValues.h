@@ -50,7 +50,7 @@ using namespace std;
 class ShowSatValues : public QWidget {
   Q_OBJECT
 public:
-  ShowSatValues(QWidget* parent = 0, const char* name = 0);
+  ShowSatValues(QWidget* parent = 0);
 
 private slots:
   void channelChanged(int index);

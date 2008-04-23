@@ -86,7 +86,7 @@ public:
 QuickAdmin::QuickAdmin(QWidget* parent,
 		       vector<quickMenu>& qm,
 		       int fc, int lc)
-  : QDialog(parent, "QUICKADMIN", TRUE),
+  : QDialog(parent),
     menues(qm),firstcustom(fc), lastcustom(lc),
     activeMenu(-1),activeElement(-1),
     copyMenu(-1),copyElement(-1), autochange(true)
@@ -238,10 +238,10 @@ void QuickAdmin::selectionChanged(QTreeWidgetItem *p ,int i)
 //   cerr <<"selectionChanged()"<<endl;
 //   QTreeWidgetItem * p = menutree->currentItem();
 //   cerr <<"columnCount:"<<p->columnCount()<<endl;
-//   if(p->columnCount()>0) cerr <<p->text(0).latin1()<<endl;
+//   if(p->columnCount()>0) cerr <<p->text(0).toStdString()<<endl;
 //   QList<QTreeWidgetItem *> lq = menutree->selectedItems();
 //   for(int i=0;i<lq.count();i++)
-//     cerr <<i<<"  "<<lq[i]->text(0).latin1()<<endl;
+//     cerr <<i<<"  "<<lq[i]->text(0).toStdString()<<endl;
  if (p){
     QuickTreeWidgetItem* qp= (QuickTreeWidgetItem*)(p);
     activeMenu= qp->Menu();
@@ -430,7 +430,7 @@ void QuickAdmin::newClicked()
     if ( ok && !text.isEmpty() ){
       //       cerr << "Making a new MENU after menu:" << activeMenu << endl;
       quickMenu tmp;
-      tmp.name= text.latin1();
+      tmp.name= text.toStdString();
       tmp.name.trim();
       tmp.name.replace(","," ");
       tmp.filename= tmp.name + ".quick";
@@ -454,7 +454,7 @@ void QuickAdmin::newClicked()
       //       cerr << "Making a new ITEM in menu:" << activeMenu
       // 	   << " after item:" << activeElement << endl;
       quickMenuItem tmp;
-      tmp.name= text.latin1();
+      tmp.name= text.toStdString();
       menues[activeMenu].menuitems.insert(menues[activeMenu].menuitems.begin()
 					  +activeElement, tmp);
     }
@@ -473,7 +473,7 @@ void QuickAdmin::newfileClicked()
     return;
   
   quickMenu tmp;
-  tmp.filename= s.latin1();
+  tmp.filename= s.toStdString();
   tmp.plotindex= 0;
   if (readQuickMenu(tmp)){
     menues.insert(menues.begin()+activeMenu+1,tmp);
@@ -495,7 +495,7 @@ void QuickAdmin::renameClicked()
 					 menues[activeMenu].name.cStr(),
 					 &ok, this );
     if ( ok && !text.isEmpty() )
-      menues[activeMenu].name= text.latin1();
+      menues[activeMenu].name= text.toStdString();
       menues[activeMenu].name.trim();
       menues[activeMenu].name.replace(","," ");
       menues[activeMenu].filename= menues[activeMenu].name + ".quick";
@@ -507,7 +507,7 @@ void QuickAdmin::renameClicked()
 					 menues[activeMenu].menuitems[activeElement].name.cStr(),
 					 &ok, this );
     if ( ok && !text.isEmpty() )
-      menues[activeMenu].menuitems[activeElement].name= text.latin1();
+      menues[activeMenu].menuitems[activeElement].name= text.toStdString();
   }
   if (ok) updateWidgets();
 }
@@ -625,8 +625,8 @@ void QuickAdmin::comChanged(){
 //   int ni= comedit->paragraphs();
 //   vector<miString> s;
 //   for (int i=0; i<ni; i++){
-// //     miString str= comedit->textLine(i).latin1();
-//     miString str= comedit->text(i).latin1();
+// //     miString str= comedit->textLine(i).toStdString();
+//     miString str= comedit->text(i).toStdString();
 //     str.trim();
 //     if (str.contains("\n"))
 //       str.erase(str.end()-1);
@@ -635,7 +635,7 @@ void QuickAdmin::comChanged(){
 
 //Qt4
   vector<miString> s;
-  miString str= comedit->text().latin1();
+  miString str= comedit->text().toStdString();
   if (str.exists()) s.push_back(str);
   menues[activeMenu].menuitems[activeElement].command= s;
 }

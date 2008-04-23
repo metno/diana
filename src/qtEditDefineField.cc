@@ -58,17 +58,17 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   m_editm= m_ctrl->getEditManager();  
 
   if (num==-1){
-    fieldname= tr("Objects").latin1();
-    setCaption(tr("Pick objects for editing"));
+    fieldname= tr("Objects").toStdString();
+    setWindowTitle(tr("Pick objects for editing"));
   }
   else if (num < EdProd.fields.size()){
     fieldname=EdProd.fields[num].name;
-    setCaption(tr("Pick fields for editing"));
+    setWindowTitle(tr("Pick fields for editing"));
   }
 
-  MODELFIELDS = tr("Model fields").latin1();
+  MODELFIELDS = tr("Model fields").toStdString();
 
-  miString txt= fieldname + " " + miString(tr("from:").latin1());
+  miString txt= fieldname + " " + miString(tr("from:").toStdString());
   QLabel* mainlabel= TitleLabel( txt.cStr(), this );
   
   productNames=getProductNames();

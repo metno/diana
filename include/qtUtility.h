@@ -60,13 +60,13 @@ int getIndex( vector<Colour::ColourInfo> cInfo, miString def_str );
 
 // Lables
 
-QLabel* TitleLabel( const char* name, QWidget* parent);
+QLabel* TitleLabel(const QString& name, QWidget* parent);
 
 // PushButtons
 
-QPushButton* SmallPushButton( const char* name, QWidget* parent);
+QPushButton* SmallPushButton( const QString& name, QWidget* parent);
 
-QPushButton* NormalPushButton( const char* name, QWidget* parent);
+QPushButton* NormalPushButton( const QString& name, QWidget* parent);
 
 QPushButton* PixmapButton( const QPixmap& pixmap, QWidget* parent,
 			 int deltaWidth=0, int deltaHeight=0);

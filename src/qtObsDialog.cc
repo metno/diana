@@ -30,32 +30,28 @@
 */
 
 #include <QApplication>
-#include <QToolTip>
 #include <QComboBox>
 #include <QLabel>
-//#include <qcolor.h>
 #include <QListWidget>
 #include <QListWidgetItem>
-#include <qlcdnumber.h>
-#include <qslider.h>
-#include <qcheckbox.h>
+#include <QLCDNumber>
+#include <QSlider>
+#include <QCheckBox>
 #include <QStackedWidget>
-#include <q3frame.h>
-#include <qradiobutton.h>
-#include <qlineedit.h>
-#include <qtooltip.h>
-#include <q3frame.h>
+#include <QFrame>
+#include <QRadioButton>
+#include <QLineEdit>
+#include <QToolTip>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QButtonGroup>
 
 #include <qtObsDialog.h>
 #include <qtObsWidget.h>
 #include <qtUtility.h>
 #include <qtToggleButton.h>
 #include <qtAdvancedButton.h>
-#include <QHBoxLayout>
-#include <QGridLayout>
-#include <QVBoxLayout>
-
-#include <QButtonGroup>
 
 #include <iostream>
 #include <qpushbutton.h>
@@ -67,7 +63,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
     : QDialog(parent)
 {
 
-  setCaption(tr("Observations"));
+  setWindowTitle(tr("Observations"));
 
   m_ctrl=llctrl;
   ObsDialogInfo dialog = llctrl->initObsDialog() ;
@@ -84,7 +80,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
     //Possible to translate plot types for use in dialogues,
     //but plot strings etc  will use english names
     if(plt[i].name=="Pressure")  
-      dialog_name.push_back(tr("Pressure").latin1());
+      dialog_name.push_back(tr("Pressure").toStdString());
     else
       dialog_name.push_back(plt[i].name);
   }
@@ -122,7 +118,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
   multiplot = false;
 
-  multiplotButton = new ToggleButton(  this, tr("Show all").latin1() );
+  multiplotButton = new ToggleButton(  this, tr("Show all").toStdString() );
   QToolTip::add( multiplotButton, tr("Show all plot types") );
   obshelp =  NormalPushButton( tr("Help"), this );
   obsrefresh = NormalPushButton( tr("Refresh"), this );
@@ -604,8 +600,8 @@ void ObsDialog::makeExtension()
   connect( delallButton, SIGNAL(clicked()),SLOT(deleteAllSlot()));
   connect( saveButton, SIGNAL(clicked()),SLOT(saveSlot()));
 
-  Q3Frame *line0 = new Q3Frame( extension );
-  line0->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  QFrame *line0 = new QFrame( extension );
+  line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
   QVBoxLayout *exLayout = new QVBoxLayout( 5 );
   exLayout->addWidget( listLabel );
@@ -622,8 +618,8 @@ void ObsDialog::makeExtension()
   exLayout->addWidget( saveButton );
 
   //separator
-  Q3Frame* verticalsep= new Q3Frame( extension );
-  verticalsep->setFrameStyle( Q3Frame::VLine | Q3Frame::Raised );
+  QFrame* verticalsep= new QFrame( extension );
+  verticalsep->setFrameStyle( QFrame::VLine | QFrame::Raised );
   verticalsep->setLineWidth( 5 );
 
   QHBoxLayout *hLayout = new QHBoxLayout( extension,5,5 );
@@ -694,7 +690,7 @@ void ObsDialog::signSlot( int number ){
 
 void ObsDialog::sliderSlot( int number ){
 
-  double scalednumber= number * atof(stepComboBox->currentText().latin1());
+  double scalednumber= number * stepComboBox->currentText().toInt();
   limitLcd->display( scalednumber );
   changeCriteriaString();
 
@@ -703,7 +699,7 @@ void ObsDialog::sliderSlot( int number ){
 void ObsDialog::stepSlot( int number )
 {
   float value = limitLcd->value();
-  float scalesize = atof(stepComboBox->currentText().latin1());
+  float scalesize = stepComboBox->currentText().toInt();
   numberList(stepComboBox,scalesize);
   limitSlider->setValue(int(limitLcd->value()/scalesize));
   double scalednumber= limitSlider->value()*scalesize;
@@ -727,7 +723,7 @@ void  ObsDialog::changeCriteriaString( )
     int n=criteriaListbox->count();
     vector<miString> vstr;
     for( int i=0; i<n; i++){
-      vstr.push_back(criteriaListbox->item(i)->text().latin1());
+      vstr.push_back(criteriaListbox->item(i)->text().toStdString());
     }
     obsWidget[m_selected]->saveCriteria(vstr);
 
@@ -752,7 +748,7 @@ bool  ObsDialog::newCriteriaString( )
   bool found=false;
   int i=0;
   for( ; i<n; i++){
-    miString sstr = criteriaListbox->item(i)->text().latin1();
+    miString sstr = criteriaListbox->item(i)->text().toStdString();
     vector<miString> vstr;
     if(sstr.contains("<"))
       vstr=sstr.split("<");
@@ -762,7 +758,7 @@ bool  ObsDialog::newCriteriaString( )
       vstr=sstr.split("=");
     else
       vstr=sstr.split(" ");
-    //    if(vstr.size() && vstr[0]==parameterLabel->text().latin1()){
+    //    if(vstr.size() && vstr[0]==parameterLabel->text().toStdString()){
     if(vstr.size() && vstr[0]==parameter){
       found=true;
     }else if(found){
@@ -776,7 +772,7 @@ bool  ObsDialog::newCriteriaString( )
   n=criteriaListbox->count();
   vector<miString> vstr;
   for( int i=0; i<n; i++){
-    vstr.push_back(criteriaListbox->item(i)->text().latin1());
+    vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
   obsWidget[m_selected]->saveCriteria(vstr);
 
@@ -791,7 +787,7 @@ miString ObsDialog::makeCriteriaString( )
   //make string
   miString str=parameter;
 
-  miString sign = signBox->currentText().latin1();
+  miString sign = signBox->currentText().toStdString();
   if(sign.exists()){
     str += sign;
     miString lcdstr(limitLcd->value());
@@ -832,7 +828,7 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
 
   freeze=true;
 
-  miString str = item->text().latin1();
+  miString str = item->text().toStdString();
 
   vector<miString> sub = str.split(" ");
 
@@ -932,7 +928,7 @@ void ObsDialog::deleteSlot( )
   int n=criteriaListbox->count();
   vector<miString> vstr;
   for( int i=0; i<n; i++){
-    vstr.push_back(criteriaListbox->item(i)->text().latin1());
+    vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
   //save criterias and reread in order to get buttons marked right
   obsWidget[m_selected]->saveCriteria(vstr);
@@ -956,13 +952,13 @@ void ObsDialog::deleteAllSlot( )
 void ObsDialog::saveSlot( )
 {
 
-  miString name = lineedit->text().latin1();
+  miString name = lineedit->text().toStdString();
   if( !name.exists() ) return;
 
   int n=criteriaListbox->count();
   vector<miString> vstr;
   for( int i=0; i<n; i++){
-    vstr.push_back(criteriaListbox->item(i)->text().latin1());
+    vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
 
   //save criterias and reread in order to get buttons marked right

@@ -55,11 +55,11 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 #endif
 
   //caption to appear on top of dialog
-  setCaption( tr("Diana Wavespectrum - models") );
+  setWindowTitle( tr("Diana Wavespectrum - models") );
    
   // text constants
-  ASFIELD = tr("As field").latin1();
-  OBS     = tr("Observations").latin1();
+  ASFIELD = tr("As field").toStdString();
+  OBS     = tr("Observations").toStdString();
 
   // send translated menunames to manager
   map<miString,miString> textconst;
@@ -71,8 +71,8 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 
   //**** the three buttons "auto", "tid", "fil" *************
   vector<miString> model;
-  model.push_back(tr("Model").latin1());
-  model.push_back(tr("File").latin1());
+  model.push_back(tr("Model").toStdString());
+  model.push_back(tr("File").toStdString());
 
   //if a model is selected- should be as model- else default model(hirlam)
 
@@ -84,8 +84,8 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   modelfileList->setEnabled(true);  
   updateModelfileList();
 
-  modelButton = new ToggleButton(this, tr("Model").latin1());
-  fileButton  = new ToggleButton(this, tr("File").latin1());
+  modelButton = new ToggleButton(this, tr("Model").toStdString());
+  fileButton  = new ToggleButton(this, tr("File").toStdString());
   modelfileBut = new QButtonGroup( this );
   modelfileBut->addButton(modelButton,0);
   modelfileBut->addButton(fileButton,1);
@@ -237,7 +237,7 @@ void SpectrumModelDialog::setSelection(){
       miString model = models[i];
       int m = modelfileList->count();
       for (int j = 0;j<m;j++){
-	miString listModel =  modelfileList->item(j)->text().latin1();
+	miString listModel =  modelfileList->item(j)->text().toStdString();
 	if (model==listModel) modelfileList->item(j)->setSelected(true);
       }
     }
@@ -259,7 +259,7 @@ void SpectrumModelDialog::setModel(){
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-	miString model = modelfileList->item(i)->text().latin1();
+	miString model = modelfileList->item(i)->text().toStdString();
 	if(model==OBS){
 	  showObs=true;
 	} else if (model==ASFIELD){
@@ -275,7 +275,7 @@ void SpectrumModelDialog::setModel(){
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-	miString file = modelfileList->item(i)->text().latin1(); 
+	miString file = modelfileList->item(i)->text().toStdString(); 
 	files.push_back(file);
       }
     }
@@ -295,7 +295,7 @@ void SpectrumModelDialog::updateModelfileList(){
   set<miString> current;
   for (int i=0; i<n; i++)
     if (modelfileList->item(i)->isSelected())
-      current.insert(miString(modelfileList->item(i)->text().latin1()));
+      current.insert(miString(modelfileList->item(i)->text().toStdString()));
 
   //clear box with list of files 
   modelfileList->clear();
@@ -322,7 +322,7 @@ void SpectrumModelDialog::updateModelfileList(){
   set<miString>::iterator pend= current.end();
   n= modelfileList->count();
   for (int i=0; i<n; i++)
-    if (current.find(miString(modelfileList->item(i)->text().latin1()))!=pend)
+    if (current.find(miString(modelfileList->item(i)->text().toStdString()))!=pend)
       modelfileList->item(i)->setSelected(true);
   
 }

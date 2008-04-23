@@ -38,7 +38,7 @@
 
 ProfetSessionDialog::ProfetSessionDialog( QWidget* parent) 
   : QDialog(parent ){
-  setCaption(tr("Edit Field Session"));
+  setWindowTitle(tr("Edit Field Session"));
   setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
   QVBoxLayout * mainLayout = new QVBoxLayout(this);
   mainLayout->setMargin(2);

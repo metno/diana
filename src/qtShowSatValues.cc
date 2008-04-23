@@ -29,23 +29,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtShowSatValues.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qtooltip.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3Frame>
+
+#include <QLabel>
+#include <QComboBox>
+#include <QToolTip>
+#include <QHBoxLayout>
+#include <QFrame>
+
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <string>
 
-ShowSatValues::ShowSatValues(QWidget* parent, const char* name)
-  : QWidget(parent,name) {
+ShowSatValues::ShowSatValues(QWidget* parent)
+  : QWidget(parent) {
   
   // Create horisontal lay1out manager
-  Q3HBoxLayout* thlayout = new Q3HBoxLayout( this, 0, 0, "thlayout");
+  QHBoxLayout* thlayout = new QHBoxLayout( this);
   thlayout->setMargin(1);
   thlayout->setSpacing(5);
   
@@ -56,8 +56,8 @@ ShowSatValues::ShowSatValues(QWidget* parent, const char* name)
   connect(channelbox,SIGNAL(activated(int)),SLOT(channelChanged(int)));
   thlayout->addWidget(channelbox);
 
-  chlabel= new QLabel("XXXXXXXXXXXX",this,"xlabel");
-  chlabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
+  chlabel= new QLabel("XXXXXXXXXXXX",this);
+  chlabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   chlabel->setMinimumSize(chlabel->sizeHint());
   chlabel->setText("    "); 
   thlayout->addWidget(chlabel,0);
@@ -68,7 +68,7 @@ void ShowSatValues::channelChanged(int index)
 {
   if( index < tooltip.size() && index > -1 ){
     miString tip = tooltip[index].replace('|',' ');
-    QToolTip::add( channelbox, tip.cStr() );
+    channelbox->setToolTip( QString(tip.cStr() ));
   }
 }
 
@@ -80,7 +80,7 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
   //try to remember currentItem
   int index = -1;
   if(tooltip.size( )> 0 && channelbox->count()>0  ){
-    miString currentText = tooltip[channelbox->currentItem()];
+    miString currentText = tooltip[channelbox->currentIndex()];
     int i = 0;
     while(i<nch && channel[i]!=currentText) i++;
     if(i<nch) index=i;
@@ -92,7 +92,7 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
     //    cerr <<"channel:"<<i<<"  "<<channel[i]<<endl;
     vector<miString> token = channel[i].split("|");
     if(token.size()==2){
-      channelbox->insertItem(token[1].cStr());
+      channelbox->addItem(token[1].cStr());
       //if no currentItem, use channel"4"
       if(index == -1 && token[1].contains("4")) index = i; 
     }
@@ -101,13 +101,13 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
 
   //reset currentItem
   if(index>-1) 
-    channelbox->setCurrentItem(index);
+    channelbox->setCurrentIndex(index);
 
   //update tooltip
   if(nch > 0)
-    channelChanged(channelbox->currentItem());
+    channelChanged(channelbox->currentIndex());
   else
-    QToolTip::remove(channelbox);
+    channelbox->setToolTip( QString());
 
 }
 
@@ -119,7 +119,7 @@ void ShowSatValues::ShowValues(const vector<SatValues> &satval)
   int i=0;
 //   cerr <<"ShowValues:"<<n<<endl;
 //   cerr <<"channelbox->currentItem():"<<channelbox->currentItem()<<endl;
-  while(i<n && satval[i].channel != tooltip[channelbox->currentItem()]) i++;
+  while(i<n && satval[i].channel != tooltip[channelbox->currentIndex()]) i++;
 
   //no value 
   if(i==n){

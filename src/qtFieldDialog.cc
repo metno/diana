@@ -34,18 +34,13 @@
 #include <qcombobox.h>
 #include <qslider.h>
 #include <QListWidget>
-#include <qlayout.h>
 #include <qlabel.h>
 #include <qpainter.h>
-#include <qlayout.h>
 #include <qpushbutton.h>
 #include <qsplitter.h>
-#include <q3groupbox.h>
-#include <q3vbox.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
 #include <qtooltip.h>
-#include <q3frame.h>
 
 #include <qtFieldDialog.h>
 #include <qtUtility.h>
@@ -85,7 +80,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
   m_modelgroup = m_ctrl->initFieldDialog();
 
-  setCaption(tr("Fields"));
+  setWindowTitle(tr("Fields"));
 
   useArchive= false;
   profetEnabled= false;
@@ -94,25 +89,25 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   currentFieldOptsInEdit= false;
   historyPos= -1;
 
-  editName= tr("EDIT").latin1();
+  editName= tr("EDIT").toStdString();
 
   // translations of fieldGroup names (Qt linguist translations)
-  fgTranslations["EPS Probability"]= tr("EPS Probability").latin1();
-  fgTranslations["EPS Clusters"]=    tr("EPS Clusters").latin1();
-  fgTranslations["EPS Members"]=     tr("EPS Members").latin1();
+  fgTranslations["EPS Probability"]= tr("EPS Probability").toStdString();
+  fgTranslations["EPS Clusters"]=    tr("EPS Clusters").toStdString();
+  fgTranslations["EPS Members"]=     tr("EPS Members").toStdString();
 
-  fgTranslations["Analysis"]=        tr("Analysis").latin1();
-  fgTranslations["Constant fields"]= tr("Constant fields").latin1();
+  fgTranslations["Analysis"]=        tr("Analysis").toStdString();
+  fgTranslations["Constant fields"]= tr("Constant fields").toStdString();
 
-  fgTranslations["Surface etc"]=        tr("Surface etc.").latin1();
-  fgTranslations["Pressure Levels"]=    tr("Pressure Levels").latin1();
-  fgTranslations["FlightLevels"]=       tr("FlightLevels").latin1();
-  fgTranslations["Model Levels"]=       tr("Model Levels").latin1();
-  fgTranslations["Isentropic Levels"]=  tr("Isentropic Levels").latin1();
-  fgTranslations["Temperature Levels"]= tr("Temperature Levels").latin1();
-  fgTranslations["PV Levels"]=          tr("PV Levels").latin1();
-  fgTranslations["Ocean Depths"]=       tr("Ocean Depths").latin1();
-  fgTranslations["Ocean Model Levels"]= tr("Ocean Model Levels").latin1();
+  fgTranslations["Surface etc"]=        tr("Surface etc.").toStdString();
+  fgTranslations["Pressure Levels"]=    tr("Pressure Levels").toStdString();
+  fgTranslations["FlightLevels"]=       tr("FlightLevels").toStdString();
+  fgTranslations["Model Levels"]=       tr("Model Levels").toStdString();
+  fgTranslations["Isentropic Levels"]=  tr("Isentropic Levels").toStdString();
+  fgTranslations["Temperature Levels"]= tr("Temperature Levels").toStdString();
+  fgTranslations["PV Levels"]=          tr("PV Levels").toStdString();
+  fgTranslations["Ocean Depths"]=       tr("Ocean Depths").toStdString();
+  fgTranslations["Ocean Model Levels"]= tr("Ocean Model Levels").toStdString();
   //fgTranslations[""]= tr("");
 
   int i, n;
@@ -418,7 +413,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
   // colorCbox
   QLabel* colorlabel= new QLabel( tr("Line colour"), this );
-  colorCbox= ColourBox(this,colourInfo,false,0,tr("off").latin1(),true);
+  colorCbox= ColourBox(this,colourInfo,false,0,tr("off").toStdString(),true);
   colorCbox->setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   colorCbox->setEnabled( false );
 
@@ -468,14 +463,14 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   connect( fieldhelp, SIGNAL(clicked()), SLOT(helpClicked()));
 
   // allTimeStep
-  allTimeStepButton = new ToggleButton( this, tr("All time steps").latin1() );
+  allTimeStepButton = new ToggleButton( this, tr("All time steps").toStdString() );
   allTimeStepButton->setToggleButton(true);
   allTimeStepButton->setOn(false);
   connect( allTimeStepButton, SIGNAL(toggled(bool)),
 	   SLOT(allTimeStepToggled(bool)));
 
   // advanced
-  miString more_str[2] = { (tr("<<Less").latin1()), (tr("More>>").latin1()) };
+  miString more_str[2] = { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
   advanced= new ToggleButton( this, more_str );
   advanced->setOn(false);
   connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
@@ -680,7 +675,7 @@ void FieldDialog::CreateAdvanced() {
   QLabel* extremeTypeLabel= TitleLabel( tr("Min,max"), advFrame );
   extremeTypeCbox= new QComboBox( false, advFrame );
   extremeTypeCbox->setEnabled( false );
-  extremeType.push_back(tr("None").latin1());
+  extremeType.push_back(tr("None").toStdString());
   extremeType.push_back("L+H");
   extremeType.push_back("C+W");
   connect( extremeTypeCbox, SIGNAL( activated(int) ),
@@ -779,9 +774,9 @@ void FieldDialog::CreateAdvanced() {
   QLabel* undefMaskingLabel= TitleLabel( tr("Undefined"), advFrame );
   undefMaskingCbox= new QComboBox( false, advFrame );
   undefMaskingCbox->setEnabled( false );
-  undefMasking.push_back(tr("Unmarked").latin1());
-  undefMasking.push_back(tr("Coloured").latin1());
-  undefMasking.push_back(tr("Lines").latin1());
+  undefMasking.push_back(tr("Unmarked").toStdString());
+  undefMasking.push_back(tr("Coloured").toStdString());
+  undefMasking.push_back(tr("Lines").toStdString());
   connect( undefMaskingCbox, SIGNAL( activated(int) ),
 	   SLOT( undefMaskingActivated(int) ) );
 
@@ -842,14 +837,14 @@ void FieldDialog::CreateAdvanced() {
   //  threeColoursCheckBox = new QCheckBox(tr("Three colours"), advFrame);
 
   for(int i=0;i<3;i++){
-    threeColourBox.push_back(ColourBox(advFrame,colourInfo,true,0,tr("Off").latin1()));
+    threeColourBox.push_back(ColourBox(advFrame,colourInfo,true,0,tr("Off").toStdString()));
     connect( threeColourBox[i], SIGNAL( activated(int) ),
 	     SLOT( threeColoursChanged() ) );
   }
 
   //shading
   shadingComboBox=  
-    PaletteBox( advFrame,csInfo,false,0,tr("Off").latin1(),true );
+    PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
   shadingComboBox->
     setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   connect( shadingComboBox, SIGNAL( activated(int) ),
@@ -862,7 +857,7 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( shadingChanged() ) );
 
   shadingcoldComboBox=  
-    PaletteBox( advFrame,csInfo,false,0,tr("Off").latin1(),true );
+    PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
   shadingcoldComboBox->  
     setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   connect( shadingcoldComboBox, SIGNAL( activated(int) ),
@@ -876,14 +871,14 @@ void FieldDialog::CreateAdvanced() {
 
   //pattern
   patternComboBox = 
-    PatternBox( advFrame,patternInfo,false,0,tr("Off").latin1(),true );
+    PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString(),true );
   patternComboBox ->
     setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   connect( patternComboBox, SIGNAL( activated(int) ),
 	   SLOT( patternComboBoxToggled(int) ) );
 
   //pattern colour
-  patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").latin1());
+  patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
   connect( patternColourBox, SIGNAL( activated(int) ),
 	   SLOT( patternColourBoxToggled(int) ) );
 
@@ -895,7 +890,7 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( alphaChanged(int) ) );
 
   //colour
-  colour2ComboBox = ColourBox(advFrame,colourInfo,false,0,tr("Off").latin1());
+  colour2ComboBox = ColourBox(advFrame,colourInfo,false,0,tr("Off").toStdString());
   connect( colour2ComboBox, SIGNAL( activated(int) ),
 	   SLOT( colour2ComboBoxToggled(int) ) );
 
@@ -2736,7 +2731,7 @@ void FieldDialog::lineintervalCboxActivated( int index )
 void FieldDialog::densityCboxActivated( int index )
 {
   if (index==0) updateFieldOptions("density","0");
-  else  updateFieldOptions("density",densityCbox->currentText().latin1());
+  else  updateFieldOptions("density",densityCbox->currentText().toStdString());
 }
 
 
@@ -2813,7 +2808,7 @@ void FieldDialog::gridLinesChanged(int value)
 
 void FieldDialog::baseoptionsActivated( int index )
 {
-  updateFieldOptions("base",zero1ComboBox->currentText().latin1());
+  updateFieldOptions("base",zero1ComboBox->currentText().toStdString());
 }
 
 void FieldDialog::hourOffsetChanged(int value)
@@ -2996,7 +2991,7 @@ void FieldDialog::alphaChanged(int index)
 
 void FieldDialog::interval2ComboBoxToggled(int index)
 {
-  miString str = interval2ComboBox->currentText().latin1();
+  miString str = interval2ComboBox->currentText().toStdString();
   updateFieldOptions("line.interval_2",str);
   // update the list (with selected value in the middle)
   float a= atof(str.c_str());
@@ -3006,10 +3001,10 @@ void FieldDialog::interval2ComboBoxToggled(int index)
 void FieldDialog::zero1ComboBoxToggled(int index)
 {
   if(!zero1ComboBox->currentText().isNull() ){
-    miString str = zero1ComboBox->currentText().latin1();
+    miString str = zero1ComboBox->currentText().toStdString();
     updateFieldOptions("base",str);
     float a = atof(str.cStr());
-    float b = atof(lineintervalCbox->currentText().latin1())/2.0;
+    float b = atof(lineintervalCbox->currentText().toAscii())/2.0;
     baseList(zero1ComboBox,a,b);
   }
 }
@@ -3017,10 +3012,10 @@ void FieldDialog::zero1ComboBoxToggled(int index)
 void FieldDialog::zero2ComboBoxToggled(int index)
 {
   if(!zero2ComboBox->currentText().isNull() ){
-    miString str = zero2ComboBox->currentText().latin1();
+    miString str = zero2ComboBox->currentText().toStdString();
     updateFieldOptions("base_2",str);
     float a = atof(str.cStr());
-    float b = atof(lineintervalCbox->currentText().latin1())/2.0;
+    float b = atof(lineintervalCbox->currentText().toAscii())/2.0;
     baseList(zero2ComboBox,a,b);
   }
 }
@@ -3030,12 +3025,12 @@ void FieldDialog::min1ComboBoxToggled(int index)
   if( index == 0 )
     updateFieldOptions("minvalue","off");
   else if(!min1ComboBox->currentText().isNull() ){
-    miString str = min1ComboBox->currentText().latin1();
+    miString str = min1ComboBox->currentText().toStdString();
     updateFieldOptions("minvalue",str);
     float a = atof(str.cStr());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
-      b = atof(lineintervalCbox->currentText().latin1());
+      b = atof(lineintervalCbox->currentText().toAscii());
     baseList(min1ComboBox,a,b,true);
   }
 }
@@ -3045,12 +3040,12 @@ void FieldDialog::max1ComboBoxToggled(int index)
   if( index == 0 )
     updateFieldOptions("maxvalue","off");
   else if(!max1ComboBox->currentText().isNull() ){
-    miString str = max1ComboBox->currentText().latin1();
-    updateFieldOptions("maxvalue", max1ComboBox->currentText().latin1());
+    miString str = max1ComboBox->currentText().toStdString();
+    updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
     float a = atof(str.cStr());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
-      b = atof(lineintervalCbox->currentText().latin1());
+      b = atof(lineintervalCbox->currentText().toAscii());
     baseList(max1ComboBox,a,b,true);
   }
 }
@@ -3061,12 +3056,12 @@ void FieldDialog::min2ComboBoxToggled(int index)
   if( index == 0 )
     updateFieldOptions("minvalue_2","remove");
   else if( !min2ComboBox->currentText().isNull() ){
-    miString str = min2ComboBox->currentText().latin1();
-    updateFieldOptions("minvalue_2",min2ComboBox->currentText().latin1());
+    miString str = min2ComboBox->currentText().toStdString();
+    updateFieldOptions("minvalue_2",min2ComboBox->currentText().toStdString());
     float a = atof(str.cStr());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
-      b = atof(interval2ComboBox->currentText().latin1());
+      b = atof(interval2ComboBox->currentText().toAscii());
     baseList(min2ComboBox,a,b,true);
   }
 }
@@ -3076,12 +3071,12 @@ void FieldDialog::max2ComboBoxToggled(int index)
   if( index == 0 )
     updateFieldOptions("maxvalue_2","remove");
   else if( !max2ComboBox->currentText().isNull() ){
-    miString str = max2ComboBox->currentText().latin1();
-    updateFieldOptions("maxvalue_2", max2ComboBox->currentText().latin1());
+    miString str = max2ComboBox->currentText().toStdString();
+    updateFieldOptions("maxvalue_2", max2ComboBox->currentText().toStdString());
     float a = atof(str.cStr());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
-      b = atof(interval2ComboBox->currentText().latin1());
+      b = atof(interval2ComboBox->currentText().toAscii());
     baseList(max2ComboBox,a,b,true);
   }
 }
@@ -3126,16 +3121,16 @@ void FieldDialog::enableType2Options(bool on)
   if(on){
     if(!interval2ComboBox->currentText().isNull())
       updateFieldOptions("line.interval_2",
-			 interval2ComboBox->currentText().latin1());
+			 interval2ComboBox->currentText().toStdString());
     if(!zero2ComboBox->currentText().isNull())
       updateFieldOptions("base_2",
-			 zero2ComboBox->currentText().latin1());
+			 zero2ComboBox->currentText().toStdString());
     if(!min2ComboBox->currentText().isNull() && min2ComboBox->currentItem()>0)
       updateFieldOptions("minvalue_2",
-			 min2ComboBox->currentText().latin1());
+			 min2ComboBox->currentText().toStdString());
     if(!max2ComboBox->currentText().isNull() && max2ComboBox->currentItem()>0)
       updateFieldOptions("maxvalue_2",
-			 max2ComboBox->currentText().latin1());
+			 max2ComboBox->currentText().toStdString());
     updateFieldOptions("linewidth_2",
 		       miString(linewidth2ComboBox->currentItem()+1));
     updateFieldOptions("linetype_2",

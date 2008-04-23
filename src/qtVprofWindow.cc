@@ -62,7 +62,7 @@ VprofWindow::VprofWindow()
   //HK ??? temporary create new VprofManager here
   vprofm = new VprofManager();
 
-  setCaption( tr("Diana Vertical Profiles") );
+  setWindowTitle( tr("Diana Vertical Profiles") );
 
   QGLFormat fmt;
   fmt.setOverlay(false);
@@ -84,11 +84,11 @@ VprofWindow::VprofWindow()
   addToolBar(Qt::TopToolBarArea,tsToolbar);
 
   // button for modeldialog-starts new dialog
-  modelButton = new ToggleButton(this,tr("Model").latin1());
+  modelButton = new ToggleButton(this,tr("Model").toStdString());
   connect( modelButton, SIGNAL( toggled(bool)), SLOT( modelClicked( bool) ));
 
   //button for setup - starts setupdialog
-  setupButton = new ToggleButton(this,tr("Settings").latin1());
+  setupButton = new ToggleButton(this,tr("Settings").toStdString());
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
   //button for update
@@ -282,14 +282,14 @@ bool VprofWindow::timeChangedSlot(int diff){
   miTime t = vprofm->getTime();
   miString tstring=t.isoTime(false,false);
   if (!timeBox->count()) return false;
-  miString tbs=timeBox->currentText().latin1();
+  miString tbs=timeBox->currentText().toStdString();
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
     for (int i = 0; i<n;i++){      
-      if(tstring ==timeBox->text(i).latin1()){
+      if(tstring ==timeBox->text(i).toStdString()){
 	timeBox->setCurrentItem(i);
-	tbs=timeBox->currentText().latin1();
+	tbs=timeBox->currentText().toStdString();
 	break;
       }
     }
@@ -344,13 +344,13 @@ bool VprofWindow::stationChangedSlot(int diff){
   //if (!stationBox->count()) return false;
   //if no current station, use last station plotted
   if (s.empty()) s = vprofm->getLastStation();
-  miString sbs=stationBox->currentText().latin1();
+  miString sbs=stationBox->currentText().toStdString();
   if (sbs!=s){
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
-      if (s==stationBox->text(i).latin1()){
+      if (s==stationBox->text(i).toStdString()){
 	stationBox->setCurrentItem(i);
-	sbs=miString(stationBox->currentText().latin1());
+	sbs=miString(stationBox->currentText().toStdString());
 	break;
       }
     }
@@ -382,7 +382,7 @@ void VprofWindow::printClicked(){
 
   if (qprt.setup(this)){
     if (qprt.outputToFile()) {
-      priop.fname= qprt.outputFileName().latin1();
+      priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
       priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
@@ -432,7 +432,7 @@ void VprofWindow::saveClicked()
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miString filename= s.latin1();
+    miString filename= s.toStdString();
     miString format= "PNG";
     int quality= -1; // default quality
 
@@ -691,7 +691,7 @@ void VprofWindow::stationBoxActivated(int index){
 
 
   //vector<miString> stations= vprofm->getStationList();
-  miString sbs=stationBox->currentText().latin1();
+  miString sbs=stationBox->currentText().toStdString();
   //if (index>=0 && index<stations.size()) {
   vprofm->setStation(sbs);
   vprofw->updateGL();

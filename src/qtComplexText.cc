@@ -32,18 +32,16 @@
   Input for adding complex text
 */  
 
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QPixmap>
+#include <QVBoxLayout>
+
 #include <fstream>
-#include <qapplication.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qlabel.h>
 #include <qtComplexText.h>
 #include <qtUtility.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3GridLayout>
-#include <QPixmap>
-#include <Q3VBoxLayout>
+
 #include <miString.h>
 #include <qstring.h>
 #include <qtToggleButton.h>
@@ -55,7 +53,7 @@ QValidator::State ComplexText::complexValidator::validate(QString& input,
 							 int& pos) const
 {
   //validator, only used for zero isoterm input !!!
-  miString inputString = input.latin1();
+  miString inputString = input.toStdString();
   if (!inputString.contains("0°:")){
     return QValidator::Invalid;
   }
@@ -97,15 +95,15 @@ vector <miString> & symbolText, vector <miString>  & xText,
   }
   cv = 0;
 
-  setCaption(tr("Write text"));
+  setWindowTitle(tr("Write text"));
 
  //  //horizontal layout for holding grid layouts
-  Q3HBoxLayout * hglayout = new Q3HBoxLayout(20, "hglayout");
+  QHBoxLayout * hglayout = new QHBoxLayout(20, "hglayout");
   //grid layouts
   int ns = symbolText.size();
   int nx = xText.size();
   if (ns){
-    Q3GridLayout* glayout = new Q3GridLayout(ns,2,5,"symbol");
+    QGridLayout* glayout = new QGridLayout(ns,2,5,"symbol");
     hglayout->addLayout(glayout, 0);
 
     //set <miString> complexList = m_ctrl->getComplexList();
@@ -156,7 +154,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
 
   
   if (nx){
-    Q3GridLayout* glayout = new Q3GridLayout(nx,2,5,"xtext");
+    QGridLayout* glayout = new QGridLayout(nx,2,5,"xtext");
     hglayout->addLayout(glayout, 0);
     for (int i=0;i<nx;i++){
       miString ltext="X"+miString(i+1);
@@ -190,12 +188,12 @@ vector <miString> & symbolText, vector <miString>  & xText,
   quitb->setMaximumSize( width, height );
 
   // buttons layout
-  Q3HBoxLayout * hlayout = new Q3HBoxLayout(20, "hlayout");
+  QHBoxLayout * hlayout = new QHBoxLayout(20, "hlayout");
   hlayout->addWidget(okb, 10);
   hlayout->addWidget(quitb, 10);
 
   //now create a vertical layout to put all the other layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );                            
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                            
   vlayout->addLayout(hglayout, 0);
   vlayout->addLayout(hlayout,0);
 
@@ -224,11 +222,11 @@ void ComplexText::getComplexText(vector <miString> & symbolText, vector <miStrin
   symbolText.clear();
   int ns=vSymbolEdit.size();
   for (int i =0; i<ns;i++)
-    symbolText.push_back(vSymbolEdit[i]->currentText().latin1());
+    symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
   xText.clear();
   int nx=vXEdit.size();
   for (int i =0; i<nx;i++)
-    xText.push_back(vXEdit[i]->text().latin1());
+    xText.push_back(vXEdit[i]->text().toStdString());
 
 }
 
@@ -285,7 +283,7 @@ void ComplexText::selectText(int i){
   //
  if (startEdit){
     startEdit=false;
-    miString text = vSymbolEdit[i]->currentText().latin1();
+    miString text = vSymbolEdit[i]->currentText().toStdString();
     if (!text.contains("0°:")){
       vSymbolEdit[i]->lineEdit()->clearValidator();
       return;

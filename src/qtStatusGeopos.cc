@@ -29,45 +29,45 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <qtStatusGeopos.h>
-#include <qlayout.h>
-#include <qlabel.h>
-//Added by qt3to4:
-#include <Q3Frame>
-#include <Q3HBoxLayout>
+
+#include <QLabel>
+#include <QFrame>
+#include <QHBoxLayout>
+
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <math.h>
 
-StatusGeopos::StatusGeopos(QWidget* parent, const char* name)
-  : QWidget(parent,name) {
+StatusGeopos::StatusGeopos(QWidget* parent)
+  : QWidget(parent) {
 
   geographicMode= true;
   decimalMode= false;
   
   // Create horisontal layout manager
-  Q3HBoxLayout* thlayout = new Q3HBoxLayout( this, 0, 0, "thlayout");
+  QHBoxLayout* thlayout = new QHBoxLayout( this);
   thlayout->setMargin(1);
   thlayout->setSpacing(5);
 
-  sxlabel= new QLabel(tr("Lat:"),this,"sxlabel");
+  sxlabel= new QLabel(tr("Lat:"),this);
   sxlabel->setMinimumSize(sxlabel->sizeHint());
   thlayout->addWidget(sxlabel,0);
 
-  latlabel= new QLabel(" 00°00'N",this,"xlabel");
-  latlabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
+  latlabel= new QLabel(" 00°00'N",this);
+  latlabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 //   latlabel->setPalette( QPalette( QColor(0, 54, 125) ) );
   latlabel->setMinimumSize(latlabel->sizeHint());
   thlayout->addWidget(latlabel,0);
 
   thlayout->addSpacing(10);
   
-  sylabel= new QLabel(tr("Lon:"),this,"sylabel");
+  sylabel= new QLabel(tr("Lon:"),this);
   sylabel->setMinimumSize(sylabel->sizeHint());
   thlayout->addWidget(sylabel,0);
   
-  lonlabel= new QLabel("000°00'W",this,"ylabel");
-  lonlabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
+  lonlabel= new QLabel("000°00'W",this);
+  lonlabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   lonlabel->setMinimumSize(lonlabel->sizeHint());
   thlayout->addWidget(lonlabel,0);
 

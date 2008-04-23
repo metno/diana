@@ -70,7 +70,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), m_ctrl(llctrl)
 {
 
-  setCaption(tr("Satellite and radar"));
+  setWindowTitle(tr("Satellite and radar"));
   
   dialogInfo = llctrl->initSatDialog();
 
@@ -97,9 +97,9 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   connect( fileListWidget, SIGNAL( itemClicked( QListWidgetItem * ) ),
 	   SLOT( fileListWidgetClicked( QListWidgetItem * ) )  );
 
-  autoButton = new ToggleButton(this, tr("Auto").latin1());
-  timeButton = new ToggleButton(this, tr("Time").latin1());
-  fileButton = new ToggleButton(this, tr("File").latin1());
+  autoButton = new ToggleButton(this, tr("Auto").toStdString());
+  timeButton = new ToggleButton(this, tr("Time").toStdString());
+  fileButton = new ToggleButton(this, tr("File").toStdString());
   timefileBut = new QButtonGroup( this );
   timefileBut->addButton(autoButton,0);
   timefileBut->addButton(timeButton,1);
@@ -127,7 +127,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 
   
   //channelbox filled with available channels
-  QLabel *channellabel= TitleLabel( tr("Channels").latin1(), this);
+  QLabel *channellabel= TitleLabel( tr("Channels"), this);
   channelbox = new QListWidget( this);
   channelbox->setMinimumHeight(HEIGHTLISTBOX);
 
@@ -171,12 +171,12 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   connect( DeleteAll, SIGNAL(clicked()),
 	   SLOT(DeleteAllClicked()));
  
-  multiPicture = new ToggleButton(  this, tr("Add picture").latin1() );
+  multiPicture = new ToggleButton(  this, tr("Add picture").toStdString() );
   QToolTip::add( multiPicture, 
 		 tr("Add new picture if any of above settings change"));
   //		 "Nytt bilde legges til hvis noen av innstillingene over endres" );
 
-  mosaic = new ToggleButton( this, tr("Mosaic").latin1() ); 
+  mosaic = new ToggleButton( this, tr("Mosaic").toStdString() ); 
   connect( mosaic, SIGNAL( toggled(bool)), SLOT( mosaicToggled( bool) ));
   mosaic->setOn(false);
   mosaic->setEnabled(false);
@@ -197,9 +197,9 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
  
 
   QPushButton* sathelp = NormalPushButton( tr("Help"), this );
-  refresh = NormalPushButton(tr("Refresh").latin1(), this);
+  refresh = NormalPushButton(tr("Refresh"), this);
 
-  miString more_str[2] = { tr("<<Less").latin1(), tr("More>>").latin1() };
+  miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
   advanced= new ToggleButton( this, more_str );
   advanced->setOn(false);    
     
@@ -309,8 +309,8 @@ void SatDialog::fileListWidgetClicked( QListWidgetItem * item){
   int index = timefileBut->checkedId();
 
   //restore options if possible
-  miString name = namebox->currentText().latin1();
-  miString area = item->text().latin1();
+  miString name = namebox->currentText().toStdString();
+  miString area = item->text().toStdString();
   if(satoptions[name][area].exists()){
     vector<miString> tokens= satoptions[name][area].split(" ");
     state okVar = decodeString(tokens);
@@ -354,8 +354,8 @@ void SatDialog::timefileClicked(int tt){
   if( tt==0 ){
     // AUTO clicked
       
-    m_ctrl->setSatAuto(true,namebox->currentText().latin1(),
-		       fileListWidget->currentItem()->text().latin1());
+    m_ctrl->setSatAuto(true,namebox->currentText().toStdString(),
+		       fileListWidget->currentItem()->text().toStdString());
 
     //    timefileList->setEnabled( false );
     updateChannelBox(true);
@@ -363,8 +363,8 @@ void SatDialog::timefileClicked(int tt){
   } else {
     // "time"/"file" clicked
       
-    m_ctrl->setSatAuto(false,namebox->currentText().latin1(),
-		       fileListWidget->currentItem()->text().latin1());
+    m_ctrl->setSatAuto(false,namebox->currentText().toStdString(),
+		       fileListWidget->currentItem()->text().toStdString());
 
     //    timefileList->setEnabled ( true );
 
@@ -425,7 +425,7 @@ void SatDialog::channelboxSlot(QListWidgetItem * item){
 
   //currently selected channel
   //  if(channelbox->currentRow() == -1) return;
-  m_channelstr= item->text().latin1();
+  m_channelstr= item->text().toStdString();
 
   int newIndex = addSelectedPicture();
 
@@ -478,10 +478,10 @@ int SatDialog::addSelectedPicture(){
   lstate.iautotimefile=timefileBut->checkedId();
   lstate.ifiletime=timefileList->currentRow();
   lstate.ichannel=channelbox->currentRow();
-  lstate.name=namebox->currentText().latin1();
-  lstate.area = fileListWidget->currentItem()->text().latin1();
+  lstate.name=namebox->currentText().toStdString();
+  lstate.area = fileListWidget->currentItem()->text().toStdString();
   lstate.filetime = ltime;
-  lstate.channel = channelbox->currentItem()->text().latin1();
+  lstate.channel = channelbox->currentItem()->text().toStdString();
   lstate.filename=fstring;
   lstate.mosaic=false;
   lstate.totalminutes=60;
@@ -580,15 +580,15 @@ void SatDialog::picturesSlot( QListWidgetItem * item ){
     fileListWidget->setCurrentRow(m_state[index].iarea);
     if(m_state[index].iautotimefile == 0){
       autoButton->setOn(true);
-      m_ctrl->setSatAuto(true,namebox->currentText().latin1(),
-			 fileListWidget->currentItem()->text().latin1());
+      m_ctrl->setSatAuto(true,namebox->currentText().toStdString(),
+			 fileListWidget->currentItem()->text().toStdString());
     } else{
       if(m_state[index].iautotimefile == 1) 
 	timeButton->setOn(true);
       else if(m_state[index].iautotimefile == 2) 
 	fileButton->setOn(true);
-      m_ctrl->setSatAuto(false,namebox->currentText().latin1(),
-			 fileListWidget->currentItem()->text().latin1());
+      m_ctrl->setSatAuto(false,namebox->currentText().toStdString(),
+			 fileListWidget->currentItem()->text().toStdString());
       updateTimefileList();
       timefileList->setCurrentRow(m_state[index].ifiletime);
       vector<miTime> tt;
@@ -928,7 +928,7 @@ void SatDialog::putOKString(const vector<miString>& vstr){
     for (int j=0;j<ns;j++ ){
       QString qstr = namebox->text(j);
       if(qstr.isNull()) continue;
-      miString listname =qstr.latin1();
+      miString listname =qstr.toStdString();
       if (okVar.name==listname){
 	namebox->setCurrentItem(j);
 	nameActivated(j);
@@ -942,7 +942,7 @@ void SatDialog::putOKString(const vector<miString>& vstr){
     for (int j=0;j<ng;j++ ){
       QString qstr =  fileListWidget->item(j)->text();
       if(qstr.isNull()) continue;
-      miString listname =  qstr.latin1();
+      miString listname =  qstr.toStdString();
       if (okVar.area==listname){
 	fileListWidget->setCurrentRow(j);
 	found=true;
@@ -988,7 +988,7 @@ void SatDialog::putOptions(const state okVar){
     for (int j=0;j<nc;j++ ){
       QString qstr = channelbox->item(j)->text();
       if(qstr.isNull()) continue;
-      miString listchannel =  qstr.latin1();
+      miString listchannel =  qstr.toStdString();
       if (okVar.channel==listchannel) {
  	int np= m_state.size();
 	channelbox->setCurrentRow(j);
@@ -1225,8 +1225,8 @@ void SatDialog::updateTimefileList(){
   //get new list of sat files
   QApplication::setOverrideCursor( Qt::waitCursor );
   files = 
-    m_ctrl->getSatFiles( namebox->currentText().latin1(),
-			 fileListWidget->currentItem()->text().latin1(),true);
+    m_ctrl->getSatFiles( namebox->currentText().toStdString(),
+			 fileListWidget->currentItem()->text().toStdString(),true);
   QApplication::restoreOverrideCursor();
   
   if (autoButton->isOn()) return ;
@@ -1297,8 +1297,8 @@ void SatDialog::updateChannelBox(bool select){
   else
     index = timefileList->currentRow();
     
-  vstr = m_ctrl->getSatChannels(namebox->currentText().latin1(),
-				fileListWidget->currentItem()->text().latin1(),index);
+  vstr = m_ctrl->getSatChannels(namebox->currentText().toStdString(),
+				fileListWidget->currentItem()->text().toStdString(),index);
 
 
   int nr_channel = vstr.size();

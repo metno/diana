@@ -62,7 +62,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
 // Cut
   cutCheckBox = new QCheckBox(tr("Use stretch from first picture"),this);
 
-  cut = new ToggleButton( this,tr("Cut").latin1() );      
+  cut = new ToggleButton( this,tr("Cut").toStdString() );      
 
   cutlcd = LCDNumber( 4, this);
   
@@ -79,7 +79,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect( cut, SIGNAL( clicked()),SIGNAL(SatChanged()));
   
   // AlphaCut
-  alphacut = new ToggleButton( this,tr("Alpha cut").latin1() ); 
+  alphacut = new ToggleButton( this,tr("Alpha cut").toStdString() ); 
   connect( alphacut, SIGNAL( toggled(bool)), SLOT( greyAlphaCut( bool) ));
   connect( alphacut, SIGNAL( clicked()),SIGNAL(SatChanged()));
   
@@ -93,7 +93,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect(salphacut, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
 
   // Alpha
-  alpha = new ToggleButton( this,tr("Alpha").latin1() ); 
+  alpha = new ToggleButton( this,tr("Alpha").toStdString() ); 
   connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
   connect( alpha, SIGNAL( clicked()),SIGNAL(SatChanged()));
   
@@ -109,15 +109,15 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect(salpha, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
   
   
-  legendButton = new ToggleButton( this,tr("Table").latin1() ); 
+  legendButton = new ToggleButton( this,tr("Table").toStdString() ); 
   connect( legendButton, SIGNAL(clicked()),SIGNAL(SatChanged()));
   
-  colourcut = new ToggleButton( this,tr("Colour cut").latin1() ); 
+  colourcut = new ToggleButton( this,tr("Colour cut").toStdString() ); 
   connect( colourcut, SIGNAL(clicked()),SIGNAL(SatChanged()));
   connect( colourcut, SIGNAL(toggled(bool)),SLOT(colourcutClicked(bool)));
   colourcut->setOn(false);
   
-  standard=NormalPushButton( tr("Standard").latin1(), this);
+  standard=NormalPushButton( tr("Standard"), this);
   connect( standard, SIGNAL( clicked()), SLOT( setStandard()));
   connect( standard, SIGNAL( clicked()), SIGNAL( SatChanged()));
   

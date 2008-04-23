@@ -107,7 +107,7 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
     // make a proper number of last found substring
     QString b= input.mid(i1,i-i1);
     float testval;
-    if (!toFloat(b.latin1(),testval,nnum==1))
+    if (!toFloat(b.toStdString(),testval,nnum==1))
       return QValidator::Invalid;
   }
   
@@ -193,7 +193,7 @@ void GeoPosLineEdit::geovalidator::fixup(QString& input) const
 // get latitude, longitude from LineEdit-string
 bool GeoPosLineEdit::getValues(float& lat, float& lng)
 {
-  miString s(text().latin1());
+  miString s(text().toStdString());
   s.trim();
   vector<miString> vs= s.split(" ");
   if (vs.size() != 2) return false;

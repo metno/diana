@@ -231,7 +231,7 @@ void QuickEditOptions::listClicked( QListWidgetItem * item) // new select in lis
 void QuickEditOptions::chChanged(const QString& s)
 {
   if (keynum<0 || keynum>=options.size()) return;
-  miString ms= s.latin1();
+  miString ms= s.toStdString();
   vector<miString> vs= ms.split(",");
   
   options[keynum].options= vs;
@@ -264,7 +264,7 @@ void QuickEditOptions::newClicked()   // new key
 				       QString::null, &ok, this );
   if ( ok && !text.isEmpty() ){
     quickMenuOption tmp;
-    tmp.key= text.latin1();
+    tmp.key= text.toStdString();
     options.insert(options.end(), tmp);
     keynum= options.size()-1;
   }
@@ -281,7 +281,7 @@ void QuickEditOptions::renameClicked()// rename key
 				       options[keynum].key.cStr(),
 				       &ok, this );
   if ( ok && !text.isEmpty() ){
-    options[keynum].key= text.latin1();
+    options[keynum].key= text.toStdString();
     updateList();
   }
 }

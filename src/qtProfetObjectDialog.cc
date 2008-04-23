@@ -40,7 +40,7 @@
 ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
   : QDialog(parent)
 {
-  setCaption(tr("Current Object"));
+  setWindowTitle(tr("Current Object"));
 
   Q3VBoxLayout * mainLayout = new Q3VBoxLayout(this);
   Q3HBox * titleBox         = new Q3HBox(this);
@@ -118,7 +118,7 @@ void ProfetObjectDialog::connectSignals(){
 }
 
 void ProfetObjectDialog::baseObjectChanged(const QString & qs){
-  selectedBaseObject = qs.latin1();
+  selectedBaseObject = qs.toStdString();
   algDescriptionLabel->setText(descriptionMap[qs]);
   emit baseObjectSelected(selectedBaseObject);
 }
@@ -215,12 +215,12 @@ void ProfetObjectDialog::selectDefault(){
 }
 
 miString ProfetObjectDialog::getSelectedBaseObject(){
-//  miString r = baseComboBox->currentText().latin1();
+//  miString r = baseComboBox->currentText().toStdString();
   return selectedBaseObject;
 }
 
 miString ProfetObjectDialog::getReason(){
-  miString r = reasonText->text().latin1();
+  miString r = reasonText->text().toStdString();
   return r;
 }
 

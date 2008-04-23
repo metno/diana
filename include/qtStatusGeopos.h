@@ -56,7 +56,7 @@ private:
   QLabel *sylabel;
   QLabel *sxlabel;
 public:
-  StatusGeopos(QWidget* parent = 0, const char* name = 0);
+  StatusGeopos(QWidget* parent = 0);
   /// toggle between geo/xy display
   void changeMode();
   void changeLatLonMode();

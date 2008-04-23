@@ -28,31 +28,26 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qslider.h>
-#include <qcombobox.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qcheckbox.h>
-#include <qlcdnumber.h>
-#include <qcheckbox.h>
-#include <qpalette.h>
-#include <qtooltip.h>
-//#include <qfocusdata.h>
-#include <q3frame.h>
-#include <qapplication.h>
-#include <qimage.h>
-#include <q3scrollview.h>
-#include <q3frame.h>
+
+#include <QApplication>
+#include <QSlider>
+#include <QComboBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QCheckBox>
+#include <QLCDNumber>
+#include <QToolTip>
+#include <QFrame>
+#include <QImage>
 #include <QScrollArea>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QVBoxLayout>
 
 #include <qtButtonLayout.h>
 #include <qtObsWidget.h>
 #include <qtUtility.h>
 
-#include <QHBoxLayout>
-#include <QGridLayout>
-#include <QVBoxLayout>
 
 #include <stdio.h>
 #include <iostream>
@@ -303,8 +298,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   currentCriteria = -1;
   criteriaCheckBox = new QCheckBox(tr("Criterias"),this);
   criteriaChecked(false);
-  miString more_str[2] = { (tr("<<Less").latin1()),
-			   (tr("More>>").latin1()) };
+  miString more_str[2] = { (tr("<<Less").toStdString()),
+			   (tr("More>>").toStdString()) };
   moreButton= new ToggleButton( this, more_str);
   moreButton->setOn(false);
   if(!criteria){
@@ -400,10 +395,10 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
 
   // Create horizontal frame lines
-  Q3Frame *line0 = new Q3Frame( this );
-  line0->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
-  Q3Frame *line1 = new Q3Frame( this );
-  line1->setFrameStyle( Q3Frame::HLine | Q3Frame::Sunken );
+  QFrame *line0 = new QFrame( this );
+  line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  QFrame *line1 = new QFrame( this );
+  line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
   // LAYOUT
   vcommonlayout= new QVBoxLayout(2);
@@ -755,14 +750,14 @@ miString ObsWidget::getOKString(bool forLog){
 
   if( pressureLevels ){
     if(pressureComboBox->currentItem()>0 ){
-      dVariables.misc["level"] = pressureComboBox->currentText().latin1();
+      dVariables.misc["level"] = pressureComboBox->currentText().toStdString();
     } else {
       dVariables.misc["level"] = "asfield";
     }
   }
 
   if( leveldiffs ){
-   dVariables.misc["leveldiff"] = leveldiffComboBox->currentText().latin1();
+   dVariables.misc["leveldiff"] = leveldiffComboBox->currentText().toStdString();
   }
 
   if( allObs )

@@ -59,7 +59,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   m_objm= m_ctrl->getObjectManager();
 
   //caption to appear on top of dialog
-  setCaption(tr("Weather Objects"));
+  setWindowTitle(tr("Weather Objects"));
    
   //initialization  
 
@@ -78,9 +78,9 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //**** the three buttons "auto", "tid", "fil" *************
 
-  autoButton = new ToggleButton(this, tr("Auto").latin1());
-  timeButton = new ToggleButton(this, tr("Time").latin1());
-  fileButton = new ToggleButton(this, tr("File").latin1());
+  autoButton = new ToggleButton(this, tr("Auto").toStdString());
+  timeButton = new ToggleButton(this, tr("Time").toStdString());
+  fileButton = new ToggleButton(this, tr("File").toStdString());
   timefileBut = new QButtonGroup( this );
   timefileBut->addButton(autoButton,0);
   timefileBut->addButton(timeButton,1);
@@ -155,7 +155,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   m_alphascale = 0.01;
 
 
-  alpha = new ToggleButton(this,tr("Alpha").latin1()); 
+  alpha = new ToggleButton(this,tr("Alpha").toStdString()); 
   connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
   
   
@@ -186,7 +186,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   connect(  objhelp, SIGNAL(clicked()), SLOT( helpClicked()));    
 
   //toggle button for comments 
-  commentbutton = new ToggleButton(this,tr("Comments").latin1());     
+  commentbutton = new ToggleButton(this,tr("Comments").toStdString());     
   connect(  commentbutton, SIGNAL(toggled(bool)), 
 	    SLOT( commentClicked(bool) ));
 
@@ -624,7 +624,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
   bool found;
   int nc = namebox->count();
   for (int j=0;j<nc;j++ ){
-    miString listname =  namebox->item(j)->text().latin1();
+    miString listname =  namebox->item(j)->text().toStdString();
     if (plotVariables.objectname==listname){
       namebox->item(j)->setSelected(true);
       nameListClicked(namebox->item(j));
@@ -828,7 +828,7 @@ miString ObjectDialog::getShortname()
     if (nameboxIndex > -1)
       name += "" + objectnames[nameboxIndex] + " ";
     else
-      name+= (" FILE=") + miString(selectedFileList->currentItem()->text().latin1());	
+      name+= (" FILE=") + miString(selectedFileList->currentItem()->text().toStdString());	
   }
   
   return name;

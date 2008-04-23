@@ -46,7 +46,7 @@ class TimeStepSpinbox : public QSpinBox {
   Q_OBJECT
 
 public:
-  TimeStepSpinbox(QWidget *parent=0, const char *name = 0);
+  TimeStepSpinbox(QWidget *parent=0);
 
 public slots:
   void setTimeSteps(int,int);

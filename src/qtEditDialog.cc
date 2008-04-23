@@ -169,7 +169,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   m_editm= m_ctrl->getEditManager();
   m_objm=  m_ctrl->getObjectManager();
 
-  setCaption(tr("Editing"));
+  setWindowTitle(tr("Editing"));
 
   inEdit= false;
   productApproved= false;
@@ -187,9 +187,9 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   int m_nr_buttons=3;
   b = new QPushButton*[m_nr_buttons];
   vector<miString> vstr(3);
-  vstr[prodb]=tr("Product").latin1();
-  vstr[saveb]=tr("Save").latin1();
-  vstr[sendb]=tr("Send").latin1();
+  vstr[prodb]=tr("Product").toStdString();
+  vstr[saveb]=tr("Save").toStdString();
+  vstr[sendb]=tr("Send").toStdString();
 
   int i;
  
@@ -219,21 +219,21 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 
   //Spinbox for observation time step
   timelabel= new QLabel( tr("Obs. timestep:"), this );
-  timestepspin= new TimeStepSpinbox(this, "timestepspin");
+  timestepspin= new TimeStepSpinbox(this);
   timestepspin->setMinValue(1);
   timestepspin->setValue(1);
   stepchanged(1);
   connect(timestepspin, SIGNAL(valueChanged(int)), SLOT(stepchanged(int)));
    
   //toggle button for comments dialog
-  pausebutton = new ToggleButton( this, tr("Pause").latin1() );      
+  pausebutton = new ToggleButton( this, tr("Pause").toStdString() );      
   connect(  pausebutton, SIGNAL(toggled(bool)), 
 	    SLOT( pauseClicked(bool) ));
   pausebutton->setOn(false);
 
 
   //toggle button for comments dialog
-  commentbutton = new ToggleButton( this, tr("Comments").latin1());
+  commentbutton = new ToggleButton( this, tr("Comments").toStdString());
   connect(  commentbutton, SIGNAL(toggled(bool)), 
 	    SLOT( commentClicked(bool) ));
 
@@ -698,7 +698,7 @@ void  EditDialog::FrontTabBox( int index )
   } else if (m_FronteditIndex < m_Fronteditmethods->count()-1){
     m_Fronteditmethods->item(m_FronteditIndex)->setSelected(true);
   }
-  currEditmode= miString(m_Frontcm->text(m_FrontcmIndex).latin1()); 
+  currEditmode= miString(m_Frontcm->text(m_FrontcmIndex).toStdString()); 
   FrontEditClicked();
   return;
 }
@@ -961,7 +961,7 @@ void EditDialog::combine_action(int idx)
 void EditDialog::selectAreas(QListWidgetItem * item )
 {
   int index = m_SelectAreas->currentRow();
-  miString tmp= miString( m_SelectAreas->item(index)->text().latin1());
+  miString tmp= miString( m_SelectAreas->item(index)->text().toStdString());
   if (tmp !=currEdittool){
     currEdittool= tmp;
     if (inEdit) m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
@@ -983,7 +983,7 @@ void EditDialog::CombineEditMethods()
   } else if (combineAction==1){ // region selections
     m_SelectAreas->setEnabled(true);
     currEditmode= m_EditDI.mapmodeinfo[2].editmodeinfo[1].editmode;
-    currEdittool= miString( m_SelectAreas->currentItem()->text().latin1());
+    currEdittool= miString( m_SelectAreas->currentItem()->text().toStdString());
     if (inEdit) m_objm->createNewObject();
   } else {
     cerr << "EditDialog::CombineEditMethods    unknown combineAction:"
@@ -1125,8 +1125,8 @@ bool EditDialog::saveEverything(bool send)
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
 
   if (!res){
-    message= miString(tr("Problem saving/sending product\n").latin1()) + 
-      miString(tr("Message from server:\n").latin1())
+    message= miString(tr("Problem saving/sending product\n").toStdString()) + 
+      miString(tr("Message from server:\n").toStdString())
       + message;
       QMessageBox::warning( this, tr("Save error:"),
 			  message.c_str());
@@ -1472,12 +1472,12 @@ void EditDialog::EditNewOk(EditProduct& ep,
 	classValuesLocked.push_back(false);
       }
     }
-    classNames.push_back(tr("Undefined").latin1());
+    classNames.push_back(tr("Undefined").toStdString());
     classValues.push_back(1.e+35);        // the fieldUndef value
     classValuesLocked.push_back(false);
 
     for (int i=0; i<classNames.size(); i++) {
-      miString estr= tr("New value:").latin1() +  classNames[i];
+      miString estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 
@@ -1730,12 +1730,12 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 	classValuesLocked.push_back(false);
       }
     }
-    classNames.push_back(tr("Undefined").latin1());
+    classNames.push_back(tr("Undefined").toStdString());
     classValues.push_back(1.e+35);        // the fieldUndef value
     classValuesLocked.push_back(false);
 
     for (int i=0; i<classNames.size(); i++) {
-      miString estr= tr("New value:").latin1() +  classNames[i];
+      miString estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 

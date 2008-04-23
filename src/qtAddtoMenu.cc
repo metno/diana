@@ -134,7 +134,7 @@ void AddtoMenu::newClicked()
 				       QLineEdit::Normal,
 				       QString::null, &ok, this );
   if ( ok && !text.isEmpty() ){
-    if (quick->addMenu(text.latin1())){
+    if (quick->addMenu(text.toStdString())){
       fillMenu();
       QListWidgetItem* item=list->item(list->count()-1);
       list->setCurrentItem(item);

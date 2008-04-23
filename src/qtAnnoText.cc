@@ -28,24 +28,23 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <fstream>
-#include <qapplication.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qlabel.h>
+
 #include <qtAnnoText.h>
-//Added by qt3to4:
-#include <Q3GridLayout>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+
+#include <QLabel>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QMouseEvent>
 #include <QKeyEvent>
+
 #include <miString.h>
 #include <qstring.h>
 #include <qtToggleButton.h>
 #include <iostream>
 #include <diController.h>
 #include <set>
+#include <fstream>
 
 
 /*********************************************/
@@ -58,16 +57,16 @@ vector <miString> & symbolText, vector <miString>  & xText)
 #endif
 
   productname=prodname;
-  miString caption=productname+tr(":Write text").latin1();
-  setCaption(caption.c_str());
+  miString caption=productname+tr(":Write text").toStdString();
+  setWindowTitle(caption.c_str());
 
   //horizontal layout for holding grid layouts
-  Q3HBoxLayout * hglayout = new Q3HBoxLayout(20, "hglayout");
+  QHBoxLayout * hglayout = new QHBoxLayout(20, "hglayout");
   //grid layouts
   int ns = symbolText.size();
   int nx = xText.size();
   if (ns){
-    Q3GridLayout* glayout = new Q3GridLayout(ns,2,5,"symbol");
+    QGridLayout* glayout = new QGridLayout(ns,2,5,"symbol");
     hglayout->addLayout(glayout, 0);
 
     for (int i=0;i<ns;i++){
@@ -101,11 +100,11 @@ vector <miString> & symbolText, vector <miString>  & xText)
   quitb->setMaximumSize( width, height );
 
   // buttons layout
-  Q3HBoxLayout * hlayout = new Q3HBoxLayout(20, "hlayout");
+  QHBoxLayout * hlayout = new QHBoxLayout(20, "hlayout");
   hlayout->addWidget(quitb, 10);
 
   //now create a vertical layout to put all the other layouts in
-  Q3VBoxLayout * vlayout = new Q3VBoxLayout( this, 10, 10 );                            
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                            
   vlayout->addLayout(hglayout, 0);
   vlayout->addLayout(hlayout,0);
 
@@ -127,7 +126,7 @@ void AnnoText::getAnnoText(vector <miString> & symbolText, vector <miString>  & 
   symbolText.clear();
   int ns=vSymbolEdit.size();
   for (int i =0; i<ns;i++)
-    symbolText.push_back(vSymbolEdit[i]->currentText().latin1());
+    symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
 }
 
 
@@ -136,7 +135,7 @@ void AnnoText::textChanged(const QString &textstring){
   int sel1=0,sel2=0;
   if (vSymbolEdit.size()){ 
     cursor = vSymbolEdit[0]->lineEdit()->cursorPosition();
-    m_ctrl->changeMarkedAnnotation(textstring.latin1(),cursor,sel1,sel2);
+    m_ctrl->changeMarkedAnnotation(textstring.toStdString(),cursor,sel1,sel2);
   }
   emit editUpdate();
 }
@@ -168,7 +167,7 @@ void AnnoText::keyReleaseEvent(QKeyEvent* e){
   } else if (vSymbolEdit.size()){ 
     const QString & textstring=vSymbolEdit[0]->currentText();
     cursor = vSymbolEdit[0]->lineEdit()->cursorPosition();
-    m_ctrl->changeMarkedAnnotation(textstring.latin1(),cursor,sel1,sel2);
+    m_ctrl->changeMarkedAnnotation(textstring.toStdString(),cursor,sel1,sel2);
   }
   emit editUpdate();
 }

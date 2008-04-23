@@ -478,7 +478,7 @@ bool QuickMenu::applyItem(const miString& mlist, const miString& item)
 void QuickMenu::applyPlot()
 {
   plotButton();
-  //emit Apply(qm[activemenu].menuitems[qm[activemenu].plotindex].command);
+  emit Apply(qm[activemenu].menuitems[qm[activemenu].plotindex].command,true);
 }
 
 void QuickMenu::adminButton()

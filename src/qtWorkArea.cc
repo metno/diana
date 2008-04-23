@@ -36,8 +36,8 @@
 #include <diController.h>
 
 
-WorkArea::WorkArea(Controller *co,  QWidget* parent, const char* name )
-    : QWidget( parent, name ), contr(co)
+WorkArea::WorkArea(Controller *co,  QWidget* parent)
+    : QWidget( parent), contr(co)
 {
   QVBoxLayout* vlayout = new QVBoxLayout(this);
   // Create an openGL widget
@@ -48,14 +48,14 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent, const char* name )
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
-  glw = new GLwidget(contr, fmt, this, "glwidget");
+  glw = new GLwidget(contr, fmt, this);
   
   if ( !glw->isValid() ) {
     // Try without double-buffering
     fmt.setDoubleBuffer(false);
     glw->setFormat( fmt );
     if ( !glw->isValid() )
-      qFatal( tr("Failed to create OpenGL rendering context on this display") );
+      qFatal( tr("Failed to create OpenGL rendering context on this display").toAscii() );
   }
   glw->setMinimumSize( 300, 200 );
   

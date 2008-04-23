@@ -297,8 +297,6 @@ private:
   QAction * timeStopAction;
   QAction * timeLoopAction;
   QAction * timeControlAction;
-  QAction * timeStepUpAction;
-  QAction * timeStepDownAction;
 
   QAction * toolLevelUpAction;
   QAction * toolLevelDownAction;
@@ -316,6 +314,9 @@ private:
   QShortcut * rightBrowsingAction;
   QShortcut * upBrowsingAction;
   QShortcut * downBrowsingAction;
+  QShortcut * timeStepUpAction;
+  QShortcut * timeStepDownAction;
+
 
   QMenuBar   * mainmenubar;
 

@@ -58,36 +58,36 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
 #endif
 
   //caption to appear on top of dialog
-  setCaption(tr("Diana Vertical Profiles - settings"));
+  setWindowTitle(tr("Diana Vertical Profiles - settings"));
    
 
   //********** String constants
 
-  TEMP          =  tr("Temperature").latin1();
-  DEWPOINT      =  tr("Dewpoint").latin1();
-  WIND          =  tr("Wind").latin1();
-  VERTWIND      =  tr("Vertical wind (model)").latin1();
-  RELHUM        =  tr("Relative humidity").latin1();
-  DUCTING       =  tr("Refraction index").latin1();
-  KINDEX        =  tr("K-index").latin1();
-  SIGNWIND      =  tr("Significant wind (dd-ff)").latin1();
-  PRESSLINES    =  tr("Pressure lines").latin1();
-  LINEFLIGHT    =  tr("Lines in flight levels").latin1();
-  TEMPLINES     =  tr("Temperature lines").latin1();
-  DRYADIABATS   =  tr("Dry adiabatic").latin1();
-  WETADIABATS   =  tr("Wet adiabatic").latin1();
-  MIXINGRATIO   =  tr("Mixing rate").latin1();
-  PTLABELS      =  tr("P and T units").latin1();
-  FRAME         =  tr("Frame").latin1();
-  TEXT          =  tr("Text").latin1();
-  FLIGHTLEVEL   =  tr("Flight levels").latin1();
-  FLIGHTLABEL   =  tr("FL units").latin1();
-  SEPWIND       =  tr("Separate wind columns").latin1();
-  CONDTRAIL     =  tr("Lines for condensation trails").latin1();
-  GEOPOS        =  tr("Geographical position in text").latin1();
-  PRESSRANGE    =  tr("Pressure range").latin1();
-  TEMPRANGE     =  tr("Temperature range").latin1();
-  BACKCOLOUR    =  tr("Background colour").latin1();
+  TEMP          =  tr("Temperature").toStdString();
+  DEWPOINT      =  tr("Dewpoint").toStdString();
+  WIND          =  tr("Wind").toStdString();
+  VERTWIND      =  tr("Vertical wind (model)").toStdString();
+  RELHUM        =  tr("Relative humidity").toStdString();
+  DUCTING       =  tr("Refraction index").toStdString();
+  KINDEX        =  tr("K-index").toStdString();
+  SIGNWIND      =  tr("Significant wind (dd-ff)").toStdString();
+  PRESSLINES    =  tr("Pressure lines").toStdString();
+  LINEFLIGHT    =  tr("Lines in flight levels").toStdString();
+  TEMPLINES     =  tr("Temperature lines").toStdString();
+  DRYADIABATS   =  tr("Dry adiabatic").toStdString();
+  WETADIABATS   =  tr("Wet adiabatic").toStdString();
+  MIXINGRATIO   =  tr("Mixing rate").toStdString();
+  PTLABELS      =  tr("P and T units").toStdString();
+  FRAME         =  tr("Frame").toStdString();
+  TEXT          =  tr("Text").toStdString();
+  FLIGHTLEVEL   =  tr("Flight levels").toStdString();
+  FLIGHTLABEL   =  tr("FL units").toStdString();
+  SEPWIND       =  tr("Separate wind columns").toStdString();
+  CONDTRAIL     =  tr("Lines for condensation trails").toStdString();
+  GEOPOS        =  tr("Geographical position in text").toStdString();
+  PRESSRANGE    =  tr("Pressure range").toStdString();
+  TEMPRANGE     =  tr("Temperature range").toStdString();
+  BACKCOLOUR    =  tr("Background colour").toStdString();
 
   //********** create the various QT widgets to appear in dialog ***********
 

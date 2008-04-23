@@ -73,7 +73,7 @@ QString TimeSpinbox::textFromValue( int value ) const
 
 int TimeSpinbox::valueFromText( const QString& text ) const 
 {
-  miString s= text.latin1();
+  miString s= text.toStdString();
   if (!with_sec) s+= ":00";
   if (!miTime::isValid(s)){
     return 0;
