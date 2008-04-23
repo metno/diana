@@ -88,6 +88,7 @@ public:
   void setEditable(bool editable);
 
   void selectDefault();
+  int getCurrentSessionIndex(){return sessionComboBox->currentIndex();}
   QModelIndex getCurrentObjectIndex();
   void setCurrentSession(const QModelIndex & index);
 

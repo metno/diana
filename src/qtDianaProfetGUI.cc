@@ -197,15 +197,22 @@ void DianaProfetGUI::baseObjectSelected(miString id){
     LOG4CXX_INFO(logger,"base object selected " << baseObjects[i].name());
     objectDialog.addDymanicGui(objectFactory.getGuiComponents(baseObjects[i]));
     if(areaManager->isAreaSelected()){
-
-      // TODO: fetch parent and sessionID from somewhere...
-      miString sessionID = "temporarySessionID";
+      miTime refTime;
+      try{
+        fetSession s = sessionModel.getSession(
+            sessionDialog.getCurrentSessionIndex());
+        refTime = s.referencetime();
+      }catch(InvalidIndexException & iie){
+        cerr << "DianaProfetGUI::baseObjectSelected invalid session index" << endl;
+      }
+      
+      // TODO: fetch parent from somewhere...
       miString parent = "";
 
       currentObject = objectFactory.makeObject(baseObjects[i],
           areaManager->getCurrentPolygon(),
           getCurrentParameter(), getCurrentTime(),
-					       objectDialog.getReason(),user,sessionID,parent);
+					       objectDialog.getReason(),user,refTime,parent);
       LOG4CXX_INFO(logger,"calling controller.objectChanged");
       controller.objectChanged(currentObject);
     }
@@ -435,14 +442,21 @@ void DianaProfetGUI::gridAreaChanged(){
       int i = getBaseObjectIndex(objectDialog.getSelectedBaseObject());
       if(i != -1){
         if(areaManager->isAreaSelected()){
-      	  // TODO: fetch parent and sessionID from somewhere...
-      	  miString sessionID = "temporarySessionID";
+          miTime refTime;
+          try{
+            fetSession s = sessionModel.getSession(
+                sessionDialog.getCurrentSessionIndex());
+            refTime = s.referencetime();
+          }catch(InvalidIndexException & iie){
+            cerr << "DianaProfetGUI::baseObjectSelected invalid session index" << endl;
+          }
+      	  // TODO: fetch parent from somewhere...
       	  miString parent = "";
           currentObject = objectFactory.makeObject(baseObjects[i],
 						   areaManager->getCurrentPolygon(),
 						   getCurrentParameter(), getCurrentTime(),
 						   objectDialog.getReason(),user,
-						   sessionID,parent);
+						   refTime,parent);
         }
         else{
           LOG4CXX_WARN(logger,"gridAreaChanged: No Area Selected");
