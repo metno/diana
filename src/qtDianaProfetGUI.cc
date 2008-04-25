@@ -96,6 +96,7 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session){
   cse->refTime = session.referencetime();
   QCoreApplication::postEvent(this, cse);
   tableModel.initTable(session.times(),session.parameters());
+  sessionDialog.selectDefault();
 }
 
 void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
