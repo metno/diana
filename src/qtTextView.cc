@@ -67,7 +67,7 @@ TextView::TextView(QWidget* parent)
   connect( printButton,SIGNAL(clicked()), SLOT( printSlot() ));
 
   QPushButton* hideButton = new QPushButton(tr("Hide"),this);
-  connect( hideButton,SIGNAL(clicked()), hideButton,SLOT( hide() ));
+  connect( hideButton,SIGNAL(clicked()),SLOT( hide() ));
 
   QHBoxLayout* hlayout = new QHBoxLayout();
   hlayout->addWidget(printButton);
