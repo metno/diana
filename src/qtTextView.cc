@@ -30,23 +30,23 @@
 */
 #include <qtTextView.h>
 
-#include <QLabel>
+#include <QTextEdit>
 #include <QPushButton>
 #include <QTabWidget>
-#include <QScrollArea>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 TextWidget::TextWidget(QWidget* parent, const miString& text, int id_)
   : QWidget(parent)
 { 
   id = id_;
 
-  label = new QLabel(QString(text.c_str()),this);
-  QScrollArea* scroll = new QScrollArea(this);
-  scroll->setWidget( label );
+  textEdit = new QTextEdit(this);
+  textEdit->setReadOnly(true);
+  textEdit->setText(QString(text.c_str()));
 
-  QVBoxLayout *vlayout = new QVBoxLayout( this, 5, 5);
-  vlayout->addWidget( scroll );
+  QVBoxLayout *vlayout = new QVBoxLayout( this);
+  vlayout->addWidget( textEdit );
 
 }
 
@@ -54,7 +54,7 @@ void TextWidget::setText(miString text)
 {
   QString str = text.c_str();
   if(!str.isNull())
-    label->setText(str);
+    textEdit->setText(str);
 }
 
 TextView::TextView(QWidget* parent)
@@ -62,10 +62,19 @@ TextView::TextView(QWidget* parent)
 { 
 
   tabwidget = new QTabWidget(this);
+
   QPushButton* printButton = new QPushButton(tr("Print"),this);
   connect( printButton,SIGNAL(clicked()), SLOT( printSlot() ));
+
   QPushButton* hideButton = new QPushButton(tr("Hide"),this);
   connect( hideButton,SIGNAL(clicked()), hideButton,SLOT( hide() ));
+
+  QHBoxLayout* hlayout = new QHBoxLayout();
+  hlayout->addWidget(printButton);
+  hlayout->addWidget(hideButton);
+  QVBoxLayout* vlayout = new QVBoxLayout(this);
+  vlayout->addWidget(tabwidget);
+  vlayout->addLayout(hlayout);
 
 }
 

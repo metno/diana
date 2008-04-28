@@ -38,7 +38,7 @@
 #include <map>
 
 class QTabWidget;
-class QLabel;
+class QTextEdit;
 
 /**
    \brief text viewer
@@ -51,7 +51,9 @@ class TextWidget : public QWidget
 {
   Q_OBJECT
 private:
-  QLabel* label;
+
+  QTextEdit* textEdit;
+
 public:
   int id;
   TextWidget(QWidget* parent, const miString& text, int id_);

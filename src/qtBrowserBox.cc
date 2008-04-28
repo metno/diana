@@ -56,6 +56,7 @@ BrowserBox::BrowserBox(QWidget* parent)
   numlabel= new QLabel("99",frame);
   label= new QLabel("",frame);
   label->setAlignment(Qt::AlignCenter);
+  label->setWordWrap(true);
 
   vb->addWidget(numlabel);
   vb->addWidget(label);
