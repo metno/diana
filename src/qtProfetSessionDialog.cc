@@ -192,5 +192,10 @@ void ProfetSessionDialog::setCurrentSession(const QModelIndex & index){
   sessionComboBox->setCurrentIndex(index.row());
 }
 
+void FetObjectListView::currentChanged ( const QModelIndex & current,
+      const QModelIndex & previous ){
+  emit activated(current); 
+}
+
 
 

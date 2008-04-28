@@ -69,8 +69,6 @@ private:
   
   /// Connecting all signals and slots
   void connectSignals();
-  /// Enables / disables gui components
-  void lockedObjectSelected(bool locked);
 //  bool setSelectedObject(const miString &);
   
 protected:
@@ -87,6 +85,9 @@ public:
   void setSelectedObject(const QModelIndex & index);
   void setEditable(bool editable);
 
+  /// Enables / disables gui components
+  void lockedObjectSelected(bool locked);
+  
   void selectDefault();
   int getCurrentSessionIndex(){return sessionComboBox->currentIndex();}
   QModelIndex getCurrentObjectIndex();
@@ -111,8 +112,8 @@ signals:
 class FetObjectListView: public QListView{
 public:
   FetObjectListView(QWidget * parent) : QListView(parent){}
-  void currentChanged ( const QModelIndex & current, 
-      const QModelIndex & previous ){ emit activated(current); }
+  void currentChanged ( const QModelIndex & current,
+      const QModelIndex & previous );
 };
 
 class FetObjectTableView: public QTableView{

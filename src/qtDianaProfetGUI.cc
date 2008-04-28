@@ -233,7 +233,8 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index){
   LOG4CXX_INFO(logger,"objectSelected");
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-    //TODO update status in sessionDialog?
+// Lock is not distributed    
+//    sessionDialog.lockedObjectSelected(fo.is_locked());
     areaManager->setCurrentArea(fo.id());
     updateMap();
   }catch(InvalidIndexException & iie){
@@ -319,23 +320,20 @@ void DianaProfetGUI::createNewObject(){
 void DianaProfetGUI::editObject(){
   LOG4CXX_INFO(logger,"editObject");
   try{
+    controller.openObject(currentObject);
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-    if(!fo.is_locked()){
-      objectDialog.setSession(getCurrentTime());
-      objectDialog.setParameter(getCurrentParameter());
-      objectDialog.setBaseObjects(baseObjects);
-      objectDialog.editObjectMode(fo,objectFactory.getGuiComponents(fo));
-      currentObject=fo;
-      controller.openObject(currentObject);
-      setObjectDialogVisible(true);
-      paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
-      // Area always ok for a saved object(?)
-      objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
-    }
-    else{
-      LOG4CXX_WARN(logger,"editObject: object is locked ("<<
-        fo.id()<<")");
-    }
+// Lock info not distributed
+//    if(!fo.is_locked()){
+    objectDialog.setSession(getCurrentTime());
+    objectDialog.setParameter(getCurrentParameter());
+    objectDialog.setBaseObjects(baseObjects);
+    objectDialog.editObjectMode(fo,objectFactory.getGuiComponents(fo));
+    currentObject=fo;
+    controller.openObject(currentObject);
+    setObjectDialogVisible(true);
+    paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
+    // Area always ok for a saved object(?)
+    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
   }catch(InvalidIndexException & iie){
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
   }
@@ -345,12 +343,7 @@ void DianaProfetGUI::deleteObject(){
   LOG4CXX_INFO(logger,"deleteObject");
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-    if(!fo.is_locked()){
-      controller.deleteObject(fo.id());
-    }
-    else{
-      LOG4CXX_WARN(logger,"deleteObject: Locked object could not be deleted");
-    }
+    controller.deleteObject(fo.id());
   }catch(InvalidIndexException & iie){
     LOG4CXX_ERROR(logger,"deleteObject:" << iie.what());
   }
