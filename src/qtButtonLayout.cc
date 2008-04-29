@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <QButtonGroup>
 #include <iostream>
-#include <qtooltip.h>
 
 
 ButtonLayout::ButtonLayout( QWidget* parent, 
@@ -63,17 +62,18 @@ ButtonLayout::ButtonLayout( QWidget* parent,
 	     SLOT(rightButtonClicked(ToggleButton* ))  );
     bgroup->addButton( b[i] ,i);
     if(!buttonList[i].tooltip.empty())
-      QToolTip::add( b[i], buttonList[i].tooltip.c_str());
+      b[i]->setToolTip(buttonList[i].tooltip.c_str());
   }
     
   bgroup->setExclusive(false);
   for( int i=0; i< nr_buttons; i++ ){
-    b[i]->setToggleButton ( TRUE );
+    b[i]->setCheckable ( TRUE );
   }
 
   //  bgroup->hide();
   
-  QGridLayout *layoutgrid = new QGridLayout(this, nr_lines, nr_col); 
+  QGridLayout *layoutgrid = new QGridLayout(this);
+  layoutgrid->setSpacing(1);
   for( int k=0; k<nr_lines; k++){ 
     for( int i=0; i<nr_col;i++ ){
       int index = i + k*nr_col;
@@ -91,7 +91,7 @@ ButtonLayout::ButtonLayout( QWidget* parent,
 bool ButtonLayout::isOn(int id){
   int nr_buttons = buttonList.size();
   if(id<nr_buttons)
-    return b[id]->isOn();
+    return b[id]->isChecked();
 
   return false;
 }
@@ -111,14 +111,14 @@ void ButtonLayout::setEnabled( bool enabled ){
       for( int i=0; i<nr_buttons; i++){
 	b[i]->setEnabled( true );
 	if(buttonOn[i]){
-	  b[i]->setOn( true);
+	  b[i]->setChecked( true);
 	}
       }
     }
 
     if( enabled==false){
 	for( int i=0; i<nr_buttons; i++){
-	  b[i]->setOn( false );
+	  b[i]->setChecked( false );
 	  b[i]->setEnabled( false );
 	}
     }
@@ -132,7 +132,7 @@ void ButtonLayout::ALLClicked(){
   int nr_buttons = buttonList.size();
   for( int k=0; k< nr_buttons; k++ ){ 
     if(b[k]->isEnabled()){
-      b[k]->setOn( TRUE );
+      b[k]->setChecked( TRUE );
       buttonOn[k] = true;
     }
   }
@@ -144,7 +144,7 @@ void ButtonLayout::NONEClicked(){
 
   int nr_buttons = buttonList.size();
   for( int k=0; k< nr_buttons; k++ ){
-    b[k]->setOn( FALSE );
+    b[k]->setChecked( FALSE );
     buttonOn[k]=false;
   }
 }
@@ -156,11 +156,11 @@ void ButtonLayout::DEFAULTClicked(){
   int nr_buttons = buttonList.size();
   for( int k=0; k < nr_buttons; k++ ){
     if( buttonList[k].Default && b[k]->isEnabled()){
-      b[k]->setOn( TRUE );
+      b[k]->setChecked( TRUE );
       buttonOn[k]=true;
     }
     else{
-      b[k]->setOn( FALSE );
+      b[k]->setChecked( FALSE );
       buttonOn[k]=false;
     } 
   } 
@@ -174,7 +174,7 @@ int ButtonLayout::setButtonOn( miString buttonName ){
   for( int j=0; j<n; j++){
     if(buttonName.downcase()==buttonList[j].name.downcase()){
       if(b[j]->isEnabled()){
-	b[j]->setOn( true );
+	b[j]->setChecked( true );
 	buttonOn[j]=true;
       } else {
 	buttonOn[j]=true;
@@ -189,7 +189,7 @@ int ButtonLayout::setButtonOn( miString buttonName ){
 
 void ButtonLayout::setButton( int tt ){
 
-    b[tt]->setOn(true);
+    b[tt]->setChecked(true);
     buttonOn[tt]=true;
     groupClicked( tt );
 
@@ -208,9 +208,9 @@ void ButtonLayout::enableButtons(vector<bool> bArr){
     if( bArr[i] == true  ){
       b[i]->setEnabled(true);
       if(buttonOn[i]){
-	b[i]->setOn(true);
+	b[i]->setChecked(true);
       }else{
-	b[i]->setOn(false);
+	b[i]->setChecked(false);
       }
     }
 }
@@ -227,7 +227,7 @@ vector<miString> ButtonLayout::getOKString(bool forLog) {
        str.push_back(buttonList[k].name);
   }else {
     for( int k=0; k < nr_buttons; k++ )
-      if( b[k]->isOn()  )
+      if( b[k]->isChecked()  )
 	str.push_back(buttonList[k].name);
   }
   return str;
@@ -277,7 +277,7 @@ void ButtonLayout::groupClicked( int id )
 // This function is called when a button is clicked
 {
 
-  if(b[id]->isOn() ){
+  if(b[id]->isChecked() ){
     buttonOn[id]=true;
     emit inGroupClicked( id );
   }

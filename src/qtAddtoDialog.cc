@@ -52,7 +52,7 @@
 
 /*********************************************/
 AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
-: QDialog(parent,"addto",true), m_ctrl(llctrl), m_objm(0)
+  : QDialog(parent), m_ctrl(llctrl), m_objm(0)
 {
 #ifdef DEBUGPRINT 
   cout<<"AddtoDialog::AddtoDialog called"<<endl;
@@ -61,15 +61,16 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   m_objm= m_ctrl->getObjectManager();
 
   setWindowTitle(tr("Add to objectdialog"));
+  setModal(true);
 
-  QGridLayout* glayout = new QGridLayout(2,2,5,"addtoLayout");
+  QGridLayout* glayout = new QGridLayout();
 
-  QLabel* namelabel= new QLabel(tr("Dialog name:"), this,"namelabel"); 
-  QLabel* filelabel = new QLabel(tr("File name:"),   this,"filelabel");
+  QLabel* namelabel= new QLabel(tr("Dialog name:"), this); 
+  QLabel* filelabel = new QLabel(tr("File name:"),   this);
 
-  name  = new QLineEdit(this,"name");
+  name  = new QLineEdit(this);
   name->setMinimumWidth(420);
-  file  = new QLineEdit(this,"file");
+  file  = new QLineEdit(this);
   file->setMinimumWidth(420);
 
   glayout->addWidget(namelabel, 1,1);
@@ -77,9 +78,9 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   glayout->addWidget(filelabel, 2,1);
   glayout->addWidget(file,2,2);
 
-  QPushButton * okb= new QPushButton(tr("OK"),this, "okb");
+  QPushButton * okb= new QPushButton(tr("OK"),this);
   connect(okb, SIGNAL(clicked()), SLOT(accept()));
-  QPushButton* quitb= new QPushButton(tr("Cancel"),this, "quitb");
+  QPushButton* quitb= new QPushButton(tr("Cancel"),this);
   connect(quitb, SIGNAL(clicked()), SLOT(reject()));
 
   int width  = quitb->sizeHint().width();
@@ -91,12 +92,12 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   quitb->setMaximumSize( width, height );
 
   // buttons layout
-  QHBoxLayout * hlayout = new QHBoxLayout(20, "hlayout");
+  QHBoxLayout * hlayout = new QHBoxLayout();
   hlayout->addWidget(okb, 10);
   hlayout->addWidget(quitb, 10);
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                            
+  QVBoxLayout * vlayout = new QVBoxLayout( this );                            
   vlayout->addLayout(glayout, 0);
   vlayout->addLayout(hlayout,0);
 }

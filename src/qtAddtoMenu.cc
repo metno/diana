@@ -47,11 +47,12 @@
 using namespace std;
 
 AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
-  : QDialog(parent, "addtomenu", true), quick(qm)
+  : QDialog(parent), quick(qm)
 {
-  QHBoxLayout* b= new QHBoxLayout(this, 10, 10, "top_hlayout");
+  QHBoxLayout* b= new QHBoxLayout(this);
+  setModal(true);
 
-    QFrame* frame= new QFrame(this);
+  QFrame* frame= new QFrame(this);
   frame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
   QString t= "<em><b>"+tr("Add current plot to a private quickmenu")+"</b></em>";
@@ -69,7 +70,7 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   newButton->setEnabled( true );
   connect( newButton, SIGNAL(clicked()), SLOT(newClicked()));
   
-  QHBoxLayout* hl= new QHBoxLayout(5);
+  QHBoxLayout* hl= new QHBoxLayout();
   hl->addWidget(list);
   hl->addWidget(newButton);
 
@@ -84,11 +85,11 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   connect( okButton, SIGNAL(clicked()), SLOT(okClicked()) );
   connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
 
-  QHBoxLayout* hl2= new QHBoxLayout(5);
+  QHBoxLayout* hl2= new QHBoxLayout();
   hl2->addWidget(okButton);
   hl2->addWidget(cancel);
   
-  QVBoxLayout* vl= new QVBoxLayout(frame, 5,5);
+  QVBoxLayout* vl= new QVBoxLayout(frame);
   vl->addWidget(label);
   vl->addLayout(hl);
   vl->addWidget(line);
@@ -129,10 +130,11 @@ void AddtoMenu::okClicked( )
 void AddtoMenu::newClicked()
 {
   bool ok = FALSE;
-  QString text = QInputDialog::getText(tr("New Menu"),
+  QString text = QInputDialog::getText(this,
+				       tr("New Menu"),
 				       tr("Make new menu with name:"),
 				       QLineEdit::Normal,
-				       QString::null, &ok, this );
+				       QString::null, &ok );
   if ( ok && !text.isEmpty() ){
     if (quick->addMenu(text.toStdString())){
       fillMenu();

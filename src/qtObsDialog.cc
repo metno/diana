@@ -145,7 +145,8 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   applylayout->addWidget(obsapplyhide );
   applylayout->addWidget( obsapply );
 
-  QVBoxLayout* vlayout= new QVBoxLayout( this, 3, 3);
+  QVBoxLayout* vlayout= new QVBoxLayout( this);
+  vlayout->setSpacing(1);
   vlayout->addWidget( plotbox );
   vlayout->addWidget( stackedWidget );
   vlayout->addLayout( helplayout );

@@ -41,6 +41,7 @@
 #include <QPixmap>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QShortcut>
 
 #include <qtUtility.h>
 #include <up12x12.xpm>
@@ -51,7 +52,7 @@
 
 QuickEditOptions::QuickEditOptions(QWidget* parent,
 				   vector<quickMenuOption>& opt)
-  : QDialog(parent, "QUICKEDITOPTIONS", TRUE),
+  : QDialog(parent),
     options(opt), keynum(-1)
 {
   QFont m_font= QFont( "Helvetica", 12, 75 );
@@ -63,13 +64,17 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   QPixmap upPicture = QPixmap(up12x12_xpm);
   upButton = PixmapButton( upPicture, this, 14, 12 );
   upButton->setEnabled( false );
-  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
+  //  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
+    QShortcut* upButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_Up,this );
+  connect( upButtonShortcut, SIGNAL( activated() ),SLOT(upClicked()));
   connect( upButton, SIGNAL(clicked()), SLOT(upClicked()));
   // down
   QPixmap downPicture = QPixmap(down12x12_xpm);
   downButton = PixmapButton( downPicture, this, 14, 12 );
   downButton->setEnabled( false );
-  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
+  //  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
+  QShortcut* downButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_Down,this );
+  connect( downButtonShortcut, SIGNAL( activated() ),SLOT(downClicked()));
   connect( downButton, SIGNAL(clicked()), SLOT(downClicked()));
 
   list= new QListWidget(this);
@@ -91,7 +96,9 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   // erase
   eraseButton = new QPushButton(QPixmap(editcut_xpm), tr("Remove"), this );
   eraseButton->setEnabled( false );
-  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
+  //  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
+  QShortcut* eraseButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_X,this );
+  connect( eraseButtonShortcut, SIGNAL( activated() ),SLOT(eraseClicked()));
   connect( eraseButton, SIGNAL(clicked()), SLOT(eraseClicked()));
   
   QLabel* clabel= new QLabel(tr("Options (comma separated)"), this);
@@ -114,21 +121,21 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
   //connect( help, SIGNAL(clicked()), SLOT(helpClicked()) );
 
-  QVBoxLayout* vl1= new QVBoxLayout(5);
+  QVBoxLayout* vl1= new QVBoxLayout();
   vl1->addWidget(upButton);
   vl1->addWidget(downButton);
 
-  QVBoxLayout* vl2= new QVBoxLayout(5);
+  QVBoxLayout* vl2= new QVBoxLayout();
   vl2->addWidget(newButton);
   vl2->addWidget(renameButton);
   vl2->addWidget(eraseButton);
 
-  QHBoxLayout* hl1= new QHBoxLayout(5);
+  QHBoxLayout* hl1= new QHBoxLayout();
   hl1->addLayout(vl1);
   hl1->addWidget(list);
   hl1->addLayout(vl2);
   
-  QHBoxLayout* hl4= new QHBoxLayout(5);
+  QHBoxLayout* hl4= new QHBoxLayout();
   hl4->addStretch();
   hl4->addWidget(ok);
   hl4->addStretch();
@@ -137,7 +144,7 @@ QuickEditOptions::QuickEditOptions(QWidget* parent,
   //hl4->addWidget(help);
 
   // top layout
-  QVBoxLayout* vlayout=new QVBoxLayout(this,5,5);
+  QVBoxLayout* vlayout=new QVBoxLayout(this);
   
   vlayout->addWidget(mainlabel);
   vlayout->addLayout(hl1);
@@ -258,10 +265,11 @@ void QuickEditOptions::downClicked()  // move item down
 void QuickEditOptions::newClicked()   // new key
 {
   bool ok = FALSE;
-  QString text = QInputDialog::getText(tr("New key"),
+  QString text = QInputDialog::getText(this,
+				       tr("New key"),
 				       tr("Make new key with name:"),
 				       QLineEdit::Normal,
-				       QString::null, &ok, this );
+				       QString::null, &ok);
   if ( ok && !text.isEmpty() ){
     quickMenuOption tmp;
     tmp.key= text.toStdString();
@@ -275,11 +283,12 @@ void QuickEditOptions::renameClicked()// rename key
 {
   if (keynum<0 || keynum>=options.size()) return;
   bool ok = FALSE;
-  QString text = QInputDialog::getText(tr("New name"),
+  QString text = QInputDialog::getText(this,
+				       tr("New name"),
 				       tr("Change key name:"),
 				       QLineEdit::Normal,
 				       options[keynum].key.cStr(),
-				       &ok, this );
+				       &ok);
   if ( ok && !text.isEmpty() ){
     options[keynum].key= text.toStdString();
     updateList();

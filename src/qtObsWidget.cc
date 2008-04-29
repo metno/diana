@@ -385,7 +385,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   colourlayout->addWidget( colourBox );
 
   // layout
-  datatypelayout = new QHBoxLayout(5);
+  datatypelayout = new QHBoxLayout();
+  datatypelayout->setSpacing(1);
   datatypelayout->setAlignment(Qt::AlignHCenter);
   datatypelayout->addWidget( datatypeButtons );
 //   parameterlayout = new QHBoxLayout(5);
@@ -401,7 +402,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
   // LAYOUT
-  vcommonlayout= new QVBoxLayout(2);
+  vcommonlayout= new QVBoxLayout();
+  vcommonlayout->setSpacing(1);
   vcommonlayout->addLayout( andLayout );
   vcommonlayout->addSpacing( 5 );
   vcommonlayout->addLayout( pressureLayout );

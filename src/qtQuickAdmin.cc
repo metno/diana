@@ -44,6 +44,7 @@
 #include <QGridLayout>
 #include <QPixmap>
 #include <QVBoxLayout>
+#include <QShortcut>
 
 
 #include <up12x12.xpm>
@@ -91,6 +92,7 @@ QuickAdmin::QuickAdmin(QWidget* parent,
     activeMenu(-1),activeElement(-1),
     copyMenu(-1),copyElement(-1), autochange(true)
 {
+  setModal(true);
   QFont m_font= QFont( "Helvetica", 12, 75 );
 
   QLabel* mainlabel= new QLabel("<em><b>"+tr("Edit quickmenus")+"</b></em>", this);
@@ -108,13 +110,17 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   QPixmap upPicture = QPixmap(up12x12_xpm);
   upButton = PixmapButton( upPicture, this, 14, 12 );
   upButton->setEnabled( false );
-  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
+  //  upButton->setAccel(Qt::CTRL+Qt::Key_Up);
+  QShortcut* upButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_Up,this );
+  connect( upButtonShortcut, SIGNAL( activated() ),SLOT(upClicked()));
   connect( upButton, SIGNAL(clicked()), SLOT(upClicked()));
   // down
   QPixmap downPicture = QPixmap(down12x12_xpm);
   downButton = PixmapButton( downPicture, this, 14, 12 );
   downButton->setEnabled( false );
-  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
+  //  downButton->setAccel(Qt::CTRL+Qt::Key_Down);
+  QShortcut* downButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_Down,this );
+  connect( downButtonShortcut, SIGNAL( activated() ),SLOT(downClicked()));
   connect( downButton, SIGNAL(clicked()), SLOT(downClicked()));
 
   // Command buttons for menu-elements
@@ -137,19 +143,25 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   // erase
   eraseButton = new QPushButton(QPixmap(editcut_xpm), tr("Remove"), this );
   eraseButton->setEnabled( false );
-  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
+  //  eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
+  QShortcut* eraseButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_X,this );
+  connect( eraseButtonShortcut, SIGNAL( activated() ),SLOT(eraseClicked()));
   connect( eraseButton, SIGNAL(clicked()), SLOT(eraseClicked()));
   
   // copy
   copyButton = new QPushButton(QPixmap(editcopy_xpm), tr("Copy"), this );
   copyButton->setEnabled( false );
-  copyButton->setAccel(Qt::CTRL+Qt::Key_C);
-  connect( copyButton, SIGNAL(clicked()), SLOT(copyClicked()));
+  //  copyButton->setAccel(Qt::CTRL+Qt::Key_C);
+  QShortcut* copyButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_C,this );
+  connect( copyButtonShortcut, SIGNAL( activated() ),SLOT(upClicked()));
+  connect( copyButton, SIGNAL(clicked()), SLOT(copyClicked_()));
   
   // paste
   pasteButton = new QPushButton(QPixmap(editpaste_xpm), tr("Paste"), this );
   pasteButton->setEnabled( false );
-  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
+  //  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
+  QShortcut* pasteButtonShortcut = new QShortcut( Qt::CTRL+Qt::Key_V,this );
+  connect( pasteButtonShortcut, SIGNAL( activated() ),SLOT(pasteClicked()));
   connect( pasteButton, SIGNAL(clicked()), SLOT(pasteClicked()));
   
   // a horizontal frame line
@@ -157,14 +169,14 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   line->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
   // create commands-area
-  comedit= new QTextEdit(this, "comedit");
+  comedit= new QTextEdit(this);
   comedit->setLineWrapMode(QTextEdit::NoWrap);
   comedit->setFont(QFont("Courier",12,QFont::Normal));
   comedit->setReadOnly(false);
   comedit->setMaximumHeight(150);
   connect(comedit, SIGNAL(textChanged()), SLOT(comChanged()));
   // qt4 fix: QFrame -> QFrame
-  QFrame* comlabel= new QLabel(comedit,tr("Command field"),this,"comlabel");
+  QLabel* comlabel= new QLabel(tr("Command field"),this);
   comlabel->setMinimumSize(comlabel->sizeHint());
   //comlabel->setAlignment(AlignBottom | AlignLeft);
 
@@ -194,7 +206,7 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   hl1->addWidget(menutree);
   hl1->addLayout(vl1);
   
-  QGridLayout* gl= new QGridLayout(2,3,5);
+  QGridLayout* gl= new QGridLayout();
   gl->addWidget(newButton,0,0);
   gl->addWidget(newfileButton,0,1);
   gl->addWidget(renameButton,0,2);
@@ -202,11 +214,11 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   gl->addWidget(copyButton,1,1);
   gl->addWidget(pasteButton,1,2);
 
-  QHBoxLayout* hl= new QHBoxLayout(5);
+  QHBoxLayout* hl= new QHBoxLayout();
   hl->addWidget(optionButton);
   hl->addStretch(1);
 
-  QHBoxLayout* hl4= new QHBoxLayout(5);
+  QHBoxLayout* hl4= new QHBoxLayout();
   hl4->addStretch();
   hl4->addWidget(ok);
   hl4->addStretch();
@@ -215,7 +227,7 @@ QuickAdmin::QuickAdmin(QWidget* parent,
   //hl4->addWidget(help);
 
   // top layout
-  QVBoxLayout* vlayout=new QVBoxLayout(this,5,5);
+  QVBoxLayout* vlayout=new QVBoxLayout(this);
   
   vlayout->addWidget(mainlabel);
   vlayout->addLayout(hl1);
@@ -251,14 +263,14 @@ void QuickAdmin::selectionChanged(QTreeWidgetItem *p ,int i)
       newButton->setText(tr("&New menu.."));
       copyButton->setText(tr("Copy menu"));
       eraseButton->setText(tr("Remove menu.."));
-      copyButton->setAccel(Qt::CTRL+Qt::Key_C);
-      eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
+//       copyButton->setAccel(Qt::CTRL+Qt::Key_C);
+//       eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
     } else {
       newButton->setText(tr("&New plot.."));
       copyButton->setText(tr("Copy plot"));
       eraseButton->setText(tr("Remove plot"));
-      copyButton->setAccel(Qt::CTRL+Qt::Key_C);
-      eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
+//       copyButton->setAccel(Qt::CTRL+Qt::Key_C);
+//       eraseButton->setAccel(Qt::CTRL+Qt::Key_X);
     }
     updateCommand();
 
@@ -423,10 +435,11 @@ void QuickAdmin::newClicked()
 {
   bool ok = FALSE;
   if (activeElement==-1){
-    QString text = QInputDialog::getText(tr("Make new menu"),
+    QString text = QInputDialog::getText(this,
+					 tr("Make new menu"),
 					 tr("Make new menu with name:"),
 					 QLineEdit::Normal,
-					 QString::null, &ok, this );
+					 QString::null, &ok );
     if ( ok && !text.isEmpty() ){
       //       cerr << "Making a new MENU after menu:" << activeMenu << endl;
       quickMenu tmp;
@@ -446,10 +459,11 @@ void QuickAdmin::newClicked()
     }
     
   } else {
-    QString text = QInputDialog::getText(tr("Make new plot"),
+    QString text = QInputDialog::getText(this,
+					 tr("Make new plot"),
 					 tr("Make new plot with name:"),
 					 QLineEdit::Normal,
-					 QString::null, &ok, this );
+					 QString::null, &ok );
     if ( ok && !text.isEmpty() ){
       //       cerr << "Making a new ITEM in menu:" << activeMenu
       // 	   << " after item:" << activeElement << endl;
@@ -490,10 +504,11 @@ void QuickAdmin::renameClicked()
 {
   bool ok = FALSE;
   if (activeElement==-1){
-    QString text = QInputDialog::getText(tr("Change menu name"),tr("New name:"),
+    QString text = QInputDialog::getText(this,
+					 tr("Change menu name"),tr("New name:"),
 					 QLineEdit::Normal,
 					 menues[activeMenu].name.cStr(),
-					 &ok, this );
+					 &ok);
     if ( ok && !text.isEmpty() )
       menues[activeMenu].name= text.toStdString();
       menues[activeMenu].name.trim();
@@ -502,10 +517,11 @@ void QuickAdmin::renameClicked()
       menues[activeMenu].filename.replace(" ","_");
 
   } else {
-    QString text = QInputDialog::getText(tr("Change plot name"),tr("New name:"),
+    QString text = QInputDialog::getText(this,
+					 tr("Change plot name"),tr("New name:"),
 					 QLineEdit::Normal,
 					 menues[activeMenu].menuitems[activeElement].name.cStr(),
-					 &ok, this );
+					 &ok );
     if ( ok && !text.isEmpty() )
       menues[activeMenu].menuitems[activeElement].name= text.toStdString();
   }
@@ -555,7 +571,7 @@ void QuickAdmin::copyClicked()
   else
     pasteButton->setText(tr("Paste plot"));
   
-  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
+  //  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
 
   if ((activeMenu >= firstcustom && activeMenu<= lastcustom)
       || (activeMenu==0 && activeElement==-1) )
@@ -596,7 +612,7 @@ void QuickAdmin::pasteClicked()
 
   pasteButton->setText(tr("Paste"));
   pasteButton->setEnabled(false);
-  pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
+//   pasteButton->setAccel(Qt::CTRL+Qt::Key_V);
   updateWidgets();
 }
 
@@ -635,7 +651,7 @@ void QuickAdmin::comChanged(){
 
 //Qt4
   vector<miString> s;
-  miString str= comedit->text().toStdString();
+  miString str= comedit->toPlainText().toStdString();
   if (str.exists()) s.push_back(str);
   menues[activeMenu].menuitems[activeElement].command= s;
 }

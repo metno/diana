@@ -51,7 +51,7 @@ ToggleButton::ToggleButton( QWidget* parent,
     usePalette    = false;
   }
 
-  this->setToggleButton ( TRUE );
+  this->setCheckable ( TRUE );
 
   connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
 
@@ -82,7 +82,7 @@ ToggleButton::ToggleButton( QWidget* parent,
     m_outName = name[1];
   }
 
-  this->setToggleButton ( TRUE );
+  this->setCheckable ( TRUE );
 
   connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
 
@@ -105,7 +105,7 @@ ToggleButton::ToggleButton( QWidget* parent,
     usePalette  = false;
   }
 
-  this->setToggleButton ( TRUE );
+  this->setCheckable ( TRUE );
 
   connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
 

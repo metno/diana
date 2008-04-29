@@ -215,7 +215,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   QLabel *modelGRlabel= TitleLabel( tr("Model group"), this );
 
   // modelGRbox
-  modelGRbox= new QComboBox( false, this );
+  modelGRbox= new QComboBox( this );
 
   connect( modelGRbox, SIGNAL( activated( int ) ),
 	   SLOT( modelGRboxActivated( int ) ) );
@@ -231,7 +231,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   QLabel *fieldGRlabel= TitleLabel( tr("Field group"), this );
 
   // fieldGRbox
-  fieldGRbox= new QComboBox( false, this );
+  fieldGRbox= new QComboBox( this );
 
   connect( fieldGRbox, SIGNAL( activated( int ) ),
 	   SLOT( fieldGRboxActivated( int ) ) );
@@ -283,7 +283,12 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   levelLabel->setLineWidth(2);
   levelLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
-  levelSlider = new QSlider( 0, 1, 1, 0, Qt::Vertical, this);
+  levelSlider = new QSlider(Qt::Vertical, this);
+  levelSlider->setInvertedAppearance(true);
+  levelSlider->setMinimum(0);
+  levelSlider->setMaximum(1);
+  levelSlider->setPageStep(1);
+  levelSlider->setValue(0);
 
   levelSlider->setEnabled( false );
 
@@ -311,7 +316,11 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   idnumLabel->setLineWidth(2);
   idnumLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
-  idnumSlider = new QSlider( 0, 1, 1, 0, Qt::Horizontal, this);
+  idnumSlider = new QSlider(Qt::Horizontal, this);
+  idnumSlider->setMinimum(0);
+  idnumSlider->setMaximum(1);
+  idnumSlider->setPageStep(1);
+  idnumSlider->setValue(0);
 
   idnumSlider->setEnabled( false );
 
@@ -437,7 +446,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
   // lineinterval
   QLabel* lineintervallabel= new QLabel( tr("Line interval"), this );
-  lineintervalCbox=  new QComboBox( false, this );
+  lineintervalCbox=  new QComboBox( this );
   lineintervalCbox->setEnabled( false );
 
   connect( lineintervalCbox, SIGNAL( activated(int) ),
@@ -445,14 +454,14 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
 // density
   QLabel* densitylabel= new QLabel( tr("Density"), this );
-  densityCbox=  new QComboBox( false, this );
+  densityCbox=  new QComboBox( this );
   densityCbox->setEnabled( false );
   connect( densityCbox, SIGNAL( activated(int) ),
 	   SLOT( densityCboxActivated(int) ) );
 
   // vectorunit
   QLabel* vectorunitlabel= new QLabel( tr("Unit"), this );
-  vectorunitCbox=  new QComboBox( false, this );
+  vectorunitCbox=  new QComboBox( this );
   vectorunitCbox->setEnabled( false );
 
   connect( vectorunitCbox, SIGNAL( activated(int) ),
@@ -464,15 +473,15 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
   // allTimeStep
   allTimeStepButton = new ToggleButton( this, tr("All time steps").toStdString() );
-  allTimeStepButton->setToggleButton(true);
-  allTimeStepButton->setOn(false);
+  allTimeStepButton->setCheckable(true);
+  allTimeStepButton->setChecked(false);
   connect( allTimeStepButton, SIGNAL(toggled(bool)),
 	   SLOT(allTimeStepToggled(bool)));
 
   // advanced
   miString more_str[2] = { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
   advanced= new ToggleButton( this, more_str );
-  advanced->setOn(false);
+  advanced->setChecked(false);
   connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
 
   // hide
@@ -488,55 +497,56 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   connect( fieldapply, SIGNAL(clicked()), SLOT( applyClicked()));
 
   // layout
-  v1layout = new QVBoxLayout( 5 );
+  v1layout = new QVBoxLayout();
+  v1layout->setSpacing(1);
   v1layout->addWidget( modelGRlabel );
   v1layout->addWidget( modelGRbox );
-  v1layout->addSpacing( 5 );
+  //  v1layout->addSpacing();
   v1layout->addWidget( modellabel );
   v1layout->addWidget( modelbox,2 );
-  v1layout->addSpacing( 5 );
+  //  v1alayout->addSpacing();
   v1layout->addWidget( fieldGRlabel );
   v1layout->addWidget( fieldGRbox );
-  v1layout->addSpacing( 5 );
+  //  v1layout->addSpacing();
   v1layout->addWidget( fieldlabel );
   v1layout->addWidget( fieldbox,4 );
-  v1layout->addSpacing( 5 );
+  //  v1layout->addSpacing();
   v1layout->addWidget( selectedFieldlabel );
   v1layout->addWidget( selectedFieldbox,2 );
 
-  QVBoxLayout* h2layout= new QVBoxLayout( 2 );
+  QVBoxLayout* h2layout= new QVBoxLayout();
   h2layout->addWidget( upFieldButton );
   h2layout->addWidget( downFieldButton );
   h2layout->addWidget( resetOptionsButton );
   h2layout->addWidget( minusButton );
   h2layout->addStretch(1);
 
-  v1h4layout = new QHBoxLayout( 2 );
+  v1h4layout = new QHBoxLayout();
   v1h4layout->addWidget( Delete );
   v1h4layout->addWidget( copyField );
 
-  QHBoxLayout* vxh4layout = new QHBoxLayout( 2 );
+  QHBoxLayout* vxh4layout = new QHBoxLayout();
   vxh4layout->addWidget( deleteAll );
   vxh4layout->addWidget( changeModelButton );
 
-  QVBoxLayout* v3layout= new QVBoxLayout( 2 );
+  QVBoxLayout* v3layout= new QVBoxLayout();
   v3layout->addLayout( v1h4layout );
   v3layout->addLayout( vxh4layout );
 
-  QHBoxLayout* v1h5layout= new QHBoxLayout( 2 );
+  QHBoxLayout* v1h5layout= new QHBoxLayout();
   v1h5layout->addWidget( historyBackButton );
   v1h5layout->addWidget( historyForwardButton );
 
-  QVBoxLayout* v4layout= new QVBoxLayout( 2 );
+  QVBoxLayout* v4layout= new QVBoxLayout();
   v4layout->addLayout( v1h5layout );
   v4layout->addWidget( historyOkButton, 1 );
 
-  QHBoxLayout* h3layout= new QHBoxLayout( 2 );
+  QHBoxLayout* h3layout= new QHBoxLayout();
   h3layout->addLayout( v3layout );
   h3layout->addLayout( v4layout );
 
 
-  optlayout = new QGridLayout( 6, 2, 1 );
+  optlayout = new QGridLayout();
   optlayout->addWidget( colorlabel,       0, 0 );
   optlayout->addWidget( colorCbox,        0, 1 );
   optlayout->addWidget( linewidthlabel,   1, 0 );
@@ -550,48 +560,48 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   optlayout->addWidget( vectorunitlabel,  5, 0 );
   optlayout->addWidget( vectorunitCbox,   5, 1 );
 
-  QHBoxLayout* levelsliderlayout= new QHBoxLayout(0);
+  QHBoxLayout* levelsliderlayout= new QHBoxLayout();
   levelsliderlayout->setAlignment( Qt::AlignHCenter );
   levelsliderlayout->addWidget( levelSlider );
 
-  QHBoxLayout* levelsliderlabellayout= new QHBoxLayout(0);
+  QHBoxLayout* levelsliderlabellayout= new QHBoxLayout();
   levelsliderlabellayout->setAlignment( Qt::AlignHCenter );
   levelsliderlabellayout->addWidget( levelsliderlabel );
 
-  levellayout = new QVBoxLayout(3);
+  levellayout = new QVBoxLayout();
   levellayout->addWidget( levelLabel );
   levellayout->addLayout( levelsliderlayout );
   levellayout->addLayout( levelsliderlabellayout );
 
-  h4layout = new QHBoxLayout( 5 );
+  h4layout = new QHBoxLayout();
   h4layout->addLayout( h2layout );
   h4layout->addLayout( optlayout );
   h4layout->addLayout( levellayout );
 
-  idnumlayout = new QHBoxLayout(3);
+  idnumlayout = new QHBoxLayout();
   idnumlayout->addWidget( idnumLabel );
   idnumlayout->addWidget( idnumSlider );
   idnumlayout->addWidget( idnumsliderlabel );
 
-  h5layout = new QHBoxLayout( 2 );
+  h5layout = new QHBoxLayout();
   h5layout->addWidget( fieldhelp );
   h5layout->addWidget( allTimeStepButton );
   h5layout->addWidget( advanced );
 
-  h6layout = new QHBoxLayout( 2 );
+  h6layout = new QHBoxLayout();
   h6layout->addWidget( fieldhide );
   h6layout->addWidget( fieldapplyhide );
   h6layout->addWidget( fieldapply );
 
-  QVBoxLayout* v6layout= new QVBoxLayout( 2 );
+  QVBoxLayout* v6layout= new QVBoxLayout();
   v6layout->addLayout( h5layout );
   v6layout->addLayout( h6layout );
 
   // vlayout
 #ifdef DISPLAY1024X768
-  vlayout = new QVBoxLayout( this, 5, 5 );
+  vlayout = new QVBoxLayout( this);
 #else
-  vlayout = new QVBoxLayout( this, 10, 10 );
+  vlayout = new QVBoxLayout( this );
 #endif
   vlayout->addLayout( v1layout );
   vlayout->addLayout( h3layout );
@@ -625,33 +635,29 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
 void FieldDialog::toolTips()
 {
-  QToolTip::add( upFieldButton,       tr("move selected field up") );
-  QToolTip::add( downFieldButton,     tr("move selected field down") );
-  QToolTip::add( Delete,              tr("delete selected field") );
-  QToolTip::add( deleteAll,           tr("delete all selected fields") );
-  QToolTip::add( copyField,           tr("copy field") );
-  QToolTip::add( resetOptionsButton,  tr("reset plot options") );
-  QToolTip::add( minusButton,         tr("selected field minus the field above") );
-  QToolTip::add( changeModelButton,   tr("change model/termin") );
-  QToolTip::add( historyBackButton,   tr("history back") );
-  QToolTip::add( historyForwardButton,tr("history forward") );
-  QToolTip::add( historyOkButton,     tr("use history shown") );
-  QToolTip::add( allTimeStepButton,
-		 tr("all time steps / only common time steps") );
-  QToolTip::add( valueLabelCheckBox,  tr("numbers on the contour lines") );
+  upFieldButton->setToolTip(       tr("move selected field up") );
+  downFieldButton->setToolTip(     tr("move selected field down") );
+  Delete->setToolTip(              tr("delete selected field") );
+  deleteAll->setToolTip(           tr("delete all selected fields") );
+  copyField->setToolTip(           tr("copy field") );
+  resetOptionsButton->setToolTip(  tr("reset plot options") );
+  minusButton->setToolTip(         tr("selected field minus the field above") );
+  changeModelButton->setToolTip(   tr("change model/termin") );
+  historyBackButton->setToolTip(   tr("history back") );
+  historyForwardButton->setToolTip(tr("history forward") );
+  historyOkButton->setToolTip(     tr("use history shown") );
+  allTimeStepButton->setToolTip( tr("all time steps / only common time steps") );
+  valueLabelCheckBox->setToolTip(  tr("numbers on the contour lines") );
 
-  QToolTip::add( gridValueCheckBox,   
-		 tr("Grid values, but only when a few grid points are visible") );
-  QToolTip::add( gridLinesSpinBox,    tr("Grid lines, 1=all") );
-//   QToolTip::add( gridLinesMaxSpinBox, 
-// 		 tr("Grid lines, but only when a few grid points are visible") );
-  QToolTip::add( undefColourCbox,     tr("Undef colour") );
-  QToolTip::add( undefLinewidthCbox,  tr("Undef linewidth") );
-  QToolTip::add( undefLinetypeCbox,   tr("Undef linetype") );
-  QToolTip::add( shadingSpinBox,      tr("number of colours in the palette") );
-  QToolTip::add( shadingcoldComboBox, tr("Palette for values below basis") );
-  QToolTip::add( shadingcoldSpinBox,  tr("number of colours in the palette") );
-  QToolTip::add( patternColourBox,    tr("Colour of pattern") );
+  gridValueCheckBox->setToolTip( tr("Grid values->setToolTip( but only when a few grid points are visible") );
+  gridLinesSpinBox->setToolTip(    tr("Grid lines, 1=all") );
+  undefColourCbox->setToolTip(     tr("Undef colour") );
+  undefLinewidthCbox->setToolTip(  tr("Undef linewidth") );
+  undefLinetypeCbox->setToolTip(   tr("Undef linetype") );
+  shadingSpinBox->setToolTip(      tr("number of colours in the palette") );
+  shadingcoldComboBox->setToolTip( tr("Palette for values below basis") );
+  shadingcoldSpinBox->setToolTip(  tr("number of colours in the palette") );
+  patternColourBox->setToolTip(    tr("Colour of pattern") );
 }
 
 void FieldDialog::advancedToggled(bool on){
@@ -669,11 +675,11 @@ void FieldDialog::CreateAdvanced() {
   cerr<<"FieldDialog::CreateAdvanced" <<endl;
 #endif
 
-  advFrame= new QWidget(this,"frame");
+  advFrame= new QWidget(this);
 
   // Extreme (min,max): type, size and search radius
   QLabel* extremeTypeLabel= TitleLabel( tr("Min,max"), advFrame );
-  extremeTypeCbox= new QComboBox( false, advFrame );
+  extremeTypeCbox= new QComboBox( advFrame );
   extremeTypeCbox->setEnabled( false );
   extremeType.push_back(tr("None").toStdString());
   extremeType.push_back("L+H");
@@ -682,7 +688,10 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( extremeTypeActivated(int) ) );
 
   QLabel* extremeSizeLabel= new QLabel( tr("Size"),  advFrame );
-  extremeSizeSpinBox= new QSpinBox( 5,300,5, advFrame );
+  extremeSizeSpinBox= new QSpinBox( advFrame );
+  extremeSizeSpinBox->setMinimum(5);
+  extremeSizeSpinBox->setMaximum(300);
+  extremeSizeSpinBox->setSingleStep(5);
   extremeSizeSpinBox->setWrapping(true);
   extremeSizeSpinBox->setSuffix("%");
   extremeSizeSpinBox->setValue(100);
@@ -691,7 +700,10 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( extremeSizeChanged(int) ) );
 
   QLabel* extremeRadiusLabel= new QLabel( tr("Radius"), advFrame );
-  extremeRadiusSpinBox= new QSpinBox( 5,300,5, advFrame );
+  extremeRadiusSpinBox= new QSpinBox( advFrame );
+  extremeRadiusSpinBox->setMinimum(5);
+  extremeRadiusSpinBox->setMaximum(300);
+  extremeRadiusSpinBox->setSingleStep(5);
   extremeRadiusSpinBox->setWrapping(true);
   extremeRadiusSpinBox->setSuffix("%");
   extremeRadiusSpinBox->setValue(100);
@@ -701,7 +713,10 @@ void FieldDialog::CreateAdvanced() {
 
   // line smoothing
   QLabel* lineSmoothLabel= new QLabel( tr("Smooth lines"), advFrame );
-  lineSmoothSpinBox= new QSpinBox( 0,50,2, advFrame );
+  lineSmoothSpinBox= new QSpinBox( advFrame );
+  lineSmoothSpinBox->setMinimum(0);
+  lineSmoothSpinBox->setMaximum(50);
+  lineSmoothSpinBox->setSingleStep(2);
   lineSmoothSpinBox->setSpecialValueText(tr("Off"));
   lineSmoothSpinBox->setValue(0);
   lineSmoothSpinBox->setEnabled( false );
@@ -710,7 +725,10 @@ void FieldDialog::CreateAdvanced() {
 
   // field smoothing
   QLabel* fieldSmoothLabel= new QLabel( tr("Smooth fields"), advFrame );
-  fieldSmoothSpinBox= new QSpinBox( 0,10,1, advFrame );
+  fieldSmoothSpinBox= new QSpinBox( advFrame );
+  fieldSmoothSpinBox->setMinimum(0);
+  fieldSmoothSpinBox->setMaximum(10);
+  fieldSmoothSpinBox->setSingleStep(1);
   fieldSmoothSpinBox->setSpecialValueText(tr("Off"));
   fieldSmoothSpinBox->setValue(0);
   fieldSmoothSpinBox->setEnabled( false );
@@ -718,7 +736,10 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( fieldSmoothChanged(int) ) );
 
   //  QLabel* labelSizeLabel= new QLabel( "Tallstørrelse",  advFrame );
-  labelSizeSpinBox= new QSpinBox( 5,300,5, advFrame );
+  labelSizeSpinBox= new QSpinBox( advFrame );
+  labelSizeSpinBox->setMinimum(5);
+  labelSizeSpinBox->setMaximum(300);
+  labelSizeSpinBox->setSingleStep(5);
   labelSizeSpinBox->setWrapping(true);
   labelSizeSpinBox->setSuffix("%");
   labelSizeSpinBox->setValue(100);
@@ -736,7 +757,10 @@ void FieldDialog::CreateAdvanced() {
 
   // grid lines
   QLabel* gridLinesLabel= new QLabel( tr("Grid lines"), advFrame );
-  gridLinesSpinBox= new QSpinBox( 0,50,1, advFrame );
+  gridLinesSpinBox= new QSpinBox( advFrame );
+  gridLinesSpinBox->setMinimum(0);
+  gridLinesSpinBox->setMaximum(50);
+  gridLinesSpinBox->setSingleStep(1);
   gridLinesSpinBox->setSpecialValueText(tr("Off"));
   gridLinesSpinBox->setValue(0);
   gridLinesSpinBox->setEnabled( false );
@@ -754,7 +778,10 @@ void FieldDialog::CreateAdvanced() {
 
 
   QLabel* hourOffsetLabel= new QLabel( tr("Time offset"),  advFrame );
-  hourOffsetSpinBox= new QSpinBox( -72,72,1, advFrame );
+  hourOffsetSpinBox= new QSpinBox( advFrame );
+  hourOffsetSpinBox->setMinimum(-72);
+  hourOffsetSpinBox->setMaximum(72);
+  hourOffsetSpinBox->setSingleStep(1);
   hourOffsetSpinBox->setSuffix(tr(" hour(s)"));
   hourOffsetSpinBox->setValue(0);
   hourOffsetSpinBox->setEnabled( false );
@@ -762,7 +789,10 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( hourOffsetChanged(int) ) );
 
   QLabel* hourDiffLabel= new QLabel( tr("Time diff."),  advFrame );
-  hourDiffSpinBox= new QSpinBox( 0,12,1, advFrame );
+  hourDiffSpinBox= new QSpinBox( advFrame );
+  hourDiffSpinBox->setMinimum(0);
+  hourDiffSpinBox->setMaximum(12);
+  hourDiffSpinBox->setSingleStep(1);
   hourDiffSpinBox->setSuffix(tr(" hour(s)"));
   hourDiffSpinBox->setPrefix(" +/-");
   hourDiffSpinBox->setValue(0);
@@ -772,7 +802,7 @@ void FieldDialog::CreateAdvanced() {
 
   // Undefined masking
   QLabel* undefMaskingLabel= TitleLabel( tr("Undefined"), advFrame );
-  undefMaskingCbox= new QComboBox( false, advFrame );
+  undefMaskingCbox= new QComboBox( advFrame );
   undefMaskingCbox->setEnabled( false );
   undefMasking.push_back(tr("Unmarked").toStdString());
   undefMasking.push_back(tr("Coloured").toStdString());
@@ -850,7 +880,10 @@ void FieldDialog::CreateAdvanced() {
   connect( shadingComboBox, SIGNAL( activated(int) ),
 	   SLOT( shadingChanged() ) );
 
-  shadingSpinBox = new QSpinBox(0,99,1,advFrame);
+  shadingSpinBox= new QSpinBox( advFrame );
+  shadingSpinBox->setMinimum(0);
+  shadingSpinBox->setMaximum(99);
+  shadingSpinBox->setSingleStep(1);
   shadingSpinBox->setSpecialValueText(tr("Auto"));
   shadingSpinBox->setEnabled(false);
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
@@ -863,7 +896,10 @@ void FieldDialog::CreateAdvanced() {
   connect( shadingcoldComboBox, SIGNAL( activated(int) ),
 	   SLOT( shadingChanged() ) );
 
-  shadingcoldSpinBox = new QSpinBox(0,99,1,advFrame);
+  shadingcoldSpinBox= new QSpinBox( advFrame );
+  shadingcoldSpinBox->setMinimum(0);
+  shadingcoldSpinBox->setMaximum(99);
+  shadingcoldSpinBox->setSingleStep(1);
   shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
   shadingcoldSpinBox->setEnabled(false);
   connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
@@ -883,7 +919,10 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( patternColourBoxToggled(int) ) );
 
   //alpha blending
-  alphaSpinBox = new QSpinBox(0,255,5,advFrame);
+  alphaSpinBox= new QSpinBox( advFrame );
+  alphaSpinBox->setMinimum(0);
+  alphaSpinBox->setMaximum(255);
+  alphaSpinBox->setSingleStep(5);
   alphaSpinBox->setEnabled(false);
   alphaSpinBox->setValue(255);
   connect( alphaSpinBox, SIGNAL( valueChanged(int) ),
@@ -973,7 +1012,8 @@ void FieldDialog::CreateAdvanced() {
 
   // layout......................................................
 
-  QGridLayout* advLayout = new QGridLayout( 33, 3, 1 );
+  QGridLayout* advLayout = new QGridLayout( );
+  advLayout->setSpacing(1);
   int line = 0;
   advLayout->addWidget( extremeTypeLabel,    line, 0 );
   advLayout->addWidget(extremeSizeLabel,     line, 1 );
@@ -1095,7 +1135,7 @@ void FieldDialog::CreateAdvanced() {
   // a separator
   QFrame* advSep= new QFrame( advFrame );
   advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
-  advSep->setLineWidth( 5 );
+  advSep->setLineWidth(5);
 
   QHBoxLayout *hLayout = new QHBoxLayout( advFrame,5,5 );
 
@@ -1279,7 +1319,7 @@ void FieldDialog::fieldGRboxActivated( int index ){
 
   if (vfgi.size()>0) {
 
-    int indexMGR = indexMGRtable[modelGRbox->currentItem()];
+    int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
     int indexM   = modelbox->currentRow();
     int indexFGR = index;
 
@@ -1396,7 +1436,7 @@ void FieldDialog::levelPressed(){
 
 void FieldDialog::levelChanged( int index ){
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::levelChanged called"<<endl;
+  cerr<<"FieldDialog::levelChanged called: "<<index<<endl;
 #endif
 
   int n= currentLevels.size();
@@ -1721,7 +1761,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item){
 
   //first field can't be minus
   if(selectedFieldbox->count()>0 && selectedFields[0].minus){
-    minusButton->setOn(false);
+    minusButton->setChecked(false);
   }
 
 #ifdef DEBUGPRINT
@@ -1761,7 +1801,7 @@ void FieldDialog::enableFieldOptions(){
     downFieldButton->setEnabled( (index<lastindex) );
     if (vfgi.size()==0)
       changeModelButton->setEnabled( false );
-    else if (selectedFields[index].indexMGR==modelGRbox->currentItem() &&
+    else if (selectedFields[index].indexMGR==modelGRbox->currentIndex() &&
              selectedFields[index].indexM  ==modelbox->currentRow() )
       changeModelButton->setEnabled( false );
     else
@@ -1790,10 +1830,10 @@ void FieldDialog::enableFieldOptions(){
   deleteAll->setEnabled( true );
   resetOptionsButton->setEnabled( true );
 
-  if (selectedFields[index].minus && !minusButton->isOn())
-    minusButton->setOn(true);
-  else if (!selectedFields[index].minus && minusButton->isOn())
-    minusButton->setOn(false);
+  if (selectedFields[index].minus && !minusButton->isChecked())
+    minusButton->setChecked(true);
+  else if (!selectedFields[index].minus && minusButton->isChecked())
+    minusButton->setChecked(false);
 
   //hourOffset
   if (currentFieldOptsInEdit) {
@@ -1856,17 +1896,17 @@ void FieldDialog::enableFieldOptions(){
     while (i<nr_colors && vpcopt[nc].allValue!=colourInfo[i].name) i++;
     if (i==nr_colors) {
       updateFieldOptions("colour_2","off");
-      colour2ComboBox->setCurrentItem(0);
+      colour2ComboBox->setCurrentIndex(0);
     }else {
       updateFieldOptions("colour_2",colourInfo[i].name);
-      colour2ComboBox->setCurrentItem(i+1);
+      colour2ComboBox->setCurrentIndex(i+1);
     }
   }
   if ((nc=cp->findKey(vpcopt,"colour"))>=0) {
     enableType2Opt = true;
     shadingComboBox->setEnabled(true);
     shadingcoldComboBox->setEnabled(true);
-    if(colour2ComboBox->currentItem()>0)
+    if(colour2ComboBox->currentIndex()>0)
       enableType2Opt = true;
     if (!colorCbox->isEnabled()) {
       colorCbox->setEnabled(true);
@@ -1875,13 +1915,13 @@ void FieldDialog::enableFieldOptions(){
     if(vpcopt[nc].allValue.downcase() == "off" ||
        vpcopt[nc].allValue.downcase() == "av" ){
       updateFieldOptions("colour","off");
-      colorCbox->setCurrentItem(0);
+      colorCbox->setCurrentIndex(0);
     } else {
       while (i<nr_colors
 	     && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
       if (i==nr_colors) i=0;
       updateFieldOptions("colour",colourInfo[i].name);
-      colorCbox->setCurrentItem(i+1);
+      colorCbox->setCurrentIndex(i+1);
     }
   } else if (colorCbox->isEnabled()) {
     colorCbox->setEnabled(false);
@@ -1895,7 +1935,7 @@ void FieldDialog::enableFieldOptions(){
 	i=0;
 	while (i<nr_colors && colours[j]!=colourInfo[i].name) i++;
 	if(i<nr_colors)
-	  threeColourBox[j]->setCurrentItem(i+1);
+	  threeColourBox[j]->setCurrentIndex(i+1);
       }
       threeColoursChanged();
     }
@@ -1923,11 +1963,11 @@ void FieldDialog::enableFieldOptions(){
     while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
     if (i==nr_cs) {
       str = "off";
-      shadingComboBox->setCurrentItem(0);
-      shadingcoldComboBox->setCurrentItem(0);
+      shadingComboBox->setCurrentIndex(0);
+      shadingcoldComboBox->setCurrentIndex(0);
     }else {
       str = tokens[0];
-      shadingComboBox->setCurrentItem(i+1);
+      shadingComboBox->setCurrentIndex(i+1);
     }
     if(tokens.size()==2){
       vector<miString> stokens = tokens[1].split(";");
@@ -1938,20 +1978,20 @@ void FieldDialog::enableFieldOptions(){
       i=0;
       while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
       if (i==nr_cs) {
-	shadingcoldComboBox->setCurrentItem(0);
+	shadingcoldComboBox->setCurrentIndex(0);
       }else {
 	str += "," + tokens[1];
-	shadingcoldComboBox->setCurrentItem(i+1);
+	shadingcoldComboBox->setCurrentIndex(i+1);
       }
     } else {
-      shadingcoldComboBox->setCurrentItem(0);
+      shadingcoldComboBox->setCurrentIndex(0);
     }
     updateFieldOptions("palettecolours",str,-1);
   } else {
     updateFieldOptions("palettecolours","off",-1);
-    shadingComboBox->setCurrentItem(0);
+    shadingComboBox->setCurrentIndex(0);
     shadingComboBox->setEnabled(false);
-    shadingcoldComboBox->setCurrentItem(0);
+    shadingcoldComboBox->setCurrentIndex(0);
     shadingcoldComboBox->setEnabled(false);
     tableCheckBox->setEnabled(false);
     updateFieldOptions("table","remove");
@@ -1974,15 +2014,15 @@ void FieldDialog::enableFieldOptions(){
     while (i<nr_p && value!=patternInfo[i].name) i++;
     if (i==nr_p) {
       str = "off";
-      patternComboBox->setCurrentItem(0);
+      patternComboBox->setCurrentIndex(0);
     }else {
       str = patternInfo[i].name;
-      patternComboBox->setCurrentItem(i+1);
+      patternComboBox->setCurrentIndex(i+1);
     }
     updateFieldOptions("patterns",str,-1);
   } else {
     updateFieldOptions("patterns","off",-1);
-    patternComboBox->setCurrentItem(0);
+    patternComboBox->setCurrentIndex(0);
   }
 
   //pattern colour
@@ -1991,10 +2031,10 @@ void FieldDialog::enableFieldOptions(){
     while (i<nr_colors && vpcopt[nc].allValue!=colourInfo[i].name) i++;
     if (i==nr_colors) {
       updateFieldOptions("patterncolour","remove");
-      patternColourBox->setCurrentItem(0);
+      patternColourBox->setCurrentIndex(0);
     }else {
       updateFieldOptions("patterncolour",colourInfo[i].name);
-      patternColourBox->setCurrentItem(i+1);
+      patternColourBox->setCurrentIndex(i+1);
     }
   }
 
@@ -2031,22 +2071,22 @@ void FieldDialog::enableFieldOptions(){
   if ((nc=cp->findKey(vpcopt,"linetype"))>=0) {
     if (!lineTypeCbox->isEnabled()) {
       lineTypeCbox->setEnabled(true);
-      if(colour2ComboBox->currentItem()>0)
+      if(colour2ComboBox->currentIndex()>0)
 	linetype2ComboBox->setEnabled(true);
     }
     i=0;
     while (i<nr_linetypes && vpcopt[nc].allValue!=linetypes[i]) i++;
     if (i==nr_linetypes) i=0;
     updateFieldOptions("linetype",linetypes[i]);
-    lineTypeCbox->setCurrentItem(i);
+    lineTypeCbox->setCurrentIndex(i);
     if ((nc=cp->findKey(vpcopt,"linetype_2"))>=0) {
       i=0;
       while (i<nr_linetypes && vpcopt[nc].allValue!=linetypes[i]) i++;
       if (i==nr_linetypes) i=0;
       updateFieldOptions("linetype_2",linetypes[i]);
-      linetype2ComboBox->setCurrentItem(i);
+      linetype2ComboBox->setCurrentIndex(i);
     } else {
-      linetype2ComboBox->setCurrentItem(0);
+      linetype2ComboBox->setCurrentIndex(0);
     }
   } else if (lineTypeCbox->isEnabled()) {
     lineTypeCbox->setEnabled(false);
@@ -2057,22 +2097,22 @@ void FieldDialog::enableFieldOptions(){
   if ((nc=cp->findKey(vpcopt,"linewidth"))>=0) {
     if (!lineWidthCbox->isEnabled()) {
       lineWidthCbox->setEnabled(true);
-      if(colour2ComboBox->currentItem()>0)
+      if(colour2ComboBox->currentIndex()>0)
 	linewidth2ComboBox->setEnabled(true);
     }
     i=0;
     while (i<nr_linewidths && vpcopt[nc].allValue!=miString(i+1)) i++;
     if (i==nr_linewidths) i=0;
     updateFieldOptions("linewidth",miString(i+1));
-    lineWidthCbox->setCurrentItem(i);
+    lineWidthCbox->setCurrentIndex(i);
     if ((nc=cp->findKey(vpcopt,"linewidth_2"))>=0) {
       i=0;
       while (i<nr_linewidths && vpcopt[nc].allValue!=miString(i+1)) i++;
       if (i==nr_linewidths) i=0;
       updateFieldOptions("linewidth_2",miString(i+1));
-      linewidth2ComboBox->setCurrentItem(i);
+      linewidth2ComboBox->setCurrentIndex(i);
     } else {
-      linewidth2ComboBox->setCurrentItem(0);
+      linewidth2ComboBox->setCurrentIndex(0);
     }
   } else if (lineWidthCbox->isEnabled()) {
     lineWidthCbox->setEnabled(false);
@@ -2093,7 +2133,7 @@ void FieldDialog::enableFieldOptions(){
       else ekv_2= 10.;
       numberList( interval2ComboBox, ekv_2);
     }
-    if(colour2ComboBox->currentItem()>0)
+    if(colour2ComboBox->currentIndex()>0)
       enableType2Opt = true;
   } else {
     interval2ComboBox->clear();
@@ -2127,7 +2167,7 @@ void FieldDialog::enableFieldOptions(){
 	i=densityCbox->count()-1;
       }
     }
-    densityCbox->setCurrentItem(i);
+    densityCbox->setCurrentIndex(i);
   } else if (densityCbox->isEnabled()) {
     densityCbox->clear();
     densityCbox->setEnabled(false);
@@ -2151,7 +2191,7 @@ void FieldDialog::enableFieldOptions(){
     n= extremeType.size();
     if (!extremeTypeCbox->isEnabled()) {
       for (i=0; i<n; i++ ){
-	extremeTypeCbox->insertItem(QString(extremeType[i].c_str()));
+	extremeTypeCbox->addItem(QString(extremeType[i].c_str()));
       }
       extremeTypeCbox->setEnabled(true);
     }
@@ -2264,7 +2304,7 @@ void FieldDialog::enableFieldOptions(){
     if (!vpcopt[nc].floatValue.empty()) e=vpcopt[nc].floatValue[0];
     else e=0.0;
     zero1ComboBox->setEnabled(true);
-    if(colour2ComboBox->currentItem()>0){
+    if(colour2ComboBox->currentIndex()>0){
       zero2ComboBox->setEnabled(true);
     }
     base = baseList(zero1ComboBox,e,ekv/2.0);
@@ -2301,7 +2341,7 @@ void FieldDialog::enableFieldOptions(){
     } else {
       iumask= 0;
     }
-    undefMaskingCbox->setCurrentItem(iumask);
+    undefMaskingCbox->setCurrentIndex(iumask);
   } else if (undefMaskingCbox->isEnabled()) {
     undefMaskingCbox->clear();
     undefMaskingCbox->setEnabled(false);
@@ -2315,7 +2355,7 @@ void FieldDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("undef.colour",colourInfo[i].name);
     }
-    undefColourCbox->setCurrentItem(i);
+    undefColourCbox->setCurrentIndex(i);
     undefColourCbox->setEnabled( iumask>0 );
   } else if (undefColourCbox->isEnabled()) {
     undefColourCbox->setEnabled(false);
@@ -2329,7 +2369,7 @@ void FieldDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("undef.linewidth",miString(i+1));
     }
-    undefLinewidthCbox->setCurrentItem(i);
+    undefLinewidthCbox->setCurrentIndex(i);
     undefLinewidthCbox->setEnabled( iumask>1 );
   } else if (undefLinewidthCbox->isEnabled()) {
     undefLinewidthCbox->setEnabled(false);
@@ -2343,7 +2383,7 @@ void FieldDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("undef.linetype",linetypes[i]);
     }
-    undefLinetypeCbox->setCurrentItem(i);
+    undefLinetypeCbox->setCurrentIndex(i);
     undefLinetypeCbox->setEnabled( iumask>1 );
   } else if (undefLinetypeCbox->isEnabled()) {
     undefLinetypeCbox->setEnabled(false);
@@ -2379,7 +2419,7 @@ void FieldDialog::enableFieldOptions(){
   nc=cp->findKey(vpcopt,"minvalue");
   if (nc>=0) {
     min1ComboBox->setEnabled(true);
-    if(colour2ComboBox->currentItem()>0)
+    if(colour2ComboBox->currentIndex()>0)
       min2ComboBox->setEnabled(true);
     float value;
     if(vpcopt[nc].allValue=="off")
@@ -2389,8 +2429,8 @@ void FieldDialog::enableFieldOptions(){
     baseList(min1ComboBox,value,ekv,true);
     baseList(min2ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
-      min1ComboBox->setCurrentItem(0);
-    min2ComboBox->setCurrentItem(0);
+      min1ComboBox->setCurrentIndex(0);
+    min2ComboBox->setCurrentIndex(0);
     nc=cp->findKey(vpcopt,"minvalue_2");
     if (nc>=0) {
       float value;
@@ -2400,7 +2440,7 @@ void FieldDialog::enableFieldOptions(){
 	value = atof(vpcopt[nc].allValue.cStr());
       baseList(min2ComboBox,value,ekv,true);
       if(vpcopt[nc].allValue=="off")
-	min2ComboBox->setCurrentItem(0);
+	min2ComboBox->setCurrentIndex(0);
     }
   } else {
     min1ComboBox->setEnabled( false );
@@ -2418,8 +2458,8 @@ void FieldDialog::enableFieldOptions(){
     baseList(max1ComboBox,value,ekv,true);
     baseList(max2ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
-      max1ComboBox->setCurrentItem(0);
-    max2ComboBox->setCurrentItem(0);
+      max1ComboBox->setCurrentIndex(0);
+    max2ComboBox->setCurrentIndex(0);
     nc=cp->findKey(vpcopt,"maxvalue_2");
     if (nc>=0) {
       float value;
@@ -2429,7 +2469,7 @@ void FieldDialog::enableFieldOptions(){
 	value = atof(vpcopt[nc].allValue.cStr());
       baseList(max2ComboBox,value,ekv,true);
       if(vpcopt[nc].allValue=="off")
-	max2ComboBox->setCurrentItem(0);
+	max2ComboBox->setCurrentIndex(0);
     }
   } else {
     max1ComboBox->setEnabled( false );
@@ -2465,18 +2505,18 @@ void FieldDialog::disableFieldOptions(int type)
     upFieldButton->setEnabled( false );
     downFieldButton->setEnabled( false );
     resetOptionsButton->setEnabled( false );
-    minusButton->setOn(false);
+    minusButton->setChecked(false);
     minusButton->setEnabled( false );
   }
 
   colorCbox->setEnabled( false );
-  colour2ComboBox->setCurrentItem(0);
+  colour2ComboBox->setCurrentIndex(0);
   colour2ComboBox->setEnabled( false );
-  shadingComboBox->setCurrentItem(0);
+  shadingComboBox->setCurrentIndex(0);
   shadingComboBox->setEnabled( false );
   shadingSpinBox->setValue(0);
   shadingSpinBox->setEnabled( false );
-  shadingcoldComboBox->setCurrentItem(0);
+  shadingcoldComboBox->setCurrentIndex(0);
   shadingcoldComboBox->setEnabled( false );
   shadingcoldSpinBox->setValue(0);
   shadingcoldSpinBox->setEnabled( false );
@@ -2570,7 +2610,7 @@ void FieldDialog::disableFieldOptions(int type)
   max2ComboBox->setEnabled(false);
 
   for(int i=0;i<3;i++){
-    threeColourBox[i]->setCurrentItem(0);
+    threeColourBox[i]->setCurrentIndex(0);
     //    threeColourBox[i]->setEnabled(false);
   }
 
@@ -2627,7 +2667,7 @@ vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
     cBox->addItem(QString(vnumber[i].cStr()));
   }
 
-  cBox->setCurrentItem(nupdown);
+  cBox->setCurrentIndex(nupdown);
 
   return vnumber;
 }
@@ -2653,23 +2693,23 @@ miString FieldDialog::baseList( QComboBox* cBox,
   cBox->clear();
 
   if(onoff)
-    cBox->insertItem(tr("Off"));
+    cBox->addItem(tr("Off"));
 
   for (int i=0; i<n; ++i) {
     j++;
     float e= base + ekv*float(j);
     if(fabs(e)<ekv/2)
-    cBox->insertItem("0");
+    cBox->addItem("0");
     else{
       miString estr(e);
-      cBox->insertItem(estr.cStr());
+      cBox->addItem(estr.cStr());
     }
   }
 
   if(onoff)
-    cBox->setCurrentItem(k+1);
+    cBox->setCurrentIndex(k+1);
   else
-    cBox->setCurrentItem(k);
+    cBox->setCurrentIndex(k);
 
   return str;
 }
@@ -2695,9 +2735,9 @@ void FieldDialog::selectedFieldboxClicked( QListWidgetItem * item  )
 void FieldDialog::colorCboxActivated( int index )
 {
   //turn of 3 colours 
-  threeColourBox[0]->setCurrentItem(0);  
-  threeColourBox[1]->setCurrentItem(0);  
-  threeColourBox[2]->setCurrentItem(0);  
+  threeColourBox[0]->setCurrentIndex(0);  
+  threeColourBox[1]->setCurrentIndex(0);  
+  threeColourBox[2]->setCurrentIndex(0);  
   threeColoursChanged();
   
   if (index==0)
@@ -2881,7 +2921,7 @@ void FieldDialog::colour2ComboBoxToggled(int index)
     updateFieldOptions("colour_2",colourInfo[index-1].name);
     enableType2Options(true); //check if needed
     //turn of 3 colours (not possible to combine threeCols and col_2)
-    threeColourBox[0]->setCurrentItem(0);  
+    threeColourBox[0]->setCurrentIndex(0);  
     threeColoursChanged();
   }
 }
@@ -2923,20 +2963,20 @@ void FieldDialog::repeatCheckBoxToggled(bool on)
 
 void FieldDialog::threeColoursChanged()
 {
-  int c1=threeColourBox[0]->currentItem();
-  int c2=threeColourBox[1]->currentItem();
-  int c3=threeColourBox[2]->currentItem();
+  int c1=threeColourBox[0]->currentIndex();
+  int c2=threeColourBox[1]->currentIndex();
+  int c3=threeColourBox[2]->currentIndex();
   if (c1==0 || c2==0 || c3 ==0){
     //    threeColoursCheckBox->setChecked(false);
     updateFieldOptions("colours","remove");
   } else { 
 
     //turn of line colour
-    colorCbox->setCurrentItem(0);
+    colorCbox->setCurrentIndex(0);
     updateFieldOptions("colour","off");
 
     //turn of colour_2 (not possible to combine threeCols and col_2)
-    colour2ComboBox->setCurrentItem(0);
+    colour2ComboBox->setCurrentIndex(0);
     colour2ComboBoxToggled(0);
 
     miString str = colourInfo[c1-1].name + "," 
@@ -2953,13 +2993,13 @@ void FieldDialog::shadingChanged()
 
 void FieldDialog::updatePaletteString()
 {
-  if(patternComboBox->currentItem()>0 && patternColourBox->currentItem()>0){
+  if(patternComboBox->currentIndex()>0 && patternColourBox->currentIndex()>0){
     updateFieldOptions("palettecolours","off",-1);
     return;
   }
 
-  int index1 = shadingComboBox->currentItem();
-  int index2 = shadingcoldComboBox->currentItem();
+  int index1 = shadingComboBox->currentIndex();
+  int index2 = shadingcoldComboBox->currentIndex();
   int value1 = shadingSpinBox->value();
   int value2 = shadingcoldSpinBox->value();
 
@@ -3083,7 +3123,7 @@ void FieldDialog::max2ComboBoxToggled(int index)
 
 void FieldDialog::linewidth1ComboBoxToggled(int index)
 {
-  lineWidthCbox->setCurrentItem(index);
+  lineWidthCbox->setCurrentIndex(index);
   updateFieldOptions("linewidth",miString(index+1));
 }
 
@@ -3094,7 +3134,7 @@ void FieldDialog::linewidth2ComboBoxToggled(int index)
 
 void FieldDialog::linetype1ComboBoxToggled(int index)
 {
-  lineTypeCbox->setCurrentItem(index);
+  lineTypeCbox->setCurrentIndex(index);
   updateFieldOptions("linetype",linetypes[index]);
 }
 
@@ -3109,7 +3149,7 @@ void FieldDialog::enableType2Options(bool on)
   colour2ComboBox->setEnabled( on );
 
   //enable the rest only if colour2 is on
-  on = (colour2ComboBox->currentItem()!=0);
+  on = (colour2ComboBox->currentIndex()!=0);
 
   interval2ComboBox->setEnabled( on );
   zero2ComboBox->setEnabled( on );
@@ -3125,18 +3165,18 @@ void FieldDialog::enableType2Options(bool on)
     if(!zero2ComboBox->currentText().isNull())
       updateFieldOptions("base_2",
 			 zero2ComboBox->currentText().toStdString());
-    if(!min2ComboBox->currentText().isNull() && min2ComboBox->currentItem()>0)
+    if(!min2ComboBox->currentText().isNull() && min2ComboBox->currentIndex()>0)
       updateFieldOptions("minvalue_2",
 			 min2ComboBox->currentText().toStdString());
-    if(!max2ComboBox->currentText().isNull() && max2ComboBox->currentItem()>0)
+    if(!max2ComboBox->currentText().isNull() && max2ComboBox->currentIndex()>0)
       updateFieldOptions("maxvalue_2",
 			 max2ComboBox->currentText().toStdString());
     updateFieldOptions("linewidth_2",
-		       miString(linewidth2ComboBox->currentItem()+1));
+		       miString(linewidth2ComboBox->currentIndex()+1));
     updateFieldOptions("linetype_2",
-		       linetypes[linetype2ComboBox->currentItem()]);
+		       linetypes[linetype2ComboBox->currentIndex()]);
   } else {
-    colour2ComboBox->setCurrentItem(0);
+    colour2ComboBox->setCurrentIndex(0);
     updateFieldOptions("colour_2","off");
     updateFieldOptions("line.interval_2","remove");
     updateFieldOptions("base_2","remove");
@@ -3226,7 +3266,7 @@ vector<miString> FieldDialog::getOKString()
   vector<miString> vstr;
   if (selectedFields.size()==0) return vstr;
 
-  bool allTimeSteps= allTimeStepButton->isOn();
+  bool allTimeSteps= allTimeStepButton->isChecked();
 
   vector<miString> hstr;
 
@@ -3854,9 +3894,9 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
 
   if (m>0) {
     if (vfgi.size()>0) {
-      indexMGR = indexMGRtable[modelGRbox->currentItem()];
+      indexMGR = indexMGRtable[modelGRbox->currentIndex()];
       indexM   = modelbox->currentRow();
-      indexFGR = fieldGRbox->currentItem();
+      indexFGR = fieldGRbox->currentIndex();
       int n=     vfgi[indexFGR].fieldNames.size();
       bool change= false;
       for (int i=0; i<m; i++) {
@@ -3893,8 +3933,8 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
     enableFieldOptions();
   }
 
-  if (m>0 && allTimeSteps!=allTimeStepButton->isOn()) {
-    allTimeStepButton->setOn(allTimeSteps);
+  if (m>0 && allTimeSteps!=allTimeStepButton->isChecked()) {
+    allTimeStepButton->setChecked(allTimeSteps);
     allTimeStepToggled(allTimeSteps);
   } else {
     updateTime();
@@ -4302,9 +4342,9 @@ void FieldDialog::deleteSelected()
   int ml;
 
   if (vfgi.size()>0) {
-    int indexMGR = indexMGRtable[modelGRbox->currentItem()];
+    int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
     int indexM   = modelbox->currentRow();
-    int indexFGR = fieldGRbox->currentItem();
+    int indexFGR = fieldGRbox->currentIndex();
     if (selectedFields[index].indexMGR==indexMGR &&
         selectedFields[index].indexM  ==indexM) {
       int n= vfgi[indexFGR].fieldNames.size();
@@ -4351,7 +4391,7 @@ void FieldDialog::deleteSelected()
 
   //first field can't be minus
   if (selectedFieldbox->count()>0 && selectedFields[0].minus)
-    minusButton->setOn(false);
+    minusButton->setChecked(false);
 
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::deleteSelected returned"<<endl;
@@ -4386,7 +4426,7 @@ void FieldDialog::deleteAllSelected()
 
   selectedFields.resize(numEditFields);
   selectedFieldbox->clear();
-  minusButton->setOn(false);
+  minusButton->setChecked(false);
   minusButton->setEnabled(false);
 
   if (historyOkButton->isEnabled()) {
@@ -4432,7 +4472,7 @@ void FieldDialog::copySelectedField(){
   int index= selectedFieldbox->currentRow();
 
   if (vfgi.size()>0) {
-    int indexMGR= indexMGRtable[modelGRbox->currentItem()];
+    int indexMGR= indexMGRtable[modelGRbox->currentIndex()];
     int indexM  = modelbox->currentRow();
     int indexFGR= fieldGRbox->currentIndex();
     if (selectedFields[index].indexMGR ==indexMGR &&
@@ -4494,7 +4534,7 @@ void FieldDialog::changeModel()
 
   if (modelGRbox->count()==0 || modelbox->count()==0) return;
 
-  int indexMGR= modelGRbox->currentItem();
+  int indexMGR= modelGRbox->currentIndex();
   int indexM=   modelbox->currentRow();
   if (indexMGR<0 || indexM<0) return;
   indexMGR= indexMGRtable[indexMGR];
@@ -4618,7 +4658,7 @@ void FieldDialog::upField() {
   for(int i=0;i<n;i++){
     selectedFieldbox->setCurrentRow( i );
     if(selectedFields[i].minus && (i==0 || selectedFields[i-1].minus))
-      minusButton->setOn(false);
+      minusButton->setChecked(false);
   }
 
   selectedFieldbox->setCurrentRow( index-1 );
@@ -4647,7 +4687,7 @@ void FieldDialog::downField() {
   for(int i=0;i<n;i++){
     selectedFieldbox->setCurrentRow( i );
     if(selectedFields[i].minus && (i==0 || selectedFields[i-1].minus))
-      minusButton->setOn(false);
+      minusButton->setChecked(false);
   }
 
   selectedFieldbox->setCurrentRow( index+1 );
@@ -4745,7 +4785,7 @@ void FieldDialog::minusField(bool on)
     //next field can't be minus
     if (selectedFieldbox->count()>i+1 && selectedFields[i+1].minus){
       selectedFieldbox->setCurrentRow( i+1 );
-      minusButton->setOn(false);
+      minusButton->setChecked(false);
       selectedFieldbox->setCurrentRow( i );
     }
   } else {
@@ -4803,7 +4843,7 @@ void FieldDialog::updateTime(){
     }
 
     if (nr>0) {
-      bool allTimeSteps= allTimeStepButton->isOn();
+      bool allTimeSteps= allTimeStepButton->isChecked();
       fieldtime= m_ctrl->getFieldTime(request,allTimeSteps);
     }
   }
@@ -4814,7 +4854,7 @@ void FieldDialog::updateTime(){
 #endif
   emit emitTimes("field",fieldtime);
 
-  //  allTimeStepButton->setOn(false);
+  //  allTimeStepButton->setChecked(false);
 }
 
 void FieldDialog::addField(miString str) 
