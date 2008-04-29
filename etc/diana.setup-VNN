@@ -116,10 +116,18 @@ m=HIRLAM.12KM.00-1  f=$(OPDATA2)/hirlam12/h12sf00.dat-1  \
 		    f=$(OPDATA2)/hirlam12/h12pl00.dat-1  \
 		    f=$(OPDATA2)/hirlam12/h12ml00.dat-1 \
 		    f=$(OPDATA2)/hirlam12/h12ie00.dat-1
+m=HIRLAM.12KM.06-1  f=$(OPDATA2)/hirlam12/h12sf06.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12pl06.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12ml06.dat-1 \
+                    f=$(OPDATA2)/hirlam12/h12ie06.dat-1
 m=HIRLAM.12KM.12-1  f=$(OPDATA2)/hirlam12/h12sf12.dat-1  \
 		    f=$(OPDATA2)/hirlam12/h12pl12.dat-1  \
 		    f=$(OPDATA2)/hirlam12/h12ml12.dat-1 \
 		    f=$(OPDATA2)/hirlam12/h12ie12.dat-1
+m=HIRLAM.12KM.18-1  f=$(OPDATA2)/hirlam12/h12sf18.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12pl18.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12ml18.dat-1 \
+                    f=$(OPDATA2)/hirlam12/h12ie18.dat-1
 m=HIRLAM.12KM.00-2  f=$(OPDATA2)/hirlam12/h12sf00.dat-2  \
 		    f=$(OPDATA2)/hirlam12/h12pl00.dat-2  \
 		    f=$(OPDATA2)/hirlam12/h12ml00.dat-2 \
@@ -135,7 +143,9 @@ m=HIRLAM.8KM.06    f=$(OPDATA2)/hirlam8/h8km06.dat
 m=HIRLAM.8KM.12    f=$(OPDATA2)/hirlam8/h8km12.dat 
 m=HIRLAM.8KM.18    f=$(OPDATA2)/hirlam8/h8km18.dat 
 m=HIRLAM.8KM.00-1  f=$(OPDATA2)/hirlam8/h8km00.dat-1  
+m=HIRLAM.8KM.06-1  f=$(OPDATA2)/hirlam8/h8km06.dat-1  
 m=HIRLAM.8KM.12-1  f=$(OPDATA2)/hirlam8/h8km12.dat-1  
+m=HIRLAM.8KM.18-1  f=$(OPDATA2)/hirlam8/h8km18.dat-1  
 m=HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2  
 m=HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2 
 
@@ -666,6 +676,24 @@ PROD=ascii:Nedborsdata
 file=/opdata/vnn/nedbordata.yyyymmddHH*
 headerfile=/opdata/vnn/nedbordata.header
 timerange=-60,60
+
+PROD=synop:BckupSynop
+metnoobs=/eumetcast/obs_dec/syno??.dat
+metnoobs=/eumetcast/obs_dec/syno??.dat-1
+metnoobs=/eumetcast/obs_dec/syno??.dat-2
+timerange=-30,30
+
+PROD=dribu:BckupDribu
+metnoobs=/eumetcast/obs_dec/drau??.dat
+metnoobs=/eumetcast/obs_dec/drau??.dat-1
+metnoobs=/eumetcast/obs_dec/drau??.dat-2
+timerange=-90,90
+
+PROD=metar:BckupMetar
+metnoobs=/eumetcast/obs_dec/metaXX.dat
+metnoobs=/eumetcast/obs_dec/metaXX.dat-1
+metnoobs=/eumetcast/obs_dec/metaXX.dat-2
+timerange=-15,15
 
 </OBSERVATION_FILES>
 
