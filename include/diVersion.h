@@ -1,4 +1,4 @@
 #ifndef _version_h_
 #define _version_h_
-const string version_string= "3.0.1";
+const string version_string= "3.0.2";
 #endif
