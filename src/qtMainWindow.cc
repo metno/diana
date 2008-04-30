@@ -2259,7 +2259,6 @@ void DianaMainWindow::sendPrintClicked(int id)
 {
   miMessage l;
   l.command = qmstrings::printclicked;
-  l.to = id;
   sendLetter(l);
 }
 
