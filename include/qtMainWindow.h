@@ -182,7 +182,7 @@ private slots:
   void toggleStatusBar();
   void filequit();
 
-  void info_activated(int id);
+  void info_activated(QAction *);
   void hideVprofWindow();
   void hideVcrossWindow();
   void hideSpectrumWindow();
@@ -360,7 +360,7 @@ private:
   VprofWindow       * vpWindow;
   VcrossWindow      * vcWindow;
   SpectrumWindow    * spWindow;
-  vector<InfoFile>    infoFiles;
+  map<miString,InfoFile>    infoFiles;
 
   // statusbar widgets
   QLabel            * smsg;

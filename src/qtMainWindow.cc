@@ -537,12 +537,13 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   QMenu* infomenu= new QMenu(tr("Info"),this);
   infomenu->setIcon(QPixmap(info_xpm));
-  connect(infomenu, SIGNAL(activated(int)),
-	  SLOT(info_activated(int)));
+  connect(infomenu, SIGNAL(triggered(QAction *)),
+	  SLOT(info_activated(QAction *)));
   infoFiles= contr->getInfoFiles();
   if (infoFiles.size()>0){
-    for (int j=0; j<infoFiles.size(); j++){
-      infomenu->addAction(infoFiles[j].name.cStr());
+    map<miString,InfoFile>::iterator p=infoFiles.begin();
+    for (; p!=infoFiles.end(); p++){
+      infomenu->addAction(p->first.cStr());
     }
   }
   //  infoB->setAccel(Qt::ALT+Qt::Key_N);
@@ -1691,10 +1692,10 @@ void DianaMainWindow::spectrumMenu()
 }
 
 
-void DianaMainWindow::info_activated(int id)
+void DianaMainWindow::info_activated(QAction *action)
 {
-  if (id >= 0 && id < infoFiles.size()){
-    TextDialog* td= new TextDialog(this, infoFiles[id]);
+  if (action && infoFiles.count(action->text().toStdString())){
+    TextDialog* td= new TextDialog(this, infoFiles[action->text().toStdString()]);
     td->show();
   }
 }

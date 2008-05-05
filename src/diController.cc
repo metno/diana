@@ -919,7 +919,7 @@ miString Controller::findLocation(int x, int y, const miString& name){
 
 //******************************************************************
 
-vector<InfoFile> Controller::getInfoFiles()
+map<miString,InfoFile> Controller::getInfoFiles()
 {
   return setupParser.getInfoFiles();
 }

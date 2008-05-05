@@ -52,7 +52,7 @@ map<miString,SetupSection> SetupParser::sectionm;
 map<miString,Filltype>     SetupParser::filltypes;
 vector<QuickMenuDefs>      SetupParser::quickmenudefs;
 map<miString,miString>     SetupParser::basic_values;
-vector<InfoFile>           SetupParser::infoFiles;
+map<miString,InfoFile>     SetupParser::infoFiles;
 vector<miString>           SetupParser::langPaths;
 
 
@@ -577,12 +577,11 @@ bool SetupParser::parseTextInfoFiles(const miString& sectname)
   vector<miString> list,tokens,tokens2;
   miString key,value;
   miString name,filename, type, font;
-  int m,n, numfiles=0;
 
   if (!getSection(sectname,list))
     return true;
 
-  n= list.size();
+  int n= list.size();
   for (int i=0; i<n; i++){
     type= def_type; font= def_font;
     tokens2= list[i].split(' ');
@@ -602,12 +601,10 @@ bool SetupParser::parseTextInfoFiles(const miString& sectname)
     type.trim();
     font.trim();
     if (name.exists() && filename.exists()){
-      infoFiles.push_back(InfoFile());
-      infoFiles[numfiles].name= name;
-      infoFiles[numfiles].filename= filename;
-      infoFiles[numfiles].doctype= type;
-      infoFiles[numfiles].fonttype= font;
-      numfiles++;
+      infoFiles[name].name= name;
+      infoFiles[name].filename= filename;
+      infoFiles[name].doctype= type;
+      infoFiles[name].fonttype= font;
     }
   }
 

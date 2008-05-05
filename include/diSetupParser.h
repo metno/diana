@@ -75,7 +75,7 @@ private:
   static map<miString,Filltype>    filltypes;
   static vector<QuickMenuDefs>     quickmenudefs;
   static map<miString,miString>    basic_values;
-  static vector<InfoFile>          infoFiles;
+  static map<miString,InfoFile>          infoFiles;
   static vector<miString>          langPaths;
 
   // parse basic info
@@ -130,7 +130,7 @@ public:
   /// get list of lists of colours
   vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
   /// get list of InfoFile - used in textview
-  vector<InfoFile> getInfoFiles() const {return infoFiles;}
+  map<miString,InfoFile> getInfoFiles() const {return infoFiles;}
   /// paths to check for language files
   vector<miString> languagePaths() const {return langPaths;}
   /// Basic types

@@ -338,7 +338,7 @@ public:
 			 const miString& elementname);
   miString findLocation(int x, int y, const miString& name);
 
-  vector<InfoFile> getInfoFiles();
+  map<miString,InfoFile> getInfoFiles();
 
   vector<PlotElement>& getPlotElements();
   void enablePlotElement(const PlotElement& pe);
