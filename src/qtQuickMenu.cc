@@ -132,6 +132,7 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   for (int i=0; i<maxoptions; i++){
     optionlabel[i]= new QLabel("",frame,"optlabel");
     optionmenu[i]=  new QComboBox(FALSE, frame, "optionmenu");
+    optionmenu[i]->setSizeAdjustPolicy ( QComboBox::AdjustToContents);
     int row = (i < half ? 0 : 1);
     int col = 2*(i - row*half);
     varlayout->addWidget(optionlabel[i],row,col,Qt::AlignRight);
@@ -478,7 +479,7 @@ bool QuickMenu::applyItem(const miString& mlist, const miString& item)
 void QuickMenu::applyPlot()
 {
   plotButton();
-  emit Apply(qm[activemenu].menuitems[qm[activemenu].plotindex].command,true);
+//   emit Apply(qm[activemenu].menuitems[qm[activemenu].plotindex].command,true);
 }
 
 void QuickMenu::adminButton()
@@ -1125,10 +1126,11 @@ void QuickMenu::plotButton()
 
   if (com.size()>0){
     if (optionsexist) varExpand(com);
-    if (!browsing ||  // plot if no browsing..
-	(activemenu!=prev_listindex || // or if selected plot different
-	 qm[activemenu].plotindex!=prev_plotindex))// from previous
-      emit Apply(com,true);
+    //have to replot, or have to check if options has changed
+//     if (!browsing ||  // plot if no browsing..
+// 	(activemenu!=prev_listindex || // or if selected plot different
+// 	 qm[activemenu].plotindex!=prev_plotindex))// from previous
+    emit Apply(com,true);
     prev_plotindex= qm[activemenu].plotindex;
     prev_listindex= activemenu;
     browsing= false;

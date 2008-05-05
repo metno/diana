@@ -256,7 +256,10 @@ void EditNewDialog::tabSelected(const QString& name)
   if (!normal){
     load_combine();
     //in combine, should not be possible to change time...
-    timespin->setEnabled(false);   
+    timespin->setEnabled(false);
+    if(cBox->currentItem()){
+      combineSelect(cBox->currentItem());
+    }
   }
   else{
     setNormal();
@@ -267,8 +270,7 @@ void EditNewDialog::tabSelected(const QString& name)
 
 void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
-  int idx = cBox->row(item);
-  miString s= cBox->item(idx)->text().toStdString();
+  miString s= item->text().toStdString();
   //cerr << "EditNewDialog::Combineselect:" << s << endl;
   if (miTime::isValid(s)){
     combinetime= miTime(s);

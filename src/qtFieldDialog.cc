@@ -30,13 +30,14 @@
 */
 //#define DEBUGREDRAW
 
-#include <qapplication.h>
-#include <qcombobox.h>
-#include <qslider.h>
+#include <QApplication>
+#include <QComboBox>
+#include <QSlider>
 #include <QListWidget>
-#include <qlabel.h>
+#include <QListWidgetItem>
+#include <QLabel>
 #include <qpainter.h>
-#include <qpushbutton.h>
+#include <QPushButton>
 #include <qsplitter.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
@@ -1358,7 +1359,7 @@ void FieldDialog::fieldGRboxActivated( int index ){
 	      if (l==ml) j= nfield;
 	    }
 	    if (j<nfield) {
-//  	      fieldbox->setSelected(j,true);
+  	      fieldbox->item(i)->setSelected(true);
 	      fieldbox->setCurrentRow(j);
 	      countSelected[j]++;
 	      last= i;
@@ -1371,7 +1372,7 @@ void FieldDialog::fieldGRboxActivated( int index ){
 
   if (last>=0) {
     selectedFieldbox->setCurrentRow(last);
-    //    selectedFieldbox->setSelected(last,true);
+    selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
   } else if (selectedFields.empty()) {
     disableFieldOptions();
@@ -1729,7 +1730,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item){
 	if (jp>=0) {
 	  fieldbox->blockSignals(true);
 	  fieldbox->setCurrentRow(indexF);
-	  //	  fieldbox->setSelected(indexF, true);
+	  fieldbox->item(indexF)->setSelected(true);
 	  fieldbox->blockSignals(false);
 	  lastdelete= jp;
 	} else {
@@ -1751,7 +1752,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item){
 
   if (last>=0) {
     selectedFieldbox->setCurrentRow(last);
-//     selectedFieldbox->setSelected(last,true);
+    selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
   } else if (selectedFields.size()==0) {
     disableFieldOptions();
@@ -3929,7 +3930,6 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
     }
     selectedFieldbox->setCurrentRow(0);
     selectedFieldbox->item(0)->setSelected(true);
-    cerr <<"CURRENT:"<<selectedFieldbox->currentRow()<<endl;
     enableFieldOptions();
   }
 
