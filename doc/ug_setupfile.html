@@ -443,6 +443,9 @@ end.field
 	<tr><td>t=</td><td>MetnoFieldFile, NetCDF, etc.</td><td>Type of field Source</td></tr>
 	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
 	<tr><td>g=</td><td>88:1234:Name</td><td>for MetnoFieldfiles: prod:grid:Name</td></tr>
+	<tr><td>CLEAR_FILES</td><td></td><td>Delete all models in current
+	file group</td></tr>
+	<tr><td>CLEAR_FILEGROUP</td><td></td><td>Delete current file group</td></tr>
     </table>
 
     <br>Example:
@@ -456,6 +459,24 @@ m=HIRLAM.4KM.12  t=MetnoFieldFile f=/opdata/explam/grdqh12.dat
 
 filegroup=ice
 m=ice_sst t=NetCDF f=/disk1/tmp/iceSST.nc
+    </pre>
+Redefine models:
+    <pre>
+FileGroup=HIRLAM4km
+m=HIRLAM.4KM.00  t=MetnoFieldFile f=/disk1/grdqh00.dat
+m=HIRLAM.4KM.12  t=MetnoFieldFile f=/disk1/grdqh12.dat
+    </pre>
+Define new models in existing file group:
+    <pre>
+FileGroup=HIRLAM4km
+CLEAR_FILES
+m=MY_MODEL_00  t=MetnoFieldFile f=/disk1/grdqh00.dat
+m=MY_MODEL_12  t=MetnoFieldFile f=/disk1/grdqh12.dat
+    </pre>
+Delete file group:
+    <pre>
+FileGroup=HIRLAM4km
+CLEAR_FILEGROUP
     </pre>
 
       <!-- PAGEBREAK -->
