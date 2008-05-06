@@ -346,6 +346,7 @@ bool QuickMenu::prevQPlot(){
   
   qm[menu].plotindex++;
   list->setCurrentRow(qm[menu].plotindex);
+  listClicked(list->currentItem());
   return true;
 }
 
@@ -387,6 +388,7 @@ bool QuickMenu::nextQPlot(){
   
   qm[menu].plotindex--;
   list->setCurrentRow(qm[menu].plotindex);
+  listClicked(list->currentItem());
   return true;
 }
 

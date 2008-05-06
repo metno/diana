@@ -635,11 +635,15 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 	  SLOT(timecontrolslot()));
 
   timerToolbar= new QToolBar(this);
+  timerToolbar->setObjectName("TimerToolBar");
   timeSliderToolbar= new QToolBar(this);
+  timeSliderToolbar->setObjectName("TimeSliderToolBar");
   levelToolbar= new QToolBar(this);
+  levelToolbar->setObjectName("levelToolBar");
   mainToolbar = new QToolBar(this);
-  addToolBar(Qt::TopToolBarArea,mainToolbar);
-  insertToolBar(mainToolbar,levelToolbar);
+  mainToolbar->setObjectName("mainToolBar");
+  addToolBar(Qt::RightToolBarArea,mainToolbar);
+  addToolBar(Qt::TopToolBarArea,levelToolbar);
   insertToolBar(levelToolbar,timeSliderToolbar);
   insertToolBar(timeSliderToolbar,timerToolbar);
 
@@ -791,6 +795,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   uffm->hide();
   
   paintToolBar = new PaintToolBar(this);
+  paintToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea,paintToolBar);
   paintToolBar->hide();
 
@@ -3574,6 +3579,8 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   str= "Textview.size "   + miString(textview->width()) + " " + miString(textview->height());
   vstr.push_back(str);
   str= "Textview.pos "  + miString(textview->x()) + " " + miString(textview->y());
+  vstr.push_back(str); 
+  str="DocState " + saveDocState();
   vstr.push_back(str);
   vstr.push_back("================");
 
@@ -3607,6 +3614,15 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   return vstr;
 }
 
+miString DianaMainWindow::saveDocState()
+{
+  QByteArray state = saveState();
+  ostringstream ost;
+  int n= state.count();
+  for (int i=0; i<n; i++)
+    ost << setw(7) << int(state[i]);
+  return ost.str(); 
+}
 
 void DianaMainWindow::readLog(const vector<miString>& vstr,
 			   const miString& thisVersion,
@@ -3633,6 +3649,7 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
   for (; ivstr<nvstr; ivstr++) {
     if (vstr[ivstr].substr(0,4)=="====") break;
     tokens= vstr[ivstr].split(' ');
+    if (tokens[0]=="DocState") restoreDocState(vstr[ivstr]);
     if (tokens.size()==3) {
       x= atoi(tokens[1].c_str());
       y= atoi(tokens[2].c_str());
@@ -3648,7 +3665,7 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
         else if (tokens[0]=="SatDialog.pos")   sm->move(x,y);
         else if (tokens[0]=="MapDialog.pos")   mm->move(x,y);
         else if (tokens[0]=="EditDialog.pos")  em->move(x,y);
-        else if (tokens[0]=="ObjectDialog.pos") objm->move(x,y);
+        else if (tokens[0]=="ObjectDialog.pos")objm->move(x,y);
         else if (tokens[0]=="Textview.size")   textview->resize(x,y);
         else if (tokens[0]=="Textview.pos")    textview->move(x,y);
       }
@@ -3691,6 +3708,19 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
     cerr << "log from version " << logVersion << endl;
 }
 
+void DianaMainWindow::restoreDocState(miString logstr)
+{
+  vector<miString> vs= logstr.split(" ");
+  int n=vs.size();
+   QByteArray state(n-1,' ');
+   for (int i=1; i<n; i++){
+     state[i-1]= char(atoi(vs[i].c_str()));
+   } 
+
+   if (!restoreState( state)){
+     cerr << "!!!restoreState failed" << endl; 
+   }
+}
 
 void DianaMainWindow::getDisplaySize()
 {

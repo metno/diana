@@ -430,6 +430,8 @@ private:
 
   void writeLogFile();
   void readLogFile();
+  miString saveDocState();
+  void restoreDocState(miString logstr);
 
   vector<miString> writeLog(const miString& thisVersion,
 			    const miString& thisBuild);
