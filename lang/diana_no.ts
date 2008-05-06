@@ -251,11 +251,11 @@
     </message>
     <message>
         <source>Menuline</source>
-        <translation>Menylinje</translation>
+        <translation type="obsolete">Menylinje</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;Fil</translation>
+        <translation type="obsolete">&amp;Fil</translation>
     </message>
     <message>
         <source>O&amp;ptions</source>
@@ -275,15 +275,15 @@
     </message>
     <message>
         <source>Dataaccess/Tools</source>
-        <translation>Dataaksess/verktøy</translation>
+        <translation type="obsolete">Dataaksess/verktøy</translation>
     </message>
     <message>
         <source>Information...</source>
-        <translation>Informasjon...</translation>
+        <translation type="obsolete">Informasjon...</translation>
     </message>
     <message>
         <source>show information...</source>
-        <translation>vis informasjon...</translation>
+        <translation type="obsolete">vis informasjon...</translation>
     </message>
     <message>
         <source>Update observations</source>
@@ -340,6 +340,18 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <source>&amp;Field Edit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>File</source>
+        <translation type="unfinished">Fil</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Profet Login Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EditComment</name>
@@ -372,7 +384,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation>Hjelp</translation>
+        <translation type="obsolete">Hjelp</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1329,7 +1341,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Grid values, but only when a few grid points are visible</source>
-        <translation type="unfinished">Gridverdier, men bare når få gridpunkter er synlige </translation>
+        <translation type="obsolete">Gridverdier, men bare når få gridpunkter er synlige </translation>
     </message>
     <message>
         <source>Grid lines, 1=all</source>
@@ -1338,6 +1350,14 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Grid value</source>
         <translation>Gridverdi</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1351,39 +1371,39 @@ Kan ikke starte produksjon</translation>
     <name>HelpDialog</name>
     <message>
         <source>Close</source>
-        <translation>Lukk</translation>
+        <translation type="obsolete">Lukk</translation>
     </message>
     <message>
         <source>Print..</source>
-        <translation>Skriv ut..</translation>
+        <translation type="obsolete">Skriv ut..</translation>
     </message>
     <message>
         <source>Printing document...</source>
-        <translation>Skriver ut dokument...</translation>
+        <translation type="obsolete">Skriver ut dokument...</translation>
     </message>
     <message>
         <source>Cancel printing </source>
-        <translation>Avbryt utskrift </translation>
+        <translation type="obsolete">Avbryt utskrift </translation>
     </message>
     <message>
         <source>Go back one page</source>
-        <translation>Gå tilbake en side</translation>
+        <translation type="obsolete">Gå tilbake en side</translation>
     </message>
     <message>
         <source>Go forward one page</source>
-        <translation>Go frem en side</translation>
+        <translation type="obsolete">Go frem en side</translation>
     </message>
     <message>
         <source>Close window</source>
-        <translation>Lukk vindu</translation>
+        <translation type="obsolete">Lukk vindu</translation>
     </message>
     <message>
         <source>Print current document</source>
-        <translation>Skriv ut dokumentet</translation>
+        <translation type="obsolete">Skriv ut dokumentet</translation>
     </message>
     <message>
         <source>Diana Documentation</source>
-        <translation>Diana Dokumentasjon</translation>
+        <translation type="obsolete">Diana Dokumentasjon</translation>
     </message>
 </context>
 <context>
@@ -1588,8 +1608,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation>Utfør
-</translation>
+        <translation>Utfør</translation>
     </message>
     <message>
         <source>Comments</source>
@@ -1911,9 +1930,28 @@ Kan ikke starte produksjon</translation>
     </message>
 </context>
 <context>
+    <name>ProfetChatWidget</name>
+    <message>
+        <source>Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation type="unfinished">&amp;Send</translation>
+    </message>
+    <message>
+        <source>Users</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ProfetObjectDialog</name>
     <message>
         <source>Current Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;font color=red&gt;&lt;b&gt;EMPTY OBJECT - NOTHING TO EDIT!&lt;/b&gt;&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1921,14 +1959,6 @@ Kan ikke starte produksjon</translation>
     <name>ProfetSessionDialog</name>
     <message>
         <source>Edit Field Session</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> Session: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> Model: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1950,6 +1980,10 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Close</source>
         <translation type="unfinished">Lukk</translation>
+    </message>
+    <message>
+        <source>Objects</source>
+        <translation type="unfinished">Objekter</translation>
     </message>
 </context>
 <context>
@@ -2064,7 +2098,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Menus</source>
-        <translation>Menyer</translation>
+        <translation type="obsolete">Menyer</translation>
     </message>
     <message>
         <source>Menus (*.quick);;All (*.*)</source>
@@ -2261,7 +2295,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Max time diff</source>
-        <translation>Maks. tidsdiff</translation>
+        <translation type="obsolete">Maks. tidsdiff</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -2311,6 +2345,10 @@ Kan ikke starte produksjon</translation>
         <source>Help</source>
         <translation>Hjelp</translation>
     </message>
+    <message>
+        <source>Time diff</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SatDialogAdvanced</name>
@@ -2340,7 +2378,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Hide colours</source>
-        <translation>Skjul farger</translation>
+        <translation type="obsolete">Skjul farger</translation>
     </message>
     <message>
         <source>Use stretch from first picture</source>
@@ -2485,11 +2523,11 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Wavespectrum - control</source>
-        <translation>Bølgespekter - kontroll</translation>
+        <translation type="obsolete">Bølgespekter - kontroll</translation>
     </message>
     <message>
         <source>Wavespectrum - position/time</source>
-        <translation>Bølgespekter - posisjon/tid</translation>
+        <translation type="obsolete">Bølgespekter - posisjon/tid</translation>
     </message>
     <message>
         <source>Model</source>
@@ -2751,6 +2789,10 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Print calc. positions to file: trajectory.txt</source>
         <translation>Skriv beregnede posisjoner til fil: trajectory.txt</translation>
+    </message>
+    <message>
+        <source>No field selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3035,6 +3077,10 @@ Vil du sende før du avslutter?</translation>
     <message>
         <source>Auto</source>
         <translation>Auto</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3453,11 +3499,11 @@ Vil du sende før du avslutter?</translation>
     </message>
     <message>
         <source>Vertical profiles - control</source>
-        <translation>Vertikale profiler - kontroll</translation>
+        <translation type="obsolete">Vertikale profiler - kontroll</translation>
     </message>
     <message>
         <source>Vertical profiles - station/time</source>
-        <translation>Vertikale profiler - stasjon/tid</translation>
+        <translation type="obsolete">Vertikale profiler - stasjon/tid</translation>
     </message>
     <message>
         <source>Model</source>
