@@ -60,7 +60,7 @@ ln -sf $dianadir/etc/diana.setup-${region} diana.setup
 
 tstart=`date`
 
-$dianadir/bin/diana
+$dianadir/bin/diana -style cleanlooks
 
 tstop=`date`
 
