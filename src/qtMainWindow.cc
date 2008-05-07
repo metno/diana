@@ -1608,7 +1608,9 @@ bool DianaMainWindow::initProfet(){
       connect( profetGUI, SIGNAL(repaintMap(bool)), 
           SLOT(plotProfetMap(bool)));
       connect( profetGUI, SIGNAL(setTime(const miTime&)), 
-         tslider,SLOT(setTime(const miTime&)));
+	       tslider,SLOT(setTime(const miTime&)));
+      connect( profetGUI, SIGNAL(updateModelDefinitions()), 
+	       fm,SLOT(updateModels()) );
       return true;
     }else {
       profetLoginError->showMessage(tr("Profet Login Failed"));

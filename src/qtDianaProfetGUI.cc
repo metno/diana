@@ -100,6 +100,7 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session){
   sessionDialog.selectDefault();
 }
 
+
 void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
   LOG4CXX_INFO(logger,"setBaseObjects");
   baseObjects = obj;
@@ -182,6 +183,8 @@ void DianaProfetGUI::customEvent(QEvent * e){
     Profet::CurrentSessionEvent * cse = (Profet::CurrentSessionEvent*) e;
     sessionDialog.setCurrentSession(
         sessionModel.getIndexByRefTime(cse->refTime));
+    // updates FieldDialog
+    emit updateModelDefinitions();
   }
   
 }
@@ -394,7 +397,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
 
 void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y){
   if ( size_x==0 || size_y==0 || a.R().width()==0 ){
-    LOG4CXX_ERROR(logger,"Unvalid base projection set");
+    LOG4CXX_ERROR(logger,"Unvalid base projection set:" << a);
   }
   else{
     objectFactory.initFactory(a,size_x,size_y);

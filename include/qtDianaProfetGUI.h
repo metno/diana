@@ -186,6 +186,7 @@ signals:
   void setTime(const miTime & t);
   void repaintMap(bool onlyObjects);
   void toggleProfetGui();
+  void updateModelDefinitions();
 };
 
 #endif /*QTDIANAPROFETGUI_H_*/
