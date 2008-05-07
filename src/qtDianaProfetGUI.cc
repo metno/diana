@@ -33,6 +33,7 @@
 #include "qtPaintToolBar.h"
 #include <qstring.h>
 #include <QCoreApplication>
+#include <QMessageBox>
 
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) : 
@@ -144,7 +145,13 @@ void DianaProfetGUI::setUsers(const vector<Profet::PodsUser> & users){
 void DianaProfetGUI::customEvent(QEvent * e){
   if(e->type() == Profet::MESSAGE_EVENT){
     Profet::MessageEvent * me = (Profet::MessageEvent*) e;
-    sessionDialog.showMessage(me->message);
+    if(me->message.type == Profet::InstantMessage::WARNING_MESSAGE){
+      QString qs = me->message.message.cStr();
+      QMessageBox::warning(0, tr("Profet Warning"),qs,
+          QMessageBox::Ok,  QMessageBox::NoButton);
+    }else {
+      sessionDialog.showMessage(me->message);
+    }
   }else if(e->type() == Profet::USER_LIST_EVENT){
     Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
     if(cle->type == Profet::UserListEvent::REPLACE_LIST)
