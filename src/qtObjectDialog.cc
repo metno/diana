@@ -656,7 +656,11 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
 	timefileList->item(j)->setSelected(true);
       }
     } 
+  } else {
+    timefileBut->button(0)->setChecked(true);
+    timefileClicked(0);
   }
+
   if (plotVariables.alphanr >=0){
     //cerr << "alpha =" << plotVariables.alphanr << endl;
     int alphavalue = int(plotVariables.alphanr/m_alphascale + 0.5);
