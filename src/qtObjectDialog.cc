@@ -621,16 +621,18 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
 
    
   //update dialog
-  bool found;
+  bool found=false;
   int nc = namebox->count();
   for (int j=0;j<nc;j++ ){
     miString listname =  namebox->item(j)->text().toStdString();
     if (plotVariables.objectname==listname){
+      namebox->setCurrentRow(j);
       namebox->item(j)->setSelected(true);
       nameListClicked(namebox->item(j));
       found=true;
     }
   }	  
+
   if (!found) return;
   if (!plotVariables.time.empty()) {
     //cerr << "time =" << plotVariables.time << endl;
@@ -639,6 +641,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
       miString listtime=stringFromTime(files[j].time);
       if (plotVariables.time==listtime){
 	timefileBut->button(1)->setChecked(true);
+	timefileClicked(1);
 	timefileList->item(j)->setSelected(true);
       }
     }
@@ -649,6 +652,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
       miString listfile =  files[j].name;
       if (plotVariables.file==listfile){
 	timefileBut->button(2)->setChecked(true);
+	timefileClicked(2);
 	timefileList->item(j)->setSelected(true);
       }
     } 
@@ -681,7 +685,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
     cbs3->setChecked(true);
   else
     cbs3->setChecked(false);
-       
+
 }
 
 
