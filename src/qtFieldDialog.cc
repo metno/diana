@@ -3864,8 +3864,8 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
       miString text= sf.modelName + " " + sf.fieldName;
       selectedFieldbox->addItem(QString(text.c_str()));
 
-//       selectedFieldbox->setCurrentRow(selectedFieldbox->count()-1);
-//       selectedFieldbox->setSelected(selectedFieldbox->count()-1,true);
+      selectedFieldbox->setCurrentRow(selectedFieldbox->count()-1);
+      selectedFieldbox->item(selectedFieldbox->count()-1)->setSelected(true);
 
       //############################################################################
       //cerr << "  ok: " << str << " " << fOpts << endl;
@@ -4769,7 +4769,9 @@ miString FieldDialog::getFieldOptions(const miString& fieldName, bool reset) con
 
 void FieldDialog::minusField(bool on)
 {
+
   int i= selectedFieldbox->currentRow();
+
   if (i<0 || i>=selectedFieldbox->count()) return;
 
   QString qstr = selectedFieldbox->currentItem()->text();
