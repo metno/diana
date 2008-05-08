@@ -900,7 +900,7 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
     if (last>=selectedFields.size()) last= selectedFields.size() - 1;
   }
 
-  if (last>=0) {
+  if (last>=0 && selectedFieldbox->item(last)) {
     selectedFieldbox->setCurrentRow(last);
     selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
@@ -1466,7 +1466,6 @@ void VcrossDialog::disableFieldOptions(){
   downFieldButton->setEnabled( false );
   resetOptionsButton->setEnabled( false );
 
-  multiColors= 0;
   colorCbox->clear();
   colorCbox->setEnabled( false );
   shadingComboBox->setCurrentItem(0);
@@ -1658,12 +1657,10 @@ void VcrossDialog::selectedFieldboxClicked( QListWidgetItem * item  )
 
 
 void VcrossDialog::colorCboxActivated( int index ){
-  if (multiColors==1)
-    updateFieldOptions("colour",colourInfo[index].name);
-  else if (multiColors==2)
-    updateFieldOptions("colours",twoColourNames[index],-1);
-  else if (multiColors==3)
-    updateFieldOptions("colours",threeColourNames[index],-1);
+  if (index==0)
+    updateFieldOptions("colour","off");
+  else
+    updateFieldOptions("colour",colourInfo[index-1].name);
 }
 
 

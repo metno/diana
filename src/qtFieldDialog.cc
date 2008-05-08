@@ -1370,7 +1370,7 @@ void FieldDialog::fieldGRboxActivated( int index ){
     }
   }
 
-  if (last>=0) {
+  if (last>=0 && selectedFieldbox->item(last)) {
     selectedFieldbox->setCurrentRow(last);
     selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
@@ -1750,7 +1750,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item){
     if (last>=selectedFields.size()) last= selectedFields.size() - 1;
   }
 
-  if (last>=0) {
+  if (last>=0 && selectedFieldbox->item(last)) {
     selectedFieldbox->setCurrentRow(last);
     selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
