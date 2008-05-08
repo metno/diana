@@ -36,12 +36,14 @@
 #include <QMessageBox>
 
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
-PaintToolBar * ptb, GridAreaManager * gam, QWidget* parent) : 
+PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) : 
 QObject(), paintToolBar(ptb), areaManager(gam), 
-Profet::ProfetGUI(pc),sessionDialog(parent), 
-objectDialog(parent), objectFactory(),
-userModel(parent), sessionModel(parent),
-objectModel(parent), tableModel(parent){
+Profet::ProfetGUI(pc),sessionDialog(p), 
+objectDialog(p), objectFactory(),
+userModel(p), sessionModel(p),
+objectModel(p), tableModel(p)
+{
+  parent=p;
 #ifndef NOLOG4CXX
   logger = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("diana.DianaProfetGUI"));
 #endif
@@ -80,6 +82,8 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(saveObject()));
   connect(&objectDialog,SIGNAL(cancelObjectDialog()),
       this,SLOT(cancelObjectDialog()));
+  connect(&objectDialog,SIGNAL(timesmoothClicked()),
+      this,SLOT(startTimesmooth())); 
   connect(&objectDialog,SIGNAL(baseObjectSelected(miString)),
       this,SLOT(baseObjectSelected(miString)));
   connect(&objectDialog,SIGNAL(dynamicGuiChanged()),
@@ -98,6 +102,7 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session){
   QCoreApplication::postEvent(this, cse);
   tableModel.initTable(session.times(),session.parameters());
   sessionDialog.selectDefault();
+  currentSession=session;
 }
 
 
@@ -218,12 +223,12 @@ void DianaProfetGUI::baseObjectSelected(miString id){
       }
       
       // TODO: fetch parent from somewhere...
-      miString parent = "";
+      miString parent_ = "";
 
       currentObject = objectFactory.makeObject(baseObjects[i],
           areaManager->getCurrentPolygon(),
           getCurrentParameter(), getCurrentTime(),
-					       objectDialog.getReason(),user,refTime,parent);
+					       objectDialog.getReason(),user,refTime,parent_);
       LOG4CXX_INFO(logger,"calling controller.objectChanged");
       controller.objectChanged(currentObject);
     }
@@ -271,6 +276,67 @@ void DianaProfetGUI::saveObject(){
   controller.saveObject(currentObject);
   currentObject=fetObject();
   setObjectDialogVisible(false);
+}
+
+void DianaProfetGUI::startTimesmooth()
+{
+  if(!currentObject.exist()){
+      LOG4CXX_ERROR(logger,"Save Object: currentObject does not exist");
+      return;
+  }
+  
+  vector<miTime> tim;
+  try{
+    fetSession s = sessionModel.getSession( sessionDialog.getCurrentSessionIndex() );
+    tim = s.times();
+  }catch(InvalidIndexException & iie){
+    cerr << "DianaProfetGUI::startTimesmooth invalid session index" << endl;
+  }
+  
+  vector<fetObject::TimeValues> obj;
+  obj.push_back(currentObject.timeValues());
+  
+  controller.getTimeValues(obj);
+
+  ProfetTimeSmoothDialog *timesmoothdialog= new ProfetTimeSmoothDialog(parent,obj,tim);
+  
+  connect(timesmoothdialog,SIGNAL(runObjects(vector<fetObject::TimeValues>)), 
+      this,SLOT(processTimesmooth(vector<fetObject::TimeValues>)));
+  
+  connect(this,SIGNAL(timesmoothProcessed(miTime, miString)),
+      timesmoothdialog,SLOT(processed(miTime, miString))); 
+   
+  timesmoothdialog->show();
+}
+
+void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
+{
+  vector<fetObject> obj;
+  set<miString>     deletion_ids;
+  controller.getTimeValueObjects(obj,tv,deletion_ids);
+  
+  for(int i=0;i<tv.size();i++) {
+    if(deletion_ids.count(tv[i].id)){
+      controller.deleteObject(tv[i].id);
+      emit timesmoothProcessed(tv[i].validTime,"");
+    }
+  }
+  
+  
+   for(int i=0;i<obj.size();i++) { 
+     miTime tim      = obj[i].validTime();
+     miString obj_id = obj[i].id();
+
+    
+     if(objectFactory.processTimeValuesOnObject(obj[i])) {
+       controller.saveObject(obj[i]);
+       emit timesmoothProcessed(tim,obj[i].id());
+     } else {
+       emit timesmoothProcessed(tim,"");
+       cerr << "could not process" << obj[i].id() << " at " << tim << endl;
+     }
+   }
+
 }
 
 void DianaProfetGUI::dynamicGuiChanged(){
@@ -455,12 +521,12 @@ void DianaProfetGUI::gridAreaChanged(){
             cerr << "DianaProfetGUI::baseObjectSelected invalid session index" << endl;
           }
       	  // TODO: fetch parent from somewhere...
-      	  miString parent = "";
+      	  miString parent_ = "";
           currentObject = objectFactory.makeObject(baseObjects[i],
 						   areaManager->getCurrentPolygon(),
 						   getCurrentParameter(), getCurrentTime(),
 						   objectDialog.getReason(),user,
-						   refTime,parent);
+						   refTime,parent_);
         }
         else{
           LOG4CXX_WARN(logger,"gridAreaChanged: No Area Selected");

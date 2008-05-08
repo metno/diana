@@ -60,20 +60,21 @@ class ProfetObjectDialog: public QDialog{
 public:
   enum AreaStatus {AREA_NOT_SELECTED,AREA_OK,AREA_NOT_VALID};
 private:
-  QLabel        *parameterLabel;
-  QLabel        *sessionLabel;
-  QLabel        *algDescriptionLabel;
-  QLabel        *statisticLabel;
-  QComboBox     *baseComboBox;
-  QRadioButton  *customAreaButton;
-  QRadioButton  *objectAreaButton;
-  QRadioButton  *fileAreaButton;
-  QComboBox     *objectAreaComboBox;
-  QLineEdit     *fileTextEdit;
-  QLabel        *areaInfoLabel;
+  QLabel         *parameterLabel;
+  QLabel         *sessionLabel;
+  QLabel         *algDescriptionLabel;
+  QLabel         *statisticLabel;
+  QComboBox      *baseComboBox;
+  QRadioButton   *customAreaButton;
+  QRadioButton   *objectAreaButton;
+  QRadioButton   *fileAreaButton;
+  QComboBox      *objectAreaComboBox;
+  QLineEdit      *fileTextEdit;
+  QLabel         *areaInfoLabel;
   Q3TextEdit     *reasonText;
-  QPushButton       *saveObjectButton;
-  QPushButton       *cancelObjectButton;
+  QPushButton    *saveObjectButton;
+  QPushButton    *cancelObjectButton;
+  QPushButton    *timeSmoothButton;   
   Q3WidgetStack  *widgetStack;
   Q3GroupBox     *algGroupBox;
   Q3GroupBox     *areaGroupBox;
@@ -115,6 +116,7 @@ signals:
   void baseObjectSelected(miString name);
   void dynamicGuiChanged();
   void saveObjectClicked();
+  void timesmoothClicked();
   void cancelObjectDialog();
 };
 

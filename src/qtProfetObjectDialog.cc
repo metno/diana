@@ -87,8 +87,10 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
 
 
   Q3HBox * buttonBox        = new Q3HBox(this);
-  saveObjectButton         = new QPushButton("Save",buttonBox);
-  cancelObjectButton       = new QPushButton("Cancel",buttonBox);
+  
+  timeSmoothButton         = new QPushButton(tr("Timesmooth"),buttonBox);
+  saveObjectButton         = new QPushButton(tr("Save"),buttonBox);
+  cancelObjectButton       = new QPushButton(tr("Cancel"),buttonBox);
 
   mainLayout->addWidget(buttonBox);
   
@@ -109,6 +111,10 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
 }
 
 void ProfetObjectDialog::connectSignals(){
+  
+  connect(timeSmoothButton, SIGNAL( clicked() ),
+          this, SIGNAL( timesmoothClicked() ));
+  
   connect(saveObjectButton, SIGNAL( clicked() ),
         this, SIGNAL( saveObjectClicked() ));
   connect(cancelObjectButton, SIGNAL( clicked() ),
@@ -194,10 +200,12 @@ void ProfetObjectDialog::setAreaStatus(AreaStatus status){
   if(status == AREA_OK) {
     areaInfoLabel->setBackgroundColor(QColor("Green"));
     saveObjectButton->setEnabled(true);
+    timeSmoothButton->setEnabled(true);
     widgetStack->setEnabled(true);
   }
   else {
     areaInfoLabel->setBackgroundColor(QColor("Red"));
+    saveObjectButton->setEnabled(false);
     saveObjectButton->setEnabled(false);
     widgetStack->setEnabled(true);
   }

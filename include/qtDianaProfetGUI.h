@@ -41,6 +41,7 @@
 #include "diGridAreaManager.h"
 #include "diProfetObjectFactory.h"
 #include "qtProfetDataModels.h"
+#include "qtProfetTimeSmoothDialog.h"
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>
@@ -69,7 +70,10 @@ private:
   vector<fetBaseObject> baseObjects;
   UserListModel userModel;
   SessionListModel sessionModel;
-  fetObject currentObject;
+  fetObject  currentObject;
+  fetSession currentSession;
+  
+  
   // Cached because of many requests from multiple threads
   miString currentParam;
   miTime currentTime;
@@ -85,10 +89,10 @@ private:
 //  int getObjectIndex(miString id);
   
   miString user;
-  
+  QWidget* parent;
 public:
   DianaProfetGUI(Profet::ProfetController & pc, 
-		 PaintToolBar * ptb, GridAreaManager * gam, QWidget * parent);
+		 PaintToolBar * ptb, GridAreaManager * gam, QWidget * p);
   virtual ~DianaProfetGUI();
   
   void setCurrentSession(const fetSession & session);
@@ -163,8 +167,12 @@ private slots:
   void objectSelected(const QModelIndex &);
   void saveObject();
 //   void deleteObject(miString id);
+  void startTimesmooth();
+  void processTimesmooth(vector<fetObject::TimeValues> tv);
   void cancelObjectDialog();
   void dynamicGuiChanged(); //properties??
+  
+  
   
   // SessionDialog
   void sessionSelected(int index);
@@ -186,7 +194,11 @@ signals:
   void setTime(const miTime & t);
   void repaintMap(bool onlyObjects);
   void toggleProfetGui();
+
+  void timesmoothProcessed(miTime, miString);
+
   void updateModelDefinitions();
+
 };
 
 #endif /*QTDIANAPROFETGUI_H_*/

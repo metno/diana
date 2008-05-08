@@ -185,7 +185,18 @@ void ProfetObjectFactory::setPolygon(fetObject& fetObj,
   
 }
 
-
+// process the changes from a time edit..
+ bool ProfetObjectFactory::processTimeValuesOnObject(fetObject& fetObj)
+ {
+   // TODO: Audun set objects  in fetObjects: std::map<miString,float> parametersFromTimeValues_;
+   // to real stuff ...
+   // there is an empty: 
+   //  bool processParametersFromTimeValues();
+  // function in fetObject too - delete that one if you dont need it...
+     
+   
+   return true;
+ }
 
 
 

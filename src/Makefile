@@ -54,7 +54,7 @@ qtSpectrumWindow.o qtSpectrumWidget.o \
 qtSpectrumModelDialog.o qtSpectrumSetupDialog.o \
 qtPaintToolBar.o qtProfetSessionDialog.o qtProfetSessionTable.o \
 qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o \
-qtProfetDataModels.o
+qtProfetDataModels.o qtProfetSingleControl.o qtProfetTimeControl.o qtProfetTimeSmoothDialog.o
 
 GOBJ= \
 main_gui.o \

@@ -97,6 +97,10 @@ public:
   /// update polygon in fetObject 
   void setPolygon(fetObject& fetObj, ProjectablePolygon pp);
     
+  // process the changes from a time edit..
+  bool processTimeValuesOnObject(fetObject& fetObj);
+  
+  
 };
 
 #endif
