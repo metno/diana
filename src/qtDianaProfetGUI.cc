@@ -396,7 +396,7 @@ void DianaProfetGUI::createNewObject(){
 void DianaProfetGUI::editObject(){
   LOG4CXX_INFO(logger,"editObject");
   try{
-    controller.openObject(currentObject);
+//    controller.openObject(currentObject);
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
 // Lock info not distributed
 //    if(!fo.is_locked()){
@@ -412,6 +412,11 @@ void DianaProfetGUI::editObject(){
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
   }catch(InvalidIndexException & iie){
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
+  }catch(ObjectLockedException &){
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+                "","","Unable to open object: locked by other user.");
+    showMessage(m);
+    //        return;
   }
 }
 
