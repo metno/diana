@@ -107,7 +107,7 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   buttonLayout->addWidget(closeButton);
   
 
-  lockedObjectSelected(true);
+  lockedObjectSelected(false);
   connectSignals();
 }
 
