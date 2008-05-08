@@ -1359,7 +1359,7 @@ void FieldDialog::fieldGRboxActivated( int index ){
 	      if (l==ml) j= nfield;
 	    }
 	    if (j<nfield) {
-  	      fieldbox->item(i)->setSelected(true);
+  	      fieldbox->item(j)->setSelected(true);
 	      fieldbox->setCurrentRow(j);
 	      countSelected[j]++;
 	      last= i;
