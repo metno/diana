@@ -54,7 +54,7 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
 PodsUser UserListModel::getUser(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   if (index.row() >= users.size() || index.row() < 0)
-    throw new InvalidIndexException();
+    throw InvalidIndexException();
   return users[index.row()];
 }
 
@@ -110,7 +110,7 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
 fetSession SessionListModel::getSession(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   if (index.row() >= sessions.size() || index.row() < 0)
-    throw new InvalidIndexException();
+    throw InvalidIndexException();
   return sessions[index.row()];
 }
 
@@ -196,7 +196,7 @@ QModelIndex FetObjectListModel::getIndexById(const miString & id) const {
 fetObject FetObjectListModel::getObject(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   if (index.row() >= objects.size() || index.row() < 0)
-    throw new InvalidIndexException();
+    throw InvalidIndexException();
   return objects[index.row()];
 }
 
@@ -310,9 +310,9 @@ miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   int col = index.column();
   if(col < 0)
-    throw new InvalidIndexException();
+    throw InvalidIndexException();
   if (col >= times.size())
-    throw new InvalidIndexException();
+    throw InvalidIndexException();
   return times[col];
 }
 
@@ -320,9 +320,9 @@ miString FetObjectTableModel::getParameter(const QModelIndex &index) const throw
     InvalidIndexException&) {
   int row = index.row();
   if(row < 0) 
-    throw new InvalidIndexException();
+    throw InvalidIndexException();
   if (row >= parameters.size())
-    throw new InvalidIndexException();
+    throw InvalidIndexException();
   return parameters[row];
 }
 
