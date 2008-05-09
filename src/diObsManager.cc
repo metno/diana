@@ -557,7 +557,8 @@ vector<miTime> ObsManager::getObsTimes(const vector<miString>& pinfos)
       vector<miString> stokens = tokens[k].split('=');
       if( stokens.size() == 2) {
 	if (stokens[0].downcase() == "data"){
-	  obsTypes = stokens[1].split(",");
+	  vector<miString> obsT = stokens[1].split(",");
+	  obsTypes.insert(obsTypes.end(),obsT.begin(),obsT.end());
 	  break;
 	}
       }
