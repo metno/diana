@@ -47,16 +47,28 @@ ProfetSingleControl::ProfetSingleControl(QWidget* p, fetObject::TimeValues tv, i
  
   map<miString,float>::iterator itr=data.parameters.begin();
   for(;itr!=data.parameters.end();itr++) {
-      miSliderWidget * mySlider = new miSliderWidget(-10,10,1,itr->second, 
-          Qt::Vertical,
-          itr->first,"m/s",
-          false,
-          this);
-      slider[itr->first] = mySlider;
-      connect(slider[itr->first],SIGNAL(valueChangedForPar(float,miString)),this,
-          SLOT(valueChangedBySlider(float,miString)));
-      
-      vb->addWidget(slider[itr->first]);
+    if(!data.guiComponents.count(itr->first) ){
+      cerr << "could not build GUI for timeSmooth - guiComponents missinng for parameter: "
+      << itr->first << endl;
+      continue;
+    }
+    fetDynamicGui::GuiComponent guic=data.guiComponents[itr->first];
+    scale[itr->first] = (guic.stepvalue ? 1/guic.stepvalue : 1);    
+    miSliderWidget * mySlider = new miSliderWidget(
+        guic.minvalue,
+        guic.maxvalue,
+        guic.stepvalue,
+        itr->second, 
+        Qt::Vertical,
+        itr->first,
+        "",
+        false,
+        this);
+    slider[itr->first] = mySlider;
+    connect(slider[itr->first],SIGNAL(valueChangedForPar(float,miString)),this,
+        SLOT(valueChangedBySlider(float,miString)));
+
+    vb->addWidget(slider[itr->first]);
   }
   
   processed(data.id);
@@ -92,7 +104,7 @@ void ProfetSingleControl::buttonPressed()
 void ProfetSingleControl::setValue(miString par, float value)
 {
   if(slider.count(par)) {
-    value = float(int(value*100))/100;
+    value = float(int(value*scale[par]))/scale[par];
     
     slider[par]->setValue(value);
     valueChanged(value,par);

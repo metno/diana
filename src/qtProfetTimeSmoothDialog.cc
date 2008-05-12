@@ -93,11 +93,11 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    
    
    // Interpolation: Gauss ========================
-   interpolationGaussAction = new QAction(  QIcon(), tr("&Gauss"), this );
-   interpolationGaussAction->setShortcut(tr("F12"));
-   interpolationGaussAction->setStatusTip(tr("Interpolation by Gauss method"));
-   interpolationGaussAction->setCheckable(true);
-   connect( interpolationGaussAction, SIGNAL( triggered() ) , this, SLOT( setMethodGauss() ) );
+//   interpolationGaussAction = new QAction(  QIcon(), tr("&Gauss"), this );
+//   interpolationGaussAction->setShortcut(tr("F12"));
+//   interpolationGaussAction->setStatusTip(tr("Interpolation by Gauss method"));
+//   interpolationGaussAction->setCheckable(true);
+//   connect( interpolationGaussAction, SIGNAL( triggered() ) , this, SLOT( setMethodGauss() ) );
 
 
    // Interpolation: ResetLine ========================
@@ -118,16 +118,16 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    methodGroup = new QActionGroup(this);
    methodGroup->addAction(interpolationCopyAction);
    methodGroup->addAction(interpolationLinearAction);
-   methodGroup->addAction(interpolationGaussAction);
+ //  methodGroup->addAction(interpolationGaussAction);
    methodGroup->addAction(interpolationLineResetAction);
    methodGroup->addAction(interpolationSingleResetAction);
 
-   interpolationCopyAction->setChecked(true);
+   interpolationLinearAction->setChecked(true);
 
    methodmenu = new QMenu(tr("Method"),this);
    methodmenu->addAction(interpolationCopyAction);
    methodmenu->addAction(interpolationLinearAction);
-   methodmenu->addAction(interpolationGaussAction);
+ // methodmenu->addAction(interpolationGaussAction);
    methodmenu->addSeparator();
    methodmenu->addAction(interpolationLineResetAction);
    methodmenu->addAction(interpolationSingleResetAction);
@@ -137,7 +137,7 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
 
    toolbar->addAction(interpolationCopyAction);
    toolbar->addAction(interpolationLinearAction);
-   toolbar->addAction(interpolationGaussAction);
+// toolbar->addAction(interpolationGaussAction);
    toolbar->addSeparator();
    toolbar->addAction(interpolationLineResetAction);
    toolbar->addAction(interpolationSingleResetAction);
@@ -179,14 +179,17 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    scrolla = new QScrollArea(this);
 
    control = new ProfetTimeControl(scrolla->viewport(),obj,tim);
-
+   
    scrolla->setWidget(control);
-
+   
+   int h=control->height()+menuBar()->height()+toolbar->height()+20;
+   resize(800,h);
+   
 
 
    setCentralWidget(scrolla);  
 
-   scrolla->ensureWidgetVisible(control->parentObject(),0,0);
+   scrolla->ensureWidgetVisible(control->focusObject(),0,0);
 
 }
 

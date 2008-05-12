@@ -281,7 +281,7 @@ void DianaProfetGUI::saveObject(){
 void DianaProfetGUI::startTimesmooth()
 {
   if(!currentObject.exist()){
-      LOG4CXX_ERROR(logger,"Save Object: currentObject does not exist");
+      LOG4CXX_ERROR(logger,"startTimeSmooth Object: currentObject does not exist");
       return;
   }
   
@@ -293,11 +293,9 @@ void DianaProfetGUI::startTimesmooth()
     cerr << "DianaProfetGUI::startTimesmooth invalid session index" << endl;
   }
   
-  vector<fetObject::TimeValues> obj;
-  obj.push_back(currentObject.timeValues());
+  vector<fetObject::TimeValues> obj=controller.getTimeValues(currentObject.timeValues());
   
-  controller.getTimeValues(obj);
-
+  
   ProfetTimeSmoothDialog *timesmoothdialog= new ProfetTimeSmoothDialog(parent,obj,tim);
   
   connect(timesmoothdialog,SIGNAL(runObjects(vector<fetObject::TimeValues>)), 
@@ -329,6 +327,7 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
 
     
      if(objectFactory.processTimeValuesOnObject(obj[i])) {
+       cout <<"[0;31m--------------------------------------" <<endl<< obj[i].toSend() <<"-------------------------------- [0;0;0m"<< endl;
        controller.saveObject(obj[i]);
        emit timesmoothProcessed(tim,obj[i].id());
      } else {

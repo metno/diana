@@ -45,6 +45,7 @@ class ProfetSingleControl : public QFrame {
   Q_OBJECT
 private:
   map<miString,miSliderWidget*> slider;
+  map<miString,float>           scale;
   QPushButton                  *button;
   fetObject::TimeValues         data;
   int                           column;

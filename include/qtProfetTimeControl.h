@@ -82,7 +82,8 @@ public:
   vector<fetObject::TimeValues>  collect(bool removeDiscardables=false);
 	
   ProfetSingleControl* parentObject() const {return objects[parenttimestep];}
-	
+  ProfetSingleControl* focusObject()  const;
+  
   void toggleParameters(miString p);
   
   

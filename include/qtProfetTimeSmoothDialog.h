@@ -55,7 +55,7 @@ private:
   QMenu            *parametermenu;  
   
   QAction          *interpolationCopyAction;
-  QAction          *interpolationGaussAction;
+//  QAction          *interpolationGaussAction;
   QAction          *interpolationLinearAction;
   QAction          *interpolationLineResetAction;
   QAction          *interpolationSingleResetAction;

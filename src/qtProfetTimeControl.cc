@@ -5,7 +5,7 @@ ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValu
   QWidget(parent)
 {
   changed=false;
-  method=COPY;
+  method=LINEAR;
   
   fetObject::TimeValues parent_obj;
   
@@ -254,5 +254,11 @@ void ProfetTimeControl::setMethod(ProfetTimeControl::methodTypes m)
   method=m;  
 }
   
-
-
+ProfetSingleControl* ProfetTimeControl::focusObject() const
+{
+  if(objects.empty()) return 0;
+  
+  if(parenttimestep > 3) 
+    return objects[parenttimestep-3]; 
+  return objects[0];
+}
