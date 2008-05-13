@@ -59,6 +59,8 @@ public:
   void clear();
   ///Current time
   miTime Value();
+  /// current index
+  int current() { return value(); };
   ///Number of times currently in the slider
   int numTimes() const {return times.size();}
   ///Next/previous time

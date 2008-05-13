@@ -33,8 +33,11 @@
 #define MOVIEMAKER_H_
 
 #include <string>
+#include <list>
 #include <vector>
 #include <iostream>
+
+//#include <Magick++.h>
 
 using namespace std;
 
@@ -44,13 +47,7 @@ public:
 	 * Constructor. Sets filename to save the finished animation to, and
 	 * which quality it will be saved in.
 	 */
-	MovieMaker(string &filename, string &quality);
-	
-	/**
-	 * Add a frame to the end of the animation.
-	 * @param frame The frame to be added
-	 */
-	void addFrame(string &frame);
+	MovieMaker(string &filename, string &quality, string &frameNames);
 	
 	/**
 	 * Produce the animation, and save to file with the filename and quality
@@ -61,7 +58,8 @@ public:
 private:
 	string filename;
 	string quality;
-	vector<string> frames;
+	string frameNames;
+	//list<Images> frames;
 };
 
 #endif /*MOVIEMAKER_H_*/

@@ -33,17 +33,15 @@
 
 using namespace std;
 
-MovieMaker::MovieMaker(string &filename, string &quality) {
+MovieMaker::MovieMaker(string &filename, string &quality, string &frameNames) {
 	this->filename = filename;
 	this->quality = quality;
-}
-	
-void MovieMaker::addFrame(string &frame) {
-	frames.push_back(frame);
+	this->frameNames = frameNames;
 }
 	
 void MovieMaker::make() {
-	for(int i = 0; i < frames.size(); ++i) {
-		cout << "Frame no. " << i << " is " << frames[i] << endl;
-	}
+	cout << "Frame names is " << frameNames << endl;	
+	
+	//readImages(frames, frameNames);
+	//animateImages(frames.begin(), frames.last());
 }

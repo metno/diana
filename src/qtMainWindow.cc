@@ -33,6 +33,9 @@
 
 #include <fstream>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <qtTimeSlider.h>
 #include <qtTimeControl.h>
 #include <qtTimeStepSpinbox.h>
@@ -2621,7 +2624,7 @@ void DianaMainWindow::saveAnimation() {
     QFileDialog::getSaveFileName(this,
 				 tr("Save animation from current fields, observations, etc., using current settings"),
 				 fname,
-				 tr("Images (*.mpg);;All (*.*)"));
+				 tr("Movies (*.mpg);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -2630,30 +2633,44 @@ void DianaMainWindow::saveAnimation() {
     miString format= "mpg";
     int quality= -1; // default quality
 
-    // find format
-    /// only mpeg-support so far
+    /// find format
+    /// (only mpeg-support so far)
 		if (filename.contains(".mpg") || filename.contains(".MPG")
 				|| filename.contains(".mpeg") || filename.contains(".MPEG")) {
 			format= "mpg";
 		}
 
-    // do the save
-		string imageName;
-		string imageFormat = "jpg";
-		int imageQuality = -1;
-		MovieMaker moviemaker(filename, format);
+    /// make/clean up temp. directory for frames
+		rmdir("./animation_frames");
+		mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		
-		int nrOfTimesteps = tslider->numTimes();	
-		for(int i = 0; i < nrOfTimesteps; ++i) {
-			imageName = "./animation_frames/frame" + i;
-			//w->Glw()->saveRasterImage(imageName, imageFormat, imageQuality);
-			moviemaker.addFrame(imageName);
+		/// set up some defaults
+		string imageFormat = "jpg";
+		string frameNames = "./animation_frames/frame%02d.jpg";
+		int imageQuality = -1;
+		MovieMaker moviemaker(filename, format, frameNames);
+		
+		/// save frames as images
+		int nrOfTimesteps = tslider->numTimes();
+		int i = 0;
+		while(tslider->current() < nrOfTimesteps-1) {
+			string imageName = "./animation_frames/frame";
+			if(i < 10) imageName += "0";
+			ostringstream ss;
+			ss << i;
+			imageName += ss.str();
+			imageName += ".jpg";
+			cout << "Saving " << imageName << ".." << endl;			
+			w->Glw()->saveRasterImage(imageName, imageFormat, imageQuality);
 			
 			/// go to next frame
-			miTime t;
-			tslider->nextTime(1, t, true);
+			stepforward();
+			
+			++i;
 		}
 		
+		/// clean up
+		//rmdir("./animation_frames");
   }
 }
 
