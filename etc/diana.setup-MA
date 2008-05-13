@@ -468,14 +468,14 @@ map=LyseEnergi  type=lines_simple_text file=$(ROOT)/ma/maps/lyseenergi.txt
 
 <OBJECTS>
 name="VA Bakkeanalyse"    file=/opdata/diana/Bakkeanalyse/VA-objects/VA_ANAdraw
-name="MA Prognose+36",  file=/opdata/ma/diana/Prognose+36/MA-objects/MA_PROG36draw
-name="MA Prognose+60",  file=/opdata/ma/diana/Prognose+60/MA-objects/MA_PROG60draw
-name="MA Prognose+84",  file=/opdata/ma/diana/Prognose+84/MA-objects/MA_PROG84draw
+name="MA Prognose+36"  file=/opdata/ma/diana/Prognose+36/MA-objects/MA_PROG36draw
+name="MA Prognose+60"  file=/opdata/ma/diana/Prognose+60/MA-objects/MA_PROG60draw
+name="MA Prognose+84"  file=/opdata/ma/diana/Prognose+84/MA-objects/MA_PROG84draw
 
 # Foreløpig testing
-name="TEST Prognose+36",  file=./work/TEST_PROG36draw
-name="TEST Prognose+60",  file=./work/TEST_PROG60draw
-name="TEST Prognose+84",  file=./work/TEST_PROG84draw
+name="TEST Prognose+36"  file=./work/TEST_PROG36draw
+name="TEST Prognose+60"  file=./work/TEST_PROG60draw
+name="TEST Prognose+84"  file=./work/TEST_PROG84draw
 </OBJECTS>
 
 <EDIT>
