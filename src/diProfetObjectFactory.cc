@@ -186,18 +186,40 @@ void ProfetObjectFactory::setPolygon(fetObject& fetObj,
 }
 
 // process the changes from a time edit..
- bool ProfetObjectFactory::processTimeValuesOnObject(fetObject& fetObj)
- {
+bool ProfetObjectFactory::processTimeValuesOnObject(fetObject& fetObj)
+{
+  
+  // set elements in fetObjects: std::map<miString,float> parametersFromTimeValues_;
+  // to real stuff ...
    
-   // set objects  in fetObjects: std::map<miString,float> parametersFromTimeValues_;
-   // to real stuff ...
-   
-   fetCodeExecutor executor;
-   bool b = executor.prepareCode(fetObj,fetObj.parametersFromTimeValues());
-   fetObj.clearParametersFromTimeValues();
-   
-   return b;
- }
+  fetCodeExecutor executor;
+  bool ok;
+
+  // add changes to guielements
+  ok = executor.changeGuiElements(fetObj,fetObj.parametersFromTimeValues());
+  
+  // compile and fetch gui components from code
+  vector<fetCodeExecutor::responce> responcel; 
+  map<miString,miString> guikeys;
+  bool onlygui=false;
+  ok = executor.compile( fetObj.baseObject(), responcel, fetObj.guiElements(), onlygui );
+  if ( !ok ){
+    outputExecuteResponce(responcel);
+  }
+  vector<fetDynamicGui::GuiComponent> components = executor.getGuiComponents();
+  
+  // set local values
+  fetObj.setTimeVariables(executor.timevariables());
+  fetObj.setValuesForZeroImpact(executor.valuesforzeroimpact());
+  
+  // actuallly set the values!!
+  setGuiValues(fetObj,components);
+  
+  // remove time values
+  fetObj.clearParametersFromTimeValues();
+  
+  return ok;
+}
 
 
 
