@@ -38,6 +38,7 @@
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diMapMode.h>
+#include <MovieMaker.h>
 #include <miString.h>
 #include <vector>
 #include <deque>
@@ -85,6 +86,7 @@ class StationPlot;
 class TextView;
 class QShortCut;
 class QErrorMessage;
+
 /**
 
   \brief Main application window
@@ -172,6 +174,7 @@ private slots:
   void save();
   void hardcopy();
   void saveraster();
+  void saveAnimation();
   void makeEPS(const miString& filename);
   void TimeChanged();
   void TimeSelected();
@@ -250,6 +253,7 @@ private:
 
   /// Actions
   QAction * fileSavePictAction;
+  QAction * saveAnimationAction;
   QAction * filePrintAction;
   QAction * fileQuitAction;
 

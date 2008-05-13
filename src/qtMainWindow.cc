@@ -168,6 +168,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   fileSavePictAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( fileSavePictAction, SIGNAL( activated() ) , SLOT( saveraster() ) );
   // --------------------------------------------------------------------
+  saveAnimationAction = new QAction( tr("&Save animation..."),this );
+  saveAnimationAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( saveAnimationAction, SIGNAL( activated() ) , SLOT( saveAnimation() ) );
+  // --------------------------------------------------------------------
   filePrintAction = new QAction( tr("&Print..."),this );
   filePrintAction->setShortcut(Qt::CTRL+Qt::Key_P);
   filePrintAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -507,6 +511,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   //-------File menu
   filemenu = menuBar()->addMenu(tr("File"));
   filemenu->addAction( fileSavePictAction );
+  filemenu->addAction( saveAnimationAction );
   filemenu->addAction( filePrintAction );
   filemenu->addSeparator();
   filemenu->addAction( fileQuitAction );
@@ -2606,6 +2611,49 @@ void DianaMainWindow::saveraster()
 
     // do the save
     w->Glw()->saveRasterImage(filename, format, quality);
+  }
+}
+
+void DianaMainWindow::saveAnimation() {
+  static QString fname = "./"; // keep users preferred animation-path for later
+
+  QString s = 
+    QFileDialog::getSaveFileName(this,
+				 tr("Save animation from current fields, observations, etc., using current settings"),
+				 fname,
+				 tr("Images (*.mpg);;All (*.*)"));
+
+
+  if (!s.isNull()) {// got a filename
+    fname= s;
+    miString filename= s.toStdString();
+    miString format= "mpg";
+    int quality= -1; // default quality
+
+    // find format
+    /// only mpeg-support so far
+		if (filename.contains(".mpg") || filename.contains(".MPG")
+				|| filename.contains(".mpeg") || filename.contains(".MPEG")) {
+			format= "mpg";
+		}
+
+    // do the save
+		string imageName;
+		string imageFormat = "jpg";
+		int imageQuality = -1;
+		MovieMaker moviemaker(filename, format);
+		
+		int nrOfTimesteps = tslider->numTimes();	
+		for(int i = 0; i < nrOfTimesteps; ++i) {
+			imageName = "./animation_frames/frame" + i;
+			//w->Glw()->saveRasterImage(imageName, imageFormat, imageQuality);
+			moviemaker.addFrame(imageName);
+			
+			/// go to next frame
+			miTime t;
+			tslider->nextTime(1, t, true);
+		}
+		
   }
 }
 
