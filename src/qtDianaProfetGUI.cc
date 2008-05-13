@@ -41,7 +41,7 @@ QObject(), paintToolBar(ptb), areaManager(gam),
 Profet::ProfetGUI(pc),sessionDialog(p), 
 objectDialog(p), objectFactory(),
 userModel(p), sessionModel(p),
-objectModel(p), tableModel(p)
+objectModel(p), tableModel(p), activeTimeSmooth(false)
 {
   parent=p;
 #ifndef NOLOG4CXX
@@ -280,6 +280,8 @@ void DianaProfetGUI::saveObject(){
 
 void DianaProfetGUI::startTimesmooth()
 {
+  if(activeTimeSmooth) return;
+  
   if(!currentObject.exist()){
       LOG4CXX_ERROR(logger,"startTimeSmooth Object: currentObject does not exist");
       return;
@@ -295,6 +297,7 @@ void DianaProfetGUI::startTimesmooth()
   
   vector<fetObject::TimeValues> obj=controller.getTimeValues(currentObject.timeValues());
   
+  if(obj.empty()) return;
   
   ProfetTimeSmoothDialog *timesmoothdialog= new ProfetTimeSmoothDialog(parent,obj,tim);
   
@@ -303,7 +306,11 @@ void DianaProfetGUI::startTimesmooth()
   
   connect(this,SIGNAL(timesmoothProcessed(miTime, miString)),
       timesmoothdialog,SLOT(processed(miTime, miString))); 
-   
+  
+  connect(timesmoothdialog,SIGNAL(endTimesmooth(vector<fetObject::TimeValues>)), 
+        this,SLOT(endTimesmooth(vector<fetObject::TimeValues>)));
+    
+  activeTimeSmooth=true;
   timesmoothdialog->show();
 }
 
@@ -327,7 +334,6 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
 
     
      if(objectFactory.processTimeValuesOnObject(obj[i])) {
-       cout <<"[0;31m--------------------------------------" <<endl<< obj[i].toSend() <<"-------------------------------- [0;0;0m"<< endl;
        controller.saveObject(obj[i]);
        emit timesmoothProcessed(tim,obj[i].id());
      } else {
@@ -337,6 +343,13 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
    }
 
 }
+void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
+{
+  activeTimeSmooth=false;
+  controller.unlockObjectsByTimeValues(tv);
+}
+
+
 
 void DianaProfetGUI::dynamicGuiChanged(){
   LOG4CXX_INFO(logger,"Dynamic GUI changed");

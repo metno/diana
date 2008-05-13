@@ -30,6 +30,7 @@
 #include <QToolBar>
 #include <QMessageBox>
 
+
 ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject::TimeValues>& obj, vector<miTime>& tim) 
 : QMainWindow(parent)
 {
@@ -192,6 +193,14 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    scrolla->ensureWidgetVisible(control->focusObject(),0,0);
 
 }
+
+void ProfetTimeSmoothDialog::closeEvent(QCloseEvent * e)
+{
+  vector<fetObject::TimeValues>  d = control->collect(false);
+  emit endTimesmooth(d);  
+  
+}
+
 
 void ProfetTimeSmoothDialog::toggleParameters(const QString& pname)
 {

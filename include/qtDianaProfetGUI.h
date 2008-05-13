@@ -82,6 +82,7 @@ private:
   // needed to keep 'show-status' after hide
   bool showPaintToolBar;
   bool showObjectDialog;
+  bool activeTimeSmooth;
   
   void connectSignals();
   /// gets baseObjects index by name. returns -1 if not found
@@ -154,7 +155,7 @@ public:
   void setStatistics(map<miString,float>);
   
   /**
-   * set the list of Points which are actually affected bye the active
+   * set the list of Points which are actually affected by the active
    * object/mask
    */
   void setActivePoints(vector<Point>);
@@ -169,9 +170,10 @@ private slots:
 //   void deleteObject(miString id);
   void startTimesmooth();
   void processTimesmooth(vector<fetObject::TimeValues> tv);
+  void endTimesmooth(vector<fetObject::TimeValues> tv);
+
   void cancelObjectDialog();
   void dynamicGuiChanged(); //properties??
-  
   
   
   // SessionDialog

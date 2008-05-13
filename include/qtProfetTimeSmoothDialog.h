@@ -39,7 +39,7 @@
 
 #include <vector>
 #include <map>
-
+#include <QCloseEvent>
 #include <qtProfetTimeControl.h>
 
 
@@ -70,9 +70,14 @@ private:
   QScrollArea       *scrolla;
   ProfetTimeControl *control;
   QSignalMapper     *parameterSignalMapper;
-  
+
+protected:
+  void closeEvent( QCloseEvent* );
+    
 public:
   ProfetTimeSmoothDialog(QWidget* p, vector<fetObject::TimeValues>& obj,vector<miTime>& tim);
+  
+  
   
 public slots:
   void processed(miTime tim, miString obj_id); 
@@ -91,6 +96,7 @@ private slots:
   void toggleParameters(const QString& pname);
 signals:
   void runObjects(vector<fetObject::TimeValues> obj);  
+  void endTimesmooth(vector<fetObject::TimeValues> obj);
   
 };
 

@@ -153,7 +153,8 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
   // set local values
   fetObj.setTimeVariables(executor.timevariables());
   fetObj.setValuesForZeroImpact(executor.valuesforzeroimpact());
-
+  fetObj.setGuiComponents(components);
+  
   setGuiValues(fetObj,components);
 
   return fetObj;

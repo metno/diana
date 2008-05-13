@@ -107,7 +107,7 @@ vector<fetObject::TimeValues> ProfetTimeControl::collect(bool removeDiscardables
 
   for ( int i=0; i<objects.size();i++) {
     fetObject::TimeValues data = objects[i]->Data();
-    if(removeDiscardables && data.isDiscardable())
+    if(removeDiscardables && data.isDiscardable() && !data.isParent())
       continue;
     co.push_back(objects[i]->Data());
   }
