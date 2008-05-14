@@ -18,8 +18,11 @@ diVprofManager.o diVprofPlot.o diVprofTables.o diVprofDiagram.o diVprofData.o \
 diVprofTemp.o diVprofPilot.o diVprofOptions.o diFtnVfile.o \
 diVcrossManager.o diVcrossPlot.o diVcrossOptions.o diVcrossFile.o \
 diSpectrumManager.o diSpectrumPlot.o diSpectrumOptions.o diSpectrumFile.o \
-diShapeObject.o diGridArea.o diGridAreaManager.o diProfetObjectFactory.o 
-#MovieMaker.o
+diShapeObject.o diGridArea.o diGridAreaManager.o diProfetObjectFactory.o
+
+ifdef VIDEO_EXPORT
+CCOBJ+= MovieMaker.o
+endif
 
 ifndef NOBUFROBS
 CCOBJ += diObsBufr.o 

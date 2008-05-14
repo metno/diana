@@ -32,6 +32,12 @@ ifdef OMNIORB_INST
 PROFETLIBS+= -lpods
 endif
 
+ifdef VIDEO_EXPORT
+DEFINES+=-DVIDEO_EXPORT
+MAGICK_LIBS=-lMagick++
+endif
+
+
 INCLUDE= -I. \
 	 -I$(INCDIR) \
 	 -I$(LOCALINC)/propoly \
@@ -85,7 +91,8 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	$(NETCDFLIB) \
 	$(WDB_LIB) \
 	$(WDB_EXTRA_LIB) \
-	$(OMNI_LIBS)
+	$(OMNI_LIBS) \
+	$(MAGICK_LIBS)
 
 
 BLINKS= $(LINKS)

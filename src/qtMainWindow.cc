@@ -171,7 +171,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   fileSavePictAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( fileSavePictAction, SIGNAL( activated() ) , SLOT( saveraster() ) );
   // --------------------------------------------------------------------
-  saveAnimationAction = new QAction( tr("&Save animation..."),this );
+  saveAnimationAction = new QAction( tr("Save &animation..."),this );
   saveAnimationAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( saveAnimationAction, SIGNAL( activated() ) , SLOT( saveAnimation() ) );
   // --------------------------------------------------------------------
@@ -2617,62 +2617,70 @@ void DianaMainWindow::saveraster()
   }
 }
 
+#ifdef VIDEO_EXPORT
 void DianaMainWindow::saveAnimation() {
-//  static QString fname = "./"; // keep users preferred animation-path for later
-//
-//  QString s = 
-//    QFileDialog::getSaveFileName(this,
-//				 tr("Save animation from current fields, observations, etc., using current settings"),
-//				 fname,
-//				 tr("Movies (*.mpg);;All (*.*)"));
-//
-//
-//  if (!s.isNull()) {// got a filename
-//    fname= s;
-//    miString filename= s.toStdString();
-//    miString format= "mpg";
-//    int quality= -1; // default quality
-//
-//    /// find format
-//    /// (only mpeg-support so far)
-//		if (filename.contains(".mpg") || filename.contains(".MPG")
-//				|| filename.contains(".mpeg") || filename.contains(".MPEG")) {
-//			format= "mpg";
-//		}
-//
-//    /// make/clean up temp. directory for frames
-//		rmdir("./animation_frames");
-//		mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-//		
-//		/// set up some defaults
-//		string imageFormat = "jpg";
-//		string frameNames = "./animation_frames/frame%02d.jpg";
-//		int imageQuality = -1;
-//		MovieMaker moviemaker(filename, format, frameNames);
-//		
-//		/// save frames as images
-//		int nrOfTimesteps = tslider->numTimes();
-//		int i = 0;
-//		while(tslider->current() < nrOfTimesteps-1) {
-//			string imageName = "./animation_frames/frame";
-//			if(i < 10) imageName += "0";
-//			ostringstream ss;
-//			ss << i;
-//			imageName += ss.str();
-//			imageName += ".jpg";
-//			cout << "Saving " << imageName << ".." << endl;			
-//			w->Glw()->saveRasterImage(imageName, imageFormat, imageQuality);
-//			
-//			/// go to next frame
-//			stepforward();
-//			
-//			++i;
-//		}
-//		
-//		/// clean up
-//		//rmdir("./animation_frames");
-//  }
+  static QString fname = "./"; // keep users preferred animation-path for later
+
+  QString s = 
+    QFileDialog::getSaveFileName(this,
+				 tr("Save animation from current fields, observations, etc., using current settings"),
+				 fname,
+				 tr("Movies (*.mpg);;All (*.*)"));
+
+
+  if (!s.isNull()) {// got a filename
+    fname= s;
+    miString filename= s.toStdString();
+    miString format= "mpg";
+    int quality= -1; // default quality
+
+    /// find format
+    /// (only mpeg-support so far)
+		if (filename.contains(".mpg") || filename.contains(".MPG")
+				|| filename.contains(".mpeg") || filename.contains(".MPEG")) {
+			format= "mpg";
+		}
+
+    /// make/clean up temp. directory for frames
+		rmdir("./animation_frames");
+		mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		
+		/// set up some defaults
+		string imageFormat = "jpg";
+		string frameNames = "./animation_frames/frame%02d.jpg";
+		int imageQuality = -1;
+		MovieMaker moviemaker(filename, format, frameNames);
+		
+		/// save frames as images
+		int nrOfTimesteps = tslider->numTimes();
+		int i = 0;
+		while(tslider->current() < nrOfTimesteps-1) {
+			string imageName = "./animation_frames/frame";
+			if(i < 10) imageName += "0";
+			ostringstream ss;
+			ss << i;
+			imageName += ss.str();
+			imageName += ".jpg";
+			cout << "Saving " << imageName << ".." << endl;			
+			w->Glw()->saveRasterImage(imageName, imageFormat, imageQuality);
+			
+			/// go to next frame
+			stepforward();
+			
+			++i;
+		}
+		
+		moviemaker.make();
+		
+		/// clean up
+		//rmdir("./animation_frames");
+  }
 }
+#else
+void DianaMainWindow::saveAnimation() {
+	QMessageBox::information(this, tr("Information"), tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
+}
+#endif
 
 void DianaMainWindow::makeEPS(const miString& filename)
 {

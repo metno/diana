@@ -31,8 +31,6 @@
 
 #include "MovieMaker.h"
 
-using namespace std;
-
 MovieMaker::MovieMaker(string &filename, string &quality, string &frameNames) {
 	this->filename = filename;
 	this->quality = quality;
@@ -42,6 +40,6 @@ MovieMaker::MovieMaker(string &filename, string &quality, string &frameNames) {
 void MovieMaker::make() {
 	cout << "Frame names is " << frameNames << endl;	
 	
-	//readImages(frames, frameNames);
-	//animateImages(frames.begin(), frames.last());
+	readImages(&frames, frameNames);
+	animateImages(frames.begin(), frames.end());
 }

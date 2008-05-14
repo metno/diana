@@ -37,9 +37,10 @@
 #include <vector>
 #include <iostream>
 
-//#include <Magick++.h>
+#include <Magick++.h>
 
 using namespace std;
+using namespace Magick;
 
 class MovieMaker {
 public:
@@ -59,7 +60,7 @@ private:
 	string filename;
 	string quality;
 	string frameNames;
-	//list<Images> frames;
+	list<Image> frames;
 };
 
 #endif /*MOVIEMAKER_H_*/
