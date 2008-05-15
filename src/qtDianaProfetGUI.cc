@@ -255,6 +255,7 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index){
   }catch(InvalidIndexException & iie){
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
   }
+  sessionDialog.enableObjectButtons(true,true);
 }
 
 void DianaProfetGUI::saveObject(){
@@ -276,6 +277,7 @@ void DianaProfetGUI::saveObject(){
   controller.saveObject(currentObject);
   currentObject=fetObject();
   setObjectDialogVisible(false);
+  sessionDialog.enableObjectButtons(true,false);
 }
 
 void DianaProfetGUI::startTimesmooth()
@@ -314,6 +316,7 @@ void DianaProfetGUI::startTimesmooth()
         this,SLOT(endTimesmooth(vector<fetObject::TimeValues>)));
     
   activeTimeSmooth=true;
+  sessionDialog.enableObjectButtons(false,false);
 }
 
 void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
@@ -353,6 +356,7 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
 {
   activeTimeSmooth=false;
   controller.unlockObjectsByTimeValues(tv);
+  sessionDialog.enableObjectButtons(true,true);
 }
 
 
@@ -373,6 +377,7 @@ void DianaProfetGUI::sessionSelected(int index){
   }catch(InvalidIndexException & iie){
     cerr << "DianaProfetGUI::sessionSelected invalid index" << endl;
   }
+  sessionDialog.enableObjectButtons(true,false);
 }
 
 void DianaProfetGUI::sendMessage(const QString & m){
@@ -434,10 +439,12 @@ void DianaProfetGUI::editObject(){
     showMessage(m);
     //        return;
   }
+  sessionDialog.enableObjectButtons(false,false);
 }
 
 void DianaProfetGUI::deleteObject(){
   LOG4CXX_INFO(logger,"deleteObject");
+  sessionDialog.enableObjectButtons(true,false);
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
     controller.deleteObject(fo.id());
@@ -572,6 +579,7 @@ void DianaProfetGUI::cancelObjectDialog(){
   // AC
   controller.closeObject(currentObject);
   currentObject=fetObject();
+  sessionDialog.enableObjectButtons(true,false);
 }
 
 void DianaProfetGUI::setPaintToolBarVisible(bool visible){

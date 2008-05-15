@@ -112,7 +112,7 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   buttonLayout->addWidget(closeButton);
   
 
-  lockedObjectSelected(false);
+  enableObjectButtons(true,false);
   connectSignals();
 }
 
@@ -186,9 +186,12 @@ void ProfetSessionDialog::setEditable(bool editable){
 //  objectWidget->setEnabled(editable);
 }
 
-void ProfetSessionDialog::lockedObjectSelected(bool locked){
-  editObjectButton->setEnabled(!locked);
-  deleteObjectButton->setEnabled(!locked);
+void ProfetSessionDialog::enableObjectButtons(bool enableNewButton, bool enable)
+{
+  newObjectButton->setEnabled(enableNewButton);
+  editObjectButton->setEnabled(enable);
+  deleteObjectButton->setEnabled(enable);
+  timesmoothButton->setEnabled(enable);
 }
 
 void ProfetSessionDialog::setObjectModel(QAbstractItemModel * objectModel){

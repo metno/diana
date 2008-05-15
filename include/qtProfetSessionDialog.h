@@ -87,7 +87,7 @@ public:
   void setEditable(bool editable);
 
   /// Enables / disables gui components
-  void lockedObjectSelected(bool locked);
+  void enableObjectButtons(bool enableNewButton, bool enable);
   
   void selectDefault();
   int getCurrentSessionIndex(){return sessionComboBox->currentIndex();}
