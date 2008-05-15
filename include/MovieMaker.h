@@ -48,7 +48,13 @@ public:
 	 * Constructor. Sets filename to save the finished animation to, and
 	 * which quality it will be saved in.
 	 */
-	MovieMaker(string &filename, string &quality, string &frameNames);
+	MovieMaker(string &filename, int quality, int delay);
+	
+	/**
+	 * Add a frame to the animation.
+	 * @param frameName Filename of the file containing the frame.
+	 */
+	void addFrame(string &frameName);
 	
 	/**
 	 * Produce the animation, and save to file with the filename and quality
@@ -56,11 +62,17 @@ public:
 	 */
 	void make();
 	
+	/**
+	 * Clean up temporary files used to store frames.
+	 */
+	void cleanup();
+	
 private:
+	int delay;
 	string filename;
-	string quality;
-	string frameNames;
-	list<Image> frames;
+	int quality;
+	vector<string> frameNames;
+	vector<Image> frames;
 };
 
 #endif /*MOVIEMAKER_H_*/

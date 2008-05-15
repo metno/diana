@@ -29,17 +29,36 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "MovieMaker.h"
 
-MovieMaker::MovieMaker(string &filename, string &quality, string &frameNames) {
+MovieMaker::MovieMaker(string &filename, int quality, int delay) {
 	this->filename = filename;
 	this->quality = quality;
-	this->frameNames = frameNames;
+	this->delay = delay;
+}
+
+void MovieMaker::addFrame(string &frameName) {
+	frameNames.push_back(frameName);
 }
 	
 void MovieMaker::make() {
-	cout << "Frame names is " << frameNames << endl;	
+	for(int i=0; i < frameNames.size(); ++i) {
+		cout << "Adding frame " << frameNames [i] << " to animation.." << endl;	
+		readImages(&frames, frameNames[i]);
+		frames[i].quality(quality);
+		frames[i].resolutionUnits(PixelsPerInchResolution);
+		frames[i].density("500x500"); ///< could/should be made adjustable..
+		frames[i].animationDelay(delay);
+	}
 	
-	readImages(&frames, frameNames);
-	animateImages(frames.begin(), frames.end());
+	writeImages(frames.begin(), frames.end(), filename);
+}
+
+void MovieMaker::cleanup() {
+	for(int i=0; i < frameNames.size(); ++i) {
+		unlink(frameNames[i].c_str());
+	}
 }

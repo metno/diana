@@ -2635,26 +2635,28 @@ void DianaMainWindow::saveAnimation() {
     fname= s;
     miString filename= s.toStdString();
     miString format= "mpg";
-    int quality= -1; // default quality
+    int quality= 0;
 
     /// find format
     /// (only mpeg-support so far)
 		if (filename.contains(".mpg") || filename.contains(".MPG")
 				|| filename.contains(".mpeg") || filename.contains(".MPEG")) {
 			format= "mpg";
+		} else {
+			filename += ".mpg";
 		}
 
-    /// make/clean up temp. directory for frames
-		// TODO: Loop through dirs in cd, and make animation_framesX where X is Y+1 if
-		//				animation_framesY already exists.
+    /// make temp. directory for frames
 		mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		chdir("./animation_frames");
 		
 		/// set up some defaults
 		string imageFormat = "jpg";
-		string frameNames = "frame%02d.jpg";
 		int imageQuality = -1;
-		MovieMaker moviemaker(filename, format, frameNames);
+		int delay = timeout_ms/10;
+		MovieMaker moviemaker(filename, quality, delay);
+		
+		QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
 		
 		/// save frames as images
 		int nrOfTimesteps = tslider->numTimes();
@@ -2667,7 +2669,8 @@ void DianaMainWindow::saveAnimation() {
 			imageName += ss.str();
 			imageName += ".jpg";
 			cout << "Saving " << imageName << ".." << endl;			
-			w->Glw()->saveRasterImage(imageName, imageFormat, imageQuality);
+			w->Glw()->saveRasterImage(miString(imageName), miString(imageFormat), imageQuality);
+			moviemaker.addFrame(imageName);
 			
 			/// go to next frame
 			stepforward();
@@ -2676,8 +2679,13 @@ void DianaMainWindow::saveAnimation() {
 		}
 		
 		moviemaker.make();
+		moviemaker.cleanup();
 		
-		QMessageBox::information(this, tr("Cleaning up temporary files"), tr("To clean up; delete the animation_dirX dir(s)."));
+		/// remove temp. directory for frames
+		chdir("..");
+		rmdir("./animation_frames");
+		
+		QMessageBox::information(this, tr("Done"), tr("Animation completed and temporary files cleaned up."));
   }
 }
 #else
