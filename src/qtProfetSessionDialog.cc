@@ -159,7 +159,7 @@ void ProfetSessionDialog::setTableModel(QAbstractItemModel * tableModel){
 }
 
 void ProfetSessionDialog::selectDefault(){
-  paramAndTimeChanged(table->model()->index(0,0));
+  emit paramAndTimeChanged(table->model()->index(0,0));
 }
 
 void ProfetSessionDialog::setSelectedObject(const QModelIndex & index){
