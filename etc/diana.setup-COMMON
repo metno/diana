@@ -2995,12 +2995,9 @@ m=Ph12h8_12       f=$(OPDATA2)/proff/Ph12h8_12.dat
 m=Ph12h8um4_12    f=$(OPDATA2)/proff/Ph12h8um4_12.dat
 
 profetfilegroup=PROFET
-#m=profet    f=$(OPDATA2)/proff/Ph12_00.dat
-#m=profet.tmp    f=$(OPDATA2)/proff/Ph12_00.dat
-#m=profet.model    f=$(OPDATA2)/proff/Ph12_00.dat
-m=profet    f=$(OPDATA2)/products/yr_hir00.dat
-m=profet.tmp    f=$(OPDATA2)/products/yr_hir00.dat
-m=profet.model    f=$(OPDATA2)/products/yr_hir00.dat
+m=profet    f=$(OPDATA2)/proff/Ph12_00.dat
+m=profet.tmp    f=$(OPDATA2)/proff/Ph12_00.dat
+m=profet.model    f=$(OPDATA2)/proff/Ph12_00.dat
  
 
 </FIELD_FILES>
