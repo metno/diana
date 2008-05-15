@@ -1593,11 +1593,6 @@ bool DianaMainWindow::initProfet(){
         profetGUI = new DianaProfetGUI(*contr->getProfetController(),
             paintToolBar, contr->getAreaManager(), this);
         contr->setProfetGUI(profetGUI);
-        Profet::PodsUser u(miTime::nowTime(),
-            loginDialog.username().toStdString().data(),
-            loginDialog.role().toStdString().data(),
-            "");
-        contr->registerProfetUser(u);
         QApplication::restoreOverrideCursor();
       }else{
         cerr << "Failed to init ProfetController"<< endl;
@@ -1622,6 +1617,13 @@ bool DianaMainWindow::initProfet(){
 	       tslider,SLOT(setTime(const miTime&)));
       connect( profetGUI, SIGNAL(updateModelDefinitions()), 
 	       fm,SLOT(updateModels()) );
+      if(contr) {
+        Profet::PodsUser u(miTime::nowTime(),
+            loginDialog.username().toStdString().data(),
+            loginDialog.role().toStdString().data(),
+            "");
+        contr->registerProfetUser(u);
+      }
       return true;
     }catch(Profet::ServerException & se){
       profetLoginError->showMessage(se.what());
@@ -1631,6 +1633,7 @@ bool DianaMainWindow::initProfet(){
 }
 
 void DianaMainWindow::plotProfetMap(bool objectsOnly){
+  //TODO What the ...
   if(objectsOnly) contr->plot(true,false); // Objects in overlay
   else MenuOK();
   MenuOK();

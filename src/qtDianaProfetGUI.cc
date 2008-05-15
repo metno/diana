@@ -415,6 +415,7 @@ void DianaProfetGUI::sendMessage(const QString & m){
 
 void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
   tableModel.setLastSelectedIndex(index);
+  //check if parameters and times are set in model
   bool tableInited = tableModel.inited();
   if(tableInited) {
     try{
@@ -649,7 +650,7 @@ void DianaProfetGUI::setVisible(bool visible){
     setPaintToolBarVisible(showPaintToolBar);
     emit setPaintMode(showPaintToolBar);
     setObjectDialogVisible(showObjectDialog);
-    sessionDialog.selectDefault();
+//    sessionDialog.selectDefault(); too early first time?
     sessionDialog.show();
     emit repaintMap(false);
   }
