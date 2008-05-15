@@ -348,6 +348,10 @@ public:
  void readLog(const vector<miString>& vstr,
 	      const miString& thisVersion, const miString& logVersion);
   bool initProfet();  
+  /**
+   * Register (connect) to profet
+   * @exception Profet::ServerException
+   */
   bool registerProfetUser(const Profet::PodsUser & u);
   Profet::ProfetController * getProfetController(); 
   bool setProfetGUI(Profet::ProfetGUI * gui); 

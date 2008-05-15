@@ -38,7 +38,11 @@
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diMapMode.h>
+
+#ifdef VIDEO_EXPORT
 #include <MovieMaker.h>
+#endif
+
 #include <miString.h>
 #include <vector>
 #include <deque>

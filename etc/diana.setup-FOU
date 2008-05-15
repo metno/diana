@@ -129,11 +129,11 @@ end.field
 
 <FIELD_FILES>
 
-filegroup=NetCDF
-m=rot_lat_long         t=NetCDF f=$(NETCDFDIR)/metno_test_rotated_latitude_longitude.nc
-m=geographic           t=NetCDF f=$(NETCDFDIR)/metno_test_geographic.nc
-m=polar_stereo         t=NetCDF f=$(NETCDFDIR)/metno_test_polar_stereographic.nc
-m=polar_stereo_depth  t=NetCDF f=$(NETCDFDIR)/metno_test_polar_stereographic_depth.nc
+# filegroup=NetCDF
+# m=rot_lat_long         t=NetCDF f=$(NETCDFDIR)/metno_test_rotated_latitude_longitude.nc
+# m=geographic           t=NetCDF f=$(NETCDFDIR)/metno_test_geographic.nc
+# m=polar_stereo         t=NetCDF f=$(NETCDFDIR)/metno_test_polar_stereographic.nc
+# m=polar_stereo_depth  t=NetCDF f=$(NETCDFDIR)/metno_test_polar_stereographic_depth.nc
 
 </FIELD_FILES>
 

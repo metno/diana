@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QMessageBox>
 
+
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) : 
 QObject(), paintToolBar(ptb), areaManager(gam), 
@@ -153,7 +154,8 @@ void DianaProfetGUI::customEvent(QEvent * e){
     Profet::MessageEvent * me = (Profet::MessageEvent*) e;
     if(me->message.type == Profet::InstantMessage::WARNING_MESSAGE){
       QString qs = me->message.message.cStr();
-      QMessageBox::warning(0, tr("Profet Warning"),qs,
+      QString title = me->message.sender.cStr();
+      QMessageBox::warning(0, title ,qs,
           QMessageBox::Ok,  QMessageBox::NoButton);
     }else {
       sessionDialog.showMessage(me->message);
@@ -274,10 +276,16 @@ void DianaProfetGUI::saveObject(){
     areaManager->changeAreaId("newArea",currentObject.id());
   }
   currentObject.setReason(objectDialog.getReason());
-  controller.saveObject(currentObject);
-  currentObject=fetObject();
-  setObjectDialogVisible(false);
-  sessionDialog.enableObjectButtons(true,false);
+  try{
+    controller.saveObject(currentObject);
+    currentObject=fetObject();
+    setObjectDialogVisible(false);
+    sessionDialog.enableObjectButtons(true,false);
+  }catch(Profet::ServerException & se){
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+        "Save Object Failed","",se.what());
+    showMessage(m);
+  }
 }
 
 void DianaProfetGUI::startTimesmooth()
@@ -328,34 +336,48 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
   
   set<miString>     deletion_ids;
   controller.getTimeValueObjects(obj,tv,deletion_ids);
-  
-  for(int i=0;i<tv.size();i++) {
-    if(deletion_ids.count(tv[i].id)){
-      controller.deleteObject(tv[i].id);
-      emit timesmoothProcessed(tv[i].validTime,"");
+  // deleting objects without effect
+  try{
+    for(int i=0;i<tv.size();i++) {
+      if(deletion_ids.count(tv[i].id)){
+        controller.deleteObject(tv[i].id);
+        emit timesmoothProcessed(tv[i].validTime,"");
+      }
     }
+  }catch(Profet::ServerException & se){
+    cerr << "DianaProfetGUI::processTimesmooth:  Failed to delete " << 
+      "depricated object. (Not significant)" << endl;
   }
   
   
-   for(int i=0;i<obj.size();i++) { 
-     miTime tim      = obj[i].validTime();
-     miString obj_id = obj[i].id();
-
-    
-     if(objectFactory.processTimeValuesOnObject(obj[i])) {
-       controller.saveObject(obj[i]);
-       emit timesmoothProcessed(tim,obj[i].id());
-     } else {
-       emit timesmoothProcessed(tim,"");
-       cerr << "could not process" << obj[i].id() << " at " << tim << endl;
-     }
-   }
+  for(int i=0;i<obj.size();i++) { 
+    miTime tim      = obj[i].validTime();
+    miString obj_id = obj[i].id();
+    try {
+      if(objectFactory.processTimeValuesOnObject(obj[i])) {
+        controller.saveObject(obj[i]);
+        emit timesmoothProcessed(tim,obj[i].id());
+      } else {
+        emit timesmoothProcessed(tim,"");
+        cerr << "could not process" << obj[i].id() << " at " << tim << endl;
+      }
+    } catch (Profet::ServerException & se) {
+      miString str =tim.format("Save Object Failed at %a kl: %H:%M");
+      InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+          str.cStr(),"",se.what());
+      showMessage(m);
+    }
+  }
 
 }
 void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
 {
   activeTimeSmooth=false;
-  controller.unlockObjectsByTimeValues(tv);
+  try{
+    controller.unlockObjectsByTimeValues(tv);
+  }catch(Profet::ServerException & se){
+    cerr << "DianaProfetGUI::endTimesmooth failed to unlock objects" << endl;
+  }
   sessionDialog.enableObjectButtons(true,true);
 }
 
@@ -382,7 +404,13 @@ void DianaProfetGUI::sessionSelected(int index){
 
 void DianaProfetGUI::sendMessage(const QString & m){
   Profet::InstantMessage message(miTime::nowTime(),0,user,"all",m.latin1());
-  controller.sendMessage(message);
+  try{
+    controller.sendMessage(message);
+  }catch (Profet::ServerException & se) {
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+        "Failed to send message","",se.what());
+    showMessage(m);
+  }
 }
 
 void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
@@ -417,10 +445,7 @@ void DianaProfetGUI::createNewObject(){
 void DianaProfetGUI::editObject(){
   LOG4CXX_INFO(logger,"editObject");
   try{
-//    controller.openObject(currentObject);
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-// Lock info not distributed
-//    if(!fo.is_locked()){
     objectDialog.setSession(getCurrentTime());
     objectDialog.setParameter(getCurrentParameter());
     objectDialog.setBaseObjects(baseObjects);
@@ -431,13 +456,14 @@ void DianaProfetGUI::editObject(){
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
     // Area always ok for a saved object(?)
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
-  }catch(InvalidIndexException & iie){
-    LOG4CXX_ERROR(logger,"editObject:" << iie.what());
-  }catch(ObjectLockedException &){
+  }catch(Profet::ServerException & se){
     InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-                "","","Unable to open object: locked by other user.");
+                "Edit Object Failed","",se.what());
     showMessage(m);
-    //        return;
+  }catch(InvalidIndexException & iie){
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+                "Edit Object Failed","","Unable to find selected object.");
+    showMessage(m);
   }
   sessionDialog.enableObjectButtons(false,false);
 }
@@ -448,8 +474,14 @@ void DianaProfetGUI::deleteObject(){
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
     controller.deleteObject(fo.id());
+  }catch(Profet::ServerException & se){
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+                "Delete Object Failed","",se.what());
+    showMessage(m);
   }catch(InvalidIndexException & iie){
-    LOG4CXX_ERROR(logger,"deleteObject:" << iie.what());
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+                "Delete Object Failed","","Unable to find selected object.");
+    showMessage(m);
   }
 }
 
@@ -576,8 +608,13 @@ void DianaProfetGUI::cancelObjectDialog(){
     areaManager->removeCurrentArea();
   }
   setObjectDialogVisible(false);
-  // AC
-  controller.closeObject(currentObject);
+  try{
+    controller.closeObject(currentObject);
+  }catch (Profet::ServerException & se) {
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+        "Unlock object failed","",se.what());
+    showMessage(m);
+  }
   currentObject=fetObject();
   sessionDialog.enableObjectButtons(true,false);
 }

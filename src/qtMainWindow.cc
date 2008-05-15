@@ -111,7 +111,7 @@
 #include <diGridAreaManager.h>
 #include <QErrorMessage>
 #include <profet/LoginDialog.h>
-
+#include <profet/ProfetCommon.h>
 #include <pick.xpm>
 #include <earth3.xpm>
 #include <fileprint.xpm>
@@ -1583,9 +1583,12 @@ bool DianaMainWindow::initProfet(){
   Profet::LoginDialog loginDialog;
   loginDialog.setUsername(QString(getenv("USER")));
   if(loginDialog.exec()){ // OK button pressed
-    if(!loginDialog.username().isEmpty()){
+    try{
+      if(loginDialog.username().isEmpty())
+        throw Profet::ServerException("No username specified.", 
+            Profet::ServerException::CONNECTION_ERROR);
       QApplication::setOverrideCursor( Qt::WaitCursor );
-      contr->initProfet();
+      contr->initProfet(); //ProfetController created, objMan created/inited
       if(contr->getProfetController()) {
         profetGUI = new DianaProfetGUI(*contr->getProfetController(),
             paintToolBar, contr->getAreaManager(), this);
@@ -1620,8 +1623,8 @@ bool DianaMainWindow::initProfet(){
       connect( profetGUI, SIGNAL(updateModelDefinitions()), 
 	       fm,SLOT(updateModels()) );
       return true;
-    }else {
-      profetLoginError->showMessage(tr("Profet Login Failed"));
+    }catch(Profet::ServerException & se){
+      profetLoginError->showMessage(se.what());
     }
   }
   return false;

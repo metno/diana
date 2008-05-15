@@ -971,7 +971,8 @@ bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
 
 bool Controller::registerProfetUser(const Profet::PodsUser & u){
   if(profetController){
-    return profetController->registerUser(u);
+    profetController->registerUser(u); // throws Profet::ServerException
+    return true;
   }
   return false;
 }
