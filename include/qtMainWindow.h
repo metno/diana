@@ -38,7 +38,7 @@
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diMapMode.h>
-//#include <MovieMaker.h>
+#include <MovieMaker.h>
 #include <miString.h>
 #include <vector>
 #include <deque>

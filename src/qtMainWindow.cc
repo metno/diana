@@ -2642,12 +2642,14 @@ void DianaMainWindow::saveAnimation() {
 		}
 
     /// make/clean up temp. directory for frames
-		rmdir("./animation_frames");
+		// TODO: Loop through dirs in cd, and make animation_framesX where X is Y+1 if
+		//				animation_framesY already exists.
 		mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		chdir("./animation_frames");
 		
 		/// set up some defaults
 		string imageFormat = "jpg";
-		string frameNames = "./animation_frames/frame%02d.jpg";
+		string frameNames = "frame%02d.jpg";
 		int imageQuality = -1;
 		MovieMaker moviemaker(filename, format, frameNames);
 		
@@ -2655,7 +2657,7 @@ void DianaMainWindow::saveAnimation() {
 		int nrOfTimesteps = tslider->numTimes();
 		int i = 0;
 		while(tslider->current() < nrOfTimesteps-1) {
-			string imageName = "./animation_frames/frame";
+			string imageName = "frame";
 			if(i < 10) imageName += "0";
 			ostringstream ss;
 			ss << i;
@@ -2672,13 +2674,12 @@ void DianaMainWindow::saveAnimation() {
 		
 		moviemaker.make();
 		
-		/// clean up
-		//rmdir("./animation_frames");
+		QMessageBox::information(this, tr("Cleaning up temporary files"), tr("To clean up; delete the animation_dirX dir(s)."));
   }
 }
 #else
 void DianaMainWindow::saveAnimation() {
-	QMessageBox::information(this, tr("Information"), tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
+	QMessageBox::information(this, tr("Compiled without video export"), tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
 }
 #endif
 
