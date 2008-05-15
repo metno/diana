@@ -61,6 +61,7 @@ private:
   FetObjectListView * objectList;
   QPushButton * newObjectButton;
   QPushButton * editObjectButton;
+  QPushButton * timesmoothButton;
   QPushButton * deleteObjectButton;
   ProfetChatWidget * chatWidget;
   FetObjectTableView * table;
@@ -106,6 +107,7 @@ signals:
   void newObjectPerformed();
   void editObjectPerformed();
   void deleteObjectPerformed();
+  void startTimesmooth();
   void closePerformed();
 };
 

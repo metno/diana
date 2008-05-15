@@ -73,8 +73,7 @@ private:
   QLabel         *areaInfoLabel;
   Q3TextEdit     *reasonText;
   QPushButton    *saveObjectButton;
-  QPushButton    *cancelObjectButton;
-  QPushButton    *timeSmoothButton;   
+  QPushButton    *cancelObjectButton; 
   Q3WidgetStack  *widgetStack;
   Q3GroupBox     *algGroupBox;
   Q3GroupBox     *areaGroupBox;
@@ -116,7 +115,6 @@ signals:
   void baseObjectSelected(miString name);
   void dynamicGuiChanged();
   void saveObjectClicked();
-  void timesmoothClicked();
   void cancelObjectDialog();
 };
 

@@ -192,6 +192,10 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
 
    scrolla->ensureWidgetVisible(control->focusObject(),0,0);
 
+   
+   setWindowModality(Qt::ApplicationModal);
+   show();
+   
 }
 
 void ProfetTimeSmoothDialog::closeEvent(QCloseEvent * e)

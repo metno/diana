@@ -86,12 +86,17 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   objectWidgetLayout->addWidget(objectList,1);
   QWidget *objectButtonWidget = new QWidget();
   objectWidgetLayout->addWidget(objectButtonWidget,0);
+  
   QVBoxLayout *objectButtonWidgetLayout = new QVBoxLayout();
-  newObjectButton = new QPushButton(tr("New"));
-  editObjectButton = new QPushButton(tr("Edit"));
+  
+  newObjectButton    = new QPushButton(tr("New"));
+  editObjectButton   = new QPushButton(tr("Edit"));
+  timesmoothButton   = new QPushButton(tr("Timesmooth"));
   deleteObjectButton = new QPushButton(tr("Delete"));
+  
   objectButtonWidgetLayout->addWidget(newObjectButton);
   objectButtonWidgetLayout->addWidget(editObjectButton);
+  objectButtonWidgetLayout->addWidget(timesmoothButton);
   objectButtonWidgetLayout->addWidget(deleteObjectButton);
   
   objectButtonWidget->setLayout(objectButtonWidgetLayout);
@@ -122,6 +127,8 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(editObjectPerformed()));
   connect(deleteObjectButton,SIGNAL(clicked()),
       this,SIGNAL(deleteObjectPerformed()));
+  connect(timesmoothButton,SIGNAL(clicked()),
+      this,SIGNAL(startTimesmooth()));
   connect(closeButton,SIGNAL(clicked()),
       this,SIGNAL(closePerformed()));
   connect(objectList,SIGNAL(activated(const QModelIndex &)),

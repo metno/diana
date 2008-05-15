@@ -70,6 +70,8 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(createNewObject()));
   connect(&sessionDialog,SIGNAL(editObjectPerformed()),
       this,SLOT(editObject()));
+  connect(&sessionDialog,SIGNAL(startTimesmooth()),
+        this,SLOT(startTimesmooth()));
   connect(&sessionDialog,SIGNAL(deleteObjectPerformed()),
       this,SLOT(deleteObject()));
   connect(&sessionDialog,SIGNAL(closePerformed()),
@@ -82,8 +84,6 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(saveObject()));
   connect(&objectDialog,SIGNAL(cancelObjectDialog()),
       this,SLOT(cancelObjectDialog()));
-  connect(&objectDialog,SIGNAL(timesmoothClicked()),
-      this,SLOT(startTimesmooth())); 
   connect(&objectDialog,SIGNAL(baseObjectSelected(miString)),
       this,SLOT(baseObjectSelected(miString)));
   connect(&objectDialog,SIGNAL(dynamicGuiChanged()),
@@ -281,12 +281,15 @@ void DianaProfetGUI::saveObject(){
 void DianaProfetGUI::startTimesmooth()
 {
   if(activeTimeSmooth) return;
-  
-  if(!currentObject.exist()){
-      LOG4CXX_ERROR(logger,"startTimeSmooth Object: currentObject does not exist");
-      return;
+    
+  miString id_;
+  try{
+     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
+     id_=fo.id();
+  }catch(InvalidIndexException & iie){
+     LOG4CXX_ERROR(logger,"DianaProfetGUI::startTimesmooth :" << iie.what());
   }
-  
+    
   vector<miTime> tim;
   try{
     fetSession s = sessionModel.getSession( sessionDialog.getCurrentSessionIndex() );
@@ -295,7 +298,7 @@ void DianaProfetGUI::startTimesmooth()
     cerr << "DianaProfetGUI::startTimesmooth invalid session index" << endl;
   }
   
-  vector<fetObject::TimeValues> obj=controller.getTimeValues(currentObject.timeValues());
+  vector<fetObject::TimeValues> obj=controller.getTimeValues(id_);
   
   if(obj.empty()) return;
   
@@ -311,12 +314,15 @@ void DianaProfetGUI::startTimesmooth()
         this,SLOT(endTimesmooth(vector<fetObject::TimeValues>)));
     
   activeTimeSmooth=true;
-  timesmoothdialog->show();
 }
 
 void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
 {
   vector<fetObject> obj;
+  
+  if(currentObject.exists())
+      obj.push_back(currentObject);
+  
   set<miString>     deletion_ids;
   controller.getTimeValueObjects(obj,tv,deletion_ids);
   
@@ -371,9 +377,7 @@ void DianaProfetGUI::sessionSelected(int index){
 
 void DianaProfetGUI::sendMessage(const QString & m){
   Profet::InstantMessage message(miTime::nowTime(),0,user,"all",m.latin1());
-  bool sent = controller.sendMessage(message);
-  if(!sent) sessionDialog.showMessage(Profet::InstantMessage(miTime::nowTime(),0,
-      "system","all","Error sending message"));
+  controller.sendMessage(message);
 }
 
 void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
