@@ -61,7 +61,7 @@ ln -sf $dianadir/etc/diana.setup-${region} diana.setup
 
 tstart=`date`
 
-$dianadir/bin/diana -style cleanlooks 
+$dianadir/bin/diana -p -style cleanlooks 
 #-s $dianadir/etc/profet.setup-${region}
 
 tstop=`date`
