@@ -192,6 +192,9 @@ void ProfetSessionDialog::enableObjectButtons(bool enableNewButton, bool enable)
   editObjectButton->setEnabled(enable);
   deleteObjectButton->setEnabled(enable);
   timesmoothButton->setEnabled(enable);
+  
+  if(table)
+    table->setEnabled(enableNewButton);
 }
 
 void ProfetSessionDialog::setObjectModel(QAbstractItemModel * objectModel){

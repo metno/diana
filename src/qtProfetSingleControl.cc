@@ -33,9 +33,10 @@ ProfetSingleControl::ProfetSingleControl(QWidget* p, fetObject::TimeValues tv, i
   vb->setAlignment(Qt::AlignHCenter);
   
   button=new QPushButton(this);
-  QString a;
-  a.setNum(data.validTime.hour());
-  button->setText(a);
+  button->setMaximumWidth(30);
+  button->setFlat(true);
+  QLabel * lab= new QLabel(QString::fromStdString(data.validTime.format("%a %H")),this);
+  vb->addWidget(lab);
   vb->addWidget(button);
   
   if(data.isParent()) 
