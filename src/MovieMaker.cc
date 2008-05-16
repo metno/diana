@@ -48,12 +48,16 @@ void MovieMaker::make() {
 	for(int i=0; i < frameNames.size(); ++i) {
 		cout << "Adding frame " << frameNames [i] << " to animation.." << endl;	
 		readImages(&frames, frameNames[i]);
+
+		//frames[i].resolutionUnits(PixelsPerInchResolution);
+		//frames[i].density("500x500"); ///< could/should be made adjustable..
+		//frames[i].quantizeColors(65536);
+		
 		frames[i].quality(quality);
-		frames[i].resolutionUnits(PixelsPerInchResolution);
-		frames[i].density("500x500"); ///< could/should be made adjustable..
 		frames[i].animationDelay(delay);
 	}
 	
+	//animateImages(frames.begin(), frames.end());
 	writeImages(frames.begin(), frames.end(), filename);
 }
 

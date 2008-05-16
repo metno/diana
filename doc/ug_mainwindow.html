@@ -128,6 +128,18 @@
 			suffix used for the filename decides what format the file is saved 
 			as. Default is png.
 		</li>
+		<li><i>Save animation</i> Save animation from current fields, satellite 
+			images, etc., using current settings. MPEG2 is so far the only supported
+			format, and this will probably not change if not requested as a new feature/extension 
+			(through http://diana.bugs.met.no).
+			</ br></ br>
+			<b>REQUIREMENTS:</b> ImageMagick, Magick++ (ImageMagick C++ API) and MPEG 
+			encoder (http://www.mpeg.org/pub_ftp/mpeg/mssg/mpeg2vidcodec_v12.tar.gz). Compile
+			Diana with VIDEO_EXPORT defined as an environment variable.
+			<b>NOTE:</b> Saving <i>large</i> animations are time-, disk- and CPU-consuming, so do 
+			not use other programs in the background, and go for a walk.</ br>
+			<b>NOTE 2:</b> It is not possible to use Diana while making an animation.
+		</li>
 		<li><i>Print</i> Prints the contents of the graphics window.
 		</li>
 		<li><i>Quit</i> Ends Diana
