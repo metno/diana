@@ -29,6 +29,13 @@
 #include <QStatusBar>
 #include <QToolBar>
 #include <QMessageBox>
+#include <QPixmap>
+#include <linear_copy.xpm>
+#include <linear_down.xpm>
+#include <linear_remove.xpm>
+#include <single_remove.xpm>
+
+
 
 
 ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject::TimeValues>& obj, vector<miTime>& tim) 
@@ -78,7 +85,7 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    
 
    // Interpolation: None ========================
-   interpolationCopyAction = new QAction(  QIcon(), tr("&Copy"), this );
+   interpolationCopyAction = new QAction(  QPixmap(linear_copy_xpm), tr("&Copy"), this );
    interpolationCopyAction->setShortcut(tr("F10"));
    interpolationCopyAction->setStatusTip(tr("Copy from the parent object "));
    interpolationCopyAction->setCheckable(true);
@@ -86,7 +93,7 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
 
    
    // Interpolation: Linear========================
-   interpolationLinearAction = new QAction(  QIcon(), tr("&Linear"), this );
+   interpolationLinearAction = new QAction(  QPixmap(linear_down_xpm), tr("&Linear"), this );
    interpolationLinearAction->setShortcut(tr("F11"));
    interpolationLinearAction->setStatusTip(tr("Linear Interpolation"));
    interpolationLinearAction->setCheckable(true);
@@ -102,14 +109,14 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
 
 
    // Interpolation: ResetLine ========================
-   interpolationLineResetAction = new QAction(  QIcon(), tr("&Reset Line"), this );
+   interpolationLineResetAction = new QAction(  QPixmap(linear_remove_xpm), tr("&Reset Line"), this );
    interpolationLineResetAction->setShortcut(tr("F9"));
    interpolationLineResetAction->setStatusTip(tr("Reset from the parent to the choosen one "));
    interpolationLineResetAction->setCheckable(true);
    connect( interpolationLineResetAction , SIGNAL( triggered() ) , this, SLOT( setMethodLineReset() ) );
 
    // Interpolation: None ========================
-   interpolationSingleResetAction = new QAction(  QIcon(), tr("Reset &Single"), this );
+   interpolationSingleResetAction = new QAction(  QPixmap(single_remove_xpm), tr("Reset &Single"), this );
    interpolationSingleResetAction->setShortcut(tr("F8"));
    interpolationSingleResetAction->setStatusTip(tr("Reset single column "));
    interpolationSingleResetAction->setCheckable(true);
