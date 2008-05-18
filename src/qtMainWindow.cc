@@ -1571,36 +1571,34 @@ void DianaMainWindow::editMenu()
 }
 
 bool DianaMainWindow::initProfet(){
-  cerr << "DianaMainWindow::initProfet()"<<endl;
-  if(!paintToolBar){
-    cerr << "Failed to init profet. PaintToolBar is NULL"<< endl;
+  miString error = "";
+  if(!w || !w->Glw()) error += "GLwidget is NULL. ";
+  if(!tslider) error += "TimeSlider is NULL. ";
+  if(!contr) error += "diController is NULL. ";
+  if(!paintToolBar) error += "PaintToolBar is NULL. ";
+  if(!contr->getAreaManager()) error += "AreaManager is NULL. ";
+  if(error.exists()){
+    QMessageBox::critical(0,"Init profet failed",error.cStr());
     return false;
   }
-  if(!contr->getAreaManager()){
-    cerr << "Failed to init profet. AreaManager is NULL"<< endl;
-    return false;
-  }
+    
   Profet::LoginDialog loginDialog;
   loginDialog.setUsername(QString(getenv("USER")));
   if(loginDialog.exec()){ // OK button pressed
     try{
+      QApplication::setOverrideCursor( Qt::WaitCursor );
       if(loginDialog.username().isEmpty())
         throw Profet::ServerException("No username specified.", 
             Profet::ServerException::CONNECTION_ERROR);
-      QApplication::setOverrideCursor( Qt::WaitCursor );
       contr->initProfet(); //ProfetController created, objMan created/inited
       if(contr->getProfetController()) {
         profetGUI = new DianaProfetGUI(*contr->getProfetController(),
             paintToolBar, contr->getAreaManager(), this);
         contr->setProfetGUI(profetGUI);
-        QApplication::restoreOverrideCursor();
       }else{
-        cerr << "Failed to init ProfetController"<< endl;
+        QMessageBox::warning(0,"Init profet failed",
+            "ProfetController is null");
         QApplication::restoreOverrideCursor();
-        return false;
-      }
-      if(!w->Glw() || !tslider){
-        cerr << "Profet signals not connected due to null-pointer"<< endl;
         return false;
       }
       connect(w->Glw(), SIGNAL(gridAreaChanged()),
@@ -1617,18 +1615,18 @@ bool DianaMainWindow::initProfet(){
 	       tslider,SLOT(setTime(const miTime&)));
       connect( profetGUI, SIGNAL(updateModelDefinitions()), 
 	       fm,SLOT(updateModels()) );
-      if(contr) {
-        Profet::PodsUser u(miTime::nowTime(),
-            loginDialog.username().toStdString().data(),
-            loginDialog.role().toStdString().data(),
-            "");
-        contr->registerProfetUser(u);
-      }
+      Profet::PodsUser u(miTime::nowTime(),
+          loginDialog.username().toStdString().data(),
+          loginDialog.role().toStdString().data(),
+          "");
+      contr->registerProfetUser(u);
+      QApplication::restoreOverrideCursor();
       return true;
     }catch(Profet::ServerException & se){
       profetLoginError->showMessage(se.what());
     }
   }
+  QApplication::restoreOverrideCursor();
   return false;
 }
 
