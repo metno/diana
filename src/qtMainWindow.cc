@@ -75,6 +75,7 @@
 #include <qlabel.h>
 #include <qfontdialog.h>
 #include <qtooltip.h>
+#include <QProgressDialog>
 
 #include <qtMainWindow.h>
 #include <qtWorkArea.h>
@@ -2629,7 +2630,7 @@ void DianaMainWindow::saveAnimation() {
     QFileDialog::getSaveFileName(this,
 				 tr("Save animation from current fields, satellite images, etc., using current settings"),
 				 fname,
-				 tr("Movies (*.mpg);;All (*.*)"));
+				 tr("Movies (*.m2v);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -2657,11 +2658,20 @@ void DianaMainWindow::saveAnimation() {
 		MovieMaker moviemaker(filename, quality, delay);
 		
 		QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
+		showMinimized();
 		
-		/// save frames as images
 		int nrOfTimesteps = tslider->numTimes();
 		int i = 0;
+		
+		int maxProgress = nrOfTimesteps - tslider->current() + 1;
+		QProgressDialog progress("Making animation...", "Hide", 0, maxProgress);
+		progress.setWindowModality(Qt::WindowModal);
+
+		/// save frames as images
 		while(tslider->current() < nrOfTimesteps-1) {
+			/// update progressbar
+			progress.setValue(i);
+					         
 			string imageName = "frame";
 			if(i < 10) imageName += "0";
 			ostringstream ss;
@@ -2679,13 +2689,19 @@ void DianaMainWindow::saveAnimation() {
 		}
 		
 		moviemaker.make();
+		
+		progress.setValue(i+1); ///< should be made somewhat realistic?
+		
 		moviemaker.cleanup();
 		
 		/// remove temp. directory for frames
 		chdir("..");
 		rmdir("./animation_frames");
 		
-		QMessageBox::information(this, tr("Done"), tr("Animation completed and temporary files cleaned up."));
+		progress.setValue(i+2); ///< should be made somewhat realistic?
+		
+		showNormal();
+		QMessageBox::information(this, tr("Done"), tr("Animation completed."));
   }
 }
 #else
