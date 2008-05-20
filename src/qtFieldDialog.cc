@@ -4334,7 +4334,7 @@ void FieldDialog::deleteSelected()
   int index = selectedFieldbox->currentRow();
 
   int ns= selectedFields.size() - 1;
-
+  
   if (index<0 || index>ns) return;
   if (selectedFields[index].inEdit) return;
 
@@ -4603,7 +4603,7 @@ void FieldDialog::changeModel()
 	}
 	if (indexFGR==gbest) {
 	  countSelected[fbest]++;
-	  if (countSelected[fbest]==1) {
+	  if (countSelected[fbest]==1 && fbest>0 && fbest<fieldbox->count()) {
 	    fieldbox->setCurrentRow( fbest );
 	    fieldbox->item(fbest)->setSelected( true );
 	  }
