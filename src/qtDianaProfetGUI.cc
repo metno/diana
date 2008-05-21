@@ -552,7 +552,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
     emit showProfetField(plotString); //FieldManager->addField
     
     // will trigger MenuOK in qtMainWindow :-)
-//     emit prepareAndPlot();
+    emit prepareAndPlot();
   }
   
   prevParam = param;
@@ -561,7 +561,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
   //  emit repaintMap(false);
 
   // TODO: remove this
-  emit prepareAndPlot();
+  //emit prepareAndPlot();
 }
 
 
