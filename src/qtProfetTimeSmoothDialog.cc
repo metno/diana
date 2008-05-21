@@ -34,6 +34,11 @@
 #include <linear_down.xpm>
 #include <linear_remove.xpm>
 #include <single_remove.xpm>
+#include <run_smooth.xpm>
+#include <undo.xpm>
+#include <exit.xpm>
+#include <redo.xpm>
+
 
 
 
@@ -48,26 +53,26 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
   // actions: --------------------------
 
   // undo ========================
-   undoAction = new QAction(  QIcon(), tr("&Undo"), this );
+   undoAction = new QAction(  QPixmap(undo_xpm), tr("&Undo"), this );
    undoAction->setShortcut(tr("Ctrl+Z"));
    undoAction->setStatusTip(tr("Undo"));
    connect( undoAction, SIGNAL( triggered() ) , this, SLOT( undo() ) );
    
    // redo ========================
-   redoAction = new QAction(  QIcon(), tr("&Redo"), this );
+   redoAction = new QAction(  QPixmap(redo_xpm), tr("&Redo"), this );
    redoAction->setShortcut(tr("Ctrl+Y"));
    redoAction->setStatusTip(tr("redo"));
    connect( redoAction, SIGNAL( triggered() ) , this, SLOT( redo() ) );
 
    
   // run ========================
-   runAction = new QAction(  QIcon(), tr("&Run"), this );
+   runAction = new QAction(  QPixmap(run_smooth_xpm), tr("&Run"), this );
    runAction->setShortcut(tr("Ctrl+R"));
    runAction->setStatusTip(tr("Run the current objects"));
    connect( runAction, SIGNAL( triggered() ) , this, SLOT( run() ) );
  
    // quit ========================
-   quitAction = new QAction(  QIcon(), tr("&Quit"), this );
+   quitAction = new QAction(  QPixmap(exit_xpm), tr("&Quit"), this );
    quitAction->setShortcut(tr("Ctrl+Q"));
    quitAction->setStatusTip(tr("Close this window"));
    connect( quitAction, SIGNAL( triggered() ) , this, SLOT( quit() ) );
@@ -99,15 +104,6 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    interpolationLinearAction->setCheckable(true);
    connect( interpolationLinearAction, SIGNAL( triggered() ) , this, SLOT( setMethodLinear() ) );
    
-   
-   // Interpolation: Gauss ========================
-//   interpolationGaussAction = new QAction(  QIcon(), tr("&Gauss"), this );
-//   interpolationGaussAction->setShortcut(tr("F12"));
-//   interpolationGaussAction->setStatusTip(tr("Interpolation by Gauss method"));
-//   interpolationGaussAction->setCheckable(true);
-//   connect( interpolationGaussAction, SIGNAL( triggered() ) , this, SLOT( setMethodGauss() ) );
-
-
    // Interpolation: ResetLine ========================
    interpolationLineResetAction = new QAction(  QPixmap(linear_remove_xpm), tr("&Reset Line"), this );
    interpolationLineResetAction->setShortcut(tr("F9"));
@@ -126,7 +122,6 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    methodGroup = new QActionGroup(this);
    methodGroup->addAction(interpolationCopyAction);
    methodGroup->addAction(interpolationLinearAction);
- //  methodGroup->addAction(interpolationGaussAction);
    methodGroup->addAction(interpolationLineResetAction);
    methodGroup->addAction(interpolationSingleResetAction);
 
@@ -135,7 +130,6 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    methodmenu = new QMenu(tr("Method"),this);
    methodmenu->addAction(interpolationCopyAction);
    methodmenu->addAction(interpolationLinearAction);
- // methodmenu->addAction(interpolationGaussAction);
    methodmenu->addSeparator();
    methodmenu->addAction(interpolationLineResetAction);
    methodmenu->addAction(interpolationSingleResetAction);
@@ -143,11 +137,16 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
 
    QToolBar * toolbar=new QToolBar(this);
 
-   toolbar->addAction(interpolationCopyAction);
-   toolbar->addAction(interpolationLinearAction);
-// toolbar->addAction(interpolationGaussAction);
+   
+   toolbar->addAction(quitAction);
+   toolbar->addAction(runAction);
+   toolbar->addAction(undoAction);
+   toolbar->addAction(redoAction);
    toolbar->addSeparator();
-   toolbar->addAction(interpolationLineResetAction);
+   toolbar->addAction(interpolationCopyAction  );
+   toolbar->addAction(interpolationLinearAction);
+   toolbar->addSeparator();
+   toolbar->addAction(interpolationLineResetAction  );
    toolbar->addAction(interpolationSingleResetAction);
    toolbar->addSeparator();
 
