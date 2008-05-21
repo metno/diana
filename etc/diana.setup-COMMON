@@ -3152,11 +3152,11 @@ PROD=ascii:Skogbrann
 ascii=$(OPDATA2)/varsler/wbkz.yyyymmddHH
 timerange=-360,1080
 
-PROD=ascii:Fargekoding-METAR
+PROD=ascii:Colorcode-METAR
 ascii=$(OPDATA2)/modflydb/colorcode/colorcode_metar.yyyymmddHHMM
 timerange=-360,1080
 
-PROD=ascii:Fargekoding-TAF
+PROD=ascii:Colorcode-TAF
 ascii=$(OPDATA2)/modflydb/colorcode/colorcode_taf.yyyymmddHHMM
 timerange=-360,1080
 
