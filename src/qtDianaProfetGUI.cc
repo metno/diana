@@ -550,12 +550,18 @@ void DianaProfetGUI::showField(miString param, miTime time){
     plotString += " overlay=1";
     LOG4CXX_INFO(logger,"showField: "<<plotString);
     emit showProfetField(plotString); //FieldManager->addField
+    
+    // will trigger MenuOK in qtMainWindow :-)
+//     emit prepareAndPlot();
   }
   
   prevParam = param;
   cerr << "*** DianaProfetGUI::showField setting time: " << time.isoTime() << endl;
   emit setTime(time);
-//  emit repaintMap(false);
+  //  emit repaintMap(false);
+
+  // TODO: remove this
+  emit prepareAndPlot();
 }
 
 
@@ -694,8 +700,10 @@ void DianaProfetGUI::setVisible(bool visible){
   }
   else{
     // First, remove previous PROFET fieldPlot (if any)
-    if ( currentParam.length() )
+    if ( currentParam.length() ){
       emit showProfetField("REMOVE FIELD profet " + currentParam);
+      emit prepareAndPlot();
+    }
     currentParam="";
     areaManager->clear();
     emit repaintMap(false);

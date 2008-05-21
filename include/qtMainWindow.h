@@ -180,6 +180,7 @@ private slots:
   void saveraster();
   void saveAnimation();
   void makeEPS(const miString& filename);
+  void setTimeAndUpdatePlots(const miTime& t);
   void TimeChanged();
   void TimeSelected();
   void SliderSet();

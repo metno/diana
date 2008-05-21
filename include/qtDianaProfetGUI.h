@@ -204,6 +204,7 @@ signals:
   void timesmoothProcessed(miTime, miString);
 
   void updateModelDefinitions();
+  void prepareAndPlot();
 
 };
 

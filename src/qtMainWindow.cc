@@ -1610,10 +1610,12 @@ bool DianaMainWindow::initProfet(){
           this, SLOT(setPaintMode(bool)));
       connect(profetGUI, SIGNAL(showProfetField(miString)), 
           fm, SLOT(addField(miString)));
+      connect(profetGUI, SIGNAL(prepareAndPlot()), 
+	      SLOT(MenuOK()));
       connect( profetGUI, SIGNAL(repaintMap(bool)), 
           SLOT(plotProfetMap(bool)));
       connect( profetGUI, SIGNAL(setTime(const miTime&)), 
-	       tslider,SLOT(setTime(const miTime&)));
+	       SLOT(setTimeAndUpdatePlots(const miTime&)));
       connect( profetGUI, SIGNAL(updateModelDefinitions()), 
 	       fm,SLOT(updateModels()) );
       Profet::PodsUser u(miTime::nowTime(),
@@ -1632,11 +1634,22 @@ bool DianaMainWindow::initProfet(){
 }
 
 void DianaMainWindow::plotProfetMap(bool objectsOnly){
+
+  w->updateGL();
+
   //TODO What the ...
-  if(objectsOnly) contr->plot(true,false); // Objects in overlay
-  else MenuOK();
-  MenuOK();
+//   if(objectsOnly) contr->plot(false,true); // Objects in overlay
+//   else MenuOK();
+//   MenuOK();
 }
+
+void DianaMainWindow::setTimeAndUpdatePlots(const miTime& t)
+{
+  //cerr << "---------- setTimeAndUpdatePlots:" << t << endl;
+  tslider->setTime(t);
+  TimeSelected();
+}
+
 
 void DianaMainWindow::toggleProfetGUI(){
   if(!profetGUI){
