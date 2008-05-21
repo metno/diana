@@ -173,7 +173,6 @@ void EditNewDialog::ConstructorCernel(){
   QLabel* combinelabel= TitleLabel(tr("Combine products valid at:"), combinetab );
   combinelabel->setEnabled(false);
   cBox=new QListWidget(combinetab);
-  cBox->setEnabled(false);
   cBox->setMinimumHeight(100);
   connect(cBox, SIGNAL(itemClicked ( QListWidgetItem * ) ),
 	  SLOT(combineSelect(QListWidgetItem * ) ));
@@ -314,13 +313,6 @@ bool EditNewDialog::checkStatus()
   for (int i=0; i<maxelements; i++){
     ebut[i]->setEnabled(enable);
   }
-
-  // combine-area
-  enable= !normal
-    && (currprod>=0)
-    && (!pid.sendable || dbi.loggedin)
-    && (!pid.sendable || productfree);
-  cBox->setEnabled(enable);
 
   // then check if ok to start
   if (pid.sendable && !dbi.loggedin)
