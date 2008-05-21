@@ -320,7 +320,7 @@ void GridArea::updateCurrentProjection(){
 void  GridArea::setActivePoints(vector<Point> points){
 
   polygon.initActivePoints(points);
-  displayPolygon.initActivePoints(points);
+  displayPolygon = polygon.getInCurrentProjection();
 
 }
 
