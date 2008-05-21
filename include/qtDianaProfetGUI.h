@@ -103,8 +103,12 @@ public:
   void setUsers(const vector<Profet::PodsUser> & users);
   void setSession(const fetSession & session, bool remove = false);
   void showMessage(const Profet::InstantMessage & msg);
-  void setObjects(vector<fetObject> objects);
-  void setObjectSignatures( vector<fetObject::Signature> s);
+  void updateObject(const fetObject & object, bool remove = false);
+  void updateObjects(const vector<fetObject> & objects);
+  void updateObjectSignature(
+      const fetObject::Signature & s, bool remove = false);
+  void updateObjectSignatures(
+      const vector<fetObject::Signature> & s);
 
   void customEvent(QEvent * e);
   /**

@@ -152,6 +152,16 @@ public:
    * Connected views are updated
    */
   void setObjects(const vector<fetObject> & obj);
+  /**
+   * Insert or replace object in model
+   * Connected views are updated
+   */
+  void setObject(const fetObject & obj);
+  /**
+   * Remove object from model (by fetObject::id())
+   * Connected views are updated
+   */
+  bool removeObject(const miString & id);
 };
 
 class FetObjectTableModel : public QAbstractTableModel {
@@ -188,6 +198,8 @@ public:
   bool inited(){ return (parameters.size() && times.size()); }
   void setLastSelectedIndex(const QModelIndex & lsi){ lastSelected = lsi; }
   void setObjectSignatures(const vector<fetObject::Signature> & objects);
+  void setObjectSignature(const fetObject::Signature & obj);
+  bool removeObjectSignature(const miString & id);
   miTime getTime(const QModelIndex &index) const
     throw(InvalidIndexException&);
   miString getParameter(const QModelIndex &index) const

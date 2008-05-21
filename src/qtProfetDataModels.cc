@@ -205,6 +205,31 @@ void FetObjectListModel::setObjects(const vector<fetObject> & obj) {
   reset();
 }
 
+void FetObjectListModel::setObject(const fetObject & obj) {
+  QModelIndex objIndex = getIndexById(obj.id());
+  if(objIndex.isValid()){ // object exist
+    objects[objIndex.row()] = obj;
+  }
+  else { // object does not exist
+    objects.push_back(obj);
+    objIndex = getIndexById(obj.id());
+  }
+  if(objIndex.isValid())
+    dataChanged(objIndex,objIndex);
+}
+
+bool FetObjectListModel::removeObject(const miString & id){
+  vector<fetObject>::iterator iter = objects.begin();
+  for( ; iter != objects.end(); iter++ ){
+    if((*iter).id() == id) {
+      iter = objects.erase(iter);
+      reset();
+      return true;
+    }
+  }
+  return false;
+}
+
 //  *** FetObjectTableModel ***
 
 
@@ -304,6 +329,47 @@ void FetObjectTableModel::setObjectSignatures(
     signatureIndexMap[tIndex][pIndex].push_back(i);
   }
   reset();
+}
+
+void FetObjectTableModel::setObjectSignature(
+    const fetObject::Signature & obj) {
+  int tIndex = timeIndexMap[obj.validTime];
+  int pIndex = paramIndexMap[obj.parameter];
+  QModelIndex objIndex = index(tIndex,pIndex);
+  int nObj = objects.size();
+  for(int i=0;i<nObj; i++){
+    if(objects[i].id == obj.id){
+      objects[i] = obj;
+      dataChanged(objIndex,objIndex);
+      return;
+    }
+  }
+  // Object is new
+  objects.push_back(obj);
+  signatureIndexMap[tIndex][pIndex].push_back((objects.size() - 1));
+  dataChanged(objIndex,objIndex);
+}
+
+bool  FetObjectTableModel::removeObjectSignature(const miString & id) {
+  int nObj = objects.size();
+  for(int i=0;i<nObj; i++){
+    if(objects[i].id == id){
+      fetObject::Signature s = objects[i];
+      int tIndex = timeIndexMap[s.validTime];
+      int pIndex = paramIndexMap[s.parameter];
+      vector<int> v = signatureIndexMap[tIndex][pIndex];
+      vector< int >::iterator iter = v.begin();
+      for(;iter!=v.end();iter++)
+        if((*iter) == i) {
+          iter = v.erase(iter);
+          signatureIndexMap[tIndex][pIndex] = v;
+          QModelIndex objIndex = index(tIndex,pIndex);
+          dataChanged(objIndex,objIndex);
+          return true;
+        }
+    }
+  }
+  return false;
 }
 
 miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(

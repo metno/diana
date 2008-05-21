@@ -170,8 +170,8 @@ void DianaProfetGUI::customEvent(QEvent * e){
       userModel.removeUser(cle->user);
   }else if(e->type() == Profet::UPDATE_MAP_EVENT){
     emit repaintMap(true);
-  }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){
-    Profet::ObjectUpdateEvent * oue = (Profet::ObjectUpdateEvent*) e;
+  }else if(e->type() == Profet::OBJECT_LIST_UPDATE_EVENT){
+    Profet::ObjectListUpdateEvent * oue = (Profet::ObjectListUpdateEvent*) e;
     objectModel.setObjects(oue->objects);
     bool removeAreas = (areaManager->getAreaCount() > 0);
     areaManager->clear();
@@ -179,8 +179,22 @@ void DianaProfetGUI::customEvent(QEvent * e){
     for(int i=0;i<nObjects;i++){
       areaManager->addArea(oue->objects[i].id(),oue->objects[i].polygon(),false);
     }
-  }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){
+  }else if(e->type() == Profet::OBJECT_UPDATE_EVENT){
+    Profet::ObjectUpdateEvent * oue = (Profet::ObjectUpdateEvent*) e;
+    if(oue->remove) {
+      bool r = objectModel.removeObject(oue->object.id());
+      if(r) areaManager->removeArea(oue->object.id());
+    }
+    else {
+      objectModel.setObject(oue->object);
+      areaManager->addArea(oue->object.id(),oue->object.polygon(),true);
+    }
+  }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){ //SignatureListUpdateEvent
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
+    if(sue->remove) tableModel.removeObjectSignature(sue->object.id);
+    else tableModel.setObjectSignature(sue->object);
+  }else if(e->type() == Profet::SIGNATURE_LIST_UPDATE_EVENT){
+    Profet::SignatureListUpdateEvent * sue = (Profet::SignatureListUpdateEvent*) e;
     tableModel.setObjectSignatures(sue->objects);
   }else if(e->type() == Profet::SESSION_LIST_EVENT){
     Profet::SessionListEvent * sle = (Profet::SessionListEvent*) e;
@@ -196,16 +210,27 @@ void DianaProfetGUI::customEvent(QEvent * e){
   
 }
 // THREAD SAFE!
-void DianaProfetGUI::setObjects(vector<fetObject> obj){
-  Profet::ObjectUpdateEvent * oue = new Profet::ObjectUpdateEvent(obj);
+void DianaProfetGUI::updateObjects(const vector<fetObject> & objects){
+  Profet::ObjectListUpdateEvent * oue = new Profet::ObjectListUpdateEvent(objects);
+  QCoreApplication::postEvent(this, oue);//thread-safe
+}
+
+void DianaProfetGUI:: updateObject(const fetObject & object, bool remove){
+  Profet::ObjectUpdateEvent * oue = new Profet::ObjectUpdateEvent(object,remove);
   QCoreApplication::postEvent(this, oue);//thread-safe
 }
 
 /**
  * Called by multiple threads
  */
-void DianaProfetGUI::setObjectSignatures( vector<fetObject::Signature> s){ 
-  Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s);
+void DianaProfetGUI::updateObjectSignatures(const vector<fetObject::Signature> & s){
+  Profet::SignatureListUpdateEvent * sue = new Profet::SignatureListUpdateEvent(s);
+  QCoreApplication::postEvent(this, sue);//thread-safe
+}
+
+void DianaProfetGUI::updateObjectSignature(
+    const fetObject::Signature & s, bool remove){
+  Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s,remove);
   QCoreApplication::postEvent(this, sue);//thread-safe
 }
 

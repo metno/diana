@@ -15,6 +15,8 @@ namespace Profet{
   static int OBJECT_UPDATE_EVENT = QEvent::User + 5;
   static int SIGNATURE_UPDATE_EVENT = QEvent::User + 6;
   static int CURRENT_SESSION_UPDATE_EVENT = QEvent::User + 7;
+  static int OBJECT_LIST_UPDATE_EVENT = QEvent::User + 8;
+  static int SIGNATURE_LIST_UPDATE_EVENT = QEvent::User + 9;
 
   /**
     * Threadsafe event for changing current session
@@ -60,23 +62,49 @@ namespace Profet{
   };
 
   /**
-   * Threadsafe event for incomming messages
+   * Threadsafe event for incomming objects
    */  
   class ObjectUpdateEvent : public QEvent {
   public:
-    vector<fetObject> objects;
-    ObjectUpdateEvent(vector<fetObject> obj)
-      :QEvent(QEvent::Type(OBJECT_UPDATE_EVENT)),objects(obj){}
+    fetObject object;
+    bool remove;
+    ObjectUpdateEvent(const fetObject & obj, bool remove_=false)
+      :QEvent(QEvent::Type(OBJECT_UPDATE_EVENT)),
+      object(obj), remove(remove_){}
   };
   
   /**
-   * Threadsafe event for incomming messages
+   * Threadsafe event for incomming objects
+   */  
+  class ObjectListUpdateEvent : public QEvent {
+  public:
+    vector<fetObject> objects;
+    ObjectListUpdateEvent(const vector<fetObject> & obj)
+      :QEvent(QEvent::Type(OBJECT_LIST_UPDATE_EVENT)),
+      objects(obj){}
+  };
+  
+  /**
+   * Threadsafe event for incomming signatures
    */  
   class SignatureUpdateEvent : public QEvent {
   public:
+    fetObject::Signature object;
+    bool remove;
+    SignatureUpdateEvent(const fetObject::Signature & s, 
+        bool remove_=false):QEvent(QEvent::Type(
+        SIGNATURE_UPDATE_EVENT)), object(s), 
+        remove(remove_){}
+  };
+  
+  /**
+   * Threadsafe event for incomming signatures
+   */  
+  class SignatureListUpdateEvent : public QEvent {
+  public:
     vector<fetObject::Signature> objects;
-    SignatureUpdateEvent(vector<fetObject::Signature> s)
-      :QEvent(QEvent::Type(SIGNATURE_UPDATE_EVENT)),objects(s){}
+    SignatureListUpdateEvent(const vector<fetObject::Signature> & s)
+    :QEvent(QEvent::Type(SIGNATURE_LIST_UPDATE_EVENT)), objects(s){}
   };
 
   
