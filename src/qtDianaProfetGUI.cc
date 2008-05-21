@@ -104,6 +104,7 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session){
   tableModel.initTable(session.times(),session.parameters());
   sessionDialog.selectDefault();
   currentSession=session;
+  QCoreApplication::flush();
 }
 
 
@@ -115,6 +116,7 @@ void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
 // THREAD SAFE!
 void DianaProfetGUI::showMessage(const Profet::InstantMessage & msg){
   QCoreApplication::postEvent(this,new Profet::MessageEvent(msg));//thread-safe
+  QCoreApplication::flush();
 }
 
 void DianaProfetGUI::setSession(const fetSession & session, bool remove){
@@ -122,6 +124,7 @@ void DianaProfetGUI::setSession(const fetSession & session, bool remove){
   sle->remove = remove;
   sle->session = session;
   QCoreApplication::postEvent(this, sle);//thread-safe
+  QCoreApplication::flush();
 }
 
 void DianaProfetGUI::setUser(const Profet::PodsUser & user){
@@ -130,6 +133,7 @@ void DianaProfetGUI::setUser(const Profet::PodsUser & user){
   cle->type = Profet::UserListEvent::SET_USER;
   cle->user = user;
   QCoreApplication::postEvent(this, cle);//thread-safe
+  QCoreApplication::flush();
 }
 
 void DianaProfetGUI::removeUser(const Profet::PodsUser & user){
@@ -138,6 +142,7 @@ void DianaProfetGUI::removeUser(const Profet::PodsUser & user){
   cle->type = Profet::UserListEvent::REMOVE_USER;
   cle->user = user;
   QCoreApplication::postEvent(this, cle);//thread-safe
+  QCoreApplication::flush();
 }
 
 // THREAD SAFE!
@@ -147,6 +152,7 @@ void DianaProfetGUI::setUsers(const vector<Profet::PodsUser> & users){
   cle->type = Profet::UserListEvent::REPLACE_LIST;
   cle->users = users;
   QCoreApplication::postEvent(this, cle);//thread-safe
+  QCoreApplication::flush();
 }
 
 void DianaProfetGUI::customEvent(QEvent * e){
@@ -213,11 +219,15 @@ void DianaProfetGUI::customEvent(QEvent * e){
 void DianaProfetGUI::updateObjects(const vector<fetObject> & objects){
   Profet::ObjectListUpdateEvent * oue = new Profet::ObjectListUpdateEvent(objects);
   QCoreApplication::postEvent(this, oue);//thread-safe
+  QCoreApplication::flush();
+  cerr << "DianaProfetGUI:: updateObjects" << endl;
 }
 
 void DianaProfetGUI:: updateObject(const fetObject & object, bool remove){
   Profet::ObjectUpdateEvent * oue = new Profet::ObjectUpdateEvent(object,remove);
   QCoreApplication::postEvent(this, oue);//thread-safe
+  QCoreApplication::flush();
+  cerr << "DianaProfetGUI:: updateObject" << endl;
 }
 
 /**
@@ -226,12 +236,14 @@ void DianaProfetGUI:: updateObject(const fetObject & object, bool remove){
 void DianaProfetGUI::updateObjectSignatures(const vector<fetObject::Signature> & s){
   Profet::SignatureListUpdateEvent * sue = new Profet::SignatureListUpdateEvent(s);
   QCoreApplication::postEvent(this, sue);//thread-safe
+  QCoreApplication::flush();
 }
 
 void DianaProfetGUI::updateObjectSignature(
     const fetObject::Signature & s, bool remove){
   Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s,remove);
   QCoreApplication::postEvent(this, sue);//thread-safe
+  QCoreApplication::flush();
 }
 
 void DianaProfetGUI::baseObjectSelected(miString id){
@@ -560,6 +572,7 @@ void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y){
 void DianaProfetGUI::updateMap(){
   QCoreApplication::postEvent(this, new QEvent(
       QEvent::Type(Profet::UPDATE_MAP_EVENT)));//thread-safe
+  QCoreApplication::flush();
 }
 /**
  * Called by multiple threads
