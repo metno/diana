@@ -88,6 +88,7 @@ bool GridArea::plot(){
 	else if(!isEmptyArea()){
 		drawPolygon(displayPolygon,true);
 		fillPolygon(displayPolygon,true);
+		fillActivePolygon(displayPolygon,true);
 	}
 	else{ 
 		drawPolygon(displayPolygon,true);
@@ -130,11 +131,11 @@ void GridArea::fillPolygon(Polygon & p, bool main_polygon){
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     if(main_polygon){
     	if(selected)
-    		glColor4d(0.2, 0.2, 0.8, 0.3);
+    		glColor4d(0.2, 0.2, 0.8, 0.2);
 		else
-			glColor4d(0.6, 0.6, 0.6, 0.2);
+		  glColor4d(0.6, 0.6, 0.6, 0.1);
     }
-	else glColor4d(0.8, 0.2, 0.2, 0.5);
+	else glColor4d(0.8, 0.2, 0.2, 0.3);
     
     // Using GL tesselation
 	GLdouble *gldata= new GLdouble[nPoints*3];
@@ -152,6 +153,45 @@ void GridArea::fillPolygon(Polygon & p, bool main_polygon){
     endTesselation();  
     delete[] gldata; 
 	glDisable(GL_BLEND);
+}
+
+void GridArea::fillActivePolygon(Polygon & p, bool main_polygon){
+
+  list<Point> points = p.getActivePoints();
+  int nPoints = points.size();
+
+  if(nPoints < 3) return;
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    if(main_polygon){
+    	if(selected)
+    		glColor4d(0.2, 0.2, 0.8, 0.3);
+		else
+		  glColor4d(0.6, 0.6, 0.6, 0.2);
+    }
+	else glColor4d(0.8, 0.2, 0.2, 0.5);
+
+    list<Point>::iterator q = points.begin();
+    vector<GLfloat> x;    
+    vector<GLfloat> y;
+    for (; q!=points.end(); q++) {
+      x.push_back((*q).get_x());
+      y.push_back((*q).get_y());
+    }
+    
+    for(int i=0;i<x.size()-3;i+=4){
+    glBegin(GL_POLYGON); // GL_LINE_LOOP
+      glVertex2f(x[i],  y[i] ); 
+      glVertex2f(x[i+1],y[i+1] ); 
+      glVertex2f(x[i+2],y[i+2] ); 
+      glVertex2f(x[i+3],y[i+3] ); 
+    glEnd();
+  }
+  glFlush();
+  glDisable(GL_BLEND);
+
 }
 
 void GridArea::setMode(GridArea::AreaMode am){
@@ -275,6 +315,13 @@ void GridArea::updateCurrentProjection(){
 	editPolygon.setCurrentProjection(area);
 	displayPolygon = polygon.getInCurrentProjection();
 	displayEditPolygon = editPolygon.getInCurrentProjection();
+}
+
+void  GridArea::setActivePoints(vector<Point> points){
+
+  polygon.initActivePoints(points);
+  displayPolygon.initActivePoints(points);
+
 }
 
 

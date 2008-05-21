@@ -78,6 +78,7 @@ private:
 	Area getStandardProjection();
 	void resetEditPolygon();
 	void fillPolygon(Polygon & p,bool main);
+	void fillActivePolygon(Polygon & p,bool main);
 	void drawPolygon(Polygon & p,bool main);
 	//Used in move-mode to paint temp. moved polygon
 	double moveX;
@@ -130,6 +131,8 @@ public:
 	bool isSelected();
 	///Forced update to current diana projection 
 	void updateCurrentProjection();
+        /// set the list of Points which are actually affected by the mask
+        void setActivePoints(vector<Point>);
 };
 
 #endif /*DIGRIDAREA_H_*/

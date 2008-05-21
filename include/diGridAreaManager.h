@@ -137,6 +137,8 @@ public:
 	void setBaseProjection(Area proj){base_proj = proj;}
 	/// Get number of Areas
 	int getAreaCount(){ return gridAreas.size(); }
+        /// set the list of Points which are actually affected by the mask
+        void setActivePoints(vector<Point>);
 };
 
 

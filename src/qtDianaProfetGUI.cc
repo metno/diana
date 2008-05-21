@@ -705,7 +705,7 @@ void  DianaProfetGUI::setStatistics(map<miString,float> m){
   objectDialog.setStatistics(m);
 }
 
-void  DianaProfetGUI::setActivePoints(vector<Point>){
-
+void  DianaProfetGUI::setActivePoints(vector<Point> points){
+  areaManager->setActivePoints(points);
 }
 

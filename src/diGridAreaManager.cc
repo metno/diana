@@ -352,4 +352,12 @@ bool GridAreaManager::setEnabled(miString id, bool enabled){
 	return false;
 }
 
+void  GridAreaManager::setActivePoints(vector<Point> points){
+  cerr <<"GAM SIZE:"<<points.size()<<endl;
+
+  if(gridAreas.count(currentId))
+    gridAreas[currentId].setActivePoints(points);
+
+}
+
 
