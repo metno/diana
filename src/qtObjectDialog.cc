@@ -512,7 +512,7 @@ void ObjectDialog::updateSelectedFileList()
   if(index<0) return;
 
   int timefileListIndex = timefileList->currentRow();
-  cerr <<"timefileListIndex:"<<timefileListIndex<<endl;
+
   if (autoButton->isOn()) {
     namestr= objectnames[index];
   } else if (timeButton->isOn() && timefileListIndex>-1) {
@@ -890,6 +890,14 @@ void ObjectDialog::archiveMode( bool on )
   cerr<<"ObjectDialog::archiveMode called"<<endl;
 #endif
   useArchive= on;
+
+  //get new Objectnames
+  namebox->clear();
+  objectnames= m_ctrl->getObjectNames(useArchive);
+  for (int i=0; i<objectnames.size(); i++){
+    namebox->addItem(objectnames[i].c_str());
+  }
+
   //everything is unselected and listboxes refreshed
   DeleteClicked();
 }
