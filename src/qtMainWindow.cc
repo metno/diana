@@ -1585,7 +1585,7 @@ bool DianaMainWindow::initProfet(){
     
   Profet::LoginDialog loginDialog;
   loginDialog.setUsername(QString(getenv("USER")));
-  loginDialog. setRoles((QStringList() << "forecast" << "observer"));
+  loginDialog.setRoles((QStringList() << "forecast" << "observer"));
 
   if(loginDialog.exec()){ // OK button pressed
     try{
