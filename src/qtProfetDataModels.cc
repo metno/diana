@@ -129,15 +129,19 @@ fetSession SessionListModel::getSession(int row_nr) const throw(InvalidIndexExce
 }
 
 void SessionListModel::setSession(const fetSession & s) {
+  bool edited = false;
   vector<fetSession>::iterator iter;
   for( iter = sessions.begin(); iter != sessions.end(); iter++ ){
     if((*iter).referencetime() == s.referencetime()) {
       *iter = s;
       reset();
-      return;
+      edited = true;
+      break;
     }
   }
-  sessions.push_back(s); // Not found: Adding new user
+  if(!edited)// Not found: Adding new user
+    sessions.push_back(s); 
+  std::sort(sessions.begin(),sessions.end());
   reset();
 }
 
