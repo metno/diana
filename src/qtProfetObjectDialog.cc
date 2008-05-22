@@ -246,18 +246,25 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
   }
 
   map<miString,float>::iterator itr=stat.begin();
-  ostringstream ost;
-  ost << "<table border=0>"; 
-  for(;itr!=stat.end();itr++) {
+  ostringstream ost1;
+  ostringstream ost2;
+  miString nb="&nbsp;&nbsp;";
+  ost1 << "<table border=0 align=center><tr>";
+  ost2 << "<tr>";
+  int i=1;
+  for(;itr!=stat.end();itr++,i++) {
     float value = itr->second;
     int   prec  = ((int(value*100) == int(value)*100) ? 0 : 2);
     
-    ost	<< "<tr><td><b>"<<itr->first.upcase() << ": </b> <td> " <<std::fixed << std::setprecision(prec) 
-	<< itr->second;
+    miString bgcolor= (i%2?"lightGray":"white");
+    
+    ost1	<< "<td halign=center bgcolor="<<bgcolor <<"><b>" << nb << itr->first.upcase() << nb <<" </b> </td> ";
+    ost2  << "<td halign=center bgcolor="<<bgcolor <<"> "   << nb
+      << std::fixed << std::setprecision(prec) << itr->second<< nb <<" </td>";
   }
-  ost << "</table>";
+  ost1 << ost2.str() <<  "</table>";
     
  // qt4 fix: setText takes QString as argument
-  statisticLabel->setText(QString(ost.str().c_str()));
+  statisticLabel->setText(QString(ost1.str().c_str()));
   
 }
