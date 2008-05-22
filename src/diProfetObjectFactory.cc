@@ -67,7 +67,7 @@ vector<fetDynamicGui::GuiComponent>
 ProfetObjectFactory::getGuiComponents(const fetBaseObject& baseobj)
 
 {
-  LOG4CXX_INFO(logger,"getGuiComponents(fetBaseObject)");
+  LOG4CXX_DEBUG(logger,"getGuiComponents(fetBaseObject)");
 
   fetCodeExecutor executor; ///< the object executor
   vector<fetCodeExecutor::responce> responcel; 
@@ -88,7 +88,7 @@ ProfetObjectFactory::getGuiComponents(const fetBaseObject& baseobj)
 vector<fetDynamicGui::GuiComponent>
 ProfetObjectFactory::getGuiComponents(const fetObject& fetobj) 
 {
-  LOG4CXX_INFO(logger,"getGuiComponents(fetObject) for id="<< fetobj.id());
+  LOG4CXX_DEBUG(logger,"getGuiComponents(fetObject) for id="<< fetobj.id());
 
   fetCodeExecutor executor; ///< the object executor
   fetBaseObject baseobject = fetobj.baseObject();
@@ -122,7 +122,7 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
 				 const miTime   sessionreftime,
 				 const miString parent )
 {
-  LOG4CXX_INFO(logger,"makeObject(fetBaseObject)");
+  LOG4CXX_DEBUG(logger,"makeObject(fetBaseObject)");
 
   fetObject fetObj;
   if ( nx==0 || ny==0 || fieldArea.R().width()==0 ){
@@ -171,7 +171,7 @@ bool ProfetObjectFactory::setGuiValues(fetObject& fetObj,
 				      const vector<fetDynamicGui::GuiComponent>& components )
 {
 
-  LOG4CXX_INFO(logger,"setGuiValues");
+  LOG4CXX_DEBUG(logger,"setGuiValues");
 
   fetCodeExecutor executor; ///< the object executor
   return executor.prepareCode(fetObj,components);
