@@ -128,7 +128,7 @@ void DianaProfetGUI::setSession(const fetSession & session, bool remove){
 }
 
 void DianaProfetGUI::setUser(const Profet::PodsUser & user){
-  LOG4CXX_INFO(logger,"setUser " << user.name);
+  LOG4CXX_DEBUG(logger,"setUser " << user.name);
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::SET_USER;
   cle->user = user;
@@ -137,7 +137,7 @@ void DianaProfetGUI::setUser(const Profet::PodsUser & user){
 }
 
 void DianaProfetGUI::removeUser(const Profet::PodsUser & user){
-  LOG4CXX_INFO(logger,"removeUser " << user.name);
+  LOG4CXX_DEBUG(logger,"removeUser " << user.name);
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::REMOVE_USER;
   cle->user = user;
@@ -147,7 +147,7 @@ void DianaProfetGUI::removeUser(const Profet::PodsUser & user){
 
 // THREAD SAFE!
 void DianaProfetGUI::setUsers(const vector<Profet::PodsUser> & users){
-  LOG4CXX_INFO(logger,"setUsers " << users.size());
+  LOG4CXX_DEBUG(logger,"setUsers " << users.size());
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::REPLACE_LIST;
   cle->users = users;
@@ -249,7 +249,7 @@ void DianaProfetGUI::updateObjectSignature(
 void DianaProfetGUI::baseObjectSelected(miString id){
   int i = getBaseObjectIndex(id);
   if(i != -1){
-    LOG4CXX_INFO(logger,"base object selected " << baseObjects[i].name());
+    LOG4CXX_DEBUG(logger,"base object selected " << baseObjects[i].name());
     objectDialog.addDymanicGui(objectFactory.getGuiComponents(baseObjects[i]));
     if(areaManager->isAreaSelected()){
       miTime refTime;
@@ -268,7 +268,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
           areaManager->getCurrentPolygon(),
           getCurrentParameter(), getCurrentTime(),
 					       objectDialog.getReason(),user,refTime,parent_);
-      LOG4CXX_INFO(logger,"calling controller.objectChanged");
+      LOG4CXX_DEBUG(logger,"calling controller.objectChanged");
       controller.objectChanged(currentObject);
     }
   }
@@ -284,7 +284,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
 }
 
 void DianaProfetGUI::objectSelected(const QModelIndex & index){
-  LOG4CXX_INFO(logger,"objectSelected");
+  LOG4CXX_DEBUG(logger,"objectSelected");
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
 // Lock is not distributed    
@@ -421,7 +421,7 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
 
 
 void DianaProfetGUI::dynamicGuiChanged(){
-  LOG4CXX_INFO(logger,"Dynamic GUI changed");
+  LOG4CXX_DEBUG(logger,"Dynamic GUI changed");
   // Check if current object is ok ...
   if(areaManager->isAreaSelected()){
     objectFactory.setGuiValues(currentObject,
@@ -466,7 +466,7 @@ void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
 }
 
 void DianaProfetGUI::createNewObject(){
-  LOG4CXX_INFO(logger,"createNewObject");
+  LOG4CXX_DEBUG(logger,"createNewObject");
   bool ok = areaManager->addArea("newArea");
   if(!ok){
     LOG4CXX_WARN(logger,"Previous temp. area not removed!");
@@ -481,7 +481,7 @@ void DianaProfetGUI::createNewObject(){
 }
 
 void DianaProfetGUI::editObject(){
-  LOG4CXX_INFO(logger,"editObject");
+  LOG4CXX_DEBUG(logger,"editObject");
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
     objectDialog.setSession(getCurrentTime());
@@ -507,7 +507,7 @@ void DianaProfetGUI::editObject(){
 }
 
 void DianaProfetGUI::deleteObject(){
-  LOG4CXX_INFO(logger,"deleteObject");
+  LOG4CXX_DEBUG(logger,"deleteObject");
   sessionDialog.enableObjectButtons(true,false);
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
@@ -528,9 +528,9 @@ void DianaProfetGUI::hideProfetPerformed(){
 }
 
 void DianaProfetGUI::showField(miString param, miTime time){
-  LOG4CXX_INFO(logger,"show field "<<param<<" "<<time);
+  LOG4CXX_DEBUG(logger,"show field "<<param<<" "<<time);
   if ( param != prevParam ){ // has parameter changed?
-    LOG4CXX_INFO(logger,"show field parameter changed from "<< prevParam << " to " <<
+    LOG4CXX_DEBUG(logger,"show field parameter changed from "<< prevParam << " to " <<
 		  param);
     miString plotString;
     
@@ -548,7 +548,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
     plotString += "profet ";
     plotString += param;
     plotString += " overlay=1";
-    LOG4CXX_INFO(logger,"showField: "<<plotString);
+    LOG4CXX_DEBUG(logger,"showField: "<<plotString);
     emit showProfetField(plotString); //FieldManager->addField
     
     // will trigger MenuOK in qtMainWindow :-)
@@ -559,9 +559,6 @@ void DianaProfetGUI::showField(miString param, miTime time){
   cerr << "*** DianaProfetGUI::showField setting time: " << time.isoTime() << endl;
   emit setTime(time);
   //  emit repaintMap(false);
-
-  // TODO: remove this
-  //emit prepareAndPlot();
 }
 
 
@@ -598,7 +595,7 @@ void DianaProfetGUI::paintModeChanged(GridAreaManager::PaintMode mode){
 }
 
 void DianaProfetGUI::gridAreaChanged(){
-  LOG4CXX_INFO(logger,"gridAreaChanged");
+  LOG4CXX_DEBUG(logger,"gridAreaChanged");
   miString currentId = areaManager->getCurrentId();
   if(currentId != "newArea" && currentId != currentObject.id()){ //use currentObject??
     QModelIndex modelIndex = objectModel.getIndexById(currentId);
