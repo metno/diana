@@ -293,6 +293,7 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index){
     updateMap();
   }catch(InvalidIndexException & iie){
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
+    return;
   }
   sessionDialog.enableObjectButtons(true,true);
 }
@@ -335,6 +336,7 @@ void DianaProfetGUI::startTimesmooth()
      id_=fo.id();
   }catch(InvalidIndexException & iie){
      LOG4CXX_ERROR(logger,"DianaProfetGUI::startTimesmooth :" << iie.what());
+     return;
   }
     
   vector<miTime> tim;
@@ -343,6 +345,7 @@ void DianaProfetGUI::startTimesmooth()
     tim = s.times();
   }catch(InvalidIndexException & iie){
     cerr << "DianaProfetGUI::startTimesmooth invalid session index" << endl;
+    return;
   }
   
   vector<fetObject::TimeValues> obj=controller.getTimeValues(id_);
@@ -392,7 +395,7 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
     miString obj_id = obj[i].id();
     try {
       if(objectFactory.processTimeValuesOnObject(obj[i])) {
-        controller.saveObject(obj[i]);
+        controller.saveObject(obj[i],true);
         emit timesmoothProcessed(tim,obj[i].id());
       } else {
         emit timesmoothProcessed(tim,"");
@@ -435,6 +438,7 @@ void DianaProfetGUI::sessionSelected(int index){
     controller.currentSessionChanged(sessionModel.getSession(index));
   }catch(InvalidIndexException & iie){
     cerr << "DianaProfetGUI::sessionSelected invalid index" << endl;
+    return;
   }
   sessionDialog.enableObjectButtons(true,false);
 }
@@ -478,6 +482,7 @@ void DianaProfetGUI::createNewObject(){
   objectDialog.newObjectMode();
   objectDialog.selectDefault(); // selects first base-object
   setObjectDialogVisible(true);
+  sessionDialog.enableObjectButtons(false,false);
 }
 
 void DianaProfetGUI::editObject(){
@@ -498,10 +503,12 @@ void DianaProfetGUI::editObject(){
     InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
                 "Edit Object Failed","",se.what());
     showMessage(m);
+    return;
   }catch(InvalidIndexException & iie){
     InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
                 "Edit Object Failed","","Unable to find selected object.");
     showMessage(m);
+    return;
   }
   sessionDialog.enableObjectButtons(false,false);
 }
@@ -656,6 +663,7 @@ void DianaProfetGUI::cancelObjectDialog(){
     InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
         "Unlock object failed","",se.what());
     showMessage(m);
+    return;
   }
   currentObject=fetObject();
   sessionDialog.enableObjectButtons(true,false);
