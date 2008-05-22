@@ -306,21 +306,21 @@
 
     <b> Parameters</b>
 <p />
-    If not specified, the values of the attributes "standard_name" is
-    used.
+    If all variables from the NetCDF-file are not specified, diana_name will be 
+    the same as netcdf_name for the unspecified variables.
 
     <p />
     Syntax:
     <pre>
-    diana_name = standard_name
+    diana_name = netcdf_name
     </pre>
     Example:
     <pre>
        ice.concentration=sea_ice_concentration
        salt=sea_water_salinity
     </pre>
-Connects the name of variable used in diana with the attribute
-"standard_name" used in the NetCDF-files.
+Connects the name of variable used in diana with the local variable-name used in the NetCDF-files.
+To find the variable-names in a NetCDF-file, use 'ncdump -h <filename>'.
 
     <p />
 
