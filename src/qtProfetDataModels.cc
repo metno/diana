@@ -143,17 +143,23 @@ void SessionListModel::setSession(const fetSession & s) {
 
 void SessionListModel::setSessions(const vector<fetSession> & s) {
   sessions = s;
+  std::sort(sessions.begin(),sessions.end());
   reset();
 }
 
 void SessionListModel::removeSession(const fetSession & s) {
+  bool edited = false;
   vector<fetSession>::iterator iter;
   for( iter = sessions.begin(); iter != sessions.end(); iter++ ){
     if((*iter).referencetime() == s.referencetime()) {
       iter = sessions.erase(iter);
-      reset();
-      return;
+      edited = true;
+      break;
     }
+  }
+  if(edited) {
+    std::sort(sessions.begin(),sessions.end());
+    reset();
   }
 }
 
