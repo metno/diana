@@ -109,7 +109,7 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session){
 
 
 void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
-  LOG4CXX_INFO(logger,"setBaseObjects");
+  LOG4CXX_DEBUG(logger,"setBaseObjects");
   baseObjects = obj;
 }
 

@@ -1585,6 +1585,8 @@ bool DianaMainWindow::initProfet(){
     
   Profet::LoginDialog loginDialog;
   loginDialog.setUsername(QString(getenv("USER")));
+  loginDialog. setRoles((QStringList() << "forecast" << "observer"));
+
   if(loginDialog.exec()){ // OK button pressed
     try{
       QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -1637,10 +1639,9 @@ void DianaMainWindow::plotProfetMap(bool objectsOnly){
 
   w->updateGL();
 
-  //TODO What the ...
-//   if(objectsOnly) contr->plot(false,true); // Objects in overlay
-//   else MenuOK();
-//   MenuOK();
+  //   if(objectsOnly) contr->plot(false,true); // Objects in overlay
+  //   else MenuOK();
+  //   MenuOK();
 }
 
 void DianaMainWindow::setTimeAndUpdatePlots(const miTime& t)

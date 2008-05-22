@@ -36,6 +36,9 @@
 #include <fet_object_p.xpm>
 #include <fet_object_sky.xpm>
 #include <user.xpm>
+#include <user_admin.xpm>
+
+
 namespace Profet {
 
 QVariant UserListModel::data(const QModelIndex &index, int role) const {
@@ -46,7 +49,10 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
   if (role == Qt::DisplayRole)
     return QString(users[index.row()].name.cStr());
   else if (role == Qt::DecorationRole) {
-    return QVariant(QIcon(QPixmap(user_xpm)));
+    if (users[index.row()].role != "admin")
+      return QVariant(QIcon(QPixmap(user_xpm)));
+    else
+      return QVariant(QIcon(QPixmap(user_admin_xpm)));
   }
   return QVariant();
 }
