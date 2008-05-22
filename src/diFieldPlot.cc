@@ -533,12 +533,16 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
       delete tmpfields[1];
       tmpfields.clear();
     }
-  } else if (nf==2 &&
+  } else if (!fields[0]->modifiedByProfet &&
+	     !fields[1]->modifiedByProfet &&
+	     nf==2 &&
   	     tmpfields[0]->numSmoothed == fields[0]->numSmoothed &&
   	     tmpfields[0]->area.P() == area.P()) {
     u= tmpfields[0]->data;
     v= tmpfields[1]->data;
   } else {
+    fields[0]->modifiedByProfet=false;
+    fields[1]->modifiedByProfet=false;
     if (nf==0) {
       Field* utmp= new Field();
       Field* vtmp= new Field();
