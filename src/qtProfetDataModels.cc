@@ -183,9 +183,13 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
   if (index.row() >= objects.size())
     return QVariant();
-  if (role == Qt::DisplayRole)
-    return QString(objects[index.row()].id().cStr());
-  else if (role == Qt::DecorationRole) {
+  if (role == Qt::DisplayRole){
+    miString user    = objects[index.row()].user();
+    miString objname = objects[index.row()].name();
+    miTime edittime  = objects[index.row()].editTime();
+    QString str = QString("%1: %2 - %3").arg(user.cStr()).arg(objname.cStr()).arg(edittime.isoTime().cStr());
+    return str; //QString(objects[index.row()].id().cStr());
+  } else if (role == Qt::DecorationRole) {
     miString param = objects[index.row()].parameter();
     if (param == "MSLP")
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
