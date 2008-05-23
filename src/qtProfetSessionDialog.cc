@@ -37,29 +37,31 @@
 
 
 ProfetSessionDialog::ProfetSessionDialog( QWidget* parent) 
-  : QDialog(parent ){
+  : QDialog(parent )
+  {
   setWindowTitle(tr("Edit Field Session"));
   setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-  QVBoxLayout * mainLayout = new QVBoxLayout(this);
+  
+  QVBoxLayout * mainLayout   = new QVBoxLayout(this);
   mainLayout->setMargin(2);
-  QHBoxLayout * titleLayout = new QHBoxLayout();
+  QHBoxLayout * titleLayout  = new QHBoxLayout();
   QVBoxLayout * centerLayout = new QVBoxLayout();
   QHBoxLayout * buttonLayout = new QHBoxLayout();
+  
   mainLayout->addLayout(titleLayout);
   mainLayout->addLayout(centerLayout);
   mainLayout->addLayout(buttonLayout);
 
-  QLabel * qls = new QLabel("Session");
+  QLabel * qls    = new QLabel("Session");
   sessionComboBox = new QComboBox();
   
   titleLayout->addWidget(qls);
   titleLayout->addWidget(sessionComboBox);
   
   QSplitter *split = new QSplitter(Qt::Vertical,this);
-  split->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
   // stretch table only
-  split->setStretchFactor(0,10);
-  split->setStretchFactor(1,0);
+  split->setStretchFactor(0,2);
+  split->setStretchFactor(1,1);
   centerLayout->addWidget(split);
   
   // Table
@@ -76,15 +78,18 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   chatWidget = new ProfetChatWidget(h_split);
   
   // Object Panel
-  QWidget *objectWidget = new QWidget(h_split);
-  QVBoxLayout * objectTitleLayout = new QVBoxLayout();
+  QWidget     *objectWidget      = new QWidget(h_split);
+  QVBoxLayout *objectTitleLayout = new QVBoxLayout();
+
   objectTitleLayout->setMargin(0);
-  objectTitleLayout->addWidget(new QLabel(tr("Objects")),0);
+  objectTitleLayout->addWidget(new QLabel(tr("Objects")),0); 
+
   QHBoxLayout * objectWidgetLayout = new QHBoxLayout();
+  objectList                       = new FetObjectListView(this);
+  QWidget *objectButtonWidget      = new QWidget();
+  
   objectTitleLayout->addLayout(objectWidgetLayout,1);
-  objectList = new FetObjectListView(this);
   objectWidgetLayout->addWidget(objectList,1);
-  QWidget *objectButtonWidget = new QWidget();
   objectWidgetLayout->addWidget(objectButtonWidget,0);
   
   QVBoxLayout *objectButtonWidgetLayout = new QVBoxLayout();
@@ -104,9 +109,11 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   
   //Buttons
   updateButton = new QPushButton(tr("Update"), this );
+  closeButton  = new QPushButton(tr("Close"),  this );
+
   updateButton->setDefault(false);
-  closeButton = new QPushButton(tr("Close"), this );
   closeButton->setDefault(false);
+
   buttonLayout->addWidget(new QLabel("", this));
   buttonLayout->addWidget(updateButton);
   buttonLayout->addWidget(closeButton);

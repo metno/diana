@@ -9,23 +9,29 @@ ProfetChatWidget::ProfetChatWidget( QWidget* parent)
 : QWidget(parent){
   QHBoxLayout * mainLayout = new QHBoxLayout(this);
   mainLayout->setMargin(0);
-  QVBoxLayout * leftLayout = new QVBoxLayout();
-  leftLayout->addWidget(new QLabel(tr("Messages")));
+  QVBoxLayout * rLayout = new QVBoxLayout();
+  rLayout->addWidget(new QLabel(tr("Messages")));
   textEdit = new QTextEdit();
   textEdit->setReadOnly(true);
-  leftLayout->addWidget(textEdit,1);
+  
+  
+  rLayout->addWidget(textEdit,1); 
   QHBoxLayout * sendLayout = new QHBoxLayout();
   lineEdit = new QLineEdit();
   sendLayout->addWidget(lineEdit,1);
   sendButton = new QPushButton(tr("&Send"));
   sendLayout->addWidget(sendButton,0);
-  leftLayout->addLayout(sendLayout,0);
-  mainLayout->addLayout(leftLayout,1);
+  rLayout->addLayout(sendLayout,0);
+
   userList = new QListView();
-  QVBoxLayout * rightLayout = new QVBoxLayout();
-  rightLayout->addWidget(new QLabel(tr("Users")),0);
-  rightLayout->addWidget(userList,1);
-  mainLayout->addLayout(rightLayout,0);
+  QVBoxLayout * lLayout = new QVBoxLayout();
+  lLayout->addWidget(new QLabel(tr("Users")),0);
+  lLayout->addWidget(userList,1);
+  
+  
+  mainLayout->addLayout(lLayout,2);
+  mainLayout->addLayout(rLayout,5);
+  
 //  sendbutton emited on enter...  
 //  connect(lineEdit,SIGNAL(returnPressed()),this,SLOT(sendMessagePerformed()));
   connect(sendButton,SIGNAL(clicked()),this,SLOT(sendMessagePerformed()));
