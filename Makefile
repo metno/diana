@@ -163,12 +163,16 @@ veryclean:
 
 # install
 DESTNAME=diana
-COPYFILES=bin/diana bin/bdiana diana.png diana.sh dianaTEST.sh
+COPYFILES=bin/diana bin/bdiana diana.png diana.sh dianaTEST.sh dianaPROFF.sh
 COPYDIRS=doc
 COPYTREES=fonts images etc lang
 BINLINKS=diana.sh bin/diana bin/bdiana
+#
 TESTDESTNAME=dianaTEST
 TESTBINLINKS=dianaTEST.sh 
+#
+PROFFDESTNAME=dianaPROFF
+PROFFBINLINKS=dianaPROFF.sh 
 
 include ../conf/install.mk
 
