@@ -202,6 +202,9 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
     else if (param == "NEDBØR.3T")
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
     return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
+  } else if (role == Qt::ToolTipRole) {
+    QString str = objects[index.row()].reason().c_str();
+    return str;
   } else
     return QVariant();
 }
