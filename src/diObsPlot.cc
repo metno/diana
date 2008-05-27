@@ -2050,7 +2050,7 @@ void ObsPlot::plotList(int index)
   if( pFlag.count("height")){
     ypos -= yStep;
     if((f_p=dta.fdata.find("stationHeight")) != dta.fdata.end()){
-      if(ccriteria) checkColourCriteria("Høyde",f_p->second);
+      if(ccriteria) checkColourCriteria("Height",f_p->second);
       printList(f_p->second,xpos,ypos,0,align);
     } else {
       printUndef(xpos,ypos,align);
