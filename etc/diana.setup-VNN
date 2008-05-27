@@ -305,21 +305,6 @@ filegroup=UM.1km.exp
 m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
 m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
 
-filegroup=MM5.Byluft+Vindkraft
-m=MM5.HAVØYSUND.3KM  f=/opdata_routine/vindkraft/mm5havoy3km.flt
-m=MM5.HAVØYSUND.1KM  f=/opdata_routine/vindkraft/mm5havoy1km.flt
-m=MM5.OSLO.3KM       f=/opdata_routine/byluft/mm5stoslo3km.flt
-m=MM5.OSLO.1KM       f=/opdata_routine/byluft/mm5stoslo1km.flt
-m=MM5.DRAMMEN.1KM    f=/opdata_routine/byluft/mm5drammen1km.flt
-m=MM5.GRENLAND.3KM   f=/opdata_routine/byluft/mm5grenland3km.flt
-m=MM5.GRENLAND.1KM   f=/opdata_routine/byluft/mm5grenland1km.flt
-m=MM5.STAVANGER.3KM  f=/opdata_routine/byluft/mm5stavanger3km.flt
-m=MM5.STAVANGER.1KM  f=/opdata_routine/byluft/mm5stavanger1km.flt
-m=MM5.BERGEN.3KM     f=/opdata_routine/byluft/mm5bergen3km.flt
-m=MM5.BERGEN.1KM     f=/opdata_routine/byluft/mm5bergen1km.flt
-m=MM5.TRONDHEIM.3KM  f=/opdata_routine/byluft/mm5trondheim3km.flt
-m=MM5.TRONDHEIM.1KM  f=/opdata_routine/byluft/mm5trondheim1km.flt
-
 filegroup=Simra
 m=Simra.Hammerfest.00     f=$(OPDATA2)/um1km/simme00.dat
 m=Simra.Hammerfest.12     f=$(OPDATA2)/um1km/simme12.dat
@@ -827,72 +812,10 @@ name=DinarcticaSor  proj=pstereo_60  grid=115:148:237:0:0:0  area=108.0:128.0:67
 
 <MAP_TYPE>
  
-#---------------------------------------------------------------------------
-# NEW maps are defined with map=XXXX, options can span several lines
-# type=normal or triangles, default is "normal"
-#---------------------------------------------------------------------------
-
-
-CLEAR 
-
-map=Gshhs-Auto type=triangles
-limit=10  file=$(ROOT)/maps/gshhs_25.map
-limit=2.5 file=$(ROOT)/maps/gshhs_5.map
-limit=0.5 file=$(ROOT)/maps/gshhs_1.map
-limit=0.1 file=$(ROOT)/maps/gshhs_0.2.map
-limit=0	  file=$(ROOT)/maps/gshhs_0.1.map
-contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
-land=on land.colour=flesh
-#
-map=Euro1    file=$(ROOT)/maps/land4.dat    # emep(kyst)
-map=Euro2    file=$(ROOT)/maps/land5.dat    # emep(grenser,elver)
-map=Euro3    file=$(ROOT)/maps/land6.dat    # emep(bredde,lengde)
-map=Fin      file=$(ROOT)/maps/land3.dat    # fin (kyst2)
-map=Norkart  file=$(ROOT)/maps/landsos1.dat # sos-filer
-map=Norkart2 file=$(ROOT)/maps/landsos2.dat # sos-filer
-map=Regioner file=$(ROOT)/maps/landregioner.dat # Diana-regioner
-#
-map=Banker   type=lines_simple_text file=$(ROOT)/vnn/banker-ny.txt   # fiskebanker
-map=MinQNH     file=$(ROOT)/maps/minqnh.dat   # minqnh areas
-map=FIR        type=lines_simple_text \
-               file=$(DIANADIR)/etc/fir.txt    # FIR areas
-map=High.Seas  file=$(ROOT)/maps/highseas.dat # High Seas forecast
 map=Apache-Snowwhite type=lines_simple_text file=$(ROOT)/vnn/apache.txt   # Spesial varsel Apache snohvit
-#
-map=Wvs-Auto type=normal
-limit=5.0 file=$(ROOT)/maps/landwvs43m.dat # wvs(1:43mill)
-limit=1.0 file=$(ROOT)/maps/landwvs12m.dat # wvs(1:12mill)
-limit=0.5 file=$(ROOT)/maps/landwvs3m.dat  # wvs(1:3mill)
-limit=0.1 file=$(ROOT)/maps/landwvs1m.dat  # wvs(1:1mill)
-limit=0   file=$(ROOT)/maps/landwvs250k.dat# wvs(1:250.000)
-contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
-#
-map=Kommuner   file=$(ROOT)/maps/land250kommune.dat    no.log
-map=Fylker     file=$(ROOT)/maps/land250fylke.dat      no.log
-map=Riksgrense file=$(ROOT)/maps/land250riksgrense.dat no.log
-map=Kyst       file=$(ROOT)/maps/land250kyst.dat       no.log
-map=Høyde      file=$(ROOT)/maps/land250hoyde.dat      no.log
-map=Vann       file=$(ROOT)/maps/land250vann.dat       no.log
-map=Vei        file=$(ROOT)/maps/land250vei.dat        no.log
-map=Vei2       file=$(ROOT)/maps/land250vei2.dat       no.log
-map=Vei3       file=$(ROOT)/maps/land250vei3.dat       no.log
-map=Bane       file=$(ROOT)/maps/land250bane.dat       no.log
-#
-map=World       file=$(ROOT)/maps/landworld1.dat # konturert etopo5
-map=Gebco.world file=$(ROOT)/maps/landgebco.dat  # gebco
-map=Vanlig   file=$(ROOT)/maps/land1.dat
-map=Norsea   file=$(ROOT)/maps/land2.dat    # norsea
-#
-# map=Kartlinjer1 type=lines_simple_text file=./kartlinjer1.txt
-# map=Kartlinjer2 type=lines_simple_text file=./kartlinjer2.txt
-#
 map=Varslingsomr  type=lines_simple_text file=$(ROOT)/vnn/v_omr.txt
 map=Rutevarsler   type=lines_simple_text file=$(ROOT)/vnn/rutevarsel.txt
 map=BIRCH         type=lines_simple_text file=$(DIANADIR)/etc/birch.txt
-#
-map=Simra_fly     type=lines_simple_text file=$(DIANADIR)/etc/simra_fly.txt
-map=Flystriper    type=lines_simple_text file=$(DIANADIR)/etc/flystriper.txt
-map=Approach-area type=lines_simple_text file=$(DIANADIR)/etc/approach-area.txt
 
 </MAP_TYPE>
 
