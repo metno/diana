@@ -714,6 +714,13 @@ void  ObsDialog::changeCriteriaString( )
 
   if(freeze) return;
 
+  if( criteriaListbox->count()==0 ) return;
+
+  if( criteriaListbox->currentRow()<0 ) {
+    criteriaListbox->setCurrentRow(0);
+  }
+
+
   freeze = true; //don't change the string while updating the widgets
 
   miString str=makeCriteriaString();
