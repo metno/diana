@@ -907,6 +907,7 @@ thediff.500-850=subtract(the:level=500hPa,the:level=850hPa)
 tdiff.sst-500=subtract(sst,tk:level=500hPa)
 tdiff.1000-sst=subtract(tk:level=1000hPa,sst)
 tdiff.500-1000=subtract(tk:level=500hPa,tk:level=1000hPa)
+tdiff.500-850=subtract(tk:level=500hPa,tk:level=850hPa)
 
 tcmean.500-1000=tcmean.plevel_z1_z2(z:level=500hPa,z:level=1000hPa)
 #tkmean.500-1000=tkmean.plevel_z1_z2(z:level=500hPa,z:level=1000hPa)
@@ -1753,6 +1754,12 @@ field=T500-T1000
       #"Temperature difference 500-1000"
       colour=red linetype=solid linewidth=1 line.interval=5.
       plot=CONTOUR(tdiff.500-1000)
+end.field
+
+field=T500-T850
+      #"Temperature difference 500-850"
+      colour=red linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(tdiff.500-850)
 end.field
 
 
@@ -2716,6 +2723,28 @@ m=EC.00        g=98:504  f=$(OPDATA1)/ec/flte00.dat
 m=EC.12        g=98:504  f=$(OPDATA1)/ec/flte12.dat
 m=EC300.00     g=98:533  f=$(OPDATA1)/ec/flte00.dat
 m=EC300.12     g=98:533  f=$(OPDATA1)/ec/flte12.dat
+
+m=EC.GEO.0.25.00-1  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_00_mad.felt-1
+m=EC.GEO.0.25.00-2  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_00_mad.felt-2
+m=EC.GEO.0.25.00-3  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_00_mad.felt-3
+m=EC.GEO.0.25.00-4  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_00_mad.felt-4
+m=EC.GEO.0.25.00-5  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_00_mad.felt-5
+m=EC.GEO.0.25.12-1  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_12_mad.felt-1
+m=EC.GEO.0.25.12-2  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_12_mad.felt-2
+m=EC.GEO.0.25.12-3  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_12_mad.felt-3
+m=EC.GEO.0.25.12-4  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_12_mad.felt-4
+m=EC.GEO.0.25.12-5  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+		    f=$(OPDATA1)/ec/ec_atmo_geo_12_mad.felt-5
+
 m=EC.12-1      g=98:504  f=$(OPDATA1)/ec/flte12.dat-1
 m=EC300.12-1   g=98:533  f=$(OPDATA1)/ec/flte12.dat-1
 m=EC.12-2      g=98:504  f=$(OPDATA1)/ec/flte12.dat-2
@@ -2736,6 +2765,7 @@ m=EC.GEO.NY.12-2  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo1
 m=EC.GEO.NY.12-3  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-3
 m=EC.GEO.NY.12-4  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-4
 m=EC.GEO.NY.12-5  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-5
+
 m=EC.GEO.00      g=98:101:2.5_grad  g=98:102:1.5_grad  f=$(OPDATA1)/ec/grec00.dat
 m=EC.GEO.00-1    g=98:101:2.5_grad  g=98:102:1.5_grad  f=$(OPDATA1)/ec/grec00.dat-1
 m=EC.GEO.00-2    g=98:101:2.5_grad  g=98:102:1.5_grad  f=$(OPDATA1)/ec/grec00.dat-2
@@ -2743,6 +2773,7 @@ m=EC.GEO.12      g=98:101:2.5_grad  g=98:102:1.5_grad  f=$(OPDATA1)/ec/grec12.da
 m=EC.GEO.12-1    g=98:101:2.5_grad  g=98:102:1.5_grad  f=$(OPDATA1)/ec/grec12.dat-1
 m=EC.GEO.12-2    g=98:101:2.5_grad  g=98:102:1.5_grad  f=$(OPDATA1)/ec/grec12.dat-2
 m=EC.GEO.12-3    g=98:101:2.5_grad  g=98:102:1.5_grad  f=$(OPDATA1)/ec/grec12.dat-3
+
 m=EC.06        g=98:504  f=$(OPDATA1)/ec/flte06.dat
 m=EC300.06     g=98:533  f=$(OPDATA1)/ec/flte06.dat
 m=EC.18        g=98:504  f=$(OPDATA1)/ec/flte18.dat
