@@ -38,7 +38,7 @@
 #include <Q3VBoxLayout>
 
 ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
-  : QDialog(parent)
+  : QDialog(parent), mode(NEW_OBJECT_MODE)
 {
   setWindowTitle(tr("Current Object"));
 
@@ -129,13 +129,15 @@ void ProfetObjectDialog::closeEvent(QCloseEvent * e){
   emit cancelObjectDialog();
 }
 
-void ProfetObjectDialog::newObjectMode(){
+void ProfetObjectDialog::newObjectMode(){  
+  mode = NEW_OBJECT_MODE;
   baseComboBox->setEnabled(true);
   reasonText->setText("");
 }
 
 void ProfetObjectDialog::editObjectMode(const fetObject & obj,
-    vector<fetDynamicGui::GuiComponent> components){
+    vector<fetDynamicGui::GuiComponent> components){  
+  mode = EDIT_OBJECT_MODE;
   vector<fetBaseObject> fbo;
   setBaseObjects(fbo);//remove base objects/gui
   baseComboBox->insertItem(obj.name().cStr(),0);

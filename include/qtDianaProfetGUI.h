@@ -32,6 +32,8 @@
 */
 #include <qobject.h> 
 #include <QEvent>
+#include <QMutex>
+#include <QMutexLocker>
 #include <profet/ProfetController.h>
 #include <profet/ProfetGUI.h>
 #include "qtProfetEvents.h"
@@ -72,6 +74,8 @@ private:
   SessionListModel sessionModel;
   fetObject  currentObject;
   fetSession currentSession;
+  //to synchronize currentObject accessed by multiple threads
+  mutable QMutex currentObjectMutex;
   
   
   // Cached because of many requests from multiple threads
@@ -149,6 +153,7 @@ public:
    * Gets the current object from Diana GUI
    */
   fetObject getActiveObject(){
+    QMutexLocker locker(&currentObjectMutex);
     return currentObject;
   }
 	
