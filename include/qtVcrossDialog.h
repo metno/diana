@@ -200,7 +200,6 @@ private:
   QPixmap**  pmapTwoColors;
   QPixmap**  pmapThreeColors;
   int        nr_colors;
-  int        multiColors;
 
   QLabel*    linewidthlabel;
   QComboBox* lineWidthCbox;
