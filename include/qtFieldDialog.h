@@ -129,6 +129,7 @@ private:
     bool inEdit;
     bool external;     // from QuickMenu,...
     bool forecastSpec; // yet only if external
+    bool editPlot; //true: old field edit/false: profet
     int  indexMGR;
     int  indexM;
     miString modelName;

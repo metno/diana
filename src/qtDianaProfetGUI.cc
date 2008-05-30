@@ -567,15 +567,15 @@ void DianaProfetGUI::showField(miString param, miTime time){
     
     // First, remove previous PROFET fieldPlot (if any)
     if ( prevParam.length() ){
-      plotString = "REMOVE ";
-      plotString += "FIELD ";
-      plotString += "profet ";
-      plotString += prevParam;
+//       plotString = "REMOVE ";
+//       plotString += "FIELD ";
+//       plotString += "profet ";
+//       plotString += prevParam;
       emit showProfetField(plotString); //FieldManager->addField
     }
     
     // make plot string for new PROFET fieldPlot
-    plotString = "FIELD ";
+//     plotString = "FIELD ";
     plotString += "profet ";
     plotString += param;
     plotString += " overlay=1";

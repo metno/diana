@@ -584,10 +584,6 @@ m=UV_varslet+48 f=$(OPDATA1)/uv/mitiff/uv-fc.dat+2
 filegroup=SNAP
 m=SNAP.NRPA         f=/opdata_routine/snap/snap.felt
 
-profetfilegroup=PROFET
-m=profet	f=$(OPDATA1)/um4km/grdq00.dat
-m=profet.model	f=$(OPDATA1)/um4km/grdq00.dat
-
 </FIELD_FILES>
 
 

@@ -1153,6 +1153,8 @@ void FieldDialog::updateModelBoxes()
   cerr<<"FieldDialog::updateModelBoxes called"<<endl;
 #endif
 
+  //remove edit fields
+  fieldEditUpdate("");
   //keep old plots
   vector<miString> vstr=getOKString();
 
@@ -3289,7 +3291,7 @@ vector<miString> FieldDialog::getOKString()
       ostr <<"( ";
     }
 
-    if (selectedFields[i].inEdit)
+    if (selectedFields[i].inEdit && selectedFields[i].editPlot)
       ostr << editName;
     else
       ostr << selectedFields[i].modelName;
@@ -3355,9 +3357,13 @@ vector<miString> FieldDialog::getOKString()
     if (allTimeSteps)
       ostr << " allTimeSteps=on";
 
+    if(selectedFields[i].inEdit && !selectedFields[i].editPlot) {
+      ostr << " overlay=1";
+    }
+
     miString str;
 
-    if (selectedFields[i].inEdit) {
+    if (selectedFields[i].inEdit && selectedFields[i].editPlot) {
 
       str= "EDITFIELD " + ostr.str();
 
@@ -3714,7 +3720,7 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
     if (str.empty())
       str=vstr[ic];
 //######################################################################
-//    cerr << "P.OK>> " << vstr[ic] << endl;
+    //    cerr << "P.OK>> " << vstr[ic] << endl;
 //######################################################################
 
     //if prefix, remove it
@@ -4817,7 +4823,7 @@ void FieldDialog::updateTime(){
     int nr=0;
 
     for (int i=0; i<m; i++) {
-      if (!selectedFields[i].inEdit) {
+      if (!selectedFields[i].inEdit || !selectedFields[i].editPlot) {
 	request.push_back(ftr);
         request[nr].modelName=  selectedFields[i].modelName;
         request[nr].fieldName=  selectedFields[i].fieldName;
@@ -4861,7 +4867,7 @@ void FieldDialog::updateTime(){
 
 void FieldDialog::addField(miString str) 
 {
-
+  //  cerr <<"void FieldDialog::addField(miString str) "<<endl;
   bool remove = false;
   vector<miString> token = str.split(1," ",true);
   if(token.size()==2 && token[0]=="REMOVE") {
@@ -4954,10 +4960,12 @@ void FieldDialog::fieldEditUpdate(miString str) {
     int indrm= -1;
     SelectedField sf;
     vector<miString> vstr= str.split(' ');
+    miString modelname;
+    miString fieldname;
     if (vstr.size()>=2) {
       // new edit field
-      miString modelname= vstr[0];
-      miString fieldname= vstr[1];
+      modelname= vstr[0];
+      fieldname= vstr[1];
       for (i=0; i<n; i++) {
         if (!selectedFields[i].inEdit) {
 	  if (selectedFields[i].modelName==modelname &&
@@ -4968,55 +4976,58 @@ void FieldDialog::fieldEditUpdate(miString str) {
 	sf= selectedFields[i];
 	indrm= i;
 	found= true;
-      }
-    } else if (vstr.size()==1) {
+      } 
+    }
+    
+
+    if (vstr.size()==1 || !found) {
       // open/combine edit field
-      miString fieldname= vstr[0];
+      if (vstr.size()==1 ) fieldname= vstr[0];
       map<miString,miString>::const_iterator pfo;
+      sf.modelName= modelname;
+      sf.fieldName= fieldname;
       if ((pfo=fieldOptions.find(fieldname.downcase()))!=fieldOptions.end()) {
-	sf.fieldName= fieldname;
 	sf.fieldOpts= pfo->second;
-	found= true;
       }
     }
-    if (found) {
-      sf.inEdit=     true;
-      sf.indexMGR=   -1;
-      sf.indexM=     -1;
-      sf.hourOffset=  0;
-      sf.hourDiff=    0;
-      sf.minus=   false;
-      if (indrm>=0) {
-	selectedField2edit.push_back(selectedFields[indrm]);
-	selectedField2edit_exists.push_back(true);
-	n= selectedFields.size();
-	for (i=indrm; i<n-1; i++)
-	  selectedFields[i]= selectedFields[i+1];
-	selectedFields.pop_back();
-	selectedFieldbox->takeItem(indrm);
-      } else {
-        SelectedField sfdummy;
-	selectedField2edit.push_back(sfdummy);
-	selectedField2edit_exists.push_back(false);
-      }
 
-      vector<ParsedCommand> vpopt= cp->parse( sf.fieldOpts );
-      cp->replaceValue(vpopt,"field.smooth","0",0);
-      sf.fieldOpts= cp->unParse(vpopt);
-
+    sf.inEdit=     true;
+    sf.editPlot=   (sf.modelName.downcase() != "profet");
+    sf.indexMGR=   -1;
+    sf.indexM=     -1;
+    sf.hourOffset=  0;
+    sf.hourDiff=    0;
+    sf.minus=   false;
+    if (indrm>=0) {
+      selectedField2edit.push_back(selectedFields[indrm]);
+      selectedField2edit_exists.push_back(true);
       n= selectedFields.size();
+      for (i=indrm; i<n-1; i++)
+	selectedFields[i]= selectedFields[i+1];
+      selectedFields.pop_back();
+      selectedFieldbox->takeItem(indrm);
+    } else {
       SelectedField sfdummy;
-      selectedFields.push_back(sfdummy);
-      for (i=n; i>numEditFields; i--)
-	selectedFields[i]= selectedFields[i-1];
-      selectedFields[numEditFields]= sf;
-      miString text= editName + " " + sf.fieldName;
-      selectedFieldbox->insertItem(numEditFields,QString(text.c_str()));
-      selectedFieldbox->setCurrentRow(numEditFields);
-      numEditFields++;
-
-      updateTime();
+      selectedField2edit.push_back(sfdummy);
+      selectedField2edit_exists.push_back(false);
     }
+
+    vector<ParsedCommand> vpopt= cp->parse( sf.fieldOpts );
+    cp->replaceValue(vpopt,"field.smooth","0",0);
+    sf.fieldOpts= cp->unParse(vpopt);
+    
+    n= selectedFields.size();
+    SelectedField sfdummy;
+    selectedFields.push_back(sfdummy);
+    for (i=n; i>numEditFields; i--)
+      selectedFields[i]= selectedFields[i-1];
+    selectedFields[numEditFields]= sf;
+    miString text= editName + " " + sf.fieldName;
+    selectedFieldbox->insertItem(numEditFields,QString(text.c_str()));
+    selectedFieldbox->setCurrentRow(numEditFields);
+    numEditFields++;
+
+    updateTime();
   }
 
   if (!selectedFields.empty())

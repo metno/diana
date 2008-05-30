@@ -1611,7 +1611,7 @@ bool DianaMainWindow::initProfet(){
       connect(profetGUI, SIGNAL(setPaintMode(bool)), 
           this, SLOT(setPaintMode(bool)));
       connect(profetGUI, SIGNAL(showProfetField(miString)), 
-          fm, SLOT(addField(miString)));
+          fm, SLOT(fieldEditUpdate(miString)));
       connect(profetGUI, SIGNAL(prepareAndPlot()), 
 	      SLOT(MenuOK()));
       connect( profetGUI, SIGNAL(repaintMap(bool)), 
