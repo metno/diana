@@ -899,8 +899,9 @@ void ObsPlot::obs_mslp(float *values)
   int numObs = obsp.size();
 
   for(  int i=0; i<numObs; i++){
-    if(obsp[i].fdata.count("PPPP") &&  values[i+startxy]<0.9e+35)
+    if(obsp[i].fdata.count("PPPP") &&  values[i+startxy]<0.9e+35){
       obsp[i].fdata["PPPP_mslp"]=obsp[i].fdata["PPPP"]-values[i+startxy];
+    }
   }
 
   plot();

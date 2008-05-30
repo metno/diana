@@ -2707,23 +2707,24 @@ void EditManager::plotSingleRegion()
 }
 
 
-bool EditManager::obs_mslp() {
+bool EditManager::obs_mslp(ObsPositions& obsPositions) {
 
   if (fedits.size()==0) return false;
 
   if (!fedits[0]->editfield) return false;
 
-  if ( plotm->obsarea.P() != fedits[0]->editfield->area.P() ){
-
-    gc.getPoints(plotm->obsarea, fedits[0]->editfield->area,
-		 plotm->numObs, plotm->obsx, plotm->obsy);
-    plotm->obsarea= fedits[0]->editfield->area;
+  //change projection if needed
+  if ( obsPositions.obsArea.P() != fedits[0]->editfield->area.P() ){
+    gc.getPoints(obsPositions.obsArea, fedits[0]->editfield->area,
+		 obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
+    obsPositions.obsArea= fedits[0]->editfield->area;
   }
 
+  //get values
   int interpoltype=1;
-  if (!fedits[0]->editfield->interpolate(plotm->numObs,
-					 plotm->obsx, plotm->obsy,
-			      		 plotm->mslpvalues,
+  if (!fedits[0]->editfield->interpolate(obsPositions.numObs,
+					 obsPositions.xpos, obsPositions.ypos,
+			      		 obsPositions.values,
 					 interpoltype)) return false;
 
   return true;

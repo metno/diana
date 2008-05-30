@@ -225,7 +225,7 @@ public:
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
   void plot(bool under, bool over);
   /// show difference between observed mslp and edited mslp
-  bool obs_mslp();
+  bool obs_mslp(ObsPositions& obsPositions);
   /// shows all hidden edit objects
   bool showAllObjects();
   /// login to the database

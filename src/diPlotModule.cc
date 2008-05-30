@@ -62,7 +62,7 @@ PlotModule::PlotModule()
    inEdit(false), apEditmessage(0),
    dorubberband(false), dopanning(false),
    keepcurrentarea(true), prodtimedefined(false),showanno(true),
-   obsx(0), obsy(0), obsnr(0)
+   obsnr(0)
 {
   oldx=newx=oldy=newy=0;
   mapdefined=false;
@@ -311,10 +311,6 @@ void PlotModule::prepareObs(const vector<miString>& inp){
 //     delete vop[i];
   vop.clear();
 
-  delete[] obsx;
-  obsx=NULL;
-  delete[] obsy;
-  obsy=NULL;
   obsnr =0;
   int n;
   ObsPlot *op;
@@ -1120,24 +1116,8 @@ void PlotModule::updatePlots()
       cerr << "ObsManager returned false from prepare" << endl;
   }
 
-  //get positions of the observations if PPPP-mslp is asked for
-  delete[] obsx;
-  obsx=NULL;
-  delete[] obsy;
-  obsy=NULL;
-  numObs=0;
-    for (i=0; i<n; i++){
-      if( vop[i]->mslp() )
-	numObs += vop[i]->numPositions();
-    }
-    if(numObs>0){
-      obsx = new float[numObs];
-      obsy = new float[numObs];
-      int num=0;
-      for (i=0; i<n; i++)
-	num = vop[i]->getPositions(obsx,obsy,num);
-      obsarea= splot.getMapArea();
-    }
+  //update list of positions ( used in "PPPP-mslp")
+  obsm->updateObsPositions(vop);
 
 
   // prepare met-objects
@@ -1278,7 +1258,6 @@ void PlotModule::plot(bool under, bool over)
 #ifdef DEBUGREDRAW
   cerr<<"PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
 #endif
-  int i,n,m;
 
   Colour cback(splot.getBgColour().cStr());
 
@@ -1319,208 +1298,231 @@ void PlotModule::plot(bool under, bool over)
     splot.setGcd(gcd);
   }
 
+  if(under){
+    plotUnder();
+  }
+
+  if(over){
+    plotOver();
+  }
+
+
+}
+
+
+
+// plot underlay ---------------------------------------
+void PlotModule::plotUnder()
+{
+  int i,n,m;
+
   Rectangle plotr= splot.getPlotSize();
 
-  if (under) { // draw underlay ---------------------------------------
+  Colour cback(splot.getBgColour().cStr());
 
-    // set correct worldcoordinates
-    glLoadIdentity();
-    glOrtho(plotr.x1,plotr.x2,plotr.y1,plotr.y2,-1,1);
+  // set correct worldcoordinates
+  glLoadIdentity();
+  glOrtho(plotr.x1,plotr.x2,plotr.y1,plotr.y2,-1,1);
+  
+  if (hardcopy) splot.addHCScissor(plotr.x1+0.0001,plotr.y1+0.0001,
+				   plotr.x2-plotr.x1-0.0002,
+				   plotr.y2-plotr.y1-0.0002);
 
-    if (hardcopy) splot.addHCScissor(plotr.x1+0.0001,plotr.y1+0.0001,
-				     plotr.x2-plotr.x1-0.0002,
-				     plotr.y2-plotr.y1-0.0002);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glClearColor(cback.fR(),cback.fG(),cback.fB(),cback.fA());
-    glClear( GL_COLOR_BUFFER_BIT |
-	     GL_DEPTH_BUFFER_BIT |
-	     GL_STENCIL_BUFFER_BIT);
-
-    // draw background (for hardcopy)
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glColor4f(cback.fR(),cback.fG(),cback.fB(),cback.fA());
-    const float d= 0;
-    glRectf(plotr.x1+d,plotr.y1+d,plotr.x2-d,plotr.y2-d);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDisable(GL_BLEND);
-
-    // plot map-elements for lowest zorder
-    n= vmp.size();
-    for (i=0; i<n; i++){
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  
+  glClearColor(cback.fR(),cback.fG(),cback.fB(),cback.fA());
+  glClear( GL_COLOR_BUFFER_BIT |
+	   GL_DEPTH_BUFFER_BIT |
+	   GL_STENCIL_BUFFER_BIT);
+  
+  // draw background (for hardcopy)
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColor4f(cback.fR(),cback.fG(),cback.fB(),cback.fA());
+  const float d= 0;
+  glRectf(plotr.x1+d,plotr.y1+d,plotr.x2-d,plotr.y2-d);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glDisable(GL_BLEND);
+  
+  // plot map-elements for lowest zorder
+  n= vmp.size();
+  for (i=0; i<n; i++){
 #ifdef DEBUGPRINT
-      cerr << "Kaller plot til mapplot number:" << i << endl;
+    cerr << "Kaller plot til mapplot number:" << i << endl;
 #endif
-      vmp[i]->plot(0);
-    }
-
-    // plot satellite images
-    n= vsp.size();
-    for (i=0; i<n; i++){
-#ifdef DEBUGPRINT
-      cerr << "Kaller plot til satplot number:" << i << endl;
-#endif
-      vsp[i]->plot();
-    }
-
-    // mark undefined areas/values in field (before map)
-    n= vfp.size();
-    for (i=0; i<n; i++){
-      if (vfp[i]->getUndefinedPlot()){
-#ifdef DEBUGPRINT
-	cerr << "Kaller plotUndefined til fieldplot number:" << i << endl;
-#endif
-	vfp[i]->plotUndefined();
-      }
-    }
-
-    // plot fields (shaded fields etc. before map)
-    n= vfp.size();
-    for (i=0; i<n; i++){
-      if (vfp[i]->getShadePlot()){
-#ifdef DEBUGPRINT
-	cerr << "Kaller plot til fieldplot number:" << i << endl;
-#endif
-	vfp[i]->plot();
-      }
-    }
-
-    // plot map-elements for auto zorder
-    n= vmp.size();
-    for (i=0; i<n; i++){
-#ifdef DEBUGPRINT
-      cerr << "Kaller plot til mapplot number:" << i << endl;
-#endif
-      vmp[i]->plot(1);
-    }
-
-    // plot locationPlots (vcross,...)
-    n= locationPlots.size();
-    for (i=0; i<n; i++)
-      locationPlots[i]->plot();
-
-    // plot fields (isolines, vectors etc. after map)
-    n= vfp.size();
-    for (i=0; i<n; i++){
-      if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer()){
-#ifdef DEBUGPRINT
-	cerr << "Kaller plot til fieldplot number:" << i << endl;
-#endif
-	vfp[i]->plot();
-      }
-    }
-
-    objects.changeProjection(splot.getMapArea());
-    objects.plot();
-
-    int n=vareaobjects.size();
-    for (i=0; i<n; i++){
-      vareaobjects[i].changeProjection(splot.getMapArea());
-      vareaobjects[i].plot();
-    }
-
-    n=stationPlots.size();
-    for (i=0; i<n; i++){
-      stationPlots[i]->plot();
-    }
-
-    // plot inactive edit fields/objects under observations
-    if (inEdit){
-      editm->plot(under, false);
-
-      // if obs-mslp, calc. values and plot observations,
-      // in underlay while not changing the field
-      if ( obsm->obs_mslp() &&
-	  (mapmode!=fedit_mode && mapmode!=combine_mode) ) {
-        mslpvalues = new float[numObs];
-        if (editm->obs_mslp()) {
-	  ObsPlot::clearPos();
-	  int m= vop.size();
-	  for (int i=0; i<m; i++)
-	    vop[i]->obs_mslp(mslpvalues);
-        }
-        delete[] mslpvalues;
-        mslpvalues = NULL;
-      }
-    }
-
-    // plot observations
-    if (!inEdit || !obsm->obs_mslp()){
-      ObsPlot::clearPos();
-      m= vop.size();
-      for (i=0; i<m; i++)
-	vop[i]->plot();
-    }
-
-    int nanno=vap.size();
-    for (int l=0; l<nanno; l++){
-      vector< vector<miString> > vvstr = vap[l]->getAnnotationStrings();
-      int nn=vvstr.size();
-      for (int k=0; k<nn; k++){
-	n= vfp.size();
-	for (int j=0; j<n; j++){
-	  vfp[j]->getDataAnnotations(vvstr[k]);
-	}
-	n= vop.size();
-	for (int j=0; j<n; j++){
-	  vop[j]->getDataAnnotations(vvstr[k]);
-	}
-      }
-      vap[l]->setAnnotationStrings(vvstr);
-    }
-
-    //plot trajectories
-    m= vtp.size();
-    for (i=0; i<m; i++)
-      vtp[i]->plot();
-
-    if (showanno && !inEdit){
-      // plot Annotations
-      n= vap.size();
-      for (i=0; i<n; i++){
-	//	cerr <<"i:"<<i<<endl;
-	vap[i]->plot();
-      }
-    }
-
-    if (hardcopy) splot.removeHCClipping();
+    vmp[i]->plot(0);
   }
   
+  // plot satellite images
+  n= vsp.size();
+  for (i=0; i<n; i++){
+#ifdef DEBUGPRINT
+    cerr << "Kaller plot til satplot number:" << i << endl;
+#endif
+    vsp[i]->plot();
+  }
+
+  // mark undefined areas/values in field (before map)
+  n= vfp.size();
+  for (i=0; i<n; i++){
+    if (vfp[i]->getUndefinedPlot()){
+#ifdef DEBUGPRINT
+      cerr << "Kaller plotUndefined til fieldplot number:" << i << endl;
+#endif
+      vfp[i]->plotUndefined();
+    }
+  }
+
+  // plot fields (shaded fields etc. before map)
+  n= vfp.size();
+  for (i=0; i<n; i++){
+    if (vfp[i]->getShadePlot()){
+#ifdef DEBUGPRINT
+      cerr << "Kaller plot til fieldplot number:" << i << endl;
+#endif
+      vfp[i]->plot();
+    }
+  }
+
+  // plot map-elements for auto zorder
+  n= vmp.size();
+  for (i=0; i<n; i++){
+#ifdef DEBUGPRINT
+    cerr << "Kaller plot til mapplot number:" << i << endl;
+#endif
+    vmp[i]->plot(1);
+  }
+
+  // plot locationPlots (vcross,...)
+  n= locationPlots.size();
+  for (i=0; i<n; i++)
+    locationPlots[i]->plot();
+
+  // plot fields (isolines, vectors etc. after map)
+  n= vfp.size();
+  for (i=0; i<n; i++){
+    if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer()){
+#ifdef DEBUGPRINT
+      cerr << "Kaller plot til fieldplot number:" << i << endl;
+#endif
+      vfp[i]->plot();
+    }
+  }
+
+  objects.changeProjection(splot.getMapArea());
+  objects.plot();
+
+  n=vareaobjects.size();
+  for (i=0; i<n; i++){
+    vareaobjects[i].changeProjection(splot.getMapArea());
+    vareaobjects[i].plot();
+  }
+
+  n=stationPlots.size();
+  for (i=0; i<n; i++){
+    stationPlots[i]->plot();
+  }
+
+  // plot inactive edit fields/objects under observations
+  if (inEdit){
+    editm->plot(true, false);
+  }
+
+  // if "PPPP-mslp", calc. values and plot observations,
+  //if inEdit use editField, if not use first "MSLP"-field
+  if ( obsm->obs_mslp() ){
+    if( inEdit && mapmode!=fedit_mode && mapmode!=combine_mode) {
+      // in underlay while not changing the field
+      if (editm->obs_mslp(obsm->getObsPositions())) {
+	obsm->calc_obs_mslp(vop);
+      }
+    } else if (!inEdit) {
+      for(int i=0; i<vfp.size();i++){
+	if (vfp[i]->obs_mslp(obsm->getObsPositions())) {
+	  obsm->calc_obs_mslp(vop);
+	  break;
+	}
+      }
+    }
+  }
+
+
+  // plot observations
+  if (!inEdit || !obsm->obs_mslp()){
+    ObsPlot::clearPos();
+    m= vop.size();
+    for (i=0; i<m; i++)
+      vop[i]->plot();
+  }
+
+  int nanno=vap.size();
+  for (int l=0; l<nanno; l++){
+    vector< vector<miString> > vvstr = vap[l]->getAnnotationStrings();
+    int nn=vvstr.size();
+    for (int k=0; k<nn; k++){
+      n= vfp.size();
+      for (int j=0; j<n; j++){
+	vfp[j]->getDataAnnotations(vvstr[k]);
+      }
+      n= vop.size();
+      for (int j=0; j<n; j++){
+	vop[j]->getDataAnnotations(vvstr[k]);
+      }
+    }
+    vap[l]->setAnnotationStrings(vvstr);
+  }
+
+  //plot trajectories
+  m= vtp.size();
+  for (i=0; i<m; i++)
+    vtp[i]->plot();
+
+  if (showanno && !inEdit){
+    // plot Annotations
+    n= vap.size();
+    for (i=0; i<n; i++){
+      //	cerr <<"i:"<<i<<endl;
+      vap[i]->plot();
+    }
+  }
+
+  if (hardcopy) splot.removeHCClipping();
+}
+
+  
+// plot overlay ---------------------------------------
+void PlotModule::plotOver()
+{
+
+  int i,n,m;
+
+  Rectangle plotr= splot.getPlotSize();
+
   // plot GridAreas (polygons)
-  if(aream && over) aream->plot();
+  if(aream) aream->plot();
 
 // Check this!!!  
-  if(over) {
     n= vfp.size();
     for (i=0; i<n; i++){
       if (vfp[i]->overlayBuffer() && !vfp[i]->getShadePlot()){
 	vfp[i]->plot();
       }
     }
-  }
 
   // plot active draw- and editobjects here
-  if (inEdit && over){
+  if (inEdit){
 
     if (apEditmessage) apEditmessage->plot();
 
-    editm->plot(false, over);
+    editm->plot(false, true);
 
-    // if obs-mslp, calc. values and plot observations,
+    // if PPPP-mslp, calc. values and plot observations,
     // in overlay while changing the field
     if ( obsm->obs_mslp() &&
 	(mapmode==fedit_mode || mapmode==combine_mode) ) {
-      mslpvalues = new float[numObs];
-      if (editm->obs_mslp()) {
-	ObsPlot::clearPos();
-	int m= vop.size();
-	for (int i=0; i<m; i++)
-	  vop[i]->obs_mslp(mslpvalues);
+      if (editm->obs_mslp(obsm->getObsPositions()) {
+	obsm->calc_obs_mslp(vop);
       }
-      delete[] mslpvalues;
-      mslpvalues = NULL;
     }
 
     // Annotations
@@ -1535,77 +1537,77 @@ void PlotModule::plot(bool under, bool over)
 
   } // if inEdit
 
-  // Only plot in overlay
-  if (over) { // -- in overlay
 
-    if (hardcopy) splot.addHCScissor(plotr.x1+0.0001,plotr.y1+0.0001,
-				     plotr.x2-plotr.x1-0.0002,
-				     plotr.y2-plotr.y1-0.0002);
+  if (hardcopy) splot.addHCScissor(plotr.x1+0.0001,plotr.y1+0.0001,
+				   plotr.x2-plotr.x1-0.0002,
+				   plotr.y2-plotr.y1-0.0002);
 
-    // plot map-elements for highest zorder
-    n= vmp.size();
-    for (i=0; i<n; i++){
+  // plot map-elements for highest zorder
+  n= vmp.size();
+  for (i=0; i<n; i++){
 #ifdef DEBUGPRINT
-      cerr << "Kaller plot til mapplot number:" << i << endl;
+    cerr << "Kaller plot til mapplot number:" << i << endl;
 #endif
-      vmp[i]->plot(2);
-    }
-
-    splot.UpdateOutput();
-    splot.setDirty(false);
-
-    // frame (not needed if maprect==fullrect)
-    Rectangle mr= splot.getMapSize();
-    Rectangle fr= splot.getPlotSize();
-    if (mr!=fr || hardcopy) {
-      glShadeModel(GL_FLAT);
-      glColor3f(0.0,0.0,0.0);
-      glLineWidth(1.0);
-      mr.x1 += 0.0001;
-      mr.y1 += 0.0001;
-      mr.x2 -= 0.0001;
-      mr.y2 -= 0.0001;
-      glBegin(GL_LINES);
-      glVertex2f(mr.x1,mr.y1);
-      glVertex2f(mr.x2,mr.y1);
-      glVertex2f(mr.x2,mr.y1);
-      glVertex2f(mr.x2,mr.y2);
-      glVertex2f(mr.x2,mr.y2);
-      glVertex2f(mr.x1,mr.y2);
-      glVertex2f(mr.x1,mr.y2);
-      glVertex2f(mr.x1,mr.y1);
-      glEnd();
-    }
-
-    splot.UpdateOutput();
-    // plot rubberbox
-    if (dorubberband){
+    vmp[i]->plot(2);
+  }
+  
+  splot.UpdateOutput();
+  splot.setDirty(false);
+  
+  // frame (not needed if maprect==fullrect)
+  Rectangle mr= splot.getMapSize();
+  Rectangle fr= splot.getPlotSize();
+  if (mr!=fr || hardcopy) {
+    glShadeModel(GL_FLAT);
+    glColor3f(0.0,0.0,0.0);
+    glLineWidth(1.0);
+    mr.x1 += 0.0001;
+    mr.y1 += 0.0001;
+    mr.x2 -= 0.0001;
+    mr.y2 -= 0.0001;
+    glBegin(GL_LINES);
+    glVertex2f(mr.x1,mr.y1);
+    glVertex2f(mr.x2,mr.y1);
+    glVertex2f(mr.x2,mr.y1);
+    glVertex2f(mr.x2,mr.y2);
+    glVertex2f(mr.x2,mr.y2);
+    glVertex2f(mr.x1,mr.y2);
+    glVertex2f(mr.x1,mr.y2);
+    glVertex2f(mr.x1,mr.y1);
+    glEnd();
+  }
+  
+  splot.UpdateOutput();
+  // plot rubberbox
+  if (dorubberband){
 #ifdef DEBUGREDRAW
-      cerr<<"PlotModule::plot rubberband oldx,oldy,newx,newy: "
-          <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy<<endl;
+    cerr<<"PlotModule::plot rubberband oldx,oldy,newx,newy: "
+	<<oldx<<" "<<oldy<<" "<<newx<<" "<<newy<<endl;
 #endif
-      Rectangle fullr= splot.getPlotSize();
-      float x1= fullr.x1 + fullr.width()*oldx/float(plotw);
-      float y1= fullr.y1 + fullr.height()*oldy/float(ploth);
-      float x2= fullr.x1 + fullr.width()*newx/float(plotw);
-      float y2= fullr.y1 + fullr.height()*newy/float(ploth);
+    Rectangle fullr= splot.getPlotSize();
+    float x1= fullr.x1 + fullr.width()*oldx/float(plotw);
+    float y1= fullr.y1 + fullr.height()*oldy/float(ploth);
+    float x2= fullr.x1 + fullr.width()*newx/float(plotw);
+    float y2= fullr.y1 + fullr.height()*newy/float(ploth);
+    
+    Colour c= getContrastColour();
+    glColor4ubv(c.RGBA());
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth(2.0);
+    //glRectf(x1,y1,x2,y2); // Mesa problems ?
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(x1,y1);
+    glVertex2f(x2,y1);
+    glVertex2f(x2,y2);
+    glVertex2f(x1,y2);
+    glEnd();
+  }
 
-      Colour c= getContrastColour();
-      glColor4ubv(c.RGBA());
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      glLineWidth(2.0);
-      //glRectf(x1,y1,x2,y2); // Mesa problems ?
-      glBegin(GL_LINE_LOOP);
-      glVertex2f(x1,y1);
-      glVertex2f(x2,y1);
-      glVertex2f(x2,y2);
-      glVertex2f(x1,y2);
-      glEnd();
-    }
-    if (hardcopy) splot.removeHCClipping();
-  } // if overlay
+  if (hardcopy) splot.removeHCClipping();
 
-}
+} 
+
+
 
 
 void PlotModule::PlotAreaSetup(){
@@ -1724,10 +1726,6 @@ void PlotModule::cleanup(){
   vobsTimes.clear();
   vop.clear();
   //BAD!!!!!!obsm->clear();
-  delete[] obsx;
-  obsx=NULL;
-  delete[] obsy;
-  obsy=NULL;
 
   objects.clear();
   //BAD!!!!!!!!!!!!objm->clear();
@@ -2078,24 +2076,8 @@ void PlotModule::updateObs()
   }
 
 
-  //get positions of the observations if PPPP-mslp is asked for
-  delete[] obsx;
-  obsx=NULL;
-  delete[] obsy;
-  obsy=NULL;
-  numObs=0;
-  for (int i=0; i<nvop; i++){
-    if( vop[i]->mslp() )
-      numObs += vop[i]->numPositions();
-  }
-  if(numObs>0){
-    obsx = new float[numObs];
-    obsy = new float[numObs];
-    int num=0;
-    for (int i=0; i<nvop; i++)
-      num = vop[i]->getPositions(obsx,obsy,num);
-    obsarea= splot.getMapArea();
-  }
+  //update list of positions ( used in "PPPP-mslp")
+  obsm->updateObsPositions(vop);
 
   // get annotations from all plots
   setAnnotations();
@@ -2485,10 +2467,7 @@ void PlotModule::obsTime(const keyboardEvent& me, EventResult& res)
   if( obsnr == 0 && me.key==key_Right) return;
   if( obsnr > 20 && me.key==key_Left) return;
 
-  delete[] obsx;
-  obsx=NULL;
-  delete[] obsy;
-  obsy=NULL;
+  obsm->clearObsPositions();
 
   miTime newTime =splot.getTime();
   if(me.key==key_Left){
@@ -2531,33 +2510,11 @@ void PlotModule::obsTime(const keyboardEvent& me, EventResult& res)
     //ask last plot object which stations was plotted,
     //and tell this plot object
   for( int i=0; i<nvop; i++){
-      //      vop[i]->logStations();
-      //      vobsTimes[obsnr].vobsOneTime[i]->putStations(vop[i]->getStations());
       vop[i]=vobsTimes[obsnr].vobsOneTime[i];
     }
 
-  //########################################################################
-  //get positions of the observations if PPPP-mslp is asked for
-  delete[] obsx;
-  obsx=NULL;
-  delete[] obsy;
-  obsy=NULL;
-  numObs=0;
-  n= vop.size();
-  for (int i=0; i<n; i++){
-    if( vop[i]->mslp() )
-      numObs += vop[i]->numPositions();
-  }
-  if(numObs>0){
-    obsx = new float[numObs];
-    obsy = new float[numObs];
-    int num=0;
-    for (int i=0; i<n; i++)
-      num = vop[i]->getPositions(obsx,obsy,num);
-    obsarea= splot.getMapArea();
-  }
-
-  //########################################################################
+  //update list of positions ( used in "PPPP-mslp")
+  obsm->updateObsPositions(vop);
 
   miString labelstr;
   if (obsnr != 0 ){

@@ -628,6 +628,60 @@ vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
   return times;
 }
 
+void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
+{
+
+  if(!mslp) return;
+
+  clearObsPositions();
+
+  vector<float> xpos;
+  vector<float> ypos;
+  for( int i=0; i<oplot.size();i++){
+    oplot[i]->getPositions(xpos,ypos);
+  }
+
+  obsPositions.numObs=xpos.size();
+  obsPositions.xpos = new float[obsPositions.numObs];
+  obsPositions.ypos = new float[obsPositions.numObs];
+  obsPositions.values = new float[obsPositions.numObs];
+  for( int i=0; i<obsPositions.numObs;i++){
+    obsPositions.xpos[i]=xpos[i];
+    obsPositions.ypos[i]=ypos[i];
+  }
+
+  if(oplot.size()){
+    obsPositions.obsArea = oplot[0]->getMapArea();
+  }
+
+}
+
+void ObsManager::clearObsPositions()
+{
+  
+  obsPositions.numObs=0;
+  delete[] obsPositions.xpos;
+  obsPositions.xpos=0;
+  delete[] obsPositions.ypos;
+  obsPositions.ypos=0;
+  delete[] obsPositions.values;
+  obsPositions.values=0;
+
+}
+
+
+void ObsManager::calc_obs_mslp(const vector<ObsPlot*> oplot)
+{
+
+  if(!mslp) return;
+  ObsPlot::clearPos();
+  int m= oplot.size();
+  for (int i=0; i<m; i++){
+    oplot[i]->obs_mslp(obsPositions.values);
+  }
+
+}
+
 ObsDialogInfo ObsManager::initDialog()
 {
 

@@ -35,6 +35,7 @@
 #include <miString.h>
 #include <vector>
 #include <diColour.h>
+#include <diArea.h>
 
 using namespace std;
 
@@ -210,6 +211,15 @@ struct ObsDialogInfo{
   miString defValues;
 };
 
+
+struct ObsPositions {
+  Area obsArea;
+  int numObs;
+  float* xpos;
+  float* ypos;
+  float* values;
+  ObsPositions():numObs(0),xpos(0),ypos(0),values(0){}
+};
 
 //--------------------------------------------------
 // Objects/Edit

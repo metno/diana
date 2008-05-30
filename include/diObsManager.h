@@ -118,6 +118,7 @@ private:
 
   bool useArchive; //read archive files too.
   bool mslp;
+  ObsPositions obsPositions;
   
   //HQC - perhaps its own class?
   vector<ObsData> hqcdata;
@@ -177,6 +178,10 @@ public:
 // return observation times for list of obsTypes
   vector<miTime> getObsTimes(const vector<miString>& obsTypes);
   bool obs_mslp(){return mslp;}
+  void updateObsPositions(const vector<ObsPlot*> oplot);
+  ObsPositions& getObsPositions(){  return obsPositions;}
+  void clearObsPositions();
+  void calc_obs_mslp(const vector<ObsPlot*> oplot);
   void archiveMode( bool on ){useArchive=on;}
 //  HQC
   ObsDialogInfo updateHqcDialog(const miString& plotType);

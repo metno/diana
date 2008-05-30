@@ -85,6 +85,7 @@ public:
   bool plotNumbers();
   miString getModelName();
   miString getTrajectoryFieldName();
+  bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
 
 private:

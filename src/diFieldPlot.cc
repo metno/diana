@@ -3885,6 +3885,33 @@ miString FieldPlot::getTrajectoryFieldName()
   return str;
 }
 
+bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
+
+  if (!enabled || fields.size()!=1) return false;
+
+  if ( !fields[0] ) return false;
+
+  if (fields[0]->name.downcase() != "mslp") return false;
+
+  if (!fields[0]->data) return false;
+
+  //change projection if needed
+  if ( obsPositions.obsArea.P() != fields[0]->area.P() ){
+    gc.getPoints(obsPositions.obsArea, fields[0]->area,
+		 obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
+    obsPositions.obsArea= fields[0]->area;
+  }
+
+  //get values
+  int interpoltype=1;
+  if (!fields[0]->interpolate(obsPositions.numObs,
+					 obsPositions.xpos, obsPositions.ypos,
+			      		 obsPositions.values,
+					 interpoltype)) return false;
+
+  return true;
+}
+
 bool FieldPlot::fieldsOK()
 {
 

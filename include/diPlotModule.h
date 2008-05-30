@@ -117,11 +117,6 @@ private:
   bool resizezoom;      // should resizing zoom splot.area?
   bool showanno;        // show standard annotations
 
-  //calc. of obs-mslp
-  float *obsx, *obsy, *mslpvalues;
-  int numObs;
-  Area obsarea;
-
   // postscript production members
   printOptions printoptions;
   bool hardcopy;
@@ -170,6 +165,10 @@ private:
   static GridConverter gc;   // gridconverter class
 
   void setEditMessage(const miString&); // special Edit message (shown region,...)
+  //Plot underlay
+  void plotUnder();
+  //Plot overlay
+  void plotOver();
 
   // copy-constructor and assignment illegal
   PlotModule(const PlotModule &rhs){}
