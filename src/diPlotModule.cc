@@ -1520,7 +1520,7 @@ void PlotModule::plotOver()
     // in overlay while changing the field
     if ( obsm->obs_mslp() &&
 	(mapmode==fedit_mode || mapmode==combine_mode) ) {
-      if (editm->obs_mslp(obsm->getObsPositions()) {
+      if (editm->obs_mslp(obsm->getObsPositions())) {
 	obsm->calc_obs_mslp(vop);
       }
     }
