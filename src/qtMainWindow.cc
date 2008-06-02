@@ -97,7 +97,6 @@
 #include <qtObjectDialog.h>
 #include <qtTrajectoryDialog.h>
 #include <qtHelpDialog.h>
-#include "qtDianaProfetGUI.h"
 #include <qtPrintManager.h>
 #include <qtBrowserBox.h>
 #include <qtAddtoMenu.h>
@@ -111,8 +110,13 @@
 #include <qtPaintToolBar.h>
 #include <diGridAreaManager.h>
 #include <QErrorMessage>
+
+#ifdef PROFET
+#include "qtDianaProfetGUI.h"
 #include <profet/LoginDialog.h>
 #include <profet/ProfetCommon.h>
+#endif
+
 #include <pick.xpm>
 #include <earth3.xpm>
 #include <fileprint.xpm>
@@ -1571,7 +1575,11 @@ void DianaMainWindow::editMenu()
   showEditDialogAction->setChecked( b );
 }
 
-bool DianaMainWindow::initProfet(){
+bool DianaMainWindow::initProfet()
+{
+
+#ifdef PROFET
+
   miString error = "";
   if(!w || !w->Glw()) error += "GLwidget is NULL. ";
   if(!tslider) error += "TimeSlider is NULL. ";
@@ -1632,6 +1640,9 @@ bool DianaMainWindow::initProfet(){
     }
   }
   QApplication::restoreOverrideCursor();
+
+#endif
+
   return false;
 }
 
@@ -1653,6 +1664,8 @@ void DianaMainWindow::setTimeAndUpdatePlots(const miTime& t)
 
 
 void DianaMainWindow::toggleProfetGUI(){
+#ifdef PROFET
+
   if(!profetGUI){
     bool inited = initProfet();
     if(!inited) return;
@@ -1665,6 +1678,7 @@ void DianaMainWindow::toggleProfetGUI(){
   profetGUI->setVisible(turnOn);
   // Paint mode should not be possible when Profet is on
   togglePaintModeAction->setEnabled(!turnOn);
+#endif
 }
 
 void DianaMainWindow::objMenu()

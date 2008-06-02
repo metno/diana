@@ -15,7 +15,7 @@ LANGDIR=lang
 
 DEPENDSFILE=make.depends
 MOCFILE=make.moc
-DEFINES+=-DMETNOFIELDFILE  -DMETNOPRODDB -DMETNOOBS \
+DEFINES+=-DMETNOFIELDFILE  -DMETNOPRODDB -DMETNOOBS $(PROFETDEF)\
 	$(NETCDFDEF) $(BUFROBSDEF) $(LOGGDEF) $(CORBADEF)
 
 ifdef WDB
@@ -27,7 +27,13 @@ WDB_EXTRA_LIB=	-lboost_thread \
                 -lboost_date_time
 endif
 
-PROFETLIBS=-lpropoly -lprofet
+#PROFETLIBS=
+#PROFETINCLUDE=
+#ifndef NOPROFET
+#PROFETLIBS+=-lpropoly -lprofet
+#PROFETINCLUDE+= -I$(LOCALINC)/profet 
+#endif
+
 ifdef OMNIORB_INST
 PROFETLIBS+= -lpods
 endif
@@ -41,7 +47,6 @@ endif
 INCLUDE= -I. \
 	 -I$(INCDIR) \
 	 -I$(LOCALINC)/propoly \
-	 -I$(LOCALINC)/profet \
 	 -I$(LOCALINC)/proFunctions \
 	 -I$(LOCALINC)/qUtilities \
 	 -I$(LOCALINC)/puDatatypes \
@@ -74,7 +79,7 @@ INCLUDE= -I. \
 
 LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	-lqUtilities -lpuDatatypes \
-	-lglp -lglText -lrobs -ldiMItiff -ldiField -lprofet -lproFunctions -lmic -ldiSQL -lpuSQL \
+	-lglp -lglText -lrobs -ldiMItiff -ldiField -lpropoly -lproFunctions -lmic -ldiSQL -lpuSQL \
 	-lpuTools \
 	-L$(QTDIR)/lib $(QT_LIBS) \
 	$(GLLIBDIR) -lGL -lGLU $(GLXTRALIBS) \

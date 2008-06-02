@@ -45,8 +45,11 @@
 #include <set>
 #include <diColour.h>
 
+#ifdef PROFET
+
 #include <profet/ProfetController.h>
 #include <profet/ProfetGUI.h>
+#endif
 
 using namespace std;
 
@@ -81,7 +84,10 @@ private:
   SatManager    *satm;
   ObjectManager *objm;
   EditManager   *editm;
+#ifdef PROFET
   Profet::ProfetController * profetController;
+#endif
+
   GridAreaManager *aream;
 
   SetupParser setupParser;
@@ -347,6 +353,7 @@ public:
  vector<miString> writeLog();
  void readLog(const vector<miString>& vstr,
 	      const miString& thisVersion, const miString& logVersion);
+#ifdef PROFET
   bool initProfet();  
   /**
    * Register (connect) to profet
@@ -356,6 +363,7 @@ public:
   Profet::ProfetController * getProfetController(); 
   bool setProfetGUI(Profet::ProfetGUI * gui); 
   GridAreaManager * getAreaManager() { return aream; }
+#endif
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);  
 

@@ -18,10 +18,14 @@ diVprofManager.o diVprofPlot.o diVprofTables.o diVprofDiagram.o diVprofData.o \
 diVprofTemp.o diVprofPilot.o diVprofOptions.o diFtnVfile.o \
 diVcrossManager.o diVcrossPlot.o diVcrossOptions.o diVcrossFile.o \
 diSpectrumManager.o diSpectrumPlot.o diSpectrumOptions.o diSpectrumFile.o \
-diShapeObject.o diGridArea.o diGridAreaManager.o diProfetObjectFactory.o
+diShapeObject.o diGridArea.o diGridAreaManager.o 
 
 ifdef VIDEO_EXPORT
 CCOBJ+= MovieMaker.o
+endif
+
+ifndef NOPROFET
+CCOBJ += diProfetObjectFactory.o
 endif
 
 ifndef NOBUFROBS
@@ -56,9 +60,14 @@ qtVcrossWindow.o qtVcrossWidget.o \
 qtVcrossDialog.o qtVcrossSetupDialog.o qtVcrossSetup.o \
 qtSpectrumWindow.o qtSpectrumWidget.o \
 qtSpectrumModelDialog.o qtSpectrumSetupDialog.o \
-qtPaintToolBar.o qtProfetSessionDialog.o qtProfetSessionTable.o \
+qtPaintToolBar.o 
+
+ifndef NOPROFET
+QOBJ +=  qtProfetSessionDialog.o qtProfetSessionTable.o \
 qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o \
-qtProfetDataModels.o qtProfetSingleControl.o qtProfetTimeControl.o qtProfetTimeSmoothDialog.o
+qtProfetDataModels.o qtProfetSingleControl.o qtProfetTimeControl.o \
+qtProfetTimeSmoothDialog.o
+endif
 
 GOBJ= \
 main_gui.o \

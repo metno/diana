@@ -45,12 +45,15 @@
 // Default constructor
 Controller::Controller()
   : plotm(0), fieldm(0), obsm(0), satm(0), 
-    objm(0), editm(0), aream(0),editoverride(false),
-    profetController(0){
+    objm(0), editm(0), aream(0),editoverride(false)
+{
 #ifdef DEBUGPRINT
   cerr << "Controller Constructor" << endl;
 #endif
   // data managers
+#ifdef PROFET
+  profetController=0;
+#endif
   fieldm= new FieldManager;
   obsm= new ObsManager;
   satm= new SatManager;
@@ -67,7 +70,9 @@ Controller::Controller()
 
 // Destructor
 Controller::~Controller(){
+#ifdef PROFET
   delete profetController;
+#endif
   delete plotm;
   delete fieldm;
   delete obsm;
@@ -953,6 +958,7 @@ void Controller::setPaintModeEnabled(bool pm_enabled){
 	paintModeEnabled = pm_enabled;
 }
 
+#ifdef PROFET
 bool Controller::initProfet(){
   if(!fieldm) return false;
   if(!profetController){
@@ -980,6 +986,8 @@ bool Controller::registerProfetUser(const Profet::PodsUser & u){
 Profet::ProfetController * Controller::getProfetController(){
 	return profetController;
 }
+
+#endif
 
 
 

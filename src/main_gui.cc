@@ -82,8 +82,9 @@ int main(int argc, char **argv)
   opt.push_back(miCommandLine::option('h',"help",   0 ));
   opt.push_back(miCommandLine::option('l',"lang",   1 ));
   opt.push_back(miCommandLine::option('L',"logger", 1 ));
+#ifdef PROFET
   opt.push_back(miCommandLine::option('p',"profet", 0 ));
-
+#endif
 
   miCommandLine cl(opt,argc,argv);
 
