@@ -2755,6 +2755,12 @@ m=EC.12-4      g=98:504  f=$(OPDATA1)/ec/flte12.dat-4
 m=EC300.12-4   g=98:533  f=$(OPDATA1)/ec/flte12.dat-4
 m=EC.12-5      g=98:504  f=$(OPDATA1)/ec/flte12.dat-5
 m=EC300.12-5   g=98:533  f=$(OPDATA1)/ec/flte12.dat-5
+m=EC.00-1      g=98:504  f=$(OPDATA1)/ec/flte00.dat-1 	 
+m=EC300.00-1   g=98:533  f=$(OPDATA1)/ec/flte00.dat-1 	 
+m=EC.00-2      g=98:504  f=$(OPDATA1)/ec/flte00.dat-2 	 
+m=EC300.00-2   g=98:533  f=$(OPDATA1)/ec/flte00.dat-2 	 
+m=EC.00-3      g=98:504  f=$(OPDATA1)/ec/flte00.dat-3 	 
+m=EC300.00-3   g=98:533  f=$(OPDATA1)/ec/flte00.dat-3
 m=EC.GEO.NY.00-1  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-1
 m=EC.GEO.NY.00-2  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-2
 m=EC.GEO.NY.00-3  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-3
