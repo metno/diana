@@ -282,7 +282,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
   }
   else{
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
-  }
+  } 
 }
 
 void DianaProfetGUI::objectSelected(const QModelIndex & index){
@@ -324,7 +324,6 @@ void DianaProfetGUI::saveObject(){
     areaManager->changeAreaId("newArea",safeCopy.id());
   }
   currentObject.setReason(objectDialog.getReason());
-  
   try{
     controller.saveObject(safeCopy);
     currentObjectMutex.lock();
@@ -500,6 +499,7 @@ void DianaProfetGUI::createNewObject(){
   objectDialog.setParameter(getCurrentParameter());
   objectDialog.setBaseObjects(baseObjects);
   objectDialog.newObjectMode();
+  currentObject = fetObject(); // new id
   // select first base object
   // currentObject is reset
   objectDialog.selectDefault();
@@ -509,6 +509,7 @@ void DianaProfetGUI::createNewObject(){
 
 void DianaProfetGUI::editObject(){
   LOG4CXX_DEBUG(logger,"editObject");
+  string error = "";
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
     objectDialog.setSession(getCurrentTime());
@@ -520,21 +521,20 @@ void DianaProfetGUI::editObject(){
     currentObjectMutex.unlock();
     controller.openObject(fo);
     setObjectDialogVisible(true);
+    sessionDialog.enableObjectButtons(false,false);
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
     // Area always ok for a saved object(?)
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
-  }catch(Profet::ServerException & se){
-    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-                "Edit Object Failed","",se.what());
-    showMessage(m);
-    return;
-  }catch(InvalidIndexException & iie){
-    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-                "Edit Object Failed","","Unable to find selected object.");
-    showMessage(m);
-    return;
+  }catch(Profet::ServerException & se){ 
+    error = se.what();
+  }catch(InvalidIndexException & iie){ 
+    error = "Unable to find selected object.";
   }
-  sessionDialog.enableObjectButtons(false,false);
+  if(!error.empty()){
+    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+                "Edit Object Failed","",error);
+    showMessage(m);
+  }
 }
 
 void DianaProfetGUI::deleteObject(){
