@@ -81,7 +81,7 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	-lqUtilities -lpuDatatypes \
 	-lglp -lglText -lrobs -ldiMItiff -ldiField -lpropoly -lproFunctions -lmic -ldiSQL -lpuSQL \
 	-lpuTools \
-	-L$(QTDIR)/lib $(QT_LIBS) \
+	$(QTLIBDIR) $(QT_LIBS) \
 	$(GLLIBDIR) -lGL -lGLU $(GLXTRALIBS) \
 	$(MYSQLLIBDIR) -lmysqlclient \
 	$(TIFFLIBDIR) -ltiff \
