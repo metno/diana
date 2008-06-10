@@ -231,7 +231,11 @@ miString Plot::getPlotInfo(int n)
   vector<miString> token = pinfo.split(n," ",true);
   token.pop_back(); //remove last part
   miString str;
-  str.join(token," ");
+  //  str.join(token," ");
+  for(int i=0;i<token.size();i++){
+    str+=token[i];
+    if(i<token.size()-1) str+=" ";
+  }
   return str;
 }
 
