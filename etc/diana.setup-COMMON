@@ -3770,14 +3770,10 @@ image=ARKIV
 #---------------------------------------------------------------------------
 
 name=EPS.INFO       file=$(OPDATA2)/ec/ecmwf_eps.info
-name=HIRLAM.INFO.00 file=$(OPDATA2)/hirlam/status.00     font=fixed
-name=HIRLAM.INFO.06 file=$(OPDATA2)/hirlam/status.06     font=fixed
-name=HIRLAM.INFO.12 file=$(OPDATA2)/hirlam/status.12     font=fixed
-name=HIRLAM.INFO.18 file=$(OPDATA2)/hirlam/status.18     font=fixed
-name=Langtidsvarsel file=$(OPDATA2)/varsler/langtid.html
-name=Korttidsvarsel file=$(OPDATA2)/varsler/korttid.html
-name=Skredindex     file=$(OPDATA2)/varsler/skredidx.txt font=fixed
+name=Langtidsvarsel file=$(OPDATA2)/varsler/langtid-butikk.html
+name=Korttidsvarsel file=$(OPDATA2)/varsler/korttid-butikk.html
 name=Lyn            file=$(OPDATA2)/lyndata/ftp-transfer-heartbeat font=fixed
+name=Obsflagg       file=$(DIANADIR)/etc/obsflag.html
 </TEXT_INFORMATION_FILES>
 
 
