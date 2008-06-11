@@ -15,28 +15,38 @@ LANGDIR=lang
 
 DEPENDSFILE=make.depends
 MOCFILE=make.moc
-DEFINES+=-DMETNOFIELDFILE  -DMETNOPRODDB -DMETNOOBS \
+DEFINES+=-DMETNOFIELDFILE  -DMETNOPRODDB -DMETNOOBS $(PROFETDEF)\
 	$(NETCDFDEF) $(BUFROBSDEF) $(LOGGDEF) $(CORBADEF)
 
 ifdef WDB
 DEFINES += -DWDB
-WDB_LIB=-ldiWDB
+WDB_LIB=-ldiWdb
 WDB_EXTRA_LIB=	-lboost_thread \
-  				$(shell pkg-config --libs libpqxx) \
+                $(shell pkg-config --libs libpqxx) \
                 -L$(shell pg_config --libdir)  -lpq \
                 -lboost_date_time
 endif
 
-PROFETLIBS=-lpropoly -lprofet
+#PROFETLIBS=
+#PROFETINCLUDE=
+#ifndef NOPROFET
+#PROFETLIBS+=-lpropoly -lprofet
+#PROFETINCLUDE+= -I$(LOCALINC)/profet 
+#endif
+
 ifdef OMNIORB_INST
 PROFETLIBS+= -lpods
 endif
 
+ifdef VIDEO_EXPORT
+DEFINES+=-DVIDEO_EXPORT
+MAGICK_LIBS=-lMagick++
+endif
+
+
 INCLUDE= -I. \
 	 -I$(INCDIR) \
 	 -I$(LOCALINC)/propoly \
-	 -I$(LOCALINC)/profet \
-	 -I$(LOCALINC)/profetSQL \
 	 -I$(LOCALINC)/proFunctions \
 	 -I$(LOCALINC)/qUtilities \
 	 -I$(LOCALINC)/puDatatypes \
@@ -69,10 +79,9 @@ INCLUDE= -I. \
 
 LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	-lqUtilities -lpuDatatypes \
-	-lGLP -lglText -lrobs -ldiMItiff -ldiField -lprofet -lprofetSQL -lproFunctions -lmic -ldiSQL -lpuSQL \
-	$(WDB_LIB) \
+	-lglp -lglText -lrobs -ldiMItiff -ldiField -lpropoly -lproFunctions -lmic -ldiSQL -lpuSQL \
 	-lpuTools \
-	-L$(QTDIR)/lib $(QT_LIBS) \
+	$(QTLIBDIR) $(QT_LIBS) \
 	$(GLLIBDIR) -lGL -lGLU $(GLXTRALIBS) \
 	$(MYSQLLIBDIR) -lmysqlclient \
 	$(TIFFLIBDIR) -ltiff \
@@ -85,8 +94,10 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	$(F2CLIB) -lm \
 	$(UDUNITSLIB) \
 	$(NETCDFLIB) \
+	$(WDB_LIB) \
 	$(WDB_EXTRA_LIB) \
-	$(OMNI_LIBS)
+	$(OMNI_LIBS) \
+	$(MAGICK_LIBS)
 
 
 BLINKS= $(LINKS)
@@ -97,7 +108,8 @@ OPTIONS="CXX=${CXX}" "CCFLAGS=${CXXFLAGS} ${DEFINES}" \
 	"DEPENDSFILE=${DEPENDSFILE}" "BINDIR=../${BINDIR}" \
 	"LOCALDIR=${LOCALDIR}" "INCDIR=${INCDIR}" \
 	"LINKS=${LINKS}" "BLINKS=${BLINKS}" \
-	"QTDIR=${QTDIR}" "MOCFILE=${MOCFILE}" "LANGDIR=../${LANGDIR}"
+	"QTDIR=${QTDIR}" "MOC=${MOC}" "MOCFILE=../${MOCFILE}" \
+	 "LANGDIR=../${LANGDIR}"
 
 
 all: directories mocs depends mark diana bmark bdiana
