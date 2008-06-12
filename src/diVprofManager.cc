@@ -912,6 +912,9 @@ void VprofManager::renameAmdar(vector<miString>& namelist,
 		 	       vector<miTime>& tlist,
 		 	       map<miString,int>& amdarCount)
 {
+  //should not happen, but ...
+  if(namelist.size()!=tlist.size()) return; 
+
   if (!amdarStationList) readAmdarStationList();
 
   int n=namelist.size();
