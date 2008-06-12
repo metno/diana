@@ -212,7 +212,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups.push_back(new VcrossSetup(parent,THINARROWS,glayout,nrow++,opts));
 
   nrow++;
-  opts= VcrossSetup::useTextChoice2;
+  opts= VcrossSetup::useTextChoice;
   vcSetups.push_back(new VcrossSetup(parent,VERTICALTYPE,glayout,nrow++,opts));
   vector<miString> vchoice;
   vchoice.push_back("Standard/P");
@@ -222,7 +222,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vchoice.push_back("Height/m");
   vchoice.push_back("Height/Ft");
   n= vcSetups.size()-1;
-  vcSetups[n]->defineTextChoice2(vchoice,0);
+  vcSetups[n]->defineTextChoice(vchoice,0);
 
   nrow++;
   opts= (VcrossSetup::useOnOff | VcrossSetup::useValue);
