@@ -1466,7 +1466,6 @@ void VcrossDialog::disableFieldOptions(){
   downFieldButton->setEnabled( false );
   resetOptionsButton->setEnabled( false );
 
-  colorCbox->clear();
   colorCbox->setEnabled( false );
   shadingComboBox->setCurrentItem(0);
   shadingComboBox->setEnabled( false );
