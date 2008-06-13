@@ -1665,7 +1665,7 @@ bool FieldPlot::plotVector(){
 
   // for annotations .... should probably be resized if very small or large...
   vectorAnnotationSize= arrowlength;
-  vectorAnnotationText= miString(unitlength) + " m/s";
+  vectorAnnotationText= miString(unitlength) + poptions.vectorunitname;;
 
   // for arrow tip
   const float afac = -0.333333;
