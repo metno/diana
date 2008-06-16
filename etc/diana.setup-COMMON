@@ -306,8 +306,7 @@ file= $(DIANADIR)/etc/FDMD.quick
 
 
 <WDB_SETUP>
-#wdb_proff: host=stormy user=audunc port=5432 dbname=wdb wciuser=audunc
-stormy: host=stormy user=audunc port=5432 dbname=wdb wciuser=audunc
+wdb_proff: host=stormy user=audunc port=5432 dbname=wdb wciuser=audunc
 </WDB_SETUP>
 
 <WDB_PARAMETERS>
