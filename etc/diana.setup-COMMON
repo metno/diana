@@ -305,6 +305,21 @@ file= $(DIANADIR)/etc/FDMD.quick
 </QUICKMENUS>
 
 
+<WDB_SETUP>
+#wdb_proff: host=stormy user=audunc port=5432 dbname=wdb wciuser=audunc
+stormy: host=stormy user=audunc port=5432 dbname=wdb wciuser=audunc
+</WDB_SETUP>
+
+<WDB_PARAMETERS>
+mslp: paramid=58 parameter="instant pressure of air" leveldomain="distance above mean sea level" levelfrom=0 scale=0.01 
+tk2m: paramid=31 parameter="instant temperature of air" leveldomain="distance above ground" levelfrom=2 scale=1 
+u10m: paramid=33 parameter="instant velocity of air (u-component)" leveldomain="distance above ground" levelfrom=10 scale=1 
+v10m: paramid=34 parameter="instant velocity of air (v-component)" leveldomain="distance above ground" levelfrom=10 scale=1 
+tk2mland: paramid=0 parameter="instant temperature of land" leveldomain="distance above ground" levelfrom=2 scale=1 
+accumprecip: paramid=17 parameter="accumulated surface density of precipitation" leveldomain="distance above ground" levelfrom=0 scale=1
+totcloud: paramid=0 parameter="instant proportion of cloud cover, total" leveldomain="distance above ground" levelfrom=0 scale=1 
+</WDB_PARAMETERS>
+
 
 <METNOFIELDFILE_PARAMETERS>
 
