@@ -4390,6 +4390,7 @@ m=ORMEN.4KM f=$(OPDATA2)/vpv/vc4km_ormen.dat
 
 # atmospheric model parameters
 u=2 v=3 tk=4 q=9 rh=10 omega=13 th=18 etadot=11 w=12
+qcloud=22 
 turbulens=94 d1=122
 
 # ocean model parameters
@@ -4492,10 +4493,11 @@ name=FF_normal   plot=CONTOUR(ff_normal)      colour=red  line.interval=4.
 name=FF_tangent  plot=CONTOUR(ff_tangent)     colour=blue line.interval=4.
 name=FF_nord/sør plot=CONTOUR(ff_north_south) colour=red  line.interval=4.
 name=FF_øst/vest plot=CONTOUR(ff_east_west)   colour=blue line.interval=4.
-name=Virvling   plot=CONTOUR(virvling)  colour=red  line.interval=0.00001
-name=Divergens  plot=CONTOUR(divergens) colour=red  line.interval=0.00001
-name=Turbulens  plot=CONTOUR(turbulens)  colour=red   line.interval=0.5
-name=Duct       plot=CONTOUR(d1)    colour=black line.interval=10.
+name=Virvling    plot=CONTOUR(virvling)   colour=red   line.interval=0.00001
+name=Divergens   plot=CONTOUR(divergens)  colour=red   line.interval=0.00001
+name=Turbulens   plot=CONTOUR(turbulens)  colour=red   line.interval=0.5
+name=Duct        plot=CONTOUR(d1)         colour=black line.interval=10.
+name=QCLOUD      plot=CONTOUR(qcloud)     colour=red   line.interval=0.0001
 
 name=U(x_grid)  plot=CONTOUR(u)  colour=red  line.interval=4.
 name=V(y_grid)  plot=CONTOUR(v)  colour=blue line.interval=4.
