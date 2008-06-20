@@ -34,6 +34,8 @@
 #include <QEvent>
 #include <QMutex>
 #include <QMutexLocker>
+
+#include <diField/diProjectablePolygon.h>
 #include <profet/ProfetController.h>
 #include <profet/ProfetGUI.h>
 #include "qtProfetEvents.h"
@@ -76,8 +78,8 @@ private:
   fetSession currentSession;
   //to synchronize currentObject accessed by multiple threads
   mutable QMutex currentObjectMutex;
-  
-  
+  // temp copy of polygon to revert on cancel
+  ProjectablePolygon beforeEditPolygon;
   // Cached because of many requests from multiple threads
   miString currentParam;
   miTime currentTime;
@@ -91,9 +93,6 @@ private:
   void connectSignals();
   /// gets baseObjects index by name. returns -1 if not found
   int getBaseObjectIndex(miString name);
-//  int getObjectIndex(miString id);
-  
-  miString user;
   QWidget* parent;
 public:
   DianaProfetGUI(Profet::ProfetController & pc, 

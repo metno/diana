@@ -52,7 +52,6 @@ objectModel(p), tableModel(p), activeTimeSmooth(false)
   sessionDialog.setSessionModel(&sessionModel);
   sessionDialog.setObjectModel(&objectModel);
   sessionDialog.setTableModel(&tableModel);
-  user=getenv("USER");
   connectSignals();
   showPaintToolBar = true;
   showObjectDialog = false;
@@ -263,12 +262,12 @@ void DianaProfetGUI::baseObjectSelected(miString id){
       
       // TODO: fetch parent from somewhere...
       miString parent_ = "";
-
+      miString username = controller.getCurrentUser().name;
       currentObjectMutex.lock();
       currentObject = objectFactory.makeObject(baseObjects[i],
           areaManager->getCurrentPolygon(),
           getCurrentParameter(), getCurrentTime(),
-					       objectDialog.getReason(),user,refTime,parent_);
+					       objectDialog.getReason(),username,refTime,parent_);
       currentObjectMutex.unlock();
       LOG4CXX_DEBUG(logger,"calling controller.objectChanged");
       controller.objectChanged(currentObject);
@@ -463,7 +462,8 @@ void DianaProfetGUI::sessionSelected(int index){
 }
 
 void DianaProfetGUI::sendMessage(const QString & m){
-  Profet::InstantMessage message(miTime::nowTime(),0,user,"all",m.latin1());
+  miString username = controller.getCurrentUser().name;
+  Profet::InstantMessage message(miTime::nowTime(),0,username,"all",m.latin1());
   try{
     controller.sendMessage(message);
   }catch (Profet::ServerException & se) {
@@ -516,6 +516,7 @@ void DianaProfetGUI::editObject(){
     objectDialog.setParameter(getCurrentParameter());
     objectDialog.setBaseObjects(baseObjects);
     objectDialog.editObjectMode(fo,objectFactory.getGuiComponents(fo));
+    beforeEditPolygon = fo.polygon();
     currentObjectMutex.lock();
     currentObject=fo;
     currentObjectMutex.unlock();
@@ -661,11 +662,12 @@ void DianaProfetGUI::gridAreaChanged(){
           }
       	  // TODO: fetch parent from somewhere...
       	  miString parent_ = "";
+      	  miString username = controller.getCurrentUser().name;
       	  currentObjectMutex.lock();
           currentObject = objectFactory.makeObject(baseObjects[i],
 						   areaManager->getCurrentPolygon(),
 						   getCurrentParameter(), getCurrentTime(),
-						   objectDialog.getReason(),user,
+						   objectDialog.getReason(),username,
 						   refTime,parent_);
           currentObjectMutex.unlock();
         }
@@ -694,6 +696,7 @@ void DianaProfetGUI::cancelObjectDialog(){
     currentObjectMutex.lock();
     fetObject safeCopy = currentObject;
     currentObjectMutex.unlock();
+    areaManager->addArea(safeCopy.id(),beforeEditPolygon,true);
     try{
       controller.closeObject(safeCopy);
     }catch (Profet::ServerException & se) {
