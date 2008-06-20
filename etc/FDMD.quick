@@ -35,7 +35,7 @@ SAT Radar-nedbør Bømlo_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alpha=1 Table=0
 SAT Radar-nedbør Røst_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alpha=1 Table=0 hide=20,21,22,23,24,25,26,27, font=Helvetica face=normal
 MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 MAP map=Euro2 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=VA-Norge backcolour=white map=Euro3 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Euro3 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
@@ -58,7 +58,7 @@ SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0
 SAT Radar-nedbør Nedbørintensitet_mm/h PSC_RI timediff=60 mosaic=0 alpha=0.8 Table=1 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
 MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 MAP map=Euro2 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=VA-Norge backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
@@ -77,7 +77,7 @@ SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0
 OBJECTS NAME="met.no Bakkeanalyse" types=front,symbol,area,anno timediff=60 alpha=0.5
 MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 MAP map=Euro2 contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=VA-Norge backcolour=white map=Euro3 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=grey50 latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+MAP area=@UTSNITT backcolour=white map=Euro3 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=grey50 latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
@@ -118,7 +118,7 @@ SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0
 SAT Radar-nedbør Nedbørintensitet_mm/h PSC_RI timediff=60 mosaic=0 alpha=0.8 Table=1 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
 MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 MAP map=Euro2 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=VA-Norge backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
@@ -144,7 +144,7 @@ LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=1
 #
 >4) VNN UM4/UM1 nedbørbomber i kveld 18UTC (Angi stor forskjell i maxverdier Diff>50%)
 FIELD UM.HL.4KM.00 NEDBØR.12T colour=dark_green linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=2 timediff=60  criteria=RRR>-0,plot;RRR>5,red
+FIELD UMEXP.N-Norge.1km.00 NEDBØR.12T colour=dark_green linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
 SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
 SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
 OBJECTS NAME="met.no Bakkeanalyse" types=front,symbol,area,anno timediff=60 alpha=0.5
