@@ -91,7 +91,9 @@ bool FieldPlot::getRealFieldArea(Area& a){
 
 // check if current data from plottime
 bool FieldPlot::updateNeeded(miString& pin){
-  if (ftime.undef() || ftime != ctime || fields.size()==0){
+  if (ftime.undef() || 
+      (ftime != ctime && !pinfo.contains("time="))
+      || fields.size()==0){
     pin= pinfo;
     return true;
   }
@@ -149,7 +151,7 @@ void FieldPlot::getFieldAnnotation(miString& s, Colour& c){
 // Extract plotting-parameters from PlotInfo.
 bool FieldPlot::prepare(const miString& pin)
 {
-  //  cerr <<"FieldPlot::prepare: "<<pin<<endl;
+//   cerr <<"FieldPlot::prepare: "<<pin<<endl;
   pinfo= pin;
   setPlotInfo(pin);
 
@@ -207,7 +209,7 @@ bool FieldPlot::prepare(const miString& pin)
 //  set list of field-pointers, update datatime
 bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
 
-  //  cerr <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime()<<endl;
+//   cerr <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime()<<endl;
 
   clearFields();
 

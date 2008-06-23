@@ -142,6 +142,7 @@ private:
     vector<miString> levelOptions;
     vector<miString> idnumOptions;
     bool minus;
+    miString time;
   };
 
   void updateModelBoxes();

@@ -1153,8 +1153,6 @@ void FieldDialog::updateModelBoxes()
   cerr<<"FieldDialog::updateModelBoxes called"<<endl;
 #endif
 
-  //remove edit fields
-  fieldEditUpdate("");
   //keep old plots
   vector<miString> vstr=getOKString();
 
@@ -3361,6 +3359,10 @@ vector<miString> FieldDialog::getOKString()
       ostr << " overlay=1";
     }
 
+    if(selectedFields[i].time.exists()) {
+      ostr << " time="<<selectedFields[i].time;
+    }
+
     miString str;
 
     if (selectedFields[i].inEdit && selectedFields[i].editPlot) {
@@ -4823,7 +4825,7 @@ void FieldDialog::updateTime(){
     int nr=0;
 
     for (int i=0; i<m; i++) {
-      if (!selectedFields[i].inEdit || !selectedFields[i].editPlot) {
+      if (!selectedFields[i].inEdit ){
 	request.push_back(ftr);
         request[nr].modelName=  selectedFields[i].modelName;
         request[nr].fieldName=  selectedFields[i].fieldName;
@@ -4988,6 +4990,16 @@ void FieldDialog::fieldEditUpdate(miString str) {
       sf.fieldName= fieldname;
       if ((pfo=fieldOptions.find(fieldname.downcase()))!=fieldOptions.end()) {
 	sf.fieldOpts= pfo->second;
+      }
+    }
+
+    // Searching for time=
+    int j=0;
+    while(j<vstr.size() && !vstr[j].downcase().contains("time=")) j++;
+    if(j<vstr.size()){
+      vector<miString> stokens=vstr[j].split("=");
+      if(stokens.size()==2){
+	sf.time = stokens[1];
       }
     }
 

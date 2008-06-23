@@ -1624,6 +1624,10 @@ bool DianaMainWindow::initProfet()
 	      SLOT(MenuOK()));
       connect( profetGUI, SIGNAL(repaintMap(bool)), 
           SLOT(plotProfetMap(bool)));
+      connect( profetGUI ,
+	       SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
+	       tslider,
+	       SLOT(insert(const miString&,const vector<miTime>&)));
       connect( profetGUI, SIGNAL(setTime(const miTime&)), 
 	       SLOT(setTimeAndUpdatePlots(const miTime&)));
       connect( profetGUI, SIGNAL(updateModelDefinitions()), 
@@ -1657,7 +1661,7 @@ void DianaMainWindow::plotProfetMap(bool objectsOnly){
 
 void DianaMainWindow::setTimeAndUpdatePlots(const miTime& t)
 {
-  //cerr << "---------- setTimeAndUpdatePlots:" << t << endl;
+  //  cerr << "---------- setTimeAndUpdatePlots:" << t << endl;
   tslider->setTime(t);
   TimeSelected();
 }
@@ -1672,9 +1676,6 @@ void DianaMainWindow::toggleProfetGUI(){
   }
   bool turnOn = !(profetGUI->isVisible());
   toggleProfetGUIAction->setChecked(turnOn);
-  if(fm) fm->enableProfet(turnOn);
-  else cerr << "FieldManager is NULL " <<endl;
-    
   profetGUI->setVisible(turnOn);
   // Paint mode should not be possible when Profet is on
   togglePaintModeAction->setEnabled(!turnOn);

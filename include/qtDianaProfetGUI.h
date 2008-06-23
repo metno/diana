@@ -83,8 +83,6 @@ private:
   // Cached because of many requests from multiple threads
   miString currentParam;
   miTime currentTime;
-  // Used to compare selected parameter with previous on replot
-  miString prevParam;
   // needed to keep 'show-status' after hide
   bool showPaintToolBar;
   bool showObjectDialog;
@@ -201,6 +199,7 @@ private slots:
 signals:
   void setPaintMode(bool);
   void showProfetField(miString field);
+  void emitTimes( const miString& ,const vector<miTime>& );
   void setTime(const miTime & t);
   void repaintMap(bool onlyObjects);
   void toggleProfetGui();

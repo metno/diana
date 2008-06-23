@@ -560,37 +560,31 @@ void DianaProfetGUI::hideProfetPerformed(){
 }
 
 void DianaProfetGUI::showField(miString param, miTime time){
+  cerr <<"show field "<<param<<" "<<time<<endl;
   LOG4CXX_DEBUG(logger,"show field "<<param<<" "<<time);
-  if ( param != prevParam ){ // has parameter changed?
-    LOG4CXX_DEBUG(logger,"show field parameter changed from "<< prevParam << " to " <<
-		  param);
-    miString plotString;
-    
-    // First, remove previous PROFET fieldPlot (if any)
-    if ( prevParam.length() ){
-//       plotString = "REMOVE ";
-//       plotString += "FIELD ";
-//       plotString += "profet ";
-//       plotString += prevParam;
-      emit showProfetField(plotString); //FieldManager->addField
-    }
-    
-    // make plot string for new PROFET fieldPlot
-//     plotString = "FIELD ";
-    plotString += "profet ";
-    plotString += param;
-    plotString += " overlay=1";
-    LOG4CXX_DEBUG(logger,"showField: "<<plotString);
-    emit showProfetField(plotString); //FieldManager->addField
-    
-    // will trigger MenuOK in qtMainWindow :-)
-    emit prepareAndPlot();
-  }
-  
-  prevParam = param;
-  cerr << "*** DianaProfetGUI::showField setting time: " << time.isoTime() << endl;
+
+  //send time(s) to TimeSlider and set time 
+  vector<miTime> vtime;
+  vtime.push_back(time);
+  emit emitTimes("product",vtime);
   emit setTime(time);
-  //  emit repaintMap(false);
+
+  // First, remove previous PROFET fieldPlot (if any)
+    emit showProfetField(""); //FieldDialog::fieldEditUpdate
+  
+  // make plot string for new PROFET fieldPlot
+  miString plotString;
+  plotString += "profet ";
+  plotString += param;
+  plotString += " time=";
+  plotString += time.isoTime("T");
+  plotString += " overlay=1";
+  LOG4CXX_DEBUG(logger,"showField: "<<plotString);
+  emit showProfetField(plotString); //FieldDialog::fieldEditUpdate
+  
+  // will trigger MenuOK in qtMainWindow :-)
+  emit prepareAndPlot();
+  
 }
 
 
@@ -749,7 +743,7 @@ void DianaProfetGUI::setVisible(bool visible){
   else{
     // First, remove previous PROFET fieldPlot (if any)
     if ( currentParam.length() ){
-      emit showProfetField("REMOVE FIELD profet " + currentParam);
+      emit showProfetField("");
       emit prepareAndPlot();
     }
     currentParam="";
