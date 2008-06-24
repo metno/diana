@@ -4998,13 +4998,15 @@ void FieldDialog::fieldEditUpdate(miString str) {
     while(j<vstr.size() && !vstr[j].downcase().contains("time=")) j++;
     if(j<vstr.size()){
       vector<miString> stokens=vstr[j].split("=");
-      if(stokens.size()==2){
-	sf.time = stokens[1];
+      if(stokens.size()==2){          //Profet edit, using FieldPlot
+ 	sf.time = stokens[1];
+	sf.editPlot=false;
+      } else {                        //Orig edit, using EditManager
+	sf.editPlot=false;	
       }
     }
 
     sf.inEdit=     true;
-    sf.editPlot=   (sf.modelName.downcase() != "profet");
     sf.indexMGR=   -1;
     sf.indexM=     -1;
     sf.hourOffset=  0;

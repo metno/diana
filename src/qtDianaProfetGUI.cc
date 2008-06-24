@@ -574,7 +574,7 @@ void DianaProfetGUI::showField(miString param, miTime time){
   
   // make plot string for new PROFET fieldPlot
   miString plotString;
-  plotString += "profet ";
+  plotString += "profet.work ";
   plotString += param;
   plotString += " time=";
   plotString += time.isoTime("T");
