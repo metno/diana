@@ -552,13 +552,13 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       plotm->nextObs(false);  // browse through observations, backwards
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.key==key_PageDown){
       plotm->nextObs(true);  // browse through observations, forwards
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.modifier!=key_Alt &&
 	       (me.key==key_F2 || me.key==key_F3 ||
@@ -568,7 +568,7 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       plotm->changeArea(me);
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.key==key_F9){
 //    cerr << "F9 - ikke definert" << endl;
@@ -585,7 +585,7 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       plotm->obsTime(me,res);  // change observation time only
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
       //####################################################################
      } else if (me.modifier!=key_Control &&
@@ -598,7 +598,7 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       plotm->sendKeyboardEvent(me,res);
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.key==key_R) {
       plotm->sendKeyboardEvent(me,res);
@@ -619,7 +619,7 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       res.action = keypressed;
   }
 
-  if (inEdit) // always use underlay when in edit-mode
+  if (inEdit || paintModeEnabled) // always use underlay when in edit-mode
     res.savebackground= true;
 
   return;
