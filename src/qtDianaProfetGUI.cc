@@ -192,7 +192,7 @@ void DianaProfetGUI::customEvent(QEvent * e){
     }
     else {
       objectModel.setObject(oue->object);
-      areaManager->addArea(oue->object.id(),oue->object.polygon(),true);
+      areaManager->updateArea(oue->object.id(),oue->object.polygon());
     }
   }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){ //SignatureListUpdateEvent
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;

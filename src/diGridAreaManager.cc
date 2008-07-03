@@ -193,6 +193,16 @@ bool GridAreaManager::addArea(miString id, ProjectablePolygon area, bool overwri
 	return foundNewArea;
 }
 
+bool GridAreaManager::updateArea(miString id, ProjectablePolygon area){
+  if(gridAreas.count(id)){
+    GridArea newArea(id,area);
+    newArea.updateCurrentProjection();
+    gridAreas[id] = newArea;
+    return true;
+  }
+  return false;
+}
+
 bool GridAreaManager::removeArea(miString id){
 	if(gridAreas.count(id)){
 		if(id == currentId)

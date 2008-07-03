@@ -98,7 +98,10 @@ public:
 	/// Adding new empty area with specified id (returns true if added)
 	bool addArea(miString id);
 	/// Adding specified area with specified id. (returns true if added)
+	/// Current area changed if added!
 	bool addArea(miString id, ProjectablePolygon area, bool overwrite);
+	/// Replaces area if id exist. Current area not affected.
+	bool updateArea(miString id, ProjectablePolygon area);
 	/// Change area id (returns true if success, false if old ID not found)
 	bool changeAreaId(miString oldId, miString newId);
 	/// Get area with specified id (returns empty polygon if ID not found)
