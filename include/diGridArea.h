@@ -38,6 +38,7 @@
 #include <diArea.h>
 #include <AbstractablePolygon.h>
 #include <miString.h>
+#include <list>
 #include <diProjectablePolygon.h>
 #include <triangulation.h>
 
@@ -73,6 +74,11 @@ private:
 	ProjectablePolygon editPolygon;
 	//Displayed polygon to be added or deleted
 	Polygon displayEditPolygon;
+	
+  list< ProjectablePolygon >  undobuffer;
+  list< ProjectablePolygon >  redobuffer;
+  static int maxBuffer;
+  
 	bool selected;
 	AreaMode mode;
 	Area getStandardProjection();
@@ -84,7 +90,8 @@ private:
 	double moveX;
 	double moveY;
 	void init(Area org, Area current);
-
+	// Add current polygon to undobuffer
+  void saveChange();
 	
 public:
 	GridArea();
@@ -131,8 +138,16 @@ public:
 	bool isSelected();
 	///Forced update to current diana projection 
 	void updateCurrentProjection();
-        /// set the list of Points which are actually affected by the mask
-        void setActivePoints(vector<Point>);
+  /// set the list of Points which are actually affected by the mask
+  void setActivePoints(vector<Point>);
+  /// true if undo is possible (buffer not empty)
+  bool isUndoPossible();
+  /// Perform undo. Returns true if success
+  bool undo();
+  /// true if redo is possible (buffer not empty)
+  bool isRedoPossible();
+  /// Perform redo. Returns true if success
+  bool redo();
 };
 
 #endif /*DIGRIDAREA_H_*/

@@ -192,7 +192,8 @@ private slots:
   void hideProfetPerformed();
 // PaintToolBar
   void paintModeChanged(GridAreaManager::PaintMode mode);
-  
+  void undoCurrentArea();
+  void redoCurrentArea();
   // MainWindow	
   void gridAreaChanged();
 	

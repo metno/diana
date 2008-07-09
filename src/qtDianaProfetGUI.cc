@@ -66,6 +66,10 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(paramAndTimeSelected(const QModelIndex &)));
   connect(paintToolBar,SIGNAL(paintModeChanged(GridAreaManager::PaintMode)),
       this,SLOT(paintModeChanged(GridAreaManager::PaintMode)));
+  connect(paintToolBar,SIGNAL(undoPressed()),
+      this,SLOT(undoCurrentArea()));
+  connect(paintToolBar,SIGNAL(redoPressed()),
+      this,SLOT(redoCurrentArea()));
   connect(&sessionDialog,SIGNAL(newObjectPerformed()),
       this,SLOT(createNewObject()));
   connect(&sessionDialog,SIGNAL(editObjectPerformed()),
@@ -620,6 +624,22 @@ void DianaProfetGUI::paintModeChanged(GridAreaManager::PaintMode mode){
   areaManager->setPaintMode(mode);
 }
 
+void DianaProfetGUI::undoCurrentArea(){
+  if(areaManager->isUndoPossible())
+    areaManager->undo();
+  paintToolBar->enableUndo(areaManager->isUndoPossible());
+  paintToolBar->enableRedo(areaManager->isRedoPossible());
+  gridAreaChanged();
+}
+
+void DianaProfetGUI::redoCurrentArea(){
+  if(areaManager->isRedoPossible())
+    areaManager->redo();
+  paintToolBar->enableUndo(areaManager->isUndoPossible());
+  paintToolBar->enableRedo(areaManager->isRedoPossible());
+  gridAreaChanged();
+}
+
 void DianaProfetGUI::gridAreaChanged(){
   LOG4CXX_DEBUG(logger,"gridAreaChanged");
   miString currentId = areaManager->getCurrentId();
@@ -679,6 +699,7 @@ void DianaProfetGUI::gridAreaChanged(){
   else{
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
   }
+  paintToolBar->enableUndo(areaManager->isUndoPossible());
 }
 
 void DianaProfetGUI::cancelObjectDialog(){

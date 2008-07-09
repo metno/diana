@@ -37,7 +37,8 @@
 #include <paint_move.xpm>
 //#include <paint_hide.xpm>
 #include <paint_cut.xpm>
-//#include <paint_undo.xpm>
+#include <paint_undo.xpm>
+#include <paint_redo.xpm>
 #include <paint_include.xpm>
 #include <paint_draw.xpm>
 //#include <paint_color.xpm>
@@ -60,6 +61,10 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   moveAction = new QAction( QPixmap(paint_move_xpm),tr("&Move"),this );
   moveAction->setToggleAction(true);
   connect( moveAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  undoAction = new QAction( QPixmap(paint_undo_xpm),tr("&Undo"),this );
+  connect( undoAction, SIGNAL( activated() ), SIGNAL( undoPressed() ) );
+  redoAction = new QAction( QPixmap(paint_redo_xpm),tr("&Redo"),this );
+  connect( redoAction, SIGNAL( activated() ), SIGNAL( redoPressed() ) );
 	
   modeActions = new QActionGroup(this);
   modeActions->add(selectAction);
@@ -73,6 +78,11 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   includeAction->addTo(this);
   cutAction->addTo(this);
   moveAction->addTo(this);
+  undoAction->addTo(this);
+  redoAction->addTo(this);
+  
+  enableUndo(false);
+  enableRedo(false);
 }
 
 void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
@@ -84,7 +94,9 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
   
   if(buttons == PaintToolBar::SELECT_ONLY){
     setPaintMode(GridAreaManager::SELECT_MODE);
-    selectAction->setEnabled(true);
+    selectAction->setEnabled(true);  
+    enableUndo(false);
+    enableRedo(false);
   }
   else if(buttons == PaintToolBar::PAINT_ONLY){
     setPaintMode(GridAreaManager::DRAW_MODE);
@@ -134,18 +146,16 @@ void PaintToolBar::sendPaintModeChanged(){
   emit paintModeChanged(getPaintMode());
 }
 
+void PaintToolBar::enableUndo(bool enable){
+  if(drawAction->isEnabled())
+    undoAction->setEnabled(enable);
+  else 
+    undoAction->setEnabled(false);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void PaintToolBar::enableRedo(bool enable){
+  if(drawAction->isEnabled())
+    redoAction->setEnabled(enable);
+  else 
+    redoAction->setEnabled(false);
+}

@@ -67,8 +67,6 @@ private:
     log4cxx::LoggerPtr logger;
 #endif
 	map<miString,GridArea> gridAreas;
-	list< map<miString,GridArea> > history; 
-	int maxHistoryLength;
 	miString currentId;
 	mapMode mapmode;
 	GridConverter gc;   // gridconverter class
@@ -77,10 +75,9 @@ private:
 	float newx,newy;
 	PaintMode paintMode;
 	bool changeCursor;
-        Area base_proj;
+  Area base_proj;
 	cursortype getCurrentCursor();
 	bool selectArea(Point p);
-	void saveHistory();
 	void updateSelectedArea();
 
 public:
@@ -118,6 +115,12 @@ public:
 	bool plot();
 	/// true if undo is possible (history available)
 	bool isUndoPossible();
+  /// Perform undo. Returns true if success
+  bool undo();
+  /// true if redo is possible (history available)
+  bool isRedoPossible();
+  /// Perform redo. Returns true if success
+  bool redo();
 	/// Sets selected area to specified id. Returns false if id not found.
 	bool setCurrentArea(miString id);
 	/// True if current area exist
@@ -126,8 +129,6 @@ public:
 	bool isAreaSelected();
 	/// True if an empty area is selected. (returns false if no area selected) 
 	bool isEmptyAreaSelected();
-	/// Perform undo. Returns true if success
-	bool undo();
 	/// Returns selected id;
 	miString getCurrentId();
 	/// Returns current mode as string
@@ -140,8 +141,8 @@ public:
 	void setBaseProjection(Area proj){base_proj = proj;}
 	/// Get number of Areas
 	int getAreaCount(){ return gridAreas.size(); }
-        /// set the list of Points which are actually affected by the mask
-        void setActivePoints(vector<Point>);
+  /// set the list of Points which are actually affected by the mask
+  void setActivePoints(vector<Point>);
 };
 
 
