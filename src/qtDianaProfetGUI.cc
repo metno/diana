@@ -520,7 +520,6 @@ void DianaProfetGUI::editObject(){
     objectDialog.setParameter(getCurrentParameter());
     objectDialog.setBaseObjects(baseObjects);
     objectDialog.editObjectMode(fo,objectFactory.getGuiComponents(fo));
-    beforeEditPolygon = fo.polygon();
     currentObjectMutex.lock();
     currentObject=fo;
     currentObjectMutex.unlock();
@@ -695,6 +694,9 @@ void DianaProfetGUI::gridAreaChanged(){
     currentObjectMutex.unlock();
     controller.objectChanged(safeCopy);
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
+    // select move mode after paint to avoid accidental redefinition
+    if(paintToolBar->getPaintMode() == GridAreaManager::DRAW_MODE)
+      paintToolBar->setPaintMode(GridAreaManager::MOVE_MODE);
   }
   else{
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
@@ -708,10 +710,11 @@ void DianaProfetGUI::cancelObjectDialog(){
     areaManager->removeCurrentArea();
   }
   if(!objectDialog.showingNewObject()){
+    while(areaManager->undo()) ;
+    gridAreaChanged();
     currentObjectMutex.lock();
     fetObject safeCopy = currentObject;
     currentObjectMutex.unlock();
-    areaManager->addArea(safeCopy.id(),beforeEditPolygon,true);
     try{
       controller.closeObject(safeCopy);
     }catch (Profet::ServerException & se) {
