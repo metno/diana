@@ -94,7 +94,11 @@ public:
   DianaProfetGUI(Profet::ProfetController & pc, 
 		 PaintToolBar * ptb, GridAreaManager * gam, QWidget * p);
   virtual ~DianaProfetGUI();
-  
+  /**
+   * Resets status information (users, objects ... )
+   * Used when disconnecting from data manager
+   */
+  void resetStatus();
   void setCurrentSession(const fetSession & session);
   void setBaseObjects(vector<fetBaseObject> objects);
   void setUser(const Profet::PodsUser & user);
@@ -151,8 +155,7 @@ public:
     QMutexLocker locker(&currentObjectMutex);
     return currentObject;
   }
-	
-	
+
   /**
    * set some statistic information for the current object
    */

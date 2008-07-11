@@ -80,6 +80,7 @@ public:
   void setUsers(const vector<PodsUser> & u);
   void setUser(const PodsUser & u);
   void removeUser(const PodsUser & u);
+  void clearModel();
 };
 
 
@@ -119,6 +120,7 @@ public:
   void setSession(const fetSession & s);
   void removeSession(const fetSession & s);
   QModelIndex getIndexByRefTime(const miTime & t);
+  void clearModel();
 };
 
 /**
@@ -162,6 +164,7 @@ public:
    * Connected views are updated
    */
   bool removeObject(const miString & id);
+  void clearModel();
 };
 
 class FetObjectTableModel : public QAbstractTableModel {
@@ -206,6 +209,7 @@ public:
     throw(InvalidIndexException&);
   miTime getCurrentTime() const throw(InvalidIndexException&);
   miString getCurrentParameter() const throw(InvalidIndexException&);
+  void clearModel();
 };
 
 }

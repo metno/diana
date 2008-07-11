@@ -355,13 +355,9 @@ public:
 	      const miString& thisVersion, const miString& logVersion);
 #ifdef PROFET
   bool initProfet();  
-  /**
-   * Register (connect) to profet
-   * @exception Profet::ServerException
-   */
-  bool registerProfetUser(const Profet::PodsUser & u);
+//  bool registerProfetUser(const Profet::PodsUser & u);
   Profet::ProfetController * getProfetController(); 
-  bool setProfetGUI(Profet::ProfetGUI * gui); 
+//  bool setProfetGUI(Profet::ProfetGUI * gui); 
   GridAreaManager * getAreaManager() { return aream; }
 #endif
   ///Enable and disable paint mode

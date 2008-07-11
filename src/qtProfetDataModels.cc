@@ -93,6 +93,11 @@ void UserListModel::removeUser(const PodsUser & u) {
   }
 }
 
+void UserListModel::clearModel(){
+  users.clear();
+  reset();
+}
+
 //  *** FetSessionListModel ***
 
 
@@ -176,6 +181,11 @@ QModelIndex SessionListModel::getIndexByRefTime(const miTime & t){
   return QModelIndex();
 }
 
+void SessionListModel::clearModel(){
+  sessions.clear();
+  reset();
+}
+
 //  *** FetObjectListModel *** 
 
 QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
@@ -252,6 +262,11 @@ bool FetObjectListModel::removeObject(const miString & id){
     }
   }
   return false;
+}
+
+void FetObjectListModel::clearModel(){
+  objects.clear();
+  reset();
 }
 
 //  *** FetObjectTableModel ***
@@ -397,6 +412,16 @@ bool  FetObjectTableModel::removeObjectSignature(const miString & id) {
     }
   }
   return false;
+}
+
+void FetObjectTableModel::clearModel(){
+  objects.clear();
+  parameters.clear();
+  times.clear();
+  paramIndexMap.clear();
+  timeIndexMap.clear();
+  signatureIndexMap.clear();
+  reset();
 }
 
 miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(

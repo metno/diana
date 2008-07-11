@@ -966,7 +966,7 @@ bool Controller::initProfet(){
   }
   return true;
 }
-
+/*
 bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
 	if(profetController){
 		profetController->setGUI(gui);
@@ -975,14 +975,19 @@ bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
 	return false;
 }
 
-bool Controller::registerProfetUser(const Profet::PodsUser & u){
+bool Controller::profetConnect(const Profet::PodsUser & user, 
+    Profet::DataManagerType & type){
   if(profetController){
-    profetController->registerUser(u); // throws Profet::ServerException
+    type = profetController->registerUser(user,type); // throws Profet::ServerException
     return true;
   }
   return false;
 }
 
+void Controller::profetDisconnect(){
+  if(profetController){
+}
+*/
 Profet::ProfetController * Controller::getProfetController(){
 	return profetController;
 }

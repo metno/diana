@@ -454,6 +454,8 @@ private:
   void vcrossStartup();
   void spectrumStartup();
   bool initProfet();
+  bool profetConnect();
+  void profetDisconnect();
 };
 
 

@@ -1575,11 +1575,8 @@ void DianaMainWindow::editMenu()
   showEditDialogAction->setChecked( b );
 }
 
-bool DianaMainWindow::initProfet()
-{
-
+bool DianaMainWindow::initProfet(){
 #ifdef PROFET
-
   miString error = "";
   if(!w || !w->Glw()) error += "GLwidget is NULL. ";
   if(!tslider) error += "TimeSlider is NULL. ";
@@ -1591,63 +1588,92 @@ bool DianaMainWindow::initProfet()
     return false;
   }
     
+  try{
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+    contr->initProfet(); //ProfetController created if not exist
+    if(contr->getProfetController()) {
+      profetGUI = new DianaProfetGUI(*contr->getProfetController(),
+          paintToolBar, contr->getAreaManager(), this);
+      contr->getProfetController()->setGUI(profetGUI);
+    }else{
+      QMessageBox::warning(0,"Init profet failed",
+          "ProfetController is null");
+      QApplication::restoreOverrideCursor();
+      return false;
+    }
+    connect(w->Glw(), SIGNAL(gridAreaChanged()),
+      profetGUI, SLOT(gridAreaChanged()));
+    connect(profetGUI, SIGNAL(toggleProfetGui()),
+        this,SLOT(toggleProfetGUI()));
+    connect(profetGUI, SIGNAL(setPaintMode(bool)), 
+        this, SLOT(setPaintMode(bool)));
+    connect(profetGUI, SIGNAL(showProfetField(miString)), 
+        fm, SLOT(fieldEditUpdate(miString)));
+    connect(profetGUI, SIGNAL(prepareAndPlot()), 
+      SLOT(MenuOK()));
+    connect( profetGUI, SIGNAL(repaintMap(bool)), 
+        SLOT(plotProfetMap(bool)));
+    connect( profetGUI ,
+       SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
+       tslider,
+       SLOT(insert(const miString&,const vector<miTime>&)));
+    connect( profetGUI, SIGNAL(setTime(const miTime&)), 
+       SLOT(setTimeAndUpdatePlots(const miTime&)));
+    connect( profetGUI, SIGNAL(updateModelDefinitions()), 
+       fm,SLOT(updateModels()) );
+    QApplication::restoreOverrideCursor();
+    return true;
+  }catch(Profet::ServerException & se){
+    profetLoginError->showMessage(se.what());
+  }
+  QApplication::restoreOverrideCursor();
+
+#endif
+  return false;
+}
+
+
+bool DianaMainWindow::profetConnect(){
+#ifdef PROFET
+  miString error = "";
   Profet::LoginDialog loginDialog;
   loginDialog.setUsername(QString(getenv("USER")));
   loginDialog.setRoles((QStringList() << "forecast" << "observer"));
 
   if(loginDialog.exec()){ // OK button pressed
-    try{
-      QApplication::setOverrideCursor( Qt::WaitCursor );
-      if(loginDialog.username().isEmpty())
-        throw Profet::ServerException("No username specified.", 
-            Profet::ServerException::CONNECTION_ERROR);
-      contr->initProfet(); //ProfetController created, objMan created/inited
-      if(contr->getProfetController()) {
-        profetGUI = new DianaProfetGUI(*contr->getProfetController(),
-            paintToolBar, contr->getAreaManager(), this);
-        contr->setProfetGUI(profetGUI);
-      }else{
-        QMessageBox::warning(0,"Init profet failed",
-            "ProfetController is null");
+    if(loginDialog.username().isEmpty())
+      error += "Username not provided. ";
+    Profet::PodsUser u(miTime::nowTime(),
+        loginDialog.username().toStdString().data(),
+        loginDialog.role().toStdString().data(),
+        "");
+    //TODO option for file manager
+    Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
+    if(contr->getProfetController() && !error.exists() ) {
+      try{
+        QApplication::setOverrideCursor( Qt::WaitCursor );
+        Profet::DataManagerType dmt =
+          contr->getProfetController()->connect(u,perferredType);
         QApplication::restoreOverrideCursor();
-        return false;
+        if(dmt != perferredType)
+          QMessageBox::warning(0,"Running disconnected mode",
+            "Distributed field editing system is not available.");
+        return true;
+      }catch(Profet::ServerException & se){
+        error += se.what();
+        QApplication::restoreOverrideCursor();
       }
-      connect(w->Glw(), SIGNAL(gridAreaChanged()),
-        profetGUI, SLOT(gridAreaChanged()));
-      connect(profetGUI, SIGNAL(toggleProfetGui()),
-          this,SLOT(toggleProfetGUI()));
-      connect(profetGUI, SIGNAL(setPaintMode(bool)), 
-          this, SLOT(setPaintMode(bool)));
-      connect(profetGUI, SIGNAL(showProfetField(miString)), 
-          fm, SLOT(fieldEditUpdate(miString)));
-      connect(profetGUI, SIGNAL(prepareAndPlot()), 
-	      SLOT(MenuOK()));
-      connect( profetGUI, SIGNAL(repaintMap(bool)), 
-          SLOT(plotProfetMap(bool)));
-      connect( profetGUI ,
-	       SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-	       tslider,
-	       SLOT(insert(const miString&,const vector<miTime>&)));
-      connect( profetGUI, SIGNAL(setTime(const miTime&)), 
-	       SLOT(setTimeAndUpdatePlots(const miTime&)));
-      connect( profetGUI, SIGNAL(updateModelDefinitions()), 
-	       fm,SLOT(updateModels()) );
-      Profet::PodsUser u(miTime::nowTime(),
-          loginDialog.username().toStdString().data(),
-          loginDialog.role().toStdString().data(),
-          "");
-      contr->registerProfetUser(u);
-      QApplication::restoreOverrideCursor();
-      return true;
-    }catch(Profet::ServerException & se){
-      profetLoginError->showMessage(se.what());
     }
   }
-  QApplication::restoreOverrideCursor();
-
+  if(error.exists()) 
+    QMessageBox::critical(0,"Profet connect failed",error.cStr());
 #endif
-
   return false;
+}
+
+void DianaMainWindow::profetDisconnect(){
+  if(contr->getProfetController())
+    contr->getProfetController()->disconnect();
 }
 
 void DianaMainWindow::plotProfetMap(bool objectsOnly){
@@ -1669,12 +1695,32 @@ void DianaMainWindow::setTimeAndUpdatePlots(const miTime& t)
 
 void DianaMainWindow::toggleProfetGUI(){
 #ifdef PROFET
-
-  if(!profetGUI){
-    bool inited = initProfet();
-    if(!inited) return;
+  // get status
+  bool inited = (contr->getProfetController() && profetGUI);
+  bool connected = false;
+  if(inited) connected = contr->getProfetController()->isConnected();
+  bool turnOn = false;
+  // check turn on / off
+  if(profetGUI && profetGUI->isVisible()){
+    turnOn = false;
+    int i = QMessageBox::question(0,
+        "Connection","Do you want to stay connected to profet?",
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if(i == QMessageBox::No){
+      profetDisconnect();
+      profetGUI->resetStatus();
+    }
   }
-  bool turnOn = !(profetGUI->isVisible());
+  else if(inited && connected){
+    turnOn = !(profetGUI->isVisible());
+  }
+  else if(inited){ // not connected
+    turnOn = profetConnect();
+  }else {
+    if( initProfet() && profetConnect() ) turnOn = true;
+    else turnOn = false;
+  }
+  // do turn on / off
   toggleProfetGUIAction->setChecked(turnOn);
   profetGUI->setVisible(turnOn);
   // Paint mode should not be possible when Profet is on

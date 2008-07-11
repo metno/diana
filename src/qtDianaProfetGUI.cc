@@ -97,6 +97,12 @@ void DianaProfetGUI::connectSignals(){
 DianaProfetGUI::~DianaProfetGUI(){ 
 }
 
+void DianaProfetGUI::resetStatus(){
+  userModel.clearModel();
+  sessionModel.clearModel();
+  objectModel.clearModel();
+  tableModel.clearModel();
+}
 
 void DianaProfetGUI::setCurrentSession(const fetSession & session){
   //Changing current session must be done in QT event queue 
