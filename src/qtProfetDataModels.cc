@@ -27,6 +27,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "qtProfetDataModels.h"
+#include "qtProfetEvents.h"
 #include <QIcon>
 #include <QPixmap>
 #include <fet_object_normal.xpm> 
@@ -98,6 +99,18 @@ void UserListModel::clearModel(){
   reset();
 }
 
+void UserListModel::customEvent(QEvent * e){
+  if(e->type() == Profet::USER_LIST_EVENT){
+    Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
+    if(cle->type == Profet::UserListEvent::REPLACE_LIST)
+      setUsers(cle->users);
+    else if(cle->type == Profet::UserListEvent::SET_USER)
+      setUser(cle->user);
+    else if(cle->type == Profet::UserListEvent::REMOVE_USER)
+      removeUser(cle->user);
+  }
+}
+
 //  *** FetSessionListModel ***
 
 
@@ -139,7 +152,6 @@ void SessionListModel::setSession(const fetSession & s) {
   for( iter = sessions.begin(); iter != sessions.end(); iter++ ){
     if((*iter).referencetime() == s.referencetime()) {
       *iter = s;
-      reset();
       edited = true;
       break;
     }
@@ -184,6 +196,14 @@ QModelIndex SessionListModel::getIndexByRefTime(const miTime & t){
 void SessionListModel::clearModel(){
   sessions.clear();
   reset();
+}
+
+void SessionListModel::customEvent(QEvent * e){
+  if(e->type() == Profet::SESSION_LIST_EVENT){
+    Profet::SessionListEvent * sle = (Profet::SessionListEvent*) e;
+    if(sle->remove) removeSession(sle->session);
+    else setSession(sle->session);
+  }
 }
 
 //  *** FetObjectListModel *** 
@@ -422,6 +442,17 @@ void FetObjectTableModel::clearModel(){
   timeIndexMap.clear();
   signatureIndexMap.clear();
   reset();
+}
+
+void FetObjectTableModel::customEvent(QEvent * e){
+  if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){ //SignatureListUpdateEvent
+    Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
+    if(sue->remove) removeObjectSignature(sue->object.id);
+    else setObjectSignature(sue->object);
+  }else if(e->type() == Profet::SIGNATURE_LIST_UPDATE_EVENT){
+    Profet::SignatureListUpdateEvent * sue = (Profet::SignatureListUpdateEvent*) e;
+    setObjectSignatures(sue->objects);
+  }
 }
 
 miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(

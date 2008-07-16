@@ -37,6 +37,7 @@
 #include <QPushButton>
 #include <QListView>
 #include <QTableView>
+#include <QEvent>
 
 #include <profet/ProfetCommon.h>
 #include <profet/fetModel.h>
@@ -50,6 +51,18 @@
 
 class FetObjectListView;
 class FetObjectTableView;
+class SessionComboBox: public QComboBox {
+  Q_OBJECT
+private:
+  QString lastValidSelection;
+public:
+  SessionComboBox(QWidget * parent = 0) : QComboBox(parent){}
+private slots:
+  void handleEmptySelection(const QString & text){
+    cerr << "******************* handleEmptySelection: " << text.latin1() << endl;
+  }
+  
+};
 
 class ProfetSessionDialog: public QDialog{
   Q_OBJECT
@@ -96,9 +109,14 @@ public:
 
   void showMessage(const Profet::InstantMessage & msg);
   
+  void customEvent(QEvent * e);
+  
 public slots:
   void printSize(const QModelIndex &);
-  
+private slots:
+  void handleEmptySelection(const QString & text){
+    cerr << "******************* handleEmptySelection: " << text.latin1() << endl;
+  }  
 signals:
   void sessionSelected(int);
   void sendMessage(const QString &);
@@ -110,6 +128,8 @@ signals:
   void startTimesmooth();
   void closePerformed();
 };
+
+
 
 class FetObjectListView: public QListView{
 public:

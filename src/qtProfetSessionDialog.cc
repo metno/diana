@@ -28,12 +28,13 @@
 */
 
 #include "qtProfetSessionDialog.h"
-
+#include "qtProfetEvents.h"
 #include <QHBoxLayout>
 #include <QCloseEvent>
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QHeaderView>
+#include <QMessageBox>
 
 
 ProfetSessionDialog::ProfetSessionDialog( QWidget* parent) 
@@ -53,7 +54,7 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   mainLayout->addLayout(buttonLayout);
 
   QLabel * qls    = new QLabel("Session");
-  sessionComboBox = new QComboBox();
+  sessionComboBox = new SessionComboBox();
   
   titleLayout->addWidget(qls);
   titleLayout->addWidget(sessionComboBox);
@@ -144,6 +145,22 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(sendMessage(const QString &)));
   connect(sessionComboBox,SIGNAL(activated(int)),
       this,SIGNAL(sessionSelected(int)));
+  connect(sessionComboBox,SIGNAL( currentIndexChanged(const QString &)),
+      this,SLOT(handleEmptySelection(const QString &)));
+}
+
+void ProfetSessionDialog::customEvent(QEvent * e){
+  if(e->type() == Profet::MESSAGE_EVENT){
+    Profet::MessageEvent * me = (Profet::MessageEvent*) e;
+    if(me->message.type == Profet::InstantMessage::WARNING_MESSAGE){
+      QString qs = me->message.message.cStr();
+      QString title = me->message.sender.cStr();
+      QMessageBox::warning(0, title ,qs,
+          QMessageBox::Ok,  QMessageBox::NoButton);
+    }else {
+      showMessage(me->message);
+    }
+  }
 }
 
 void ProfetSessionDialog::printSize(const QModelIndex &){

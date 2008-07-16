@@ -31,6 +31,7 @@
 
 #include <QAbstractListModel>
 #include <QColor>
+#include <QEvent>
 #include <profet/ProfetCommon.h>
 #include <profet/fetObject.h>
 #include <profet/fetSession.h>
@@ -81,6 +82,7 @@ public:
   void setUser(const PodsUser & u);
   void removeUser(const PodsUser & u);
   void clearModel();
+  void customEvent(QEvent * e);
 };
 
 
@@ -121,6 +123,7 @@ public:
   void removeSession(const fetSession & s);
   QModelIndex getIndexByRefTime(const miTime & t);
   void clearModel();
+  void customEvent(QEvent * e);
 };
 
 /**
@@ -210,6 +213,7 @@ public:
   miTime getCurrentTime() const throw(InvalidIndexException&);
   miString getCurrentParameter() const throw(InvalidIndexException&);
   void clearModel();
+  void customEvent(QEvent * e);
 };
 
 }

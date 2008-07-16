@@ -31,6 +31,7 @@
 
 #include "qtDianaProfetGUI.h"
 #include "qtPaintToolBar.h"
+#include "qtProfetEvents.h"
 #include <qstring.h>
 #include <QCoreApplication>
 #include <QMessageBox>
@@ -124,7 +125,7 @@ void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
 
 // THREAD SAFE!,
 void DianaProfetGUI::showMessage(const Profet::InstantMessage & msg){
-  QCoreApplication::postEvent(this,new Profet::MessageEvent(msg));//thread-safe
+  QCoreApplication::postEvent(&sessionDialog,new Profet::MessageEvent(msg));//thread-safe
   QCoreApplication::flush();
 }
 
@@ -132,7 +133,7 @@ void DianaProfetGUI::setSession(const fetSession & session, bool remove){
   Profet::SessionListEvent * sle = new Profet::SessionListEvent();
   sle->remove = remove;
   sle->session = session;
-  QCoreApplication::postEvent(this, sle);//thread-safe
+  QCoreApplication::postEvent(&sessionModel, sle);//thread-safe
   QCoreApplication::flush();
 }
 
@@ -141,7 +142,7 @@ void DianaProfetGUI::setUser(const Profet::PodsUser & user){
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::SET_USER;
   cle->user = user;
-  QCoreApplication::postEvent(this, cle);//thread-safe
+  QCoreApplication::postEvent(&userModel, cle);//thread-safe
   QCoreApplication::flush();
 }
 
@@ -150,7 +151,7 @@ void DianaProfetGUI::removeUser(const Profet::PodsUser & user){
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::REMOVE_USER;
   cle->user = user;
-  QCoreApplication::postEvent(this, cle);//thread-safe
+  QCoreApplication::postEvent(&userModel, cle);//thread-safe
   QCoreApplication::flush();
 }
 
@@ -160,30 +161,12 @@ void DianaProfetGUI::setUsers(const vector<Profet::PodsUser> & users){
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::REPLACE_LIST;
   cle->users = users;
-  QCoreApplication::postEvent(this, cle);//thread-safe
+  QCoreApplication::postEvent(&userModel, cle);//thread-safe
   QCoreApplication::flush();
 }
 
 void DianaProfetGUI::customEvent(QEvent * e){
-  if(e->type() == Profet::MESSAGE_EVENT){
-    Profet::MessageEvent * me = (Profet::MessageEvent*) e;
-    if(me->message.type == Profet::InstantMessage::WARNING_MESSAGE){
-      QString qs = me->message.message.cStr();
-      QString title = me->message.sender.cStr();
-      QMessageBox::warning(0, title ,qs,
-          QMessageBox::Ok,  QMessageBox::NoButton);
-    }else {
-      sessionDialog.showMessage(me->message);
-    }
-  }else if(e->type() == Profet::USER_LIST_EVENT){
-    Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
-    if(cle->type == Profet::UserListEvent::REPLACE_LIST)
-      userModel.setUsers(cle->users);
-    else if(cle->type == Profet::UserListEvent::SET_USER)
-      userModel.setUser(cle->user);
-    else if(cle->type == Profet::UserListEvent::REMOVE_USER)
-      userModel.removeUser(cle->user);
-  }else if(e->type() == Profet::UPDATE_MAP_EVENT){
+  if(e->type() == Profet::UPDATE_MAP_EVENT){
     emit repaintMap(true);
   }else if(e->type() == Profet::OBJECT_LIST_UPDATE_EVENT){
     Profet::ObjectListUpdateEvent * oue = (Profet::ObjectListUpdateEvent*) e;
@@ -204,17 +187,6 @@ void DianaProfetGUI::customEvent(QEvent * e){
       objectModel.setObject(oue->object);
       areaManager->updateArea(oue->object.id(),oue->object.polygon());
     }
-  }else if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){ //SignatureListUpdateEvent
-    Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
-    if(sue->remove) tableModel.removeObjectSignature(sue->object.id);
-    else tableModel.setObjectSignature(sue->object);
-  }else if(e->type() == Profet::SIGNATURE_LIST_UPDATE_EVENT){
-    Profet::SignatureListUpdateEvent * sue = (Profet::SignatureListUpdateEvent*) e;
-    tableModel.setObjectSignatures(sue->objects);
-  }else if(e->type() == Profet::SESSION_LIST_EVENT){
-    Profet::SessionListEvent * sle = (Profet::SessionListEvent*) e;
-    if(sle->remove) sessionModel.removeSession(sle->session);
-    else sessionModel.setSession(sle->session);
   }else if(e->type() == Profet::CURRENT_SESSION_UPDATE_EVENT){
     Profet::CurrentSessionEvent * cse = (Profet::CurrentSessionEvent*) e;
     sessionDialog.setCurrentSession(
@@ -244,14 +216,14 @@ void DianaProfetGUI:: updateObject(const fetObject & object, bool remove){
  */
 void DianaProfetGUI::updateObjectSignatures(const vector<fetObject::Signature> & s){
   Profet::SignatureListUpdateEvent * sue = new Profet::SignatureListUpdateEvent(s);
-  QCoreApplication::postEvent(this, sue);//thread-safe
+  QCoreApplication::postEvent(&tableModel, sue);//thread-safe
   QCoreApplication::flush();
 }
 
 void DianaProfetGUI::updateObjectSignature(
     const fetObject::Signature & s, bool remove){
   Profet::SignatureUpdateEvent * sue = new Profet::SignatureUpdateEvent(s,remove);
-  QCoreApplication::postEvent(this, sue);//thread-safe
+  QCoreApplication::postEvent(&tableModel, sue);//thread-safe
   QCoreApplication::flush();
 }
 
