@@ -78,6 +78,8 @@ private:
   fetSession currentSession;
   //to synchronize currentObject accessed by multiple threads
   mutable QMutex currentObjectMutex;
+  //to synchronize access to currentParam/curentTime
+  mutable QMutex currentParamTimeMutex;
   // Cached because of many requests from multiple threads
   miString currentParam;
   miTime currentTime;
@@ -87,6 +89,9 @@ private:
   bool activeTimeSmooth;
   
   void connectSignals();
+  /// Synchronized set'ers
+  void setCurrentParam(const miString & p);
+  void setCurrentTime(const miTime & t);
   /// gets baseObjects index by name. returns -1 if not found
   int getBaseObjectIndex(miString name);
   QWidget* parent;

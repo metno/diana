@@ -98,6 +98,19 @@ void DianaProfetGUI::connectSignals(){
 DianaProfetGUI::~DianaProfetGUI(){ 
 }
 
+
+void DianaProfetGUI::setCurrentParam(const miString & p){
+  currentParamTimeMutex.lock();
+  currentParam = p;
+  currentParamTimeMutex.unlock();
+}
+
+void DianaProfetGUI::setCurrentTime(const miTime & t){
+  currentParamTimeMutex.lock();
+  currentTime = t;
+  currentParamTimeMutex.unlock();
+}
+
 void DianaProfetGUI::resetStatus(){
   userModel.clearModel();
   sessionModel.clearModel();
@@ -461,9 +474,10 @@ void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
   bool tableInited = tableModel.inited();
   if(tableInited) {
     try{
-      currentParam = tableModel.getParameter(index);
-      currentTime = tableModel.getTime(index);
-      controller.parameterAndTimeChanged(currentParam,currentTime);
+      setCurrentParam(tableModel.getParameter(index));
+      setCurrentTime(tableModel.getTime(index));
+      controller.parameterAndTimeChanged(
+          getCurrentParameter(),getCurrentTime());
     }catch(InvalidIndexException & iie){
       LOG4CXX_ERROR(logger,"Invalid time/param index");
     }
@@ -588,13 +602,19 @@ void DianaProfetGUI::updateMap(){
  * Called by multiple threads
  */
 miString DianaProfetGUI::getCurrentParameter(){
-  return currentParam;
+  currentParamTimeMutex.lock();
+  miString tmp = currentParam;
+  currentParamTimeMutex.unlock();
+  return tmp;
 }
 /**
  * Called by multiple threads
  */
 miTime DianaProfetGUI::getCurrentTime(){
-  return currentTime;
+  currentParamTimeMutex.lock();
+  miTime tmp = currentTime;
+  currentParamTimeMutex.unlock();
+  return tmp;
 }
 
 void DianaProfetGUI::paintModeChanged(GridAreaManager::PaintMode mode){
@@ -744,11 +764,11 @@ void DianaProfetGUI::setVisible(bool visible){
   }
   else{
     // First, remove previous PROFET fieldPlot (if any)
-    if ( currentParam.length() ){
+    if ( getCurrentParameter().length() ){
       emit showProfetField("");
       emit prepareAndPlot();
     }
-    currentParam="";
+    setCurrentParam("");
     areaManager->clear();
     emit repaintMap(false);
     sessionDialog.hide();
