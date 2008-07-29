@@ -944,6 +944,10 @@ tctd=subtract(tc2m,tdc2m)
 tctd3=divide(tctd,3)
 wetbulb3=subtract(tc2m,tctd3)
 
+#Tzoneforecast=dz*9.81/(287*ln(1000/700))-273 = dz*0.09583287318-273  /From Eirik Samuelsen, implemented by Gjermund Mamen Haugen
+Tzoneforecast_kelvin = multiply(dz.700-1000,0.09583287318)
+Tzoneforecast=temp_k2c(Tzoneforecast_kelvin)
+
 # for ocean model fields
 current.speed=vector.abs(u.current,v.current)
 average.current.speed=vector.abs(u.average.current,v.average.current)
@@ -1776,6 +1780,10 @@ field=T500-T850
       plot=CONTOUR(tdiff.500-850)
 end.field
 
+field=T(700-1000)
+     text = "Middeltemperatur mellom 700 og 1000hPa"
+     plot=CONTOUR(Tzoneforecast)
+end.field
 
 ### Parameter fields (constant in time, usually...) ###
 
@@ -3886,9 +3894,8 @@ map=Norkart  file=$(ROOT)/maps/landsos1.dat # sos-filer
 map=Norkart2 file=$(ROOT)/maps/landsos2.dat # sos-filer
 map=Regioner file=$(ROOT)/maps/landregioner.dat # Diana-regioner
 #
-map=Banker     file=$(ROOT)/maps/banker.dat      # fiskebanker
-map=Banker_VNN   type=lines_simple_text \
-               file=$(DIANADIR)/etc/banker-ny.txt   # fiskebanker
+map=Banker     type=lines_simple_text \
+               file=$(DIANADIR)/etc/banker.txt   # fiskebanker
 map=MinQNH     file=$(ROOT)/maps/minqnh.dat      # minqnh areas
 map=FIR        type=lines_simple_text \
                file=$(DIANADIR)/etc/fir.txt    # FIR areas
