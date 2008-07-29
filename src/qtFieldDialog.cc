@@ -1892,6 +1892,7 @@ void FieldDialog::enableFieldOptions(){
   int nr_linetypes = linetypes.size();
 
   // colour(s)
+  colorCbox->setEnabled(true);
   if ((nc=cp->findKey(vpcopt,"colour_2"))>=0) {
     i=0;
     while (i<nr_colors && vpcopt[nc].allValue!=colourInfo[i].name) i++;
@@ -1909,9 +1910,6 @@ void FieldDialog::enableFieldOptions(){
     shadingcoldComboBox->setEnabled(true);
     if(colour2ComboBox->currentIndex()>0)
       enableType2Opt = true;
-    if (!colorCbox->isEnabled()) {
-      colorCbox->setEnabled(true);
-    }
     i=0;
     if(vpcopt[nc].allValue.downcase() == "off" ||
        vpcopt[nc].allValue.downcase() == "av" ){
@@ -1924,8 +1922,6 @@ void FieldDialog::enableFieldOptions(){
       updateFieldOptions("colour",colourInfo[i].name);
       colorCbox->setCurrentIndex(i+1);
     }
-  } else if (colorCbox->isEnabled()) {
-    colorCbox->setEnabled(false);
   }
 
   // 3 colours
