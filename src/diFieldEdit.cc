@@ -804,8 +804,11 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
   const PlotOptions poptions= editfieldplot->getPlotOptions();
   discontinuous= poptions.discontinuous!=0;
 
-  if (discontinuous)     idata[19]= 0;
-  else if (!showNumbers) idata[19]= -32767;
+  if (discontinuous){
+    idata[19]= 0;
+  } else {
+    idata[19]= -32767;
+  }
 
   int mode= 10;
   int ipack= 2;
