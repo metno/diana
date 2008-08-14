@@ -4997,9 +4997,9 @@ void FieldDialog::fieldEditUpdate(miString str) {
       if(stokens.size()==2){          //Profet edit, using FieldPlot
  	sf.time = stokens[1];
 	sf.editPlot=false;
-      } else {                        //Orig edit, using EditManager
-	sf.editPlot=false;	
       }
+    } else {                        //Orig edit, using EditManager
+      sf.editPlot=true;	
     }
 
     sf.inEdit=     true;
