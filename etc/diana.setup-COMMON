@@ -42,7 +42,7 @@ qserver=$(ROOT)/bin/coserver4
 imagepath=$(DIANADIR)/images/
 amdarStationList=$(DIANADIR)/etc/amdar.stations
 languagepaths=$(DIANADIR)/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
-setenv=BUFR_TABLES,/usr/local/lib/emos/bufrtables/,1
+#setenv=BUFR_TABLES,/usr/local/lib/emos/bufrtables/,1
 language=no
 </BASIC>
 
@@ -2470,19 +2470,24 @@ Default_Filetype=MetnoFieldFile
 archivefilegroup=ARKIV
 m=DIANA.arkiv            f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_*.arkfelt  
 
-m=HIRLAM.20KM.arkiv      f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn??.dat_* \
-			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm??.dat_* 
+m=HIRLAM.12KM.arkiv      f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf??.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl??.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml??.dat_* 
 
-m=HIRLAM.20KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn00.dat_* \
-		         f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm00.dat_* 
-m=HIRLAM.20KM.06.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn06.dat_* \
-			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm06.dat_* 
-m=HIRLAM.20KM.12.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn12.dat_* \
-			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm12.dat_* 
-m=HIRLAM.20KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn18.dat_* \
-			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm18.dat_* 
+m=HIRLAM.12KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf00.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl00.dat_* \
+		         f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml00.dat_* 
+m=HIRLAM.12KM.06.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf06.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl06.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml06.dat_* 
+m=HIRLAM.12KM.12.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf12.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl12.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml12.dat_* 
+m=HIRLAM.12KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf18.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl18.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml18.dat_* 
 
-m=HIRLAM.10KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM10/*/*/*/grdl00.dat_* 
+m=HIRLAM.8KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM8/*/*/*/h8km00.dat_* 
 m=HIRLAM.4KM.00.arkiv    f=$(STARC)/DNMI_HIRLAM4/*/*/*/grdqh00.dat_* 
 m=UM.HL.4KM.00.arkiv     f=$(STARC)/DNMI_UM4/*/*/*/grdq00.dat_* 
 
@@ -3158,6 +3163,10 @@ timerange=-30,30
 PROD=satob:ERS
 metnoobs=$(OPDATA3)/noaasat/ers/Obs/ers_yyyymmddHH.dat
 timerange=-30,30
+
+PROD=satob:ASCAT_12.5KM
+metnoobs=$(OPDATA2)/satdata_polar/metop_ascat_ear/125KM/obs/ascat_yyyymmddHHMM??_metopa_ear_o_125_ovw_l2.dat
+timerange=-180,180
 
 PROD=aireps:Skydrift-cd
 metnoobs=$(OPDATA3)/satdata_polar/modis/obs/cdft_yyyymmddHHMM_*_ENTC.dat
