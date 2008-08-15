@@ -275,7 +275,7 @@ m=UM4BX_12-2         f=$(OPDATA2)/um4bx/um4bx12.dat-2
 #m=UM4EXP_12-2        f=$(OPDATA2)/um4exp/grdqe12.dat-2
 
 filegroup=UM.1km
-m=ALT-UM1KM.NN	            f=$(OPDATA4)/um1exp/um1nn00.dat
+m=ALT-UM1KM.NN	            f=$(OPDATA1)/um1exp/um1nn00.dat
 m=UM.V-Finnmark.1km.00      f=$(OPDATA2)/um1km/um1hh00.dat
 m=UM.V-Finnmark.1km.12      f=$(OPDATA2)/um1km/um1hh12.dat
 m=UM.V-Finnmark.1km.00-1    f=$(OPDATA2)/um1km/um1hh00.dat-1
@@ -320,8 +320,8 @@ m=UM.Trondheim.1km.00-2     f=$(OPDATA2)/um1km/um1va00.dat-2
 m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
 
 filegroup=UM.1km.exp
-m=UMEXP.S-Norge.1km.00       f=$(OPDATA1)/um1exp/um1sn00.dat
-m=UMEXP.N-Norge.1km.00      f=$(OPDATA1)/um1exp/um1nn00.dat
+m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
+m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
 
 filegroup=Simra
 m=Simra.Hammerfest.00     f=$(OPDATA2)/um1km/simme00.dat
@@ -895,7 +895,7 @@ end.product
 
 <VERTICAL_PROFILE_FILES>
 
-m=ALT.UM1KM.nn  f=$(OPDATA4)/um1exp/vprof.dat_um1nn
+m=ALT.UM1KM.nn  f=$(OPDATA2)/um1exp/vprof.dat_um1nn
 
 </VERTICAL_PROFILE_FILES> 
 
