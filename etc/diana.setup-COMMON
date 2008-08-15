@@ -299,7 +299,6 @@ file= $(DIANADIR)/etc/qmenu_analyse.txt
 file= $(DIANADIR)/etc/qmenu.txt
 file= $(DIANADIR)/etc/qmenu_eps.txt
 file= $(DIANADIR)/etc/qmenu_nedbor.txt
-file= $(DIANADIR)/etc/Briefing.quick
 file= $(DIANADIR)/etc/Produkter.quick
 file= $(DIANADIR)/etc/FDMD.quick
 </QUICKMENUS>
@@ -2490,6 +2489,19 @@ m=HIRLAM.12KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf18.dat_* \
 m=HIRLAM.8KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM8/*/*/*/h8km00.dat_* 
 m=HIRLAM.4KM.00.arkiv    f=$(STARC)/DNMI_HIRLAM4/*/*/*/grdqh00.dat_* 
 m=UM.HL.4KM.00.arkiv     f=$(STARC)/DNMI_UM4/*/*/*/grdq00.dat_* 
+
+m=HIRLAM.20KM.arkiv      f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn??.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm??.dat_* 
+m=HIRLAM.20KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn00.dat_* \
+		         f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm00.dat_* 
+m=HIRLAM.20KM.06.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn06.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm06.dat_* 
+m=HIRLAM.20KM.12.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn12.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm12.dat_* 
+m=HIRLAM.20KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn18.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm18.dat_* 
+
+m=HIRLAM.10KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM10/*/*/*/grdl00.dat_* 
 
 filegroup=HIRLAM12km
 m=HIRLAM.12KM.00    f=$(OPDATA2)/hirlam12/h12sf00.dat \
