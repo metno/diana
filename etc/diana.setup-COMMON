@@ -426,6 +426,12 @@ probab_wind_gust>15ms=770,2,1000
 probab_wind_gust>20ms=771,2,1000
 probab_wind_gust>25ms=772,2,1000
 
+#Extreme Forecast Index
+wind.gust.10m.index=796,2,1000 
+wind.speed.10m.index=797,2,1000
+temperature.2m.index=798,2,1000 
+total.precipitation.index=799,2,1000 
+
 probab_t850_anomaly<-2=720,1,850
 probab_t850_anomaly>+2=721,1,850
 probab_t850_anomaly<-8=722,1,850
@@ -1876,6 +1882,32 @@ field=Probability_T850_Anomaly[TA]
       fieldgroup="EPS probability"
       colour=red line.interval=20.
       plot=CONTOUR(probab_t850_anomaly[TA])
+end.field
+
+field=Wind.gust.10m.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(wind.gust.10m.index)
+end.field
+
+field=Wind.speed.10m.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(wind.speed.10m.index)
+end.field
+
+=799,2,1000 
+
+field=Temperatur.2m.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(temperature.2m.index)
+end.field
+
+field=Total.precipitation.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(total.precipitation.index)
 end.field
 
 ######################## LAMEPS ##############################
