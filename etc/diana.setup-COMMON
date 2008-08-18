@@ -1898,7 +1898,7 @@ end.field
 
 =799,2,1000 
 
-field=Temperatur.2m.index
+field=Temperature.2m.index
       fieldgroup="Extreme Forecast Index"
       colour=red line.interval=1.
       plot=CONTOUR(temperature.2m.index)
