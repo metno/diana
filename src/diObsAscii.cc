@@ -113,6 +113,7 @@ void ObsAscii::readFile(const miString &filename, const miString &headerfile,
  
     oplot->asciip.clear();
     oplot->asciiColumnName.clear();
+    oplot->asciiColumnTooltip.clear();
     oplot->asciiColumnType.clear();
     oplot->asciiColumnHide.clear();
     oplot->asciiColumnUndefined.clear();
@@ -160,29 +161,23 @@ void ObsAscii::readFile(const miString &filename, const miString &headerfile,
 	  break;
         }
         str= str.substr(p1+1,p2-p1-1);
-        pstr= str.split(" ");
+        pstr= str.split('"','"'," ",true);
         int j,m= pstr.size();
 
         if (m>1) {
-// 	  if (pstr[0]==key_name) {
-//             oplot->asciiDataName= pstr[1];
-// 	  } else if (pstr[0]==key_mainTime && m>2) {
-//             miString tstr= pstr[1] + " " + pstr[2];
-// 	    oplot->asciiMainTime= miTime(tstr);
-// 	  } else if (pstr[0]==key_startTime && m>2) {
-//             miString tstr= pstr[1] + " " + pstr[2];
-// 	    oplot->asciiStartTime= miTime(tstr);
-// 	  } else if (pstr[0]==key_endTime) {
-//             miString tstr= pstr[1] + " " + pstr[2];
-// 	    oplot->asciiEndTime= miTime(tstr);
-// 	  } else if (pstr[0]==key_columns) {
 	    if (pstr[0]==key_columns) {
 	    vector<miString> vs;
             for (j=1; j<m; j++) {
+	      pstr[j].remove('"');
 	      vs= pstr[j].split(':');
 	      if (vs.size()>1) {
 	        oplot->asciiColumnName.push_back(vs[0]);
 	        oplot->asciiColumnType.push_back(vs[1].downcase());
+		if (vs.size()>2) {
+		  oplot->asciiColumnTooltip.push_back(vs[2]);
+		}else{
+		  oplot->asciiColumnTooltip.push_back("");
+		}
 	      }
             }
 // 	  } else if (pstr[0]==key_hide) {

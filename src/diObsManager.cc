@@ -1157,7 +1157,9 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
 		     oplot->asciiColumnName[c]) h++;
       if (h==nh) {
         dialog.plottype[id].button.push_back
-	  (addButton(oplot->asciiColumnName[c], "", -100,100,on));
+	  (addButton(oplot->asciiColumnName[c], 
+		     oplot->asciiColumnTooltip[c],
+		     -100,100,on));
 //         dialog.plottype[id].button.push_back(oplot->asciiColumnName[c]);
 //         dialog.plottype[id].Default.push_back(on);
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!

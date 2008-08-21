@@ -152,12 +152,12 @@ An example an observation ascii file is given below:
 <tr><td>
 <pre>
 [COLUMNS
-Date:d      Time:t     Lon:lon     Lat:lat      RRR:r   Station:s   Icon:image]
+Date:d      Time:t:"some text"     Lon:lon     Lat:lat      RRR:r   Station:s   Icon:image]
 
 [DATA]
-2004-11-20  12:00:00     10.86     59.55        0.4      "Dear home" wbkz_green
-2004-11-20  12:00:00     10.51     59.89        0.1      Home        wbkz_red
-2004-11-20  12:00:00      9.99     59.19        6.3      Somewhere   wbkz_white
+2004-11-20  12:00:00               10.86     59.55        0.4      "Dear home" wbkz_green
+2004-11-20  12:00:00               10.51     59.89        0.1      Home        wbkz_red
+2004-11-20  12:00:00                9.99     59.19        6.3      Somewhere   wbkz_white
   
 
 
@@ -173,11 +173,11 @@ Date:d      Time:t     Lon:lon     Lat:lat      RRR:r   Station:s   Icon:image]
     undefined values</td></tr>
   <tr><td>SKIP_DATA_LINES</td><td><code>[SKIP_DATA_LINES 3]</code></td>
 	      <td>Skip first 3 data lines</td></tr>
-  <tr><td>LABEL</td><td><code>[LABEL text="Label text"] </code></td>'
+  <tr><td>LABEL</td><td><code>[LABEL text="Label text"] </code></td>
   <td>Syntax: see <a href="ug_bdiana.html#PLOTSETTINGS.ANNOTATIONS">Labels</a></td></tr>
-  <tr><td>COLUMNS</td><td><code>[COLUMNS Date:d        Time:t     Lon:r     Lat:r] </code></td>'
-  <td><code>name:type</code></a></td></tr>
-  <tr><td>DATA</td><td><code>[DATA] </code></td>'
+  <tr><td>COLUMNS</td><td><code>[COLUMNS Date:d        Time:t:"some text"     Lon:r     Lat:r] </code></td>
+  <td><code>name:type or name:type:tooltip </code></a></td></tr>
+  <tr><td>DATA</td><td><code>[DATA] </code></td>
   <td>Start of data section</a></td></tr>
 
 </table>
@@ -216,6 +216,7 @@ Date:d      Time:t     Lon:lon     Lat:lat      RRR:r   Station:s   Icon:image]
 <li>If column type <code>dd</code> and <code>ff/ffk</code> are present,
 the parameter <code>Wind</code> will be added, and wind arrows can be
 plotted.
+<li>The column tooltips are used in the dialogues (optional)
 
  </ul>
 

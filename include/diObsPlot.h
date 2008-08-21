@@ -326,6 +326,7 @@ public:
   miTime   asciiStartTime;
   miTime   asciiEndTime;
   vector<miString> asciiColumnName;
+  vector<miString> asciiColumnTooltip;
   vector<miString> asciiColumnType;
   vector<miString> asciiColumnHide;
   vector<miString> asciiColumnUndefined;
