@@ -3236,6 +3236,11 @@ ascii=$(OPDATA2)/lyndata/UALF/yyyy/mm/lyndatayyyymmddHH
 headerfile=$(DIANADIR)/etc/UALF_diana.header
 timerange=0,60
 
+PROD=ascii:UK_Lyn
+ascii=/opdata/lyndata/UK_lightnings/yyyy/mm/UK_lightningyyyymmddHHMM??.txt
+headerfile=$(DIANADIR)/etc/UK_lyn.header
+timerange=0,60
+
 PROD=ascii:Nedbørsdata
 file=$(OPDATA2)/mobobs/obs/nedbordata.yyyymmddHHMM
 timerange=-60,60

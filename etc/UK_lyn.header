@@ -1,0 +1,5 @@
+[NAME UK_Lyn]
+[COLUMNS
+Year:year Month:month Day:day Hour:hour Min:min Sec:sec Ns:r
+FLP_ID:s Quality:s Lat:lat Lon:lon Error:r]
+[DATA]
