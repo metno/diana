@@ -1672,8 +1672,10 @@ bool DianaMainWindow::profetConnect(){
 }
 
 void DianaMainWindow::profetDisconnect(){
+#ifdef PROFET
   if(contr->getProfetController())
     contr->getProfetController()->disconnect();
+#endif
 }
 
 void DianaMainWindow::plotProfetMap(bool objectsOnly){
