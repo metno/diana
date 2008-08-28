@@ -47,6 +47,7 @@
 #include <diStationPlot.h>
 #include <diMapManager.h>
 #include <diFieldManager.h>
+#include <diFieldPlotManager.h>
 
 #include <GL/gl.h>
 #include <sstream>
@@ -777,7 +778,6 @@ void PlotModule::updateLevel(const miString& levelSpec, const miString& levelSet
 {
   levelSpecified= levelSpec;
   levelCurrent=   levelSet;
-
   miString pin;
   vector<Field*> fv;
   int i,n,vectorIndex;
@@ -792,12 +792,12 @@ void PlotModule::updateLevel(const miString& levelSpec, const miString& levelSet
       if (vfp[i]->isDifference()) {
         miString fspec1,fspec2;
         vfp[i]->getDifference(fspec1,fspec2,vectorIndex);
-        res= fieldm->makeDifferenceField(fspec1,fspec2,t,fv,
+        res= fieldplotm->makeDifferenceField(fspec1,fspec2,t,fv,
 					 levelSpecified,levelCurrent,
 					 idnumSpecified,idnumCurrent,
 			                 pressureLevel,oceanDepth,vectorIndex);
       } else {
-        res= fieldm->makeFields(pin,t,fv,
+        res= fieldplotm->makeFields(pin,t,fv,
 				levelSpecified,levelCurrent,
 				idnumSpecified,idnumCurrent,
 			        pressureLevel,oceanDepth);
@@ -847,12 +847,12 @@ void PlotModule::updateIdnum(const miString& idnumSpec, const miString& idnumSet
       if (vfp[i]->isDifference()) {
         miString fspec1,fspec2;
         vfp[i]->getDifference(fspec1,fspec2,vectorIndex);
-        res= fieldm->makeDifferenceField(fspec1,fspec2,t,fv,
+        res= fieldplotm->makeDifferenceField(fspec1,fspec2,t,fv,
 					 levelSpecified,levelCurrent,
 					 idnumSpecified,idnumCurrent,
 			                 pressureLevel,oceanDepth,vectorIndex);
       } else {
-        res= fieldm->makeFields(pin,t,fv,
+        res= fieldplotm->makeFields(pin,t,fv,
 				levelSpecified,levelCurrent,
 				idnumSpecified,idnumCurrent,
 			        pressureLevel,oceanDepth);
@@ -893,12 +893,12 @@ void PlotModule::updatePlots()
       if (vfp[i]->isDifference()) {
         miString fspec1,fspec2;
         vfp[i]->getDifference(fspec1,fspec2,vectorIndex);
-        res= fieldm->makeDifferenceField(fspec1,fspec2,t,fv,
+        res= fieldplotm->makeDifferenceField(fspec1,fspec2,t,fv,
 					 levelSpecified,levelCurrent,
 					 idnumSpecified,idnumCurrent,
 			                 pressureLevel,oceanDepth,vectorIndex);
       } else {
-        res= fieldm->makeFields(pin,t,fv,
+        res= fieldplotm->makeFields(pin,t,fv,
 				levelSpecified,levelCurrent,
 				idnumSpecified,idnumCurrent,
 			        pressureLevel,oceanDepth);
@@ -1702,7 +1702,7 @@ void PlotModule::cleanup(){
   n= vfp.size();
   
   // Field deletion at the end is done in the cache. The cache destructor is called by
-  // FieldManagers destructor, which comes before this destructor. Basocally we try to
+  // FieldPlotManagers destructor, which comes before this destructor. Basocally we try to
   // destroy something in a dead pointer here....
   for (i=0; i<n; i++){
     vector<Field*> v=vfp[i]->getFields();
@@ -1863,12 +1863,14 @@ float PlotModule::GreatCircleDistance(float lat1, float lat2,
 
 // set managers
 void PlotModule::setManagers(FieldManager* fm,
+			     FieldPlotManager* fpm,
 			     ObsManager* om,
 			     SatManager* sm,
 			     ObjectManager* obm,
 			     EditManager* edm,
 			     GridAreaManager* gam){
   fieldm= fm;
+  fieldplotm= fpm;
   obsm=   om;
   satm=   sm;
   objm=   obm;
@@ -1876,6 +1878,7 @@ void PlotModule::setManagers(FieldManager* fm,
   aream=  gam;
 
   if (!fieldm) cerr << "PlotModule::ERROR fieldmanager==0" << endl;
+  if (!fieldplotm) cerr << "PlotModule::ERROR fieldplotmanager==0" << endl;
   if (!obsm)   cerr << "PlotModule::ERROR obsmanager==0" << endl;
   if (!satm)   cerr << "PlotModule::ERROR satmanager==0" << endl;
   if (!objm)   cerr << "PlotModule::ERROR objectmanager==0" << endl;
@@ -1923,7 +1926,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
   if (pinfos.size()>0){
     bool constT;
-    fieldtimes= fieldm->getFieldTime(pinfos,constT);
+    fieldtimes= fieldplotm->getFieldTime(pinfos,constT);
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found fieldtimes:" << endl;
@@ -1971,6 +1974,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 
 }
 
+
 //returns union or intersection of plot times from all pinfos
 void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
 				     set<miTime>& constTimes,
@@ -1988,7 +1992,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
     if (!tokens.empty()) {
       miString type= tokens[0].upcase();
       if(type=="FIELD") 
-	fieldm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
+	fieldplotm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
       else if (type=="SAT")      
 	satm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
       else if (type=="OBS")     

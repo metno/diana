@@ -49,6 +49,7 @@ class SatPlot;
 class MapPlot;
 class AnnotationPlot;
 class FieldManager;
+class FieldPlotManager;
 class FieldPlot;
 class ObsManager;
 class SatManager;
@@ -101,6 +102,7 @@ private:
   AnnotationPlot* apEditmessage; // special edit message (region shown,...)
 
   FieldManager *fieldm;   // field manager
+  FieldPlotManager *fieldplotm;   // field plot manager
 
   vector<miString> annotationStrings;//orig. strings from setup
 
@@ -239,8 +241,13 @@ public:
   /// end hardcopy plot
   void endHardcopy();
   /// set managers
-  void setManagers(FieldManager*, ObsManager*, SatManager*,
-		   ObjectManager*, EditManager*, GridAreaManager*);
+  void setManagers(FieldManager*, 
+		   FieldPlotManager*, 
+		   ObsManager*, 
+		   SatManager*,
+		   ObjectManager*, 
+		   EditManager*, 
+		   GridAreaManager*);
 
   /// return current plottime
   void getPlotTime(miString&);

@@ -33,6 +33,7 @@
 #include <diRectangle.h>
 #include <diArea.h>
 #include <diFieldManager.h>
+#include <diFieldPlotManager.h>
 #include <diObsManager.h>
 #include <diSatManager.h>
 #include <diObjectManager.h>
@@ -44,7 +45,7 @@
 
 // Default constructor
 Controller::Controller()
-  : plotm(0), fieldm(0), obsm(0), satm(0), 
+  : plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0), 
     objm(0), editm(0), aream(0),editoverride(false)
 {
 #ifdef DEBUGPRINT
@@ -54,9 +55,10 @@ Controller::Controller()
 #ifdef PROFET
   profetController=0;
 #endif
-  fieldm= new FieldManager;
-  obsm= new ObsManager;
-  satm= new SatManager;
+  fieldm=     new FieldManager;
+  fieldplotm= new FieldPlotManager(fieldm);
+  obsm=       new ObsManager;
+  satm=       new SatManager;
   // plot central
   plotm= new PlotModule();
   // edit- and drawing-manager
@@ -64,7 +66,7 @@ Controller::Controller()
   editm= new EditManager(plotm,objm);
   aream = new GridAreaManager();
   paintModeEnabled = false;
-  plotm->setManagers(fieldm,obsm,satm,objm,editm,aream);
+  plotm->setManagers(fieldm,fieldplotm,obsm,satm,objm,editm,aream);
 //  profetController = new Profet::ProfetController(fieldm);
 }
 
@@ -75,6 +77,7 @@ Controller::~Controller(){
 #endif
   delete plotm;
   delete fieldm;
+  delete fieldplotm;
   delete obsm;
   delete satm;
   delete objm;
@@ -111,7 +114,7 @@ bool Controller::parseSetup()
     if (!setupParser.getSection(fieldSubSect[i],lines)) {
       //      cerr<<"Missing section "<<fieldSubSect[i]<<" in setupfile."<<endl;
     }
-    fieldm->parseSetup(lines,fieldSubSect[i],errors);
+    fieldm->parseSetup(lines,fieldSubSect[i],errors,false);
   }
   //Write error messages
   int nerror = errors.size();
@@ -120,6 +123,9 @@ bool Controller::parseSetup()
     setupParser.errorMsg(token[0],atoi(token[1].cStr()),token[2]);
   }
 
+  //parse fielPlotSetup
+  if (!fieldplotm->parseSetup(setupParser)) return false;
+  fieldm->setFieldNames(fieldplotm->getFields());
   if (!obsm->parseSetup(setupParser)) return false;
   if (!satm->parseSetup(setupParser)) return false;
   if (!objm->parseSetup(setupParser)) return false;
@@ -742,7 +748,7 @@ void Controller::getAllFieldNames(vector<miString> & fieldNames,
 				    set<miString>& fieldprefixes,
 				    set<miString>& fieldsuffixes)
 {
-  fieldm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
+  fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
 }
 
 miString Controller::getFieldClassSpecifications(const miString& fieldname)
@@ -752,7 +758,7 @@ miString Controller::getFieldClassSpecifications(const miString& fieldname)
 
 vector<miString> Controller::getFieldLevels(const miString& pinfo)
 {
-  return fieldm->getFieldLevels(pinfo);
+  return fieldplotm->getFieldLevels(pinfo);
 }
 
 void Controller::getFieldGroups(const miString& modelNameRequest,
@@ -761,7 +767,7 @@ void Controller::getFieldGroups(const miString& modelNameRequest,
 {
 //   cerr <<"modelNameRequest: "<<modelNameRequest<<endl;
 
-  fieldm->getFieldGroups(modelNameRequest, modelName, vfgi);
+  fieldplotm->getFieldGroups(modelNameRequest, modelName, vfgi);
 //   for(int i=0;i<vfgi.size();i++){
 //     cerr <<"------------ "<<vfgi[i].groupName<<" ---------------------"<<endl;
 //     for(int j=0;j<vfgi[i].fieldNames.size();j++)
@@ -774,11 +780,11 @@ void Controller::getFieldGroups(const miString& modelNameRequest,
 
 }
 
-vector<miTime> Controller::getFieldTime(const vector<FieldTimeRequest>& request,
+vector<miTime> Controller::getFieldTime(vector<FieldTimeRequest>& request,
 				        bool allTimeSteps)
 {
   bool constT;
-  return fieldm->getFieldTime(request, allTimeSteps,constT);
+  return fieldplotm->getFieldTime(request, allTimeSteps,constT);
 }
 
 MapDialogInfo Controller::initMapDialog(){

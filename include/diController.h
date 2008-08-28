@@ -55,6 +55,7 @@ using namespace std;
 
 class PlotModule;
 class FieldManager;
+class FieldPlotManager;
 class ObsManager;
 class SatManager;
 class EditManager;
@@ -80,6 +81,7 @@ class Controller {
 private:
   PlotModule    *plotm;
   FieldManager  *fieldm;
+  FieldPlotManager  *fieldplotm;
   ObsManager    *obsm;
   SatManager    *satm;
   ObjectManager *objm;
@@ -279,7 +281,7 @@ public:
   void getFieldGroups(const miString& modelNameRequest,
 		      miString& modelName, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
-  vector<miTime> getFieldTime(const vector<FieldTimeRequest>& request,
+  vector<miTime> getFieldTime(vector<FieldTimeRequest>& request,
 			      bool allTimeSteps);
 
   // Map-dialog methods

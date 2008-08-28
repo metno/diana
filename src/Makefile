@@ -5,7 +5,7 @@ diQuickMenues.o \
 diController.o diPlotModule.o diPlot.o diSetupParser.o diTimeFilter.o \
 diPrintOptions.o diFontManager.o diImageGallery.o diImageIO.o \
 diMapManager.o diMapPlot.o diFilledMap.o diFieldPlot.o  \
-diContouring.o diCommandParser.o \
+diContouring.o diCommandParser.o diFieldPlotManager.o \
 diObsManager.o diObsPlot.o diObsSynop.o diObsDribu.o diObsTemp.o diObsPilot.o \
 diObsAireps.o diObsSatob.o diObsMetar.o diObsTide.o diObsOcea.o diObsAscii.o \
 diSatManager.o diSatPlot.o diSat.o diMItiff.o diLegendPlot.o \
