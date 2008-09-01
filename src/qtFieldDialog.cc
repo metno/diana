@@ -3802,6 +3802,9 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
       if(vfg2[j].modelName.contains("(") && !model.contains("(")){
 	modelName = modelName.substr(0,modelName.find(("("))); 
       }
+      if(!vfg2[j].modelName.contains("(") && model.contains("(")){
+	model = model.substr(0,model.find(("("))); 
+      }
 
       if (modelName.downcase()==model.downcase()) {
 
