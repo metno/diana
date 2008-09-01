@@ -49,6 +49,8 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
 
 //   cerr <<"ObsBufr::init:"<<bufr_file<<endl;
   obsTime = miTime(); //undef
+//   const int ibflen=4*512000;
+//   int ibuff[512000];
   const int ibflen=200000;
   int ibuff[ibflen/4];
   miString bufr_access= "r";
@@ -90,9 +92,11 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
       
 bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
 {
-
+//   cerr <<"ObsBufr::ObsTime"<<endl;
   const int ibflen=200000;
   int ibuff[ibflen/4];
+//   const int ibflen=4*512000;
+//   int ibuff[512000];
   miString bufr_access= "r";
   int iunit= 20;
   int iret= 0;
@@ -121,7 +125,7 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
   static int ksup[9];
   static int ksec0[3];
   static int ksec1[40];
-  static int ksec2[64];
+  static int ksec2[4096];
   int kerr;
 
   //read sec 0-2
@@ -133,7 +137,6 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
     year = (year>70) ? year+1900 : year+2000;
   }
   time = miTime(year,ksec1[9],ksec1[10],ksec1[11],ksec1[12],0);
-
   return true;
 
 }
@@ -179,17 +182,17 @@ VprofPlot* ObsBufr::getVprofPlot(const miString& bufr_file,
 
 bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 {
-  // Decode BUFR message into fully decoded form.
+//   cerr <<"  // Decode BUFR message into fully decoded form."<<endl;
   
-  const int kelem=160000; //length of subsection 
-  const int kvals=4096000; 
+  const int kelem=40000; //length of subsection 
+  const int kvals=360000; 
   
   const int len_cnames=64, len_cunits=24, len_cvals=80; 
   
   static int ksup[9]; 
   static int ksec0[3];
   static int ksec1[40];
-  static int ksec2[64];
+  static int ksec2[4096];
   static int ksec3[4];
   static int ksec4[2];
 
@@ -198,17 +201,21 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
   static char cvals[kvals][len_cvals];
   static double values[kvals];
   
-  static int ktdlst[2*kelem];
-  static int ktdexp[2*kelem];
+  static int ktdlst[kelem];
+  static int ktdexp[kelem];
   int ktdlen;
   int ktdexl;
   int kerr;
 
   int kkelem= kelem;
   int kkvals= kvals;
+  bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2,&kerr);
+  if (kerr>0) cerr<<"ObsBufr: Error in BUS012: KERR="<<kerr<<endl;
+  int kxelem = kvals/ksup[5];
+  if (kxelem > kelem) kxelem = kelem; 
 
   bufrex_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2,
-          ksec3, ksec4, &kkelem, &cnames[0][0], &cunits[0][0], &kkvals, values,
+          ksec3, ksec4, &kxelem, &cnames[0][0], &cunits[0][0], &kkvals, values,
           &cvals[0][0], &kerr,
 	  len_cnames, len_cunits, len_cvals);
   if (kerr>0) cerr<<"ObsBufr::init: Error in BUFREX: KERR="<<kerr<<endl;
@@ -230,7 +237,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 
   for(int i=1; i<nsubset+1; i++){
     
-    busel2_(&i, &kkelem, &ktdlen, ktdlst, &ktdexl, ktdexp, 
+    busel2_(&i, &kxelem, &ktdlen, ktdlst, &ktdexl, ktdexp, 
 	    &cnames[0][0], &cunits[0][0], &kerr);
     if (kerr>0) cerr<<"ObsBufr::init: Error in BUSEL: KERR="<<kerr<<endl;
 
@@ -239,18 +246,18 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
       ObsData &obs = oplot->getNextObs();
 
       if( oplot->getLevel() <-1){
-	if(!get_diana_data(ktdexl, ktdexp, values, cvals, len_cvals, i-1, kelem, obs)
+	if(!get_diana_data(ktdexl, ktdexp, values, cvals, len_cvals, i-1, kxelem, obs)
 	   || !oplot->timeOK(obs.obsTime))
 	  oplot->removeObs();
       } else {
 	if(!get_diana_data_level(ktdexl, ktdexp, values, cvals,len_cvals, 
-				 i-1, kelem, obs, oplot->getLevel())
+				 i-1, kxelem, obs, oplot->getLevel())
 	   || !oplot->timeOK(obs.obsTime))
 	  oplot->removeObs();
       }
     } else if(format.downcase() == "vprofplot"){
       //will return without reading more subsets, fix later
-      return !get_data_level(ktdexl, ktdexp, values, cvals,len_cvals, i-1, kelem,obsTime);
+      return !get_data_level(ktdexl, ktdexp, values, cvals,len_cvals, i-1, kxelem,obsTime);
     } else if(format.downcase() == "stationinfo"){
       get_station_info(ktdexl, ktdexp, values, cvals,len_cvals, i-1, kelem);
     }
