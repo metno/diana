@@ -86,17 +86,17 @@ void ComplexSymbolPlot::initStrings(int drawIndex){
   switch (drawIndex){
   case 1000:
     if (symbolStrings.size()==0)
-      symbolStrings.push_back("Text");
+      symbolStrings.push_back("");
     break;
   case 1007:
     if (xstrings.size()==0)
-      xstrings.push_back("x");
+      xstrings.push_back("");
     if (xstrings.size()==1)
       xstrings.push_back(xstrings[0]);
     break;
   case 2000:
     if (symbolStrings.size()==0)
-      symbolStrings.push_back("Text");
+      symbolStrings.push_back("");
     if (symbolStrings.size()==1)
       symbolStrings.push_back(symbolStrings[0]);
     break;
@@ -109,60 +109,60 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
   currentXStrings.clear();    
   switch (drawIndex){
   case 1000:
-    currentSymbolStrings.push_back("Text");
+    currentSymbolStrings.push_back("");
     break;
   case 1007:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     break;
   case 1008:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     break;
   case 1009:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     break;
   case 1010:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     break;
   case 1011:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     break;
   case 1012:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     break;
   case 1013:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     break;
   case 1014:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
-    currentSymbolStrings.push_back("Text");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
+    currentSymbolStrings.push_back("");
     break;
   case 1015:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
-    currentSymbolStrings.push_back("Text");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
+    currentSymbolStrings.push_back("");
     break;
   case 1016:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
-    currentSymbolStrings.push_back("Text");
-    currentSymbolStrings.push_back("Text");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
+    currentSymbolStrings.push_back("");
+    currentSymbolStrings.push_back("");
     break;
   case 1017:
     currentSymbolStrings.push_back("0°:x");
     break;
   case 1018:
-    //currentSymbolStrings.push_back("Text");
+    //currentSymbolStrings.push_back("");
     break;
   case 1019:
-    //currentSymbolStrings.push_back("Text");
+    //currentSymbolStrings.push_back("");
     break;
   case 1020:
     //currentSymbolStrings.push_back("9xx");
@@ -174,18 +174,18 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
     //currentSymbolStrings.push_back("1xxx");
     break;
   case 1023:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     currentSymbolStrings.push_back("BKN/OVC");
     break;
   case 1024:
-    currentXStrings.push_back("x");
-    currentXStrings.push_back("x");
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
     currentSymbolStrings.push_back("BKN/OVC");
     break;
   case 2000:
-    currentSymbolStrings.push_back("Text");
-    currentSymbolStrings.push_back("Text");
+    currentSymbolStrings.push_back("");
+    currentSymbolStrings.push_back("");
     break;
   }
 }

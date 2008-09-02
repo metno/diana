@@ -115,6 +115,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
       QLabel* namelabel= new QLabel(labeltext, this,"textlabel") ;
     
       QComboBox *text = new QComboBox(TRUE,this,"text");
+      text->setCompleter(NULL);
       if (!cv) cv = new complexValidator(this);
       set <miString>::iterator p = complexList.begin();  
       for (; p!=complexList.end(); p++) {
