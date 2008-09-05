@@ -4831,7 +4831,6 @@ void FieldDialog::updateTime(){
         request[nr].levelName=  selectedFields[i].level;
         request[nr].idnumName=  selectedFields[i].idnum;
         request[nr].hourOffset=  selectedFields[i].hourOffset;
-        request[nr].hourDiff=    selectedFields[i].hourDiff;
 	request[nr].forecastSpec= 0;
 
 	if (selectedFields[i].forecastSpec) {

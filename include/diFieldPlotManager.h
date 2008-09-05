@@ -71,14 +71,13 @@ public:
 			   vector<Field*>& fv,
 			   const miString& levelSpec, const miString& levelSet,
 			   const miString& idnumSpec, const miString& idnumSet,
-			   int& pressureLevel, int& oceanDepth,
 			   int vectorIndex);
 
   bool makeFields(const miString& pin, const miTime& ptime,
 		  vector<Field*>& vfout,
 		  const miString& levelSpec, const miString& levelSet,
 		  const miString& idnumSpec, const miString& idnumSet,
-		  int& pressureLevel, int& oceanDepth,bool toCache=false);
+		  bool toCache=false);
   /// return available times for the requested models and fields
 
   void makeFieldText(Field* fout,

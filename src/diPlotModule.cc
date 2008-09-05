@@ -782,8 +782,6 @@ void PlotModule::updateLevel(const miString& levelSpec, const miString& levelSet
   vector<Field*> fv;
   int i,n,vectorIndex;
   miTime t= splot.getTime();
-  int pressureLevel= -1;
-  int oceanDepth= -1;
 
   n= vfp.size();
   for (i=0; i<n; i++){
@@ -795,12 +793,11 @@ void PlotModule::updateLevel(const miString& levelSpec, const miString& levelSet
         res= fieldplotm->makeDifferenceField(fspec1,fspec2,t,fv,
 					 levelSpecified,levelCurrent,
 					 idnumSpecified,idnumCurrent,
-			                 pressureLevel,oceanDepth,vectorIndex);
+			                 vectorIndex);
       } else {
         res= fieldplotm->makeFields(pin,t,fv,
 				levelSpecified,levelCurrent,
-				idnumSpecified,idnumCurrent,
-			        pressureLevel,oceanDepth);
+				idnumSpecified,idnumCurrent);
       }
       //free old fields
       fieldm->fieldcache->freeFields(vfp[i]->getFields());
@@ -809,11 +806,11 @@ void PlotModule::updateLevel(const miString& levelSpec, const miString& levelSet
     }
   }
 
-  if (oceanDepth>=0 && vop.size()>0)
-    splot.setOceanDepth(oceanDepth);
+  if (fv.size() && fv[0]->oceanDepth>=0 && vop.size()>0)
+    splot.setOceanDepth(int(fv[0]->oceanDepth));
 
-  if (pressureLevel>0 && vop.size()>0)
-    splot.setPressureLevel(pressureLevel);
+  if (fv.size() && fv[0]->pressureLevel>=0 && vop.size()>0)
+    splot.setPressureLevel(int(fv[0]->pressureLevel));
 
   n= vop.size();
   for (i=0; i<n; i++) {
@@ -837,8 +834,6 @@ void PlotModule::updateIdnum(const miString& idnumSpec, const miString& idnumSet
   vector<Field*> fv;
   int i,n,vectorIndex;
   miTime t= splot.getTime();
-  int pressureLevel= -1;
-  int oceanDepth= -1;
 
   n= vfp.size();
   for (i=0; i<n; i++){
@@ -848,14 +843,13 @@ void PlotModule::updateIdnum(const miString& idnumSpec, const miString& idnumSet
         miString fspec1,fspec2;
         vfp[i]->getDifference(fspec1,fspec2,vectorIndex);
         res= fieldplotm->makeDifferenceField(fspec1,fspec2,t,fv,
-					 levelSpecified,levelCurrent,
-					 idnumSpecified,idnumCurrent,
-			                 pressureLevel,oceanDepth,vectorIndex);
+					     levelSpecified,levelCurrent,
+					     idnumSpecified,idnumCurrent,
+					     vectorIndex);
       } else {
         res= fieldplotm->makeFields(pin,t,fv,
-				levelSpecified,levelCurrent,
-				idnumSpecified,idnumCurrent,
-			        pressureLevel,oceanDepth);
+				    levelSpecified,levelCurrent,
+				    idnumSpecified,idnumCurrent);
       }
       //free old fields
       fieldm->fieldcache->freeFields(vfp[i]->getFields());
@@ -881,9 +875,6 @@ void PlotModule::updatePlots()
   miTime t= splot.getTime();
   bool satOK= false;
   Area satarea, plotarea, newarea;
-  int pressureLevel= -1;
-  int oceanDepth= -1;
-
 
   // prepare data for field plots
   n= vfp.size();
@@ -894,14 +885,13 @@ void PlotModule::updatePlots()
         miString fspec1,fspec2;
         vfp[i]->getDifference(fspec1,fspec2,vectorIndex);
         res= fieldplotm->makeDifferenceField(fspec1,fspec2,t,fv,
-					 levelSpecified,levelCurrent,
-					 idnumSpecified,idnumCurrent,
-			                 pressureLevel,oceanDepth,vectorIndex);
+					     levelSpecified,levelCurrent,
+					     idnumSpecified,idnumCurrent,
+					     vectorIndex);
       } else {
         res= fieldplotm->makeFields(pin,t,fv,
-				levelSpecified,levelCurrent,
-				idnumSpecified,idnumCurrent,
-			        pressureLevel,oceanDepth);
+				    levelSpecified,levelCurrent,
+				    idnumSpecified,idnumCurrent);
       }
       //free old fields
       fieldm->fieldcache->freeFields(vfp[i]->getFields());
@@ -910,11 +900,12 @@ void PlotModule::updatePlots()
     }
   }
 
-  // level for P-level observations "as field"
-  splot.setPressureLevel(pressureLevel);
-
-  // depth for ocean depth observations "as field"
-  splot.setOceanDepth(oceanDepth);
+  if (fv.size() ){
+    // level for P-level observations "as field"
+    splot.setPressureLevel(int(fv[0]->pressureLevel));
+    // depth for ocean depth observations "as field"
+    splot.setOceanDepth(int(fv[0]->oceanDepth));
+  }
 
   // prepare data for satellite plots
   n= vsp.size();

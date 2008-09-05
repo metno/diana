@@ -354,8 +354,6 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
 	  idnumName = vtoken[1];
 	} else if (vtoken[0]=="hour.offset") {
 	  hourOffset = atoi(vtoken[1].cStr());
-	} else if (vtoken[0]=="hour.diff") {
-	  hourDiff = atoi(vtoken[1].cStr());
 	} else if (vtoken[0]=="alltimesteps") {
 	  if (vtoken[1]=="1" || vtoken[1]=="on" || vtoken[1]=="true")
 	    allTimeSteps= true;
@@ -382,7 +380,6 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
     request[nr].levelName=    levelName;
     request[nr].idnumName=    idnumName;
     request[nr].hourOffset=   hourOffset;
-    request[nr].hourDiff=     hourDiff;
     request[nr].forecastSpec= fctype;
     request[nr].forecast=     vfc;
   }
@@ -496,8 +493,6 @@ bool FieldPlotManager::makeFields(const miString& pin,
 				  const miString& levelSet,
 				  const miString& idnumSpec, 
 				  const miString& idnumSet,
-				  int& pressureLevel, 
-				  int& oceanDepth,
 				  bool toCache)
 {
 
@@ -511,6 +506,11 @@ bool FieldPlotManager::makeFields(const miString& pin,
   int hourDiff=0;
   miTime ptime = const_ptime; 
   parsePin(pin,modelName,plotName,fieldName,levelName,idnumName,hourOffset,hourDiff,ptime);
+
+  if (hourOffset!=0) {
+    ptime.addHour(hourOffset);
+  } 
+
 
   miString levelSpecified= levelName;
   miString idnumSpecified= idnumName;
@@ -526,16 +526,13 @@ bool FieldPlotManager::makeFields(const miString& pin,
   bool ok=false;
   for(int i=0;i<fieldName.size();i++){
     Field* fout;
-    ok=fieldManager->makeField(modelName, 
+    ok=fieldManager->makeField(fout,
+			       modelName, 
 			       fieldName[i], 
+			       ptime,
 			       levelName,
 			       idnumName,
-			       hourOffset,
 			       hourDiff,
-			       ptime,
-			       fout,
-			       pressureLevel, 
-			       oceanDepth,
 			       toCache);
     
     if (!ok) return false;
@@ -592,8 +589,6 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 					   const miString& levelSet,
 					   const miString& idnumSpec, 
 					   const miString& idnumSet,
-					   int& pressureLevel, 
-					   int& oceanDepth,
 					   int vectorIndex)
 {
 
@@ -601,11 +596,9 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   vector<Field*> fv2;
 
   if(makeFields(fspec1, const_ptime,fv1,
-		levelSpec, levelSet, idnumSpec, idnumSet,
-		pressureLevel, oceanDepth) ){
+		levelSpec, levelSet, idnumSpec, idnumSet)){
     if(!makeFields(fspec2, const_ptime,fv2,
-		  levelSpec, levelSet, idnumSpec, idnumSet,
-		  pressureLevel, oceanDepth) ){
+		   levelSpec, levelSet, idnumSpec, idnumSet)){
       fieldManager->fieldcache->freeFields(fv1);
       return false;
     }
