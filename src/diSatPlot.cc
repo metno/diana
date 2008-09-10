@@ -387,7 +387,9 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
     str += satName;
     
     int n = satdata->paletteInfo.noofcl;
-    for (int j = 0;j< n;j++){
+    //NB: better solution: get step from gui
+    int step = n/50 +1;
+    for (int j = 0;j< n;j+=step){
       uchar_t col[3];
       miString rgbstr;
       for( int k=0; k<3; k++){
