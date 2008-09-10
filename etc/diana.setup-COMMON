@@ -3714,6 +3714,14 @@ image=SAFNWC-CTTH
  channels=CTTH_TEMPER
      file=$(OPDATA2)/meteosat/safnwc/CTTH_TEMPER_[yyyymmddHHMM].tif
 
+image=GOME_SAFO3M_NTO
+ channels=O3
+ sub.type=GOME_METOP-A_North_O3
+     file=/opdata/satdata_polar/metop_gome_safo3m_nto_l2/mitiff/GOME_S-O3M_O3_TS60N_[yyyymmddHHMM]??.mitiff
+ channels=NO2
+ sub.type=GOME_METOP-A_North_NO2
+     file=/opdata/satdata_polar/metop_gome_safo3m_nto_l2/mitiff/GOME_S-O3M_NO2_TS60N_[yyyymmddHHMM]??.mitiff
+
 image=Foreign_satellite_data
  channels=VIS IR WV VIS+IR
  sub.type=GOES11
