@@ -3237,7 +3237,7 @@ headerfile=$(DIANADIR)/etc/UALF_diana.header
 timerange=0,60
 
 PROD=ascii:UK_Lyn
-ascii=/opdata/lyndata/UK_lightnings/yyyy/mm/UK_lightningyyyymmddHHMM??.txt
+ascii=$(OPDATA2)/lyndata/UK_lightnings/yyyy/mm/UK_lightningyyyymmddHHMM??.txt
 headerfile=$(DIANADIR)/etc/UK_lyn.header
 timerange=0,60
 
@@ -3717,10 +3717,10 @@ image=SAFNWC-CTTH
 image=GOME_SAFO3M_NTO
  channels=O3
  sub.type=GOME_METOP-A_North_O3
-     file=/opdata/satdata_polar/metop_gome_safo3m_nto_l2/mitiff/GOME_S-O3M_O3_TS60N_[yyyymmddHHMM]??.mitiff
+     file=$(OPDATA2)/satdata_polar/metop_gome_safo3m_nto_l2/mitiff/GOME_S-O3M_O3_TS60N_[yyyymmddHHMM]??.mitiff
  channels=NO2
  sub.type=GOME_METOP-A_North_NO2
-     file=/opdata/satdata_polar/metop_gome_safo3m_nto_l2/mitiff/GOME_S-O3M_NO2_TS60N_[yyyymmddHHMM]??.mitiff
+     file=$(OPDATA2)/satdata_polar/metop_gome_safo3m_nto_l2/mitiff/GOME_S-O3M_NO2_TS60N_[yyyymmddHHMM]??.mitiff
 
 image=Foreign_satellite_data
  channels=VIS IR WV VIS+IR
