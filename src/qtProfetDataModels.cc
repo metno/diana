@@ -126,7 +126,7 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
   if (role == Qt::DisplayRole){
     miTime rt = sessions[index.row()].referencetime();
-    miString mn = sessions[index.row()].modelname();
+    miString mn = sessions[index.row()].modelsource();
     miTime mt = sessions[index.row()].modeltime();
     
     QString str = QString("%1: %2, %3").arg(
