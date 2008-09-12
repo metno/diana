@@ -554,8 +554,7 @@ void DianaProfetGUI::hideProfetPerformed(){
   emit toggleProfetGui();
 }
 
-void DianaProfetGUI::showField(miString param, miTime time){
-  cerr <<"show field "<<param<<" "<<time<<endl;
+void DianaProfetGUI::showField(const miTime & reftime, const miString & param, const miTime & time){
   LOG4CXX_DEBUG(logger,"show field "<<param<<" "<<time);
 
   //send time(s) to TimeSlider and set time 
@@ -565,11 +564,11 @@ void DianaProfetGUI::showField(miString param, miTime time){
   emit setTime(time);
 
   // First, remove previous PROFET fieldPlot (if any)
-    emit showProfetField(""); //FieldDialog::fieldEditUpdate
+  emit showProfetField(""); //FieldDialog::fieldEditUpdate
   
   // make plot string for new PROFET fieldPlot
   miString plotString;
-  plotString += "profet.work ";
+  plotString += ModelNames::profetWork(reftime) + " ";
   plotString += param;
   plotString += " time=";
   plotString += time.isoTime("T");
@@ -579,7 +578,6 @@ void DianaProfetGUI::showField(miString param, miTime time){
   
   // will trigger MenuOK in qtMainWindow :-)
   emit prepareAndPlot();
-  
 }
 
 

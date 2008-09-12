@@ -123,7 +123,7 @@ public:
    * Plots specified field in Diana.
    * Field must be prepared in field-manager first
    */
-  void showField(miString param, miTime time);
+  void showField(const miTime & reftime, const miString & param, const miTime & time);
   void setBaseProjection(Area a, int size_x, int size_y);
   /**
    * Repaints the Diana Map
