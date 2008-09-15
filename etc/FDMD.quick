@@ -12,150 +12,84 @@
 #------------------------------------------------
 
 # quickmenu name
-"ProgBlogg-byge"
+"ProgBlogg-skyer"
 
 # variables
 [UTSNITT=VA-Norge,VV-Norge,VNN-Norge
 
 #
->1) VA/VV nedbørsammenligning 18UTC
-FIELD EC.GEO.0.25.00-1 NEDBØR.12T colour=darkgreen linetype=solid linewidth=1 base=0 minvalue=1 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD EC.GEO.NY.00-1 NEDBØR.12T colour=darkgreen linetype=solid linewidth=1 base=0 minvalue=1 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=black linetype=solid linewidth=1 base=0 minvalue=1 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 NEDBØR.12T colour=red linetype=solid linewidth=1 base=0 minvalue=1 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.4KM.00-1 NEDBØR.12T colour=blue linetype=solid linewidth=1 base=0 minvalue=1 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=magenta linetype=solid linewidth=1 base=0 minvalue=1 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=2 tempprecision=true timediff=60  criteria=RRR>-0,plot;RRR>5,red
-SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT Radar-nedbør Nedbørintensitet_mm/h PSC_RI timediff=60 mosaic=0 alpha=1 Table=1 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
-SAT Radar-nedbør Oslo_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alpha=1 Table=0 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
-SAT Radar-nedbør Hegebostad_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alpha=1 Table=0 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
-SAT Radar-nedbør Rissa_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alpha=1 Table=0 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
-SAT Radar-nedbør Bømlo_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alpha=1 Table=0 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
-SAT Radar-nedbør Røst_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alpha=1 Table=0 hide=20,21,22,23,24,25,26,27, font=Helvetica face=normal
-MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
-MAP map=Euro2 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+>1. er det sprik mellom modellene? mslp div modeler
+FIELD EC.GEO.0.25.00-1 MSLP colour=black linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD EC.GEO.NY.00-1 MSLP colour=grey25 linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off
+FIELD HIRLAM.12KM.00-1(12) MSLP colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.8KM.00-1 MSLP colour=red linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.4KM.00-1 MSLP colour=magenta linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD UM.HL.4KM.00-1 MSLP colour=cyan linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Europa backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
 #
->2) VA/VV Showalter/K-index/lyn - 18UTC
-FIELD EC.GEO.0.25.00-1 K-INDEX colour=blue linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD EC.GEO.0.25.00-1 SHOWALTER-INDEX colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD EC.GEO.NY.00-1 K-INDEX colour=blue linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD EC.GEO.NY.00-1 SHOWALTER-INDEX colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(24) K-INDEX colour=black linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(24) SHOWALTER-INDEX colour=black linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 K-INDEX colour=purple linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 SHOWALTER-INDEX colour=purple linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 K-INDEX colour=brown linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 SHOWALTER-INDEX colour=brown linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-OBS plot=Lyn data=Lyn colour=red density=1 image=lyn onlypos=true priority=/metno/local/diana/etc/priList.txt scale=1 timediff=120  criteria=Zflag<1,green;Zflag=1,cyan;Zflag=2,blue;Zflag=3,magenta;Zflag>3,red
-SAT NOAA S-Norge-(SAF_SE) day_night timediff=105 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
-SAT Radar-nedbør Nedbørintensitet_mm/h PSC_RI timediff=60 mosaic=0 alpha=0.8 Table=1 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
-MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
-MAP map=Euro2 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+>2. stemmer det totale skydekket i modelene med virkeligheten?
+FIELD EC.GEO.0.25.00-1 TOTALT.SKYDEKKE colour=red field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD EC.GEO.NY.00-1 TOTALT.SKYDEKKE colour=red field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.12KM.00-1(12) TOTALT.SKYDEKKE colour=dark_red field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 TOTALT.SKYDEKKE colour=orange field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.4KM.00-1 TOTALT.SKYDEKKE colour=magenta field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 TOTALT.SKYDEKKE colour=purple field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
 #
->3) VA/VV Urealistsike nbd-bomber 18UTC (med minst 30mm)
-FIELD EC.GEO.0.25.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD EC.GEO.NY.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.4KM.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=2 timediff=60  criteria=RRR>-0,plot;RRR>5,red
-SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
-OBJECTS NAME="met.no Bakkeanalyse" types=front,symbol,area,anno timediff=60 alpha=0.5
-MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
-MAP map=Euro2 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+>3. er mengden og plassering av tåke riktig?
+FIELD EC.GEO.0.25.00-1 TÅKE colour=yellow field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.12KM.00-1(12) TÅKE colour=grey90 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 TÅKE colour=gray field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.4KM.00-1 TÅKE colour=seablue field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 TÅKE colour=palegreen field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) 3 timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA N-Norge-(SAF_NE) 3 timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
 #
->1) VNN-nedbørsammenligning 18UTC
-FIELD EC.GEO.NY.00-1 NEDBØR.12T colour=dark_red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=blue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 NEDBØR.12T colour=purple linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.4KM.00-1 NEDBØR.12T colour=black linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=midnightblue linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=2 timediff=60  criteria=RRR>-0,plot;RRR>5,red
-SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
-OBJECTS NAME="met.no Bakkeanalyse" types=front,symbol,area,anno timediff=60 alpha=0.5
-MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
-MAP map=Euro2 contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=VNN-Norge backcolour=white map=Euro3 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=grey50 latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+>4. er mengde og plassering av lave skyer riktig?
+FIELD EC.GEO.0.25.00-1 LAVE_SKYER colour=lightgray field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.12KM.00-1(12) LAVE_SKYER colour=darkgray field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 LAVE_SKYER colour=green6 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.4KM.00-1 LAVE_SKYER colour=seablue field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 LAVE_SKYER colour=flesh field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
 LABEL data font=Helvetica
 LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
-#
->2)VNN Showalter/K-index/lyn - 18UTC
-FIELD EC.GEO.NY.00-1 K-INDEX colour=blue linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD EC.GEO.NY.00-1 SHOWALTER-INDEX colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(24) K-INDEX colour=black linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(24) SHOWALTER-INDEX colour=black linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 K-INDEX colour=purple linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 SHOWALTER-INDEX colour=purple linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 K-INDEX colour=brown linetype=solid linewidth=1 base=5 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 SHOWALTER-INDEX colour=brown linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-OBS plot=Lyn data=Lyn colour=red density=1 image=lyn onlypos=true priority=/metno/local/diana/etc/priList.txt scale=1 timediff=120  criteria=Zflag<1,green;Zflag=1,cyan;Zflag=2,blue;Zflag=3,magenta;Zflag>3,red
-SAT METEOSAT VISIR_Europa_Meteosat 1+2+9 timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT NOAA N-Atlant day_night timediff=105 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT NOAA N-Norge-(SAF_NE) day_night timediff=105 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
-SAT Radar-nedbør Nedbørintensitet_mm/h PSC_RI timediff=60 mosaic=0 alpha=0.8 Table=1 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
-MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
-MAP map=Euro2 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=@UTSNITT backcolour=white map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-LABEL data font=Helvetica
-LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
-LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
-LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
-#
->3) VNN Urealistsike nbd-bomber 18UTC (med minst 30mm)
-FIELD EC.GEO.NY.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.8KM.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD HIRLAM.4KM.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=off linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=2 timediff=60  criteria=RRR>-0,plot;RRR>5,red
-SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
-OBJECTS NAME="met.no Bakkeanalyse" types=front,symbol,area,anno timediff=60 alpha=0.5
-MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
-MAP map=Euro2 contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=VNN-Norge backcolour=white map=Euro3 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=grey50 latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
-LABEL data font=Helvetica
-LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
-LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
-LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
-#
->4) VNN UM4/UM1 nedbørbomber i kveld 18UTC (Angi stor forskjell i maxverdier Diff>50%)
-FIELD UM.HL.4KM.00 NEDBØR.12T colour=dark_green linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-FIELD UMEXP.N-Norge.1km.00 FRONTAL_NEDBØR.12T colour=dark_green linetype=solid linewidth=1 base=0 minvalue=-10 maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=1 repeat=1 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=180
-SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
-SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alpha=0.6 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
-OBJECTS NAME="met.no Bakkeanalyse" types=front,symbol,area,anno timediff=60 alpha=0.5
-MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
-MAP map=Euro2 contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
-MAP area=QS_ENAN backcolour=white map=Euro3 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=grey50 latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
-LABEL data font=Helvetica
-LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
-LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
-LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
-
