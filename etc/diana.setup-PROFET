@@ -52,68 +52,9 @@ DATABASE        = "tempo.oslo.dnmi.no diana 19100"  # host base port
 
 <FIELD_COMPUTE>
 
-mslp=multiply(mslp_pa,0.01) 
+thunder.index=replace.all(cloud.fog,0)
+fog.index=replace.all(cloud.fog,0)
 
 </FIELD_COMPUTE>
 
 
-<FIELD_PLOT>
-
-#change plot options of exsisting field
-loop [HR]=1,3,6,12,24
-loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40",\
-     "0.2,0.5,1,2,4,6,10,15,....50",\
-     "0.5,1,2,4,6,10,15,....60",\
-     "1,2,4,6,10,15,....100",\
-     "0.5,1,2,4,6,10,15,....200"
-field="NEDBØR(REGN_FRONTAL).[HR]T"
-      colour=red linetype=solid linewidth=1 line.values=[LINE]       
-      plot=CONTOUR(accumrain_stratiform.[HR]h)
-end.field
-
-loop [HR]=1,3,6,12,24
-loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40",\
-     "0.2,0.5,1,2,4,6,10,15,....50",\
-     "0.5,1,2,4,6,10,15,....60",\
-     "1,2,4,6,10,15,....100",\
-     "0.5,1,2,4,6,10,15,....200"
-field="NEDBØR(SNØ_FRONTAL).[HR]T"
-      colour=red linetype=solid linewidth=1 line.values=[LINE]       
-      plot=CONTOUR(accumsnow_stratiform_water.[HR]h)
-end.field
-
-loop [HR]=1,3,6,12,24
-loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40",\
-     "0.2,0.5,1,2,4,6,10,15,....50",\
-     "0.5,1,2,4,6,10,15,....60",\
-     "1,2,4,6,10,15,....100",\
-     "0.5,1,2,4,6,10,15,....200"
-field="NEDBØR(REGN_KONVEKTIV).[HR]T"
-      colour=red linetype=solid linewidth=1 line.values=[LINE]       
-      plot=CONTOUR(accumrain_convective.[HR]h)
-end.field
-
-loop [HR]=1,3,6,12,24
-loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40",\
-     "0.2,0.5,1,2,4,6,10,15,....50",\
-     "0.5,1,2,4,6,10,15,....60",\
-     "1,2,4,6,10,15,....100",\
-     "0.5,1,2,4,6,10,15,....200"
-field="NEDBØR(SNØ_KONVEKTIV).[HR]T"
-      colour=red linetype=solid linewidth=1 line.values=[LINE]       
-      plot=CONTOUR(accumsnow_convective_water.[HR]h)
-end.field
-
-loop [HR]=1,3,6,12,24
-loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40",\
-     "0.2,0.5,1,2,4,6,10,15,....50",\
-     "0.5,1,2,4,6,10,15,....60",\
-     "1,2,4,6,10,15,....100",\
-     "0.5,1,2,4,6,10,15,....200"
-field="NEDBØR(REGN_FRONTAL+KONV).[HR]T"
-      colour=red linetype=solid linewidth=1 line.values=[LINE]       
-      plot=CONTOUR(totalrain.[HR]h)
-end.field
-
-</FIELD_PLOT>
-  
