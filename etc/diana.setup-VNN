@@ -627,6 +627,21 @@ m=UV_varslet+48 f=$(OPDATA1)/uv/mitiff/uv-fc.dat+2
 filegroup=SNAP
 m=SNAP.NRPA         f=/opdata_routine/snap/snap.felt
 
+filegroup=PROFF
+m=Ph12_00         f=$(OPDATA2)/proff/Ph12_00.dat    
+m=Ph12h8_00       f=$(OPDATA2)/proff/Ph12h8_00.dat  
+m=Ph12h8h4_00     f=$(OPDATA2)/proff/Ph12h8h4_00.dat  
+m=Ph12um4_00      f=$(OPDATA2)/proff/Ph12um4_00.dat
+m=Ph12h4_00       f=$(OPDATA2)/proff/Ph12h4_00.dat  
+m=Ph12h8um4_00    f=$(OPDATA2)/proff/Ph12h8um4_00.dat  
+                  
+m=Ph12_12         f=$(OPDATA2)/proff/Ph12_12.dat    
+m=Ph12h8_12       f=$(OPDATA2)/proff/Ph12h8_12.dat  
+m=Ph12h8h4_12     f=$(OPDATA2)/proff/Ph12h8h4_12.dat  
+m=Ph12um4_12      f=$(OPDATA2)/proff/Ph12um4_12.dat
+m=Ph12h4_12       f=$(OPDATA2)/proff/Ph12h4_12.dat  
+m=Ph12h8um4_12    f=$(OPDATA2)/proff/Ph12h8um4_12.dat  
+
 </FIELD_FILES>
 
 <OBSERVATION_FILES>
