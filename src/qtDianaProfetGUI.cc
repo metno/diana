@@ -98,6 +98,15 @@ void DianaProfetGUI::connectSignals(){
 DianaProfetGUI::~DianaProfetGUI(){ 
 }
 
+void DianaProfetGUI::enableObjectButtons(bool enableNewbutton,
+					 bool enableModifyButtons,
+					 bool enableTable)
+{
+  bool isopen = (currentSession.editstatus() == fetSession::editable);
+  sessionDialog.enableObjectButtons(enableNewbutton && isopen,
+				    enableModifyButtons && isopen,
+				    enableTable);
+}
 
 void DianaProfetGUI::setCurrentParam(const miString & p){
   currentParamTimeMutex.lock();
@@ -291,7 +300,7 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index){
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
     return;
   }
-  sessionDialog.enableObjectButtons(true,true);
+  enableObjectButtons(true,true,true);
 }
 
 void DianaProfetGUI::saveObject(){
@@ -324,7 +333,7 @@ void DianaProfetGUI::saveObject(){
     currentObject=fetObject();
     currentObjectMutex.unlock();
     setObjectDialogVisible(false);
-    sessionDialog.enableObjectButtons(true,false);
+    enableObjectButtons(true,false,true);
   }catch(Profet::ServerException & se){
     InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
         "Save Object Failed","",se.what());
@@ -370,7 +379,7 @@ void DianaProfetGUI::startTimesmooth()
         this,SLOT(endTimesmooth(vector<fetObject::TimeValues>)));
     
   activeTimeSmooth=true;
-  sessionDialog.enableObjectButtons(false,false);
+  enableObjectButtons(false,false,false);
 }
 
 void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
@@ -426,7 +435,7 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
   }catch(Profet::ServerException & se){
     cerr << "DianaProfetGUI::endTimesmooth failed to unlock objects" << endl;
   }
-  sessionDialog.enableObjectButtons(true,true);
+  enableObjectButtons(true,true,true);
 }
 
 
@@ -447,13 +456,14 @@ void DianaProfetGUI::dynamicGuiChanged(){
 }
 
 void DianaProfetGUI::sessionSelected(int index){
+  cerr << "DianaProfetGUI::sessionSelected:" << index << endl;
   try{
     controller.currentSessionChanged(sessionModel.getSession(index));
   }catch(InvalidIndexException & iie){
     cerr << "DianaProfetGUI::sessionSelected invalid index" << endl;
     return;
   }
-  sessionDialog.enableObjectButtons(true,false);
+  enableObjectButtons(true,false,true);
 }
 
 void DianaProfetGUI::sendMessage(const QString & m){
@@ -500,7 +510,7 @@ void DianaProfetGUI::createNewObject(){
   // currentObject is reset
   objectDialog.selectDefault();
   setObjectDialogVisible(true);
-  sessionDialog.enableObjectButtons(false,false);
+  enableObjectButtons(false,false,false);
 }
 
 void DianaProfetGUI::editObject(){
@@ -517,7 +527,7 @@ void DianaProfetGUI::editObject(){
     currentObjectMutex.unlock();
     controller.openObject(fo);
     setObjectDialogVisible(true);
-    sessionDialog.enableObjectButtons(false,false);
+    enableObjectButtons(false,false,false);
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
     // Area always ok for a saved object(?)
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
@@ -535,7 +545,7 @@ void DianaProfetGUI::editObject(){
 
 void DianaProfetGUI::deleteObject(){
   LOG4CXX_DEBUG(logger,"deleteObject");
-  sessionDialog.enableObjectButtons(true,false);
+  enableObjectButtons(true,false,true);
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
     controller.deleteObject(fo.id());
@@ -723,7 +733,7 @@ void DianaProfetGUI::cancelObjectDialog(){
   currentObjectMutex.lock();
   currentObject=fetObject();
   currentObjectMutex.unlock();
-  sessionDialog.enableObjectButtons(true,false);
+  enableObjectButtons(true,false,true);
 }
 
 void DianaProfetGUI::setPaintToolBarVisible(bool visible){
@@ -737,7 +747,7 @@ void DianaProfetGUI::setPaintToolBarVisible(bool visible){
 
 void DianaProfetGUI::setObjectDialogVisible(bool visible){
   showObjectDialog = visible;
-  sessionDialog.setEditable(!visible);
+  //sessionDialog.setEditable(!visible); // doesn't do anything...
   if(showObjectDialog) {
     objectDialog.show();
   }

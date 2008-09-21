@@ -100,7 +100,9 @@ public:
   void setEditable(bool editable);
 
   /// Enables / disables gui components
-  void enableObjectButtons(bool enableNewButton, bool enable);
+  void enableObjectButtons(bool enableNewButton,
+			   bool enableModifyButtons,
+			   bool enableTable);
   
   void selectDefault();
   int getCurrentSessionIndex(){return sessionComboBox->currentIndex();}

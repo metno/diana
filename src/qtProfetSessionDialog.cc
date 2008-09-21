@@ -120,7 +120,7 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   buttonLayout->addWidget(closeButton);
   
 
-  enableObjectButtons(true,false);
+  enableObjectButtons(true,false,true);
   connectSignals();
 }
 
@@ -210,15 +210,20 @@ void ProfetSessionDialog::setEditable(bool editable){
 //  objectWidget->setEnabled(editable);
 }
 
-void ProfetSessionDialog::enableObjectButtons(bool enableNewButton, bool enable)
+void ProfetSessionDialog::enableObjectButtons(bool enableNewButton,
+					      bool enableModifyButtons,
+					      bool enableTable)
 {
   newObjectButton->setEnabled(enableNewButton);
-  editObjectButton->setEnabled(enable);
-  deleteObjectButton->setEnabled(enable);
-  timesmoothButton->setEnabled(enable);
+
+  editObjectButton->setEnabled(enableModifyButtons);
+  deleteObjectButton->setEnabled(enableModifyButtons);
+  timesmoothButton->setEnabled(enableModifyButtons);
   
-  if(table)
-    table->setEnabled(enableNewButton);
+  if(table){
+//     table->setEnabled(enableNewButton);
+    table->setEnabled(enableTable);
+  }
 }
 
 void ProfetSessionDialog::setObjectModel(QAbstractItemModel * objectModel){

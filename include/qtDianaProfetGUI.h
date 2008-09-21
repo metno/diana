@@ -94,6 +94,11 @@ private:
   void setCurrentTime(const miTime & t);
   /// gets baseObjects index by name. returns -1 if not found
   int getBaseObjectIndex(miString name);
+  /// enable/disable gui elements
+  void enableObjectButtons(bool enableNewbutton,
+			   bool enableModifyButtons,
+			   bool enableTable); 
+
   QWidget* parent;
 public:
   DianaProfetGUI(Profet::ProfetController & pc, 
