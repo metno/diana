@@ -124,6 +124,8 @@ public:
   QModelIndex getIndexByRefTime(const miTime & t);
   void clearModel();
   void customEvent(QEvent * e);
+  bool insertRows ( int row, int count, const QModelIndex & parent = QModelIndex() );
+  bool removeRows ( int row, int count, const QModelIndex & parent = QModelIndex() );
 };
 
 /**

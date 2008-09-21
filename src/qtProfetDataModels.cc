@@ -39,7 +39,10 @@
 #include <user.xpm>
 #include <user_admin.xpm>
 #include <Robot.xpm>
-
+#include "session_lock.xpm"
+#include "session_open.xpm"
+#include "session_deployed.xpm"
+#include "session_operational.xpm"
 
 namespace Profet {
 
@@ -132,6 +135,26 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
     QString str = QString("%1: %2, %3").arg(
         rt.isoTime().cStr()).arg(mn.cStr()).arg(mt.isoTime().cStr());
     return str;
+
+  } else if (role == Qt::DecorationRole) {
+
+    if ( sessions[index.row()].status() == fetSession::underconstruction ){
+      if ( sessions[index.row()].editstatus() == fetSession::locked )
+	return QVariant(QIcon(QPixmap(session_lock_xpm)));
+      else
+	return QVariant(QIcon(QPixmap(session_open_xpm)));
+    } else if ( sessions[index.row()].status() == fetSession::deployed ){
+      return QVariant(QIcon(QPixmap(session_deployed_xpm)));
+    } else if ( sessions[index.row()].status() == fetSession::operational ){
+      return QVariant(QIcon(QPixmap(session_operational_xpm)));
+    }
+
+  } else if (role == Qt::ForegroundRole){
+    if ( sessions[index.row()].editstatus() == fetSession::editable ){
+      return qVariantFromValue(QColor(Qt::darkGreen));
+    } else {
+      return qVariantFromValue(QColor(Qt::red));
+    }
   }
   return QVariant();
 }
@@ -152,19 +175,21 @@ fetSession SessionListModel::getSession(int row_nr) const throw(InvalidIndexExce
 }
 
 void SessionListModel::setSession(const fetSession & s) {
-  bool edited = false;
-  vector<fetSession>::iterator iter;
-  for( iter = sessions.begin(); iter != sessions.end(); iter++ ){
-    if((*iter).referencetime() == s.referencetime()) {
-      *iter = s;
-      edited = true;
+  int irow = sessions.size();
+  for( int i=0; i<sessions.size(); i++ ){
+    if(sessions[i].referencetime() == s.referencetime()) {
+      sessions[i] = s;
+      emit dataChanged(index(i, 0),index(i, 0));
+      return;
+    } else if ( sessions[i].referencetime() < s.referencetime()) {
+      irow = i;
       break;
     }
   }
-  if(!edited)// Not found: Adding new user
-    sessions.push_back(s); 
-  std::sort(sessions.begin(),sessions.end());
-  reset();
+
+  // Not found: Adding new session
+  insertRows(irow,1);
+  sessions[irow] = s;
 }
 
 void SessionListModel::setSessions(const vector<fetSession> & s) {
@@ -174,21 +199,14 @@ void SessionListModel::setSessions(const vector<fetSession> & s) {
 }
 
 void SessionListModel::removeSession(const fetSession & s) {
-  bool edited = false;
-  vector<fetSession>::iterator iter;
-  for( iter = sessions.begin(); iter != sessions.end(); iter++ ){
-    if((*iter).referencetime() == s.referencetime()) {
-      iter = sessions.erase(iter);
-      edited = true;
-      break;
+  int irow = sessions.size();
+  for( int i=0; i<sessions.size(); i++ ){
+    if(sessions[i].referencetime() == s.referencetime()) {
+      removeRows(i,1);
+      return;
     }
   }
-  if(edited) {
-    std::sort(sessions.begin(),sessions.end());
-    reset();
-  }
 }
-
 
 QModelIndex SessionListModel::getIndexByRefTime(const miTime & t){
   int n = sessions.size();
@@ -209,6 +227,31 @@ void SessionListModel::customEvent(QEvent * e){
     if(sle->remove) removeSession(sle->session);
     else setSession(sle->session);
   }
+}
+
+
+bool SessionListModel::removeRows( int position, int rows, const QModelIndex & parent )
+{
+  beginRemoveRows(QModelIndex(), position, position+rows-1);
+  
+  for (int row = 0; row < rows; ++row) {
+    sessions.erase(sessions.begin()+position);
+  }
+  
+  endRemoveRows();
+  return true;
+}
+
+bool SessionListModel::insertRows( int position, int rows, const QModelIndex & parent )
+{
+  beginInsertRows(QModelIndex(), position, position+rows-1);
+  
+  for (int row = 0; row < rows; ++row) {
+    sessions.insert(sessions.begin()+position, fetSession());
+  }
+  
+  endInsertRows();
+  return true;
 }
 
 //  *** FetObjectListModel *** 
