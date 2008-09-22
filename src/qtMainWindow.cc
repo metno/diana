@@ -1667,6 +1667,7 @@ bool DianaMainWindow::profetConnect(){
   }
   if(error.exists()) 
     QMessageBox::critical(0,"Profet connect failed",error.cStr());
+  profetDisconnect();
 #endif
   return false;
 }
