@@ -40,6 +40,7 @@ DIANADIR        = ${DIANADIR}||$(ROOT)/diana
 OPDATA1         = /opdata
 OPDATA2         = /opdata_routine
 OPDATA3         = /opdata
+OPDATA4         = /opdata2
 STARC           = /starc   
 DATABASE_IDENTS = VNN,VA,VV, DNMI
 DATABASE        = "vnnhoved diana 19100"  # host base port
@@ -156,16 +157,20 @@ m=HIRLAM.12KM.12-2  f=$(OPDATA2)/hirlam12/h12sf12.dat-2 \
 		    f=$(OPDATA2)/hirlam12/h12ie12.dat-2
 
 filegroup=HIRLAM8km
-m=HIRLAM.8KM.00    f=$(OPDATA2)/hirlam8/h8km00.dat
-m=HIRLAM.8KM.06    f=$(OPDATA2)/hirlam8/h8km06.dat 
-m=HIRLAM.8KM.12    f=$(OPDATA2)/hirlam8/h8km12.dat 
-m=HIRLAM.8KM.18    f=$(OPDATA2)/hirlam8/h8km18.dat 
-m=HIRLAM.8KM.00-1  f=$(OPDATA2)/hirlam8/h8km00.dat-1  
-m=HIRLAM.8KM.06-1  f=$(OPDATA2)/hirlam8/h8km06.dat-1  
-m=HIRLAM.8KM.12-1  f=$(OPDATA2)/hirlam8/h8km12.dat-1  
-m=HIRLAM.8KM.18-1  f=$(OPDATA2)/hirlam8/h8km18.dat-1  
-m=HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2  
-m=HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2 
+m=HIRLAM.8KM.00    f=$(OPDATA1)/hirlam8/h8km00.dat
+m=HIRLAM.8KM.06    f=$(OPDATA1)/hirlam8/h8km06.dat 
+m=HIRLAM.8KM.12    f=$(OPDATA1)/hirlam8/h8km12.dat 
+m=HIRLAM.8KM.18    f=$(OPDATA1)/hirlam8/h8km18.dat 
+m=ALT-HIRLAM.8KM.00    f=$(OPDATA2)/hirlam8/h8km00.dat
+m=ALT-HIRLAM.8KM.06    f=$(OPDATA2)/hirlam8/h8km06.dat 
+m=ALT-HIRLAM.8KM.12    f=$(OPDATA2)/hirlam8/h8km12.dat 
+m=ALT-HIRLAM.8KM.18    f=$(OPDATA2)/hirlam8/h8km18.dat 
+m=ALT-HIRLAM.8KM.00-1  f=$(OPDATA2)/hirlam8/h8km00.dat-1  
+m=ALT-HIRLAM.8KM.06-1  f=$(OPDATA2)/hirlam8/h8km06.dat-1  
+m=ALT-HIRLAM.8KM.12-1  f=$(OPDATA2)/hirlam8/h8km12.dat-1  
+m=ALT-HIRLAM.8KM.18-1  f=$(OPDATA2)/hirlam8/h8km18.dat-1  
+m=ALT-HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2  
+m=ALT-HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2 
 
 filegroup=HIRLAM20km
 m=HIRLAM.20KM.00    f=/opdata/hirlam20/grdn00.dat    f=/opdata/hirlam20/grdni00.dat
@@ -275,7 +280,6 @@ m=UM4BX_12-2         f=$(OPDATA2)/um4bx/um4bx12.dat-2
 #m=UM4EXP_12-2        f=$(OPDATA2)/um4exp/grdqe12.dat-2
 
 filegroup=UM.1km
-m=ALT-UM1KM.NN	            f=$(OPDATA1)/um1exp/um1nn00.dat
 m=UM.V-Finnmark.1km.00      f=$(OPDATA2)/um1km/um1hh00.dat
 m=UM.V-Finnmark.1km.12      f=$(OPDATA2)/um1km/um1hh12.dat
 m=UM.V-Finnmark.1km.00-1    f=$(OPDATA2)/um1km/um1hh00.dat-1
@@ -320,8 +324,8 @@ m=UM.Trondheim.1km.00-2     f=$(OPDATA2)/um1km/um1va00.dat-2
 m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
 
 filegroup=UM.1km.exp
-m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
-m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
+m=UMEXP.S-Norge.1km.00       f=$(OPDATA4)/um1exp/um1sn00.dat
+m=UMEXP.N-Norge.1km.00      f=$(OPDATA4)/um1exp/um1nn00.dat
 
 filegroup=Simra
 m=Simra.Hammerfest.00     f=$(OPDATA2)/um1km/simme00.dat
@@ -495,11 +499,17 @@ m=TEPS.06-1                f=$(OPDATA2)/lameps/teps_prob06.dat-1 \
                            f=$(OPDATA2)/lameps/teps_pred06.dat-1
 m=TEPS.06-2                f=$(OPDATA2)/lameps/teps_prob06.dat-2 \
                            f=$(OPDATA2)/lameps/teps_pred06.dat-2
-m=NORLAMEPS.06             f=$(OPDATA2)/lameps/norlameps_prob06.dat \
-                           f=$(OPDATA2)/lameps/norlameps_pred06.dat
-m=NORLAMEPS.06-1           f=$(OPDATA2)/lameps/norlameps_prob06.dat-1 \ 
+m=NORLAMEPS.06             f=$(OPDATA2)/lameps/lameps06.dat               \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat   \
+                           f=$(OPDATA2)/lameps/norlameps_prob06.dat       \
+                           f=$(OPDATA2)/lameps/norlameps_pred06.dat 
+m=NORLAMEPS.06-1           f=$(OPDATA2)/lameps/lameps06.dat-1             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-1 \
+                           f=$(OPDATA2)/lameps/norlameps_prob06.dat-1     \
                            f=$(OPDATA2)/lameps/norlameps_pred06.dat-1
-m=NORLAMEPS.06-2           f=$(OPDATA2)/lameps/norlameps_prob06.dat-2 \
+m=NORLAMEPS.06-2           f=$(OPDATA2)/lameps/lameps06.dat-2             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-2 \
+                           f=$(OPDATA2)/lameps/norlameps_prob06.dat-2     \
                            f=$(OPDATA2)/lameps/norlameps_pred06.dat-2
 m=TEPS.12                  f=$(OPDATA2)/lameps/teps12.dat
 m=TEPS.12-1                f=$(OPDATA2)/lameps/teps12.dat-1
@@ -519,11 +529,17 @@ m=TEPS.18-1                f=$(OPDATA2)/lameps/teps_prob18.dat-1 \
                            f=$(OPDATA2)/lameps/teps_pred18.dat-1
 m=TEPS.18-2                f=$(OPDATA2)/lameps/teps_prob18.dat-2 \
                            f=$(OPDATA2)/lameps/teps_pred18.dat-2
-m=NORLAMEPS.18             f=$(OPDATA2)/lameps/norlameps_prob18.dat \
+m=NORLAMEPS.18             f=$(OPDATA2)/lameps/lameps18.dat               \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat   \
+                           f=$(OPDATA2)/lameps/norlameps_prob18.dat       \
                            f=$(OPDATA2)/lameps/norlameps_pred18.dat
-m=NORLAMEPS.18-1           f=$(OPDATA2)/lameps/norlameps_prob18.dat-1 \
-                           f=$(OPDATA2)/lameps/norlameps_pred18.dat-1
-m=NORLAMEPS.18-2           f=$(OPDATA2)/lameps/norlameps_prob18.dat-2 \
+m=NORLAMEPS.18-1           f=$(OPDATA2)/lameps/lameps18.dat-1             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-1 \
+                           f=$(OPDATA2)/lameps/norlameps_prob18.dat-1     \
+                           f=$(OPDATA2)/lameps/norlameps_pred18.dat-1 
+m=NORLAMEPS.18-2           f=$(OPDATA2)/lameps/lameps18.dat-2             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-2 \
+                           f=$(OPDATA2)/lameps/norlameps_prob18.dat-2     \
                            f=$(OPDATA2)/lameps/norlameps_pred18.dat-2
 
 #filegroup=PEPS
