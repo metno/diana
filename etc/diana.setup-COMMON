@@ -3153,7 +3153,24 @@ m=Ph12h8h4_12     f=$(OPDATA2)/proff/Ph12h8h4_12.dat
 m=Ph12um4_12      f=$(OPDATA2)/proff/Ph12um4_12.dat
 m=Ph12h4_12       f=$(OPDATA2)/proff/Ph12h4_12.dat  
 m=Ph12h8um4_12    f=$(OPDATA2)/proff/Ph12h8um4_12.dat  
+
+m=Proff_test_approved  f=/opdata/proff/proff_test_approved.dat
                   
+filegroup=WDB
+Default_Filetype=wdb  
+m=Ph12_00_WDB f="wdb_proff:dataprovider=proff.h12:refhour=00" g=3 
+m=Ph12h8_00_WDB f="wdb_proff:dataprovider=proff.h12h8:refhour=00" g=3 
+m=Ph12h8h4_00_WDB f="wdb_proff:dataprovider=proff.h12h8h4:refhour=00" g=3 
+m=Ph12h4_00_WDB f="wdb_proff:dataprovider=proff.h12h4:refhour=00" g=3 
+m=Ph12h8um4_00_WDB f="wdb_proff:dataprovider=proff.h12h8um4:refhour=00" g=3 
+m=Ph12um4_00_WDB f="wdb_proff:dataprovider=proff.h12um4:refhour=00" g=3 
+
+m=Ph12_12_WDB f="wdb_proff:dataprovider=proff.h12:refhour=12" g=3 
+m=Ph12h8_12_WDB f="wdb_proff:dataprovider=proff.h12h8:refhour=12" g=3 
+m=Ph12h8h4_12_WDB f="wdb_proff:dataprovider=proff.h12h8h4:refhour=12" g=3 
+m=Ph12h4_12_WDB f="wdb_proff:dataprovider=proff.h12h4:refhour=12" g=3 
+m=Ph12h8um4_12_WDB f="wdb_proff:dataprovider=proff.h12h8um4:refhour=12" g=3 
+m=Ph12um4_12_WDB f="wdb_proff:dataprovider=proff.h12um4:refhour=12" g=3 
 
 </FIELD_FILES>
 
