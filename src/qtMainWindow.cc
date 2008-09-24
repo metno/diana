@@ -2708,21 +2708,21 @@ void DianaMainWindow::saveAnimation() {
     QFileDialog::getSaveFileName(this,
 				 tr("Save animation from current fields, satellite images, etc., using current settings"),
 				 fname,
-				 tr("Movies (*.m2v);;All (*.*)"));
+				 tr("Movies (*.mpg);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
     fname= s;
     miString filename= s.toStdString();
-    miString format= "m2v";
+    miString format= "mpg";
     int quality= 0;
 
     /// find format
-    /// (only mpeg2-support so far)
-		if (filename.contains(".m2v") || filename.contains(".M2V")) {
-			format= "m2v";
+    /// (only mpeg-support so far)
+		if (filename.contains(".mpg") || filename.contains(".MPG")) {
+			format= "mpg";
 		} else {
-			filename += ".m2v";
+			filename += ".mpg";
 		}
 
     /// make temp. directory for frames
@@ -2730,7 +2730,7 @@ void DianaMainWindow::saveAnimation() {
 		chdir("./animation_frames");
 		
 		/// set up some defaults
-		string imageFormat = "png";
+		string imageFormat = "jpg";
 		int imageQuality = -1;
 		int delay = timeout_ms/10;
 		MovieMaker moviemaker(filename, quality, delay);
@@ -2755,7 +2755,7 @@ void DianaMainWindow::saveAnimation() {
 			ostringstream ss;
 			ss << i;
 			imageName += ss.str();
-			imageName += ".png";
+			imageName += ".jpg";
 			cout << "Saving " << imageName << ".." << endl;			
 			w->Glw()->saveRasterImage(miString(imageName), miString(imageFormat), imageQuality);
 			moviemaker.addFrame(imageName);
