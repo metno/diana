@@ -301,6 +301,7 @@ file= $(DIANADIR)/etc/qmenu_eps.txt
 file= $(DIANADIR)/etc/qmenu_nedbor.txt
 file= $(DIANADIR)/etc/Produkter.quick
 file= $(DIANADIR)/etc/FDMD.quick
+file= $(DIANADIR)/etc/test-editering.quick
 </QUICKMENUS>
 
 
@@ -314,11 +315,11 @@ tk2m:                paramid=31 parameter="instant temperature of air" leveldoma
 u10m:                paramid=33 parameter="instant velocity of air (u-component)" leveldomain="distance above ground" levelfrom=10 scale=1 
 v10m:                paramid=34 parameter="instant velocity of air (v-component)" leveldomain="distance above ground" levelfrom=10 scale=1 
 tk2mland:            paramid=0  parameter="instant temperature of land" leveldomain="distance above ground" levelfrom=2 scale=1 
-#accumprecip:         paramid=17 parameter="accumulated surface density of precipitation" leveldomain="distance above ground" levelfrom=0 scale=1
+accumprecip.1h.proff:paramid=14 parameter="accumulated distance of precipitation, total" leveldomain="distance above ground" levelfrom=0 scale=1
 totcloud:            paramid=0  parameter="instant proportion of cloud cover, total" leveldomain="pressure of isobaric surface" levelfrom=0 scale=1 
 thunder.index:       paramid=1103 parameter="instant proportion of thunderstorm probability" leveldomain="distance above ground" levelfrom=0 scale=1 
-fraction.land:       paramid=0 parameter="instant proportion of land, model" leveldomain="distance above ground" levelfrom=0 scale=1 
-fraction.land.proff: paramid=0 parameter="instant proportion of land, cover" leveldomain="distance above ground" levelfrom=0 scale=1 
+fraction.land.proff:       paramid=0 parameter="instant proportion of land, model" leveldomain="distance above ground" levelfrom=0 scale=1 
+fraction.land: paramid=0 parameter="instant proportion of land, cover" leveldomain="distance above ground" levelfrom=0 scale=1 
 #tc2m:                paramid=0 parameter="instant temperature of air" leveldomain="distance above ground" levelfrom=0 scale=1 
 cloud.fog: paramid=0 parameter="instant proportion of fog" leveldomain="distance above ground" levelfrom=0 scale=1 
 topography:       paramid=0 parameter="instant specific energy of land, geopotential height" leveldomain="distance above ground" levelfrom=0 scale=1 
@@ -663,7 +664,7 @@ rr_weekly=812,2,1000
 rr_anomali=802,2,1000 
 
 #### PROFF
-accumprecip.1h=14,2,1000
+accumprecip.1h.proff=14,2,1000
 topography.proff=1101,2,1000
 tc2m=1102,2,1000
 thunder.index=1103,2,1000
@@ -1065,6 +1066,11 @@ field=FF.10M.Beaufort
       line.values=16.5,21.5,27.5,33.5,40.5,47.5,55.5,63.5
       plot=CONTOUR(ff10mknots)
 end.field 
+
+field=NEDBØR.1T.PROFF
+      colour=red linetype=solid linewidth=1 line.values=0.1,0.2,0.5,1,2,4,6,10,15,...40
+      plot=CONTOUR(accumprecip.1h.proff)
+end.field
 
 loop [HR]=1,3,6,12,24,36
 loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
