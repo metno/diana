@@ -240,6 +240,7 @@ private slots:
   void togglePaintMode();
   void setPaintMode(bool);
   void plotProfetMap(bool objectsOnly);
+  void forceProfetDisconnect();
 
 private:
   bool enableProfet;

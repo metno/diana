@@ -220,6 +220,7 @@ signals:
 
   void updateModelDefinitions();
   void prepareAndPlot();
+  void forceDisconnect();
 
 };
 

@@ -335,9 +335,9 @@ void DianaProfetGUI::saveObject(){
     setObjectDialogVisible(false);
     enableObjectButtons(true,false,true);
   }catch(Profet::ServerException & se){
-    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-        "Save Object Failed","",se.what());
-    showMessage(m);
+    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
   }
 }
 
@@ -419,10 +419,9 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
         cerr << "could not process" << obj[i].id() << " at " << tim << endl;
       }
     } catch (Profet::ServerException & se) {
-      miString str =tim.format("Save Object Failed at %a kl: %H:%M");
-      InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-          str.cStr(),"",se.what());
-      showMessage(m);
+      miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+      QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+      if (se.isDisconnectRecommanded()) emit forceDisconnect();
     }
   }
 
@@ -433,7 +432,9 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
   try{
     controller.unlockObjectsByTimeValues(tv);
   }catch(Profet::ServerException & se){
-    cerr << "DianaProfetGUI::endTimesmooth failed to unlock objects" << endl;
+    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
   }
   enableObjectButtons(true,true,true);
 }
@@ -472,9 +473,9 @@ void DianaProfetGUI::sendMessage(const QString & m){
   try{
     controller.sendMessage(message);
   }catch (Profet::ServerException & se) {
-    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-        "Failed to send message","",se.what());
-    showMessage(m);
+    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
   }
 }
 
@@ -531,8 +532,10 @@ void DianaProfetGUI::editObject(){
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
     // Area always ok for a saved object(?)
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
-  }catch(Profet::ServerException & se){ 
-    error = se.what();
+  }catch(Profet::ServerException & se){
+    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
   }catch(InvalidIndexException & iie){ 
     error = "Unable to find selected object.";
   }
@@ -550,9 +553,9 @@ void DianaProfetGUI::deleteObject(){
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
     controller.deleteObject(fo.id());
   }catch(Profet::ServerException & se){
-    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-                "Delete Object Failed","",se.what());
-    showMessage(m);
+    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
   }catch(InvalidIndexException & iie){
     InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
                 "Delete Object Failed","","Unable to find selected object.");
@@ -724,9 +727,9 @@ void DianaProfetGUI::cancelObjectDialog(){
     try{
       controller.closeObject(safeCopy);
     }catch (Profet::ServerException & se) {
-      InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
-          "Unlock object failed","",se.what());
-      showMessage(m);
+      miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+      QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+      if (se.isDisconnectRecommanded()) emit forceDisconnect();
     }
   }
   setObjectDialogVisible(false);

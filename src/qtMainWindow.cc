@@ -1621,6 +1621,8 @@ bool DianaMainWindow::initProfet(){
        SLOT(setTimeAndUpdatePlots(const miTime&)));
     connect( profetGUI, SIGNAL(updateModelDefinitions()), 
        fm,SLOT(updateModels()) );
+    connect( profetGUI, SIGNAL(forceDisconnect()),
+        this, SLOT(forceProfetDisconnect()));
     QApplication::restoreOverrideCursor();
     return true;
   }catch(Profet::ServerException & se){
@@ -1660,13 +1662,16 @@ bool DianaMainWindow::profetConnect(){
             "Distributed field editing system is not available.");
         return true;
       }catch(Profet::ServerException & se){
-        error += se.what();
+        contr->getProfetController()->disconnect();
+        bool withMailToLink = true;
+        error += se.getHtmlMessage(withMailToLink);
         QApplication::restoreOverrideCursor();
       }
     }
   }
-  if(error.exists()) 
-    QMessageBox::critical(0,"Profet connect failed",error.cStr());
+  if(error.exists()) {
+    QMessageBox::critical(0,"Profet",error.cStr());
+  }
   profetDisconnect();
 #endif
   return false;
@@ -1695,7 +1700,6 @@ void DianaMainWindow::setTimeAndUpdatePlots(const miTime& t)
   TimeSelected();
 }
 
-
 void DianaMainWindow::toggleProfetGUI(){
 #ifdef PROFET
   // get status
@@ -1708,7 +1712,7 @@ void DianaMainWindow::toggleProfetGUI(){
     turnOn = false;
     int i = QMessageBox::question(0,
         "Connection","Do you want to stay connected to profet?",
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if(i == QMessageBox::No){
       profetDisconnect();
       profetGUI->resetStatus();
@@ -1728,6 +1732,24 @@ void DianaMainWindow::toggleProfetGUI(){
   profetGUI->setVisible(turnOn);
   // Paint mode should not be possible when Profet is on
   togglePaintModeAction->setEnabled(!turnOn);
+#endif
+}
+
+void DianaMainWindow::forceProfetDisconnect(){
+#ifdef PROFET
+  // Disconnect
+  bool inited = (contr->getProfetController() && profetGUI);
+  bool connected = false;
+  if(inited) connected = contr->getProfetController()->isConnected();
+  if(connected){
+    profetDisconnect();
+    profetGUI->resetStatus();
+    toggleProfetGUIAction->setChecked(false);
+    profetGUI->setVisible(false);
+    togglePaintModeAction->setEnabled(true);
+  }
+  // Re-connect
+  toggleProfetGUI();
 #endif
 }
 
