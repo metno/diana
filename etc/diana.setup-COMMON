@@ -2801,7 +2801,11 @@ m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
 
 filegroup=UM.1km.exp
 m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
-m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
+m=UMEXP.N-Norge.1km.00       f=$(OPDATA2)/um1exp/um1nn00.dat
+m=UMEXP.S-Norge.1km.00-1     f=$(OPDATA2)/um1exp/um1sn00.dat-1
+m=UMEXP.N-Norge.1km.00-1     f=$(OPDATA2)/um1exp/um1nn00.dat-1
+m=UMEXP.S-Norge.1km.00-2     f=$(OPDATA2)/um1exp/um1sn00.dat-2
+m=UMEXP.N-Norge.1km.00-2     f=$(OPDATA2)/um1exp/um1nn00.dat-2
 
 filegroup=Simra
 m=Simra.Hammerfest.00     f=$(OPDATA2)/um1km/simme00.dat
