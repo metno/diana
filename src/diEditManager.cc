@@ -2845,7 +2845,7 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo( "Snøbyger",114,"green"));
   symbols.push_back(newEditToolInfo( "Tordenvær",119,"red"));
   symbols.push_back(newEditToolInfo( "Tordenvær m/hagl",122,"red"));
-  symbols.push_back(newEditToolInfo( "Snøstjerne",254,"black"));
+  symbols.push_back(newEditToolInfo( "Snøstjerne",254,"green"));
   symbols.push_back(newEditToolInfo( "Tropisk orkan",253,"black"));
   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
   symbols.push_back(newEditToolInfo( "Sirkel",35,"blue"));
