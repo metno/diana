@@ -47,6 +47,7 @@
 #include <profet/fetObject.h>
 #include <profet/fetBaseObject.h>
 #include <profet/fetDynamicGui.h>
+#include "qPolygonBookmarkDialog.h"
 
 #include <vector>
 #include <map>
