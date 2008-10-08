@@ -109,7 +109,8 @@ public:
   void editObjectMode(const fetObject & obj,
       vector<fetDynamicGui::GuiComponent> components);
   bool showingNewObject(){ return (mode==NEW_OBJECT_MODE);}
-
+  void startBookmarkDialog(vector<miString>& bookm);
+  
 private slots:
   void baseObjectChanged(const QString&);
   
@@ -118,6 +119,15 @@ signals:
   void dynamicGuiChanged();
   void saveObjectClicked();
   void cancelObjectDialog();
+  
+  void cancelPolygon();
+  void copyPolygon(miString,miString,bool);
+  void selectPolygon(miString); 
+  
+  
+  
+  
+  
 };
 
 #endif /*QTPROFETOBJECTDIALOG_H_*/

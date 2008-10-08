@@ -270,3 +270,25 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
   statisticLabel->setText(QString(ost1.str().c_str()));
   
 }
+
+void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
+{
+  
+  if(boom.empty()) 
+    return;
+  
+  PolygonBookmarkDialog * bookmarks = new PolygonBookmarkDialog(this,boom);
+  connect(bookmarks,SIGNAL(polygonCanceled()),
+      this,SIGNAL(cancelPolygon()));    
+  connect(bookmarks,SIGNAL(polygonCopied(miString,miString,bool)),
+      this,SIGNAL(copyPolygon(miString,miString,bool))); 
+  connect(bookmarks,SIGNAL(polygonSelected(miString)),
+      this,SIGNAL(selectPolygon(miString))); 
+  bookmarks->show();
+    
+}
+
+
+
+
+
