@@ -9,6 +9,7 @@ export LD_LIBRARY_PATH=/metno/local/lib/mesa:$LD_LIBRARY_PATH
 ## export LD_LIBRARY_PATH=$dianadir/lib:$LD_LIBRARY_PATH
 
 export DIANADIR=$dianadir
+export PODSERVER_HOST=profet-test
 
 OPSYS=`uname -s`
 case $OPSYS in
