@@ -52,6 +52,10 @@
 #include <miLogger/logger.h>
 #endif
 
+#ifdef PROFET
+#include <profet/ProfetController.h>
+#endif
+
 #include <diBuild.h>
 #include <diVersion.h>
 
@@ -68,6 +72,7 @@ Kommandolinje-argumenter:                                 \n\
   -l <språk>    :  systemspråk (def. no)                  \n\
   -L <logger>   :  loggerFil for debugging                \n\
   -p <profet>   :  profet test version                    \n\
+  -S <server>   :  profet server host                     \n\
 ----------------------------------------------------------\n\
 ";
 
@@ -84,13 +89,14 @@ int main(int argc, char **argv)
   opt.push_back(miCommandLine::option('L',"logger", 1 ));
 #ifdef PROFET
   opt.push_back(miCommandLine::option('p',"profet", 0 ));
+  opt.push_back(miCommandLine::option('S',"server", 1 ));
 #endif
 
   miCommandLine cl(opt,argc,argv);
 
-  
 
-  
+
+
   if (cl.hasFlag('h')){
     cerr << helpstr << endl;
     return 0;
@@ -98,7 +104,7 @@ int main(int argc, char **argv)
 
   bool profetEnabled=cl.hasFlag('p');
 
-  
+
   if(cl.hasFlag('L')) {
     miString logfilename=cl.arg('L')[0];
 #ifndef NOLOG4CXX
@@ -141,6 +147,12 @@ int main(int argc, char **argv)
     cerr << "An error occured while reading setup: " << setupfile << endl;
     return 99;
   }
+#ifdef PROFET
+  Profet::ProfetController::SETUP_FILE = setupfile;
+  if (profetEnabled && cl.hasFlag('S')) {
+    Profet::ProfetController::SERVER_HOST = cl.arg('s')[0];
+  }
+#endif
 
   // language from setup
   if(sp.basicValue("language").exists())

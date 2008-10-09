@@ -4734,3 +4734,12 @@ class="Thin cirrus" desc="Totally overcast, thin cirrus"
 class="Cirrus" desc="Totally overcast, cirrus"
 class="Cirrus on top" desc="Totally overcast, cirrus over other clouds"
 </UFFDA>
+
+<ProfetSetup>
+#server_host = profet-test
+server_host = profet-devel
+trace_level = 1
+transport_rule = * tcp
+call_timeout = 4000
+end_point = giop:tcp:0.0.0.0:
+</ProfetSetup>
