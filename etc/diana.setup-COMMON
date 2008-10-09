@@ -331,6 +331,7 @@ fog.index:    paramid=0 parameter="instant proportion of fog probability " level
 cloud.low:    paramid=0 parameter="instant proportion of cloud cover, low " leveldomain="pressure of isobaric surface" levelfrom=850 scale=1 
 cloud.medium: paramid=0 parameter="instant proportion of cloud cover, medium " leveldomain="pressure of isobaric surface" levelfrom=500 scale=1 
 cloud.high:   paramid=0 parameter="instant proportion of cloud cover, high " leveldomain="pressure of isobaric surface" levelfrom=300 scale=1 
+significant.wave.height: paramid=200 parameter="instant distance of combined wind waves and swell, significant height" leveldomain="distance above mean sea level" levelfrom=0 scale=1
 
 </WDB_PARAMETERS>
 
