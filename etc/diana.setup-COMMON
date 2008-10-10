@@ -4737,8 +4737,8 @@ class="Cirrus on top" desc="Totally overcast, cirrus over other clouds"
 </UFFDA>
 
 <ProfetSetup>
-server_host = profet-test
-#server_host = profet-devel
+#server_host = profet-test
+server_host = profet-devel
 trace_level = 1
 transport_rule = * tcp
 call_timeout = 4000

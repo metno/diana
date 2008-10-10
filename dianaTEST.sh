@@ -9,7 +9,6 @@ export LD_LIBRARY_PATH=/metno/local/lib/mesa:$LD_LIBRARY_PATH
 ## export LD_LIBRARY_PATH=$dianadir/lib:$LD_LIBRARY_PATH
 
 export DIANADIR=$dianadir
-#export PODSERVER_HOST=profet-test
 
 OPSYS=`uname -s`
 case $OPSYS in
@@ -62,7 +61,7 @@ ln -sf $dianadir/etc/diana.setup-${region} diana.setup
 
 tstart=`date`
 
-$dianadir/bin/diana -p -style cleanlooks 
+$dianadir/bin/diana -p -S profet-test -style cleanlooks 
 
 tstop=`date`
 
