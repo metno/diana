@@ -1069,7 +1069,7 @@ field=FF.10M.Beaufort
 end.field 
 
 field=NEDBØR.1T.PROFF
-      colour=red linetype=solid linewidth=1 line.values=0.1,0.2,0.5,1,2,4,6,10,15,...40
+      colour=red palettecolours=green linetype=solid linewidth=1 line.values=0.1,0.2,0.5,1,2,4,6,10,15,...40
       plot=CONTOUR(accumprecip.1h.proff)
 end.field
 
