@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 #ifdef PROFET
   Profet::ProfetController::SETUP_FILE = setupfile;
   if (profetEnabled && cl.hasFlag('S')) {
-    Profet::ProfetController::SERVER_HOST = cl.arg('s')[0];
+    Profet::ProfetController::SERVER_HOST = cl.arg('S')[0];
   }
 #endif
 
