@@ -16,8 +16,8 @@ class PolygonBookmarkModel : public QStandardItemModel {
   Q_OBJECT
 private:
   map<QModelIndex,miString> bookmarks;
-  map<miString,QModelIndex> directories;
-  map<QModelIndex,miString> dirIndex;
+  map<miString,QModelIndex> folders;
+  map<QModelIndex,miString> folderIndex;
   set<QModelIndex>          deletionProtected;
   QModelIndexList           pasteBuffer;
   QModelIndex               currentIndex;
@@ -38,10 +38,11 @@ private:
 public:                              
 	PolygonBookmarkModel(QObject *p);
 
-	void addBookmark(miString s,bool isDirectory=false);
+	void addBookmark(miString s,bool isFolder=false);
 	void addBookmarks(std::vector<miString>& s);
 
 	bool     currentIsBookmark();
+	bool     currentIsProtected() const { return deletionProtected.count(currentIndex); }
 	void     addSelectionToPasteBuffer(QModelIndexList& pb,bool mv=false) {
 	  pasteBuffer = pb; 
 	  moveItems   = mv;
@@ -49,10 +50,10 @@ public:
 
 	void     setCurrent(QModelIndex& c) { currentIndex = c; }
 	
-	// return the bookmark/directory(for paste purpose)
-	miString getCurrentName(bool directory=false);
+	// return the bookmark/folder(for paste purpose)
+	miString getCurrentName(bool folder=false);
 
-	void paste() { internalPaste();}
+	void paste(QModelIndex& c) { setCurrent(c); internalPaste();}
 	void moveToTrash(QModelIndexList& pb);
 	
 public slots: 

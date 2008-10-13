@@ -30,15 +30,12 @@ PolygonBookmarkModel::PolygonBookmarkModel(QObject* p) : QStandardItemModel(p)
 
 }
 
-
-
-
-void PolygonBookmarkModel::addBookmark(miString s,bool isDirectory)
+void PolygonBookmarkModel::addBookmark(miString s,bool isFolder)
 {
   vector<miString> words = s.split(".");
  
   QStandardItem *parentItem = invisibleRootItem();
-  miString dir;
+  miString folder;
   int last=words.size();
   int size=last;
   last--;
@@ -46,7 +43,7 @@ void PolygonBookmarkModel::addBookmark(miString s,bool isDirectory)
   
   for (int col = 0; col < size; ++col) {
     // this is the item
-    if(col==last && isDirectory==false) {
+    if(col==last && !isFolder) {
       
       int r=parentItem->rowCount();
       QStandardItem *childItem  = new QStandardItem(words[col].cStr());
@@ -64,11 +61,11 @@ void PolygonBookmarkModel::addBookmark(miString s,bool isDirectory)
 
 
     } else {
-      dir+=( col ? "." : "") + words[col];
+      folder+=( col ? "." : "") + words[col];
 
-      if (directories.count(dir)) {
-        parentItem = itemFromIndex ( directories[dir] );
-        if(deletionProtected.count(directories[dir]))
+      if (folders.count(folder)) {
+        parentItem = itemFromIndex ( folders[folder] );
+        if(deletionProtected.count(folders[folder]))
           lockedBookmark=true;
         
       } else {
@@ -76,16 +73,16 @@ void PolygonBookmarkModel::addBookmark(miString s,bool isDirectory)
      
         bool isTrash=false;
         if(!col) {
-          // some special folders in the root directory 
-          if(dir=="TRASH") {
+          // some special folders in the root folder 
+          if(folder=="TRASH") {
             childItem->setIcon(trashcanIcon);
             childItem->setEditable(false);
             isTrash=true;
-          } else if(dir=="SESSION"){
+          } else if(folder=="SESSION"){
             childItem->setIcon(lockedDirectoryIcon);
             childItem->setEditable(false);
             lockedBookmark=true;
-          } else if (dir=="PRIVATE") {
+          } else if (folder=="PRIVATE") {
             childItem->setIcon(privateDirectoryIcon);
             childItem->setEditable(false);
           } else 
@@ -99,8 +96,8 @@ void PolygonBookmarkModel::addBookmark(miString s,bool isDirectory)
         }
         parentItem->appendRow(childItem);
         parentItem       = childItem;
-        directories[dir] = childItem->index();
-        dirIndex[childItem->index()] = dir;
+        folders[folder] = childItem->index();
+        folderIndex[childItem->index()] = folder;
         if(isTrash)
           trashIndex=childItem->index();
         if(lockedBookmark)
@@ -117,9 +114,9 @@ void PolygonBookmarkModel::addBookmarks(std::vector<miString>& s)
   }
 }
 
-miString PolygonBookmarkModel::getCurrentName(bool dir)
+miString PolygonBookmarkModel::getCurrentName(bool folder)
 {
-  if(dir) {
+  if(folder) {
     QModelIndex   idx;
     if (bookmarks.count(currentIndex)) {
       QStandardItem *item = itemFromIndex(currentIndex);
@@ -127,13 +124,13 @@ miString PolygonBookmarkModel::getCurrentName(bool dir)
     } else  {
       idx=currentIndex;
     }
-    return ( dirIndex.count(idx) ? dirIndex[idx] : "" );
+    return ( folderIndex.count(idx) ? folderIndex[idx] : "" );
   }
 
   if ( bookmarks.count(currentIndex) )  
     return  bookmarks[currentIndex]; 
  
-  return ( dirIndex.count(currentIndex) ? dirIndex[currentIndex] : "" );
+  return ( folderIndex.count(currentIndex) ? folderIndex[currentIndex] : "" );
 }  
 
 bool PolygonBookmarkModel::currentIsBookmark()
@@ -147,8 +144,8 @@ void PolygonBookmarkModel::bookmarkChanged( QStandardItem * item )
   
   QModelIndex idx = item->parent()->index();
 
-  if(dirIndex.count(idx))
-    changeEntry(dirIndex[idx],item);
+  if(folderIndex.count(idx))
+    changeEntry(folderIndex[idx],item);
 }
 
 // recursive....
@@ -164,12 +161,12 @@ void PolygonBookmarkModel::changeEntry(miString path, QStandardItem* item)
    return;
   }
     
-  if (dirIndex.count(idx)) {
+  if (folderIndex.count(idx)) {
     
-    miString oldname = dirIndex[idx];
-    dirIndex[idx]    = newname;
-    directories.erase(oldname);
-    directories[newname]=idx;
+    miString oldname = folderIndex[idx];
+    folderIndex[idx] = newname;
+    folders.erase(oldname);
+    folders[newname]=idx;
     
     if(item->hasChildren()) {
       QModelIndexList qmil;
@@ -201,7 +198,7 @@ void PolygonBookmarkModel::internalPaste(bool toTrash)
       idx=currentIndex;
   }
   
-  if ( !dirIndex.count(idx) ) {
+  if ( !folderIndex.count(idx) ) {
     emit warn ("Unable to paste here...");
     return;
   }
@@ -210,7 +207,7 @@ void PolygonBookmarkModel::internalPaste(bool toTrash)
     emit warn ("Not allowed to paste here....");
     return;
   }
-  pasteList(pasteBuffer,dirIndex[idx]);    
+  pasteList(pasteBuffer,folderIndex[idx]);    
   moveItems=false;
 }
 
@@ -223,7 +220,7 @@ void PolygonBookmarkModel::moveToTrash(QModelIndexList& pb)
 
 
 
-void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miString toDirName)
+void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miString toFolderName)
 {
 
   for (int i = 0; i < ilist.size(); ++i) {
@@ -231,11 +228,11 @@ void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miString toDirName)
     QModelIndex  cp_idx = ilist.at(i);
     QStandardItem *item = itemFromIndex(cp_idx);
     miString fromFullName;
-    bool isDirectory=false;
+    bool isFolder=false;
 
-    if (dirIndex.count(cp_idx)) {
-      fromFullName = dirIndex[cp_idx];
-      isDirectory=true;
+    if (folderIndex.count(cp_idx)) {
+      fromFullName = folderIndex[cp_idx];
+      isFolder=true;
     } else if (bookmarks.count(cp_idx)){
       fromFullName = bookmarks[cp_idx];
     } else
@@ -251,21 +248,21 @@ void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miString toDirName)
       }
     }
 
-    miString toFullName=toDirName+"."+item->text().toStdString();
+    miString toFullName=toFolderName+"."+item->text().toStdString();
 
     if(fromFullName==toFullName) {
       emit warn("trying to copy "+toFullName+" to itself");
       continue;
     }
 
-    if(!isDirectory) 
+    if(!isFolder) 
       emit bookmarkCopied(fromFullName,toFullName,moveItems);
 
-    addBookmark(toFullName,isDirectory);
+    addBookmark(toFullName,isFolder);
 
-    // recursive for directories
+    // recursive for folders
 
-    if(isDirectory)
+    if(isFolder)
       if(item->hasChildren()) {
         QModelIndexList qmil;
         for(int j=0; j<item->rowCount();j++) {
@@ -276,9 +273,9 @@ void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miString toDirName)
       }      
 
     if(moveItems) {
-      directories.erase(fromFullName);
+      folders.erase(fromFullName);
       bookmarks.erase(cp_idx);
-      dirIndex.erase(cp_idx);
+      folderIndex.erase(cp_idx);
       if(item->parent()) 
         item->parent()->takeChild(item->row());
     }

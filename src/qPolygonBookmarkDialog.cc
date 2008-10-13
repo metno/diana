@@ -17,7 +17,7 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   copyAction->setStatusTip(tr("Copy polygon"));
   connect( copyAction, SIGNAL( triggered() ) , this, SLOT( copy() ) );
 
-  // copy ========================
+  // cut ========================
   cutAction = new QAction(  QPixmap(), tr("Cut"), this );
   cutAction->setShortcut(tr("Ctrl+X"));
   cutAction->setStatusTip(tr("Cut polygon"));
@@ -35,7 +35,38 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   deleteAction->setStatusTip(tr("Move to Trash"));
   connect( deleteAction, SIGNAL( triggered() ) , this, SLOT( moveToTrash() ) );
 
-   
+  // collapse ========================
+  collapseAction= new QAction(  QPixmap(), tr("Collapse All"), this );
+  collapseAction->setShortcut(tr("Ctrl+-"));
+  collapseAction->setStatusTip(tr("Collapse the whole tree"));
+  connect( collapseAction, SIGNAL( triggered() ) , this, SLOT( collapse() ) );
+
+  // expand ========================
+  expandAction= new QAction(  QPixmap(), tr("expand All"), this );
+  expandAction->setShortcut(tr("Ctrl++"));
+  expandAction->setStatusTip(tr("expand the whole tree"));
+  connect( expandAction, SIGNAL( triggered() ) , this, SLOT( expand() ) );
+
+ 
+  // select ========================
+  selectAction = new QAction(  QPixmap(), tr("Select"), this );
+  selectAction->setShortcut(tr("Space"));
+  selectAction->setStatusTip(tr("Select"));
+  connect( selectAction, SIGNAL( triggered() ) , this, SLOT( select() ) );
+
+
+  // newfolder ========================
+  newFolderAction = new QAction(  QPixmap(), tr("New Folder"), this );
+  newFolderAction->setShortcut(tr("Ctrl+N"));
+  newFolderAction->setStatusTip(tr("Create a new folder"));
+  connect( newFolderAction, SIGNAL( triggered() ) , this, SLOT( newFolder() ) );
+
+  renameAction = new QAction(  QPixmap(), tr("Rename"), this );
+  renameAction->setShortcut(tr("Ctrl+R"));
+  renameAction->setStatusTip(tr("Rename a Folder/Bookmark"));
+  connect( renameAction, SIGNAL( triggered() ) , this, SLOT( rename() ) );
+
+ 
   // cancel ========================
   cancelAction = new QAction(  QPixmap(), tr("Cancel"), this );
   cancelAction->setStatusTip(tr("Cancel"));
@@ -47,18 +78,30 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   quitAction->setStatusTip(tr("Quit"));
   connect( quitAction, SIGNAL( triggered() ) , this, SLOT( quit() ) );
 
-  actionmenu = new QMenu(tr("Action"),this);
-  actionmenu->addAction(copyAction);
-  actionmenu->addAction(cutAction);
-  actionmenu->addAction(pasteAction);
-  actionmenu->addSeparator();
-  actionmenu->addAction(deleteAction);
-  actionmenu->addSeparator();
-  actionmenu->addAction(cancelAction);
-  actionmenu->addSeparator();
-  actionmenu->addAction(quitAction);
-
-  menuBar()->addMenu(actionmenu);
+  
+  filemenu = new QMenu(tr("File"),this);
+  filemenu->addAction(cancelAction);
+  filemenu->addSeparator();
+  filemenu->addAction(quitAction);
+  
+  editmenu = new QMenu(tr("Edit"),this);
+  editmenu->addAction(copyAction);
+  editmenu->addAction(cutAction);
+  editmenu->addAction(pasteAction);
+  editmenu->addSeparator();
+  editmenu->addAction(deleteAction);
+  editmenu->addSeparator();
+  editmenu->addAction(collapseAction);
+  editmenu->addAction(expandAction);
+  editmenu->addSeparator();
+  editmenu->addAction(selectAction);
+  editmenu->addSeparator();
+  editmenu->addAction(renameAction);
+  editmenu->addAction(newFolderAction);
+  editmenu->addSeparator();
+  
+  menuBar()->addMenu(filemenu);
+  menuBar()->addMenu(editmenu);
 
   model = new PolygonBookmarkModel(this);
   
@@ -100,6 +143,7 @@ void PolygonBookmarkDialog::closeEvent(QCloseEvent * e)
 
 void PolygonBookmarkDialog::quit()
 {
+  emit polygonQuit();
   close();
 }
 
@@ -111,7 +155,8 @@ void PolygonBookmarkDialog::cancel()
 
 void PolygonBookmarkDialog::paste() 
 {
-  model->paste();
+  QModelIndex idx=bookmarks->selectionModel()->currentIndex ();
+  model->paste(idx);
 }
 
 void PolygonBookmarkDialog::warn(miString w)
@@ -143,7 +188,39 @@ void PolygonBookmarkDialog::moveToTrash()
   warn("delete ");
 }
 
+void PolygonBookmarkDialog::expand()
+{
+  bookmarks->expandAll();
+}
+ 
+void PolygonBookmarkDialog::collapse()
+{
+  bookmarks->collapseAll();
+}
 
+void PolygonBookmarkDialog::select()
+{
+  QModelIndex idx=bookmarks->selectionModel()->currentIndex ();
+  bookmarkClicked(idx);
+}
+
+void PolygonBookmarkDialog::newFolder()
+{
+  QModelIndex idx=bookmarks->selectionModel()->currentIndex ();
+  model->setCurrent(idx);
+  if(model->currentIsProtected())
+    return;
+  
+  miString newfolder= model->getCurrentName(true);
+  newfolder+=".New Folder";
+  model->addBookmark(newfolder,true);
+}
+
+void PolygonBookmarkDialog::rename()
+{
+  QModelIndex idx=bookmarks->selectionModel()->currentIndex();
+  bookmarks->edit(idx);
+}
 
 
 

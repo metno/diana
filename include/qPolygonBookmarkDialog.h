@@ -16,14 +16,20 @@ private:
   QTreeView            *bookmarks;
   PolygonBookmarkModel *model;
   
-  QMenu   *actionmenu;
-
+  QMenu   *filemenu;
+  QMenu   *editmenu;
+  
   QAction *cancelAction;    
   QAction *copyAction;   
   QAction *pasteAction;   
   QAction *quitAction; 
   QAction *cutAction;
   QAction *deleteAction;
+  QAction *selectAction;
+  QAction *collapseAction;
+  QAction *expandAction;
+  QAction *newFolderAction;
+  QAction *renameAction;
   
 protected:
   void closeEvent( QCloseEvent* );
@@ -42,9 +48,16 @@ private slots:
   void copy();
   void cut();
   void moveToTrash();
+  void expand();
+  void collapse();
+  void select();
+  void newFolder();
+  void rename();
+  
   
 signals:
-  void polygonCanceled();                       ///< emitted on cancel (exit) 
+  void polygonCanceled();                       ///< emitted on cancel ( cast polygon)
+  void polygonQuit();                           ///< close dialog but keep the polygon
   void polygonCopied(miString, miString, bool); ///< from - to - move
   void polygonSelected(miString);               ///< get from db and use that one
 };
