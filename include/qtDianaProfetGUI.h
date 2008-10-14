@@ -201,10 +201,14 @@ private slots:
   void editObject();
   void deleteObject();
   void hideProfetPerformed();
-// PaintToolBar
+  void doReconnect();
+  void doUpdate();
+
+  // PaintToolBar
   void paintModeChanged(GridAreaManager::PaintMode mode);
   void undoCurrentArea();
   void redoCurrentArea();
+
   // MainWindow	
   void gridAreaChanged();
 	

@@ -32,9 +32,11 @@
 #include "qtDianaProfetGUI.h"
 #include "qtPaintToolBar.h"
 #include "qtProfetEvents.h"
+#include "qtProfetWaitDialog.h"
 #include <qstring.h>
 #include <QCoreApplication>
 #include <QMessageBox>
+#include <QApplication>
 
 
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
@@ -85,6 +87,10 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(sendMessage(const QString &)));
   connect(&sessionDialog,SIGNAL(sessionSelected(int)),
       this,SLOT(sessionSelected(int)));
+  connect(&sessionDialog, SIGNAL(doReconnect()),
+	  this,SLOT(doReconnect()));
+  connect(&sessionDialog, SIGNAL(doUpdate()),
+	  this,SLOT(doUpdate()));
   connect(&objectDialog,SIGNAL(saveObjectClicked()),
       this,SLOT(saveObject()));
   connect(&objectDialog,SIGNAL(cancelObjectDialog()),
@@ -565,6 +571,36 @@ void DianaProfetGUI::deleteObject(){
 
 void DianaProfetGUI::hideProfetPerformed(){
   emit toggleProfetGui();
+}
+
+void DianaProfetGUI::doReconnect()
+{
+  Profet::DataManagerType preferredType = Profet::DISTRIBUTED_MANAGER;
+  Profet::PodsUser user = controller.getCurrentUser();
+
+  QApplication::setOverrideCursor( Qt::WaitCursor );
+
+  controller.disconnect();
+
+  ProfetWaitDialog * wait = new ProfetWaitDialog(&sessionDialog,3000,200);
+  if ( !wait->exec())
+    return;
+
+  try {
+    Profet::DataManagerType dmt = controller.connect(user,preferredType);
+    QApplication::restoreOverrideCursor();
+    if(dmt != preferredType)
+      QMessageBox::warning(0,"Running disconnected mode",
+			   "Distributed field editing system is not available.");
+  } catch(Profet::ServerException & se) {
+    controller.disconnect();
+    QApplication::restoreOverrideCursor();
+  }
+}
+
+void DianaProfetGUI::doUpdate()
+{
+  cerr << "doUpdate" << endl;
 }
 
 void DianaProfetGUI::showField(const miTime & reftime, const miString & param, const miTime & time){

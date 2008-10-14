@@ -109,16 +109,20 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   objectWidget->setLayout(objectTitleLayout);
   
   //Buttons
+  reconnectButton = new QPushButton(tr("Reconnect..."),this);
   updateButton = new QPushButton(tr("Update"), this );
   closeButton  = new QPushButton(tr("Close"),  this );
 
+  reconnectButton->setDefault(false);
   updateButton->setDefault(false);
   closeButton->setDefault(false);
 
+  updateButton->setEnabled(false);
+
   buttonLayout->addWidget(new QLabel("", this));
+  buttonLayout->addWidget(reconnectButton);
   buttonLayout->addWidget(updateButton);
   buttonLayout->addWidget(closeButton);
-  
 
   enableObjectButtons(true,false,true);
   connectSignals();
@@ -139,6 +143,10 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(startTimesmooth()));
   connect(closeButton,SIGNAL(clicked()),
       this,SIGNAL(closePerformed()));
+  connect(reconnectButton,SIGNAL(clicked()),
+      this,SIGNAL(doReconnect()));
+  connect(updateButton,SIGNAL(clicked()),
+      this,SIGNAL(doUpdate()));
   connect(objectList,SIGNAL(activated(const QModelIndex &)),
       this,SIGNAL(objectSelected(const QModelIndex &)));
   connect(chatWidget,SIGNAL(sendMessage(const QString &)),

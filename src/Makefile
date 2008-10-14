@@ -66,8 +66,8 @@ ifndef NOPROFET
 QOBJ +=  qtProfetSessionDialog.o qtProfetSessionTable.o \
 qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o \
 qtProfetDataModels.o qtProfetSingleControl.o qtProfetTimeControl.o \
-qtProfetTimeSmoothDialog.o qPolygonBookmarkDialog.o qPolygonBookmarkModel.o
-                         
+qtProfetTimeSmoothDialog.o qPolygonBookmarkDialog.o qPolygonBookmarkModel.o \
+qtProfetWaitDialog.o                  
 endif
 
 GOBJ= \

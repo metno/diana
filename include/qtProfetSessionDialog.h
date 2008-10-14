@@ -69,6 +69,7 @@ class ProfetSessionDialog: public QDialog{
   
 private:
   QComboBox * sessionComboBox;
+  QPushButton * reconnectButton;
   QPushButton * updateButton;
   QPushButton * closeButton;
   FetObjectListView * objectList;
@@ -129,6 +130,8 @@ signals:
   void deleteObjectPerformed();
   void startTimesmooth();
   void closePerformed();
+  void doUpdate();
+  void doReconnect();
 };
 
 
