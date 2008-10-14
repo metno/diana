@@ -594,6 +594,7 @@ void DianaProfetGUI::doReconnect()
 			   "Distributed field editing system is not available.");
   } catch(Profet::ServerException & se) {
     controller.disconnect();
+    QMessageBox::warning(0,"Error connecting",se.getHtmlMessage(false).c_str());
     QApplication::restoreOverrideCursor();
   }
 }
