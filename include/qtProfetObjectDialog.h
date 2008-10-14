@@ -67,11 +67,8 @@ private:
   QLabel         *algDescriptionLabel;
   QLabel         *statisticLabel;
   QComboBox      *baseComboBox;
-  QRadioButton   *customAreaButton;
-  QRadioButton   *objectAreaButton;
-  QRadioButton   *fileAreaButton;
-  QComboBox      *objectAreaComboBox;
-  QLineEdit      *fileTextEdit;
+  QPushButton    *databaseAreaButton;
+  QPushButton    *fileAreaButton;
   QLabel         *areaInfoLabel;
   Q3TextEdit     *reasonText;
   QPushButton    *saveObjectButton;
@@ -114,6 +111,8 @@ public:
   
 private slots:
   void baseObjectChanged(const QString&);
+  void cancelPolygon();
+  void quitBookmarks();
   
 signals:
   void baseObjectSelected(miString name);
@@ -121,9 +120,9 @@ signals:
   void saveObjectClicked();
   void cancelObjectDialog();
   
-  void cancelPolygon();
   void copyPolygon(miString,miString,bool);
   void selectPolygon(miString); 
+  void requestPolygonList();
   
   
   

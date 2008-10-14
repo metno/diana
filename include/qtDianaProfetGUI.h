@@ -178,12 +178,19 @@ public:
   void setActivePoints(vector<Point>);
 
 
+  
 		  
 private slots:
 // ObjectDialog
   void baseObjectSelected(miString name);
   void objectSelected(const QModelIndex &);
   void saveObject();
+  
+  void copyPolygon(miString,miString,bool);
+  void selectPolygon(miString); 
+  void requestPolygonList();
+  
+  
 //   void deleteObject(miString id);
   void startTimesmooth();
   void processTimesmooth(vector<fetObject::TimeValues> tv);

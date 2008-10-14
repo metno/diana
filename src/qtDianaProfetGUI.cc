@@ -99,6 +99,14 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(baseObjectSelected(miString)));
   connect(&objectDialog,SIGNAL(dynamicGuiChanged()),
       this,SLOT(dynamicGuiChanged()));
+  
+  connect(&objectDialog,SIGNAL(copyPolygon(miString,miString,bool)),
+      this,SLOT(copyPolygon(miString,miString,bool)));
+  connect(&objectDialog,SIGNAL(selectPolygon(miString)),
+      this,SLOT(selectPolygon(miString)));
+  connect(&objectDialog,SIGNAL(requestPolygonList()),
+        this,SLOT(requestPolygonList()));
+   
 }
 
 DianaProfetGUI::~DianaProfetGUI(){ 
@@ -444,6 +452,71 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
   }
   enableObjectButtons(true,true,true);
 }
+
+
+
+void DianaProfetGUI::copyPolygon(miString fromPoly,miString toPoly,bool move)
+{
+  try{
+    controller.copyPolygon(fromPoly,toPoly,move);
+  }catch(Profet::ServerException & se){
+    miString title = (se.isDisconnectRecommanded()?"Profet copyPolygon":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+  }
+}
+
+
+void DianaProfetGUI::selectPolygon(miString polyname)
+{
+  fetPolygon fpoly;
+  try{
+    fpoly=controller.getPolygon(polyname);
+  }catch(Profet::ServerException & se){
+    miString title = (se.isDisconnectRecommanded()?"Profet select polygon":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+  }
+  
+  cout << "RETRIEVED NEW POLYGON: " << fpoly.name() << endl;
+  
+  
+}
+
+
+void DianaProfetGUI::requestPolygonList()
+{
+  vector <miString> polynames;
+  try{
+    polynames=controller.getPolygonIndex();
+    cout << polynames.size() << endl;
+  }catch(Profet::ServerException & se){
+    miString title = (se.isDisconnectRecommanded()?"Profet getPolygon":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+  }
+  
+  if(polynames.size())
+    objectDialog.startBookmarkDialog(polynames);
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

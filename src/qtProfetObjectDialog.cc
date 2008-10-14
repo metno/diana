@@ -56,14 +56,11 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
   mainLayout->addWidget(algGroupBox);
 
   areaGroupBox             = new Q3GroupBox(4,Qt::Vertical,"Area",this);
-  customAreaButton         = new QRadioButton("Draw On Map",areaGroupBox);
-  Q3HBox * objectAreaBox    = new Q3HBox(areaGroupBox);
-  objectAreaButton         = new QRadioButton("From Object",objectAreaBox);
-  objectAreaComboBox       = new QComboBox(objectAreaBox);
-  Q3HBox * fileAreaBox      = new Q3HBox(areaGroupBox);
-  fileAreaButton           = new QRadioButton("From File",fileAreaBox);
-  fileTextEdit             = new QLineEdit(fileAreaBox);
+  databaseAreaButton       = new QPushButton("From Database",areaGroupBox);
+  fileAreaButton           = new QPushButton("From File",areaGroupBox);
   areaInfoLabel            = new QLabel("",areaGroupBox);
+  
+  
 
   mainLayout->addWidget(areaGroupBox);
 
@@ -93,16 +90,13 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
 
   mainLayout->addWidget(buttonBox);
   
-  Q3ButtonGroup * areaButtons = new Q3ButtonGroup(0);
-  areaButtons->insert(customAreaButton);
-  areaButtons->insert(objectAreaButton);
-  areaButtons->insert(fileAreaButton);
-  customAreaButton->setChecked(true);
+//  Q3ButtonGroup * areaButtons = new Q3ButtonGroup(0);
+//  areaButtons->insert(customAreaButton);
+//  areaButtons->insert(objectAreaButton);
+//  areaButtons->insert(fileAreaButton);
+//  customAreaButton->setChecked(true);
 
   // Disable non-implemented functions
-  objectAreaButton->setEnabled(false);
-  objectAreaComboBox->setEnabled(false);
-  fileTextEdit->setEnabled(false);
   fileAreaButton->setEnabled(false);
 
   connectSignals();
@@ -117,6 +111,11 @@ void ProfetObjectDialog::connectSignals(){
       this, SIGNAL( cancelObjectDialog() ));
   connect(baseComboBox, SIGNAL( activated(const QString&) ),
       this, SLOT( baseObjectChanged(const QString&) ));
+  connect(databaseAreaButton,SIGNAL(clicked()), 
+      this, SIGNAL (requestPolygonList()));
+    
+  
+  
 }
 
 void ProfetObjectDialog::baseObjectChanged(const QString & qs){
@@ -126,7 +125,8 @@ void ProfetObjectDialog::baseObjectChanged(const QString & qs){
 }
 
 void ProfetObjectDialog::closeEvent(QCloseEvent * e){
-  emit cancelObjectDialog();
+  databaseAreaButton->setEnabled(true);
+  emit cancelObjectDialog(); 
 }
 
 void ProfetObjectDialog::newObjectMode(){  
@@ -167,6 +167,7 @@ vector<fetDynamicGui::GuiComponent> ProfetObjectDialog::getCurrentGuiComponents(
   }
   return comp;
 }
+
 
 void ProfetObjectDialog::setSession(const miTime & time){
   ostringstream ost;
@@ -271,6 +272,17 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
   
 }
 
+void ProfetObjectDialog::cancelPolygon()
+{
+  databaseAreaButton->setEnabled(true);
+}
+void ProfetObjectDialog::quitBookmarks()
+{
+  databaseAreaButton->setEnabled(true);
+}
+
+
+
 void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
 {
   
@@ -279,12 +291,16 @@ void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
   
   PolygonBookmarkDialog * bookmarks = new PolygonBookmarkDialog(this,boom);
   connect(bookmarks,SIGNAL(polygonCanceled()),
-      this,SIGNAL(cancelPolygon()));    
+      this,SLOT(cancelPolygon()));    
+  connect(bookmarks,SIGNAL(polygonQuit()),
+        this,SLOT(quitBookmarks())); 
   connect(bookmarks,SIGNAL(polygonCopied(miString,miString,bool)),
       this,SIGNAL(copyPolygon(miString,miString,bool))); 
   connect(bookmarks,SIGNAL(polygonSelected(miString)),
       this,SIGNAL(selectPolygon(miString))); 
   bookmarks->show();
+  
+  databaseAreaButton->setEnabled(false);
     
 }
 
