@@ -656,6 +656,10 @@ osisaf.param_645=645,2,1000
 #### UV
 uvi = 900,2,1000
 
+#### Simulated imagery
+ir_rad = 1331,2,1000
+wv_rad = 1333,2,1000 
+
 # Season forecasts, Single level
 t.2m.season=163,2,1000
 
@@ -2492,6 +2496,21 @@ field=UV-indeks
       table=1 
      plot = CONTOUR(uvi)
 end.field
+
+####################### Simulated imagery ###########################################
+
+field=ir_rad
+     text = "Simulated ir imagery"
+     value.range=240.,300.
+     colour=blue
+     plot=ALPHA_SHADE(ir_rad)
+end.field
+field=wv_rad
+     text = "Simulated wv imagery"
+     value.range=240.,300.
+     colour=blue
+     plot=ALPHA_SHADE(wv_rad)
+end.field 
 
 ####################### Sesong-varsler ###########################################
 
