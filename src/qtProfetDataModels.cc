@@ -9,7 +9,7 @@
  0313 OSLO
  NORWAY
  email: diana@met.no
- 
+
  This file is part of Diana
 
  Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -30,12 +30,13 @@
 #include "qtProfetEvents.h"
 #include <QIcon>
 #include <QPixmap>
-#include <fet_object_normal.xpm> 
+#include <fet_object_normal.xpm>
 #include <fet_object_tmp.xpm>
-#include <fet_object_wind.xpm> 
+#include <fet_object_wind.xpm>
 #include <fet_object_rain.xpm>
 #include <fet_object_p.xpm>
 #include <fet_object_sky.xpm>
+#include <fet_object_wave.xpm>
 #include <user.xpm>
 #include <user_admin.xpm>
 #include <Robot.xpm>
@@ -60,7 +61,7 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
       return QVariant(QIcon(QPixmap(user_admin_xpm)));
     else if (users[index.row()].role == "testrobot")
       return QVariant(QIcon(QPixmap(Robot_xpm)));
-    else 
+    else
       return QVariant(QIcon(QPixmap(user_xpm)));
   }
   return QVariant();
@@ -131,7 +132,7 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
     miTime rt = sessions[index.row()].referencetime();
     miString mn = sessions[index.row()].modelsource();
     miTime mt = sessions[index.row()].modeltime();
-    
+
     QString str = QString("%1: %2, %3").arg(
         rt.isoTime().cStr()).arg(mn.cStr()).arg(mt.isoTime().cStr());
     return str;
@@ -233,11 +234,11 @@ void SessionListModel::customEvent(QEvent * e){
 bool SessionListModel::removeRows( int position, int rows, const QModelIndex & parent )
 {
   beginRemoveRows(QModelIndex(), position, position+rows-1);
-  
+
   for (int row = 0; row < rows; ++row) {
     sessions.erase(sessions.begin()+position);
   }
-  
+
   endRemoveRows();
   return true;
 }
@@ -245,16 +246,16 @@ bool SessionListModel::removeRows( int position, int rows, const QModelIndex & p
 bool SessionListModel::insertRows( int position, int rows, const QModelIndex & parent )
 {
   beginInsertRows(QModelIndex(), position, position+rows-1);
-  
+
   for (int row = 0; row < rows; ++row) {
     sessions.insert(sessions.begin()+position, fetSession());
   }
-  
+
   endInsertRows();
   return true;
 }
 
-//  *** FetObjectListModel *** 
+//  *** FetObjectListModel ***
 
 QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
@@ -273,12 +274,14 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
     else if (param == "T.2M")
       return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
-    else if (param == "VIND.10M")
+    else if (param.contains("VIND"))
       return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
-    else if (param == "TOTALT.SKYDEKKE")
+    else if (param.contains("SKYDEKKE"))
       return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
-    else if (param == "NEDBØR.3T")
+    else if (param.contains("NEDBØR"))
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
+    else if (param.contains("Wave"))
+      return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
     return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
   } else if (role == Qt::ToolTipRole) {
     QString str = objects[index.row()].reason().c_str();
@@ -358,12 +361,14 @@ QVariant FetObjectTableModel::headerData(int section,
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
     else if (param == "T.2M")
       return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
-    else if (param == "VIND.10M")
+    else if (param.contains("VIND"))
       return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
-    else if (param == "TOTALT.SKYDEKKE")
+    else if (param.contains("SKYDEKKE"))
       return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
-    else if (param == "NEDBØR.3T")
+    else if (param.contains("NEDBØR"))
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
+    else if (param.contains("Wave"))
+      return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
     return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
   }
   return QVariant();
@@ -382,7 +387,7 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
     vector<int> oil = getObjectIndexList(index.column(),index.row());
     if(oil.size())
       return getCellBackgroundColor(WITH_DATA_CELL, oddDay);
-    else 
+    else
       return getCellBackgroundColor(EMPTY_CELL, oddDay);
   }
   return QVariant();
@@ -391,7 +396,7 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
 vector<int> FetObjectTableModel::getObjectIndexList(
     int timeIndex, int paramIndex) const{
   vector<int> indexList;
-  map< int, map< int, vector< int > > >::const_iterator i; 
+  map< int, map< int, vector< int > > >::const_iterator i;
   for(i=signatureIndexMap.begin();i!=signatureIndexMap.end();i++){
     if((*i).first == timeIndex){
       map< int, vector< int > >::const_iterator j;
@@ -516,7 +521,7 @@ miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
 miString FetObjectTableModel::getParameter(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   int row = index.row();
-  if(row < 0) 
+  if(row < 0)
     throw InvalidIndexException();
   if (row >= parameters.size())
     throw InvalidIndexException();
