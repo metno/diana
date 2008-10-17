@@ -50,7 +50,7 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
  
   // select ========================
   selectAction = new QAction(  QPixmap(), tr("Select"), this );
-  selectAction->setShortcut(tr("Space"));
+  selectAction->setShortcut(tr("Return"));
   selectAction->setStatusTip(tr("Select"));
   connect( selectAction, SIGNAL( triggered() ) , this, SLOT( select() ) );
 

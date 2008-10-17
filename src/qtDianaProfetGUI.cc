@@ -477,19 +477,25 @@ void DianaProfetGUI::selectPolygon(miString polyname)
     QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
     if (se.isDisconnectRecommanded()) emit forceDisconnect();
   }
-  
-  cout << "RETRIEVED NEW POLYGON: " << fpoly.name() << endl;
-  
-  
+  //TODO: Bjørn - implement the polygon! use fpoly.polygon() (which is a projectablePolygon)      
+  if(areaManager) {
+    currentObjectMutex.lock();
+      if(currentObject.exists()){
+        currentObject.setPolygon(fpoly.polygon());
+        areaManager->addArea(currentObject.id(),fpoly.polygon(),true);  
+        emit repaintMap(false);
+      } else
+        QMessageBox::warning(0,"nix","empty object");
+      
+      currentObjectMutex.unlock();   
+  }
 }
-
 
 void DianaProfetGUI::requestPolygonList()
 {
   vector <miString> polynames;
   try{
     polynames=controller.getPolygonIndex();
-    cout << polynames.size() << endl;
   }catch(Profet::ServerException & se){
     miString title = (se.isDisconnectRecommanded()?"Profet getPolygon":"Profet Warning");
     QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
@@ -501,23 +507,6 @@ void DianaProfetGUI::requestPolygonList()
   
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void DianaProfetGUI::dynamicGuiChanged(){
