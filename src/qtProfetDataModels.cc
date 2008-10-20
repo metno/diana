@@ -37,6 +37,7 @@
 #include <fet_object_p.xpm>
 #include <fet_object_sky.xpm>
 #include <fet_object_wave.xpm>
+#include <fet_object_fog.xpm>
 #include <user.xpm>
 #include <user_admin.xpm>
 #include <Robot.xpm>
@@ -280,6 +281,8 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
       return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
     else if (param.contains("NEDBØR"))
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
+    else if (param.contains("FOG"))
+      return QVariant(QIcon(QPixmap(fet_object_fog_xpm)));
     else if (param.contains("Wave"))
       return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
     return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
@@ -367,6 +370,8 @@ QVariant FetObjectTableModel::headerData(int section,
       return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
     else if (param.contains("NEDBØR"))
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
+    else if (param.contains("FOG"))
+      return QVariant(QIcon(QPixmap(fet_object_fog_xpm)));
     else if (param.contains("Wave"))
       return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
     return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
