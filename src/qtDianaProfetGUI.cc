@@ -481,7 +481,12 @@ void DianaProfetGUI::selectPolygon(miString polyname)
   if(areaManager) {
     miString id = "newArea";
     currentObjectMutex.lock();
-    if(currentObject.exists()) id = currentObject.id();
+    if(currentObject.exists()) {
+      id = currentObject.id();
+      // If new object but reselected polygon
+      if(areaManager->getCurrentId() == "newArea")
+        areaManager->changeAreaId("newArea",id);
+    }
     currentObject.setPolygon(fpoly.polygon());
     currentObjectMutex.unlock();
     areaManager->addArea(id,fpoly.polygon(),true);
