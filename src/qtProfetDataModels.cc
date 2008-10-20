@@ -452,16 +452,16 @@ void FetObjectTableModel::setObjectSignature(
   for(int i=0;i<nObj; i++){
     if(objects[i].id == obj.id){
       objects[i] = obj;
-      reset();
-//      dataChanged(objIndex,objIndex);
+      //reset();
+      emit dataChanged(objIndex,objIndex);
       return;
     }
   }
   // Object is new
   objects.push_back(obj);
   signatureIndexMap[tIndex][pIndex].push_back((objects.size() - 1));
-//  dataChanged(objIndex,objIndex);
-  reset();
+  emit dataChanged(objIndex,objIndex);
+  //reset();
 }
 
 bool  FetObjectTableModel::removeObjectSignature(const miString & id) {
@@ -478,8 +478,8 @@ bool  FetObjectTableModel::removeObjectSignature(const miString & id) {
           iter = v.erase(iter);
           signatureIndexMap[tIndex][pIndex] = v;
           QModelIndex objIndex = index(tIndex,pIndex);
-//          dataChanged(objIndex,objIndex);
-          reset();
+          emit dataChanged(objIndex,objIndex);
+//          reset();
           return true;
         }
     }
