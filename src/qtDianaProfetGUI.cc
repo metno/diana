@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -40,9 +40,9 @@
 
 
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
-PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) : 
-QObject(), paintToolBar(ptb), areaManager(gam), 
-Profet::ProfetGUI(pc),sessionDialog(p), 
+PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) :
+QObject(), paintToolBar(ptb), areaManager(gam),
+Profet::ProfetGUI(pc),sessionDialog(p),
 objectDialog(p), objectFactory(),
 userModel(p), sessionModel(p),
 objectModel(p), tableModel(p), activeTimeSmooth(false)
@@ -99,17 +99,17 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(baseObjectSelected(miString)));
   connect(&objectDialog,SIGNAL(dynamicGuiChanged()),
       this,SLOT(dynamicGuiChanged()));
-  
+
   connect(&objectDialog,SIGNAL(copyPolygon(miString,miString,bool)),
       this,SLOT(copyPolygon(miString,miString,bool)));
   connect(&objectDialog,SIGNAL(selectPolygon(miString)),
       this,SLOT(selectPolygon(miString)));
   connect(&objectDialog,SIGNAL(requestPolygonList()),
         this,SLOT(requestPolygonList()));
-   
+
 }
 
-DianaProfetGUI::~DianaProfetGUI(){ 
+DianaProfetGUI::~DianaProfetGUI(){
 }
 
 void DianaProfetGUI::enableObjectButtons(bool enableNewbutton,
@@ -142,7 +142,7 @@ void DianaProfetGUI::resetStatus(){
 }
 
 void DianaProfetGUI::setCurrentSession(const fetSession & session){
-  //Changing current session must be done in QT event queue 
+  //Changing current session must be done in QT event queue
   //to be performed in the correct order...
   Profet::CurrentSessionEvent * cse = new Profet::CurrentSessionEvent();
   cse->refTime = session.referencetime();
@@ -230,7 +230,7 @@ void DianaProfetGUI::customEvent(QEvent * e){
     // updates FieldDialog
     emit updateModelDefinitions();
   }
-  
+
 }
 // THREAD SAFE!
 void DianaProfetGUI::updateObjects(const vector<fetObject> & objects){
@@ -277,7 +277,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
       }catch(InvalidIndexException & iie){
         cerr << "DianaProfetGUI::baseObjectSelected invalid session index" << endl;
       }
-      
+
       // TODO: fetch parent from somewhere...
       miString parent_ = "";
       miString username = controller.getCurrentUser().name;
@@ -299,14 +299,14 @@ void DianaProfetGUI::baseObjectSelected(miString id){
   }
   else{
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
-  } 
+  }
 }
 
 void DianaProfetGUI::objectSelected(const QModelIndex & index){
   LOG4CXX_DEBUG(logger,"objectSelected");
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-// Lock is not distributed    
+// Lock is not distributed
 //    sessionDialog.lockedObjectSelected(fo.is_locked());
     areaManager->setCurrentArea(fo.id());
     updateMap();
@@ -336,7 +336,7 @@ void DianaProfetGUI::saveObject(){
   currentObjectMutex.lock();
   fetObject safeCopy = currentObject;
   currentObjectMutex.unlock();
-  
+
   if(objectDialog.showingNewObject()){
     areaManager->changeAreaId("newArea",safeCopy.id());
   }
@@ -358,7 +358,7 @@ void DianaProfetGUI::saveObject(){
 void DianaProfetGUI::startTimesmooth()
 {
   if(activeTimeSmooth) return;
-    
+
   miString id_;
   try{
      fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
@@ -367,7 +367,7 @@ void DianaProfetGUI::startTimesmooth()
      LOG4CXX_ERROR(logger,"DianaProfetGUI::startTimesmooth :" << iie.what());
      return;
   }
-    
+
   vector<miTime> tim;
   try{
     fetSession s = sessionModel.getSession( sessionDialog.getCurrentSessionIndex() );
@@ -376,22 +376,22 @@ void DianaProfetGUI::startTimesmooth()
     cerr << "DianaProfetGUI::startTimesmooth invalid session index" << endl;
     return;
   }
-  
+
   vector<fetObject::TimeValues> obj=controller.getTimeValues(id_);
-  
+
   if(obj.empty()) return;
-  
+
   ProfetTimeSmoothDialog *timesmoothdialog= new ProfetTimeSmoothDialog(parent,obj,tim);
-  
-  connect(timesmoothdialog,SIGNAL(runObjects(vector<fetObject::TimeValues>)), 
+
+  connect(timesmoothdialog,SIGNAL(runObjects(vector<fetObject::TimeValues>)),
       this,SLOT(processTimesmooth(vector<fetObject::TimeValues>)));
-  
+
   connect(this,SIGNAL(timesmoothProcessed(miTime, miString)),
-      timesmoothdialog,SLOT(processed(miTime, miString))); 
-  
-  connect(timesmoothdialog,SIGNAL(endTimesmooth(vector<fetObject::TimeValues>)), 
+      timesmoothdialog,SLOT(processed(miTime, miString)));
+
+  connect(timesmoothdialog,SIGNAL(endTimesmooth(vector<fetObject::TimeValues>)),
         this,SLOT(endTimesmooth(vector<fetObject::TimeValues>)));
-    
+
   activeTimeSmooth=true;
   enableObjectButtons(false,false,false);
 }
@@ -404,7 +404,7 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
   if(currentObject.exists())
       obj.push_back(currentObject);
   currentObjectMutex.unlock();
-  
+
   set<miString>     deletion_ids;
   controller.getTimeValueObjects(obj,tv,deletion_ids);
   // deleting objects without effect
@@ -416,12 +416,12 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
       }
     }
   }catch(Profet::ServerException & se){
-    cerr << "DianaProfetGUI::processTimesmooth:  Failed to delete " << 
+    cerr << "DianaProfetGUI::processTimesmooth:  Failed to delete " <<
       "depricated object. (Not significant)" << endl;
   }
-  
-  
-  for(int i=0;i<obj.size();i++) { 
+
+
+  for(int i=0;i<obj.size();i++) {
     miTime tim      = obj[i].validTime();
     miString obj_id = obj[i].id();
     try {
@@ -476,18 +476,16 @@ void DianaProfetGUI::selectPolygon(miString polyname)
     miString title = (se.isDisconnectRecommanded()?"Profet select polygon":"Profet Warning");
     QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
     if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    return;
   }
-  //TODO: Bjørn - implement the polygon! use fpoly.polygon() (which is a projectablePolygon)      
   if(areaManager) {
+    miString id = "newArea";
     currentObjectMutex.lock();
-      if(currentObject.exists()){
-        currentObject.setPolygon(fpoly.polygon());
-        areaManager->addArea(currentObject.id(),fpoly.polygon(),true);  
-        emit repaintMap(false);
-      } else
-        QMessageBox::warning(0,"nix","empty object");
-      
-      currentObjectMutex.unlock();   
+    if(currentObject.exists()) id = currentObject.id();
+    currentObject.setPolygon(fpoly.polygon());
+    currentObjectMutex.unlock();
+    areaManager->addArea(id,fpoly.polygon(),true);
+    gridAreaChanged();
   }
 }
 
@@ -500,12 +498,13 @@ void DianaProfetGUI::requestPolygonList()
     miString title = (se.isDisconnectRecommanded()?"Profet getPolygon":"Profet Warning");
     QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
     if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    return;
   }
-  
+
   if(polynames.size())
     objectDialog.startBookmarkDialog(polynames);
-  
-  
+
+
 }
 
 
@@ -604,7 +603,7 @@ void DianaProfetGUI::editObject(){
     miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
     QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
     if (se.isDisconnectRecommanded()) emit forceDisconnect();
-  }catch(InvalidIndexException & iie){ 
+  }catch(InvalidIndexException & iie){
     error = "Unable to find selected object.";
   }
   if(!error.empty()){
@@ -669,7 +668,7 @@ void DianaProfetGUI::doUpdate()
 void DianaProfetGUI::showField(const miTime & reftime, const miString & param, const miTime & time){
   LOG4CXX_DEBUG(logger,"show field "<<param<<" "<<time);
 
-  //send time(s) to TimeSlider and set time 
+  //send time(s) to TimeSlider and set time
   vector<miTime> vtime;
   vtime.push_back(time);
   emit emitTimes("product",vtime);
@@ -677,7 +676,7 @@ void DianaProfetGUI::showField(const miTime & reftime, const miString & param, c
 
   // First, remove previous PROFET fieldPlot (if any)
   emit showProfetField(""); //FieldDialog::fieldEditUpdate
-  
+
   // make plot string for new PROFET fieldPlot
   miString plotString;
   plotString += ModelNames::profetWork(reftime) + " ";
@@ -687,7 +686,7 @@ void DianaProfetGUI::showField(const miTime & reftime, const miString & param, c
   plotString += " overlay=1";
   LOG4CXX_DEBUG(logger,"showField: "<<plotString);
   emit showProfetField(plotString); //FieldDialog::fieldEditUpdate
-  
+
   // will trigger MenuOK in qtMainWindow :-)
   emit prepareAndPlot();
 }
@@ -753,7 +752,8 @@ void DianaProfetGUI::gridAreaChanged(){
   currentObjectMutex.lock();
   miString obj_id = currentObject.id();
   currentObjectMutex.unlock();
-  if(currentId != "newArea" && currentId != obj_id){ //use currentObject??
+  // Different object selected on map
+  if(currentId != "newArea" && currentId != obj_id){
     QModelIndex modelIndex = objectModel.getIndexById(currentId);
     if(modelIndex.isValid()){
       sessionDialog.setSelectedObject(modelIndex);
@@ -813,7 +813,7 @@ void DianaProfetGUI::gridAreaChanged(){
 }
 
 void DianaProfetGUI::cancelObjectDialog(){
-  // Current area added with createNewObject 
+  // Current area added with createNewObject
   if(areaManager->getCurrentId() == "newArea"){
     areaManager->removeCurrentArea();
   }
@@ -884,7 +884,7 @@ void DianaProfetGUI::setVisible(bool visible){
     sessionDialog.hide();
     objectDialog.hide();
     paintToolBar->hide();
-   
+
     emit setPaintMode(false);
   }
 }
