@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -31,11 +31,14 @@
 
 #include <QAbstractListModel>
 #include <QColor>
+#include <QRgb>
 #include <QEvent>
+#include <QPixmap>
 #include <profet/ProfetCommon.h>
 #include <profet/fetObject.h>
 #include <profet/fetSession.h>
 #include <puTools/miTime.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <map>
 
@@ -54,14 +57,20 @@ public:
 
 /**
  * Container for PodsUser objects working as a model
- * for list-views. 
+ * for list-views.
  */
 class UserListModel : public QAbstractListModel {
   Q_OBJECT
+public:
+  static QPixmap getUserIcon(int index);
+  static QRgb getColorByIndex(int index);
+
 private:
   vector<PodsUser> users;
+
 public:
   UserListModel(QObject * parent): QAbstractListModel(parent){}
+
   int rowCount(const QModelIndex &parent = QModelIndex()) const{
     return users.size();
   }
@@ -88,7 +97,7 @@ public:
 
 /**
  * Container for fetSession objects working as a model
- * for list-views. 
+ * for list-views.
  */
 class SessionListModel : public QAbstractListModel {
   Q_OBJECT
@@ -130,7 +139,7 @@ public:
 
 /**
  * Container for fet-objects working as a model
- * for list-views. 
+ * for list-views.
  */
 class FetObjectListModel : public QAbstractListModel {
   Q_OBJECT
@@ -188,7 +197,7 @@ private:
   // const access to signatureIndexMap
   vector<int> getObjectIndexList(int timeIndex, int paramIndex) const;
   QColor getCellBackgroundColor(CellType type, bool odd) const;
-  
+
 public:
   FetObjectTableModel(QObject * parent): QAbstractTableModel(parent){
     lastSelected = index(0,0);

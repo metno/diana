@@ -39,6 +39,7 @@
 #include <fet_object_wave.xpm>
 #include <fet_object_fog.xpm>
 #include <user.xpm>
+#include <custom_user.xpm>
 #include <user_admin.xpm>
 #include <Robot.xpm>
 #include "session_lock.xpm"
@@ -47,6 +48,38 @@
 #include "session_operational.xpm"
 
 namespace Profet {
+
+
+QPixmap UserListModel::getUserIcon(int index) {
+  QRgb rgbColor = getColorByIndex(index);
+  QImage userImage(custom_user_xpm);
+  for(int w=0; w<userImage.width(); w++){
+    for(int h=0; h<userImage.height(); h++){
+      int index = userImage.pixelIndex(w,h);
+      if(userImage.color(index) == qRgb(0,0,0))
+        userImage.setColor(index,rgbColor);
+    }
+  }
+  return QPixmap::fromImage(userImage);
+}
+
+QRgb UserListModel::getColorByIndex(int index) {
+  int nColors = 12;
+  int i = (int) (index % nColors);
+  if (i == 0) return qRgb(0,0,255);
+  else if (i == 1) return qRgb(0,255,0);
+  else if (i == 2) return qRgb(255,0,0);
+  else if (i == 3) return qRgb(0,255,255);
+  else if (i == 4) return qRgb(255,255,0);
+  else if (i == 5) return qRgb(255,0,255);
+  else if (i == 6) return qRgb(150,150,150);
+  else if (i == 7) return qRgb(255,255,255);
+  else if (i == 8) return qRgb(0,0,0);
+  else if (i == 9) return qRgb(255,150,0);
+  else if (i ==10) return qRgb(0,150,255);
+  else if (i ==11) return qRgb(150,150,255);
+  else return qRgb(0,0,0);
+}
 
 QVariant UserListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
@@ -57,13 +90,13 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
     return QString(users[index.row()].name.cStr());
   else if (role == Qt::DecorationRole) {
     if (users[index.row()].role == "forecast")
-      return QVariant(QIcon(QPixmap(user_xpm)));
+      return QVariant(QIcon(getUserIcon(index.row())));
     else if (users[index.row()].role == "admin")
       return QVariant(QIcon(QPixmap(user_admin_xpm)));
     else if (users[index.row()].role == "testrobot")
       return QVariant(QIcon(QPixmap(Robot_xpm)));
     else
-      return QVariant(QIcon(QPixmap(user_xpm)));
+      return QVariant(QIcon(getUserIcon(index.row())));
   }
   return QVariant();
 }
@@ -395,6 +428,13 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
     else
       return getCellBackgroundColor(EMPTY_CELL, oddDay);
   }
+  /*
+  if(role == Qt::DecorationRole) {
+    if(index == lastSelected){
+      QPixmap customIcon = UserListModel::getUserIcon(index.column());
+      return QVariant(QIcon(customIcon));
+    }
+  }*/
   return QVariant();
 }
 
