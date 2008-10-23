@@ -175,10 +175,10 @@ void DianaProfetGUI::setSession(const fetSession & session, bool remove){
 
 void DianaProfetGUI::setUser(const Profet::PodsUser & user){
   LOG4CXX_DEBUG(logger,"setUser " << user.name);
-  Profet::UserListEvent * cle = new Profet::UserListEvent();
-  cle->type = Profet::UserListEvent::SET_USER;
-  cle->user = user;
-  QCoreApplication::postEvent(&userModel, cle);//thread-safe
+  Profet::UserListEvent * cle1 = new Profet::UserListEvent();
+  cle1->type = Profet::UserListEvent::SET_USER;
+  cle1->user = user;
+  QCoreApplication::postEvent(this, cle1);//thread-safe
   QCoreApplication::flush();
 }
 
@@ -187,7 +187,7 @@ void DianaProfetGUI::removeUser(const Profet::PodsUser & user){
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::REMOVE_USER;
   cle->user = user;
-  QCoreApplication::postEvent(&userModel, cle);//thread-safe
+  QCoreApplication::postEvent(this, cle);//thread-safe
   QCoreApplication::flush();
 }
 
@@ -197,7 +197,7 @@ void DianaProfetGUI::setUsers(const vector<Profet::PodsUser> & users){
   Profet::UserListEvent * cle = new Profet::UserListEvent();
   cle->type = Profet::UserListEvent::REPLACE_LIST;
   cle->users = users;
-  QCoreApplication::postEvent(&userModel, cle);//thread-safe
+  QCoreApplication::postEvent(this, cle);//thread-safe
   QCoreApplication::flush();
 }
 
@@ -229,6 +229,17 @@ void DianaProfetGUI::customEvent(QEvent * e){
         sessionModel.getIndexByRefTime(cse->refTime));
     // updates FieldDialog
     emit updateModelDefinitions();
+  }else if(e->type() == Profet::USER_LIST_EVENT){
+    Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
+    if(cle->type == Profet::UserListEvent::REPLACE_LIST) {
+      userModel.setUsers(cle->users);
+    } else if(cle->type == Profet::UserListEvent::SET_USER) {
+      tableModel.setUserLocation(cle->user);
+      userModel.setUser(cle->user);
+    } else if(cle->type == Profet::UserListEvent::REMOVE_USER) {
+      userModel.removeUser(cle->user);
+      tableModel.removeUserLocation(cle->user);
+    }
   }
 
 }

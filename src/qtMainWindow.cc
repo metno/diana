@@ -1648,7 +1648,7 @@ bool DianaMainWindow::profetConnect(){
     Profet::PodsUser u(miTime::nowTime(),
         loginDialog.username().toStdString().data(),
         loginDialog.role().toStdString().data(),
-        "","","");
+        "",miTime(),"");
     //TODO option for file manager
     Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
     if(contr->getProfetController() && !error.exists() ) {

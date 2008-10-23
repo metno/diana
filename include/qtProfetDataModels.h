@@ -91,7 +91,6 @@ public:
   void setUser(const PodsUser & u);
   void removeUser(const PodsUser & u);
   void clearModel();
-  void customEvent(QEvent * e);
 };
 
 
@@ -190,6 +189,7 @@ private:
   vector<miString> parameters;
   vector<miTime> times;
   QModelIndex lastSelected;
+  map<QModelIndex, vector<PodsUser> > userLocationMap;
   map<miString,int> paramIndexMap;
   map<miTime,int> timeIndexMap;
   // map< timeIndex, map<paramIndex, signatureIndex> >
@@ -223,6 +223,8 @@ public:
     throw(InvalidIndexException&);
   miTime getCurrentTime() const throw(InvalidIndexException&);
   miString getCurrentParameter() const throw(InvalidIndexException&);
+  void setUserLocation(const PodsUser &);
+  void removeUserLocation(const PodsUser &);
   void clearModel();
   void customEvent(QEvent * e);
 };

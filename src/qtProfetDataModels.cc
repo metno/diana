@@ -146,18 +146,6 @@ void UserListModel::clearModel(){
   reset();
 }
 
-void UserListModel::customEvent(QEvent * e){
-  if(e->type() == Profet::USER_LIST_EVENT){
-    Profet::UserListEvent * cle = (Profet::UserListEvent*) e;
-    if(cle->type == Profet::UserListEvent::REPLACE_LIST)
-      setUsers(cle->users);
-    else if(cle->type == Profet::UserListEvent::SET_USER)
-      setUser(cle->user);
-    else if(cle->type == Profet::UserListEvent::REMOVE_USER)
-      removeUser(cle->user);
-  }
-}
-
 //  *** FetSessionListModel ***
 
 
@@ -432,13 +420,15 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
     else
       return getCellBackgroundColor(EMPTY_CELL, oddDay);
   }
-  /*
   if(role == Qt::DecorationRole) {
-    if(index == lastSelected){
-      QPixmap customIcon = UserListModel::getUserIcon(index.column());
-      return QVariant(QIcon(customIcon));
+    map<QModelIndex, vector<PodsUser> >::const_iterator i = userLocationMap.begin();
+    for(; i != userLocationMap.end(); i++){
+      if((*i).first == index && (*i).second.size()){
+        QPixmap customIcon = UserListModel::getUserIcon(index.column());
+        return QVariant(QIcon(customIcon));
+      }
     }
-  }*/
+  }
   return QVariant();
 }
 
@@ -536,6 +526,40 @@ bool  FetObjectTableModel::removeObjectSignature(const miString & id) {
   return false;
 }
 
+
+void FetObjectTableModel::setUserLocation(
+    const PodsUser & user)
+{
+  removeUserLocation(user);
+  QModelIndex newIndex = index(
+      paramIndexMap[user.editingParameter],
+      timeIndexMap[user.editingTime]);
+  // add to new location
+  userLocationMap[newIndex].push_back(user);
+  emit dataChanged(newIndex,newIndex);
+}
+
+void FetObjectTableModel::removeUserLocation(
+    const PodsUser & user)
+{
+  QModelIndex currentIndex;
+  // remove from previous location
+  map<QModelIndex, vector<PodsUser> >::iterator i;
+  for(i=userLocationMap.begin();i!=userLocationMap.end();i++){
+    vector<PodsUser>::iterator userIter = (*i).second.begin();
+    //TODO : Why coredumb without copy iterator ??
+    vector<PodsUser>::iterator userIterEnd = (*i).second.end();
+    for(; userIter != userIterEnd; userIter ++){
+      if( (*userIter) == user ) {
+        currentIndex = (*i).first;
+        userIter = (*i).second.erase(userIter);
+      }
+    }
+  }
+  if(currentIndex.isValid())
+    emit dataChanged(currentIndex,currentIndex);
+}
+
 void FetObjectTableModel::clearModel(){
   objects.clear();
   parameters.clear();
@@ -547,11 +571,11 @@ void FetObjectTableModel::clearModel(){
 }
 
 void FetObjectTableModel::customEvent(QEvent * e){
-  if(e->type() == Profet::SIGNATURE_UPDATE_EVENT){ //SignatureListUpdateEvent
+  if (e->type() == Profet::SIGNATURE_UPDATE_EVENT) { //SignatureListUpdateEvent
     Profet::SignatureUpdateEvent * sue = (Profet::SignatureUpdateEvent*) e;
-    if(sue->remove) removeObjectSignature(sue->object.id);
+    if (sue->remove) removeObjectSignature(sue->object.id);
     else setObjectSignature(sue->object);
-  }else if(e->type() == Profet::SIGNATURE_LIST_UPDATE_EVENT){
+  } else if (e->type() == Profet::SIGNATURE_LIST_UPDATE_EVENT) {
     Profet::SignatureListUpdateEvent * sue = (Profet::SignatureListUpdateEvent*) e;
     setObjectSignatures(sue->objects);
   }
