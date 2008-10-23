@@ -532,6 +532,11 @@ void DianaProfetGUI::sessionSelected(int index){
   cerr << "DianaProfetGUI::sessionSelected:" << index << endl;
   try{
     controller.currentSessionChanged(sessionModel.getSession(index));
+  }catch(Profet::ServerException & se){
+    miString title = (se.isDisconnectRecommanded()?"Profet getPolygon":"Profet Warning");
+    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    return;
   }catch(InvalidIndexException & iie){
     cerr << "DianaProfetGUI::sessionSelected invalid index" << endl;
     return;
@@ -561,6 +566,10 @@ void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
       setCurrentTime(tableModel.getTime(index));
       controller.parameterAndTimeChanged(
           getCurrentParameter(),getCurrentTime());
+    }catch(Profet::ServerException & se){
+      miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
+      QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
+      if (se.isDisconnectRecommanded()) emit forceDisconnect();
     }catch(InvalidIndexException & iie){
       LOG4CXX_ERROR(logger,"Invalid time/param index");
     }

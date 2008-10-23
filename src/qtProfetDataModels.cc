@@ -86,8 +86,12 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
   if (index.row() >= users.size())
     return QVariant();
-  if (role == Qt::DisplayRole)
-    return QString(users[index.row()].name.cStr());
+  if (role == Qt::DisplayRole){
+    QString label(users[index.row()].name.cStr());
+    label.append(" : ");
+    label.append(users[index.row()].editingParameter.cStr());
+    return label;
+  }
   else if (role == Qt::DecorationRole) {
     if (users[index.row()].role == "forecast")
       return QVariant(QIcon(getUserIcon(index.row())));

@@ -149,9 +149,9 @@
 #include <paint_mode.xpm>
 
 
-DianaMainWindow::DianaMainWindow(Controller *co, 
-				 const miString ver_str, 
-				 const miString build_str, 
+DianaMainWindow::DianaMainWindow(Controller *co,
+				 const miString ver_str,
+				 const miString build_str,
 				 bool ep)
   : QMainWindow(),
     contr(co),timeron(0),timeloop(false),timeout_ms(100),
@@ -361,7 +361,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   toggleProfetGUIAction->setShortcutContext(Qt::ApplicationShortcut);
   toggleProfetGUIAction->setCheckable(true);
   connect( toggleProfetGUIAction, SIGNAL( activated() ), SLOT( toggleProfetGUI()));
-  
+
   // --------------------------------------------------------------------
 
 
@@ -469,7 +469,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // Status ===============================
   // --------------------------------------------------------------------
-  obsUpdateAction = new QAction( QPixmap(synop_red_xpm), 
+  obsUpdateAction = new QAction( QPixmap(synop_red_xpm),
 				 tr("Update observations"), this );
   connect( obsUpdateAction, SIGNAL( activated() ), SLOT(updateObs()));
 
@@ -534,11 +534,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   optmenu->addAction( optAnnotationAction );
   optmenu->addSeparator();
   optmenu->addAction( optFontAction );
-  
+
   optOnOffAction->setChecked( showelem );
   optAutoElementAction->setChecked( autoselect );
   optAnnotationAction->setChecked( true );
-  
+
 
   rightclickmenu = new QMenu(this);
   connect(rightclickmenu,SIGNAL(aboutToShow()),
@@ -679,7 +679,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   levelToolbar->addAction( toolIdnumDownAction );
   levelToolbar->addSeparator();
   levelToolbar->addAction( obsUpdateAction );
-  
+
   /**************** Toolbar Buttons *********************************************/
 
   //  mainToolbar = new QToolBar(this);
@@ -803,10 +803,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   trajm = new TrajectoryDialog(this,contr);
   trajm->hide();
-  
+
   uffm = new UffdaDialog(this,contr);
   uffm->hide();
-  
+
   paintToolBar = new PaintToolBar(this);
   paintToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea,paintToolBar);
@@ -863,7 +863,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   helpsource.name="News";
   helpsource.defaultlink="";
   info.src.push_back(helpsource);
-  
+
   help= new HelpDialog(this, info);
   help->hide();
 
@@ -973,21 +973,21 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   if ( vpWindow ){
     connect( vpWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
 	     tslider,SLOT(insert(const miString&,const vector<miTime>&)));
-    
+
     connect( vpWindow ,SIGNAL(setTime(const miString&, const miTime&)),
 	     tslider,SLOT(setTime(const miString&, const miTime&)));
   }
   if ( vcWindow ){
     connect( vcWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
 	     tslider,SLOT(insert(const miString&,const vector<miTime>&)));
-    
+
     connect( vcWindow ,SIGNAL(setTime(const miString&, const miTime&)),
 	     tslider,SLOT(setTime(const miString&, const miTime&)));
   }
   if ( spWindow ){
     connect( spWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
 	     tslider,SLOT(insert(const miString&,const vector<miTime>&)));
-    
+
     connect( spWindow ,SIGNAL(setTime(const miString&, const miTime&)),
 	     tslider,SLOT(setTime(const miString&, const miTime&)));
   }
@@ -1013,7 +1013,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   for(int i=0; i<sect_label.size(); i++) {
     vlabel.push_back(sect_label[i]);
   }
-  
+
 
   cerr << "Creating DianaMainWindow done" << endl;
 
@@ -1212,7 +1212,7 @@ void DianaMainWindow::togglePaintMode()
   contr->setPaintModeEnabled(inPaintMode);
   if(inPaintMode) paintToolBar->show();
   else            paintToolBar->hide();
-  
+
 }
 void DianaMainWindow::setPaintMode(bool enabled)
 {
@@ -1587,7 +1587,7 @@ bool DianaMainWindow::initProfet(){
     QMessageBox::critical(0,"Init profet failed",error.cStr());
     return false;
   }
-    
+
   try{
     QApplication::setOverrideCursor( Qt::WaitCursor );
     contr->initProfet(); //ProfetController created if not exist
@@ -1605,21 +1605,21 @@ bool DianaMainWindow::initProfet(){
       profetGUI, SLOT(gridAreaChanged()));
     connect(profetGUI, SIGNAL(toggleProfetGui()),
         this,SLOT(toggleProfetGUI()));
-    connect(profetGUI, SIGNAL(setPaintMode(bool)), 
+    connect(profetGUI, SIGNAL(setPaintMode(bool)),
         this, SLOT(setPaintMode(bool)));
-    connect(profetGUI, SIGNAL(showProfetField(miString)), 
+    connect(profetGUI, SIGNAL(showProfetField(miString)),
         fm, SLOT(fieldEditUpdate(miString)));
-    connect(profetGUI, SIGNAL(prepareAndPlot()), 
+    connect(profetGUI, SIGNAL(prepareAndPlot()),
       SLOT(MenuOK()));
-    connect( profetGUI, SIGNAL(repaintMap(bool)), 
+    connect( profetGUI, SIGNAL(repaintMap(bool)),
         SLOT(plotProfetMap(bool)));
     connect( profetGUI ,
        SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
        tslider,
        SLOT(insert(const miString&,const vector<miTime>&)));
-    connect( profetGUI, SIGNAL(setTime(const miTime&)), 
+    connect( profetGUI, SIGNAL(setTime(const miTime&)),
        SLOT(setTimeAndUpdatePlots(const miTime&)));
-    connect( profetGUI, SIGNAL(updateModelDefinitions()), 
+    connect( profetGUI, SIGNAL(updateModelDefinitions()),
        fm,SLOT(updateModels()) );
     connect( profetGUI, SIGNAL(forceDisconnect()),
         this, SLOT(forceProfetDisconnect()));
@@ -1648,7 +1648,7 @@ bool DianaMainWindow::profetConnect(){
     Profet::PodsUser u(miTime::nowTime(),
         loginDialog.username().toStdString().data(),
         loginDialog.role().toStdString().data(),
-        "");
+        "","","");
     //TODO option for file manager
     Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
     if(contr->getProfetController() && !error.exists() ) {
@@ -2692,7 +2692,7 @@ void DianaMainWindow::saveraster()
 {
   static QString fname = "./"; // keep users preferred image-path for later
 
-  QString s = 
+  QString s =
     QFileDialog::getSaveFileName(this,
 				 tr("Save plot as image"),
 				 fname,
@@ -2726,7 +2726,7 @@ void DianaMainWindow::saveraster()
 void DianaMainWindow::saveAnimation() {
   static QString fname = "./"; // keep users preferred animation-path for later
 
-  QString s = 
+  QString s =
     QFileDialog::getSaveFileName(this,
 				 tr("Save animation from current fields, satellite images, etc., using current settings"),
 				 fname,
@@ -2750,19 +2750,19 @@ void DianaMainWindow::saveAnimation() {
     /// make temp. directory for frames
 		mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		chdir("./animation_frames");
-		
+
 		/// set up some defaults
 		string imageFormat = "jpg";
 		int imageQuality = -1;
 		int delay = timeout_ms/10;
 		MovieMaker moviemaker(filename, quality, delay);
-		
+
 		QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
 		showMinimized();
-		
+
 		int nrOfTimesteps = tslider->numTimes();
 		int i = 0;
-		
+
 		int maxProgress = nrOfTimesteps - tslider->current() + 1;
 		QProgressDialog progress("Making animation...", "Hide", 0, maxProgress);
 		progress.setWindowModality(Qt::WindowModal);
@@ -2771,35 +2771,35 @@ void DianaMainWindow::saveAnimation() {
 		while(tslider->current() < nrOfTimesteps-1) {
 			/// update progressbar
 			progress.setValue(i);
-					         
+
 			string imageName = "frame";
 			if(i < 10) imageName += "0";
 			ostringstream ss;
 			ss << i;
 			imageName += ss.str();
 			imageName += ".jpg";
-			cout << "Saving " << imageName << ".." << endl;			
+			cout << "Saving " << imageName << ".." << endl;
 			w->Glw()->saveRasterImage(miString(imageName), miString(imageFormat), imageQuality);
 			moviemaker.addFrame(imageName);
-			
+
 			/// go to next frame
 			stepforward();
-			
+
 			++i;
 		}
-		
+
 		moviemaker.make();
-		
+
 		progress.setValue(i+1); ///< should be made somewhat realistic?
-		
+
 		moviemaker.cleanup();
-		
+
 		/// remove temp. directory for frames
 		chdir("..");
 		rmdir("./animation_frames");
-		
+
 		progress.setValue(i+2); ///< should be made somewhat realistic?
-		
+
 		showNormal();
 		QMessageBox::information(this, tr("Done"), tr("Animation completed."));
   }
@@ -3431,7 +3431,7 @@ void DianaMainWindow::PrintPS(miString& filestr )
 {
   QPrinter qprt;
   fromPrintOption(qprt,priop);
-  
+
  QPrintDialog printerDialog(&qprt, this);
  if (printerDialog.exec()) {
 
@@ -3635,7 +3635,7 @@ void DianaMainWindow::writeLogFile()
     file << "[/VCROSS.FIELD.LOG]" << endl;
     file << endl;
   }
-  
+
   if ( spWindow ){
     vstr= spWindow->writeLog("window");
     n= vstr.size();
@@ -3643,14 +3643,14 @@ void DianaMainWindow::writeLogFile()
     for (i=0; i<n; i++) file << vstr[i] << endl;
     file << "[/SPECTRUM.WINDOW.LOG]" << endl;
     file << endl;
-    
+
     vstr= spWindow->writeLog("setup");
     n= vstr.size();
     file << "[SPECTRUM.SETUP.LOG]" << endl;
     for (i=0; i<n; i++) file << vstr[i] << endl;
     file << "[/SPECTRUM.SETUP.LOG]" << endl;
     file << endl;
-  }    
+  }
   file.close();
   cerr << "Finished writing " << logfile << endl;
 }
@@ -3782,7 +3782,7 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   str= "Textview.size "   + miString(textview->width()) + " " + miString(textview->height());
   vstr.push_back(str);
   str= "Textview.pos "  + miString(textview->x()) + " " + miString(textview->y());
-  vstr.push_back(str); 
+  vstr.push_back(str);
   str="DocState " + saveDocState();
   vstr.push_back(str);
   vstr.push_back("================");
@@ -3824,7 +3824,7 @@ miString DianaMainWindow::saveDocState()
   int n= state.count();
   for (int i=0; i<n; i++)
     ost << setw(7) << int(state[i]);
-  return ost.str(); 
+  return ost.str();
 }
 
 void DianaMainWindow::readLog(const vector<miString>& vstr,
@@ -3918,10 +3918,10 @@ void DianaMainWindow::restoreDocState(miString logstr)
    QByteArray state(n-1,' ');
    for (int i=1; i<n; i++){
      state[i-1]= char(atoi(vs[i].c_str()));
-   } 
+   }
 
    if (!restoreState( state)){
-     cerr << "!!!restoreState failed" << endl; 
+     cerr << "!!!restoreState failed" << endl;
    }
 }
 
