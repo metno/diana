@@ -3351,7 +3351,7 @@ bufr=$(OPDATA2)/satdata_polar/envisat/asar/wind/bufr/nersc_asar_nws_wind_inst_ob
 timerange=-30,30 # ???
 
 PROD=ascii:Lyn
-ascii=$(OPDATA2)/lyndata/UALF/yyyy/mm/lyndatayyyymmddHH 
+ascii=$(OPDATA1)/lyndata/UALF/yyyy/mm/lyndatayyyymmddHH 
 headerfile=$(DIANADIR)/etc/UALF_diana.header
 timerange=0,60
 
