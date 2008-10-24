@@ -45,7 +45,8 @@ QObject(), paintToolBar(ptb), areaManager(gam),
 Profet::ProfetGUI(pc),sessionDialog(p),
 objectDialog(p), objectFactory(),
 userModel(p), sessionModel(p),
-objectModel(p), tableModel(p), activeTimeSmooth(false)
+objectModel(p), tableModel(p), activeTimeSmooth(false),
+enableNewbutton_(true), enableModifyButtons_(false), enableTable_(true)
 {
   parent=p;
 #ifndef NOLOG4CXX
@@ -100,26 +101,64 @@ void DianaProfetGUI::connectSignals(){
   connect(&objectDialog,SIGNAL(dynamicGuiChanged()),
       this,SLOT(dynamicGuiChanged()));
 
+  connect(&sessionModel,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex & )),
+	  this,SLOT(sessionModified(const QModelIndex & , const QModelIndex & ))); 
+
   connect(&objectDialog,SIGNAL(copyPolygon(miString,miString,bool)),
       this,SLOT(copyPolygon(miString,miString,bool)));
   connect(&objectDialog,SIGNAL(selectPolygon(miString)),
       this,SLOT(selectPolygon(miString)));
   connect(&objectDialog,SIGNAL(requestPolygonList()),
         this,SLOT(requestPolygonList()));
-
 }
 
 DianaProfetGUI::~DianaProfetGUI(){
+}
+
+
+void DianaProfetGUI::sessionModified(const QModelIndex & topLeft, const QModelIndex & bottomRight)
+{
+  if ( topLeft == bottomRight ){
+    fetSession s = sessionModel.getSession(topLeft);
+    if ( s == currentSession ){
+      cerr << "CURRENTSESSION CHANGED!!!!!" << endl;
+      // current session has been modified
+      currentSession = s;
+      enableObjectButtons(enableNewbutton_,enableModifyButtons_,enableTable_);
+    }
+  }
+}
+
+
+fetSession DianaProfetGUI::getCurrentSession(){
+//   try{
+//     fetSession s = sessionModel.getSession(sessionDialog.getCurrentSessionIndex());
+//     return s;
+//   }catch(InvalidIndexException & iie){
+//     cerr << "DianaProfetGUI::getCurrentSession invalid session index" << endl;
+//   }
+//   fetSession s;
+//   return s;
+
+//   cerr << "DianaProfetGUI::getCurrentSession:" << currentSession << endl;
+  return currentSession;
 }
 
 void DianaProfetGUI::enableObjectButtons(bool enableNewbutton,
 					 bool enableModifyButtons,
 					 bool enableTable)
 {
-  bool isopen = (currentSession.editstatus() == fetSession::editable);
+  cerr << "DianaProfetGUI::enableObjectButtons (" << enableNewbutton
+       << "," << enableModifyButtons << "," << enableTable << ")" << endl;
+
+  fetSession s = getCurrentSession();
+  bool isopen = ( !s.referencetime().undef() && s.editstatus() == fetSession::editable);
   sessionDialog.enableObjectButtons(enableNewbutton && isopen,
 				    enableModifyButtons && isopen,
 				    enableTable);
+  enableNewbutton_ = enableNewbutton;
+  enableModifyButtons_ = enableModifyButtons;
+  enableTable_ = enableTable;
 }
 
 void DianaProfetGUI::setCurrentParam(const miString & p){
@@ -142,14 +181,18 @@ void DianaProfetGUI::resetStatus(){
 }
 
 void DianaProfetGUI::setCurrentSession(const fetSession & session){
+  //cerr << "DianaProfetGUI::setCurrentSession:" << session << endl;
+
   //Changing current session must be done in QT event queue
   //to be performed in the correct order...
   Profet::CurrentSessionEvent * cse = new Profet::CurrentSessionEvent();
   cse->refTime = session.referencetime();
   QCoreApplication::postEvent(this, cse);
+
+  currentSession=session;
   tableModel.initTable(session.times(),session.parameters());
   sessionDialog.selectDefault();
-  currentSession=session;
+  enableObjectButtons(true,false,true);
   QCoreApplication::flush();
 }
 
@@ -282,8 +325,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
     if(areaManager->isAreaSelected()){
       miTime refTime;
       try{
-        fetSession s = sessionModel.getSession(
-            sessionDialog.getCurrentSessionIndex());
+        fetSession s = getCurrentSession();
         refTime = s.referencetime();
       }catch(InvalidIndexException & iie){
         cerr << "DianaProfetGUI::baseObjectSelected invalid session index" << endl;
@@ -360,6 +402,10 @@ void DianaProfetGUI::saveObject(){
     setObjectDialogVisible(false);
     enableObjectButtons(true,false,true);
   }catch(Profet::ServerException & se){
+    // reset id in areaManager
+    if(objectDialog.showingNewObject()){
+      areaManager->changeAreaId(safeCopy.id(),"newArea");
+    }
     miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
     QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
     if (se.isDisconnectRecommanded()) emit forceDisconnect();
@@ -381,7 +427,7 @@ void DianaProfetGUI::startTimesmooth()
 
   vector<miTime> tim;
   try{
-    fetSession s = sessionModel.getSession( sessionDialog.getCurrentSessionIndex() );
+    fetSession s = getCurrentSession();
     tim = s.times();
   }catch(InvalidIndexException & iie){
     cerr << "DianaProfetGUI::startTimesmooth invalid session index" << endl;
@@ -552,7 +598,7 @@ void DianaProfetGUI::sessionSelected(int index){
     cerr << "DianaProfetGUI::sessionSelected invalid index" << endl;
     return;
   }
-  enableObjectButtons(true,false,true);
+  //enableObjectButtons(true,false,true);
 }
 
 void DianaProfetGUI::sendMessage(const QString & m){
@@ -800,8 +846,7 @@ void DianaProfetGUI::gridAreaChanged(){
         if(areaManager->isAreaSelected()){
           miTime refTime;
           try{
-            fetSession s = sessionModel.getSession(
-                sessionDialog.getCurrentSessionIndex());
+            fetSession s = getCurrentSession();
             refTime = s.referencetime();
           }catch(InvalidIndexException & iie){
             cerr << "DianaProfetGUI::baseObjectSelected invalid session index" << endl;

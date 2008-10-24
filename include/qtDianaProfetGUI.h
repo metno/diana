@@ -87,6 +87,10 @@ private:
   bool showPaintToolBar;
   bool showObjectDialog;
   bool activeTimeSmooth;
+
+  bool enableNewbutton_;
+  bool enableModifyButtons_;
+  bool enableTable_;
   
   void connectSignals();
   /// Synchronized set'ers
@@ -143,6 +147,10 @@ public:
    */
   miTime getCurrentTime();
   /**
+   * Gets the selected session in GUI
+   */
+  fetSession getCurrentSession();
+  /**
    * True if any Profet GUI is visible
    */
   bool isVisible();
@@ -181,17 +189,13 @@ public:
   
 		  
 private slots:
-// ObjectDialog
+  // ObjectDialog
   void baseObjectSelected(miString name);
   void objectSelected(const QModelIndex &);
   void saveObject();
-  
   void copyPolygon(miString,miString,bool);
   void selectPolygon(miString); 
   void requestPolygonList();
-  
-  
-//   void deleteObject(miString id);
   void startTimesmooth();
   void processTimesmooth(vector<fetObject::TimeValues> tv);
   void endTimesmooth(vector<fetObject::TimeValues> tv);
@@ -199,7 +203,7 @@ private slots:
   void cancelObjectDialog();
   void dynamicGuiChanged(); //properties??
   
-  
+
   // SessionDialog
   void sessionSelected(int index);
   void sendMessage(const QString &);
@@ -218,6 +222,9 @@ private slots:
 
   // MainWindow	
   void gridAreaChanged();
+
+  // sessionModel
+  void sessionModified(const QModelIndex & topLeft, const QModelIndex & bottomRight);
 	
 signals:
   void setPaintMode(bool);
