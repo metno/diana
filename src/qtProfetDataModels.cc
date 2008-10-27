@@ -95,7 +95,7 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
   }
   else if (role == Qt::DecorationRole) {
     if (users[index.row()].role == "forecast")
-      return QVariant(QIcon(getUserIcon(index.row())));
+      return QVariant(QIcon(getUserIcon(users[index.row()].iconIndex)));
     else if (users[index.row()].role == "admin")
       return QVariant(QIcon(QPixmap(user_admin_xpm)));
     else if (users[index.row()].role == "testrobot")
