@@ -40,6 +40,7 @@
 #include <fet_object_fog.xpm>
 #include <user.xpm>
 #include <custom_user.xpm>
+#include <multiple_users.xpm>
 #include <user_admin.xpm>
 #include <Robot.xpm>
 #include "session_lock.xpm"
@@ -452,6 +453,8 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
           int icon_i = (*i).second[0].iconIndex;
           QPixmap customIcon = UserListModel::getUserIcon(icon_i);
           return QVariant(QIcon(customIcon));
+        }else if (nUsers > 1) {
+          return QVariant(QIcon(QPixmap(multiple_users_xpm)));
         }
       }
     }
