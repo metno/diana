@@ -709,6 +709,7 @@ void DianaProfetGUI::doReconnect()
 {
   Profet::DataManagerType preferredType = Profet::DISTRIBUTED_MANAGER;
   Profet::PodsUser user = controller.getCurrentUser();
+  miString password = controller.getPassword();
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -719,7 +720,7 @@ void DianaProfetGUI::doReconnect()
     return;
 
   try {
-    Profet::DataManagerType dmt = controller.connect(user,preferredType);
+    Profet::DataManagerType dmt = controller.connect(user,preferredType,password);
     QApplication::restoreOverrideCursor();
     if(dmt != preferredType)
       QMessageBox::warning(0,"Running disconnected mode",

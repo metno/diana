@@ -1646,16 +1646,17 @@ bool DianaMainWindow::profetConnect(){
     if(loginDialog.username().isEmpty())
       error += "Username not provided. ";
     Profet::PodsUser u(miTime::nowTime(),
-        loginDialog.username().toStdString().data(),
-        loginDialog.role().toStdString().data(),
-        "",miTime(),"");
+		       loginDialog.username().toStdString().data(),
+		       loginDialog.role().toStdString().data(),
+		       "",miTime::nowTime(),"");
+    miString password = loginDialog.password().toStdString();
     //TODO option for file manager
     Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
     if(contr->getProfetController() && !error.exists() ) {
       try{
         QApplication::setOverrideCursor( Qt::WaitCursor );
         Profet::DataManagerType dmt =
-          contr->getProfetController()->connect(u,perferredType);
+          contr->getProfetController()->connect(u,perferredType,password);
         QApplication::restoreOverrideCursor();
         if(dmt != perferredType)
           QMessageBox::warning(0,"Running disconnected mode",
