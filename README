@@ -73,6 +73,10 @@ OpenGL
 # 2. Install
 #-------------------------------------------
 
+You should use gcc version 4.1.1 or higher when compiling Diana, but older 
+versions may also work. Other compilers than gcc may also be used, but 
+only gcc has been thoroughly tested.
+
 External library versions used at met.no
 ----------------------------------------
 freetype2      - freetype-2.1.10.tar.gz
