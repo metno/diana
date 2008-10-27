@@ -64,6 +64,7 @@ QPixmap UserListModel::getUserIcon(int index) {
 }
 
 QRgb UserListModel::getColorByIndex(int index) {
+  if (index < 0) return qRgb(0,0,0);
   int nColors = 12;
   int i = (int) (index % nColors);
   if (i == 0) return qRgb(0,0,255);
@@ -112,17 +113,39 @@ PodsUser UserListModel::getUser(const QModelIndex &index) const throw(
   return users[index.row()];
 }
 
-void UserListModel::setUser(const PodsUser & u) {
+PodsUser UserListModel::setUser(const PodsUser & u) {
+  PodsUser podsUser = u;
   vector<PodsUser>::iterator iter;
-  for( iter = users.begin(); iter != users.end(); iter++ ){
-    if(*iter == u) {
-      *iter = u;
+  for( iter = users.begin(); iter != users.end(); iter++ ) {
+    if(*iter == podsUser) {
+      podsUser.iconIndex = iter->iconIndex; // keep iconIndex
+      *iter = podsUser;
       reset();
-      return;
+      return podsUser;
     }
   }
-  users.push_back(u); // Not found: Adding new user
+  podsUser.iconIndex = getNextIconIndex();
+  users.push_back(podsUser); // Not found: Adding new user
   reset();
+  return podsUser;
+}
+
+int UserListModel::getNextIconIndex(){
+  const int nColors = 12;
+  int colorCount[nColors] = {0,0,0,0,0,0,0,0,0,0,0,0};
+  vector<PodsUser>::iterator iter = users.begin();
+  for( ; iter != users.end(); iter++ ) {
+    int currentIcon = iter->iconIndex;
+    if(currentIcon >= 0 && currentIcon < nColors){
+      colorCount[currentIcon]++;
+    }
+  }
+  int leastUsedIndex = 0;
+  for (int i=0;i<nColors;i++) {
+    if(colorCount[i] < colorCount[leastUsedIndex])
+      leastUsedIndex = i;
+  }
+  return leastUsedIndex;
 }
 
 void UserListModel::setUsers(const vector<PodsUser> & u) {
@@ -423,9 +446,13 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
   if(role == Qt::DecorationRole) {
     map<QModelIndex, vector<PodsUser> >::const_iterator i = userLocationMap.begin();
     for(; i != userLocationMap.end(); i++){
-      if((*i).first == index && (*i).second.size()){
-        QPixmap customIcon = UserListModel::getUserIcon(index.column());
-        return QVariant(QIcon(customIcon));
+      int nUsers = (*i).second.size();
+      if(nUsers > 0 && (*i).first == index){
+        if(nUsers == 1) {
+          int icon_i = (*i).second[0].iconIndex;
+          QPixmap customIcon = UserListModel::getUserIcon(icon_i);
+          return QVariant(QIcon(customIcon));
+        }
       }
     }
   }
@@ -544,17 +571,16 @@ void FetObjectTableModel::removeUserLocation(
 {
   QModelIndex currentIndex;
   // remove from previous location
-  map<QModelIndex, vector<PodsUser> >::iterator i;
-  for(i=userLocationMap.begin();i!=userLocationMap.end();i++){
-    vector<PodsUser>::iterator userIter = (*i).second.begin();
-    //TODO : Why coredumb without copy iterator ??
-    vector<PodsUser>::iterator userIterEnd = (*i).second.end();
-    for(; userIter != userIterEnd; userIter ++){
+  map<QModelIndex, vector<PodsUser> >::iterator i = userLocationMap.begin();
+  while(i != userLocationMap.end()) {
+    vector<PodsUser>::iterator userIter = i->second.begin();
+    while (userIter != i->second.end()) {
       if( (*userIter) == user ) {
-        currentIndex = (*i).first;
-        userIter = (*i).second.erase(userIter);
-      }
+        currentIndex = i->first;
+        userIter = i->second.erase(userIter);
+      } else userIter++;
     }
+    i++;
   }
   if(currentIndex.isValid())
     emit dataChanged(currentIndex,currentIndex);

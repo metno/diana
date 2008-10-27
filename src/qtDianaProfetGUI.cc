@@ -102,7 +102,7 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(dynamicGuiChanged()));
 
   connect(&sessionModel,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex & )),
-	  this,SLOT(sessionModified(const QModelIndex & , const QModelIndex & ))); 
+	  this,SLOT(sessionModified(const QModelIndex & , const QModelIndex & )));
 
   connect(&objectDialog,SIGNAL(copyPolygon(miString,miString,bool)),
       this,SLOT(copyPolygon(miString,miString,bool)));
@@ -277,8 +277,8 @@ void DianaProfetGUI::customEvent(QEvent * e){
     if(cle->type == Profet::UserListEvent::REPLACE_LIST) {
       userModel.setUsers(cle->users);
     } else if(cle->type == Profet::UserListEvent::SET_USER) {
-      tableModel.setUserLocation(cle->user);
-      userModel.setUser(cle->user);
+      PodsUser podsUser = userModel.setUser(cle->user);
+      tableModel.setUserLocation(podsUser);
     } else if(cle->type == Profet::UserListEvent::REMOVE_USER) {
       userModel.removeUser(cle->user);
       tableModel.removeUserLocation(cle->user);

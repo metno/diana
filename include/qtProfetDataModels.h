@@ -67,6 +67,7 @@ public:
 
 private:
   vector<PodsUser> users;
+  int getNextIconIndex();
 
 public:
   UserListModel(QObject * parent): QAbstractListModel(parent){}
@@ -88,7 +89,7 @@ public:
    * Connected views are updated
    */
   void setUsers(const vector<PodsUser> & u);
-  void setUser(const PodsUser & u);
+  PodsUser setUser(const PodsUser & u);
   void removeUser(const PodsUser & u);
   void clearModel();
 };
