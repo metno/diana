@@ -8,7 +8,7 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   QMainWindow(w)
   {
   setAttribute(Qt::WA_DeleteOnClose); 
-  
+  setWindowModality(Qt::ApplicationModal);
   // actions: --------------------------
 
   // copy ========================
@@ -47,14 +47,6 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   expandAction->setStatusTip(tr("expand the whole tree"));
   connect( expandAction, SIGNAL( triggered() ) , this, SLOT( expand() ) );
 
- 
-  // select ========================
-  selectAction = new QAction(  QPixmap(), tr("Select"), this );
-  selectAction->setShortcut(tr("Return"));
-  selectAction->setStatusTip(tr("Select"));
-  connect( selectAction, SIGNAL( triggered() ) , this, SLOT( select() ) );
-
-
   // newfolder ========================
   newFolderAction = new QAction(  QPixmap(), tr("New Folder"), this );
   newFolderAction->setShortcut(tr("Ctrl+N"));
@@ -66,11 +58,17 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   renameAction->setStatusTip(tr("Rename a Folder/Bookmark"));
   connect( renameAction, SIGNAL( triggered() ) , this, SLOT( rename() ) );
 
+  // select ========================
+  selectAction = new QAction(  QPixmap(), tr("Select"), this );
+  selectAction->setShortcut(tr("Space"));
+  selectAction->setStatusTip(tr("Select"));
+  connect( selectAction, SIGNAL( triggered() ) , this, SLOT( select() ) );
  
-  // cancel ========================
-  cancelAction = new QAction(  QPixmap(), tr("Cancel"), this );
-  cancelAction->setStatusTip(tr("Cancel"));
-  connect( cancelAction, SIGNAL( triggered() ) , this, SLOT( cancel() ) );
+  // selectAndExit ========================
+  selectAndExitAction = new QAction(  QPixmap(), tr("Select and exit"), this );
+  selectAndExitAction->setShortcut(tr("Return"));
+  selectAndExitAction->setStatusTip(tr("Select and exit"));
+  connect( selectAndExitAction, SIGNAL( triggered() ) , this, SLOT( selectAndExit() ) );
 
   // quit ========================
   quitAction = new QAction(  QPixmap(), tr("&Quit"), this );
@@ -79,10 +77,10 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   connect( quitAction, SIGNAL( triggered() ) , this, SLOT( quit() ) );
 
   
-  filemenu = new QMenu(tr("File"),this);
-  filemenu->addAction(cancelAction);
-  filemenu->addSeparator();
-  filemenu->addAction(quitAction);
+  selectmenu = new QMenu(tr("Select"),this);
+  selectmenu->addSeparator();
+  selectmenu->addAction(selectAction);
+  selectmenu->addAction(selectAndExitAction);
   
   editmenu = new QMenu(tr("Edit"),this);
   editmenu->addAction(copyAction);
@@ -94,13 +92,11 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   editmenu->addAction(collapseAction);
   editmenu->addAction(expandAction);
   editmenu->addSeparator();
-  editmenu->addAction(selectAction);
-  editmenu->addSeparator();
   editmenu->addAction(renameAction);
   editmenu->addAction(newFolderAction);
   editmenu->addSeparator();
   
-  menuBar()->addMenu(filemenu);
+  menuBar()->addMenu(selectmenu);
   menuBar()->addMenu(editmenu);
 
   model = new PolygonBookmarkModel(this);
@@ -144,12 +140,6 @@ void PolygonBookmarkDialog::closeEvent(QCloseEvent * e)
 void PolygonBookmarkDialog::quit()
 {
   emit polygonQuit();
-  close();
-}
-
-void PolygonBookmarkDialog::cancel()
-{
-  emit polygonCanceled();
   close();
 }
 
@@ -203,6 +193,18 @@ void PolygonBookmarkDialog::select()
   QModelIndex idx=bookmarks->selectionModel()->currentIndex ();
   bookmarkClicked(idx);
 }
+
+
+void PolygonBookmarkDialog::selectAndExit()
+{
+  QModelIndex idx=bookmarks->selectionModel()->currentIndex ();
+  bookmarkClicked(idx);
+  if (model->currentIsBookmark()) 
+    quit();
+  
+}
+
+
 
 void PolygonBookmarkDialog::newFolder()
 {

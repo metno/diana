@@ -16,10 +16,10 @@ private:
   QTreeView            *bookmarks;
   PolygonBookmarkModel *model;
   
-  QMenu   *filemenu;
+  QMenu   *selectmenu;
   QMenu   *editmenu;
   
-  QAction *cancelAction;    
+  QAction *selectAndExitAction;    
   QAction *copyAction;   
   QAction *pasteAction;   
   QAction *quitAction; 
@@ -43,14 +43,14 @@ public slots:
 	
 private slots:  
   void quit();
-  void cancel();
+  void select();
+  void selectAndExit();
   void paste(); 
   void copy();
   void cut();
   void moveToTrash();
   void expand();
   void collapse();
-  void select();
   void newFolder();
   void rename();
   

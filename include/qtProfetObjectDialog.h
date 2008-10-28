@@ -111,7 +111,6 @@ public:
   
 private slots:
   void baseObjectChanged(const QString&);
-  void cancelPolygon();
   void quitBookmarks();
   
 signals:

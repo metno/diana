@@ -272,26 +272,18 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
   
 }
 
-void ProfetObjectDialog::cancelPolygon()
-{
-  databaseAreaButton->setEnabled(true);
-}
 void ProfetObjectDialog::quitBookmarks()
 {
   databaseAreaButton->setEnabled(true);
 }
 
 
-
 void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
 {
-  
   if(boom.empty()) 
     return;
   
   PolygonBookmarkDialog * bookmarks = new PolygonBookmarkDialog(this,boom);
-  connect(bookmarks,SIGNAL(polygonCanceled()),
-      this,SLOT(cancelPolygon()));    
   connect(bookmarks,SIGNAL(polygonQuit()),
         this,SLOT(quitBookmarks())); 
   connect(bookmarks,SIGNAL(polygonCopied(miString,miString,bool)),
