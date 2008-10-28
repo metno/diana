@@ -459,6 +459,21 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
       }
     }
   }
+  if(role == Qt::ToolTipRole) {
+      map<QModelIndex, vector<PodsUser> >::const_iterator i = userLocationMap.begin();
+      for(; i != userLocationMap.end(); i++){
+        int nUsers = (*i).second.size();
+        if(nUsers > 0 && (*i).first == index){
+          QString toolTipString( QString("%0 Users:\n").arg(nUsers) );
+          for(int j=0; j<nUsers; j++){
+            toolTipString.append((*i).second[j].name.cStr());
+            toolTipString.append("\n");
+          }
+          return toolTipString;
+        }
+      }
+    }
+
   return QVariant();
 }
 
