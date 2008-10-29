@@ -27,21 +27,13 @@ WDB_EXTRA_LIB=	-lboost_thread \
                 -lboost_date_time
 endif
 
-#PROFETLIBS=
-#PROFETINCLUDE=
-#ifndef NOPROFET
-#PROFETLIBS+=-lpropoly -lprofet
-#PROFETINCLUDE+= -I$(LOCALINC)/profet 
-#endif
-
 ifdef OMNIORB_INST
-PROFETLIBS+= -lpods
+PROFETLIBS+= -lpods 
 endif
 
 INCLUDE= -I. \
 	 -I$(INCDIR) \
 	 -I$(LOCALINC)/propoly \
-	 -I$(LOCALINC)/proFunctions \
 	 -I$(LOCALINC)/qUtilities \
 	 -I$(LOCALINC)/puDatatypes \
 	 -I$(LOCALINC)/glp \
@@ -73,7 +65,7 @@ INCLUDE= -I. \
 
 LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	-lqUtilities -lpuDatatypes \
-	-lglp -lglText -lrobs -ldiMItiff -ldiField -lpropoly -lproFunctions -lmic -ldiSQL -lpuSQL \
+	-lglp -lglText -lrobs -ldiMItiff -ldiField -lpropoly  -lmic -ldiSQL -lpuSQL \
 	-lpuTools \
 	$(QTLIBDIR) $(QT_LIBS) \
 	$(GLLIBDIR) -lGL -lGLU $(GLXTRALIBS) \
@@ -91,7 +83,7 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	$(WDB_LIB) \
 	$(WDB_EXTRA_LIB) \
 	$(OMNI_LIBS) \
-	$(MAGICK_LIBS) -lldap
+	$(MAGICK_LIBS) 
 
 
 BLINKS= $(LINKS)
