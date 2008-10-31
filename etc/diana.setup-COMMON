@@ -310,26 +310,66 @@ wdb_proff: host=proffdb user=proffread port=5432 dbname=wdb wciuser=proffread
 </WDB_SETUP>
 
 <WDB_PARAMETERS>
-mslp:                 paramid=58 parameter="pressure of air" leveldomain="distance above ground" levelfrom=0 scale=1
-tk2m:                 paramid=31 parameter="temperature of air" leveldomain="distance above ground" levelfrom=2 scale=1 
-u10m:                 paramid=33 parameter="velocity of air (u-component)" leveldomain="distance above ground" levelfrom=10 scale=1 
-v10m:                 paramid=34 parameter="velocity of air (v-component)" leveldomain="distance above ground" levelfrom=10 scale=1 
-tk2mland:             paramid=0  parameter="temperature of land" leveldomain="distance above ground" levelfrom=2 scale=1 
-accumprecip.1h.proff: paramid=14 parameter="distance of precipitation, total" leveldomain="distance above ground" levelfrom=0 scale=1
-totcloud:             paramid=0  parameter="cloud cover, total" leveldomain="pressure of isobaric surface" levelfrom=0 scale=1 
-thunder.index:        paramid=1103 parameter="thunderstorm probability" leveldomain="distance above ground" levelfrom=0 scale=1 
-fraction.land.proff:  paramid=0  parameter="proportion of land, model" leveldomain="distance above ground" levelfrom=0 scale=1 
-fraction.land:        paramid=0  parameter="land cover" leveldomain="distance above ground" levelfrom=0 scale=1 
-cloud.fog:            paramid=0  parameter="fog cover" leveldomain="distance above ground" levelfrom=0 scale=1 
-topography:           paramid=0  parameter="specific energy of land, geopotential height" leveldomain="distance above ground" levelfrom=0 scale=1 
-topography.proff:     paramid=0  parameter="distance of land topography, model" leveldomain="distance above ground" levelfrom=0 scale=1 
-#rh:                  paramid=10 parameter="relative humidity" leveldomain="distance above ground" levelfrom=2 scale=1 
-accumprecip:          paramid=0  parameter="accumulated surface density of precipitation" leveldomain="distance above ground" levelfrom=0 scale=1 
-fog.index:            paramid=0  parameter="probability of fog" leveldomain="distance above ground" levelfrom=0 scale=1 
-cloud.low:            paramid=0  parameter="cloud cover, low " leveldomain="pressure of isobaric surface" levelfrom=850 scale=1 
-cloud.medium:         paramid=0  parameter="cloud cover, medium " leveldomain="pressure of isobaric surface" levelfrom=500 scale=1 
-cloud.high:           paramid=0  parameter="cloud cover, high " leveldomain="pressure of isobaric surface" levelfrom=300 scale=1 
-significant.wave.height: paramid=200 parameter=" distance of combined wind waves and swell, significant height" leveldomain="distance above mean sea level" levelfrom=0 scale=1
+mslp:                 paramid=58 parameter="pressure of air" \
+leveldomain="distance above ground" levelfrom=0 scale=1
+
+tk2m:                 paramid=31 parameter="temperature of air" \ 
+leveldomain="distance above ground" levelfrom=2 scale=1 
+
+u10m:                 paramid=33 parameter="velocity of air (u-component)" \ 
+leveldomain="distance above ground" levelfrom=10 scale=1 
+
+v10m:                 paramid=34 parameter="velocity of air (v-component)" \ 
+leveldomain="distance above ground" levelfrom=10 scale=1 
+
+tk2mland:             paramid=0  parameter="temperature of land" \ 
+leveldomain="distance above ground" levelfrom=2 scale=1 
+
+accumprecip.1h.proff: paramid=14 parameter="distance of precipitation, total" \ 
+leveldomain="distance above ground" levelfrom=0 scale=1 validfrom=-1
+
+totcloud:             paramid=0  parameter="cloud cover, total" \ 
+leveldomain="distance above ground" levelfrom=0 scale=1 
+
+thunder.index:        paramid=1103 parameter="thunderstorm probability" \ 
+leveldomain="distance above ground" levelfrom=0 scale=1 
+
+fraction.land.proff:  paramid=0  parameter="proportion of land, model" \
+leveldomain="distance above ground" levelfrom=0 scale=1 validtime=NULL
+
+fraction.land:        paramid=0  parameter="land cover" \
+leveldomain="distance above ground" levelfrom=0 scale=1 validtime=NULL
+
+cloud.fog:            paramid=0  parameter="fog cover" \
+leveldomain="distance above ground" levelfrom=0 scale=1 
+
+topography:     paramid=0  parameter="specific energy of land, geopotential height" \
+leveldomain="distance above ground" levelfrom=0 scale=1 validtime=NULL
+
+topography.proff:     paramid=0  parameter="distance of land topography, model" \ 
+leveldomain="distance above ground" levelfrom=0 scale=1 validtime=NULL
+
+#rh:                  paramid=10 parameter="relative humidity"
+#leveldomain="distance above ground" levelfrom=2 scale=1 
+
+accumprecip: paramid=0  parameter="accumulated surface density of precipitation" \
+leveldomain="distance above ground" levelfrom=0 scale=1 validfrom=reftime
+ 
+fog.index:   paramid=0  parameter="probability of fog" leveldomain="distance above ground" \ 
+
+levelfrom=0 scale=1 
+cloud.low:            paramid=0  parameter="cloud cover, low " \
+
+leveldomain="pressure of isobaric surface" levelfrom=850 scale=1 
+cloud.medium:         paramid=0  parameter="cloud cover, medium " \
+
+leveldomain="pressure of isobaric surface" levelfrom=500 scale=1 
+
+cloud.high:           paramid=0  parameter="cloud cover, high " \
+leveldomain="pressure of isobaric surface" levelfrom=300 scale=1 
+
+significant.wave.height: paramid=200 parameter=" distance of combined wind waves and swell, significant height" \
+leveldomain="distance above mean sea level" levelfrom=0 scale=1
 
 </WDB_PARAMETERS>
 
