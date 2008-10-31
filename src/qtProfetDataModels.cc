@@ -464,10 +464,10 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
       for(; i != userLocationMap.end(); i++){
         int nUsers = (*i).second.size();
         if(nUsers > 0 && (*i).first == index){
-          QString toolTipString( QString("%0 Users:\n").arg(nUsers) );
+          QString toolTipString;
           for(int j=0; j<nUsers; j++){
             toolTipString.append((*i).second[j].name.cStr());
-            toolTipString.append("\n");
+            if(j!=(nUsers-1)) toolTipString.append("\n");
           }
           return toolTipString;
         }
@@ -575,6 +575,7 @@ bool  FetObjectTableModel::removeObjectSignature(const miString & id) {
 void FetObjectTableModel::setUserLocation(
     const PodsUser & user)
 {
+  if(user.role == "admin") return;
   removeUserLocation(user);
   QModelIndex newIndex = index(
       paramIndexMap[user.editingParameter],
