@@ -190,14 +190,18 @@ private:
   vector<miString> parameters;
   vector<miTime> times;
   QModelIndex lastSelected;
+  miTime currentSessionRefTime;
   map<QModelIndex, vector<PodsUser> > userLocationMap;
   map<miString,int> paramIndexMap;
   map<miTime,int> timeIndexMap;
   // map< timeIndex, map<paramIndex, signatureIndex> >
   map< int, map< int, vector< int > > > signatureIndexMap;
+
   // const access to signatureIndexMap
   vector<int> getObjectIndexList(int timeIndex, int paramIndex) const;
   QColor getCellBackgroundColor(CellType type, bool odd) const;
+  vector<PodsUser> getUsers( const QModelIndex & index,
+      const miTime & sessionRefTime) const;
 
 public:
   FetObjectTableModel(QObject * parent): QAbstractTableModel(parent){
@@ -215,6 +219,7 @@ public:
   void initTable(const vector<miTime> & t, const vector<miString> & param);
   bool inited(){ return (parameters.size() && times.size()); }
   void setLastSelectedIndex(const QModelIndex & lsi){ lastSelected = lsi; }
+  void setCurrentSessionRefTime(const miTime & t) { currentSessionRefTime = t; }
   void setObjectSignatures(const vector<fetObject::Signature> & objects);
   void setObjectSignature(const fetObject::Signature & obj);
   bool removeObjectSignature(const miString & id);

@@ -190,6 +190,7 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session){
   QCoreApplication::postEvent(this, cse);
 
   currentSession=session;
+  tableModel.setCurrentSessionRefTime(currentSession.referencetime());
   tableModel.initTable(session.times(),session.parameters());
   sessionDialog.selectDefault();
   enableObjectButtons(true,false,true);

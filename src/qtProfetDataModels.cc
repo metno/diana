@@ -445,36 +445,51 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
       return getCellBackgroundColor(EMPTY_CELL, oddDay);
   }
   if(role == Qt::DecorationRole) {
-    map<QModelIndex, vector<PodsUser> >::const_iterator i = userLocationMap.begin();
-    for(; i != userLocationMap.end(); i++){
-      int nUsers = (*i).second.size();
-      if(nUsers > 0 && (*i).first == index){
-        if(nUsers == 1) {
-          int icon_i = (*i).second[0].iconIndex;
-          QPixmap customIcon = UserListModel::getUserIcon(icon_i);
-          return QVariant(QIcon(customIcon));
-        }else if (nUsers > 1) {
-          return QVariant(QIcon(QPixmap(multiple_users_xpm)));
+    if(currentSessionRefTime.undef()) return QVariant();
+    vector<PodsUser> users = getUsers(index,currentSessionRefTime);
+    int nUsers = users.size();
+    if(nUsers == 1) {
+      int icon_i = users[0].iconIndex;
+      QPixmap customIcon = UserListModel::getUserIcon(icon_i);
+      return QVariant(QIcon(customIcon));
+    }else if (nUsers > 1) {
+      return QVariant(QIcon(QPixmap(multiple_users_xpm)));
+    }
+  }
+  if(role == Qt::ToolTipRole) {
+    if(currentSessionRefTime.undef()) return QVariant();
+    vector<PodsUser> users = getUsers(index,currentSessionRefTime);
+    int nUsers = users.size();
+    if(nUsers > 0){
+      QString toolTipString;
+      for(int j=0; j<nUsers; j++){
+        toolTipString.append(users[j].name.cStr());
+        if(j!=(nUsers-1)) toolTipString.append("\n");
+      }
+      return toolTipString;
+    }
+  }
+
+  return QVariant();
+}
+
+vector<PodsUser> FetObjectTableModel::getUsers(
+    const QModelIndex & index,
+    const miTime & sessionRefTime) const
+{
+  vector<PodsUser> users;
+  map<QModelIndex, vector<PodsUser> >::const_iterator i = userLocationMap.begin();
+  for(; i != userLocationMap.end(); i++){
+    int nUsers = (*i).second.size();
+    if( nUsers > 0 && (*i).first == index){
+      for(int j=0; j<nUsers; j++){
+        if((*i).second[j].session == sessionRefTime.isoTime(true,true)) {
+          users.push_back((*i).second[j]);
         }
       }
     }
   }
-  if(role == Qt::ToolTipRole) {
-      map<QModelIndex, vector<PodsUser> >::const_iterator i = userLocationMap.begin();
-      for(; i != userLocationMap.end(); i++){
-        int nUsers = (*i).second.size();
-        if(nUsers > 0 && (*i).first == index){
-          QString toolTipString;
-          for(int j=0; j<nUsers; j++){
-            toolTipString.append((*i).second[j].name.cStr());
-            if(j!=(nUsers-1)) toolTipString.append("\n");
-          }
-          return toolTipString;
-        }
-      }
-    }
-
-  return QVariant();
+  return users;
 }
 
 vector<int> FetObjectTableModel::getObjectIndexList(
