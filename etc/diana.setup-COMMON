@@ -3879,6 +3879,35 @@ image=GOME_SAFO3M_NTO
  sub.type=GOME_METOP-A_North_NO2
      file=$(OPDATA2)/satdata_polar/metop_gome_safo3m_nto_l2/mitiff/GOME_S-O3M_NO2_TS60N_[yyyymmddHHMM]??.mitiff
 
+image=METEOSAT_RGBs
+ channels=VIS08+IR39r+IR108
+ sub.type = Day_microphysical_summer
+     file = /opdata/meteosat/rgb/MSG?_N-sphere_Day-microphysical-summer_[yyyymmddHHMM].mitiff
+
+ channels=VIS08+IR39r+IR108
+ sub.type = Day_microphysical_winter
+     file = /opdata/meteosat/rgb/MSG?_N-sphere_Day-microphysical-winter_[yyyymmddHHMM].mitiff
+
+ channels=WV62-WV73+IR97-IR108+WV62i
+ sub.type = Airmass
+     file = /opdata/meteosat/rgb/MSG?_N-sphere_Airmass_[yyyymmddHHMM].mitiff
+
+ channels=VIS08+IR16+IR39r
+ sub.type =Day_solar_winter
+     file = /opdata/meteosat/rgb/MSG?_N-sphere_Day-solar-winter_[yyyymmddHHMM].mitiff
+
+ channels=WV62-WV73+IR39-IR108+IR16-VIS06
+ sub.type = Day_convective_storms
+     file = /opdata/meteosat/rgb/MSG?_N-sphere_Day-convective-storms_[yyyymmddHHMM].mitiff
+
+ channels=IR120-IR108+IR108-IR87+IR108
+ sub.type = Dust
+     file = /opdata/meteosat/rgb/MSG?_N-sphere_Dust_[yyyymmddHHMM].mitiff
+
+ channels=IR120-IR108+IR108-IR39+IR108
+ sub.type = Night_microphysical
+     file = /opdata/meteosat/rgb/MSG?_N-sphere_Night-microphysical_[yyyymmddHHMM].mitiff
+
 image=Foreign_satellite_data
  channels=VIS IR WV VIS+IR
  sub.type=GOES11
