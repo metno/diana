@@ -592,6 +592,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 					   int vectorIndex)
 {
 
+  fv.clear();
   vector<Field*> fv1;
   vector<Field*> fv2;
 
