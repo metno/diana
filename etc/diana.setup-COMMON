@@ -141,6 +141,7 @@ darkYellow=   128,128,0
 brown=        178,51,0
 orange=       255,89,0
 purple=       160,32,240
+yellow2=      245,245,100
 
 midnightBlue= 25,25,112
 dnmiGreen=    43,120,36
@@ -4796,6 +4797,9 @@ m=WAM.50KM.18  f=$(OPDATA2)/wave/wamspec18.dat
 
 m=WAM.10KM.00  f=$(OPDATA2)/wave/wamspec10km00.dat
 m=WAM.10KM.12  f=$(OPDATA2)/wave/wamspec10km12.dat
+
+m=WAM.4KM.00  f=$(OPDATA2)/wave/wamspec4km00.dat 
+m=WAM.4KM.12  f=$(OPDATA2)/wave/wamspec4km12.dat 
 
 m=SWAN.500m.00  f=$(OPDATA2)/wave/swanspec500m00.dat
 m=SWAN.500m.12  f=$(OPDATA2)/wave/swanspec500m12.dat
