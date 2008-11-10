@@ -252,9 +252,10 @@ public:
 
 
 //useful functions not belonging to EditManager
-editToolInfo newEditToolInfo(miString newName,int newIndex);
-editToolInfo newEditToolInfo(const miString & newName,const int newIndex,
-			     const miString & newColour);
+editToolInfo newEditToolInfo(const miString & newName,
+			     const int newIndex,
+			     const miString & newColour="black",
+			     const miString & newBorderColour="black");
 editModeInfo newEditModeInfo(const miString & newmode,
 			     const vector <editToolInfo> newtools);
 mapModeInfo newMapModeInfo(const miString & newmode,

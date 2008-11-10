@@ -375,8 +375,10 @@ void WeatherSymbol::setType(int ty){
       return;
     setIndex(allSymbols[type].index);
     setBasisColor(allSymbols[type].colour);
-    if (drawIndex>=1000 && complexSymbol==0)
+    if (drawIndex>=1000 && complexSymbol==0) {
       complexSymbol= new ComplexSymbolPlot(drawIndex);
+      complexSymbol->setBorderColour(allSymbols[type].borderColour);
+    }
     if (isText()){
       if (currentText.empty()) 
 	setString("Text");

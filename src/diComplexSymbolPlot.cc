@@ -44,8 +44,10 @@
 #define LOWSYMBOL  242
 #define THUNDERSYMBOL  119
 #define CROSS  252
+#define NEW_CROSS  255
 #define MOUNTAINWAVESYMBOL 130
 #define VULCANOSYMBOL 226
+#define FOGSYMBOL 62
 
 //static variables
 // text used in new complex symbols 
@@ -183,6 +185,26 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
     currentXStrings.push_back("");
     currentSymbolStrings.push_back("BKN/OVC");
     break;
+  case 1027:
+    currentSymbolStrings.push_back("");
+    break;
+  case 1028:
+    currentSymbolStrings.push_back("");
+    break;
+  case 1029:
+    currentSymbolStrings.push_back("");
+    break;
+  case 1033:
+    currentSymbolStrings.push_back("");
+    break;
+  case 1034:
+    currentSymbolStrings.push_back("");
+    currentSymbolStrings.push_back("");
+    break;
+  case 1036:
+    currentSymbolStrings.push_back("0°:x");
+    currentSymbolStrings.push_back("");
+    break;
   case 2000:
     currentSymbolStrings.push_back("");
     currentSymbolStrings.push_back("");
@@ -285,6 +307,36 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   case 1026:
     drawSig26(0,0);	
     break;             
+  case 1027:
+    drawSig27(0,0);	
+    break;             
+  case 1028:
+    drawSig28(0,0);	
+    break;             
+  case 1029:
+    drawSig29(0,0);	
+    break;             
+  case 1030:
+    drawSig30(0,0);	
+    break;             
+  case 1031:
+    drawSig31(0,0);	
+    break;             
+  case 1032:
+    drawSig32(0,0);	
+    break;             
+  case 1033:
+    drawSig33(0,0);	
+    break;             
+  case 1034:
+    drawSig34(0,0);	
+    break;             
+  case 1035:
+    drawSig35(0,0);	
+    break;       
+  case 1036:
+    drawSig36(0,0);	
+    break;       
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
     drawDoubleSigText(0,0);	
@@ -307,8 +359,10 @@ void ComplexSymbolPlot::drawSymbol(int index,float x,float y){
 }
 
 
-void ComplexSymbolPlot::drawSigString(float x,float y){
-  drawBox(1999,x,y);
+void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox){
+  if (whitebox){
+    drawBox(1999,x,y);
+  }
   float cw,ch;
   getComplexSize(1999,cw,ch);
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
@@ -316,22 +370,40 @@ void ComplexSymbolPlot::drawSigString(float x,float y){
 }
 
 
-void ComplexSymbolPlot::drawSigText(float x,float y){
+void ComplexSymbolPlot::drawSigText(float x,float y, bool whitebox){
   initStrings(1000);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
-  drawSigString(x,y); 
+  drawSigString(x,y,whitebox); 
   nstringsvisible=1;
 }
 
-void ComplexSymbolPlot::drawDoubleSigText(float x,float y){
+void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox){
   float cw1,ch1;
   float cw2,ch2;  
   initStrings(2000);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   getComplexSize(1999,cw1,ch1);
-  drawSigString(x,y+ch1/2);
+  drawSigString(x,y+ch1/2,whitebox);
+  if (symbolStrings.size()>1)
+    sigString=symbolStrings[1];
+  getComplexSize(1999,cw2,ch2);
+  drawSigString(x,y-ch2/2,whitebox);
+  nstringsvisible=2;
+}
+
+void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
+  float cw1,ch1;
+  float cw2,ch2;  
+  float sw,sh;  
+  initStrings(2000);
+  if (symbolStrings.size()>0)
+    sigString=symbolStrings[0];
+  getComplexSize(symbol,sw,sh);
+  getComplexSize(1999,cw1,ch1);
+  drawSymbol(symbol,x-cw1/2,y+ch1/2);
+  drawSigString(x+sw/2,y+ch1/2);
   if (symbolStrings.size()>1)
     sigString=symbolStrings[1];
   getComplexSize(1999,cw2,ch2);
@@ -585,22 +657,445 @@ void ComplexSymbolPlot::drawSig26(float x,float y){
   drawSymbol(VULCANOSYMBOL,x,y);
 }
 
+//Sea temp, blue circle
+void ComplexSymbolPlot::drawSig27(float x,float y){
+  if (symbolStrings.size()>0)
+    sigString=symbolStrings[0];
+  drawCircle(1000,x,y,true);
+  drawSigString(x,y,false);
+  drawBigBox(1027,x,y,2);
+}
 
+//Mean SFC wind, red diamond
+void ComplexSymbolPlot::drawSig28(float x,float y){
+  if (symbolStrings.size()>0)
+    sigString=symbolStrings[0];
+  drawDiamond(1000,x,y);
+  drawSigString(x,y,false);
+  drawBigBox(1028,x,y,2);
+}
 
-void ComplexSymbolPlot::drawBox(int index,float x, float y){
-  if (!whiteBox) return;
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+// Sea state, black flag
+void ComplexSymbolPlot::drawSig29(float x,float y){
+  if (symbolStrings.size()>0)
+    sigString=symbolStrings[0];
+  drawFlag(1000,x,y,true); //fill;
+  drawFlag(1000,x,y,false); //border
+  drawSigString(x,y,false);
+  drawBigBox(1029,x,y,3);
+}
+
+// Freezing fog
+void ComplexSymbolPlot::drawSig30(float x,float y){
+  drawBox(1030,x,y);
+  drawSymbol(FOGSYMBOL,x,y);
   GLfloat currentColor[4];
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
-  glColor4f(1.0,1.0,1.0,1.0);
+  glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
+  float cw,ch;
+  fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot/2);
+  fp->getStringSize("V",cw,ch);
+  fp->drawStr("V",x-cw/2,y-ch/2,0.0); 
+  //  drawSymbol(135,x,y);
+  glColor4fv(currentColor);
+  drawBigBox(1030,x,y,2);
+
+}
+
+//Nuclear
+void ComplexSymbolPlot::drawSig31(float x,float y){
+
+  drawNuclear(x,y);
+  drawBigBox(1031,x,y,2);
+
+}
+
+//precipitation, green lines
+void ComplexSymbolPlot::drawSig32(float x,float y){
+
+  drawBigBox(1026,x,y,2);
+  drawPrecipitation(x,y);
+  
+}
+
+//Visibility, black rectangular box
+void ComplexSymbolPlot::drawSig33(float x,float y){
+
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+  sigString=symbolStrings[0];
+  //  if (whiteBox) drawBox(1000,x,y,true);
+  drawBox(1000,x,y,false);
+
+  poptions.fontface="italic";
+  drawSigString(x,y);
+  drawBigBox(1033,x,y,1);
+
+}
+
+//Vulcano box, 
+void ComplexSymbolPlot::drawSig34(float x,float y){
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+  if (whiteBox) drawBox(1034,x,y,true);
+  drawBox(1034,x,y,false);
+  drawDoubleSigTextAndSymbol(VULCANOSYMBOL,x,y);
+  drawBigBox(1034,x,y,1);
+
+}
+
+ //New cross
+void ComplexSymbolPlot::drawSig35(float x,float y){
+  drawBox(1035,x,y);
+  drawSymbol(NEW_CROSS,x,y);
+  drawBigBox(1035,x,y,2);
+}
+
+//Freezing level (new)
+void ComplexSymbolPlot::drawSig36(float x,float y){
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+  drawCircle(1036,x,y,false);
+  if (symbolStrings.size()==2 && symbolStrings[1]==""){
+    sigString=symbolStrings[0];
+    drawSigString(x,y,false);
+  } else if (symbolStrings.size()==2){
+    drawDoubleSigText(x,y,false);	
+  }
+  nstringsvisible=1;
+  float sw,sh;
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
+  drawBigBox(1036,x,y,0);
+
+}
+
+void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
+
+  GLfloat currentColor[4];
+  glGetFloatv(GL_CURRENT_COLOR,currentColor);
+
   float sw,sh;
   getComplexSize(index,sw,sh);
-  glBegin(GL_POLYGON);
-  glVertex2f(x-0.5*sw,y-0.5*sh);
-  glVertex2f(x-0.5*sw,y+0.5*sh);
-  glVertex2f(x+0.5*sw,y+0.5*sh);
-  glVertex2f(x+0.5*sw,y-0.5*sh);
+
+  if( fill ){
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glColor4f(1.0,1.0,1.0,1.0);
+    glBegin(GL_POLYGON);
+  } else {
+    glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
+    glBegin(GL_LINE_LOOP);
+  }
+
+    glVertex2f(x-0.5*sw,y-0.5*sh);
+    glVertex2f(x-0.5*sw,y+0.5*sh);
+    glVertex2f(x+0.6*sw,y+0.5*sh);
+    glVertex2f(x+0.6*sw,y-0.5*sh);
   glEnd();
+
+  glColor4fv(currentColor);
+
+}
+
+void ComplexSymbolPlot::drawBigBox(int index,float x, float y,int ss){
+
+  return;
+
+  GLfloat currentColor[4];
+  glGetFloatv(GL_CURRENT_COLOR,currentColor);
+
+  float sw,sh;
+  getComplexSize(index,sw,sh);
+  if(ss==2)
+    sw *= 2;
+  else if(ss==1)
+    sw *= 1.5;
+  else if(ss==0)
+    sw *= 1;
+  else if(ss==3)
+    sw *= 3;
+  sh = sw;
+  cerr <<"size:"<<ss<<endl;
+  glColor4f(0.0,0.0,0.0,1.0);
+  glBegin(GL_LINE_LOOP);
+
+    glVertex2f(x-0.5*sw,y-0.5*sh);
+    glVertex2f(x-0.5*sw,y+0.5*sh);
+    glVertex2f(x+0.5*sw,y+0.5*sh);
+    glVertex2f(x+0.5*sw,y-0.5*sh);
+  glEnd();
+
+  glColor4fv(currentColor);
+
+}
+
+void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
+  float PI=3.14;
+
+  GLfloat currentColor[4];
+  glGetFloatv(GL_CURRENT_COLOR,currentColor);
+
+  float sw,sh;
+  getComplexSize(index,sw,sh);
+  sh = sh*1.5;
+  sw = sw*1.5;
+  GLfloat radius = sw/2;
+
+
+  GLfloat x2 = x-0.5*sw;
+  GLfloat y2 = y+0.5*sh;
+  GLfloat y3 = y-0.5*sh;
+  GLfloat x1;
+  GLfloat y1;
+  GLfloat offset=sh/3;
+
+  if(fill) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBegin(GL_POLYGON);
+    glColor4f(1.0,1.0,1.0,1.0);
+  } else {
+    glBegin(GL_LINE_LOOP);
+    glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
+  }
+
+  glVertex2f(x-sw,y-0.5*sh+offset);
+  glVertex2f(x-sw,y+0.5*sh+offset);
+  for(int i=0;i<11;++i){
+    x1 = x -radius*cos(i*PI/10.0)-sw/2;
+    y1 = y2 - 0.5*radius*sin(i*PI/10.0);
+    glVertex2f(x1,y1+offset);
+    offset-=sh/30;
+  }   
+  offset+=sh/30;
+
+  for(int i=0;i<10;++i){
+      x1 = x + sw/2 - radius*cos(i*PI/10.0);
+      y1 = y2+0.5*radius*sin(i*PI/10.0);
+      glVertex2f(x1,y1+offset);
+      offset-=sh/30;
+  }   
+
+  glVertex2f(x+sw,y+0.5*sh+offset);
+  glVertex2f(x+sw,y-0.5*sh+offset);
+  //  offset+=sh/50;
+
+  for(int i=0;i<11;++i){
+      x1 = x + sw/2 +radius*cos(i*PI/10.0);
+      y1 = y3+0.5*radius*sin(i*PI/10.0);
+      glVertex2f(x1,y1+offset);
+      offset+=sh/30;
+  }   
+  offset-=sh/30;
+
+  for(int i=0;i<10;++i){
+    x1 = x +radius*cos(i*PI/10.0)-sw/2;
+    y1 = y3 - 0.5*radius*sin(i*PI/10.0);
+    glVertex2f(x1,y1+offset);
+    offset+=sh/30;
+  }   
+
+  glEnd();
+
+  glColor4fv(currentColor);
+}
+
+void ComplexSymbolPlot::drawCircle(int index,
+				   float x, 
+				   float y, 
+				   bool circle){
+
+  GLfloat currentColor[4];
+  glGetFloatv(GL_CURRENT_COLOR,currentColor);
+
+  float sw,sh;
+  getComplexSize(index,sw,sh);
+  //  if(symbolStrings.size()==2&& symbolStrings[1]!="") sh*=2;
+  GLfloat xc,yc;
+  GLfloat radius;
+  GLfloat length;
+  if( circle) {
+    radius = sw/1.5;
+    sw = 0.0;
+  } else {
+    radius = sh/1.5;
+    sw = sw/1.8;
+  }
+  float PI=3.14;
+
+  //draw white background
+  if (whiteBox) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glColor4f(1.0,1.0,1.0,1.0);
+  glBegin(GL_POLYGON);
+    for(int i=0;i<50;i++){
+      xc = sw/2+radius*sin(i*2*PI/100.0);
+      yc = radius*cos(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    for(int i=50;i<100;i++){
+      xc = radius*sin(i*2*PI/100.0)-sw/2;
+      yc = radius*cos(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    glEnd();
+  }
+
+  //draw circle
+  glLineWidth(3);
+  glBegin(GL_LINE_LOOP);
+  glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
+  glBegin(GL_POLYGON);
+    for(int i=0;i<50;i++){
+      yc = sw/2+radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*PI/100.0);
+      glVertex2f(yc,xc);
+    }
+    for(int i=50;i<100;i++){
+      yc = radius*sin(i*2*PI/100.0)-sw/2;
+      xc = radius*cos(i*2*PI/100.0);
+      glVertex2f(yc,xc);
+    }
+  glEnd();
+
+  //reset colour
+  glColor4fv(currentColor);
+}
+
+void ComplexSymbolPlot::drawDiamond(int index,float x, float y){
+
+  //save curent colour
+  GLfloat currentColor[4];
+  glGetFloatv(GL_CURRENT_COLOR,currentColor);
+
+  float sw,sh;
+  getComplexSize(index,sw,sh);
+  GLfloat xc,yc;
+  GLfloat radius=sw/1.8;
+
+  //draw white background
+  if (whiteBox) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glColor4f(1.0,1.0,1.0,1.0);
+    glBegin(GL_POLYGON);
+      glVertex2f(0,y-sh);
+      glVertex2f(x-sw,0);
+      glVertex2f(0,y+sh);
+      glVertex2f(x+sw,0);
+    glEnd();
+   }
+
+  //draw circle
+  glLineWidth(3);
+  glBegin(GL_LINE_LOOP);
+  glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
+  glBegin(GL_POLYGON);
+    glVertex2f(0,y-sh);
+    glVertex2f(x-sw,0);
+    glVertex2f(0,y+sh);
+    glVertex2f(x+sw,0);
+  glEnd();
+
+  //reset colour
+  glColor4fv(currentColor);
+}
+
+void ComplexSymbolPlot::drawNuclear(float x, float y){
+
+  GLfloat currentColor[4];
+  glGetFloatv(GL_CURRENT_COLOR,currentColor);
+
+  float PI=3.14;
+  float sw,sh;
+  getComplexSize(1031,sw,sh);
+  GLfloat xc,yc;
+  GLfloat radius = sh/1.5;
+
+  //  cerr <<"x:"<<x<<"  y:"<<y<<endl;
+  glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
+  glBegin(GL_LINE_LOOP);
+    for(int i=0;i<100;i++){
+      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    glEnd();
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glBegin(GL_POLYGON);
+    glVertex2f(x,y);
+    for(int i=0;i<100/6;i++){
+      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    glVertex2f(x,y);
+    for(int i=200/6;i<300/6;i++){
+      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    glVertex2f(x,y);
+    for(int i=400/6;i<500/6;i++){
+      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    glVertex2f(x,y);
+    glEnd();
+
+    glColor4f(1.0,1.0,1.0,1.0);
+  glBegin(GL_POLYGON);
+    glVertex2f(x,y);
+    for(int i=100/6;i<200/6;i++){
+      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    glVertex2f(x,y);
+    for(int i=300/6;i<400/6;i++){
+      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+    glVertex2f(x,y);
+    for(int i=500/6;i<600/6;i++){
+      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*PI/100.0);
+      glVertex2f(xc,yc);
+    }
+
+    glEnd();
+
+
+  glColor4fv(currentColor);
+}
+
+void ComplexSymbolPlot::drawPrecipitation(float x, float y){
+
+  GLfloat currentColor[4];
+  glGetFloatv(GL_CURRENT_COLOR,currentColor);
+
+  float sw,sh;
+  getComplexSize(1026,sw,sh);
+  GLfloat xc,yc;
+
+  glLineWidth(3);
+  glRotatef(-45,0.0,0.0,1.0); 
+  glBegin(GL_LINE_STRIP);
+    glVertex2f(sw/4,sh/2-sh/4);
+    glVertex2f(sw/4,-sh/2-sh/4);
+  glEnd();
+  glBegin(GL_LINE_STRIP);
+    glVertex2f(sw/12,sh/2);
+    glVertex2f(sw/12,-sh/2);
+  glEnd();
+  glBegin(GL_LINE_STRIP);
+      glVertex2f(-sw/12,sh/2-sh/4);
+      glVertex2f(-sw/12,-sh/2-sh/4);
+    glEnd();
+  glBegin(GL_LINE_STRIP);
+      glVertex2f(-sw/4,sh/2);
+      glVertex2f(-sw/4,-sh/2);
+    glEnd();
+
+  glRotatef(45,0.0,0.0,1.0); 
+
   glColor4fv(currentColor);
 }
 
@@ -820,6 +1315,60 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       fp->getCharSize(VULCANOSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
+    case 1027:
+      getComplexSize(1000,sw,sh);
+      break;
+    case 1028:
+      getComplexSize(1000,sw,sh);
+      break;
+    case 1029:
+      getComplexSize(1000,sw,sh);
+      break;
+    case 1030:
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->getCharSize(FOGSYMBOL,cw,ch);
+      sw=cw; sh=ch;
+      break;
+    case 1031:
+      getComplexSize(1030,sw,sh);
+      break;
+    case 1032:
+      getComplexSize(1030,sw,sh);
+      break;
+    case 1033:
+      getComplexSize(1000,sw,sh);
+      break;
+    case 1034:
+      if (symbolStrings.size()>1){
+	getComplexSize(1026,cw2,ch2);
+	fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+	fp->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
+	cw1 += (cw2*1);
+	fp->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+	if (cw2>cw1)  cw1=cw2;
+	ch1 += ch2 ;
+	sw = cw1 * 1.3; 
+	sh = ch1 * 1.3;
+      }
+      break;
+    case 1035:
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->getCharSize(NEW_CROSS,cw,ch);
+      sw=cw; sh=0.5*ch;
+      break;
+    case 1036:
+      fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      if (symbolStrings.size()>0)
+	fp->getStringSize(symbolStrings[0].c_str(),sw,sh);{
+	if (symbolStrings.size()>1 && symbolStrings[1].exists()){
+	  fp->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+	  if (cw2>sh)  sw=cw2;
+	  sh += ch2 ;
+	} 
+	sw *= 1.7; 
+	sh *= 1.1;
+      }
+      break;
     case 2000:
       if (symbolStrings.size()>1){
 	float cw1,ch1;
@@ -917,6 +1466,26 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
   case 1023:
     return true;	
   case 1024:
+    return true;	
+  case 1027:
+    return true;	
+  case 1028:
+    return true;	
+  case 1029:
+    return true;	
+  case 1030:
+    return true;	
+  case 1031:
+    return true;	
+  case 1032:
+    return true;	
+  case 1033:
+    return true;	
+  case 1034:
+    return true;	
+  case 1035:
+    return false;	
+  case 1036:
     return true;	
   case 2000:
     return true;	

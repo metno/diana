@@ -232,6 +232,7 @@ struct editToolInfo {
   miString name;
   int index;
   miString colour;
+  miString borderColour;
 };
 
 /**

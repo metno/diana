@@ -67,6 +67,7 @@ public:
   miString writeComplexText();
   /// get the the size and x,y of center of bounding box
   void getComplexBoundingBox(int index, float& sw, float & sh, float & x, float & y);
+  void setBorderColour(const miString& colstring){borderColour= Colour(colstring);}
   /// returns true if symbol is complex text
   static bool isComplexText(int drawIndex);
   /// gets current complex text (used in text dialog)
@@ -85,9 +86,10 @@ public:
 
 private:
   void initStrings(int drawIndex);
-  void drawSigString(float x,float y);
-  void drawSigText(float x,float y);
-  void drawDoubleSigText(float x,float y);
+  void drawSigString(float x,float y,bool whitebox=true);
+  void drawSigText(float x,float y, bool whitebox=true);
+  void drawDoubleSigText(float x,float y, bool whitebox=true);
+  void drawDoubleSigTextAndSymbol(int symbol,float x,float y);
   void drawSig1(float x,float y);
   void drawSig2(float x,float y);
   void drawSig3(float x,float y);
@@ -112,7 +114,23 @@ private:
   void drawSig22(float x,float y);
   void drawSig25(float x,float y);
   void drawSig26(float x,float y);
-  void drawBox(int index,float x, float y);
+  void drawSig27(float x,float y);
+  void drawSig28(float x,float y);
+  void drawSig29(float x,float y);
+  void drawSig30(float x,float y);
+  void drawSig31(float x,float y);
+  void drawSig32(float x,float y);
+  void drawSig33(float x,float y);
+  void drawSig34(float x,float y);
+  void drawSig35(float x,float y);
+  void drawSig36(float x,float y);
+  void drawBox(int index,float x, float y, bool fill=true);
+  void drawBigBox(int index,float x, float y, int size);
+  void drawCircle(int index,float x, float y, bool circle=false);
+  void drawDiamond(int index,float x, float y);
+  void drawFlag(int index,float x, float y, bool fill=false);
+  void drawNuclear(float x,float y);
+  void drawPrecipitation(float x,float y);
   void getComplexSize(int index, float& sw, float & sh);
   void drawSymbol(int index,float x,float y);
 
@@ -131,6 +149,7 @@ private:
   static float textShrink;
   float diffx,diffy;
 
+  Colour borderColour;
 };
 
 #endif

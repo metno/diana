@@ -2851,7 +2851,11 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo( "Sirkel",35,"blue"));
   symbols.push_back(newEditToolInfo( "Kryss",255,"red"));
   symbols.push_back(newEditToolInfo("Tekster",0,"black"));
-  
+
+  symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
+  symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));  
+  symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
+
   areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
   areas.push_back(newEditToolInfo("Byger",Showers,"green3"));
   areas.push_back(newEditToolInfo("Skyer",Clouds,"orange"));
@@ -2890,6 +2894,29 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Tekst_2",2000,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig1",1001,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig2",1002,"black"));
+
+  //new
+  //Sea temp, blue circle
+  sigsymbols.push_back(newEditToolInfo("Sig27",1027,"black", "blue"));
+  //Mean SFC wind, red diamond
+  sigsymbols.push_back(newEditToolInfo("Sig28",1028,"black", "red"));
+  // Sea state, black flag
+  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black"));
+  // Freezing fog
+  sigsymbols.push_back(newEditToolInfo("Sig30",1030,"yellow2", "orange"));
+  //Nuclear
+  sigsymbols.push_back(newEditToolInfo("Sig31",1031,"black"));
+  //precipitation, green lines
+  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"dnmi_green"));
+  //Visibility, black rectangular box
+  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));  
+  //Vulcano box
+  sigsymbols.push_back(newEditToolInfo("Sig34",1034,"black"));
+  //New cross
+  sigsymbols.push_back(newEditToolInfo("Sig35",1035,"black"));
+  //Freezing level (new)
+  sigsymbols.push_back(newEditToolInfo("Sig36",1036,"black", "blue"));
+
 
 
 
@@ -3020,19 +3047,15 @@ const miString EditManager::insertTime(const miString& s, const miTime& time) {
 
 //useful functions not belonging to EditManager
 
-editToolInfo newEditToolInfo(miString newName,int newIndex){
-  editToolInfo eToolInfo;
-  eToolInfo.name=  newName;
-  eToolInfo.index= newIndex;
-  return eToolInfo;
-}
-
-editToolInfo newEditToolInfo(const miString & newName,const int newIndex,
-			     const miString & newColour){
+editToolInfo newEditToolInfo(const miString & newName,
+			     const int newIndex,
+			     const miString & newColour,
+			     const miString & newBorderColour){
   editToolInfo eToolInfo;
   eToolInfo.name=  newName;
   eToolInfo.index= newIndex;
   eToolInfo.colour= newColour;
+  eToolInfo.borderColour= newBorderColour;
   return eToolInfo;
 }
 
