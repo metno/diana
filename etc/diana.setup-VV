@@ -496,6 +496,9 @@ m=ALT-UK.00-5  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
 m=ALT-UK.12-5  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
 	       f=$(OPDATA2)/uk/fltc12.dat-5
 
+filegroup=HARMONIE4km
+m=HARMONIE.4KM.00       f=$(OPDATA2)/harmonie4/har04_00.dat
+m=HARMONIE.4KM.12       f=$(OPDATA2)/harmonie4/har04_12.dat
 
 filegroup=EC.EPS
 m=EC.EPS.12         f=/opdata/ec/greps12.dat

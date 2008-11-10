@@ -3009,6 +3009,10 @@ m=UK.00-5      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
 m=UK.12-5      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
 	       f=$(OPDATA1)/uk/fltc12.dat-5
 
+filegroup=HARMONIE4km
+m=HARMONIE.4KM.00       f=$(OPDATA2)/harmonie4/har04_00.dat
+m=HARMONIE.4KM.12       f=$(OPDATA2)/harmonie4/har04_12.dat
+
 filegroup=OBS.FIELDS
 m=OBSFIELD.00    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs00.dat
 m=OBSFIELD.06    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=$(OPDATA1)/obs_dec/feltobs06.dat
