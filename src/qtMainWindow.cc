@@ -1646,6 +1646,7 @@ bool DianaMainWindow::profetConnect(){
     if(loginDialog.username().isEmpty())
       error += "Username not provided. ";
     Profet::PodsUser u(miTime::nowTime(),
+           getenv("HOSTNAME"),
 		       loginDialog.username().toStdString().data(),
 		       loginDialog.role().toStdString().data(),
 		       "",miTime::nowTime(),"");
