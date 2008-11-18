@@ -2,46 +2,31 @@
 set -x
 
 input=$0
-dianadir="/metno/local/dianaTEST"
-test -d $dianadir || dianadir="/usr/local/diana"
+dianadir="/usr/local"
 
 export LD_LIBRARY_PATH=/metno/local/lib/mesa:$LD_LIBRARY_PATH
-## export LD_LIBRARY_PATH=$dianadir/lib:$LD_LIBRARY_PATH
 
 export DIANADIR=$dianadir
 
 OPSYS=`uname -s`
-case $OPSYS in
-    IRIX*) metsys="SGI"
-	   debugger="dbx"
-	   SUBNET=`/usr/etc/ifconfig ec0 | grep "inet" | cut -d. -f3`
-	   ;;
-    *)	   metsys="Linux"
-	   test $dianadir = "/usr/local/diana" && metsys="Linux-Debian"
-	   debugger="gdb"
-	   SUBNET=`/sbin/ifconfig eth0 | grep "inet addr" | cut -d. -f3`
-	   ulimit -c 100000000000
-	   ;;
-esac
+debugger="gdb"
+SUBNET=`/sbin/ifconfig eth0 | grep "inet addr" | cut -d. -f3`
+ulimit -c 100000000000
 
 case $SUBNET in
     20)    region="FOU" ;;
     36|40) region="VV" ;;
     48)    region="VNN" ;;
-### 50)                        region="MA"  ;;
     16|18|24|26|56|90|104|50) region="VA"  ;;
     *)                         region="VTK" ;;
 esac
 
-home=$HOME/grun_op
+home=$HOME/.diana
 test -d $home || mkdir $home
-
-home=$home/diana
-test -d $home           || mkdir $home
-test -d $home/bin       || mkdir $home/bin
-test -d $home/bin/work  || mkdir $home/bin/work
-
-cd $home/bin
+#test -d $home/bin       || mkdir $home/bin
+test -d $home/work  || mkdir $home/work
+test -e $home/diana.setup || cp $dianadir/etc/diana/diana.setup-${region} $home/diana.setup
+cd $home
 
 rm core* 1>/dev/null 2>&1
 test -s dbxresult  && mv -f dbxresult dbxresult.old
@@ -50,18 +35,9 @@ test -s mail.core  && mv -f mail.core mail.core.old
 # remove old lpr print files, left after failure...
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
-#--------------------------------------------
-# to be removed:
-ln -sf $dianadir/etc/ANAborders.* .
-ln -sf $dianadir/etc/synpltab.dat .
-ln -sf $dianadir/etc/metpltab.dat .
-#--------------------------------------------
-#ln -sf $dianadir/etc/profet.setup-${region} diana.setup
-ln -sf $dianadir/etc/diana.setup-${region} diana.setup
-
 tstart=`date`
 
-$dianadir/bin/diana -p -S profet-test -style cleanlooks 
+$dianadir/bin/diana.bin  -s $home/diana.setup -p -S profet-test -style cleanlooks 
 
 tstop=`date`
 
@@ -93,7 +69,7 @@ do
 test -f $corefile || continue
 test -s $corefile || continue
 
-$debugger $dianadir/bin/diana $corefile 1>dbxresult 2>&1 <<ENDDBX
+$debugger $dianadir/bin/diana.bin $corefile 1>dbxresult 2>&1 <<ENDDBX
 where 
 y
 y
