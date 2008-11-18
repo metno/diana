@@ -35,13 +35,13 @@
 
 
 <BASIC>
-fontpath=$(DIANADIR)/fonts
-docpath=$(DIANADIR)/doc
-obsPlotFilePath=$(DIANADIR)/etc
+fontpath=$(DIANADIR)/share/diana/fonts
+docpath=$(DIANADIR)/share/doc/diana/doc
+obsPlotFilePath=$(DIANADIR)/share/diana
 qserver=$(ROOT)/bin/coserver4
-imagepath=$(DIANADIR)/images/
-amdarStationList=$(DIANADIR)/etc/amdar.stations
-languagepaths=$(DIANADIR)/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
+imagepath=$(DIANADIR)/share/diana/images/
+amdarStationList=$(DIANADIR)/share/diana/amdar.stations
+languagepaths=$(DIANADIR)/share/diana/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
 setenv=BUFR_TABLES,/usr/local/lib/emos/bufrtables/,1
 language=no
 </BASIC>
@@ -74,7 +74,7 @@ font=Courier   type=bitmap name=*-courier-bold-o*iso8859-1     postscript=Courie
 #-----------------------------------------------------------------------------
 # Scalable (truetype/polygon) fonts
 #-----------------------------------------------------------------------------
-fontpath=$(DIANADIR)/fonts/
+#fontpath=$(DIANADIR)/fonts/
 
 font=Arial  type=scaleable face=NORMAL name=Arialn.ttf
 font=Arial  type=scaleable face=ITALIC name=Arialni.ttf
@@ -101,13 +101,13 @@ LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=1
 
 
 <IMAGE_GALLERY>
-basicpath=$(DIANADIR)/images
+basicpath=$(DIANADIR)/share/diana/images
 
-markerpath=$(DIANADIR)/images/markers
-marker=$(DIANADIR)/images/vprof_normal.xpm
-marker=$(DIANADIR)/images/vprof_selected.xpm
+markerpath=$(DIANADIR)/share/diana/images/markers
+marker=$(DIANADIR)/share/diana/images/vprof_normal.xpm
+marker=$(DIANADIR)/share/diana/images/vprof_selected.xpm
 
-patternpath=$(DIANADIR)/images/patterns
+patternpath=$(DIANADIR)/share/diana/images/patterns
 </IMAGE_GALLERY>
 
 
@@ -288,7 +288,7 @@ sos=     1010101100110011
 printcommand=lpr -h -{hash}{numcopies} -P {printer} {filename}
 
 # user-defined printer-specific commands
-manualcommands=$(DIANADIR)/etc/printer.def
+manualcommands=$(DIANADIR)/share/diana/printer.def
 </PRINTING>
 
 
@@ -296,13 +296,13 @@ manualcommands=$(DIANADIR)/etc/printer.def
 #------------------------------------------------------------
 # files containing different quickmenus
 #------------------------------------------------------------
-file= $(DIANADIR)/etc/qmenu_analyse.txt
-file= $(DIANADIR)/etc/qmenu.txt
-file= $(DIANADIR)/etc/qmenu_eps.txt
-file= $(DIANADIR)/etc/qmenu_nedbor.txt
-file= $(DIANADIR)/etc/Produkter.quick
-file= $(DIANADIR)/etc/FDMD.quick
-file= $(DIANADIR)/etc/test-editering.quick
+file= $(DIANADIR)/share/diana/quickmenus/qmenu_analyse.txt
+file= $(DIANADIR)/share/diana/quickmenus/qmenu.txt
+file= $(DIANADIR)/share/diana/quickmenus/qmenu_eps.txt
+file= $(DIANADIR)/share/diana/quickmenus/qmenu_nedbor.txt
+file= $(DIANADIR)/share/diana/quickmenus/Produkter.quick
+file= $(DIANADIR)/share/diana/quickmenus/FDMD.quick
+file= $(DIANADIR)/share/diana/quickmenus/test-editering.quick
 </QUICKMENUS>
 
 
@@ -3395,12 +3395,12 @@ timerange=-30,30 # ???
 
 PROD=ascii:Lyn
 ascii=$(OPDATA1)/lyndata/UALF/yyyy/mm/lyndatayyyymmddHH 
-headerfile=$(DIANADIR)/etc/UALF_diana.header
+headerfile=$(DIANADIR)/share/diana/UALF_diana.header
 timerange=0,60
 
 PROD=ascii:UK_Lyn
 ascii=$(OPDATA2)/lyndata/UK_lightnings/yyyy/mm/UK_lightningyyyymmddHHMM??.txt
-headerfile=$(DIANADIR)/etc/UK_lyn.header
+headerfile=$(DIANADIR)/share/diana/UK_lyn.header
 timerange=0,60
 
 PROD=ascii:Nedbørsdata
@@ -3420,10 +3420,10 @@ ascii=$(OPDATA2)/modflydb/colorcode/colorcode_taf.yyyymmddHHMM
 timerange=-360,1080
 
 PROD=ascii:Fartoydata
-ascii=$(DIANADIR)/etc/FartoyData1987-2007.txt
+ascii=$(DIANADIR)/share/diana/FartoyData1987-2007.txt
 
 PROD=ascii:Radiofyr
-ascii=$(DIANADIR)/etc/radiofyr.txt
+ascii=$(DIANADIR)/share/diana/radiofyr.txt
 
 PROD=ascii:ENVISAT-RA2
 ascii=$(OPDATA2)/ra2/fanta/RA2_WWV_2PNPD?yyyymmdd_HHMM*.BUFR.fanta
@@ -3484,7 +3484,7 @@ timerange=-15,15
 
 PROD=ascii:Lyn
 Archive_ascii=$(STARC)/DNMI_LYN/[yyyy]/[mm]/[dd]/lyndata[yyyymmddHH] 
-headerfile=$(DIANADIR)/etc/UALF_diana.header
+headerfile=$(DIANADIR)/share/diana/UALF_diana.header
 timerange=0,60
 
 PROD=satob:QScat25km
@@ -3497,12 +3497,12 @@ timerange=-30,30
 
 <OBSERVATION_PRIORITY_LISTS>
 
-name=test-list	       file=$(DIANADIR)/etc/priList.txt
-name=VNN-synop-list    file=$(DIANADIR)/etc/VNNsynop.list
-name=VNN-synop-list-2  file=$(DIANADIR)/etc/VNNsynop.list2
-name=VA-synop-list     file=$(DIANADIR)/etc/VAsynop.list
-name=VV-synop-list     file=$(DIANADIR)/etc/VVsynop.list
-name=VV/MV-synop-list  file=$(DIANADIR)/etc/VVMVsynop.list
+name=test-list	       file=$(DIANADIR)/share/diana//priList.txt
+name=VNN-synop-list    file=$(DIANADIR)/share/diana//VNNsynop.list
+name=VNN-synop-list-2  file=$(DIANADIR)/share/diana//VNNsynop.list2
+name=VA-synop-list     file=$(DIANADIR)/share/diana//VAsynop.list
+name=VV-synop-list     file=$(DIANADIR)/share/diana//VVsynop.list
+name=VV/MV-synop-list  file=$(DIANADIR)/share/diana//VVMVsynop.list
 
 </OBSERVATION_PRIORITY_LISTS>
 
@@ -4052,7 +4052,7 @@ name=EPS.INFO       file=$(OPDATA2)/ec/ecmwf_eps.info
 name=Langtidsvarsel file=$(OPDATA2)/varsler/langtid-butikk.html
 name=Korttidsvarsel file=$(OPDATA2)/varsler/korttid-butikk.html
 name=Lyn            file=$(OPDATA2)/lyndata/ftp-transfer-heartbeat font=fixed
-name=Obsflagg       file=$(DIANADIR)/etc/obsflag.html
+name=Obsflagg       file=$(DIANADIR)/share/diana/obsflag.html
 </TEXT_INFORMATION_FILES>
 
 
@@ -4135,59 +4135,59 @@ name=H10-liten  proj=pstereo_60  grid=115:148:237:0:0:0  area=102:149:96:130
 #---------------------------------------------------------------------------
 
 map=Gshhs-Auto type=triangles
-limit=10  file=$(ROOT)/maps/gshhs_25.map
-limit=2.5 file=$(ROOT)/maps/gshhs_5.map
-limit=0.5 file=$(ROOT)/maps/gshhs_1.map
-limit=0.1 file=$(ROOT)/maps/gshhs_0.2.map
-limit=0	  file=$(ROOT)/maps/gshhs_0.1.map
+limit=10  file=$(DIANADIR)/share/diana/maps/gshhs_25.map
+limit=2.5 file=$(DIANADIR)/share/diana/maps/gshhs_5.map
+limit=0.5 file=$(DIANADIR)/share/diana/maps/gshhs_1.map
+limit=0.1 file=$(DIANADIR)/share/diana/maps/gshhs_0.2.map
+limit=0	  file=$(DIANADIR)/share/diana/maps/gshhs_0.1.map
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 land=on land.colour=flesh
 
-map=Euro1    file=$(ROOT)/maps/land4.dat    # emep(kyst)
-map=Euro2    file=$(ROOT)/maps/land5.dat    # emep(grenser,elver)
-map=Euro3    file=$(ROOT)/maps/land6.dat    # emep(bredde,lengde)
-map=Fin      file=$(ROOT)/maps/land3.dat    # fin (kyst2)
-map=Norkart  file=$(ROOT)/maps/landsos1.dat # sos-filer
-map=Norkart2 file=$(ROOT)/maps/landsos2.dat # sos-filer
-map=Regioner file=$(ROOT)/maps/landregioner.dat # Diana-regioner
+map=Euro1    file=$(DIANADIR)/share/diana/maps/land4.dat    # emep(kyst)
+map=Euro2    file=$(DIANADIR)/share/diana/maps/land5.dat    # emep(grenser,elver)
+map=Euro3    file=$(DIANADIR)/share/diana/maps/land6.dat    # emep(bredde,lengde)
+map=Fin      file=$(DIANADIR)/share/diana/maps/land3.dat    # fin (kyst2)
+map=Norkart  file=$(DIANADIR)/share/diana/maps/landsos1.dat # sos-filer
+map=Norkart2 file=$(DIANADIR)/share/diana/maps/landsos2.dat # sos-filer
+map=Regioner file=$(DIANADIR)/share/diana/maps/landregioner.dat # Diana-regioner
 #
 map=Banker     type=lines_simple_text \
-               file=$(DIANADIR)/etc/banker.txt   # fiskebanker
-map=MinQNH     file=$(ROOT)/maps/minqnh.dat      # minqnh areas
+               file=$(DIANADIR)/share/diana/maps/banker.txt   # fiskebanker
+map=MinQNH     file=$(DIANADIR)/share/diana/maps/minqnh.dat      # minqnh areas
 map=FIR        type=lines_simple_text \
-               file=$(DIANADIR)/etc/fir.txt    # FIR areas
-map=High.Seas  file=$(ROOT)/maps/highseas.dat    # High Seas forecast
+               file=$(DIANADIR)/share/diana/maps/fir.txt    # FIR areas
+map=High.Seas  file=$(DIANADIR)/share/diana/maps/highseas.dat    # High Seas forecast
 #
 map=Wvs-Auto type=normal
-limit=5.0 file=$(ROOT)/maps/landwvs43m.dat # wvs(1:43mill)
-limit=1.0 file=$(ROOT)/maps/landwvs12m.dat # wvs(1:12mill)
-limit=0.5 file=$(ROOT)/maps/landwvs3m.dat  # wvs(1:3mill)
-limit=0.1 file=$(ROOT)/maps/landwvs1m.dat  # wvs(1:1mill)
-limit=0   file=$(ROOT)/maps/landwvs250k.dat# wvs(1:250.000)
+limit=5.0 file=$(DIANADIR)/share/diana/maps/landwvs43m.dat # wvs(1:43mill)
+limit=1.0 file=$(DIANADIR)/share/diana/maps/landwvs12m.dat # wvs(1:12mill)
+limit=0.5 file=$(DIANADIR)/share/diana/maps/landwvs3m.dat  # wvs(1:3mill)
+limit=0.1 file=$(DIANADIR)/share/diana/maps/landwvs1m.dat  # wvs(1:1mill)
+limit=0   file=$(DIANADIR)/share/diana/maps/landwvs250k.dat# wvs(1:250.000)
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 #
-map=Kommuner   file=$(ROOT)/maps/land250kommune.dat    no.log
-map=Fylker     file=$(ROOT)/maps/land250fylke.dat      
-map=Riksgrense file=$(ROOT)/maps/land250riksgrense.dat 
-map=Kyst       file=$(ROOT)/maps/land250kyst.dat       no.log
-map=Høyde      file=$(ROOT)/maps/land250hoyde.dat      no.log
-map=Vann       file=$(ROOT)/maps/land250vann.dat       no.log
-map=Vei        file=$(ROOT)/maps/land250vei.dat        no.log
-map=Vei2       file=$(ROOT)/maps/land250vei2.dat       no.log
-map=Vei3       file=$(ROOT)/maps/land250vei3.dat       no.log
-map=Bane       file=$(ROOT)/maps/land250bane.dat       no.log
+map=Kommuner   file=$(DIANADIR)/share/diana/maps/land250kommune.dat    no.log
+map=Fylker     file=$(DIANADIR)/share/diana/maps/land250fylke.dat      
+map=Riksgrense file=$(DIANADIR)/share/diana/maps/land250riksgrense.dat 
+map=Kyst       file=$(DIANADIR)/share/diana/maps/land250kyst.dat       no.log
+map=Høyde      file=$(DIANADIR)/share/diana/maps/land250hoyde.dat      no.log
+map=Vann       file=$(DIANADIR)/share/diana/maps/land250vann.dat       no.log
+map=Vei        file=$(DIANADIR)/share/diana/maps/land250vei.dat        no.log
+map=Vei2       file=$(DIANADIR)/share/diana/maps/land250vei2.dat       no.log
+map=Vei3       file=$(DIANADIR)/share/diana/maps/land250vei3.dat       no.log
+map=Bane       file=$(DIANADIR)/share/diana/maps/land250bane.dat       no.log
 #
-map=World       file=$(ROOT)/maps/landworld1.dat # konturert etopo5
-map=Gebco.world file=$(ROOT)/maps/landgebco.dat  # gebco
-map=Vanlig   file=$(ROOT)/maps/land1.dat
-map=Norsea   file=$(ROOT)/maps/land2.dat    # norsea
+map=World       file=$(DIANADIR)/share/diana/maps/landworld1.dat # konturert etopo5
+map=Gebco.world file=$(DIANADIR)/share/diana/maps/landgebco.dat  # gebco
+map=Vanlig   file=$(DIANADIR)/share/diana/maps/land1.dat
+map=Norsea   file=$(DIANADIR)/share/diana/mapsq/maps/land2.dat    # norsea
 #
 # map=MapLines1  type=lines_simple_text file=./kartlinjer1.txt
 # map=MapLines2  type=lines_simple_text file=./kartlinjer2.txt
 #
-map=Simra_fly     type=lines_simple_text file=$(DIANADIR)/etc/simra_fly.txt
-map=Flystriper    type=lines_simple_text file=$(DIANADIR)/etc/flystriper.txt
-map=Approach-area type=lines_simple_text file=$(DIANADIR)/etc/approach-area.txt
+map=Simra_fly     type=lines_simple_text file=$(DIANADIR)/share/diana/maps/simra_fly.txt
+map=Flystriper    type=lines_simple_text file=$(DIANADIR)/share/diana/maps/flystriper.txt
+map=Approach-area type=lines_simple_text file=$(DIANADIR)/share/diana/maps/approach-area.txt
 
 </MAP_TYPE>
 
@@ -4249,7 +4249,7 @@ product="Bakkeanalyse1"
   # combine_ident: output, input1,input2,... (output must be defined above)
   combine_ident= DNMI, VA,VV,VNN
   combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
+  combine_borders= $(DIANADIR)/share/diana/maps/ANAborders.  ## + TEST/DNMI
 
   database= $(DATABASE)
   name_in_database=Bakkeanalyse
@@ -4262,7 +4262,7 @@ product="Bakkeanalyse1"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/etc/bakkeanalyse.txt
+  commandfile=$(DIANADIR)/share/diana/products/bakkeanalyse.txt
   standard_symbolsize=30
 
 end.product
@@ -4290,7 +4290,7 @@ product="Sigkart"
   time_start_early= -12:00    # hour:minute (-=before,+=after product)
   time_start_late=  -04:00
 
-  commandfile=$(DIANADIR)/etc/sigkart.txt
+  commandfile=$(DIANADIR)/share/diana/products/sigkart.txt
   standard_symbolsize=20
   complex_symbolsize=6
 
@@ -4317,7 +4317,7 @@ product="Swikart"
   database= $(DATABASE)
   name_in_database=Swikart
 
-  commandfile=$(DIANADIR)/etc/swikart.txt
+  commandfile=$(DIANADIR)/share/diana/products/swikart.txt
   standard_symbolsize=20
   complex_symbolsize=6
 
@@ -4351,7 +4351,7 @@ product="Prognose+18"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/etc/prognose+18.txt
+  commandfile=$(DIANADIR)/share/diana/products/prognose+18.txt
   standard_symbolsize=30
 
 end.product
@@ -4384,7 +4384,7 @@ product="Prognose+36"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/etc/prognose+36.txt
+  commandfile=$(DIANADIR)/share/diana/products/prognose+36.txt
   standard_symbolsize=30
 
 end.product
@@ -4414,7 +4414,7 @@ product="Prognose"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  #commandfile=$(DIANADIR)/etc/prognose.txt
+  #commandfile=$(DIANADIR)/share/diana/products/prognose.txt
   standard_symbolsize=30
 
 end.product
@@ -4522,7 +4522,7 @@ product="Bakkeanalyse"
   # combine_ident: output, input1,input2,... (output must be defined above)
   combine_ident= DNMI, VA,VV,VNN
   combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
+  combine_borders= $(DIANADIR)/share/diana/maps/ANAborders.  ## + TEST/DNMI
 
   database= $(DATABASE)
   name_in_database=Bakkeanalyse

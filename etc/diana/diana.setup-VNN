@@ -35,8 +35,8 @@
 
 
 #Local variables
-ROOT            = /metno/local
-DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+ROOT            = /usr/local
+DIANADIR        = ${DIANADIR}||$(ROOT)
 OPDATA1         = /opdata
 OPDATA2         = /opdata_routine
 OPDATA3         = /opdata
@@ -47,7 +47,7 @@ DATABASE        = "vnnhoved diana 19100"  # host base port
 
 # =============================================
 
-%include $(DIANADIR)/etc/diana.setup-COMMON
+%include $(DIANADIR)/etc/diana/diana.setup-COMMON
 
 # =============================================
 
@@ -887,7 +887,7 @@ name=DinarcticaSor  proj=pstereo_60  grid=115:148:237:0:0:0  area=108.0:128.0:67
 map=Apache-Snowwhite type=lines_simple_text file=$(ROOT)/vnn/apache.txt   # Spesial varsel Apache snohvit
 map=Varslingsomr  type=lines_simple_text file=$(ROOT)/vnn/v_omr.txt
 map=Rutevarsler   type=lines_simple_text file=$(ROOT)/vnn/rutevarsel.txt
-map=BIRCH         type=lines_simple_text file=$(DIANADIR)/etc/birch.txt
+map=BIRCH         type=lines_simple_text file=$(DIANADIR)/share/diana/maps/birch.txt
 
 </MAP_TYPE>
 

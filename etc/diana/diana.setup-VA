@@ -34,8 +34,8 @@
 #----------------------------------------------------------------------------------
 
 #Local variables
-ROOT            = /metno/local
-DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+ROOT            = /usr/local
+DIANADIR        = ${DIANADIR}||$(ROOT)
 OPDATA1         = /opdata
 OPDATA2         = /opdata
 OPDATA3         = /opdata
@@ -45,13 +45,13 @@ DATABASE        = "dianadb.oslo.dnmi.no diana 19100"  # host base port
 
 # =============================================
 
-%include $(DIANADIR)/etc/diana.setup-COMMON
+%include $(DIANADIR)/etc/diana/diana.setup-COMMON
 
 # =============================================
 
 <QUICKMENUS>
 file= $(ROOT)/va/TRAJEKTORIER.quick
-file= $(DIANADIR)/etc/Verifikasjon.quick-VA
+file= $(DIANADIR)/share/diana/quickmenus/Verifikasjon.quick-VA
 file= $(ROOT)/va/VA_morgenbrief.quick
 file= $(ROOT)/va/fly-vær.quick
 file= $(ROOT)/va/etc/Energi.quick

@@ -35,8 +35,8 @@
 
 
 #Local variables
-ROOT            = /metno/local
-DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+ROOT            = /usr/local
+DIANADIR        = ${DIANADIR}||$(ROOT)
 OPDATA1         = /opdata
 OPDATA2         = /opdata_routine
 OPDATA3         = /opdata_routine
@@ -47,7 +47,7 @@ DATABASE        = = "vpvhoved diana 19100"  # host base port
 
 # =============================================
 
-%include $(DIANADIR)/etc/diana.setup-COMMON
+%include $(DIANADIR)/etc/diana/diana.setup-COMMON
 
 # =============================================
 
@@ -770,7 +770,7 @@ name=H10-liten  proj=pstereo_60  grid=115:148:237:0:0:0  area=102:149:96:130
 </MAP_AREA>
 
 <MAP_TYPE>
-map=Kartlinjer1 type=lines_simple_text file=$(DIANADIR)/etc/kartlinjer1.txt
+map=Kartlinjer1 type=lines_simple_text file=$(DIANADIR)/share/diana/maps/kartlinjer1.txt
 
 </MAP_TYPE>
 
