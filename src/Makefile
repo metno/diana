@@ -105,9 +105,9 @@ BALLOBJ= $(CCOBJ) $(COBJ) $(BOBJ)
 
 #----------------------------------------------------------------------------
 
-all: build $(BINDIR)/diana $(BINDIR)/bdiana
+all: build $(BINDIR)/diana.bin $(BINDIR)/bdiana
 
-mkdiana:  build $(BINDIR)/diana
+mkdiana:  build $(BINDIR)/diana.bin
 
 mkbdiana: build $(BINDIR)/bdiana
 
@@ -145,7 +145,7 @@ depends:
 
 #-----------------------------------------------------
 
-$(BINDIR)/diana: $(ALLOBJ) $(MOCOBJ)
+$(BINDIR)/diana.bin: $(ALLOBJ) $(MOCOBJ)
 	$(CXX) $(LDFLAGS) -g -DQT3_SUPPORT $(ALLOBJ) $(LINKS) -o $@
 
 #-----------------------------------------------------
