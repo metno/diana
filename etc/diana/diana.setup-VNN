@@ -56,11 +56,11 @@ DATABASE        = "vnnhoved diana 19100"  # host base port
 #------------------------------------------------------------
 # files containing different quickmenus
 #------------------------------------------------------------
-file= $(ROOT)/vnn/Polare_Lavtrykk_Ny.quick
-file= $(ROOT)/vnn/briefing.txt
-file= $(ROOT)/vnn/turbulens.txt
-file= $(ROOT)/vnn/Verifikasjon.quick
-file= $(ROOT)/vnn/Bedre_Byluft.quick 
+file= $(ROOT)/share/diana/quickmenus/vn_polarlow.quick
+file= $(ROOT)/share/diana/quickmenus/vn_briefing.quick
+file= $(ROOT)/share/diana/quickmenus/vn_turbulens.quick
+file= $(ROOT)/share/diana/quickmenus/vn_verifikasjon.quick
+file= $(ROOT)/share/diana/quickmenus/vn_bedre-byluft.quick 
 </QUICKMENUS>
 
 <FIELD_FILES>
@@ -710,7 +710,7 @@ file=/opdata/vnn/is_observasjoner/diana/is_observasjoner_yyyymmdd_HHMM*
 timerange=-1440,1440                       # +/- 12 timer fra "yyyymmddHH"
 
 PROD=ascii:Troll
-file=$(ROOT)/vnn/Troll.txt
+file=$(ROOT)/share/diana/maps/vn_troll.txt
 timerange=-6000,6000
 
 PROD=ascii:AllNedbør
@@ -884,9 +884,9 @@ name=DinarcticaSor  proj=pstereo_60  grid=115:148:237:0:0:0  area=108.0:128.0:67
 
 <MAP_TYPE>
  
-map=Apache-Snowwhite type=lines_simple_text file=$(ROOT)/vnn/apache.txt   # Spesial varsel Apache snohvit
-map=Varslingsomr  type=lines_simple_text file=$(ROOT)/vnn/v_omr.txt
-map=Rutevarsler   type=lines_simple_text file=$(ROOT)/vnn/rutevarsel.txt
+map=Apache-Snowwhite type=lines_simple_text file=$(ROOT)/share/diana/maps/vn_snohvit-apache.txt
+map=Varslingsomr  type=lines_simple_text file=$(ROOT)/share/diana/maps/vn_varslingsomrade.txt
+map=Rutevarsler   type=lines_simple_text file=$(ROOT)/share/diana/maps/vn_rutevarsel.txt
 map=BIRCH         type=lines_simple_text file=$(DIANADIR)/share/diana/maps/birch.txt
 
 </MAP_TYPE>
