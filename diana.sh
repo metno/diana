@@ -24,7 +24,10 @@ esac
 home=$HOME/.diana
 test -d $home || mkdir $home
 test -d $home/work  || mkdir $home/work
-test -e $home/diana.setup || cp $dianadir/etc/diana/diana.setup-${region} $home/diana.setup
+setup=$dianadir/etc/diana/diana.setup-${region} 
+test -e $home/diana.setup  && setup=$home/diana.setup
+
+
 cd $home
 
 rm core* 1>/dev/null 2>&1
@@ -36,7 +39,7 @@ find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
 
-$dianadir/bin/diana.bin -s $home/diana.setup -style cleanlooks
+$dianadir/bin/diana.bin -s $setup -style cleanlooks
 
 tstop=`date`
 
