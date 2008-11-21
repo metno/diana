@@ -46,7 +46,8 @@ Profet::ProfetGUI(pc),sessionDialog(p),
 objectDialog(p), objectFactory(),
 userModel(p), sessionModel(p),
 objectModel(p), tableModel(p), activeTimeSmooth(false),
-enableNewbutton_(true), enableModifyButtons_(false), enableTable_(true)
+enableNewbutton_(true), enableModifyButtons_(false),
+enableTable_(true), ignoreSynchProblems(false)
 {
   parent=p;
 #ifndef NOLOG4CXX
@@ -407,10 +408,20 @@ void DianaProfetGUI::saveObject(){
     if(objectDialog.showingNewObject()){
       areaManager->changeAreaId(safeCopy.id(),"newArea");
     }
-    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
   }
+}
+
+void DianaProfetGUI::handleServerException(Profet::ServerException & se){
+  if (se.getType() == Profet::ServerException::OUT_OF_SYNC && ignoreSynchProblems)
+    return;
+  if (se.isDisconnectRecommanded()) {
+    int i = QMessageBox::warning(0,"Disconnect from Profet?",
+        se.getHtmlMessage(true).c_str(), QMessageBox::Ok, QMessageBox::Ignore);
+    if (i == QMessageBox::Ok) emit forceDisconnect();
+    else if(Profet::ServerException::OUT_OF_SYNC) ignoreSynchProblems = true;
+  }
+  QMessageBox::critical(0,QString("Profet Warning"),se.getHtmlMessage(true).c_str());
 }
 
 void DianaProfetGUI::startTimesmooth()
@@ -434,8 +445,13 @@ void DianaProfetGUI::startTimesmooth()
     cerr << "DianaProfetGUI::startTimesmooth invalid session index" << endl;
     return;
   }
-
-  vector<fetObject::TimeValues> obj=controller.getTimeValues(id_);
+  vector<fetObject::TimeValues> obj;
+  try {
+    obj=controller.getTimeValues(id_);
+  } catch (Profet::ServerException & se){
+    handleServerException(se);
+    return;
+  }
 
   if(obj.empty()) return;
 
@@ -491,9 +507,7 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
         cerr << "could not process" << obj[i].id() << " at " << tim << endl;
       }
     } catch (Profet::ServerException & se) {
-      miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-      QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-      if (se.isDisconnectRecommanded()) emit forceDisconnect();
+      handleServerException(se);
     }
   }
 
@@ -504,9 +518,7 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
   try{
     controller.unlockObjectsByTimeValues(tv);
   }catch(Profet::ServerException & se){
-    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
   }
   enableObjectButtons(true,true,true);
 }
@@ -518,9 +530,7 @@ void DianaProfetGUI::copyPolygon(miString fromPoly,miString toPoly,bool move)
   try{
     controller.copyPolygon(fromPoly,toPoly,move);
   }catch(Profet::ServerException & se){
-    miString title = (se.isDisconnectRecommanded()?"Profet copyPolygon":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
   }
 }
 
@@ -531,9 +541,7 @@ void DianaProfetGUI::selectPolygon(miString polyname)
   try{
     fpoly=controller.getPolygon(polyname);
   }catch(Profet::ServerException & se){
-    miString title = (se.isDisconnectRecommanded()?"Profet select polygon":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
     return;
   }
   if(areaManager) {
@@ -558,9 +566,7 @@ void DianaProfetGUI::requestPolygonList()
   try{
     polynames=controller.getPolygonIndex();
   }catch(Profet::ServerException & se){
-    miString title = (se.isDisconnectRecommanded()?"Profet getPolygon":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
     return;
   }
 
@@ -591,9 +597,7 @@ void DianaProfetGUI::sessionSelected(int index){
   try{
     controller.currentSessionChanged(sessionModel.getSession(index));
   }catch(Profet::ServerException & se){
-    miString title = (se.isDisconnectRecommanded()?"Profet getPolygon":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
     return;
   }catch(InvalidIndexException & iie){
     cerr << "DianaProfetGUI::sessionSelected invalid index" << endl;
@@ -608,9 +612,7 @@ void DianaProfetGUI::sendMessage(const QString & m){
   try{
     controller.sendMessage(message);
   }catch (Profet::ServerException & se) {
-    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
   }
 }
 
@@ -625,9 +627,7 @@ void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
       controller.parameterAndTimeChanged(
           getCurrentParameter(),getCurrentTime());
     }catch(Profet::ServerException & se){
-      miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-      QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-      if (se.isDisconnectRecommanded()) emit forceDisconnect();
+      handleServerException(se);
     }catch(InvalidIndexException & iie){
       LOG4CXX_ERROR(logger,"Invalid time/param index");
     }
@@ -672,9 +672,7 @@ void DianaProfetGUI::editObject(){
     // Area always ok for a saved object(?)
     objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
   }catch(Profet::ServerException & se){
-    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
   }catch(InvalidIndexException & iie){
     error = "Unable to find selected object.";
   }
@@ -692,9 +690,7 @@ void DianaProfetGUI::deleteObject(){
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
     controller.deleteObject(fo.id());
   }catch(Profet::ServerException & se){
-    miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-    QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-    if (se.isDisconnectRecommanded()) emit forceDisconnect();
+    handleServerException(se);
   }catch(InvalidIndexException & iie){
     InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
                 "Delete Object Failed","","Unable to find selected object.");
@@ -898,9 +894,7 @@ void DianaProfetGUI::cancelObjectDialog(){
     try{
       controller.closeObject(safeCopy);
     }catch (Profet::ServerException & se) {
-      miString title = (se.isDisconnectRecommanded()?"Profet Closing":"Profet Warning");
-      QMessageBox::critical(0,title.cStr(),se.getHtmlMessage(true).c_str());
-      if (se.isDisconnectRecommanded()) emit forceDisconnect();
+      handleServerException(se);
     }
   }
   setObjectDialogVisible(false);
@@ -937,6 +931,7 @@ bool DianaProfetGUI::isVisible(){
 
 void DianaProfetGUI::setVisible(bool visible){
   if(visible){
+    ignoreSynchProblems = true;
     setPaintToolBarVisible(showPaintToolBar);
     emit setPaintMode(showPaintToolBar);
     setObjectDialogVisible(showObjectDialog);

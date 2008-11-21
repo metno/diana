@@ -13,7 +13,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -25,12 +25,12 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qobject.h> 
+#include <qobject.h>
 #include <QEvent>
 #include <QMutex>
 #include <QMutexLocker>
@@ -91,7 +91,9 @@ private:
   bool enableNewbutton_;
   bool enableModifyButtons_;
   bool enableTable_;
-  
+
+  bool ignoreSynchProblems;
+
   void connectSignals();
   /// Synchronized set'ers
   void setCurrentParam(const miString & p);
@@ -101,11 +103,13 @@ private:
   /// enable/disable gui elements
   void enableObjectButtons(bool enableNewbutton,
 			   bool enableModifyButtons,
-			   bool enableTable); 
+			   bool enableTable);
+
+  void handleServerException(Profet::ServerException & se);
 
   QWidget* parent;
 public:
-  DianaProfetGUI(Profet::ProfetController & pc, 
+  DianaProfetGUI(Profet::ProfetController & pc,
 		 PaintToolBar * ptb, GridAreaManager * gam, QWidget * p);
   virtual ~DianaProfetGUI();
   /**
@@ -178,7 +182,7 @@ public:
    * set some statistic information for the current object
    */
   void setStatistics(map<miString,float>);
-  
+
   /**
    * set the list of Points which are actually affected by the active
    * object/mask
@@ -186,15 +190,15 @@ public:
   void setActivePoints(vector<Point>);
 
 
-  
-		  
+
+
 private slots:
   // ObjectDialog
   void baseObjectSelected(miString name);
   void objectSelected(const QModelIndex &);
   void saveObject();
   void copyPolygon(miString,miString,bool);
-  void selectPolygon(miString); 
+  void selectPolygon(miString);
   void requestPolygonList();
   void startTimesmooth();
   void processTimesmooth(vector<fetObject::TimeValues> tv);
@@ -202,7 +206,7 @@ private slots:
 
   void cancelObjectDialog();
   void dynamicGuiChanged(); //properties??
-  
+
 
   // SessionDialog
   void sessionSelected(int index);
@@ -220,12 +224,12 @@ private slots:
   void undoCurrentArea();
   void redoCurrentArea();
 
-  // MainWindow	
+  // MainWindow
   void gridAreaChanged();
 
   // sessionModel
   void sessionModified(const QModelIndex & topLeft, const QModelIndex & bottomRight);
-	
+
 signals:
   void setPaintMode(bool);
   void showProfetField(miString field);
