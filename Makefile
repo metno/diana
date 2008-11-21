@@ -141,7 +141,7 @@ pretty:
 	find . \( -name 'core' -o -name '*~' \) -exec rm -f {} \;
 
 binclean:
-	rm $(BINDIR)/diana
+	rm $(BINDIR)/diana.bin
 	rm $(BINDIR)/bdiana
 
 clean:
