@@ -64,6 +64,7 @@ class UserListModel : public QAbstractListModel {
 public:
   static QPixmap getUserIcon(int index);
   static QRgb getColorByIndex(int index);
+  static QIcon getUserIcon(const PodsUser& user);
 
 private:
   vector<PodsUser> users;

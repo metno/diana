@@ -28,6 +28,7 @@
  */
 #include "qtProfetDataModels.h"
 #include "qtProfetEvents.h"
+#include "qtImageGallery.h"
 #include <QIcon>
 #include <QPixmap>
 #include <fet_object_normal.xpm>
@@ -83,11 +84,24 @@ QRgb UserListModel::getColorByIndex(int index) {
   else return qRgb(0,0,0);
 }
 
+  QIcon UserListModel::getUserIcon(const PodsUser& user){
+    QtImageGallery gallery;
+    miString image_name = "avatar_" + user.name;
+    QImage image;
+    if ( gallery.Image(image_name, image) ){
+      return QIcon(QPixmap::fromImage(image));
+    } else {
+      return QIcon(getUserIcon(user.iconIndex));
+    }
+  }
+
+
 QVariant UserListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
     return QVariant();
   if (index.row() >= users.size())
     return QVariant();
+  
   if (role == Qt::DisplayRole){
     QString label(users[index.row()].name.cStr());
     label.append(" : ");
@@ -95,14 +109,14 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
     return label;
   }
   else if (role == Qt::DecorationRole) {
-    if (users[index.row()].role == "forecast")
-      return QVariant(QIcon(getUserIcon(users[index.row()].iconIndex)));
-    else if (users[index.row()].role == "admin")
+    if (users[index.row()].role == "forecast"){
+      return QVariant(getUserIcon(users[index.row()]));
+    } else if (users[index.row()].role == "admin")
       return QVariant(QIcon(QPixmap(user_admin_xpm)));
     else if (users[index.row()].role == "testrobot")
       return QVariant(QIcon(QPixmap(Robot_xpm)));
     else
-      return QVariant(QIcon(getUserIcon(index.row())));
+      return QVariant(getUserIcon(users[index.row()]));
   }
   return QVariant();
 }
@@ -449,10 +463,8 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
     vector<PodsUser> users = getUsers(index,currentSessionRefTime);
     int nUsers = users.size();
     if(nUsers == 1) {
-      int icon_i = users[0].iconIndex;
-      QPixmap customIcon = UserListModel::getUserIcon(icon_i);
-      return QVariant(QIcon(customIcon));
-    }else if (nUsers > 1) {
+      return QVariant(UserListModel::getUserIcon(users[0]));
+    } else if (nUsers > 1) {
       return QVariant(QIcon(QPixmap(multiple_users_xpm)));
     }
   }
