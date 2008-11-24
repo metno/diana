@@ -1,5 +1,5 @@
 /* XPM */
-static char * linear_down_xpm[] = {
+static const char * linear_down_xpm[] = {
 "32 32 69 1",
 " 	c None",
 ".	c #020202",

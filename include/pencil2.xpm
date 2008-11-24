@@ -1,5 +1,5 @@
 /* XPM */
-static char * pencil2_xpm[] = {
+static const char * pencil2_xpm[] = {
 "32 32 6 1",
 " 	c None",
 ".	c #FFFF00000000",

@@ -1,5 +1,5 @@
 /* XPM */
-static char * linear_remove_xpm[] = {
+static const char * linear_remove_xpm[] = {
 "32 32 133 2",
 "  	c None",
 ". 	c #000000",

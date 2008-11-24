@@ -1,5 +1,5 @@
 /* XPM */
-static char * run_smooth_xpm[] = {
+static const char * run_smooth_xpm[] = {
 "24 24 197 2",
 "  	c None",
 ". 	c #536CD7",

@@ -1,5 +1,5 @@
 /* XPM */
-static char * locked_directory_xpm[] = {
+static const char * locked_directory_xpm[] = {
 "22 22 270 2",
 "  	c None",
 ". 	c #BE8256",

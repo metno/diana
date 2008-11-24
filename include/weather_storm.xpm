@@ -1,5 +1,5 @@
 /* XPM */
-static char *tstorm_xpm[] = {
+static const char *tstorm_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 7 1",
 /* colors */

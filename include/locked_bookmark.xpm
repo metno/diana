@@ -1,5 +1,5 @@
 /* XPM */
-static char * locked_bookmark_xpm[] = {
+static const char * locked_bookmark_xpm[] = {
 "22 22 257 2",
 "  	c None",
 ". 	c #979797",

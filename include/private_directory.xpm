@@ -1,5 +1,5 @@
 /* XPM */
-static char * private_directory_xpm[] = {
+static const char * private_directory_xpm[] = {
 "22 22 213 2",
 "  	c None",
 ". 	c #D0550B",

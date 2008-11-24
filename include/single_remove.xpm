@@ -1,5 +1,5 @@
 /* XPM */
-static char * single_remove_xpm[] = {
+static const char * single_remove_xpm[] = {
 "32 32 117 2",
 "  	c None",
 ". 	c #000000",

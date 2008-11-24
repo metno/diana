@@ -1,5 +1,5 @@
 /* XPM */
-static char * parent_object_xpm[] = {
+static const char * parent_object_xpm[] = {
 "17 17 53 1",
 " 	c None",
 ".	c #FFFFFF",

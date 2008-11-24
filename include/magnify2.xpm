@@ -1,5 +1,5 @@
 /* XPM */
-static char * magnify2_xpm[] = {
+static const char * magnify2_xpm[] = {
 "32 32 4 1",
 " 	c None",
 ".	c #9B9B9B9B9B9B",

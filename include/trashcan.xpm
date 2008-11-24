@@ -1,5 +1,5 @@
 /* XPM */
-static char * trashcan_xpm[] = {
+static const char * trashcan_xpm[] = {
 "22 22 238 2",
 "  	c None",
 ". 	c #0B56C4",

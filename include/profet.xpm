@@ -1,5 +1,5 @@
 /* XPM */
-static char * profet_xpm[] = {
+static const char * profet_xpm[] = {
 "32 32 444 2",
 "  	c #FFFFFF",
 ". 	c #8E8E8E",
