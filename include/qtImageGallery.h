@@ -59,6 +59,8 @@ public:
 
   bool addImageToGallery(const miString name, miString& imageStr);
 
+  void addImagesInDirectory(const miString& dir);
+
   void ImageNames(vector<miString>& vnames) const; ///< return all image-names
   bool Image(const miString& name, QImage& image); ///< return QImage
 };

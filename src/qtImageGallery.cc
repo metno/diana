@@ -32,9 +32,8 @@
 #include <diImageGallery.h>
 #include <diSetupParser.h>
 #include <glob.h>
-
-// qt4 fix
 #include <QDataStream>
+#include <QFileInfo>
 
 map<miString,QImage> QtImageGallery::Images;
 
@@ -104,6 +103,28 @@ bool QtImageGallery::addImageToGallery(const miString name,
   return addImageToGallery(name, image);
 
 }
+
+void QtImageGallery::addImagesInDirectory(const miString& dir){
+  cerr << "============= globbing in:" << dir << endl;
+  glob_t globBuf;
+  glob(dir.c_str(),0,0,&globBuf);
+  for( int k=0; k<globBuf.gl_pathc; k++) {
+    miString fname = globBuf.gl_pathv[k];
+    if( !fname.contains("~") ){
+      QString filename = fname.c_str();
+      QFileInfo fileinfo(filename);
+      QString name = fileinfo.baseName();
+      
+      QImage image(filename);
+      if ( !image.isNull() ){
+	addImageToGallery(name.toStdString(),image);
+	cerr << "-- Added image:" << name.toStdString() << endl;
+      }
+    }
+  }
+  globfree(&globBuf);    
+}
+
 
 void QtImageGallery::clear()
 {
