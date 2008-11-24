@@ -714,6 +714,7 @@ topography.proff=1101,2,1000
 tc2m=1102,2,1000
 thunder.index=1103,2,1000
 fog.index=1104,2,1000
+tk2m.autocorr=1105,2,1000
 fraction.land.proff=1181,2,1000
 
 
@@ -762,6 +763,10 @@ showalter.index=showalterindex.plevel_tk_rh(tk:level=500hPa,tk:level=850hPa,rh:l
 boyden.index=boydenindex.plevel_th_z(th:level=700hPa,z:level=700hPa,z:level=1000hPa)
 boyden.index=boydenindex.plevel_tk_z(tk:level=700hPa,z:level=700hPa,z:level=1000hPa)
 #fog.index=replace.all(cloud.fog,0)
+topodiff=subtract(topography.proff,topography)
+topodiff_06=multiply(topodiff,0.006)
+tk2m.autocorr=subtract(tk2m,topodiff_06)
+tc2m.autocorr=temp_k2c(tk2m.autocorr)
 
 # computations in hybrid/eta/sigma_norlam levels (needs psurf) (".hlevel_")
 tc=tc.hlevel_th_psurf(th,psurf)
@@ -1076,6 +1081,12 @@ field=T.2M
       text = "2m Temperature"
       colour=red line.interval=2.
       plot=CONTOUR(tc2m|tk2m)
+end.field
+
+field=T.2M_AUTOCORR
+      text = "2m Temperature"
+      colour=red line.interval=2.
+      plot=CONTOUR(tc2m.autocorr)
 end.field
 
 field=VIND.10M
