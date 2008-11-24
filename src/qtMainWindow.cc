@@ -761,6 +761,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     QImage sp_img(spectrum_xpm);
     ig.addImageToGallery("spectrum_icon",sp_img);
 
+    miString avatar_dir = setup.basicValue("avatars");
+    if ( avatar_dir.exists() )
+      ig.addImagesInDirectory(avatar_dir);
+
   //-------------------------------------------------
 
   w= new WorkArea(contr,this);
