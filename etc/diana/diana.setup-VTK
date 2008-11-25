@@ -35,8 +35,8 @@
 
 
 #Local variables
-ROOT            = /metno/local
-DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+ROOT            = /usr/local
+DIANADIR        = ${DIANADIR}||$(ROOT)
 OPDATA1         = /opdata
 OPDATA2         = /opdata
 OPDATA3         = /opdata
@@ -46,7 +46,7 @@ DATABASE        = "vnnhoved diana 19100"  # host base port
 
 # =============================================
 
-%include $(DIANADIR)/etc/diana.setup-COMMON
+%include $(DIANADIR)/etc/diana/diana.setup-COMMON
 
 # =============================================
 

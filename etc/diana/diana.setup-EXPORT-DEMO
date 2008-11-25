@@ -77,7 +77,6 @@ font=Courier   type=bitmap name=*-courier-bold-o*iso8859-1     postscript=Courie
 #-----------------------------------------------------------------------------
 # Scalable (truetype/polygon) fonts
 #-----------------------------------------------------------------------------
-fontpath=$(TOPDIR)/diana/fonts/
 
 font=Arial  type=scaleable face=NORMAL name=Arialn.ttf
 font=Arial  type=scaleable face=ITALIC name=Arialni.ttf

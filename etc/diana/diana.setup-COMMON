@@ -4261,7 +4261,7 @@ product="Bakkeanalyse1"
   # combine_ident: output, input1,input2,... (output must be defined above)
   combine_ident= DNMI, VA,VV,VNN
   combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/share/diana/maps/ANAborders.  ## + TEST/DNMI
+  combine_borders= $(DIANADIR)/share/diana/productss/ANAborders.  ## + TEST/DNMI
 
   database= $(DATABASE)
   name_in_database=Bakkeanalyse
@@ -4534,7 +4534,7 @@ product="Bakkeanalyse"
   # combine_ident: output, input1,input2,... (output must be defined above)
   combine_ident= DNMI, VA,VV,VNN
   combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/share/diana/maps/ANAborders.  ## + TEST/DNMI
+  combine_borders= $(DIANADIR)/share/diana/products/ANAborders.  ## + TEST/DNMI
 
   database= $(DATABASE)
   name_in_database=Bakkeanalyse

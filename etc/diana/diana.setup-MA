@@ -34,8 +34,8 @@
 #----------------------------------------------------------------------------------
 
 #Local variables
-ROOT            = /metno/local
-DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+ROOT            = /usr/local
+DIANADIR        = ${DIANADIR}||$(ROOT)
 OPDATA1         = /opdata/ma
 OPDATA2         = /opdata/ma
 OPDATA3         = /opdata/ma
@@ -45,7 +45,7 @@ DATABASE        = "tempo.oslo.dnmi.no diana 19100"  # host base port
 
 # =============================================
 
-%include $(DIANADIR)/etc/diana.setup-COMMON
+%include $(DIANADIR)/etc/diana/diana.setup-COMMON
 
 # =============================================
 
@@ -53,7 +53,7 @@ DATABASE        = "tempo.oslo.dnmi.no diana 19100"  # host base port
 #------------------------------------------------------------
 # files containing different quickmenus
 #------------------------------------------------------------
-file= $(DIANADIR)/etc/Verifikasjon.quick-VA
+file= $(DIANADIR)/share/diana/quickmenus/Verifikasjon.quick-VA
 file= $(ROOT)/va/VA_morgenbrief.quick
 </QUICKMENUS>
 
@@ -486,7 +486,7 @@ product="Bakkeanalyse1"
   # combine_ident: output, input1,input2,... (output must be defined above)
   ####combine_ident= DNMI, VA,VV,VNN
   combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
+  combine_borders= $(DIANADIR)/share/diana/products/ANAborders.  ## + TEST/DNMI
 
   ###database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
   ###name_in_database=Bakkeanalyse
@@ -499,7 +499,7 @@ product="Bakkeanalyse1"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/etc/bakkeanalyse.txt
+  commandfile=$(DIANADIR)/share/diana/products/bakkeanalyse.txt
   standard_symbolsize=30
 
 end.product
@@ -526,7 +526,7 @@ product="Bakkeanalyse"
   # combine_ident: output, input1,input2,... (output must be defined above)
   ###combine_ident= DNMI, VA,VV,VNN
   combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
+  combine_borders= $(DIANADIR)/share/diana/products/ANAborders.  ## + TEST/DNMI
 
   ###database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
   ###name_in_database=Bakkeanalyse
