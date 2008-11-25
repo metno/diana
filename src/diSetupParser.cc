@@ -36,6 +36,10 @@
 #include <diImageGallery.h>
 #include <list>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+
 
 const miString SectColours=     "COLOURS";
 const miString SectPalettes=    "PALETTES";
@@ -112,7 +116,25 @@ bool SetupParser::checkEnvironment(miString& t)
   return true;
 }
 
+bool SetupParser::makeDirectory(const miString& filename, miString & error)
+{
+  struct stat buff;
+  if (stat(filename.c_str(), &buff) != -1){
+    if ( S_ISDIR(buff.st_mode) ){
+      return true;
+    }
+  }
 
+  mode_t mode =  S_IRWXU | S_IRWXG;
+  int errno = mkdir(filename.c_str(),mode);
+ 
+  if ( errno == 0 ){
+    return true;
+  }
+ 
+  error = strerror(errno);
+  return false;
+}
 
 void SetupParser::cleanstr(miString& s){
   int p;
@@ -518,6 +540,19 @@ bool SetupParser::parseBasics(const miString& sectname){
   const miString key_langpaths="languagepaths";
   const miString key_language= "language";
   const miString key_setenv= "setenv";
+  const miString key_homedir= "homedir";
+
+  //find $HOME, and make homedir
+  miString homedir=getenv("HOME");
+  homedir += "/.diana";
+  miString error;
+  if (makeDirectory(homedir,error)) {
+    miString workdir = homedir + "/work";
+    makeDirectory(workdir,error);
+  } else {
+      homedir=".";
+  }
+
 
   // default values
   miString langpaths="lang:/metno/local/translations:${QTDIR}/translations";
@@ -528,6 +563,7 @@ bool SetupParser::parseBasics(const miString& sectname){
   basic_values[key_qserver]    = "/metno/local/bin/coserver";
   basic_values[key_imagepath]  = "../images";
   basic_values[key_language]   = language;
+  basic_values[key_homedir]    = homedir;
 
   vector<miString> list,tokens;
   miString key,value;
@@ -977,3 +1013,5 @@ vector< vector<Colour::ColourInfo> > SetupParser::getMultiColourInfo(int multiNu
 
   return vmc;
 }
+
+

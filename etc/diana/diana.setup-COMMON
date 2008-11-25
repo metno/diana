@@ -36,7 +36,7 @@
 
 <BASIC>
 fontpath=$(DIANADIR)/share/diana/fonts
-docpath=$(DIANADIR)/share/doc/diana/doc
+docpath=$(DIANADIR)/share/doc/diana
 obsPlotFilePath=$(DIANADIR)/share/diana
 qserver=$(ROOT)/bin/coserver4
 imagepath=$(DIANADIR)/share/diana/images/

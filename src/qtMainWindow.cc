@@ -3522,22 +3522,13 @@ void DianaMainWindow::PrintPS(vector <miString>& filenames )
 
 void DianaMainWindow::writeLogFile()
 {
-  // write the system log file
+  // write the system log file to $HOME/.diana.log
 
-  //miString cmd;
-  //cmd= "mv -f diana.log-2 diana.log-3";
-  //system(cmd.c_str());
-  //cmd= "mv -f diana.log-1 diana.log-2";
-  //system(cmd.c_str());
-  //cmd= "mv -f diana.log   diana.log-1";
-  //system(cmd.c_str());
-
-  // should be a cleanup in all the xxxManagers first to release memory...
-
-  miString logfile= "diana.log";
+  SetupParser setup;
+  miString logfile= setup.basicValue("homedir") + "/diana.log";
   miString thisVersion= version_string;
   miString thisBuild= build_string;
-
+  cerr << "writeLogFile:"<<logfile<<endl;
   // open filestream
   ofstream file(logfile.c_str());
   if (!file){
@@ -3668,14 +3659,15 @@ void DianaMainWindow::readLogFile()
 
   getDisplaySize();
 
-  miString logfile= "diana.log";
+  SetupParser setup;
+  miString logfile= setup.basicValue("homedir") + "/diana.log";
   miString thisVersion= version_string;
   miString logVersion;
 
   // open filestream
   ifstream file(logfile.c_str());
   if (!file){
-    cerr << "Can't open " << logfile << endl;
+    //    cerr << "Can't open " << logfile << endl;
     return;
   }
 
@@ -3942,12 +3934,12 @@ void DianaMainWindow::getDisplaySize()
 
 void DianaMainWindow::checkNews()
 {
-  miString newsfile= "diana.news";
+  SetupParser setup;
+  miString newsfile= setup.basicValue("homedir") + "/diana.news";
   miString thisVersion= "yy";
   miString newsVersion= "xx";
 
   // check modification time on news file
-  SetupParser setup;
   miString filename= setup.basicValue("docpath") + "/" + "news.html";
   QFileInfo finfo( filename.c_str() );
   if (finfo.exists()) {

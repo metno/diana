@@ -97,6 +97,8 @@ private:
   bool checkSubstitutions(miString& t);
   // expand environment values in string
   bool checkEnvironment(miString& t);
+  // check if fielname exists, if not make directory
+  bool makeDirectory(const miString& filename, miString & error);
   /// parse one setupfile
   bool parseFile(const miString& filename,
 		 const miString& section,

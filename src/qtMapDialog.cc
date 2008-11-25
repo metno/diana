@@ -385,6 +385,7 @@ void MapDialog::ConstructorCernel( const MapDialogInfo mdi ){
   // Background colour
   backcolorlabel= TitleLabel( tr("Background colour"), this);
   backcolorcbox= ColourBox( this, cInfo, true, 0 );  // last one index
+  backcolorcbox->setCurrentItem(1);//Default colour white OBS
   connect( backcolorcbox, SIGNAL( activated(int) ), 
 	   SLOT( backcolorcboxActivated(int) ) );
 

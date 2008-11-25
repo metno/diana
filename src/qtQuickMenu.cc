@@ -53,6 +53,7 @@
 #include <qtooltip.h>
 #include <qregexp.h>
 #include <qtUtility.h>
+#include <diSetupParser.h>
 
 #include <preferences.xpm>
 #include <convert.xpm>
@@ -512,10 +513,11 @@ void QuickMenu::adminButton()
 
 void QuickMenu::fillStaticMenues()
 {
+  SetupParser setup;
   quickMenu qtmp;
   qm.push_back(qtmp);
   qm[0].name= tr("History").latin1();
-  qm[0].filename= "Historie.quick";
+  qm[0].filename= setup.basicValue("homedir") + "/Historie.quick";
   qm[0].plotindex= 0;
   
   orig_qm.clear();
