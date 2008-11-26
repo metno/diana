@@ -43,7 +43,7 @@ qserver=$(ROOT)/bin/coserver4
 imagepath=$(DIANADIR)/share/diana/images/
 amdarStationList=$(DIANADIR)/share/diana/amdar.stations
 languagepaths=$(DIANADIR)/share/diana/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
-setenv=BUFR_TABLES,/usr/local/lib/emos/bufrtables/,1
+setenv=BUFR_TABLES,/usr/local/lib/bufrtables/,1
 language=no
 avatars=${HOME}/.diana/avatars/*.png
 </BASIC>
