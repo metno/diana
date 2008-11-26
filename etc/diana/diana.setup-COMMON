@@ -32,6 +32,7 @@
 # Use keyword CLEAR to clear all previous definitions for a specific section. Only
 # valid within a section. Useful in local files which include the official setupfile
 #----------------------------------------------------------------------------------
+MAPDIR            = /usr/local/share/diana/maps
 
 
 <BASIC>
@@ -316,6 +317,9 @@ mslp:                 paramid=58 parameter="pressure of air" \
 leveldomain="distance above ground" levelfrom=0 scale=1
 
 tk2m:                 paramid=31 parameter="temperature of air" \ 
+leveldomain="distance above ground" levelfrom=2 scale=1 
+
+tk2m.autocorr:        paramid=1105 parameter="temperature of air, kalman" \ 
 leveldomain="distance above ground" levelfrom=2 scale=1 
 
 u10m:                 paramid=33 parameter="velocity of air (u-component)" \ 
@@ -4147,59 +4151,59 @@ name=H10-liten  proj=pstereo_60  grid=115:148:237:0:0:0  area=102:149:96:130
 #---------------------------------------------------------------------------
 
 map=Gshhs-Auto type=triangles
-limit=10  file=$(DIANADIR)/share/diana/maps/gshhs_25.map
-limit=2.5 file=$(DIANADIR)/share/diana/maps/gshhs_5.map
-limit=0.5 file=$(DIANADIR)/share/diana/maps/gshhs_1.map
-limit=0.1 file=$(DIANADIR)/share/diana/maps/gshhs_0.2.map
-limit=0	  file=$(DIANADIR)/share/diana/maps/gshhs_0.1.map
+limit=10  file=$(MAPDIR)/gshhs_25.map
+limit=2.5 file=$(MAPDIR)/gshhs_5.map
+limit=0.5 file=$(MAPDIR)/gshhs_1.map
+limit=0.1 file=$(MAPDIR)/gshhs_0.2.map
+limit=0	  file=$(MAPDIR)/gshhs_0.1.map
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 land=on land.colour=flesh
 
-map=Euro1    file=$(DIANADIR)/share/diana/maps/land4.dat    # emep(kyst)
-map=Euro2    file=$(DIANADIR)/share/diana/maps/land5.dat    # emep(grenser,elver)
-map=Euro3    file=$(DIANADIR)/share/diana/maps/land6.dat    # emep(bredde,lengde)
-map=Fin      file=$(DIANADIR)/share/diana/maps/land3.dat    # fin (kyst2)
-map=Norkart  file=$(DIANADIR)/share/diana/maps/landsos1.dat # sos-filer
-map=Norkart2 file=$(DIANADIR)/share/diana/maps/landsos2.dat # sos-filer
-map=Regioner file=$(DIANADIR)/share/diana/maps/landregioner.dat # Diana-regioner
+map=Euro1    file=$(MAPDIR)/land4.dat    # emep(kyst)
+map=Euro2    file=$(MAPDIR)/land5.dat    # emep(grenser,elver)
+map=Euro3    file=$(MAPDIR)/land6.dat    # emep(bredde,lengde)
+map=Fin      file=$(MAPDIR)/land3.dat    # fin (kyst2)
+map=Norkart  file=$(MAPDIR)/landsos1.dat # sos-filer
+map=Norkart2 file=$(MAPDIR)/landsos2.dat # sos-filer
+map=Regioner file=$(MAPDIR)/landregioner.dat # Diana-regioner
 #
 map=Banker     type=lines_simple_text \
-               file=$(DIANADIR)/share/diana/maps/banker.txt   # fiskebanker
-map=MinQNH     file=$(DIANADIR)/share/diana/maps/minqnh.dat      # minqnh areas
+               file=$(MAPDIR)/banker.txt   # fiskebanker
+map=MinQNH     file=$(MAPDIR)/minqnh.dat      # minqnh areas
 map=FIR        type=lines_simple_text \
-               file=$(DIANADIR)/share/diana/maps/fir.txt    # FIR areas
-map=High.Seas  file=$(DIANADIR)/share/diana/maps/highseas.dat    # High Seas forecast
+               file=$(MAPDIR)/fir.txt    # FIR areas
+map=High.Seas  file=$(MAPDIR)/highseas.dat    # High Seas forecast
 #
 map=Wvs-Auto type=normal
-limit=5.0 file=$(DIANADIR)/share/diana/maps/landwvs43m.dat # wvs(1:43mill)
-limit=1.0 file=$(DIANADIR)/share/diana/maps/landwvs12m.dat # wvs(1:12mill)
-limit=0.5 file=$(DIANADIR)/share/diana/maps/landwvs3m.dat  # wvs(1:3mill)
-limit=0.1 file=$(DIANADIR)/share/diana/maps/landwvs1m.dat  # wvs(1:1mill)
-limit=0   file=$(DIANADIR)/share/diana/maps/landwvs250k.dat# wvs(1:250.000)
+limit=5.0 file=$(MAPDIR)/landwvs43m.dat # wvs(1:43mill)
+limit=1.0 file=$(MAPDIR)/landwvs12m.dat # wvs(1:12mill)
+limit=0.5 file=$(MAPDIR)/landwvs3m.dat  # wvs(1:3mill)
+limit=0.1 file=$(MAPDIR)/landwvs1m.dat  # wvs(1:1mill)
+limit=0   file=$(MAPDIR)/landwvs250k.dat# wvs(1:250.000)
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 #
-map=Kommuner   file=$(DIANADIR)/share/diana/maps/land250kommune.dat    no.log
-map=Fylker     file=$(DIANADIR)/share/diana/maps/land250fylke.dat      
-map=Riksgrense file=$(DIANADIR)/share/diana/maps/land250riksgrense.dat 
-map=Kyst       file=$(DIANADIR)/share/diana/maps/land250kyst.dat       no.log
-map=Høyde      file=$(DIANADIR)/share/diana/maps/land250hoyde.dat      no.log
-map=Vann       file=$(DIANADIR)/share/diana/maps/land250vann.dat       no.log
-map=Vei        file=$(DIANADIR)/share/diana/maps/land250vei.dat        no.log
-map=Vei2       file=$(DIANADIR)/share/diana/maps/land250vei2.dat       no.log
-map=Vei3       file=$(DIANADIR)/share/diana/maps/land250vei3.dat       no.log
-map=Bane       file=$(DIANADIR)/share/diana/maps/land250bane.dat       no.log
+map=Kommuner   file=$(MAPDIR)/land250kommune.dat    no.log
+map=Fylker     file=$(MAPDIR)/land250fylke.dat      
+map=Riksgrense file=$(MAPDIR)/land250riksgrense.dat 
+map=Kyst       file=$(MAPDIR)/land250kyst.dat       no.log
+map=Høyde      file=$(MAPDIR)/land250hoyde.dat      no.log
+map=Vann       file=$(MAPDIR)/land250vann.dat       no.log
+map=Vei        file=$(MAPDIR)/land250vei.dat        no.log
+map=Vei2       file=$(MAPDIR)/land250vei2.dat       no.log
+map=Vei3       file=$(MAPDIR)/land250vei3.dat       no.log
+map=Bane       file=$(MAPDIR)/land250bane.dat       no.log
 #
-map=World       file=$(DIANADIR)/share/diana/maps/landworld1.dat # konturert etopo5
-map=Gebco.world file=$(DIANADIR)/share/diana/maps/landgebco.dat  # gebco
-map=Vanlig   file=$(DIANADIR)/share/diana/maps/land1.dat
-map=Norsea   file=$(DIANADIR)/share/diana/mapsq/maps/land2.dat    # norsea
+map=World       file=$(MAPDIR)/landworld1.dat # konturert etopo5
+map=Gebco.world file=$(MAPDIR)/landgebco.dat  # gebco
+map=Vanlig   file=$(MAPDIR)/land1.dat
+map=Norsea   file=$(MAPDIR)q/maps/land2.dat    # norsea
 #
 # map=MapLines1  type=lines_simple_text file=./kartlinjer1.txt
 # map=MapLines2  type=lines_simple_text file=./kartlinjer2.txt
 #
-map=Simra_fly     type=lines_simple_text file=$(DIANADIR)/share/diana/maps/simra_fly.txt
-map=Flystriper    type=lines_simple_text file=$(DIANADIR)/share/diana/maps/flystriper.txt
-map=Approach-area type=lines_simple_text file=$(DIANADIR)/share/diana/maps/approach-area.txt
+map=Simra_fly     type=lines_simple_text file=$(MAPDIR)/simra_fly.txt
+map=Flystriper    type=lines_simple_text file=$(MAPDIR)/flystriper.txt
+map=Approach-area type=lines_simple_text file=$(MAPDIR)/approach-area.txt
 
 </MAP_TYPE>
 
