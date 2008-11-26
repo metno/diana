@@ -3207,6 +3207,7 @@ void FieldDialog::updateFieldOptions(const miString& name,
     // not update private settings if external/QuickMenu command...
   if (!selectedFields[n].external)
     fieldOptions[selectedFields[n].fieldName.downcase()]= currentFieldOpts;
+
 }
 
 
@@ -5005,6 +5006,7 @@ void FieldDialog::fieldEditUpdate(miString str) {
     }
 
     sf.inEdit=     true;
+    sf.external=   false;
     sf.indexMGR=   -1;
     sf.indexM=     -1;
     sf.hourOffset=  0;
@@ -5034,6 +5036,9 @@ void FieldDialog::fieldEditUpdate(miString str) {
     for (i=n; i>numEditFields; i--)
       selectedFields[i]= selectedFields[i-1];
     selectedFields[numEditFields]= sf;
+    selectedFields[numEditFields].fieldOpts
+      =getFieldOptions(selectedFields[numEditFields].fieldName,false);
+
     miString text= editName + " " + sf.fieldName;
     selectedFieldbox->insertItem(numEditFields,QString(text.c_str()));
     selectedFieldbox->setCurrentRow(numEditFields);
