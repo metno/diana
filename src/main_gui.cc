@@ -127,7 +127,6 @@ int main(int argc, char **argv)
   miString setupfile;
 
   if (cl.hasFlag('s')) setupfile= cl.arg('s')[0];
-  else setupfile= "diana.setup";
 
   SetupParser sp;
   if (!sp.parse(setupfile)){

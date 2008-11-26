@@ -426,9 +426,51 @@ bool SetupParser::parseFile(const miString& filename, // name of file
 
 bool SetupParser::parse(const miString& mainfilename){
 
+  cerr <<"SetupParser::parse:" <<mainfilename<<"koko"<<endl;
+  miString filename=mainfilename;
   sfilename.clear();
 
-  if (! parseFile( mainfilename, "", -1 ) )
+  //find $HOME, and make homedir
+  miString homedir=getenv("HOME");
+  homedir += "/.diana";
+  miString error;
+  if (makeDirectory(homedir,error)) {
+    miString workdir = homedir + "/work";
+    makeDirectory(workdir,error);
+  } else {
+      homedir=".";
+  }
+  basic_values["homedir"]    = homedir;
+
+  //if no setupfile, use default
+  if (!filename.exists()) {
+    filename = "diana.setup";
+    miString filename_str = filename;
+    cerr <<"filename:"<<filename<<endl;
+    ifstream file(filename.cStr());
+    if (!file) {
+      filename = homedir + "/diana.setup";
+      filename_str += " or ";
+      filename_str += filename;
+      cerr <<"filename:"<<filename<<endl;
+      ifstream file2(filename.cStr());
+      if (!file2) {
+	filename = "/usr/local/etc/diana/diana.setup-FOU";
+	filename_str += " or ";
+	filename_str += filename;
+	cerr <<"filename:"<<filename<<endl;
+	ifstream file3(filename.cStr());
+	if (!file3) {
+	  cerr << "SetupParser::readSetup. cannot open default setupfile " <<
+	  filename_str<<endl;
+	cerr << "Try diana.bin -s setupfile" <<endl;
+	return false;
+	}
+      }
+    }
+  }
+
+  if (! parseFile( filename, "", -1 ) )
     return false;
 
   if (!parseBasics(SectBasics)) return false;
@@ -540,19 +582,6 @@ bool SetupParser::parseBasics(const miString& sectname){
   const miString key_langpaths="languagepaths";
   const miString key_language= "language";
   const miString key_setenv= "setenv";
-  const miString key_homedir= "homedir";
-
-  //find $HOME, and make homedir
-  miString homedir=getenv("HOME");
-  homedir += "/.diana";
-  miString error;
-  if (makeDirectory(homedir,error)) {
-    miString workdir = homedir + "/work";
-    makeDirectory(workdir,error);
-  } else {
-      homedir=".";
-  }
-
 
   // default values
   miString langpaths="lang:/metno/local/translations:${QTDIR}/translations";
@@ -563,7 +592,6 @@ bool SetupParser::parseBasics(const miString& sectname){
   basic_values[key_qserver]    = "/metno/local/bin/coserver";
   basic_values[key_imagepath]  = "../images";
   basic_values[key_language]   = language;
-  basic_values[key_homedir]    = homedir;
 
   vector<miString> list,tokens;
   miString key,value;

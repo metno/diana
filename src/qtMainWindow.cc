@@ -3528,7 +3528,6 @@ void DianaMainWindow::writeLogFile()
   miString logfile= setup.basicValue("homedir") + "/diana.log";
   miString thisVersion= version_string;
   miString thisBuild= build_string;
-  cerr << "writeLogFile:"<<logfile<<endl;
   // open filestream
   ofstream file(logfile.c_str());
   if (!file){
