@@ -87,6 +87,7 @@ private:
   bool showPaintToolBar;
   bool showObjectDialog;
   bool activeTimeSmooth;
+  bool overviewactive;
 
   bool enableNewbutton_;
   bool enableModifyButtons_;
@@ -218,6 +219,8 @@ private slots:
   void hideProfetPerformed();
   void doReconnect();
   void doUpdate();
+  void showObjectOverview(const QList<QModelIndex> &);
+  void toggleObjectOverview(bool turnon, miString par, miTime time);
 
   // PaintToolBar
   void paintModeChanged(GridAreaManager::PaintMode mode);

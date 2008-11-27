@@ -47,7 +47,7 @@ objectDialog(p), objectFactory(),
 userModel(p), sessionModel(p),
 objectModel(p), tableModel(p), activeTimeSmooth(false),
 enableNewbutton_(true), enableModifyButtons_(false),
-enableTable_(true), ignoreSynchProblems(false)
+enableTable_(true), overviewactive(false), ignoreSynchProblems(false)
 {
   parent=p;
 #ifndef NOLOG4CXX
@@ -69,6 +69,9 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(objectSelected(const QModelIndex &)));
   connect(&sessionDialog,SIGNAL(paramAndTimeChanged(const QModelIndex &)),
       this,SLOT(paramAndTimeSelected(const QModelIndex &)));
+  connect(&sessionDialog,SIGNAL(showObjectOverview(const QList<QModelIndex> &)),
+	  this,SLOT(showObjectOverview(const QList<QModelIndex> &)));
+
   connect(paintToolBar,SIGNAL(paintModeChanged(GridAreaManager::PaintMode)),
       this,SLOT(paintModeChanged(GridAreaManager::PaintMode)));
   connect(paintToolBar,SIGNAL(undoPressed()),
@@ -116,6 +119,79 @@ void DianaProfetGUI::connectSignals(){
 DianaProfetGUI::~DianaProfetGUI(){
 }
 
+void DianaProfetGUI::showObjectOverview(const QList<QModelIndex> & selected){
+
+  QList<QModelIndex>::const_iterator i = selected.begin();
+  set<miString> parameters;
+  set<miTime> times;
+  for (; i != selected.end(); i++){
+    miTime t = tableModel.getTime(*i);
+    miString p = tableModel.getParameter(*i);
+    parameters.insert(p);
+    times.insert(t);
+  }
+  miString param;
+  miTime time;
+  if ( parameters.size() == 1 && times.size() != 1 ){
+    param = (*parameters.begin());
+  } else if ( parameters.size() != 1 && times.size() == 1){
+    time = (*times.begin());
+  }
+  toggleObjectOverview(true,param,time);
+
+  enableObjectButtons(enableNewbutton_,enableModifyButtons_,enableTable_);
+  emit repaintMap(true);
+}
+
+// void DianaProfetGUI::showObjectOverview(int row, int col){
+//   miString p;
+//   miTime t;
+//   if ( row >= 0 ){
+//     p = getCurrentParameter();
+//   }
+//   if ( col >= 0 ){
+//     t = getCurrentTime();
+//   }
+//   toggleObjectOverview(true,p,t);
+// }
+
+
+void DianaProfetGUI::toggleObjectOverview(bool turnon, miString par, miTime time){
+
+  if ( turnon ){
+    vector<fetObject> objects = controller.getOverviewObjects(par,time);
+    cerr << "Got " << objects.size() << " objects for par:" << par << endl;
+
+    areaManager->clearTemporaryAreas();
+    for ( int i=0; i<objects.size(); i++ ){
+      Colour colour = Colour(128, 128, 128, 100);
+      if ( objects[i].parameter() == "MSLP" ){
+	colour = Colour(0,0,180,100);
+      } else if ( objects[i].parameter() == "T.2M" ){
+	colour = Colour(180,0,0,100);
+      } else if ( objects[i].parameter() == "VIND.10M" ){
+	colour = Colour(0,180,0,100);
+      } else if ( objects[i].parameter() == "TOTALT.SKYDEKKE" ){
+	colour = Colour(180,180,0,100);
+      } else if ( objects[i].parameter() == "FOG-INDEX" ){
+	colour = Colour(128,128,128,100);
+      } else if ( objects[i].parameter() == "THUNDER-INDEX" ){
+	colour = Colour(0,180,180,100);
+      } else if ( objects[i].parameter() == "NEDBØR.1T.PROFF" ){
+	colour = Colour(180,0,180,100);
+      } else if ( objects[i].parameter() == "Significant_Wave_Height" ){
+	colour = Colour(128,128,70,100);
+      }
+
+      areaManager->addTemporaryArea(objects[i].id(),objects[i].polygon(),colour);
+    }
+  } else {
+    areaManager->clearTemporaryAreas();
+  }
+  overviewactive = turnon;
+}
+
+
 
 void DianaProfetGUI::sessionModified(const QModelIndex & topLeft, const QModelIndex & bottomRight)
 {
@@ -132,16 +208,6 @@ void DianaProfetGUI::sessionModified(const QModelIndex & topLeft, const QModelIn
 
 
 fetSession DianaProfetGUI::getCurrentSession(){
-//   try{
-//     fetSession s = sessionModel.getSession(sessionDialog.getCurrentSessionIndex());
-//     return s;
-//   }catch(InvalidIndexException & iie){
-//     cerr << "DianaProfetGUI::getCurrentSession invalid session index" << endl;
-//   }
-//   fetSession s;
-//   return s;
-
-//   cerr << "DianaProfetGUI::getCurrentSession:" << currentSession << endl;
   return currentSession;
 }
 
@@ -149,14 +215,18 @@ void DianaProfetGUI::enableObjectButtons(bool enableNewbutton,
 					 bool enableModifyButtons,
 					 bool enableTable)
 {
-  cerr << "DianaProfetGUI::enableObjectButtons (" << enableNewbutton
-       << "," << enableModifyButtons << "," << enableTable << ")" << endl;
+//   cerr << "DianaProfetGUI::enableObjectButtons (" << enableNewbutton
+//        << "," << enableModifyButtons << "," << enableTable << ")" << endl;
 
   fetSession s = getCurrentSession();
-  bool isopen = ( !s.referencetime().undef() && s.editstatus() == fetSession::editable);
+  bool isopen = ( !s.referencetime().undef() &&
+		  s.editstatus() == fetSession::editable &&
+		  !overviewactive);
+
   sessionDialog.enableObjectButtons(enableNewbutton && isopen,
 				    enableModifyButtons && isopen,
 				    enableTable);
+
   enableNewbutton_ = enableNewbutton;
   enableModifyButtons_ = enableModifyButtons;
   enableTable_ = enableTable;
@@ -617,6 +687,12 @@ void DianaProfetGUI::sendMessage(const QString & m){
 }
 
 void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index){
+  toggleObjectOverview(false,miString(),miTime());
+  bool newbutton = true;
+  bool modbutton = false;
+  bool thetable  = true;
+  enableObjectButtons(newbutton,modbutton,thetable);
+
   tableModel.setLastSelectedIndex(index);
   //check if parameters and times are set in model
   bool tableInited = tableModel.inited();

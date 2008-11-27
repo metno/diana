@@ -52,7 +52,30 @@ namespace TABLECOLORS {
 ProfetSessionTable::ProfetSessionTable(QWidget* parent) :
   Q3Table(parent)
 {
+  verticalHeader()->setClickEnabled(true);
+  horizontalHeader()->setClickEnabled(true);
+  
+  connect(verticalHeader(),SIGNAL(clicked(int)),this,SLOT(rowClicked(int)));
+  connect(horizontalHeader(),SIGNAL(clicked(int)),this,SLOT(columnClicked(int)));
+}
 
+
+void ProfetSessionTable::rowClicked(int r){
+  miString pname = ((ProfetTableCell*)(cellWidget(r,0)))->getParameter();
+  miTime time;
+  emit selectedPart(pname, time);
+}
+
+void ProfetSessionTable::columnClicked(int c){
+  miString pname;
+  miTime time = ((ProfetTableCell*)(cellWidget(0,c)))->getValidTime();
+  emit selectedPart(pname, time);
+}
+
+void ProfetSessionTable::cornerClicked(){
+  miString pname;
+  miTime time;
+  emit selectedPart(pname, time);
 }
 
 void ProfetSessionTable::selectDefault()

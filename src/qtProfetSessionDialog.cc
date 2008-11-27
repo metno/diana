@@ -71,7 +71,7 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
     table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     table->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    table->setSelectionMode(QAbstractItemView::SingleSelection);
+    table->setSelectionMode( QAbstractItemView::ContiguousSelection); // QAbstractItemView::SingleSelection
     table->setSelectionBehavior(QAbstractItemView::SelectItems);
   }
 
@@ -99,12 +99,12 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   editObjectButton   = new QPushButton(tr("Edit"));
   timesmoothButton   = new QPushButton(tr("Timesmooth"));
   deleteObjectButton = new QPushButton(tr("Delete"));
-  
+
   objectButtonWidgetLayout->addWidget(newObjectButton);
   objectButtonWidgetLayout->addWidget(editObjectButton);
   objectButtonWidgetLayout->addWidget(timesmoothButton);
   objectButtonWidgetLayout->addWidget(deleteObjectButton);
-  
+
   objectButtonWidget->setLayout(objectButtonWidgetLayout);
   objectWidget->setLayout(objectTitleLayout);
   
@@ -128,10 +128,23 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   connectSignals();
 }
 
+
+void FetObjectTableView::selectionChanged ( const QItemSelection & selected,
+					    const QItemSelection & deselected ){
+  QTableView::selectionChanged(selected,deselected);
+  QList<QModelIndex> indices = selected.indexes();
+  if ( indices.size() > 1 ){
+    emit selectedMulti(indices);
+  }
+}
+
+
 void ProfetSessionDialog::connectSignals(){
   if(table){
     connect(table,SIGNAL(clicked(const QModelIndex &)),
         this,SIGNAL(paramAndTimeChanged(const QModelIndex &)));
+    connect(table,SIGNAL(selectedMulti(const QList<QModelIndex> & )),
+	    this,SIGNAL(showObjectOverview(const QList<QModelIndex> & )));
   }
   connect(newObjectButton,SIGNAL(clicked()),
       this,SIGNAL(newObjectPerformed()));
@@ -153,9 +166,8 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(sendMessage(const QString &)));
   connect(sessionComboBox,SIGNAL(activated(int)),
       this,SIGNAL(sessionSelected(int)));
-  connect(sessionComboBox,SIGNAL( currentIndexChanged(const QString &)),
-      this,SLOT(handleEmptySelection(const QString &)));
 }
+
 
 void ProfetSessionDialog::customEvent(QEvent * e){
   if(e->type() == Profet::MESSAGE_EVENT){
@@ -211,13 +223,6 @@ void ProfetSessionDialog::closeEvent(QCloseEvent * e){
   emit closePerformed();
 }
 
-void ProfetSessionDialog::setEditable(bool editable){
-  if(table){
-//    table->setEnabled(editable);
-  }
-//  objectWidget->setEnabled(editable);
-}
-
 void ProfetSessionDialog::enableObjectButtons(bool enableNewButton,
 					      bool enableModifyButtons,
 					      bool enableTable)
@@ -229,7 +234,6 @@ void ProfetSessionDialog::enableObjectButtons(bool enableNewButton,
   timesmoothButton->setEnabled(enableModifyButtons);
   
   if(table){
-//     table->setEnabled(enableNewButton);
     table->setEnabled(enableTable);
   }
 }

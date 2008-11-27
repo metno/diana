@@ -51,6 +51,7 @@
 
 class FetObjectListView;
 class FetObjectTableView;
+
 class SessionComboBox: public QComboBox {
   Q_OBJECT
 private:
@@ -77,6 +78,11 @@ private:
   QPushButton * editObjectButton;
   QPushButton * timesmoothButton;
   QPushButton * deleteObjectButton;
+
+  QPushButton * tmpButton1;
+  QPushButton * tmpButton2;
+  QPushButton * tmpButton3;
+
   ProfetChatWidget * chatWidget;
   FetObjectTableView * table;
   
@@ -98,7 +104,6 @@ public:
   void setObjectModel(QAbstractItemModel * objectModel);
   void setTableModel(QAbstractItemModel * tableModel);
   void setSelectedObject(const QModelIndex & index);
-  void setEditable(bool editable);
 
   /// Enables / disables gui components
   void enableObjectButtons(bool enableNewButton,
@@ -116,10 +121,7 @@ public:
   
 public slots:
   void printSize(const QModelIndex &);
-private slots:
-  void handleEmptySelection(const QString & text){
-    cerr << "******************* handleEmptySelection: " << text.latin1() << endl;
-  }  
+
 signals:
   void sessionSelected(int);
   void sendMessage(const QString &);
@@ -132,6 +134,7 @@ signals:
   void closePerformed();
   void doUpdate();
   void doReconnect();
+  void showObjectOverview(const QList<QModelIndex> &);
 };
 
 
@@ -144,14 +147,17 @@ public:
 };
 
 class FetObjectTableView: public QTableView{
-  
+  Q_OBJECT
 public:
   FetObjectTableView(QWidget * parent) : QTableView(parent){}
-  void currentChanged ( const QModelIndex & current, 
-      const QModelIndex & previous ){
+  void currentChanged ( const QModelIndex & current, const QModelIndex & previous ){
     if(current.isValid())
       emit activated(current); 
-    }
+  }
+protected:
+  void selectionChanged ( const QItemSelection & selected, const QItemSelection & deselected );
+signals:
+  void selectedMulti(const QList<QModelIndex> & selected);
 };
 
 class QTitleLabel: public QLabel{

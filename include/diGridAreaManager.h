@@ -37,6 +37,7 @@
 #include <diGridConverter.h>
 #include <diProjectablePolygon.h>
 #include <miString.h>
+#include <diColour.h>
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>
@@ -68,6 +69,7 @@ private:
 #endif
 	map<miString,GridArea> gridAreas;
 	miString currentId;
+  map<miString,GridArea> tmp_gridAreas;
 	mapMode mapmode;
 	GridConverter gc;   // gridconverter class
 	float first_x;
@@ -88,6 +90,9 @@ public:
 	/// Returns current polygon
 	ProjectablePolygon getCurrentPolygon();
 	bool inDrawing;
+  /// handling temporary areas
+	void clearTemporaryAreas();
+  void addTemporaryArea(miString id, ProjectablePolygon area, Colour & colour);
 	/// Setting current paint mode
 	void setPaintMode(PaintMode mode);
 	/// Returns current paint mode

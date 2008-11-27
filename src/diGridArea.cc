@@ -9,33 +9,38 @@ using namespace std;
 
 int GridArea::maxBuffer = 8;
 
-GridArea::GridArea():Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(){
+GridArea::GridArea():Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(),colours_defined(false){
 	Area stdProj = getStandardProjection();
 	init(stdProj,stdProj);
   saveChange();
 }
 
-GridArea::GridArea(string id):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
+GridArea::GridArea(string id):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
 	Area stdProj = getStandardProjection();
 	init(stdProj,stdProj);
   saveChange();
 }
  
-GridArea::GridArea(string id, Area org_proj):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
+GridArea::GridArea(string id, Area org_proj):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
 	init(org_proj,org_proj);
   saveChange();
 }
  
-GridArea::GridArea(string id, ProjectablePolygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
+GridArea::GridArea(string id, ProjectablePolygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
 	init(area_.getOriginalProjection(),area_.getOriginalProjection());
 	polygon.setOriginalProjectionPoints(area_);
   saveChange();
 }
 
-GridArea::GridArea(string id, Area org_proj, Polygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(){
+GridArea::GridArea(string id, Area org_proj, Polygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
 	init(org_proj,org_proj);
 	polygon.setOriginalProjectionPoints(area_);
   saveChange();
+}
+
+void GridArea::setColours(Colour & fc){
+  fillcolour= fc; 
+  colours_defined = true;
 }
 
 void GridArea::init(Area orgProj, Area currentProj){
@@ -136,6 +141,9 @@ void GridArea::fillPolygon(Polygon & p, bool main_polygon){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    if ( colours_defined ){
+      glColor4ubv(fillcolour.RGBA());
+    } else {
     if(main_polygon){
     	if(selected)
     		glColor4d(0.2, 0.2, 0.8, 0.2);
@@ -143,6 +151,7 @@ void GridArea::fillPolygon(Polygon & p, bool main_polygon){
 		  glColor4d(0.6, 0.6, 0.6, 0.1);
     }
 	else glColor4d(0.8, 0.2, 0.2, 0.3);
+    }
     
     // Using GL tesselation
 	GLdouble *gldata= new GLdouble[nPoints*3];

@@ -92,11 +92,13 @@ public:
 public slots:
   
   void cellChanged(int row, int col, miString par, miTime tim);
-
+  void rowClicked(int);
+  void columnClicked(int);
+  void cornerClicked();
 
 signals:
   void paramAndTimeChanged(miString par, miTime tim);
-
+  void selectedPart(miString par, miTime tim);
 
 };
 
@@ -116,13 +118,14 @@ private:
   int      odd;                      // odd julian day? for background color...
   set<fetObject::Signature> objects; // what objects on that field;
 
-
-
 protected:
   void focusInEvent ( QFocusEvent * ); 
     
 public:
   ProfetTableCell(QWidget * parent,int row_, int col_, miString pname_, miTime vtime_);
+  
+  miString getParameter() const { return parametername; }
+  miTime   getValidTime() const { return validTime; }
     
 public slots:
   void dropFocus();

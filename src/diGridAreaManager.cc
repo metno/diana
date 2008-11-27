@@ -36,6 +36,7 @@ bool GridAreaManager::setGridAreas(map<miString,Polygon> newAreas,
 
 void GridAreaManager::clear() {
   gridAreas.clear();
+  tmp_gridAreas.clear();
   setCurrentArea("");
 }
 
@@ -140,6 +141,17 @@ GridAreaManager::PaintMode GridAreaManager::getPaintMode() const {
   return paintMode;
 }
 
+void GridAreaManager::clearTemporaryAreas(){
+  tmp_gridAreas.clear();
+}
+
+void GridAreaManager::addTemporaryArea(miString id, ProjectablePolygon area, Colour & colour) {
+  GridArea newArea(id, area);
+  newArea.updateCurrentProjection();
+  newArea.setColours(colour);
+  tmp_gridAreas[id] = newArea;
+}
+
 bool GridAreaManager::addArea(miString id) {
   LOG4CXX_DEBUG(logger,"Adding empty area with id " << id);
   if (gridAreas.count(id)) {
@@ -233,6 +245,11 @@ void GridAreaManager::sendKeyboardEvent(const keyboardEvent& me,
  */
 bool GridAreaManager::plot() {
   map<miString,GridArea>::iterator iter;
+  // draw temporary areas
+  for (iter = tmp_gridAreas.begin(); iter != tmp_gridAreas.end(); iter++) {
+    iter->second.plot();
+  }
+  // draw active areas
   for (iter = gridAreas.begin(); iter != gridAreas.end(); iter++) {
     iter->second.plot();
   }

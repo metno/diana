@@ -81,6 +81,9 @@ private:
   
 	bool selected;
 	AreaMode mode;
+  bool colours_defined;
+  Colour fillcolour;
+  
 	Area getStandardProjection();
 	void resetEditPolygon();
 	void fillPolygon(Polygon & p,bool main);
@@ -99,6 +102,9 @@ public:
         GridArea(string id, Area org_proj);
 	GridArea(string id, ProjectablePolygon area);
 	GridArea(string id, Area originalProjection, Polygon area);
+  
+  void setColours(Colour & fc);
+
 	ProjectablePolygon & getPolygon() ;
 	///True if selected area is empty (no closed area selected)
 	bool isEmptyArea();
