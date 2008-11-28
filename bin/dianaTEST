@@ -39,7 +39,7 @@ find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
 
-$dianadir/bin/diana.bin $@ -s $setup -p -S profet-devel -style cleanlooks 
+$dianadir/bin/diana.bin $@ -s $setup -p -S profet-test -style cleanlooks 
 
 tstop=`date`
 
