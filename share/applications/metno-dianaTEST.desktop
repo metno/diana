@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=dianaTEST
+GenericName=diana
+Comment=Diana -  using test-servers
+Exec=dianaTEST
+Icon=/usr/local/share/pixmaps/diana.png
+BinaryPattern=
+Protocols=
+MimeType=
+ServiceTypes=
+Terminal=false
+TerminalOptions=
+Type=Application
+MapNotify=false
+Categories=Meteorologisk;Meteorologisk-Test
+
