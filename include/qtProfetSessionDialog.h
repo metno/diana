@@ -74,6 +74,7 @@ private:
   QPushButton * updateButton;
   QPushButton * closeButton;
   FetObjectListView * objectList;
+  QPushButton * viewObjectButton;
   QPushButton * newObjectButton;
   QPushButton * editObjectButton;
   QPushButton * timesmoothButton;
@@ -120,6 +121,7 @@ public:
   void customEvent(QEvent * e);
   
 public slots:
+  void hideViewObjectDialog();
   void printSize(const QModelIndex &);
 
 signals:
@@ -127,6 +129,7 @@ signals:
   void sendMessage(const QString &);
   void paramAndTimeChanged(const QModelIndex &);
   void objectSelected(const QModelIndex & index);
+  void viewObjectToggled(bool);
   void newObjectPerformed();
   void editObjectPerformed();
   void deleteObjectPerformed();

@@ -95,11 +95,14 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   
   QVBoxLayout *objectButtonWidgetLayout = new QVBoxLayout();
   
+  viewObjectButton   = new QPushButton(tr("View"));
+  viewObjectButton->setCheckable(true);
   newObjectButton    = new QPushButton(tr("New"));
   editObjectButton   = new QPushButton(tr("Edit"));
   timesmoothButton   = new QPushButton(tr("Timesmooth"));
   deleteObjectButton = new QPushButton(tr("Delete"));
 
+  objectButtonWidgetLayout->addWidget(viewObjectButton);
   objectButtonWidgetLayout->addWidget(newObjectButton);
   objectButtonWidgetLayout->addWidget(editObjectButton);
   objectButtonWidgetLayout->addWidget(timesmoothButton);
@@ -146,6 +149,8 @@ void ProfetSessionDialog::connectSignals(){
     connect(table,SIGNAL(selectedMulti(const QList<QModelIndex> & )),
 	    this,SIGNAL(showObjectOverview(const QList<QModelIndex> & )));
   }
+  connect(viewObjectButton,SIGNAL(toggled(bool)),
+      this,SIGNAL(viewObjectToggled(bool)));
   connect(newObjectButton,SIGNAL(clicked()),
       this,SIGNAL(newObjectPerformed()));
   connect(editObjectButton,SIGNAL(clicked()),
@@ -183,6 +188,10 @@ void ProfetSessionDialog::customEvent(QEvent * e){
   }
 }
 
+void ProfetSessionDialog::hideViewObjectDialog(){
+  cerr << "ProfetSessionDialog::hideViewObjectDialog" << endl;
+  viewObjectButton->setChecked(false);
+}
 void ProfetSessionDialog::printSize(const QModelIndex &){
   cerr << "size: " << table->size().height() << endl;
   cerr << "minimumSize: " << table->minimumSize().height() << endl;

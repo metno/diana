@@ -43,7 +43,8 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) :
 QObject(), paintToolBar(ptb), areaManager(gam),
 Profet::ProfetGUI(pc),sessionDialog(p),
-objectDialog(p), objectFactory(),
+viewObjectDialog(p,ProfetObjectDialog::VIEW_OBJECT_MODE),
+editObjectDialog(p), objectFactory(),
 userModel(p), sessionModel(p),
 objectModel(p), tableModel(p), activeTimeSmooth(false),
 enableNewbutton_(true), enableModifyButtons_(false),
@@ -59,7 +60,7 @@ enableTable_(true), overviewactive(false), ignoreSynchProblems(false)
   sessionDialog.setTableModel(&tableModel);
   connectSignals();
   showPaintToolBar = true;
-  showObjectDialog = false;
+  showEditObjectDialog = false;
   emit setPaintMode(true);
   paintToolBar->enableButtons(PaintToolBar::SELECT_ONLY);
 }
@@ -78,6 +79,8 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(undoCurrentArea()));
   connect(paintToolBar,SIGNAL(redoPressed()),
       this,SLOT(redoCurrentArea()));
+  connect(&sessionDialog,SIGNAL(viewObjectToggled(bool)),
+      this,SLOT(toggleViewObject(bool)));
   connect(&sessionDialog,SIGNAL(newObjectPerformed()),
       this,SLOT(createNewObject()));
   connect(&sessionDialog,SIGNAL(editObjectPerformed()),
@@ -96,23 +99,27 @@ void DianaProfetGUI::connectSignals(){
 	  this,SLOT(doReconnect()));
   connect(&sessionDialog, SIGNAL(doUpdate()),
 	  this,SLOT(doUpdate()));
-  connect(&objectDialog,SIGNAL(saveObjectClicked()),
+  
+  connect(&viewObjectDialog,SIGNAL(cancelObjectDialog()),
+      &sessionDialog,SLOT(hideViewObjectDialog()));
+  
+  connect(&editObjectDialog,SIGNAL(saveObjectClicked()),
       this,SLOT(saveObject()));
-  connect(&objectDialog,SIGNAL(cancelObjectDialog()),
-      this,SLOT(cancelObjectDialog()));
-  connect(&objectDialog,SIGNAL(baseObjectSelected(miString)),
+  connect(&editObjectDialog,SIGNAL(cancelObjectDialog()),
+      this,SLOT(cancelEditObjectDialog()));
+  connect(&editObjectDialog,SIGNAL(baseObjectSelected(miString)),
       this,SLOT(baseObjectSelected(miString)));
-  connect(&objectDialog,SIGNAL(dynamicGuiChanged()),
+  connect(&editObjectDialog,SIGNAL(dynamicGuiChanged()),
       this,SLOT(dynamicGuiChanged()));
 
   connect(&sessionModel,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex & )),
 	  this,SLOT(sessionModified(const QModelIndex & , const QModelIndex & )));
 
-  connect(&objectDialog,SIGNAL(copyPolygon(miString,miString,bool)),
+  connect(&editObjectDialog,SIGNAL(copyPolygon(miString,miString,bool)),
       this,SLOT(copyPolygon(miString,miString,bool)));
-  connect(&objectDialog,SIGNAL(selectPolygon(miString)),
+  connect(&editObjectDialog,SIGNAL(selectPolygon(miString)),
       this,SLOT(selectPolygon(miString)));
-  connect(&objectDialog,SIGNAL(requestPolygonList()),
+  connect(&editObjectDialog,SIGNAL(requestPolygonList()),
         this,SLOT(requestPolygonList()));
 }
 
@@ -393,7 +400,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
   int i = getBaseObjectIndex(id);
   if(i != -1){
     LOG4CXX_WARN(logger,"base object selected " << baseObjects[i].name());
-    objectDialog.addDymanicGui(objectFactory.getGuiComponents(baseObjects[i]));
+    editObjectDialog.addDymanicGui(objectFactory.getGuiComponents(baseObjects[i]));
     if(areaManager->isAreaSelected()){
       miTime refTime;
       try{
@@ -410,7 +417,7 @@ void DianaProfetGUI::baseObjectSelected(miString id){
       currentObject = objectFactory.makeObject(baseObjects[i],
           areaManager->getCurrentPolygon(),
           getCurrentParameter(), getCurrentTime(),
-					       objectDialog.getReason(),username,refTime,parent_);
+					       editObjectDialog.getReason(),username,refTime,parent_);
       currentObjectMutex.unlock();
       LOG4CXX_DEBUG(logger,"calling controller.objectChanged");
       controller.objectChanged(currentObject);
@@ -420,10 +427,10 @@ void DianaProfetGUI::baseObjectSelected(miString id){
     LOG4CXX_ERROR(logger,"Selected base object not found");
   }
   if(areaManager->isAreaSelected()){
-    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
+    editObjectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
   }
   else{
-    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
+    editObjectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
   }
 }
 
@@ -431,9 +438,8 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index){
   LOG4CXX_DEBUG(logger,"objectSelected");
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-// Lock is not distributed
-//    sessionDialog.lockedObjectSelected(fo.is_locked());
     areaManager->setCurrentArea(fo.id());
+    viewObjectDialog.showObject(fo,objectFactory.getGuiComponents(fo));
     updateMap();
   }catch(InvalidIndexException & iie){
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
@@ -445,7 +451,7 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index){
 void DianaProfetGUI::saveObject(){
   // Validate current object
   if(!areaManager->isAreaSelected()){
-    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_VALID);
+    editObjectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_VALID);
     LOG4CXX_WARN(logger,"Save Object: No Area Selected");
     return;
   }
@@ -454,7 +460,7 @@ void DianaProfetGUI::saveObject(){
   currentObjectMutex.unlock();
   if(!coExist){
     LOG4CXX_ERROR(logger,"Save Object: currentObject does not exist");
-    setObjectDialogVisible(false);
+    setEditObjectDialogVisible(false);
     return;
   }
   //Save current object
@@ -462,20 +468,20 @@ void DianaProfetGUI::saveObject(){
   fetObject safeCopy = currentObject;
   currentObjectMutex.unlock();
 
-  if(objectDialog.showingNewObject()){
+  if(editObjectDialog.showingNewObject()){
     areaManager->changeAreaId("newArea",safeCopy.id());
   }
-  currentObject.setReason(objectDialog.getReason());
+  currentObject.setReason(editObjectDialog.getReason());
   try{
     controller.saveObject(safeCopy);
     currentObjectMutex.lock();
     currentObject=fetObject();
     currentObjectMutex.unlock();
-    setObjectDialogVisible(false);
+    setEditObjectDialogVisible(false);
     enableObjectButtons(true,false,true);
   }catch(Profet::ServerException & se){
     // reset id in areaManager
-    if(objectDialog.showingNewObject()){
+    if(editObjectDialog.showingNewObject()){
       areaManager->changeAreaId(safeCopy.id(),"newArea");
     }
     handleServerException(se);
@@ -641,7 +647,7 @@ void DianaProfetGUI::requestPolygonList()
   }
 
   if(polynames.size())
-    objectDialog.startBookmarkDialog(polynames);
+    editObjectDialog.startBookmarkDialog(polynames);
 
 
 }
@@ -653,7 +659,7 @@ void DianaProfetGUI::dynamicGuiChanged(){
   if(areaManager->isAreaSelected()){
     currentObjectMutex.lock();
     objectFactory.setGuiValues(currentObject,
-        objectDialog.getCurrentGuiComponents());
+        editObjectDialog.getCurrentGuiComponents());
     // safe copy needed to unlock mutex before calling controller
     // ... that in turn can call another mutex.lock
     fetObject safeCopy = currentObject;
@@ -717,16 +723,21 @@ void DianaProfetGUI::createNewObject(){
     LOG4CXX_WARN(logger,"Previous temp. area not removed!");
   }
   paintToolBar->enableButtons(PaintToolBar::PAINT_ONLY);
-  objectDialog.setSession(getCurrentTime());
-  objectDialog.setParameter(getCurrentParameter());
-  objectDialog.setBaseObjects(baseObjects);
-  objectDialog.newObjectMode();
+  editObjectDialog.setSession(getCurrentTime());
+  editObjectDialog.setParameter(getCurrentParameter());
+  editObjectDialog.setBaseObjects(baseObjects);
+  editObjectDialog.newObjectMode();
   currentObject = fetObject(); // new id
   // select first base object
   // currentObject is reset
-  objectDialog.selectDefault();
-  setObjectDialogVisible(true);
+  editObjectDialog.selectDefault();
+  setEditObjectDialogVisible(true);
   enableObjectButtons(false,false,false);
+}
+
+void DianaProfetGUI::toggleViewObject(bool show) 
+{
+  setViewObjectDialogVisible(show);
 }
 
 void DianaProfetGUI::editObject(){
@@ -734,19 +745,19 @@ void DianaProfetGUI::editObject(){
   string error = "";
   try{
     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-    objectDialog.setSession(getCurrentTime());
-    objectDialog.setParameter(getCurrentParameter());
-    objectDialog.setBaseObjects(baseObjects);
-    objectDialog.editObjectMode(fo,objectFactory.getGuiComponents(fo));
+    editObjectDialog.setSession(getCurrentTime());
+    editObjectDialog.setParameter(getCurrentParameter());
+    editObjectDialog.setBaseObjects(baseObjects);
+    editObjectDialog.editObjectMode(fo,objectFactory.getGuiComponents(fo));
     currentObjectMutex.lock();
     currentObject=fo;
     currentObjectMutex.unlock();
     controller.openObject(fo);
-    setObjectDialogVisible(true);
+    setEditObjectDialogVisible(true);
     enableObjectButtons(false,false,false);
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
-    // Area always ok for a saved object(?)
-    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
+    // Area always ok for a saved object
+    editObjectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
   }catch(Profet::ServerException & se){
     handleServerException(se);
   }catch(InvalidIndexException & iie){
@@ -906,16 +917,16 @@ void DianaProfetGUI::gridAreaChanged(){
     return;
   }
   if(areaManager->isAreaSelected()){
-    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
+    editObjectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
     currentObjectMutex.lock();
     bool obj_exist = currentObject.exist();
     if(obj_exist){
       objectFactory.setPolygon(currentObject, areaManager->getCurrentPolygon());
-      objectFactory.setGuiValues(currentObject,objectDialog.getCurrentGuiComponents());
+      objectFactory.setGuiValues(currentObject,editObjectDialog.getCurrentGuiComponents());
     }
     currentObjectMutex.unlock();
     if(!obj_exist) {
-      int i = getBaseObjectIndex(objectDialog.getSelectedBaseObject());
+      int i = getBaseObjectIndex(editObjectDialog.getSelectedBaseObject());
       if(i != -1){
         if(areaManager->isAreaSelected()){
           miTime refTime;
@@ -932,7 +943,7 @@ void DianaProfetGUI::gridAreaChanged(){
           currentObject = objectFactory.makeObject(baseObjects[i],
 						   areaManager->getCurrentPolygon(),
 						   getCurrentParameter(), getCurrentTime(),
-						   objectDialog.getReason(),username,
+						   editObjectDialog.getReason(),username,
 						   refTime,parent_);
           currentObjectMutex.unlock();
         }
@@ -951,17 +962,17 @@ void DianaProfetGUI::gridAreaChanged(){
       paintToolBar->setPaintMode(GridAreaManager::MOVE_MODE);
   }
   else{
-    objectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
+    editObjectDialog.setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
   }
   paintToolBar->enableUndo(areaManager->isUndoPossible());
 }
 
-void DianaProfetGUI::cancelObjectDialog(){
+void DianaProfetGUI::cancelEditObjectDialog(){
   // Current area added with createNewObject
   if(areaManager->getCurrentId() == "newArea"){
     areaManager->removeCurrentArea();
   }
-  if(!objectDialog.showingNewObject()){
+  if(!editObjectDialog.showingNewObject()){
     while(areaManager->undo()) ;
     gridAreaChanged();
     currentObjectMutex.lock();
@@ -973,7 +984,7 @@ void DianaProfetGUI::cancelObjectDialog(){
       handleServerException(se);
     }
   }
-  setObjectDialogVisible(false);
+  setEditObjectDialogVisible(false);
   currentObjectMutex.lock();
   currentObject=fetObject();
   currentObjectMutex.unlock();
@@ -989,15 +1000,25 @@ void DianaProfetGUI::setPaintToolBarVisible(bool visible){
   }
 }
 
-void DianaProfetGUI::setObjectDialogVisible(bool visible){
-  showObjectDialog = visible;
+void DianaProfetGUI::setViewObjectDialogVisible(bool visible){
+  cerr << "setViewObjectDialogVisible: " << visible << endl;
+  showViewObjectDialog = visible;
+  if (showViewObjectDialog) {
+    viewObjectDialog.show();
+  } else {
+    viewObjectDialog.hide();
+  }
+}
+
+void DianaProfetGUI::setEditObjectDialogVisible(bool visible){
+  showEditObjectDialog = visible;
   //sessionDialog.setEditable(!visible); // doesn't do anything...
-  if(showObjectDialog) {
-    objectDialog.show();
+  if(showEditObjectDialog) {
+    editObjectDialog.show();
   }
   else {
     paintToolBar->enableButtons(PaintToolBar::SELECT_ONLY);
-    objectDialog.hide();
+    editObjectDialog.hide();
   }
 }
 
@@ -1010,7 +1031,7 @@ void DianaProfetGUI::setVisible(bool visible){
     ignoreSynchProblems = true;
     setPaintToolBarVisible(showPaintToolBar);
     emit setPaintMode(showPaintToolBar);
-    setObjectDialogVisible(showObjectDialog);
+    setEditObjectDialogVisible(showEditObjectDialog);
 //    sessionDialog.selectDefault(); too early first time?
     sessionDialog.show();
     emit repaintMap(false);
@@ -1025,7 +1046,7 @@ void DianaProfetGUI::setVisible(bool visible){
     areaManager->clear();
     emit repaintMap(false);
     sessionDialog.hide();
-    objectDialog.hide();
+    editObjectDialog.hide();
     paintToolBar->hide();
 
     emit setPaintMode(false);
@@ -1040,7 +1061,7 @@ int DianaProfetGUI::getBaseObjectIndex(miString name){
 }
 
 void  DianaProfetGUI::setStatistics(map<miString,float> m){
-  objectDialog.setStatistics(m);
+  editObjectDialog.setStatistics(m);
 }
 
 void  DianaProfetGUI::setActivePoints(vector<Point> points){

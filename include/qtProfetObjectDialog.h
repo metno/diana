@@ -60,7 +60,7 @@ class ProfetObjectDialog: public QDialog{
   Q_OBJECT
 public:
   enum AreaStatus {AREA_NOT_SELECTED,AREA_OK,AREA_NOT_VALID};
-  enum OperationMode {NEW_OBJECT_MODE,EDIT_OBJECT_MODE};
+  enum OperationMode {NEW_OBJECT_MODE,EDIT_OBJECT_MODE,VIEW_OBJECT_MODE};
 private:
   QLabel         *parameterLabel;
   QLabel         *sessionLabel;
@@ -84,14 +84,16 @@ private:
   miString       selectedBaseObject;
   OperationMode  mode;
   
+  void           initGui();
   void           connectSignals();
+  void           setAllEnabled(bool enable);
   QString        getAreaStatusString(AreaStatus);
   
 protected:
   void closeEvent( QCloseEvent* );  
   
 public:
-  ProfetObjectDialog(QWidget* parent);
+  ProfetObjectDialog(QWidget* parent, OperationMode = NEW_OBJECT_MODE);
   
   void addDymanicGui(vector<fetDynamicGui::GuiComponent> components);
   void setSession(const miTime & session);
@@ -104,6 +106,8 @@ public:
   void selectDefault();
   vector<fetDynamicGui::GuiComponent> getCurrentGuiComponents();
   void newObjectMode();
+  void showObject(const fetObject & obj,
+      vector<fetDynamicGui::GuiComponent> components);
   void editObjectMode(const fetObject & obj,
       vector<fetDynamicGui::GuiComponent> components);
   bool showingNewObject(){ return (mode==NEW_OBJECT_MODE);}

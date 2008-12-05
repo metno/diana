@@ -65,7 +65,8 @@ private:
   log4cxx::LoggerPtr logger;
 #endif
   ProfetSessionDialog sessionDialog;
-  ProfetObjectDialog objectDialog;
+  ProfetObjectDialog viewObjectDialog;
+  ProfetObjectDialog editObjectDialog;
   GridAreaManager * areaManager;
   PaintToolBar * paintToolBar;
   ProfetObjectFactory objectFactory;
@@ -85,7 +86,8 @@ private:
   miTime currentTime;
   // needed to keep 'show-status' after hide
   bool showPaintToolBar;
-  bool showObjectDialog;
+  bool showViewObjectDialog;
+  bool showEditObjectDialog;
   bool activeTimeSmooth;
   bool overviewactive;
 
@@ -168,9 +170,13 @@ public:
    */
   void setPaintToolBarVisible(bool visible);
   /**
-   * Show or hide object dialog
+   * Show or hide view object dialog
    */
-  void setObjectDialogVisible(bool visible);
+  void setViewObjectDialogVisible(bool visible);
+  /**
+   * Show or hide edit object dialog
+   */
+  void setEditObjectDialogVisible(bool visible);
   /**
    * Gets the current object from Diana GUI
    */
@@ -194,7 +200,7 @@ public:
 
 
 private slots:
-  // ObjectDialog
+  // EditObjectDialog
   void baseObjectSelected(miString name);
   void objectSelected(const QModelIndex &);
   void saveObject();
@@ -205,7 +211,7 @@ private slots:
   void processTimesmooth(vector<fetObject::TimeValues> tv);
   void endTimesmooth(vector<fetObject::TimeValues> tv);
 
-  void cancelObjectDialog();
+  void cancelEditObjectDialog();
   void dynamicGuiChanged(); //properties??
 
 
@@ -213,6 +219,7 @@ private slots:
   void sessionSelected(int index);
   void sendMessage(const QString &);
   void paramAndTimeSelected(const QModelIndex &);
+  void toggleViewObject(bool);
   void createNewObject();
   void editObject();
   void deleteObject();

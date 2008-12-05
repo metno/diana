@@ -37,65 +37,18 @@
 #include <QLabel>
 #include <Q3VBoxLayout>
 
-ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
-  : QDialog(parent), mode(NEW_OBJECT_MODE)
+ProfetObjectDialog::ProfetObjectDialog(QWidget * parent, OperationMode om)
+  : QDialog(parent), mode(om)
 {
-  setWindowTitle(tr("Current Object"));
+  if(mode == NEW_OBJECT_MODE) setWindowTitle(tr("New Object"));
+  else if(mode == VIEW_OBJECT_MODE) setWindowTitle(tr("View Object"));
+  else setWindowTitle(tr("Current Object"));
 
-  Q3VBoxLayout * mainLayout = new Q3VBoxLayout(this);
-  Q3HBox * titleBox         = new Q3HBox(this);
-  parameterLabel           = new QLabel(titleBox);
-  sessionLabel             = new QLabel(titleBox);
+  initGui();
 
-  mainLayout->addWidget(titleBox);
-
-  algGroupBox              = new Q3GroupBox(2,Qt::Vertical,"Algorithm",this);
-  baseComboBox             = new QComboBox(algGroupBox);
-  algDescriptionLabel      = new QLabel(algGroupBox);
-
-  mainLayout->addWidget(algGroupBox);
-
-  areaGroupBox             = new Q3GroupBox(4,Qt::Vertical,"Area",this);
-  databaseAreaButton       = new QPushButton("From Database",areaGroupBox);
-  fileAreaButton           = new QPushButton("From File",areaGroupBox);
-  areaInfoLabel            = new QLabel("",areaGroupBox);
+  if(mode == VIEW_OBJECT_MODE)
+    setAllEnabled(false);
   
-  
-
-  mainLayout->addWidget(areaGroupBox);
-
-  stackGroupBox            = new Q3GroupBox(1,Qt::Vertical,"Parameters",this);
-  stackGroupBox->setInsideMargin(2);
-  stackGroupBox->setInsideSpacing(2);
-
-  widgetStack              = new Q3WidgetStack(stackGroupBox); 
-
-  mainLayout->addWidget(stackGroupBox);
-
-  reasonGroupBox           = new Q3GroupBox(1,Qt::Vertical,"Reason",this);
-  reasonText               = new Q3TextEdit(reasonGroupBox);
-
-  mainLayout->addWidget(reasonGroupBox);
-  
-  statGroupBox             = new Q3GroupBox(1,Qt::Vertical,"Statistics",this);
-  statisticLabel           = new QLabel("",statGroupBox);
-
-  mainLayout->addWidget(statGroupBox);
-
-
-  Q3HBox * buttonBox        = new Q3HBox(this);
-  
-  saveObjectButton         = new QPushButton(tr("Save"),buttonBox);
-  cancelObjectButton       = new QPushButton(tr("Cancel"),buttonBox);
-
-  mainLayout->addWidget(buttonBox);
-  
-//  Q3ButtonGroup * areaButtons = new Q3ButtonGroup(0);
-//  areaButtons->insert(customAreaButton);
-//  areaButtons->insert(objectAreaButton);
-//  areaButtons->insert(fileAreaButton);
-//  customAreaButton->setChecked(true);
-
   // Disable non-implemented functions
   fileAreaButton->setEnabled(false);
 
@@ -103,8 +56,65 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent)
   setAreaStatus(AREA_NOT_SELECTED);  
 }
 
-void ProfetObjectDialog::connectSignals(){
+void ProfetObjectDialog::initGui()
+{
+  Q3VBoxLayout * mainLayout = new Q3VBoxLayout(this);
+  Q3HBox * titleBox = new Q3HBox(this);
+  parameterLabel = new QLabel(titleBox);
+  sessionLabel = new QLabel(titleBox);
+
+  mainLayout->addWidget(titleBox);
+
+  algGroupBox = new Q3GroupBox(2, Qt::Vertical, "Algorithm", this);
+  baseComboBox = new QComboBox(algGroupBox);
+  algDescriptionLabel = new QLabel(algGroupBox);
+
+  mainLayout->addWidget(algGroupBox);
+
+  areaGroupBox = new Q3GroupBox(4, Qt::Vertical, "Area", this);
+  databaseAreaButton = new QPushButton("From Database", areaGroupBox);
+  fileAreaButton = new QPushButton("From File", areaGroupBox);
+  areaInfoLabel = new QLabel("", areaGroupBox);
+
+  mainLayout->addWidget(areaGroupBox);
   
+  if(mode == VIEW_OBJECT_MODE)
+    areaGroupBox->setVisible(false);
+
+  stackGroupBox = new Q3GroupBox(1, Qt::Vertical, "Parameters", this);
+  stackGroupBox->setInsideMargin(2);
+  stackGroupBox->setInsideSpacing(2);
+
+  widgetStack = new Q3WidgetStack(stackGroupBox);
+
+  mainLayout->addWidget(stackGroupBox);
+
+  reasonGroupBox = new Q3GroupBox(1, Qt::Vertical, "Reason", this);
+  reasonText = new Q3TextEdit(reasonGroupBox);
+
+  mainLayout->addWidget(reasonGroupBox);
+
+  statGroupBox = new Q3GroupBox(1, Qt::Vertical, "Statistics", this);
+  statisticLabel = new QLabel("", statGroupBox);
+
+  mainLayout->addWidget(statGroupBox);
+  if(mode == VIEW_OBJECT_MODE)
+    statGroupBox->setVisible(false);
+
+  Q3HBox * buttonBox = new Q3HBox(this);
+
+  if(mode == VIEW_OBJECT_MODE){
+    saveObjectButton = new QPushButton(tr("Save"));
+    cancelObjectButton = new QPushButton(tr("Close"), buttonBox);
+  } else {
+    saveObjectButton = new QPushButton(tr("Save"), buttonBox);
+    cancelObjectButton = new QPushButton(tr("Cancel"), buttonBox);
+  }
+
+  mainLayout->addWidget(buttonBox);
+}
+
+void ProfetObjectDialog::connectSignals(){
   connect(saveObjectButton, SIGNAL( clicked() ),
         this, SIGNAL( saveObjectClicked() ));
   connect(cancelObjectButton, SIGNAL( clicked() ),
@@ -113,9 +123,14 @@ void ProfetObjectDialog::connectSignals(){
       this, SLOT( baseObjectChanged(const QString&) ));
   connect(databaseAreaButton,SIGNAL(clicked()), 
       this, SIGNAL (requestPolygonList()));
-    
-  
-  
+}
+
+void ProfetObjectDialog::setAllEnabled(bool enable) {
+  algGroupBox->setEnabled(enable);
+  areaGroupBox->setEnabled(enable);
+  stackGroupBox->setEnabled(enable);
+  reasonGroupBox->setEnabled(enable);
+  saveObjectButton->setEnabled(enable);
 }
 
 void ProfetObjectDialog::baseObjectChanged(const QString & qs){
@@ -129,6 +144,18 @@ void ProfetObjectDialog::closeEvent(QCloseEvent * e){
   emit cancelObjectDialog(); 
 }
 
+void ProfetObjectDialog::showObject(const fetObject & obj,
+    vector<fetDynamicGui::GuiComponent> components)
+{  
+  vector<fetBaseObject> fbo;
+  setBaseObjects(fbo);//remove base objects/gui
+  baseComboBox->insertItem(obj.name().cStr(),0);
+  baseComboBox->setEnabled(false);
+  addDymanicGui(components);
+  cerr << "ProfetObjectDialog::showObject reason: " << obj.reason() << endl;
+  reasonText->setText(obj.reason().cStr());
+}
+
 void ProfetObjectDialog::newObjectMode(){  
   mode = NEW_OBJECT_MODE;
   baseComboBox->setEnabled(true);
@@ -138,12 +165,7 @@ void ProfetObjectDialog::newObjectMode(){
 void ProfetObjectDialog::editObjectMode(const fetObject & obj,
     vector<fetDynamicGui::GuiComponent> components){  
   mode = EDIT_OBJECT_MODE;
-  vector<fetBaseObject> fbo;
-  setBaseObjects(fbo);//remove base objects/gui
-  baseComboBox->insertItem(obj.name().cStr(),0);
-  baseComboBox->setEnabled(false);
-  addDymanicGui(components);
-  reasonText->setText(obj.reason().cStr());
+  showObject(obj,components);
 }
 
 void ProfetObjectDialog::addDymanicGui(
