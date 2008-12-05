@@ -93,6 +93,7 @@ bool ObjectManager::parseSetup(SetupParser& sp) {
 	name= value;
 	olist.archive=false;
       }else if (key=="plotoptions"){
+	cerr <<"plotoptions: "<<value<<endl;
 	PlotOptions::parsePlotOption(value,olist.poptions);
       } else if (key=="archive_name"){
 	name= value;
@@ -264,6 +265,7 @@ bool ObjectManager::prepareObjects(const miTime& t,
 				   const Area& area,
 				   DisplayObjects& wObjects){
 
+  cerr <<"bool ObjectManager::prepareObjects"<<endl;
   //are objects defined (in objects.define() if not return false)
     if (!wObjects.defined) return false;
 
@@ -280,10 +282,10 @@ bool ObjectManager::prepareObjects(const miTime& t,
     if (!getFileName(wObjects)) return false;
   }
 
-  if (!wObjects.approved){
+  //  if (!wObjects.approved){
     if (!wObjects.readEditDrawFile(wObjects.filename,area))
       return false;
-  }
+    //}
 
 
   return wObjects.prepareObjects();

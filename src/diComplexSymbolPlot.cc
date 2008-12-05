@@ -48,6 +48,9 @@
 #define MOUNTAINWAVESYMBOL 130
 #define VULCANOSYMBOL 226
 #define FOGSYMBOL 62
+#define WIDESPREADBRSYMBOL 136
+#define MOUNTAINOBSCURATIONSYMBOL 106
+#define HAILSYMBOL 238
 
 //static variables
 // text used in new complex symbols 
@@ -281,16 +284,16 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig17(0,0);	
     break;       
   case 1018:
-    drawSig18(0,0);	
+    drawSig18(0,0,RIGHTARROW);	
     break;       
   case 1019:
-    drawSig19(0,0);	
+    drawSig18(0,0,LOWSYMBOL);	
     break;       
   case 1020:
-    drawSig20(0,0);	
+    drawSig18(0,0,HIGHSYMBOL);	
     break;       
   case 1021:
-    drawSig21(0,0);	
+    drawSig18(0,0,THUNDERSYMBOL);	
     break;
   case 1022:
     drawSig22(0,0);	
@@ -302,10 +305,10 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig15(0,0);	
     break;             
   case 1025:
-    drawSig25(0,0);	
+    drawSig18(0,0,MOUNTAINWAVESYMBOL);	
     break;             
   case 1026:
-    drawSig26(0,0);	
+    drawSig18(0,0,VULCANOSYMBOL);	
     break;             
   case 1027:
     drawSig27(0,0);	
@@ -332,11 +335,21 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig34(0,0);	
     break;             
   case 1035:
-    drawSig35(0,0);	
+    drawSig35(0,0,drawIndex);	
     break;       
   case 1036:
     drawSig36(0,0);	
     break;       
+  case 1037:
+    drawSig18(0,0,WIDESPREADBRSYMBOL);	
+    break;       
+  case 1038:
+    drawSig18(0,0,MOUNTAINOBSCURATIONSYMBOL);	
+    break;       
+  case 1039:
+    drawSig18(0,0,HAILSYMBOL);	
+    break; 
+      
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
     drawDoubleSigText(0,0);	
@@ -611,50 +624,17 @@ void ComplexSymbolPlot::drawSig17(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 }
 
-void ComplexSymbolPlot::drawSig18(float x,float y){
-  float sw1,sh1;
-  getComplexSize(1018,sw1,sh1);
-  drawBox(1018,0,0);
-  drawSymbol(RIGHTARROW,0,0);
-}
-
-void ComplexSymbolPlot::drawSig19(float x,float y){
-  //twice as big as other symbols
-  symbolSizeToPlot = 2*symbolSizeToPlot;
-  drawBox(1019,x,y);
-  drawSymbol(LOWSYMBOL,x,y);
-}
-
-
-void ComplexSymbolPlot::drawSig20(float x,float y){
-  symbolSizeToPlot = 2*symbolSizeToPlot;
-  drawBox(1020,x,y);
-  drawSymbol(HIGHSYMBOL,x,y);
-}
-
-
-void ComplexSymbolPlot::drawSig21(float x,float y){
-  symbolSizeToPlot = 2*symbolSizeToPlot;
-  drawBox(1021,x,y);
-  drawSymbol(THUNDERSYMBOL,x,y);
+void ComplexSymbolPlot::drawSig18(float x,float y, int metSymbol){
+//   float sw1,sh1;
+//   getComplexSize(1018,sw1,sh1);
+  drawBox(metSymbol,0,0);
+  drawSymbol(metSymbol,0,0);
 }
 
 
 void ComplexSymbolPlot::drawSig22(float x,float y){
   drawBox(1022,x,y);
   drawSymbol(CROSS,x,y);
-}
-
-
-
-void ComplexSymbolPlot::drawSig25(float x,float y){
-  drawBox(1025,x,y);
-  drawSymbol(MOUNTAINWAVESYMBOL,x,y);
-}
-
-void ComplexSymbolPlot::drawSig26(float x,float y){
-  drawBox(1026,x,y);
-  drawSymbol(VULCANOSYMBOL,x,y);
 }
 
 //Sea temp, blue circle
@@ -743,8 +723,8 @@ void ComplexSymbolPlot::drawSig34(float x,float y){
 }
 
  //New cross
-void ComplexSymbolPlot::drawSig35(float x,float y){
-  drawBox(1035,x,y);
+void ComplexSymbolPlot::drawSig35(float x,float y, int drawIndex){
+  drawBox(drawIndex,x,y);
   drawSymbol(NEW_CROSS,x,y);
   drawBigBox(1035,x,y,2);
 }
@@ -765,6 +745,7 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
   drawBigBox(1036,x,y,0);
 
 }
+
 
 void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
 
@@ -1487,6 +1468,12 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
     return false;	
   case 1036:
     return true;	
+  case 1037:
+    return false;	
+  case 1038:
+    return false;	
+  case 1039:
+    return false;	
   case 2000:
     return true;	
   default:

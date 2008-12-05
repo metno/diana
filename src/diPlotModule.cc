@@ -1913,7 +1913,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   int n= vfp.size();
   for (int i=0; i<n; i++){
     pinfos.push_back(vfp[i]->getPlotInfo());
-    cerr <<"FIeld plotinfo:"<<vfp[i]->getPlotInfo()<<endl;
+    cerr <<"Field plotinfo:"<<vfp[i]->getPlotInfo()<<endl;
   }
   if (pinfos.size()>0){
     bool constT;

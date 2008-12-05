@@ -237,23 +237,23 @@ void WeatherObjects::updateObjects()
 
 bool
  WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
-#ifdef DEBUGPRINT
+  //#ifdef DEBUGPRINT
   cerr << "WeatherObjects::readEditDrawFile(2)" << endl;
-#endif
+  //#endif
 
 
   //if *.shp read shapefile
   vector <miString> parts= fn.split('.');
   miString ext = parts.back();
   if (ext=="shp"){
-  if (newArea.P()!=itsArea.P()){
-#ifdef DEBUGPRINT
+    if (newArea.P()!=itsArea.P()){
+      //#ifdef DEBUGPRINT
     cerr << "----------------------OOPSSS curarea!=newarea" << endl;
-#endif
+    //#endif
     changeProjection(newArea);
   }
-  changeProjection(geoArea);
-  //}
+    changeProjection(geoArea);
+    //}
     cerr << "This is a shapefile" << endl;
     ShapeObject * shape = new ShapeObject();
     addObject(shape);
