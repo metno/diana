@@ -64,9 +64,9 @@ void DisplayObjects::init(){
 
 bool DisplayObjects::define(const miString& pi)
 {    
-  //#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
   cerr << "DisplayObjects::define" << endl;
-  //#endif
+#endif
 
   init();
   pin=pi;
@@ -87,9 +87,9 @@ bool DisplayObjects::define(const miString& pi)
       if ( stokens.size()==2) {
 	key = stokens[0].downcase();
 	value = stokens[1];
-	//#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
 	cerr <<"key,value" << key << " " << value << endl;
-	//#endif
+#endif
 	if ( key=="file") {
 	  int l= value.length();
 	  int f= value.rfind('.') + 1;
@@ -121,8 +121,7 @@ bool DisplayObjects::define(const miString& pi)
       }
     }
   }
-  
-  cerr <<"  defined= true;"<<endl;
+
   defined= true;
   return true;
 }

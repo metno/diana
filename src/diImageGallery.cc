@@ -606,7 +606,6 @@ bool ImageGallery::plotImages(const int n,
 			      const int alpha)
 {
 
-  cerr <<" ImageGallery::plotImages"<<endl;
   if (n == 0){
     cerr << "ImageGallery::plotImages ERROR no positions:"
 	 << endl;
@@ -633,8 +632,6 @@ bool ImageGallery::plotImages(const int n,
   glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
 
   for (int j=0; j<n; j++){
-    cerr << "ImageGallery::plotImages: "<<j<<endl;
-
     if (!Images.count(vn[j])){
       cerr << "ImageGallery::plotImages ERROR image not found:"
 	   << vn[j] << endl;
@@ -695,7 +692,7 @@ bool ImageGallery::plotImages(const int n,
 	 << endl;
     return false;
   }
-  cerr <<"numobs:"<<n<<endl;
+  
   vector<miString> vn(n,name);
 
   return plotImages(n, vn, x, y, center, scale, alpha);

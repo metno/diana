@@ -107,8 +107,13 @@ private:
   void drawSig15(float x,float y);
   void drawSig16(float x,float y);
   void drawSig17(float x,float y);
-  void drawSig18(float x,float y, int metSymbol);
+  void drawSig18(float x,float y);
+  void drawSig19(float x,float y);
+  void drawSig20(float x,float y);
+  void drawSig21(float x,float y);
   void drawSig22(float x,float y);
+  void drawSig25(float x,float y);
+  void drawSig26(float x,float y);
   void drawSig27(float x,float y);
   void drawSig28(float x,float y);
   void drawSig29(float x,float y);
@@ -117,7 +122,7 @@ private:
   void drawSig32(float x,float y);
   void drawSig33(float x,float y);
   void drawSig34(float x,float y);
-  void drawSig35(float x,float y, int drawIndex);
+  void drawSig35(float x,float y);
   void drawSig36(float x,float y);
   void drawBox(int index,float x, float y, bool fill=true);
   void drawBigBox(int index,float x, float y, int size);

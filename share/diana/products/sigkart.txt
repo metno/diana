@@ -1,7 +1,7 @@
 LABEL anno=<text="SIGWX SFC -FL400"><horalign=center> \
 anno=<text="FIXED TIME PROGNOSTIC CHART "><horalign=center> \
 anno=<text="VALID %H UTC %d-%m-%Y"><horalign=center> \
-tcolour=black \
+plotrequested=true tcolour=black \
 bcolour=black fcolour=white polystyle=both halign=right valign=top \
 font=Helvetica fontsize=12 face=bold xoffset=0.002 yoffset=0.002 margin=0.015 \
 linewidth=4 xratio=0.412143 yratio=0.0737501

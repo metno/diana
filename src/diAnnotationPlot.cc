@@ -470,8 +470,6 @@ bool AnnotationPlot::plot(){
 
   Rectangle window;
   if (plotRequested && requestedarea.P()==area.P()){
-    cerr <<"HALLO"<<endl;
-    cerr <<area<<endl;
     window=requestedarea.R();
     if (window.x1==window.x2 || window.y1==window.y2) window=fullrect;
     if (cxratio>0 && cyratio>0) scaleAnno=true;
@@ -859,7 +857,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl,
 
 
 void AnnotationPlot::getXYBox(){
-  cerr <<"getXYBox()"<<endl;
+  //  cerr <<"getXYBox()"<<endl;
 
   float xoffset=0, yoffset=0;
   xoffset= cxoffset*bbox.width();
@@ -874,7 +872,6 @@ void AnnotationPlot::getXYBox(){
   int n= annotations.size();
   for (int i=0; i<n; i++){
     getAnnoSize(annotations[i].annoElements,wid,hei);
-    cerr <<i<<"  wid:"<<wid<<"  hei:"<<hei<<endl;
     //needed???????????
     annotations[i].wid=wid;
     annotations[i].hei=hei;
@@ -886,9 +883,7 @@ void AnnotationPlot::getXYBox(){
   }
   maxwid += 2*border;
   spacing= cspacing*maxhei;
-  cerr <<"totalhei:"<<totalhei<<endl;
   totalhei += (n-1)*spacing + 2*border;
-  cerr <<"totalhei:"<<totalhei<<endl;
 
   //size of total annotation (bbox)  
   // set x-coordinates
@@ -940,8 +935,6 @@ void AnnotationPlot::getXYBox(){
     y1=y2;
     y2-=annotations[i+1].hei;
   }
-  cerr <<"getXYBox()"<<endl;
-  cerr <<bbox<<endl;
   
 }
 
@@ -984,8 +977,6 @@ void AnnotationPlot::getXYBoxScaled(Rectangle& window){
     bbox.y1= bbox.y1+0.5*(h-yboxScale);
     bbox.y2= bbox.y2-0.5*(h-yboxScale);
   }
-  cerr <<"getXYBoxScaled()"<<endl;
-  cerr <<bbox<<endl;
 }
 
 
