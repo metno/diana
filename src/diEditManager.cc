@@ -2852,9 +2852,9 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo( "Kryss",255,"red"));
   symbols.push_back(newEditToolInfo("Tekster",0,"black"));
 
-  symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
-  symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));  
-  symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
+//   symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
+//   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));  
+//   symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
 
   areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
   areas.push_back(newEditToolInfo("Byger",Showers,"green3"));
@@ -2916,6 +2916,11 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig35",1035,"black"));
   //Freezing level (new)
   sigsymbols.push_back(newEditToolInfo("Sig36",1036,"black", "blue"));
+
+  sigsymbols.push_back(newEditToolInfo("Sig37",1037,"yellow2"));
+  sigsymbols.push_back(newEditToolInfo("Sig38",1038,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig39",1039,"red"));
+  sigsymbols.push_back(newEditToolInfo("Sig40",1040,"black"));
 
 
 

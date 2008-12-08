@@ -48,6 +48,9 @@
 #define MOUNTAINWAVESYMBOL 130
 #define VULCANOSYMBOL 226
 #define FOGSYMBOL 62
+#define WIDESPREADBRSYMBOL 136
+#define MOUNTAINOBSCURATIONSYMBOL 106
+#define HAILSYMBOL 238
 
 //static variables
 // text used in new complex symbols 
@@ -205,6 +208,12 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
     currentSymbolStrings.push_back("0°:x");
     currentSymbolStrings.push_back("");
     break;
+ case 1040:
+    currentXStrings.push_back("");
+    currentXStrings.push_back("");
+    currentSymbolStrings.push_back("");
+    currentSymbolStrings.push_back("");
+    break;
   case 2000:
     currentSymbolStrings.push_back("");
     currentSymbolStrings.push_back("");
@@ -229,16 +238,16 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSigText(0,0);	
     break;
   case 1001:
-    drawSig1(0,0);	
+    drawSig1(0,0,SIG1SYMBOL);	
     break;
   case 1002:
-    drawSig2(0,0);	
+    drawSig1(0,0,SIG2SYMBOL);	
     break;
   case 1003:
-    drawSig3(0,0);	
+    drawSig1(0,0,SIG3SYMBOL);	
     break;
   case 1004:
-    drawSig4(0,0);	
+    drawSig1(0,0,SIG4SYMBOL);	
     break;
   case 1005:
     drawSig5(0,0);	
@@ -281,19 +290,19 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig17(0,0);	
     break;       
   case 1018:
-    drawSig18(0,0);	
+    drawSig1(0,0,RIGHTARROW);	
     break;       
   case 1019:
-    drawSig19(0,0);	
+    drawSig1(0,0,LOWSYMBOL);	
     break;       
   case 1020:
-    drawSig20(0,0);	
+    drawSig1(0,0,HIGHSYMBOL);	
     break;       
   case 1021:
-    drawSig21(0,0);	
+    drawSig1(0,0,THUNDERSYMBOL);	
     break;
   case 1022:
-    drawSig22(0,0);	
+    drawSig1(0,0,CROSS);	
     break;       
   case 1023:
     drawSig14(0,0);	
@@ -302,10 +311,10 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig15(0,0);	
     break;             
   case 1025:
-    drawSig25(0,0);	
+    drawSig1(0,0,MOUNTAINWAVESYMBOL);	
     break;             
   case 1026:
-    drawSig26(0,0);	
+    drawSig1(0,0,VULCANOSYMBOL);	
     break;             
   case 1027:
     drawSig27(0,0);	
@@ -332,11 +341,24 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig34(0,0);	
     break;             
   case 1035:
-    drawSig35(0,0);	
+    drawSig1(0,0,NEW_CROSS);	
     break;       
   case 1036:
     drawSig36(0,0);	
     break;       
+  case 1037:
+    drawSig1(0,0,WIDESPREADBRSYMBOL);	
+    break;       
+  case 1038:
+    drawSig1(0,0,MOUNTAINOBSCURATIONSYMBOL);	
+    break;       
+  case 1039:
+    drawSig1(0,0,HAILSYMBOL);	
+    break; 
+  case 1040:
+    drawSig40(0,0);	
+    break;       
+      
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
     drawDoubleSigText(0,0);	
@@ -412,28 +434,10 @@ void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
 }
 
 
-void ComplexSymbolPlot::drawSig1(float x,float y){
-  drawBox(1001,x,y);
-  drawSymbol(SIG1SYMBOL,x,y);
-}
-
-void ComplexSymbolPlot::drawSig2(float x,float y){
-  drawBox(1002,x,y);
-  drawSymbol(SIG2SYMBOL,x,y);
-}
-
-void ComplexSymbolPlot::drawSig3(float x,float y){
-  drawBox(1003,x,y);
-  float cw,ch;
-  getComplexSize(1003,cw,ch);
-  drawSymbol(SIG3SYMBOL,x,y);
-}
-
-void ComplexSymbolPlot::drawSig4(float x,float y){
-  drawBox(1004,x,y);
-  float cw,ch;
-  getComplexSize(1004,cw,ch);
-  drawSymbol(SIG4SYMBOL,x,y);
+void ComplexSymbolPlot::drawSig1(float x,float y, int metSymbol){
+  drawBox(metSymbol,0,0);
+  drawSymbol(metSymbol,x,y);
+  drawBigBox(metSymbol,x,y,3);
 }
 
 void ComplexSymbolPlot::drawSig5(float x,float y){
@@ -491,7 +495,7 @@ void ComplexSymbolPlot::drawSig7(float x,float y){
 void ComplexSymbolPlot::drawSig8(float x,float y){
   float sw,sh;
   getComplexSize(1001,sw,sh);
-  drawSig1(x-sw/2,y);
+  drawSig1(x-sw/2,y,SIG1SYMBOL);
   initStrings(1007);
   symbolSizeToPlot= int(symbolSizeToPlot/textShrink);
   getComplexSize(1007,sw,sh);
@@ -503,7 +507,7 @@ void ComplexSymbolPlot::drawSig8(float x,float y){
 void ComplexSymbolPlot::drawSig9(float x,float y){
   float sw,sh;
   getComplexSize(1002,sw,sh);
-  drawSig2(x-sw/2,y);
+  drawSig1(x-sw/2,y,SIG2SYMBOL);
   initStrings(1007);
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   getComplexSize(1007,sw,sh);
@@ -526,7 +530,7 @@ void ComplexSymbolPlot::drawSig10(float x,float y){
 void ComplexSymbolPlot::drawSig11(float x,float y){
   float sw,sh;
   getComplexSize(1003,sw,sh);
-  drawSig3(x-sw/2,y);
+  drawSig1(x-sw/2,y,SIG3SYMBOL);
   initStrings(1007);
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   getComplexSize(1007,sw,sh);
@@ -537,7 +541,7 @@ void ComplexSymbolPlot::drawSig11(float x,float y){
 void ComplexSymbolPlot::drawSig12(float x,float y){
   float sw,sh;
   getComplexSize(1004,sw,sh);
-  drawSig4(x-sw/2,y);
+  drawSig1(x-sw/2,y,SIG4SYMBOL);
   initStrings(1007);
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   getComplexSize(1007,sw,sh);
@@ -580,6 +584,18 @@ void ComplexSymbolPlot::drawSig15(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 }
 
+void ComplexSymbolPlot::drawSig40(float x,float y){
+  float sw,sh;
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+  initStrings(2000);
+  getComplexSize(2000,sw,sh);
+  drawDoubleSigText(x,y+sh/1.75);
+  initStrings(1007);
+  getComplexSize(1007,sw,sh);
+  drawSig7(x,y-sh/1.75);
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
+}
+
 void ComplexSymbolPlot::drawSig16(float x,float y){
   //draw two texts
   float sw,sh;
@@ -611,50 +627,11 @@ void ComplexSymbolPlot::drawSig17(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 }
 
-void ComplexSymbolPlot::drawSig18(float x,float y){
-  float sw1,sh1;
-  getComplexSize(1018,sw1,sh1);
-  drawBox(1018,0,0);
-  drawSymbol(RIGHTARROW,0,0);
-}
-
-void ComplexSymbolPlot::drawSig19(float x,float y){
-  //twice as big as other symbols
-  symbolSizeToPlot = 2*symbolSizeToPlot;
-  drawBox(1019,x,y);
-  drawSymbol(LOWSYMBOL,x,y);
-}
-
-
-void ComplexSymbolPlot::drawSig20(float x,float y){
-  symbolSizeToPlot = 2*symbolSizeToPlot;
-  drawBox(1020,x,y);
-  drawSymbol(HIGHSYMBOL,x,y);
-}
-
-
-void ComplexSymbolPlot::drawSig21(float x,float y){
-  symbolSizeToPlot = 2*symbolSizeToPlot;
-  drawBox(1021,x,y);
-  drawSymbol(THUNDERSYMBOL,x,y);
-}
 
 
 void ComplexSymbolPlot::drawSig22(float x,float y){
   drawBox(1022,x,y);
   drawSymbol(CROSS,x,y);
-}
-
-
-
-void ComplexSymbolPlot::drawSig25(float x,float y){
-  drawBox(1025,x,y);
-  drawSymbol(MOUNTAINWAVESYMBOL,x,y);
-}
-
-void ComplexSymbolPlot::drawSig26(float x,float y){
-  drawBox(1026,x,y);
-  drawSymbol(VULCANOSYMBOL,x,y);
 }
 
 //Sea temp, blue circle
@@ -742,13 +719,6 @@ void ComplexSymbolPlot::drawSig34(float x,float y){
 
 }
 
- //New cross
-void ComplexSymbolPlot::drawSig35(float x,float y){
-  drawBox(1035,x,y);
-  drawSymbol(NEW_CROSS,x,y);
-  drawBigBox(1035,x,y,2);
-}
-
 //Freezing level (new)
 void ComplexSymbolPlot::drawSig36(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
@@ -765,6 +735,7 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
   drawBigBox(1036,x,y,0);
 
 }
+
 
 void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
 
@@ -811,14 +782,13 @@ void ComplexSymbolPlot::drawBigBox(int index,float x, float y,int ss){
   else if(ss==3)
     sw *= 3;
   sh = sw;
-  cerr <<"size:"<<ss<<endl;
+  //  cerr <<"size:"<<ss<<endl;
   glColor4f(0.0,0.0,0.0,1.0);
   glBegin(GL_LINE_LOOP);
-
-    glVertex2f(x-0.5*sw,y-0.5*sh);
-    glVertex2f(x-0.5*sw,y+0.5*sh);
-    glVertex2f(x+0.5*sw,y+0.5*sh);
-    glVertex2f(x+0.5*sw,y-0.5*sh);
+    glVertex2f(x-0.3*sw,y-0.3*sh);
+    glVertex2f(x-0.3*sw,y+0.7*sh);
+    glVertex2f(x+0.7*sw,y+0.7*sh);
+    glVertex2f(x+0.7*sw,y-0.3*sh);
   glEnd();
 
   glColor4fv(currentColor);
@@ -1369,6 +1339,18 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
 	sh *= 1.1;
       }
       break;
+    case 1040:
+      symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
+      getComplexSize(1007,cw1,ch1);
+      getComplexSize(2000,cw2,ch2);
+      symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
+      sh=ch1+ch2;
+      diffy=(ch2-ch1)*0.5;
+      if (cw1>cw2) 
+	sw=cw1;
+      else
+	sw=cw2;      
+      break;
     case 2000:
       if (symbolStrings.size()>1){
 	float cw1,ch1;
@@ -1486,6 +1468,14 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
   case 1035:
     return false;	
   case 1036:
+    return true;	
+  case 1037:
+    return false;	
+  case 1038:
+    return false;	
+  case 1039:
+    return false;	
+  case 1040:
     return true;	
   case 2000:
     return true;	
