@@ -3041,12 +3041,16 @@ const miString EditManager::insertTime(const miString& s, const miTime& time) {
     if (es.contains("%beng")) { es.replace("%beng","%b"); norwegian= false; }
     if (es.contains("%Beng")) { es.replace("%Beng","%B"); norwegian= false; }
   }
+
   if ((es.contains("%") || es.contains("$"))  && !time.undef()) {
     if (norwegian)
       es= time.format(es,miDate::Norwegian);
     else
-      es= time.format(es,miDate::English);
+      es= time.format(es,"en"); 
   }
+
+  //miDate::English doesn't work due to bug in miTime
+
   return es;
 }
 
