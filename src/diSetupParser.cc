@@ -426,7 +426,7 @@ bool SetupParser::parseFile(const miString& filename, // name of file
 
 bool SetupParser::parse(const miString& mainfilename){
 
-  cerr <<"SetupParser::parse:" <<mainfilename<<"koko"<<endl;
+  cerr <<"SetupParser::parse:" <<mainfilename<<endl;
   miString filename=mainfilename;
   sfilename.clear();
 

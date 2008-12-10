@@ -1842,7 +1842,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
 	if(npi<0) return -1;
 	compute-=4;
       }
-      if (!alevelducting(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
+      if (!alevelducting_OLD(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
 		         cdata2d[npp],cdata2d[no],allDefined,fieldUndef))
 	return -1;
       if (compddz>4) {
