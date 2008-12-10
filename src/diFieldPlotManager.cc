@@ -386,7 +386,7 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
 
   if (request.size()==0) return fieldtime;
 
-  return fieldManager->getFieldTime(request,allTimeSteps,constTimes);
+  return getFieldTime(request,allTimeSteps,constTimes);
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,

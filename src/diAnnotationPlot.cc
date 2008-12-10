@@ -53,7 +53,7 @@ AnnotationPlot::AnnotationPlot()
 AnnotationPlot::AnnotationPlot(const miString& po)
   : Plot(){
 #ifdef DEBUGPRINT
-  cerr << "++ AnnotationPlot::Constructor" << endl;
+  cerr << "++ AnnotationPlot::Constructor: " << po<<endl;
 #endif
   init();
   prepare(po);
@@ -141,6 +141,7 @@ void AnnotationPlot::setfillcolour(miString colname){
 }
 
 bool AnnotationPlot::prepare(const miString& pin){
+
   pinfo= pin;
   poptions.fontname="Helvetica"; //default
   poptions.textcolour=Colour("black");
@@ -1217,7 +1218,77 @@ vector<miString> AnnotationPlot::split(const miString eString
   return vec;
 }
 
+miString AnnotationPlot::writeElement(element& annoEl){
+
+  miString str="<";
+  switch(annoEl.eType){
+  case(text):
+    str+="text=\""+annoEl.eText+"\"";
+    if (!annoEl.eFont.empty()) 
+      str+=",font="+annoEl.eFont;
+    break;
+  case(symbol):
+    str+="symbol="+ miString(annoEl.eCharacter);
+    if (!annoEl.eFont.empty()) 
+      str+=",font="+annoEl.eFont;	
+    break;
+  case(image):
+    str+="image="+annoEl.eImage;
+    break;
+  case(input):
+    str+="input=\""+annoEl.eText+"\"";
+    if (!annoEl.eFont.empty()) 
+      str+=",font="+annoEl.eFont;
+    if (!annoEl.eName.empty()) 
+      str+=",name="+annoEl.eName;
+    break;
+  case(box):
+    str+="box";
+    if (annoEl.horizontal) {
+      str+=",horizontal";
+    } else {
+      str+=",vertical";
+    }
+    if (annoEl.polystyle== poly_fill) {
+      str+=",pstyle=fill";
+    } else if (annoEl.polystyle== poly_border) {
+      str+=",pstyle=border";
+    } else if (annoEl.polystyle== poly_both) {
+      str+=",pstyle=both";
+    } else if (annoEl.polystyle== poly_none) {
+      str+=",pstyle=none";
+    }
+   break;
+  }
+  if (annoEl.eSize!=1.0){
+    ostringstream ostr;
+    ostr<<",size="<<annoEl.eSize;
+    str += ostr.str();
+  }
+  if (annoEl.textcolour!="black"){
+    str += ",tcolour=" + annoEl.textcolour;
+  }
+  if (!annoEl.eFace.empty() && annoEl.eFace!=poptions.fontface) 
+    str+=",face="+annoEl.eFace;
+  if (annoEl.eHalign==align_right)
+    str+=",hal=right";
+  else if (annoEl.eHalign==align_center)
+    str+=",hal=center";
+  str+=">";
+
+  if (annoEl.subelement.size()) {
+    for(int i=0; i<annoEl.subelement.size(); i++) {
+      str += writeElement(annoEl.subelement[i]);
+    }
+    str += "<\\box>";
+  }
+
+  return str;
+  
+}
+
 miString AnnotationPlot::writeAnnotation(miString prodname){
+
   miString str;
   if (prodname!=productname) return str;
   str="LABEL";
@@ -1228,41 +1299,7 @@ miString AnnotationPlot::writeAnnotation(miString prodname){
     for (int j=0;j<nel;j++){
       element annoEl = annotations[i].annoElements[j];
       //write annoelement here !
-      str+="<";
-      switch(annoEl.eType){
-      case(text):
-	str+="text=\""+annoEl.eText+"\"";
-	if (!annoEl.eFont.empty()) 
-	  str+=",font="+annoEl.eFont;
-	break;
-      case(symbol):
-	str+="symbol="+ miString(annoEl.eCharacter);
-	if (!annoEl.eFont.empty()) 
-	  str+=",font="+annoEl.eFont;	
-	break;
-      case(image):
-	str+="image="+annoEl.eImage;
-	break;
-      case(input):
-	str+="input=\""+annoEl.eText+"\"";
-	if (!annoEl.eFont.empty()) 
-	  str+=",font="+annoEl.eFont;
-	if (!annoEl.eName.empty()) 
-	  str+=",name="+annoEl.eName;
-	break;
-      }
-      if (annoEl.eSize!=1.0){
-	ostringstream ostr;
-	ostr<<",size="<<annoEl.eSize;
-	str += ostr.str();
-      }
-      if (!annoEl.eFace.empty() && annoEl.eFace!=poptions.fontface) 
-	str+=",face="+annoEl.eFace;
-      if (annoEl.eHalign==align_right)
-	str+=",hal=right";
-      else if (annoEl.eHalign==align_center)
-	str+=",hal=center";
-      str+=">";
+      str += writeElement(annoEl);
     }
     if (annotations[i].hAlign==align_right)
       str+="<horalign=right>";
@@ -1272,6 +1309,7 @@ miString AnnotationPlot::writeAnnotation(miString prodname){
     //  str+="<horalign=left>";
   }  
   str+=labelstrings;    
+
   return str;
 }
 

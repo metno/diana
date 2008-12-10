@@ -109,6 +109,7 @@ public:
 
 
 private:
+
   vector<Annotation> annotations;
   vector<Annotation> orig_annotations;
   annoType atype;
@@ -167,6 +168,7 @@ private:
   float plotArrow(float x, float y, float l, bool feather=false);
   void plotBorders();
   vector <miString> split(const miString,const char,const char);
+  miString writeElement(element& annoEl);
 
 public:
   // Constructors

@@ -1,0 +1,137 @@
+LABEL anno=<box,pstyle=none>\
+<box,vertical>\
+<image=wwwmet7,size=0.5>\
+<text="SIG-VX">\
+<text="Low-Level">\
+<text="SFC - FL 150">\
+<text="  ",size=0.8>\
+<text="Fixed time",size=0.8>\
+<text="Prognostic chart",size=0.8>\
+<\box>\
+<\box> \
+anno=<box,,vertical,pstyle=border>\
+<text="VALID %H UTC">\
+<text="%d %Beng %Y">\
+<\box> \
+plotrequested=true \
+tcolour=black bcolour=black fcolour=white polystyle=both halign=left \
+valign=top xoffset=0.002 yoffset=0.002 xratio=0.3  font=Helvetica fontsize=10\
+yratio=0.3  margin=0.01 
+
+LABEL anno=<box,vertical,pstyle=none>\
+<text="  ",size=0.6>\
+<text="  ",size=0.6>\
+<text="  ",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<symbol=62,font=Symbol,size=2.0,tcolour=darkYellow>\
+<text="Widespread",size=0.6>\
+<text="FG/FZFG",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<symbol=136,font=Symbol,size=2.0,tcolour=yellow2>\
+<text="Widespread",size=0.6>\
+<text="BR",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<box,horizontal><image=precip,size=0.05>\
+<symbol=254,size=2.0,tcolour=green><\box>\
+<text="Moderate/heavy",size=0.6>\
+<text="precip",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<box,horizontal>\
+<symbol=109,font=Symbol,size=2.0,tcolour=green>\
+<symbol=109,font=Symbol,size=2.0,tcolour=green>\
+<\box>\
+<text="Moderate/heavy",size=0.6>\
+<text="showers",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<symbol=238,font=Symbol,size=1.0,tcolour=red>\
+<text="Hail/GR ",size=0.6>\
+<text=" ",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<symbol=93,font=Symbol,size=1.0,tcolour=red>\
+<text="FRZ",size=0.6>\
+<text="precip ",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<symbol=119,font=Symbol,size=1.0,tcolour=red>\
+<text="TS  ",size=0.6>\
+<text=" ",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<image=sea10,size=0.05>\
+<text="Sea Temp C.",size=0.6>\
+<text="",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<image=wind30,size=0.05>\
+<text="Mean",size=0.6>\
+<text="SFC wind",size=0.6>\
+<text="",size=0.6>\
+<\box>\
+anno=<box,vertical,pstyle=none>\
+<symbol=106,font=Symbol,size=1.0,tcolour=black>\
+<text="Mountain",size=0.6>\
+<text="Obscuration",size=0.6>\
+<text="",size=0.6>\
+<\box> \
+plotrequested=true \
+tcolour=black bcolour=black fcolour=white polystyle=both halign=left \
+font=Helvetica fontsize=10 \
+valign=bottom xoffset=0.0001 yoffset=0.001 margin=0.000001
+
+LABEL \
+anno=<text="General situation and",face=bold,size=0.8> \
+anno=<text="significant weather",face=bold,size=0.8> \
+anno=<input="...",name=phenomena1,size=0.8> \
+anno=<input="...",name=phenomena2,size=0.8> \
+anno=<input="...",name=phenomena3,size=0.8> \
+anno=<input="...",name=phenomena4,size=0.8> \
+anno=<input="...",name=phenomena5,size=0.8> \
+anno=<input="...",name=phenomena6,size=0.8> \
+anno=<input="...",name=phenomena7,size=0.8> \
+anno=<input="...",name=phenomena8,size=0.8> \
+anno=<input="...",name=phenomena9,size=0.8> \
+anno=<input="...",name=phenomena10,size=0.8> \
+tcolour=black plotrequested=true \
+bcolour=black fcolour=white polystyle=both halign=left valign=center \
+font=Helvetica fontsize=10 face=normal xoffset=0 yoffset=0.4 \
+margin=0.01 xratio=0.3 yratio=0.3
+
+LABEL \
+anno=<text="Further information on MTW, low level turb and VA:",size=0.6> \
+anno=<text="See SIGMET and/or local advisories/warnings",size=0.6> \
+anno=<text="Pressure in HPA and speeds in KT",size=0.6> \
+anno=<text="Altitude in hectofeet abv MSL.XXX=>15.000ft.",size=0.6> \
+anno=<text="",size=0.6> \
+tcolour=black plotrequested=true \
+bcolour=black fcolour=white polystyle=fill halign=right valign=bottom \
+font=Helvetica fontsize=10 face=normal xoffset=0.0001 yoffset=0.000001 \
+margin=0.0001 
+
+
+
+MAP area=NyttSigkart4 backcolour=white map==Gshhs-Auto contour=on \
+cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
+land=off latlon=off frame=on
+
+
+
+
+
+
+
+
+
