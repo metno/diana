@@ -208,7 +208,7 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
 	    pf.input = input;
 	    vPlotField.push_back(pf);
 	  }
-	  mapPlotField[name]=vPlotField[i];
+	  mapPlotField[name.downcase()]=vPlotField[i];
 	}
       }
 
@@ -495,7 +495,7 @@ bool FieldPlotManager::makeFields(const miString& pin,
 				  const miString& idnumSet,
 				  bool toCache)
 {
-
+  
   vfout.clear();
   miString modelName;
   miString plotName;
@@ -851,7 +851,7 @@ bool FieldPlotManager::parsePin(const miString& pin,
   if (n<3) return false;
 
   modelName= tokens[1];
-  plotName= tokens[2];
+  plotName= tokens[2].downcase();
 
   //if pin contains time, replace ptime
   int i=0;
