@@ -1629,8 +1629,8 @@ bool DianaMainWindow::initProfet(){
        SLOT(setTimeAndUpdatePlots(const miTime&)));
     connect( profetGUI, SIGNAL(updateModelDefinitions()),
        fm,SLOT(updateModels()) );
-    connect( profetGUI, SIGNAL(forceDisconnect()),
-        this, SLOT(forceProfetDisconnect()));
+    connect( profetGUI, SIGNAL(forceDisconnect(bool)),
+        this, SLOT(forceProfetDisconnect(bool)));
     QApplication::restoreOverrideCursor();
     return true;
   }catch(Profet::ServerException & se){
@@ -1764,8 +1764,15 @@ void DianaMainWindow::toggleProfetGUI(){
 #endif
 }
 
-void DianaMainWindow::forceProfetDisconnect(){
+void DianaMainWindow::forceProfetDisconnect(bool disableGuiOnly){
 #ifdef PROFET
+  if (disableGuiOnly) {
+    profetGUI->resetStatus();
+    toggleProfetGUIAction->setChecked(false);
+    profetGUI->setVisible(false);
+    togglePaintModeAction->setEnabled(true);
+    return;
+  }
   // Disconnect
   bool inited = (contr->getProfetController() && profetGUI);
   bool connected = false;

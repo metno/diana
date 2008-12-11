@@ -135,6 +135,7 @@ signals:
   void deleteObjectPerformed();
   void startTimesmooth();
   void closePerformed();
+  void forcedClosePerformed(bool disableGuiOnly);
   void doUpdate();
   void doReconnect();
   void showObjectOverview(const QList<QModelIndex> &);

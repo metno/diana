@@ -252,7 +252,7 @@ signals:
 
   void updateModelDefinitions();
   void prepareAndPlot();
-  void forceDisconnect();
+  void forceDisconnect(bool disableGuiOnly);
 
 };
 

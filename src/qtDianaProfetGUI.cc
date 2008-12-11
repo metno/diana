@@ -90,7 +90,9 @@ void DianaProfetGUI::connectSignals(){
   connect(&sessionDialog,SIGNAL(deleteObjectPerformed()),
       this,SLOT(deleteObject()));
   connect(&sessionDialog,SIGNAL(closePerformed()),
-      this,SIGNAL(toggleProfetGui())); // only signaled when gui is visible
+      this,SIGNAL(toggleProfetGui())); // only signaled when gui is visible 
+  connect(&sessionDialog,SIGNAL(forcedClosePerformed(bool)),
+      this,SIGNAL(forceDisconnect(bool)));
   connect(&sessionDialog,SIGNAL(sendMessage(const QString &)),
       this,SLOT(sendMessage(const QString &)));
   connect(&sessionDialog,SIGNAL(sessionSelected(int)),
@@ -494,7 +496,7 @@ void DianaProfetGUI::handleServerException(Profet::ServerException & se){
   if (se.isDisconnectRecommanded()) {
     int i = QMessageBox::warning(0,"Disconnect from Profet?",
         se.getHtmlMessage(true).c_str(), QMessageBox::Ok, QMessageBox::Ignore);
-    if (i == QMessageBox::Ok) emit forceDisconnect();
+    if (i == QMessageBox::Ok) emit forceDisconnect(false);
     else if(Profet::ServerException::OUT_OF_SYNC) ignoreSynchProblems = true;
   }
   QMessageBox::critical(0,QString("Profet Warning"),se.getHtmlMessage(true).c_str());

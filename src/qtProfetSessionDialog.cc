@@ -178,8 +178,8 @@ void ProfetSessionDialog::customEvent(QEvent * e){
   if(e->type() == Profet::MESSAGE_EVENT){
     Profet::MessageEvent * me = (Profet::MessageEvent*) e;
     if(me->message.type == Profet::InstantMessage::FORCED_DISCONNECT_MESSAGE){
-      QMessageBox::critical(0,"Disconnected", me->message.message.c_str());
-      emit closePerformed();
+      emit forcedClosePerformed(true);
+      QMessageBox::critical(this,"Disconnected", me->message.message.c_str());
     } else if(me->message.type == Profet::InstantMessage::WARNING_MESSAGE){
       QString qs = me->message.message.cStr();
       QString title = me->message.sender.cStr();
