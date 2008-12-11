@@ -804,7 +804,7 @@ void DianaProfetGUI::doReconnect()
     return;
 
   try {
-    Profet::DataManagerType dmt = controller.connect(user,preferredType,password);
+    Profet::DataManagerType dmt = controller.connect(user,preferredType,password, false);
     QApplication::restoreOverrideCursor();
     if(dmt != preferredType)
       QMessageBox::warning(0,"Running disconnected mode",
@@ -1067,4 +1067,3 @@ void  DianaProfetGUI::setStatistics(map<miString,float> m){
 void  DianaProfetGUI::setActivePoints(vector<Point> points){
   areaManager->setActivePoints(points);
 }
-

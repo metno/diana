@@ -1646,41 +1646,60 @@ bool DianaMainWindow::initProfet(){
 bool DianaMainWindow::profetConnect(){
 #ifdef PROFET
   miString error = "";
+  bool offerForcedConnection = false;
+  bool useForcedConnection = false;
+  bool retry = true;
   Profet::LoginDialog loginDialog;
   loginDialog.setUsername(QString(getenv("USER")));
   loginDialog.setRoles((QStringList() << "forecast" << "observer"));
 
   if(loginDialog.exec()){ // OK button pressed
-    if(loginDialog.username().isEmpty())
-      error += "Username not provided. ";
-    Profet::PodsUser u(miTime::nowTime(),
-           getenv("HOSTNAME"),
-		       loginDialog.username().toStdString().data(),
-		       loginDialog.role().toStdString().data(),
-		       "",miTime::nowTime(),"");
-    miString password = loginDialog.password().toStdString();
-    //TODO option for file manager
-    Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
-    if(contr->getProfetController() && !error.exists() ) {
-      try{
-        QApplication::setOverrideCursor( Qt::WaitCursor );
-        Profet::DataManagerType dmt =
-          contr->getProfetController()->connect(u,perferredType,password);
-        QApplication::restoreOverrideCursor();
-        if(dmt != perferredType)
-          QMessageBox::warning(0,"Running disconnected mode",
-            "Distributed field editing system is not available.");
-        return true;
-      }catch(Profet::ServerException & se){
-        contr->getProfetController()->disconnect();
-        bool withMailToLink = true;
-        error += se.getHtmlMessage(withMailToLink);
-        QApplication::restoreOverrideCursor();
+    while(retry) {
+      retry = false;
+      if(loginDialog.username().isEmpty())
+        error += "Username not provided. ";
+      Profet::PodsUser u(miTime::nowTime(),
+             getenv("HOSTNAME"),
+             loginDialog.username().toStdString().data(),
+             loginDialog.role().toStdString().data(),
+             "",miTime::nowTime(),"");
+      miString password = loginDialog.password().toStdString();
+      //TODO option for file manager
+      Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
+      if(contr->getProfetController() && !error.exists() ) {
+        try{
+          QApplication::setOverrideCursor( Qt::WaitCursor );
+          Profet::DataManagerType dmt =
+            contr->getProfetController()->connect(u,perferredType,password, useForcedConnection);
+          QApplication::restoreOverrideCursor();
+          if(dmt != perferredType)
+            QMessageBox::warning(0,"Running disconnected mode",
+              "Distributed field editing system is not available.");
+          return true;
+        }catch(Profet::ServerException & se){
+          contr->getProfetController()->disconnect();
+          offerForcedConnection = 
+            (se.getType() == Profet::ServerException::CONNECTION_ERROR &&
+                se.getMinorCode() == Profet::ServerException::DUPLICATE_CONNECTION);
+          bool withMailToLink = true;
+          error += se.getHtmlMessage(withMailToLink);
+          QApplication::restoreOverrideCursor();
+        }
       }
-    }
-  }
-  if(error.exists()) {
-    QMessageBox::critical(0,"Profet",error.cStr());
+      if(error.exists()) {
+        if(offerForcedConnection) {
+          error += "<br><b>Do you want to connect anyway?<br>(Existing user will be disconnected)</b>";
+          int i = QMessageBox::warning(0,"Profet", error.cStr(), QMessageBox::Yes, QMessageBox::No);
+          if (i == QMessageBox::Yes){
+            error = "";
+            retry = true;
+            useForcedConnection = true;
+          }
+        } else {
+          QMessageBox::critical(0,"Profet",error.cStr());
+        }
+      } // end error handling
+    } // end while retry 
   }
   profetDisconnect();
 #endif
