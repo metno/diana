@@ -472,7 +472,7 @@ vector<miTime> FieldPlotManager::getFieldTime(vector<FieldTimeRequest>& request,
   for(int j=0;j<request.size();j++){
     
     miString fieldName;
-    miString plotName=request[j].fieldName;
+    miString plotName=request[j].fieldName.downcase();
     miString suffix;
     splitSuffix(plotName,suffix);
     if(!mapPlotField.count(plotName)) return vtime;
