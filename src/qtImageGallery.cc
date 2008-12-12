@@ -105,7 +105,7 @@ bool QtImageGallery::addImageToGallery(const miString name,
 }
 
 void QtImageGallery::addImagesInDirectory(const miString& dir){
-  cerr << "============= globbing in:" << dir << endl;
+//  cerr << "============= globbing in:" << dir << endl;
   glob_t globBuf;
   glob(dir.c_str(),0,0,&globBuf);
   for( int k=0; k<globBuf.gl_pathc; k++) {
@@ -118,7 +118,7 @@ void QtImageGallery::addImagesInDirectory(const miString& dir){
       QImage image(filename);
       if ( !image.isNull() ){
 	addImageToGallery(name.toStdString(),image);
-	cerr << "-- Added image:" << name.toStdString() << endl;
+//	cerr << "-- Added image:" << name.toStdString() << endl;
       }
     }
   }
