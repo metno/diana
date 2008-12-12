@@ -99,8 +99,8 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(sessionSelected(int)));
   connect(&sessionDialog, SIGNAL(doReconnect()),
 	  this,SLOT(doReconnect()));
-  connect(&sessionDialog, SIGNAL(doUpdate()),
-	  this,SLOT(doUpdate()));
+//  connect(&sessionDialog, SIGNAL(updateActionPerformed()),
+//	  this,SLOT(doUpdate()));
   
   connect(&viewObjectDialog,SIGNAL(cancelObjectDialog()),
       &sessionDialog,SLOT(hideViewObjectDialog()));
@@ -817,11 +817,12 @@ void DianaProfetGUI::doReconnect()
     QApplication::restoreOverrideCursor();
   }
 }
-
+/*
 void DianaProfetGUI::doUpdate()
 {
   cerr << "doUpdate" << endl;
 }
+*/
 
 void DianaProfetGUI::showField(const miTime & reftime, const miString & param, const miTime & time){
   LOG4CXX_DEBUG(logger,"show field "<<param<<" "<<time);

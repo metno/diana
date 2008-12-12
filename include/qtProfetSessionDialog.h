@@ -71,7 +71,7 @@ class ProfetSessionDialog: public QDialog{
 private:
   QComboBox * sessionComboBox;
   QPushButton * reconnectButton;
-  QPushButton * updateButton;
+//  QPushButton * updateButton;
   QPushButton * closeButton;
   FetObjectListView * objectList;
   QPushButton * viewObjectButton;
@@ -136,7 +136,7 @@ signals:
   void startTimesmooth();
   void closePerformed();
   void forcedClosePerformed(bool disableGuiOnly);
-  void doUpdate();
+//  void updateActionPerformed();
   void doReconnect();
   void showObjectOverview(const QList<QModelIndex> &);
 };

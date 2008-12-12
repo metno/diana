@@ -225,7 +225,7 @@ private slots:
   void deleteObject();
   void hideProfetPerformed();
   void doReconnect();
-  void doUpdate();
+//  void doUpdate();
   void showObjectOverview(const QList<QModelIndex> &);
   void toggleObjectOverview(bool turnon, miString par, miTime time);
 
