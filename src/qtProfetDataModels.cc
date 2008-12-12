@@ -188,10 +188,9 @@ void UserListModel::clearModel(){
 
 
 QVariant SessionListModel::data(const QModelIndex &index, int role) const {
-  if (!index.isValid())
-    return QVariant();
-  if (index.row() >= sessions.size())
-    return QVariant();
+  if (!index.isValid()) return QVariant();
+  if (sessions.empty() || index.row() >= sessions.size()) return QVariant();
+  if (!sessions[index.row()].exists()) return QVariant();
   if (role == Qt::DisplayRole){
     miTime rt = sessions[index.row()].referencetime();
     miString mn = sessions[index.row()].modelsource();
