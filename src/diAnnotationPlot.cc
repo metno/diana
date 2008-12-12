@@ -408,6 +408,7 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
       if (subtokens.size()!=2) continue;
       if (subtokens[0]=="text" || subtokens[0]=="input"){
 	e.eText=subtokens[1];	
+	editable=true;
 	if (e.eText[0]=='"') e.eText= e.eText.substr(1,e.eText.length()-2);
       }
       if (subtokens[0]=="title" && e.eType==table){
@@ -437,6 +438,7 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
       else if (subtokens[0]=="name"){
 	e.eName=subtokens[1];	
 	inputText[e.eName]=e.eText;
+	editable=true;
       }
       else if (subtokens[0]=="hal"){
 	if (subtokens[1]=="center") e.eHalign=align_center;

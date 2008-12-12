@@ -1,125 +1,104 @@
-LABEL anno=<box,pstyle=none>\
-<box,vertical>\
-<image=wwwmet7,size=0.5>\
-<text="SIG-VX">\
-<text="Low-Level">\
-<text="SFC - FL 150">\
-<text="  ",size=0.8>\
-<text="Fixed time",size=0.8>\
-<text="Prognostic chart",size=0.8>\
-<\box>\
-<\box> \
-anno=<box,,vertical,pstyle=border>\
-<text="VALID %H UTC">\
-<text="%d %Beng %Y">\
-<\box> \
+LABEL \
+anno=<image=wwwmet7,size=0.5> \
+anno=<text="SIG-WX"><horalign=center> \
+anno=<text="Low-Level"><horalign=center> \
+anno=<text="SFC - FL 150"><horalign=center> \
+anno=<text="Fixed time",size=0.8><horalign=center> \
+anno=<text="Prognostic chart",size=0.8><horalign=center> \
+anno=<text="________________"><horalign=center> \
+anno=<text="VALID %H UTC"><horalign=center> \
+anno=<text="%d %Beng %Y"><horalign=center> \
+anno=<text=" "><horalign=center> \
 plotrequested=true \
-tcolour=black bcolour=black fcolour=white polystyle=both halign=left \
-valign=top xoffset=0.002 yoffset=0.002 xratio=0.3  font=Helvetica fontsize=10\
-yratio=0.3  margin=0.01 
+tcolour=black bcolour=black fcolour=white polystyle=both \
+halign=left valign=top xoffset=0.00002 yoffset=0.00002 \
+font=Helvetica fontsize=10 \
+margin=0.01 xratio=0.23 yratio=0.2
 
-LABEL anno=<box,vertical,pstyle=none>\
-<text="  ",size=0.6>\
-<text="  ",size=0.6>\
-<text="  ",size=0.6>\
+LABEL anno=\
+<box,vertical,pstyle=none>\
+<text="  ",size=0.5>\
+<text="  ",size=0.5>\
+<text="  ",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <symbol=62,font=Symbol,size=2.0,tcolour=darkYellow>\
-<text="Widespread",size=0.6>\
-<text="FG/FZFG",size=0.6>\
-<text="",size=0.6>\
+<text="Widespread",size=0.5>\
+<text="FG/FZFG",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <symbol=136,font=Symbol,size=2.0,tcolour=yellow2>\
-<text="Widespread",size=0.6>\
-<text="BR",size=0.6>\
-<text="",size=0.6>\
+<text="Widespread",size=0.5>\
+<text="BR",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <box,horizontal><image=precip,size=0.05>\
 <symbol=254,size=2.0,tcolour=green><\box>\
-<text="Moderate/heavy",size=0.6>\
-<text="precip",size=0.6>\
-<text="",size=0.6>\
+<text="Moderate/heavy",size=0.5>\
+<text="precip",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <box,horizontal>\
 <symbol=109,font=Symbol,size=2.0,tcolour=green>\
 <symbol=109,font=Symbol,size=2.0,tcolour=green>\
 <\box>\
-<text="Moderate/heavy",size=0.6>\
-<text="showers",size=0.6>\
-<text="",size=0.6>\
+<text="Moderate/heavy",size=0.5>\
+<text="showers",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <symbol=238,font=Symbol,size=1.0,tcolour=red>\
-<text="Hail/GR ",size=0.6>\
-<text=" ",size=0.6>\
-<text="",size=0.6>\
+<text="Hail/GR ",size=0.5>\
+<text=" ",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <symbol=93,font=Symbol,size=1.0,tcolour=red>\
-<text="FRZ",size=0.6>\
-<text="precip ",size=0.6>\
-<text="",size=0.6>\
+<text="FRZ",size=0.5>\
+<text="precip ",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <symbol=119,font=Symbol,size=1.0,tcolour=red>\
-<text="TS  ",size=0.6>\
-<text=" ",size=0.6>\
-<text="",size=0.6>\
+<text="TS  ",size=0.5>\
+<text=" ",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <image=sea10,size=0.05>\
-<text="Sea Temp C.",size=0.6>\
-<text="",size=0.6>\
-<text="",size=0.6>\
+<text="Sea Temp C.",size=0.5>\
+<text="",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <image=wind30,size=0.05>\
-<text="Mean",size=0.6>\
-<text="SFC wind",size=0.6>\
-<text="",size=0.6>\
+<text="Mean",size=0.5>\
+<text="SFC wind",size=0.5>\
 <\box>\
-anno=<box,vertical,pstyle=none>\
+<box,vertical,pstyle=none>\
 <symbol=106,font=Symbol,size=1.0,tcolour=black>\
-<text="Mountain",size=0.6>\
-<text="Obscuration",size=0.6>\
-<text="",size=0.6>\
+<text="Mountain",size=0.5>\
+<text="Obscuration",size=0.5>\
+<\box>\
+<\box> \
+anno=<box,vertical,pstyle=none>\
+<text="  Further information on MTW, low level turb and VA: See SIGMET and/or local advisories/warnings",size=0.5>\
+<text="  Pressure in HPA and speeds in KT. Altitude in hectofeet abv MSL.XXX=>15.000ft.",size=0.5> \
 <\box> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both halign=left \
 font=Helvetica fontsize=10 \
-valign=bottom xoffset=0.0001 yoffset=0.001 margin=0.000001
+valign=bottom xoffset=0.00001 yoffset=0.0000001 margin=0.000001 xratio=0.7 yratio=0.09
+
 
 LABEL \
-anno=<text="General situation and",face=bold,size=0.8> \
-anno=<text="significant weather",face=bold,size=0.8> \
+anno=<text="General situation and",size=0.8,face=bold> \
+anno=<text="significant weather",size=0.8,face=bold> \
 anno=<input="...",name=phenomena1,size=0.8> \
 anno=<input="...",name=phenomena2,size=0.8> \
 anno=<input="...",name=phenomena3,size=0.8> \
 anno=<input="...",name=phenomena4,size=0.8> \
 anno=<input="...",name=phenomena5,size=0.8> \
 anno=<input="...",name=phenomena6,size=0.8> \
-anno=<input="...",name=phenomena7,size=0.8> \
-anno=<input="...",name=phenomena8,size=0.8> \
-anno=<input="...",name=phenomena9,size=0.8> \
-anno=<input="...",name=phenomena10,size=0.8> \
 tcolour=black plotrequested=true \
 bcolour=black fcolour=white polystyle=both halign=left valign=center \
 font=Helvetica fontsize=10 face=normal xoffset=0 yoffset=0.4 \
-margin=0.01 xratio=0.3 yratio=0.3
-
-LABEL \
-anno=<text="Further information on MTW, low level turb and VA:",size=0.6> \
-anno=<text="See SIGMET and/or local advisories/warnings",size=0.6> \
-anno=<text="Pressure in HPA and speeds in KT",size=0.6> \
-anno=<text="Altitude in hectofeet abv MSL.XXX=>15.000ft.",size=0.6> \
-anno=<text="",size=0.6> \
-tcolour=black plotrequested=true \
-bcolour=black fcolour=white polystyle=fill halign=right valign=bottom \
-font=Helvetica fontsize=10 face=normal xoffset=0.0001 yoffset=0.000001 \
-margin=0.0001 
+margin=0.01 xratio=0.2 yratio=0.15
 
 
 

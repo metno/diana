@@ -2903,13 +2903,14 @@ void EditManager::initEditTools(){
   // Sea state, black flag
   sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black"));
   // Freezing fog
-  sigsymbols.push_back(newEditToolInfo("Sig30",1030,"yellow2", "orange"));
+  sigsymbols.push_back(newEditToolInfo("Sig30",1030,"gulbrun", "red"));
+  sigsymbols.push_back(newEditToolInfo("Fog",1041,"gulbrun"));
   //Nuclear
   sigsymbols.push_back(newEditToolInfo("Sig31",1031,"black"));
   //precipitation, green lines
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"dnmi_green"));
   //Visibility, black rectangular box
-  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));  
+  //  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));  
   //Vulcano box
   sigsymbols.push_back(newEditToolInfo("Sig34",1034,"black"));
   //New cross
@@ -2920,7 +2921,7 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig37",1037,"yellow2"));
   sigsymbols.push_back(newEditToolInfo("Sig38",1038,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig39",1039,"red"));
-  sigsymbols.push_back(newEditToolInfo("Sig40",1040,"black"));
+  sigsymbols.push_back(newEditToolInfo("Clouds",1040,"black"));
 
 
 

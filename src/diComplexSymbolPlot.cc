@@ -105,6 +105,10 @@ void ComplexSymbolPlot::initStrings(int drawIndex){
     if (symbolStrings.size()==1)
       symbolStrings.push_back(symbolStrings[0]);
     break;
+  case 1033:
+    if (symbolStrings.size()==0)
+      currentSymbolStrings.push_back("");
+    break;
   }
 }
 
@@ -358,6 +362,9 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   case 1040:
     drawSig40(0,0);	
     break;       
+  case 1041:
+    drawSig1(0,0,FOGSYMBOL);	
+    break; 
       
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
@@ -640,6 +647,7 @@ void ComplexSymbolPlot::drawSig27(float x,float y){
     sigString=symbolStrings[0];
   drawCircle(1000,x,y,true);
   drawSigString(x,y,false);
+  nstringsvisible=1;
   drawBigBox(1027,x,y,2);
 }
 
@@ -649,6 +657,7 @@ void ComplexSymbolPlot::drawSig28(float x,float y){
     sigString=symbolStrings[0];
   drawDiamond(1000,x,y);
   drawSigString(x,y,false);
+  nstringsvisible=1;
   drawBigBox(1028,x,y,2);
 }
 
@@ -659,6 +668,7 @@ void ComplexSymbolPlot::drawSig29(float x,float y){
   drawFlag(1000,x,y,true); //fill;
   drawFlag(1000,x,y,false); //border
   drawSigString(x,y,false);
+  nstringsvisible=1;
   drawBigBox(1029,x,y,3);
 }
 
@@ -705,6 +715,8 @@ void ComplexSymbolPlot::drawSig33(float x,float y){
 
   poptions.fontface="italic";
   drawSigString(x,y);
+  nstringsvisible=1;
+
   drawBigBox(1033,x,y,1);
 
 }
@@ -729,7 +741,7 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
   } else if (symbolStrings.size()==2){
     drawDoubleSigText(x,y,false);	
   }
-  nstringsvisible=1;
+  //  nstringsvisible=1;
   float sw,sh;
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
   drawBigBox(1036,x,y,0);
@@ -802,11 +814,14 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
   float sw,sh;
-  getComplexSize(index,sw,sh);
+  miString s = "10";
+  fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  fp->getStringSize(s.c_str(),sw,sh);
+  sw=1.1*sw; sh=1.2*sh;
   sh = sh*1.5;
   sw = sw*1.5;
-  GLfloat radius = sw/2;
 
+  GLfloat radius = sw/2;
 
   GLfloat x2 = x-0.5*sw;
   GLfloat y2 = y+0.5*sh;
@@ -815,6 +830,7 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
   GLfloat y1;
   GLfloat offset=sh/3;
 
+  glLineWidth(3);
   if(fill) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
@@ -857,7 +873,9 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
     x1 = x +radius*cos(i*PI/10.0)-sw/2;
     y1 = y3 - 0.5*radius*sin(i*PI/10.0);
     glVertex2f(x1,y1+offset);
-    offset+=sh/30;
+   
+
+ offset+=sh/30;
   }   
 
   glEnd();
@@ -874,7 +892,15 @@ void ComplexSymbolPlot::drawCircle(int index,
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
   float sw,sh;
-  getComplexSize(index,sw,sh);
+  if(circle) {
+    miString s = "10";
+    fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+    fp->getStringSize(s.c_str(),sw,sh);
+    sw=1.1*sw; sh=1.2*sh;
+  } else {
+    getComplexSize(index,sw,sh);
+  }
+
   //  if(symbolStrings.size()==2&& symbolStrings[1]!="") sh*=2;
   GLfloat xc,yc;
   GLfloat radius;
@@ -934,7 +960,11 @@ void ComplexSymbolPlot::drawDiamond(int index,float x, float y){
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
   float sw,sh;
-  getComplexSize(index,sw,sh);
+  miString s = "10";
+  fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  fp->getStringSize(s.c_str(),sw,sh);
+  sw=1.1*sw; sh=1.2*sh;
+
   GLfloat xc,yc;
   GLfloat radius=sw/1.8;
 
@@ -1339,6 +1369,13 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
 	sh *= 1.1;
       }
       break;
+    case 1037:
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->getCharSize(WIDESPREADBRSYMBOL,cw,ch);
+      sh =ch;
+      sw=cw;
+      sw=cw; sh=ch;
+      break;
     case 1040:
       symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
       getComplexSize(1007,cw1,ch1);
@@ -1477,6 +1514,8 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
     return false;	
   case 1040:
     return true;	
+  case 1041:
+    return false;	
   case 2000:
     return true;	
   default:
