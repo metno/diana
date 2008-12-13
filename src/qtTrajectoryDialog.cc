@@ -214,7 +214,7 @@ void TrajectoryDialog::numposSlot(int i){
   if(current<0) return; 
   
   positionVector[current].numPos=numposBox->currentText().toStdString();
-  emit update();
+  emit updateTrajectories();
 }
 
 /*********************************************/
@@ -239,7 +239,7 @@ void TrajectoryDialog::radiusSpinChanged(int i){
   if(current<0) return; 
   
   positionVector[current].radius=i;
-  emit update();
+  emit updateTrajectories();
 }
 
 
@@ -265,7 +265,7 @@ void TrajectoryDialog::posListSlot(){
     vstr.push_back("delete"); //delete all start positions
     contr->trajPos(vstr); 
     sendAllPositions();   
-  emit update();
+  emit updateTrajectories();
 }
 /****************************************************************************/
 
@@ -306,7 +306,7 @@ void TrajectoryDialog::deleteClicked(){
     contr->trajPos(vstr); 
     sendAllPositions();   
 
-    emit update();    
+    emit updateTrajectories();    
     posListSlot();
   }
 
@@ -324,7 +324,7 @@ void TrajectoryDialog::deleteAllClicked(){
   vstr.push_back("delete"); //delete all start positions
   contr->trajPos(vstr); 
 
-  emit update();
+  emit updateTrajectories();
 }
 
 /*********************************************/
@@ -357,7 +357,7 @@ void TrajectoryDialog::startCalcButtonClicked(){
   vstr.push_back(str);
   contr->trajPos(vstr);
 
-  emit update();
+  emit updateTrajectories();
 
   contr->startTrajectoryComputation();
 }
@@ -400,7 +400,7 @@ void TrajectoryDialog::timeSpinSlot( int i) {
   vector<miString> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
-  emit update();
+  emit updateTrajectories();
 
 }
 
@@ -412,7 +412,7 @@ void TrajectoryDialog::colourSlot( int i) {
   vector<miString> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
-  emit update();
+  emit updateTrajectories();
 }
 /*********************************************/
 
@@ -424,7 +424,7 @@ void TrajectoryDialog::lineWidthSlot( int i) {
   vector<miString> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
-  emit update();
+  emit updateTrajectories();
 }
 
 void TrajectoryDialog::lineTypeSlot( int i) {
@@ -435,7 +435,7 @@ void TrajectoryDialog::lineTypeSlot( int i) {
   vector<miString> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
-  emit update();
+  emit updateTrajectories();
 }
 
 
@@ -483,7 +483,7 @@ void TrajectoryDialog::mapPos(float lat, float lon) {
   vstr.push_back("clear");
   vstr.push_back(posString);
   contr->trajPos(vstr);
-  emit update();
+  emit updateTrajectories();
 
 
 }
@@ -544,7 +544,7 @@ void TrajectoryDialog::sendAllPositions(){
     vstr.push_back(posString);
   }
   contr->trajPos(vstr);
-  emit update();
+  emit updateTrajectories();
 }
 
 
@@ -573,7 +573,7 @@ void TrajectoryDialog::showplus(){
 
   sendAllPositions();
 
-  emit update();
+  emit updateTrajectories();
 }
 /*********************************************/
 

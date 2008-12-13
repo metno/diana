@@ -131,7 +131,7 @@ private slots:
 signals:
   void markPos(bool);
   void TrajHide();
-  void update();
+  void updateTrajectories();
   void showsource(const miString, const miString="");
 };
 
