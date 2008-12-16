@@ -481,6 +481,7 @@ bool AnnotationPlot::plot(){
     window= fullrect;
 
   fontsizeToPlot= int(poptions.fontsize);
+
   scaleFactor=1.0;
 
   //border and offset of annotations
@@ -595,6 +596,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl,
   else
     fontsizeScale = 1.0;
 
+    //    cerr <<"fontsizeScale:"<<fontsizeScale<<endl;
   for (int j=0;j<nel;j++){
     if(!horizontal && j!=0)
       y-=annoEl[j].height;
@@ -959,7 +961,7 @@ void AnnotationPlot::getXYBoxScaled(Rectangle& window){
   getXYBox();
   //check if annotation is too big for the box, this could happen if
   // not small enough fonts available (plot empty box)
-  if (bbox.width()*0.9 >xboxScale || bbox.height()*0.9 >yboxScale)
+  if (bbox.width()*0.5 >xboxScale || bbox.height()*0.5 >yboxScale)
     plotAnno=false;
   //change bbox to correct size and position
   if (poptions.h_align==align_right)
