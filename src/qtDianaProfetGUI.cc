@@ -90,7 +90,7 @@ void DianaProfetGUI::connectSignals(){
   connect(&sessionDialog,SIGNAL(deleteObjectPerformed()),
       this,SLOT(deleteObject()));
   connect(&sessionDialog,SIGNAL(closePerformed()),
-      this,SIGNAL(toggleProfetGui())); // only signaled when gui is visible 
+      this,SIGNAL(toggleProfetGui())); // only signaled when gui is visible
   connect(&sessionDialog,SIGNAL(forcedClosePerformed(bool)),
       this,SIGNAL(forceDisconnect(bool)));
   connect(&sessionDialog,SIGNAL(sendMessage(const QString &)),
@@ -101,10 +101,10 @@ void DianaProfetGUI::connectSignals(){
 	  this,SLOT(doReconnect()));
 //  connect(&sessionDialog, SIGNAL(updateActionPerformed()),
 //	  this,SLOT(doUpdate()));
-  
+
   connect(&viewObjectDialog,SIGNAL(cancelObjectDialog()),
       &sessionDialog,SLOT(hideViewObjectDialog()));
-  
+
   connect(&editObjectDialog,SIGNAL(saveObjectClicked()),
       this,SLOT(saveObject()));
   connect(&editObjectDialog,SIGNAL(cancelObjectDialog()),
@@ -501,19 +501,31 @@ void DianaProfetGUI::handleServerException(Profet::ServerException & se){
   }
   QMessageBox::critical(0,QString("Profet Warning"),se.getHtmlMessage(true).c_str());
 }
+void DianaProfetGUI::collectRelatedTimeValues(vector<fetObject::TimeValues>& obj, miString id_, bool withPolygon)
+{
+  if(!id_.exists()){
+    try{
+      fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
+      id_=fo.id();
+    }catch(InvalidIndexException & iie){
+      LOG4CXX_ERROR(logger,"DianaProfetGUI::collectRelatedTimeValue :" << iie.what());
+      return;
+    }
+  }
+
+  try {
+    obj=controller.getTimeValues(id_,withPolygon);
+  } catch (Profet::ServerException & se){
+    handleServerException(se);
+    return;
+  }
+
+
+}
 
 void DianaProfetGUI::startTimesmooth()
 {
   if(activeTimeSmooth) return;
-
-  miString id_;
-  try{
-     fetObject fo = objectModel.getObject(sessionDialog.getCurrentObjectIndex());
-     id_=fo.id();
-  }catch(InvalidIndexException & iie){
-     LOG4CXX_ERROR(logger,"DianaProfetGUI::startTimesmooth :" << iie.what());
-     return;
-  }
 
   vector<miTime> tim;
   try{
@@ -524,12 +536,8 @@ void DianaProfetGUI::startTimesmooth()
     return;
   }
   vector<fetObject::TimeValues> obj;
-  try {
-    obj=controller.getTimeValues(id_);
-  } catch (Profet::ServerException & se){
-    handleServerException(se);
-    return;
-  }
+
+  collectRelatedTimeValues(obj,"",false);
 
   if(obj.empty()) return;
 
@@ -569,7 +577,7 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
     }
   }catch(Profet::ServerException & se){
     cerr << "DianaProfetGUI::processTimesmooth:  Failed to delete " <<
-      "depricated object. (Not significant)" << endl;
+      "depreciated object. (Not significant)" << endl;
   }
 
 
@@ -737,7 +745,7 @@ void DianaProfetGUI::createNewObject(){
   enableObjectButtons(false,false,false);
 }
 
-void DianaProfetGUI::toggleViewObject(bool show) 
+void DianaProfetGUI::toggleViewObject(bool show)
 {
   setViewObjectDialogVisible(show);
 }

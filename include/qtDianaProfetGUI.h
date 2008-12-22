@@ -207,6 +207,7 @@ private slots:
   void copyPolygon(miString,miString,bool);
   void selectPolygon(miString);
   void requestPolygonList();
+  void collectRelatedTimeValues(vector<fetObject::TimeValues>& tv, miString id_="", bool withPolygon=false);
   void startTimesmooth();
   void processTimesmooth(vector<fetObject::TimeValues> tv);
   void endTimesmooth(vector<fetObject::TimeValues> tv);

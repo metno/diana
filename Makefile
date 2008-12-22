@@ -126,13 +126,13 @@ depends:
 	cd $(OBJDIR); make $(OPTIONS) depends
 
 mark:
-	@echo  '[1;31mMaking diana ----------[0m'
+	@echo  'Making diana ---------- '
 
 diana:
 	cd $(OBJDIR); make $(OPTIONS) mkdiana
 
 bmark:
-	@echo '[1;31mMaking bdiana -----------[0m'
+	@echo 'Making bdiana -----------------'
 
 bdiana:
 	cd $(OBJDIR); make $(OPTIONS) mkbdiana

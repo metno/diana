@@ -95,12 +95,12 @@ BALLOBJ= $(CCOBJ) $(COBJ) $(BOBJ)
 
 # From .cc to .o
 .cc.o:
-	@echo -e "\n[0;34mCOMPILING ......................... $< [0m"
+	@echo -e "\nCOMPILING ......................... $< "
 	$(CXX) -c $(CCFLAGS) $(INCLUDE) -DQT3_SUPPORT   $<
 
 # From .c to .o
 .c.o:
-	@echo -e "\n[0;34mCOMPILING ......................... $< [0m"
+	@echo -e "\nCOMPILING ......................... $< "
 	$(CC) -c $(CFLAGS) $(INCLUDE) -DQT3_SUPPORT   $<
 
 #----------------------------------------------------------------------------
