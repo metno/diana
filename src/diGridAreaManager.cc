@@ -145,12 +145,21 @@ void GridAreaManager::clearTemporaryAreas(){
   tmp_gridAreas.clear();
 }
 
-void GridAreaManager::addTemporaryArea(miString id, ProjectablePolygon area, Colour & colour) {
+void GridAreaManager::addOverviewArea(miString id, ProjectablePolygon area, Colour & colour){
   GridArea newArea(id, area);
   newArea.updateCurrentProjection();
-  newArea.setColours(colour);
+  newArea.setStyle(GridArea::OVERVIEW);
+  newArea.setColour(colour);
   tmp_gridAreas[id] = newArea;
 }
+
+void GridAreaManager::addGhostArea(miString id, ProjectablePolygon area){
+  GridArea newArea(id, area);
+  newArea.updateCurrentProjection();
+  newArea.setStyle(GridArea::GHOST);
+  tmp_gridAreas[id] = newArea;
+}
+
 
 bool GridAreaManager::addArea(miString id) {
   LOG4CXX_DEBUG(logger,"Adding empty area with id " << id);

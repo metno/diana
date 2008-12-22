@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -53,16 +53,16 @@ enum cursortype;
 
 /**
 	\brief Manager for GridAreas
-	
+
 	Manages a collection of GridAreas.
 	Maintains a current area.
-	Modifies the current area depending on the state (paint-mode). 
+	Modifies the current area depending on the state (paint-mode).
 */
 class GridAreaManager {
-	
+
 public:
     enum PaintMode{SELECT_MODE,DRAW_MODE,INCLUDE_MODE,CUT_MODE,MOVE_MODE};
-    
+
 private:
 #ifndef NOLOG4CXX
     log4cxx::LoggerPtr logger;
@@ -73,7 +73,7 @@ private:
 	mapMode mapmode;
 	GridConverter gc;   // gridconverter class
 	float first_x;
-	float first_y; 
+	float first_y;
 	float newx,newy;
 	PaintMode paintMode;
 	bool changeCursor;
@@ -83,7 +83,7 @@ private:
 	void updateSelectedArea();
 
 public:
-	GridAreaManager(); 
+	GridAreaManager();
 	~GridAreaManager();
 	/// Replace all Grid-areas with specified areas
 	bool setGridAreas(map<miString,Polygon> newAreas, Area currentProj );
@@ -92,8 +92,10 @@ public:
 	bool inDrawing;
   /// handling temporary areas
 	void clearTemporaryAreas();
-  void addTemporaryArea(miString id, ProjectablePolygon area, Colour & colour);
-	/// Setting current paint mode
+  void addOverviewArea(miString id, ProjectablePolygon area, Colour & colour);
+  void addGhostArea(miString id, ProjectablePolygon area);
+
+  /// Setting current paint mode
 	void setPaintMode(PaintMode mode);
 	/// Returns current paint mode
 	PaintMode getPaintMode() const;
@@ -130,9 +132,9 @@ public:
 	bool setCurrentArea(miString id);
 	/// True if current area exist
 	bool hasCurrentArea();
-	/// True if selected area is not empty (defined area selected) 
+	/// True if selected area is not empty (defined area selected)
 	bool isAreaSelected();
-	/// True if an empty area is selected. (returns false if no area selected) 
+	/// True if an empty area is selected. (returns false if no area selected)
 	bool isEmptyAreaSelected();
 	/// Returns selected id;
 	miString getCurrentId();

@@ -2,6 +2,7 @@
 #include <AbstractablePolygon.h>
 #include <Point.h>
 #include <diTesselation.h>
+#include <polyStipMasks.h>
 #include <Segment.h>
 #include <list>
 
@@ -9,38 +10,42 @@ using namespace std;
 
 int GridArea::maxBuffer = 8;
 
-GridArea::GridArea():Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(),colours_defined(false){
+GridArea::GridArea():Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
 	Area stdProj = getStandardProjection();
 	init(stdProj,stdProj);
   saveChange();
 }
 
-GridArea::GridArea(string id):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
+GridArea::GridArea(string id):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
 	Area stdProj = getStandardProjection();
 	init(stdProj,stdProj);
   saveChange();
 }
- 
-GridArea::GridArea(string id, Area org_proj):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
+
+GridArea::GridArea(string id, Area org_proj):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
 	init(org_proj,org_proj);
   saveChange();
 }
- 
-GridArea::GridArea(string id, ProjectablePolygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
+
+GridArea::GridArea(string id, ProjectablePolygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
 	init(area_.getOriginalProjection(),area_.getOriginalProjection());
 	polygon.setOriginalProjectionPoints(area_);
   saveChange();
 }
 
-GridArea::GridArea(string id, Area org_proj, Polygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false){
+GridArea::GridArea(string id, Area org_proj, Polygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
 	init(org_proj,org_proj);
 	polygon.setOriginalProjectionPoints(area_);
   saveChange();
 }
 
-void GridArea::setColours(Colour & fc){
-  fillcolour= fc; 
+void GridArea::setColour(Colour & fc){
+  fillcolour= fc;
   colours_defined = true;
+}
+
+void GridArea::setStyle(const DrawStyle & ds){
+  drawstyle = ds;
 }
 
 void GridArea::init(Area orgProj, Area currentProj){
@@ -75,7 +80,7 @@ ProjectablePolygon & GridArea::getPolygon() {
 }
 
 bool GridArea::addPoint(Point p){
-	if(mode == EDIT){  
+	if(mode == EDIT){
 		displayEditPolygon.push_back(p);
 		return true;
 	}
@@ -102,73 +107,85 @@ bool GridArea::plot(){
 		fillPolygon(displayPolygon,true);
 		fillActivePolygon(displayPolygon,true);
 	}
-	else{ 
+	else{
 		drawPolygon(displayPolygon,true);
 	}
     UpdateOutput();
     return true;
 }
 
-void GridArea::drawPolygon(Polygon & p, bool main_polygon){ 
+void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	list<Point> points = p.get_points();
 	list<Point>::iterator current = points.begin();
-	Point p1, pb;		     
-	p1 = pb = (Point) *current; 
+	Point p1, pb;
+	p1 = pb = (Point) *current;
 	glLineWidth(1);
 	glBegin(GL_LINE_STRIP); // GL_LINE_LOOP
 	if(!main_polygon)
 		glColor3d(1,0.0,0.0);
 	else glColor3d(0.0,0.0,0.0);
 	do{
-		p1 = (Point) *current; 
-	  	glVertex2f(p1.get_x(),p1.get_y()); 
+		p1 = (Point) *current;
+	  	glVertex2f(p1.get_x(),p1.get_y());
 	}
 	while (++current != points.end());
-	
+
 	if( (main_polygon && !isEmptyArea()) || (!main_polygon && !isEmptyEditArea()) ){	//connect end to beginning
   		glVertex2f(pb.get_x(),pb.get_y());
 	}
 	glFlush();
 	glEnd();
-} 
+}
 
 void GridArea::fillPolygon(Polygon & p, bool main_polygon){
 	int nPoints = p.get_points().size();
 	if(nPoints < 3) return;
-	
 
 	Polygon::iterator current = p.begin();
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-    if ( colours_defined ){
-      glColor4ubv(fillcolour.RGBA());
-    } else {
-    if(main_polygon){
-    	if(selected)
-    		glColor4d(0.2, 0.2, 0.8, 0.2);
-		else
-		  glColor4d(0.6, 0.6, 0.6, 0.1);
-    }
-	else glColor4d(0.8, 0.2, 0.2, 0.3);
-    }
-    
-    // Using GL tesselation
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+
+	if ( colours_defined ){
+	  glColor4ubv(fillcolour.RGBA());
+	} else {
+	  if (drawstyle == DEFAULT){
+	    if(main_polygon){
+	      if(selected)
+	        glColor4d(0.2, 0.2, 0.8, 0.2);
+	      else
+	        glColor4d(0.6, 0.6, 0.6, 0.1);
+	    }
+	    else glColor4d(0.8, 0.2, 0.2, 0.3);
+	  } else if (drawstyle == OVERVIEW){
+	    glColor4d(0.5, 0.5, 0.5, 0.1);
+	  } else if (drawstyle == GHOST){
+	    glColor4d(0.5, 0.5, 0.5, 0.1);
+	  }
+	}
+
+	if (drawstyle == GHOST){
+	  glEnable(GL_POLYGON_STIPPLE);
+	  glPolygonStipple(square);
+	}
+
+	// Using GL tesselation
 	GLdouble *gldata= new GLdouble[nPoints*3];
 	int j = 0;
 	for (int i=0; i<nPoints; i++) {
-		Point point = (Point) *current;
-		gldata[j]  = point.get_x();
-		gldata[j+1]= point.get_y();
-		gldata[j+2]= 0.0; 
-		j+=3;  
-		current++;  
+	  Point point = (Point) *current;
+	  gldata[j]  = point.get_x();
+	  gldata[j+1]= point.get_y();
+	  gldata[j+2]= 0.0;
+	  j+=3;
+	  current++;
 	}
-    beginTesselation();
-    tesselation(gldata, 1, &nPoints);
-    endTesselation();  
-    delete[] gldata; 
+	beginTesselation();
+	tesselation(gldata, 1, &nPoints);
+	endTesselation();
+	delete[] gldata;
 	glDisable(GL_BLEND);
+  glDisable(GL_POLYGON_STIPPLE);
 }
 
 void GridArea::fillActivePolygon(Polygon & p, bool main_polygon){
@@ -181,28 +198,29 @@ void GridArea::fillActivePolygon(Polygon & p, bool main_polygon){
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-    if(main_polygon){
-    	if(selected)
-    		glColor4d(0.2, 0.2, 0.8, 0.3);
-		else
-		  glColor4d(0.6, 0.6, 0.6, 0.2);
-    }
-	else glColor4d(0.8, 0.2, 0.2, 0.5);
 
-    list<Point>::iterator q = points.begin();
-    vector<GLfloat> x;    
-    vector<GLfloat> y;
-    for (; q!=points.end(); q++) {
-      x.push_back((*q).get_x());
-      y.push_back((*q).get_y());
-    }
-    
-    for(int i=0;i<x.size()-3;i+=4){
+  if(main_polygon){
+    if(selected)
+      glColor4d(0.2, 0.2, 0.8, 0.3);
+    else
+      glColor4d(0.6, 0.6, 0.6, 0.2);
+  }
+  else glColor4d(0.8, 0.2, 0.2, 0.5);
+
+  list<Point>::iterator q = points.begin();
+  vector<GLfloat> x;
+  vector<GLfloat> y;
+  for (; q!=points.end(); q++) {
+    x.push_back((*q).get_x());
+    y.push_back((*q).get_y());
+  }
+
+  for(int i=0;i<x.size()-3;i+=4){
     glBegin(GL_POLYGON); // GL_LINE_LOOP
-      glVertex2f(x[i],  y[i] ); 
-      glVertex2f(x[i+1],y[i+1] ); 
-      glVertex2f(x[i+2],y[i+2] ); 
-      glVertex2f(x[i+3],y[i+3] ); 
+    glVertex2f(x[i],  y[i] );
+    glVertex2f(x[i+1],y[i+1] );
+    glVertex2f(x[i+2],y[i+2] );
+    glVertex2f(x[i+3],y[i+3] );
     glEnd();
   }
   glFlush();
@@ -277,7 +295,7 @@ void GridArea::doMove(){
 		moveX = moveY = 0;
     saveChange();
 	}
-	mode = NORMAL; 
+	mode = NORMAL;
 }
 
 void GridArea::startDraw(Point p){
@@ -328,10 +346,10 @@ void GridArea::reset(){
 void GridArea::resetEditPolygon(){
 	editPolygon.clearPoints();
 	displayEditPolygon.clearPoints();
-} 
+}
 
 void GridArea::updateCurrentProjection(){
-	polygon.setCurrentProjection(area); 
+	polygon.setCurrentProjection(area);
 	editPolygon.setCurrentProjection(area);
 	displayPolygon = polygon.getInCurrentProjection();
 	displayEditPolygon = editPolygon.getInCurrentProjection();
@@ -357,7 +375,7 @@ bool GridArea::isRedoPossible() {
 bool GridArea::redo() {
   if (!isRedoPossible())
     return false;
-  
+
   polygon = redobuffer.front();
   redobuffer.pop_front();
   undobuffer.push_front(polygon);
@@ -375,12 +393,12 @@ bool GridArea::isUndoPossible() {
 bool GridArea::undo() {
   if (!isUndoPossible())
     return false;
-  
+
   redobuffer.push_front(polygon);
   undobuffer.pop_front();
   polygon = undobuffer.front();
   displayPolygon = polygon.getInCurrentProjection();
-  
+
   dirty = true;
   return true;
 }

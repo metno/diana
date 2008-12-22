@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -48,25 +48,26 @@
 #include <miLogger/logger.h>
 #endif
 
-using namespace std; 
+using namespace std;
 /**
 	\brief A plotable area (polygon) with projection independance
-	
+
 	A plotable polygon marking an area in diana.
 	The area can be plotted under modification.
-	The area maintains data in a original-projection while 
-	interacting in a current-projection.  
+	The area maintains data in a original-projection while
+	interacting in a current-projection.
 */
 class GridArea : public Plot{
-	
+
 public:
 	enum AreaMode{NORMAL,EDIT,MOVE};
-	
+  enum DrawStyle{DEFAULT,OVERVIEW,GHOST};
+
 private:
 #ifndef NOLOG4CXX
     log4cxx::LoggerPtr logger;
 #endif
-	//Selected area	
+	//Selected area
 	ProjectablePolygon polygon;
 	//Displayed polygon
 	Polygon displayPolygon;
@@ -74,16 +75,18 @@ private:
 	ProjectablePolygon editPolygon;
 	//Displayed polygon to be added or deleted
 	Polygon displayEditPolygon;
-	
+
   list< ProjectablePolygon >  undobuffer;
   list< ProjectablePolygon >  redobuffer;
   static int maxBuffer;
-  
+
 	bool selected;
 	AreaMode mode;
-  bool colours_defined;
+	DrawStyle drawstyle;
+
+	bool colours_defined;
   Colour fillcolour;
-  
+
 	Area getStandardProjection();
 	void resetEditPolygon();
 	void fillPolygon(Polygon & p,bool main);
@@ -93,17 +96,19 @@ private:
 	double moveX;
 	double moveY;
 	void init(Area org, Area current);
-	// Add current polygon to undobuffer
+	// Add current polygon to undo buffer
   void saveChange();
-	
+
 public:
 	GridArea();
 	GridArea(string id);
-        GridArea(string id, Area org_proj);
+	GridArea(string id, Area org_proj);
 	GridArea(string id, ProjectablePolygon area);
 	GridArea(string id, Area originalProjection, Polygon area);
-  
-  void setColours(Colour & fc);
+
+  void setColour(Colour & fc);
+  void setStyle(const DrawStyle & ds);
+  DrawStyle getStyle() { return drawstyle; }
 
 	ProjectablePolygon & getPolygon() ;
 	///True if selected area is empty (no closed area selected)
@@ -142,7 +147,7 @@ public:
 	void setSelected(bool);
 	///Check if area is selected
 	bool isSelected();
-	///Forced update to current diana projection 
+	///Forced update to current diana projection
 	void updateCurrentProjection();
   /// set the list of Points which are actually affected by the mask
   void setActivePoints(vector<Point>);

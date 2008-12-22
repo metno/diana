@@ -192,7 +192,7 @@ void DianaProfetGUI::toggleObjectOverview(bool turnon, miString par, miTime time
 	colour = Colour(128,128,70,100);
       }
 
-      areaManager->addTemporaryArea(objects[i].id(),objects[i].polygon(),colour);
+      areaManager->addOverviewArea(objects[i].id(),objects[i].polygon(),colour);
     }
   } else {
     areaManager->clearTemporaryAreas();
