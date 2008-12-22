@@ -210,6 +210,7 @@ private slots:
   void collectRelatedTimeValues(vector<fetObject::TimeValues>& tv, miString id_="", bool withPolygon=false);
   void startTimesmooth();
   void processTimesmooth(vector<fetObject::TimeValues> tv);
+  void processTimeValues(vector<fetObject::TimeValues> tv,vector<miString> del_ids);
   void endTimesmooth(vector<fetObject::TimeValues> tv);
 
   void cancelEditObjectDialog();

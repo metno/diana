@@ -558,6 +558,13 @@ void DianaProfetGUI::startTimesmooth()
 
 void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
 {
+  vector<miString> del_ids;
+  processTimeValues(tv,del_ids);
+}
+
+
+void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,vector<miString> del_ids)
+{
   vector<fetObject> obj;
 
   currentObjectMutex.lock();
@@ -567,6 +574,10 @@ void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
 
   set<miString>     deletion_ids;
   controller.getTimeValueObjects(obj,tv,deletion_ids);
+  for (int i = 0; i < del_ids.size(); ++i) {
+    deletion_ids.insert(del_ids[i]);
+  }
+
   // deleting objects without effect
   try{
     for(int i=0;i<tv.size();i++) {
