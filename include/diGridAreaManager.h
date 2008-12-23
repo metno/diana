@@ -61,7 +61,7 @@ enum cursortype;
 class GridAreaManager {
 
 public:
-    enum PaintMode{SELECT_MODE,DRAW_MODE,INCLUDE_MODE,CUT_MODE,MOVE_MODE};
+    enum PaintMode{SELECT_MODE,DRAW_MODE,INCLUDE_MODE,CUT_MODE,MOVE_MODE,SPATIAL_INTERPOLATION};
 
 private:
 #ifndef NOLOG4CXX
@@ -81,6 +81,7 @@ private:
 	cursortype getCurrentCursor();
 	bool selectArea(Point p);
 	void updateSelectedArea();
+	void doSpatialInterpolation(const miString & movedId, float moveX, float moveY);
 
 public:
 	GridAreaManager();

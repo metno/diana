@@ -59,6 +59,7 @@ private:
   QAction *includeAction;
   QAction *cutAction;
   QAction *moveAction;
+  QAction *spatialAction;
   QAction *undoAction;
   QAction *redoAction;
   

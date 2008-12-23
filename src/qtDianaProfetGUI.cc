@@ -779,6 +779,18 @@ void DianaProfetGUI::editObject(){
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
     // Area always ok for a saved object
     editObjectDialog.setAreaStatus(ProfetObjectDialog::AREA_OK);
+    
+    // Set child-areas (used for spatial interpolation)
+    // TODO : Is this a valid way to check for time-smooth?
+    areaManager->clearTemporaryAreas();
+    if (fo.parent().exists()) {
+      vector<fetObject::TimeValues> timeValues;
+      collectRelatedTimeValues(timeValues,fo.id(),true);
+      for (int i=0; i<timeValues.size(); i++) {
+        areaManager->addGhostArea(timeValues[i].id, timeValues[i].polygon);
+      }
+    }
+    
   }catch(Profet::ServerException & se){
     handleServerException(se);
   }catch(InvalidIndexException & iie){

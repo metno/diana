@@ -1,6 +1,7 @@
 #include <diGridAreaManager.h>
 #include <iostream>
 #include <AbstractablePolygon.h>
+#include <propoly/Point.h>
 #include <diGridConverter.h>
 #include <diGridArea.h>
 #include <sstream>
@@ -79,15 +80,16 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
           res.repaint = true;
           res.action=grid_area_changed;
         }
-      } else if (paintMode==MOVE_MODE) {
-        if (gridAreas.count(currentId)) {
-          LOG4CXX_DEBUG(logger,"Starting move " << currentId);
-          return gridAreas[currentId].startMove();
-        }
       } else if (!gridAreas.count(currentId)) {
         LOG4CXX_WARN(logger,getModeAsString() <<
             " not possible. No selected area " << currentId);
         return;
+      } else if (paintMode==MOVE_MODE) {
+          LOG4CXX_DEBUG(logger,"Starting move " << currentId);
+          gridAreas[currentId].startMove();
+      } else if (paintMode==SPATIAL_INTERPOLATION) {
+          LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
+          gridAreas[currentId].startMove();
       } else if (paintMode==INCLUDE_MODE || paintMode==CUT_MODE) {
         LOG4CXX_DEBUG(logger,"Starting edit " << currentId);
         gridAreas[currentId].startEdit(Point(newx, newy));
@@ -103,6 +105,9 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     if (me.button == leftButton) {
       if (paintMode==MOVE_MODE) {
         gridAreas[currentId].setMove((newx-first_x), (newy-first_y));
+        res.repaint = true;
+      } else if (paintMode==SPATIAL_INTERPOLATION) {
+        doSpatialInterpolation(currentId, (newx-first_x), (newy-first_y));
         res.repaint = true;
       } else if (paintMode != SELECT_MODE) {
         gridAreas[currentId].addPoint(Point(newx, newy));
@@ -129,6 +134,34 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     }
     inDrawing = false;
   }
+}
+
+void GridAreaManager::doSpatialInterpolation(const miString & movedId, float moveX, float moveY) {
+  if (tmp_gridAreas.empty()) return;
+  GridArea & movedArea = gridAreas[movedId];
+  movedArea.setMove(moveX, moveY);
+  Point movedCenter = movedArea.getPolygon().getCenterPoint();
+  movedCenter.move(moveX, moveY); // not moved with GredArea::setMove
+  Point parentCenter = tmp_gridAreas.begin()->second.getPolygon().getCenterPoint();
+  int n = 0;
+  map<miString,GridArea>::iterator i = tmp_gridAreas.begin();
+  do {
+    if(i->first == movedId) break;
+    ++n;
+  } while (++i != tmp_gridAreas.end());
+  if (n == 0) {
+    LOG4CXX_ERROR(logger, "doSpatialInterpolation failed"); 
+    return;
+  }
+  Point unit = ( ( movedCenter - parentCenter) / n);
+  i = tmp_gridAreas.begin();
+  n = 0;
+  do {
+    // TODO : First move to parent, then add n*unit  
+    Point p = (n * unit);
+    i->second.setMove(p.get_x(), p.get_y());
+    ++n;
+  } while (++i != tmp_gridAreas.end());
 }
 
 void GridAreaManager::setPaintMode(PaintMode mode) {
@@ -255,8 +288,10 @@ void GridAreaManager::sendKeyboardEvent(const keyboardEvent& me,
 bool GridAreaManager::plot() {
   map<miString,GridArea>::iterator iter;
   // draw temporary areas
-  for (iter = tmp_gridAreas.begin(); iter != tmp_gridAreas.end(); iter++) {
-    iter->second.plot();
+  if (paintMode == SPATIAL_INTERPOLATION) {
+    for (iter = tmp_gridAreas.begin(); iter != tmp_gridAreas.end(); iter++) {
+      iter->second.plot();
+    }
   }
   // draw active areas
   for (iter = gridAreas.begin(); iter != gridAreas.end(); iter++) {
@@ -341,6 +376,8 @@ miString GridAreaManager::getModeAsString() {
     return miString("Select");
   else if (paintMode==MOVE_MODE)
     return miString("Move");
+  else if (paintMode==SPATIAL_INTERPOLATION)
+    return miString("Spatial Interpolation");
   else if (paintMode==INCLUDE_MODE)
     return miString("Include");
   else if (paintMode==CUT_MODE)
@@ -353,6 +390,8 @@ cursortype GridAreaManager::getCurrentCursor() {
   if (paintMode==SELECT_MODE)
     return paint_select_cursor;
   else if (paintMode==MOVE_MODE)
+    return paint_move_cursor;
+  else if (paintMode==SPATIAL_INTERPOLATION)
     return paint_move_cursor;
   else
     return paint_draw_cursor;

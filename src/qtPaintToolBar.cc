@@ -35,6 +35,7 @@
 #include <miString.h>
 #include <paint_select.xpm>
 #include <paint_move.xpm>
+#include <paint_spatial.xpm>
 //#include <paint_hide.xpm>
 #include <paint_cut.xpm>
 #include <paint_undo.xpm>
@@ -61,6 +62,9 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   moveAction = new QAction( QPixmap(paint_move_xpm),tr("&Move"),this );
   moveAction->setToggleAction(true);
   connect( moveAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  spatialAction = new QAction( QPixmap(paint_spatial_xpm),tr("&Spatial Interpolation"),this );
+  spatialAction->setToggleAction(true);
+  connect( spatialAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
   undoAction = new QAction( QPixmap(paint_undo_xpm),tr("&Undo"),this );
   connect( undoAction, SIGNAL( activated() ), SIGNAL( undoPressed() ) );
   redoAction = new QAction( QPixmap(paint_redo_xpm),tr("&Redo"),this );
@@ -72,12 +76,14 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   modeActions->add(includeAction);
   modeActions->add(cutAction);
   modeActions->add(moveAction);
+  modeActions->add(spatialAction);
 	
   selectAction->addTo(this);
   drawAction->addTo(this);
   includeAction->addTo(this);
   cutAction->addTo(this);
   moveAction->addTo(this);
+  spatialAction->addTo(this);
   undoAction->addTo(this);
   redoAction->addTo(this);
   
@@ -90,6 +96,7 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
   includeAction->setEnabled(false);
   cutAction->setEnabled(false);
   moveAction->setEnabled(false);
+  spatialAction->setEnabled(false);
   selectAction->setEnabled(false);
   
   if(buttons == PaintToolBar::SELECT_ONLY){
@@ -110,12 +117,14 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
     includeAction->setEnabled(true);
     cutAction->setEnabled(true);
     moveAction->setEnabled(true);
+    spatialAction->setEnabled(true);
   }
   else if(buttons == PaintToolBar::ALL){
     drawAction->setEnabled(true);
     includeAction->setEnabled(true);
     cutAction->setEnabled(true);
     moveAction->setEnabled(true);
+    spatialAction->setEnabled(true);
     selectAction->setEnabled(true);
   }
 }
@@ -129,6 +138,8 @@ void PaintToolBar::setPaintMode(GridAreaManager::PaintMode newMode){
 		cutAction->setOn(true);
 	else if(newMode == GridAreaManager::MOVE_MODE)
 		moveAction->setOn(true);
+  else if(newMode == GridAreaManager::SPATIAL_INTERPOLATION)
+    spatialAction->setOn(true);
 	else if(newMode == GridAreaManager::SELECT_MODE)
 		selectAction->setOn(true);
 	sendPaintModeChanged();
@@ -138,6 +149,7 @@ GridAreaManager::PaintMode PaintToolBar::getPaintMode(){
 	if(includeAction->isOn()) return GridAreaManager::INCLUDE_MODE;
 	if(cutAction->isOn()) return GridAreaManager::CUT_MODE;
 	if(moveAction->isOn()) return GridAreaManager::MOVE_MODE;
+  if(spatialAction->isOn()) return GridAreaManager::SPATIAL_INTERPOLATION;
 	if(selectAction->isOn()) return GridAreaManager::SELECT_MODE;
 	else return GridAreaManager::DRAW_MODE;
 }

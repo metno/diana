@@ -102,6 +102,12 @@ bool GridArea::plot(){
 		displayEditPolygon.move(moveX,moveY);
 		drawPolygon(displayEditPolygon,true);
 	}
+  else if(drawstyle == GHOST){
+    displayEditPolygon = displayPolygon;
+    displayEditPolygon.move(moveX,moveY);
+    drawPolygon(displayEditPolygon,true);
+    fillPolygon(displayEditPolygon,true);
+  }
 	else if(!isEmptyArea()){
 		drawPolygon(displayPolygon,true);
 		fillPolygon(displayPolygon,true);
@@ -119,10 +125,18 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	list<Point>::iterator current = points.begin();
 	Point p1, pb;
 	p1 = pb = (Point) *current;
-	glLineWidth(1);
+	glLineWidth(2);
+  glColor3d(1,1,0.0);
+	if(p.getPointCount() > 4) {
+	  Point center = p.getCenterPoint();
+	  double d = 1.0;
+	  glRectd(center.get_x()-d, center.get_y()-d, center.get_x()+d, center.get_y()+d);
+	}
+  glLineWidth(1);
 	glBegin(GL_LINE_STRIP); // GL_LINE_LOOP
 	if(!main_polygon)
 		glColor3d(1,0.0,0.0);
+	else if (drawstyle == GHOST) glColor3d(0.5,0.5,0.5);
 	else glColor3d(0.0,0.0,0.0);
 	do{
 		p1 = (Point) *current;
@@ -135,6 +149,9 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	}
 	glFlush();
 	glEnd();
+	//  Point center = p.getCenterPoint();
+	  //TEST
+	//  glRectd(center.get_x(), center.get_y(), center.get_x(), center.get_y());
 }
 
 void GridArea::fillPolygon(Polygon & p, bool main_polygon){
