@@ -184,6 +184,9 @@ void GridArea::fillPolygon(Polygon & p, bool main_polygon){
 	if (drawstyle == GHOST){
 	  glEnable(GL_POLYGON_STIPPLE);
 	  glPolygonStipple(square);
+	} else if (drawstyle == OVERVIEW){
+    glEnable(GL_POLYGON_STIPPLE);
+    glPolygonStipple(vldiagright);
 	}
 
 	// Using GL tesselation
