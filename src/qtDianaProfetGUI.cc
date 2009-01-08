@@ -37,6 +37,7 @@
 #include <QCoreApplication>
 #include <QMessageBox>
 #include <QApplication>
+#include <QMenu>
 
 
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
@@ -58,6 +59,7 @@ enableTable_(true), overviewactive(false), ignoreSynchProblems(false)
   sessionDialog.setSessionModel(&sessionModel);
   sessionDialog.setObjectModel(&objectModel);
   sessionDialog.setTableModel(&tableModel);
+  popupMenu = new QMenu(parent);
   connectSignals();
   showPaintToolBar = true;
   showEditObjectDialog = false;
@@ -123,6 +125,9 @@ void DianaProfetGUI::connectSignals(){
       this,SLOT(selectPolygon(miString)));
   connect(&editObjectDialog,SIGNAL(requestPolygonList()),
         this,SLOT(requestPolygonList()));
+
+  connect(popupMenu,SIGNAL(activated(int)),
+	  SLOT(popupMenuActivated(int)));
 }
 
 DianaProfetGUI::~DianaProfetGUI(){
@@ -213,6 +218,14 @@ void DianaProfetGUI::sessionModified(const QModelIndex & topLeft, const QModelIn
       enableObjectButtons(enableNewbutton_,enableModifyButtons_,enableTable_);
     }
   }
+}
+
+void DianaProfetGUI::popupMenuActivated(int i)
+{
+  miString id = popupMenu->text(i).toStdString();
+  id = id.substr(id.find_last_of("|")+2,id.size()-1);
+  areaManager->setCurrentArea(id);
+  gridAreaChanged();
 }
 
 
@@ -1100,4 +1113,30 @@ void  DianaProfetGUI::setStatistics(map<miString,float> m){
 
 void  DianaProfetGUI::setActivePoints(vector<Point> points){
   areaManager->setActivePoints(points);
+}
+
+void DianaProfetGUI::rightMouseClicked(float x, 
+				       float y,
+				       int globalX,
+				       int globalY
+){
+  popupMenu->clear();
+  vector<miString> areaId = areaManager->getId(Point(x,y));
+  for(int i=0;i<areaId.size();i++){
+    QString idText= areaId[i].cStr();
+    cerr <<"id:"<<areaId[i]<<endl;
+    QString menuText;
+    menuText = "Edit             | " + idText;
+    popupMenu->insertItem(menuText,this,
+				      SLOT(editObject()));
+    menuText = "Delete         | " + idText;
+    popupMenu->insertItem(menuText,this,
+				      SLOT(deleteObject()));
+    menuText = "Timesmooth | " + idText;
+    popupMenu->insertItem(menuText,this,
+				      SLOT(startTimesmooth()));
+    popupMenu->addSeparator();
+  }
+  popupMenu->popup(QPoint(globalX,globalY),0);
+
 }

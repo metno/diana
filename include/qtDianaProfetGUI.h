@@ -55,6 +55,7 @@
 
 class PaintToolBar;
 class QString;
+class QMenu;
 
 using namespace Profet;
 
@@ -77,6 +78,8 @@ private:
   SessionListModel sessionModel;
   fetObject  currentObject;
   fetSession currentSession;
+  QMenu * popupMenu;
+
   //to synchronize currentObject accessed by multiple threads
   mutable QMutex currentObjectMutex;
   //to synchronize access to currentParam/curentTime
@@ -196,6 +199,11 @@ public:
    */
   void setActivePoints(vector<Point>);
 
+  /**
+   * Right mouse clicked, make popup menu
+   */
+  void rightMouseClicked(float x, float y, int globalX, int globalY);
+
 
 
 
@@ -241,6 +249,9 @@ private slots:
 
   // sessionModel
   void sessionModified(const QModelIndex & topLeft, const QModelIndex & bottomRight);
+
+  //popup
+  void popupMenuActivated(int);
 
 signals:
   void setPaintMode(bool);

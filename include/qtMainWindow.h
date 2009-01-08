@@ -409,7 +409,7 @@ private:
 
   struct rightclickMenuItem{
     QString menuText;
-    char * member;
+    QString member;
     bool checked;
     int param;
   };

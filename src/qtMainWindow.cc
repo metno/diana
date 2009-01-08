@@ -2984,12 +2984,23 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 {
+  //  cerr <<"void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)"<<endl;
   //Here we must check what should be in the Popupmenu
   //(are we pointing at satpicture,classified, inEdit etc..)
   int x = mev.x;
   int y = mev.y;
   int globalX = mev.globalX;
   int globalY = mev.globalY;
+
+  //PROFET
+#ifdef PROFET
+  if(togglePaintModeAction->isChecked()){    
+    float map_x,map_y;
+    contr->PhysToMap(mev.x,mev.y,map_x,map_y);
+    profetGUI->rightMouseClicked(map_x,map_y,globalX,globalY);
+    return;
+  }
+#endif
 
   xclick=x; yclick=y;
   //fill list of menuItems
@@ -3006,13 +3017,13 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 //     rItem.param=0;
 //     vrightclickMenu.push_back(rItem);
 //   }
-//   if (uffda && contr->getSatnames().size()){
-//     rItem.menuText= tr("Uffda");
-//     rItem.member=SLOT(showUffda());
-//     rItem.checked=false;
-//     rItem.param=0;
-//     vrightclickMenu.push_back(rItem);
-//   }
+  if (uffda && contr->getSatnames().size()){
+    rItem.menuText= tr("Uffda");
+    rItem.member=SLOT(showUffda());
+    rItem.checked=false;
+    rItem.param=0;
+    vrightclickMenu.push_back(rItem);
+  }
   vselectAreas=contr->findAreas(xclick,yclick);
   int n=vselectAreas.size();
   if (n)
@@ -3034,16 +3045,16 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
     return;
   }
   else{
-//     rightclickmenu->popup(QPoint(globalX,globalY),0);
-//     int item=0;
-//     int n= rightclickmenu->actions().count();
-//     for (int i = 0;i<n;i++){
-//       int id = rightclickmenu->idAt(i);
-//       QString rightClicked=rightclickmenu->text(id);
-//       if (rightClicked== lastRightClicked)
-// 	item=i;
-//     }
-//     rightclickmenu->setActiveItem(item);
+    rightclickmenu->popup(QPoint(globalX,globalY),0);
+    int item=0;
+    int n= rightclickmenu->actions().count();
+    for (int i = 0;i<n;i++){
+      int id = rightclickmenu->idAt(i);
+      QString rightClicked=rightclickmenu->text(id);
+      if (rightClicked== lastRightClicked)
+	item=i;
+    }
+    rightclickmenu->setActiveItem(item);
   }
 }
 
@@ -4091,24 +4102,24 @@ void DianaMainWindow::chooseFont()
 //SLOTS called from PopupMenu
 void DianaMainWindow::fillRightclickmenu()
 {
-//   rightclickmenu->clear();
-//   int n=vrightclickMenu.size();
-//   for (int i=0;i<n;i++){
-//     int ir = rightclickmenu->insertItem(vrightclickMenu[i].menuText,this,
-// 			     vrightclickMenu[i].member);
-//     if (vrightclickMenu[i].checked)
-//       rightclickmenu->setItemChecked(ir,true);
-//     else
-//       rightclickmenu->setItemChecked(ir,false);
-//     rightclickmenu->setItemParameter(ir,vrightclickMenu[i].param);
-//   }
-//   rightclickmenu->insertSeparator(rightsep);
+  rightclickmenu->clear();
+  int n=vrightclickMenu.size();
+  for (int i=0;i<n;i++){
+    int ir = rightclickmenu->insertItem(vrightclickMenu[i].menuText,this,
+			     vrightclickMenu[i].member);
+    if (vrightclickMenu[i].checked)
+      rightclickmenu->setItemChecked(ir,true);
+    else
+      rightclickmenu->setItemChecked(ir,false);
+    rightclickmenu->setItemParameter(ir,vrightclickMenu[i].param);
+  }
+  rightclickmenu->insertSeparator(rightsep);
 }
 
 
 void DianaMainWindow::rightClickMenuActivated(int i)
 {
-//   lastRightClicked=rightclickmenu->text(i);
+  lastRightClicked=rightclickmenu->text(i);
 }
 
 

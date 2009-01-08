@@ -57,6 +57,13 @@ ProjectablePolygon GridAreaManager::getArea(miString id) {
 
 void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     float x, float y) {
+
+  // catch right click event
+  if (me.button== rightButton && paintMode==SELECT_MODE){
+    res.action=rightclick;
+    return;
+  }
+
   newx = x;
   newy = y;
   if (changeCursor) {
@@ -420,5 +427,16 @@ void GridAreaManager::setActivePoints(vector<Point> points) {
   if (gridAreas.count(currentId))
     gridAreas[currentId].setActivePoints(points);
 
+}
+
+vector<miString> GridAreaManager::getId(Point p) {
+  vector<miString> vId;
+  map<miString,GridArea>::iterator iter;
+  for (iter = gridAreas.begin(); iter != gridAreas.end(); iter++) {
+    if (iter->second.inside(p)) {
+      vId.push_back(iter->first);
+    }
+  }
+  return vId;
 }
 

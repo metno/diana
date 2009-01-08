@@ -151,6 +151,8 @@ public:
 	int getAreaCount(){ return gridAreas.size(); }
   /// set the list of Points which are actually affected by the mask
   void setActivePoints(vector<Point>);
+  /// Returns id of all areas at p
+  vector<miString> getId(Point p);
 };
 
 
