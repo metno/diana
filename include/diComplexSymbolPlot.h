@@ -116,7 +116,6 @@ private:
   void drawSig36(float x,float y);
   void drawSig40(float x,float y);
   void drawBox(int index,float x, float y, bool fill=true);
-  void drawBigBox(int index,float x, float y, int size);
   void drawCircle(int index,float x, float y, bool circle=false);
   void drawDiamond(int index,float x, float y);
   void drawFlag(int index,float x, float y, bool fill=false);

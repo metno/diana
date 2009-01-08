@@ -48,6 +48,7 @@
 #define MOUNTAINWAVESYMBOL 130
 #define VULCANOSYMBOL 226
 #define FOGSYMBOL 62
+#define SNOWSYMBOL 254
 #define WIDESPREADBRSYMBOL 136
 #define MOUNTAINOBSCURATIONSYMBOL 106
 #define HAILSYMBOL 238
@@ -365,6 +366,9 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   case 1041:
     drawSig1(0,0,FOGSYMBOL);	
     break; 
+  case 1042:
+    drawSig1(0,0,SNOWSYMBOL);	
+    break; 
       
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
@@ -444,7 +448,6 @@ void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
 void ComplexSymbolPlot::drawSig1(float x,float y, int metSymbol){
   drawBox(metSymbol,0,0);
   drawSymbol(metSymbol,x,y);
-  drawBigBox(metSymbol,x,y,3);
 }
 
 void ComplexSymbolPlot::drawSig5(float x,float y){
@@ -648,7 +651,6 @@ void ComplexSymbolPlot::drawSig27(float x,float y){
   drawCircle(1000,x,y,true);
   drawSigString(x,y,false);
   nstringsvisible=1;
-  drawBigBox(1027,x,y,2);
 }
 
 //Mean SFC wind, red diamond
@@ -658,7 +660,6 @@ void ComplexSymbolPlot::drawSig28(float x,float y){
   drawDiamond(1000,x,y);
   drawSigString(x,y,false);
   nstringsvisible=1;
-  drawBigBox(1028,x,y,2);
 }
 
 // Sea state, black flag
@@ -669,7 +670,6 @@ void ComplexSymbolPlot::drawSig29(float x,float y){
   drawFlag(1000,x,y,false); //border
   drawSigString(x,y,false);
   nstringsvisible=1;
-  drawBigBox(1029,x,y,3);
 }
 
 // Freezing fog
@@ -685,7 +685,6 @@ void ComplexSymbolPlot::drawSig30(float x,float y){
   fp->drawStr("V",x-cw/2,y-ch/2,0.0); 
   //  drawSymbol(135,x,y);
   glColor4fv(currentColor);
-  drawBigBox(1030,x,y,2);
 
 }
 
@@ -693,14 +692,12 @@ void ComplexSymbolPlot::drawSig30(float x,float y){
 void ComplexSymbolPlot::drawSig31(float x,float y){
 
   drawNuclear(x,y);
-  drawBigBox(1031,x,y,2);
 
 }
 
 //precipitation, green lines
 void ComplexSymbolPlot::drawSig32(float x,float y){
 
-  drawBigBox(1026,x,y,2);
   drawPrecipitation(x,y);
   
 }
@@ -717,7 +714,6 @@ void ComplexSymbolPlot::drawSig33(float x,float y){
   drawSigString(x,y);
   nstringsvisible=1;
 
-  drawBigBox(1033,x,y,1);
 
 }
 
@@ -727,7 +723,6 @@ void ComplexSymbolPlot::drawSig34(float x,float y){
   if (whiteBox) drawBox(1034,x,y,true);
   drawBox(1034,x,y,false);
   drawDoubleSigTextAndSymbol(VULCANOSYMBOL,x,y);
-  drawBigBox(1034,x,y,1);
 
 }
 
@@ -744,7 +739,6 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
   //  nstringsvisible=1;
   float sw,sh;
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
-  drawBigBox(1036,x,y,0);
 
 }
 
@@ -770,37 +764,6 @@ void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
     glVertex2f(x-0.5*sw,y+0.5*sh);
     glVertex2f(x+0.6*sw,y+0.5*sh);
     glVertex2f(x+0.6*sw,y-0.5*sh);
-  glEnd();
-
-  glColor4fv(currentColor);
-
-}
-
-void ComplexSymbolPlot::drawBigBox(int index,float x, float y,int ss){
-
-  return;
-
-  GLfloat currentColor[4];
-  glGetFloatv(GL_CURRENT_COLOR,currentColor);
-
-  float sw,sh;
-  getComplexSize(index,sw,sh);
-  if(ss==2)
-    sw *= 2;
-  else if(ss==1)
-    sw *= 1.5;
-  else if(ss==0)
-    sw *= 1;
-  else if(ss==3)
-    sw *= 3;
-  sh = sw;
-  //  cerr <<"size:"<<ss<<endl;
-  glColor4f(0.0,0.0,0.0,1.0);
-  glBegin(GL_LINE_LOOP);
-    glVertex2f(x-0.3*sw,y-0.3*sh);
-    glVertex2f(x-0.3*sw,y+0.7*sh);
-    glVertex2f(x+0.7*sw,y+0.7*sh);
-    glVertex2f(x+0.7*sw,y-0.3*sh);
   glEnd();
 
   glColor4fv(currentColor);
@@ -1515,6 +1478,8 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
   case 1040:
     return true;	
   case 1041:
+    return false;	
+  case 1042:
     return false;	
   case 2000:
     return true;	
