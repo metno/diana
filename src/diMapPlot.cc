@@ -404,6 +404,7 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
   //                               3=spherical (rotated)
   //                               4=polarstereographic
   //                               5=mercator (unrotated)
+  //                               6=lambert (tangent,non-oblique)
   //        grid[0-5]:  the grid description parameters
   //        xylim[0-3]: x1,x2,y1,y2
   //        linetype:   line type bitmask
@@ -594,8 +595,8 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 	np+=npi;
 
         if ((npp==npos || np==maxpos) && np>1) {
-	  if (gridtype==5) {
-	    // mercator, avoid latitudes +90 and -90
+	  if (gridtype==5 || gridtype==6) {
+	    // mercator/lambert, avoid latitudes +90 and -90
 	    for (i=0; i<np; ++i) {
 	      if (y[i]>+89.95) y[i]= +89.95;
 	      if (y[i]<-89.95) y[i]= -89.95;
@@ -818,8 +819,8 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
                 np+=npi;
 
                 if ((npp==npos || np==maxpos) && np>1) {
-		  if (gridtype==5) {
-		    // mercator, avoid latitudes +90 and -90
+		  if (gridtype==5 || gridtype==6) {
+		    // mercator/lambert, avoid latitudes +90 and -90
 		    for (i=0; i<np; ++i) {
 		      if (y[i]>+89.95) y[i]= +89.95;
 		      if (y[i]<-89.95) y[i]= -89.95;
@@ -929,6 +930,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
 
   if (gtype==Projection::polarstereographic_60 ||
       gtype==Projection::polarstereographic    ||
+      gtype==Projection::lambert               ||
       gtype==Projection::spherical_rotated) {
     lonmin-= 5.;  // hmmm..................
     lonmax+= 5.;
@@ -1036,6 +1038,33 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
     if (latmax>+89.95) latmax= +89.95;
     straightLon= straightLat= true;
 
+  } else if (gtype==Projection::lambert) {
+
+    straightLon= true;
+    // check if North/South Pole inside
+    float px[2]= {  0.,     0. };
+    float py[2]= { 89.99, -89.99 };
+    n= 2;
+    if (gc.geo2xy(area,n,px,py)) {
+//    cerr<<"pole x,y= "<<px[0]<<" "<<py[0]<<endl;
+      if (px[0]>=maprect.x1 && px[0]<=maprect.x2 &&
+	  py[0]>=maprect.y1 && py[0]<=maprect.y2) {
+	lonmin= -180.;
+	lonmax= +180.;
+	latmax=  +90.;
+      }
+      if (px[1]>=maprect.x1 && px[1]<=maprect.x2 &&
+	  py[1]>=maprect.y1 && py[1]<=maprect.y2) {
+	lonmin= -180.;
+	lonmax= +180.;
+	latmin=  -90.;
+      }
+    }
+    if(lonmin<-175.) lonmin=-180.;
+    if(lonmax>+175.) lonmax=+180.;
+    if (latmin<-89.99) latmin= -89.99;
+    if (latmax>+89.99) latmax= +89.99;
+
   }
 
   int ilon1= int(lonmin/longitudeStep);
@@ -1058,6 +1087,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
 //cerr<<"ilon1,ilon2,ilat1,ilat2:     "<<ilon1<<" "<<ilon2<<" "<<ilat1<<" "<<ilat2<<endl;
 //cerr<<"glon1,glon2,glat1,glat2:     "<<glon1<<" "<<glon2<<" "<<glat1<<" "<<glat2<<endl;
 //cerr<<"lonmin,lonmax,latmin,latmax: "<<lonmin<<" "<<lonmax<<" "<<latmin<<" "<<latmax<<endl;
+//cerr<<"maprect x1,x2,y1,y2:         "<<xylim[0]<<" "<<xylim[1]<<" "<<xylim[2]<<" "<<xylim[3]<<endl;
 //########################################################################
 
   n= (ilat2-ilat1+1)*(ilon2-ilon1+1);
@@ -1259,10 +1289,11 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
       while (glon2+dlon*float(n2+1)<=lonmax) n2++;
       glon= glon1 - dlon*float(n1);
       nlon+=(n1+n2);
-      if (nlon < 1)
+      if (nlon < 1) {
 	cerr << "** MapPlot::geoGrid ERROR in Curved Latitude lines, nlon="
 	     << nlon << endl;
-      else {
+	cerr << "lonmin,lonmax=" << lonmin <<","<< lonmax << endl; 
+      } else {
 	float *x=  new float[nlon];
 	float *y=  new float[nlon];
 	for (int ilat=ilat1; ilat<=ilat2; ilat++) {

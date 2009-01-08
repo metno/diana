@@ -61,6 +61,7 @@ bool MapManager::parseMapAreas(SetupParser& sp){
   const miString proj_mercator=          "mercator";
   const miString proj_geographic=        "geographic";
   const miString proj_spherical_rot=     "spherical_rot";
+  const miString proj_lambert=           "lambert";
 
   vector<miString> list,tokens,stokens,sstokens;
   miString key,value,name;
@@ -108,6 +109,8 @@ bool MapManager::parseMapAreas(SetupParser& sp){
 	    projtype= Projection::spherical_rotated;
 	  else if (value==proj_undefined)
 	    projtype= Projection::undefined_projection;
+	  else if (value==proj_lambert)
+	    projtype= Projection::lambert;
 	  else {
 	    sp.errorMsg(SectMapAreas,i,"Unknown projection type:"+value);
 	    return false;

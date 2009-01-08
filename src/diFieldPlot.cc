@@ -770,7 +770,8 @@ void FieldPlot::fixGeoVector(float* u, float* v)
       maptype==Projection::polarstereographic) {
     if (gs[4]>=0.0) mapNorth= true;
     else            mapSouth= true;
-  } else if (maptype==Projection::spherical_rotated) {
+  } else if (maptype==Projection::spherical_rotated ||
+	     maptype==Projection::lambert) {
     if (gs[5]>=0.0) mapNorth= true;
     else            mapSouth= true;
   }
