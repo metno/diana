@@ -29,14 +29,15 @@
 	  <li>
 	    Choose quickmenu from the toolbar, this has a list of plots from the
 	    chosen quick menu. To show a plot, double clicking one of the menu 
-	    headings or single click and select "Show".
+	    headings or single click and select <b>Apply</b>.
 	  </li>
           <li>
 	    Menus available: 
             <ul>
               <li><b>History</b> - a list of earlier plots.</li>
-	      <li> <b>Private</b> - menus you can make under <i>Edit menus</i> 
-	      	underneath or with F9, which copies the current plot to the quick 
+	      <li> <b>Private</b> - menus defined in
+	      $HOME/.diana/*.quick. More menus can be made using  <b>Edit menus</b> 
+	      	or <b>F9</b>, which copies the current plot to the quick 
 	      	menu.</li>
 	      <li><b>Fixed</b> - menus defined in the setup file. These can not be 
 	      	deleted or moved, any changes in the plot-code are limited to 
@@ -45,8 +46,8 @@
           </li>
           <li>
 	    All plot-dialogues (field, obs etc.) will be updated to reflect the plot 
-	    on the screen. You can edit these, click "<b>Apply</b>", then copy your 
-	    changes to the quick menu with the button "<b>>Update...</b>". Notice that 
+	    on the screen. You can edit these, click <b>Apply</b>, then copy your 
+	    changes to the quick menu with the button <b>Update...</b>. Notice that 
 	    major changes to the fixed menus will be "censored". <p>
 	    The following changes are allowed in the fixed menus:	
 	     <ul>
@@ -108,8 +109,11 @@
 	      for a name.
 	    </li>
 	    <li>
-	      <b>Remove plot</b> or <b>Remove menu</b> deletes the chosen menu item, 
-	      and makes the <b> Paste...</b> button active/available.	
+	      <b>Remove plot</b> or <b>Remove menu</b> deletes the
+	      chosen menu item, or menu, 
+	      and makes the <b> Paste...</b> button
+	      active/available. <b>Remove menu</b> deletes the menu
+	      file from your filesystem.	
 	    </li>
 	    <li>
 	      <b>Copy plot</b> or <b>Copy menu</b> copies the chosen menu item, and 
@@ -120,9 +124,8 @@
 	      or deleted to the list (underneath the chosen menu item).
 	    </li>
 	    <li>
-	      <b>New from file</b> lets you add a new menu from file. All private 
-	      menus are saved to file when diana is exited - and these are not 
-	      deleted by the <b>Remove menu</b> button.
+	      <b>New from file</b> lets you add a new menu from
+	      file. The menu file will be copied to $HOME/.diana/
 	    </li>
 	    <li>
 	      <b>Change name</b> requests a new name for a plot or menu item.

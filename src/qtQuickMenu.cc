@@ -29,6 +29,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <fstream>
+#include <glob.h>
 
 #include <qtQuickMenu.h>
 #include <qtQuickAdmin.h>
@@ -208,7 +209,8 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   vlayout->activate();
   tlayout->activate();
 
-  fillStaticMenues();
+  fillPrivateMenus();
+  fillStaticMenus();
 }
 
 // set active menu
@@ -233,7 +235,7 @@ void QuickMenu::startBrowsing()
 
 
 // quick-quick menu methods
-vector<miString> QuickMenu::getCustomMenues()
+vector<miString> QuickMenu::getCustomMenus()
 {
   vector<miString> vs;
   if (firstcustom >= 0 && lastcustom>=0){
@@ -490,8 +492,8 @@ void QuickMenu::adminButton()
   QuickAdmin* admin= new QuickAdmin(this, qm, firstcustom, lastcustom);
   //connect(admin, SIGNAL(help(const char*)), this, SIGNAL(help(const char*)));
   if (admin->exec() ){
-    // get updated list of menues
-    qm= admin->getMenues();
+    // get updated list of menus
+    qm= admin->getMenus();
     firstcustom= admin->FirstCustom();
     lastcustom= admin->LastCustom();
 
@@ -502,7 +504,7 @@ void QuickMenu::adminButton()
     // reset widgets
     fillMenuList();
     
-    // save custom quickmenues to file
+    // save custom quickmenus to file
     if (firstcustom != -1){
       for (int m=firstcustom; m<=lastcustom; m++){
 	writeQuickMenu(qm[m]);
@@ -511,15 +513,47 @@ void QuickMenu::adminButton()
   }
 }
 
-void QuickMenu::fillStaticMenues()
+void QuickMenu::fillPrivateMenus()
 {
   SetupParser setup;
+
+  //History
   quickMenu qtmp;
   qm.push_back(qtmp);
   qm[0].name= tr("History").latin1();
-  qm[0].filename= setup.basicValue("homedir") + "/Historie.quick";
+  qm[0].filename= setup.basicValue("homedir") + "/History.quick";
   qm[0].plotindex= 0;
+  if (!readQuickMenu(qm[0])) {
+    qm[0].filename= setup.basicValue("homedir") + "/Historie.quick"; //obsolete
+  }
+  readQuickMenu(qm[0]);
+
+  //Private menus
+  miString quickfile= setup.basicValue("homedir") + "/*.quick";
+  glob_t globBuf;
+  glob(quickfile.c_str(),0,0,&globBuf);
+  for( int k=0; k<globBuf.gl_pathc; k++) {
+    qtmp.name= "";
+    qtmp.filename= globBuf.gl_pathv[k];
+    if (qtmp.filename == qm[0].filename) continue; //History 
+    qtmp.plotindex= 0;
+    qtmp.menuitems.clear();
+    if (readQuickMenu(qtmp)){
+      qm.push_back(qtmp);
+    }
+    if (firstcustom<0){
+      firstcustom= qm.size()-1;
+      lastcustom = qm.size()-2;
+    }
+    lastcustom++;
+  }
+
+}
+
+void QuickMenu::fillStaticMenus()
+{
   
+  quickMenu qtmp;
   orig_qm.clear();
   vector<QuickMenuDefs> qdefs;
   contr->getQuickMenus(qdefs);
@@ -732,6 +766,7 @@ void QuickMenu::readLog(const vector<miString>& vstr,
   int n= vstr.size();
   bool skipmenu=true;
   int idx= -1, actidx, oidx;
+  int priIndex=1;
   miString key,value;
 
   quickMenuItem tmpitem;
@@ -746,7 +781,7 @@ void QuickMenu::readLog(const vector<miString>& vstr,
 
     if (line[0]=='>'){ // new menu
       skipmenu= false;
-      miString name, filename, update;
+      miString name, update;
       if (line.length()>1){
 	str= line.substr(1,line.length()-1);
       }
@@ -758,21 +793,12 @@ void QuickMenu::readLog(const vector<miString>& vstr,
 	  value= vvs[1];
 	  if (key=="NAME")
 	    name= value;
-	  else if (key=="FILENAME")
-	    filename= value;
 	  else if (key=="UPDATE")
 	    update= value;
 	}
       }
-      if (idx<0){ // History menu
-	actidx= 0;
-	if (filename.exists())
-	  qm[0].filename= filename;
-	idx++;
-	// read menu from file
-	readQuickMenu(qm[actidx]);
 
-      } else if (update.exists()){ // update of static menu
+      if (update.exists()){ // update of static menu
 	actidx= -1;
 	int itmp= (lastcustom >= 0 ? lastcustom+1 : 1);
 	for (int l=0; l<qm.size(); l++){
@@ -788,24 +814,22 @@ void QuickMenu::readLog(const vector<miString>& vstr,
 	// find index to original list
 	oidx= actidx-itmp; // in original list
 	
-      } else if (name.exists() && filename.exists()){ // custom menues
-	quickMenu qtmp;
-	qtmp.name= name;
-	qtmp.filename= filename;
-	qtmp.plotindex= 0;
-	idx++;
-	if (firstcustom<0){
-	  firstcustom= idx;
-	  lastcustom= idx-1;
+      } else if (name.exists()){ // custom menus, sort according to log
+	for (int l=0; l<qm.size(); l++){
+	  if (qm[l].name==name){
+	    actidx = priIndex;
+	    if (l!=priIndex) {
+	      qm.insert(qm.begin()+priIndex,qm[l]);
+	      qm.erase(qm.begin()+l+1);
+	    }
+	    priIndex++;
+	    break;
+	  }
 	}
-	lastcustom++;
-	qm.insert(qm.begin()+lastcustom,qtmp);
-	actidx= lastcustom;
-	// read menu from file
-	readQuickMenu(qm[actidx]);
-      } else
+      } else {
 	skipmenu= true;
-      
+      }
+
     } else if (line[0]=='%' && !skipmenu){ // dynamic options
       if (line.length()>1 && actidx>=0){
 	miString opt= line.substr(1,line.length()-1);
@@ -829,7 +853,7 @@ void QuickMenu::readLog(const vector<miString>& vstr,
 
 	// maybe end of all items
 	if (line[0]=='='){
-	  // update static menues with logged items
+	  // update static menus with logged items
 	  int m= logitems.size();
 	  for (int l=0; l<m; l++){
 	    // find item in static list: actidx
@@ -872,6 +896,7 @@ void QuickMenu::readLog(const vector<miString>& vstr,
 // write log of plot-commands
 vector<miString> QuickMenu::writeLog()
 {
+
   // save any changes to the command
   saveChanges(-1,-1);
 
@@ -882,23 +907,28 @@ vector<miString> QuickMenu::writeLog()
   int m= orig_qm.size();
   int i2= (lastcustom >= 0 ? lastcustom+1 : 1);
 
+
   if (n > 0){
-    for (int j=0; j<n; j++){
+
+    writeQuickMenu(qm[0]); // save History to file
+
+    for (int j=1; j<n; j++){
+
       // menuname
-      if (j<i2)
-	str= ">name="+qm[j].name+", filename="+qm[j].filename;
-      else
+      if (j<i2 ){ //custom menus
+	writeQuickMenu(qm[j]); // save custom menus to file
+	str= ">name="+qm[j].name;
+      } else {
 	str= ">update="+qm[j].name;
+      }
       vstr.push_back(str);
       // write defaults for dynamic options
       for (int k=0; k<qm[j].opt.size(); k++){
 	miString optline="%"+qm[j].opt[k].key+"="+qm[j].opt[k].def;
 	vstr.push_back(optline);
       }
-      if (j<i2)
-	writeQuickMenu(qm[j]); // save custom menues to file
-      else {
-	// log changes in static menues
+      if (j>=i2){
+	// log changes in static menus
 	int oidx= -1;
 	for (int i=0; i<m; i++)
 	  if (orig_qm[i].name == qm[j].name){
@@ -1184,6 +1214,7 @@ void QuickMenu::timerEvent(QTimerEvent *e)
     if (qm[activemenu].plotindex>=qm[activemenu].menuitems.size())
       qm[activemenu].plotindex=0;
     list->setCurrentRow(qm[activemenu].plotindex);
+    listClicked(list->item(qm[activemenu].plotindex));
     listDoubleClicked(list->item(qm[activemenu].plotindex));
   }
 }

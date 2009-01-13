@@ -46,18 +46,18 @@ class QTextEdit;
 
 
 /**
-   \brief Administration of quick menues
+   \brief Administration of quick menus
    
-   Dialogue for administration of quick menues:
+   Dialogue for administration of quick menus:
    - copy, delete menu-trees
-   - read quick menues from file
+   - read quick menus from file
 
 */
 
 class QuickAdmin : public QDialog {
   Q_OBJECT
 private:
-  vector<quickMenu> menues; // datastructure for quickmenues
+  vector<quickMenu> menus; // datastructure for quickmenus
 
   QPushButton* upButton;
   QPushButton* downButton;
@@ -68,7 +68,7 @@ private:
   QPushButton* copyButton;
   QPushButton* pasteButton;
   QPushButton* optionButton;
-  QTreeWidget* menutree;               // tree of menues
+  QTreeWidget* menutree;               // tree of menus
   QTextEdit* comedit;                // editor for command-text
   bool autochange;
 
@@ -90,7 +90,7 @@ public:
   QuickAdmin(QWidget*, vector<quickMenu>& qm,
 	     int fc, int lc);
 
-  vector<quickMenu> getMenues() const;
+  vector<quickMenu> getMenus() const;
   int FirstCustom() const {return firstcustom;}
   int LastCustom() const {return lastcustom;}
   
@@ -109,7 +109,7 @@ private slots:
   void eraseClicked(); // erase menu-item
   void copyClicked();  // copy menu-item
   void pasteClicked(); // paste menu-item
-  void optionClicked();// edit option-menues
+  void optionClicked();// edit option-menus
 };
 
 #endif

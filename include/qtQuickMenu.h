@@ -53,7 +53,7 @@ class QTextEdit;
    \brief Quick menu
    
    Main quick menu viewer
-   - show all menues for selection of items
+   - show all menus for selection of items
    - autoviewer
 
 */
@@ -82,26 +82,27 @@ private:
   bool timeron;       // for demo
   int demoTimer;      // for demo
 
-  vector<quickMenu> qm;        // datastructure for quickmenues
-  vector<quickMenu> orig_qm;   // original copies of static menues
-  vector<quickMenu> chng_qm;   // changed static menues
+  vector<quickMenu> qm;        // datastructure for quickmenus
+  vector<quickMenu> orig_qm;   // original copies of static menus
+  vector<quickMenu> chng_qm;   // changed static menus
 
   bool browsing;       // user is browsing
   int prev_plotindex;  // last plotted command
   int prev_listindex;  // -- " --
 
-  int firstcustom;     // first and last custom menues
+  int firstcustom;     // first and last custom menus
   int lastcustom;
   bool instaticmenu;   // inside static menu
 
   void setCurrentMenu(int i);           // set active menu
-  void fillStaticMenues();              // read initial menues from setup
+  void fillPrivateMenus();              // read menus from $HOMEDIR
+  void fillStaticMenus();              // read initial menus from setup
   void saveChanges(int,int);            // save command-text into qm
   void varExpand(vector<miString>&);    // expand variables in command-text
   void fillMenuList();                  // fill main menu combobox
   void getCommand(vector<miString>&);   // get command-text from comedit
   void timerEvent(QTimerEvent*);        // timer for demo-mode
-  bool itemChanged(int menu, int item); // check changes in static menues
+  bool itemChanged(int menu, int item); // check changes in static menus
   void replaceDynamicOptions(vector<miString>& oldCommand,
 			     vector<miString>& newCommand);
 
@@ -141,7 +142,7 @@ public:
   void startBrowsing();
 
   // quick-quick menu methods
-  vector<miString> getCustomMenues();
+  vector<miString> getCustomMenus();
   bool addMenu(const miString& name);
   bool addToMenu(const int idx);
 

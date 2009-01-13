@@ -108,7 +108,7 @@ void AddtoMenu::fillMenu()
 {
   list->clear();
   if (!quick) return;
-  vector<miString> vs= quick->getCustomMenues();
+  vector<miString> vs= quick->getCustomMenus();
 
   for (int i=0; i<vs.size(); i++){
     list->addItem(QString(vs[i].cStr()));
