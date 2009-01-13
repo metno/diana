@@ -65,14 +65,13 @@ void SetupParser::setUserVariables(const map<miString, miString> & user_var)
 {
   user_variables = user_var;
 
-  cerr << "SetupParser::setUserVariables, commandline arguments gave:" << endl;
-
-  map<miString, miString>::iterator itr = user_variables.begin();
-  for (; itr != user_variables.end(); itr++) {
-
-    cerr << itr->first << " = " << itr->second << endl;
-
-    substitutions[itr->first.upcase()] = itr->second;
+  if (user_variables.size() > 0) {
+    cerr << "SetupParser::setUserVariables:" << endl;
+    map<miString, miString>::iterator itr = user_variables.begin();
+    for (; itr != user_variables.end(); itr++) {
+      cerr << itr->first << " = " << itr->second << endl;
+      substitutions[itr->first.upcase()] = itr->second;
+    }
   }
 }
 
