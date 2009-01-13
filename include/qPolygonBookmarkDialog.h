@@ -15,14 +15,14 @@ class PolygonBookmarkDialog : public QMainWindow{
 private:
   QTreeView            *bookmarks;
   PolygonBookmarkModel *model;
-  
+
   QMenu   *selectmenu;
   QMenu   *editmenu;
-  
-  QAction *selectAndExitAction;    
-  QAction *copyAction;   
-  QAction *pasteAction;   
-  QAction *quitAction; 
+
+  QAction *selectAndExitAction;
+  QAction *copyAction;
+  QAction *pasteAction;
+  QAction *quitAction;
   QAction *cutAction;
   QAction *deleteAction;
   QAction *selectAction;
@@ -30,22 +30,22 @@ private:
   QAction *expandAction;
   QAction *newFolderAction;
   QAction *renameAction;
-  
+
 protected:
   void closeEvent( QCloseEvent* );
-  
+
 public:
-	PolygonBookmarkDialog(QWidget* w,std::vector<miString>& s);
+	PolygonBookmarkDialog(QWidget* w,std::vector<miString>& s, miString lastSavedPolygon="");
 
 public slots:
   void bookmarkClicked(QModelIndex);
   void warn(miString);
-	
-private slots:  
+
+private slots:
   void quit();
   void select();
   void selectAndExit();
-  void paste(); 
+  void paste();
   void copy();
   void cut();
   void moveToTrash();
@@ -53,8 +53,8 @@ private slots:
   void collapse();
   void newFolder();
   void rename();
-  
-  
+
+
 signals:
   void polygonCanceled();                       ///< emitted on cancel ( cast polygon)
   void polygonQuit();                           ///< close dialog but keep the polygon

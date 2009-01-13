@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -48,12 +48,12 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent, OperationMode om)
 
   if(mode == VIEW_OBJECT_MODE)
     setAllEnabled(false);
-  
+
   // Disable non-implemented functions
   fileAreaButton->setEnabled(false);
 
   connectSignals();
-  setAreaStatus(AREA_NOT_SELECTED);  
+  setAreaStatus(AREA_NOT_SELECTED);
 }
 
 void ProfetObjectDialog::initGui()
@@ -77,7 +77,7 @@ void ProfetObjectDialog::initGui()
   areaInfoLabel = new QLabel("", areaGroupBox);
 
   mainLayout->addWidget(areaGroupBox);
-  
+
   if(mode == VIEW_OBJECT_MODE)
     areaGroupBox->setVisible(false);
 
@@ -121,7 +121,7 @@ void ProfetObjectDialog::connectSignals(){
       this, SIGNAL( cancelObjectDialog() ));
   connect(baseComboBox, SIGNAL( activated(const QString&) ),
       this, SLOT( baseObjectChanged(const QString&) ));
-  connect(databaseAreaButton,SIGNAL(clicked()), 
+  connect(databaseAreaButton,SIGNAL(clicked()),
       this, SIGNAL (requestPolygonList()));
 }
 
@@ -133,6 +133,7 @@ void ProfetObjectDialog::setAllEnabled(bool enable) {
   saveObjectButton->setEnabled(enable);
 }
 
+
 void ProfetObjectDialog::baseObjectChanged(const QString & qs){
   selectedBaseObject = qs.toStdString();
   algDescriptionLabel->setText(descriptionMap[qs]);
@@ -141,12 +142,12 @@ void ProfetObjectDialog::baseObjectChanged(const QString & qs){
 
 void ProfetObjectDialog::closeEvent(QCloseEvent * e){
   databaseAreaButton->setEnabled(true);
-  emit cancelObjectDialog(); 
+  emit cancelObjectDialog();
 }
 
 void ProfetObjectDialog::showObject(const fetObject & obj,
     vector<fetDynamicGui::GuiComponent> components)
-{  
+{
   vector<fetBaseObject> fbo;
   setBaseObjects(fbo);//remove base objects/gui
   baseComboBox->insertItem(obj.name().cStr(),0);
@@ -156,14 +157,14 @@ void ProfetObjectDialog::showObject(const fetObject & obj,
   reasonText->setText(obj.reason().cStr());
 }
 
-void ProfetObjectDialog::newObjectMode(){  
+void ProfetObjectDialog::newObjectMode(){
   mode = NEW_OBJECT_MODE;
   baseComboBox->setEnabled(true);
   reasonText->setText("");
 }
 
 void ProfetObjectDialog::editObjectMode(const fetObject & obj,
-    vector<fetDynamicGui::GuiComponent> components){  
+    vector<fetDynamicGui::GuiComponent> components){
   mode = EDIT_OBJECT_MODE;
   showObject(obj,components);
 }
@@ -254,7 +255,7 @@ miString ProfetObjectDialog::getReason(){
 
 void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
 {
-  
+
   if(!stat.size()) {
     statisticLabel->setText("");
     return;
@@ -280,18 +281,18 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
   for(;itr!=stat.end();itr++,i++) {
     float value = itr->second;
     int   prec  = ((int(value*100) == int(value)*100) ? 0 : 2);
-    
+
     miString bgcolor= (i%2?"lightGray":"white");
-    
+
     ost1	<< "<td halign=center bgcolor="<<bgcolor <<"><b>" << nb << itr->first.upcase() << nb <<" </b> </td> ";
     ost2  << "<td halign=center bgcolor="<<bgcolor <<"> "   << nb
       << std::fixed << std::setprecision(prec) << itr->second<< nb <<" </td>";
   }
   ost1 << ost2.str() <<  "</table>";
-    
+
  // qt4 fix: setText takes QString as argument
   statisticLabel->setText(QString(ost1.str().c_str()));
-  
+
 }
 
 void ProfetObjectDialog::quitBookmarks()
@@ -302,20 +303,20 @@ void ProfetObjectDialog::quitBookmarks()
 
 void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
 {
-  if(boom.empty()) 
+  if(boom.empty())
     return;
-  
-  PolygonBookmarkDialog * bookmarks = new PolygonBookmarkDialog(this,boom);
+
+  PolygonBookmarkDialog * bookmarks = new PolygonBookmarkDialog(this,boom,lastSavedPolygonName);
   connect(bookmarks,SIGNAL(polygonQuit()),
-        this,SLOT(quitBookmarks())); 
+        this,SLOT(quitBookmarks()));
   connect(bookmarks,SIGNAL(polygonCopied(miString,miString,bool)),
-      this,SIGNAL(copyPolygon(miString,miString,bool))); 
+      this,SIGNAL(copyPolygon(miString,miString,bool)));
   connect(bookmarks,SIGNAL(polygonSelected(miString)),
-      this,SIGNAL(selectPolygon(miString))); 
+      this,SIGNAL(selectPolygon(miString)));
   bookmarks->show();
-  
+
   databaseAreaButton->setEnabled(false);
-    
+
 }
 
 

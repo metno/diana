@@ -4,10 +4,10 @@
 
 using namespace std;
 
-PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& values ) : 
+PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& values, miString lastSavedPolygon ) :
   QMainWindow(w)
   {
-  setAttribute(Qt::WA_DeleteOnClose); 
+  setAttribute(Qt::WA_DeleteOnClose);
   setWindowModality(Qt::ApplicationModal);
   // actions: --------------------------
 
@@ -63,7 +63,7 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   selectAction->setShortcut(tr("Space"));
   selectAction->setStatusTip(tr("Select"));
   connect( selectAction, SIGNAL( triggered() ) , this, SLOT( select() ) );
- 
+
   // selectAndExit ========================
   selectAndExitAction = new QAction(  QPixmap(), tr("Select and exit"), this );
   selectAndExitAction->setShortcut(tr("Return"));
@@ -76,12 +76,12 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   quitAction->setStatusTip(tr("Quit"));
   connect( quitAction, SIGNAL( triggered() ) , this, SLOT( quit() ) );
 
-  
+
   selectmenu = new QMenu(tr("Select"),this);
   selectmenu->addSeparator();
   selectmenu->addAction(selectAction);
   selectmenu->addAction(selectAndExitAction);
-  
+
   editmenu = new QMenu(tr("Edit"),this);
   editmenu->addAction(copyAction);
   editmenu->addAction(cutAction);
@@ -95,32 +95,39 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   editmenu->addAction(renameAction);
   editmenu->addAction(newFolderAction);
   editmenu->addSeparator();
-  
+
   menuBar()->addMenu(selectmenu);
   menuBar()->addMenu(editmenu);
 
   model = new PolygonBookmarkModel(this);
-  
-  
+
+
   model->addBookmarks(values);
   connect(model,SIGNAL(warn(miString)),this,SLOT(warn(miString)));
-  
-  
+
+
   bookmarks = new QTreeView(this);
   bookmarks->setSelectionMode(QAbstractItemView::ExtendedSelection);
-   
-  
+
+
   setCentralWidget(bookmarks);
 
   bookmarks->setModel(model);
-  
+
   connect(bookmarks, SIGNAL(clicked(QModelIndex)),
       this, SLOT(bookmarkClicked(QModelIndex)));
-  
+
   connect(model,SIGNAL(bookmarkCopied(miString,miString,bool)),
       this,SIGNAL(polygonCopied(miString, miString, bool)));
   resize(250,400);
-  
+
+  QModelIndex c;
+  if(model->setCurrent(lastSavedPolygon,c )) {
+    cout << "found a polygon: " << lastSavedPolygon << endl;
+    bookmarks->setCurrentIndex(c);
+
+    emit polygonSelected(lastSavedPolygon );
+  }
 }
 
 
@@ -134,7 +141,7 @@ void PolygonBookmarkDialog::bookmarkClicked(QModelIndex idx)
 
 void PolygonBookmarkDialog::closeEvent(QCloseEvent * e)
 {
-   quit();  
+   quit();
 }
 
 void PolygonBookmarkDialog::quit()
@@ -143,7 +150,7 @@ void PolygonBookmarkDialog::quit()
   close();
 }
 
-void PolygonBookmarkDialog::paste() 
+void PolygonBookmarkDialog::paste()
 {
   QModelIndex idx=bookmarks->selectionModel()->currentIndex ();
   model->paste(idx);
@@ -182,7 +189,7 @@ void PolygonBookmarkDialog::expand()
 {
   bookmarks->expandAll();
 }
- 
+
 void PolygonBookmarkDialog::collapse()
 {
   bookmarks->collapseAll();
@@ -199,9 +206,9 @@ void PolygonBookmarkDialog::selectAndExit()
 {
   QModelIndex idx=bookmarks->selectionModel()->currentIndex ();
   bookmarkClicked(idx);
-  if (model->currentIsBookmark()) 
+  if (model->currentIsBookmark())
     quit();
-  
+
 }
 
 
@@ -212,7 +219,7 @@ void PolygonBookmarkDialog::newFolder()
   model->setCurrent(idx);
   if(model->currentIsProtected())
     return;
-  
+
   miString newfolder= model->getCurrentName(true);
   newfolder+=".New Folder";
   model->addBookmark(newfolder,true);

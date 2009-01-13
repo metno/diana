@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -72,7 +72,7 @@ private:
   QLabel         *areaInfoLabel;
   Q3TextEdit     *reasonText;
   QPushButton    *saveObjectButton;
-  QPushButton    *cancelObjectButton; 
+  QPushButton    *cancelObjectButton;
   Q3WidgetStack  *widgetStack;
   Q3GroupBox     *algGroupBox;
   Q3GroupBox     *areaGroupBox;
@@ -82,19 +82,20 @@ private:
   DynamicGuiMap  dynamicGuiMap;
   DescriptionMap descriptionMap;
   miString       selectedBaseObject;
+  miString       lastSavedPolygonName;
   OperationMode  mode;
-  
+
   void           initGui();
   void           connectSignals();
   void           setAllEnabled(bool enable);
   QString        getAreaStatusString(AreaStatus);
-  
+
 protected:
-  void closeEvent( QCloseEvent* );  
-  
+  void closeEvent( QCloseEvent* );
+
 public:
   ProfetObjectDialog(QWidget* parent, OperationMode = NEW_OBJECT_MODE);
-  
+
   void addDymanicGui(vector<fetDynamicGui::GuiComponent> components);
   void setSession(const miTime & session);
   void setParameter(const miString & parameter);
@@ -112,25 +113,25 @@ public:
       vector<fetDynamicGui::GuiComponent> components);
   bool showingNewObject(){ return (mode==NEW_OBJECT_MODE);}
   void startBookmarkDialog(vector<miString>& bookm);
-  
+  void setLastSavedPolygonName(miString pn) {lastSavedPolygonName=pn;}
 private slots:
   void baseObjectChanged(const QString&);
   void quitBookmarks();
-  
+
 signals:
   void baseObjectSelected(miString name);
   void dynamicGuiChanged();
   void saveObjectClicked();
   void cancelObjectDialog();
-  
+
   void copyPolygon(miString,miString,bool);
-  void selectPolygon(miString); 
+  void selectPolygon(miString);
   void requestPolygonList();
-  
-  
-  
-  
-  
+
+
+
+
+
 };
 
 #endif /*QTPROFETOBJECTDIALOG_H_*/
