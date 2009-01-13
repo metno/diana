@@ -11,7 +11,7 @@ OBJDIR=obj$(PLT)
 BINDIR=bin$(PLT)
 INCDIR=../include
 LOCALINC=$(LOCALDIR)/include
-LANGDIR=lang
+LANGDIR=share/diana/lang
 
 DEPENDSFILE=make.depends
 MOCFILE=make.moc
