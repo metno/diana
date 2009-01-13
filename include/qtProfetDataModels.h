@@ -234,6 +234,7 @@ public:
   void removeUserLocation(const PodsUser &);
   void clearModel();
   void customEvent(QEvent * e);
+  QModelIndex getModelIndex(miTime time, miString param);
 };
 
 }

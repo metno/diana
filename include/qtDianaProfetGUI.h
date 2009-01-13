@@ -204,7 +204,7 @@ public:
    */
   void rightMouseClicked(float x, float y, int globalX, int globalY);
 
-
+  bool selectTime(miTime time);
 
 
 private slots:

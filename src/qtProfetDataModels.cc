@@ -705,4 +705,16 @@ QColor FetObjectTableModel::getCellBackgroundColor(CellType type, bool odd) cons
   }
 }
 
+
+
+QModelIndex FetObjectTableModel::getModelIndex(miTime time, miString param) {
+
+  if (paramIndexMap.count(param) && timeIndexMap.count(time)){
+    return index(paramIndexMap[param], timeIndexMap[time]);
+  }
+  
+  return QModelIndex();
+
+}
+
 }

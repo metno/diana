@@ -56,8 +56,13 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   QLabel * qls    = new QLabel("Session");
   sessionComboBox = new SessionComboBox();
   
+  animationCheckBox = new QCheckBox(tr("Time follows map"));
+  animationCheckBox->setChecked(true);
+
   titleLayout->addWidget(qls);
   titleLayout->addWidget(sessionComboBox);
+  titleLayout->addStretch(1);
+  titleLayout->addWidget(animationCheckBox);
   
   QSplitter *split = new QSplitter(Qt::Vertical,this);
   // stretch table only
@@ -217,6 +222,10 @@ void ProfetSessionDialog::setTableModel(QAbstractItemModel * tableModel){
 
 void ProfetSessionDialog::selectDefault(){
   emit paramAndTimeChanged(table->model()->index(0,0));
+}
+
+void ProfetSessionDialog::selectParameterAndTime(const QModelIndex & index){
+  emit paramAndTimeChanged(index);
 }
 
 void ProfetSessionDialog::setSelectedObject(const QModelIndex & index){

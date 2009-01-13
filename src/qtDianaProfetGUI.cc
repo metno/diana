@@ -291,6 +291,17 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session){
 }
 
 
+bool DianaProfetGUI::selectTime(miTime time){
+  if (!enableTable_) return false;
+  if (!sessionDialog.animationChecked()) return false;
+  if ( time == getCurrentTime()) return false;
+  QModelIndex modelIndex = tableModel.getModelIndex(time, getCurrentParameter());
+  if( modelIndex.isValid() ){
+    sessionDialog.selectParameterAndTime( modelIndex );
+  }
+  return true;
+}
+
 void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
   LOG4CXX_DEBUG(logger,"setBaseObjects");
   baseObjects = obj;
@@ -1119,8 +1130,8 @@ void  DianaProfetGUI::setActivePoints(vector<Point> points){
 void DianaProfetGUI::rightMouseClicked(float x, 
 				       float y,
 				       int globalX,
-				       int globalY
-){
+				       int globalY)
+{
   popupMenu->clear();
   vector<miString> areaId = areaManager->getId(Point(x,y));
   for(int i=0;i<areaId.size();i++){

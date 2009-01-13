@@ -612,7 +612,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   tslider= new TimeSlider(Qt::Horizontal,this);
   tslider->setMinimumWidth(90);
   tslider->setMaximumWidth(90);
-  connect(tslider,SIGNAL(valueChanged(int)),SLOT(TimeChanged()));
+  connect(tslider,SIGNAL(valueChanged(int)),SLOT(TimeSliderMoved()));
   connect(tslider,SIGNAL(sliderReleased()),SLOT(TimeSelected()));
   connect(tslider,SIGNAL(sliderSet()),SLOT(SliderSet()));
 
@@ -647,13 +647,13 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(timecontrol, SIGNAL(timecontrolHide()),
 	  SLOT(timecontrolslot()));
 
-  timerToolbar= new QToolBar(this);
+  timerToolbar= new QToolBar("TimerToolBar",this);
+  timeSliderToolbar= new QToolBar("TimeSliderToolBar",this);
+  levelToolbar= new QToolBar("levelToolBar",this);
+  mainToolbar = new QToolBar("mainToolBar",this);
   timerToolbar->setObjectName("TimerToolBar");
-  timeSliderToolbar= new QToolBar(this);
   timeSliderToolbar->setObjectName("TimeSliderToolBar");
-  levelToolbar= new QToolBar(this);
   levelToolbar->setObjectName("levelToolBar");
-  mainToolbar = new QToolBar(this);
   mainToolbar->setObjectName("mainToolBar");
   addToolBar(Qt::RightToolBarArea,mainToolbar);
   addToolBar(Qt::TopToolBarArea,levelToolbar);
@@ -1033,7 +1033,7 @@ void DianaMainWindow::start()
   // read the log file
   readLogFile();
 
-  // init quickmenues
+  // init quickmenus
   qm->start();
 
   // make initial plot
@@ -1626,7 +1626,7 @@ bool DianaMainWindow::initProfet(){
        tslider,
        SLOT(insert(const miString&,const vector<miTime>&)));
     connect( profetGUI, SIGNAL(setTime(const miTime&)),
-       SLOT(setTimeAndUpdatePlots(const miTime&)));
+	     tslider, SLOT(setTime(const miTime&)));
     connect( profetGUI, SIGNAL(updateModelDefinitions()),
        fm,SLOT(updateModels()) );
     connect( profetGUI, SIGNAL(forceDisconnect(bool)),
@@ -1722,13 +1722,6 @@ void DianaMainWindow::plotProfetMap(bool objectsOnly){
   //   MenuOK();
 }
 
-void DianaMainWindow::setTimeAndUpdatePlots(const miTime& t)
-{
-  //  cerr << "---------- setTimeAndUpdatePlots:" << t << endl;
-  tslider->setTime(t);
-  TimeSelected();
-}
-
 void DianaMainWindow::toggleProfetGUI(){
 #ifdef PROFET
   // get status
@@ -1788,6 +1781,31 @@ void DianaMainWindow::forceProfetDisconnect(bool disableGuiOnly){
   toggleProfetGUI();
 #endif
 }
+
+bool DianaMainWindow::ProfetUpdatePlot(const miTime& t){
+#ifdef PROFET
+  if(profetGUI){
+    if( profetGUI->selectTime(t)) {
+      return true;
+    }
+  }
+#endif
+  return false;
+}
+
+bool DianaMainWindow::ProfetRightMouseClicked(float map_x, 
+					      float map_y,
+					      int globalX,
+					      int globalY){
+#ifdef PROFET
+  if(togglePaintModeAction->isChecked()){        
+    profetGUI->rightMouseClicked(map_x,map_y,globalX,globalY);
+    return true;
+  }
+#endif
+  return false;
+}
+
 
 void DianaMainWindow::objMenu()
 {
@@ -2481,7 +2499,7 @@ void DianaMainWindow::about()
 }
 
 
-void DianaMainWindow::TimeChanged()
+void DianaMainWindow::TimeSliderMoved()
 {
   miTime t= tslider->Value();
   timelabel->setText(t.isoTime().c_str());
@@ -2489,23 +2507,18 @@ void DianaMainWindow::TimeChanged()
 
 void DianaMainWindow::TimeSelected()
 {
+  //Timeslider released
   miTime t= tslider->Value();
-  QApplication::setOverrideCursor( Qt::WaitCursor );
-  if (contr->setPlotTime(t) && !dialogChanged){
-    contr->updatePlots();
-    w->updateGL();
+  if (!dialogChanged){
+    setPlotTime(t);
   }
-  timeChanged();
-  QApplication::restoreOverrideCursor();
 }
 
 void DianaMainWindow::SliderSet()
 {
-  //HK kommenter vekk neste linje, virker overflødig ???
-  //dialogChanged=true;
   miTime t= tslider->Value();
   contr->setPlotTime(t);
-  TimeChanged();
+  TimeSliderMoved();
 }
 
 void DianaMainWindow::setTimeLabel()
@@ -2513,7 +2526,7 @@ void DianaMainWindow::setTimeLabel()
   miTime t;
   contr->getPlotTime(t);
   tslider->setTime(t);
-  TimeChanged();
+  TimeSliderMoved();
 }
 
 void DianaMainWindow::stopAnimation()
@@ -2523,6 +2536,7 @@ void DianaMainWindow::stopAnimation()
 
   killTimer(animationTimer);
   timeron=0;
+
 }
 
 void DianaMainWindow::animationLoop()
@@ -2541,14 +2555,9 @@ void DianaMainWindow::timerEvent(QTimerEvent *e)
       stopAnimation();
       return;
     }
-    if (contr->setPlotTime(t)){
-      contr->updatePlots();
-      w->updateGL();
-    }
-    timeChanged();
+    setPlotTime(t);
   }
 }
-
 
 void DianaMainWindow::animation()
 {
@@ -2562,7 +2571,6 @@ void DianaMainWindow::animation()
   timeron=1;
 }
 
-
 void DianaMainWindow::animationBack()
 {
   if (timeron!=0)
@@ -2575,59 +2583,55 @@ void DianaMainWindow::animationBack()
   timeron=-1;
 }
 
-
 void DianaMainWindow::animationStop()
 {
   stopAnimation();
 }
-
 
 void DianaMainWindow::stepforward()
 {
   if (timeron) return;
   miTime t;
   if (!tslider->nextTime(1, t)) return;
-  if (contr->setPlotTime(t)){
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    contr->updatePlots();
-    w->updateGL();
-    QApplication::restoreOverrideCursor();
-  }
-  timeChanged();
+  setPlotTime(t);
 }
-
 
 void DianaMainWindow::stepback()
 {
   if (timeron) return;
   miTime t;
   if (!tslider->nextTime(-1, t)) return;
-  if (contr->setPlotTime(t)){
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    contr->updatePlots();
-    w->updateGL();
-    QApplication::restoreOverrideCursor();
-  }
-  timeChanged();
+  setPlotTime(t);
 }
-
 
 void DianaMainWindow::decreaseTimeStep()
 {
-  // qt4 fix: lineStep() -> singleStep()
   int v= timestep->value() - timestep->singleStep();
   if (v<0) v=0;
   timestep->setValue(v);
 }
 
-
 void DianaMainWindow::increaseTimeStep()
 {
-  // qt4 fix: lineStep() -> singleStep()
   int v= timestep->value() + timestep->singleStep();
   timestep->setValue(v);
 }
 
+
+void DianaMainWindow::setPlotTime(miTime& t)
+{
+  QApplication::setOverrideCursor( Qt::WaitCursor );
+  if (contr->setPlotTime(t)) {
+    contr->updatePlots();
+    if( !ProfetUpdatePlot(t)){
+      w->updateGL();
+    }
+  }
+
+  timeChanged();
+  QApplication::restoreOverrideCursor();
+
+}
 
 void DianaMainWindow::timeChanged(){
   //to be done whenever time changes (step back/forward, MenuOK etc.)
@@ -2653,6 +2657,9 @@ void DianaMainWindow::timeChanged(){
     letter.to = qmstrings::all;
     sendLetter(letter);
   }
+
+  QCoreApplication::sendPostedEvents ();
+
 }
 
 
@@ -2992,15 +2999,12 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   int globalX = mev.globalX;
   int globalY = mev.globalY;
 
-  //PROFET
-#ifdef PROFET
-  if(togglePaintModeAction->isChecked()){    
-    float map_x,map_y;
-    contr->PhysToMap(mev.x,mev.y,map_x,map_y);
-    profetGUI->rightMouseClicked(map_x,map_y,globalX,globalY);
+  float map_x,map_y;
+  contr->PhysToMap(mev.x,mev.y,map_x,map_y);
+  
+  if (ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
     return;
   }
-#endif
 
   xclick=x; yclick=y;
   //fill list of menuItems

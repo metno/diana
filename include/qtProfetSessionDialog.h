@@ -33,6 +33,7 @@
 #include <QDialog>
 #include <QComboBox>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QCloseEvent>
 #include <QPushButton>
 #include <QListView>
@@ -70,6 +71,7 @@ class ProfetSessionDialog: public QDialog{
   
 private:
   QComboBox * sessionComboBox;
+  QCheckBox * animationCheckBox;
   QPushButton * reconnectButton;
 //  QPushButton * updateButton;
   QPushButton * closeButton;
@@ -112,13 +114,16 @@ public:
 			   bool enableTable);
   
   void selectDefault();
+  void selectParameterAndTime(const QModelIndex & index);
   int getCurrentSessionIndex(){return sessionComboBox->currentIndex();}
+  bool animationChecked(){return animationCheckBox->isChecked();}
   QModelIndex getCurrentObjectIndex();
   void setCurrentSession(const QModelIndex & index);
 
   void showMessage(const Profet::InstantMessage & msg);
   
   void customEvent(QEvent * e);
+
   
 public slots:
   void hideViewObjectDialog();

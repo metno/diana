@@ -180,9 +180,9 @@ private slots:
   void saveraster();
   void saveAnimation();
   void makeEPS(const miString& filename);
-  void setTimeAndUpdatePlots(const miTime& t);
-  void TimeChanged();
+  void TimeSliderMoved();
   void TimeSelected();
+  void setPlotTime(miTime& t);
   void SliderSet();
   void editUpdate();
 
@@ -241,6 +241,8 @@ private slots:
   void setPaintMode(bool);
   void plotProfetMap(bool objectsOnly);
   void forceProfetDisconnect(bool disableGuiOnly);
+  bool ProfetUpdatePlot(const miTime& t);
+  bool ProfetRightMouseClicked(float map_x, float map_y, int globalX, int globalY);
 
 private:
   bool enableProfet;
