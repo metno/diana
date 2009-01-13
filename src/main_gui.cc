@@ -61,52 +61,91 @@
 
 using namespace std;
 
-const miString helpstr="\
-----------------------------------------------------------\n\
-Meteorologisk visningsverktøy, produksjonssystem for digital analyse \n\
-FoU/met.no, første versjon 1999        \n\
-----------------------------------------------------------\n\
-Kommandolinje-argumenter:                                 \n\
-  -h            :  skriver ut denne teksten og avslutter  \n\
-  -s <filnavn>  :  navn på setupfil (def. diana.setup)    \n\
-  -l <språk>    :  systemspråk (def. no)                  \n\
-  -L <logger>   :  loggerFil for debugging                \n\
-  -p <profet>   :  profet test version                    \n\
-  -S <server>   :  profet server host                     \n\
-----------------------------------------------------------\n\
-";
+
+void printUsage(){
+
+  cerr << "----------------------------------------------------------" << endl
+      << "Meteorologisk visningsverktøy, produksjonssystem for digital analyse" << endl
+      << "FoU/met.no, første versjon 1999" << endl
+      << "----------------------------------------------------------" << endl
+      << "Kommandolinje-argumenter:                                 " << endl
+      << "  -h            :  skriver ut denne teksten og avslutter  " << endl
+      << "  -v            :  skriver ut versjonsnummer og avslutter " << endl
+      << "  -s <filnavn>  :  navn på setupfil (def. diana.setup)    " << endl
+      << "  -l <språk>    :  systemspråk (def. no)                  " << endl
+      << "  -L <logger>   :  loggerFil for debugging                " << endl
+      << "  -p <profet>   :  profet test version                    " << endl
+      << "  -S <server>   :  profet server host                     " << endl
+      << "----------------------------------------------------------";
+
+}
+
 
 int main(int argc, char **argv)
 {
-  cerr << argv[0] << " : DIANA version: " << version_string << "  build: "<<build_string<<endl;
-  // parsing commandline-arguments
+  cerr << argv[0] << " : DIANA version: " << version_string << "  build: "
+      << build_string << endl;
 
-  vector<miCommandLine::option> opt;
+  miString logfilename;
+  miString ver_str= version_string;
+  miString build_str= build_string;
+  miString cl_lang;
+  bool profetEnabled= false;
+  miString profetServer;
+  miString setupfile;
+  miString lang;
+  map<miString,miString> user_variables;
 
-  opt.push_back(miCommandLine::option('s',"setup",  1 ));
-  opt.push_back(miCommandLine::option('h',"help",   0 ));
-  opt.push_back(miCommandLine::option('l',"lang",   1 ));
-  opt.push_back(miCommandLine::option('L',"logger", 1 ));
-#ifdef PROFET
-  opt.push_back(miCommandLine::option('p',"profet", 0 ));
-  opt.push_back(miCommandLine::option('S',"server", 1 ));
-#endif
+    // parsing command line arguments
+  int ac= 1;
+  while (ac < argc){
+    miString sarg= argv[ac];
 
-  miCommandLine cl(opt,argc,argv);
+    if (sarg == "-h" || sarg == "--help"){
+      printUsage();
+      return 0;
+
+    } else if (sarg=="-s" || sarg=="--setup") {
+      ac++;
+      if (ac >= argc) printUsage();
+      setupfile= argv[ac];
+
+    } else if (sarg=="-l" || sarg=="--lang") {
+      ac++;
+      if (ac >= argc) printUsage();
+      cl_lang= argv[ac];
+
+    } else if (sarg=="-L" || sarg=="--logger") {
+      ac++;
+      if (ac >= argc) printUsage();
+      logfilename= argv[ac];
+
+    } else if (sarg=="-v" || sarg=="--version") {
+      //cerr << argv[0] << " : DIANA version: " << version_string << "  build: "<<build_string<<endl;
+      return 0;
+
+    } else if (sarg=="-p" || sarg=="--profet") {
+      profetEnabled = true;
+
+    } else if (sarg=="-S" || sarg=="--server") {
+      ac++;
+      if (ac >= argc) printUsage();
+      profetServer= argv[ac];
+
+    } else {
+      vector<miString> ks= sarg.split("=");
+      if (ks.size()==2) {
+        user_variables[ks[0].upcase()] = ks[1];
+      } else {
+        cerr << "WARNING, unknown argument on commandline:" << sarg << endl;
+      }
+    }
+    ac++;
+  } // command line parameters
 
 
-
-
-  if (cl.hasFlag('h')){
-    cerr << helpstr << endl;
-    return 0;
-  }
-
-  bool profetEnabled=cl.hasFlag('p');
-
-
-  if(cl.hasFlag('L')) {
-    miString logfilename=cl.arg('L')[0];
+  // Fix logger
+  if(logfilename.exists()) {
 #ifndef NOLOG4CXX
     log4cxx::PropertyConfigurator::configure(logfilename.cStr());
 #endif
@@ -119,16 +158,8 @@ int main(int argc, char **argv)
 #endif
   }
 
-
-
-  miString ver_str= version_string;
-  miString build_str= build_string;
-  miString lang;
-  miString setupfile;
-
-  if (cl.hasFlag('s')) setupfile= cl.arg('s')[0];
-
   SetupParser sp;
+  sp.setUserVariables(user_variables);
   if (!sp.parse(setupfile)){
     cerr << "An error occured while reading setup: " << setupfile << endl;
     return 99;
@@ -149,8 +180,8 @@ int main(int argc, char **argv)
   }
 #ifdef PROFET
   Profet::ProfetController::SETUP_FILE = setupfile;
-  if (profetEnabled && cl.hasFlag('S')) {
-    Profet::ProfetController::SERVER_HOST = cl.arg('S')[0];
+  if (profetEnabled && profetServer.exists()) {
+    Profet::ProfetController::SERVER_HOST = profetServer;
   }
 #endif
 
@@ -158,11 +189,9 @@ int main(int argc, char **argv)
   if(sp.basicValue("language").exists())
     lang=sp.basicValue("language");
 
-  // language from logfile!!!!
-
   // language from command line
-  if(cl.hasFlag('l'))
-    lang=cl.arg('l')[0];
+  if(cl_lang.exists())
+    lang=cl_lang;
 
   miTime x; x.setDefaultLanguage(lang);
 

@@ -51,6 +51,7 @@ const miString SectInfoFiles=   "TEXT_INFORMATION_FILES";
 
 // static members
 map<miString,miString>     SetupParser::substitutions;
+map<miString,miString>     SetupParser::user_variables;
 vector<miString>           SetupParser::sfilename;
 map<miString,SetupSection> SetupParser::sectionm;
 map<miString,Filltype>     SetupParser::filltypes;
@@ -58,6 +59,22 @@ vector<QuickMenuDefs>      SetupParser::quickmenudefs;
 map<miString,miString>     SetupParser::basic_values;
 map<miString,InfoFile>     SetupParser::infoFiles;
 vector<miString>           SetupParser::langPaths;
+
+
+void SetupParser::setUserVariables(const map<miString, miString> & user_var)
+{
+  user_variables = user_var;
+
+  cerr << "SetupParser::setUserVariables, commandline arguments gave:" << endl;
+
+  map<miString, miString>::iterator itr = user_variables.begin();
+  for (; itr != user_variables.end(); itr++) {
+
+    cerr << itr->first << " = " << itr->second << endl;
+
+    substitutions[itr->first.upcase()] = itr->second;
+  }
+}
 
 
 bool SetupParser::checkSubstitutions(miString& t)
@@ -127,18 +144,19 @@ bool SetupParser::makeDirectory(const miString& filename, miString & error)
 
   mode_t mode =  S_IRWXU | S_IRWXG;
   int errno = mkdir(filename.c_str(),mode);
- 
+
   if ( errno == 0 ){
     return true;
   }
- 
+
   error = strerror(errno);
   return false;
 }
 
-void SetupParser::cleanstr(miString& s){
+void SetupParser::cleanstr(miString& s)
+{
   int p;
-  if ((p=s.find("#"))!=string::npos)
+  if ((p = s.find("#")) != string::npos)
     s.erase(p);
 
   // substitute environment/shell variables
@@ -152,41 +170,42 @@ void SetupParser::cleanstr(miString& s){
 
   // prepare strings for easy split on '=' and ' '
   // : remove leading and trailing " " for each '='
-  if (s.contains("=") && s.contains(" ")){
-    p=0;
-    while((p=s.find_first_of("=",p))!=string::npos){
+  if (s.contains("=") && s.contains(" ")) {
+    p = 0;
+    while ((p = s.find_first_of("=", p)) != string::npos) {
       // check for "" - do not clean out blanks inside these
-      vector<int> sf1,sf2;
-      int f1=0,f2;
-      while ((f1=s.find_first_of("\"",f1  ))!=string::npos &&
-	     (f2=s.find_first_of("\"",f1+1))!=string::npos){
-	sf1.push_back(f1);
-	sf2.push_back(f2);
-	f1=f2+1;
+      vector<int> sf1, sf2;
+      int f1 = 0, f2;
+      while ((f1 = s.find_first_of("\"", f1)) != string::npos && (f2
+          = s.find_first_of("\"", f1 + 1)) != string::npos) {
+        sf1.push_back(f1);
+        sf2.push_back(f2);
+        f1 = f2 + 1;
       }
-      bool dropit=false;
-      for (int i=0; i<sf1.size(); i++){
-	f1= sf1[i];
-	f2= sf2[i];
-	if ( f1 > p ){
-	  // no chance of "" pairs around this..
-	  break;
-	}
-	if ( f1 < p && f2 > p ){
-	  p=f2+1;
-	  // '=' is inside a "" pair, drop cleaning
-	  dropit=true;
-	  break;
-	}
+      bool dropit = false;
+      for (int i = 0; i < sf1.size(); i++) {
+        f1 = sf1[i];
+        f2 = sf2[i];
+        if (f1 > p) {
+          // no chance of "" pairs around this..
+          break;
+        }
+        if (f1 < p && f2 > p) {
+          p = f2 + 1;
+          // '=' is inside a "" pair, drop cleaning
+          dropit = true;
+          break;
+        }
       }
-      if (dropit) continue;
+      if (dropit)
+        continue;
 
-      while (p>0 && s[p-1]==' '){
-	s.erase(p-1,1);
-	p--;
+      while (p > 0 && s[p - 1] == ' ') {
+        s.erase(p - 1, 1);
+        p--;
       }
-      while (p<s.length()-1 && s[p+1]==' '){
-	s.erase(p+1,1);
+      while (p < s.length() - 1 && s[p + 1] == ' ') {
+        s.erase(p + 1, 1);
       }
       p++;
     }
@@ -251,158 +270,162 @@ void SetupParser::splitKeyValue(const miString& s,
 
 // parse one setupfile
 bool SetupParser::parseFile(const miString& filename, // name of file
-			    const miString& section,  // inherited section
-			    int level)                // recursive level
+    const miString& section, // inherited section
+    int level) // recursive level
 {
   // list of filenames, index to them
   sfilename.push_back(filename);
-  int activefile= sfilename.size()-1;
+  int activefile = sfilename.size() - 1;
 
   // ====== just output
   level++;
-  miString dummy= " ";
-  for ( int i=0; i<=level; i++)
+  miString dummy = " ";
+  for (int i = 0; i <= level; i++)
     dummy += ".";
   cerr << dummy << " reading \t[" << filename << "] " << endl;
   // ===================
 
-  const miString undefsect= "_UNDEF_";
-  miString origsect = ( section.exists() ? section : undefsect );
+  const miString undefsect = "_UNDEF_";
+  miString origsect = (section.exists() ? section : undefsect);
   miString sectname = origsect;
   list<miString> sectstack;
 
   miString str;
-  int n,ln=0,linenum;
+  int n, ln = 0, linenum;
 
   // open filestream
   ifstream file(filename.cStr());
-  if (!file){
-    cerr << "SetupParser::readSetup. cannot open setupfile " <<
-      filename << endl;
+  if (!file) {
+    cerr << "SetupParser::readSetup. cannot open setupfile " << filename
+        << endl;
     return false;
   }
 
   /*
-    - skip blank lines,
-    - strip lines for comments and left/right whitespace
-    - merge lines ending with \
+   - skip blank lines,
+   - strip lines for comments and left/right whitespace
+   - merge lines ending with \
     - accumulate strings for each section
-  */
+   */
   miString tmpstr;
   int tmpln;
-  bool merge= false, newmerge;
+  bool merge = false, newmerge;
 
-  while (getline(file,str)){
+  while (getline(file, str)) {
     ln++;
     str.trim();
-    n= str.length();
-    if (n == 0) continue;
+    n = str.length();
+    if (n == 0)
+      continue;
 
     /*
-      check for linemerging
-    */
-    newmerge= false;
-    if (str[n-1] == '\\'){
-      newmerge= true;
-      str= str.substr(0,str.length()-1);
+     check for linemerging
+     */
+    newmerge = false;
+    if (str[n - 1] == '\\') {
+      newmerge = true;
+      str = str.substr(0, str.length() - 1);
     }
-    if (merge){           // this is at least the second merge-line..
-      tmpstr+= str;
-      if (newmerge) continue; // and there is more, go to next line
-      str    = tmpstr;        // We are finished: go to checkout
-      linenum= tmpln;
-      merge= false;
+    if (merge) { // this is at least the second merge-line..
+      tmpstr += str;
+      if (newmerge)
+        continue; // and there is more, go to next line
+      str = tmpstr; // We are finished: go to checkout
+      linenum = tmpln;
+      merge = false;
 
-    } else if (newmerge){ // This is the start of a merge
-      tmpln= ln;
-      tmpstr= str;
-      merge=true;
-      continue;             // go to next line
+    } else if (newmerge) { // This is the start of a merge
+      tmpln = ln;
+      tmpstr = str;
+      merge = true;
+      continue; // go to next line
 
-    } else {              // no merge at all
+    } else { // no merge at all
       linenum = ln;
     }
 
     /*
-      Remove preceding and trailing blanks.
-      Remove comments
-      Remove blanks around '='
-      Do variable substitutions
-    */
+     Remove preceding and trailing blanks.
+     Remove comments
+     Remove blanks around '='
+     Do variable substitutions
+     */
     cleanstr(str);
-    n= str.length();
-    if ( n == 0 )
+    n = str.length();
+    if (n == 0)
       continue;
 
     /*
-      Check each line..
-    */
-    if (n>1 && str[0]=='<' && str[n-1]=='>'){
+     Check each line..
+     */
+    if (n > 1 && str[0] == '<' && str[n - 1] == '>') {
       // start or end of section
-      if (str[1]=='/'){ // end of current section
-	if ( sectstack.size() > 0 ){
-	  // retreat to previous section
-	  sectname = sectstack.back();
-	  sectstack.pop_back();
-	} else
-	  sectname= undefsect;
+      if (str[1] == '/') { // end of current section
+        if (sectstack.size() > 0) {
+          // retreat to previous section
+          sectname = sectstack.back();
+          sectstack.pop_back();
+        } else
+          sectname = undefsect;
 
       } else { // start of new section
-	// push current section onto stack
-	sectstack.push_back(sectname);
-	sectname= str.substr(1,n-2);
+        // push current section onto stack
+        sectstack.push_back(sectname);
+        sectname = str.substr(1, n - 2);
       }
 
-    } else if ( str.substr(0,8) == "%include" ){
+    } else if (str.substr(0, 8) == "%include") {
       /*
-	include another setupfile
-      */
-      if ( n < 10 ){
-	miString error = "Missing filename for include";
-	internalErrorMsg(filename,linenum,error);
-	return false;
+       include another setupfile
+       */
+      if (n < 10) {
+        miString error = "Missing filename for include";
+        internalErrorMsg(filename, linenum, error);
+        return false;
       }
-      miString nextfile = str.substr(8,n);
+      miString nextfile = str.substr(8, n);
       nextfile.trim();
-      if ( !parseFile( nextfile,sectname,level ) )
-	return false;
+      if (!parseFile(nextfile, sectname, level))
+        return false;
 
-    } else if ( str.upcase() == "CLEAR" ){
+    } else if (str.upcase() == "CLEAR") {
       /*
-	Clear all strings for this section
-	Only valid inside a section
-      */
-      if ( sectname == undefsect ){
-	miString error = "CLEAR only valid within a section";
-	internalErrorMsg(filename,linenum,error);
-	continue;
+       Clear all strings for this section
+       Only valid inside a section
+       */
+      if (sectname == undefsect) {
+        miString error = "CLEAR only valid within a section";
+        internalErrorMsg(filename, linenum, error);
+        continue;
       }
-      if ( sectionm.count(sectname) == 0 )
-	continue;
+      if (sectionm.count(sectname) == 0)
+        continue;
       sectionm[sectname].strlist.clear();
       sectionm[sectname].linenum.clear();
       sectionm[sectname].filenum.clear();
-//       // also add clear command to section
-//       sectionm[sectname].strlist.push_back(str);
-//       sectionm[sectname].linenum.push_back(linenum);
-//       sectionm[sectname].filenum.push_back(activefile);
+      //       // also add clear command to section
+      //       sectionm[sectname].strlist.push_back(str);
+      //       sectionm[sectname].linenum.push_back(linenum);
+      //       sectionm[sectname].filenum.push_back(activefile);
 
     } else {
       /*
-	Add string to section.
-	If undefined section, check instead for variable declaration
-      */
-      if ( sectname == undefsect ){
-	miString key, value;
-	splitKeyValue( str, key, value );
-	if ( value.exists() ){
-	  substitutions[ key.upcase() ] = value;
-	} else {
-	  cerr << "** setupfile WARNING, line " << linenum
-	       << " in file " << filename << " is no variabledefinition, and is outside all sections:"
-	       << str << endl;
-	}
-	continue;
+       Add string to section.
+       If undefined section, check instead for variable declaration
+       */
+      if (sectname == undefsect) {
+        miString key, value;
+        splitKeyValue(str, key, value);
+        if (value.exists()) {
+          if (user_variables.count(key.upcase()) == 0) // user variables override setupfile
+            substitutions[key.upcase()] = value;
+        } else {
+          cerr << "** setupfile WARNING, line " << linenum << " in file "
+              << filename
+              << " is not a legal variable definition, and is outside all sections:"
+              << str << endl;
+        }
+        continue;
       }
       // add strings to appropriate section
       sectionm[sectname].strlist.push_back(str);
@@ -414,19 +437,19 @@ bool SetupParser::parseFile(const miString& filename, // name of file
   file.close();
 
   // File should start and end in same section
-  if ( sectname != origsect ){
+  if (sectname != origsect) {
     miString error = "File started in section " + origsect
-      + " and ended in section " + sectname;
-    internalErrorMsg(filename,linenum,error);
+        + " and ended in section " + sectname;
+    internalErrorMsg(filename, linenum, error);
     return false;
   }
   return true;
 }
 
 
-bool SetupParser::parse(const miString& mainfilename){
+bool SetupParser::parse(const miString & mainfilename){
 
-  cerr <<"SetupParser::parse:" <<mainfilename<<endl;
+  cerr << "SetupParser::parse:" << mainfilename << endl;
   miString filename=mainfilename;
   sfilename.clear();
 
@@ -446,26 +469,26 @@ bool SetupParser::parse(const miString& mainfilename){
   if (!filename.exists()) {
     filename = "diana.setup";
     miString filename_str = filename;
-    cerr <<"filename:"<<filename<<endl;
+    cerr << "filename:" << filename << endl;
     ifstream file(filename.cStr());
     if (!file) {
       filename = homedir + "/diana.setup";
       filename_str += " or ";
       filename_str += filename;
-      cerr <<"filename:"<<filename<<endl;
+      cerr << "filename:" << filename << endl;
       ifstream file2(filename.cStr());
       if (!file2) {
-	filename = "/usr/local/etc/diana/diana.setup-FOU";
-	filename_str += " or ";
-	filename_str += filename;
-	cerr <<"filename:"<<filename<<endl;
-	ifstream file3(filename.cStr());
-	if (!file3) {
-	  cerr << "SetupParser::readSetup. cannot open default setupfile " <<
-	  filename_str<<endl;
-	cerr << "Try diana.bin -s setupfile" <<endl;
-	return false;
-	}
+        filename = "/usr/local/etc/diana/diana.setup-FOU";
+        filename_str += " or ";
+        filename_str += filename;
+        cerr << "filename:" << filename << endl;
+        ifstream file3(filename.cStr());
+        if (!file3) {
+          cerr << "SetupParser::readSetup. cannot open default setupfile "
+              << filename_str << endl;
+          cerr << "Try diana.bin -s setupfile" << endl;
+          return false;
+        }
       }
     }
   }

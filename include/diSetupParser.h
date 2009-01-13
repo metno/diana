@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -44,7 +44,7 @@ class Controller;
 
 /**
    \brief one section in setupfile
-   
+
    list of strings with references to original linenumbers and filesources
 */
 struct SetupSection {
@@ -69,14 +69,15 @@ private:
   /// list of setup-filenames
   static vector<miString> sfilename;
   /// Setuptext hashed by Section name
-  static map<miString,SetupSection> sectionm;
+  static map<miString, SetupSection> sectionm;
 
-  static map<miString,miString>    substitutions;
-  static map<miString,Filltype>    filltypes;
-  static vector<QuickMenuDefs>     quickmenudefs;
-  static map<miString,miString>    basic_values;
-  static map<miString,InfoFile>          infoFiles;
-  static vector<miString>          langPaths;
+  static map<miString, miString> substitutions;
+  static map<miString, miString> user_variables;
+  static map<miString, Filltype> filltypes;
+  static vector<QuickMenuDefs>   quickmenudefs;
+  static map<miString, miString> basic_values;
+  static map<miString, InfoFile> infoFiles;
+  static vector<miString>        langPaths;
 
   // parse basic info
   bool parseBasics(const miString&);
@@ -110,8 +111,10 @@ private:
 
 
 public:
-  SetupParser() {}
+  SetupParser(){}
 
+  /// set user variables
+  void setUserVariables(const map<miString,miString> & user_var);
   /// cleans a string
   void cleanstr(miString&);
   /// finds key=value in string
