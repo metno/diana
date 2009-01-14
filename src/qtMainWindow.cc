@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 //#define DEBUGREDRAW
 //#define DEBUGREDRAWCATCH
 
@@ -117,6 +117,8 @@
 #include <profet/ProfetCommon.h>
 #endif
 
+#include <qUtilities/miLogFile.h>
+
 #include <pick.xpm>
 #include <earth3.xpm>
 #include <fileprint.xpm>
@@ -150,14 +152,14 @@
 
 
 DianaMainWindow::DianaMainWindow(Controller *co,
-				 const miString ver_str,
-				 const miString build_str,
-				 bool ep)
-  : QMainWindow(),
-    contr(co),timeron(0),timeloop(false),timeout_ms(100),
-    showelem(true),autoselect(false),push_command(true),browsing(false),
-    markTrajPos(false),
-    vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
+    const miString ver_str,
+    const miString build_str,
+    bool ep)
+: QMainWindow(),
+contr(co),timeron(0),timeloop(false),timeout_ms(100),
+showelem(true),autoselect(false),push_command(true),browsing(false),
+markTrajPos(false),
+vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
 {
   cerr << "Creating DianaMainWindow" << endl;
   version_string= ver_str;
@@ -453,7 +455,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( toolLevelDownAction, SIGNAL( activated() ) ,  SLOT( levelDown() ) );
   // --------------------------------------------------------------------
   toolIdnumUpAction = new QAction( QPixmap(idnumUp_xpm ),
-				   tr("EPS cluster/member etc up"), this );
+      tr("EPS cluster/member etc up"), this );
   toolIdnumUpAction->setShortcutContext(Qt::ApplicationShortcut);
   toolIdnumUpAction->setShortcut(Qt::SHIFT+Qt::Key_PageUp);
   toolIdnumUpAction->setCheckable(false);
@@ -461,7 +463,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( toolIdnumUpAction, SIGNAL( activated() ) ,  SLOT( idnumUp() ) );
   // --------------------------------------------------------------------
   toolIdnumDownAction = new QAction( QPixmap(idnumDown_xpm ),
-				     tr("EPS cluster/member etc down"), this );
+      tr("EPS cluster/member etc down"), this );
   toolIdnumDownAction->setShortcutContext(Qt::ApplicationShortcut);
   toolIdnumDownAction->setShortcut(Qt::SHIFT+Qt::Key_PageDown);
   toolIdnumDownAction->setEnabled ( false );
@@ -470,7 +472,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // Status ===============================
   // --------------------------------------------------------------------
   obsUpdateAction = new QAction( QPixmap(synop_red_xpm),
-				 tr("Update observations"), this );
+      tr("Update observations"), this );
   connect( obsUpdateAction, SIGNAL( activated() ), SLOT(updateObs()));
 
   // edit  ===============================
@@ -514,7 +516,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     ----------------------------------------------------------
     Menu Bar
     ----------------------------------------------------------
-  */
+   */
 
   //-------File menu
   filemenu = menuBar()->addMenu(tr("File"));
@@ -542,16 +544,16 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   rightclickmenu = new QMenu(this);
   connect(rightclickmenu,SIGNAL(aboutToShow()),
-	  SLOT(fillRightclickmenu()));
+      SLOT(fillRightclickmenu()));
   connect(rightclickmenu,SIGNAL(activated(int)),
-	  SLOT(rightClickMenuActivated(int)));
+      SLOT(rightClickMenuActivated(int)));
   lastRightClicked= tr("Zoom out");
   uffda=contr->getUffdaEnabled();
 
   QMenu* infomenu= new QMenu(tr("Info"),this);
   infomenu->setIcon(QPixmap(info_xpm));
   connect(infomenu, SIGNAL(triggered(QAction *)),
-	  SLOT(info_activated(QAction *)));
+      SLOT(info_activated(QAction *)));
   infoFiles= contr->getInfoFiles();
   if (infoFiles.size()>0){
     map<miString,InfoFile>::iterator p=infoFiles.begin();
@@ -605,7 +607,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     ----------------------------------------------------------
     Tool Bars
     ----------------------------------------------------------
-  */
+   */
 
   // ----------------Timer widgets -------------------------
 
@@ -618,15 +620,15 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   timestep= new TimeStepSpinbox(this);
   connect(tslider,SIGNAL(minInterval(int)),
-	  timestep,SLOT(setValue(int)));
+      timestep,SLOT(setValue(int)));
   connect(tslider,SIGNAL(timeSteps(int,int)),
-	  timestep,SLOT(setTimeSteps(int,int)));
+      timestep,SLOT(setTimeSteps(int,int)));
   connect(tslider,SIGNAL(enableSpin(bool)),
-	  timestep,SLOT(setEnabled(bool)));
+      timestep,SLOT(setEnabled(bool)));
   connect(timestep,SIGNAL(valueChanged(int)),
-	  tslider,SLOT(setInterval(int)));
+      tslider,SLOT(setInterval(int)));
   connect(tslider,SIGNAL(enableSpin(bool)),
-	  timeControlAction,SLOT(setEnabled(bool)));
+      timeControlAction,SLOT(setEnabled(bool)));
 
 
   timelabel= new QLabel("000%0-00-00 00:00:00",this);
@@ -635,17 +637,17 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   timecontrol = new TimeControl(this);
   connect(timecontrol, SIGNAL(timeoutChanged(float)),
-	  SLOT(timeoutChanged(float)));
+      SLOT(timeoutChanged(float)));
   connect(timecontrol, SIGNAL(minmaxValue(const miTime&, const miTime&)),
-	  tslider, SLOT(setMinMax(const miTime&, const miTime&)));
+      tslider, SLOT(setMinMax(const miTime&, const miTime&)));
   connect(timecontrol, SIGNAL(clearMinMax()),
-	  tslider, SLOT(clearMinMax()));
+      tslider, SLOT(clearMinMax()));
   connect(tslider, SIGNAL(newTimes(vector<miTime>&)),
-	  timecontrol, SLOT(setTimes(vector<miTime>&)));
+      timecontrol, SLOT(setTimes(vector<miTime>&)));
   connect(timecontrol, SIGNAL(data(miString)),
-	  tslider, SLOT(useData(miString)));
+      tslider, SLOT(useData(miString)));
   connect(timecontrol, SIGNAL(timecontrolHide()),
-	  SLOT(timecontrolslot()));
+      SLOT(timecontrolslot()));
 
   timerToolbar= new QToolBar("TimerToolBar",this);
   timeSliderToolbar= new QToolBar("TimeSliderToolBar",this);
@@ -711,7 +713,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   statusbuttons= new StatusPlotButtons();
   connect(statusbuttons, SIGNAL(toggleElement(PlotElement)),
-	  SLOT(toggleElement(PlotElement)));
+      SLOT(toggleElement(PlotElement)));
   statusBar()->addWidget(statusbuttons);
   if (!showelem) statusbuttons->hide();
 
@@ -736,38 +738,38 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   qsocket = false;
   miString server = setup.basicValue("qserver");
   pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
-//   pluginB->setMinimumWidth( hpixbutton );
-//   pluginB->setMaximumWidth( hpixbutton );
+  //   pluginB->setMinimumWidth( hpixbutton );
+  //   pluginB->setMaximumWidth( hpixbutton );
   connect(pluginB, SIGNAL(receivedMessage(miMessage&)),
-	  SLOT(processLetter(miMessage&)));
+      SLOT(processLetter(miMessage&)));
   connect(pluginB, SIGNAL(connectionClosed()),SLOT(connectionClosed()));
   statusBar()->addPermanentWidget(pluginB);
 
-    QtImageGallery ig;
-    QImage f_img(felt_xpm);
-    ig.addImageToGallery("FIELD",f_img);
-    QImage s_img(sat_xpm);
-    ig.addImageToGallery("RASTER",s_img);
-    QImage obs_img(synop_xpm);
-    ig.addImageToGallery("OBS",obs_img);
-    QImage obj_img(front_xpm);
-    ig.addImageToGallery("OBJECTS",obj_img);
-    QImage t_img(traj_xpm);
-    ig.addImageToGallery("TRAJECTORY",t_img);
-    QImage vp_img(balloon_xpm);
-    ig.addImageToGallery("vprof_icon",vp_img);
-    QImage location_img(vcross_xpm);
-    ig.addImageToGallery("LOCATION",location_img);
-    QImage sp_img(spectrum_xpm);
-    ig.addImageToGallery("spectrum_icon",sp_img);
+  QtImageGallery ig;
+  QImage f_img(felt_xpm);
+  ig.addImageToGallery("FIELD",f_img);
+  QImage s_img(sat_xpm);
+  ig.addImageToGallery("RASTER",s_img);
+  QImage obs_img(synop_xpm);
+  ig.addImageToGallery("OBS",obs_img);
+  QImage obj_img(front_xpm);
+  ig.addImageToGallery("OBJECTS",obj_img);
+  QImage t_img(traj_xpm);
+  ig.addImageToGallery("TRAJECTORY",t_img);
+  QImage vp_img(balloon_xpm);
+  ig.addImageToGallery("vprof_icon",vp_img);
+  QImage location_img(vcross_xpm);
+  ig.addImageToGallery("LOCATION",location_img);
+  QImage sp_img(spectrum_xpm);
+  ig.addImageToGallery("spectrum_icon",sp_img);
 
-    miString avatarpath = setup.basicValue("avatars");
-    if ( avatarpath.exists() ){
-      vector<miString> vs = avatarpath.split(":");
-      for ( int i=0; i<vs.size(); i++ ){
-	ig.addImagesInDirectory(vs[i]);
-      }
+  miString avatarpath = setup.basicValue("avatars");
+  if ( avatarpath.exists() ){
+    vector<miString> vs = avatarpath.split(":");
+    for ( int i=0; i<vs.size(); i++ ){
+      ig.addImagesInDirectory(vs[i]);
     }
+  }
 
   //-------------------------------------------------
 
@@ -775,16 +777,16 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   setCentralWidget(w);
 
   connect(w->Glw(), SIGNAL(mouseGridPos(const mouseEvent)),
-	  SLOT(catchMouseGridPos(const mouseEvent)));
+      SLOT(catchMouseGridPos(const mouseEvent)));
 
   connect(w->Glw(), SIGNAL(mouseRightPos(const mouseEvent)),
-	  SLOT(catchMouseRightPos(const mouseEvent)));
+      SLOT(catchMouseRightPos(const mouseEvent)));
 
   connect(w->Glw(), SIGNAL(mouseMovePos(const mouseEvent,bool)),
-	  SLOT(catchMouseMovePos(const mouseEvent,bool)));
+      SLOT(catchMouseMovePos(const mouseEvent,bool)));
 
   connect(w->Glw(), SIGNAL(keyPress(const keyboardEvent)),
-	  SLOT(catchKeyPress(const keyboardEvent)));
+      SLOT(catchKeyPress(const keyboardEvent)));
 
   // ----------- init dialog-objects -------------------
 
@@ -832,14 +834,14 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   //  	  SLOT(quickMenuApply(const vector<miString>&)));
 
   // DENNE SKAL BRUKES ETTER AT putOKString ER IMPLEMENTERT
-   connect(qm, SIGNAL(Apply(const vector<miString>&,bool)),
-	   SLOT(recallPlot(const vector<miString>&,bool)));
+  connect(qm, SIGNAL(Apply(const vector<miString>&,bool)),
+      SLOT(recallPlot(const vector<miString>&,bool)));
 
   connect(qm, SIGNAL(requestUpdate(const vector<miString>&,vector<miString>&)),
-   	  SLOT(requestQuickUpdate(const vector<miString>&,vector<miString>&)));
+      SLOT(requestQuickUpdate(const vector<miString>&,vector<miString>&)));
 
   connect(em, SIGNAL(Apply(const vector<miString>&,bool)),
- 	  SLOT(recallPlot(const vector<miString>&,bool)));
+      SLOT(recallPlot(const vector<miString>&,bool)));
 
 
   // Mark trajectory positions
@@ -894,27 +896,27 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // update field dialog when editing field
   connect( em, SIGNAL(emitFieldEditUpdate(miString)),
-	   fm, SLOT(fieldEditUpdate(miString)));
+      fm, SLOT(fieldEditUpdate(miString)));
 
   // HELP
   connect( fm, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( om, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( sm, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( mm, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( em, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( qm, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( objm, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( trajm, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect( uffm, SIGNAL(showsource(const miString,const miString)),
-	   help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
@@ -924,9 +926,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   vpWindow = new VprofWindow();
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
   connect(vpWindow,SIGNAL(showsource(const miString,const miString)),
-	  help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect(vpWindow,SIGNAL(stationChanged(const QString &)),
-	  SLOT(stationChangedSlot(const QString &)));
+      SLOT(stationChangedSlot(const QString &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
 
   // vertical crossections
@@ -934,24 +936,24 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   vcWindow = new VcrossWindow();
   connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
   connect(vcWindow,SIGNAL(showsource(const miString,const miString)),
-	  help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect(vcWindow,SIGNAL(crossectionChanged(const QString &)),
-	  SLOT(crossectionChangedSlot(const QString &)));
+      SLOT(crossectionChangedSlot(const QString &)));
   connect(vcWindow,SIGNAL(crossectionSetChanged()),
-		     SLOT(crossectionSetChangedSlot()));
+      SLOT(crossectionSetChangedSlot()));
   connect(vcWindow,SIGNAL(crossectionSetUpdate()),
-		     SLOT(crossectionSetUpdateSlot()));
+      SLOT(crossectionSetUpdateSlot()));
 
   // Wave spectrum
   // create a new main window
   spWindow = new SpectrumWindow();
   connect(spWindow,SIGNAL(SpectrumHide()),SLOT(hideSpectrumWindow()));
   connect(spWindow,SIGNAL(showsource(const miString,const miString)),
-	  help,SLOT(showsource(const miString,const miString)));
+      help,SLOT(showsource(const miString,const miString)));
   connect(spWindow,SIGNAL(spectrumChanged(const QString &)),
-	             SLOT(spectrumChangedSlot(const QString &)));
+      SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),
-  		     SLOT(spectrumSetChangedSlot()));
+      SLOT(spectrumSetChangedSlot()));
 
   // browse plots
   browser= new BrowserBox(this);
@@ -964,40 +966,40 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   browser->hide();
 
   connect( fm ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-	   tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+      tslider,SLOT(insert(const miString&,const vector<miTime>&)));
 
   connect( om ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-	   tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+      tslider,SLOT(insert(const miString&,const vector<miTime>&)));
 
   connect( sm ,SIGNAL(emitTimes(const miString&,const vector<miTime>&,bool)),
-	  tslider,SLOT(insert(const miString&,const vector<miTime>&,bool)));
+      tslider,SLOT(insert(const miString&,const vector<miTime>&,bool)));
 
   connect( em ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-	   tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+      tslider,SLOT(insert(const miString&,const vector<miTime>&)));
 
   connect( objm ,SIGNAL(emitTimes(const miString&,const vector<miTime>&,bool)),
-	  tslider,SLOT(insert(const miString&,const vector<miTime>&,bool)));
+      tslider,SLOT(insert(const miString&,const vector<miTime>&,bool)));
 
   if ( vpWindow ){
     connect( vpWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-	     tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+        tslider,SLOT(insert(const miString&,const vector<miTime>&)));
 
     connect( vpWindow ,SIGNAL(setTime(const miString&, const miTime&)),
-	     tslider,SLOT(setTime(const miString&, const miTime&)));
+        tslider,SLOT(setTime(const miString&, const miTime&)));
   }
   if ( vcWindow ){
     connect( vcWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-	     tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+        tslider,SLOT(insert(const miString&,const vector<miTime>&)));
 
     connect( vcWindow ,SIGNAL(setTime(const miString&, const miTime&)),
-	     tslider,SLOT(setTime(const miString&, const miTime&)));
+        tslider,SLOT(setTime(const miString&, const miTime&)));
   }
   if ( spWindow ){
     connect( spWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-	     tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+        tslider,SLOT(insert(const miString&,const vector<miTime>&)));
 
     connect( spWindow ,SIGNAL(setTime(const miString&, const miTime&)),
-	     tslider,SLOT(setTime(const miString&, const miTime&)));
+        tslider,SLOT(setTime(const miString&, const miTime&)));
   }
 
 
@@ -1015,7 +1017,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     labelstr+= "font=Helvetica fontsize=12";
     vlabel.push_back(labelstr);
     vlabel.push_back
-      ("LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0");
+    ("LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0");
   }
 
   for(int i=0; i<sect_label.size(); i++) {
@@ -1121,7 +1123,7 @@ void DianaMainWindow::resetAll()
 }
 
 void DianaMainWindow::requestQuickUpdate(const vector<miString>& oldstr,
-				      vector<miString>& newstr)
+    vector<miString>& newstr)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
   // strings for each dialog
@@ -1361,8 +1363,8 @@ void DianaMainWindow::MenuOK()
     int m= shortnames.size();
     for (int j=0; j<m; j++)
       if (shortnames[j].exists()){
-	plotname+= shortnames[j];
-	if (j!=m-1) plotname+= " ";
+        plotname+= shortnames[j];
+        if (j!=m-1) plotname+= " ";
       }
     qm->pushPlot(plotname,pstr);
   }
@@ -1610,7 +1612,7 @@ bool DianaMainWindow::initProfet(){
       return false;
     }
     connect(w->Glw(), SIGNAL(gridAreaChanged()),
-      profetGUI, SLOT(gridAreaChanged()));
+        profetGUI, SLOT(gridAreaChanged()));
     connect(profetGUI, SIGNAL(toggleProfetGui()),
         this,SLOT(toggleProfetGUI()));
     connect(profetGUI, SIGNAL(setPaintMode(bool)),
@@ -1618,17 +1620,17 @@ bool DianaMainWindow::initProfet(){
     connect(profetGUI, SIGNAL(showProfetField(miString)),
         fm, SLOT(fieldEditUpdate(miString)));
     connect(profetGUI, SIGNAL(prepareAndPlot()),
-      SLOT(MenuOK()));
+        SLOT(MenuOK()));
     connect( profetGUI, SIGNAL(repaintMap(bool)),
         SLOT(plotProfetMap(bool)));
     connect( profetGUI ,
-       SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-       tslider,
-       SLOT(insert(const miString&,const vector<miTime>&)));
+        SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
+        tslider,
+        SLOT(insert(const miString&,const vector<miTime>&)));
     connect( profetGUI, SIGNAL(setTime(const miTime&)),
 	     tslider, SLOT(setTime(const miTime&)));
     connect( profetGUI, SIGNAL(updateModelDefinitions()),
-       fm,SLOT(updateModels()) );
+        fm,SLOT(updateModels()) );
     connect( profetGUI, SIGNAL(forceDisconnect(bool)),
         this, SLOT(forceProfetDisconnect(bool)));
     QApplication::restoreOverrideCursor();
@@ -1659,10 +1661,10 @@ bool DianaMainWindow::profetConnect(){
       if(loginDialog.username().isEmpty())
         error += "Username not provided. ";
       Profet::PodsUser u(miTime::nowTime(),
-             getenv("HOSTNAME"),
-             loginDialog.username().toStdString().data(),
-             loginDialog.role().toStdString().data(),
-             "",miTime::nowTime(),"");
+          getenv("HOSTNAME"),
+          loginDialog.username().toStdString().data(),
+          loginDialog.role().toStdString().data(),
+          "",miTime::nowTime(),"");
       miString password = loginDialog.password().toStdString();
       //TODO option for file manager
       Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
@@ -1674,11 +1676,11 @@ bool DianaMainWindow::profetConnect(){
           QApplication::restoreOverrideCursor();
           if(dmt != perferredType)
             QMessageBox::warning(0,"Running disconnected mode",
-              "Distributed field editing system is not available.");
+                "Distributed field editing system is not available.");
           return true;
         }catch(Profet::ServerException & se){
           contr->getProfetController()->disconnect();
-          offerForcedConnection = 
+          offerForcedConnection =
             (se.getType() == Profet::ServerException::CONNECTION_ERROR &&
                 se.getMinorCode() == Profet::ServerException::DUPLICATE_CONNECTION);
           bool withMailToLink = true;
@@ -1699,7 +1701,7 @@ bool DianaMainWindow::profetConnect(){
           QMessageBox::critical(0,"Profet",error.cStr());
         }
       } // end error handling
-    } // end while retry 
+    } // end while retry
   }
   profetDisconnect();
 #endif
@@ -1793,12 +1795,12 @@ bool DianaMainWindow::ProfetUpdatePlot(const miTime& t){
   return false;
 }
 
-bool DianaMainWindow::ProfetRightMouseClicked(float map_x, 
+bool DianaMainWindow::ProfetRightMouseClicked(float map_x,
 					      float map_y,
 					      int globalX,
 					      int globalY){
 #ifdef PROFET
-  if(togglePaintModeAction->isChecked()){        
+  if(togglePaintModeAction->isChecked()){
     profetGUI->rightMouseClicked(map_x,map_y,globalX,globalY);
     return true;
   }
@@ -2077,41 +2079,41 @@ void DianaMainWindow::connectionClosed()
 void DianaMainWindow::processLetter(miMessage &letter)
 {
   miString from(letter.from);
-//  cerr<<"Command: "<<letter.command<<"  ";
-//  cerr <<endl;
-//   cerr<<" Description: "<<letter.description<<"  ";
-//  cerr <<endl;
-//   cerr<<" commonDesc: "<<letter.commondesc<<"  ";
-//  cerr <<endl;
-//   cerr<<" Common: "<<letter.common<<"  ";
-//  cerr <<endl;
-//   for(int i=0;i<letter.data.size();i++)
-    //    if(letter.data[i].length()<80)
-//       cerr <<" data["<<i<<"]:"<<letter.data[i]<<endl;;
-//    cerr <<" From: "<<from<<endl;
-//   cerr <<"To: "<<letter.to<<endl;
+  //  cerr<<"Command: "<<letter.command<<"  ";
+  //  cerr <<endl;
+  //   cerr<<" Description: "<<letter.description<<"  ";
+  //  cerr <<endl;
+  //   cerr<<" commonDesc: "<<letter.commondesc<<"  ";
+  //  cerr <<endl;
+  //   cerr<<" Common: "<<letter.common<<"  ";
+  //  cerr <<endl;
+  //   for(int i=0;i<letter.data.size();i++)
+  //    if(letter.data[i].length()<80)
+  //       cerr <<" data["<<i<<"]:"<<letter.data[i]<<endl;;
+  //    cerr <<" From: "<<from<<endl;
+  //   cerr <<"To: "<<letter.to<<endl;
 
   if( letter.command == "menuok"){
-      	MenuOK();
+    MenuOK();
   }
 
   else if( letter.command == qmstrings::init_HQC_params){
     if( contr->initHqcdata(letter.from,
-			   letter.commondesc,
-			   letter.common,
-			   letter.description,
-			   letter.data) ){
+        letter.commondesc,
+        letter.common,
+        letter.description,
+        letter.data) ){
       if(letter.common.contains("synop"))
-	om->setPlottype("Hqc_synop",true);
+        om->setPlottype("Hqc_synop",true);
       else
-	om->setPlottype("Hqc_list",true);
+        om->setPlottype("Hqc_list",true);
       hqcTo = letter.from;
     }
   }
 
   else if( letter.command == qmstrings::update_HQC_params){
     contr->updateHqcdata(letter.commondesc,letter.common,
-			 letter.description,letter.data);
+        letter.description,letter.data);
     MenuOK();
   }
 
@@ -2141,16 +2143,16 @@ void DianaMainWindow::processLetter(miMessage &letter)
     if(letter.data.size()){
       vector<miString> tmp= letter.data[0].split(":");
       if(tmp.size()==2){
-	float lat= atof(tmp[0].c_str());
-	float lon= atof(tmp[1].c_str());
-	float x=0, y=0;
-	contr->GeoToPhys(lat,lon,x,y);
-	int ix= int(x);
-	int iy= int(y);
-	//find the name of station we clicked at (from plotModul->stationPlot)
-	miString station = contr->findStation(ix,iy,letter.command);
-	//now tell vpWindow about new station (this calls vpManager)
-	if (vpWindow && !station.empty()) vpWindow->changeStation(station);
+        float lat= atof(tmp[0].c_str());
+        float lon= atof(tmp[1].c_str());
+        float x=0, y=0;
+        contr->GeoToPhys(lat,lon,x,y);
+        int ix= int(x);
+        int iy= int(y);
+        //find the name of station we clicked at (from plotModul->stationPlot)
+        miString station = contr->findStation(ix,iy,letter.command);
+        //now tell vpWindow about new station (this calls vpManager)
+        if (vpWindow && !station.empty()) vpWindow->changeStation(station);
       }
     }
 
@@ -2188,50 +2190,50 @@ void DianaMainWindow::processLetter(miMessage &letter)
     }
 
     contr->makeStationPlot(letter.commondesc,letter.common,
-			   letter.description,
-			   letter.from,letter.data);
+        letter.description,
+        letter.from,letter.data);
 
     //    sendSelectedStations(qmstrings::selectposition);
     return;
   }
 
   else if (letter.command == qmstrings::seteditpositions ){
-//     commondesc = dataset;
-//     description = name;
+    //     commondesc = dataset;
+    //     description = name;
     contr->stationCommand("setEditStations",
-			    letter.data,letter.common,letter.from);
+        letter.data,letter.common,letter.from);
     //    sendSelectedStations(qmstrings::selectposition);
   }
 
   else if (letter.command == qmstrings::annotation ){
-//     commondesc = dataset;
-//     description = annotation;
+    //     commondesc = dataset;
+    //     description = annotation;
     contr->stationCommand("annotation",
-			    letter.data,letter.common,letter.from);
+        letter.data,letter.common,letter.from);
   }
 
   else if (letter.command == qmstrings::showpositions ){
     //description: dataset
-      contr->stationCommand("show",letter.description,letter.from);
+    contr->stationCommand("show",letter.description,letter.from);
     if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
 
   }
 
   else if (letter.command == qmstrings::hidepositions ){
     //description: dataset
-      contr->stationCommand("hide",letter.description,letter.from);
+    contr->stationCommand("hide",letter.description,letter.from);
     if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
 
   }
 
-//   else if (letter.command == qmstrings::changeimage ){ //Obsolete
-//     //description: dataset;stationname:image
-//     //find name of data set from description
-//     vector<miString> desc = letter.description.split(";");
-//     if( desc.size() < 2 ) return;
-//       contr->stationCommand("changeImageandText",
-// 			    letter.data,desc[0],letter.from,desc[1]);
-//   }
+  //   else if (letter.command == qmstrings::changeimage ){ //Obsolete
+  //     //description: dataset;stationname:image
+  //     //find name of data set from description
+  //     vector<miString> desc = letter.description.split(";");
+  //     if( desc.size() < 2 ) return;
+  //       contr->stationCommand("changeImageandText",
+  // 			    letter.data,desc[0],letter.from,desc[1]);
+  //   }
 
   else if (letter.command == qmstrings::changeimageandtext ){
     //cerr << "Change text and image\n";
@@ -2240,45 +2242,45 @@ void DianaMainWindow::processLetter(miMessage &letter)
     vector<miString> desc = letter.description.split(";");
     if( desc.size() == 2 ) { //obsolete syntax
       contr->stationCommand("changeImageandText",
-			    letter.data,desc[0],letter.from,desc[1]);
+          letter.data,desc[0],letter.from,desc[1]);
     } else { //new syntax
       //commondesc: name of dataset
       //description: stationname:image:image2:text
       //             :alignment:rotation (0-7):alpha
 
       contr->stationCommand("changeImageandText",
-			    letter.data,letter.common,letter.from,
-			    letter.description);
+          letter.data,letter.common,letter.from,
+          letter.description);
     }
   }
 
-//   else if (letter.command == qmstrings::changeimageandimage ){ //Obsolete
-//     //cerr << "Change image and image\n";
-//     //description: dataset;stationname:image:image2
-//     //find name of data set from description
-//     vector<miString> desc = letter.description.split(";");
-//     if( desc.size() < 2 ) return;
-//       contr->stationCommand("changeImageandText",
-// 			    letter.data,desc[0],letter.from,desc[1]);
-//   }
+  //   else if (letter.command == qmstrings::changeimageandimage ){ //Obsolete
+  //     //cerr << "Change image and image\n";
+  //     //description: dataset;stationname:image:image2
+  //     //find name of data set from description
+  //     vector<miString> desc = letter.description.split(";");
+  //     if( desc.size() < 2 ) return;
+  //       contr->stationCommand("changeImageandText",
+  // 			    letter.data,desc[0],letter.from,desc[1]);
+  //   }
 
   else if (letter.command == qmstrings::selectposition ){
     //commondesc: dataset
     //description: stationName
-      contr->stationCommand("selectPosition",
-			    letter.data,letter.common,letter.from);
+    contr->stationCommand("selectPosition",
+        letter.data,letter.common,letter.from);
   }
 
   else if (letter.command == qmstrings::showpositionname ){
     //description: normal:selected
-      contr->stationCommand("showPositionName",
-			    letter.data,letter.common,letter.from);
+    contr->stationCommand("showPositionName",
+        letter.data,letter.common,letter.from);
   }
 
   else if (letter.command == qmstrings::showpositiontext ){
     //description: showtext:colour:size
-      contr->stationCommand("showPositionText",letter.data,
-			    letter.common,letter.from,letter.description);
+    contr->stationCommand("showPositionText",letter.data,
+        letter.common,letter.from,letter.description);
   }
 
   else if (letter.command == qmstrings::areas ){
@@ -2294,7 +2296,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
       int n = letter.data.size();
       if(n==0) 	contr->areaCommand(token[0],token[1],miString(),letter.from);
       for( int i=0;i<n;i++ )
-	contr->areaCommand(token[0],token[1],letter.data[i],letter.from);
+        contr->areaCommand(token[0],token[1],letter.data[i],letter.from);
     }
   }
 
@@ -2337,9 +2339,9 @@ void DianaMainWindow::processLetter(miMessage &letter)
       textview_id = letter.from;
       vector<miString> token = letter.data[0].split(1,":",true);
       if(token.size() == 2){
-	miString name = pluginB->getClientName(letter.from);
-	textview->setText(textview_id,name,token[1]);
-	textview->show();
+        miString name = pluginB->getClientName(letter.from);
+        textview->setText(textview_id,name,token[1]);
+        textview->show();
       }
     }
   }
@@ -2350,9 +2352,9 @@ void DianaMainWindow::processLetter(miMessage &letter)
       vector<miString> token = letter.data[0].split(":");
       if(token.size() < 2) return;
       if(token[1] == "on"){
-	textview->show();
+        textview->show();
       } else {
-	textview->deleteTab(letter.from);
+        textview->deleteTab(letter.from);
       }
     }
   }
@@ -2372,8 +2374,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
       tslider->deleteType(type[i]);
     //hide textview
     textview->deleteTab(id);
-//     if(textview && id == textview_id )
-//       textview->hide();
+    //     if(textview && id == textview_id )
+    //       textview->hide();
     //remove observations from hqc
     if(token[1].downcase()=="hqc"){
       contr->processHqcCommand("remove");
@@ -2406,10 +2408,10 @@ void DianaMainWindow::processLetter(miMessage &letter)
       timecontrol->useData(letter.common,letter.from);
       vector<miTime> times;
       for(int i=0;i<n;i++)
-	times.push_back(letter.data[i]);
+        times.push_back(letter.data[i]);
       tslider->insert(letter.common,times);
       contr->initHqcdata(letter.from,letter.commondesc,
-			 letter.common,letter.description,letter.data);
+          letter.common,letter.description,letter.data);
 
     } else if (letter.commondesc == "time"){
       miTime t(letter.common);
@@ -2441,14 +2443,14 @@ void DianaMainWindow::sendPrintClicked(int id)
 void DianaMainWindow::sendLetter(miMessage& letter)
 {
   pluginB->sendMessage(letter);
-//   cerr <<"SENDING>>>>"<<endl;
-//   cerr<<"Command: "<<letter.command<<endl;
-//   cerr<<"Description: "<<letter.description<<endl;
-//   cerr<<"commonDesc: "<<letter.commondesc<<endl;
-//   cerr<<"Common: "<<letter.common<<endl;
-//       for(int i=0;i<letter.data.size();i++)
-// 	cerr<<"data:"<<letter.data[i]<<endl;
-//   cerr <<"To: "<<letter.to<<endl;
+  //   cerr <<"SENDING>>>>"<<endl;
+  //   cerr<<"Command: "<<letter.command<<endl;
+  //   cerr<<"Description: "<<letter.description<<endl;
+  //   cerr<<"commonDesc: "<<letter.commondesc<<endl;
+  //   cerr<<"Common: "<<letter.common<<endl;
+  //       for(int i=0;i<letter.data.size();i++)
+  // 	cerr<<"data:"<<letter.data[i]<<endl;
+  //   cerr <<"To: "<<letter.to<<endl;
 }
 
 void DianaMainWindow::updateObs()
@@ -2737,9 +2739,9 @@ void DianaMainWindow::saveraster()
 
   QString s =
     QFileDialog::getSaveFileName(this,
-				 tr("Save plot as image"),
-				 fname,
-				 tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+        tr("Save plot as image"),
+        fname,
+        tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -2771,9 +2773,9 @@ void DianaMainWindow::saveAnimation() {
 
   QString s =
     QFileDialog::getSaveFileName(this,
-				 tr("Save animation from current fields, satellite images, etc., using current settings"),
-				 fname,
-				 tr("Movies (*.mpg);;All (*.*)"));
+        tr("Save animation from current fields, satellite images, etc., using current settings"),
+        fname,
+        tr("Movies (*.mpg);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -2784,72 +2786,72 @@ void DianaMainWindow::saveAnimation() {
 
     /// find format
     /// (only mpeg-support so far)
-		if (filename.contains(".mpg") || filename.contains(".MPG")) {
-			format= "mpg";
-		} else {
-			filename += ".mpg";
-		}
+    if (filename.contains(".mpg") || filename.contains(".MPG")) {
+      format= "mpg";
+    } else {
+      filename += ".mpg";
+    }
 
     /// make temp. directory for frames
-		mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		chdir("./animation_frames");
+    mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    chdir("./animation_frames");
 
-		/// set up some defaults
-		string imageFormat = "jpg";
-		int imageQuality = -1;
-		int delay = timeout_ms/10;
-		MovieMaker moviemaker(filename, quality, delay);
+    /// set up some defaults
+    string imageFormat = "jpg";
+    int imageQuality = -1;
+    int delay = timeout_ms/10;
+    MovieMaker moviemaker(filename, quality, delay);
 
-		QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
-		showMinimized();
+    QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
+    showMinimized();
 
-		int nrOfTimesteps = tslider->numTimes();
-		int i = 0;
+    int nrOfTimesteps = tslider->numTimes();
+    int i = 0;
 
-		int maxProgress = nrOfTimesteps - tslider->current() + 1;
-		QProgressDialog progress("Making animation...", "Hide", 0, maxProgress);
-		progress.setWindowModality(Qt::WindowModal);
+    int maxProgress = nrOfTimesteps - tslider->current() + 1;
+    QProgressDialog progress("Making animation...", "Hide", 0, maxProgress);
+    progress.setWindowModality(Qt::WindowModal);
 
-		/// save frames as images
-		while(tslider->current() < nrOfTimesteps-1) {
-			/// update progressbar
-			progress.setValue(i);
+    /// save frames as images
+    while(tslider->current() < nrOfTimesteps-1) {
+      /// update progressbar
+      progress.setValue(i);
 
-			string imageName = "frame";
-			if(i < 10) imageName += "0";
-			ostringstream ss;
-			ss << i;
-			imageName += ss.str();
-			imageName += ".jpg";
-			cout << "Saving " << imageName << ".." << endl;
-			w->Glw()->saveRasterImage(miString(imageName), miString(imageFormat), imageQuality);
-			moviemaker.addFrame(imageName);
+      string imageName = "frame";
+      if(i < 10) imageName += "0";
+      ostringstream ss;
+      ss << i;
+      imageName += ss.str();
+      imageName += ".jpg";
+      cout << "Saving " << imageName << ".." << endl;
+      w->Glw()->saveRasterImage(miString(imageName), miString(imageFormat), imageQuality);
+      moviemaker.addFrame(imageName);
 
-			/// go to next frame
-			stepforward();
+      /// go to next frame
+      stepforward();
 
-			++i;
-		}
+      ++i;
+    }
 
-		moviemaker.make();
+    moviemaker.make();
 
-		progress.setValue(i+1); ///< should be made somewhat realistic?
+    progress.setValue(i+1); ///< should be made somewhat realistic?
 
-		moviemaker.cleanup();
+    moviemaker.cleanup();
 
-		/// remove temp. directory for frames
-		chdir("..");
-		rmdir("./animation_frames");
+    /// remove temp. directory for frames
+    chdir("..");
+    rmdir("./animation_frames");
 
-		progress.setValue(i+2); ///< should be made somewhat realistic?
+    progress.setValue(i+2); ///< should be made somewhat realistic?
 
-		showNormal();
-		QMessageBox::information(this, tr("Done"), tr("Animation completed."));
+    showNormal();
+    QMessageBox::information(this, tr("Done"), tr("Animation completed."));
   }
 }
 #else
 void DianaMainWindow::saveAnimation() {
-	QMessageBox::information(this, tr("Compiled without video export"), tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
+  QMessageBox::information(this, tr("Compiled without video export"), tr("Diana must be compiled with VIDEO_EXPORT defined to use this feature."));
 }
 #endif
 
@@ -2867,7 +2869,7 @@ void DianaMainWindow::makeEPS(const miString& filename)
   priop.drawbackground= true;
   priop.doEPS= true;
 
-//   contr->startHardcopy(priop);
+  //   contr->startHardcopy(priop);
   w->Glw()->startHardcopy(priop);
   w->updateGL();
   w->Glw()->endHardcopy();
@@ -2881,13 +2883,13 @@ void DianaMainWindow::hardcopy()
 {
   QPrinter qprt;
   miString command= pman.printCommand();
-//   printOptions priop;
+  //   printOptions priop;
 
   fromPrintOption(qprt,priop);
 
- QPrintDialog printerDialog(&qprt, this);
- if (printerDialog.exec()) {
-   if (!qprt.outputFileName().isNull()) {
+  QPrintDialog printerDialog(&qprt, this);
+  if (printerDialog.exec()) {
+    if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
       priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
@@ -2924,15 +2926,15 @@ void DianaMainWindow::hardcopy()
       // expand command-variables
       pman.expandCommand(command, priop);
 
-//########################################################################
+      //########################################################################
       cerr<<"PRINT: "<< command << endl;
-//########################################################################
+      //########################################################################
       system(command.c_str());
     }
     QApplication::restoreOverrideCursor();
 
-//     // reset number of copies (saves a lot of paper)
-//     qprt.setNumCopies(1);
+    //     // reset number of copies (saves a lot of paper)
+    //     qprt.setNumCopies(1);
   }
 }
 
@@ -2941,10 +2943,10 @@ void DianaMainWindow::trajPositions(bool b)
 {
   markTrajPos = b;
   //LB: quit while overriderCursor is set -> core dump (why?)
-//   if(b)
-//     QApplication::setOverrideCursor(crossCursor);
-//   else
-//     QApplication::restoreOverrideCursor();
+  //   if(b)
+  //     QApplication::setOverrideCursor(crossCursor);
+  //   else
+  //     QApplication::restoreOverrideCursor();
 
 }
 
@@ -2999,9 +3001,10 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   int globalX = mev.globalX;
   int globalY = mev.globalY;
 
+
   float map_x,map_y;
   contr->PhysToMap(mev.x,mev.y,map_x,map_y);
-  
+
   if (ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
     return;
   }
@@ -3014,13 +3017,13 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   rItem.member=SLOT(zoomOut());
   rItem.checked=false;
   vrightclickMenu.push_back(rItem);
-//   if (contr->inSatTable(xclick,yclick)){
-//     rItem.menuText= tr("Skjul/vis klassifisert");
-//     rItem.member=SLOT(hideClassified());
-//     rItem.checked=false;
-//     rItem.param=0;
-//     vrightclickMenu.push_back(rItem);
-//   }
+  //   if (contr->inSatTable(xclick,yclick)){
+  //     rItem.menuText= tr("Skjul/vis klassifisert");
+  //     rItem.member=SLOT(hideClassified());
+  //     rItem.checked=false;
+  //     rItem.param=0;
+  //     vrightclickMenu.push_back(rItem);
+  //   }
   if (uffda && contr->getSatnames().size()){
     rItem.menuText= tr("Uffda");
     rItem.member=SLOT(showUffda());
@@ -3056,7 +3059,7 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
       int id = rightclickmenu->idAt(i);
       QString rightClicked=rightclickmenu->text(id);
       if (rightClicked== lastRightClicked)
-	item=i;
+        item=i;
     }
     rightclickmenu->setActiveItem(item);
   }
@@ -3127,7 +3130,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
   //now tell vpWindow about new station (this calls vpManager)
   if (vpWindow && !station.empty()) {
     vpWindow->changeStation(station);
-//  needupdate= true;
+    //  needupdate= true;
   }
 
   //find the name of station we clicked/pointed
@@ -3136,14 +3139,14 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
   //now tell spWindow about new station (this calls spManager)
   if (spWindow && !station.empty()) {
     spWindow->changeStation(station);
-//  needupdate= true;
+    //  needupdate= true;
   }
 
   // locationPlots (vcross,...)
   miString crossection= contr->findLocation(x,y,"vcross");
   if (vcWindow && !crossection.empty()) {
     vcWindow->changeCrossection(crossection);
-//  needupdate= true;
+    //  needupdate= true;
   }
 
   if(qsocket){
@@ -3166,11 +3169,11 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
     letter.description =  "station";
     for(int i=0; i<n;i++){
       if(i>0 && id[i-1]!=id[i]){
-	//send and clear letters
-	sendLetter(old_letter);
-	sendLetter(letter);
-	old_letter.data.clear();
-	letter.data.clear();
+        //send and clear letters
+        sendLetter(old_letter);
+        sendLetter(letter);
+        old_letter.data.clear();
+        letter.data.clear();
       }
       //Obsolete command and syntax
       old_letter.to = id[i];
@@ -3196,24 +3199,24 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
       letter.description = "name:on/off";
       int id;
       for(int i=0;i<nareas;i++){
-	letter.to = areas[i].id;
-	miString datastr = areas[i].name + ":on";
-	letter.data.push_back(datastr);
-	sendLetter(letter);
+        letter.to = areas[i].id;
+        miString datastr = areas[i].name + ":on";
+        letter.data.push_back(datastr);
+        sendLetter(letter);
       }
     }
 
     if(hqcTo>0){
       miString name;
       if(contr->getObsName(x,y,name)){
-	miMessage letter;
-	letter.to = hqcTo;
-	letter.command = qmstrings::station;
-	letter.commondesc = "name,time";
-	miTime t;
-	contr->getPlotTime(t);
-	letter.common = name + "," + t.isoTime();;
-	sendLetter(letter);
+        miMessage letter;
+        letter.to = hqcTo;
+        letter.command = qmstrings::station;
+        letter.commondesc = "name,time";
+        miTime t;
+        contr->getPlotTime(t);
+        letter.common = name + "," + t.isoTime();;
+        sendLetter(letter);
       }
     }
   }
@@ -3256,55 +3259,55 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       vector<miString> stations;
       contr->getEditStation(0,dataset,id,stations);
       if( dataset.exists() ){
-	miMessage letter;
-	letter.command = qmstrings::editposition;
-	letter.commondesc = "dataset";
-	letter.common = dataset;
-	if(kev.modifier == key_Control)
-	  letter.description = "position:value_2";
-	else if(kev.modifier == key_Alt)
-	  letter.description = "position:value_3";
-	else
-	  letter.description = "position:value_1";
-	for(int i=0;i<stations.size();i++){
-	  miString str = stations[i];
-	  if( kev.key == key_Plus )
-	    str += ":+1";
-	  else
-	    str += ":-1";
-	  letter.data.push_back(str);
-	}
-	letter.to = id;
-	sendLetter(letter);
+        miMessage letter;
+        letter.command = qmstrings::editposition;
+        letter.commondesc = "dataset";
+        letter.common = dataset;
+        if(kev.modifier == key_Control)
+          letter.description = "position:value_2";
+        else if(kev.modifier == key_Alt)
+          letter.description = "position:value_3";
+        else
+          letter.description = "position:value_1";
+        for(int i=0;i<stations.size();i++){
+          miString str = stations[i];
+          if( kev.key == key_Plus )
+            str += ":+1";
+          else
+            str += ":-1";
+          letter.data.push_back(str);
+        }
+        letter.to = id;
+        sendLetter(letter);
       }
     }
 
     else if( kev.modifier == key_Control){
 
       if( kev.key == key_C ) {
-	sendSelectedStations(qmstrings::copyvalue);
+        sendSelectedStations(qmstrings::copyvalue);
       }
 
       else if( kev.key == key_U) {
-	contr->stationCommand("unselect");
-	sendSelectedStations(qmstrings::selectposition);
-	w->updateGL();
+        contr->stationCommand("unselect");
+        sendSelectedStations(qmstrings::selectposition);
+        w->updateGL();
       }
 
       else {
-	miString keyString;
-	if(kev.key == key_G) keyString = "ctrl_G";
-	else if(kev.key == key_S)  keyString = "ctrl_S";
-	else if(kev.key == key_Z)  keyString = "ctrl_Z";
-	else if(kev.key == key_Y)  keyString = "ctrl_Y";
-	else return;
+        miString keyString;
+        if(kev.key == key_G) keyString = "ctrl_G";
+        else if(kev.key == key_S)  keyString = "ctrl_S";
+        else if(kev.key == key_Z)  keyString = "ctrl_Z";
+        else if(kev.key == key_Y)  keyString = "ctrl_Y";
+        else return;
 
-	miMessage letter;
-	letter.command    = qmstrings::sendkey;
-	letter.commondesc =  "key";
-	letter.common =  keyString;
-	letter.to = qmstrings::all;;
-	sendLetter(letter);
+        miMessage letter;
+        letter.command    = qmstrings::sendkey;
+        letter.commondesc =  "key";
+        letter.common =  keyString;
+        letter.to = qmstrings::all;;
+        sendLetter(letter);
       }
     }
 
@@ -3333,15 +3336,15 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       if(kev.modifier==key_Shift) name = "add";
       contr->getEditStation(step,name,id,stations);
       if( name.exists() && stations.size()>0){
-	miMessage letter;
-	letter.to = qmstrings::all;
-	//	cerr <<"To: "<<letter.to<<endl;
-	letter.command    = qmstrings::selectposition;
-	letter.commondesc =  "dataset";
-	letter.common     =  name;
-	letter.description =  "station";
-	letter.data.push_back(stations[0]);
-	sendLetter(letter);
+        miMessage letter;
+        letter.to = qmstrings::all;
+        //	cerr <<"To: "<<letter.to<<endl;
+        letter.command    = qmstrings::selectposition;
+        letter.commondesc =  "dataset";
+        letter.common     =  name;
+        letter.description =  "station";
+        letter.data.push_back(stations[0]);
+        sendLetter(letter);
 
       }
       w->updateGL();
@@ -3353,9 +3356,9 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       letter.command = qmstrings::selectarea;
       letter.description = "next";
       if( kev.key == key_P )
-	letter.data.push_back("-1");
+        letter.data.push_back("-1");
       else
-	letter.data.push_back("+1");
+        letter.data.push_back("+1");
       letter.to = qmstrings::all;;
       sendLetter(letter);
     }
@@ -3364,9 +3367,9 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       miMessage letter;
       letter.command    = qmstrings::changetype;
       if( kev.key == key_A )
-	letter.data.push_back("-1");
+        letter.data.push_back("-1");
       else
-	letter.data.push_back("+1");
+        letter.data.push_back("+1");
       letter.to = qmstrings::all;;
       sendLetter(letter);
     }
@@ -3483,13 +3486,13 @@ void DianaMainWindow::PrintPS(miString& filestr )
   QPrinter qprt;
   fromPrintOption(qprt,priop);
 
- QPrintDialog printerDialog(&qprt, this);
- if (printerDialog.exec()) {
+  QPrintDialog printerDialog(&qprt, this);
+  if (printerDialog.exec()) {
 
     //statusBar()->message( tr("Starter utskrift"), 2000 );
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
-   if (qprt.outputFileName().isNull()) {
+    if (qprt.outputFileName().isNull()) {
       int numcopies= qprt.numCopies();
       miString command= pman.printCommand();
       miString printern= qprt.printerName().toStdString();
@@ -3536,8 +3539,8 @@ void DianaMainWindow::PrintPS(vector <miString>& filenames )
       // Hmmm..should we really allow multiple copies here
       int numcopies= qprt.numCopies();
       for (int j=0; j<numcopies; j++)
-	for (int i = 0;i<filenames.size();i++){
-	  command= pman.printCommand();
+        for (int i = 0;i<filenames.size();i++){
+          command= pman.printCommand();
 
 #ifndef linux
           if (command.substr(0,4)=="lpr ") {
@@ -3545,20 +3548,20 @@ void DianaMainWindow::PrintPS(vector <miString>& filenames )
           }
 #endif
 
-	  command.replace("{printer}",printern);
-	  command.replace("{filename}",filenames[i]);
+          command.replace("{printer}",printern);
+          command.replace("{filename}",filenames[i]);
 #ifdef linux
           // current Debian linux version uses this # as start of comment !!!
           command.replace("-{hash}","");
           command.replace("{numcopies}","");
 #else
-	  command.replace("{hash}","#");
-	  command.replace("{numcopies}","1");// to avoid a mess
+          command.replace("{hash}","#");
+          command.replace("{numcopies}","1");// to avoid a mess
 #endif
           cerr<<"PRINT: "<< command << endl;
 
-	  system(command.c_str());
-	}
+          system(command.c_str());
+        }
     }
     QApplication::restoreOverrideCursor();
   }
@@ -3570,6 +3573,7 @@ void DianaMainWindow::writeLogFile()
   // write the system log file to $HOME/.diana.log
 
   SetupParser setup;
+  miLogFile milogfile; // static logger
   miString logfile= setup.basicValue("homedir") + "/diana.log";
   miString thisVersion= version_string;
   miString thisBuild= build_string;
@@ -3692,6 +3696,13 @@ void DianaMainWindow::writeLogFile()
     file << "[/SPECTRUM.SETUP.LOG]" << endl;
     file << endl;
   }
+
+
+  file << "[PROFET.LOG]" << endl
+    << milogfile.writeString("PROFET.LOG") << endl
+    << "[/PROFET.LOG]" << endl;
+
+
   file.close();
   cerr << "Finished writing " << logfile << endl;
 }
@@ -3707,6 +3718,9 @@ void DianaMainWindow::readLogFile()
   miString logfile= setup.basicValue("homedir") + "/diana.log";
   miString thisVersion= version_string;
   miString logVersion;
+
+  miLogFile milogfile; // static logger from puTools - keeps stuff in mind
+  milogfile.setMaxXY(displayWidth,displayHeight);
 
   // open filestream
   ifstream file(logfile.c_str());
@@ -3725,8 +3739,8 @@ void DianaMainWindow::readLogFile()
       beginStr.trim();
       int l= beginStr.length();
       if (l<3 || beginStr[0]!='[' || beginStr[l-1]!=']') {
-	cerr << "Bad keyword found in " << logfile << " : " << beginStr << endl;
-	break;
+        cerr << "Bad keyword found in " << logfile << " : " << beginStr << endl;
+        break;
       }
 
       endStr= beginStr.substr(0,1) + '/' + beginStr.substr(1,l-1);
@@ -3734,48 +3748,52 @@ void DianaMainWindow::readLogFile()
 
       while (getline(file,str)) {
         if (str==endStr) break;
-	vstr.push_back(str);
+        vstr.push_back(str);
       }
 
       if (beginStr=="[MAIN.LOG]")
-	readLog(vstr,thisVersion,logVersion);
+        readLog(vstr,thisVersion,logVersion);
       else if (beginStr=="[CONTROLLER.LOG]")
-    	contr->readLog(vstr,thisVersion,logVersion);
+        contr->readLog(vstr,thisVersion,logVersion);
       else if (beginStr=="[MAP.LOG]")
-	mm->readLog(vstr,thisVersion,logVersion);
+        mm->readLog(vstr,thisVersion,logVersion);
       else if (beginStr=="[FIELD.LOG]")
-	fm->readLog(vstr,thisVersion,logVersion);
+        fm->readLog(vstr,thisVersion,logVersion);
       else if (beginStr=="[OBS.LOG]")
-	om->readLog(vstr,thisVersion,logVersion);
+        om->readLog(vstr,thisVersion,logVersion);
       else if (beginStr=="[SAT.LOG]")
-    	sm->readLog(vstr,thisVersion,logVersion);
+        sm->readLog(vstr,thisVersion,logVersion);
       else if (beginStr=="[TRAJ.LOG]")
-	trajm->readLog(vstr,thisVersion,logVersion);
+        trajm->readLog(vstr,thisVersion,logVersion);
       else if (beginStr=="[QUICK.LOG]")
-	qm->readLog(vstr,thisVersion,logVersion);
+        qm->readLog(vstr,thisVersion,logVersion);
       else if (vpWindow && beginStr=="[VPROF.WINDOW.LOG]")
-	vpWindow->readLog("window",vstr,thisVersion,logVersion,
-			  displayWidth,displayHeight);
+        vpWindow->readLog("window",vstr,thisVersion,logVersion,
+            displayWidth,displayHeight);
       else if (vpWindow && beginStr=="[VPROF.SETUP.LOG]")
-	vpWindow->readLog("setup",vstr,thisVersion,logVersion,
-			  displayWidth,displayHeight);
+        vpWindow->readLog("setup",vstr,thisVersion,logVersion,
+            displayWidth,displayHeight);
       else if (vcWindow && beginStr=="[VCROSS.WINDOW.LOG]")
-	vcWindow->readLog("window",vstr,thisVersion,logVersion,
-			  displayWidth,displayHeight);
+        vcWindow->readLog("window",vstr,thisVersion,logVersion,
+            displayWidth,displayHeight);
       else if (vcWindow && beginStr=="[VCROSS.SETUP.LOG]")
-	vcWindow->readLog("setup",vstr,thisVersion,logVersion,
-			  displayWidth,displayHeight);
+        vcWindow->readLog("setup",vstr,thisVersion,logVersion,
+            displayWidth,displayHeight);
       else if (vcWindow && beginStr=="[VCROSS.FIELD.LOG]")
-	vcWindow->readLog("field",vstr,thisVersion,logVersion,
-			  displayWidth,displayHeight);
+        vcWindow->readLog("field",vstr,thisVersion,logVersion,
+            displayWidth,displayHeight);
       else if (spWindow && beginStr=="[SPECTRUM.WINDOW.LOG]")
-	spWindow->readLog("window",vstr,thisVersion,logVersion,
-			  displayWidth,displayHeight);
+        spWindow->readLog("window",vstr,thisVersion,logVersion,
+            displayWidth,displayHeight);
       else if (spWindow && beginStr=="[SPECTRUM.SETUP.LOG]")
-	spWindow->readLog("setup",vstr,thisVersion,logVersion,
-			  displayWidth,displayHeight);
-    //else
-    //	cerr << "Unhandled log section: " << beginStr << endl;
+        spWindow->readLog("setup",vstr,thisVersion,logVersion,
+            displayWidth,displayHeight);
+      else if ( beginStr=="[PROFET.LOG]") {
+        milogfile.readStrings(vstr,beginStr);
+      }
+
+      //else
+      //	cerr << "Unhandled log section: " << beginStr << endl;
     }
   }
 
@@ -3785,7 +3803,7 @@ void DianaMainWindow::readLogFile()
 
 
 vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
-					   const miString& thisBuild)
+    const miString& thisBuild)
 {
   vector<miString> vstr;
   miString str;
@@ -3870,8 +3888,8 @@ miString DianaMainWindow::saveDocState()
 }
 
 void DianaMainWindow::readLog(const vector<miString>& vstr,
-			   const miString& thisVersion,
-			   miString& logVersion)
+    const miString& thisVersion,
+    miString& logVersion)
 {
   vector<miString> tokens;
   int x,y;
@@ -3886,7 +3904,7 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
     if (vstr[ivstr].substr(0,4)=="====") break;
     tokens= vstr[ivstr].split(' ');
     if (tokens[0]=="VERSION" && tokens.size()==2) logVersion= tokens[1];
-  //if (tokens[0]=="LOGTIME" && tokens.size()==3) .................
+    //if (tokens[0]=="LOGTIME" && tokens.size()==3) .................
   }
   ivstr++;
 
@@ -3924,25 +3942,25 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
     tokens= vstr[ivstr].split(' ');
     if (tokens.size()>=2) {
       if (tokens[0]=="PRINTER") {
-	priop.printer=tokens[1];
+        priop.printer=tokens[1];
       } else if (tokens[0]=="PRINTORIENTATION") {
-	if (tokens[1]=="portrait")
-	  priop.orientation=d_print::ori_portrait;
-	else
-	  priop.orientation=d_print::ori_landscape;
+        if (tokens[1]=="portrait")
+          priop.orientation=d_print::ori_portrait;
+        else
+          priop.orientation=d_print::ori_landscape;
       } else if (tokens[0]=="STATUSBUTTONS") {
-	showelem= (tokens[1]=="ON");
+        showelem= (tokens[1]=="ON");
       } else if (tokens[0]=="AUTOSELECT") {
-	autoselect= (tokens[1]=="ON");
+        autoselect= (tokens[1]=="ON");
       } else if (tokens[0]=="FONT") {
-	miString fontstr = tokens[1];
-	//LB:if the font name contains blanks,
-	//the string will be cut in pieces, and must be put together again.
-	for( int i=2;i<tokens.size();i++)
-	  fontstr += " " + tokens[i];
-	QFont font;
-	if (font.fromString(fontstr.cStr()))
-	  qApp->setFont(font);
+        miString fontstr = tokens[1];
+        //LB:if the font name contains blanks,
+        //the string will be cut in pieces, and must be put together again.
+        for( int i=2;i<tokens.size();i++)
+          fontstr += " " + tokens[i];
+        QFont font;
+        if (font.fromString(fontstr.cStr()))
+          qApp->setFont(font);
       }
     }
   }
@@ -3957,14 +3975,14 @@ void DianaMainWindow::restoreDocState(miString logstr)
 {
   vector<miString> vs= logstr.split(" ");
   int n=vs.size();
-   QByteArray state(n-1,' ');
-   for (int i=1; i<n; i++){
-     state[i-1]= char(atoi(vs[i].c_str()));
-   }
+  QByteArray state(n-1,' ');
+  for (int i=1; i<n; i++){
+    state[i-1]= char(atoi(vs[i].c_str()));
+  }
 
-   if (!restoreState( state)){
-     cerr << "!!!restoreState failed" << endl;
-   }
+  if (!restoreState( state)){
+    cerr << "!!!restoreState failed" << endl;
+  }
 }
 
 void DianaMainWindow::getDisplaySize()
@@ -4077,15 +4095,15 @@ void DianaMainWindow::archiveMode()
 
 void DianaMainWindow::autoElement()
 {
-//   bool on = optAutoElementAction->isChecked();
-//   optAutoElementAction->setChecked( on );
+  //   bool on = optAutoElementAction->isChecked();
+  //   optAutoElementAction->setChecked( on );
 }
 
 
 void DianaMainWindow::showAnnotations()
 {
   bool on = optAnnotationAction->isChecked();
-//   optAnnotationAction->setChecked( on );
+  //   optAnnotationAction->setChecked( on );
   contr->showAnnotations(on);
 }
 
@@ -4110,7 +4128,7 @@ void DianaMainWindow::fillRightclickmenu()
   int n=vrightclickMenu.size();
   for (int i=0;i<n;i++){
     int ir = rightclickmenu->insertItem(vrightclickMenu[i].menuText,this,
-			     vrightclickMenu[i].member);
+        vrightclickMenu[i].member);
     if (vrightclickMenu[i].checked)
       rightclickmenu->setItemChecked(ir,true);
     else
@@ -4165,8 +4183,8 @@ void DianaMainWindow::showUffda()
 //this is called after an area selected from rightclickmenu
 void DianaMainWindow::selectedAreas(int ia)
 {
-//   cerr << "DianaMainWindow::selectedAreas "
-//        << lastRightClicked << " " << ia << endl;
+  //   cerr << "DianaMainWindow::selectedAreas "
+  //        << lastRightClicked << " " << ia << endl;
 
   //struct selectArea er i diCommonTypes.h
   miString areaName=vselectAreas[ia].name;

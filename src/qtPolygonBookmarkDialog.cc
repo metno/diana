@@ -1,4 +1,4 @@
-#include "qPolygonBookmarkDialog.h"
+#include "qtPolygonBookmarkDialog.h"
 #include <iostream>
 #include <QStatusBar>
 

@@ -3,7 +3,7 @@
 
 #include <QTreeView>
 #include <QMainWindow>
-#include <qPolygonBookmarkModel.h>
+#include <qtPolygonBookmarkModel.h>
 #include <puTools/miString.h>
 #include <vector>
 #include <QAction>

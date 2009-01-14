@@ -1,4 +1,4 @@
-#include "qPolygonBookmarkModel.h"
+#include "qtPolygonBookmarkModel.h"
 #include "directory.xpm"
 #include "private_directory.xpm"
 #include "locked_directory.xpm"
