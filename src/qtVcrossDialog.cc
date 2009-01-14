@@ -2551,7 +2551,6 @@ void VcrossDialog::changeModel(){
 
   fieldbox->blockSignals(true);
 
-  int indexF;
   int j, nf= fields.size();
 
   for (i=0; i<n; i++) {
@@ -2563,8 +2562,8 @@ void VcrossDialog::changeModel(){
 	countSelected[j]++;
 	if (countSelected[j]==1) {
 	  countSelected[j]++;
-	  fieldbox->setCurrentRow( indexF );
-	  fieldbox->item(indexF)->setSelected( true );
+	  fieldbox->setCurrentRow( j );
+	  fieldbox->item(j)->setSelected( true );
 	}
         selectedFields[i].model= model;
         miString str= model + " " + fields[j];
