@@ -297,7 +297,7 @@
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.</source>
-        <translation>Diana - et program for presentasjon av felter, observasjoner og satellittbilder
+        <translation type="obsolete">Diana - et program for presentasjon av felter, observasjoner og satellittbilder
 med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
@@ -349,8 +349,56 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Profet Login Failed</source>
+        <source>Save &amp;animation...</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
+satellite- and radarimages, vertical profiles and cross sections.
+Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save animation from current fields, satellite images, etc., using current settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Movies (*.mpg);;All (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Making animation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Animation completed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compiled without video export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uffda</source>
+        <translation type="unfinished">Uffda</translation>
     </message>
 </context>
 <context>
@@ -1928,6 +1976,156 @@ Kan ikke starte produksjon</translation>
         <source>&amp;Select</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Spatial Interpolation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PolygonBookmarkDialog</name>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation type="unfinished">Kutt</translation>
+    </message>
+    <message>
+        <source>Ctrl+X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cut polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Slett</translation>
+    </message>
+    <message>
+        <source>Move to Trash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse the whole tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>expand All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl++</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>expand the whole tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create a new folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename a Folder/Bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select and exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation type="unfinished">Avslutt</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PolygonBookmarkModel</name>
+    <message>
+        <source>Polygon Bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ProfetChatWidget</name>
@@ -1954,6 +2152,26 @@ Kan ikke starte produksjon</translation>
         <source>&lt;font color=red&gt;&lt;b&gt;EMPTY OBJECT - NOTHING TO EDIT!&lt;/b&gt;&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Lagre</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Lukk</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Avbryt</translation>
+    </message>
 </context>
 <context>
     <name>ProfetSessionDialog</name>
@@ -1974,16 +2192,155 @@ Kan ikke starte produksjon</translation>
         <translation type="unfinished">Slett</translation>
     </message>
     <message>
-        <source>Update</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Close</source>
         <translation type="unfinished">Lukk</translation>
     </message>
     <message>
         <source>Objects</source>
         <translation type="unfinished">Objekter</translation>
+    </message>
+    <message>
+        <source>Time follows map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timesmooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reconnect...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetTimeSmoothDialog</name>
+    <message>
+        <source>&amp;Undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation type="unfinished">Angre</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>redo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Run</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run the current objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close this window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F10</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy from the parent object </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Linear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F11</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear Interpolation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Reset Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F9</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset from the parent to the choosen one </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset &amp;Single</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset single column </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timesmooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are changed and unprocessed objects.
+Do you want to run your changes first?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetWaitDialog</name>
+    <message>
+        <source>Reconnecting..</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
