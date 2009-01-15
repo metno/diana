@@ -125,6 +125,8 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	list<Point>::iterator current = points.begin();
 	Point p1, pb;
 	p1 = pb = (Point) *current;
+
+/*
 	glLineWidth(2);
   glColor3d(1,1,0.0);
 	if(p.getPointCount() > 4) {
@@ -132,6 +134,8 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	  double d = 1.0;
 	  glRectd(center.get_x()-d, center.get_y()-d, center.get_x()+d, center.get_y()+d);
 	}
+*/
+
   glLineWidth(1);
 	glBegin(GL_LINE_STRIP); // GL_LINE_LOOP
 	if(!main_polygon)
