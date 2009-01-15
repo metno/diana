@@ -46,6 +46,7 @@
 #include "diProfetObjectFactory.h"
 #include "qtProfetDataModels.h"
 #include "qtProfetTimeSmoothDialog.h"
+#include <qUtilities/miLogFile.h>
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>
@@ -79,7 +80,17 @@ private:
   fetObject  currentObject;
   fetSession currentSession;
   QMenu * popupMenu;
+
+  miLogFile logfile;
+  ProfetTimeSmoothDialog* timesmoothdialog;
+
+  /// restore/write dialog log information to a static class miLogFile. The real file is written
+  /// as a part of diana in qtMainWindow
+  void writeLog();
+  void readLog();
+
   vector<fetObject::TimeValues> spatialsmoothtv;
+
 
   //to synchronize currentObject accessed by multiple threads
   mutable QMutex currentObjectMutex;
@@ -221,7 +232,7 @@ private slots:
   void processTimesmooth(vector<fetObject::TimeValues> tv);
   void processTimeValues(vector<fetObject::TimeValues> tv,vector<miString> del_ids);
   void endTimesmooth(vector<fetObject::TimeValues> tv);
-
+  void closeSessionDialog();
   void startSpatialsmooth();
   void processSpatialsmooth();
   void endSpatialsmooth();

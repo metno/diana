@@ -55,6 +55,10 @@ enableTable_(true), overviewactive(false), ignoreSynchProblems(false)
 #ifndef NOLOG4CXX
   logger = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("diana.DianaProfetGUI"));
 #endif
+  logfile.setSection("PROFET.LOG");
+
+  readLog();
+
   sessionDialog.setUserModel(&userModel);
   sessionDialog.setSessionModel(&sessionModel);
   sessionDialog.setObjectModel(&objectModel);
@@ -92,7 +96,7 @@ void DianaProfetGUI::connectSignals(){
   connect(&sessionDialog,SIGNAL(deleteObjectPerformed()),
       this,SLOT(deleteObject()));
   connect(&sessionDialog,SIGNAL(closePerformed()),
-      this,SIGNAL(toggleProfetGui())); // only signaled when gui is visible
+      this,SLOT(closeSessionDialog())); // only signaled when gui is visible
   connect(&sessionDialog,SIGNAL(forcedClosePerformed(bool)),
       this,SIGNAL(forceDisconnect(bool)));
   connect(&sessionDialog,SIGNAL(sendMessage(const QString &)),
@@ -130,8 +134,30 @@ void DianaProfetGUI::connectSignals(){
 	  SLOT(popupMenuActivated(int)));
 }
 
-DianaProfetGUI::~DianaProfetGUI(){
+DianaProfetGUI::~DianaProfetGUI()
+{
+
 }
+
+void DianaProfetGUI::writeLog()
+{
+  logfile.logSizeAndPos(&sessionDialog,"ProfetSessionDialog");
+  logfile.logSizeAndPos(&editObjectDialog,"ProfetEditObjectDialog");
+}
+
+void DianaProfetGUI::readLog()
+{
+  logfile.restoreSizeAndPos(&sessionDialog,"ProfetSessionDialog");
+  logfile.restoreSizeAndPos(&editObjectDialog,"ProfetEditObjectDialog");
+}
+
+
+void DianaProfetGUI::closeSessionDialog()
+{
+  writeLog();
+  emit toggleProfetGui();
+}
+
 
 void DianaProfetGUI::showObjectOverview(const QList<QModelIndex> & selected){
 
@@ -571,7 +597,10 @@ void DianaProfetGUI::startTimesmooth()
 
   if(obj.empty()) return;
 
-  ProfetTimeSmoothDialog *timesmoothdialog= new ProfetTimeSmoothDialog(parent,obj,tim);
+  timesmoothdialog= new ProfetTimeSmoothDialog(parent,obj,tim);
+
+  logfile.restoreSizeAndPos(timesmoothdialog,"ProfetTimesmoothDialog");
+
 
   connect(timesmoothdialog,SIGNAL(runObjects(vector<fetObject::TimeValues>)),
       this,SLOT(processTimesmooth(vector<fetObject::TimeValues>)));
@@ -647,6 +676,7 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
   }catch(Profet::ServerException & se){
     handleServerException(se);
   }
+  logfile.logSizeAndPos(timesmoothdialog,"ProfetTimesmoothDialog");
   enableObjectButtons(true,true,true);
 }
 

@@ -1,7 +1,7 @@
 #include "qtPolygonBookmarkDialog.h"
 #include <iostream>
 #include <QStatusBar>
-
+#include <qUtilities/miLogFile.h>
 using namespace std;
 
 PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& values, miString lastSavedPolygon ) :
@@ -128,6 +128,11 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
 
     emit polygonSelected(lastSavedPolygon );
   }
+  miLogFile logfile;
+  logfile.setSection("PROFET.LOG");
+  logfile.restoreSizeAndPos(this,"ProfetPolygonBookmarkDialog");
+
+
 }
 
 
@@ -146,6 +151,9 @@ void PolygonBookmarkDialog::closeEvent(QCloseEvent * e)
 
 void PolygonBookmarkDialog::quit()
 {
+  miLogFile logfile;
+  logfile.setSection("PROFET.LOG");
+  logfile.logSizeAndPos(this,"ProfetPolygonBookmarkDialog");
   emit polygonQuit();
   close();
 }
