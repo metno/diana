@@ -172,32 +172,33 @@ void DianaProfetGUI::showObjectOverview(const QList<QModelIndex> & selected){
 
 void DianaProfetGUI::toggleObjectOverview(bool turnon, miString par, miTime time){
 
-  if ( turnon ){
-    vector<fetObject> objects = controller.getOverviewObjects(par,time);
+  if (turnon) {
+    vector<fetObject> objects = controller.getOverviewObjects(par, time);
     cerr << "Got " << objects.size() << " objects for par:" << par << endl;
 
     areaManager->clearTemporaryAreas();
-    for ( int i=0; i<objects.size(); i++ ){
+    for (int i = 0; i < objects.size(); i++) {
       Colour colour = Colour(128, 128, 128, 100);
-      if ( objects[i].parameter() == "MSLP" ){
-	colour = Colour(0,0,180,100);
-      } else if ( objects[i].parameter() == "T.2M" ){
-	colour = Colour(180,0,0,100);
-      } else if ( objects[i].parameter() == "VIND.10M" ){
-	colour = Colour(0,180,0,100);
-      } else if ( objects[i].parameter() == "TOTALT.SKYDEKKE" ){
-	colour = Colour(180,180,0,100);
-      } else if ( objects[i].parameter() == "FOG-INDEX" ){
-	colour = Colour(128,128,128,100);
-      } else if ( objects[i].parameter() == "THUNDER-INDEX" ){
-	colour = Colour(0,180,180,100);
-      } else if ( objects[i].parameter() == "NEDBØR.1T.PROFF" ){
-	colour = Colour(180,0,180,100);
-      } else if ( objects[i].parameter() == "Significant_Wave_Height" ){
-	colour = Colour(128,128,70,100);
+      if (objects[i].parameter() == "MSLP") {
+        colour = Colour(0, 0, 180, 100);
+      } else if (objects[i].parameter() == "T.2M") {
+        colour = Colour(180, 0, 0, 100);
+      } else if (objects[i].parameter() == "VIND.10M") {
+        colour = Colour(0, 180, 0, 100);
+      } else if (objects[i].parameter() == "TOTALT.SKYDEKKE") {
+        colour = Colour(180, 180, 0, 100);
+      } else if (objects[i].parameter() == "FOG-INDEX") {
+        colour = Colour(128, 128, 128, 100);
+      } else if (objects[i].parameter() == "THUNDER-INDEX") {
+        colour = Colour(0, 180, 180, 100);
+      } else if (objects[i].parameter() == "NEDBØR.1T.PROFF") {
+        colour = Colour(180, 0, 180, 100);
+      } else if (objects[i].parameter() == "Significant_Wave_Height") {
+        colour = Colour(128, 128, 70, 100);
       }
 
-      areaManager->addOverviewArea(objects[i].id(),objects[i].polygon(),colour);
+      areaManager->addOverviewArea(objects[i].id(), objects[i].polygon(),
+          colour);
     }
   } else {
     areaManager->clearTemporaryAreas();
@@ -504,6 +505,10 @@ void DianaProfetGUI::saveObject(){
     currentObjectMutex.lock();
     currentObject=fetObject();
     currentObjectMutex.unlock();
+
+    processSpatialsmooth();
+    endSpatialsmooth();
+
     setEditObjectDialogVisible(false);
     enableObjectButtons(true,false,true);
   }catch(Profet::ServerException & se){
@@ -807,14 +812,17 @@ void DianaProfetGUI::editObject(){
 
     // Set child-areas (used for spatial interpolation)
     // TODO : Is this a valid way to check for time-smooth?
-    areaManager->clearTemporaryAreas();
+/*
+    areaManager->clearSpatialInterpolateAreas();
     if (fo.parent().exists()) {
       vector<fetObject::TimeValues> timeValues;
       collectRelatedTimeValues(timeValues,fo.id(),true);
-      for (int i=0; i<timeValues.size(); i++) {
-        areaManager->addGhostArea(timeValues[i].id, timeValues[i].polygon);
+      for (int i = 0; i < timeValues.size(); i++) {
+        areaManager->addSpatialInterpolateArea(timeValues[i].id, timeValues[i].parent,
+            timeValues[i].validTime, timeValues[i].polygon);
       }
     }
+*/
 
   }catch(Profet::ServerException & se){
     handleServerException(se);
@@ -941,7 +949,78 @@ miTime DianaProfetGUI::getCurrentTime(){
   return tmp;
 }
 
+
+void DianaProfetGUI::startSpatialsmooth(){
+  currentObjectMutex.lock();
+  fetObject fo = currentObject;
+  currentObjectMutex.unlock();
+
+  if ( !fo.parent().exists())
+    return;
+
+  // Set child-areas (used for spatial interpolation)
+  areaManager->clearSpatialInterpolation();
+  //vector<fetObject::TimeValues> timeValues;
+  collectRelatedTimeValues(spatialsmoothtv,fo.id(),true);
+  for (int i = 0; i < spatialsmoothtv.size(); i++) {
+    areaManager->addSpatialInterpolateArea(spatialsmoothtv[i].id, spatialsmoothtv[i].parent,
+        spatialsmoothtv[i].validTime, spatialsmoothtv[i].polygon);
+  }
+}
+
+void DianaProfetGUI::processSpatialsmooth(){
+  if ( !areaManager->hasInterpolated() ){
+    return;
+  }
+
+  QString dtitle = tr("Diana / Profet");
+  QString dtext  = tr("You have moved a set of objects to new locations. Would you like to save the changes?");
+  int ret =  QMessageBox::question ( parent, dtitle, dtext, QMessageBox::Save | QMessageBox::Discard, QMessageBox::Save );
+  if ( ret !=  QMessageBox::Save ){
+    endSpatialsmooth();
+    return;
+  }
+
+  vector<GridAreaManager::SpatialInterpolateArea> va = areaManager->getSpatialInterpolateAreas();
+  int n=va.size();
+
+  for (int i = 0; i < spatialsmoothtv.size(); i++) {
+    bool foundit = false;
+    for (int j = 0; j < n; j++ ){
+      if (va[j].id == spatialsmoothtv[i].id){
+        foundit = true;
+        spatialsmoothtv[i].polygon = va[j].area.getPolygon();
+        break;
+      }
+    }
+    if (!foundit){
+      cerr << "processSpatialSmoothing: Unable to find area for object:" << spatialsmoothtv[i].id << endl;
+    }
+  }
+
+  // save them...
+  vector<miString> deletion_ids;
+  processTimeValues(spatialsmoothtv,deletion_ids);
+}
+
+void DianaProfetGUI::endSpatialsmooth(){
+  try{
+    controller.unlockObjectsByTimeValues(spatialsmoothtv);
+    areaManager->clearSpatialInterpolation();
+  }catch(Profet::ServerException & se){
+    handleServerException(se);
+  }
+}
+
+
 void DianaProfetGUI::paintModeChanged(GridAreaManager::PaintMode mode){
+  GridAreaManager::PaintMode oldmode = areaManager->getPaintMode();
+  if ( oldmode == GridAreaManager::SPATIAL_INTERPOLATION ){
+    processSpatialsmooth();
+    endSpatialsmooth();
+  } else if ( mode == GridAreaManager::SPATIAL_INTERPOLATION ){
+    startSpatialsmooth();
+  }
   areaManager->setPaintMode(mode);
 }
 
@@ -1032,7 +1111,8 @@ void DianaProfetGUI::cancelEditObjectDialog(){
     areaManager->removeCurrentArea();
   }
   if(!editObjectDialog.showingNewObject()){
-    while(areaManager->undo()) ;
+    while (areaManager->undo())
+      ;
     gridAreaChanged();
     currentObjectMutex.lock();
     fetObject safeCopy = currentObject;
@@ -1127,7 +1207,7 @@ void  DianaProfetGUI::setActivePoints(vector<Point> points){
   areaManager->setActivePoints(points);
 }
 
-void DianaProfetGUI::rightMouseClicked(float x, 
+void DianaProfetGUI::rightMouseClicked(float x,
 				       float y,
 				       int globalX,
 				       int globalY)

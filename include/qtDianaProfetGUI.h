@@ -79,6 +79,7 @@ private:
   fetObject  currentObject;
   fetSession currentSession;
   QMenu * popupMenu;
+  vector<fetObject::TimeValues> spatialsmoothtv;
 
   //to synchronize currentObject accessed by multiple threads
   mutable QMutex currentObjectMutex;
@@ -220,6 +221,10 @@ private slots:
   void processTimesmooth(vector<fetObject::TimeValues> tv);
   void processTimeValues(vector<fetObject::TimeValues> tv,vector<miString> del_ids);
   void endTimesmooth(vector<fetObject::TimeValues> tv);
+
+  void startSpatialsmooth();
+  void processSpatialsmooth();
+  void endSpatialsmooth();
 
   void cancelEditObjectDialog();
   void dynamicGuiChanged(); //properties??

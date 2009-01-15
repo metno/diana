@@ -36,6 +36,7 @@
 #include <diMapMode.h>
 #include <diGridConverter.h>
 #include <diProjectablePolygon.h>
+#include <diGridArea.h>
 #include <miString.h>
 #include <diColour.h>
 
@@ -47,7 +48,6 @@
 
 using namespace std;
 
-class GridArea;
 class Point;
 enum cursortype;
 
@@ -63,6 +63,24 @@ class GridAreaManager {
 public:
     enum PaintMode{SELECT_MODE,DRAW_MODE,INCLUDE_MODE,CUT_MODE,MOVE_MODE,SPATIAL_INTERPOLATION};
 
+    class SpatialInterpolateArea {
+    public:
+      miString id;
+      miString parent;
+      miTime validTime;
+      GridArea area;
+
+      miString sortBy() const {return validTime.isoTime()+id;}
+
+      friend bool operator>( const SpatialInterpolateArea& lhs,  const SpatialInterpolateArea& rhs)
+      { return (lhs.sortBy() >  rhs.sortBy()); }
+      friend bool operator<( const SpatialInterpolateArea& lhs,  const SpatialInterpolateArea& rhs)
+      { return (lhs.sortBy() <  rhs.sortBy()); }
+      friend bool operator==( const SpatialInterpolateArea& lhs, const SpatialInterpolateArea& rhs)
+      { return (lhs.sortBy() == rhs.sortBy()); }
+
+    };
+
 private:
 #ifndef NOLOG4CXX
     log4cxx::LoggerPtr logger;
@@ -70,7 +88,8 @@ private:
 	map<miString,GridArea> gridAreas;
 	miString currentId;
   map<miString,GridArea> tmp_gridAreas;
-	mapMode mapmode;
+  vector<SpatialInterpolateArea> spatialAreas;
+  mapMode mapmode;
 	GridConverter gc;   // gridconverter class
 	float first_x;
 	float first_y;
@@ -78,7 +97,8 @@ private:
 	PaintMode paintMode;
 	bool changeCursor;
   Area base_proj;
-	cursortype getCurrentCursor();
+  bool hasinterpolated;
+  cursortype getCurrentCursor();
 	bool selectArea(Point p);
 	void updateSelectedArea();
 	void doSpatialInterpolation(const miString & movedId, float moveX, float moveY);
@@ -94,8 +114,11 @@ public:
   /// handling temporary areas
 	void clearTemporaryAreas();
   void addOverviewArea(miString id, ProjectablePolygon area, Colour & colour);
-  void addGhostArea(miString id, ProjectablePolygon area);
-
+  /// handling ghost areas for spatial interpolation
+  void clearSpatialInterpolation();
+  void addSpatialInterpolateArea(miString id, miString parent, miTime valid, ProjectablePolygon area);
+  vector<SpatialInterpolateArea> getSpatialInterpolateAreas() const {return spatialAreas;}
+  bool hasInterpolated() const {return hasinterpolated;}
   /// Setting current paint mode
 	void setPaintMode(PaintMode mode);
 	/// Returns current paint mode

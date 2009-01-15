@@ -3,11 +3,10 @@
 #include <AbstractablePolygon.h>
 #include <propoly/Point.h>
 #include <diGridConverter.h>
-#include <diGridArea.h>
 #include <sstream>
 
 GridAreaManager::GridAreaManager() :
-  mapmode(normal_mode) {
+  mapmode(normal_mode), hasinterpolated(false) {
   paintMode = SELECT_MODE;
 #ifndef NOLOG4CXX
   logger = log4cxx::Logger::getLogger("diana.GridAreaManager");
@@ -110,10 +109,10 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     return;
   } else if (me.type == mousemove) {
     if (me.button == leftButton) {
-      if (paintMode==MOVE_MODE) {
+      if (paintMode == MOVE_MODE) {
         gridAreas[currentId].setMove((newx-first_x), (newy-first_y));
         res.repaint = true;
-      } else if (paintMode==SPATIAL_INTERPOLATION) {
+      } else if (paintMode == SPATIAL_INTERPOLATION) {
         doSpatialInterpolation(currentId, (newx-first_x), (newy-first_y));
         res.repaint = true;
       } else if (paintMode != SELECT_MODE) {
@@ -126,13 +125,20 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
       if (paintMode==SELECT_MODE) {
         inDrawing = false;
         return;
-      } else if (paintMode==MOVE_MODE) {
+      } else if (paintMode == MOVE_MODE) {
         gridAreas[currentId].doMove();
-      } else if (paintMode==INCLUDE_MODE) {
+      } else if (paintMode == SPATIAL_INTERPOLATION) {
+        vector<SpatialInterpolateArea>::iterator gitr;
+        for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end(); gitr++){
+          gitr->area.doMove();
+        }
+        gridAreas[currentId].doMove();
+        hasinterpolated = true;
+      } else if (paintMode == INCLUDE_MODE) {
         bool added = gridAreas[currentId].addEditPolygon();
-      } else if (paintMode==CUT_MODE) {
+      } else if (paintMode == CUT_MODE) {
         bool deleted = gridAreas[currentId].deleteEditPolygon();
-      } else if (paintMode==DRAW_MODE) {
+      } else if (paintMode == DRAW_MODE) {
         gridAreas[currentId].doDraw();
       }
       gridAreas[currentId].setMode(gridAreas[currentId].NORMAL);
@@ -144,31 +150,39 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
 }
 
 void GridAreaManager::doSpatialInterpolation(const miString & movedId, float moveX, float moveY) {
-  if (tmp_gridAreas.empty()) return;
+  if (spatialAreas.empty()) return;
   GridArea & movedArea = gridAreas[movedId];
   movedArea.setMove(moveX, moveY);
   Point movedCenter = movedArea.getPolygon().getCenterPoint();
-  movedCenter.move(moveX, moveY); // not moved with GredArea::setMove
-  Point parentCenter = tmp_gridAreas.begin()->second.getPolygon().getCenterPoint();
-  int n = 0;
-  map<miString,GridArea>::iterator i = tmp_gridAreas.begin();
-  do {
-    if(i->first == movedId) break;
+  movedCenter.move(moveX, moveY); // not moved with GridArea::setMove
+
+  int n = 0; // index to current area
+  vector<SpatialInterpolateArea>::iterator gitr;
+  for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end(); gitr++){
+    if (gitr->id == movedId) break;
     ++n;
-  } while (++i != tmp_gridAreas.end());
-  if (n == 0) {
-    LOG4CXX_ERROR(logger, "doSpatialInterpolation failed"); 
-    return;
   }
-  Point unit = ( ( movedCenter - parentCenter) / n);
-  i = tmp_gridAreas.begin();
-  n = 0;
-  do {
-    // TODO : First move to parent, then add n*unit  
-    Point p = (n * unit);
-    i->second.setMove(p.get_x(), p.get_y());
-    ++n;
-  } while (++i != tmp_gridAreas.end());
+  int m = 0; // index to parent area
+  for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end(); gitr++){
+    if (gitr->parent == "") break;
+    ++m;
+  }
+  if (n == m) {
+     LOG4CXX_ERROR(logger, "doSpatialInterpolation failed - trying to move parent");
+     return;
+  }
+  Point parentCenter = spatialAreas[m].area.getPolygon().getCenterPoint();
+  int d = abs(n-m); // number of time units between parent and current area
+  Point unit = ( ( movedCenter - parentCenter) / d);
+
+  gitr = spatialAreas.begin();
+  int i = -m; // number of time units from start to parent
+  for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end();++gitr,++i){
+    Point p = (i * unit); // displacement from parent
+    Point p1 = gitr->area.getPolygon().getCenterPoint() - parentCenter; // correct for previous moves
+    Point mp = p - p1; // to move..
+    gitr->area.setMove(mp.get_x(), mp.get_y());
+  }
 }
 
 void GridAreaManager::setPaintMode(PaintMode mode) {
@@ -193,11 +207,22 @@ void GridAreaManager::addOverviewArea(miString id, ProjectablePolygon area, Colo
   tmp_gridAreas[id] = newArea;
 }
 
-void GridAreaManager::addGhostArea(miString id, ProjectablePolygon area){
+void GridAreaManager::clearSpatialInterpolation(){
+  spatialAreas.clear();
+  hasinterpolated = false;
+}
+
+void GridAreaManager::addSpatialInterpolateArea(miString id, miString parent, miTime valid, ProjectablePolygon area){
   GridArea newArea(id, area);
   newArea.updateCurrentProjection();
   newArea.setStyle(GridArea::GHOST);
-  tmp_gridAreas[id] = newArea;
+  SpatialInterpolateArea newSIA;
+  newSIA.id=id;
+  newSIA.parent=parent;
+  newSIA.validTime=valid;
+  newSIA.area=newArea;
+  spatialAreas.push_back(newSIA);
+  std::sort(spatialAreas.begin(),spatialAreas.end());
 }
 
 
@@ -295,9 +320,13 @@ void GridAreaManager::sendKeyboardEvent(const keyboardEvent& me,
 bool GridAreaManager::plot() {
   map<miString,GridArea>::iterator iter;
   // draw temporary areas
+  for (iter = tmp_gridAreas.begin(); iter != tmp_gridAreas.end(); iter++) {
+    iter->second.plot();
+  }
   if (paintMode == SPATIAL_INTERPOLATION) {
-    for (iter = tmp_gridAreas.begin(); iter != tmp_gridAreas.end(); iter++) {
-      iter->second.plot();
+    vector<SpatialInterpolateArea>::iterator gitr;
+    for (gitr = spatialAreas.begin(); gitr != spatialAreas.end(); gitr++) {
+      gitr->area.plot();
     }
   }
   // draw active areas
