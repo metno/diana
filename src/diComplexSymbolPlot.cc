@@ -240,7 +240,7 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   switch (drawIndex){
   case 1000:
     symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
-    drawSigText(0,0);	
+    drawSigText(0,0,whiteBox);	
     break;
   case 1001:
     drawSig1(0,0,SIG1SYMBOL);	
@@ -484,7 +484,9 @@ void ComplexSymbolPlot::drawSig6(float x,float y){
 void ComplexSymbolPlot::drawSig7(float x,float y){
   if (xstrings.size()<2)
     initStrings(1007);
-  drawBox(1007,x,y);
+  if(whiteBox){
+    drawBox(1007,x,y);
+  }
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   float cw1,ch1;
   float cw2,ch2;  
@@ -574,7 +576,7 @@ void ComplexSymbolPlot::drawSig14(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   initStrings(1000);
   getComplexSize(1000,sw,sh);
-  drawSigText(x-sw/2,y);
+  drawSigText(x-sw/2,y,whiteBox);
   initStrings(1007);
   getComplexSize(1007,sw,sh);
   drawSig7(x+sw/2,y);
@@ -587,7 +589,7 @@ void ComplexSymbolPlot::drawSig15(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   initStrings(1000);
   getComplexSize(1000,sw,sh);
-  drawSigText(x,y+sh/2);
+  drawSigText(x,y+sh/2,whiteBox);
   initStrings(1007);
   getComplexSize(1007,sw,sh);
   drawSig7(x,y-sh/2);
@@ -599,7 +601,7 @@ void ComplexSymbolPlot::drawSig40(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   initStrings(2000);
   getComplexSize(2000,sw,sh);
-  drawDoubleSigText(x,y+sh/1.75);
+  drawDoubleSigText(x,y+sh/1.75,whiteBox);
   initStrings(1007);
   getComplexSize(1007,sw,sh);
   drawSig7(x,y-sh/1.75);
@@ -612,7 +614,7 @@ void ComplexSymbolPlot::drawSig16(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   initStrings(2000);
   getComplexSize(2000,sw,sh);
-  drawDoubleSigText(x-sw/2,y);
+  drawDoubleSigText(x-sw/2,y,whiteBox);
   initStrings(1007);
   getComplexSize(1007,sw,sh);
   drawSig7(x+sw/2,y);
@@ -623,7 +625,9 @@ void ComplexSymbolPlot::drawSig17(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
-  drawBox(1000,x,y);
+  if(whiteBox) {
+    drawBox(1000,x,y);
+  }
   drawSigString(x,y);
   nstringsvisible=1;
   float sw,sh;
