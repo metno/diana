@@ -328,10 +328,9 @@ void SpectrumModelDialog::updateModelfileList(){
 }
 
 
-bool SpectrumModelDialog::close(bool alsoDelete){
+void SpectrumModelDialog::closeEvent( QCloseEvent* e) {
 #ifdef DEBUGPRINT
   cerr <<"SpectrumModel was closed!" << endl;
 #endif
   emit ModelHide();
-  return true;
 }

@@ -918,9 +918,8 @@ miString ObjectDialog::stringFromTime(const miTime& t){
 }
 
 
-bool ObjectDialog::close(bool alsoDelete){
+void ObjectDialog::closeEvent( QCloseEvent* e) {
   emit ObjHide();
-  return true;
 } 
 
 

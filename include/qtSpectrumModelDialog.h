@@ -59,7 +59,8 @@ public:
   //the constructor
   SpectrumModelDialog( QWidget* parent, SpectrumManager * vm );
   void setSelection();
-  bool close(bool alsoDelete);
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
   SpectrumManager * spectrumm;

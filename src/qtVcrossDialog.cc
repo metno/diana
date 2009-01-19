@@ -2674,9 +2674,8 @@ void VcrossDialog::helpClicked(){
 }
 
 
-bool VcrossDialog::close(bool alsoDelete){
+void VcrossDialog::closeEvent( QCloseEvent* e) {
   emit VcrossDialogHide();
-  return true;
 }
 
 void VcrossDialog::highlightButton(QPushButton* button, bool on)

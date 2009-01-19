@@ -932,9 +932,8 @@ void  MapDialog::helpClicked(){
   emit showsource("ug_mapdialogue.html"); 
 }
 
-bool MapDialog::close(bool alsoDelete){
+void MapDialog::closeEvent( QCloseEvent* e) {
   emit MapHide();
-  return true;
 }
 
 // -------------------------------------------------------

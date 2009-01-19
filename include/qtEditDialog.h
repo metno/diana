@@ -86,11 +86,13 @@ public:
   void showAll();
   /// hide dialog
   void hideAll();
-  ///called when the dialog is closed by the window manager
-  bool close(bool alsoDelete);
   /// returns true if currently editing (not pause) 
   bool inedit();
     
+protected:
+  ///called when the dialog is closed by the window manager
+  void closeEvent( QCloseEvent* );
+
 private:
   void ConstructorCernel( const EditDialogInfo mdi );
 

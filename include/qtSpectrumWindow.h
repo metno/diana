@@ -79,7 +79,9 @@ public:
 
   bool firstTime;
   bool active;
-  bool close(bool alsoDelete);
+
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
   SpectrumManager * spectrumm;

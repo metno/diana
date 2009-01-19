@@ -852,7 +852,6 @@ void EditNewDialog::cancel_clicked(){
 }
 
 
-bool EditNewDialog::close(bool alsoDelete){
+void EditNewDialog::closeEvent( QCloseEvent* e) {
   cancel_clicked();
-  return true;
 }

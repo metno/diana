@@ -887,7 +887,6 @@ void VprofWindow::readLog(const miString& logpart, const vector<miString>& vstr,
 
 /***************************************************************************/
 
-bool VprofWindow::close(bool alsoDelete){
+void VprofWindow::closeEvent(QCloseEvent * e) {
   quitClicked();
-  return true;
 }

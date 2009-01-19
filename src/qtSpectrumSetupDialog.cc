@@ -387,8 +387,7 @@ void SpectrumSetupDialog::applyhideClicked()
 }
 
 
-bool SpectrumSetupDialog::close(bool alsoDelete)
+void SpectrumSetupDialog::closeEvent( QCloseEvent* e) 
 {
   emit SetupHide();
-  return true;
 }

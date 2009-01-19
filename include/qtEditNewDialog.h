@@ -66,7 +66,8 @@ public:
   /// true if defining a new product
   bool newActive;
   ///called when the dialog is closed by the window manager
-  bool close(bool alsoDelete);
+protected:
+  void closeEvent( QCloseEvent* );
   
 private:
   void ConstructorCernel();

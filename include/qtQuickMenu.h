@@ -110,10 +110,13 @@ private:
 signals:
   void QuickHide();   // request hide for this dialog
 
+protected:
+  void closeEvent( QCloseEvent* );
+
 public:
   QuickMenu(QWidget *parent, Controller* c,
 	    Qt::WFlags f=0);
-  bool close(bool alsoDelete);
+
   void start();
 
   void readLog(const vector<miString>& vstr,

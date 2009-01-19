@@ -488,9 +488,8 @@ bool  ObsDialog::setPlottype(const miString& str, bool on)
 }
 
 //called when the dialog is closed by the window manager
-bool ObsDialog::close(bool alsoDelete){
+void ObsDialog::closeEvent( QCloseEvent* e){
   emit ObsHide();
-  return true;
 }
 
 void ObsDialog::makeExtension()

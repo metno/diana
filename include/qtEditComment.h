@@ -53,7 +53,8 @@ class EditComment :public QDialog
 public:
 
   EditComment( QWidget* parent, Controller* llctrl, bool edit);
-  bool close(bool alsoDelete);
+protected:
+  void closeEvent( QCloseEvent* );
     
 private:
   Controller*    m_ctrl;

@@ -115,7 +115,9 @@ public:
   /// digest contents from the diana log file (a previous session)
   void readLog(const vector<miString>& vstr,
 	       const miString& thisVersion, const miString& logVersion);
-  bool close(bool alsoDelete);
+  map<miString,miString>&  getFieldPlotOptions(){return fieldOptions;}
+protected:
+  void closeEvent( QCloseEvent* );
 
 public slots:
   void advancedToggled(bool on);
@@ -306,6 +308,7 @@ signals:
   void FieldHide();
   void showsource(const miString, const miString="");
   void emitTimes( const miString& ,const vector<miTime>& );
+  void fieldPlotOptionsChanged(map<miString,miString>&);
 
 private slots:
   void modelGRboxActivated( int index );

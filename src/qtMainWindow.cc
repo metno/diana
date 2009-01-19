@@ -3024,13 +3024,13 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   //     rItem.param=0;
   //     vrightclickMenu.push_back(rItem);
   //   }
-  if (uffda && contr->getSatnames().size()){
-    rItem.menuText= tr("Uffda");
-    rItem.member=SLOT(showUffda());
-    rItem.checked=false;
-    rItem.param=0;
-    vrightclickMenu.push_back(rItem);
-  }
+//   if (uffda && contr->getSatnames().size()){
+//     rItem.menuText= tr("Uffda");
+//     rItem.member=SLOT(showUffda());
+//     rItem.checked=false;
+//     rItem.param=0;
+//     vrightclickMenu.push_back(rItem);
+//   }
   vselectAreas=contr->findAreas(xclick,yclick);
   int n=vselectAreas.size();
   if (n)
@@ -4221,8 +4221,7 @@ void DianaMainWindow::inEdit(bool inedit)
 }
 
 
-bool DianaMainWindow::close(bool alsoDelete)
+void DianaMainWindow::closeEvent(QCloseEvent * e)
 {
   filequit();
-  return true;
 }

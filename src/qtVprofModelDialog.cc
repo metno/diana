@@ -339,10 +339,9 @@ void VprofModelDialog::updateModelfileList(){
 }
 
 
-bool VprofModelDialog::close(bool alsoDelete){
+void VprofModelDialog::closeEvent( QCloseEvent* e) {
 #ifdef DEBUGPRINT
   cerr <<"VprofModel was closed!" << endl;
 #endif
   emit ModelHide();
-  return true;
 }

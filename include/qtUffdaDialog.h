@@ -76,7 +76,6 @@ public:
   //the constructor
   UffdaDialog( QWidget* parent, Controller* llctrl );
   /// called when the dialog is closed by the window manager
-  bool close(bool alsoDelete);
   /// add position x,y to the list
   void addPosition(float,float);
   /// called when user clicked on uffda station on map
@@ -86,6 +85,8 @@ public:
   /// deselects all items
   void clearSelection();
 
+protected:
+  void closeEvent( QCloseEvent* );
 
 /**
 

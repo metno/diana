@@ -675,9 +675,8 @@ void TrajectoryDialog::readLog(const vector<miString>& vstr,
 }
 
 
-bool TrajectoryDialog::close(bool alsoDelete){
+void TrajectoryDialog::closeEvent( QCloseEvent* e) {
   emit markPos(false);
   emit TrajHide();
-  return true;
 }
 

@@ -310,9 +310,8 @@ void UffdaDialog::helpClicked(){
 
 
 /********************************************/
-bool UffdaDialog::close(bool alsoDelete){
+void UffdaDialog::closeEvent( QCloseEvent* e) {
   emit uffdaHide();
-  return true;
 } 
 
 /********************************************/

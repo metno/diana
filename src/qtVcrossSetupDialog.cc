@@ -581,8 +581,7 @@ void VcrossSetupDialog::applyhideClicked()
 }
 
 
-bool VcrossSetupDialog::close(bool alsoDelete)
+void VcrossSetupDialog::closeEvent( QCloseEvent* e) 
 {
   emit SetupHide();
-  return true;
 }

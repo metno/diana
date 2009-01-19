@@ -81,7 +81,6 @@ public:
   /// set mode to read files from archive
   void archiveMode( bool on );
   ///called when the dialog is closed by the window manager
-  bool close(bool alsoDelete);
 
 /**
 
@@ -174,6 +173,9 @@ private:
   ToggleButton* commentbutton;
 
   EditComment* objcomment;
+
+protected:
+  void closeEvent( QCloseEvent* );
 
 private slots:
   void nameListClicked(  QListWidgetItem * );

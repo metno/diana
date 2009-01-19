@@ -114,13 +114,14 @@ public:
   /// check if news file has changed since last startup
   void checkNews();
   void start();
-  bool close(bool alsoDelete);
 
 protected:
   void timerEvent(QTimerEvent*);
   void setTimeLabel();
   void stopAnimation();
   void focusInEvent ( QFocusEvent * );
+  void closeEvent( QCloseEvent* );
+
 
 
 public slots:

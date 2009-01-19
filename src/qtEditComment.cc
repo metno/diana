@@ -162,9 +162,8 @@ void EditComment::showOldToggled(bool on){
 }
 
 
-bool EditComment::close(bool alsoDelete){
+void EditComment::closeEvent( QCloseEvent* e) {
   emit CommentHide();
-  return true;
 }
 
 

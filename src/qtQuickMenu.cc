@@ -1234,9 +1234,8 @@ void QuickMenu::helpClicked(){
 }
 
 
-bool QuickMenu::close(bool alsoDelete){
+void QuickMenu::closeEvent( QCloseEvent* e) {
   emit QuickHide();
-  return true;
 }
 
 

@@ -75,9 +75,11 @@ public:
   void readLog(const vector<miString>& vstr,
 	       const miString& thisVersion, const miString& logVersion);
 
-  bool close(bool alsoDelete);
   /// choose the favourite settings
   void useFavourite();
+
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
 

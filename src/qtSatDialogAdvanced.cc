@@ -476,9 +476,8 @@ miString SatDialogAdvanced::putOKString(miString str){
 }
 
 
-bool SatDialogAdvanced::close(bool alsoDelete){
+void SatDialogAdvanced::closeEvent( QCloseEvent* e) {
   emit SatHide();
-  return true;
 } 
 
 

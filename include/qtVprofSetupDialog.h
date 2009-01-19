@@ -60,7 +60,8 @@ public:
   //the constructor
   VprofSetupDialog( QWidget* parent, VprofManager * vm );
   void start();
-  bool close(bool alsoDelete);
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
   VprofManager * vprofm;

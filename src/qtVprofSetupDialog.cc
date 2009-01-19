@@ -769,8 +769,7 @@ void VprofSetupDialog::initColourtab(){
 
 
 
-bool VprofSetupDialog::close(bool alsoDelete){
+void VprofSetupDialog::closeEvent( QCloseEvent* e) {
   emit SetupHide();
-  return true;
 }
 

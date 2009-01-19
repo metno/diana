@@ -73,12 +73,14 @@ public:
   void setColours(vector <Colour>&);
   /// disable/enable options according to type of picture
   void greyOptions();
-  ///called when the dialog is closed by the window manager
-  bool close(bool alsoDelete);
  // true if selected picture is palette file
   bool palette;
   /// true if colourcut button pressed
   bool colourCutOn(){return (colourcut->isOn());}
+
+protected:
+  ///called when the dialog is closed by the window manager
+  void closeEvent( QCloseEvent* );
 
 signals:
   /// emit when close selected 

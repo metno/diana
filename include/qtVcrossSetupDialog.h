@@ -57,7 +57,8 @@ public:
   //the constructor
   VcrossSetupDialog( QWidget* parent, VcrossManager* vm );
   void start();
-  bool close(bool alsoDelete);
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
   VcrossManager * vcrossm;

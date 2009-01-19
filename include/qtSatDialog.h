@@ -106,7 +106,8 @@ public:
   void readLog(const vector<miString>& vstr,
 	       const miString& thisVersion, const miString& logVersion);
   ///called when the dialog is closed by the window manager
-  bool close(bool alsoDelete);
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
 

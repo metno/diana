@@ -59,7 +59,8 @@ public:
   //the constructor
   VprofModelDialog( QWidget* parent, VprofManager * vm );
   void setSelection();
-  bool close(bool alsoDelete);
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
   VprofManager * vprofm;

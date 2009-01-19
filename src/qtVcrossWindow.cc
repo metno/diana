@@ -857,7 +857,8 @@ void VcrossWindow::readLog(const miString& logpart, const vector<miString>& vstr
 
 /***************************************************************************/
 
-bool VcrossWindow::close(bool alsoDelete){
-  quitClicked();
-  return true;
+void VcrossWindow::closeEvent(QCloseEvent * e)
+{
+   quitClicked();
 }
+

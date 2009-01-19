@@ -5087,10 +5087,9 @@ void FieldDialog::helpClicked()
 }
 
 
-bool FieldDialog::close(bool alsoDelete)
+void FieldDialog::closeEvent( QCloseEvent* e) 
 {
   emit FieldHide();
-  return true;
 }
 
 void FieldDialog::highlightButton(QPushButton* button, bool on)

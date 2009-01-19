@@ -1501,9 +1501,8 @@ void SatDialog::readLog(const vector<miString>& vstr,
 
 }
 
-bool SatDialog::close(bool alsoDelete){
+void SatDialog::closeEvent( QCloseEvent* e) {
   emit SatHide();
-  return true;
 } 
 
 

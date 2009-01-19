@@ -1807,10 +1807,9 @@ void EditDialog::EditNewCancel()
 }
 
 
-bool EditDialog::close(bool alsoDelete)
+void EditDialog::closeEvent( QCloseEvent* e) 
 {
   emit EditHide();
-  return true;
 } 
 
 void EditDialog::hideComment()

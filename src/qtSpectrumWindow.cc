@@ -866,8 +866,7 @@ void SpectrumWindow::readLog(const miString& logpart, const vector<miString>& vs
 }
 
 
-bool SpectrumWindow::close(bool alsoDelete)
+void SpectrumWindow::closeEvent(QCloseEvent * e)
 {
   quitClicked();
-  return true;
 }

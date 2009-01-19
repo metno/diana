@@ -76,8 +76,10 @@ public:
   vector<miString> writeLog();
   void readLog(const vector<miString>& vstr,
 	       const miString& thisVersion, const miString& logVersion);
-  bool close(bool alsoDelete);
   void cleanup();
+
+protected:
+  void closeEvent( QCloseEvent* );
 
 private:
 
