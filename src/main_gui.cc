@@ -64,26 +64,30 @@ using namespace std;
 
 void printUsage(){
 
-  cerr << "----------------------------------------------------------" << endl
-      << "Meteorologisk visningsverktøy, produksjonssystem for digital analyse" << endl
-      << "FoU/met.no, første versjon 1999" << endl
+  cout << "----------------------------------------------------------" << endl
+       << "Diana - a 2D presentation system for meteorological data, " <<endl
+       << "including fields, observations, satellite- and radarimages, "<<endl
+       << "vertical profiles and cross sections. Diana has tools for  " <<endl
+       << "on-screen fieldediting and drawing of objects (fronts, areas, "<<endl
+       << "symbols etc."<<endl
+      << " Copyright (C) 2006 met.no" << endl
       << "----------------------------------------------------------" << endl
-      << "Kommandolinje-argumenter:                                 " << endl
-      << "  -h            :  skriver ut denne teksten og avslutter  " << endl
-      << "  -v            :  skriver ut versjonsnummer og avslutter " << endl
-      << "  -s <filnavn>  :  navn på setupfil (def. diana.setup)    " << endl
-      << "  -l <språk>    :  systemspråk (def. no)                  " << endl
-      << "  -L <logger>   :  loggerFil for debugging                " << endl
+      << "Command line arguments:                                 "  << endl
+      << "  -h            :  Show help  "                            <<  endl
+      << "  -v            :  Version "                                << endl
+      << "  -s <filnavn>  :  name of setupfile (def. diana.setup)   " << endl
+      << "  -l <språk>    :  language                               " << endl
+      << "  -L <logger>   :  loggerFile for debugging               " << endl
       << "  -p <profet>   :  profet test version                    " << endl
       << "  -S <server>   :  profet server host                     " << endl
-      << "----------------------------------------------------------";
+       << "----------------------------------------------------------"<<endl;
 
 }
 
 
 int main(int argc, char **argv)
 {
-  cerr << argv[0] << " : DIANA version: " << version_string << "  build: "
+  cout << argv[0] << " : DIANA version: " << version_string << "  build: "
       << build_string << endl;
 
   miString logfilename;
