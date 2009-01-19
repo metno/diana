@@ -1300,6 +1300,8 @@ void FieldDialog::modelboxClicked( QListWidgetItem * item  ){
     enableFieldOptions();
   }
 
+  updateTime();
+
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::modelboxClicked returned"<<endl;
 #endif
