@@ -4146,6 +4146,37 @@ bool FieldDialog::fieldDifference(const miString& str,
   return false;
 }
 
+void FieldDialog::getFieldPlotOptions(map< miString, map<miString,miString> >& po)
+{
+
+  //map<paramater, map <option, value> >
+
+  map<miString, map<miString,miString> >::iterator p=po.begin();
+  //loop through parameters
+  for (; p!=po.end(); p++) {
+    miString options;
+    if (fieldOptions.count(p->first)) {
+      options = fieldOptions[p->first];
+    } else if (setupFieldOptions.count(p->first)) {
+      options = setupFieldOptions[p->first];
+    } else {
+      continue; //parameter not found
+    }
+
+    vector<ParsedCommand> parsedComm= cp->parse( options );
+    map<miString,miString>::iterator q=p->second.begin();
+    //loop through options
+    for (; q!=p->second.end(); q++) {
+      int i=0;
+      while (i<parsedComm.size() && parsedComm[i].key != q->first) i++;
+      //option found and value inserted
+      if ( i<parsedComm.size() ) {
+	q->second=parsedComm[i].allValue;
+      }
+    }
+  }
+
+}
 
 vector<miString> FieldDialog::writeLog() {
 

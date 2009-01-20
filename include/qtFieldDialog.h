@@ -110,6 +110,8 @@ public:
   void requestQuickUpdate(const vector<miString>& oldstr,
                                 vector<miString>& newstr);
 
+  /// insert values of <field,option> specified
+  void getFieldPlotOptions(map< miString, map<miString,miString> >& po);
   /// make contents for the diana log file
   vector<miString> writeLog();
   /// digest contents from the diana log file (a previous session)
