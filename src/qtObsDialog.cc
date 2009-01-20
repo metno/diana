@@ -205,14 +205,14 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
   m_selected = index;
 
   stackedWidget->setCurrentIndex(m_selected);    
-  stackedWidget->adjustSize();
+  //  stackedWidget->adjustSize();
 
   //criteria
   if(obsWidget[m_selected]->moreToggled()){
     showExtension(true);
   }
   updateExtension();
-  
+
   if(sendTimes)
     getTimes();
 }
