@@ -525,8 +525,11 @@ void QuickMenu::fillPrivateMenus()
   qm[0].plotindex= 0;
   if (!readQuickMenu(qm[0])) {
     qm[0].filename= setup.basicValue("homedir") + "/Historie.quick"; //obsolete
+     readQuickMenu(qm[0]);
+    // Write history to History.quick
+    qm[0].filename= setup.basicValue("homedir") + "/History.quick";
   }
-  readQuickMenu(qm[0]);
+
 
   //Private menus
   miString quickfile= setup.basicValue("homedir") + "/*.quick";
@@ -539,6 +542,7 @@ void QuickMenu::fillPrivateMenus()
     qtmp.plotindex= 0;
     qtmp.menuitems.clear();
     if (readQuickMenu(qtmp)){
+      if(qtmp.name == qm[0].name) continue; //Avoid mix with History
       qm.push_back(qtmp);
     }
     if (firstcustom<0){
@@ -815,7 +819,7 @@ void QuickMenu::readLog(const vector<miString>& vstr,
 	oidx= actidx-itmp; // in original list
 	
       } else if (name.exists()){ // custom menus, sort according to log
-	for (int l=0; l<qm.size(); l++){
+	for (int l=1; l<qm.size(); l++){ //skip History (l=0)
 	  if (qm[l].name==name){
 	    actidx = priIndex;
 	    if (l!=priIndex) {

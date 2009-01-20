@@ -122,7 +122,7 @@ bool readQuickMenu(quickMenu& qm)
   qm.plotindex= 0;
     
   if (!menufile){ // menufile not ok
-    cerr << "QuickMenu Error: Could not open quickmenu file "
+    cerr << "QuickMenu Warning: Could not open quickmenu file "
 	 << filename << endl;
     return false;
   }
