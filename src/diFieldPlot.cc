@@ -308,8 +308,6 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
 
       if(nlines > 0 && nlines-1 < ncodes)
 	ncodes = nlines-1;
-      else if(nloglines > 0 && ncodes > 5*nloglines-1)
-	ncodes = 5*nloglines-1;
 
       for(int i=ncold-1; i>=0; i--){
 	table.colour = poptions.palettecolours_cold[i].Name();
@@ -354,7 +352,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
 
       } else if(nloglines>0){
         vector<float> vlog;
-	for (int n=0; n<5; n++) {
+	for (int n=0; n<ncodes; n++) {
 	  float slog= powf(10.0,n);
 	  for (int i=0; i<nloglines; i++)
 	    vlog.push_back(slog*poptions.loglinevalues[i]);
@@ -3146,15 +3144,15 @@ bool FieldPlot::markExtreme(){
   iy2++;
 
   char marks[2];
-  char* pmarks[2];
+  miString pmarks[2];
   float chrx[2], chry[2];
 
   if (poptions.extremeType.upcase()=="C+W") {
-    marks[0]= 'C';  pmarks[0]= "C\0";
-    marks[1]= 'W';  pmarks[1]= "W\0";
+    marks[0]= 'C';  pmarks[0]= "C";
+    marks[1]= 'W';  pmarks[1]= "W";
   } else {
-    marks[0]= 'L';  pmarks[0]= "L\0";
-    marks[1]= 'H';  pmarks[1]= "H\0";
+    marks[0]= 'L';  pmarks[0]= "L";
+    marks[1]= 'H';  pmarks[1]= "H";
   }
 
   float fontsize= 28. * poptions.extremeSize;
@@ -3329,7 +3327,7 @@ bool FieldPlot::markExtreme(){
 
 	    if (ibest==ix && jbest==iy) {
 	      // mark extreme point
-	      fp->drawStr(pmarks[etype],
+	      fp->drawStr(pmarks[etype].c_str(),
 			  gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
 //#######################################################################
 //		glBegin(GL_LINE_LOOP);
