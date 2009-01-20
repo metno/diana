@@ -59,6 +59,8 @@ uname -a             >>mail.core
 echo "-------------" >>mail.core
 echo "START $tstart" >>mail.core
 echo "STOP  $tstop"  >>mail.core
+echo "Diana version:"              >>mail.core 
+$dianadir/bin/diana.bin --version  >>mail.core
 echo "Diana version (diana.news):" >>mail.core 
 cat diana.news       >>mail.core
 echo "-------------" >>mail.core
@@ -71,14 +73,12 @@ do
 test -f $corefile || continue
 test -s $corefile || continue
 
-$debugger $dianadir/bin/diana.bin $corefile 1>dbxresult 2>&1 <<ENDDBX
-where 
-y
-y
-y
-n
-q
-ENDDBX
+#make gdb input:
+/bin/echo -e 'bt\nq\n' > /tmp/gdb.cmd.$$
+
+$debugger -batch -x /tmp/gdb.cmd.$$ $dianadir/bin/diana.bin $corefile 1>dbxresult 2>&1 
+
+rm -f /tmp/gdb.cmd.$$
 
 echo "===============================================" >>mail.core
 cat dbxresult        >>mail.core
