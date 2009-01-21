@@ -4155,10 +4155,11 @@ void FieldDialog::getFieldPlotOptions(map< miString, map<miString,miString> >& p
   //loop through parameters
   for (; p!=po.end(); p++) {
     miString options;
-    if (fieldOptions.count(p->first)) {
-      options = fieldOptions[p->first];
-    } else if (setupFieldOptions.count(p->first)) {
-      options = setupFieldOptions[p->first];
+    miString parameter = p->first.downcase();
+    if (fieldOptions.count(parameter)) {
+      options = fieldOptions[parameter];
+    } else if (setupFieldOptions.count(parameter)) {
+      options = setupFieldOptions[parameter];
     } else {
       continue; //parameter not found
     }
@@ -4167,11 +4168,12 @@ void FieldDialog::getFieldPlotOptions(map< miString, map<miString,miString> >& p
     map<miString,miString>::iterator q=p->second.begin();
     //loop through options
     for (; q!=p->second.end(); q++) {
+      miString opt = q->first.downcase();
       int i=0;
-      while (i<parsedComm.size() && parsedComm[i].key != q->first) i++;
+      while (i<parsedComm.size() && parsedComm[i].key != opt) i++;
       //option found and value inserted
       if ( i<parsedComm.size() ) {
-	q->second=parsedComm[i].allValue;
+        q->second=parsedComm[i].allValue;
       }
     }
   }
