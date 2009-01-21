@@ -117,7 +117,7 @@ public:
   /// digest contents from the diana log file (a previous session)
   void readLog(const vector<miString>& vstr,
 	       const miString& thisVersion, const miString& logVersion);
-  map<miString,miString>&  getFieldPlotOptions(){return fieldOptions;}
+
 protected:
   void closeEvent( QCloseEvent* );
 
@@ -418,7 +418,7 @@ private:
   QCheckBox* tableCheckBox;
   QCheckBox* repeatCheckBox;
   //  QCheckBox* threeColoursCheckBox;
-  vector<QComboBox*> threeColourBox;  
+  vector<QComboBox*> threeColourBox;
   QComboBox* shadingComboBox;
   QComboBox* shadingcoldComboBox;
   QSpinBox*  shadingSpinBox;
