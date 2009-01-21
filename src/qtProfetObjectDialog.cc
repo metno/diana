@@ -36,6 +36,8 @@
 #include <QCloseEvent>
 #include <QLabel>
 #include <Q3VBoxLayout>
+#include <qUtilities/miLogFile.h>
+
 
 ProfetObjectDialog::ProfetObjectDialog(QWidget * parent, OperationMode om)
   : QDialog(parent), mode(om)
@@ -116,11 +118,17 @@ void ProfetObjectDialog::initGui()
 
 void ProfetObjectDialog::connectSignals(){
   connect(saveObjectButton, SIGNAL( clicked() ),
-        this, SIGNAL( saveObjectClicked() ));
-  connect(cancelObjectButton, SIGNAL( clicked() ),
-      this, SIGNAL( cancelObjectDialog() ));
+        this, SLOT( saveDialog() ));
+
+
+  connect(cancelObjectButton, SIGNAL( clicked() ), this, SLOT(quitDialog()));
+  connect(this, SIGNAL(rejected()),  this, SLOT(quitDialog()));
+
+
   connect(baseComboBox, SIGNAL( activated(const QString&) ),
       this, SLOT( baseObjectChanged(const QString&) ));
+
+
   connect(databaseAreaButton,SIGNAL(clicked()),
       this, SIGNAL (requestPolygonList()));
 }
@@ -142,7 +150,7 @@ void ProfetObjectDialog::baseObjectChanged(const QString & qs){
 
 void ProfetObjectDialog::closeEvent(QCloseEvent * e){
   databaseAreaButton->setEnabled(true);
-  emit cancelObjectDialog();
+  quitDialog();
 }
 
 void ProfetObjectDialog::showObject(const fetObject & obj,
@@ -319,7 +327,23 @@ void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
 
 }
 
+void ProfetObjectDialog::logSizeAndPos()
+{
+  miLogFile logfile;
+  logfile.setSection("PROFET.LOG");
+  logfile.logSizeAndPos(this,"ProfetEditObjectDialog");
+}
 
+void ProfetObjectDialog::saveDialog()
+{
+  logSizeAndPos();
+  emit saveObjectClicked();
+}
 
+void ProfetObjectDialog::quitDialog()
+{
+  logSizeAndPos();
+  emit cancelObjectDialog();
+}
 
 

@@ -146,7 +146,7 @@ void PolygonBookmarkDialog::bookmarkClicked(QModelIndex idx)
 
 void PolygonBookmarkDialog::closeEvent(QCloseEvent * e)
 {
-   quit();
+     quit();
 }
 
 void PolygonBookmarkDialog::quit()

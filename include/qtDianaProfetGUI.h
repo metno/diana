@@ -66,9 +66,9 @@ private:
 #ifndef NOLOG4CXX
   log4cxx::LoggerPtr logger;
 #endif
-  ProfetSessionDialog sessionDialog;
-  ProfetObjectDialog viewObjectDialog;
-  ProfetObjectDialog editObjectDialog;
+  ProfetSessionDialog *sessionDialog;
+  ProfetObjectDialog  *viewObjectDialog;
+  ProfetObjectDialog  *editObjectDialog;
   GridAreaManager * areaManager;
   PaintToolBar * paintToolBar;
   ProfetObjectFactory objectFactory;
@@ -80,14 +80,10 @@ private:
   fetObject  currentObject;
   fetSession currentSession;
   QMenu * popupMenu;
-
   miLogFile logfile;
-  ProfetTimeSmoothDialog* timesmoothdialog;
 
-  /// restore/write dialog log information to a static class miLogFile. The real file is written
-  /// as a part of diana in qtMainWindow
-  void writeLog();
-  void readLog();
+
+  ProfetTimeSmoothDialog* timesmoothdialog;
 
   vector<fetObject::TimeValues> spatialsmoothtv;
 

@@ -3697,7 +3697,6 @@ void DianaMainWindow::writeLogFile()
     file << endl;
   }
 
-
   file << "[PROFET.LOG]" << endl
     << milogfile.writeString("PROFET.LOG") << endl
     << "[/PROFET.LOG]" << endl;
@@ -3720,6 +3719,7 @@ void DianaMainWindow::readLogFile()
   miString logVersion;
 
   miLogFile milogfile; // static logger from puTools - keeps stuff in mind
+
   milogfile.setMaxXY(displayWidth,displayHeight);
 
   // open filestream
@@ -3789,6 +3789,7 @@ void DianaMainWindow::readLogFile()
         spWindow->readLog("setup",vstr,thisVersion,logVersion,
             displayWidth,displayHeight);
       else if ( beginStr=="[PROFET.LOG]") {
+        milogfile.setSection("PROFET.LOG");
         milogfile.readStrings(vstr,beginStr);
       }
 

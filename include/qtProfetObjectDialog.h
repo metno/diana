@@ -88,6 +88,7 @@ private:
   void           initGui();
   void           connectSignals();
   void           setAllEnabled(bool enable);
+  void           logSizeAndPos();
   QString        getAreaStatusString(AreaStatus);
 
 protected:
@@ -117,6 +118,8 @@ public:
 private slots:
   void baseObjectChanged(const QString&);
   void quitBookmarks();
+  void quitDialog();
+  void saveDialog();
 
 signals:
   void baseObjectSelected(miString name);
