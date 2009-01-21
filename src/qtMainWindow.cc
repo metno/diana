@@ -1734,10 +1734,16 @@ void DianaMainWindow::toggleProfetGUI(){
   // check turn on / off
   if(profetGUI && profetGUI->isVisible()){
     turnOn = false;
-    int i = QMessageBox::question(0,
-        "Connection","Do you want to stay connected to profet?",
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if(i == QMessageBox::No){
+    int i = (QMessageBox::question(this, tr("End Profet"),
+         tr("Do you want to stay connected to profet?"),
+         tr("Quit and disconnect"), tr("Quit and stay connected "), tr("&Cancel"),
+         0,      // Enter == button 0
+         2 ) ); // Escape == button 2
+
+    if(i==2 )
+      return;
+
+    if(i == 0){
       profetDisconnect();
       profetGUI->resetStatus();
     }
