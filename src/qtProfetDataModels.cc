@@ -632,6 +632,7 @@ void FetObjectTableModel::removeUserLocation(
 }
 
 void FetObjectTableModel::clearModel(){
+  userLocationMap.clear();
   objects.clear();
   parameters.clear();
   times.clear();
