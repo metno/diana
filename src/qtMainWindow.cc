@@ -3456,8 +3456,14 @@ void DianaMainWindow::filequit()
 {
   if (em->cleanupForExit() && uffm->okToExit()){
     writeLogFile();
+
+#ifdef PROFET
+        profetDisconnect();
+#endif
+
     qApp->quit();
   }
+
 }
 
 
