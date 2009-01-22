@@ -1160,17 +1160,20 @@ void DianaProfetGUI::setPaintToolBarVisible(bool visible){
   }
 }
 
-void DianaProfetGUI::setViewObjectDialogVisible(bool visible){
-  cerr << "setViewObjectDialogVisible: " << visible << endl;
+void DianaProfetGUI::setViewObjectDialogVisible(bool visible)
+{
   showViewObjectDialog = visible;
   if (showViewObjectDialog) {
+    logfile.restoreSizeAndPos(viewObjectDialog,"ProfetViewObjectDialog");
     viewObjectDialog->show();
   } else {
+    // Logging is in the quit function in the object directly
     viewObjectDialog->hide();
   }
 }
 
-void DianaProfetGUI::setEditObjectDialogVisible(bool visible){
+void DianaProfetGUI::setEditObjectDialogVisible(bool visible)
+{
   showEditObjectDialog = visible;
   //sessionDialog->setEditable(!visible); // doesn't do anything...
   if(showEditObjectDialog) {

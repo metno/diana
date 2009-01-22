@@ -331,7 +331,11 @@ void ProfetObjectDialog::logSizeAndPos()
 {
   miLogFile logfile;
   logfile.setSection("PROFET.LOG");
-  logfile.logSizeAndPos(this,"ProfetEditObjectDialog");
+  miString logname="ProfetEditObjectDialog";
+  if(mode == VIEW_OBJECT_MODE)
+    logname="ProfetViewObjectDialog";
+
+  logfile.logSizeAndPos(this,logname);
 }
 
 void ProfetObjectDialog::saveDialog()
