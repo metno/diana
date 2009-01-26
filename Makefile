@@ -153,7 +153,7 @@ veryclean:
 	rm -rf $(OBJDIR)
 
 # install
-DESTNAME=diana-3.6.2
+DESTNAME=diana-3.6.3
 COPYFILES=bin/diana bin/dianaTEST bin/bdiana bin/diana.bin
 COPYDIRS=
 COPYTREES= share etc
