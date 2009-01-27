@@ -316,8 +316,9 @@ bool DianaProfetGUI::selectTime(miTime time){
   QModelIndex modelIndex = tableModel.getModelIndex(time, getCurrentParameter());
   if( modelIndex.isValid() ){
     sessionDialog->selectParameterAndTime( modelIndex );
+    return true;
   }
-  return true;
+  return false;
 }
 
 void DianaProfetGUI::setBaseObjects(vector<fetBaseObject> obj){
