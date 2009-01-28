@@ -1,4 +1,5 @@
 <!DOCTYPE TS><TS>
+<defaultcodec></defaultcodec>
 <context>
     <name>AddtoDialog</name>
     <message>
@@ -342,7 +343,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">Fil</translation>
+        <translation>Fil</translation>
     </message>
     <message>
         <source>Info</source>
@@ -398,7 +399,18 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <source>Uffda</source>
-        <translation type="unfinished">Uffda</translation>
+        <translation type="obsolete">Uffda</translation>
+    </message>
+</context>
+<context>
+    <name>DianaProfetGUI</name>
+    <message>
+        <source>Diana / Profet</source>
+        <translation>Diana / Profet</translation>
+    </message>
+    <message>
+        <source>You have moved a set of objects to new locations. Would you like to save the changes?</source>
+        <translation>Du har flyttet en del objekter til nye posisjoner. Vil du lagre endringene?</translation>
     </message>
 </context>
 <context>
@@ -1950,23 +1962,23 @@ Kan ikke starte produksjon</translation>
     <name>PaintToolBar</name>
     <message>
         <source>Paint Operations</source>
-        <translation type="unfinished"></translation>
+        <translation>Tegneoperasjoner</translation>
     </message>
     <message>
         <source>&amp;Draw</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tegne</translation>
     </message>
     <message>
         <source>&amp;Include</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Legg til</translation>
     </message>
     <message>
         <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Klipp vekk</translation>
     </message>
     <message>
         <source>&amp;Move</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Flytt</translation>
     </message>
     <message>
         <source>&amp;Hide</source>
@@ -1974,70 +1986,70 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>&amp;Select</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Velg</translation>
     </message>
     <message>
         <source>&amp;Spatial Interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Romlig interpolasjon</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Angre</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Gjør om</translation>
     </message>
 </context>
 <context>
     <name>PolygonBookmarkDialog</name>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kopier</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-C</translation>
     </message>
     <message>
         <source>Copy polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopier polygon</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation type="unfinished">Kutt</translation>
+        <translation>Kutt</translation>
     </message>
     <message>
         <source>Ctrl+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-X</translation>
     </message>
     <message>
         <source>Cut polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Kutt polygon</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Lim inn</translation>
     </message>
     <message>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-V</translation>
     </message>
     <message>
         <source>Paste polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Lim inn polygon</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Slett</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Slett</translation>
+        <translation>Slett</translation>
     </message>
     <message>
         <source>Move to Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytt til søppelkasse</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -2045,7 +2057,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <source>Collapse the whole tree</source>
@@ -2053,124 +2065,124 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekspander alle</translation>
     </message>
     <message>
         <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <source>expand the whole tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekspander hele treet</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny mappe</translation>
     </message>
     <message>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
         <source>Create a new folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Lag en ny mappe</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre navn</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Rename a Folder/Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre navn på Mappe/Bokmerke</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Blank</translation>
     </message>
     <message>
         <source>Select and exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg og avslutt</translation>
     </message>
     <message>
         <source>Return</source>
-        <translation type="unfinished"></translation>
+        <translation>Linjeskift</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Avslutt</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished">Avslutt</translation>
+        <translation>Avslutt</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre</translation>
     </message>
 </context>
 <context>
     <name>PolygonBookmarkModel</name>
     <message>
         <source>Polygon Bookmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>Polygon bokmerker</translation>
     </message>
 </context>
 <context>
     <name>ProfetChatWidget</name>
     <message>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldinger</translation>
     </message>
     <message>
         <source>&amp;Send</source>
-        <translation type="unfinished">&amp;Send</translation>
+        <translation>&amp;Send</translation>
     </message>
     <message>
         <source>Users</source>
-        <translation type="unfinished"></translation>
+        <translation>Brukere</translation>
     </message>
 </context>
 <context>
     <name>ProfetObjectDialog</name>
     <message>
         <source>Current Object</source>
-        <translation type="unfinished"></translation>
+        <translation>Valgt Objekt</translation>
     </message>
     <message>
         <source>&lt;font color=red&gt;&lt;b&gt;EMPTY OBJECT - NOTHING TO EDIT!&lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=red&gt;&lt;b&gt;TOMT OBJEKT - INGENTING EFFEKT!&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
     <message>
         <source>New Object</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt Objekt</translation>
     </message>
     <message>
         <source>View Object</source>
-        <translation type="unfinished"></translation>
+        <translation>Se Objekt</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Lagre</translation>
+        <translation>Lagre</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Lukk</translation>
+        <translation>Lukk</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -2181,27 +2193,27 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Ny</translation>
+        <translation>Ny</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Slett</translation>
+        <translation>Slett</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Lukk</translation>
+        <translation>Lukk</translation>
     </message>
     <message>
         <source>Objects</source>
-        <translation type="unfinished">Objekter</translation>
+        <translation>Objekter</translation>
     </message>
     <message>
         <source>Time follows map</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiden følger kartet</translation>
     </message>
     <message>
         <source>View</source>
@@ -2220,7 +2232,7 @@ Kan ikke starte produksjon</translation>
     <name>ProfetTimeSmoothDialog</name>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Angre</translation>
     </message>
     <message>
         <source>Ctrl+Z</source>
@@ -2228,11 +2240,11 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished">Angre</translation>
+        <translation>Angre</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Gjør om</translation>
     </message>
     <message>
         <source>Ctrl+Y</source>
@@ -2248,7 +2260,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+R</translation>
     </message>
     <message>
         <source>Run the current objects</source>
@@ -2256,11 +2268,11 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Avslutt</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Q</translation>
     </message>
     <message>
         <source>Close this window</source>
@@ -2272,7 +2284,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Kopier</translation>
     </message>
     <message>
         <source>F10</source>
