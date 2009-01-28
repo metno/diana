@@ -110,8 +110,8 @@ public:
   void requestQuickUpdate(const vector<miString>& oldstr,
                                 vector<miString>& newstr);
 
-  /// insert values of <field,option> specified
-  void getFieldPlotOptions(map< miString, map<miString,miString> >& po);
+  /// insert editoption values of <field,option> specified
+  void getEditPlotOptions(map< miString, map<miString,miString> >& po);
   /// make contents for the diana log file
   vector<miString> writeLog();
   /// digest contents from the diana log file (a previous session)
@@ -162,7 +162,7 @@ private:
 		      vector<FieldGroupInfo>& vfg);
   void showHistory(int step);
   miString checkFieldOptions(const miString& str);
-  miString getFieldOptions(const miString& fieldName, bool reset) const;
+  miString getFieldOptions(const miString& fieldName, bool reset, bool edit=false) const;
 
   bool fieldDifference(const miString& str,
 		       miString& field1, miString& field2) const;
@@ -195,6 +195,7 @@ private:
   // map<fieldName,fieldOptions>
   map<miString,miString> setupFieldOptions;
   map<miString,miString> fieldOptions;
+  map<miString,miString> editFieldOptions;
 
   // possible extensions of fieldnames (not found in setup)
   set<miString> fieldPrefixes;

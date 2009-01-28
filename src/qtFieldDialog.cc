@@ -166,6 +166,8 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   cp->addKey("linewidth",      "",0,CommandParser::cmdInt);
   cp->addKey("linetype",       "",0,CommandParser::cmdString);
   cp->addKey("line.interval",  "",0,CommandParser::cmdFloat);
+  cp->addKey("line.values",    "",0,CommandParser::cmdString);
+  cp->addKey("logline.values", "",0,CommandParser::cmdString);
   cp->addKey("density",        "",0,CommandParser::cmdInt);
   cp->addKey("vector.unit",    "",0,CommandParser::cmdFloat);
   cp->addKey("rel.size",       "",0,CommandParser::cmdFloat);
@@ -1696,7 +1698,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item){
       sf.hourOffset= 0;
       sf.hourDiff= 0;
 
-      sf.fieldOpts= getFieldOptions(sf.fieldName, false);
+      sf.fieldOpts= getFieldOptions(sf.fieldName, false, sf.inEdit);
 
       selectedFields.push_back(sf);
 
@@ -2121,26 +2123,33 @@ void FieldDialog::enableFieldOptions(){
   // line interval (isoline contouring)
   float ekv=-1.;
   float ekv_2=-1.;
-  if ((nc=cp->findKey(vpcopt,"line.interval"))>=0) {
-    if (!vpcopt[nc].floatValue.empty()) ekv=vpcopt[nc].floatValue[0];
-    else ekv= 10.;
-    lineintervals= numberList( lineintervalCbox, ekv);
-    lineintervalCbox->setEnabled(true);
+  if ((nc=cp->findKey(vpcopt,"line.interval"))>=0 ||
+      (nc=cp->findKey(vpcopt,"line.values"))>=0) {
+    if ((nc=cp->findKey(vpcopt,"line.interval"))>=0 &&
+        (!vpcopt[nc].floatValue.empty()) ) {
+      ekv=vpcopt[nc].floatValue[0];
+      lineintervals= numberList( lineintervalCbox, ekv);
+    } else {
+      ekv= 10.;
+      lineintervals= numberList( lineintervalCbox, ekv);
+      lineintervalCbox->setCurrentIndex(0);
+    }
     numberList( interval2ComboBox, ekv);
     if ((nc=cp->findKey(vpcopt,"line.interval_2"))>=0) {
       if (!vpcopt[nc].floatValue.empty()) ekv_2=vpcopt[nc].floatValue[0];
       else ekv_2= 10.;
       numberList( interval2ComboBox, ekv_2);
     }
-    if(colour2ComboBox->currentIndex()>0)
+    if(colour2ComboBox->currentIndex()>0) {
       enableType2Opt = true;
+    }
+    lineintervalCbox->setEnabled(true);
+    interval2ComboBox->setEnabled(true);
   } else {
     interval2ComboBox->clear();
     enableType2Options(false);
-    if (lineintervalCbox->isEnabled()) {
-      lineintervalCbox->clear();
-      lineintervalCbox->setEnabled(false);
-    }
+    lineintervalCbox->clear();
+    lineintervalCbox->setEnabled(false);
   }
 
   // wind/vector density
@@ -2651,6 +2660,7 @@ vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
     }
   }
   nupdown= nenormal*2/3;
+  vnumber.push_back("off");
   for (i=n-nupdown; i<=n+nupdown; ++i) {
     j= i/nenormal;
     k= i%nenormal;
@@ -2666,7 +2676,7 @@ vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
     cBox->addItem(QString(vnumber[i].cStr()));
   }
 
-  cBox->setCurrentIndex(nupdown);
+  cBox->setCurrentIndex(nupdown+1);
 
   return vnumber;
 }
@@ -2760,10 +2770,14 @@ void FieldDialog::lineTypeCboxActivated( int index )
 
 void FieldDialog::lineintervalCboxActivated( int index )
 {
-  updateFieldOptions("line.interval",lineintervals[index]);
-  // update the list (with selected value in the middle)
-  float a= atof(lineintervals[index].c_str());
-  lineintervals= numberList( lineintervalCbox, a);
+  if(index==0) {
+    updateFieldOptions("line.interval","remove");
+  } else {
+    updateFieldOptions("line.interval",lineintervals[index]);
+    // update the list (with selected value in the middle)
+    float a= atof(lineintervals[index].c_str());
+    lineintervals= numberList( lineintervalCbox, a);
+  }
 }
 
 
@@ -3207,8 +3221,14 @@ void FieldDialog::updateFieldOptions(const miString& name,
   selectedFields[n].fieldOpts= currentFieldOpts;
 
     // not update private settings if external/QuickMenu command...
-  if (!selectedFields[n].external)
-    fieldOptions[selectedFields[n].fieldName.downcase()]= currentFieldOpts;
+  if (!selectedFields[n].external) {
+    if (selectedFields[n].inEdit &&
+        !selectedFields[n].editPlot ) {
+      editFieldOptions[selectedFields[n].fieldName.downcase()]= currentFieldOpts;
+    } else {
+      fieldOptions[selectedFields[n].fieldName.downcase()]= currentFieldOpts;
+    }
+  }
 
 }
 
@@ -4146,7 +4166,7 @@ bool FieldDialog::fieldDifference(const miString& str,
   return false;
 }
 
-void FieldDialog::getFieldPlotOptions(map< miString, map<miString,miString> >& po)
+void FieldDialog::getEditPlotOptions(map< miString, map<miString,miString> >& po)
 {
 
   //map<paramater, map <option, value> >
@@ -4156,7 +4176,9 @@ void FieldDialog::getFieldPlotOptions(map< miString, map<miString,miString> >& p
   for (; p!=po.end(); p++) {
     miString options;
     miString parameter = p->first.downcase();
-    if (fieldOptions.count(parameter)) {
+    if (editFieldOptions.count(parameter)) {
+      options = editFieldOptions[parameter];
+    } else if (fieldOptions.count(parameter)) {
       options = fieldOptions[parameter];
     } else if (setupFieldOptions.count(parameter)) {
       options = setupFieldOptions[parameter];
@@ -4209,6 +4231,20 @@ vector<miString> FieldDialog::writeLog() {
     if (sopts != pfopt->second)
       vstr.push_back( pfopt->first + " " + pfopt->second );
   }
+
+  //write edit/profet field options
+  if(editFieldOptions.size()>0) {
+    vstr.push_back("--- EDIT ---");
+    pfend= editFieldOptions.end();
+    for (pfopt=editFieldOptions.begin(); pfopt!=pfend; pfopt++) {
+      miString sopts= getFieldOptions(pfopt->first, true);
+      // only logging options if different from setup
+      if (sopts != pfopt->second) {
+        vstr.push_back( pfopt->first + " " + pfopt->second );
+      }
+    }
+  }
+
   vstr.push_back("================");
 
   return vstr;
@@ -4248,9 +4284,14 @@ void FieldDialog::readLog(const vector<miString>& vstr,
 
   // field options:
   // do not destroy any new options in the program
-
+  bool editOptions = false;
   for (; ivstr<nvstr; ivstr++) {
     if (vstr[ivstr].substr(0,4)=="====") break;
+    if ( vstr[ivstr] == "--- EDIT ---") {
+      cerr <<"--- EDIT ---"<<endl;
+      editOptions = true;
+      continue;
+    }
     str= vstr[ivstr];
     end= str.length();
     pos= str.find_first_of(' ');
@@ -4266,28 +4307,36 @@ void FieldDialog::readLog(const vector<miString>& vstr,
 	// update options from setup, if necessary
         vector<ParsedCommand> vpopt= cp->parse( sopts );
         vector<ParsedCommand> vplog= cp->parse( fopts );
-	nopt= vpopt.size();
-	nlog= vplog.size();
-	changed= false;
-	for (int i=0; i<nopt; i++) {
-	  int j=0;
-	  while (j<nlog && vplog[j].key!=vpopt[i].key) j++;
-	  if (j<nlog) {
-	    if (vplog[j].allValue!=vpopt[i].allValue){
-	      cp->replaceValue(vpopt[i],vplog[j].allValue,-1);
-	      changed= true;
-	    }
-	  }
-	}
-	for (int i=0; i<nlog; i++) {
-	  int j=0;
-	  while (j<nopt && vpopt[j].key!=vplog[i].key) j++;
-	  if (j==nopt) {
-	    cp->replaceValue(vpopt,vplog[i].key,vplog[i].allValue);
-	    changed= true;
-	  }
-	}
-        if (changed) fieldOptions[fieldname.downcase()]= cp->unParse(vpopt);
+        nopt= vpopt.size();
+        nlog= vplog.size();
+        changed= false;
+        for (int i=0; i<nopt; i++) {
+          int j=0;
+          while (j<nlog && vplog[j].key!=vpopt[i].key) j++;
+          if (j<nlog) {
+            if (vplog[j].allValue!=vpopt[i].allValue){
+              cp->replaceValue(vpopt[i],vplog[j].allValue,-1);
+              changed= true;
+            }
+          }
+        }
+        for (int i=0; i<nlog; i++) {
+          int j=0;
+          while (j<nopt && vpopt[j].key!=vplog[i].key) j++;
+          if (j==nopt) {
+            cp->replaceValue(vpopt,vplog[i].key,vplog[i].allValue);
+            changed= true;
+          }
+        }
+        if (changed) {
+          if ( editOptions ) {
+            cerr <<"EDIT:"<<cp->unParse(vpopt)<<endl;
+            editFieldOptions[fieldname.downcase()]= cp->unParse(vpopt);
+          } else {
+            fieldOptions[fieldname.downcase()]= cp->unParse(vpopt);
+          }
+        }
+
       }
     }
   }
@@ -4758,13 +4807,20 @@ void FieldDialog::resetOptions()
 }
 
 
-miString FieldDialog::getFieldOptions(const miString& fieldName, bool reset) const
+miString FieldDialog::getFieldOptions(const miString& fieldName, bool reset, bool edit) const
 {
   miString fieldname= fieldName.downcase();
 
   map<miString,miString>::const_iterator pfopt;
 
   if (!reset) {
+    if (edit) {
+    // try private profet options
+      pfopt= editFieldOptions.find(fieldname);
+      if (pfopt!=editFieldOptions.end())
+      return pfopt->second;
+    }
+
     // try private options used
     pfopt= fieldOptions.find(fieldname);
     if (pfopt!=fieldOptions.end())
@@ -5022,8 +5078,10 @@ void FieldDialog::fieldEditUpdate(miString str) {
       map<miString,miString>::const_iterator pfo;
       sf.modelName= modelname;
       sf.fieldName= fieldname;
-      if ((pfo=fieldOptions.find(fieldname.downcase()))!=fieldOptions.end()) {
-	sf.fieldOpts= pfo->second;
+      if ((pfo=editFieldOptions.find(fieldname.downcase()))!=editFieldOptions.end()) {
+        sf.fieldOpts= pfo->second;
+      } else if ((pfo=fieldOptions.find(fieldname.downcase()))!=fieldOptions.end()) {
+        sf.fieldOpts= pfo->second;
       }
     }
 
@@ -5071,12 +5129,14 @@ void FieldDialog::fieldEditUpdate(miString str) {
     for (i=n; i>numEditFields; i--)
       selectedFields[i]= selectedFields[i-1];
     selectedFields[numEditFields]= sf;
-    selectedFields[numEditFields].fieldOpts
-      =getFieldOptions(selectedFields[numEditFields].fieldName,false);
 
     miString text= editName + " " + sf.fieldName;
     selectedFieldbox->insertItem(numEditFields,QString(text.c_str()));
     selectedFieldbox->setCurrentRow(numEditFields);
+    selectedFields[numEditFields].fieldOpts
+      =getFieldOptions(selectedFields[numEditFields].fieldName,
+		       false,
+		       selectedFields[numEditFields].inEdit);
     numEditFields++;
 
     updateTime();
