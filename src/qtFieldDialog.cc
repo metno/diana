@@ -4288,7 +4288,6 @@ void FieldDialog::readLog(const vector<miString>& vstr,
   for (; ivstr<nvstr; ivstr++) {
     if (vstr[ivstr].substr(0,4)=="====") break;
     if ( vstr[ivstr] == "--- EDIT ---") {
-      cerr <<"--- EDIT ---"<<endl;
       editOptions = true;
       continue;
     }
@@ -4330,7 +4329,6 @@ void FieldDialog::readLog(const vector<miString>& vstr,
         }
         if (changed) {
           if ( editOptions ) {
-            cerr <<"EDIT:"<<cp->unParse(vpopt)<<endl;
             editFieldOptions[fieldname.downcase()]= cp->unParse(vpopt);
           } else {
             fieldOptions[fieldname.downcase()]= cp->unParse(vpopt);
@@ -5056,12 +5054,12 @@ void FieldDialog::fieldEditUpdate(miString str) {
     miString fieldname;
     if (vstr.size()>=2) {
       // new edit field
-      modelname= vstr[0];
-      fieldname= vstr[1];
+      modelname= vstr[0].downcase();
+      fieldname= vstr[1].downcase();
       for (i=0; i<n; i++) {
         if (!selectedFields[i].inEdit) {
-	  if (selectedFields[i].modelName==modelname &&
-              selectedFields[i].fieldName==fieldname) break;
+	  if (selectedFields[i].modelName.downcase()==modelname &&
+              selectedFields[i].fieldName.downcase()==fieldname) break;
 	}
       }
       if (i<n) {
@@ -5133,10 +5131,12 @@ void FieldDialog::fieldEditUpdate(miString str) {
     miString text= editName + " " + sf.fieldName;
     selectedFieldbox->insertItem(numEditFields,QString(text.c_str()));
     selectedFieldbox->setCurrentRow(numEditFields);
-    selectedFields[numEditFields].fieldOpts
-      =getFieldOptions(selectedFields[numEditFields].fieldName,
-		       false,
-		       selectedFields[numEditFields].inEdit);
+    if ( !sf.editPlot ) {
+      selectedFields[numEditFields].fieldOpts
+	=getFieldOptions(selectedFields[numEditFields].fieldName,
+			 false,
+			 selectedFields[numEditFields].inEdit);
+    }
     numEditFields++;
 
     updateTime();
