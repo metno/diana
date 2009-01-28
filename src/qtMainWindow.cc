@@ -1633,6 +1633,9 @@ bool DianaMainWindow::initProfet(){
         fm,SLOT(updateModels()) );
     connect( profetGUI, SIGNAL(forceDisconnect(bool)),
         this, SLOT(forceProfetDisconnect(bool)));
+    connect( profetGUI, SIGNAL(getFieldPlotOptions(map< miString, map<miString,miString> >&)),
+        this,SLOT(getFieldPlotOptions(map< miString, map<miString,miString> >&)));
+
     QApplication::restoreOverrideCursor();
     return true;
   }catch(Profet::ServerException & se){
@@ -1762,6 +1765,8 @@ void DianaMainWindow::toggleProfetGUI(){
   profetGUI->setVisible(turnOn);
   // Paint mode should not be possible when Profet is on
   togglePaintModeAction->setEnabled(!turnOn);
+
+  profetGUI->setParamColours();
 #endif
 }
 
@@ -1812,6 +1817,13 @@ bool DianaMainWindow::ProfetRightMouseClicked(float map_x,
   }
 #endif
   return false;
+}
+
+void DianaMainWindow::getFieldPlotOptions(map< miString, map<miString,miString> >& options)
+{
+  if (fm){
+    fm->getEditPlotOptions(options);
+  }
 }
 
 

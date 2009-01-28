@@ -39,6 +39,7 @@
 #include <profet/fetSession.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
+#include <diField/diColour.h>
 #include <vector>
 #include <map>
 
@@ -185,7 +186,14 @@ public:
 class FetObjectTableModel : public QAbstractTableModel {
   Q_OBJECT
 public:
-  enum CellType {CURRENT_CELL,EMPTY_CELL,WITH_DATA_CELL,UNREAD_DATA_CELL};
+  enum CellType {
+    CURRENT_CELL, EMPTY_CELL, WITH_DATA_CELL, UNREAD_DATA_CELL
+  };
+  enum HeaderDisplayType {
+    PARAM_ICON = 1,
+    PARAM_COLOUR_GRADIENT = 2,
+    PARAM_COLOUR_RECT = 4
+  };
 private:
   vector<fetObject::Signature> objects;
   vector<miString> parameters;
@@ -197,6 +205,8 @@ private:
   map<miTime,int> timeIndexMap;
   // map< timeIndex, map<paramIndex, signatureIndex> >
   map< int, map< int, vector< int > > > signatureIndexMap;
+  map<miString,Colour> parameterColours;
+  int headerDisplayMask;
 
   // const access to signatureIndexMap
   vector<int> getObjectIndexList(int timeIndex, int paramIndex) const;
@@ -205,7 +215,7 @@ private:
       const miTime & sessionRefTime) const;
 
 public:
-  FetObjectTableModel(QObject * parent): QAbstractTableModel(parent){
+  FetObjectTableModel(QObject * parent): QAbstractTableModel(parent), headerDisplayMask(PARAM_ICON){
     lastSelected = index(0,0);
   }
   int rowCount(const QModelIndex &parent = QModelIndex()) const{
@@ -235,6 +245,8 @@ public:
   void clearModel();
   void customEvent(QEvent * e);
   QModelIndex getModelIndex(miTime time, miString param);
+  void setParamColours(map<miString,Colour>& paramCol);
+  void setHeaderDisplayMask(int mask);
 };
 
 }

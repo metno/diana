@@ -31,6 +31,7 @@
 #include "qtImageGallery.h"
 #include <QIcon>
 #include <QPixmap>
+#include <QLinearGradient>
 #include <fet_object_normal.xpm>
 #include <fet_object_tmp.xpm>
 #include <fet_object_wind.xpm>
@@ -84,16 +85,17 @@ QRgb UserListModel::getColorByIndex(int index) {
   else return qRgb(0,0,0);
 }
 
-  QIcon UserListModel::getUserIcon(const PodsUser& user){
-    QtImageGallery gallery;
-    miString image_name = "avatar_" + user.name;
-    QImage image;
-    if ( gallery.Image(image_name, image) ){
-      return QIcon(QPixmap::fromImage(image));
-    } else {
-      return QIcon(getUserIcon(user.iconIndex));
-    }
+QIcon UserListModel::getUserIcon(const PodsUser& user)
+{
+  QtImageGallery gallery;
+  miString image_name = "avatar_" + user.name;
+  QImage image;
+  if (gallery.Image(image_name, image)) {
+    return QIcon(QPixmap::fromImage(image));
+  } else {
+    return QIcon(getUserIcon(user.iconIndex));
   }
+}
 
 
 QVariant UserListModel::data(const QModelIndex &index, int role) const {
@@ -101,7 +103,7 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
   if (index.row() >= users.size())
     return QVariant();
-  
+
   if (role == Qt::DisplayRole){
     QString label(users[index.row()].name.cStr());
     label.append(" : ");
@@ -330,12 +332,12 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
     miString objname = objects[index.row()].name();
     miTime edittime  = objects[index.row()].editTime();
     QString str = QString("%1: %2 - %3").arg(user.cStr()).arg(objname.cStr()).arg(edittime.isoTime().cStr());
-    return str; //QString(objects[index.row()].id().cStr());
+    return str;
   } else if (role == Qt::DecorationRole) {
     miString param = objects[index.row()].parameter();
     if (param == "MSLP")
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
-    else if (param == "T.2M")
+    else if (param.contains("T.2M"))
       return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
     else if (param.contains("VIND"))
       return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
@@ -407,6 +409,10 @@ void FetObjectListModel::clearModel(){
 
 //  *** FetObjectTableModel ***
 
+void FetObjectTableModel::setHeaderDisplayMask(int mask){
+  headerDisplayMask = mask;
+  emit headerDataChanged(Qt::Vertical,0,parameters.size()-1);
+}
 
 QVariant FetObjectTableModel::headerData(int section,
     Qt::Orientation orientation, int role) const {
@@ -417,26 +423,51 @@ QVariant FetObjectTableModel::headerData(int section,
 
   if (role == Qt::DisplayRole) {
     if (orientation == Qt::Vertical)
-      return QString(parameters[section].cStr());
+    return QString(parameters[section].cStr());
     else
-      return QString(times[section].format("%a %k").cStr());
+    return QString(times[section].format("%a %k").cStr());
+
   } else if (role == Qt::DecorationRole && orientation == Qt::Vertical) {
     miString param = parameters[section];
-    if (param == "MSLP")
+    if (headerDisplayMask & PARAM_COLOUR_RECT) {
+      if (parameterColours.count(param.downcase())> 0) {
+        Colour col = parameterColours.at(param.downcase());
+        QColor colour = QColor(col.R(),col.G(),col.B(),col.A());
+        QPixmap a(50,50);
+        a.fill(colour);
+        return QVariant(QIcon(a));
+      }
+    } else if (headerDisplayMask & PARAM_ICON) {
+      if (param == "MSLP")
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
-    else if (param == "T.2M")
+      else if (param.contains("T.2M"))
       return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
-    else if (param.contains("VIND"))
+      else if (param.contains("VIND"))
       return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
-    else if (param.contains("SKYDEKKE"))
+      else if (param.contains("SKYDEKKE"))
       return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
-    else if (param.contains("NEDBØR"))
+      else if (param.contains("NEDBØR"))
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
-    else if (param.contains("FOG"))
+      else if (param.contains("FOG"))
       return QVariant(QIcon(QPixmap(fet_object_fog_xpm)));
-    else if (param.contains("Wave"))
+      else if (param.contains("Wave"))
       return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
-    return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
+      return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
+    }
+
+  } else if (role == Qt::BackgroundRole && orientation == Qt::Vertical) {
+    if (headerDisplayMask & PARAM_COLOUR_GRADIENT) {
+      miString param = parameters[section].downcase();
+      if (parameterColours.count(param)> 0) {
+        Colour col = parameterColours.at(param);
+        QColor colour = QColor(col.R(),col.G(),col.B(),col.A());
+
+        QLinearGradient linearGrad(0,0,100,0);
+        linearGrad.setColorAt(0, Qt::white);
+        linearGrad.setColorAt(1, colour);
+        return QBrush(linearGrad);
+      }
+    }
   }
   return QVariant();
 }
@@ -713,9 +744,16 @@ QModelIndex FetObjectTableModel::getModelIndex(miTime time, miString param) {
   if (paramIndexMap.count(param) && timeIndexMap.count(time)){
     return index(paramIndexMap[param], timeIndexMap[time]);
   }
-  
+
   return QModelIndex();
 
 }
+
+void FetObjectTableModel::setParamColours(map<miString,Colour>& paramCol){
+  parameterColours = paramCol;
+  emit headerDataChanged(Qt::Vertical,0,parameters.size()-1);
+  //reset();
+}
+
 
 }

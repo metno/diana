@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -35,27 +35,28 @@
 #include <QSplitter>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QWindowsStyle>
 
 
-ProfetSessionDialog::ProfetSessionDialog( QWidget* parent) 
+ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   : QDialog(parent )
   {
   setWindowTitle(tr("Edit Field Session"));
   setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-  
+
   QVBoxLayout * mainLayout   = new QVBoxLayout(this);
   mainLayout->setMargin(2);
   QHBoxLayout * titleLayout  = new QHBoxLayout();
   QVBoxLayout * centerLayout = new QVBoxLayout();
   QHBoxLayout * buttonLayout = new QHBoxLayout();
-  
+
   mainLayout->addLayout(titleLayout);
   mainLayout->addLayout(centerLayout);
   mainLayout->addLayout(buttonLayout);
 
   QLabel * qls    = new QLabel("Session");
   sessionComboBox = new SessionComboBox();
-  
+
   animationCheckBox = new QCheckBox(tr("Time follows map"));
   animationCheckBox->setChecked(true);
 
@@ -63,18 +64,19 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   titleLayout->addWidget(sessionComboBox);
   titleLayout->addStretch(1);
   titleLayout->addWidget(animationCheckBox);
-  
+
   QSplitter *split = new QSplitter(Qt::Vertical,this);
   // stretch table only
   split->setStretchFactor(0,2);
   split->setStretchFactor(1,1);
   centerLayout->addWidget(split);
-  
+
   // Table
   table = new FetObjectTableView(split);
   if(table){
     table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    //table->verticalHeader()->setStyle(new QWindowsStyle); // necessary if using QColorGradient on header
     table->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
     table->setSelectionMode( QAbstractItemView::ContiguousSelection); // QAbstractItemView::SingleSelection
     table->setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -82,24 +84,24 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
 
   QSplitter *h_split = new QSplitter(Qt::Horizontal,split);
   chatWidget = new ProfetChatWidget(h_split);
-  
+
   // Object Panel
   QWidget     *objectWidget      = new QWidget(h_split);
   QVBoxLayout *objectTitleLayout = new QVBoxLayout();
 
   objectTitleLayout->setMargin(0);
-  objectTitleLayout->addWidget(new QLabel(tr("Objects")),0); 
+  objectTitleLayout->addWidget(new QLabel(tr("Objects")),0);
 
   QHBoxLayout * objectWidgetLayout = new QHBoxLayout();
   objectList                       = new FetObjectListView(this);
   QWidget *objectButtonWidget      = new QWidget();
-  
+
   objectTitleLayout->addLayout(objectWidgetLayout,1);
   objectWidgetLayout->addWidget(objectList,1);
   objectWidgetLayout->addWidget(objectButtonWidget,0);
-  
+
   QVBoxLayout *objectButtonWidgetLayout = new QVBoxLayout();
-  
+
   viewObjectButton   = new QPushButton(tr("View"));
   viewObjectButton->setCheckable(true);
   newObjectButton    = new QPushButton(tr("New"));
@@ -115,28 +117,26 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
 
   objectButtonWidget->setLayout(objectButtonWidgetLayout);
   objectWidget->setLayout(objectTitleLayout);
-  
-  //Buttons
-  reconnectButton = new QPushButton(tr("Reconnect..."),this);
-//  updateButton = new QPushButton(tr("Update"), this );
-  closeButton  = new QPushButton(tr("Close"),  this );
 
+  // Buttons
+  updateButton = new QPushButton(tr("Update"), this );
+  updateButton->setDefault(false);
+
+  reconnectButton = new QPushButton(tr("Reconnect..."),this);
   reconnectButton->setDefault(false);
-//  updateButton->setDefault(false);
+
+  closeButton = new QPushButton(tr("Close"),  this );
   closeButton->setDefault(false);
 
-//  updateButton->setEnabled(false);
-
   buttonLayout->addWidget(new QLabel("", this));
+  buttonLayout->addWidget(updateButton);
   buttonLayout->addWidget(reconnectButton);
-  buttonLayout->addWidget(new QLabel(""));  
-//  buttonLayout->addWidget(updateButton);
+  buttonLayout->addWidget(new QLabel(""));
   buttonLayout->addWidget(closeButton);
 
   enableObjectButtons(true,false,true);
   connectSignals();
 }
-
 
 void FetObjectTableView::selectionChanged ( const QItemSelection & selected,
 					    const QItemSelection & deselected ){
@@ -169,8 +169,8 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(closePerformed()));
   connect(reconnectButton,SIGNAL(clicked()),
       this,SIGNAL(doReconnect()));
-//  connect(updateButton,SIGNAL(clicked()),
-//      this,SIGNAL(updateActionPerformed()));
+  connect(updateButton,SIGNAL(clicked()),
+      this,SIGNAL(updateActionPerformed()));
   connect(objectList,SIGNAL(activated(const QModelIndex &)),
       this,SIGNAL(objectSelected(const QModelIndex &)));
   connect(chatWidget,SIGNAL(sendMessage(const QString &)),
@@ -236,8 +236,8 @@ QModelIndex ProfetSessionDialog::getCurrentObjectIndex(){
   return objectList->currentIndex();
 }
 
-void ProfetSessionDialog::showMessage(const Profet::InstantMessage & msg){ 
-  chatWidget->showMessage(msg); 
+void ProfetSessionDialog::showMessage(const Profet::InstantMessage & msg){
+  chatWidget->showMessage(msg);
 }
 
 
@@ -254,7 +254,7 @@ void ProfetSessionDialog::enableObjectButtons(bool enableNewButton,
   editObjectButton->setEnabled(enableModifyButtons);
   deleteObjectButton->setEnabled(enableModifyButtons);
   timesmoothButton->setEnabled(enableModifyButtons);
-  
+
   if(table){
     table->setEnabled(enableTable);
   }
@@ -270,7 +270,7 @@ void ProfetSessionDialog::setCurrentSession(const QModelIndex & index){
 
 void FetObjectListView::currentChanged ( const QModelIndex & current,
       const QModelIndex & previous ){
-  emit activated(current); 
+  emit activated(current);
 }
 
 

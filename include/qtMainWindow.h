@@ -105,7 +105,7 @@ class DianaMainWindow: public QMainWindow
 {
   Q_OBJECT
 public:
-  DianaMainWindow(Controller*, 
+  DianaMainWindow(Controller*,
 		  const miString ver_str,
 		  const miString buils_str,
 		  bool profetEnabled=false);
@@ -242,8 +242,7 @@ private slots:
   void setPaintMode(bool);
   void plotProfetMap(bool objectsOnly);
   void forceProfetDisconnect(bool disableGuiOnly);
-  bool ProfetUpdatePlot(const miTime& t);
-  bool ProfetRightMouseClicked(float map_x, float map_y, int globalX, int globalY);
+  void getFieldPlotOptions(map< miString, map<miString,miString> >&);
 
 private:
   bool enableProfet;
@@ -368,7 +367,7 @@ private:
 //  EditTimeDialog    * editTimeDialog;
   DianaProfetGUI	* profetGUI;
   PaintToolBar	    * paintToolBar;
-  
+
   bool                markTrajPos; //left mouse click -> mark trajectory position
   VprofWindow       * vpWindow;
   VcrossWindow      * vcWindow;
@@ -457,9 +456,12 @@ private:
   void vprofStartup();
   void vcrossStartup();
   void spectrumStartup();
+  // Profet methods
   bool initProfet();
   bool profetConnect();
   void profetDisconnect();
+  bool ProfetUpdatePlot(const miTime& t);
+  bool ProfetRightMouseClicked(float map_x, float map_y, int globalX, int globalY);
 };
 
 

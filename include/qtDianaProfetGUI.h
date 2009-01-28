@@ -81,7 +81,7 @@ private:
   fetSession currentSession;
   QMenu * popupMenu;
   miLogFile logfile;
-
+  map<miString,Colour> parameterColours;
 
   ProfetTimeSmoothDialog* timesmoothdialog;
 
@@ -214,6 +214,10 @@ public:
 
   bool selectTime(miTime time);
 
+  /**
+  * reset colours used for each parameter in tables and overview polygons
+  */
+  void setParamColours();
 
 private slots:
   // EditObjectDialog
@@ -247,7 +251,7 @@ private slots:
   void deleteObject();
   void hideProfetPerformed();
   void doReconnect();
-//  void doUpdate();
+  void doUpdate();
   void showObjectOverview(const QList<QModelIndex> &);
   void toggleObjectOverview(bool turnon, miString par, miTime time);
 
@@ -279,6 +283,7 @@ signals:
   void prepareAndPlot();
   void forceDisconnect(bool disableGuiOnly);
 
+  void getFieldPlotOptions(map< miString, map<miString,miString> >&);
 };
 
 #endif /*QTDIANAPROFETGUI_H_*/

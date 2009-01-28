@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -63,17 +63,17 @@ private slots:
   void handleEmptySelection(const QString & text){
     cerr << "******************* handleEmptySelection: " << text.latin1() << endl;
   }
-  
+
 };
 
 class ProfetSessionDialog: public QDialog{
   Q_OBJECT
-  
+
 private:
   QComboBox * sessionComboBox;
   QCheckBox * animationCheckBox;
   QPushButton * reconnectButton;
-//  QPushButton * updateButton;
+  QPushButton * updateButton;
   QPushButton * closeButton;
   FetObjectListView * objectList;
   QPushButton * viewObjectButton;
@@ -88,19 +88,19 @@ private:
 
   ProfetChatWidget * chatWidget;
   FetObjectTableView * table;
-  
+
   miString currentObject;
-  
+
   /// Connecting all signals and slots
   void connectSignals();
 //  bool setSelectedObject(const miString &);
-  
+
 protected:
   void closeEvent( QCloseEvent* );
-  
+
 public:
   ProfetSessionDialog(QWidget* parent);
-  
+
   void setModel(const fetModel & model);
   void setSessionModel(QAbstractItemModel * sessionModel);
   void setUserModel(QAbstractItemModel * userModel);
@@ -112,7 +112,7 @@ public:
   void enableObjectButtons(bool enableNewButton,
 			   bool enableModifyButtons,
 			   bool enableTable);
-  
+
   void selectDefault();
   void selectParameterAndTime(const QModelIndex & index);
   int getCurrentSessionIndex(){return sessionComboBox->currentIndex();}
@@ -121,10 +121,9 @@ public:
   void setCurrentSession(const QModelIndex & index);
 
   void showMessage(const Profet::InstantMessage & msg);
-  
+
   void customEvent(QEvent * e);
 
-  
 public slots:
   void hideViewObjectDialog();
   void printSize(const QModelIndex &);
@@ -141,7 +140,7 @@ signals:
   void startTimesmooth();
   void closePerformed();
   void forcedClosePerformed(bool disableGuiOnly);
-//  void updateActionPerformed();
+  void updateActionPerformed();
   void doReconnect();
   void showObjectOverview(const QList<QModelIndex> &);
 };
@@ -161,7 +160,7 @@ public:
   FetObjectTableView(QWidget * parent) : QTableView(parent){}
   void currentChanged ( const QModelIndex & current, const QModelIndex & previous ){
     if(current.isValid())
-      emit activated(current); 
+      emit activated(current);
   }
 protected:
   void selectionChanged ( const QItemSelection & selected, const QItemSelection & deselected );
