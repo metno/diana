@@ -5054,12 +5054,12 @@ void FieldDialog::fieldEditUpdate(miString str) {
     miString fieldname;
     if (vstr.size()>=2) {
       // new edit field
-      modelname= vstr[0].downcase();
-      fieldname= vstr[1].downcase();
+      modelname= vstr[0];
+      fieldname= vstr[1];
       for (i=0; i<n; i++) {
         if (!selectedFields[i].inEdit) {
-	  if (selectedFields[i].modelName.downcase()==modelname &&
-              selectedFields[i].fieldName.downcase()==fieldname) break;
+	  if (selectedFields[i].modelName.downcase()==modelname.downcase() &&
+              selectedFields[i].fieldName.downcase()==fieldname.downcase()) break;
 	}
       }
       if (i<n) {

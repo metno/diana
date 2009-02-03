@@ -533,8 +533,8 @@ bool FieldPlotManager::makeFields(const miString& pin,
 			       levelName,
 			       idnumName,
 			       hourDiff,
-			       toCache);
-    
+			        FieldManager::READ_RESULT);
+
     if (!ok) return false;
 
     makeFieldText(fout,plotName,levelSpecified,idnumSpecified);
