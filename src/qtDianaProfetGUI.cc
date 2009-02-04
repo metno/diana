@@ -549,6 +549,7 @@ void DianaProfetGUI::saveObject()
     setEditObjectDialogVisible(false);
     return;
   }
+  currentObject.setReason(editObjectDialog->getReason());
   //Save current object
   currentObjectMutex.lock();
   fetObject safeCopy = currentObject;
@@ -557,7 +558,6 @@ void DianaProfetGUI::saveObject()
   if (editObjectDialog->showingNewObject()) {
     areaManager->changeAreaId("newArea", safeCopy.id());
   }
-  currentObject.setReason(editObjectDialog->getReason());
   try {
     editObjectDialog->setLastSavedPolygonName(safeCopy.polygonName());
     controller.saveObject(safeCopy);
