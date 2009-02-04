@@ -59,6 +59,11 @@ struct SliderValues{
 */
 struct SatFileInfo{
   miString name;
+  miString formattype; //mitiff or hdf5
+  miString metadata;
+  miString channelinfo;
+  miString paletteinfo;
+  int hdf5type;
   miTime time;
   miClock clock;
   int day;
@@ -67,6 +72,7 @@ struct SatFileInfo{
   miString default_channel;
   bool palette; //palette or rgb file
   vector <Colour> col;    //vector of colours used
+  miString fileformat;
 };
 
 /**
@@ -79,6 +85,7 @@ struct SatDialogInfo{
     miString name;            ///< filename
     vector<miString> channel; ///< channels available
     miString default_channel; ///< default channel
+    miString fileformat;      ///< file format
   };
 
   /// main image info
@@ -88,11 +95,11 @@ struct SatDialogInfo{
     miString default_file;   ///< default filename
   };
 
-  vector<Image> image;   ///< defined Images
-  SliderValues cut;      ///< rgb cutoff value for histogram stretching
-  SliderValues alphacut;  ///< rgb cutoff value for alpha blending
-  SliderValues alpha;     ///< alpha blending value
-  SliderValues timediff; ///< max time difference
+  vector<Image> image;       ///< defined Images
+  SliderValues cut;          ///< rgb cutoff value for histogram stretching
+  SliderValues alphacut;     ///< rgb cutoff value for alpha blending
+  SliderValues alpha;        ///< alpha blending value
+  SliderValues timediff;     ///< max time difference
 };
 
 
@@ -180,7 +187,6 @@ struct ObsDialogInfo{
     miString name;
     vector<miString> criteria;
   };
-
   /// observation data type
   struct DataType {
     miString name;

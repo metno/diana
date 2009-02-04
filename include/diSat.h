@@ -32,10 +32,15 @@
 #ifndef diSat_h
 #define diSat_h
 
+//#ifndef DEBUGPRINT
+//  #define DEBUGPRINT
+//#endif
+
 #include <diArea.h>
 #include <miString.h>
 #include <miTime.h>
 #include <diCommonTypes.h>
+
 
 using namespace std;
 
@@ -51,6 +56,11 @@ public:
   bool approved;        ///< approved for plotting
   miString satellite;   ///< main product name
   miString filetype;    ///< subproduct
+  miString formatType;  ///< filetype (mitiff or hdf5)
+  miString metadata;
+  miString channelInfo;
+  miString paletteinfo;
+  int hdf5type;
   vector<miString> vch; ///< name of channels selected
   miString filename;    ///< explicit selection of file
   miString actualfile;  ///< actual filename used
@@ -112,7 +122,8 @@ public:
   int index[maxch];     ///< index of plotted channels
   int no;               ///< no of plotted channels
   int rgbindex[3];      ///< channelindex for rgb-operations
-  unsigned char* rawimage[maxch]; ///< raw images
+  unsigned char* rawimage[maxch]; ///< raw image
+  long* origimage[3]; ///< original image for temperature display images
   int rawchannels[maxch];         ///< raw images channel numbers
   
   int calibidx;         ///< channel to use in values routine

@@ -23,8 +23,12 @@ DEFINES += -DWDB
 WDB_LIB=-ldiWdb
 WDB_EXTRA_LIB=	-lboost_thread \
                 $(shell pkg-config --libs libpqxx) \
-                -L$(shell pg_config --libdir)  -lpq \
+                -L$(shell pg_config --libdir) -lpq \
                 -lboost_date_time
+endif
+
+ifdef HDF5FILE
+DEFINES+=-DHDF5FILE
 endif
 
 ifdef OMNIORB_INST
@@ -56,6 +60,7 @@ INCLUDE= -I. \
 	 $(FTINCLUDE) \
 	 $(SHAPEINCLUDE) \
 	 $(XINCLUDE) \
+	 $(HDF5DIR) \
 	 $(OMNI_INCLUDE)
 
 

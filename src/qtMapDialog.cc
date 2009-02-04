@@ -705,7 +705,8 @@ void MapDialog::selectedMapboxClicked( QListWidgetItem* item ){
   int index = selectedMapbox->currentRow();
   activemap=selectedmaps[index];
 
-  bool island= m_MapDI.maps[activemap].type=="triangles";
+  bool island= (m_MapDI.maps[activemap].type=="triangles" 
+    || m_MapDI.maps[activemap].type=="shape");
 
   bool ison= m_MapDI.maps[activemap].contour.ison;
   int m_colIndex =  getIndex( cInfo, m_MapDI.maps[activemap].contour.linecolour );

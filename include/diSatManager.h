@@ -41,6 +41,21 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+
+
+//#ifndef HDF5_INC
+//#define HDF5_INC
+//#endif
+
+//#ifndef DEBUGPRINT
+//#define DEBUGPRINT
+//#endif
+
+
+//#ifdef HDF5_INC
+
+//#endif
+
 /**
 
   \brief Managing satellite and radar images
@@ -59,6 +74,11 @@ private:
     vector<miString> pattern;
     vector<bool> archive;
     vector<TimeFilter> filter;
+    miString formattype; //holds mitiff or hdf5
+    miString metadata;
+    miString channelinfo;
+    miString paletteinfo;
+    int hdf5type;
     vector<SatFileInfo> file;
     vector<miString> channel;
     vector<Colour> colours;
@@ -71,6 +91,7 @@ private:
     bool archiveFiles;
     bool mosaic; //ok to make mosaic
   };
+    
 
   map<miString, map<miString,subProdInfo> > Prod;
   SatDialogInfo Dialog;

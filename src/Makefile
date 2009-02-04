@@ -20,6 +20,10 @@ diVcrossManager.o diVcrossPlot.o diVcrossOptions.o diVcrossFile.o \
 diSpectrumManager.o diSpectrumPlot.o diSpectrumOptions.o diSpectrumFile.o \
 diShapeObject.o diGridArea.o diGridAreaManager.o 
 
+ifdef HDF5FILE
+CCOBJ += diHDF5.o
+endif 
+
 ifndef NOVIDEOEXPORT
 CCOBJ += MovieMaker.o
 endif

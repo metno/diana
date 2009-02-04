@@ -185,7 +185,7 @@ StationPlot::StationPlot(const miString& commondesc,
 
 void StationPlot::init(){
   //coordinates to be plotted
-  PI       = acosf(-1.0);
+  pi       = acosf(-1.0);
   show();
   useImage=true;
   useStationNameNormal=false;
@@ -280,8 +280,8 @@ bool StationPlot::plot(){
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glBegin(GL_POLYGON);
   for(int i=0;i<100;i++){
-    xc = radius*cos(i*2*PI/100.0);
-    yc = radius*sin(i*2*PI/100.0);
+    xc = radius*cos(i*2*pi/100.0);
+    yc = radius*sin(i*2*pi/100.0);
     glVertex2f(xc,yc);
   }
   glEnd();
@@ -539,7 +539,7 @@ bool StationPlot::changeProjection()
    
   for (int i = 0;i<npos;i++){
     if(stations[i]->image == "wind"){
-      int angle = (int)(atan2f(u[i],v[i])*180/PI);
+      int angle = (int)(atan2f(u[i],v[i])*180/pi);
       int dd = stations[i]->north + angle;
       if( dd<1  ) dd += 360;
       if( dd>360) dd -= 360;
@@ -609,7 +609,8 @@ vector<miString> StationPlot::findStation(int x, int y, bool add)
 //   }
 
 #ifdef DEBUGPRINT
-  cerr << "findStation returning" << stationstring << endl;
+  for (int q = 0; q < stationstring.size(); q++)
+  cerr << "findStation returning" << stationstring[q] << endl;
 #endif
   return stationstring;
 }
@@ -940,7 +941,7 @@ bool StationPlot::stationCommand(const miString& command,
 	    u[0]= 0;
 	    v[0]= 10;
 	    gc.geov2xy(area,num,xx,yy,u,v);
-	    int angle = (int)(atan2f(u[0],v[0])*180/PI);
+	    int angle = (int)(atan2f(u[0],v[0])*180/pi);
 	    dd += angle;
 	    if( dd<1  ) dd += 360;
 	    if( dd>360) dd -= 360;
@@ -1125,8 +1126,8 @@ void StationPlot::glPlot(thingToPlot tp,float x, float y, float w, float h){
     //Circle
     glBegin(GL_LINE_LOOP);
     for(int i=0;i<100;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*pi/100.0);
+      yc = radius*sin(i*2*pi/100.0);
       glVertex2f(x+xc,y+yc);     
     }
     glEnd();
@@ -1149,8 +1150,8 @@ void StationPlot::glPlot(thingToPlot tp,float x, float y, float w, float h){
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBegin(GL_POLYGON);
     for(int i=0;i<100;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*pi/100.0);
+      yc = radius*sin(i*2*pi/100.0);
       glVertex2f(x+xc,y+yc);     
     }
     glDisable(GL_BLEND);
@@ -1185,8 +1186,8 @@ void StationPlot::plotWind(int ii, float x, float y,
     //Circle
     glBegin(GL_LINE_LOOP);
     for(int i=0;i<100;i++){
-      xc = cos(i*2*PI/100.0);
-      yc = sin(i*2*PI/100.0);
+      xc = cos(i*2*pi/100.0);
+      yc = sin(i*2*pi/100.0);
       glVertex2f(xc,yc);     
     }
     glEnd();

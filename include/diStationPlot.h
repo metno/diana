@@ -202,7 +202,7 @@ private:
   int editIndex; //last selected editStation
   int index; //last selected
 
-  float PI;
+  float pi;
   GLuint circle;
 
 

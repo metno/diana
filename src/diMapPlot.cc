@@ -1,33 +1,33 @@
 /*
-  Diana - A Free Meteorological Visualisation Tool
+ Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+ $Id$
 
-  Copyright (C) 2006 met.no
+ Copyright (C) 2006 met.no
 
-  Contact information:
-  Norwegian Meteorological Institute
-  Box 43 Blindern
-  0313 OSLO
-  NORWAY
-  email: diana@met.no
-  
-  This file is part of Diana
+ Contact information:
+ Norwegian Meteorological Institute
+ Box 43 Blindern
+ 0313 OSLO
+ NORWAY
+ email: diana@met.no
+ 
+ This file is part of Diana
 
-  Diana is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+ Diana is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
 
-  Diana is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-  
-  You should have received a copy of the GNU General Public License
-  along with Diana; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ Diana is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with Diana; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 #include <fstream>
 #include <diMapManager.h>
@@ -43,12 +43,14 @@ using namespace std;
 
 // static members
 map<miString,FilledMap> MapPlot::filledmaps;
-set<miString>       MapPlot::usedFilledmaps;
-
+set<miString> MapPlot::usedFilledmaps;
+map<miString,ShapeObject> MapPlot::shapemaps;
+map<miString,Area> MapPlot::shapeareas;
 
 // Default constructor
-MapPlot::MapPlot()
-  : Plot(), mapchanged(true), haspanned(false), usedrawlists(true) {
+MapPlot::MapPlot() :
+  Plot(), mapchanged(true), haspanned(false), usedrawlists(true)
+{
 #ifdef DEBUGPRINT
   cerr << "++ MapPlot::Default Constructor" << endl;
 #endif
@@ -61,62 +63,66 @@ MapPlot::MapPlot()
 }
 
 // Destructor
-MapPlot::~MapPlot(){
+MapPlot::~MapPlot()
+{
 #ifdef DEBUGPRINT
   cerr << "++ MapPlot::Destructor" << endl;
 #endif
-  if (glIsList(drawlist[0])) glDeleteLists(drawlist[0],1);
-  if (glIsList(drawlist[1])) glDeleteLists(drawlist[1],1);
-  if (glIsList(drawlist[2])) glDeleteLists(drawlist[2],1);
+  if (glIsList(drawlist[0]))
+    glDeleteLists(drawlist[0], 1);
+  if (glIsList(drawlist[1]))
+    glDeleteLists(drawlist[1], 1);
+  if (glIsList(drawlist[2]))
+    glDeleteLists(drawlist[2], 1);
 }
 
-
 /*
-  Extract plotting-parameters from PlotInfo.
-*/
-bool MapPlot::prepare(const miString& pinfo, bool ifequal){
+ Extract plotting-parameters from PlotInfo.
+ */
+bool MapPlot::prepare(const miString& pinfo, bool ifequal)
+{
   miString bgcolourname;
   Area newarea;
   bool areadef=false;
   MapInfo tmpinfo;
   MapManager mapm;
 
-  vector<miString> tokens= pinfo.split('"','"'), stokens;
+  vector<miString> tokens= pinfo.split('"', '"'), stokens;
   int n= tokens.size();
-  for (int i=0; i<n; i++){
+  for (int i=0; i<n; i++) {
     stokens= tokens[i].split('=');
-    if (stokens.size()==2){
-      if (stokens[0].upcase()=="MAP"){
- 	mapm.getMapInfoByName(stokens[1],tmpinfo);
-      } else if (stokens[0].upcase()=="BACKCOLOUR"){
-	bgcolourname= stokens[1];
-      } else if (stokens[0].upcase()=="AREA"){
-	mapm.getMapAreaByName(stokens[1],newarea);
-	areadef= true;
-      } else if (stokens[0].upcase()=="XYLIMIT"){
-	vector<miString> vstr= stokens[1].split(',');
-	if (vstr.size()>=4) {
-	  xyLimit.clear();
-	  for (int j=0; j<4; j++)
-	    xyLimit.push_back(atof(vstr[j].cStr()) - 1.0);
-	  if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
-	    xyLimit.clear();
-	}
-      } else if (stokens[0].upcase()=="XYPART"){
-	vector<miString> vstr= stokens[1].split(',');
-	if (vstr.size()>=4) {
-	  xyPart.clear();
-	  for (int j=0; j<4; j++)
-	    xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
-	  if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3])
-	    xyPart.clear();
-	}
+    if (stokens.size()==2) {
+      if (stokens[0].upcase()=="MAP") {
+        mapm.getMapInfoByName(stokens[1], tmpinfo);
+      } else if (stokens[0].upcase()=="BACKCOLOUR") {
+        bgcolourname= stokens[1];
+      } else if (stokens[0].upcase()=="AREA") {
+        mapm.getMapAreaByName(stokens[1], newarea);
+        areadef= true;
+      } else if (stokens[0].upcase()=="XYLIMIT") {
+        vector<miString> vstr= stokens[1].split(',');
+        if (vstr.size()>=4) {
+          xyLimit.clear();
+          for (int j=0; j<4; j++)
+            xyLimit.push_back(atof(vstr[j].cStr()) - 1.0);
+          if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
+            xyLimit.clear();
+        }
+      } else if (stokens[0].upcase()=="XYPART") {
+        vector<miString> vstr= stokens[1].split(',');
+        if (vstr.size()>=4) {
+          xyPart.clear();
+          for (int j=0; j<4; j++)
+            xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
+          if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3])
+            xyPart.clear();
+        }
       }
     }
   }
-  
+
   bool equal= (tmpinfo.name == mapinfo.name);
-  
+
   if (ifequal && !equal) // check if essential mapinfo remains the same
     return false;
 
@@ -124,44 +130,41 @@ bool MapPlot::prepare(const miString& pinfo, bool ifequal){
 
   if (bgcolourname.exists())
     bgcolour= bgcolourname; // static Plot member
-  if (areadef){
+  if (areadef) {
     reqarea= newarea;
   }
   areadefined= areadef;
 
   // fill in new options for mapinfo and make proper PlotOptions 
   // the different map-elements
-  mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts,
-		   llopts, ffopts);
+  mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, llopts, ffopts);
 
   // set active zorder layer
-  for (int i=0; i<3; i++){
-    isactive[i]= ((mapinfo.contour.ison && mapinfo.contour.zorder==i) ||
-		  (mapinfo.land.ison && mapinfo.land.zorder==i) ||
- 		  (mapinfo.latlon.ison && mapinfo.latlon.zorder==i) ||
-		  (mapinfo.frame.ison && mapinfo.frame.zorder==i));
+  for (int i=0; i<3; i++) {
+    isactive[i]= ((mapinfo.contour.ison && mapinfo.contour.zorder==i)
+        || (mapinfo.land.ison && mapinfo.land.zorder==i)
+        || (mapinfo.latlon.ison && mapinfo.latlon.zorder==i)
+        || (mapinfo.frame.ison && mapinfo.frame.zorder==i));
   }
-  
+
   mapchanged= true;
   return true;
 }
 
-
 // return requested area
 bool MapPlot::requestedArea(Area& rarea)
 {
-  if (areadefined){
+  if (areadefined) {
     rarea= reqarea;
   }
   return areadefined;
 }
 
-
 // static function
 bool MapPlot::checkFiles(bool first)
 {
   if (first) {
-    if (filledmaps.size()==0) 
+    if (filledmaps.size()==0)
       return false;
   } else {
     // erase the filledmaps not used
@@ -170,7 +173,7 @@ bool MapPlot::checkFiles(bool first)
     vector<miString> erasemaps;
     while (p!=filledmaps.end()) {
       if (usedFilledmaps.find(p->first)==uend)
-	erasemaps.push_back(p->first);
+        erasemaps.push_back(p->first);
       p++;
     }
     int n= erasemaps.size();
@@ -181,7 +184,6 @@ bool MapPlot::checkFiles(bool first)
   return true;
 }
 
-
 void MapPlot::markFiles()
 {
   if (mapinfo.type=="triangles") {
@@ -191,17 +193,18 @@ void MapPlot::markFiles()
   }
 }
 
-
 /*
-  Plot one layer of the map
-*/
-bool MapPlot::plot(const int zorder){
+ Plot one layer of the map
+ */
+bool MapPlot::plot(const int zorder)
+{
 #ifdef DEBUGPRINT
   cerr << "++ MapPlot::plot() ++" << endl;
 #endif
-  if (!enabled || !isactive[zorder]) return false;
+  if (!enabled || !isactive[zorder])
+    return false;
 
-  if (panning){
+  if (panning) {
     haspanned = true;
   } else if (haspanned) {
     mapchanged= true;
@@ -212,29 +215,29 @@ bool MapPlot::plot(const int zorder){
   bool makenew= false;
   bool makelist= false;
 
-  if ( !usedrawlists ) {
+  if ( !usedrawlists) {
     // do not use display lists: always make a new plot from scratch
     makenew = true;
   } else if ((dirty && !panning) || mapchanged || !glIsList(drawlist[zorder])) {
     // Making new map drawlist for this zorder
     makelist=true;
-    if (glIsList(drawlist[zorder])) glDeleteLists(drawlist[zorder],1);
+    if (glIsList(drawlist[zorder]))
+      glDeleteLists(drawlist[zorder], 1);
     drawlist[zorder] = glGenLists(1);
     glNewList(drawlist[zorder], GL_COMPILE_AND_EXECUTE);
     makenew= true;
 
-    if (mapchanged){
-      if ((zorder==2) ||
-	  (zorder==1 && !isactive[2]) ||
-	  (zorder==0 && !isactive[1] && !isactive[2]))
-	mapchanged= false;
+    if (mapchanged) {
+      if ((zorder==2) || (zorder==1 && !isactive[2]) || (zorder==0
+          && !isactive[1] && !isactive[2]))
+        mapchanged= false;
     }
     // make new plot anyway during panning
-  } else if ( dirty ){ // && mapinfo.type!="triangles"
+  } else if (dirty) { // && mapinfo.type!="triangles"
     makenew= true;
   }
 
-  if (makenew){
+  if (makenew) {
     miString mapfile;
     // diagonal in pixels
     float physdiag= sqrt(pwidth*pwidth+pheight*pheight);
@@ -243,136 +246,178 @@ bool MapPlot::plot(const int zorder){
 
     // find correct mapfile
     int n= mapinfo.mapfiles.size();
-    if (n==1){
+    if (n==1) {
       mapfile= mapinfo.mapfiles[0].fname;
     } else if (n>1) {
       int fnum= 0;
-      for (fnum=0; fnum<n; fnum++){
-	if (mapres > mapinfo.mapfiles[fnum].sizelimit)
-	  break;
+      for (fnum=0; fnum<n; fnum++) {
+        if (mapres > mapinfo.mapfiles[fnum].sizelimit)
+          break;
       }
-      if (fnum==n) fnum=n-1;
+      if (fnum==n)
+        fnum=n-1;
       mapfile= mapinfo.mapfiles[fnum].fname;
     }
 
     Colour c= contopts.linecolour;
-    if (c==backgroundColour) c= backContrastColour;
-    
-    if (mapinfo.type=="normal"){
+    if (c==backgroundColour)
+      c= backContrastColour;
+
+    if (mapinfo.type=="normal") {
       // check contours
-      if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder){
-	Projection p= area.P();
-	float gs[Projection::speclen];
-	p.Gridspec(gs);
-	float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
-	if (!pland4(mapfile,p.Gridtype(),gs,xylim,
-	            contopts.linetype, contopts.linewidth, c))
-	  cerr << "ERROR OPEN/READ " << mapfile << endl;
+      if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
+        Projection p= area.P();
+        float gs[Projection::speclen];
+        p.Gridspec(gs);
+        float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
+        if (!pland4(mapfile, p.Gridtype(), gs, xylim, contopts.linetype,
+            contopts.linewidth, c))
+          cerr << "ERROR OPEN/READ " << mapfile << endl;
       }
-      
-    } else if (mapinfo.type=="triangles"){
+
+    } else if (mapinfo.type=="triangles") {
       bool land= mapinfo.land.ison && mapinfo.land.zorder==zorder;
       bool cont= mapinfo.contour.ison && mapinfo.contour.zorder==zorder;
-      
-      if (land || cont){
-	if (filledmaps.count(mapfile)==0){
-	  filledmaps[mapfile]= FilledMap(mapfile);
-	}
-	Area fullarea(area.P(),fullrect);
-	filledmaps[mapfile].plot(fullarea,gcd,
-				 land,cont,!cont && mapinfo.contour.ison,
-				 contopts.linetype.bmap, contopts.linewidth,
-				 c.RGBA(),landopts.fillcolour.RGBA(),
-				 backgroundColour.RGBA());
+
+      if (land || cont) {
+        if (filledmaps.count(mapfile)==0) {
+          filledmaps[mapfile]= FilledMap(mapfile);
+        }
+        Area fullarea(area.P(), fullrect);
+        filledmaps[mapfile].plot(fullarea, gcd, land, cont, !cont
+            && mapinfo.contour.ison, contopts.linetype.bmap,
+            contopts.linewidth, c.RGBA(), landopts.fillcolour.RGBA(),
+            backgroundColour.RGBA());
       }
 
-    } else if (mapinfo.type=="lines_simple_text"){
+    } else if (mapinfo.type=="lines_simple_text") {
       // check contours
-      if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder){
-	if (!plotLinesSimpleText(mapfile))
-	  cerr << "ERROR OPEN/READ " << mapfile << endl;
+      if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
+        if (!plotLinesSimpleText(mapfile))
+          cerr << "ERROR OPEN/READ " << mapfile << endl;
       }
 
+    } else if (mapinfo.type=="shape") {
+      bool land= mapinfo.land.ison && mapinfo.land.zorder==zorder;
+      bool cont= mapinfo.contour.ison && mapinfo.contour.zorder==zorder;
+
+      Projection p= area.P();
+      float gs[Projection::speclen];
+      p.Gridspec(gs);
+      int gtype= p.Gridtype();
+      float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
+      Colour c= contopts.linecolour;
+
+      if (shapemaps.count(mapfile) == 0) {
+#ifdef DEBUGPRINT        
+        cerr << "Creating new shapeObject for map: " << mapfile << endl;
+#endif        
+        shapemaps[mapfile] = ShapeObject();
+        shapemaps[mapfile].read(mapfile,true);
+        shapeareas[mapfile] = Area(area);
+      }
+      if (shapeareas[mapfile].P() != area.P()) {
+#ifdef DEBUGPRINT
+        cerr << "Projection wrong for: " << mapfile << endl;
+#endif        
+        bool success = shapemaps[mapfile].changeProj(shapeareas[mapfile]);
+        
+        // Reread file if unsuccessful
+        if(!success) {
+          shapemaps[mapfile] = ShapeObject();
+          shapemaps[mapfile].read(mapfile,true);
+        }
+        shapeareas[mapfile] = Area(area);
+      }
+      Area fullarea(p, fullrect);
+      shapemaps[mapfile].plot(fullarea, gcd, land, cont, !cont && mapinfo.contour.ison,
+          contopts.linetype.bmap, contopts.linewidth, c.RGBA(),
+          landopts.fillcolour.RGBA(), backgroundColour.RGBA());
     } else {
       cerr << "Unknown maptype for map " << mapinfo.name << " = "
-      			      	         << mapinfo.type << endl;
+          << mapinfo.type << endl;
     }
 
     // check latlon
-    if (mapinfo.latlon.ison && mapinfo.latlon.zorder==zorder){
-      geoGrid(mapinfo.latlon.density,mapinfo.latlon.density);
+    if (mapinfo.latlon.ison && mapinfo.latlon.zorder==zorder) {
+      geoGrid(mapinfo.latlon.density, mapinfo.latlon.density);
     }
 
     // plot frame
-    if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder){
+    if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder) {
       //cerr << "Plotting frame for layer:" << zorder << endl;
       Rectangle reqr= reqarea.R();
       Colour c= ffopts.linecolour;
-      if (c==backgroundColour) c= backContrastColour;
+      if (c==backgroundColour)
+        c= backContrastColour;
       glColor4ubv(c.RGBA());
       //       glColor3f(0.0,0.0,0.0);
       glLineWidth(ffopts.linewidth);
-      if (ffopts.linetype.stipple){
-	glLineStipple(1,ffopts.linetype.bmap);
-	glEnable(GL_LINE_STIPPLE);
+      if (ffopts.linetype.stipple) {
+        glLineStipple(1, ffopts.linetype.bmap);
+        glEnable(GL_LINE_STIPPLE);
       }
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      if (reqarea.P()==area.P()){
-	glBegin(GL_LINE_LOOP);
-	glVertex2f(reqr.x1,reqr.y1);
-	glVertex2f(reqr.x2,reqr.y1);
-	glVertex2f(reqr.x2,reqr.y2);
-	glVertex2f(reqr.x1,reqr.y2);
-	glEnd();
+      if (reqarea.P()==area.P()) {
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(reqr.x1, reqr.y1);
+        glVertex2f(reqr.x2, reqr.y1);
+        glVertex2f(reqr.x2, reqr.y2);
+        glVertex2f(reqr.x1, reqr.y2);
+        glEnd();
       } else {
-	// frame belongs to a different projection
-	// ..plot it in the current projection
+        // frame belongs to a different projection
+        // ..plot it in the current projection
 
-	// first check if difference only in translation/scaling
-	bool similarAreas;
-	gc.checkAreaSimilarity(reqarea, area, similarAreas);
-	// number of subdivisions for each frame-side
-	int nsub  = (similarAreas ? 1 : 20); 
-	int npos = 4*nsub;
-	float *x= new float[npos];
-	float *y= new float[npos];
-	float dx= (reqr.x2 - reqr.x1)/float(nsub);
-	float dy= (reqr.y2 - reqr.y1)/float(nsub);
-	float px,py;
-	int i;
-	// fill float-arrays with x,y in original projection
-	x[0]=x[3*nsub]= reqr.x1; x[nsub]=x[2*nsub]= reqr.x2;
-	y[0]=y[nsub]= reqr.y1; y[2*nsub]=y[3*nsub]= reqr.y2;
-	for (i=1, px= reqr.x1+dx; i<nsub; px+=dx,i++){
-	  x[i]= x[3*nsub-i]= px;
-	  y[i]= reqr.y1;
-	  y[3*nsub-i]= reqr.y2;
-	}
-	for (i=nsub+1, py= reqr.y1+dy; i<2*nsub; py+=dy,i++){
-	  y[i]= y[5*nsub-i]= py;
-	  x[i]= reqr.x2;
-	  x[5*nsub-i]= reqr.x1;
-	}
-	// convert points to current projection
-	gc.getPoints(reqarea, area, npos, x, y);
+        // first check if difference only in translation/scaling
+        bool similarAreas;
+        gc.checkAreaSimilarity(reqarea, area, similarAreas);
+        // number of subdivisions for each frame-side
+        int nsub = (similarAreas ? 1 : 20);
+        int npos = 4*nsub;
+        float *x= new float[npos];
+        float *y= new float[npos];
+        float dx= (reqr.x2 - reqr.x1)/float(nsub);
+        float dy= (reqr.y2 - reqr.y1)/float(nsub);
+        float px, py;
+        int i;
+        // fill float-arrays with x,y in original projection
+        x[0]=x[3*nsub]= reqr.x1;
+        x[nsub]=x[2*nsub]= reqr.x2;
+        y[0]=y[nsub]= reqr.y1;
+        y[2*nsub]=y[3*nsub]= reqr.y2;
+        for (i=1, px= reqr.x1+dx; i<nsub; px+=dx, i++) {
+          x[i]= x[3*nsub-i]= px;
+          y[i]= reqr.y1;
+          y[3*nsub-i]= reqr.y2;
+        }
+        for (i=nsub+1, py= reqr.y1+dy; i<2*nsub; py+=dy, i++) {
+          y[i]= y[5*nsub-i]= py;
+          x[i]= reqr.x2;
+          x[5*nsub-i]= reqr.x1;
+        }
+        // convert points to current projection
+        gc.getPoints(reqarea, area, npos, x, y);
 
-	glBegin(GL_LINE_LOOP);
-	for (int i=0; i<npos; i++){
-	  glVertex2f(x[i],y[i]);
-	}
-	glEnd();
+        glBegin(GL_LINE_LOOP);
+        for (int i=0; i<npos; i++) {
+          glVertex2f(x[i], y[i]);
+        }
+        glEnd();
 
-	delete[] x;
-	delete[] y;
+        delete[] x;
+        delete[] y;
       }
       UpdateOutput();
     }
 
-    if (makelist) glEndList();
+    if (makelist)
+      glEndList();
 
   } else {
     // execute old display list
-    if (glIsList(drawlist[zorder])) glCallList(drawlist[zorder]);
+    if (glIsList(drawlist[zorder]))
+      glCallList(drawlist[zorder]);
   }
 
   UpdateOutput();
@@ -381,10 +426,10 @@ bool MapPlot::plot(const int zorder){
   return true;
 }
 
-
 bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
-		     float xylim[], const Linetype& linetype, float linewidth,
-		     const Colour& colour){
+    float xylim[], const Linetype& linetype, float linewidth,
+    const Colour& colour)
+{
   //
   //       plot land.  data from 'standard' file, type 4.
   //
@@ -457,36 +502,36 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
   //  DNMI/FoU  30.01.1996  Anstein Foss ... version 2 file (sorted)
   //  DNMI/FoU  09.08.1999  Anstein Foss ... C/C++
   //---------------------------------------------------------------------
-    
-  const int nwrec  = 1024;
+
+  const int nwrec = 1024;
   const int maxpos = 2000;
   const int mlevel1 = 36*18;
   const int mlevel2 = 10*10;
-    
+
   short indata[nwrec];
   float x[maxpos], y[maxpos];
 
-  int irec, jrec, nw, nd, err, nwdesc, npos, n,  version;
+  int irec, jrec, nw, nd, err, nwdesc, npos, n, version;
   int iscale2, nlevel1, nlevel2, np, npi, npp, i, j, ibgn, ierror;
   int n1, n2, nn, nwx1, nwx2, nlines, nl;
-    
+
   float scale, slat2, slon2, x1, y1, x2, y2, dx, dy, dxbad;
   float glon, glat, glonmin, glonmax, glatmin, glatmax, reflon, reflat;
-    
+
   float box1[4], box2[4];
-    
+
   short int ilevel1[mlevel1][5];
   short int ilevel2[mlevel2][5];
 
   // a geographic grid that matches longitude,latitude coordinates
-  int  igeogrid = 2;
-  float geogrid[6] = {1., 1., 1., 1., 0., 0.};
+  int igeogrid = 2;
+  float geogrid[6] = { 1., 1., 1., 1., 0., 0. };
 
   // colour, linetype and -width
   glColor4ubv(colour.RGBA());
   glLineWidth(linewidth);
-  if (linetype.stipple){
-    glLineStipple(1,linetype.bmap);
+  if (linetype.stipple) {
+    glLineStipple(1, linetype.bmap);
     glEnable(GL_LINE_STIPPLE);
   }
 
@@ -495,7 +540,7 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 
   if ( (pfile = fopen(filename.c_str(), "rb")) == NULL)
     return false;
-    
+
   irec= 1;
   if (fread(indata, 2, nwrec, pfile) != nwrec) {
     fclose(pfile);
@@ -504,22 +549,32 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 
   // check file header
   err = 0;
-  if(indata[0] != 104) err = 1;
-  if(indata[1] != 1 && indata[1] != 2) err = 1;
-  if(indata[2] != 2048) err = 1;
-  if(indata[3] <  6) err = 1;
+  if (indata[0] != 104)
+    err = 1;
+  if (indata[1] != 1 && indata[1] != 2)
+    err = 1;
+  if (indata[2] != 2048)
+    err = 1;
+  if (indata[3] < 6)
+    err = 1;
   version = indata[1];
-  if(version == 2 && indata[3] < 18) err = 1;
+  if (version == 2 && indata[3] < 18)
+    err = 1;
   nw = 3;
   nd = indata[3];
-  if(nw+nd >= nwrec) err = 1;
+  if (nw+nd >= nwrec)
+    err = 1;
   // data description
-  if(indata[nw+1] != 1 && indata[nw+1] != 2) err = 1;
-  if(indata[nw+2] != 1) err = 1;
+  if (indata[nw+1] != 1 && indata[nw+1] != 2)
+    err = 1;
+  if (indata[nw+2] != 1)
+    err = 1;
   nwdesc = indata[nw+3];
-  if(nwdesc<1) err = 1;
-  if(indata[nw+4] != 1) err = 1;
-    
+  if (nwdesc<1)
+    err = 1;
+  if (indata[nw+4] != 1)
+    err = 1;
+
   if (err != 0) {
     fclose(pfile);
     return false;
@@ -532,18 +587,18 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
   if (version==2) {
     iscale2= indata[nw+6];
     nlevel1= indata[nw+7];
-    for (i=0; i<4; i++) 
+    for (i=0; i<4; i++)
       box1[i]= indata[nw+11+i]*scale;
-    for (i=0; i<4; i++) 
+    for (i=0; i<4; i++)
       box2[i]= indata[nw+15+i]*scale;
   }
-      
+
   nw+=nd;
 
   if (gridtype != 1 && gridtype != 4) {
     float tx[2]= { -170., 170. };
-    float ty[2]= {   60.,  60. };
-    xyconvert(2,tx,ty,igeogrid,geogrid,gridtype,gridparam,&ierror);
+    float ty[2]= { 60., 60. };
+    xyconvert(2, tx, ty, igeogrid, geogrid, gridtype, gridparam, &ierror);
     dxbad=fabsf(tx[0]-tx[1]);
   } else {
     dxbad= 1.e+35;
@@ -559,12 +614,12 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 
       // get line description
       if (nw+nwdesc >= nwrec) {
-	irec++;
-	if (fread(indata, 2, nwrec, pfile) != nwrec) {
-	  fclose(pfile);
-	  return false;
-	}
-	nw= -1;
+        irec++;
+        if (fread(indata, 2, nwrec, pfile) != nwrec) {
+          fclose(pfile);
+          return false;
+        }
+        nw= -1;
       }
       npos= indata[nw+1];
 
@@ -573,26 +628,28 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
       np= npp= 0;
 
       while (npp < npos) {
-	if (nw+2 >= nwrec) {
-	  irec++;
-	  if (fread(indata, 2, nwrec, pfile) != nwrec) {
-	    fclose(pfile);
-	    return false;
-	  }
-	  nw= -1;
-	}
-	npi= npos - npp;
-	if (npi*2 > nwrec-nw-1) npi= (nwrec-nw-1)/2;
-	if (npi > maxpos-np)    npi= maxpos-np;
-	      
-	for (n=0; n<npi; n++, nw+=2) {
-	  //  y[] = latitude  = scale * indata[i]
-	  //  x[] = longitude = scale * indata[i+1]
-	  y[np+n] = scale*indata[nw+1];
-	  x[np+n] = scale*indata[nw+2];
-	}       
-	npp+=npi;
-	np+=npi;
+        if (nw+2 >= nwrec) {
+          irec++;
+          if (fread(indata, 2, nwrec, pfile) != nwrec) {
+            fclose(pfile);
+            return false;
+          }
+          nw= -1;
+        }
+        npi= npos - npp;
+        if (npi*2 > nwrec-nw-1)
+          npi= (nwrec-nw-1)/2;
+        if (npi > maxpos-np)
+          npi= maxpos-np;
+
+        for (n=0; n<npi; n++, nw+=2) {
+          //  y[] = latitude  = scale * indata[i]
+          //  x[] = longitude = scale * indata[i+1]
+          y[np+n] = scale*indata[nw+1];
+          x[np+n] = scale*indata[nw+2];
+        }
+        npp+=npi;
+        np+=npi;
 
         if ((npp==npos || np==maxpos) && np>1) {
 	  if (gridtype==5 || gridtype==6) {
@@ -631,41 +688,46 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 	  y[0]= y1;
 	  np= 1;
 	}
-      }	       
+      }
     }
 
   } else {
 
     // version 2 (two level sorted) ................................
-	
+
     if (nlevel1>mlevel1) {
       fclose(pfile);
       return false;
     }
 
-    if (box2[0] > box2[1]) slat2= box2[0]/float(iscale2);
-    else                   slat2= box2[1]/float(iscale2);
-    if (box2[2] > box2[3]) slon2= box2[2]/float(iscale2);
-    else                   slon2= box2[3]/float(iscale2);
+    if (box2[0] > box2[1])
+      slat2= box2[0]/float(iscale2);
+    else
+      slat2= box2[1]/float(iscale2);
+    if (box2[2] > box2[3])
+      slon2= box2[2]/float(iscale2);
+    else
+      slon2= box2[3]/float(iscale2);
 
     for (n1=0; n1<nlevel1; ++n1) {
       for (i=0; i<5; ++i) {
-	nw++;
-	if (nw>=nwrec) {
-	  irec++;
-	  if (fread(indata, 2, nwrec, pfile) != nwrec) {
-	    fclose(pfile);
-	    return false;
-	  }
-	  nw= 0;
-	}
-	ilevel1[n1][i] = indata[nw];
+        nw++;
+        if (nw>=nwrec) {
+          irec++;
+          if (fread(indata, 2, nwrec, pfile) != nwrec) {
+            fclose(pfile);
+            return false;
+          }
+          nw= 0;
+        }
+        ilevel1[n1][i] = indata[nw];
       }
     }
 
     // first simple attempt
     nn = int(sqrtf(float(maxpos)));
-    if (nn>16) nn=16;
+    if (nn>16)
+      nn=16;
     x1= xylim[0];
     x2= xylim[1];
     y1= xylim[2];
@@ -675,19 +737,23 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
     n=0;
     for (j=0; j<nn; ++j) {
       for (i=0; i<nn; ++i, ++n) {
-	x[n]= x1 + i * dx;
-	y[n]= y1 + j * dy;
+        x[n]= x1 + i * dx;
+        y[n]= y1 + j * dy;
       }
     }
     nn= n;
-    xyconvert(nn,x,y,gridtype,gridparam,igeogrid,geogrid,&ierror);
+    xyconvert(nn, x, y, gridtype, gridparam, igeogrid, geogrid, &ierror);
     glonmin= glonmax= x[0];
     glatmin= glatmax= y[0];
     for (n=1; n<nn; ++n) {
-      if (glonmin > x[n]) glonmin= x[n];
-      if (glonmax < x[n]) glonmax= x[n];
-      if (glatmin > y[n]) glatmin= y[n];
-      if (glatmax < y[n]) glatmax= y[n];
+      if (glonmin > x[n])
+        glonmin= x[n];
+      if (glonmax < x[n])
+        glonmax= x[n];
+      if (glatmin > y[n])
+        glatmin= y[n];
+      if (glatmax < y[n])
+        glatmax= y[n];
     }
     glonmin-=1.;
     glonmax+=1.;
@@ -696,126 +762,130 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
     if (gridtype != 2 && glonmax-glonmin>300.) {
       glonmin= -180.;
       glonmax= +180.;
-      if (gridtype==1 && gridparam[4]>=0.) glatmax= +90.;
-      if (gridtype==4 && gridparam[4]>=0.) glatmax= +90.;
-      if (gridtype==3 && gridparam[5]>=0.) glatmax= +90.;
-      if (gridtype==1 && gridparam[4]< 0.) glatmin= -90.;
-      if (gridtype==4 && gridparam[4]< 0.) glatmin= -90.;
-      if (gridtype==3 && gridparam[5]< 0.) glatmin= -90.;
+      if (gridtype==1 && gridparam[4]>=0.)
+        glatmax= +90.;
+      if (gridtype==4 && gridparam[4]>=0.)
+        glatmax= +90.;
+      if (gridtype==3 && gridparam[5]>=0.)
+        glatmax= +90.;
+      if (gridtype==1 && gridparam[4]< 0.)
+        glatmin= -90.;
+      if (gridtype==4 && gridparam[4]< 0.)
+        glatmin= -90.;
+      if (gridtype==3 && gridparam[5]< 0.)
+        glatmin= -90.;
     }
 
     for (n1=0; n1<nlevel1; ++n1) {
 
-      glat    = ilevel1[n1][0]*scale;
-      glon    = ilevel1[n1][1]*scale;
+      glat = ilevel1[n1][0]*scale;
+      glon = ilevel1[n1][1]*scale;
       nlevel2 = ilevel1[n1][2];
-	    
+
       if (nlevel2>mlevel2) {
-	fclose(pfile);
-	return false;
+        fclose(pfile);
+        return false;
       }
 
-      if (glat+box1[1]>=glatmin &&
-      	  glat+box1[0]<=glatmax &&
-     	  glon+box1[3]>=glonmin &&
-          glon+box1[2]<=glonmax && nlevel2>0) {
-	jrec= irec;
-	nwx1= ilevel1[n1][3];
-	nwx2= ilevel1[n1][4];
-	irec= (nwx1+nwx2*32767+nwrec-1)/nwrec;
-	nw  = (nwx1+nwx2*32767)-(irec-1)*nwrec-2;
-	if (irec != jrec) {
-	  offset = (irec-1) * nwrec * 2;
-	  if (fseek(pfile, offset, SEEK_SET) != 0) {
-	    fclose(pfile);
-	    return false;
-	  }  
-	  if (fread(indata, 2, nwrec, pfile) != nwrec) {
-	    fclose(pfile);
-	    return false;
-	  }
-	}
-	    
-	for (n2=0; n2<nlevel2; ++n2) {
-	  for (i=0; i<5; ++i) {
-	    nw++;
-	    if (nw>=nwrec) {
-	      irec++;
-	      if (fread(indata, 2, nwrec, pfile) != nwrec) {
-		fclose(pfile);
-		return false;
-	      }
-	      nw= 0;
-	    }
-	    ilevel2[n2][i] = indata[nw];
-	  }
-	}
+      if (glat+box1[1]>=glatmin && glat+box1[0]<=glatmax && glon+box1[3]
+          >=glonmin && glon+box1[2]<=glonmax && nlevel2>0) {
+        jrec= irec;
+        nwx1= ilevel1[n1][3];
+        nwx2= ilevel1[n1][4];
+        irec= (nwx1+nwx2*32767+nwrec-1)/nwrec;
+        nw = (nwx1+nwx2*32767)-(irec-1)*nwrec-2;
+        if (irec != jrec) {
+          offset = (irec-1) * nwrec * 2;
+          if (fseek(pfile, offset, SEEK_SET) != 0) {
+            fclose(pfile);
+            return false;
+          }
+          if (fread(indata, 2, nwrec, pfile) != nwrec) {
+            fclose(pfile);
+            return false;
+          }
+        }
 
-	for (n2=0; n2<nlevel2; ++n2) {
+        for (n2=0; n2<nlevel2; ++n2) {
+          for (i=0; i<5; ++i) {
+            nw++;
+            if (nw>=nwrec) {
+              irec++;
+              if (fread(indata, 2, nwrec, pfile) != nwrec) {
+                fclose(pfile);
+                return false;
+              }
+              nw= 0;
+            }
+            ilevel2[n2][i] = indata[nw];
+          }
+        }
 
-	  reflat= ilevel2[n2][0]*scale;
-	  reflon= ilevel2[n2][1]*scale;
-	  nlines= ilevel2[n2][2];
+        for (n2=0; n2<nlevel2; ++n2) {
 
-	  if (reflat+box2[1]>=glatmin &&
-	      reflat+box2[0]<=glatmax &&
-	      reflon+box2[3]>=glonmin &&
-	      reflon+box2[2]<=glonmax && nlines>0) {
-	    jrec= irec;
-	    nwx1= ilevel2[n2][3];
-	    nwx2= ilevel2[n2][4];
-	    irec= (nwx1+nwx2*32767+nwrec-1)/nwrec;
-	    nw  = (nwx1+nwx2*32767)-(irec-1)*nwrec-2;
+          reflat= ilevel2[n2][0]*scale;
+          reflon= ilevel2[n2][1]*scale;
+          nlines= ilevel2[n2][2];
 
-	    if (irec != jrec) {
-	      offset = (irec-1) * nwrec * 2;
-	      if (fseek(pfile, offset, SEEK_SET) != 0) {
-		fclose(pfile);
-		return false;
-	      }
-	      if (fread(indata, 2, nwrec, pfile) != nwrec) {
-		fclose(pfile);
-		return false;
-	      }
-	    }
+          if (reflat+box2[1]>=glatmin && reflat+box2[0]<=glatmax && reflon
+              +box2[3]>=glonmin && reflon+box2[2]<=glonmax && nlines>0) {
+            jrec= irec;
+            nwx1= ilevel2[n2][3];
+            nwx2= ilevel2[n2][4];
+            irec= (nwx1+nwx2*32767+nwrec-1)/nwrec;
+            nw = (nwx1+nwx2*32767)-(irec-1)*nwrec-2;
 
-	    for (nl=0; nl<nlines; ++nl) {
-	      // get line description
-	      if (nw+nwdesc >= nwrec) {
-		irec++;
-		if (fread(indata, 2, nwrec, pfile) != nwrec) {
-		  fclose(pfile);
-		  return false;
-		}
-		nw= -1;
-	      }
-	      npos= indata[nw+1];
+            if (irec != jrec) {
+              offset = (irec-1) * nwrec * 2;
+              if (fseek(pfile, offset, SEEK_SET) != 0) {
+                fclose(pfile);
+                return false;
+              }
+              if (fread(indata, 2, nwrec, pfile) != nwrec) {
+                fclose(pfile);
+                return false;
+              }
+            }
 
-	      // current version:
-	      // not using more than first word of line description
-	      nw+=nwdesc;
-	      np= npp= 0;
+            for (nl=0; nl<nlines; ++nl) {
+              // get line description
+              if (nw+nwdesc >= nwrec) {
+                irec++;
+                if (fread(indata, 2, nwrec, pfile) != nwrec) {
+                  fclose(pfile);
+                  return false;
+                }
+                nw= -1;
+              }
+              npos= indata[nw+1];
 
-	      while (npp < npos) {
-		if(nw+2 >= nwrec) {
-		  irec++;
-		  if (fread(indata, 2, nwrec, pfile) != nwrec) {
-		    fclose(pfile);
-		    return false;
-		  }
-		  nw= -1;
-		}
-		npi= npos - npp;
-		if (npi*2 > nwrec-nw-1) npi = (nwrec-nw-1)/2;
-		if (npi > maxpos-np)    npi = maxpos-np;
-		    
-		for (n=0; n<npi; ++n, nw+=2) {
+              // current version:
+              // not using more than first word of line description
+              nw+=nwdesc;
+              np= npp= 0;
+
+              while (npp < npos) {
+                if (nw+2 >= nwrec) {
+                  irec++;
+                  if (fread(indata, 2, nwrec, pfile) != nwrec) {
+                    fclose(pfile);
+                    return false;
+                  }
+                  nw= -1;
+                }
+                npi= npos - npp;
+                if (npi*2 > nwrec-nw-1)
+                  npi = (nwrec-nw-1)/2;
+                if (npi > maxpos-np)
+                  npi = maxpos-np;
+
+                for (n=0; n<npi; ++n, nw+=2) {
                   // y[] = latitude
                   // x[] = longitude
                   y[np+n]= reflat + slat2 * indata[nw+1];
                   x[np+n]= reflon + slon2 * indata[nw+2];
-		}
-		npp+=npi;
+                }
+                npp+=npi;
                 np+=npi;
 
                 if ((npp==npos || np==maxpos) && np>1) {
@@ -866,18 +936,21 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
   return true;
 }
 
-
 bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
-                      int plotResolution) {
+    int plotResolution)
+{
 
   if (latitudeStep<0.001 || longitudeStep<0.001) {
     cerr<<"MapPlot::geoGrid ERROR: latitude/longitude step"<<endl;
     return false;
   }
 
-  if (latitudeStep>30.) latitudeStep= 30.;
-  if (longitudeStep>30.) longitudeStep= 30.;
-  if (plotResolution<1) plotResolution= 10;
+  if (latitudeStep>30.)
+    latitudeStep= 30.;
+  if (longitudeStep>30.)
+    longitudeStep= 30.;
+  if (plotResolution<1)
+    plotResolution= 10;
 
   Projection p= area.P();
   float gs[Projection::speclen];
@@ -892,7 +965,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
 
   // find (approx.) geographic area on map
 
-  int n,i,j;
+  int n, i, j;
   int nt= 9;
   float *tx= new float[nt*nt];
   float *ty= new float[nt*nt];
@@ -918,10 +991,14 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
   float lonmin=FLT_MAX, lonmax=-FLT_MAX, latmin=FLT_MAX, latmax=-FLT_MAX;
 
   for (i=0; i<n; i++) {
-    if (lonmin>tx[i]) lonmin= tx[i];
-    if (lonmax<tx[i]) lonmax= tx[i];
-    if (latmin>ty[i]) latmin= ty[i];
-    if (latmax<ty[i]) latmax= ty[i];
+    if (lonmin>tx[i])
+      lonmin= tx[i];
+    if (lonmax<tx[i])
+      lonmax= tx[i];
+    if (latmin>ty[i])
+      latmin= ty[i];
+    if (latmax<ty[i])
+      latmax= ty[i];
   }
 
   delete[] tx;
@@ -937,64 +1014,72 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
     latmin-= 5.;
     latmax+= 5.;
   }
-  if (lonmin<-180.) lonmin= -180.;
-  if (lonmax>+180.) lonmax= +180.;
-  if (latmin<-90.)  latmin= -90.;
-  if (latmax>+90.)  latmax= +90.;
+  if (lonmin<-180.)
+    lonmin= -180.;
+  if (lonmax>+180.)
+    lonmax= +180.;
+  if (latmin<-90.)
+    latmin= -90.;
+  if (latmax>+90.)
+    latmax= +90.;
 
   bool straightLon= false, straightLat= false, circleLat= false;
   bool rotated= false;
-  float xPole,yPole,compLat;
-  float dxmax,rotLon1,rotLon2,rotLon3,xrot[5],yrot[5];
+  float xPole, yPole, compLat;
+  float dxmax, rotLon1, rotLon2, rotLon3, xrot[5], yrot[5];
 
-  if (gtype==Projection::polarstereographic_60 ||
-      gtype==Projection::polarstereographic) {
+  if (gtype==Projection::polarstereographic_60 || gtype
+      ==Projection::polarstereographic) {
 
-    if (gs[0]>=maprect.x1 && gs[0]<=maprect.x2 &&
-        gs[1]>=maprect.y1 && gs[1]<=maprect.y2) {
+    if (gs[0]>=maprect.x1 && gs[0]<=maprect.x2 && gs[1]>=maprect.y1 && gs[1]
+        <=maprect.y2) {
       lonmin= -180.;
       lonmax= +180.;
       if (gs[4]>=0.0)
-	latmax= +90.;
+        latmax= +90.;
       else
-	latmin= -90.;
+        latmin= -90.;
     }
-    if (gs[4]>=0.0 && latmin<-89.95) latmin= -89.95;
-    if (gs[4]<=0.0 && latmax>+89.95) latmax= +89.95;
+    if (gs[4]>=0.0 && latmin<-89.95)
+      latmin= -89.95;
+    if (gs[4]<=0.0 && latmax>+89.95)
+      latmax= +89.95;
     straightLon= circleLat= true;
-    xPole= gs[0];  // North or South Pole map position
+    xPole= gs[0]; // North or South Pole map position
     yPole= gs[1];
     if (gs[4]>=0.0)
       compLat= +60;
     else
       compLat= -60;
 
-  } else if (gtype==Projection::geographic ||
-             gtype==Projection::spherical_rotated) {
+  } else if (gtype==Projection::geographic || gtype
+      ==Projection::spherical_rotated) {
 
     if (gs[4]==0.0 && gs[5]==0.0) {
       straightLon= straightLat= true;
     } else {
       // check if North/South Pole inside
-      float px[2]= {  0.,   0. };
+      float px[2]= { 0., 0. };
       float py[2]= { 90., -90. };
       n= 2;
-      if (gc.geo2xy(area,n,px,py)) {
-        if (px[0]>=maprect.x1 && px[0]<=maprect.x2 &&
-	    py[0]>=maprect.y1 && py[0]<=maprect.y2) {
+      if (gc.geo2xy(area, n, px, py)) {
+        if (px[0]>=maprect.x1 && px[0]<=maprect.x2 && py[0]>=maprect.y1
+            && py[0]<=maprect.y2) {
           lonmin= -180.;
           lonmax= +180.;
-	  latmax=  +90.;
+          latmax= +90.;
         }
-        if (px[1]>=maprect.x1 && px[1]<=maprect.x2 &&
-	    py[1]>=maprect.y1 && py[1]<=maprect.y2) {
+        if (px[1]>=maprect.x1 && px[1]<=maprect.x2 && py[1]>=maprect.y1
+            && py[1]<=maprect.y2) {
           lonmin= -180.;
           lonmax= +180.;
-	  latmin=  -90.;
+          latmin= -90.;
         }
       }
-      if (gs[5]>=0.0 && latmin<-89.95) latmin=-89.95;
-      if (gs[5]<=0.0 && latmax>+89.95) latmax=+89.95;
+      if (gs[5]>=0.0 && latmin<-89.95)
+        latmin=-89.95;
+      if (gs[5]<=0.0 && latmax>+89.95)
+        latmax=+89.95;
       if (gs[5]>=0.0) {
         xrot[0]= gs[4]-90.;
         xrot[1]= gs[4]+90.;
@@ -1019,9 +1104,9 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
         yrot[4]= gs[5]+89.9;
       }
       n= 5;
-      if (!gc.geo2xy(area,n,xrot,yrot)) {
-	cerr<<"MapPlot::geoGrid ERROR: gc.geo2xy failure"<<endl;
-	return false;
+      if (!gc.geo2xy(area, n, xrot, yrot)) {
+        cerr<<"MapPlot::geoGrid ERROR: gc.geo2xy failure"<<endl;
+        return false;
       }
       // may get some strange results, fix...
       xrot[4]= xrot[3]= xrot[2];
@@ -1034,8 +1119,10 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
 
   } else if (gtype==Projection::mercator) {
 
-    if (latmin<-89.95) latmin= -89.95;
-    if (latmax>+89.95) latmax= +89.95;
+    if (latmin<-89.95)
+      latmin= -89.95;
+    if (latmax>+89.95)
+      latmax= +89.95;
     straightLon= straightLat= true;
 
   } else if (gtype==Projection::lambert) {
@@ -1071,16 +1158,21 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
   int ilon2= int(lonmax/longitudeStep);
   int ilat1= int(latmin/latitudeStep);
   int ilat2= int(latmax/latitudeStep);
-  if (lonmin>0.0) ilon1++;
-  if (lonmax<0.0) ilon2--;
-  if (latmin>0.0) ilat1++;
-  if (latmax<0.0) ilat2--;
+  if (lonmin>0.0)
+    ilon1++;
+  if (lonmax<0.0)
+    ilon2--;
+  if (latmin>0.0)
+    ilat1++;
+  if (latmax<0.0)
+    ilat2--;
 
   float glon1= ilon1*longitudeStep;
   float glon2= ilon2*longitudeStep;
   float glat1= ilat1*latitudeStep;
   float glat2= ilat2*latitudeStep;
-  float glon,glat;
+  float glon, glat;
+
 
 //########################################################################
 //cerr<<"longitudeStep,latitudeStep:  "<<longitudeStep<<" "<<latitudeStep<<endl;
@@ -1094,21 +1186,24 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
   if (n>1200) {
     float reduction= float(n)/1200.;
     n= int(float(plotResolution)/reduction + 0.5);
-    if (n<2) n=2;
-//########################################################################
-//cerr<<"geoGrid: plotResolution,n: "<<plotResolution<<" "<<n<<endl;
-//########################################################################
-    if (plotResolution>n) plotResolution= n;
+    if (n<2)
+      n=2;
+    //########################################################################
+    //cerr<<"geoGrid: plotResolution,n: "<<plotResolution<<" "<<n<<endl;
+    //########################################################################
+    if (plotResolution>n)
+      plotResolution= n;
   }
 
   bool geo2xyError= false;
 
   Colour c= llopts.linecolour;
-  if (c==backgroundColour) c= backContrastColour;
+  if (c==backgroundColour)
+    c= backContrastColour;
   glColor4ubv(c.RGBA());
   glLineWidth(llopts.linewidth+0.1);
-  if (llopts.linetype.bmap!=0xFFFF){
-    glLineStipple(1,llopts.linetype.bmap);
+  if (llopts.linetype.bmap!=0xFFFF) {
+    glLineStipple(1, llopts.linetype.bmap);
     glEnable(GL_LINE_STIPPLE);
   }
 
@@ -1130,10 +1225,10 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
         y[n+0]= latmin;
         y[n+1]= latmax;
       }
-      if (gc.geo2xy(area,npos,x,y)) {
+      if (gc.geo2xy(area, npos, x, y)) {
         glBegin(GL_LINES);
         for (i=0; i<npos; i++)
-          glVertex2f(x[i],y[i]);
+          glVertex2f(x[i], y[i]);
         glEnd();
       } else {
         geo2xyError= true;
@@ -1146,51 +1241,54 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
       // curved longitude lines
 
       float dlat= latitudeStep/float(plotResolution);
-      int   nlat= (ilat2-ilat1)*plotResolution + 1;
+      int nlat= (ilat2-ilat1)*plotResolution + 1;
       int n1=0, n2=0;
-      while (glat1-dlat*float(n1+1)>=latmin) n1++;
-      while (glat2+dlat*float(n2+1)<=latmax) n2++;
+      while (glat1-dlat*float(n1+1)>=latmin)
+        n1++;
+      while (glat2+dlat*float(n2+1)<=latmax)
+        n2++;
       glat= glat1 - dlat*float(n1);
       nlat+=(n1+n2);
       if (nlat < 2)
-	cerr << "** MapPlot::geoGrid ERROR in Curved longitude lines, nlat=" << nlat << endl;
+        cerr << "** MapPlot::geoGrid ERROR in Curved longitude lines, nlat="
+            << nlat << endl;
       else {
-	float *x=  new float[nlat];
-	float *y=  new float[nlat];
-	for (int ilon=ilon1; ilon<=ilon2; ilon++) {
-	  glon= longitudeStep*float(ilon);
-	  for (n=0; n<nlat; n++) {
-	    x[n]= glon;
-	    y[n]= glat + dlat*float(n);
-	  }
-	  if (gc.geo2xy(area,nlat,x,y)) {
-	    if (!rotated) {
-	      xyclip(nlat,x,y,xylim);
-	    } else {
-	      if (fabsf(glon-rotLon1)<longitudeStep*0.1) {
-		x[0]= xrot[2];
-		x[1]= xrot[3];
-		y[0]= yrot[2];
-		y[1]= yrot[3];
-		n= 2;
-	      } else if (fabsf(glon-rotLon2)<longitudeStep*0.1 ||
-			 fabsf(glon-rotLon3)<longitudeStep*0.1) {
-		x[0]= xrot[2];
-		x[1]= xrot[4];
-		y[0]= yrot[2];
-		y[1]= yrot[4];
-		n= 2;
-	      } else {
-		n= nlat;
-	      }
-	      xyclip(n,x,y,xylim);
-	    }
-	  } else {
-	    geo2xyError= true;
-	  }
-	}
-	delete[] x;
-	delete[] y;
+        float *x= new float[nlat];
+        float *y= new float[nlat];
+        for (int ilon=ilon1; ilon<=ilon2; ilon++) {
+          glon= longitudeStep*float(ilon);
+          for (n=0; n<nlat; n++) {
+            x[n]= glon;
+            y[n]= glat + dlat*float(n);
+          }
+          if (gc.geo2xy(area, nlat, x, y)) {
+            if (!rotated) {
+              xyclip(nlat, x, y, xylim);
+            } else {
+              if (fabsf(glon-rotLon1)<longitudeStep*0.1) {
+                x[0]= xrot[2];
+                x[1]= xrot[3];
+                y[0]= yrot[2];
+                y[1]= yrot[3];
+                n= 2;
+              } else if (fabsf(glon-rotLon2)<longitudeStep*0.1 || fabsf(glon
+                  -rotLon3)<longitudeStep*0.1) {
+                x[0]= xrot[2];
+                x[1]= xrot[4];
+                y[0]= yrot[2];
+                y[1]= yrot[4];
+                n= 2;
+              } else {
+                n= nlat;
+              }
+              xyclip(n, x, y, xylim);
+            }
+          } else {
+            geo2xyError= true;
+          }
+        }
+        delete[] x;
+        delete[] y;
       }
     }
   }
@@ -1213,10 +1311,10 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
         y[n+0]= glat;
         y[n+1]= glat;
       }
-      if (gc.geo2xy(area,npos,x,y)) {
+      if (gc.geo2xy(area, npos, x, y)) {
         glBegin(GL_LINES);
         for (i=0; i<npos; i++)
-          glVertex2f(x[i],y[i]);
+          glVertex2f(x[i], y[i]);
         glEnd();
       } else {
         geo2xyError= true;
@@ -1230,95 +1328,97 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
 
       int nlat= ilat2-ilat1+1; // >= 1
       float dlon= longitudeStep/float(plotResolution);
-      int   nlon= (ilon2-ilon1)*plotResolution + 1;
-      if (nlon > 1){
-	float *rx= new float[nlat];
-	float *ry= new float[nlat];
-	for (n=0; n<nlat; n++) {
-	  glat= glat1 + latitudeStep*float(n);
-	  rx[n]= glon1;
-	  ry[n]= glat;
-	}
-	float *cx= new float[nlon];
-	float *cy= new float[nlon];
-	float *x=  new float[nlon];
-	float *y=  new float[nlon];
-	glat= 0.;
-	n= 0;
-	for (n=0; n<nlon; n++) {
-	  glon= glon1 + dlon*float(n);
-	  cx[n]= glon;
-	  cy[n]= compLat;
-	}
-	if (gc.geo2xy(area,nlat,rx,ry) &&
-	    gc.geo2xy(area,nlon,cx,cy)) {
-	  for (n=0; n<nlon; n++) {
-	    cx[n]-=xPole;
-	    cy[n]-=yPole;
-	  }
-	  float r,rc= sqrtf(cx[0]*cx[0]+cy[0]*cy[0]);
-	  for (int ilat=0; ilat<nlat; ilat++) {
-	    rx[ilat]-=xPole;
-	    ry[ilat]-=yPole;
-	    r= sqrtf(rx[ilat]*rx[ilat]+ry[ilat]*ry[ilat]) / rc;
-	    for (n=0; n<nlon; n++) {
-	      x[n]= xPole + r*cx[n];
-	      y[n]= yPole + r*cy[n];
-	    }
-	    xyclip(nlon,x,y,xylim);
-	  }
-	} else {
-	  geo2xyError= true;
-	}
-	delete[] cx;
-	delete[] cy;
-	delete[] x;
-	delete[] y;
-	delete[] rx;
-	delete[] ry;
+      int nlon= (ilon2-ilon1)*plotResolution + 1;
+      if (nlon > 1) {
+        float *rx= new float[nlat];
+        float *ry= new float[nlat];
+        for (n=0; n<nlat; n++) {
+          glat= glat1 + latitudeStep*float(n);
+          rx[n]= glon1;
+          ry[n]= glat;
+        }
+        float *cx= new float[nlon];
+        float *cy= new float[nlon];
+        float *x= new float[nlon];
+        float *y= new float[nlon];
+        glat= 0.;
+        n= 0;
+        for (n=0; n<nlon; n++) {
+          glon= glon1 + dlon*float(n);
+          cx[n]= glon;
+          cy[n]= compLat;
+        }
+        if (gc.geo2xy(area, nlat, rx, ry) && gc.geo2xy(area, nlon, cx, cy)) {
+          for (n=0; n<nlon; n++) {
+            cx[n]-=xPole;
+            cy[n]-=yPole;
+          }
+          float r, rc= sqrtf(cx[0]*cx[0]+cy[0]*cy[0]);
+          for (int ilat=0; ilat<nlat; ilat++) {
+            rx[ilat]-=xPole;
+            ry[ilat]-=yPole;
+            r= sqrtf(rx[ilat]*rx[ilat]+ry[ilat]*ry[ilat]) / rc;
+            for (n=0; n<nlon; n++) {
+              x[n]= xPole + r*cx[n];
+              y[n]= yPole + r*cy[n];
+            }
+            xyclip(nlon, x, y, xylim);
+          }
+        } else {
+          geo2xyError= true;
+        }
+        delete[] cx;
+        delete[] cy;
+        delete[] x;
+        delete[] y;
+        delete[] rx;
+        delete[] ry;
       }
-      
+
     } else {
 
       // curved latitude lines
 
       float dlon= longitudeStep/float(plotResolution);
-      int   nlon= (ilon2-ilon1)*plotResolution + 1;
+      int nlon= (ilon2-ilon1)*plotResolution + 1;
       int n1=0, n2=0;
-      while (glon1-dlon*float(n1+1)>=lonmin) n1++;
-      while (glon2+dlon*float(n2+1)<=lonmax) n2++;
+      while (glon1-dlon*float(n1+1)>=lonmin)
+        n1++;
+      while (glon2+dlon*float(n2+1)<=lonmax)
+        n2++;
       glon= glon1 - dlon*float(n1);
       nlon+=(n1+n2);
       if (nlon < 1) {
-	cerr << "** MapPlot::geoGrid ERROR in Curved Latitude lines, nlon="
-	     << nlon << endl;
+        cerr << "** MapPlot::geoGrid ERROR in Curved Latitude lines, nlon="
+            << nlon << endl;
 	cerr << "lonmin,lonmax=" << lonmin <<","<< lonmax << endl; 
       } else {
-	float *x=  new float[nlon];
-	float *y=  new float[nlon];
-	for (int ilat=ilat1; ilat<=ilat2; ilat++) {
-	  glat= latitudeStep*float(ilat);
-	  for (n=0; n<nlon; n++) {
-	    x[n]= glon + dlon*float(n);
-	    y[n]= glat;
-	  }
-	  if (gc.geo2xy(area,nlon,x,y)) {
-	    if (!rotated) {
-	      xyclip(nlon,x,y,xylim);
-	    } else {
-	      n=0;
-	      while (n<nlon) {
-		i=n++;
-		while (n<nlon && fabsf(x[n-1]-x[n])<dxmax) n++;
-		xyclip(n-i,&x[i],&y[i],xylim);
-	      }
-	    }
-	  } else {
-	    geo2xyError= true;
-	  }
-	}
-	delete[] x;
-	delete[] y;
+        float *x= new float[nlon];
+        float *y= new float[nlon];
+        for (int ilat=ilat1; ilat<=ilat2; ilat++) {
+          glat= latitudeStep*float(ilat);
+          for (n=0; n<nlon; n++) {
+            x[n]= glon + dlon*float(n);
+            y[n]= glat;
+          }
+          if (gc.geo2xy(area, nlon, x, y)) {
+            if (!rotated) {
+              xyclip(nlon, x, y, xylim);
+            } else {
+              n=0;
+              while (n<nlon) {
+                i=n++;
+                while (n<nlon && fabsf(x[n-1]-x[n])<dxmax)
+                  n++;
+                xyclip(n-i, &x[i], &y[i], xylim);
+              }
+            }
+          } else {
+            geo2xyError= true;
+          }
+        }
+        delete[] x;
+        delete[] y;
       }
     }
 
@@ -1332,7 +1432,6 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
 
   return true;
 }
-
 
 bool MapPlot::plotLinesSimpleText(const miString& filename)
 {
@@ -1352,11 +1451,12 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
   float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
 
   Colour c= contopts.linecolour;
-  if (c==backgroundColour) c= backContrastColour;
+  if (c==backgroundColour)
+    c= backContrastColour;
   glColor4ubv(c.RGBA());
   glLineWidth(contopts.linewidth+0.1);
-  if (contopts.linetype.bmap!=0xFFFF){
-    glLineStipple(1,contopts.linetype.bmap);
+  if (contopts.linetype.bmap!=0xFFFF) {
+    glLineStipple(1, contopts.linetype.bmap);
     glEnable(GL_LINE_STIPPLE);
   }
 
@@ -1376,15 +1476,15 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
 
     endline= false;
 
-    while (!endline && n<nmax && getline(file,str)) {
-      coords= str.split(' ',true);
+    while (!endline && n<nmax && getline(file, str)) {
+      coords= str.split(' ', true);
       if (coords.size()>=2) {
-	y[n]= atof(coords[0].c_str());  // latitude
-	x[n]= atof(coords[1].c_str());  // longitude
-	endline=  (y[n]< -90.01f || y[n]> +90.01f ||
-	           x[n]<-360.01f || x[n]>+360.01f);
+        y[n]= atof(coords[0].c_str()); // latitude
+        x[n]= atof(coords[1].c_str()); // longitude
+        endline= (y[n]< -90.01f || y[n]> +90.01f || x[n]<-360.01f || x[n]
+            >+360.01f);
       } else {
-	endline= true;
+        endline= true;
       }
       n++;
     }
@@ -1397,19 +1497,19 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
     if (n>1) {
       float xn= x[n-1];
       float yn= y[n-1];
-      if (gc.geo2xy(area,n,x,y)) {
-        xyclip(n,x,y,xylim);
-	nlines++;
+      if (gc.geo2xy(area, n, x, y)) {
+        xyclip(n, x, y, xylim);
+        nlines++;
       } else {
-	cerr<<"MapPlot::plotLinesSimpleText  gc.geo2xy ERROR" << endl;
-	endfile= true;
+        cerr<<"MapPlot::plotLinesSimpleText  gc.geo2xy ERROR" << endl;
+        endfile= true;
       }
       if (!endline && !endfile) {
         x[0]= xn;
         y[0]= yn;
         n= 1;
       } else {
-	n= 0;
+        n= 0;
       }
     }
 
@@ -1421,7 +1521,6 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
 
   return (nlines>0);
 }
-
 
 void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
 {
@@ -1437,11 +1536,12 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
   //  x(npos),y(npos): linje med 'npos' punkt (npos>1)
   //  xylim(1-4):      x1,x2,y1,y2 for aktuelt omraade
 
-  int   nint, nc, n, i, k1, k2;
+  int nint, nc, n, i, k1, k2;
   float xa, xb, ya, yb, xint, yint, x1, x2, y1, y2;
   float xc[4], yc[4];
 
-  if (npos<2) return;
+  if (npos<2)
+    return;
 
   xa= xylim[0];
   xb= xylim[1];
@@ -1461,10 +1561,12 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
     k1= k2;
     k2= 1;
 
-    if (x[n]<xa || x[n]>xb || y[n]<ya || y[n]>yb) k2=0;
+    if (x[n]<xa || x[n]>xb || y[n]<ya || y[n]>yb)
+      k2=0;
 
     // sjekk om 'n' og 'n-1' er innenfor
-    if (k1+k2==2) continue;
+    if (k1+k2==2)
+      continue;
 
     // k1+k2=1: punkt 'n' eller 'n-1' er utenfor
     // k1+k2=0: sjekker om 2 nabopunkt som begge er utenfor omraadet
@@ -1476,9 +1578,9 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
     y2= y[n];
 
     // sjekker om 'n-1' og 'n' er utenfor paa samme side
-    if (k1+k2==0  &&
-	((x1<xa && x2<xa) || (x1>xb && x2>xb) ||
-	 (y1<ya && y2<ya) || (y1>yb && y2>yb))) continue;
+    if (k1+k2==0 && ((x1<xa && x2<xa) || (x1>xb && x2>xb) || (y1<ya && y2<ya)
+        || (y1>yb && y2>yb)))
+      continue;
 
     // sjekker alle skjaerings-muligheter
     nc = -1;
@@ -1486,21 +1588,25 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
       nc++;
       xc[nc]= xa;
       yc[nc]= y1+(y2-y1)*(xa-x1)/(x2-x1);
-      if (yc[nc]<ya || yc[nc]>yb || (xa-x1)*(xa-x2)>0.) nc--;
+      if (yc[nc]<ya || yc[nc]>yb || (xa-x1)*(xa-x2)>0.)
+        nc--;
       nc++;
       xc[nc]= xb;
       yc[nc]= y1+(y2-y1)*(xb-x1)/(x2-x1);
-      if (yc[nc]<ya || yc[nc]>yb || (xb-x1)*(xb-x2)>0.) nc--;
+      if (yc[nc]<ya || yc[nc]>yb || (xb-x1)*(xb-x2)>0.)
+        nc--;
     }
     if (y1!=y2) {
       nc++;
       yc[nc]= ya;
       xc[nc]= x1+(x2-x1)*(ya-y1)/(y2-y1);
-      if (xc[nc]<xa || xc[nc]>xb || (ya-y1)*(ya-y2)>0.) nc--;
+      if (xc[nc]<xa || xc[nc]>xb || (ya-y1)*(ya-y2)>0.)
+        nc--;
       nc++;
       yc[nc]= yb;
       xc[nc]= x1+(x2-x1)*(yb-y1)/(y2-y1);
-      if (xc[nc]<xa || xc[nc]>xb || (yb-y1)*(yb-y2)>0.) nc--;
+      if (xc[nc]<xa || xc[nc]>xb || (yb-y1)*(yb-y2)>0.)
+        nc--;
     }
 
     if (k2==1) {
@@ -1513,7 +1619,7 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
       glBegin(GL_LINE_STRIP);
       glVertex2f(xint, yint);
       for (i=nint+1; i<n; i++)
-	glVertex2f(x[i], y[i]);
+        glVertex2f(x[i], y[i]);
       glVertex2f(xc[0], yc[0]);
       glEnd();
     } else if (nc>0) {

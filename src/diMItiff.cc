@@ -96,21 +96,20 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
 
   int rres= satimg::MITIFF_read_diana(filename,&sd.rawimage[index], sd.no,sd.index, ginfo);
   if (rres == -1) {
-    cerr << "MITIFF_read_diana returned false:" 
-	 << filename << endl;
+    cerr << "MITIFF_read_diana returned false:" << filename << endl;
     return false;
   }
 
   if (rres == 2) {
     // read palette files (colour index)
     sd.palette=true;
+       
     sd.paletteInfo.name = ginfo.name;
     sd.paletteInfo.noofcl = ginfo.noofcl;
     sd.paletteInfo.clname = ginfo.clname;
     for(int j=0; j<3; j++)
       for(int i=0;i<256;i++)
-	sd.paletteInfo.cmap[j][i] 
-	  = int(ginfo.cmap[j][i]/65535.0*255.0);
+        sd.paletteInfo.cmap[j][i] = int(ginfo.cmap[j][i]/65535.0*255.0);
   }
 
   //name from file
@@ -131,20 +130,16 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
   sd.Bx = ginfo.Bx;
   sd.By = ginfo.By;
 
-
   // Calibration
-    sd.cal_vis = ginfo.cal_vis;  
-    sd.cal_ir = ginfo.cal_ir;  
-    sd.cal_table = ginfo.cal_table;  
+  sd.cal_vis = ginfo.cal_vis;  
+  sd.cal_ir = ginfo.cal_ir;  
+  sd.cal_table = ginfo.cal_table;  
 
   return true;
-
 }
 
 
-bool  MItiff::day_night(const miString& filename, miString& channels)
-{
-
+bool  MItiff::day_night(const miString& filename, miString& channels) {
   
   int aa = satimg::day_night(filename);  
   
@@ -160,4 +155,3 @@ bool  MItiff::day_night(const miString& filename, miString& channels)
 
   return true;
 }
-
