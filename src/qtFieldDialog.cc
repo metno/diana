@@ -876,7 +876,7 @@ void FieldDialog::CreateAdvanced() {
   }
 
   //shading
-  shadingComboBox=  
+  shadingComboBox=
     PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
   shadingComboBox->
     setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
@@ -892,9 +892,9 @@ void FieldDialog::CreateAdvanced() {
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
 	   SLOT( shadingChanged() ) );
 
-  shadingcoldComboBox=  
+  shadingcoldComboBox=
     PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
-  shadingcoldComboBox->  
+  shadingcoldComboBox->
     setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   connect( shadingcoldComboBox, SIGNAL( activated(int) ),
 	   SLOT( shadingChanged() ) );
@@ -909,7 +909,7 @@ void FieldDialog::CreateAdvanced() {
 	   SLOT( shadingChanged() ) );
 
   //pattern
-  patternComboBox = 
+  patternComboBox =
     PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString(),true );
   patternComboBox ->
     setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
@@ -1406,9 +1406,9 @@ void FieldDialog::setLevel(){
     while (l<n && selectedFields[i].levelOptions[l]!=lastLevel) l++;
     if (l==n) l= 0;  // should not happen!
   }
-  
+
   levelSlider->blockSignals(true);
-  
+
   if (n>0) {
     currentLevels= selectedFields[i].levelOptions;
     levelSlider->setRange(0,n-1);
@@ -1424,7 +1424,7 @@ void FieldDialog::setLevel(){
     levelSlider->setRange(0,1);
     levelLabel->clear();
   }
-  
+
   levelSlider->blockSignals(false);
 
 #ifdef DEBUGPRINT
@@ -1642,130 +1642,142 @@ void FieldDialog::updateIdnum(){
   return;
 }
 
-void FieldDialog::fieldboxChanged(QListWidgetItem* item){
+void FieldDialog::fieldboxChanged(QListWidgetItem* item)
+{
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::fieldboxChanged called:"<<fieldbox->count()<<endl;
 #endif
 
-  if( !fieldGRbox->count()) return;
-  if( !fieldbox->count()) return;
+  if (!fieldGRbox->count())
+    return;
+  if (!fieldbox->count())
+    return;
 
-  if (historyOkButton->isEnabled()) deleteAllSelected();
+  if (historyOkButton->isEnabled())
+    deleteAllSelected();
 
   int i, j, jp, n;
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
-  int indexM   = modelbox->currentRow();
+  int indexM = modelbox->currentRow();
   int indexFGR = fieldGRbox->currentIndex();
 
   // Note: multiselection list, current item may only be the last...
 
   int nf = vfgi[indexFGR].fieldNames.size();
 
-  int last= -1;
-  int lastdelete= -1;
+  int last = -1;
+  int lastdelete = -1;
 
-  for (int indexF=0; indexF<nf; ++indexF) {
+  for (int indexF = 0; indexF < nf; ++indexF) {
 
-    if (fieldbox->item(indexF)->isSelected() && countSelected[indexF]==0) {
+    if (fieldbox->item(indexF)->isSelected() && countSelected[indexF] == 0) {
 
       SelectedField sf;
-      sf.inEdit=        false;
-      sf.external=      false;
-      sf.forecastSpec=  false;
-      sf.indexMGR=      indexMGR;
-      sf.indexM=        indexM;
-      sf.modelName=     vfgi[indexFGR].modelName;
-      sf.fieldName=     vfgi[indexFGR].fieldNames[indexF];
-      sf.levelOptions=  vfgi[indexFGR].levelNames;
-      sf.idnumOptions=  vfgi[indexFGR].idnumNames;
-      sf.minus=         false;
+      sf.inEdit = false;
+      sf.external = false;
+      sf.forecastSpec = false;
+      sf.indexMGR = indexMGR;
+      sf.indexM = indexM;
+      sf.modelName = vfgi[indexFGR].modelName;
+      sf.fieldName = vfgi[indexFGR].fieldNames[indexF];
+      sf.levelOptions = vfgi[indexFGR].levelNames;
+      sf.idnumOptions = vfgi[indexFGR].idnumNames;
+      sf.minus = false;
 
       if (!vfgi[indexFGR].defaultLevel.empty()) {
-	n= vfgi[indexFGR].levelNames.size();
-	i= 0;
-	while (i<n && vfgi[indexFGR].levelNames[i]!=lastLevel) i++;
-	if (i<n) sf.level= lastLevel;
-	else     sf.level= vfgi[indexFGR].defaultLevel;
+        n = vfgi[indexFGR].levelNames.size();
+        i = 0;
+        while (i < n && vfgi[indexFGR].levelNames[i] != lastLevel)
+          i++;
+        if (i < n)
+          sf.level = lastLevel;
+        else
+          sf.level = vfgi[indexFGR].defaultLevel;
       }
       if (!vfgi[indexFGR].defaultIdnum.empty()) {
-	n= vfgi[indexFGR].idnumNames.size();
-	i= 0;
-	while (i<n && vfgi[indexFGR].idnumNames[i]!=lastIdnum) i++;
-	if (i<n) sf.idnum= lastIdnum;
-	else     sf.idnum= vfgi[indexFGR].defaultIdnum;
+        n = vfgi[indexFGR].idnumNames.size();
+        i = 0;
+        while (i < n && vfgi[indexFGR].idnumNames[i] != lastIdnum)
+          i++;
+        if (i < n)
+          sf.idnum = lastIdnum;
+        else
+          sf.idnum = vfgi[indexFGR].defaultIdnum;
       }
 
-      sf.hourOffset= 0;
-      sf.hourDiff= 0;
+      sf.hourOffset = 0;
+      sf.hourDiff = 0;
 
-      sf.fieldOpts= getFieldOptions(sf.fieldName, false, sf.inEdit);
+      sf.fieldOpts = getFieldOptions(sf.fieldName, false, sf.inEdit);
 
       selectedFields.push_back(sf);
 
       countSelected[indexF]++;
 
-      miString text= sf.modelName + " " + sf.fieldName;
+      miString text = sf.modelName + " " + sf.fieldName;
       selectedFieldbox->addItem(QString(text.c_str()));
-      last= selectedFields.size()-1;
+      last = selectedFields.size() - 1;
 
-    } else if (!fieldbox->item(indexF)->isSelected() && countSelected[indexF]>0) {
-
-      miString fieldName= vfgi[indexFGR].fieldNames[indexF];
-      n= selectedFields.size();
-      j= jp= -1;
-      int jsel=-1, isel= selectedFieldbox->currentRow();
-      for (i=0; i<n; i++) {
-	if (selectedFields[i].indexMGR   ==indexMGR    &&
-	    selectedFields[i].indexM     ==indexM      &&
-            selectedFields[i].fieldName==fieldName) {
-	  jp=j;
-	  j=i;
-	  if (i==isel) jsel=isel;
-	}
+    } else if (!fieldbox->item(indexF)->isSelected() && countSelected[indexF]
+        > 0) {
+      miString fieldName = vfgi[indexFGR].fieldNames[indexF];
+      n = selectedFields.size();
+      j = jp = -1;
+      int jsel = -1, isel = selectedFieldbox->currentRow();
+      for (i = 0; i < n; i++) {
+        if (selectedFields[i].indexMGR == indexMGR && selectedFields[i].indexM
+            == indexM && selectedFields[i].fieldName == fieldName) {
+          jp = j;
+          j = i;
+          if (i == isel)
+            jsel = isel;
+        }
       }
-      if (j>=0) {   // anything else is a program error!
-	// remove item in selectedFieldbox,
+      if (j >= 0) { // anything else is a program error!
+        // remove item in selectedFieldbox,
         // a field may be selected (by copy) more than once,
         // the selected or the last of those are removed
-        if (jsel>=0 && jp>=0) {
-	  jp= j;
-	  j= jsel;
+        if (jsel >= 0 && jp >= 0) {
+          jp = j;
+          j = jsel;
         }
-	if (jp>=0) {
-	  fieldbox->blockSignals(true);
-	  fieldbox->setCurrentRow(indexF);
-	  fieldbox->item(indexF)->setSelected(true);
-	  fieldbox->blockSignals(false);
-	  lastdelete= jp;
-	} else {
-	  lastdelete= j;
-	}
-	countSelected[indexF]--;
-        selectedFieldbox->takeItem(j);
-	for (i=j; i<n-1; i++)
-	  selectedFields[i]=selectedFields[i+1];
-	selectedFields.pop_back();
+        if (jp >= 0) {
+          fieldbox->blockSignals(true);
+          fieldbox->setCurrentRow(indexF);
+          fieldbox->item(indexF)->setSelected(true);
+          fieldbox->blockSignals(false);
+          lastdelete = jp;
+          selectedFieldbox->takeItem(jp);
+        } else {
+          lastdelete = j;
+          selectedFieldbox->takeItem(j);
+        }
+        countSelected[indexF]--;
+        for (i = j; i < n - 1; i++)
+          selectedFields[i] = selectedFields[i + 1];
+        selectedFields.pop_back();
       }
     }
   }
 
-  if (last<0 && lastdelete>=0 && selectedFields.size()>0) {
-    last= lastdelete;
-    if (last>=selectedFields.size()) last= selectedFields.size() - 1;
+  if (last < 0 && lastdelete >= 0 && selectedFields.size() > 0) {
+    last = lastdelete;
+    if (last >= selectedFields.size())
+      last = selectedFields.size() - 1;
   }
 
-  if (last>=0 && selectedFieldbox->item(last)) {
+  if (last >= 0 && selectedFieldbox->item(last)) {
     selectedFieldbox->setCurrentRow(last);
     selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
-  } else if (selectedFields.size()==0) {
+  } else if (selectedFields.size() == 0) {
     disableFieldOptions();
   }
 
   updateTime();
 
   //first field can't be minus
-  if(selectedFieldbox->count()>0 && selectedFields[0].minus){
+  if (selectedFieldbox->count() > 0 && selectedFields[0].minus) {
     minusButton->setChecked(false);
   }
 
@@ -2168,7 +2180,7 @@ void FieldDialog::enableFieldOptions(){
     if (s=="0") {
       i=0;
     } else {
-      i = densityStringList.indexOf(QString(s.cStr())); 
+      i = densityStringList.indexOf(QString(s.cStr()));
       if (i==-1) {
         densityStringList <<QString(s.cStr());
 	densityCbox->addItem(QString(s.cStr()));
@@ -2743,12 +2755,12 @@ void FieldDialog::selectedFieldboxClicked( QListWidgetItem * item  )
 
 void FieldDialog::colorCboxActivated( int index )
 {
-  //turn of 3 colours 
-  threeColourBox[0]->setCurrentIndex(0);  
-  threeColourBox[1]->setCurrentIndex(0);  
-  threeColourBox[2]->setCurrentIndex(0);  
+  //turn of 3 colours
+  threeColourBox[0]->setCurrentIndex(0);
+  threeColourBox[1]->setCurrentIndex(0);
+  threeColourBox[2]->setCurrentIndex(0);
   threeColoursChanged();
-  
+
   if (index==0)
     updateFieldOptions("colour","off");
   else
@@ -2934,7 +2946,7 @@ void FieldDialog::colour2ComboBoxToggled(int index)
     updateFieldOptions("colour_2",colourInfo[index-1].name);
     enableType2Options(true); //check if needed
     //turn of 3 colours (not possible to combine threeCols and col_2)
-    threeColourBox[0]->setCurrentIndex(0);  
+    threeColourBox[0]->setCurrentIndex(0);
     threeColoursChanged();
   }
 }
@@ -2982,7 +2994,7 @@ void FieldDialog::threeColoursChanged()
   if (c1==0 || c2==0 || c3 ==0){
     //    threeColoursCheckBox->setChecked(false);
     updateFieldOptions("colours","remove");
-  } else { 
+  } else {
 
     //turn of line colour
     colorCbox->setCurrentIndex(0);
@@ -2992,7 +3004,7 @@ void FieldDialog::threeColoursChanged()
     colour2ComboBox->setCurrentIndex(0);
     colour2ComboBoxToggled(0);
 
-    miString str = colourInfo[c1-1].name + "," 
+    miString str = colourInfo[c1-1].name + ","
       + colourInfo[c2-1].name + "," + colourInfo[c3-1].name;
     updateFieldOptions("colours","remove");
     updateFieldOptions("colours",str);
@@ -3820,13 +3832,13 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
 
     while (!ok && j<nvfg) {
 
-      // Old syntax: Model, new syntax: Model(gridnr) 
+      // Old syntax: Model, new syntax: Model(gridnr)
       miString modelName=vfg2[j].modelName;
       if(vfg2[j].modelName.contains("(") && !model.contains("(")){
-	modelName = modelName.substr(0,modelName.find(("("))); 
+	modelName = modelName.substr(0,modelName.find(("(")));
       }
       if(!vfg2[j].modelName.contains("(") && model.contains("(")){
-	model = model.substr(0,model.find(("("))); 
+	model = model.substr(0,model.find(("(")));
       }
 
       if (modelName.downcase()==model.downcase()) {
@@ -4403,7 +4415,7 @@ miString FieldDialog::checkFieldOptions(const miString& str)
       newstr+= " ";
       newstr+= cp->unParse(vpopt);
       // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
-      for (int i=2; i<nlog; i++) {	
+      for (int i=2; i<nlog; i++) {
 	if (vplog[i].idNumber==2 || vplog[i].idNumber==3 || vplog[i].idNumber==-1){
 	  newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
 	}
@@ -4424,7 +4436,7 @@ void FieldDialog::deleteSelected()
   int index = selectedFieldbox->currentRow();
 
   int ns= selectedFields.size() - 1;
-  
+
   if (index<0 || index>ns) return;
   if (selectedFields[index].inEdit) return;
 
@@ -4458,15 +4470,16 @@ void FieldDialog::deleteSelected()
   }
 
   if (indexF>=0) {
-    fieldbox->setCurrentRow(indexF);
-    fieldbox->item(indexF)->setSelected(false);
-    fieldboxChanged(fieldbox->currentItem());
-  } else {
-    selectedFieldbox->takeItem(index);
-    for (int i=index; i<ns; i++)
-      selectedFields[i]= selectedFields[i+1];
-    selectedFields.pop_back();
+    countSelected[indexF]--;
+    if (countSelected[indexF]==0){
+      fieldbox->item(indexF)->setSelected(false);
+    }
   }
+  selectedFieldbox->takeItem(index);
+  for (int i=index; i<ns; i++){
+    selectedFields[i]= selectedFields[i+1];
+  }
+  selectedFields.pop_back();
 
   if (selectedFields.size()>0) {
     if (index>=selectedFields.size()) index= selectedFields.size()-1;
@@ -4955,7 +4968,7 @@ void FieldDialog::updateTime(){
   //  allTimeStepButton->setChecked(false);
 }
 
-void FieldDialog::addField(miString str) 
+void FieldDialog::addField(miString str)
 {
   //  cerr <<"void FieldDialog::addField(miString str) "<<endl;
   bool remove = false;
@@ -4972,14 +4985,14 @@ void FieldDialog::addField(miString str)
   for(int i=0; i<vstr.size();i++){
     vstr[i].replace("overlay=1","");
   }
- 
+
   vector<miString>::iterator p=vstr.begin();
   for(;p!=vstr.end();p++){
     if((*p).contains(str)){
       p = vstr.erase(p);
       if( p == vstr.end() ) break;
     }
-  } 
+  }
   if(!remove){
     vstr.push_back(str);
   }
@@ -5066,9 +5079,9 @@ void FieldDialog::fieldEditUpdate(miString str) {
 	sf= selectedFields[i];
 	indrm= i;
 	found= true;
-      } 
+      }
     }
-    
+
 
     if (vstr.size()==1 || !found) {
       // open/combine edit field
@@ -5093,7 +5106,7 @@ void FieldDialog::fieldEditUpdate(miString str) {
 	sf.editPlot=false;
       }
     } else {                        //Orig edit, using EditManager
-      sf.editPlot=true;	
+      sf.editPlot=true;
     }
 
     sf.inEdit=     true;
@@ -5120,7 +5133,7 @@ void FieldDialog::fieldEditUpdate(miString str) {
     vector<ParsedCommand> vpopt= cp->parse( sf.fieldOpts );
     cp->replaceValue(vpopt,"field.smooth","0",0);
     sf.fieldOpts= cp->unParse(vpopt);
-    
+
     n= selectedFields.size();
     SelectedField sfdummy;
     selectedFields.push_back(sfdummy);
@@ -5152,7 +5165,7 @@ void FieldDialog::fieldEditUpdate(miString str) {
 void FieldDialog::allTimeStepToggled(bool on)
 {
   updateTime();
-  
+
 }
 
 void FieldDialog::applyClicked()
@@ -5182,7 +5195,7 @@ void FieldDialog::helpClicked()
 }
 
 
-void FieldDialog::closeEvent( QCloseEvent* e) 
+void FieldDialog::closeEvent( QCloseEvent* e)
 {
   emit FieldHide();
 }
