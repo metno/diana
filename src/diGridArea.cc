@@ -52,6 +52,8 @@ void GridArea::init(Area orgProj, Area currentProj){
 #ifndef NOLOG4CXX
 	logger = log4cxx::Logger::getLogger("diana.GridArea");
 #endif
+	polygon.setIntersectionsAccepted(false);
+	editPolygon.setIntersectionsAccepted(false);
 	polygon.setOriginalProjection(orgProj);
 	editPolygon.setOriginalProjection(orgProj);
 	polygon.setCurrentProjection(currentProj);
@@ -338,7 +340,7 @@ void GridArea::doDraw(){
 	}
 	else{
 		polygon.setCurrentProjectionPoints(displayPolygon);
-		polygon.makeAbstract();
+		polygon.makeAbstract(true);
 		displayPolygon = polygon.getInCurrentProjection();
 	}
   saveChange();
