@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -94,6 +94,11 @@ ObsPlot::ObsPlot()
   pcriteria   = false; //plot criteria
   ccriteria   = false; //colour criteria
   tccriteria  = false; // total colour criteria
+  knotParameters.insert("ff");
+  knotParameters.insert("911ff");
+  knotParameters.insert("fxfx");
+  knotParameters.insert("fmfm");
+
 }
 
 
@@ -119,7 +124,7 @@ void ObsPlot::getObsAnnotation(miString &str, Colour &col)
 bool ObsPlot::getDataAnnotations(vector<miString>& anno)
 {
 
-  if (!enabled || (obsp.size()==0 && asciip.size()==0) || current<0) 
+  if (!enabled || (obsp.size()==0 && asciip.size()==0) || current<0)
     return false;
 
   float vectorAnnotationSize=30*fullrect.width()/pwidth*0.7;
@@ -513,7 +518,7 @@ bool ObsPlot::setData(void)
 
   bool ddff= true;
 
-  if (asciiData && (!asciiColumn.count("dd") || !asciiColumn.count("ff"))) 
+  if (asciiData && (!asciiColumn.count("dd") || !asciiColumn.count("ff")))
     ddff= false;
 
   if (ddff) {
@@ -1558,7 +1563,7 @@ void ObsPlot::plotList(int index)
   colour = origcolour;
 
   if(tccriteria)checkTotalColourCriteria(index);
-  
+
   miString thisImage = image;
   if(mcriteria) thisImage = checkMarkerCriteria(index);
 
@@ -1601,9 +1606,9 @@ void ObsPlot::plotList(int index)
     }
 
     if(ccriteria) checkColourCriteria("dd",(float)dd_p->second);
-    if(ccriteria) checkColourCriteria("ff",ms2knots(ff_p->second));
+    if(ccriteria) checkColourCriteria("ff",ff_p->second);
     plotWind(dd,ff_p->second,ddvar,radius,current);
-    
+
 
     if(!vertical && dd>20 && dd<92){
       if(dd<70){
@@ -1616,7 +1621,7 @@ void ObsPlot::plotList(int index)
     }
 
     glPopMatrix();
- 
+
   } else if( num>0 ){
     if(vertical) ypos += yShift;
     xpos += xShift;
@@ -1701,7 +1706,7 @@ void ObsPlot::plotList(int index)
   if( pFlag.count("ff")){
     ypos -= yStep;
     if(dta.fdata.count("ff")){
-      if(ccriteria) checkColourCriteria("ff",ms2knots(ff_p->second));
+      if(ccriteria) checkColourCriteria("ff",ff_p->second);
       printList(ms2knots(ff_p->second),xpos,ypos,0,align);
     }else{
     printUndef(xpos,ypos,align);
@@ -1977,7 +1982,7 @@ void ObsPlot::plotList(int index)
   if( pFlag.count("911ff")){
     ypos -= yStep;
     if((f_p=dta.fdata.find("911ff")) != dta.fdata.end()){
-      if(ccriteria) checkColourCriteria("911ff",ms2knots(f_p->second));
+      if(ccriteria) checkColourCriteria("911ff",f_p->second);
       printList(ms2knots(f_p->second),xpos,ypos,0,align);
     }else{
       printUndef(xpos,ypos,align);
@@ -1995,7 +2000,7 @@ void ObsPlot::plotList(int index)
   if( pFlag.count("fxfx")){
     ypos -= yStep;
     if((f_p=dta.fdata.find("fxfx")) != dta.fdata.end()){
-      if(ccriteria) checkColourCriteria("fxfx",ms2knots(f_p->second));
+      if(ccriteria) checkColourCriteria("fxfx",f_p->second);
       printList(ms2knots(f_p->second),xpos,ypos,0,align);
     }else{
       printUndef(xpos,ypos,align);
@@ -2305,7 +2310,7 @@ void ObsPlot::plotAscii(int index)
       xpos += xShift;
     }
 
-    
+
     if(!vertical && dd>20 && dd<92){
       if(dd<70){
 	xpos += 48*sin(dd*PI/180)/2;
@@ -2432,7 +2437,7 @@ void ObsPlot::plotSynop(int index)
       dd=0;
     lpos = itab[(dd/10+3)/2]+10;
     if(ccriteria) checkColourCriteria("dd",dd);
-    if(ccriteria) checkColourCriteria("ff",ms2knots(dta.fdata["ff"]));
+    if(ccriteria) checkColourCriteria("ff",dta.fdata["ff"]);
     plotWind(dd,dta.fdata["ff"],ddvar,radius);
   }
   else
@@ -2596,7 +2601,7 @@ void ObsPlot::plotSynop(int index)
   // Maximum wind speed (gusts) - 911ff
   if( pFlag.count("911ff") &&
       (f_p=dta.fdata.find("911ff")) != fend ){
-    if(ccriteria) checkColourCriteria("911ff",ms2knots(f_p->second));
+    if(ccriteria) checkColourCriteria("911ff",f_p->second);
     printNumber(ms2knots(f_p->second),
 		iptab[lpos+38]+2,iptab[lpos+39]+2,"fill_2",true);
   }
@@ -2613,7 +2618,7 @@ void ObsPlot::plotSynop(int index)
   // Maximum wind speed
   if( pFlag.count("fxfx") && (f_p=dta.fdata.find("fxfx")) != fend
       && !(dta.zone >1 && dta.zone < 99)){
-    if(ccriteria) checkColourCriteria("fxfx",ms2knots(f_p->second));
+    if(ccriteria) checkColourCriteria("fxfx",f_p->second);
     if(TxTnFlag)
       printNumber(ms2knots(f_p->second),
 		  iptab[lpos+6]+12,iptab[lpos+7]+2,"fill_2",true);
@@ -2790,7 +2795,7 @@ void ObsPlot::plotMetar(int index)
   //wind
   if(pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")){
     if(ccriteria) checkColourCriteria("dd",dta.fdata["dd"]);
-    if(ccriteria) checkColourCriteria("ff",ms2knots(dta.fdata["ff"]));
+    if(ccriteria) checkColourCriteria("ff",dta.fdata["ff"]);
     metarWind((int)dta.fdata["dd"],ms2knots(dta.fdata["ff"]),radius,lpos);
   }
 
@@ -3787,13 +3792,13 @@ void ObsPlot::cloudCover(const float& fN, const float &radius)
 void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius, float current)
 {
 
-  //full feather = current 
+  //full feather = current
   if(current>0) ff_ms = ff_ms*10.0/current;
 
   float ff; //wind in knots (current in m/s)
 
-  if(current<0) 
-    ff = ms2knots(ff_ms); 
+  if(current<0)
+    ff = ms2knots(ff_ms);
   else
     ff = int(ff_ms);
 
@@ -3805,7 +3810,7 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius, float cur
 
   glPushMatrix();
 
-  // calm 
+  // calm
   if( ff < 1.) {
     glBegin(GL_LINE_LOOP);
     for(i=0;i<100;i++){
@@ -3897,7 +3902,7 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius, float cur
       glVertex2f(0,0);
       glVertex2f(0,0);
       glVertex2f(4,6);
-    }      
+    }
     glEnd();
   }
   glPopMatrix();
@@ -3934,7 +3939,7 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone,
     xpos += (idx + (22-idx)*0.2)*scale;
     ypos -= 4*scale;
   }
-  //do not plot ww<4 
+  //do not plot ww<4
 
   int n=itab[40+ww];
   if( ww == 7 && zone == 99 )    n = itab[140];
@@ -4097,6 +4102,9 @@ void ObsPlot::decodeCriteria(miString critStr)
       if(sstr.size()!=2) continue;
       parameter = sstr[0];
       limit = atof(sstr[1].cStr());
+      if (knotParameters.count(parameter) ) {
+        limit = knots2ms(limit);
+      }
     } else {
       parameter = vcrit[0];
     }
