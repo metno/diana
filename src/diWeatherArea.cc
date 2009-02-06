@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -410,6 +410,11 @@ void WeatherArea::setType(int ty)
     itsLinetype.factor=2;
     itsLinetype.bmap=0x00FF;
     break;
+  case ReducedVisibility:
+    itsLinetype.stipple=true;
+    itsLinetype.factor=2;
+    itsLinetype.bmap=0x00FF;
+    break;
   default:
     itsLinetype.stipple=false;
   }
@@ -458,7 +463,10 @@ void WeatherArea::setPlotVariables(){
     case Ice:
       setSpline(true);
       setFillArea(true);
-      break;
+    case ReducedVisibility:
+          setSpline(true);
+          setFillArea(false);
+          break;
     case Genericarea:
       setSpline(false);
       if (isSelected)

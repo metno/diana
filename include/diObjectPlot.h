@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -39,17 +39,18 @@
 #include <diCommonTypes.h>
 #include <diColour.h>
 #include <diObjectPoint.h>
+#include <diLinetype.h>
 
-using namespace std; 
+using namespace std;
 
 
 
 enum objectType{Anything,wFront,wSymbol,wArea,Border,RegionName,ShapeXXX};
 
 enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,
-		TroughLine, SquallLine, SigweatherFront,BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine}; 
+		TroughLine, SquallLine, SigweatherFront,BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine};
 
-enum AreaType{ Rain, Showers, Clouds, Fog, Ice, Sigweather,Genericarea};
+enum AreaType{ Rain, Showers, Clouds, Fog, Ice, Sigweather,ReducedVisibility,Genericarea};
 
 //spline points for fronts/areas/borders
 const int divSpline= 5;
@@ -91,7 +92,7 @@ public:
 
 
   /// translate norwegian->english in old files
-  static void defineTranslations();  
+  static void defineTranslations();
 
 private:
 
@@ -117,12 +118,12 @@ private:
 
 protected:
   bool rubber;
-  bool spline;                    // draw spline  
-  float rubberx,rubbery; 
+  bool spline;                    // draw spline
+  float rubberx,rubbery;
   bool inBoundBox;
   int type;
   int typeOfObject;
-  int drawIndex; 
+  int drawIndex;
   static int siglinewidth;
   bool stayMarked;    // object stays marked if cursor is moved
   bool joinedMarked;  // object is joined and marked
@@ -131,6 +132,7 @@ protected:
   bool isSelected;       // is the object to be drawn on screen ?
   float rotation;        // Rotation around center of object;
   Colour* col;           // colour used
+  Linetype itsLinetype;  // linetype used
   int currentState;              // holds current state
   float fSense;
 
@@ -139,7 +141,7 @@ protected:
   deque <ObjectPoint> nodePoints;
   void changeBoundBox(float x, float y);
   //fronts, areas..
-  float *x,*y,*x_s,*y_s; // arrays for holding smooth line 
+  float *x,*y,*x_s,*y_s; // arrays for holding smooth line
   int s_length;          // nr of smooth line points
   int insert;
 
@@ -151,14 +153,14 @@ protected:
   int smoothline(int npos, float x[], float y[],
 		 int nfirst, int nlast,
                  int ismooth, float xsmooth[],
-		 float ysmooth[]); // B-spline smooth 
+		 float ysmooth[]); // B-spline smooth
 
   virtual void recalculate();
   void plotRubber();
   float getDwidth(){return  window_dw;}           // returns width of main window
   float getDheight(){return  window_dh;}          // returns height of main window
   virtual void setType(int ty){type = ty;}
-  virtual bool setType(miString tystring){return false;}  
+  virtual bool setType(miString tystring){return false;}
   virtual void setIndex(int index){drawIndex=index;}
 
 public:
@@ -183,14 +185,14 @@ public:
   void   setObjectColor(Colour::ColourInfo);      ///< sets actual color of object
   void   setObjectRGBColor(miString);             /// < sets actual color of object from rgb
   /// set alpha value of object colour
-  void   setColorAlpha(int alpha){if (col) col->set(Colour::alpha,alpha);} 
+  void   setColorAlpha(int alpha){if (col) col->set(Colour::alpha,alpha);}
   Colour::ColourInfo getObjectColor();            ///< gets actual colour of object
 
   void updateBoundBox();                          ///< finds the new bound box
   Rectangle getBoundBox(){return boundBox;}       ///< returns bound box
   virtual void addPoint(float,float);             ///< adds new point
   /// marks node points close to x,y returns true if sucsess
-  bool markPoint(float x,float y);                   
+  bool markPoint(float x,float y);
   void markAllPoints();                           ///< marks all points on this object
   void unmarkAllPoints();                         ///< unmarks all points on this object
   bool deleteMarkPoints();                        ///< deletes all marked points on object
@@ -201,49 +203,49 @@ public:
   bool ismarkBeginPoint();                        ///< returns true if begin point marked
   bool ismarkJoinPoint();                         ///< returns true if joined points marked
   /// makes join point when joining fronts
-  bool joinPoint(float,float);                    
-  bool isJoinPoint(float,float,float&,float&);    ///< returns true if joined point 
-  bool isJoinPoint(float,float);                  ///< returns true if joined point 
+  bool joinPoint(float,float);
+  bool isJoinPoint(float,float,float&,float&);    ///< returns true if joined point
+  bool isJoinPoint(float,float);                  ///< returns true if joined point
   void unjoinAllPoints();                         ///< unjoins all points
   void unJoinPoint(float,float);                  ///< unmarks point inside rect at x.y
-  virtual bool isEmpty();                         ///< returns true if object contains no points  
+  virtual bool isEmpty();                         ///< returns true if object contains no points
   bool isSinglePoint();                           ///< returns true if object contain only one point
   /// moves point from x,y to new_x,new_y
   bool movePoint(float x,float y,float new_x,float new_y);
   bool moveMarkedPoints(float,float);             ///< moves marked points d_x d_y
   bool rotateLine(float,float);                   ///< "rotates" front y d_x d_y
-  /// returns true if any node points in rectangle around x,y                      
-  bool isInside(float x,float y);   
-  /// returns true if any node points in rectangle around x,y point values in xin,yin                      
-  bool isInside(float x,float y,float& xin,float& yin);       
-  /// returns true if begin point in rectangle around x,y point values returned in xin,yin                      
-  bool isBeginPoint(float x,float y,float& xin,float& yin);  
-  /// returns true if end point in rectangle around x,y point values returned in xin,yin                      
-  bool isEndPoint(float d,float y,float& xin,float& yin);  
-  int endPoint(){return nodePoints.size()-1;}     ///< returns index to end point 
-  bool readObjectString(miString objectString);   ///< reads string with object type, coordinates, colour 
-  miString writeObjectString();                   ///< writes string with object type, coordinates, colour 
-  void drawNodePoints();                          ///< draws all the node points 
-  void drawJoinPoints();                          ///< draws all the join points   
+  /// returns true if any node points in rectangle around x,y
+  bool isInside(float x,float y);
+  /// returns true if any node points in rectangle around x,y point values in xin,yin
+  bool isInside(float x,float y,float& xin,float& yin);
+  /// returns true if begin point in rectangle around x,y point values returned in xin,yin
+  bool isBeginPoint(float x,float y,float& xin,float& yin);
+  /// returns true if end point in rectangle around x,y point values returned in xin,yin
+  bool isEndPoint(float d,float y,float& xin,float& yin);
+  int endPoint(){return nodePoints.size()-1;}     ///< returns index to end point
+  bool readObjectString(miString objectString);   ///< reads string with object type, coordinates, colour
+  miString writeObjectString();                   ///< writes string with object type, coordinates, colour
+  void drawNodePoints();                          ///< draws all the node points
+  void drawJoinPoints();                          ///< draws all the join points
 
   bool isInRegion(int, int, int, int *);          ///< returns true if object inside geographical region
   int combIndex(int, int, int *);                 ///< returns index of combinematrix
   void setScaleToField(float s) { scaleToField= s; }
 
   virtual void setState(const state s) {currentState= s;}     ///< sets current state of object to s
-  virtual bool isOnObject(float x,float y) {return false;}    ///< returns true if x,y is on object 
+  virtual bool isOnObject(float x,float y) {return false;}    ///< returns true if x,y is on object
   virtual bool resumeDrawing();                               ///< resume drawing of marked front or insert point
   virtual bool insertPoint(float x,float y);                  ///< insert node point at x,y
-  virtual bool addFront(ObjectPlot * qfront){return false;}    
-  virtual int getType(){return type;}                         ///< returns object type 
-  int getIndex(){return drawIndex;}                           ///< returns draw index 
+  virtual bool addFront(ObjectPlot * qfront){return false;}
+  virtual int getType(){return type;}                         ///< returns object type
+  int getIndex(){return drawIndex;}                           ///< returns draw index
   virtual ObjectPlot* splitFront(float x, float y){return 0;}
   virtual void flip(){}
   virtual void setSize(float si){};
   virtual void increaseSize(float val){}
   virtual void increaseType(int val){setType(type+val);}      ///< increase symboltype
-  virtual bool onLine(float x, float y);                      ///< returns true if x,y on line   
-  virtual float getDistX(){return 0;}                        
+  virtual bool onLine(float x, float y);                      ///< returns true if x,y on line
+  virtual float getDistX(){return 0;}
   virtual float  getDistY(){return 0;}
   virtual miString writeTypeString(){return " ";}
   virtual void setDefaultSize( ){}
@@ -261,7 +263,7 @@ public:
   virtual void hideBox(){} //only works for complex objects
   virtual void setWhiteBox(int on){} //only works for complex objects
 
- 
+
   bool oktoJoin(bool joinAll);                                ///< returns true if front ok to join
   bool oktoMerge(bool mergeAll,int index);                    ///< returns true if front ok to merge
   /// sets rubber flag (to draw rubberband) from x,y
@@ -271,32 +273,32 @@ public:
   /// returns true if object is complex symbol
   bool isComplex(){return (objectIs(wSymbol) && drawIndex>=1000);}
 
-  void setRegion(miString tt){region=tt;}                    ///< set from which region object come 
-  miString getRegion(){return region;}                       ///< get from which region object come 
+  void setRegion(miString tt){region=tt;}                    ///< set from which region object come
+  miString getRegion(){return region;}                       ///< get from which region object come
 
 
   float getFdeltaw(){return fSense*window_dw*w*0.5;}
 
   virtual int getXYZsize(){return nodePoints.size();}        ///< returns number of nodepoints
-  virtual vector<float> getX();                              ///< returns x-values for all nodepoints  
-  virtual vector<float> getY();                              ///< returns y-valyes for all nodepoints    
-  virtual bool getAnnoTable(miString & str){return false;}        
-  vector<float> getXjoined();                                ///< returns x-values for all joined nodepoints  
-  vector<float> getYjoined();                                ///< returns y-values for all joined nodepoints  
-  vector<float> getXmarked();                                ///< returns x-values for all marked nodepoints  
-  vector<float> getYmarked();                                ///< returns y-values for all marked nodepoints  
-  vector<float> getXmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints     
-  vector<float> getYmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints     
+  virtual vector<float> getX();                              ///< returns x-values for all nodepoints
+  virtual vector<float> getY();                              ///< returns y-valyes for all nodepoints
+  virtual bool getAnnoTable(miString & str){return false;}
+  vector<float> getXjoined();                                ///< returns x-values for all joined nodepoints
+  vector<float> getYjoined();                                ///< returns y-values for all joined nodepoints
+  vector<float> getXmarked();                                ///< returns x-values for all marked nodepoints
+  vector<float> getYmarked();                                ///< returns y-values for all marked nodepoints
+  vector<float> getXmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
+  vector<float> getYmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
   virtual void setXY(vector<float> x,vector <float> y);      ///< sets x and y values for all nodepoints
 
   virtual float getLineWidth(){return 0;}
   virtual void setLineWidth(float w){}
   virtual void setVisible(bool v){isVisible=v;}              ///< set if objects is visible
   virtual void setSelected(bool s){isSelected=s;}            ///< set if objects is selectd
-  virtual bool visible(){return isVisible;}                  ///< returns true if object visible 
-  virtual bool selected(){return isSelected;}                ///< returns true if object selected 
-  virtual bool isInsideArea(float x, float y){return true;} 
-  miString getName(){return name;}                           ///< returns object name    
+  virtual bool visible(){return isVisible;}                  ///< returns true if object visible
+  virtual bool selected(){return isSelected;}                ///< returns true if object selected
+  virtual bool isInsideArea(float x, float y){return true;}
+  miString getName(){return name;}                           ///< returns object name
   void setName(miString n){name=n;}                          ///< sets object name
 
 };

@@ -33,7 +33,6 @@
 
 #include <diObjectPlot.h>
 #include <miString.h>
-#include <diLinetype.h>
 
 using namespace std;
 
@@ -62,7 +61,6 @@ private:
   float * yplot;
   int npoints;
   bool first; //sigweather drawing
-  Linetype itsLinetype;
   void setPlotVariables();
   float getLineWidth(){return linewidth;}
   virtual void setLineWidth(float w){linewidth=w;}

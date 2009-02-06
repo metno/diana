@@ -1617,7 +1617,7 @@ miString EditManager::savedProductString(savedProduct sp){
 
 
 void EditManager::cleanCombineData(bool cleanData){
-  
+
   if (cleanData) {
     int kf= combinefields.size();
     for (int i=0; i<kf; i++) {
@@ -1882,9 +1882,9 @@ bool EditManager::editCombine()
 #endif
 
   int nfe = fedits.size();
-  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : 
+  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area :
 		   plotm->getMapArea() );
-  
+
   fieldsCombined= false;
 
   int fsize= matrix_nx*matrix_ny;
@@ -2254,7 +2254,7 @@ bool EditManager::recalcCombineMatrix(){
 //####################################################################
 
   Area oldArea= plotm->getMapArea();
-  Area newArea= fedits[0]->editfield->area; 
+  Area newArea= fedits[0]->editfield->area;
   if (!gc.getPoints(oldArea,newArea,npos,xposis,yposis)) {
     cerr << "changeProjection: getPoints error" << endl;
     return false;
@@ -2828,7 +2828,7 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Tråg",TroughLine,"blue"));
   fronts.push_back(newEditToolInfo("Bygelinje",SquallLine,"blue"));
   fronts.push_back(newEditToolInfo("Sig.vær",SigweatherFront,"black"));
-  
+
   symbols.push_back(newEditToolInfo("Lavtrykk",242,"red"));
   symbols.push_back(newEditToolInfo("Høytrykk",243,"blue"));
   symbols.push_back(newEditToolInfo("Kald",244,"blue"));\
@@ -2853,7 +2853,7 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo("Tekster",0,"black"));
 
 //   symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
-//   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));  
+//   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));
 //   symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
 
   areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
@@ -2862,6 +2862,7 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Tåke",Fog,"darkGray"));
   areas.push_back(newEditToolInfo("Is",Ice,"darkYellow"));
   areas.push_back(newEditToolInfo("Sig.vær",Sigweather,"black"));
+  areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"yellow"));
   areas.push_back(newEditToolInfo("Generisk område",Genericarea,"red"));
 
 
@@ -2907,9 +2908,9 @@ void EditManager::initEditTools(){
   //Nuclear
   sigsymbols.push_back(newEditToolInfo("Sig31",1031,"black"));
   //precipitation, green lines
-  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"dnmi_green"));
+  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green"));
   //Visibility, black rectangular box
-  //  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));  
+  //  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));
   //Vulcano box
   sigsymbols.push_back(newEditToolInfo("Sig34",1034,"black"));
   //New cross
@@ -2926,6 +2927,10 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun"));
   //snow
   sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green"));
+  //snow showers
+  sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green"));
+  //showers
+  sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green"));
 
 
 
@@ -3051,7 +3056,7 @@ const miString EditManager::insertTime(const miString& s, const miTime& time) {
     if (norwegian)
       es= time.format(es,miDate::Norwegian);
     else
-      es= time.format(es,"en"); 
+      es= time.format(es,"en");
   }
 
   //miDate::English doesn't work due to bug in miTime

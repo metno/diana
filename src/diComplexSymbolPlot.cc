@@ -52,6 +52,8 @@
 #define WIDESPREADBRSYMBOL 136
 #define MOUNTAINOBSCURATIONSYMBOL 106
 #define HAILSYMBOL 238
+#define SNOWSHOWERSYMBOL 114
+#define SHOWERSYMBOL 109
 
 //static variables
 // text used in new complex symbols 
@@ -369,6 +371,12 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   case 1042:
     drawSig1(0,0,SNOWSYMBOL);	
     break; 
+  case 1043:
+    drawSig1(0,0,SNOWSHOWERSYMBOL);	
+    break; 
+  case 1044:
+    drawSig1(0,0,SHOWERSYMBOL);	
+    break; 
       
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
@@ -446,7 +454,9 @@ void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
 
 
 void ComplexSymbolPlot::drawSig1(float x,float y, int metSymbol){
-  drawBox(metSymbol,0,0);
+  if (whiteBox) {
+    drawBox(metSymbol,0,0);
+  }
   drawSymbol(metSymbol,x,y);
 }
 
@@ -1042,8 +1052,21 @@ void ComplexSymbolPlot::drawPrecipitation(float x, float y){
   getComplexSize(1026,sw,sh);
   GLfloat xc,yc;
 
-  glLineWidth(3);
   glRotatef(-45,0.0,0.0,1.0); 
+
+  if (whiteBox) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glColor4f(1.0,1.0,1.0,1.0);
+    glBegin(GL_POLYGON);
+      glVertex2f(-sw,-sh);
+      glVertex2f(-sw,sh);
+      glVertex2f(sw,sh);
+      glVertex2f(sw,-sh);
+    glEnd();
+  }
+
+  glColor4fv(currentColor);
+  glLineWidth(3);
   glBegin(GL_LINE_STRIP);
     glVertex2f(sw/4,sh/2-sh/4);
     glVertex2f(sw/4,-sh/2-sh/4);
@@ -1484,6 +1507,10 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
   case 1041:
     return false;	
   case 1042:
+    return false;	
+  case 1043:
+    return false;	
+  case 1044:
     return false;	
   case 2000:
     return true;	
