@@ -45,7 +45,7 @@
 
 // Default constructor
 Controller::Controller()
-  : plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0), 
+  : plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0),
     objm(0), editm(0), aream(0),editoverride(false)
 {
 #ifdef DEBUGPRINT
@@ -368,7 +368,7 @@ void Controller::obsStepChanged(int step){
   plotm->obsStepChanged(step);
 }
 
-// get name++ of current channels (with calibration) 
+// get name++ of current channels (with calibration)
 vector<miString> Controller::getCalibChannels(){
   return plotm->getCalibChannels();
 }
@@ -482,11 +482,21 @@ void Controller::sendMouseEvent(const mouseEvent& me,
   if ( (paintModeEnabled || inEdit) && !editoverride && !editpause){
 
     if(paintModeEnabled){
-    	float map_x,map_y;
-    	plotm->PhysToMap(me.x,me.y,map_x,map_y);
+
+      if (me.type == mousemove && me.modifier==key_Shift){
+        // shift + mouse move
+        res.action=browsing;
+      } else if (me.button== leftButton && me.type == mousepress && me.modifier==key_Shift){
+        // shift + mouse click
+        res.action=pointclick;
+      } else {
+        // Area
+        float map_x,map_y;
+        plotm->PhysToMap(me.x,me.y,map_x,map_y);
         aream->sendMouseEvent(me,res,map_x,map_y);
+      }
     } else if (inEdit){
-    
+
       editm->sendMouseEvent(me,res);
 #ifdef DEBUGREDRAW
       cerr<<"Controller::sendMouseEvent editm res.repaint,bg,savebg,action: "
@@ -547,7 +557,7 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
   if ((me.type== keypress && me.modifier==key_Shift) ||editm->getEditPause()) {
     keyoverride= true;
   }
-  
+
     //TESTING GRIDEDITMANAGER
 //  gridm->sendKeyboardEvent(me,res);
 
@@ -981,7 +991,7 @@ bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
 	return false;
 }
 
-bool Controller::profetConnect(const Profet::PodsUser & user, 
+bool Controller::profetConnect(const Profet::PodsUser & user,
     Profet::DataManagerType & type){
   if(profetController){
     type = profetController->registerUser(user,type); // throws Profet::ServerException
