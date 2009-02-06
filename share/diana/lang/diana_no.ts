@@ -351,7 +351,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
         <source>Save &amp;animation...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre &amp;animasjon...</translation>
     </message>
     <message>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
@@ -400,6 +400,26 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <source>Uffda</source>
         <translation type="obsolete">Uffda</translation>
+    </message>
+    <message>
+        <source>End Profet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to stay connected to profet?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quit and disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quit and stay connected </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Avbryt</translation>
     </message>
 </context>
 <context>
@@ -2225,6 +2245,10 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Reconnect...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
