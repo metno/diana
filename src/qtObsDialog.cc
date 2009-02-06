@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -74,12 +74,12 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   nr_plot = plt.size();
 
   if( nr_plot==0 ) return;
- 
+
   for (int i=0; i<nr_plot; i++){
     m_name.push_back(plt[i].name);
     //Possible to translate plot types for use in dialogues,
     //but plot strings etc  will use english names
-    if(plt[i].name=="Pressure")  
+    if(plt[i].name=="Pressure")
       dialog_name.push_back(tr("Pressure").toStdString());
     else
       dialog_name.push_back(plt[i].name);
@@ -96,7 +96,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   obsWidget = new ObsWidget*[nr_plot];
 
   stackedWidget = new QStackedWidget;
- 
+
   for( int i=0; i < nr_plot; i++){
     obsWidget[i] = new ObsWidget( this );
     if (dialog.plottype[i].button.size()>0) {
@@ -180,7 +180,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
 
   if (!obsWidget[index]->initialized()) {
     ObsDialogInfo dialog= m_ctrl->updateObsDialog(m_name[index]);
-    
+
     obsWidget[index]->setDialogInfo( m_ctrl, dialog, index);
     connect(obsWidget[index],SIGNAL(getTimes()),
 	    SLOT(getTimes()));
@@ -190,21 +190,21 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
 	    SLOT(extensionToggled(bool)));
     connect(obsWidget[index],SIGNAL(criteriaOn()),
 	    SLOT(criteriaOn()));
-    
+
     if (savelog[index].size()) {
       obsWidget[index]->readLog(savelog[index]);
       savelog[index].clear();
     }
   }
-  
+
   //Emit empty time list
   vector<miTime> noTimes;
   emit emitTimes( "obs",noTimes );
- 
+
   int oldselected = m_selected;
   m_selected = index;
 
-  stackedWidget->setCurrentIndex(m_selected);    
+  stackedWidget->setCurrentIndex(m_selected);
   //  stackedWidget->adjustSize();
 
   //criteria
@@ -321,7 +321,7 @@ vector<miString> ObsDialog::getOKString(){
 vector<miString> ObsDialog::writeLog(){
 
   vector<miString> vstr;
-  
+
   if(nr_plot==0) return vstr;
 
   miString str;
@@ -448,7 +448,7 @@ int ObsDialog::findPlotnr(const miString& str)
   for(int j=0; j<m; j++){
     vector<miString> stokens = tokens[j].split("=");
     if( stokens.size()==2 && stokens[0]=="plot"){
-      miString value = stokens[1].downcase(); 
+      miString value = stokens[1].downcase();
       if(value=="enkel") value="list"; //obsolete
       if(value=="trykk") value="pressure"; //obsolete
       int l=0;
@@ -633,7 +633,7 @@ void ObsDialog::makeExtension()
 
 void ObsDialog::criteriaListSelected(int index)
 {
- 
+
   obsWidget[m_selected]->setCurrentCriteria(index);
 
   ObsDialogInfo::CriteriaList critList =
@@ -699,7 +699,7 @@ void ObsDialog::sliderSlot( int number ){
 void ObsDialog::stepSlot( int number )
 {
   float value = limitLcd->value();
-  float scalesize = stepComboBox->currentText().toInt();
+  float scalesize = stepComboBox->currentText().toFloat();
   numberList(stepComboBox,scalesize);
   limitSlider->setValue(int(limitLcd->value()/scalesize));
   double scalednumber= limitSlider->value()*scalesize;
@@ -931,7 +931,7 @@ void ObsDialog::deleteSlot( )
   if(criteriaListbox->currentRow() == -1) return;
 
   criteriaListbox->takeItem(criteriaListbox->currentRow());
-  int current = criteriaListbox->currentRow();
+  criteriaSelected(criteriaListbox->currentItem());
   int n=criteriaListbox->count();
   vector<miString> vstr;
   for( int i=0; i<n; i++){
