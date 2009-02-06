@@ -1,0 +1,5 @@
+[NAME Jason_Signinfikant_bolge_hoyde]
+[COLUMNS
+Year:year:"År" Month:month:"Måned" Day:day:"Dag" Hour:hour:"Time" Min:min:"Minutt" Sec:sec:"Sekund" Ns:r:"nanosekund"
+Lon:lon:"Lengdegrad" Lat:lat:"Breddegrad" SWH:r:"Signifikant bølgehøyde"]
+[DATA]
