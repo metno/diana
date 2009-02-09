@@ -77,6 +77,7 @@ private:
   QPushButton * closeButton;
   FetObjectListView * objectList;
   QPushButton * viewObjectButton;
+  QPushButton * autoZoomButton;
   QPushButton * newObjectButton;
   QPushButton * editObjectButton;
   QPushButton * timesmoothButton;
@@ -119,9 +120,9 @@ public:
   bool animationChecked(){return animationCheckBox->isChecked();}
   QModelIndex getCurrentObjectIndex();
   void setCurrentSession(const QModelIndex & index);
-
   void showMessage(const Profet::InstantMessage & msg);
-
+  bool autoZoomEnabled() { return autoZoomButton->isChecked(); }
+  
   void customEvent(QEvent * e);
 
 public slots:

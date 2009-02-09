@@ -378,6 +378,8 @@ public:
   void areaInsert(Area, bool);
   /// respond to shortcuts to move to predefined areas
   void changeArea(const keyboardEvent& me);
+  /// zoom to specified rectangle
+  void zoomTo(const Rectangle& rectangle);
   /// zoom out (about 1.3 times)
   void zoomOut();
 

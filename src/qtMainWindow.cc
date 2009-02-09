@@ -1635,6 +1635,7 @@ bool DianaMainWindow::initProfet(){
         this, SLOT(forceProfetDisconnect(bool)));
     connect( profetGUI, SIGNAL(getFieldPlotOptions(map< miString, map<miString,miString> >&)),
         this,SLOT(getFieldPlotOptions(map< miString, map<miString,miString> >&)));
+    connect( profetGUI, SIGNAL(zoomTo(Rectangle)), this, SLOT(zoomTo(Rectangle)));
 
     QApplication::restoreOverrideCursor();
     return true;
@@ -4166,6 +4167,10 @@ void DianaMainWindow::rightClickMenuActivated(int i)
   lastRightClicked=rightclickmenu->text(i);
 }
 
+void DianaMainWindow::zoomTo(Rectangle r) {
+  if(contr)
+    contr->zoomTo(r);
+}
 
 void DianaMainWindow::zoomOut()
 {

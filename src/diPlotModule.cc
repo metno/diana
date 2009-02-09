@@ -2292,35 +2292,31 @@ void PlotModule::makeAreas(miString name,miString areastring, int id){
 
 }
 
-void PlotModule::areaCommand(const miString& command,const miString& dataSet,
-			     const miString& data, int id ){
-//   cerr << "PlotModule::areaCommand" << endl;
-//   cerr << "id=" << id << endl;
-//   cerr << "command=" << command << endl;
-//   cerr <<"data="<<data<<endl;
+void PlotModule::areaCommand(const miString& command, const miString& dataSet,
+    const miString& data, int id)
+{
+  //   cerr << "PlotModule::areaCommand" << endl;
+  //   cerr << "id=" << id << endl;
+  //   cerr << "command=" << command << endl;
+  //   cerr <<"data="<<data<<endl;
 
-  int n=vareaobjects.size();
-  for (int i=0; i<n && i>-1; i++){
-    if ((id == -1 || id == vareaobjects[i].getId()) &&
-	(dataSet=="all" || dataSet == vareaobjects[i].getName()) )
-      if (command=="delete" && (data=="all" || !data.exists())){
-	vareaobjects.erase(vareaobjects.begin()+i);
-	i--;
-	n=vareaobjects.size();
+  int n = vareaobjects.size();
+  for (int i = 0; i < n && i > -1; i++) {
+    if ((id == -1 || id == vareaobjects[i].getId()) && (dataSet == "all"
+        || dataSet == vareaobjects[i].getName()))
+      if (command == "delete" && (data == "all" || !data.exists())) {
+        vareaobjects.erase(vareaobjects.begin() + i);
+        i--;
+        n = vareaobjects.size();
       } else {
-	vareaobjects[i].areaCommand(command,data);
-	//zoom to selected area
-	if(command == "select" &&  vareaobjects[i].autoZoom()){
-	  vector<miString> token = data.split(":");
-	  if(token.size()==2 && token[1]=="on"){
-	    Rectangle rect = vareaobjects[i].getBoundBox(token[0]);
-	    Area a = splot.getMapArea();
-	    a.setR(rect);
-	    splot.setMapArea(a,false);
-	    PlotAreaSetup();
-	    updatePlots();
-	  }
-	}
+        vareaobjects[i].areaCommand(command, data);
+        //zoom to selected area
+        if (command == "select" && vareaobjects[i].autoZoom()) {
+          vector<miString> token = data.split(":");
+          if (token.size() == 2 && token[1] == "on") {
+            zoomTo(vareaobjects[i].getBoundBox(token[0]));
+          }
+        }
       }
   }
 }
@@ -2846,6 +2842,14 @@ void PlotModule::changeArea(const keyboardEvent& me){
     PlotAreaSetup();
     updatePlots();
   }
+}
+
+void PlotModule::zoomTo(const Rectangle& rectangle) {
+  Area a = splot.getMapArea();
+  a.setR(rectangle);
+  splot.setMapArea(a, false);
+  PlotAreaSetup();
+  updatePlots();
 }
 
 void PlotModule::zoomOut(){

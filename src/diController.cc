@@ -186,6 +186,9 @@ Area Controller::getMapArea(){
   return plotm->getMapArea();
 }
 
+void Controller::zoomTo(const Rectangle & r) {
+  plotm->zoomTo(r);
+}
 
 void Controller::zoomOut(){
   plotm->zoomOut();

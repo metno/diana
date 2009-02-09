@@ -39,6 +39,8 @@
 #include <QApplication>
 #include <QMenu>
 
+#include <diField/diRectangle.h>
+
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
     PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) :
   QObject(), paintToolBar(ptb), areaManager(gam), Profet::ProfetGUI(pc),
@@ -71,7 +73,6 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
   showEditObjectDialog = false;emit
   setPaintMode(true);
   paintToolBar->enableButtons(PaintToolBar::SELECT_ONLY);
-
 }
 
 void DianaProfetGUI::setParamColours()
@@ -526,11 +527,26 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index)
     areaManager->setCurrentArea(fo.id());
     viewObjectDialog->showObject(fo, objectFactory.getGuiComponents(fo));
     updateMap();
+    if(sessionDialog->autoZoomEnabled()) 
+      emit zoomToObject(areaManager->getCurrentPolygon());
   } catch (InvalidIndexException & iie) {
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
     return;
   }
   enableObjectButtons(true, true, true);
+}
+
+void DianaProfetGUI::zoomToObject(const ProjectablePolygon & pp) {
+  float offsetRatio = 0.3;
+  Polygon polygon = pp.getInCurrentProjection();
+  Point minPoint = polygon.minBoundaryPoint();
+  Point maxPoint = polygon.maxBoundaryPoint();
+  Point offset = (maxPoint - minPoint) * offsetRatio;
+  minPoint = minPoint - offset;
+  maxPoint = maxPoint + offset;
+  Rectangle rectangle(minPoint.get_x(), minPoint.get_y(),
+      maxPoint.get_x(), maxPoint.get_y());
+  emit zoomTo(rectangle);
 }
 
 void DianaProfetGUI::saveObject()

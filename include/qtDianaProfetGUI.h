@@ -54,6 +54,9 @@
 #include <miLogger/logger.h>
 #endif
 
+#include <QTimer>
+#include <list>
+
 class PaintToolBar;
 class QString;
 class QMenu;
@@ -86,7 +89,6 @@ private:
   ProfetTimeSmoothDialog* timesmoothdialog;
 
   vector<fetObject::TimeValues> spatialsmoothtv;
-
 
   //to synchronize currentObject accessed by multiple threads
   mutable QMutex currentObjectMutex;
@@ -218,6 +220,11 @@ public:
   * reset colours used for each parameter in tables and overview polygons
   */
   void setParamColours();
+  /**
+   * Zoom map to specified polygon
+   * @param pp polygon to focus
+   */
+  void zoomToObject(const ProjectablePolygon & pp);
 
 private slots:
   // EditObjectDialog
@@ -284,6 +291,7 @@ signals:
   void forceDisconnect(bool disableGuiOnly);
 
   void getFieldPlotOptions(map< miString, map<miString,miString> >&);
+  void zoomTo(Rectangle);
 };
 
 #endif /*QTDIANAPROFETGUI_H_*/

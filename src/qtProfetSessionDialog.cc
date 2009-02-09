@@ -104,12 +104,15 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
 
   viewObjectButton   = new QPushButton(tr("View"));
   viewObjectButton->setCheckable(true);
+  autoZoomButton = new QPushButton(tr("Auto Zoom"));
+  autoZoomButton->setCheckable(true);
   newObjectButton    = new QPushButton(tr("New"));
   editObjectButton   = new QPushButton(tr("Edit"));
   timesmoothButton   = new QPushButton(tr("Timesmooth"));
   deleteObjectButton = new QPushButton(tr("Delete"));
 
   objectButtonWidgetLayout->addWidget(viewObjectButton);
+  objectButtonWidgetLayout->addWidget(autoZoomButton);
   objectButtonWidgetLayout->addWidget(newObjectButton);
   objectButtonWidgetLayout->addWidget(editObjectButton);
   objectButtonWidgetLayout->addWidget(timesmoothButton);

@@ -38,6 +38,7 @@
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diMapMode.h>
+#include <diField/diRectangle.h>
 
 #ifdef VIDEO_EXPORT
 #include <MovieMaker.h>
@@ -230,6 +231,7 @@ private slots:
   void requestQuickUpdate(const vector<miString>&,
 			  vector<miString>&);
 
+  void zoomTo(Rectangle);
   void zoomOut();
   void showUffda();
   void fillRightclickmenu();

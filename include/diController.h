@@ -115,6 +115,8 @@ public:
   void getPlotSize(float& x1, float& y1, float& x2, float& y2);
   /// get plot area (incl. projection)
   Area getMapArea();
+  /// zoom to rectangle r
+  void zoomTo(const Rectangle & r);
   /// zoom out map
   void zoomOut();
   /// set plotwindow size in pixels (from GLwidget..)
