@@ -2862,7 +2862,7 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Tåke",Fog,"darkGray"));
   areas.push_back(newEditToolInfo("Is",Ice,"darkYellow"));
   areas.push_back(newEditToolInfo("Sig.vær",Sigweather,"black"));
-  areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"yellow"));
+  areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"gulbrun"));
   areas.push_back(newEditToolInfo("Generisk område",Genericarea,"red"));
 
 
