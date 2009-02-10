@@ -92,13 +92,11 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   plotbox = ComboBox( this, dialog_name,true,0);
   QToolTip::add( plotbox, tr("select plot type"));
 
-  obsWidget=0;
-  obsWidget = new ObsWidget*[nr_plot];
-
   stackedWidget = new QStackedWidget;
 
   for( int i=0; i < nr_plot; i++){
-    obsWidget[i] = new ObsWidget( this );
+    ObsWidget* ow = new ObsWidget( this );
+    obsWidget.push_back(ow);
     if (dialog.plottype[i].button.size()>0) {
       obsWidget[i]->setDialogInfo( m_ctrl, dialog, i );
       connect(obsWidget[i],SIGNAL(getTimes()),
@@ -171,12 +169,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
 /* This function is called when a new plottype is selected and builds
    the screen up with a new obsWidget widget */
 
-  if( m_selected == index && obsWidget[index]->initialized() ) return;
-
-    //criteria
-  if(obsWidget[m_selected]->moreToggled()){
-    showExtension(false);
-  }
+  if( m_selected == index && obsWidget[index]->initialized()) return;
 
   if (!obsWidget[index]->initialized()) {
     ObsDialogInfo dialog= m_ctrl->updateObsDialog(m_name[index]);
@@ -201,11 +194,15 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
   vector<miTime> noTimes;
   emit emitTimes( "obs",noTimes );
 
+  //criteria
+  if(obsWidget[m_selected]->moreToggled()){
+    showExtension(false);
+  }
+
   int oldselected = m_selected;
   m_selected = index;
 
   stackedWidget->setCurrentIndex(m_selected);
-  //  stackedWidget->adjustSize();
 
   //criteria
   if(obsWidget[m_selected]->moreToggled()){
@@ -463,22 +460,25 @@ int ObsDialog::findPlotnr(const miString& str)
 
 bool  ObsDialog::setPlottype(const miString& str, bool on)
 {
-  //  cerr <<"setplottype:"<<str<<endl;
+//  cerr <<"setplottype:"<<str<<endl;
   int l=0;
   while (l<nr_plot && m_name[l]!=str) l++;
 
   if( l == nr_plot) return false;
 
   if( on ){
+    plotbox->setCurrentItem(l);
     int selected = m_selected;
+    ObsWidget* ow = new ObsWidget( this );
+    //obsWidget[l].close();
+    stackedWidget->removeWidget(obsWidget[l]);
+    obsWidget[l]->close();
+    obsWidget[l]=ow;
+    stackedWidget->insertWidget(l,obsWidget[l]);
+
     plotSelected(l,false);
-    ObsDialogInfo dialog= m_ctrl->updateObsDialog(m_name[l]);
-    obsWidget[l]->newParamButtons(dialog,l);
-    plotSelected(selected);
   } else if( obsWidget[l]->initialized() ){
     obsWidget[l]->setFalse();
-    ObsDialogInfo dialog;
-    obsWidget[l]->newParamButtons(dialog, -1);
     getTimes();
   }
 

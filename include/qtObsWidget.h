@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -56,11 +56,11 @@ class QCHeckBox;
 class ButtonLayout;
 
 class QColor;
- 
+
 /**
 
   \brief Observation settings for one plot style
-  
+
    Widget for selection of data types, parameters etc.
 
 */
@@ -68,7 +68,7 @@ class ObsWidget : public QWidget
 {
   Q_OBJECT
 public:
-  
+
   ObsWidget(QWidget* parent );
   ///init dialog
   void setDialogInfo(Controller* ctrl, ObsDialogInfo,int index);
@@ -86,8 +86,6 @@ public:
   void setFalse();
   void setDatatype(const miString&);
   vector<miString> getDataTypes();
-  //update parmeter buttons 
-  void newParamButtons(ObsDialogInfo dialog, int nr);
   bool moreToggled(){return moreButton->isOn();}
   //Criteria
   ObsDialogInfo::CriteriaList getSavedCriteria(){return savedCriteria;}
@@ -101,8 +99,8 @@ public:
   bool getCriteriaLimits(const miString& name, int& low, int& high);
   void markButton(const miString& name, bool on);
   bool noButton(){return nobutton;}
-    
-private slots:	
+
+private slots:
   void priSelected( int index);
   void outTopClicked( int id );
   void inTopClicked( int id );
@@ -126,7 +124,7 @@ signals:
 
 private:
   void ToolTip();
-  
+
   bool initOK;
 
   vector<Colour::ColourInfo> cInfo;
@@ -142,13 +140,13 @@ private:
   QCheckBox* parameterNameCheckBox;
   QCheckBox* moreTimesCheckBox;
   QCheckBox* devFieldCheckBox;
-  QComboBox* devColourBox1; 
-  QComboBox* devColourBox2; 
+  QComboBox* devColourBox1;
+  QComboBox* devColourBox2;
   QCheckBox* allAirepsLevelsCheckBox;
   QCheckBox* orientCheckBox;
   QCheckBox* showposCheckBox;
   QCheckBox* onlyposCheckBox;
-  QComboBox* markerBox; 
+  QComboBox* markerBox;
 
   QComboBox* pressureComboBox;
   QComboBox* leveldiffComboBox;
@@ -166,7 +164,7 @@ private:
 
   QCheckBox* criteriaCheckBox;
   ToggleButton* moreButton;
-  
+
   vector<ObsDialogInfo::PriorityList> priorityList;
   vector<ObsDialogInfo::CriteriaList> criteriaList;
   ObsDialogInfo::CriteriaList savedCriteria;
@@ -217,9 +215,9 @@ private:
   QHBoxLayout *parameterlayout;
   QHBoxLayout *datatypelayout;
 
-  
+
 };
 
 
 
-#endif 
+#endif

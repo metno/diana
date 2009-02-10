@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -71,6 +71,7 @@ ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
   cerr<<"ObsWidget::ObsWidget called"<<endl;
 #endif
   initOK=false;
+  Qt::WA_DeleteOnClose;
 }
 
 void ObsWidget::setDialogInfo( Controller* ctrl,
@@ -261,7 +262,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   if(!tempPrecision) tempPrecisionCheckBox->hide();
   parameterNameCheckBox= new QCheckBox(tr("Name of parameter"),this);
   if(!parameterName) parameterNameCheckBox->hide();
-  moreTimesCheckBox= 
+  moreTimesCheckBox=
     new QCheckBox(tr("All observations (mixing different times)"),this);
   if(!moreTimes) moreTimesCheckBox->hide();
   devFieldCheckBox= new QCheckBox(tr("PPPP - MSLP-field"),this);
@@ -965,9 +966,9 @@ void ObsWidget::updateDialog(bool setOn){
       dVariables.parameter[j] = "id";
     if(para == "dato")
       dVariables.parameter[j] = "date";
-    if(para == "tid") 
+    if(para == "tid")
       dVariables.parameter[j] = "time";
-    if(para == "høyde") 
+    if(para == "høyde")
       dVariables.parameter[j] = "height";
     parameterButtons->setButtonOn(dVariables.parameter[j]);
   }
@@ -1226,80 +1227,6 @@ void ObsWidget::setDatatype( const miString& type)
     parameterButtons->enableButtons(datatype[index].active);
     parameterButtons->DEFAULTClicked();
   }
-}
-
-void ObsWidget::newParamButtons(ObsDialogInfo dialog, int nr)
-{
-  //  cerr <<"newParamButtons"<<endl;
-  miString ok = getOKString();
-
-  if(parameterButtons){
-//     sv->removeChild(parameterButtons);
-    parameterButtons->hide();
-    delete parameterButtons;
-    parameterButtons=NULL;
-  }
-
-  if(nr>-1){
-    datatype=dialog.plottype[nr].datatype;
-    button = dialog.plottype[nr].button;
-    parameterButtons =
-    new ButtonLayout(this, button, 3);
-  }
-
-//     parameterButtons =
-//       new ButtonLayout(this, button, 3, true, colours, true);
-//     connect( parameterButtons, SIGNAL(rightClickedOn(miString)),
-// 	     SLOT(rightClickedSlot(miString)));
-//     connect( this,SIGNAL(setRightClicked(miString,bool)),
-// 	     parameterButtons,SLOT(setRightClicked(miString,bool)));
-//     connect( allButton,SIGNAL(clicked()),
-// 	     parameterButtons,SLOT(ALLClicked()));
-//     connect( noneButton,SIGNAL(clicked()),
-// 	     parameterButtons,SLOT(NONEClicked()));
-//     connect( defButton,SIGNAL(clicked()),
-// 	     parameterButtons,SLOT(DEFAULTClicked()));
-
-//   }
-
-//   sv->addChild(parameterButtons);
-//   sv->update();
-
-  vlayout->removeChild( datatypelayout );
-  vlayout->removeChild( parameterlayout );
-  vlayout->removeChild( vcommonlayout );
-
-  if(parameterButtons)
-    parameterButtons->show();
-
-  delete vlayout;
-
-  if(parameterButtons){
-    parameterlayout->removeChild( parameterButtons );
-    delete parameterlayout;
-    parameterlayout = new QHBoxLayout(5);
-    parameterlayout->setAlignment(Qt::AlignHCenter);
-    parameterlayout->addWidget( parameterButtons );
-  }
-  vlayout= new QVBoxLayout( this, 5 ,5);
-  vlayout->addLayout( datatypelayout );
-  if(parameterButtons)
-    vlayout->addLayout( parameterlayout );
-  vlayout->addLayout( vcommonlayout );
-  //  vlayout->activate();
-  vlayout->freeze();
-
-  if(parameterButtons){
-    if(ok.exists()){
-      putOKString(ok);
-    } else {
-      datatypeButtons->ALLClicked();
-      parameterButtons->DEFAULTClicked();
-    }
-  }
-
-//   nobutton=false;
-
 }
 
 
