@@ -3849,6 +3849,7 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   vstr.push_back(str);
   str= "FieldDialog.pos " + miString(fm->x()) + " " + miString(fm->y());
   vstr.push_back(str);
+  fm->show();
   fm->advancedToggled(false);
   str= "FieldDialog.size " + miString(fm->width()) + " " + miString(fm->height());
   vstr.push_back(str);
