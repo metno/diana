@@ -446,7 +446,7 @@ bool SetupParser::parseFile(const miString& filename, // name of file
 }
 
 
-bool SetupParser::parse(const miString & mainfilename){
+bool SetupParser::parse(miString & mainfilename){
 
   cerr << "SetupParser::parse:" << mainfilename << endl;
   miString filename=mainfilename;
@@ -502,6 +502,9 @@ bool SetupParser::parse(const miString & mainfilename){
   if (!parseLineTypes(SectLineTypes)) return false;
   if (!parseQuickMenus(SectQuickMenus)) return false;
   if (!parseTextInfoFiles(SectInfoFiles)) return false;
+
+  // return the filename (for profet setup parser)
+  mainfilename=filename;
 
   return true;
 }

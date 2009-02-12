@@ -122,8 +122,8 @@ public:
   /// finds key=v1,v2,v3,... in string
   static void splitKeyValue(const miString& s, miString& key, vector<miString>& value);
 
-  /// recursively parse setupfiles
-  bool parse(const miString& mainfilename );
+  /// recursively parse setupfiles - mainfilename can be changed in the process
+  bool parse( miString& mainfilename );
   /// get stringlist for a named section
   bool getSection(const miString&,vector<miString>&);
   /// report an error with line# and sectionname
