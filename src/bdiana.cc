@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -70,7 +70,7 @@
 
 /* Created at Wed May 23 15:28:41 2001 */
 
-using namespace std; 
+using namespace std;
 
 bool verbose= false;
 
@@ -166,7 +166,7 @@ struct stringlist {
 
 plot_type plottype         = plot_none;// current plot_type
 plot_type prevplottype     = plot_none;// previous plottype
-plot_type multiple_plottype= plot_none;// 
+plot_type multiple_plottype= plot_none;//
 
 bool hardcopy_started[5];  // has startHardcopy been called
 
@@ -181,7 +181,7 @@ SpectrumManager* spectrummanager = 0;
 static int dblBuf[] = {
   GLX_DOUBLEBUFFER, GLX_RGBA, GLX_DEPTH_SIZE, 16,
   GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1,
-  GLX_ALPHA_SIZE, 1, 
+  GLX_ALPHA_SIZE, 1,
   //GLX_TRANSPARENT_TYPE, GLX_TRANSPARENT_RGB,
   GLX_STENCIL_SIZE, 1,
   None
@@ -206,12 +206,12 @@ int margin, spacing;          // margin and spacing for multiple plots
 bool multiple_newpage= false; // start new page for multiple plots
 
 bool use_double_buffer= true; // use double buffering
-bool use_pbuffer= false;      // use GL 1.3 Pixel buffers instead of 
+bool use_pbuffer= false;      // use GL 1.3 Pixel buffers instead of
                               // XPixmap/GLXpixmaps
 
 // replaceable values for plot-commands
 vector<keyvalue> keys;
-  
+
 miTime thetime, ptime, fixedtime;
 
 miString xhost= ":0.0"; // default DISPLAY
@@ -285,7 +285,7 @@ void unpackloop(vector<miString>& orig,   // original strings..
 		vector<int>& partlines)   // ..with corresponding line-numbers
 {
   int start= index;
-  
+
   miString loops= orig[index];
   loops= loops.substr(4,loops.length()-4);
 
@@ -297,7 +297,7 @@ void unpackloop(vector<miString>& orig,   // original strings..
 	 << origlines[start] << endl;
     exit(1);
   }
-  
+
   miString keys= vs[0]; // key-part
   vector<miString> vkeys= keys.split('|');
   int nkeys= vkeys.size();
@@ -385,7 +385,7 @@ void unpackloop(vector<miString>& orig,   // original strings..
     } else if (miString(orig[index].substr(0,4)).downcase() == com_loop){
       // start of new loop
       unpackloop(orig,origlines,index,tmppart,tmppartlines);
-      
+
     } else { // fill loop-contents to temporary vector
       tmppart.push_back(orig[index]);
       tmppartlines.push_back(origlines[index]);
@@ -454,12 +454,12 @@ int prepareInput(const miString& filename)
   int linenum = 0;
 //   if ( tmplinenumbers.size() > 0 )
 //     linenum = linenumbers[ linenumbers.size() - 1 ];
-  
+
   tmplines.clear();
   tmplinenumbers.clear();
   lines.clear();
   linenumbers.clear();
-  
+
   miString s;
   int n;
   bool merge= false, newmerge;
@@ -500,7 +500,7 @@ int prepareInput(const miString& filename)
   }
   // unpack loops and lists
   unpackinput(tmplines, tmplinenumbers, lines, linenumbers);
-  
+
   linenum= lines.size();
 
   // substitute key-values
@@ -509,7 +509,7 @@ int prepareInput(const miString& filename)
     for (int k=0; k<linenum; k++)
       for (int m=0; m<nkeys; m++)
 	lines[k].replace("$"+keys[m].key, keys[m].value);
-  
+
   return 0;
 }
 
@@ -684,9 +684,10 @@ void parse_spectrum_options(const vector<miString>& opts)
   parse setupfile
   perform other initialisations based on setup information
 */
-bool readSetup(const miString& setupfile,
+bool readSetup(const miString& constSetupfile,
 	       printerManager& printmanager)
 {
+  miString setupfile=constSetupfile;
   cout << "Reading setupfile:"
        << setupfile
        << endl;
@@ -826,7 +827,7 @@ void printUsage(bool showexample)
     "LABEL text=\"$day $date $auto UTC\" tcolour=red bcolour=black \\\n"
     " fcolour=white:200 polystyle=both halign=left valign=top \\\n"
     " font=Helvetica fontsize=12\n"
-    
+
     "                                                                  \n"
     "ENDPLOT                  # End of plot-command                    \n"
     "#--------------------------------------------------------------   \n"
@@ -1054,12 +1055,12 @@ void printUsage(bool showexample)
     "#  ENDLEVEL                                                            \n"
     "#--------------------------------------------------------------      \n"
     "\n";
-  
+
   if (!showexample)
     cout << help << endl;
   else
     cout << example << endl;
-   
+
   exit(1);
 }
 
@@ -1085,7 +1086,7 @@ int parseAndProcess(const miString& file)
       k++;
       parse_vprof_options(pcom);
       continue;
-      
+
     } else if (lines[k].downcase() == com_vcross_opt){
       vector<miString> pcom;
       for (int i= k+1;
@@ -1186,7 +1187,7 @@ int parseAndProcess(const miString& file)
 	  main_controller->setPlotWindow(xsize,ysize);
 	else
 	  main_controller->setPlotWindow(deltax,deltay);
-      
+
 	// keeparea= false: use selected area or field/sat-area
 	// keeparea= true : keep previous used area (if possible)
 	main_controller->keepCurrentArea(keeparea);
@@ -1204,7 +1205,7 @@ int parseAndProcess(const miString& file)
 				      obstimes,
 				      objtimes,
 				      ptimes);
-	      
+
 	if (ptime.undef()){
 	  if (fieldtimes.size()>0)
 	    thetime= fieldtimes[fieldtimes.size()-1];
@@ -1216,7 +1217,7 @@ int parseAndProcess(const miString& file)
 	    thetime= objtimes[objtimes.size()-1];
 	  else if (ptimes.size()>0)
 	    thetime= ptimes[ptimes.size()-1];
-	} else	
+	} else
 	  thetime= ptime;
 
 	if (verbose) cout << "- plotting for time:" << thetime << endl;
@@ -1224,7 +1225,7 @@ int parseAndProcess(const miString& file)
 
 	if (verbose) cout << "- updatePlots" << endl;
 	main_controller->updatePlots();
-      
+
 	if (!raster && (!multiple_plots || multiple_newpage)) {
 	  startHardcopy(plot_standard, priop);
 	  multiple_newpage= false;
@@ -1255,7 +1256,7 @@ int parseAndProcess(const miString& file)
 
 	if (verbose) cout << "- plot" << endl;
 	main_controller->plot(true,true);
-	
+
 	// --------------------------------------------------------
       } else if (plottype == plot_vcross){
 	// -- vcross plot
@@ -1317,7 +1318,7 @@ int parseAndProcess(const miString& file)
 
 	// extract options for plot
 	parse_vprof_options(pcom);
-	
+
 	if (verbose) cout << "- sending plotCommands" << endl;
 	if (vprof_optionschanged)
 	  vprofmanager->getOptions()->readOptions(vprof_options);
@@ -1332,7 +1333,7 @@ int parseAndProcess(const miString& file)
 	} else thetime= ptime;
 	if (verbose) cout << "- plotting for time:" << thetime << endl;
 	vprofmanager->setTime(thetime);
-	
+
  	if (verbose) cout << "- setting station:" << vprof_station << endl;
  	if (vprof_station.exists()) vprofmanager->setStation(vprof_station);
 
@@ -1365,7 +1366,7 @@ int parseAndProcess(const miString& file)
 
 	// extract options for plot
 	parse_spectrum_options(pcom);
-	
+
 	if (verbose) cout << "- sending plotCommands" << endl;
 	if (spectrum_optionschanged)
 	  spectrummanager->getOptions()->readOptions(spectrum_options);
@@ -1379,7 +1380,7 @@ int parseAndProcess(const miString& file)
 	} else thetime= ptime;
 	if (verbose) cout << "- plotting for time:" << thetime << endl;
 	spectrummanager->setTime(thetime);
-	
+
  	if (verbose) cout << "- setting station:" << spectrum_station << endl;
  	if (spectrum_station.exists()) spectrummanager->setStation(spectrum_station);
 
@@ -1396,7 +1397,7 @@ int parseAndProcess(const miString& file)
 
 	if (verbose) cout << "- plot" << endl;
 	spectrummanager->plot();
-	
+
       }
       // --------------------------------------------------------
 
@@ -1422,7 +1423,7 @@ int parseAndProcess(const miString& file)
 	img.height= ysize;
 	img.filename= priop.fname;
 	int npixels;
-	
+
 	npixels = img.width*img.height;
 	img.nchannels = 4;
 	img.data = new unsigned char[npixels*img.nchannels];
@@ -1434,17 +1435,17 @@ int parseAndProcess(const miString& file)
 		     img.data);
 
 	int result;
-  
+
 
 	  // save as PNG -----------------------------------------------
 	if (raster_type == image_png){
 
 	  if (verbose) cout << "- Saving PNG-image to:" << img.filename;
 	  if (verbose) cout.flush();
-	  
-	  
+
+
 	  result= imageIO::write_png(img);
-	  
+
 	  if (verbose) cout << " .."
 			    << miString(result ? "Ok" : " **FAILED!**")
 			    << endl;
@@ -1465,19 +1466,19 @@ int parseAndProcess(const miString& file)
 	  // first stop postscript-generation
 	  endHardcopy(plot_none);
 	  multiple_newpage= true;
-      
+
 	  miString command= printman->printCommand();
 	  priop.numcopies= 1;
-      
+
 	  printman->expandCommand(command,priop);
-      
+
 	  if (verbose) cout << "- Issuing print command:" << command << endl;
 	  system(command.c_str());
 	}
       }
 
       continue;
-      
+
     } else if (lines[k].downcase() == com_time ||
 	       lines[k].downcase() == com_level) {
 
@@ -1489,7 +1490,7 @@ int parseAndProcess(const miString& file)
 	  return 99;
 	}
       }
-      
+
       // Make Controller
       if (!main_controller){
 	main_controller= new Controller;
@@ -1512,21 +1513,21 @@ int parseAndProcess(const miString& file)
 	     i++,k++)
 	  pcom.push_back(lines[i]);
 	k++;
-	
+
 	// necessary to set time before plotCommands()..?
 	thetime= miTime::nowTime();
 	main_controller->setPlotTime(thetime);
-	
+
 	if (verbose) cout << "- sending plotCommands" << endl;
 	main_controller->plotCommands(pcom);
-	
+
 	set<miTime> okTimes;
 	set<miTime> constTimes;
 	main_controller->getCapabilitiesTime(okTimes,
 					     constTimes,
 					     pcom,
 					     time_options =="union");
-	
+
 	// open filestream
 	ofstream file(priop.fname.c_str());
 	if (!file){
@@ -1545,11 +1546,11 @@ int parseAndProcess(const miString& file)
 	}
 	cerr << endl;
 	file.close();
-	
+
       } else if (lines[k].downcase() == com_level) {
 
 	if (verbose) cout << "- finding levels" << endl;
-      
+
 	//Find ENDLEVEL
 	vector<miString> pcom;
 	for (int i=k+1;
@@ -1558,25 +1559,25 @@ int parseAndProcess(const miString& file)
 	     i++,k++)
 	  pcom.push_back(lines[i]);
 	k++;
-	
+
 	vector<miString> levels;
-	
+
 	// open filestream
 	ofstream file(priop.fname.c_str());
 	if (!file){
 	  cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
 	  return 1;
 	}
-	
+
 	for(int i=0;i < pcom.size(); i++){
 	  levels=main_controller->getFieldLevels(pcom[i]);
-	  
+
 	  for(int i=0;i < levels.size(); i++){
 	    file << levels[i]<<endl;
 	  }
 	  file <<endl;
 	}
-	
+
 	file.close();
 
       }
@@ -1596,12 +1597,12 @@ int parseAndProcess(const miString& file)
       // first stop postscript-generation
       endHardcopy(plot_none);
       multiple_newpage= true;
-      
+
       miString command= printman->printCommand();
       priop.numcopies= 1;
-      
+
       printman->expandCommand(command,priop);
-      
+
       if (verbose) cout << "- Issuing print command:" << command << endl;
       system(command.c_str());
 
@@ -1648,7 +1649,7 @@ int parseAndProcess(const miString& file)
 	  sleep(1);
 	}
       }
-      
+
       nowtime= miTime::nowTime();
       prev_iclock= clock();
       cerr << "================ FOUND COMMAND-FILE(S), TIME is:"
@@ -1690,12 +1691,12 @@ int parseAndProcess(const miString& file)
       lines.insert(lines.begin()+k, newlines.begin(), newlines.end());
       linenum= lines.size();
       k--;
-      
+
       cerr << "================ EXECUTING COMMANDS" << endl;
       continue;
       // =============================================================
     }
-    
+
     // all other options on the form KEY=VALUE
 
     vs= lines[k].split("=");
@@ -1727,10 +1728,10 @@ int parseAndProcess(const miString& file)
 
     } else if (key==com_command_path){
       command_path= value;
-      
+
     } else if (key==com_fifo_name){
       fifo_name= value;
-      
+
     } else if (key==com_buffersize){
       vvs= value.split("x");
       if (vvs.size()<2){
@@ -1747,7 +1748,7 @@ int parseAndProcess(const miString& file)
 
       xsize= tmp_xsize;
       ysize= tmp_ysize;
-      
+
       // first stop ongoing postscript sessions
       endHardcopy(plot_none);
 
@@ -1757,7 +1758,7 @@ int parseAndProcess(const miString& file)
 	  if (pix) glXDestroyGLXPixmap(dpy,pix);
 	  if (pixmap) XFreePixmap(dpy,pixmap);
 	}
-      
+
 	//cout << "- Creating X pixmap.." << endl;
 	pixmap = XCreatePixmap(dpy, RootWindow(dpy, pdvi->screen),
 			       xsize, ysize,
@@ -1766,7 +1767,7 @@ int parseAndProcess(const miString& file)
 	  cerr << "ERROR, could not create X pixmap" << endl;
 	  return 1;
 	}
-      
+
 	//cout << "- Creating GLX pixmap.." << endl;
 	pix = glXCreateGLXPixmap(dpy,pdvi,pixmap);
 	if (!pix){
@@ -1783,14 +1784,14 @@ int parseAndProcess(const miString& file)
 	if (buffermade){
 	  if (pbuf) glXDestroyPbuffer(dpy,pbuf);
 	}
-      
+
 	int nelements;
 	GLXFBConfig* pbconfig=
 	  glXChooseFBConfig(dpy,
 			    DefaultScreen(dpy),
 			    (use_double_buffer ? dblBuf : snglBuf),
 			    &nelements);
-	
+
 	if (nelements == 0){
 	  cerr << "glXChooseFBConfig returned no configurations"
 	       << endl;
@@ -1802,10 +1803,10 @@ int parseAndProcess(const miString& file)
 	pbufAttr[n] = GLX_PBUFFER_WIDTH;  n++;
 	pbufAttr[n] = xsize;              n++;
 	pbufAttr[n] = GLX_PBUFFER_HEIGHT; n++;
-	pbufAttr[n] = ysize;              n++;	
+	pbufAttr[n] = ysize;              n++;
 	pbufAttr[n] = None;               n++;
 
-	
+
 	//cout << "- Creating GLX pbuffer.." << endl;
 	pbuf = glXCreatePbuffer(dpy, pbconfig[0], pbufAttr);
 	if (!pbuf){
@@ -1830,12 +1831,12 @@ int parseAndProcess(const miString& file)
 	glXMakeContextCurrent(dpy, pbuf, pbuf, cx);
 #endif
       }
-      
+
       glShadeModel( GL_FLAT );
 
       //glOrtho(0, 1000, 0, 1000, -1, 1);
       glViewport(0,0,xsize,ysize);
-      
+
       // for multiple plots
       priop.viewport_x0=0;
       priop.viewport_y0=0;
@@ -1843,7 +1844,7 @@ int parseAndProcess(const miString& file)
       priop.viewport_height=ysize;
 
       buffermade= true;
-      
+
     } else if (key==com_papersize){
       vvvs= value.split(","); // could contain both pagesize and papersize
       for (int l=0; l<vvvs.size(); l++){
@@ -1862,22 +1863,22 @@ int parseAndProcess(const miString& file)
 	  priop.pagesize= printman->getPage(vvvs[l]);
 	}
       }
-      
+
     } else if (key==com_filname){
       if (!value.exists()){
-	cerr << "ERROR, illegal filename in:" 
+	cerr << "ERROR, illegal filename in:"
 	     << lines[k]
 	     << " Linenumber:" << linenumbers[k] << endl;
 	return 1;
       } else
 	priop.fname= value;
-      
+
     } else if (key==com_toprinter){
       toprinter= (value.downcase()=="yes");
-      
+
     } else if (key==com_printer){
       priop.printer= value;
-      
+
     } else if (key==com_output){
       value= value.downcase();
       if (value=="postscript"){
@@ -1903,16 +1904,16 @@ int parseAndProcess(const miString& file)
 	// first stop ongoing postscript sessions
 	endHardcopy(plot_none);
       }
-	
+
     } else if (key==com_colour){
       if (value.downcase()=="greyscale")
 	priop.colop= d_print::greyscale;
       else
 	priop.colop= d_print::incolour;
-	
+
     } else if (key==com_drawbackground){
       priop.drawbackground= (value.downcase()=="yes");
-      
+
     } else if (key==com_orientation){
       value= value.downcase();
       if (value=="landscape")
@@ -1920,13 +1921,13 @@ int parseAndProcess(const miString& file)
       else if (value=="portrait")
 	priop.orientation= d_print::ori_portrait;
       else  priop.orientation= d_print::ori_automatic;
-      
+
     } else if (key==com_addhour){
       if (!fixedtime.undef()){
 	ptime= fixedtime;
 	ptime.addHour(atoi(value.cStr()));
       }
-      
+
     } else if (key==com_addminute){
       if (!fixedtime.undef()){
 	ptime= fixedtime;
@@ -1940,10 +1941,10 @@ int parseAndProcess(const miString& file)
 
     } else if (key==com_archive){
       useArchive= (value.downcase() == "on");
-      
+
     } else if (key==com_keepplotarea){
       keeparea= (value.downcase() == "yes");
-      
+
     } else if (key==com_multiple_plots){
       if (raster){
 	cerr << "ERROR, multiple plots and raster-output can not be used together: "
@@ -2034,16 +2035,16 @@ int parseAndProcess(const miString& file)
 
     } else if (key==com_trajectory_opt){
       trajectory_options= value;
-      
+
     } else if (key==com_trajectory_print){
       main_controller->printTrajectoryPositions(value);
-      
+
     } else if (key==com_time_opt){
       time_options=value.downcase();
-      
+
     } else if (key==com_time_format){
       time_format=value;
-      
+
     } else {
       cerr << "WARNING, unknown command:" << lines[k]
 	   << " Linenumber:" << linenumbers[k] << endl;
@@ -2060,7 +2061,7 @@ void doWork();
 int dispatchWork(const std::string &file);
 
 
-/* 
+/*
    =================================================================
    BDIANA - BATCH PRODUCTION OF DIANA GRAPHICAL PRODUCTS
    =================================================================
@@ -2128,7 +2129,7 @@ int main(int argc, char** argv)
 	tmp.key= ks[0];
 	tmp.value= ks[1];
 	keys.push_back(tmp);
-	
+
 	// temporary: force plottime
 	if (tmp.key=="TIME"){
 	  if (miTime::isValid(tmp.value)){
@@ -2180,7 +2181,7 @@ int main(int argc, char** argv)
       cerr << "ERROR, no RGB visual with depth buffer" << endl;
       return 1;
     }
-  
+
     //cout << "- Create glx rendering context.." << endl;
     cx = glXCreateContext(dpy, pdvi,// display and visual
 			  0, 0);    // sharing and direct rendering
@@ -2237,11 +2238,11 @@ int main(int argc, char** argv)
     bool quit=false;
 
     signalInit();
-    
+
     if (verbose) cerr << "PID: " << getpid() << endl;
-    
+
     fs.open("bdiana.pid");
-  
+
     if(!fs){
       cerr << "ERROR, can't open file <bdiana.pid>!" << endl;
       return 1;
@@ -2253,7 +2254,7 @@ int main(int argc, char** argv)
 
     while(!quit){
       switch(waitOnSignal(10, timeout)){
-      case -1: 
+      case -1:
 	cerr << "ERROR, a waitOnSignal error occured!" << endl;
 	quit=true;
 	break;
@@ -2272,7 +2273,7 @@ int main(int argc, char** argv)
 
   // finish off postscript-sessions
   endHardcopy(plot_none);
-  
+
   // clean up structures
   if (pix) glXDestroyGLXPixmap(dpy,pix);
   if (pixmap) XFreePixmap(dpy,pixmap);
@@ -2291,7 +2292,7 @@ int main(int argc, char** argv)
   SIGNAL HANDLING ROUTINES
 */
 
-void 
+void
 doWork()
 {
   if (!command_path.exists()){
@@ -2323,7 +2324,7 @@ doWork()
 }
 
 
-int 
+int
 dispatchWork(const std::string &file)
 {
 
@@ -2353,7 +2354,7 @@ dispatchWork(const std::string &file)
     }
 
     //mysleep(100);
-    
+
     close(fd);
     fifo_name = "";
   }
