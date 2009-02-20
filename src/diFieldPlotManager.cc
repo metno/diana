@@ -32,7 +32,7 @@
 #include <diFieldPlotManager.h>
 #include <diPlotOptions.h>
 
-using namespace std; 
+using namespace std;
 
 
 FieldPlotManager::FieldPlotManager(FieldManager* fm)
@@ -53,7 +53,7 @@ void FieldPlotManager::getAllFieldNames(vector<miString>& fieldNames)
 
 bool FieldPlotManager::parseSetup(SetupParser &sp)
 {
-  
+
 //   cerr <<"bool FieldPlotManager::parseSetup"<<endl;
 
   fieldManager->getPrefixandSuffix(fieldprefixes,fieldsuffixes);
@@ -237,7 +237,7 @@ vector<miString> FieldPlotManager::splitComStr(const miString& s, bool splitall)
     j= i;
     for (; i<n; i++){
       if (s[i]=='='){ // split on '=', but keep it
-	if (i-j>0) 
+	if (i-j>0)
 	  tmp.push_back(s.substr(j,i-j));
 	tmp.push_back("=");
 	j=i+1;
@@ -290,7 +290,7 @@ vector<miString>  FieldPlotManager::getFields()
 
 }
 
-vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos, 
+vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
 					  bool& constTimes)
 {
   vector<miTime> fieldtime;
@@ -304,7 +304,7 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
 
   for (int nf=0; nf<numf; nf++) {
     vector<miString> tokens= pinfos[nf].split('"','"');
-    
+
     int n= tokens.size();
     // at least FIELD <model> <field>..
     //      or  FIELD ( <model> <field> .. - <model> <field> .. ) .....
@@ -470,7 +470,7 @@ vector<miTime> FieldPlotManager::getFieldTime(vector<FieldTimeRequest>& request,
 //   cerr <<"FieldPlotManager::getFieldTime"<<endl;
   vector<miTime> vtime;
   for(int j=0;j<request.size();j++){
-    
+
     miString fieldName;
     miString plotName=request[j].fieldName.downcase();
     miString suffix;
@@ -486,16 +486,16 @@ vector<miTime> FieldPlotManager::getFieldTime(vector<FieldTimeRequest>& request,
   return   fieldManager->getFieldTime(request,allTimeSteps,constTimes);
 }
 
-bool FieldPlotManager::makeFields(const miString& pin, 
+bool FieldPlotManager::makeFields(const miString& pin,
 				  const miTime& const_ptime,
 				  vector<Field*>& vfout,
-				  const miString& levelSpec, 
+				  const miString& levelSpec,
 				  const miString& levelSet,
-				  const miString& idnumSpec, 
+				  const miString& idnumSpec,
 				  const miString& idnumSet,
 				  bool toCache)
 {
-  
+
   vfout.clear();
   miString modelName;
   miString plotName;
@@ -504,17 +504,17 @@ bool FieldPlotManager::makeFields(const miString& pin,
   miString idnumName;
   int hourOffset=0;
   int hourDiff=0;
-  miTime ptime = const_ptime; 
+  miTime ptime = const_ptime;
   parsePin(pin,modelName,plotName,fieldName,levelName,idnumName,hourOffset,hourDiff,ptime);
 
   if (hourOffset!=0) {
     ptime.addHour(hourOffset);
-  } 
+  }
 
 
   miString levelSpecified= levelName;
   miString idnumSpecified= idnumName;
-  
+
   if (!levelSpec.empty() && !levelSet.empty()
       && levelName.downcase()==levelSpec.downcase())
     levelName= levelSet;
@@ -527,19 +527,19 @@ bool FieldPlotManager::makeFields(const miString& pin,
   for(int i=0;i<fieldName.size();i++){
     Field* fout;
     ok=fieldManager->makeField(fout,
-			       modelName, 
-			       fieldName[i], 
+			       modelName,
+			       fieldName[i],
 			       ptime,
 			       levelName,
 			       idnumName,
 			       hourDiff,
-			        FieldManager::READ_RESULT);
+			        FieldManager::READ_ALL);
 
     if (!ok) return false;
 
     makeFieldText(fout,plotName,levelSpecified,idnumSpecified);
     vfout.push_back(fout);
-  
+
   }
 
   return true;
@@ -560,7 +560,7 @@ void FieldPlotManager::makeFieldText(Field* fout,
     if (fout->forecastHour>=0) ostr << "+" << fout->forecastHour;
     else              ostr << fout->forecastHour;
     miString progtext= "(" + ostr.str() + ")";
-    
+
     miString sclock= fout->validFieldTime.isoClock();
     miString shour=  sclock.substr(0,2);
     miString smin=   sclock.substr(3,2);
@@ -581,13 +581,13 @@ void FieldPlotManager::makeFieldText(Field* fout,
 
 }
 
-bool FieldPlotManager::makeDifferenceField(const miString& fspec1, 
+bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 					   const miString& fspec2,
 					   const miTime& const_ptime,
 					   vector<Field*>& fv,
-					   const miString& levelSpec, 
+					   const miString& levelSpec,
 					   const miString& levelSet,
-					   const miString& idnumSpec, 
+					   const miString& idnumSpec,
 					   const miString& idnumSet,
 					   int vectorIndex)
 {
@@ -619,7 +619,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
     //make Difference Field text
     Field* f1= fv[0];
     Field* f2= fv2[0];
-    
+
     const int mdiff=6;
     miString text1[mdiff], text2[mdiff];
     bool diff[mdiff];
@@ -741,7 +741,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
     cerr<<"F1-F2: timetext:       "<<f1->timetext<<endl;
     cerr<<"-----------------------------------------------------"<<endl;
 #endif
-  bool ok=   fieldManager->makeDifferenceFields(fv,fv2); 
+  bool ok=   fieldManager->makeDifferenceFields(fv,fv2);
   if(!ok) return false;
 
   return true;
@@ -757,7 +757,7 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
   //replace fieldnames with plotnames
   for(int i=0;i<vfgi.size();i++){
 
-    //sort fieldnames and suffixes 
+    //sort fieldnames and suffixes
     map<miString, vector<miString> > fieldName_suffix;
     for(int l=0; l<vfgi[i].fieldNames.size();l++){
       miString suffix;
@@ -797,11 +797,11 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
       }
     }
     vfgi[i].fieldNames=plotNames;
-      
+
   }
 
-  
-  
+
+
 }
 
 
@@ -810,7 +810,7 @@ void FieldPlotManager::getAllFieldNames(vector<miString> & fieldNames,
 				      set<miString>& fsuffixes)
 {
 
-  fieldNames = getPlotFields();  
+  fieldNames = getPlotFields();
   fprefixes = fieldprefixes;
   fsuffixes = fieldsuffixes;
 
@@ -897,7 +897,7 @@ bool FieldPlotManager::parsePin(const miString& pin,
     fName += suffix;
     fieldName.push_back(fName);
   }
-  
+
   plotName += suffix;
 
 }
