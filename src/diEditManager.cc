@@ -2931,6 +2931,8 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green"));
   //showers
   sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green"));
+  //Freezing precip
+   sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red"));
 
 
 

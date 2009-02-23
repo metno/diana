@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -54,9 +54,10 @@
 #define HAILSYMBOL 238
 #define SNOWSHOWERSYMBOL 114
 #define SHOWERSYMBOL 109
+#define FZRASYMBOL 93
 
 //static variables
-// text used in new complex symbols 
+// text used in new complex symbols
 vector <miString> ComplexSymbolPlot::currentSymbolStrings; //symbolstrings
 vector <miString> ComplexSymbolPlot::currentXStrings; //xtext
 set <miString> ComplexSymbolPlot::clist; //texts used in combobox
@@ -83,10 +84,11 @@ ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex) : Plot(){
   symbolStrings=currentSymbolStrings;
   xstrings=currentXStrings;
   //rightarrow and thunder - no white box
-  if (drawIndex==1018 || drawIndex==1021)
-    whiteBox=false;
-  else
-    whiteBox=true;
+//  if (drawIndex==1018 || drawIndex==1021)
+//    whiteBox=false;
+//  else
+//    whiteBox=true;
+  whiteBox = isComplexText(drawIndex);
 }
 
 
@@ -117,8 +119,8 @@ void ComplexSymbolPlot::initStrings(int drawIndex){
 
 
 void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
-  currentSymbolStrings.clear();    
-  currentXStrings.clear();    
+  currentSymbolStrings.clear();
+  currentXStrings.clear();
   switch (drawIndex){
   case 1000:
     currentSymbolStrings.push_back("");
@@ -235,155 +237,158 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   nstringsvisible=0;
   glPushMatrix();
   glTranslatef(x, y, 0.0);
-  glRotatef(rot,0.0,0.0,1.0); 
+  glRotatef(rot,0.0,0.0,1.0);
   //scale linewidth to symbolsize
-  float linewidth=symbolSizeToPlot/50+1;  
+  float linewidth=symbolSizeToPlot/50+1;
   glLineWidth(linewidth);
   switch (drawIndex){
   case 1000:
     symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
-    drawSigText(0,0,whiteBox);	
+    drawSigText(0,0,whiteBox);
     break;
   case 1001:
-    drawSig1(0,0,SIG1SYMBOL);	
+    drawSig1(0,0,SIG1SYMBOL);
     break;
   case 1002:
-    drawSig1(0,0,SIG2SYMBOL);	
+    drawSig1(0,0,SIG2SYMBOL);
     break;
   case 1003:
-    drawSig1(0,0,SIG3SYMBOL);	
+    drawSig1(0,0,SIG3SYMBOL);
     break;
   case 1004:
-    drawSig1(0,0,SIG4SYMBOL);	
+    drawSig1(0,0,SIG4SYMBOL);
     break;
   case 1005:
-    drawSig5(0,0);	
+    drawSig5(0,0);
     break;
   case 1006:
-    drawSig6(0,0);	
+    drawSig6(0,0);
     break;
   case 1007:
     symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
-    drawSig7(0,0);	
-    break;       
+    drawSig7(0,0);
+    break;
   case 1008:
-    drawSig8(0,0);	
-    break;       
+    drawSig8(0,0);
+    break;
   case 1009:
-    drawSig9(0,0);	
-    break;       
+    drawSig9(0,0);
+    break;
   case 1010:
-    drawSig10(0,0);	
-    break;   
+    drawSig10(0,0);
+    break;
   case 1011:
-    drawSig11(0,0);	
-    break;       
+    drawSig11(0,0);
+    break;
   case 1012:
-    drawSig12(0,0);	
-    break;       
+    drawSig12(0,0);
+    break;
   case 1013:
-    drawSig13(0,0);	
-    break;       
+    drawSig13(0,0);
+    break;
   case 1014:
-    drawSig14(0,0);	
-    break;       
+    drawSig14(0,0);
+    break;
   case 1015:
-    drawSig15(0,0);	
-    break;       
+    drawSig15(0,0);
+    break;
   case 1016:
-    drawSig16(0,0);	
-    break;       
+    drawSig16(0,0);
+    break;
   case 1017:
-    drawSig17(0,0);	
-    break;       
+    drawSig17(0,0);
+    break;
   case 1018:
-    drawSig1(0,0,RIGHTARROW);	
-    break;       
+    drawSig1(0,0,RIGHTARROW);
+    break;
   case 1019:
-    drawSig1(0,0,LOWSYMBOL);	
-    break;       
+    drawSig1(0,0,LOWSYMBOL);
+    break;
   case 1020:
-    drawSig1(0,0,HIGHSYMBOL);	
-    break;       
+    drawSig1(0,0,HIGHSYMBOL);
+    break;
   case 1021:
-    drawSig1(0,0,THUNDERSYMBOL);	
+    drawSig1(0,0,THUNDERSYMBOL);
     break;
   case 1022:
-    drawSig1(0,0,CROSS);	
-    break;       
+    drawSig1(0,0,CROSS);
+    break;
   case 1023:
-    drawSig14(0,0);	
-    break; 
+    drawSig14(0,0);
+    break;
   case 1024:
-    drawSig15(0,0);	
-    break;             
+    drawSig15(0,0);
+    break;
   case 1025:
-    drawSig1(0,0,MOUNTAINWAVESYMBOL);	
-    break;             
+    drawSig1(0,0,MOUNTAINWAVESYMBOL);
+    break;
   case 1026:
-    drawSig1(0,0,VULCANOSYMBOL);	
-    break;             
+    drawSig1(0,0,VULCANOSYMBOL);
+    break;
   case 1027:
-    drawSig27(0,0);	
-    break;             
+    drawSig27(0,0);
+    break;
   case 1028:
-    drawSig28(0,0);	
-    break;             
+    drawSig28(0,0);
+    break;
   case 1029:
-    drawSig29(0,0);	
-    break;             
+    drawSig29(0,0);
+    break;
   case 1030:
-    drawSig30(0,0);	
-    break;             
+    drawSig30(0,0);
+    break;
   case 1031:
-    drawSig31(0,0);	
-    break;             
+    drawSig31(0,0);
+    break;
   case 1032:
-    drawSig32(0,0);	
-    break;             
+    drawSig32(0,0);
+    break;
   case 1033:
-    drawSig33(0,0);	
-    break;             
+    drawSig33(0,0);
+    break;
   case 1034:
-    drawSig34(0,0);	
-    break;             
+    drawSig34(0,0);
+    break;
   case 1035:
-    drawSig1(0,0,NEW_CROSS);	
-    break;       
+    drawSig1(0,0,NEW_CROSS);
+    break;
   case 1036:
-    drawSig36(0,0);	
-    break;       
+    drawSig36(0,0);
+    break;
   case 1037:
-    drawSig1(0,0,WIDESPREADBRSYMBOL);	
-    break;       
+    drawSig1(0,0,WIDESPREADBRSYMBOL);
+    break;
   case 1038:
-    drawSig1(0,0,MOUNTAINOBSCURATIONSYMBOL);	
-    break;       
+    drawSig1(0,0,MOUNTAINOBSCURATIONSYMBOL);
+    break;
   case 1039:
-    drawSig1(0,0,HAILSYMBOL);	
-    break; 
+    drawSig1(0,0,HAILSYMBOL);
+    break;
   case 1040:
-    drawSig40(0,0);	
-    break;       
+    drawSig40(0,0);
+    break;
   case 1041:
-    drawSig1(0,0,FOGSYMBOL);	
-    break; 
+    drawSig1(0,0,FOGSYMBOL);
+    break;
   case 1042:
-    drawSig1(0,0,SNOWSYMBOL);	
-    break; 
+    drawSig1(0,0,SNOWSYMBOL);
+    break;
   case 1043:
-    drawSig1(0,0,SNOWSHOWERSYMBOL);	
-    break; 
+    drawSig1(0,0,SNOWSHOWERSYMBOL);
+    break;
   case 1044:
-    drawSig1(0,0,SHOWERSYMBOL);	
-    break; 
-      
+    drawSig1(0,0,SHOWERSYMBOL);
+    break;
+  case 1045:
+    drawSig1(0,0,FZRASYMBOL);
+    break;
+
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
-    drawDoubleSigText(0,0);	
-    break;       
+    drawDoubleSigText(0,0);
+    break;
   default:
-    cerr << "ComplexSymbolPlot::drawComplexSymbols - Index " << 
+    cerr << "ComplexSymbolPlot::drawComplexSymbols - Index " <<
       drawIndex << " not defined " << endl;
     return;
   }
@@ -394,7 +399,7 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
 
 void ComplexSymbolPlot::drawSymbol(int index,float x,float y){
   float cw,ch;
-  fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+  fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
   fp->getCharSize(index,cw,ch);
   fp->drawChar(index,x-cw/2,y-ch/2,0.0);
 }
@@ -407,7 +412,7 @@ void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox){
   float cw,ch;
   getComplexSize(1999,cw,ch);
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-  fp->drawStr(sigString.c_str(),x-0.45*cw,y-0.4*ch,0.0); 
+  fp->drawStr(sigString.c_str(),x-0.45*cw,y-0.4*ch,0.0);
 }
 
 
@@ -415,13 +420,13 @@ void ComplexSymbolPlot::drawSigText(float x,float y, bool whitebox){
   initStrings(1000);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
-  drawSigString(x,y,whitebox); 
+  drawSigString(x,y,whitebox);
   nstringsvisible=1;
 }
 
 void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox){
   float cw1,ch1;
-  float cw2,ch2;  
+  float cw2,ch2;
   initStrings(2000);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
@@ -436,8 +441,8 @@ void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox){
 
 void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
   float cw1,ch1;
-  float cw2,ch2;  
-  float sw,sh;  
+  float cw2,ch2;
+  float sw,sh;
   initStrings(2000);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
@@ -461,7 +466,9 @@ void ComplexSymbolPlot::drawSig1(float x,float y, int metSymbol){
 }
 
 void ComplexSymbolPlot::drawSig5(float x,float y){
-  drawBox(1005,x,y);
+ if (whiteBox) {
+   drawBox(1005,x,y);
+ }
   float cw,ch;
   getComplexSize(1001,cw,ch);
   drawSymbol(SIG1SYMBOL,x-0.4*cw,y+0.3*ch);
@@ -477,7 +484,9 @@ void ComplexSymbolPlot::drawSig5(float x,float y){
 
 
 void ComplexSymbolPlot::drawSig6(float x,float y){
-  drawBox(1006,x,y);
+  if (whiteBox) {
+    drawBox(1006,x,y);
+  }
   float cw,ch;
   getComplexSize(1003,cw,ch);
   drawSymbol(SIG3SYMBOL,x-0.3*cw,y+1.05*ch);
@@ -499,17 +508,17 @@ void ComplexSymbolPlot::drawSig7(float x,float y){
   }
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   float cw1,ch1;
-  float cw2,ch2;  
+  float cw2,ch2;
   fp->getStringSize(xstrings[0].c_str(),cw1,ch1);
   fp->getStringSize(xstrings[1].c_str(),cw2,ch2);
-  fp->drawStr(xstrings[0].c_str(),x-cw1/2,y+0.1*ch1,0.0);      
-  fp->drawStr(xstrings[1].c_str(),x-cw2/2,y-1.1*ch2,0.0); 
+  fp->drawStr(xstrings[0].c_str(),x-cw1/2,y+0.1*ch1,0.0);
+  fp->drawStr(xstrings[1].c_str(),x-cw2/2,y-1.1*ch2,0.0);
   float sw,sh;
   getComplexSize(1007,sw,sh);
   glBegin(GL_LINE_STRIP);
   glVertex2f(x-sw/2,y);
   glVertex2f(x+sw/2,y);
-  glEnd();     
+  glEnd();
   xvisible=true;
 }
 
@@ -660,35 +669,43 @@ void ComplexSymbolPlot::drawSig22(float x,float y){
 
 //Sea temp, blue circle
 void ComplexSymbolPlot::drawSig27(float x,float y){
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawCircle(1000,x,y,true);
   drawSigString(x,y,false);
   nstringsvisible=1;
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 }
 
 //Mean SFC wind, red diamond
 void ComplexSymbolPlot::drawSig28(float x,float y){
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawDiamond(1000,x,y);
   drawSigString(x,y,false);
   nstringsvisible=1;
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 }
 
 // Sea state, black flag
 void ComplexSymbolPlot::drawSig29(float x,float y){
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink/2);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawFlag(1000,x,y,true); //fill;
   drawFlag(1000,x,y,false); //border
   drawSigString(x,y,false);
   nstringsvisible=1;
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink*2);
 }
 
 // Freezing fog
 void ComplexSymbolPlot::drawSig30(float x,float y){
-  drawBox(1030,x,y);
+  if(whiteBox) {
+    drawBox(1030,x,y);
+  }
   drawSymbol(FOGSYMBOL,x,y);
   GLfloat currentColor[4];
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
@@ -696,7 +713,7 @@ void ComplexSymbolPlot::drawSig30(float x,float y){
   float cw,ch;
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot/2);
   fp->getStringSize("V",cw,ch);
-  fp->drawStr("V",x-cw/2,y-ch/2,0.0); 
+  fp->drawStr("V",x-cw/2,y-ch/2,0.0);
   //  drawSymbol(135,x,y);
   glColor4fv(currentColor);
 
@@ -713,7 +730,7 @@ void ComplexSymbolPlot::drawSig31(float x,float y){
 void ComplexSymbolPlot::drawSig32(float x,float y){
 
   drawPrecipitation(x,y);
-  
+
 }
 
 //Visibility, black rectangular box
@@ -731,7 +748,7 @@ void ComplexSymbolPlot::drawSig33(float x,float y){
 
 }
 
-//Vulcano box, 
+//Vulcano box,
 void ComplexSymbolPlot::drawSig34(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   if (whiteBox) drawBox(1034,x,y,true);
@@ -748,7 +765,7 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
     sigString=symbolStrings[0];
     drawSigString(x,y,false);
   } else if (symbolStrings.size()==2){
-    drawDoubleSigText(x,y,false);	
+    drawDoubleSigText(x,y,false);
   }
   //  nstringsvisible=1;
   float sw,sh;
@@ -807,7 +824,7 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
   GLfloat y1;
   GLfloat offset=sh/3;
 
-  glLineWidth(3);
+  glLineWidth(1);
   if(fill) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
@@ -824,7 +841,7 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
     y1 = y2 - 0.5*radius*sin(i*PI/10.0);
     glVertex2f(x1,y1+offset);
     offset-=sh/30;
-  }   
+  }
   offset+=sh/30;
 
   for(int i=0;i<10;++i){
@@ -832,7 +849,7 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
       y1 = y2+0.5*radius*sin(i*PI/10.0);
       glVertex2f(x1,y1+offset);
       offset-=sh/30;
-  }   
+  }
 
   glVertex2f(x+sw,y+0.5*sh+offset);
   glVertex2f(x+sw,y-0.5*sh+offset);
@@ -843,17 +860,17 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
       y1 = y3+0.5*radius*sin(i*PI/10.0);
       glVertex2f(x1,y1+offset);
       offset+=sh/30;
-  }   
+  }
   offset-=sh/30;
 
   for(int i=0;i<10;++i){
     x1 = x +radius*cos(i*PI/10.0)-sw/2;
     y1 = y3 - 0.5*radius*sin(i*PI/10.0);
     glVertex2f(x1,y1+offset);
-   
+
 
  offset+=sh/30;
-  }   
+  }
 
   glEnd();
 
@@ -861,8 +878,8 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
 }
 
 void ComplexSymbolPlot::drawCircle(int index,
-				   float x, 
-				   float y, 
+				   float x,
+				   float y,
 				   bool circle){
 
   GLfloat currentColor[4];
@@ -910,7 +927,7 @@ void ComplexSymbolPlot::drawCircle(int index,
   }
 
   //draw circle
-  glLineWidth(3);
+  glLineWidth(2);
   glBegin(GL_LINE_LOOP);
   glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
   glBegin(GL_POLYGON);
@@ -957,8 +974,8 @@ void ComplexSymbolPlot::drawDiamond(int index,float x, float y){
     glEnd();
    }
 
-  //draw circle
-  glLineWidth(3);
+  //draw diamond
+  glLineWidth(2);
   glBegin(GL_LINE_LOOP);
   glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
   glBegin(GL_POLYGON);
@@ -1052,7 +1069,7 @@ void ComplexSymbolPlot::drawPrecipitation(float x, float y){
   getComplexSize(1026,sw,sh);
   GLfloat xc,yc;
 
-  glRotatef(-45,0.0,0.0,1.0); 
+  glRotatef(-45,0.0,0.0,1.0);
 
   if (whiteBox) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1084,7 +1101,7 @@ void ComplexSymbolPlot::drawPrecipitation(float x, float y){
       glVertex2f(-sw/4,-sh/2);
     glEnd();
 
-  glRotatef(45,0.0,0.0,1.0); 
+  glRotatef(45,0.0,0.0,1.0);
 
   glColor4fv(currentColor);
 }
@@ -1092,11 +1109,11 @@ void ComplexSymbolPlot::drawPrecipitation(float x, float y){
 void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
   float cw,ch;
   float cw1,ch1;
-  float cw2,ch2;  
+  float cw2,ch2;
   diffx=0;
   diffy=0;
   if (index < 1000){
-    fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+    fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
     fp->getCharSize(index,cw,ch);
     sw=ch; sh=ch;
   }
@@ -1116,32 +1133,32 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       }
       break;
     case 1001:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(SIG2SYMBOL,cw,ch);
       sw=1.4*cw; sh=1.8*ch;
       break;
     case 1002:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(SIG2SYMBOL,cw,ch);
       sw=1.4*cw; sh=1.8*ch;
       break;
-    case 1003:   
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+    case 1003:
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(SIG3SYMBOL,cw,ch);
       sw=1.2*cw; sh=ch;
       break;
     case 1004:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(SIG3SYMBOL,cw,ch);
       sw=1.2*cw; sh=1.4*ch;
       break;
     case 1005:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       getComplexSize(1001,cw,ch);
       sw=1.8*cw; sh=1.5*ch;
       break;
     case 1006:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       getComplexSize(1003,cw,ch);
       sw=1.8*cw; sh=2.8*ch;
       break;
@@ -1151,14 +1168,14 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
 	fp->getStringSize(xstrings[0].c_str(),cw1,ch1);
       if (xstrings.size()>1)
 	fp->getStringSize(xstrings[1].c_str(),cw2,ch2);
-      if (cw1>cw2) 
+      if (cw1>cw2)
 	sw=cw1;
       else
 	sw=cw2;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=2.0*ch1;
       else
-	sh=2.0*ch2;      
+	sh=2.0*ch2;
       break;
     case 1008:
       getComplexSize(1001,cw1,ch1);
@@ -1167,10 +1184,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;  
+	sh=ch2;
       break;
     case 1009:
       getComplexSize(1002,cw1,ch1);
@@ -1179,10 +1196,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;      
+	sh=ch2;
       break;
     case 1010:
       getComplexSize(1005,cw1,ch1);
@@ -1191,10 +1208,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;      
+	sh=ch2;
       break;
     case 1011:
       getComplexSize(1003,cw1,ch1);
@@ -1202,10 +1219,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       getComplexSize(1007,cw2,ch2);
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;      
+	sh=ch2;
       break;
     case 1012:
       getComplexSize(1004,cw1,ch1);
@@ -1214,10 +1231,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;      
+	sh=ch2;
       break;
     case 1013:
       getComplexSize(1006,cw1,ch1);
@@ -1226,10 +1243,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;      
+	sh=ch2;
       break;
     case 1014:
       symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
@@ -1238,10 +1255,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;      
+	sh=ch2;
       break;
     case 1015:
       symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
@@ -1250,10 +1267,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sh=ch1+ch2;
       diffy=(ch2-ch1)*0.5;
-      if (cw1>cw2) 
+      if (cw1>cw2)
 	sw=cw1;
       else
-	sw=cw2;      
+	sw=cw2;
       break;
     case 1016:
       symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
@@ -1262,46 +1279,46 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
-      if (ch1>ch2) 
+      if (ch1>ch2)
 	sh=ch1;
       else
-	sh=ch2;      
+	sh=ch2;
       break;
     case 1017:
       getComplexSize(1000,sw,sh);
       break;
     case 1018:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(RIGHTARROW,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1019:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(LOWSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1020:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(HIGHSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1021:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(THUNDERSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1022:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(CROSS,cw,ch);
       sw=cw; sh=0.5*ch;
       break;
     case 1025:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);            
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(MOUNTAINWAVESYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1026:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(VULCANOSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
@@ -1315,7 +1332,7 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       getComplexSize(1000,sw,sh);
       break;
     case 1030:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(FOGSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
@@ -1337,12 +1354,12 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
 	fp->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
 	if (cw2>cw1)  cw1=cw2;
 	ch1 += ch2 ;
-	sw = cw1 * 1.3; 
+	sw = cw1 * 1.3;
 	sh = ch1 * 1.3;
       }
       break;
     case 1035:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(NEW_CROSS,cw,ch);
       sw=cw; sh=0.5*ch;
       break;
@@ -1354,13 +1371,13 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
 	  fp->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
 	  if (cw2>sh)  sw=cw2;
 	  sh += ch2 ;
-	} 
-	sw *= 1.7; 
+	}
+	sw *= 1.7;
 	sh *= 1.1;
       }
       break;
     case 1037:
-      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);       
+      fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(WIDESPREADBRSYMBOL,cw,ch);
       sh =ch;
       sw=cw;
@@ -1373,26 +1390,26 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sh=ch1+ch2;
       diffy=(ch2-ch1)*0.5;
-      if (cw1>cw2) 
+      if (cw1>cw2)
 	sw=cw1;
       else
-	sw=cw2;      
+	sw=cw2;
       break;
     case 2000:
       if (symbolStrings.size()>1){
 	float cw1,ch1;
-	float cw2,ch2;  
+	float cw2,ch2;
 	fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
 	fp->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
 	fp->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
-	if (cw1>cw2) 
+	if (cw1>cw2)
 	  sw=cw1;
 	else
 	  sw=cw2;
-	if (ch1>ch2) 
+	if (ch1>ch2)
 	  sh=1.8*ch1;
 	else
-	  sh=1.8*ch2;      	
+	  sh=1.8*ch2;
       }
       break;
     }
@@ -1427,93 +1444,95 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
   //cerr << "complexSymbolPlot::isComplexText " << drawIndex << endl;
   switch (drawIndex){
   case 1000:
-    return true;	
+    return true;
   case 1001:
-    return false;	
+    return false;
   case 1002:
-    return false;	
+    return false;
   case 1003:
-    return false;	
+    return false;
   case 1004:
-    return false;	
+    return false;
   case 1005:
-    return false;	
+    return false;
   case 1006:
-    return false;	
+    return false;
   case 1007:
-    return true;	
+    return true;
   case 1008:
-    return true;	
+    return true;
   case 1009:
-    return true;	
+    return true;
   case 1010:
-    return true;	
+    return true;
   case 1011:
-    return true;	
+    return true;
   case 1012:
-    return true;	
+    return true;
   case 1013:
-    return true;	
+    return true;
   case 1014:
-    return true;	
+    return true;
   case 1015:
-    return true;	
+    return true;
   case 1016:
-    return true;	
+    return true;
   case 1017:
-    return true;	
+    return true;
   case 1018:
-    return false;	
+    return false;
   case 1019:
-    return false;	
+    return false;
   case 1020:
-    return false;	
+    return false;
   case 1021:
-    return false;	
+    return false;
   case 1022:
-    return false;	
+    return false;
   case 1023:
-    return true;	
+    return true;
   case 1024:
-    return true;	
+    return true;
   case 1027:
-    return true;	
+    return true;
   case 1028:
-    return true;	
+    return true;
   case 1029:
-    return true;	
+    return true;
   case 1030:
-    return true;	
+    return false;
   case 1031:
-    return true;	
+    return false;
   case 1032:
-    return true;	
+    return false;
   case 1033:
-    return true;	
+    return true;
   case 1034:
-    return true;	
+    return true;
   case 1035:
-    return false;	
+    return false;
   case 1036:
-    return true;	
+    return true;
   case 1037:
-    return false;	
+    return false;
   case 1038:
-    return false;	
+    return false;
   case 1039:
-    return false;	
+    return false;
   case 1040:
-    return true;	
+    return true;
   case 1041:
-    return false;	
+    return false;
   case 1042:
-    return false;	
+    return false;
   case 1043:
-    return false;	
+    return false;
   case 1044:
-    return false;	
+    return false;
+  case 1045:
+    return false;
   case 2000:
-    return true;	
+    return true;
   default:
     return false;
   }
@@ -1521,7 +1540,7 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
 
 
 
-void ComplexSymbolPlot::getCurrentComplexText(vector <miString> & symbolText, 
+void ComplexSymbolPlot::getCurrentComplexText(vector <miString> & symbolText,
 					  vector <miString> & xText){
   symbolText=currentSymbolStrings;
   xText=currentXStrings;
@@ -1544,7 +1563,7 @@ void ComplexSymbolPlot::getComplexText(vector <miString> & symbolText, vector <m
 #ifdef DEBUGPRINT
   cerr << "ComplexSymbolPlot::getComplexText" << endl;
 #endif
-  if (xvisible) 
+  if (xvisible)
     xText=xstrings;
   symbolText.clear();
   for (int i = 0;i<nstringsvisible && i<symbolStrings.size();i++)
@@ -1616,7 +1635,7 @@ miString ComplexSymbolPlot::writeComplexText(){
       for (int i=0;i<nx;i++){
 	miString tempString=xstrings[i];
 	WeatherSymbol::replaceText(tempString,true);
-	ret+=tempString;	
+	ret+=tempString;
 	if (i<nx-1)
 	  ret+=",";
       }
