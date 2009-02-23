@@ -74,6 +74,7 @@ void GridArea::init(Area orgProj, Area currentProj){
 	reset();
 	dirty = true;
 	selected = false;
+	showNextPoint = false;
 }
 
 ProjectablePolygon & GridArea::getPolygon() {
@@ -81,6 +82,7 @@ ProjectablePolygon & GridArea::getPolygon() {
 }
 
 bool GridArea::addPoint(Point p){
+  showNextPoint = false;
 	if(mode == EDIT){
 		displayEditPolygon.push_back(p);
 		return true;
@@ -123,20 +125,11 @@ bool GridArea::plot(){
 
 void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	list<Point> points = p.get_points();
+	if (points.empty()) return;
 	list<Point>::iterator current = points.begin();
 	Point p1, pb;
 	p1 = pb = (Point) *current;
-
-/*
-	glLineWidth(2);
-  glColor3d(1,1,0.0);
-	if(p.getPointCount() > 4) {
-	  Point center = p.getCenterPoint();
-	  double d = 1.0;
-	  glRectd(center.get_x()-d, center.get_y()-d, center.get_x()+d, center.get_y()+d);
-	}
-*/
-
+	
   glLineWidth(1);
 	glBegin(GL_LINE_STRIP); // GL_LINE_LOOP
 	if(!main_polygon)
@@ -149,14 +142,21 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	}
 	while (++current != points.end());
 
-	if( (main_polygon && !isEmptyArea()) || (!main_polygon && !isEmptyEditArea()) ){	//connect end to beginning
+	if (mode == NORMAL){	//connect end to beginning
   		glVertex2f(pb.get_x(),pb.get_y());
 	}
 	glFlush();
 	glEnd();
-	//  Point center = p.getCenterPoint();
-	  //TEST
-	//  glRectd(center.get_x(), center.get_y(), center.get_x(), center.get_y());
+	
+	if (showNextPoint && ( (mode == PAINTING && main_polygon ) ||
+	        (mode == EDIT && !main_polygon) ) ) {
+	  glColor3d(0.5,0.5,0.5);
+	  glBegin(GL_LINE_STRIP); // GL_LINE_LOOP
+    glVertex2f(p1.get_x(),p1.get_y());
+    glVertex2f(nextPoint.get_x(),nextPoint.get_y());
+    glFlush();
+    glEnd();
+	}
 }
 
 void GridArea::fillPolygon(Polygon & p, bool main_polygon){
@@ -327,7 +327,7 @@ void GridArea::doMove(){
 
 void GridArea::startDraw(Point p){
 	LOG4CXX_DEBUG(logger,"startDraw ("<<p.toString()<<")");
-	mode = NORMAL;
+	mode = PAINTING;
 	displayPolygon.clearPoints();
 	polygon.clearPoints();
 	addPoint(p);
@@ -343,6 +343,7 @@ void GridArea::doDraw(){
 		displayPolygon = polygon.getInCurrentProjection();
 	}
   saveChange();
+  mode = NORMAL;
 }
 
 

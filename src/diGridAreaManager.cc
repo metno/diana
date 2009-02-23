@@ -59,8 +59,24 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     float x, float y) {
 
   // catch right click event
-  if (me.button== rightButton && paintMode==SELECT_MODE){
-    res.action=rightclick;
+  if (me.button == rightButton){
+    if (paintMode == SELECT_MODE) {
+      res.action=rightclick;
+      return;
+    } else if (paintMode == INCLUDE_MODE) {
+      gridAreas[currentId].addPoint(Point(x, y));
+      bool added = gridAreas[currentId].addEditPolygon();
+    } else if (paintMode == CUT_MODE) {
+      gridAreas[currentId].addPoint(Point(x, y));
+      bool deleted = gridAreas[currentId].deleteEditPolygon();
+    } else if (paintMode == DRAW_MODE) {
+      gridAreas[currentId].addPoint(Point(x, y));
+      gridAreas[currentId].doDraw();
+    }
+    gridAreas[currentId].setMode(gridAreas[currentId].NORMAL);
+    res.repaint = true;
+    res.action = grid_area_changed;
+    inDrawing = false;
     return;
   }
 
@@ -91,18 +107,26 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
         LOG4CXX_WARN(logger,getModeAsString() <<
             " not possible. No selected area " << currentId);
         return;
-      } else if (paintMode==MOVE_MODE) {
-          LOG4CXX_DEBUG(logger,"Starting move " << currentId);
-          gridAreas[currentId].startMove();
-      } else if (paintMode==SPATIAL_INTERPOLATION) {
-          LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
-          gridAreas[currentId].startMove();
-      } else if (paintMode==INCLUDE_MODE || paintMode==CUT_MODE) {
-        LOG4CXX_DEBUG(logger,"Starting edit " << currentId);
-        gridAreas[currentId].startEdit(Point(newx, newy));
-      } else if (paintMode==DRAW_MODE) {
-        LOG4CXX_DEBUG(logger,"Starting draw " << currentId);
-        gridAreas[currentId].startDraw(Point(newx, newy));
+      } else if (paintMode == MOVE_MODE) {
+        LOG4CXX_DEBUG(logger,"Starting move " << currentId);
+        gridAreas[currentId].startMove();
+      } else if (paintMode == SPATIAL_INTERPOLATION) {
+        LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
+        gridAreas[currentId].startMove();
+      } else if (paintMode == INCLUDE_MODE || paintMode == CUT_MODE) {
+        if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
+          LOG4CXX_DEBUG(logger,"Starting edit " << currentId);
+          gridAreas[currentId].startEdit(Point(newx, newy));
+        } else if (gridAreas[currentId].getMode() == GridArea::EDIT) {
+          gridAreas[currentId].addPoint(Point(newx, newy));
+        }
+      } else if (paintMode == DRAW_MODE) {
+        if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
+          LOG4CXX_DEBUG(logger,"Starting draw " << currentId);
+          gridAreas[currentId].startDraw(Point(newx, newy));
+        } else if (gridAreas[currentId].getMode() == GridArea::PAINTING) {
+          gridAreas[currentId].addPoint(Point(newx, newy));
+        }
       }
       res.repaint = true;
     }
@@ -120,6 +144,11 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
         gridAreas[currentId].addPoint(Point(newx, newy));
         res.repaint = true;
       }
+    } else { // mousemove - no button
+      if (paintMode==DRAW_MODE || paintMode==INCLUDE_MODE || paintMode==CUT_MODE) {
+        gridAreas[currentId].setNextPoint(Point(newx, newy));
+        res.repaint = true;
+      }
     }
   } else if (me.type == mouserelease) {
     if (me.button == leftButton) {
@@ -135,18 +164,9 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
         }
         gridAreas[currentId].doMove();
         hasinterpolated = true;
-      } else if (paintMode == INCLUDE_MODE) {
-        bool added = gridAreas[currentId].addEditPolygon();
-      } else if (paintMode == CUT_MODE) {
-        bool deleted = gridAreas[currentId].deleteEditPolygon();
-      } else if (paintMode == DRAW_MODE) {
-        gridAreas[currentId].doDraw();
       }
-      gridAreas[currentId].setMode(gridAreas[currentId].NORMAL);
       res.repaint= true;
-      res.action=grid_area_changed;
     }
-    inDrawing = false;
   }
 }
 

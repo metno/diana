@@ -60,7 +60,7 @@ using namespace std;
 class GridArea : public Plot{
 
 public:
-	enum AreaMode{NORMAL,EDIT,MOVE};
+	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING,EDITING};
   enum DrawStyle{DEFAULT,OVERVIEW,GHOST};
 
 private:
@@ -75,6 +75,10 @@ private:
 	ProjectablePolygon editPolygon;
 	//Displayed polygon to be added or deleted
 	Polygon displayEditPolygon;
+	//Displayed point to be added (painting and editing mode)
+	Point nextPoint;
+	// Display next point flag
+	bool showNextPoint;
 
   list< ProjectablePolygon >  undobuffer;
   list< ProjectablePolygon >  redobuffer;
@@ -128,6 +132,11 @@ public:
 	void startDraw(Point startPoint);
 	///End draw-session
 	void doDraw();
+	/// Set next point 
+	void setNextPoint(const Point & p) {
+	  nextPoint = p;
+	  showNextPoint = true;
+  } 
 	///Start move session
 	void startMove();
 	///Set difference between original position and new position
