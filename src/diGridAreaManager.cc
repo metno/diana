@@ -14,6 +14,7 @@ GridAreaManager::GridAreaManager() :
   inDrawing = false;
   changeCursor = true;
   currentId = "";
+  base_proj = GridArea::getStandardProjection();
 }
 GridAreaManager::~GridAreaManager() {
 }

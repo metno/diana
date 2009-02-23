@@ -87,7 +87,6 @@ private:
 	bool colours_defined;
   Colour fillcolour;
 
-	Area getStandardProjection();
 	void resetEditPolygon();
 	void fillPolygon(Polygon & p,bool main);
 	void fillActivePolygon(Polygon & p,bool main);
@@ -159,6 +158,8 @@ public:
   bool isRedoPossible();
   /// Perform redo. Returns true if success
   bool redo();
+  ///Standard Projection
+  static Area getStandardProjection();
 };
 
 #endif /*DIGRIDAREA_H_*/

@@ -10,6 +10,19 @@ using namespace std;
 
 int GridArea::maxBuffer = 8;
 
+
+Area GridArea::getStandardProjection(){
+  Rectangle rect(-34.9654,350.661,-47.0971,524.112);
+  float pgf[6] = {11.045,-5.455,0.036,0.036,-24,66.5};
+// Hirlam20
+//  Rectangle rect(1,468,1,378);
+//  float pgf[6] = {-46.5,-36.5,0.2,0.2,0,65};
+  Projection proj(3,pgf);
+  Area a(proj,rect);
+  return a;
+}
+
+
 GridArea::GridArea():Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
 	Area stdProj = getStandardProjection();
 	init(stdProj,stdProj);
@@ -62,20 +75,6 @@ void GridArea::init(Area orgProj, Area currentProj){
 	dirty = true;
 	selected = false;
 }
-
-Area GridArea::getStandardProjection(){
-	Rectangle rect(-34.9654,350.661,-47.0971,524.112);
-	float pgf[6] = {11.045,-5.455,0.036,0.036,-24,66.5};
-
-// Hirlam20
-// 	Rectangle rect(1,468,1,378);
-// 	float pgf[6] = {-46.5,-36.5,0.2,0.2,0,65};
-
-	Projection proj(3,pgf);
-	Area a(proj,rect);
-	return a;
-}
-
 
 ProjectablePolygon & GridArea::getPolygon() {
 	return polygon;
