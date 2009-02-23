@@ -274,6 +274,7 @@ bool GridArea::addEditPolygon(){
 	editPolygon.setCurrentProjectionPoints(displayEditPolygon);
 	AbstractablePolygon a1(1,polygon);
 	AbstractablePolygon a2(1,editPolygon);
+	a2.removeSharedSegments(a1);
 	bool added = a1.addPolygon(a2);
 	if(added){
 		polygon.setPoints(a1.getPoints());
@@ -289,6 +290,7 @@ bool GridArea::deleteEditPolygon(){
 	editPolygon.setCurrentProjectionPoints(displayEditPolygon);
 	AbstractablePolygon a1(1,polygon);
 	AbstractablePolygon a2(1,editPolygon);
+  a2.removeSharedSegments(a1);
 	bool deleted = a1.deletePolygon(a2);
 	if(deleted){
 		polygon.setPoints(a1.getPoints());
