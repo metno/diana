@@ -158,22 +158,15 @@ veryclean:
 	rm -rf $(OBJDIR)
 
 # install
-DESTNAME=diana-3.7.1
-COPYFILES=bin/diana bin/dianaTEST bin/bdiana bin/diana.bin
+DESTNAME=diana-3.8.0
+COPYFILES=bin/diana  bin/bdiana bin/diana.bin
 COPYDIRS=
 COPYTREES= share etc
 BINLINKS=
-#
+COPYTESTFILES=bin/dianaTEST
+COPYTESTTREES=share 
+RENAMETESTFILES=bin/bdiana bin/diana.bin
 
-#CONFDESTNAME=diana_conf
-
-CONFFILES=
-CONFTREES=
-TESTDESTNAME=dianaTEST
-TESTBINLINKS=dianaTEST.sh 
-#
-PROFFDESTNAME=dianaPROFF
-PROFFBINLINKS=dianaPROFF.sh 
 
 include ../conf/install.mk
 
