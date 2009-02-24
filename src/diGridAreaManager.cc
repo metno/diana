@@ -157,6 +157,7 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
         return;
       } else if (paintMode == MOVE_MODE) {
         gridAreas[currentId].doMove();
+        res.action = grid_area_changed;
       } else if (paintMode == SPATIAL_INTERPOLATION) {
         vector<SpatialInterpolateArea>::iterator gitr;
         for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end(); gitr++){
@@ -164,6 +165,7 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
         }
         gridAreas[currentId].doMove();
         hasinterpolated = true;
+        res.action = grid_area_changed;
       }
       res.repaint= true;
     }
