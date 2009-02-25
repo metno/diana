@@ -132,7 +132,7 @@
     </message>
     <message>
         <source>&amp;Apply plot</source>
-        <translation>&amp;Utfør plott</translation>
+        <translation>Utf&amp;ør plott</translation>
     </message>
     <message>
         <source>Add to q&amp;uickmenu</source>
@@ -196,11 +196,7 @@
     </message>
     <message>
         <source>&amp;Uffda Service</source>
-        <translation>Uff&amp;da tjeneste</translation>
-    </message>
-    <message>
-        <source>&amp;Documentation</source>
-        <translation>&amp;Dokumentasjon</translation>
+        <translation>&amp;Uffda tjeneste</translation>
     </message>
     <message>
         <source>&amp;Accelerators</source>
@@ -326,10 +322,6 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation>EPS cluster/medlem e.l. ned</translation>
     </message>
     <message>
-        <source>&amp;Paint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Lat/Lon in decimal degrees</source>
         <translation>Lat/Lon i desimalgrader</translation>
     </message>
@@ -339,7 +331,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
         <source>&amp;Field Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Felt &amp;Editering</translation>
     </message>
     <message>
         <source>File</source>
@@ -347,7 +339,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Save &amp;animation...</source>
@@ -420,6 +412,14 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Avbryt</translation>
+    </message>
+    <message>
+        <source>Field E&amp;dit</source>
+        <translation type="unfinished">Felt E&amp;ditering</translation>
+    </message>
+    <message>
+        <source>Documentation</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2020,6 +2020,18 @@ Kan ikke starte produksjon</translation>
         <source>&amp;Redo</source>
         <translation>&amp;Gjør om</translation>
     </message>
+    <message>
+        <source>&amp;Add Point</source>
+        <translation>L&amp;egg Til Punkt</translation>
+    </message>
+    <message>
+        <source>&amp;Remove Point</source>
+        <translation>F&amp;jern Punkt</translation>
+    </message>
+    <message>
+        <source>&amp;Move Point</source>
+        <translation>Fly&amp;tt Punkt</translation>
+    </message>
 </context>
 <context>
     <name>PolygonBookmarkDialog</name>
@@ -2073,7 +2085,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå Sammen Alle</translation>
     </message>
     <message>
         <source>Ctrl+-</source>
@@ -2081,7 +2093,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Collapse the whole tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå sammen hele treet</translation>
     </message>
     <message>
         <source>expand All</source>
@@ -2209,7 +2221,7 @@ Kan ikke starte produksjon</translation>
     <name>ProfetSessionDialog</name>
     <message>
         <source>Edit Field Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Feltediteringsesjon</translation>
     </message>
     <message>
         <source>New</source>
@@ -2237,26 +2249,30 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis</translation>
     </message>
     <message>
         <source>Timesmooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidsglatting</translation>
     </message>
     <message>
         <source>Reconnect...</source>
-        <translation type="unfinished"></translation>
+        <translation>Koble til på nytt ...</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Oppdater</translation>
+    </message>
+    <message>
+        <source>Auto Zoom</source>
+        <translation>Autofokus</translation>
     </message>
 </context>
 <context>
     <name>ProfetTimeSmoothDialog</name>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Angre</translation>
+        <translation>&amp;Angre</translation>
     </message>
     <message>
         <source>Ctrl+Z</source>
@@ -2268,7 +2284,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Gjør om</translation>
+        <translation>&amp;Gjør om</translation>
     </message>
     <message>
         <source>Ctrl+Y</source>
@@ -2276,31 +2292,31 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>redo</source>
-        <translation type="unfinished"></translation>
+        <translation>gjenta</translation>
     </message>
     <message>
         <source>&amp;Run</source>
-        <translation type="unfinished"></translation>
+        <translation>Kjø&amp;r</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished">Ctrl+R</translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Run the current objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Kjør aktuelle objekter</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished">&amp;Avslutt</translation>
+        <translation>&amp;Avslutt</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
-        <translation type="unfinished">Ctrl+Q</translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <source>Close this window</source>
-        <translation type="unfinished"></translation>
+        <translation>Lukk dette viduet</translation>
     </message>
     <message>
         <source>Action</source>
@@ -2308,39 +2324,39 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kopier</translation>
+        <translation>&amp;Kopier</translation>
     </message>
     <message>
         <source>F10</source>
-        <translation type="unfinished"></translation>
+        <translation>F10</translation>
     </message>
     <message>
         <source>Copy from the parent object </source>
-        <translation type="unfinished"></translation>
+        <translation>Kopier fra mor-objekt</translation>
     </message>
     <message>
         <source>&amp;Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Lineær</translation>
     </message>
     <message>
         <source>F11</source>
-        <translation type="unfinished"></translation>
+        <translation>F11</translation>
     </message>
     <message>
         <source>Linear Interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineær Interpolasjon</translation>
     </message>
     <message>
         <source>&amp;Reset Line</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nullstill Linje</translation>
     </message>
     <message>
         <source>F9</source>
-        <translation type="unfinished"></translation>
+        <translation>F9</translation>
     </message>
     <message>
         <source>Reset from the parent to the choosen one </source>
-        <translation type="unfinished"></translation>
+        <translation>Nullstill fra moren til den valgte</translation>
     </message>
     <message>
         <source>Reset &amp;Single</source>
@@ -2348,7 +2364,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>F8</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F8</translation>
     </message>
     <message>
         <source>Reset single column </source>
@@ -2356,15 +2372,15 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Metode</translation>
     </message>
     <message>
         <source>Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametere</translation>
     </message>
     <message>
         <source>timesmooth</source>
-        <translation type="unfinished"></translation>
+        <translation>tidsglatting</translation>
     </message>
     <message>
         <source>There are changed and unprocessed objects.
@@ -2376,7 +2392,7 @@ Do you want to run your changes first?</source>
     <name>ProfetWaitDialog</name>
     <message>
         <source>Reconnecting..</source>
-        <translation type="unfinished"></translation>
+        <translation>Kobler til på nytt..</translation>
     </message>
 </context>
 <context>
