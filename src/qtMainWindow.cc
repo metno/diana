@@ -356,9 +356,9 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   // ----------------------------------------------------------------
 
   if(enableProfet) {
-    toggleProfetGUIAction = new QAction( QPixmap(profet_xpm ),tr("&Field Edit"), this );
+    toggleProfetGUIAction = new QAction( QPixmap(profet_xpm ),tr("Field E&dit"), this );
   } else {
-    toggleProfetGUIAction = new QAction( QPixmap(),tr("&Field Edit"), this );
+    toggleProfetGUIAction = new QAction( QPixmap(),tr("Field E&dit"), this );
   }
   toggleProfetGUIAction->setShortcutContext(Qt::ApplicationShortcut);
   toggleProfetGUIAction->setCheckable(true);
