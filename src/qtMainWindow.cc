@@ -344,6 +344,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   // ----------------------------------------------------------------
 
   profetLoginError = new QErrorMessage(this);
+  /* Paint mode not implemented
   if(enableProfet){
     togglePaintModeAction = new QAction( QPixmap(paint_mode_xpm),tr("&Paint"), this );
   } else {
@@ -353,10 +354,12 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   togglePaintModeAction->setShortcut(Qt::ALT+Qt::Key_P);
   togglePaintModeAction->setCheckable(true);
   connect( togglePaintModeAction, SIGNAL( toggled(bool) ), SLOT( togglePaintMode() ) );
+  */
   // ----------------------------------------------------------------
 
   if(enableProfet) {
     toggleProfetGUIAction = new QAction( QPixmap(profet_xpm ),tr("Field E&dit"), this );
+    toggleProfetGUIAction->setShortcut(Qt::ALT + Qt::Key_D);
   } else {
     toggleProfetGUIAction = new QAction( QPixmap(),tr("Field E&dit"), this );
   }
@@ -369,7 +372,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
 
   // help ======================
   // --------------------------------------------------------------------
-  helpDocAction = new QAction( tr("&Documentation"), this );
+  helpDocAction = new QAction( tr("Documentation"), this );
   helpDocAction->setShortcutContext(Qt::ApplicationShortcut);
   helpDocAction->setShortcut(Qt::Key_F1);
   helpDocAction->setCheckable(false);
@@ -585,7 +588,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
 
   if(enableProfet){
     showmenu->addAction(  toggleProfetGUIAction );
-    showmenu->addAction( togglePaintModeAction );
+    //showmenu->addAction( togglePaintModeAction );
   }
   if (uffda){
     showmenu->addAction( showUffdaDialogAction );
@@ -700,7 +703,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   mainToolbar->addAction( showWaveSpectrumDialogAction);
   if(enableProfet){
     mainToolbar->addAction( toggleProfetGUIAction       );
-    mainToolbar->addAction( togglePaintModeAction   );
+    //mainToolbar->addAction( togglePaintModeAction   );
   }
 
   mainToolbar->addSeparator();
@@ -1218,7 +1221,8 @@ void DianaMainWindow::recallPlot(const vector<miString>& vstr,bool replace)
 
 void DianaMainWindow::togglePaintMode()
 {
-  bool inPaintMode = togglePaintModeAction->isChecked();
+  bool inPaintMode = paintToolBar->isVisible();
+  //togglePaintModeAction->isChecked();
   contr->setPaintModeEnabled(inPaintMode);
   if(inPaintMode) paintToolBar->show();
   else            paintToolBar->hide();
@@ -1226,8 +1230,10 @@ void DianaMainWindow::togglePaintMode()
 }
 void DianaMainWindow::setPaintMode(bool enabled)
 {
-  if(togglePaintModeAction->isChecked() != enabled)
-    togglePaintModeAction->toggle();
+  if (paintToolBar->isVisible() != enabled)
+    togglePaintMode();
+  //if(togglePaintModeAction->isChecked() != enabled)
+  //  togglePaintModeAction->toggle();
 }
 
 void DianaMainWindow::resetArea()
@@ -1765,7 +1771,7 @@ void DianaMainWindow::toggleProfetGUI(){
   toggleProfetGUIAction->setChecked(turnOn);
   profetGUI->setVisible(turnOn);
   // Paint mode should not be possible when Profet is on
-  togglePaintModeAction->setEnabled(!turnOn);
+  //togglePaintModeAction->setEnabled(!turnOn);
 
   profetGUI->setParamColours();
 #endif
@@ -1777,7 +1783,7 @@ void DianaMainWindow::forceProfetDisconnect(bool disableGuiOnly){
     profetGUI->resetStatus();
     toggleProfetGUIAction->setChecked(false);
     profetGUI->setVisible(false);
-    togglePaintModeAction->setEnabled(true);
+    //togglePaintModeAction->setEnabled(true);
     return;
   }
   // Disconnect
@@ -1789,7 +1795,7 @@ void DianaMainWindow::forceProfetDisconnect(bool disableGuiOnly){
     profetGUI->resetStatus();
     toggleProfetGUIAction->setChecked(false);
     profetGUI->setVisible(false);
-    togglePaintModeAction->setEnabled(true);
+    //togglePaintModeAction->setEnabled(true);
   }
   // Re-connect
   toggleProfetGUI();
@@ -1812,7 +1818,8 @@ bool DianaMainWindow::ProfetRightMouseClicked(float map_x,
 					      int globalX,
 					      int globalY){
 #ifdef PROFET
-  if(togglePaintModeAction->isChecked()){
+  //if(togglePaintModeAction->isChecked()){
+  if (paintToolBar->isVisible()) {
     profetGUI->rightMouseClicked(map_x,map_y,globalX,globalY);
     return true;
   }

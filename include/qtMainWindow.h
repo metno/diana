@@ -296,7 +296,7 @@ private:
   QAction * showUffdaDialogAction;
   QShortcut * uffdaAction;
 
-  QAction * togglePaintModeAction;
+//  QAction * togglePaintModeAction;
   QAction * toggleProfetGUIAction;
 
   QAction * helpDocAction;
