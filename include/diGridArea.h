@@ -60,7 +60,7 @@ using namespace std;
 class GridArea : public Plot{
 
 public:
-	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING,EDITING};
+	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING};
   enum DrawStyle{DEFAULT,OVERVIEW,GHOST};
 
 private:

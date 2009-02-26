@@ -1283,12 +1283,13 @@ bool DianaProfetGUI::isVisible()
 
 void DianaProfetGUI::setVisible(bool visible)
 {
+  LOG4CXX_DEBUG(logger, "setVisible " << visible);
   if (visible) {
     ignoreSynchProblems = true;
     setPaintToolBarVisible(showPaintToolBar);emit
     setPaintMode(showPaintToolBar);
     setEditObjectDialogVisible(showEditObjectDialog);
-    //    sessionDialog->selectDefault(); too early first time?
+    // sessionDialog->selectDefault(); too early first time?
     sessionDialog->show();
     emit repaintMap(false);
   } else {
@@ -1298,12 +1299,12 @@ void DianaProfetGUI::setVisible(bool visible)
       emit prepareAndPlot();
     }
     setCurrentParam("");
-    areaManager->clear();emit
-    repaintMap(false);
+    areaManager->clear();
+    emit repaintMap(false);
     sessionDialog->hide();
     editObjectDialog->hide();
     paintToolBar->hide();
-
+    
     emit setPaintMode(false);
   }
 }

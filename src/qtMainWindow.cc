@@ -1220,20 +1220,19 @@ void DianaMainWindow::recallPlot(const vector<miString>& vstr,bool replace)
 }
 
 void DianaMainWindow::togglePaintMode()
-{
-  bool inPaintMode = paintToolBar->isVisible();
-  //togglePaintModeAction->isChecked();
-  contr->setPaintModeEnabled(inPaintMode);
-  if(inPaintMode) paintToolBar->show();
-  else            paintToolBar->hide();
-
+{ 
+  if (paintToolBar == 0) return;
+  if (paintToolBar->isVisible()) paintToolBar->hide();
+  else paintToolBar->show();
+  cerr << "DianaMainWindow::togglePaintMode enabled " << paintToolBar->isVisible() << endl;
+  contr->setPaintModeEnabled(paintToolBar->isVisible());
 }
 void DianaMainWindow::setPaintMode(bool enabled)
 {
-  if (paintToolBar->isVisible() != enabled)
-    togglePaintMode();
-  //if(togglePaintModeAction->isChecked() != enabled)
-  //  togglePaintModeAction->toggle();
+  if (paintToolBar == 0) return;
+  if (enabled) paintToolBar->show();
+  else paintToolBar->hide();
+  contr->setPaintModeEnabled(enabled);
 }
 
 void DianaMainWindow::resetArea()
@@ -1743,15 +1742,16 @@ void DianaMainWindow::toggleProfetGUI(){
   bool turnOn = false;
   // check turn on / off
   if(profetGUI && profetGUI->isVisible()){
-    turnOn = false;
     int i = (QMessageBox::question(this, tr("End Profet"),
          tr("Do you want to stay connected to profet?"),
          tr("Quit and disconnect"), tr("Quit and stay connected "), tr("&Cancel"),
          0,      // Enter == button 0
          2 ) ); // Escape == button 2
 
-    if(i==2 )
+    if(i==2 ){ // cancel: still connected
+      toggleProfetGUIAction->setChecked(true); // might have been unchecked
       return;
+    }
 
     if(i == 0){
       profetDisconnect();
@@ -1770,9 +1770,6 @@ void DianaMainWindow::toggleProfetGUI(){
   // do turn on / off
   toggleProfetGUIAction->setChecked(turnOn);
   profetGUI->setVisible(turnOn);
-  // Paint mode should not be possible when Profet is on
-  //togglePaintModeAction->setEnabled(!turnOn);
-
   profetGUI->setParamColours();
 #endif
 }

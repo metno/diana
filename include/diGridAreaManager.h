@@ -61,7 +61,8 @@ enum cursortype;
 class GridAreaManager {
 
 public:
-    enum PaintMode{SELECT_MODE,DRAW_MODE,INCLUDE_MODE,CUT_MODE,MOVE_MODE,SPATIAL_INTERPOLATION};
+    enum PaintMode{SELECT_MODE, DRAW_MODE, INCLUDE_MODE, CUT_MODE, MOVE_MODE,
+      ADD_POINT, REMOVE_POINT, MOVE_POINT, SPATIAL_INTERPOLATION};
 
     class SpatialInterpolateArea {
     public:

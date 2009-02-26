@@ -49,6 +49,7 @@ public:
   PaintToolBar(QMainWindow *parent);
 	GridAreaManager::PaintMode getPaintMode();
 	void enableButtons(PaintToolBarButtons);
+	bool isPaintEnabled();
 	void enableUndo(bool enable);
   void enableRedo(bool enable);
 	
@@ -59,6 +60,9 @@ private:
   QAction *includeAction;
   QAction *cutAction;
   QAction *moveAction;
+  QAction *addPointAction;
+  QAction *removePointAction;
+  QAction *movePointAction;
   QAction *spatialAction;
   QAction *undoAction;
   QAction *redoAction;

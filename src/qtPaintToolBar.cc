@@ -43,6 +43,9 @@
 #include <paint_include.xpm>
 #include <paint_draw.xpm>
 //#include <paint_color.xpm>
+#include <paint_add_point.xpm>
+#include <paint_remove_point.xpm>
+#include <paint_move_point.xpm>
 
 PaintToolBar::PaintToolBar(QMainWindow *parent) 
 			: QToolBar(tr("Paint Operations"), parent) {
@@ -69,6 +72,18 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   connect( undoAction, SIGNAL( activated() ), SIGNAL( undoPressed() ) );
   redoAction = new QAction( QPixmap(paint_redo_xpm),tr("&Redo"),this );
   connect( redoAction, SIGNAL( activated() ), SIGNAL( redoPressed() ) );
+  
+  // Point modification actions
+  addPointAction = new QAction( QPixmap(paint_add_point_xpm),tr("&Add Point"),this );
+  addPointAction->setToggleAction(true);
+  connect( addPointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  removePointAction = new QAction( QPixmap(paint_remove_point_xpm),tr("&Remove Point"),this );
+  removePointAction->setToggleAction(true);
+  connect( removePointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  movePointAction = new QAction( QPixmap(paint_move_point_xpm),tr("&Move Point"),this );
+  movePointAction->setToggleAction(true);
+  connect( movePointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+    
 	
   modeActions = new QActionGroup(this);
   modeActions->add(selectAction);
@@ -76,14 +91,25 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   modeActions->add(includeAction);
   modeActions->add(cutAction);
   modeActions->add(moveAction);
+  modeActions->add(addPointAction);
+  modeActions->add(removePointAction);
+  modeActions->add(movePointAction);
   modeActions->add(spatialAction);
 	
   selectAction->addTo(this);
+  addSeparator();
   drawAction->addTo(this);
   includeAction->addTo(this);
   cutAction->addTo(this);
+  addSeparator();
   moveAction->addTo(this);
+  addSeparator();
+  addPointAction->addTo(this);
+  removePointAction->addTo(this);
+  movePointAction->addTo(this);
+  addSeparator();
   spatialAction->addTo(this);
+  addSeparator();
   undoAction->addTo(this);
   redoAction->addTo(this);
   
@@ -98,6 +124,9 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
   moveAction->setEnabled(false);
   spatialAction->setEnabled(false);
   selectAction->setEnabled(false);
+  addPointAction->setEnabled(false);
+  removePointAction->setEnabled(false);
+  movePointAction->setEnabled(false);
   
   if(buttons == PaintToolBar::SELECT_ONLY){
     setPaintMode(GridAreaManager::SELECT_MODE);
@@ -118,6 +147,9 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
     cutAction->setEnabled(true);
     moveAction->setEnabled(true);
     spatialAction->setEnabled(true);
+    addPointAction->setEnabled(true);
+    removePointAction->setEnabled(true);
+    movePointAction->setEnabled(true);
   }
   else if(buttons == PaintToolBar::ALL){
     drawAction->setEnabled(true);
@@ -125,6 +157,9 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
     cutAction->setEnabled(true);
     moveAction->setEnabled(true);
     spatialAction->setEnabled(true);
+    addPointAction->setEnabled(true);
+    removePointAction->setEnabled(true);
+    movePointAction->setEnabled(true);
     selectAction->setEnabled(true);
   }
 }
@@ -142,16 +177,30 @@ void PaintToolBar::setPaintMode(GridAreaManager::PaintMode newMode){
     spatialAction->setOn(true);
 	else if(newMode == GridAreaManager::SELECT_MODE)
 		selectAction->setOn(true);
+  else if(newMode == GridAreaManager::ADD_POINT)
+    addPointAction->setOn(true);
+  else if(newMode == GridAreaManager::REMOVE_POINT)
+    removePointAction->setOn(true);
+  else if(newMode == GridAreaManager::MOVE_POINT)
+    movePointAction->setOn(true);
 	sendPaintModeChanged();
 }
 
 GridAreaManager::PaintMode PaintToolBar::getPaintMode(){
 	if(includeAction->isOn()) return GridAreaManager::INCLUDE_MODE;
-	if(cutAction->isOn()) return GridAreaManager::CUT_MODE;
-	if(moveAction->isOn()) return GridAreaManager::MOVE_MODE;
-  if(spatialAction->isOn()) return GridAreaManager::SPATIAL_INTERPOLATION;
-	if(selectAction->isOn()) return GridAreaManager::SELECT_MODE;
+	else if(cutAction->isOn()) return GridAreaManager::CUT_MODE;
+	else if(moveAction->isOn()) return GridAreaManager::MOVE_MODE;
+	else if(spatialAction->isOn()) return GridAreaManager::SPATIAL_INTERPOLATION;
+	else if(selectAction->isOn()) return GridAreaManager::SELECT_MODE;
+	else if(addPointAction->isOn()) return GridAreaManager::ADD_POINT;
+  else if(removePointAction->isOn()) return GridAreaManager::REMOVE_POINT;
+  else if(movePointAction->isOn()) return GridAreaManager::MOVE_POINT;
 	else return GridAreaManager::DRAW_MODE;
+}
+
+bool PaintToolBar::isPaintEnabled() {
+  // Painting is possible whenever draw action is enabled
+  return drawAction->isOn();
 }
 
 void PaintToolBar::sendPaintModeChanged(){
