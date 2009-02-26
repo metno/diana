@@ -51,39 +51,47 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
 			: QToolBar(tr("Paint Operations"), parent) {
 	
   selectAction = new QAction( QPixmap(paint_select_xpm),tr("&Select"),this );
+  selectAction->setShortcut(Qt::Key_1);
   selectAction->setToggleAction(true);
   connect( selectAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
   drawAction = new QAction( QPixmap(paint_draw_xpm),tr("&Draw"),this );
+  drawAction->setShortcut(Qt::Key_2);
   drawAction->setToggleAction(true);
   connect( drawAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
   includeAction = new QAction( QPixmap(paint_include_xpm),tr("&Include"),this );
+  includeAction->setShortcut(Qt::Key_3);
   includeAction->setToggleAction(true);
   connect( includeAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
   cutAction = new QAction( QPixmap(paint_cut_xpm),tr("&Cut"),this );
+  cutAction->setShortcut(Qt::Key_4);
   cutAction->setToggleAction(true);
   connect( cutAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
   moveAction = new QAction( QPixmap(paint_move_xpm),tr("&Move"),this );
+  moveAction->setShortcut(Qt::Key_5);
   moveAction->setToggleAction(true);
   connect( moveAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
-  spatialAction = new QAction( QPixmap(paint_spatial_xpm),tr("&Spatial Interpolation"),this );
-  spatialAction->setToggleAction(true);
-  connect( spatialAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
-  undoAction = new QAction( QPixmap(paint_undo_xpm),tr("&Undo"),this );
-  connect( undoAction, SIGNAL( activated() ), SIGNAL( undoPressed() ) );
-  redoAction = new QAction( QPixmap(paint_redo_xpm),tr("&Redo"),this );
-  connect( redoAction, SIGNAL( activated() ), SIGNAL( redoPressed() ) );
-  
-  // Point modification actions
   addPointAction = new QAction( QPixmap(paint_add_point_xpm),tr("&Add Point"),this );
+  addPointAction->setShortcut(Qt::Key_6);
   addPointAction->setToggleAction(true);
   connect( addPointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
   removePointAction = new QAction( QPixmap(paint_remove_point_xpm),tr("&Remove Point"),this );
+  removePointAction->setShortcut(Qt::Key_7);
   removePointAction->setToggleAction(true);
   connect( removePointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
   movePointAction = new QAction( QPixmap(paint_move_point_xpm),tr("&Move Point"),this );
+  movePointAction->setShortcut(Qt::Key_8);
   movePointAction->setToggleAction(true);
   connect( movePointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
-    
+  spatialAction = new QAction( QPixmap(paint_spatial_xpm),tr("&Spatial Interpolation"),this );
+  spatialAction->setShortcut(Qt::Key_9);
+  spatialAction->setToggleAction(true);
+  connect( spatialAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  undoAction = new QAction( QPixmap(paint_undo_xpm),tr("&Undo"),this );
+  undoAction->setShortcut(QKeySequence::Undo);
+  connect( undoAction, SIGNAL( activated() ), SIGNAL( undoPressed() ) );
+  redoAction = new QAction( QPixmap(paint_redo_xpm),tr("&Redo"),this );
+  redoAction->setShortcut(QKeySequence::Redo);
+  connect( redoAction, SIGNAL( activated() ), SIGNAL( redoPressed() ) );
 	
   modeActions = new QActionGroup(this);
   modeActions->add(selectAction);
