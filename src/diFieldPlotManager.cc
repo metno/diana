@@ -533,7 +533,7 @@ bool FieldPlotManager::makeFields(const miString& pin,
 			       levelName,
 			       idnumName,
 			       hourDiff,
-			        FieldManager::READ_RESULT);
+			        FieldManager::READ_ALL );
 
     if (!ok) return false;
 
