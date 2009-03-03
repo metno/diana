@@ -60,10 +60,14 @@ using namespace std;
 class GridArea : public Plot{
 
 public:
-	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING};
+	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING,NODE_SELECT,NODE_MOVE};
   enum DrawStyle{DEFAULT,OVERVIEW,GHOST};
 
 private:
+  static int maxBuffer;
+  static GLfloat nodeMarkRadius;
+  static GLfloat nodeMarkMaxConstant;
+  static double maxNodeSelectDistance;
 #ifndef NOLOG4CXX
     log4cxx::LoggerPtr logger;
 #endif
@@ -75,14 +79,17 @@ private:
 	ProjectablePolygon editPolygon;
 	//Displayed polygon to be added or deleted
 	Polygon displayEditPolygon;
-	//Displayed point to be added (painting and editing mode)
-	Point nextPoint;
+	// Last known location of the mouse pointer
+	Point mousePoint;
+	// Node currently in focus (used for highlighting)
+	Point focusedNode;
+	// Flag for node in focus
+	bool nodeInFocus;
 	// Display next point flag
 	bool showNextPoint;
 
   list< ProjectablePolygon >  undobuffer;
   list< ProjectablePolygon >  redobuffer;
-  static int maxBuffer;
 
 	bool selected;
 	AreaMode mode;
@@ -95,6 +102,7 @@ private:
 	void fillPolygon(Polygon & p,bool main);
 	void fillActivePolygon(Polygon & p,bool main);
 	void drawPolygon(Polygon & p,bool main);
+	void drawNodes(const Polygon & p);
 	//Used in move-mode to paint temp. moved polygon
 	double moveX;
 	double moveY;
@@ -132,17 +140,28 @@ public:
 	void startDraw(Point startPoint);
 	///End draw-session
 	void doDraw();
-	/// Set next point 
+	/// Set mouse-location
+	void setMousePoint(const Point & p) { mousePoint = p; }
+	/// Set point to be added (painting and editing mode)
 	void setNextPoint(const Point & p) {
-	  nextPoint = p;
+	  setMousePoint(p);
 	  showNextPoint = true;
-  } 
+  }
+	
+	/// Set focused node. Returns true if changed
+	bool setNodeFocus(const Point & mouse);
+  ///Start node move session
+  void startNodeMove();
+  ///Move node to selected (setMove) position
+  void doNodeMove();
+	
 	///Start move session
 	void startMove();
 	///Set difference between original position and new position
-	void setMove(double x,double y);
+	void setMove(const double& x,const double& y);
 	///Move area to selected (setMove) position
 	void doMove();
+
 	///Start edit (add/remove) session
 	bool startEdit(Point startPoint);
 	///Add selected editArea (returns true if success)

@@ -107,7 +107,9 @@ enum cursortype{
   draw_cursor,
   paint_select_cursor,
   paint_move_cursor,
-  paint_draw_cursor
+  paint_draw_cursor,
+  paint_add_crusor,
+  paint_remove_crusor
 };
 
 enum actiontype {

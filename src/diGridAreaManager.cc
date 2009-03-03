@@ -12,7 +12,7 @@ GridAreaManager::GridAreaManager() :
   logger = log4cxx::Logger::getLogger("diana.GridAreaManager");
 #endif
   inDrawing = false;
-  changeCursor = true;
+  modeChanged = true;
   currentId = "";
   base_proj = GridArea::getStandardProjection();
 }
@@ -82,12 +82,23 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
 
   newx = x;
   newy = y;
-  if (changeCursor) {
+  if (modeChanged) {
     LOG4CXX_DEBUG(logger,"Changing cursor to " << getCurrentCursor());
     res.newcursor = getCurrentCursor();
-    changeCursor = false;
+    modeChanged = false;
+    if (gridAreas.count(currentId) && me.button == noButton) {
+      if (paintMode == ADD_POINT || paintMode == REMOVE_POINT || paintMode == MOVE_POINT)
+        gridAreas[currentId].setMode(GridArea::NODE_SELECT);
+      else 
+        gridAreas[currentId].setMode(GridArea::NORMAL);
+    }
   } else {
     res.newcursor = keep_it;
+  }
+  if (me.button == noButton && gridAreas.count(currentId)) {
+    if (paintMode == MOVE_POINT || paintMode == REMOVE_POINT)
+      if(gridAreas[currentId].setNodeFocus(Point(x, y))) // focus changed
+        res.repaint = true;
   }
   if (me.type == mousepress) {
     first_x = newx;
@@ -110,6 +121,9 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
       } else if (paintMode == MOVE_MODE) {
         LOG4CXX_DEBUG(logger,"Starting move " << currentId);
         gridAreas[currentId].startMove();
+      } else if (paintMode == MOVE_POINT) {
+        LOG4CXX_DEBUG(logger,"Starting move point " << currentId);
+        gridAreas[currentId].startNodeMove();
       } else if (paintMode == SPATIAL_INTERPOLATION) {
         LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
         gridAreas[currentId].startMove();
@@ -134,7 +148,7 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     return;
   } else if (me.type == mousemove) {
     if (me.button == leftButton) {
-      if (paintMode == MOVE_MODE) {
+      if (paintMode == MOVE_MODE || paintMode == MOVE_POINT) {
         gridAreas[currentId].setMove((newx-first_x), (newy-first_y));
         res.repaint = true;
       } else if (paintMode == SPATIAL_INTERPOLATION) {
@@ -157,6 +171,9 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
         return;
       } else if (paintMode == MOVE_MODE) {
         gridAreas[currentId].doMove();
+        res.action = grid_area_changed;
+      } else if (paintMode == MOVE_POINT) {
+        gridAreas[currentId].doNodeMove();
         res.action = grid_area_changed;
       } else if (paintMode == SPATIAL_INTERPOLATION) {
         vector<SpatialInterpolateArea>::iterator gitr;
@@ -210,7 +227,7 @@ void GridAreaManager::doSpatialInterpolation(const miString & movedId, float mov
 
 void GridAreaManager::setPaintMode(PaintMode mode) {
   paintMode = mode;
-  changeCursor = true;
+  modeChanged = true;
   LOG4CXX_DEBUG(logger,"setPaintMode(" << getModeAsString() << ")");
 }
 
@@ -450,8 +467,14 @@ cursortype GridAreaManager::getCurrentCursor() {
     return paint_select_cursor;
   else if (paintMode==MOVE_MODE)
     return paint_move_cursor;
+  else if (paintMode==MOVE_POINT)
+    return paint_move_cursor;
   else if (paintMode==SPATIAL_INTERPOLATION)
     return paint_move_cursor;
+  else if (paintMode==ADD_POINT)
+    return paint_add_crusor;
+  else if (paintMode==REMOVE_POINT)
+    return paint_remove_crusor;
   else
     return paint_draw_cursor;
 }

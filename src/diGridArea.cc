@@ -5,10 +5,15 @@
 #include <polyStipMasks.h>
 #include <Segment.h>
 #include <list>
+#include <math.h>
 
 using namespace std;
 
 int GridArea::maxBuffer = 8;
+
+GLfloat GridArea::nodeMarkRadius = 10.0f;
+GLfloat GridArea::nodeMarkMaxConstant = 0.2f;
+double GridArea::maxNodeSelectDistance = 20.0;
 
 
 Area GridArea::getStandardProjection(){
@@ -75,6 +80,7 @@ void GridArea::init(Area orgProj, Area currentProj){
 	dirty = true;
 	selected = false;
 	showNextPoint = false;
+	nodeInFocus = false;
 }
 
 ProjectablePolygon & GridArea::getPolygon() {
@@ -92,35 +98,37 @@ bool GridArea::addPoint(Point p){
 }
 
 bool GridArea::plot(){
-	if(!Enabled())
-		return false;
-	if(dirty){//Projection changed
-		updateCurrentProjection();
-	}
-	if(mode == EDIT){
-		drawPolygon(displayEditPolygon,false);
-	}
-	if(mode == MOVE) {
-		displayEditPolygon = displayPolygon;
-		displayEditPolygon.move(moveX,moveY);
-		drawPolygon(displayEditPolygon,true);
-	}
-  else if(drawstyle == GHOST){
-    displayEditPolygon = displayPolygon;
-    displayEditPolygon.move(moveX,moveY);
-    drawPolygon(displayEditPolygon,true);
-    fillPolygon(displayEditPolygon,true);
+	if (!Enabled())
+    return false;
+  if (dirty) {//Projection changed
+    updateCurrentProjection();
   }
-	else if(!isEmptyArea()){
-		drawPolygon(displayPolygon,true);
-		fillPolygon(displayPolygon,true);
-		fillActivePolygon(displayPolygon,true);
-	}
-	else{
-		drawPolygon(displayPolygon,true);
-	}
-    UpdateOutput();
-    return true;
+  if (mode == EDIT) {
+    drawPolygon(displayEditPolygon, false);
+  } else if (mode == MOVE) {
+    displayEditPolygon = displayPolygon;
+    displayEditPolygon.move(moveX, moveY);
+    drawPolygon(displayEditPolygon, true);
+  } else if (mode == NODE_MOVE) {
+    displayEditPolygon = displayPolygon;
+    displayEditPolygon.movePoint(focusedNode, moveX, moveY);
+    drawPolygon(displayEditPolygon, true);
+  } else if (drawstyle == GHOST) {
+    displayEditPolygon = displayPolygon;
+    displayEditPolygon.move(moveX, moveY);
+    drawPolygon(displayEditPolygon, true);
+    fillPolygon(displayEditPolygon, true);
+  } else if (!isEmptyArea()) {
+    drawPolygon(displayPolygon, true);
+    fillPolygon(displayPolygon, true);
+    fillActivePolygon(displayPolygon, true);
+    if (mode == NODE_SELECT)
+      drawNodes(displayPolygon);
+  } else {
+    drawPolygon(displayPolygon, true);
+  }
+  UpdateOutput();
+  return true;
 }
 
 void GridArea::drawPolygon(Polygon & p, bool main_polygon){
@@ -142,7 +150,7 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	}
 	while (++current != points.end());
 
-	if (mode == NORMAL){	//connect end to beginning
+	if (mode == NORMAL || mode == MOVE || mode == NODE_MOVE){	//connect end to beginning
   		glVertex2f(pb.get_x(),pb.get_y());
 	}
 	glFlush();
@@ -153,7 +161,7 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	  glColor3d(0.5,0.5,0.5);
 	  glBegin(GL_LINE_STRIP); // GL_LINE_LOOP
     glVertex2f(p1.get_x(),p1.get_y());
-    glVertex2f(nextPoint.get_x(),nextPoint.get_y());
+    glVertex2f(mousePoint.get_x(),mousePoint.get_y());
     glFlush();
     glEnd();
 	}
@@ -255,6 +263,48 @@ void GridArea::fillActivePolygon(Polygon & p, bool main_polygon){
 
 }
 
+
+bool GridArea::setNodeFocus(const Point & mouse) {
+  // called on every mouse move action when in node-select-mode
+  Point tmp = focusedNode;
+  double dist = displayPolygon.getClosestPoint(mouse, focusedNode);
+  if (nodeInFocus != (dist < maxNodeSelectDistance)) {
+    nodeInFocus = !nodeInFocus;
+    return true;
+  } else if (nodeInFocus) {
+    return (tmp != focusedNode);
+  } else return false;
+}
+
+void GridArea::drawNodes(const Polygon & p) {
+  list<Point> points = p.get_points();
+  if (points.empty()) return;
+  list<Point>::const_iterator i = points.begin();
+  
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glLineWidth(3);
+  GLfloat constantSizeRatio = (fullrect.x2-fullrect.x1) / pwidth;
+  if (constantSizeRatio > nodeMarkMaxConstant) constantSizeRatio = nodeMarkMaxConstant;
+  constantSizeRatio = constantSizeRatio * nodeMarkRadius;
+  
+  do {
+    if (nodeInFocus && *i == focusedNode) {
+      glColor4f(0.9,0.9,0.9,0.6);
+    } else {
+      glColor4f(0.6,0.6,0.6,0.5);
+    }
+    GLfloat x = i->get_x();
+    GLfloat y = i->get_y();
+    glBegin(GL_LINE_LOOP);
+    for (int a=1; a<7; a++) 
+      glVertex2f((x + sin(a) * constantSizeRatio), (y + cos(a) * constantSizeRatio));
+    glFlush();
+    glEnd();
+  } while (++i != points.end());
+  glDisable(GL_BLEND);
+}
+
 void GridArea::setMode(GridArea::AreaMode am){
 	mode = am;
 }
@@ -306,13 +356,32 @@ bool GridArea::inside(Point p){
 	return displayPolygon.contains(p);
 }
 
-void GridArea::startMove(){
-	mode = MOVE;
+
+void GridArea::startNodeMove(){
+  mode = NODE_MOVE;
+  moveX = moveY = 0;
 }
 
-void GridArea::setMove(double move_x, double move_y){
-	moveX = move_x;
-	moveY = move_y;
+void GridArea::doNodeMove(){
+  if(moveX != 0 && moveY != 0){
+    displayPolygon.movePoint(focusedNode,moveX,moveY);
+    polygon.setCurrentProjectionPoints(displayPolygon);
+    polygon.makeAbstract();
+    displayPolygon = polygon.getInCurrentProjection();
+    moveX = moveY = 0;
+    saveChange();
+  }
+  mode = NODE_SELECT;
+}
+
+void GridArea::startMove(){
+	mode = MOVE;
+  moveX = moveY = 0;
+}
+
+void GridArea::setMove(const double& x,const double& y){
+	moveX = x;
+	moveY = y;
 }
 
 void GridArea::doMove(){

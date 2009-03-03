@@ -96,7 +96,7 @@ private:
 	float first_y;
 	float newx,newy;
 	PaintMode paintMode;
-	bool changeCursor;
+	bool modeChanged;
   Area base_proj;
   bool hasinterpolated;
   cursortype getCurrentCursor();
