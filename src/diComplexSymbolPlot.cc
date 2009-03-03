@@ -761,7 +761,8 @@ void ComplexSymbolPlot::drawSig34(float x,float y){
 void ComplexSymbolPlot::drawSig36(float x,float y){
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   drawCircle(1036,x,y,false);
-  if (symbolStrings.size()==2 && symbolStrings[1]==""){
+  if (symbolStrings.size()==1  ||
+      (symbolStrings.size()==2 && symbolStrings[1]=="")){
     sigString=symbolStrings[0];
     drawSigString(x,y,false);
   } else if (symbolStrings.size()==2){
