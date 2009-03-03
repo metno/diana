@@ -670,6 +670,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl,
       astring+=" ";
       fp->getStringSize(astring.cStr(), wid, hei);
       wid*=fontsizeScale;
+      hei*=fontsizeScale;
       if (annoEl[j].eHalign==align_right && j+1==nel)
 	x=bbox.x2-wid-border;
       fp->drawStr(astring.cStr(),x,y,0.0);
@@ -702,6 +703,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl,
       fp->getStringSize(astring.cStr(), wid, hei);
       wid*=fontsizeScale;
       wid+=tmpwid;
+      hei*=fontsizeScale;
     } else if (annoEl[j].eType==image){
       ImageGallery ig;
       float scale=annoEl[j].eSize*scaleFactor;
@@ -815,6 +817,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl,
       else
 	fontsizeScale = 1.0;
       w*=fontsizeScale;
+      h*=fontsizeScale;
     } else if (annoEl[j].eType==image){
       miString aimage=annoEl[j].eImage;
       ImageGallery ig;
@@ -839,6 +842,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl,
       fp->getStringSize(astring.cStr(), w, h);
       w*=fontsizeScale;
       w+=w;
+      h*=fontsizeScale;
     } else if(annoEl[j].eType==box){
       getAnnoSize(annoEl[j].subelement,w,h,annoEl[j].horizontal);
     }    
