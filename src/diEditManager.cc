@@ -735,10 +735,10 @@ void EditManager::sendKeyboardEvent(const keyboardEvent& me,
 	objm->editRotateObjects(-10.0);
       }
       else if (me.key == key_Plus){
-	objm->editIncreaseSize(2);
+	objm->editIncreaseSize(1);
       }
       else if (me.key == key_Minus){
-	objm->editIncreaseSize(-2);
+	objm->editIncreaseSize(-1);
       }
       else if (me.key == key_O){
 	objm->editHideBox();
