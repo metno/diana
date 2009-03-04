@@ -59,7 +59,7 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     float x, float y) {
 
   // catch right click event
-  if (me.button == rightButton){
+  if (me.button == rightButton && me.type == mousepress){
     if (paintMode == SELECT_MODE) {
       res.action=rightclick;
       return;
@@ -460,6 +460,13 @@ miString GridAreaManager::getModeAsString() {
     return miString("Cut");
   else if (paintMode==DRAW_MODE)
     return miString("Draw");
+  else if (paintMode==MOVE_POINT)
+    return miString("Move Point");
+  else if (paintMode==ADD_POINT)
+    return miString("Add Point");
+  else if (paintMode==REMOVE_POINT)
+    return miString("Remove Point");
+  else return miString("Unknown");
 }
 
 cursortype GridAreaManager::getCurrentCursor() {
