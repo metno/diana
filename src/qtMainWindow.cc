@@ -151,21 +151,19 @@
 #include <paint_mode.xpm>
 
 
-DianaMainWindow::DianaMainWindow(Controller *co,
-    const miString ver_str,
-    const miString build_str,
-    bool ep)
-: QMainWindow(),
-contr(co),timeron(0),timeloop(false),timeout_ms(100),
-showelem(true),autoselect(false),push_command(true),browsing(false),
-markTrajPos(false),
-vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
+DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
+    const miString build_str, bool ep) :
+      QMainWindow(), contr(co), timeron(0), timeloop(false), timeout_ms(100),
+      showelem(true), autoselect(false), push_command(true), browsing(false),
+      markTrajPos(false), vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep),
+      profetGUI(0)
 {
   cerr << "Creating DianaMainWindow" << endl;
-  version_string= ver_str;
-  build_string  = build_str;
 
-  setWindowTitle( tr("Diana") );
+  version_string = ver_str;
+  build_string = build_str;
+
+  setWindowTitle(tr("Diana"));
 
   SetupParser setup;
 
@@ -1220,7 +1218,7 @@ void DianaMainWindow::recallPlot(const vector<miString>& vstr,bool replace)
 }
 
 void DianaMainWindow::togglePaintMode()
-{ 
+{
   if (paintToolBar == 0) return;
   if (paintToolBar->isVisible()) paintToolBar->hide();
   else paintToolBar->show();
