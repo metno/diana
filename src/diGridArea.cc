@@ -104,6 +104,8 @@ bool GridArea::plot(){
     updateCurrentProjection();
   }
   if (mode == EDIT) {
+    drawPolygon(displayPolygon, true);
+    fillPolygon(displayPolygon, true);
     drawPolygon(displayEditPolygon, false);
   } else if (mode == MOVE) {
     displayEditPolygon = displayPolygon;
@@ -317,7 +319,7 @@ GridArea::AreaMode GridArea::getMode(){
 bool GridArea::startEdit(Point start){
 	setMode(EDIT);
 	resetEditPolygon();
-	addPoint(start);
+	return addPoint(start);
 }
 
 bool GridArea::addEditPolygon(){
