@@ -119,6 +119,7 @@
 
 #include <qUtilities/miLogFile.h>
 
+#include <diana_icon.xpm>
 #include <pick.xpm>
 #include <earth3.xpm>
 #include <fileprint.xpm>
@@ -163,6 +164,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
   version_string = ver_str;
   build_string = build_str;
 
+  setWindowIcon(QIcon(diana_icon_xpm));
   setWindowTitle(tr("Diana"));
 
   SetupParser setup;
