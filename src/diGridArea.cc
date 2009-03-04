@@ -316,6 +316,17 @@ GridArea::AreaMode GridArea::getMode(){
 }
 
 
+bool GridArea::removeFocusedPoint() {
+  if (nodeInFocus && displayPolygon.removePoint(focusedNode)) {
+    polygon.setCurrentProjectionPoints(displayPolygon);
+    polygon.makeAbstract();
+    displayPolygon = polygon.getInCurrentProjection();
+    saveChange();
+    return true;
+  }
+  return false;
+}
+
 bool GridArea::startEdit(Point start){
 	setMode(EDIT);
 	resetEditPolygon();

@@ -124,6 +124,12 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
       } else if (paintMode == MOVE_POINT) {
         LOG4CXX_DEBUG(logger,"Starting move point " << currentId);
         gridAreas[currentId].startNodeMove();
+      } else if (paintMode == REMOVE_POINT) {
+        LOG4CXX_DEBUG(logger,"Remove point from " << currentId);
+        if(gridAreas[currentId].removeFocusedPoint()) {
+          res.repaint = true;
+          res.action = grid_area_changed;
+        }
       } else if (paintMode == SPATIAL_INTERPOLATION) {
         LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
         gridAreas[currentId].startMove();
@@ -151,6 +157,9 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
       if (paintMode == MOVE_MODE || paintMode == MOVE_POINT) {
         gridAreas[currentId].setMove((newx-first_x), (newy-first_y));
         res.repaint = true;
+      } else if (paintMode == REMOVE_POINT) {
+        if(gridAreas[currentId].setNodeFocus(Point(newx, newy))) // focus changed
+          res.repaint = true;
       } else if (paintMode == SPATIAL_INTERPOLATION) {
         doSpatialInterpolation(currentId, (newx-first_x), (newy-first_y));
         res.repaint = true;

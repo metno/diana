@@ -161,6 +161,8 @@ public:
 	void setMove(const double& x,const double& y);
 	///Move area to selected (setMove) position
 	void doMove();
+	/// Remove focusedNode
+	bool removeFocusedPoint();
 
 	///Start edit (add/remove) session
 	bool startEdit(Point startPoint);
