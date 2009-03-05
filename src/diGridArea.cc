@@ -322,8 +322,10 @@ bool GridArea::removeFocusedPoint() {
     polygon.makeAbstract();
     displayPolygon = polygon.getInCurrentProjection();
     saveChange();
+    mode = NODE_SELECT;
     return true;
   }
+  mode = NODE_SELECT;
   return false;
 }
 

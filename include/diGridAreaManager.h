@@ -103,7 +103,21 @@ private:
 	bool selectArea(Point p);
 	void updateSelectedArea();
 	void doSpatialInterpolation(const miString & movedId, float moveX, float moveY);
-
+	void handleModeChanged(const mouseEvent& me, EventResult& res);
+	void handleSelectEvent(const mouseEvent& me, EventResult& res,
+	    const float& x, const float& y);
+	void handleDrawEvent(const mouseEvent& me, EventResult& res,
+	    const float& x, const float& y);
+	void handleEditEvent(const mouseEvent& me, EventResult& res,
+      const float& x, const float& y);
+	void handleMoveEvent(const mouseEvent& me, EventResult& res,
+      const float& x, const float& y, const float& first_x, const float& first_y);
+  void handleMovePointEvent(const mouseEvent& me, EventResult& res,
+      const float& x, const float& y, const float& first_x, const float& first_y);
+  void handleRemovePointEvent(const mouseEvent& me, EventResult& res,
+      const float& x, const float& y);
+  void handleSpatialInterpolationEvent(const mouseEvent& me, EventResult& res,
+      const float& x, const float& y, const float& first_x, const float& first_y);
 public:
 	GridAreaManager();
 	~GridAreaManager();
@@ -111,7 +125,7 @@ public:
 	bool setGridAreas(map<miString,Polygon> newAreas, Area currentProj );
 	/// Returns current polygon
 	ProjectablePolygon getCurrentPolygon();
-	bool inDrawing;
+	bool overrideMouseEvent;
   /// handling temporary areas
 	void clearTemporaryAreas();
   void addOverviewArea(miString id, ProjectablePolygon area, Colour & colour);

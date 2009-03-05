@@ -11,7 +11,7 @@ GridAreaManager::GridAreaManager() :
 #ifndef NOLOG4CXX
   logger = log4cxx::Logger::getLogger("diana.GridAreaManager");
 #endif
-  inDrawing = false;
+  overrideMouseEvent = false;
   modeChanged = true;
   currentId = "";
   base_proj = GridArea::getStandardProjection();
@@ -57,31 +57,38 @@ ProjectablePolygon GridAreaManager::getArea(miString id) {
 
 void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     float x, float y) {
+  handleModeChanged(me, res);
 
-  // catch right click event
-  if (me.button == rightButton && me.type == mousepress){
-    if (paintMode == SELECT_MODE) {
-      res.action=rightclick;
-      return;
-    } else if (paintMode == INCLUDE_MODE) {
-      gridAreas[currentId].addPoint(Point(x, y));
-      bool added = gridAreas[currentId].addEditPolygon();
-    } else if (paintMode == CUT_MODE) {
-      gridAreas[currentId].addPoint(Point(x, y));
-      bool deleted = gridAreas[currentId].deleteEditPolygon();
-    } else if (paintMode == DRAW_MODE) {
-      gridAreas[currentId].addPoint(Point(x, y));
-      gridAreas[currentId].doDraw();
-    }
-    gridAreas[currentId].setMode(gridAreas[currentId].NORMAL);
-    res.repaint = true;
-    res.action = grid_area_changed;
-    inDrawing = false;
+  if (me.type == mousepress && me.button == leftButton) {
+    first_x = x;
+    first_y = y;
+    overrideMouseEvent = true;
+  }
+  
+  if (paintMode == SELECT_MODE) {
+    handleSelectEvent(me, res, x, y);
+  } else if (!gridAreas.count(currentId)) {
+    LOG4CXX_WARN(logger,getModeAsString() << " not possible (no area)");
     return;
   }
+  if (paintMode == DRAW_MODE) {
+    handleDrawEvent(me, res, x, y);
+  } else if (paintMode == INCLUDE_MODE || paintMode == CUT_MODE) {
+    handleEditEvent(me, res, x, y);
+  } else if (paintMode == MOVE_MODE) {
+    handleMoveEvent(me, res, x, y, first_x, first_y);
+  } else if (paintMode == ADD_POINT) {
+  } else if (paintMode == REMOVE_POINT) {
+    handleRemovePointEvent(me, res, x, y);
+  } else if (paintMode == MOVE_POINT) {
+    handleMovePointEvent(me, res, x, y, first_x, first_y);
+  } else if (paintMode == SPATIAL_INTERPOLATION) {
+    handleSpatialInterpolationEvent(me, res, x, y, first_x, first_y);
+  }
+}
 
-  newx = x;
-  newy = y;
+
+void GridAreaManager::handleModeChanged(const mouseEvent& me, EventResult& res) {
   if (modeChanged) {
     LOG4CXX_DEBUG(logger,"Changing cursor to " << getCurrentCursor());
     res.newcursor = getCurrentCursor();
@@ -92,109 +99,165 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
       else 
         gridAreas[currentId].setMode(GridArea::NORMAL);
     }
+    LOG4CXX_DEBUG(logger,"Paint mode = " << getModeAsString());
+    LOG4CXX_DEBUG(logger,"Area mode = " << gridAreas[currentId].getMode());
   } else {
     res.newcursor = keep_it;
   }
-  if (me.button == noButton && gridAreas.count(currentId)) {
-    if (paintMode == MOVE_POINT || paintMode == REMOVE_POINT)
-      if(gridAreas[currentId].setNodeFocus(Point(x, y))) // focus changed
-        res.repaint = true;
-  }
-  if (me.type == mousepress) {
-    first_x = newx;
-    first_y = newy;
-    inDrawing = true;
-    if (me.button == leftButton) {
-      if (paintMode==SELECT_MODE) {
-        miString prevId = currentId;
-        selectArea(Point(newx, newy));
-        LOG4CXX_DEBUG(logger,"Select area. Selected id = " << currentId);
-        gridAreas[currentId].setMode(gridAreas[currentId].NORMAL);
-        if (currentId != prevId) {
-          res.repaint = true;
-          res.action=grid_area_changed;
-        }
-      } else if (!gridAreas.count(currentId)) {
-        LOG4CXX_WARN(logger,getModeAsString() <<
-            " not possible. No selected area " << currentId);
-        return;
-      } else if (paintMode == MOVE_MODE) {
-        LOG4CXX_DEBUG(logger,"Starting move " << currentId);
-        gridAreas[currentId].startMove();
-      } else if (paintMode == MOVE_POINT) {
-        LOG4CXX_DEBUG(logger,"Starting move point " << currentId);
-        gridAreas[currentId].startNodeMove();
-      } else if (paintMode == REMOVE_POINT) {
-        LOG4CXX_DEBUG(logger,"Remove point from " << currentId);
-        if(gridAreas[currentId].removeFocusedPoint()) {
-          res.repaint = true;
-          res.action = grid_area_changed;
-        }
-      } else if (paintMode == SPATIAL_INTERPOLATION) {
-        LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
-        gridAreas[currentId].startMove();
-      } else if (paintMode == INCLUDE_MODE || paintMode == CUT_MODE) {
-        if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
-          LOG4CXX_DEBUG(logger,"Starting edit " << currentId);
-          gridAreas[currentId].startEdit(Point(newx, newy));
-        } else if (gridAreas[currentId].getMode() == GridArea::EDIT) {
-          gridAreas[currentId].addPoint(Point(newx, newy));
-        }
-      } else if (paintMode == DRAW_MODE) {
-        if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
-          LOG4CXX_DEBUG(logger,"Starting draw " << currentId);
-          gridAreas[currentId].startDraw(Point(newx, newy));
-        } else if (gridAreas[currentId].getMode() == GridArea::PAINTING) {
-          gridAreas[currentId].addPoint(Point(newx, newy));
-        }
-      }
+}
+
+void GridAreaManager::handleSelectEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y)
+{
+  if (me.type == mousepress && me.button == rightButton) {
+    res.action = rightclick;
+  } else if (me.type == mousepress && me.button == leftButton) {
+    miString prevId = currentId;
+    selectArea(Point(x, y));
+    LOG4CXX_DEBUG(logger,"Selected area: " << currentId);
+    gridAreas[currentId].setMode(GridArea::NORMAL);
+    if (currentId != prevId) {
       res.repaint = true;
-    }
-  } else if (!gridAreas.count(currentId)) {
-    return;
-  } else if (me.type == mousemove) {
-    if (me.button == leftButton) {
-      if (paintMode == MOVE_MODE || paintMode == MOVE_POINT) {
-        gridAreas[currentId].setMove((newx-first_x), (newy-first_y));
-        res.repaint = true;
-      } else if (paintMode == REMOVE_POINT) {
-        if(gridAreas[currentId].setNodeFocus(Point(newx, newy))) // focus changed
-          res.repaint = true;
-      } else if (paintMode == SPATIAL_INTERPOLATION) {
-        doSpatialInterpolation(currentId, (newx-first_x), (newy-first_y));
-        res.repaint = true;
-      } else if (paintMode != SELECT_MODE) {
-        gridAreas[currentId].addPoint(Point(newx, newy));
-        res.repaint = true;
-      }
-    } else { // mousemove - no button
-      if (paintMode==DRAW_MODE || paintMode==INCLUDE_MODE || paintMode==CUT_MODE) {
-        gridAreas[currentId].setNextPoint(Point(newx, newy));
-        res.repaint = true;
-      }
+      res.action=grid_area_changed;
     }
   } else if (me.type == mouserelease) {
-    if (me.button == leftButton) {
-      if (paintMode==SELECT_MODE) {
-        inDrawing = false;
-        return;
-      } else if (paintMode == MOVE_MODE) {
-        gridAreas[currentId].doMove();
-        res.action = grid_area_changed;
-      } else if (paintMode == MOVE_POINT) {
-        gridAreas[currentId].doNodeMove();
-        res.action = grid_area_changed;
-      } else if (paintMode == SPATIAL_INTERPOLATION) {
-        vector<SpatialInterpolateArea>::iterator gitr;
-        for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end(); gitr++){
-          gitr->area.doMove();
-        }
-        gridAreas[currentId].doMove();
-        hasinterpolated = true;
-        res.action = grid_area_changed;
-      }
-      res.repaint= true;
+    overrideMouseEvent = false;
+  }
+}
+
+void GridAreaManager::handleDrawEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y)
+{
+  if (me.type == mousepress && me.button == leftButton) {
+    if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
+      LOG4CXX_DEBUG(logger,"Starting draw " << currentId);
+      gridAreas[currentId].startDraw(Point(x, y));
+    } else if (gridAreas[currentId].getMode() == GridArea::PAINTING) {
+      gridAreas[currentId].addPoint(Point(x, y));
     }
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button == leftButton) {
+    gridAreas[currentId].addPoint(Point(x, y));
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button != leftButton) {
+    gridAreas[currentId].setNextPoint(Point(x, y));
+    res.repaint = true;
+  } else if (me.type == mousepress && me.button == rightButton) {
+    gridAreas[currentId].addPoint(Point(x, y));
+    gridAreas[currentId].doDraw();
+    res.repaint = true;
+    res.action = grid_area_changed;
+    overrideMouseEvent = false;
+  }
+}
+
+void GridAreaManager::handleEditEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y)
+{
+  if (me.type == mousepress && me.button == leftButton) {
+    if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
+      LOG4CXX_DEBUG(logger,"Starting edit " << currentId);
+      gridAreas[currentId].startEdit(Point(x, y));
+    } else if (gridAreas[currentId].getMode() == GridArea::EDIT) {
+      gridAreas[currentId].addPoint(Point(x, y));
+    }
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button == leftButton) {
+    gridAreas[currentId].addPoint(Point(x, y));
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button != leftButton) {
+    gridAreas[currentId].setNextPoint(Point(x, y));
+    res.repaint = true;
+  } else if (me.type == mousepress && me.button == rightButton) {
+    if (paintMode == INCLUDE_MODE) {
+      gridAreas[currentId].addPoint(Point(x, y));
+      gridAreas[currentId].addEditPolygon();
+    } else if (paintMode == CUT_MODE) {
+      gridAreas[currentId].addPoint(Point(x, y));
+      gridAreas[currentId].deleteEditPolygon();
+    }
+    res.repaint = true;
+    res.action = grid_area_changed;
+    overrideMouseEvent = false;
+  }
+}
+
+void GridAreaManager::handleMoveEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y, const float& first_x, const float& first_y)
+{
+  if (me.type == mousepress && me.button == leftButton) {
+    LOG4CXX_DEBUG(logger,"Starting move " << currentId);
+    gridAreas[currentId].startMove();
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button == leftButton) {
+    gridAreas[currentId].setMove((x-first_x), (y-first_y));
+    res.repaint = true;
+  } else if (me.type == mouserelease && me.button == leftButton) {
+    gridAreas[currentId].doMove();
+    res.repaint = true;
+    res.action = grid_area_changed;
+    overrideMouseEvent = false;
+  }
+}
+
+void GridAreaManager::handleMovePointEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y, const float& first_x, const float& first_y)
+{
+  if (me.type == mousepress && me.button == leftButton) {
+    LOG4CXX_DEBUG(logger,"Starting move point " << currentId);
+    gridAreas[currentId].startNodeMove();
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button == leftButton) {
+    gridAreas[currentId].setMove((x-first_x), (y-first_y));
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button != leftButton) {
+    if(gridAreas[currentId].setNodeFocus(Point(x, y))) // focus changed
+      res.repaint = true;
+  } else if (me.type == mouserelease && me.button == leftButton) {
+    gridAreas[currentId].doNodeMove();
+    res.repaint = true;
+    res.action = grid_area_changed;
+    overrideMouseEvent = false;
+  }
+}
+
+void GridAreaManager::handleSpatialInterpolationEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y, const float& first_x, const float& first_y)
+{
+  if (me.type == mousepress && me.button == leftButton) {
+    LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
+    gridAreas[currentId].startMove();
+    res.repaint = true;
+  } else if (me.type == mousemove && me.button == leftButton) {
+    doSpatialInterpolation(currentId, (x-first_x), (y-first_y));
+    res.repaint = true;
+  } else if (me.type == mouserelease && me.button == leftButton) {
+    vector<SpatialInterpolateArea>::iterator gitr;
+    for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end(); gitr++){
+      gitr->area.doMove();
+    }
+    gridAreas[currentId].doMove();
+    hasinterpolated = true;
+    res.repaint = true;
+    res.action = grid_area_changed;
+    overrideMouseEvent = false;
+  }
+}
+
+void GridAreaManager::handleRemovePointEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y)
+{
+  if (me.type == mousepress && me.button == leftButton) {
+    LOG4CXX_DEBUG(logger,"Remove point from " << currentId);
+    if(gridAreas[currentId].removeFocusedPoint()) {
+      res.repaint = true;
+      res.action = grid_area_changed;
+    }
+  } else if (me.type == mousemove) {
+    if(gridAreas[currentId].setNodeFocus(Point(x, y))) // focus changed
+      res.repaint = true;
+  } else if (me.type == mouserelease && me.button == leftButton) {
+    overrideMouseEvent = false;
   }
 }
 

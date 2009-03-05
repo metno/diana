@@ -46,6 +46,7 @@
 #include <paint_cursor.xpm>
 #include <paint_add_crusor.xpm>
 #include <paint_remove_crusor.xpm>
+#include <paint_forbidden_crusor.xpm>
 
 
 // GLwidget constructor
@@ -209,6 +210,9 @@ void GLwidget::changeCursor(const cursortype c){
       break;
     case paint_remove_crusor:
       setCursor(QCursor(QPixmap(paint_remove_crusor_xpm),7,1));
+      break;
+    case paint_forbidden_crusor:
+      setCursor(QCursor(QPixmap(paint_forbidden_crusor_xpm),7,1));
       break;
     case normal_cursor:
     default:

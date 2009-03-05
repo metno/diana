@@ -2880,7 +2880,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
     oldy= me.y;
 
     if (me.button == leftButton){
-      if(aream) dorubberband = !aream->inDrawing;
+      if(aream) dorubberband = !aream->overrideMouseEvent;
       else dorubberband = true;
       res.savebackground= true;
       res.background= true;
