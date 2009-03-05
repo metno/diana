@@ -383,12 +383,12 @@ void UffdaDialog::updatePoslist(uffdaElement &ue,int nr, bool newItem) {
   //Make string and insert in posList
   ue.ok=true;
  QString uffStr,latStr,lonStr;
-  latStr.setNum(fabsf(ue.lat),'f',2);
+  latStr.setNum(ue.lat,'f',2);
   if(ue.lat<0)
     latStr+= "S";
   else
     latStr+= "N";
-  lonStr.setNum(fabsf(ue.lon),'f',2);
+  lonStr.setNum(ue.lon,'f',2);
   if(ue.lon<0)
     lonStr += "W";
   else
