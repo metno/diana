@@ -126,6 +126,8 @@ bool GridArea::plot(){
     fillActivePolygon(displayPolygon, true);
     if (mode == NODE_SELECT)
       drawNodes(displayPolygon);
+    if (mode == SEGMENT_SELECT && segmentInFocus)
+      highlightSegment(focusedSegment);
   } else {
     drawPolygon(displayPolygon, true);
   }
@@ -278,6 +280,18 @@ bool GridArea::setNodeFocus(const Point & mouse) {
   } else return false;
 }
 
+bool GridArea::setSegmentFocus(const Point & mouse) {
+  // called on every mouse move action when in segment-select-mode
+  Segment tmp = focusedSegment;
+  double dist = displayPolygon.getClosestSegment(mouse, focusedSegment);
+  if (segmentInFocus != (dist < maxNodeSelectDistance)) {
+    segmentInFocus = !segmentInFocus;
+    return true;
+  } else if (segmentInFocus) {
+    return (tmp != focusedSegment);
+  } else return false;
+}
+
 void GridArea::drawNodes(const Polygon & p) {
   list<Point> points = p.get_points();
   if (points.empty()) return;
@@ -304,6 +318,21 @@ void GridArea::drawNodes(const Polygon & p) {
     glFlush();
     glEnd();
   } while (++i != points.end());
+  glDisable(GL_BLEND);
+}
+
+void GridArea::highlightSegment(const Segment& segment) {
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glLineWidth(3);
+  glColor4f(0.9,0.9,0.9,0.6);
+  glBegin(GL_LINE_LOOP);
+  Point p1 = segment.get_p1();
+  Point p2 = segment.get_p2();
+  glVertex2f(p1.get_x(), p1.get_y());
+  glVertex2f(p2.get_x(), p2.get_y());
+  glFlush();
+  glEnd();
   glDisable(GL_BLEND);
 }
 

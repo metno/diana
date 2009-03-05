@@ -78,6 +78,7 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
   } else if (paintMode == MOVE_MODE) {
     handleMoveEvent(me, res, x, y, first_x, first_y);
   } else if (paintMode == ADD_POINT) {
+    handleAddPointEvent(me, res, x, y);
   } else if (paintMode == REMOVE_POINT) {
     handleRemovePointEvent(me, res, x, y);
   } else if (paintMode == MOVE_POINT) {
@@ -94,10 +95,13 @@ void GridAreaManager::handleModeChanged(const mouseEvent& me, EventResult& res) 
     res.newcursor = getCurrentCursor();
     modeChanged = false;
     if (gridAreas.count(currentId) && me.button == noButton) {
-      if (paintMode == ADD_POINT || paintMode == REMOVE_POINT || paintMode == MOVE_POINT)
+      if (paintMode == REMOVE_POINT || paintMode == MOVE_POINT) {
         gridAreas[currentId].setMode(GridArea::NODE_SELECT);
-      else 
+      } else if (paintMode == ADD_POINT) {
+        gridAreas[currentId].setMode(GridArea::SEGMENT_SELECT);
+      } else { 
         gridAreas[currentId].setMode(GridArea::NORMAL);
+      }
     }
     LOG4CXX_DEBUG(logger,"Paint mode = " << getModeAsString());
     LOG4CXX_DEBUG(logger,"Area mode = " << gridAreas[currentId].getMode());
@@ -240,6 +244,25 @@ void GridAreaManager::handleSpatialInterpolationEvent(const mouseEvent& me, Even
     hasinterpolated = true;
     res.repaint = true;
     res.action = grid_area_changed;
+    overrideMouseEvent = false;
+  }
+}
+
+void GridAreaManager::handleAddPointEvent(const mouseEvent& me, EventResult& res,
+    const float& x, const float& y)
+{
+  if (me.type == mousepress && me.button == leftButton) {
+    /*
+    LOG4CXX_DEBUG(logger,"Remove point from " << currentId);
+    if(gridAreas[currentId].removeFocusedPoint()) {
+      res.repaint = true;
+      res.action = grid_area_changed;
+    }
+    */
+  } else if (me.type == mousemove) {
+    if(gridAreas[currentId].setSegmentFocus(Point(x, y))) // focus changed
+      res.repaint = true;
+  } else if (me.type == mouserelease && me.button == leftButton) {
     overrideMouseEvent = false;
   }
 }

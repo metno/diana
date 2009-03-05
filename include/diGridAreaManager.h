@@ -114,6 +114,8 @@ private:
       const float& x, const float& y, const float& first_x, const float& first_y);
   void handleMovePointEvent(const mouseEvent& me, EventResult& res,
       const float& x, const float& y, const float& first_x, const float& first_y);
+  void handleAddPointEvent(const mouseEvent& me, EventResult& res,
+      const float& x, const float& y);
   void handleRemovePointEvent(const mouseEvent& me, EventResult& res,
       const float& x, const float& y);
   void handleSpatialInterpolationEvent(const mouseEvent& me, EventResult& res,

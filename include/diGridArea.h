@@ -41,6 +41,7 @@
 #include <list>
 #include <diProjectablePolygon.h>
 #include <triangulation.h>
+#include <Segment.h>
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>
@@ -60,7 +61,7 @@ using namespace std;
 class GridArea : public Plot{
 
 public:
-	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING,NODE_SELECT,NODE_MOVE};
+	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING,NODE_SELECT,NODE_MOVE,SEGMENT_SELECT};
   enum DrawStyle{DEFAULT,OVERVIEW,GHOST};
 
 private:
@@ -85,6 +86,10 @@ private:
 	Point focusedNode;
 	// Flag for node in focus
 	bool nodeInFocus;
+  // Segment currently in focus (used for highlighting)
+  Segment focusedSegment;
+  // Flag for segment in focus
+  bool segmentInFocus;
 	// Display next point flag
 	bool showNextPoint;
 
@@ -103,6 +108,7 @@ private:
 	void fillActivePolygon(Polygon & p,bool main);
 	void drawPolygon(Polygon & p,bool main);
 	void drawNodes(const Polygon & p);
+	void highlightSegment(const Segment& segment);
 	//Used in move-mode to paint temp. moved polygon
 	double moveX;
 	double moveY;
@@ -150,6 +156,8 @@ public:
 	
 	/// Set focused node. Returns true if changed
 	bool setNodeFocus(const Point & mouse);
+	/// Set segment node. Returns true if changed
+	bool setSegmentFocus(const Point & mouse);
   ///Start node move session
   void startNodeMove();
   ///Move node to selected (setMove) position
