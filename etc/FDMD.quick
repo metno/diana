@@ -1,0 +1,95 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"ProgBlogg-skyer"
+
+# variables
+[UTSNITT=VA-Norge,VV-Norge,VNN-Norge
+
+#
+>1. er det sprik mellom modellene? mslp div modeler
+FIELD EC.GEO.0.25.00-1 MSLP colour=black linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD EC.GEO.NY.00-1 MSLP colour=grey25 linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off
+FIELD HIRLAM.12KM.00-1(12) MSLP colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.8KM.00-1 MSLP colour=red linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.4KM.00-1 MSLP colour=magenta linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD UM.HL.4KM.00-1 MSLP colour=cyan linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Europa backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>2. stemmer det totale skydekket i modelene med virkeligheten?
+FIELD EC.GEO.0.25.00-1 TOTALT.SKYDEKKE colour=red field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD EC.GEO.NY.00-1 TOTALT.SKYDEKKE colour=red field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.12KM.00-1(12) TOTALT.SKYDEKKE colour=dark_red field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 TOTALT.SKYDEKKE colour=orange field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.4KM.00-1 TOTALT.SKYDEKKE colour=magenta field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 TOTALT.SKYDEKKE colour=purple field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>3. er mengden og plassering av tåke riktig?
+FIELD EC.GEO.0.25.00-1 TÅKE colour=yellow field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.12KM.00-1(12) TÅKE colour=grey90 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 TÅKE colour=gray field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.4KM.00-1 TÅKE colour=seablue field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 TÅKE colour=palegreen field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) 3 timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA N-Norge-(SAF_NE) 3 timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>4. er mengde og plassering av lave skyer riktig?
+FIELD EC.GEO.0.25.00-1 LAVE_SKYER colour=lightgray field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.12KM.00-1(12) LAVE_SKYER colour=darkgray field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 LAVE_SKYER colour=green6 field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.4KM.00-1 LAVE_SKYER colour=seablue field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 LAVE_SKYER colour=flesh field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Synop data=Synop,Metar parameter=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Time colour=black density=1.8 image=lyn scale=1 timediff=60
+SAT NOAA N-Norge-(SAF_NE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT NOAA S-Norge-(SAF_SE) day_night timediff=60 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+MAP map=Gshhs-Auto contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=@UTSNITT backcolour=white map=Fylker contour=on cont.colour=graywhite cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14

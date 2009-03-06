@@ -67,6 +67,7 @@ class SatDialog;
 class MapDialog;
 class ObjectDialog;
 class TrajectoryDialog;
+class RadarEchoDialog;
 class UffdaDialog;
 class DianaProfetGUI;
 class PaintToolBar;
@@ -154,6 +155,7 @@ private slots:
   void vcrossMenu();
   void spectrumMenu();
   void trajMenu();
+  void radeMenu();
   void quickMenu();
   void toggleProfetGUI();
 
@@ -169,6 +171,7 @@ private slots:
   void editApply();
   void MenuOK();
   void trajPositions(bool);
+  void radePositions(bool);
   void catchMouseGridPos(const mouseEvent);
   void catchMouseRightPos(const mouseEvent);
   void catchMouseMovePos(const mouseEvent,bool);
@@ -290,6 +293,7 @@ private:
   QAction * showEditDialogAction;
   QAction * showObjectDialogAction;
   QAction * showTrajecDialogAction;
+  QAction * showRadarEchoDialogAction;
   QAction * showProfilesDialogAction;
   QAction * showCrossSectionDialogAction;
   QAction * showWaveSpectrumDialogAction;
@@ -364,6 +368,7 @@ private:
   SatDialog         * sm;
   ObjectDialog      * objm;
   TrajectoryDialog  * trajm;
+  RadarEchoDialog   * radem;
   UffdaDialog       * uffm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
@@ -371,6 +376,8 @@ private:
   PaintToolBar	    * paintToolBar;
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
+  bool                markRadePos; //left mouse click -> mark radarecho position
+  
   VprofWindow       * vpWindow;
   VcrossWindow      * vcWindow;
   SpectrumWindow    * spWindow;

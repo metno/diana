@@ -1,0 +1,70 @@
+#----------------------------------------------------------------------------------
+# Setupfile for Diana
+#----------------------------------------------------------------------------------
+# Organized in sections, each section within a <SSS> </SSS> pair, where
+# SSS is the name of the section
+# Ex: <BASIC> ... </BASIC> contains the 'BASIC' section
+#
+# Common structures in all sections:
+# KEYWORD                     : Turns on/off feature
+# KEY=VALUE                   : Defines keyword with value
+# KEY=V1,V2,V3                : Defines keyword with list of values
+# KEY=V11:V12:V13,V21:V22     : Defines keyword with list of lists of values
+# KEY=VALUE KEY=V1,V2,V3 ...  : Combinations of key-defines
+#
+#----------------------------------------------------------------------------------
+# Other features:
+# Refer to environment/shell variable XX with ${XX}
+# Ex: ${HOME} will be expanded to the home-path
+#
+# Define local variables with XX=yy (outside all sections), and refer to them
+# with $(XX)
+# Ex: Add ROOT=/metno/local in a separate line outside all sections.
+#     All occurences of $(ROOT) in later lines will be expanded to /metno/local
+#
+# Long lines may be split up by using '\'. Add a '\' (and newline) where you want to
+# split a line.
+#
+# Include another file with %include "filename". Included file inherits section at
+# the point of inclusion. File must start and end with the same section. Files may be
+# nested.
+#
+# Use keyword CLEAR to clear all previous definitions for a specific section. Only
+# valid within a section. Useful in local files which include the official setupfile
+#----------------------------------------------------------------------------------
+
+#Local variables
+ROOT            = /metno/local
+DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+OPDATA1         = /opdata
+OPDATA2         = /opdata
+OPDATA3         = /opdata
+STARC           = /starc   
+DATABASE_IDENTS = VA,VV,VNN, DNMI
+DATABASE        = "dianadb.oslo.dnmi.no diana 19100"  # host base port
+
+# =============================================
+
+%include $(DIANADIR)/etc/diana.setup-COMMON
+
+# =============================================
+
+<QUICKMENUS>
+file= $(ROOT)/va/TRAJEKTORIER.quick
+file= $(DIANADIR)/etc/Verifikasjon.quick-VA
+file= $(ROOT)/va/VA_morgenbrief.quick
+file= $(ROOT)/va/fly-vær.quick
+file= $(ROOT)/va/etc/Energi.quick
+</QUICKMENUS>
+
+
+<MAP.AREA>
+# for batch...
+name=VA_Vind,  proj=pstereo_60, grid=115:148:237:0:0:0, area=85:154:62:109
+</MAP.AREA>
+
+
+
+
+
+

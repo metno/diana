@@ -1,0 +1,490 @@
+#----------------------------------------------------------------------------------
+# Setupfile for Diana
+#----------------------------------------------------------------------------------
+# Organized in sections, each section within a <SSS> </SSS> pair, where
+# SSS is the name of the section
+# Ex: <BASIC> ... </BASIC> contains the 'BASIC' section
+#
+# Common structures in all sections:
+# KEYWORD                     : Turns on/off feature
+# KEY=VALUE                   : Defines keyword with value
+# KEY=V1,V2,V3                : Defines keyword with list of values
+# KEY=V11:V12:V13,V21:V22     : Defines keyword with list of lists of values
+# KEY=VALUE KEY=V1,V2,V3 ...  : Combinations of key-defines
+#
+#----------------------------------------------------------------------------------
+# Other features:
+# Refer to environment/shell variable XX with ${XX}
+# Ex: ${HOME} will be expanded to the home-path
+#
+# Define local variables with XX=yy (outside all sections), and refer to them
+# with $(XX)
+# Ex: Add ROOT=/metno/local in a separate line outside all sections.
+#     All occurences of $(ROOT) in later lines will be expanded to /metno/local
+#
+# Long lines may be split up by using '\'. Add a '\' (and newline) where you want to
+# split a line.
+#
+# Include another file with %include "filename". Included file inherits section at
+# the point of inclusion. File must start and end with the same section. Files may be
+# nested.
+#
+# Use keyword CLEAR to clear all previous definitions for a specific section. Only
+# valid within a section. Useful in local files which include the official setupfile
+#----------------------------------------------------------------------------------
+
+
+#Local variables
+ROOT            = /metno/local
+DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+OPDATA1         = /opdata
+OPDATA2         = /opdata
+OPDATA3         = /opdata
+STARC           = /starc
+DATABASE_IDENTS = VNN,VA,VV, DNMI
+DATABASE        = "vnnhoved diana 19100"  # host base port
+
+# =============================================
+
+%include $(DIANADIR)/etc/diana.setup-COMMON
+
+# =============================================
+
+
+<QUICKMENUS>
+#------------------------------------------------------------
+# files containing different quickmenus
+#------------------------------------------------------------
+file= $(ROOT)/vnn/Polare_Lavtrykk.quick
+file= $(ROOT)/vnn/briefing.txt
+file= $(ROOT)/vnn/Verifikasjon.quick
+</QUICKMENUS>
+
+<FIELD_FILES>
+
+CLEAR
+
+Default_Filetype=MetnoFieldFile
+
+archivefilegroup=ARKIV
+m=DIANA.arkiv            f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_*.arkfelt  
+
+m=HIRLAM.20KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn00.dat_* \
+		         f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm00.dat_* 
+m=HIRLAM.20KM.06.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn06.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm06.dat_* 
+m=HIRLAM.20KM.12.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn12.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm12.dat_* 
+m=HIRLAM.20KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn18.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm18.dat_* 
+
+filegroup=HIRLAM12km
+m=HIRLAM.12KM.00    f=$(OPDATA2)/hirlam12/h12sf00.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl00.dat \		      
+		    f=$(OPDATA2)/hirlam12/h12ml00.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie00.dat
+m=HIRLAM.12KM.06    f=$(OPDATA2)/hirlam12/h12sf06.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl06.dat \
+		    f=$(OPDATA2)/hirlam12/h12ml06.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie06.dat
+m=HIRLAM.12KM.12    f=$(OPDATA2)/hirlam12/h12sf12.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl12.dat \
+		    f=$(OPDATA2)/hirlam12/h12ml12.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie12.dat
+m=HIRLAM.12KM.18    f=$(OPDATA2)/hirlam12/h12sf18.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl18.dat \
+		    f=$(OPDATA2)/hirlam12/h12ml18.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie18.dat
+m=HIRLAM.12KM.00-1  f=$(OPDATA2)/hirlam12/h12sf00.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12pl00.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12ml00.dat-1 \
+		    f=$(OPDATA2)/hirlam12/h12ie00.dat-1
+m=HIRLAM.12KM.06-1  f=$(OPDATA2)/hirlam12/h12sf06.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12pl06.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12ml06.dat-1 \
+                    f=$(OPDATA2)/hirlam12/h12ie06.dat-1
+m=HIRLAM.12KM.12-1  f=$(OPDATA2)/hirlam12/h12sf12.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12pl12.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12ml12.dat-1 \
+		    f=$(OPDATA2)/hirlam12/h12ie12.dat-1
+m=HIRLAM.12KM.18-1  f=$(OPDATA2)/hirlam12/h12sf18.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12pl18.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12ml18.dat-1 \
+                    f=$(OPDATA2)/hirlam12/h12ie18.dat-1
+m=HIRLAM.12KM.00-2  f=$(OPDATA2)/hirlam12/h12sf00.dat-2  \
+		    f=$(OPDATA2)/hirlam12/h12pl00.dat-2  \
+		    f=$(OPDATA2)/hirlam12/h12ml00.dat-2 \
+		    f=$(OPDATA2)/hirlam12/h12ie00.dat-2
+m=HIRLAM.12KM.12-2  f=$(OPDATA2)/hirlam12/h12sf12.dat-2 \
+		    f=$(OPDATA2)/hirlam12/h12pl12.dat-2 \
+		    f=$(OPDATA2)/hirlam12/h12ml12.dat-2 \ 
+		    f=$(OPDATA2)/hirlam12/h12ie12.dat-2
+
+
+filegroup=HIRLAM8km
+m=HIRLAM.8KM.00    f=$(OPDATA2)/hirlam8/h8km00.dat
+m=HIRLAM.8KM.06    f=$(OPDATA2)/hirlam8/h8km06.dat 
+m=HIRLAM.8KM.12    f=$(OPDATA2)/hirlam8/h8km12.dat 
+m=HIRLAM.8KM.18    f=$(OPDATA2)/hirlam8/h8km18.dat 
+m=HIRLAM.8KM.00-1  f=$(OPDATA2)/hirlam8/h8km00.dat-1  
+m=HIRLAM.8KM.06-1  f=$(OPDATA2)/hirlam8/h8km06.dat-1  
+m=HIRLAM.8KM.12-1  f=$(OPDATA2)/hirlam8/h8km12.dat-1  
+m=HIRLAM.8KM.18-1  f=$(OPDATA2)/hirlam8/h8km18.dat-1  
+m=HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2  
+m=HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2
+
+filegroup=HIRLAM20km
+m=HIRLAM.20KM.00    f=/opdata/hirlam20/grdn00.dat    f=/opdata/hirlam20/grdni00.dat
+m=HIRLAM.20KM.06    f=/opdata/hirlam20/grdn06.dat    f=/opdata/hirlam20/grdni06.dat
+m=HIRLAM.20KM.12    f=/opdata/hirlam20/grdn12.dat    f=/opdata/hirlam20/grdni12.dat
+m=HIRLAM.20KM.18    f=/opdata/hirlam20/grdn18.dat    f=/opdata/hirlam20/grdni18.dat
+m=HIRLAM.20KM.ARKIV.7D   f=/opdata/hirlam20/arkhl1.dat  f=/opdata/hirlam20/arkhl3.dat  f=/opdata/hirlam20/arkhl5.dat  f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdni00.dat  f=/opdata/hirlam20/grdn06.dat  f=/opdata/hirlam20/grdni06.dat  f=/opdata/hirlam20/grdn12.dat  f=/opdata/hirlam20/grdni12.dat  f=/opdata/hirlam20/grdn18.dat  f=/opdata/hirlam20/grdni18.dat
+# m=HIRLAM.20KM.ARKIV.M7D  f=/opdata/hirlam20/arkhl2a.dat  f=/opdata/hirlam20/arkhl2b.dat  f=/opdata/hirlam20/arkhl2c.dat  f=/opdata/hirlam20/grdnm00.dat  f=/opdata/hirlam20/grdnm06.dat  f=/opdata/hirlam20/grdnm12.dat  f=/opdata/hirlam20/grdn18.dat
+# m=HIRLAM.20KM.ARKIV.30D  f=/opdata/hirlam20/arkhl4.dat  f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdn06.dat  f=/opdata/hirlam20/grdn12.dat  f=/opdata/hirlam20/grdn18.dat
+
+filegroup=HIRLAM
+m=HIRLAM.00        f=/opdata/hirlam/flth00.dat  f=/opdata/hirlam/flthi00.dat
+m=HIRLAM.06        f=/opdata/hirlam/flth06.dat  f=/opdata/hirlam/flthi06.dat
+m=HIRLAM.12        f=/opdata/hirlam/flth12.dat  f=/opdata/hirlam/flthi12.dat
+m=HIRLAM.18        f=/opdata/hirlam/flth18.dat  f=/opdata/hirlam/flthi18.dat
+m=HIRLAM.00-1      f=/opdata/hirlam/flth00.dat-1
+m=HIRLAM.06-1      f=/opdata/hirlam/flth06.dat-1
+m=HIRLAM.12-1      f=/opdata/hirlam/flth12.dat-1
+m=HIRLAM.18-1      f=/opdata/hirlam/flth18.dat-1
+m=HIRLAM.00-2      f=/opdata/hirlam/flth00.dat-2
+m=HIRLAM.06-2      f=/opdata/hirlam/flth06.dat-2
+m=HIRLAM.12-2      f=/opdata/hirlam/flth12.dat-2
+m=HIRLAM.18-2      f=/opdata/hirlam/flth18.dat-2
+m=HIRLAM.ARKIV.7D     f=/opdata/hirlam/arkhl1.dat  f=/opdata/hirlam/arkhl3.dat  f=/opdata/hirlam/arkhl5.dat  f=/opdata/hirlam/flth00.dat  f=/opdata/hirlam/flthi00.dat  f=/opdata/hirlam/flth06.dat  f=/opdata/hirlam/flthi06.dat  f=/opdata/hirlam/flth12.dat  f=/opdata/hirlam/flthi12.dat  f=/opdata/hirlam/flth18.dat  f=/opdata/hirlam/flthi18.dat
+
+filegroup=Bakkeanalyser
+m=met.no.ANA  f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
+m=VNN.ANA     f=/opdata/diana/Bakkeanalyse/VNN-arkfelt.dat
+m=DNMI.ANA    f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
+
+filegroup=Subjektive.prognoser
+m=met.no.PROG+18   f=/opdata/diana/Prognose+18/DNMI-arkfelt.dat
+m=met.no.PROG+36   f=/opdata/diana/Prognose+36/DNMI-arkfelt.dat
+m=DNMI.PROG+18   f=/opdata/diana/Prognose+18/DNMI-arkfelt.dat
+m=DNMI.PROG+36   f=/opdata/diana/Prognose+36/DNMI-arkfelt.dat
+
+filegroup=HIRLAM10km
+m=HIRLAM.10KM.00    f=/opdata/hirlam10/grdl00.dat
+m=HIRLAM.10KM.12    f=/opdata/hirlam10/grdl12.dat
+m=HIRLAM.10KM.00-1  f=/opdata/hirlam10/grdl00.dat-1
+m=HIRLAM.10KM.12-1  f=/opdata/hirlam10/grdl12.dat-1
+m=HIRLAM.10KM.00-2  f=/opdata/hirlam10/grdl00.dat-2
+m=HIRLAM.10KM.12-2  f=/opdata/hirlam10/grdl12.dat-2
+m=HIRLAM.10KM.ARK   f=/opdata/hirlam10/ark10km.dat  f=/opdata/hirlam10/grdl00.dat  f=/opdata/hirlam10/grdl12.dat
+m=DUCT.10KM.00    f=/opdata/hirlam10/duct00_VTK.dat
+m=DUCT.10KM.12    f=/opdata/hirlam10/duct12_VTK.dat
+
+
+
+filegroup=UM.4km
+m=UM.HL.4KM.00    f=/opdata/um4km/grdq00.dat
+m=UM.HL.4KM.12    f=/opdata/um4km/grdq12.dat
+
+
+filegroup=ECMWF
+m=EC.GEO  f=/opdata/ec/ecatmo_vnn.dat
+m=EC.12        g=98:504  f=/opdata/ec/flte12.dat
+m=EC300.12     g=98:533  f=/opdata/ec/flte12.dat
+m=EC.12-1      g=98:504  f=/opdata/ec/flte12.dat-1
+m=EC300.12-1   g=98:533  f=/opdata/ec/flte12.dat-1
+m=EC.00        g=98:504  f=/opdata/ec/flte00.dat
+m=EC300.00     g=98:533  f=/opdata/ec/flte00.dat
+
+filegroup=UK
+m=UK.00        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat	
+m=UK.12        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat
+
+filegroup=EC.EPS
+m=EC.EPS         f=/opdata/ec/greps12.dat
+m=EC.EPS-1       f=/opdata/ec/greps12.dat-1
+m=EC.EPS.00      f=/opdata/ec/greps00.dat
+m=EC.EPS.00-1    f=/opdata/ec/greps00.dat-1
+
+
+filegroup=WAVE/WAM
+m=WAM.POL.00        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave00.dat
+m=WAM.POL.12        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave12.dat
+m=WAM.00-1              f=$(OPDATA1)/wave/gwave00.dat-1
+m=WAM.12-1              f=$(OPDATA1)/wave/gwave12.dat-1
+m=ECMWF.WAM.12-1        f=$(OPDATA1)/ec/grecw12.dat-1
+
+filegroup=SEA/ECOM3D
+m=ECOM3D.00             f=/opdata/sea/fsea00.dat
+m=ECOM3D.12             f=/opdata/sea/fsea12.dat
+m=ECOM3D.00-1           f=/opdata/sea/fsea00.dat-1
+m=ECOM3D.12-1           f=/opdata/sea/fsea12.dat-1
+m=ECOM3D.20KM.ARKIV f=/opdata/sea/arksea3.dat  f=/opdata/sea/f3sea00.dat  f=/opdata/sea/f3sea12.dat
+m=CLIMAT                 f=/opdata/sea/monthcli.dat
+m=CLIMAT2                f=/opdata/sea/monthcli2.dat
+
+
+</FIELD_FILES>
+
+<OBSERVATION_FILES>
+
+PROD=ascii:skred-data
+file=/opdata/vnn/skredomr.txt
+timerange=-300,300
+
+PROD=ascii:skred-obs
+file=/opdata/vnn/diana_skred.txt
+timerange=-300,300
+
+PROD=ascii:fjellvind
+file=/opdata/vnn/fjellvind.txt
+timerange=-300,300
+PROD=ascii:Stasjoner_A?
+file=/opdata/vnn/stasjonsdata-A?.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_AA
+file=/opdata/vnn/stasjonsdata-AA.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_AC
+file=/opdata/vnn/stasjonsdata-AC.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_AS
+file=/opdata/vnn/stasjonsdata-AS.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_AV
+file=/opdata/vnn/stasjonsdata-AV.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_MP
+file=/opdata/vnn/stasjonsdata-MP.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_MV
+file=/opdata/vnn/stasjonsdata-MV.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_N
+file=/opdata/vnn/stasjonsdata-N.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_NI
+file=/opdata/vnn/stasjonsdata-NI.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_NO
+file=/opdata/vnn/stasjonsdata-NO.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_NT
+file=/opdata/vnn/stasjonsdata-NT.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_P
+file=/opdata/vnn/stasjonsdata-P.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_PL
+file=/opdata/vnn/stasjonsdata-PL.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_VK
+file=/opdata/vnn/stasjonsdata-VK.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_VS
+file=/opdata/vnn/stasjonsdata-VS.txt
+timerange=-300,300
+
+PROD=ascii:Stasjoner_VV
+file=/opdata/vnn/stasjonsdata-VV.txt
+timerange=-300,300
+
+TIME_FILTER = smsnedb.yyyymmddHH
+PROD=ascii:SMSnedboer
+file=/opdata/vnn/smsnedb.??????????
+timerange=-720,720                       # +/- 12 timer fra "yyyymmddHH"
+
+PROD=temp:Amdar
+metnoobs=$(OPDATA1)/obs_dec/amteHH.dat
+metnoobs=$(OPDATA1)/obs_dec/amteHH.dat-1
+metnoobs=$(OPDATA1)/obs_dec/amteHH.dat-2
+timerange=-180,180
+
+</OBSERVATION_FILES>
+
+
+<IMAGE>
+
+channels= day_night 2+4 1+2+4 2+3+4 3+4+5 5+4+3 2+6+4 6+4+5 5+4+6 1 2 3 4 5 6
+image=NOAA-multi
+ sub.type= Europa
+     file= /opdata/meos/mchannel/noaa*meu.mitiff
+ sub.type= N-Europa
+     file= /opdata/meos/mchannel/noaa*mne.mitiff
+ sub.type= S-Norge
+     file= /opdata/meos/mchannel/noaa*msn.mitiff
+ sub.type= N-Norge
+     file= /opdata/meos/mchannel/noaa*mnr.mitiff
+
+channels= day_night 2+4 4+2 1+2+4 2+3+4 3+4+5 5+4+3 2+6+4 6+4+5 5+4+6 1 2 3 4 5 6
+
+
+image=METEOSAT
+  TIME_FILTER = MSG?_Europa_
+  channels=1+9 9+1 1 9
+  sub.type=VISIR_Europa_Meteosat
+      file=/opdata/meteosat/vtk/MSG?_Europa_yyyymmddHHMM??_*.tif
+
+</IMAGE>
+
+
+<MAP_AREA>
+
+CLEAR
+
+name=modell/sat-område   proj=undefined  grid=0:0:0:0
+
+name=Analyse   proj=pstereo_60  grid=115:148:237:0:0:0  area=58:180:56:140
+name=Nordic    proj=pstereo_60  grid=115:148:237:0:0:0  area=116:143:93:130
+name=Euro      proj=pstereo_60  grid=115:148:237:0:0:0  area=93:153:56:138
+name=SKVbrief  proj=pstereo_60  grid=115:148:237:0:0:0  area=117:129:97:107
+name=Orion-USA proj=pstereo_60  grid=115:148:237:0:0:0  area=-14:132:58:148
+
+
+name=Norge[F6]     proj=pstereo_60  grid=115:148:237:0:0:0  area=100:140:77:117
+name=S-Norge       proj=pstereo_60  grid=115:148:237:0:0:0  area=112:134:77:97
+name=N-Norge[F7]   proj=pstereo_60  grid=115:148:237:0:0:0  area=118:140:94:115
+
+name=VA-Norge      proj=pstereo_60  grid=115:148:237:0:0:0  area=114:128:80:94
+name=VV-Norge      proj=pstereo_60  grid=115:148:237:0:0:0  area=104:126:80:94
+name=VNN-Norge[F8]  proj=pstereo_60  grid=115:148:237:0:0:0  area=120:138:95:114
+
+name=Atlant[F5]    proj=pstereo_60  grid=115:148:237:0:0:0  area=1:229:1:196
+
+name=SIGkart       proj=pstereo_60  grid=115:148:237:0:0:0  area=95:154:54:138
+name=SWIkart       proj=pstereo_60  grid=115:148:237:0:0:0  area=107:145:81:135
+
+name=N.halvkule    proj=pstereo_60      grid=11851:11851:11850:0:60:0     area=1:23701:1:23701
+name=S.halvkule    proj=pstereographic  grid=11851:11851:11850:180:-60:0  area=1:23701:1:23701
+
+name=N.halvkule-90  proj=pstereo_60  grid=11851:11851:11850:-90:60:0  area=1:23701:1:23701
+name=N.halvkule+90  proj=pstereo_60  grid=11851:11851:11850:90:60:0   area=1:23701:1:23701
+
+name=Hirlam-grid  proj=spherical_rot  grid=-46.5:-36.5:0.5:0.5:0:65  area=1:188:1:152
+
+name=Merkator  proj=mercator  grid=-50:30:50:50:60:0  area=1:121:1:111
+name=Geografisk  proj=geographic  grid=-30:30:1:1  area=1:91:1:41
+name=Globalt  proj=geographic  grid=-180:-90:1:1  area=1:361:1:181
+
+name=Infosat.1  proj=pstereo_60  grid=115:148:237:0:0:0  area=95:148:52:127
+
+name=ENHF    proj=pstereo_60  grid=115:148:237:0:0:0  area=130.89:131.71:110.74:111.32
+name=ENST    proj=pstereo_60  grid=115:148:237:0:0:0  area=125.58:126.29:98.54:99.09
+
+# Utsnitt for utskrift av analyse til ENSB ENBN
+name=ENSB      proj=pstereo_60  grid=115:148:237:0:0:0  area=99:148:102:138
+name=ENBN      proj=pstereo_60  grid=115:148:237:0:0:0  area=98:142:82:113
+ 
+name=QS_ENBO   proj=pstereo_60  grid=115:148:237:0:0:0  area=130:115:96:107
+name=QS_ENAN   proj=pstereo_60  grid=115:148:237:0:0:0  area=136:115:100:116
+name=QS_ENSB   proj=pstereo_60  grid=115:148:237:0:0:0  area=113:134:116:131
+
+# Utsnitt for batch
+name=Ishav     proj=pstereo_60  grid=115:148:237:0:0:0  area=92:157:90:138
+name=N-Europa  proj=pstereo_60  grid=115:148:237:0:0:0  area=60:172:56:138
+name=N.halvkule+65  proj=pstereo_60  grid=11851:11851:11850:65:60:0   area=10387:15012:4876:8185
+name=Troms  proj=pstereo_60  grid=115:148:237:0:0:0  area=124:133:104:110
+name=Mil-Nordnorge  proj=pstereo_60  grid=115:148:237:0:0:0  area=121:136:102:113   
+name=H10-stor  proj=pstereo_60  grid=115:148:237:0:0:0  area=95:163:80:130
+name=H10-liten  proj=pstereo_60  grid=115:148:237:0:0:0  area=102:149:96:130
+
+name=SkredFinnmark  proj=pstereo_60  grid=115:148:237:10:0:0  area=121.6:130.2:105.4:111.6   
+name=SkredTroms     proj=pstereo_60  grid=115:148:237:10:0:0  area=116.2:124.8:103.0:109.2   
+name=SkredNordland  proj=pstereo_60  grid=115:148:237:10:0:0  area=114.1:122.8:101.5:106.9 
+
+</MAP_AREA>
+
+<MAP_TYPE>
+#
+map=Varslingsomr  type=lines_simple_text file=$(ROOT)/vnn/v_omr.txt
+map=BIRCH  type=lines_simple_text file=$(DIANADIR)/etc/birch.txt
+
+map=TEAK   type=lines_simple_text file=$(ROOT)/vtk/ovingorland.txt
+#
+</MAP_TYPE>
+
+
+<VERTICAL_PROFILE_FILES>
+
+# prognostic data
+
+m=HIRLAM.20KM.geogrid.00   f=/opdata/hirlam20/vp20kmgeo00.dat
+m=HIRLAM.20KM.geogrid.06   f=/opdata/hirlam20/vp20kmgeo06.dat
+m=HIRLAM.20KM.geogrid.12   f=/opdata/hirlam20/vp20kmgeo12.dat
+m=HIRLAM.20KM.geogrid.18   f=/opdata/hirlam20/vp20kmgeo18.dat
+
+metnoobs.amdar= $(OPDATA1)/obs_dec/amte??.dat
+metnoobs.amdar= $(OPDATA1)/obs_dec/amte??.dat-1
+metnoobs.amdar= $(OPDATA1)/obs_dec/amte??.dat-2
+
+
+</VERTICAL_PROFILE_FILES>
+
+<OBJECTS>
+#name="VNN Bakkeanalyse"   file=/opdata/diana/Bakkeanalyse/VNN-objects/VNN_ANAdraw
+</OBJECTS>
+
+
+<VERTICAL_CROSSECTION_FILES>
+
+
+m=DUCT.10KM.00   f=/opdata/hirlam10/vcduct00_VTK.dat
+m=DUCT.10KM.12   f=/opdata/hirlam10/vcduct12_VTK.dat
+
+</VERTICAL_CROSSECTION_FILES>
+
+# CFENGINE prognostic data
+<VERTICAL_PROFILE_FILES>
+m=HIRLAM.20KM.geogrid.00   f=/opdata/hirlam20/vp20kmgeo00.dat
+m=HIRLAM.20KM.geogrid.06   f=/opdata/hirlam20/vp20kmgeo06.dat
+m=HIRLAM.20KM.geogrid.12   f=/opdata/hirlam20/vp20kmgeo12.dat
+m=HIRLAM.20KM.geogrid.18   f=/opdata/hirlam20/vp20kmgeo18.dat
+</VERTICAL_PROFILE_FILES>
+
+<EDIT>
+
+product="SKVbrief"
+  drawtools= Analyse, Sigkart
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= $(OPDATA1)/diana/SKVbrief/work
+  # combine input directory
+  combine_input_dir= $(OPDATA1)/diana/SKVbrief/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18
+
+  objects=  "SKVdraw"
+  comments= "SKVcomm"
+
+  local_idents= TEST
+  database_idents= ENBO
+
+  database= $(DATABASE)
+  name_in_database=SKVbrief
+
+  time_start_early= -12:00    # hour:minute (-=before,+=after product)
+  time_start_late=  -04:00
+
+  commandfile=$(DIANADIR)/etc/SKVkart.txt
+  standard_symbolsize=20
+  complex_symbolsize=6
+
+end.product
+
+</EDIT>

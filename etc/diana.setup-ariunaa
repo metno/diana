@@ -34,22 +34,19 @@
 #----------------------------------------------------------------------------------
 
 #If you  install diana at /usr/local, just change TOPDIR 
-DIANADIR  =/usr/local
-#OPDATA   =../demodata
-OPDATA    =/disk1/DIANA/demodata
-MAPDIR    = /usr/local/share/diana/maps
+#TOPDIR=/usr/local
+TOPDIR=/data/proj5/diana/NYVIS_DEV/Ariunaa.Bertelsen/DIANA/metnolocal/
+OPDATA=/data/proj5/diana/NYVIS_DEV/Ariunaa.Bertelsen/DIANA/metnolocal/demodata
 
 <BASIC>
-fontpath=$(DIANADIR)/share/diana/fonts
-docpath=$(DIANADIR)/share/doc/diana
-obsPlotFilePath=$(DIANADIR)/share/diana
-qserver=$(ROOT)/bin/coserver4
-imagepath=$(DIANADIR)/share/diana/images/
-amdarStationList=$(DIANADIR)/share/diana/amdar.stations
-languagepaths=$(DIANADIR)/share/diana/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
-setenv=BUFR_TABLES,/usr/local/lib/bufrtables/,1
-language=no
-avatars=${HOME}/.diana/avatars/*.png
+docpath=$(TOPDIR)/diana/doc
+obsPlotFilePath=$(TOPDIR)/diana/etc
+qserver=$(TOPDIR)/bin/coserver
+imagepath=$(TOPDIR)/diana/images/
+amdarStationList=$(TOPDIR)/diana/etc/amdar.stations
+setenv=BUFR_TABLES,$(TOPDIR)/bufrtables/,1
+languagepaths=lang:../lang:$(TOPDIR)/translations:${QTDIR}/translations
+language=en
 </BASIC>
 
 
@@ -80,6 +77,7 @@ font=Courier   type=bitmap name=*-courier-bold-o*iso8859-1     postscript=Courie
 #-----------------------------------------------------------------------------
 # Scalable (truetype/polygon) fonts
 #-----------------------------------------------------------------------------
+fontpath=$(TOPDIR)/diana/fonts/
 
 font=Arial  type=scaleable face=NORMAL name=Arialn.ttf
 font=Arial  type=scaleable face=ITALIC name=Arialni.ttf
@@ -106,13 +104,13 @@ LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=1
 
 
 <IMAGE_GALLERY>
-basicpath=$(DIANADIR)/share/diana/images
+basicpath=$(TOPDIR)/diana/images
 
-markerpath=$(DIANADIR)/share/diana/images/markers
-marker=$(DIANADIR)/share/diana/images/vprof_normal.xpm
-marker=$(DIANADIR)/share/diana/images/vprof_selected.xpm
+markerpath=$(TOPDIR)/diana/images/markers
+marker=$(TOPDIR)/diana/images/vprof_normal.xpm
+marker=$(TOPDIR)/diana/images/vprof_selected.xpm
 
-patternpath=$(DIANADIR)/share/diana/images/patterns
+patternpath=$(TOPDIR)/diana/images/patterns
 </IMAGE_GALLERY>
 
 
@@ -219,6 +217,13 @@ manualcommands=$(TOPDIR)/diana/etc/printer.def
 #------------------------------------------------------------
 # files containing different quickmenus
 #------------------------------------------------------------
+file= $(TOPDIR)/diana/etc/qmenu_analyse.txt
+file= $(TOPDIR)/diana/etc/qmenu.txt
+file= $(TOPDIR)/diana/etc/qmenu_eps.txt
+file= $(TOPDIR)/diana/etc/qmenu_nedbor.txt
+file= $(TOPDIR)/diana/etc/Briefing.quick
+file= $(TOPDIR)/diana/etc/Produkter.quick
+file= $(TOPDIR)/diana/etc/Verifikasjon.quick-VA
 </QUICKMENUS>
 
 
@@ -1905,22 +1910,80 @@ TTT>0 red
 <IMAGE>
 
 image=NOAA
+  fileformat= mitiff
   channels= day_night 2+4 4+2 1+2+4 2+3+4 3+4+5 5+4+3 2+6+4 6+4+5 5+4+6 1 2 3 4 5 6
   sub.type= N-Europe
+  formattype= mitiff
       file= $(OPDATA)/meos/mchannel/noaa[yyyymmddHHMM]mne.mitiff
 
 image=METEOSAT
+  fileformat= mitiff
   channels= VIS_RAW IR+V
   sub.type= Visuell
+  formattype= mitiff
       file= $(OPDATA)/meteosat/orig/g*bv.tif
   channels= IR_CAL IR+V
   sub.type= IR
+  formattype= mitiff
       file= $(OPDATA)/meteosat/orig/g*bi.tif
 
 image=Radar-precipitation
    channels= PSC_RI
    sub.type= Precip_itensity_mm/h
+   formattype= mitiff    
        file= $(OPDATA)/radar/composite/PSC_RI-N2-ALL_PS0E60N1_[yyyymmdd]T[HHMM].mitiff
+
+image=nrd2km
+   channels= PCAPPI 
+   sub.type= PCAPPI_0
+   formattype=hdf5
+   channelinfo=1-image1,2-image2
+   datasetinfo=1-data,2-data
+   metainfo= how(area-diana_area,place-diana_place),what(time-diana_time,date-diana_date),image1:how(rga_A-diana_rga_A,rga_B-diana_rga_B,rga_C-diana_rga_C),image2:what(product-diana_product),where(xsize-diana_xsize,ysize-diana_ysize,LL_lat-diana_LL_lat,LL_lon-diana_LL_lon,UR_lat-diana_UR_lat,UR_lon-diana_UR_lon,projdef-diana_projdef,xscale-diana_xscale,yscale-diana_yscale)
+       file=/data/24/nordrad/archive_node/2008/12/19/comp.pcappi-dbz-0.nrd2km-ps14e60n-2000.[yyyymmdd]T[HHMM]*.data
+   channels= PCAPPI 
+   sub.type= PCAPPI_500
+   formattype=hdf5
+   channelinfo=1-image1,2-image2
+   datasetinfo=1-data,2-data
+   metainfo= how(area-diana_area,place-diana_place),what(time-diana_time,date-diana_date),image1:how(rga_A-diana_rga_A,rga_B-diana_rga_B,rga_C-diana_rga_C),image2:what(product-diana_product),where(xsize-diana_xsize,ysize-diana_ysize,LL_lat-diana_LL_lat,LL_lon-diana_LL_lon,UR_lat-diana_UR_lat,UR_lon-diana_UR_lon,projdef-diana_projdef,xscale-diana_xscale,yscale-diana_yscale)
+       file=/data/24/nordrad/archive_node/2008/12/19/comp.pcappi-dbz-500.nrd2km-ps14e60n-2000.[yyyymmdd]T[HHMM]*.data
+#   channels= ACRR
+#   sub.type= RR_ACRR
+#   formattype=hdf5
+#   channelinfo=1-image1,2-image2
+#   datasetinfo=1-data,2-data
+#   metainfo= how(area-diana_area,place-diana_place),what(time-diana_time,date-diana_date),image1:how(rga_A-diana_rga_A,rga_B-diana_rga_B,rga_C-diana_rga_C),image2:what(product-diana_product),where(xsize-diana_xsize,ysize-diana_ysize,LL_lat-diana_LL_lat,LL_lon-diana_LL_lon,UR_lat-diana_UR_lat,UR_lon-diana_UR_lon,projdef-diana_projdef,xscale-diana_xscale,yscale-diana_yscale)
+#       file=/data/24/nordrad/archive_node/2008/12/19/comp.rr-acrr-1.nrd2km-ps14e60n-2000.[yyyymmdd]T[HHMM]*.data
+
+#image=mes2km
+#   channels= ACRR
+#   sub.type= RR_ACRR
+#   formattype=hdf5
+#   channelinfo=1-image1,2-image2
+#   datasetinfo=1-data,2-data
+#   metainfo= how(area-diana_area,place-diana_place),what(time-diana_time,date-diana_date),image1:how(rga_A-diana_rga_A,rga_B-diana_rga_B,rga_C-diana_rga_C),image2:what(product-diana_product),where(xsize-diana_xsize,ysize-diana_ysize,LL_lat-diana_LL_lat,LL_lon-diana_LL_lon,UR_lat-diana_UR_lat,UR_lon-diana_UR_lon,projdef-diana_projdef,xscale-diana_xscale,yscale-diana_yscale)
+#       file=/data/24/nordrad/archive_node/2008/12/10/comp.rr-acrr-1.mes2km-rot10w30s-1845x1846.[yyyymmdd]T[HHMM]*.data
+
+image=arl
+   channels= PCAPPI 
+   sub.type= PCAPPI_500
+   formattype=hdf5
+   channelinfo=1-image1,2-image2
+   datasetinfo=1-data,2-data
+   metainfo= how(area-diana_area,place-diana_place),what(time-diana_time,date-diana_date),where(xsize-diana_xsize,ysize-diana_ysize,LL_lat-diana_LL_lat,LL_lon-diana_LL_lon,UR_lat-diana_UR_lat,UR_lon-diana_UR_lon,projdef-diana_projdef,xscale-diana_xscale,yscale-diana_yscale)
+       file=/data/24/nordrad/archive_node/2008/12/10/nordrad.pcappi-dbz-500.arl-ps14e60n-2000.[yyyymmdd]T[HHMM]*.data
+
+
+image=vil
+   channels= PCAPPI 
+   sub.type= PCAPPI_500
+   formattype=hdf5
+   channelinfo=1-image1,2-image2
+   datasetinfo=1-data,2-data
+   metainfo= how(area-diana_area,place-diana_place),what(time-diana_time,date-diana_date),where(xsize-diana_xsize,ysize-diana_ysize,LL_lat-diana_LL_lat,LL_lon-diana_LL_lon,UR_lat-diana_UR_lat,UR_lon-diana_UR_lon,projdef-diana_projdef,xscale-diana_xscale,yscale-diana_yscale)
+       file=/data/24/nordrad/archive_node/2008/12/10/nordrad.pcappi-dbz-500.vil-ps14e60n-2000.[yyyymmdd]T[HHMM]*.data
+
 
 </IMAGE>
 
@@ -1939,7 +2002,8 @@ image=Radar-precipitation
 # - font=fixed means "courier"-type font
 #---------------------------------------------------------------------------
 
-name=Obsflagg       file=$(DIANADIR)/share/diana/obsflag.html
+name=EPS.INFO       file=$(OPDATA)/ec/ecmwf_eps.info
+name=HIRLAM.INFO.00 file=$(OPDATA)/hirlam/status.00     font=fixed
 
 </TEXT_INFORMATION_FILES>
 
@@ -2009,25 +2073,27 @@ name=Global        proj=geographic  grid=-180:-90:1:1  area=1:361:1:181
 #---------------------------------------------------------------------------
 
 map=Gshhs-Auto type=triangles
-limit=10  file=$(MAPDIR)/gshhs_25.map
-limit=2.5 file=$(MAPDIR)/gshhs_5.map
-limit=0.5 file=$(MAPDIR)/gshhs_1.map
-limit=0.1 file=$(MAPDIR)/gshhs_0.2.map
-limit=0	  file=$(MAPDIR)/gshhs_0.1.map
+limit=10  file=$(TOPDIR)/maps/gshhs_25.map
+limit=2.5 file=$(TOPDIR)/maps/gshhs_5.map
+limit=0.5 file=$(TOPDIR)/maps/gshhs_1.map
+limit=0.1 file=$(TOPDIR)/maps/gshhs_0.2.map
+limit=0	  file=$(TOPDIR)/maps/gshhs_0.1.map
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 land=on land.colour=flesh
 #
-map=Euro1    file=$(MAPDIR)/land4.dat    # coast
-map=Euro2    file=$(MAPDIR)/land5.dat    # landborders,rivers
+map=Euro1    file=$(TOPDIR)/maps/land4.dat    # coast
+map=Euro2    file=$(TOPDIR)/maps/land5.dat    # landborders,rivers
 #
 map=Wvs-Auto type=normal
-limit=5.0 file=$(MAPDIR)/landwvs43m.dat # wvs(1:43mill)
-limit=1.0 file=$(MAPDIR)/landwvs12m.dat # wvs(1:12mill)
-limit=0.5 file=$(MAPDIR)/landwvs3m.dat  # wvs(1:3mill)
-limit=0.1 file=$(MAPDIR)/landwvs1m.dat  # wvs(1:1mill)
-limit=0   file=$(MAPDIR)/landwvs250k.dat# wvs(1:250.000)
+limit=5.0 file=$(TOPDIR)/maps/landwvs43m.dat # wvs(1:43mill)
+limit=1.0 file=$(TOPDIR)/maps/landwvs12m.dat # wvs(1:12mill)
+limit=0.5 file=$(TOPDIR)/maps/landwvs3m.dat  # wvs(1:3mill)
+limit=0.1 file=$(TOPDIR)/maps/landwvs1m.dat  # wvs(1:1mill)
+limit=0   file=$(TOPDIR)/maps/landwvs250k.dat# wvs(1:250.000)
 contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 #
+# map=MapLines1  type=lines_simple_text file=./kartlinjer1.txt
+# map=MapLines2  type=lines_simple_text file=./kartlinjer2.txt
 
 </MAP_TYPE>
 
@@ -2046,16 +2112,17 @@ name="met.no SurfaceAnalysis"  file=$(OPDATA)/diana/SurfaceAnalysis/objects/TEST
 product="Draw"
   drawtools= Analyse
   # save_dir is input/output
-  save_dir= ./work
+  save_dir= $(OPDATA)/smhi_edit
   objects=  "MAPdraw"
   comments= "MAPcomm"
+  local_idents= TEST
   standard_symbolsize=30
 end.product
 
 product="SurfaceAnalysis"
   drawtools= Analyse, Sigkart
   # save_dir is input/output
-  save_dir= ./work
+  save_dir= $(OPDATA)/smhi_edit
   # other input directories
   input_dir= $(OPDATA)/diana/SurfaceAnalysis/work
   # combine input directory
@@ -2067,9 +2134,16 @@ product="SurfaceAnalysis"
   objects=  "ANAdraw"
   comments= "ANAcomm"
 
-#  combine_ident= DNMI, VA,VV,VNN
-#  combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/share/diana/products/ANAborders.  ## + TEST/DNMI
+  local_idents= TEST
+  database_idents=  VA,VV,VNN, DNMI
+
+  # combine_ident: output, input1,input2,... (output must be defined above)
+  combine_ident= DNMI, VA,VV,VNN
+  combine_ident= TEST, VA,VV,VNN
+  combine_borders= $(TOPDIR)/diana/etc/ANAborders.  ## + TEST/DNMI
+
+  database= "tempo.oslo.dnmi.no diana 19100"  # host base port
+  name_in_database=SurfaceAnalysis
 
   time_start_early=+00:00    # hour:minute (-=before,+=after product)
   time_start_late= +03:00
@@ -2079,7 +2153,7 @@ product="SurfaceAnalysis"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/share/diana/products/bakkeanalyse.txt
+  commandfile=$(TOPDIR)/diana/etc/bakkeanalyse.txt
   standard_symbolsize=30
 
 end.product
@@ -2087,7 +2161,7 @@ end.product
 product="SIGmap"
   drawtools= Analyse, Sigkart
   # save_dir is input/output
-  save_dir= ./work
+  save_dir= $(OPDATA)/smhi_edit
   # other input directories
   input_dir= $(OPDATA)/diana/Sigkart/work
   # combine input directory
@@ -2098,10 +2172,16 @@ product="SIGmap"
   objects=  "SIGdraw"
   comments= "SIGcomm"
 
+  local_idents= TEST
+  database_idents= DNMI
+
+  database= "tempo.oslo.dnmi.no diana 19100"  # host base port
+  name_in_database=Sigkart
+
   time_start_early= -12:00    # hour:minute (-=before,+=after product)
   time_start_late=  -04:00
 
-  commandfile=$(DIANADIR)/share/diana/products/sigkart.txt
+  commandfile=$(TOPDIR)/diana/etc/sigkart.txt
   standard_symbolsize=20
   complex_symbolsize=6
 
@@ -2110,7 +2190,7 @@ end.product
 
 product="Forecast+36"
   # save_dir is input/output
-  save_dir= ./work
+  save_dir= $(OPDATA)/smhi_edit
   # other input directories
   input_dir= $(OPDATA)/diana/Forecast+36/work
   # combine input directory
@@ -2122,6 +2202,12 @@ product="Forecast+36"
   objects=  "PROG36draw"
   comments= "PROG36comm"
 
+  local_idents= TEST
+  database_idents= DNMI
+
+  database= "tempo.oslo.dnmi.no diana 19100"  # host base port
+  name_in_database=Forecast+36
+
   time_start_early= -36:00    # hour:minute (-=before,+=after product valid time)
   time_start_late=  -24:00
 
@@ -2130,14 +2216,14 @@ product="Forecast+36"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/share/diana/products/prognose+36.txt
+  commandfile=$(TOPDIR)/diana/etc/prognose+36.txt
   standard_symbolsize=30
 
 end.product
 
 product="Forecast"
   # save_dir is input/output
-  save_dir= ./work
+  save_dir= $(OPDATA)/smhi_edit
   # other input directories
   #input_dir= $(OPDATA)/diana/Forecast/work
   # combine input directory
@@ -2149,12 +2235,18 @@ product="Forecast"
   objects=  "PROGXXdraw"
   comments= "PROGXXcomm"
 
+  local_idents= TEST
+  ####database_idents=  VA,VV,VNN, DNMI
+
+  ####database= "tempo.oslo.dnmi.no diana 19100"  # host base port
+  ####name_in_database=Forecast
+
   # producer,grid, nx,ny, gridtype gridspec[6]
   grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  #commandfile=$(DIANADIR)/share/diana/products/prognose.txt
+  #commandfile=$(TOPDIR)/diana/etc/prognose.txt
   standard_symbolsize=30
 
 end.product
@@ -2338,5 +2430,26 @@ m=WAM.50KM.12  f=$(OPDATA)/wave/wamspec12.dat
 </SPECTRUM_FILES>
 
 
-
-
+<UFFDA>
+#---------------------------------------------------------------------------
+# Menu specification for interactive collocation of training data
+# class="<short classname>"  desc="<description of class>"
+#---------------------------------------------------------------------------
+mailto=some.name@your.met.service
+class="Water"           desc="No clouds, open water"
+class="Land"            desc="No clouds, land surface"
+class="Snow on land"    desc="No clouds, snow covered land"
+class="Snow on sea ice" desc="No clouds, snow covered sea ice"
+class="Cloud edge"      desc="Broken cloud cover, cloud edge"
+class="Cloud shadow"    desc="Broken cloud cover, cloud shadow"
+class="Very low stratiform cloud" desc="Totally overcast, fog or other cloud"
+class="Low stratiform cloud"      desc="Totally overcast, low stratiform cloud"
+class="Medium stratiform cloud"   desc="Totally overcast, medium stratiform cloud"
+class="High stratiform cloud"     desc="Totally overcast, high stratiform cloud"
+class="Low cumuliform cloud"      desc="Totally overcast, low cumuliform cloud"
+class="Medium cumuliform cloud"   desc="Totally overcast, medium cumuliform cloud"
+class="High cumuliform cloud"     desc="Totally overcast, high cumuliform cloud"
+class="Thin cirrus"               desc="Totally overcast, thin cirrus"
+class="Cirrus"                    desc="Totally overcast, cirrus"
+class="Cirrus on top"             desc="Totally overcast, cirrus over other clouds"
+</UFFDA>

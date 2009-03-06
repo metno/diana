@@ -188,8 +188,12 @@ public:
   void processHqcCommand(const miString&, const miString& ="");
   /// plot trajectory position
   void  trajPos(vector<miString>&);
+  /// plot radar echo position
+  void  radePos(vector<miString>&);
   /// get trajectory fields
   vector<miString> getTrajectoryFields();
+  /// get radarecho fields
+  vector<miString> getRadarEchoFields();
   /// start trajectory computation
   bool startTrajectoryComputation();
 // print trajectory positions to file

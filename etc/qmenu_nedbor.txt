@@ -1,0 +1,136 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer 
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Nedbør-varsel"
+
+# variables
+[Bakgrunn= white,grayWhite,lightGray,black,orange]
+[Kart= darkGreen,white,black]
+
+#
+>06-varsel: Hirlam 18, 37 timers nedbør (05 UTC i dag - 18 UTC i morgen)
+FIELD HIRLAM.18 NEDBØR.37T forecast.hour=48 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>06-varsel: Hirlam 00, 42 timers nedbør (05 UTC i dag - 23 UTC i morgen)
+FIELD HIRLAM.00 NEDBØR.42T forecast.hour=47 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>06-varsel: Hirlam.10km 00, 42 timers   (05 UTC i dag - 23 UTC i morgen)
+FIELD HIRLAM.10KM.00 NEDBØR.42T forecast.hour=47 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+### >06-varsel: EC 00, 42 timers nedbør     (06 UTC i dag - 24 UTC i morgen)
+### FIELD EC.00 NEDBØR.42T forecast.hour=48 colour=red linetype=solid linewidth=1
+### MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+### MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+### LABEL data
+### LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>06-varsel: EC 12, 42 timers nedbør     (06 UTC i dag - 24 UTC i morgen)
+FIELD EC.12 NEDBØR.42T forecast.hour=60 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>06-varsel: UKfin 00, 30 timers nedbør  (06 UTC i dag - 12 UTC i morgen)
+FIELD UKFIN.00 NEDBØR.30T forecast.hour=36 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+#
+#
+>12-varsel: Hirlam 00, 36 timers nedbør (11 UTC i dag - 23 UTC i morgen)
+FIELD HIRLAM.00 NEDBØR.36T forecast.hour=47 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>12-varsel: Hirlam.10km 00, 36 timers   (11 UTC i dag - 23 UTC i morgen)
+FIELD HIRLAM.10KM.00 NEDBØR.36T forecast.hour=47 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+### >12-varsel: EC 00, 36 timers nedbør     (12 UTC i dag - 24 UTC i morgen)
+### FIELD EC.00 NEDBØR.36T forecast.hour=48 colour=red linetype=solid linewidth=1
+### MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+### MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+### LABEL data
+### LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>12-varsel: EC 12, 36 timers nedbør     (12 UTC i dag - 24 UTC i morgen)
+FIELD EC.12 NEDBØR.36T forecast.hour=60 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+#
+#
+>18-varsel: Hirlam 06, 30 timers nedbør (17 UTC i dag - 23 UTC i morgen)
+FIELD HIRLAM.06 NEDBØR.30T forecast.hour=41 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>18-varsel: Hirlam 12, 30 timers nedbør (17 UTC i dag - 23 UTC i morgen)
+FIELD HIRLAM.12 NEDBØR.30T forecast.hour=35 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>18-varsel: Hirlam.10km 12, 30 timers   (17 UTC i dag - 23 UTC i morgen)
+FIELD HIRLAM.10KM.12 NEDBØR.30T forecast.hour=35 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+### >18-varsel: EC 00, 30 timers nedbør     (18 UTC i dag - 24 UTC i morgen)
+### FIELD EC.00 NEDBØR.30T forecast.hour=48 colour=red linetype=solid linewidth=1
+### MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+### MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+### LABEL data
+### LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>18-varsel: EC 12, 30 timers nedbør     (18 UTC i dag - 24 UTC i morgen)
+FIELD EC.12 NEDBØR.30T forecast.hour=60 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12
+#
+>18-varsel: UKfin 12, 30 timers nedbør  (18 UTC i dag - 24 UTC i morgen)
+FIELD UKFIN.12 NEDBØR.30T forecast.hour=36 colour=red linetype=solid linewidth=1
+MAP area=Norge backcolour=@Bakgrunn map=Euro1 cont.colour=@Kart cont.linewidth=1
+MAP map=Fylker cont.colour=@Kart cont.linewidth=1
+LABEL data
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top fontsize=12

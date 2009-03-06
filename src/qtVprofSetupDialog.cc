@@ -502,7 +502,8 @@ void VprofSetupDialog::applySetup(){
 /*********************************************/
 
 void VprofSetupDialog::printSetup(){
-#ifdef DEBUGPRINT
+/*
+  #ifdef DEBUGPRINT
   //HK, used for debugging...
   cerr <<"VprofSetupDialog::printSetup()" << endl;
 
@@ -520,6 +521,7 @@ void VprofSetupDialog::printSetup(){
       cerr << " is off !" << endl;
   }
 #endif
+*/
 }
 
 

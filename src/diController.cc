@@ -146,7 +146,8 @@ bool Controller::parseSetup()
 
 void Controller::plotCommands(const vector<miString>& inp){
 #ifdef DEBUGPRINT
-  cerr << "++ Controller::plotCommands:" << inp << endl;
+  for (int q = 0; q < inp.size(); q++)
+  cerr << "++ Controller::plotCommands:" << inp[q] << endl;
 #endif
   plotm->preparePlots(inp);
 #ifdef DEBUGPRINT
@@ -346,6 +347,11 @@ void Controller::trajPos(vector<miString>& str){
   plotm->trajPos(str);
 }
 
+//plot radar echo position
+void Controller::radePos(vector<miString>& str){
+  plotm->radePos(str);
+}
+
 // start trajectory computation
 bool Controller::startTrajectoryComputation(){
   return plotm->startTrajectoryComputation();
@@ -355,6 +361,12 @@ bool Controller::startTrajectoryComputation(){
 vector<miString> Controller::getTrajectoryFields(){
   return plotm->getTrajectoryFields();
 }
+
+// get radarecho fields
+vector<miString> Controller::getRadarEchoFields(){
+  return plotm->getRadarEchoFields();
+}
+
 
 // write trajectory positions to file
 bool Controller::printTrajectoryPositions(const miString& filename ){

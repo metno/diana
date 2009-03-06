@@ -60,7 +60,7 @@ VprofPlot::~VprofPlot() {
 
 bool VprofPlot::plot(VprofOptions *vpopt, int nplot) {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::plot " << text << endl;
+//  cerr << "++ VprofPlot::plot " << text << endl;
 #endif
 
   if (!text.posName.exists()) return false;

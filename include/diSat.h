@@ -123,7 +123,7 @@ public:
   int no;               ///< no of plotted channels
   int rgbindex[3];      ///< channelindex for rgb-operations
   unsigned char* rawimage[maxch]; ///< raw image
-  long* origimage[3]; ///< original image for temperature display images
+  float* origimage[3]; ///< original image for temperature display images
   int rawchannels[maxch];         ///< raw images channel numbers
   
   int calibidx;         ///< channel to use in values routine

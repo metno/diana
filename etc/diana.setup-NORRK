@@ -1,0 +1,950 @@
+#----------------------------------------------------------------------------------
+# Setupfile for Diana
+#----------------------------------------------------------------------------------
+# Organized in sections, each section within a <SSS> </SSS> pair, where
+# SSS is the name of the section
+# Ex: <BASIC> ... </BASIC> contains the 'BASIC' section
+#
+# Common structures in all sections:
+# KEYWORD                     : Turns on/off feature
+# KEY=VALUE                   : Defines keyword with value
+# KEY=V1,V2,V3                : Defines keyword with list of values
+# KEY=V11:V12:V13,V21:V22     : Defines keyword with list of lists of values
+# KEY=VALUE KEY=V1,V2,V3 ...  : Combinations of key-defines
+#
+#----------------------------------------------------------------------------------
+# Other features:
+# Refer to environment/shell variable XX with ${XX}
+# Ex: ${HOME} will be expanded to the home-path
+#
+# Define local variables with XX=yy (outside all sections), and refer to them
+# with $(XX)
+# Ex: Add ROOT=/metno/local in a separate line outside all sections.
+#     All occurences of $(ROOT) in later lines will be expanded to /metno/local
+#
+# Long lines may be split up by using '\'. Add a '\' (and newline) where you want to
+# split a line.
+#
+# Include another file with %include "filename". Included file inherits section at
+# the point of inclusion. File must start and end with the same section. Files may be
+# nested.
+#
+# Use keyword CLEAR to clear all previous definitions for a specific section. Only
+# valid within a section. Useful in local files which include the official setupfile
+#----------------------------------------------------------------------------------
+
+DIANADIR=${DIANADIR}||/data/prod/diana/linda/metnolocal/diana-3.5.0
+
+# =============================================
+
+%include $(DIANADIR)/etc/diana.setup-SMHI-COMMON
+
+# =============================================
+
+
+<QUICKMENUS>
+#------------------------------------------------------------
+# files containing different quickmenus
+#------------------------------------------------------------
+file= $(DIANADIR)/etc/qmenu_smhi_oversikt.quick
+</QUICKMENUS>
+
+<FIELD_COMPUTE>
+
+maxtemp_c=subtract(maxtemp,273.16)
+mintemp_c=subtract(mintemp,273.16)
+
+</FIELD_COMPUTE>
+
+<FIELD_PLOT>
+CLEAR
+
+################### NWP models ##################################
+
+##### surface etc. ##########
+
+field=Marktryck,MSLP(hPa)
+      colour=black linetype=solid extreme.type=L+H linewidth=2 line.interval=5
+      plot=CONTOUR(mslp)
+      text = "Mean Sea Level Pressure"
+end.field
+
+field=Trycktendens(hPa)
+      colour=red palettecolours=lightblue,lightred table=1 linetype=dash linewidth=2 line.interval=1. value.label=1 label.size=1.5 alpha=140 zero.line=0 field.smooth=1
+      # prefer tendency(psurf), if not found try tendency(mslp)
+      plot=CONTOUR(pressure.tendency.psurf|pressure.tendency.mslp)
+end.field
+
+field=Temperatur.2M(grC)
+      text = "2m Temperature"
+      colour=red palettecolours=lightred,lightblue line.interval=2. alpha=190 table=1
+      plot=CONTOUR(tc2m)
+end.field
+
+field=Vind.10M(m/s)
+      colour=black linetype=solid linewidth=1 rel.size=1. density=AUTO
+      plot=WIND(u10m,v10m)
+end.field
+
+#field=VIND.10M.PIL
+#      text = "VIND.10M"
+#      colour=red linetype=solid linewidth=2 rel.size=1. density=AUTO
+#      vector.unit=10.
+#      plot=VECTOR(u10m,v10m)
+#end.field
+
+#field=Vindfält(m/s)
+#      colour=red linetype=solid linewidth=1 base=8 minvalue=8 maxvalue=off line.interval=2 value.label=1 label.size=1.2 #palettecolours=lightred;16 table=1 repeat=0 colour_2=off  
+#      plot=CONTOUR(ff10m)
+#end.field
+
+#field=Vindfält.fargad
+#      value.range=0.,20.
+#      colour=red
+#      plot=ALPHA_SHADE(ff10m)
+#end.field
+
+#field=Vindfält(knop)
+#      colour=red palettecolours=lightred linetype=solid linewidth=1 line.interval=2.
+#      plot=CONTOUR(ff10mknots)
+#end.field
+
+loop [HR]=1,3,6,12,24
+loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40","0.2,0.5,1,2,4,6,10,15,....50","0.5,1,2,4,6,10,15,....60","1,2,4,6,10,15,....100","0.5,1,2,4,6,10,15,....200"
+
+field=Nederbörd.[HR]T(mm)
+      colour=dnmi_green palettecolours=green linetype=solid linewidth=1 line.values=[LINE] value.label=1 label.size=1.2 table=1
+      plot=CONTOUR(accumprecip.[HR]h|rainfall.[HR]h)
+end.field
+
+loop [HR]=1,3,6,12,24
+loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40","0.2,0.5,1,2,4,6,10,15,....50","0.5,1,2,4,6,10,15,....60","1,2,4,6,10,15,....100","0.5,1,2,4,6,10,15,....200"#
+
+field=Snöfall.[HR]T(mm)
+      colour=black palettecolours=lightblue linetype=solid linewidth=1 value.label=1 label.size=1.2 line.smooth=2 table=1 alpha=190 line.values=[LINE] 
+      plot=CONTOUR(snowfall.[HR]h)
+end.field
+
+#field=Snöfall
+#      colour=red
+#      plot=CONTOUR(snowfall)
+#end.field
+
+field=Underkylt.regn
+      colour=blank palettecolours=darkblue;4 linetype=solid linewidth=1 line.interval=20 base=20 minvalue=20 table=1
+      plot=CONTOUR(prob.undercooled.rain_percent)
+end.field
+
+field=Nederbördsform
+      colour=off palettecolours=standard;6 line.interval=1. base=1 minvalue=1 table=1
+      plot=CONTOUR(convstatprec)
+end.field
+
+field=Total.molnighet
+      colour=grey90 value.range=0.,100.
+      plot=ALPHA_SHADE(totcloud)
+end.field
+
+#field=SIKT
+#      colour=red value.range=0.,100.
+#      plot=ALPHA_SHADE(sikt)
+#end.field
+
+field=Sikt.konturer(km)
+     colour=off linetype=solid linewidth=1 palettecolours=orange_rev;5 line.interval=2 base=0 minvalue=off maxvalue=10 alpha=200 table=1 #colour_2=black base_2=1 line.interval_2=100 maxvalue_2=10 
+#linetype_2=dash linewidth_2=1 line.values=40,60,80,100 
+      plot=CONTOUR(sikt)
+end.field
+
+
+field=Dimma
+      colour=yellow value.range=0.,100.
+      plot=ALPHA_SHADE(cloud.fog)
+end.field
+
+field=Låga.moln
+      colour=yellow value.range=0.,100.
+      plot=ALPHA_SHADE(cloud.low)
+end.field
+
+field=Medelhöga.moln
+      colour=brown value.range=0.,100.
+      plot=ALPHA_SHADE(cloud.medium)
+end.field
+
+field=Höga.moln
+      colour=cyan value.range=0.,100.
+      plot=ALPHA_SHADE(cloud.high)
+end.field
+
+field=Låga.moln.kontur
+      colour=off line.interval=.3 palettecolours=orange;3 table=1 base=0.3 minvalue=0.3 
+      plot=CONTOUR(cloud.low)
+end.field
+
+field=Medelhöga.moln.kontur
+      colour=off linetype=solid linewidth=1 line.interval=0.3 base=0.3 minvalue=0.3 maxvalue=off extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=darkblue_rev;1 table=1 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=110 
+      plot=CONTOUR(cloud.medium)
+end.field
+
+field=Höga.moln.kontur
+      colour=off line.interval=.3 palettecolours=lightblue;3 alpha=150 table=1 base=0.3 minvalue=0.3 alpha=100
+      plot=CONTOUR(cloud.high)
+end.field
+
+field=Totalt.molnvatten.TCLW
+      colour=red linetype=solid linewidth=1 line.interval=2 palettecolours=standard minvalue=6 base=6
+      plot=CONTOUR(tclw)
+end.field
+
+#field=Snö_dybde
+#      colour=red
+#      line.values=0.01,0.02,0.04,0.06,0.10,0.15,0.20,0.25,0.3,0.4,0.5,1.,2.,5.
+#      plot=CONTOUR(snowdepth)
+#end.field
+
+#field=Snow_slide_danger
+#      forecast.length=+000,+06,+12,+24,+36,+48,+240  # forecast hour
+#      forecast.value.min=3.,15.,25.,40.,50.,60.,250. # accumulated total precipitation (in forecast)
+#      colour=red
+#      plot=ALARM_BOX(accumprecip)   # alarm if value>value.min
+#end.field
+
+field=Vindavkylning
+     colour=black linetype=solid linewidth=1 line.interval=2. palettecolours=lightred,lightblue
+     plot=CONTOUR(windcooling)
+end.field
+
+field=Yttemperatur(grC)
+      #"0m Temperature"
+      colour=red linetype=solid linewidth=1 line.interval=2. palettecolours=lightred,lightblue
+      plot=CONTOUR(tc0m)
+end.field
+
+#field=Tsoil(grC)
+#      #"Soil Temperature"
+#      colour=red linetype=solid linewidth=1 line.interval=1. palettecolours=lightred,lightblue
+#      plot=CONTOUR(tcsoil)
+#end.field
+
+field=Relativ.fuktighet.2M.(%)
+      #"2m Relative Humidity"
+      colour=red palettecolours=green;5,orange;5 linetype=solid linewidth=1 line.interval=10 base=50 minvalue=0 table=1 #line.interval_2=100 base_2=50 linewidth_2=3 linetype_2=dot
+      plot=CONTOUR(rh2m)
+end.field
+
+field=Daggpunkt.2M(grC)
+      #"2m Dewpoint temperature"
+      colour=white linetype=solid linewidth=1 line.interval=2. palettecolours=lightred,lightblue
+      plot=CONTOUR(tdc2m)
+end.field
+
+loop [H]=30,50,130
+field=CAPE.[H].(J/kg)
+      #"Convective Potential Available Energy"
+      colour=off linetype=solid linewidth=1 line.interval=100. palettecolours=standard minvalue=0 table=1
+      plot=CONTOUR(cape.[H])
+end.field
+
+field=Åskrisk
+      colour=blank palettecolours=darkred;4 linetype=solid linewidth=1 line.interval=20 base=20 minvalue=20 table=1
+      plot=CONTOUR(thunderprob_percent)
+end.field
+
+field=Byvind.10M(m/s)
+      colour=red linetype=solid linewidth=1 line.interval=4. minvalue=8 base=8 palettecolours=standard;7 table=1
+      plot=CONTOUR(windgusts_10m)
+end.field
+
+field=Molnbas
+      colour=off linetype=solid linewidth=1 line.interval=500. palettecolours=standard table=1
+      plot=CONTOUR(cloudbase)
+end.field
+
+field=Molntop
+      colour=off linetype=solid linewidth=1 line.interval=500. palettecolours=standard table=1
+      plot=CONTOUR(cloudtop)
+end.field
+
+field=Nederbörd.kategorier
+      colour=off palettecolours=standard;2 linetype=solid linewidth=1 line.interval=.5 base=0 minvalue=0. table=1
+      plot=CONTOUR(preccat)
+end.field
+
+field=PSURF
+      colour=red line.interval=25.
+      plot=CONTOUR(psurf)
+end.field
+
+field=Maxvind(knop)
+      colour=black linetype=solid linewidth=1 rel.size=1. density=AUTO
+      plot=WIND(u.maxwind,v.maxwind)
+end.field
+
+field=Maxvindfält(m/s)
+      colour=red linetype=solid linewidth=1 line.interval=4. minvalue=8 base=8 palettecolours=standard;7 table=1
+      plot=CONTOUR(ff.maxwind)
+end.field
+
+field=FlightLevel(MAX.WIND)
+      colour=blue
+      line.values=0,25,50,100,140,180,240,300,340,390,450,530,600,700,800
+      plot=CONTOUR(flightlevel.maxwind)
+end.field
+
+field=Snö(mm_i_smält_form)
+      colour=red linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(accumsnow_total_water)
+end.field
+
+#field=Snö(stratiform_water)
+#      colour=red linetype=solid linewidth=1 line.interval=5.
+#      plot=CONTOUR(accumsnow_stratiform_water)
+#end.field
+
+#field=Snö(convective_water)
+#      colour=red linetype=solid linewidth=1 line.interval=5.
+#      plot=CONTOUR(accumsnow_convective_water)
+#end.field
+
+loop [HR]=120  #30,36,37,42
+field=Precipitation.[HR]hr
+      colour=dnmi_green palettecolours=green linetype=solid linewidth=1
+      line.values=0.5,1,2,4,6,10,15,...70,80,...400
+      plot=CONTOUR(accumprecip.[HR]h)
+end.field
+
+######## Fields in several vertical coordinates (p/eta/sigma/pv/....) ###
+
+field=Z.Geopothojd(gpm)
+      #"Height"
+      colour=black linetype=solid linewidth=2 line.interval=40.
+      plot=CONTOUR(z_m)
+end.field
+
+field=Vind.vimplar
+      colour=grey25 linetype=solid linewidth=1 rel.size=1. density=AUTO
+      plot=WIND(u,v)
+end.field
+
+field=Vind.pilar
+      colour=red linetype=solid linewidth=2 rel.size=1. density=AUTO
+      vector.unit=10.
+      plot=VECTOR(u,v)
+end.field
+
+#field=Vind+temp
+#      colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
+#      plot=WIND_TEMP_FL(u,v,tc)
+#end.field
+
+#field=Vind+FF
+#      linetype=solid linewidth=1 rel.size=1. density=AUTO
+#      plot=WIND_COLOUR(u,v,ff)
+#end.field
+
+field=Vindfält(m/s)
+      colour=red linetype=solid linewidth=1 line.interval=4. minvalue=8 base=8 palettecolours=standard;7 table=1
+      plot=CONTOUR(ff)
+end.field
+
+field=Vindfält(knop)
+      colour=red linetype=solid linewidth=1 line.interval=8. minvalue=16 base=16 palettecolours=standard;4 table=1
+      plot=CONTOUR(ffknots)
+end.field
+
+field=Vindfält.färgat
+      colour=black value.range=0.,70.
+     plot=ALPHA_SHADE(ff)
+end.field
+
+field=T
+      #"Temperature"
+      colour=red linetype=solid linewidth=1 line.interval=2.5 palettecolours=lightred,lightblue
+      plot=CONTOUR(tc|tk)   # if "tc" doesn't exist, then try "tk"
+end.field
+
+field=Theta
+      #"Potential Temperature"
+      colour=dnmi_green linetype=dash table=1 linewidth=2 line.interval=2. palettecolours=lightred,lightblue
+      plot=CONTOUR(th_celsius)
+end.field
+
+field=ThetaAE
+      #"Equivalent Potential Temperature"
+      colour=red linetype=solid linewidth=1 line.interval=2. palettecolours=lightred,lightblue
+      plot=CONTOUR(the)
+end.field
+
+field=ThetaAE.gradient
+      colour=red linetype=solid linewidth=1 line.interval=2
+      plot=CONTOUR(the.gradient)
+end.field
+
+field=Td
+      #"Dewpoint temperature"
+      colour=red linetype=solid linewidth=1 line.interval=2.5
+      plot=CONTOUR(tdc)
+end.field
+
+field=RH
+      #"Relative Humidity"
+      colour=off linetype=solid linewidth=1 line.interval=0.8 base=0.8 minvalue=0.8 maxvalue=off extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=darkblue_rev;1 table=1 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=110
+      #colour=red linetype=solid linewidth=1 line.interval=.1
+      plot=CONTOUR(rh)
+end.field
+
+field=Cloud_in_level
+      colour=red value.range=0.,100.
+      plot=ALPHA_SHADE(cloud.level)
+end.field
+
+field=Geostrofisk.vind
+      colour=black linetype=solid linewidth=1 rel.size=1. density=AUTO
+      plot=WIND(ug,vg)
+end.field
+
+field=Ageostrofisk.vind
+      colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
+      plot=WIND(uag,vag)
+end.field
+
+field=QCLOUD
+      colour=red linetype=solid linewidth=1 line.interval=0.0001
+      plot=CONTOUR(qcloud)
+end.field
+
+field=Vorticity
+      colour=off palettecolours=green linetype=solid linewidth=1 line.interval=0.0001 minvalue=0.0001 zero.line=1
+      plot=CONTOUR(vorticity)
+end.field
+
+field=Divergens
+      colour=off palettecolours=lightblue linetype=solid linewidth=1 line.interval=0.00005 minvalue=0.0001 zero.line=1
+      plot=CONTOUR(divergence)
+end.field
+
+field=Abs.Vorticity 
+      colour=off palettecolours=green linetype=solid linewidth=1 line.interval=0.0001 minvalue=0.0001 zero.line=1
+      zero.line=1
+      plot=CONTOUR(absvorticity)
+end.field
+
+field=Omega.vertikalvind(m/s)
+      colour=off linetype=solid linewidth=1 line.interval=.2 palettecolours=lightred;4,lightblue;4 table=1
+      zero.line=1
+      plot=CONTOUR(omega)
+end.field
+
+#field=FlightLevel
+#      colour=blue
+#      line.values=0,25,50,100,140,180,240,300,340,390,450,530,600,700,800
+#      plot=CONTOUR(flightlevel)
+#end.field
+
+field=Etadot
+      colour=red line.interval=0.0001
+      zero.line=1
+      plot=CONTOUR(etadot)
+end.field
+
+### Single level computations mainly from pressure levels ###
+
+loop [P1]=500 #,700,850,500,700,500
+loop [P2]=1000 #,1000,1000,925,925,850
+field=DZ([P1]-[P2])
+      #"Thickness"
+      colour=black linetype=solid linewidth=2 line.interval=40. linetype_2=dash
+      plot=CONTOUR(dz.[P1]-[P2])
+end.field
+
+loop [P1]=500 #,500,700,300
+loop [P2]=1000 #,850,1000,700
+field=DZ([P1]-[P2])_färgat
+      #"Thickness"
+      colour=red value.range=5000.,5600.
+      plot=ALPHA_SHADE(dz.[P1]-[P2])
+end.field
+
+loop [P1]=850,700,500,700,500
+loop [P2]=925,925,925,850,850
+field=THE_DIFF([P1]-[P2])
+      #"Equivalent Potential Temperature Diff [P2]-[P1]"
+      colour=red linetype=solid linewidth=1 line.interval=1
+      plot=CONTOUR(thediff.[P1]-[P2])
+end.field
+
+field=TSEA-T500
+      colours=red,white,blue linetype=dash extreme.type=C+W extreme.size=1 extreme.radius=1 linewidth=2
+      line.interval=2. base=-45.
+      plot=CONTOUR(tdiff.sst-500)
+end.field
+
+field=T1000-TSEA
+      colours=red,white,blue linetype=dash extreme.type=C+W extreme.size=1 extreme.radius=1 linewidth=2
+      line.interval=2. base=-45.
+      plot=CONTOUR(tdiff.1000-sst)
+end.field
+
+#field=T500-T1000
+#      #"Temperature difference 500-1000"
+#      colour=red linetype=solid linewidth=1 line.interval=5.
+#      plot=CONTOUR(tdiff.500-1000)
+#end.field
+
+
+### Parameter fields (constant in time, usually...) ###
+
+field=Topography
+      colour=red line.interval=250.
+      plot=CONTOUR(topography)
+end.field
+
+field=ZNULL.PARAM
+      colour=blue line.interval=1. discontinuous=1
+      plot=CONTOUR(znullparam)
+end.field
+
+field=SST
+      colour=red  line.interval=2.
+      plot=CONTOUR(sst_c)
+end.field
+
+field=Snowcoverage(lines)
+      colour=red line.interval=20.
+      plot=CONTOUR(snowcoverage)
+end.field
+
+field=Snowcoverage(colours)
+      colours=darkblue,blue,yellow,magenta,red
+      value.range=0.,100.       # limits=19.,39.,59.,79.,99.
+      plot=ALPHA_SHADE(snowcoverage)
+end.field
+
+field=Fraction_Land
+      colour=red line.interval=10.
+      plot=CONTOUR(fraction.land)
+end.field
+
+field=Fraction_Ice
+      colour=red line.interval=10.
+      plot=CONTOUR(fraction.ice)
+end.field
+
+field=Fraction_Forest
+      colour=red line.interval=10.
+      plot=CONTOUR(fraction.forest)
+end.field
+
+field=ROC
+      colour=red line.interval=10.
+      plot=CONTOUR(roc.param)
+end.field
+
+field=TSC
+      colour=red line.interval=2.
+      plot=CONTOUR(tcsc.param)
+end.field
+
+field=ALB
+      colour=red line.interval=2.
+      plot=CONTOUR(alb.param)
+end.field
+
+field=SWC
+      colour=red line.interval=2.
+      plot=CONTOUR(swc.param)
+end.field
+
+
+######################## ECMWF EPS ##############################
+
+loop [MM]=1,5,10,20
+field=Probability_Precip>[MM]mm/24h
+      fieldgroup="EPS probability"
+      colour=red line.interval=20.
+      plot=CONTOUR(probab_precip>[MM]mm)
+end.field
+
+loop [MS]=10,15
+field=Probability_Wind>[MS]m/s
+      fieldgroup="EPS probability"
+      colour=red line.interval=20.
+      plot=CONTOUR(probab_wind>[MS]ms)
+end.field
+
+loop [TA]="<-8","<-4",">+4",">+8"
+field=Probability_T850_Anomaly[TA]
+      fieldgroup="EPS probability"
+      colour=red line.interval=20.
+      plot=CONTOUR(probab_t850_anomaly[TA])
+end.field
+
+
+######################## PEPS ##############################
+
+field=PEPS_NO_MOD
+    colour=blue line.interval=1. discontinuous=1
+    plot=CONTOUR(peps_no_mod)
+end.field
+
+field=PEPS_T.2MAX
+    colour=blue line.interval=2.
+    plot=CONTOUR(peps_t.2max_c)
+end.field
+
+field=PEPS_T.2MIN
+    colour=red line.interval=2.
+    plot=CONTOUR(peps_t.2min_c)
+end.field
+
+field=PEPS_PRT
+    colour=red linetype=solid linewidth=1 line.interval=0.1
+    plot=CONTOUR(peps_prt)
+end.field
+
+field=PEPS_TSNOW
+    colour=red linetype=solid linewidth=1 line.interval=0.1
+    plot=CONTOUR(Peps_tsnow)
+end.field
+
+field=PEPS_FFMAX
+    colour=red line.interval=2.
+    plot=CONTOUR(peps_ffmax)
+end.field
+
+field=PEPS_GUST
+     colour=red line.interval=2.
+     plot=CONTOUR(peps_gust)
+end.field
+
+loop [RR]=10,20,25,30,40,50,60,70,80,90,100
+field=PEPS_PROB_RR>[RR]mm
+    colour=red line.interval=10.
+    plot=CONTOUR(peps_prob_rr>[RR]mm)
+end.field
+
+loop [FF]=10,15,20,25
+field=PEPS_PROB_FF>[FF]m/s
+    colour=red line.interval=10.
+    plot=CONTOUR(peps_prob_ff>[FF])
+end.field
+
+loop [CM]=1,5,10,15,20,25
+field=PEPS_PROB_SNOW>[CM]cm
+    colour=red line.interval=10.
+    plot=CONTOUR(peps_prob_snow>[CM]cm)
+end.field
+
+loop [FF]=10,14,15,18,20,25,29,33,39
+field=PEPS_PROB_GUST>[FF]m/s
+    colour=blue line.interval=10.
+     plot=CONTOUR(peps_prob_gust>[FF]ms)
+end.field
+
+loop [TT]="<-10","<0",">+25",">+30",">+35"
+field=PEPS_PROB_T2M[TT]
+     colour=blue line.interval=10.
+     plot=CONTOUR(peps_prob_t2m[TT])
+end.field
+
+
+######################## WAVE/WAM ###############################
+
+field=BOTTOM_DEPTH
+      colour=red line.interval=200.
+      plot=CONTOUR(bottom.depth)
+end.field
+
+field=MPP_Processor_map
+      colour=red line.interval=1.0 discontinuous=1
+      plot=CONTOUR(mpp.processor.map)
+end.field
+
+field=ICE(lines)
+      colour=red linewidth=3 line.values=0.5
+      plot=CONTOUR(ice)
+end.field
+
+field=ICE(colours)
+      colour=darkBlue value.range=0.,1.
+      plot=ALPHA_SHADE(ice)
+end.field
+
+field=Significant_Wave_Height
+      colour=red line.interval=1.
+      plot=CONTOUR(significant.wave.height)
+end.field
+
+loop [TYPE]=Peak,Significant
+field=[TYPE]_periode
+      colour=red line.interval=1.
+      plot=CONTOUR([TYPE].periode)
+end.field
+
+loop [TYPE] = Peak,Mean
+field=[TYPE]_Direction
+      colour=red rel.size=1.0
+      plot=DIRECTION([TYPE].Direction)
+end.field
+
+loop [TYPE] = Peak,Mean
+field=[TYPE]_Direction_and_Significant_Height
+      colours=darkgray,black,blue,darkblue,magenta,red # N   colours
+      limits=1.,2.,3.,4.,5.                            # N-1 limits
+      rel.size=1.0
+      plot=DIRECTION_COLOUR([TYPE].direction,significant.wave.height)
+end.field
+
+loop [TYPE] = Peak,Mean
+field=[TYPE]_Direction_and_Significant_Height[Auto_color]
+      rel.size=1.0
+      plot=DIRECTION_COLOUR([TYPE].direction,significant.wave.height)
+end.field
+
+loop [TYPE] = WINDSEA,SWELL
+field=Significant_[TYPE]_Wave_Height
+      colour=red line.interval=1.
+      plot=CONTOUR(significant.[TYPE].wave.height)
+end.field
+
+loop [TYPE1]=Peak,Peak,Mean,Mean
+loop [TYPE2]=WINDSEA,SWELL,WINDSEA,SWELL
+field=[TYPE1]_[TYPE2]_periode
+      colour=red line.interval=1.
+      plot=CONTOUR([TYPE1].[TYPE2].periode)
+end.field
+
+loop [TYPE1]=Peak,Peak,Mean,Mean
+loop [TYPE2]=WINDSEA,SWELL,WINDSEA,SWELL
+field=[TYPE1]_[TYPE2]_Direction
+      colour=red rel.size=1.0
+      plot=DIRECTION([TYPE1].[TYPE2].direction)
+end.field
+
+field=Stokes_Drift
+      colour=red rel.size=1. density=AUTO
+      vector.unit=0.2
+      plot=VECTOR(ustokes,vstokes)
+end.field
+
+field=TAUWG
+      colour=red line.interval=0.2
+      plot=CONTOUR(tauwg)
+end.field
+
+field=Drag_coeffisient
+      colour=red line.interval=0.01
+      plot=CONTOUR(drag_coeffisient)
+end.field
+
+field=USNEW
+      colour=red line.interval=0.1
+      plot=CONTOUR(usnew)
+end.field
+
+field=Wind.speed
+      colour=red line.interval=5.
+      plot=CONTOUR(ff_wind)
+end.field
+
+field=Wind.direction
+      colour=red rel.size=1.0
+      plot=DIRECTION(dd_wind)
+end.field
+
+
+######################## OCEAN/MIPOM #############################
+
+loop [F]=F,U,V
+field=FRS.alfa[F]
+      colour=red line.interval=0.1
+      plot=CONTOUR(frs.alfa.[F])
+end.field
+
+loop [R]=C,D
+field=River.[R]_map
+      colour=red line.interval=1.0
+      plot=CONTOUR(river.[R].map)
+end.field
+
+field=Sea_Surface
+      colour=blue line.interval=0.1
+      plot=CONTOUR(sea.surface)
+end.field
+
+field=Sea_surface_farget
+      colour=orange value.range=-2.0,2.0
+      plot=ALPHA_SHADE(sea.surface)
+end.field
+
+field=Average_current
+      colour=red rel.size=1.0 vector.unit=0.2
+      plot=VECTOR(u.average.current,v.average.current)
+end.field
+
+field=Average_current_speed
+      colour=red line.interval=0.1
+      plot=CONTOUR(ff.average.current)
+end.field
+
+field=Current
+      colour=red rel.size=1.0 vector.unit=0.2
+      plot=VECTOR(u.current,v.current)
+end.field
+
+field=Current_speed
+      colour=red line.interval=0.1
+      plot=CONTOUR(ff.current)
+end.field
+
+field=Salt
+      colour=red line.interval=0.5
+      plot=CONTOUR(salt)
+end.field
+
+field=Temperature
+      colour=red line.interval=0.5
+      plot=CONTOUR(seatemp.c)
+end.field
+
+field=Soundspeed
+      colour=blue line.interval=1.0
+      plot=CONTOUR(sea.soundspeed)
+end.field
+
+field=U.current
+      colour=red line.interval=0.1
+      zero.line=1
+      plot=CONTOUR(u.current)
+end.field
+
+field=V.current
+      colour=red line.interval=0.1
+      zero.line=1
+      plot=CONTOUR(v.current)
+end.field
+
+field=W.current
+      colour=red line.interval=0.001
+      zero.line=1
+      plot=CONTOUR(w.current)
+end.field
+
+field=Density
+      colour=red line.interval=0.001
+      plot=CONTOUR(density)
+end.field
+
+field=Stress
+      colour=red rel.size=1.0 vector.unit=0.001
+      plot=VECTOR (x.stress,y.stress)
+end.field
+
+field=Stress-value
+      colour=red line.interval=0.1
+      plot=CONTOUR(ff.stress)
+end.field
+
+field=X.stress
+      colour=red line.interval=0.001
+      zero.line=1
+      plot=CONTOUR(x.stress)
+end.field
+
+field=Y.stress
+      colour=red line.interval=0.001
+      zero.line=1
+      plot=CONTOUR(y.stress)
+end.field
+
+field=KH_vertical_diffusion_coeffisient
+      colour=red line.interval=100.
+      plot=CONTOUR(kh_vertical_diffusion_coeffisient)
+end.field
+
+########### MIPOM BIOLOGY ############
+
+loop [BIO]=Nitrogen,Phosphate,Silicate,Detrius,Diatome,Flagellate,Oxygen,Silica,Sediment2,Sediment1
+loop [LIN]=100.,10.,100.,100.,10.,10.,10.,10.,10.,10.
+field=[BIO]
+      colour=red line.interval=[LIN]
+      plot=CONTOUR([BIO])
+end.field
+
+########### MIPOM ICE ############
+
+field=Ice_concentration
+      colour=white line.interval=10.
+      plot=CONTOUR(ice.concentration)
+end.field
+
+field=Ice_concentration(box)
+      colour=white
+      plot=BOX_PATTERN(ice.concentration)
+end.field
+
+field=Ice_concentration(shade)
+      colour=white
+      plot=ALPHA_SHADE(ice.concentration)
+end.field
+
+field=Ice_thickness
+      colour=white line.interval=1.
+      plot=CONTOUR(ice.thickness)
+end.field
+
+field=Ice_speed(vector)
+      colour=white rel.size=1. density=AUTO
+      vector.unit=0.2
+      plot=VECTOR(u.ice,v.ice)
+end.field
+
+field=Ice_speed
+      colour=white line.interval=0.1
+      plot=CONTOUR(ice.speed)
+end.field
+
+field=U.ice
+     colour=red line.interval=0.1
+      zero.line=1
+      plot=CONTOUR(u.ice)
+end.field
+
+field=V.ice
+     colour=red line.interval=0.1
+      zero.line=1
+      plot=CONTOUR(v.ice)
+end.field
+
+
+####################### OSISAF products som fields ######################
+
+field=ICEtype
+      # value:name,value:name,... (for annotations and possibly field edit)
+      classes=1:Isfritt,2:F¿rste_¿r,3:Multi_¿r,4:Usikker,9:Land,10:Ubestemt
+      colour=red line.interval=1. discontinuous=1
+      plot=CONTOUR(osisaf.ice.type)
+end.field
+
+field=ICEconcentration
+      colour=red line.interval=10.
+      plot=CONTOUR(osisaf.ice.concentration)
+end.field
+
+field=ICEconcentration_classes
+      # value:name,value:name,... (for annotations and possibly field edit)
+      classes=0:Hav,1:0-20%,2:20-40%,3:40-60%,4:60-80%,5:80-99%,6:100%
+      colour=red line.interval=1. discontinuous=1
+      plot=CONTOUR(osisaf.ice.concentration.classes)
+end.field
+
+field=ICEedge
+      # value:name,value:name,... (for annotations and possibly field edit)
+      classes=1:No_ice,2:Open_ice,3:Fast_ice,9:Land,10:Undefined
+      colour=red line.interval=1. discontinuous=1
+      plot=CONTOUR(osisaf.ice.edge)
+end.field
+
+</FIELD_PLOT>
+

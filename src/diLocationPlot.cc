@@ -269,7 +269,7 @@ miString LocationPlot::find(int x, int y)
 bool LocationPlot::plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "LocationPlot::plot " << locdata.name endl;
+  cerr << "LocationPlot::plot " << locdata.name << endl;
 #endif
   if (!enabled) return false;
 

@@ -12,7 +12,7 @@ diSatManager.o diSatPlot.o diSat.o diMItiff.o diLegendPlot.o \
 diObjectManager.o diObjectPlot.o diWeatherArea.o diWeatherFront.o diUndoFront.o \
 diWeatherSymbol.o diAreaObjects.o diAreaBorder.o diWeatherObjects.o \
 diEditObjects.o diDisplayObjects.o diComplexSymbolPlot.o diObjectPoint.o \
-diTrajectoryPlot.o diEditManager.o diFieldEdit.o \
+diTrajectoryPlot.o diRadarEchoPlot.o diEditManager.o diFieldEdit.o \
 diAnnotationPlot.o diStationPlot.o diLocationPlot.o \
 diVprofManager.o diVprofPlot.o diVprofTables.o diVprofDiagram.o diVprofData.o \
 diVprofTemp.o diVprofPilot.o diVprofOptions.o diFtnVfile.o \
@@ -64,7 +64,7 @@ qtVcrossWindow.o qtVcrossWidget.o \
 qtVcrossDialog.o qtVcrossSetupDialog.o qtVcrossSetup.o \
 qtSpectrumWindow.o qtSpectrumWidget.o \
 qtSpectrumModelDialog.o qtSpectrumSetupDialog.o \
-qtPaintToolBar.o 
+qtPaintToolBar.o qtRadarEchoDialog.o 
 
 ifndef NOPROFET
 QOBJ +=  qtProfetSessionDialog.o qtProfetSessionTable.o \

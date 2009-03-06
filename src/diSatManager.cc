@@ -340,7 +340,7 @@ bool SatManager::readSatFile()
   }
 
 #ifdef HDF5FILE   
-  if (satdata->formatType == "hdf5" || satdata->formatType == "hdf5-standalone") {
+  if (satdata->formatType == "hdf5") {
 #ifdef DEBUGPRINT
     cerr << "++ satdata->formattype:    " << satdata->formatType <<endl;
 #endif  
@@ -444,7 +444,7 @@ void SatManager::setRGB()
   if (size==0)
     return;
 
-  unsigned char *color[3];//contains the three rgb channels of raw image
+  unsigned char *color[3];//contains the three rgb channels ofraw image
   color[0]= satdata->rawimage[satdata->rgbindex[0]];
   color[1]= satdata->rawimage[satdata->rgbindex[1]];
   color[2]= satdata->rawimage[satdata->rgbindex[2]];
@@ -537,13 +537,13 @@ void SatManager::setRGB()
           satdata->image[i*4+3] = (unsigned char) 0;
         else
           //set alpha value to default or the one chosen in dialog
-          satdata->image[i*4+3] = (unsigned char) satdata->alpha ;
+          satdata->image[i*4+3] = (unsigned char) satdata->alpha;
       }
 
     } else {
       for (i=0; i<size; i++) {
         //set alpha value to default or the one chosen in dialog
-        satdata->image[i*4+3] = (unsigned char) satdata->alpha ;
+        satdata->image[i*4+3] = (unsigned char) satdata->alpha;
         //remove black pixels
         if (satdata->image[i*4] == 0 && satdata->image[i*4+1]== 0
             && satdata->image[i*4+2] == 0)
@@ -671,7 +671,7 @@ void SatManager::addMosaicfiles()
   unsigned char *color[3];//contains the three rgb channels of raw image
   if (!satdata->palette) {
     color[0]= satdata->rawimage[satdata->rgbindex[0]];
-    color[1]= satdata->rawimage[satdata->rgbindex[1]];
+    color[1]= satdata->rawimage[satdata ->rgbindex[1]];
     color[2]= satdata->rawimage[satdata->rgbindex[2]];
   } else {
     color[0]= satdata->rawimage[0];
@@ -767,8 +767,8 @@ void SatManager::getMosaicfiles()
 
   subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
 
-  mosaicfiles.clear();
-  vector <int> vdiff;
+  mosaicfiles. clear();
+  vector<int> vdiff;
 
   vector<SatFileInfo>::iterator p = subp.file.begin();
   while (p!=subp.file.end()) {
@@ -880,9 +880,9 @@ void SatManager::listFiles(subProdInfo &subp)
   if ( !useArchive && subp.archiveFiles)
     subp.file.clear();
 
-  for (int j=0; j<subp.pattern.size(); j++) {
+  for (int j=0; j<subp.pattern.size() ;j++) {
     //skip archive files if not in archive mode
-    if (subp.archive[j] && !useArchive)
+    if  (subp.archive[j] && !useArchive)
       continue;
 
     //read all files corresponding to subp.pattern[j].c_str()
@@ -1077,14 +1077,14 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos)
 #endif
 
   set<miTime> timeset;
-  vector<miTime> timevec;
+  vector< miTime> timevec;
   int m, nn= pinfos.size();
   vector<miString> tokens;
   miString satellite, file;
   bool update=true;
   bool open= true;
 
-  for (int i=0; i<nn; i++) {
+  for(int i=0; i<nn; i++) {
     tokens= pinfos[i].split('"', '"');
     m= tokens.size();
     if (m<3)
@@ -1191,7 +1191,7 @@ void SatManager::updateFiles()
   map<miString, map<miString, subProdInfo> >::iterator p = Prod.begin();
   while (p !=Prod.end()) {
     map<miString,subProdInfo>::iterator q;
-    q = p->second.begin();
+    q= p->second.begin();
     while (q !=p->second.end()) {
       Prod[p->first][q->first].updated=false;
       q++;
@@ -1379,6 +1379,10 @@ bool SatManager::parseSetup(SetupParser &sp)
   Dialog.timediff.value=4;
   Dialog.timediff.scale=15;
 
+  // Workaround for SMHI images
+  if(formattype=="hdf5")
+    Dialog.cut.value=0;
+
   //default values in dialog to be used in batch
   Sat::setDefaultValues(Dialog);
 
@@ -1457,13 +1461,13 @@ void SatManager::init_rgbindex(Sat& sd)
     sd.rgbindex[1]= 0;
     sd.rgbindex[2]= 1;
 
-  } else if (sd.no==3) {
+  } else if (sd.no ==3) {
     sd.rgbindex[0]= 0;
     sd.rgbindex[1]= 1;
     sd.rgbindex[2]= 2;
 
   } else {
-    cerr << "SatManager: number of channels: " << sd.no << endl;
+    cerr << "SatManage r: number of channels: " << sd.no << endl;
     //    return false;
   }
 }

@@ -36,6 +36,7 @@
 #include <diSatPlot.h>
 #include <diMapPlot.h>
 #include <diTrajectoryPlot.h>
+#include <diRadarEchoPlot.h>
 
 #include <diObsManager.h>
 #include <diSatManager.h>
@@ -700,7 +701,20 @@ void PlotModule::setAnnotations(){
     }
   }
 
-
+  // get radar echo annotations
+  m= vrp.size();
+  for (int j=0; j<m; j++){
+    if (!vrp[j]->Enabled()) continue;
+    vrp[j]->getRadarEchoAnnotation(str,col);
+    // empty string if data plot is off
+    if (str.exists()) {
+      ann.str= str;
+      ann.col= col;
+      annotations.push_back(ann);
+    }
+  }
+  
+  
   // get stationPlot annotations
   m= stationPlots.size();
   for (int j=0; j<m; j++){
@@ -2547,7 +2561,7 @@ void PlotModule::obsStepChanged(int step){
 }
 
 void PlotModule::trajPos(vector<miString>& vstr)
-{
+{  
   int n = vtp.size();
 
   //if vstr starts with "quit", delete all trajectoryPlot objects
@@ -2571,8 +2585,37 @@ void PlotModule::trajPos(vector<miString>& vstr)
   if (action==1) {
     // trajectories cleared, reset annotations
     setAnnotations();  // will remove tarjectoryPlot annotation
+  } 
+}
+
+void PlotModule::radePos(vector<miString>& vstr)
+{      
+  int n = vrp.size();
+
+  //if vstr starts with "quit", delete all trajectoryPlot objects
+  int m = vstr.size();
+  for(int j=0;j<m;j++){
+    if( vstr[j].substr(0,4) == "quit"){
+      for (int i=0; i<n; i++) delete vrp[i];
+      vrp.clear();
+      setAnnotations();  // will remove tarjectoryPlot annotation
+      return;
+    }
+  }
+
+  //if no trajectoryPlot object, make one
+  if(n==0)
+    vrp.push_back(new RadarEchoPlot());
+
+  //there are never more than one trajectoryPlot object (so far..)
+  int action= vrp[0]->radePos(vstr);
+
+  if (action==1) {
+    // trajectories cleared, reset annotations
+    setAnnotations();  // will remove tarjectoryPlot annotation
   }
 }
+
 
 vector<miString> PlotModule::getCalibChannels()
 {
@@ -3102,6 +3145,18 @@ vector<miString> PlotModule::getTrajectoryFields()
   int n= vfp.size();
   for (int i=0; i<n; i++) {
     miString fname= vfp[i]->getTrajectoryFieldName();
+    if (fname.exists())
+      vstr.push_back(fname);
+  }
+  return vstr;
+}
+
+vector<miString> PlotModule::getRadarEchoFields()
+{
+  vector<miString> vstr;
+  int n= vfp.size();
+  for (int i=0; i<n; i++) {
+    miString fname= vfp[i]->getRadarEchoFieldName();
     if (fname.exists())
       vstr.push_back(fname);
   }

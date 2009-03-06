@@ -85,6 +85,7 @@ public:
   bool plotNumbers();
   miString getModelName();
   miString getTrajectoryFieldName();
+  miString getRadarEchoFieldName();
   bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
 

@@ -1,0 +1,708 @@
+#----------------------------------------------------------------------------------
+# Setupfile for Diana
+#----------------------------------------------------------------------------------
+# Organized in sections, each section within a <SSS> </SSS> pair, where
+# SSS is the name of the section
+# Ex: <BASIC> ... </BASIC> contains the 'BASIC' section
+#
+# Common structures in all sections:
+# KEYWORD                     : Turns on/off feature
+# KEY=VALUE                   : Defines keyword with value
+# KEY=V1,V2,V3                : Defines keyword with list of values
+# KEY=V11:V12:V13,V21:V22     : Defines keyword with list of lists of values
+# KEY=VALUE KEY=V1,V2,V3 ...  : Combinations of key-defines
+#
+#----------------------------------------------------------------------------------
+# Other features:
+# Refer to environment/shell variable XX with ${XX}
+# Ex: ${HOME} will be expanded to the home-path
+#
+# Define local variables with XX=yy (outside all sections), and refer to them
+# with $(XX)
+# Ex: Add ROOT=/metno/local in a separate line outside all sections.
+#     All occurences of $(ROOT) in later lines will be expanded to /metno/local
+#
+# Long lines may be split up by using '\'. Add a '\' (and newline) where you want to
+# split a line.
+#
+# Include another file with %include "filename". Included file inherits section at
+# the point of inclusion. File must start and end with the same section. Files may be
+# nested.
+#
+# Use keyword CLEAR to clear all previous definitions for a specific section. Only
+# valid within a section. Useful in local files which include the official setupfile
+#----------------------------------------------------------------------------------
+
+#Local variables
+ROOT            = /metno/local
+DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+OPDATA1         = /opdata/ma
+OPDATA2         = /opdata/ma
+OPDATA3         = /opdata/ma
+STARC           = /starc/ma
+DATABASE_IDENTS = VA,VV,VNN, DNMI
+DATABASE        = "tempo.oslo.dnmi.no diana 19100"  # host base port
+
+# =============================================
+
+%include $(DIANADIR)/etc/diana.setup-COMMON
+
+# =============================================
+
+<QUICKMENUS>
+#------------------------------------------------------------
+# files containing different quickmenus
+#------------------------------------------------------------
+file= $(DIANADIR)/etc/Verifikasjon.quick-VA
+file= $(ROOT)/va/VA_morgenbrief.quick
+</QUICKMENUS>
+
+<FIELD_FILES>
+
+CLEAR
+
+Default_Filetype=MetnoFieldFile
+
+archivefilegroup=ARKIV
+m=DIANA.arkiv            f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_*.arkfelt  
+
+filegroup=HIRLAM20km
+m=HIRLAM.20KM.00    f=$(OPDATA1)/hirlam20/grdnm00.dat  \
+		    f=$(OPDATA1)/hirlam20/grdn00.dat \      
+		    f=$(OPDATA1)/hirlam20/grdni00.dat
+m=HIRLAM.20KM.06    f=$(OPDATA1)/hirlam20/grdnm06.dat \
+		    f=$(OPDATA1)/hirlam20/grdn06.dat   \     
+		    f=$(OPDATA1)/hirlam20/grdni06.dat
+m=HIRLAM.20KM.12    f=$(OPDATA1)/hirlam20/grdnm12.dat    \
+		    f=$(OPDATA1)/hirlam20/grdn12.dat    \
+		    f=$(OPDATA1)/hirlam20/grdni12.dat
+m=HIRLAM.20KM.18    f=$(OPDATA1)/hirlam20/grdnm18.dat   \ 
+		    f=$(OPDATA1)/hirlam20/grdn18.dat \
+		        f=$(OPDATA1)/hirlam20/grdni18.dat
+m=HIRLAM.20KM.00-1  f=$(OPDATA1)/hirlam20/grdnm00.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdn00.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdni00.dat-1
+m=HIRLAM.20KM.12-1  f=$(OPDATA1)/hirlam20/grdnm12.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdn12.dat-1  \
+		    f=$(OPDATA1)/hirlam20/grdni12.dat-1
+m=HIRLAM.20KM.00-2  f=$(OPDATA1)/hirlam20/grdnm00.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdn00.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdni00.dat-2
+m=HIRLAM.20KM.12-2  f=$(OPDATA1)/hirlam20/grdnm12.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdn12.dat-2  \
+		    f=$(OPDATA1)/hirlam20/grdni12.dat-2
+m=HIRLAM.20KM.ARKIV.7D   f=$(OPDATA1)/hirlam20/arkhl1.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl3.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl5.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn18.dat  \
+			 f=$(OPDATA1)/hirlam20/grdni18.dat
+m=HIRLAM.20KM.ARKIV.M7D  f=$(OPDATA1)/hirlam20/arkhl2a.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl2b.dat  \
+			 f=$(OPDATA1)/hirlam20/arkhl2c.dat  \
+			 f=$(OPDATA1)/hirlam20/grdnm00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdnm06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdnm12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn18.dat
+m=HIRLAM.20KM.ARKIV.30D  f=$(OPDATA1)/hirlam20/arkhl4.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn00.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn06.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn12.dat  \
+			 f=$(OPDATA1)/hirlam20/grdn18.dat
+
+filegroup=Bakkeanalyser
+m=met.no.ANA  f=/opdata/ma/diana/Bakkeanalyse/DNMI-arkfelt.dat
+m=VA.ANA      f=/opdata/ma/diana/Bakkeanalyse/VA-arkfelt.dat
+#m=VV.ANA      f=/opdata/ma/diana/Bakkeanalyse/VV-arkfelt.dat
+#m=VNN.ANA     f=/opdata/ma/diana/Bakkeanalyse/VNN-arkfelt.dat
+m=DNMI.ANA    f=/opdata/ma/diana/Bakkeanalyse/DNMI-arkfelt.dat
+
+filegroup=Subjektive.prognoser
+m=met.no.PROG+18   f=/opdata/ma/diana/Prognose+18/DNMI-arkfelt.dat
+m=met.no.PROG+36   f=/opdata/ma/diana/Prognose+36/DNMI-arkfelt.dat
+m=DNMI.PROG+18   f=/opdata/ma/diana/Prognose+18/DNMI-arkfelt.dat
+m=DNMI.PROG+36   f=/opdata/ma/diana/Prognose+36/DNMI-arkfelt.dat
+
+filegroup=HIRLAM10km
+m=HIRLAM.10KM.00    f=/opdata/ma/hirlam10/grdl00.dat
+m=HIRLAM.10KM.12    f=/opdata/ma/hirlam10/grdl12.dat
+m=HIRLAM.10KM.00-1  f=/opdata/ma/hirlam10/grdl00.dat-1
+m=HIRLAM.10KM.12-1  f=/opdata/ma/hirlam10/grdl12.dat-1
+m=HIRLAM.10KM.00-2  f=/opdata/ma/hirlam10/grdl00.dat-2
+m=HIRLAM.10KM.12-2  f=/opdata/ma/hirlam10/grdl12.dat-2
+m=HIRLAM.10KM.ARK   f=/opdata/ma/hirlam10/ark10km.dat  f=/opdata/ma/hirlam10/grdl00.dat  f=/opdata/ma/hirlam10/grdl12.dat
+
+filegroup=HIRLAM5km
+m=HIRLAM.5KM.00    f=/opdata/ma/explam/grdm00.dat
+m=HIRLAM.5KM.12    f=/opdata/ma/explam/grdm12.dat
+m=HIRLAM.5KM.00-1  f=/opdata/ma/explam/grdm00.dat-1
+m=HIRLAM.5KM.12-1  f=/opdata/ma/explam/grdm12.dat-1
+m=HIRLAM.5KM.00-2  f=/opdata/ma/explam/grdm00.dat-2
+m=HIRLAM.5KM.12-2  f=/opdata/ma/explam/grdm12.dat-2
+
+filegroup=UM.4km
+m=UM.HL.4KM.00    f=/opdata/ma/um4km/grdq00.dat
+m=UM.HL.4KM.12    f=/opdata/ma/um4km/grdq12.dat
+m=UM.HL.4KM.00-1  f=/opdata/ma/um4km/grdq00.dat-1
+m=UM.HL.4KM.12-1  f=/opdata/ma/um4km/grdq12.dat-1
+m=UM.HL.4KM.00-2  f=/opdata/ma/um4km/grdq00.dat-2
+m=UM.HL.4KM.12-2  f=/opdata/ma/um4km/grdq12.dat-2
+m=UM.MO.3KM.06    f=/opdata/ma/um4km/grdp06.dat
+m=UM.MO.3KM.18    f=/opdata/ma/um4km/grdp18.dat
+m=UM.MO.3KM.06-1  f=/opdata/ma/um4km/grdp06.dat-1
+m=UM.MO.3KM.18-1  f=/opdata/ma/um4km/grdp18.dat-1
+m=UM.MO.3KM.06-2  f=/opdata/ma/um4km/grdp06.dat-2
+m=UM.MO.3KM.18-2  f=/opdata/ma/um4km/grdp18.dat-2
+
+filegroup=UM.1km
+m=UM.V-Finnmark.1km.00      f=$(OPDATA2)/um1km/um1hh00.dat
+m=UM.V-Finnmark.1km.12      f=$(OPDATA2)/um1km/um1hh12.dat
+m=UM.V-Finnmark.1km.00-1    f=$(OPDATA2)/um1km/um1hh00.dat-1
+m=UM.V-Finnmark.1km.12-1    f=$(OPDATA2)/um1km/um1hh12.dat-1
+m=UM.V-Finnmark.1km.00-2    f=$(OPDATA2)/um1km/um1hh00.dat-2
+m=UM.V-Finnmark.1km.12-2    f=$(OPDATA2)/um1km/um1hh12.dat-2
+m=UM.Narvik.1km.00          f=$(OPDATA2)/um1km/um1na00.dat
+m=UM.Narvik.1km.12          f=$(OPDATA2)/um1km/um1na12.dat
+m=UM.Narvik.1km.00-1        f=$(OPDATA2)/um1km/um1na00.dat-1
+m=UM.Narvik.1km.12-1        f=$(OPDATA2)/um1km/um1na12.dat-1
+m=UM.Narvik.1km.00-2        f=$(OPDATA2)/um1km/um1na00.dat-2
+m=UM.Narvik.1km.12-2        f=$(OPDATA2)/um1km/um1na12.dat-2
+m=UM.Sandnessjøen.1km.00    f=$(OPDATA2)/um1km/um1sa00.dat
+m=UM.Sandnessjøen.1km.12    f=$(OPDATA2)/um1km/um1sa12.dat
+m=UM.Sandnessjøen.1km.00-1  f=$(OPDATA2)/um1km/um1sa00.dat-1
+m=UM.Sandnessjøen.1km.12-1  f=$(OPDATA2)/um1km/um1sa12.dat-1
+m=UM.Sandnessjøen.1km.00-2  f=$(OPDATA2)/um1km/um1sa00.dat-2
+m=UM.Sandnessjøen.1km.12-2  f=$(OPDATA2)/um1km/um1sa12.dat-2
+m=UM.Stad.1km.00            f=$(OPDATA2)/um1km/um1so00.dat
+m=UM.Stad.1km.12            f=$(OPDATA2)/um1km/um1so12.dat
+m=UM.Stad.1km.00-1          f=$(OPDATA2)/um1km/um1so00.dat-1
+m=UM.Stad.1km.12-1          f=$(OPDATA2)/um1km/um1so12.dat-1
+m=UM.Stad.1km.00-2          f=$(OPDATA2)/um1km/um1so00.dat-2
+m=UM.Stad.1km.12-2          f=$(OPDATA2)/um1km/um1so12.dat-2
+m=UM.Bergen.1km.00          f=$(OPDATA2)/um1km/um1be00.dat
+m=UM.Bergen.1km.00-1        f=$(OPDATA2)/um1km/um1be00.dat-1
+m=UM.Bergen.1km.00-2        f=$(OPDATA2)/um1km/um1be00.dat-2
+m=UM.Grenland.1km.00        f=$(OPDATA2)/um1km/um1gr00.dat
+m=UM.Grenland.1km.00-1      f=$(OPDATA2)/um1km/um1gr00.dat-1
+m=UM.Grenland.1km.00-2      f=$(OPDATA2)/um1km/um1gr00.dat-2
+m=UM.Oslo.1km.00            f=$(OPDATA2)/um1km/um1os00.dat
+m=UM.Oslo.1km.00-1          f=$(OPDATA2)/um1km/um1os00.dat-1
+m=UM.Oslo.1km.00-2          f=$(OPDATA2)/um1km/um1os00.dat-2
+m=UM.Stavanger.1km.00       f=$(OPDATA2)/um1km/um1st00.dat
+m=UM.Stavanger.1km.00-1     f=$(OPDATA2)/um1km/um1st00.dat-1
+m=UM.Stavanger.1km.00-2     f=$(OPDATA2)/um1km/um1st00.dat-2
+m=UM.Trondheim.1km.00       f=$(OPDATA2)/um1km/um1va00.dat
+m=UM.Trondheim.1km.12       f=$(OPDATA2)/um1km/um1va12.dat
+m=UM.Trondheim.1km.00-1     f=$(OPDATA2)/um1km/um1va00.dat-1
+m=UM.Trondheim.1km.12-1     f=$(OPDATA2)/um1km/um1va12.dat-1
+m=UM.Trondheim.1km.00-2     f=$(OPDATA2)/um1km/um1va00.dat-2
+m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
+
+filegroup=UM.1km.exp
+m=UMEXP.S-Norge.1km.00       f=$(OPDATA2)/um1exp/um1sn00.dat
+m=UMEXP.N-Norge.1km.00      f=$(OPDATA2)/um1exp/um1nn00.dat
+
+filegroup=Simra
+m=Simra.Hammerfest.00     f=$(OPDATA2)/um1km/simme00.dat
+m=Simra.Hammerfest.12     f=$(OPDATA2)/um1km/simme12.dat
+m=Simra.Narvik.00         f=$(OPDATA2)/um1km/simna00.dat
+m=Simra.Narvik.12         f=$(OPDATA2)/um1km/simna12.dat
+m=Simra.Sandnessjøen.00   f=$(OPDATA2)/um1km/simsa00.dat
+m=Simra.Sandnessjøen.12   f=$(OPDATA2)/um1km/simsa12.dat
+m=Simra.Værnes.00         f=$(OPDATA2)/um1km/simva00.dat
+m=Simra.Værnes.12         f=$(OPDATA2)/um1km/simva12.dat
+m=Simra.Honningsvåg.00    f=$(OPDATA2)/um1km/simho00.dat
+m=Simra.Honningsvåg.12    f=$(OPDATA2)/um1km/simho12.dat
+m=Simra.Sandane.00        f=$(OPDATA2)/um1km/simsd00.dat
+m=Simra.Sandane.12        f=$(OPDATA2)/um1km/simsd12.dat
+m=Simra.Ørsta.00          f=$(OPDATA2)/um1km/simor00.dat
+m=Simra.Ørsta.12          f=$(OPDATA2)/um1km/simor12.dat
+m=Simra.Hammerfest.00-1   f=$(OPDATA2)/um1km/simme00.dat-1
+m=Simra.Hammerfest.12-1   f=$(OPDATA2)/um1km/simme12.dat-1
+m=Simra.Hammerfest.00-2   f=$(OPDATA2)/um1km/simme00.dat-2
+m=Simra.Hammerfest.12-2   f=$(OPDATA2)/um1km/simme12.dat-2
+m=Simra.Sandnessjøen.00-1 f=$(OPDATA2)/um1km/simsa00.dat-1
+m=Simra.Sandnessjøen.12-1 f=$(OPDATA2)/um1km/simsa12.dat-1
+m=Simra.Sandnessjøen.00-2 f=$(OPDATA2)/um1km/simsa00.dat-2
+m=Simra.Sandnessjøen.12-2 f=$(OPDATA2)/um1km/simsa12.dat-2
+m=Simra.Værnes.00-1       f=$(OPDATA2)/um1km/simva00.dat-1
+m=Simra.Værnes.12-1       f=$(OPDATA2)/um1km/simva12.dat-1
+m=Simra.Værnes.00-2       f=$(OPDATA2)/um1km/simva00.dat-2
+m=Simra.Værnes.12-2       f=$(OPDATA2)/um1km/simva12.dat-2
+m=Simra.Honningsvåg.00-1  f=$(OPDATA2)/um1km/simho00.dat-1
+m=Simra.Honningsvåg.12-1  f=$(OPDATA2)/um1km/simho12.dat-1
+m=Simra.Honningsvåg.00-2  f=$(OPDATA2)/um1km/simho00.dat-2
+m=Simra.Honningsvåg.12-2  f=$(OPDATA2)/um1km/simho12.dat-2
+m=Simra.Sandane.00-1      f=$(OPDATA2)/um1km/simsd00.dat-1
+m=Simra.Sandane.12-1      f=$(OPDATA2)/um1km/simsd12.dat-1
+m=Simra.Sandane.00-2      f=$(OPDATA2)/um1km/simsd00.dat-2
+m=Simra.Sandane.12-2      f=$(OPDATA2)/um1km/simsd12.dat-2
+m=Simra.Ørsta.00-1        f=$(OPDATA2)/um1km/simor00.dat-1
+m=Simra.Ørsta.12-1        f=$(OPDATA2)/um1km/simor12.dat-1
+m=Simra.Ørsta.00-2        f=$(OPDATA2)/um1km/simor00.dat-2
+m=Simra.Ørsta.12-2        f=$(OPDATA2)/um1km/simor12.dat-2
+
+filegroup=ECMWF
+m=EC.GEO.NY.00  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo00.dat
+m=EC.GEO.NY.12  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo12.dat
+m=EC.00        g=98:504  f=/opdata/ma/ec/flte00.dat
+m=EC.12        g=98:504  f=/opdata/ma/ec/flte12.dat
+m=EC300.00     g=98:533  f=/opdata/ma/ec/flte00.dat
+m=EC300.12     g=98:533  f=/opdata/ma/ec/flte12.dat
+m=EC.12-1      g=98:504  f=/opdata/ma/ec/flte12.dat-1
+m=EC300.12-1   g=98:533  f=/opdata/ma/ec/flte12.dat-1
+m=EC.12-2      g=98:504  f=/opdata/ma/ec/flte12.dat-2
+m=EC300.12-2   g=98:533  f=/opdata/ma/ec/flte12.dat-2
+m=EC.12-3      g=98:504  f=/opdata/ma/ec/flte12.dat-3
+m=EC300.12-3   g=98:533  f=/opdata/ma/ec/flte12.dat-3
+m=EC.12-4      g=98:504  f=/opdata/ma/ec/flte12.dat-4
+m=EC300.12-4   g=98:533  f=/opdata/ma/ec/flte12.dat-4
+m=EC.12-5      g=98:504  f=/opdata/ma/ec/flte12.dat-5
+m=EC300.12-5   g=98:533  f=/opdata/ma/ec/flte12.dat-5
+m=EC.GEO.NY.00-1  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo00.dat-1
+m=EC.GEO.NY.00-2  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo00.dat-2
+m=EC.GEO.NY.00-3  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo00.dat-3
+m=EC.GEO.NY.00-4  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo00.dat-4
+m=EC.GEO.NY.00-5  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo00.dat-5
+m=EC.GEO.NY.12-1  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo12.dat-1
+m=EC.GEO.NY.12-2  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo12.dat-2
+m=EC.GEO.NY.12-3  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo12.dat-3
+m=EC.GEO.NY.12-4  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo12.dat-4
+m=EC.GEO.NY.12-5  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata/ma/ec/ecatmo12.dat-5
+m=EC.GEO.00      g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ma/ec/grec00.dat
+m=EC.GEO.00-1    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ma/ec/grec00.dat-1
+m=EC.GEO.00-2    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ma/ec/grec00.dat-2
+m=EC.GEO.12      g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ma/ec/grec12.dat
+m=EC.GEO.12-1    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ma/ec/grec12.dat-1
+m=EC.GEO.12-2    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ma/ec/grec12.dat-2
+m=EC.GEO.12-3    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ma/ec/grec12.dat-3
+m=EC.06        g=98:504  f=/opdata/ma/ec/flte06.dat
+m=EC300.06     g=98:533  f=/opdata/ma/ec/flte06.dat
+m=EC.18        g=98:504  f=/opdata/ma/ec/flte18.dat
+m=EC300.18     g=98:533  f=/opdata/ma/ec/flte18.dat
+
+filegroup=UK
+m=UK.GEO.00    g=74:255:Fin255  g=74:256:256  g=74:257:257  \
+	       g=74:258:258  g=74:266:266  g=74:267:267  g=74:268:268  \
+	       f=$(OPDATA1)/uk/gruk00.dat
+m=UK.GEO.12    g=74:255:Fin255  g=74:256:256  g=74:257:257 \
+	       g=74:258:258  g=74:266:266  g=74:267:267  g=74:268:268 \
+	       f=$(OPDATA1)/uk/gruk12.dat
+m=UK.00        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat	
+m=UK.12        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat
+m=UK.00-1      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat-1
+m=UK.12-1      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat-1
+m=UK.00-2      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat-2
+m=UK.12-2      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat-2
+m=UK.00-3      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat-3
+m=UK.12-3      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat-3
+m=UK.00-4      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat-4
+m=UK.12-4      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat-4
+m=UK.00-5      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat-5
+m=UK.12-5      g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat-5
+
+filegroup=OBS.FIELDS
+m=OBSFIELD.00    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs00.dat
+m=OBSFIELD.06    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs06.dat
+m=OBSFIELD.12    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs12.dat
+m=OBSFIELD.18    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs18.dat
+m=OBSFIELD.00-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs00.dat-1
+m=OBSFIELD.06-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs06.dat-1
+m=OBSFIELD.12-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs12.dat-1
+m=OBSFIELD.18-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs18.dat-1
+m=OBSFIELD.00-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs00.dat-2
+m=OBSFIELD.06-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs06.dat-2
+m=OBSFIELD.12-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs12.dat-2
+m=OBSFIELD.18-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/ma/obs_dec/feltobs18.dat-2
+
+filegroup=EC.EPS
+m=EC.EPS         f=/opdata/ma/ec/greps12.dat
+m=EC.EPS-1       f=/opdata/ma/ec/greps12.dat-1
+m=EC.EPS.00      f=/opdata/ma/ec/greps00.dat
+m=EC.EPS.00-1    f=/opdata/ma/ec/greps00.dat-1
+m=EC.EPS.NY.00   f=/opdata/ma/ec/eceps00.dat
+m=EC.EPS.NY.12   f=/opdata/ma/ec/eceps12.dat
+
+filegroup="LAMEPS og TEPS"
+m=LAMEPS.18       f=$(OPDATA2)/lameps/lameps18.dat
+m=LAMEPS.18-1     f=$(OPDATA2)/lameps/lameps18.dat-1
+m=LAMEPS.18-2     f=$(OPDATA2)/lameps/lameps18.dat-2
+m=TEPS.12         f=$(OPDATA2)/lameps/teps12.dat
+m=TEPS.12-1       f=$(OPDATA2)/lameps/teps12.dat-1
+m=TEPS.12-2       f=$(OPDATA2)/lameps/teps12.dat-2
+m=lameps_prob     f=$(OPDATA2)/lameps/lameps_prob.dat
+m=norlameps_prob  f=$(OPDATA2)/lameps/norlameps_prob.dat 
+
+filegroup=PEPS
+m=PEPS.00        f=$(OPDATA2)/lameps/peps00.dat
+m=PEPS.12        f=$(OPDATA2)/lameps/peps12.dat
+m=PEPS.00-1      f=$(OPDATA2)/lameps/peps00.dat-1
+m=PEPS.12-1      f=$(OPDATA2)/lameps/peps12.dat-1
+m=PEPS.00-2      f=$(OPDATA2)/lameps/peps00.dat-2
+m=PEPS.12-2      f=$(OPDATA2)/lameps/peps12.dat-2
+
+filegroup=EC.SESONG
+m=EC_sesong  f=/opdata/ma/sesong/ecfcst.felt
+
+filegroup=EC.MÅNED
+m=EC_MÅNED.00 f=$(OPDATA2)/ec/ec_mfs_geo_00_nmf.felt 
+
+filegroup=WAVE/WAM
+m=WAM.POL.00        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave00.dat
+m=WAM.POL.06        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave06.dat
+m=WAM.POL.12        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave12.dat
+m=WAM.POL.18        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave18.dat
+m=WAM.00            f=$(OPDATA1)/wave/gwave00.dat
+m=WAM.06            f=$(OPDATA1)/wave/gwave06.dat
+m=WAM.12            f=$(OPDATA1)/wave/gwave12.dat
+m=WAM.18            f=$(OPDATA1)/wave/gwave18.dat
+m=WAM.10km.00       f=$(OPDATA1)/wave/g10kmwave00.dat
+m=WAM.10km.12       f=$(OPDATA1)/wave/g10kmwave12.dat
+m=WAM.10KM.EPS.18   f=$(OPDATA2)/wave_eps/g10kmwaveEPS_18.dat
+m=ECMWF.WAM.12      f=$(OPDATA1)/ec/grecw12.dat
+m=ECMWF.WAM.NY.00   f=$(OPDATA1)/ec/ec_wave_geo_00_i.felt
+m=ECMWF.WAM.NY.12   f=$(OPDATA1)/ec/ec_wave_geo_12_i.felt
+m=ECMWF.WAM.EPS.00  f=$(OPDATA1)/ec/ec_wef_geo_00_i.felt
+m=ECMWF.WAM.EPS.12  f=$(OPDATA1)/ec/ec_wef_geo_12_i.felt
+m=SWAN.500m.00      f=$(OPDATA2)/wave/g500mwave00.dat
+m=SWAN.500m.12      f=$(OPDATA2)/wave/g500mwave12.dat
+m=WAM.00-1          f=$(OPDATA1)/wave/gwave00.dat-1
+m=WAM.12-1          f=$(OPDATA1)/wave/gwave12.dat-1
+m=ECMWF.WAM.12-1    f=$(OPDATA1)/ec/grecw12.dat-1
+
+filegroup=SEA
+m=ARCTIC.20km.00    f=/opdata/ma/sea/f20Arctic00.dat
+m=NORDIC.4KM.00     f=/opdata/ma/sea/f4Nordic00.dat
+m=NORDIC.4KM.A.00   f=/opdata/ma/sea/f4Nordic_sectionA00.dat
+m=NORDIC.4KM.BD.00  f=/opdata/ma/sea/f4Nordic_sectionBD00.dat
+m=NORDIC.4KM.C.00   f=/opdata/ma/sea/f4Nordic_sectionC00.dat
+m=NORDIC.4KM.E.00   f=/opdata/ma/sea/f4Nordic_sectionE00.dat
+m=Barents.4km.00    f=/opdata/ma/sea/f4Barents00.dat
+m=Oslofjord.300M.00 f=/opdata/ma/sea/f0.3Oslofjord00.dat
+m=SKAGERRAK_1.5KM   f=/opdata/ma/sea/f1.5NSeaSkag00.dat
+m=VESTLAND_200M     f=/opdata/ma/sea/f0.2Vestland00.dat
+m=Trondheimsleia.500m  f=$(OPDATA2)/sea/f0.5Trheimsleia00.dat
+m=BIO.20KM.FOAM      f=$(OPDATA2)/sea/f20NorthSea06.dat
+m=BIO.4KM.FOAM+SMHI  f=$(OPDATA2)/sea/f4NorthSea06.dat
+m=ark.SMHI.phys      f=/opdata/ma/sea/arkSMHI_phys.dat
+m=ark.SMHI.bio       f=/opdata/ma/sea/arkSMHI_bio.dat
+m=mipom.CONMAN4km.snap       f=/opdata/ma/sea/f4_mipom_CONMAN-1.dat
+m=roms.CONMAN4km.snap        f=/opdata/ma/sea/f4_roms_CONMAN-1.dat
+m=mipom.CONMAN4km.mean       f=/opdata/ma/sea/f4_mipom_CONMAN-2.dat
+m=roms.CONMAN4km.mean        f=/opdata/ma/sea/f4_roms_CONMAN-2.dat
+m=mipom.CONMAN4km.sectionI   f=/opdata/ma/sea/f4_mipom_CONMAN-3.dat
+m=mipom.CONMAN4km.sectionII  f=/opdata/ma/sea/f4_mipom_CONMAN-4.dat
+m=mipom.CONMAN4km.snap.geo   f=/opdata/ma/sea/f4_mipom_CONMAN-1_geo.dat
+m=mipom.CONMAN4km.mean.geo   f=/opdata/ma/sea/f4_mipom_CONMAN-2_geo.dat
+m=roms.CONMAN4km.snap.geo    f=/opdata/ma/sea/f4_roms_CONMAN-1_geo.dat
+m=roms.CONMAN4km.mean.geo    f=/opdata/ma/sea/f4_roms_CONMAN-2_geo.dat
+m=hycom.CONMAN4km.snap.geo   f=/opdata/ma/sea/f4_hycom_CONMAN-1_geo.dat
+m=hycom.CONMAN4km.mean.geo   f=/opdata/ma/sea/f4_hycom_CONMAN-2_geo.dat
+m=CLIMAT             f=/opdata/ma/sea/monthcli.dat
+m=CLIMAT2            f=/opdata/ma/sea/monthcli2.dat
+m=NUCULA.1.5KM.00       f=/opdata/sea/f1.5Nucula00.dat 
+
+filegroup=PARAM
+m=HIRLAM.2006.50km         f=/opdata/ma/digit/last/par2006.dat
+m=HIRLAM.2001.20km         f=/opdata/ma/digit/last/par2001.dat
+m=HIRLAM.1997.10km         f=/opdata/ma/digit/last/par1997.dat
+m=HIRLAM.1998.10km         f=/opdata/ma/digit/last/par1998.dat
+m=HIRLAM.2335.5km          f=/opdata/ma/digit/last/par2335.dat
+m=LITEN.HIRLAM.2010.10km   f=/opdata/ma/digit/last/par2010.dat
+m=EMEP.1841                f=/opdata/ma/digit/last/par1841.dat
+m=GAMMEL.EMEP.1840         f=/opdata/ma/digit/last/par1840.dat
+m=NORLAM.1814              f=/opdata/ma/digit/last/par1814.dat
+m=WAM.ICE.960              f=/opdata/ma/digit/last/ice960.dat
+m=SEA.SST.907              f=/opdata/ma/digit/last/sst907.dat
+m=SEA.SST.903              f=/opdata/ma/digit/last/sst903.dat
+
+filegroup=OSISAF
+m=OSISAF_  f=/opdata/ma/fjernmaling_analyser/sea_ice/seaice_*.flt
+
+filegroup=SNAP
+m=SNAP.NRPA         f=/opdata/ma/snap/snap.felt
+
+</FIELD_FILES>
+
+<MAP_AREA>
+# for batch...
+name=VA_Vind  proj=pstereo_60 grid=115:148:237:0:0:0 area=85:154:62:109
+
+</MAP_AREA>
+
+<MAP_TYPE>
+map=LyseEnergi  type=lines_simple_text file=$(ROOT)/ma/maps/lyseenergi.txt
+</MAP_TYPE>
+
+<OBJECTS>
+name="VA Bakkeanalyse"    file=/opdata/diana/Bakkeanalyse/VA-objects/VA_ANAdraw
+name="MA Prognose+36"  file=/opdata/ma/diana/Prognose+36/MA-objects/MA_PROG36draw
+name="MA Prognose+60"  file=/opdata/ma/diana/Prognose+60/MA-objects/MA_PROG60draw
+name="MA Prognose+84"  file=/opdata/ma/diana/Prognose+84/MA-objects/MA_PROG84draw
+
+# Foreløpig testing
+name="TEST Prognose+36"  file=./work/TEST_PROG36draw
+name="TEST Prognose+60"  file=./work/TEST_PROG60draw
+name="TEST Prognose+84"  file=./work/TEST_PROG84draw
+</OBJECTS>
+
+<EDIT>
+CLEAR
+product="Bakkeanalyse1"
+  drawtools= Analyse, Sigkart	
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= /opdata/diana/Bakkeanalyse/work
+  # combine input directory
+  combine_input_dir= /opdata/diana/Bakkeanalyse/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse
+
+  field=    "ANAmslp", "MSLP", 2,58,1000,0
+  objects=  "ANAdraw"
+  comments= "ANAcomm"
+
+  local_idents= TEST
+  ###database_idents=  VA,VV,VNN, DNMI
+
+  # combine_ident: output, input1,input2,... (output must be defined above)
+  ####combine_ident= DNMI, VA,VV,VNN
+  combine_ident= TEST, VA,VV,VNN
+  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
+
+  ###database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
+  ###name_in_database=Bakkeanalyse
+
+  time_start_early=+00:00    # hour:minute (-=before,+=after product)
+  time_start_late= +03:00
+
+  # producer,grid, nx,ny, gridtype gridspec[6]
+  grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
+  # possibly minimize grid to remove undefined values along border
+  #grid.minimize
+
+  commandfile=$(DIANADIR)/etc/bakkeanalyse.txt
+  standard_symbolsize=30
+
+end.product
+
+product="Bakkeanalyse"
+  drawtools= Analyse, Sigkart	
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= /opdata/diana/Bakkeanalyse/work
+  # combine input directory
+  combine_input_dir= /opdata/diana/Bakkeanalyse/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse1
+
+  field=    "ANAmslp", "MSLP", 2,58,1000,0
+  field=    "ANAtend", "Tendens", 2,158,1000,0
+  objects=  "ANAdraw"
+  comments= "ANAcomm"
+
+  local_idents= TEST
+  ###database_idents=  VA,VV,VNN, DNMI
+
+  # combine_ident: output, input1,input2,... (output must be defined above)
+  ###combine_ident= DNMI, VA,VV,VNN
+  combine_ident= TEST, VA,VV,VNN
+  combine_borders= $(DIANADIR)/etc/ANAborders.  ## + TEST/DNMI
+
+  ###database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
+  ###name_in_database=Bakkeanalyse
+
+  time_start_early=+00:00    # hour:minute (-=before,+=after product)
+  time_start_late= +03:00
+
+  # producer,grid, nx,ny, gridtype gridspec[6]
+  grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
+  # possibly minimize grid to remove undefined values along border
+  #grid.minimize
+
+  standard_symbolsize=30
+
+end.product
+
+product="Sigkart"
+  drawtools= Analyse, Sigkart	
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= /opdata/diana/Sigkart/work
+  # combine input directory
+  combine_input_dir= /opdata/diana/Sigkart/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18
+
+  objects=  "SIGdraw"
+  comments= "SIGcomm"
+
+  local_idents= TEST
+  ###database_idents= DNMI
+
+  ###database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
+  ###name_in_database=Sigkart
+
+  time_start_early= -12:00    # hour:minute (-=before,+=after product)
+  time_start_late=  -04:00
+
+  commandfile=$(DIANADIR)/etc/sigkart.txt
+  standard_symbolsize=20
+  complex_symbolsize=6
+
+end.product
+
+product="Swikart"
+  drawtools= Analyse, Sigkart	
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= /opdata/diana/Swikart/work
+  # combine input directory
+  combine_input_dir= /opdata/diana/Swikart/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18, Sigkart
+
+  objects=  "SWIdraw"
+  comments= "SWIcomm"
+
+  local_idents= TEST
+  ###database_idents= DNMI
+
+  ###database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
+  ###name_in_database=Swikart
+
+  commandfile=$(DIANADIR)/etc/swikart.txt
+  standard_symbolsize=20
+  complex_symbolsize=6
+
+end.product
+
+product="Prognose+18"
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= /opdata/diana/Prognose+18/work
+  # combine input directory
+  combine_input_dir= /opdata/diana/Prognose+18/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse
+
+  field=    "PROG18mslp", "MSLP", 2,58,1000,0
+  objects=  "PROG18draw"
+  comments= "PROG18comm"
+
+  local_idents= TEST
+  ###database_idents= DNMI
+
+  ###database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
+  ###name_in_database=Prognose+18
+
+  time_start_early= -18:00    # hour:minute (-=before,+=after product)
+  time_start_late=   -9:00
+
+  # producer,grid, nx,ny, gridtype gridspec[6]
+  grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
+  # possibly minimize grid to remove undefined values along border
+  #grid.minimize
+
+  commandfile=$(DIANADIR)/etc/prognose+18.txt
+  standard_symbolsize=30
+
+end.product
+
+product="Prognose+36"
+  #save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir= /opdata/ma/diana/Prognose+36/work
+  # combine input directory
+  combine_input_dir= /opdata/ma/diana/Prognose+36/work
+  #other products to fetch objects/fields from
+  input_products = Prognose+36,Prognose+60,Prognose+84
+
+
+  field=    "PROG36mslp", "MSLP", 2,58,1000,0
+  objects=  "PROG36draw"
+  comments= "PROG36comm"
+
+  local_idents= TEST
+  database_idents= MA
+
+  database= "madianadb.oslo.dnmi.no diana 20100"  # host base port
+  name_in_database=Prognose+36
+
+  time_start_early= -36:00    # hour:minute (-=before,+=after product)
+  time_start_late=  -24:00
+
+  # producer,grid, nx,ny, gridtype gridspec[6]
+  grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
+  # possibly minimize grid to remove undefined values along border
+  #grid.minimize
+
+  commandfile=$(DIANADIR)/etc/prognose+36.txt
+  standard_symbolsize=30
+
+end.product
+
+product="Prognose"
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  #input_dir= /opdata/diana/Prognose/work
+  # combine input directory
+  #combine_input_dir= /opdata/diana/Prognose/work
+  #other products to fetch objects/fields from
+  input_products = Bakkeanalyse1, Bakkeanalyse, Prognose+18, Prognose+36
+
+  field=    "PROGXXmslp", "MSLP", 2,58,1000,0
+  objects=  "PROGXXdraw"
+  comments= "PROGXXcomm"
+
+  local_idents= TEST
+  ####database_idents=  VA,VV,VNN, DNMI
+
+  #######database= "dianadb.oslo.dnmi.no diana 19100"  # host base port
+  #######name_in_database=Prognose
+
+  # producer,grid, nx,ny, gridtype gridspec[6]
+  grid= 88,2001, 425,333, 1, 213.,275.,474.,0.,60.,0.  # 25km polarstereographic
+  # possibly minimize grid to remove undefined values along border
+  #grid.minimize
+
+  #commandfile=$(DIANADIR)/etc/prognose.txt
+  standard_symbolsize=30
+
+end.product
+
+</EDIT>
+
+
+
+
+
+
+
+
+
+

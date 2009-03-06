@@ -96,6 +96,7 @@
 #include <qtEditDialog.h>
 #include <qtObjectDialog.h>
 #include <qtTrajectoryDialog.h>
+#include <qtRadarEchoDialog.h>
 #include <qtHelpDialog.h>
 #include <qtPrintManager.h>
 #include <qtBrowserBox.h>
@@ -147,17 +148,21 @@
 #include <vcross.xpm>
 #include <spectrum.xpm>
 #include <traj.xpm>
+#include <rade.xpm>
 #include <info.xpm>
 #include <profet.xpm>
 #include <paint_mode.xpm>
 
 
-DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
-    const miString build_str, bool ep) :
-      QMainWindow(), contr(co), timeron(0), timeloop(false), timeout_ms(100),
-      showelem(true), autoselect(false), push_command(true), browsing(false),
-      markTrajPos(false), vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep),
-      profetGUI(0)
+DianaMainWindow::DianaMainWindow(Controller *co,
+    const miString ver_str,
+    const miString build_str,
+    bool ep)
+: QMainWindow(),
+contr(co),timeron(0),timeloop(false),timeout_ms(100),
+showelem(true),autoselect(false),push_command(true),browsing(false),
+markTrajPos(false), markRadePos(false),
+vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
 {
   cerr << "Creating DianaMainWindow" << endl;
 
@@ -338,6 +343,12 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
   showUffdaDialogAction->setShortcut(Qt::ALT+Qt::Key_U);
   showUffdaDialogAction->setCheckable(true);
   connect( showUffdaDialogAction, SIGNAL( activated() ), SLOT( uffMenu() ) );
+  // --------------------------------------------------------------------
+//   showRadarEchoDialogAction = new QAction( QPixmap( rade_xpm),tr("&Radar echo"), this );
+//   showRadarEchoDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+//   showRadarEchoDialogAction->setShortcut(Qt::ALT+Qt::Key_R);
+//   showRadarEchoDialogAction->setCheckable(true);
+//   connect( showRadarEchoDialogAction, SIGNAL( activated() ) ,  SLOT( radeMenu() ) );
   // ----------------------------------------------------------------
   uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
   connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
@@ -582,6 +593,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
   showmenu->addAction( showEditDialogAction         );
   showmenu->addAction( showObjectDialogAction       );
   showmenu->addAction( showTrajecDialogAction       );
+  //  showmenu->addAction( showRadarEchoDialogAction    );
   showmenu->addAction( showProfilesDialogAction     );
   showmenu->addAction( showCrossSectionDialogAction );
   showmenu->addAction( showWaveSpectrumDialogAction );
@@ -698,6 +710,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
   mainToolbar->addAction( showSatDialogAction         );
   mainToolbar->addAction( showObjectDialogAction      );
   mainToolbar->addAction( showTrajecDialogAction      );
+  //  mainToolbar->addAction( showRadarEchoDialogAction   );
   mainToolbar->addAction( showProfilesDialogAction    );
   mainToolbar->addAction( showCrossSectionDialogAction);
   mainToolbar->addAction( showWaveSpectrumDialogAction);
@@ -815,7 +828,12 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
   objm->hide();
 
   trajm = new TrajectoryDialog(this,contr);
+  trajm->setFocusPolicy(Qt::StrongFocus);
   trajm->hide();
+  
+  radem = new RadarEchoDialog(this,contr);
+  radem->setFocusPolicy(Qt::StrongFocus);
+  radem->hide();
 
   uffm = new UffdaDialog(this,contr);
   uffm->hide();
@@ -850,6 +868,10 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
   // Mark trajectory positions
   connect(trajm, SIGNAL(markPos(bool)), SLOT(trajPositions(bool)));
   connect(trajm, SIGNAL(updateTrajectories()),SLOT(updateGLSlot()));
+  
+  // Mark radar echo positions
+  connect(radem, SIGNAL(markRadePos(bool)), SLOT(radePositions(bool)));
+  connect(radem, SIGNAL(updateRadarEchos()),SLOT(updateGLSlot()));
 
   connect(em, SIGNAL(editUpdate()), SLOT(editUpdate()));
   connect(em, SIGNAL(editMode(bool)), SLOT(inEdit(bool)));
@@ -895,6 +917,7 @@ DianaMainWindow::DianaMainWindow(Controller *co, const miString ver_str,
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
   connect( objm, SIGNAL(ObjHide()),  SLOT(objMenu()));
   connect( trajm, SIGNAL(TrajHide()),SLOT(trajMenu()));
+  connect( radem, SIGNAL(RadeHide()),SLOT(radeMenu()));
   connect( uffm, SIGNAL(uffdaHide()),SLOT(uffMenu()));
 
   // update field dialog when editing field
@@ -1474,6 +1497,7 @@ void DianaMainWindow::addToMenu()
 
 void DianaMainWindow::toggleDialogs()
 {
+  //  const int numdialogs= 9;
   const int numdialogs= 8;
   static bool visi[numdialogs];
 
@@ -1488,6 +1512,7 @@ void DianaMainWindow::toggleDialogs()
     //    if (visi[5]= em->isVisible())    editMenu();
     if (visi[6]= objm->isVisible())  objMenu();
     if (visi[7]= trajm->isVisible()) trajMenu();
+    if (visi[8]= radem->isVisible()) radeMenu();
   } else {
     if (visi[0]) quickMenu();
     if (visi[1]) mapMenu();
@@ -1497,6 +1522,7 @@ void DianaMainWindow::toggleDialogs()
     //    if (visi[5]) editMenu();
     if (visi[6]) objMenu();
     if (visi[7]) trajMenu();
+    if (visi[8]) radeMenu();
   }
 }
 
@@ -1855,6 +1881,18 @@ void DianaMainWindow::trajMenu()
   showTrajecDialogAction->setChecked( !b );
 }
 
+void DianaMainWindow::radeMenu()
+{
+  bool b = radem->isVisible();
+  if (b){
+    radem->hide();
+  } else {
+    radem->showplus();
+  }
+  updateGLSlot();
+  showRadarEchoDialogAction->setChecked( !b );
+}
+
 void DianaMainWindow::vprofMenu()
 {
   if ( !vpWindow ) return;
@@ -1979,7 +2017,8 @@ void DianaMainWindow::hideSpectrumWindow()
 void DianaMainWindow::stationChangedSlot(const QString& station)
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::stationChangedSlot to " << station << endl;
+  //cerr << "DianaMainWindow::stationChangedSlot to " << station << endl;
+  cerr << "DianaMainWindow::stationChangedSlot" << endl;
 #endif
   miString s =station.toStdString();
   vector<miString> data;
@@ -2007,7 +2046,8 @@ void DianaMainWindow::modelChangedSlot()
 void DianaMainWindow::crossectionChangedSlot(const QString& name)
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::crossectionChangedSlot to " << name << endl;
+  //cerr << "DianaMainWindow::crossectionChangedSlot to " << name << endl;
+  cerr << "DianaMainWindow::crossectionChangedSlot " << endl;
 #endif
   miString s= name.toStdString();
   contr->setSelectedLocation("vcross", s);
@@ -2049,7 +2089,8 @@ void DianaMainWindow::crossectionSetUpdateSlot()
 void DianaMainWindow::spectrumChangedSlot(const QString& station)
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::spectrumChangedSlot to " << name << endl;
+  //cerr << "DianaMainWindow::spectrumChangedSlot to " << name << endl;
+  cerr << "DianaMainWindow::spectrumChangedSlot" << endl;
 #endif
   miString s =station.toStdString();
   vector<miString> data;
@@ -2965,6 +3006,20 @@ void DianaMainWindow::hardcopy()
 void DianaMainWindow::trajPositions(bool b)
 {
   markTrajPos = b;
+  markRadePos = !b;
+  
+/*  
+  cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
+  cerr << "\nRadarEchoDialog.hasFocus(): " << RadarEchoDialog::hasFocus() << "\n" << endl;
+  cerr << "\nDianaMainWindow" << DianaMainWindow::hasFocus() << "\n" << endl;
+  
+  markRadePos = !b;
+  
+ /* 
+  if (b==true) {
+    radePositions(false);
+  }
+  */
   //LB: quit while overriderCursor is set -> core dump (why?)
   //   if(b)
   //     QApplication::setOverrideCursor(crossCursor);
@@ -2973,16 +3028,62 @@ void DianaMainWindow::trajPositions(bool b)
 
 }
 
+void DianaMainWindow::radePositions(bool b)
+{
+  markRadePos = b;
+  
+  markTrajPos = !b;
+/*
+    cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
+    cerr << "\nRadarEchoDialog.hasFocus(): " << RadarEchoDialog::hasFocus() << "\n" << endl;
+    cerr << "\nDianaMainWindow" << DianaMainWindow::hasFocus() << "\n" << endl;
+  */  
+   
+  
+  /*if (b==true) {
+    trajPositions(false);*/
+  
+  
+  
+  //LB: quit while overriderCursor is set -> core dump (why?)
+  //   if(b)
+  //     QApplication::setOverrideCursor(crossCursor);
+  //   else
+  //     QApplication::restoreOverrideCursor();
+
+}
+
+
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 {
   int x = mev.x;
   int y = mev.y;
+  
+  //cerr << "+++++++++++++++++++++ radem->hasFocus()" << radem->hasFocus() << endl; 
+  
+/*
+  if(radem->hasFocus() == true) {
+    cerr << "\n\nRade focus lostfocus == true \n\n" << endl;    
+  } else if(radem->hasFocus() == false) {
+      cerr << "\n\nRade focus lostfocus == false \n\n" << endl;    
+
+  } else {
+    cerr << "\n\nNone of the above\n\n" << endl;
+  }
+*/  
   if(markTrajPos){
     float lat=0,lon=0;
     contr->PhysToGeo(x,y,lat,lon);
     trajm->mapPos(lat,lon);
     w->updateGL(); // repaint window
+  }
+  
+  if(markRadePos) {
+    float lat=0,lon=0;
+    contr->PhysToGeo(x,y,lat,lon);
+    radem->mapPos(lat,lon);
+    w->updateGL(); // repaint window    
   }
 
   if( !optAutoElementAction->isChecked() ){
@@ -3007,8 +3108,8 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
       letter.to = qmstrings::all;
       letter.data.push_back(miString(latstr + ":" + lonstr));
       sendLetter(letter);
-
-    }
+            
+    }   
   }
 }
 
@@ -3096,6 +3197,7 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
 #endif
   int x = mev.x;
   int y = mev.y;
+        
   //HK ??? nb
   xclick=x; yclick=y;
   // show geoposition in statusbar

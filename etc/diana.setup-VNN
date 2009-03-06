@@ -1,0 +1,942 @@
+#----------------------------------------------------------------------------------
+# Setupfile for Diana
+#----------------------------------------------------------------------------------
+# Organized in sections, each section within a <SSS> </SSS> pair, where
+# SSS is the name of the section
+# Ex: <BASIC> ... </BASIC> contains the 'BASIC' section
+#
+# Common structures in all sections:
+# KEYWORD                     : Turns on/off feature
+# KEY=VALUE                   : Defines keyword with value
+# KEY=V1,V2,V3                : Defines keyword with list of values
+# KEY=V11:V12:V13,V21:V22     : Defines keyword with list of lists of values
+# KEY=VALUE KEY=V1,V2,V3 ...  : Combinations of key-defines
+#
+#----------------------------------------------------------------------------------
+# Other features:
+# Refer to environment/shell variable XX with ${XX}
+# Ex: ${HOME} will be expanded to the home-path
+#
+# Define local variables with XX=yy (outside all sections), and refer to them
+# with $(XX)
+# Ex: Add ROOT=/metno/local in a separate line outside all sections.
+#     All occurences of $(ROOT) in later lines will be expanded to /metno/local
+#
+# Long lines may be split up by using '\'. Add a '\' (and newline) where you want to
+# split a line.
+#
+# Include another file with %include "filename". Included file inherits section at
+# the point of inclusion. File must start and end with the same section. Files may be
+# nested.
+#
+# Use keyword CLEAR to clear all previous definitions for a specific section. Only
+# valid within a section. Useful in local files which include the official setupfile
+#----------------------------------------------------------------------------------
+
+
+#Local variables
+ROOT            = /metno/local
+DIANADIR        = ${DIANADIR}||$(ROOT)/diana
+OPDATA1         = /opdata
+OPDATA2         = /opdata_routine
+OPDATA3         = /opdata
+OPDATA4         = /opdata2
+STARC           = /starc   
+DATABASE_IDENTS = VNN,VA,VV, DNMI
+DATABASE        = "vnnhoved diana 19100"  # host base port
+
+# =============================================
+
+%include $(DIANADIR)/etc/diana.setup-COMMON
+
+# =============================================
+
+
+<QUICKMENUS>
+#------------------------------------------------------------
+# files containing different quickmenus
+#------------------------------------------------------------
+file= $(ROOT)/vnn/Polare_Lavtrykk_Ny.quick
+file= $(ROOT)/vnn/briefing.txt
+file= $(ROOT)/vnn/turbulens.txt
+file= $(ROOT)/vnn/Verifikasjon.quick
+file= $(ROOT)/vnn/Bedre_Byluft.quick 
+</QUICKMENUS>
+
+<FIELD_FILES>
+
+CLEAR
+
+Default_Filetype=MetnoFieldFile
+
+archivefilegroup=ARKIV
+m=DIANA.arkiv            f=$(STARC)/DNMI_DIANA/xfiles/bakkeanalyser_*.arkfelt  
+
+m=HIRLAM.12KM.arkiv      f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf??.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl??.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml??.dat_* 
+
+m=HIRLAM.12KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf00.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl00.dat_* \
+		         f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml00.dat_* 
+m=HIRLAM.12KM.06.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf06.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl06.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml06.dat_* 
+m=HIRLAM.12KM.12.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf12.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl12.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml12.dat_* 
+m=HIRLAM.12KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12sf18.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12pl18.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM12/*/*/*/h12ml18.dat_* 
+
+m=HIRLAM.8KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM8/*/*/*/h8km00.dat_* 
+m=HIRLAM.4KM.00.arkiv    f=$(STARC)/DNMI_HIRLAM4/*/*/*/grdqh00.dat_* 
+m=UM.HL.4KM.00.arkiv     f=$(STARC)/DNMI_UM4/*/*/*/grdq00.dat_* 
+
+m=HIRLAM.20KM.arkiv      f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn??.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm??.dat_* 
+m=HIRLAM.20KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn00.dat_* \
+		         f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm00.dat_* 
+m=HIRLAM.20KM.06.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn06.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm06.dat_* 
+m=HIRLAM.20KM.12.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn12.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm12.dat_* 
+m=HIRLAM.20KM.18.arkiv   f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdn18.dat_* \
+			 f=$(STARC)/DNMI_HIRLAM20/*/*/*/grdnm18.dat_* 
+
+m=HIRLAM.10KM.00.arkiv   f=$(STARC)/DNMI_HIRLAM10/*/*/*/grdl00.dat_* 
+
+filegroup=HIRLAM12km
+m=HIRLAM.12KM.00    f=$(OPDATA1)/hirlam12/h12sf00.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl00.dat
+m=HIRLAM.12KM.06    f=$(OPDATA1)/hirlam12/h12sf06.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl06.dat
+m=HIRLAM.12KM.12    f=$(OPDATA1)/hirlam12/h12sf12.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl12.dat
+m=HIRLAM.12KM.18    f=$(OPDATA1)/hirlam12/h12sf18.dat \
+                    f=$(OPDATA1)/hirlam12/h12pl18.dat
+m=ALT-HIRLAM.12KM.00    f=$(OPDATA2)/hirlam12/h12sf00.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl00.dat \		      
+		    f=$(OPDATA2)/hirlam12/h12ml00.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie00.dat
+m=ALT-HIRLAM.12KM.06    f=$(OPDATA2)/hirlam12/h12sf06.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl06.dat \
+		    f=$(OPDATA2)/hirlam12/h12ml06.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie06.dat
+m=ALT-HIRLAM.12KM.12    f=$(OPDATA2)/hirlam12/h12sf12.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl12.dat \
+		    f=$(OPDATA2)/hirlam12/h12ml12.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie12.dat
+m=ALT-HIRLAM.12KM.18    f=$(OPDATA2)/hirlam12/h12sf18.dat \
+		    f=$(OPDATA2)/hirlam12/h12pl18.dat \
+		    f=$(OPDATA2)/hirlam12/h12ml18.dat \
+		    f=$(OPDATA2)/hirlam12/h12ie18.dat
+m=HIRLAM.12KM.00-1  f=$(OPDATA2)/hirlam12/h12sf00.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12pl00.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12ml00.dat-1 \
+		    f=$(OPDATA2)/hirlam12/h12ie00.dat-1
+m=HIRLAM.12KM.06-1  f=$(OPDATA2)/hirlam12/h12sf06.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12pl06.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12ml06.dat-1 \
+                    f=$(OPDATA2)/hirlam12/h12ie06.dat-1
+m=HIRLAM.12KM.12-1  f=$(OPDATA2)/hirlam12/h12sf12.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12pl12.dat-1  \
+		    f=$(OPDATA2)/hirlam12/h12ml12.dat-1 \
+		    f=$(OPDATA2)/hirlam12/h12ie12.dat-1
+m=HIRLAM.12KM.18-1  f=$(OPDATA2)/hirlam12/h12sf18.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12pl18.dat-1  \
+                    f=$(OPDATA2)/hirlam12/h12ml18.dat-1 \
+                    f=$(OPDATA2)/hirlam12/h12ie18.dat-1
+m=HIRLAM.12KM.00-2  f=$(OPDATA2)/hirlam12/h12sf00.dat-2  \
+		    f=$(OPDATA2)/hirlam12/h12pl00.dat-2  \
+		    f=$(OPDATA2)/hirlam12/h12ml00.dat-2 \
+		    f=$(OPDATA2)/hirlam12/h12ie00.dat-2
+m=HIRLAM.12KM.12-2  f=$(OPDATA2)/hirlam12/h12sf12.dat-2 \
+		    f=$(OPDATA2)/hirlam12/h12pl12.dat-2 \
+		    f=$(OPDATA2)/hirlam12/h12ml12.dat-2 \ 
+		    f=$(OPDATA2)/hirlam12/h12ie12.dat-2
+
+filegroup=HIRLAM8km
+m=HIRLAM.8KM.00    f=$(OPDATA1)/hirlam8/h8km00.dat
+m=HIRLAM.8KM.06    f=$(OPDATA1)/hirlam8/h8km06.dat 
+m=HIRLAM.8KM.12    f=$(OPDATA1)/hirlam8/h8km12.dat 
+m=HIRLAM.8KM.18    f=$(OPDATA1)/hirlam8/h8km18.dat 
+m=ALT-HIRLAM.8KM.00    f=$(OPDATA2)/hirlam8/h8km00.dat
+m=ALT-HIRLAM.8KM.06    f=$(OPDATA2)/hirlam8/h8km06.dat 
+m=ALT-HIRLAM.8KM.12    f=$(OPDATA2)/hirlam8/h8km12.dat 
+m=ALT-HIRLAM.8KM.18    f=$(OPDATA2)/hirlam8/h8km18.dat 
+m=ALT-HIRLAM.8KM.00-1  f=$(OPDATA2)/hirlam8/h8km00.dat-1  
+m=ALT-HIRLAM.8KM.06-1  f=$(OPDATA2)/hirlam8/h8km06.dat-1  
+m=ALT-HIRLAM.8KM.12-1  f=$(OPDATA2)/hirlam8/h8km12.dat-1  
+m=ALT-HIRLAM.8KM.18-1  f=$(OPDATA2)/hirlam8/h8km18.dat-1  
+m=ALT-HIRLAM.8KM.00-2  f=$(OPDATA2)/hirlam8/h8km00.dat-2  
+m=ALT-HIRLAM.8KM.12-2  f=$(OPDATA2)/hirlam8/h8km12.dat-2 
+
+filegroup=HIRLAM20km
+m=HIRLAM.20KM.00    f=/opdata/hirlam20/grdn00.dat    f=/opdata/hirlam20/grdni00.dat
+m=HIRLAM.20KM.06    f=/opdata/hirlam20/grdn06.dat    f=/opdata/hirlam20/grdni06.dat
+m=HIRLAM.20KM.12    f=/opdata/hirlam20/grdn12.dat    f=/opdata/hirlam20/grdni12.dat
+m=HIRLAM.20KM.18    f=/opdata/hirlam20/grdn18.dat    f=/opdata/hirlam20/grdni18.dat
+m=ALT-HIRLAM.20KM.00 f=/opdata_routine/hirlam20/grdnm00.dat \
+		     f=/opdata_routine/hirlam20/grdn00.dat \
+		     f=/opdata_routine/hirlam20/grdni00.dat
+m=ALT-HIRLAM.20KM.06 f=/opdata_routine/hirlam20/grdnm06.dat \   
+		     f=/opdata_routine/hirlam20/grdn06.dat  \  
+		     f=/opdata_routine/hirlam20/grdni06.dat
+m=ALT-HIRLAM.20KM.12 f=/opdata_routine/hirlam20/grdnm12.dat \
+		     f=/opdata_routine/hirlam20/grdn12.dat  \
+		     f=/opdata_routine/hirlam20/grdni12.dat
+m=ALT-HIRLAM.20KM.18 f=/opdata_routine/hirlam20/grdnm18.dat \
+		     f=/opdata_routine/hirlam20/grdn18.dat    \
+		     f=/opdata_routine/hirlam20/grdni18.dat
+m=HIRLAM.20KM.ARKIV.7D   f=/opdata/hirlam20/arkhl1.dat  \
+			 f=/opdata/hirlam20/arkhl3.dat  \
+			 f=/opdata/hirlam20/arkhl5.dat  \
+			 f=/opdata/hirlam20/grdn00.dat  \
+			 f=/opdata/hirlam20/grdni00.dat  \
+			 f=/opdata/hirlam20/grdn06.dat  \
+			 f=/opdata/hirlam20/grdni06.dat  \
+			 f=/opdata/hirlam20/grdn12.dat  \
+			 f=/opdata/hirlam20/grdni12.dat  \
+			 f=/opdata/hirlam20/grdn18.dat  \
+			 f=/opdata/hirlam20/grdni18.dat
+m=ALT-HIRLAM.20KM.00-1  f=/opdata_routine/hirlam20/grdnm00.dat-1  \
+			f=/opdata_routine/hirlam20/grdn00.dat-1  \
+			f=/opdata_routine/hirlam20/grdni00.dat-1
+m=ALT-HIRLAM.20KM.12-1  f=/opdata_routine/hirlam20/grdnm12.dat-1  \
+			f=/opdata_routine/hirlam20/grdn12.dat-1  \
+			f=/opdata_routine/hirlam20/grdni12.dat-1
+m=ALT-HIRLAM.20KM.00-2  f=/opdata_routine/hirlam20/grdnm00.dat-2  \
+			f=/opdata_routine/hirlam20/grdn00.dat-2  \
+			f=/opdata_routine/hirlam20/grdni00.dat-2
+m=ALT-HIRLAM.20KM.12-2  f=/opdata_routine/hirlam20/grdnm12.dat-2  \
+			f=/opdata_routine/hirlam20/grdn12.dat-2  \
+			f=/opdata_routine/hirlam20/grdni12.dat-2
+
+filegroup=Bakkeanalyser
+m=met.no.ANA      f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
+m=VNN.ANA         f=/opdata/diana/Bakkeanalyse/VNN-arkfelt.dat
+m=VA.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/work/VA_ANAmslp.*
+m=VV.ANA          f=$(OPDATA2)/diana/Bakkeanalyse/work/VV_ANAmslp.*
+m=ALT-met.no.ANA  f=$(OPDATA2)/diana/Bakkeanalyse/DNMI-arkfelt.dat
+m=DNMI.ANA        f=/opdata/diana/Bakkeanalyse/DNMI-arkfelt.dat
+
+filegroup=Subjektive.prognoser
+m=met.no.PROG+18   f=/opdata/diana/Prognose+18/DNMI-arkfelt.dat
+m=met.no.PROG+36   f=/opdata/diana/Prognose+36/DNMI-arkfelt.dat
+m=DNMI.PROG+18   f=/opdata/diana/Prognose+18/DNMI-arkfelt.dat
+m=DNMI.PROG+36   f=/opdata/diana/Prognose+36/DNMI-arkfelt.dat
+
+filegroup=HIRLAM10km
+m=HIRLAM.10KM.00    f=/opdata/hirlam10/grdl00.dat
+m=HIRLAM.10KM.12    f=/opdata/hirlam10/grdl12.dat
+m=HIRLAM.10KM.00-1  f=/opdata/hirlam10/grdl00.dat-1
+m=HIRLAM.10KM.12-1  f=/opdata/hirlam10/grdl12.dat-1
+m=HIRLAM.10KM.00-2  f=/opdata/hirlam10/grdl00.dat-2
+m=HIRLAM.10KM.12-2  f=/opdata/hirlam10/grdl12.dat-2
+m=ALT-HIRLAM.10KM.00    f=/opdata_routine/hirlam10/grdl00.dat
+m=ALT-HIRLAM.10KM.12    f=/opdata_routine/hirlam10/grdl12.dat
+m=ALT-HIRLAM.10KM.00-1  f=/opdata_routine/hirlam10/grdl00.dat-1
+m=ALT-HIRLAM.10KM.12-1  f=/opdata_routine/hirlam10/grdl12.dat-1
+m=ALT-HIRLAM.10KM.00-2  f=/opdata_routine/hirlam10/grdl00.dat-2
+m=ALT-HIRLAM.10KM.12-2  f=/opdata_routine/hirlam10/grdl12.dat-2
+m=HIRLAM.10KM.ARK   f=/opdata/hirlam10/ark10km.dat  f=/opdata/hirlam10/grdl00.dat  f=/opdata/hirlam10/grdl12.dat
+
+filegroup=HIRLAM4km
+m=HIRLAM.4KM.00    f=$(OPDATA2)/hirlam4/grdqh00.dat
+m=HIRLAM.4KM.12    f=$(OPDATA2)/hirlam4/grdqh12.dat
+m=HIRLAM.4KM.00-1  f=$(OPDATA2)/hirlam4/grdqh00.dat-1
+m=HIRLAM.4KM.12-1  f=$(OPDATA2)/hirlam4/grdqh12.dat-1
+m=HIRLAM.4KM.00-2  f=$(OPDATA2)/hirlam4/grdqh00.dat-2
+m=HIRLAM.4KM.12-2  f=$(OPDATA2)/hirlam4/grdqh12.dat-2
+
+filegroup=UM.4km
+m=UM.HL.4KM.00    f=/opdata/um/grdq00.dat
+m=UM.HL.4KM.12    f=/opdata/um/grdq12.dat
+m=ALT-UM.HL.4KM.00    f=/opdata_routine/um4km/grdq00.dat
+m=ALT-UM.HL.4KM.12    f=/opdata_routine/um4km/grdq12.dat
+m=UM.HL.4KM.00-1  f=/opdata_routine/um4km/grdq00.dat-1
+m=UM.HL.4KM.12-1  f=/opdata_routine/um4km/grdq12.dat-1
+m=UM.HL.4KM.00-2  f=/opdata_routine/um4km/grdq00.dat-2
+m=UM.HL.4KM.12-2  f=/opdata_routine/um4km/grdq12.dat-2
+m=UM.MO.3KM.06    f=/opdata_routine/um4km/grdp06.dat
+m=UM.MO.3KM.18    f=/opdata_routine/um4km/grdp18.dat
+m=UM.MO.3KM.06-1  f=/opdata_routine/um4km/grdp06.dat-1
+m=UM.MO.3KM.18-1  f=/opdata_routine/um4km/grdp18.dat-1
+m=UM.MO.3KM.06-2  f=/opdata_routine/um4km/grdp06.dat-2
+m=UM.MO.3KM.18-2  f=/opdata_routine/um4km/grdp18.dat-2
+
+filegroup=UM4BX
+m=UM4BX_12           f=$(OPDATA2)/um4bx/um4bx12.dat
+m=UM4BX_12-1         f=$(OPDATA2)/um4bx/um4bx12.dat-1
+m=UM4BX_12-2         f=$(OPDATA2)/um4bx/um4bx12.dat-2
+
+#filegroup=UM.4km.exp
+#m=UM4EXP_00          f=$(OPDATA2)/um4exp/grdqe00.dat
+#m=UM4EXP_12          f=$(OPDATA2)/um4exp/grdqe12.dat
+#m=UM4EXP_00-1        f=$(OPDATA2)/um4exp/grdqe00.dat-1
+#m=UM4EXP_12-1        f=$(OPDATA2)/um4exp/grdqe12.dat-1
+#m=UM4EXP_00-2        f=$(OPDATA2)/um4exp/grdqe00.dat-2
+#m=UM4EXP_12-2        f=$(OPDATA2)/um4exp/grdqe12.dat-2
+
+filegroup=UM.1km
+m=UM.V-Finnmark.1km.00      f=$(OPDATA2)/um1km/um1hh00.dat
+m=UM.V-Finnmark.1km.12      f=$(OPDATA2)/um1km/um1hh12.dat
+m=UM.V-Finnmark.1km.00-1    f=$(OPDATA2)/um1km/um1hh00.dat-1
+m=UM.V-Finnmark.1km.12-1    f=$(OPDATA2)/um1km/um1hh12.dat-1
+m=UM.V-Finnmark.1km.00-2    f=$(OPDATA2)/um1km/um1hh00.dat-2
+m=UM.V-Finnmark.1km.12-2    f=$(OPDATA2)/um1km/um1hh12.dat-2
+m=UM.Narvik.1km.00          f=$(OPDATA2)/um1km/um1na00.dat
+m=UM.Narvik.1km.12          f=$(OPDATA2)/um1km/um1na12.dat
+m=UM.Narvik.1km.00-1        f=$(OPDATA2)/um1km/um1na00.dat-1
+m=UM.Narvik.1km.12-1        f=$(OPDATA2)/um1km/um1na12.dat-1
+m=UM.Narvik.1km.00-2        f=$(OPDATA2)/um1km/um1na00.dat-2
+m=UM.Narvik.1km.12-2        f=$(OPDATA2)/um1km/um1na12.dat-2
+m=UM.Sandnessjøen.1km.00    f=$(OPDATA2)/um1km/um1sa00.dat
+m=UM.Sandnessjøen.1km.12    f=$(OPDATA2)/um1km/um1sa12.dat
+m=UM.Sandnessjøen.1km.00-1  f=$(OPDATA2)/um1km/um1sa00.dat-1
+m=UM.Sandnessjøen.1km.12-1  f=$(OPDATA2)/um1km/um1sa12.dat-1
+m=UM.Sandnessjøen.1km.00-2  f=$(OPDATA2)/um1km/um1sa00.dat-2
+m=UM.Sandnessjøen.1km.12-2  f=$(OPDATA2)/um1km/um1sa12.dat-2
+m=UM.Stad.1km.00            f=$(OPDATA2)/um1km/um1so00.dat
+m=UM.Stad.1km.12            f=$(OPDATA2)/um1km/um1so12.dat
+m=UM.Stad.1km.00-1          f=$(OPDATA2)/um1km/um1so00.dat-1
+m=UM.Stad.1km.12-1          f=$(OPDATA2)/um1km/um1so12.dat-1
+m=UM.Stad.1km.00-2          f=$(OPDATA2)/um1km/um1so00.dat-2
+m=UM.Stad.1km.12-2          f=$(OPDATA2)/um1km/um1so12.dat-2
+m=UM.Bergen.1km.00          f=$(OPDATA2)/um1km/um1be00.dat
+m=UM.Bergen.1km.00-1        f=$(OPDATA2)/um1km/um1be00.dat-1
+m=UM.Bergen.1km.00-2        f=$(OPDATA2)/um1km/um1be00.dat-2
+m=UM.Grenland.1km.00        f=$(OPDATA2)/um1km/um1gr00.dat
+m=UM.Grenland.1km.00-1      f=$(OPDATA2)/um1km/um1gr00.dat-1
+m=UM.Grenland.1km.00-2      f=$(OPDATA2)/um1km/um1gr00.dat-2
+m=UM.Oslo.1km.00            f=$(OPDATA2)/um1km/um1os00.dat
+m=UM.Oslo.1km.00-1          f=$(OPDATA2)/um1km/um1os00.dat-1
+m=UM.Oslo.1km.00-2          f=$(OPDATA2)/um1km/um1os00.dat-2
+m=UM.Stavanger.1km.00       f=$(OPDATA2)/um1km/um1st00.dat
+m=UM.Stavanger.1km.00-1     f=$(OPDATA2)/um1km/um1st00.dat-1
+m=UM.Stavanger.1km.00-2     f=$(OPDATA2)/um1km/um1st00.dat-2
+m=UM.Trondheim.1km.00       f=$(OPDATA2)/um1km/um1va00.dat
+m=UM.Trondheim.1km.12       f=$(OPDATA2)/um1km/um1va12.dat
+m=UM.Trondheim.1km.00-1     f=$(OPDATA2)/um1km/um1va00.dat-1
+m=UM.Trondheim.1km.12-1     f=$(OPDATA2)/um1km/um1va12.dat-1
+m=UM.Trondheim.1km.00-2     f=$(OPDATA2)/um1km/um1va00.dat-2
+m=UM.Trondheim.1km.12-2     f=$(OPDATA2)/um1km/um1va12.dat-2
+
+filegroup=UM.1km.exp
+m=UMEXP.S-Norge.1km.00       f=$(OPDATA4)/um1exp/um1sn00.dat
+m=UMEXP.N-Norge.1km.00      f=$(OPDATA4)/um1exp/um1nn00.dat
+
+filegroup=Simra
+m=Simra.Hammerfest.00     f=$(OPDATA2)/um1km/simme00.dat
+m=Simra.Hammerfest.12     f=$(OPDATA2)/um1km/simme12.dat
+m=Simra.Narvik.00         f=$(OPDATA2)/um1km/simna00.dat
+m=Simra.Narvik.12         f=$(OPDATA2)/um1km/simna12.dat
+m=Simra.Sandnessjøen.00   f=$(OPDATA2)/um1km/simsa00.dat
+m=Simra.Sandnessjøen.12   f=$(OPDATA2)/um1km/simsa12.dat
+m=Simra.Værnes.00         f=$(OPDATA2)/um1km/simva00.dat
+m=Simra.Værnes.12         f=$(OPDATA2)/um1km/simva12.dat
+m=Simra.Honningsvåg.00    f=$(OPDATA2)/um1km/simho00.dat
+m=Simra.Honningsvåg.12    f=$(OPDATA2)/um1km/simho12.dat
+m=Simra.Sandane.00        f=$(OPDATA2)/um1km/simsd00.dat
+m=Simra.Sandane.12        f=$(OPDATA2)/um1km/simsd12.dat
+m=Simra.Ørsta.00          f=$(OPDATA2)/um1km/simor00.dat
+m=Simra.Ørsta.12          f=$(OPDATA2)/um1km/simor12.dat
+m=Simra.Hammerfest.00-1   f=$(OPDATA2)/um1km/simme00.dat-1
+m=Simra.Hammerfest.12-1   f=$(OPDATA2)/um1km/simme12.dat-1
+m=Simra.Hammerfest.00-2   f=$(OPDATA2)/um1km/simme00.dat-2
+m=Simra.Hammerfest.12-2   f=$(OPDATA2)/um1km/simme12.dat-2
+m=Simra.Sandnessjøen.00-1 f=$(OPDATA2)/um1km/simsa00.dat-1
+m=Simra.Sandnessjøen.12-1 f=$(OPDATA2)/um1km/simsa12.dat-1
+m=Simra.Sandnessjøen.00-2 f=$(OPDATA2)/um1km/simsa00.dat-2
+m=Simra.Sandnessjøen.12-2 f=$(OPDATA2)/um1km/simsa12.dat-2
+m=Simra.Værnes.00-1       f=$(OPDATA2)/um1km/simva00.dat-1
+m=Simra.Værnes.12-1       f=$(OPDATA2)/um1km/simva12.dat-1
+m=Simra.Værnes.00-2       f=$(OPDATA2)/um1km/simva00.dat-2
+m=Simra.Værnes.12-2       f=$(OPDATA2)/um1km/simva12.dat-2
+m=Simra.Honningsvåg.00-1  f=$(OPDATA2)/um1km/simho00.dat-1
+m=Simra.Honningsvåg.12-1  f=$(OPDATA2)/um1km/simho12.dat-1
+m=Simra.Honningsvåg.00-2  f=$(OPDATA2)/um1km/simho00.dat-2
+m=Simra.Honningsvåg.12-2  f=$(OPDATA2)/um1km/simho12.dat-2
+m=Simra.Sandane.00-1      f=$(OPDATA2)/um1km/simsd00.dat-1
+m=Simra.Sandane.12-1      f=$(OPDATA2)/um1km/simsd12.dat-1
+m=Simra.Sandane.00-2      f=$(OPDATA2)/um1km/simsd00.dat-2
+m=Simra.Sandane.12-2      f=$(OPDATA2)/um1km/simsd12.dat-2
+m=Simra.Ørsta.00-1        f=$(OPDATA2)/um1km/simor00.dat-1
+m=Simra.Ørsta.12-1        f=$(OPDATA2)/um1km/simor12.dat-1
+m=Simra.Ørsta.00-2        f=$(OPDATA2)/um1km/simor00.dat-2
+m=Simra.Ørsta.12-2        f=$(OPDATA2)/um1km/simor12.dat-2
+
+filegroup=ECMWF
+m=EC.GEO  f=/opdata/ec/ecatmo_vnn.dat
+m=EC.GEO.00  f=/opdata/ec/ecatmo_vnn00.dat
+m=EC.GEO.12  f=/opdata/ec/ecatmo_vnn12.dat
+m=EC.GEO.0.25.00  g=98:103:0.5grad_NH  g=98:106:0.25grad  f=/opdata_routine/ec/ec_atmo_geo_00_mad.felt
+m=EC.GEO.0.25.12  g=98:103:0.5grad_NH  g=98:106:0.25grad  f=/opdata_routine/ec/ec_atmo_geo_12_mad.felt
+m=EC.12        g=98:504  f=/opdata/ec/flte12.dat
+m=EC300.12     g=98:533  f=/opdata/ec/flte12.dat
+m=ALT-EC.12        g=98:504  f=/opdata_routine/ec/flte12.dat
+m=ALT-EC300.12     g=98:533  f=/opdata_routine/ec/flte12.dat
+m=EC.12-1      g=98:504  f=/opdata/ec/flte12.dat-1
+m=EC300.12-1   g=98:533  f=/opdata/ec/flte12.dat-1
+m=ALT-EC.12-1      g=98:504  f=/opdata_routine/ec/flte12.dat-1
+m=ALT-EC300.12-1   g=98:533  f=/opdata_routine/ec/flte12.dat-1
+m=ALT-EC.12-2      g=98:504  f=/opdata_routine/ec/flte12.dat-2
+m=ALT-EC300.12-2   g=98:533  f=/opdata_routine/ec/flte12.dat-2
+m=ALT-EC.12-3      g=98:504  f=/opdata_routine/ec/flte12.dat-3
+m=ALT-EC300.12-3   g=98:533  f=/opdata_routine/ec/flte12.dat-3
+m=ALT-EC.12-4      g=98:504  f=/opdata_routine/ec/flte12.dat-4
+m=ALT-EC300.12-4   g=98:533  f=/opdata_routine/ec/flte12.dat-4
+m=ALT-EC.12-5      g=98:504  f=/opdata_routine/ec/flte12.dat-5
+m=ALT-EC300.12-5   g=98:533  f=/opdata_routine/ec/flte12.dat-5
+# m=EC.GEO.00      g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ec/grec00.dat
+m=ALT-EC.GEO.12      g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata_routine/ec/grec12.dat
+m=ALT-EC.GEO.NY.00  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata_routine/ec/ecatmo00.dat
+m=ALT-EC.GEO.NY.12  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=/opdata_routine/ec/ecatmo12.dat
+m=EC.GEO.NY.00-1  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-1
+m=EC.GEO.NY.00-2  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-2
+m=EC.GEO.NY.00-3  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-3
+m=EC.GEO.NY.00-4  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-4
+m=EC.GEO.NY.00-5  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo00.dat-5
+m=EC.GEO.NY.12-1  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-1
+m=EC.GEO.NY.12-2  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-2
+m=EC.GEO.NY.12-3  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-3
+m=EC.GEO.NY.12-4  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-4
+m=EC.GEO.NY.12-5  g=98:103:0.5grad_NH  g=98:104:0.5grad  f=$(OPDATA2)/ec/ecatmo12.dat-5
+# m=EC.GEO.12-1    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ec/grec12.dat-1
+# m=EC.GEO.12-2    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ec/grec12.dat-2
+# m=EC.GEO.12-3    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ec/grec12.dat-3
+m=EC.00        g=98:504  f=/opdata/ec/flte00.dat
+m=EC300.00     g=98:533  f=/opdata/ec/flte00.dat
+m=ALT-EC.00        g=98:504  f=/opdata_routine/ec/flte00.dat
+m=ALT-EC300.00     g=98:533  f=/opdata_routine/ec/flte00.dat
+# m=EC.06        g=98:504  f=/opdata/ec/flte06.dat
+# m=EC300.06     g=98:533  f=/opdata/ec/flte06.dat
+# m=EC.18        g=98:504  f=/opdata/ec/flte18.dat
+# m=EC300.18     g=98:533  f=/opdata/ec/flte18.dat
+# m=EC.GEO.00-1    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ec/grec00.dat-1
+# m=EC.GEO.00-2    g=98:101:2.5_grad  g=98:102:1.5_grad  f=/opdata/ec/grec00.dat-2
+
+filegroup=UK
+m=UK.00        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc00.dat	
+m=UK.12        g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA1)/uk/fltc12.dat
+m=ALT-UK.00    g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat	
+m=ALT-UK.12    g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat
+m=ALT-UK.00-1  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-1
+m=ALT-UK.12-1  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-1
+m=ALT-UK.00-2  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-2
+m=ALT-UK.12-2  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-2
+m=ALT-UK.00-3  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-3
+m=ALT-UK.12-3  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-3
+m=ALT-UK.00-4  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-4
+m=ALT-UK.12-4  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-4
+m=ALT-UK.00-5  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc00.dat-5
+m=ALT-UK.12-5  g=74:504:uk g=74:533:uk300 g=74:604:ukfin \
+	       f=$(OPDATA2)/uk/fltc12.dat-5
+
+
+# filegroup=OBS.FIELDS
+# m=OBSFIELD.00    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs00.dat
+# m=OBSFIELD.06    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs06.dat
+# m=OBSFIELD.12    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs12.dat
+# m=OBSFIELD.18    g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs18.dat
+# m=OBSFIELD.00-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs00.dat-1
+# m=OBSFIELD.06-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs06.dat-1
+# m=OBSFIELD.12-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs12.dat-1
+# m=OBSFIELD.18-1  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs18.dat-1
+# m=OBSFIELD.00-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs00.dat-2
+# m=OBSFIELD.06-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs06.dat-2
+# m=OBSFIELD.12-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs12.dat-2
+# m=OBSFIELD.18-2  g=88:1905:50km  g=88:1725:25km  g=88:1995:10km  f=/opdata/obs_dec/feltobs18.dat-2
+
+filegroup=EC.EPS
+m=EC.EPS.00      f=/opdata/ec/greps00.dat
+m=EC.EPS.12      f=/opdata/ec/greps12.dat
+m=ALT-EC.EPS.NY.00   f=/opdata_routine/ec/eceps00.dat
+m=ALT-EC.EPS.NY.12   f=/opdata_routine/ec/eceps12.dat
+m=EC.EPS         f=/opdata/ec/greps12.dat
+m=EC.EPS_0.5.00     g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
+                    f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt \
+		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt
+m=EC.EPS_0.5.12     g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
+                    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt \
+		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt
+m=EC.EPS.00-1       f=/opdata/ec/greps00.dat-1
+m=EC.EPS.12-1       f=/opdata/ec/greps12.dat-1
+m=EC.EPS_0.5.00-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
+                    f=$(OPDATA2)/ec/ec_eps-dp_geo_00_mey.felt-1 \
+		    f=$(OPDATA2)/ec/ec_eps_geo_00_mee.felt-1
+m=EC.EPS_0.5.12-1   g=98:111:northeast g=98:115:mean g=98:117:member g=98:118:northwest \
+                    f=$(OPDATA2)/ec/ec_eps-dp_geo_12_mey.felt-1 \
+		    f=$(OPDATA2)/ec/ec_eps_geo_12_mee.felt-1
+
+filegroup=NORLAMEPS
+m=LAMEPS.06                f=$(OPDATA2)/lameps/lameps06.dat \
+                           f=$(OPDATA2)/lameps/lameps_prob06.dat \
+                           f=$(OPDATA2)/lameps/lameps_pred06.dat
+m=LAMEPS.06-1              f=$(OPDATA2)/lameps/lameps06.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_prob06.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_pred06.dat-1
+m=LAMEPS.06-2              f=$(OPDATA2)/lameps/lameps06.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_prob06.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_pred06.dat-2
+m=TEPS.06                  f=$(OPDATA2)/lameps/teps_prob06.dat \
+                           f=$(OPDATA2)/lameps/teps_pred06.dat 
+m=TEPS.06-1                f=$(OPDATA2)/lameps/teps_prob06.dat-1 \
+                           f=$(OPDATA2)/lameps/teps_pred06.dat-1
+m=TEPS.06-2                f=$(OPDATA2)/lameps/teps_prob06.dat-2 \
+                           f=$(OPDATA2)/lameps/teps_pred06.dat-2
+m=NORLAMEPS.06             f=$(OPDATA2)/lameps/lameps06.dat               \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat   \
+                           f=$(OPDATA2)/lameps/norlameps_prob06.dat       \
+                           f=$(OPDATA2)/lameps/norlameps_pred06.dat 
+m=NORLAMEPS.06-1           f=$(OPDATA2)/lameps/lameps06.dat-1             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-1 \
+                           f=$(OPDATA2)/lameps/norlameps_prob06.dat-1     \
+                           f=$(OPDATA2)/lameps/norlameps_pred06.dat-1
+m=NORLAMEPS.06-2           f=$(OPDATA2)/lameps/lameps06.dat-2             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-2 \
+                           f=$(OPDATA2)/lameps/norlameps_prob06.dat-2     \
+                           f=$(OPDATA2)/lameps/norlameps_pred06.dat-2
+m=TEPS.12                  f=$(OPDATA2)/lameps/teps12.dat
+m=TEPS.12-1                f=$(OPDATA2)/lameps/teps12.dat-1
+m=TEPS.12-2                f=$(OPDATA2)/lameps/teps12.dat-2
+m=LAMEPS.18                f=$(OPDATA2)/lameps/lameps18.dat \
+                           f=$(OPDATA2)/lameps/lameps_prob18.dat \
+                           f=$(OPDATA2)/lameps/lameps_pred18.dat
+m=LAMEPS.18-1              f=$(OPDATA2)/lameps/lameps18.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_prob18.dat-1 \
+                           f=$(OPDATA2)/lameps/lameps_pred18.dat-1
+m=LAMEPS.18-2              f=$(OPDATA2)/lameps/lameps18.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_prob18.dat-2 \
+                           f=$(OPDATA2)/lameps/lameps_pred18.dat-2
+m=TEPS.18                  f=$(OPDATA2)/lameps/teps_prob18.dat \
+                           f=$(OPDATA2)/lameps/teps_pred18.dat
+m=TEPS.18-1                f=$(OPDATA2)/lameps/teps_prob18.dat-1 \
+                           f=$(OPDATA2)/lameps/teps_pred18.dat-1
+m=TEPS.18-2                f=$(OPDATA2)/lameps/teps_prob18.dat-2 \
+                           f=$(OPDATA2)/lameps/teps_pred18.dat-2
+m=NORLAMEPS.18             f=$(OPDATA2)/lameps/lameps18.dat               \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat   \
+                           f=$(OPDATA2)/lameps/norlameps_prob18.dat       \
+                           f=$(OPDATA2)/lameps/norlameps_pred18.dat
+m=NORLAMEPS.18-1           f=$(OPDATA2)/lameps/lameps18.dat-1             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-1 \
+                           f=$(OPDATA2)/lameps/norlameps_prob18.dat-1     \
+                           f=$(OPDATA2)/lameps/norlameps_pred18.dat-1 
+m=NORLAMEPS.18-2           f=$(OPDATA2)/lameps/lameps18.dat-2             \
+                           f=$(OPDATA2)/lameps/teps_hires_shifted12.dat-2 \
+                           f=$(OPDATA2)/lameps/norlameps_prob18.dat-2     \
+                           f=$(OPDATA2)/lameps/norlameps_pred18.dat-2
+
+#filegroup=PEPS
+#m=PEPS.00        f=$(OPDATA2)/lameps/peps00.dat
+#m=PEPS.12        f=$(OPDATA2)/lameps/peps12.dat
+#m=PEPS.00-1      f=$(OPDATA2)/lameps/peps00.dat-1
+#m=PEPS.12-1      f=$(OPDATA2)/lameps/peps12.dat-1
+#m=PEPS.00-2      f=$(OPDATA2)/lameps/peps00.dat-2
+#m=PEPS.12-2      f=$(OPDATA2)/lameps/peps12.dat-2
+
+filegroup=EC.SESONG
+m=EC_sesong  f=/opdata_routine/sesong/ecfcst.felt
+
+filegroup=EC.MÅNED
+m=EC_MÅNED.00 f=$(OPDATA2)/ec/ec_mfs_geo_00_nmf.felt 
+
+filegroup=WAVE/WAM
+m=WAM.POL.00        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave00.dat
+m=WAM.POL.12        g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA1)/wave/fwave12.dat
+m=ALT-WAM.POL.00    g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA2)/wave/fwave00.dat
+m=ALT-WAM.POL.06    g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA2)/wave/fwave06.dat
+m=ALT-WAM.POL.12    g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA2)/wave/fwave12.dat
+m=ALT-WAM.POL.18    g=88:1714:Stor  g=88:1501:Liten  f=$(OPDATA2)/wave/fwave18.dat
+m=ALT-WAM.00            f=$(OPDATA2)/wave/gwave00.dat
+m=ALT-WAM.06            f=$(OPDATA2)/wave/gwave06.dat
+m=ALT-WAM.12            f=$(OPDATA2)/wave/gwave12.dat
+m=ALT-WAM.18            f=$(OPDATA2)/wave/gwave18.dat
+m=ALT-WAM.10km.00       f=$(OPDATA2)/wave/g10kmwave00.dat
+m=ALT-WAM.10km.12       f=$(OPDATA2)/wave/g10kmwave12.dat
+m=ALT-WAM.10KM.EPS.18   f=$(OPDATA2)/wave_eps/g10kmwaveEPS_18.dat
+m=ALT-ECMWF.WAM.00-0.25   f=$(OPDATA2)/ec/ec_wave_geo_00_mwp.felt
+m=ALT-ECMWF.WAM.12-0.25   f=$(OPDATA2)/ec/ec_wave_geo_12_mwp.felt
+m=ALT-ECMWF.WAM.12      f=$(OPDATA2)/ec/grecw12.dat
+m=ALT-ECMWF.WAM.NY.00   f=$(OPDATA2)/ec/ec_wave_geo_00_i.felt
+m=ALT-ECMWF.WAM.NY.12   f=$(OPDATA2)/ec/ec_wave_geo_12_i.felt
+m=ALT-ECMWF.WAM.EPS.00  f=$(OPDATA2)/ec/ec_wef_geo_00_i.felt
+m=ALT-ECMWF.WAM.EPS.12  f=$(OPDATA2)/ec/ec_wef_geo_12_i.felt
+m=ALT-ECMWF.WAM.EPS.00-1deg  f=$(OPDATA2)/ec/ec_wef_geo_00_mew.felt
+m=ALT-ECMWF.WAM.EPS.12-1deg  f=$(OPDATA2)/ec/ec_wef_geo_12_mew.felt
+m=SWAN.500m.00          f=$(OPDATA2)/wave/g500mwave00.dat
+m=SWAN.500m.12          f=$(OPDATA2)/wave/g500mwave12.dat
+m=WAM.00-1              f=$(OPDATA1)/wave/gwave00.dat-1
+m=WAM.12-1              f=$(OPDATA1)/wave/gwave12.dat-1
+m=ECMWF.WAM.12-1        f=$(OPDATA1)/ec/grecw12.dat-1
+
+filegroup=SEA
+m=ALT-ARCTIC.20km.00    f=$(OPDATA2)/sea/f20Arctic00.dat
+m=ALT-NORDIC.4KM.00     f=$(OPDATA2)/sea/f4Nordic00.dat
+m=ALT-NORDIC.4KM.12     f=$(OPDATA2)/sea/f4Nordic12.dat
+m=ALT-NORDIC.4KM.A.00   f=$(OPDATA2)/sea/f4Nordic_sectionA00.dat
+m=ALT-NORDIC.4KM.BD.00  f=$(OPDATA2)/sea/f4Nordic_sectionBD00.dat
+m=ALT-NORDIC.4KM.C.00   f=$(OPDATA2)/sea/f4Nordic_sectionC00.dat
+m=ALT-NORDIC.4KM.E.00   f=$(OPDATA2)/sea/f4Nordic_sectionE00.dat
+m=NORDIC.4KM.RESID.00   f=$(OPDATA2)/sea/f4Nordic_resid00.dat
+m=NORDIC.4KM.RESID.12   f=$(OPDATA2)/sea/f4Nordic_resid12.dat
+m=NORDIC.4KM.MEAN.12    f=$(OPDATA2)/sea/f4Nordic_24hrs_mean12.dat
+m=Trondheimsleia.500m   f=$(OPDATA2)/sea/f0.5Trheimsleia00.dat
+m=Oslofjord.300M.00     f=$(OPDATA2)/sea/f0.3Oslofjord00.dat
+m=SKAGERRAK_1.5KM       f=$(OPDATA2)/sea/f1.5NSeaSkag00.dat
+m=VESTLAND_200M         f=$(OPDATA2)/sea/f0.2Vestland00.dat
+m=Barents_1.5km         f=$(OPDATA2)/sea/f1.5Barents00.dat
+m=Bodo_Loppa.500m       f=$(OPDATA2)/sea/f0.5BodoLoppa00.dat
+m=BIO.20KM.FOAM         f=$(OPDATA2)/sea/f20NorthSea06.dat
+m=BIO.4KM.FOAM+SMHI     f=$(OPDATA2)/sea/f4NorthSea06.dat
+m=ALT-ark.SMHI.phys     f=$(OPDATA2)/sea/arkSMHI_phys.dat
+m=ALT-ark.SMHI.bio      f=$(OPDATA2)/sea/arkSMHI_bio.dat
+m=CLIMAT                f=$(OPDATA1)/sea/monthcli.dat
+m=CLIMAT2               f=$(OPDATA1)/sea/monthcli2.dat
+
+filegroup=PARAM
+m=HIRLAM.2001.20km         f=/opdata_routine/digit/last/par2001.dat
+m=HIRLAM.1997.10km         f=/opdata_routine/digit/last/par1997.dat
+m=HIRLAM.1998.10km         f=/opdata_routine/digit/last/par1998.dat
+m=HIRLAM.2335.5km          f=/opdata_routine/digit/last/par2335.dat
+m=HIRLAM.2006.50km         f=/opdata_routine/digit/last/par2006.dat
+m=LITEN.HIRLAM.2010.10km   f=/opdata_routine/digit/last/par2010.dat
+m=EMEP.1841                f=/opdata_routine/digit/last/par1841.dat
+m=GAMMEL.EMEP.1840         f=/opdata_routine/digit/last/par1840.dat
+m=NORLAM.1814              f=/opdata_routine/digit/last/par1814.dat
+m=WAM.ICE.960              f=/opdata_routine/digit/last/ice960.dat
+m=SEA.SST.907              f=/opdata_routine/digit/last/sst907.dat
+m=SEA.SST.903              f=/opdata_routine/digit/last/sst903.dat
+
+filegroup=OSISAF
+m=OSISAF_  f=/opdata_routine/fjernmaling_analyser/sea_ice/seaice_*.flt
+
+filegroup=UV-indeks
+m=UV_delvis_skyet f=$(OPDATA1)/uv/mitiff/uv-pc.dat
+m=UV_delvis_skyet+24 f=$(OPDATA1)/uv/mitiff/uv-pc.dat+1
+m=UV_delvis_skyet+48 f=$(OPDATA1)/uv/mitiff/uv-pc.dat+2
+m=UV_overskyet f=$(OPDATA1)/uv/mitiff/uv-cc.dat
+m=UV_overskyet+24 f=$(OPDATA1)/uv/mitiff/uv-cc.dat+1
+m=UV_overskyet+48 f=$(OPDATA1)/uv/mitiff/uv-cc.dat+2
+m=UV_klart f=$(OPDATA1)/uv/mitiff/uv-cl.dat
+m=UV_klart+24 f=$(OPDATA1)/uv/mitiff/uv-cl.dat+1
+m=UV_klart+48 f=$(OPDATA1)/uv/mitiff/uv-cl.dat+2
+m=UV_varslet f=$(OPDATA1)/uv/mitiff/uv-fc.dat
+m=UV_varslet+24 f=$(OPDATA1)/uv/mitiff/uv-fc.dat+1
+m=UV_varslet+48 f=$(OPDATA1)/uv/mitiff/uv-fc.dat+2
+
+filegroup=SNAP
+m=SNAP.NRPA         f=/opdata_routine/snap/snap.felt
+
+filegroup=PROFF
+m=Ph12_00         f=$(OPDATA2)/proff/Ph12_00.dat    
+m=Ph12h8_00       f=$(OPDATA2)/proff/Ph12h8_00.dat  
+m=Ph12h8h4_00     f=$(OPDATA2)/proff/Ph12h8h4_00.dat  
+m=Ph12um4_00      f=$(OPDATA2)/proff/Ph12um4_00.dat
+m=Ph12h4_00       f=$(OPDATA2)/proff/Ph12h4_00.dat  
+m=Ph12h8um4_00    f=$(OPDATA2)/proff/Ph12h8um4_00.dat  
+                  
+m=Ph12_12         f=$(OPDATA2)/proff/Ph12_12.dat    
+m=Ph12h8_12       f=$(OPDATA2)/proff/Ph12h8_12.dat  
+m=Ph12h8h4_12     f=$(OPDATA2)/proff/Ph12h8h4_12.dat  
+m=Ph12um4_12      f=$(OPDATA2)/proff/Ph12um4_12.dat
+m=Ph12h4_12       f=$(OPDATA2)/proff/Ph12h4_12.dat  
+m=Ph12h8um4_12    f=$(OPDATA2)/proff/Ph12h8um4_12.dat  
+
+</FIELD_FILES>
+
+<OBSERVATION_FILES>
+
+PROD=ascii:skred-data
+file=/opdata/vnn/skredomr.txt
+timerange=-300,300
+
+PROD=ascii:skred-obs
+file=/opdata/vnn/diana_skred.txt
+timerange=-300,300
+
+PROD=ascii:fjellvind
+file=/opdata/vnn/fjellvind.txt
+timerange=-300,300
+
+PROD=ascii:SST_Istjenesten
+file=/opdata/vnn/sst_ship.txt
+timerange=-6000,6000
+
+PROD=ascii:is-obs
+file=/opdata/vnn/is_observasjoner/diana/is_observasjoner_yyyymmdd_HHMM*
+timerange=-1440,1440                       # +/- 12 timer fra "yyyymmddHH"
+
+PROD=ascii:Troll
+file=$(ROOT)/vnn/Troll.txt
+timerange=-6000,6000
+
+PROD=ascii:AllNedbør
+file=/opdata/vnn/allnedboer.txt
+timerange=-6000,6000         
+
+PROD=ascii:SMSnedboer
+file=/opdata/vnn/smsnedb.yyyymmddHH
+timerange=-720,720                       # +/- 12 timer fra "yyyymmddHH"
+
+# NVE data hentet fra Lightning.
+PROD=ascii:Nedborsdata
+file=/opdata/vnn/nedbordata.yyyymmddHH*
+headerfile=/opdata/vnn/nedbordata.header
+timerange=-60,60
+
+
+# NVE data hetet fra Lightning.
+PROD=ascii:Nedborsdata
+file=/opdata/vnn/nedbordata.yyyymmddHH*
+headerfile=/opdata/vnn/nedbordata.header
+timerange=-60,60
+
+PROD=synop:BckupSynop
+metnoobs=/eumetcast/obs_dec/syno??.dat
+metnoobs=/eumetcast/obs_dec/syno??.dat-1
+metnoobs=/eumetcast/obs_dec/syno??.dat-2
+timerange=-30,30
+
+PROD=dribu:BckupDribu
+metnoobs=/eumetcast/obs_dec/drau??.dat
+metnoobs=/eumetcast/obs_dec/drau??.dat-1
+metnoobs=/eumetcast/obs_dec/drau??.dat-2
+timerange=-90,90
+
+PROD=metar:BckupMetar
+metnoobs=/eumetcast/obs_dec/metaXX.dat
+metnoobs=/eumetcast/obs_dec/metaXX.dat-1
+metnoobs=/eumetcast/obs_dec/metaXX.dat-2
+timerange=-15,15
+
+</OBSERVATION_FILES>
+
+
+<IMAGE>
+
+channels= day_night 2+4 4+2 1+2+4 2+3+4 3+4+5 5+4+3 2+6+4 6+4+5 5+4+6 1 2 3 4 5 6
+
+image=NOAA-OSLO
+  sub.type= N-Europa
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mne.mitiff
+  sub.type= S-Norge-(SAF_SE)
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mns.mitiff
+  sub.type= N-Norge-(SAF_NE)
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mnr.mitiff
+  sub.type= Grønland-(SAF_NW)   
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mgr.mitiff
+  sub.type= Atlant-(SAF_SW)
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mat.mitiff
+  sub.type= Ishavet
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]msv.mitiff
+  sub.type= Svalbard
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]msf.mitiff
+  sub.type= N-Atlant
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mis.mitiff
+  sub.type= N-Polen
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mnpol.mitiff
+  sub.type= W-Atlant
+      file= $(OPDATA2)/meos/mchannel/noaa[yyyymmddHHMM]mwat.mitiff
+
+image=Istjenesten
+  channels= Sigma-0
+  sub.type= arctic_edge_qs-6.674km
+      file=/opdata/qscat/seawinds/ice/edge/diana/QSice_edge*.mitiff
+  channels= Sigma-0
+  sub.type= arctic_conc_qs-6.674km
+      file=/opdata/qscat/seawinds/ice/concentration/diana/QSice_conc*_7.mitiff
+  channels= Sigma-0
+  sub.type= arctic_conc_qs-20km
+      file=/opdata/qscat/seawinds/ice/concentration/diana/QSice_conc*_20.mitiff
+  channels= GM
+  sub.type= GMSAR
+      file= /opdata/vnn/envisat/gmasar/ice/mosaic/diana/*.mitiff
+  sub.type= arctic_conc-6.25km
+      file= /opdata/vnn/aqua/amsre/ice/concentration/diana/asi180*.mitiff
+  sub.type= antarctic_conc-6.25km
+      file= /opdata/vnn/aqua/amsre/ice/concentration/diana/asi000*.mitiff
+  channels= visual
+  sub.type=MODIS-terra
+      file= /opdata/vnn/aqua/modis/diana/terra_modis_*.mitiff
+  sub.type=MODIS-aqua
+      file= /opdata/vnn/aqua/modis/diana/aqua_modis_*.mitiff
+  channels= ScanSAR
+  sub.type= Radarsat
+      file= /opdata/vnn/envisat/asar/ice/diana/RS1_[yyyymmdd_HHMM]*.mitiff
+  channels= ASAR
+  sub.type= Envisat_Wide
+      file= /opdata/vnn/envisat/asar/ice/diana/asar_[yyyymmdd_HHMM]*.mitiff
+  channels= HV VH HH VV VH-SUB-VV HH-SUB-HV HH-DIV-HV
+  sub.type= Envisat_AltPol
+      file= /opdata/vnn/envisat/asar/ice/diana/pasar_[yyyymmdd_HHMM]*.mitiff
+
+</IMAGE>
+
+
+<MAP_AREA>
+
+CLEAR
+
+name=modell/sat-område   proj=undefined  grid=0:0:0:0
+
+name=Analyse   proj=pstereo_60  grid=115:148:237:0:0:0  area=58:180:56:140
+name=Nordic    proj=pstereo_60  grid=115:148:237:0:0:0  area=116:143:93:130
+name=Euro      proj=pstereo_60  grid=115:148:237:0:0:0  area=93:153:56:138
+name=Europa    proj=pstereo_60  grid=115:148:237:0:0:0  area=93:153:56:138
+
+name=Norge[F6]     proj=pstereo_60  grid=115:148:237:0:0:0  area=100:140:77:117
+name=S-Norge       proj=pstereo_60  grid=115:148:237:0:0:0  area=112:134:77:97
+name=N-Norge[F7]   proj=pstereo_60  grid=115:148:237:0:0:0  area=118:140:94:115
+
+name=VA-Norge      proj=pstereo_60  grid=115:148:237:0:0:0  area=114:128:80:94
+name=VV-Norge      proj=pstereo_60  grid=115:148:237:0:0:0  area=104:126:80:94
+name=VNN-Norge[F8]  proj=pstereo_60  grid=115:148:237:0:0:0  area=120:138:95:114
+
+name=Atlant[F5]    proj=pstereo_60  grid=115:148:237:0:0:0  area=1:229:1:196
+
+name=SIGkart       proj=pstereo_60  grid=115:148:237:0:0:0  area=95:154:54:138
+name=SWIkart       proj=pstereo_60  grid=115:148:237:0:0:0  area=107:145:81:135
+
+name=N.halvkule    proj=pstereo_60      grid=11851:11851:11850:0:60:0     area=1:23701:1:23701
+name=S.halvkule    proj=pstereographic  grid=11851:11851:11850:180:-60:0  area=1:23701:1:23701
+
+name=N.halvkule-90  proj=pstereo_60  grid=11851:11851:11850:-90:60:0  area=1:23701:1:23701
+name=N.halvkule+90  proj=pstereo_60  grid=11851:11851:11850:90:60:0   area=1:23701:1:23701
+
+name=Hirlam-grid  proj=spherical_rot  grid=-46.5:-36.5:0.5:0.5:0:65  area=1:188:1:152
+
+name=Merkator  proj=mercator  grid=-50:30:50:50:60:0  area=1:121:1:111
+name=Geografisk  proj=geographic  grid=-30:30:1:1  area=1:91:1:41
+name=Globalt  proj=geographic  grid=-180:-90:1:1  area=1:361:1:181
+
+name=Infosat.1  proj=pstereo_60  grid=115:148:237:0:0:0  area=95:148:52:127
+
+name=ENHF    proj=pstereo_60  grid=115:148:237:0:0:0  area=130.89:131.71:110.74:111.32
+name=ENST    proj=pstereo_60  grid=115:148:237:0:0:0  area=125.58:126.29:98.54:99.09
+
+# Utsnitt for utskrift av analyse til ENSB ENBN
+name=ENSB      proj=pstereo_60  grid=115:148:237:0:0:0  area=99:148:102:138
+name=ENBN      proj=pstereo_60  grid=115:148:237:0:0:0  area=98:142:82:113
+ 
+name=QS_ENBO   proj=pstereo_60  grid=115:148:237:0:0:0  area=130:115:96:107
+name=QS_ENAN   proj=pstereo_60  grid=115:148:237:0:0:0  area=136:115:100:116
+name=QS_ENSB   proj=pstereo_60  grid=115:148:237:0:0:0  area=113:134:116:131
+
+# Utsnitt for batch
+name=Ishav     proj=pstereo_60  grid=115:148:237:0:0:0  area=92:157:90:138
+name=N-Europa  proj=pstereo_60  grid=115:148:237:0:0:0  area=60:172:56:138
+name=N.halvkule+65  proj=pstereo_60  grid=11851:11851:11850:65:60:0   area=10387:15012:4876:8185
+name=Troms  proj=pstereo_60  grid=115:148:237:0:0:0  area=124:133:104:110
+name=Mil-Nordnorge  proj=pstereo_60  grid=115:148:237:0:0:0  area=121:136:102:113   
+name=H10-stor  proj=pstereo_60  grid=115:148:237:0:0:0  area=95:163:80:130
+name=H10-liten  proj=pstereo_60  grid=115:148:237:0:0:0  area=102:149:96:130
+
+name=SkredFinnmark  proj=pstereo_60  grid=115:148:237:10:0:0  area=121.6:130.2:105.4:111.6   
+name=SkredTroms     proj=pstereo_60  grid=115:148:237:10:0:0  area=116.2:124.8:103.0:109.2   
+name=SkredNordland  proj=pstereo_60  grid=115:148:237:10:0:0  area=114.1:122.8:101.5:106.9 
+
+name=DinarcticaNord  proj=pstereo_60  grid=115:148:237:0:0:0  area=110.0:129.0:86.0:104.0 
+name=DinarcticaSor  proj=pstereo_60  grid=115:148:237:0:0:0  area=108.0:128.0:67.0:85.0 
+</MAP_AREA>
+
+<MAP_TYPE>
+ 
+map=Apache-Snowwhite type=lines_simple_text file=$(ROOT)/vnn/apache.txt   # Spesial varsel Apache snohvit
+map=Varslingsomr  type=lines_simple_text file=$(ROOT)/vnn/v_omr.txt
+map=Rutevarsler   type=lines_simple_text file=$(ROOT)/vnn/rutevarsel.txt
+map=BIRCH         type=lines_simple_text file=$(DIANADIR)/etc/birch.txt
+
+</MAP_TYPE>
+
+<OBJECTS>
+name="ALT-met.no Bakkeanalyse"  file=$(OPDATA2)/diana/Bakkeanalyse/DNMI-objects/DNMI_ANAdraw
+name="ALT-VA Bakkeanalyse"    file=$(OPDATA2)/diana/Bakkeanalyse/VA-objects/VA_ANAdraw
+name="ALT-VV Bakkeanalyse"    file=$(OPDATA2)/diana/Bakkeanalyse/work/VV_ANAdraw
+</OBJECTS>
+
+<EDIT>
+
+product="Istype"
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir = /opdata/diana/IsAnalyse/work
+
+  field=    "ANAicetypeFelt", "Istype", 2,641,1000,0, tool:classes
+  local_idents= TEST
+
+end.product
+
+product="Iskonsentrasjon"
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir = /opdata/osisaf/output/ice/multi/felt/
+
+  field=    "ANAiceconcFelt", "Iskonsentrasjon", 2,642,1000,0, min:0, max:100
+
+  local_idents= TEST
+
+end.product
+
+product="Iskonsentrasjon_klasser"
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir = /opdata/diana/IsAnalyse/work
+
+  field=    "ANAiceconcclassFelt", "Iskonsentrasjon_klasser", 2,649,1000,0, tool:classes
+
+  local_idents= TEST
+
+end.product
+
+product="Iskant"
+  # save_dir is input/output
+  save_dir= ./work
+  # other input directories
+  input_dir = /opdata/diana/IsAnalyse/work
+
+  field=    "ANAiceedgeFelt", "Iskant", 2,644,1000,0, tool:classes
+
+  local_idents= TEST
+
+  standard_symbolsize=30
+
+end.product
+
+</EDIT>
+
+
+<VERTICAL_PROFILE_FILES>
+
+m=ALT.UM1KM.nn  f=$(OPDATA2)/um1exp/vprof.dat_um1nn
+
+</VERTICAL_PROFILE_FILES> 
+
+
+<VERTICAL_CROSSECTION_FILES>
+
+m=ALT-HIRLAM.20KM.00   f=$(OPDATA2)/hirlam20/vc20km00.dat
+m=ALT-HIRLAM.20KM.06   f=$(OPDATA2)/hirlam20/vc20km06.dat
+m=ALT-HIRLAM.20KM.12   f=$(OPDATA2)/hirlam20/vc20km12.dat
+m=ALT-HIRLAM.20KM.18   f=$(OPDATA2)/hirlam20/vc20km18.dat
+
+</VERTICAL_CROSSECTION_FILES>
+

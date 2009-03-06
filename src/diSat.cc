@@ -41,8 +41,7 @@ bool Sat::defaultClasstable=false;
 
 // Default constructor
 Sat::Sat() :
-  approved(false), image(0), nx(0), ny(0), channelschanged(true),
-  mosaicchanged(true), autoFile(true), rgboperchanged(true),
+  approved(false), image(0), nx(0), ny(0), channelschanged(true), mosaicchanged(true), autoFile(true), rgboperchanged(true),
   alphaoperchanged(true), classtable(defaultClasstable),
   alphacut(defaultAlphacut), alpha(defaultAlpha), cut(defaultCut),
   maxDiff(defaultTimediff), palette(false), calibidx(-1), mosaic(false),
@@ -53,14 +52,14 @@ Sat::Sat() :
   cerr << "Sat constructor" << endl;
 #endif
 
-    for (int i=0; i<maxch; i++)
-      rawimage[i]= 0;
-    for (int i=0; i<3; i++)
-      origimage[i]= NULL;
+  for (int i=0; i<maxch; i ++)
+    rawimage[i]= 0;
+  for (int i=0; i<3; i++)
+    origimage[i]= NULL;
   }
 
 // Copy constructor
-Sat::Sat(const Sat &rhs)
+Sat::Sat (const Sat &rhs)
 {
 #ifdef DEBUGPRINT
   cerr << "Sat copy constructor  ";
@@ -69,7 +68,7 @@ Sat::Sat(const Sat &rhs)
   memberCopy(rhs);
 }
 
-Sat::Sat(const miString &pin) :
+Sat::Sat (const miString &pin) :
   approved(false), image(0), nx(0), ny(0), channelschanged(true),
   mosaicchanged(true), autoFile(true), rgboperchanged(true),
   alphaoperchanged(true), classtable(defaultClasstable),
@@ -85,7 +84,7 @@ Sat::Sat(const miString &pin) :
   for (int i=0; i<maxch; i++)
     rawimage[i]= 0;
   for (int i=0; i<3; i++)
-    origimage[i]= NULL;  
+    origimage[i]= NULL;
 
   vector<miString> tokens= pin.split();
   int n= tokens.size();
@@ -130,28 +129,26 @@ Sat::Sat(const miString &pin) :
   }
 
 #ifdef DEBUGPRINT
-  cerr << "cut = " << cut << endl;
-  cerr << "alphaCut = " << alphacut <<endl;
+  cerr << "cut = " << cut << endl; cerr<< "alphaCut = " << alphacut <<endl;
   cerr << "alpha = " << alpha << endl;
   cerr << "maxDiff = " << maxDiff << endl;
-  cerr << "classtable = " << classtable << endl;
+  cerr<< "classtable = " << classtable << endl;
 #endif
 
   }
 
 // Destructor
-Sat::~Sat()
-{
+Sat::~Sat() {
 #ifdef DEBUGPRINT
   cerr << "Sat destructor  nx=" << nx << " ny=" << ny << endl;
 #endif
   cleanup();
 }
 
-// Assignment operator
+// Assignment operato r
 Sat& Sat::operator=(const Sat &rhs) {
 #ifdef DEBUGPRINT
-  cerr << "Sat assignment operator  ";
+  cerr <<"Sat assignment operator  " ;
 #endif
 
   if (this == &rhs) return *this;
@@ -225,7 +222,7 @@ void Sat::memberCopy(const Sat& rhs)
           rawimage[i][j]= rhs.rawimage[i][j];
     }
     for (int k=0; k<3; k++) {
-      origimage[k]= new long[size];
+      origimage[k]= new float[size];
     }
     for (int j=0; j<size; j++) {
       for (int i=0; i<3; i++)
@@ -266,9 +263,9 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
       int pvalue;
       // For satellite pictures, get the original value
       if(hdf5type!=0) {
-        if(origimage[p->first][index] <= -32000)
+        if(origimage[p->first][index] <= -32000.0)
           continue;
-        pvalue = origimage[p->first][index];
+        pvalue = (int)origimage[p->first][index];
       }
       else {
         pvalue = rawimage[p->first][index];
@@ -282,9 +279,9 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
         if (p->second.val.size()>0) {
           if (p->second.val.size()>pvalue) {
             if (palette) {
-              sv.text = p->second.val[pvalue];
+              sv.text = p->second.val[(int)pvalue];
             } else {
-              sv.value = atof(p->second.val[pvalue].cStr());
+              sv.value = atof(p->second.val[(int)pvalue].cStr());
               if (p->second.channel.contains("TEMP"))
                 sv.value -= 273.0;//use degrees celsius instead of Kelvin
             }
@@ -430,9 +427,21 @@ void Sat::setCalibration()
     cerr << "Sat::setCalibration -- vch["<< j << "]: " << vch[j] << endl;
 #endif
 
+    /* hdf5type == 0 => radar or mitiff
+     * hdf5type == 1 => NOAA (HDF5)
+     * hdf5type == 2 => MSG (HDF5)
+     * and channels 4 and 7-11 ar infrared
+     */
+    if(vch[j].contains("-")) {
+      ir=false;
+      vis=false;
+    }
+    bool isIRchannel=(((hdf5type == 0) && (vch[j]=="3" ||vch[j]=="4" || vch[j]=="5"))
+        || (hdf5type == 2 && (vch[j].contains("4") || vch[j].contains("7") ||
+            vch[j].contains("8") || vch[j].contains("9") || vch[j].contains("10") ||
+            vch[j].contains("11"))) || (hdf5type == 1 && (vch[j].contains("4"))));
     table_cal ct;
-    if ((ir && (vch[j]=="3" ||vch[j]=="4" || vch[j]=="5"))
-        || vch[j].contains("i")) {
+    if (ir && isIRchannel) {
       ct.channel = start + "Infrared (" + vch[j] + "):";
       ct.a= AIr;
       ct.b= BIr-273.0;//use degrees celsius instead of Kelvin
@@ -510,7 +519,7 @@ void Sat::setArea()
   float xunit = 1000.0;
   float yunit = 1000.0;
   float earthRadius=6.371e+6;
-  float g[Projection::speclen]= { 0., 0., 0., GridRot, TrueLat, 0. };
+  float g[Projection::speclen]= {0., 0., 0., GridRot, TrueLat, 0.};
   float h =(fabs(Ax)*xunit+fabs(Ay)*yunit)*0.5;
   float fq = 1.0 + sin(fabs(TrueLat)*asin(1.0)/90.0);
   //adjust grid parameters to get x=y=0 at the lower left corner of
@@ -519,24 +528,19 @@ void Sat::setArea()
 #ifdef DEBUGPRINT
     cerr << "Sat::setArea formatType: hdf5" << endl;
 #endif
-    g[0] -= Bx;
-    g[1] -= By;
-  } else if (formatType == "hdf5-standalone") {
-#ifdef DEBUGPRINT
-    cerr << "Sat::setArea formatType: hdf5-standalone" << endl;
-#endif
     g[0] -= Bx/fabs(Ax)-1;
-    g[1] -= By/fabs(Ay)-1-ny;
+    g[1] -= By/fabs(Ay)-1;
   } else if (formatType == "mitiff") {
     g[0] -= Bx/fabs(Ax)-1;
     g[1] -= By/fabs(Ay)-1-ny;
   }
-
   g[2] = earthRadius*fq/h;
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setArea TrueLat:" << TrueLat << endl;
   cerr << "Sat::setArea GridRot:" << GridRot << endl;
+  cerr << "Sat::setArea Ax:" << Ax << endl;
+  cerr << "Sat::setArea Ay:" << Ay << endl;
   cerr << "Sat::setArea h:" << h << endl;
   cerr << "Sat::setArea fq:" << fq << endl;
 
@@ -548,13 +552,12 @@ void Sat::setArea()
   cerr << "Sat::setArea hdf5type: " << hdf5type << endl;
 #endif
 
-    Projection p(Projection::polarstereographic, g);
+  Projection p(Projection::polarstereographic, g);
 
-    Rectangle r(0., 0., nx, ny);
+  Rectangle r(0., 0., nx, ny);
 
-    area.setP(p);
-    area.setR(r);
-  //}
+  area.setP(p);
+  area.setR(r);
 }
 
 void Sat::cleanup()
@@ -580,12 +583,12 @@ void Sat::cleanup()
   }
 
   for(int j=0; j<3; j++) {
-    if(origimage[j] != NULL) {   
+    if(origimage[j] != NULL) {
       delete[] origimage[j];
     }
     origimage[j] = NULL;
-  }  
-  
+  }
+
   calibidx= -1;
   annotation.erase();
   plotname.erase();

@@ -1,0 +1,5 @@
+[NAME UK_Lyn]
+[COLUMNS
+Year:year:"År" Month:month:"Måned" Day:day:"Dag" Hour:hour:"Time" Min:min:"Minutt" Sec:sec:"Sekund" Ns:r:"Mikrosekund"
+FLP_ID:s:"Lyn løpenummer siden siste hele time" Quality:s:"G passert kvalitetskontroll, P ikke passert kvalitetskontorll, A Ikke kvalitetskontrollert" Lat:lat:"Breddegrad" Lon:lon:"Lengdegrad" Error:r:"Feil i km"]
+[DATA]

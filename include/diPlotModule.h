@@ -58,6 +58,7 @@ class EditManager;
 class GridAreaManager;
 class Field;
 class TrajectoryPlot;
+class RadarEchoPlot;
 class StationPlot;
 
 using namespace std;
@@ -93,6 +94,7 @@ private:
   vector<FieldPlot*> vfp; // vector of field plots
   vector<MapPlot*> vmp;   // vector of map plots
   vector<TrajectoryPlot*>vtp; // vector of trajectory plots
+  vector<RadarEchoPlot*>vrp; // vector of radar echo plots
   vector<AnnotationPlot*> vap; // vector of annotation plots
   vector <AnnotationPlot*> obsVap; //display obs annotation
   vector <AnnotationPlot*> objectVap; //display object label
@@ -330,11 +332,15 @@ public:
   /// handles trajectory plot info strings
   void trajPos(vector<miString>&);
   vector<miString> getTrajectoryFields();
+  vector<miString> getRadarEchoFields();
   bool startTrajectoryComputation();
-  void stopTrajectoryComputation();
+  void stopTrajectoryComputation();  
   // print trajectory positions to file
   bool printTrajectoryPositions(const miString& filename);
 
+  // radar echo
+  void radePos(vector<miString>&);
+  
   //Satellite and radar
   /// get name++ of current channels (with calibration) 
   vector<miString> getCalibChannels();

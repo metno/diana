@@ -184,6 +184,9 @@ public:
   bool uffdaEnabled;
 
   bool fileListChanged;
+  
+  // Radar echo mesure
+  map<float,float> radarecho;
 
 };
 
