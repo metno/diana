@@ -61,7 +61,7 @@ using namespace std;
 class GridArea : public Plot{
 
 public:
-	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING,NODE_SELECT,NODE_MOVE,SEGMENT_SELECT};
+	enum AreaMode{NORMAL,EDIT,MOVE,PAINTING,NODE_SELECT,NODE_MOVE,NODE_INSERT};
   enum DrawStyle{DEFAULT,OVERVIEW,GHOST};
 
 private:
@@ -108,7 +108,7 @@ private:
 	void fillActivePolygon(Polygon & p,bool main);
 	void drawPolygon(Polygon & p,bool main);
 	void drawNodes(const Polygon & p);
-	void highlightSegment(const Segment& segment);
+	void drawStipledSegment(const Segment& segment);
 	//Used in move-mode to paint temp. moved polygon
 	double moveX;
 	double moveY;
@@ -157,12 +157,13 @@ public:
 	/// Set focused node. Returns true if changed
 	bool setNodeFocus(const Point & mouse);
 	/// Set segment node. Returns true if changed
-	bool setSegmentFocus(const Point & mouse);
+	bool setNodeInsertFocus(const Point & mouse);
   ///Start node move session
   void startNodeMove();
   ///Move node to selected (setMove) position
   void doNodeMove();
-	
+  /// Insert focusedNode in focusedSegment
+	void doNodeInsert();
 	///Start move session
 	void startMove();
 	///Set difference between original position and new position

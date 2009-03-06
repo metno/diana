@@ -115,6 +115,15 @@ bool GridArea::plot(){
     displayEditPolygon = displayPolygon;
     displayEditPolygon.movePoint(focusedNode, moveX, moveY);
     drawPolygon(displayEditPolygon, true);
+  } else if (mode == NODE_INSERT) {
+    displayEditPolygon = displayPolygon;
+    if (segmentInFocus) {
+      displayEditPolygon.insertPoint(focusedSegment, focusedNode);
+      drawStipledSegment(focusedSegment);
+    }
+    drawNodes(displayPolygon);
+    drawPolygon(displayEditPolygon, true);
+    fillPolygon(displayEditPolygon, true);
   } else if (drawstyle == GHOST) {
     displayEditPolygon = displayPolygon;
     displayEditPolygon.move(moveX, moveY);
@@ -126,8 +135,6 @@ bool GridArea::plot(){
     fillActivePolygon(displayPolygon, true);
     if (mode == NODE_SELECT)
       drawNodes(displayPolygon);
-    if (mode == SEGMENT_SELECT && segmentInFocus)
-      highlightSegment(focusedSegment);
   } else {
     drawPolygon(displayPolygon, true);
   }
@@ -280,15 +287,16 @@ bool GridArea::setNodeFocus(const Point & mouse) {
   } else return false;
 }
 
-bool GridArea::setSegmentFocus(const Point & mouse) {
-  // called on every mouse move action when in segment-select-mode
-  Segment tmp = focusedSegment;
-  double dist = displayPolygon.getClosestSegment(mouse, focusedSegment);
-  if (segmentInFocus != (dist < maxNodeSelectDistance)) {
+bool GridArea::setNodeInsertFocus(const Point & mouse) {
+  double segmentDistance = displayPolygon.getClosestSegment(mouse, focusedSegment);
+  if (segmentInFocus != (segmentDistance < maxNodeSelectDistance)) {
     segmentInFocus = !segmentInFocus;
+  } 
+  if (segmentInFocus) {
+    //if (focusedSegment.height() <= 1 &&  focusedSegment.length() <= 1)
+    //  return false;
+    focusedNode = mouse;
     return true;
-  } else if (segmentInFocus) {
-    return (tmp != focusedSegment);
   } else return false;
 }
 
@@ -321,11 +329,11 @@ void GridArea::drawNodes(const Polygon & p) {
   glDisable(GL_BLEND);
 }
 
-void GridArea::highlightSegment(const Segment& segment) {
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glLineWidth(3);
-  glColor4f(0.9,0.9,0.9,0.6);
+void GridArea::drawStipledSegment(const Segment& segment) {
+  glLineStipple(1, 0xAAAA);
+  glEnable(GL_LINE_STIPPLE);
+  glLineWidth(1);
+  glColor3f(0.5,0.5,0.5);
   glBegin(GL_LINE_LOOP);
   Point p1 = segment.get_p1();
   Point p2 = segment.get_p2();
@@ -333,7 +341,7 @@ void GridArea::highlightSegment(const Segment& segment) {
   glVertex2f(p2.get_x(), p2.get_y());
   glFlush();
   glEnd();
-  glDisable(GL_BLEND);
+  glDisable(GL_LINE_STIPPLE);
 }
 
 void GridArea::setMode(GridArea::AreaMode am){
@@ -416,6 +424,18 @@ void GridArea::doNodeMove(){
     saveChange();
   }
   mode = NODE_SELECT;
+}
+
+void GridArea::doNodeInsert() {
+  if (segmentInFocus) {
+    displayPolygon.insertPoint(focusedSegment, focusedNode);
+    polygon.setCurrentProjectionPoints(displayPolygon);
+    polygon.makeAbstract();
+    displayPolygon = polygon.getInCurrentProjection();
+    segmentInFocus = false;
+    saveChange();
+  }
+  mode = NODE_INSERT;
 }
 
 void GridArea::startMove(){

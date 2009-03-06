@@ -1217,6 +1217,9 @@ void DianaProfetGUI::gridAreaChanged()
     // select move mode after paint to avoid accidental redefinition
     if (paintToolBar->getPaintMode() == GridAreaManager::DRAW_MODE)
       paintToolBar->setPaintMode(GridAreaManager::MOVE_MODE);
+    else if (paintToolBar->getPaintMode() == GridAreaManager::ADD_POINT)
+      paintToolBar->setPaintMode(GridAreaManager::MOVE_POINT);
+    
   } else {
     editObjectDialog->setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
   }

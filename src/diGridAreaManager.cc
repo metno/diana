@@ -98,7 +98,7 @@ void GridAreaManager::handleModeChanged(const mouseEvent& me, EventResult& res) 
       if (paintMode == REMOVE_POINT || paintMode == MOVE_POINT) {
         gridAreas[currentId].setMode(GridArea::NODE_SELECT);
       } else if (paintMode == ADD_POINT) {
-        gridAreas[currentId].setMode(GridArea::SEGMENT_SELECT);
+        gridAreas[currentId].setMode(GridArea::NODE_INSERT);
       } else { 
         gridAreas[currentId].setMode(GridArea::NORMAL);
       }
@@ -252,16 +252,14 @@ void GridAreaManager::handleAddPointEvent(const mouseEvent& me, EventResult& res
     const float& x, const float& y)
 {
   if (me.type == mousepress && me.button == leftButton) {
-    /*
-    LOG4CXX_DEBUG(logger,"Remove point from " << currentId);
-    if(gridAreas[currentId].removeFocusedPoint()) {
-      res.repaint = true;
-      res.action = grid_area_changed;
-    }
-    */
+    gridAreas[currentId].doNodeInsert();
+    res.repaint = true;
+    res.action = grid_area_changed;
   } else if (me.type == mousemove) {
-    if(gridAreas[currentId].setSegmentFocus(Point(x, y))) // focus changed
-      res.repaint = true;
+    if(gridAreas[currentId].setNodeInsertFocus(Point(x, y))) { // focus changed
+      res.newcursor = paint_add_crusor;
+    } else res.newcursor = paint_forbidden_crusor;
+    res.repaint = true;
   } else if (me.type == mouserelease && me.button == leftButton) {
     overrideMouseEvent = false;
   }
