@@ -411,15 +411,15 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>Field E&amp;dit</source>
-        <translation type="unfinished">Felt E&amp;ditering</translation>
+        <translation>Felt E&amp;ditering</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumentasjon</translation>
     </message>
 </context>
 <context>
@@ -1433,7 +1433,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished"></translation>
+        <translation>av</translation>
     </message>
     <message>
         <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
@@ -2276,7 +2276,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Ctrl+Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-Z</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -2288,7 +2288,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl-Y</translation>
     </message>
     <message>
         <source>redo</source>
@@ -2320,7 +2320,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Handling</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -2360,15 +2360,15 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Reset &amp;Single</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilbakestill &amp;enkeltelement</translation>
     </message>
     <message>
         <source>F8</source>
-        <translation type="unfinished">F8</translation>
+        <translation>F8</translation>
     </message>
     <message>
         <source>Reset single column </source>
-        <translation type="unfinished"></translation>
+        <translation>Tilbakestill enkelt kolonne </translation>
     </message>
     <message>
         <source>Method</source>
@@ -2385,7 +2385,8 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>There are changed and unprocessed objects.
 Do you want to run your changes first?</source>
-        <translation type="unfinished"></translation>
+        <translation>Det er endrete og uprosesserte objekter.
+Vil du kjøre dine endringer først?</translation>
     </message>
 </context>
 <context>
@@ -2756,7 +2757,7 @@ Do you want to run your changes first?</source>
     </message>
     <message>
         <source>Time diff</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidsdifferanse</translation>
     </message>
 </context>
 <context>
@@ -3201,7 +3202,7 @@ Do you want to run your changes first?</source>
     </message>
     <message>
         <source>No field selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen felt valgt</translation>
     </message>
 </context>
 <context>
@@ -3489,7 +3490,7 @@ Vil du sende før du avslutter?</translation>
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished"></translation>
+        <translation>av</translation>
     </message>
 </context>
 <context>
