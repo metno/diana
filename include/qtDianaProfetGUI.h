@@ -230,6 +230,7 @@ private slots:
   // EditObjectDialog
   void baseObjectSelected(miString name);
   void objectSelected(const QModelIndex &);
+  void objectDoubleClicked(const QModelIndex &);
   void saveObject();
   void copyPolygon(miString,miString,bool);
   void selectPolygon(miString);

@@ -37,7 +37,6 @@
 #include <QMessageBox>
 #include <QWindowsStyle>
 
-
 ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   : QDialog(parent )
   {
@@ -124,9 +123,11 @@ ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   // Buttons
   updateButton = new QPushButton(tr("Update"), this );
   updateButton->setDefault(false);
+  updateButton->setToolTip(tr("Update view, color definitions etc"));
 
   reconnectButton = new QPushButton(tr("Reconnect..."),this);
   reconnectButton->setDefault(false);
+  reconnectButton->setToolTip(tr("Reconnect to PODS"));
 
   closeButton = new QPushButton(tr("Close"),  this );
   closeButton->setDefault(false);
@@ -176,6 +177,8 @@ void ProfetSessionDialog::connectSignals(){
       this,SIGNAL(updateActionPerformed()));
   connect(objectList,SIGNAL(activated(const QModelIndex &)),
       this,SIGNAL(objectSelected(const QModelIndex &)));
+  connect(objectList,SIGNAL(doubleClicked(const QModelIndex &)),
+      this,SIGNAL(objectDoubleClicked(const QModelIndex &)));
   connect(chatWidget,SIGNAL(sendMessage(const QString &)),
       this,SIGNAL(sendMessage(const QString &)));
   connect(sessionComboBox,SIGNAL(activated(int)),

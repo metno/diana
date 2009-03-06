@@ -106,6 +106,8 @@ void DianaProfetGUI::connectSignals()
 {
   connect(sessionDialog, SIGNAL(objectSelected(const QModelIndex &)),
   this, SLOT(objectSelected(const QModelIndex &)));
+  connect(sessionDialog, SIGNAL(objectDoubleClicked(const QModelIndex &)),
+  this, SLOT(objectDoubleClicked(const QModelIndex &)));
   connect(sessionDialog, SIGNAL(paramAndTimeChanged(const QModelIndex &)),
   this, SLOT(paramAndTimeSelected(const QModelIndex &)));
   connect(sessionDialog, SIGNAL(showObjectOverview(const QList<QModelIndex> &)),
@@ -527,13 +529,21 @@ void DianaProfetGUI::objectSelected(const QModelIndex & index)
     areaManager->setCurrentArea(fo.id());
     viewObjectDialog->showObject(fo, objectFactory.getGuiComponents(fo));
     updateMap();
-    if(sessionDialog->autoZoomEnabled()) 
+    if(sessionDialog->autoZoomEnabled())
       emit zoomToObject(areaManager->getCurrentPolygon());
   } catch (InvalidIndexException & iie) {
     LOG4CXX_ERROR(logger,"editObject:" << iie.what());
     return;
   }
   enableObjectButtons(true, true, true);
+}
+
+void DianaProfetGUI::objectDoubleClicked(const QModelIndex & index)
+{
+  LOG4CXX_DEBUG(logger,"objectDoubleClicked");
+  objectSelected(index);
+  if (enableModifyButtons_)
+    editObject();
 }
 
 void DianaProfetGUI::zoomToObject(const ProjectablePolygon & pp) {
@@ -1304,7 +1314,7 @@ void DianaProfetGUI::setVisible(bool visible)
     sessionDialog->hide();
     editObjectDialog->hide();
     paintToolBar->hide();
-    
+
     emit setPaintMode(false);
   }
 }

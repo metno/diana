@@ -122,7 +122,7 @@ public:
   void setCurrentSession(const QModelIndex & index);
   void showMessage(const Profet::InstantMessage & msg);
   bool autoZoomEnabled() { return autoZoomButton->isChecked(); }
-  
+
   void customEvent(QEvent * e);
 
 public slots:
@@ -134,6 +134,7 @@ signals:
   void sendMessage(const QString &);
   void paramAndTimeChanged(const QModelIndex &);
   void objectSelected(const QModelIndex & index);
+  void objectDoubleClicked(const QModelIndex & index);
   void viewObjectToggled(bool);
   void newObjectPerformed();
   void editObjectPerformed();
