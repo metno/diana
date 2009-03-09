@@ -1,5 +1,5 @@
 /* XPM */
-static const  rade_xpm[] = {
+static const  char* pm[] = {
 "32 32 59 1",
 " 	c None",
 ".	c #C6C6AD",
