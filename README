@@ -1,8 +1,8 @@
 
 #=========================================
 DIANA
-Version: 3.8.1
-(Using metlibs Version 2009-02-24)
+Version: 3.6.3
+(Using metlibs Version 2009-01-22)
 #=========================================
 
 Norwegian Meteorological Institute (met.no)
@@ -78,77 +78,122 @@ You should use gcc version 4.1.1 or higher when compiling Diana, but older
 versions may also work. Other compilers than gcc may also be used, but 
 only gcc has been thoroughly tested.
 
-External library versions used at met.no
+External libraries needed
 ----------------------------------------
-freetype2      - freetype-2.1.10.tar.gz
-ftgl           - ftgl-2.1.2.tar.gz
-libtiff        - version 3.6
-libmysqlclient - mySql, unknown version
-shapelib       - shapelib-1.2.10.tar.gz
-libemos        - emos_000281.tar.gz  (from ECMWF)
-HDF            - HDF 4.2
+libqt4-dev
+libmysqlclient15-dev
+flex
+bison++
+ftgl-dev
+libboost-dev
+libboost-serialization-dev 
+libtiff4-dev
+libshp-dev 
 
-# create toplevel directory and put all tar-files there
-mkdir DIANA
-mv diana_*tar.gz DIANA/
-mv tseries_demodata.tar.gz DIANA/
-mv shapelib-1.2.10.tar.gz DIANA/
-mv ftgl-2.1.2.tar.gz DIANA/
-cd DIANA
-# from now on, all directories referred to are from *this* location
+In order to compile with support for the following formats some more
+libraries are needed:
 
-# Install necessary external libraries
+NetCDF:
+libnetcdf++3 
+netcdfg-dev 
+udunits (ftp://ftp.unidata.ucar.edu/pub/udunits/udunits-1.12.7.tar.gz)
 
-# IMPORTANT: to make sure shared object libraries are
-# found in /usr/local/lib
-# (You might want to put this in your .bashrc)
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+Bufr:
+emos_000300.tar.gz  - libemos (from ECMWF)        
 
-# unpack source
-tar xzvf diana_src.tar.gz
+Grib:
+grib_api-1.6.4.tar.gz - GRIB 1 & 2 Decoder/Encoder (from ECMWF)    
 
+Wdb:
+libpqxx-dev - C++ library to connect to PostgreSQL
+
+Internal libraries needed (metlibs)
+----------------------------------------
+puCtools    - General C tools
+puTools     - General tools (string, time, etc)
+libmi       - Fortran library, used to decode metno field files
+milib       - C wrapper for libmi (the fortran library) 
+parameter   - Some general functions
+puDatatypes - Some data types (coordinates etc)
+puSQL       - General mySQL
+diSQL       - Diana mySQL 
+diMItiff    - mitiff and hdf5 interface
+robs        - met.no obs file interface
+glp         - Used to generate PostScript
+glText      - Fonts
+qUtilities  - Qt utilities
+propoly     - Profet polygons
+diField     - Field interface
+
+If your not using log4cxx
+miLogger/
+
+Wdb support:
+diWdb/
+
+Profet: (field editing system, under development)
+proFunctions/
+pods/
+profet/
+
+
+Check out latest relese of metlibs, diana and puconf from svn
+
+cd topdir
+mkdir -p local/src
+cd local/src
+svn co https://svn.met.no/metlibs/branches/release_YYYY-MM-DD/ metlibs/
+svn co https://svn.met.no/diana/branches/release_X.X/ diana/
+svn co https://svn.met.no/viewvc/puconf/branches/release_YYYY-MM-DD/ conf/
+
+Build and compile metlibs
+=========================
+Remove libraries not needed from bootstrap (see above)
+./bootstrap
+./build --prefix=/topdir/local 
+
+Usefull options:
+--with-log4cxx=no - use miLogger instead of log4cxx
+--with-NetCDF     - NetCDF support
+--with-WDB        - WDB support
+--with-Grib       - Grib support
+--with-HDF5       - HDF5 support
+--with-OMNIORB    - needed to run profet (field editing) 
+
+Compile Diana
+==============
+The Makefile uses the $OSTYPE env variable to find right
+configuration file. Make any necessary changes to
+these files, located in: /topdir/local/src/conf/$OSTYPE.mk
+
+(linux.mk is recommended)
+
+export OSTYPE=linux
+
+make without Bufr support
+export NOBUFROBS=1
+
+make without NetCDF support
+export NONETCDF=1
+
+run with WDB support
+export WDB=1
+
+make witout profet support (recommended)
+export NOPROFET=1
+
+make
+
+Demo data
+=================================================================
+#Download demodata from 
+ftp://ftp.met.no/diana/diana_demodata.tar.gz
+#Download maps from 
+ftp://ftp.met.no/diana/diana_maps.tar.gz
 # unpack data files
 cd metnolocal
 tar xzvf ../diana_demodata.tar.gz
 tar xzvf ../diana_maps.tar.gz
-
-# directories:
-metnolocal/src
-metnolocal/src/libs/conf
-metnolocal/src/libs
-metnolocal/src/conf
-metnolocal/src/diana
-metnolocal/src/tseries
-metnolocal/src/coserver
-
-Configurations for make needs attention: All Makefiles use the $OSTYPE
-env variable to find correct configurations. We have prepared special
-configuration files for OSTYPE=export. Make any necessary changes to
-these files, located in: metnolocal/src/libs/libmi/make.$OSTYPE
-metnolocal/src/libs/conf/$OSTYPE.mk metnolocal/src/conf/$OSTYPE.mk
-(see export.mk etc.)
-
-Then:
-export OSTYPE=export
-cd metnolocal/src/libs/libmi
-make
-cd metnolocal/src/libs
-
-#coserver
-make normal
-cd metnolocal/src/coserver
-make
-make install
-
-# time series viewer!
-cd metnolocal/src/tseries
-make
-make install
-
-#diana
-cd metnolocal/src/diana
-make
-make install   
 
 # the Diana package is now installed under metnolocal/diana
 
@@ -159,23 +204,17 @@ make install
 remember LD_LIBRARY_PATH! see above
 
 1. Prepare setupfile with exact installation directory:
- cd metnolocal/diana/etc
- # change TOPDIR and OPDATA variables in file "diana.setup-EXPORT-DEMO"
- # for example:
- TOPDIR=/home/username/DIANA/metnolocal
- OPDATA=/home/username/DIANA/metnolocal/demodata
+Edit DIANADIR, OPDATA, MAPDIR
+
 
 2. Running Diana with the prepared test datasets and setup file:
- The map  data sets should be installed under metnolocal/maps/
- The test data sets should be installed under metnolocal/demodata/
+
 
 3. Starting Diana:
- cd metnolocal/diana
- bin/diana            # looks for diana.setup in current directory
+ cd /TOPDIR/local/diana
+ bin/diana.bin            # looks for diana.setup in current directory
  # or
- bin/diana -s diana.setup
- # or
- bin/diana -s etc/diana.setup-EXPORT-DEMO
+ bin/diana -s /etc/diana/diana.setup
 
  Language is preset to English (Norwegian is the only other option, in
  the setup file).  User guide available under Help.
@@ -217,32 +256,28 @@ Adding to the setup file:
 Current version supports following file formats
 
 Fields:                MetnoFieldFile (proprietary met.no)
+                       NetCDF
+                       Grib
 Observations:          MetnoObs       (proprietary met.no)
 	               BUFR
+                       ascii
 Image (sat.,radar):    mitiff         (proprietary met.no)
+                       HDF5
 Prognostic sounding:   vprof          (proprietary met.no)
 vertical crossections: vcross         (proprietary met.no)
 Wave spectrum:         wamspec        (proprietary met.no)
+Maps:                  shape
+		       ascii
+		       metno-format   (documentation available)
 
 
-#-------------------------------------------
-# 6.1 Running Tseries
-#-------------------------------------------
-
-running Tseries with the prepared test datasets and configurations:
-
-1. The test data sets should be installed under metnolocal/demodata/
-
-2. Starting Tseries:
-cd metnolocal/tseries
-bin/tseries -s tseries.ctl_export
-
-Select the language of preference under "Preferences | languages" in the menu.
-User guide available under Help.
 
 
-running btseries: The batch version of this plotting package is called
-btseries and will be installed in the same place as Tseries. Try
-"bin/btseries" for command line help, and "bin/btseries -example" to
-dump a complete job control file.
+
+
+
+
+
+
+
 
