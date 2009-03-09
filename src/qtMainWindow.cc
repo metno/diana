@@ -830,7 +830,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   trajm = new TrajectoryDialog(this,contr);
   trajm->setFocusPolicy(Qt::StrongFocus);
   trajm->hide();
-  
+
   radem = new RadarEchoDialog(this,contr);
   radem->setFocusPolicy(Qt::StrongFocus);
   radem->hide();
@@ -868,7 +868,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   // Mark trajectory positions
   connect(trajm, SIGNAL(markPos(bool)), SLOT(trajPositions(bool)));
   connect(trajm, SIGNAL(updateTrajectories()),SLOT(updateGLSlot()));
-  
+
   // Mark radar echo positions
   connect(radem, SIGNAL(markRadePos(bool)), SLOT(radePositions(bool)));
   connect(radem, SIGNAL(updateRadarEchos()),SLOT(updateGLSlot()));
@@ -2507,14 +2507,14 @@ void DianaMainWindow::sendPrintClicked(int id)
 void DianaMainWindow::sendLetter(miMessage& letter)
 {
   pluginB->sendMessage(letter);
-  //   cerr <<"SENDING>>>>"<<endl;
-  //   cerr<<"Command: "<<letter.command<<endl;
-  //   cerr<<"Description: "<<letter.description<<endl;
-  //   cerr<<"commonDesc: "<<letter.commondesc<<endl;
-  //   cerr<<"Common: "<<letter.common<<endl;
-  //       for(int i=0;i<letter.data.size();i++)
-  // 	cerr<<"data:"<<letter.data[i]<<endl;
-  //   cerr <<"To: "<<letter.to<<endl;
+//   cerr <<"SENDING>>>>"<<endl;
+//   cerr<<"Command: "<<letter.command<<endl;
+//   cerr<<"Description: "<<letter.description<<endl;
+//   cerr<<"commonDesc: "<<letter.commondesc<<endl;
+//   cerr<<"Common: "<<letter.common<<endl;
+//       for(int i=0;i<letter.data.size();i++)
+// 	cerr<<"data:"<<letter.data[i]<<endl;
+//   cerr <<"To: "<<letter.to<<endl;
 }
 
 void DianaMainWindow::updateObs()
@@ -3007,15 +3007,15 @@ void DianaMainWindow::trajPositions(bool b)
 {
   markTrajPos = b;
   markRadePos = !b;
-  
-/*  
+
+/*
   cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
   cerr << "\nRadarEchoDialog.hasFocus(): " << RadarEchoDialog::hasFocus() << "\n" << endl;
   cerr << "\nDianaMainWindow" << DianaMainWindow::hasFocus() << "\n" << endl;
-  
+
   markRadePos = !b;
-  
- /* 
+
+ /*
   if (b==true) {
     radePositions(false);
   }
@@ -3031,20 +3031,20 @@ void DianaMainWindow::trajPositions(bool b)
 void DianaMainWindow::radePositions(bool b)
 {
   markRadePos = b;
-  
+
   markTrajPos = !b;
 /*
     cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
     cerr << "\nRadarEchoDialog.hasFocus(): " << RadarEchoDialog::hasFocus() << "\n" << endl;
     cerr << "\nDianaMainWindow" << DianaMainWindow::hasFocus() << "\n" << endl;
-  */  
-   
-  
+  */
+
+
   /*if (b==true) {
     trajPositions(false);*/
-  
-  
-  
+
+
+
   //LB: quit while overriderCursor is set -> core dump (why?)
   //   if(b)
   //     QApplication::setOverrideCursor(crossCursor);
@@ -3059,31 +3059,31 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 {
   int x = mev.x;
   int y = mev.y;
-  
-  //cerr << "+++++++++++++++++++++ radem->hasFocus()" << radem->hasFocus() << endl; 
-  
+
+  //cerr << "+++++++++++++++++++++ radem->hasFocus()" << radem->hasFocus() << endl;
+
 /*
   if(radem->hasFocus() == true) {
-    cerr << "\n\nRade focus lostfocus == true \n\n" << endl;    
+    cerr << "\n\nRade focus lostfocus == true \n\n" << endl;
   } else if(radem->hasFocus() == false) {
-      cerr << "\n\nRade focus lostfocus == false \n\n" << endl;    
+      cerr << "\n\nRade focus lostfocus == false \n\n" << endl;
 
   } else {
     cerr << "\n\nNone of the above\n\n" << endl;
   }
-*/  
+*/
   if(markTrajPos){
     float lat=0,lon=0;
     contr->PhysToGeo(x,y,lat,lon);
     trajm->mapPos(lat,lon);
     w->updateGL(); // repaint window
   }
-  
+
   if(markRadePos) {
     float lat=0,lon=0;
     contr->PhysToGeo(x,y,lat,lon);
     radem->mapPos(lat,lon);
-    w->updateGL(); // repaint window    
+    w->updateGL(); // repaint window
   }
 
   if( !optAutoElementAction->isChecked() ){
@@ -3108,8 +3108,8 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
       letter.to = qmstrings::all;
       letter.data.push_back(miString(latstr + ":" + lonstr));
       sendLetter(letter);
-            
-    }   
+
+    }
   }
 }
 
@@ -3197,7 +3197,7 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
 #endif
   int x = mev.x;
   int y = mev.y;
-        
+
   //HK ??? nb
   xclick=x; yclick=y;
   // show geoposition in statusbar
@@ -3282,7 +3282,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
     vector<miString> station;
 
     bool add = false;
-    if(mev.modifier==key_Shift) add = true;
+//    if(mev.modifier==key_Shift) add = true; //todo: shift already used (skip editmode)
     contr->findStations(x,y,add,name,id,station);
     int n = name.size();
 
