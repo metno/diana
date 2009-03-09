@@ -765,10 +765,10 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
       (symbolStrings.size()==2 && symbolStrings[1]=="")){
     sigString=symbolStrings[0];
     drawSigString(x,y,false);
+    nstringsvisible=1;
   } else if (symbolStrings.size()==2){
     drawDoubleSigText(x,y,false);
   }
-  //  nstringsvisible=1;
   float sw,sh;
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 
