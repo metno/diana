@@ -106,7 +106,7 @@ bool GridArea::plot(){
   if (mode == EDIT) {
     drawPolygon(displayPolygon, true);
     fillPolygon(displayPolygon, true);
-    drawPolygon(displayEditPolygon, false);
+    drawPolygon(displayEditPolygon, false, false);
   } else if (mode == MOVE) {
     displayEditPolygon = displayPolygon;
     displayEditPolygon.move(moveX, moveY);
@@ -136,13 +136,13 @@ bool GridArea::plot(){
     if (mode == NODE_SELECT)
       drawNodes(displayPolygon);
   } else {
-    drawPolygon(displayPolygon, true);
+    drawPolygon(displayPolygon, true, false);
   }
   UpdateOutput();
   return true;
 }
 
-void GridArea::drawPolygon(Polygon & p, bool main_polygon){
+void GridArea::drawPolygon(Polygon & p, bool main_polygon, bool close){
 	list<Point> points = p.get_points();
 	if (points.empty()) return;
 	list<Point>::iterator current = points.begin();
@@ -161,7 +161,7 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	}
 	while (++current != points.end());
 
-	if (mode == NORMAL || mode == MOVE || mode == NODE_MOVE){	//connect end to beginning
+	if (close){	//connect end to beginning
   		glVertex2f(pb.get_x(),pb.get_y());
 	}
 	glFlush();

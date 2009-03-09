@@ -106,7 +106,7 @@ private:
 	void resetEditPolygon();
 	void fillPolygon(Polygon & p,bool main);
 	void fillActivePolygon(Polygon & p,bool main);
-	void drawPolygon(Polygon & p,bool main);
+	void drawPolygon(Polygon & p,bool main, bool close = true);
 	void drawNodes(const Polygon & p);
 	void drawStipledSegment(const Segment& segment);
 	//Used in move-mode to paint temp. moved polygon
