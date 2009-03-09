@@ -399,15 +399,15 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <source>Do you want to stay connected to profet?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vil du fortsatt være logget inn på profet?</translation>
     </message>
     <message>
         <source>Quit and disconnect</source>
-        <translation type="unfinished"></translation>
+        <translation>Avslutt og logg ut</translation>
     </message>
     <message>
         <source>Quit and stay connected </source>
-        <translation type="unfinished"></translation>
+        <translation>Avslutt men vær innlogget </translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2267,6 +2267,14 @@ Kan ikke starte produksjon</translation>
         <source>Auto Zoom</source>
         <translation>Autofokus</translation>
     </message>
+    <message>
+        <source>Update view, color definitions etc</source>
+        <translation>Oppdater lister, fargedefinisjoner etc</translation>
+    </message>
+    <message>
+        <source>Reconnect to PODS</source>
+        <translation>Koble til PODS på nytt</translation>
+    </message>
 </context>
 <context>
     <name>ProfetTimeSmoothDialog</name>
@@ -2663,6 +2671,49 @@ Vil du kjøre dine endringer først?</translation>
     <message>
         <source>Menu editor: Copy, change name and sortorder etc. on your own menus</source>
         <translation>Meny editor: Kopier, forandre navn og sorteringsrekkefølge etc. på dine egne menyer</translation>
+    </message>
+</context>
+<context>
+    <name>RadarEchoDialog</name>
+    <message>
+        <source>Radar echo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select positions on map</source>
+        <translation type="unfinished">Velg posisjoner på kart</translation>
+    </message>
+    <message>
+        <source>Write positions (Lat Lon):</source>
+        <translation type="unfinished">Skriv posisjoner (Bredde Lengde):</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Calculate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished">Hjelp</translation>
+    </message>
+    <message>
+        <source>Print</source>
+        <translation type="unfinished">Skriv ut</translation>
+    </message>
+    <message>
+        <source>Print calc. positions to file: trajectory.txt</source>
+        <translation type="unfinished">Skriv beregnede posisjoner til fil: trajectory.txt</translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Skjul</translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation type="unfinished">Avslutt</translation>
     </message>
 </context>
 <context>
