@@ -11,7 +11,7 @@ using namespace std;
 
 int GridArea::maxBuffer = 8;
 
-GLfloat GridArea::nodeMarkRadius = 10.0f;
+GLfloat GridArea::nodeMarkRadius = 6.0f;
 GLfloat GridArea::nodeMarkMaxConstant = 0.2f;
 double GridArea::maxNodeSelectDistance = 20.0;
 
@@ -148,7 +148,7 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	list<Point>::iterator current = points.begin();
 	Point p1, pb;
 	p1 = pb = (Point) *current;
-	
+
   glLineWidth(1);
 	glBegin(GL_LINE_STRIP); // GL_LINE_LOOP
 	if(!main_polygon)
@@ -166,7 +166,7 @@ void GridArea::drawPolygon(Polygon & p, bool main_polygon){
 	}
 	glFlush();
 	glEnd();
-	
+
 	if (showNextPoint && ( (mode == PAINTING && main_polygon ) ||
 	        (mode == EDIT && !main_polygon) ) ) {
 	  glColor3d(0.5,0.5,0.5);
@@ -291,7 +291,7 @@ bool GridArea::setNodeInsertFocus(const Point & mouse) {
   double segmentDistance = displayPolygon.getClosestSegment(mouse, focusedSegment);
   if (segmentInFocus != (segmentDistance < maxNodeSelectDistance)) {
     segmentInFocus = !segmentInFocus;
-  } 
+  }
   if (segmentInFocus) {
     //if (focusedSegment.height() <= 1 &&  focusedSegment.length() <= 1)
     //  return false;
@@ -304,25 +304,33 @@ void GridArea::drawNodes(const Polygon & p) {
   list<Point> points = p.get_points();
   if (points.empty()) return;
   list<Point>::const_iterator i = points.begin();
-  
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glLineWidth(3);
   GLfloat constantSizeRatio = (fullrect.x2-fullrect.x1) / pwidth;
   if (constantSizeRatio > nodeMarkMaxConstant) constantSizeRatio = nodeMarkMaxConstant;
   constantSizeRatio = constantSizeRatio * nodeMarkRadius;
-  
+
   do {
     if (nodeInFocus && *i == focusedNode) {
-      glColor4f(0.9,0.9,0.9,0.6);
+      glColor4f(0,1,1,1);
+      //glColor4f(0.9,0.9,0.9,0.6);
     } else {
-      glColor4f(0.6,0.6,0.6,0.5);
+      glColor4f(0,0,0,0.3);
+      //glColor4f(0.6,0.6,0.6,0.5);
     }
     GLfloat x = i->get_x();
     GLfloat y = i->get_y();
     glBegin(GL_LINE_LOOP);
-    for (int a=1; a<7; a++) 
-      glVertex2f((x + sin(a) * constantSizeRatio), (y + cos(a) * constantSizeRatio));
+    // draw rectangle
+    glVertex2f(x-constantSizeRatio,y-constantSizeRatio);
+    glVertex2f(x+constantSizeRatio,y-constantSizeRatio);
+    glVertex2f(x+constantSizeRatio,y+constantSizeRatio);
+    glVertex2f(x-constantSizeRatio,y+constantSizeRatio);
+    // .. or N-gon
+    //for (int a=1; a<7; a++)
+    // glVertex2f((x + sin(a) * constantSizeRatio), (y + cos(a) * constantSizeRatio));
     glFlush();
     glEnd();
   } while (++i != points.end());
