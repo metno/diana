@@ -78,8 +78,8 @@ RadarEchoDialog::RadarEchoDialog( QWidget* parent, Controller* llctrl )
   posLabel->hide();
   
   posList = new QListWidget(this);
-  connect( posList, SIGNAL( itemClicked( QListWidgetItem * ) ),   
-	   SLOT( posListSlot( ) ) );
+//   connect( posList, SIGNAL( itemClicked( QListWidgetItem * ) ),   
+// 	   SLOT( posListSlot( ) ) );
   posList->hide();
   
   //push button to delete last pos
