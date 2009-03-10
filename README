@@ -1,8 +1,8 @@
 
 #=========================================
 DIANA
-Version: 3.8.2
-(Using metlibs Version 2009-02-24)
+Version: 3.9.0
+(Using metlibs Version 2009-03-10)
 #=========================================
 
 Norwegian Meteorological Institute (met.no)
@@ -144,7 +144,7 @@ mkdir -p local/src
 cd local/src
 svn co https://svn.met.no/metlibs/branches/release_YYYY-MM-DD/ metlibs/
 svn co https://svn.met.no/diana/branches/release_X.X/ diana/
-svn co https://svn.met.no/viewvc/puconf/branches/release_YYYY-MM-DD/ conf/
+svn co https://svn.met.no/puconf/branches/release_YYYY-MM-DD/ conf/
 
 Build and compile metlibs
 =========================
