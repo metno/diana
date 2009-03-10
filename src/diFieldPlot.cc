@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -66,8 +66,15 @@ void FieldPlot::clearFields(){
   cerr << " FieldPlot::clearFields fields.size():" << endl;
 #endif
   int n= tmpfields.size();
-  for (int i=0; i<n; i++) delete tmpfields[i];
+  for (int i=0; i<n; i++) {
+    delete tmpfields[i];
+    tmpfields[i] = NULL;
+  }
   tmpfields.clear();
+
+  for(int i=1; i<fields.size(); i++) {
+    fields[i] = NULL;
+  }
   fields.clear();
 }
 
@@ -91,7 +98,7 @@ bool FieldPlot::getRealFieldArea(Area& a){
 
 // check if current data from plottime
 bool FieldPlot::updateNeeded(miString& pin){
-  if (ftime.undef() || 
+  if (ftime.undef() ||
       (ftime != ctime && !pinfo.contains("time="))
       || fields.size()==0){
     pin= pinfo;
@@ -134,7 +141,7 @@ bool FieldPlot::updateIdnumNeeded(const miString& idnumSpec, miString& pin)
 
 
 void FieldPlot::getFieldAnnotation(miString& s, Colour& c){
-  if(poptions.options_1) 
+  if(poptions.options_1)
     c= poptions.linecolour;
   else
     c= poptions.fillcolour;
@@ -597,7 +604,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     *(tmpfields[0])= *(fields[0]);
     *(tmpfields[1])= *(fields[0]);
     u= tmpfields[0]->data;
-    v= tmpfields[1]->data; 
+    v= tmpfields[1]->data;
     int npos= fields[0]->nx * fields[0]->ny;
     for (int i=0; i<npos; i++)
       v[i]= 1.0f;
@@ -2366,7 +2373,7 @@ bool FieldPlot::plotContour(){
     idraw2 = 0;
   else
     idraw2 = 1;
-  
+
   if(idraw>0 || idraw2>0){
 
     zstep2= poptions.lineinterval_2;
@@ -3472,7 +3479,6 @@ bool FieldPlot::plotGridLines(){
 
   return true;
 }
-
 
 // show areas with undefined field values
 bool FieldPlot::plotUndefined(){

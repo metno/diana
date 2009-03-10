@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -241,7 +241,7 @@ void PlotModule::prepareFields(const vector<miString>& inp){
     str= vfp[i]->getPlotInfo(3);
     plotenabled[str]= vfp[i]->Enabled();
     // free old fields
-    fieldm->fieldcache->freeFields(vfp[i]->getFields());
+    freeFields(vfp[i]);
     delete vfp[i];
   }
   vfp.clear();
@@ -253,8 +253,8 @@ void PlotModule::prepareFields(const vector<miString>& inp){
     vfp.push_back(fp);
     vfp[n]= new FieldPlot();
 
-    if (inp[i].contains(" ( ") && 
-	inp[i].contains(" - ") && 
+    if (inp[i].contains(" ( ") &&
+	inp[i].contains(" - ") &&
 	inp[i].contains(" ) ")) {
       size_t p1= inp[i].find(" ( ",0);
       size_t p2= inp[i].find(" - ",p1+3);
@@ -713,8 +713,8 @@ void PlotModule::setAnnotations(){
       annotations.push_back(ann);
     }
   }
-  
-  
+
+
   // get stationPlot annotations
   m= stationPlots.size();
   for (int j=0; j<m; j++){
@@ -813,7 +813,7 @@ void PlotModule::updateLevel(const miString& levelSpec, const miString& levelSet
 				idnumSpecified,idnumCurrent);
       }
       //free old fields
-      fieldm->fieldcache->freeFields(vfp[i]->getFields());
+      freeFields(vfp[i]);
       //set new fields
       vfp[i]->setData(fv,t);
     }
@@ -865,7 +865,7 @@ void PlotModule::updateIdnum(const miString& idnumSpec, const miString& idnumSet
 				    idnumSpecified,idnumCurrent);
       }
       //free old fields
-      fieldm->fieldcache->freeFields(vfp[i]->getFields());
+      freeFields(vfp[i]);
       //set new fields
       vfp[i]->setData(fv,t);
     }
@@ -907,7 +907,7 @@ void PlotModule::updatePlots()
 				    idnumSpecified,idnumCurrent);
       }
       //free old fields
-      fieldm->fieldcache->freeFields(vfp[i]->getFields());
+      freeFields(vfp[i]);
       //set new fields
       vfp[i]->setData(fv,t);
     }
@@ -1253,9 +1253,9 @@ void PlotModule::endHardcopy(){
 //--------------------------------------------------------------------------
 void PlotModule::plot(bool under, bool over)
 {
-	
-	
-  	
+
+
+
 #ifdef DEBUGPRINT
   cerr << "++ PlotModule.plot() ++" << endl;
 #endif
@@ -1327,19 +1327,19 @@ void PlotModule::plotUnder()
   // set correct worldcoordinates
   glLoadIdentity();
   glOrtho(plotr.x1,plotr.x2,plotr.y1,plotr.y2,-1,1);
-  
+
   if (hardcopy) splot.addHCScissor(plotr.x1+0.0001,plotr.y1+0.0001,
 				   plotr.x2-plotr.x1-0.0002,
 				   plotr.y2-plotr.y1-0.0002);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  
+
   glClearColor(cback.fR(),cback.fG(),cback.fB(),cback.fA());
   glClear( GL_COLOR_BUFFER_BIT |
 	   GL_DEPTH_BUFFER_BIT |
 	   GL_STENCIL_BUFFER_BIT);
-  
+
   // draw background (for hardcopy)
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glColor4f(cback.fR(),cback.fG(),cback.fB(),cback.fA());
@@ -1347,7 +1347,7 @@ void PlotModule::plotUnder()
   glRectf(plotr.x1+d,plotr.y1+d,plotr.x2-d,plotr.y2-d);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glDisable(GL_BLEND);
-  
+
   // plot map-elements for lowest zorder
   n= vmp.size();
   for (i=0; i<n; i++){
@@ -1356,7 +1356,7 @@ void PlotModule::plotUnder()
 #endif
     vmp[i]->plot(0);
   }
-  
+
   // plot satellite images
   n= vsp.size();
   for (i=0; i<n; i++){
@@ -1493,7 +1493,7 @@ void PlotModule::plotUnder()
   if (hardcopy) splot.removeHCClipping();
 }
 
-  
+
 // plot overlay ---------------------------------------
 void PlotModule::plotOver()
 {
@@ -1505,7 +1505,7 @@ void PlotModule::plotOver()
   // plot GridAreas (polygons)
   if(aream) aream->plot();
 
-// Check this!!!  
+// Check this!!!
     n= vfp.size();
     for (i=0; i<n; i++){
       if (vfp[i]->overlayBuffer() && !vfp[i]->getShadePlot()){
@@ -1554,10 +1554,10 @@ void PlotModule::plotOver()
 #endif
     vmp[i]->plot(2);
   }
-  
+
   splot.UpdateOutput();
   splot.setDirty(false);
-  
+
   // frame (not needed if maprect==fullrect)
   Rectangle mr= splot.getMapSize();
   Rectangle fr= splot.getPlotSize();
@@ -1580,7 +1580,7 @@ void PlotModule::plotOver()
     glVertex2f(mr.x1,mr.y1);
     glEnd();
   }
-  
+
   splot.UpdateOutput();
   // plot rubberbox
   if (dorubberband){
@@ -1593,7 +1593,7 @@ void PlotModule::plotOver()
     float y1= fullr.y1 + fullr.height()*oldy/float(ploth);
     float x2= fullr.x1 + fullr.width()*newx/float(plotw);
     float y2= fullr.y1 + fullr.height()*newy/float(ploth);
-    
+
     Colour c= getContrastColour();
     glColor4ubv(c.RGBA());
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -1609,7 +1609,7 @@ void PlotModule::plotOver()
 
   if (hardcopy) splot.removeHCClipping();
 
-} 
+}
 
 
 
@@ -1695,6 +1695,15 @@ void PlotModule::setPlotWindow(const int& w, const int& h){
   if (hardcopy) splot.resetPage();
 }
 
+void PlotModule::freeFields(FieldPlot* fp)
+{
+  vector<Field*> v=fp->getFields();
+  for (int i=0; i<v.size(); i++) {
+    fieldm->fieldcache->freeField(v[i]);
+    v[i] = NULL;
+  }
+  fp->clearFields();
+}
 
 void PlotModule::cleanup(){
 
@@ -1704,13 +1713,12 @@ void PlotModule::cleanup(){
   vmp.clear();
 
   n= vfp.size();
-  
+
   // Field deletion at the end is done in the cache. The cache destructor is called by
   // FieldPlotManagers destructor, which comes before this destructor. Basocally we try to
   // destroy something in a dead pointer here....
   for (i=0; i<n; i++){
-    vector<Field*> v=vfp[i]->getFields();
-    fieldm->fieldcache->freeFields(v);
+    freeFields(vfp[i]);
     delete vfp[i];
   }
   vfp.clear();
@@ -1910,7 +1918,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 			      vector<miTime>& objtimes,
 			      vector<miTime>& ptimes)
 {
-  
+
   fieldtimes.clear();
   sattimes.clear();
   obstimes.clear();
@@ -1995,18 +2003,18 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
     vector<miString> tokens= pinfos[i].split(1);
     if (!tokens.empty()) {
       miString type= tokens[0].upcase();
-      if(type=="FIELD") 
+      if(type=="FIELD")
 	fieldplotm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
-      else if (type=="SAT")      
+      else if (type=="SAT")
 	satm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
-      else if (type=="OBS")     
+      else if (type=="OBS")
 	obsm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
-      else if (type=="OBJECTS")	
+      else if (type=="OBJECTS")
 	objm->getCapabilitiesTime(normalTimes,constTime,timediff,pinfos[i]);
     }
 
     if( !constTime.undef() ) {     //insert constTime
-      
+
       cerr <<"constTime:"<<constTime.isoTime()<<endl;
       constTimes.insert(constTime);
 
@@ -2016,27 +2024,27 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
 
       //if intersection and no common times, no need to look for more times
       if(( !allTimes && normalTimesFound && !normalTimes.size())) moreTimes=false;
-      
+
       int nTimes = normalTimes.size();
 
       if(allTimes || okTimes.size()==0){ // union or first el. of intersection
-	
+
 	for (int k=0; k<nTimes; k++){
 	  okTimes.insert(normalTimes[k]);
 	}
-	
-      } else {  //intersection 
-	
+
+      } else {  //intersection
+
 	set<miTime> tmptimes;
 	set<miTime>::iterator p= okTimes.begin();
 	for(; p!=okTimes.end(); p++){
 	  int k=0;
-	  while( k<nTimes && 
-		 abs(miTime::minDiff(*p,normalTimes[k])) >timediff ) k++; 
+	  while( k<nTimes &&
+		 abs(miTime::minDiff(*p,normalTimes[k])) >timediff ) k++;
 	  if(k<nTimes) tmptimes.insert(*p); //time ok
 	}
 	okTimes = tmptimes;
-      
+
       }
     } // if neither normalTimes nor constatTime, product is ignored
     normalTimes.clear();
@@ -2561,7 +2569,7 @@ void PlotModule::obsStepChanged(int step){
 }
 
 void PlotModule::trajPos(vector<miString>& vstr)
-{  
+{
   int n = vtp.size();
 
   //if vstr starts with "quit", delete all trajectoryPlot objects
@@ -2585,11 +2593,11 @@ void PlotModule::trajPos(vector<miString>& vstr)
   if (action==1) {
     // trajectories cleared, reset annotations
     setAnnotations();  // will remove tarjectoryPlot annotation
-  } 
+  }
 }
 
 void PlotModule::radePos(vector<miString>& vstr)
-{      
+{
   int n = vrp.size();
 
   //if vstr starts with "quit", delete all trajectoryPlot objects
@@ -2626,14 +2634,14 @@ vector<miString> PlotModule::getCalibChannels()
   for( int i=0; i<n; i++){
     if( vsp[i]->Enabled())
       vsp[i]->getCalibChannels(channels); //add channels
-  } 
+  }
 
   return channels;
 }
 
 vector<SatValues> PlotModule::showValues(int x,int y){
 
-// return values of current channels (with calibration) 
+// return values of current channels (with calibration)
 
   int n = vsp.size();
   vector<SatValues> satval;
@@ -2768,12 +2776,12 @@ void PlotModule::updateEditLabels(vector <miString> productLabelstrings,
       }
     }
     ap->setAnnotationStrings(vvstr);
-    
+
     // here we compare the labels, take input from oldVap
     for (int i = 0;i<n;i++)
       ap->updateInputLabels(oldVap[i],newProduct);
-    
-    
+
+
     editVap.push_back(ap);
   }
 

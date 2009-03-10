@@ -88,6 +88,7 @@ public:
   miString getRadarEchoFieldName();
   bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
+  void clearFields();
 
 private:
   vector<Field*> fields; // fields, stored elsewhere
@@ -115,7 +116,6 @@ private:
 		   int maxElementsX, int& step, float& dist, bool& xStepComp);
   int xAutoStep(float* x, float* y, int ix1, int ix2, int iy, float sdist);
   void fixGeoVector(float* u, float* v);
-  void clearFields();
 
   // plotting methods
   bool plotWind();

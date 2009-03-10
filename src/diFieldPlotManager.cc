@@ -600,7 +600,11 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 		levelSpec, levelSet, idnumSpec, idnumSet)){
     if(!makeFields(fspec2, const_ptime,fv2,
 		   levelSpec, levelSet, idnumSpec, idnumSet)){
-      fieldManager->fieldcache->freeFields(fv1);
+
+      for ( int i = 0; i< fv1.size(); i++){
+	fieldManager->fieldcache->freeField(fv1[i]);
+	fv1[i] = NULL;
+      }
       return false;
     }
   } else {
@@ -613,7 +617,11 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
     fv.push_back(ff);
     *fv[i] = *fv1[i];
   }
-  fieldManager->fieldcache->freeFields(fv1);
+
+      for ( int i = 0; i< fv1.size(); i++){
+        fieldManager->fieldcache->freeField(fv1[i]);
+        fv1[i] = NULL;
+      }
 
 
     //make Difference Field text

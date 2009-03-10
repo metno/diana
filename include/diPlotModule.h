@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -76,7 +76,7 @@ using namespace std;
 
 class PlotModule {
 private:
- 
+
   ObsManager *obsm;       // observation manager
   SatManager *satm;       // raster-data manager
   ObjectManager *objm;    // met.objects
@@ -174,6 +174,9 @@ private:
   //Plot overlay
   void plotOver();
 
+  //Free fields in FieldPlot
+  void freeFields(FieldPlot *);
+
   // copy-constructor and assignment illegal
   PlotModule(const PlotModule &rhs){}
   PlotModule& operator=(const PlotModule &rhs){}
@@ -243,12 +246,12 @@ public:
   /// end hardcopy plot
   void endHardcopy();
   /// set managers
-  void setManagers(FieldManager*, 
-		   FieldPlotManager*, 
-		   ObsManager*, 
+  void setManagers(FieldManager*,
+		   FieldPlotManager*,
+		   ObsManager*,
 		   SatManager*,
-		   ObjectManager*, 
-		   EditManager*, 
+		   ObjectManager*,
+		   EditManager*,
 		   GridAreaManager*);
 
   /// return current plottime
@@ -334,15 +337,15 @@ public:
   vector<miString> getTrajectoryFields();
   vector<miString> getRadarEchoFields();
   bool startTrajectoryComputation();
-  void stopTrajectoryComputation();  
+  void stopTrajectoryComputation();
   // print trajectory positions to file
   bool printTrajectoryPositions(const miString& filename);
 
   // radar echo
   void radePos(vector<miString>&);
-  
+
   //Satellite and radar
-  /// get name++ of current channels (with calibration) 
+  /// get name++ of current channels (with calibration)
   vector<miString> getCalibChannels();
   ///show pixel values in status bar
   vector<SatValues> showValues(int, int);
