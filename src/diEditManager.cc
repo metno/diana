@@ -102,6 +102,8 @@ bool EditManager::parseSetup(SetupParser& sp) {
     ep.areaminimize= false;
     ep.standardSymbolSize=60;
     ep.complexSymbolSize=6;
+    ep.frontLineWidth=8;
+    ep.areaLineWidth=4;
     ep.startEarly= false;
     ep.startLate=  false;
     ep.minutesStartEarly= 0;
@@ -244,6 +246,10 @@ bool EditManager::parseSetup(SetupParser& sp) {
 	ep.standardSymbolSize=atoi(values[0].c_str());
       } else if (key=="complex_symbolsize" && nval==1){
 	ep.complexSymbolSize=atoi(values[0].c_str());
+      } else if (key=="frontlinewidth" && nval==1){
+	ep.frontLineWidth = atoi(values[0].c_str());
+      } else if (key=="arealinewidth" && nval==1){
+	ep.areaLineWidth = atoi(values[0].c_str());
       } else if (key=="time_start_early" && nval==1){
         vector<miString> vs= values[0].split(':',true);
 	if (vs.size()==2) {
@@ -2771,99 +2777,99 @@ void EditManager::initEditTools(){
 
   // draw_mode types
  //  fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
-//   fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
-//   fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
-//   fronts.push_back(newEditToolInfo("Cold occlusion",ColdOccluded,"blue"));
-//   fronts.push_back(newEditToolInfo("Warm occlusion",WarmOccluded,"red"));
-//   fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
-//   fronts.push_back(newEditToolInfo("Trough",TroughLine,"blue"));
-//   fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
-//   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
-//   fronts.push_back(newEditToolInfo("Black sharp line",BlackSharpLine,"black"));
-//   fronts.push_back(newEditToolInfo("Black smooth line",BlackSmoothLine,"black"));
-//   fronts.push_back(newEditToolInfo("Red sharp line",RedSharpLine,"red"));
-//   fronts.push_back(newEditToolInfo("Red smooth line",RedSmoothLine,"red"));
+  fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
+  fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
+  fronts.push_back(newEditToolInfo("Cold occlusion",ColdOccluded,"blue"));
+  fronts.push_back(newEditToolInfo("Warm occlusion",WarmOccluded,"red"));
+  fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
+  fronts.push_back(newEditToolInfo("Trough",TroughLine,"blue"));
+  fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
+  fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
+  fronts.push_back(newEditToolInfo("Black sharp line",BlackSharpLine,"black"));
+  fronts.push_back(newEditToolInfo("Black smooth line",BlackSmoothLine,"black"));
+  fronts.push_back(newEditToolInfo("Red sharp line",RedSharpLine,"red"));
+  fronts.push_back(newEditToolInfo("Red smooth line",RedSmoothLine,"red"));
 
 
-//   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
-//   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
-//   symbols.push_back(newEditToolInfo("Cold",244,"blue"));
-//   symbols.push_back(newEditToolInfo("Warm",245,"red"));
-//   symbols.push_back(newEditToolInfo("Fog",62,"darkYellow"));
-//   symbols.push_back(newEditToolInfo("Drizzle",80,"green"));
-//   symbols.push_back(newEditToolInfo("Freezing drizzle",83,"red"));
-//   symbols.push_back(newEditToolInfo( "Freezing rain",93,"red"));
-//   symbols.push_back(newEditToolInfo( "Showers",109,"green"));
-//   symbols.push_back(newEditToolInfo( "Rain showers",110,"green"));
-//   symbols.push_back(newEditToolInfo( "Sleet showers",126,"green"));
-//   symbols.push_back(newEditToolInfo( "Hail showers",117,"green"));
-//   symbols.push_back(newEditToolInfo( "Snow showers",114,"green"));
-//   symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
-//   symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
-//   symbols.push_back(newEditToolInfo( "Snow",254,"green"));
-//   symbols.push_back(newEditToolInfo( "Rain",89,"green"));
-//   symbols.push_back(newEditToolInfo( "Sleet",96,"green"));
-//   symbols.push_back(newEditToolInfo( "Hurricane",253,"black"));
-//   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
-//   symbols.push_back(newEditToolInfo( "Circle",35,"blue"));
-//   symbols.push_back(newEditToolInfo( "Cross",255,"red"));
-//   symbols.push_back(newEditToolInfo("Text",0,"black"));
+  symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
+  symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
+  symbols.push_back(newEditToolInfo("Cold",244,"blue"));
+  symbols.push_back(newEditToolInfo("Warm",245,"red"));
+  symbols.push_back(newEditToolInfo("Fog",62,"darkYellow"));
+  symbols.push_back(newEditToolInfo("Drizzle",80,"green"));
+  symbols.push_back(newEditToolInfo("Freezing drizzle",83,"red"));
+  symbols.push_back(newEditToolInfo( "Freezing rain",93,"red"));
+  symbols.push_back(newEditToolInfo( "Showers",109,"green"));
+  symbols.push_back(newEditToolInfo( "Rain showers",110,"green"));
+  symbols.push_back(newEditToolInfo( "Sleet showers",126,"green"));
+  symbols.push_back(newEditToolInfo( "Hail showers",117,"green"));
+  symbols.push_back(newEditToolInfo( "Snow showers",114,"green"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
+  symbols.push_back(newEditToolInfo( "Snow",254,"green"));
+  symbols.push_back(newEditToolInfo( "Rain",89,"green"));
+  symbols.push_back(newEditToolInfo( "Sleet",96,"green"));
+  symbols.push_back(newEditToolInfo( "Hurricane",253,"black"));
+  symbols.push_back(newEditToolInfo( "Disk",241,"red"));
+  symbols.push_back(newEditToolInfo( "Circle",35,"blue"));
+  symbols.push_back(newEditToolInfo( "Cross",255,"red"));
+  symbols.push_back(newEditToolInfo("Text",0,"black"));
 
-//   areas.push_back(newEditToolInfo("Precipitation",Rain,"green4"));
-//   areas.push_back(newEditToolInfo("Showers",Showers,"green3"));
-//   areas.push_back(newEditToolInfo("Clouds",Clouds,"orange"));
-//   areas.push_back(newEditToolInfo("Fog",Fog,"darkGray"));
-//   areas.push_back(newEditToolInfo("Ice",Ice,"darkYellow"));
-//   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
-//   areas.push_back(newEditToolInfo("Generic area",Genericarea,"red"));
+  areas.push_back(newEditToolInfo("Precipitation",Rain,"green4"));
+  areas.push_back(newEditToolInfo("Showers",Showers,"green3"));
+  areas.push_back(newEditToolInfo("Clouds",Clouds,"orange"));
+  areas.push_back(newEditToolInfo("Fog",Fog,"darkGray"));
+  areas.push_back(newEditToolInfo("Ice",Ice,"darkYellow"));
+  areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
+  areas.push_back(newEditToolInfo("Generic area",Genericarea,"red"));
 
 
   // draw_mode types
-  fronts.push_back(newEditToolInfo("Kaldfront",Cold,"blue"));
-  fronts.push_back(newEditToolInfo("Varmfront",Warm,"red"));
-  fronts.push_back(newEditToolInfo("Okklusjon",Occluded,"purple"));
-  fronts.push_back(newEditToolInfo("KaldOkklusjon",ColdOccluded,"blue"));
-  fronts.push_back(newEditToolInfo("VarmOkklusjon",WarmOccluded,"red"));
-  fronts.push_back(newEditToolInfo("Stasjonær front",Stationary,"grey50"));
-  fronts.push_back(newEditToolInfo("Tråg",TroughLine,"blue"));
-  fronts.push_back(newEditToolInfo("Bygelinje",SquallLine,"blue"));
-  fronts.push_back(newEditToolInfo("Sig.vær",SigweatherFront,"black"));
+//   fronts.push_back(newEditToolInfo("Kaldfront",Cold,"blue"));
+//   fronts.push_back(newEditToolInfo("Varmfront",Warm,"red"));
+//   fronts.push_back(newEditToolInfo("Okklusjon",Occluded,"purple"));
+//   fronts.push_back(newEditToolInfo("KaldOkklusjon",ColdOccluded,"blue"));
+//   fronts.push_back(newEditToolInfo("VarmOkklusjon",WarmOccluded,"red"));
+//   fronts.push_back(newEditToolInfo("Stasjonær front",Stationary,"grey50"));
+//   fronts.push_back(newEditToolInfo("Tråg",TroughLine,"blue"));
+//   fronts.push_back(newEditToolInfo("Bygelinje",SquallLine,"blue"));
+//   fronts.push_back(newEditToolInfo("Sig.vær",SigweatherFront,"black"));
 
-  symbols.push_back(newEditToolInfo("Lavtrykk",242,"red"));
-  symbols.push_back(newEditToolInfo("Høytrykk",243,"blue"));
-  symbols.push_back(newEditToolInfo("Kald",244,"blue"));\
-  symbols.push_back(newEditToolInfo("Varm",245,"red"));
-  symbols.push_back(newEditToolInfo("Tåke",62,"darkYellow"));
-  symbols.push_back(newEditToolInfo("Yr",80,"green"));
-  symbols.push_back(newEditToolInfo("Yr som fryser",83,"red"));
-  symbols.push_back(newEditToolInfo( "Regn som fryser",93,"red"));
-  symbols.push_back(newEditToolInfo( "Byger",109,"green"));
-  symbols.push_back(newEditToolInfo( "Regnbyger",110,"green"));
-  symbols.push_back(newEditToolInfo( "Regn",89,"green"));
-  symbols.push_back(newEditToolInfo( "Sluddbyger",126,"green"));
-  symbols.push_back(newEditToolInfo( "Haglbyger",117,"green"));
-  symbols.push_back(newEditToolInfo( "Snøbyger",114,"green"));
-  symbols.push_back(newEditToolInfo( "Tordenvær",119,"red"));
-  symbols.push_back(newEditToolInfo( "Tordenvær m/hagl",122,"red"));
-  symbols.push_back(newEditToolInfo( "Snøstjerne",254,"green"));
-  symbols.push_back(newEditToolInfo( "Tropisk orkan",253,"black"));
-  symbols.push_back(newEditToolInfo( "Disk",241,"red"));
-  symbols.push_back(newEditToolInfo( "Sirkel",35,"blue"));
-  symbols.push_back(newEditToolInfo( "Kryss",255,"red"));
-  symbols.push_back(newEditToolInfo("Tekster",0,"black"));
+//   symbols.push_back(newEditToolInfo("Lavtrykk",242,"red"));
+//   symbols.push_back(newEditToolInfo("Høytrykk",243,"blue"));
+//   symbols.push_back(newEditToolInfo("Kald",244,"blue"));\
+//   symbols.push_back(newEditToolInfo("Varm",245,"red"));
+//   symbols.push_back(newEditToolInfo("Tåke",62,"darkYellow"));
+//   symbols.push_back(newEditToolInfo("Yr",80,"green"));
+//   symbols.push_back(newEditToolInfo("Yr som fryser",83,"red"));
+//   symbols.push_back(newEditToolInfo( "Regn som fryser",93,"red"));
+//   symbols.push_back(newEditToolInfo( "Byger",109,"green"));
+//   symbols.push_back(newEditToolInfo( "Regnbyger",110,"green"));
+//   symbols.push_back(newEditToolInfo( "Regn",89,"green"));
+//   symbols.push_back(newEditToolInfo( "Sluddbyger",126,"green"));
+//   symbols.push_back(newEditToolInfo( "Haglbyger",117,"green"));
+//   symbols.push_back(newEditToolInfo( "Snøbyger",114,"green"));
+//   symbols.push_back(newEditToolInfo( "Tordenvær",119,"red"));
+//   symbols.push_back(newEditToolInfo( "Tordenvær m/hagl",122,"red"));
+//   symbols.push_back(newEditToolInfo( "Snøstjerne",254,"green"));
+//   symbols.push_back(newEditToolInfo( "Tropisk orkan",253,"black"));
+//   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
+//   symbols.push_back(newEditToolInfo( "Sirkel",35,"blue"));
+//   symbols.push_back(newEditToolInfo( "Kryss",255,"red"));
+//   symbols.push_back(newEditToolInfo("Tekster",0,"black"));
 
-//   symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
-//   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));
-//   symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
+// //   symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
+// //   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));
+// //   symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
 
-  areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
-  areas.push_back(newEditToolInfo("Byger",Showers,"green3"));
-  areas.push_back(newEditToolInfo("Skyer",Clouds,"orange"));
-  areas.push_back(newEditToolInfo("Tåke",Fog,"darkGray"));
-  areas.push_back(newEditToolInfo("Is",Ice,"darkYellow"));
-  areas.push_back(newEditToolInfo("Sig.vær",Sigweather,"black"));
-  areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"gulbrun"));
-  areas.push_back(newEditToolInfo("Generisk område",Genericarea,"red"));
+//   areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
+//   areas.push_back(newEditToolInfo("Byger",Showers,"green3"));
+//   areas.push_back(newEditToolInfo("Skyer",Clouds,"orange"));
+//   areas.push_back(newEditToolInfo("Tåke",Fog,"darkGray"));
+//   areas.push_back(newEditToolInfo("Is",Ice,"darkYellow"));
+//   areas.push_back(newEditToolInfo("Sig.vær",Sigweather,"black"));
+//   areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"gulbrun"));
+//   areas.push_back(newEditToolInfo("Generisk område",Genericarea,"red"));
 
 
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black"));
@@ -3016,7 +3022,8 @@ void EditManager::setMapmodeinfo(){
   EditObjects::defineModes(objectModes,combineModes);
   WeatherSymbol::setStandardSize(EdProd.standardSymbolSize,
 				 EdProd.complexSymbolSize);
-
+  WeatherFront::setDefaultLineWidth(EdProd.frontLineWidth);
+  WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
 }
 
 bool EditManager::getAnnotations(vector<miString>& anno)

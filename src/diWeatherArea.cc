@@ -39,11 +39,12 @@
 
 vector<editToolInfo> WeatherArea::allAreas; //info about areas
 map<miString,int> WeatherArea::areaTypes;    //finds area type number from name
+float WeatherArea::defaultLineWidth;
 
 // Default constructor
 WeatherArea::WeatherArea()
   : ObjectPlot(wArea),
-    linewidth(4),fillArea(false)
+    linewidth(defaultLineWidth),fillArea(false)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherArea default constructor" << endl;
@@ -55,7 +56,7 @@ WeatherArea::WeatherArea()
 
 WeatherArea::WeatherArea(int ty)
   : ObjectPlot(wArea),
-    linewidth(4),fillArea(false)
+    linewidth(defaultLineWidth),fillArea(false)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherArea(int) constructor" << endl;
@@ -67,7 +68,7 @@ WeatherArea::WeatherArea(int ty)
 
 WeatherArea::WeatherArea(miString tystring)
   : ObjectPlot(wArea),
-    linewidth(4),fillArea(false)
+    linewidth(defaultLineWidth),fillArea(false)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherArea(miString) constructor" << endl;

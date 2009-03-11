@@ -50,6 +50,7 @@ private:
   int frontlinewidth; //  standard frontlinewidth
   static vector<editToolInfo>  allFronts;
   static map<miString,int> frontTypes;  //finds front type number from name
+  static float defaultLineWidth;
   int npoints; 
   float * xplot;
   float * yplot;  
@@ -85,6 +86,8 @@ private:
   ~WeatherFront();
   /// define map to find front type number from name
   static void defineFronts(vector<editToolInfo> fronts);
+  /// set default line width from setup
+  static void setDefaultLineWidth(float w){defaultLineWidth=w;}
   /// set width of front
   virtual void setFrontlinewidth(int w){frontlinewidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation

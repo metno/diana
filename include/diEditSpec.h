@@ -133,6 +133,8 @@ struct EditProduct {
   bool  areaminimize;               ///< minimize area due to undef. values
   int standardSymbolSize;           ///< default symbol size for this product
   int complexSymbolSize;            ///< default complex symbol size
+  int frontLineWidth;               ///< default front line width
+  int areaLineWidth;                ///< default front line width
   bool  startEarly;                 ///< earliest start time set, or not
   bool  startLate;                  ///< latest   start time set, or not
   int   minutesStartEarly;          ///< earliest start time offset (+/-minutes)

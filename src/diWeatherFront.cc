@@ -37,10 +37,11 @@
 
 vector<editToolInfo> WeatherFront::allFronts; //info about fronts
 map<miString,int> WeatherFront::frontTypes;   //finds front type number from name
+float WeatherFront::defaultLineWidth;
 
 // Default constructor
 
-WeatherFront::WeatherFront() : ObjectPlot(wFront),frontlinewidth(8)
+WeatherFront::WeatherFront() : ObjectPlot(wFront),frontlinewidth(defaultLineWidth)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherFront default constructror" << endl;
@@ -50,7 +51,7 @@ WeatherFront::WeatherFront() : ObjectPlot(wFront),frontlinewidth(8)
 
 // Constructor taking front type as argument
 
-WeatherFront::WeatherFront(int ty) : ObjectPlot(wFront),frontlinewidth(8)
+WeatherFront::WeatherFront(int ty) : ObjectPlot(wFront),frontlinewidth(defaultLineWidth)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherFront(int) constructor" << endl;
@@ -58,7 +59,7 @@ WeatherFront::WeatherFront(int ty) : ObjectPlot(wFront),frontlinewidth(8)
   setType(ty);         // fronttype
 }
 
-WeatherFront::WeatherFront(miString tystring) : ObjectPlot(wFront),frontlinewidth(8)
+WeatherFront::WeatherFront(miString tystring) : ObjectPlot(wFront),frontlinewidth(defaultLineWidth)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherFront(miString) constructor" << endl;

@@ -51,6 +51,7 @@ private:
 
   static vector<editToolInfo>  allAreas;
   static map<miString,int> areaTypes;  //finds area type number from name
+  static float defaultLineWidth;
 
   void recalculate();
   void drawSigweather();
@@ -78,6 +79,8 @@ public:
   ~WeatherArea();
   /// define map to find area type number from name
   static void defineAreas(vector<editToolInfo> areas);
+  /// set default line width from setup
+  static void setDefaultLineWidth(float w){defaultLineWidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation and whether area should be filled
   void setState(const state s);
   bool plot();  ///< draws the area
@@ -101,3 +104,9 @@ public:
 };
 
 #endif
+
+
+
+
+
+
