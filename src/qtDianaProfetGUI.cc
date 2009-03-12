@@ -713,7 +713,7 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
     }
   } catch (Profet::ServerException & se) {
     cerr << "DianaProfetGUI::processTimesmooth:  Failed to delete "
-        << "depreciated object. (Not significant)" << endl;
+        << "deprecated object. (Not significant)" << endl;
   }
 
   for (int i = 0; i < obj.size(); i++) {
@@ -1067,7 +1067,6 @@ void DianaProfetGUI::startSpatialsmooth()
 
   // Set child-areas (used for spatial interpolation)
   areaManager->clearSpatialInterpolation();
-  //vector<fetObject::TimeValues> timeValues;
   collectRelatedTimeValues(spatialsmoothtv, fo.id(), true);
   for (int i = 0; i < spatialsmoothtv.size(); i++) {
     areaManager->addSpatialInterpolateArea(spatialsmoothtv[i].id,
@@ -1083,10 +1082,7 @@ void DianaProfetGUI::processSpatialsmooth()
   }
 
   QString dtitle = tr("Diana / Profet");
-  QString
-      dtext =
-          tr(
-              "You have moved a set of objects to new locations. Would you like to save the changes?");
+  QString dtext = tr("You have moved a set of objects to new locations. Would you like to save the changes?");
   int ret = QMessageBox::question(parent, dtitle, dtext, QMessageBox::Save
       | QMessageBox::Discard, QMessageBox::Save);
   if (ret != QMessageBox::Save) {
