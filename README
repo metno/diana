@@ -1,7 +1,7 @@
 
 #=========================================
 DIANA
-Version: 3.9.0
+Version: 3.9.1
 (Using metlibs Version 2009-03-10)
 #=========================================
 
@@ -191,26 +191,19 @@ ftp://ftp.met.no/diana/diana_demodata.tar.gz
 #Download maps from 
 ftp://ftp.met.no/diana/diana_maps.tar.gz
 # unpack data files
-cd metnolocal
-tar xzvf ../diana_demodata.tar.gz
-tar xzvf ../diana_maps.tar.gz
+tar xzvf diana_demodata.tar.gz
+tar xzvf diana_maps.tar.gz
 
-# the Diana package is now installed under metnolocal/diana
 
 #-------------------------------------------
 # 3 Running Diana
 #-------------------------------------------
 
-remember LD_LIBRARY_PATH! see above
 
 1. Prepare setupfile with exact installation directory:
 Edit DIANADIR, OPDATA, MAPDIR
 
-
-2. Running Diana with the prepared test datasets and setup file:
-
-
-3. Starting Diana:
+2. Starting Diana:
  cd /TOPDIR/local/diana
  bin/diana.bin            # looks for diana.setup in current directory
  # or
@@ -221,7 +214,7 @@ Edit DIANADIR, OPDATA, MAPDIR
 
 -----------------
 
-running bdiana:
+Running bdiana:
 run "bin/bdiana -example" and study the Diana User Guide bdiana chapter.
 
 #-------------------------------------------
@@ -229,13 +222,11 @@ run "bin/bdiana -example" and study the Diana User Guide bdiana chapter.
 #-------------------------------------------
 
 All specifications of data access (incl. background map files) is in
-etc/diana.setup-EXPORT-DEMO
+diana/etc/diana/diana.setup
 
 Adding to the setup file:
- Convenient to make changes to metnolocal/diana/diana.setup. This
- setup file is small and "includes" the larger
- metnolocal/diana/etc/diana.setup-EXPORT-DEMO.  To add a new field
- file to diana.setup, put the following inside the <FIELD_FILES>
+Example:To add a new field file to diana.setup, 
+put the following inside the <FIELD_FILES>
  section:
  #----------------------------------------------
  filegroup=SURGE
@@ -243,8 +234,7 @@ Adding to the setup file:
  #-----------------------------------------------
 
  If you need to add a new field parameter, the
- <METNOFIELDFILE_PARAMETERS> section is the correct place (Check
- diana.setup-EXPORT-DEMO first for existing parameters). You will also
+ <METNOFIELDFILE_PARAMETERS> section is the correct place . You will also
  need to add a PLOT comand for your new parameter, see the
  <FIELD_PLOT> section.
 
@@ -253,7 +243,7 @@ Adding to the setup file:
 # 5 File formats for diana
 #-------------------------------------------
 
-Current version supports following file formats
+The current version supports following file formats
 
 Fields:                MetnoFieldFile (proprietary met.no)
                        NetCDF
