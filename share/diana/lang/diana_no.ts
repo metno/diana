@@ -395,7 +395,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <source>End Profet</source>
-        <translation type="unfinished"></translation>
+        <translation>Avslutt Profet</translation>
     </message>
     <message>
         <source>Do you want to stay connected to profet?</source>
@@ -2221,7 +2221,7 @@ Kan ikke starte produksjon</translation>
     <name>ProfetSessionDialog</name>
     <message>
         <source>Edit Field Session</source>
-        <translation>Feltediteringsesjon</translation>
+        <translation type="obsolete">Feltediteringsesjon</translation>
     </message>
     <message>
         <source>New</source>
@@ -2274,6 +2274,10 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Reconnect to PODS</source>
         <translation>Koble til PODS på nytt</translation>
+    </message>
+    <message>
+        <source>Edit Field Session at: </source>
+        <translation>Feltediteringsesjon på: </translation>
     </message>
 </context>
 <context>
