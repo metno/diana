@@ -1707,7 +1707,8 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
   for(int i=0; i<descstr.size();i++){
     if(descstr[i].downcase()=="time"){
       miTime t(commonstr[i]);
-      if( t != hqcTime ) return false; //time doesn't match
+      hqcTime = t;
+      //  if( t != hqcTime ) return false; //time doesn't match
     } else if(descstr[i].downcase()=="plottype"){
       plotType = commonstr[i];
     }
