@@ -37,10 +37,12 @@
 #include <QMessageBox>
 #include <QWindowsStyle>
 
-ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
+ProfetSessionDialog::ProfetSessionDialog( QWidget* parent,miString hostname)
   : QDialog(parent )
   {
-  setWindowTitle(tr("Edit Field Session"));
+
+
+  setWindowTitle(tr("Edit Field Session at: ")+QString(hostname.cStr()));
   setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
 
   QVBoxLayout * mainLayout   = new QVBoxLayout(this);

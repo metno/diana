@@ -56,7 +56,7 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 #endif
   logfile.setSection("PROFET.LOG");
 
-  sessionDialog = new ProfetSessionDialog(parent);
+  sessionDialog = new ProfetSessionDialog(parent,controller.SERVER_HOST);
   viewObjectDialog = new ProfetObjectDialog(parent,
       ProfetObjectDialog::VIEW_OBJECT_MODE);
   editObjectDialog = new ProfetObjectDialog(parent);
@@ -1219,7 +1219,7 @@ void DianaProfetGUI::gridAreaChanged()
       paintToolBar->setPaintMode(GridAreaManager::MOVE_MODE);
     else if (paintToolBar->getPaintMode() == GridAreaManager::ADD_POINT)
       paintToolBar->setPaintMode(GridAreaManager::MOVE_POINT);
-    
+
   } else {
     editObjectDialog->setAreaStatus(ProfetObjectDialog::AREA_NOT_SELECTED);
   }

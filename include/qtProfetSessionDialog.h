@@ -100,7 +100,7 @@ protected:
   void closeEvent( QCloseEvent* );
 
 public:
-  ProfetSessionDialog(QWidget* parent);
+  ProfetSessionDialog(QWidget* parent,miString hostname);
 
   void setModel(const fetModel & model);
   void setSessionModel(QAbstractItemModel * sessionModel);
