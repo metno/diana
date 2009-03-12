@@ -80,6 +80,7 @@ void printUsage(){
       << "  -L <logger>   :  loggerFile for debugging               " << endl
       << "  -p <profet>   :  profet test version                    " << endl
       << "  -S <server>   :  profet server host                     " << endl
+      << "  -T <title>    :  Change Main window title "               << endl
        << "----------------------------------------------------------"<<endl;
 
 }
@@ -136,8 +137,10 @@ int main(int argc, char **argv)
       ac++;
       if (ac >= argc) printUsage();
       profetServer= argv[ac];
-    } else if (sarg=="-T" || sarg=="--test") {
-       diana_title="Diana TEST";
+    } else if (sarg=="-T" || sarg=="--title") {
+        ac++;
+        if (ac >= argc) printUsage();
+       diana_title+= " "+ miString(argv[ac]);
 
     } else {
       vector<miString> ks= sarg.split("=");
