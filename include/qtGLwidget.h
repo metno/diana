@@ -108,6 +108,7 @@ protected:
   void handleMouseEvents(QMouseEvent*,const mouseEventType);
   void handleKeyEvents(QKeyEvent*,const keyboardEventType);
 
+  void wheelEvent(QWheelEvent*);
   void keyPressEvent(QKeyEvent*);
   void keyReleaseEvent(QKeyEvent*);
   void mousePressEvent(QMouseEvent*);
