@@ -110,6 +110,7 @@ public:
   DianaMainWindow(Controller*,
 		  const miString ver_str,
 		  const miString buils_str,
+		  const miString dianaTitle="Diana",
 		  bool profetEnabled=false);
   ~DianaMainWindow();
 
@@ -377,7 +378,7 @@ private:
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
   bool                markRadePos; //left mouse click -> mark radarecho position
-  
+
   VprofWindow       * vpWindow;
   VcrossWindow      * vcWindow;
   SpectrumWindow    * spWindow;

@@ -95,6 +95,7 @@ int main(int argc, char **argv)
   miString build_str= build_string;
   miString cl_lang;
   bool profetEnabled= false;
+  miString diana_title="Diana";
   miString profetServer;
   miString setupfile;
   miString lang;
@@ -135,6 +136,8 @@ int main(int argc, char **argv)
       ac++;
       if (ac >= argc) printUsage();
       profetServer= argv[ac];
+    } else if (sarg=="-T" || sarg=="--test") {
+       diana_title="Diana TEST";
 
     } else {
       vector<miString> ks= sarg.split("=");
@@ -234,7 +237,7 @@ int main(int argc, char **argv)
     a.installTranslator( &qutil );
   }
 
-  DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,profetEnabled);
+  DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title, profetEnabled);
 
   mw->start();
 

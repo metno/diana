@@ -157,6 +157,7 @@
 DianaMainWindow::DianaMainWindow(Controller *co,
     const miString ver_str,
     const miString build_str,
+    miString dianaTitle,
     bool ep)
 : QMainWindow(),
 contr(co),timeron(0),timeloop(false),timeout_ms(100),
@@ -170,7 +171,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   build_string = build_str;
 
   setWindowIcon(QIcon(diana_icon_xpm));
-  setWindowTitle(tr("Diana"));
+  setWindowTitle(tr(dianaTitle.cStr()));
 
   SetupParser setup;
 
