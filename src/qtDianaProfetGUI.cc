@@ -892,8 +892,7 @@ void DianaProfetGUI::editObject()
   LOG4CXX_DEBUG(logger,"editObject");
   string error = "";
   try {
-    fetObject fo =
-        objectModel.getObject(sessionDialog->getCurrentObjectIndex());
+    fetObject fo = objectModel.getObject(sessionDialog->getCurrentObjectIndex());
     editObjectDialog->setSession(getCurrentTime());
     editObjectDialog->setParameter(getCurrentParameter());
     editObjectDialog->setBaseObjects(baseObjects);
@@ -907,20 +906,6 @@ void DianaProfetGUI::editObject()
     paintToolBar->enableButtons(PaintToolBar::PAINT_AND_MODIFY);
     // Area always ok for a saved object
     editObjectDialog->setAreaStatus(ProfetObjectDialog::AREA_OK);
-
-    // Set child-areas (used for spatial interpolation)
-    // TODO : Is this a valid way to check for time-smooth?
-    /*
-     areaManager->clearSpatialInterpolateAreas();
-     if (fo.parent().exists()) {
-     vector<fetObject::TimeValues> timeValues;
-     collectRelatedTimeValues(timeValues,fo.id(),true);
-     for (int i = 0; i < timeValues.size(); i++) {
-     areaManager->addSpatialInterpolateArea(timeValues[i].id, timeValues[i].parent,
-     timeValues[i].validTime, timeValues[i].polygon);
-     }
-     }
-     */
 
   } catch (Profet::ServerException & se) {
     handleServerException(se);
