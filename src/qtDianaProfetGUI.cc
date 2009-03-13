@@ -70,8 +70,8 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
   popupMenu = new QMenu(parent);
   connectSignals();
   showPaintToolBar = true;
-  showEditObjectDialog = false;emit
-  setPaintMode(true);
+  showEditObjectDialog = false;
+  emit setPaintMode(true);
   paintToolBar->enableButtons(PaintToolBar::SELECT_ONLY);
 }
 
@@ -83,8 +83,7 @@ void DianaProfetGUI::setParamColours()
     fieldoptions[parameters[i].name().downcase()]["colour"] = "black";
   }
 
-  emit
-  getFieldPlotOptions(fieldoptions);
+  emit getFieldPlotOptions(fieldoptions);
 
   map<miString, map<miString, miString> >::iterator itr = fieldoptions.begin();
   for (; itr != fieldoptions.end(); itr++) {
@@ -982,13 +981,12 @@ void DianaProfetGUI::showField(const miTime & reftime, const miString & param,
 
   //send time(s) to TimeSlider and set time
   vector<miTime> vtime;
-  vtime.push_back(time);emit
-  emitTimes("product", vtime);emit
-  setTime(time);
+  vtime.push_back(time);
+  emit emitTimes("product", vtime);
+  emit setTime(time);
 
   // First, remove previous PROFET fieldPlot (if any)
-  emit
-  showProfetField(""); //FieldDialog::fieldEditUpdate
+  emit showProfetField(""); //FieldDialog::fieldEditUpdate
 
   // make plot string for new PROFET fieldPlot
   miString plotString;
@@ -997,8 +995,8 @@ void DianaProfetGUI::showField(const miTime & reftime, const miString & param,
   plotString += " time=";
   plotString += time.isoTime("T");
   plotString += " overlay=1";
-  LOG4CXX_DEBUG(logger,"showField: "<<plotString);emit
-  showProfetField(plotString); //FieldDialog::fieldEditUpdate
+  LOG4CXX_DEBUG(logger,"showField: "<<plotString);
+  emit showProfetField(plotString); //FieldDialog::fieldEditUpdate
 
   // will trigger MenuOK in qtMainWindow :-)
   emit prepareAndPlot();
@@ -1235,8 +1233,8 @@ void DianaProfetGUI::cancelEditObjectDialog()
 
 void DianaProfetGUI::setPaintToolBarVisible(bool visible)
 {
-  showPaintToolBar = visible;emit
-  setPaintMode(showPaintToolBar);
+  showPaintToolBar = visible;
+  emit setPaintMode(showPaintToolBar);
   if (showPaintToolBar)
     paintToolBar->show();
   else {
@@ -1280,8 +1278,8 @@ void DianaProfetGUI::setVisible(bool visible)
   LOG4CXX_DEBUG(logger, "setVisible " << visible);
   if (visible) {
     ignoreSynchProblems = true;
-    setPaintToolBarVisible(showPaintToolBar);emit
-    setPaintMode(showPaintToolBar);
+    setPaintToolBarVisible(showPaintToolBar);
+    emit setPaintMode(showPaintToolBar);
     setEditObjectDialogVisible(showEditObjectDialog);
     // sessionDialog->selectDefault(); too early first time?
     sessionDialog->show();
