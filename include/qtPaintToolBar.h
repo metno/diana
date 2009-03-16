@@ -36,7 +36,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <diGridAreaManager.h>
-
+#include <puTools/miString.h>
 
 
 class PaintToolBar : public QToolBar {
@@ -54,6 +54,7 @@ public:
   void enableRedo(bool enable);
 	
 private:
+  static miString helpPageName;
   QActionGroup *modeActions;
   QAction *selectAction;
   QAction *drawAction;
@@ -66,9 +67,11 @@ private:
   QAction *spatialAction;
   QAction *undoAction;
   QAction *redoAction;
+  QAction *displayHelpAction;
   
 private slots:
   void sendPaintModeChanged();
+  void helpPressed();
   
 public slots:
 	void setPaintMode(GridAreaManager::PaintMode);
@@ -77,6 +80,8 @@ signals:
   void paintModeChanged(GridAreaManager::PaintMode mode);
   void undoPressed();
   void redoPressed();
+  // display help (using existing name convention)
+  void showsource(const miString source,const miString tag);
 };
 
 #endif /*QTPAINTTOOLBAR_H_*/

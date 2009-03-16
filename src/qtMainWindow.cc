@@ -944,6 +944,8 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
       help,SLOT(showsource(const miString,const miString)));
   connect( uffm, SIGNAL(showsource(const miString,const miString)),
       help,SLOT(showsource(const miString,const miString)));
+  connect( paintToolBar, SIGNAL(showsource(const miString,const miString)),
+      help,SLOT(showsource(const miString,const miString)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));

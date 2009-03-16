@@ -46,6 +46,9 @@
 #include <paint_add_point.xpm>
 #include <paint_remove_point.xpm>
 #include <paint_move_point.xpm>
+#include <paint_help.xpm>
+
+miString PaintToolBar::helpPageName = "ug_fieldeditdrawing.html";
 
 PaintToolBar::PaintToolBar(QMainWindow *parent) 
 			: QToolBar(tr("Paint Operations"), parent) {
@@ -92,7 +95,9 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   redoAction = new QAction( QPixmap(paint_redo_xpm),tr("&Redo"),this );
   redoAction->setShortcut(QKeySequence::Redo);
   connect( redoAction, SIGNAL( activated() ), SIGNAL( redoPressed() ) );
-	
+  displayHelpAction = new QAction( QPixmap(paint_help_xpm),tr("&Help"),this );
+  connect( displayHelpAction, SIGNAL( activated() ), SLOT( helpPressed() ) );
+  
   modeActions = new QActionGroup(this);
   modeActions->add(selectAction);
   modeActions->add(drawAction);
@@ -120,6 +125,8 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   addSeparator();
   undoAction->addTo(this);
   redoAction->addTo(this);
+  addSeparator();
+  displayHelpAction->addTo(this);
   
   enableUndo(false);
   enableRedo(false);
@@ -227,4 +234,8 @@ void PaintToolBar::enableRedo(bool enable){
     redoAction->setEnabled(enable);
   else 
     redoAction->setEnabled(false);
+}
+
+void PaintToolBar::helpPressed() {
+  emit showsource(helpPageName,"");
 }
