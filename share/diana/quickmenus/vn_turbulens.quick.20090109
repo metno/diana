@@ -1,0 +1,45 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Turbulens"
+
+# variables
+[UTC=00,12
+
+#
+>Turbulens inflyving ENST (MOD 2-3,5) (SEV>3.5)
+FIELD Simra.Sandnessjøen.@UTC Turbulens_if colour=red linetype=solid linewidth=2 base=2 minvalue=2.0 maxvalue=off line.interval=0.5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=155
+FIELD Simra.Sandnessjøen.@UTC VIND_if colour=red linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD Simra.Sandnessjøen.@UTC Høyde_if colour=blue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Flystriper contour=on cont.colour=lightblue cont.linewidth=5 cont.linetype=solid cont.zorder=2 land=off latlon=off frame=off
+MAP map=Approach-area contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=ENST backcolour=white map=SIMRA_FLY contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Turbulens inflyving ENHF (MOD 2-3,5) (SEV>3.5)
+FIELD Simra.Hammerfest.@UTC Turbulens_if colour=red linetype=solid linewidth=2 base=2 minvalue=2.0 maxvalue=off line.interval=0.5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=155
+FIELD Simra.Hammerfest.@UTC VIND_if colour=red linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD Simra.Hammerfest.@UTC Høyde_if colour=blue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Flystriper contour=on cont.colour=lightblue cont.linewidth=5 cont.linetype=solid cont.zorder=2 land=off latlon=off frame=off
+MAP map=Approach-area contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=ENHF backcolour=white map=SIMRA_FLY contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14

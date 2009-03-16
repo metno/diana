@@ -60,7 +60,7 @@ EditManager::EditManager(PlotModule* pm, ObjectManager* om)
   }
 
   initEditTools();
-  setMapmodeinfo();
+  ObjectPlot::defineTranslations();
   unsentProduct = false;
   moved=false;
 
@@ -2748,35 +2748,33 @@ void EditManager::initEditTools(){
 #endif
   //defines edit and drawing tools
 
-  eToolFieldStandard.push_back(newEditToolInfo("Endre verdi",      edit_value));
-  eToolFieldStandard.push_back(newEditToolInfo("Flytte",           edit_move));
-  eToolFieldStandard.push_back(newEditToolInfo("Endre gradient",   edit_gradient));
-  eToolFieldStandard.push_back(newEditToolInfo("Linje, u/glatting",edit_line));
-  eToolFieldStandard.push_back(newEditToolInfo("Linje, m/glatting",edit_line_smooth));
-  eToolFieldStandard.push_back(newEditToolInfo("Linje, begrenset, u/glatting",
+  eToolFieldStandard.push_back(newEditToolInfo("Change value",      edit_value));
+  eToolFieldStandard.push_back(newEditToolInfo("Move",           edit_move));
+  eToolFieldStandard.push_back(newEditToolInfo("Change gradient",   edit_gradient));
+  eToolFieldStandard.push_back(newEditToolInfo("Line, without smooth",edit_line));
+  eToolFieldStandard.push_back(newEditToolInfo("Line, with smooth",edit_line_smooth));
+  eToolFieldStandard.push_back(newEditToolInfo("Line, limited, without smooth",
   								   edit_line_limited));
-  eToolFieldStandard.push_back(newEditToolInfo("Linje, begrenset, m/glatting",
+  eToolFieldStandard.push_back(newEditToolInfo("Line, limited, with smooth",
   								   edit_line_limited_smooth));
-  eToolFieldStandard.push_back(newEditToolInfo("Glatte",           edit_smooth));
-  eToolFieldStandard.push_back(newEditToolInfo("Erstatt udefinerte verdier",
+  eToolFieldStandard.push_back(newEditToolInfo("Smooth",           edit_smooth));
+  eToolFieldStandard.push_back(newEditToolInfo("Replace undefined values",
   								   edit_replace_undef));
 
-  eToolFieldClasses.push_back(newEditToolInfo("Linje",             edit_class_line));
-  eToolFieldClasses.push_back(newEditToolInfo("Kopier verdi",      edit_class_copy));
+  eToolFieldClasses.push_back(newEditToolInfo("Line",             edit_class_line));
+  eToolFieldClasses.push_back(newEditToolInfo("Copy value",      edit_class_copy));
 
-//eToolFieldNumbers.push_back(newEditToolInfo("Endre verdi",       edit_number_change));
-//eToolFieldNumbers.push_back(newEditToolInfo("Sett fast verdi",   edit_number_fixed));
-  eToolFieldNumbers.push_back(newEditToolInfo("Kopier verdi",      edit_class_copy));
-  eToolFieldNumbers.push_back(newEditToolInfo("Endre verdi",       edit_value));
-  eToolFieldNumbers.push_back(newEditToolInfo("Flytte",            edit_move));
-  eToolFieldNumbers.push_back(newEditToolInfo("Endre gradient",    edit_gradient));
-  eToolFieldNumbers.push_back(newEditToolInfo("Sett udefinert",    edit_set_undef));
-  eToolFieldNumbers.push_back(newEditToolInfo("Glatte",            edit_smooth));
-  eToolFieldNumbers.push_back(newEditToolInfo("Erstatt udefinerte verdier",
+  eToolFieldNumbers.push_back(newEditToolInfo("Copy value",      edit_class_copy));
+  eToolFieldNumbers.push_back(newEditToolInfo("Change value",       edit_value));
+  eToolFieldNumbers.push_back(newEditToolInfo("Move",            edit_move));
+  eToolFieldNumbers.push_back(newEditToolInfo("Change gradient",    edit_gradient));
+  eToolFieldNumbers.push_back(newEditToolInfo("Set undefined",    edit_set_undef));
+  eToolFieldNumbers.push_back(newEditToolInfo("Smooth",            edit_smooth));
+  eToolFieldNumbers.push_back(newEditToolInfo("Replace undefined values",
   								   edit_replace_undef));
 
   // draw_mode types
- //  fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
+  fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
   fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
   fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
   fronts.push_back(newEditToolInfo("Cold occlusion",ColdOccluded,"blue"));
@@ -3017,13 +3015,13 @@ void EditManager::setMapmodeinfo(){
   mapmodeinfo.push_back(newMapModeInfo("draw_mode",dMode));
   mapmodeinfo.push_back(newMapModeInfo("combine_mode",cMode));
 
-  ObjectPlot::defineTranslations();
   WeatherSymbol::defineRegions(regions);
   EditObjects::defineModes(objectModes,combineModes);
   WeatherSymbol::setStandardSize(EdProd.standardSymbolSize,
 				 EdProd.complexSymbolSize);
   WeatherFront::setDefaultLineWidth(EdProd.frontLineWidth);
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
+
 }
 
 bool EditManager::getAnnotations(vector<miString>& anno)

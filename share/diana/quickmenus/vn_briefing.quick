@@ -1,0 +1,360 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Briefing VNN"
+
+# variables
+[UTC=00,12,06,18,GEO
+[MODEL=HIRLAM.20KM,EC,ALT-HIRLAM.10KM,UK,UK300,UKFIN
+[Analyse=VNN,DNMI
+[Bakgrunn=white,grayWhite,lightGray,black,orange
+[Kart=black,darkGreen,white
+
+#
+>Siste Analyse m/ch4 sat+obs
+FIELD VNN.ANA MSLP colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=0.8 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid fgroup=5 fnumber=0 patterns=off
+OBS plot=Lyn data=Lyn colour=red density=1 face=normal font=Helvetica image=lyn onlypos=true priority=/metno/local/diana/etc/priList.txt scale=1 tempPrecision=true timediff=60
+OBS plot=Synop data=Synop,Dribu,Metar,QScat25km parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Kjtegn,Tid colour=black density=1 face=normal font=Helvetica image=lyn priority=/metno/local/diana/etc/VNNsynop.list scale=1 timediff=180
+SAT METEOSAT VISIR_Europa_Meteosat8 3+9+10 timediff=60 mosaic=0 cut=0.02 alfacut=0 alfa=1 font=Helvetica face=normal
+SAT NOAA N-Atlant 4 timediff=120 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alfa=0.8 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
+OBJECTS NAME="@Analyse Bakkeanalyse" types=front,symbol,area, timediff=60 alfa=1
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Siste Analyse m/farge sat+obs
+FIELD VNN.ANA MSLP colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=0.8 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid fgroup=5 fnumber=0 patterns=off
+OBS plot=Lyn data=Lyn colour=red density=1 face=normal font=Helvetica image=lyn onlypos=true priority=/metno/local/diana/etc/priList.txt scale=1 tempPrecision=true timediff=60
+OBS plot=Synop data=Synop,Dribu,Metar,QScat25km parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Kjtegn,Tid colour=black density=1 face=normal font=Helvetica image=lyn priority=/metno/local/diana/etc/VNNsynop.list scale=1 timediff=180
+SAT METEOSAT VISIR_Europa_Meteosat8 3+9+10 timediff=60 mosaic=0 cut=0.02 alfacut=0 alfa=1 font=Helvetica face=normal
+SAT NOAA N-Atlant day_night timediff=120 mosaic=1 cut=0.02 alphacut=0 alpha=1 font=Helvetica face=normal
+SAT Radar-obs Norden_2km_dBZ PSC_Z timediff=60 mosaic=0 alfa=0.8 Table=0 hide=0,1,2,11,12,13,14, font=Helvetica face=normal
+OBJECTS NAME="@Analyse Bakkeanalyse" types=front,symbol,area, timediff=60 alfa=1
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Analyse med Z + T 500hPa
+FIELD EC.GEO.@UTC Z level=500hPa colour=lightBlue linetype=solid linewidth=3 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.@UTC T level=500hPa colour=red linetype=dash linewidth=3 line.interval=3 extreme.type=C+W extreme.size=1 s
+extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBS plot=Trykk data=Temp,Pilot parameter=TTT,HHH colour=black density=1 face=normal font=Helvetica image=small_square level=asfield leveldiff=0 scale=1.5 timediff=0
+SAT NOAA Ishavet day_night timediff=180 mosaic=0 cut=0.02 alfacut=0 alfa=0.7 font=Helvetica face=normal
+OBJECTS NAME="@Analyse Bakkeanalyse" types=front,symbol,area,anno timediff=180
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Banker contour=on cont.colour=white cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>MSLP sammenligning morgen
+FIELD HIRLAM.20KM.00 MSLP colour=lightBlue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off allTimeSteps=on
+FIELD EC.GEO.00 MSLP colour=red linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off allTimeSteps=on
+FIELD ALT-UK.00 MSLP colour=darkGreen linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off allTimeSteps=on
+FIELD ALT-HIRLAM.10KM.00 MSLP colour=purple linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=2 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off allTimeSteps=on
+FIELD UM.HL.4KM.00 MSLP colour=darkRed linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=1 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=2 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off allTimeSteps=on
+MAP map=Euro3 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=modell/sat-område backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=lightGray land.zorder=0 latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Nedbor sammenlikning
+FIELD HIRLAM.20KM.00 NEDBØR.6T colour=darkgreen linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off allTimeSteps=on
+FIELD EC.GEO.00 NEDBØR.6T colour=red linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off allTimeSteps=on
+MAP area=modell/sat-område backcolour=white map=Gshhs-Auto contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=white latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Standard langtid 00
+FIELD EC.GEO.00 MSLP colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=0.8 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid fgroup=5 fnumber=45 patterns=off
+FIELD EC.GEO.00 NEDBØR.12T colour=darkGreen linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.GEO.00 DZ(500-1000) colours=blue,black,red linetype=dash linewidth=2 base=5200 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Standard langtid 12
+FIELD EC.GEO.12 MSLP colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=0.8 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid fgroup=5 fnumber=45 patterns=off
+FIELD EC.GEO.12 NEDBØR.12T colour=darkGreen linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.GEO.12 DZ(500-1000) colours=blue,black,red linetype=dash linewidth=2 base=5200 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>UM 4km vind
+FIELD UM.HL.4KM.@UTC VIND.10M colour=red linewidth=1 density=10 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off
+FIELD UM.HL.4KM.@UTC FF.10M.KNOP colour=darkRed linetype=solid linewidth=1 base=0 minvalue=8 maxvalue=off line.interval=4 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1.5 line.smooth=0 palettecolours=lightred;10 table=0 recursive=1 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+OBS plot=Enkel data=Synop,Metar,QScat100km,QScat25km parameter=Vind colour=white density=2 face=normal font=Helvetica image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=1 timediff=180
+MAP map=Euro2 contour=on cont.colour=darkGreen cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=VNN-Norge backcolour=white map=Gshhs-Auto contour=on cont.colour=green4 cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=1 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+#
+>
+#
+>Spesielle situasjoner:
+#
+>Analyse med 12h nedbør med UM4km(morgen)
+FIELD HIRLAM.20KM.12 NEDBØR.12T colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=90
+FIELD EC.GEO.12 NEDBØR.12T colour=red linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD UM.HL.4KM.12 NEDBØR.12T colour=flesh linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 recursive=1 colour_2=off field.smooth=5 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBS plot=AllNedbør data=AllNedbør parameter=RR_12,RR_24 colour=black density=allobs face=normal font=Helvetica image=small_square scale=2 timediff=60  criteria=RR_12>0,plot;RR_12>5,red;RR_24>0,plot;RR_24>5,darkred
+OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs face=normal font=Helvetica image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=2 tempPrecision=true timediff=60  criteria=RRR>0,plot;RRR>5,red
+SAT Radar-nedbør Røst_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alfa=0.5 Table=1 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
+SAT Radar-nedbør Rissa_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alfa=0.5 Table=0 hide=0,1,21,22,23,24,25,26,27, font=Helvetica face=normal
+OBJECTS NAME="VNN Bakkeanalyse" types=front,symbol,area, timediff=60 alfa=1
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=N-Norge backcolour=white map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>CAT max vind >75 m/s + nivå
+FIELD @MODEL.@UTC Z level=300hPa colour=lightblue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD @MODEL.@UTC FF.MAX.VIND colour=red linetype=solid linewidth=1 base=0 minvalue=75 maxvalue=off line.interval=25 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD @MODEL.@UTC P(MAX.VIND) colour=green linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+OBS plot=Trykk data=Temp,Pilot parameter=Vind,HHH colour=black density=1 face=normal font=Helvetica image=small_square level=asfield priority=/metno/local/diana/etc/priList.txt scale=1.5 timediff=0
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Banker contour=on cont.colour=white cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>MSLP sammenligning ettermiddag
+FIELD @MODEL.06 MSLP colour=lightBlue linetype=solid linewidth=3 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=1 grid.lines=0 undef.masking=0 undef.colour=whiteAlle observasjoner med storm (41-63 kt) i rødt. undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+FIELD EC.GEO.00 MSLP colour=red linetype=solid linewidth=3 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+FIELD ALT-UK.00 MSLP colour=darkGreen linetype=solid linewidth=3 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+FIELD ALT-HIRLAM.10KM.00 MSLP colour=purple linetype=solid linewidth=3 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=2 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+MAP map=Euro3 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off
+MAP area=SWIkart backcolour=white showframe=no map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=lightGray land.zorder=0 latlon=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Observert kuling/storm
+FIELD VNN.ANA MSLP colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=0.8 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid fgroup=5 fnumber=0 patterns=off
+OBS plot=Synop data=Synop,Dribu parameter=Vind,fxfx colour=white density=allobs face=normal font=Helvetica image=lyn priority=/metno/local/diana/etc/VNNsynop.list scale=1 tempPrecision=true timediff=180  criteria=ff>13.8,plot;ff>20.7,red,total;ff>32.6,green,total;fxfx>13.8,plot;fxfx>20.7,red,total;fxfx>32.6,green,total
+OBS plot=Enkel data=QScat25km parameter=Vind,fxfx colour=white density=allobs face=normal font=Helvetica image=lyn priority=/metno/local/diana/etc/VNNsynop.list scale=1 tempPrecision=true timediff=180  criteria=ff>27,plot;ff>40,red,total;ff>63,green,total;fxfx>27,plot;fxfx>40,red,total;fxfx>63,green,total
+SAT QuickScat-25km Vindstyrke Wspd(m/s) timediff=360 mosaic=0 alfa=0.6 Table=0 hide=0, font=Helvetica face=normal
+SAT AScat-25km Vindstyrke Wspd(m/s) timediff=360 mosaic=0 alfa=0.6 Table=1 hide=0, font=Helvetica face=normal
+OBJECTS NAME="met.no Bakkeanalyse" types=front,symbol,area,anno timediff=180 alfa=0.4
+MAP map=Banker contour=on cont.colour=white cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Polare lavtrykk, Z500, MSLP, Tdiff(sea-500)
+FIELD EC.GEO.00 TSEA-T500 colours=red,white,blue linetype=dash linewidth=3 base=43 line.interval=2 extreme.type=C+W extreme.size=0.5 extreme.radius=2 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.00 Z level=500hPa colour=gulbrun linetype=solid linewidth=5 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines
+OBJECTS NAME="VNN Bakkeanalyse" types=front,symbol,area, timediff=60 alfa=1
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=N-Norge backcolour=white map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD ALT-HIRLAM.10KM.00 MSLP colour=green2 linetype=solid linewidth=3 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+SAT NOAA Ishavet 3+4+5 timediff=180 mosaic=0 cut=0.02 alfacut=0 alfa=0.8 font=Helvetica face=normal
+MAP map=Apache-Snowwhite contour=on cont.colour=red cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=SWIkart backcolour=white nmap=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Tordenfare
+FIELD HIRLAM.20KM.00 K-INDEX colour=red linetype=solid linewidth=2 base=0 minvalue=25 maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=lightred table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=125
+FIELD HIRLAM.20KM.00 SHOWALTER-INDEX colour=lightBlue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=0 line.interval=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.20KM.00 VIND level=700hPa colour=gulbrun linewidth=2 density=3 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.20KM.00 Z level=500hPa colour=cyan linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid fgroup=0 fnumber=51 zero.line=1 patterns=off
+OBS plot=Lyn data=Lyn colour=red density=1 face=normal font=Helvetica image=lyn onlypos=true priority=/metno/local/diana/etc/priList.txt scale=1 tempPrecision=true timediff=30
+SAT NOAA Ishavet day_night timediff=360 mosaic=1 cut=0.02 alfacut=0 alfa=0.6 font=Helvetica face=normal
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Analyse backcolour=white map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Ising på fartøyer
+FIELD @MODEL.@UTC Vessel_icing colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=prob table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=150
+MAP map=Gshhs-Auto contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=2 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Banker contour=on cont.colour=red cont.linewidth=3 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Nordic backcolour=white map=Fylker contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=2 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="Light - Moderate - Severe - Very Severe" valign=center halign=left fontsize=12
+#
+>EPS sannsynligheter for sterk vind
+FIELD EC.GEO.00 Z level=1000hPa colour=lightBlue linetype=solid linewidth=3 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+FIELD EC.EPS Zmean_1000hPa level2=Middel colour=darkGreen linetype=solid linewidth=3 line.interval=40 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+FIELD EC.EPS Probability_Wind>10m/s colour=magenta linetype=solid linewidth=2 line.interval=20 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+FIELD EC.EPS Probability_Wind>15m/s colour=red linetype=solid linewidth=2 line.interval=20 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid allTimeSteps=on
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>Langtid EC00: Z 1000 Alle cluster
+FIELD EC.GEO.00 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off zero.line=1
+FIELD ALT-EC.EPS.NY.00 DZ(500-1000).mean idnum=EPS.Total colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.00 DZ(500-1000).mean idnum=Cluster.1 colour=darkGreen linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.00 DZ(500-1000).mean idnum=Cluster.2 colour=cyan linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.00 DZ(500-1000).mean idnum=Cluster.3 colour=magenta linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.00 DZ(500-1000).mean idnum=Cluster.4 colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.00 DZ(500-1000).mean idnum=Cluster.5 colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.00 DZ(500-1000).mean idnum=Cluster.6 colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+MAP map=Euro3 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Analyse backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=lightGray land.zorder=0 latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Langtid EC12: Z 500 Alle cluster
+FIELD EC.GEO.12 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off zero.line=1
+FIELD ALT-EC.EPS.NY.12 DZ(500-1000).mean idnum=EPS.Total colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.12 DZ(500-1000).mean idnum=Cluster.1 colour=darkGreen linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.12 DZ(500-1000).mean idnum=Cluster.2 colour=cyan linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.12 DZ(500-1000).mean idnum=Cluster.3 colour=magenta linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.12 DZ(500-1000).mean idnum=Cluster.4 colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.12 DZ(500-1000).mean idnum=Cluster.5 colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-EC.EPS.NY.12 DZ(500-1000).mean idnum=Cluster.6 colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+MAP map=Euro3 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Analyse backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=lightGray land.zorder=0 latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Analyse med 12h nedbør med UM4km(kveld)
+FIELD HIRLAM.20KM.00 NEDBØR.12T colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.GEO.00 NEDBØR.12T colour=red linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD UM.HL.4KM.00 NEDBØR.12T colour=darkGreen linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=6 palettecolours=standard table=0 recursive=1 colour_2=off field.smooth=3 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off alpha=135
+OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs face=normal font=Helvetica image=small_square priority=/metno/local/diana/etc/VNNsynop.list scale=2.3 timediff=60  criteria=RRR>0,plot;RRR>5,red
+SAT Radar-nedbør Røst_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alfa=0.5 Table=1 hide=0,1,20,21,22,23,24,25,26,27, font=Helvetica face=normal
+SAT Radar-nedbør Rissa_nedbør_12h PSC_RA12h timediff=60 mosaic=0 alfa=0.5 Table=0 hide=0,1,21,22,23,24,25,26,27, font=Helvetica face=normal
+OBJECTS NAME="@Analyse Bakkeanalyse" types=front,symbol,area, timediff=60 alfa=1
+MAP map=Euro1 contour=on cont.colour=magenta cont.linewidth=3 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=N-Norge backcolour=white map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Varmeflux og T500
+FIELD ALT-HIRLAM.20KM.00 FLUX.S+L.avg.6h colour=red linetype=solid linewidth=1 base=0 minvalue=-500 maxvalue=-300 line.interval=50 zero.line=1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=1 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-HIRLAM.20KM.00 T level=500hPa colour=blue linetype=dash linewidth=3 base=-40 minvalue=off maxvalue=off line.interval=5 extreme.type=C+W extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+MAP map=Euro2 contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=gray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=graywhite land.zorder=0 latlon=on latlon.colour=white latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+><font color="#000099">EC.EPS.12 Probability_Wind>10m/s   Probability_Wind>15m/s</font> <font color="#009900">Analyse Gshhs-Auto Euro2 </font>
+FIELD EC.EPS.12 Probability_Wind>10m/s colour=red linetype=solid linewidth=1 base=-10 minvalue=off maxvalue=off line.interval=20 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors
+FIELD EC.EPS.12 Probability_Wind>15m/s colour=blue linetype=solid linewidth=1 base=-10 minvalue=off maxvalue=off line.interval=20 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP area=Analyse backcolour=white map=Euro2 contour=on cont.colour=white cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=5 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>EPS-sektorer for vind og nedbør
+FIELD EC.GEO.0.25.00 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.EPS_0.5.00 Probability_Precip>1mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=lightgray alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>5mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=dark_green alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>10mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=green alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>20mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=red alpha=255
+FIELD EC.EPS_0.5.00 Probability_Wind>10m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=cyan
+FIELD EC.EPS_0.5.00 Probability_Wind>15m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=lightblue
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=lightGray latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+LABEL anno=<image=eps_legend,size=0.48><horalign=center> plotrequested=true tcolour=black bcolour=grayWhite fcolour=white polystyle=fill halign=right valign=top font=Helvetica fontsize=18 face=normal xoffset=0 yoffset=0
+#
+>EPS-sektorer for nedbør
+FIELD EC.GEO.0.25.00 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.EPS_0.5.00 Probability_Precip>1mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=lightgray alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>5mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=dark_green alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>10mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=green alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>20mm/24h colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=red alpha=255
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+LABEL anno=<image=eps_legend,size=0.48><horalign=center> plotrequested=true tcolour=black bcolour=grayWhite fcolour=white polystyle=fill halign=right valign=top font=Helvetica fontsize=18 face=normal xoffset=0 yoffset=0
+#
+>EPS-sektorer for vind
+FIELD EC.GEO.0.25.00 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.EPS_0.5.00 Probability_Wind>10m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=cyan
+FIELD EC.EPS_0.5.00 Probability_Wind>15m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=lightblue
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+LABEL anno=<image=eps_legend,size=0.48><horalign=center> plotrequested=true tcolour=black bcolour=grayWhite fcolour=white polystyle=fill halign=right valign=top font=Helvetica fontsize=18 face=normal xoffset=0 yoffset=0
+#
+>EPS-sektorer for nedbør (forskjøvet 12h) og vind 00 UTC
+FIELD EC.GEO.0.25.00 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.EPS_0.5.00 Probability_Precip>1mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=lightgray alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>5mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=dark_green alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>10mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=green alpha=255
+FIELD EC.EPS_0.5.00 Probability_Precip>20mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=red alpha=255
+FIELD EC.EPS_0.5.00 Probability_Wind>10m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=cyan
+FIELD EC.EPS_0.5.00 Probability_Wind>15m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=lightblue
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=lightGray latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+LABEL anno=<image=eps_legend,size=0.48><horalign=center> plotrequested=true tcolour=black bcolour=grayWhite fcolour=white polystyle=fill halign=right valign=top font=Helvetica fontsize=18 face=normal xoffset=0 yoffset=0
+#
+>EPS-sektorer for nedbør (forskjøvet 12h) og vind 12 UTC
+FIELD EC.GEO.0.25.12 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.EPS_0.5.12 Probability_Precip>1mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=lightgray alpha=255
+FIELD EC.EPS_0.5.12 Probability_Precip>5mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=dark_green alpha=255
+FIELD EC.EPS_0.5.12 Probability_Precip>10mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=green alpha=255
+FIELD EC.EPS_0.5.12 Probability_Precip>20mm/24h hour.offset=12 colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors zero.line=0 patterncolour=red alpha=255
+FIELD EC.EPS_0.5.12 Probability_Wind>10m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=0 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=cyan
+FIELD EC.EPS_0.5.12 Probability_Wind>15m/s colour=off linetype=solid linewidth=1 base=0 minvalue=0 maxvalue=off line.interval=10 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1.3 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=sectors_opposite zero.line=0 patterncolour=lightblue
+MAP area=SWIkart backcolour=white map=Gshhs-Auto contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=lightGray latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+LABEL anno=<image=eps_legend,size=0.48><horalign=center> plotrequested=true tcolour=black bcolour=grayWhite fcolour=white polystyle=fill halign=right valign=top font=Helvetica fontsize=18 face=normal xoffset=0 yoffset=0

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -46,14 +46,14 @@ class WeatherFront: public ObjectPlot
 {
 private:
 
-  float linewidth;     // scaled frontlinewidth
-  int frontlinewidth; //  standard frontlinewidth
+  float linewidth;
+  static float defaultLineWidth;
+  float scaledlinewidth;
   static vector<editToolInfo>  allFronts;
   static map<miString,int> frontTypes;  //finds front type number from name
-  static float defaultLineWidth;
-  int npoints; 
+  int npoints;
   float * xplot;
-  float * yplot;  
+  float * yplot;
   bool first;
   bool drawSig;                   // draw sig weather arcs.
 
@@ -65,7 +65,7 @@ private:
   void drawOccluded();      // draws the occluded
   void drawSquallLine();    // draws the squall line crosses
   void drawSigweather();    // draws significant weather bubbles
-  bool smooth();             
+  bool smooth();
   void recalculate();
   float getLineWidth(){return linewidth;}
   virtual void setLineWidth(float w){linewidth=w;}
@@ -88,11 +88,9 @@ private:
   static void defineFronts(vector<editToolInfo> fronts);
   /// set default line width from setup
   static void setDefaultLineWidth(float w){defaultLineWidth=w;}
-  /// set width of front
-  virtual void setFrontlinewidth(int w){frontlinewidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation
   void setState(const state s);
-  virtual bool plot();             ///< draws the front 
+  virtual bool plot();             ///< draws the front
   virtual bool plot(const int){return false;}
  ///< shows / marks node point/ points on front
   bool showLine(float x, float y);

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -41,7 +41,7 @@ using namespace std;
 
   \brief Borders between areas when merging
 
-  The area borders are used when merging different analyses, to set the boundary lines between regions. The lines can be moved and rotated, and points can be removed in the same way as for fronts. 
+  The area borders are used when merging different analyses, to set the boundary lines between regions. The lines can be moved and rotated, and points can be removed in the same way as for fronts.
 
 */
 
@@ -49,7 +49,8 @@ using namespace std;
 class AreaBorder: public ObjectPlot
 {
 private:
-  float linewidth,transitionwidth;
+  float linewidth;
+  float transitionwidth;
 
   void drawThickLine();
  public:
@@ -69,11 +70,11 @@ private:
 
   /// draws the border
   virtual bool plot();
-  /// returns false  
+  /// returns false
   virtual bool plot(const int){return false;}
   /// shows / marks node point/ points on front
   bool showLine(float x, float y);
-  /// returns showLine 
+  /// returns showLine
   bool isOnObject(float x, float y) {return showLine(x,y);}
   void increaseSize(float val);
   void setType(int ty){}

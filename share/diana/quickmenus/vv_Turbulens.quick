@@ -1,0 +1,102 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Turbulens"
+
+# variables
+[HIRLAM=00,06,12,18
+[UKFIN=00,12
+[UK=00,12
+[EC=00,12
+[HIRLAM10=00,06,12,18
+[MODELL 1=HIRLAM.20KM,ALT-HIRLAM.10KM,ALT-UK,ALT-UKFIN,EC.GEO.NY
+[UTC1=00,06,12,18
+[Flyplass=Molde,Sandane,Værnes,Ørsta
+[UTC=00,12
+[MODELL 2=HIRLAM.20KM,ALT-HIRLAM.10KM,ALT-UK,ALT-UKFIN,EC.GEO.NY
+[UTC2=00,06,12,18
+[DAG=-1,-2
+
+#
+>Turbulens 00 UTC
+FIELD Simra.Sandane.00 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Sandane.00 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Ørsta.00 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0
+FIELD Simra.Ørsta.00 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Værnes.00 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0
+FIELD Simra.Værnes.00 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Flystriper contour=on cont.colour=magenta cont.linewidth=3 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Approach-area contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=S-Norge backcolour=white map=Kartlinjer1 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=flesh latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Turbulens 12 UTC
+FIELD Simra.Sandane.12 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Sandane.12 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Ørsta.12 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Ørsta.12 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Værnes.12 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Værnes.12 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Flystriper contour=on cont.colour=magenta cont.linewidth=3 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Approach-area contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=S-Norge backcolour=white map=Kartlinjer1 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=flesh latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Turbulens VNN 00 UTC
+FIELD Simra.Sandnessjøen.00 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Sandnessjøen.00 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Narvik.00 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Narvik.00 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Honningsvåg.00 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Honningsvåg.00 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Hammerfest.00 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD Simra.Hammerfest.00 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Flystriper contour=on cont.colour=magenta cont.linewidth=3 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Approach-area contour=on cont.colour=black cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=S-Norge backcolour=white map=Kartlinjer1 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=flesh latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Turbulens VNN 12 UTC
+FIELD Simra.Sandnessjøen.12 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Sandnessjøen.12 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Narvik.12 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Narvik.12 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Honningsvåg.12 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0 recursive=0 recursive=0
+FIELD Simra.Honningsvåg.12 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+FIELD Simra.Hammerfest.12 Turbulens_if colour=lightblue linetype=solid linewidth=1 base=2 minvalue=off maxvalue=off line.interval=0.1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard;16 table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD Simra.Hammerfest.12 Høyde_if colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=100 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false recursive=0 enabled=false
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Flystriper contour=on cont.colour=magenta cont.linewidth=3 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP map=Approach-area contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=S-Norge backcolour=white map=Kartlinjer1 contour=on cont.colour=lightGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=flesh latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14

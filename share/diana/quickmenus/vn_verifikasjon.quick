@@ -1,0 +1,90 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Verifikasjon"
+
+# variables
+
+#
+>Nedbør-total
+FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off alpha=90 recursive=0
+FIELD HIRLAM.8KM.00-1 NEDBØR.12T colour=red linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.4KM.00-1 NEDBØR.12T colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=flesh linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=5 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=1 patterns=off recursive=1
+OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square scale=2 tempprecision=true timediff=60  criteria=RRR>5,red;RRR,plot
+MAP map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=N-Norge backcolour=white map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Nedbør-frontal
+FIELD HIRLAM.12KM.00-1(12) FRONTAL_NEDBØR.12T colour=blue linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off alpha=90 recursive=0
+FIELD HIRLAM.8KM.00-1 FRONTAL_NEDBØR.12T colour=red linetype=solid linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.4KM.00-1 FRONTAL_NEDBØR.12T colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD UM.HL.4KM.00-1 FRONTAL_NEDBØR.12T colour=flesh linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=5 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=1 patterns=off recursive=1
+OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square scale=2 tempprecision=true timediff=60  criteria=RRR>5,red;RRR,plot
+MAP map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=N-Norge backcolour=white map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Nedbør-konvektiv
+FIELD HIRLAM.12KM.00-1(12) NEDBØR.12T colour=blue linetype=dash linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off alpha=90 recursive=0 recursive=0
+FIELD HIRLAM.8KM.00-1 NEDBØR.12T colour=red linetype=dash linewidth=3 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=2 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0
+FIELD HIRLAM.4KM.00-1 NEDBØR.12T colour=black linetype=dash linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=green table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD UM.HL.4KM.00-1 NEDBØR.12T colour=flesh linetype=dash linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=5 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=1 patterns=off recursive=1 recursive=1
+OBS plot=Enkel data=Synop parameter=RRR colour=white density=allobs image=small_square scale=2 tempprecision=true timediff=60  criteria=RRR>5,red;RRR,plot
+MAP map=Gshhs-Auto contour=on cont.colour=magenta cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=off frame=off
+MAP map=Euro3 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=N-Norge backcolour=white map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Vind10m; knop som vindpiler
+FIELD HIRLAM.12KM.00-1(12) VIND.10M colour=lightblue linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.8KM.00-1 VIND.10M colour=red linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD UM.HL.4KM.00-1 VIND.10M colour=darkgreen linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD HIRLAM.4KM.00-1 VIND.10M colour=magenta linewidth=1 density=0 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+OBS plot=Enkel data=QScat25km,AScat25km parameter=Wind colour=white density=allobs image=lyn scale=1 tempprecision=true timediff=180
+OBS plot=Synop data=Synop,Dribu parameter=Wind,fxfx colour=white density=allobs image=lyn scale=1 tempprecision=true timediff=180
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=off frame=off
+MAP map=Banker contour=on cont.colour=white cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=SWIkart backcolour=white map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Vind10m; knop som felt
+FIELD HIRLAM.12KM.00-1(12) FF.10M.KNOP colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.8KM.00-1 FF.10M.KNOP colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD UM.HL.4KM.00-1 FF.10M.KNOP colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.4KM.00-1 FF.10M.KNOP colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+OBS plot=Enkel data=QScat25km,AScat25km parameter=Wind colour=white density=allobs image=lyn scale=1 tempprecision=true timediff=180
+OBS plot=Synop data=Synop,Dribu parameter=Wind,fxfx colour=white density=allobs image=lyn scale=1 tempprecision=true timediff=180
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=white land.zorder=0 latlon=off frame=off
+MAP map=Banker contour=on cont.colour=white cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=SWIkart backcolour=white map=Fylker contour=on cont.colour=darkGray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14

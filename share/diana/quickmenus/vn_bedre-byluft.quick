@@ -1,0 +1,120 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Bedre Byluft"
+
+# variables
+
+#
+>Tomt
+MAP area=Ishav backcolour=white map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+#
+>UM 1km
+FIELD ALT-UM1KM.NN VIND.10M colour=blue linewidth=1 density=2 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off label.size=1
+FIELD ALT-UM1KM.NN VIND.10M.PIL colour=red linewidth=1 density=0 vector.unit=10 rel.size=1 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD ( ALT-UM1KM.NN T.2M - ALT-UM1KM.NN Td.2M ) colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0
+FIELD ALT-UM1KM.NN T.2M colour=lightblue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0 recursive=0
+FIELD ALT-UM1KM.NN FRONTAL_NEDBØR.3T colour=black linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Troms backcolour=white map=Varslingsomr contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>UM 4km
+FIELD ALT-UM.HL.4KM.00 VIND.10M colour=blue linewidth=1 density=2 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off label.size=1
+FIELD ALT-UM.HL.4KM.00 VIND.10M.PIL colour=red linewidth=1 density=0 vector.unit=10 rel.size=1 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD ( ALT-UM.HL.4KM.00 T.2M - ALT-UM.HL.4KM.00 Td.2M ) colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD ALT-UM.HL.4KM.00 NEDBØR.3T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD ALT-UM.HL.4KM.00 T.2M colour=lightblue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Troms backcolour=white map=Varslingsomr contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Hirlam 4km
+FIELD HIRLAM.4KM.00 VIND.10M colour=blue linewidth=1 density=2 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off label.size=1
+FIELD HIRLAM.4KM.00 VIND.10M.PIL colour=red linewidth=1 density=0 vector.unit=10 rel.size=1 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD ( HIRLAM.4KM.00 T.2M - HIRLAM.4KM.00 Td.2M ) colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off
+FIELD HIRLAM.4KM.00 NEDBØR.3T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.4KM.00 T.2M colour=lightblue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Troms backcolour=white map=Varslingsomr contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Hirlam 10km
+FIELD HIRLAM.10KM.00 VIND.10M colour=blue linewidth=1 density=2 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off label.size=1
+FIELD HIRLAM.10KM.00 VIND.10M.PIL colour=red linewidth=1 density=0 vector.unit=10 rel.size=1 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD ( HIRLAM.10KM.00 T.2M - HIRLAM.4KM.00 Td.2M ) colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.10KM.00 NEDBØR.3T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.10KM.00 T.2M colour=lightblue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Troms backcolour=white map=Varslingsomr contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Hirlam 12km
+FIELD HIRLAM.12KM.00(12) VIND.10M colour=blue linewidth=1 density=2 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off label.size=1
+FIELD HIRLAM.12KM.00(12) VIND.10M.PIL colour=red linewidth=1 density=0 vector.unit=10 rel.size=1 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD ( HIRLAM.12KM.00(12) T.2M - HIRLAM.12KM.00(12) Td.2M ) colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.12KM.00(12) NEDBØR.3T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.12KM.00(12) T.2M colour=lightblue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Troms backcolour=white map=Varslingsomr contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>Hirlam 20km
+FIELD HIRLAM.20KM.00 VIND.10M colour=blue linewidth=1 density=2 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off label.size=1
+FIELD HIRLAM.20KM.00 VIND.10M.PIL colour=red linewidth=1 density=0 vector.unit=10 rel.size=1 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD ( HIRLAM.20KM.00 T.2M - HIRLAM.12KM.00(12) Td.2M ) colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD HIRLAM.20KM.00 NEDBØR.3T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD HIRLAM.20KM.00 T.2M colour=lightblue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Troms backcolour=white map=Varslingsomr contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
+#
+>EC.GEO
+FIELD EC.GEO VIND.10M colour=blue linewidth=1 density=2 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid colour_2=off palettecolours=off patterns=off label.size=1
+FIELD EC.GEO VIND.10M.PIL colour=red linewidth=1 density=0 vector.unit=10 rel.size=1 field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid palettecolours=off patterns=off colour_2=off
+FIELD ( EC.GEO T.2M - EC.GEO Td.2M ) colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+FIELD EC.GEO NEDBØR.3T colour=off linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=standard table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off
+FIELD EC.GEO T.2M colour=lightblue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=2 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=1 undef.colour=white undef.linewidth=1 undef.linetype=solid recursive=0 patterns=off recursive=0
+MAP map=Gshhs-Auto contour=on cont.colour=gulbrun cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+MAP map=Euro2 contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=off frame=off
+MAP area=Troms backcolour=white map=Varslingsomr contour=on cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=2 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
+LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14

@@ -1,0 +1,123 @@
+# Tekst og Plottestreng for Quick-menyen
+# '#' angir kommentarer
+#------------------------------------------------
+#-- Navn paa hurtigmeny, angis i dialogen
+# "navn"
+#------------------------------------------------
+#-- Definisjon av variable
+# [XX=a,b,c,d,..]
+#------------------------------------------------
+#-- Plottevalg
+# '>Plottenavn' er skilletegn for plotte-valgene
+#------------------------------------------------
+
+# quickmenu name
+"Verifikasjon"
+
+# variables
+
+#
+>EC.GEO.0.25 00+36 sammen med gårsdagens subjektive 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid 
+FIELD EC.GEO.0.25.00-2 MSLP colour=blue linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=36
+FIELD EC.GEO.0.25.00-2 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.0.25.00-2 THE level=850hPa colour=magenta linetype=solid linewidth=2 base=0 minvalue=off maxvalue=off line.interval=2.5 extreme.type=Ingen extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 recursive=0 colour_2=off field.smooth=0 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0 frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>UK 2 dager gammel 00+36 sammen med gårsdagens subjektive 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD UK.00-2 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=36
+FIELD UK.00-2 THE level=850 colour=magenta linetype=solid linewidth=2 line.interval=2 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD UK.00-2 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>UKfin 2 dager gammel 00+36 sammen med gårsdagens subjektive 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD UKFIN.00-2 MSLP colour=blue linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=36
+FIELD UKFIN.00-2 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white showframe=no map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>HIRLAM10 2 dager gammel 00+36 sammen med gårsdagens subjektiv 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD HIRLAM.10KM.00-2 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=36
+FIELD HIRLAM.10KM.00-2 THE level=850 colour=magenta linetype=solid linewidth=2 line.interval=2 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD HIRLAM.10KM.00-2 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>HIRLAM20 2 dager gammel 00+36 sammen med gårsdagens subjektiv 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD HIRLAM.20KM.00-2 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=36
+FIELD HIRLAM.20KM.00-2 THE level=850 colour=magenta linetype=solid linewidth=2 line.interval=2 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD HIRLAM.20KM.00-2 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>EC.GEO.0.25 12 2 dager gammel 12+48 sammen med gårsdagens subjektive 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.0.25.12-2 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=48
+FIELD EC.GEO.0.25.12-2 THE level=850 colour=magenta linetype=solid linewidth=2 line.interval=2 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.NY.0.25-2 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>DNMI ANALYSE MSLP og DNMI Prognose+36 MSLP. DNMI Prognose+36 fronter
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD DNMI.PROG+36 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+OBJECTS NAME="DNMI Prognose+36" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white showframe=no map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>DNMI ANALYSE MSLP og DNMI Prognose+36 MSLP. DNMI bakkeanalyse fronter.
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD DNMI.PROG+36 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=L+H extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 test.contour.shading=0 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white showframe=no map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>EC.GEO.0.25.00  5 dager gammel 00+108 sammen med gårsdagens subjektive 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.0.25.00-5 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=108
+FIELD EC.GEO.0.25.00-5 THE level=850 colour=magenta linetype=solid linewidth=2 line.interval=2 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.0.25.00-5 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>UK 5 dager gammel 12+120 sammen med gårsdsgens subjektive 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD UK.12-5 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=120
+FIELD UK.12-5 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+#
+>EC.GEO.0.25.12 5 dager gammel 12+120 sammen med gårsdagens subjektive 12 DNMI analyse
+FIELD DNMI.ANA MSLP colour=red linetype=solid linewidth=1 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.0.25.12-5 MSLP colour=blue linetype=solid linewidth=2 line.interval=5 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid forecast.hour=120
+FIELD EC.GEO.0.25.12-5 THE level=850 colour=magenta linetype=solid linewidth=2 line.interval=2 extreme.type=C+W extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+FIELD EC.GEO.0.25.12-5 DZ(500-1000) colour=darkRed linetype=solid linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 extreme.radius=1 line.smooth=0 value.label=1 label.size=1 field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid
+OBJECTS NAME="DNMI Bakkeanalyse" types=front, timediff=60 alfa=1
+MAP area=Infosat.1 backcolour=white map=Gshhs-Auto contour=on cont.colour=flesh cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=on land.colour=grayWhite land.zorder=0 latlon=on latlon.colour=black latlon.linewidth=1 latlon.linetype=solid latlon.density=10 latlon.zorder=0
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12

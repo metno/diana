@@ -884,6 +884,58 @@ Vil du lagre før du avslutter?</translation>
         <source>Sleet</source>
         <translation>Sludd</translation>
     </message>
+    <message>
+        <source>Reduced visibility</source>
+        <translation>Redusert sikt / lavt skydekke</translation>
+    </message>
+    <message>
+        <source>Change value</source>
+        <translation>Endre verdi</translation>
+    </message>
+    <message>
+        <source>Move</source>
+        <translation>Flytte</translation>
+    </message>
+    <message>
+        <source>Change gradient</source>
+        <translation>Endre gradient</translation>
+    </message>
+    <message>
+        <source>Line, without smooth</source>
+        <translation>Linje, u/glatting</translation>
+    </message>
+    <message>
+        <source>Line, with smooth</source>
+        <translation>Linje, m/glatting</translation>
+    </message>
+    <message>
+        <source>Line, limited, without smooth</source>
+        <translation>Linje, begrenset, U/glatting</translation>
+    </message>
+    <message>
+        <source>Line, limited, with smooth</source>
+        <translation>Linje, begrenset, m/glatting</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Glatte</translation>
+    </message>
+    <message>
+        <source>Replace undefined values</source>
+        <translation>Erstatt udefinerte verdier</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Linje</translation>
+    </message>
+    <message>
+        <source>Copy value</source>
+        <translation>Kopier verdi</translation>
+    </message>
+    <message>
+        <source>Set udefined</source>
+        <translation>Sett udefinert</translation>
+    </message>
 </context>
 <context>
     <name>EditNewDialog</name>

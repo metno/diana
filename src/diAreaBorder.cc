@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -61,16 +61,16 @@ AreaBorder::AreaBorder(const AreaBorder &rhs) : ObjectPlot(rhs){
 AreaBorder::~AreaBorder(){
 }
 
-// draws the area border 
+// draws the area border
 bool AreaBorder::plot(){
   if (isVisible){
     int end = nodePoints.size();
     if (0<end){
       setWindowInfo();
 
-      if (x != NULL)  delete[] x; 
-      if (y != NULL)  delete[] y; 
-      if (x_s != NULL)  delete[] x_s; 
+      if (x != NULL)  delete[] x;
+      if (y != NULL)  delete[] y;
+      if (x_s != NULL)  delete[] x_s;
       if (y_s != NULL)  delete[] y_s;
 
 
@@ -85,11 +85,11 @@ bool AreaBorder::plot(){
       x= new float[length];
       y= new float[length];
       length = 0;
-  
+
       for (int i=0; i<nodePoints.size(); i++){
 	//skip points that are in the same position
-	if (i!=0 && nodePoints[i].x==nodePoints[i-1].x && 
-	    nodePoints[i].y==nodePoints[i-1].y) 
+	if (i!=0 && nodePoints[i].x==nodePoints[i-1].x &&
+	    nodePoints[i].y==nodePoints[i-1].y)
 	  continue;
 	  x[length]=nodePoints[i].x;
 	  y[length]=nodePoints[i].y;
@@ -114,10 +114,10 @@ bool AreaBorder::plot(){
       drawThickLine();
 
      glPopMatrix();
-     drawNodePoints(); 
+     drawNodePoints();
      UpdateOutput();
 
-     
+
     }
   }
   return true;
@@ -126,13 +126,13 @@ bool AreaBorder::plot(){
 
 /**
  * Algorithm for marking points on line
- * Idea is that if mousepointer is moved over a line 
+ * Idea is that if mousepointer is moved over a line
  * all nodepoints shines up / are marked
  * If on nodepoint only this point is marked
  * Checks this only if current status is passive.
  */
 bool AreaBorder::showLine(float x, float y){
-  if (boundBox.isinside(x,y)) 
+  if (boundBox.isinside(x,y))
     inBoundBox=true;
   else
     inBoundBox=false;
@@ -144,7 +144,7 @@ bool AreaBorder::showLine(float x, float y){
     markAllPoints();
     return true;
   }
-  else {    
+  else {
     return false;
   }
   return false;

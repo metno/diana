@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -63,7 +63,7 @@ void DisplayObjects::init(){
 /*********************************************/
 
 bool DisplayObjects::define(const miString& pi)
-{    
+{
 #ifdef DEBUGPRINT
   cerr << "DisplayObjects::define" << endl;
 #endif
@@ -76,7 +76,7 @@ bool DisplayObjects::define(const miString& pi)
 
   miString token;
   vector<miString> stokens;
-  
+
   for (i=0; i<n; i++){
     token= tokens[i].downcase();
     if (token.contains("types=")){
@@ -155,25 +155,25 @@ bool DisplayObjects::prepareObjects()
     pobject->setColorAlpha(alpha);
     pobject->setState(ObjectPlot::passive);
     if (newfrontlinewidth)
-      pobject->setFrontlinewidth(newfrontlinewidth);
+      pobject->setLineWidth(newfrontlinewidth);
     if (fixedsymbolsize)
       pobject->setSize(fixedsymbolsize);
     if (symbolfilter.size())
       pobject->applyFilters(symbolfilter);
     p++;
   }
-    
+
   //read comments file (assume commentfile names can be obtained
   //by replacing "draw" with "comm")
   miString commentfilename = filename;
   if (commentfilename.contains("draw")){
     commentfilename.replace("draw","comm");
-    readEditCommentFile(commentfilename); 
+    readEditCommentFile(commentfilename);
   }
 
-  approved = true;    
+  approved = true;
   return true;
-     
+
 }
 
 
@@ -205,18 +205,18 @@ bool DisplayObjects::getAnnotations(  vector <miString> &anno){
     if(anno[i].contains(",")){
       size_t nn = anno[i].find_first_of(",");
       endString = anno[i].substr(nn);
-    } 
+    }
     miString str;
     for (int i=0; i<n; i++){
       if (objects[i]->getAnnoTable(str)){
 	str+=endString;
 	anno.push_back(str);
       }
-    }        
+    }
   }
-  
+
   return true;
-  
+
 }
 
 

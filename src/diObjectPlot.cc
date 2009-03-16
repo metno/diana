@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -70,9 +70,9 @@ ObjectPlot::~ObjectPlot(){
 #ifdef DEBUGPRINT
   cerr << "Objectplot- destructor" << endl;
 #endif
-  if (x != NULL)  delete[] x; 
-  if (y != NULL)  delete[] y; 
-  if (x_s != NULL)  delete[] x_s; 
+  if (x != NULL)  delete[] x;
+  if (y != NULL)  delete[] y;
+  if (x_s != NULL)  delete[] x_s;
   if (y_s != NULL)  delete[] y_s;
 
   if (col) delete col;
@@ -112,7 +112,7 @@ void ObjectPlot::initVariables(){
   test = false;
   nodePoints.clear();
 
-  // Spline curve variables  
+  // Spline curve variables
   s_length = 0;
   x = NULL;
   y = NULL;
@@ -318,12 +318,12 @@ void ObjectPlot::recalculate()
 
 void ObjectPlot::addPoint( float x , float y){
   switch (currentState){
-  case active:     
+  case active:
     int n=nodePoints.size();
     // avoid points at same position
     if (n==0 || !nodePoints[n-1].isInRectangle(x,y,0)){
       ObjectPoint pxy(x,y);
-      if (addTop) 
+      if (addTop)
 	nodePoints.push_front(pxy);
       else
 	nodePoints.push_back(pxy);
@@ -352,13 +352,13 @@ bool ObjectPlot::insertPoint(float x,float y){
   else{
     unmarkAllPoints();
     return false;
-  } 
+  }
 }
 
 
 void ObjectPlot::changeBoundBox(float x, float y){
   // Changes boundBox
-  if (! boundBox.isinside(x,y)){   
+  if (! boundBox.isinside(x,y)){
     if (x < boundBox.x1){ boundBox.x1=x; }
     if (x > boundBox.x2){ boundBox.x2=x; }
     if (y < boundBox.y1){ boundBox.y1=y; }
@@ -372,7 +372,7 @@ bool ObjectPlot::markPoint( float x , float y){
   bool found=false;
   float fdeltaw=fSense*window_dw*w*0.5;
   int end = nodePoints.size();
-  for (int i=0; i < end; i++){    
+  for (int i=0; i < end; i++){
     if (nodePoints[i].isInRectangle(x,y,fdeltaw)){
       if (nodePoints[i].marked==false) markedChanged=true;
       nodePoints[i].marked=true;
@@ -407,14 +407,14 @@ void ObjectPlot::unmarkAllPoints(){
 bool ObjectPlot::deleteMarkPoints(){
   deque <ObjectPoint>::iterator p=nodePoints.begin();
   while (p!= nodePoints.end()){
-    if (p->marked) 
+    if (p->marked)
       p=nodePoints.erase(p);
     else
       p++;
   }
   unmarkAllPoints();
   updateBoundBox();
-  
+
   return true;
 }
 
@@ -448,13 +448,13 @@ bool ObjectPlot::ismarkSomePoint(){
 
 
 bool ObjectPlot::ismarkEndPoint(){
-  if (nodePoints.back().marked) 
+  if (nodePoints.back().marked)
     return true;
    return false;
 }
 
 bool ObjectPlot::ismarkBeginPoint(){
-  if (nodePoints.front().marked) 
+  if (nodePoints.front().marked)
     return true;
   return false;
 }
@@ -462,7 +462,7 @@ bool ObjectPlot::ismarkBeginPoint(){
 
 bool ObjectPlot::joinPoint( float x , float y){
   float dist;
-  int iJoin; 
+  int iJoin;
   //distmax = a large number
   float distmax = 100000;
   bool join = false;
@@ -471,7 +471,7 @@ bool ObjectPlot::joinPoint( float x , float y){
   }
   float fdeltaw=fSense*window_dw*w*0.5;
   int end = nodePoints.size();
-  for (int i=0; i < end; i++){    
+  for (int i=0; i < end; i++){
     if (nodePoints[i].isInRectangle(x,y,fdeltaw)){
       dist = nodePoints[i].distSquared(x,y);
       if (dist < distmax){
@@ -557,7 +557,7 @@ bool ObjectPlot::movePoint( float x , float y,float new_x , float new_y){
       return true;
     }
   }
-  return false;  
+  return false;
 }
 
 bool  ObjectPlot::moveMarkedPoints(float d_x , float d_y){
@@ -577,7 +577,7 @@ bool  ObjectPlot::rotateLine(float d_x , float d_y){
   //for now, only rotate fronts...
   if (!(objectIs(wFront)|| objectIs(Border))) return false;
   if (nodePoints.size()<2 || getXmarked().size()!=1) return false;
-  
+
   int i, n= nodePoints.size();
   float *s = new float[n];
   float dx, dy, smax, weight;
@@ -590,7 +590,7 @@ bool  ObjectPlot::rotateLine(float d_x , float d_y){
   for (int m=0; m < n; m++){
     if (!nodePoints[m].marked) continue;
     if (m==0) {
-      smax= s[n-1]; 
+      smax= s[n-1];
       for (i=0; i<n-1; i++) {
 	weight= (smax-s[i])/smax;
 	nodePoints[i].x+=(d_x*weight);
@@ -598,20 +598,20 @@ bool  ObjectPlot::rotateLine(float d_x , float d_y){
       }
       break;
     } else if (m==n-1) {
-      smax= s[n-1]; 
+      smax= s[n-1];
       for (i=1; i<n; i++) {
 	weight= s[i]/smax;
 	nodePoints[i].x+=(d_x*weight);
 	nodePoints[i].y+=(d_y*weight);
       }
     } else {
-      smax= s[m]; 
+      smax= s[m];
       for (i=1; i<m; i++) {
 	weight= s[i]/smax;
 	nodePoints[i].x+=(d_x*weight);
 	nodePoints[i].y+=(d_y*weight);
       }
-      smax= s[n-1]-s[m]; 
+      smax= s[n-1]-s[m];
       for (i=m; i<n-1; i++) {
 	weight= (s[n-1]-s[i])/smax;
 	nodePoints[i].x+=(d_x*weight);
@@ -756,7 +756,7 @@ void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
       glVertex2f(xdraw[i]+ deltaw,ydraw[i] - deltaw);
       glVertex2f(xdraw[i]+ deltaw,ydraw[i] + deltaw);
       glVertex2f(xdraw[i]- deltaw,ydraw[i] + deltaw);
-    } else if (objectIs(wArea)){      
+    } else if (objectIs(wArea)){
       //Circle
       GLfloat xc,yc;
       GLfloat radius=deltaw;
@@ -770,7 +770,7 @@ void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
       glVertex2f(xdraw[i]- deltaw,ydraw[i]- deltaw);
       glVertex2f(xdraw[i]+ deltaw,ydraw[i] - deltaw);
       glVertex2f(xdraw[i],ydraw[i] + deltaw);
-    } 
+    }
     glEnd();
   }
 
@@ -789,11 +789,11 @@ void ObjectPlot::drawTest(){
     glVertex2f(boundBox.x2,boundBox.y1);
     glVertex2f(boundBox.x2,boundBox.y2);
     glVertex2f(boundBox.x1,boundBox.y2);
-    glEnd(); 
+    glEnd();
   }
-  int size = nodePoints.size()-1;  
+  int size = nodePoints.size()-1;
   if (size > 1 && test){
-    for (int i = 0; i < s_length-1; i++){          
+    for (int i = 0; i < s_length-1; i++){
       if (x_s[i+1]!=x_s[i])
 	{
 	  float x1,x2,x3,x4,y1,y2,y3,y4;
@@ -818,7 +818,7 @@ void ObjectPlot::drawTest(){
 	  glVertex2f(x2,y2);
 	  glVertex2f(x3,y3);
 	  glVertex2f(x4,y4);
-	  glEnd(); 
+	  glEnd();
 	}
     }
   }
@@ -876,7 +876,7 @@ void  ObjectPlot::setObjectRGBColor(miString rgbstring) {
     }
     if (col) delete col;
     col = new Colour(cadd[0],cadd[1],cadd[2],cadd[3]);
-  }  
+  }
 }
 
 
@@ -899,32 +899,34 @@ bool ObjectPlot::readObjectString(miString objectString)
   cerr << "ObjectPlot::readObjectString\n";
   cerr << "string is: " << objectString << endl;
 #endif
+
   vector <miString> tokens = objectString.split(';');
   for (int i = 0; i<tokens.size();i++){
      vector <miString> stokens = tokens[i].split('=');
      key = stokens[0].downcase();
      value = stokens[1];
      if (key == "object"){
-       //cerr << "Object value is " << value << endl;
+        // cerr << "Object value is " << value << endl;
        // typeOfObject is already set in constructor
        objectRead = true;
       }
      else if (key =="type"){
        typeRead=setType(value);
        if (!typeRead){
-	 //check if value of type can be translated 
-	 if (editTranslations.count(value)){
-	   typeRead=setType(editTranslations[value]);
-	 }
+         //check if value of type can be translated
+         if (editTranslations.count(value)){
+           typeRead=setType(editTranslations[value]);
+         }
        }
-     } 
+       //cerr << "Type value is " << value << endl;
+     }
      else if (key =="name"){
-       name=value; //set 
+       name=value; //set
 #ifdef DEBUGPRINT
        cerr << "Name is " << value << endl;
 
 #endif
-     } 
+     }
      else if (key == "latitudelongitude" ||     // old and wrong!
 	      key == "longitudelatitude") {
        //cerr << "Lonlat value is " << value << endl;
@@ -945,10 +947,14 @@ bool ObjectPlot::readObjectString(miString objectString)
        //cerr << "size value is " << value << endl;
        setSize(atof(value.c_str()));
      }
+     else if (key == "linewidth"){
+       //cerr << "lineWidth value is " << value << endl;
+       setLineWidth(value.toFloat());
+     }
      else if (key == "rotation"){
        //cerr << "rotation value is " << value << endl;
        setRotation(atof(value.c_str()));
-     } 
+     }
     else if (key == "text"){
        //cerr << "text value is " << value << endl;
        setString(value);
@@ -961,13 +967,13 @@ bool ObjectPlot::readObjectString(miString objectString)
        //cerr << "whitebox value is " << value << endl;
        setWhiteBox(atoi(value.c_str()));
      }
-     else 
-       cerr << "ObjectPlot::readObjectString - Warning !, unknown key = " 
+     else
+       cerr << "ObjectPlot::readObjectString - Warning !, unknown key = "
 	    << key << endl;
   }
   //check if type and Latlondefined !
   if (!objectRead || !typeRead || !LonLatRead){
-    cerr << "ObjectPlot::readObjectString - Warning !, " << 
+    cerr << "ObjectPlot::readObjectString - Warning !, " <<
       "Input string lacks Object,Type or Longitude/Latitude Input! "
 	 << objectString << endl;
     return false;
@@ -977,7 +983,7 @@ bool ObjectPlot::readObjectString(miString objectString)
   //else if (objectIs(wArea)) cerr << "Object is area" << endl;
   //else cerr << "Unknown object type "<< typeOfObject << endl;
   //cerr << "Type = " << type << endl;
-  //cerr << "Number of points = " << nodePoints.size() << endl;   
+  //cerr << "Number of points = " << nodePoints.size() << endl;
   return true;
 }
 
@@ -1005,8 +1011,8 @@ miString ObjectPlot::writeObjectString(){
   if (col){
     ret+="RGBA=";
     //write colour
-    rs << (int) col->R() << "," << (int) col->G() 
-       << "," << (int) col->B() <<"," << (int) col->A();  
+    rs << (int) col->R() << "," << (int) col->G()
+       << "," << (int) col->B() <<"," << (int) col->A();
     rs <<";\n";
     ret+=rs.str();
   }
@@ -1061,11 +1067,11 @@ bool ObjectPlot::oktoJoin(bool joinAll){
     // only fronts can be joined
     // drawIndex from SigWeatherFront and higher are lines etc. not to be joined
     // empty fronts shouldn't be joined
-    if (objectIs(wFront) && drawIndex<SigweatherFront && nodePoints.size()) 
+    if (objectIs(wFront) && drawIndex<SigweatherFront && nodePoints.size())
       return true;
-    else 
+    else
       return false;
-  }      
+  }
   return false;
 }
 
@@ -1073,11 +1079,11 @@ bool ObjectPlot::oktoJoin(bool joinAll){
 
 bool ObjectPlot::oktoMerge(bool mergeAll,int index){
   if  (mergeAll || ismarkSomePoint() || currentState == active){
-    if (objectIs(wFront) && index==drawIndex && nodePoints.size()) 
+    if (objectIs(wFront) && index==drawIndex && nodePoints.size())
       return true;
-    else 
+    else
       return false;
-  }      
+  }
   return false;
 }
 
@@ -1093,8 +1099,8 @@ void ObjectPlot::setRubber(bool rub, const float x, const float y){
 }
 
 
-/* 
-  Algorithm for checking whether a point is on the front. 
+/*
+  Algorithm for checking whether a point is on the front.
  HK 15/9-00 - Use spline points, look in a tilted box following
  curve
 */
@@ -1107,15 +1113,15 @@ bool ObjectPlot::onLine(float x, float y){
 	if (x_s==NULL) {
 	  cerr << "Online::x_s = 0 !\n";
 	  return false;
-	} 	
+	}
 	for (int i = 0; i < s_length-1; i++){
 	  if (isInsideBox(x,y,x_s[i],y_s[i],x_s[i+1],y_s[i+1])){
 	    //spline point location of point
 	    insert = i/(divSpline+1)+1;
-	    return true;	
+	    return true;
 	  }
 	}
-      }else{	
+      }else{
 	for (int i = 0; i < size; i++){
 	  float x1,x2,y1,y2;
 	  if (i+1<size){
@@ -1133,9 +1139,9 @@ bool ObjectPlot::onLine(float x, float y){
 	  if (isInsideBox(x,y,x1,y1,x2,y2)){
 	    //spline point location of point
 	    insert = i+1;
-	    return true;	
+	    return true;
 	  }
-	}	
+	}
       }
     }
   }
@@ -1175,7 +1181,7 @@ bool ObjectPlot::isInsideBox(float x, float y,float x1,float y1,float x2,float y
   if (box->isinside(xprime,yprime)){
     //x,y distance to line
     if (x2!=x1){
-      float a=(y2-y1)/(x2-x1); // gradient        
+      float a=(y2-y1)/(x2-x1); // gradient
       float b= y1 - x1*a;
       float dist = (a/fabs(a))*(y-a*x-b)/sqrtf(1.+a*a);
       distX= dist*calpha;
@@ -1233,10 +1239,10 @@ int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast
     }
     return ns;
   }
-  
+
   ndivs = ismooth;
   rdivs = 1./float(ismooth+1);
-  
+
   n = nfirst;
   if (n > 0)
     {

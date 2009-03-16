@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -82,7 +82,7 @@
 EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout<<"EditDialog::EditDialog called"<<endl;
 #endif
 
@@ -93,6 +93,18 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   EditDialogInfo ll=llctrl->initEditDialog();
 
   //list of translations to appear in dialog:
+  editTranslations["Change value"]=tr("Change value");
+  editTranslations["Move"]=tr("Move");
+  editTranslations["Change gradient"]=tr("Change gradient");
+  editTranslations["Line, without smooth"]=tr("Line, without smooth");
+  editTranslations["Line, with smooth"]=tr("Line, with smooth");
+  editTranslations["Line, limited, without smooth"]=tr("Line, limited, without smooth");
+  editTranslations["Line, limited, with smooth"]=tr("Line, limited, with smooth");
+  editTranslations["Smooth"]=tr("Smooth");
+  editTranslations["Replace undefined values"]=tr("Replace undefined values");
+  editTranslations["Line"]=tr("Line");
+  editTranslations["Copy value"]=tr("Copy value");
+  editTranslations["Set undefined"]=tr("Set udefined");
   editTranslations["Cold front"]=tr("Cold front"); //Kaldfront
   editTranslations["Warm front"]=tr("Warm front"); //Varmfront
   editTranslations["Occlusion"]=tr("Occlusion"); //Okklusjon
@@ -136,6 +148,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Fog"]=tr("Fog"); //Tåke
   editTranslations["Ice"]=tr("Ice"); //Is
   editTranslations["Significant weather"]=tr("Significant weather"); //Sig.vær
+  editTranslations["Reduced visibility"]=tr("Reduced visibility"); //Sig.vær
   editTranslations["Generic area"]=tr("Generic area"); //
 
   // --------------------------------------------------------------------
@@ -154,7 +167,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 
   ConstructorCernel( ll );
 
- 
+
 }
 
 
@@ -162,7 +175,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 /*********************************************/
 void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 {
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout<<"EditDialog::ConstructorCernel called"<<endl;
 #endif
 
@@ -192,7 +205,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   vstr[sendb]=tr("Send").toStdString();
 
   int i;
- 
+
   for( i=0; i< m_nr_buttons; i++ ){
     b[i] = NormalPushButton( vstr[i].c_str(), this );
     bgroup->addButton(b[i],i);
@@ -209,7 +222,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 
   FieldTab();
   FrontTab();
-  CombineTab(); 
+  CombineTab();
 
   twd->setEnabled(false); // initially disabled
 
@@ -224,17 +237,17 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   timestepspin->setValue(1);
   stepchanged(1);
   connect(timestepspin, SIGNAL(valueChanged(int)), SLOT(stepchanged(int)));
-   
+
   //toggle button for comments dialog
-  pausebutton = new ToggleButton( this, tr("Pause").toStdString() );      
-  connect(  pausebutton, SIGNAL(toggled(bool)), 
+  pausebutton = new ToggleButton( this, tr("Pause").toStdString() );
+  connect(  pausebutton, SIGNAL(toggled(bool)),
 	    SLOT( pauseClicked(bool) ));
   pausebutton->setOn(false);
 
 
   //toggle button for comments dialog
   commentbutton = new ToggleButton( this, tr("Comments").toStdString());
-  connect(  commentbutton, SIGNAL(toggled(bool)), 
+  connect(  commentbutton, SIGNAL(toggled(bool)),
 	    SLOT( commentClicked(bool) ));
 
   QHBoxLayout* h2layout = new QHBoxLayout( 5 );
@@ -245,7 +258,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 
   editexit = NormalPushButton(tr("Exit"), this );
   connect(  editexit, SIGNAL(clicked()), SLOT( exitClicked() ));
-  
+
   // qt4 fix: QButton -> QPushButton
   QPushButton* edithide = NormalPushButton(tr("Hide"), this );
   connect( edithide, SIGNAL(clicked()), SIGNAL(EditHide()));
@@ -268,7 +281,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   hlayout->addWidget(editexit);
   hlayout->addWidget(edithide);
   hlayout->addWidget(edithelp);
-  
+
   // vlayout
   QVBoxLayout* vlayout = new QVBoxLayout( this);
   vlayout->addLayout( lvlayout,1);
@@ -277,7 +290,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   vlayout->addLayout( h2layout );
   vlayout->addLayout( hlayout );
 
-//   vlayout->activate(); 
+//   vlayout->activate();
 //   vlayout->freeze();
 
   enew = new EditNewDialog( static_cast<QWidget*>(parent()), m_ctrl );
@@ -304,7 +317,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 		       Qt::NoButton,
 		       this);
   mb->setButtonText( QMessageBox::Yes, tr("New") );
-  mb->setButtonText( QMessageBox::Cancel, tr("Cancel")); 
+  mb->setButtonText( QMessageBox::Cancel, tr("Cancel"));
 
 
 }//end constructor EditDialog
@@ -319,7 +332,7 @@ void  EditDialog::FieldTab()
 {
   int mymargin=5;
   int myspacing=5;
-    
+
   fieldtab = new QWidget(twd);
 
 
@@ -366,8 +379,8 @@ void  EditDialog::FieldTab()
   // set default (dialog and use)
   rbInfluence[0]->setChecked(true);
   changeInfluence(0); // needed as the above does not change anything
-    
-  
+
+
   QLabel* ellipseform = new QLabel(tr("Ellipse shape"),this);
 
   ellipsenumbers.clear();
@@ -392,11 +405,11 @@ void  EditDialog::FieldTab()
   ellipseslider->setMinimumHeight( 16 );
   ellipseslider->setMaximumHeight( 16 );
   ellipseslider->setEnabled( true );
-     
-  connect( ellipseslider, SIGNAL( valueChanged( int )), 
+
+  connect( ellipseslider, SIGNAL( valueChanged( int )),
            SLOT( fieldEllipseChanged( int)));
 
-  connect( ellipseslider, SIGNAL( sliderReleased() ), 
+  connect( ellipseslider, SIGNAL( sliderReleased() ),
            SLOT( fieldEllipseShape()) );
 
   QHBoxLayout* ehbox = new QHBoxLayout();
@@ -409,7 +422,7 @@ void  EditDialog::FieldTab()
   fieldEllipseShape();
 
   // enable/disable extra editing lines
-  exlineCheckBox= new QCheckBox(tr("Show extra editing lines"), fieldtab);						
+  exlineCheckBox= new QCheckBox(tr("Show extra editing lines"), fieldtab);
   exlineCheckBox->setChecked( false );
   exlineCheckBox->setEnabled( true );
 
@@ -428,7 +441,7 @@ void  EditDialog::FieldTab()
 
   connect( undoFieldButton, SIGNAL(clicked()), SLOT(undofield()));
   connect( redoFieldButton, SIGNAL(clicked()), SLOT(redofield()));
-    
+
   QHBoxLayout* hbox = new QHBoxLayout();
   hbox->setMargin( mymargin );
   hbox->setSpacing( myspacing );
@@ -698,7 +711,7 @@ void  EditDialog::FrontTabBox( int index )
   } else if (m_FronteditIndex < m_Fronteditmethods->count()-1){
     m_Fronteditmethods->item(m_FronteditIndex)->setSelected(true);
   }
-  currEditmode= miString(m_Frontcm->text(m_FrontcmIndex).toStdString()); 
+  currEditmode= miString(m_Frontcm->text(m_FrontcmIndex).toStdString());
   FrontEditClicked();
   return;
 }
@@ -707,7 +720,7 @@ void  EditDialog::FrontTabBox( int index )
 
 void EditDialog::FrontEditClicked()
 {
-  //cerr << "FrontEditClicked "  << endl; 
+  //cerr << "FrontEditClicked "  << endl;
   //called when an item in the objects list box clicked
   if (!inEdit || m_Fronteditmethods->count()==0) return;
 
@@ -723,13 +736,13 @@ void EditDialog::FrontEditClicked()
     m_FronteditIndex=index;
     if (m_objm->inTextMode()){
       miString text = m_objm->getCurrentText();
-      Colour::ColourInfo colour= m_objm->getCurrentColour();  
+      Colour::ColourInfo colour= m_objm->getCurrentColour();
       if (text.empty()){
 	if (getText(text,colour)){
 	  m_objm->setCurrentText(text);
 	  m_objm->setCurrentColour(colour);
 	}
-      }   
+      }
     }
     else if (m_objm->inComplexTextMode()){
       vector <miString> symbolText,xText;
@@ -737,7 +750,7 @@ void EditDialog::FrontEditClicked()
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getComplexText(symbolText,xText)){
 	m_objm->setCurrentComplexText(symbolText,xText);
-      } 
+      }
     }
   }
   m_objm->createNewObject();
@@ -749,21 +762,21 @@ void EditDialog::FrontEditDoubleClicked()
 {
   //called when am item in the objects list box doubleclicked
   if (m_objm->inTextMode()){
-    miString text = m_objm->getCurrentText();   
+    miString text = m_objm->getCurrentText();
     Colour::ColourInfo colour=m_objm->getCurrentColour();
     if (getText(text,colour)){
       //change objectmanagers current text !
       m_objm->setCurrentText(text);
       m_objm->setCurrentColour(colour);
-    }   
+    }
   } else if (m_objm->inComplexTextMode()){
     vector <miString> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getComplexText(symbolText,xText)){
       m_objm->setCurrentComplexText(symbolText,xText);
-    } 
+    }
   }
-  //create new object 
+  //create new object
   if (inEdit)
     m_objm->createNewObject();
 }
@@ -813,7 +826,7 @@ void EditDialog::autoJoinToggled(bool on)
 
 void EditDialog::EditMarkedText()
 {
-  //called from shortcut ctrl-e 
+  //called from shortcut ctrl-e
   //changes all marked texts and objectmanagers current text !
   vector <miString> symbolText,xText,eText;
   miString text = m_objm->getMarkedText();
@@ -825,8 +838,8 @@ void EditDialog::EditMarkedText()
       m_objm->changeMarkedColour(colour);
       m_objm->setCurrentText(text);
       m_objm->setCurrentColour(colour);
-    }    
-  } 
+    }
+  }
   //text from annotations
   text = m_ctrl->getMarkedAnnotation();
   if (!text.empty()){
@@ -834,12 +847,12 @@ void EditDialog::EditMarkedText()
     AnnoText * aText =new AnnoText(this,m_ctrl,m_editm->getProductName(), eText,xText);
     connect(aText,SIGNAL(editUpdate()),SIGNAL(editUpdate()));
     m_ctrl->startEditAnnotation();
-    aText->exec(); 
+    aText->exec();
     delete aText;
-  }   
+  }
   m_objm->getMarkedComplexText(symbolText,xText);
   if (getComplexText(symbolText,xText))
-    m_objm->changeMarkedComplexText(symbolText,xText);      
+    m_objm->changeMarkedComplexText(symbolText,xText);
 }
 
 void EditDialog::DeleteMarkedAnnotation()
@@ -864,8 +877,8 @@ bool EditDialog::getText(miString & text, Colour::ColourInfo & colour)
     if (symbolText.size())
       text=symbolText[0];
     ok=true;
-  } 
-  delete cText;	         
+  }
+  delete cText;
 
   return ok;
 }
@@ -882,8 +895,8 @@ bool EditDialog::getComplexText(vector <miString> & symbolText,
     if (cText->exec()){
       cText->getComplexText(symbolText,xText);
       ok=true;
-    } 
-    delete cText;	          
+    }
+    delete cText;
   }
   return ok;
 }
@@ -1057,14 +1070,14 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
   list->setCurrentItem(0);
 
   if (mindex==OBJECT_INDEX)
-    m_FronteditList=vstr; //list of edit tools 
+    m_FronteditList=vstr; //list of edit tools
 
   if (mindex==OBJECT_INDEX && index==SIGMAP_INDEX){
     //for now, only sigmap symbols have images...
     list->clear();
     cerr <<"CLEAR"<<endl;
     list->setViewMode(QListView::IconMode);
-    SetupParser sp;      
+    SetupParser sp;
     for ( int i=0; i<n; i++){
       miString path = sp.basicValue("imagepath");
       miString filename = path+ m_FronteditList[i] + ".png";
@@ -1089,7 +1102,7 @@ void EditDialog::ComboBoxData(QComboBox* box, int mindex)
   m_Frontcm->clear();
   for( int i=0; i<n; i++ ){
     if (m_EditDI.mapmodeinfo[mindex].editmodeinfo[i].edittools.size()){
-      m_Frontcm->addItem(QString(m_EditDI.mapmodeinfo[1].editmodeinfo[i].editmode.cStr()));    
+      m_Frontcm->addItem(QString(m_EditDI.mapmodeinfo[1].editmodeinfo[i].editmode.cStr()));
     }
   }
 
@@ -1099,7 +1112,7 @@ void EditDialog::ComboBoxData(QComboBox* box, int mindex)
 bool EditDialog::saveEverything(bool send)
 {
   bool approved= false;
-  
+
   if (send){
     switch(QMessageBox::information(this, tr("Send product"),
 		tr("Start distribution of product to all regions.\n Use \"Approve produkt\" to give product official status\n as approved and ready."),
@@ -1119,18 +1132,18 @@ bool EditDialog::saveEverything(bool send)
       break;
     }
   }
-  
+
   ecomment->saveComment();
   miString message;
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
 
   if (!res){
-    message= miString(tr("Problem saving/sending product\n").toStdString()) + 
+    message= miString(tr("Problem saving/sending product\n").toStdString()) +
       miString(tr("Message from server:\n").toStdString())
       + message;
       QMessageBox::warning( this, tr("Save error:"),
 			  message.c_str());
-    
+
     return false;
   }
 
@@ -1139,9 +1152,9 @@ bool EditDialog::saveEverything(bool send)
 	    : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
     QString(t.isoTime().cStr()) + QString("</font> ");
-  
+
   QString qs= lcs + tcs;
-  
+
   if (send && approved){
     productApproved= true;
     qs += " <font color=\"darkgreen\">"+ tr("and approved") +"</font> ";
@@ -1150,7 +1163,7 @@ bool EditDialog::saveEverything(bool send)
   }
 
   lStatus->setText(qs);
-  
+
   return true;
 }
 
@@ -1174,7 +1187,7 @@ void  EditDialog::groupClicked( int id )
 	// show start-new-product dialog
 	enew->show();
       }
-    break;    
+    break;
   case 1:
     // Save all
     saveEverything(false);
@@ -1215,13 +1228,13 @@ void  EditDialog::commentClicked( bool on )
 void  EditDialog::pauseClicked( bool on )
 {
   if (inEdit){
-    m_editm->setEditPause(on); 
+    m_editm->setEditPause(on);
     emit editMode(!on);
   }
 }
 
 
-  
+
 void EditDialog::showAll()
 {
   if (inEdit){
@@ -1248,11 +1261,11 @@ void EditDialog::hideAll()
 
 bool EditDialog::okToExit()
 {
-  //save comments to plotm->editObjects struct 
+  //save comments to plotm->editObjects struct
   ecomment->saveComment();
   if (m_editm->unsavedEditChanges()){
     raise(); //put dialog on top
-    
+
     switch(QMessageBox::information(this,tr("Exit editing"),
 					    tr("You have unsaved edits.\n Save before exiting?"),
 					    tr("&Save"), tr("&Don't save"), tr("&Cancel"),
@@ -1291,7 +1304,7 @@ bool EditDialog::cleanupForExit()
   ecomment->stopComment();
   m_editm->stopEdit();
   m_editm->logoutDatabase(dbi);
-  
+
   return true;
 }
 
@@ -1328,7 +1341,7 @@ void EditDialog::exitClicked()
 
 void EditDialog::helpClicked()
 {
-  emit showsource("ug_editdialogue.html"); 
+  emit showsource("ug_editdialogue.html");
 }
 
 
@@ -1344,7 +1357,7 @@ void EditDialog::updateLabels()
       miString(" ") + prodtime.format("%D %H:%M");
   else
     s= "";
-  
+
   prodlabel->setText(s.cStr());
 }
 
@@ -1482,7 +1495,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     }
 
     for (int i=0; i<classNames.size(); i++) {
-      QListWidgetItem* item 
+      QListWidgetItem* item
 	= new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
       m_Fieldeditmethods->addItem(item);
     }
@@ -1508,7 +1521,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
   //Fill object edit combobox
   ComboBoxData(m_Frontcm,1);
-  //Clear object edit listbox and set indices to zero 
+  //Clear object edit listbox and set indices to zero
   m_Fronteditmethods->clear();
   m_FrontcmIndex=0;
   m_FronteditIndex=-1;
@@ -1672,7 +1685,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   }
 
   //ListBoxData( m_Fieldeditmethods, 0, fieldEditToolGroup);
- 
+
   if (fieldEditToolGroup==0) {
     rbInfluence[0]->setEnabled(true);
     rbInfluence[1]->setEnabled(false);
@@ -1740,7 +1753,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     }
 
     for (int i=0; i<classNames.size(); i++) {
-      QListWidgetItem* item 
+      QListWidgetItem* item
 	= new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
       m_Fieldeditmethods->addItem(item);
     }
@@ -1751,11 +1764,11 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     //OBS    m_Fieldeditmethods->triggerUpdate(true);
   }
- 
-  
+
+
   //Fill object edit combobox
   ComboBoxData(m_Frontcm,1);
-  //Clear object edit listbox and set indices to zero 
+  //Clear object edit listbox and set indices to zero
   m_Fronteditmethods->clear();
   m_FrontcmIndex=0;
   m_FronteditIndex=-1;
@@ -1807,10 +1820,10 @@ void EditDialog::EditNewCancel()
 }
 
 
-void EditDialog::closeEvent( QCloseEvent* e) 
+void EditDialog::closeEvent( QCloseEvent* e)
 {
   emit EditHide();
-} 
+}
 
 void EditDialog::hideComment()
 {

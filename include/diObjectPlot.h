@@ -253,7 +253,6 @@ public:
   virtual float getTransitionWidth(){return 0.0;}
   virtual miString getString(){return miString();}
   virtual void setString(miString s){}
-  virtual void setFrontlinewidth(int){};
   virtual void applyFilters(vector <miString>){};
 
   virtual void getComplexText(vector <miString> & symbolText, vector <miString> & xText){}

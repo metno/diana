@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -46,12 +46,12 @@ class WeatherArea: public ObjectPlot
 {
 private:
   float linewidth;                // width of border (PlotOptions?)
+  static float defaultLineWidth;
   bool fillArea;                  // fill area with pattern
   bool drawSig;                   // draw sig weather arcs.
 
   static vector<editToolInfo>  allAreas;
   static map<miString,int> areaTypes;  //finds area type number from name
-  static float defaultLineWidth;
 
   void recalculate();
   void drawSigweather();
@@ -86,7 +86,7 @@ public:
   bool plot();  ///< draws the area
   bool plot(const int){return false;}
   /// shows / marks node point/ points on area
-  bool showLine(float x, float y); 
+  bool showLine(float x, float y);
   /// set type of area
   void setType(int ty);
   /// set type of area

@@ -39,7 +39,7 @@
 
 vector<editToolInfo> WeatherArea::allAreas; //info about areas
 map<miString,int> WeatherArea::areaTypes;    //finds area type number from name
-float WeatherArea::defaultLineWidth;
+float WeatherArea::defaultLineWidth=4;
 
 // Default constructor
 WeatherArea::WeatherArea()
@@ -619,6 +619,9 @@ miString WeatherArea::writeTypeString()
   miString ret ="Object=Area;\n";
   ret+="Type=";
   ret+=allAreas[type].name;
+  ret+=";\n";
+  ret+="Linewidth=";
+  ret+=miString(linewidth);
   ret+=";\n";
   return ret;
 }
