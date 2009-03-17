@@ -30,7 +30,7 @@
 */
 #include <qtPaintToolBar.h>
 #include <qpixmap.h>
-#include <qkeysequence.h> 
+#include <qkeysequence.h>
 #include <QActionGroup>
 #include <miString.h>
 #include <paint_select.xpm>
@@ -48,11 +48,11 @@
 #include <paint_move_point.xpm>
 #include <paint_help.xpm>
 
-miString PaintToolBar::helpPageName = "ug_fieldeditdrawing.html";
+miString PaintToolBar::helpPageName = "ug_profetdrawingtools.html";
 
-PaintToolBar::PaintToolBar(QMainWindow *parent) 
+PaintToolBar::PaintToolBar(QMainWindow *parent)
 			: QToolBar(tr("Paint Operations"), parent) {
-	
+
   selectAction = new QAction( QPixmap(paint_select_xpm),tr("&Select"),this );
   selectAction->setShortcut(Qt::Key_1);
   selectAction->setToggleAction(true);
@@ -97,7 +97,7 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   connect( redoAction, SIGNAL( activated() ), SIGNAL( redoPressed() ) );
   displayHelpAction = new QAction( QPixmap(paint_help_xpm),tr("&Help"),this );
   connect( displayHelpAction, SIGNAL( activated() ), SLOT( helpPressed() ) );
-  
+
   modeActions = new QActionGroup(this);
   modeActions->add(selectAction);
   modeActions->add(drawAction);
@@ -108,7 +108,7 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   modeActions->add(removePointAction);
   modeActions->add(movePointAction);
   modeActions->add(spatialAction);
-	
+
   selectAction->addTo(this);
   addSeparator();
   drawAction->addTo(this);
@@ -127,7 +127,7 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
   redoAction->addTo(this);
   addSeparator();
   displayHelpAction->addTo(this);
-  
+
   enableUndo(false);
   enableRedo(false);
 }
@@ -142,10 +142,10 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
   addPointAction->setEnabled(false);
   removePointAction->setEnabled(false);
   movePointAction->setEnabled(false);
-  
+
   if(buttons == PaintToolBar::SELECT_ONLY){
     setPaintMode(GridAreaManager::SELECT_MODE);
-    selectAction->setEnabled(true);  
+    selectAction->setEnabled(true);
     enableUndo(false);
     enableRedo(false);
   }
@@ -225,14 +225,14 @@ void PaintToolBar::sendPaintModeChanged(){
 void PaintToolBar::enableUndo(bool enable){
   if(drawAction->isEnabled())
     undoAction->setEnabled(enable);
-  else 
+  else
     undoAction->setEnabled(false);
 }
 
 void PaintToolBar::enableRedo(bool enable){
   if(drawAction->isEnabled())
     redoAction->setEnabled(enable);
-  else 
+  else
     redoAction->setEnabled(false);
 }
 
