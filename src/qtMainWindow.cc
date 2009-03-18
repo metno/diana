@@ -4046,6 +4046,10 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
     if (vstr[ivstr].substr(0,4)=="====") break;
     tokens= vstr[ivstr].split(' ');
     if (tokens[0]=="DocState") restoreDocState(vstr[ivstr]);
+    if (paintToolBar != 0) {
+      paintToolBar->hide();
+    }
+
     if (tokens.size()==3) {
       x= atoi(tokens[1].c_str());
       y= atoi(tokens[2].c_str());
