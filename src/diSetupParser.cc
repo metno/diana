@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <fstream>
 #include <diSetupParser.h>
@@ -213,7 +213,7 @@ void SetupParser::cleanstr(miString& s)
 }
 
 void SetupParser::splitKeyValue(const miString& s,
-				miString& key, miString& value) {
+    miString& key, miString& value) {
   vector<miString> vs= s.split(2,'=',true);
   if (vs.size()==2) {
     key=vs[0].downcase(); // always converting keyword to lowercase !
@@ -247,7 +247,7 @@ void SetupParser::splitKeyValue(const miString& s,
 
 
 void SetupParser::splitKeyValue(const miString& s,
-				miString& key, vector<miString>& value) {
+    miString& key, vector<miString>& value) {
   value.clear();
   vector<miString> vs= s.split(2,'=',true);
   if (vs.size()==2) {
@@ -296,7 +296,7 @@ bool SetupParser::parseFile(const miString& filename, // name of file
   ifstream file(filename.cStr());
   if (!file) {
     cerr << "SetupParser::readSetup. cannot open setupfile " << filename
-        << endl;
+    << endl;
     return false;
   }
 
@@ -416,13 +416,15 @@ bool SetupParser::parseFile(const miString& filename, // name of file
         miString key, value;
         splitKeyValue(str, key, value);
         if (value.exists()) {
-          if (user_variables.count(key.upcase()) == 0) // user variables override setupfile
+          // user variables override setupfile and redefinitions are ignored
+          if (user_variables.count(key.upcase()) == 0 && substitutions.count(key.upcase()) == 0 ) {
             substitutions[key.upcase()] = value;
+          }
         } else {
           cerr << "** setupfile WARNING, line " << linenum << " in file "
-              << filename
-              << " is not a legal variable definition, and is outside all sections:"
-              << str << endl;
+          << filename
+          << " is not a legal variable definition, and is outside all sections:"
+          << str << endl;
         }
         continue;
       }
@@ -438,7 +440,7 @@ bool SetupParser::parseFile(const miString& filename, // name of file
   // File should start and end in same section
   if (sectname != origsect) {
     miString error = "File started in section " + origsect
-        + " and ended in section " + sectname;
+    + " and ended in section " + sectname;
     internalErrorMsg(filename, linenum, error);
     return false;
   }
@@ -460,7 +462,7 @@ bool SetupParser::parse(miString & mainfilename){
     miString workdir = homedir + "/work";
     makeDirectory(workdir,error);
   } else {
-      homedir=".";
+    homedir=".";
   }
   basic_values["homedir"]    = homedir;
 
@@ -484,7 +486,7 @@ bool SetupParser::parse(miString & mainfilename){
         ifstream file3(filename.cStr());
         if (!file3) {
           cerr << "SetupParser::readSetup. cannot open default setupfile "
-              << filename_str << endl;
+          << filename_str << endl;
           cerr << "Try diana.bin -s setupfile" << endl;
           return false;
         }
@@ -512,76 +514,76 @@ bool SetupParser::parse(miString & mainfilename){
 
 // report an error with filename and linenumber
 void SetupParser::internalErrorMsg(const miString& filename,
-				   const int linenum,
-				   const miString& error)
+    const int linenum,
+    const miString& error)
 {
   cerr << "================================================" << endl;
   cerr << "Error in setupfile " << filename << endl
-       << "The error occured in line " << linenum << endl
-       << "Message: " << error << endl;
+  << "The error occured in line " << linenum << endl
+  << "Message: " << error << endl;
   cerr << "================================================" << endl;
 }
 
 // report an error with line# and sectionname
 void SetupParser::errorMsg(const miString& sectname,
-			   const int linenum,
-			   const miString& error)
+    const int linenum,
+    const miString& error)
 {
   map<miString,SetupSection>::iterator p;
   if ((p=sectionm.find(sectname))!=sectionm.end()){
     int n= p->second.linenum.size();
     int lnum= ( linenum >= 0 && linenum <n ) ?
-      p->second.linenum[linenum] : 9999;
-    int m= p->second.filenum.size();
-    int fnum= ( linenum >= 0 && linenum <m ) ?
-      p->second.filenum[linenum] : 0;
+        p->second.linenum[linenum] : 9999;
+        int m= p->second.filenum.size();
+        int fnum= ( linenum >= 0 && linenum <m ) ?
+            p->second.filenum[linenum] : 0;
 
-    cerr << "================================================" << endl;
-    cerr << "Error in setupfile " << sfilename[fnum] << endl
-	 << "The error occured in section " << sectname << ", line " << lnum << endl
-	 << "Line   : " << p->second.strlist[linenum] << endl
-	 << "Message: " << error << endl;
-    cerr << "================================================" << endl;
+            cerr << "================================================" << endl;
+            cerr << "Error in setupfile " << sfilename[fnum] << endl
+            << "The error occured in section " << sectname << ", line " << lnum << endl
+            << "Line   : " << p->second.strlist[linenum] << endl
+            << "Message: " << error << endl;
+            cerr << "================================================" << endl;
   } else {
     cerr << "================================================" << endl;
     cerr << "Internal SetupParser error." << endl
-	 << "An error was reported for unknown section " << sectname << endl
-	 << "The message is: " << error << endl;
+    << "An error was reported for unknown section " << sectname << endl
+    << "The message is: " << error << endl;
     cerr << "================================================" << endl;
   }
 }
 
 // give a warning with line# and sectionname
 void SetupParser::warningMsg(const miString& sectname,
-			     const int linenum,
-			     const miString& warning)
+    const int linenum,
+    const miString& warning)
 {
   map<miString,SetupSection>::iterator p;
   if ((p=sectionm.find(sectname))!=sectionm.end()){
     int n= p->second.linenum.size();
     int lnum= ( linenum >= 0 && linenum <n ) ?
-      p->second.linenum[linenum] : 9999;
-    int m= p->second.filenum.size();
-    int fnum= ( linenum >= 0 && linenum <m ) ?
-      p->second.filenum[linenum] : 0;
+        p->second.linenum[linenum] : 9999;
+        int m= p->second.filenum.size();
+        int fnum= ( linenum >= 0 && linenum <m ) ?
+            p->second.filenum[linenum] : 0;
 
-    cerr << "================================================" << endl;
-    cerr << "Warning for setupfile " << sfilename[fnum] << endl
-	 << "Section " << sectname << ", line " << lnum << endl
-	 << "Line   : " << p->second.strlist[linenum] << endl
-	 << "Message: " << warning << endl;
-    cerr << "================================================" << endl;
+            cerr << "================================================" << endl;
+            cerr << "Warning for setupfile " << sfilename[fnum] << endl
+            << "Section " << sectname << ", line " << lnum << endl
+            << "Line   : " << p->second.strlist[linenum] << endl
+            << "Message: " << warning << endl;
+            cerr << "================================================" << endl;
   } else {
     cerr << "================================================" << endl;
     cerr << "Internal SetupParser warning." << endl
-	 << "A warning was reported for unknown section " << sectname << endl
-	 << "The message is: " << warning << endl;
+    << "A warning was reported for unknown section " << sectname << endl
+    << "The message is: " << warning << endl;
     cerr << "================================================" << endl;
   }
 }
 
 bool SetupParser::getSection(const miString& sectname,
-			     vector<miString>& setuplines)
+    vector<miString>& setuplines)
 {
   map<miString,SetupSection>::iterator p;
   if ((p=sectionm.find(sectname))!=sectionm.end()){
@@ -590,7 +592,7 @@ bool SetupParser::getSection(const miString& sectname,
   }
 #ifdef DEBUGPRINT1
   cerr << "Warning: ++SetupParser::getSection for unknown or missing (from setupfile) section: " <<
-    sectname << endl;
+  sectname << endl;
 #endif
   setuplines.clear();
   return false;
@@ -637,7 +639,7 @@ bool SetupParser::parseBasics(const miString& sectname){
     } else if (key==key_setenv){
       vector<miString> part = value.split(",");
       if(part.size()==3){
-	setenv(part[0].cStr(),part[1].cStr(),part[2].toInt());
+        setenv(part[0].cStr(),part[1].cStr(),part[2].toInt());
       }
     }
   }
@@ -677,13 +679,13 @@ bool SetupParser::parseTextInfoFiles(const miString& sectname)
     for (int j=0; j<tokens2.size(); j++){
       splitKeyValue(tokens2[j], key, value);
       if (key==key_name)
-	name= value;
+        name= value;
       else if (key==key_file)
-	filename= value;
+        filename= value;
       else if (key==key_type)
-	type= value;
+        type= value;
       else if (key==key_font)
-	font= value;
+        font= value;
     }
     name.trim();
     filename.trim();
@@ -707,16 +709,16 @@ bool SetupParser::parseColours(const miString& sectname){
   const int numcols= 21;
   const miString colnames[numcols]=
   {"black","white","red","green","blue","yellow",
-     "dark_green","dark_yellow","dark_red","dark_blue",
-     "brown","orange","cyan","magenta",
-     "purple","lightblue","dnmi_green","dnmi_blue",
-     "grey25","grey50","grey90"};
+      "dark_green","dark_yellow","dark_red","dark_blue",
+      "brown","orange","cyan","magenta",
+      "purple","lightblue","dnmi_green","dnmi_blue",
+      "grey25","grey50","grey90"};
   const uchar_t cols[numcols][3]=
   { {0,0,0},{255,255,255},{255,0,0},{0,255,0},{0,0,255},{255,255,0},
-    {0,127,127},{178,178,0},{178,0,0},{0,0,178},
+      {0,127,127},{178,178,0},{178,0,0},{0,0,178},
       {178,51,0},{255,89,0},{0,255,255},{255,0,255},
-	{77,0,77},{51,51,255},{43,120,36},{0,54,125},
-	  {64,64,64},{127,127,127},{230,230,230}};
+      {77,0,77},{51,51,255},{43,120,36},{0,54,125},
+      {64,64,64},{127,127,127},{230,230,230}};
 
 
   vector<miString> list,tokens,stokens;
@@ -768,7 +770,7 @@ bool SetupParser::parsePalettes(const miString& sectname){
   ColourShading::ColourShadingInfo csinfo;
   const int nbaseRGB=5;
   const float baseRGB[nbaseRGB][3]=
-    { 0.0,0.0,0.5, 0.0,1.0,1.0, 0.0,0.5,0.0,
+  { 0.0,0.0,0.5, 0.0,1.0,1.0, 0.0,0.5,0.0,
       1.0,1.0,0.0, 1.0,0.0,0.0 };
 
   //colour shading
@@ -808,9 +810,9 @@ bool SetupParser::parsePalettes(const miString& sectname){
   cerr<<"nRGBtab,mRGBtab: "<<nRGBtab<<" "<<mRGBtab<<endl;
   for (int i=0; i<nRGBtab; i++) {
     cerr<<setw(3)<<i<<":  "
-	<<setw(3)<<int(RGBtab[i][0]*255.+0.5)<<"  "
-	<<setw(3)<<int(RGBtab[i][1]*255.+0.5)<<"  "
-	<<setw(3)<<int(RGBtab[i][2]*255.+0.5)<<endl;
+    <<setw(3)<<int(RGBtab[i][0]*255.+0.5)<<"  "
+    <<setw(3)<<int(RGBtab[i][1]*255.+0.5)<<"  "
+    <<setw(3)<<int(RGBtab[i][2]*255.+0.5)<<endl;
   }
 #endif
 
@@ -918,11 +920,11 @@ bool SetupParser::parseLineTypes(const miString& sectname){
       value = stokens[0];
       value2= stokens[1];
       if (value2.isInt())
-	factor= atoi(value2.cStr());
+        factor= atoi(value2.cStr());
     }
     if (value.length()==numbits){
       for (j=0; j<numbits; j++){
-	if (value[j]=='1') bm |= bmask[j];
+        if (value[j]=='1') bm |= bmask[j];
       }
       Linetype::define(key,bm,factor);
     }
@@ -956,7 +958,7 @@ bool SetupParser::parseQuickMenus(const miString& sectname){
     for (j=0; j<m; j++){
       splitKeyValue(tokens[j],key,value);
       if (key==key_file && value.exists()){
-	file= value;
+        file= value;
       }
     }
     if (file.exists()){
@@ -1049,16 +1051,16 @@ vector< vector<Colour::ColourInfo> > SetupParser::getMultiColourInfo(int multiNu
     for (n1=0; n1<nc; n1++) {
       for (n2=n1+1; n2<nc; n2++) {
         for (n3=n2+1; n3<nc; n3++) {
-	  nn[0]= cind[n1];
-	  nn[1]= cind[n2];
-	  nn[2]= cind[n3];
+          nn[0]= cind[n1];
+          nn[1]= cind[n2];
+          nn[2]= cind[n3];
           for (j=0; j<6; j++) {
             mc[0]= colours[nn[s[j][0]]];
             mc[1]= colours[nn[s[j][1]]];
             mc[2]= colours[nn[s[j][2]]];
             vmc.push_back(mc);
           }
-	}
+        }
       }
     }
 

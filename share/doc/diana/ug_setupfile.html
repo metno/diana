@@ -65,7 +65,9 @@
       Other features:
     <ol>
       <li>Refer to environment/shell variable XX with ${XX}<br><i>Example: ${HOME} will be expanded to the home-path</i>
-      <li>Define local variables with XX=yy (outside all sections), and refer to them with $(XX)<br><i>Example: Add ROOT=/metno/local in a separate line outside all sections. All occurrences of $(ROOT) in later lines will be expanded to /metno/local</i>
+      <li>Define local variables with XX=yy (outside all sections),
+      and refer to them with $(XX)<br>
+<br><i>Example: Add ROOT=/metno/local in a separate line outside all sections. All occurrences of $(ROOT) in later lines will be expanded to /metno/local</i>
       <li>Long lines may be split up by using '\'. Add a '\' (and newline) where you want to split a line.
       <li>Include another file with %include "filename". Included file inherits section at the point of inclusion. File must start and end with the same section. Files may be nested.
       <li>Use keyword CLEAR to clear all previous definitions for a specific section. Only valid within a section. Useful in local files which include the official setupfile.
@@ -74,6 +76,8 @@
 	<code>tempyyyymmddHH.rdb</code> in order to extract the time
 	information. Parentheses may be skipped if none of the keys
 	below appear in the filename.
+      <li> Redefinitions of variables outside all sections will be
+      ignored, while redefinitions within sections are possible.
 
 <p>
     <table border="1" cellpadding="1" cellspacing="0"  >
