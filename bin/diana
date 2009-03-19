@@ -90,7 +90,7 @@ done
 echo "===============================================" >>mail.core
 hinv                 >>mail.core
 
-adr="audun.christoffersen@met.no helen.korsmo@met.no lisbeth.bergholt@met.no"
+adr="audun.christoffersen@met.no lisbeth.bergholt@met.no"
 Mail -s "DIANA CRASH" $adr < mail.core
 
 fi
