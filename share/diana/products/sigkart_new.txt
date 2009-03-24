@@ -8,6 +8,7 @@ anno=<text="Prognostic chart",size=0.8><horalign=center> \
 anno=<text=" ______________"><horalign=center> \
 anno=<text="VALID %H UTC"><horalign=center> \
 anno=<text="%d %Beng %Y"><horalign=center> \
+anno=<text=" ",size=0.5><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
 halign=left valign=top xoffset=0.00002 yoffset=0.00002 \

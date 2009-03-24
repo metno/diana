@@ -1038,10 +1038,15 @@ void AnnotationPlot::getXYBoxScaled(Rectangle& window)
   fontsizeToPlot = fontsizeToPlot * scaleFactor;
   //get estimated width with new fontsizetoplot
   getXYBox();
+
+  //Keep old bbox in order to calc scale
+  Rectangle bboxOld = bbox;
+
   //check if annotation is too big for the box, this could happen if
   // not small enough fonts available (plot empty box)
   if (bbox.width() * 0.5 > xboxScale || bbox.height() * 0.5 > yboxScale)
     plotAnno = false;
+
   //change bbox to correct size and position
   if (poptions.h_align == align_right)
     bbox.x1 = bbox.x2 - xboxScale;
@@ -1061,6 +1066,15 @@ void AnnotationPlot::getXYBoxScaled(Rectangle& window)
     bbox.y1 = bbox.y1 + 0.5 * (h - yboxScale);
     bbox.y2 = bbox.y2 - 0.5 * (h - yboxScale);
   }
+
+  //scale width and height of each annotation
+  int n = annotations.size();
+  for (int i = 0; i < n; i++) {
+    annotations[i].wid *= bbox.width() / bboxOld.width();
+    annotations[i].hei *= bbox.height() / bboxOld.height();
+  }
+  spacing *= bbox.height() / bboxOld.height();
+
 }
 
 bool AnnotationPlot::markAnnotationPlot(int x, int y)
