@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #ifdef METNOOBS
 #include <diObsSynop.h>
@@ -127,7 +127,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
   termin.clear();
   miString anno_str;
 
-//false if any asynoptic data or moreTimes,  used for annotation
+  //false if any asynoptic data or moreTimes,  used for annotation
   bool anno_synoptic=!oplot->moreTimes();
   timeRangeMin=time;
   timeRangeMax=time;
@@ -164,7 +164,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
       anno_str+=" ";
       //This will be used in the annnotation
       if(!Prod[dataType[i]].synoptic ){
-	anno_synoptic=false;
+        anno_synoptic=false;
       }
     }
 
@@ -183,55 +183,55 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
       if(finfo[j].filetype =="bufr"){
 #ifdef BUFROBS
-	ObsBufr bufr;
-	bufr.setObsPlot(oplot);
-	if(!bufr.init(finfo[j].filename,"obsplot")){
-	  //reset oplot
-	  oplot->resetObs(num);
-	}
+        ObsBufr bufr;
+        bufr.setObsPlot(oplot);
+        if(!bufr.init(finfo[j].filename,"obsplot")){
+          //reset oplot
+          oplot->resetObs(num);
+        }
 #endif
       } else if(finfo[j].filetype =="ascii"){
-	ObsAscii obsAscii =
-	  ObsAscii(finfo[j].filename,headerfile,finfo[j].time,oplot,true);
+        ObsAscii obsAscii =
+          ObsAscii(finfo[j].filename,headerfile,finfo[j].time,oplot,true);
       } else {
 #ifdef METNOOBS
-	try {
-	  if ( obsformat == ofmt_synop ){
-	    ObsSynop Synop(finfo[j].filename);
-	    Synop.init(oplot);
-	  } else if ( obsformat == ofmt_dribu ){
-	    ObsDribu Dribu = ObsDribu(finfo[j].filename);
-	    Dribu.init(oplot);
-	  } else if ( obsformat == ofmt_metar ){
-	    ObsMetar Metar(finfo[j].filename);
-	    Metar.init(oplot);
-	  } else if ( obsformat == ofmt_temp ){
-	    ObsTemp Temp = ObsTemp(finfo[j].filename);
-	    Temp.init(oplot,levels);
-	  } else if ( obsformat == ofmt_ocea ){
-	    ObsOcea Ocea = ObsOcea(finfo[j].filename);
-	    Ocea.init(oplot);
-	  } else if ( obsformat == ofmt_tide ){
-	    ObsTide Tide = ObsTide(finfo[j].filename);
-	    Tide.init(oplot);
-	  } else if ( obsformat == ofmt_pilot ){
-	    ObsPilot Pilot = ObsPilot(finfo[j].filename);
-	    Pilot.init(oplot,levels);
-	  } else if ( obsformat == ofmt_aireps ){
-	    ObsAireps Aireps = ObsAireps(finfo[j].filename);
-	    Aireps.init(oplot,levels);
-	  } else if ( obsformat == ofmt_satob ){
-	    ObsSatob Satob = ObsSatob(finfo[j].filename);
-	    Satob.init(oplot);
-	  }
-	}  // end of try
-	
-	catch (...){
-	  cerr<<"Exception in "<<dataType[i]<<": " <<finfo[j].filename<<endl;
-	  //reset oplot
-	  oplot->resetObs(num);
-	  continue;
-	}
+        try {
+          if ( obsformat == ofmt_synop ){
+            ObsSynop Synop(finfo[j].filename);
+            Synop.init(oplot);
+          } else if ( obsformat == ofmt_dribu ){
+            ObsDribu Dribu = ObsDribu(finfo[j].filename);
+            Dribu.init(oplot);
+          } else if ( obsformat == ofmt_metar ){
+            ObsMetar Metar(finfo[j].filename);
+            Metar.init(oplot);
+          } else if ( obsformat == ofmt_temp ){
+            ObsTemp Temp = ObsTemp(finfo[j].filename);
+            Temp.init(oplot,levels);
+          } else if ( obsformat == ofmt_ocea ){
+            ObsOcea Ocea = ObsOcea(finfo[j].filename);
+            Ocea.init(oplot);
+          } else if ( obsformat == ofmt_tide ){
+            ObsTide Tide = ObsTide(finfo[j].filename);
+            Tide.init(oplot);
+          } else if ( obsformat == ofmt_pilot ){
+            ObsPilot Pilot = ObsPilot(finfo[j].filename);
+            Pilot.init(oplot,levels);
+          } else if ( obsformat == ofmt_aireps ){
+            ObsAireps Aireps = ObsAireps(finfo[j].filename);
+            Aireps.init(oplot,levels);
+          } else if ( obsformat == ofmt_satob ){
+            ObsSatob Satob = ObsSatob(finfo[j].filename);
+            Satob.init(oplot);
+          }
+        }  // end of try
+
+        catch (...){
+          cerr<<"Exception in "<<dataType[i]<<": " <<finfo[j].filename<<endl;
+          //reset oplot
+          oplot->resetObs(num);
+          continue;
+        }
 #endif
       }
 
@@ -241,13 +241,13 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
   if(oplot->setData()){
 
-//   if (!oplot->setData())
-//     cerr <<"ObsPlot::setData returned false (no data)"<<endl;;
+    //   if (!oplot->setData())
+    //     cerr <<"ObsPlot::setData returned false (no data)"<<endl;;
 
-  //minTime - maxTime are used in the annotation
-  //minTime/maxTime is time -/+ timeDiff (from dialog) unless
-  //there are only synoptic data, and timeRange < timeDiff.
-  //Then timeRange is used.
+    //minTime - maxTime are used in the annotation
+    //minTime/maxTime is time -/+ timeDiff (from dialog) unless
+    //there are only synoptic data, and timeRange < timeDiff.
+    //Then timeRange is used.
     miString timeInterval;
     if(oplot->getTimeDiff()<0 && !anno_synoptic){
       timeInterval = " (alle tider)";
@@ -258,13 +258,13 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
       minTime.addMin(-1*oplot->getTimeDiff());
       maxTime.addMin(oplot->getTimeDiff());
       if( anno_synoptic){
-	if(timeRangeMin > minTime || oplot->getTimeDiff()<0)
-	  minTime = timeRangeMin;
-	if(timeRangeMax < maxTime || oplot->getTimeDiff()<0)
-	  maxTime = timeRangeMax;
+        if(timeRangeMin > minTime || oplot->getTimeDiff()<0)
+          minTime = timeRangeMin;
+        if(timeRangeMax < maxTime || oplot->getTimeDiff()<0)
+          maxTime = timeRangeMax;
       }
       timeInterval = " (" + minTime.format("%H:%M")
-	+ " - " + maxTime.format("%H:%M") + " ) ";
+      + " - " + maxTime.format("%H:%M") + " ) ";
     }
 
     // The vector termin contains the "file time" from each file
@@ -276,11 +276,11 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
       int best = abs(miTime::minDiff(time,termin[0]));
       int bestIndex=0;
       for(int i=1; i<termin.size(); i++){
-	int d = abs(miTime::minDiff(time,termin[i]));
-	if( d < best){
-	  best=d;
-	  bestIndex=i;
-	}
+        int d = abs(miTime::minDiff(time,termin[i]));
+        if( d < best){
+          best=d;
+          bestIndex=i;
+        }
       }
       bestTermin = termin[bestIndex];
     }
@@ -289,15 +289,15 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
     if (!anno_str.empty()) {
       if (oplot->getLevel()>0){
-	if(dataType.size()>0 && dataType[0] == "ocean"){
-	  anno_str+= (miString(oplot->getLevel()) + "m ");
-	}else{
-	  anno_str+= (miString(oplot->getLevel()) + "hPa ");
-	}
+        if(dataType.size()>0 && dataType[0] == "ocean"){
+          anno_str+= (miString(oplot->getLevel()) + "m ");
+        }else{
+          anno_str+= (miString(oplot->getLevel()) + "hPa ");
+        }
       }
       if(!bestTermin.undef()){
-	miString time0=bestTermin.format("%D %H:%M");
-	anno_str += time0 + timeInterval;
+        miString time0=bestTermin.format("%D %H:%M");
+        anno_str += time0 + timeInterval;
       }
     }
 
@@ -321,10 +321,10 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
 
 void ObsManager::getFileName(vector<FileInfo>& finfo,
-			     miTime &time, miString obsType,
-			     ObsPlot* oplot){
-//     cerr <<"getFileName:"<<time.isoTime()<<endl;
-//     cerr <<"getFileName:"<<obsType<<endl;
+    miTime &time, miString obsType,
+    ObsPlot* oplot){
+  //     cerr <<"getFileName:"<<time.isoTime()<<endl;
+  //     cerr <<"getFileName:"<<obsType<<endl;
 
 
   finfo.clear();
@@ -348,12 +348,12 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
       termin.push_back(t);
       //find time range for annotation
       if( Prod[obsType].synoptic && !oplot->moreTimes()){
-	t.addMin(rangeMin);
-	if( t<timeRangeMin )
-	  timeRangeMin = t;
-	t.addMin(rangeMax - rangeMin);
-	if( t>timeRangeMax )
-	  timeRangeMax = t;
+        t.addMin(rangeMin);
+        if( t<timeRangeMin )
+          timeRangeMin = t;
+        t.addMin(rangeMax - rangeMin);
+        if( t>timeRangeMax )
+          timeRangeMax = t;
       }
       break;
     }
@@ -368,21 +368,21 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
       if( i==found ) continue; // in list already
       if(timeDiff == -1) ok=true; // use all times
       else {
-	ok=false;
-	miTime thisTime=Prod[obsType].fileInfo[i].time;
-	if(time<thisTime){
-	  thisTime.addMin(-1*(timeDiff-rangeMin));
-	  if(time>thisTime) ok=true;
-	} else if( time > thisTime){
-	  thisTime.addMin((timeDiff+rangeMax+1));
-	  if(time<thisTime) ok=true;
-	} else if( time == thisTime ){ //could happend if timerange overlap
-	  ok=true;
-	}
+        ok=false;
+        miTime thisTime=Prod[obsType].fileInfo[i].time;
+        if(time<thisTime){
+          thisTime.addMin(-1*(timeDiff-rangeMin));
+          if(time>thisTime) ok=true;
+        } else if( time > thisTime){
+          thisTime.addMin((timeDiff+rangeMax+1));
+          if(time<thisTime) ok=true;
+        } else if( time == thisTime ){ //could happend if timerange overlap
+          ok=true;
+        }
       }
       if(ok){
-	finfo.push_back(Prod[obsType].fileInfo[i]);
-	termin.push_back(Prod[obsType].fileInfo[i].time);
+        finfo.push_back(Prod[obsType].fileInfo[i]);
+        termin.push_back(Prod[obsType].fileInfo[i].time);
       }
     }
   }
@@ -397,16 +397,16 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
       miTime tt;
       obs Obs;
       try{
-	Obs.readFileHeader(finfo[i].filename);
-	tt = Obs.fileObsTime();
+        Obs.readFileHeader(finfo[i].filename);
+        tt = Obs.fileObsTime();
       }
       catch (...){
-	cerr<<"Exception in: " <<finfo[i].filename<<endl;
-	continue;
+        cerr<<"Exception in: " <<finfo[i].filename<<endl;
+        continue;
       }
       if(tt!=finfo[i].time){
-	timeOK=false;
-	break;
+        timeOK=false;
+        break;
       }
     }
   }
@@ -420,7 +420,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
       //timefilter did not work, turn it off
       miString offstr("OFF");
       for( int j=0;j<Prod[obsType].pattern.size(); j++)
-	Prod[obsType].pattern[j].filter.initFilter(offstr);
+        Prod[obsType].pattern[j].filter.initFilter(offstr);
     }
     getFileName(finfo,time,obsType,oplot);
   }
@@ -450,37 +450,37 @@ bool ObsManager::updateTimes(miString obsType)
       glob_t globBuf;
       glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
       for( int k=0; k<globBuf.gl_pathc; k++) {
-	FileInfo finfo;
-	finfo.filename = globBuf.gl_pathv[k];
-	if(ok &&
-	   Prod[obsType].pattern[j].filter.getTime(finfo.filename,finfo.time)){
-	  //time from file name
-	} else {
-	  //time not found from filename, open file
-	  if (Prod[obsType].pattern[j].fileType == "metnoobs") {
+        FileInfo finfo;
+        finfo.filename = globBuf.gl_pathv[k];
+        if(ok &&
+            Prod[obsType].pattern[j].filter.getTime(finfo.filename,finfo.time)){
+          //time from file name
+        } else {
+          //time not found from filename, open file
+          if (Prod[obsType].pattern[j].fileType == "metnoobs") {
 #ifdef METNOOBS
-	      //read time from metnoobs-file
-	    obs Obs;
-	    try{
-	      Obs.readFileHeader(finfo.filename);
-	      finfo.time = Obs.fileObsTime();
-	    }
-	    catch (...){
-	      cerr<<"Exception in: " <<finfo.filename<<endl;
-	      continue;
-	    }
+            //read time from metnoobs-file
+            obs Obs;
+            try{
+              Obs.readFileHeader(finfo.filename);
+              finfo.time = Obs.fileObsTime();
+            }
+            catch (...){
+              cerr<<"Exception in: " <<finfo.filename<<endl;
+              continue;
+            }
 #endif
-	    } else if (Prod[obsType].pattern[j].fileType == "bufr") {
+          } else if (Prod[obsType].pattern[j].fileType == "bufr") {
 #ifdef BUFROBS
-	    //read time from bufr-file
-	      ObsBufr bufr;
-	      if(!bufr.ObsTime(finfo.filename,finfo.time))continue;
+            //read time from bufr-file
+            ObsBufr bufr;
+            if(!bufr.ObsTime(finfo.filename,finfo.time))continue;
 #endif
-	  }
-	}
-	//add new file to Prod[obsType]
-	finfo.filetype = Prod[obsType].pattern[j].fileType;
-	Prod[obsType].fileInfo.push_back(finfo);
+          }
+        }
+        //add new file to Prod[obsType]
+        finfo.filetype = Prod[obsType].pattern[j].fileType;
+        Prod[obsType].fileInfo.push_back(finfo);
       }
       globfree(&globBuf);
     }
@@ -508,30 +508,30 @@ bool ObsManager::updateTimesfromFile(miString obsType)
       glob_t globBuf;
       glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
       for( int k=0; k<globBuf.gl_pathc; k++) {
-	FileInfo finfo;
-	  finfo.filename = globBuf.gl_pathv[k];
-	if (Prod[obsType].pattern[j].fileType == "metnoobs") {
+        FileInfo finfo;
+        finfo.filename = globBuf.gl_pathv[k];
+        if (Prod[obsType].pattern[j].fileType == "metnoobs") {
 #ifdef METNOOBS
-	  obs Obs;
-	  try{
-	    Obs.readFileHeader(finfo.filename);
-	    finfo.time = Obs.fileObsTime();
-	  }
-	  catch (...){
-	    cerr<<"Exception in: " <<finfo.filename<<endl;
-	    continue;
-	  }
+          obs Obs;
+          try{
+            Obs.readFileHeader(finfo.filename);
+            finfo.time = Obs.fileObsTime();
+          }
+          catch (...){
+            cerr<<"Exception in: " <<finfo.filename<<endl;
+            continue;
+          }
 #endif
-	} else if (Prod[obsType].pattern[j].fileType == "bufr") {
+        } else if (Prod[obsType].pattern[j].fileType == "bufr") {
 #ifdef BUFROBS
-	  //read time from bufr-file
-	  ObsBufr bufr;
-	  if(!bufr.ObsTime(finfo.filename,finfo.time)) continue;
+          //read time from bufr-file
+          ObsBufr bufr;
+          if(!bufr.ObsTime(finfo.filename,finfo.time)) continue;
 #endif
-	}
-	if(finfo.time.undef()&& !Prod[obsType].noTime) continue;
-	finfo.filetype = Prod[obsType].pattern[j].fileType;
-	Prod[obsType].fileInfo.push_back(finfo);
+        }
+        if(finfo.time.undef()&& !Prod[obsType].noTime) continue;
+        finfo.filetype = Prod[obsType].pattern[j].fileType;
+        Prod[obsType].fileInfo.push_back(finfo);
       }
       globfree(&globBuf);
     }
@@ -549,18 +549,18 @@ vector<miTime> ObsManager::getObsTimes(const vector<miString>& pinfos)
   vector<miString> obsTypes;
 
   for (int i=0; i<nn; i++){
-//     cerr << "Processing: " << pinfos[i].infoStr() << endl;
+    //     cerr << "Processing: " << pinfos[i].infoStr() << endl;
     tokens= pinfos[i].split();
     m= tokens.size();
     if (m<2) continue;
     for (int k=1; k<m; k++){
       vector<miString> stokens = tokens[k].split('=');
       if( stokens.size() == 2) {
-	if (stokens[0].downcase() == "data"){
-	  vector<miString> obsT = stokens[1].split(",");
-	  obsTypes.insert(obsTypes.end(),obsT.begin(),obsT.end());
-	  break;
-	}
+        if (stokens[0].downcase() == "data"){
+          vector<miString> obsT = stokens[1].split(",");
+          obsTypes.insert(obsTypes.end(),obsT.begin(),obsT.end());
+          break;
+        }
       }
     }
   }
@@ -571,9 +571,9 @@ vector<miTime> ObsManager::getObsTimes(const vector<miString>& pinfos)
 
 
 void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-				     miTime& constTime,
-				     int& timediff,
-				     const miString& pinfo)
+    miTime& constTime,
+    int& timediff,
+    const miString& pinfo)
 {
   //Finding times from pinfo
 
@@ -658,7 +658,7 @@ void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
 
 void ObsManager::clearObsPositions()
 {
-  
+
   obsPositions.numObs=0;
   delete[] obsPositions.xpos;
   obsPositions.xpos=0;
@@ -690,7 +690,7 @@ ObsDialogInfo ObsManager::initDialog()
   map<miString,ProdInfo>::iterator pr;
 
 
-//+++++++++Plot type = Synop+++++++++++++++
+  //+++++++++Plot type = Synop+++++++++++++++
 
   ObsDialogInfo::PlotType psynop;
   psynop.name = "Synop";
@@ -739,7 +739,7 @@ ObsDialogInfo ObsManager::initDialog()
 
   dialog.plottype.push_back(psynop);
 
-//+++++++++Plot type = Metar+++++++++++++++
+  //+++++++++Plot type = Metar+++++++++++++++
 
   ObsDialogInfo::PlotType pmetar;
 
@@ -782,7 +782,7 @@ ObsDialogInfo ObsManager::initDialog()
   plist.button.push_back(addButton("dd","wind direction",0,360,true));
   plist.button.push_back(addButton("ff","wind speed)",0,100,true));
   plist.button.insert(plist.button.end(),
-			psynop.button.begin(),psynop.button.end());
+      psynop.button.begin(),psynop.button.end());
   plist.button.pop_back();
   plist.button.pop_back();
   plist.button.pop_back();
@@ -803,12 +803,12 @@ ObsDialogInfo ObsManager::initDialog()
   dialog.plottype.push_back(plist);
 
 
-//+++++++++Plot type = Pressure levels+++++++++++++++
+  //+++++++++Plot type = Pressure levels+++++++++++++++
 
   ObsDialogInfo::PlotType ppressure;
   ppressure.name="Pressure";
   ppressure.misc =
-  "allAirepsLevels=true markerboxVisible asFieldButton orientation more_times";
+    "allAirepsLevels=true markerboxVisible asFieldButton orientation more_times";
   ppressure.criteriaList = criteriaList["pressure"];
 
   ppressure.pressureLevels = levels;
@@ -833,38 +833,38 @@ ObsDialogInfo ObsManager::initDialog()
 
   dialog.plottype.push_back(ppressure);
 
-//+++++++++Plot type = Synop/List (one datatype)+++++++++++++++
+  //+++++++++Plot type = Synop/List (one datatype)+++++++++++++++
 
   for (pr=prbegin; pr!=prend; pr++) {
 
     if (pr->second.plotFormat=="synop" ||
-	pr->second.plotFormat=="list" ) {
-      
+        pr->second.plotFormat=="list" ) {
+
       ObsDialogInfo::PlotType psingle;
       if( pr->second.obsformat==ofmt_synop ||
-	  pr->second.obsformat==ofmt_dribu ||
-	  pr->second.obsformat==ofmt_metar ||
-	  pr->second.obsformat==ofmt_satob){
-	if( pr->second.plotFormat=="synop" ){
-	  psingle.misc = "dev_field_button=true tempPrecision=true more_times";
-	  psingle.criteriaList = criteriaList["synop"];
-	  setAllActive(psingle,pr->second.parameter,pr->second.dialogName,
-		       psynop.button);
-	} else {
-	  psingle.misc =
-	    "dev_field_button tempPrecision markerboxVisible orientation more_times";
-	  psingle.criteriaList = criteriaList["list"];
-	  setAllActive(psingle,pr->second.parameter,pr->second.dialogName,
-		       plist.button);
-	}
+          pr->second.obsformat==ofmt_dribu ||
+          pr->second.obsformat==ofmt_metar ||
+          pr->second.obsformat==ofmt_satob){
+        if( pr->second.plotFormat=="synop" ){
+          psingle.misc = "dev_field_button=true tempPrecision=true more_times";
+          psingle.criteriaList = criteriaList["synop"];
+          setAllActive(psingle,pr->second.parameter,pr->second.dialogName,
+              psynop.button);
+        } else {
+          psingle.misc =
+            "dev_field_button tempPrecision markerboxVisible orientation more_times";
+          psingle.criteriaList = criteriaList["list"];
+          setAllActive(psingle,pr->second.parameter,pr->second.dialogName,
+              plist.button);
+        }
       } else {
-	psingle.misc =
-	  "allAirepsLevels=true markerboxVisible asFieldButton orientation more_times";
-	psingle.criteriaList = criteriaList["pressure"];
-	
-	psingle.pressureLevels = levels;
-	  setAllActive(psingle,pr->second.parameter,pr->second.dialogName,
-		       ppressure.button);
+        psingle.misc =
+          "allAirepsLevels=true markerboxVisible asFieldButton orientation more_times";
+        psingle.criteriaList = criteriaList["pressure"];
+
+        psingle.pressureLevels = levels;
+        setAllActive(psingle,pr->second.parameter,pr->second.dialogName,
+            ppressure.button);
       }
 
       psingle.name= pr->second.plotFormat + ": " + pr->second.dialogName;
@@ -873,9 +873,9 @@ ObsDialogInfo ObsManager::initDialog()
     }
   }
 
-//+++++++++Plot type = Ascii-files+++++++++++++++
+  //+++++++++Plot type = Ascii-files+++++++++++++++
 
-   // buttons made when plottype activated the first time...
+  // buttons made when plottype activated the first time...
 
   for (pr=prbegin; pr!=prend; pr++) {
     if (pr->second.obsformat==ofmt_ascii) {
@@ -883,7 +883,7 @@ ObsDialogInfo ObsManager::initDialog()
       ObsDialogInfo::PlotType pascii;
 
       pascii.misc =
-	"markerboxVisible orientation  parameterName=true";
+        "markerboxVisible orientation  parameterName=true";
 
       pascii.criteriaList = criteriaList["ascii"];
 
@@ -899,7 +899,7 @@ ObsDialogInfo ObsManager::initDialog()
     }
   }
 
-//+++++++++Plot type = Ocean+++++++++++++++
+  //+++++++++Plot type = Ocean+++++++++++++++
 
   ObsDialogInfo::PlotType pocea;
   pocea.name="Ocean";
@@ -956,7 +956,7 @@ ObsDialogInfo ObsManager::initDialog()
   dialog.plottype.push_back(pocea);
 
 
-//+++++++++Plot type = Tidevann+++++++++++++++
+  //+++++++++Plot type = Tidevann+++++++++++++++
 
   ObsDialogInfo::PlotType ptide;
   ptide.name="Tide";
@@ -984,9 +984,9 @@ ObsDialogInfo ObsManager::initDialog()
   dialog.plottype.push_back(ptide);
 
 
-//+++++++++++++++++++Plot Type = Hqc ++++++++++++++++++++++++++++++++
+  //+++++++++++++++++++Plot Type = Hqc ++++++++++++++++++++++++++++++++
 
-//buttons made each time initHqcData() is called
+  //buttons made each time initHqcData() is called
 
   for (pr=prbegin; pr!=prend; pr++) {
     if (pr->second.obsformat==ofmt_hqc) {
@@ -1010,9 +1010,9 @@ ObsDialogInfo ObsManager::initDialog()
 }
 
 void ObsManager::addType(ObsDialogInfo::PlotType& dialogInfo,
-			 const vector<ObsFormat>& obsformat)
+    const vector<ObsFormat>& obsformat)
 {
-  
+
   map<miString,ProdInfo>::iterator prbegin= Prod.begin();
   map<miString,ProdInfo>::iterator prend=   Prod.end();
   map<miString,ProdInfo>::iterator pr;
@@ -1022,12 +1022,12 @@ void ObsManager::addType(ObsDialogInfo::PlotType& dialogInfo,
 
     for (pr=prbegin; pr!=prend; pr++) {
       if (pr->second.obsformat==obsformat[i]) {
-	
-	ObsDialogInfo::DataType type;
-	type.active.resize(dialogInfo.button.size(),false);
-	setActive(pr->second.parameter,true,type.active,dialogInfo.button);
-	type.name= pr->second.dialogName;
-	dialogInfo.datatype.push_back(type);
+
+        ObsDialogInfo::DataType type;
+        type.active.resize(dialogInfo.button.size(),false);
+        setActive(pr->second.parameter,true,type.active,dialogInfo.button);
+        type.name= pr->second.dialogName;
+        dialogInfo.datatype.push_back(type);
       }
     }
   }
@@ -1036,10 +1036,10 @@ void ObsManager::addType(ObsDialogInfo::PlotType& dialogInfo,
 }
 
 void ObsManager::setActive(const vector<miString>& name, bool on,
-			   vector<bool>& active,
-			   const vector<ObsDialogInfo::Button>& b)
+    vector<bool>& active,
+    const vector<ObsDialogInfo::Button>& b)
 {
- 
+
   int nname=name.size();
   int nr=b.size();
   if(active.size() != nr) return;
@@ -1047,15 +1047,15 @@ void ObsManager::setActive(const vector<miString>& name, bool on,
   for( int j=0; j<nname; j++)
     for( int i=0; i<nr; i++)
       if(name[j] == b[i].name){
-	active[i]=on;
-	break;
+        active[i]=on;
+        break;
       }
 }
 
 void ObsManager::setAllActive(ObsDialogInfo::PlotType& dialogInfo,
-			      const vector<miString>& parameter, 
-			      const miString& name,
-			      const vector<ObsDialogInfo::Button>& b)
+    const vector<miString>& parameter,
+    const miString& name,
+    const vector<ObsDialogInfo::Button>& b)
 {
 
   int n=b.size();
@@ -1063,21 +1063,21 @@ void ObsManager::setAllActive(ObsDialogInfo::PlotType& dialogInfo,
   for( int j=0; j<m; j++)
     for( int i=0; i<n; i++)
       if(parameter[j] == b[i].name){
-	dialogInfo.button.push_back(b[i]);
+        dialogInfo.button.push_back(b[i]);
       }
 
   ObsDialogInfo::DataType type;
-  type.name= name; 
+  type.name= name;
   type.active.resize(dialogInfo.button.size(),true);
   dialogInfo.datatype.push_back(type);
 
 }
 
 ObsDialogInfo::Button  ObsManager::addButton(const miString& name,
-					     const miString& tip,
-					     int low,
-					     int high,
-					     bool def)
+    const miString& tip,
+    int low,
+    int high,
+    bool def)
 {
   ObsDialogInfo::Button b;
   b.name = name;
@@ -1122,13 +1122,13 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
       miString headerfile= Prod[oname].headerfile;
       int k= 0;
       while (!found && k<globBuf.gl_pathc) {
-	miString filename = globBuf.gl_pathv[k];
-	miTime filetime; // just dummy here
-	ObsAscii obsAscii = ObsAscii(filename,headerfile,filetime,oplot,false);
-	found= oplot->asciiOK;
-	if (oplot->asciiOK && oplot->asciiColumn.count("time") 
-	    && !oplot->asciiColumn.count("date"))
-	  Prod[oname].useFileTime= true;
+        miString filename = globBuf.gl_pathv[k];
+        miTime filetime; // just dummy here
+        ObsAscii obsAscii = ObsAscii(filename,headerfile,filetime,oplot,false);
+        found= oplot->asciiOK;
+        if (oplot->asciiOK && oplot->asciiColumn.count("time")
+            && !oplot->asciiColumn.count("date"))
+          Prod[oname].useFileTime= true;
         k++;
       }
       globfree(&globBuf);
@@ -1143,25 +1143,25 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
     bool on= (nc-nh<7); // ????????
     if (oplot->asciiColumn.count("dd") && oplot->asciiColumn.count("ff")) {
       addWind= (oplot->asciiColumn["dd"] < oplot->asciiColumn["ff"]) ?
-                oplot->asciiColumn["dd"] : oplot->asciiColumn["ff"];
+          oplot->asciiColumn["dd"] : oplot->asciiColumn["ff"];
     }
     for (int c=0; c<nc; c++) {
       if (c==addWind) {
         dialog.plottype[id].button.push_back(addButton("Wind",""));
-//         dialog.plottype[id].button.push_back("Wind");
-//         dialog.plottype[id].Default.push_back(true);
+        //         dialog.plottype[id].button.push_back("Wind");
+        //         dialog.plottype[id].Default.push_back(true);
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
       }
       int h= 0;
       while (h<nh && oplot->asciiColumnHide[h]!=
-		     oplot->asciiColumnName[c]) h++;
+        oplot->asciiColumnName[c]) h++;
       if (h==nh) {
         dialog.plottype[id].button.push_back
-	  (addButton(oplot->asciiColumnName[c], 
-		     oplot->asciiColumnTooltip[c],
-		     -100,100,on));
-//         dialog.plottype[id].button.push_back(oplot->asciiColumnName[c]);
-//         dialog.plottype[id].Default.push_back(on);
+        (addButton(oplot->asciiColumnName[c],
+            oplot->asciiColumnTooltip[c],
+            -100,100,on));
+        //         dialog.plottype[id].button.push_back(oplot->asciiColumnName[c]);
+        //         dialog.plottype[id].Default.push_back(on);
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
       }
     }
@@ -1185,12 +1185,12 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   }
   if (id==nd) return dialog;
 
-//   miString oname= name.downcase();
+  //   miString oname= name.downcase();
 
-//   map<miString,ProdInfo>::iterator pr= Prod.find(oname);
-//   if (pr==Prod.end()) return dialog;
+  //   map<miString,ProdInfo>::iterator pr= Prod.find(oname);
+  //   if (pr==Prod.end()) return dialog;
 
-//   if (pr->second.obsformat==ofmt_hqc) {
+  //   if (pr->second.obsformat==ofmt_hqc) {
   dialog.plottype[id].button.clear();
   dialog.plottype[id].datatype[0].active.clear();
   if(plotType == "Hqc_synop"){
@@ -1198,24 +1198,24 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
     for( int i=0; i<hqc_synop_parameter.size(); i++){
       //        cerr <<"para: "<<hqc_synop_parameter[i]<<endl;
       if(hqc_synop_parameter[i]=="dd" || hqc_synop_parameter[i]=="ff" ) {
-	wind++;
-	continue;
+        wind++;
+        continue;
       }
       if(hqc_synop_parameter[i]=="lon" )continue;
       if(hqc_synop_parameter[i]=="lat")continue;
       if(hqc_synop_parameter[i]=="auto")continue;
       dialog.plottype[id].button.push_back
-	(addButton(hqc_synop_parameter[i]," ",0,0,true));
+      (addButton(hqc_synop_parameter[i]," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
     }
     if(wind==2){
       dialog.plottype[id].button.push_back
-	(addButton("Wind"," ",0,0,true));
+      (addButton("Wind"," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
     }
     if(dialog.plottype[id].button.size()){
       dialog.plottype[id].button.push_back
-	(addButton("Flag"," ",0,0,true));
+      (addButton("Flag"," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
     }
   } else if( plotType == "Hqc_list"){
@@ -1225,19 +1225,19 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
       if(hqc_ascii_parameter[i]=="DD" || hqc_ascii_parameter[i]=="FF" ) wind++;
       if(hqc_ascii_parameter[i]=="auto")continue;
       dialog.plottype[id].button.push_back
-	(addButton(hqc_ascii_parameter[i]," ",0,0,true));
+      (addButton(hqc_ascii_parameter[i]," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
       if(wind==2){
-	wind=0;
-	dialog.plottype[id].button.push_back
-	  (addButton("Wind"," ",0,0,true));
-	dialog.plottype[id].datatype[0].active.push_back(true);
+        wind=0;
+        dialog.plottype[id].button.push_back
+        (addButton("Wind"," ",0,0,true));
+        dialog.plottype[id].datatype[0].active.push_back(true);
       }
     }
   }
   return dialog;
 
-//   }
+  //   }
 
 
 }
@@ -1254,7 +1254,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
     return false;
   }
 
-// ********  Common to all plot types **********************
+  // ********  Common to all plot types **********************
 
   // Sliders and LCD-numbers
   dialog.density.minValue = 5;
@@ -1270,8 +1270,8 @@ bool ObsManager::parseSetup(SetupParser &sp)
   //timer
   dialog.timediff.minValue = 0;
   dialog.timediff.maxValue = 48;
-//   dialog.timediff.value = 1;
-//   dialog.timediff.scale = 15.;
+  //   dialog.timediff.value = 1;
+  //   dialog.timediff.scale = 15.;
 
   dialog.defValues="colour=black devcolour1=red devcolour2=blue";
 
@@ -1363,45 +1363,45 @@ bool ObsManager::parseSetup(SetupParser &sp)
         format=     stoken[0].downcase();
         dialogName= stoken[0];
         prod=       stoken[0].downcase();
-	if (format=="qscat") format= "satob";  // remove this later !!!!
+        if (format=="qscat") format= "satob";  // remove this later !!!!
       } else {
         format=     stoken[0].downcase();
         dialogName= stoken[1];
         prod=       stoken[1].downcase();
-	if (stoken.size()==3) 
-	  plotFormat=       stoken[2].downcase();
+        if (stoken.size()==3)
+          plotFormat=       stoken[2].downcase();
       }
       newprod= (Prod.find(prod)==Prod.end());
       if (newprod) {
         if (defProd.find(format)==defProd.end()) {
-	  miString errmsg="Unknown obs data format: " + format;
-	  sp.errorMsg(obs_name,i,errmsg);
-	  continue;
+          miString errmsg="Unknown obs data format: " + format;
+          sp.errorMsg(obs_name,i,errmsg);
+          continue;
         }
         Prod[prod]= defProd[format];
-	Prod[prod].current=-1; 
+        Prod[prod].current=-1;
         Prod[prod].dialogName= dialogName;
         Prod[prod].useFileTime= false;
         Prod[prod].noTime= false;
       }
       Prod[prod].plotFormat= plotFormat;
     } else if( key == "file"
-	       || key == "archivefile"
-	       || key == "ascii"
-	       || key == "archive_ascii"
+      || key == "archivefile"
+        || key == "ascii"
+          || key == "archive_ascii"
 #ifdef METNOOBS
-	       || key == "metnoobs"
-	       || key == "archive_metnoobs"
+            || key == "metnoobs"
+              || key == "archive_metnoobs"
 #endif
 #ifdef BUFROBS
-	       || key == "bufr"
-	       || key == "archive_bufr"
+                || key == "bufr"
+                  || key == "archive_bufr"
 #endif
-	       ){
+    ){
       if(prod.empty() ){
-	miString errmsg="You must give prod before file";
-	sp.errorMsg(obs_name,i,errmsg);
-	continue;
+        miString errmsg="You must give prod before file";
+        sp.errorMsg(obs_name,i,errmsg);
+        continue;
       }
       TimeFilter tf;
       // init time filter and replace yyyy etc. with *
@@ -1411,43 +1411,43 @@ bool ObsManager::parseSetup(SetupParser &sp)
       pf.pattern=token[1];
       // obsolete
       if(key == "file" || key == "archivefile") //obsolete
-	if(Prod[prod].obsformat == ofmt_ascii)
-	  pf.fileType="ascii";
-	else
-	  pf.fileType="metnoobs";
+        if(Prod[prod].obsformat == ofmt_ascii)
+          pf.fileType="ascii";
+        else
+          pf.fileType="metnoobs";
       else if(key == "metnoobs" || key == "archive_metnoobs")
-	pf.fileType="metnoobs";
+        pf.fileType="metnoobs";
       else if(key == "ascii" || key == "archive_ascii")
-	pf.fileType="ascii";
+        pf.fileType="ascii";
       else if(key == "bufr" || key == "archive_bufr")
-	pf.fileType="bufr";
+        pf.fileType="bufr";
       if( key.contains("archive") )
-	pf.archive = true;
+        pf.archive = true;
       else
-	pf.archive = false;
+        pf.archive = false;
       // Ascii files without timefilter has no time
       if (Prod[prod].obsformat==ofmt_ascii && !pf.filter.ok()) {
-	Prod[prod].noTime=true;
+        Prod[prod].noTime=true;
       }
       Prod[prod].pattern.push_back(pf);
     } else if( key == "headerfile"){
       if(prod.empty() ){
-	miString errmsg="You must give prod before file/headerfile";
-	sp.errorMsg(obs_name,i,errmsg);
-	continue;
+        miString errmsg="You must give prod before file/headerfile";
+        sp.errorMsg(obs_name,i,errmsg);
+        continue;
       }
       Prod[prod].headerfile= token[1];
     } else if( key == "timerange" && newprod ){
       vector<miString> time = token[1].split(",");
       if(time.size()==2){
-	Prod[prod].timeRangeMin=atoi(time[0].cStr());
- 	Prod[prod].timeRangeMax=atoi(time[1].cStr());
+        Prod[prod].timeRangeMin=atoi(time[0].cStr());
+        Prod[prod].timeRangeMax=atoi(time[1].cStr());
       }
     } else if( key == "synoptic" && newprod ){
       if(token[1]=="true")
-	Prod[prod].synoptic=true;
+        Prod[prod].synoptic=true;
       else
-	Prod[prod].synoptic=false;
+        Prod[prod].synoptic=false;
     } else if( key == "current" && newprod ){
       Prod[prod].current=atof(token[1].cStr());
 
@@ -1455,7 +1455,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
   }
 
 
-// *******  Priority List ********************
+  // *******  Priority List ********************
 
   const miString key_name= "name";
   const miString key_file= "file";
@@ -1463,7 +1463,6 @@ bool ObsManager::parseSetup(SetupParser &sp)
   vector<miString> tokens,stokens;
   miString name;
   ObsDialogInfo::PriorityList pri;
-  glob_t globBuf;
 
   dialog.priority.clear();
 
@@ -1478,37 +1477,32 @@ bool ObsManager::parseSetup(SetupParser &sp)
 
       tokens= sect_pri[i].split('"','"'," ",true);
       for (int j=0; j<tokens.size(); j++){
-	stokens= tokens[j].split('=');
-	if (stokens.size()>1) {
-	  key= stokens[0].downcase();
-	  value= stokens[1];
-	  value.remove('"');
+        stokens= tokens[j].split('=');
+        if (stokens.size()>1) {
+          key= stokens[0].downcase();
+          value= stokens[1];
+          value.remove('"');
 
-	  if (key==key_name){
-	    name= value;
-	  } else if (key==key_file){
-	    file= value;
-	  }
-	}
+          if (key==key_name){
+            name= value;
+          } else if (key==key_file){
+            file= value;
+          }
+        }
       }
 
-      //Only add existing files
-      glob(file.c_str(),0,0,&globBuf);
-      if(globBuf.gl_pathc == 0) continue;
-
       if (name.exists() && file.exists()){
-	pri.name= name;
-	pri.file= file;
-	dialog.priority.push_back(pri);
+        pri.name= name;
+        pri.file= file;
+        dialog.priority.push_back(pri);
       } else {
-	sp.errorMsg(pri_name,i,"Incomplete observation priority specification");
-	continue;
+        sp.errorMsg(pri_name,i,"Incomplete observation priority specification");
+        continue;
       }
     }
   }
-  globfree(&globBuf);
 
-// *********  Criteria  **************
+  // *********  Criteria  **************
 
   const miString obs_crit_name = "OBSERVATION_CRITERIA";
   vector<miString> sect_obs_crit;
@@ -1523,19 +1517,19 @@ bool ObsManager::parseSetup(SetupParser &sp)
     for(int i=0; i<ncrit; i++) {
       vector<miString> token = sect_obs_crit[i].split("=");
       if(token.size() == 2  && token[0].downcase()=="plottype"){
-	if(critList.criteria.size()){
-	  criteriaList[plottype].push_back(critList);
-	  critList.criteria.clear();
-	}
-	plottype=token[1].downcase();
+        if(critList.criteria.size()){
+          criteriaList[plottype].push_back(critList);
+          critList.criteria.clear();
+        }
+        plottype=token[1].downcase();
       } else if(token.size() == 2  && token[0].downcase()=="name"){
-	if(critList.criteria.size()){
-	  criteriaList[plottype].push_back(critList);
-	  critList.criteria.clear();
-	}
-	critList.name = token[1];
+        if(critList.criteria.size()){
+          criteriaList[plottype].push_back(critList);
+          critList.criteria.clear();
+        }
+        critList.name = token[1];
       } else {
-	critList.criteria.push_back(sect_obs_crit[i]);
+        critList.criteria.push_back(sect_obs_crit[i]);
       }
     }
     if(critList.criteria.size())
@@ -1547,17 +1541,17 @@ bool ObsManager::parseSetup(SetupParser &sp)
 }
 
 bool ObsManager::initHqcdata(int from,
-			     const miString& commondesc,
-			     const miString& common,
-			     const miString& desc,
-			     const vector<miString>& data)
+    const miString& commondesc,
+    const miString& common,
+    const miString& desc,
+    const vector<miString>& data)
 
 {
   //  cerr <<"ObsManager::initHqc: "<<desc<<endl;
 
 
-//   if(desc == "remove" && from != hqc_from)
-//     return false;
+  //   if(desc == "remove" && from != hqc_from)
+  //     return false;
 
   hqcPlotType.clear();
 
@@ -1591,7 +1585,7 @@ bool ObsManager::initHqcdata(int from,
   vector<miString> commonstr = common.split(",");
   if(commonstr.size() != descstr.size()){
     cerr <<"ObsManager::initHqcdata: different size of commondesc and common"
-	 <<endl;
+    <<endl;
     return false;
   }
   miString obsdataType;
@@ -1644,13 +1638,13 @@ bool ObsManager::sendHqcdata(ObsPlot* oplot)
     oplot->asciip = hqcdiffdata;
     for( int i=0; i<hqc_ascii_parameter.size();i++){
       if(hqc_ascii_parameter[i]=="lon")
-	oplot->asciiColumn["x"] = i;
+        oplot->asciiColumn["x"] = i;
       else if(hqc_ascii_parameter[i]=="lat")
-	oplot->asciiColumn["y"] = i;
+        oplot->asciiColumn["y"] = i;
       else if(hqc_ascii_parameter[i]=="DD")
-	oplot->asciiColumn["dd"] = i;
+        oplot->asciiColumn["dd"] = i;
       else if(hqc_ascii_parameter[i]=="FF")
-	oplot->asciiColumn["ff"] = i;
+        oplot->asciiColumn["ff"] = i;
     }
     oplot->asciiColumnName = hqc_ascii_parameter;
   }
@@ -1679,7 +1673,7 @@ Colour ObsManager::flag2colour(const miString& flag)
     col = Colour("red");
 
   }else if(flag.contains("0") ||flag.contains("2") || flag.contains("3") ||
-	   flag.contains("4") ||flag.contains("5") || flag.contains("6")) {
+      flag.contains("4") ||flag.contains("5") || flag.contains("6")) {
     col = Colour("gulbrun");
 
   }else {
@@ -1690,9 +1684,9 @@ Colour ObsManager::flag2colour(const miString& flag)
 }
 
 bool ObsManager::updateHqcdata(const miString& commondesc,
-			       const miString& common,
-			       const miString& desc,
-			       const vector<miString>& data)
+    const miString& common,
+    const miString& desc,
+    const vector<miString>& data)
 
 {
   //  cerr <<"updateHqcdata desc:"<<desc<<endl;
@@ -1700,7 +1694,7 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
   vector<miString> commonstr = common.split(",");
   if(commonstr.size() != descstr.size()){
     cerr <<"ObsManager::updateHqcdata: different size of commondesc and common"
-	 <<endl;
+    <<endl;
     return false;
   }
   miString plotType;
@@ -1724,27 +1718,27 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
       int i=0;
       int n=hqcdata.size();
       while(i<n && hqcdata[i].id != datastr[0])
-	i++;
+        i++;
       if(i==n) continue; // station not found
       if(!changeHqcdata(hqcdata[i],param,datastr)) return false;
     } else if(plotType == "list"){
       int i=0;
       int n=hqcdiffdata.size();
       while(i<n && hqcdiffdata[i][0] != datastr[0])
-	i++;
+        i++;
       if(i==n) {
-	cerr <<"station:"<<datastr[0]<<" not found"<<endl;
-	continue; // station not found
+        cerr <<"station:"<<datastr[0]<<" not found"<<endl;
+        continue; // station not found
       }
       n=hqc_ascii_parameter.size();
       for(int k=0; k<param.size(); k++){
-	int j=0;
-	while( j<n && hqc_ascii_parameter[j] !=param[k]) j++;
-	if(j==n) {
-	  cerr <<"Parameter:"<<param[k]<<" not found"<<endl;
-	  continue; //parameter not found
-	}
-	hqcdiffdata[i][j]=datastr[k];
+        int j=0;
+        while( j<n && hqc_ascii_parameter[j] !=param[k]) j++;
+        if(j==n) {
+          cerr <<"Parameter:"<<param[k]<<" not found"<<endl;
+          continue; //parameter not found
+        }
+        hqcdiffdata[i][j]=datastr[k];
       }
     }
   }
@@ -1753,19 +1747,19 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
 
 
 bool ObsManager::changeHqcdata(ObsData& odata,
-				  const vector<miString>& param,
-				  const vector<miString>& data)
+    const vector<miString>& param,
+    const vector<miString>& data)
 {
   //  cerr <<"ObsManager::changeHqcdata"<<endl;
   if( param.size() != data.size() ) {
     cerr <<"No. of parameters: "<<param.size()<<" != no. of data: "
-	 <<data.size()<<endl;
+    <<data.size()<<endl;
     return false;
   }
 
   for(int i=0; i<param.size(); i++){
-//     cerr <<"key:"<<param[i]<<endl;
-//        cerr <<"data:"<<data[i]<<endl;
+    //     cerr <<"key:"<<param[i]<<endl;
+    //        cerr <<"data:"<<data[i]<<endl;
     miString key = param[i];
     if(key=="id"){
       odata.id=data[i];
@@ -1775,9 +1769,9 @@ bool ObsManager::changeHqcdata(ObsData& odata,
       odata.ypos=atof(data[i].c_str());
     } else if(key == "auto"){
       if(data[i].downcase()=="a")
-	odata.fdata["ix"]=4.;
+        odata.fdata["ix"]=4.;
       else if(data[i].downcase()=="n")
-	odata.fdata["ix"]=-1;
+        odata.fdata["ix"]=-1;
     } else if(key == "St.type" && data[i] != "none" && data[i] != "" ){
       odata.dataType=data[i];
       //      cerr <<"St.type:"<<data[i]<<endl;
@@ -1785,100 +1779,100 @@ bool ObsManager::changeHqcdata(ObsData& odata,
       miString value;
       vector<miString> vstr  = data[i].split(";");
       if(vstr.size() >2){
-	value = vstr[0];
-	if(atoi(value.cStr()) == -32767) continue;
-	odata.flag[key]=vstr[1];
-	if(vstr.size() == 3)
-	  odata.flagColour[key]=Colour(vstr[2]);
+        value = vstr[0];
+        if(atoi(value.cStr()) == -32767) continue;
+        odata.flag[key]=vstr[1];
+        if(vstr.size() == 3)
+          odata.flagColour[key]=Colour(vstr[2]);
       } else {
-	continue;
+        continue;
       }
       if(key == "h"){
-	odata.fdata["h"]=atof(value.c_str());
+        odata.fdata["h"]=atof(value.c_str());
       } else if(key == "VV"){
-	odata.fdata["VV"]=atof(value.c_str());
+        odata.fdata["VV"]=atof(value.c_str());
       } else if(key == "N"){
-	odata.fdata["N"]=atof(value.c_str());
+        odata.fdata["N"]=atof(value.c_str());
       } else if(key == "dd"){
-	odata.fdata["dd"]=atof(value.c_str());
+        odata.fdata["dd"]=atof(value.c_str());
       } else if(key == "ff"){
-	odata.fdata["ff"]=atof(value.c_str());
+        odata.fdata["ff"]=atof(value.c_str());
       } else if(key == "TTT"){
-	odata.fdata["TTT"]=atof(value.c_str());
+        odata.fdata["TTT"]=atof(value.c_str());
       } else if(key == "TdTdTd"){
-	odata.fdata["TdTdTd"]=atof(value.c_str());
+        odata.fdata["TdTdTd"]=atof(value.c_str());
       } else if(key == "PPPP"){
-	odata.fdata["PPPP"]=atof(value.c_str());
+        odata.fdata["PPPP"]=atof(value.c_str());
       } else if(key == "a"){
-	float ival = atof(value.c_str());
-	if(ival >=0 && ival < 10)
-	  odata.fdata["a"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >=0 && ival < 10)
+          odata.fdata["a"]=ival;
       } else if(key == "ppp"){
-	odata.fdata["ppp"]=atof(value.c_str());
+        odata.fdata["ppp"]=atof(value.c_str());
       } else if(key == "RRR"){
-	odata.fdata["RRR"]=atof(value.c_str());
+        odata.fdata["RRR"]=atof(value.c_str());
       } else if(key == "Rt"){
-	odata.fdata["Rt"]=atof(value.c_str());
+        odata.fdata["Rt"]=atof(value.c_str());
       } else if(key == "ww"){
-	odata.fdata["ww"]=atof(value.c_str());
+        odata.fdata["ww"]=atof(value.c_str());
       } else if(key == "W1"){
-	float ival = atof(value.c_str());
-	if(ival >2 && ival < 10)
-	  odata.fdata["W1"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >2 && ival < 10)
+          odata.fdata["W1"]=ival;
       } else if(key == "W2"){
-	float ival = atof(value.c_str());
-	if(ival >2 && ival < 10)
-	  odata.fdata["W2"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >2 && ival < 10)
+          odata.fdata["W2"]=ival;
       } else if(key == "Nh"){
-	odata.fdata["Nh"]=atof(value.c_str());
+        odata.fdata["Nh"]=atof(value.c_str());
       } else if(key == "Cl"){
-	float ival = atof(value.c_str());
-	if(ival >0 && ival < 10)
-	  odata.fdata["Cl"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >0 && ival < 10)
+          odata.fdata["Cl"]=ival;
       } else if(key == "Cm"){
-	float ival = atof(value.c_str());
-	if(ival >0 && ival < 10)
-	  odata.fdata["Cm"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >0 && ival < 10)
+          odata.fdata["Cm"]=ival;
       } else if(key == "Ch"){
-	float ival = atof(value.c_str());
-	if(ival >0 && ival < 10)
-	  odata.fdata["Ch"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >0 && ival < 10)
+          odata.fdata["Ch"]=ival;
       } else if(key == "vs"){
-	float ival = atof(value.c_str());
-	if(ival >=0 && ival < 10)
-	  odata.fdata["vs"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >=0 && ival < 10)
+          odata.fdata["vs"]=ival;
       } else if(key == "ds"){
-	float ival = atof(value.c_str());
-	if(ival >0 && ival < 9)
-	  odata.fdata["ds"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >0 && ival < 9)
+          odata.fdata["ds"]=ival;
       } else if(key == "TwTwTw"){
-	odata.fdata["TwTwTw"]=atof(value.c_str());
+        odata.fdata["TwTwTw"]=atof(value.c_str());
       } else if(key == "PwaPwa"){
-	odata.fdata["PwaPwa"]=atof(value.c_str());
+        odata.fdata["PwaPwa"]=atof(value.c_str());
       } else if(key == "HwaHwa"){
-	odata.fdata["HwaHwa"]=atof(value.c_str());
+        odata.fdata["HwaHwa"]=atof(value.c_str());
       } else if(key == "dw1dw1"){
-	float ival = atof(value.c_str());
-	if(ival >0 && ival < 37)
-	  odata.fdata["dw1dw1"]=ival;
+        float ival = atof(value.c_str());
+        if(ival >0 && ival < 37)
+          odata.fdata["dw1dw1"]=ival;
       } else if(key == "Pw1Pw1"){
-	odata.fdata["Pw1Pw1"]=atof(value.c_str());
+        odata.fdata["Pw1Pw1"]=atof(value.c_str());
       } else if(key == "Hw1Hw1"){
-	odata.fdata["Hw1Hw1"]=atof(value.c_str());
+        odata.fdata["Hw1Hw1"]=atof(value.c_str());
       } else if(key == "TxTxTx"){
-	odata.fdata["TxTn"]=atof(value.c_str());
+        odata.fdata["TxTn"]=atof(value.c_str());
       } else if(key == "TnTnTn"){
- 	odata.fdata["TxTn"]=atof(value.c_str());
+        odata.fdata["TxTn"]=atof(value.c_str());
       } else if(key == "TxTn"){
-	odata.fdata["TxTn"]=atof(value.c_str());
+        odata.fdata["TxTn"]=atof(value.c_str());
       } else if(key == "sss"){
-	odata.fdata["sss"]=atof(value.c_str());
+        odata.fdata["sss"]=atof(value.c_str());
       } else if(key == "911ff"){
-	odata.fdata["ff_911"]=atof(value.c_str());
+        odata.fdata["ff_911"]=atof(value.c_str());
       } else if(key == "s"){
-	odata.fdata["s"]=atof(value.c_str());
+        odata.fdata["s"]=atof(value.c_str());
       } else if(key == "fxfx"){
-	odata.fdata["fxfx"]=atof(value.c_str());
+        odata.fdata["fxfx"]=atof(value.c_str());
       }
     }
   }
@@ -1887,7 +1881,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
 
 
 void ObsManager::processHqcCommand(const miString& command,
-				   const miString& str)
+    const miString& str)
 {
 
 
@@ -1903,6 +1897,6 @@ void ObsManager::processHqcCommand(const miString& command,
   } else if( command == "station"){
     vector<miString> vstr = str.split(",");
     if(vstr.size()>0)
-    selectedStation = vstr[0];
+      selectedStation = vstr[0];
   }
 }
