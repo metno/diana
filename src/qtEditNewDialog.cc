@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -69,19 +69,19 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
 
 /*********************************************/
 void EditNewDialog::ConstructorCernel(){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout<<"EditNewDialog::ConstructorCernel called"<<endl;
 #endif
 
   m_editm= m_ctrl->getEditManager();
 
   TABNAME_NORMAL = tr("Normal");
-  
+
   normal= true;
   currprod= -1;
   dbi.loggedin= false;
   productfree= false;
-  
+
   setWindowTitle(tr("New product"));
 
   first= true;
@@ -113,7 +113,7 @@ void EditNewDialog::ConstructorCernel(){
   connect(killb, SIGNAL(clicked()),  SLOT(kill_clicked()) );
 
   QGridLayout* gridlayout = new QGridLayout( pframe, 4,3,5,5 );
-  
+
   gridlayout->addWidget( prodlabel,0,0 );
   gridlayout->addWidget( prodbox,0,1 );
   gridlayout->addWidget( idlabel,1,0 );
@@ -140,7 +140,7 @@ void EditNewDialog::ConstructorCernel(){
     fieldlayout->addWidget( ebut[i],i,0 );
     fieldlayout->addWidget( elab[i],i,1 );
   }
-  
+
   connect(ebut[0], SIGNAL(clicked()), SLOT(ebutton0()));
   connect(ebut[1], SIGNAL(clicked()), SLOT(ebutton1()));
   connect(ebut[2], SIGNAL(clicked()), SLOT(ebutton2()));
@@ -150,7 +150,7 @@ void EditNewDialog::ConstructorCernel(){
   QLabel* timelabel= TitleLabel(tr("Product validity time:"), normaltab );
   QHBoxLayout* h7layout = new QHBoxLayout();
   h7layout->addWidget(timelabel,0,Qt::AlignHCenter);
-  
+
   timespin= new TimeSpinbox(false, normaltab);
   connect(timespin, SIGNAL(valueChanged(int)), SLOT(prodtimechanged(int)));
   QHBoxLayout* h2layout = new QHBoxLayout( 5 );
@@ -169,7 +169,7 @@ void EditNewDialog::ConstructorCernel(){
   combinetab = new QWidget(twd);
 
   QVBoxLayout* combinelayout = new QVBoxLayout(combinetab);
-  
+
   QLabel* combinelabel= TitleLabel(tr("Combine products valid at:"), combinetab );
   combinelabel->setEnabled(false);
   cBox=new QListWidget(combinetab);
@@ -203,10 +203,10 @@ void EditNewDialog::ConstructorCernel(){
   combinelayout->activate();
 
   twd->addTab( combinetab, tr("Combine") );
-  
+
   connect( twd, SIGNAL(selected( const QString& )),
 	   SLOT( tabSelected( const QString& ) ));
-  
+
   // TAB-setup ended
 
   // lower buttons
@@ -220,9 +220,9 @@ void EditNewDialog::ConstructorCernel(){
   hlayout->addWidget( help );
   hlayout->addWidget( cancel );
   connect( ok, SIGNAL(clicked()),  SLOT(ok_clicked()) );
-  connect( help, SIGNAL(clicked()),  SLOT(help_clicked()) ); 
+  connect( help, SIGNAL(clicked()),  SLOT(help_clicked()) );
   connect( cancel, SIGNAL(clicked()), SLOT(cancel_clicked()) );
-  
+
   // major layout
   QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5 );
 
@@ -234,9 +234,9 @@ void EditNewDialog::ConstructorCernel(){
   vlayout->addSpacing(5);
   vlayout->addLayout( hlayout );
 
-  vlayout->activate(); 
+  vlayout->activate();
   vlayout->freeze();
-  
+
   first= false;
   newActive = false;
 }//end constructor EditNewDialog
@@ -244,14 +244,14 @@ void EditNewDialog::ConstructorCernel(){
 
 void EditNewDialog::tabSelected(const QString& name)
 {
-  //cerr << "EditNewDialog::Selected tab:" << name.toStdString() << endl;
+//  cerr << "EditNewDialog::Selected tab:" << name.toStdString() << endl;
   normal= (name==TABNAME_NORMAL);
 
   if (normal)
     ok->setText(tr("OK Start") + " " + prodbox->currentText());
   else
     ok->setText(tr("OK Combine") + " " + prodbox->currentText());
-  
+
   if (!normal){
     load_combine();
     //in combine, should not be possible to change time...
@@ -263,14 +263,14 @@ void EditNewDialog::tabSelected(const QString& name)
   else{
     setNormal();
     timespin->setEnabled(true);
-  }  
+  }
   checkStatus();
 }
 
 void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
   miString s= item->text().toStdString();
-  //cerr << "EditNewDialog::Combineselect:" << s << endl;
+//  cerr << "EditNewDialog::Combineselect:" << s << endl;
   if (miTime::isValid(s)){
     combinetime= miTime(s);
    }
@@ -280,7 +280,9 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
     m_editm->getCombineIds(combinetime,products[currprod],pid);
   int n = pids.size();
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
-  tmp+=pids[n-1];
+  if ( n > 0 ) {
+      tmp+=pids[n-1];
+  }
   cpid2label->setText(tmp.cStr());
 }
 
@@ -305,11 +307,11 @@ bool EditNewDialog::checkStatus()
   if (currprod<0) return false;
 
   // first normal-area
-  bool enable= normal 
+  bool enable= normal
     && (currprod>=0)
     && (!pid.sendable || dbi.loggedin)
     && (!pid.sendable || productfree);
-    
+
   for (int i=0; i<maxelements; i++){
     ebut[i]->setEnabled(enable);
   }
@@ -321,7 +323,7 @@ bool EditNewDialog::checkStatus()
     return false;
   if (!normal){
     // combine products
-    if (!isdata) 
+    if (!isdata)
       return false;
   } else {
     // normal production
@@ -347,10 +349,10 @@ void EditNewDialog::prodBox(int idx)
     ok->setText(tr("OK Start") + " " + prodbox->currentText());
   else
     ok->setText(tr("OK Combine") + " " + prodbox->currentText());
-  
+
   currprod= idx;
   //cerr << "....Selected Product:" << products[idx].name << endl;
-  
+
   idbox->clear();
   int m= products[currprod].pids.size();
   int sid= 0;
@@ -359,7 +361,7 @@ void EditNewDialog::prodBox(int idx)
     if (products[currprod].pids[i].name==pid.name)
       sid= i;
   }
-  
+
   if (m>0) {
     idbox->setEnabled(true);
     idbox->setCurrentItem(sid);
@@ -398,7 +400,7 @@ void EditNewDialog::idBox(int idx)
 #ifdef METNOPRODDB
   loginb->setEnabled(pid.sendable);
 #endif
-  
+
   productfree= checkProductFree();
 
   //cerr << "....Selected Pid:" << products[currprod].pids[idx].name << endl;
@@ -434,11 +436,11 @@ bool EditNewDialog::load(editDBinfo& edbi){
       for (int j=0; j<m; j++){
 	products[i].fields[j].fromfield= true;
 
-	vector<miString> fstr= 
+	vector<miString> fstr=
 	  m_editm->getValidEditFields(products[i],j);
 	if (fstr.size())
 	  products[i].fields[j].fromfname= fstr[0];
-	else 
+	else
 	  products[i].fields[j].fromfname.clear();
      }
     }
@@ -451,7 +453,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
     //set to closest hour
     miTime t= prodtime;
     int nhour=t.hour(); int nmin=t.min();
-    if (nmin>29) nhour++;  
+    if (nmin>29) nhour++;
     t.setTime(t.year(),t.month(),t.day(),nhour);
     prodtime=t;
     timespin->setTime(prodtime);
@@ -485,7 +487,7 @@ bool EditNewDialog::setNormal()
     ebut[i]->hide();
     elab[i]->hide();
   }
-  
+
   if (currprod<0) {
     ebut[0]->setEnabled(false);
     checkStatus();
@@ -510,7 +512,7 @@ bool EditNewDialog::setNormal()
 
 void EditNewDialog::setObjectLabel(){
   // set object label
-  miString tmp = 
+  miString tmp =
     miString("<font color=\"blue\"> ") + tr("No startobjects").toStdString() + miString(" </font> ");
   if (products[currprod].objectprods.size()){
     if (products[currprod].objectprods[0].filename.exists()){
@@ -519,7 +521,7 @@ void EditNewDialog::setObjectLabel(){
 	miString(" </font> ");
     }
   }
-  elab[0]->setText(tmp.cStr());  
+  elab[0]->setText(tmp.cStr());
 }
 
 
@@ -541,20 +543,20 @@ void EditNewDialog::setFieldLabel(){
       s= miString("<font color=\"red\"> ") +
 	savedProd2Str(products[currprod].fields[i].fromprod) +
 	miString(" </font> ");
-    
+
     elab[i+1]->setText(s.cStr());
   }
-  
+
 }
 
 
 void EditNewDialog::handleObjectButton(int num)
 {
   if( m_editm ){
-    
+
     EditDefineFieldDialog edf(this,m_ctrl,-1,products[currprod]);
     if (!edf.exec()) return;
-  
+
     if (edf.productSelected()){
       products[currprod].objectprods=edf.vselectedProd();
     } else {
@@ -563,16 +565,16 @@ void EditNewDialog::handleObjectButton(int num)
   } else {
     cerr << "EditNewDialog::handleelementButton - No controller!"<<endl;
   }
-  setObjectLabel(); 
+  setObjectLabel();
   checkStatus();
 }
 
 void EditNewDialog::handleFieldButton(int num)
 {
-  if( m_editm ){    
+  if( m_editm ){
     EditDefineFieldDialog edf(this,m_ctrl, num, products[currprod]);
     if (!edf.exec()) return;
-    
+
     miString s;
     if (edf.fieldSelected()){
       products[currprod].fields[num].fromfname= edf.selectedField();
@@ -593,7 +595,7 @@ void EditNewDialog::handleFieldButton(int num)
       products[currprod].fields[num].fromfname= "";
       products[currprod].fields[num].fromfield= true;
     }
-    
+
   } else {
     //cerr << "EditNewDialog::handleelementButton - No controller!"<<endl;
   }
@@ -628,7 +630,7 @@ bool EditNewDialog::load_combine(){
     checkStatus();
     return false;
   }
-  if( m_editm ){    
+  if( m_editm ){
     vector<miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
     int n= vt.size();
     int index=0;
@@ -637,7 +639,7 @@ bool EditNewDialog::load_combine(){
       for (int i=0; i<n; i++){
 	miString tstr= vt[i].isoTime();
 	cBox->addItem(QString(tstr.cStr()));
-	if (combinetime ==vt[i]) index=i; //selected time  
+	if (combinetime ==vt[i]) index=i; //selected time
       }
       cBox->setCurrentRow(index);
     } else {
@@ -652,7 +654,7 @@ bool EditNewDialog::load_combine(){
     checkStatus();
     return false;
   }
-   
+
   isdata= (cBox->count() > 0);
   checkStatus();
   return true;
@@ -701,7 +703,7 @@ void EditNewDialog::kill_clicked()
 				   Qt::NoButton,
 				   this);
   mb->setButtonText( QMessageBox::Yes, tr("Yes") );
-  mb->setButtonText( QMessageBox::Cancel, tr("Cancel")); 
+  mb->setButtonText( QMessageBox::Cancel, tr("Cancel"));
 
   switch( mb->exec() ) {
   case QMessageBox::Cancel:
@@ -775,14 +777,14 @@ void EditNewDialog::login_clicked()
       message= miString(tr("Can not log in. Message from server:\n").toStdString()) +message;
       QMessageBox::warning( this, "Diana database message",
 			    message.c_str());
-      
+
       setLoginLabel();
     }
   }
 #endif
 }
 
-void EditNewDialog::ok_clicked(){ 
+void EditNewDialog::ok_clicked(){
   productfree= checkProductFree();
 
   miTime ptime;
@@ -841,7 +843,7 @@ void EditNewDialog::ok_clicked(){
 
 
 void EditNewDialog::help_clicked(){
-  emit EditNewHelp(); 
+  emit EditNewHelp();
 }
 
 
