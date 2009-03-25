@@ -2465,7 +2465,7 @@ void ObsPlot::plotSynop(int index)
 
   //characteristics of pressure tendency - a
   map<miString,float>::iterator ppp_p=dta.fdata.find("ppp");;
-  if( pFlag.count("a") && (f_p=dta.fdata.find("a")) != fend()
+  if( pFlag.count("a") && (f_p=dta.fdata.find("a")) != fend
       && f_p->second >= 0 && f_p->second < 9 ) {
     if(ccriteria) checkColourCriteria("a",f_p->second);
     if(ppp_p!=fend && ppp_p->second > 9 )
