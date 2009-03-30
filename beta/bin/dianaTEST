@@ -18,7 +18,7 @@ case $SUBNET in
     36|40) region="VV" ;;
     48)    region="VNN" ;;
     16|18|24|26|56|90|104|50) region="VA"  ;;
-    *)                         region="VNN" ;;
+    *)                         region="VTK" ;;
 esac
 
 home=$HOME/.diana
