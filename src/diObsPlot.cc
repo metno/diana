@@ -1554,6 +1554,7 @@ void ObsPlot::plotList(int index)
   ObsData &dta = obsp[index];
 
   map<miString,float>::iterator f_p;
+  map<miString,float>::iterator q_p;
   map<miString,float>::iterator ff_p=dta.fdata.find("ff");
   map<miString,float>::iterator dd_p=dta.fdata.find("dd");
 
@@ -1818,9 +1819,9 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     //1-3 skal ikke plottes, tror jeg
     if((f_p=dta.fdata.find("ww") ) != dta.fdata.end()&&  f_p->second >3
-       && (f_p=dta.fdata.find("TTT")) != dta.fdata.end()) {
+       && (q_p=dta.fdata.find("TTT")) != dta.fdata.end()) {
       if(ccriteria) checkColourCriteria("ww",f_p->second);
-      weather((int16)f_p->second,f_p->second,dta.zone,xpos*scale-xshift,
+      weather((int16)f_p->second,q_p->second,dta.zone,xpos*scale-xshift,
 	      (ypos-0.2*yStep)*scale,scale*0.6,align);
       if(!vertical) xpos+=20;
     }else{
