@@ -687,6 +687,7 @@ void FieldDialog::CreateAdvanced() {
   extremeType.push_back("None");
   extremeType.push_back("L+H");
   extremeType.push_back("C+W");
+  extremeType.push_back("Value");
   connect( extremeTypeCbox, SIGNAL( activated(int) ),
 	   SLOT( extremeTypeActivated(int) ) );
 

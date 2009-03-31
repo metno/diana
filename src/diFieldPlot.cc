@@ -2465,7 +2465,8 @@ bool FieldPlot::plotContour(){
   }
 
   if (poptions.extremeType.upcase()=="L+H" ||
-      poptions.extremeType.upcase()=="C+W") markExtreme();
+      poptions.extremeType.upcase()=="C+W" ||
+      poptions.extremeType.upcase()=="VALUE") markExtreme();
 
   UpdateOutput();
 
@@ -3073,8 +3074,7 @@ void FieldPlot::plotFrame(const int nx, const int ny,
 
 
 /*
-  Mark extremepoints in a field with L/H (Low/High)
-  or C/W (Cold/Warm)
+  Mark extremepoints in a field with L/H (Low/High), C/W (Cold/Warm) or value
  */
 bool FieldPlot::markExtreme(){
 #ifdef DEBUGPRINT
@@ -3153,14 +3153,18 @@ bool FieldPlot::markExtreme(){
   char marks[2];
   miString pmarks[2];
   float chrx[2], chry[2];
+  bool plotValue = false;
 
   if (poptions.extremeType.upcase()=="C+W") {
     marks[0]= 'C';  pmarks[0]= "C";
     marks[1]= 'W';  pmarks[1]= "W";
-  } else {
+  } else if (poptions.extremeType.upcase()=="L+H") {
     marks[0]= 'L';  pmarks[0]= "L";
     marks[1]= 'H';  pmarks[1]= "H";
+  } else {
+    plotValue = true;
   }
+
 
   float fontsize= 28. * poptions.extremeSize;
   fp->set(poptions.fontname,poptions.fontface,fontsize);
@@ -3334,8 +3338,16 @@ bool FieldPlot::markExtreme(){
 
 	    if (ibest==ix && jbest==iy) {
 	      // mark extreme point
-	      fp->drawStr(pmarks[etype].c_str(),
-			  gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
+	      if ( plotValue ) {
+	        int prec = log10(fabs(fpos));
+	        miString fposStr(fpos,prec+2);
+	        fp->drawStr(fposStr.c_str(),
+	            gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
+	      } else {
+	        fp->drawStr(pmarks[etype].c_str(),
+	            gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
+	      }
+
 //#######################################################################
 //		glBegin(GL_LINE_LOOP);
 //		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
