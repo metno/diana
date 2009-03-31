@@ -684,7 +684,7 @@ void FieldDialog::CreateAdvanced() {
   QLabel* extremeTypeLabel= TitleLabel( tr("Min,max"), advFrame );
   extremeTypeCbox= new QComboBox( advFrame );
   extremeTypeCbox->setEnabled( false );
-  extremeType.push_back(tr("None").toStdString());
+  extremeType.push_back("None");
   extremeType.push_back("L+H");
   extremeType.push_back("C+W");
   connect( extremeTypeCbox, SIGNAL( activated(int) ),
@@ -2211,7 +2211,7 @@ void FieldDialog::enableFieldOptions(){
     n= extremeType.size();
     if (!extremeTypeCbox->isEnabled()) {
       for (i=0; i<n; i++ ){
-	extremeTypeCbox->addItem(QString(extremeType[i].c_str()));
+        extremeTypeCbox->addItem(QString(tr(extremeType[i].c_str())));
       }
       extremeTypeCbox->setEnabled(true);
     }
