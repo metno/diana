@@ -470,13 +470,18 @@ bool  ObsDialog::setPlottype(const miString& str, bool on)
     plotbox->setCurrentItem(l);
     int selected = m_selected;
     ObsWidget* ow = new ObsWidget( this );
-    //obsWidget[l].close();
+    miString str = savelog[l];
+    if (obsWidget[l]->initialized() ) {
+      str = obsWidget[l]->getOKString();
+    }
     stackedWidget->removeWidget(obsWidget[l]);
     obsWidget[l]->close();
     obsWidget[l]=ow;
     stackedWidget->insertWidget(l,obsWidget[l]);
 
     plotSelected(l,false);
+    obsWidget[l]->putOKString(str);
+
   } else if( obsWidget[l]->initialized() ){
     obsWidget[l]->setFalse();
     getTimes();
