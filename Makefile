@@ -158,7 +158,7 @@ veryclean:
 	rm -rf $(OBJDIR)
 
 # install
-DESTNAME=diana-3.10.0
+DESTNAME=diana-3.10.1
 COPYFILES=bin/diana  bin/bdiana bin/diana.bin
 COPYDIRS=
 COPYTREES= share etc

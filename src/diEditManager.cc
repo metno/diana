@@ -2819,6 +2819,7 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Fog",Fog,"darkGray"));
   areas.push_back(newEditToolInfo("Ice",Ice,"darkYellow"));
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
+  areas.push_back(newEditToolInfo("Reduced visibility",ReducedVisibility,"gulbrun"));
   areas.push_back(newEditToolInfo("Generic area",Genericarea,"red"));
 
 
