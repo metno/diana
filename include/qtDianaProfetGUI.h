@@ -159,6 +159,10 @@ public:
    */
   void updateMap();
   /**
+   * Set list of fetparameters
+   */
+  void setParameters(const vector<fetParameter>& vp);
+  /**
    * Gets the selected parameter in GUI
    */
   miString getCurrentParameter();

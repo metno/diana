@@ -49,6 +49,7 @@
 #include "session_open.xpm"
 #include "session_deployed.xpm"
 #include "session_operational.xpm"
+#include "session_finalize.xpm"
 
 namespace Profet {
 
@@ -213,11 +214,17 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
       return QVariant(QIcon(QPixmap(session_deployed_xpm)));
     } else if ( sessions[index.row()].status() == fetSession::operational ){
       return QVariant(QIcon(QPixmap(session_operational_xpm)));
+    } else if (sessions[index.row()].status() == fetSession::finalizing) {
+      return QVariant(QIcon(QPixmap(session_finalize_xpm)));
     }
 
   } else if (role == Qt::ForegroundRole){
     if ( sessions[index.row()].editstatus() == fetSession::editable ){
       return qVariantFromValue(QColor(Qt::darkGreen));
+/*
+    } else if (sessions[index.row()].status() == fetSession::finalizing) {
+       return qVariantFromValue(QColor(Qt::red));
+*/
     } else {
       return qVariantFromValue(QColor(Qt::red));
     }
@@ -422,9 +429,13 @@ QVariant FetObjectTableModel::headerData(int section,
     return QVariant();
 
   if (role == Qt::DisplayRole) {
-    if (orientation == Qt::Vertical)
-    return QString(parameters[section].cStr());
-    else
+    if (orientation == Qt::Vertical){
+      map<miString,fetParameter>::const_iterator itr = name2par.find(parameters[section]);
+      fetParameter p;
+      if ( itr != name2par.end())
+        p = itr->second;
+      return QString(p.description().cStr());
+    } else
     return QString(times[section].format("%a %k").cStr());
 
   } else if (role == Qt::DecorationRole && orientation == Qt::Vertical) {
@@ -438,20 +449,20 @@ QVariant FetObjectTableModel::headerData(int section,
         return QVariant(QIcon(a));
       }
     } else if (headerDisplayMask & PARAM_ICON) {
-      if (param == "MSLP")
-      return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
-      else if (param.contains("T.2M"))
-      return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
-      else if (param.contains("VIND"))
-      return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
-      else if (param.contains("SKYDEKKE"))
-      return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
-      else if (param.contains("NEDBØR"))
-      return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
-      else if (param.contains("FOG"))
-      return QVariant(QIcon(QPixmap(fet_object_fog_xpm)));
-      else if (param.contains("Wave"))
-      return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
+      if (param == "mslp")
+        return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
+      else if (param.contains("temp"))
+        return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
+      else if (param.contains("wind"))
+        return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
+      else if (param.contains("cloudcover"))
+        return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
+      else if (param.contains("precip"))
+        return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
+      else if (param.contains("fog"))
+        return QVariant(QIcon(QPixmap(fet_object_fog_xpm)));
+      else if (param.contains("wave"))
+        return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
       return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
     }
 
@@ -551,6 +562,14 @@ vector<int> FetObjectTableModel::getObjectIndexList(
   vector<int> emptyIndex;
   return emptyIndex;
 }
+
+void FetObjectTableModel::setParameters(const vector<fetParameter>& vp)
+{
+  name2par.clear();
+  for (int i=0; i<vp.size(); i++)
+    name2par[vp[i].name()] = vp[i];
+}
+
 
 void FetObjectTableModel::initTable(const vector<miTime> & t,
     const vector<miString> & param) {

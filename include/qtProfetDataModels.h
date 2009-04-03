@@ -37,6 +37,7 @@
 #include <profet/ProfetCommon.h>
 #include <profet/fetObject.h>
 #include <profet/fetSession.h>
+#include <profet/fetParameter.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
 #include <diField/diColour.h>
@@ -196,6 +197,7 @@ public:
   };
 private:
   vector<fetObject::Signature> objects;
+  map<miString,fetParameter> name2par;
   vector<miString> parameters;
   vector<miTime> times;
   QModelIndex lastSelected;
@@ -247,6 +249,7 @@ public:
   QModelIndex getModelIndex(miTime time, miString param);
   void setParamColours(map<miString,Colour>& paramCol);
   void setHeaderDisplayMask(int mask);
+  void setParameters(const vector<fetParameter>& vp);
 };
 
 }

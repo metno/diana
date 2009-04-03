@@ -308,6 +308,11 @@ void DianaProfetGUI::resetStatus()
   tableModel.clearModel();
 }
 
+void DianaProfetGUI::setParameters(const vector<fetParameter>& vp){
+  tableModel.setParameters(vp);
+}
+
+
 void DianaProfetGUI::setCurrentSession(const fetSession & session)
 {
   //cerr << "DianaProfetGUI::setCurrentSession:" << session << endl;
