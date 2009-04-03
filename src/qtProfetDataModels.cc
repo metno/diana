@@ -335,19 +335,19 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
     return str;
   } else if (role == Qt::DecorationRole) {
     miString param = objects[index.row()].parameter();
-    if (param == "MSLP")
+    if (param == "mslp")
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
-    else if (param.contains("T.2M"))
+    else if (param.contains("temp"))
       return QVariant(QIcon(QPixmap(fet_object_tmp_xpm)));
-    else if (param.contains("VIND"))
+    else if (param.contains("wind"))
       return QVariant(QIcon(QPixmap(fet_object_wind_xpm)));
-    else if (param.contains("SKYDEKKE"))
+    else if (param.contains("cloudcover"))
       return QVariant(QIcon(QPixmap(fet_object_sky_xpm)));
-    else if (param.contains("NEDBØR"))
+    else if (param.contains("precip"))
       return QVariant(QIcon(QPixmap(fet_object_rain_xpm)));
-    else if (param.contains("FOG"))
+    else if (param.contains("fog"))
       return QVariant(QIcon(QPixmap(fet_object_fog_xpm)));
-    else if (param.contains("Wave"))
+    else if (param.contains("wave"))
       return QVariant(QIcon(QPixmap(fet_object_wave_xpm)));
     return QVariant(QIcon(QPixmap(fet_object_normal_xpm)));
   } else if (role == Qt::ToolTipRole) {

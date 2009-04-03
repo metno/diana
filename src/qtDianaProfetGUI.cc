@@ -78,21 +78,21 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 void DianaProfetGUI::setParamColours()
 {
   vector<fetParameter> parameters = controller.getParameters();
+  map<miString,miString> plotname2name;
   map<miString, map<miString, miString> > fieldoptions;
   for (int i=0; i<parameters.size(); i++){
-    fieldoptions[parameters[i].name().downcase()]["colour"] = "black";
+    fieldoptions[parameters[i].plotname().downcase()]["colour"] = "black";
+    plotname2name[parameters[i].plotname().downcase()] = parameters[i].name().downcase();
   }
 
   emit getFieldPlotOptions(fieldoptions);
 
   map<miString, map<miString, miString> >::iterator itr = fieldoptions.begin();
   for (; itr != fieldoptions.end(); itr++) {
-    //cerr << "Options for " << itr->first << " are:" << endl;
     map<miString, miString>::iterator sitr = itr->second.begin();
     for (; sitr != itr->second.end(); sitr++) {
-      //cerr << "   " << sitr->first << "=" << sitr->second << endl;
       if (sitr->first.downcase() == "colour") {
-        parameterColours[itr->first.downcase()] = Colour(sitr->second
+        parameterColours[plotname2name[itr->first.downcase()]] = Colour(sitr->second
             + miString(":150"));
       }
     }

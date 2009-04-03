@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -19,7 +19,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
-  
+
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -40,12 +40,12 @@ namespace TABLECOLORS {
 
   static const QColor VISITEDODD(255,240,220);
   static const QColor VISITEDEVEN(215,200,180);
-  
+
   static const QColor HASNEWOBJECTS(240,125,31);
   static const QColor HASKNOWNOBJECTS(78,240,89);
-  
+
   static const QColor CURRENT(230,0,24);
-  
+
 };
 
 
@@ -54,7 +54,7 @@ ProfetSessionTable::ProfetSessionTable(QWidget* parent) :
 {
   verticalHeader()->setClickEnabled(true);
   horizontalHeader()->setClickEnabled(true);
-  
+
   connect(verticalHeader(),SIGNAL(clicked(int)),this,SLOT(rowClicked(int)));
   connect(horizontalHeader(),SIGNAL(clicked(int)),this,SLOT(columnClicked(int)));
 }
@@ -83,7 +83,7 @@ void ProfetSessionTable::selectDefault()
   if(!times.size() || !parameters.size()) return;
 
   miTime now=miTime::nowTime();
-  
+
   int col=0;
   int row=0;
 
@@ -93,7 +93,7 @@ void ProfetSessionTable::selectDefault()
       col=itr->second;
       break;
     }
-  
+
   ProfetTableCell* p =(ProfetTableCell*)cellWidget(row,col);
   if(p)
     p->setFocus();
@@ -104,18 +104,18 @@ void ProfetSessionTable::cellChanged(int row, int col,miString par, miTime tim)
 {
   currentParameter = par;
   currentTime      = tim;
-  
+
   if(currentRow >= 0 && currentCol >= 0 && currentRow < numRows() && currentCol < numCols() ) {
 
     ProfetTableCell* p =(ProfetTableCell*)cellWidget(currentRow,currentCol);
 
     if(p)
       p->dropFocus();
-  }  
+  }
   currentRow=row;
   currentCol=col;
   setCurrentCell(row,col);
- 
+
   emit paramAndTimeChanged(par,tim);
 }
 
@@ -126,7 +126,7 @@ ProfetTableCell* ProfetSessionTable::getCell(miString par, miTime tim)
   if(!parameters.count(par)) return 0;
 
   ProfetTableCell* p =(ProfetTableCell*)cellWidget(parameters[par],times[tim]);
-  
+
   return p;
 }
 
@@ -140,7 +140,7 @@ void ProfetSessionTable::setObjectSignatures( vector<fetObject::Signature> s)
     rm.insert(s[i]);
 
     ProfetTableCell* p =getCell(s[i].parameter,s[i].validTime);
-    
+
     if(p) p->setObjectSignatures(s[i]);
   }
 
@@ -151,7 +151,7 @@ void ProfetSessionTable::setObjectSignatures( vector<fetObject::Signature> s)
       ProfetTableCell* p =getCell(allObjects[i].parameter,allObjects[i].validTime);
       if(p) p->removeObjectSignatures(allObjects[i]);
     }
-  
+
   allObjects=s;
 }
 
@@ -159,7 +159,7 @@ void ProfetSessionTable::initialize(const vector<fetParameter> & p,
 				    const vector<miTime> & t)
 {
   if(!p.size() || !t.size()) return;
-  
+
   setNumCols(t.size());
   setNumRows(p.size());
 
@@ -172,11 +172,11 @@ void ProfetSessionTable::initialize(const vector<fetParameter> & p,
   }
 
   for(int row=0;row<p.size();row++) {
-    verticalHeader()->setLabel(row, p[row].name().cStr());
+    verticalHeader()->setLabel(row, p[row].description().cStr());
     parameters[p[row].name()]=row;
   }
-  
- 
+
+
 
   for(int row=0;row<p.size();row++)
     for(int col=0;col<times.size();col++) {
@@ -206,7 +206,7 @@ ProfetTableCell::ProfetTableCell(QWidget * parent,int row_, int col_, miString p
   unvisitedObjects= false;
   visited         = false;
   current         = false;
- 
+
   setFocusPolicy(Qt::StrongFocus);
   setAlignment(Qt::AlignHCenter);
   setTextFormat(Qt::RichText);
@@ -224,7 +224,7 @@ void ProfetTableCell::setFocus()
   current          = true;
   unvisitedObjects = false;
   setStatus();
-  emit newCell(row,col,parametername,validTime);  
+  emit newCell(row,col,parametername,validTime);
 }
 
 void ProfetTableCell::dropFocus()
@@ -241,7 +241,7 @@ void ProfetTableCell::setStatus()
     setPaletteBackgroundColor(TABLECOLORS::CURRENT);
     return;
   }
-  
+
   if(objects.size()) {
     if(unvisitedObjects)
       setPaletteBackgroundColor(TABLECOLORS::HASNEWOBJECTS);
@@ -263,25 +263,25 @@ void ProfetTableCell::setStatus()
     setPaletteBackgroundColor(TABLECOLORS::VISITEDEVEN);
   else
     setPaletteBackgroundColor(TABLECOLORS::EMPTYEVEN);
-  
+
 }
 
 void ProfetTableCell::setObjectSignatures(fetObject::Signature& s)
 {
   if(!objects.count(s))
     objects.insert(s);
- 
-  
+
+
 
   if( !current ) unvisitedObjects=true;
   setCounter();
   setTooltip();
 }
-                      
+
 void ProfetTableCell::removeObjectSignatures(fetObject::Signature& s)
 {
   if(!objects.count(s)) return;
-  
+
   objects.erase(s);
   setCounter();
 }
@@ -303,16 +303,16 @@ void ProfetTableCell::setTooltip()
 
     ostringstream ost;
     set<fetObject::Signature>::iterator itr=objects.begin();
-    
+
     for(;itr!=objects.end();itr++ ) {
       ost <<  "<b>Object:</b> "     << itr->name     << "<br>"
 	  <<  "<b>Changed by</b>: " << itr->user     << "<br>"
 	  <<  "<b>at: </b>"         << itr->editTime << "<br>"
 	  <<  "<hl>";
 	}
-    
-    
+
+
  // qt4 fix: QToolTip::add takes QString as argument
-    QToolTip::add(this, QString(ost.str().c_str())); 
+    QToolTip::add(this, QString(ost.str().c_str()));
   }
 }
