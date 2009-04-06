@@ -371,6 +371,7 @@ private slots:
   void undefColourActivated(int index);
   void undefLinewidthActivated(int index);
   void undefLinetypeActivated(int index);
+  void frameCheckBoxToggled(bool on);
   void zeroLineCheckBoxToggled(bool on);
   void valueLabelCheckBoxToggled(bool on);
   void colour1ComboBoxToggled(int index);
@@ -413,6 +414,7 @@ private:
   QComboBox* undefColourCbox;
   QComboBox* undefLinewidthCbox;
   QComboBox* undefLinetypeCbox;
+  QCheckBox* frameCheckBox;
   QCheckBox* zeroLineCheckBox;
   QComboBox* zeroLineColourCBox;
   QCheckBox* valueLabelCheckBox;

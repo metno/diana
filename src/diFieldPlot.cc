@@ -859,7 +859,9 @@ bool FieldPlot::plotWind(){
   float sdist= dist*float(step);
   int xstep= step;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float relflaglen = poptions.relsize;
 
@@ -1023,7 +1025,9 @@ bool FieldPlot::plotWindColour(){
   float sdist= dist*float(step);
   int xstep= step;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float* limits=0;
   GLfloat* rgb=0;
@@ -1256,7 +1260,9 @@ bool FieldPlot::plotWindTempFL(){
   float sdist= dist*float(step);
   int xstep= step;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float relflaglen = poptions.relsize;
 
@@ -1661,7 +1667,9 @@ bool FieldPlot::plotVector(){
   float sdist= dist*float(step);
   int xstep= step;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float relarrowlen = poptions.relsize;
   float unitlength  = poptions.vectorunit;
@@ -1774,7 +1782,9 @@ bool FieldPlot::plotVectorColour(){
   float sdist= dist*float(step);
   int xstep= step;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float* limits=0;
   GLfloat* rgb=0;
@@ -1945,7 +1955,9 @@ bool FieldPlot::plotDirection(){
   float sdist= dist*float(step);
   int xstep= step;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float relarrowlen = poptions.relsize;
 
@@ -2052,7 +2064,9 @@ bool FieldPlot::plotDirectionColour(){
   float sdist= dist*float(step);
   int xstep= step;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float* limits=0;
   GLfloat* rgb=0;
@@ -2237,7 +2251,7 @@ bool FieldPlot::plotContour(){
   if (ix1>=ix2 || iy1>=iy2) return false;
   if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0) return false;
 
-  if (rgbmode) plotFrame(nx,ny,x,y,mapconvert,cvfield2map);
+  if (rgbmode && poptions.frame) plotFrame(nx,ny,x,y,mapconvert,cvfield2map);
 
   ipart[0] = ix1;
   ipart[1] = ix2;
@@ -2507,7 +2521,9 @@ bool FieldPlot::plotBox_pattern(){
   int nxc = nx + 1;
   int nyc = ny + 1;
 
-  plotFrame(nxc,nyc,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   const int npattern=4;
 //float clim[npattern+1] = { 30., 50., 70., 90., 0.9e+35 };
@@ -2621,7 +2637,9 @@ bool FieldPlot::plotBox_alpha_shade(){
   int nxc = nx + 1;
   int nyc = ny + 1;
 
-  plotFrame(nxc,nyc,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float cmin, cmax;
 
@@ -2800,7 +2818,9 @@ bool FieldPlot::plotAlarmBox(){
 
   }
 
-  plotFrame(nxc,nyc,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   glShadeModel(GL_FLAT);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2876,7 +2896,9 @@ bool FieldPlot::plotAlpha_shade(){
                    npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
-  plotFrame(nx,ny,x,y,2,NULL);
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
 
   float cmin, cmax;
 
@@ -2946,7 +2968,7 @@ void FieldPlot::plotFrame(const int nx, const int ny,
 			  const int mapconvert,
 			  float *cvfield2map){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter ramme.." << endl;
+  cerr << "++ Plot frame.." << endl;
 #endif
 
   if (!rgbmode) return;

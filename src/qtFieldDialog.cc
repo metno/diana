@@ -176,6 +176,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   cp->addKey("extreme.radius", "",0,CommandParser::cmdFloat);
   cp->addKey("line.smooth",    "",0,CommandParser::cmdInt);
   cp->addKey("field.smooth",   "",0,CommandParser::cmdInt);
+  cp->addKey("frame",          "",0,CommandParser::cmdInt);
   cp->addKey("zero.line",      "",0,CommandParser::cmdInt);
   cp->addKey("value.label",    "",0,CommandParser::cmdInt);
   cp->addKey("label.size",     "",0,CommandParser::cmdFloat);
@@ -987,6 +988,12 @@ void FieldDialog::CreateAdvanced() {
 
 
 
+  // Plot frame
+  frameCheckBox= new QCheckBox(QString(tr("Frame")), advFrame);
+  frameCheckBox->setChecked( true );
+  connect( frameCheckBox, SIGNAL( toggled(bool) ),
+      SLOT( frameCheckBoxToggled(bool) ) );
+
   // enable/disable zero line (isoline with value=0)
   zeroLineCheckBox= new QCheckBox(QString(tr("Zero line")), advFrame);
     //  zeroLineColourCBox= new QComboBox(advFrame);
@@ -995,7 +1002,7 @@ void FieldDialog::CreateAdvanced() {
   //  zeroLineCheckBox->setEnabled( false );
   zeroLineCheckBox->setEnabled( true );
   connect( zeroLineCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( zeroLineCheckBoxToggled(bool) ) );
+     SLOT( zeroLineCheckBoxToggled(bool) ) );
 
   // Create horizontal frame lines
   QFrame *line0 = new QFrame( advFrame );
@@ -1061,9 +1068,11 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addMultiCellWidget(line1,   line,line, 0,3 );
 
   line++;
-  advLayout->addWidget(zeroLineCheckBox,    line, 0 );
-  advLayout->addWidget(valueLabelCheckBox,  line, 1 );
-  advLayout->addWidget(labelSizeSpinBox,    line, 2 );
+  advLayout->addWidget(frameCheckBox,       line, 0 );
+  advLayout->addWidget(zeroLineCheckBox,    line, 1 );
+  line++;
+  advLayout->addWidget(valueLabelCheckBox,  line, 0 );
+  advLayout->addWidget(labelSizeSpinBox,    line, 1 );
   line++;
   advLayout->setRowStretch(line,5);;
   advLayout->addMultiCellWidget(line2,   line,line, 0,2 );
@@ -2410,6 +2419,13 @@ void FieldDialog::enableFieldOptions(){
     undefLinetypeCbox->setEnabled(false);
   }
 
+  nc=cp->findKey(vpcopt,"frame");
+  if (nc>=0 && vpcopt[nc].allValue=="0") {
+      frameCheckBox->setChecked( false );
+  } else {
+    frameCheckBox->setChecked( true );
+  }
+
   nc=cp->findKey(vpcopt,"zero.line");
   if (nc>=0) {
     if (vpcopt[nc].allValue=="-1") {
@@ -2581,6 +2597,8 @@ void FieldDialog::disableFieldOptions(int type)
 
   fieldSmoothSpinBox->setValue(0);
   fieldSmoothSpinBox->setEnabled( false );
+
+  frameCheckBox->setChecked( true );
 
   zeroLineCheckBox->setChecked( true );
   //  zeroLineCheckBox->setEnabled( false );
@@ -2918,6 +2936,12 @@ void FieldDialog::undefLinetypeActivated( int index )
   updateFieldOptions("undef.linetype",linetypes[index]);
 }
 
+
+void FieldDialog::frameCheckBoxToggled(bool on)
+{
+  if (on) updateFieldOptions("frame","1");
+  else    updateFieldOptions("frame","0");
+}
 
 void FieldDialog::zeroLineCheckBoxToggled(bool on)
 {
