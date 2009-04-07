@@ -62,6 +62,7 @@ using namespace std;
 // Default constructor
 ObsManager::ObsManager(){
   useArchive=false;
+  mslp = false;
   levels.push_back(10);
   levels.push_back(30);
   levels.push_back(50);
