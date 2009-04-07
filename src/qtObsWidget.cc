@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <QApplication>
 #include <QSlider>
@@ -62,7 +62,7 @@
   represent one plottype ) as input and generates a widget where zero, one or
   more datatypes might be selected by pressing the topbuttons.
   It also includes some sliders, checkboxes, comboboxes etc.
-*/
+ */
 
 ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
 {
@@ -75,8 +75,8 @@ ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
 }
 
 void ObsWidget::setDialogInfo( Controller* ctrl,
-			  ObsDialogInfo dialog,
-			  int plottype_nr)
+    ObsDialogInfo dialog,
+    int plottype_nr)
 {
 #ifdef dObsDlg
   cerr<<"ObsWidget::setDialogInfo"<<endl;
@@ -115,11 +115,11 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     vector<miString> stokens = defV[i].split("=");
     if(stokens.size()==2){
       if(stokens[0]=="colour")
-	colIndex=getIndex(cInfo,stokens[1]);
+        colIndex=getIndex(cInfo,stokens[1]);
       else if(stokens[0]=="devcolour1")
-	devcol1Index=getIndex(cInfo,stokens[1]);
+        devcol1Index=getIndex(cInfo,stokens[1]);
       if(stokens[0]=="devcolour2")
-	devcol2Index=getIndex(cInfo,stokens[1]);
+        devcol2Index=getIndex(cInfo,stokens[1]);
     }
   }
 
@@ -142,25 +142,25 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     if(stokens.size()==2 && stokens[1].downcase()=="false") on=false;
     if(stokens.size()){
       if(stokens[0]=="dev_field_button")
-	devField = on;
+        devField = on;
       else if(stokens[0]=="tempPrecision")
-	tempPrecision = on;
+        tempPrecision = on;
       else if(stokens[0]=="allAirepsLevels")
-	allAirepsLevels = on;
+        allAirepsLevels = on;
       else if(stokens[0]=="markerboxVisible")
-	markerboxVisible = on;
+        markerboxVisible = on;
       else if(stokens[0]=="asFieldButton")
-	asFieldButton = on;
+        asFieldButton = on;
       else if(stokens[0]=="leveldiff")
-	leveldiffs = on;
+        leveldiffs = on;
       else if(stokens[0]=="orientation")
-	orient = on;
+        orient = on;
       else if(stokens[0]=="parameterName")
-	parameterName = on;
+        parameterName = on;
       else if(stokens[0]=="more_times")
-	moreTimes = on;
+        moreTimes = on;
       else if(stokens[0]=="criteria")
-	criteria = on;
+        criteria = on;
     }
   }
 
@@ -170,25 +170,25 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     new ButtonLayout(this, dataTypeButton, 3);
 
   // sv = new QScrollView(this);
-//     sv->setHScrollBarMode(QScrollView::AlwaysOff);
+  //     sv->setHScrollBarMode(QScrollView::AlwaysOff);
   parameterButtons=
     new ButtonLayout(this, button, 3);
-//     sv->addChild(parameterButtons);
+  //     sv->addChild(parameterButtons);
 
   QScrollArea* scrollArea = new QScrollArea(this);
   scrollArea->setWidget(parameterButtons);
   scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
   connect( datatypeButtons,SIGNAL(outGroupClicked(int)),
-	   SLOT(outTopClicked(int)));
+      SLOT(outTopClicked(int)));
   connect( datatypeButtons, SIGNAL(inGroupClicked(int)),
-	   SLOT( inTopClicked(int)));
+      SLOT( inTopClicked(int)));
   connect( datatypeButtons, SIGNAL(rightClickedOn(miString)),
-	   SLOT(rightClickedSlot(miString)));
+      SLOT(rightClickedSlot(miString)));
   connect( parameterButtons, SIGNAL(rightClickedOn(miString)),
-	   SLOT(rightClickedSlot(miString)));
+      SLOT(rightClickedSlot(miString)));
   connect( this,SIGNAL(setRightClicked(miString,bool)),
-	   parameterButtons,SLOT(setRightClicked(miString,bool)));
+      parameterButtons,SLOT(setRightClicked(miString,bool)));
 
   //AND-Buttons
   allButton  = NormalPushButton(tr("All"),this);
@@ -199,11 +199,11 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   andLayout->addWidget( noneButton );
   andLayout->addWidget( defButton  );
   connect( allButton,SIGNAL(clicked()),
-	   parameterButtons,SLOT(ALLClicked()));
+      parameterButtons,SLOT(ALLClicked()));
   connect( noneButton,SIGNAL(clicked()),
-	   parameterButtons,SLOT(NONEClicked()));
+      parameterButtons,SLOT(NONEClicked()));
   connect( defButton,SIGNAL(clicked()),
-	   parameterButtons,SLOT(DEFAULTClicked()));
+      parameterButtons,SLOT(DEFAULTClicked()));
 
   // PRESSURE LEVELS
   QHBoxLayout* pressureLayout = new QHBoxLayout();
@@ -218,10 +218,10 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     pressureComboBox = new QComboBox(this);
     pressureComboBox->insertItem(tr("As field"));
     levelMap["asfield"] = 0;
-//     vector<miString> vstr;
+    //     vector<miString> vstr;
     int psize=dialogInfo.pressureLevels.size();
-//     for(int i=0; i<psize; i++)
-//       vstr.push_back(miString(dialogInfo.pressureLevels[i]));
+    //     for(int i=0; i<psize; i++)
+    //       vstr.push_back(miString(dialogInfo.pressureLevels[i]));
     for(int i=1; i<psize+1; i++){
       miString str(dialogInfo.pressureLevels[psize-i]);
       pressureComboBox->insertItem(str.cStr());
@@ -235,16 +235,16 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       QLabel* leveldiffLabel = new QLabel(tr("deviation"),this);
       leveldiffComboBox = new QComboBox(this);
       for(int i=0;i<4;i++){
-	int aa=(int)pow(10.0,i);
-	miString tmp(aa);
-	leveldiffComboBox->insertItem(tmp.cStr());
-	leveldiffMap[tmp]=i*3;
-	tmp = miString(aa*2);
-	leveldiffComboBox->insertItem(tmp.cStr());
-	leveldiffMap[tmp]=1*3+1;
-	tmp = miString(aa*5);
-	leveldiffComboBox->insertItem(tmp.cStr());
-	leveldiffMap[tmp]=i*3+2;
+        int aa=(int)pow(10.0,i);
+        miString tmp(aa);
+        leveldiffComboBox->insertItem(tmp.cStr());
+        leveldiffMap[tmp]=i*3;
+        tmp = miString(aa*2);
+        leveldiffComboBox->insertItem(tmp.cStr());
+        leveldiffMap[tmp]=1*3+1;
+        tmp = miString(aa*5);
+        leveldiffComboBox->insertItem(tmp.cStr());
+        leveldiffMap[tmp]=i*3+2;
       }
       pressureLayout->addWidget( leveldiffLabel );
       pressureLayout->addWidget( leveldiffComboBox );
@@ -295,12 +295,16 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   }
 
   //Criteria list
-  criteriaList = dialogInfo.criteriaList;
+  ObsDialogInfo::CriteriaList cl;
+  criteriaList.push_back(cl);
+  criteriaList.insert(criteriaList.end(),
+      dialogInfo.criteriaList.begin(),
+      dialogInfo.criteriaList.end());
   currentCriteria = -1;
   criteriaCheckBox = new QCheckBox(tr("Criterias"),this);
   criteriaChecked(false);
   miString more_str[2] = { (tr("<<Less").toStdString()),
-			   (tr("More>>").toStdString()) };
+      (tr("More>>").toStdString()) };
   moreButton= new ToggleButton( this, more_str);
   moreButton->setOn(false);
   if(!criteria){
@@ -335,11 +339,11 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     time_slider2lcd.push_back(i*15);
 
   densitySlider = Slider( dialog.density.minValue, dialog.density.maxValue,
-			  1, dialog.density.value,Qt::Horizontal, this);
+      1, dialog.density.value,Qt::Horizontal, this);
   sizeSlider = Slider( dialog.size.minValue, dialog.size.maxValue,
-		       1, dialog.size.value, Qt::Horizontal, this);
+      1, dialog.size.value, Qt::Horizontal, this);
   diffSlider= Slider( 0,time_slider2lcd.size(), 1, 4,
-		      Qt::Horizontal, this);
+      Qt::Horizontal, this);
 
   diffComboBox = new QComboBox(this);
   diffComboBox->insertItem("3t");
@@ -369,10 +373,10 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   pribox->insertItem(tr("No priority list"),0);
 
   //Colour
-   colourBox = ColourBox( this, cInfo, true, colIndex );
+  colourBox = ColourBox( this, cInfo, true, colIndex );
 
 
-// CONNECT
+  // CONNECT
   connect( densitySlider,SIGNAL( valueChanged(int)),SLOT(displayDensity(int)));
   connect( sizeSlider,SIGNAL(valueChanged(int)),SLOT(displaySize(int)));
   connect( diffSlider,SIGNAL(valueChanged(int)),SLOT(displayDiff(int)));
@@ -390,10 +394,10 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   datatypelayout->setSpacing(1);
   datatypelayout->setAlignment(Qt::AlignHCenter);
   datatypelayout->addWidget( datatypeButtons );
-//   parameterlayout = new QHBoxLayout(5);
-//   parameterlayout->setAlignment(Qt::AlignHCenter);
-//   parameterlayout->addWidget( parameterButtons );
-//   parameterlayout->addWidget( sv );
+  //   parameterlayout = new QHBoxLayout(5);
+  //   parameterlayout->setAlignment(Qt::AlignHCenter);
+  //   parameterlayout->addWidget( parameterButtons );
+  //   parameterlayout->addWidget( sv );
 
 
   // Create horizontal frame lines
@@ -428,7 +432,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vlayout->addLayout( datatypelayout );
   if(parameterButtons)
     vlayout->addWidget( scrollArea );
-//     vlayout->addLayout( parameterlayout );
+  //     vlayout->addLayout( parameterlayout );
   vlayout->addLayout( vcommonlayout );
   //  vlayout->setSizeConstraint(QLayout::SetNoConstraint);
 
@@ -444,7 +448,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
 
 
-// TOOLTIPS
+  // TOOLTIPS
   ToolTip();
 
 }//END CONSTRUCTOR
@@ -454,7 +458,7 @@ void ObsWidget::ToolTip(){
   QToolTip::add( devColourBox1,    tr("PPPP-MSLP<0"));
   QToolTip::add( devColourBox2,    tr("PPPP-MSLP>0"));
   QToolTip::add( moreTimesCheckBox,
-		 tr("Affecting synoptic data: All observations in the time interval given, mixing observations with different times"));
+      tr("Affecting synoptic data: All observations in the time interval given, mixing observations with different times"));
   QToolTip::add( diffLcdnum,       tr("Max time difference"));
   QToolTip::add( diffComboBox,     tr("Max value for the slider"));
   QToolTip::add( colourBox,        tr("Colour") );
@@ -511,9 +515,9 @@ void ObsWidget::priSelected( int index ){
 /***************************************************************************/
 
 void ObsWidget::displayDensity( int number ){
-// This function is called when densitySlider sends a signal
-// valueChanged(int)
-// and changes the numerical value in the lcd display densityLcdnum
+  // This function is called when densitySlider sends a signal
+  // valueChanged(int)
+  // and changes the numerical value in the lcd display densityLcdnum
 
   double scalednumber= number* scaledensity;
   if(number==maxdensity){
@@ -538,7 +542,7 @@ void ObsWidget::displaySize( int number ){
 
 
 void ObsWidget::displayDiff( int number ){
-/* This function is called when diffSslider sends a signal valueChanged(int)
+  /* This function is called when diffSslider sends a signal valueChanged(int)
      and changes the numerical value in the lcd display diffLcdnum */
 
   if( number == time_slider2lcd.size() ) {
@@ -605,9 +609,9 @@ void ObsWidget::diffComboBoxSlot( int number )
 
 void ObsWidget::inTopClicked( int id )
 {
-//  This function is called when datatypeButtons sends a signal
-// inGroupClicked(int),
-//      and is sent when a new datatype is selected.
+  //  This function is called when datatypeButtons sends a signal
+  // inGroupClicked(int),
+  //      and is sent when a new datatype is selected.
 
   if(parameterButtons)
     parameterButtons->enableButtons(datatype[id].active);
@@ -625,9 +629,9 @@ void ObsWidget::inTopClicked( int id )
 void ObsWidget::outTopClicked( int id )
 {
 
-// This function is called when datatypeButtons sends a signal
-//  outGroupClicked(int), and is sent when an already selected
-//  datatype is unselected, that is the button is pressed out.
+  // This function is called when datatypeButtons sends a signal
+  //  outGroupClicked(int), and is sent when an already selected
+  //  datatype is unselected, that is the button is pressed out.
 
   if(parameterButtons)
     parameterButtons->setEnabled(false); //disable all parameter buttons
@@ -636,7 +640,7 @@ void ObsWidget::outTopClicked( int id )
   for(int i=0; i<nr_dataTypes; i++){
     if(datatypeButtons->isOn(i))
       if(parameterButtons)
-	parameterButtons->enableButtons(datatype[i].active);
+        parameterButtons->enableButtons(datatype[i].active);
   }
 
   // Names of datatypes selected are sent to controller
@@ -760,7 +764,7 @@ miString ObsWidget::getOKString(bool forLog){
   }
 
   if( leveldiffs ){
-   dVariables.misc["leveldiff"] = leveldiffComboBox->currentText().toStdString();
+    dVariables.misc["leveldiff"] = leveldiffComboBox->currentText().toStdString();
   }
 
   if( allObs )
@@ -787,26 +791,24 @@ miString ObsWidget::getOKString(bool forLog){
   dVariables.misc.clear();
 
   //Criteria
-  //  cerr <<"getokstring - criteria"<<endl;
   if(!str.exists()) return str;
 
   if(forLog){
     int n = criteriaList.size();
-    for(int i=0; i<n; i++){
+    for(int i=1; i<n; i++){
       int m = criteriaList[i].criteria.size();
       if( m==0 ) continue;
       str+= " criteria=";
       str+= criteriaList[i].name;
       str += ";";
       for( int j=0; j<m; j++){
-	//      cerr <<"+++Criteria:"<<criteriaList[i].criteria[j]<<endl;
-	vector<miString> sub = criteriaList[i].criteria[j].split(" ");
-      int size=sub.size();
-      for(int k=0;k<size;k++){
-	str += sub[k];
-	if(k<size-1) str += ",";
-      }
-      if(j<m-1) str += ";";
+        vector<miString> sub = criteriaList[i].criteria[j].split(" ");
+        int size=sub.size();
+        for(int k=0;k<size;k++){
+          str += sub[k];
+          if(k<size-1) str += ",";
+        }
+        if(j<m-1) str += ";";
       }
     }
   } else{
@@ -818,8 +820,8 @@ miString ObsWidget::getOKString(bool forLog){
       vector<miString> sub = savedCriteria.criteria[j].split(" ");
       int size=sub.size();
       for(int k=0;k<size;k++){
-	str += sub[k];
-	if(k<size-1) str += ",";
+        str += sub[k];
+        if(k<size-1) str += ",";
       }
       if(j<m-1) str += ";";
     }
@@ -845,9 +847,9 @@ void ObsWidget::putOKString(const miString& str){
   decodeString(str,dVariables,false);
   updateDialog(true);
 
-//#####################################################
+  //#####################################################
   emit getTimes();
-//#####################################################
+  //#####################################################
 }
 
 
@@ -862,9 +864,9 @@ void ObsWidget::readLog(const miString& str){
 }
 
 void ObsWidget::requestQuickUpdate(miString& oldstr,
-				miString& newstr)
+    miString& newstr)
 {
-//   cerr <<"ObsWidget::requestQuickUpdate"<<endl;
+  //   cerr <<"ObsWidget::requestQuickUpdate"<<endl;
 
   dialogVariables oldvar;
 
@@ -886,7 +888,7 @@ void ObsWidget::requestQuickUpdate(miString& oldstr,
     for (int i=0; i<n; i++) {
       int j=0;
       while (j<m &&
-	     oldvar.data[i].downcase() != dVariables.data[j].downcase()) j++;
+          oldvar.data[i].downcase() != dVariables.data[j].downcase()) j++;
       if (j==m) ok= false;
     }
   }
@@ -902,8 +904,8 @@ void ObsWidget::requestQuickUpdate(miString& oldstr,
     for (int i=0; i<n; i++) {
       int j=0;
       while (j<m &&
-	     oldvar.parameter[i].downcase() != dVariables.parameter[j].downcase())
-	j++;
+          oldvar.parameter[i].downcase() != dVariables.parameter[j].downcase())
+        j++;
       if (j==m) ok= false;
     }
   }
@@ -919,8 +921,8 @@ void ObsWidget::requestQuickUpdate(miString& oldstr,
 
   map<miString,miString>::iterator p= oldvar.misc.begin();
   for( ; p!=oldvar.misc.end(); p++){
-     if( p->second.contains("@") )
-       dVariables.misc[p->first]=p->second;
+    if( p->second.contains("@") )
+      dVariables.misc[p->first]=p->second;
   }
 
   // level change not allowed
@@ -934,7 +936,7 @@ void ObsWidget::requestQuickUpdate(miString& oldstr,
 
 void ObsWidget::updateDialog(bool setOn){
 
-//    cerr<<"ObsWidget::updateDialog"<<endl;
+  //    cerr<<"ObsWidget::updateDialog"<<endl;
   int number,m,j;
   double scalednumber;
 
@@ -949,29 +951,29 @@ void ObsWidget::updateDialog(bool setOn){
       int index = datatypeButtons->setButtonOn(dVariables.data[j]);
       if(index<0) continue;
       if(parameterButtons)
-	parameterButtons->enableButtons(datatype[index].active);
+        parameterButtons->enableButtons(datatype[index].active);
     }
   }
 
   //parameter
   if(parameterButtons) {
-  parameterButtons->NONEClicked();
-  m = dVariables.parameter.size();
-  for(j=0; j<m; j++){
-    //old syntax
-    miString para = dVariables.parameter[j].downcase();
-    if(para == "dd_ff" || para == "vind")
-      dVariables.parameter[j] = "wind";
-    if(para == "kjtegn")
-      dVariables.parameter[j] = "id";
-    if(para == "dato")
-      dVariables.parameter[j] = "date";
-    if(para == "tid")
-      dVariables.parameter[j] = "time";
-    if(para == "høyde")
-      dVariables.parameter[j] = "height";
-    parameterButtons->setButtonOn(dVariables.parameter[j]);
-  }
+    parameterButtons->NONEClicked();
+    m = dVariables.parameter.size();
+    for(j=0; j<m; j++){
+      //old syntax
+      miString para = dVariables.parameter[j].downcase();
+      if(para == "dd_ff" || para == "vind")
+        dVariables.parameter[j] = "wind";
+      if(para == "kjtegn")
+        dVariables.parameter[j] = "id";
+      if(para == "dato")
+        dVariables.parameter[j] = "date";
+      if(para == "tid")
+        dVariables.parameter[j] = "time";
+      if(para == "høyde")
+        dVariables.parameter[j] = "height";
+      parameterButtons->setButtonOn(dVariables.parameter[j]);
+    }
   }
   //temp precision
   if (dVariables.misc.count("tempprecision") &&
@@ -981,7 +983,7 @@ void ObsWidget::updateDialog(bool setOn){
 
   //parameterName
   if (dVariables.misc.count("parametername") &&
-dVariables.misc["parametername"] == "true"){
+      dVariables.misc["parametername"] == "true"){
     parameterNameCheckBox->setChecked(true);
   }
 
@@ -1028,7 +1030,6 @@ dVariables.misc["parametername"] == "true"){
   if (dVariables.misc.count("criteria") &&
       dVariables.misc["criteria"] == "true"){
     criteriaCheckBox ->setChecked(true);
-    criteriaChecked(true);
   }
 
   //level
@@ -1083,17 +1084,17 @@ dVariables.misc["parametername"] == "true"){
     } else {
       int iminutes = atoi(timediff_minutes.cStr());
       if(iminutes<3*60){
-	i=0;
-	maxSliderValue = 13;
-	sliderStep = 15;
+        i=0;
+        maxSliderValue = 13;
+        sliderStep = 15;
       } else if(iminutes<24*60){
-	i=1;
-	maxSliderValue = 25;
-	sliderStep = 60;
+        i=1;
+        maxSliderValue = 25;
+        sliderStep = 60;
       } else {
-	i=2;
-	maxSliderValue = 8;
-	sliderStep = 60*24;
+        i=2;
+        maxSliderValue = 8;
+        sliderStep = 60*24;
       }
       number = iminutes/sliderStep;
       if(number>maxSliderValue-1) number = maxSliderValue-1;
@@ -1147,9 +1148,9 @@ dVariables.misc["parametername"] == "true"){
 }
 
 void ObsWidget::decodeString(const miString& str, dialogVariables& var,
-			  bool fromLog)
+    bool fromLog)
 {
-//   cerr <<"decodeString:"<<str<<endl;
+  //   cerr <<"decodeString:"<<str<<endl;
   vector<miString> parts= str.split(' ',true);
   vector<miString> tokens;
   int nparts= parts.size();
@@ -1158,29 +1159,29 @@ void ObsWidget::decodeString(const miString& str, dialogVariables& var,
     tokens= parts[i].split(1,'=',false);
     if (tokens.size()==2) {
       if (tokens[0]=="plot" ){
-	var.plotType = tokens[1];
+        var.plotType = tokens[1];
       } else if (tokens[0]=="data" ){
-	var.data = tokens[1].split(',');
+        var.data = tokens[1].split(',');
       }else if (tokens[0]=="parameter" ){
-	var.parameter = tokens[1].split(',');
+        var.parameter = tokens[1].split(',');
       }else if (tokens[0]=="criteria" ){
-	if(!fromLog){
-	  var.misc[tokens[0]]="true";
-	  miString ss = tokens[1].replace(',',' ');
-	  saveCriteria(ss.split(';'));
-	} else {
-	  miString ss = tokens[1].replace(',',' ');
-	  vector<miString> vstr = ss.split(';');
-	  if(vstr.size()>1){
-	    miString name=vstr[0];
-	    vstr.erase(vstr.begin());
-	    saveCriteria(vstr,name);
-	  } else {
-	    saveCriteria(tokens[1].split(","));
-	  }
-	}
+        if(!fromLog){
+          var.misc[tokens[0]]="true";
+          miString ss = tokens[1].replace(',',' ');
+          saveCriteria(ss.split(';'),"");
+        } else {
+          miString ss = tokens[1].replace(',',' ');
+          vector<miString> vstr = ss.split(';');
+          if(vstr.size()>1){
+            miString name=vstr[0];
+            vstr.erase(vstr.begin());
+            saveCriteria(vstr,name);
+          } else {
+            saveCriteria(tokens[1].split(","));
+          }
+        }
       } else {
-	var.misc[tokens[0].downcase()]=tokens[1];
+        var.misc[tokens[0].downcase()]=tokens[1];
       }
     }
   }
@@ -1273,17 +1274,19 @@ void ObsWidget::saveCriteria(const vector<miString>& vstr)
 }
 
 bool ObsWidget::saveCriteria(const vector<miString>& vstr,
-			     const miString& name)
+    const miString& name)
 {
   //  cerr <<"saveCriteria"<<endl;
 
   //don't save list whithout name
-  if( !name.exists() ) return false;
+  if( !name.exists() ) {
+    saveCriteria(vstr);
+  }
 
   //find list
-    int n = criteriaList.size();
-    int i=0;
-    while(i<n && criteriaList[i].name != name) i++;
+  int n = criteriaList.size();
+  int i=0;
+  while(i<n && criteriaList[i].name != name) i++;
 
   //list not found, make new list
   if(i==n){
@@ -1317,8 +1320,6 @@ bool ObsWidget::getCriteriaLimits(const miString& name, int& low, int&high)
     if(button[i].name  == name){
       low = button[i].low;
       high = button[i].high;
-//       cerr <<"High:"<<high<<endl;
-//       cerr <<"Low:"<<low<<endl;
       if(high==low) return false;
       return true;
     }

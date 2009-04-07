@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <QApplication>
 #include <QComboBox>
@@ -60,7 +60,7 @@
 
 
 ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
-    : QDialog(parent)
+: QDialog(parent)
 {
 
   setWindowTitle(tr("Observations"));
@@ -100,13 +100,13 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
     if (dialog.plottype[i].button.size()>0) {
       obsWidget[i]->setDialogInfo( m_ctrl, dialog, i );
       connect(obsWidget[i],SIGNAL(getTimes()),
-              SLOT(getTimes()));
+          SLOT(getTimes()));
       connect(obsWidget[i],SIGNAL(rightClicked(miString)),
-              SLOT(rightButtonClicked(miString)));
+          SLOT(rightButtonClicked(miString)));
       connect(obsWidget[i],SIGNAL(extensionToggled(bool)),
-              SLOT(extensionToggled(bool)));
+          SLOT(extensionToggled(bool)));
       connect(obsWidget[i],SIGNAL(criteriaOn()),
-              SLOT(criteriaOn()));
+          SLOT(criteriaOn()));
     }
     stackedWidget->addWidget(obsWidget[i]);
   }
@@ -125,7 +125,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   obsapply = NormalPushButton( tr("Apply"), this);
 
   connect( multiplotButton,
-           SIGNAL( toggled(bool)), SLOT( multiplotClicked( bool) ));
+      SIGNAL( toggled(bool)), SLOT( multiplotClicked( bool) ));
   connect( obshide, SIGNAL(clicked()), SIGNAL( ObsHide() ));
   connect( obsapply, SIGNAL(clicked()), SIGNAL( ObsApply() ));
   connect( obsrefresh, SIGNAL(clicked()), SLOT(getTimes()));
@@ -166,7 +166,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
 void ObsDialog::plotSelected( int index, bool sendTimes )
 {
-/* This function is called when a new plottype is selected and builds
+  /* This function is called when a new plottype is selected and builds
    the screen up with a new obsWidget widget */
 
   if( m_selected == index && obsWidget[index]->initialized()) return;
@@ -176,13 +176,13 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
 
     obsWidget[index]->setDialogInfo( m_ctrl, dialog, index);
     connect(obsWidget[index],SIGNAL(getTimes()),
-	    SLOT(getTimes()));
+        SLOT(getTimes()));
     connect(obsWidget[index],SIGNAL(rightClicked(miString)),
-	    SLOT(rightButtonClicked(miString)));
+        SLOT(rightButtonClicked(miString)));
     connect(obsWidget[index],SIGNAL(extensionToggled(bool)),
-	    SLOT(extensionToggled(bool)));
+        SLOT(extensionToggled(bool)));
     connect(obsWidget[index],SIGNAL(criteriaOn()),
-	    SLOT(criteriaOn()));
+        SLOT(criteriaOn()));
 
     if (savelog[index].size()) {
       obsWidget[index]->readLog(savelog[index]);
@@ -208,6 +208,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
   if(obsWidget[m_selected]->moreToggled()){
     showExtension(true);
   }
+
   updateExtension();
 
   if(sendTimes)
@@ -288,7 +289,7 @@ void ObsDialog::archiveMode(bool on){
 
 /*******************************************************/
 vector<miString> ObsDialog::getOKString(){
-/* This function is called by the external program */
+  /* This function is called by the external program */
   //  cerr <<"QT - getOKString  "<<m_selected<<endl;
 
   vector<miString> str;
@@ -347,8 +348,8 @@ vector<miString> ObsDialog::writeLog(){
 
 
 void ObsDialog::readLog(const vector<miString>& vstr,
-                        const miString& thisVersion,
-                        const miString& logVersion){
+    const miString& thisVersion,
+    const miString& logVersion){
 
   int n=0, nvstr= vstr.size();
   bool first=true;
@@ -364,10 +365,10 @@ void ObsDialog::readLog(const vector<miString>& vstr,
           plotSelected(index);
         }
         obsWidget[index]->readLog(vstr[n]);
-      } else {
-        // save until (ascii obs) dialog activated, or until writeLog
-        savelog[index]= vstr[n];
       }
+      // save until (ascii/hqc obs) dialog activated, or until writeLog
+      savelog[index]= vstr[n];
+
     }
 
     n++;
@@ -420,7 +421,7 @@ void ObsDialog::putOKString(const vector<miString>& vstr)
 
 
 void ObsDialog::requestQuickUpdate(vector<miString>& oldstr,
-                                      vector<miString>& newstr)
+    vector<miString>& newstr)
 {
   int n=oldstr.size();
   int m=newstr.size();
@@ -460,7 +461,7 @@ int ObsDialog::findPlotnr(const miString& str)
 
 bool  ObsDialog::setPlottype(const miString& str, bool on)
 {
-//  cerr <<"setplottype:"<<str<<endl;
+  //  cerr <<"setplottype:"<<str<<endl;
   int l=0;
   while (l<nr_plot && m_name[l]!=str) l++;
 
@@ -480,7 +481,9 @@ bool  ObsDialog::setPlottype(const miString& str, bool on)
     stackedWidget->insertWidget(l,obsWidget[l]);
 
     plotSelected(l,false);
-    obsWidget[l]->putOKString(str);
+    if (str.exists()) {
+      obsWidget[l]->putOKString(str);
+    }
 
   } else if( obsWidget[l]->initialized() ){
     obsWidget[l]->setFalse();
@@ -537,13 +540,13 @@ void ObsDialog::makeExtension()
   radiogroup->setExclusive(TRUE);
   plotButton->setChecked(true);
   QToolTip::add( plotButton,
-		 tr("Plot observations which meet all criteria of at least one parameter") );
+      tr("Plot observations which meet all criteria of at least one parameter") );
   QToolTip::add( colourButton,
-		 tr("Plot a parameter in the colour specified if it meets any criteria of that parameter") );
+      tr("Plot a parameter in the colour specified if it meets any criteria of that parameter") );
   QToolTip::add( totalColourButton,
-		 tr("Plot observations in the colour specified if one parameter meet any criteria of that parameter ") );
+      tr("Plot observations in the colour specified if one parameter meet any criteria of that parameter ") );
   QToolTip::add( markerButton,
-		 tr("Plot marker specified if one parameter meets any criteria of that parameter ") );
+      tr("Plot marker specified if one parameter meets any criteria of that parameter ") );
 
   QLabel* colourLabel = TitleLabel(tr("Colour"),extension);
   QLabel* markerLabel = TitleLabel(tr("Marker"),extension);
@@ -585,19 +588,19 @@ void ObsDialog::makeExtension()
 
 
   connect(criteriaBox,SIGNAL(activated(int)),
-	   SLOT(criteriaListSelected(int)));
+      SLOT(criteriaListSelected(int)));
   connect( criteriaListbox, SIGNAL(itemClicked(QListWidgetItem*)),
-	   SLOT(criteriaSelected(QListWidgetItem*)));
+      SLOT(criteriaSelected(QListWidgetItem*)));
   connect(signBox, SIGNAL(activated(int)),SLOT(signSlot(int)));
   connect(colourButton,SIGNAL(toggled(bool)),colourBox,SLOT(setEnabled(bool)));
   connect(totalColourButton,SIGNAL(toggled(bool)),
-	  colourBox,SLOT(setEnabled(bool)));
+      colourBox,SLOT(setEnabled(bool)));
   connect(markerButton,SIGNAL(toggled(bool)),markerBox,SLOT(setEnabled(bool)));
   connect(colourButton,SIGNAL(toggled(bool)),SLOT(changeCriteriaString()));
   connect(colourBox, SIGNAL(activated(int)),SLOT(changeCriteriaString()));
   connect(markerBox, SIGNAL(activated(int)),SLOT(changeCriteriaString()));
   connect(totalColourButton, SIGNAL(toggled(bool)),
-	  SLOT(changeCriteriaString()));
+      SLOT(changeCriteriaString()));
   connect(markerButton, SIGNAL(toggled(bool)),SLOT(changeCriteriaString()));
   connect( limitSlider, SIGNAL(valueChanged(int)),SLOT(sliderSlot(int)));
   connect( stepComboBox, SIGNAL(activated(int)),SLOT(stepSlot(int)));
@@ -730,7 +733,7 @@ void  ObsDialog::changeCriteriaString( )
   miString str=makeCriteriaString();
 
   if(str.exists()){
-   criteriaListbox->currentItem()->setText(QString(str.c_str()));
+    criteriaListbox->currentItem()->setText(QString(str.c_str()));
     // save changes
     int n=criteriaListbox->count();
     vector<miString> vstr;
@@ -920,9 +923,9 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
       int number= getIndex( cInfo, sub[1]);
       if (number>=0) colourBox->setCurrentItem(number);
       if(sub.size()==3 && sub[2].downcase()=="total"){
-	totalColourButton->setChecked(true);
+        totalColourButton->setChecked(true);
       } else{
-	colourButton->setChecked(true);
+        colourButton->setChecked(true);
       }
     }
   }
@@ -1058,19 +1061,10 @@ void ObsDialog::updateExtension()
   if(n==0){ // no lists, read saved criterias
     cList = obsWidget[m_selected]->getSavedCriteria();
   } else {
-    for(int i=0;i<critName.size();i++)
+    for(int i=0;i<critName.size();i++) {
       criteriaBox->insertItem(critName[i].cStr());
-
-    int current = obsWidget[m_selected]->getCurrentCriteria();
-    if(current == -1){ //first time
-      current = 0;
-      obsWidget[m_selected]->setCurrentCriteria(0);
-      cList = obsWidget[m_selected]->getCriteriaList();
-    } else { //read saved criterias
-      cList = obsWidget[m_selected]->getSavedCriteria();
     }
-
-    criteriaBox->setCurrentItem(current);
+    cList = obsWidget[m_selected]->getSavedCriteria();
   }
 
   criteriaListbox->clear();
@@ -1097,7 +1091,7 @@ void ObsDialog::numberList( QComboBox* cBox, float number ){
 
   const int nenormal = 8;
   const float enormal[nenormal] = { 0.001, 0.01, 0.1, 1.0, 10., 100., 1000.,
-                                    10000.};
+      10000.};
   QString qs;
   for (int i=0; i<=nenormal; i++) {
     cBox->addItem(qs.setNum(enormal[i]*number));
