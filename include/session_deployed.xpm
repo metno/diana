@@ -1,7 +1,7 @@
 /* XPM */
 static const char * session_deployed_xpm[] = {
 "48 48 163 2",
-"  	c #FFFFFF",
+"  	c None",
 ". 	c #000000",
 "+ 	c #0C0C0E",
 "@ 	c #2B2C30",
