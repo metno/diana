@@ -64,13 +64,13 @@ qtVcrossWindow.o qtVcrossWidget.o \
 qtVcrossDialog.o qtVcrossSetupDialog.o qtVcrossSetup.o \
 qtSpectrumWindow.o qtSpectrumWidget.o \
 qtSpectrumModelDialog.o qtSpectrumSetupDialog.o \
-qtPaintToolBar.o qtRadarEchoDialog.o 
+qtPaintToolBar.o qtRadarEchoDialog.o qtMailDialog.o
 
 ifndef NOPROFET
 QOBJ +=  qtProfetSessionDialog.o qtProfetSessionTable.o \
 qtProfetObjectDialog.o qtDianaProfetGUI.o qtProfetChatWidget.o \
 qtProfetDataModels.o qtProfetSingleControl.o qtProfetTimeControl.o \
-qtProfetTimeSmoothDialog.o qtPolygonBookmarkDialog.o qtPolygonBookmarkModel.o qtProfetWaitDialog.o                  
+qtProfetTimeSmoothDialog.o qtPolygonBookmarkDialog.o qtPolygonBookmarkModel.o qtProfetWaitDialog.o 
 endif
 
 GOBJ= \

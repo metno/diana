@@ -112,6 +112,8 @@
 #include <diGridAreaManager.h>
 #include <QErrorMessage>
 
+#include <qtMailDialog.h>
+
 #ifdef PROFET
 #include "qtDianaProfetGUI.h"
 #include <profet/LoginDialog.h>
@@ -183,6 +185,10 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   fileSavePictAction = new QAction( tr("&Save picture..."),this );
   fileSavePictAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( fileSavePictAction, SIGNAL( activated() ) , SLOT( saveraster() ) );
+  // --------------------------------------------------------------------
+  emailPictureAction = new QAction( tr("&Email picture..."),this );
+  emailPictureAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( emailPictureAction, SIGNAL( activated() ) , SLOT( emailPicture() ) );
   // --------------------------------------------------------------------
   saveAnimationAction = new QAction( tr("Save &animation..."),this );
   saveAnimationAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -536,6 +542,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   //-------File menu
   filemenu = menuBar()->addMenu(tr("File"));
   filemenu->addAction( fileSavePictAction );
+  filemenu->addAction( emailPictureAction );
   filemenu->addAction( saveAnimationAction );
   filemenu->addAction( filePrintAction );
   filemenu->addSeparator();
@@ -2833,6 +2840,27 @@ void DianaMainWindow::saveraster()
     w->Glw()->saveRasterImage(filename, format, quality);
   }
 }
+
+
+void DianaMainWindow::emailPicture() {
+	QWidget *parent = this;
+
+	//--- Save picture to a temporary file ---
+    miString format = "PNG";
+    int quality = -1; // default quality
+	
+	QTemporaryFile file(QDir::tempPath()+"/diana_XXXXXX.png");
+	if (file.open()) {
+		// do the save
+		miString fname = file.fileName().toStdString();
+    	w->Glw()->saveRasterImage(fname, format, quality);
+		MailDialog mdialog(parent, file.fileName());
+		mdialog.exec();
+	} else {
+		QMessageBox::critical(this, tr("Saving..."), tr("There was a problem saving the picture to disk."));
+	}
+}
+
 
 #ifdef VIDEO_EXPORT
 void DianaMainWindow::saveAnimation() {

@@ -184,6 +184,7 @@ private slots:
   void save();
   void hardcopy();
   void saveraster();
+  void emailPicture();
   void saveAnimation();
   void makeEPS(const miString& filename);
   void TimeSliderMoved();
@@ -267,6 +268,7 @@ private:
 
   /// Actions
   QAction * fileSavePictAction;
+  QAction * emailPictureAction;
   QAction * saveAnimationAction;
   QAction * filePrintAction;
   QAction * fileQuitAction;
