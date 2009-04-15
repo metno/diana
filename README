@@ -89,6 +89,7 @@ libboost-dev
 libboost-serialization-dev 
 libtiff4-dev
 libshp-dev 
+libuu-dev
 
 In order to compile with support for the following formats some more
 libraries are needed:

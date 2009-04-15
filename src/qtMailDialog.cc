@@ -58,17 +58,17 @@ void MailDialog::createGridGroupBox()
 	gridGroupBox = new QGroupBox(tr("E-Mail Details"));
 	QGridLayout *layout = new QGridLayout;
 	//--- Create text & input box for TO: ---
-	eToLabel = new QLabel(tr("TO : "));
+	eToLabel = new QLabel("TO : ");
 	eToEdit = new QLineEdit;
 	layout->addWidget(eToLabel, 1, 0, Qt::AlignRight);
 	layout->addWidget(eToEdit, 1, 1);
 	//--- Create text & input box for CC: ---
-	eCcLabel = new QLabel(tr("CC : "));
+	eCcLabel = new QLabel("CC : ");
 	eCcEdit = new QLineEdit;
 	layout->addWidget(eCcLabel, 2, 0, Qt::AlignRight);
 	layout->addWidget(eCcEdit, 2, 1);
 	//--- Create text & input box for Subject: ---
-	eSubjectLabel = new QLabel(tr("Subject : "));
+	eSubjectLabel = new QLabel("Subject : ");
 	eSubjectEdit = new QLineEdit;
 	layout->addWidget(eSubjectLabel, 3, 0, Qt::AlignRight);
 	layout->addWidget(eSubjectEdit, 3, 1);

@@ -421,6 +421,18 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <source>Documentation</source>
         <translation>Dokumentasjon</translation>
     </message>
+    <message>
+        <source>&amp;Email picture...</source>
+        <translation type="unfinished">Send bilde som epost</translation>
+    </message>
+    <message>
+        <source>Saving...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There was a problem saving the picture to disk.</source>
+        <translation>Det oppsto problemer ved lagring av bilde til disk.</translation>
+    </message>
 </context>
 <context>
     <name>DianaProfetGUI</name>
@@ -1445,7 +1457,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Ingen</translation>
+        <translation type="obsolete">Ingen</translation>
     </message>
     <message>
         <source>Surface etc.</source>
@@ -1490,6 +1502,10 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>Ramme</translation>
     </message>
 </context>
 <context>
@@ -1563,6 +1579,17 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Cancel</source>
         <translation>Avbryt</translation>
+    </message>
+</context>
+<context>
+    <name>MailDialog</name>
+    <message>
+        <source>E-Mail Picture</source>
+        <translation>Send bilde som epost</translation>
+    </message>
+    <message>
+        <source>E-Mail Details</source>
+        <translation>Epostdetaljer</translation>
     </message>
 </context>
 <context>
@@ -2083,6 +2110,10 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>&amp;Move Point</source>
         <translation>Fly&amp;tt Punkt</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Hjelp</translation>
     </message>
 </context>
 <context>
