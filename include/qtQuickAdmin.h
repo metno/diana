@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -37,7 +37,7 @@
 #include <diCommonTypes.h>
 #include <diQuickMenues.h>
 
-using namespace std; 
+using namespace std;
 
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -47,7 +47,7 @@ class QTextEdit;
 
 /**
    \brief Administration of quick menus
-   
+
    Dialogue for administration of quick menus:
    - copy, delete menu-trees
    - read quick menus from file
@@ -93,12 +93,12 @@ public:
   vector<quickMenu> getMenus() const;
   int FirstCustom() const {return firstcustom;}
   int LastCustom() const {return lastcustom;}
-  
+
   signals:
   void help(const char* );  ///< activate help
 
 private slots:
-  void selectionChanged(QTreeWidgetItem * ,int); // new selection in menutree
+  void selectionChanged(QTreeWidgetItem * ); // new selection in menutree
   void comChanged();   // command-text changed callback
   void helpClicked();  // help-button callback
   void upClicked();    // move item up
