@@ -45,7 +45,7 @@ SatManager::SatManager()
 {
   //Max time between filelist updates in seconds
   updateFreq = 300;
-  //new satellite files read 
+  //new satellite files read
   fileListChanged = false;
   //zero time = 00:00:00 UTC Jan 1 1970
   ztime = miTime(1970, 1, 1, 0, 0, 0);
@@ -55,9 +55,9 @@ SatManager::SatManager()
 bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
-  //                - make a new SatPlot for each SAT entry in pinfo             
+  //                - make a new SatPlot for each SAT entry in pinfo
   //                -if similar plot alredy exists, just make a copy of the
-  //                 old one (satellite,filetype and channel the same)  
+  //                 old one (satellite,filetype and channel the same)
 
 #ifdef DEBUGPRINT
   cerr << "++ SatManager::init() ++" << endl;
@@ -189,10 +189,10 @@ bool SatManager::setData(SatPlot *satp)
   sp=satp;
 
   int index;
-  if (!satdata->filename.empty()) { //requested a specific filename 
+  if (!satdata->filename.empty()) { //requested a specific filename
     index=getFileName(satdata->filename);
   } else {
-    if (!satdata->autoFile) //keep the same filename 
+    if (!satdata->autoFile) //keep the same filename
       index=getFileName(satdata->actualfile);
     else
       //find filename from time
@@ -226,7 +226,7 @@ bool SatManager::setData(SatPlot *satp)
   satdata->hdf5type = fInfo.hdf5type;
 
   if (readfresh) { // nothing to reuse..
-    //find out which channels to read (satdata->index), total no        
+    //find out which channels to read (satdata->index), total no
     if ( !parseChannels(fInfo) )
       return false;
     satdata->cleanup();
@@ -261,9 +261,9 @@ bool SatManager::setData(SatPlot *satp)
 /***********************************************************************/
 bool SatManager::parseChannels(SatFileInfo &fInfo)
 {
-  //returns in satdata->index the channels to be plotted  
+  //returns in satdata->index the channels to be plotted
 
-  //decide which channels in file (fInfo.name) to plot. from 
+  //decide which channels in file (fInfo.name) to plot. from
   // the string satdata.channel
   //NOAA files contains (up to) 5 different channels per file
   //   1,2 are in the visual spectrum, 3-5 infrared
@@ -322,7 +322,7 @@ bool SatManager::readSatFile()
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
 
-  //first check if file exists 
+  //first check if file exists
   ifstream inFile(satdata->actualfile.c_str(), ios::in);
   if (!inFile) {
     inFile.close();
@@ -339,16 +339,16 @@ bool SatManager::readSatFile()
       return false;
   }
 
-#ifdef HDF5FILE   
+#ifdef HDF5FILE
   if (satdata->formatType == "hdf5") {
 #ifdef DEBUGPRINT
     cerr << "++ satdata->formattype:    " << satdata->formatType <<endl;
-#endif  
+#endif
     if(!HDF5::readHDF5(satdata->actualfile,*satdata)) {
       return false;
     }
   }
-#endif  
+#endif
 
   if (!satdata->palette) {
 
@@ -404,7 +404,7 @@ void SatManager::setPalette(SatFileInfo &fInfo)
   for (int i=0; i<=ncolours; i++)
     fInfo.col.push_back(Colour(colmap[0][i], colmap[1][i], colmap[2][i]));
 
-  //convert image from palette to RGBA   
+  //convert image from palette to RGBA
   int nhide = satdata->hideColor.size();
   for (int j=0; j<ny; j++) {
     for (int i=0; i<nx; i++) {
@@ -415,7 +415,7 @@ void SatManager::setPalette(SatFileInfo &fInfo)
           hide=true;
           break;
         }
-      int index = (i+(ny-j-1)*nx)*4;//image index     
+      int index = (i+(ny-j-1)*nx)*4;//image index
       if (!hide) {
         for (int k=0; k<3; k++)
           satdata->image[index+k] = colmap[k][rawIndex];
@@ -464,7 +464,7 @@ void SatManager::setRGB()
       for (k=0; k<3; k++)
         if (color[k]!=NULL && (k==0 || color[k]!=color[k-1])) {
           int index1, index2;
-          if (satdata->cut==-0.5 && //reuse stretch from first image 
+          if (satdata->cut==-0.5 && //reuse stretch from first image
               satdata->plotChannels == colourStretchInfo.channels) {
             index1 = colourStretchInfo.index1[k];
             index2 = colourStretchInfo.index2[k];
@@ -558,7 +558,7 @@ void SatManager::cutImage(unsigned char *image, float cut, int &index1,
     int &index2)
 {
 
-  //  * PURPOSE:   (1-cut)*#pixels should have a value between index1 and index2 
+  //  * PURPOSE:   (1-cut)*#pixels should have a value between index1 and index2
 
   int i;
   int nindex[256];
@@ -704,7 +704,7 @@ void SatManager::addMosaicfiles()
     int size =sd.nx*sd.ny;
     if (sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay || sd.Bx!=satdata->Bx || sd.By
         !=satdata->By) {
-      cerr << "Not OK AREA!" << endl;
+      cerr << "Warning: SatManager::addMosaicfiles(): File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok"<< endl;
       continue;
     }
 
@@ -807,7 +807,7 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
   }
 #endif
 
-  //compare channels from setup and channels from file 
+  //compare channels from setup and channels from file
   for (int k=0; k<channel.size(); k++) {
     if (channel[k]=="IR+V") {
       miString name=file.name;
@@ -893,9 +893,9 @@ void SatManager::listFiles(subProdInfo &subp)
     cerr << "GLOB: ";
 #endif
     glob(subp.pattern[j].c_str(), 0, 0, &globBuf);
-#ifdef DEBUGPRINT 
+#ifdef DEBUGPRINT
     cerr << "done!" << endl;
-#endif    
+#endif
     //loop over files
     for (int i=globBuf.gl_pathc-1; i>=0; i--) {
       //remember that archive files are read
@@ -911,7 +911,7 @@ void SatManager::listFiles(subProdInfo &subp)
 
       bool newfile = true;
 
-      //HK ??? forandret kode for at oppdatering skal virke  
+      //HK ??? forandret kode for at oppdatering skal virke
       vector<SatFileInfo>::iterator p = subp.file.begin();
       for (; p!=subp.file.end(); p++) {
         if (ft.name == p->name) {
@@ -996,13 +996,13 @@ void SatManager::listFiles(subProdInfo &subp)
     //update Prod[satellite][file].colours
     //Asumes that all files have same palette
     int n=subp.file.size();
-    //check max 3 files, 
+    //check max 3 files,
     int i=0;
     while (i<n && i<3 && !MItiff::readMItiffPalette(subp.file[i].name.c_str(),
         subp.colours))
       i++;
   }
-#ifdef HDF5FILE  
+#ifdef HDF5FILE
   if(subp.formattype == "hdf5" || subp.formattype=="hdf5-standalone") {
     HDF5::readHDF5Palette(subp.file[0],subp.colours);
   }
@@ -1036,7 +1036,7 @@ const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
       updiff = updateFreq -1;
     } else {
       miTime now = miTime::nowTime();
-      //time between now and last update 
+      //time between now and last update
       updiff = miTime::secDiff(now, ztime)-subp.updateTime;
     }
     if (subp.file.size()==0 || subp.updated ==false || updiff > updateFreq) {
@@ -1180,7 +1180,7 @@ void SatManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 void SatManager::updateFiles()
 {
 
-  //  * PURPOSE: sets flag to update filelists for all satellites   
+  //  * PURPOSE: sets flag to update filelists for all satellites
 
 #ifdef DEBUGPRINT
   cerr << "++SatManager::updateFiles" << endl;
@@ -1475,9 +1475,9 @@ void SatManager::init_rgbindex(Sat& sd)
 void SatManager::init_rgbindex_Meteosat(Sat& sd)
 {
 
-  //METEOSAT; if channel = IR+V, we have to read another file. 
-  //Filenames for visual channel end by "v", infrared names 
-  //end by "i". In order to get both channels, the filename are changed 
+  //METEOSAT; if channel = IR+V, we have to read another file.
+  //Filenames for visual channel end by "v", infrared names
+  //end by "i". In order to get both channels, the filename are changed
   // the other channel is read from another file
   //  This image is put in last rawimage slot
 
