@@ -3185,6 +3185,9 @@ bool FieldPlot::markExtreme(){
     marks[1]= 'H';  pmarks[1]= "H";
   } else {
     plotValue = true;
+    //todo: works, but ...
+    marks[0]= 'L';  pmarks[0]= "L";
+    marks[1]= 'H';  pmarks[1]= "H";
   }
 
 
