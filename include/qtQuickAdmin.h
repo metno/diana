@@ -98,7 +98,7 @@ public:
   void help(const char* );  ///< activate help
 
 private slots:
-  void selectionChanged(QTreeWidgetItem * ); // new selection in menutree
+  void selectionChanged(QTreeWidgetItem * ,int); // new selection in menutree
   void comChanged();   // command-text changed callback
   void helpClicked();  // help-button callback
   void upClicked();    // move item up

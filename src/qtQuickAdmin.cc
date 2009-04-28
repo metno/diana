@@ -246,7 +246,7 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
   resize(500, 550);
 }
 
-void QuickAdmin::selectionChanged(QTreeWidgetItem *p)
+void QuickAdmin::selectionChanged(QTreeWidgetItem *p, int i)
 {
   //   cerr <<"selectionChanged()"<<endl;
   //   QTreeWidgetItem * p = menutree->currentItem();
@@ -382,7 +382,7 @@ void QuickAdmin::updateWidgets()
   if (active) {
     active->setSelected(true);
     menutree->scrollToItem(active, QAbstractItemView::EnsureVisible);
-    selectionChanged( active );
+    selectionChanged( active, 0 );
   }
 }
 
