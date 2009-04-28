@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <diFieldPlot.h>
 #include <diContouring.h>
@@ -46,7 +46,7 @@ const int MaxArrowsAuto=55;
 // Default constructor
 FieldPlot::FieldPlot()
 :Plot(), pshade(false), pundefined(false), difference(false),
- vectorIndex(-1), vectorAnnotationSize(0.), overlay(false) {
+vectorIndex(-1), vectorAnnotationSize(0.), overlay(false) {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::Default Constructor" << endl;
 #endif
@@ -158,7 +158,7 @@ void FieldPlot::getFieldAnnotation(miString& s, Colour& c){
 // Extract plotting-parameters from PlotInfo.
 bool FieldPlot::prepare(const miString& pin)
 {
-//   cerr <<"FieldPlot::prepare: "<<pin<<endl;
+  //   cerr <<"FieldPlot::prepare: "<<pin<<endl;
   pinfo= pin;
   setPlotInfo(pin);
 
@@ -194,9 +194,9 @@ bool FieldPlot::prepare(const miString& pin)
 #endif
 
   pshade= (ptype==fpt_box_alpha_shade ||
-	   ptype==fpt_alpha_shade ||
-	   ptype==fpt_box_pattern ||
-	   ptype==fpt_alarm_box);
+      ptype==fpt_alpha_shade ||
+      ptype==fpt_box_pattern ||
+      ptype==fpt_alarm_box);
 
   if (ptype==fpt_contour && poptions.contourShading>0)
     pshade= true;
@@ -216,7 +216,7 @@ bool FieldPlot::prepare(const miString& pin)
 //  set list of field-pointers, update datatime
 bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
 
-//   cerr <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime()<<endl;
+  //   cerr <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime()<<endl;
 
   clearFields();
 
@@ -234,11 +234,11 @@ bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
   return true;
 }
 
-    struct aTable{
-      miString colour;
-      miString pattern;
-      miString text;
-    };
+struct aTable{
+  miString colour;
+  miString pattern;
+  miString text;
+};
 
 bool FieldPlot::getAnnotations(vector<miString>& anno)
 {
@@ -251,173 +251,173 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
   for(int j=0; j<nanno; j++){
     if(anno[j].contains("table")){
       if (!enabled || poptions.table==0  ||
-	  (poptions.palettecolours.size()==0 && poptions.patterns.size()==0))
-	continue;;
+          (poptions.palettecolours.size()==0 && poptions.patterns.size()==0))
+        continue;;
 
-      miString endString;
-      miString startString;
-      if(anno[j].contains(",")){
-	size_t nn = anno[j].find_first_of(",");
-	endString = anno[j].substr(nn);
-	startString =anno[j].substr(0,nn);
-      } else {
-	startString =anno[j];
-      }
+        miString endString;
+        miString startString;
+        if(anno[j].contains(",")){
+          size_t nn = anno[j].find_first_of(",");
+          endString = anno[j].substr(nn);
+          startString =anno[j].substr(0,nn);
+        } else {
+          startString =anno[j];
+        }
 
-      //if asking for spesific field
-      if(anno[j].contains("table=")){
-	miString name = startString.substr(startString.find_first_of("=")+1);
-	if( name[0]=='"' )
-	  name.remove('"');
-	name.trim();
-	if(!fields[0]->fieldText.contains(name))	continue;
-      }
+        //if asking for spesific field
+        if(anno[j].contains("table=")){
+          miString name = startString.substr(startString.find_first_of("=")+1);
+          if( name[0]=='"' )
+            name.remove('"');
+          name.trim();
+          if(!fields[0]->fieldText.contains(name))	continue;
+        }
 
-      miString str  = "table=\"";
-      str += fields[0]->fieldText;
+        miString str  = "table=\"";
+        str += fields[0]->fieldText;
 
-      //find min/max if repeating colours
-      float cmin=  fieldUndef;
-      float cmax= -fieldUndef;
-      if(!poptions.repeat){
-	cmin = poptions.base;
-      } else {
-	int ndata = fields[0]->nx*fields[0]->ny;
-	for (int i=0; i<ndata; ++i) {
-	  if (fields[0]->data[i]!=fieldUndef) {
-	    if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
-	    if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
-	  }
-	}
-      }
-
-
-      aTable table;
-      vector<aTable> vtable;
-
-      int ncolours  = poptions.palettecolours.size();
-      int ncold     = poptions.palettecolours_cold.size();
-      int npatterns = poptions.patterns.size();
-      int nlines    = poptions.linevalues.size();
-      int nloglines = poptions.loglinevalues.size();
-      int ncodes = (ncolours>npatterns ? ncolours : npatterns);
-
-      if(cmin>poptions.base) ncold=0;
+        //find min/max if repeating colours
+        float cmin=  fieldUndef;
+        float cmax= -fieldUndef;
+        if(!poptions.repeat){
+          cmin = poptions.base;
+        } else {
+          int ndata = fields[0]->nx*fields[0]->ny;
+          for (int i=0; i<ndata; ++i) {
+            if (fields[0]->data[i]!=fieldUndef) {
+              if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
+              if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
+            }
+          }
+        }
 
 
-      //discontinuous - no more entries than class specifications
-      vector<miString> classSpec;
-      if(poptions.discontinuous == 1 &&
-	 poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
-	classSpec = poptions.classSpecifications.split(",");
-	ncodes = classSpec.size();
-      }
+        aTable table;
+        vector<aTable> vtable;
 
-      if(nlines > 0 && nlines-1 < ncodes)
-	ncodes = nlines-1;
+        int ncolours  = poptions.palettecolours.size();
+        int ncold     = poptions.palettecolours_cold.size();
+        int npatterns = poptions.patterns.size();
+        int nlines    = poptions.linevalues.size();
+        int nloglines = poptions.loglinevalues.size();
+        int ncodes = (ncolours>npatterns ? ncolours : npatterns);
 
-      for(int i=ncold-1; i>=0; i--){
-	table.colour = poptions.palettecolours_cold[i].Name();
-	if(npatterns>0){
-	  int ii = (npatterns-1) - i%npatterns;
-	  table.pattern = poptions.patterns[ii];
-	}
-	vtable.push_back(table);
-      }
-
-      for (int i=0; i<ncodes; i++){
-	if(ncolours>0){
-	  int ii = i%ncolours;
-	  table.colour = poptions.palettecolours[ii].Name();
-	} else {
-	  table.colour = poptions.fillcolour.Name();
-	}
-	if(npatterns>0){
-	  int ii = i%npatterns;
-	  table.pattern = poptions.patterns[ii];
-	}
-	vtable.push_back(table);
-      }
-
-      if(poptions.discontinuous == 1 &&
-	 poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
-	for (int i=0; i<ncodes; i++){
-	  vector<miString> tstr = classSpec[i].split(":");
-	  if(tstr.size()>1) {
-	    vtable[i].text = tstr[1];
-	  }
-	}
-
-      } else if(nlines>0){
-	for(int i=0; i<ncodes; i++){
-	  float min = poptions.linevalues[i];
-	  float max = poptions.linevalues[i+1];
-	  ostringstream ostr;
-	  ostr <<min<<" - "<<max;
-	  vtable[i].text = ostr.str();
-	}
-
-      } else if(nloglines>0){
-        vector<float> vlog;
-	for (int n=0; n<ncodes; n++) {
-	  float slog= powf(10.0,n);
-	  for (int i=0; i<nloglines; i++)
-	    vlog.push_back(slog*poptions.loglinevalues[i]);
-	}
-	for(int i=0; i<ncodes; i++){
-	  float min = vlog[i];
-	  float max = vlog[i+1];
-	  ostringstream ostr;
-	  ostr <<min<<" - "<<max;
-	  vtable[i].text = ostr.str();
-	}
-
-      } else {
-
-	//cold colours
-	float max=poptions.base;
-	float min=max;
-	for(int i=ncold-1; i>-1; i--){
-	  min = max - poptions.lineinterval;
-	  ostringstream ostr;
-	  if(fabs(min)<poptions.lineinterval/10) min=0.;
-	  if(fabs(max)<poptions.lineinterval/10) max=0.;
-	  ostr <<min<<" - "<<max;
-	  max=min;
-	  vtable[i].text = ostr.str();
-	}
-
-	//colours
-	if(cmin>poptions.base){
-	  float step = ncodes*poptions.lineinterval;
-	  min = int((cmin-poptions.base)/step)*step+poptions.base;
-	  if(cmax+cmin > 2*(min+step)) min += step;
-	}else{
-	  min=poptions.base;
- 	}
-	for(int i=ncold; i<ncodes+ncold; i++){
-	  max = min + poptions.lineinterval;
-	  ostringstream ostr;
-	  ostr <<min<<" - "<<max;
-	  min=max;
-	  vtable[i].text = ostr.str();
-	}
-      }
+        if(cmin>poptions.base) ncold=0;
 
 
-      int n= vtable.size();
-      for( int i=n-1; i>-1; i--){
-	str +=";";
-	str +=vtable[i].colour;
-	str +=";";
-	str +=vtable[i].pattern;
-	str +=";";
-	str +=vtable[i].text;
-      }
-      str += "\"";
-      str += endString;
+        //discontinuous - no more entries than class specifications
+        vector<miString> classSpec;
+        if(poptions.discontinuous == 1 &&
+            poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
+          classSpec = poptions.classSpecifications.split(",");
+          ncodes = classSpec.size();
+        }
 
-      anno.push_back(str);
+        if(nlines > 0 && nlines-1 < ncodes)
+          ncodes = nlines-1;
+
+        for(int i=ncold-1; i>=0; i--){
+          table.colour = poptions.palettecolours_cold[i].Name();
+          if(npatterns>0){
+            int ii = (npatterns-1) - i%npatterns;
+            table.pattern = poptions.patterns[ii];
+          }
+          vtable.push_back(table);
+        }
+
+        for (int i=0; i<ncodes; i++){
+          if(ncolours>0){
+            int ii = i%ncolours;
+            table.colour = poptions.palettecolours[ii].Name();
+          } else {
+            table.colour = poptions.fillcolour.Name();
+          }
+          if(npatterns>0){
+            int ii = i%npatterns;
+            table.pattern = poptions.patterns[ii];
+          }
+          vtable.push_back(table);
+        }
+
+        if(poptions.discontinuous == 1 &&
+            poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
+          for (int i=0; i<ncodes; i++){
+            vector<miString> tstr = classSpec[i].split(":");
+            if(tstr.size()>1) {
+              vtable[i].text = tstr[1];
+            }
+          }
+
+        } else if(nlines>0){
+          for(int i=0; i<ncodes; i++){
+            float min = poptions.linevalues[i];
+            float max = poptions.linevalues[i+1];
+            ostringstream ostr;
+            ostr <<min<<" - "<<max;
+            vtable[i].text = ostr.str();
+          }
+
+        } else if(nloglines>0){
+          vector<float> vlog;
+          for (int n=0; n<ncodes; n++) {
+            float slog= powf(10.0,n);
+            for (int i=0; i<nloglines; i++)
+              vlog.push_back(slog*poptions.loglinevalues[i]);
+          }
+          for(int i=0; i<ncodes; i++){
+            float min = vlog[i];
+            float max = vlog[i+1];
+            ostringstream ostr;
+            ostr <<min<<" - "<<max;
+            vtable[i].text = ostr.str();
+          }
+
+        } else {
+
+          //cold colours
+          float max=poptions.base;
+          float min=max;
+          for(int i=ncold-1; i>-1; i--){
+            min = max - poptions.lineinterval;
+            ostringstream ostr;
+            if(fabs(min)<poptions.lineinterval/10) min=0.;
+            if(fabs(max)<poptions.lineinterval/10) max=0.;
+            ostr <<min<<" - "<<max;
+            max=min;
+            vtable[i].text = ostr.str();
+          }
+
+          //colours
+          if(cmin>poptions.base){
+            float step = ncodes*poptions.lineinterval;
+            min = int((cmin-poptions.base)/step)*step+poptions.base;
+            if(cmax+cmin > 2*(min+step)) min += step;
+          }else{
+            min=poptions.base;
+          }
+          for(int i=ncold; i<ncodes+ncold; i++){
+            max = min + poptions.lineinterval;
+            ostringstream ostr;
+            ostr <<min<<" - "<<max;
+            min=max;
+            vtable[i].text = ostr.str();
+          }
+        }
+
+
+        int n= vtable.size();
+        for( int i=n-1; i>-1; i--){
+          str +=";";
+          str +=vtable[i].colour;
+          str +=";";
+          str +=vtable[i].pattern;
+          str +=";";
+          str +=vtable[i].text;
+        }
+        str += "\"";
+        str += endString;
+
+        anno.push_back(str);
 
     }
   }
@@ -445,20 +445,20 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
       } else {
         startString =anno[j];
       }
-//       //if asking for spesific field
-//       if(anno[j].contains("arrow=")){
-//         miString name = startString.substr(startString.find_first_of("=")+1);
-//         if( name[0]=='"' )
-// 	  name.remove('"');
-//         name.trim();
-//         if(!fields[0]->fieldText.contains(name)) continue;
-//       }
+      //       //if asking for spesific field
+      //       if(anno[j].contains("arrow=")){
+      //         miString name = startString.substr(startString.find_first_of("=")+1);
+      //         if( name[0]=='"' )
+      // 	  name.remove('"');
+      //         name.trim();
+      //         if(!fields[0]->fieldText.contains(name)) continue;
+      //       }
 
       miString str  = "arrow=" + miString (vectorAnnotationSize)
-	+ ",tcolour=" + poptions.linecolour.Name() + endString;
+      + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
-	+ ",tcolour=" + poptions.linecolour.Name() + endString ;
+      + ",tcolour=" + poptions.linecolour.Name() + endString ;
       anno.push_back(str);
 
     }
@@ -480,14 +480,14 @@ bool FieldPlot::plot(){
   for (int i=0; i<n; i++) {
     if (fields[i] && fields[i]->data) {
       if (fields[i]->numSmoothed<poptions.fieldSmooth) {
-	int nsmooth= poptions.fieldSmooth - fields[i]->numSmoothed;
+        int nsmooth= poptions.fieldSmooth - fields[i]->numSmoothed;
         fields[i]->smooth(nsmooth);
       } else if (fields[i]->numSmoothed>poptions.fieldSmooth) {
-	cerr << endl;
-	cerr << "FieldPlot::plot ERROR: field smoothed too much !!!" << endl;
-	cerr << "    numSmoothed,fieldSmooth: "
-	     << fields[i]->numSmoothed << " " << poptions.fieldSmooth << endl;
-	cerr << endl;
+        cerr << endl;
+        cerr << "FieldPlot::plot ERROR: field smoothed too much !!!" << endl;
+        cerr << "    numSmoothed,fieldSmooth: "
+        << fields[i]->numSmoothed << " " << poptions.fieldSmooth << endl;
+        cerr << endl;
       }
     }
   }
@@ -541,10 +541,10 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
       tmpfields.clear();
     }
   } else if (!fields[0]->modifiedByProfet &&
-	     !fields[1]->modifiedByProfet &&
-	     nf==2 &&
-  	     tmpfields[0]->numSmoothed == fields[0]->numSmoothed &&
-  	     tmpfields[0]->area.P() == area.P()) {
+      !fields[1]->modifiedByProfet &&
+      nf==2 &&
+      tmpfields[0]->numSmoothed == fields[0]->numSmoothed &&
+      tmpfields[0]->area.P() == area.P()) {
     u= tmpfields[0]->data;
     v= tmpfields[1]->data;
   } else {
@@ -615,7 +615,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     // data interpolated to polarstereographic grids are usually turned
     // met.no WAM wave directions are "oceanographic to-direction".
     bool turn= (fields[0]->producer==98 &&
-                fields[0]->area.P().Gridtype()==Projection::geographic);
+        fields[0]->area.P().Gridtype()==Projection::geographic);
     //##################################################################
 
     gc.getDirectionVectors(area,turn,npos,x,y,u,v);
@@ -633,7 +633,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
 
 
 void FieldPlot::setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int iy2,
-			    int maxElementsX, int& step, float& dist, bool& xStepComp)
+    int maxElementsX, int& step, float& dist, bool& xStepComp)
 {
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -689,9 +689,9 @@ void FieldPlot::setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int i
 
   // probably too simple test...
   xStepComp= (fields[0]->area.P().Gridtype()==Projection::geographic ||
-              fields[0]->area.P().Gridtype()==Projection::mercator) &&
-             area.P().Gridtype()!=Projection::geographic &&
-             area.P().Gridtype()!=Projection::mercator;
+      fields[0]->area.P().Gridtype()==Projection::mercator) &&
+      area.P().Gridtype()!=Projection::geographic &&
+      area.P().Gridtype()!=Projection::mercator;
 }
 
 
@@ -776,7 +776,7 @@ void FieldPlot::fixGeoVector(float* u, float* v)
     if (gs[4]>=0.0) mapNorth= true;
     else            mapSouth= true;
   } else if (maptype==Projection::spherical_rotated ||
-	     maptype==Projection::lambert) {
+      maptype==Projection::lambert) {
     if (gs[5]>=0.0) mapNorth= true;
     else            mapSouth= true;
   }
@@ -795,7 +795,7 @@ void FieldPlot::fixGeoVector(float* u, float* v)
       } else {
         int ix= 0;
         if (fields[0]->data[iy*nx+ix]!=fieldUndef &&
-       	    fields[1]->data[iy*nx+ix]!=fieldUndef) {
+            fields[1]->data[iy*nx+ix]!=fieldUndef) {
           float uu= fields[0]->data[iy*nx+ix];
           float vv= fields[1]->data[iy*nx+ix];
           float rad= 3.141592654/180.;
@@ -805,11 +805,11 @@ void FieldPlot::fixGeoVector(float* u, float* v)
           float dd= 270.0 - deg*atan2f(vv,uu) + gs[0];
           uu= -ff*sin(dd*rad);
           vv= -ff*cos(dd*rad);
-       	  for (int ix=0; ix<nx; ix++) {
-       	    if (u[iy*nx+ix]!=fieldUndef) u[iy*nx+ix]= uu;
+          for (int ix=0; ix<nx; ix++) {
+            if (u[iy*nx+ix]!=fieldUndef) u[iy*nx+ix]= uu;
             if (v[iy*nx+ix]!=fieldUndef) v[iy*nx+ix]= vv;
-    	  }
-       	}
+          }
+        }
       }
     }
   }
@@ -839,7 +839,7 @@ bool FieldPlot::plotWind(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
@@ -893,68 +893,68 @@ bool FieldPlot::plotWind(){
       gx= x[i]; gy= y[i];
       if (u[i]!=fieldUndef &&
           v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-	ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-	if (ff>0.00001){
+        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
+        if (ff>0.00001){
 
-	  gu= u[i]/ff;
-	  gv= v[i]/ff;
+          gu= u[i]/ff;
+          gv= v[i]/ff;
 
-	  ff *= 3600.0/1852.0;
+          ff *= 3600.0/1852.0;
 
           // find no. of 50,10 and 5 knot flags
           if (ff<182.49) {
-              n05  = int(ff*0.2 + 0.5);
-              n50  = n05/10;
-              n05 -= n50*10;
-              n10  = n05/2;
-	      n05 -= n10*2;
+            n05  = int(ff*0.2 + 0.5);
+            n50  = n05/10;
+            n05 -= n50*10;
+            n10  = n05/2;
+            n05 -= n10*2;
           } else if (ff<190.) {
-              n50 = 3;  n10 = 3;  n05 = 0;
+            n50 = 3;  n10 = 3;  n05 = 0;
           } else if(ff<205.) {
-              n50 = 4;  n10 = 0;  n05 = 0;
+            n50 = 4;  n10 = 0;  n05 = 0;
           } else if (ff<225.) {
-              n50 = 4;  n10 = 1;  n05 = 0;
+            n50 = 4;  n10 = 1;  n05 = 0;
           } else {
-	      n50 = 5;  n10 = 0;  n05 = 0;
+            n50 = 5;  n10 = 0;  n05 = 0;
           }
 
-	  dx = flagstep*gu;
+          dx = flagstep*gu;
           dy = flagstep*gv;
-	  dxf = -flagw*gv - dx;
+          dxf = -flagw*gv - dx;
           dyf =  flagw*gu - dy;
 
           // direction
-	  glVertex2f(gx,gy);
-	  gx = gx - flagl*gu;
+          glVertex2f(gx,gy);
+          gx = gx - flagl*gu;
           gy = gy - flagl*gv;
-	  glVertex2f(gx,gy);
+          glVertex2f(gx,gy);
 
-	  // 50-knot flags, store for plot below
+          // 50-knot flags, store for plot below
           if (n50>0) {
- 	    for (n=0; n<n50; n++) {
-	      vx.push_back(gx);
-	      vy.push_back(gy);
-	      gx+=dx*2.;  gy+=dy*2.;
-	      vx.push_back(gx+dxf);
-	      vy.push_back(gy+dyf);
-	      vx.push_back(gx);
-	      vy.push_back(gy);
-	    }
-	    gx+=dx; gy+=dy;
-	  }
-	  // 10-knot flags
-	  for (n=0; n<n10; n++) {
-	    glVertex2f(gx,gy);
-	    glVertex2f(gx+dxf,gy+dyf);
-	    gx+=dx; gy+=dy;
-	  }
-	  // 5-knot flag
-	  if (n05>0) {
-	    if (n50+n10==0) { gx+=dx; gy+=dy; }
-	    glVertex2f(gx,gy);
-	    glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-	  }
-	}
+            for (n=0; n<n50; n++) {
+              vx.push_back(gx);
+              vy.push_back(gy);
+              gx+=dx*2.;  gy+=dy*2.;
+              vx.push_back(gx+dxf);
+              vy.push_back(gy+dyf);
+              vx.push_back(gx);
+              vy.push_back(gy);
+            }
+            gx+=dx; gy+=dy;
+          }
+          // 10-knot flags
+          for (n=0; n<n10; n++) {
+            glVertex2f(gx,gy);
+            glVertex2f(gx+dxf,gy+dyf);
+            gx+=dx; gy+=dy;
+          }
+          // 5-knot flag
+          if (n05>0) {
+            if (n50+n10==0) { gx+=dx; gy+=dy; }
+            glVertex2f(gx,gy);
+            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
+          }
+        }
       }
     }
   }
@@ -994,7 +994,7 @@ bool FieldPlot::plotWindColour(){
   if (!fields[0] || !fields[1] || !fields[2]) return false;
 
   if (!fields[0]->data || !fields[1]->data
-                       || !fields[2]->data) return false;
+      || !fields[2]->data) return false;
 
   int i,ix,iy,l;
   int nx= fields[0]->nx;
@@ -1005,7 +1005,7 @@ bool FieldPlot::plotWindColour(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
@@ -1109,73 +1109,73 @@ bool FieldPlot::plotWindColour(){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
       if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-	ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-	if (ff>0.00001 && fields[2]->data[i]!=fieldUndef){
+        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
+        if (ff>0.00001 && fields[2]->data[i]!=fieldUndef){
 
-	  gu= u[i]/ff;
-	  gv= v[i]/ff;
+          gu= u[i]/ff;
+          gv= v[i]/ff;
 
-	  ff *= 3600.0/1852.0;
+          ff *= 3600.0/1852.0;
 
           // find no. of 50,10 and 5 knot flags
           if (ff<182.49) {
-              n05  = int(ff*0.2 + 0.5);
-              n50  = n05/10;
-              n05 -= n50*10;
-              n10  = n05/2;
-	      n05 -= n10*2;
+            n05  = int(ff*0.2 + 0.5);
+            n50  = n05/10;
+            n05 -= n50*10;
+            n10  = n05/2;
+            n05 -= n10*2;
           } else if (ff<190.) {
-              n50 = 3;  n10 = 3;  n05 = 0;
+            n50 = 3;  n10 = 3;  n05 = 0;
           } else if(ff<205.) {
-              n50 = 4;  n10 = 0;  n05 = 0;
+            n50 = 4;  n10 = 0;  n05 = 0;
           } else if (ff<225.) {
-              n50 = 4;  n10 = 1;  n05 = 0;
+            n50 = 4;  n10 = 1;  n05 = 0;
           } else {
-	      n50 = 5;  n10 = 0;  n05 = 0;
+            n50 = 5;  n10 = 0;  n05 = 0;
           }
 
-	  l=0;
-	  while (l<nlim && fields[2]->data[i]>limits[l]) l++;
-	  glColor3fv(&rgb[l*3]);
+          l=0;
+          while (l<nlim && fields[2]->data[i]>limits[l]) l++;
+          glColor3fv(&rgb[l*3]);
 
-	  dx = flagstep*gu;
+          dx = flagstep*gu;
           dy = flagstep*gv;
-	  dxf = -flagw*gv - dx;
+          dxf = -flagw*gv - dx;
           dyf =  flagw*gu - dy;
 
           // direction
-	  glVertex2f(gx,gy);
-	  gx = gx - flagl*gu;
+          glVertex2f(gx,gy);
+          gx = gx - flagl*gu;
           gy = gy - flagl*gv;
-	  glVertex2f(gx,gy);
+          glVertex2f(gx,gy);
 
-	  // 50-knot flags, store for plot below
+          // 50-knot flags, store for plot below
           if (n50>0) {
- 	    for (n=0; n<n50; n++) {
-	      vc.push_back(l);
-	      vx.push_back(gx);
-	      vy.push_back(gy);
-	      gx+=dx*2.;  gy+=dy*2.;
-	      vx.push_back(gx+dxf);
-	      vy.push_back(gy+dyf);
-	      vx.push_back(gx);
-	      vy.push_back(gy);
-	    }
-	    gx+=dx; gy+=dy;
-	  }
-	  // 10-knot flags
-	  for (n=0; n<n10; n++) {
-	    glVertex2f(gx,gy);
-	    glVertex2f(gx+dxf,gy+dyf);
-	    gx+=dx; gy+=dy;
-	  }
-	  // 5-knot flag
-	  if (n05>0) {
-	    if (n50+n10==0) { gx+=dx; gy+=dy; }
-	    glVertex2f(gx,gy);
-	    glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-	  }
-	}
+            for (n=0; n<n50; n++) {
+              vc.push_back(l);
+              vx.push_back(gx);
+              vy.push_back(gy);
+              gx+=dx*2.;  gy+=dy*2.;
+              vx.push_back(gx+dxf);
+              vy.push_back(gy+dyf);
+              vx.push_back(gx);
+              vy.push_back(gy);
+            }
+            gx+=dx; gy+=dy;
+          }
+          // 10-knot flags
+          for (n=0; n<n10; n++) {
+            glVertex2f(gx,gy);
+            glVertex2f(gx+dxf,gy+dyf);
+            gx+=dx; gy+=dy;
+          }
+          // 5-knot flag
+          if (n05>0) {
+            if (n50+n10==0) { gx+=dx; gy+=dy; }
+            glVertex2f(gx,gy);
+            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
+          }
+        }
       }
     }
   }
@@ -1218,7 +1218,7 @@ bool FieldPlot::plotWindColour(){
              T=-25  plott: 25
              T=+10  plott: ps10
   ALGORITHM: Fields u(0) v(1) temp(2)
-*/
+ */
 
 bool FieldPlot::plotWindTempFL(){
 #ifdef DEBUGPRINT
@@ -1229,7 +1229,7 @@ bool FieldPlot::plotWindTempFL(){
   if (!fields[0] || !fields[1] || !fields[2]) return false;
 
   if (!fields[0]->data || !fields[1]->data
-                       || !fields[2]->data) return false;
+      || !fields[2]->data) return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -1240,7 +1240,7 @@ bool FieldPlot::plotWindTempFL(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
@@ -1293,7 +1293,7 @@ bool FieldPlot::plotWindTempFL(){
 
   float fontsize= 14. * poptions.labelSize;
 
-//fp->set(poptions.fontname,poptions.fontface,fontsize);
+  //fp->set(poptions.fontname,poptions.fontface,fontsize);
   fp->set("Helvetica",poptions.fontface,fontsize);
 
   float chx,chy;
@@ -1338,16 +1338,16 @@ bool FieldPlot::plotWindTempFL(){
   //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
   //poptions.density!=auto and proj=geographic
   bool adjustToLatLon = poptions.density
-    && fields[0]->area.P().Gridtype() == Projection::geographic
-    && step > 0;
+  && fields[0]->area.P().Gridtype() == Projection::geographic
+  && step > 0;
   if(adjustToLatLon) iy1 = (iy1/step)*step;
   for (iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) {
       xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
       if(adjustToLatLon){
-	xstep = (xstep/step)*step;
-	if(xstep==0) xstep=step;
-	ix1 = (ix1/xstep)*xstep;
+        xstep = (xstep/step)*step;
+        if(xstep==0) xstep=step;
+        ix1 = (ix1/xstep)*xstep;
       }
       vxstep.push_back(xstep);
     }
@@ -1355,117 +1355,117 @@ bool FieldPlot::plotWindTempFL(){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
       if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-	ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-	if (ff>0.00001){
+        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
+        if (ff>0.00001){
 
-	  gu= u[i]/ff;
-	  gv= v[i]/ff;
+          gu= u[i]/ff;
+          gv= v[i]/ff;
 
-	  ff *= 3600.0/1852.0;
+          ff *= 3600.0/1852.0;
 
           // find no. of 50,10 and 5 knot flags
           if (ff<182.49) {
-              n05  = int(ff*0.2 + 0.5);
-              n50  = n05/10;
-              n05 -= n50*10;
-              n10  = n05/2;
-	      n05 -= n10*2;
+            n05  = int(ff*0.2 + 0.5);
+            n50  = n05/10;
+            n05 -= n50*10;
+            n10  = n05/2;
+            n05 -= n10*2;
           } else if (ff<190.) {
-              n50 = 3;  n10 = 3;  n05 = 0;
+            n50 = 3;  n10 = 3;  n05 = 0;
           } else if(ff<205.) {
-              n50 = 4;  n10 = 0;  n05 = 0;
+            n50 = 4;  n10 = 0;  n05 = 0;
           } else if (ff<225.) {
-              n50 = 4;  n10 = 1;  n05 = 0;
+            n50 = 4;  n10 = 1;  n05 = 0;
           } else {
-	      n50 = 5;  n10 = 0;  n05 = 0;
+            n50 = 5;  n10 = 0;  n05 = 0;
           }
 
-	  dx = flagstep*gu;
+          dx = flagstep*gu;
           dy = flagstep*gv;
-	  dxf = -flagw*gv - dx;
+          dxf = -flagw*gv - dx;
           dyf =  flagw*gu - dy;
 
-	  nb= 0;
-	  xb[nb][0]= gx;
-	  yb[nb][0]= gy;
+          nb= 0;
+          xb[nb][0]= gx;
+          yb[nb][0]= gy;
 
           // direction
-	  glVertex2f(gx,gy);
-	  gx = gx - flagl*gu;
+          glVertex2f(gx,gy);
+          gx = gx - flagl*gu;
           gy = gy - flagl*gv;
-	  glVertex2f(gx,gy);
+          glVertex2f(gx,gy);
 
-	  xb[nb]  [1]= gx;
-	  yb[nb++][1]= gy;
+          xb[nb]  [1]= gx;
+          yb[nb++][1]= gy;
 
-	  // 50-knot flags, store for plot below
+          // 50-knot flags, store for plot below
           if (n50>0) {
- 	    for (n=0; n<n50; n++) {
-	      xb[nb][0]= gx;
-	      yb[nb][0]= gy;
-	      vx.push_back(gx);
-	      vy.push_back(gy);
-	      gx+=dx*2.;  gy+=dy*2.;
-	      vx.push_back(gx+dxf);
-	      vy.push_back(gy+dyf);
-	      vx.push_back(gx);
-	      vy.push_back(gy);
-	      xb[nb]  [1]= gx+dxf;
-	      yb[nb++][1]= gy+dyf;
-	      xb[nb][0]= gx+dxf;
-	      yb[nb][0]= gy+dyf;
-	      xb[nb]  [1]= gx;
-	      yb[nb++][1]= gy;
-	    }
-	    gx+=dx; gy+=dy;
-	  }
+            for (n=0; n<n50; n++) {
+              xb[nb][0]= gx;
+              yb[nb][0]= gy;
+              vx.push_back(gx);
+              vy.push_back(gy);
+              gx+=dx*2.;  gy+=dy*2.;
+              vx.push_back(gx+dxf);
+              vy.push_back(gy+dyf);
+              vx.push_back(gx);
+              vy.push_back(gy);
+              xb[nb]  [1]= gx+dxf;
+              yb[nb++][1]= gy+dyf;
+              xb[nb][0]= gx+dxf;
+              yb[nb][0]= gy+dyf;
+              xb[nb]  [1]= gx;
+              yb[nb++][1]= gy;
+            }
+            gx+=dx; gy+=dy;
+          }
 
-	  // 10-knot flags
-	  for (n=0; n<n10; n++) {
-	    glVertex2f(gx,gy);
-	    glVertex2f(gx+dxf,gy+dyf);
-	    xb[nb][0]= gx;
-	    yb[nb][0]= gy;
-	    xb[nb]  [1]= gx+dxf;
-	    yb[nb++][1]= gy+dyf;
-	    gx+=dx; gy+=dy;
-	  }
-	  // 5-knot flag
-	  if (n05>0) {
-	    if (n50+n10==0) { gx+=dx; gy+=dy; }
-	    glVertex2f(gx,gy);
-	    glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-	    xb[nb][0]= gx;
-	    yb[nb][0]= gy;
-	    xb[nb]  [1]= gx+hflagw*dxf;
-	    yb[nb++][1]= gy+hflagw*dyf;
-	  }
+          // 10-knot flags
+          for (n=0; n<n10; n++) {
+            glVertex2f(gx,gy);
+            glVertex2f(gx+dxf,gy+dyf);
+            xb[nb][0]= gx;
+            yb[nb][0]= gy;
+            xb[nb]  [1]= gx+dxf;
+            yb[nb++][1]= gy+dyf;
+            gx+=dx; gy+=dy;
+          }
+          // 5-knot flag
+          if (n05>0) {
+            if (n50+n10==0) { gx+=dx; gy+=dy; }
+            glVertex2f(gx,gy);
+            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
+            xb[nb][0]= gx;
+            yb[nb][0]= gy;
+            xb[nb]  [1]= gx+hflagw*dxf;
+            yb[nb++][1]= gy+hflagw*dyf;
+          }
 
-	  // mark used space (lines) in bitmap
-	  for (n=0; n<nb; n++) {
-	    dx= xb[n][1] - xb[n][0];
-	    dy= yb[n][1] - yb[n][0];
-	    if (fabsf(dx)>fabsf(dy))
-	      m= int(fabsf(dx)*bres) + 2;
-	    else
-	      m= int(fabsf(dy)*bres) + 2;
-	    dx/=float(m-1);
-	    dy/=float(m-1);
-	    gx= xb[n][0];
-	    gy= yb[n][0];
-	    for (i=0; i<m; i++) {
+          // mark used space (lines) in bitmap
+          for (n=0; n<nb; n++) {
+            dx= xb[n][1] - xb[n][0];
+            dy= yb[n][1] - yb[n][0];
+            if (fabsf(dx)>fabsf(dy))
+              m= int(fabsf(dx)*bres) + 2;
+            else
+              m= int(fabsf(dy)*bres) + 2;
+            dx/=float(m-1);
+            dy/=float(m-1);
+            gx= xb[n][0];
+            gy= yb[n][0];
+            for (i=0; i<m; i++) {
               ib= int((gx-bx)*bres);
               jb= int((gy-by)*bres);
-	      ibit= jb*nbx+ib;
-	      iwrd= ibit/nbitwd;
-	      ibit= ibit%nbitwd;
-	      bmap[iwrd]= bmap[iwrd] | (1<<ibit);
+              ibit= jb*nbx+ib;
+              iwrd= ibit/nbitwd;
+              ibit= ibit%nbitwd;
+              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
               gx+=dx;
-	      gy+=dy;
-	    }
-	  }
+              gy+=dy;
+            }
+          }
 
-	}
+        }
       }
     }
   }
@@ -1527,88 +1527,88 @@ bool FieldPlot::plotWindTempFL(){
       gx= x[i]; gy= y[i];
       if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
         if (u[i]!=fieldUndef && v[i]!=fieldUndef)
-	  ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-	else
-	  ff= 0.0f;
-	if (ff>0.00001){
-	  if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
-	  else if (u[i]>=0.0f)               ipos0= 4;
-	  else if (v[i]>=0.0f)	             ipos0= 0;
-	  else             	             ipos0= 6;
-	  m= 8;
-	} else {
-	  ipos0= 8;
-	  m= 9;
+          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
+        else
+          ff= 0.0f;
+        if (ff>0.00001){
+          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
+          else if (u[i]>=0.0f)               ipos0= 4;
+          else if (v[i]>=0.0f)	             ipos0= 0;
+          else             	             ipos0= 6;
+          m= 8;
+        } else {
+          ipos0= 8;
+          m= 9;
         }
 
-	temp= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-	ostringstream ostr;
-	if (temp<=0) ostr<<-temp;
-	else         ostr<<"ps"<<temp;
-	miString str= ostr.str();
+        temp= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
+        ostringstream ostr;
+        if (temp<=0) ostr<<-temp;
+        else         ostr<<"ps"<<temp;
+        miString str= ostr.str();
         fp->getStringSize(str.c_str(), w, h);
-//###########################################################################
-//	  x1= gx + adx[ipos0] + cdx[ipos0]*w;
-//	  y1= gy + ady[ipos0];
-//	  x2= x1 + w;
-//	  y2= y1 + chy;
-//	  glBegin(GL_LINE_LOOP);
-//	  glVertex2f(x1,y1);
-//	  glVertex2f(x2,y1);
-//	  glVertex2f(x2,y2);
-//	  glVertex2f(x1,y2);
-//	  glEnd();
-//###########################################################################
+        //###########################################################################
+        //	  x1= gx + adx[ipos0] + cdx[ipos0]*w;
+        //	  y1= gy + ady[ipos0];
+        //	  x2= x1 + w;
+        //	  y2= y1 + chy;
+        //	  glBegin(GL_LINE_LOOP);
+        //	  glVertex2f(x1,y1);
+        //	  glVertex2f(x2,y1);
+        //	  glVertex2f(x2,y2);
+        //	  glVertex2f(x1,y2);
+        //	  glEnd();
+        //###########################################################################
 
-	mused= nbx*nby;
-	ipos1= ipos0;
+        mused= nbx*nby;
+        ipos1= ipos0;
 
-	for (j=0; j<m; j++) {
-	  ipos= (ipos0+j)%m;
-	  x1= gx + adx[ipos] + cdx[ipos]*w;
-	  y1= gy + ady[ipos];
-	  x2= x1 + w;
-	  y2= y1 + chy;
-	  ib1= int((x1-bx)*bres);
-	  ib2= int((x2-bx)*bres)+1;
-	  jb1= int((y1-by)*bres);
-	  jb2= int((y2-by)*bres)+1;
-	  nused= 0;
-	  for (jb=jb1; jb<jb2; jb++) {
-	    for (ib=ib1; ib<ib2; ib++) {
-	      ibit= jb*nbx+ib;
-	      iwrd= ibit/nbitwd;
-	      ibit= ibit%nbitwd;
-	      if (bmap[iwrd] & (1<<ibit)) nused++;
-	    }
-	  }
-	  if (nused<mused) {
-	    mused= nused;
-	    ipos1=ipos;
-	    if (nused==0) break;
-	  }
-	}
+        for (j=0; j<m; j++) {
+          ipos= (ipos0+j)%m;
+          x1= gx + adx[ipos] + cdx[ipos]*w;
+          y1= gy + ady[ipos];
+          x2= x1 + w;
+          y2= y1 + chy;
+          ib1= int((x1-bx)*bres);
+          ib2= int((x2-bx)*bres)+1;
+          jb1= int((y1-by)*bres);
+          jb2= int((y2-by)*bres)+1;
+          nused= 0;
+          for (jb=jb1; jb<jb2; jb++) {
+            for (ib=ib1; ib<ib2; ib++) {
+              ibit= jb*nbx+ib;
+              iwrd= ibit/nbitwd;
+              ibit= ibit%nbitwd;
+              if (bmap[iwrd] & (1<<ibit)) nused++;
+            }
+          }
+          if (nused<mused) {
+            mused= nused;
+            ipos1=ipos;
+            if (nused==0) break;
+          }
+        }
 
-	x1= gx + adx[ipos1] + cdx[ipos1]*w;
-	y1= gy + ady[ipos1];
-	x2= x1 + w;
-	y2= y1 + chy;
-	if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+        x1= gx + adx[ipos1] + cdx[ipos1]*w;
+        y1= gy + ady[ipos1];
+        x2= x1 + w;
+        y2= y1 + chy;
+        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
           fp->drawStr(str.c_str(),x1,y1,0.0);
-	  // mark used space for number (line around)
-	  ib1= int((x1-bx)*bres);
-	  ib2= int((x2-bx)*bres)+1;
-	  jb1= int((y1-by)*bres);
-	  jb2= int((y2-by)*bres)+1;
-	  for (jb=jb1; jb<jb2; jb++) {
-	    for (ib=ib1; ib<ib2; ib++) {
-	      ibit= jb*nbx+ib;
-	      iwrd= ibit/nbitwd;
-	      ibit= ibit%nbitwd;
-	      bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-	    }
-	  }
-	}
+          // mark used space for number (line around)
+          ib1= int((x1-bx)*bres);
+          ib2= int((x2-bx)*bres)+1;
+          jb1= int((y1-by)*bres);
+          jb2= int((y2-by)*bres)+1;
+          for (jb=jb1; jb<jb2; jb++) {
+            for (ib=ib1; ib<ib2; ib++) {
+              ibit= jb*nbx+ib;
+              iwrd= ibit/nbitwd;
+              ibit= ibit%nbitwd;
+              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
+            }
+          }
+        }
 
       }
     }
@@ -1647,7 +1647,7 @@ bool FieldPlot::plotVector(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
@@ -1708,22 +1708,22 @@ bool FieldPlot::plotVector(){
       gx= x[i]; gy= y[i];
       if (u[i]!=fieldUndef && v[i]!=fieldUndef &&
           (u[i]!=0.0f || v[i]!=0.0f) && maprect.isnear(gx,gy)){
-	dx = scale * u[i];
-	dy = scale * v[i];
+        dx = scale * u[i];
+        dy = scale * v[i];
 
         // direction
-	glVertex2f(gx,gy);
-	gx = gx + dx;
+        glVertex2f(gx,gy);
+        gx = gx + dx;
         gy = gy + dy;
-	glVertex2f(gx,gy);
+        glVertex2f(gx,gy);
 
-	// arrow (drawn as two lines)
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx + sfac*dy,
-	           gy + afac*dy - sfac*dx);
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx - sfac*dy,
-		   gy + afac*dy + sfac*dx);
+        // arrow (drawn as two lines)
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx + sfac*dy,
+            gy + afac*dy - sfac*dx);
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx - sfac*dy,
+            gy + afac*dy + sfac*dx);
       }
     }
   }
@@ -1751,7 +1751,7 @@ bool FieldPlot::plotVectorColour(){
   if (!fields[0] || !fields[1] || !fields[2]) return false;
 
   if (!fields[0]->data || !fields[1]->data
-                       || !fields[2]->data) return false;
+      || !fields[2]->data) return false;
 
   int i,ix,iy,l;
   int nx= fields[0]->nx;
@@ -1762,7 +1762,7 @@ bool FieldPlot::plotVectorColour(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
@@ -1874,28 +1874,28 @@ bool FieldPlot::plotVectorColour(){
 
       if (u[i]!=fieldUndef && v[i]!=fieldUndef &&
           (u[i]!=0.0f || v[i]!=0.0f) &&
-	  fields[2]->data[i]!=fieldUndef && maprect.isnear(gx,gy)){
+          fields[2]->data[i]!=fieldUndef && maprect.isnear(gx,gy)){
 
-	l=0;
-	while (l<nlim && fields[2]->data[i]>limits[l]) l++;
-	glColor3fv(&rgb[l*3]);
+        l=0;
+        while (l<nlim && fields[2]->data[i]>limits[l]) l++;
+        glColor3fv(&rgb[l*3]);
 
-	dx = scale * u[i];
-	dy = scale * v[i];
+        dx = scale * u[i];
+        dy = scale * v[i];
 
         // direction
-	glVertex2f(gx,gy);
-	gx = gx + dx;
+        glVertex2f(gx,gy);
+        gx = gx + dx;
         gy = gy + dy;
-	glVertex2f(gx,gy);
+        glVertex2f(gx,gy);
 
-	// arrow (drawn as two lines)
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx + sfac*dy,
-	           gy + afac*dy - sfac*dx);
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx - sfac*dy,
-		   gy + afac*dy + sfac*dx);
+        // arrow (drawn as two lines)
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx + sfac*dy,
+            gy + afac*dy - sfac*dx);
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx - sfac*dy,
+            gy + afac*dy + sfac*dx);
       }
     }
   }
@@ -1935,7 +1935,7 @@ bool FieldPlot::plotDirection(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
@@ -1990,22 +1990,22 @@ bool FieldPlot::plotDirection(){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
       if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-	dx = scale * u[i];
-	dy = scale * v[i];
+        dx = scale * u[i];
+        dy = scale * v[i];
 
         // direction
-	glVertex2f(gx,gy);
-	gx = gx + dx;
+        glVertex2f(gx,gy);
+        gx = gx + dx;
         gy = gy + dy;
-	glVertex2f(gx,gy);
+        glVertex2f(gx,gy);
 
-	// arrow (drawn as two lines)
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx + sfac*dy,
-	           gy + afac*dy - sfac*dx);
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx - sfac*dy,
-		   gy + afac*dy + sfac*dx);
+        // arrow (drawn as two lines)
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx + sfac*dy,
+            gy + afac*dy - sfac*dx);
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx - sfac*dy,
+            gy + afac*dy + sfac*dx);
       }
     }
   }
@@ -2023,8 +2023,8 @@ bool FieldPlot::plotDirection(){
 
 /*
   PURPOSE:   plot true north direction field as arrows (wave,...)
-  * ALGORITHM: Fields: dd(0) colourfield(1)
-  */
+ * ALGORITHM: Fields: dd(0) colourfield(1)
+ */
 bool FieldPlot::plotDirectionColour(){
 #ifdef DEBUGPRINT
   cerr << "++ Plotter retnings-felt m. farge.." << endl;
@@ -2044,7 +2044,7 @@ bool FieldPlot::plotDirectionColour(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
@@ -2118,16 +2118,16 @@ bool FieldPlot::plotDirectionColour(){
     }
 
   }
-//##############################################################
-//  cerr<<"--------------"<<endl;
-//  cerr<<" nlim,ncol: "<<nlim<<" "<<ncol<<endl;
-//  for (i=0; i<nlim; i++)
-//    cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
-//        <<"  lim= "<<limits[i]<<endl;
-//  i=nlim;
-//  cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
-//      <<endl;
-//##############################################################
+  //##############################################################
+  //  cerr<<"--------------"<<endl;
+  //  cerr<<" nlim,ncol: "<<nlim<<" "<<ncol<<endl;
+  //  for (i=0; i<nlim; i++)
+  //    cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
+  //        <<"  lim= "<<limits[i]<<endl;
+  //  i=nlim;
+  //  cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
+  //      <<endl;
+  //##############################################################
 
   float relarrowlen = poptions.relsize;
 
@@ -2159,28 +2159,28 @@ bool FieldPlot::plotDirectionColour(){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
       if (u[i]!=fieldUndef && v[i]!=fieldUndef &&
-	  fields[1]->data[i]!=fieldUndef && maprect.isnear(gx,gy)){
+          fields[1]->data[i]!=fieldUndef && maprect.isnear(gx,gy)){
 
-	l=0;
-	while (l<nlim && fields[1]->data[i]>limits[l]) l++;
-	glColor3fv(&rgb[l*3]);
+        l=0;
+        while (l<nlim && fields[1]->data[i]>limits[l]) l++;
+        glColor3fv(&rgb[l*3]);
 
-	dx = scale * u[i];
-	dy = scale * v[i];
+        dx = scale * u[i];
+        dy = scale * v[i];
 
         // direction
-	glVertex2f(gx,gy);
-	gx = gx + dx;
+        glVertex2f(gx,gy);
+        gx = gx + dx;
         gy = gy + dy;
-	glVertex2f(gx,gy);
+        glVertex2f(gx,gy);
 
-	// arrow (drawn as two lines)
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx + sfac*dy,
-	           gy + afac*dy - sfac*dx);
-	glVertex2f(gx,gy);
-	glVertex2f(gx + afac*dx - sfac*dy,
-		   gy + afac*dy + sfac*dx);
+        // arrow (drawn as two lines)
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx + sfac*dy,
+            gy + afac*dy - sfac*dx);
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx - sfac*dy,
+            gy + afac*dy + sfac*dx);
       }
     }
   }
@@ -2237,15 +2237,15 @@ bool FieldPlot::plotContour(){
 
   // find gridpoint conversion method
   if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-		           cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-	return false;
+      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
+    return false;
 
   // convert gridpoints to correct projection
   int npos=0;
   float *x, *y;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
-			 npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+        npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
   }
 
   if (ix1>=ix2 || iy1>=iy2) return false;
@@ -2326,7 +2326,7 @@ bool FieldPlot::plotContour(){
 
   ncol = 1;
   icol[0] = -1; // -1: set colour below
-		// otherwise index in poptions.colours[]
+  // otherwise index in poptions.colours[]
   ntyp = 1;
   ityp[0] = -1;
   nwid = 1;
@@ -2362,21 +2362,21 @@ bool FieldPlot::plotContour(){
     int idraw2=0;
 
     res = contour(nx, ny, fields[0]->data, x, y,
-		  ipart, mapconvert, cvfield2map, xylim,
-		  idraw, zrange, zstep, zoff,
-		  nlines, rlines,
-		  ncol, icol, ntyp, ityp,
-		  nwid, iwid, nlim, rlim,
-		  idraw2, zrange2, zstep2, zoff2,
-		  nlines2, rlines2,
-		  ncol2, icol2, ntyp2, ityp2,
-		  nwid2, iwid2, nlim2, rlim2,
-		  ismooth, labfmt, chxlab, chylab,
-		  ibcol,
-		  ibmap, lbmap, kbmap,
-		  nxbmap, nybmap, rbmap,
-		  fp, poptions, psoutput,
-		  fields[0]->area, fieldUndef);
+        ipart, mapconvert, cvfield2map, xylim,
+        idraw, zrange, zstep, zoff,
+        nlines, rlines,
+        ncol, icol, ntyp, ityp,
+        nwid, iwid, nlim, rlim,
+        idraw2, zrange2, zstep2, zoff2,
+        nlines2, rlines2,
+        ncol2, icol2, ntyp2, ityp2,
+        nwid2, iwid2, nlim2, rlim2,
+        ismooth, labfmt, chxlab, chylab,
+        ibcol,
+        ibmap, lbmap, kbmap,
+        nxbmap, nybmap, rbmap,
+        fp, poptions, psoutput,
+        fields[0]->area, fieldUndef);
 
   }
 
@@ -2395,17 +2395,17 @@ bool FieldPlot::plotContour(){
 
     if (rgbmode){
       if(poptions.colours.size()>1){
-	if(idraw>0 && idraw2>0) {
-	  icol[0] =0;
-	  icol2[0]=1;
-	} else {
-	  ncol=poptions.colours.size();
-	  for (int i=0; i<ncol; ++i) icol[i]= i;
-	}
+        if(idraw>0 && idraw2>0) {
+          icol[0] =0;
+          icol2[0]=1;
+        } else {
+          ncol=poptions.colours.size();
+          for (int i=0; i<ncol; ++i) icol[i]= i;
+        }
       } else if(idraw>0) {
-	glColor3ubv(poptions.linecolour.RGB());
+        glColor3ubv(poptions.linecolour.RGB());
       } else  {
-	glColor3ubv(poptions.linecolour_2.RGB());
+        glColor3ubv(poptions.linecolour_2.RGB());
       }
     } else if (!rgbmode) {
       // drawing in overlay ... NOT USED !!!!!!!!!!!!!!
@@ -2418,11 +2418,11 @@ bool FieldPlot::plotContour(){
       zrange2[1]= fieldUndef*0.95;
     } else if (poptions.valuerange_2.size()==2){
       if(poptions.valuerange_2[0]<=poptions.valuerange_2[1]) {
-	zrange2[0]= poptions.valuerange_2[0];
-	zrange2[1]= poptions.valuerange_2[1];
+        zrange2[0]= poptions.valuerange_2[0];
+        zrange2[1]= poptions.valuerange_2[1];
       } else {
-	zrange2[0]= fieldUndef*-0.95;
-	zrange2[1]= poptions.valuerange_2[1];
+        zrange2[0]= fieldUndef*-0.95;
+        zrange2[1]= poptions.valuerange_2[1];
       }
     }
 
@@ -2430,11 +2430,11 @@ bool FieldPlot::plotContour(){
       glLineWidth(poptions.linewidth);
     } else {
       if(idraw2>0){ // two set of plot options
-	iwid[0] = 0;
-	iwid2[0]= 1;
+        iwid[0] = 0;
+        iwid2[0]= 1;
       } else {      // one set of plot options, different lines
-	nwid=poptions.linewidths.size();
-	for (int i=0; i<nwid; ++i) iwid[i]= i;
+        nwid=poptions.linewidths.size();
+        for (int i=0; i<nwid; ++i) iwid[i]= i;
       }
     }
 
@@ -2443,11 +2443,11 @@ bool FieldPlot::plotContour(){
       glEnable(GL_LINE_STIPPLE);
     } else {
       if(idraw2>0){ // two set of plot options
-	ityp[0] =0;
-	ityp2[0]=1;
+        ityp[0] =0;
+        ityp2[0]=1;
       } else {      // one set of plot options, different lines
-	ntyp=poptions.linetypes.size();
-	for (int i=0; i<ntyp; ++i) ityp[i]= i;
+        ntyp=poptions.linetypes.size();
+        for (int i=0; i<ntyp; ++i) ityp[i]= i;
       }
     }
 
@@ -2458,21 +2458,21 @@ bool FieldPlot::plotContour(){
     poptions.contourShading = 0;
 
     res = contour(nx, ny, fields[0]->data, x, y,
-		  ipart, mapconvert, cvfield2map, xylim,
-		  idraw, zrange, zstep, zoff,
-		  nlines, rlines,
-		  ncol, icol, ntyp, ityp,
-		  nwid, iwid, nlim, rlim,
-		  idraw2, zrange2, zstep2, zoff2,
-		  nlines2, rlines2,
-		  ncol2, icol2, ntyp2, ityp2,
-		  nwid2, iwid2, nlim2, rlim2,
-		  ismooth, labfmt, chxlab, chylab,
-		  ibcol,
-		  ibmap, lbmap, kbmap,
-		  nxbmap, nybmap, rbmap,
-		  fp, poptions, psoutput,
-		  fields[0]->area, fieldUndef);
+        ipart, mapconvert, cvfield2map, xylim,
+        idraw, zrange, zstep, zoff,
+        nlines, rlines,
+        ncol, icol, ntyp, ityp,
+        nwid, iwid, nlim, rlim,
+        idraw2, zrange2, zstep2, zoff2,
+        nlines2, rlines2,
+        ncol2, icol2, ntyp2, ityp2,
+        nwid2, iwid2, nlim2, rlim2,
+        ismooth, labfmt, chxlab, chylab,
+        ibcol,
+        ibmap, lbmap, kbmap,
+        nxbmap, nybmap, rbmap,
+        fp, poptions, psoutput,
+        fields[0]->area, fieldUndef);
 
     //reset contour shading
     poptions.contourShading = contourShading;
@@ -2515,7 +2515,7 @@ bool FieldPlot::plotBox_pattern(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, true, npos, &x, &y,
-                   ix1, ix2, iy1, iy2);
+      ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int nxc = nx + 1;
@@ -2526,7 +2526,7 @@ bool FieldPlot::plotBox_pattern(){
   }
 
   const int npattern=4;
-//float clim[npattern+1] = { 30., 50., 70., 90., 0.9e+35 };
+  //float clim[npattern+1] = { 30., 50., 70., 90., 0.9e+35 };
   float clim[npattern+1] = { 25., 50., 75., 95., 0.9e+35 };
   int   step[npattern]   = { 16,   8,   4,   1  };
   int   mark[npattern]   = {  2,   2,   2,   1  };
@@ -2538,14 +2538,14 @@ bool FieldPlot::plotBox_pattern(){
     for (i=0; i<128; i++) pattern[n][i]=0;
     for (jstart=0; jstart<mark[n]; jstart++) {
       for (istart=0; istart<mark[n]; istart++) {
-	for (j=jstart; j<32; j+=step[n]) {
-	  for (i=istart; i<32; i+=step[n]) {
-	    b = i+j*32;
-	    w = b/8;
-	    b = 7 - (b - w*8);
-	    pattern[n][w] = pattern[n][w] | (bit << b);
-	  }
-	}
+        for (j=jstart; j<32; j+=step[n]) {
+          for (i=istart; i<32; i+=step[n]) {
+            b = i+j*32;
+            w = b/8;
+            b = 7 - (b - w*8);
+            pattern[n][w] = pattern[n][w] | (bit << b);
+          }
+        }
       }
     }
   }
@@ -2568,31 +2568,31 @@ bool FieldPlot::plotBox_pattern(){
 
       // find start of cloud area
       while (i1<ix2 && (fields[0]->data[iy*nx+i1]<clim[0]
-	             || fields[0]->data[iy*nx+i1]==fieldUndef)) i1++;
+                                                       || fields[0]->data[iy*nx+i1]==fieldUndef)) i1++;
       if (i1<ix2) {
 
-	n=1;
-	while (n<npattern && fields[0]->data[iy*nx+i1]>clim[n]) n++;
-	n--;
-	cmin = clim[n];
-	cmax = clim[n+1];
+        n=1;
+        while (n<npattern && fields[0]->data[iy*nx+i1]>clim[n]) n++;
+        n--;
+        cmin = clim[n];
+        cmax = clim[n+1];
 
         i2 = i1+1;
-	// find end of cloud area
-	while (i2<ix2 && fields[0]->data[iy*nx+i2]>=cmin
-		      && fields[0]->data[iy*nx+i2]<cmax) i2++;
-	i2++;
+        // find end of cloud area
+        while (i2<ix2 && fields[0]->data[iy*nx+i2]>=cmin
+            && fields[0]->data[iy*nx+i2]<cmax) i2++;
+        i2++;
 
-	glPolygonStipple (&pattern[n][0]);
-	glBegin(GL_QUAD_STRIP);
+        glPolygonStipple (&pattern[n][0]);
+        glBegin(GL_QUAD_STRIP);
 
-	for (ix=i1; ix<i2; ix++) {
-	    glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
-	    glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
-	}
-	glEnd();
-	i2-=2;
-	UpdateOutput();
+        for (ix=i1; ix<i2; ix++) {
+          glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
+          glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+        }
+        glEnd();
+        i2-=2;
+        UpdateOutput();
       }
       else i2=nx;
 
@@ -2631,7 +2631,7 @@ bool FieldPlot::plotBox_alpha_shade(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, true,
-                   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int nxc = nx + 1;
@@ -2643,7 +2643,7 @@ bool FieldPlot::plotBox_alpha_shade(){
 
   float cmin, cmax;
 
-//cmin=0.;  cmax=100.;
+  //cmin=0.;  cmax=100.;
 
   if (poptions.valuerange.size()==2 &&
       poptions.valuerange[0]<=poptions.valuerange[1]) {
@@ -2655,8 +2655,8 @@ bool FieldPlot::plotBox_alpha_shade(){
     cmax= -fieldUndef;
     for (int i=0; i<nx*ny; ++i) {
       if (fields[0]->data[i]!=fieldUndef) {
-	if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
-	if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
+        if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
+        if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
       }
     }
   }
@@ -2667,8 +2667,8 @@ bool FieldPlot::plotBox_alpha_shade(){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   float red=poptions.linecolour.fR(),
-      green=poptions.linecolour.fG(),
-       blue=poptions.linecolour.fB(), alpha;
+  green=poptions.linecolour.fG(),
+  blue=poptions.linecolour.fB(), alpha;
 
   ix2++;
   iy2++;
@@ -2678,36 +2678,36 @@ bool FieldPlot::plotBox_alpha_shade(){
 
     while (i2<ix2-1) {
 
-    i1 = i2+1;
+      i1 = i2+1;
 
-    // find start of cloud area
-    while (i1<ix2 && (fields[0]->data[iy*nx+i1]<cmin
-	           || fields[0]->data[iy*nx+i1]==fieldUndef)) i1++;
-    if (i1<ix2) {
+      // find start of cloud area
+      while (i1<ix2 && (fields[0]->data[iy*nx+i1]<cmin
+          || fields[0]->data[iy*nx+i1]==fieldUndef)) i1++;
+      if (i1<ix2) {
 
         i2 = i1+1;
-	// find end of cloud area
-	while (i2<ix2 && fields[0]->data[iy*nx+i2]>=cmin
-	              && fields[0]->data[iy*nx+i2]!=fieldUndef) i2++;
+        // find end of cloud area
+        while (i2<ix2 && fields[0]->data[iy*nx+i2]>=cmin
+            && fields[0]->data[iy*nx+i2]!=fieldUndef) i2++;
 
         i2++;
-	glBegin(GL_QUAD_STRIP);
+        glBegin(GL_QUAD_STRIP);
 
-	for (ix=i1; ix<i2; ix++) {
-	    glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
-	    if (ix>i1) {
-	      alpha = (fields[0]->data[iy*nx+ix-1] - cmin) / (cmax-cmin);
-	      //if (fields[0]->data[iy*nx+ix-1]==fieldUndef) alpha=0.;
-	      //if (alpha < 0.) alpha=0.;
-	      //if (alpha > 1.) alpha=1.;
-	      glColor4f(red, green, blue, alpha);
-	    }
-	    glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
-	}
-	glEnd();
-	i2-=2;
-    }
-    else i2=nx;
+        for (ix=i1; ix<i2; ix++) {
+          glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
+          if (ix>i1) {
+            alpha = (fields[0]->data[iy*nx+ix-1] - cmin) / (cmax-cmin);
+            //if (fields[0]->data[iy*nx+ix-1]==fieldUndef) alpha=0.;
+            //if (alpha < 0.) alpha=0.;
+            //if (alpha > 1.) alpha=1.;
+            glColor4f(red, green, blue, alpha);
+          }
+          glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+        }
+        glEnd();
+        i2-=2;
+      }
+      else i2=nx;
 
     }
   }
@@ -2744,7 +2744,7 @@ bool FieldPlot::plotAlarmBox(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, true,
-                   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int nxc = nx + 1;
@@ -2772,25 +2772,25 @@ bool FieldPlot::plotAlarmBox(){
     if (i==sf) i=sf-1;
 
     float r1= float(poptions.forecastLength[i] - fc)/
-	      float(poptions.forecastLength[i] - poptions.forecastLength[i-1]);
+    float(poptions.forecastLength[i] - poptions.forecastLength[i-1]);
     float r2= 1.-r1;
 
     if (sf==s1 && s2==0) {
 
       vmin=   r1 * poptions.forecastValueMin[i-1]
-	    + r2 * poptions.forecastValueMin[i];
+                                             + r2 * poptions.forecastValueMin[i];
 
     } else if (sf==s2 && s1==0) {
 
       vmax=   r1 * poptions.forecastValueMax[i-1]
-	    + r2 * poptions.forecastValueMax[i];
+                                             + r2 * poptions.forecastValueMax[i];
 
     } else if (sf==s1 && sf==s2) {
 
       vmin=   r1 * poptions.forecastValueMin[i-1]
-	    + r2 * poptions.forecastValueMin[i];
+                                             + r2 * poptions.forecastValueMin[i];
       vmax=   r1 * poptions.forecastValueMax[i-1]
-	    + r2 * poptions.forecastValueMax[i];
+                                             + r2 * poptions.forecastValueMax[i];
 
     } else {
 
@@ -2800,13 +2800,13 @@ bool FieldPlot::plotAlarmBox(){
     }
 
   } else if (sf==0 && s1==0 && s2==0 &&
-             poptions.valuerange.size()==1) {
+      poptions.valuerange.size()==1) {
 
     vmin= poptions.valuerange[0];
 
   } else if (sf==0 && s1==0 && s2==0 &&
-             poptions.valuerange.size()==2 &&
-             poptions.valuerange[0]<=poptions.valuerange[1]) {
+      poptions.valuerange.size()==2 &&
+      poptions.valuerange[0]<=poptions.valuerange[1]) {
 
     vmin= poptions.valuerange[0];
     vmax= poptions.valuerange[1];
@@ -2835,31 +2835,31 @@ bool FieldPlot::plotAlarmBox(){
 
     while (i2<ix2-1) {
 
-    i1 = i2+1;
+      i1 = i2+1;
 
-    // find start of alarm area
-    while (i1<ix2 && (fields[0]->data[iy*nx+i1]==fieldUndef
-                    || (fields[0]->data[iy*nx+i1]<vmin
-	             || fields[0]->data[iy*nx+i1]>vmax))) i1++;
-    if (i1<ix2) {
+      // find start of alarm area
+      while (i1<ix2 && (fields[0]->data[iy*nx+i1]==fieldUndef
+          || (fields[0]->data[iy*nx+i1]<vmin
+              || fields[0]->data[iy*nx+i1]>vmax))) i1++;
+      if (i1<ix2) {
 
         i2 = i1+1;
-	// find end of alarm area
-	while (i2<ix2 && fields[0]->data[iy*nx+i2]!=fieldUndef
-	              && fields[0]->data[iy*nx+i2]>=vmin
-	              && fields[0]->data[iy*nx+i2]<=vmax) i2++;
+        // find end of alarm area
+        while (i2<ix2 && fields[0]->data[iy*nx+i2]!=fieldUndef
+            && fields[0]->data[iy*nx+i2]>=vmin
+            && fields[0]->data[iy*nx+i2]<=vmax) i2++;
 
         i2++;
-	glBegin(GL_QUAD_STRIP);
+        glBegin(GL_QUAD_STRIP);
 
-	for (ix=i1; ix<i2; ix++) {
-	    glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
-	    glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
-	}
-	glEnd();
-	i2-=2;
-    }
-    else i2=nx;
+        for (ix=i1; ix<i2; ix++) {
+          glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
+          glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+        }
+        glEnd();
+        i2-=2;
+      }
+      else i2=nx;
 
     }
   }
@@ -2893,7 +2893,7 @@ bool FieldPlot::plotAlpha_shade(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-                   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   if ( poptions.frame ) {
@@ -2912,8 +2912,8 @@ bool FieldPlot::plotAlpha_shade(){
     cmax= -fieldUndef;
     for (int i=0; i<nx*ny; ++i) {
       if (fields[0]->data[i]!=fieldUndef) {
-	if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
-	if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
+        if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
+        if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
       }
     }
   }
@@ -2924,30 +2924,30 @@ bool FieldPlot::plotAlpha_shade(){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   float red=poptions.linecolour.fR(),
-      green=poptions.linecolour.fG(),
-       blue=poptions.linecolour.fB(), alpha;
+  green=poptions.linecolour.fG(),
+  blue=poptions.linecolour.fB(), alpha;
 
   ix2++;
 
   for (iy=iy1; iy<iy2; iy++) {
-      glBegin(GL_QUAD_STRIP);
-      for (ix=ix1; ix<ix2; ix++) {
+    glBegin(GL_QUAD_STRIP);
+    for (ix=ix1; ix<ix2; ix++) {
 
-	  alpha = (fields[0]->data[(iy+1)*nx+ix] - cmin) / (cmax-cmin);
-	  if (fields[0]->data[(iy+1)*nx+ix]==fieldUndef) alpha=0.;
-	  //if (alpha < 0.) alpha=0.;
-	  //if (alpha > 1.) alpha=1.;
-	  glColor4f(red, green, blue, alpha);
-	  glVertex2f(x[(iy+1)*nx+ix], y[(iy+1)*nx+ix]);
+      alpha = (fields[0]->data[(iy+1)*nx+ix] - cmin) / (cmax-cmin);
+      if (fields[0]->data[(iy+1)*nx+ix]==fieldUndef) alpha=0.;
+      //if (alpha < 0.) alpha=0.;
+      //if (alpha > 1.) alpha=1.;
+      glColor4f(red, green, blue, alpha);
+      glVertex2f(x[(iy+1)*nx+ix], y[(iy+1)*nx+ix]);
 
-	  alpha = (fields[0]->data[iy*nx+ix] - cmin) / (cmax-cmin);
-	  if (fields[0]->data[iy*nx+ix]==fieldUndef) alpha=0.;
-	  //if (alpha < 0.) alpha=0.;
-	  //if (alpha > 1.) alpha=1.;
-	  glColor4f(red, green, blue, alpha);
-	  glVertex2f(x[iy*nx+ix], y[iy*nx+ix]);
-      }
-      glEnd();
+      alpha = (fields[0]->data[iy*nx+ix] - cmin) / (cmax-cmin);
+      if (fields[0]->data[iy*nx+ix]==fieldUndef) alpha=0.;
+      //if (alpha < 0.) alpha=0.;
+      //if (alpha > 1.) alpha=1.;
+      glColor4f(red, green, blue, alpha);
+      glVertex2f(x[iy*nx+ix], y[iy*nx+ix]);
+    }
+    glEnd();
   }
 
   UpdateOutput();
@@ -2964,9 +2964,9 @@ bool FieldPlot::plotAlpha_shade(){
 
 // plot frame for complete field area
 void FieldPlot::plotFrame(const int nx, const int ny,
-			  float *x, float *y,
-			  const int mapconvert,
-			  float *cvfield2map){
+    float *x, float *y,
+    const int mapconvert,
+    float *cvfield2map){
 #ifdef DEBUGPRINT
   cerr << "++ Plot frame.." << endl;
 #endif
@@ -3020,7 +3020,7 @@ void FieldPlot::plotFrame(const int nx, const int ny,
       float glat2= gspec[1] + gspec[3]*float(ny-1);
       // get rid of some strange frame lines (maybe to few or too many...)
       if (fabsf(glon2-glon1)>360.-gspec[2]*0.5 &&
-	  fabsf(glat2-glat1)>180.-gspec[3]*0.5) return;
+          fabsf(glat2-glat1)>180.-gspec[3]*0.5) return;
     }
 
     bool drawx1=true, drawx2=true, drawy1=true, drawy2=true;
@@ -3115,16 +3115,16 @@ bool FieldPlot::markExtreme(){
 
   // find gridpoint conversion method
   if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-		           cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-	return false;
+      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
+    return false;
 
   // convert gridpoints to correct projection
   int npos=0;
   float *x, *y;
-//####if (mapconvert==2) {
-    if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
-			 npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
-//####}
+  //####if (mapconvert==2) {
+  if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
+      npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+  //####}
 
   if (ix1>ix2 || iy1>iy2) return false;
 
@@ -3136,9 +3136,9 @@ bool FieldPlot::markExtreme(){
     avgdist= 1.;
   } else if (mapconvert==1) {
     dx= sqrtf( cvfield2map[1]*cvfield2map[1]
-              +cvfield2map[4]*cvfield2map[4]);
+                                          +cvfield2map[4]*cvfield2map[4]);
     dy= sqrtf( cvfield2map[2]*cvfield2map[2]
-              +cvfield2map[5]*cvfield2map[5]);
+                                          +cvfield2map[5]*cvfield2map[5]);
     avgdist= (dx+dy)*0.5;
   } else {
     int i1= (ix1>1)    ? ix1 : 1;
@@ -3151,14 +3151,14 @@ bool FieldPlot::markExtreme(){
     n= 0;
     for (iy=j1; iy<j2; iy+=iystp) {
       for (ix=i1; ix<i2; ix+=ixstp) {
-	i = iy*nx+ix;
-	dx = x[i+1]-x[i];
-	dy = y[i+1]-y[i];
-	avgdist+= sqrtf(dx*dx+dy*dy);
-	dx = x[i+nx]-x[i];
-	dy = y[i+nx]-y[i];
-	avgdist+= sqrtf(dx*dx+dy*dy);
-	n+=2;
+        i = iy*nx+ix;
+        dx = x[i+1]-x[i];
+        dy = y[i+1]-y[i];
+        avgdist+= sqrtf(dx*dx+dy*dy);
+        dx = x[i+nx]-x[i];
+        dy = y[i+nx]-y[i];
+        avgdist+= sqrtf(dx*dx+dy*dy);
+        n+=2;
       }
     }
     if (n>0) avgdist= avgdist/float(n);
@@ -3255,132 +3255,132 @@ bool FieldPlot::markExtreme(){
       gx= x[p];
       gy= y[p];
       if (fields[0]->data[p]!=fieldUndef
-	  && maprect.isnear(gx,gy)) {
-	fpos= fields[0]->data[p];
+          && maprect.isnear(gx,gy)) {
+        fpos= fields[0]->data[p];
 
-	// first check the nearest gridpoints
+        // first check the nearest gridpoints
         fmin= fieldUndef;
-	fmax=-fieldUndef;
-	for (j=0; j<8; j++) {
-	  f= fields[0]->data[p+near[j]];
-	  if (fmin>f) fmin=f;
-	  if (fmax<f) fmax=f;
+        fmax=-fieldUndef;
+        for (j=0; j<8; j++) {
+          f= fields[0]->data[p+near[j]];
+          if (fmin>f) fmin=f;
+          if (fmax<f) fmax=f;
         }
 
         if (fmax!=fieldUndef && (fmin>=fpos || fmax<=fpos)
-                             && fmin!=fmax) {
+            && fmin!=fmax) {
 
-	  // scan a larger area
+          // scan a larger area
 
-	  j=    (iy-nscan>0)    ? iy-nscan   : 0;
-	  jend= (iy+nscan+1<ny) ? iy+nscan+1 : ny;
-	  ok= true;
-	  etype= -1;
-	  vector<int> pequal;
+          j=    (iy-nscan>0)    ? iy-nscan   : 0;
+          jend= (iy+nscan+1<ny) ? iy+nscan+1 : ny;
+          ok= true;
+          etype= -1;
+          vector<int> pequal;
 
-	  if (fmin>=fpos) {
-	    // minimum at pos ix,iy
-	    etype= 0;
-	    while (j<jend && ok) {
-	      n= iscan[nscan+iy-j];
- 	      i=    (ix-n>0)    ? ix-n   : 0;
-	      iend= (ix+n+1<nx) ? ix+n+1 : nx;
-	      for (; i<iend; i++) {
-		f= fields[0]->data[j*nx+i];
-		if (f!=fieldUndef) {
-		  if      (f<fpos)  ok= false;
-		  else if (f==fpos) pequal.push_back(j*nx+i);
-		}
-	      }
-	      j++;
-	    }
-	  } else {
-	    // maximum at pos ix,iy
-	    etype= 1;
-	    while (j<jend && ok) {
-	      n= iscan[nscan+iy-j];
- 	      i=    (ix-n>0)    ? ix-n   : 0;
-	      iend= (ix+n+1<nx) ? ix+n+1 : nx;
-	      for (; i<iend; i++) {
-		f= fields[0]->data[j*nx+i];
-		if (f!=fieldUndef) {
-		  if      (f>fpos)  ok= false;
-		  else if (f==fpos) pequal.push_back(j*nx+i);
-		}
-	      }
-	      j++;
-	    }
-	  }
+          if (fmin>=fpos) {
+            // minimum at pos ix,iy
+            etype= 0;
+            while (j<jend && ok) {
+              n= iscan[nscan+iy-j];
+              i=    (ix-n>0)    ? ix-n   : 0;
+              iend= (ix+n+1<nx) ? ix+n+1 : nx;
+              for (; i<iend; i++) {
+                f= fields[0]->data[j*nx+i];
+                if (f!=fieldUndef) {
+                  if      (f<fpos)  ok= false;
+                  else if (f==fpos) pequal.push_back(j*nx+i);
+                }
+              }
+              j++;
+            }
+          } else {
+            // maximum at pos ix,iy
+            etype= 1;
+            while (j<jend && ok) {
+              n= iscan[nscan+iy-j];
+              i=    (ix-n>0)    ? ix-n   : 0;
+              iend= (ix+n+1<nx) ? ix+n+1 : nx;
+              for (; i<iend; i++) {
+                f= fields[0]->data[j*nx+i];
+                if (f!=fieldUndef) {
+                  if      (f>fpos)  ok= false;
+                  else if (f==fpos) pequal.push_back(j*nx+i);
+                }
+              }
+              j++;
+            }
+          }
 
-	  if (ok) {
-	    n= pequal.size();
-	    if (n<2) {
-	      ibest= ix;
-	      jbest= iy;
-	    } else {
-	      // more than one pos with the same extreme value,
-	      // select the one with smallest surrounding
-	      // gradients in the field (seems to work...)
-	      gbest= fieldUndef;
-	      ibest= jbest= -1;
-	      for (l=0; l<n; l++) {
-		pp= pequal[l];
-		j= pp/nx;
-		i= pp-j*nx;
-		fgrad= 0.;
-		ngrad= 0;
-		for (k=0; k<4; k++) {
+          if (ok) {
+            n= pequal.size();
+            if (n<2) {
+              ibest= ix;
+              jbest= iy;
+            } else {
+              // more than one pos with the same extreme value,
+              // select the one with smallest surrounding
+              // gradients in the field (seems to work...)
+              gbest= fieldUndef;
+              ibest= jbest= -1;
+              for (l=0; l<n; l++) {
+                pp= pequal[l];
+                j= pp/nx;
+                i= pp-j*nx;
+                fgrad= 0.;
+                ngrad= 0;
+                for (k=0; k<4; k++) {
                   i1= i+igrad[k][0];
                   j1= j+igrad[k][1];
                   i2= i+igrad[k][2];
                   j2= j+igrad[k][3];
-		  if (i1>=0 && j1>=0 && i1<nx && j1<ny &&
+                  if (i1>=0 && j1>=0 && i1<nx && j1<ny &&
                       i2>=0 && j2>=0 && i2<nx && j2<ny) {
-		    f1= fields[0]->data[pp+igrad[k][4]];
-		    f2= fields[0]->data[pp+igrad[k][5]];
-		    if (f1!=fieldUndef && f2!=fieldUndef) {
-		      fgrad+= fabsf(f1-f2);
-		      ngrad++;
-		    }
-		  }
-		}
-		if (ngrad>0) {
-		  fgrad/= float(ngrad);
-		  if (fgrad<gbest) {
-		    gbest= fgrad;
-		    ibest= i;
-		    jbest= j;
-		  } else if (fgrad==gbest) {
-		    gbest= fieldUndef;
-		    ibest= jbest= -1;
-		  }
-		}
-	      }
-	    }
+                    f1= fields[0]->data[pp+igrad[k][4]];
+                    f2= fields[0]->data[pp+igrad[k][5]];
+                    if (f1!=fieldUndef && f2!=fieldUndef) {
+                      fgrad+= fabsf(f1-f2);
+                      ngrad++;
+                    }
+                  }
+                }
+                if (ngrad>0) {
+                  fgrad/= float(ngrad);
+                  if (fgrad<gbest) {
+                    gbest= fgrad;
+                    ibest= i;
+                    jbest= j;
+                  } else if (fgrad==gbest) {
+                    gbest= fieldUndef;
+                    ibest= jbest= -1;
+                  }
+                }
+              }
+            }
 
-	    if (ibest==ix && jbest==iy) {
-	      // mark extreme point
-	      if ( plotValue ) {
-	        int prec = log10(fabs(fpos));
-	        miString fposStr(fpos,prec+2);
-	        fp->drawStr(fposStr.c_str(),
-	            gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
-	      } else {
-	        fp->drawStr(pmarks[etype].c_str(),
-	            gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
-	      }
+            if (ibest==ix && jbest==iy) {
+              // mark extreme point
+              if ( plotValue ) {
+                int prec = log10(fabs(fpos));
+                miString fposStr(fpos,prec+2);
+                fp->drawStr(fposStr.c_str(),
+                    gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
+              } else {
+                fp->drawStr(pmarks[etype].c_str(),
+                    gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
+              }
 
-//#######################################################################
-//		glBegin(GL_LINE_LOOP);
-//		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
-//		glVertex2f(gx+chrx[etype]*0.5,gy-chry[etype]*0.5);
-//		glVertex2f(gx+chrx[etype]*0.5,gy+chry[etype]*0.5);
-//		glVertex2f(gx-chrx[etype]*0.5,gy+chry[etype]*0.5);
-//		glEnd();
-//#######################################################################
-	    }
-	  }
-	}
+              //#######################################################################
+              //		glBegin(GL_LINE_LOOP);
+              //		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
+              //		glVertex2f(gx+chrx[etype]*0.5,gy-chry[etype]*0.5);
+              //		glVertex2f(gx+chrx[etype]*0.5,gy+chry[etype]*0.5);
+              //		glVertex2f(gx-chrx[etype]*0.5,gy+chry[etype]*0.5);
+              //		glEnd();
+              //#######################################################################
+            }
+          }
+        }
       }
     }
   }
@@ -3411,15 +3411,15 @@ bool FieldPlot::plotGridLines(){
 
   // find gridpoint conversion method
   if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-		           cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-	return false;
+      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
+    return false;
 
   // convert gridpoints to correct projection
   int npos=0;
   float *x, *y;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
-			 npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+        npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
   }
 
   if (ix1>ix2 || iy1>iy2) return false;
@@ -3436,7 +3436,7 @@ bool FieldPlot::plotGridLines(){
   }
 
   glColor4f(poptions.bordercolour.fR(),poptions.bordercolour.fG(),
-	    poptions.bordercolour.fB(),0.5);
+      poptions.bordercolour.fB(),0.5);
   glLineWidth(1.0);
 
   int ix,iy;
@@ -3493,7 +3493,7 @@ bool FieldPlot::plotGridLines(){
     for (ix=ix1; ix<ix2; ix+=step) {
       glBegin(GL_LINE_STRIP);
       for (iy=iy1; iy<iy2; iy++) {
-	i= iy*nx+ix;
+        i= iy*nx+ix;
         glVertex2f(x[i],y[i]);
       }
       glEnd();
@@ -3501,7 +3501,7 @@ bool FieldPlot::plotGridLines(){
     for (iy=iy1; iy<iy2; iy+=step) {
       glBegin(GL_LINE_STRIP);
       for (ix=ix1; ix<ix2; ix++) {
-	i= iy*nx+ix;
+        i= iy*nx+ix;
         glVertex2f(x[i],y[i]);
       }
       glEnd();
@@ -3532,15 +3532,15 @@ bool FieldPlot::plotUndefined(){
 
   // find gridpoint conversion method
   if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-		           cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-	return false;
+      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
+    return false;
 
   // convert gridpoints to correct projection
   int npos=0;
   float *x, *y;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area, area, maprect, true,
-			 npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+        npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
   }
 
   int nxc = nx + 1;
@@ -3592,88 +3592,88 @@ bool FieldPlot::plotUndefined(){
         while (ix<ix2 && fields[0]->data[iy*nx+ix]==fieldUndef) ix++;
         ixend= ix;
 
-	if (poptions.undefMasking==1) {
+        if (poptions.undefMasking==1) {
 
-	  if (mapconvert==0) {
+          if (mapconvert==0) {
 
-	    x1= float(ixbgn) - 0.5;
-	    x2= float(ixend) - 0.5;
-	    y1= float(iy) - 0.5;
-	    y2= float(iy) + 0.5;
+            x1= float(ixbgn) - 0.5;
+            x2= float(ixend) - 0.5;
+            y1= float(iy) - 0.5;
+            y2= float(iy) + 0.5;
             glVertex2f(x1,y2);
             glVertex2f(x1,y1);
             glVertex2f(x2,y1);
             glVertex2f(x2,y2);
 
-	  } else if (mapconvert==1) {
+          } else if (mapconvert==1) {
 
-	    x1= float(ixbgn) - 0.5;
-	    x2= float(ixend) - 0.5;
-	    y1= float(iy) - 0.5;
-	    y2= float(iy) + 0.5;
+            x1= float(ixbgn) - 0.5;
+            x2= float(ixend) - 0.5;
+            y1= float(iy) - 0.5;
+            y2= float(iy) + 0.5;
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y2,
-                       cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
+                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y1,
-                       cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
+                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y1,
-                       cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
+                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y2,
-                       cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
+                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
 
-	  } else if (mapconvert==2) {
+          } else if (mapconvert==2) {
 
-	    glBegin(GL_QUAD_STRIP);
-	    for (ix=ixbgn; ix<=ixend; ix++) {
+            glBegin(GL_QUAD_STRIP);
+            for (ix=ixbgn; ix<=ixend; ix++) {
               glVertex2f(x[(iy+1)*nxc+ix],y[(iy+1)*nxc+ix]);
               glVertex2f(x[iy*nxc+ix],    y[iy*nxc+ix]);
-	    }
-	    glEnd();
+            }
+            glEnd();
 
-	  }
+          }
 
-	} else {
+        } else {
 
-	  // drawing lines
-	  // here only drawing lines in grid x direction (y dir. below),
-	  // avoiding plot of many short lines that are connected
-	  // (but still drawing many "double" lines...)
+          // drawing lines
+          // here only drawing lines in grid x direction (y dir. below),
+          // avoiding plot of many short lines that are connected
+          // (but still drawing many "double" lines...)
 
-	  if (mapconvert==0) {
+          if (mapconvert==0) {
 
-	    x1= float(ixbgn) - 0.5;
-	    x2= float(ixend) - 0.5;
-	    y1= float(iy) - 0.5;
-	    y2= float(iy) + 0.5;
+            x1= float(ixbgn) - 0.5;
+            x2= float(ixend) - 0.5;
+            y1= float(iy) - 0.5;
+            y2= float(iy) + 0.5;
             glVertex2f(x1,y1);
             glVertex2f(x2,y1);
             glVertex2f(x1,y2);
             glVertex2f(x2,y2);
 
-	  } else if (mapconvert==1) {
+          } else if (mapconvert==1) {
 
-	    x1= float(ixbgn) - 0.5;
-	    x2= float(ixend) - 0.5;
-	    y1= float(iy) - 0.5;
-	    y2= float(iy) + 0.5;
+            x1= float(ixbgn) - 0.5;
+            x2= float(ixend) - 0.5;
+            y1= float(iy) - 0.5;
+            y2= float(iy) + 0.5;
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y1,
-                       cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
+                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y1,
-                       cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
+                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y2,
-                       cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
+                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y2,
-                       cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
+                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
 
-	  } else if (mapconvert==2) {
+          } else if (mapconvert==2) {
 
-	    for (int iyy=iy; iyy<=iy+1; iyy++) {
-	      glBegin(GL_LINE_STRIP);
-	      for (ix=ixbgn; ix<=ixend; ix++)
+            for (int iyy=iy; iyy<=iy+1; iyy++) {
+              glBegin(GL_LINE_STRIP);
+              for (ix=ixbgn; ix<=ixend; ix++)
                 glVertex2f(x[iyy*nxc+ix],y[iyy*nxc+ix]);
-	      glEnd();
-	    }
-	  }
-	}
+              glEnd();
+            }
+          }
+        }
         ix= ixend+1;
       }
     }
@@ -3697,43 +3697,43 @@ bool FieldPlot::plotUndefined(){
           while (iy<iy2 && fields[0]->data[iy*nx+ix]==fieldUndef) iy++;
           iyend= iy;
 
-	  if (mapconvert==0) {
+          if (mapconvert==0) {
 
-	    x1= float(ix) - 0.5;
-	    x2= float(ix) + 0.5;
-	    y1= float(iybgn) - 0.5;
-	    y2= float(iyend) - 0.5;
+            x1= float(ix) - 0.5;
+            x2= float(ix) + 0.5;
+            y1= float(iybgn) - 0.5;
+            y2= float(iyend) - 0.5;
             glVertex2f(x1,y1);
             glVertex2f(x1,y2);
             glVertex2f(x2,y1);
             glVertex2f(x2,y2);
 
-	  } else if (mapconvert==1) {
+          } else if (mapconvert==1) {
 
-	    x1= float(ix) - 0.5;
-	    x2= float(ix) + 0.5;
-	    y1= float(iybgn) - 0.5;
-	    y2= float(iyend) - 0.5;
+            x1= float(ix) - 0.5;
+            x2= float(ix) + 0.5;
+            y1= float(iybgn) - 0.5;
+            y2= float(iyend) - 0.5;
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y1,
-                       cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
+                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y2,
-                       cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
+                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y1,
-                       cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
+                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
             glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y2,
-                       cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
+                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
 
-	  } else if (mapconvert==2) {
+          } else if (mapconvert==2) {
 
-	    for (int ixx=ix; ixx<=ix+1; ixx++) {
-	      glBegin(GL_LINE_STRIP);
-	      for (iy=iybgn; iy<=iyend; iy++)
+            for (int ixx=ix; ixx<=ix+1; ixx++) {
+              glBegin(GL_LINE_STRIP);
+              for (iy=iybgn; iy<=iyend; iy++)
                 glVertex2f(x[iy*nxc+ixx],y[iy*nxc+ixx]);
-	      glEnd();
-	    }
-	  }
+              glEnd();
+            }
+          }
           iy= iyend+1;
-	}
+        }
       }
     }
   }
@@ -3752,7 +3752,7 @@ bool FieldPlot::plotUndefined(){
 /*
   plot field values as numbers in each gridpoint
   skip plotting if too many (or too small) numbers
-*/
+ */
 bool FieldPlot::plotNumbers(){
 #ifdef DEBUGPRINT
   cerr << "++ plotNumbers.." << endl;
@@ -3772,7 +3772,7 @@ bool FieldPlot::plotNumbers(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-		   npos, &x, &y, ix1, ix2, iy1, iy2);
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int autostep;
@@ -3785,7 +3785,7 @@ bool FieldPlot::plotNumbers(){
   iy2++;
 
   float fontsize= 16.;
-//fp->set("Helvetica",poptions.fontface,fontsize);
+  //fp->set("Helvetica",poptions.fontface,fontsize);
   fp->set("Helvetica","bold",fontsize);
 
   float chx,chy;
@@ -3810,18 +3810,18 @@ bool FieldPlot::plotNumbers(){
       gy= y[i];
 
       if (field[i]!=fieldUndef) {
-	ostringstream ostr;
-	ostr<<setprecision(iprec)<<setiosflags(ios::fixed)<<field[i];
-	str= ostr.str();
-	fp->getStringSize(str.c_str(), w, h);
-	w*=0.5;
+        ostringstream ostr;
+        ostr<<setprecision(iprec)<<setiosflags(ios::fixed)<<field[i];
+        str= ostr.str();
+        fp->getStringSize(str.c_str(), w, h);
+        w*=0.5;
       } else {
-	str="X";
-	w=ww;
+        str="X";
+        w=ww;
       }
 
       if (maprect.isinside(gx-w,gy-hh) && maprect.isinside(gx+w,gy+hh))
-	fp->drawStr(str.c_str(),gx-w,gy-hh,0.0);
+        fp->drawStr(str.c_str(),gx-w,gy-hh,0.0);
     }
   }
 
@@ -3834,12 +3834,12 @@ bool FieldPlot::plotNumbers(){
 
   // find gridpoint conversion method
   if (!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-		            cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
+      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
     mapconvert= 2;
 
   // convert gridpoints to correct projection
   if (!gc.getGridPoints(fields[0]->area, area, maprect, true,
-			npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+      npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
 
   if (ix1>ix2 || iy1>iy2) return false;
 
@@ -3876,7 +3876,7 @@ bool FieldPlot::plotNumbers(){
     for (iy=iy1; iy<iy2; iy++) {
       glBegin(GL_LINE_STRIP);
       for (ix=ix1; ix<ix2; ix++) {
-	i= iy*nx+ix;
+        i= iy*nx+ix;
         glVertex2f(x[iy*nx+ix],y[iy*nx+ix]);
       }
       glEnd();
@@ -3899,7 +3899,7 @@ miString FieldPlot::getModelName()
   if (fields.size()>0)
     if (fields[0])
       if (fields[0]->data)
-	str=fields[0]->modelName;
+        str=fields[0]->modelName;
   return str;
 }
 
@@ -3917,9 +3917,9 @@ miString FieldPlot::getTrajectoryFieldName()
     bool ok= true;
     for (int i=0; i<nf; i++) {
       if (!fields[i])
-	ok= false;
+        ok= false;
       else if (!fields[i]->data)
-	ok= false;
+        ok= false;
     }
     if (ok) str= fields[0]->fieldText;
   }
@@ -3939,9 +3939,9 @@ miString FieldPlot::getRadarEchoFieldName()
     bool ok= true;
     for (int i=0; i<nf; i++) {
       if (!fields[i])
-  ok= false;
+        ok= false;
       else if (!fields[i]->data)
-  ok= false;
+        ok= false;
     }
     if (ok) str= fields[0]->fieldText;
   }
@@ -3961,16 +3961,16 @@ bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
   //change projection if needed
   if ( obsPositions.obsArea.P() != fields[0]->area.P() ){
     gc.getPoints(obsPositions.obsArea, fields[0]->area,
-		 obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
+        obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fields[0]->area;
   }
 
   //get values
   int interpoltype=1;
   if (!fields[0]->interpolate(obsPositions.numObs,
-					 obsPositions.xpos, obsPositions.ypos,
-			      		 obsPositions.values,
-					 interpoltype)) return false;
+      obsPositions.xpos, obsPositions.ypos,
+      obsPositions.values,
+      interpoltype)) return false;
 
   return true;
 }
