@@ -431,7 +431,7 @@ void ObsDialog::requestQuickUpdate(vector<miString>& oldstr,
   for( int i=0; i<n; i++){
     int oldindex=findPlotnr(oldstr[i]);
     int newindex=findPlotnr(newstr[i]);
-    if(oldindex<nr_plot && oldindex==newindex)
+    if(oldindex<nr_plot && oldindex==newindex && obsWidget[oldindex]->initialized())
       obsWidget[oldindex]->requestQuickUpdate(oldstr[i],newstr[i]);
   }
 
