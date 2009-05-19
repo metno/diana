@@ -72,8 +72,7 @@ PlotModule::PlotModule() :
   mapDefinedByView = false;
 
   // used to detect map area changes
-  float gs[Projection::speclen] = { 0., 0., 0., 0., 0., 0. };
-  Projection p(Projection::undefined_projection, gs);
+  Projection p;
   Rectangle r(0., 0., 0., 0.);
   previousrequestedarea = Area(p, r);
   requestedarea = Area(p, r);
@@ -226,8 +225,7 @@ void PlotModule::prepareMap(const vector<miString>& inp)
 
   // check area
   if (!mapDefinedByUser && arearequested) {
-    mapDefinedByUser = (rarea.P().Gridtype()
-        != Projection::undefined_projection);
+    mapDefinedByUser = (rarea.P().defined());
     requestedarea = rarea;
     splot.setRequestedarea(requestedarea);
   }
@@ -986,7 +984,7 @@ void PlotModule::updatePlots()
     bool requestedOK = false; // requested area ok to use
 
     // if first plot: getMapArea returns undefined area
-    if (plotarea.P().Gridtype() == Projection::undefined_projection) {
+    if (!plotarea.P().defined()) {
       if (mapDefinedByUser)
         plotarea = requestedarea; // choose requested-area if existing
       else
@@ -3231,133 +3229,41 @@ vector<miString> PlotModule::writeLog()
   areaInsert(splot.getMapArea(), true);
 
   vector<miString> vstr;
-  const int speclen = Projection::speclen;
-  float gs[speclen];
 
   //Write self-defined area (F2)
-  ostringstream ost;
-  myArea.P().Gridspecstd(gs);
-  ost << "name=F2";
-  ost << ", proj=" << myArea.P().Gridtype();
-  ost << ", grid=";
-  for (int j = 0; j < speclen - 1; j++)
-    ost << gs[j] << ":";
-  if (speclen > 0)
-    ost << gs[speclen - 1];
-
-  //+1 to make coordinates  "fortran indexed"
-  ost << ", area=";
-  ost << myArea.R().x1 + 1 << ":";
-  ost << myArea.R().x2 + 1 << ":";
-  ost << myArea.R().y1 + 1 << ":";
-  ost << myArea.R().y2 + 1;
-  vstr.push_back(ost.str());
+  miString aa = "name=F2 " + myArea.toLogString();
+  vstr.push_back(aa);
 
   //Write all araes in list (areaQ)
   int n = areaQ.size();
   for (int i = 0; i < n; i++) {
-    ostringstream ostr;
-    areaQ[i].P().Gridspecstd(gs);
-    ostr << "name=" << i;
-    ostr << ", proj=" << areaQ[i].P().Gridtype();
-    ostr << ", grid=";
-    for (int j = 0; j < speclen - 1; j++)
-      ostr << gs[j] << ":";
-    if (speclen > 0)
-      ostr << gs[speclen - 1];
-
-    // +1 to make coordinates  "fortran indexed"
-    ostr << ", area=";
-    ostr << areaQ[i].R().x1 + 1 << ":";
-    ostr << areaQ[i].R().x2 + 1 << ":";
-    ostr << areaQ[i].R().y1 + 1 << ":";
-    ostr << areaQ[i].R().y2 + 1;
-    vstr.push_back(ostr.str());
-
+    aa = "name=" + miString(i) + " " + areaQ[i].toLogString();
+    vstr.push_back(aa);
   }
+
   return vstr;
 }
 
 void PlotModule::readLog(const vector<miString>& vstr,
     const miString& thisVersion, const miString& logVersion)
 {
-  const miString key_name = "name";
-  const miString key_proj = "proj";
-  const miString key_grid = "grid";
-  const miString key_area = "area";
-
-  vector<miString> tokens, stokens, sstokens;
-  miString key, value, name;
-  int i, j, k, l, m, n, o;
-  Area area;
-  Projection proj;
-  Rectangle rect;
-  int projtype;
-  float gridspec[Projection::speclen];
-  float x1, y1, x2, y2;
 
   areaQ.clear();
+  Area area;
+  int n = vstr.size();
+  for (int i = 0; i < n; i++) {
 
-  n = vstr.size();
-  for (i = 0; i < n; i++) {
-    projtype = Projection::undefined_projection;
-    for (l = 0; l < Projection::speclen; l++)
-      gridspec[l] = 0;
-    name = "";
-    x1 = y1 = x2 = y2 = 0;
-
-    tokens = vstr[i].split(',');
-    m = tokens.size();
-    for (j = 0; j < m; j++) {
-      stokens = tokens[j].split('=');
-      o = stokens.size();
-      if (o > 1) {
-        key = stokens[0].downcase();
-        value = stokens[1];
-
-        if (key == key_name) {
-          name = value;
-
-        } else if (key == key_proj) {
-          projtype = atoi(value.c_str());
-
-        } else if (key == key_grid) {
-          sstokens = value.split(':');
-          k = sstokens.size();
-          if (k < 4)
-            continue;
-          for (l = 0; l < k; l++)
-            gridspec[l] = atof(sstokens[l].cStr());
-
-        } else if (key == key_area) {
-          sstokens = value.split(':');
-          k = sstokens.size();
-          if (k < 4)
-            continue;
-          x1 = atof(sstokens[0].cStr());
-          x2 = atof(sstokens[1].cStr());
-          y1 = atof(sstokens[2].cStr());
-          y2 = atof(sstokens[3].cStr());
-          // assuming that coordinates are "fortran indexed"
-          // (as gridspec, gridspec changed when defining Projection)
-          x1 -= 1.;
-          x2 -= 1.;
-          y1 -= 1.;
-          y2 -= 1.;
-
-        }
-      }
+    if(!area.setAreaFromLog(vstr[i])) {
+      continue;
     }
-    if (name.exists()) {
-      rect = Rectangle(x1, y1, x2, y2);
-      proj = Projection(projtype, gridspec);
-      area = Area(name, proj, rect);
-      if (name == "F2")
-        myArea = area;
-      else
-        areaQ.push_back(area);
+
+    if (area.Name() == "F2") {
+      myArea = area;
+    } else {
+      areaQ.push_back(area);
     }
   }
 
   areaIndex = areaQ.size() - 1;
+
 }

@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <diMapManager.h>
 
@@ -48,137 +48,62 @@ bool MapManager::parseSetup(SetupParser& sp)
 
 
 // parse section containing definitions of map-areas
-bool MapManager::parseMapAreas(SetupParser& sp){
-
-  const miString key_name= "name";
-  const miString key_proj= "proj";
-  const miString key_grid= "grid";
-  const miString key_area= "area";
-
-  const miString proj_undefined=         "undefined";
-  const miString proj_pstereographic=    "pstereographic";
-  const miString proj_pstereographic_60= "pstereo_60";
-  const miString proj_mercator=          "mercator";
-  const miString proj_geographic=        "geographic";
-  const miString proj_spherical_rot=     "spherical_rot";
-  const miString proj_lambert=           "lambert";
-
-  vector<miString> list,tokens,stokens,sstokens;
-  miString key,value,name;
-  int i,j,k,l,m,n,o,q;
-  Area area;
-  Projection proj;
-  Rectangle rect;
-  int projtype;
-  float gridspec[Projection::speclen];
-  float x1,y1,x2,y2;
+bool MapManager::parseMapAreas(SetupParser& sp)
+{
 
   mapareas.clear();
 
-  if (!sp.getSection(SectMapAreas,list))
+  vector<miString> list;
+  if (!sp.getSection(SectMapAreas,list)) {
     return true;
+  }
 
-  n= list.size();
-  for (i=0; i<n; i++){
-    projtype= Projection::undefined_projection;
-    for (l=0; l<Projection::speclen; l++) gridspec[l]=0;
-    name= "";
-    x1=y1=x2=y2=0;
+  int q;
+  int n= list.  size();
+  for (int i=0;i<n; i++){
+    Area area;
+    if( area.setAreaFromLog(list[i]) ) {
+      miString name = area.Name();
 
-    tokens= list[i].split();
-    m= tokens.size();
-    for (j=0; j<m; j++){
-      stokens= tokens[j].split('=');
-      o= stokens.size();
-      if (o>1) {
-	key= stokens[0].downcase();
-	value= stokens[1];
-
-	if (key==key_name){
-	  name= value;
-	} else if (key==key_proj){
-	  if (value==proj_pstereographic)
-	    projtype= Projection::polarstereographic;
-	  else if (value==proj_pstereographic_60)
-	    projtype= Projection::polarstereographic_60;
-	  else if (value==proj_mercator)
-	    projtype= Projection::mercator;
-	  else if (value==proj_geographic)
-	    projtype= Projection::geographic;
-	  else if (value==proj_spherical_rot)
-	    projtype= Projection::spherical_rotated;
-	  else if (value==proj_undefined)
-	    projtype= Projection::undefined_projection;
-	  else if (value==proj_lambert)
-	    projtype= Projection::lambert;
-	  else {
-	    sp.errorMsg(SectMapAreas,i,"Unknown projection type:"+value);
-	    return false;
-	  };
-
-	} else if (key==key_grid){
-	  sstokens= value.split(':');
-	  k= sstokens.size();
-	  if (k<4) {
-	    sp.errorMsg(SectMapAreas,i,"Too few arguments to "+key_grid);
-	    return false;
-	  }
-	  for (l=0; l<k; l++) gridspec[l]= atof(sstokens[l].cStr());
-
-	} else if (key==key_area){
-	  sstokens= value.split(':');
-	  k= sstokens.size();
-	  if (k<4) {
-	    sp.errorMsg(SectMapAreas,i,"Too few arguments to "+key_area);
-	    return false;
-	  }
-	  x1= atof(sstokens[0].cStr());
-	  x2= atof(sstokens[1].cStr());
-	  y1= atof(sstokens[2].cStr());
-	  y2= atof(sstokens[3].cStr());
-	  // assuming that coordinates are "fortran indexed"
-	  // (as gridspec, gridspec changed when defining Projection)
-	  x1-=1.;
-	  x2-=1.;
-	  y1-=1.;
-	  y2-=1.;
-
-	}
-      }
-    }
-    if (name.exists()){
-      rect = Rectangle(x1,y1,x2,y2);
-      proj = Projection(projtype, gridspec);
       if (name.contains("[F5]") || name.contains("[F6]") ||
-	  name.contains("[F7]") || name.contains("[F8]") ){
-	miString tt = "[";
-	miString Fkey=name.substr(name.find("["),4);
-	name.replace(Fkey,"");
-	Fkey.erase(0,1);
-	Fkey.erase(2,1);
-	area = Area(Fkey,proj,rect);
-	// find duplicate
-	for ( q=0; q<mapareas_Fkeys.size(); q++)
-	  if ( mapareas_Fkeys[q].Name() == Fkey )
-	    break;
-	if ( q != mapareas_Fkeys.size() )
-	  mapareas_Fkeys[q] = area;
-	else
-	  mapareas_Fkeys.push_back(area);
+          name.contains("[F7]") || name.contains("[F8]") ){
+        miString Fkey=name.substr(name.find("["),4);
+        name.replace(Fkey,"");
+        Fkey.erase(0,1);
+        Fkey.erase(2,1);
+        Area area_Fkey = area;
+        area_Fkey.setName(Fkey);;
+        area.setName(name);;
+
+        // find duplicate
+        for ( q=0; q<mapareas_Fkeys.size(); q++) {
+          if ( mapareas_Fkeys[q].Name() == Fkey )
+            break;
+        }
+        if ( q != mapareas_Fkeys.size() ) {
+          mapareas_Fkeys[q] = area;
+        } else {
+          mapareas_Fkeys.push_back(area);
+        }
       }
-      area = Area(name,proj,rect);
+
       // find duplicate
-      for ( q=0; q<mapareas.size(); q++)
-	if ( mapareas[q].Name() == name )
-	  break;
-      if ( q != mapareas.size() )
-	mapareas[q] = area;
-      else
-	mapareas.push_back(area);
+      for ( q=0; q<mapareas.size(); q++) {
+        if ( mapareas[q].Name() == name
+            )
+          break;
+      }
+      if ( q != mapareas.size() ) {
+        mapareas[q] = area;
+      } else {
+        mapareas.push_back(area);
+      }
+
     } else {
       sp.errorMsg(SectMapAreas,i,"Incomplete maparea-specification");
       return false;
     }
+
   }
   return true;
 }
@@ -204,14 +129,14 @@ bool MapManager::parseMapTypes(SetupParser& sp){
     if (strlist[i].contains(key_name)){
       // save previous map and set defaults
       if ( mapinfo.name.exists() ){
-	// find duplicate
-	for ( q=0; q<mapfiles.size(); q++)
-	  if ( mapfiles[q].name == mapinfo.name )
-	    break;
-	if ( q != mapfiles.size() )
-	  mapfiles[q] = mapinfo;
-	else
-	  mapfiles.push_back(mapinfo);
+        // find duplicate
+        for ( q=0; q<mapfiles.size(); q++)
+          if ( mapfiles[q].name == mapinfo.name )
+            break;
+        if ( q != mapfiles.size() )
+          mapfiles[q] = mapinfo;
+        else
+          mapfiles.push_back(mapinfo);
       }
       // set default values ( mapfiles[m] --> mapinfo )
       mapinfo.name="";
@@ -250,13 +175,13 @@ bool MapManager::parseMapTypes(SetupParser& sp){
     // find duplicate
     for ( q=0; q<mapfiles.size(); q++)
       if ( mapfiles[q].name == mapinfo.name )
-	break;
+        break;
     if ( q != mapfiles.size() )
       mapfiles[q] = mapinfo;
     else
       mapfiles.push_back(mapinfo);
   }
-  
+
   return true;
 }
 
@@ -287,7 +212,7 @@ bool MapManager::getMapAreaByName(const miString& name, Area& a){
 }
 
 bool MapManager::getMapAreaByFkey(const miString& name, Area& a){
-//   cerr<<"getMapAreaByFkey:"<<name<<endl;
+  //   cerr<<"getMapAreaByFkey:"<<name<<endl;
   int i,n= mapareas_Fkeys.size();
   for (i=0; i<n; i++){
     if (name==mapareas_Fkeys[i].Name()){
@@ -317,10 +242,10 @@ bool MapManager::getMapInfoByName(const miString& name, MapInfo& mapinfo)
 
 
 bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
-			      PlotOptions& contopts,
-			      PlotOptions& landopts,
-			      PlotOptions& llopts,
-			      PlotOptions& ffopts)
+    PlotOptions& contopts,
+    PlotOptions& landopts,
+    PlotOptions& llopts,
+    PlotOptions& ffopts)
 {
   const miString key_name=  "map";
   const miString key_type=  "type";
@@ -354,67 +279,67 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
       value.trim();
 
       if (key==key_name){
-	mi.name= value;
+        mi.name= value;
       } else if (key==key_type){
-	mi.type= value;
+        mi.type= value;
       } else if (key==key_file){
-	newfile= true;
-	mfi.fname= value;
+        newfile= true;
+        mfi.fname= value;
       } else if (key==key_limit){
-	newfile= true;
-	mfi.sizelimit= atof(value.cStr());
+        newfile= true;
+        mfi.sizelimit= atof(value.cStr());
 
       } else if (key=="contour"){
-	mi.contour.ison= (value.upcase()=="ON");
+        mi.contour.ison= (value.upcase()=="ON");
       } else if (key=="cont.colour"){
-	mi.contour.linecolour= value;
-	contopts.linecolour= Colour(value);
+        mi.contour.linecolour= value;
+        contopts.linecolour= Colour(value);
       } else if (key=="cont.linewidth"){
-	mi.contour.linewidth= value;
-	contopts.linewidth= atoi(value.cStr());
+        mi.contour.linewidth= value;
+        contopts.linewidth= atoi(value.cStr());
       } else if (key=="cont.linetype"){
-	mi.contour.linetype= value;
-	contopts.linetype= Linetype(value);
+        mi.contour.linetype= value;
+        contopts.linetype= Linetype(value);
       } else if (key=="cont.zorder"){
-	mi.contour.zorder= atoi(value.cStr());
+        mi.contour.zorder= atoi(value.cStr());
 
       } else if (key=="land"){
-	mi.land.ison= (value.upcase()=="ON");
+        mi.land.ison= (value.upcase()=="ON");
       } else if (key=="land.colour"){
-	mi.land.fillcolour= value;
-	landopts.fillcolour= Colour(value);
+        mi.land.fillcolour= value;
+        landopts.fillcolour= Colour(value);
       } else if (key=="land.zorder"){
-	mi.land.zorder= atoi(value.cStr());
+        mi.land.zorder= atoi(value.cStr());
 
       } else if (key=="latlon"){
-	mi.latlon.ison= (value.upcase()=="ON");
+        mi.latlon.ison= (value.upcase()=="ON");
       } else if (key=="latlon.colour"){
-	mi.latlon.linecolour= value;
-	llopts.linecolour= Colour(value);
+        mi.latlon.linecolour= value;
+        llopts.linecolour= Colour(value);
       } else if (key=="latlon.linewidth"){
-	mi.latlon.linewidth= value;
-	llopts.linewidth= atoi(value.cStr());
+        mi.latlon.linewidth= value;
+        llopts.linewidth= atoi(value.cStr());
       } else if (key=="latlon.linetype"){
-	mi.latlon.linetype= value;
-	llopts.linetype= Linetype(value);
+        mi.latlon.linetype= value;
+        llopts.linetype= Linetype(value);
       } else if (key=="latlon.density"){
-	mi.latlon.density= atof(value.cStr());
+        mi.latlon.density= atof(value.cStr());
       } else if (key=="latlon.zorder"){
-	mi.latlon.zorder= atoi(value.cStr());
+        mi.latlon.zorder= atoi(value.cStr());
 
       } else if (key=="frame"){
-	mi.frame.ison= (value.upcase()=="ON");
+        mi.frame.ison= (value.upcase()=="ON");
       } else if (key=="frame.colour"){
-	mi.frame.linecolour= value;
-	ffopts.linecolour= Colour(value);
+        mi.frame.linecolour= value;
+        ffopts.linecolour= Colour(value);
       } else if (key=="frame.linewidth"){
-	mi.frame.linewidth= value;
-	ffopts.linewidth= atoi(value.cStr());
+        mi.frame.linewidth= value;
+        ffopts.linewidth= atoi(value.cStr());
       } else if (key=="frame.linetype"){
-	mi.frame.linetype= value;
-	ffopts.linetype= Linetype(value);
+        mi.frame.linetype= value;
+        ffopts.linetype= Linetype(value);
       } else if (key=="frame.zorder"){
-	mi.frame.zorder= atoi(value.cStr());
+        mi.frame.zorder= atoi(value.cStr());
       }
     }
   }
