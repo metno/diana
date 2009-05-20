@@ -564,7 +564,6 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
     gc.getVectors(tmpfields[0]->area,area,npos,x,y,u,v);
     tmpfields[0]->area.setP(area.P());
     tmpfields[1]->area.setP(area.P());
-    fixGeoVector(u,v);
   }
   uv.push_back(u);
   uv.push_back(v);
@@ -621,7 +620,6 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     gc.getDirectionVectors(area,turn,npos,x,y,u,v);
     tmpfields[0]->area.setP(area.P());
     tmpfields[1]->area.setP(area.P());
-    fixGeoVector(u,v);
   }
   uv.push_back(u);
   uv.push_back(v);
@@ -736,88 +734,6 @@ int FieldPlot::xAutoStep(float* x, float* y, int ix1, int ix2, int iy, float sdi
 
   return xstep;
 }
-
-
-void FieldPlot::fixGeoVector(float* u, float* v)
-{
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::fixGeoVector() ++" << endl;
-#endif
-  // (ECMWF) wind/vector in geographic grid on polarstereographic
-  // or rotated spherical map:
-  // A "line" of winds at the poles will be plotted in many
-  // directions due to the grid longitudes.
-
-  int maptype= area.P().Gridtype();
-
-  if (fields[0]->area.P().Gridtype()!=Projection::geographic ||
-      fields[0]->area.P().Gridtype()!=Projection::mercator   ||
-      maptype==Projection::geographic ||
-      maptype==Projection::mercator)
-    return;
-
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  float gs[Projection::speclen];
-  fields[0]->area.P().Gridspecstd(gs);
-
-  // check if wrapping the globe and avoid (near) doubleplotting
-  if (fabsf(gs[2])*float(nx-1)-360.0f < fabsf(gs[2]*0.2f)) {
-    int ix= nx-1;
-    for (int iy=0; iy<ny; iy++)
-      u[iy*nx+ix]= v[iy*nx+ix]= fieldUndef;
-  }
-
-  bool mapNorth= false;
-  bool mapSouth= false;
-  if (maptype==Projection::polarstereographic_60 ||
-      maptype==Projection::polarstereographic) {
-    if (gs[4]>=0.0) mapNorth= true;
-    else            mapSouth= true;
-  } else if (maptype==Projection::spherical_rotated ||
-      maptype==Projection::lambert) {
-    if (gs[5]>=0.0) mapNorth= true;
-    else            mapSouth= true;
-  }
-
-  float precis= fabsf(gs[3])*0.2f;
-
-  for (int iy=0; iy<ny; iy+=(ny-1)) {
-    // check if pole
-    float glat= gs[1] + gs[3]*float(iy);
-    if (glat>90.0-precis || glat<-90.0+precis) {
-      if ((glat<0.0 && mapNorth) ||
-          (glat>0.0 && mapSouth)) {
-        // avoid impossible positions on polarstereographic maps
-        for (int ix=0; ix<nx; ix++)
-          u[iy*nx+ix]= v[iy*nx+ix]= fieldUndef;
-      } else {
-        int ix= 0;
-        if (fields[0]->data[iy*nx+ix]!=fieldUndef &&
-            fields[1]->data[iy*nx+ix]!=fieldUndef) {
-          float uu= fields[0]->data[iy*nx+ix];
-          float vv= fields[1]->data[iy*nx+ix];
-          float rad= 3.141592654/180.;
-          float deg= 180./3.141592654;
-          float ff= sqrtf(uu*uu+vv*vv);
-          // don't really know if it should be +gs[0] or -gs[0] !!!!!!!!
-          float dd= 270.0 - deg*atan2f(vv,uu) + gs[0];
-          uu= -ff*sin(dd*rad);
-          vv= -ff*cos(dd*rad);
-          for (int ix=0; ix<nx; ix++) {
-            if (u[iy*nx+ix]!=fieldUndef) u[iy*nx+ix]= uu;
-            if (v[iy*nx+ix]!=fieldUndef) v[iy*nx+ix]= vv;
-          }
-        }
-      }
-    }
-  }
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::fixGeoVector() finished ++" << endl;
-#endif
-}
-
 
 //  plot vector field as wind arrows
 bool FieldPlot::plotWind(){

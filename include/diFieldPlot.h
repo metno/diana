@@ -115,7 +115,6 @@ private:
   void setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int iy2,
 		   int maxElementsX, int& step, float& dist, bool& xStepComp);
   int xAutoStep(float* x, float* y, int ix1, int ix2, int iy, float sdist);
-  void fixGeoVector(float* u, float* v);
 
   // plotting methods
   bool plotWind();
