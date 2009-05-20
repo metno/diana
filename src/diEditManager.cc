@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 //#define DEBUGREDRAW
 
 #include <fstream>
@@ -50,10 +50,10 @@
 #include <glob.h>
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om)
-  : plotm(pm), objm(om), mapmode(normal_mode), combinematrix(0),
-    numregs(0), hiddenObjects(false),
-    hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1),
-    editpause(false)
+: plotm(pm), objm(om), mapmode(normal_mode), combinematrix(0),
+numregs(0), hiddenObjects(false),
+hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1),
+editpause(false)
 {
   if (plotm==0 || objm==0){
     cerr << "Catastrophic error: plotm or objm == 0" << endl;
@@ -110,6 +110,7 @@ bool EditManager::parseSetup(SetupParser& sp) {
     ep.minutesStartLate=  0;
     ep.combineBorders="./ANAborders.";  // default as old version
 
+    //obsolete
     int gridtype=0, nx=0, ny=0;          // no edit grid defined
     float gridspec[Projection::speclen]= { 0. };
 
@@ -127,170 +128,180 @@ bool EditManager::parseSetup(SetupParser& sp) {
       nval= values.size();
 
       if (key=="end.product") {
-	nv++;
-	break;
+        nv++;
+        break;
       } else if (key=="drawtools"){
-	for (int j=0; j<nval; j++)
-	  ep.drawtools.push_back(values[j]);
+        for (int j=0; j<nval; j++)
+          ep.drawtools.push_back(values[j]);
       } else if (nval==0) {
-	// keywords without any values
-	if (key=="grid.minimize")
-	  ep.areaminimize= true;
+        // keywords without any values
+        if (key=="grid.minimize")
+          ep.areaminimize= true;
         else
-	  ok= false;
+          ok= false;
       } else if (key=="save_dir" && nval==1) {
-	ep.savedir = values[0];
+        ep.savedir = values[0];
 
       } else if (key=="input_dir") {
-	ep.inputdirs.insert(ep.inputdirs.end(),
-			    values.begin(),values.end());
+        ep.inputdirs.insert(ep.inputdirs.end(),
+            values.begin(),values.end());
 
       } else if (key=="combine_input_dir") {
-	ep.combinedirs.insert(ep.combinedirs.end(),
-			      values.begin(),values.end());
+        ep.combinedirs.insert(ep.combinedirs.end(),
+            values.begin(),values.end());
 
       } else if (key=="combine_borders") {
         ep.combineBorders= values[0];
 
       } else if (key=="input_products") {
-	ep.inputproducts.insert(ep.inputproducts.end(),
-			      values.begin(),values.end());
+        ep.inputproducts.insert(ep.inputproducts.end(),
+            values.begin(),values.end());
 
       } else if (key=="field" && nval>=6) {
-	EditProductField epf;
-	epf.filenamePart= values[0];
-	epf.name= values[1];
-	epf.fromfield= false;
-	epf.vcoord= atoi(values[2].c_str());
-	epf.param=  atoi(values[3].c_str());
-	epf.level=  atoi(values[4].c_str());
-	epf.level2= atoi(values[5].c_str());
-	epf.minValue= fieldUndef;
-	epf.maxValue= fieldUndef;
-	epf.editTools.push_back("standard");
-	for (int j=6; j<nval; j++) {
-	  vsub= values[j].split(':');
-	  if (vsub.size()==2) {
-	    if (vsub[0]=="min") {
-	      epf.minValue= atof(vsub[1].c_str());
-	    } else if (vsub[0]=="max") {
-	      epf.maxValue= atof(vsub[1].c_str());
-	    } else if (vsub[0]=="tool") {
-	      epf.editTools= vsub[1].downcase().split('+',true);
-	    }
-	  }
-	}
-	ep.fields.push_back(epf);
+        EditProductField epf;
+        epf.filenamePart= values[0];
+        epf.name= values[1];
+        epf.fromfield= false;
+        epf.vcoord= atoi(values[2].c_str());
+        epf.param=  atoi(values[3].c_str());
+        epf.level=  atoi(values[4].c_str());
+        epf.level2= atoi(values[5].c_str());
+        epf.minValue= fieldUndef;
+        epf.maxValue= fieldUndef;
+        epf.editTools.push_back("standard");
+        for (int j=6; j<nval; j++) {
+          vsub= values[j].split(':');
+          if (vsub.size()==2) {
+            if (vsub[0]=="min") {
+              epf.minValue= atof(vsub[1].c_str());
+            } else if (vsub[0]=="max") {
+              epf.maxValue= atof(vsub[1].c_str());
+            } else if (vsub[0]=="tool") {
+              epf.editTools= vsub[1].downcase().split('+',true);
+            }
+          }
+        }
+        ep.fields.push_back(epf);
 
       } else if (key=="objects" && nval==1) {
-	ep.objectsFilenamePart= values[0];
-	//....................................... + typer ??????
+        ep.objectsFilenamePart= values[0];
+        //....................................... + typer ??????
 
       } else if (key=="comments" && nval==1) {
-	ep.commentFilenamePart= values[0];
+        ep.commentFilenamePart= values[0];
 
       } else if (key=="local_idents") {
-	for (i=0; i<nval; i++) {
-	  EditProductId pid;
-	  pid.name= values[i];
-	  pid.sendable= false;
-	  pid.combinable= false;
-	  ep.pids.push_back(pid);
-	}
+        for (i=0; i<nval; i++) {
+          EditProductId pid;
+          pid.name= values[i];
+          pid.sendable= false;
+          pid.combinable= false;
+          ep.pids.push_back(pid);
+        }
 
       } else if (key=="database_idents") {
-	for (i=0; i<nval; i++) {
-	  EditProductId pid;
-	  pid.name= values[i];
-	  pid.sendable= true;
-	  pid.combinable= false;
-	  ep.pids.push_back(pid);
-	}
+        for (i=0; i<nval; i++) {
+          EditProductId pid;
+          pid.name= values[i];
+          pid.sendable= true;
+          pid.combinable= false;
+          ep.pids.push_back(pid);
+        }
 
       } else if (key=="combine_ident" && nval>=3) {
         n= ep.pids.size();
         i= 0;
-	while (i<n && ep.pids[i].name!=values[0]) i++;
-	if (i<n) {
-	  ep.pids[i].combinable= true;
-	  ep.pids[i].combineids.clear();
-	  for (int j=1; j<nval; j++)
-	    ep.pids[i].combineids.push_back(values[j]);
-	} else {
-	  ok= false;
-	}
+        while (i<n && ep.pids[i].name!=values[0]) i++;
+        if (i<n) {
+          ep.pids[i].combinable= true;
+          ep.pids[i].combineids.clear();
+          for (int j=1; j<nval; j++)
+            ep.pids[i].combineids.push_back(values[j]);
+        } else {
+          ok= false;
+        }
 
       } else if (key=="grid" && nval==5+Projection::speclen) {
-	ep.producer= atoi(values[0].c_str());
-	ep.gridnum=  atoi(values[1].c_str());
-	nx=          atoi(values[2].c_str());
-	ny=          atoi(values[3].c_str());
-	gridtype=    atoi(values[4].c_str());
-	for (i=0; i<Projection::speclen; i++)
-	  gridspec[i]= atof(values[5+i].c_str());
+        //obsolete
+        ep.producer= atoi(values[0].c_str());
+        ep.gridnum=  atoi(values[1].c_str());
+        nx=          atoi(values[2].c_str());
+        ny=          atoi(values[3].c_str());
+        gridtype=    atoi(values[4].c_str());
+        for (i=0; i<Projection::speclen; i++)
+          gridspec[i]= atof(values[5+i].c_str());
 
+      } else if (key=="field_id" && nval>1) {
+        ep.producer= atoi(values[0].c_str());
+        ep.gridnum=  atoi(values[1].c_str());
+      } else if (key=="area" && nval==1) {
+        if( !ep.area.setAreaFromLog(values[0]) ) {
+          ok=false;
+        }
       } else if (key=="database" && nval==1) {
-	vector<miString> vs= values[0].split(' ',true);
-	if (vs.size()==3) {
-	  ep.dbi.host= vs[0];
-	  ep.dbi.base= vs[1];
-	  ep.dbi.port= atoi(vs[2].c_str());
-	} else {
-	  ok= false;
-	}
+        vector<miString> vs= values[0].split(' ',true);
+        if (vs.size()==3) {
+          ep.dbi.host= vs[0];
+          ep.dbi.base= vs[1];
+          ep.dbi.port= atoi(vs[2].c_str());
+        } else {
+          ok= false;
+        }
       } else if (key=="name_in_database" && nval==1) {
-	ep.db_name= values[0];
+        ep.db_name= values[0];
       } else if (key=="commandfile" && nval==1) {
-	ep.commandFilename= values[0];
+        ep.commandFilename= values[0];
       } else if (key=="standard_symbolsize" && nval==1){
-	ep.standardSymbolSize=atoi(values[0].c_str());
+        ep.standardSymbolSize=atoi(values[0].c_str());
       } else if (key=="complex_symbolsize" && nval==1){
-	ep.complexSymbolSize=atoi(values[0].c_str());
+        ep.complexSymbolSize=atoi(values[0].c_str());
       } else if (key=="frontlinewidth" && nval==1){
-	ep.frontLineWidth = atoi(values[0].c_str());
+        ep.frontLineWidth = atoi(values[0].c_str());
       } else if (key=="arealinewidth" && nval==1){
-	ep.areaLineWidth = atoi(values[0].c_str());
+        ep.areaLineWidth = atoi(values[0].c_str());
       } else if (key=="time_start_early" && nval==1){
         vector<miString> vs= values[0].split(':',true);
-	if (vs.size()==2) {
-	  int hr= atoi(vs[0].c_str());
-	  int mn= atoi(vs[1].c_str());
-	  if (hr<0 && mn>0) mn= -mn;
-	  ep.minutesStartEarly= hr*60 + mn;
-	  ep.startEarly= true;
-	  if (ep.startLate && ep.minutesStartEarly>=ep.minutesStartLate)
-	    ok= false;
-	} else {
-	  ok= false;
-	}
+        if (vs.size()==2) {
+          int hr= atoi(vs[0].c_str());
+          int mn= atoi(vs[1].c_str());
+          if (hr<0 && mn>0) mn= -mn;
+          ep.minutesStartEarly= hr*60 + mn;
+          ep.startEarly= true;
+          if (ep.startLate && ep.minutesStartEarly>=ep.minutesStartLate)
+            ok= false;
+        } else {
+          ok= false;
+        }
       } else if (key=="time_start_late" && nval==1){
         vector<miString> vs= values[0].split(':',true);
-	if (vs.size()==2) {
-	  int hr= atoi(vs[0].c_str());
-	  int mn= atoi(vs[1].c_str());
-	  if (hr<0 && mn>0) mn= -mn;
-	  ep.minutesStartLate= hr*60 + mn;
-	  ep.startLate= true;
-	  if (ep.startEarly && ep.minutesStartEarly>=ep.minutesStartLate)
-	    ok= false;
-	} else {
-	  ok= false;
-	}
+        if (vs.size()==2) {
+          int hr= atoi(vs[0].c_str());
+          int mn= atoi(vs[1].c_str());
+          if (hr<0 && mn>0) mn= -mn;
+          ep.minutesStartLate= hr*60 + mn;
+          ep.startLate= true;
+          if (ep.startEarly && ep.minutesStartEarly>=ep.minutesStartLate)
+            ok= false;
+        } else {
+          ok= false;
+        }
       } else {
-	ok= false;
+        ok= false;
       }
 
       if (ok) nv++;
     }
 
     if (ok) {
+      //obsolete
       if (ep.gridnum>0 && nx>1 && ny>1 && gridtype>0) {
-	Projection p(gridtype, gridspec);
-	Rectangle  r(0.,0.,float(nx-1),float(ny-1)); // as usual dimensions as rectangle...
-	ep.area= Area(p,r);
-      } else {
-	ep.gridnum= 0;
+        Projection p(gridtype, gridspec);
+        Rectangle  r(0.,0.,float(nx-1),float(ny-1)); // as usual dimensions as rectangle...
+        ep.area= Area(p,r);
+//      } else {
+//        ep.gridnum= 0;
       }
+      //
       if (ep.savedir.empty()) ep.savedir= ".";
       // insert savedir as the last inputdir and the last combinedir,
       // this sequence is also kept when timesorting
@@ -301,14 +312,15 @@ bool EditManager::parseSetup(SetupParser& sp) {
       //read commands(OKstrings) from commandfile
       if (ep.commandFilename.exists()) readCommandFile(ep);
       // find duplicate
+
       int q;
       for ( q=0; q<editproducts.size(); q++ )
-	if ( editproducts[q].name == ep.name )
-	  break;
+        if ( editproducts[q].name == ep.name )
+          break;
       if ( q != editproducts.size() )
-	editproducts[q] = ep;
+        editproducts[q] = ep;
       else
-	editproducts.push_back(ep);
+        editproducts.push_back(ep);
     }
   }
 
@@ -345,30 +357,30 @@ void EditManager::readCommandFile(EditProduct & ep)
     if (n>0) {
       newmerge= false;
       if (s[n-1] == '\\'){
-	newmerge= true;
-	s= s.substr(0,s.length()-1);
+        newmerge= true;
+        s= s.substr(0,s.length()-1);
       }
       if (merge)
-	tmplines[tmplines.size()-1]+= s;
+        tmplines[tmplines.size()-1]+= s;
       else
-	tmplines.push_back(s);
+        tmplines.push_back(s);
       merge= newmerge;
-     }
-   }
-   //split up in LABEL and OTHER info...
-   vector <miString> labcom,commands;
-   n=tmplines.size();
-   for (int i=0; i<n; i++){
-     miString s= tmplines[i];
-     s.trim();
-     if (!s.exists()) continue;
-     vector<miString> vs= s.split(" ");
-     miString pre= vs[0].upcase();
-     if (pre=="LABEL")   labcom.push_back(s);
-     else commands.push_back(s);
-   }
-   ep.labels=labcom;
-   ep.OKstrings=commands;
+    }
+  }
+  //split up in LABEL and OTHER info...
+  vector <miString> labcom,commands;
+  n=tmplines.size();
+  for (int i=0; i<n; i++){
+    miString s= tmplines[i];
+    s.trim();
+    if (!s.exists()) continue;
+    vector<miString> vs= s.split(" ");
+    miString pre= vs[0].upcase();
+    if (pre=="LABEL")   labcom.push_back(s);
+    else commands.push_back(s);
+  }
+  ep.labels=labcom;
+  ep.OKstrings=commands;
 }
 
 /*----------------------------------------------------------------------
@@ -389,8 +401,8 @@ EditDialogInfo EditManager::getEditDialogInfo(){
 
 // set and get mapmode, editmode and edittool
 void EditManager::setEditMode(const miString mmode,  // mapmode
-			      const miString emode,  // editmode
-			      const miString etool){ // edittool
+    const miString emode,  // editmode
+    const miString etool){ // edittool
 
   if (mmode=="fedit_mode")
     mapmode= fedit_mode;
@@ -422,7 +434,7 @@ void EditManager::setEditMode(const miString mmode,  // mapmode
   while (mmidx<n && mmode!=mapmodeinfo[mmidx].mapmode) mmidx++;
   if (mmidx==n){
     cerr << "diEditManager::setEditMode  no info for mapmode:"
-	 << mmode << endl;
+    << mmode << endl;
     editmode=edittool=0;
     return;
   }
@@ -434,7 +446,7 @@ void EditManager::setEditMode(const miString mmode,  // mapmode
   }
   int emidx=0;
   while (emidx<n &&
-         emode!=mapmodeinfo[mmidx].editmodeinfo[emidx].editmode) emidx++;
+      emode!=mapmodeinfo[mmidx].editmodeinfo[emidx].editmode) emidx++;
   if (emidx==n){
     cerr << "diEditManager::setEditMode  unknown editmode:" << emode << endl;
     editmode=edittool=0;
@@ -465,11 +477,11 @@ mapMode EditManager::getMapMode(){
  -----------------------------------------------------------------------*/
 
 void EditManager::sendMouseEvent(const mouseEvent& me,
-				 EventResult& res){
+    EventResult& res){
 
-//#ifdef DEBUGREDRAW
-//  cerr<<"EditManager::sendMouseEvent"<<endl;
-//#endif
+  //#ifdef DEBUGREDRAW
+  //  cerr<<"EditManager::sendMouseEvent"<<endl;
+  //#endif
   res.savebackground= true;
   res.background= false;
   res.repaint= false;
@@ -486,78 +498,78 @@ void EditManager::sendMouseEvent(const mouseEvent& me,
     //field editing
     if (me.type == mousepress){
       if (me.button == leftButton){         // LEFT MOUSE-BUTTON
-	EditEvent ee;                     // send an editevent
-	ee.type= edit_pos;                // ..type edit_pos
-	ee.order= start_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
+        EditEvent ee;                     // send an editevent
+        ee.type= edit_pos;                // ..type edit_pos
+        ee.order= start_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
       } else if (me.button == midButton){
-	EditEvent ee;                     // send an edit-event
-	ee.type= edit_inspection;         // ..type edit_inspection
-	ee.order= start_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
+        EditEvent ee;                     // send an edit-event
+        ee.type= edit_inspection;         // ..type edit_inspection
+        ee.order= start_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
       } else if (me.button == rightButton){ // RIGHT MOUSE-BUTTON
-	EditEvent ee;                     // send an editevent
-	ee.type= edit_size;               // ..type edit_size
-	ee.order= start_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
+        EditEvent ee;                     // send an editevent
+        ee.type= edit_size;               // ..type edit_size
+        ee.order= start_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
       }
     } else if (me.type == mousemove){
       res.action = quick_browsing;
       if (me.button == noButton){
-	//HK ??? edittool=0, alltid
-	if (edittool != 0)                // ..just set correct cursor
-	  res.newcursor= edit_move_cursor;
-	else
-	  res.newcursor= edit_value_cursor;
-	res.action = browsing;
+        //HK ??? edittool=0, alltid
+        if (edittool != 0)                // ..just set correct cursor
+          res.newcursor= edit_move_cursor;
+        else
+          res.newcursor= edit_value_cursor;
+        res.action = browsing;
       } else if (me.button == leftButton){  // LEFT MOUSE-BUTTON
-	EditEvent ee;                     // send an edit-event
-	ee.type= edit_pos;                // ...type edit_pos
-	ee.order= normal_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
+        EditEvent ee;                     // send an edit-event
+        ee.type= edit_pos;                // ...type edit_pos
+        ee.order= normal_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
       } else if (me.button == midButton){
-	EditEvent ee;                     // send an edit-event
-	ee.type= edit_inspection;         // ..type edit_inspection
-	ee.order= normal_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
+        EditEvent ee;                     // send an edit-event
+        ee.type= edit_inspection;         // ..type edit_inspection
+        ee.order= normal_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
       } else if (me.button == rightButton){ // RIGHT MOUSE-BUTTON
-	EditEvent ee;                     // send an edit-event
-	ee.type= edit_size;               // ..type edit_size
-	ee.order= normal_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
+        EditEvent ee;                     // send an edit-event
+        ee.type= edit_size;               // ..type edit_size
+        ee.order= normal_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
       }
     }
     else if (me.type == mouserelease){
       if (me.button == leftButton){         // LEFT MOUSE-BUTTON
-	EditEvent ee;                     // send an edit-event
-	ee.type= edit_pos;                // ..type edit_pos
-	ee.order= stop_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
-	if (res.repaint)
+        EditEvent ee;                     // send an edit-event
+        ee.type= edit_pos;                // ..type edit_pos
+        ee.order= stop_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
+        if (res.repaint)
           res.action = fields_changed;
       }
     } else if (me.type == mousedoubleclick){
       if (me.button == leftButton) {
-	EditEvent ee;                     // send an editevent
-	ee.type= edit_pos;                // ..type edit_pos
-	ee.order= start_event;
-	ee.x= newx;
-	ee.y= newy;
-	res.repaint= notifyEditEvent(ee);
+        EditEvent ee;                     // send an editevent
+        ee.type= edit_pos;                // ..type edit_pos
+        ee.order= start_event;
+        ee.x= newx;
+        ee.y= newy;
+        res.repaint= notifyEditEvent(ee);
       }
     }
 
@@ -566,77 +578,77 @@ void EditManager::sendMouseEvent(const mouseEvent& me,
     //draw_mode or combine mode
     if (me.type == mousepress){
       if (me.button == leftButton){         // LEFT MOUSE-BUTTON
-	if (objm->inDrawing()){
-	  // add point to active objects
-	  objm->editAddPoint(newx,newy);
-	  if (objm->toDoCombine()) editCombine();
-	  res.action = objects_changed;
-	  res.repaint= true;
-	} else {
-	  objm->editPrepareChange(MoveMarkedPoints);
-	  first_x= newx;                    // remember current position
-	  first_y= newy;
-	  moved = false;
-	}
+        if (objm->inDrawing()){
+          // add point to active objects
+          objm->editAddPoint(newx,newy);
+          if (objm->toDoCombine()) editCombine();
+          res.action = objects_changed;
+          res.repaint= true;
+        } else {
+          objm->editPrepareChange(MoveMarkedPoints);
+          first_x= newx;                    // remember current position
+          first_y= newy;
+          moved = false;
+        }
       } else if (me.button == midButton){         // MIDDLE MOUSE-BUTTON
-	objm->editPrepareChange(RotateLine);
-	first_x= newx;
-	first_y= newy;
-	moved = false;
+        objm->editPrepareChange(RotateLine);
+        first_x= newx;
+        first_y= newy;
+        moved = false;
       } else if (me.button == rightButton){ // RIGHT MOUSE-BUTTON
-	objm->editStopDrawing();
-	res.newcursor= edit_cursor;
-	res.repaint= true;
+        objm->editStopDrawing();
+        res.newcursor= edit_cursor;
+        res.repaint= true;
       }
     } else if (me.type == mousemove){
       //cerr << "mousemove " << endl;
       res.action = quick_browsing;
       if (me.button == noButton){
-	if (objm->inDrawing()){
-	  if (objm->setRubber(true,newx,newy))
-	    res.repaint= true;
-	  res.newcursor= draw_cursor;
-	} else
-	  if (objm->editCheckPosition(newx,newy))
-	    res.repaint= true;
-	res.action = browsing;
+        if (objm->inDrawing()){
+          if (objm->setRubber(true,newx,newy))
+            res.repaint= true;
+          res.newcursor= draw_cursor;
+        } else
+          if (objm->editCheckPosition(newx,newy))
+            res.repaint= true;
+        res.action = browsing;
       } else if (me.button == leftButton){  // LEFT MOUSE-BUTTON
-	if (!objm->inDrawing()) { // move marked points
-	  moved = objm->editMoveMarkedPoints(newx-first_x,newy-first_y);
-	  first_x= newx;
-	  first_y= newy;
-	  if (moved){
-	    res.repaint= true;
-	    if (mapmode==combine_mode)
-	      editCombine();
-	  }
-	}
+        if (!objm->inDrawing()) { // move marked points
+          moved = objm->editMoveMarkedPoints(newx-first_x,newy-first_y);
+          first_x= newx;
+          first_y= newy;
+          if (moved){
+            res.repaint= true;
+            if (mapmode==combine_mode)
+              editCombine();
+          }
+        }
       } else if (me.button == midButton){  // MIDDLE MOUSE-BUTTON
-	if (!objm->inDrawing()) {  // rotate "line"
-	  moved = objm->editRotateLine(newx-first_x,newy-first_y);
-	  first_x= newx;
-	  first_y= newy;
-	  if (moved){
-	    res.repaint= true;
-	    if (mapmode==combine_mode)
-	      editCombine();
-	  }
-	}
+        if (!objm->inDrawing()) {  // rotate "line"
+          moved = objm->editRotateLine(newx-first_x,newy-first_y);
+          first_x= newx;
+          first_y= newy;
+          if (moved){
+            res.repaint= true;
+            if (mapmode==combine_mode)
+              editCombine();
+          }
+        }
       }
     } else if (me.type == mouserelease){
       if (me.button == leftButton || me.button == midButton){
-	if (!objm->inDrawing())
-	  objm->editMouseRelease(moved);
-	if(mapmode==combine_mode){
-	  objm->setAllPassive();
-	  if (objm->toDoCombine())
-	    editCombine();
-	}
-	if (moved) { //HK ??? slår dette til?
-	  res.action= objects_changed;
-	  res.repaint= true;
-	  moved = false;
-	}
+        if (!objm->inDrawing())
+          objm->editMouseRelease(moved);
+        if(mapmode==combine_mode){
+          objm->setAllPassive();
+          if (objm->toDoCombine())
+            editCombine();
+        }
+        if (moved) { //HK ??? slår dette til?
+          res.action= objects_changed;
+          res.repaint= true;
+          moved = false;
+        }
       }
     } else if (me.type == mousedoubleclick){
       objm->editStopDrawing();
@@ -651,7 +663,7 @@ void EditManager::sendMouseEvent(const mouseEvent& me,
 
 
 void EditManager::sendKeyboardEvent(const keyboardEvent& me,
-				    EventResult& res){
+    EventResult& res){
 
 #ifdef DEBUGREDRAW
   cerr<<"EditManager::sendKeyboardEvent"<<endl;
@@ -676,11 +688,11 @@ void EditManager::sendKeyboardEvent(const keyboardEvent& me,
     } else if (me.key==key_G) {
       //hide/show all objects.
       if (hiddenObjects || hiddenCombineObjects) {
-	objm->editUnHideAll();
-	hiddenObjects= false;
+        objm->editUnHideAll();
+        hiddenObjects= false;
       } else {
-	objm->editHideAll();
-	hiddenObjects= true;
+        objm->editHideAll();
+        hiddenObjects= true;
       }
       hiddenCombineObjects= false;
       res.background= (mapmode==fedit_mode);
@@ -689,9 +701,9 @@ void EditManager::sendKeyboardEvent(const keyboardEvent& me,
     else if (me.key==key_L) {
       //hide/show all combining objects.
       if (hiddenCombining)
-	objm->editUnHideCombining();
+        objm->editUnHideCombining();
       else
-	objm->editHideCombining();
+        objm->editHideCombining();
       hiddenCombining= !hiddenCombining;
       res.background= true;
     }
@@ -700,10 +712,10 @@ void EditManager::sendKeyboardEvent(const keyboardEvent& me,
       miString msg;
       int reg= me.key - keyRegMin;
       if (reg!=showRegion) {
-	showRegion= reg;
-	msg=regnames[showRegion];
+        showRegion= reg;
+        msg=regnames[showRegion];
       } else {
-	showRegion= -1;
+        showRegion= -1;
       }
       res.background= true;
       plotm->setEditMessage(msg);
@@ -715,105 +727,105 @@ void EditManager::sendKeyboardEvent(const keyboardEvent& me,
     // first keypress events
     if (me.type == keypress){
       if (me.key == key_N){
-	objm->createNewObject();
-	res.newcursor= draw_cursor;
+        objm->createNewObject();
+        res.newcursor= draw_cursor;
       }
       else if (me.key == key_Delete){
-	objm->editDeleteMarkedPoints();
+        objm->editDeleteMarkedPoints();
       }
       else if (me.key == key_P){
-	objm->editStopDrawing();
-	res.newcursor= edit_cursor;
+        objm->editStopDrawing();
+        res.newcursor= edit_cursor;
       }
       else if (me.key == key_V && me.modifier==key_Control)
-	objm->editPasteObjects();
+        objm->editPasteObjects();
       else if (me.key == key_C && me.modifier==key_Control)
-	objm->editCopyObjects();
+        objm->editCopyObjects();
       else if (me.key == key_V){
-	objm->editFlipObjects();
+        objm->editFlipObjects();
       }
       else if (me.key == key_U)
-	objm->editUnmarkAllPoints();
+        objm->editUnmarkAllPoints();
       else if (me.key==key_Plus && me.modifier==key_Control){
-	objm->editRotateObjects(+10.0);
+        objm->editRotateObjects(+10.0);
       }
       else if (me.key==key_Minus && me.modifier==key_Control){
-	objm->editRotateObjects(-10.0);
+        objm->editRotateObjects(-10.0);
       }
       else if (me.key == key_Plus){
-	objm->editIncreaseSize(1);
+        objm->editIncreaseSize(1);
       }
       else if (me.key == key_Minus){
-	objm->editIncreaseSize(-1);
+        objm->editIncreaseSize(-1);
       }
       else if (me.key == key_O){
-	objm->editHideBox();
+        objm->editHideBox();
       }
       else if (me.key == key_T){
-	if (me.modifier==key_Shift){
-	  objm->editChangeObjectType(-1);
-	}
-	else{
-	  objm->editChangeObjectType(1);
-	}
+        if (me.modifier==key_Shift){
+          objm->editChangeObjectType(-1);
+        }
+        else{
+          objm->editChangeObjectType(1);
+        }
       } else if (me.key == key_F){
-	// resume drawing of marked front
-	objm->editResumeDrawing(newx,newy);
+        // resume drawing of marked front
+        objm->editResumeDrawing(newx,newy);
       }
       else if (me.key == key_K){
-	// split front
-	objm->editSplitFront(newx,newy);
+        // split front
+        objm->editSplitFront(newx,newy);
       }
       else if (me.key==key_J){
-	//join marked fronts...
-	objm->editCommandJoinFronts(false,true,true);
+        //join marked fronts...
+        objm->editCommandJoinFronts(false,true,true);
       }
       else if (me.key==key_M)
-	//mark objects permanently...
-	objm->editStayMarked();
+        //mark objects permanently...
+        objm->editStayMarked();
       else if (me.key==key_C)
-	//unmark objects permanently...
-	objm->editNotMarked();
+        //unmark objects permanently...
+        objm->editNotMarked();
       else if (me.key==key_Q)
-	//unjoin points...
-	objm->editUnJoinPoints();
+        //unjoin points...
+        objm->editUnJoinPoints();
       else if (me.key==key_E)
-	//merge fronts...
-	objm->editMergeFronts(false);
+        //merge fronts...
+        objm->editMergeFronts(false);
       else if (me.key==key_B && me.modifier==key_Shift)
-	//set to default size...
-	objm->editDefaultSizeAll();
+        //set to default size...
+        objm->editDefaultSizeAll();
       else if (me.key==key_B)
-	//set marked objects to default size...
-	objm->editDefaultSize();
+        //set marked objects to default size...
+        objm->editDefaultSize();
       else {
-	return;
+        return;
       }
     }
     res.repaint= true;
     if(mapmode==combine_mode){
       objm->setAllPassive();
       if (objm->toDoCombine())
-	editCombine();
+        editCombine();
     } else { //OK?
       if (objm->haveObjectsChanged())
-	res.action = objects_changed;
+        res.action = objects_changed;
     }
   }
 
 
-    // then key release events
+  // then key release events
   if (me.type == keyrelease){
 
     if (me.key == key_Shift){ // reset cursor
       if (mapmode!=fedit_mode){
-	res.newcursor= (objm->inDrawing()?draw_cursor:edit_cursor);
-	} else {                            // field-editing
-	  if (edittool != 0)                // ..just set correct cursor
-	    res.newcursor= edit_move_cursor;
-	  else
-	    res.newcursor= edit_value_cursor;
-	}
+        res.newcursor= (objm->inDrawing()?draw_cursor:edit_cursor);
+      } else {                            // field-editing
+        if (edittool != 0)                // ..just set correct cursor
+          res.newcursor= edit_move_cursor;
+        else
+          res.newcursor= edit_value_cursor;
+      }
     }
   }
 }
@@ -907,9 +919,9 @@ bool EditManager::getProductTime(miTime& t){
   //returns the current product time
   if (plotm->prodtimedefined){
     t= plotm->producttime;
-	return true;
+    return true;
   } else
-  return false;
+    return false;
 }
 
 
@@ -927,9 +939,9 @@ void EditManager::saveProductLabels(vector <miString> labels){
 
 
 miString EditManager::editFileName(const miString directory,
-                                   const miString region,
-                                   const miString name,
-				   const miTime& t){
+    const miString region,
+    const miString name,
+    const miTime& t){
 
   //constructs a filename
 
@@ -941,10 +953,10 @@ miString EditManager::editFileName(const miString directory,
 
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << yyyy
-       << setw(2) << setfill('0') << mm
-       << setw(2) << setfill('0') << dd
-       << setw(2) << setfill('0') << hh
-       << setw(2) << setfill('0') << min;
+  << setw(2) << setfill('0') << mm
+  << setw(2) << setfill('0') << dd
+  << setw(2) << setfill('0') << hh
+  << setw(2) << setfill('0') << min;
 
   miString filename;
 
@@ -976,9 +988,9 @@ functions to start and end editing, reading and writing to database
 
 
 bool EditManager::checkProductAvailability(const miString& prodname,
-					   const miString& pid,
-					   const miTime& valid,
-					   miString& message)
+    const miString& pid,
+    const miTime& valid,
+    miString& message)
 
 {
 
@@ -1026,9 +1038,9 @@ bool EditManager::logoutDatabase(editDBinfo& db)
 
 // terminate one production
 bool EditManager::killProduction(const miString& prodname,
-				 const miString& pid,
-				 const miTime& valid,
-				 miString& message)
+    const miString& pid,
+    const miTime& valid,
+    miString& message)
 {
 #ifdef METNOPRODDB
   miString mess;
@@ -1046,8 +1058,8 @@ bool EditManager::killProduction(const miString& prodname,
 
 
 bool EditManager::startEdit(const EditProduct& ep,
-			    const EditProductId& ei,
-			    const miTime& valid)
+    const EditProductId& ei,
+    const miTime& valid)
 {
 #ifdef DEBUGPRINT
   cerr << "EditManager::startEdit" << endl;
@@ -1093,7 +1105,7 @@ bool EditManager::startEdit(const EditProduct& ep,
         vf=  plotm->vfp[i]->getFields();
         // for now, only accept scalar fields
         if (vf.size()==1 &&
-	    vf[0]->text==EdProd.fields[j].fromfname) break;
+            vf[0]->text==EdProd.fields[j].fromfname) break;
       }
       if (i==n) return false;
 
@@ -1142,7 +1154,7 @@ bool EditManager::startEdit(const EditProduct& ep,
       plotm->editobjects.setSelectedObjectTypes(objectProd.selectObjectTypes);
       objm->editCommandReadDrawFile(filename);
       miString commentstring="Objects from:\n" +
-	savedProductString(objectProd)+miString("\n");
+      savedProductString(objectProd)+miString("\n");
       plotm->editobjects.addComments(commentstring);
       //open the comments file
       //filename.replace(EdProd.objectsFilenamePart,EdProd.commentFilenamePart);
@@ -1150,7 +1162,7 @@ bool EditManager::startEdit(const EditProduct& ep,
       objm->editCommandReadCommentFile(filename);
 
       if (objectProd.productName==EdProd.name && objectProd.ptime==valid)
-	newProduct=false;
+        newProduct=false;
 
     }
   }
@@ -1158,7 +1170,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
   // set correct time for labels
   for (vector<miString>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
-	 end();p++)
+  end();p++)
     *p=insertTime(*p,valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,newProduct);
@@ -1177,10 +1189,10 @@ bool EditManager::startEdit(const EditProduct& ep,
       //cerr << "We are allowed to start production" << endl;
       // start production
       if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
-	cerr << "We are in production" << endl;
+        cerr << "We are in production" << endl;
       else{
-	cerr << "We could not start production" << endl;
-	return false;
+        cerr << "We could not start production" << endl;
+        return false;
       }
     } else{
       cerr << "We are NOT allowed to start production" << endl;
@@ -1194,10 +1206,10 @@ bool EditManager::startEdit(const EditProduct& ep,
 
 
 bool EditManager::writeEditProduct(miString&  message,
-				   const bool wfield,
-				   const bool wobjects,
-				   const bool send,
-				   const bool isapproved){
+    const bool wfield,
+    const bool wobjects,
+    const bool send,
+    const bool isapproved){
 
 #ifdef DEBUGPRINT
   cerr << "EditManager::writeEditProduct" << endl;
@@ -1212,25 +1224,25 @@ bool EditManager::writeEditProduct(miString&  message,
       //cerr << "Writing field:" << i << endl;
       miString filenamePart =EdProd.fields[i].filenamePart;
       miString filename= editFileName(EdProd.savedir,EdProdId.name,
-				      filenamePart,t);
+          filenamePart,t);
       short int *fdata= 0;
       int fdatalength= 0;
       if(fedits[i]->writeEditFieldFile(filename, EdProdId.sendable && send,
-				       &fdata, fdatalength)) {
+          &fdata, fdatalength)) {
         if (EdProdId.sendable && send) {
 #ifdef METNOPRODDB
           //save field to database !
           miString mess;
           if (!gate.saveField(filenamePart, fdata, fdatalength, mess)){
-	    res= false;
-	    message += "Could not store field to database:" + mess + "\n";
-	  }
+            res= false;
+            message += "Could not store field to database:" + mess + "\n";
+          }
 #endif
-	}
-	if (fdatalength>0 && fdata) delete[] fdata;
+        }
+        if (fdatalength>0 && fdata) delete[] fdata;
       } else {
-	res= false;
-	message += "Could not store field to file:" + filename + "\n";
+        res= false;
+        message += "Could not store field to file:" + filename + "\n";
       }
     }
   }
@@ -1245,23 +1257,23 @@ bool EditManager::writeEditProduct(miString&  message,
       //first save to local file
       objectsFilenamePart= EdProd.objectsFilenamePart;
       objectsFilename= editFileName(EdProd.savedir,EdProdId.name,
-				    objectsFilenamePart,t);
+          objectsFilenamePart,t);
 
       if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
-	res= false;
-	saveok= false;
-	message += "Could not store objects to file:" + objectsFilename + "\n";
+        res= false;
+        saveok= false;
+        message += "Could not store objects to file:" + objectsFilename + "\n";
       }
 
       if (EdProdId.sendable && send) {
 #ifdef METNOPRODDB
-	miString mess;
-	//filer blir skrevet ut fra databasen som "ANAdraw.yyyymmhhmn"
-	if (!gate.saveString(objectsFilenamePart,editObjectsString,mess)){
-	  res= false;
-	  saveok= false;
-	  message += "Could not store objects to database:" + mess + "\n";
-	}
+        miString mess;
+        //filer blir skrevet ut fra databasen som "ANAdraw.yyyymmhhmn"
+        if (!gate.saveString(objectsFilenamePart,editObjectsString,mess)){
+          res= false;
+          saveok= false;
+          message += "Could not store objects to database:" + mess + "\n";
+        }
 #endif
       }
     }
@@ -1282,22 +1294,22 @@ bool EditManager::writeEditProduct(miString&  message,
       //first save to local file
       commentFilenamePart= EdProd.commentFilenamePart;
       commentFilename= editFileName(EdProd.savedir,EdProdId.name,
-				    commentFilenamePart,t);
+          commentFilenamePart,t);
 
       if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
-	res= false;
-	saveok= false;
-	message += "Could not store comments to file:" + commentFilename + "\n";
+        res= false;
+        saveok= false;
+        message += "Could not store comments to file:" + commentFilename + "\n";
       }
 
       if (EdProdId.sendable && send) {
 #ifdef METNOPRODDB
-	miString mess;
-	if (!gate.saveString(commentFilenamePart,editCommentString,mess)){
-	  res= false;
-	  saveok= false;
-	  message += "Could not store comments to database:" + mess + "\n";
-	}
+        miString mess;
+        if (!gate.saveString(commentFilenamePart,editCommentString,mess)){
+          res= false;
+          saveok= false;
+          message += "Could not store comments to database:" + mess + "\n";
+        }
 #endif
       }
     }
@@ -1312,9 +1324,9 @@ bool EditManager::writeEditProduct(miString&  message,
       bool saveok=true;
       //send message to database that data has been saved
       if (!gate.reportSave(mess,isapproved)){
-	res= false;
-	saveok= false;
-	message += "Kan ikke sluttføre database-lagring:" + mess + "\n";
+        res= false;
+        saveok= false;
+        message += "Kan ikke sluttføre database-lagring:" + mess + "\n";
       }
       // remember that saved product is sent -
       // but only if approved!
@@ -1352,7 +1364,7 @@ bool EditManager::findProduct(EditProduct& ep, miString pname){
 
 
 vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
-						   miString fieldname){
+    miString fieldname){
 
   int num,n=ep.fields.size();
   for (int i=0;i<n;i++){
@@ -1366,7 +1378,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
 
 
 vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
-						   int element)
+    int element)
 {
   vector<savedProduct> prods;
 
@@ -1406,7 +1418,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
 
 
 vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
-					       const EditProductId& ei)
+    const EditProductId& ei)
 {
   //cerr << "getCombineProducts" << endl;
 
@@ -1470,8 +1482,8 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
 
 
 vector<miString> EditManager::findAcceptedCombine(int ibegin, int iend,
-						  const EditProduct& ep,
-					          const EditProductId& ei){
+    const EditProduct& ep,
+    const EditProductId& ei){
   vector<miString> okpids;
 
   // a "table" of found pids and object/fields
@@ -1509,8 +1521,8 @@ vector<miString> EditManager::findAcceptedCombine(int ibegin, int iend,
 
 
 void EditManager::findSavedProducts(vector <savedProduct> & prods,
-				    const miString fileString,
-				    dataSource dsource, int element){
+    const miString fileString,
+    dataSource dsource, int element){
 
   //get files matching fileString
   glob_t globBuf;
@@ -1540,9 +1552,9 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
 
 
 vector<miString> EditManager::getValidEditFields(const EditProduct& ep,
-					         const int element){
+    const int element){
 
-// return names of existing fields valid for editing
+  // return names of existing fields valid for editing
   vector<miString> vstr;
   miString fname= ep.fields[element].name.downcase();
   int n= plotm->vfp.size();
@@ -1596,7 +1608,7 @@ void EditManager::stopEdit()
     miString message;
     if (gate.endProd(message)){
       cerr << "We are no longer in production, " << message <<
-	endl;
+      endl;
 
     } else
       cerr << "We could not stop production" << endl;
@@ -1611,9 +1623,9 @@ vector<EditProduct> EditManager::getEditProducts(){
 
 miString EditManager::savedProductString(savedProduct sp){
   miString spstring=sp.pid +  miString(" ") +
-	sp.productName + miString(" ") + sp.ptime.isoTime()
-	+  miString(" ")+ sp.selectObjectTypes;
-      return spstring;
+  sp.productName + miString(" ") + sp.ptime.isoTime()
+  +  miString(" ")+ sp.selectObjectTypes;
+  return spstring;
 }
 
 
@@ -1648,15 +1660,15 @@ void EditManager::cleanCombineData(bool cleanData){
       p = plotm->combiningobjects.objects.erase(p);
       delete pobject;
     }
-     else p++;
+    else p++;
   }
 
 }
 
 
 vector <miString> EditManager::getCombineIds(const miTime & valid,
-                                             const EditProduct& ep,
-                                             const EditProductId& ei){
+    const EditProduct& ep,
+    const EditProductId& ei){
   vector <miString> pids;
   int ipc=0, npc=combineprods.size();
   while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
@@ -1674,210 +1686,210 @@ vector <miString> EditManager::getCombineIds(const miTime & valid,
 
 
 bool EditManager::startCombineEdit(const EditProduct& ep,
-				   const EditProductId& ei,
-				   const miTime& valid,
-				   vector<miString>& pids){
+    const EditProductId& ei,
+    const miTime& valid,
+    vector<miString>& pids){
 #ifdef DEBUGPRINT
-  cerr << "startCombineEdit  Time = " << valid << endl;
+cerr << "startCombineEdit  Time = " << valid << endl;
 #endif
 
-  int nfe = fedits.size();
-  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
+int nfe = fedits.size();
+Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
 
-  fieldsCombined= false;
+fieldsCombined= false;
 
-  // erase combine fields and objects
-  cleanCombineData(true);
+// erase combine fields and objects
+cleanCombineData(true);
 
-  //EdProd and EdProdId contains information about production
-  EdProd = ep;
-  EdProdId = ei;
+//EdProd and EdProdId contains information about production
+EdProd = ep;
+EdProdId = ei;
 
-  // delete editfields
-  for (int i=0; i<fedits.size(); i++)
-    delete fedits[i];
-  fedits.clear();
+// delete editfields
+for (int i=0; i<fedits.size(); i++)
+  delete fedits[i];
+fedits.clear();
 
-  // delete all previous objects
-  plotm->editobjects.init();
-  plotm->combiningobjects.init();
+// delete all previous objects
+plotm->editobjects.init();
+plotm->combiningobjects.init();
 
-  int ipc=0, npc=combineprods.size();
-  while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
-  if (ipc==npc) return false;
+int ipc=0, npc=combineprods.size();
+while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
+if (ipc==npc) return false;
 
-  int ipcbegin= ipc;
-  ipc++;
-  while (ipc<npc && combineprods[ipc].ptime==valid) ipc++;
-  int ipcend= ipc;
+int ipcbegin= ipc;
+ipc++;
+while (ipc<npc && combineprods[ipc].ptime==valid) ipc++;
+int ipcend= ipc;
 
-  regnames= findAcceptedCombine(ipcbegin,ipcend,EdProd,EdProdId);
+regnames= findAcceptedCombine(ipcbegin,ipcend,EdProd,EdProdId);
 
-  if (regnames.size()<2) return false;
+if (regnames.size()<2) return false;
 
-  // pids is returned to dialog!
-  pids= regnames;
+// pids is returned to dialog!
+pids= regnames;
 
-  numregs= regnames.size();
+numregs= regnames.size();
 
-  //get edit tools for this product (updates "region" stuff )
-  setMapmodeinfo();
+//get edit tools for this product (updates "region" stuff )
+setMapmodeinfo();
 
-  // set product time
-  plotm->producttime= valid;
-  plotm->prodtimedefined= true;
-
-
-  miString filename = EdProd.combineBorders + EdProdId.name;
-  //read AreaBorders
-  if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
-    cerr << "EditManager::startCombineEdit  error reading borders" << endl;
-    return false;
-  }
+// set product time
+plotm->producttime= valid;
+plotm->prodtimedefined= true;
 
 
-  plotm->editobjects.setPrefix(EdProdId.name);
+miString filename = EdProd.combineBorders + EdProdId.name;
+//read AreaBorders
+if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
+  cerr << "EditManager::startCombineEdit  error reading borders" << endl;
+  return false;
+}
 
-  // read fields
 
-  int nf= EdProd.fields.size();
+plotm->editobjects.setPrefix(EdProdId.name);
 
-  combinefields.resize(nf);
+// read fields
 
-  matrix_nx= matrix_ny= 0;
+int nf= EdProd.fields.size();
 
-  bool ok= true;
-  int j=0;
+combinefields.resize(nf);
 
-  while (ok && j<nf) {
+matrix_nx= matrix_ny= 0;
 
-    miString fieldname= EdProd.fields[j].name;
+bool ok= true;
+int j=0;
 
-    int i= 0;
-    while (ok && i<numregs) {
-      ipc= ipcbegin;
-      while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
-			    combineprods[ipc].element!=j)) ipc++;
-      if (ipc<ipcend) {
-        FieldEdit *fed= new FieldEdit;
-        // spec. used when reading field
-        fed->setSpec(EdProd, j);
-        miString filename = combineprods[ipc].filename;
-        //cerr << "Read field file " << filename << endl;
-        if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
-	  int nx,ny;
-	  fed->getFieldSize(nx,ny);
-	  if (matrix_nx==0 && matrix_ny==0) {
-	    matrix_nx= nx;
-	    matrix_ny= ny;
-	  } else if (nx!=matrix_nx || ny!=matrix_ny) {
-	    ok= false;
-	  }
-	} else {
-	  ok= false;
-	}
-        if (ok) combinefields[j].push_back(fed);
-	else    delete fed;
-      } else {
-	ok= false;
-      }
-      i++;
-    }
-    j++;
-  }
+while (ok && j<nf) {
 
-  if (!ok) {
-    cerr << "EditManager::startCombineEdit  error reading fields" << endl;
-    cleanCombineData(true);
-    combineprods.clear(); // not needed to keep this, as dialog works now
-    return false;
-  }
-
-  // init editfield(s)
-  for (j=0; j<nf; j++) {
-    FieldEdit *fed= new FieldEdit;
-    *(fed)= *(combinefields[j][0]);
-    fed->setConstantValue(fieldUndef);
-    fedits.push_back(fed);
-  }
-
-  plotm->combiningobjects.changeProjection(newarea);
-
-  combineobjects.clear();
+  miString fieldname= EdProd.fields[j].name;
 
   int i= 0;
   while (ok && i<numregs) {
     ipc= ipcbegin;
     while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
-			  combineprods[ipc].element!=-1)) ipc++;
+        combineprods[ipc].element!=j)) ipc++;
     if (ipc<ipcend) {
+      FieldEdit *fed= new FieldEdit;
+      // spec. used when reading field
+      fed->setSpec(EdProd, j);
       miString filename = combineprods[ipc].filename;
-      //cerr << "Read object file " << filename << endl;
-      EditObjects wo;
-      //init weather objects with correct prefix (region name)
-      wo.setPrefix(combineprods[ipc].pid);
-      objm->readEditDrawFile(filename, newarea, wo);
-      combineobjects.push_back(wo);
-      //open the comments file, which should have same path and
-      //extension as the object file
-      filename.replace(EdProd.objectsFilenamePart,
-		       EdProd.commentFilenamePart);
-      objm->editCommandReadCommentFile(filename);
+      //cerr << "Read field file " << filename << endl;
+      if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
+        int nx,ny;
+        fed->getFieldSize(nx,ny);
+        if (matrix_nx==0 && matrix_ny==0) {
+          matrix_nx= nx;
+          matrix_ny= ny;
+        } else if (nx!=matrix_nx || ny!=matrix_ny) {
+          ok= false;
+        }
+      } else {
+        ok= false;
+      }
+      if (ok) combinefields[j].push_back(fed);
+      else    delete fed;
+    } else {
+      ok= false;
     }
     i++;
   }
+  j++;
+}
 
-  plotm->editobjects.setTime(plotm->producttime);
-  objm->putCommentStartLines(EdProd.name,EdProdId.name);
+if (!ok) {
+  cerr << "EditManager::startCombineEdit  error reading fields" << endl;
+  cleanCombineData(true);
+  combineprods.clear(); // not needed to keep this, as dialog works now
+  return false;
+}
 
-  // the list is needed later (editmanager or editdialog)
-  combineprods.clear();
+// init editfield(s)
+for (j=0; j<nf; j++) {
+  FieldEdit *fed= new FieldEdit;
+  *(fed)= *(combinefields[j][0]);
+  fed->setConstantValue(fieldUndef);
+  fedits.push_back(fed);
+}
 
-  delete[] combinematrix;
+plotm->combiningobjects.changeProjection(newarea);
 
-  long fsize= matrix_nx*matrix_ny;
-  combinematrix= new int[fsize];
-  for (int i=0; i<fsize; i++)
-    combinematrix[i]= -1;
+combineobjects.clear();
+
+int i= 0;
+while (ok && i<numregs) {
+  ipc= ipcbegin;
+  while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
+      combineprods[ipc].element!=-1)) ipc++;
+  if (ipc<ipcend) {
+    miString filename = combineprods[ipc].filename;
+    //cerr << "Read object file " << filename << endl;
+    EditObjects wo;
+    //init weather objects with correct prefix (region name)
+    wo.setPrefix(combineprods[ipc].pid);
+    objm->readEditDrawFile(filename, newarea, wo);
+    combineobjects.push_back(wo);
+    //open the comments file, which should have same path and
+    //extension as the object file
+    filename.replace(EdProd.objectsFilenamePart,
+        EdProd.commentFilenamePart);
+    objm->editCommandReadCommentFile(filename);
+  }
+  i++;
+}
+
+plotm->editobjects.setTime(plotm->producttime);
+objm->putCommentStartLines(EdProd.name,EdProdId.name);
+
+// the list is needed later (editmanager or editdialog)
+combineprods.clear();
+
+delete[] combinematrix;
+
+long fsize= matrix_nx*matrix_ny;
+combinematrix= new int[fsize];
+for (int i=0; i<fsize; i++)
+  combinematrix[i]= -1;
 
 
-  // set correct time for labels
-  for (vector<miString>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
-	 end();p++)
-    *p=insertTime(*p,valid);
-  //Merge labels from EdProd  with object label input strings
-  plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
-  //save merged labels in editobjects
-  vector <miString> labels = plotm->writeAnnotations(EdProd.name);
-  saveProductLabels(labels);
-  plotm->editobjects.labelsAreSaved();
+// set correct time for labels
+for (vector<miString>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
+end();p++)
+  *p=insertTime(*p,valid);
+//Merge labels from EdProd  with object label input strings
+plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
+//save merged labels in editobjects
+vector <miString> labels = plotm->writeAnnotations(EdProd.name);
+saveProductLabels(labels);
+plotm->editobjects.labelsAreSaved();
 
-  if (EdProdId.sendable) {
+if (EdProdId.sendable) {
 #ifdef METNOPRODDB
-    // messages from ProductionGate
-    miString message;
-    if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
-      cerr << "We are allowed to start production" << endl;
-      // start production
-      if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
-	cerr << "We are in production" << endl;
-      else{
-	cerr << "We could not start production" << endl;
-	return false;
-      }
-    } else{
-      cerr << "We are NOT allowed to start production" << endl;
+  // messages from ProductionGate
+  miString message;
+  if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
+    cerr << "We are allowed to start production" << endl;
+    // start production
+    if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
+      cerr << "We are in production" << endl;
+    else{
+      cerr << "We could not start production" << endl;
       return false;
     }
-    cerr << "Message:" << message << endl;
-#endif
+  } else{
+    cerr << "We are NOT allowed to start production" << endl;
+    return false;
   }
+  cerr << "Message:" << message << endl;
+#endif
+}
 
-  objm->setAllPassive();
+objm->setAllPassive();
 
-  editCombine();
+editCombine();
 
-  return true;
+return true;
 }
 
 
@@ -1889,7 +1901,7 @@ bool EditManager::editCombine()
 
   int nfe = fedits.size();
   Area newarea = ( nfe > 0 ? fedits[0]->editfield->area :
-		   plotm->getMapArea() );
+  plotm->getMapArea() );
 
   fieldsCombined= false;
 
@@ -1965,14 +1977,14 @@ bool EditManager::editCombine()
     for (int j = 0;j<obsize;j++){
       ObjectPlot * pobject = combineobjects[i].objects[j];
       if (pobject->isInRegion(i,matrix_nx,matrix_ny,combinematrix)){
-	ObjectPlot * newobject;
-	if (pobject->objectIs(wFront))
-	  newobject = new WeatherFront(*((WeatherFront*)(pobject)));
-	else if (pobject->objectIs(wSymbol))
-	  newobject = new WeatherSymbol(*((WeatherSymbol*)(pobject)));
-	else if (pobject->objectIs(wArea))
-	  newobject = new WeatherArea(*((WeatherArea*)(pobject)));
-	plotm->editobjects.objects.push_back(newobject);
+        ObjectPlot * newobject;
+        if (pobject->objectIs(wFront))
+          newobject = new WeatherFront(*((WeatherFront*)(pobject)));
+        else if (pobject->objectIs(wSymbol))
+          newobject = new WeatherSymbol(*((WeatherSymbol*)(pobject)));
+        else if (pobject->objectIs(wArea))
+          newobject = new WeatherArea(*((WeatherArea*)(pobject)));
+        plotm->editobjects.objects.push_back(newobject);
       }
     }
   }
@@ -2088,19 +2100,19 @@ bool EditManager::combineFields(float zoneWidth) {
     for (io=0; io<nx-1; io++) {
       ij=jo*nx+io;
       if (combinematrix[ij]!=combinematrix[ij+1] ||
-	  combinematrix[ij]!=combinematrix[ij+nx]) {
-	i1= io-nsmooth;
-	if(i1<0) i1= 0;
-	i2= io+nsmooth+1;
-	if (combinematrix[ij]!=combinematrix[ij+1]) i2++;
-	if(i2>nx) i2= nx;
-	j1= jo-nsmooth;
-	if(j1<0) j1= 0;
-	j2= jo+nsmooth+1;
-	if (combinematrix[ij]!=combinematrix[ij+nx]) j2++;
-	if(j2>ny) j2= ny;
-	for (j=j1; j<j2; j++)
-	  for (i=i1; i<i2; i++) mark[j*nx+i]= true;
+          combinematrix[ij]!=combinematrix[ij+nx]) {
+        i1= io-nsmooth;
+        if(i1<0) i1= 0;
+        i2= io+nsmooth+1;
+        if (combinematrix[ij]!=combinematrix[ij+1]) i2++;
+        if(i2>nx) i2= nx;
+        j1= jo-nsmooth;
+        if(j1<0) j1= 0;
+        j2= jo+nsmooth+1;
+        if (combinematrix[ij]!=combinematrix[ij+nx]) j2++;
+        if(j2>ny) j2= ny;
+        for (j=j1; j<j2; j++)
+          for (i=i1; i<i2; i++) mark[j*nx+i]= true;
       }
     }
   }
@@ -2137,24 +2149,24 @@ bool EditManager::combineFields(float zoneWidth) {
       i= ij%nx;
       j= ij/nx;
       if (i>0 && i<nx-1)
-	xok= (pdata[ij-1] !=fieldUndef &&
-	      pdata[ij]   !=fieldUndef &&
-	      pdata[ij+1] !=fieldUndef);
+        xok= (pdata[ij-1] !=fieldUndef &&
+            pdata[ij]   !=fieldUndef &&
+            pdata[ij+1] !=fieldUndef);
       else xok= false;
       if (j>0 && j<ny-1)
-	yok= (pdata[ij-nx]!=fieldUndef &&
-	      pdata[ij]   !=fieldUndef &&
-	      pdata[ij+nx]!=fieldUndef);
+        yok= (pdata[ij-nx]!=fieldUndef &&
+            pdata[ij]   !=fieldUndef &&
+            pdata[ij+nx]!=fieldUndef);
       else yok= false;
       if (xok && yok) {
-	xdir[nxdir++]= ij;
-	ydir[nydir++]= ij;
+        xdir[nxdir++]= ij;
+        ydir[nydir++]= ij;
       } else if (xok) {
-	xdir[nxdir++]= ij;
-	ydircp[nydircp++]= ij;
+        xdir[nxdir++]= ij;
+        ydircp[nydircp++]= ij;
       } else if (yok) {
-	ydir[nydir++]= ij;
-	xdircp[nxdircp++]= ij;
+        ydir[nydir++]= ij;
+        xdircp[nxdircp++]= ij;
       }
     }
   }
@@ -2243,21 +2255,21 @@ bool EditManager::recalcCombineMatrix(){
       vector <float> xborder=plotm->combiningobjects.objects[i]->getX();
       vector <float> yborder=plotm->combiningobjects.objects[i]->getY();
       for (int j=0; j<numv[n]; j++) {
-	xposis[m]=xborder[j];
-	yposis[m]=yborder[j];
-	m++;
+        xposis[m]=xborder[j];
+        yposis[m]=yborder[j];
+        m++;
       }
       n++;
     }
   }
-//####################################################################
-//cerr << "recalcCombineMatrix  nborders=" << nborders << endl;
-//for (int nb=0; nb<nborders; nb++) {
-//  cerr<<"PRE CONV border "<<nb<<endl;
-//  for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-//    cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
-//}
-//####################################################################
+  //####################################################################
+  //cerr << "recalcCombineMatrix  nborders=" << nborders << endl;
+  //for (int nb=0; nb<nborders; nb++) {
+  //  cerr<<"PRE CONV border "<<nb<<endl;
+  //  for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
+  //    cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
+  //}
+  //####################################################################
 
   Area oldArea= plotm->getMapArea();
   Area newArea= fedits[0]->editfield->area;
@@ -2265,13 +2277,13 @@ bool EditManager::recalcCombineMatrix(){
     cerr << "changeProjection: getPoints error" << endl;
     return false;
   }
-//####################################################################
-//for (int nb=0; nb<nborders; nb++) {
-//  cerr<<"AFTER CONV border "<<nb<<endl;
-//  for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-//    cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
-//}
-//####################################################################
+  //####################################################################
+  //for (int nb=0; nb<nborders; nb++) {
+  //  cerr<<"AFTER CONV border "<<nb<<endl;
+  //  for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
+  //    cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
+  //}
+  //####################################################################
 
   // Splines as shown (maybe approx due to map conversion...)
   int ndivs= 5;
@@ -2284,8 +2296,8 @@ bool EditManager::recalcCombineMatrix(){
     int nfirst= 0;
     int nlast=  numv[i] - 1;
     int ns= fedits[0]->smoothline(numv[i], &xposis[is], &yposis[is],
-	                          nfirst, nlast, ndivs,
-                                  &xpos[npos], &ypos[npos]);
+        nfirst, nlast, ndivs,
+        &xpos[npos], &ypos[npos]);
     startv[i]= npos;
     numv[i]= ns;
     npos+=ns;
@@ -2311,10 +2323,10 @@ bool EditManager::recalcCombineMatrix(){
     crossing = false;
     for (int j=startv[i]; j<numv[i]+startv[i]; j++){
       if (!r.isnear(xpos[j],ypos[j])){
-	if (j==startv[i]) break;
-	crossing= true;
-	crossp[i]= j-1;
-	break;
+        if (j==startv[i]) break;
+        crossing= true;
+        crossp[i]= j-1;
+        break;
       }
     }
 
@@ -2364,7 +2376,7 @@ bool EditManager::recalcCombineMatrix(){
   for (int j=0; j<4; j++)
     for (int i=0; i<n; i++)
       if (quadr[i]==j)
-	legorder.push_back(i);
+        legorder.push_back(i);
 
   int numlegs= legorder.size();
   for (int j=1; j<numlegs; j++){
@@ -2372,17 +2384,17 @@ bool EditManager::recalcCombineMatrix(){
     while ((k<numlegs) && (quadr[legorder[k]]==quadr[legorder[k-1]])){
       bool swap= false;
       if (quadr[legorder[k]]==0)
-	swap= (crossx[legorder[k]]> crossx[legorder[k-1]]);
+        swap= (crossx[legorder[k]]> crossx[legorder[k-1]]);
       else if (quadr[legorder[k]]==1)
-	swap= (crossy[legorder[k]]< crossy[legorder[k-1]]);
+        swap= (crossy[legorder[k]]< crossy[legorder[k-1]]);
       else if (quadr[legorder[k]]==2)
-	swap= (crossx[legorder[k]]> crossx[legorder[k-1]]);
+        swap= (crossx[legorder[k]]> crossx[legorder[k-1]]);
       else
-	swap= (crossy[legorder[k]]> crossy[legorder[k-1]]);
+        swap= (crossy[legorder[k]]> crossy[legorder[k-1]]);
       if (swap){
-	int tmp= legorder[k];
-	legorder[k]= legorder[k-1];
-	legorder[k-1]= tmp;
+        int tmp= legorder[k];
+        legorder[k]= legorder[k-1];
+        legorder[k-1]= tmp;
       }
       k++;
     }
@@ -2410,27 +2422,27 @@ bool EditManager::recalcCombineMatrix(){
 
 
     if ((quadr[next]!=quadr[idx]) || // check if jumping to new quadrant
-	(i==numlegs-1)){ // or last polygon
+        (i==numlegs-1)){ // or last polygon
       // add rectangle corners
       int k= quadr[next];
       bool first= true;
       while (k!=quadr[idx] || first){
-	if (k==0){
-	  P[i].x.push_back(r.x2+1);
-	  P[i].y.push_back(r.y1-1);
-	} else if (k==1){
-	  P[i].x.push_back(r.x1-1);
-	  P[i].y.push_back(r.y1-1);
-	} else if (k==2){
-	  P[i].x.push_back(r.x1-1);
-	  P[i].y.push_back(r.y2+1);
-	} else {
-	  P[i].x.push_back(r.x2+1);
-	  P[i].y.push_back(r.y2+1);
-	}
-	k--;
-	if (k==-1) k=3;
-	first= false;
+        if (k==0){
+          P[i].x.push_back(r.x2+1);
+          P[i].y.push_back(r.y1-1);
+        } else if (k==1){
+          P[i].x.push_back(r.x1-1);
+          P[i].y.push_back(r.y1-1);
+        } else if (k==2){
+          P[i].x.push_back(r.x1-1);
+          P[i].y.push_back(r.y2+1);
+        } else {
+          P[i].x.push_back(r.x2+1);
+          P[i].y.push_back(r.y2+1);
+        }
+        k--;
+        if (k==-1) k=3;
+        first= false;
       }
     }
 
@@ -2479,7 +2491,7 @@ bool EditManager::recalcCombineMatrix(){
       if (j1<0)  j1= 0;
       if (j2>ny) j2= ny;
       for (j=j1; j<j2; j++) {
-	i= int(x1 + (x2-x1) * (float(j)-y1)/(y2-y1) + 1.) - 1;
+        i= int(x1 + (x2-x1) * (float(j)-y1)/(y2-y1) + 1.) - 1;
         if      (i<0)    mark[j*nx]++;
         else if (i<nx-1) mark[j*nx+i+1]++;
       }
@@ -2569,7 +2581,7 @@ void EditManager::plot(bool under, bool over)
 {
 #ifdef DEBUGPRINT
   cerr << "EditManager::plot  under="<<under<<"  over="<<over
-       <<"  showRegion="<<showRegion<<endl;
+  <<"  showRegion="<<showRegion<<endl;
 #endif
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
@@ -2604,10 +2616,10 @@ void EditManager::plot(bool under, bool over)
 
 #ifdef DEBUGPRINT
   cerr<<" plototherfield="<<plototherfield
-      <<" plotactivefield="<<plotactivefield
-      <<" plotobjects="<<plotobjects
-      <<" plotinfluence="<<plotinfluence
-      <<" plotregion="<<plotregion<<endl;
+  <<" plotactivefield="<<plotactivefield
+  <<" plotobjects="<<plotobjects
+  <<" plotinfluence="<<plotinfluence
+  <<" plotregion="<<plotregion<<endl;
 #endif
 
   if (plotcombine && under){
@@ -2621,9 +2633,9 @@ void EditManager::plot(bool under, bool over)
       if (fedits[i]->editfield && fedits[i]->editfieldplot) {
         bool act= fedits[i]->activated();
         if ((act && plotactivefield) || (!act && plototherfield)){
-	  //cerr << "  Plotting field " << i << endl;
-	  fedits[i]->plot(plotinfluence);
-	}
+          //cerr << "  Plotting field " << i << endl;
+          fedits[i]->plot(plotinfluence);
+        }
       }
     }
   }
@@ -2643,32 +2655,32 @@ void EditManager::plot(bool under, bool over)
     if (nf > 0 && plotm->getMapArea().P() != fedits[0]->editfield->area.P() ) {
       int npos= 0;
       for (int i=0; i<n; i++)
-	if (plotm->combiningobjects.objects[i]->objectIs(Border))
+        if (plotm->combiningobjects.objects[i]->objectIs(Border))
           npos+=plotm->combiningobjects.objects[i]->getXYZsize();
       float *x= new float[npos*2];
       float *y= new float[npos*2];
       npos= 0;
       for (int i=0; i<n; i++) {
-	if (plotm->combiningobjects.objects[i]->objectIs(Border)){
-	  vector <float> xborder=plotm->combiningobjects.objects[i]->getX();
-	  vector <float> yborder=plotm->combiningobjects.objects[i]->getY();
+        if (plotm->combiningobjects.objects[i]->objectIs(Border)){
+          vector <float> xborder=plotm->combiningobjects.objects[i]->getX();
+          vector <float> yborder=plotm->combiningobjects.objects[i]->getY();
           int np= plotm->combiningobjects.objects[i]->getXYZsize();
-	  for (int j=0; j<np; j++) {
-	    x[npos]  = xborder[j];
-	    y[npos++]= yborder[j];
-	    x[npos]  = xborder[j] + 1.0;
-	    y[npos++]= yborder[j] + 1.0;
-	  }
-	}
+          for (int j=0; j<np; j++) {
+            x[npos]  = xborder[j];
+            y[npos++]= yborder[j];
+            x[npos]  = xborder[j] + 1.0;
+            y[npos++]= yborder[j] + 1.0;
+          }
+        }
       }
       if (gc.getPoints(plotm->getMapArea(),fedits[0]->editfield->area,npos,x,y)) {
-	float s= 0.;
-	for (int j=0; j<npos; j+=2) {
-	  float dx= x[j] - x[j+1];
-	  float dy= y[j] - y[j+1];
-	  s+= sqrtf(dx*dx+dy*dy)/sqrtf(2.0);
-	}
-	scale= npos*0.5/s;
+        float s= 0.;
+        for (int j=0; j<npos; j+=2) {
+          float dx= x[j] - x[j+1];
+          float dy= y[j] - y[j+1];
+          s+= sqrtf(dx*dx+dy*dy)/sqrtf(2.0);
+        }
+        scale= npos*0.5/s;
       } else {
         cerr << "EditManager::plot : getPoints error" << endl;
       }
@@ -2722,16 +2734,16 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
   //change projection if needed
   if ( obsPositions.obsArea.P() != fedits[0]->editfield->area.P() ){
     gc.getPoints(obsPositions.obsArea, fedits[0]->editfield->area,
-		 obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
+        obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fedits[0]->editfield->area;
   }
 
   //get values
   int interpoltype=1;
   if (!fedits[0]->editfield->interpolate(obsPositions.numObs,
-					 obsPositions.xpos, obsPositions.ypos,
-			      		 obsPositions.values,
-					 interpoltype)) return false;
+      obsPositions.xpos, obsPositions.ypos,
+      obsPositions.values,
+      interpoltype)) return false;
 
   return true;
 }
@@ -2754,12 +2766,12 @@ void EditManager::initEditTools(){
   eToolFieldStandard.push_back(newEditToolInfo("Line, without smooth",edit_line));
   eToolFieldStandard.push_back(newEditToolInfo("Line, with smooth",edit_line_smooth));
   eToolFieldStandard.push_back(newEditToolInfo("Line, limited, without smooth",
-  								   edit_line_limited));
+      edit_line_limited));
   eToolFieldStandard.push_back(newEditToolInfo("Line, limited, with smooth",
-  								   edit_line_limited_smooth));
+      edit_line_limited_smooth));
   eToolFieldStandard.push_back(newEditToolInfo("Smooth",           edit_smooth));
   eToolFieldStandard.push_back(newEditToolInfo("Replace undefined values",
-  								   edit_replace_undef));
+      edit_replace_undef));
 
   eToolFieldClasses.push_back(newEditToolInfo("Line",             edit_class_line));
   eToolFieldClasses.push_back(newEditToolInfo("Copy value",      edit_class_copy));
@@ -2771,7 +2783,7 @@ void EditManager::initEditTools(){
   eToolFieldNumbers.push_back(newEditToolInfo("Set undefined",    edit_set_undef));
   eToolFieldNumbers.push_back(newEditToolInfo("Smooth",            edit_smooth));
   eToolFieldNumbers.push_back(newEditToolInfo("Replace undefined values",
-  								   edit_replace_undef));
+      edit_replace_undef));
 
   // draw_mode types
   fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
@@ -2824,51 +2836,51 @@ void EditManager::initEditTools(){
 
 
   // draw_mode types
-//   fronts.push_back(newEditToolInfo("Kaldfront",Cold,"blue"));
-//   fronts.push_back(newEditToolInfo("Varmfront",Warm,"red"));
-//   fronts.push_back(newEditToolInfo("Okklusjon",Occluded,"purple"));
-//   fronts.push_back(newEditToolInfo("KaldOkklusjon",ColdOccluded,"blue"));
-//   fronts.push_back(newEditToolInfo("VarmOkklusjon",WarmOccluded,"red"));
-//   fronts.push_back(newEditToolInfo("Stasjonær front",Stationary,"grey50"));
-//   fronts.push_back(newEditToolInfo("Tråg",TroughLine,"blue"));
-//   fronts.push_back(newEditToolInfo("Bygelinje",SquallLine,"blue"));
-//   fronts.push_back(newEditToolInfo("Sig.vær",SigweatherFront,"black"));
+  //   fronts.push_back(newEditToolInfo("Kaldfront",Cold,"blue"));
+  //   fronts.push_back(newEditToolInfo("Varmfront",Warm,"red"));
+  //   fronts.push_back(newEditToolInfo("Okklusjon",Occluded,"purple"));
+  //   fronts.push_back(newEditToolInfo("KaldOkklusjon",ColdOccluded,"blue"));
+  //   fronts.push_back(newEditToolInfo("VarmOkklusjon",WarmOccluded,"red"));
+  //   fronts.push_back(newEditToolInfo("Stasjonær front",Stationary,"grey50"));
+  //   fronts.push_back(newEditToolInfo("Tråg",TroughLine,"blue"));
+  //   fronts.push_back(newEditToolInfo("Bygelinje",SquallLine,"blue"));
+  //   fronts.push_back(newEditToolInfo("Sig.vær",SigweatherFront,"black"));
 
-//   symbols.push_back(newEditToolInfo("Lavtrykk",242,"red"));
-//   symbols.push_back(newEditToolInfo("Høytrykk",243,"blue"));
-//   symbols.push_back(newEditToolInfo("Kald",244,"blue"));\
-//   symbols.push_back(newEditToolInfo("Varm",245,"red"));
-//   symbols.push_back(newEditToolInfo("Tåke",62,"darkYellow"));
-//   symbols.push_back(newEditToolInfo("Yr",80,"green"));
-//   symbols.push_back(newEditToolInfo("Yr som fryser",83,"red"));
-//   symbols.push_back(newEditToolInfo( "Regn som fryser",93,"red"));
-//   symbols.push_back(newEditToolInfo( "Byger",109,"green"));
-//   symbols.push_back(newEditToolInfo( "Regnbyger",110,"green"));
-//   symbols.push_back(newEditToolInfo( "Regn",89,"green"));
-//   symbols.push_back(newEditToolInfo( "Sluddbyger",126,"green"));
-//   symbols.push_back(newEditToolInfo( "Haglbyger",117,"green"));
-//   symbols.push_back(newEditToolInfo( "Snøbyger",114,"green"));
-//   symbols.push_back(newEditToolInfo( "Tordenvær",119,"red"));
-//   symbols.push_back(newEditToolInfo( "Tordenvær m/hagl",122,"red"));
-//   symbols.push_back(newEditToolInfo( "Snøstjerne",254,"green"));
-//   symbols.push_back(newEditToolInfo( "Tropisk orkan",253,"black"));
-//   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
-//   symbols.push_back(newEditToolInfo( "Sirkel",35,"blue"));
-//   symbols.push_back(newEditToolInfo( "Kryss",255,"red"));
-//   symbols.push_back(newEditToolInfo("Tekster",0,"black"));
+  //   symbols.push_back(newEditToolInfo("Lavtrykk",242,"red"));
+  //   symbols.push_back(newEditToolInfo("Høytrykk",243,"blue"));
+  //   symbols.push_back(newEditToolInfo("Kald",244,"blue"));\
+  //   symbols.push_back(newEditToolInfo("Varm",245,"red"));
+  //   symbols.push_back(newEditToolInfo("Tåke",62,"darkYellow"));
+  //   symbols.push_back(newEditToolInfo("Yr",80,"green"));
+  //   symbols.push_back(newEditToolInfo("Yr som fryser",83,"red"));
+  //   symbols.push_back(newEditToolInfo( "Regn som fryser",93,"red"));
+  //   symbols.push_back(newEditToolInfo( "Byger",109,"green"));
+  //   symbols.push_back(newEditToolInfo( "Regnbyger",110,"green"));
+  //   symbols.push_back(newEditToolInfo( "Regn",89,"green"));
+  //   symbols.push_back(newEditToolInfo( "Sluddbyger",126,"green"));
+  //   symbols.push_back(newEditToolInfo( "Haglbyger",117,"green"));
+  //   symbols.push_back(newEditToolInfo( "Snøbyger",114,"green"));
+  //   symbols.push_back(newEditToolInfo( "Tordenvær",119,"red"));
+  //   symbols.push_back(newEditToolInfo( "Tordenvær m/hagl",122,"red"));
+  //   symbols.push_back(newEditToolInfo( "Snøstjerne",254,"green"));
+  //   symbols.push_back(newEditToolInfo( "Tropisk orkan",253,"black"));
+  //   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
+  //   symbols.push_back(newEditToolInfo( "Sirkel",35,"blue"));
+  //   symbols.push_back(newEditToolInfo( "Kryss",255,"red"));
+  //   symbols.push_back(newEditToolInfo("Tekster",0,"black"));
 
-// //   symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
-// //   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));
-// //   symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
+  // //   symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
+  // //   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));
+  // //   symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
 
-//   areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
-//   areas.push_back(newEditToolInfo("Byger",Showers,"green3"));
-//   areas.push_back(newEditToolInfo("Skyer",Clouds,"orange"));
-//   areas.push_back(newEditToolInfo("Tåke",Fog,"darkGray"));
-//   areas.push_back(newEditToolInfo("Is",Ice,"darkYellow"));
-//   areas.push_back(newEditToolInfo("Sig.vær",Sigweather,"black"));
-//   areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"gulbrun"));
-//   areas.push_back(newEditToolInfo("Generisk område",Genericarea,"red"));
+  //   areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
+  //   areas.push_back(newEditToolInfo("Byger",Showers,"green3"));
+  //   areas.push_back(newEditToolInfo("Skyer",Clouds,"orange"));
+  //   areas.push_back(newEditToolInfo("Tåke",Fog,"darkGray"));
+  //   areas.push_back(newEditToolInfo("Is",Ice,"darkYellow"));
+  //   areas.push_back(newEditToolInfo("Sig.vær",Sigweather,"black"));
+  //   areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"gulbrun"));
+  //   areas.push_back(newEditToolInfo("Generisk område",Genericarea,"red"));
 
 
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black"));
@@ -2937,7 +2949,7 @@ void EditManager::initEditTools(){
   //showers
   sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green"));
   //Freezing precip
-   sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red"));
+  sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red"));
 
 
 
@@ -3019,7 +3031,7 @@ void EditManager::setMapmodeinfo(){
   WeatherSymbol::defineRegions(regions);
   EditObjects::defineModes(objectModes,combineModes);
   WeatherSymbol::setStandardSize(EdProd.standardSymbolSize,
-				 EdProd.complexSymbolSize);
+      EdProd.complexSymbolSize);
   WeatherFront::setDefaultLineWidth(EdProd.frontLineWidth);
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
 
@@ -3075,9 +3087,9 @@ const miString EditManager::insertTime(const miString& s, const miTime& time) {
 //useful functions not belonging to EditManager
 
 editToolInfo newEditToolInfo(const miString & newName,
-			     const int newIndex,
-			     const miString & newColour,
-			     const miString & newBorderColour){
+    const int newIndex,
+    const miString & newColour,
+    const miString & newBorderColour){
   editToolInfo eToolInfo;
   eToolInfo.name=  newName;
   eToolInfo.index= newIndex;
@@ -3087,7 +3099,7 @@ editToolInfo newEditToolInfo(const miString & newName,
 }
 
 editModeInfo newEditModeInfo(const miString & newmode,
-			     const vector <editToolInfo> newtools){
+    const vector <editToolInfo> newtools){
   editModeInfo eModeInfo;
   eModeInfo.editmode=newmode;
   eModeInfo.edittools=newtools;
@@ -3096,7 +3108,7 @@ editModeInfo newEditModeInfo(const miString & newmode,
 
 
 mapModeInfo newMapModeInfo(const miString & newmode,
-			   const vector <editModeInfo> newmodeinfo){
+    const vector <editModeInfo> newmodeinfo){
   mapModeInfo mModeInfo;
   mModeInfo.mapmode= newmode;
   mModeInfo.editmodeinfo= newmodeinfo;

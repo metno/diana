@@ -249,7 +249,7 @@ void SetupParser::splitKeyValue(const miString& s,
 void SetupParser::splitKeyValue(const miString& s,
     miString& key, vector<miString>& value) {
   value.clear();
-  vector<miString> vs= s.split(2,'=',true);
+  vector<miString> vs= s.split(1,'=',true);
   if (vs.size()==2) {
     key=vs[0].downcase(); // always converting keyword to lowercase !
     vector<miString> vv= vs[1].split(',',true);

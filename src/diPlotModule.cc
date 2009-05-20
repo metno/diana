@@ -1085,11 +1085,9 @@ void PlotModule::updatePlots()
   if (!mapdefined && (vop.size() > 0 || objects.defined || locationPlots.size()
       > 0)) {
     // obs or objects on initial map ... change to "Atlant" area
-    float gs[Projection::speclen] = { 54., 52., 79., 0., 0., 0. };
-    float rx1 = 20., rx2 = 76., ry1 = 9., ry2 = 59.;
-    Projection p(Projection::polarstereographic_60, gs);
-    Rectangle r(rx1, ry1, rx2, ry2);
-    Area a(p, r);
+    miString areaString = "proj=pstereo_60 grid=54:52:79:0:0:0 area=21:77:10:60";
+    Area a;
+    a.setAreaFromLog(areaString);
     splot.setMapArea(a, keepcurrentarea);
     mapdefined = mapDefinedByNeed = true;
   }
@@ -1100,11 +1098,9 @@ void PlotModule::updatePlots()
 
   if (!mapdefined) {
     // no data on initial map ... change to "Hirlam.50km" projection and area
-    float gs[Projection::speclen] = { -46.5, -36.5, 0.5, 0.5, 0., 65. };
-    float rx1 = 0., rx2 = 187., ry1 = 0., ry2 = 151.;
-    Projection p(Projection::spherical_rotated, gs);
-    Rectangle r(rx1, ry1, rx2, ry2);
-    Area a(p, r);
+    miString areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
+    Area a;
+    a.setAreaFromLog(areaString);
     splot.setMapArea(a, keepcurrentarea);
     mapdefined = mapDefinedByView = true;
   }

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -42,7 +42,7 @@ GridConverter Plot::gc;    // Projection-converter
 miTime Plot::ctime;        // current time
 float Plot::pwidth=0;      // physical plotwidth
 float Plot::pheight=0;     // physical plotheight
-float Plot::gcd=0;         // great circle distance (corner to corner) 
+float Plot::gcd=0;         // great circle distance (corner to corner)
 FontManager* Plot::fp=0;   // master fontpack
 bool Plot::dirty=true;     // plotsize has changed
 SetupParser Plot::setup;   // setup-info and parser class
@@ -60,7 +60,7 @@ vector<float> Plot::xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
 // Default constructor
 Plot::Plot()
   : enabled(true),datachanged(true),rgbmode(true){
-  
+
   if (!fp) fp= new FontManager();
 }
 
@@ -79,21 +79,21 @@ void Plot::enable(const bool f){
 }
 
 bool Plot::setMapArea(const Area& a, bool keepcurrentarea){
-  if (a.P().Gridtype()!=Projection::undefined_projection){
+  if (a.P().defined()){
     // change plot-Area
     area= a;
     if (!keepcurrentarea) {
       if (xyLimit.size()==4) {
-	Rectangle rect(xyLimit[0],xyLimit[2],xyLimit[1],xyLimit[3]);
-	area.setR(rect);
+        Rectangle rect(xyLimit[0],xyLimit[2],xyLimit[1],xyLimit[3]);
+        area.setR(rect);
       } else if (xyPart.size()==4) {
-	Rectangle rect1= area.R();
-	Rectangle rect;
-	rect.x1= rect1.x1 + rect1.width() *xyPart[0];
-	rect.x2= rect1.x1 + rect1.width() *xyPart[1];
-	rect.y1= rect1.y1 + rect1.height()*xyPart[2];
-	rect.y2= rect1.y1 + rect1.height()*xyPart[3];
-	area.setR(rect);
+        Rectangle rect1= area.R();
+        Rectangle rect;
+        rect.x1= rect1.x1 + rect1.width() *xyPart[0];
+        rect.x2= rect1.x1 + rect1.width() *xyPart[1];
+        rect.y1= rect1.y1 + rect1.height()*xyPart[2];
+        rect.y2= rect1.y1 + rect1.height()*xyPart[3];
+        area.setR(rect);
       }
     }
     setDirty(true);
@@ -101,11 +101,11 @@ bool Plot::setMapArea(const Area& a, bool keepcurrentarea){
   } else {
     // undefined projection
     // if grid[0]=0, Area should not be set
-    float gridspec[Projection::speclen];
-    a.P().Gridspec(gridspec);
-    if (gridspec[0]==0){
-      return false;
-    }
+//    float gridspec[Projection::speclen];
+//    a.P().Gridspec(gridspec);
+//    if (gridspec[0]==0){
+//      return false;
+//    }
     // use previous defined Area
     // add support for pure rotation later
     return true;
@@ -143,14 +143,14 @@ void Plot::getPhysSize(float& w, float& h){
 Area Plot::findBestMatch(const Area& newa){
   Area a= newa;
   // NEW - ADC 9.12.2002
-  if (area.P() == Projection::undefined_projection)
+  if (!area.P().defined())
     return a;
   //-----
 
   int npos= 4;
   float *xpos = new float[npos];
   float *ypos = new float[npos];
-  
+
   xpos[0]= area.R().x1;
   ypos[0]= area.R().y1;
   xpos[1]= area.R().x1;
@@ -241,7 +241,7 @@ miString Plot::getPlotInfo(int n)
 
 bool Plot::startPSoutput(const printOptions& po){
   if (hardcopy) return false;
-  
+
   printOptions pro= po;
   int feedsize= 30000000;
   int print_options= 0;
@@ -260,17 +260,17 @@ bool Plot::startPSoutput(const printOptions& po){
     backgroundColour.fB()*0.0820 +
     backgroundColour.fG()*0.6094 +
     backgroundColour.fR()*0.3086;
-    
+
     if (bci < 0.2)
     print_options= print_options | GLP_REVERSE;
     */
-    
+
     if (pro.drawbackground)
       print_options= print_options | GLP_DRAW_BACKGROUND;
-    
+
   } else if (pro.colop==blackwhite) {
     print_options= print_options | GLP_BLACKWHITE;
-    
+
   } else {
     if (pro.drawbackground)
       print_options= print_options | GLP_DRAW_BACKGROUND;
@@ -291,7 +291,7 @@ bool Plot::startPSoutput(const printOptions& po){
   float scale= 1.0;
   if (abs(pro.papersize.vsize>0))
     scale= a4size.vsize/pro.papersize.vsize;
-  
+
   // check if extra output-commands
   map<string,string> extra;
   printman.checkSpecial(pro,extra);
