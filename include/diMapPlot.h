@@ -11,7 +11,7 @@
  0313 OSLO
  NORWAY
  email: diana@met.no
- 
+
  This file is part of Diana
 
  Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -45,7 +45,7 @@ using namespace std;
 /**
 
  \brief Map layer plotting
- 
+
  plots the map layer
  - simple coastlines plotting
  - filled land type (precalculated triangles)
@@ -73,7 +73,7 @@ private:
   static map<miString,ShapeObject> shapemaps;
   static map<miString,Area> shapeareas;
 
-  void xyclip(int, float[], float[], float[]);
+  void xyclip(int, float[], float[], float[], float);
   bool pland4(const miString&, int, float[], float[], const Linetype&, float,
       const Colour&);
   bool geoGrid(float latitudeStep, float longitudeStep, int plotResolution= 10);
