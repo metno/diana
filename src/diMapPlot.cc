@@ -11,7 +11,7 @@
  0313 OSLO
  NORWAY
  email: diana@met.no
- 
+
  This file is part of Diana
 
  Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -135,7 +135,7 @@ bool MapPlot::prepare(const miString& pinfo, bool ifequal)
   }
   areadefined= areadef;
 
-  // fill in new options for mapinfo and make proper PlotOptions 
+  // fill in new options for mapinfo and make proper PlotOptions
   // the different map-elements
   mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, llopts, ffopts);
 
@@ -211,7 +211,7 @@ bool MapPlot::plot(const int zorder)
     haspanned= false;
   }
 
-  bool frameok = (reqarea.P().Gridtype()!=Projection::undefined_projection);
+  bool frameok = (reqarea.P().defined());
   bool makenew= false;
   bool makelist= false;
 
@@ -267,10 +267,11 @@ bool MapPlot::plot(const int zorder)
       // check contours
       if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
         Projection p= area.P();
+        // TODO: PROJ-stuff
         float gs[Projection::speclen];
-        p.Gridspec(gs);
+        p.metno_Gridspecstd(gs);
         float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
-        if (!pland4(mapfile, p.Gridtype(), gs, xylim, contopts.linetype,
+        if (!pland4(mapfile, p.metno_Gridtype(), gs, xylim, contopts.linetype,
             contopts.linewidth, c))
           cerr << "ERROR OPEN/READ " << mapfile << endl;
       }
@@ -302,16 +303,19 @@ bool MapPlot::plot(const int zorder)
       bool cont= mapinfo.contour.ison && mapinfo.contour.zorder==zorder;
 
       Projection p= area.P();
+/*
+ * PROJWORK
       float gs[Projection::speclen];
       p.Gridspec(gs);
       int gtype= p.Gridtype();
       float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
+*/
       Colour c= contopts.linecolour;
 
       if (shapemaps.count(mapfile) == 0) {
-#ifdef DEBUGPRINT        
+#ifdef DEBUGPRINT
         cerr << "Creating new shapeObject for map: " << mapfile << endl;
-#endif        
+#endif
         shapemaps[mapfile] = ShapeObject();
         shapemaps[mapfile].read(mapfile,true);
         shapeareas[mapfile] = Area(area);
@@ -319,9 +323,9 @@ bool MapPlot::plot(const int zorder)
       if (shapeareas[mapfile].P() != area.P()) {
 #ifdef DEBUGPRINT
         cerr << "Projection wrong for: " << mapfile << endl;
-#endif        
+#endif
         bool success = shapemaps[mapfile].changeProj(shapeareas[mapfile]);
-        
+
         // Reread file if unsuccessful
         if(!success) {
           shapemaps[mapfile] = ShapeObject();
@@ -523,6 +527,8 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
   short int ilevel1[mlevel1][5];
   short int ilevel2[mlevel2][5];
 
+  float jumplimit = 1000;
+
   // a geographic grid that matches longitude,latitude coordinates
   int igeogrid = 2;
   float geogrid[6] = { 1., 1., 1., 1., 0., 0. };
@@ -669,7 +675,7 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 	  xyconvert(np,x,y,igeogrid,geogrid,
 		    gridtype,gridparam,&ierror);
 	  if (gridtype==1 || gridtype==4) {
-	    xyclip(np,&x[0],&y[0],&xylim[0]);                         
+	    xyclip(np,&x[0],&y[0],&xylim[0],jumplimit);
 	  } else {
 	    // some problems handled here (but not good, may loose lines)
 	    // skip lines crossing the 180 degrees meridian
@@ -677,13 +683,13 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 	    for (i=1; i<np; ++i) {
 	      if (fabsf(x[i-1]-x[i])>dxbad) {
 		// plot (part of line inside xylim area)
-		if (i-ibgn>1) xyclip(i-ibgn,&x[ibgn],&y[ibgn],&xylim[0]);                
+		if (i-ibgn>1) xyclip(i-ibgn,&x[ibgn],&y[ibgn],&xylim[0],jumplimit);
 		ibgn=i;
 	      }
 	    }
 	    // plot (part of line inside xylim area)
-            if (np-ibgn>1) xyclip(np-ibgn,&x[ibgn],&y[ibgn],&xylim[0]);
-	  }	
+            if (np-ibgn>1) xyclip(np-ibgn,&x[ibgn],&y[ibgn],&xylim[0],jumplimit);
+	  }
 	  x[0]= x1;
 	  y[0]= y1;
 	  np= 1;
@@ -902,7 +908,7 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 		  xyconvert(np,x,y,igeogrid,geogrid,
 			    gridtype,gridparam,&ierror);
 	          if (gridtype==1 || gridtype==4) {
-		    xyclip(np,&x[0],&y[0],&xylim[0]);
+		    xyclip(np,&x[0],&y[0],&xylim[0],jumplimit);
 		  } else {
 		    // some problems handled here (but not good, may loose lines)
 		    // skip lines crossing the 180 degrees meridian
@@ -910,14 +916,14 @@ bool MapPlot::pland4(const miString& filename, int gridtype, float gridparam[],
 		    for (i=1; i<np; ++i) {
 		      if (fabsf(x[i-1]-x[i])>dxbad) {
 			// plot (part of line inside xylim area)
-			if (i-ibgn>1) xyclip(i-ibgn,&x[ibgn],&y[ibgn],&xylim[0]);
+			if (i-ibgn>1) xyclip(i-ibgn,&x[ibgn],&y[ibgn],&xylim[0],jumplimit);
 			ibgn=i;
 		      }
 		    }
 		    // plot (part of line inside xylim area)
-                    if (np-ibgn>1) xyclip(np-ibgn,&x[ibgn],&y[ibgn],&xylim[0]);
+		    if (np-ibgn>1) xyclip(np-ibgn,&x[ibgn],&y[ibgn],&xylim[0],jumplimit);
 		  }
-	       
+
 		  x[0]= x1;
 		  y[0]= y1;
 		  np= 1;
@@ -940,6 +946,12 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
     int plotResolution)
 {
 
+  Projection p= area.P();
+  if (!p.defined()) {
+    cerr<<"MapPlot::geoGrid ERROR: undefined projection"<<endl;
+    return false;
+  }
+
   if (latitudeStep<0.001 || longitudeStep<0.001) {
     cerr<<"MapPlot::geoGrid ERROR: latitude/longitude step"<<endl;
     return false;
@@ -952,16 +964,12 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
   if (plotResolution<1)
     plotResolution= 10;
 
-  Projection p= area.P();
+  // TODO: PROJ-stuff
+  //int gtype= Projection::generic;
+  int gtype= p.metno_Gridtype();
   float gs[Projection::speclen];
-  p.Gridspec(gs);
-  int gtype= p.Gridtype();
+  p.metno_Gridspecstd(gs);
   float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
-
-  if (gtype==Projection::undefined_projection) {
-    cerr<<"MapPlot::geoGrid ERROR: undefined projection"<<endl;
-    return false;
-  }
 
   // find (approx.) geographic area on map
 
@@ -1027,12 +1035,40 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
   bool rotated= false;
   float xPole, yPole, compLat;
   float dxmax, rotLon1, rotLon2, rotLon3, xrot[5], yrot[5];
+  float jumplimit = 1000;
 
-  if (gtype==Projection::polarstereographic_60 || gtype
+  if (gtype == Projection::generic){
+    //cerr << "longitude=" << lonmin << " -> " << lonmax << "  latitude=" << latmin << " -> " << latmax << endl;
+
+    lonmin = -180;
+    lonmax = 180;
+    latmin = -90;
+    latmax = 90;
+
+    bool cutsouth = !area.P().isLegal(0.0,-90.0);
+    bool cutnorth = !area.P().isLegal(0.0,90.0);
+    if (cutsouth && latmin < -89.95){
+      latmin = -89.95;
+    }
+    if (cutnorth && latmax > 89.95){
+      latmax = 89.95;
+    }
+
+    // find position of two geographic positions
+    float px[2] = {0.0, 0.0};
+    float py[2] = {45.0, -45.0};
+    int n = 2;
+    bool b = gc.geo2xy(area, n, px, py);
+    if (b){
+      jumplimit = fabsf(py[1]-py[0])/4;
+      cerr << "Found jumplimit = " << jumplimit << endl;
+    }
+
+  } else if (gtype==Projection::polarstereographic_60 || gtype
       ==Projection::polarstereographic) {
 
     if (gs[0]>=maprect.x1 && gs[0]<=maprect.x2 && gs[1]>=maprect.y1 && gs[1]
-        <=maprect.y2) {
+        <=maprect.y2) { // pole is inside area
       lonmin= -180.;
       lonmax= +180.;
       if (gs[4]>=0.0)
@@ -1040,6 +1076,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
       else
         latmin= -90.;
     }
+    // gs[4] equals projection latitude (degrees)
     if (gs[4]>=0.0 && latmin<-89.95)
       latmin= -89.95;
     if (gs[4]<=0.0 && latmax>+89.95)
@@ -1055,7 +1092,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
   } else if (gtype==Projection::geographic || gtype
       ==Projection::spherical_rotated) {
 
-    if (gs[4]==0.0 && gs[5]==0.0) {
+    if (gs[4]==0.0 && gs[5]==0.0) { // position of equator is normal
       straightLon= straightLat= true;
     } else {
       // check if North/South Pole inside
@@ -1133,18 +1170,18 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
     float py[2]= { 89.99, -89.99 };
     n= 2;
     if (gc.geo2xy(area,n,px,py)) {
-//    cerr<<"pole x,y= "<<px[0]<<" "<<py[0]<<endl;
+      //    cerr<<"pole x,y= "<<px[0]<<" "<<py[0]<<endl;
       if (px[0]>=maprect.x1 && px[0]<=maprect.x2 &&
-	  py[0]>=maprect.y1 && py[0]<=maprect.y2) {
-	lonmin= -180.;
-	lonmax= +180.;
-	latmax=  +90.;
+          py[0]>=maprect.y1 && py[0]<=maprect.y2) {
+        lonmin= -180.;
+        lonmax= +180.;
+        latmax=  +90.;
       }
       if (px[1]>=maprect.x1 && px[1]<=maprect.x2 &&
-	  py[1]>=maprect.y1 && py[1]<=maprect.y2) {
-	lonmin= -180.;
-	lonmax= +180.;
-	latmin=  -90.;
+          py[1]>=maprect.y1 && py[1]<=maprect.y2) {
+        lonmin= -180.;
+        lonmax= +180.;
+        latmin=  -90.;
       }
     }
     if(lonmin<-175.) lonmin=-180.;
@@ -1263,7 +1300,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
           }
           if (gc.geo2xy(area, nlat, x, y)) {
             if (!rotated) {
-              xyclip(nlat, x, y, xylim);
+              xyclip(nlat, x, y, xylim,jumplimit);
             } else {
               if (fabsf(glon-rotLon1)<longitudeStep*0.1) {
                 x[0]= xrot[2];
@@ -1281,7 +1318,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
               } else {
                 n= nlat;
               }
-              xyclip(n, x, y, xylim);
+              xyclip(n, x, y, xylim, jumplimit);
             }
           } else {
             geo2xyError= true;
@@ -1362,7 +1399,7 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
               x[n]= xPole + r*cx[n];
               y[n]= yPole + r*cy[n];
             }
-            xyclip(nlon, x, y, xylim);
+            xyclip(nlon, x, y, xylim, jumplimit);
           }
         } else {
           geo2xyError= true;
@@ -1390,8 +1427,8 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
       nlon+=(n1+n2);
       if (nlon < 1) {
         cerr << "** MapPlot::geoGrid ERROR in Curved Latitude lines, nlon="
-            << nlon << endl;
-	cerr << "lonmin,lonmax=" << lonmin <<","<< lonmax << endl; 
+        << nlon << endl;
+        cerr << "lonmin,lonmax=" << lonmin <<","<< lonmax << endl;
       } else {
         float *x= new float[nlon];
         float *y= new float[nlon];
@@ -1403,14 +1440,14 @@ bool MapPlot::geoGrid(float latitudeStep, float longitudeStep,
           }
           if (gc.geo2xy(area, nlon, x, y)) {
             if (!rotated) {
-              xyclip(nlon, x, y, xylim);
+              xyclip(nlon, x, y, xylim, jumplimit);
             } else {
               n=0;
               while (n<nlon) {
                 i=n++;
                 while (n<nlon && fabsf(x[n-1]-x[n])<dxmax)
                   n++;
-                xyclip(n-i, &x[i], &y[i], xylim);
+                xyclip(n-i, &x[i], &y[i], xylim, jumplimit);
               }
             }
           } else {
@@ -1444,10 +1481,12 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
   if (file.bad())
     return false;
 
+/*
   Projection p= area.P();
   float gs[Projection::speclen];
   p.Gridspec(gs);
   int gtype= p.Gridtype();
+*/
   float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
 
   Colour c= contopts.linecolour;
@@ -1471,6 +1510,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
   bool endline;
   int nlines= 0;
   int n= 0;
+  float jumplimit = 1000;
 
   while (!endfile) {
 
@@ -1498,7 +1538,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
       float xn= x[n-1];
       float yn= y[n-1];
       if (gc.geo2xy(area, n, x, y)) {
-        xyclip(n, x, y, xylim);
+        xyclip(n, x, y, xylim, jumplimit);
         nlines++;
       } else {
         cerr<<"MapPlot::plotLinesSimpleText  gc.geo2xy ERROR" << endl;
@@ -1522,7 +1562,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
   return (nlines>0);
 }
 
-void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
+void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4], float jumplimit)
 {
   //  plotter del(er) av sammenhengende linje som er innenfor gitt
   //  omraade, ogsaa linjestykker mellom 'nabopunkt' som begge er
@@ -1618,16 +1658,27 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
       // siste punkt paa linjestykke innenfor
       glBegin(GL_LINE_STRIP);
       glVertex2f(xint, yint);
-      for (i=nint+1; i<n; i++)
+      float oldx=xint, oldy=yint;
+      for (i=nint+1; i<n; i++){
+        if (fabsf(x[i]-oldx)>jumplimit || fabsf(y[i]-oldy)>jumplimit){
+          glEnd();
+          glBegin(GL_LINE_STRIP);
+        }
         glVertex2f(x[i], y[i]);
-      glVertex2f(xc[0], yc[0]);
+        oldx = x[i]; oldy=y[i];
+      }
+      if (fabsf(xc[0]-oldx)<jumplimit && fabsf(yc[0]-oldy)<jumplimit){
+        glVertex2f(xc[0], yc[0]);
+      }
       glEnd();
     } else if (nc>0) {
       // to 'nabopunkt' utenfor, men del av linja innenfor
-      glBegin(GL_LINE_STRIP);
-      glVertex2f(xc[0], yc[0]);
-      glVertex2f(xc[1], yc[1]);
-      glEnd();
+      if (fabsf(xc[1]-xc[0])<jumplimit && fabsf(yc[1]-yc[0])<jumplimit){
+        glBegin(GL_LINE_STRIP);
+        glVertex2f(xc[0], yc[0]);
+        glVertex2f(xc[1], yc[1]);
+        glEnd();
+      }
     }
   }
 
@@ -1635,8 +1686,16 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4])
     // siste punkt er innenfor omraadet
     glBegin(GL_LINE_STRIP);
     glVertex2f(xint, yint);
-    for (i=nint+1; i<npos; i++)
+    float oldx=xint, oldy=yint;
+    for (i=nint+1; i<npos; i++){
+      if (fabsf(x[i]-oldx)>jumplimit || fabsf(y[i]-oldy)>jumplimit){
+        glEnd();
+        glBegin(GL_LINE_STRIP);
+      }
       glVertex2f(x[i], y[i]);
+      oldx = x[i];
+      oldy=y[i];
+    }
     glEnd();
   }
 }
