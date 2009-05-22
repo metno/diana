@@ -256,9 +256,9 @@ bool FilledMap::readheader()
       float north = indata[wp + 5] * tscale;
 
       // mark tiles near the poles
-      if (south < -70)
+      if (south < -80) // 70
         groups[k].tiletype[i] = 2;
-      else if (north > 70)
+      else if (north > 80) // 70
         groups[k].tiletype[i] = 1;
       else
         groups[k].tiletype[i] = 0;
