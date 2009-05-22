@@ -388,20 +388,14 @@ bool FilledMap::plot(Area area, // current area
   geomin = geomin * geomin;
 
   if (area.P() != proj || startfresh) {
+    bool cutsouth = !area.P().isLegal(0.0,-90.0);
+    bool cutnorth = !area.P().isLegal(0.0,90.0);
+/*
     int gtype = area.P().Gridtype();
     float gspec[Projection::speclen];
     area.P().Gridspec(gspec);
     bool cutsouth = false;
     bool cutnorth = false;
-    //     cerr << "Area different - recalculate:" << gtype << endl;
-    //     cerr << "gridspec:" <<
-    //       gspec[0] << ":" <<
-    //       gspec[1] << ":" <<
-    //       gspec[2] << ":" <<
-    //       gspec[3] << ":" <<
-    //       gspec[4] << ":" <<
-    //       gspec[5] << endl;
-
     if (gtype == Projection::polarstereographic_60) {
       cutsouth = true;
     } else if (gtype == Projection::polarstereographic) {
@@ -415,6 +409,7 @@ bool FilledMap::plot(Area area, // current area
       else if (gspec[5] < 0)
         cutnorth = true;
     }
+*/
     // convert all borders to correct projection
     for (int i = 0; i < numGroups; i++) {
       int num = groups[i].numtiles;
@@ -448,7 +443,7 @@ bool FilledMap::plot(Area area, // current area
           groups[i].use[j] = false;
           continue;
         }
-        // if discontinuety in tile-borders: drop tile
+        // if discontinuity in tile-borders: drop tile
         if (((ctx[num4 + j] > ctx[bidx + 0]) && (ctx[num4 + j] > ctx[bidx + 1])
             && (ctx[num4 + j] > ctx[bidx + 2]) && (ctx[num4 + j]
             > ctx[bidx + 3])) ||
