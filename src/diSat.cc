@@ -244,8 +244,8 @@ void Sat::setDefaultValues(const SatDialogInfo & Dialog)
   //defaultHideColor;
 }
 
-/* * PURPOSE:   calculate and print the temperature or the albedo of 
- *            the pixel pointed at  
+/* * PURPOSE:   calculate and print the temperature or the albedo of
+ *            the pixel pointed at
  */
 void Sat::values(int x, int y, vector<SatValues>& satval)
 {
@@ -253,7 +253,7 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
   if (x>=0 && x<nx && y>=0 && y<ny && approved) { // inside image/legal image
     int index = nx*(ny-y-1) + x;
 
-    //return value from  all channels      
+    //return value from  all channels
 
     map<int,table_cal>::iterator p=calibrationTable.begin();
     map<int,table_cal>::iterator q=calibrationTable.end();
@@ -302,7 +302,7 @@ void Sat::setCalibration()
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setCalibration satellite_name: "<< satellite_name << endl;
-#endif  
+#endif
 
   cal_channels.clear();
   calibrationTable.clear();
@@ -315,7 +315,7 @@ void Sat::setCalibration()
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setCalibration -- palette: " << palette << endl;
-#endif  
+#endif
 
   if (palette) {
     miString name = start + paletteInfo.name;
@@ -331,7 +331,7 @@ void Sat::setCalibration()
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setCalibration -- cal_table.size(): " << cal_table.size() << endl;
-#endif  
+#endif
 
   //Table
   if (cal_table.size()>0) {
@@ -361,7 +361,7 @@ void Sat::setCalibration()
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setCalibration -- cal_vis.exists(): " << cal_vis.exists() << endl;
-#endif   
+#endif
 
   //Visual
   bool vis=false;
@@ -379,7 +379,7 @@ void Sat::setCalibration()
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setCalibration -- cal_ir.exists(): " << cal_ir.exists() << endl;
-#endif    
+#endif
 
   //Infrared
   bool ir = false;
@@ -515,44 +515,9 @@ void Sat::setArea()
   cerr << "Sat::setArea" << endl;
 #endif
 
-  // Convert to grid 
-  float xunit = 1000.0;
-  float yunit = 1000.0;
-  float earthRadius=6.371e+6;
-  float g[Projection::speclen]= {0., 0., 0., GridRot, TrueLat, 0.};
-  float h =(fabs(Ax)*xunit+fabs(Ay)*yunit)*0.5;
-  float fq = 1.0 + sin(fabs(TrueLat)*asin(1.0)/90.0);
-  //adjust grid parameters to get x=y=0 at the lower left corner of
-  //the image (and of the lower left pixel)
-  if (formatType == "hdf5") {
-#ifdef DEBUGPRINT
-    cerr << "Sat::setArea formatType: hdf5" << endl;
-#endif
-    g[0] -= Bx/fabs(Ax)-1;
-    g[1] -= By/fabs(Ay)-1;
-  } else if (formatType == "mitiff") {
-    g[0] -= Bx/fabs(Ax)-1;
-    g[1] -= By/fabs(Ay)-1-ny;
-  }
-  g[2] = earthRadius*fq/h;
-
-#ifdef DEBUGPRINT
-  cerr << "Sat::setArea TrueLat:" << TrueLat << endl;
-  cerr << "Sat::setArea GridRot:" << GridRot << endl;
-  cerr << "Sat::setArea Ax:" << Ax << endl;
-  cerr << "Sat::setArea Ay:" << Ay << endl;
-  cerr << "Sat::setArea h:" << h << endl;
-  cerr << "Sat::setArea fq:" << fq << endl;
-
-  for (int q = 0; q < 6; q++)
-    cerr << "Sat::setArea 1 g[" << q << "]:" << g[q] << endl;
-
-  cerr << "Sat::setArea nx: " << nx << endl;
-  cerr << "Sat::setArea ny: " << ny << endl;
-  cerr << "Sat::setArea hdf5type: " << hdf5type << endl;
-#endif
-
-  Projection p(Projection::polarstereographic, g);
+  Projection p;
+  int adjustGrid = (formatType=="mitiff") ? ny : 0;
+  p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid);
 
   Rectangle r(0., 0., nx, ny);
 

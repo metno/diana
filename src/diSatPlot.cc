@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -119,111 +119,41 @@ bool SatPlot::plot(){
   int nx= satdata->nx;
   int ny= satdata->ny;
 
-  float cvsat2map[6],cvmap2sat[6];
-
-  int mapconvert,ix1,ix2,iy1,iy2;
-  if(!gc.getGridConversion(satdata->area, area, maprect, mapconvert,
-		           cvsat2map, cvmap2sat, ix1, ix2, iy1, iy2))
-	return false;
-  if (mapconvert==1) {
-    // exit if rotation or x,y scaling<0
-    if (cvsat2map[1]<=0. || cvsat2map[2]!=0. ||
-	cvsat2map[4]!=0. || cvsat2map[5]<=0.) return false;
-    if (cvmap2sat[1]<=0. || cvmap2sat[2]!=0. ||
-	cvmap2sat[4]!=0. || cvmap2sat[5]<=0.) return false;
-  } else if (mapconvert!=0) {
-    // impossible mapconversion (without remaking image)
-    return false;
-  }
-
-  //Member variables, used in values().
-  xmin= cvsat2map[0];
-  ymin= cvsat2map[3];
-  xmax= cvsat2map[0]+cvsat2map[1]*nx;
-  ymax= cvsat2map[3]+cvsat2map[5]*ny;
-  
-
-  // exit if image is outside map area
-//###  if (maprect.x1 >= satdata->nx || maprect.x2 <= 0. ||
-//###      maprect.y1 >= satdata->ny || maprect.y2 <= 0.) return true;
-  if (maprect.x1 >= xmax || maprect.x2 <= xmin ||
-      maprect.y1 >= ymax || maprect.y2 <= ymin) return true;
-
-//###  // width of image (pixels)
-//###  int currwid, currhei;
-
   // scaling
   float scalex= float(pwidth) /fullrect.width();
   float scaley= float(pheight)/fullrect.height();
 
-//###  // bitmaps lower left corner
-//###  int bmStartx=0, bmStarty=0;
-//###
-//###  // bitmaps upper right corner
-//###  int bmStopx=0, bmStopy=0;
-//###
-  // bitmaps screen position (lower left) in world-coordinates
-//###  float grStartx, grStarty;
-//########  float grStopx, grStopy;
-//###  
-//###  // bitmap offset (out of valid area) ... seams to be in screen pixels!
-//###  float bmxmove=0., bmymove=0.;
-
   // shown image corners in map coordinates
-  float grStartx= (maprect.x1>xmin) ? maprect.x1 : xmin;
-  float grStarty= (maprect.y1>ymin) ? maprect.y1 : ymin;
-//########  float grStopx=  (maprect.x2<xmax) ? maprect.x2 : xmax;
-//########  float grStopy=  (maprect.y2<ymax) ? maprect.y2 : ymax;
-
-  // total image corners in map coordinates
-  float x1= cvmap2sat[0]+cvmap2sat[1]*maprect.x1;
-  float y1= cvmap2sat[3]+cvmap2sat[5]*maprect.y1;
-  float x2= cvmap2sat[0]+cvmap2sat[1]*maprect.x2;
-  float y2= cvmap2sat[3]+cvmap2sat[5]*maprect.y2;
-
+  float grStartx;
+  float grStarty;
 
   // shown image corners in image coordinates
-  int bmStartx= (maprect.x1>xmin) ? int(x1) : 0;
-  int bmStarty= (maprect.y1>ymin) ? int(y1) : 0;
-  int bmStopx=  (maprect.x2<xmax) ? int(x2) : nx-1;
-  int bmStopy=  (maprect.y2<ymax) ? int(y2) : ny-1;
+   int bmStartx;
+   int bmStarty;
+   int bmStopx;
+   int bmStopy;
 
-  // lower left corner of displayed image part, in map coordinates
-  // (part of lower left pixel may well be outside screen)
-  float xstart= cvsat2map[0]+cvsat2map[1]*bmStartx;
-  float ystart= cvsat2map[3]+cvsat2map[5]*bmStarty;
+   if (!gc.getCorners(satdata->area, area, maprect,
+       xmin, ymin, xmax, ymax, grStartx, grStarty,
+       bmStartx, bmStopx, bmStarty, bmStopy, scalex, scaley)){
+     return false;
+   }
 
-  // bitmap offset (out of valid area) ... seams to be in screen pixels!
-  float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
-  float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
+  // exit if image is outside map area
+  if (maprect.x1 >= xmax || maprect.x2 <= xmin ||
+      maprect.y1 >= ymax || maprect.y2 <= ymin) return true;
+
+  // bitmap offset (out of valid area) ... seams to be in screen pixels! Not used
+//  float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
+//  float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
 
   // for hardcopy
-  float pxstart= (xstart-maprect.x1)*scalex;
-  float pystart= (ystart-maprect.y1)*scaley;
-
-  // update scaling with ratio image to map (was map to screen pixels)
-  scalex*=cvsat2map[1];
-  scaley*=cvsat2map[5];
+  float pxstart= (grStartx-maprect.x1)*scalex;
+  float pystart= (grStarty-maprect.y1)*scaley;
 
   // width of image (pixels)
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image
   int currhei= bmStopy - bmStarty + 1;  // use pixels in image
-
-  // large scale values means disaster (in OpenGL pixel opertions),
-  // this is a workaround....
-  if (currwid<3 && currhei<3) {
-      int i, j, adr;
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      for (j=bmStarty; j<=bmStopy; j++) {
-          for (i=bmStartx; i<=bmStopx; i++) {
-	      adr=(j*nx+i)*3;
-	      glColor3ubv(&satdata->image[adr]);
-	      glRectf(GLfloat(i), GLfloat(j), GLfloat(i+1), GLfloat(j+1));
-	  }
-      }
-      UpdateOutput();
-
-  } else {
 
     // keep original copies (for hardcopy purposes)
     int orignx =       nx;
@@ -232,65 +162,16 @@ bool SatPlot::plot(){
     float origscaley=  scaley;
     int origbmStartx=  bmStartx;
     int origbmStarty=  bmStarty;
-    int origbmStopx=   bmStopx;
-    int origbmStopy=   bmStopy;
     float origpxstart= pxstart;
     float origpystart= pystart;
 
     /*
-      If rasterimage wider than OpenGL-maxsizes:
-      For now, temporarily resample image..
-    */
-    unsigned char * cimage;// pointer to imagedata, either sat_image or 
-                           // resampled data
-    int irs= 1;            // resample-size
+      If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
+      cImage: Pointer to imagedata, either sat_image or resampled data
+     */
+    unsigned char * cimage = resampleImage(currwid,currhei,bmStartx,bmStarty,
+        scalex,scaley,nx,ny);
 
-    GLint maxdims[2];      // find OpenGL maximums
-    glGetIntegerv(GL_MAX_VIEWPORT_DIMS,maxdims);
-    int maxww= maxdims[0];
-    int maxhh= maxdims[1];
-
-    if (  currwid > maxww || currhei > maxhh ){
-      if ( (currwid - maxww) > (currhei - maxhh) )
-	irs = (currwid / maxww) + 1;
-      else 
-	irs = (currhei / maxhh) + 1;
-      currwid /= irs;
-      currhei /= irs;
-      bmStartx/= irs;
-      bmStarty/= irs;
-      bmStopx  = bmStartx+currwid-1;
-      bmStopy  = bmStarty+currhei-1;
-      nx      /= irs;
-      ny      /= irs;
-      scalex  *= irs;
-      scaley  *= irs;
-
-      
-      // check if correct resampling already available..
-      if (irs != previrs || !imagedata){
-	// 	cerr << " diSatPlot::plot() resampling image:" << irs << endl;
-	previrs=irs;
-	if (imagedata) delete[] imagedata;
-	imagedata = new unsigned char [4*nx*ny];
-	for (int iy=0; iy<ny; iy++)
-	  for (int ix=0; ix<nx; ix++){
-	    int newi = (iy*nx + ix)*4;
-	    int oldi = (irs*iy*orignx + irs*ix)*4;
-	    imagedata[newi + 0] = satdata->image[oldi + 0];
-	    imagedata[newi + 1] = satdata->image[oldi + 1];
-	    imagedata[newi + 2] = satdata->image[oldi + 2];
-	    imagedata[newi + 3] = satdata->image[oldi + 3];
-	  }
-      }
-      // Point to resampled data
-      cimage = imagedata;
-    } else {
-      // No resampling: use original image
-      cimage = satdata->image;
-    }
-
-    // always needed (if not, slow oper...) ??????????????
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -304,8 +185,9 @@ bool SatPlot::plot(){
     glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);//pixels on image
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
     glRasterPos2f(grStartx,grStarty); //glcoord.
-    
-    if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL); 
+
+    //Why? Removed 2009-05-26, seems to have no effect
+//    if ((bmxmove<0. || bmymove<0.) && satdata->cut>0.3) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
 
     glDrawPixels((GLint)currwid, (GLint)currhei,
 	         GL_RGBA, GL_UNSIGNED_BYTE,
@@ -313,11 +195,11 @@ bool SatPlot::plot(){
 
     // for postscript output, add imagedata to glpfile
     if (hardcopy){
-     
+
       psAddImage(satdata->image,
 	         4*orignx*origny, orignx, origny,
 	         origpxstart, origpystart, origscalex, origscaley,
-	         origbmStartx, origbmStarty, origbmStopx, origbmStopy,
+	         origbmStartx, origbmStarty, bmStopx, bmStopy,
 	         GL_RGBA, GL_UNSIGNED_BYTE);
 
       // for postscript output
@@ -325,25 +207,81 @@ bool SatPlot::plot(){
     }
 
     //Reset gl
-    glPixelStorei(GL_UNPACK_SKIP_ROWS,0); 
+    glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
     glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
     glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
     glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-    glDisable(GL_BLEND);  
-  }
+    glDisable(GL_BLEND);
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from SatPlot::plot() ++" << endl;
 #endif
   return true;
-}  
+}
+
+unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
+    int& bmStartx, int& bmStarty,
+    float& scalex, float& scaley,int& nx, int& ny)
+{
+
+  unsigned char * cimage;
+  int irs= 1;            // resample-size
+
+  GLint maxdims[2];      // find OpenGL maximums
+  glGetIntegerv(GL_MAX_VIEWPORT_DIMS,maxdims);
+  int maxww= maxdims[0];
+  int maxhh= maxdims[1];
+  int orignx = nx;
+  if (  currwid > maxww || currhei > maxhh ){
+
+    if ( (currwid - maxww) > (currhei - maxhh) ) {
+      irs = (currwid / maxww) + 1;
+    } else {
+      irs = (currhei / maxhh) + 1;
+    }
+
+    currwid /= irs;
+    currhei /= irs;
+    bmStartx/= irs;
+    bmStarty/= irs;
+    nx      /= irs;
+    ny      /= irs;
+    scalex  *= irs;
+    scaley  *= irs;
 
 
+    // check if correct resampling already available..
+    if (irs != previrs || !imagedata){
+      //  cerr << " diSatPlot::plot() resampling image:" << irs << endl;
+      previrs=irs;
+      if (imagedata) delete[] imagedata;
+      imagedata = new unsigned char [4*nx*ny];
+      for (int iy=0; iy<ny; iy++)
+        for (int ix=0; ix<nx; ix++){
+          int newi = (iy*nx + ix)*4;
+          int oldi = (irs*iy*orignx + irs*ix)*4;
+          imagedata[newi + 0] = satdata->image[oldi + 0];
+          imagedata[newi + 1] = satdata->image[oldi + 1];
+          imagedata[newi + 2] = satdata->image[oldi + 2];
+          imagedata[newi + 3] = satdata->image[oldi + 3];
+        }
+    }
+    // Point to resampled data
+    cimage = imagedata;
+  } else {
+    // No resampling: use original image
+    cimage = satdata->image;
+  }
+
+ return cimage;
+
+}
 
 bool SatPlot::getAnnotations(vector<miString>& anno){
 
 
   if (!enabled) return false;
-  
+
   if(satdata == NULL || satdata->image == NULL || !satdata->approved)
     return false;
 
@@ -356,9 +294,9 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
 
     //Colour table
   if (!satdata->palette || !satdata->classtable) return false;
-  
+
   for(int i=0; i<nanno; i++){
-     
+
     if(!anno[i].contains("table"))
       continue;
 
@@ -373,7 +311,7 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
       startString =anno[i].substr(0,nn);
     } else {
       startString =anno[i];
-    }      
+    }
 
     if(anno[i].contains("table=")){
       miString name = startString.substr(startString.find_first_of("=")+1);
@@ -385,7 +323,7 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
 
     miString str  = "table=\"";
     str += satName;
-    
+
     int n = satdata->paletteInfo.noofcl;
     //NB: better solution: get step from gui
     int step = n/50 +1;
@@ -400,19 +338,19 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
       str +=rgbstr;
       str +=";;";
       str +=satdata->paletteInfo.clname[j];
-      
+
     }
-    
+
     str += "\" ";
     str += endString;
-    
+
     anno.push_back(str);
   }
 
   return true;
 }
 
-void SatPlot::setSatAuto(bool autoFile,const miString & satellite, 
+void SatPlot::setSatAuto(bool autoFile,const miString & satellite,
 			    const miString & file){
       if (satdata->satellite == satellite && satdata->filetype == file)
 	satdata->autoFile=autoFile;

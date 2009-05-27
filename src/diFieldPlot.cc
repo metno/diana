@@ -613,9 +613,8 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     // for ECMWF wave directions as "meteorological from-direction",
     // data interpolated to polarstereographic grids are usually turned
     // met.no WAM wave directions are "oceanographic to-direction".
-    bool turn= (fields[0]->producer==98 &&
-        fields[0]->area.P().Gridtype()==Projection::geographic);
-    //##################################################################
+    bool turn= fields[0]->turnWaveDirection;
+//    //##################################################################
 
     gc.getDirectionVectors(area,turn,npos,x,y,u,v);
     tmpfields[0]->area.setP(area.P());
@@ -686,10 +685,7 @@ void FieldPlot::setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int i
   if (step<1) step=1;
 
   // probably too simple test...
-  xStepComp= (fields[0]->area.P().Gridtype()==Projection::geographic ||
-      fields[0]->area.P().Gridtype()==Projection::mercator) &&
-      area.P().Gridtype()!=Projection::geographic &&
-      area.P().Gridtype()!=Projection::mercator;
+  xStepComp = fields[0]->area.P().projectionProblem(area.P());
 }
 
 
@@ -738,7 +734,7 @@ int FieldPlot::xAutoStep(float* x, float* y, int ix1, int ix2, int iy, float sdi
 //  plot vector field as wind arrows
 bool FieldPlot::plotWind(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter vind-felt.." << endl;
+  cerr << "++ FieldPlot::plotWind" << endl;
 #endif
   int n= fields.size();
   if (n<2) return false;
@@ -903,7 +899,7 @@ bool FieldPlot::plotWind(){
 // Fields u(0) v(1) colorfield(2)
 bool FieldPlot::plotWindColour(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter vind vector-felt.." << endl;
+  cerr << "++ FieldPlot::plotWindColour.." << endl;
 #endif
   int n= fields.size();
   if (n<3) return false;
@@ -1138,7 +1134,7 @@ bool FieldPlot::plotWindColour(){
 
 bool FieldPlot::plotWindTempFL(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter vind+temp.fl" << endl;
+  cerr << "++ plotWindTempFL" << endl;
 #endif
   int n= fields.size();
   if (n<3) return false;
@@ -1254,7 +1250,7 @@ bool FieldPlot::plotWindTempFL(){
   //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
   //poptions.density!=auto and proj=geographic
   bool adjustToLatLon = poptions.density
-  && fields[0]->area.P().Gridtype() == Projection::geographic
+  && fields[0]->area.P().isGeographic()
   && step > 0;
   if(adjustToLatLon) iy1 = (iy1/step)*step;
   for (iy=iy1; iy<iy2; iy+=step){
@@ -2925,18 +2921,10 @@ void FieldPlot::plotFrame(const int nx, const int ny,
 
   } else {
 
-    if (fields[0]->area.P().Gridtype()==Projection::geographic &&
-        area.P().Gridtype()!=Projection::geographic) {
-      Projection pr= fields[0]->area.P();
-      float gspec[Projection::speclen];
-      pr.Gridspec(gspec);
-      float glon1= gspec[0];
-      float glon2= gspec[0] + gspec[2]*float(nx-1);
-      float glat1= gspec[1];
-      float glat2= gspec[1] + gspec[3]*float(ny-1);
-      // get rid of some strange frame lines (maybe to few or too many...)
-      if (fabsf(glon2-glon1)>360.-gspec[2]*0.5 &&
-          fabsf(glat2-glat1)>180.-gspec[3]*0.5) return;
+    // get rid of some strange frame lines (maybe to few or too many...)
+    if(fields[0]->area.P().projectionProblem(area.P())
+        && fields[0]->area.P().skipFrame(nx,ny)){
+      return;
     }
 
     bool drawx1=true, drawx2=true, drawy1=true, drawy2=true;

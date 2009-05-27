@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -39,7 +39,7 @@
 
 
 //static
-miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0); 
+miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0);
 
 
 /*********************************************/
@@ -53,10 +53,8 @@ WeatherObjects::WeatherObjects(){
 
   // correct spec. when making Projection for long/lat coordinates
   // (Projection constructor will update spec. to 1,1,1,1,0,0)
-  float ggeo[Projection::speclen]={0.,0.,1.,1.,0.,0.};
-  Projection pgeo(Projection::geographic,ggeo);
-  Rectangle rgeo(0,0,90,360);
-  geoArea=Area(pgeo,rgeo);
+  miString areaString = "proj=geographic grid=0:0:1:1:0:0 area=1:1:90:360";
+  geoArea.setAreaFromLog(areaString);
 
   useobject.clear();
   //use all objects if nothing else specified
@@ -73,12 +71,12 @@ void WeatherObjects::clear()
   cerr << "WeatherObjects::clear" << endl;
 #endif
   int no = objects.size();
-  for (int i=0; i<no; i++) 
+  for (int i=0; i<no; i++)
     delete objects[i];
   objects.clear();
   prefix = miString();
   filename= miString();
-  itsOldComments = miString();  
+  itsOldComments = miString();
   itsLabels.clear();
   itsOldLabels.clear();
 
@@ -100,38 +98,38 @@ void WeatherObjects::plot(){
   if (!enabled) return;
   // draw objects
   int n= objects.size();
-  //draw areas, then fronts, then symbols 
+  //draw areas, then fronts, then symbols
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(wArea))
       objects[i]->plot();
   }
-  
+
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(wFront))
       objects[i]->plot();
   }
-  
+
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(wSymbol))
       objects[i]->plot();
   }
-  
+
 
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(Border))
-      objects[i]->plot();    
+      objects[i]->plot();
   }
 
 
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(RegionName))
-      objects[i]->plot();    
+      objects[i]->plot();
   }
 
 
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(ShapeXXX))
-      objects[i]->plot();    
+      objects[i]->plot();
   }
 
 
@@ -141,7 +139,7 @@ void WeatherObjects::plot(){
 /*********************************************/
 
 bool WeatherObjects::changeProjection(const Area& newArea)
-				 
+
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherObjects::changeProjection" << endl;
@@ -155,7 +153,7 @@ bool WeatherObjects::changeProjection(const Area& newArea)
     {
       itsArea= newArea;
       return false;
-    } 
+    }
 
   int i,j,npos= 0;
   int obsize = objects.size();
@@ -207,7 +205,7 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   }
 
 
-  
+
 
   delete[] xpos;
   delete[] ypos;
@@ -260,7 +258,7 @@ bool
     shape->read(fn);
 
     changeProjection(newArea);
-    
+
     return true;
   }
 
@@ -284,7 +282,7 @@ bool
   if ( stokens.size()==2) {
     key = stokens[0].downcase();
     value = stokens[1];
-  } 
+  }
  //check if the line contains keyword date ?
  if (key == "date")
    {
@@ -297,7 +295,7 @@ bool
 	  if (useobject["anno"])
 	    itsOldLabels.push_back(str);
 	}
-	  else    
+	  else
 	    fileString+=str;
       }
      }
@@ -311,7 +309,7 @@ bool
  }
 
  return false;
- 
+
 }
 
 
@@ -327,7 +325,7 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
   miString key,value,objectString;
 
   // nb ! if useobject not true for an objecttype, no objects used(read) for
-  // this object type. Useobject is set in WeatherObjects constructor and 
+  // this object type. Useobject is set in WeatherObjects constructor and
   // also in DisplayObjects::define and in EditManager::startEdit
 
   // first convert existing objects to geographic coordinates
@@ -344,7 +342,7 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
 
   //split inputString into one string for each object
   vector <miString> objectStrings = inputString.split('!');
-  
+
   for (int i = 0;i<objectStrings.size();i++){
     //split objectString and check which type of new
     //object should be created from first keyword and value
@@ -386,20 +384,20 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
 	 }
 	 if (tObject->readObjectString(objectStrings[i]))
 	   //add a new object
-	   addObject(tObject,replace);      
-	 else delete tObject; 
+	   addObject(tObject,replace);
+	 else delete tObject;
     }
     else cerr << "Error! Object key not found !" << endl;
   }
-    
+
   changeProjection(newArea);
-     
+
   return true;
 }
 
 miString WeatherObjects::writeEditDrawString(const miTime& t){
 
-#ifdef DEBUGPRINT	       
+#ifdef DEBUGPRINT
   cerr << "WeatherObjects::writeEditDrawString" << endl;
 #endif
   if (empty()) return miString();
@@ -455,9 +453,9 @@ bool WeatherObjects::readEditCommentFile(const miString fn){
   // read file
   while (getline(file,str) && !file.eof())
     fileString+=str+"\n";
-  
+
   file.close();
-  
+
   itsOldComments += fileString;
 
 #ifdef DEBUGPRINT
@@ -476,13 +474,13 @@ miString WeatherObjects::readComments(){
   if (itsOldComments.empty())
     return "Ingen kommentarer";
   else
-    return itsOldComments; 
+    return itsOldComments;
 }
 
 /************************************************
  *  Methods for reading and writing labels *******
  *************************************************/
-    
+
 vector <miString> WeatherObjects::getObjectLabels(){
   //oldLabels from object file
   return itsOldLabels;
@@ -506,7 +504,7 @@ bool WeatherObjects::readAreaBorders(const miString fn,
     cerr << "ERROR OPEN (READ) " << fn << endl;
     return false;
   }
-  
+
 
   miString str,fileString;
 
@@ -514,9 +512,9 @@ bool WeatherObjects::readAreaBorders(const miString fn,
   // read file
   while (getline(file,str) && !file.eof())
     fileString+=str+"\n";
-  
+
   file.close();
-  
+
   return readEditDrawString(fileString,newArea);
 
 }
@@ -524,7 +522,7 @@ bool WeatherObjects::readAreaBorders(const miString fn,
 
 
 bool WeatherObjects::writeAreaBorders(const miString fn){
-  
+
   if (empty()) return false;
 
   // open filestream
@@ -582,7 +580,7 @@ void WeatherObjects::addObject(ObjectPlot * object, bool replace){
       if(p!=objects.end()){
 	objects.erase(p);
       }
-  } 
+  }
 
   objects.push_back(object);
   object->setRegion(prefix);
@@ -602,7 +600,7 @@ miString WeatherObjects::stringFromTime(const miTime& t,bool addMinutes){
   int dd  = t.day();
   int hh  = t.hour();
   int mn  = t.min();
-  
+
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << yyyy
        << setw(2) << setfill('0') << mm
