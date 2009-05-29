@@ -824,8 +824,8 @@ bool Controller::MapInfoParser(miString& str, MapInfo& mi, bool tostr)
     str= mapm.MapInfo2str(mi);
     return true;
   } else {
-    PlotOptions a,b,c,d;
-    return mapm.fillMapInfo(str,mi,a,b,c,d);
+    PlotOptions a,b,c,d,e;
+    return mapm.fillMapInfo(str,mi,a,b,c,d,e);
   }
 }
 

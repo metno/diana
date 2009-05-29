@@ -112,14 +112,17 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   densities.push_back("15");
   densities.push_back("30");
 
+  // positions
+  positions.push_back(tr("left").toStdString());
+  positions.push_back(tr("bottom").toStdString());
+  positions.push_back(tr("both").toStdString());
+
   // ==================================================
   // arealabel
   arealabel = TitleLabel(tr("Area/Projection"), this);
 
   // areabox
   areabox = new QListWidget(this);
-  areabox->setMinimumHeight(HEIGHTLBSMALL);
-  areabox->setMaximumHeight(HEIGHTLB);
 
   int nr_area = m_MapDI.areas.size();
   int area_defIndex = 0;
@@ -139,8 +142,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 
   // mapbox
   mapbox = new QListWidget(this);
-  mapbox->setMinimumHeight(HEIGHTLBSMALL);
-  mapbox->setMaximumHeight(HEIGHTLB);
 
   for (int i = 0; i < numMaps; i++) {
     mapbox->addItem(QString(m_MapDI.maps[i].name.c_str()));
@@ -158,422 +159,539 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   }
 
   connect(mapbox, SIGNAL(itemSelectionChanged () ),
-  SLOT( mapboxChanged() ) );
+      SLOT( mapboxChanged() ) );
+
+  // delete buttons
+  mapdelete= new QPushButton(tr("Delete"), this);
+  QToolTip::add( mapdelete,
+      tr("Remove selected map from the list \"Selected maps\"") );
+  connect( mapdelete, SIGNAL(clicked()), SLOT(mapdeleteClicked()));
+
+  mapalldelete= new QPushButton(tr("Delete all"), this);
+  QToolTip::add( mapalldelete,
+      tr("Clear list of selected maps") );
+  connect( mapalldelete, SIGNAL(clicked()), SLOT(mapalldeleteClicked()));
 
   // ==================================================
-      // delete buttons
-      mapdelete= new QPushButton(tr("Delete"), this);
-      QToolTip::add( mapdelete,
-          tr("Remove selected map from the list \"Selected maps\"") );
-      connect( mapdelete, SIGNAL(clicked()), SLOT(mapdeleteClicked()));
+  // selectedMapbox
+  selectedMapbox= new QListWidget(this);
 
-      mapalldelete= new QPushButton(tr("Delete all"), this);
-      QToolTip::add( mapalldelete,
-          tr("Clear list of selected maps") );
-      connect( mapalldelete, SIGNAL(clicked()), SLOT(mapalldeleteClicked()));
+  connect( selectedMapbox, SIGNAL( itemClicked(QListWidgetItem *) ),
+      SLOT( selectedMapboxClicked( QListWidgetItem*) ) );
 
-      // ==================================================
-      // selectedMapbox
-      selectedMapbox= new QListWidget(this);
-      selectedMapbox->setMinimumHeight(HEIGHTLBXSMALL);
-      selectedMapbox->setMaximumHeight(HEIGHTLBSMALL); // 50
+  int m_backIndex = getIndex( cInfo, m_MapDI.backcolour );
 
-      connect( selectedMapbox, SIGNAL( itemClicked(QListWidgetItem *) ),
-          SLOT( selectedMapboxClicked( QListWidgetItem*) ) );
+  // --- Contourlines options ------------------------------
+  QFrame* cont_frame= new QFrame(this,"cont_frame");
+  cont_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
-      int m_backIndex = getIndex( cInfo, m_MapDI.backcolour );
+  // label
+  cont_label= TitleLabel(tr("Contour lines"),cont_frame);
 
-      // ==================================================
-      // --- Contourlines options ------------------------------
-      QFrame* cont_frame= new QFrame(this,"cont_frame");
-      cont_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  // checkbox
+  contours= new QCheckBox("", cont_frame, "contours");
+  QToolTip::add( contours,
+      tr("Draw contour lines (mandatory for maps without filled land)") );
+  connect( contours, SIGNAL( toggled(bool) ),
+      SLOT( cont_checkboxActivated(bool) ) );
+  // linecbox
+  cont_linelabel= new QLabel(tr("Line thickness"),cont_frame);
+  cont_linecbox= LinewidthBox( cont_frame, false);
+  connect( cont_linecbox, SIGNAL( activated(int) ),
+      SLOT( cont_linecboxActivated(int) ) );
+  // linetypecbox
+  cont_linetypelabel= new QLabel( tr("Line type"), cont_frame );
+  cont_linetypebox= LinetypeBox( cont_frame,false);
+  connect( cont_linetypebox, SIGNAL( activated(int) ),
+      SLOT( cont_linetypeboxActivated(int) ) );
+  // colorcbox
+  cont_colorlabel= new QLabel(tr("Colour"), cont_frame);
+  cont_colorcbox = ColourBox( cont_frame, cInfo, false, 0 ); // last one index
+  connect( cont_colorcbox, SIGNAL( activated(int) ),
+      SLOT( cont_colorcboxActivated(int) ) );
+  // zorder
+  cont_zorderlabel= new QLabel(tr("Plot position"), cont_frame);
+  cont_zorder= ComboBox( cont_frame, zorders, false, 0 );
+  connect( cont_zorder, SIGNAL( activated(int) ),
+      SLOT( cont_zordercboxActivated(int) ) );
 
-      // label
-      cont_label= TitleLabel(tr("Contour lines"),cont_frame);
+  // --- Filled land options ------------------------------
+  QFrame* land_frame= new QFrame(this,"land_frame");
+  land_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
-      // checkbox
-      contours= new QCheckBox("", cont_frame, "contours");
-      QToolTip::add( contours,
-          tr("Draw contour lines (mandatory for maps without filled land)") );
-      connect( contours, SIGNAL( toggled(bool) ),
-          SLOT( cont_checkboxActivated(bool) ) );
-      // linecbox
-      cont_linelabel= new QLabel(tr("Line thickness"),cont_frame);
-      cont_linecbox= LinewidthBox( cont_frame, false);
-      connect( cont_linecbox, SIGNAL( activated(int) ),
-          SLOT( cont_linecboxActivated(int) ) );
-      // linetypecbox
-      cont_linetypelabel= new QLabel( tr("Line type"), cont_frame );
-      cont_linetypebox= LinetypeBox( cont_frame,false);
-      connect( cont_linetypebox, SIGNAL( activated(int) ),
-          SLOT( cont_linetypeboxActivated(int) ) );
-      // colorcbox
-      cont_colorlabel= new QLabel(tr("Colour"), cont_frame);
-      cont_colorcbox = ColourBox( cont_frame, cInfo, false, 0 ); // last one index
-      connect( cont_colorcbox, SIGNAL( activated(int) ),
-          SLOT( cont_colorcboxActivated(int) ) );
-      // zorder
-      cont_zorderlabel= new QLabel(tr("Plot position"), cont_frame);
-      cont_zorder= ComboBox( cont_frame, zorders, false, 0 );
-      connect( cont_zorder, SIGNAL( activated(int) ),
-          SLOT( cont_zordercboxActivated(int) ) );
+  // label
+  land_label= TitleLabel(tr("Filled land"),land_frame);
 
-      // ==================================================
-      // --- Filled land options ------------------------------
-      QFrame* land_frame= new QFrame(this,"land_frame");
-      land_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  // checkbox
+  filledland= new QCheckBox("", land_frame, "land");
+  QToolTip::add( filledland,
+      tr("Draw land with separate colour (only available for selected maps)") );
+  connect( filledland, SIGNAL( toggled(bool) ),
+      SLOT( land_checkboxActivated(bool) ) );
+  // colorcbox
+  land_colorlabel= new QLabel(tr("Colour"), land_frame);
+  land_colorcbox = ColourBox( land_frame, cInfo, false, 0 ); // last one index
+  connect( land_colorcbox, SIGNAL( activated(int) ),
+      SLOT( land_colorcboxActivated(int) ) );
+  // zorder
+  land_zorderlabel= new QLabel(tr("Plot position"), land_frame);
+  land_zorder= ComboBox( land_frame, zorders, false, 0 );
+  connect( land_zorder, SIGNAL( activated(int) ),
+      SLOT( land_zordercboxActivated(int) ) );
 
-      // label
-      land_label= TitleLabel(tr("Filled land"),land_frame);
+  // --- Latlon options ------------------------------
+  lonb= false;
+  lonc= "black";
+  lonlw= "1";
+  lonlt="solid";
+  lonz=2;
+  lond=10.0;
+  lonshowvalue=false;
+  lonvaluepos = 0;
+  int lon_line= 0;
+  int lon_linetype= 0;
+  int lon_col= 0;
+  int lon_z= 2;
+  int lon_dens= 0;
 
-      // checkbox
-      filledland= new QCheckBox("", land_frame, "land");
-      QToolTip::add( filledland,
-          tr("Draw land with separate colour (only available for selected maps)") );
-      connect( filledland, SIGNAL( toggled(bool) ),
-          SLOT( land_checkboxActivated(bool) ) );
-      // colorcbox
-      land_colorlabel= new QLabel(tr("Colour"), land_frame);
-      land_colorcbox = ColourBox( land_frame, cInfo, false, 0 ); // last one index
-      connect( land_colorcbox, SIGNAL( activated(int) ),
-          SLOT( land_colorcboxActivated(int) ) );
-      // zorder
-      land_zorderlabel= new QLabel(tr("Plot position"), land_frame);
-      land_zorder= ComboBox( land_frame, zorders, false, 0 );
-      connect( land_zorder, SIGNAL( activated(int) ),
-          SLOT( land_zordercboxActivated(int) ) );
+  latb= false;
+  latc= "black";
+  latlw= "1";
+  latlt="solid";
+  latz=2;
+  latd=10.0;
+  latshowvalue=false;
+  latvaluepos = 1;
+  int lat_line= 0;
+  int lat_linetype= 0;
+  int lat_col= 0;
+  int lat_z= 2;
+  int lat_dens= 0;
 
-      // ==================================================
-      // --- Latlon options ------------------------------
-      latlonb= false;
-      latlonc= "black";
-      latlonlw= "1";
-      latlonlt="solid";
-      latlonz=2;
-      latlond=10.0;
-      int ll_line= 0;
-      int ll_linetype= 0;
-      int ll_col= 0;
-      int ll_z= 2;
-      int ll_dens= 0;
+  // --- Frame options ------------------------------
+  framec= "black";
+  framelw= "1";
+  int ff_line= 0;
+  int ff_linetype= 0;
+  int ff_col= 0;
+  int ff_z= 2;
 
-      // --- Frame options ------------------------------
-      framec= "black";
-      framelw= "1";
-      int ff_line= 0;
-      int ff_linetype= 0;
-      int ff_col= 0;
-      int ff_z= 2;
+  int nm= m_MapDI.maps.size();
+   if (nm>0) {
+     nm--;
 
-      int nm= m_MapDI.maps.size();
-      if (nm>0) {
-        nm--;
-        latlonb= m_MapDI.maps[nm].latlon.ison;
-        latlonc= m_MapDI.maps[nm].latlon.linecolour;
-        latlonlw= m_MapDI.maps[nm].latlon.linewidth;
-        latlonlt= m_MapDI.maps[nm].latlon.linetype;
-        latlond= m_MapDI.maps[nm].latlon.density;
-        latlonz= m_MapDI.maps[nm].latlon.zorder;
-        ll_line= atoi(latlonlw.cStr())-1;
-        ll_linetype= getIndex( linetypes, latlonlt );
-        ll_col= getIndex( cInfo, latlonc );
-        ll_z= latlonz;
-        ll_dens= 0;
-        int dens= int(latlond*1000);
-        for (int k=0; k<densities.size(); k++) {
-          if (int(atof(densities[k].c_str())*1000)==dens) {
-            ll_dens= k;
-            break;
-          }
-        }
-        // frame
-        framec= m_MapDI.maps[nm].frame.linecolour;
-        framelw= m_MapDI.maps[nm].frame.linewidth;
-        framelt= m_MapDI.maps[nm].frame.linetype;
-        framez= m_MapDI.maps[nm].frame.zorder;
-        ff_line= atoi(framelw.cStr())-1;
-        ff_linetype= getIndex( linetypes, framelt );
-        ff_col= getIndex( cInfo, framec );
-        ff_z= framez;
-      }
+     lonb= m_MapDI.maps[nm].lon.ison;
+     lonc= m_MapDI.maps[nm].lon.linecolour;
+     lonlw= m_MapDI.maps[nm].lon.linewidth;
+     lonlt= m_MapDI.maps[nm].lon.linetype;
+     lond= m_MapDI.maps[nm].lon.density;
+     lonz= m_MapDI.maps[nm].lon.zorder;
+     lonshowvalue= m_MapDI.maps[nm].lon.showvalue;
+     lonvaluepos= m_MapDI.maps[nm].lon.value_pos;
+     lon_line= atoi(lonlw.cStr())-1;
+     lon_linetype= getIndex( linetypes, lonlt );
+     lon_col= getIndex( cInfo, lonc );
+     lon_z= lonz;
+     lon_dens= 0;
+     int dens= int(lond*1000);
+     for (int k=0; k<densities.size(); k++) {
+       if (int(atof(densities[k].c_str())*1000)==dens) {
+         lon_dens= k;
+         break;
+       }
+     }
 
-      QFrame* ll_frame= new QFrame(this,"ll_frame");
-      ll_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+     latb= m_MapDI.maps[nm].lat.ison;
+     latc= m_MapDI.maps[nm].lat.linecolour;
+     latlw= m_MapDI.maps[nm].lat.linewidth;
+     latlt= m_MapDI.maps[nm].lat.linetype;
+     latd= m_MapDI.maps[nm].lat.density;
+     latz= m_MapDI.maps[nm].lat.zorder;
+     latshowvalue= m_MapDI.maps[nm].lat.showvalue;
+     latvaluepos= m_MapDI.maps[nm].lat.value_pos;
+     lat_line= atoi(latlw.cStr())-1;
+     lat_linetype= getIndex( linetypes, latlt );
+     lat_col= getIndex( cInfo, latc );
+     lat_z= latz;
+     lat_dens= 0;
+     dens= int(latd*1000);
+     for (int k=0; k<densities.size(); k++) {
+       if (int(atof(densities[k].c_str())*1000)==dens) {
+         lat_dens= k;
+         break;
+       }
+     }
 
-      // label
-      ll_label= TitleLabel(tr("Lat/lon lines"),ll_frame);
+     // frame
+     framec= m_MapDI.maps[nm].frame.linecolour;
+     framelw= m_MapDI.maps[nm].frame.linewidth;
+     framelt= m_MapDI.maps[nm].frame.linetype;
+     framez= m_MapDI.maps[nm].frame.zorder;
+     ff_line= atoi(framelw.cStr())-1;
+     ff_linetype= getIndex( linetypes, framelt );
+     ff_col= getIndex( cInfo, framec );
+     ff_z= framez;
+   }
 
-      // checkbox
-      latlon= new QCheckBox("", ll_frame, "llours");
-      QToolTip::add( latlon,
-          tr("Show lat/lon-lines on the map") );
-      connect( latlon, SIGNAL( toggled(bool) ),
-          SLOT( ll_checkboxActivated(bool) ) );
-      // linecbox
-      ll_linelabel= new QLabel(tr("Line thickness"),ll_frame);
-      ll_linecbox= LinewidthBox( ll_frame, false,12,ll_line);
-      //ComboBox( ll_frame, line, true, ll_line );
-      connect( ll_linecbox, SIGNAL( activated(int) ),
-          SLOT( ll_linecboxActivated(int) ) );
-      // linetypebox
-      ll_linetypelabel= new QLabel( tr("Line type"), ll_frame );
-      ll_linetypebox= LinetypeBox( ll_frame,false,ll_linetype );
-      connect( ll_linetypebox, SIGNAL( activated(int) ),
-          SLOT( ll_linetypeboxActivated(int) ) );
-      // colorcbox
-      ll_colorlabel= new QLabel(tr("Colour"), ll_frame);
-      ll_colorcbox = ColourBox( ll_frame, cInfo, false, 0 ); // last one index
-      connect( ll_colorcbox, SIGNAL( activated(int) ),
-          SLOT( ll_colorcboxActivated(int) ) );
-      // density
-      ll_densitylabel= new QLabel(tr("Density"), ll_frame);
-      ll_density= ComboBox( ll_frame, densities, true, ll_dens );
-      connect( ll_density, SIGNAL( activated(int) ),
-          SLOT( ll_densitycboxActivated(int) ) );
-      // zorder
-      ll_zorderlabel= new QLabel(tr("Plot position"), ll_frame);
-      ll_zorder= ComboBox( ll_frame, zorders, true, ll_z );
-      connect( ll_zorder, SIGNAL( activated(int) ),
-          SLOT( ll_zordercboxActivated(int) ) );
+  // Show longitude lines
 
-      latlon->setChecked(latlonb);
+  QFrame* lon_frame= new QFrame(this,"lon_frame");
+  lon_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
-      // =============================================================
+  // label
+  lon_label= TitleLabel(tr("Longitude lines"),lon_frame);
 
-      // frame on map...
-      QFrame* ff_frame= new QFrame(this,"ff_frame");
-      ff_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  // checkbox
+  showlon= new QCheckBox("", lon_frame, "lonours");
+  QToolTip::add( showlon,
+      tr("Show longitude-lines on the map") );
+  connect( showlon, SIGNAL( toggled(bool) ),
+      SLOT( lon_checkboxActivated(bool) ) );
+  // linecbox
+  lon_linelabel= new QLabel(tr("Line thickness"),lon_frame);
+  lon_linecbox= LinewidthBox( lon_frame, false,12,lon_line);
+  //ComboBox( ll_frame, line, true, ll_line );
+  connect( lon_linecbox, SIGNAL( activated(int) ),
+      SLOT( lon_linecboxActivated(int) ) );
+  // linetypebox
+  lon_linetypelabel= new QLabel( tr("Line type"), lon_frame );
+  lon_linetypebox= LinetypeBox( lon_frame,false,lon_linetype );
+  connect( lon_linetypebox, SIGNAL( activated(int) ),
+      SLOT( lon_linetypeboxActivated(int) ) );
+  // colorcbox
+  lon_colorlabel= new QLabel(tr("Colour"), lon_frame);
+  lon_colorcbox = ColourBox( lon_frame, cInfo, false, 0 ); // last one index
+  connect( lon_colorcbox, SIGNAL( activated(int) ),
+      SLOT( lon_colorcboxActivated(int) ) );
+  // density
+  lon_densitylabel= new QLabel(tr("Density"), lon_frame);
+  lon_density= ComboBox( lon_frame, densities, true, lon_dens );
+  connect( lon_density, SIGNAL( activated(int) ),
+      SLOT( lon_densitycboxActivated(int) ) );
+  // zorder
+  lon_zorderlabel= new QLabel(tr("Plot position"), lon_frame);
+  lon_zorder= ComboBox( lon_frame, zorders, true, lon_z );
+  connect( lon_zorder, SIGNAL( activated(int) ),
+      SLOT( lon_zordercboxActivated(int) ) );
+  // show value checkbox
+  lon_showvalue= new QCheckBox(tr("Show value"), lon_frame);
+  QToolTip::add( lon_showvalue,tr("Show longitude-values") );
+  connect( lon_showvalue, SIGNAL( toggled(bool) ),SLOT( lon_showValueActivated(bool) ) );
+  lon_showvalue->setChecked(lonshowvalue);
+  // value pos
+  lon_valuepos= ComboBox( lon_frame, positions, true, lonvaluepos );
+  connect( lon_valuepos, SIGNAL( activated(int) ),
+      SLOT( lon_valueposboxActivated(int) ) );
 
-      // frame checkbox
-      frameb= false;
-      framelabel= TitleLabel(tr("Show frame"),ff_frame);
-      showframe= new QCheckBox("", ff_frame, "showframe");
-      QToolTip::add( showframe,
-          tr("Draw boundary of selected area") );
-      connect( showframe, SIGNAL( toggled(bool) ),
-          SLOT( showframe_checkboxActivated(bool) ) );
+  showlon->setChecked(lonb);
 
-      // linecbox
-      ff_linelabel= new QLabel(tr("Line thickness"),ff_frame);
-      ff_linecbox= LinewidthBox( ff_frame, false,12,ff_line);
-      //ComboBox( ff_frame, line, true, ff_line );
-      connect( ff_linecbox, SIGNAL( activated(int) ),
-          SLOT( ff_linecboxActivated(int) ) );
-      // linetypecbox
-      ff_linetypelabel= new QLabel( tr("Line type"), ff_frame );
-      ff_linetypebox= LinetypeBox( ff_frame,false,ff_linetype );
-      connect( ff_linetypebox, SIGNAL( activated(int) ),
-          SLOT( ff_linetypeboxActivated(int) ) );
-      // colorcbox
-      ff_colorlabel= new QLabel(tr("Colour"), ff_frame);
-      ff_colorcbox = ColourBox( ff_frame, cInfo, false, 0 ); // last one index
-      connect( ff_colorcbox, SIGNAL( activated(int) ),
-          SLOT( ff_colorcboxActivated(int) ) );
-      // zorder
-      ff_zorderlabel= new QLabel(tr("Plot position"), ff_frame);
-      ff_zorder= ComboBox( ff_frame, zorders, true, ff_z );
-      connect( ff_zorder, SIGNAL( activated(int) ),
-          SLOT( ff_zordercboxActivated(int) ) );
+  // Show latitude lines
 
-      // =============================================================
+  QFrame* lat_frame= new QFrame(this,"lat_frame");
+  lat_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
-      // Background colour
-      backcolorlabel= TitleLabel( tr("Background colour"), this);
-      backcolorcbox= ColourBox( this, cInfo, true, 0 ); // last one index
-      backcolorcbox->setCurrentItem(1);//Default colour white OBS
-      connect( backcolorcbox, SIGNAL( activated(int) ),
-          SLOT( backcolorcboxActivated(int) ) );
+  // label
+  lat_label= TitleLabel(tr("Latitude lines"),lat_frame);
 
-      // ==================================================
-      // Buttons
-      savefavourite = new QPushButton(tr("Save favourite"), this);
-      usefavourite = new QPushButton(tr("Use favourite"), this);
-      mapapply = new QPushButton(tr("Apply"), this);
-      mapapplyhide = new QPushButton(tr("Apply+Hide"), this);
-      maphide = new QPushButton(tr("Hide"), this);
-      maphelp = new QPushButton(tr("Help"), this);
+  // checkbox
+  showlat= new QCheckBox("", lat_frame, "latours");
+  QToolTip::add( showlat,
+      tr("Show latitude-lines on the map") );
+  connect( showlat, SIGNAL( toggled(bool) ),
+      SLOT( lat_checkboxActivated(bool) ) );
+  // linecbox
+  lat_linelabel= new QLabel(tr("Line thickness"),lat_frame);
+  lat_linecbox= LinewidthBox( lat_frame, false,12,lat_line);
+  //ComboBox( ll_frame, line, true, ll_line );
+  connect( lat_linecbox, SIGNAL( activated(int) ),
+      SLOT( lat_linecboxActivated(int) ) );
+  // linetypebox
+  lat_linetypelabel= new QLabel( tr("Line type"), lat_frame );
+  lat_linetypebox= LinetypeBox( lat_frame,false,lat_linetype );
+  connect( lat_linetypebox, SIGNAL( activated(int) ),
+      SLOT( lat_linetypeboxActivated(int) ) );
+  // colorcbox
+  lat_colorlabel= new QLabel(tr("Colour"), lat_frame);
+  lat_colorcbox = ColourBox( lat_frame, cInfo, false, 0 ); // last one index
+  connect( lat_colorcbox, SIGNAL( activated(int) ),
+      SLOT( lat_colorcboxActivated(int) ) );
+  // density
+  lat_densitylabel= new QLabel(tr("Density"), lat_frame);
+  lat_density= ComboBox( lat_frame, densities, true, lat_dens );
+  connect( lat_density, SIGNAL( activated(int) ),
+      SLOT( lat_densitycboxActivated(int) ) );
+  // zorder
+  lat_zorderlabel= new QLabel(tr("Plot position"), lat_frame);
+  lat_zorder= ComboBox( lat_frame, zorders, true, lat_z );
+  connect( lat_zorder, SIGNAL( activated(int) ),
+      SLOT( lat_zordercboxActivated(int) ) );
+  // show value checkbox
+  lat_showvalue= new QCheckBox(tr("Show value"), lat_frame);
+  QToolTip::add( lat_showvalue,tr("Show latitude-values") );
+  connect( lat_showvalue, SIGNAL( toggled(bool) ),SLOT( lat_showValueActivated(bool) ) );
+  lat_showvalue->setChecked(latshowvalue);
+  // value pos
+  lat_valuepos= ComboBox( lat_frame, positions, true, latvaluepos );
+  connect( lat_valuepos, SIGNAL( activated(int) ),
+      SLOT( lat_valueposboxActivated(int) ) );
 
-      QToolTip::add( savefavourite,
-          tr("Save this layout as your favourite") );
-      QToolTip::add( usefavourite,
-          tr("Use saved favourite layout") );
+  showlat->setChecked(latb);
 
-      connect( savefavourite, SIGNAL(clicked()), SLOT(savefavouriteClicked()));
-      connect( usefavourite, SIGNAL(clicked()), SLOT(usefavouriteClicked()));
-      connect( mapapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
-      connect( mapapply, SIGNAL(clicked()), SIGNAL(MapApply()));
-      connect( maphide, SIGNAL(clicked()), SIGNAL(MapHide()));
-      connect( maphelp, SIGNAL(clicked()),SLOT(helpClicked()));
+  // frame on map...
+  QFrame* ff_frame= new QFrame(this,"ff_frame");
+  ff_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
-      const int border= 5;
-      const int space= 5;
+  // frame checkbox
+  frameb= false;
+  framelabel= TitleLabel(tr("Show frame"),ff_frame);
+  showframe= new QCheckBox("", ff_frame, "showframe");
+  QToolTip::add( showframe,
+      tr("Draw boundary of selected area") );
+  connect( showframe, SIGNAL( toggled(bool) ),
+      SLOT( showframe_checkboxActivated(bool) ) );
 
-      // ==================================================
-      // Area and backgroundcolour
-      // ==================================================
-      QVBoxLayout* v1layout = new QVBoxLayout( 5 );
-      v1layout->addWidget( arealabel );
-      v1layout->addWidget( areabox );
+  // linecbox
+  ff_linelabel= new QLabel(tr("Line thickness"),ff_frame);
+  ff_linecbox= LinewidthBox( ff_frame, false,12,ff_line);
+  //ComboBox( ff_frame, line, true, ff_line );
+  connect( ff_linecbox, SIGNAL( activated(int) ),
+      SLOT( ff_linecboxActivated(int) ) );
+  // linetypecbox
+  ff_linetypelabel= new QLabel( tr("Line type"), ff_frame );
+  ff_linetypebox= LinetypeBox( ff_frame,false,ff_linetype );
+  connect( ff_linetypebox, SIGNAL( activated(int) ),
+      SLOT( ff_linetypeboxActivated(int) ) );
+  // colorcbox
+  ff_colorlabel= new QLabel(tr("Colour"), ff_frame);
+  ff_colorcbox = ColourBox( ff_frame, cInfo, false, 0 ); // last one index
+  connect( ff_colorcbox, SIGNAL( activated(int) ),
+      SLOT( ff_colorcboxActivated(int) ) );
+  // zorder
+  ff_zorderlabel= new QLabel(tr("Plot position"), ff_frame);
+  ff_zorder= ComboBox( ff_frame, zorders, true, ff_z );
+  connect( ff_zorder, SIGNAL( activated(int) ),
+      SLOT( ff_zordercboxActivated(int) ) );
 
-      // background layout
-      QHBoxLayout* backlayout = new QHBoxLayout( 5 );
-      backlayout->addWidget( backcolorlabel );
-      backlayout->addWidget( backcolorcbox );
-      backlayout->addStretch();
-      v1layout->addLayout( backlayout );
+  // Background colour
+  backcolorlabel= TitleLabel( tr("Background colour"), this);
+  backcolorcbox= ColourBox( this, cInfo, true, 0 ); // last one index
+  backcolorcbox->setCurrentItem(1);//Default colour white OBS
+  connect( backcolorcbox, SIGNAL( activated(int) ),
+      SLOT( backcolorcboxActivated(int) ) );
 
-      // ==================================================
-      // Latlon-lines and frame
-      // ==================================================
-      QHBoxLayout* h2layout = new QHBoxLayout( 5 );
+  // =============================================================
 
-      // Latlon layouts ---------
-      QHBoxLayout* latlonlayout = new QHBoxLayout( 5 );
-      latlonlayout->addWidget(ll_frame);
+  // Buttons
+  savefavorite = new QPushButton(tr("Save favorite"), this);
+  usefavorite = new QPushButton(tr("Use favorite"), this);
+  mapapply = new QPushButton(tr("Apply"), this);
+  mapapplyhide = new QPushButton(tr("Apply+Hide"), this);
+  maphide = new QPushButton(tr("Hide"), this);
+  maphelp = new QPushButton(tr("Help"), this);
 
-      QVBoxLayout* h2h1v1layout= new QVBoxLayout(ll_frame, border, space);
-      QHBoxLayout* ll_h3vhlayout= new QHBoxLayout(h2h1v1layout,5);
-      ll_h3vhlayout->addWidget(latlon);
-      ll_h3vhlayout->addWidget(ll_label);
-      ll_h3vhlayout->addStretch();
+  QToolTip::add( savefavorite,
+      tr("Save this layout as your favorite") );
+  QToolTip::add( usefavorite,
+      tr("Use saved favorite layout") );
 
-      QGridLayout* ll_h3vglayout= new QGridLayout(5,2,space);
-      ll_h3vglayout->setColStretch(0,10);
-      ll_h3vglayout->addWidget(ll_colorlabel,0,0);
-      ll_h3vglayout->addWidget(ll_colorcbox ,0,1);
-      ll_h3vglayout->addWidget(ll_linelabel ,1,0);
-      ll_h3vglayout->addWidget(ll_linecbox ,1,1);
-      ll_h3vglayout->addWidget(ll_linetypelabel ,2,0);
-      ll_h3vglayout->addWidget(ll_linetypebox ,2,1);
-      ll_h3vglayout->addWidget(ll_densitylabel,3,0);
-      ll_h3vglayout->addWidget(ll_density , 3,1);
-      ll_h3vglayout->addWidget(ll_zorderlabel, 4,0);
-      ll_h3vglayout->addWidget(ll_zorder ,4,1);
+  connect( savefavorite, SIGNAL(clicked()), SLOT(saveFavoriteClicked()));
+  connect( usefavorite, SIGNAL(clicked()), SLOT(useFavoriteClicked()));
+  connect( mapapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
+  connect( mapapply, SIGNAL(clicked()), SIGNAL(MapApply()));
+  connect( maphide, SIGNAL(clicked()), SIGNAL(MapHide()));
+  connect( maphelp, SIGNAL(clicked()),SLOT(helpClicked()));
 
-      h2h1v1layout->addLayout(ll_h3vglayout);
+  const int border= 5;
+  const int space= 5;
 
-      h2layout->addLayout( latlonlayout );
+  // ==================================================
+  // Area / Projection
+  // ==================================================
+  QVBoxLayout* v1layout = new QVBoxLayout( 5 );
+  v1layout->addWidget( arealabel );
+  v1layout->addWidget( areabox );
 
-      // frame layouts ---------
-      QHBoxLayout* framelayout = new QHBoxLayout( 5 );
-      framelayout->addWidget(ff_frame);
+  // ==================================================
+  // Latlon-lines and frame
+  // ==================================================
+  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
+  QVBoxLayout * frame2layout = new QVBoxLayout(5);
 
-      QVBoxLayout* h2h2v1layout= new QVBoxLayout(ff_frame, border, space);
-      QHBoxLayout* framehlayout= new QHBoxLayout(h2h2v1layout,5);
-      framehlayout->addWidget( showframe );
-      framehlayout->addWidget(framelabel);
-      framehlayout->addStretch();
+  h2layout->addWidget(lon_frame);
+  h2layout->addWidget(lat_frame);
+  h2layout->addLayout(frame2layout);
 
-      QGridLayout* ff_h3vglayout= new QGridLayout(4,2,space);
-      ff_h3vglayout->setColStretch(0,10);
-      ff_h3vglayout->addWidget(ff_colorlabel,0,0);
-      ff_h3vglayout->addWidget(ff_colorcbox ,0,1);
-      ff_h3vglayout->addWidget(ff_linelabel ,1,0);
-      ff_h3vglayout->addWidget(ff_linecbox ,1,1);
-      ff_h3vglayout->addWidget(ff_linetypelabel ,2,0);
-      ff_h3vglayout->addWidget(ff_linetypebox ,2,1);
-      ff_h3vglayout->addWidget(ff_zorderlabel, 3,0);
-      ff_h3vglayout->addWidget(ff_zorder ,3,1);
+  // Latlon layouts ---------
+  QVBoxLayout* lonlayout= new QVBoxLayout(lon_frame, border, space);
+  QHBoxLayout* lon_toplayout= new QHBoxLayout(lonlayout,5);
+  lon_toplayout->addWidget(showlon);
+  lon_toplayout->addWidget(lon_label);
+  lon_toplayout->addStretch();
 
-      h2h2v1layout->addLayout(ff_h3vglayout);
-      h2h2v1layout->addStretch( );
+  QGridLayout* lon_glayout= new QGridLayout(6,2,space);
+  lon_glayout->setColStretch(0,10);
+  lon_glayout->addWidget(lon_colorlabel,0,0);
+  lon_glayout->addWidget(lon_colorcbox ,0,1);
+  lon_glayout->addWidget(lon_linelabel ,1,0);
+  lon_glayout->addWidget(lon_linecbox ,1,1);
+  lon_glayout->addWidget(lon_linetypelabel ,2,0);
+  lon_glayout->addWidget(lon_linetypebox ,2,1);
+  lon_glayout->addWidget(lon_densitylabel,3,0);
+  lon_glayout->addWidget(lon_density , 3,1);
+  lon_glayout->addWidget(lon_zorderlabel, 4,0);
+  lon_glayout->addWidget(lon_zorder ,4,1);
+  lon_glayout->addWidget(lon_showvalue ,5,0);
+  lon_glayout->addWidget(lon_valuepos ,5,1);
 
-      h2layout->addLayout( framelayout );
+  lonlayout->addLayout(lon_glayout);
 
-      // ==================================================
-      // Maps, selected maps with buttons and options
-      // ==================================================
+  QVBoxLayout* latlayout= new QVBoxLayout(lat_frame, border, space);
+  QHBoxLayout* lat_toplayout= new QHBoxLayout(latlayout,5);
+  lat_toplayout->addWidget(showlat);
+  lat_toplayout->addWidget(lat_label);
+  lat_toplayout->addStretch();
 
-      QHBoxLayout* h3layout = new QHBoxLayout( 5 );
-      // maps layout
-      QVBoxLayout* mapsvlayout = new QVBoxLayout( 5 );
-      mapsvlayout->addWidget( maplabel );
-      mapsvlayout->addWidget( mapbox );
-      mapsvlayout->addWidget( selectedMaplabel );
-      mapsvlayout->addWidget( selectedMapbox );
+  QGridLayout* lat_glayout= new QGridLayout(6,2,space);
+  lat_glayout->setColStretch(0,10);
+  lat_glayout->addWidget(lat_colorlabel,0,0);
+  lat_glayout->addWidget(lat_colorcbox ,0,1);
+  lat_glayout->addWidget(lat_linelabel ,1,0);
+  lat_glayout->addWidget(lat_linecbox ,1,1);
+  lat_glayout->addWidget(lat_linetypelabel ,2,0);
+  lat_glayout->addWidget(lat_linetypebox ,2,1);
+  lat_glayout->addWidget(lat_densitylabel,3,0);
+  lat_glayout->addWidget(lat_density , 3,1);
+  lat_glayout->addWidget(lat_zorderlabel, 4,0);
+  lat_glayout->addWidget(lat_zorder ,4,1);
+  lat_glayout->addWidget(lat_showvalue ,5,0);
+  lat_glayout->addWidget(lat_valuepos ,5,1);
 
-      h3layout->addLayout( mapsvlayout );
+  latlayout->addLayout(lat_glayout);
 
-      // map buttons
-      QHBoxLayout* h4layout = new QHBoxLayout( 5 );
-      h4layout->addWidget(mapdelete);
-      h4layout->addWidget(mapalldelete);
+  // frame layouts ---------
+  QVBoxLayout* framelayout= new QVBoxLayout(ff_frame, border, space);
+  QHBoxLayout* framehlayout= new QHBoxLayout(framelayout,5);
+  framehlayout->addWidget( showframe );
+  framehlayout->addWidget(framelabel);
+  framehlayout->addStretch();
 
-      // contours and filled maps
-      QHBoxLayout* h5layout = new QHBoxLayout( 5 );
+  QGridLayout* frame_glayout= new QGridLayout(5,2,space);
+  frame_glayout->setColStretch(0,10);
+  frame_glayout->addWidget(ff_colorlabel,0,0);
+  frame_glayout->addWidget(ff_colorcbox ,0,1);
+  frame_glayout->addWidget(ff_linelabel ,1,0);
+  frame_glayout->addWidget(ff_linecbox ,1,1);
+  frame_glayout->addWidget(ff_linetypelabel ,2,0);
+  frame_glayout->addWidget(ff_linetypebox ,2,1);
+  frame_glayout->addWidget(ff_zorderlabel, 3,0);
+  frame_glayout->addWidget(ff_zorder ,3,1);
 
-      // Contours layouts ---------
-      QHBoxLayout* cont_h3layout = new QHBoxLayout( 5 );
-      cont_h3layout->addWidget(cont_frame);
+  framelayout->addLayout(frame_glayout);
+  framelayout->addStretch( );
 
-      QVBoxLayout* h3vlayout= new QVBoxLayout(cont_frame, border, space);
-      QHBoxLayout* h3vhlayout= new QHBoxLayout(h3vlayout,5);
-      h3vhlayout->addWidget(contours);
-      h3vhlayout->addWidget(cont_label);
-      h3vhlayout->addStretch();
+  // background layout
+  QHBoxLayout* backlayout = new QHBoxLayout( 5 );
+  backlayout->addWidget( backcolorlabel );
+  backlayout->addWidget( backcolorcbox );
+  backlayout->addStretch();
 
-      QGridLayout* h3vglayout= new QGridLayout(4,2,space);
-      h3vglayout->setColStretch(0,10);
-      h3vglayout->addWidget(cont_colorlabel,0,0);
-      h3vglayout->addWidget(cont_colorcbox ,0,1);
-      h3vglayout->addWidget(cont_linelabel ,1,0);
-      h3vglayout->addWidget(cont_linecbox ,1,1);
-      h3vglayout->addWidget(cont_linetypelabel ,2,0);
-      h3vglayout->addWidget(cont_linetypebox ,2,1);
-      h3vglayout->addWidget(cont_zorderlabel,3,0);
-      h3vglayout->addWidget(cont_zorder ,3,1);
+  frame2layout->addWidget(ff_frame);
+  frame2layout->addLayout(backlayout);
+  frame2layout->addStretch();
 
-      h3vlayout->addLayout(h3vglayout);
+  // ==================================================
+  // Maps, selected maps with buttons and options
+  // ==================================================
 
-      h5layout->addLayout( cont_h3layout );
+  QHBoxLayout* h3layout = new QHBoxLayout( 5 );
+  // maps layout
+  QVBoxLayout* mapsvlayout = new QVBoxLayout( 5 );
+  QVBoxLayout* smapsvlayout = new QVBoxLayout( 5 );
+  mapsvlayout->addWidget( maplabel );
+  mapsvlayout->addWidget( mapbox );
+  smapsvlayout->addWidget( selectedMaplabel );
+  smapsvlayout->addWidget( selectedMapbox );
+  smapsvlayout->addWidget(mapdelete);
+  smapsvlayout->addWidget(mapalldelete);
 
-      // Land layouts ---------
-      QHBoxLayout* land_h3layout = new QHBoxLayout( 5 );
-      land_h3layout->addWidget(land_frame);
+  h3layout->addLayout( mapsvlayout );
+  h3layout->addLayout( smapsvlayout );
 
-      QVBoxLayout* land_h3vlayout= new QVBoxLayout(land_frame, border, space);
-      QHBoxLayout* land_h3vhlayout= new QHBoxLayout(land_h3vlayout,5);
-      land_h3vhlayout->addWidget(filledland);
-      land_h3vhlayout->addWidget(land_label);
-      land_h3vhlayout->addStretch();
+  // contours and filled maps
+  QHBoxLayout* h5layout = new QHBoxLayout( 5 );
 
-      QGridLayout* land_h3vglayout= new QGridLayout(2,2,space);
-      land_h3vglayout->setColStretch(0,10);
-      land_h3vglayout->addWidget(land_colorlabel,0,0);
-      land_h3vglayout->addWidget(land_colorcbox ,0,1);
-      land_h3vglayout->addWidget(land_zorderlabel,1,0);
-      land_h3vglayout->addWidget(land_zorder ,1,1);
+  // Contours layouts ---------
+  QHBoxLayout* cont_h3layout = new QHBoxLayout( 5 );
+  cont_h3layout->addWidget(cont_frame);
 
-      land_h3vlayout->addLayout(land_h3vglayout);
-      land_h3vlayout->addStretch();
+  QVBoxLayout* h3vlayout= new QVBoxLayout(cont_frame, border, space);
+  QHBoxLayout* h3vhlayout= new QHBoxLayout(h3vlayout,5);
+  h3vhlayout->addWidget(contours);
+  h3vhlayout->addWidget(cont_label);
+  h3vhlayout->addStretch();
 
-      h5layout->addLayout( land_h3layout );
+  QGridLayout* h3vglayout= new QGridLayout(4,2,space);
+  h3vglayout->setColStretch(0,10);
+  h3vglayout->addWidget(cont_colorlabel,0,0);
+  h3vglayout->addWidget(cont_colorcbox ,0,1);
+  h3vglayout->addWidget(cont_linelabel ,1,0);
+  h3vglayout->addWidget(cont_linecbox ,1,1);
+  h3vglayout->addWidget(cont_linetypelabel ,2,0);
+  h3vglayout->addWidget(cont_linetypebox ,2,1);
+  h3vglayout->addWidget(cont_zorderlabel,3,0);
+  h3vglayout->addWidget(cont_zorder ,3,1);
 
-      // buttons layout
-      QGridLayout* buttonlayout= new QGridLayout(2, 3, space);
-      buttonlayout->addWidget( maphelp, 0, 0 );
-      buttonlayout->addWidget( savefavourite,0, 1 );
-      buttonlayout->addWidget( usefavourite, 0, 2 );
+  h3vlayout->addLayout(h3vglayout);
 
-      buttonlayout->addWidget( maphide, 1, 0 );
-      buttonlayout->addWidget( mapapplyhide, 1, 1 );
-      buttonlayout->addWidget( mapapply, 1, 2 );
+  h5layout->addLayout( cont_h3layout );
 
-      // vlayout
-      QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 10 );
-      vlayout->addLayout( v1layout );
-      vlayout->addLayout( h2layout );
-      vlayout->addLayout( h3layout );
-      vlayout->addLayout( h4layout );
-      vlayout->addLayout( h5layout );
-      vlayout->addLayout( buttonlayout );
-      vlayout->activate();
+  // Land layouts ---------
+  QHBoxLayout* land_h3layout = new QHBoxLayout( 5 );
+  land_h3layout->addWidget(land_frame);
 
-      mapboxChanged();// this must be called after selected mapbox is created
+  QVBoxLayout* land_h3vlayout= new QVBoxLayout(land_frame, border, space);
+  QHBoxLayout* land_h3vhlayout= new QHBoxLayout(land_h3vlayout,5);
+  land_h3vhlayout->addWidget(filledland);
+  land_h3vhlayout->addWidget(land_label);
+  land_h3vhlayout->addStretch();
 
-      savefavouriteClicked(); //default favourite
+  QGridLayout* land_h3vglayout= new QGridLayout(2,2,space);
+  land_h3vglayout->setColStretch(0,10);
+  land_h3vglayout->addWidget(land_colorlabel,0,0);
+  land_h3vglayout->addWidget(land_colorcbox ,0,1);
+  land_h3vglayout->addWidget(land_zorderlabel,1,0);
+  land_h3vglayout->addWidget(land_zorder ,1,1);
 
-    }//end constructor MapDialog
+  land_h3vlayout->addLayout(land_h3vglayout);
+  land_h3vlayout->addStretch();
+
+  h5layout->addLayout( land_h3layout );
+
+  // buttons layout
+  QGridLayout* buttonlayout= new QGridLayout(2, 3, space);
+  buttonlayout->addWidget( maphelp, 0, 0 );
+  buttonlayout->addWidget( savefavorite,0, 1 );
+  buttonlayout->addWidget( usefavorite, 0, 2 );
+
+  buttonlayout->addWidget( maphide, 1, 0 );
+  buttonlayout->addWidget( mapapplyhide, 1, 1 );
+  buttonlayout->addWidget( mapapply, 1, 2 );
+
+  // vlayout
+  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 10 );
+  vlayout->addLayout( v1layout );
+  vlayout->addLayout( h2layout );
+  vlayout->addLayout( h3layout );
+  //vlayout->addLayout( h4layout );
+  vlayout->addLayout( h5layout );
+  vlayout->addLayout( buttonlayout );
+  //vlayout->activate();
+
+  mapboxChanged();// this must be called after selected mapbox is created
+
+  if (favorite.size()==0) saveFavoriteClicked(); //default favorite
+
+}//end constructor MapDialog
 
 
   // FRAME SLOTS
@@ -852,49 +970,103 @@ void MapDialog::land_zordercboxActivated(int index)
 
 // LATLON SLOTS
 
-void MapDialog::ll_checkboxActivated(bool on)
+void MapDialog::lon_checkboxActivated(bool on)
 {
-  latlonb = on;
+  lonb = on;
 
-  if (on) {
-    ll_linecbox->setEnabled(true);
-    ll_linetypebox->setEnabled(true);
-    ll_colorcbox->setEnabled(true);
-    ll_density->setEnabled(true);
-    ll_zorder->setEnabled(true);
-  } else {
-    ll_linecbox->setEnabled(false);
-    ll_linetypebox->setEnabled(false);
-    ll_colorcbox->setEnabled(false);
-    ll_density->setEnabled(false);
-    ll_zorder->setEnabled(false);
-  }
+  lon_linecbox->setEnabled(on);
+  lon_linetypebox->setEnabled(on);
+  lon_colorcbox->setEnabled(on);
+  lon_density->setEnabled(on);
+  lon_zorder->setEnabled(on);
+  lon_showvalue->setEnabled(on);
+  lon_valuepos->setEnabled(on);
 }
 
-void MapDialog::ll_linecboxActivated(int index)
+void MapDialog::lon_linecboxActivated(int index)
 {
-  latlonlw = miString(index + 1);
+  lonlw = miString(index + 1);
 }
 
-void MapDialog::ll_linetypeboxActivated(int index)
+void MapDialog::lon_linetypeboxActivated(int index)
 {
-  latlonlt = linetypes[index];
+  lonlt = linetypes[index];
 }
 
-void MapDialog::ll_colorcboxActivated(int index)
+void MapDialog::lon_colorcboxActivated(int index)
 {
-  latlonc = cInfo[index].name;
+  lonc = cInfo[index].name;
 }
 
-void MapDialog::ll_densitycboxActivated(int index)
+void MapDialog::lon_densitycboxActivated(int index)
 {
-  latlond = atof(densities[index].c_str());
+  lond = atof(densities[index].c_str());
 }
 
-void MapDialog::ll_zordercboxActivated(int index)
+void MapDialog::lon_zordercboxActivated(int index)
 {
-  latlonz = index;
+  lonz = index;
 }
+
+void MapDialog::lon_showValueActivated(bool on)
+{
+  lonshowvalue = on;
+}
+
+void MapDialog::lon_valueposboxActivated( int index )
+{
+  lonvaluepos = index;
+}
+
+
+void MapDialog::lat_checkboxActivated(bool on)
+{
+  latb = on;
+
+  lat_linecbox->setEnabled(on);
+  lat_linetypebox->setEnabled(on);
+  lat_colorcbox->setEnabled(on);
+  lat_density->setEnabled(on);
+  lat_zorder->setEnabled(on);
+  lat_showvalue->setEnabled(on);
+  lat_valuepos->setEnabled(on);
+}
+
+void MapDialog::lat_linecboxActivated(int index)
+{
+  latlw = miString(index + 1);
+}
+
+void MapDialog::lat_linetypeboxActivated(int index)
+{
+  latlt = linetypes[index];
+}
+
+void MapDialog::lat_colorcboxActivated(int index)
+{
+  latc = cInfo[index].name;
+}
+
+void MapDialog::lat_densitycboxActivated(int index)
+{
+  latd = atof(densities[index].c_str());
+}
+
+void MapDialog::lat_zordercboxActivated(int index)
+{
+  latz = index;
+}
+
+void MapDialog::lat_showValueActivated(bool on)
+{
+  latshowvalue = on;
+}
+
+void MapDialog::lat_valueposboxActivated( int index )
+{
+  latvaluepos = index;
+}
+
 
 // -----------------
 
@@ -909,23 +1081,28 @@ void MapDialog::backcolorcboxActivated(int index)
  BUTTONS
  */
 
-void MapDialog::savefavouriteClicked()
+void MapDialog::saveFavoriteClicked()
 {
-  // save current status as favourite
-  favourite = getOKString();
+  // save current status as favorite
+  favorite = getOKString();
 
   // enable this button
-  usefavourite->setEnabled(true);
+  usefavorite->setEnabled(true);
 }
 
-void MapDialog::useFavourite()
+void MapDialog::useFavorite()
 {
-  putOKString(favourite);
+/*
+  cerr << "useFavorite:" << endl;
+  for (int i=0; i<favorite.size();i++)
+    cerr << favorite[i] << endl;
+*/
+  putOKString(favorite);
 }
 
-void MapDialog::usefavouriteClicked()
+void MapDialog::useFavoriteClicked()
 {
-  useFavourite();
+  useFavorite();
 }
 
 void MapDialog::applyhideClicked()
@@ -976,12 +1153,24 @@ vector<miString> MapDialog::getOKString()
     MapInfo mi;
     mi.contour.ison = false;
     mi.land.ison = false;
-    mi.latlon.ison = latlonb;
-    mi.latlon.linecolour = latlonc;
-    mi.latlon.linewidth = latlonlw;
-    mi.latlon.linetype = latlonlt;
-    mi.latlon.zorder = latlonz;
-    mi.latlon.density = latlond;
+
+    mi.lon.ison = lonb;
+    mi.lon.linecolour = lonc;
+    mi.lon.linewidth = lonlw;
+    mi.lon.linetype = lonlt;
+    mi.lon.zorder = lonz;
+    mi.lon.density = lond;
+    mi.lon.showvalue = lonshowvalue;
+    mi.lon.value_pos = lonvaluepos;
+
+    mi.lat.ison = latb;
+    mi.lat.linecolour = latc;
+    mi.lat.linewidth = latlw;
+    mi.lat.linetype = latlt;
+    mi.lat.zorder = latz;
+    mi.lat.density = latd;
+    mi.lat.showvalue = latshowvalue;
+    mi.lat.value_pos = latvaluepos;
 
     mi.frame.ison = frameb;
     mi.frame.linecolour = framec;
@@ -1017,12 +1206,24 @@ vector<miString> MapDialog::getOKString()
                 : "white");
 
         // set latlon options
-        m_MapDI.maps[lindex].latlon.ison = latlonb;
-        m_MapDI.maps[lindex].latlon.linecolour = latlonc;
-        m_MapDI.maps[lindex].latlon.linewidth = latlonlw;
-        m_MapDI.maps[lindex].latlon.linetype = latlonlt;
-        m_MapDI.maps[lindex].latlon.zorder = latlonz;
-        m_MapDI.maps[lindex].latlon.density = latlond;
+        m_MapDI.maps[lindex].lon.ison = lonb;
+        m_MapDI.maps[lindex].lon.linecolour = lonc;
+        m_MapDI.maps[lindex].lon.linewidth = lonlw;
+        m_MapDI.maps[lindex].lon.linetype = lonlt;
+        m_MapDI.maps[lindex].lon.zorder = lonz;
+        m_MapDI.maps[lindex].lon.density = lond;
+        m_MapDI.maps[lindex].lon.showvalue = lonshowvalue;
+        m_MapDI.maps[lindex].lon.value_pos = lonvaluepos;
+
+        m_MapDI.maps[lindex].lat.ison = latb;
+        m_MapDI.maps[lindex].lat.linecolour = latc;
+        m_MapDI.maps[lindex].lat.linewidth = latlw;
+        m_MapDI.maps[lindex].lat.linetype = latlt;
+        m_MapDI.maps[lindex].lat.zorder = latz;
+        m_MapDI.maps[lindex].lat.density = latd;
+        m_MapDI.maps[lindex].lat.showvalue = latshowvalue;
+        m_MapDI.maps[lindex].lat.value_pos = latvaluepos;
+
 
         // set frame options
         m_MapDI.maps[lindex].frame.ison = frameb;
@@ -1031,7 +1232,8 @@ vector<miString> MapDialog::getOKString()
         m_MapDI.maps[lindex].frame.linetype = framelt;
 
       } else {
-        m_MapDI.maps[lindex].latlon.ison = false;
+        m_MapDI.maps[lindex].lon.ison = false;
+        m_MapDI.maps[lindex].lat.ison = false;
         m_MapDI.maps[lindex].frame.ison = false;
       }
 
@@ -1119,38 +1321,79 @@ void MapDialog::putOKString(const vector<miString>& vstr)
     mapbox->item(themaps[i])->setSelected(true);
   }
 
-  if (lastmap > 0) {
+  if (lastmap >= 0 && lastmap <m_MapDI.maps.size()) {
     // set latlon options
-    latlonb = m_MapDI.maps[lastmap].latlon.ison;
-    latlonc = m_MapDI.maps[lastmap].latlon.linecolour;
-    latlonlw = m_MapDI.maps[lastmap].latlon.linewidth;
-    latlonlt = m_MapDI.maps[lastmap].latlon.linetype;
-    latlonz = m_MapDI.maps[lastmap].latlon.zorder;
-    latlond = m_MapDI.maps[lastmap].latlon.density;
+    lonb = m_MapDI.maps[lastmap].lon.ison;
+    lonc = m_MapDI.maps[lastmap].lon.linecolour;
+    lonlw = m_MapDI.maps[lastmap].lon.linewidth;
+    lonlt = m_MapDI.maps[lastmap].lon.linetype;
+    lonz = m_MapDI.maps[lastmap].lon.zorder;
+    lond = m_MapDI.maps[lastmap].lon.density;
+    lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
+    lonvaluepos = m_MapDI.maps[lastmap].lon.value_pos;
 
-    int m_colIndex = getIndex(cInfo, latlonc);
-    int m_linewIndex = atoi(latlonlw.cStr()) - 1;
-    int m_linetIndex = getIndex(linetypes, latlonlt);
+    int m_colIndex = getIndex(cInfo, lonc);
+    int m_linewIndex = atoi(lonlw.cStr()) - 1;
+    int m_linetIndex = getIndex(linetypes, lonlt);
     // find density index
     int m_densIndex = 0;
-    int dens = int(latlond * 1000);
+    int dens = int(lond * 1000);
     for (int k = 0; k < densities.size(); k++)
       if (int(atof(densities[k].c_str()) * 1000) == dens) {
         m_densIndex = k;
         break;
       }
-    int m_zIndex = latlonz;
-    latlon->setChecked(latlonb);
+    int m_zIndex = lonz;
+    showlon->setChecked(lonb);
     if (m_colIndex >= 0)
-      ll_colorcbox->setCurrentItem(m_colIndex);
+      lon_colorcbox->setCurrentItem(m_colIndex);
     if (m_linewIndex >= 0)
-      ll_linecbox->setCurrentItem(m_linewIndex);
+      lon_linecbox->setCurrentItem(m_linewIndex);
     if (m_linetIndex >= 0)
-      ll_linetypebox->setCurrentItem(m_linetIndex);
+      lon_linetypebox->setCurrentItem(m_linetIndex);
     if (m_densIndex >= 0)
-      ll_density->setCurrentItem(m_densIndex);
+      lon_density->setCurrentItem(m_densIndex);
     if (m_zIndex >= 0)
-      ll_zorder->setCurrentItem(m_zIndex);
+      lon_zorder->setCurrentItem(m_zIndex);
+    lon_showvalue->setChecked(lonshowvalue);
+    if (lonvaluepos >= 0)
+      lon_valuepos->setCurrentItem(lonvaluepos);
+
+    latb = m_MapDI.maps[lastmap].lat.ison;
+    latc = m_MapDI.maps[lastmap].lat.linecolour;
+    latlw = m_MapDI.maps[lastmap].lat.linewidth;
+    latlt = m_MapDI.maps[lastmap].lat.linetype;
+    latz = m_MapDI.maps[lastmap].lat.zorder;
+    latd = m_MapDI.maps[lastmap].lat.density;
+    latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
+    latvaluepos = m_MapDI.maps[lastmap].lat.value_pos;
+
+    m_colIndex = getIndex(cInfo, latc);
+    m_linewIndex = atoi(latlw.cStr()) - 1;
+    m_linetIndex = getIndex(linetypes, latlt);
+    // find density index
+    m_densIndex = 0;
+    dens = int(latd * 1000);
+    for (int k = 0; k < densities.size(); k++)
+      if (int(atof(densities[k].c_str()) * 1000) == dens) {
+        m_densIndex = k;
+        break;
+      }
+    m_zIndex = latz;
+    showlat->setChecked(latb);
+    if (m_colIndex >= 0)
+      lat_colorcbox->setCurrentItem(m_colIndex);
+    if (m_linewIndex >= 0)
+      lat_linecbox->setCurrentItem(m_linewIndex);
+    if (m_linetIndex >= 0)
+      lat_linetypebox->setCurrentItem(m_linetIndex);
+    if (m_densIndex >= 0)
+      lat_density->setCurrentItem(m_densIndex);
+    if (m_zIndex >= 0)
+      lat_zorder->setCurrentItem(m_zIndex);
+    lat_showvalue->setChecked(latshowvalue);
+    if (latvaluepos >= 0)
+      lat_valuepos->setCurrentItem(latvaluepos);
 
     // set frame options
     frameb = m_MapDI.maps[lastmap].frame.ison;
@@ -1215,20 +1458,33 @@ vector<miString> MapDialog::writeLog()
       ostr << "area="
           << areabox->item(areabox->currentRow())->text().toStdString()
           << " backcolour=" << cInfo[backcolorcbox->currentItem()].name << " ";
-      // set latlon options
-      m_MapDI.maps[i].latlon.ison = latlonb;
-      m_MapDI.maps[i].latlon.linecolour = latlonc;
-      m_MapDI.maps[i].latlon.linewidth = latlonlw;
-      m_MapDI.maps[i].latlon.linetype = latlonlt;
-      m_MapDI.maps[i].latlon.zorder = latlonz;
-      m_MapDI.maps[i].latlon.density = latlond;
+      // set lon options
+      m_MapDI.maps[i].lon.ison = lonb;
+      m_MapDI.maps[i].lon.linecolour = lonc;
+      m_MapDI.maps[i].lon.linewidth = lonlw;
+      m_MapDI.maps[i].lon.linetype = lonlt;
+      m_MapDI.maps[i].lon.zorder = lonz;
+      m_MapDI.maps[i].lon.density = lond;
+      m_MapDI.maps[i].lon.showvalue = lonshowvalue;
+      m_MapDI.maps[i].lon.value_pos = lonvaluepos;
+
+      m_MapDI.maps[i].lat.ison = latb;
+      m_MapDI.maps[i].lat.linecolour = latc;
+      m_MapDI.maps[i].lat.linewidth = latlw;
+      m_MapDI.maps[i].lat.linetype = latlt;
+      m_MapDI.maps[i].lat.zorder = latz;
+      m_MapDI.maps[i].lat.density = latd;
+      m_MapDI.maps[i].lat.showvalue = latshowvalue;
+      m_MapDI.maps[i].lat.value_pos = latvaluepos;
+
       // set frame options
       m_MapDI.maps[i].frame.ison = frameb;
       m_MapDI.maps[i].frame.linecolour = framec;
       m_MapDI.maps[i].frame.linewidth = framelw;
       m_MapDI.maps[i].frame.linetype = framelt;
     } else {
-      m_MapDI.maps[i].latlon.ison = false;
+      m_MapDI.maps[i].lon.ison = false;
+      m_MapDI.maps[i].lat.ison = false;
       m_MapDI.maps[i].frame.ison = false;
     }
 
@@ -1251,10 +1507,10 @@ vector<miString> MapDialog::writeLog()
     vstr.push_back(m_MapDI.maps[lindex].name);
   }
 
-  vstr.push_back("=================== Favourites ============");
-  // write favourite options
-  for (int i = 0; i < favourite.size(); i++) {
-    vstr.push_back(favourite[i]);
+  vstr.push_back("=================== Favorites ============");
+  // write favorite options
+  for (int i = 0; i < favorite.size(); i++) {
+    vstr.push_back(favorite[i]);
   }
 
   vstr.push_back("===========================================");
@@ -1331,8 +1587,8 @@ void MapDialog::readLog(const vector<miString>& vstr,
     }
   }
 
-  // read favourite
-  favourite.clear();
+  // read favorite
+  favorite.clear();
   if (iline < n && vstr[iline][0] == '=') {
     iline++;
     for (; iline < n; iline++) {
@@ -1342,10 +1598,10 @@ void MapDialog::readLog(const vector<miString>& vstr,
         continue;
       if (str[0] == '=')
         break;
-      favourite.push_back(str);
+      favorite.push_back(str);
     }
   }
-  usefavourite->setEnabled(favourite.size() > 0);
+  usefavorite->setEnabled(favorite.size() > 0);
 
   // reselect area
   int area_index = 0;
@@ -1368,37 +1624,79 @@ void MapDialog::readLog(const vector<miString>& vstr,
   logmaps = themaps;
 
   if (lastmap > 0) {
-    // set latlon options
-    latlonb = m_MapDI.maps[lastmap].latlon.ison;
-    latlonc = m_MapDI.maps[lastmap].latlon.linecolour;
-    latlonlw = m_MapDI.maps[lastmap].latlon.linewidth;
-    latlonlt = m_MapDI.maps[lastmap].latlon.linetype;
-    latlonz = m_MapDI.maps[lastmap].latlon.zorder;
-    latlond = m_MapDI.maps[lastmap].latlon.density;
+    // set lon options
+    lonb = m_MapDI.maps[lastmap].lon.ison;
+    lonc = m_MapDI.maps[lastmap].lon.linecolour;
+    lonlw = m_MapDI.maps[lastmap].lon.linewidth;
+    lonlt = m_MapDI.maps[lastmap].lon.linetype;
+    lonz = m_MapDI.maps[lastmap].lon.zorder;
+    lond = m_MapDI.maps[lastmap].lon.density;
+    lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
+    lonvaluepos = m_MapDI.maps[lastmap].lon.value_pos;
 
-    int m_colIndex = getIndex(cInfo, latlonc);
-    int m_linewIndex = atoi(latlonlw.cStr()) - 1;
-    int m_linetIndex = getIndex(linetypes, latlonlt);
+    int m_colIndex = getIndex(cInfo, lonc);
+    int m_linewIndex = atoi(lonlw.cStr()) - 1;
+    int m_linetIndex = getIndex(linetypes, lonlt);
     // find density index
     int m_densIndex = 0;
-    int dens = int(latlond * 1000);
+    int dens = int(lond * 1000);
     for (int k = 0; k < densities.size(); k++)
       if (int(atof(densities[k].c_str()) * 1000) == dens) {
         m_densIndex = k;
         break;
       }
-    int m_zIndex = latlonz;
-    latlon->setChecked(latlonb);
+    int m_zIndex = lonz;
+    showlon->setChecked(lonb);
     if (m_colIndex >= 0)
-      ll_colorcbox->setCurrentItem(m_colIndex);
+      lon_colorcbox->setCurrentItem(m_colIndex);
     if (m_linewIndex >= 0)
-      ll_linecbox->setCurrentItem(m_linewIndex);
+      lon_linecbox->setCurrentItem(m_linewIndex);
     if (m_linetIndex >= 0)
-      ll_linetypebox->setCurrentItem(m_linetIndex);
+      lon_linetypebox->setCurrentItem(m_linetIndex);
     if (m_densIndex >= 0)
-      ll_density->setCurrentItem(m_densIndex);
+      lon_density->setCurrentItem(m_densIndex);
     if (m_zIndex >= 0)
-      ll_zorder->setCurrentItem(m_zIndex);
+      lon_zorder->setCurrentItem(m_zIndex);
+    lon_showvalue->setChecked(lonshowvalue);
+    if (lonvaluepos >= 0)
+      lon_valuepos->setCurrentItem(lonvaluepos);
+
+    // set lat options
+     latb = m_MapDI.maps[lastmap].lat.ison;
+     latc = m_MapDI.maps[lastmap].lat.linecolour;
+     latlw = m_MapDI.maps[lastmap].lat.linewidth;
+     latlt = m_MapDI.maps[lastmap].lat.linetype;
+     latz = m_MapDI.maps[lastmap].lat.zorder;
+     latd = m_MapDI.maps[lastmap].lat.density;
+     latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
+     latvaluepos = m_MapDI.maps[lastmap].lat.value_pos;
+
+     m_colIndex = getIndex(cInfo, latc);
+     m_linewIndex = atoi(latlw.cStr()) - 1;
+     m_linetIndex = getIndex(linetypes, latlt);
+     // find density index
+     m_densIndex = 0;
+     dens = int(latd * 1000);
+     for (int k = 0; k < densities.size(); k++)
+       if (int(atof(densities[k].c_str()) * 1000) == dens) {
+         m_densIndex = k;
+         break;
+       }
+     m_zIndex = latz;
+     showlat->setChecked(latb);
+     if (m_colIndex >= 0)
+       lat_colorcbox->setCurrentItem(m_colIndex);
+     if (m_linewIndex >= 0)
+       lat_linecbox->setCurrentItem(m_linewIndex);
+     if (m_linetIndex >= 0)
+       lat_linetypebox->setCurrentItem(m_linetIndex);
+     if (m_densIndex >= 0)
+       lat_density->setCurrentItem(m_densIndex);
+     if (m_zIndex >= 0)
+       lat_zorder->setCurrentItem(m_zIndex);
+     lat_showvalue->setChecked(latshowvalue);
+     if (latvaluepos >= 0)
+       lat_valuepos->setCurrentItem(latvaluepos);
 
     // set frame options
     frameb = m_MapDI.maps[lastmap].frame.ison;
@@ -1410,7 +1708,7 @@ void MapDialog::readLog(const vector<miString>& vstr,
     m_colIndex = getIndex(cInfo, framec);
     m_linewIndex = atoi(framelw.cStr()) - 1;
     m_linetIndex = getIndex(linetypes, framelt);
-    m_zIndex = latlonz;
+    m_zIndex = lonz;
 
     showframe->setChecked(frameb);
     if (m_colIndex >= 0)

@@ -1,36 +1,35 @@
 /*
-  Diana - A Free Meteorological Visualisation Tool
+ Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+ $Id$
 
-  Copyright (C) 2006 met.no
+ Copyright (C) 2006 met.no
 
-  Contact information:
-  Norwegian Meteorological Institute
-  Box 43 Blindern
-  0313 OSLO
-  NORWAY
-  email: diana@met.no
-  
-  This file is part of Diana
+ Contact information:
+ Norwegian Meteorological Institute
+ Box 43 Blindern
+ 0313 OSLO
+ NORWAY
+ email: diana@met.no
 
-  Diana is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+ This file is part of Diana
 
-  Diana is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-  
-  You should have received a copy of the GNU General Public License
-  along with Diana; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ Diana is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ Diana is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Diana; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 #ifndef _mapdialog_h
 #define _mapdialog_h
-
 
 #include <QDialog>
 
@@ -48,19 +47,18 @@ class ToggleButton;
 class QCheckBox;
 
 /**
-   \brief Map selection dialogue
-   
-   Dialogue for selections of maps, predefined projections/areas and various map-settings
+ \brief Map selection dialogue
 
-*/
+ Dialogue for selections of maps, predefined projections/areas and various map-settings
 
-class MapDialog: public QDialog
-{
-  Q_OBJECT
+ */
+
+class MapDialog: public QDialog {
+Q_OBJECT
 public:
 
-  MapDialog( QWidget* parent, const MapDialogInfo& mdi );
-  MapDialog( QWidget* parent, Controller* llctrl );
+  MapDialog(QWidget* parent, const MapDialogInfo& mdi);
+  MapDialog(QWidget* parent, Controller* llctrl);
 
   /// the plot info strings
   vector<miString> getOKString();
@@ -68,78 +66,87 @@ public:
   void putOKString(const vector<miString>& vstr);
   /// creates a short name for the current settings (used in quick menues)
   miString getShortname();
-
   /// returns all settings in logfile format
   vector<miString> writeLog();
   /// set the dialogue elements from logfile settings
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion);
-
-  /// choose the favourite settings
-  void useFavourite();
+  void readLog(const vector<miString>& vstr, const miString& thisVersion,
+      const miString& logVersion);
+  /// choose the favorite settings
+  void useFavorite();
 
 protected:
-  void closeEvent( QCloseEvent* );
+  void closeEvent(QCloseEvent*);
 
 private:
 
-  void ConstructorCernel( const MapDialogInfo mdi );
+  void ConstructorCernel(const MapDialogInfo mdi);
 
 private slots:
-//  void areaboxSelected( QListWidgetItem* item );
+  //  void areaboxSelected( QListWidgetItem* item );
   void mapboxChanged();
-  void selectedMapboxClicked( QListWidgetItem* item );
+  void selectedMapboxClicked(QListWidgetItem* item);
   void mapdeleteClicked();
   void mapalldeleteClicked();
 
-  void ll_checkboxActivated(bool);
-  void ll_linecboxActivated( int index );
-  void ll_linetypeboxActivated( int index );
-  void ll_colorcboxActivated( int index );
-  void ll_densitycboxActivated( int index );
-  void ll_zordercboxActivated( int index );
+  void lon_checkboxActivated(bool);
+  void lon_linecboxActivated(int index);
+  void lon_linetypeboxActivated(int index);
+  void lon_colorcboxActivated(int index);
+  void lon_densitycboxActivated(int index);
+  void lon_zordercboxActivated(int index);
+  void lon_showValueActivated(bool);
+  void lon_valueposboxActivated(int index);
+
+  void lat_checkboxActivated(bool);
+  void lat_linecboxActivated(int index);
+  void lat_linetypeboxActivated(int index);
+  void lat_colorcboxActivated(int index);
+  void lat_densitycboxActivated(int index);
+  void lat_zordercboxActivated(int index);
+  void lat_showValueActivated(bool);
+  void lat_valueposboxActivated(int index);
 
   void backcolorcboxActivated(int index);
 
   void showframe_checkboxActivated(bool);
-  void ff_linecboxActivated( int index );
-  void ff_linetypeboxActivated( int index );
-  void ff_colorcboxActivated( int index );
-  void ff_zordercboxActivated( int index );
+  void ff_linecboxActivated(int index);
+  void ff_linetypeboxActivated(int index);
+  void ff_colorcboxActivated(int index);
+  void ff_zordercboxActivated(int index);
 
   void cont_checkboxActivated(bool);
-  void cont_linecboxActivated( int index );
-  void cont_linetypeboxActivated( int index );
-  void cont_colorcboxActivated( int index );
-  void cont_zordercboxActivated( int index );
+  void cont_linecboxActivated(int index);
+  void cont_linetypeboxActivated(int index);
+  void cont_colorcboxActivated(int index);
+  void cont_zordercboxActivated(int index);
 
   void land_checkboxActivated(bool);
-  void land_colorcboxActivated( int index );
-  void land_zordercboxActivated( int index );
+  void land_colorcboxActivated(int index);
+  void land_zordercboxActivated(int index);
 
   void helpClicked();
   void applyhideClicked();
-  void savefavouriteClicked();
-  void usefavouriteClicked();
+  void saveFavoriteClicked();
+  void useFavoriteClicked();
 
   signals:
   void MapApply();
   void MapHide();
-  void showsource(const miString, const miString="");
- 
+  void showsource(const miString, const miString = "");
 
 private:
-  MapDialogInfo m_MapDI;      // all maps and areas
-  vector<miString> favourite; // favourite options
-  int numMaps;                // number of maps
-  vector<int> selectedmaps;   // maps selected
-  int activemap;              // active selected map
-  vector<int> logmaps;        // selected maps ready for logging
-  
+  MapDialogInfo m_MapDI; // all maps and areas
+  vector<miString> favorite; // favorite options
+  int numMaps; // number of maps
+  vector<int> selectedmaps; // maps selected
+  int activemap; // active selected map
+  vector<int> logmaps; // selected maps ready for logging
+
   vector<Colour::ColourInfo> cInfo; // all defined colours
   vector<miString> linetypes; // all defined linetypes
-  vector<miString> zorders;   // all defined zorders
+  vector<miString> zorders; // all defined zorders
   vector<miString> densities; // latlon densities (degrees)
+  vector<miString> positions; // all defined positions
   Controller* m_ctrl;
 
   // areas
@@ -147,24 +154,51 @@ private:
   QListWidget* areabox;
 
   // latlon options
-  QLabel* ll_label;
-  QLabel* ll_linelabel;
-  QLabel* ll_linetypelabel;
-  QLabel* ll_colorlabel;
-  QLabel* ll_zorderlabel;
-  QLabel* ll_densitylabel;
-  QCheckBox* latlon;
-  QComboBox* ll_linecbox;
-  QComboBox* ll_linetypebox;
-  QComboBox* ll_colorcbox;
-  QComboBox* ll_zorder;
-  QComboBox* ll_density;
-  bool latlonb;
-  miString latlonc;
-  miString latlonlw;
-  miString latlonlt;
-  int latlonz;
-  float latlond;
+  QLabel* lon_label;
+  QLabel* lon_linelabel;
+  QLabel* lon_linetypelabel;
+  QLabel* lon_colorlabel;
+  QLabel* lon_zorderlabel;
+  QLabel* lon_densitylabel;
+  QCheckBox* showlon;
+  QComboBox* lon_linecbox;
+  QComboBox* lon_linetypebox;
+  QComboBox* lon_colorcbox;
+  QComboBox* lon_zorder;
+  QComboBox* lon_density;
+  QCheckBox* lon_showvalue;
+  QComboBox* lon_valuepos;
+  bool lonb;
+  miString lonc;
+  miString lonlw;
+  miString lonlt;
+  int lonz;
+  float lond;
+  bool lonshowvalue;
+  int lonvaluepos;
+
+  QLabel* lat_label;
+  QLabel* lat_linelabel;
+  QLabel* lat_linetypelabel;
+  QLabel* lat_colorlabel;
+  QLabel* lat_zorderlabel;
+  QLabel* lat_densitylabel;
+  QCheckBox* showlat;
+  QComboBox* lat_linecbox;
+  QComboBox* lat_linetypebox;
+  QComboBox* lat_colorcbox;
+  QComboBox* lat_zorder;
+  QComboBox* lat_density;
+  QCheckBox* lat_showvalue;
+  QComboBox* lat_valuepos;
+  bool latb;
+  miString latc;
+  miString latlw;
+  miString latlt;
+  int latz;
+  float latd;
+  bool latshowvalue;
+  int latvaluepos;
 
   // backgroundcolour
   QLabel* backcolorlabel;
@@ -206,7 +240,7 @@ private:
   QComboBox* cont_linetypebox;
   QComboBox* cont_colorcbox;
   QComboBox* cont_zorder;
- 
+
   // filled land options
   QLabel* land_label;
   QLabel* land_colorlabel;
@@ -214,10 +248,10 @@ private:
   QCheckBox* filledland;
   QComboBox* land_colorcbox;
   QComboBox* land_zorder;
- 
+
   // buttons
-  QPushButton* savefavourite;
-  QPushButton* usefavourite;
+  QPushButton* savefavorite;
+  QPushButton* usefavorite;
   QPushButton* mapapply;
   QPushButton* mapapplyhide;
   QPushButton* maphide;
@@ -226,6 +260,5 @@ private:
   QColor* pixcolor;
 
 };
-
 
 #endif

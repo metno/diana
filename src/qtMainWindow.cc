@@ -1151,7 +1151,7 @@ void DianaMainWindow::quickMenuApply(const vector<miString>& s)
 
 void DianaMainWindow::resetAll()
 {
-  mm->useFavourite();
+  mm->useFavorite();
   vector<miString> pstr = mm->getOKString();;
   recallPlot(pstr, true);
   MenuOK();
@@ -2847,7 +2847,7 @@ void DianaMainWindow::emailPicture() {
 	//--- Save picture to a temporary file ---
     miString format = "PNG";
     int quality = -1; // default quality
-	
+
 	QTemporaryFile file(QDir::tempPath()+"/diana_XXXXXX.png");
 	if (file.open()) {
 		// do the save

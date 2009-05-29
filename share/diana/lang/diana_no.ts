@@ -423,11 +423,11 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <source>&amp;Email picture...</source>
-        <translation type="unfinished">Send bilde som epost</translation>
+        <translation>Send bilde som &amp;epost...</translation>
     </message>
     <message>
         <source>Saving...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagrer...</translation>
     </message>
     <message>
         <source>There was a problem saving the picture to disk.</source>
@@ -1652,7 +1652,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Lat/lon lines</source>
-        <translation>Bredde/Lengde-linjer</translation>
+        <translation type="obsolete">Bredde/Lengde-linjer</translation>
     </message>
     <message>
         <source>Density</source>
@@ -1668,11 +1668,11 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Save favourite</source>
-        <translation>Lagre favoritt</translation>
+        <translation type="obsolete">Lagre favoritt</translation>
     </message>
     <message>
         <source>Use favourite</source>
-        <translation>Bruk favoritt</translation>
+        <translation type="obsolete">Bruk favoritt</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -1704,7 +1704,7 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Show lat/lon-lines on the map</source>
-        <translation>Vis bredde/lengde-linjer på kartet</translation>
+        <translation type="obsolete">Vis bredde/lengde-linjer på kartet</translation>
     </message>
     <message>
         <source>Draw boundary of selected area</source>
@@ -1712,11 +1712,11 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <source>Save this layout as your favourite</source>
-        <translation>Lagre dette oppsettet som din favoritt</translation>
+        <translation type="obsolete">Lagre dette oppsettet som din favoritt</translation>
     </message>
     <message>
         <source>Use saved favourite layout</source>
-        <translation>Bruk lagret favorittoppsett</translation>
+        <translation type="obsolete">Bruk lagret favorittoppsett</translation>
     </message>
     <message>
         <source>Apply+Hide</source>
@@ -1725,6 +1725,62 @@ Kan ikke starte produksjon</translation>
     <message>
         <source>Line type</source>
         <translation>Linjetype</translation>
+    </message>
+    <message>
+        <source>left</source>
+        <translation>venstre</translation>
+    </message>
+    <message>
+        <source>bottom</source>
+        <translation>nederst</translation>
+    </message>
+    <message>
+        <source>both</source>
+        <translation>begge</translation>
+    </message>
+    <message>
+        <source>Longitude lines</source>
+        <translation>Lengdegradslinjer</translation>
+    </message>
+    <message>
+        <source>Show longitude-lines on the map</source>
+        <translation>Vis lengdegradlinjer på kartet</translation>
+    </message>
+    <message>
+        <source>Show value</source>
+        <translation>Vis verdi</translation>
+    </message>
+    <message>
+        <source>Show longitude-values</source>
+        <translation>Vis lengdegrads-verdier</translation>
+    </message>
+    <message>
+        <source>Latitude lines</source>
+        <translation>Breddegradslinjer</translation>
+    </message>
+    <message>
+        <source>Show latitude-lines on the map</source>
+        <translation>Vis breddegradslinjer på kartet</translation>
+    </message>
+    <message>
+        <source>Show latitude-values</source>
+        <translation>Vis breddegrads-verdier</translation>
+    </message>
+    <message>
+        <source>Save favorite</source>
+        <translation>Lagre favoritt</translation>
+    </message>
+    <message>
+        <source>Use favorite</source>
+        <translation>Bruk favoritt</translation>
+    </message>
+    <message>
+        <source>Save this layout as your favorite</source>
+        <translation>Lagre dette oppsettet som din favoritt</translation>
+    </message>
+    <message>
+        <source>Use saved favorite layout</source>
+        <translation>Bruk lagret favorittoppsett</translation>
     </message>
 </context>
 <context>

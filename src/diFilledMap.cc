@@ -256,9 +256,9 @@ bool FilledMap::readheader()
       float north = indata[wp + 5] * tscale;
 
       // mark tiles near the poles
-      if (south < -80) // 70
+      if (south < -70) // 70
         groups[k].tiletype[i] = 2;
-      else if (north > 80) // 70
+      else if (north > 85) // 70
         groups[k].tiletype[i] = 1;
       else
         groups[k].tiletype[i] = 0;
@@ -388,28 +388,10 @@ bool FilledMap::plot(Area area, // current area
   geomin = geomin * geomin;
 
   if (area.P() != proj || startfresh) {
-    bool cutsouth = !area.P().isLegal(0.0,-90.0);
-    bool cutnorth = !area.P().isLegal(0.0,90.0);
-/*
-    int gtype = area.P().Gridtype();
-    float gspec[Projection::speclen];
-    area.P().Gridspec(gspec);
-    bool cutsouth = false;
-    bool cutnorth = false;
-    if (gtype == Projection::polarstereographic_60) {
-      cutsouth = true;
-    } else if (gtype == Projection::polarstereographic) {
-      if (gspec[4] > 0)
-        cutsouth = true;
-      else if (gspec[4] < 0)
-        cutnorth = true;
-    } else if (gtype == Projection::spherical_rotated) {
-      if (gspec[5] > 0)
-        cutsouth = true;
-      else if (gspec[5] < 0)
-        cutnorth = true;
-    }
-*/
+    bool cutsouth = false;//!area.P().isLegal(0.0,-90.0);
+    bool cutnorth = false;//!area.P().isLegal(0.0,90.0);
+    area.P().filledMapCutparameters(cutnorth,cutsouth);
+
     // convert all borders to correct projection
     for (int i = 0; i < numGroups; i++) {
       int num = groups[i].numtiles;

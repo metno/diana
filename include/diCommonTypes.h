@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -120,6 +120,10 @@ struct ObjFileInfo{
 // Map structures
 //--------------------------------------------------
 
+enum MapValuePosition {
+  map_left, map_bottom, map_right, map_top, map_all
+};
+
 /**
    \brief GUI data for one map file
 */
@@ -132,13 +136,15 @@ struct MapFileInfo {
    \brief GUI data for one map element
 */
 struct MapElementOption {
-  bool ison;         ///< element is on
-  miString linecolour; ///< linecolour
-  miString fillcolour; ///< fillcolour
-  miString linetype;   ///< linetype
-  miString linewidth;  ///< linewidth
-  int zorder;        ///< z-position on map
-  float density;     ///< density in degrees (latlon)
+  bool ison;           ///< element is on
+  miString linecolour; ///< line color
+  miString fillcolour; ///< fill color
+  miString linetype;   ///< line type
+  miString linewidth;  ///< line width
+  int zorder;          ///< z-position on map
+  float density;       ///< density in degrees (latlon)
+  bool showvalue;      ///< plot value string (latlon)
+  int value_pos;       ///< value position (0=left, 1=bottom, 2=both) (latlon)
 };
 
 /**
@@ -151,7 +157,8 @@ struct MapInfo {
   vector<MapFileInfo> mapfiles; ///< the file(s)
   MapElementOption contour;  ///< contourline options
   MapElementOption land;     ///< filled land options
-  MapElementOption latlon;   ///< latlon-lines options
+  MapElementOption lon;      ///< lon-lines options
+  MapElementOption lat;      ///< lat-lines options
   MapElementOption frame;    ///< area-frame options
 };
 

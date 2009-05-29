@@ -55,28 +55,89 @@ using namespace std;
 
 class MapPlot : public Plot {
 private:
+  /// Lat/Lon Value Annotation with position on map
+  struct ValueAnno {
+    miString t;
+    float x;
+    float y;
+  };
+private:
   bool mapchanged; // redraw needed
   bool haspanned;
   MapInfo mapinfo;
   PlotOptions contopts; // contour options
   PlotOptions landopts; // land plot options
-  PlotOptions llopts; // latlon options
+  PlotOptions lonopts; // lon options
+  PlotOptions latopts; // lat options
   PlotOptions ffopts; // frame options
   bool areadefined; // area explicitly defined
   Area reqarea; // requested area
   bool isactive[3]; // active data for zorder
   bool usedrawlists; // use OpenGL drawlists
   GLuint drawlist[3]; // openGL drawlists
+  vector<ValueAnno> value_annotations;
 
   static map<miString,FilledMap> filledmaps;
   static set<miString> usedFilledmaps;
   static map<miString,ShapeObject> shapemaps;
   static map<miString,Area> shapeareas;
 
-  void xyclip(int, float[], float[], float[], float);
-  bool pland4(const miString&, int, float[], float[], const Linetype&, float,
+  /**
+  * remove large jumps in a set of lines. Calls xyclip
+  *
+  * @param npos
+  * @param x
+  * @param y
+  * @param xylim
+  * @param jumplimit
+  * @param plotanno
+  * @param anno_position
+  * @param anno
+  */
+  void clipPrimitiveLines(int npos, float *, float *, float xylim[4],
+      float jumplimit, bool plotanno=false, int anno_position=2, miString anno="");
+  /**
+   * clip a set a lines to the viewport
+   * @param npos
+   * @param x
+   * @param y
+   * @param xylim
+   * @param plotanno
+   * @param anno_position
+   * @param anno
+   */
+  void xyclip(int, float[], float[], float[], bool, int, miString);
+  /**
+  * plot a map from a Land4 formatted file
+  * @param filename
+  * @param
+  * @param
+  * @param
+  * @param
+  * @return
+  */
+  bool plotMapLand4(const miString&, float[], const Linetype&, float,
       const Colour&);
-  bool geoGrid(float latitudeStep, float longitudeStep, int plotResolution= 10);
+  /**
+   * Plot Lat/Lon lines with optional numbering
+   * @param plot_lon
+   * @param longitudeStep
+   * @param lon_values
+   * @param lon_valuepos
+   * @param plot_lat
+   * @param latitudeStep
+   * @param lat_values
+   * @param lat_valuepos
+   * @param plotResolution
+   * @return
+   */
+  bool plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, int lon_valuepos,
+      bool plot_lat, float latitudeStep, bool lat_values, int lat_valuepos, int plotResolution = 10);
+  /**
+   * plot a map from a simple text formatted file
+   * @param filename
+   * @return
+   */
   bool plotLinesSimpleText(const miString& filename);
 
 public:
