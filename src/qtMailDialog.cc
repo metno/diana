@@ -32,11 +32,19 @@
 #include <QMessageBox>
 #include "qtMailDialog.h"
 
-MailDialog::MailDialog(QWidget* parent, const QString &pictureName)
-  : QDialog(parent)
+//******************************************************************************
+//* MailDialog::MailDialog( QWidget* parent, Controller* llctrl )
+//*  : QDialog(parent), m_ctrl(llctrl)
+//*
+//*   Purpose : MailDialog constructor
+//*   To call :
+//*   Returns :
+//*      Note :
+//******************************************************************************
+MailDialog::MailDialog( QWidget* parent, Controller* llctrl )
+  : QDialog(parent), m_ctrl(llctrl)
 {
-	//--- Get picture filename ---
-	picFileName = new QString(pictureName);
+
 	//--- Create dialog elements ---
 	createGridGroupBox();
 	buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -52,6 +60,15 @@ MailDialog::MailDialog(QWidget* parent, const QString &pictureName)
 	setWindowTitle(tr("E-Mail Picture"));
 }
 
+
+//******************************************************************************
+//* Maildialog::createGridGroupBox()
+//*
+//*   Purpose : Creates dialog layout
+//*   To call : Nothing
+//*   Returns : Nothing
+//*      Note :
+//******************************************************************************
 void MailDialog::createGridGroupBox()
 {
 	//--- Group box containg TO:, CC: & Subject elements ---
@@ -79,8 +96,25 @@ void MailDialog::createGridGroupBox()
 	gridGroupBox->setLayout(layout);
 }
 
+
+
+//******************************************************************************
+//* Maildialog::accept()
+//*
+//*   Purpose : Sends mail
+//*   To call : Nothing
+//*   Returns : Nothing
+//*      Note :
+//******************************************************************************
 void MailDialog::accept()
 {
+	//--- Create a temporary file for the images ---
+	QTemporaryFile *mailtempfile = new QTemporaryFile(QDir::tempPath()+"/diana_XXXXXX.png");
+	mailtempfile->open();
+	QString filename = mailtempfile->fileName();
+
+	emit saveImage(filename);
+
 	FILE* sendmail;
 
 	UUInitialize();
@@ -103,11 +137,17 @@ void MailDialog::accept()
 	fprintf(sendmail,"Content-type: image/png; name=\"diana.png\"\n");
 	fprintf(sendmail,"Content-Transfer-Encoding: base64\n");
 	fprintf(sendmail,"Content-Disposition: inline; filename=\"diana.png\"\n\n");
-	UUEncodeToStream(sendmail, NULL, picFileName->toAscii().data(), B64ENCODED, "diana.png", 644);
+	UUEncodeToStream(sendmail, NULL, (char *)filename.toAscii().data(), B64ENCODED, "diana.png", 644);
 	fprintf(sendmail,"--diana_auto_generated--\n\n");
 	//--- Finished with sendmail ---
 	pclose(sendmail);
 	//--- Done with UUEncoder, clean up & quit ---
 	UUCleanUp();
-	done(QDialog::Accepted);
+	//--- Removing tmp file
+	mailtempfile->remove();
+	//--- We'll just hide ourselves, so we "remember" field contents from last time ---
+	hide();
+
+	
 }
+

@@ -69,6 +69,7 @@ class ObjectDialog;
 class TrajectoryDialog;
 class RadarEchoDialog;
 class UffdaDialog;
+class MailDialog;
 class DianaProfetGUI;
 class PaintToolBar;
 
@@ -184,6 +185,7 @@ private slots:
   void save();
   void hardcopy();
   void saveraster();
+  void saveRasterImage(QString filename);
   void emailPicture();
   void saveAnimation();
   void makeEPS(const miString& filename);
@@ -373,6 +375,7 @@ private:
   TrajectoryDialog  * trajm;
   RadarEchoDialog   * radem;
   UffdaDialog       * uffm;
+  MailDialog        * mailm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
   DianaProfetGUI	* profetGUI;

@@ -845,6 +845,9 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   uffm = new UffdaDialog(this,contr);
   uffm->hide();
 
+  mailm = new MailDialog(this,contr);
+  mailm->hide();
+
   paintToolBar = new PaintToolBar(this);
   paintToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea,paintToolBar);
@@ -885,6 +888,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
 
   connect(uffm, SIGNAL(stationPlotChanged()), SLOT(updateGLSlot()));
 
+  connect(mailm, SIGNAL(saveImage(QString)), SLOT(saveRasterImage(QString)));
   // Documentation and Help
 
   HelpDialog::Info info;
@@ -2840,24 +2844,17 @@ void DianaMainWindow::saveraster()
   }
 }
 
+void DianaMainWindow::saveRasterImage(QString filename) {
+
+  miString fname = filename.toStdString();
+    miString format= "PNG";
+    int quality= -1; // default quality
+    w->Glw()->saveRasterImage(fname, format, quality);
+
+}
 
 void DianaMainWindow::emailPicture() {
-	QWidget *parent = this;
-
-	//--- Save picture to a temporary file ---
-    miString format = "PNG";
-    int quality = -1; // default quality
-
-	QTemporaryFile file(QDir::tempPath()+"/diana_XXXXXX.png");
-	if (file.open()) {
-		// do the save
-		miString fname = file.fileName().toStdString();
-    	w->Glw()->saveRasterImage(fname, format, quality);
-		MailDialog mdialog(parent, file.fileName());
-		mdialog.exec();
-	} else {
-		QMessageBox::critical(this, tr("Saving..."), tr("There was a problem saving the picture to disk."));
-	}
+  mailm->show();
 }
 
 

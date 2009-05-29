@@ -33,6 +33,7 @@
 
 
 #include <QtGui>
+#include <diController.h>
 //--- Defines for uudeview, otherwise get errors regarding number of arguments ---
 #undef _ANSI_ARGS
 #define PROTOTYPES
@@ -50,10 +51,10 @@ class MailDialog: public QDialog
 {
     Q_OBJECT
 public:
-	MailDialog(QWidget* parent, const QString &pictureName);
+	MailDialog(QWidget* parent, Controller* llctrl);
 
 private:
-	QString *picFileName;
+	Controller* m_ctrl;
 	QGroupBox *gridGroupBox;
 	QLabel *eToLabel;
 	QLabel *eCcLabel;
@@ -68,6 +69,10 @@ private:
 
 protected:
 	void accept();	//Overloaded to perform mail send
+
+signals:
+        void saveImage(QString);
+
 };
 
 
