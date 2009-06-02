@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <diVcrossManager.h>
 
@@ -40,7 +40,7 @@
 
 
 VcrossManager::VcrossManager()
-  : dataChange(true), hardcopy(false), timeGraphPos(-1) , timeGraphPosMax(-1)
+: dataChange(true), hardcopy(false), timeGraphPos(-1) , timeGraphPosMax(-1)
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossManager constructed" << endl;
@@ -51,7 +51,7 @@ VcrossManager::VcrossManager()
   parseSetup();
 
   //zero time = 00:00:00 UTC Jan 1 1970
-  ztime = miTime(1970,1,1,0,0,0); 
+  ztime = miTime(1970,1,1,0,0,0);
 
   plotTime= miTime::nowTime();
 }
@@ -127,15 +127,15 @@ bool VcrossManager::parseSetup()
     for (int i=0; i<n; i++) {
       tokens= vstr[i].split();
       if (tokens.size()==2) {
-	tokens1= tokens[0].split("=");
-	tokens2= tokens[1].split("=");
-	if (tokens1.size()==2          && tokens2.size()==2  &&
-	    tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
-	  model= tokens1[1];
-	  filename= tokens2[1];
-	  filenames[model]= filename;
-	  modelnames.push_back(model);
-	  vcfiles[filename]= 0;
+        tokens1= tokens[0].split("=");
+        tokens2= tokens[1].split("=");
+        if (tokens1.size()==2          && tokens2.size()==2  &&
+            tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
+          model= tokens1[1];
+          filename= tokens2[1];
+          filenames[model]= filename;
+          modelnames.push_back(model);
+          vcfiles[filename]= 0;
         }
       }
     }
@@ -194,7 +194,7 @@ miString VcrossManager::setCrossection(int step)
   int n= nameList.size();
   if (!plotCrossection.empty())
     while (i<n && nameList[i]!=plotCrossection) i++;
-  
+
   if (i<n) {
     i+=step;
     if (i<0)  i= n-1;
@@ -298,7 +298,7 @@ bool VcrossManager::plot()
       if (j>=0 && selectedPlotShaded[i]==plotShaded[p]) {
         if (jback<0) jback= j;
         vcdata[j].vcplot->plot(vcopt,selectedFields[i],
-			       selectedPlotOptions[i]);
+            selectedPlotOptions[i]);
       }
     }
   }
@@ -344,51 +344,51 @@ void VcrossManager::preparePlot()
 
       if (vf!=vfend && vf->second) {
 
-	VcrossFile *vcfile= vf->second;
+        VcrossFile *vcfile= vf->second;
 
-	miTime t= plotTime;
+        miTime t= plotTime;
         if (selectedHourOffset[i]!=0)
-	  t.addHour(selectedHourOffset[i]);
+          t.addHour(selectedHourOffset[i]);
 
         n= vcdata.size();
-	j= 0;
+        j= 0;
         while (j<n && (vcdata[j].filename!=filename ||
-		       vcdata[j].crossection!=plotCrossection ||
-		       vcdata[j].tgpos!=timeGraphPos ||
-		       vcdata[j].time!=t)) j++;
+            vcdata[j].crossection!=plotCrossection ||
+            vcdata[j].tgpos!=timeGraphPos ||
+            vcdata[j].time!=t)) j++;
 
-	if (j<n) {
+        if (j<n) {
 
-	  selectedVcData[i]= j;
+          selectedVcData[i]= j;
 
         } else {
 
-	  j= 0;
+          j= 0;
           while (j<m && (prevdata[j].filename!=filename ||
-		         prevdata[j].crossection!=plotCrossection ||
-		         prevdata[j].tgpos!=timeGraphPos ||
-		         prevdata[j].time!=t)) j++;
+              prevdata[j].crossection!=plotCrossection ||
+              prevdata[j].tgpos!=timeGraphPos ||
+              prevdata[j].time!=t)) j++;
 
-	  if (j<m) {
-	    selectedVcData[i]= vcdata.size();
-	    vcdata.push_back(prevdata[j]);
-	    prevUsed[j]= true;
-	  } else {
+          if (j<m) {
+            selectedVcData[i]= vcdata.size();
+            vcdata.push_back(prevdata[j]);
+            prevUsed[j]= true;
+          } else {
             VcrossPlot *vcp= vcfile->getCrossection(plotCrossection,t,
-						    timeGraphPos);
+                timeGraphPos);
             if (vcp) {
-	      timeGraphPosMax= vcp->getHorizontalPosNum() - 1;
-	      selectedVcData[i]= vcdata.size();
-	      VcrossData vcd;
-	      vcd.filename= filename;
-	      vcd.crossection= plotCrossection;
-	      vcd.tgpos= timeGraphPos;
-	      vcd.time= t;
-	      vcd.vcplot= vcp;
-	      vcdata.push_back(vcd);
-	    }
-	  }
-	}
+              timeGraphPosMax= vcp->getHorizontalPosNum() - 1;
+              selectedVcData[i]= vcdata.size();
+              VcrossData vcd;
+              vcd.filename= filename;
+              vcd.crossection= plotCrossection;
+              vcd.tgpos= timeGraphPos;
+              vcd.time= t;
+              vcd.vcplot= vcp;
+              vcdata.push_back(vcd);
+            }
+          }
+        }
       }
     }
   }
@@ -401,7 +401,7 @@ void VcrossManager::preparePlot()
     if (prevdata[0].crossection!=vcdata[0].crossection ||
         (prevdata[0].tgpos<0 && vcdata[0].tgpos>=0) ||
         (prevdata[0].tgpos>=0 && vcdata[0].tgpos<0))
-     VcrossPlot::standardPart();
+      VcrossPlot::standardPart();
   }
 
 }
@@ -479,7 +479,7 @@ void VcrossManager::getCrossections(LocationData& locationdata){
       miString annot= "Vertikalsnitt";
       int m= usedModels.size();
       for (int i=0; i<m; i++)
-	annot+=(" "+usedModels[i]);
+        annot+=(" "+usedModels[i]);
 
       vf->second->getMapData(locationdata.elements);
 
@@ -510,8 +510,8 @@ void VcrossManager::getCrossections(LocationData& locationdata){
     //find plot crossection
     for (int i=0;i<n;i++){
       if(nameList[i]== lastCrossection){
-	plotCrossection=nameList[i];
-	found=true;
+        plotCrossection=nameList[i];
+        found=true;
       }
     }
     if (!found) plotCrossection.clear();
@@ -591,23 +591,23 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
     for (int j=0; j<m; j++) {
       vector<miString> vs2= vs1[j].split('=');
       if (vs2.size()==2) {
-	miString key= vs2[0].downcase();
-	if (key=="model") {
-	  model=vs2[1];
-	} else if (key=="field") {
-	  field=vs2[1];
-	} else if (key=="hour.offset") {
-	  hourOffset= atoi(vs2[1].c_str());
-	} else {
-	  options+= (vs1[j] + " ");
-	  if (key=="palettecolours") {
-	    if (vs2[1] != "off") plotShaded= true;
-	  }
-	}
+        miString key= vs2[0].downcase();
+        if (key=="model") {
+          model=vs2[1];
+        } else if (key=="field") {
+          field=vs2[1];
+        } else if (key=="hour.offset") {
+          hourOffset= atoi(vs2[1].c_str());
+        } else {
+          options+= (vs1[j] + " ");
+          if (key=="palettecolours") {
+            if (vs2[1] != "off") plotShaded= true;
+          }
+        }
       }
     }
     if (model.exists() && field.exists() &&
-	filenames.find(model)!=filenames.end()) {
+        filenames.find(model)!=filenames.end()) {
       // there may be options not handled in dialog
       // or uncomplete batch input
       miString defaultOptions= VcrossPlot::getFieldOptions(field);
@@ -615,9 +615,6 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
         PlotOptions poptions;
         PlotOptions::parsePlotOption(defaultOptions,poptions);
         PlotOptions::parsePlotOption(options,poptions);
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	if (plotShaded) poptions.repeat=1;
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         selectedModels.push_back(model);
         selectedFields.push_back(field);
         selectedHourOffset.push_back(hourOffset);
@@ -668,30 +665,30 @@ bool VcrossManager::setModels()
         VcrossFile *vcfile= 0;
 
         if (vf->second) {
-	  vcfile= vf->second;
-	  if (!vcfile->update()) {
+          vcfile= vf->second;
+          if (!vcfile->update()) {
             delete vcfile;
-	    vcfile= vf->second= 0;
-	  }
-	} else {
+            vcfile= vf->second= 0;
+          }
+        } else {
           vcfile= new VcrossFile(filename,model);
           if (vcfile->update()) {
-	    vf->second= vcfile;
-	  } else {
+            vf->second= vcfile;
+          } else {
             delete vcfile;
-	    vcfile= 0;
-	  }
-	}
+            vcfile= 0;
+          }
+        }
 
         if (vcfile) {
-	  if (!vcfile1) {
-	    vcfile1= vcfile;
-	    masterFile= filename;
-	  }
-	  int m= usedModels.size();
-	  int j= 0;
-	  while (j<m && usedModels[j]!=model) j++;
-	  if (j==m) usedModels.push_back(model);
+          if (!vcfile1) {
+            vcfile1= vcfile;
+            masterFile= filename;
+          }
+          int m= usedModels.size();
+          int j= 0;
+          while (j<m && usedModels[j]!=model) j++;
+          if (j==m) usedModels.push_back(model);
         }
       }
     }
@@ -736,7 +733,7 @@ bool VcrossManager::setModels()
       if (plotCrossection.exists()) {
         n= nameList.size();
         while (j<n && nameList[j]!=plotCrossection) j++;
-	if (j==n) j=0;
+        if (j==n) j=0;
       }
       setCrossection(nameList[j]);
     }
@@ -771,7 +768,7 @@ void VcrossManager::disableTimeGraph()
   timeGraphPos= -1;
   dataChange= true;
 
-//###############  VcrossPlot::standardPart();
+  //###############  VcrossPlot::standardPart();
 }
 
 
@@ -792,7 +789,7 @@ void VcrossManager::setTimeGraphPos(int plotx, int ploty)
 
   dataChange= true;
 
-//###############  VcrossPlot::standardPart();
+  //###############  VcrossPlot::standardPart();
 }
 
 
@@ -820,8 +817,8 @@ vector<miString> VcrossManager::writeLog()
 
 
 void VcrossManager::readLog(const vector<miString>& vstr,
-			    const miString& thisVersion,
-			    const miString& logVersion)
+    const miString& thisVersion,
+    const miString& logVersion)
 {
   vcopt->readOptions(vstr);
 }

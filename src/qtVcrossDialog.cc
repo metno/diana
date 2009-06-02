@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -634,10 +634,10 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   QLabel* maxLabel        = new QLabel( tr("Max"),               advFrame);
 
 
-  tableCheckBox = new QCheckBox(tr("Table"), advFrame);
-  tableCheckBox->setEnabled(false);
-  connect( tableCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( tableCheckBoxToggled(bool) ) );
+//  tableCheckBox = new QCheckBox(tr("Table"), advFrame);
+//  tableCheckBox->setEnabled(false);
+//  connect( tableCheckBox, SIGNAL( toggled(bool) ),
+//	   SLOT( tableCheckBoxToggled(bool) ) );
 
   repeatCheckBox = new QCheckBox(tr("Repeat"), advFrame);
   repeatCheckBox->setEnabled(false);
@@ -730,25 +730,25 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 
   QGridLayout* adv2Layout = new QGridLayout( 10, 3);
   adv2Layout->addWidget(advSep2,               0, 0);
-  adv2Layout->addWidget( tableCheckBox,      1, 0 );
-  adv2Layout->addWidget( repeatCheckBox,  2, 0 );
-  adv2Layout->addWidget( shadingLabel,       3, 0 );
-  adv2Layout->addWidget( shadingComboBox,    3, 1 );
-  adv2Layout->addWidget( shadingSpinBox,     3, 2 );
-  adv2Layout->addWidget( shadingcoldLabel,   4, 0 );
-  adv2Layout->addWidget( shadingcoldComboBox,4, 1 );
-  adv2Layout->addWidget( shadingcoldSpinBox, 4, 2 );
-  adv2Layout->addWidget( patternLabel,       5, 0 );
-  adv2Layout->addWidget( patternComboBox,    5, 1 );
-  adv2Layout->addWidget( patternColourBox,   5, 2 );
-  adv2Layout->addWidget( alphaLabel,         6, 0 );
-  adv2Layout->addWidget( alphaSpinBox,       6, 1 );
-  adv2Layout->addWidget( baseLabel,          7, 0 );
-  adv2Layout->addWidget( zero1ComboBox,      7, 1 );
-  adv2Layout->addWidget( minLabel,           8, 0 );
-  adv2Layout->addWidget( min1ComboBox,       8, 1 );
-  adv2Layout->addWidget( maxLabel,           9, 0 );
-  adv2Layout->addWidget( max1ComboBox,       9, 1 );
+//  adv2Layout->addWidget( tableCheckBox,      1, 0 );
+  adv2Layout->addWidget( repeatCheckBox,  1, 0 );
+  adv2Layout->addWidget( shadingLabel,       2, 0 );
+  adv2Layout->addWidget( shadingComboBox,    2, 1 );
+  adv2Layout->addWidget( shadingSpinBox,     2, 2 );
+  adv2Layout->addWidget( shadingcoldLabel,   3, 0 );
+  adv2Layout->addWidget( shadingcoldComboBox,3, 1 );
+  adv2Layout->addWidget( shadingcoldSpinBox, 3, 2 );
+  adv2Layout->addWidget( patternLabel,       4, 0 );
+  adv2Layout->addWidget( patternComboBox,    4, 1 );
+  adv2Layout->addWidget( patternColourBox,   4, 2 );
+  adv2Layout->addWidget( alphaLabel,         5, 0 );
+  adv2Layout->addWidget( alphaSpinBox,       5, 1 );
+  adv2Layout->addWidget( baseLabel,          6, 0 );
+  adv2Layout->addWidget( zero1ComboBox,      6, 1 );
+  adv2Layout->addWidget( minLabel,           7, 0 );
+  adv2Layout->addWidget( min1ComboBox,       7, 1 );
+  adv2Layout->addWidget( maxLabel,           8, 0 );
+  adv2Layout->addWidget( max1ComboBox,       8, 1 );
 
   QVBoxLayout *advLayout = new QVBoxLayout( 1 );
   advLayout->addLayout(adv1Layout);
@@ -1020,7 +1020,7 @@ void VcrossDialog::enableFieldOptions(){
     shadingSpinBox->setEnabled(true);
     shadingcoldComboBox->setEnabled(true);
     shadingcoldSpinBox->setEnabled(true);
-    tableCheckBox->setEnabled(true);
+//    tableCheckBox->setEnabled(true);
     patternComboBox->setEnabled(true);
     repeatCheckBox->setEnabled(true);
     alphaSpinBox->setEnabled(true);
@@ -1065,8 +1065,8 @@ void VcrossDialog::enableFieldOptions(){
     shadingComboBox->setEnabled(false);
     shadingcoldComboBox->setCurrentItem(0);
     shadingcoldComboBox->setEnabled(false);
-    tableCheckBox->setEnabled(false);
-    updateFieldOptions("table","remove");
+//    tableCheckBox->setEnabled(false);
+//    updateFieldOptions("table","remove");
     patternComboBox->setEnabled(false);
     updateFieldOptions("patterns","remove");
     repeatCheckBox->setEnabled(false);
@@ -1112,13 +1112,13 @@ void VcrossDialog::enableFieldOptions(){
   }
 
   //table
-  nc=cp->findKey(vpcopt,"table");
-  if (nc>=0) {
-    bool on= vpcopt[nc].allValue=="1";
-    tableCheckBox->setChecked( on );
-    tableCheckBox->setEnabled(true);
-    tableCheckBoxToggled(on);
-  }
+//  nc=cp->findKey(vpcopt,"table");
+//  if (nc>=0) {
+//    bool on= vpcopt[nc].allValue=="1";
+//    tableCheckBox->setChecked( on );
+//    tableCheckBox->setEnabled(true);
+//    tableCheckBoxToggled(on);
+//  }
 
   //repeat
   nc=cp->findKey(vpcopt,"repeat");
@@ -1196,7 +1196,7 @@ void VcrossDialog::enableFieldOptions(){
     if (s=="0") {
       i=0;
     } else {
-      i = densityStringList.indexOf(QString(s.cStr())); 
+      i = densityStringList.indexOf(QString(s.cStr()));
       if (i==-1) {
         densityStringList <<QString(s.cStr());
 	densityCbox->addItem(QString(s.cStr()));
@@ -1475,7 +1475,7 @@ void VcrossDialog::disableFieldOptions(){
   shadingcoldComboBox->setEnabled( false );
   shadingcoldSpinBox->setValue(0);
   shadingcoldSpinBox->setEnabled( false );
-  tableCheckBox->setEnabled(false);
+//  tableCheckBox->setEnabled(false);
   patternComboBox->setEnabled(false);
   patternColourBox->setEnabled(false);
   repeatCheckBox->setEnabled(false);
@@ -1872,10 +1872,10 @@ void VcrossDialog::max1ComboBoxToggled(int index){
 void VcrossDialog::updateFieldOptions(const miString& name,
 				      const miString& value,
 				      int valueIndex) {
-#ifdef DEBUGPRINT
+//#ifdef DEBUGPRINT
   cerr<<"VcrossDialog::updateFieldOptions  name= " << name
 			           << "  value= " << value <<endl;
-#endif
+//#endif
 
   if (currentFieldOpts.empty()) return;
 
@@ -2567,7 +2567,7 @@ void VcrossDialog::changeModel(){
 	}
         selectedFields[i].model= model;
         miString str= model + " " + fields[j];
-        QString qstr= str.c_str(); 
+        QString qstr= str.c_str();
         selectedFieldbox->item(i)->setText(qstr);
       }
       // if not ok, then not changing the model (at least yet...)
