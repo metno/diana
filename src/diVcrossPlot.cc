@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,13 +23,13 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/* 
+/*
    NOTES: Heavily based on old fortran code (1987-2001, A.Foss)
 */
 
@@ -1842,7 +1842,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
 	if(npi<0) return -1;
 	compute-=4;
       }
-      if (!alevelducting_OLD(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
+      if (!alevelducting(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
 		         cdata2d[npp],cdata2d[no],allDefined,fieldUndef))
 	return -1;
       if (compddz>4) {
@@ -2607,7 +2607,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
 	  glVertex2f(xPlotmax+chx,ypfixed[k]);
         }
         glEnd();
-	
+
         if (vcopt->pLevelNumbers && k1>=0) {
           chyt= chy;
           chxt= chyt*chx/chy;
@@ -2875,11 +2875,11 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
 	    glEnd();
 	  }
 	}
-      
+
       } else { //distance in "step" km or nm
 	int step = vcopt->distanceStep.toInt();
 	int i =ip1;
-	//pos first possible label 
+	//pos first possible label
 	while (i<=ip2 && (cdata1d[nxs][i]<x+xlen || cdata1d[nxs][i]>xcut)) i++;
 	float p1=((cdata1d[nxs][i]-rpos)/unit);
 	x= cdata1d[nxs][i];
@@ -2890,7 +2890,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
 	int minStep= abs(int(p1-p2)/step*step);
 	if(minStep>step) step = minStep;
 	float gridPointDist = ((cdata1d[nxs][ip1]-rpos)/unit);
-	//pos first label 
+	//pos first label
 	int xLabel = int(p1/step)*step;
 	for (i=ip1; i<=ip2; i++) {
 	    float gridPointDist = ((cdata1d[nxs][i]-rpos)/unit);
@@ -2898,7 +2898,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
 	      //find position of xLabel
 	      float rpos1=((cdata1d[nxs][i]-rpos)/unit);
 	      float rpos2=((cdata1d[nxs][i+1]-rpos)/unit);
-	      x = (cdata1d[nxs][i+1] - 
+	      x = (cdata1d[nxs][i+1] -
 		   (rpos2-xLabel)/(rpos2-rpos1)*
 		   (cdata1d[nxs][i+1] - cdata1d[nxs][i]));
 	      //print string
@@ -3467,7 +3467,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
   float yoffset= (yPlotmax-yPlotmin)/50;
   bool left,top;
   int nlabels=labels.size();
-  
+
   for(int i=0;i<nlabels;i++){
     left=top=true;
     vector<miString> tokens = labels[i].split('"','"');
@@ -3510,10 +3510,10 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
 	    fcolour=Colour(stokens[1]);
 	  } else if(stokens[0].upcase()=="BCOLOUR"){
 	    bcolour=Colour(stokens[1]);
-	  } else if(stokens[0].upcase()=="VALIGN" 
+	  } else if(stokens[0].upcase()=="VALIGN"
 		    && stokens[1].upcase()=="BOTTOM"){
 	    top=false;
-	  } else if(stokens[0].upcase()=="HALIGN" 
+	  } else if(stokens[0].upcase()=="HALIGN"
 		    && stokens[1].upcase()=="RIGHT"){
 	    left=false;
 	  } else if(stokens[0].upcase()=="XOFFSET"){
@@ -3564,7 +3564,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     glEnd();
     glDisable(GL_BLEND);
 
-	  
+
     glColor3ubv(bcolour.RGB());
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBegin(GL_POLYGON);
@@ -3575,12 +3575,12 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     glEnd();
 
 
-    glColor3ubv(tcolour.RGB());	  
-	  
-	  
+    glColor3ubv(tcolour.RGB());
+
+
     if(arrow){
-      plotArrow(xpos+xoffset*0.3, ypos-dy*1.4, ddx,ddy,true); 
-    } 
+      plotArrow(xpos+xoffset*0.3, ypos-dy*1.4, ddx,ddy,true);
+    }
     if(text.exists()) {
       text.remove('"');
       text = validTime.format(text);
@@ -4583,9 +4583,9 @@ bool VcrossPlot::vcMovement(float *vt, float *wom, float *p, float *x, float *y,
       }
     }
   }
-   
+
   UpdateOutput();
-  
+
   return true;
 }
 
@@ -4994,7 +4994,7 @@ vector<miString> VcrossPlot::split(const miString eString
     //if maching s2 found, add entry
     if (stop>0 && stop<len)
       vec.push_back(eString.substr(start,stop-start));
-    
+
     //next s1
     if (stop<len)
       start = eString.find_first_of(s1,stop)+1;
@@ -5004,7 +5004,7 @@ vector<miString> VcrossPlot::split(const miString eString
   return vec;
 }
 
-void VcrossPlot::plotArrow(const float& x0, 
+void VcrossPlot::plotArrow(const float& x0,
 			   const float& y0,
 			   const float& dx,
 			   const float& dy,
@@ -5015,7 +5015,7 @@ void VcrossPlot::plotArrow(const float& x0,
   const float afac= -1./3.;
   const float sfac= -afac*0.57735;
   const float wfac= 1./38.;
-  
+
   float x1= x0+dx;
   float y1= y0+dy;
 
@@ -5038,7 +5038,7 @@ void VcrossPlot::plotArrow(const float& x0,
     glVertex2f(x0+wfac*dy,         y0-wfac*dx);
     glVertex2f(x0-wfac*dy,         y0+wfac*dx);
     glEnd();
-    
+
   } else {
 
     glBegin(GL_LINES);
