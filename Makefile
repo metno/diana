@@ -88,9 +88,8 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	$(WDB_LIB) \
 	$(WDB_EXTRA_LIB) \
 	$(OMNI_LIBS) \
-	$(MAGICK_LIBS) \
+	$(FFMPEG_LIBS) \
 	$(UU_LIB) 
-
 
 BLINKS= $(LINKS)
 

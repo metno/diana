@@ -155,7 +155,6 @@
 #include <profet.xpm>
 #include <paint_mode.xpm>
 
-
 DianaMainWindow::DianaMainWindow(Controller *co,
     const miString ver_str,
     const miString build_str,
@@ -2873,26 +2872,17 @@ void DianaMainWindow::saveAnimation() {
   if (!s.isNull()) {// got a filename
     fname= s;
     miString filename= s.toStdString();
-    miString format= "mpg";
-    int quality= 0;
+    miString format = "mpg";
 
     /// find format
-    /// (only mpeg-support so far)
     if (filename.contains(".mpg") || filename.contains(".MPG")) {
-      format= "mpg";
-    } else {
+      format = "mpg";
+    } else { ///< default to mpg
       filename += ".mpg";
     }
 
-    /// make temp. directory for frames
-    mkdir("./animation_frames", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    chdir("./animation_frames");
-
-    /// set up some defaults
-    string imageFormat = "jpg";
-    int imageQuality = -1;
     int delay = timeout_ms/10;
-    MovieMaker moviemaker(filename, quality, delay);
+    MovieMaker moviemaker(filename, delay);
 
     QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
     showMinimized();
@@ -2900,7 +2890,7 @@ void DianaMainWindow::saveAnimation() {
     int nrOfTimesteps = tslider->numTimes();
     int i = 0;
 
-    int maxProgress = nrOfTimesteps - tslider->current() + 1;
+    int maxProgress = nrOfTimesteps - tslider->current() - 1;
     QProgressDialog progress("Making animation...", "Hide", 0, maxProgress);
     progress.setWindowModality(Qt::WindowModal);
 
@@ -2909,33 +2899,15 @@ void DianaMainWindow::saveAnimation() {
       /// update progressbar
       progress.setValue(i);
 
-      string imageName = "frame";
-      if(i < 10) imageName += "0";
-      ostringstream ss;
-      ss << i;
-      imageName += ss.str();
-      imageName += ".jpg";
-      cout << "Saving " << imageName << ".." << endl;
-      w->Glw()->saveRasterImage(miString(imageName), miString(imageFormat), imageQuality);
-      moviemaker.addFrame(imageName);
+      QImage image = w->Glw()->grabFrameBuffer();
+      moviemaker.addImage(&image);
 
       /// go to next frame
       stepforward();
 
       ++i;
     }
-
-    moviemaker.make();
-
-    progress.setValue(i+1); ///< should be made somewhat realistic?
-
-    moviemaker.cleanup();
-
-    /// remove temp. directory for frames
-    chdir("..");
-    rmdir("./animation_frames");
-
-    progress.setValue(i+2); ///< should be made somewhat realistic?
+    progress.setValue(i);
 
     showNormal();
     QMessageBox::information(this, tr("Done"), tr("Animation completed."));
