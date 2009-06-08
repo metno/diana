@@ -2434,7 +2434,7 @@ bool FieldPlot::plotBox_pattern(){
   int nyc = ny + 1;
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nxc,nyc,x,y,2,NULL);
   }
 
   const int npattern=4;
@@ -2550,7 +2550,7 @@ bool FieldPlot::plotBox_alpha_shade(){
   int nyc = ny + 1;
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nxc,nyc,x,y,2,NULL);
   }
 
   float cmin, cmax;
@@ -2731,7 +2731,7 @@ bool FieldPlot::plotAlarmBox(){
   }
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nxc,nyc,x,y,2,NULL);
   }
 
   glShadeModel(GL_FLAT);
