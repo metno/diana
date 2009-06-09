@@ -1872,10 +1872,10 @@ void VcrossDialog::max1ComboBoxToggled(int index){
 void VcrossDialog::updateFieldOptions(const miString& name,
 				      const miString& value,
 				      int valueIndex) {
-//#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
   cerr<<"VcrossDialog::updateFieldOptions  name= " << name
 			           << "  value= " << value <<endl;
-//#endif
+#endif
 
   if (currentFieldOpts.empty()) return;
 
