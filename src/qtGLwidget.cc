@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -59,7 +59,7 @@ GLwidget::GLwidget(Controller* c,  const QGLFormat fmt,
   setMouseTracking(true);
 
   savebackground= false;
-  
+
   buildKeyMap();
 
   // sets default cursor in widget
@@ -96,7 +96,7 @@ void GLwidget::paintGL(){
     glPixelStorei(GL_PACK_SKIP_PIXELS,0);
     glPixelStorei(GL_PACK_ROW_LENGTH,plotw);
     glPixelStorei(GL_PACK_ALIGNMENT,4);
-    
+
     glReadPixels(0,0,plotw,ploth,
 		 GL_RGBA,GL_UNSIGNED_BYTE,
 		 fbuffer);
@@ -124,11 +124,11 @@ void GLwidget::editPaint(bool drawb){
     glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
     glPixelStorei(GL_UNPACK_ROW_LENGTH,plotw);
     glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-    // AC, 27.01.2004: for large glx1 and gly1, this small addition 
+    // AC, 27.01.2004: for large glx1 and gly1, this small addition
     // did not seem to work....
     //     glRasterPos2f(glx1+0.0001,gly1+0.0001);
     glRasterPos2f(glx1+delta,gly1+delta);
-    
+
     glDrawPixels(plotw,ploth,
 		 GL_RGBA,GL_UNSIGNED_BYTE,
 		 fbuffer);
@@ -160,11 +160,11 @@ void GLwidget::resizeGL( int w, int h )
   cerr << "resizeGL" << endl;
 #endif
   if (contr) contr->setPlotWindow(w,h);
-  
+
   glViewport( 0, 0, (GLint)w, (GLint)h );
   plotw= w;
   ploth= h;
-  
+
   // make fake overlay buffer
   if (fbuffer) delete[] fbuffer;
 //fbuffer= new GLuint[4*w*h];
@@ -224,7 +224,7 @@ void GLwidget::changeCursor(const cursortype c){
 }
 
 
-// fill mouseEvent struct (diMapMode.h) with 
+// fill mouseEvent struct (diMapMode.h) with
 // information from QMouseEvent
 void GLwidget::fillMouseEvent(const QMouseEvent* me,
 			      mouseEvent& mev){
@@ -278,10 +278,10 @@ void GLwidget::handleMouseEvents(QMouseEvent* me,const mouseEventType met){
 
   mev.type= met;
   fillMouseEvent(me, mev);
-  
+
   // send event to controller
   contr->sendMouseEvent(mev, res);
-  
+
   // check return values, and take appropriate action
   changeCursor(res.newcursor);
   savebackground= res.savebackground;
@@ -318,11 +318,11 @@ void GLwidget::handleMouseEvents(QMouseEvent* me,const mouseEventType met){
   // check if repaint requested
   if (res.repaint){
     if (res.background)
-      updateGL();  // full paint 
+      updateGL();  // full paint
     else
       editPaint(); // only editPaint
   }
-  
+
 }
 
 // Translates all QKeyEvents into keyboardEvent structs (diMapMode.h)
@@ -347,7 +347,7 @@ void GLwidget::handleKeyEvents(QKeyEvent* me,const keyboardEventType ket){
 
   // send event to controller
   contr->sendKeyboardEvent(kev, res);
-  
+
   // check return values, and take appropriate action
   changeCursor(res.newcursor);
   savebackground= res.savebackground;
@@ -365,44 +365,45 @@ void GLwidget::handleKeyEvents(QKeyEvent* me,const keyboardEventType ket){
       break;
     }
   }
-  
+
   // check if repaint requested
   if (res.repaint){
     if (res.background)
       updateGL();  // full paint
-    else  
+    else
       editPaint(); // ..only editPaint
   }
 }
 
 // ---------------------- event callbacks -----------------
 
-void GLwidget::wheelEvent(QWheelEvent *we)
-{
-  int numDegrees = we->delta() / 8;
-  int numSteps = numDegrees / 15;
-
-  if (we->orientation() == Qt::Vertical) {
-    if (numSteps > 0) {
-      float x1, y1, x2, y2;
-      float xmap, ymap;
-      
-      contr->getPlotSize(x1, y1, x2, y2);
-      /// (why -(y-height())? I have no idea ...)
-      contr->PhysToMap(we->x(), -(we->y()-height()), xmap, ymap);
-      
-      int wd = static_cast<int> ((x2 - x1) / 3.);
-      int hd = static_cast<int> ((y2 - y1) / 3.);
-
-      Rectangle r(xmap - wd, ymap - hd, xmap + wd, ymap + hd);
-      contr->zoomTo(r);
-      updateGL();
-    } else {
-      contr->zoomOut();
-      updateGL();
-    }
-  }
-}
+//Removed until someone makes an on/off option
+//void GLwidget::wheelEvent(QWheelEvent *we)
+//{
+//  int numDegrees = we->delta() / 8;
+//  int numSteps = numDegrees / 15;
+//
+//  if (we->orientation() == Qt::Vertical) {
+//    if (numSteps > 0) {
+//      float x1, y1, x2, y2;
+//      float xmap, ymap;
+//
+//      contr->getPlotSize(x1, y1, x2, y2);
+//      /// (why -(y-height())? I have no idea ...)
+//      contr->PhysToMap(we->x(), -(we->y()-height()), xmap, ymap);
+//
+//      int wd = static_cast<int> ((x2 - x1) / 3.);
+//      int hd = static_cast<int> ((y2 - y1) / 3.);
+//
+//      Rectangle r(xmap - wd, ymap - hd, xmap + wd, ymap + hd);
+//      contr->zoomTo(r);
+//      updateGL();
+//    } else {
+//      contr->zoomOut();
+//      updateGL();
+//    }
+//  }
+//}
 
 void GLwidget::keyPressEvent(QKeyEvent *me)
 {
@@ -513,7 +514,7 @@ bool GLwidget::saveRasterImage(const miString fname,
 // #endif
 //     *(ptr++)= pixelv;
 //   }
-  
+
 //   cout << "Lagrer til fil:" << fname;
 //   cout.flush();
 //   int result= longstoimage(lbuf, viewport[2],viewport[3], nchannels,

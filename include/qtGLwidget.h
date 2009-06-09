@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -44,7 +44,7 @@
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 
-using namespace std; 
+using namespace std;
 
 class Controller;
 
@@ -60,12 +60,12 @@ class Controller;
 class GLwidget : public QGLWidget {
 
   Q_OBJECT
-  
+
 public:
   GLwidget(Controller*, const QGLFormat,
 	   QWidget*);
   ~GLwidget();
-  
+
   /// save contents of widget as raster image
   bool saveRasterImage(const miString fname,
 		       const miString format,
@@ -79,7 +79,7 @@ public:
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
   void endHardcopy();
-  
+
   signals:
   /// single click signal
   void mouseGridPos(const mouseEvent mev);
@@ -95,7 +95,7 @@ public:
   void keyPress(const keyboardEvent kev);
 
 protected:
-  
+
   void initializeGL();
   void paintGL();
   void editPaint(bool drawb= true);
@@ -108,14 +108,14 @@ protected:
   void handleMouseEvents(QMouseEvent*,const mouseEventType);
   void handleKeyEvents(QKeyEvent*,const keyboardEventType);
 
-  void wheelEvent(QWheelEvent*);
+//  void wheelEvent(QWheelEvent*);
   void keyPressEvent(QKeyEvent*);
   void keyReleaseEvent(QKeyEvent*);
   void mousePressEvent(QMouseEvent*);
   void mouseReleaseEvent(QMouseEvent*);
   void mouseDoubleClickEvent(QMouseEvent*);
   void mouseMoveEvent(QMouseEvent*);
-  
+
 private:
   cursortype curcursor;    // current cursor
   bool savebackground;     // use fake overlay
