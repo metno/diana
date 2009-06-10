@@ -103,7 +103,7 @@ OPTIONS="CXX=${CXX}" "CCFLAGS=${CXXFLAGS} ${DEFINES}" \
 	 "LANGDIR=../${LANGDIR}"
 
 
-all: directories mocs depends mark diana bmark bdiana
+all: directories mocs depends mark diana bmark bdiana languages
 
 
 nodep: mark diana bmark bdiana
@@ -158,7 +158,7 @@ veryclean:
 	rm -rf $(OBJDIR)
 
 # install
-DESTNAME=diana-3.12.0
+DESTNAME=diana-3.12.1
 COPYFILES=bin/diana  bin/bdiana bin/diana.bin
 COPYDIRS=
 COPYTREES= share etc
