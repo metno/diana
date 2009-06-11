@@ -89,7 +89,7 @@ LINKS = -L$(LOCALDIR)/$(LIBDIR) $(PROFETLIBS) \
 	$(WDB_EXTRA_LIB) \
 	$(OMNI_LIBS) \
 	$(FFMPEG_LIBS) \
-	$(UU_LIB) 
+	$(UU_LIB) -lproj
 
 BLINKS= $(LINKS)
 
@@ -158,7 +158,7 @@ veryclean:
 	rm -rf $(OBJDIR)
 
 # install
-DESTNAME=diana-3.12.1
+DESTNAME=diana-3.12.2
 COPYFILES=bin/diana  bin/bdiana bin/diana.bin
 COPYDIRS=
 COPYTREES= share etc
