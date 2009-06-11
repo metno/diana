@@ -81,9 +81,9 @@ bool MapManager::parseMapAreas(SetupParser& sp)
             break;
         }
         if (q != mapareas_Fkeys.size()) {
-          mapareas_Fkeys[q] = area;
+          mapareas_Fkeys[q] = area_Fkey;
         } else {
-          mapareas_Fkeys.push_back(area);
+          mapareas_Fkeys.push_back(area_Fkey);
         }
       }
 
@@ -224,7 +224,7 @@ bool MapManager::getMapAreaByName(const miString& name, Area& a)
 
 bool MapManager::getMapAreaByFkey(const miString& name, Area& a)
 {
-  //   cerr<<"getMapAreaByFkey:"<<name<<endl;
+//     cerr<<"getMapAreaByFkey:"<<name<<endl;
   int i, n = mapareas_Fkeys.size();
   for (i = 0; i < n; i++) {
     if (name == mapareas_Fkeys[i].Name()) {
