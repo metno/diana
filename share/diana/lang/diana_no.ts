@@ -427,11 +427,11 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <source>Saving...</source>
-        <translation>Lagrer...</translation>
+        <translation type="obsolete">Lagrer...</translation>
     </message>
     <message>
         <source>There was a problem saving the picture to disk.</source>
-        <translation>Det oppsto problemer ved lagring av bilde til disk.</translation>
+        <translation type="obsolete">Det oppsto problemer ved lagring av bilde til disk.</translation>
     </message>
 </context>
 <context>
@@ -3672,7 +3672,7 @@ Vil du sende før du avslutter?</translation>
     </message>
     <message>
         <source>Table</source>
-        <translation>Tabell</translation>
+        <translation type="obsolete">Tabell</translation>
     </message>
     <message>
         <source>Repeat</source>
