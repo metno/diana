@@ -133,9 +133,14 @@ bool SatPlot::plot(){
    int bmStopx;
    int bmStopy;
 
+   // lower left corner of displayed image part, in map coordinates
+   float xstart; 	 
+   float ystart;
+
    if (!gc.getCorners(satdata->area, area, maprect,
        xmin, ymin, xmax, ymax, grStartx, grStarty,
-       bmStartx, bmStopx, bmStarty, bmStopy, scalex, scaley)){
+		      bmStartx, bmStopx, bmStarty, bmStopy, xstart, ystart, 
+		      scalex, scaley)){
      return false;
    }
 
@@ -143,13 +148,13 @@ bool SatPlot::plot(){
   if (maprect.x1 >= xmax || maprect.x2 <= xmin ||
       maprect.y1 >= ymax || maprect.y2 <= ymin) return true;
 
-  // bitmap offset (out of valid area) ... seams to be in screen pixels! Not used
-//  float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
-//  float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
+  // bitmap offset (out of valid area) ... seams to be in screen pixels
+ float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
+ float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
 
   // for hardcopy
-  float pxstart= (grStartx-maprect.x1)*scalex;
-  float pystart= (grStarty-maprect.y1)*scaley;
+ float pxstart= (xstart-maprect.x1)*scalex;
+ float pystart= (ystart-maprect.y1)*scaley;
 
   // width of image (pixels)
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image
@@ -186,8 +191,8 @@ bool SatPlot::plot(){
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
     glRasterPos2f(grStartx,grStarty); //glcoord.
 
-    //Why? Removed 2009-05-26, seems to have no effect
-//    if ((bmxmove<0. || bmymove<0.) && satdata->cut>0.3) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
+    //Strange, but needed
+    if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
 
     glDrawPixels((GLint)currwid, (GLint)currhei,
 	         GL_RGBA, GL_UNSIGNED_BYTE,
