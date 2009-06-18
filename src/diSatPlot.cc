@@ -107,60 +107,83 @@ void SatPlot::values(float x, float y, vector<SatValues>& satval){
 }
 
 bool SatPlot::plot(){
+
 #ifdef DEBUGPRINT
   cerr << "++ SatPlot::plot() ++" << endl;
 #endif
 
-  if (!enabled) return false;
-
-  if(satdata == NULL || satdata->image == NULL || !satdata->approved)
+  if (!enabled)
     return false;
 
-  int nx= satdata->nx;
-  int ny= satdata->ny;
+  if ((satdata == NULL)||
+      (satdata->image == NULL)||
+      (!satdata->approved))
+    return false;
 
-  // scaling
-  float scalex= float(pwidth) /fullrect.width();
-  float scaley= float(pheight)/fullrect.height();
+  int nx = satdata->nx;
+  int ny = satdata->ny;
 
-  // shown image corners in map coordinates
-  float grStartx;
-  float grStarty;
+  int npos = 1;
 
-  // shown image corners in image coordinates
-   int bmStartx;
-   int bmStarty;
-   int bmStopx;
-   int bmStopy;
-
-   // lower left corner of displayed image part, in map coordinates
-   float xstart; 	 
-   float ystart;
-
-   if (!gc.getCorners(satdata->area, area, maprect,
-       xmin, ymin, xmax, ymax, grStartx, grStarty,
-		      bmStartx, bmStopx, bmStarty, bmStopy, xstart, ystart, 
-		      scalex, scaley)){
-     return false;
-   }
+  //Member variables, used in values().
+  //Corners of total image (map coordinates)
+  xmin = 0.;
+  ymin = 0.;
+  if (!gc.getPoints(satdata->area, area, npos, &xmin, &ymin))
+    return false;
+  xmax = nx;
+  ymax = ny;
+  if (!gc.getPoints(satdata->area, area, npos, &xmax, &ymax))
+    return false;
 
   // exit if image is outside map area
   if (maprect.x1 >= xmax || maprect.x2 <= xmin ||
       maprect.y1 >= ymax || maprect.y2 <= ymin) return true;
 
-  // bitmap offset (out of valid area) ... seams to be in screen pixels
- float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
- float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
+  // scaling
+  float scalex = float(pwidth) /fullrect.width();
+  float scaley = float(pheight)/fullrect.height();
 
-  // for hardcopy
- float pxstart= (xstart-maprect.x1)*scalex;
- float pystart= (ystart-maprect.y1)*scaley;
+  // Corners of image shown (map coordinates)
+  float grStartx = (maprect.x1>xmin) ? maprect.x1 : xmin;
+  float grStarty = (maprect.y1>ymin) ? maprect.y1 : ymin;
+
+  // Corners of total image (image coordinates)
+  float x1= maprect.x1;
+  float y1= maprect.y1;
+  if (!gc.getPoints(area, satdata->area, npos, &x1, &y1))
+    return false;
+  float x2= maprect.x2;
+  float y2= maprect.y2;
+  if (!gc.getPoints(area, satdata->area, npos, &x2, &y2))
+    return false;
+
+  // Corners of image shown (image coordinates)
+  int bmStartx= (maprect.x1>xmin) ? int(x1) : 0;
+  int bmStarty= (maprect.y1>ymin) ? int(y1) : 0;
+  int bmStopx=  (maprect.x2<xmax) ? int(x2) : nx-1;
+  int bmStopy=  (maprect.y2<ymax) ? int(y2) : ny-1;
+
+  // lower left corner of displayed image part, in map coordinates
+  // (part of lower left pixel may well be outside screen)
+  float xstart = bmStartx;
+  float ystart = bmStarty;
+  if (!gc.getPoints(satdata->area, area, npos, &xstart, &ystart))
+    return false;
+
+   // for hardcopy
+  float pxstart= (xstart-maprect.x1)*scalex;
+  float pystart= (ystart-maprect.y1)*scaley;
+
+  // update scaling with ratio image to map (was map to screen pixels)
+  scalex*= area.P().getGridResolutionX() / satdata->area.P().getGridResolutionX();
+  scaley*= area.P().getGridResolutionY() / satdata->area.P().getGridResolutionY();
 
   // width of image (pixels)
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image
   int currhei= bmStopy - bmStarty + 1;  // use pixels in image
 
-    // keep original copies (for hardcopy purposes)
+  // keep original copies (for hardcopy purposes)
     int orignx =       nx;
     int origny =       ny;
     float origscalex=  scalex;
@@ -171,12 +194,13 @@ bool SatPlot::plot(){
     float origpystart= pystart;
 
     /*
-      If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
-      cImage: Pointer to imagedata, either sat_image or resampled data
+    If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
+    cImage: Pointer to imagedata, either sat_image or resampled data
      */
     unsigned char * cimage = resampleImage(currwid,currhei,bmStartx,bmStarty,
         scalex,scaley,nx,ny);
 
+    // always needed (if not, slow oper...) ??????????????
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -192,20 +216,22 @@ bool SatPlot::plot(){
     glRasterPos2f(grStartx,grStarty); //glcoord.
 
     //Strange, but needed
+    float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
+    float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
     if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
 
     glDrawPixels((GLint)currwid, (GLint)currhei,
-	         GL_RGBA, GL_UNSIGNED_BYTE,
-	         cimage);
+           GL_RGBA, GL_UNSIGNED_BYTE,
+           cimage);
 
     // for postscript output, add imagedata to glpfile
     if (hardcopy){
 
       psAddImage(satdata->image,
-	         4*orignx*origny, orignx, origny,
-	         origpxstart, origpystart, origscalex, origscaley,
-	         origbmStartx, origbmStarty, bmStopx, bmStopy,
-	         GL_RGBA, GL_UNSIGNED_BYTE);
+           4*orignx*origny, orignx, origny,
+           origpxstart, origpystart, origscalex, origscaley,
+           origbmStartx, origbmStarty, bmStopx, bmStopy,
+           GL_RGBA, GL_UNSIGNED_BYTE);
 
       // for postscript output
       UpdateOutput();
