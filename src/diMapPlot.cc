@@ -988,8 +988,8 @@ bool MapPlot::plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, i
   n= 0;
   for (j=0; j<nt; j++) {
     for (i=0; i<nt; i++) {
-      tx[n]= maprect.x1 + dx*float(i);
-      ty[n]= maprect.y1 + dy*float(j);
+      tx[n]= maprect.x1 + dx*i;
+      ty[n]= maprect.y1 + dy*j;
       n++;
     }
   }

@@ -22,7 +22,7 @@ GridAreaManager::~GridAreaManager() {
 bool GridAreaManager::setGridAreas(map<miString,Polygon> newAreas,
     Area currentProj) {
   LOG4CXX_DEBUG(logger,"setGridAreas ("<<newAreas.size()<<" areas)");
-  if (currentProj.P().Gridtype() == 0)
+  if (!currentProj.P().defined())
     return false;
   gridAreas.clear();
   map<miString,Polygon>::iterator iter = newAreas.begin();
@@ -64,7 +64,7 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
     first_y = y;
     overrideMouseEvent = true;
   }
-  
+
   if (paintMode == SELECT_MODE) {
     handleSelectEvent(me, res, x, y);
   } else if (!gridAreas.count(currentId)) {
@@ -99,7 +99,7 @@ void GridAreaManager::handleModeChanged(const mouseEvent& me, EventResult& res) 
         gridAreas[currentId].setMode(GridArea::NODE_SELECT);
       } else if (paintMode == ADD_POINT) {
         gridAreas[currentId].setMode(GridArea::NODE_INSERT);
-      } else { 
+      } else {
         gridAreas[currentId].setMode(GridArea::NORMAL);
       }
     }

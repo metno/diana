@@ -53,16 +53,25 @@ bool MapManager::parseMapAreas(SetupParser& sp)
 
   mapareas.clear();
 
-  vector<miString> list;
-  if (!sp.getSection(SectMapAreas, list)) {
+  vector<miString> setuplist;
+  if (!sp.getSection(SectMapAreas, setuplist)) {
     return true;
   }
 
   int q;
-  int n = list. size();
+  int n = setuplist. size();
   for (int i = 0; i < n; i++) {
     Area area;
-    if (area.setAreaFromLog(list[i])) {
+    if (setuplist[i].downcase().contains("useprojlib")) {
+      vector<miString> tokens= setuplist[i].split("=");
+      if (tokens.size() > 1){
+        miString value= tokens[1].downcase();
+        Projection::setProjActive(value=="true");
+      } else {
+        Projection::setProjActive(false);
+      }
+
+    } else if (area.setAreaFromLog(setuplist[i])) {
       miString name = area.Name();
 
       if (name.contains("[F5]") || name.contains("[F6]") || name.contains(
@@ -97,6 +106,8 @@ bool MapManager::parseMapAreas(SetupParser& sp)
       } else {
         mapareas.push_back(area);
       }
+      cerr << "Adding area:" << name << " defined by:" << area << endl;
+
 
     } else {
       sp.errorMsg(SectMapAreas, i, "Incomplete maparea-specification");
