@@ -391,6 +391,7 @@ bool FilledMap::plot(Area area, // current area
     bool cutsouth = false;//!area.P().isLegal(0.0,-90.0);
     bool cutnorth = false;//!area.P().isLegal(0.0,90.0);
     area.P().filledMapCutparameters(cutnorth,cutsouth);
+    cutnorth = false; // no dangerous tiles at north pole
 
     // convert all borders to correct projection
     for (int i = 0; i < numGroups; i++) {
