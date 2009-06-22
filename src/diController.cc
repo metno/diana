@@ -66,6 +66,7 @@ Controller::Controller()
   editm= new EditManager(plotm,objm);
   aream = new GridAreaManager();
   paintModeEnabled = false;
+  scrollwheelZoom = false;
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,objm,editm,aream);
 //  profetController = new Profet::ProfetController(fieldm);
 }
@@ -408,6 +409,10 @@ vector <miString> Controller::getSatnames(){
 
 void Controller::showAnnotations(bool on){
   plotm->showAnnotations(on);
+}
+
+void Controller::toggleScrollwheelZoom(bool on){
+  scrollwheelZoom = !scrollwheelZoom;
 }
 
 bool Controller::markAnnotationPlot(int x, int y){
@@ -987,6 +992,10 @@ void Controller::readLog(const vector<miString>& vstr,
 
 void Controller::setPaintModeEnabled(bool pm_enabled){
 	paintModeEnabled = pm_enabled;
+}
+
+bool Controller::useScrollwheelZoom() {
+  return scrollwheelZoom;
 }
 
 #ifdef PROFET

@@ -223,6 +223,7 @@ private slots:
   void archiveMode();
   void autoElement();
   void showAnnotations();
+  void toggleScrollwheelZoom();
   void chooseFont();
   void toggleElement(PlotElement);
   void prevHPlot();
@@ -281,6 +282,7 @@ private:
   QAction * optArchiveAction;
   QAction * optAutoElementAction;
   QAction * optAnnotationAction;
+  QAction * optScrollwheelZoomAction;
   QAction * optFontAction;
 
   QAction * showResetAreaAction;

@@ -377,33 +377,32 @@ void GLwidget::handleKeyEvents(QKeyEvent* me,const keyboardEventType ket){
 
 // ---------------------- event callbacks -----------------
 
-//Removed until someone makes an on/off option
-//void GLwidget::wheelEvent(QWheelEvent *we)
-//{
-//  int numDegrees = we->delta() / 8;
-//  int numSteps = numDegrees / 15;
-//
-//  if (we->orientation() == Qt::Vertical) {
-//    if (numSteps > 0) {
-//      float x1, y1, x2, y2;
-//      float xmap, ymap;
-//
-//      contr->getPlotSize(x1, y1, x2, y2);
-//      /// (why -(y-height())? I have no idea ...)
-//      contr->PhysToMap(we->x(), -(we->y()-height()), xmap, ymap);
-//
-//      int wd = static_cast<int> ((x2 - x1) / 3.);
-//      int hd = static_cast<int> ((y2 - y1) / 3.);
-//
-//      Rectangle r(xmap - wd, ymap - hd, xmap + wd, ymap + hd);
-//      contr->zoomTo(r);
-//      updateGL();
-//    } else {
-//      contr->zoomOut();
-//      updateGL();
-//    }
-//  }
-//}
+void GLwidget::wheelEvent(QWheelEvent *we)
+{
+  int numDegrees = we->delta() / 8;
+  int numSteps = numDegrees / 15;
+
+  if (contr->useScrollwheelZoom() && we->orientation() == Qt::Vertical) {
+    if (numSteps > 0) {
+      float x1, y1, x2, y2;
+      float xmap, ymap;
+
+      contr->getPlotSize(x1, y1, x2, y2);
+      /// (why -(y-height())? I have no idea ...)
+      contr->PhysToMap(we->x(), -(we->y()-height()), xmap, ymap);
+
+      int wd = static_cast<int> ((x2 - x1) / 3.);
+      int hd = static_cast<int> ((y2 - y1) / 3.);
+
+      Rectangle r(xmap - wd, ymap - hd, xmap + wd, ymap + hd);
+      contr->zoomTo(r);
+      updateGL();
+    } else {
+      contr->zoomOut();
+      updateGL();
+    }
+  }
+}
 
 void GLwidget::keyPressEvent(QKeyEvent *me)
 {

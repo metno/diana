@@ -237,6 +237,11 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   optAnnotationAction->setCheckable(true);
   connect( optAnnotationAction, SIGNAL( activated() ), SLOT( showAnnotations() ) );
   // --------------------------------------------------------------------
+  optScrollwheelZoomAction = new QAction( tr("Scrollw&heel zooming"), this );
+  optScrollwheelZoomAction->setShortcutContext(Qt::ApplicationShortcut);
+  optScrollwheelZoomAction->setCheckable(true);
+  connect( optScrollwheelZoomAction, SIGNAL( activated() ), SLOT( toggleScrollwheelZoom() ) );
+  // --------------------------------------------------------------------
   optFontAction = new QAction( tr("Select &Font..."), this );
   optFontAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( optFontAction, SIGNAL( activated() ) ,  SLOT( chooseFont() ) );
@@ -555,6 +560,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   optmenu->addAction( optArchiveAction );
   optmenu->addAction( optAutoElementAction );
   optmenu->addAction( optAnnotationAction );
+  optmenu->addAction( optScrollwheelZoomAction );
   optmenu->addSeparator();
   optmenu->addAction( optFontAction );
 
@@ -4239,6 +4245,12 @@ void DianaMainWindow::showAnnotations()
   bool on = optAnnotationAction->isChecked();
   //   optAnnotationAction->setChecked( on );
   contr->showAnnotations(on);
+}
+
+void DianaMainWindow::toggleScrollwheelZoom()
+{
+  bool on = optScrollwheelZoomAction->isChecked();
+  contr->toggleScrollwheelZoom(on);
 }
 
 void DianaMainWindow::chooseFont()
