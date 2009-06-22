@@ -45,7 +45,8 @@ MovieMaker::MovieMaker(string &filename, int delay)
   logger = log4cxx::Logger::getLogger("diana.MovieMaker"); ///< LOG4CXX init
 #endif
   g_strOutputVideoFile = filename;
-
+  this->delay = delay;
+  
   // register all the codecs
   avcodec_register_all();
   av_register_all();
