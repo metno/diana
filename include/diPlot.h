@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -73,7 +73,7 @@ protected:
   static int pressureLevel;          // current pressure level
   static int oceandepth;       // current ocean depth
   static miString bgcolour;  // name of background colour
-  static Colour backgroundColour;   // background colour 
+  static Colour backgroundColour;   // background colour
   static Colour backContrastColour; // suitable contrast colour
   static float gcd;          // great circle distance
   static bool panning;       // panning in progress
@@ -103,7 +103,7 @@ public:
   /// some init after setup is read
   static void afterSetup();
 
-  /// plot 
+  /// plot
   virtual bool plot(){return false; }
   /// plot for specified layer
   virtual bool plot(const int){return false; }
@@ -115,7 +115,7 @@ public:
 
   /// return current area on map
   Area& getMapArea(){return area;}
-  /// set area, possibly trying to keep the current physical area 
+  /// set area, possibly trying to keep the current physical area
   bool setMapArea(const Area&, bool keepcurrentarea);
   /// with a new projection: find the best matching physical area with the current one
   Area findBestMatch(const Area&);
@@ -175,6 +175,9 @@ public:
   /// return n elements of the current plot info string
   miString getPlotInfo(int n=0);
 
+  /// return true if right plot string
+  bool plotInfoOK(const miString& pin){return (pinfo == pin);}
+
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const { return poptions; }
 
@@ -185,7 +188,7 @@ public:
   void setDirty(const bool =true);
   /// is redraw needed
   bool getDirty(){return dirty;}
-  
+
   /// set colour mode (rgb or color-index)
   void setColourMode(const bool isrgb =true);
   /// return current colourmode
@@ -216,7 +219,7 @@ public:
   void UpdateOutput();
   /// start new page in postscript
   bool startPSnewpage();
-  /// for postscript output - reset state vectors 
+  /// for postscript output - reset state vectors
   void resetPage();
   /// end postscript output
   bool endPSoutput();
