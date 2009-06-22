@@ -69,14 +69,14 @@ public:
    * Constructor. Sets filename to save the finished animation to, and
    * which quality it will be saved in.
    */
-  MovieMaker(string &filename, int delay);
+  MovieMaker(string &filename, float delay);
 
   ~MovieMaker();
   
   bool addImage(QImage *image);
 
 private:
-  int delay;
+  float delay;
   string g_strOutputVideoFile;
   string g_strInputImageFile;
 

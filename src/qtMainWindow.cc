@@ -2881,7 +2881,7 @@ void DianaMainWindow::saveAnimation() {
       filename += ".mpg";
     }
 
-    int delay = timeout_ms * 0.001;
+    float delay = timeout_ms * 0.001;
     MovieMaker moviemaker(filename, delay);
 
     QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));

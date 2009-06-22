@@ -39,7 +39,7 @@
 
 using namespace std;
 
-MovieMaker::MovieMaker(string &filename, int delay)
+MovieMaker::MovieMaker(string &filename, float delay)
 {
 #ifdef HAVE_LOG4CXX
   logger = log4cxx::Logger::getLogger("diana.MovieMaker"); ///< LOG4CXX init
