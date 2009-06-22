@@ -34,7 +34,8 @@
 
 #include "MovieMaker.h"
 
-#define VIDEO_BUF_SIZE 1835008
+//#define VIDEO_BUF_SIZE 1835008
+#define VIDEO_BUF_SIZE 2835008
 #define VIDEO_BITRATE  6000 * 1024
 
 using namespace std;
