@@ -34,8 +34,7 @@
 
 #include "MovieMaker.h"
 
-//#define VIDEO_BUF_SIZE 1835008
-#define VIDEO_BUF_SIZE 2835008
+#define VIDEO_BUF_SIZE 1835008
 #define VIDEO_BITRATE  6000 * 1024
 
 using namespace std;
@@ -47,12 +46,12 @@ MovieMaker::MovieMaker(string &filename, int delay)
 #endif
   g_strOutputVideoFile = filename;
 
-  // must be called before using avcodec lib
-  avcodec_init();
-
   // register all the codecs
   avcodec_register_all();
   av_register_all();
+
+  // must be called before using avcodec lib
+  avcodec_init();
 
   outputVideo.fileName = g_strOutputVideoFile.c_str();
 
