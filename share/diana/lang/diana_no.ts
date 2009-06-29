@@ -433,6 +433,10 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <source>There was a problem saving the picture to disk.</source>
         <translation type="obsolete">Det oppsto problemer ved lagring av bilde til disk.</translation>
     </message>
+    <message>
+        <source>Scrollw&amp;heel zooming</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DianaProfetGUI</name>
