@@ -38,6 +38,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#define DEG_TO_RAD  .0174532925199432958
+
 /* Created at Wed Aug  8 09:54:14 2001 */
 
 const float bignum = FLT_MAX;
@@ -307,6 +309,7 @@ bool FilledMap::readheader()
 }
 
 bool FilledMap::plot(Area area, // current area
+    Rectangle maprect, // the visible rectangle
     double gcd, // size of plotarea in m
     bool land, // plot triangles
     bool cont, // plot contour-lines
@@ -320,6 +323,9 @@ bool FilledMap::plot(Area area, // current area
 
 
   bool startfresh = false;
+
+  float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
+  float jumplimit = area.P().getMapLinesJumpLimit();
 
   // check if mapfile has been altered since header was read
   bool filechanged = false;
@@ -357,11 +363,15 @@ bool FilledMap::plot(Area area, // current area
       for (int ipp = 0; ipp < numpo; ipp++) {
         id2 = id1 + polydata[psize].polysize[ipp];
 
+        clipPrimitiveLines(id1, id2-1, polydata[psize].polyverx,
+            polydata[psize].polyvery,xylim,jumplimit);
+/*
         glBegin(GL_LINE_STRIP);
         for (int iv = id1; iv < id2; iv++) {
           glVertex2f(polydata[psize].polyverx[iv], polydata[psize].polyvery[iv]);
         }
         glEnd();
+*/
         id1 = id2;
       }
     }
@@ -387,6 +397,11 @@ bool FilledMap::plot(Area area, // current area
   geomin = gcd / 20000000;
   geomin = geomin * geomin;
 
+  //Projection srcProj("+proj=lonlat +ellps=WGS84 +datum=WGS84", DEG_TO_RAD, DEG_TO_RAD);
+  //Projection srcProj("+proj=lonlat +a=6371000.0 +b=6371000.0",DEG_TO_RAD,DEG_TO_RAD);
+  Projection srcProj("+proj=lonlat +ellps=WGS84 ",DEG_TO_RAD,DEG_TO_RAD);
+//+to_meter=.0174532925199432958
+
   if (area.P() != proj || startfresh) {
     bool cutsouth = false;//!area.P().isLegal(0.0,-90.0);
     bool cutnorth = false;//!area.P().isLegal(0.0,90.0);
@@ -409,7 +424,8 @@ bool FilledMap::plot(Area area, // current area
         cty[num4 + m] = groups[i].midlat[m];
       }
 
-      gc.geo2xy(area, num5, ctx, cty);
+      area.P().convertPoints(srcProj, num5, ctx, cty);
+      //gc.geo2xy(area, num5, ctx, cty);
       float minx = bignum, maxx = -bignum, miny = bignum, maxy = -bignum;
       // find min-max corners
       for (int j = 0; j < num; j++) {
@@ -703,13 +719,17 @@ bool FilledMap::plot(Area area, // current area
           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
           // convert vertices
-          gc.geo2xy(area, tidx, triverx, trivery);
+          area.P().convertPoints(srcProj, tidx, triverx, trivery);
+          //gc.geo2xy(area, tidx, triverx, trivery);
 
+          clipTriangles(0, tidx, triverx, trivery, xylim, jumplimit);
+/*
           glBegin(GL_TRIANGLES);
           for (int iv = 0; iv < tidx; iv++) {
             glVertex2f(triverx[iv], trivery[iv]);
           }
           glEnd();
+*/
         }
       }
 
@@ -718,8 +738,8 @@ bool FilledMap::plot(Area area, // current area
       if (numpo > 0 && (cont || keepcont)) {
 
         // convert vertices
-        gc.geo2xy(area, polydata[psize].np, polydata[psize].polyverx,
-            polydata[psize].polyvery);
+        area.P().convertPoints(srcProj, polydata[psize].np, polydata[psize].polyverx, polydata[psize].polyvery);
+        //gc.geo2xy(area, polydata[psize].np, polydata[psize].polyverx, polydata[psize].polyvery);
 
         if (cont) {
           glColor4ubv(lcolour);
@@ -727,12 +747,16 @@ bool FilledMap::plot(Area area, // current area
           for (int ipp = 0; ipp < numpo; ipp++) {
             id2 = id1 + polydata[psize].polysize[ipp];
 
+            clipPrimitiveLines(id1, id2-1, polydata[psize].polyverx,
+                polydata[psize].polyvery,xylim,jumplimit);
+/*
             glBegin(GL_LINE_STRIP);
             for (int iv = id1; iv < id2; iv++) {
               glVertex2f(polydata[psize].polyverx[iv],
                   polydata[psize].polyvery[iv]);
             }
             glEnd();
+            */
             id1 = id2;
           }
         }
@@ -751,5 +775,171 @@ bool FilledMap::plot(Area area, // current area
   fclose(pfile);
   glDisable(GL_LINE_STIPPLE);
   return true;
+}
+
+void FilledMap::clipTriangles(int i1, int i2, float * x, float * y, float xylim[4],
+    float jumplimit){
+
+  const float bigjump = 1000000;
+  glBegin(GL_TRIANGLES);
+  for (int iv = i1; iv < i2; iv+=3) {
+    float x1=x[iv], x2=x[iv+1], x3=x[iv+2];
+    float y1=y[iv], y2=y[iv+1], y3=y[iv+2];
+
+    if (jumplimit > bigjump || (fabsf(x1 - x2) < jumplimit && fabsf(x2 - x3) < jumplimit &&
+        fabsf(x1 - x3) < jumplimit && fabsf(y1 - y2) < jumplimit &&
+        fabsf(y2 - y3) < jumplimit && fabsf(y1 - y3) < jumplimit)){
+      glVertex2f(x1, y1);
+      glVertex2f(x2, y2);
+      glVertex2f(x3, y3);
+    }
+/*
+    glVertex2f(x[iv], y[iv]);
+    glVertex2f(x[iv+1], y[iv+1]);
+    glVertex2f(x[iv+2], y[iv+2]);
+*/
+  }
+  glEnd();
+
+}
+
+
+
+void FilledMap::clipPrimitiveLines(int i1, int i2, float *x, float *y, float xylim[4],
+    float jumplimit)
+{
+  int i, n = i1;
+  while (n < i2) {
+    i = n++;
+    while (n <= i2 && fabsf(x[n - 1] - x[n]) < jumplimit && fabsf(y[n - 1]
+        - y[n]) < jumplimit) {
+      n++;
+    }
+    xyclip(n - i, &x[i], &y[i], xylim);
+  }
+}
+
+void FilledMap::xyclip(int npos, float *x, float *y, float xylim[4])
+{
+  //  plotter del(er) av sammenhengende linje som er innenfor gitt
+  //  omraade, ogsaa linjestykker mellom 'nabopunkt' som begge er
+  //  utenfor omraadet.
+  //  (farge, linje-type og -tykkelse maa vaere satt paa forhaand)
+  //
+  //  grafikk: OpenGL
+  //
+  //  input:
+  //  ------
+  //  x(npos),y(npos): linje med 'npos' punkt (npos>1)
+  //  xylim(1-4):      x1,x2,y1,y2 for aktuelt omraade
+
+  int nint, nc, n, i, k1, k2;
+  float xa, xb, ya, yb, xint, yint, x1, x2, y1, y2;
+  float xc[4], yc[4];
+
+  if (npos < 2)
+    return;
+
+  xa = xylim[0];
+  xb = xylim[1];
+  ya = xylim[2];
+  yb = xylim[3];
+
+  float xoffset = (xb - xa) / 200.0;
+  float yoffset = (yb - ya) / 200.0;
+
+  if (x[0] < xa || x[0] > xb || y[0] < ya || y[0] > yb) {
+    k2 = 0;
+  } else {
+    k2 = 1;
+    nint = 0;
+    xint = x[0];
+    yint = y[0];
+  }
+
+  for (n = 1; n < npos; ++n) {
+    k1 = k2;
+    k2 = 1;
+
+    if (x[n] < xa || x[n] > xb || y[n] < ya || y[n] > yb)
+      k2 = 0;
+
+    // sjekk om 'n' og 'n-1' er innenfor
+    if (k1 + k2 == 2)
+      continue;
+
+    // k1+k2=1: punkt 'n' eller 'n-1' er utenfor
+    // k1+k2=0: sjekker om 2 nabopunkt som begge er utenfor omraadet
+    //          likevel har en del av linja innenfor.
+
+    x1 = x[n - 1];
+    y1 = y[n - 1];
+    x2 = x[n];
+    y2 = y[n];
+
+    // sjekker om 'n-1' og 'n' er utenfor paa samme side
+    if (k1 + k2 == 0 && ((x1 < xa && x2 < xa) || (x1 > xb && x2 > xb) || (y1
+        < ya && y2 < ya) || (y1 > yb && y2 > yb)))
+      continue;
+
+    // sjekker alle skjaerings-muligheter
+    nc = -1;
+    if (x1 != x2) {
+      nc++;
+      xc[nc] = xa;
+      yc[nc] = y1 + (y2 - y1) * (xa - x1) / (x2 - x1);
+      if (yc[nc] < ya || yc[nc] > yb || (xa - x1) * (xa - x2) > 0.)
+        nc--;
+      nc++;
+      xc[nc] = xb;
+      yc[nc] = y1 + (y2 - y1) * (xb - x1) / (x2 - x1);
+      if (yc[nc] < ya || yc[nc] > yb || (xb - x1) * (xb - x2) > 0.)
+        nc--;
+    }
+    if (y1 != y2) {
+      nc++;
+      yc[nc] = ya;
+      xc[nc] = x1 + (x2 - x1) * (ya - y1) / (y2 - y1);
+      if (xc[nc] < xa || xc[nc] > xb || (ya - y1) * (ya - y2) > 0.)
+        nc--;
+      nc++;
+      yc[nc] = yb;
+      xc[nc] = x1 + (x2 - x1) * (yb - y1) / (y2 - y1);
+      if (xc[nc] < xa || xc[nc] > xb || (yb - y1) * (yb - y2) > 0.)
+        nc--;
+    }
+
+    if (k2 == 1) {
+      // foerste punkt paa linjestykke innenfor
+      nint = n - 1;
+      xint = xc[0];
+      yint = yc[0];
+    } else if (k1 == 1) {
+      // siste punkt paa linjestykke innenfor
+      glBegin(GL_LINE_STRIP);
+      glVertex2f(xint, yint);
+      for (i = nint + 1; i < n; i++) {
+        glVertex2f(x[i], y[i]);
+      }
+      glVertex2f(xc[0], yc[0]);
+      glEnd();
+    } else if (nc > 0) {
+      // to 'nabopunkt' utenfor, men del av linja innenfor
+      glBegin(GL_LINE_STRIP);
+      glVertex2f(xc[0], yc[0]);
+      glVertex2f(xc[1], yc[1]);
+      glEnd();
+    }
+  }
+
+  if (k2 == 1) {
+    // siste punkt er innenfor omraadet
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(xint, yint);
+    for (i = nint + 1; i < npos; i++) {
+      glVertex2f(x[i], y[i]);
+    }
+    glEnd();
+  }
 }
 

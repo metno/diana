@@ -283,7 +283,7 @@ bool MapPlot::plot(const int zorder)
           filledmaps[mapfile]= FilledMap(mapfile);
         }
         Area fullarea(area.P(), fullrect);
-        filledmaps[mapfile].plot(fullarea, gcd, land, cont, !cont
+        filledmaps[mapfile].plot(fullarea, maprect, gcd, land, cont, !cont
             && mapinfo.contour.ison, contopts.linetype.bmap,
             contopts.linewidth, c.RGBA(), landopts.fillcolour.RGBA(),
             backgroundColour.RGBA());
@@ -976,47 +976,8 @@ bool MapPlot::plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, i
 
   float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
 
-  // find (approx.) geographic area on map
-
   int n, i, j;
-  int nt= 9;
-  float *tx= new float[nt*nt];
-  float *ty= new float[nt*nt];
-  float dx= (maprect.x2 - maprect.x1) / float(nt-1);
-  float dy= (maprect.y2 - maprect.y1) / float(nt-1);
-
-  n= 0;
-  for (j=0; j<nt; j++) {
-    for (i=0; i<nt; i++) {
-      tx[n]= maprect.x1 + dx*i;
-      ty[n]= maprect.y1 + dy*j;
-      n++;
-    }
-  }
-
-  if (!gc.xy2geo(area, n, tx, ty)) {
-    cerr<<"MapPlot::plotGeoGrid ERROR: gc.xy2geo failure"<<endl;
-    delete[] tx;
-    delete[] ty;
-    return false;
-  }
-
   float lonmin=FLT_MAX, lonmax=-FLT_MAX, latmin=FLT_MAX, latmax=-FLT_MAX;
-
-  for (i=0; i<n; i++) {
-    if (lonmin>tx[i])
-      lonmin= tx[i];
-    if (lonmax<tx[i])
-      lonmax= tx[i];
-    if (latmin>ty[i])
-      latmin= ty[i];
-    if (latmax<ty[i])
-      latmax= ty[i];
-  }
-
-  delete[] tx;
-  delete[] ty;
-
   bool straightLon= false, straightLat= false, circleLat= false;
   bool rotated= false;
   float xPole, yPole, compLat;

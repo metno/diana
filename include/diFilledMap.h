@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -37,7 +37,7 @@
 #include <GL/gl.h>
 #include <porttypes.h>
 
-using namespace std; 
+using namespace std;
 
 /**
    \brief Maps with filled land
@@ -51,7 +51,7 @@ private:
   miString filename; // name of mapfile
   long timestamp;    // file's change-time
   GridConverter gc;
-  
+
   struct tile_group {
     int numtiles;     // number of tiles in group
     float *tilex;     // group + tile borders
@@ -97,7 +97,13 @@ private:
 
   long gettimestamp();
   bool readheader();
-  
+
+  void clipTriangles(int i1, int i2, float * x, float * y, float xylim[4],
+      float jumplimit);
+  void clipPrimitiveLines(int i1, int i2, float *, float *, float xylim[4],
+      float jumplimit);
+  void xyclip(int npos, float *x, float *y, float xylim[4]);
+
 public:
 
   FilledMap();
@@ -106,6 +112,7 @@ public:
 
   /// Plot map (OpenGL)
   bool plot(Area area,               // current area
+      Rectangle maprect,       // the visible rectangle
 	    double gcd,              // size of plotarea in m
 	    bool land,               // plot triangles
 	    bool cont,               // plot contour-lines
