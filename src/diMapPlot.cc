@@ -499,16 +499,17 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
   //  met.no    25.05.2009  Audun Christoffersen ... independent on met.no projections
   //---------------------------------------------------------------------
 
-  const int nwrec = 1024;
-  const int maxpos = 2000;
+  const unsigned int nwrec = 1024;
+  const unsigned int maxpos = 2000;
   const int mlevel1 = 36 * 18;
   const int mlevel2 = 10 * 10;
 
   short indata[nwrec];
   float x[maxpos], y[maxpos];
 
-  int irec, jrec, nw, nd, err, nwdesc, npos, n, version;
-  int iscale2, nlevel1, nlevel2, np, npi, npp, i, j, ibgn, ierror;
+  unsigned int nw, npi, n, npp, npos;
+  int np, irec, jrec, nd, err, nwdesc, version;
+  int iscale2, nlevel1, nlevel2, i, j;//, ibgn, ierror;
   int n1, n2, nn, nwx1, nwx2, nlines, nl;
 
   float scale, slat2, slon2, x1, y1, x2, y2, dx, dy, dxbad;
@@ -672,6 +673,10 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
           y1 = y[np - 1];
           // convert coordinates from longitude,latitude to x,y
           bool b = gc.geo2xy(area,np,x,y);
+          if (!b){
+            cerr << "plotMapLand4(0), geo2xy returned false" << endl;
+          }
+
           //xyconvert(np, x, y, igeogrid, geogrid, gridtype, gridparam, &ierror);
 /*
  * TODO: what about this?
@@ -754,6 +759,9 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     }
     nn = n;
     bool b = gc.xy2geo(area,nn,x,y);
+    if (!b){
+      cerr << "plotMapLand4(1), geo2xy returned false" << endl;
+    }
     glonmin = glonmax = x[0];
     glatmin = glatmax = y[0];
     for (n = 1; n < nn; ++n) {
@@ -900,6 +908,9 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                   y1 = y[np - 1];
                   // convert coordinates from longitude,latitude to x,y
                   bool b = gc.geo2xy(area,np,x,y);
+                  if (!b){
+                    cerr << "plotMapLand4(2), geo2xy returned false" << endl;
+                  }
 /*
 TODO: what about this?
                   if (gridtype == 1 || gridtype == 4) {
@@ -976,7 +987,7 @@ bool MapPlot::plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, i
 
   float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
 
-  int n, i, j;
+  int n, j;
   float lonmin=FLT_MAX, lonmax=-FLT_MAX, latmin=FLT_MAX, latmax=-FLT_MAX;
   bool straightLon= false, straightLat= false, circleLat= false;
   bool rotated= false;
