@@ -58,9 +58,9 @@ bool MapManager::parseMapAreas(SetupParser& sp)
     return true;
   }
 
-  int q;
-  int n = setuplist. size();
-  for (int i = 0; i < n; i++) {
+  unsigned int q;
+  unsigned int n = setuplist. size();
+  for (unsigned int i = 0; i < n; i++) {
     Area area;
     if (setuplist[i].downcase().contains("useprojlib")) {
       vector<miString> tokens= setuplist[i].split("=");
@@ -106,8 +106,7 @@ bool MapManager::parseMapAreas(SetupParser& sp)
       } else {
         mapareas.push_back(area);
       }
-      cerr << "Adding area:" << name << " defined by:" << area << endl;
-
+      //cerr << "Adding area:" << name << " defined by:" << area << endl;
 
     } else {
       sp.errorMsg(SectMapAreas, i, "Incomplete maparea-specification");
@@ -125,7 +124,8 @@ bool MapManager::parseMapTypes(SetupParser& sp)
 
   vector<miString> strlist;
   MapInfo mapinfo;
-  int i, m, n, q;
+  unsigned int i, n, q;
+  int m;
   PlotOptions a, b, c, d, e;
 
   mapfiles.clear();
