@@ -2180,7 +2180,11 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
             if      (iconv==1) posConvert(npos, &x[1], &y[1], cxy);
             else if (iconv==2) posConvert(npos, &x[1], &y[1], nx, ny, xz, yz);
             glBegin(GL_LINE_STRIP);
-            for (i=1; i<npos+1; ++i) glVertex2f(x[i], y[i]);
+            for (i=1; i<npos+1; ++i) {
+              if(x[i]!=HUGE_VAL || y[i]!=HUGE_VAL){
+                glVertex2f(x[i], y[i]);
+              }
+            }
             glEnd();
           }
           if (shading) {
@@ -2268,7 +2272,11 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
               if      (iconv==1) posConvert(l, xsmooth, ysmooth, cxy);
               else if (iconv==2) posConvert(l, xsmooth, ysmooth, nx, ny, xz, yz);
               glBegin(GL_LINE_STRIP);
-              for (i=0; i<l; ++i) glVertex2f(xsmooth[i], ysmooth[i]);
+              for (i=0; i<l; ++i) {
+                if(xsmooth[i]!=HUGE_VAL || ysmooth[i]!=HUGE_VAL){
+                  glVertex2f(xsmooth[i], ysmooth[i]);
+                }
+              }
               glEnd();
             }
             if (shading) {
@@ -2729,7 +2737,11 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 
         if (ismooth<1) {
           glBegin(GL_LINE_STRIP);
-	    for (i=n1; i<n2+1; ++i) glVertex2f(x[i], y[i]);
+          for (i=n1; i<n2+1; ++i) {
+            if(x[i]!=HUGE_VAL || y[i]!=HUGE_VAL){
+              glVertex2f(x[i], y[i]);
+            }
+          }
           glEnd();
         } else {
           // line smoothing
@@ -2749,7 +2761,11 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
               ismooth,&xsmooth[0],&ysmooth[0]);
           if (l>1) {
             glBegin(GL_LINE_STRIP);
-            for (i=0; i<l; ++i) glVertex2f(xsmooth[i], ysmooth[i]);
+            for (i=0; i<l; ++i) {
+              if(x[i]!=HUGE_VAL || y[i]!=HUGE_VAL){
+                glVertex2f(x[i], y[i]);
+              }
+            }
             glEnd();
           }
         }
@@ -3498,10 +3514,15 @@ void posConvert(int npos, float *x, float *y, int nx, int ny, float *xz, float *
     c= dy*(1.-dx);
     d= dy*dx;
     ij= j*nx + i;
+    if(xz[ij]==HUGE_VAL ||xz[ij+1]==HUGE_VAL ||xz[ij+nx]==HUGE_VAL || xz[ij-nx+1]==HUGE_VAL){
+      x[n]=HUGE_VAL;
+      y[n]=HUGE_VAL;
+    } else {
       x[n] = a*xz[ij] + b*xz[ij+1] + c*xz[ij+nx] + d*xz[ij+nx+1];
       y[n] = a*yz[ij] + b*yz[ij+1] + c*yz[ij+nx] + d*yz[ij+nx+1];
     }
   }
+}
 
 
 
@@ -3512,8 +3533,9 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
   int ncl= contourlines.size();
 
   ContourLine *cl;
-  unsigned int n,nstop,lr1=0,lr2=0,npos,i,ntot,nend,adduse[2];
-  int nc;
+  unsigned int n,nstop;
+  int npos,i,ntot,nend;
+  int nc,lr1=0,lr2=0,adduse[2];
 
   for (nc=0; nc<ncl; nc++) {
     cl= contourlines[nc];
@@ -3547,7 +3569,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
 
       // lr: 0=left 1=right
 
-      for (unsigned int lr=lr1; lr<=lr2; lr++) {
+      for (int lr=lr1; lr<=lr2; lr++) {
 
         if (lr==0) {
           adduse[0]= 1;
