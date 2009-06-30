@@ -2154,7 +2154,7 @@ bool FieldPlot::plotContour(){
 
   // convert gridpoints to correct projection
   int npos=0;
-  float *x, *y;
+  float *x=0, *y=0;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
         npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
