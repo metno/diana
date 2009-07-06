@@ -4004,6 +4004,11 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   autoselect= optAutoElementAction->isChecked();
   str= "AUTOSELECT " + miString(autoselect ? "ON" : "OFF");
   vstr.push_back(str);
+  
+  // scrollwheelzooming
+  bool scrollwheelzoom = optScrollwheelZoomAction->isChecked();
+  str = "SCROLLWHEELZOOM " + miString(scrollwheelzoom ? "ON" : "OFF");
+  vstr.push_back(str);
 
   // GUI-font
   str= "FONT " + miString(qApp->font().toString().toStdString());
@@ -4091,8 +4096,13 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
       } else if (tokens[0]=="STATUSBUTTONS") {
         showelem= (tokens[1]=="ON");
       } else if (tokens[0]=="AUTOSELECT") {
-        autoselect= (tokens[1]=="ON");
-      } else if (tokens[0]=="FONT") {
+        autoselect = (tokens[1] == "ON");
+      } else if (tokens[0] == "SCROLLWHEELZOOM") {
+        if (tokens[1] == "ON") {
+          optScrollwheelZoomAction->setChecked(true);
+          toggleScrollwheelZoom();
+        }
+      } else if (tokens[0] == "FONT") {
         miString fontstr = tokens[1];
         //LB:if the font name contains blanks,
         //the string will be cut in pieces, and must be put together again.
