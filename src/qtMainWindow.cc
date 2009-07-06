@@ -866,7 +866,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
 
 
   // GAMMEL PLOTTING, KOMMENTERT VEKK, MEN IKKE FJERN DENNE !
-  //HK !!! kjekk å ha for å teste hurtigmenyer/OKstring uten dialoger
+  //HK !!! kjekk ï¿½ ha for ï¿½ teste hurtigmenyer/OKstring uten dialoger
   //connect(qm, SIGNAL(Apply(const vector<miString>&,bool)),
   //  	  SLOT(quickMenuApply(const vector<miString>&)));
 
@@ -2893,6 +2893,11 @@ void DianaMainWindow::saveAnimation() {
     QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
     showMinimized();
 
+    // first reset time-slider
+    miTime startTime = tslider->getStartTime();
+    tslider->set(startTime);
+    setPlotTime(startTime);
+    
     int nrOfTimesteps = tslider->numTimes();
     int i = 0;
 
@@ -4350,8 +4355,8 @@ void DianaMainWindow::selectedAreas(int ia)
   miString areaName=vselectAreas[ia].name;
   bool selected=vselectAreas[ia].selected;
   int id=vselectAreas[ia].id;
-  //det som er "selected" skal slås av og vice versa
-  // (lastRightClicked skal være det samme som areaName HER)
+  //det som er "selected" skal slï¿½s av og vice versa
+  // (lastRightClicked skal vï¿½re det samme som areaName HER)
   miString misc=(selected) ? "off" : "on";
   miString datastr = areaName + ":" + misc;
   miMessage letter;

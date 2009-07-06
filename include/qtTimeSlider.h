@@ -61,6 +61,8 @@ public:
   miTime Value();
   /// current index
   int current() { return value(); };
+  /// get start time
+  miTime getStartTime() { return start; };
   ///Number of times currently in the slider
   int numTimes() const {return times.size();}
   ///Next/previous time
@@ -70,6 +72,8 @@ public:
   void startAnimation(){startani= true;}
   ///Remove times from data type
   void deleteType(const miString& type);
+  
+  void set(const miTime&);
 
  public slots:
   void setMinMax(const miTime& t1, const miTime& t2);
@@ -113,7 +117,6 @@ private:
   miString  dataTypeUsed; //dataType in use
 
   void init();
-  void set(const miTime&);
   void setFirstTime(const miTime&);
   void updateList();
   bool setSliderValue(const int v);
