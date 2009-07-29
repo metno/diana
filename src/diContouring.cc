@@ -3514,7 +3514,7 @@ void posConvert(int npos, float *x, float *y, int nx, int ny, float *xz, float *
     c= dy*(1.-dx);
     d= dy*dx;
     ij= j*nx + i;
-    if(xz[ij]==HUGE_VAL ||xz[ij+1]==HUGE_VAL ||xz[ij+nx]==HUGE_VAL || xz[ij-nx+1]==HUGE_VAL){
+    if(xz[ij]==HUGE_VAL ||xz[ij+1]==HUGE_VAL ||xz[ij+nx]==HUGE_VAL || (ij>nx-2 && xz[ij-nx+1]==HUGE_VAL)){
       x[n]=HUGE_VAL;
       y[n]=HUGE_VAL;
     } else {
