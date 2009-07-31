@@ -71,9 +71,6 @@ private:
   ToggleButton* fileButton;
   QListWidget * modelfileList;
 
-  //dialog indices, changed when something is clicked
-  int m_modelfileButIndex;
-
   miString ASFIELD;
   miString OBSTEMP;
   miString OBSPILOT;

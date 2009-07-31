@@ -85,9 +85,9 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   //  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
   modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
   modelfileList->setEnabled(true);
-  updateModelfileList();
 
   modelButton = new ToggleButton(this, tr("Model").toStdString());
+  if (modelButton->isChecked()) cerr <<"CHECKED"<<endl;
   fileButton = new ToggleButton(this, tr("File").toStdString());
   modelfileBut = new QButtonGroup(this);
   modelfileBut->addButton(modelButton, 0);
@@ -97,6 +97,7 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   modelfileLayout->addWidget(fileButton);
   modelfileBut->setExclusive(true);
   modelButton->setChecked(true);
+  updateModelfileList();
 
   //modelfileClicked is called when auto,tid,fil buttons clicked
   connect( modelfileBut, SIGNAL( buttonClicked(int) ),
@@ -156,9 +157,6 @@ void VprofModelDialog::modelfileClicked(int tt)
 #ifdef DEBUGPRINT
   cerr <<"VprofModelDialog::modelfileClicked()\n";
 #endif
-
-  //update the index to current item in time file button
-  m_modelfileButIndex = tt;
 
   updateModelfileList();
 }
@@ -230,7 +228,7 @@ void VprofModelDialog::setSelection()
 #ifdef DEBUGPRINT
   cerr<< "VprofModelDialog::setSelection()" << endl;
 #endif
-  if (m_modelfileButIndex == 0) {
+  if (modelButton->isChecked()) {
     vector<miString> models = vprofm->getSelectedModels();
     int n = models.size();
     for (int i = 0; i < n; i++) {
@@ -257,7 +255,7 @@ void VprofModelDialog::setModel()
   bool showObsAmdar = false;
   bool asField = false;
 
-  if (m_modelfileButIndex == 0) {
+  if (modelButton->isChecked()) {
 
     vector<miString> models;
     int n = modelfileList->count();
@@ -279,7 +277,7 @@ void VprofModelDialog::setModel()
     vprofm->setSelectedModels(models, asField, showObsTemp, showObsPilot,
         showObsAmdar);
 
-  } else if (m_modelfileButIndex == 1) {
+  } else if (fileButton->isChecked()) {
 
     vector<miString> files;
     int n = modelfileList->count();
@@ -298,9 +296,9 @@ void VprofModelDialog::setModel()
 
 void VprofModelDialog::updateModelfileList()
 {
-#ifdef DEBUGPRINT
+//#ifdef DEBUGPRINT
   cerr << "VprofModelDialog::updateModelfileList()\n";
-#endif
+//#endif
 
   //want to keep th selected models/files
   int n = modelfileList->count();
@@ -312,7 +310,7 @@ void VprofModelDialog::updateModelfileList()
   //clear box with list of files
   modelfileList->clear();
 
-  if (m_modelfileButIndex == 0) {
+  if (modelButton->isChecked()) {
     //make a string list with models to insert into modelfileList
     vector<miString> modelnames = vprofm->getModelNames();
     int nr_models = modelnames.size();
@@ -325,7 +323,7 @@ void VprofModelDialog::updateModelfileList()
     }
 
     //insert into modelfilelist
-  } else if (m_modelfileButIndex == 1) {
+  } else if (fileButton->isChecked()) {
     //make a string list with files to insert into modelfileList
     vector<miString> modelfiles = vprofm->getModelFiles();
     int nr_files = modelfiles.size();
