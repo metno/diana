@@ -2181,8 +2181,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
             else if (iconv==2) posConvert(npos, &x[1], &y[1], nx, ny, xz, yz);
             glBegin(GL_LINE_STRIP);
             for (i=1; i<npos+1; ++i) {
-              if(x[i]!=HUGE_VAL || y[i]!=HUGE_VAL){
+              if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
                 glVertex2f(x[i], y[i]);
+              } else {
+                glEnd();
+                while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
+                --i;
+                glBegin(GL_LINE_STRIP);
               }
             }
             glEnd();
@@ -2273,8 +2278,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
               else if (iconv==2) posConvert(l, xsmooth, ysmooth, nx, ny, xz, yz);
               glBegin(GL_LINE_STRIP);
               for (i=0; i<l; ++i) {
-                if(xsmooth[i]!=HUGE_VAL || ysmooth[i]!=HUGE_VAL){
+                if(xsmooth[i]!=HUGE_VAL && ysmooth[i]!=HUGE_VAL){
                   glVertex2f(xsmooth[i], ysmooth[i]);
+                } else {
+                  glEnd();
+                  while(xsmooth[i]==HUGE_VAL || ysmooth[i]==HUGE_VAL) ++i;
+                  --i;
+                  glBegin(GL_LINE_STRIP);
                 }
               }
               glEnd();
@@ -2738,8 +2748,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         if (ismooth<1) {
           glBegin(GL_LINE_STRIP);
           for (i=n1; i<n2+1; ++i) {
-            if(x[i]!=HUGE_VAL || y[i]!=HUGE_VAL){
+            if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
               glVertex2f(x[i], y[i]);
+            } else {
+              glEnd();
+              while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
+              --i;
+              glBegin(GL_LINE_STRIP);
             }
           }
           glEnd();
@@ -2762,8 +2777,14 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           if (l>1) {
             glBegin(GL_LINE_STRIP);
             for (i=0; i<l; ++i) {
-              if(x[i]!=HUGE_VAL || y[i]!=HUGE_VAL){
+              if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
                 glVertex2f(x[i], y[i]);
+              } else {
+                glEnd();
+                while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
+                --i;
+                glBegin(GL_LINE_STRIP);
+
               }
             }
             glEnd();
@@ -4495,13 +4516,20 @@ void fillContours(vector<ContourLine*>& contourlines,
           j= 0;
           for (n=0; n<ncontours; n++) {
             cl= contourlines[clindex[jc][n]];
-            countpos[n]= npos= cl->npos - 1;
+            npos= cl->npos - 1;
+            int kk=0;
             for (i=0; i<npos; i++) {
-              gldata[j]  = cl->xpos[i];
-              gldata[j+1]= cl->ypos[i];
-              gldata[j+2]= 0.0;
-              j+=3;
+              if(cl->xpos[i]!=HUGE_VAL && cl->ypos[i]!=HUGE_VAL){
+                gldata[j]  = cl->xpos[i];
+                gldata[j+1]= cl->ypos[i];
+                gldata[j+2]= 0.0;
+                j+=3;
+                kk++;
+              } else {
+                continue;
+              }
             }
+            countpos[n]=kk;
           }
 
           tesselation(gldata, ncontours, countpos);
