@@ -171,7 +171,11 @@ bool SatPlot::plot(){
   if (!gc.getPoints(satdata->area, area, npos, &xstart, &ystart))
     return false;
 
-   // for hardcopy
+  //Strange, but needed
+  float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
+  float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
+
+  // for hardcopy
   float pxstart= (xstart-maprect.x1)*scalex;
   float pystart= (ystart-maprect.y1)*scaley;
 
@@ -216,8 +220,6 @@ bool SatPlot::plot(){
     glRasterPos2f(grStartx,grStarty); //glcoord.
 
     //Strange, but needed
-    float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
-    float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
     if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
 
     glDrawPixels((GLint)currwid, (GLint)currhei,
