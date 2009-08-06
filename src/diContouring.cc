@@ -295,6 +295,9 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   bool drawBorders= poptions.discontinuous!=0;
   bool shading=     poptions.contourShading!=0;
 
+  float jumpLimit = fieldArea.P().getMapLinesJumpLimit();
+
+
   if (drawBorders) {
     if (idraw==1 || idraw==2) {
       i= int(zstep+0.5);
@@ -2179,18 +2182,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           if (lev<nundef && !shading) {
             if      (iconv==1) posConvert(npos, &x[1], &y[1], cxy);
             else if (iconv==2) posConvert(npos, &x[1], &y[1], nx, ny, xz, yz);
-            glBegin(GL_LINE_STRIP);
-            for (i=1; i<npos+1; ++i) {
-              if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
-                glVertex2f(x[i], y[i]);
-              } else {
-                glEnd();
-                while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
-                --i;
-                glBegin(GL_LINE_STRIP);
-              }
-            }
-            glEnd();
+            drawLine(1,npos,x,y,jumpLimit);
           }
           if (shading) {
             ContourLine *cl= new ContourLine();
@@ -2276,18 +2268,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
             if (!shading) {
               if      (iconv==1) posConvert(l, xsmooth, ysmooth, cxy);
               else if (iconv==2) posConvert(l, xsmooth, ysmooth, nx, ny, xz, yz);
-              glBegin(GL_LINE_STRIP);
-              for (i=0; i<l; ++i) {
-                if(xsmooth[i]!=HUGE_VAL && ysmooth[i]!=HUGE_VAL){
-                  glVertex2f(xsmooth[i], ysmooth[i]);
-                } else {
-                  glEnd();
-                  while(xsmooth[i]==HUGE_VAL || ysmooth[i]==HUGE_VAL) ++i;
-                  --i;
-                  glBegin(GL_LINE_STRIP);
-                }
-              }
-              glEnd();
+              drawLine(0,l-1,xsmooth,ysmooth,jumpLimit);
             }
             if (shading) {
               ContourLine *cl= new ContourLine();
@@ -2746,18 +2727,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         // draw line from position 'n1' to 'n2'
 
         if (ismooth<1) {
-          glBegin(GL_LINE_STRIP);
-          for (i=n1; i<n2+1; ++i) {
-            if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
-              glVertex2f(x[i], y[i]);
-            } else {
-              glEnd();
-              while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
-              --i;
-              glBegin(GL_LINE_STRIP);
-            }
-          }
-          glEnd();
+          drawLine(n1,n2,x,y,jumpLimit);
         } else {
           // line smoothing
           if (n1>np1) {
@@ -2775,19 +2745,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           l = smoothline(np,&x[ns],&y[ns],nfrst,nlast,
               ismooth,&xsmooth[0],&ysmooth[0]);
           if (l>1) {
-            glBegin(GL_LINE_STRIP);
-            for (i=0; i<l; ++i) {
-              if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
-                glVertex2f(x[i], y[i]);
-              } else {
-                glEnd();
-                while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
-                --i;
-                glBegin(GL_LINE_STRIP);
-
-              }
-            }
-            glEnd();
+            drawLine(0,l-1,xsmooth,ysmooth,jumpLimit);
           }
         }
 
@@ -4741,4 +4699,28 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 
     delete[] indx;
   }
+}
+
+void drawLine(int start, int stop, float* x, float* y, const float& jumpLimit)
+{
+
+//split line if position is undefined or line wraps around the earth
+  glBegin(GL_LINE_STRIP);
+  for (int i=start; i<stop+1; ++i) {
+    if( (x[i]!=HUGE_VAL && y[i]!=HUGE_VAL) &&
+         ( i==start || (fabsf(x[i - 1] - x[i]) < jumpLimit && fabsf(y[i - 1]- y[i]) < jumpLimit))) {
+      glVertex2f(x[i], y[i]);
+    } else {
+      glEnd();
+      if(x[i]==HUGE_VAL || y[i]==HUGE_VAL) {
+        while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
+      } else {
+        start=i;
+      }
+      --i;
+      glBegin(GL_LINE_STRIP);
+    }
+  }
+  glEnd();
+
 }
