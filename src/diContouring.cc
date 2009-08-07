@@ -2752,10 +2752,12 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         if(label != 1) continue; // ilp loop
 
         // draw line from position 'n2' to (xlabel,ylabel)
-        glBegin(GL_LINE_STRIP);
-        glVertex2f(x[n2], y[n2]);
-        glVertex2f(xlabel, ylabel);
-        glEnd();
+        float xx[2], yy[2];
+        xx[0] = x[n2];
+        yy[0] = y[n2];
+        xx[1] = xlabel;
+        yy[1] = ylabel;
+        drawLine(0,1,xx,yy,jumpLimit);
 
         if (ibcol>=0) {
           // blank background for label
@@ -2773,10 +2775,11 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         glShadeModel(GL_FLAT);
 
         // draw line from (xend,yend) to 'n3'
-        glBegin(GL_LINE_STRIP);
-        glVertex2f(xend, yend);
-        glVertex2f(x[n3], y[n3]);
-        glEnd();
+        xx[0] = xend;
+        yy[0] = yend;
+        xx[1] = x[n3];
+        yy[1] = y[n3];
+        drawLine(0,1,xx,yy,jumpLimit);
 
         // for next label
         dxx = x[n3]-xend;
@@ -4714,9 +4717,8 @@ void drawLine(int start, int stop, float* x, float* y, const float& jumpLimit)
       glEnd();
       if(x[i]==HUGE_VAL || y[i]==HUGE_VAL) {
         while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
-      } else {
-        start=i;
       }
+      start=i;
       --i;
       glBegin(GL_LINE_STRIP);
     }
