@@ -100,7 +100,7 @@ int sortlines(float zvmin, float zvmax, int mvalue, int nvalue,
 	      int idraw, float zrange[], float zstep, float zoff,
 	      int nlines, float rlines[],
 	      int ncol, int icol[], int ntyp, int ityp[],
-	      int nwid, int iwid[], int nlim, float rlim[], 
+	      int nwid, int iwid[], int nlim, float rlim[],
 	      const float& fieldUndef);
 
 /// line smoothing (inserts extra points by a spline methode)
@@ -123,13 +123,16 @@ vector<float> findCrossing(float ycross, int n, float *x, float *y);
 void fillContours(vector<ContourLine*>& contourlines,
 		  int nx, int ny, float z[],
 		  int iconv, float *cxy, float *xz, float *yz, int idraw,
-		  const PlotOptions& poptions, bool drawBorders, 
-		  GLPfile* psoutput, const Area& fieldArea, 
+		  const PlotOptions& poptions, bool drawBorders,
+		  GLPfile* psoutput, const Area& fieldArea,
 		  float zrange[], float zstep, float zoff,
 		  const float& fieldUndef);
 
 /// replaces undefined values with relatively sensible values
 void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 			    const float& fieldUndef);
+
+/// draw part of contour line
+void drawLine(int start, int stop, float* x, float* y, const float& jumplimit);
 
 #endif
