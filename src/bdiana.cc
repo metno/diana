@@ -32,7 +32,6 @@
 #include <iostream>
 
 #include <diController.h>
-#include <X11/keysym.h>
 #include <X11/Intrinsic.h>
 #include <GL/glx.h>
 #include <GL/glu.h>
