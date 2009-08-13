@@ -2267,7 +2267,6 @@ bool FieldPlot::plotContour(){
   if (poptions.contourShading==0 && !poptions.options_1)
     idraw=0;
 
-
   //Plot colour shading
   if (poptions.contourShading!=0) {
 
@@ -2970,19 +2969,39 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     int i;
     if (drawy1) {
       iy=0;
-      for (ix=0; ix<nx; ix++) { i=iy*nx+ix; glVertex2f(x[i],y[i]); }
+      for (ix=0; ix<nx; ix++) {
+        i=iy*nx+ix;
+        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
+          glVertex2f(x[i],y[i]);
+        }
+      }
     }
     if (drawx2) {
       ix=nx-1;
-      for (iy=1; iy<ny; iy++) { i=iy*nx+ix; glVertex2f(x[i],y[i]); }
+      for (iy=1; iy<ny; iy++) {
+        i=iy*nx+ix;
+        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
+          glVertex2f(x[i],y[i]);
+        }
+      }
     }
     if (drawy2) {
       iy=ny-1;
-      for (ix=nx-1; ix>=0; ix--) { i=iy*nx+ix; glVertex2f(x[i],y[i]); }
+      for (ix=nx-1; ix>=0; ix--) {
+        i=iy*nx+ix;
+        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
+          glVertex2f(x[i],y[i]);
+        }
+      }
     }
     if (drawx1) {
       ix=0;
-      for (iy=ny-1; iy>0; iy--) { i=iy*nx+ix; glVertex2f(x[i],y[i]); }
+      for (iy=ny-1; iy>0; iy--) {
+        i=iy*nx+ix;
+        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
+          glVertex2f(x[i],y[i]);
+        }
+      }
     }
   }
 

@@ -133,6 +133,6 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 			    const float& fieldUndef);
 
 /// draw part of contour line
-void drawLine(int start, int stop, float* x, float* y, const float& jumplimit);
+void drawLine(int start, int stop, float* x, float* y);
 
 #endif

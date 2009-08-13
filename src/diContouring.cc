@@ -295,9 +295,6 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   bool drawBorders= poptions.discontinuous!=0;
   bool shading=     poptions.contourShading!=0;
 
-  float jumpLimit = fieldArea.P().getMapLinesJumpLimit();
-
-
   if (drawBorders) {
     if (idraw==1 || idraw==2) {
       i= int(zstep+0.5);
@@ -2182,7 +2179,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           if (lev<nundef && !shading) {
             if      (iconv==1) posConvert(npos, &x[1], &y[1], cxy);
             else if (iconv==2) posConvert(npos, &x[1], &y[1], nx, ny, xz, yz);
-            drawLine(1,npos,x,y,jumpLimit);
+            drawLine(1,npos,x,y);
           }
           if (shading) {
             ContourLine *cl= new ContourLine();
@@ -2268,7 +2265,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
             if (!shading) {
               if      (iconv==1) posConvert(l, xsmooth, ysmooth, cxy);
               else if (iconv==2) posConvert(l, xsmooth, ysmooth, nx, ny, xz, yz);
-              drawLine(0,l-1,xsmooth,ysmooth,jumpLimit);
+              drawLine(0,l-1,xsmooth,ysmooth);
             }
             if (shading) {
               ContourLine *cl= new ContourLine();
@@ -2727,7 +2724,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         // draw line from position 'n1' to 'n2'
 
         if (ismooth<1) {
-          drawLine(n1,n2,x,y,jumpLimit);
+          drawLine(n1,n2,x,y);
         } else {
           // line smoothing
           if (n1>np1) {
@@ -2745,7 +2742,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           l = smoothline(np,&x[ns],&y[ns],nfrst,nlast,
               ismooth,&xsmooth[0],&ysmooth[0]);
           if (l>1) {
-            drawLine(0,l-1,xsmooth,ysmooth,jumpLimit);
+            drawLine(0,l-1,xsmooth,ysmooth);
           }
         }
 
@@ -2757,7 +2754,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         yy[0] = y[n2];
         xx[1] = xlabel;
         yy[1] = ylabel;
-        drawLine(0,1,xx,yy,jumpLimit);
+        drawLine(0,1,xx,yy);
 
         if (ibcol>=0) {
           // blank background for label
@@ -2779,7 +2776,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         yy[0] = yend;
         xx[1] = x[n3];
         yy[1] = y[n3];
-        drawLine(0,1,xx,yy,jumpLimit);
+        drawLine(0,1,xx,yy);
 
         // for next label
         dxx = x[n3]-xend;
@@ -4480,15 +4477,14 @@ void fillContours(vector<ContourLine*>& contourlines,
             npos= cl->npos - 1;
             int kk=0;
             for (i=0; i<npos; i++) {
-              if(cl->xpos[i]!=HUGE_VAL && cl->ypos[i]!=HUGE_VAL){
-                gldata[j]  = cl->xpos[i];
-                gldata[j+1]= cl->ypos[i];
-                gldata[j+2]= 0.0;
-                j+=3;
-                kk++;
-              } else {
+              if (cl->xpos[i]==HUGE_VAL || cl->ypos[i]==HUGE_VAL) {
                 continue;
               }
+              gldata[j]  = cl->xpos[i];
+              gldata[j+1]= cl->ypos[i];
+              gldata[j+2]= 0.0;
+              j+=3;
+              kk++;
             }
             countpos[n]=kk;
           }
@@ -4704,21 +4700,17 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
   }
 }
 
-void drawLine(int start, int stop, float* x, float* y, const float& jumpLimit)
+void drawLine(int start, int stop, float* x, float* y)
 {
 
-//split line if position is undefined or line wraps around the earth
+//split line if position is undefined
   glBegin(GL_LINE_STRIP);
   for (int i=start; i<stop+1; ++i) {
-    if( (x[i]!=HUGE_VAL && y[i]!=HUGE_VAL) &&
-         ( i==start || (fabsf(x[i - 1] - x[i]) < jumpLimit && fabsf(y[i - 1]- y[i]) < jumpLimit))) {
+    if( (x[i]!=HUGE_VAL && y[i]!=HUGE_VAL) ){
       glVertex2f(x[i], y[i]);
     } else {
       glEnd();
-      if(x[i]==HUGE_VAL || y[i]==HUGE_VAL) {
-        while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
-      }
-      start=i;
+      while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
       --i;
       glBegin(GL_LINE_STRIP);
     }
