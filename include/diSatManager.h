@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -59,12 +59,12 @@
 /**
 
   \brief Managing satellite and radar images
-  
+
   - parse setup
-  - decode plot info strings 
+  - decode plot info strings
   - managing file/time info
   - read data
-  - making rgb images, mosaic of images 
+  - making rgb images, mosaic of images
 
 */
 class SatManager {
@@ -86,12 +86,12 @@ private:
     //last time we clicked "refresh"
     bool updated;
     //time of last update in seconds since Jan 1, 1970. 00:00:00
-    int updateTime;
+    unsigned long updateTime;
     //archive files read, files must be removed if useArchive=false
     bool archiveFiles;
     bool mosaic; //ok to make mosaic
   };
-    
+
 
   map<miString, map<miString,subProdInfo> > Prod;
   SatDialogInfo Dialog;
@@ -105,9 +105,8 @@ private:
 
 //current sat image and plot
   Sat *satdata;
-  SatPlot * sp; 
-  vector <Sat *> vsatdata; 
-  
+  SatPlot * sp;
+
   int updateFreq;   //Max time between filelist updates in seconds
   miTime ztime;     //zero time = 00:00:00 UTC Jan 1 1970
   int timeDiff;
@@ -155,13 +154,13 @@ public:
 			   int& timediff,
 			   const miString& pinfo);
 
-  const vector<SatFileInfo> & getFiles(const miString &, 
-				       const miString &, 
+  const vector<SatFileInfo> & getFiles(const miString &,
+				       const miString &,
 				       bool =false);
-  const vector<Colour> & getColours(const miString &, 
+  const vector<Colour> & getColours(const miString &,
 				       const miString &);
 
-  const vector<miString>& getChannels(const miString &satellite, 
+  const vector<miString>& getChannels(const miString &satellite,
 				      const miString & file,
 				      int index=-1);
   bool isMosaic(const miString &satellite, const miString & file);
@@ -174,7 +173,7 @@ public:
 
   //  Sat * findSatdata(const miString & filename);//search vsatdata
   void updateFiles();
-  void setSatAuto(bool,const miString &, const miString &); 
+  void setSatAuto(bool,const miString &, const miString &);
 
   void archiveMode( bool on ){useArchive=on; updateFiles();}
 
@@ -184,7 +183,7 @@ public:
   bool uffdaEnabled;
 
   bool fileListChanged;
-  
+
   // Radar echo mesure
   map<float,float> radarecho;
 
