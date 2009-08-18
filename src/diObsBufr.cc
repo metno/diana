@@ -67,7 +67,6 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
     return false;
   }
 
-  int iloop = 0;
   bool next = true;
 
   while (next) { // get the next BUFR product
@@ -237,9 +236,10 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
-  if (ksec1[5] > 1) {
-    return true;
-  }
+//  if (ksec1[5] > 1) {
+//    cerr <<ksec1[5]<<endl;
+//    return true;
+//  }
 
   //HACK if year has only two digits, files from year 1971 to 2070 is assumed
   if (obsTime.undef()) {
@@ -359,6 +359,16 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
+    {
+      int index = int(values[j]) / 1000 - 1;
+      for (int k = 0; k < 5; k++) {
+        d.id += cvals[index][k];
+      }
+      landStation = false;
+    }
+    break;
+
+    case 1195:
     {
       int index = int(values[j]) / 1000 - 1;
       for (int k = 0; k < 5; k++) {
@@ -920,6 +930,12 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 22061:
       if (values[j] < bufrMissing)
         d.fdata["s"] = values[j];
+      break;
+
+      // 022038 TIDE
+    case 22038:
+      if (values[j] < bufrMissing)
+        d.fdata["TE"] = values[j];
       break;
 
     }
