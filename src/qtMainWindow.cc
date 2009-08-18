@@ -2897,7 +2897,7 @@ void DianaMainWindow::saveAnimation() {
     miTime startTime = tslider->getStartTime();
     tslider->set(startTime);
     setPlotTime(startTime);
-
+    
     int nrOfTimesteps = tslider->numTimes();
     int i = 0;
 
@@ -4009,7 +4009,7 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   autoselect= optAutoElementAction->isChecked();
   str= "AUTOSELECT " + miString(autoselect ? "ON" : "OFF");
   vstr.push_back(str);
-
+  
   // scrollwheelzooming
   bool scrollwheelzoom = optScrollwheelZoomAction->isChecked();
   str = "SCROLLWHEELZOOM " + miString(scrollwheelzoom ? "ON" : "OFF");

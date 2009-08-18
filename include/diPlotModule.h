@@ -89,8 +89,6 @@ private:
 
   Plot splot;             // keep a Plot superclass for static members
 
-  vector<miString> plotTypes; // original plot types from last plot()
-  vector<miString> plotStrings; // original plot strings from prepare
   vector<ObsPlot*> vop;   // vector of observation plots
   vector<SatPlot*> vsp;   // vector of satellite plots
   vector<FieldPlot*> vfp; // vector of field plots
@@ -175,8 +173,6 @@ private:
   void plotUnder();
   //Plot overlay
   void plotOver();
-  //Plot obs
-  void plotObs( const miString& plotString);
 
   //Free fields in FieldPlot
   void freeFields(FieldPlot *);

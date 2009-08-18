@@ -67,6 +67,7 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
     return false;
   }
 
+  int iloop = 0;
   bool next = true;
 
   while (next) { // get the next BUFR product
@@ -190,7 +191,7 @@ VprofPlot* ObsBufr::getVprofPlot(const miString& bufr_file,
 
 bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 {
-     cerr <<"  // Decode BUFR message into fully decoded form."<<endl;
+  //   cerr <<"  // Decode BUFR message into fully decoded form."<<endl;
 
   const int kelem = 40000; //length of subsection
   const int kvals = 360000;
@@ -236,10 +237,9 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
-//  if (ksec1[5] > 1) {
-//    cerr <<ksec1[5]<<endl;
-//    return true;
-//  }
+  if (ksec1[5] > 1) {
+    return true;
+  }
 
   //HACK if year has only two digits, files from year 1971 to 2070 is assumed
   if (obsTime.undef()) {
@@ -253,14 +253,14 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
   // Return list of Data Descriptors from Section 3 of Bufr message, and
   // total/requested list of elements. BUFREX must have been called before BUSEL.
 
-cerr <<"nsub:"<<nsubset<<endl;
+
   for (int i = 1; i < nsubset + 1; i++) {
 
     busel2_(&i, &kxelem, &ktdlen, ktdlst, &ktdexl, ktdexp, &cnames[0][0],
         &cunits[0][0], &kerr);
     if (kerr > 0)
       cerr << "ObsBufr::init: Error in BUSEL: KERR=" << kerr << endl;
-cerr <<"format:"<<format<<endl;
+
     if (format.downcase() == "obsplot") {
 
       ObsData & obs = oplot->getNextObs();
@@ -290,7 +290,7 @@ cerr <<"format:"<<format<<endl;
 bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     const char cvals[][80], int len_cvals, int subset, int kelem, ObsData &d)
 {
-cerr <<"get_diana_data"<<endl;
+
   d.fdata.clear();
 
   // constants for changing to met.no units
@@ -323,7 +323,7 @@ cerr <<"get_diana_data"<<endl;
   d.ypos = -32767;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
-cerr <<"ktdexp[i]:"<<ktdexp[i]<<"  v:"<<values[j]<<endl;
+
     switch (ktdexp[i]) {
     //   8021  TIME SIGNIFICANCE
     case 8021:
@@ -359,16 +359,6 @@ cerr <<"ktdexp[i]:"<<ktdexp[i]<<"  v:"<<values[j]<<endl;
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
-    {
-      int index = int(values[j]) / 1000 - 1;
-      for (int k = 0; k < 5; k++) {
-        d.id += cvals[index][k];
-      }
-      landStation = false;
-    }
-    break;
-
-    case 1195:
     {
       int index = int(values[j]) / 1000 - 1;
       for (int k = 0; k < 5; k++) {
@@ -930,12 +920,6 @@ cerr <<"ktdexp[i]:"<<ktdexp[i]<<"  v:"<<values[j]<<endl;
     case 22061:
       if (values[j] < bufrMissing)
         d.fdata["s"] = values[j];
-      break;
-
-      // 022038 TIDE
-    case 22038:
-      if (values[j] < bufrMissing)
-        d.fdata["TE"] = values[j];
       break;
 
     }

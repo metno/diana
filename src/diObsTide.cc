@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-
+  
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-
+  
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,7 +33,7 @@
 
 #include <diObsTide.h>
 
-using namespace std;
+using namespace std; 
 
 ObsTide::ObsTide(const miString &file)
 :tide(file){
@@ -42,19 +42,17 @@ ObsTide::ObsTide(const miString &file)
 void ObsTide::init(ObsPlot *oplot){
 
   int numStations= contents.size();
-  cerr <<"numSt:"<<numStations<<endl;
-  for(int i=0; i<numStations; i++){
-    cerr <<"time:"<<contents[i].desc.obsTime<<endl;
+
+  for(int i=0; i<numStations; i++) 
     if(oplot->timeOK(contents[i].desc.obsTime)){
       ObsData &d = oplot->getNextObs();
       putData(i,d);
     }
-  }
 
 }
 
 void ObsTide::putData(int i, ObsData &d){
-cerr <<"putData"<<endl;
+
   d.dataType="tide";
   //Description
   d.id = contents[i].desc.kjennetegn;
@@ -69,13 +67,11 @@ cerr <<"putData"<<endl;
     d.fdata["dd"]    = (float)contents[i].data.dd;	// degrees
   if(contents[i].data.ff != undef)
     d.fdata["ff"]    = knots2ms(contents[i].data.ff);	// knots
-  if(contents[i].data.TE != undef){
+  if(contents[i].data.TE != undef)
     d.fdata["TE"]    = contents[i].data.TE;	// tidal elevation
-    cerr <<"TE:"<<contents[i].data.TE<<endl;
-  }
   if(contents[i].data.HHH != undef)
     d.fdata["HHH"]   = (float)contents[i].data.HHH;	// height
-
+  
 }
 
 
