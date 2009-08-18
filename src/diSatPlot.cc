@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <diSatPlot.h>
 #include <GL/gl.h>
@@ -35,7 +35,7 @@
 
 // Default constructor
 SatPlot::SatPlot()
-  :Plot(), satdata(0), imagedata(0), previrs(1)
+:Plot(), imagedata(0), previrs(1), satdata(0)
 {
 }
 
@@ -78,16 +78,25 @@ void SatPlot::setData(Sat *data){
 #ifdef DEBUGPRINT
   cerr << "++ SatPlot::setData() ++" << endl;
 #endif
+  delete imagedata;
+  imagedata = NULL;
   delete satdata;
   satdata = NULL;
   satdata = data;
+}
+void SatPlot::clearData(){
+#ifdef DEBUGPRINT
+  cerr << "++ SatPlot::clearData() ++" << endl;
+#endif
+  delete imagedata;
+  imagedata = NULL;
 }
 
 void SatPlot::getCalibChannels(vector<miString>& channels )
 {
   channels.insert(channels.end(),
-		  satdata->cal_channels.begin(),
-		  satdata->cal_channels.end());
+      satdata->cal_channels.begin(),
+      satdata->cal_channels.end());
 }
 
 void SatPlot::values(float x, float y, vector<SatValues>& satval){
@@ -188,63 +197,63 @@ bool SatPlot::plot(){
   int currhei= bmStopy - bmStarty + 1;  // use pixels in image
 
   // keep original copies (for hardcopy purposes)
-    int orignx =       nx;
-    int origny =       ny;
-    float origscalex=  scalex;
-    float origscaley=  scaley;
-    int origbmStartx=  bmStartx;
-    int origbmStarty=  bmStarty;
-    float origpxstart= pxstart;
-    float origpystart= pystart;
+  int orignx =       nx;
+  int origny =       ny;
+  float origscalex=  scalex;
+  float origscaley=  scaley;
+  int origbmStartx=  bmStartx;
+  int origbmStarty=  bmStarty;
+  float origpxstart= pxstart;
+  float origpystart= pystart;
 
-    /*
+  /*
     If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
     cImage: Pointer to imagedata, either sat_image or resampled data
-     */
-    unsigned char * cimage = resampleImage(currwid,currhei,bmStartx,bmStarty,
-        scalex,scaley,nx,ny);
+   */
+  unsigned char * cimage = resampleImage(currwid,currhei,bmStartx,bmStarty,
+      scalex,scaley,nx,ny);
 
-    // always needed (if not, slow oper...) ??????????????
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  // always needed (if not, slow oper...) ??????????????
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // assure valid raster position after OpenGL transformations
-    grStartx += fullrect.width() *0.0001;
-    grStarty += fullrect.height()*0.0001;
+  // assure valid raster position after OpenGL transformations
+  grStartx += fullrect.width() *0.0001;
+  grStarty += fullrect.height()*0.0001;
 
-    glPixelZoom(scalex,scaley);
-    glPixelStorei(GL_UNPACK_SKIP_ROWS,bmStarty); //pixels
-    glPixelStorei(GL_UNPACK_SKIP_PIXELS,bmStartx);//pixels
-    glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);//pixels on image
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-    glRasterPos2f(grStartx,grStarty); //glcoord.
+  glPixelZoom(scalex,scaley);
+  glPixelStorei(GL_UNPACK_SKIP_ROWS,bmStarty); //pixels
+  glPixelStorei(GL_UNPACK_SKIP_PIXELS,bmStartx);//pixels
+  glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);//pixels on image
+  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  glRasterPos2f(grStartx,grStarty); //glcoord.
 
-    //Strange, but needed
-    if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
+  //Strange, but needed
+  if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
 
-    glDrawPixels((GLint)currwid, (GLint)currhei,
-           GL_RGBA, GL_UNSIGNED_BYTE,
-           cimage);
+  glDrawPixels((GLint)currwid, (GLint)currhei,
+      GL_RGBA, GL_UNSIGNED_BYTE,
+      cimage);
 
-    // for postscript output, add imagedata to glpfile
-    if (hardcopy){
+  // for postscript output, add imagedata to glpfile
+  if (hardcopy){
 
-      psAddImage(satdata->image,
-           4*orignx*origny, orignx, origny,
-           origpxstart, origpystart, origscalex, origscaley,
-           origbmStartx, origbmStarty, bmStopx, bmStopy,
-           GL_RGBA, GL_UNSIGNED_BYTE);
+    psAddImage(satdata->image,
+        4*orignx*origny, orignx, origny,
+        origpxstart, origpystart, origscalex, origscaley,
+        origbmStartx, origbmStarty, bmStopx, bmStopy,
+        GL_RGBA, GL_UNSIGNED_BYTE);
 
-      // for postscript output
-      UpdateOutput();
-    }
+    // for postscript output
+    UpdateOutput();
+  }
 
-    //Reset gl
-    glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
-    glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-    glDisable(GL_BLEND);
+  //Reset gl
+  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
+  glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
+  glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
+  glPixelStorei(GL_UNPACK_ALIGNMENT,4);
+  glDisable(GL_BLEND);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from SatPlot::plot() ++" << endl;
@@ -306,7 +315,7 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
     cimage = satdata->image;
   }
 
- return cimage;
+  return cimage;
 
 }
 
@@ -325,7 +334,7 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
       anno[i].replace("$sat", satdata->satellite_name);
   }
 
-    //Colour table
+  //Colour table
   if (!satdata->palette || !satdata->classtable) return false;
 
   for(int i=0; i<nanno; i++){
@@ -349,7 +358,7 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
     if(anno[i].contains("table=")){
       miString name = startString.substr(startString.find_first_of("=")+1);
       if( name[0]=='"' )
-	name.remove('"');
+        name.remove('"');
       name.trim();
       if(!satName.contains(name)) continue;
     }
@@ -361,11 +370,10 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
     //NB: better solution: get step from gui
     int step = n/50 +1;
     for (int j = 0;j< n;j+=step){
-      uchar_t col[3];
       miString rgbstr;
       for( int k=0; k<3; k++){
-	rgbstr+=miString(satdata->paletteInfo.cmap[k][j+1]);
-	if(k<2) rgbstr+=":";
+        rgbstr+=miString(satdata->paletteInfo.cmap[k][j+1]);
+        if(k<2) rgbstr+=":";
       }
       str +=";";
       str +=rgbstr;
@@ -384,7 +392,7 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
 }
 
 void SatPlot::setSatAuto(bool autoFile,const miString & satellite,
-			    const miString & file){
-      if (satdata->satellite == satellite && satdata->filetype == file)
-	satdata->autoFile=autoFile;
+    const miString & file){
+  if (satdata->satellite == satellite && satdata->filetype == file)
+    satdata->autoFile=autoFile;
 }

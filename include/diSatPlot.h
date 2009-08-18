@@ -44,7 +44,6 @@ private:
 
   float xmin, xmax, ymin, ymax; //corners in maprect coordinates
   SatPlot(const SatPlot &rhs){}
-  SatPlot& operator=(const SatPlot &rhs){}
 
   unsigned char * imagedata; // dataarray for resampling
   int previrs;               // previous resampling coeff.
@@ -64,6 +63,7 @@ public:
   bool plot();
   bool plot(const int){return false;}
   void setData(Sat *);
+  void clearData();
   Area& getSatArea(void){ return satdata->area;}
   void getSatAnnotation(miString &, Colour &);
   void getSatName(miString &);

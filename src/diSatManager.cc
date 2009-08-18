@@ -183,7 +183,9 @@ bool SatManager::setData(SatPlot *satp)
   cerr << "++ SatManager::setData() ++" << endl;
 #endif
 
+
   satdata = satp->satdata;
+
   //not yet approved for plotting
   satdata->approved= false;
   sp=satp;
@@ -226,7 +228,8 @@ bool SatManager::setData(SatPlot *satp)
   satdata->hdf5type = fInfo.hdf5type;
 
   if (readfresh) { // nothing to reuse..
-    //find out which channels to read (satdata->index), total no
+    satp->clearData();
+  //find out which channels to read (satdata->index), total no
     if ( !parseChannels(fInfo) )
       return false;
     satdata->cleanup();
@@ -288,7 +291,7 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   int no=0;
   int n = satdata->vch.size();
   for (int i=0; (i<n && no<3); i++) {
-    for (int j=0; j<fInfo.channel.size(); j++) {
+    for (unsigned int j=0; j<fInfo.channel.size(); j++) {
       if (fInfo.channel[j] == satdata->vch[i]) {
         satdata->index[no]=j;
         no++;
@@ -396,8 +399,6 @@ void SatManager::setPalette(SatFileInfo &fInfo)
       colmap[k][i]= satdata->paletteInfo.cmap[k][i];
 
   //clean up fInfo
-  int n = fInfo.col.size();
-  //  for (int i = 0;i<n;i++) delete fInfo.col[i];
   fInfo.col.clear();
   //colours to return to sat dialog
   int ncolours = satdata->paletteInfo.noofcl;
@@ -670,11 +671,13 @@ void SatManager::addMosaicfiles()
 
   unsigned char *color[3];//contains the three rgb channels of raw image
   if (!satdata->palette) {
-    color[0]= satdata->rawimage[satdata->rgbindex[0]];
-    color[1]= satdata->rawimage[satdata ->rgbindex[1]];
-    color[2]= satdata->rawimage[satdata->rgbindex[2]];
+    color[0] = satdata->rawimage[satdata->rgbindex[0]];
+    color[1] = satdata->rawimage[satdata ->rgbindex[1]];
+    color[2] = satdata->rawimage[satdata->rgbindex[2]];
   } else {
-    color[0]= satdata->rawimage[0];
+    color[0] = satdata->rawimage[0];
+    color[1] = NULL;
+    color[2] = NULL;
   }
 
   int n=mosaicfiles.size();
@@ -687,7 +690,7 @@ void SatManager::addMosaicfiles()
       firstFileTime=mosaicfiles[i].time;
     if (mosaicfiles[i].time > lastFileTime)
       lastFileTime=mosaicfiles[i].time;
-    int no = satdata->no; //no of plotted channels
+
     unsigned char* rawimage[Sat::maxch]; // raw images
     for (int j=0; j<Sat::maxch; j++)
       rawimage[j]= 0;
@@ -808,7 +811,7 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
 #endif
 
   //compare channels from setup and channels from file
-  for (int k=0; k<channel.size(); k++) {
+  for (unsigned int k=0; k<channel.size(); k++) {
     if (channel[k]=="IR+V") {
       miString name=file.name;
       if (name.contains("v."))
@@ -827,9 +830,9 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
     else if (channel[k].contains("+") ) {
       vector<miString> ch = channel[k].split("+");
       bool found =false;
-      for (int l=0; l<ch.size(); l++) {
+      for (unsigned int l=0; l<ch.size(); l++) {
         found =false;
-        for (int m=0; m<file.channel.size(); m++)
+        for (unsigned int m=0; m<file.channel.size(); m++)
           if (ch[l]==file.channel[m]) {
             found=true;
             break;
@@ -850,7 +853,7 @@ const vector<miString>& SatManager::getChannels(const miString &satellite,
     const miString & file, int index)
 {
 
-  if (index<0 || index>=Prod[satellite][file].file.size())
+  if (index<0 || index>=int (Prod[satellite][file].file.size()))
     return Prod[satellite][file].channel;
 
   if (Prod[satellite][file].file[index].opened)
@@ -880,7 +883,7 @@ void SatManager::listFiles(subProdInfo &subp)
   if ( !useArchive && subp.archiveFiles)
     subp.file.clear();
 
-  for (int j=0; j<subp.pattern.size() ;j++) {
+  for (unsigned int j=0; j<subp.pattern.size() ;j++) {
     //skip archive files if not in archive mode
     if  (subp.archive[j] && !useArchive)
       continue;
@@ -981,8 +984,6 @@ void SatManager::listFiles(subProdInfo &subp)
     if (!_isafile(p->name)) {
       cerr <<p->name << " removed from satfile list !" << endl;
       //delete pointers
-      int n = p->col.size();
-      //	  for (int i = 0;i<n;i++) delete p->col[i];
       p=subp.file.erase(p);
       fileListChanged = true;
     } else
@@ -1151,7 +1152,7 @@ void SatManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   miString file = tokens[2];
   miString filename;
 
-  for (int j=0; j<tokens.size(); j++) {
+  for (unsigned int j=0; j<tokens.size(); j++) {
     vector<miString> stokens= tokens[j].split("=");
     if (stokens.size()==2 && stokens[0].downcase()=="file") {
       filename = stokens[1];
@@ -1228,9 +1229,9 @@ bool SatManager::parseSetup(SetupParser &sp)
   vector<miString> channels;
   miString key, value;
   bool mosaic=true;
-  int iprod;
+  int iprod = 0;
 
-  for (int i=0; i<sect_sat.size(); i++) {
+  for (unsigned int i=0; i<sect_sat.size(); i++) {
 
     vector<miString> token = sect_sat[i].split("=");
     if (token.size() != 2) {
@@ -1423,10 +1424,10 @@ bool SatManager::parseSetup(SetupParser &sp)
 /*********************************************************************/
 bool SatManager::_isafile(const miString name)
 {
-  FILE *fp;
-  if (fp=fopen(name.cStr(), "r")) {
-    fclose(fp);
-    return true;
+  FILE *fp = fopen(name.cStr(), "r");
+    if (!fp) {
+      fclose(fp);
+      return true;
   } else
     return false;
 }
