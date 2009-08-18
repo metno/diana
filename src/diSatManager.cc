@@ -1425,9 +1425,9 @@ bool SatManager::parseSetup(SetupParser &sp)
 bool SatManager::_isafile(const miString name)
 {
   FILE *fp = fopen(name.cStr(), "r");
-    if (!fp) {
-      fclose(fp);
-      return true;
+  if (fp) {
+    fclose(fp);
+    return true;
   } else
     return false;
 }
