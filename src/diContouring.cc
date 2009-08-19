@@ -4706,11 +4706,11 @@ void drawLine(int start, int stop, float* x, float* y)
 //split line if position is undefined
   glBegin(GL_LINE_STRIP);
   for (int i=start; i<stop+1; ++i) {
-    if( (x[i]!=HUGE_VAL && y[i]!=HUGE_VAL) ){
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL && !isnan(x[i]) && !isnan(y[i]) ){
       glVertex2f(x[i], y[i]);
     } else {
       glEnd();
-      while(x[i]==HUGE_VAL || y[i]==HUGE_VAL) ++i;
+      while(x[i]==HUGE_VAL || y[i]==HUGE_VAL || isnan(x[i]) || isnan(y[i]) ) ++i;
       --i;
       glBegin(GL_LINE_STRIP);
     }
