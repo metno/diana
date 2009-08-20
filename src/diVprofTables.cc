@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -136,12 +136,8 @@ void VprofTables::makeFontsizes(float wx, float wy, int vx, int vy)
 
   for (int i=0; i<n; i++) {
     size= charsizes[i]*scale;
-  //fp->set("Arial",glText::F_NORMAL,size);
-    fp->setFontSize(size);
+    //fp->setFontSize(size);
     fontsizes.push_back(size);
-//###########################################################################
-//cerr<<"font "<<i<<" "<<charsizes[i]<<" "<<size<<endl;
-//###########################################################################
   }
 }
 
@@ -263,7 +259,7 @@ bool VprofTables::startPSoutput(const printOptions& po){
   if (hardcopy) return false;
   printOptions pro= po;
   printerManager printman;
-  
+
   int feedsize= 10000000;
   int print_options= 0;
 
@@ -279,16 +275,16 @@ bool VprofTables::startPSoutput(const printOptions& po){
 //       backgroundColour.fB()*0.0820 +
 //       backgroundColour.fG()*0.6094 +
 //       backgroundColour.fR()*0.3086;
-    
+
 //     if (bci < 0.2)
 //       print_options= print_options | GLP_REVERSE;
-    
+
     if (pro.drawbackground)
       print_options= print_options | GLP_DRAW_BACKGROUND;
-    
+
   } else if (pro.colop==d_print::blackwhite) {
     print_options= print_options | GLP_BLACKWHITE;
-    
+
   } else {
     if (pro.drawbackground)
       print_options= print_options | GLP_DRAW_BACKGROUND;
@@ -309,7 +305,7 @@ bool VprofTables::startPSoutput(const printOptions& po){
   float scale= 1.0;
   if (abs(pro.papersize.vsize>0))
     scale= a4size.vsize/pro.papersize.vsize;
-  
+
   // check if extra output-commands
   map<string,string> extra;
   printman.checkSpecial(pro,extra);
