@@ -120,19 +120,13 @@ private:
       const Colour&);
   /**
    * Plot Lat/Lon lines with optional numbering
+   * @param mapinfo
    * @param plot_lon
-   * @param longitudeStep
-   * @param lon_values
-   * @param lon_valuepos
    * @param plot_lat
-   * @param latitudeStep
-   * @param lat_values
-   * @param lat_valuepos
    * @param plotResolution
    * @return
    */
-  bool plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, int lon_valuepos,
-      bool plot_lat, float latitudeStep, bool lat_values, int lat_valuepos, int plotResolution = 10);
+  bool plotGeoGrid(const MapInfo & mapinfo, bool plot_lon, bool plot_lat, int plotResolution = 10);
   /**
    * plot a map from a simple text formatted file
    * @param filename
