@@ -768,7 +768,7 @@ void VcrossPlot::plotText()
   int n= vcText.size();
   if (n==0) return;
 
-  fp->setFont("Helvetica");
+  fp->setFont("BITMAPFONT");
 
   //fontsize= 12. * vcopt->fontSize;  // ???????????????????
   fontsize= 12.;
@@ -2557,7 +2557,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     if (vlimitmin[k]<yPlotmax) ilev2= k+1;
   }
 
-  fp->setFont("Helvetica");
+  fp->setFont("BITMAPFONT");
 
   Colour c;
 
