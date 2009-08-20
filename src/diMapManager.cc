@@ -171,6 +171,7 @@ bool MapManager::parseMapTypes(SetupParser& sp)
       mapinfo.lon.density = 10.0;
       mapinfo.lon.showvalue = false;
       mapinfo.lon.value_pos = 1;
+      mapinfo.lon.fontsize=10;
 
       mapinfo.lat.ison = false;
       mapinfo.lat.linecolour = "black";
@@ -180,6 +181,7 @@ bool MapManager::parseMapTypes(SetupParser& sp)
       mapinfo.lat.density = 10.0;
       mapinfo.lat.showvalue = false;
       mapinfo.lat.value_pos = 0;
+      mapinfo.lat.fontsize=10;
 
       mapinfo.frame.ison = false;
       mapinfo.frame.linecolour = "black";
@@ -282,6 +284,10 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
   mfi.fname = "";
   mfi.sizelimit = 0.0;
 
+  // default values
+  mi.lon.fontsize = 10;
+  mi.lat.fontsize = 10;
+
   tokens = str.split(" ");
   m = tokens.size();
   for (j = 0; j < m; j++) {
@@ -368,6 +374,8 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         mi.lon.showvalue = (value.upcase() == "ON");
       } else if (key == "lon.value_pos") {
         mi.lon.value_pos = atoi(value.cStr());
+      } else if (key == "lon.fontsize") {
+        mi.lon.fontsize = atof(value.cStr());
 
       } else if (key == "lat") {
         mi.lat.ison = (value.upcase() == "ON");
@@ -388,6 +396,8 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         mi.lat.showvalue = (value.upcase() == "ON");
       } else if (key == "lat.value_pos") {
         mi.lat.value_pos = atoi(value.cStr());
+      } else if (key == "lat.fontsize") {
+        mi.lat.fontsize = atof(value.cStr());
 
       } else if (key == "frame") {
         mi.frame.ison = (value.upcase() == "ON");
@@ -435,6 +445,7 @@ miString MapManager::MapInfo2str(const MapInfo& mi)
     ost << " lon.zorder=" << mi.lon.zorder;
     ost << " lon.showvalue=" << (mi.lon.showvalue ? "on" : "off");
     ost << " lon.value_pos=" << mi.lon.value_pos;
+    ost << " lon.fontsize=" << mi.lon.fontsize;
   }
   ost << " lat=" << (mi.lat.ison ? "on" : "off");
   if (mi.lat.ison) {
@@ -445,6 +456,7 @@ miString MapManager::MapInfo2str(const MapInfo& mi)
     ost << " lat.zorder=" << mi.lat.zorder;
     ost << " lat.showvalue=" << (mi.lat.showvalue ? "on" : "off");
     ost << " lat.value_pos=" << mi.lat.value_pos;
+    ost << " lat.fontsize=" << mi.lat.fontsize;
   }
   ost << " frame=" << (mi.frame.ison ? "on" : "off");
   if (mi.frame.ison) {
