@@ -29,7 +29,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define HAVE_X
+//#define USE_XLIB
 
 #include <QApplication>
 #include <QGLPixelBuffer>
@@ -38,12 +38,12 @@
 #include <iostream>
 
 #include <diController.h>
-#ifdef HAVE_X
+#ifdef USE_XLIB
 #include <X11/Intrinsic.h>
 #include <GL/glx.h>
-#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 
 #include <miString.h>
 #include <miTime.h>
@@ -187,7 +187,7 @@ VprofManager* vprofmanager = 0;
 VcrossManager* vcrossmanager = 0;
 SpectrumManager* spectrummanager = 0;
 
-#ifdef HAVE_X
+#ifdef USE_XLIB
 // Attribs for OpenGL visual
 static int dblBuf[] = { GLX_DOUBLEBUFFER, GLX_RGBA, GLX_DEPTH_SIZE, 16,
     GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_ALPHA_SIZE, 1,
@@ -217,7 +217,7 @@ int margin, spacing; // margin and spacing for multiple plots
 bool multiple_newpage = false; // start new page for multiple plots
 
 bool use_double_buffer = true; // use double buffering
-#ifdef HAVE_X
+#ifdef USE_XLIB
 int default_canvas = x_pixmap;
 #else
 int default_canvas = qt_glpixelbuffer;
@@ -731,13 +731,14 @@ void printUsage(bool showexample)
     "***************************************************             \n"
     " Available products:                                            \n"
     " - All standard map-products from DIANA                         \n"
-    " - Vertical crossections                                        \n"
+    " - Vertical cross sections                                      \n"
     " - Vertical profiles                                            \n"
     " - WaveSpectrum plots                                           \n"
     " Available output-formats:                                      \n"
     " - as PostScript (to file and printer)                          \n"
     " - as EPS (Encapsulated PostScript)                             \n"
     " - as PNG (raster-format)                                       \n"
+    " - using qtgl: all available raster formats in Qt               \n"
     "***************************************************             \n"
     "                                                                \n"
     "Usage: bdiana -i <job-filename>"
@@ -782,7 +783,8 @@ void printUsage(bool showexample)
     "                                                                  \n"
     "#- Optional: values for each option below are default-values      \n"
     "setupfile=diana.setup    # use a standard setup-file              \n"
-    "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG                     \n"
+    "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER              \n"
+    "                         #  RASTER: format from filename-suffix   \n"
     "colour=COLOUR            # GREYSCALE/COLOUR                       \n"
     "filename=tmp_diana.ps    # output filename                        \n"
     "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
@@ -808,7 +810,7 @@ void printUsage(bool showexample)
     "# described above.                                                \n"
     "# The data-time will be set from the TIME=\"isotime-string\"      \n"
     "# commandline parameter.                                          \n"
-    "# Output fielname may contain data-time, format see man date      \n"
+    "# Output filename may contain data-time, format see man date      \n"
     "# Example: filename=diana_%Y%M%dT%H.ps                            \n"
     "#--------------------------------------------------------------   \n"
     "# STANDARD MAP-PRODUCT SECTION:                                   \n"
@@ -1004,7 +1006,7 @@ void printUsage(bool showexample)
     "#  \n"
     "#- To produce multi-page postscript files: Just make several plots \n"
     "#  to the same filename (can be combined with MULTIPLE.PLOTS). \n"
-    "#  You can not mix mapplots, crossections or soundings in one file\n"
+    "#  You can not mix map plots, cross sections or soundings in one file\n"
     "#  \n"
     "#- Use of alpha-channel blending is not supported in postscript \n"
     "#--------------------------------------------------------------   \n"
@@ -1439,11 +1441,11 @@ int parseAndProcess(const miString& file)
       if (use_double_buffer) {
         // Double-buffering
         if (canvasType == x_pixmap) {
-#ifdef HAVE_X
+#ifdef USE_XLIB
           glXSwapBuffers(dpy, pix);
 #endif
         } else if (canvasType == glx_pixelbuffer) {
-#ifdef HAVE_X
+#ifdef USE_XLIB
 #ifdef GLX_VERSION_1_3
           glXSwapBuffers(dpy, pbuf);
 #endif
@@ -1496,7 +1498,7 @@ int parseAndProcess(const miString& file)
           int result;
 
           // save as PNG -----------------------------------------------
-          if (raster_type == image_png) {
+          if (raster_type == image_png || raster_type == image_unknown) {
 
             if (verbose)
               cout << "- Saving PNG-image to:" << img.filename;
@@ -1812,7 +1814,7 @@ int parseAndProcess(const miString& file)
 
       // create canvas
       if (canvasType == x_pixmap) {
-#ifdef HAVE_X
+#ifdef USE_XLIB
         // delete old pixmaps
         if (buffermade) {
           if (pix){
@@ -1842,13 +1844,11 @@ int parseAndProcess(const miString& file)
 #endif
       } else if (canvasType == glx_pixelbuffer) {
 
-#ifdef HAVE_X
+#ifdef USE_XLIB
 #ifdef GLX_VERSION_1_3
         // delete old PixelBuffer
-        if (buffermade) {
-          if (pbuf){
-            glXDestroyPbuffer(dpy, pbuf);
-          }
+        if (buffermade && pbuf){
+          glXDestroyPbuffer(dpy, pbuf);
         }
 
         int nelements;
@@ -1903,6 +1903,7 @@ int parseAndProcess(const miString& file)
         }
 
         QGLFormat format = QGLFormat::defaultFormat();
+        //TODO: any specific format specifications?
         qpbuffer = new QGLPixelBuffer(xsize, ysize, format, 0);
 
         qpbuffer->makeCurrent();
@@ -2151,7 +2152,7 @@ int main(int argc, char** argv)
   miString xhost = ":0.0"; // default DISPLAY
   miString sarg;
 
-#ifdef HAVE_X
+#ifdef USE_XLIB
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
   if (ctmp)
@@ -2242,7 +2243,7 @@ int main(int argc, char** argv)
 
   cout << argv[0] << " : DIANA batch version " << version_string << endl;
 
-#ifndef HAVE_X
+#ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
     cerr << "===================================================" << endl
     << " WARNING !" << endl
@@ -2268,12 +2269,12 @@ int main(int argc, char** argv)
     application = new QApplication(argc, argv);
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
       cerr << "This system does not support OpenGL pbuffers." << endl;
-      return -1;
+      return 1;
     }
   }
 
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
-#ifdef HAVE_X
+#ifdef USE_XLIB
     // prepare font-pack for display
     FontManager::set_display_name(xhost);
 
@@ -2286,7 +2287,7 @@ int main(int argc, char** argv)
   }
 
   if (canvasType == x_pixmap) {
-#ifdef HAVE_X
+#ifdef USE_XLIB
     // find an OpenGL-capable RGB visual with depth buffer
     pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
     (use_double_buffer ? dblBuf : snglBuf));
@@ -2295,7 +2296,7 @@ int main(int argc, char** argv)
       return 1;
     }
 
-    //cout << "- Create glx rendering context.." << endl;
+    // Create glx rendering context..
     cx = glXCreateContext(dpy, pdvi,// display and visual
         0, 0); // sharing and direct rendering
     if (!cx) {
@@ -2391,7 +2392,7 @@ int main(int argc, char** argv)
   endHardcopy(plot_none);
 
   // clean up structures
-#ifdef HAVE_X
+#ifdef USE_XLIB
   if (pix){
     glXDestroyGLXPixmap(dpy, pix);
   }
