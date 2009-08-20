@@ -353,6 +353,8 @@ bool FilledMap::plot(Area area, // current area
   if (linetype != 0xFFFF) {
     glLineStipple(1, linetype);
     glEnable(GL_LINE_STIPPLE);
+  } else {
+    glDisable(GL_LINE_STIPPLE);
   }
 
   if (cont && contexist) {
@@ -398,7 +400,8 @@ bool FilledMap::plot(Area area, // current area
   geomin = geomin * geomin;
 
 
-  float ga[Projection::speclen]={1.,1.,1.,1.,0.,0.};
+  //float ga[Projection::speclen]={1.,1.,1.,1.,0.,0.};
+  float ga[Projection::speclen]={0.,0.,1.,1.,0.,0.};
   Projection srcProj(Projection::geographic,ga);
 
   //Projection srcProj("+proj=lonlat +ellps=WGS84 +datum=WGS84", DEG_TO_RAD, DEG_TO_RAD);
