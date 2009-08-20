@@ -259,7 +259,7 @@ bool ObsPlot::prepare(const miString& pin)
   totalcolourcriteria.clear();
 
   //Default
-  poptions.fontname="Helvetica";
+  poptions.fontname="BITMAPFONT";
   poptions.fontface="normal";
 
   vector<miString> tokens = infostr.split('"','"');
