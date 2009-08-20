@@ -118,7 +118,8 @@ void Plot::setPlotSize(const Rectangle& r){
   fullrect= r;
   setDirty(true);
 
-  if (fp) fp->setGlSize(r.width(), r.height());
+  //if (fp) fp->setGlSize(r.width(), r.height());
+  if (fp) fp->setGlSize(r.x1, r.x2, r.y1, r.y2);
 }
 
 
@@ -351,7 +352,9 @@ void Plot::psAddImage(const GLvoid* data,GLint size,GLint nx,GLint ny,
 		      GLint x1,GLint y1,GLint x2,GLint y2,
 		      GLenum format,GLenum type){
   if (!psoutput) return;
-  psoutput->AddImage(data,size,nx,ny,x,y,sx,sy,x1,y1,x2,y2,format,type);
+  bool blend_image_to_background = true;
+  psoutput->AddImage(data, size, nx, ny, x, y, sx, sy, x1, y1, x2, y2, format,
+      type, blend_image_to_background);
 }
 
 
