@@ -396,12 +396,12 @@ void StationPlot::plotStation(int i)
   if (useStationNameNormal && !stations[i]->isSelected) {
     float cw, ch;
     glColor3ub(0, 0, 0); //black
-    fp->set("Helvetica", "normal", 10);
+    fp->set("BITMAPFONT", "normal", 10);
     fp->getStringSize(stations[i]->name.c_str(), cw, ch);
     fp->drawStr(stations[i]->name.c_str(), x - cw / 2, y + h / 2, 0.0);
   } else if (useStationNameSelected && stations[i]->isSelected) {
     float cw, ch;
-    fp->set("Helvetica", "normal", 10);
+    fp->set("BITMAPFONT", "normal", 10);
     fp->getStringSize(stations[i]->name.c_str(), cw, ch);
     glPlot(whiteRectangle, x, y + h / 2 + ch * 0.1, cw * 0.6, ch * 1.1);
     glColor3ub(0, 0, 0); //black
@@ -415,7 +415,7 @@ void StationPlot::plotStation(int i)
       float cw, ch;
       glColor4ubv(textColour.RGBA());
       miString text = stations[i]->vsText[it].text;
-      fp->set("Helvetica", textStyle, textSize);
+      fp->set("BITMAPFONT", textStyle, textSize);
       fp->getStringSize(text.c_str(), cw, ch);
       if (stations[i]->vsText[it].hAlign == align_center)
         fp->drawStr(text.c_str(), x - cw / 2, y - ch / 4, 0.0);
@@ -1331,7 +1331,7 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
   glPopMatrix();
 
   if (ff > 0 && !classic) {
-    fp->set("Helvetica", "normal", 10);
+    fp->set("BITMAPFONT", "normal", 10);
     float sW, sH;
     ostringstream ost;
     ost << ff;
@@ -1344,7 +1344,7 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
 
   if (stations[ii]->isSelected) {
     //wind direction
-    fp->set("Helvetica", "normal", 10);
+    fp->set("BITMAPFONT", "normal", 10);
     float sW, sH;
     dd = (dd - stations[ii]->north);
     float df = dd;
