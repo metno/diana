@@ -334,24 +334,24 @@ bool MapPlot::plot(const int zorder)
 
     if (makelist)
       glEndList();
+    UpdateOutput();
 
   } else {
     // execute old display list
     if (glIsList(drawlist[zorder]))
       glCallList(drawlist[zorder]);
+    UpdateOutput();
   }
 
   // check latlon
   bool plot_lon = mapinfo.lon.ison && mapinfo.lon.zorder == zorder;
   bool plot_lat = mapinfo.lat.ison && mapinfo.lat.zorder == zorder;
   if (plot_lon || plot_lat) {
-/*
+
     if (mapinfo.lon.showvalue || mapinfo.lat.showvalue)
-      fp->set("BITMAPFONT",poptions.fontface,poptions.fontsize);
-*/
-    plotGeoGrid(plot_lon, mapinfo.lon.density, mapinfo.lon.showvalue,
-        mapinfo.lon.value_pos, plot_lat, mapinfo.lat.density,
-        mapinfo.lat.showvalue, mapinfo.lat.value_pos);
+      fp->setFont("BITMAPFONT");
+
+    plotGeoGrid(mapinfo, plot_lon, plot_lat);
   }
 
   // plot frame
@@ -956,9 +956,17 @@ TODO: what about this?
 
 
 
-bool MapPlot::plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, int lon_valuepos,
-    bool plot_lat, float latitudeStep, bool lat_values, int lat_valuepos, int plotResolution)
+bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, int plotResolution)
 {
+  float longitudeStep = mapinfo.lon.density;
+  bool lon_values     = mapinfo.lon.showvalue;
+  int lon_valuepos = mapinfo.lon.value_pos;
+  float lon_fontsize = mapinfo.lon.fontsize;
+
+  float latitudeStep = mapinfo.lat.density;
+  bool lat_values = mapinfo.lat.showvalue;
+  int lat_valuepos = mapinfo.lat.value_pos;
+  float lat_fontsize = mapinfo.lat.fontsize;
 
 /*
   cerr << (lon_values ? "lon_values=ON" : "lon_values=OFF") << " "
@@ -1100,8 +1108,7 @@ bool MapPlot::plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, i
   glDisable(GL_LINE_STIPPLE);
 
   if (value_annotations.size() > 0) {
-    fp->set("BITMAPFONT"/*poptions.fontname*/, poptions.fontface,
-        poptions.fontsize);
+    fp->setFontSize(lon_fontsize);
     n = value_annotations.size();
     Rectangle prevr;
     for (j = 0; j < n; j++) {
@@ -1131,88 +1138,6 @@ bool MapPlot::plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, i
       glLineStipple(1, latopts.linetype.bmap);
       glEnable(GL_LINE_STIPPLE);
     }
-
-/*
-    if (straightLat) {
-
-      // straight latitude lines
-
-      int npos= (ilat2-ilat1+1)*2; // >=2
-      float *x= new float[npos];
-      float *y= new float[npos];
-      for (n=0; n<npos; n+=2) {
-        glat= glat1 + latitudeStep*float(n/2);
-        x[n+0]= lonmin;
-        x[n+1]= lonmax;
-        y[n+0]= glat;
-        y[n+1]= glat;
-      }
-      if (gc.geo2xy(area, npos, x, y)) {
-        glBegin(GL_LINES);
-        for (i=0; i<npos; i++)
-          glVertex2f(x[i], y[i]);
-        glEnd();
-      } else {
-        geo2xyError= true;
-      }
-      delete[] x;
-      delete[] y;
-
-    } else if (circleLat) {
-
-      // latitudes are circles
-
-      int nlat= ilat2-ilat1+1; // >= 1
-      float dlon= longitudeStep/float(plotResolution);
-      int nlon= (ilon2-ilon1)*plotResolution + 1;
-      if (nlon > 1) {
-        float *rx= new float[nlat];
-        float *ry= new float[nlat];
-        for (n=0; n<nlat; n++) {
-          glat= glat1 + latitudeStep*float(n);
-          rx[n]= glon1;
-          ry[n]= glat;
-        }
-        float *cx= new float[nlon];
-        float *cy= new float[nlon];
-        float *x= new float[nlon];
-        float *y= new float[nlon];
-        glat= 0.;
-        n= 0;
-        for (n=0; n<nlon; n++) {
-          glon= glon1 + dlon*float(n);
-          cx[n]= glon;
-          cy[n]= compLat;
-        }
-        if (gc.geo2xy(area, nlat, rx, ry) && gc.geo2xy(area, nlon, cx, cy)) {
-          for (n=0; n<nlon; n++) {
-            cx[n]-=xPole;
-            cy[n]-=yPole;
-          }
-          float r, rc= sqrtf(cx[0]*cx[0]+cy[0]*cy[0]);
-          for (int ilat=0; ilat<nlat; ilat++) {
-            rx[ilat]-=xPole;
-            ry[ilat]-=yPole;
-            r= sqrtf(rx[ilat]*rx[ilat]+ry[ilat]*ry[ilat]) / rc;
-            for (n=0; n<nlon; n++) {
-              x[n]= xPole + r*cx[n];
-              y[n]= yPole + r*cy[n];
-            }
-            clipPrimitiveLines(nlon, x, y, xylim, jumplimit);
-          }
-        } else {
-          geo2xyError= true;
-        }
-        delete[] cx;
-        delete[] cy;
-        delete[] x;
-        delete[] y;
-        delete[] rx;
-        delete[] ry;
-      }
-
-    } else {
-*/
 
     // curved latitude lines
 
@@ -1257,8 +1182,7 @@ bool MapPlot::plotGeoGrid(bool plot_lon, float longitudeStep, bool lon_values, i
   glDisable(GL_LINE_STIPPLE);
 
   if (value_annotations.size() > 0) {
-    fp->set("BITMAPFONT"/*poptions.fontname*/, poptions.fontface,
-        poptions.fontsize);
+    fp->setFontSize(lat_fontsize);
     n = value_annotations.size();
     Rectangle prevr;
     for (j = 0; j < n; j++) {
