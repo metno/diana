@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -36,16 +36,17 @@
 #include <diSetupParser.h>
 #include <set>
 
-using namespace std; 
+using namespace std;
 
 class glTextX;
 class glTextTT;
+class glTextQtTexture;
 class GLPcontext;
 
 /**
    \brief Font manager for text plotting
 
-   The font manager keeps multiple sets of font engines (X, truetype).
+   The font manager keeps multiple sets of font engines (X, truetype, texture).
    - text managing commands are translated to the different font engines
    - supports plotting and querying on geometry
 
@@ -53,11 +54,13 @@ class GLPcontext;
 
 class FontManager {
 private:
-  glTextX*  xfonts;
+  glTextX* xfonts;
   glTextTT* ttfonts;
-  bool usexf;
+  glTextQtTexture* texfonts;
+  glText * current_engine;
   std::set<miString> xfam;
   std::set<miString> ttfam;
+  std::set<miString> texfam;
 
   static miString fontpath;
   static miString display_name;
@@ -78,7 +81,7 @@ public:
   void startHardcopy(GLPcontext*);
   /// end PS output
   void endHardcopy();
-  
+
   /// for test purposes, sets up a standard set of fonts
   bool testDefineFonts(miString path = "fonts");
   /// parse fontsection in setup file
@@ -111,6 +114,7 @@ public:
   void setScalingType(const glText::FontScaling fs);
   /// set viewport size in GL coordinates
   void setGlSize(const float glw, const float glh);
+  void setGlSize(const float glx1, const float glx2, const float gly1, const float gly2);
   /// set viewport size in physical coordinates (pixels)
   void setVpSize(const float vpw, const float vph);
   /// set size of one pixel in GL coordinates
