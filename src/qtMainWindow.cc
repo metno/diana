@@ -1055,11 +1055,11 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   if (!setup.getSection(label_name,sect_label)){
     cerr << label_name << " section not found" << endl;
     //default
-    vlabel.push_back("LABEL data font=Helvetica");
+    vlabel.push_back("LABEL data font=BITMAPFONT");
     miString labelstr= "LABEL text=\"$day $date $auto UTC\" ";
     labelstr += "tcolour=red bcolour=black ";
     labelstr+= "fcolour=white:200 polystyle=both halign=left valign=top ";
-    labelstr+= "font=Helvetica fontsize=12";
+    labelstr+= "font=BITMAPFONT fontsize=12";
     vlabel.push_back(labelstr);
     vlabel.push_back
     ("LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0");
@@ -2897,7 +2897,7 @@ void DianaMainWindow::saveAnimation() {
     miTime startTime = tslider->getStartTime();
     tslider->set(startTime);
     setPlotTime(startTime);
-    
+
     int nrOfTimesteps = tslider->numTimes();
     int i = 0;
 
@@ -4009,7 +4009,7 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   autoselect= optAutoElementAction->isChecked();
   str= "AUTOSELECT " + miString(autoselect ? "ON" : "OFF");
   vstr.push_back(str);
-  
+
   // scrollwheelzooming
   bool scrollwheelzoom = optScrollwheelZoomAction->isChecked();
   str = "SCROLLWHEELZOOM " + miString(scrollwheelzoom ? "ON" : "OFF");
