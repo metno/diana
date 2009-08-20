@@ -31,6 +31,7 @@
 #include <diFontManager.h>
 #include <glTextX.h>
 #include <glTextTT.h>
+#include <glTextQtTexture.h>
 #include <GLP.h>
 
 miString FontManager::fontpath;
@@ -39,13 +40,14 @@ map<miString, miString> FontManager::defaults;
 
 static const miString key_bitmap = "bitmap";
 static const miString key_scaleable = "scaleable";
+static const miString key_texture = "texture";
 
 static const miString key_bitmapfont = "bitmapfont";
 static const miString key_scalefont = "scalefont";
 static const miString key_metsymbolfont = "metsymbolfont";
 
 FontManager::FontManager() :
-  xfonts(0), ttfonts(0), usexf(false)
+  xfonts(0), ttfonts(0), texfonts(0), current_engine(0)
 {
   if (display_name.exists()) // do not use environment-var DISPLAY
     xfonts = new glTextX(display_name);
@@ -53,6 +55,7 @@ FontManager::FontManager() :
     xfonts = new glTextX();
 
   ttfonts = new glTextTT();
+  texfonts = new glTextQtTexture();
 }
 
 FontManager::~FontManager()
@@ -61,6 +64,8 @@ FontManager::~FontManager()
     delete xfonts;
   if (ttfonts)
     delete ttfonts;
+  if (texfonts)
+    delete texfonts;
 }
 
 void FontManager::startHardcopy(GLPcontext* gc)
@@ -69,6 +74,8 @@ void FontManager::startHardcopy(GLPcontext* gc)
     xfonts->startHardcopy(gc);
   if (ttfonts)
     ttfonts->startHardcopy(gc);
+  if (texfonts)
+    texfonts->startHardcopy(gc);
 }
 
 void FontManager::endHardcopy()
@@ -77,6 +84,8 @@ void FontManager::endHardcopy()
     xfonts->endHardcopy();
   if (ttfonts)
     ttfonts->endHardcopy();
+  if (texfonts)
+    texfonts->endHardcopy();
 }
 
 // fill fontpack for testing
@@ -140,6 +149,7 @@ bool FontManager::parseSetup(SetupParser& sp)
 
   xfam.clear();
   ttfam.clear();
+  texfam.clear();
 
   if (!fontpath.exists()) {
     fontpath = sp.basicValue("fontpath");
@@ -184,12 +194,6 @@ bool FontManager::parseSetup(SetupParser& sp)
         defaults[key] = val;
     }
 
-    //     cerr << " Fonttype:" << fonttype
-    // 	 << " Fontfam:"  << fontfam
-    // 	 << " Fontname:" << fontname
-    // 	 << " Fontface:" << fontface
-    // 	 << " Postscript:" << postscript << endl;
-
     if (!fonttype.exists() || !fontfam.exists() || !fontname.exists())
       continue;
 
@@ -203,20 +207,33 @@ bool FontManager::parseSetup(SetupParser& sp)
       if (ttfonts)
         ttfonts->defineFont(fontfam, fontpath + "/" + fontname, fontFace(
             fontface), 20);
+
+    } else if (fonttype.downcase() == key_texture) {
+      texfam.insert(fontfam);
+      if (texfonts)
+        texfonts->defineFont(fontfam, fontname, fontFace(fontface), 10,
+            postscript);
     }
   }
 
-  //   std::set<miString>::iterator fitr;
-  //   int i;
-  //   cerr << "-- Defined X-fonts:" << endl;
-  //   for (i=0, fitr=xfam.begin(); fitr!=xfam.end(); fitr++,i++){
-  //     cerr << i << " " << *fitr << endl;
-  //   }
+  /*
+   std::set<miString>::iterator fitr;
+   int i;
+   cerr << "-- Defined X-fonts:" << endl;
+   for (i = 0, fitr = xfam.begin(); fitr != xfam.end(); fitr++, i++) {
+   cerr << i << " " << *fitr << endl;
+   }
 
-  //   cerr << "-- Defined TT-fonts:" << endl;
-  //   for (i=0, fitr=ttfam.begin(); fitr!=ttfam.end(); fitr++,i++){
-  //     cerr << i << " " << *fitr << endl;
-  //   }
+   cerr << "-- Defined TT-fonts:" << endl;
+   for (i = 0, fitr = ttfam.begin(); fitr != ttfam.end(); fitr++, i++) {
+   cerr << i << " " << *fitr << endl;
+   }
+
+   cerr << "-- Defined TEX-fonts:" << endl;
+   for (i = 0, fitr = texfam.begin(); fitr != texfam.end(); fitr++, i++) {
+   cerr << i << " " << *fitr << endl;
+   }
+   */
 
   return true;
 }
@@ -228,123 +245,83 @@ bool FontManager::check_family(const miString& fam, miString& family)
   else
     family = fam;
 
-  // return true if bitmapfont
-  return (fam.downcase() == key_bitmapfont || find(xfam.begin(), xfam.end(),
-      fam) != xfam.end());
+  if (find(xfam.begin(), xfam.end(), family) != xfam.end())
+    current_engine = xfonts;
+  else if (find(ttfam.begin(), ttfam.end(), family) != ttfam.end())
+    current_engine = ttfonts;
+  else if (find(texfam.begin(), texfam.end(), family) != texfam.end())
+    current_engine = texfonts;
+  else {
+    cerr << "FontManager::check_family ERROR, unknown font family:" << family
+        << endl;
+    return false;
+  }
+  return true;
 }
 
 // choose font, size and face
 bool FontManager::set(const miString fam, const glText::FontFace face,
     const float size)
 {
-  bool res = true;
   miString family;
-
-  usexf = check_family(fam, family);
-
-  if (usexf)
-    res = xfonts->set(family, face, size);
-  else
-    res = ttfonts->set(family, face, size);
-  return res;
+  if (check_family(fam, family)) {
+    return current_engine->set(family, face, size);
+  }
+  return false;
 }
 
 // choose font, size and face
 bool FontManager::set(const miString fam, const miString sface,
     const float size)
 {
-  //   static miString cfam="";
-  //   static miString csface="";
-  //   static float csize=0.0;
-
-  //   if ( fam==cfam && sface==csface && fabsf(size-csize)<0.05 )
-  //     return true;
-
-  //   cfam=fam;
-  //   csface=sface;
-  //   csize=size;
-
-  //cerr << "Really set fam=" << fam << " sface=" << sface << " size=" << size << endl;
-
-  bool res = true;
-  miString family;
   glText::FontFace face = fontFace(sface);
-  usexf = check_family(fam, family);
-
-  if (usexf)
-    res = xfonts->set(family, face, size);
-  else
-    res = ttfonts->set(family, face, size);
-  return res;
+  return set(fam, face, size);
 }
 
 bool FontManager::setFont(const miString fam)
 {
-  bool res = true;
   miString family;
-
-  usexf = check_family(fam, family);
-
-  if (usexf)
-    res = xfonts->setFont(family);
-  else
-    res = ttfonts->setFont(family);
-  return res;
+  if (check_family(fam, family)) {
+    return current_engine->setFont(family);
+  }
+  return false;
 }
 
 bool FontManager::setFontFace(const glText::FontFace face)
 {
-  bool res = true;
-  if (usexf)
-    res = xfonts->setFontFace(face);
-  else
-    res = ttfonts->setFontFace(face);
-  return res;
+  if (!current_engine)
+    return false;
+  return current_engine->setFontFace(face);
 }
 
 bool FontManager::setFontFace(const miString sface)
 {
-  bool res = true;
   glText::FontFace face = fontFace(sface);
-
-  if (usexf)
-    res = xfonts->setFontFace(face);
-  else
-    res = ttfonts->setFontFace(face);
-  return res;
+  return setFontFace(face);
 }
 
 bool FontManager::setFontSize(const float size)
 {
-  bool res = true;
-  if (usexf)
-    res = xfonts->setFontSize(size);
-  else
-    res = ttfonts->setFontSize(size);
-  return res;
+  if (!current_engine)
+    return false;
+  return current_engine->setFontSize(size);
 }
 
 // printing commands
 bool FontManager::drawChar(const int c, const float x, const float y,
     const float a)
 {
-  bool res = true;
-  if (usexf)
-    res = xfonts->drawChar(c, x, y, a);
-  else
-    res = ttfonts->drawChar(c, x, y, a);
-  return res;
+  if (!current_engine)
+    return false;
+  return current_engine->drawChar(c, x, y, a);
 }
 
 bool FontManager::drawStr(const char* s, const float x, const float y,
     const float a)
 {
-  bool res = true;
-  if (usexf)
-    res = xfonts->drawStr(s, x, y, a);
-  else
-    res = ttfonts->drawStr(s, x, y, a);
-  return res;
+  if (!current_engine)
+    return false;
+  return current_engine->drawStr(s, x, y, a);
 }
 
 // Metric commands
@@ -352,12 +329,26 @@ void FontManager::adjustSize(const int sa)
 {
   xfonts->adjustSize(sa);
   ttfonts->adjustSize(sa);
+  texfonts->adjustSize(sa);
 }
 
 void FontManager::setScalingType(const glText::FontScaling fs)
 {
   xfonts->setScalingType(fs);
   ttfonts->setScalingType(fs);
+  texfonts->setScalingType(fs);
+}
+
+// set viewport size in GL coordinates
+void FontManager::setGlSize(const float glx1, const float glx2,
+    const float gly1, const float gly2)
+{
+  float glw = glx2 - glx1;
+  float glh = gly2 - gly1;
+  xfonts->setGlSize(glw, glh);
+  ttfonts->setGlSize(glw, glh);
+  texfonts->setGlSize(glw, glh);
+  //texfonts->setGlSize(glx1, glx2, gly1, gly2);
 }
 
 // set viewport size in GL coordinates
@@ -365,6 +356,7 @@ void FontManager::setGlSize(const float glw, const float glh)
 {
   xfonts->setGlSize(glw, glh);
   ttfonts->setGlSize(glw, glh);
+  texfonts->setGlSize(glw, glh);
 }
 
 // set viewport size in physical coordinates (pixels)
@@ -372,106 +364,91 @@ void FontManager::setVpSize(const float vpw, const float vph)
 {
   xfonts->setVpSize(vpw, vph);
   ttfonts->setVpSize(vpw, vph);
+  texfonts->setVpSize(vpw, vph);
 }
 
 void FontManager::setPixSize(const float pw, const float ph)
 {
   xfonts->setPixSize(pw, ph);
   ttfonts->setPixSize(pw, ph);
+  texfonts->setPixSize(pw, ph);
 }
 
 bool FontManager::getCharSize(const int c, float& w, float& h)
 {
-  bool res = true;
-  if (usexf)
-    res = xfonts->getCharSize(c, w, h);
-  else
-    res = ttfonts->getCharSize(c, w, h);
-  return res;
+  if (!current_engine)
+    return false;
+  return current_engine->getCharSize(c, w, h);
 }
 
 bool FontManager::getMaxCharSize(float& w, float& h)
 {
-  bool res = true;
-  if (usexf)
-    res = xfonts->getMaxCharSize(w, h);
-  else
-    res = ttfonts->getMaxCharSize(w, h);
-  return res;
+  if (!current_engine)
+    return false;
+  return current_engine->getMaxCharSize(w, h);
 }
 
 bool FontManager::getStringSize(const char* s, float& w, float& h)
 {
-  bool res = true;
-  if (usexf)
-    res = xfonts->getStringSize(s, w, h);
-  else
-    res = ttfonts->getStringSize(s, w, h);
-  return res;
+  if (!current_engine)
+    return false;
+  return current_engine->getStringSize(s, w, h);
 }
 
 // return info
 glText::FontScaling FontManager::getFontScaletype()
 {
-  if (usexf)
-    return xfonts->getFontScaletype();
-  else
-    return ttfonts->getFontScaletype();
+  if (!current_engine)
+    return glText::S_FIXEDSIZE;
+  return current_engine->getFontScaletype();
 }
 
 int FontManager::getNumFonts()
 {
-  if (usexf)
-    return xfonts->getNumFonts();
-  else
-    return ttfonts->getNumFonts();
+  if (!current_engine)
+    return 0;
+  return current_engine->getNumFonts();
 }
 
 int FontManager::getNumSizes()
 {
-  if (usexf)
-    return xfonts->getNumSizes();
-  else
-    return ttfonts->getNumSizes();
+  if (!current_engine)
+    return 0;
+  return current_engine->getNumSizes();
 }
 
 glText::FontFace FontManager::getFontFace()
 {
-  if (usexf)
-    return xfonts->getFontFace();
-  else
-    return ttfonts->getFontFace();
+  if (!current_engine)
+    return glText::F_NORMAL;
+  return current_engine->getFontFace();
 }
 
 float FontManager::getFontSize()
 {
-  if (usexf)
-    return xfonts->getFontSize();
-  else
-    return ttfonts->getFontSize();
+  if (!current_engine)
+    return 0;
+  return current_engine->getFontSize();
 }
 
 int FontManager::getFontSizeIndex()
 {
-  if (usexf)
-    return xfonts->getFontSizeIndex();
-  else
-    return ttfonts->getFontSizeIndex();
+  if (!current_engine)
+    return 0;
+  return current_engine->getFontSizeIndex();
 }
 
 miString FontManager::getFontName(const int index)
 {
-  if (usexf)
-    return xfonts->getFontName(index);
-  else
-    return ttfonts->getFontName(index);
+  if (!current_engine)
+    return "";
+  return current_engine->getFontName(index);
 }
 
 float FontManager::getSizeDiv()
 {
-  if (usexf)
-    return xfonts->getSizeDiv();
-  else
+  if (!current_engine)
     return 1.0;
+  return current_engine->getSizeDiv();
 }
 
