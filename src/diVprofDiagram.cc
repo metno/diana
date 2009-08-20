@@ -1934,7 +1934,6 @@ void VprofDiagram::fpDrawStr(bool first)
     fp->drawStr(fpStr[i].str.c_str(), fpStr[i].x, fpStr[i].y, fpStr[i].z);
     //reset font
     fp->setFont(defaultFont);
-
   }
 }
 
