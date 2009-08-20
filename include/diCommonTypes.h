@@ -145,6 +145,7 @@ struct MapElementOption {
   float density;       ///< density in degrees (latlon)
   bool showvalue;      ///< plot value string (latlon)
   int value_pos;       ///< value position (0=left, 1=bottom, 2=both) (latlon)
+  float fontsize;      ///< fontsize for value plotting (latlon)
 };
 
 /**
