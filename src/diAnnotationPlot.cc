@@ -178,7 +178,7 @@ bool AnnotationPlot::prepare(const miString& pin)
 {
 
   pinfo = pin;
-  poptions.fontname = "Helvetica"; //default
+  poptions.fontname = "BITMAPFONT"; //default
   poptions.textcolour = Colour("black");
   PlotOptions::parsePlotOption(pinfo, poptions);
 
