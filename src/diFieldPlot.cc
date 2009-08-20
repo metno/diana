@@ -1206,7 +1206,7 @@ bool FieldPlot::plotWindTempFL(){
   float fontsize= 14. * poptions.labelSize;
 
   //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("Helvetica",poptions.fontface,fontsize);
+  fp->set("BITMAPFONT",poptions.fontface,fontsize);
 
   float chx,chy;
   fp->getStringSize("ps00", chx, chy);
@@ -2182,7 +2182,7 @@ bool FieldPlot::plotContour(){
   ibcol = -1;
 
   if (labfmt[0]!=0) {
-    float fontsize= 12. * poptions.labelSize;
+    float fontsize= 10. * poptions.labelSize;
 
     fp->set(poptions.fontname,poptions.fontface,fontsize);
     fp->getCharSize('0',chxlab,chylab);
@@ -3711,8 +3711,8 @@ bool FieldPlot::plotNumbers(){
   iy2++;
 
   float fontsize= 16.;
-  //fp->set("Helvetica",poptions.fontface,fontsize);
-  fp->set("Helvetica","bold",fontsize);
+  //fp->set("BITMAPFONT",poptions.fontface,fontsize);
+  fp->set("BITMAPFONT","bold",fontsize);
 
   float chx,chy;
   fp->getCharSize('0',chx,chy);
