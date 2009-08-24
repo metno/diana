@@ -45,8 +45,8 @@ const int MaxArrowsAuto=55;
 
 // Default constructor
 FieldPlot::FieldPlot()
-:Plot(), pshade(false), pundefined(false), difference(false),
-vectorIndex(-1), vectorAnnotationSize(0.), overlay(false) {
+:Plot(), overlay(false), difference(false), vectorIndex(-1),
+pshade(false), pundefined(false),vectorAnnotationSize(0.) {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::Default Constructor" << endl;
 #endif
@@ -72,7 +72,7 @@ void FieldPlot::clearFields(){
   }
   tmpfields.clear();
 
-  for(int i=1; i<fields.size(); i++) {
+  for(unsigned int i=1; i<fields.size(); i++) {
     fields[i] = NULL;
   }
   fields.clear();
@@ -497,7 +497,7 @@ bool FieldPlot::plot(){
     poptions.bordercolour= backContrastColour;
   if (poptions.linecolour==backgroundColour)
     poptions.linecolour= backContrastColour;
-  for (int i=0; i<poptions.colours.size(); i++)
+  for (unsigned int i=0; i<poptions.colours.size(); i++)
     if (poptions.colours[i]==backgroundColour)
       poptions.colours[i]= backContrastColour;
 
@@ -632,6 +632,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
 void FieldPlot::setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int iy2,
     int maxElementsX, int& step, float& dist, bool& xStepComp)
 {
+
   int i,ix,iy;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -665,6 +666,9 @@ void FieldPlot::setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int i
   for (iy=iy1; iy<iy2; iy+=iystep) {
     for (ix=ix1; ix<ix2; ix+=ixstep) {
       i = iy*nx+ix;
+      if ( x[i]==HUGE_VAL || y[i]==HUGE_VAL  ) continue;
+      if ( x[i+1]==HUGE_VAL || y[i+1]==HUGE_VAL ) continue;
+      if ( x[i+nx]==HUGE_VAL || y[i+nx]==HUGE_VAL  ) continue;
       dx = x[i+1]-x[i];
       dy = y[i+1]-y[i];
       adx += sqrtf(dx*dx+dy*dy);
@@ -714,6 +718,9 @@ int FieldPlot::xAutoStep(float* x, float* y, int ix1, int ix2, int iy, float sdi
 
   for (ix=ix1; ix<ix2; ix+=ixstep) {
     i = iy*nx+ix;
+    if ( x[i]==HUGE_VAL || y[i]==HUGE_VAL || x[i+1]==HUGE_VAL || y[i+1]==HUGE_VAL ){
+      continue;
+    }
     dx = x[i+1]-x[i];
     dy = y[i+1]-y[i];
     adx += sqrtf(dx*dx+dy*dy);
@@ -1622,7 +1629,6 @@ bool FieldPlot::plotVector(){
           (u[i]!=0.0f || v[i]!=0.0f) && maprect.isnear(gx,gy)){
         dx = scale * u[i];
         dy = scale * v[i];
-
         // direction
         glVertex2f(gx,gy);
         gx = gx + dx;
@@ -2905,6 +2911,8 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     glVertex2f(float(nx-1), float(ny-1));
     glVertex2f(0., float(ny-1));
 
+    glEnd();
+
   } else if (mapconvert==1) {
 
     glBegin(GL_LINE_LOOP);
@@ -2917,6 +2925,7 @@ void FieldPlot::plotFrame(const int nx, const int ny,
       y = cvfield2map[3] + cvfield2map[4]*xf[i] + cvfield2map[5]*yf[i];
       glVertex2f(x, y);
     }
+    glEnd();
 
   } else {
 
@@ -2964,48 +2973,55 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     }
     drawx1= drawx2= (dxm>0.01 || dym>0.01);
 
-    glBegin(GL_LINE_LOOP);
+    vector<float> xpos;
+    vector<float> ypos;
 
-    int i;
     if (drawy1) {
       iy=0;
       for (ix=0; ix<nx; ix++) {
-        i=iy*nx+ix;
-        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
-          glVertex2f(x[i],y[i]);
-        }
+        int i=iy*nx+ix;
+        xpos.push_back(x[i]);
+        ypos.push_back(y[i]);
       }
     }
     if (drawx2) {
       ix=nx-1;
       for (iy=1; iy<ny; iy++) {
-        i=iy*nx+ix;
-        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
-          glVertex2f(x[i],y[i]);
-        }
+        int i=iy*nx+ix;
+        xpos.push_back(x[i]);
+        ypos.push_back(y[i]);
       }
     }
     if (drawy2) {
       iy=ny-1;
       for (ix=nx-1; ix>=0; ix--) {
-        i=iy*nx+ix;
-        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
-          glVertex2f(x[i],y[i]);
-        }
+        int i=iy*nx+ix;
+        xpos.push_back(x[i]);
+        ypos.push_back(y[i]);
       }
     }
     if (drawx1) {
       ix=0;
       for (iy=ny-1; iy>0; iy--) {
-        i=iy*nx+ix;
-        if(x[i]!=HUGE_VAL && y[i]!=HUGE_VAL){
-          glVertex2f(x[i],y[i]);
-        }
+        int i=iy*nx+ix;
+        xpos.push_back(x[i]);
+        ypos.push_back(y[i]);
       }
     }
-  }
 
-  glEnd();
+    glBegin(GL_LINE_STRIP);
+    for (int i=0; i<xpos.size(); ++i) {
+      if( xpos[i]!=HUGE_VAL && ypos[i]!=HUGE_VAL ){
+        glVertex2f(xpos[i], ypos[i]);
+      } else {
+        glEnd();
+        while(xpos[i]==HUGE_VAL || ypos[i]==HUGE_VAL ) ++i;
+        --i;
+        glBegin(GL_LINE_STRIP);
+      }
+    }
+    glEnd();
+  }
 
   // glDisable(GL_LINE_STIPPLE);
 
@@ -3330,7 +3346,6 @@ bool FieldPlot::plotGridLines(){
   if (!fields[0]->data) return false;
 
   int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
 
   int   mapconvert, ix1, ix2, iy1, iy2;
   float cvfield2map[6], cvmap2field[6];
@@ -3833,7 +3848,7 @@ miString FieldPlot::getModelName()
 miString FieldPlot::getTrajectoryFieldName()
 {
   miString str;
-  int nf= 0;
+  unsigned int nf= 0;
   if (ptype==fpt_wind)          nf= 2;
   if (ptype==fpt_wind_colour)   nf= 3;
   if (ptype==fpt_vector)        nf= 2;
@@ -3841,7 +3856,7 @@ miString FieldPlot::getTrajectoryFieldName()
 
   if (nf>=2 && fields.size()>=nf) {
     bool ok= true;
-    for (int i=0; i<nf; i++) {
+    for (unsigned int i=0; i<nf; i++) {
       if (!fields[i])
         ok= false;
       else if (!fields[i]->data)
@@ -3855,7 +3870,7 @@ miString FieldPlot::getTrajectoryFieldName()
 miString FieldPlot::getRadarEchoFieldName()
 {
   miString str;
-  int nf= 0;
+  unsigned int nf= 0;
   if (ptype==fpt_wind)          nf= 2;
   if (ptype==fpt_wind_colour)   nf= 3;
   if (ptype==fpt_vector)        nf= 2;
@@ -3863,7 +3878,7 @@ miString FieldPlot::getRadarEchoFieldName()
 
   if (nf>=2 && fields.size()>=nf) {
     bool ok= true;
-    for (int i=0; i<nf; i++) {
+    for (unsigned int i=0; i<nf; i++) {
       if (!fields[i])
         ok= false;
       else if (!fields[i]->data)
