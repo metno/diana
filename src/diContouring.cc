@@ -3108,8 +3108,15 @@ int smoothline(int npos, float x[], float y[], int nfirst, int nlast,
   float c32, c42, c31, c41, fx1, fx2, fx3, fx4, fy1, fy2, fy3, fy4;
   float tstep, t, t2, t3;
 
+  bool contains_hugeval = false;
+  for (int j = 0; j<npos; j++) {
+    if(x[j] == HUGE_VAL || y[j] == HUGE_VAL) {
+      contains_hugeval = true;
+    }
+  }
+
   if (npos<3 || nfirst<0 || nfirst>=nlast
-      || nlast>npos-1 || ismooth<1) {
+      || nlast>npos-1 || ismooth<1 || contains_hugeval) {
     nfirst = (nfirst>0)     ? nfirst : 0;
     nlast  = (nlast<npos-1) ? nlast  : npos-1;
     ns = 0;
@@ -3493,7 +3500,8 @@ void posConvert(int npos, float *x, float *y, int nx, int ny, float *xz, float *
     c= dy*(1.-dx);
     d= dy*dx;
     ij= j*nx + i;
-    if(xz[ij]==HUGE_VAL ||xz[ij+1]==HUGE_VAL ||xz[ij+nx]==HUGE_VAL || (ij>nx-2 && xz[ij-nx+1]==HUGE_VAL)){
+    if(xz[ij]==HUGE_VAL ||xz[ij+1]==HUGE_VAL ||xz[ij+nx]==HUGE_VAL || xz[ij+nx+1]==HUGE_VAL ||
+        yz[ij]==HUGE_VAL ||yz[ij+1]==HUGE_VAL ||yz[ij+nx]==HUGE_VAL || yz[ij+nx+1]==HUGE_VAL){
       x[n]=HUGE_VAL;
       y[n]=HUGE_VAL;
     } else {
@@ -4706,11 +4714,11 @@ void drawLine(int start, int stop, float* x, float* y)
 //split line if position is undefined
   glBegin(GL_LINE_STRIP);
   for (int i=start; i<stop+1; ++i) {
-    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL && !isnan(x[i]) && !isnan(y[i]) ){
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
       glVertex2f(x[i], y[i]);
     } else {
       glEnd();
-      while(x[i]==HUGE_VAL || y[i]==HUGE_VAL || isnan(x[i]) || isnan(y[i]) ) ++i;
+      while(x[i]==HUGE_VAL || y[i]==HUGE_VAL ) ++i;
       --i;
       glBegin(GL_LINE_STRIP);
     }
