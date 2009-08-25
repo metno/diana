@@ -58,6 +58,7 @@ bool MapManager::parseMapAreas(SetupParser& sp)
     return true;
   }
 
+  Projection::setProjActive(false); //default
   unsigned int q;
   unsigned int n = setuplist. size();
   for (unsigned int i = 0; i < n; i++) {
