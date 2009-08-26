@@ -274,7 +274,7 @@ miString fifo_name;
  */
 void cleanstr(miString& s)
 {
-  int p;
+  unsigned int p;
   if ((p = s.find("#")) != string::npos)
     s.erase(p);
 
@@ -295,11 +295,11 @@ void cleanstr(miString& s)
  */
 void unpackloop(vector<miString>& orig, // original strings..
     vector<int>& origlines, // ..with corresponding line-numbers
-    int& index, // original string-counter to update
+    unsigned int& index, // original string-counter to update
     vector<miString>& part, // final strings from loop-unpacking..
     vector<int>& partlines) // ..with corresponding line-numbers
 {
-  int start = index;
+  unsigned int start = index;
 
   miString loops = orig[index];
   loops = loops.substr(4, loops.length() - 4);
@@ -315,10 +315,10 @@ void unpackloop(vector<miString>& orig, // original strings..
 
   miString keys = vs[0]; // key-part
   vector<miString> vkeys = keys.split('|');
-  int nkeys = vkeys.size();
+  unsigned int nkeys = vkeys.size();
 
   miString argu = vs[1]; // argument-part
-  int nargu;
+  unsigned int nargu;
   vector<vector<miString> > arguments;
 
   /* Check if argument is name of list
@@ -326,7 +326,7 @@ void unpackloop(vector<miString>& orig, // original strings..
   if (argu.length() > 1 && argu.substr(0, 1) == "@") {
     miString name = argu.substr(1, argu.length() - 1);
     // search for list..
-    int k;
+    unsigned int k;
     for (k = 0; k < lists.size(); k++) {
       if (lists[k].name == name)
         break;
@@ -339,7 +339,7 @@ void unpackloop(vector<miString>& orig, // original strings..
     }
     nargu = lists[k].l.size();
     // split listentries into separate arguments for loop
-    for (int j = 0; j < nargu; j++) {
+    for (unsigned int j = 0; j < nargu; j++) {
       vs = lists[k].l[j].split('|');
       // check if correct number of arguments
       if (vs.size() != nkeys) {
@@ -355,7 +355,7 @@ void unpackloop(vector<miString>& orig, // original strings..
     // ordinary arguments to loop: comma-separated
     vs2 = argu.split(',');
     nargu = vs2.size();
-    for (int k = 0; k < nargu; k++) {
+    for (unsigned int k = 0; k < nargu; k++) {
       vs = vs2[k].split('|');
       // check if correct number of arguments
       if (vs.size() != nkeys) {
@@ -380,10 +380,10 @@ void unpackloop(vector<miString>& orig, // original strings..
     if (orig[index].downcase() == com_endloop || orig[index].downcase()
         == com_loopend) { // reached end
       // we have the loop-contents
-      for (int i = 0; i < nargu; i++) { // loop over arguments
-        for (int j = 0; j < tmppart.size(); j++) { // loop over lines
+      for (unsigned int i = 0; i < nargu; i++) { // loop over arguments
+        for (unsigned int j = 0; j < tmppart.size(); j++) { // loop over lines
           miString l = tmppart[j];
-          for (int k = 0; k < nkeys; k++) { // loop over keywords
+          for (unsigned int k = 0; k < nkeys; k++) { // loop over keywords
             // replace all variables
             l.replace(vkeys[k], arguments[i][k]);
           }
@@ -426,7 +426,7 @@ void unpackinput(vector<miString>& orig, // original setup
     vector<miString>& final, // final setup
     vector<int>& finallines) // final list of linenumbers
 {
-  int i;
+  unsigned int i;
   for (i = 0; i < orig.size(); i++) {
     if (miString(orig[i].substr(0, 4)).downcase() == com_loop) {
       // found start of loop - unpack it
@@ -439,7 +439,7 @@ void unpackinput(vector<miString>& orig, // original setup
         exit(1);
       }
       li.name = orig[i].substr(5, orig[i].length() - 5);
-      int start = i;
+      unsigned int start = i;
       i++;
       for (; i < orig.size() && orig[i].downcase() != com_listend; i++)
         li.l.push_back(orig[i]);
@@ -460,7 +460,7 @@ void unpackinput(vector<miString>& orig, // original setup
 
 int prepareInput(const miString& filename)
 {
-  int linenum = 0;
+  unsigned int linenum = 0;
   //   if ( tmplinenumbers.size() > 0 )
   //     linenum = linenumbers[ linenumbers.size() - 1 ];
 
@@ -512,10 +512,10 @@ int prepareInput(const miString& filename)
   linenum = lines.size();
 
   // substitute key-values
-  int nkeys = keys.size();
+  unsigned int nkeys = keys.size();
   if (nkeys > 0)
-    for (int k = 0; k < linenum; k++)
-      for (int m = 0; m < nkeys; m++)
+    for (unsigned int k = 0; k < linenum; k++)
+      for (unsigned int m = 0; m < nkeys; m++)
         lines[k].replace("$" + keys[m].key, keys[m].value);
 
   return 0;
@@ -1628,11 +1628,11 @@ int parseAndProcess(const miString& file)
           return 1;
         }
 
-        for (int i = 0; i < pcom.size(); i++) {
+        for (unsigned int i = 0; i < pcom.size(); i++) {
           levels = main_controller->getFieldLevels(pcom[i]);
 
-          for (int i = 0; i < levels.size(); i++) {
-            file << levels[i] << endl;
+          for (unsigned int j = 0; j < levels.size(); j++) {
+            file << levels[j] << endl;
           }
           file << endl;
         }
@@ -1736,7 +1736,7 @@ int parseAndProcess(const miString& file)
       }
       globfree(&globBuf);
       // remove processed files
-      for (int ik = 0; ik < filenames.size(); ik++) {
+      for (unsigned int ik = 0; ik < filenames.size(); ik++) {
         ostringstream ost;
         ost << "rm -f " << filenames[ik];
         cerr << "==== Cleaning up with:" << ost.str() << endl;
@@ -1923,7 +1923,7 @@ int parseAndProcess(const miString& file)
 
     } else if (key == com_papersize) {
       vvvs = value.split(","); // could contain both pagesize and papersize
-      for (int l = 0; l < vvvs.size(); l++) {
+      for (unsigned int l = 0; l < vvvs.size(); l++) {
         if (vvvs[l].contains("x")) {
           vvs = vvvs[l].split("x");
           if (vvs.size() < 2) {
