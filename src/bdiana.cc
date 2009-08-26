@@ -158,7 +158,8 @@ enum plot_type {
   plot_standard = 1, // standard diana map-plot
   plot_vcross = 2, // vertical cross-section
   plot_vprof = 3, // profiles
-  plot_spectrum = 4 // wave spectrum
+  plot_spectrum = 4
+// wave spectrum
 };
 
 /*
@@ -189,10 +190,10 @@ SpectrumManager* spectrummanager = 0;
 
 #ifdef USE_XLIB
 // Attribs for OpenGL visual
-static int dblBuf[] = { GLX_DOUBLEBUFFER, GLX_RGBA, GLX_DEPTH_SIZE, 16,
-    GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_ALPHA_SIZE, 1,
-    //GLX_TRANSPARENT_TYPE, GLX_TRANSPARENT_RGB,
-    GLX_STENCIL_SIZE, 1, None };
+static int dblBuf[] = {GLX_DOUBLEBUFFER, GLX_RGBA, GLX_DEPTH_SIZE, 16,
+  GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_ALPHA_SIZE, 1,
+  //GLX_TRANSPARENT_TYPE, GLX_TRANSPARENT_RGB,
+  GLX_STENCIL_SIZE, 1, None};
 static int *snglBuf = &dblBuf[1];
 
 Display* dpy;
@@ -716,358 +717,357 @@ bool readSetup(const miString& constSetupfile, printerManager& printmanager)
   return true;
 }
 
-
-
 /*
-  Output Help-message:  call-syntax and optionally an example
-  input-file for bdiana
-*/
+ Output Help-message:  call-syntax and optionally an example
+ input-file for bdiana
+ */
 void printUsage(bool showexample)
 {
-  const miString help=
-    "***************************************************             \n"
-    " DIANA batch version:" + version_string +    "                  \n"
-    " plot products in batch                                         \n"
-    "***************************************************             \n"
-    " Available products:                                            \n"
-    " - All standard map-products from DIANA                         \n"
-    " - Vertical cross sections                                      \n"
-    " - Vertical profiles                                            \n"
-    " - WaveSpectrum plots                                           \n"
-    " Available output-formats:                                      \n"
-    " - as PostScript (to file and printer)                          \n"
-    " - as EPS (Encapsulated PostScript)                             \n"
-    " - as PNG (raster-format)                                       \n"
-    " - using qtgl: all available raster formats in Qt               \n"
-    "***************************************************             \n"
-    "                                                                \n"
-    "Usage: bdiana -i <job-filename>"
-    " [-s <setup-filename>]"
-    " [-v]"
-    " [-display xhost:display]"
-    " [-example]"
-    " [-use_pixmap | -use_pbuffer | -use_qtgl ]"
-    " [-use_doublebuffer | -use_singlebuffer]"
-    " [key=value key=value] \n"
-    "                                                                        \n"
-    "-i                : job-control file. See example below                 \n"
-    "-s                : setupfile for diana                                 \n"
-    "-v                : (verbose) for more job-output                       \n"
-    "-signal           : production triggered by SIGUSR1 signal (see example)\n"
-    "-display          : x-server to use (default: env DISPLAY)              \n"
-    "-example          : list example input-file and exit                    \n"
-    "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium (default)  \n"
-    "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
-    "-use_qtgl         : use QGLPixelBuffer as drawing medium                \n"
-    "-use_doublebuffer : use double buffering OpenGL (default)               \n"
-    "-use_singlebuffer : use single buffering OpenGL                         \n"
-    "                                                                        \n"
-    "special key/value pairs:                                                \n"
-    " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time                          \n"
-    "                                                                        \n";
+  const miString help =
+      "***************************************************             \n"
+        " DIANA batch version:" + version_string + "                  \n"
+        " plot products in batch                                         \n"
+        "***************************************************             \n"
+        " Available products:                                            \n"
+        " - All standard map-products from DIANA                         \n"
+        " - Vertical cross sections                                      \n"
+        " - Vertical profiles                                            \n"
+        " - WaveSpectrum plots                                           \n"
+        " Available output-formats:                                      \n"
+        " - as PostScript (to file and printer)                          \n"
+        " - as EPS (Encapsulated PostScript)                             \n"
+        " - as PNG (raster-format)                                       \n"
+        " - using qtgl: all available raster formats in Qt               \n"
+        "***************************************************             \n"
+        "                                                                \n"
+        "Usage: bdiana -i <job-filename>"
+        " [-s <setup-filename>]"
+        " [-v]"
+        " [-display xhost:display]"
+        " [-example]"
+        " [-use_pixmap | -use_pbuffer | -use_qtgl ]"
+        " [-use_doublebuffer | -use_singlebuffer]"
+        " [key=value key=value] \n"
+        "                                                                        \n"
+        "-i                : job-control file. See example below                 \n"
+        "-s                : setupfile for diana                                 \n"
+        "-v                : (verbose) for more job-output                       \n"
+        "-signal           : production triggered by SIGUSR1 signal (see example)\n"
+        "-display          : x-server to use (default: env DISPLAY)              \n"
+        "-example          : list example input-file and exit                    \n"
+        "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium (default)  \n"
+        "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
+        "-use_qtgl         : use QGLPixelBuffer as drawing medium                \n"
+        "-use_doublebuffer : use double buffering OpenGL (default)               \n"
+        "-use_singlebuffer : use single buffering OpenGL                         \n"
+        "                                                                        \n"
+        "special key/value pairs:                                                \n"
+        " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time                          \n"
+        "                                                                        \n";
 
-  const miString example=
-    "#--------------------------------------------------------------   \n"
-    "# inputfile for bdiana                                            \n"
-    "# - '#' marks start of comment.                                   \n"
-    "# - you may split long lines by adding '\\' at the end.           \n"
-    "#--------------------------------------------------------------   \n"
-    "                                                                  \n"
-    "#- Mandatory:                                                     \n"
-    "buffersize=1696x1200     # plotbuffer (WIDTHxHEIGHT)              \n"
-    "                         # For output=RASTER: size of plot.       \n"
-    "                         # For output=POSTSCRIPT: size of buffer  \n"
-    "                         #  affects output-quality. TIP: make     \n"
-    "                         #  sure width/height ratio = width/height\n"
-    "                         #  ratio of MAP-area (defined under PLOT)\n"
-    "                                                                  \n"
-    "#- Optional: values for each option below are default-values      \n"
-    "setupfile=diana.setup    # use a standard setup-file              \n"
-    "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER              \n"
-    "                         #  RASTER: format from filename-suffix   \n"
-    "colour=COLOUR            # GREYSCALE/COLOUR                       \n"
-    "filename=tmp_diana.ps    # output filename                        \n"
-    "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
-    "                         # plots                                  \n"
-    "                                                                  \n"
-    "# the following options for output=POSTSCRIPT or EPS only         \n"
-    "toprinter=NO             # send output to printer (postscript)    \n"
-    "                         # obsolete command! use PRINT_DOCUMENT instead\n"
-    "printer=fou3             # name of printer        (postscript)    \n"
-    "                         # (see PRINT_DOCUMENT command below)     \n"
-    "papersize=297x420,A4     # size of paper in mm,   (postscript)    \n"
-    "                         # papertype (A4 etc) or both.            \n"
-    "drawbackground=NO        # plot background colour (postscript)    \n"
-    "orientation=LANDSCAPE    # PORTRAIT/LANDSCAPE     (postscript)    \n"
-    "                         # (default here is really 'automatic'    \n"
-    "                         # which sets orientation according to    \n"
-    "                         # width/height-ratio of buffersize)      \n"
-    "                                                                  \n"
-    "#--------------------------------------------------------------   \n"
-    "# Product-examples:                                               \n"
-    "# Products are made by one or more PLOT-sections seen below,      \n"
-    "# in between two PLOT-sections you may change any of the options   \n"
-    "# described above.                                                \n"
-    "# The data-time will be set from the TIME=\"isotime-string\"      \n"
-    "# commandline parameter.                                          \n"
-    "# Output filename may contain data-time, format see man date      \n"
-    "# Example: filename=diana_%Y%M%dT%H.ps                            \n"
-    "#--------------------------------------------------------------   \n"
-    "# STANDARD MAP-PRODUCT SECTION:                                   \n"
-    "PLOT                     # start of plot-command for map-product  \n"
-    "# paste in commands from quick-menues (one line for each element) \n"
-    "                                                                  \n"
-    "FIELD HIRLAM.00 DZ(500-850) colour=yellow linetype=solid \\\n"
-    " linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 \\\n"
-    " extreme.radius=1 line.smooth=0 value.label=1 label.size=1  \\\n"
-    " field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\\n"
-    " undef.linewidth=1 undef.linetype=solid\n"
-    "FIELD DNMI.ANA MSLP colour=blue linetype=dash linewidth=2 \\\n"
-    " line.interval=1 extreme.type=Ingen extreme.size=1 \\\n"
-    " extreme.radius=1 line.smooth=0 value.label=1 label.size=1 \\\n"
-    " field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\\n"
-    " undef.linewidth=1 undef.linetype=solid\n"
-    "OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\\n"
-    " VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\\n"
-    " TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 scale=1 \\\n"
-    " timediff=180 colour=black font=Helvetica face=normal\n"
-    "OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area \\\n"
-    " timediff=60\n"
-    "MAP area=Norge backcolour=white map=Gshhs-AUTO contour=on \\\n"
-    " cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \\\n"
-    " land=on land.colour=landgul land.zorder=0 latlon=off frame=off\n"
-    "LABEL data font=Helvetica\n"
-    "LABEL text=\"$day $date $auto UTC\" tcolour=red bcolour=black \\\n"
-    " fcolour=white:200 polystyle=both halign=left valign=top \\\n"
-    " font=Helvetica fontsize=12\n"
+  const miString
+      example =
+          "#--------------------------------------------------------------   \n"
+            "# inputfile for bdiana                                            \n"
+            "# - '#' marks start of comment.                                   \n"
+            "# - you may split long lines by adding '\\' at the end.           \n"
+            "#--------------------------------------------------------------   \n"
+            "                                                                  \n"
+            "#- Mandatory:                                                     \n"
+            "buffersize=1696x1200     # plotbuffer (WIDTHxHEIGHT)              \n"
+            "                         # For output=RASTER: size of plot.       \n"
+            "                         # For output=POSTSCRIPT: size of buffer  \n"
+            "                         #  affects output-quality. TIP: make     \n"
+            "                         #  sure width/height ratio = width/height\n"
+            "                         #  ratio of MAP-area (defined under PLOT)\n"
+            "                                                                  \n"
+            "#- Optional: values for each option below are default-values      \n"
+            "setupfile=diana.setup    # use a standard setup-file              \n"
+            "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER              \n"
+            "                         #  RASTER: format from filename-suffix   \n"
+            "colour=COLOUR            # GREYSCALE/COLOUR                       \n"
+            "filename=tmp_diana.ps    # output filename                        \n"
+            "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
+            "                         # plots                                  \n"
+            "                                                                  \n"
+            "# the following options for output=POSTSCRIPT or EPS only         \n"
+            "toprinter=NO             # send output to printer (postscript)    \n"
+            "                         # obsolete command! use PRINT_DOCUMENT instead\n"
+            "printer=fou3             # name of printer        (postscript)    \n"
+            "                         # (see PRINT_DOCUMENT command below)     \n"
+            "papersize=297x420,A4     # size of paper in mm,   (postscript)    \n"
+            "                         # papertype (A4 etc) or both.            \n"
+            "drawbackground=NO        # plot background colour (postscript)    \n"
+            "orientation=LANDSCAPE    # PORTRAIT/LANDSCAPE     (postscript)    \n"
+            "                         # (default here is really 'automatic'    \n"
+            "                         # which sets orientation according to    \n"
+            "                         # width/height-ratio of buffersize)      \n"
+            "                                                                  \n"
+            "#--------------------------------------------------------------   \n"
+            "# Product-examples:                                               \n"
+            "# Products are made by one or more PLOT-sections seen below,      \n"
+            "# in between two PLOT-sections you may change any of the options   \n"
+            "# described above.                                                \n"
+            "# The data-time will be set from the TIME=\"isotime-string\"      \n"
+            "# commandline parameter.                                          \n"
+            "# Output filename may contain data-time, format see man date      \n"
+            "# Example: filename=diana_%Y%M%dT%H.ps                            \n"
+            "#--------------------------------------------------------------   \n"
+            "# STANDARD MAP-PRODUCT SECTION:                                   \n"
+            "PLOT                     # start of plot-command for map-product  \n"
+            "# paste in commands from quick-menues (one line for each element) \n"
+            "                                                                  \n"
+            "FIELD HIRLAM.00 DZ(500-850) colour=yellow linetype=solid \\\n"
+            " linewidth=1 line.interval=40 extreme.type=Ingen extreme.size=1 \\\n"
+            " extreme.radius=1 line.smooth=0 value.label=1 label.size=1  \\\n"
+            " field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\\n"
+            " undef.linewidth=1 undef.linetype=solid\n"
+            "FIELD DNMI.ANA MSLP colour=blue linetype=dash linewidth=2 \\\n"
+            " line.interval=1 extreme.type=Ingen extreme.size=1 \\\n"
+            " extreme.radius=1 line.smooth=0 value.label=1 label.size=1 \\\n"
+            " field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\\n"
+            " undef.linewidth=1 undef.linetype=solid\n"
+            "OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\\n"
+            " VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\\n"
+            " TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 scale=1 \\\n"
+            " timediff=180 colour=black font=Helvetica face=normal\n"
+            "OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area \\\n"
+            " timediff=60\n"
+            "MAP area=Norge backcolour=white map=Gshhs-AUTO contour=on \\\n"
+            " cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \\\n"
+            " land=on land.colour=landgul land.zorder=0 latlon=off frame=off\n"
+            "LABEL data font=Helvetica\n"
+            "LABEL text=\"$day $date $auto UTC\" tcolour=red bcolour=black \\\n"
+            " fcolour=white:200 polystyle=both halign=left valign=top \\\n"
+            " font=Helvetica fontsize=12\n"
 
-    "                                                                  \n"
-    "ENDPLOT                  # End of plot-command                    \n"
-    "#--------------------------------------------------------------   \n"
-    "# VERTICAL CROSSECTION SECTION:                                   \n"
-    "filename=vcross.ps                                                \n"
-    "                                                                  \n"
-    "# detailed options for plot                                       \n"
-    "#VCROSS.OPTIONS                                                   \n"
-    "#text=on textColour=black                                         \n"
-    "#frame=on frameColour=black frameLinetype=solid frameLinewidth=1  \n"
-    "#etc...  (see DIANA documentation or diana.log)                   \n"
-    "#VCROSS.OPTIONS.END                                               \n"
-    "                                                                  \n"
-    "VCROSS.PLOT              # start of vertical crossection plot     \n"
-    "                                                                  \n"
+            "                                                                  \n"
+            "ENDPLOT                  # End of plot-command                    \n"
+            "#--------------------------------------------------------------   \n"
+            "# VERTICAL CROSSECTION SECTION:                                   \n"
+            "filename=vcross.ps                                                \n"
+            "                                                                  \n"
+            "# detailed options for plot                                       \n"
+            "#VCROSS.OPTIONS                                                   \n"
+            "#text=on textColour=black                                         \n"
+            "#frame=on frameColour=black frameLinetype=solid frameLinewidth=1  \n"
+            "#etc...  (see DIANA documentation or diana.log)                   \n"
+            "#VCROSS.OPTIONS.END                                               \n"
+            "                                                                  \n"
+            "VCROSS.PLOT              # start of vertical crossection plot     \n"
+            "                                                                  \n"
 
-    "VCROSS model=HIRLAM.00 field=Temp(C) colour=black linetype=solid \\\n"
-    " linewidth=1 line.interval=4 line.smooth=0 value.label=1 \\       \n"
-    " label.size=1                                                     \n"
-    "VCROSS model=HIRLAM.00 field=Temp(C) colour=red linetype=solid \\ \n"
-    " linewidth=1 line.interval=4 line.smooth=0 value.label=1 \\       \n"
-    " label.size=1                                                     \n"
-    "                                                                  \n"
-    "CROSSECTION=A.(70N,30W)-(50N,30W) # name of crossection           \n"
-    "                                                                  \n"
-    "ENDPLOT                  # End of plot-command                    \n"
-    "#--------------------------------------------------------------   \n"
-    "# VERTICAL PROFILE SECTION:                                       \n"
-    "filename=vprof.ps                                                 \n"
-    "                                                                  \n"
-    "# detailed options for plot                                       \n"
-    "#VPROF.OPTIONS                                                    \n"
-    "#tttt=on                                                          \n"
-    "#tdtd=on                                                          \n"
-    "#etc...  (see DIANA documentation or diana.log)                   \n"
-    "#VPROF.OPTIONS.END                                                \n"
-    "                                                                  \n"
-    "VPROF.PLOT               # start of vertical profile plot         \n"
-    "                                                                  \n"
-    "OBSERVATION.ON           # plot observation: OBSERVATION.ON/OFF   \n"
-    "MODELS=HIRLAM.00,EC.12   # comma-separated list of models         \n"
-    "STATION=KIRKENES         # station-name                           \n"
-    "                                                                  \n"
-    "ENDPLOT                  # End of plot-command                    \n"
-    "#--------------------------------------------------------------   \n"
-    "# SPECTRUM SECTION:                                               \n"
-    "filename=spectrum.ps                                              \n"
-    "                                                                  \n"
-    "# detailed options for plot                                       \n"
-    "#SPECTRUM.OPTIONS                                                 \n"
-    "#freqMax=0.3                                                      \n"
-    "#backgroundColour=white                                           \n"
-    "#etc...  (see DIANA documentation or diana.log)                   \n"
-    "#SPECTRUM.OPTIONS.END                                             \n"
-    "                                                                  \n"
-    "SPECTRUM.PLOT            # start of spectrum plot                 \n"
-    "                                                                  \n"
-    "MODEL=WAM.50KM.00        # model                                  \n"
-    "STATION=\"60.1N 5.3W\"   # station-name                           \n"
-    "                                                                  \n"
-    "ENDPLOT                  # End of plot-command                    \n"
-    "#--------------------------------------------------------------   \n"
-    "# ADDITIONAL:                                                     \n"
-    "#--------------------------------------------------------------   \n"
-    "#- You can add LOOPS with one or more variables:                  \n"
-    "#  LOOP [X]|[Y] = X_value1 | Y_value1 , X_value2 | Y_value2       \n"
-    "#   <any other input lines, all \"[X]\" and \"[Y]\" will be       \n"
-    "#   replaced by the values after '=' for each iteration>          \n"
-    "#  LOOP.END                                                       \n"
-    "#  The example shows a loop with two variables ([X] and [Y],      \n"
-    "#  separated by '|') and two iterations (separated with ',')      \n"
-    "#  Loops kan be nested                                            \n"
-    "#--------------------------------------------------------------   \n"
-    "#- Make a LIST for use in loops:                                  \n"
-    "#  LIST.stations           # A new list with name=stations        \n"
-    "#  OSLO                    # May contain any strings..            \n"
-    "#  KIRKENES                #                                      \n"
-    "#  LIST.END                # Marks End of list                    \n"
-    "#                                                                 \n"
-    "#  To use in a loop:                                              \n"
-    "#  LOOP [VAR]=@stations    # The key here is the \'@\' with the   \n"
-    "#                          # list-name.                           \n"
-    "#  LOOP.END                # This will loop over all list-entries \n"
-    "#                                                                 \n"
-    "#  NOTES:                                                         \n"
-    "#  - To make a list with multiple variables, convenient for       \n"
-    "#    multiple-variable loops, just add \'|\'s in the list-strings.\n"
-    "#    Example:                                                     \n"
-    "#    LIST.name             # new list                             \n"
-    "#    OSLO | blue           # two variables for each entry         \n"
-    "#    KIRKENES | red        #                                      \n"
-    "#    LIST.END                                                     \n"
-    "#                                                                 \n"
-    "#    LOOP [POS] | [COL] = @name # Loop using two variables in list\n"
-    "#    LOOP.END                                                     \n"
-    "#  - Lists must be defined OUTSIDE all loop statements            \n"
-    "#--------------------------------------------------------------   \n"
-    "#- alternative to TIME=.. commandline option:                     \n"
-    "#  use settime=YYYY-MM-DD hh:mm:ss                                \n"
-    "#- use addhour=<value> or addminute=<value> to increment datatime \n"
-    "#  (offset from TIME=\"\" variable). Useful in loops              \n"
-    "#--------------------------------------------------------------   \n"
-    "#- \"key=value\" pairs given on the commandline controls variables\n"
-    "#  in the inputfile: Any \"$key\" found in the text will be       \n"
-    "#  substituted by \"value\".                                      \n"
-    "#--------------------------------------------------------------   \n"
-    "#- toggle archive mode (for observations)                         \n"
-    "#  archive=ON/OFF  (default=OFF)                                  \n"
-    "#--------------------------------------------------------------   \n"
-    "#- Making TRAJECTORIES                                            \n"
-    "#  to create and plot trajectories from any vector-field use:     \n"
-    "#  TRAJECTORY_OPTIONS=<options>    # see available options below  \n"
-    "#  TRAJECTORY=ON                   # Set this before PLOT command \n"
-    "#  TRAJECTORY=OFF                  # Turn off trajectories when finished\n"
-    "#  Valid options:                                                 \n"
-    "#  latitudelongitude=<lat>,<lng>   # start position, repeat if necessary\n"
-    "#  field=\"<full fieldname>\"        # Example: \"HIRLAM.00 VIND10.M\" \n"
-    "#  colour=<colourname>             # Colour of trajectory lines   \n"
-    "#  line=<linewidth>                # width of trajectory lines    \n"
-    "#  numpos=1,5 or 9                 # number of sub-positions      \n"
-    "#  radius=<spreadth in km>         # if numpos>1, spreadth in km  \n"
-    "#  timemarker=<minutes>            # marker for each specified minute\n"
-    "# \n"
-    "#  Example: \n"
-    "#    TRAJECTORY_OPTIONS=latitudelongitude=58.0,11.0 latitudelongitude=60.0,9.0 \\ \n"
-    "#    latitudelongitude=66.0,0.0 field=\"HIRLAM.00 VIND.10M\" colour=red \\ \n"
-    "#    line=2 numpos=5 radius=50 timemarker=0 \n"
-    "#  specifies 3 start positions, each with 5 sub-pos., using a HIRLAM \n"
-    "#  wind-field as input (must also be specified in PLOT section)      \n"
-    "#  Prepare for trajectories \n"
-    "#    TRAJECTORY=ON  \n"
-    "#  followed by a series of PLOT sections where the above field must be \n"
-    "#  specified, running through the desired timesteps: \n"
-    "#    LOOP [HOUR]=0,3,6,9 \n"
-    "#    ADDHOUR=[HOUR] \n"
-    "#    FILENAME=traj_[HOUR].png \n"
-    "#    PLOT \n"
-    "#     FIELD HIRLAM.00 VIND.10M ........ etc. \n"
-    "#    ENDPLOT \n"
-    "#    LOOP.END \n"
-    "#  Finally, turn off trajectories with: \n"
-    "#    TRAJECTORY=OFF \n"
-    "#--------------------------------------------------------------   \n"
-    "#* PostScript output * \n"
-    "#- Send current postscript-file to printer (immediate command):   \n"
-    "#  PRINT_DOCUMENT                         \n"
-    "#\n"
-    "#- MULTIPLE PLOTS PER PAGE                  \n"
-    "#  You can put several plots in one postscript page by using the \'multiple.plots\'\n"
-    "#  and \'plotcell\' commands. Start with describing the layout you want:\n"
-    "# \n"
-    "#  MULTIPLE.PLOTS=<rows>,<columns> # set the number of rows and columns\n"
-    "# \n"
-    "#  In the same command, you can specify the spacing between plots and \n"
-    "#  the page-margin (given as percent of page width/height [0-100]): \n"
-    "#  MULTIPLE.PLOTS=<rows>,<columns>,<spacing>,<margin> \n"
-    "#  \n"
-    "#  Then, for each separate plot use the plotcell command to place plot on page:\n"
-    "#  PLOTCELL=<row>,<column>         # the row and column, starting with 0\n"
-    "#  \n"
-    "#  Finally, end the page with: \n"
-    "#  MULTIPLE.PLOTS=OFF \n"
-    "#  \n"
-    "#- To produce multi-page postscript files: Just make several plots \n"
-    "#  to the same filename (can be combined with MULTIPLE.PLOTS). \n"
-    "#  You can not mix map plots, cross sections or soundings in one file\n"
-    "#  \n"
-    "#- Use of alpha-channel blending is not supported in postscript \n"
-    "#--------------------------------------------------------------   \n"
-    "#* Interactive batch-plotting *                  \n"
-    "#  To make plots on-demand, you will find this feature useful.  \n"
-    "#  Put this in the input-file:  \n"
-    "#    command_path=<some_path> \n"
-    "#    wait_for_commands \n"
-    "#  and bdiana will wait at the \'wait_for_commands\' line, periodically\n"
-    "#  checking \'<some_path>\' for a matching filename. When found, the \n"
-    "#  file(s) are read and the instructions within executed. If the line:\n"
-    "#    wait.end \n"
-    "#  is encountered, bdiana will stop waiting for commands. \n"
-    "#  The \'command_path\' must specify a complete filename - optionally \n"
-    "#  with wildcards. Example: \'/tmp/*.txt\' \n"
-    "#  NB: all files found are deleted immediately after reading.  \n"
-    "#--------------------------------------------------------------   \n"
-    "#* Batch-plotting triggered by Signals *                  \n"
-    "#  Alternative on-demand production (developed for use in WMS) \n"
-    "#  Start bdiana with the -signal commandline option. \n"
-    "#  After the initial input/setup have been read, bdiana will write its \n"
-    "#  pid-number to file bdiana.pid, and wait for a SIGUSR1-signal from an \n"
-    "#  external process. After a signal is received, the command_path is scanned\n"
-    "#  for commandfile(s), and these will be processed in the same fashion as\n"
-    "#  in the wait_for_commands section above.\n"
-    "#  If a confirmative answer is required, add the command fifo=<name>, and\n"
-    "#  bdiana will write the single character \'r\' to the named FIFO. NB: The \n"
-    "#  FIFO must exist! \n"
-    "#--------------------------------------------------------------        \n"
-    "#* Get Capabilities *                                                  \n"
-    "#  Developed for use in WMS                                            \n"
-    "#  The syntax of the TIME- and LEVEL-sections are equal to the         \n"
-    "#  PLOT-sections. The plot options will be ignored.                    \n"
-    "#  The TIME-sections give available times,                             \n"
-    "#  both normal and constant times.                                     \n"
-    "#  The LEVEL-sections give available levels.                           \n"
-    "#  Valid options:                                                      \n"
-    "#  Normal times common to all products and  all constant times:        \n"
-    "#  time_options = intersection                                         \n"
-    "#  All normal times from all products:                                 \n"
-    "#  time_options = union                                                \n"
-    "#  Time format in outputfile                                           \n"
-    "#  time_format=%Y-%m-%dT%H:%M:%S                                       \n"
-    "#  TIME                                                                \n"
-    "#  FIELD HIRLAM.00 DZ(500-850) colour=yellow linetype=solid \\         \n"
-    "#  linewidth=1 line.interval=40 extreme.type=None extreme.size=1 \\   \n"
-    "#  extreme.radius=1 line.smooth=0 value.label=1 label.size=1  \\       \n"
-    "#  field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\   \n"
-    "#  undef.linewidth=1 undef.linetype=solid                              \n"
-    "#  FIELD DNMI.ANA MSLP                                                 \n"
-    "#  OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\ \n"
-    "#  VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\  \n"
-    "#  TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 \\       \n"
-    "#  scale=1 timediff=180 colour=black font=Helvetica face=normal        \n"
-    "#  OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area          \n"
-    "#  ENDTIME                                                             \n"
-    "#  LEVEL                                                               \n"
-    "#  FIELD HIRLAM.20KM.00 Z                                              \n"
-    "#  ENDLEVEL                                                            \n"
-    "#--------------------------------------------------------------      \n"
-    "\n";
+            "VCROSS model=HIRLAM.00 field=Temp(C) colour=black linetype=solid \\\n"
+            " linewidth=1 line.interval=4 line.smooth=0 value.label=1 \\       \n"
+            " label.size=1                                                     \n"
+            "VCROSS model=HIRLAM.00 field=Temp(C) colour=red linetype=solid \\ \n"
+            " linewidth=1 line.interval=4 line.smooth=0 value.label=1 \\       \n"
+            " label.size=1                                                     \n"
+            "                                                                  \n"
+            "CROSSECTION=A.(70N,30W)-(50N,30W) # name of crossection           \n"
+            "                                                                  \n"
+            "ENDPLOT                  # End of plot-command                    \n"
+            "#--------------------------------------------------------------   \n"
+            "# VERTICAL PROFILE SECTION:                                       \n"
+            "filename=vprof.ps                                                 \n"
+            "                                                                  \n"
+            "# detailed options for plot                                       \n"
+            "#VPROF.OPTIONS                                                    \n"
+            "#tttt=on                                                          \n"
+            "#tdtd=on                                                          \n"
+            "#etc...  (see DIANA documentation or diana.log)                   \n"
+            "#VPROF.OPTIONS.END                                                \n"
+            "                                                                  \n"
+            "VPROF.PLOT               # start of vertical profile plot         \n"
+            "                                                                  \n"
+            "OBSERVATION.ON           # plot observation: OBSERVATION.ON/OFF   \n"
+            "MODELS=HIRLAM.00,EC.12   # comma-separated list of models         \n"
+            "STATION=KIRKENES         # station-name                           \n"
+            "                                                                  \n"
+            "ENDPLOT                  # End of plot-command                    \n"
+            "#--------------------------------------------------------------   \n"
+            "# SPECTRUM SECTION:                                               \n"
+            "filename=spectrum.ps                                              \n"
+            "                                                                  \n"
+            "# detailed options for plot                                       \n"
+            "#SPECTRUM.OPTIONS                                                 \n"
+            "#freqMax=0.3                                                      \n"
+            "#backgroundColour=white                                           \n"
+            "#etc...  (see DIANA documentation or diana.log)                   \n"
+            "#SPECTRUM.OPTIONS.END                                             \n"
+            "                                                                  \n"
+            "SPECTRUM.PLOT            # start of spectrum plot                 \n"
+            "                                                                  \n"
+            "MODEL=WAM.50KM.00        # model                                  \n"
+            "STATION=\"60.1N 5.3W\"   # station-name                           \n"
+            "                                                                  \n"
+            "ENDPLOT                  # End of plot-command                    \n"
+            "#--------------------------------------------------------------   \n"
+            "# ADDITIONAL:                                                     \n"
+            "#--------------------------------------------------------------   \n"
+            "#- You can add LOOPS with one or more variables:                  \n"
+            "#  LOOP [X]|[Y] = X_value1 | Y_value1 , X_value2 | Y_value2       \n"
+            "#   <any other input lines, all \"[X]\" and \"[Y]\" will be       \n"
+            "#   replaced by the values after '=' for each iteration>          \n"
+            "#  LOOP.END                                                       \n"
+            "#  The example shows a loop with two variables ([X] and [Y],      \n"
+            "#  separated by '|') and two iterations (separated with ',')      \n"
+            "#  Loops kan be nested                                            \n"
+            "#--------------------------------------------------------------   \n"
+            "#- Make a LIST for use in loops:                                  \n"
+            "#  LIST.stations           # A new list with name=stations        \n"
+            "#  OSLO                    # May contain any strings..            \n"
+            "#  KIRKENES                #                                      \n"
+            "#  LIST.END                # Marks End of list                    \n"
+            "#                                                                 \n"
+            "#  To use in a loop:                                              \n"
+            "#  LOOP [VAR]=@stations    # The key here is the \'@\' with the   \n"
+            "#                          # list-name.                           \n"
+            "#  LOOP.END                # This will loop over all list-entries \n"
+            "#                                                                 \n"
+            "#  NOTES:                                                         \n"
+            "#  - To make a list with multiple variables, convenient for       \n"
+            "#    multiple-variable loops, just add \'|\'s in the list-strings.\n"
+            "#    Example:                                                     \n"
+            "#    LIST.name             # new list                             \n"
+            "#    OSLO | blue           # two variables for each entry         \n"
+            "#    KIRKENES | red        #                                      \n"
+            "#    LIST.END                                                     \n"
+            "#                                                                 \n"
+            "#    LOOP [POS] | [COL] = @name # Loop using two variables in list\n"
+            "#    LOOP.END                                                     \n"
+            "#  - Lists must be defined OUTSIDE all loop statements            \n"
+            "#--------------------------------------------------------------   \n"
+            "#- alternative to TIME=.. commandline option:                     \n"
+            "#  use settime=YYYY-MM-DD hh:mm:ss                                \n"
+            "#- use addhour=<value> or addminute=<value> to increment datatime \n"
+            "#  (offset from TIME=\"\" variable). Useful in loops              \n"
+            "#--------------------------------------------------------------   \n"
+            "#- \"key=value\" pairs given on the commandline controls variables\n"
+            "#  in the inputfile: Any \"$key\" found in the text will be       \n"
+            "#  substituted by \"value\".                                      \n"
+            "#--------------------------------------------------------------   \n"
+            "#- toggle archive mode (for observations)                         \n"
+            "#  archive=ON/OFF  (default=OFF)                                  \n"
+            "#--------------------------------------------------------------   \n"
+            "#- Making TRAJECTORIES                                            \n"
+            "#  to create and plot trajectories from any vector-field use:     \n"
+            "#  TRAJECTORY_OPTIONS=<options>    # see available options below  \n"
+            "#  TRAJECTORY=ON                   # Set this before PLOT command \n"
+            "#  TRAJECTORY=OFF                  # Turn off trajectories when finished\n"
+            "#  Valid options:                                                 \n"
+            "#  latitudelongitude=<lat>,<lng>   # start position, repeat if necessary\n"
+            "#  field=\"<full fieldname>\"        # Example: \"HIRLAM.00 VIND10.M\" \n"
+            "#  colour=<colourname>             # Colour of trajectory lines   \n"
+            "#  line=<linewidth>                # width of trajectory lines    \n"
+            "#  numpos=1,5 or 9                 # number of sub-positions      \n"
+            "#  radius=<spreadth in km>         # if numpos>1, spreadth in km  \n"
+            "#  timemarker=<minutes>            # marker for each specified minute\n"
+            "# \n"
+            "#  Example: \n"
+            "#    TRAJECTORY_OPTIONS=latitudelongitude=58.0,11.0 latitudelongitude=60.0,9.0 \\ \n"
+            "#    latitudelongitude=66.0,0.0 field=\"HIRLAM.00 VIND.10M\" colour=red \\ \n"
+            "#    line=2 numpos=5 radius=50 timemarker=0 \n"
+            "#  specifies 3 start positions, each with 5 sub-pos., using a HIRLAM \n"
+            "#  wind-field as input (must also be specified in PLOT section)      \n"
+            "#  Prepare for trajectories \n"
+            "#    TRAJECTORY=ON  \n"
+            "#  followed by a series of PLOT sections where the above field must be \n"
+            "#  specified, running through the desired timesteps: \n"
+            "#    LOOP [HOUR]=0,3,6,9 \n"
+            "#    ADDHOUR=[HOUR] \n"
+            "#    FILENAME=traj_[HOUR].png \n"
+            "#    PLOT \n"
+            "#     FIELD HIRLAM.00 VIND.10M ........ etc. \n"
+            "#    ENDPLOT \n"
+            "#    LOOP.END \n"
+            "#  Finally, turn off trajectories with: \n"
+            "#    TRAJECTORY=OFF \n"
+            "#--------------------------------------------------------------   \n"
+            "#* PostScript output * \n"
+            "#- Send current postscript-file to printer (immediate command):   \n"
+            "#  PRINT_DOCUMENT                         \n"
+            "#\n"
+            "#- MULTIPLE PLOTS PER PAGE                  \n"
+            "#  You can put several plots in one postscript page by using the \'multiple.plots\'\n"
+            "#  and \'plotcell\' commands. Start with describing the layout you want:\n"
+            "# \n"
+            "#  MULTIPLE.PLOTS=<rows>,<columns> # set the number of rows and columns\n"
+            "# \n"
+            "#  In the same command, you can specify the spacing between plots and \n"
+            "#  the page-margin (given as percent of page width/height [0-100]): \n"
+            "#  MULTIPLE.PLOTS=<rows>,<columns>,<spacing>,<margin> \n"
+            "#  \n"
+            "#  Then, for each separate plot use the plotcell command to place plot on page:\n"
+            "#  PLOTCELL=<row>,<column>         # the row and column, starting with 0\n"
+            "#  \n"
+            "#  Finally, end the page with: \n"
+            "#  MULTIPLE.PLOTS=OFF \n"
+            "#  \n"
+            "#- To produce multi-page postscript files: Just make several plots \n"
+            "#  to the same filename (can be combined with MULTIPLE.PLOTS). \n"
+            "#  You can not mix map plots, cross sections or soundings in one file\n"
+            "#  \n"
+            "#- Use of alpha-channel blending is not supported in postscript \n"
+            "#--------------------------------------------------------------   \n"
+            "#* Interactive batch-plotting *                  \n"
+            "#  To make plots on-demand, you will find this feature useful.  \n"
+            "#  Put this in the input-file:  \n"
+            "#    command_path=<some_path> \n"
+            "#    wait_for_commands \n"
+            "#  and bdiana will wait at the \'wait_for_commands\' line, periodically\n"
+            "#  checking \'<some_path>\' for a matching filename. When found, the \n"
+            "#  file(s) are read and the instructions within executed. If the line:\n"
+            "#    wait.end \n"
+            "#  is encountered, bdiana will stop waiting for commands. \n"
+            "#  The \'command_path\' must specify a complete filename - optionally \n"
+            "#  with wildcards. Example: \'/tmp/*.txt\' \n"
+            "#  NB: all files found are deleted immediately after reading.  \n"
+            "#--------------------------------------------------------------   \n"
+            "#* Batch-plotting triggered by Signals *                  \n"
+            "#  Alternative on-demand production (developed for use in WMS) \n"
+            "#  Start bdiana with the -signal commandline option. \n"
+            "#  After the initial input/setup have been read, bdiana will write its \n"
+            "#  pid-number to file bdiana.pid, and wait for a SIGUSR1-signal from an \n"
+            "#  external process. After a signal is received, the command_path is scanned\n"
+            "#  for commandfile(s), and these will be processed in the same fashion as\n"
+            "#  in the wait_for_commands section above.\n"
+            "#  If a confirmative answer is required, add the command fifo=<name>, and\n"
+            "#  bdiana will write the single character \'r\' to the named FIFO. NB: The \n"
+            "#  FIFO must exist! \n"
+            "#--------------------------------------------------------------        \n"
+            "#* Get Capabilities *                                                  \n"
+            "#  Developed for use in WMS                                            \n"
+            "#  The syntax of the TIME- and LEVEL-sections are equal to the         \n"
+            "#  PLOT-sections. The plot options will be ignored.                    \n"
+            "#  The TIME-sections give available times,                             \n"
+            "#  both normal and constant times.                                     \n"
+            "#  The LEVEL-sections give available levels.                           \n"
+            "#  Valid options:                                                      \n"
+            "#  Normal times common to all products and  all constant times:        \n"
+            "#  time_options = intersection                                         \n"
+            "#  All normal times from all products:                                 \n"
+            "#  time_options = union                                                \n"
+            "#  Time format in outputfile                                           \n"
+            "#  time_format=%Y-%m-%dT%H:%M:%S                                       \n"
+            "#  TIME                                                                \n"
+            "#  FIELD HIRLAM.00 DZ(500-850) colour=yellow linetype=solid \\         \n"
+            "#  linewidth=1 line.interval=40 extreme.type=None extreme.size=1 \\   \n"
+            "#  extreme.radius=1 line.smooth=0 value.label=1 label.size=1  \\       \n"
+            "#  field.smooth=0 grid.lines=0 undef.masking=0 undef.colour=white \\   \n"
+            "#  undef.linewidth=1 undef.linetype=solid                              \n"
+            "#  FIELD DNMI.ANA MSLP                                                 \n"
+            "#  OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\ \n"
+            "#  VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\  \n"
+            "#  TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 \\       \n"
+            "#  scale=1 timediff=180 colour=black font=Helvetica face=normal        \n"
+            "#  OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area          \n"
+            "#  ENDTIME                                                             \n"
+            "#  LEVEL                                                               \n"
+            "#  FIELD HIRLAM.20KM.00 Z                                              \n"
+            "#  ENDLEVEL                                                            \n"
+            "#--------------------------------------------------------------      \n"
+            "\n";
 
   if (!showexample)
     cout << help << endl;
@@ -1076,7 +1076,6 @@ void printUsage(bool showexample)
 
   exit(1);
 }
-
 
 int parseAndProcess(const miString& file)
 {
@@ -1450,8 +1449,10 @@ int parseAndProcess(const miString& file)
           glXSwapBuffers(dpy, pbuf);
 #endif
 #endif
-        } else if (canvasType == qt_glpixelbuffer){
-          cerr << "WARNING! double buffer swapping not implemented for qt_glpixelbuffer" << endl;
+        } else if (canvasType == qt_glpixelbuffer) {
+          cerr
+              << "WARNING! double buffer swapping not implemented for qt_glpixelbuffer"
+              << endl;
         }
       }
 
@@ -1461,22 +1462,22 @@ int parseAndProcess(const miString& file)
           cout << "- Preparing for raster output" << endl;
         glFlush();
 
-        if (canvasType == qt_glpixelbuffer){
-          if (qpbuffer == 0){
+        if (canvasType == qt_glpixelbuffer) {
+          if (qpbuffer == 0) {
             cerr << " ERROR. when saving image - qpbuffer is NULL" << endl;
           } else {
             QImage image = qpbuffer->toImage();
 
-            if (verbose){
+            if (verbose) {
               cout << "- Saving image to:" << priop.fname;
               cout.flush();
             }
 
             bool result = image.save(priop.fname.c_str());
 
-            if (verbose){
+            if (verbose) {
               cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
-            } else if (!result){
+            } else if (!result) {
               cerr << " ERROR, saving image to:" << priop.fname << endl;
             }
           }
@@ -1493,7 +1494,7 @@ int parseAndProcess(const miString& file)
           img.data = new unsigned char[npixels * img.nchannels];
 
           glReadPixels(0, 0, img.width, img.height, GL_RGBA, GL_UNSIGNED_BYTE,
-          img.data);
+              img.data);
 
           int result;
 
@@ -1817,17 +1818,17 @@ int parseAndProcess(const miString& file)
 #ifdef USE_XLIB
         // delete old pixmaps
         if (buffermade) {
-          if (pix){
+          if (pix) {
             glXDestroyGLXPixmap(dpy, pix);
           }
-          if (pixmap){
+          if (pixmap) {
             XFreePixmap(dpy, pixmap);
           }
         }
 
         //cout << "- Creating X pixmap.." << endl;
         pixmap = XCreatePixmap(dpy, RootWindow(dpy, pdvi->screen),
-        xsize, ysize, pdvi->depth);
+            xsize, ysize, pdvi->depth);
         if (!pixmap) {
           cerr << "ERROR, could not create X pixmap" << endl;
           return 1;
@@ -1847,7 +1848,7 @@ int parseAndProcess(const miString& file)
 #ifdef USE_XLIB
 #ifdef GLX_VERSION_1_3
         // delete old PixelBuffer
-        if (buffermade && pbuf){
+        if (buffermade && pbuf) {
           glXDestroyPbuffer(dpy, pbuf);
         }
 
@@ -1896,7 +1897,7 @@ int parseAndProcess(const miString& file)
         glXMakeContextCurrent(dpy, pbuf, pbuf, cx);
 #endif
 #endif
-      } else if (canvasType == qt_glpixelbuffer){
+      } else if (canvasType == qt_glpixelbuffer) {
         // delete old pixmaps
         if (buffermade && qpbuffer) {
           delete qpbuffer;
@@ -2136,9 +2137,6 @@ int parseAndProcess(const miString& file)
   return 0;
 }
 
-
-
-
 void doWork();
 int dispatchWork(const std::string &file);
 
@@ -2156,7 +2154,7 @@ int main(int argc, char** argv)
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
   if (ctmp)
-    xhost = ctmp;
+  xhost = ctmp;
 #endif
 
   // check command line arguments
@@ -2246,10 +2244,10 @@ int main(int argc, char** argv)
 #ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
     cerr << "===================================================" << endl
-    << " WARNING !" << endl
-    << " X pixmaps or GLX pixelbuffers not supported" << endl
-    << " Forcing use of default canvas" << endl
-    << "===================================================" << endl;
+        << " WARNING !" << endl
+        << " X pixmaps or GLX pixelbuffers not supported" << endl
+        << " Forcing use of default canvas" << endl
+        << "===================================================" << endl;
     canvasType = default_canvas;
   }
 #endif
@@ -2257,15 +2255,15 @@ int main(int argc, char** argv)
 #ifndef GLX_VERSION_1_3
   if (canvasType == glx_pixelbuffer) {
     cerr << "===================================================" << endl
-    << " WARNING !" << endl
-    << " This version of GLX does not support PixelBuffers." << endl
-    << " Forcing use of default canvas" << endl
-    << "===================================================" << endl;
+        << " WARNING !" << endl
+        << " This version of GLX does not support PixelBuffers." << endl
+        << " Forcing use of default canvas" << endl
+        << "===================================================" << endl;
     canvasType = default_canvas;
   }
 #endif
 
-  if (canvasType == qt_glpixelbuffer){
+  if (canvasType == qt_glpixelbuffer) {
     application = new QApplication(argc, argv);
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
       cerr << "This system does not support OpenGL pbuffers." << endl;
@@ -2290,7 +2288,7 @@ int main(int argc, char** argv)
 #ifdef USE_XLIB
     // find an OpenGL-capable RGB visual with depth buffer
     pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
-    (use_double_buffer ? dblBuf : snglBuf));
+        (use_double_buffer ? dblBuf : snglBuf));
     if (!pdvi) {
       cerr << "ERROR, no RGB visual with depth buffer" << endl;
       return 1;
@@ -2393,10 +2391,10 @@ int main(int argc, char** argv)
 
   // clean up structures
 #ifdef USE_XLIB
-  if (pix){
+  if (pix) {
     glXDestroyGLXPixmap(dpy, pix);
   }
-  if (pixmap){
+  if (pixmap) {
     XFreePixmap(dpy, pixmap);
   }
 #endif
