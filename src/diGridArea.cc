@@ -22,7 +22,8 @@ Area GridArea::getStandardProjection(){
 // Hirlam20
 //  Rectangle rect(1,468,1,378);
 //  float pgf[6] = {-46.5,-36.5,0.2,0.2,0,65};
-  Projection proj(3,pgf);
+  Projection proj;
+  proj.set_mi_gridspec(3,pgf);
   Area a(proj,rect);
   return a;
 }

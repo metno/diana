@@ -96,7 +96,6 @@ private:
   deque<TrajectoryData*> vtrajdata;
 
   TrajectoryPlot(const TrajectoryPlot &rhs){}
-  TrajectoryPlot& operator=(const TrajectoryPlot &rhs){}
 
 public:
   // Constructors

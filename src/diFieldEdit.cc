@@ -465,7 +465,8 @@ bool FieldEdit::OLDreadEditfield(const miString& filename)
   }
 
   if (ok) {
-    Projection p(gtype, gspec);
+    Projection p;
+    p.set_mi_gridspec(gtype, gspec);
     Rectangle r(0., 0., float(nx-1), float(ny-1));
     editfield->area.setP(p);
     editfield->area.setR(r);
@@ -579,7 +580,8 @@ bool FieldEdit::readEditfield(const miString& filename)
           cerr << "FieldEdit::readEditfield GRIDPAR ERROR" << endl;
 	  delete editfield;
         } else {
-          Projection p(gtype, gspec);
+          Projection p;
+          p.set_mi_gridspec(gtype, gspec);
           Rectangle r(0., 0., float(nx-1), float(ny-1));
           editfield->area.setP(p);
           editfield->area.setR(r);

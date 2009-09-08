@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <fstream>
 #include <diRadarEchoPlot.h>
@@ -41,7 +41,7 @@ using namespace std;
 
 
 RadarEchoPlot::RadarEchoPlot()
-  :Plot(){
+:Plot(){
   oldArea=area;
   lineWidth=1;
   numMarker=1;
@@ -126,68 +126,68 @@ int RadarEchoPlot::radePos(vector<miString>& vstr)
 #ifdef DEBUGPRINT
       cerr << "stokens:";
       for (int j=0; j<stokens.size(); j++)
-	cerr << "  " << stokens[j];
+        cerr << "  " << stokens[j];
       cerr << endl;
 #endif
       if( stokens.size() == 1) {
-	key= stokens[0].downcase();
-	if (key == "clear") {
-	  clearData();
-	  action= 1;  // remove annotation
-	}
-	else if (key == "delete"){
-	  stopComputation();
-	  lat.clear();
-	  lon.clear();
-	  x.clear();
-	  y.clear();
-	}
+        key= stokens[0].downcase();
+        if (key == "clear") {
+          clearData();
+          action= 1;  // remove annotation
+        }
+        else if (key == "delete"){
+          stopComputation();
+          lat.clear();
+          lon.clear();
+          x.clear();
+          y.clear();
+        }
       } else if( stokens.size() == 2) {
-	key        = stokens[0].downcase();
-	orig_value = stokens[1];
-	value      = stokens[1].downcase();
-	if (key == "plot" ){
-	  if(value == "on")
-	    plot_on = true;
-	  else
-	    plot_on = false;
-	  action= 1;  // add or remove annotation
-	} else if (key == "longitudelatitude" ) {
-	  stopComputation();
-	  vector<miString> lonlat = value.split(',');
-	  int npos=lonlat.size()/2;
-	  for( int i=0; i<npos; i++){
-	    longitude.push_back(atof(lonlat[2*i].c_str()));
-	    latitude.push_back(atof(lonlat[2*i+1].c_str()));
-	  }
-	} else if (key == "latitudelongitude" ) {
-	  stopComputation();
-	  vector<miString> latlon = value.split(',');
-	  int npos=latlon.size()/2;
-	  for( int i=0; i<npos; i++){
-	    latitude.push_back(atof(latlon[2*i].c_str()));
-	    longitude.push_back(atof(latlon[2*i+1].c_str()));
-	  }
-	} else if (key == "field" ) {
-	  if (orig_value[0]=='"')
-	    fieldStr= orig_value.substr(1,orig_value.length()-2);
-	  else
-	    fieldStr = orig_value;
-	} else if (key == "colour" ) {
-	  	  
-	  colour = value;
-	  //colour = "name: black red: 000 green: 000 blue: 000 alpha: 255 Index: 52";
-	}
-	else if (key == "linewidth" )
-	  lineWidth = atoi(value.c_str());
-	else if (key == "linetype" )
-	  lineType = Linetype(value);
-	else if (key == "radius" )
-	  markerRadius = atoi(value.c_str());
-	else if (key == "numpos" )
-	  numMarker = atoi(value.c_str());
-	else if (key == "timemarker" )
-	  timeMarker = atoi(value.c_str());
+        key        = stokens[0].downcase();
+        orig_value = stokens[1];
+        value      = stokens[1].downcase();
+        if (key == "plot" ){
+          if(value == "on")
+            plot_on = true;
+          else
+            plot_on = false;
+          action= 1;  // add or remove annotation
+        } else if (key == "longitudelatitude" ) {
+          stopComputation();
+          vector<miString> lonlat = value.split(',');
+          int npos=lonlat.size()/2;
+          for( int i=0; i<npos; i++){
+            longitude.push_back(atof(lonlat[2*i].c_str()));
+            latitude.push_back(atof(lonlat[2*i+1].c_str()));
+          }
+        } else if (key == "latitudelongitude" ) {
+          stopComputation();
+          vector<miString> latlon = value.split(',');
+          int npos=latlon.size()/2;
+          for( int i=0; i<npos; i++){
+            latitude.push_back(atof(latlon[2*i].c_str()));
+            longitude.push_back(atof(latlon[2*i+1].c_str()));
+          }
+        } else if (key == "field" ) {
+          if (orig_value[0]=='"')
+            fieldStr= orig_value.substr(1,orig_value.length()-2);
+          else
+            fieldStr = orig_value;
+        } else if (key == "colour" ) {
+
+          colour = value;
+          //colour = "name: black red: 000 green: 000 blue: 000 alpha: 255 Index: 52";
+        }
+        else if (key == "linewidth" )
+          lineWidth = atoi(value.c_str());
+        else if (key == "linetype" )
+          lineType = Linetype(value);
+        else if (key == "radius" )
+          markerRadius = atoi(value.c_str());
+        else if (key == "numpos" )
+          numMarker = atoi(value.c_str());
+        else if (key == "timemarker" )
+          timeMarker = atoi(value.c_str());
       }
     }
 
@@ -200,10 +200,10 @@ int RadarEchoPlot::radePos(vector<miString>& vstr)
 #ifdef DEBUGPRINT
     cerr << "\n\nnumMarker: " << numMarker << "\n"<< endl;
     cerr << "\nmarkerRadius: " << markerRadius << "\n\n" << endl;
-    cerr << "\ncolour: " << colour << "\n\n" << endl; 
-#endif    
-//    colour = "name: black red: 000 green: 000 blue: 000 alpha: 255 Index: 52";
-    
+    cerr << "\ncolour: " << colour << "\n\n" << endl;
+#endif
+    //    colour = "name: black red: 000 green: 000 blue: 000 alpha: 255 Index: 52";
+
     float *xpos= new float[nlon];
     float *ypos= new float[nlon];
     for (int i=0; i<nlon; i++){
@@ -223,27 +223,35 @@ int RadarEchoPlot::radePos(vector<miString>& vstr)
       int n=0;
 
       for (int i=0; i<nlon; i++) {
-	float dx,dy;
-	gc.getGridResolution(area,xpos[i],ypos[i],dx,dy);
-	dx= float(markerRadius)*1000./dx;
-	dy= float(markerRadius)*1000./dy;
 
-	for (int j=0; j<numMarker; j++, n++) {
-	  xnew[n]= xpos[i] + dx*cx[j];
-	  ynew[n]= ypos[i] + dy*cy[j];
-	}
+        float dlat,dlon;
+        Projection::getLatLonIncrement(latitude[i],longitude[i],dlat,dlon);
+        float lat1 = latitude[i];
+        float lon1 = float(markerRadius)*1000*dlon + longitude[i];
+        float lat2 = float(markerRadius)*1000*dlat + latitude[i];
+        float lon2 = longitude[i];
+        int one=1;
+        gc.geo2xy(area,one,&lon1,&lat1);
+        gc.geo2xy(area,one,&lon2,&lat2);
+        float dx=lon1 - xpos[i];
+        float dy=lat2-ypos[i];
+
+        for (int j=0; j<numMarker; j++, n++) {
+          xnew[n]= xpos[i] + dx*cx[j];
+          ynew[n]= ypos[i] + dy*cy[j];
+        }
       }
 
       for (int i=0; i<n; i++) {
-	x.push_back(xnew[i]);
-	y.push_back(ynew[i]);
+        x.push_back(xnew[i]);
+        y.push_back(ynew[i]);
       }
 
       gc.xy2geo(area,n,xnew,ynew);
 
       for (int i=0; i<n; i++) {
-	lon.push_back(xnew[i]);
-	lat.push_back(ynew[i]);
+        lon.push_back(xnew[i]);
+        lat.push_back(ynew[i]);
       }
 
       delete[] xnew;
@@ -252,10 +260,10 @@ int RadarEchoPlot::radePos(vector<miString>& vstr)
     } else {
 
       for (int i=0; i<nlon; i++) {
-	lat.push_back(latitude[i]);
-	lon.push_back(longitude[i]);
-	x.push_back(xpos[i]);
-	y.push_back(ypos[i]);
+        lat.push_back(latitude[i]);
+        lon.push_back(longitude[i]);
+        x.push_back(xpos[i]);
+        y.push_back(ypos[i]);
       }
 
     }
@@ -267,7 +275,7 @@ int RadarEchoPlot::radePos(vector<miString>& vstr)
     nlon = lon.size();
     for (int i=0; i<nlon; i++){
       cerr<<"   i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-	  <<"    "<<xpos[i]<<" "<<ypos[i]<<endl;
+                                                            <<"    "<<xpos[i]<<" "<<ypos[i]<<endl;
     }
 #endif
 
@@ -276,10 +284,10 @@ int RadarEchoPlot::radePos(vector<miString>& vstr)
     for (int i=0; i<nlon; i++){
       int ndup=0;
       for (int j=i+1; j<nlon; j++)
-	if (lat[i]==lat[j] && lon[i]==lon[j]) ndup++;
+        if (lat[i]==lat[j] && lon[i]==lon[j]) ndup++;
       if (ndup>0)
-	cerr<<"   duplikat i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-	    <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup<<endl;
+        cerr<<"   duplikat i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
+                                                                       <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup<<endl;
     }
 #endif
   }
@@ -310,10 +318,10 @@ bool RadarEchoPlot::plot(){
     int m = x.size();
     glBegin(GL_LINES);
     for (int i=0; i<m; i++) {
-//       glVertex2f(pos[i].x-d,pos[i].y-d);
-//       glVertex2f(pos[i].x+d,pos[i].y+d);
-//       glVertex2f(pos[i].x-d,pos[i].y+d);
-//       glVertex2f(pos[i].x+d,pos[i].y-d);
+      //       glVertex2f(pos[i].x-d,pos[i].y-d);
+      //       glVertex2f(pos[i].x+d,pos[i].y+d);
+      //       glVertex2f(pos[i].x-d,pos[i].y+d);
+      //       glVertex2f(pos[i].x+d,pos[i].y-d);
       glVertex2f(x[i]-d,y[i]-d);
       glVertex2f(x[i]+d,y[i]+d);
       glVertex2f(x[i]-d,y[i]+d);
@@ -332,13 +340,13 @@ bool RadarEchoPlot::plot(){
 
     for (int n=0; n<vtsize; n++) {
       if (vradedata[n]->area.P() != area.P()) {
-	int npos= numTraj * vradedata[n]->ndata;
-	if (!gc.getPoints(vradedata[n]->area, area,
-			  npos, vradedata[n]->x, vradedata[n]->y)) {
-	  cerr << "RadarEchoPlot::plot  getPoints ERROR" << endl;
-	  return false;
-	}
-	vradedata[n]->area= area;
+        int npos= numTraj * vradedata[n]->ndata;
+        if (!gc.getPoints(vradedata[n]->area, area,
+            npos, vradedata[n]->x, vradedata[n]->y)) {
+          cerr << "RadarEchoPlot::plot  getPoints ERROR" << endl;
+          return false;
+        }
+        vradedata[n]->area= area;
       }
     }
 
@@ -351,24 +359,24 @@ bool RadarEchoPlot::plot(){
       glLineStipple(lineType.factor,lineType.bmap);
       glBegin(GL_LINE_STRIP);
       for (int n=0; n<vtsize; n++) {
-	//	cerr <<"??:"<<n<<endl;
-	td= vradedata[n];
+        //	cerr <<"??:"<<n<<endl;
+        td= vradedata[n];
         int j1= td->first[i];
         int j2= td->last[i] + 1;
         if (j1<j2) {
-	  int begin= td->ndata * i;
-	  for (int j=j1; j<j2; j++){
-	    //	    cerr <<"x:"<<td->x[begin+j]<<"  y:"<< td->y[begin+j]<<endl;
-	    glVertex2f(td->x[begin+j], td->y[begin+j]);
-	    miTime thistime = td->time[j];
-	    int diff = miTime::minDiff(firstTime,thistime);
-	    if (timeMarker && (n<vtsize-1 || j<j2-1)
-		&&  diff%timeMarker==0){
-	      xmark.push_back(td->x[begin+j]);
-	      ymark.push_back(td->y[begin+j]);
-	    }
-	  }
-	}
+          int begin= td->ndata * i;
+          for (int j=j1; j<j2; j++){
+            //	    cerr <<"x:"<<td->x[begin+j]<<"  y:"<< td->y[begin+j]<<endl;
+            glVertex2f(td->x[begin+j], td->y[begin+j]);
+            miTime thistime = td->time[j];
+            int diff = miTime::minDiff(firstTime,thistime);
+            if (timeMarker && (n<vtsize-1 || j<j2-1)
+                &&  diff%timeMarker==0){
+              xmark.push_back(td->x[begin+j]);
+              ymark.push_back(td->y[begin+j]);
+            }
+          }
+        }
       }
       glEnd();
       glDisable(GL_LINE_STIPPLE);
@@ -377,17 +385,17 @@ bool RadarEchoPlot::plot(){
 
       glBegin(GL_LINES);
       for (int ih=1;ih<nmark;ih++){
-	float  deltay = ymark[ih]-ymark[ih-1];
-	float  deltax = xmark[ih]-xmark[ih-1];
-	float hyp = sqrtf(deltay*deltay+deltax*deltax);
-	float dx = d*deltay/hyp;
-	float dy = d*deltax/hyp;
-	float x1=xmark[ih]-dx;
-	float y1=ymark[ih]+dy;
-	float x2=xmark[ih]+dx;
-	float y2=ymark[ih]-dy;
-	glVertex2f(x1,y1);
-	glVertex2f(x2,y2);
+        float  deltay = ymark[ih]-ymark[ih-1];
+        float  deltax = xmark[ih]-xmark[ih-1];
+        float hyp = sqrtf(deltay*deltay+deltax*deltax);
+        float dx = d*deltay/hyp;
+        float dy = d*deltax/hyp;
+        float x1=xmark[ih]-dx;
+        float y1=ymark[ih]+dy;
+        float x2=xmark[ih]+dx;
+        float y2=ymark[ih]-dy;
+        glVertex2f(x1,y1);
+        glVertex2f(x2,y2);
       }
       glEnd();
       xmark.clear();
@@ -458,8 +466,8 @@ bool RadarEchoPlot::plot(){
       float yc[nc];
       float cstep= 2 * acosf(-1.0) / float(nc);
       for (int j=0; j<nc; j++) {
-	xc[j]= r * cosf(cstep*float(j));
-	yc[j]= r * sinf(cstep*float(j));
+        xc[j]= r * cosf(cstep*float(j));
+        yc[j]= r * sinf(cstep*float(j));
       }
 
       int nt= -1;
@@ -467,23 +475,23 @@ bool RadarEchoPlot::plot(){
       n=0;
       while (nt<0 && n<vtsize) {
         td= vradedata[n];
-	ndata= td->ndata;
-	it= 0;
+        ndata= td->ndata;
+        it= 0;
         while (it<ndata && ctime > td->time[it]) it++;
         if (it<ndata) nt= n;
-	n++;
+        n++;
       }
       if (nt>=0) {
         td= vradedata[nt];
         ndata= td->ndata;
         r= d;
         for (int i=0; i<numTraj; i++) {
-	  if (it>=td->first[i] && it<=td->last[i]) {
+          if (it>=td->first[i] && it<=td->last[i]) {
             x= td->x[ndata*i+it];
             y= td->y[ndata*i+it];
             glBegin(GL_LINE_LOOP);
-	    for (int j=0; j<nc; j++)
-	      glVertex2f(x+xc[j], y+yc[j]);
+            for (int j=0; j<nc; j++)
+              glVertex2f(x+xc[j], y+yc[j]);
             glEnd();
           }
         }
@@ -656,14 +664,14 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
     numTraj= 0;
 
     for (int i=0; i<npos; i++) {
-//cerr<<"x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]<<endl;
+      //cerr<<"x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]<<endl;
       if(su[i]!=fieldUndef && sv[i]!=fieldUndef) {
         sx[numTraj]= sx[i];
         sy[numTraj]= sy[i];
         numTraj++;
       }
     }
-//cerr<<"npos,numTraj: "<<npos<<" "<<numTraj<<endl;
+    //cerr<<"npos,numTraj: "<<npos<<" "<<numTraj<<endl;
 
     delete[] su;
     delete[] sv;
@@ -681,13 +689,13 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
   float *xmapr, *ymapr, *coriolis;
   float dxgrid, dygrid;
   int imapr=2;  // xmapratio/dxgrid and ymapratio/dygrid
-	        // mapratios in Norlam style (inverse of Hirlam style)
+  // mapratios in Norlam style (inverse of Hirlam style)
   int icori=0;
   if (!gc.getMapFields(fu1->area, imapr, icori,
-		       npos, &xmapr, &ymapr, &coriolis,
-		       dxgrid, dygrid)) {
+      npos, &xmapr, &ymapr, &coriolis,
+      dxgrid, dygrid)) {
     cerr<<"RadarEchoPlot::compute : gc.getMapFields ERROR."
-        <<"  Cannot compute RadarEchoPlot !"<<endl;
+    <<"  Cannot compute RadarEchoPlot !"<<endl;
     stopComputation();
     return false;
   }
@@ -777,7 +785,7 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
       // posistions are converted to a different map projection
       if(!gc.getPoints(vradedata[n]->area,fieldArea,numTraj,xt,yt)) {
         cerr<<"RadarEchoPlot::compute : gc.getMapFields ERROR."
-            <<"  RadarEchoPlot computation stopped !"<<endl;
+        <<"  RadarEchoPlot computation stopped !"<<endl;
         stopComputation();
         return false;
       }
@@ -810,7 +818,7 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
   float u,v;
 
   for (int istep=0; istep<nstep; istep++) {
-//cerr<<"istep,nstep,tStep: "<<istep<<" "<<nstep<<" "<<tStep<<endl;
+    //cerr<<"istep,nstep,tStep: "<<istep<<" "<<nstep<<" "<<tStep<<endl;
 
     float ct1b= float(istep)/float(nstep);
     float ct1a= 1.0 - ct1b;
@@ -820,7 +828,7 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
     // iteration no. 0 to get a first guess (then the real iterations)
 
     for (int iter=0; iter<=numIterations; iter++) {
-//cerr<<"   iter: "<<iter<<endl;
+      //cerr<<"   iter: "<<iter<<endl;
 
       int interpoltype= 1;
       fu1->interpolate(numTraj, xt, yt, u1, interpoltype);
@@ -830,35 +838,35 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
       frx->interpolate(numTraj, xt, yt, rx, interpoltype);
       fry->interpolate(numTraj, xt, yt, ry, interpoltype);
 
-//############# eller kutte ut posisjoner etterhvert med posIndex[] ???
+      //############# eller kutte ut posisjoner etterhvert med posIndex[] ???
       for (int i=0; i<numTraj; i++) {
-	if (running[i]) {
-	  if (u1[i]==fieldUndef || v1[i]==fieldUndef ||
-	      u2[i]==fieldUndef || v2[i]==fieldUndef) {
-	    running[i]= false;
-	    endnum[i]=  idata - incdata;
-	  }
-	}
+        if (running[i]) {
+          if (u1[i]==fieldUndef || v1[i]==fieldUndef ||
+              u2[i]==fieldUndef || v2[i]==fieldUndef) {
+            running[i]= false;
+            endnum[i]=  idata - incdata;
+          }
+        }
       }
 
       if (iter==0) {
-	for (int i=0; i<numTraj; i++) {
-//	  if (running[i]) {
-	    u= ct1a * u1[i] + ct1b * u2[i];
-	    v= ct1a * v1[i] + ct1b * v2[i];
-	    xa[i]= xt[i] + rx[i] * u * dt;
-	    ya[i]= yt[i] + ry[i] * v * dt;
-//	  }
+        for (int i=0; i<numTraj; i++) {
+          //	  if (running[i]) {
+          u= ct1a * u1[i] + ct1b * u2[i];
+          v= ct1a * v1[i] + ct1b * v2[i];
+          xa[i]= xt[i] + rx[i] * u * dt;
+          ya[i]= yt[i] + ry[i] * v * dt;
+          //	  }
         }
       }
 
       for (int i=0; i<numTraj; i++) {
-//	if (running[i]) {
-	  u= ct2a * u1[i] + ct2b * u2[i];
-	  v= ct2a * v1[i] + ct2b * v2[i];
-	  xt[i]= xa[i] + rx[i] * u * dt;
-	  yt[i]= ya[i] + ry[i] * v * dt;
-//	}
+        //	if (running[i]) {
+        u= ct2a * u1[i] + ct2b * u2[i];
+        v= ct2a * v1[i] + ct2b * v2[i];
+        xt[i]= xa[i] + rx[i] * u * dt;
+        yt[i]= ya[i] + ry[i] * v * dt;
+        //	}
       }
 
     }  // end of iteration loop
@@ -919,15 +927,15 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
 
 
 void RadarEchoPlot::getRadarEchoAnnotation(miString& s,
-					     Colour& c)
+    Colour& c)
 {
-//#### if (vradedata.size()>0) {
+  //#### if (vradedata.size()>0) {
   if (plot_on && vradedata.size()>0) {
     int l= 16;
     if (firstTime.min()==0 && lastTime.min()==0) l= 13;
     s= "Trajektorier " + fieldStr
-       + " "   + firstTime.isoTime().substr(0,l)
-       + " - " +  lastTime.isoTime().substr(0,l) + " UTC";
+    + " "   + firstTime.isoTime().substr(0,l)
+    + " - " +  lastTime.isoTime().substr(0,l) + " UTC";
     if (colour==backgroundColour)
       c= backContrastColour;
     else
@@ -946,16 +954,16 @@ bool RadarEchoPlot::printRadarEchoPositions(const miString& filename)
 
   //output
   ofstream fs;
-  
+
   fs.open(filename.cStr());
-  
+
   if(!fs){
     cerr << "ERROR  printTrajectoryPositions: can't open file: "
-	 <<filename << endl;
-      return false;
-    }
+    <<filename << endl;
+    return false;
+  }
 
-      
+
   int vtsize= vradedata.size();
 
   if(vtsize==0) return false;
@@ -965,14 +973,14 @@ bool RadarEchoPlot::printRadarEchoPositions(const miString& filename)
   float yyy[npos];
   //start points
   for (int i=0;i<numTraj;i++){
-    xxx[i]=vradedata[0]->x[i*vradedata[0]->ndata]; 
+    xxx[i]=vradedata[0]->x[i*vradedata[0]->ndata];
     yyy[i]=vradedata[0]->y[i*vradedata[0]->ndata];
   }
 
   //next points
   for (int n=0; n<vtsize; n++) {
     for (int i=0;i<numTraj;i++){
-      xxx[(n+1)*numTraj+i]=vradedata[n]->x[(i+1)*(vradedata[n]->ndata)-1]; 
+      xxx[(n+1)*numTraj+i]=vradedata[n]->x[(i+1)*(vradedata[n]->ndata)-1];
       yyy[(n+1)*numTraj+i]=vradedata[n]->y[(i+1)*(vradedata[n]->ndata)-1];
     }
   }
@@ -988,17 +996,17 @@ bool RadarEchoPlot::printRadarEchoPositions(const miString& filename)
     fs.precision(7);
     fs <<(*vradedata[0]->time).isoTime()<<"  ";
     fs <<setw(10) <<xxx[i]<<"  "<<
-       setw(10) <<yyy[i]<<"  T"<<i<<endl;
+    setw(10) <<yyy[i]<<"  T"<<i<<endl;
   }
 
   for (int n=0; n<vtsize; n++) {
     for (int i=0;i<numTraj;i++){
       fs <<vradedata[n]->time[vradedata[n]->ndata-1].isoTime();
       fs <<"  "<<setw(10) <<xxx[(n+1)*numTraj+i]<<"  "<<
-	 setw(10) <<yyy[(n+1)*numTraj+i]<<"  T"<< i<<endl;
+      setw(10) <<yyy[(n+1)*numTraj+i]<<"  T"<< i<<endl;
     }
   }
-    
+
   fs.close();
   return true;
 

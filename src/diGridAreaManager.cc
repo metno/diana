@@ -22,7 +22,7 @@ GridAreaManager::~GridAreaManager() {
 bool GridAreaManager::setGridAreas(map<miString,Polygon> newAreas,
     Area currentProj) {
   LOG4CXX_DEBUG(logger,"setGridAreas ("<<newAreas.size()<<" areas)");
-  if (!currentProj.P().defined())
+  if (!currentProj.P().isDefined())
     return false;
   gridAreas.clear();
   map<miString,Polygon>::iterator iter = newAreas.begin();

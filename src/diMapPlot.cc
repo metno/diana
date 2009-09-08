@@ -213,7 +213,7 @@ bool MapPlot::plot(const int zorder)
     haspanned= false;
   }
 
-  bool frameok = (reqarea.P().defined());
+  bool frameok = (reqarea.P().isDefined());
   bool makenew= false;
   bool makelist= false;
 
@@ -381,8 +381,8 @@ bool MapPlot::plot(const int zorder)
       // ..plot it in the current projection
 
       // first check if difference only in translation/scaling
-      bool similarAreas;
-      gc.checkAreaSimilarity(reqarea, area, similarAreas);
+      bool similarAreas=false;
+//      gc.checkAreaSimilarity(reqarea, area, similarAreas);
       // number of subdivisions for each frame-side
       int nsub = (similarAreas ? 1 : 20);
       int npos = 4*nsub;
@@ -976,7 +976,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
 
 
   Projection p= area.P();
-  if (!p.defined()) {
+  if (!p.isDefined()) {
     cerr<<"MapPlot::plotGeoGrid ERROR: undefined projection"<<endl;
     return false;
   }

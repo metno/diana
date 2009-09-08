@@ -79,7 +79,7 @@ void Plot::enable(const bool f){
 }
 
 bool Plot::setMapArea(const Area& a, bool keepcurrentarea){
-  if (a.P().defined()){
+  if (a.P().isDefined()){
     // change plot-Area
     area= a;
     if (!keepcurrentarea) {
@@ -144,7 +144,7 @@ void Plot::getPhysSize(float& w, float& h){
 Area Plot::findBestMatch(const Area& newa){
   Area a= newa;
   // NEW - ADC 9.12.2002
-  if (!area.P().defined())
+  if (!area.P().isDefined())
     return a;
   //-----
 

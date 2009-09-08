@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -384,7 +384,8 @@ bool VcrossFile::readFileHeader() {
       xposmap[n]-=1.0f;
       yposmap[n]-=1.0f;
     }
-    Projection p(igtype,gridparam);  // gridparam wil be C/C++ adjusted
+    Projection p;
+    p.set_mi_gridspec(igtype,gridparam);  // gridparam wil be C/C++ adjusted
     Rectangle  r;
     Area area(p,r);
     gc.xy2geo(area,nposmap,xposmap,yposmap);

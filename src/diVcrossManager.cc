@@ -471,8 +471,8 @@ void VcrossManager::getCrossections(LocationData& locationdata){
 
     if (vf!=vcfiles.end()) {
 
-      float ggeo[Projection::speclen]={0.,0.,1.,1.,0.,0.};
-      Projection pgeo(Projection::geographic,ggeo);
+      Projection pgeo;
+      pgeo.setGeographic();
       Rectangle rgeo(0,0,90,360);
       Area geoArea(pgeo,rgeo);
 

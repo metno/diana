@@ -295,7 +295,8 @@ bool EditManager::parseSetup(SetupParser& sp) {
     if (ok) {
       //obsolete
       if (ep.gridnum>0 && nx>1 && ny>1 && gridtype>0) {
-        Projection p(gridtype, gridspec);
+        Projection p;
+        p.set_mi_gridspec(gridtype, gridspec);
         Rectangle  r(0.,0.,float(nx-1),float(ny-1)); // as usual dimensions as rectangle...
         ep.area= Area(p,r);
 //      } else {

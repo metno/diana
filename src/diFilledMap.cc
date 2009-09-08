@@ -399,10 +399,8 @@ bool FilledMap::plot(Area area, // current area
   geomin = gcd / 20000000;
   geomin = geomin * geomin;
 
-
-  //float ga[Projection::speclen]={1.,1.,1.,1.,0.,0.};
-  float ga[Projection::speclen]={0.,0.,1.,1.,0.,0.};
-  Projection srcProj(Projection::geographic,ga);
+  Projection srcProj;
+  srcProj.setGeographic();
 
   //Projection srcProj("+proj=lonlat +ellps=WGS84 +datum=WGS84", DEG_TO_RAD, DEG_TO_RAD);
   //Projection srcProj("+proj=lonlat +a=6371000.0 +b=6371000.0",DEG_TO_RAD,DEG_TO_RAD);

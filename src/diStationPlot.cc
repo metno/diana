@@ -479,8 +479,8 @@ void StationPlot::defineCoordinates()
 #endif
   // correct spec. when making Projection for long/lat coordinates
   // (Projection constructor will update spec. to 1,1,1,1,0,0)
-  float ggeo[Projection::speclen] = { 0., 0., 1., 1., 0., 0. };
-  Projection pgeo(Projection::geographic, ggeo);
+  Projection pgeo;
+  pgeo.setGeographic();
   Rectangle rgeo(0, 0, 90, 360);
   Area geoArea(pgeo, rgeo);
   oldarea = geoArea;

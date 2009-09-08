@@ -225,7 +225,7 @@ void PlotModule::prepareMap(const vector<miString>& inp)
 
   // check area
   if (!mapDefinedByUser && arearequested) {
-    mapDefinedByUser = (rarea.P().defined());
+    mapDefinedByUser = (rarea.P().isDefined());
     requestedarea = rarea;
     splot.setRequestedarea(requestedarea);
   }
@@ -984,7 +984,7 @@ void PlotModule::updatePlots()
     bool requestedOK = false; // requested area ok to use
 
     // if first plot: getMapArea returns undefined area
-    if (!plotarea.P().defined()) {
+    if (!plotarea.P().isDefined()) {
       if (mapDefinedByUser)
         plotarea = requestedarea; // choose requested-area if existing
       else
@@ -992,17 +992,15 @@ void PlotModule::updatePlots()
     }
 
     // check if previous area ok to use
-    if (satarea.P() == plotarea.P())
+    if (satarea.P() == plotarea.P()) {
       previousOK = true;
-    else
-      gc.checkAreaSimilarity(satarea, plotarea, previousOK);
+    }
 
     // check if requested area (if any) ok to use
     if (mapDefinedByUser) {
-      if (satarea.P() == requestedarea.P())
+      if (satarea.P() == requestedarea.P()) {
         requestedOK = true;
-      else
-        gc.checkAreaSimilarity(satarea, requestedarea, requestedOK);
+      }
     }
 
     // FIRST: forced change!
@@ -3214,6 +3212,8 @@ bool PlotModule::printTrajectoryPositions(const miString& filename)
 {
   if (vtp.size() > 0)
     return vtp[0]->printTrajectoryPositions(filename);
+
+  return false;
 }
 
 /********************* reading and writing log file *******************/
