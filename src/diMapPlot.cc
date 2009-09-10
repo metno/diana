@@ -779,8 +779,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     glatmin -= 1.;
     glatmax += 1.;
 
-    area.P().adjustGeographicExtension(glonmin,glonmax,glatmin,glatmax);
-    //cerr << "min/max=" << glonmin << " " << glonmax << " " << glatmin << " " << glatmax << endl;
+    //area.P().adjustGeographicExtension(glonmin,glonmax,glatmin,glatmax);
 
     for (n1 = 0; n1 < nlevel1; ++n1) {
 
@@ -997,15 +996,10 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
 
   int n, j;
   float lonmin=FLT_MAX, lonmax=-FLT_MAX, latmin=FLT_MAX, latmax=-FLT_MAX;
-  bool straightLon= false, straightLat= false, circleLat= false;
-  bool rotated= false;
-  float xPole, yPole, compLat;
-  float dxmax, rotLon1, rotLon2, rotLon3, xrot[5], yrot[5];
   float jumplimit;
 
   bool b = p.calculateGeogridParameters(xylim, lonmin, lonmax, latmin, latmax,
-      straightLon, straightLat, circleLat, rotated, xPole, yPole, compLat,
-      dxmax, rotLon1, rotLon2, rotLon3, xrot, yrot, jumplimit);
+      jumplimit);
 
   if (!b) return false;
 
