@@ -689,7 +689,7 @@ void FieldPlot::setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int i
   if (step<1) step=1;
 
   // probably too simple test...
-  xStepComp = fields[0]->area.P().projectionProblem(area.P());
+  xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 }
 
 
@@ -2929,12 +2929,6 @@ void FieldPlot::plotFrame(const int nx, const int ny,
 
   } else {
 
-    // get rid of some strange frame lines (maybe to few or too many...)
-    if(fields[0]->area.P().projectionProblem(area.P())
-        && fields[0]->area.P().skipFrame(nx,ny)){
-      return;
-    }
-
     bool drawx1=true, drawx2=true, drawy1=true, drawy2=true;
     int ix,iy,ixstep,iystep;
     float x1,x2,y1,y2,dx,dy,dxm,dym;
@@ -3013,11 +3007,6 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     for (int i=0; i<xpos.size(); ++i) {
       if( xpos[i]!=HUGE_VAL && ypos[i]!=HUGE_VAL ){
         glVertex2f(xpos[i], ypos[i]);
-      } else {
-        glEnd();
-        while(xpos[i]==HUGE_VAL || ypos[i]==HUGE_VAL ) ++i;
-        --i;
-        glBegin(GL_LINE_STRIP);
       }
     }
     glEnd();
