@@ -779,7 +779,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     glatmin -= 1.;
     glatmax += 1.;
 
-    area.P().adjustGeographicExtension(glonmin,glonmax,glatmin,glatmax);
+    //area.P().adjustGeographicExtension(glonmin,glonmax,glatmin,glatmax);
 
     for (n1 = 0; n1 < nlevel1; ++n1) {
 
