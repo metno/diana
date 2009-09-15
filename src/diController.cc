@@ -202,15 +202,15 @@ void Controller::setPlotWindow(const int w, const int h){
 }
 
 // return latitude,longitude from physical x,y
-void Controller::PhysToGeo(const float x,const float y,
+bool Controller::PhysToGeo(const float x,const float y,
 			   float& lat,float& lon){
-  plotm->PhysToGeo(x,y,lat,lon);
+  return plotm->PhysToGeo(x,y,lat,lon);
 }
 
 // return physical x,y from latitude,longitude
-void Controller::GeoToPhys(const float lat,const float lon,
+bool Controller::GeoToPhys(const float lat,const float lon,
 			   float& x,float& y){
-  plotm->GeoToPhys(lat,lon,x,y);
+  return plotm->GeoToPhys(lat,lon,x,y);
 }
 
 // return map x,y from physical x,y

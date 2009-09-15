@@ -561,7 +561,9 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
     u= tmpfields[0]->data;
     v= tmpfields[1]->data;
     int npos= fields[0]->nx * fields[0]->ny;
-    gc.getVectors(tmpfields[0]->area,area,npos,x,y,u,v);
+    if(!gc.getVectors(tmpfields[0]->area,area,npos,x,y,u,v)) {
+      return uv;
+    }
     tmpfields[0]->area.setP(area.P());
     tmpfields[1]->area.setP(area.P());
   }
@@ -616,7 +618,10 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     bool turn= fields[0]->turnWaveDirection;
 //    //##################################################################
 
-    gc.getDirectionVectors(area,turn,npos,x,y,u,v);
+    if( !gc.getDirectionVectors(area,turn,npos,x,y,u,v) ) {
+      return uv;
+    }
+
     tmpfields[0]->area.setP(area.P());
     tmpfields[1]->area.setP(area.P());
   }

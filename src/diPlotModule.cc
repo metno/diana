@@ -1808,8 +1808,10 @@ void PlotModule::PixelArea(const Rectangle r)
   PlotAreaSetup();
 }
 
-void PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon)
+bool PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon)
 {
+  bool ret=false;
+
   if (mapdefined && plotw > 0 && ploth > 0) {
     GridConverter gc;
     Area area = splot.getMapArea();
@@ -1820,15 +1822,19 @@ void PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon)
     float gy = r.y1 + r.height() / ploth * y;
 
     // convert point to correct projection
-    gc.xy2geo(area, npos, &gx, &gy);
+    ret = gc.xy2geo(area, npos, &gx, &gy);
 
     lon = gx;
     lat = gy;
   }
+
+  return ret;
 }
 
-void PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y)
+bool PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y)
 {
+  bool ret=false;
+
   if (mapdefined && plotw > 0 && ploth > 0) {
     GridConverter gc;
     Area area = splot.getMapArea();
@@ -1840,12 +1846,13 @@ void PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y)
     float xx = lon;
 
     // convert point to correct projection
-    gc.geo2xy(area, npos, &xx, &yy);
+    ret = gc.geo2xy(area, npos, &xx, &yy);
 
     x = (xx - r.x1) * plotw / r.width();
     y = (yy - r.y1) * ploth / r.height();
 
   }
+  return ret;
 }
 
 void PlotModule::PhysToMap(const float x, const float y, float& xmap,

@@ -3214,8 +3214,11 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
   // show geoposition in statusbar
   if (sgeopos->getGeographicMode()) {
     float lat=0, lon=0;
-    contr->PhysToGeo(x,y,lat,lon);
-    sgeopos->setPosition(lat,lon);
+    if(!contr->PhysToGeo(x,y,lat,lon)){
+      sgeopos->changeMode();
+    } else {
+      sgeopos->setPosition(lat,lon);
+    }
   } else {
     float xmap=-1., ymap=-1.;
     contr->PhysToMap(x,y,xmap,ymap);

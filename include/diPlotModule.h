@@ -234,9 +234,9 @@ public:
   /// receive rectangle in pixels
   void PixelArea(const Rectangle r);
   /// return latitude,longitude from physical x,y
-  void PhysToGeo(const float,const float,float&,float&);
+  bool PhysToGeo(const float,const float,float&,float&);
   /// return physical x,y from physical latitude,longitude
-  void GeoToPhys(const float,const float,float&,float&);
+  bool GeoToPhys(const float,const float,float&,float&);
   /// return map x,y from physical x,y
   void PhysToMap(const float,const float,float&,float&);
   /// calculate distance between two points

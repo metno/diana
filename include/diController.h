@@ -95,7 +95,7 @@ private:
   SetupParser setupParser;
 
   bool editoverride; // do not route mouse/key-events to editmanager
-  bool paintModeEnabled; 
+  bool paintModeEnabled;
   bool scrollwheelZoom;
 
 public:
@@ -126,9 +126,9 @@ public:
   void PixelArea(const int x1, const int y1,
 		 const int x2, const int y2);
   /// return latitude,longitude from physical x,y
-  void PhysToGeo(const float,const float,float&,float&);
+  bool PhysToGeo(const float,const float,float&,float&);
   /// return physical x,y from latitude,longitude
-  void GeoToPhys(const float,const float,float&,float&);
+  bool GeoToPhys(const float,const float,float&,float&);
   /// return map x,y from physical x,y
   void PhysToMap(const float,const float,float&,float&);
   /// start hardcopy plot
@@ -203,7 +203,7 @@ public:
   vector<miString> getFieldModels();
   /// obs time step changed
   void obsStepChanged(int);
-  /// get name++ of current channels (with calibration) 
+  /// get name++ of current channels (with calibration)
   vector<miString> getCalibChannels();
   /// show pixel values in status bar
   vector<SatValues> showValues(int, int);
@@ -365,15 +365,15 @@ public:
  void readLog(const vector<miString>& vstr,
 	      const miString& thisVersion, const miString& logVersion);
 #ifdef PROFET
-  bool initProfet();  
+  bool initProfet();
 //  bool registerProfetUser(const Profet::PodsUser & u);
-  Profet::ProfetController * getProfetController(); 
-//  bool setProfetGUI(Profet::ProfetGUI * gui); 
+  Profet::ProfetController * getProfetController();
+//  bool setProfetGUI(Profet::ProfetGUI * gui);
   GridAreaManager * getAreaManager() { return aream; }
 #endif
   ///Enable and disable paint mode
-  void setPaintModeEnabled(bool);  
-  
+  void setPaintModeEnabled(bool);
+
   bool useScrollwheelZoom();
 
 };
