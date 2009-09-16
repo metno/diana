@@ -59,11 +59,11 @@ GridConverter PlotModule::gc; // Projection-converter
 
 // Default constructor
 PlotModule::PlotModule() :
-  plotw(0), ploth(0), resizezoom(true), hardcopy(false), bgcolourname(
-      "midnightBlue"), inEdit(false), apEditmessage(0), dorubberband(false),
-      dopanning(false), keepcurrentarea(true), prodtimedefined(false),
-      showanno(true), obsnr(0)
+   apEditmessage(0),plotw(0),ploth(0),resizezoom(true),
+   showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),prodtimedefined(false),dorubberband(false),
+   dopanning(false), keepcurrentarea(true), obsnr(0)
 {
+
   oldx = newx = oldy = newy = 0;
   mapdefined = false;
   mapDefinedByUser = false;
@@ -243,7 +243,7 @@ void PlotModule::prepareFields(const vector<miString>& inp)
   map<miString, bool> plotenabled;
 
   // for now -- erase all fieldplots
-  for (int i = 0; i < vfp.size(); i++) {
+  for (unsigned int i = 0; i < vfp.size(); i++) {
     // keep enable flag
     str = vfp[i]->getPlotInfo(3);
     plotenabled[str] = vfp[i]->Enabled();
@@ -301,7 +301,7 @@ void PlotModule::prepareObs(const vector<miString>& inp)
   // keep enable flag
   miString str;
   map<miString, bool> plotenabled;
-  for (int i = 0; i < vop.size(); i++) {
+  for (unsigned int i = 0; i < vop.size(); i++) {
     str = vop[i]->getPlotInfo(3);
     plotenabled[str] = vop[i]->Enabled();
   }
@@ -311,8 +311,8 @@ void PlotModule::prepareObs(const vector<miString>& inp)
   int nvop = vop.size();
   for (int i = 0; i < nvop; i++)
     vop[i]->logStations();
-  for (int i = 0; i < vobsTimes.size(); i++) {
-    for (int j = 0; j < vobsTimes[i].vobsOneTime.size(); j++)
+  for (unsigned int i = 0; i < vobsTimes.size(); i++) {
+    for (unsigned int j = 0; j < vobsTimes[i].vobsOneTime.size(); j++)
       delete vobsTimes[i].vobsOneTime[j];
     vobsTimes[i].vobsOneTime.clear();
   }
@@ -364,7 +364,7 @@ void PlotModule::prepareSat(const vector<miString>& inp)
   // keep enable flag
   miString str;
   map<miString, bool> plotenabled;
-  for (int i = 0; i < vsp.size(); i++) {
+  for (unsigned int i = 0; i < vsp.size(); i++) {
     str = vsp[i]->getPlotInfo(4);
     plotenabled[str] = vsp[i]->Enabled();
   }
@@ -373,7 +373,7 @@ void PlotModule::prepareSat(const vector<miString>& inp)
     cerr << "PlotModule::prepareSat.  init returned false" << endl;
   }
 
-  for (int i = 0; i < vsp.size(); i++) {
+  for (unsigned int i = 0; i < vsp.size(); i++) {
     str = vsp[i]->getPlotInfo(4);
     if (plotenabled.count(str) == 0)
       plotenabled[str] = true;
@@ -388,7 +388,7 @@ void PlotModule::prepareAnnotation(const vector<miString>& inp)
 #endif
 
   // for now -- erase all annotationplots
-  for (int i = 0; i < vap.size(); i++)
+  for (unsigned int i = 0; i < vap.size(); i++)
     delete vap[i];
   vap.clear();
 
@@ -543,27 +543,27 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
 {
   miString str;
   if (pe.type == "FIELD") {
-    for (int i = 0; i < vfp.size(); i++) {
+    for (unsigned int i = 0; i < vfp.size(); i++) {
       vfp[i]->getPlotName(str);
-      str += "# " + miString(i);
+      str += "# " + miString(int(i));
       if (str == pe.str) {
         vfp[i]->enable(pe.enabled);
         break;
       }
     }
   } else if (pe.type == "RASTER") {
-    for (int i = 0; i < vsp.size(); i++) {
+    for (unsigned int i = 0; i < vsp.size(); i++) {
       vsp[i]->getPlotName(str);
-      str += "# " + miString(i);
+      str += "# " + miString(int(i));
       if (str == pe.str) {
         vsp[i]->enable(pe.enabled);
         break;
       }
     }
   } else if (pe.type == "OBS") {
-    for (int i = 0; i < vop.size(); i++) {
+    for (unsigned int i = 0; i < vop.size(); i++) {
       vop[i]->getPlotName(str);
-      str += "# " + miString(i);
+      str += "# " + miString(int(i));
       if (str == pe.str) {
         vop[i]->enable(pe.enabled);
         break;
@@ -574,18 +574,18 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     if (str == pe.str)
       objects.enable(pe.enabled);
   } else if (pe.type == "TRAJECTORY") {
-    for (int i = 0; i < vtp.size(); i++) {
+    for (unsigned int i = 0; i < vtp.size(); i++) {
       vtp[i]->getPlotName(str);
-      str += "# " + miString(i);
+      str += "# " + miString(int(i));
       if (str == pe.str) {
         vtp[i]->enable(pe.enabled);
         break;
       }
     }
   } else if (pe.type == "STATION") {
-    for (int i = 0; i < stationPlots.size(); i++) {
+    for (unsigned int i = 0; i < stationPlots.size(); i++) {
       stationPlots[i]->getPlotName(str);
-      str += "# " + miString(i);
+      str += "# " + miString(int(i));
       if (str == pe.str) {
         stationPlots[i]->enable(pe.enabled);
         break;
@@ -596,7 +596,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     for (int i = 0; i < n; i++) {
       vareaobjects[i].getPlotName(str);
       if (str.exists()) {
-        str += "# " + miString(i);
+        str += "# " + miString(int(i));
         if (str == pe.str) {
           vareaobjects[i].enable(pe.enabled);
           break;
@@ -604,9 +604,9 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       }
     }
   } else if (pe.type == "LOCATION") {
-    for (int i = 0; i < locationPlots.size(); i++) {
+    for (unsigned int i = 0; i < locationPlots.size(); i++) {
       locationPlots[i]->getPlotName(str);
-      str += "# " + miString(i);
+      str += "# " + miString(int(i));
       if (str == pe.str) {
         locationPlots[i]->enable(pe.enabled);
         break;
@@ -787,9 +787,7 @@ void PlotModule::setAnnotations()
     vector<miString> obsinfo = vop[i]->getObsExtraAnnotations();
     int npi = obsinfo.size();
     for (int j = 0; j < npi; j++) {
-      int nn = vap.size();
       AnnotationPlot* ap = new AnnotationPlot(obsinfo[i]);
-      ;
       vap.push_back(ap);
     }
   }
@@ -1438,7 +1436,7 @@ void PlotModule::plotUnder()
         obsm->calc_obs_mslp(vop);
       }
     } else if (!inEdit) {
-      for (int i = 0; i < vfp.size(); i++) {
+      for (unsigned int i = 0; i < vfp.size(); i++) {
         if (vfp[i]->obs_mslp(obsm->getObsPositions())) {
           obsm->calc_obs_mslp(vop);
           break;
@@ -1494,7 +1492,7 @@ void PlotModule::plotUnder()
 void PlotModule::plotOver()
 {
 
-  int i, n, m;
+  int i, n;
 
   Rectangle plotr = splot.getPlotSize();
 
@@ -1696,7 +1694,7 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
 void PlotModule::freeFields(FieldPlot* fp)
 {
   vector<Field*> v = fp->getFields();
-  for (int i = 0; i < v.size(); i++) {
+  for (unsigned int i = 0; i < v.size(); i++) {
     fieldm->fieldcache->freeField(v[i]);
     v[i] = NULL;
   }
@@ -1952,7 +1950,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found fieldtimes:" << endl;
-  for (int i=0; i<fieldtimes.size(); i++)
+  for (unsigned int i=0; i<fieldtimes.size(); i++)
   cerr << fieldtimes[i] << endl;
 #endif
 
@@ -1965,7 +1963,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found sattimes:" << endl;
-  for (int i=0; i<sattimes.size(); i++)
+  for (unsigned int i=0; i<sattimes.size(); i++)
   cerr << sattimes[i] << endl;
 #endif
 
@@ -1978,7 +1976,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found obstimes:" << endl;
-  for (int i=0; i<obstimes.size(); i++)
+  for (unsigned int i=0; i<obstimes.size(); i++)
   cerr << obstimes[i] << endl;
 #endif
 
@@ -1989,7 +1987,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found objtimes:" << endl;
-  for (int i=0; i<objtimes.size(); i++)
+  for (unsigned int i=0; i<objtimes.size(); i++)
   cerr << objtimes[i] << endl;
 #endif
 
@@ -2208,7 +2206,7 @@ void PlotModule::findStations(int x, int y, bool add, vector<miString>& name,
   for (int i = 0; i < n; i++) {
     vector<miString> st = stationPlots[i]->findStation(x, y, add);
     if ((ii = stationPlots[i]->getId()) > -1) {
-      for (int j = 0; j < st.size(); j++) {
+      for (unsigned int j = 0; j < st.size(); j++) {
         name.push_back(stationPlots[i]->getName());
         id.push_back(ii);
         station.push_back(st[j]);
@@ -2864,7 +2862,7 @@ void PlotModule::changeArea(const keyboardEvent& me)
       a = areaQ[areaIndex];
 
     } else if (me.key == key_F4) { //go to next area
-      if (areaIndex + 2 > areaQ.size())
+      if (areaIndex + 2 > int(areaQ.size()))
         return;
       areaIndex++;
       a = areaQ[areaIndex];

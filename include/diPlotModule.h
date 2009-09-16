@@ -177,9 +177,6 @@ private:
   //Free fields in FieldPlot
   void freeFields(FieldPlot *);
 
-  // copy-constructor and assignment illegal
-  PlotModule(const PlotModule &rhs){}
-  PlotModule& operator=(const PlotModule &rhs){}
 
 protected:
   void PlotAreaSetup();

@@ -95,9 +95,6 @@ private:
 
   deque<RadarEchoData*> vradedata;
 
-  RadarEchoPlot(const RadarEchoPlot &rhs){}
-  RadarEchoPlot& operator=(const RadarEchoPlot &rhs){}
-
 public:
   // Constructors
   RadarEchoPlot();

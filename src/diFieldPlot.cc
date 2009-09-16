@@ -3009,7 +3009,7 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     }
 
     glBegin(GL_LINE_STRIP);
-    for (int i=0; i<xpos.size(); ++i) {
+    for (unsigned int i=0; i<xpos.size(); ++i) {
       if( xpos[i]!=HUGE_VAL && ypos[i]!=HUGE_VAL ){
         glVertex2f(xpos[i], ypos[i]);
       }
