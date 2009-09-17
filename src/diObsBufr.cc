@@ -215,7 +215,6 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
   int ktdexl;
   int kerr;
 
-  int kkelem = kelem;
   int kkvals = kvals;
   bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
   if (kerr > 0)
@@ -979,14 +978,8 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   int wmoBlock = 0;
   int wmoStation = 0;
   miString station;
-  int year = 0;
-  int month = 0;
-  int day = 0;
-  int hour = 0;
-  int minute = 0;
   bool landStation = true;
   int nn = 0; //what is nn used for??
-  int c;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
 

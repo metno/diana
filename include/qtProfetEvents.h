@@ -11,7 +11,7 @@ namespace Profet{
   static int MESSAGE_EVENT = QEvent::User + 1;
   static int USER_LIST_EVENT = QEvent::User + 2;
   static int SESSION_LIST_EVENT = QEvent::User + 3;
-  static int UPDATE_MAP_EVENT = QEvent::User + 4;
+//  static int UPDATE_MAP_EVENT = QEvent::User + 4;
   static int OBJECT_UPDATE_EVENT = QEvent::User + 5;
   static int SIGNATURE_UPDATE_EVENT = QEvent::User + 6;
   static int CURRENT_SESSION_UPDATE_EVENT = QEvent::User + 7;
@@ -27,10 +27,10 @@ namespace Profet{
      CurrentSessionEvent():QEvent(
          QEvent::Type(CURRENT_SESSION_UPDATE_EVENT)){}
    };
-  
+
   /**
    * Threadsafe event for incomming messages
-   */  
+   */
   class MessageEvent : public QEvent {
   public:
     Profet::InstantMessage message;
@@ -48,7 +48,7 @@ namespace Profet{
     SessionListEvent():QEvent(
         QEvent::Type(SESSION_LIST_EVENT)){remove = false;}
   };
-  
+
   /**
    * Threadsafe event for incomming UserList
    */
@@ -63,7 +63,7 @@ namespace Profet{
 
   /**
    * Threadsafe event for incomming objects
-   */  
+   */
   class ObjectUpdateEvent : public QEvent {
   public:
     fetObject object;
@@ -72,10 +72,10 @@ namespace Profet{
       :QEvent(QEvent::Type(OBJECT_UPDATE_EVENT)),
       object(obj), remove(remove_){}
   };
-  
+
   /**
    * Threadsafe event for incomming objects
-   */  
+   */
   class ObjectListUpdateEvent : public QEvent {
   public:
     vector<fetObject> objects;
@@ -83,23 +83,23 @@ namespace Profet{
       :QEvent(QEvent::Type(OBJECT_LIST_UPDATE_EVENT)),
       objects(obj){}
   };
-  
+
   /**
    * Threadsafe event for incomming signatures
-   */  
+   */
   class SignatureUpdateEvent : public QEvent {
   public:
     fetObject::Signature object;
     bool remove;
-    SignatureUpdateEvent(const fetObject::Signature & s, 
+    SignatureUpdateEvent(const fetObject::Signature & s,
         bool remove_=false):QEvent(QEvent::Type(
-        SIGNATURE_UPDATE_EVENT)), object(s), 
+        SIGNATURE_UPDATE_EVENT)), object(s),
         remove(remove_){}
   };
-  
+
   /**
    * Threadsafe event for incomming signatures
-   */  
+   */
   class SignatureListUpdateEvent : public QEvent {
   public:
     vector<fetObject::Signature> objects;
@@ -107,6 +107,6 @@ namespace Profet{
     :QEvent(QEvent::Type(SIGNATURE_LIST_UPDATE_EVENT)), objects(s){}
   };
 
-  
+
 } // end namespace Profet
 #endif /*QTPROFETEVENTS_H_*/

@@ -657,11 +657,10 @@ void ObsPlot::readStations()
 
     // Fill the stations from stat into priority_vector,
     // and mark them in tmpList
-    int i,j;
     int numObs=obsp.size();
     for (int k=0; k<numObs; k++) {
-      i = all_from_file[k];
-      j=0;
+      int i = all_from_file[k];
+      int j=0;
       while (j<n && visibleStations[plottype][j]!=obsp[i].id) j++;
       if (j<n) {
         all_stations.push_back(i);
@@ -669,7 +668,7 @@ void ObsPlot::readStations()
       }
     }
 
-    for (i=0; i<tmpList.size(); i++)
+    for (unsigned int i=0; i<tmpList.size(); i++)
       if(tmpList[i] != -1)
         all_stations.push_back(i);
   } else {
@@ -709,26 +708,25 @@ void ObsPlot::priority_sort(void)
   else
     numObs = asciip.size();
   //  cerr <<"Priority_sort:"<<numObs<<endl;
-  int i;
 
   all_from_file.resize(numObs);
 
   // AF: synop: put automatic stations after other types (fixed,ship)
   //     (how to detect other obs. types, temp,aireps,... ???????)
   if (asciiData) {
-    for (i=0; i<numObs; i++)
+    for (int i=0; i<numObs; i++)
       all_from_file[i]=i;
   } else {
     vector<int> automat;
     int n= 0;
-    for (i=0; i<numObs; i++) {
+    for (int i=0; i<numObs; i++) {
       if (obsp[i].fdata.count("ix") && obsp[i].fdata["ix"]<4)
         all_from_file[n++]= i;
       else
         automat.push_back(i);
     }
     int na= automat.size();
-    for (i=0; i<na; i++)
+    for (int i=0; i<na; i++)
       all_from_file[n++]= automat[i];
   }
 
@@ -744,9 +742,9 @@ void ObsPlot::priority_sort(void)
 
       // Fill the stations from priority list into all_from_file,
       // and mark them in tmpList
-      int j, n= priorityList.size();
-      for (j=0; j<n; j++) {
-        i= 0;
+      int n= priorityList.size();
+      for (int j=0; j<n; j++) {
+        int i= 0;
         while (i<numObs && obsp[i].id!=priorityList[j]) i++;
         if (i<numObs) {
           all_from_file.push_back(i);
@@ -754,9 +752,12 @@ void ObsPlot::priority_sort(void)
         }
       }
 
-      for (i=0; i<tmpList.size(); i++)
-        if(tmpList[i] != -1)
+      for (unsigned int i=0; i<tmpList.size(); i++) {
+        if(tmpList[i] != -1) {
           all_from_file.push_back(i);
+        }
+      }
+
     }
   }
 }
@@ -2275,8 +2276,6 @@ void ObsPlot::plotAscii(int index)
   if(!asciiWind){
     if(asciiColumn.count("image")){
       miString thisImage = asciip[index][asciiColumn["image"]];
-      float xShift=ig.widthp(thisImage)/2;
-      float yShift=ig.heightp(thisImage)/2;
       ig.plotImage(thisImage,x[index],y[index],true,Scale);
     } else {
       ig.plotImage(thisImage,x[index],y[index],true,Scale);
@@ -3029,7 +3028,7 @@ void ObsPlot::metarString2int(miString ww, int intww[])
 
 
   vector<metarww> ia;
-  for( int i=0; i<ww.size()-1; i+=2 ){
+  for( unsigned int i=0; i<ww.size()-1; i+=2 ){
     miString sub=ww.substr(i,2);
     if(metarMap.find(sub) != metarMap.end())
       ia.push_back(metarMap[sub]);
@@ -4017,7 +4016,7 @@ bool ObsPlot::readTable(const miString& type,
 #endif
 
   const int ITAB=380;
-  int   size,psize;
+  unsigned int   size,psize;
 
   itab=  0;
   iptab= 0;
@@ -4057,7 +4056,7 @@ bool ObsPlot::readTable(const miString& type,
   for(int i=0; i<ITAB; i++)
     itab[i+1] = table[i];
 
-  for(int i=512; i<size; i++)
+  for(unsigned int i=512; i<size; i++)
     iptab[i-511] = table[i];
 
   if( type == "synop" )

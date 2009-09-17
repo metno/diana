@@ -52,8 +52,8 @@
 // GLwidget constructor
 GLwidget::GLwidget(Controller* c,  const QGLFormat fmt,
 		   QWidget* parent)
-  : QGLWidget(fmt, parent), contr(c), fbuffer(0),
-    curcursor(keep_it)
+  : QGLWidget(fmt, parent), curcursor(keep_it), contr(c), fbuffer(0)
+
 {
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -311,6 +311,10 @@ void GLwidget::handleMouseEvents(QMouseEvent* me,const mouseEventType met){
       break;
     case grid_area_changed:
       emit gridAreaChanged();
+      break;
+    case keypressed:
+      break;
+    case no_action:
       break;
     }
   }

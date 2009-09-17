@@ -92,10 +92,7 @@ bool ObsManager::init(ObsPlot *oplot,const miString& pin){
     return false;
   }
 
-
-  vector<miString> &dataType = oplot->dataTypes();
   mslp=false;
-
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from ObsManager::init() ++" << endl;
@@ -137,7 +134,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
   vector<miString> &dataType = oplot->dataTypes();
 
-  for(int i=0; i<dataType.size(); i++){
+  for(unsigned int i=0; i<dataType.size(); i++){
 
     firstTry=true; //false if times can't be found from filename
 
@@ -276,7 +273,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
     if(m>0){
       int best = abs(miTime::minDiff(time,termin[0]));
       int bestIndex=0;
-      for(int i=1; i<termin.size(); i++){
+      for(unsigned int i=1; i<termin.size(); i++){
         int d = abs(miTime::minDiff(time,termin[i]));
         if( d < best){
           best=d;
@@ -420,7 +417,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
       updateTimesfromFile(obsType);
       //timefilter did not work, turn it off
       miString offstr("OFF");
-      for( int j=0;j<Prod[obsType].pattern.size(); j++)
+      for(unsigned  int j=0;j<Prod[obsType].pattern.size(); j++)
         Prod[obsType].pattern[j].filter.initFilter(offstr);
     }
     getFileName(finfo,time,obsType,oplot);
@@ -450,7 +447,7 @@ bool ObsManager::updateTimes(miString obsType)
 
       glob_t globBuf;
       glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for( int k=0; k<globBuf.gl_pathc; k++) {
+      for(unsigned int k=0; k<globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if(ok &&
@@ -504,11 +501,11 @@ bool ObsManager::updateTimesfromFile(miString obsType)
 
   vector<miString> fname;
 
-  for( int j=0;j<Prod[obsType].pattern.size(); j++) {
+  for(unsigned int j=0;j<Prod[obsType].pattern.size(); j++) {
     if( !Prod[obsType].pattern[j].archive || useArchive ){
       glob_t globBuf;
       glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for( int k=0; k<globBuf.gl_pathc; k++) {
+      for(unsigned int k=0; k<globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if (Prod[obsType].pattern[j].fileType == "metnoobs") {
@@ -584,7 +581,7 @@ void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   int m= tokens.size();
   if (m<3) return;
   vector<miString> obsTypes;
-  for(int j=0; j<tokens.size();j++){
+  for(unsigned int j=0; j<tokens.size();j++){
     vector<miString> stokens= tokens[j].split("=");
     if(stokens.size()==2 && stokens[0].downcase()=="data"){
       obsTypes = stokens[1].split(",");
@@ -638,7 +635,7 @@ void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
 
   vector<float> xpos;
   vector<float> ypos;
-  for( int i=0; i<oplot.size();i++){
+  for(unsigned int i=0; i<oplot.size();i++){
     oplot[i]->getPositions(xpos,ypos);
   }
 
@@ -1042,11 +1039,11 @@ void ObsManager::setActive(const vector<miString>& name, bool on,
 {
 
   int nname=name.size();
-  int nr=b.size();
+  unsigned int nr=b.size();
   if(active.size() != nr) return;
 
   for( int j=0; j<nname; j++)
-    for( int i=0; i<nr; i++)
+    for(unsigned  int i=0; i<nr; i++)
       if(name[j] == b[i].name){
         active[i]=on;
         break;
@@ -1112,7 +1109,7 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
   // open one file and find the available data parameters
 
   bool found= false;
-  int j= 0;
+  unsigned int j= 0;
 
   ObsPlot *oplot= new ObsPlot();
 
@@ -1121,7 +1118,7 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
       glob_t globBuf;
       glob(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
       miString headerfile= Prod[oname].headerfile;
-      int k= 0;
+      unsigned int k= 0;
       while (!found && k<globBuf.gl_pathc) {
         miString filename = globBuf.gl_pathv[k];
         miTime filetime; // just dummy here
@@ -1196,7 +1193,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   dialog.plottype[id].datatype[0].active.clear();
   if(plotType == "Hqc_synop"){
     int wind=0;
-    for( int i=0; i<hqc_synop_parameter.size(); i++){
+    for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
       //        cerr <<"para: "<<hqc_synop_parameter[i]<<endl;
       if(hqc_synop_parameter[i]=="dd" || hqc_synop_parameter[i]=="ff" ) {
         wind++;
@@ -1221,7 +1218,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
     }
   } else if( plotType == "Hqc_list"){
     int wind=0;
-    for( int i=0; i<hqc_ascii_parameter.size(); i++){
+    for(unsigned int i=0; i<hqc_ascii_parameter.size(); i++){
       //      cerr <<"para: "<<hqc_ascii_parameter[i]<<endl;
       if(hqc_ascii_parameter[i]=="DD" || hqc_ascii_parameter[i]=="FF" ) wind++;
       if(hqc_ascii_parameter[i]=="auto")continue;
@@ -1344,7 +1341,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
   miString key,value;
   bool newprod= true;
 
-  for(int i=0; i<sect_obs.size(); i++) {
+  for(unsigned int i=0; i<sect_obs.size(); i++) {
 
     vector<miString> token = sect_obs[i].split("=");
 
@@ -1472,12 +1469,12 @@ bool ObsManager::parseSetup(SetupParser &sp)
 
   if (sp.getSection(pri_name,sect_pri)){
 
-    for (int i=0; i<sect_pri.size(); i++){
+    for (unsigned int i=0; i<sect_pri.size(); i++){
       name= "";
       file= "";
 
       tokens= sect_pri[i].split('"','"'," ",true);
-      for (int j=0; j<tokens.size(); j++){
+      for (unsigned int j=0; j<tokens.size(); j++){
         stokens= tokens[j].split('=');
         if (stokens.size()>1) {
           key= stokens[0].downcase();
@@ -1595,7 +1592,7 @@ bool ObsManager::initHqcdata(int from,
   else
     obsdataType = "hqc_list";
 
-  for(int i=0; i<descstr.size();i++){
+  for(unsigned int i=0; i<descstr.size();i++){
     if(descstr[i].downcase()=="time"){
       hqcTime = miTime(commonstr[i]);
     } else if(descstr[i].downcase()=="plottype"){
@@ -1637,7 +1634,7 @@ bool ObsManager::sendHqcdata(ObsPlot* oplot)
     oplot->asciiColumn.erase("dd");
     oplot->asciiColumn.erase("ff");
     oplot->asciip = hqcdiffdata;
-    for( int i=0; i<hqc_ascii_parameter.size();i++){
+    for(unsigned int i=0; i<hqc_ascii_parameter.size();i++){
       if(hqc_ascii_parameter[i]=="lon")
         oplot->asciiColumn["x"] = i;
       else if(hqc_ascii_parameter[i]=="lat")
@@ -1699,7 +1696,7 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
     return false;
   }
   miString plotType;
-  for(int i=0; i<descstr.size();i++){
+  for(unsigned int i=0; i<descstr.size();i++){
     if(descstr[i].downcase()=="time"){
       miTime t(commonstr[i]);
       hqcTime = t;
@@ -1711,7 +1708,7 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
   vector<miString> param = desc.split(",");
   if( param.size() <2 ) return false;
   //  cerr <<"data.size:"<<data.size();
-  for(int j=0; j<data.size(); j++){
+  for(unsigned int j=0; j<data.size(); j++){
     vector<miString> datastr = data[j].split(",");
     if( datastr.size() !=param.size() ) continue;
     if(plotType == "synop"){
@@ -1732,7 +1729,7 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
         continue; // station not found
       }
       n=hqc_ascii_parameter.size();
-      for(int k=0; k<param.size(); k++){
+      for(unsigned int k=0; k<param.size(); k++){
         int j=0;
         while( j<n && hqc_ascii_parameter[j] !=param[k]) j++;
         if(j==n) {
@@ -1758,7 +1755,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     return false;
   }
 
-  for(int i=0; i<param.size(); i++){
+  for(unsigned int i=0; i<param.size(); i++){
     //     cerr <<"key:"<<param[i]<<endl;
     //        cerr <<"data:"<<data[i]<<endl;
     miString key = param[i];

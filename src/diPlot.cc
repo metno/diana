@@ -233,7 +233,7 @@ miString Plot::getPlotInfo(int n)
   token.pop_back(); //remove last part
   miString str;
   //  str.join(token," ");
-  for(int i=0;i<token.size();i++){
+  for(unsigned int i=0;i<token.size();i++){
     str+=token[i];
     if(i<token.size()-1) str+=" ";
   }

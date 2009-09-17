@@ -125,8 +125,8 @@
 #include <diana_icon.xpm>
 #include <pick.xpm>
 #include <earth3.xpm>
-#include <fileprint.xpm>
-#include <question.xpm>
+//#include <fileprint.xpm>
+//#include <question.xpm>
 #include <forover.xpm>
 #include <bakover.xpm>
 #include <start.xpm>
@@ -150,10 +150,10 @@
 #include <vcross.xpm>
 #include <spectrum.xpm>
 #include <traj.xpm>
-#include <rade.xpm>
+//#include <rade.xpm>
 #include <info.xpm>
 #include <profet.xpm>
-#include <paint_mode.xpm>
+//#include <paint_mode.xpm>
 
 DianaMainWindow::DianaMainWindow(Controller *co,
     const miString ver_str,
@@ -161,10 +161,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     miString dianaTitle,
     bool ep)
 : QMainWindow(),
-contr(co),timeron(0),timeloop(false),timeout_ms(100),
-showelem(true),autoselect(false),push_command(true),browsing(false),
-markTrajPos(false), markRadePos(false),
-vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
+enableProfet(ep), push_command(true),browsing(false),
+profetGUI(0),markTrajPos(false), markRadePos(false),
+vpWindow(0), vcWindow(0), spWindow(0),contr(co),
+timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
   cerr << "Creating DianaMainWindow" << endl;
 
@@ -795,7 +795,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
   miString avatarpath = setup.basicValue("avatars");
   if ( avatarpath.exists() ){
     vector<miString> vs = avatarpath.split(":");
-    for ( int i=0; i<vs.size(); i++ ){
+    for ( unsigned int i=0; i<vs.size(); i++ ){
       ig.addImagesInDirectory(vs[i]);
     }
   }
@@ -1065,7 +1065,7 @@ vpWindow(0), vcWindow(0), spWindow(0), enableProfet(ep), profetGUI(0)
     ("LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0");
   }
 
-  for(int i=0; i<sect_label.size(); i++) {
+  for(unsigned int i=0; i<sect_label.size(); i++) {
     vlabel.push_back(sect_label[i]);
   }
 
@@ -1213,12 +1213,12 @@ void DianaMainWindow::requestQuickUpdate(const vector<miString>& oldstr,
   objm->requestQuickUpdate(oldobjcom,objcom);
 
   newstr.clear();
-  for (int i=0; i<mapcom.size(); i++) newstr.push_back(mapcom[i]);
-  for (int i=0; i<fldcom.size(); i++) newstr.push_back(fldcom[i]);
-  for (int i=0; i<obscom.size(); i++) newstr.push_back(obscom[i]);
-  for (int i=0; i<satcom.size(); i++) newstr.push_back(satcom[i]);
-  for (int i=0; i<objcom.size(); i++) newstr.push_back(objcom[i]);
-  for (int i=0; i<labcom.size(); i++) newstr.push_back(labcom[i]);
+  for (unsigned int i=0; i<mapcom.size(); i++) newstr.push_back(mapcom[i]);
+  for (unsigned int i=0; i<fldcom.size(); i++) newstr.push_back(fldcom[i]);
+  for (unsigned int i=0; i<obscom.size(); i++) newstr.push_back(obscom[i]);
+  for (unsigned int i=0; i<satcom.size(); i++) newstr.push_back(satcom[i]);
+  for (unsigned int i=0; i<objcom.size(); i++) newstr.push_back(objcom[i]);
+  for (unsigned int i=0; i<labcom.size(); i++) newstr.push_back(labcom[i]);
 
   QApplication::restoreOverrideCursor();
 }
@@ -1301,7 +1301,7 @@ void DianaMainWindow::MenuOK()
 #ifdef DEBUGREDRAW
   cerr<<"DianaMainWindow::MenuOK"<<endl;
 #endif
-  int i;
+
   vector<miString> pstr;
   vector<miString> diagstr;
   vector<miString> shortnames;
@@ -1328,7 +1328,7 @@ void DianaMainWindow::MenuOK()
     levelIndex= (i<n) ? i : -1;
   }
   if (levelIndex>=0) {
-    toolLevelUpAction->setEnabled(levelIndex<levelList.size()-1);
+    toolLevelUpAction->setEnabled(levelIndex < int(levelList.size())-1);
     toolLevelDownAction->setEnabled(levelIndex>0);
   } else {
     toolLevelUpAction->setEnabled(false);
@@ -1343,7 +1343,7 @@ void DianaMainWindow::MenuOK()
     idnumIndex= (i<n) ? i : -1;
   }
   if (idnumIndex>=0) {
-    toolIdnumUpAction->setEnabled(idnumIndex<idnumList.size()-1);
+    toolIdnumUpAction->setEnabled(idnumIndex < int(idnumList.size())-1);
     toolIdnumDownAction->setEnabled(idnumIndex>0);
   } else {
     toolIdnumUpAction->setEnabled(false);
@@ -1372,14 +1372,14 @@ void DianaMainWindow::MenuOK()
 
   // label
   bool remove = (contr->getMapMode() != normal_mode || tslider->numTimes()==0);
-  for( int i=0; i<vlabel.size(); i++){
+  for(unsigned int i=0; i<vlabel.size(); i++){
     if(!remove || !vlabel[i].contains("$"))  //remove labels with time
       pstr.push_back(vlabel[i]);
   }
 
   // remove empty lines
   cerr << "------- the final string from all dialogs:" << endl;
-  for (i=0; i<pstr.size(); i++){
+  for (unsigned i=0; i<pstr.size(); i++){
     pstr[i].trim();
     if (!pstr[i].exists()){
       pstr.erase(pstr.begin()+i);
@@ -2146,7 +2146,7 @@ void DianaMainWindow::connectionClosed()
 
   //remove times
   vector<miString> type = timecontrol->deleteType(-1);
-  for(int i=0;i<type.size();i++)
+  for(unsigned int i=0;i<type.size();i++)
     tslider->deleteType(type[i]);
 
   textview->hide();
@@ -2170,7 +2170,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
   //  cerr <<endl;
   //   cerr<<" Common: "<<letter.common<<"  ";
   //  cerr <<endl;
-  //   for(int i=0;i<letter.data.size();i++)
+  //   for(unsigned int i=0;i<letter.data.size();i++)
   //    if(letter.data[i].length()<80)
   //       cerr <<" data["<<i<<"]:"<<letter.data[i]<<endl;;
   //    cerr <<" From: "<<from<<endl;
@@ -2453,7 +2453,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     contr->areaCommand("delete","all","all",id);
     //remove times
     vector<miString> type = timecontrol->deleteType(id);
-    for(int i=0;i<type.size();i++)
+    for(unsigned int i=0;i<type.size();i++)
       tslider->deleteType(type[i]);
     //hide textview
     textview->deleteTab(id);
@@ -3026,7 +3026,7 @@ void DianaMainWindow::trajPositions(bool b)
 
   markRadePos = !b;
 
- /*
+
   if (b==true) {
     radePositions(false);
   }
@@ -3336,7 +3336,6 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
       miMessage letter;
       letter.command = qmstrings::selectarea;
       letter.description = "name:on/off";
-      int id;
       for(int i=0;i<nareas;i++){
         letter.to = areas[i].id;
         miString datastr = areas[i].name + ":on";
@@ -3408,7 +3407,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
           letter.description = "position:value_3";
         else
           letter.description = "position:value_1";
-        for(int i=0;i<stations.size();i++){
+        for(unsigned int i=0;i<stations.size();i++){
           miString str = stations[i];
           if( kev.key == key_Plus )
             str += ":+1";
@@ -3635,7 +3634,6 @@ void DianaMainWindow::PrintPS(miString& filestr )
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     if (qprt.outputFileName().isNull()) {
-      int numcopies= qprt.numCopies();
       miString command= pman.printCommand();
       miString printern= qprt.printerName().toStdString();
 
@@ -3681,7 +3679,7 @@ void DianaMainWindow::PrintPS(vector <miString>& filenames )
       // Hmmm..should we really allow multiple copies here
       int numcopies= qprt.numCopies();
       for (int j=0; j<numcopies; j++)
-        for (int i = 0;i<filenames.size();i++){
+        for (unsigned int i = 0;i<filenames.size();i++){
           command= pman.printCommand();
 
 #ifndef linux
@@ -4114,7 +4112,7 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
         miString fontstr = tokens[1];
         //LB:if the font name contains blanks,
         //the string will be cut in pieces, and must be put together again.
-        for( int i=2;i<tokens.size();i++)
+        for(unsigned int i=2;i<tokens.size();i++)
           fontstr += " " + tokens[i];
         QFont font;
         if (font.fromString(fontstr.cStr()))

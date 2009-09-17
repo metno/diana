@@ -154,7 +154,7 @@ bool SetupParser::makeDirectory(const miString& filename, miString & error)
 
 void SetupParser::cleanstr(miString& s)
 {
-  int p;
+  unsigned int p;
   if ((p = s.find("#")) != string::npos)
     s.erase(p);
 
@@ -174,7 +174,7 @@ void SetupParser::cleanstr(miString& s)
     while ((p = s.find_first_of("=", p)) != string::npos) {
       // check for "" - do not clean out blanks inside these
       vector<int> sf1, sf2;
-      int f1 = 0, f2;
+      unsigned int f1 = 0, f2;
       while ((f1 = s.find_first_of("\"", f1)) != string::npos && (f2
           = s.find_first_of("\"", f1 + 1)) != string::npos) {
         sf1.push_back(f1);
@@ -182,7 +182,7 @@ void SetupParser::cleanstr(miString& s)
         f1 = f2 + 1;
       }
       bool dropit = false;
-      for (int i = 0; i < sf1.size(); i++) {
+      for (unsigned int i = 0; i < sf1.size(); i++) {
         f1 = sf1[i];
         f2 = sf2[i];
         if (f1 > p) {
@@ -622,7 +622,7 @@ bool SetupParser::parseBasics(const miString& sectname){
 
   vector<miString> list,tokens;
   miString key,value;
-  int i,m,n;
+  int i,n;
 
   if (!getSection(sectname,list))
     return true;
@@ -676,7 +676,7 @@ bool SetupParser::parseTextInfoFiles(const miString& sectname)
   for (int i=0; i<n; i++){
     type= def_type; font= def_font;
     tokens2= list[i].split(' ');
-    for (int j=0; j<tokens2.size(); j++){
+    for (unsigned int j=0; j<tokens2.size(); j++){
       splitKeyValue(tokens2[j], key, value);
       if (key==key_name)
         name= value;
@@ -723,7 +723,7 @@ bool SetupParser::parseColours(const miString& sectname){
 
   vector<miString> list,tokens,stokens;
   miString key,value,value2;
-  int i,j,n,m;
+  int i,n;
   Colour c;
   uchar_t r,g,b,a;
   Colour::ColourInfo cinfo;
@@ -770,8 +770,8 @@ bool SetupParser::parsePalettes(const miString& sectname){
   ColourShading::ColourShadingInfo csinfo;
   const int nbaseRGB=5;
   const float baseRGB[nbaseRGB][3]=
-  { 0.0,0.0,0.5, 0.0,1.0,1.0, 0.0,0.5,0.0,
-      1.0,1.0,0.0, 1.0,0.0,0.0 };
+  { {0.0,0.0,0.5}, {0.0,1.0,1.0}, {0.0,0.5,0.0},
+      {1.0,1.0,0.0}, {1.0,0.0,0.0} };
 
   //colour shading
   const int divRGB= 3;
@@ -816,7 +816,6 @@ bool SetupParser::parsePalettes(const miString& sectname){
   }
 #endif
 
-  int ncolours= nRGBtab;
   for (int j=0; j<nRGBtab; j++) {
     miString name= "tmp_contour_fill_" + miString(j);
     int red=   int(RGBtab[j][0]*255);
@@ -892,13 +891,13 @@ bool SetupParser::parseFillPatterns(const miString& sectname){
 bool SetupParser::parseLineTypes(const miString& sectname){
 
   // linetype bits and bitmask
-  const int numbits= 16;
+  const unsigned int numbits= 16;
   const uint16 bmask[numbits]=
   {32768,16384,8192,4096,2048,1024,512,256,128,64,32,16,8,4,2,1};
 
   vector<miString> list,tokens,stokens;
   miString key,value,value2;
-  int i,j,n,m;
+  int i,n;
   uint16 bm;
   int factor;
 
@@ -923,7 +922,7 @@ bool SetupParser::parseLineTypes(const miString& sectname){
         factor= atoi(value2.cStr());
     }
     if (value.length()==numbits){
-      for (j=0; j<numbits; j++){
+      for (unsigned int j=0; j<numbits; j++){
         if (value[j]=='1') bm |= bmask[j];
       }
       Linetype::define(key,bm,factor);
@@ -942,7 +941,7 @@ bool SetupParser::parseQuickMenus(const miString& sectname){
   vector<miString> list,tokens,stokens;
   miString key,value,file;
   QuickMenuDefs qmenu;
-  int i,j,m,n,o;
+  int i,j,m,n;
 
   quickmenudefs.clear();
 
@@ -1043,7 +1042,7 @@ vector< vector<Colour::ColourInfo> > SetupParser::getMultiColourInfo(int multiNu
       if (ok) cind.push_back(i);
     }
 
-    const int s[6][3]= { 0,1,2, 0,2,1, 1,0,2, 1,2,0, 2,0,1, 2,1,0 };
+    const int s[6][3]= { {0,1,2}, {0,2,1}, {1,0,2}, {1,2,0}, {2,0,1}, {2,1,0} };
     int nn[3];
     int n1,n2,n3,nc= cind.size();
     vector<Colour::ColourInfo> mc(3);
