@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,17 +23,17 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 /*
   Saving and editing comments
-  Updates: 
+  Updates:
   March 2001
-  August 2001, two windows 
-*/
+  August 2001, two windows
+ */
 
 //Added by qt3to4:
 #include <QVBoxLayout>
@@ -51,18 +51,18 @@
 
 
 /*********************************************/
-EditComment::EditComment( QWidget* parent, Controller* llctrl, 
-			  bool edit)
+EditComment::EditComment( QWidget* parent, Controller* llctrl,
+    bool edit)
 : QDialog(parent), m_ctrl(llctrl), m_objm(0), mEdit(0), mEdit2(0)
 {
-#ifdef dEdit 
+#ifdef dEdit
   cout<<"EditComment::EditComment called"<<endl;
 #endif
 
 
 
   //initialization, font, colours etc
-   
+
   m_objm= m_ctrl->getObjectManager();
   inEditSession = edit;
   inComment = false;
@@ -71,7 +71,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
   // one window mEdit2 for showing old comments (also used in objectDialog)
   if (inEditSession){
     setGeometry(100,100,480,480);
-    setWindowTitle(tr("Comments-editing"));
+    setWindowTitle(tr("Comments-editing[*]"));
     split = new QSplitter(Qt::Vertical,this);
     split->setGeometry(10,10,460,380);
     mEdit = new QTextEdit(split);
@@ -93,6 +93,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     mEdit2->setGeometry(10,10,460,380);
   }
 
+  connect(mEdit, SIGNAL(textChanged ()),SLOT(textChanged()));
 }
 
 
@@ -100,17 +101,22 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
 /*********************************************/
 
 
-void EditComment::startComment()
+void EditComment::textChanged()
 {
+  setWindowModified(true);
+}
+
+  void EditComment::startComment()
+  {
   //start comments for editing
   if (inComment) return;
   mEdit->clear();
   miString comments = m_objm->getComments();
   mEdit->setText(comments.c_str());
-//   mEdit->insertLine("\n");
-//   int n = mEdit->numLines();
-//   mEdit->setCursorPosition(n,0);
-  mEdit->setWindowModified(false);
+  //   mEdit->insertLine("\n");
+  //   int n = mEdit->numLines();
+  //   mEdit->setCursorPosition(n,0);
+  setWindowModified(false);
   inComment = true;
   if (showOld->isOn()) readComment();
 }
@@ -123,9 +129,9 @@ void EditComment::readComment()
   mEdit2->clear();
   miString comments = m_objm->readComments(inEditSession);
   mEdit2->setText(comments.c_str());
-//   mEdit2->insertLine("\n");
-//   int n = mEdit2->numLines();
-//   mEdit2->setCursorPosition(n,0);
+  //   mEdit2->insertLine("\n");
+  //   int n = mEdit2->numLines();
+  //   mEdit2->setCursorPosition(n,0);
   mEdit2->setReadOnly(true);
 }
 
@@ -133,11 +139,11 @@ void EditComment::readComment()
 
 void EditComment::saveComment()
 {
-  if (inComment && mEdit->isWindowModified()){
+  if (inComment && isWindowModified()){
     miString comments = miString(mEdit->text().toStdString());
     //put comments into plotm->editobjects->comments;
     m_objm->putComments(comments);
-    mEdit->setWindowModified(false);
+    setWindowModified(false);
   }
 }
 
@@ -145,9 +151,9 @@ void EditComment::saveComment()
 void EditComment::stopComment(){
   if (inEditSession){
     mEdit->clear();
-    mEdit->setWindowModified(false);
+    setWindowModified(false);
   }
-  mEdit2->clear();  
+  mEdit2->clear();
   inComment = false;
 }
 

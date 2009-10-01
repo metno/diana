@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -35,7 +35,7 @@
 #include <qsplitter.h>
 #include <miString.h>
 
-using namespace std; 
+using namespace std;
 
 class QTextEdit;
 class ToggleButton;
@@ -45,7 +45,7 @@ class ObjectManager;
 
 /**
    \brief Dialogue for writing comments to edit products
-   
+
 */
 class EditComment :public QDialog
 {
@@ -55,7 +55,7 @@ public:
   EditComment( QWidget* parent, Controller* llctrl, bool edit);
 protected:
   void closeEvent( QCloseEvent* );
-    
+
 private:
   Controller*    m_ctrl;
   ObjectManager* m_objm;
@@ -73,6 +73,8 @@ signals:
 
 private slots:
  void showOldToggled(bool);
+ void textChanged();
+
 
 public slots:
   /// start writing comments
