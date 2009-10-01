@@ -3520,7 +3520,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
   int ncl= contourlines.size();
 
   ContourLine *cl;
-  unsigned int n,nstop;
+  int n,nstop;
   int npos,i,ntot,nend;
   int nc,lr1=0,lr2=0,adduse[2];
 
@@ -3600,6 +3600,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
               undefRight=  contourlines[n]->highLeft;
             }
           }
+
           if (contourlines[n]->isoLine) isoLine= true;
           if (contourlines[n]->undefTouch) undefTouch= true;
           if (contourlines[n]->corner) corner= true;
@@ -3656,7 +3657,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
           nend= n/maxLines;
           n=    n%maxLines;
 
-          if (n>=contourlines.size())
+          if (n>=int(contourlines.size()))
             cerr<<"CONTOUR ERROR. n,contourlines.size(): "
             <<n<<" "<<contourlines.size()<<endl;
 
