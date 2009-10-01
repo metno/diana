@@ -3734,6 +3734,7 @@ bool FieldPlot::plotNumbers(){
   float ww= chx*0.5;
   int iprec= -int(log10(fields[0]->storageScaling));
   if (iprec<0) iprec=0;
+  cerr <<"iprec:"<<iprec<<endl;
   miString str;
 
   glColor3ubv(poptions.linecolour.RGB());

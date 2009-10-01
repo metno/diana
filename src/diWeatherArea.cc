@@ -88,7 +88,7 @@ WeatherArea::~WeatherArea(){
 void WeatherArea::defineAreas(vector<editToolInfo> areas)
 {
   WeatherArea::allAreas = areas;
-  for (int i = 0;i<areas.size();i++)
+  for (unsigned int i = 0;i<areas.size();i++)
     areaTypes[areas[i].name] = i;
 }
 
@@ -390,9 +390,9 @@ bool WeatherArea::showLine(float x, float y){
 
 void WeatherArea::setType(int ty)
 {
-  if (-1<ty && ty<allAreas.size())
+  if (-1<ty && ty<int(allAreas.size()))
     type=ty;
-  else if (ty==allAreas.size())
+  else if (ty==int(allAreas.size()))
     type=0;
   else if (ty==-1)
     type =allAreas.size()-1;

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -40,7 +40,7 @@
 #include <math.h>
 #include <polyStipMasks.h>
 
-using namespace std; 
+using namespace std;
 
 // Default constructor
 LegendPlot::LegendPlot()
@@ -96,7 +96,7 @@ LegendPlot::LegendPlot(miString& str)
 	} else {
 	  cc.plotBox = true;
 	}
-	colourcodes.push_back(cc);	
+	colourcodes.push_back(cc);
       }
     }
   }
@@ -104,7 +104,7 @@ LegendPlot::LegendPlot(miString& str)
 }
 
 
-void LegendPlot::setData(const miString& title, 
+void LegendPlot::setData(const miString& title,
 			     const vector<ColourCode>& colourcode)
 {
 #ifdef DEBUGPRINT
@@ -139,10 +139,10 @@ LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
   cerr << "++ LegendPlot::Assignment operator" << endl;
 #endif
   if (this == &rhs) return *this;
-  
+
   // elementwise copy
   memberCopy(rhs);
-  
+
   return *this;
 }
 
@@ -174,7 +174,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
 {
 
   //Bugfix
-  //The postscript size of "-" are underestimated 
+  //The postscript size of "-" are underestimated
   if (hardcopy){
     int n = str.countChar('-');
     for(int i=0;i<n;i++) str+="-";
@@ -202,7 +202,7 @@ bool LegendPlot::plot(float x, float y)
   if(!ncolours) return false;
 
   float width,height,maxwidth=0,maxheight=0,titlewidth=0;
-  
+
   //colour code strings
   for (int i=0; i<ncolours; i++){
     getStringSize(colourcodes[i].colourstr, width, height);
@@ -215,7 +215,6 @@ bool LegendPlot::plot(float x, float y)
   vector<miString> vtitlestring;
   if(titlestring.exists()){
     getStringSize(titlestring, titlewidth, height);
-    vtitlestring;
     if(titlewidth>maxwidth){
       vector<miString> vs = titlestring.split(" ");
       if (vs.size()>=5) {
@@ -251,10 +250,10 @@ bool LegendPlot::plot(float x, float y)
       if (width>titlewidth) titlewidth = width;
       if (height>maxheight)   maxheight= height;
     }
-  } 
+  }
 
   // position table
-  
+
   float xborder;
   float yborder;
   getStringSize("c",xborder,yborder);
@@ -284,9 +283,9 @@ bool LegendPlot::plot(float x, float y)
   }
   float y1table = y1title-tableheight;
 
-  //draw title background      
+  //draw title background
   if(ntitle>0){
-    glColor3ubv(poptions.fillcolour.RGB());	
+    glColor3ubv(poptions.fillcolour.RGB());
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
       glVertex2f(x1title,y2title);
@@ -296,10 +295,10 @@ bool LegendPlot::plot(float x, float y)
     glEnd();
 
     //draw title
-    glColor4ubv(poptions.textcolour.RGBA());	
+    glColor4ubv(poptions.textcolour.RGBA());
     float titley1 = y2title-yborder-maxheight/2;
     for (int i=0;i<ntitle;i++){
-      fp->drawStr(vtitlestring[i].cStr(),(x1title+xborder),titley1);	  
+      fp->drawStr(vtitlestring[i].cStr(),(x1title+xborder),titley1);
       titley1 -= maxheight;
     }
   }
@@ -310,7 +309,7 @@ bool LegendPlot::plot(float x, float y)
     //draw table background
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4ubv(poptions.fillcolour.RGBA());	
+    glColor4ubv(poptions.fillcolour.RGBA());
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
     glVertex2f(x1table,y1table);
@@ -318,22 +317,21 @@ bool LegendPlot::plot(float x, float y)
     glVertex2f(x2table,y1title);
     glVertex2f(x2table,y1table);
     glEnd();
-  
-    glDisable(GL_BLEND);  
-  
+
+    glDisable(GL_BLEND);
+
     // draw table
     float x1box = x1table + xborder;
     float x2box = x1box   + 4*xborder;
     float y2box = y1title - yborder;
     float y1box = y2box   - maxheight;
-    float y1min = y1table + yborder;
     ImageGallery ig;
     glEnable(GL_POLYGON_STIPPLE);
     for (int i=0;i<ncolours;i++){
       if(colourcodes[i].plotBox){
 	//draw colour/pattern box
 	// draw background of colour/pattern boxes
-	glColor3ubv(poptions.fillcolour.RGB());	
+	glColor3ubv(poptions.fillcolour.RGB());
 	glBegin(GL_POLYGON);
           glVertex2f(x1box,y1box);
           glVertex2f(x1box,y2box);
@@ -349,7 +347,7 @@ bool LegendPlot::plot(float x, float y)
 	}else{
 	  glPolygonStipple(solid);
 	}
-	glColor4ubv(colourcodes[i].colour.RGBA());	
+	glColor4ubv(colourcodes[i].colour.RGBA());
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glBegin(GL_POLYGON);
 	  glVertex2f(x1box,y1box);
@@ -368,20 +366,20 @@ bool LegendPlot::plot(float x, float y)
         glEnd();
       }
       //draw textstring
-      glColor4ubv(poptions.textcolour.RGBA());	
+      glColor4ubv(poptions.textcolour.RGBA());
       miString cstring = colourcodes[i].colourstr;
-      fp->drawStr(cstring.cStr(),(x2box+xborder),(y1box+0.8*yborder)); 
+      fp->drawStr(cstring.cStr(),(x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
       UpdateOutput();
     }
       glDisable(GL_POLYGON_STIPPLE);
   }
-  
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from Legend::plot() ++" << endl;
 #endif
-  
+
   return true;
 }
 
@@ -423,7 +421,7 @@ void LegendPlot::moveSatTable(int x1,int y1, int x2, int y2)
 
   float deltax = (x2-x1)/pwidth;
   float deltay = (y2-y1)/pheight;
-  
+
   xRatio = xRatio - deltax;
   yRatio = yRatio - deltay;
   //check that table doesn't disappear out of picture
@@ -442,7 +440,7 @@ float LegendPlot::height()
 
   fp->set(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,maxheight=0,titlewidth=0;
-  
+
   //colour code strings
   for (int i=0; i<ncolours; i++){
     miString cstring;
@@ -474,7 +472,6 @@ float LegendPlot::height()
   float yborder;
   getStringSize("c",xborder,yborder);
   yborder /=4;
-  float yoffset = fullrect.height()*yRatio;
   float titleheight = maxheight*ntitle;
   float tableheight = maxheight*ncolours + 2*yborder;
 
@@ -489,7 +486,7 @@ float LegendPlot::width()
 
   fp->set(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,titlewidth=0;
-  
+
   //colour code strings
   for (int i=0; i<ncolours; i++){
     miString cstring;
@@ -512,12 +509,11 @@ float LegendPlot::width()
     getStringSize(vtitlestring[i], width, height);
     if (width>titlewidth) titlewidth = width;
   }
-  
+
   float xborder;
   float yborder;
   getStringSize("c",xborder,yborder);
   xborder /=2;
-  float xoffset = fullrect.width()*xRatio;
   titlewidth  = titlewidth + 2*xborder;
   float tablewidth  = maxwidth + 6*xborder;
   if(titlewidth < tablewidth ) titlewidth = tablewidth;

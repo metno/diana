@@ -419,7 +419,6 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
   e.polystyle = poly_none;
   e.arrowFeather = false;
   e.textcolour = "black";
-  bool subel = false;
   if (elementstring.contains("symbol=")) {
     e.eType = symbol;
   } else if (elementstring.contains("arrow=")) {
@@ -517,8 +516,6 @@ bool AnnotationPlot::plot()
   if (!enabled || !annotations.size() || nothingToDo)
     return false;
 
-  float xoffset = 0, yoffset = 0;
-
   borderline.clear();
   scaleAnno = false;
   plotAnno = true;
@@ -593,7 +590,6 @@ bool AnnotationPlot::plot()
   if (!plotAnno)
     return true;
 
-  float wid, hei;
   float x, y;
 
   // draw the annotations
@@ -794,6 +790,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     if (horizontal)
       x += wid;
   }
+  return true;
 }
 
 float AnnotationPlot::plotArrow(float x, float y, float l, bool feather)
@@ -1355,6 +1352,8 @@ miString AnnotationPlot::writeElement(element& annoEl)
       str += ",pstyle=none";
     }
     break;
+  default:
+    break;
   }
   if (annoEl.eSize != 1.0) {
     ostringstream ostr;
@@ -1373,7 +1372,7 @@ miString AnnotationPlot::writeElement(element& annoEl)
   str += ">";
 
   if (annoEl.subelement.size()) {
-    for (int i = 0; i < annoEl.subelement.size(); i++) {
+    for (unsigned int i = 0; i < annoEl.subelement.size(); i++) {
       str += writeElement(annoEl.subelement[i]);
     }
     str += "<\\box>";

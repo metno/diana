@@ -97,7 +97,7 @@ WeatherFront::~WeatherFront(){
 void WeatherFront::defineFronts(vector<editToolInfo> fronts)
 {
   allFronts = fronts;
-  for (int i = 0;i<fronts.size();i++)
+  for (unsigned int i = 0;i<fronts.size();i++)
     frontTypes[fronts[i].name] = i;
 }
 
@@ -122,7 +122,7 @@ void WeatherFront::recalculate(){
   y= new float[length]; // y array of y coordinates
   length = 0;
 
-  for (int i=0; i<nodePoints.size(); i++){
+  for (unsigned int i=0; i<nodePoints.size(); i++){
     //skip points that are in the same position
     if (i!=0 && nodePoints[i]==nodePoints[i-1]) continue;
     x[length]=nodePoints[i].x;
@@ -990,9 +990,9 @@ void WeatherFront::flip(){
 
 
 void WeatherFront::setType(int ty){
-  if (-1<ty && ty<allFronts.size())
+  if (-1<ty && ty<int(allFronts.size()))
     type=ty;
-  else if (ty==allFronts.size())
+  else if (ty==int(allFronts.size()))
     type=0;
   else if (ty==-1)
     type =allFronts.size()-1;

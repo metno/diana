@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <fstream>
 #include <glob.h>
 
@@ -56,29 +56,25 @@
 #include <qtUtility.h>
 #include <diSetupParser.h>
 
-#include <preferences.xpm>
-#include <convert.xpm>
-#include <revert.xpm>
-
 // qt4 fix
 #include <QString>
 #include <QStringList>
 
-using namespace std; 
+using namespace std;
 
 const miString vprefix= "@";
 
 QuickMenu::QuickMenu( QWidget *parent, Controller* c,
-		      Qt::WFlags f)
-  : QDialog( parent, FALSE, f), contr(c),
-    timerinterval(10), timeron(false), activemenu(0),
-    comset(false), browsing(false), instaticmenu(false),
-    firstcustom(-1), lastcustom(-1),
-    prev_plotindex(0), prev_listindex(0)
+    Qt::WFlags f)
+: QDialog( parent, FALSE, f), contr(c), comset(false),
+activemenu(0), timerinterval(10), timeron(false),
+browsing(false),
+prev_plotindex(0), prev_listindex(0),
+firstcustom(-1), lastcustom(-1), instaticmenu(false)
 {
-  
+
   setCaption(tr("Quickmenu"));
-  
+
   // Create top-level layout manager
   QBoxLayout* tlayout = new QHBoxLayout( this, 5, 20, "tlayout");
 
@@ -100,7 +96,7 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   connect(menulist, SIGNAL(activated(int)),SLOT(menulistActivate(int)));
   QPushButton* adminbut= new QPushButton(tr("&Edit menus.."), frame );
   QToolTip::add( adminbut,
-		 tr("Menu editor: Copy, change name and sortorder etc. on your own menus") );
+      tr("Menu editor: Copy, change name and sortorder etc. on your own menus") );
   connect(adminbut, SIGNAL(clicked()),SLOT(adminButton()));
 
   updatebut= new QPushButton(tr("&Update.."), frame );
@@ -123,9 +119,9 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   // create menuitem list
   list= new QListWidget(frame);
   connect(list, SIGNAL(itemClicked( QListWidgetItem * )),
-	  SLOT(listClicked( QListWidgetItem * )));
+      SLOT(listClicked( QListWidgetItem * )));
   connect(list, SIGNAL(itemDoubleClicked( QListWidgetItem * )),
-	  SLOT(listDoubleClicked( QListWidgetItem * )));
+      SLOT(listDoubleClicked( QListWidgetItem * )));
   vlayout->addWidget(list, 10);
 
   // Create variables/options layout manager
@@ -190,11 +186,11 @@ QuickMenu::QuickMenu( QWidget *parent, Controller* c,
   interval->setSuffix(" sek");
   connect(interval, SIGNAL(valueChanged(int)),SLOT(intervalChanged(int)));
   l->addWidget(interval);
-  
+
   QPushButton* qhelp= new QPushButton(tr("&Help"), frame );
   connect( qhelp, SIGNAL(clicked()), SLOT( helpClicked() ));
   l->addWidget(qhelp);
-  
+
   QPushButton* plothidebut= new QPushButton(tr("Apply+Hide"), frame );
   connect(plothidebut, SIGNAL(clicked()),SLOT(plotButton()));
   connect(plothidebut, SIGNAL(clicked()),SIGNAL( QuickHide()) );
@@ -259,7 +255,7 @@ bool QuickMenu::addMenu(const miString& name)
   qtmp.filename= qtmp.name + ".quick";
   qtmp.filename.replace(" ","_");
   qtmp.plotindex= 0;
-  
+
   qm.insert(qm.begin()+lastcustom, qtmp);
 
   // update index to previous list
@@ -269,7 +265,7 @@ bool QuickMenu::addMenu(const miString& name)
   fillMenuList();
 
   // save quickmenu to file
-  if (lastcustom >-1 && lastcustom<qm.size()){
+  if (lastcustom >-1 && lastcustom<int(qm.size())){
     writeQuickMenu(qm[lastcustom]);
   }
 
@@ -279,18 +275,18 @@ bool QuickMenu::addMenu(const miString& name)
 bool QuickMenu::addToMenu(const int idx)
 {
   if (firstcustom >=0 && lastcustom>=0 &&
-      firstcustom+idx < qm.size() &&
+      firstcustom+idx < int(qm.size()) &&
       prev_listindex>=0 && prev_plotindex>=0 &&
-      prev_listindex<qm.size()){
+      prev_listindex<int(qm.size())){
     int qidx= idx+firstcustom;
     qm[qidx].menuitems.
-      push_back(qm[prev_listindex].menuitems[prev_plotindex]);
-    
+    push_back(qm[prev_listindex].menuitems[prev_plotindex]);
+
     fillMenuList();
-    
+
     // save quickmenu to file
     writeQuickMenu(qm[qidx]);
-    
+
   } else
     return false;
   return true;
@@ -299,7 +295,7 @@ bool QuickMenu::addToMenu(const int idx)
 
 // Push a new command on the history-stack
 void QuickMenu::pushPlot(const miString& name,
-			 const vector<miString>& pstr)
+    const vector<miString>& pstr)
 {
   if (qm.size()==0) return;
   bool goon= true;
@@ -307,11 +303,11 @@ void QuickMenu::pushPlot(const miString& name,
   if (m > 0){ // check for duplicate
     if (qm[0].menuitems[0].command.size()==pstr.size()){
       goon= false;
-      for (int i=0; i<pstr.size(); i++){
-	if (pstr[i] != qm[0].menuitems[0].command[i]){
-	  goon= true;
-	  break;
-	}
+      for (unsigned int i=0; i<pstr.size(); i++){
+        if (pstr[i] != qm[0].menuitems[0].command[i]){
+          goon= true;
+          break;
+        }
       }
     }
   }
@@ -325,7 +321,7 @@ void QuickMenu::pushPlot(const miString& name,
     // push plot on stack
     miString plotname= name;
     plotname.trim();
-    quickMenuItem dummy; 
+    quickMenuItem dummy;
     qm[0].menuitems.push_front(dummy);
     qm[0].menuitems[0].command= pstr;
     qm[0].menuitems[0].name= plotname;
@@ -341,12 +337,12 @@ void QuickMenu::pushPlot(const miString& name,
 // called from quick-quick menu (Browsing)
 bool QuickMenu::prevQPlot(){
   int menu= activemenu;
-  if (qm.size()==0 || qm.size()<menu+1)
+  if (qm.size()==0 || int(qm.size())<menu+1)
     return false;
   int n= qm[menu].menuitems.size();
   if (n==0 || qm[menu].plotindex >= n-1 || qm[menu].plotindex<0)
     return false;
-  
+
   qm[menu].plotindex++;
   list->setCurrentRow(qm[menu].plotindex);
   listClicked(list->currentItem());
@@ -356,10 +352,10 @@ bool QuickMenu::prevQPlot(){
 // Go to previous History-plot
 bool QuickMenu::prevHPlot(){
   int menu= 0;
-  if (qm.size()==0 || qm.size()<menu+1)
+  if (qm.size()==0 || int(qm.size())<menu+1)
     return false;
   int n= qm[menu].menuitems.size();
-  
+
   // if in History-menu or last plot from History:
   // Change plotindex and plot
   if (activemenu==menu || prev_listindex==menu){
@@ -383,12 +379,12 @@ bool QuickMenu::prevHPlot(){
 // called from quick-quick menu (Browsing)
 bool QuickMenu::nextQPlot(){
   int menu= activemenu;
-  if (qm.size()==0 || qm.size()<menu+1)
+  if (qm.size()==0 || int(qm.size())<menu+1)
     return false;
   int n= qm[menu].menuitems.size();
   if (n==0 || qm[menu].plotindex > n-1 || qm[menu].plotindex<=0)
     return false;
-  
+
   qm[menu].plotindex--;
   list->setCurrentRow(qm[menu].plotindex);
   listClicked(list->currentItem());
@@ -398,10 +394,10 @@ bool QuickMenu::nextQPlot(){
 // Go to next History-plot
 bool QuickMenu::nextHPlot(){
   int menu= 0;
-  if (qm.size()==0 || qm.size()<menu+1)
+  if (qm.size()==0 || int(qm.size())<menu+1)
     return false;
   int n= qm[menu].menuitems.size();
-  
+
   // if in History-menu or last plot from History:
   // Change plotindex and plot
   if (activemenu==menu || prev_listindex==menu){
@@ -425,7 +421,7 @@ bool QuickMenu::nextHPlot(){
 
 // For browsing: go to previous quick-menu
 bool QuickMenu::prevList(){
-  if (qm.size()==0 || activemenu<1 || activemenu>qm.size()-1)
+  if (qm.size()==0 || activemenu<1 || activemenu>int(qm.size())-1)
     return false;
   setCurrentMenu(activemenu-1);
   return true;
@@ -434,7 +430,7 @@ bool QuickMenu::prevList(){
 
 // For browsing: go to next quick-menu
 bool QuickMenu::nextList(){
-  if (qm.size()==0 || activemenu<0 || activemenu>=qm.size()-1)
+  if (qm.size()==0 || activemenu<0 || activemenu>=int(qm.size())-1)
     return false;
   setCurrentMenu(activemenu+1);
   return true;
@@ -443,15 +439,15 @@ bool QuickMenu::nextList(){
 
 // for Browsing: get menu-details
 void QuickMenu::getDetails(int& plotidx,
-			   miString& listname,
-			   miString& plotname)
+    miString& listname,
+    miString& plotname)
 {
   plotidx= 0;
-  if (qm.size()>0 && activemenu < qm.size()){
+  if (qm.size()>0 && activemenu < int(qm.size())){
     plotidx= qm[activemenu].plotindex;
     listname= qm[activemenu].name;
-    plotname= (plotidx < qm[activemenu].menuitems.size() ?
-	       qm[activemenu].menuitems[plotidx].name:"");
+    plotname= (plotidx < int(qm[activemenu].menuitems.size()) ?
+        qm[activemenu].menuitems[plotidx].name:"");
   }
 }
 
@@ -462,7 +458,7 @@ bool QuickMenu::applyItem(const miString& mlist, const miString& item)
   int listIndex=0;
   while(listIndex<n && qm[listIndex].name != mlist){
     listIndex++;
-  }    
+  }
   if( listIndex==n ) return false;
 
   //find item index
@@ -484,7 +480,7 @@ bool QuickMenu::applyItem(const miString& mlist, const miString& item)
 void QuickMenu::applyPlot()
 {
   plotButton();
-//   emit Apply(qm[activemenu].menuitems[qm[activemenu].plotindex].command,true);
+  //   emit Apply(qm[activemenu].menuitems[qm[activemenu].plotindex].command,true);
 }
 
 void QuickMenu::adminButton()
@@ -497,17 +493,17 @@ void QuickMenu::adminButton()
     firstcustom= admin->FirstCustom();
     lastcustom= admin->LastCustom();
 
-    if (prev_listindex >= qm.size()){ // if previous plot now bad
+    if (prev_listindex >= int(qm.size())){ // if previous plot now bad
       prev_listindex= -1;
       prev_plotindex= -1;
     }
     // reset widgets
     fillMenuList();
-    
+
     // save custom quickmenus to file
     if (firstcustom != -1){
       for (int m=firstcustom; m<=lastcustom; m++){
-	writeQuickMenu(qm[m]);
+        writeQuickMenu(qm[m]);
       }
     }
   }
@@ -525,7 +521,7 @@ void QuickMenu::fillPrivateMenus()
   qm[0].plotindex= 0;
   if (!readQuickMenu(qm[0])) {
     qm[0].filename= setup.basicValue("homedir") + "/Historie.quick"; //obsolete
-     readQuickMenu(qm[0]);
+    readQuickMenu(qm[0]);
     // Write history to History.quick
     qm[0].filename= setup.basicValue("homedir") + "/History.quick";
   }
@@ -535,10 +531,10 @@ void QuickMenu::fillPrivateMenus()
   miString quickfile= setup.basicValue("homedir") + "/*.quick";
   glob_t globBuf;
   glob(quickfile.c_str(),0,0,&globBuf);
-  for( int k=0; k<globBuf.gl_pathc; k++) {
+  for( unsigned int k=0; k<globBuf.gl_pathc; k++) {
     qtmp.name= "";
     qtmp.filename= globBuf.gl_pathv[k];
-    if (qtmp.filename == qm[0].filename) continue; //History 
+    if (qtmp.filename == qm[0].filename) continue; //History
     qtmp.plotindex= 0;
     qtmp.menuitems.clear();
     if (readQuickMenu(qtmp)){
@@ -556,7 +552,7 @@ void QuickMenu::fillPrivateMenus()
 
 void QuickMenu::fillStaticMenus()
 {
-  
+
   quickMenu qtmp;
   orig_qm.clear();
   vector<QuickMenuDefs> qdefs;
@@ -580,95 +576,95 @@ void QuickMenu::updateButton()
 {
 
   int i= (lastcustom>0 ? lastcustom+1 : 1); // index to first static menu
-  
+
   if (prev_listindex >= 0 && prev_plotindex >= 0){
     int idx= qm[activemenu].plotindex;
-    if (idx >=0 && idx < qm[activemenu].menuitems.size()){
-      
+    if (idx >=0 && idx < int(qm[activemenu].menuitems.size())){
+
       bool changename= false;
 
       if (instaticmenu){
-	QString mess=
-	  "<b>"+tr("Do you want to replace the content of this menuitem with current plot?")+
-	  "</b><br>"+
-	  tr("Be aware that this is a static/official menuitem, and you are not guaranteed to be able to keep all changes.");
+        QString mess=
+          "<b>"+tr("Do you want to replace the content of this menuitem with current plot?")+
+          "</b><br>"+
+          tr("Be aware that this is a static/official menuitem, and you are not guaranteed to be able to keep all changes.");
 
-	
-	QMessageBox mb("Diana",mess,
-		       QMessageBox::Information,
-		       QMessageBox::Yes | QMessageBox::Default,
-		       QMessageBox::Cancel | QMessageBox::Escape,
-		       Qt::NoButton );
-	mb.setButtonText( QMessageBox::Yes, tr("Yes") );
-	mb.setButtonText( QMessageBox::Cancel, tr("Cancel") );
-	switch( mb.exec() ) {
-	case QMessageBox::Yes:
-	  // Yes
-	  break;
-	case QMessageBox::Cancel:
-	  // cancel operation
-	  return;
-	  break;
-	}
+
+        QMessageBox mb("Diana",mess,
+            QMessageBox::Information,
+            QMessageBox::Yes | QMessageBox::Default,
+            QMessageBox::Cancel | QMessageBox::Escape,
+            Qt::NoButton );
+        mb.setButtonText( QMessageBox::Yes, tr("Yes") );
+        mb.setButtonText( QMessageBox::Cancel, tr("Cancel") );
+        switch( mb.exec() ) {
+        case QMessageBox::Yes:
+          // Yes
+          break;
+        case QMessageBox::Cancel:
+          // cancel operation
+          return;
+          break;
+        }
       } else {
-	QString mess=
-	  "<b>"+tr("Do you want to replace the content of this menuitem with current plot?")+
-	  "</b><br>"+
-	  tr("The name can also be automatically created from the underlying data in the plot");
+        QString mess=
+          "<b>"+tr("Do you want to replace the content of this menuitem with current plot?")+
+          "</b><br>"+
+          tr("The name can also be automatically created from the underlying data in the plot");
 
-	QMessageBox mb("Diana",mess,
-		       QMessageBox::Information,
-		       QMessageBox::Yes | QMessageBox::Default,
-		       QMessageBox::No,
-		       QMessageBox::Cancel | QMessageBox::Escape );
-	mb.setButtonText( QMessageBox::Yes, tr("Yes, make new menu name") );
-	mb.setButtonText( QMessageBox::No, tr("Yes, keep menu name") );
-	mb.setButtonText( QMessageBox::Cancel, tr("Cancel") );
-	switch( mb.exec() ) {
-	case QMessageBox::Yes:
-	  // Yes
-	  changename= true;
-	  break;
-	case QMessageBox::No:
-	  // Yes, but keep the name
-	  changename= false;
-	  break;
-	case QMessageBox::Cancel:
-	  // cancel operation
-	  return;
-	  break;
-	}
+        QMessageBox mb("Diana",mess,
+            QMessageBox::Information,
+            QMessageBox::Yes | QMessageBox::Default,
+            QMessageBox::No,
+            QMessageBox::Cancel | QMessageBox::Escape );
+        mb.setButtonText( QMessageBox::Yes, tr("Yes, make new menu name") );
+        mb.setButtonText( QMessageBox::No, tr("Yes, keep menu name") );
+        mb.setButtonText( QMessageBox::Cancel, tr("Cancel") );
+        switch( mb.exec() ) {
+        case QMessageBox::Yes:
+          // Yes
+          changename= true;
+          break;
+        case QMessageBox::No:
+          // Yes, but keep the name
+          changename= false;
+          break;
+        case QMessageBox::Cancel:
+          // cancel operation
+          return;
+          break;
+        }
       }
 
       vector<miString> vs=
-	qm[prev_listindex].menuitems[prev_plotindex].command;
-      
+        qm[prev_listindex].menuitems[prev_plotindex].command;
+
       if (instaticmenu) {
-	// get legal version of current commands
-	emit(requestUpdate(chng_qm[activemenu-i].menuitems[idx].command,
-			   vs));
-	// set it..
-	if (vs.size()>0){
-	  qm[activemenu].menuitems[idx].command= vs;
-	  chng_qm[activemenu-i].menuitems[idx].command= vs;
-	}
+        // get legal version of current commands
+        emit(requestUpdate(chng_qm[activemenu-i].menuitems[idx].command,
+            vs));
+        // set it..
+        if (vs.size()>0){
+          qm[activemenu].menuitems[idx].command= vs;
+          chng_qm[activemenu-i].menuitems[idx].command= vs;
+        }
       } else {
-	// set it..
-	if (vs.size()>0){
-	  replaceDynamicOptions(qm[activemenu].menuitems[idx].command,vs);
-	  qm[activemenu].menuitems[idx].command= vs;
-	  if (changename){
-	    qm[activemenu].menuitems[idx].name=
-	      qm[prev_listindex].menuitems[prev_plotindex].name;
-	  }
-	  
-	  // save quickmenu to file if custom
-	  if (activemenu>= firstcustom && activemenu<=lastcustom){
-	    writeQuickMenu(qm[activemenu]);
-	  }
-	}
+        // set it..
+        if (vs.size()>0){
+          replaceDynamicOptions(qm[activemenu].menuitems[idx].command,vs);
+          qm[activemenu].menuitems[idx].command= vs;
+          if (changename){
+            qm[activemenu].menuitems[idx].name=
+              qm[prev_listindex].menuitems[prev_plotindex].name;
+          }
+
+          // save quickmenu to file if custom
+          if (activemenu>= firstcustom && activemenu<=lastcustom){
+            writeQuickMenu(qm[activemenu]);
+          }
+        }
       }
-      
+
       setCurrentMenu(activemenu);
       listClicked(list->item(idx));
     }
@@ -676,7 +672,7 @@ void QuickMenu::updateButton()
 }
 
 void QuickMenu::replaceDynamicOptions(vector<miString>& oldCommand,
-				      vector<miString>& newCommand)
+    vector<miString>& newCommand)
 {
 
   int nold=oldCommand.size();
@@ -684,53 +680,53 @@ void QuickMenu::replaceDynamicOptions(vector<miString>& oldCommand,
 
   for(int i=0;i<nold && i<nnew;i++){
     if(!oldCommand[i].contains("@")) continue;
-    vector<miString> token =oldCommand[i].split(" "); 
+    vector<miString> token =oldCommand[i].split(" ");
     int ntoken = token.size();
     for(int j=0;j<ntoken;j++){
       if(!token[j].contains("@")) continue;
       vector<miString> stoken = token[j].split("=");
       if(stoken.size()!=2 || !stoken[1].contains("@")) continue;
       //found item to replace
-      vector<miString> newtoken =newCommand[i].split(" "); 
+      vector<miString> newtoken =newCommand[i].split(" ");
       int nnewtoken = newtoken.size();
       if(nnewtoken<2 || token[0]!=newtoken[0]) continue;
       for(int k=1;k<nnewtoken;k++){
-	vector<miString> snewtoken = newtoken[k].split("=");
-	if(snewtoken.size()==2 && snewtoken[0]==stoken[0]){
-	  newCommand[i].replace(newtoken[k],token[j]);
-	}
+        vector<miString> snewtoken = newtoken[k].split("=");
+        if(snewtoken.size()==2 && snewtoken[0]==stoken[0]){
+          newCommand[i].replace(newtoken[k],token[j]);
+        }
       }
     }
   }
-    
+
 }
 
 void QuickMenu::resetButton()
 {
   int i= (lastcustom>0 ? lastcustom+1 : 1); // index to first static menu
-  
-  if (activemenu >= i && activemenu < qm.size()){ // static menu
+
+  if (activemenu >= i && activemenu < int(qm.size())){ // static menu
     int idx= qm[activemenu].plotindex;
-    if (idx >=0 && idx < qm[activemenu].menuitems.size()){
+    if (idx >=0 && idx < int(qm[activemenu].menuitems.size())){
 
       switch( QMessageBox::warning( this, "Diana",
-				    tr("Replace command with original copy?"),
-				    tr("OK"), tr("Cancel"), 0,
-				    0, 1 )){
+          tr("Replace command with original copy?"),
+          tr("OK"), tr("Cancel"), 0,
+          0, 1 )){
       case 0: // Ja
-	break;
+        break;
       case 1: // Quit or Escape
-	return;
-	break;
+        return;
+        break;
       }
-      
+
       // set menu-item
       qm[activemenu].menuitems[idx]=
-	orig_qm[activemenu-i].menuitems[idx];
+        orig_qm[activemenu-i].menuitems[idx];
       // also update change-list
       chng_qm[activemenu-i].menuitems[idx]=
-	orig_qm[activemenu-i].menuitems[idx];
-      
+        orig_qm[activemenu-i].menuitems[idx];
+
       setCurrentMenu(activemenu);
       listClicked(list->item(idx));
     }
@@ -745,23 +741,23 @@ bool QuickMenu::itemChanged(int menu, int item)
 
   int oidx= menu-i; // in original list
   int msize= orig_qm[oidx].menuitems[item].command.size();
-  if (msize != qm[menu].menuitems[item].command.size())
+  if (msize != int(qm[menu].menuitems[item].command.size()))
     return true;
 
   // check each command-line
   for (int j=0; j<msize; j++){
     if (orig_qm[oidx].menuitems[item].command[j] !=
-	qm[menu].menuitems[item].command[j])
+      qm[menu].menuitems[item].command[j])
       return true;
   }
-  
+
   return false;
 }
 
 
 void QuickMenu::readLog(const vector<miString>& vstr,
-			const miString& thisVersion,
-			miString& logVersion) {
+    const miString& thisVersion,
+    miString& logVersion) {
   // check version
   //   if (logVersion
 
@@ -769,14 +765,14 @@ void QuickMenu::readLog(const vector<miString>& vstr,
   vector<miString> vs,vvs;
   int n= vstr.size();
   bool skipmenu=true;
-  int idx= -1, actidx, oidx;
-  int priIndex=1;
+  int actidx, oidx;
+  unsigned int priIndex=1;
   miString key,value;
 
   quickMenuItem tmpitem;
   vector<quickMenuItem> logitems;
   bool itemlog= false, firstitemline= false;
-  
+
   for (int i=0; i<n; i++){
     line = vstr[i];
     line.trim();
@@ -787,111 +783,111 @@ void QuickMenu::readLog(const vector<miString>& vstr,
       skipmenu= false;
       miString name, update;
       if (line.length()>1){
-	str= line.substr(1,line.length()-1);
+        str= line.substr(1,line.length()-1);
       }
       vs= str.split(",");
-      for (int j=0; j<vs.size(); j++){
-	vvs= vs[j].split("=");
-	if (vvs.size()>1){
-	  key= vvs[0].upcase();
-	  value= vvs[1];
-	  if (key=="NAME")
-	    name= value;
-	  else if (key=="UPDATE")
-	    update= value;
-	}
+      for (unsigned int j=0; j<vs.size(); j++){
+        vvs= vs[j].split("=");
+        if (vvs.size()>1){
+          key= vvs[0].upcase();
+          value= vvs[1];
+          if (key=="NAME")
+            name= value;
+          else if (key=="UPDATE")
+            update= value;
+        }
       }
 
       if (update.exists()){ // update of static menu
-	actidx= -1;
-	int itmp= (lastcustom >= 0 ? lastcustom+1 : 1);
-	for (int l=0; l<qm.size(); l++){
-	  if (qm[l].name==update){
-	    actidx= l;
-	    break;
-	  }
-	}
-	if (actidx<0 || actidx < itmp){ // not found or not static
-	  skipmenu= true;
-	  continue;
-	}
-	// find index to original list
-	oidx= actidx-itmp; // in original list
-	
+        actidx= -1;
+        int itmp= (lastcustom >= 0 ? lastcustom+1 : 1);
+        for (unsigned int l=0; l<qm.size(); l++){
+          if (qm[l].name==update){
+            actidx= l;
+            break;
+          }
+        }
+        if (actidx<0 || actidx < itmp){ // not found or not static
+          skipmenu= true;
+          continue;
+        }
+        // find index to original list
+        oidx= actidx-itmp; // in original list
+
       } else if (name.exists()){ // custom menus, sort according to log
-	for (int l=1; l<qm.size(); l++){ //skip History (l=0)
-	  if (qm[l].name==name){
-	    actidx = priIndex;
-	    if (l!=priIndex) {
-	      qm.insert(qm.begin()+priIndex,qm[l]);
-	      qm.erase(qm.begin()+l+1);
-	    }
-	    priIndex++;
-	    break;
-	  }
-	}
+        for (unsigned int l=1; l<qm.size(); l++){ //skip History (l=0)
+          if (qm[l].name==name){
+            actidx = priIndex;
+            if (l!=priIndex) {
+              qm.insert(qm.begin()+priIndex,qm[l]);
+              qm.erase(qm.begin()+l+1);
+            }
+            priIndex++;
+            break;
+          }
+        }
       } else {
-	skipmenu= true;
+        skipmenu= true;
       }
 
     } else if (line[0]=='%' && !skipmenu){ // dynamic options
       if (line.length()>1 && actidx>=0){
-	miString opt= line.substr(1,line.length()-1);
-	vs= opt.split("=");
-	if (vs.size()>1){
-	  miString key= vs[0];
-	  opt= vs[1];
-	  
-	  for (int l=0; l<qm[actidx].opt.size(); l++){
-	    if (key==qm[actidx].opt[l].key){
-	      qm[actidx].opt[l].def= opt;
-	      break;
-	    }
-	  }
-	}
+        miString opt= line.substr(1,line.length()-1);
+        vs= opt.split("=");
+        if (vs.size()>1){
+          miString key= vs[0];
+          opt= vs[1];
+
+          for (unsigned int l=0; l<qm[actidx].opt.size(); l++){
+            if (key==qm[actidx].opt[l].key){
+              qm[actidx].opt[l].def= opt;
+              break;
+            }
+          }
+        }
       }
     } else if ((line[0]=='-' || line[0]=='=') && !skipmenu){
       if (itemlog) {
-	// end of one item - save it
-	logitems.push_back(tmpitem);
+        // end of one item - save it
+        logitems.push_back(tmpitem);
 
-	// maybe end of all items
-	if (line[0]=='='){
-	  // update static menus with logged items
-	  int m= logitems.size();
-	  for (int l=0; l<m; l++){
-	    // find item in static list: actidx
-	    int r= qm[actidx].menuitems.size();
-	    int ridx=-1;
-	    for (int k=0; k<r; k++){
-	      if (qm[actidx].menuitems[k].name==logitems[l].name){
-		ridx= k;
-		break;
-	      }
-	    }
-	    if (ridx==-1) continue; // not found
-	    // check that logged items are legal changes
-	    emit(requestUpdate(orig_qm[oidx].menuitems[ridx].command,
-			       logitems[l].command));
-	    // Ok, change it
-	    qm[actidx].menuitems[ridx].command= logitems[l].command;
-	    chng_qm[oidx].menuitems[ridx].command= logitems[l].command;
-	  }
-	  // update finished - remove it
-	  itemlog= false;
-	  logitems.clear();
-	}
+        // maybe end of all items
+        if (line[0]=='='){
+          // update static menus with logged items
+          int m= logitems.size();
+          for (int l=0; l<m; l++){
+            // find item in static list: actidx
+            int r= qm[actidx].menuitems.size();
+            int ridx=-1;
+            for (int k=0; k<r; k++){
+              if (qm[actidx].menuitems[k].name==logitems[l].name){
+                ridx= k;
+                break;
+              }
+            }
+            if (ridx==-1) continue; // not found
+            // check that logged items are legal changes
+            emit(requestUpdate(orig_qm[oidx].menuitems[ridx].command,
+                logitems[l].command));
+            // Ok, change it
+            qm[actidx].menuitems[ridx].command= logitems[l].command;
+            chng_qm[oidx].menuitems[ridx].command= logitems[l].command;
+          }
+          // update finished - remove it
+          itemlog= false;
+          logitems.clear();
+        }
       } else if (line[0]=='-'){
-	itemlog= true;
+        itemlog= true;
       }
       firstitemline= true;
     } else if (itemlog){ // reading items
       if (firstitemline){
-	tmpitem.name= line;
-	firstitemline= false;
-	tmpitem.command.clear();
+        tmpitem.name= line;
+        firstitemline= false;
+        tmpitem.command.clear();
       } else {
-	tmpitem.command.push_back(line);
+        tmpitem.command.push_back(line);
       }
     }
   }
@@ -906,7 +902,7 @@ vector<miString> QuickMenu::writeLog()
 
   vector<miString> vstr;
   miString str;
-  
+
   int n= qm.size();
   int m= orig_qm.size();
   int i2= (lastcustom >= 0 ? lastcustom+1 : 1);
@@ -920,51 +916,51 @@ vector<miString> QuickMenu::writeLog()
 
       // menuname
       if (j<i2 ){ //custom menus
-	writeQuickMenu(qm[j]); // save custom menus to file
-	str= ">name="+qm[j].name;
+        writeQuickMenu(qm[j]); // save custom menus to file
+        str= ">name="+qm[j].name;
       } else {
-	str= ">update="+qm[j].name;
+        str= ">update="+qm[j].name;
       }
       vstr.push_back(str);
       // write defaults for dynamic options
-      for (int k=0; k<qm[j].opt.size(); k++){
-	miString optline="%"+qm[j].opt[k].key+"="+qm[j].opt[k].def;
-	vstr.push_back(optline);
+      for (unsigned int k=0; k<qm[j].opt.size(); k++){
+        miString optline="%"+qm[j].opt[k].key+"="+qm[j].opt[k].def;
+        vstr.push_back(optline);
       }
       if (j>=i2){
-	// log changes in static menus
-	int oidx= -1;
-	for (int i=0; i<m; i++)
-	  if (orig_qm[i].name == qm[j].name){
-	    oidx= i;
-	    break;
-	  }
-	if (oidx==-1) continue;// not found in original list
-	int msize= chng_qm[oidx].menuitems.size();
-	if (orig_qm[oidx].menuitems.size() != msize)
-	  continue; // illegal change
-	for (int i=0; i<msize; i++){
-	  bool isdiff= false;
-	  int csize= chng_qm[oidx].menuitems[i].command.size();
-	  if (orig_qm[oidx].menuitems[i].command.size() != csize)
-	    isdiff= true;
-	  if (!isdiff){
-	    for (int k=0; k<csize; k++){ // check if any changes
-	      if (orig_qm[oidx].menuitems[i].command[k] !=
-		  chng_qm[oidx].menuitems[i].command[k]){
-		// 		  qm[j].menuitems[i].command[k]){
-		isdiff= true;
-		break;
-	      }
-	    }
-	  }
-	  if (isdiff){
-	    vstr.push_back("-----------------------");
-	    vstr.push_back(chng_qm[oidx].menuitems[i].name);
-	    for (int k=0; k<csize; k++)
-	      vstr.push_back(chng_qm[oidx].menuitems[i].command[k]);
-	  }
-	}
+        // log changes in static menus
+        int oidx= -1;
+        for (int i=0; i<m; i++)
+          if (orig_qm[i].name == qm[j].name){
+            oidx= i;
+            break;
+          }
+        if (oidx==-1) continue;// not found in original list
+        unsigned int msize= chng_qm[oidx].menuitems.size();
+        if (orig_qm[oidx].menuitems.size() != msize)
+          continue; // illegal change
+        for (unsigned int i=0; i<msize; i++){
+          bool isdiff= false;
+          unsigned int csize= chng_qm[oidx].menuitems[i].command.size();
+          if (orig_qm[oidx].menuitems[i].command.size() != csize)
+            isdiff= true;
+          if (!isdiff){
+            for (unsigned int k=0; k<csize; k++){ // check if any changes
+              if (orig_qm[oidx].menuitems[i].command[k] !=
+                chng_qm[oidx].menuitems[i].command[k]){
+                // 		  qm[j].menuitems[i].command[k]){
+                isdiff= true;
+                break;
+              }
+            }
+          }
+          if (isdiff){
+            vstr.push_back("-----------------------");
+            vstr.push_back(chng_qm[oidx].menuitems[i].name);
+            for (unsigned int k=0; k<csize; k++)
+              vstr.push_back(chng_qm[oidx].menuitems[i].command[k]);
+          }
+        }
       }
       vstr.push_back("=======================");
     }
@@ -986,7 +982,7 @@ void QuickMenu::fillMenuList()
   for (int i=0; i<n; i++) menulist->insertItem(qnames[i]);
 
   // set active menu
-  if (activemenu >= qm.size()) activemenu= qm.size()-1;
+  if (activemenu >= int(qm.size())) activemenu= qm.size()-1;
   setCurrentMenu(activemenu);
 }
 
@@ -995,7 +991,7 @@ void QuickMenu::menulistActivate(int idx)
 {
   //  cerr << "Menulistactivate called:" << idx << endl;
   if (qm.size() == 0) return;
-  if (idx >= qm.size()) idx= qm.size()-1;
+  if (idx >= int(qm.size())) idx= qm.size()-1;
 
   activemenu= idx;
   list->clear();
@@ -1009,7 +1005,7 @@ void QuickMenu::menulistActivate(int idx)
       itemlist+= qstr;
     }
     list->addItems(itemlist);
-    if (qm[idx].plotindex >= qm[idx].menuitems.size())
+    if (qm[idx].plotindex >= int(qm[idx].menuitems.size()))
       qm[idx].plotindex= 0;
     list->item(qm[idx].plotindex)->setSelected(true);
     listClicked(list->item(qm[idx].plotindex));
@@ -1029,16 +1025,16 @@ void QuickMenu::menulistActivate(int idx)
   if (n>0){
     for (int i=0; i<n; i++){
       optionlabel[i]->setText(qm[idx].opt[i].key.cStr());
-      
+
       int nopts= qm[idx].opt[i].options.size();
       int defidx= -1;
       if (nopts > 0){
-	for(int j=0; j<nopts; j++){
-	  optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].cStr()));
-	  if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
-	    defidx= j;
-	}
-	if (defidx>=0) optionmenu[i]->setCurrentItem(defidx);
+        for(int j=0; j<nopts; j++){
+          optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].cStr()));
+          if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
+            defidx= j;
+        }
+        if (defidx>=0) optionmenu[i]->setCurrentItem(defidx);
       }
       optionmenu[i]->adjustSize();
       optionlabel[i]->show();
@@ -1049,7 +1045,7 @@ void QuickMenu::menulistActivate(int idx)
   }
   // check if in static menu
   instaticmenu= ((lastcustom>0 && activemenu>lastcustom) ||
-		 (lastcustom==-1 && activemenu > 0));
+      (lastcustom==-1 && activemenu > 0));
   // enable updateButton
   updatebut->setEnabled(true);//instaticmenu);
 }
@@ -1059,7 +1055,7 @@ void QuickMenu::saveChanges(int midx, int lidx){
   static int oldindex= -1;
   static int oldmenu=  -1;
   if (oldindex!=-1 && (oldindex!=lidx || oldmenu!= midx) &&
-      oldmenu<qm.size() && oldindex<qm[oldmenu].menuitems.size() &&
+      oldmenu<int(qm.size()) && oldindex<int(qm[oldmenu].menuitems.size()) &&
       comset){
     vector<miString> s;
     getCommand(s);
@@ -1074,7 +1070,7 @@ void QuickMenu::listClicked( QListWidgetItem * item)
   int idx = list->row(item);
 
   saveChanges(activemenu, idx);
-  miString ts;  
+  miString ts;
   int n= qm[activemenu].menuitems[idx].command.size();
   for (int i=0; i<n; i++){
     ts += qm[activemenu].menuitems[idx].command[i];
@@ -1119,11 +1115,11 @@ void QuickMenu::getCommand(vector<miString>& s){
   int ni = s.size();
   for (int i=0; i<ni; i++){
     s[i].trim();
-//     miString str= comedit->text(i).latin1();
-//     str.trim();
-//     if (str.contains("\n"))
-//       str.erase(str.end()-1);
-//     if (str.exists()) s.push_back(str);
+    //     miString str= comedit->text(i).latin1();
+    //     str.trim();
+    //     if (str.contains("\n"))
+    //       str.erase(str.end()-1);
+    //     if (str.exists()) s.push_back(str);
   }
 }
 
@@ -1140,8 +1136,8 @@ void QuickMenu::varExpand(vector<miString>& com)
     miString key= qm[activemenu].opt[i].key;
     vector<int>::iterator it= keys.begin();
     for (; it!=keys.end() &&
-	   key.length()<qm[activemenu].opt[*it].key.length();
-	 it++)
+    key.length()<qm[activemenu].opt[*it].key.length();
+    it++)
       ;
     keys.insert(it, i);
   }
@@ -1165,9 +1161,9 @@ void QuickMenu::plotButton()
   if (com.size()>0){
     if (optionsexist) varExpand(com);
     //have to replot, or have to check if options has changed
-//     if (!browsing ||  // plot if no browsing..
-// 	(activemenu!=prev_listindex || // or if selected plot different
-// 	 qm[activemenu].plotindex!=prev_plotindex))// from previous
+    //     if (!browsing ||  // plot if no browsing..
+    // 	(activemenu!=prev_listindex || // or if selected plot different
+    // 	 qm[activemenu].plotindex!=prev_plotindex))// from previous
     emit Apply(com,true);
     prev_plotindex= qm[activemenu].plotindex;
     prev_listindex= activemenu;
@@ -1180,11 +1176,11 @@ void QuickMenu::comButton(bool on)
   if (on) {
     comlabel->show();
     comedit->show();
-    
+
     int w= this->width();
     int h= comlabel->height() + comedit->height();
     this->resize(w, this->height()+h);
-    
+
 
   } else {
     int w= this->width();
@@ -1215,7 +1211,7 @@ void QuickMenu::timerEvent(QTimerEvent *e)
 {
   if (e->timerId()==demoTimer){
     qm[activemenu].plotindex++;//activeplot++;
-    if (qm[activemenu].plotindex>=qm[activemenu].menuitems.size())
+    if (qm[activemenu].plotindex>=int(qm[activemenu].menuitems.size()))
       qm[activemenu].plotindex=0;
     list->setCurrentRow(qm[activemenu].plotindex);
     listClicked(list->item(qm[activemenu].plotindex));
@@ -1234,7 +1230,7 @@ void QuickMenu::intervalChanged(int value)
 
 
 void QuickMenu::helpClicked(){
-  emit showsource("ug_quickmenu.html"); 
+  emit showsource("ug_quickmenu.html");
 }
 
 

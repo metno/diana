@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 //#define TESTICECONC
 
 //#define DEBUGCLASSES
@@ -50,13 +50,13 @@ bool     FieldEdit::drawExtraLines= false;
 
 
 FieldEdit::FieldEdit()
-  : editfield(0), editfieldplot(0), numundo(0), active(false),
-    editStarted(false), operationStarted(false), discontinuous(false),
-    justDoneUndoRedo(false), convertpos(false), odata(0), specset(false),
-    workfield(0),posx(0),posy(0),showArrow(false),
-    drawIsoline(false), numUndefReplaced(0),
-    minValue(fieldUndef), maxValue(fieldUndef),
-    lastFileWritten(""), showNumbers(false), numbersDisplayed(false)
+: workfield(0), editfield(0), editfieldplot(0),
+showNumbers(false), numbersDisplayed(false),
+specset(false),minValue(fieldUndef), maxValue(fieldUndef),
+lastFileWritten(""), numundo(0), active(false),
+editStarted(false), operationStarted(false),
+posx(0),posy(0),showArrow(false), convertpos(false), justDoneUndoRedo(false), odata(0),
+numUndefReplaced(0), discontinuous(false),drawIsoline(false)
 {
 #ifdef DEBUGPRINT
   cerr << "FieldEdit constructor" << endl;
@@ -257,7 +257,7 @@ void FieldEdit::setSpec(const EditProduct& ep, int fnum) {
 
 
 bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
-				     const miTime& tprod){
+    const miTime& tprod){
 
   if (!editfield) return false;
 
@@ -271,7 +271,7 @@ bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
   if (specset) {
     for (int i=0; i<2; i++)
       if (metnoFieldFileIdentSpec[i]>0)
-	metnoFieldFileIdent[i]= metnoFieldFileIdentSpec[i];
+        metnoFieldFileIdent[i]= metnoFieldFileIdentSpec[i];
     for (int i=2; i<8; i++)
       metnoFieldFileIdent[i]= metnoFieldFileIdentSpec[i];
   } else {
@@ -292,10 +292,10 @@ bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
   miString smin=   sclock.substr(3,2);
   if (smin=="00")
     fulltext = text + " " + editfield->validFieldTime.isoDate()
-                    + " " + shour + " UTC";
+    + " " + shour + " UTC";
   else
     fulltext = text + " " + editfield->validFieldTime.isoDate()
-		    + " " + shour + ":" + smin + " UTC";
+    + " " + shour + ":" + smin + " UTC";
 
   editfield->name=     fieldname;
   editfield->text=     text;
@@ -325,9 +325,9 @@ void FieldEdit::makeWorkfield()
     float avg= 0.0;
     for (int i=0; i<nx*ny; i++) {
       if (editfield->data[i]!=fieldUndef)
-	avg+=editfield->data[i];
+        avg+=editfield->data[i];
       else
-	nundef++;
+        nundef++;
     }
     if (nundef>0 && nundef<nx*ny) {
       workfield= new Field;
@@ -340,28 +340,28 @@ void FieldEdit::makeWorkfield()
       n=0;
       n1a=n;
       for (j=1; j<ny-1; j++)
-	for (i=1; i<nx-1; i++)
-	  if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
+        for (i=1; i<nx-1; i++)
+          if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
       n1b=n;
       n2a=n;
       i=0;
       for (j=1; j<ny-1; j++)
-	if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
+        if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
       n2b=n;
       n3a=n;
       i=nx-1;
       for (j=1; j<ny-1; j++)
-	if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
+        if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
       n3b=n;
       n4a=n;
       j=0;
       for (i=0; i<nx; i++)
-	if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
+        if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
       n4b=n;
       n5a=n;
       j=ny-1;
       for (i=0; i<nx; i++)
-	if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
+        if (f[j*nx+i]==fieldUndef) indx[n++]= j*nx+i;
       n5b=n;
 
       for (i=0; i<nx*ny; i++)
@@ -376,41 +376,41 @@ void FieldEdit::makeWorkfield()
 
       for (int loop=0; loop<100; loop++) {
 
-	for (n=n1a; n<n1b; n++) {
-	  ij=indx[n];
-	  error= (f[ij-nx]+f[ij-1]+f[ij+1]+f[ij+nx])*0.25-f[ij];
-	  f[ij]+=(error*cor);
-	}
-	for (n=n2a; n<n2b; n++) {
-	  ij=indx[n];
-	  f[ij]=f[ij+1];
+        for (n=n1a; n<n1b; n++) {
+          ij=indx[n];
+          error= (f[ij-nx]+f[ij-1]+f[ij+1]+f[ij+nx])*0.25-f[ij];
+          f[ij]+=(error*cor);
         }
-	for (n=n3a; n<n3b; n++) {
-	  ij=indx[n];
-	  f[ij]=f[ij-1];
+        for (n=n2a; n<n2b; n++) {
+          ij=indx[n];
+          f[ij]=f[ij+1];
         }
-	for (n=n4a; n<n4b; n++) {
-	  ij=indx[n];
-	  f[ij]=f[ij+nx];
-	}
- 	for (n=n5a; n<n5b; n++) {
-	  ij=indx[n];
-	  f[ij]=f[ij-nx];
-	}
+        for (n=n3a; n<n3b; n++) {
+          ij=indx[n];
+          f[ij]=f[ij-1];
+        }
+        for (n=n4a; n<n4b; n++) {
+          ij=indx[n];
+          f[ij]=f[ij+nx];
+        }
+        for (n=n5a; n<n5b; n++) {
+          ij=indx[n];
+          f[ij]=f[ij-nx];
+        }
 
       }
 
       if (minValue!=fieldUndef) {
- 	for (n=n1a; n<n5b; n++) {
-	  ij=indx[n];
-	  if (f[ij]<minValue) f[ij]= minValue;
-	}
+        for (n=n1a; n<n5b; n++) {
+          ij=indx[n];
+          if (f[ij]<minValue) f[ij]= minValue;
+        }
       }
       if (maxValue!=fieldUndef) {
- 	for (n=n1a; n<n5b; n++) {
-	  ij=indx[n];
-	  if (f[ij]>maxValue) f[ij]= maxValue;
-	}
+        for (n=n1a; n<n5b; n++) {
+          ij=indx[n];
+          if (f[ij]>maxValue) f[ij]= maxValue;
+        }
       }
 
       delete[] indx;
@@ -524,7 +524,7 @@ bool FieldEdit::readEditfield(const miString& filename)
 
   // open the DNMI field file
   mrfelt(mode,filename.c_str(),funit.Num(),&inh[0][0],ipack,1,&fdum,1.0,
-         32,idfile,&ierror);
+      32,idfile,&ierror);
   if (ierror) {
     cerr << "Something went wrong during opening.." << endl;
     funit.Unlock();
@@ -543,18 +543,18 @@ bool FieldEdit::readEditfield(const miString& filename)
 
   // find existing fields
   qfelt(iunit,irequest,iexist,ninh,&inh[0][0],ifoundq,&nfoundq,
-        &iend,&ierror,&ioerr);
+      &iend,&ierror,&ioerr);
   if (ierror!=0) cerr << "QFELT ERROR,IOERROR: "
-                      << ierror << " " << ioerr << endl;
+  << ierror << " " << ioerr << endl;
 
   for (int n=0; n<nfoundq; n++) {
 
     bool read= true;
     if (specset) {
       read= (inh[n][10]==metnoFieldFileIdentSpec[4] &&
-	     inh[n][11]==metnoFieldFileIdentSpec[5] &&
-             inh[n][12]==metnoFieldFileIdentSpec[6] &&
-	     inh[n][13]==metnoFieldFileIdentSpec[7]);
+          inh[n][11]==metnoFieldFileIdentSpec[5] &&
+          inh[n][12]==metnoFieldFileIdentSpec[6] &&
+          inh[n][13]==metnoFieldFileIdentSpec[7]);
     }
 
     if (read) {
@@ -564,21 +564,21 @@ bool FieldEdit::readEditfield(const miString& filename)
       short int *idata= new short int[ldata];
       float *field= new float[lfield];
       mrfelt(mode,filename.c_str(),funit.Num(),&inh[n][0],
-	     ipack,lfield,field,fscale,
-             ldata,idata,&ierror);
+          ipack,lfield,field,fscale,
+          ldata,idata,&ierror);
       if (ierror) {
         cerr << "Something went wrong during reading.." << endl;
-	delete[] field;
+        delete[] field;
       } else {
         editfield= new Field;
-	editfield->data= field;
+        editfield->data= field;
         for (int i=0; i<20; i++) metnoFieldFileIdent[i]= idata[i];
-	float gspec[Projection::speclen];
-	int   gtype;
+        float gspec[Projection::speclen];
+        int   gtype;
         gridpar(+1,ldata,idata,&gtype,&nx,&ny,gspec,&ierror);
         if (ierror) {
           cerr << "FieldEdit::readEditfield GRIDPAR ERROR" << endl;
-	  delete editfield;
+          delete editfield;
         } else {
           Projection p;
           p.set_mi_gridspec(gtype, gspec);
@@ -588,9 +588,9 @@ bool FieldEdit::readEditfield(const miString& filename)
           editfield->nx= nx;
           editfield->ny= ny;
           found= true;
-	  int i=0;
-	  while (i<nx*ny && editfield->data[i]!=fieldUndef) i++;
-	  editfield->allDefined= (i==nx*ny);
+          int i=0;
+          while (i<nx*ny && editfield->data[i]!=fieldUndef) i++;
+          editfield->allDefined= (i==nx*ny);
         }
       }
       delete[] idata;
@@ -601,7 +601,7 @@ bool FieldEdit::readEditfield(const miString& filename)
   // close the DNMI field file
   mode= 3;
   mrfelt(mode,filename.c_str(),funit.Num(),&inh[0][0],ipack,1,&fdum,1.0,
-         1,idfile,&ierror);
+      1,idfile,&ierror);
 
   funit.Unlock();
 
@@ -610,8 +610,8 @@ bool FieldEdit::readEditfield(const miString& filename)
 
 
 void FieldEdit::setData(const vector<Field*>& vf,
-                        const miString& fieldname,
-			const miTime& tprod) {
+    const miString& fieldname,
+    const miTime& tprod) {
 
   cleanup();
 
@@ -648,19 +648,19 @@ void FieldEdit::setConstantValue(float value) {
 
 
 bool FieldEdit::readEditFieldFile(const miString& filename,
-                                  const miString& fieldname,
-				  const miTime& tprod){
+    const miString& fieldname,
+    const miTime& tprod){
 
   cleanup();
 
   if (!readEditfield(filename)) {
     //if (!OLDreadEditfield(filename)) return false;
-//########################################################
+    //########################################################
     if (!OLDreadEditfield(filename)) {
       miString filename2= filename + "00";
       if (!OLDreadEditfield(filename2)) return false;
     }
-//########################################################
+    //########################################################
   }
 
   prepareEditFieldPlot(fieldname,tprod);
@@ -726,8 +726,8 @@ void FieldEdit::OLDwriteEditFieldFile(const miString& filename){
 
 
 bool FieldEdit::writeEditFieldFile(const miString& filename,
-				   bool returndata,
-				   short int** fdata, int& fdatalength) {
+    bool returndata,
+    short int** fdata, int& fdatalength) {
 
   // create and write a DNMI field file,
   // and possibly return data for database
@@ -735,11 +735,11 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
   if (!editfield) return false;
   if (!editfield->data) return false;
 
-//   cerr << "FieldEdit::writeEditFieldFile" << endl;
-//   for ( int i=0; i<8; i++)
-//     cerr << " metnoFieldFileIdentSpec[" << i << "]=" << metnoFieldFileIdentSpec[i] << endl;
-//   for ( int i=0; i<20; i++)
-//     cerr << " metnoFieldFileIdent[" << i << "]=" << metnoFieldFileIdent[i] << endl;
+  //   cerr << "FieldEdit::writeEditFieldFile" << endl;
+  //   for ( int i=0; i<8; i++)
+  //     cerr << " metnoFieldFileIdentSpec[" << i << "]=" << metnoFieldFileIdentSpec[i] << endl;
+  //   for ( int i=0; i<20; i++)
+  //     cerr << " metnoFieldFileIdent[" << i << "]=" << metnoFieldFileIdent[i] << endl;
 
   // all gridspec may not be in ident... use area
   Projection p= editfield->area.P();
@@ -793,7 +793,7 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
     int iopt=0;
 
     crefelt(filename.c_str(), funit.Num(), itype, ltime, itime,
-	    icode, lspec, ispec, lopt, &iopt, &ierror);
+        icode, lspec, ispec, lopt, &iopt, &ierror);
     if (ierror) {
       cerr << "FieldEdit::writeEditFieldFile CREFELT ERROR" << endl;
       delete[] idata;
@@ -817,13 +817,13 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
   float fscale= 1.0;
 
   mwfelt(mode, filename.c_str(), funit.Num(),
-	 ipack, nx*ny, editfield->data, fscale,
-	 ldata, idata, &ierror);
+      ipack, nx*ny, editfield->data, fscale,
+      ldata, idata, &ierror);
   if (ierror) {
     mode= 0; // now printing error message
     mwfelt(mode, filename.c_str(), funit.Num(),
-	   ipack, nx*ny, editfield->data, fscale,
-	   ldata, idata, &ierror);
+        ipack, nx*ny, editfield->data, fscale,
+        ldata, idata, &ierror);
     if (ierror) {
       cerr << "FieldEdit::writeEditFieldFile MWFELT ERROR above" << endl;
       delete[] idata;
@@ -913,7 +913,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
   //
 #ifdef DEBUGREDRAW
   cerr<<"FieldEdit::notifyEditEvent  type,order: "
-      <<ee.type<<" "<<ee.order<<endl;
+  <<ee.type<<" "<<ee.order<<endl;
 #endif
 
   // do not exit if only setup/default information from dialog
@@ -944,8 +944,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (ee.order==start_event) {
         posx= xfirst= ee.x;
         posy= yfirst= ee.y;
-	influencetype= def_influencetype;
-	ecellipse=     def_ecellipse;
+        influencetype= def_influencetype;
+        ecellipse=     def_ecellipse;
       } else {
         float dx= ee.x - xfirst;
         float dy= ee.y - yfirst;
@@ -963,25 +963,25 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (maparea.P()!=editfield->area.P()) {
         int npos= 1;
         if (!gc.getPoints(maparea,editfield->area,npos,&gx,&gy)) {
-	  cerr << "EDIT: getPoints error" << endl;
-	  return false;
+          cerr << "EDIT: getPoints error" << endl;
+          return false;
         }
       }
       float fv;
       int interpoltype= 0;
       if (!editfield->interpolate(1,&gx,&gy,&fv,interpoltype))
-	fv=fieldUndef;
+        fv=fieldUndef;
       if (fv!=fieldUndef) {
-//####################################################
+        //####################################################
         const PlotOptions poptions= editfieldplot->getPlotOptions();
         discontinuous= poptions.discontinuous!=0;
-//####################################################
+        //####################################################
         nx= editfield->nx;
         ny= editfield->ny;
         int nsmooth=0;
-	isoline= findIsoLine(gx,gy,fv,nsmooth,nx,ny,workfield->data,discontinuous);
-	if (!isoline.x.size()) {
-	  repaint= false;
+        isoline= findIsoLine(gx,gy,fv,nsmooth,nx,ny,workfield->data,discontinuous);
+        if (!isoline.x.size()) {
+          repaint= false;
         } else {
           drawIsoline= true;
         }
@@ -1018,42 +1018,42 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       repaint= false;
 
     } else if (ee.type==edit_value        ||
-    	       ee.type==edit_move         ||
-	       ee.type==edit_gradient     ||
-               ee.type==edit_line         ||
-               ee.type==edit_line_smooth  ||
-               ee.type==edit_line_limited ||
-               ee.type==edit_line_limited_smooth ||
-               ee.type==edit_smooth) {
+        ee.type==edit_move         ||
+        ee.type==edit_gradient     ||
+        ee.type==edit_line         ||
+        ee.type==edit_line_smooth  ||
+        ee.type==edit_line_limited ||
+        ee.type==edit_line_limited_smooth ||
+        ee.type==edit_smooth) {
 
       if (def_influencetype==3)
         def_influencetype= influencetype= 0;  // as in dialog ??????
 
-      editstate= ee.type;
+            editstate= ee.type;
 
     } else if (ee.type==edit_replace_undef) {
 
-//    if (def_influencetype==3)
-//      def_influencetype= influencetype= 0;  // as in dialog ??????
+      //    if (def_influencetype==3)
+      //      def_influencetype= influencetype= 0;  // as in dialog ??????
 
       editstate= ee.type;
 
     } else if (ee.type==edit_class_line || ee.type==edit_class_copy ||
-	       ee.type==edit_class_value) {
+        ee.type==edit_class_value) {
 
-//    if (def_influencetype==1 || def_influencetype==2)
-//      def_influencetype= influencetype= 0;  // as in dialog ??????
+      //    if (def_influencetype==1 || def_influencetype==2)
+      //      def_influencetype= influencetype= 0;  // as in dialog ??????
 
       editstate= ee.type;
       if (ee.type==edit_class_value) brushValue= ee.x;
       brushReplaceUndef= false;
 
-//  } else if (ee.type==edit_number_change || ee.type==edit_number_fixed ||
-//	       ee.type==edit_number_undef) {
+      //  } else if (ee.type==edit_number_change || ee.type==edit_number_fixed ||
+      //	       ee.type==edit_number_undef) {
     } else if (ee.type==edit_set_undef) {
 
-//   if (def_influencetype==1 || def_influencetype==2)
-//      def_influencetype= influencetype= 0;  // as in dialog ??????
+      //   if (def_influencetype==1 || def_influencetype==2)
+      //      def_influencetype= influencetype= 0;  // as in dialog ??????
 
       editstate= ee.type;
 
@@ -1082,12 +1082,12 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
     } else if (ee.type==edit_redo) {
 
-      if (numundo<undofields.size()) {
+      if (numundo<int(undofields.size())) {
         uindex= numundo++;
         pindex= 1;
       }
       // return true if there are more redo cases left
-      if (numundo==undofields.size()) repaint= false;
+      if (numundo==int(undofields.size())) repaint= false;
 
     } else if (ee.type==edit_lock_value) {
 
@@ -1119,15 +1119,15 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           undofields[u].editstate==edit_set_undef) {
         for (j=undofields[u].j1; j<undofields[u].j2; ++j)
           for (i=undofields[u].i1; i<undofields[u].i2; ++i)
-	    editfield->data[j*nx+i]=undofields[u].data[p][n++];
+            editfield->data[j*nx+i]=undofields[u].data[p][n++];
       } else {
         for (j=undofields[u].j1; j<undofields[u].j2; ++j) {
           for (i=undofields[u].i1; i<undofields[u].i2; ++i) {
-	    if (editfield->data[j*nx+i]!=fieldUndef)
-	      editfield->data[j*nx+i]=undofields[u].data[p][n];
-	    workfield->data[j*nx+i]=undofields[u].data[p][n++];
-	  }
-	}
+            if (editfield->data[j*nx+i]!=fieldUndef)
+              editfield->data[j*nx+i]=undofields[u].data[p][n];
+            workfield->data[j*nx+i]=undofields[u].data[p][n++];
+          }
+        }
       }
 
       // save influence as shown in dialog
@@ -1179,7 +1179,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (!odata) odata= new float[fsize];
 
       if (editstate==edit_replace_undef ||
-	  editstate==edit_set_undef) {
+          editstate==edit_set_undef) {
         for (int i=0; i<fsize; ++i) odata[i]= editfield->data[i];
       } else {
         for (int i=0; i<fsize; ++i) odata[i]= workfield->data[i];
@@ -1212,8 +1212,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         float ry[3] = { gy, gy-ayellipse*0.5, gy+ayellipse*0.5 };
         int npos= 3;
         if (!gc.getPoints(maparea,editfield->area,npos,rx,ry)) {
-	  cerr << "EDIT: getPoints error" << endl;
-	  return false;
+          cerr << "EDIT: getPoints error" << endl;
+          return false;
         }
         gx= rx[0];
         gy= ry[0];
@@ -1244,7 +1244,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         yrefpos= ee.y;
         Rectangle rf= maparea.R();
         // changing along the map height
-//      deltascale = 4.0 * lineinterval / rf.height();
+        //      deltascale = 4.0 * lineinterval / rf.height();
         deltascale = 2.0 * lineinterval / rf.height();
         convertpos= false;
 
@@ -1253,26 +1253,26 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         yrefpos= ee.y;
         Rectangle rf= maparea.R();
         // changing along the map height
-//      deltascale = 40.0 * lineinterval / rf.height();
+        //      deltascale = 40.0 * lineinterval / rf.height();
         deltascale = 10.0 * lineinterval / rf.height();
         convertpos= false;
 
       } else if (editstate==edit_line         ||
-      		 editstate==edit_line_smooth  ||
-	         editstate==edit_line_limited ||
-	         editstate==edit_line_limited_smooth) {
+          editstate==edit_line_smooth  ||
+          editstate==edit_line_limited ||
+          editstate==edit_line_limited_smooth) {
         Rectangle rec= maparea.R();
         float rx[4] = { rec.x1, rec.x2, rec.x1, rec.x2 };
         float ry[4] = { rec.y1, rec.y2, rec.y2, rec.y1 };
         if (convertpos) {
           int npos= 4;
           if (!gc.getPoints(maparea,editfield->area,npos,rx,ry)) {
-	    cerr << "EDIT: getPoints error" << endl;
-	    return false;
+            cerr << "EDIT: getPoints error" << endl;
+            return false;
           }
         }
         float avg= (sqrtf((rx[0]-rx[1])*(rx[0]-rx[1])+(ry[0]-ry[1])*(ry[0]-ry[1]))
-		   +sqrtf((rx[2]-rx[3])*(rx[2]-rx[3])+(ry[2]-ry[3])*(ry[2]-ry[3])))*0.5;
+            +sqrtf((rx[2]-rx[3])*(rx[2]-rx[3])+(ry[2]-ry[3])*(ry[2]-ry[3])))*0.5;
         int nsmooth= int(200./avg + 0.5);
         if (nsmooth<0) nsmooth= 0;
         if (nsmooth>8) nsmooth= 8; // ??????????????????????????
@@ -1281,29 +1281,29 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         yline.clear();
         int interpoltype= 0;
         if (!editfield->interpolate(1,&gx,&gy,&fline,interpoltype))
-	  fline=fieldUndef;
+          fline=fieldUndef;
         if (fline==fieldUndef) return false;
-	isoline= findIsoLine(gx,gy,fline,nsmooth,nx,ny,workfield->data,false);
-	if (!isoline.x.size()) {
-	  fline= fieldUndef;
-	  return false;
+        isoline= findIsoLine(gx,gy,fline,nsmooth,nx,ny,workfield->data,false);
+        if (!isoline.x.size()) {
+          fline= fieldUndef;
+          return false;
         }
         xline.push_back(gx);
         yline.push_back(gy);
         // only circle influence, radius changing during operation
-	influencetype= 0;
+        influencetype= 0;
         if (editstate==edit_line_smooth ||
             editstate==edit_line_limited_smooth) numsmooth= 2;
-	else                                     numsmooth= 0;
+        else                                     numsmooth= 0;
 
       } else if (editstate==edit_smooth) {
-	// ellipse with focus line not used
+        // ellipse with focus line not used
         if (influencetype==2) influencetype= 1;
         editSmooth(gx, gy);
         change= true;
 
       } else if (editstate==edit_replace_undef) {
-	brushReplaceUndef= true;
+        brushReplaceUndef= true;
         editBrush(gx, gy);
         change= false;  // everything is done
 
@@ -1312,7 +1312,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         yline.clear();
         int interpoltype= 0; // just find a value to start the line
         if (!editfield->interpolate(1,&gx,&gy,&fline,interpoltype))
-	  fline=fieldUndef;
+          fline=fieldUndef;
         if (fline==fieldUndef) {
 #ifdef DEBUGCLASSES
           cerr<<"fline==fieldUndef"<<endl;
@@ -1323,24 +1323,24 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         cerr<<"fline= "<<fline<<endl;
 #endif
         int nsmooth= 0;
-	isoline= findIsoLine(gx,gy,fline,nsmooth,nx,ny,workfield->data,true);
-	if (!isoline.x.size()) {
-	  fline= fieldUndef;
+        isoline= findIsoLine(gx,gy,fline,nsmooth,nx,ny,workfield->data,true);
+        if (!isoline.x.size()) {
+          fline= fieldUndef;
 #ifdef DEBUGCLASSES
-	  cerr<<"NO isoLine found"<<endl;
+          cerr<<"NO isoLine found"<<endl;
 #endif
-	  return false;
+          return false;
         }
         xline.push_back(gx);
         yline.push_back(gy);
         classLineValue= fieldUndef;  // not determined yet
-	influencetype= -1;    // do not draw any influence
-	numsmooth= 0;
+        influencetype= -1;    // do not draw any influence
+        numsmooth= 0;
 
       } else if (editstate==edit_class_copy) {
         int interpoltype= 2;
         if (!editfield->interpolate(1,&gx,&gy,&brushValue,interpoltype))
-	  brushValue=fieldUndef;
+          brushValue=fieldUndef;
         if (brushValue==fieldUndef) return false;
         editBrush(gx,gy);
         change= true;
@@ -1349,14 +1349,14 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
         editBrush(gx,gy);
         change= true;
-//
-//    } else if (editstate==edit_number_change) {
-//
-//      return false;
-//
-//    } else if (editstate==edit_number_fixed) {
-//
-//      return false;
+        //
+        //    } else if (editstate==edit_number_change) {
+        //
+        //      return false;
+        //
+        //    } else if (editstate==edit_number_fixed) {
+        //
+        //      return false;
 
       } else if (editstate==edit_set_undef) {
 
@@ -1382,13 +1382,13 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       convertpos= false;
 
       if (i1ed<i2ed && j1ed<j2ed) {
-        if (numundo<undofields.size()) {
+        if (numundo<int(undofields.size())) {
           // after undo (and not complete redo)
-	  for (int n=numundo; n<undofields.size(); ++n) {
-	    delete[] undofields[n].data[0];
-	    delete[] undofields[n].data[1];
-	  }
-	  undofields.resize(numundo);
+          for (unsigned int n=numundo; n<undofields.size(); ++n) {
+            delete[] undofields[n].data[0];
+            delete[] undofields[n].data[1];
+          }
+          undofields.resize(numundo);
         }
         if (editstate!=edit_replace_undef || numUndefReplaced>0) {
           UndoField uf;
@@ -1402,14 +1402,14 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           int i, j, n=0;
           for (j=j1ed; j<j2ed; ++j)
             for (i=i1ed; i<i2ed; ++i)
-	      uf.data[0][n++]= odata[j*nx+i];
-	  float* udata= (editstate==edit_replace_undef ||
-	  		 editstate==edit_set_undef) ?
-				editfield->data : workfield->data;
+              uf.data[0][n++]= odata[j*nx+i];
+          float* udata= (editstate==edit_replace_undef ||
+              editstate==edit_set_undef) ?
+                  editfield->data : workfield->data;
           n=0;
           for (j=j1ed; j<j2ed; ++j)
             for (i=i1ed; i<i2ed; ++i)
-	      uf.data[1][n++]= udata[j*nx+i];
+              uf.data[1][n++]= udata[j*nx+i];
           // will show (extended) influence during undo/redo
           uf.influence= getFieldInfluence(true);
           undofields.push_back(uf);
@@ -1454,17 +1454,17 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       editMove(gx,gy);
 
       if (orcircle!=rcircle || oaxellipse!=axellipse
-			    || oayellipse!=ayellipse) {
+          || oayellipse!=ayellipse) {
         if (influencetype==0) {
           rcirclePlot = def_rcircle * (rcircle/orcircle);
         } else if (convertpos) {
-	  // may be not the best we could do...
+          // may be not the best we could do...
           float rx[2] = { gx-axellipse*0.5, gx+axellipse*0.5 };
           float ry[2] = { gy-ayellipse*0.5, gy+ayellipse*0.5 };
           int npos= 2;
           if (!gc.getPoints(editfield->area,maparea,npos,rx,ry)) {
-	    cerr << "EDIT: getPoints error" << endl;
-	    return false;
+            cerr << "EDIT: getPoints error" << endl;
+            return false;
           }
           axellipsePlot= rx[1]-rx[0];
           ayellipsePlot= ry[1]-ry[0];
@@ -1490,9 +1490,9 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       change= true;
 
     } else if ((editstate==edit_line         ||
-    		editstate==edit_line_smooth  ||
-	        editstate==edit_line_limited ||
-	        editstate==edit_line_limited_smooth) && fline!=fieldUndef) {
+        editstate==edit_line_smooth  ||
+        editstate==edit_line_limited ||
+        editstate==edit_line_limited_smooth) && fline!=fieldUndef) {
 
       float dx= gx - xfirst;
       float dy= gy - yfirst;
@@ -1505,8 +1505,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         dx= dx/float(np);
         dy= dy/float(np);
         for (int j=0; j<np; j++) {
-	  xfirst+=dx;
-	  yfirst+=dy;
+          xfirst+=dx;
+          yfirst+=dy;
           xline.push_back(xfirst);
           yline.push_back(yfirst);
         }
@@ -1525,7 +1525,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       int interpoltype= 0;
       float fv;
       if (editfield->interpolate(1,&gx,&gy,&fv,interpoltype)) {
-	if (fv==fieldUndef) fline=fieldUndef;
+        if (fv==fieldUndef) fline=fieldUndef;
       }
       change= true;
 
@@ -1550,22 +1550,22 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       int interpoltype= 2;
       float fv;
       if (editfield->interpolate(1,&gx,&gy,&fv,interpoltype)) {
-	if (fv==fieldUndef) fline=fieldUndef;
+        if (fv==fieldUndef) fline=fieldUndef;
       }
 
     } else if (editstate==edit_class_copy ||
-	       editstate==edit_class_value) {
+        editstate==edit_class_value) {
 
       editBrush(gx,gy);
       change= true;
-//
-// } else if (editstate==edit_number_change) {
-//
-//    return false;
-//
-//  } else if (editstate==edit_number_fixed) {
-//
-//    return false;
+      //
+      // } else if (editstate==edit_number_change) {
+      //
+      //    return false;
+      //
+      //  } else if (editstate==edit_number_fixed) {
+      //
+      //    return false;
 
     } else if (editstate==edit_set_undef) {
 
@@ -1589,9 +1589,9 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       int i,j,ij;
       for (j=j1ed; j<j2ed; j++) {
         for (i=i1ed; i<i2ed; i++) {
-	  ij= j*nx+i;
-	  if (workfield->data[ij]<minValue)
-	    workfield->data[ij]= minValue;
+          ij= j*nx+i;
+          if (workfield->data[ij]<minValue)
+            workfield->data[ij]= minValue;
         }
       }
     }
@@ -1599,9 +1599,9 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       int i,j,ij;
       for (j=j1ed; j<j2ed; j++) {
         for (i=i1ed; i<i2ed; i++) {
-	  ij= j*nx+i;
-	  if (workfield->data[ij]>maxValue)
-	    workfield->data[ij]= maxValue;
+          ij= j*nx+i;
+          if (workfield->data[ij]>maxValue)
+            workfield->data[ij]= maxValue;
         }
       }
     }
@@ -1610,11 +1610,11 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       int i,j,ij;
       for (j=j1ed; j<j2ed; j++) {
         for (i=i1ed; i<i2ed; i++) {
-	  ij= j*nx+i;
-	  if (workfield->data[ij]!=odata[ij]) {
-	    if (lockedValue.find(odata[ij])!=pend)
-	      workfield->data[ij]= odata[ij];
-	  }
+          ij= j*nx+i;
+          if (workfield->data[ij]!=odata[ij]) {
+            if (lockedValue.find(odata[ij])!=pend)
+              workfield->data[ij]= odata[ij];
+          }
         }
       }
     }
@@ -1626,9 +1626,9 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       int i,j,ij;
       for (j=j1edp; j<j2edp; j++) {
         for (i=i1edp; i<i2edp; i++) {
-	  ij= j*nx+i;
-	  if (editfield->data[ij]!=fieldUndef)
-	    editfield->data[ij]= workfield->data[ij];
+          ij= j*nx+i;
+          if (editfield->data[ij]!=fieldUndef)
+            editfield->data[ij]= workfield->data[ij];
         }
       }
       i1edp= i1ed;
@@ -1644,7 +1644,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
 
 void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
-				  bool geo) {
+    bool geo) {
 
   float rx[2] = { fi.posx, fi.posx + fi.axellipse };
   float ry[2] = { fi.posy, fi.posy + fi.ayellipse };
@@ -1677,14 +1677,14 @@ FieldInfluence FieldEdit::getFieldInfluence(bool geo) {
   FieldInfluence fi;
   float dx,dy;
 
-//if (influencetype==0 && rcirclePlot!=def_rcircle) {
-    float scale= rcirclePlot / def_rcircle;
-    dx= scale * def_axellipse;
-    dy= scale * def_ayellipse;
-//} else {
-//  dx= axellipsePlot;
-//  dy= ayellipsePlot;
-//}
+  //if (influencetype==0 && rcirclePlot!=def_rcircle) {
+  float scale= rcirclePlot / def_rcircle;
+  dx= scale * def_axellipse;
+  dy= scale * def_ayellipse;
+  //} else {
+  //  dx= axellipsePlot;
+  //  dy= ayellipsePlot;
+  //}
 
   float rx[3]= { posx, posx - dx*0.5, posx + dx*0.5 };
   float ry[3]= { posy, posy - dy*0.5, posy + dy*0.5 };
@@ -1799,20 +1799,20 @@ void FieldEdit::editMove(float px, float py) {
     for (i=i1; i<i2; ++i) {
       n++;
       if (weight[n]>wmin) {
-	xpos[nposw]=float(i)+dxmv*weight[n];
-	ypos[nposw]=float(j)+dymv*weight[n];
-	nposw++;
+        xpos[nposw]=float(i)+dxmv*weight[n];
+        ypos[nposw]=float(j)+dymv*weight[n];
+        nposw++;
       }
     }
   }
 
   // bessel (4x4 points) interpolation and extrapolation at boundaries
   int interpoltype=101;
-//#####################################################
+  //#####################################################
 #ifdef TESTICECONC
   interpoltype=100;
 #endif
-//#####################################################
+  //#####################################################
   if (workfield->interpolate(nposw,xpos,ypos,zpos,interpoltype)) {
     m=0;
     n=0;
@@ -1858,7 +1858,7 @@ void FieldEdit::editGradient(float px, float py, float deltax, float deltay) {
     for (i=i1; i<i2; ++i) {
       ij++;
       workfield->data[ij]= odata[ij] - (deltax*(float(j)-py)
-				       -deltay*(float(i)-px))*weight[n++];
+          -deltay*(float(i)-px))*weight[n++];
     }
   }
 
@@ -1934,8 +1934,8 @@ void FieldEdit::editLine()
       dy= isoline.y[i] - py;
       d2= dx*dx+dy*dy;
       if (d2<d2min) {
-	d2min= d2;
-	k= i;
+        d2min= d2;
+        k= i;
       }
     }
     dxmv= isoline.x[k] - px;
@@ -1963,11 +1963,11 @@ void FieldEdit::editLine()
     for (j=j1; j<j2; ++j) {
       for (i=i1; i<i2; ++i) {
         nposw++;
-	ij= j*nx+i;
+        ij= j*nx+i;
         if (weight[nposw]>weightmax[ij] && weight[nposw]>wmin) {
-	  weightmax[ij]= weight[nposw];
-	  dxmax[ij]=dxmv;
-	  dymax[ij]=dymv;
+          weightmax[ij]= weight[nposw];
+          dxmax[ij]=dxmv;
+          dymax[ij]=dymv;
         }
       }
     }
@@ -1988,20 +1988,20 @@ void FieldEdit::editLine()
     for (i=i1; i<i2; ++i) {
       ij= j*nx+i;
       if (weightmax[ij]>wmin) {
-	xposw[nposw]=float(i)+dxmax[ij]*weightmax[ij];
-	yposw[nposw]=float(j)+dymax[ij]*weightmax[ij];
-	nposw++;
+        xposw[nposw]=float(i)+dxmax[ij]*weightmax[ij];
+        yposw[nposw]=float(j)+dymax[ij]*weightmax[ij];
+        nposw++;
       }
     }
   }
 
   // bessel (4x4 points) interpolation and extrapolation at boundaries
   int interpoltype=101;
-//#####################################################
+  //#####################################################
 #ifdef TESTICECONC
   interpoltype=100;
 #endif
-//#####################################################
+  //#####################################################
   if (workfield->interpolate(nposw,xposw,yposw,zposw,interpoltype)) {
     nposw=0;
     for (j=j1; j<j2; ++j) {
@@ -2028,11 +2028,11 @@ void FieldEdit::editLine()
     n= -1;
     for (j=j1; j<j2; ++j) {
       for (i=i1; i<i2; ++i) {
-	n++;
-	ij= j*nx+i;
-	dxmax[n]= workfield->data[ij];
-	if (weightmax[ij]>wmin) dymax[n]= 1.;
-	else                    dymax[n]= 0.;
+        n++;
+        ij= j*nx+i;
+        dxmax[n]= workfield->data[ij];
+        if (weightmax[ij]>wmin) dymax[n]= 1.;
+        else                    dymax[n]= 0.;
       }
     }
 
@@ -2134,8 +2134,8 @@ void FieldEdit::editLimitedLine() {
       dy= isoline.y[i] - py;
       d2= dx*dx+dy*dy;
       if (d2<d2min) {
-	d2min= d2;
-	k= i;
+        d2min= d2;
+        k= i;
       }
     }
     dxmv= isoline.x[k] - px;
@@ -2165,19 +2165,19 @@ void FieldEdit::editLimitedLine() {
     for (j=j1; j<j2; ++j) {
       for (i=i1; i<i2; ++i) {
         nposw++;
-	ij= j*nx+i;
-	w= weight[nposw];
-	f= workfield->data[ij];
-	if (f>flow && f<fhigh) {
-	  if (f<pz) wf= (f-flow)/(pz-flow);
-	  else      wf= (fhigh-f)/(fhigh-pz);
-	  if (w>wf) w=wf;
+        ij= j*nx+i;
+        w= weight[nposw];
+        f= workfield->data[ij];
+        if (f>flow && f<fhigh) {
+          if (f<pz) wf= (f-flow)/(pz-flow);
+          else      wf= (fhigh-f)/(fhigh-pz);
+          if (w>wf) w=wf;
           if (w>weightmax[ij] && w>wmin) {
-	    weightmax[ij]= w;
-	    dxmax[ij]=dxmv;
-	    dymax[ij]=dymv;
+            weightmax[ij]= w;
+            dxmax[ij]=dxmv;
+            dymax[ij]=dymv;
           }
-	}
+        }
       }
     }
   }
@@ -2197,30 +2197,30 @@ void FieldEdit::editLimitedLine() {
     for (i=i1; i<i2; ++i) {
       ij= j*nx+i;
       if (weightmax[ij]>wmin) {
-	xposw[nposw]=float(i)+dxmax[ij]*weightmax[ij];
-	yposw[nposw]=float(j)+dymax[ij]*weightmax[ij];
-	nposw++;
+        xposw[nposw]=float(i)+dxmax[ij]*weightmax[ij];
+        yposw[nposw]=float(j)+dymax[ij]*weightmax[ij];
+        nposw++;
       }
     }
   }
 
   // bessel (4x4 points) interpolation and extrapolation at boundaries
   int interpoltype=101;
-//#####################################################
+  //#####################################################
 #ifdef TESTICECONC
   interpoltype=100;
 #endif
-//#####################################################
+  //#####################################################
   if (workfield->interpolate(nposw,xposw,yposw,zposw,interpoltype)) {
     nposw= -1;
     for (j=j1; j<j2; ++j) {
       for (i=i1; i<i2; ++i) {
         ij= j*nx+i;
         if (weightmax[ij]>wmin) {
-	  nposw++;
-	  if (zposw[nposw]>flow && zposw[nposw]<fhigh)
-	    workfield->data[ij]= zposw[nposw];
-	}
+          nposw++;
+          if (zposw[nposw]>flow && zposw[nposw]<fhigh)
+            workfield->data[ij]= zposw[nposw];
+        }
       }
     }
   }
@@ -2242,11 +2242,11 @@ void FieldEdit::editLimitedLine() {
     n= -1;
     for (j=j1; j<j2; ++j) {
       for (i=i1; i<i2; ++i) {
-	n++;
-	ij= j*nx+i;
-	dxmax[n]= workfield->data[ij];
-	if (weightmax[ij]>wmin) dymax[n]= 1.;
-	else                    dymax[n]= 0.;
+        n++;
+        ij= j*nx+i;
+        dxmax[n]= workfield->data[ij];
+        if (weightmax[ij]>wmin) dymax[n]= 1.;
+        else                    dymax[n]= 0.;
       }
     }
 
@@ -2269,8 +2269,8 @@ void FieldEdit::editLimitedLine() {
 
 
 IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
-			       int nsmooth, int nx, int ny, float *z,
-			       bool drawBorders) {
+    int nsmooth, int nx, int ny, float *z,
+    bool drawBorders) {
   //
   // Method as in plotting function "contour_line"
   //
@@ -2292,7 +2292,7 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
   j= int(ypos);
   ijstart= j*nx+i;
 
-  const int markused[4][2]= { 0,0, 1,1, nx,0, 0,1 };
+  const int markused[4][2]= { {0,0}, {1,1}, {nx,0}, {0,1} };
   const int ijadd[5]= { 0, 1, nx+1, nx, 0 };
   const int ijnext[4]= { -nx, 1, +nx, -1 };
   const int  knext[4]= {   2, 3,   0,  1 };
@@ -2340,11 +2340,11 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
 
   float zleft=  z[ij+ijadd[kk]];
   float zright= z[ij+ijadd[kk+1]];
-//###############################################################################
+  //###############################################################################
 #ifdef DEBUGCLASSES
   if (drawBorders) cerr<<"findIsoLine  zleft,zright: "<<zleft<<" "<<zright<<endl;
 #endif
-//###############################################################################
+  //###############################################################################
 
   vector<float> xtmp;
   vector<float> ytmp;
@@ -2352,7 +2352,7 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
   // exit pos from start square
   if (!drawBorders)
     frac= (value             - z[ij+ijadd[kk]]) /
-          (z[ij+ijadd[kk+1]] - z[ij+ijadd[kk]]);
+    (z[ij+ijadd[kk+1]] - z[ij+ijadd[kk]]);
   else
     frac= 0.5f;
   i= ij%nx;
@@ -2408,11 +2408,11 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
         iab[1]= 0;
         iab[2]= 0;
       } else if (kk<0) {
-	for (k=0; k<4; k++) iab[k]= iabs[k];
+        for (k=0; k<4; k++) iab[k]= iabs[k];
       }
 
       for (k=0; k<4; k++) {
-	if (iab[k]==0) {
+        if (iab[k]==0) {
           ijp= ij+ijadd[k];
           if      (z[ijp]==fieldUndef) iab[k]= 99;
           else if (z[ijp]>value)       iab[k]= +1;
@@ -2429,59 +2429,59 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
           ibit= (ij+markused[k][0])*2 + markused[k][1];
           iwrd= ibit/nbitwd;
           ibit%=nbitwd;
-	  if ((iused[iwrd] & bit[ibit]) == 0) kc[nc++]= k;
-	}
+          if ((iused[iwrd] & bit[ibit]) == 0) kc[nc++]= k;
+        }
       }
 
       if (nc>1) {
-	// saddle point
-	if (!drawBorders) {
-	  // choosing exit side closest start pos...hmmm...
-	  d2min= d2max;
-	  kcmin= kc[0];
-	  for (ic=0; ic<nc; ic++) {
-	    kk= kc[ic];
+        // saddle point
+        if (!drawBorders) {
+          // choosing exit side closest start pos...hmmm...
+          d2min= d2max;
+          kcmin= kc[0];
+          for (ic=0; ic<nc; ic++) {
+            kk= kc[ic];
             frac= (value             - z[ij+ijadd[kk]]) /
-	          (z[ij+ijadd[kk+1]] - z[ij+ijadd[kk]]);
+            (z[ij+ijadd[kk+1]] - z[ij+ijadd[kk]]);
             dx= float(i) + dxside[kk] + frac*dxfrac[kk] - xpos;
             dy= float(j) + dyside[kk] + frac*dyfrac[kk] - ypos;
             if (d2min>dx*dx+dy*dy) {
-	      d2min= dx*dx+dy*dy;
-	      kcmin= kk;
-	    }
-	  }
-	} else {
-	  kcmin= -1;
-	  for (ic=0; ic<nc; ic++) {
-	    kk= kc[ic];
-	    if (z[ij+ijadd[kk]]==zleft &&
-	        z[ij+ijadd[kk+1]]==zright) kcmin= kk;
-	  }
-	  if (kcmin<0) nc= 0;
-	}
-	kc[0]= kcmin;
+              d2min= dx*dx+dy*dy;
+              kcmin= kk;
+            }
+          }
+        } else {
+          kcmin= -1;
+          for (ic=0; ic<nc; ic++) {
+            kk= kc[ic];
+            if (z[ij+ijadd[kk]]==zleft &&
+                z[ij+ijadd[kk+1]]==zright) kcmin= kk;
+          }
+          if (kcmin<0) nc= 0;
+        }
+        kc[0]= kcmin;
       }
       if (nc>0) {
-	kk= kc[0];
-	if (!drawBorders)
+        kk= kc[0];
+        if (!drawBorders)
           frac= (value             - z[ij+ijadd[kk]]) /
-	        (z[ij+ijadd[kk+1]] - z[ij+ijadd[kk]]);
-	else
-	  frac= 0.5f;
+          (z[ij+ijadd[kk+1]] - z[ij+ijadd[kk]]);
+        else
+          frac= 0.5f;
         xtmp.push_back(float(i) + dxside[kk] + frac*dxfrac[kk]);
         ytmp.push_back(float(j) + dyside[kk] + frac*dyfrac[kk]);
-	// mark side as used
+        // mark side as used
         ibit= (ij+markused[kk][0])*2 + markused[kk][1];
         iwrd= ibit/nbitwd;
         ibit%=nbitwd;
         iused[iwrd] = iused[iwrd] | bit[ibit];
       } else if (ij==ijstart) {
-	// found a closed line
-	closed= true;
-	search= false;
+        // found a closed line
+        closed= true;
+        search= false;
       } else {
-	// no exit found
-	ended= true;
+        // no exit found
+        ended= true;
       }
     } else {
       // outside grid
@@ -2492,10 +2492,10 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
       // no exit found from current square, or outside grid
       numend++;
       if (numend==1) {
-	// turn line and search in the other direction
+        // turn line and search in the other direction
         m= xtmp.size();
-	n= m-1;
-	m/=2;
+        n= m-1;
+        m/=2;
         for (i=0; i<m; ++i) {
           xh= xtmp[i];
           yh= ytmp[i];
@@ -2503,14 +2503,14 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
           ytmp[i]= ytmp[n-i];
           xtmp[n-i]= xh;
           ytmp[n-i]= yh;
-	}
-	xh= zleft;
-	zleft= zright;
-	zright= xh;
-	// signal to go back to start square
-	kk= -1;
+        }
+        xh= zleft;
+        zleft= zright;
+        zright= xh;
+        // signal to go back to start square
+        kk= -1;
       } else {
-	search= false;
+        search= false;
       }
     }
   }   // end search
@@ -2569,11 +2569,11 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
   } else if (drawBorders) {
 
     int npos= xtmp.size();
-//#############################################################
+    //#############################################################
 #ifdef DEBUGCLASSES
     cerr<<"---------------------------------------------"<<endl;
     cerr<<"Before drawBorders linefix  npos= "<<npos
-        <<"  closed= "<<closed<<endl;
+    <<"  closed= "<<closed<<endl;
     int n1= (npos<6) ? npos : 6;
     int n2= (npos<6) ? 0 : npos-6;
     cerr<<"start x:";
@@ -2593,20 +2593,20 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
       cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i];
     cerr<<endl;
 #endif
-//#############################################################
-//  xtmp.push_back(0.0f);
-//  ytmp.push_back(0.0f);
-//  if (!closed) {
-//    for (i=npos; i>0; i--) {
-//	xtmp[i+1]= xtmp[i];
-//	ytmp[i+1]= ytmp[i];
-//    }
-//    npos++;
-//  } else {
-//    npos++;
-//    xtmp[npos]= xtmp[2];
-//    ytmp[npos]= ytmp[2];
-//  }
+    //#############################################################
+    //  xtmp.push_back(0.0f);
+    //  ytmp.push_back(0.0f);
+    //  if (!closed) {
+    //    for (i=npos; i>0; i--) {
+    //	xtmp[i+1]= xtmp[i];
+    //	ytmp[i+1]= ytmp[i];
+    //    }
+    //    npos++;
+    //  } else {
+    //    npos++;
+    //    xtmp[npos]= xtmp[2];
+    //    ytmp[npos]= ytmp[2];
+    //  }
     if (closed) {
       xtmp.push_back(xtmp[0]);
       ytmp.push_back(ytmp[0]);
@@ -2618,20 +2618,20 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
         xtmp[n]= (xtmp[n]+xtmp[n+1])*0.5;
         ytmp[n]= (ytmp[n]+ytmp[n+1])*0.5;
       } else {
-	i= int((xtmp[n]+xtmp[n+1])*0.5);
-	j= int((ytmp[n]+ytmp[n+1])*0.5);
-	xtmp[n]= float(i)+0.5f;
-	ytmp[n]= float(j)+0.5f;
+        i= int((xtmp[n]+xtmp[n+1])*0.5);
+        j= int((ytmp[n]+ytmp[n+1])*0.5);
+        xtmp[n]= float(i)+0.5f;
+        ytmp[n]= float(j)+0.5f;
       }
     }
     isoline.x = xtmp;
     isoline.y = ytmp;
-//#############################################################
+    //#############################################################
 #ifdef DEBUGCLASSES
     npos= xtmp.size();
     cerr<<"----------------"<<endl;
     cerr<<"After drawBorders linefix  npos= "<<npos
-        <<"  closed= "<<closed<<endl;
+    <<"  closed= "<<closed<<endl;
     n1= (npos<6) ? npos : 6;
     n2= (npos<6) ? 0 : npos-6;
     cerr<<"start x:";
@@ -2652,7 +2652,7 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     cerr<<endl;
     cerr<<"---------------------------------------------"<<endl;
 #endif
-//#############################################################
+    //#############################################################
 
   } else {
 
@@ -2675,8 +2675,8 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
 
 
 int FieldEdit::smoothline(int npos, float x[], float y[],
-			  int nfirst, int nlast, int ismooth,
-                          float xsmooth[], float ysmooth[])
+    int nfirst, int nlast, int ismooth,
+    float xsmooth[], float ysmooth[])
 {
   // Smooth line, make and return spline through points.
   //
@@ -2718,81 +2718,81 @@ int FieldEdit::smoothline(int npos, float x[], float y[],
 
   n = nfirst;
   if (n > 0)
-    {
-      xl1 = x[n]-x[n-1];
-      yl1 = y[n]-y[n-1];
-      s1  = sqrtf(xl1*xl1+yl1*yl1);
-      xl2 = x[n+1]-x[n];
-      yl2 = y[n+1]-y[n];
-      s2  = sqrtf(xl2*xl2+yl2*yl2);
-      dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
-      dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
-    }
+  {
+    xl1 = x[n]-x[n-1];
+    yl1 = y[n]-y[n-1];
+    s1  = sqrtf(xl1*xl1+yl1*yl1);
+    xl2 = x[n+1]-x[n];
+    yl2 = y[n+1]-y[n];
+    s2  = sqrtf(xl2*xl2+yl2*yl2);
+    dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
+    dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
+  }
   else
-    {
-      xl2 = x[n+1]-x[n];
-      yl2 = y[n+1]-y[n];
-      s2  = sqrtf(xl2*xl2+yl2*yl2);
-      dx2 = xl2/s2;
-      dy2 = yl2/s2;
-    }
+  {
+    xl2 = x[n+1]-x[n];
+    yl2 = y[n+1]-y[n];
+    s2  = sqrtf(xl2*xl2+yl2*yl2);
+    dx2 = xl2/s2;
+    dy2 = yl2/s2;
+  }
 
   xsmooth[0] = x[nfirst];
   ysmooth[0] = y[nfirst];
   ns = 0;
 
   for (n=nfirst+1; n<=nlast; ++n)
-    {
-      xl1 = xl2;
-      yl1 = yl2;
-      s1  = s2;
-      dx1 = dx2;
-      dy1 = dy2;
+  {
+    xl1 = xl2;
+    yl1 = yl2;
+    s1  = s2;
+    dx1 = dx2;
+    dy1 = dy2;
 
-      if (n < npos-1) {
-        xl2 = x[n+1]-x[n];
-        yl2 = y[n+1]-y[n];
-        s2  = sqrtf(xl2*xl2+yl2*yl2);
-        dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
-	dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
-      }
-      else {
-        dx2 = xl1/s1;
-        dy2 = yl1/s1;
-      }
-
-      // four spline coefficients for x and y
-      c32 =  1./s1;
-      c42 =  c32*c32;
-      c31 =  c42*3.;
-      c41 =  c42*c32*2.;
-      fx1 =  x[n-1];
-      fx2 =  dx1;
-      fx3 =  c31*xl1-c32*(2.*dx1+dx2);
-      fx4 = -c41*xl1+c42*(dx1+dx2);
-      fy1 =  y[n-1];
-      fy2 =  dy1;
-      fy3 =  c31*yl1-c32*(2.*dy1+dy2);
-      fy4 = -c41*yl1+c42*(dy1+dy2);
-
-      // make 'ismooth' straight lines, from point 'n-1' to point 'n'
-
-      tstep = s1*rdivs;
-      t = 0.;
-
-      for (i=0; i<ndivs; ++i) {
-        t += tstep;
-        t2 = t*t;
-	t3 = t2*t;
-        ns++;
-        xsmooth[ns] = fx1 + fx2*t + fx3*t2 + fx4*t3;
-	ysmooth[ns] = fy1 + fy2*t + fy3*t2 + fy4*t3;
-      }
-
-      ns++;
-      xsmooth[ns] = x[n];
-      ysmooth[ns] = y[n];
+    if (n < npos-1) {
+      xl2 = x[n+1]-x[n];
+      yl2 = y[n+1]-y[n];
+      s2  = sqrtf(xl2*xl2+yl2*yl2);
+      dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
+      dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
     }
+    else {
+      dx2 = xl1/s1;
+      dy2 = yl1/s1;
+    }
+
+    // four spline coefficients for x and y
+    c32 =  1./s1;
+    c42 =  c32*c32;
+    c31 =  c42*3.;
+    c41 =  c42*c32*2.;
+    fx1 =  x[n-1];
+    fx2 =  dx1;
+    fx3 =  c31*xl1-c32*(2.*dx1+dx2);
+    fx4 = -c41*xl1+c42*(dx1+dx2);
+    fy1 =  y[n-1];
+    fy2 =  dy1;
+    fy3 =  c31*yl1-c32*(2.*dy1+dy2);
+    fy4 = -c41*yl1+c42*(dy1+dy2);
+
+    // make 'ismooth' straight lines, from point 'n-1' to point 'n'
+
+    tstep = s1*rdivs;
+    t = 0.;
+
+    for (i=0; i<ndivs; ++i) {
+      t += tstep;
+      t2 = t*t;
+      t3 = t2*t;
+      ns++;
+      xsmooth[ns] = fx1 + fx2*t + fx3*t2 + fx4*t3;
+      ysmooth[ns] = fy1 + fy2*t + fy3*t2 + fy4*t3;
+    }
+
+    ns++;
+    xsmooth[ns] = x[n];
+    ysmooth[ns] = y[n];
+  }
 
   ns++;
 
@@ -2941,7 +2941,7 @@ void FieldEdit::editBrush(float px, float py)
 
 #ifdef DEBUGCLASSES
     cerr<<"BRUSH n,i1,i2,j1,j2,r: "
-        <<n<<" "<<i1<<" "<<i2<<" "<<j1<<" "<<j2<<" "<<r<<endl;
+    <<n<<" "<<i1<<" "<<i2<<" "<<j1<<" "<<j2<<" "<<r<<endl;
 #endif
 
     if (infl<0) {
@@ -2949,9 +2949,9 @@ void FieldEdit::editBrush(float px, float py)
       if (brushReplaceUndef) {
 
         if (i1<i2 && j1<j2 && fdata[j1*nx+i1]==fieldUndef) {
-	  fdata[j1*nx+i1]= repdata[j1*nx+i1];
-	  numUndefReplaced++;
-	}
+          fdata[j1*nx+i1]= repdata[j1*nx+i1];
+          numUndefReplaced++;
+        }
 
       } else {
 
@@ -2970,14 +2970,14 @@ void FieldEdit::editBrush(float px, float py)
           dy= float(j)-ym;
           dy2= dy*dy;
           for (int i=i1; i<i2; i++) {
-	    if (fdata[j*nx+i]==fieldUndef) {
+            if (fdata[j*nx+i]==fieldUndef) {
               dx= float(i)-xm;
               s2= dx*dx+dy2;
               if (s2<r2) {
-		fdata[j*nx+i]= repdata[j*nx+i];
-		numUndefReplaced++;
-	      }
-	    }
+                fdata[j*nx+i]= repdata[j*nx+i];
+                numUndefReplaced++;
+              }
+            }
           }
         }
 
@@ -3002,17 +3002,17 @@ void FieldEdit::editBrush(float px, float py)
         // square
         for (int j=j1; j<j2; j++)
           for (int i=i1; i<i2; i++)
-	    if (fdata[j*nx+i]==fieldUndef) {
-	      fdata[j*nx+i]= repdata[j*nx+i];
-	      numUndefReplaced++;
-	    }
+            if (fdata[j*nx+i]==fieldUndef) {
+              fdata[j*nx+i]= repdata[j*nx+i];
+              numUndefReplaced++;
+            }
 
       } else {
 
         // square
         for (int j=j1; j<j2; j++)
           for (int i=i1; i<i2; i++)
-	    fdata[j*nx+i]= value;
+            fdata[j*nx+i]= value;
 
       }
 
@@ -3045,19 +3045,19 @@ void FieldEdit::editBrush(float px, float py)
           dy=float(j)-py;
           dy2=dy*dy;
           for (int i=i1; i<i2; i++) {
-	    if (fdata[j*nx+i]==fieldUndef) {
+            if (fdata[j*nx+i]==fieldUndef) {
               dx=float(i)-px;
               s2=dx*dx + dy2;
-	      s= sqrtf(s2);
-	      gcos= dx/s;
-	      gsin= dy/s;
-	      rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
-	      smax2= b2/(1.-en2*rcos*rcos);
+              s= sqrtf(s2);
+              gcos= dx/s;
+              gsin= dy/s;
+              rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
+              smax2= b2/(1.-en2*rcos*rcos);
               if (s2<smax2) {
-		fdata[j*nx+i]= repdata[j*nx+i];
-		numUndefReplaced++;
-	      }
-	    }
+                fdata[j*nx+i]= repdata[j*nx+i];
+                numUndefReplaced++;
+              }
+            }
           }
         }
 
@@ -3069,11 +3069,11 @@ void FieldEdit::editBrush(float px, float py)
           for (int i=i1; i<i2; i++) {
             dx=float(i)-px;
             s2=dx*dx + dy2;
-	    s= sqrtf(s2);
-	    gcos= dx/s;
-	    gsin= dy/s;
-	    rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
-	    smax2= b2/(1.-en2*rcos*rcos);
+            s= sqrtf(s2);
+            gcos= dx/s;
+            gsin= dy/s;
+            rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
+            smax2= b2/(1.-en2*rcos*rcos);
             if (s2<smax2) fdata[j*nx+i]= value;
           }
         }
@@ -3091,7 +3091,7 @@ void FieldEdit::editClassLine()
   int k;
 #ifdef DEBUGCLASSES
   cerr<<"FieldEdit::editClassLine xline.size(),isoline.x.size(): "
-      <<xline.size()<<"  "<<isoline.x.size()<<endl;
+  <<xline.size()<<"  "<<isoline.x.size()<<endl;
 #endif
 
   int npos= xline.size();
@@ -3117,10 +3117,10 @@ void FieldEdit::editClassLine()
     // check if going towards higher or lower value
     if (fv>fline)
       classLineValue= (isoline.vleft<isoline.vright) ?
-      			isoline.vleft : isoline.vright;
+          isoline.vleft : isoline.vright;
     else
       classLineValue= (isoline.vleft>isoline.vright) ?
-      			isoline.vleft : isoline.vright;
+          isoline.vleft : isoline.vright;
   }
 
   // reset previous operation
@@ -3145,8 +3145,8 @@ void FieldEdit::editClassLine()
       dy= isoline.y[i] - py;
       d2= dx*dx+dy*dy;
       if (d2<d2min) {
-	d2min= d2;
-	k= i;
+        d2min= d2;
+        k= i;
       }
     }
     nearp[n]= k;
@@ -3189,18 +3189,18 @@ void FieldEdit::editClassLine()
 
 
 void FieldEdit::replaceInsideLine(const vector<float>& vx,
-				  const vector<float>& vy,
-				  float replaceValue)
+    const vector<float>& vy,
+    float replaceValue)
 {
   const int nbitwd= sizeof(int)*8;
 
-  int m= vx.size();
+  unsigned int m= vx.size();
   if (m<3 || vy.size()!=m) return;  // programmers error!
 
   float x1=1.e+35, x2=-1.e+35;
   float y1=1.e+35, y2=-1.e+35;
 
-  for (int n=0; n<m; n++) {
+  for (unsigned int n=0; n<m; n++) {
     if(x1>vx[n]) x1= vx[n];
     if(x2<vx[n]) x2= vx[n];
     if(y1>vy[n]) y1= vy[n];
@@ -3224,12 +3224,12 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
   int lmark= (mx*my+nbitwd-1)/nbitwd;
   int *mark= new int[lmark];
   for (int i=0; i<lmark; i++) mark[i]=0;
-//###########################################################
+  //###########################################################
 #ifdef DEBUGCLASSES
   int *umark= new int[lmark];
   for (int i=0; i<lmark; i++) umark[i]=0;
 #endif
-//###########################################################
+  //###########################################################
 
   int bit[nbitwd];
   int bitclear[nbitwd];
@@ -3239,7 +3239,7 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
     bitclear[i] = ~bit[i];
   }
 
-  int i,j,jp1,jp2,jpp1,jpp2,im,jm,iwrd,ibit,mm;
+  int j,jpp1,jpp2,im,jm,iwrd,ibit,mm;
   float px,py;
 
   j2--;
@@ -3247,7 +3247,7 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
   x2= vx[m-1];
   y2= vy[m-1];
 
-  for (int n=0; n<m; n++) {
+  for (unsigned int n=0; n<m; n++) {
     x1= x2;
     y1= y2;
     x2= vx[n];
@@ -3270,39 +3270,39 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
       if (im<mx) {
         if (im<0) im= 0;
         jm= j-j1;
-//###########################################################
+        //###########################################################
 #ifdef DEBUGCLASSES
         cerr<<"  MARK im,jm: "<<im<<" "<<jm
-	    <<"  n,x1,y1,x2,y2: "<<setw(2)<<n<<" "
-	    <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x1-i1<<" "
-	    <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y1-j1<<" "
-	    <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x2-i1<<" "
-	    <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y2-j1<<"  px,py: "
-	    <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<px-i1<<" "
-	    <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<py-j1<<endl;
+        <<"  n,x1,y1,x2,y2: "<<setw(2)<<n<<" "
+        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x1-i1<<" "
+        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y1-j1<<" "
+        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x2-i1<<" "
+        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y2-j1<<"  px,py: "
+        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<px-i1<<" "
+        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<py-j1<<endl;
 #endif
-//###########################################################
+        //###########################################################
         ibit= jm*mx+im;
         iwrd= ibit/nbitwd;
         ibit= ibit%nbitwd;
         if ((mark[iwrd] & bit[ibit]) == 0)
           mark[iwrd]|=bit[ibit];
         else
-//###########################################################
-	{
-//###########################################################
+          //###########################################################
+        {
+          //###########################################################
           mark[iwrd]&=bitclear[ibit];
-//###########################################################
+          //###########################################################
 #ifdef DEBUGCLASSES
           umark[iwrd]|=bit[ibit];
 #endif
-	}
-//###########################################################
+        }
+        //###########################################################
       }
     }
   }
 
-//#############################################################
+  //#############################################################
 #ifdef DEBUGCLASSES
   if (m<31) {
     cerr<<"--------------------------------------"<<endl;
@@ -3314,12 +3314,12 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
       cerr<<"  x:";
       for (int ii=ii1; ii<ii2; ii++)
         cerr<<" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
-            <<vx[ii]-i1;
+        <<vx[ii]-i1;
       cerr<<endl;
       cerr<<"  y:";
       for (int ii=ii1; ii<ii2; ii++)
         cerr<<" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
-            <<vy[ii]-j1;
+        <<vy[ii]-j1;
       cerr<<endl;
     }
   }
@@ -3335,16 +3335,16 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
         if ((umark[iwrd] & bit[ibit]) == 0) {
           if ((mark[iwrd] & bit[ibit]) != 0) str+="X.";
           else                               str+=" .";
-	} else {
+        } else {
           if ((mark[iwrd] & bit[ibit]) != 0) str+="W.";
           else                               str+="U.";
-	}
+        }
       }
       cerr<<"  "<<str<<endl;
     }
   }
 #endif
-//#############################################################
+  //#############################################################
 
   // update the field
   for (jm=0; jm<my; jm++) {
@@ -3364,7 +3364,7 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
 
 
 void FieldEdit::editWeight(float px, float py,
-			   int i1, int i2, int j1, int j2, float *weight) {
+    int i1, int i2, int j1, int j2, float *weight) {
 
   // influencetype==0: circle with radius rcircle
   //                   weights computed relative to centre of the circle.
@@ -3395,7 +3395,7 @@ void FieldEdit::editWeight(float px, float py,
         s2=dx*dx + dy2;
         if (s2<r2) weight[n++]= (r-sqrtf(s2))/r;  // linear weight
         //######## weight[n++]= (r2-s2)/(r2+s2);  // another weight
-	else       weight[n++]= 0.;
+        else       weight[n++]= 0.;
       }
     }
 
@@ -3430,12 +3430,12 @@ void FieldEdit::editWeight(float px, float py,
         for (i=i1; i<i2; ++i) {
           dx=float(i)-px;
           s=sqrtf(dx*dx + dy2);
-	  gcos= dx/s;
-	  gsin= dy/s;
-	  rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
-	  smax= sqrtf(b2/(1.-en2*rcos*rcos));
+          gcos= dx/s;
+          gsin= dy/s;
+          rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
+          smax= sqrtf(b2/(1.-en2*rcos*rcos));
           if (s<smax) weight[n++]= (smax-s)/smax;  // linear weight
-	  else        weight[n++]= 0.;
+          else        weight[n++]= 0.;
         }
       }
 
@@ -3456,7 +3456,7 @@ void FieldEdit::editWeight(float px, float py,
           dx2= x - fx2;
           s= sqrtf(dx1*dx1 + dy12) + sqrtf(dx2*dx2 + dy22) - c;
           if (s<smax) weight[n++]= (smax-s)/smax;  // linear weight
-	  else        weight[n++]= 0.;
+          else        weight[n++]= 0.;
         }
       }
     }
@@ -3465,8 +3465,8 @@ void FieldEdit::editWeight(float px, float py,
 
 
 void FieldEdit::editExpWeight(float px, float py,
-			      int i1, int i2, int j1, int j2, float *weight,
-			      bool gradients) {
+    int i1, int i2, int j1, int j2, float *weight,
+    bool gradients) {
 
   // influencetype==0: circle with radius rcircle
   //                   weights computed relative to centre of the circle.
@@ -3499,7 +3499,7 @@ void FieldEdit::editExpWeight(float px, float py,
         dx=float(i)-px;
         s2=dx*dx + dy2;
         if (s2<r2) weight[n++]= scale * exp(-s2*bbexp); // exponential weight
-	else       weight[n++]= 0.;
+        else       weight[n++]= 0.;
       }
     }
 
@@ -3535,20 +3535,20 @@ void FieldEdit::editExpWeight(float px, float py,
         for (i=i1; i<i2; ++i) {
           dx=float(i)-px;
           s=sqrtf(dx*dx + dy2);
-	  gcos= dx/s;
-	  gsin= dy/s;
-	  rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
-	  smax= sqrtf(b2/(1.-en2*rcos*rcos));
+          gcos= dx/s;
+          gsin= dy/s;
+          rcos= gcos*ecos + gsin*esin; // cos(angle between a-axis and gridpos)
+          smax= sqrtf(b2/(1.-en2*rcos*rcos));
           if (s<smax) {
-	    bexp= smax*0.3;
-	    bbexp= 1.0/(2.0*bexp*bexp);
+            bexp= smax*0.3;
+            bbexp= 1.0/(2.0*bexp*bexp);
             if (gradients)
               weight[n++]= exp(-s*s*bbexp)/(bexp*bexp);  // exponential weight
             else
               weight[n++]= exp(-s*s*bbexp);  // exponential weight
-	  } else {
-	    weight[n++]= 0.;
-	  }
+          } else {
+            weight[n++]= 0.;
+          }
         }
       }
 
@@ -3572,7 +3572,7 @@ void FieldEdit::editExpWeight(float px, float py,
           dx2= x - fx2;
           s= sqrtf(dx1*dx1 + dy12) + sqrtf(dx2*dx2 + dy22) - c;
           if (s<smax) weight[n++]= scale * exp(-s*s*bbexp);  // exponential weight
-	  else        weight[n++]= 0.;
+          else        weight[n++]= 0.;
         }
       }
     }
@@ -3581,109 +3581,109 @@ void FieldEdit::editExpWeight(float px, float py,
 
 
 bool FieldEdit::quicksmooth(int nsmooth, bool allDefined, int nx, int ny,
-		            float *data, float *work,
-	                    float *worku1, float *worku2)
+    float *data, float *work,
+    float *worku1, float *worku2)
 {
-   //  Low-bandpass filter, removing short wavelengths
-   //  (not a 2nd or 4th order Shapiro filter)
-   //
-   //  G.J.Haltiner, Numerical Weather Prediction,
-   //                   Objective Analysis,
-   //                       Smoothing and filtering
-   //
-   //  input:   nsmooth       - no. of iterations (1,2,3,...),
-   //                           nsmooth<0 => '-nsmooth' iterations and
-   //                           using input work as mask
-   //           work[nx*ny]   - a work matrix (size as the field),
-   //                           or input mask if nsmooth<0
-   //                           (0.0=not smooth, 1.0=full smooth)
-   //           worku1[nx*ny] - a work matrix (only used if !allDefined or nsmooth<0)
-   //           worku2[nx*ny] - a work matrix (only used if !allDefined or nsmooth<0)
+  //  Low-bandpass filter, removing short wavelengths
+  //  (not a 2nd or 4th order Shapiro filter)
+  //
+  //  G.J.Haltiner, Numerical Weather Prediction,
+  //                   Objective Analysis,
+  //                       Smoothing and filtering
+  //
+  //  input:   nsmooth       - no. of iterations (1,2,3,...),
+  //                           nsmooth<0 => '-nsmooth' iterations and
+  //                           using input work as mask
+  //           work[nx*ny]   - a work matrix (size as the field),
+  //                           or input mask if nsmooth<0
+  //                           (0.0=not smooth, 1.0=full smooth)
+  //           worku1[nx*ny] - a work matrix (only used if !allDefined or nsmooth<0)
+  //           worku2[nx*ny] - a work matrix (only used if !allDefined or nsmooth<0)
 
-   const float s = 0.25;
-   int   size = nx * ny;
-   int   i, j, n, i1, i2;
+  const float s = 0.25;
+  int   size = nx * ny;
+  int   i, j, n, i1, i2;
 
-   if (nx<3 || ny<3) return false;
+  if (nx<3 || ny<3) return false;
 
-   if (nsmooth==0) return true;
+  if (nsmooth==0) return true;
 
-   if (allDefined && nsmooth>0) {
+  if (allDefined && nsmooth>0) {
 
-      for (n=0; n<nsmooth; n++) {
+    for (n=0; n<nsmooth; n++) {
 
-	 // loop extended, reset below
-	 for (i=1; i<size-1; ++i)
-	    work[i] = data[i] + s * (data[i-1] + data[i+1] - 2.*data[i]);
+      // loop extended, reset below
+      for (i=1; i<size-1; ++i)
+        work[i] = data[i] + s * (data[i-1] + data[i+1] - 2.*data[i]);
 
-	 i1 = 0;
-         i2 = nx - 1;
-	 for (j=0; j<ny; ++j, i1+=nx, i2+=nx) {
-	    work[i1] = data[i1];
-	    work[i2] = data[i2];
-	 }
-
-	 // loop extended, reset below
-	 for (i=nx; i<size-nx; ++i)
-	    data[i] = work[i] + s * (work[i-nx] + work[i+nx] - 2.*work[i]);
-
-         i2 = size - nx;
-	 for (i1=0; i1<nx; ++i1, ++i2) {
-	    data[i1] = work[i1];
-	    data[i2] = work[i2];
-	 }
-
+      i1 = 0;
+      i2 = nx - 1;
+      for (j=0; j<ny; ++j, i1+=nx, i2+=nx) {
+        work[i1] = data[i1];
+        work[i2] = data[i2];
       }
 
-   } else {
+      // loop extended, reset below
+      for (i=nx; i<size-nx; ++i)
+        data[i] = work[i] + s * (work[i-nx] + work[i+nx] - 2.*work[i]);
 
-      if (!allDefined) {
-         // loops extended, no problem
-         for (i=1; i<size-1; ++i)
-	    worku1[i]= (data[i-1]!=fieldUndef && data[i]  !=fieldUndef
-	                                      && data[i+1]!=fieldUndef) ? s : 0.;
-         for (i=nx; i<size-nx; ++i)
-	    worku2[i]= (data[i-nx]!=fieldUndef && data[i]   !=fieldUndef
-	                                       && data[i+nx]!=fieldUndef ) ? s : 0.;
-         if (nsmooth<0) {
-            for (i=1;  i<size-1;  ++i) worku1[i] = worku1[i]*work[i];
-            for (i=nx; i<size-nx; ++i) worku2[i] = worku2[i]*work[i];
-	 }
-      } else {
-         for (i=1;  i<size-1;  ++i) worku1[i] = s*work[i];
-         for (i=nx; i<size-nx; ++i) worku2[i] = s*work[i];
+      i2 = size - nx;
+      for (i1=0; i1<nx; ++i1, ++i2) {
+        data[i1] = work[i1];
+        data[i2] = work[i2];
       }
 
-      if (nsmooth<0) nsmooth= -nsmooth;
+    }
 
-      for (n=0; n<nsmooth; n++) {
+  } else {
 
-	 // loop extended, reset below
-	 for (i=1; i<size-1; ++i)
-	    work[i] = data[i] + worku1[i] * (data[i-1] + data[i+1] - 2.*data[i]);
+    if (!allDefined) {
+      // loops extended, no problem
+      for (i=1; i<size-1; ++i)
+        worku1[i]= (data[i-1]!=fieldUndef && data[i]  !=fieldUndef
+            && data[i+1]!=fieldUndef) ? s : 0.;
+      for (i=nx; i<size-nx; ++i)
+        worku2[i]= (data[i-nx]!=fieldUndef && data[i]   !=fieldUndef
+            && data[i+nx]!=fieldUndef ) ? s : 0.;
+      if (nsmooth<0) {
+        for (i=1;  i<size-1;  ++i) worku1[i] = worku1[i]*work[i];
+        for (i=nx; i<size-nx; ++i) worku2[i] = worku2[i]*work[i];
+      }
+    } else {
+      for (i=1;  i<size-1;  ++i) worku1[i] = s*work[i];
+      for (i=nx; i<size-nx; ++i) worku2[i] = s*work[i];
+    }
 
-	 i1 = 0;
-         i2 = nx - 1;
-	 for (j=0; j<ny; ++j, i1+=nx, i2+=nx) {
-	    work[i1] = data[i1];
-	    work[i2] = data[i2];
-	 }
+    if (nsmooth<0) nsmooth= -nsmooth;
 
-	 // loop extended, reset below
-	 for (i=nx; i<size-nx; ++i)
-	    data[i] = work[i] + worku2[i] * (work[i-nx] + work[i+nx] - 2.*work[i]);
+    for (n=0; n<nsmooth; n++) {
 
-	 i2 = size - nx;
-	 for (i1=0; i1<nx; ++i1, ++i2) {
-	    data[i1] = work[i1];
-	    data[i2] = work[i2];
-	 }
+      // loop extended, reset below
+      for (i=1; i<size-1; ++i)
+        work[i] = data[i] + worku1[i] * (data[i-1] + data[i+1] - 2.*data[i]);
 
+      i1 = 0;
+      i2 = nx - 1;
+      for (j=0; j<ny; ++j, i1+=nx, i2+=nx) {
+        work[i1] = data[i1];
+        work[i2] = data[i2];
       }
 
-   }
+      // loop extended, reset below
+      for (i=nx; i<size-nx; ++i)
+        data[i] = work[i] + worku2[i] * (work[i-nx] + work[i+nx] - 2.*work[i]);
 
-   return true;
+      i2 = size - nx;
+      for (i1=0; i1<nx; ++i1, ++i2) {
+        data[i1] = work[i1];
+        data[i2] = work[i2];
+      }
+
+    }
+
+  }
+
+  return true;
 }
 
 
@@ -3856,8 +3856,8 @@ void FieldEdit::drawInfluence()
     }
     glEnd();
   }
-//###############################################################
-/**************************************************************
+  //###############################################################
+  /**************************************************************
   if (drawExtraLines && i1edp<i2edp && j1edp<j2edp &&
       maparea.P()==editfield->area.P()) {
     glLineWidth(1.0);
@@ -3868,8 +3868,8 @@ void FieldEdit::drawInfluence()
     glVertex2f(float(i1edp)-0.5f,float(j2edp)-0.5f);
     glEnd();
   }
-**************************************************************/
-/**************************************************************
+   **************************************************************/
+  /**************************************************************
   maparea = splot.getMapArea();
   if (lockedValue.size()>0 && maparea.P()==editfield->area.P()) {
     Rectangle rec= maparea.R();
@@ -3898,8 +3898,8 @@ void FieldEdit::drawInfluence()
     }
     glEnd();
   }
-**************************************************************/
-//###############################################################
+   **************************************************************/
+  //###############################################################
 }
 
 

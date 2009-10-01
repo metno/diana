@@ -296,10 +296,10 @@ vector<float> ObjectPlot::getYmarkedJoined(){
 
 
 void ObjectPlot::setXY(vector<float> x,vector <float> y){
-  int n=x.size();
-  int end=nodePoints.size();
+  unsigned int n=x.size();
+  unsigned int end=nodePoints.size();
   if (y.size()<n) n=y.size();
-  for (int i =0;i<n;i++){
+  for (unsigned int i =0;i<n;i++){
     if(i<end){
       nodePoints[i].x=x[i];
       nodePoints[i].y=y[i];
@@ -744,12 +744,12 @@ void ObjectPlot::drawNodePoints(){
 
 
 void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
-  int msize=xdraw.size();
+  unsigned int msize=xdraw.size();
   if (ydraw.size()<msize) msize=ydraw.size();
   glLineWidth(2);
   float deltaw=window_dw*w*0.5;
   float PI       = acosf(-1.0);
-  for (int i=0; i<msize; i++){
+  for (unsigned int i=0; i<msize; i++){
     glBegin(GL_POLYGON);
     if (objectIs(wFront) || objectIs(Border)){
       glVertex2f(xdraw[i]- deltaw,ydraw[i]- deltaw);
@@ -901,7 +901,7 @@ bool ObjectPlot::readObjectString(miString objectString)
 #endif
 
   vector <miString> tokens = objectString.split(';');
-  for (int i = 0; i<tokens.size();i++){
+  for (unsigned int i = 0; i<tokens.size();i++){
      vector <miString> stokens = tokens[i].split('=');
      key = stokens[0].downcase();
      value = stokens[1];
@@ -998,7 +998,7 @@ miString ObjectPlot::writeObjectString(){
   ostringstream cs;
   //write coordinates
   if (nodePoints.size()){
-  for (int i=0; i < nodePoints.size(); i++)
+  for (unsigned int i=0; i < nodePoints.size(); i++)
     {
       cs << nodePoints[i].x<<","<< nodePoints[i].y;
       if (i<nodePoints.size()-1) cs <<",\n";

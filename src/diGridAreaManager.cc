@@ -301,8 +301,8 @@ void GridAreaManager::doSpatialInterpolation(const miString & movedId, float mov
     ++m;
   }
   if (n == m) {
-     LOG4CXX_ERROR(logger, "doSpatialInterpolation failed - trying to move parent");
-     return;
+    LOG4CXX_ERROR(logger, "doSpatialInterpolation failed - trying to move parent");
+    return;
   }
   Point parentCenter = spatialAreas[m].area.getPolygon().getCenterPoint();
   int d = abs(n-m); // number of time units between parent and current area
@@ -527,8 +527,8 @@ bool GridAreaManager::undo() {
   if (hasCurrentArea()){
     ok = gridAreas[currentId].undo();
   }
-  if(ok)
   return ok;
+
 }
 
 bool GridAreaManager::redo() {
@@ -536,7 +536,7 @@ bool GridAreaManager::redo() {
   if (hasCurrentArea()){
     ok = gridAreas[currentId].redo();
   }
-  if(ok)
+
   return ok;
 }
 

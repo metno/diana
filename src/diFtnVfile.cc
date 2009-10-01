@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,14 +23,14 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-/* 
+ */
+/*
    DESCRIPTION:    Reading fortran Vprof and Vcross files (bput/bget)
-*/
+ */
 
 #include <iostream>
 #include <math.h>
@@ -38,16 +38,16 @@
 
 
 // Default constructor
-FtnVfile::FtnVfile(miString filename, int bufferlength)
-    : fileName(filename), bufferLength(bufferlength),
-      pfile(0), swapFile(false),
-      firstRead(true), index(bufferlength)
-{
+FtnVfile::FtnVfile(miString filename, int bufferlength) :
+  bufferLength(bufferlength), fileName(filename),
+  firstRead(true), swapFile(false), index(bufferlength), pfile(0)
+
+  {
 #ifdef DEBUGPRINT
   cerr << "++ FtnVfile::Default Constructor" << endl;
 #endif
   buffer= new short int[bufferlength];
-}
+  }
 
 
 // Destructor
@@ -87,7 +87,7 @@ void FtnVfile::readBuffer() {
   cerr << "++ FtnVfile::readBuffer" << endl;
 #endif
 
-  if (fread(buffer, 2, bufferLength, pfile) != bufferLength) {
+  if (int (fread(buffer, 2, bufferLength, pfile)) != bufferLength) {
     cerr << "FtnVfile::readBuffer error reading " << fileName << endl;
     throw VfileError();
   }
@@ -272,12 +272,12 @@ float* FtnVfile::getFloat(int length, int iscale, int iundef) {
         fdata[i++]= float(buffer[index++]) * scale;
     } else {
       for (j=0; j<n; ++j) {
-	if (buffer[index]!=intUndef) {
+        if (buffer[index]!=intUndef) {
           fdata[i++]= float(buffer[index++]) * scale;
-	} else {
-	  fdata[i++]= floatUndef;
-	  index++;
-	}
+        } else {
+          fdata[i++]= floatUndef;
+          index++;
+        }
       }
     }
   }
@@ -286,7 +286,7 @@ float* FtnVfile::getFloat(int length, int iscale, int iundef) {
 
 
 void FtnVfile::getFloat(float *fdata, int length,
-			int iscale, int iundef) {
+    int iscale, int iundef) {
 #ifdef DEBUGPRINT
   cerr << "++ FtnVfile::getFloat length= " << length << endl;
 #endif
@@ -302,12 +302,12 @@ void FtnVfile::getFloat(float *fdata, int length,
         fdata[i++]= float(buffer[index++]) * scale;
     } else {
       for (j=0; j<n; ++j) {
-	if (buffer[index]!=intUndef) {
+        if (buffer[index]!=intUndef) {
           fdata[i++]= float(buffer[index++]) * scale;
-	} else {
-	  fdata[i++]= floatUndef;
-	  index++;
-	}
+        } else {
+          fdata[i++]= floatUndef;
+          index++;
+        }
       }
     }
   }
@@ -332,12 +332,12 @@ vector<float> FtnVfile::getFloatVector(int length, int iscale, int iundef) {
         fdata[i++]= float(buffer[index++]) * scale;
     } else {
       for (j=0; j<n; ++j) {
-	if (buffer[index]!=intUndef) {
+        if (buffer[index]!=intUndef) {
           fdata[i++]= float(buffer[index++]) * scale;
-	} else {
-	  fdata[i++]= floatUndef;
-	  index++;
-	}
+        } else {
+          fdata[i++]= floatUndef;
+          index++;
+        }
       }
     }
   }
@@ -379,9 +379,9 @@ miString FtnVfile::getString(int length) {
     else if (str[i]=='$') str[i]='Å';
   }
 
-//###############################################################
-//cerr<<"FtnVfile::getString >>> " << str << " <<<" << endl;
-//###############################################################
+  //###############################################################
+  //cerr<<"FtnVfile::getString >>> " << str << " <<<" << endl;
+  //###############################################################
   return str;
 }
 

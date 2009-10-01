@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <fstream>
 #include <diVprofManager.h>
@@ -51,9 +51,9 @@
 #include <math.h>
 
 VprofManager::VprofManager()
-  : vpdiag(0), showObs(false),
-    showObsTemp(false), showObsPilot(false), showObsAmdar(false),
-    plotw(0), ploth(0), hardcopy(false), amdarStationList(false)
+: amdarStationList(false), vpdiag(0), showObs(false),
+showObsTemp(false), showObsPilot(false), showObsAmdar(false),
+ plotw(0), ploth(0), hardcopy(false)
 {
 #ifdef DEBUGPRINT
   cerr << "VprofManager constructed" << endl;
@@ -82,7 +82,7 @@ VprofManager::~VprofManager()
   if (vpdiag) delete vpdiag;
   if (vpopt)  delete vpopt;
 
-  for (int i=0; i<vpdata.size(); i++)
+  for (unsigned int i=0; i<vpdata.size(); i++)
     delete vpdata[i];
 }
 
@@ -107,42 +107,42 @@ void VprofManager::parseSetup()
     for (int i=0; i<n; i++) {
       tokens= vstr[i].split();
       if (tokens.size()==1) {
-	tokens1= tokens[0].split("=");
-	if (tokens1.size()==2) {
-	  ObsFilePath ofp;
-	  if (tokens1[0].downcase().contains("metnoobs.") ||
-	      tokens1[0].downcase().contains("obs.") )
-	    ofp.fileformat = metnoobs;
-	  else if (tokens1[0].downcase().contains("bufr."))
-	    ofp.fileformat = bufr;
-	  else
-	    continue;
-	  if (tokens1[0].downcase().contains(".temp")) {
-	    ofp.obstype = temp;
-	  } else if (tokens1[0].downcase().contains(".amdar")) {
-	    ofp.obstype = amdar;
-	  } else if (tokens1[0].downcase().contains(".pilot")) {
-	    ofp.obstype = pilot;
-	  } else {
-	    continue;
-	  }
-	  ofp.tf.initFilter(tokens1[1]);
-	  ofp.filepath = tokens1[1];
-	  filePaths.push_back(ofp);
-	}
+        tokens1= tokens[0].split("=");
+        if (tokens1.size()==2) {
+          ObsFilePath ofp;
+          if (tokens1[0].downcase().contains("metnoobs.") ||
+              tokens1[0].downcase().contains("obs.") )
+            ofp.fileformat = metnoobs;
+          else if (tokens1[0].downcase().contains("bufr."))
+            ofp.fileformat = bufr;
+          else
+            continue;
+          if (tokens1[0].downcase().contains(".temp")) {
+            ofp.obstype = temp;
+          } else if (tokens1[0].downcase().contains(".amdar")) {
+            ofp.obstype = amdar;
+          } else if (tokens1[0].downcase().contains(".pilot")) {
+            ofp.obstype = pilot;
+          } else {
+            continue;
+          }
+          ofp.tf.initFilter(tokens1[1]);
+          ofp.filepath = tokens1[1];
+          filePaths.push_back(ofp);
+        }
       } else if (tokens.size()==2) {
-	tokens1= tokens[0].split("=");
-	tokens2= tokens[1].split("=");
-	if (tokens1.size()==2          && tokens2.size()==2  &&
-	    tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
-	  model= tokens1[1];
-	  filename= tokens2[1];
-	  filenames[model]= filename;
-	  if (uniquefiles.find(filename)==uniquefiles.end()) {
-	    uniquefiles.insert(filename);
-	    dialogModelNames.push_back(model);
-	    dialogFileNames.push_back(filename);
-	  }
+        tokens1= tokens[0].split("=");
+        tokens2= tokens[1].split("=");
+        if (tokens1.size()==2          && tokens2.size()==2  &&
+            tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
+          model= tokens1[1];
+          filename= tokens2[1];
+          filenames[model]= filename;
+          if (uniquefiles.find(filename)==uniquefiles.end()) {
+            uniquefiles.insert(filename);
+            dialogModelNames.push_back(model);
+            dialogFileNames.push_back(filename);
+          }
         }
       }
     }
@@ -177,23 +177,23 @@ void VprofManager::updateObsFileList()
 #ifdef METNOOBS
       of.time      = miTime(1970,1,1,0,0,0);
       of.modificationTime= 0;
-      for (int i=0; i<globBuf.gl_pathc; i++) {
-	of.filename= miString(globBuf.gl_pathv[i]);
-	obsfiles.push_back(of);
+      for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
+        of.filename= miString(globBuf.gl_pathv[i]);
+        obsfiles.push_back(of);
       }
 #endif
     } else if(of.fileformat == bufr){
 #ifdef BUFROBS
       of.modificationTime= -1; //no need to check later
-      for (int i=0; i<globBuf.gl_pathc; i++) {
-	of.filename= miString(globBuf.gl_pathv[i]);
-	if(!filePaths[j].tf.ok() ||
-	   !filePaths[j].tf.getTime(of.filename,of.time)){
-	  ObsBufr bufr;
-	  if(!bufr.ObsTime(of.filename,of.time)) continue;
-	}
-	//time found, no need to check again
-	obsfiles.push_back(of);
+      for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
+        of.filename= miString(globBuf.gl_pathv[i]);
+        if(!filePaths[j].tf.ok() ||
+            !filePaths[j].tf.getTime(of.filename,of.time)){
+          ObsBufr bufr;
+          if(!bufr.ObsTime(of.filename,of.time)) continue;
+        }
+        //time found, no need to check again
+        obsfiles.push_back(of);
       }
 #endif
     }
@@ -223,17 +223,17 @@ void VprofManager::setModel()
 
   // should not clear all data, possibly needed again...
 
-  for (int i=0; i<vpdata.size(); i++)
+  for (unsigned int i=0; i<vpdata.size(); i++)
     delete vpdata[i];
   vpdata.clear();
 
   //check if there are any selected models, if not use default
-//   if (!selectedModels.size()&&!selectedFiles.size()
-//       &&(!asField || !fieldModels.size())){
-//     cerr << "No model selected" << endl;
-//     miString model = getDefaultModel();
-//     usemodels.insert(model);
-//   }
+  //   if (!selectedModels.size()&&!selectedFiles.size()
+  //       &&(!asField || !fieldModels.size())){
+  //     cerr << "No model selected" << endl;
+  //     miString model = getDefaultModel();
+  //     usemodels.insert(model);
+  //   }
 
   usemodels.clear();
 
@@ -274,10 +274,10 @@ void VprofManager::setModel()
     else {
       map<miString,miString>::iterator pf=filenames.begin();
       for (; pf!=filenames.end(); pf++) {
-	if (file==pf->second){
-	  initVprofData(file,pf->first);
-	  break;
-	}
+        if (file==pf->second){
+          initVprofData(file,pf->first);
+          break;
+        }
       }
     }
   }
@@ -462,64 +462,64 @@ bool VprofManager::plot()
         VprofPlot *vp= 0;
 
         while (vp==0 && nn<nf) {
-	  if (obsfiles[nn].modificationTime &&
-	      obsfiles[nn].time==plotTime) {
-	    if(obsfiles[nn].fileformat==metnoobs){
+          if (obsfiles[nn].modificationTime &&
+              obsfiles[nn].time==plotTime) {
+            if(obsfiles[nn].fileformat==metnoobs){
 #ifdef METNOOBS
-	      try {
-		if (showObsTemp && obsfiles[nn].obstype==temp &&
-		    !nameList[i].contains("Pilot")) {
-		  if (obsList[i]!="99") {
-		    // land or ship station with name
-		    VprofTemp vpobs(obsfiles[nn].filename,false,stationList);
-		    vp= vpobs.getStation(obsList[i],plotTime);
-		  } else {
-		    // ship station without name
-		    VprofTemp vpobs(obsfiles[nn].filename,false,
-				    latitudeList[i],longitudeList[i],2.0f,2.0f);
-		    vp= vpobs.getStation(obsList[i],plotTime);
-		  }
-		} else if (showObsPilot && obsfiles[nn].obstype==pilot &&
-			   nameList[i].contains("Pilot")) {
-		  if (obsList[i]!="99") {
-		    // land or ship station with name
-		    VprofPilot vpobs(obsfiles[nn].filename,stationList);
-		    vp= vpobs.getStation(obsList[i],plotTime);
-		  } else {
-		    // ship station without name
-		    VprofPilot vpobs(obsfiles[nn].filename,
-				     latitudeList[i],longitudeList[i],2.0f,2.0f);
-		    vp= vpobs.getStation(obsList[i],plotTime);
-		  }
-		} else if (showObsAmdar && obsfiles[nn].obstype==amdar &&
-			   !nameList[i].contains("Pilot")) {
-	        VprofTemp vpobs(obsfiles[nn].filename,true,
-				latitudeList[i],longitudeList[i],0.3f,0.3f);
-	        vp= vpobs.getStation(obsList[i],plotTime);
-	        if (vp!=0) vp->setName(nameList[i]);
-		}
-	      }
-	      catch (...) {
-		cerr<<"Exception in: " <<obsfiles[nn].filename<<endl;
-	      }
+              try {
+                if (showObsTemp && obsfiles[nn].obstype==temp &&
+                    !nameList[i].contains("Pilot")) {
+                  if (obsList[i]!="99") {
+                    // land or ship station with name
+                    VprofTemp vpobs(obsfiles[nn].filename,false,stationList);
+                    vp= vpobs.getStation(obsList[i],plotTime);
+                  } else {
+                    // ship station without name
+                    VprofTemp vpobs(obsfiles[nn].filename,false,
+                        latitudeList[i],longitudeList[i],2.0f,2.0f);
+                    vp= vpobs.getStation(obsList[i],plotTime);
+                  }
+                } else if (showObsPilot && obsfiles[nn].obstype==pilot &&
+                    nameList[i].contains("Pilot")) {
+                  if (obsList[i]!="99") {
+                    // land or ship station with name
+                    VprofPilot vpobs(obsfiles[nn].filename,stationList);
+                    vp= vpobs.getStation(obsList[i],plotTime);
+                  } else {
+                    // ship station without name
+                    VprofPilot vpobs(obsfiles[nn].filename,
+                        latitudeList[i],longitudeList[i],2.0f,2.0f);
+                    vp= vpobs.getStation(obsList[i],plotTime);
+                  }
+                } else if (showObsAmdar && obsfiles[nn].obstype==amdar &&
+                    !nameList[i].contains("Pilot")) {
+                  VprofTemp vpobs(obsfiles[nn].filename,true,
+                      latitudeList[i],longitudeList[i],0.3f,0.3f);
+                  vp= vpobs.getStation(obsList[i],plotTime);
+                  if (vp!=0) vp->setName(nameList[i]);
+                }
+              }
+              catch (...) {
+                cerr<<"Exception in: " <<obsfiles[nn].filename<<endl;
+              }
 #endif
-	    } else if(obsfiles[nn].fileformat==bufr &&
-		      (!nameList[i].contains("Pilot") &&
-		       obsfiles[nn].obstype!=pilot) ||
-		      (nameList[i].contains("Pilot") &&
-		       obsfiles[nn].obstype==pilot) ) {
+            } else if(obsfiles[nn].fileformat==bufr &&
+                (!nameList[i].contains("Pilot") &&
+                    obsfiles[nn].obstype!=pilot) ||
+                    (nameList[i].contains("Pilot") &&
+                        obsfiles[nn].obstype==pilot) ) {
 #ifdef BUFROBS
-	      ObsBufr bufr;
-	      vp=bufr.getVprofPlot(obsfiles[nn].filename,obsList[i],plotTime);
+              ObsBufr bufr;
+              vp=bufr.getVprofPlot(obsfiles[nn].filename,obsList[i],plotTime);
 #endif
-	    }
-	  }
-	  nn++;
-	}
-	if (vp) {
-	  vp->plot(vpopt,m);
-	  delete vp;
-	}
+            }
+          }
+          nn++;
+        }
+        if (vp) {
+          vp->plot(vpopt,m);
+          delete vp;
+        }
       }
     }
 
@@ -570,8 +570,8 @@ void VprofManager::setFieldModels(const vector <miString> & fieldmodels){
 /***************************************************************************/
 
 void VprofManager::setSelectedModels(const vector <miString>& models ,
-				     bool field, bool obsTemp,
-				     bool obsPilot, bool obsAmdar){
+    bool field, bool obsTemp,
+    bool obsPilot, bool obsAmdar){
   //called when model selected in model dialog
   showObsTemp = obsTemp;
   showObsPilot= obsPilot;
@@ -587,8 +587,8 @@ void VprofManager::setSelectedModels(const vector <miString>& models ,
 /***************************************************************************/
 
 void VprofManager::setSelectedFiles(const vector <miString>& files,
-				    bool field, bool obsTemp,
-				    bool obsPilot, bool obsAmdar){
+    bool field, bool obsTemp,
+    bool obsPilot, bool obsAmdar){
   //called when model selected in model dialog
   showObsTemp = obsTemp;
   showObsPilot= obsPilot;
@@ -662,11 +662,11 @@ void VprofManager::initStations(){
     latitudelist= vpdata[i]->getLatitudes();
     longitudelist= vpdata[i]->getLongitudes();
     obslist= vpdata[i]->getObsNames();
-    int n=namelist.size();
+    unsigned int n=namelist.size();
     if (n!=latitudelist.size()||n!=longitudelist.size()||
-	n!=obslist.size()) {
+        n!=obslist.size()) {
       cerr << "diVprofManager::initStations - SOMETHING WRONG WITH STATIONLIST!"
-	   << endl;
+      << endl;
     } else if (n>0) {
       nameList.insert(nameList.end(),namelist.begin(),namelist.end());
       obsList.insert(obsList.end(),obslist.begin(),obslist.end());
@@ -680,65 +680,65 @@ void VprofManager::initStations(){
   int n= obsfiles.size();
   for (int i=0; i<n; i++) {
     if (obsfiles[i].time==plotTime &&
-	((showObsTemp  && obsfiles[i].obstype==temp) ||
-	 (showObsPilot && obsfiles[i].obstype==pilot) ||
-	 (showObsAmdar && obsfiles[i].obstype==amdar))) {
+        ((showObsTemp  && obsfiles[i].obstype==temp) ||
+            (showObsPilot && obsfiles[i].obstype==pilot) ||
+            (showObsAmdar && obsfiles[i].obstype==amdar))) {
       if(obsfiles[i].fileformat==bufr){
 #ifdef BUFROBS
-	ObsBufr bufr;
-	bufr.readStationInfo(obsfiles[i].filename,
-			     namelist,latitudelist,longitudelist);
+        ObsBufr bufr;
+        bufr.readStationInfo(obsfiles[i].filename,
+            namelist,latitudelist,longitudelist);
 #endif
       } else if(obsfiles[i].fileformat==metnoobs){
 #ifdef METNOOBS
-	try {
-	  // until robs' obs class can do the job:
-	  obs ofile;
-	  ofile.readStationHeaders(obsfiles[i].filename);
-	  namelist=      ofile.getStationIds();
-	  latitudelist=  ofile.getStationLatitudes();
-	  longitudelist= ofile.getStationLongitudes();
-	  if (obsfiles[i].obstype==amdar )
-	    tlist= ofile.getStationTimes();
-	}
-	catch (...) {
-	  cerr<<"Exception in: " <<obsfiles[i].filename<<endl;
-	}
+        try {
+          // until robs' obs class can do the job:
+          obs ofile;
+          ofile.readStationHeaders(obsfiles[i].filename);
+          namelist=      ofile.getStationIds();
+          latitudelist=  ofile.getStationLatitudes();
+          longitudelist= ofile.getStationLongitudes();
+          if (obsfiles[i].obstype==amdar )
+            tlist= ofile.getStationTimes();
+        }
+        catch (...) {
+          cerr<<"Exception in: " <<obsfiles[i].filename<<endl;
+        }
 #endif
       }
       obslist= namelist;
-      int ns= namelist.size();
+      unsigned int ns= namelist.size();
       if (ns!=latitudelist.size() || ns!=longitudelist.size() ||
-	  ns!=obslist.size()) {
-	cerr << "diVprofManager::initStations - SOMETHING WRONG WITH OBS.STATIONLIST!"
-	     << endl;
+          ns!=obslist.size()) {
+        cerr << "diVprofManager::initStations - SOMETHING WRONG WITH OBS.STATIONLIST!"
+        << endl;
       } else if (ns>0) {
-	for (int j=0; j<ns; j++) {
-	  if (namelist[j].substr(0,2)=="99") {
+        for (unsigned int j=0; j<ns; j++) {
+          if (namelist[j].substr(0,2)=="99") {
 #ifdef linux
-	    // until robs (linux swap problem) fixed
-	    // (note that "obslist" is kept unchanged/wrong for reading)
-	    miString callsign=  namelist[j].substr(3,1)
-	      + namelist[j].substr(2,1)
-	      + namelist[j].substr(5,1)
-	      + namelist[j].substr(4,1);
-	    namelist[j]= callsign;
+            // until robs (linux swap problem) fixed
+            // (note that "obslist" is kept unchanged/wrong for reading)
+            miString callsign=  namelist[j].substr(3,1)
+            + namelist[j].substr(2,1)
+            + namelist[j].substr(5,1)
+            + namelist[j].substr(4,1);
+            namelist[j]= callsign;
 #else
-	    namelist[j]= namelist[j].substr(2,namelist[j].length()-2);
+            namelist[j]= namelist[j].substr(2,namelist[j].length()-2);
 #endif
-	  }
-	}
-	if (obsfiles[i].obstype==pilot) {
-	  // may have the same station as both Pilot and Temp
-	  for (int j=0; j<ns; j++)
-	    namelist[j]= "Pilot:" + namelist[j];
-	} else if (obsfiles[i].obstype==amdar) {
-	  renameAmdar(namelist,latitudelist,longitudelist,obslist,tlist,amdarCount);
-	}
-	nameList.insert(nameList.end(),namelist.begin(),namelist.end());
-	obsList.insert(obsList.end(),obslist.begin(),obslist.end());
-	latitudeList.insert(latitudeList.end(),latitudelist.begin(),latitudelist.end());
-	longitudeList.insert(longitudeList.end(),longitudelist.begin(),longitudelist.end());
+          }
+        }
+        if (obsfiles[i].obstype==pilot) {
+          // may have the same station as both Pilot and Temp
+          for (unsigned int j=0; j<ns; j++)
+            namelist[j]= "Pilot:" + namelist[j];
+        } else if (obsfiles[i].obstype==amdar) {
+          renameAmdar(namelist,latitudelist,longitudelist,obslist,tlist,amdarCount);
+        }
+        nameList.insert(nameList.end(),namelist.begin(),namelist.end());
+        obsList.insert(obsList.end(),obslist.begin(),obslist.end());
+        latitudeList.insert(latitudeList.end(),latitudelist.begin(),latitudelist.end());
+        longitudeList.insert(longitudeList.end(),longitudelist.begin(),longitudelist.end());
       }
     }
   }
@@ -757,8 +757,8 @@ void VprofManager::initStations(){
     //find plot station
     for (int i=0;i<n;i++){
       if(nameList[i]== lastStation){
-	plotStation=nameList[i];
-	found=true;
+        plotStation=nameList[i];
+        found=true;
       }
     }
     if (!found) plotStation.clear();
@@ -816,20 +816,20 @@ void VprofManager::checkObsTime(int hour) {
     if (obsfiles[i].modificationTime<0) continue; //no need to check
 #ifdef METNOOBS
     if (obsfiles[i].modificationTime==0 || hour<0 ||
-	obsfiles[i].time.hour()==hour) {
+        obsfiles[i].time.hour()==hour) {
       if (stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
-	if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
-	  obsfiles[i].modificationTime= statbuf.st_mtime;
+        if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
+          obsfiles[i].modificationTime= statbuf.st_mtime;
           try {
             obs ofile;
-	    ofile.readFileHeader(obsfiles[i].filename);
-	    if (obsfiles[i].time != ofile.fileObsTime()) newtime= true;
-	    obsfiles[i].time= ofile.fileObsTime();
+            ofile.readFileHeader(obsfiles[i].filename);
+            if (obsfiles[i].time != ofile.fileObsTime()) newtime= true;
+            obsfiles[i].time= ofile.fileObsTime();
           }
           catch (...) {
             cerr<<"Exception in: "<<obsfiles[i].filename<<endl;
-	  }
-	}
+          }
+        }
       }
     }
 #endif
@@ -839,7 +839,7 @@ void VprofManager::checkObsTime(int hour) {
     set<miTime> timeset;
     for (int i=0; i<n; i++)
       if (obsfiles[i].modificationTime)
-	timeset.insert(obsfiles[i].time);
+        timeset.insert(obsfiles[i].time);
     obsTime.clear();
     set<miTime>::iterator p= timeset.begin(), pend= timeset.end();
     for (; p!=pend; p++)
@@ -898,22 +898,22 @@ vector<miString> VprofManager::writeLog()
 
 
 void VprofManager::readLog(const vector<miString>& vstr,
-			   const miString& thisVersion,
-			   const miString& logVersion)
+    const miString& thisVersion,
+    const miString& logVersion)
 {
   vpopt->readOptions(vstr);
 }
 
 
 void VprofManager::renameAmdar(vector<miString>& namelist,
-		 	       vector<float>& latitudelist,
-		 	       vector<float>& longitudelist,
-		 	       vector<miString>& obslist,
-		 	       vector<miTime>& tlist,
-		 	       map<miString,int>& amdarCount)
+    vector<float>& latitudelist,
+    vector<float>& longitudelist,
+    vector<miString>& obslist,
+    vector<miTime>& tlist,
+    map<miString,int>& amdarCount)
 {
   //should not happen, but ...
-  if(namelist.size()!=tlist.size()) return; 
+  if(namelist.size()!=tlist.size()) return;
 
   if (!amdarStationList) readAmdarStationList();
 
@@ -1008,10 +1008,10 @@ void VprofManager::readAmdarStationList()
   const float notFound=9999.;
   vector<miString> vstr,vstr2;
   miString str;
-  int i,n;
+  unsigned int i;
 
   while (getline(file,str)) {
-    n= str.find('#');
+    unsigned n= str.find('#');
     if (n!=0) {
       if (n!=string::npos) str= str.substr(0,n);
       str.trim();

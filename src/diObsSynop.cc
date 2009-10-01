@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -44,12 +44,12 @@ void ObsSynop::init(ObsPlot *oplot){
 
   int numStations= contents.size();
 
-  for(int i=0; i<numStations; i++) 
+  for(int i=0; i<numStations; i++)
     if(oplot->timeOK(contents[i].desc.obsTime)){
       ObsData &d = oplot->getNextObs();
       putData(i,d);
     }
-  
+
 }
 
 
@@ -65,7 +65,7 @@ void ObsSynop::putData(int i, ObsData &d){
   d.fdata["stationHeight"] = (float)contents[i].desc.hoeyde;
   d.fdata["Zone"] = d.zone = _IDtoZone(contents[i].stationID);
   d.obsTime = contents[i].desc.obsTime;
-  
+
   //Data
   if(contents[i].data.ix != undef)
     d.fdata["ix"]    = (float)contents[i].data.ix;		// Eksist. værgr. ?/
@@ -78,7 +78,7 @@ void ObsSynop::putData(int i, ObsData &d){
   if(contents[i].data.VV != undef)
     d.fdata["VV"]    = visibility(contents[i].data.VV);		// Synsvidde
   if(contents[i].data.N != undef)
-    d.fdata["N"]     = (float)contents[i].data.N;		// Skydekke 
+    d.fdata["N"]     = (float)contents[i].data.N;		// Skydekke
   if(contents[i].data.dd != undef)
     d.fdata["dd"]    = (float)contents[i].data.dd;		// grader
   if(contents[i].data.ff != undef)
@@ -94,7 +94,7 @@ void ObsSynop::putData(int i, ObsData &d){
      contents[i].data.TTT != undef)
     d.fdata["T_red"]  = potTemperature(contents[i].data.PoPoPoPo,
 				       contents[i].data.PPPP,
-				       contents[i].data.TTT);	
+				       contents[i].data.TTT);
   if(contents[i].data.hhh != undef)
     d.fdata["HHH"]   = (float)contents[i].data.hhh;       // Height(1000hPa)
   if(contents[i].data.a >= 0 && contents[i].data.a < 10)
@@ -127,7 +127,7 @@ void ObsSynop::putData(int i, ObsData &d){
     d.fdata["Cm"]    = (float)contents[i].data.Cm;           // Type of medium clouds
   if(contents[i].data.Ch > 0 && contents[i].data.Ch < 10)
     d.fdata["Ch"]    = (float)contents[i].data.Ch;		// Type of high clouds
-  
+
   // Seksjon 222
   if(contents[i].data.ds > 0 && contents[i].data.ds < 9 &&
      contents[i].data.vs > -1 && contents[i].data.vs < 10){
@@ -136,11 +136,11 @@ void ObsSynop::putData(int i, ObsData &d){
   }
   if(contents[i].data.TwTwTw != undef)
     d.fdata["TwTwTw"]= contents[i].data.TwTwTw;      	// Sjøtemperatur
-  if( contents[i].data.PwaPwa != undef || 
+  if( contents[i].data.PwaPwa != undef ||
       contents[i].data.HwaHwa != undef) {
     d.fdata["PwaPwa"] = (float)contents[i].data.PwaPwa;      	// Periode wave
     d.fdata["HwaHwa"] = (float)contents[i].data.HwaHwa/2 ;     	// Høyde wave 1/2 m
-  } else if( (float)contents[i].data.PwPw != undef || 
+  } else if( (float)contents[i].data.PwPw != undef ||
 	     contents[i].data.HwHw != undef) {
     d.fdata["PwaPwa"] = (float)contents[i].data.PwPw;		// Periode wave
     d.fdata["HwaHwa"] = (float)contents[i].data.HwHw/2;		// Høyde wave 1/2 m
@@ -162,16 +162,16 @@ void ObsSynop::putData(int i, ObsData &d){
       d.fdata["sss"]    = (float)contents[i].data.sss;	// Snødybde i cm
     else if(contents[i].data.sss <1000)
       d.fdata["sss"]    = 0;                    // Delvis snødekke
-  }	       
+  }
   if(contents[i].data.ff_911 != undef)
     d.fdata["911ff"] = knots2ms(contents[i].data.ff_911);	// Største vindkast.
-  
+
   // Seksjon 555
   if(contents[i].data.s != undef)
     d.fdata["s"]      = (float)contents[i].data.s;	// Sjøgang
   if(contents[i].data.fxfx != undef)
     d.fdata["fxfx"]   = knots2ms(contents[i].data.fxfx); // Maks. middelvind siden forige
-  
+
 }
 
 float ObsSynop::visibility(int vv)
@@ -209,11 +209,12 @@ float ObsSynop::visibility(int vv)
   case 99:
     return  55000.;
   }
-  
+
+  return 0;
 }
 
 float ObsSynop::potTemperature(const float& PoPoPoPo,
-			      const float& PPPP, 
+			      const float& PPPP,
 			      const float& TTT)
 {
 

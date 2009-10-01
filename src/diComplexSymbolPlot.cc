@@ -769,7 +769,6 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
   } else if (symbolStrings.size()==2){
     drawDoubleSigText(x,y,false);
   }
-  float sw,sh;
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 
 }
@@ -818,7 +817,6 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
 
   GLfloat radius = sw/2;
 
-  GLfloat x2 = x-0.5*sw;
   GLfloat y2 = y+0.5*sh;
   GLfloat y3 = y-0.5*sh;
   GLfloat x1;
@@ -899,7 +897,6 @@ void ComplexSymbolPlot::drawCircle(int index,
   //  if(symbolStrings.size()==2&& symbolStrings[1]!="") sh*=2;
   GLfloat xc,yc;
   GLfloat radius;
-  GLfloat length;
   if( circle) {
     radius = sw/1.5;
     sw = 0.0;
@@ -959,9 +956,6 @@ void ComplexSymbolPlot::drawDiamond(int index,float x, float y){
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   fp->getStringSize(s.c_str(),sw,sh);
   sw=1.1*sw; sh=1.2*sh;
-
-  GLfloat xc,yc;
-  GLfloat radius=sw/1.8;
 
   //draw white background
   if (whiteBox) {
@@ -1068,7 +1062,6 @@ void ComplexSymbolPlot::drawPrecipitation(float x, float y){
 
   float sw,sh;
   getComplexSize(1026,sw,sh);
-  GLfloat xc,yc;
 
   glRotatef(-45,0.0,0.0,1.0);
 
@@ -1554,7 +1547,7 @@ symbolText, const vector <miString> & xText){
 #endif
   currentSymbolStrings=symbolText;
   //insert into list of texts
-  for (int i =0;i<symbolText.size();i++)
+  for (unsigned int i =0;i<symbolText.size();i++)
     clist.insert(symbolText[i]);
   currentXStrings=xText;
 }
@@ -1567,7 +1560,7 @@ void ComplexSymbolPlot::getComplexText(vector <miString> & symbolText, vector <m
   if (xvisible)
     xText=xstrings;
   symbolText.clear();
-  for (int i = 0;i<nstringsvisible && i<symbolStrings.size();i++)
+  for (unsigned int i = 0;i<nstringsvisible && i<symbolStrings.size();i++)
     symbolText.push_back(symbolStrings[i]);
 }
 
@@ -1577,7 +1570,7 @@ void ComplexSymbolPlot::changeComplexText(const vector <miString> & symbolText, 
 #endif
   symbolStrings=symbolText;
   //insert into list of texts
-  for (int i =0;i<symbolText.size();i++)
+  for (unsigned int i =0;i<symbolText.size();i++)
     clist.insert(symbolText[i]);
   xstrings=xText;
 }
@@ -1590,7 +1583,7 @@ void ComplexSymbolPlot::readComplexText(miString complexString){
 #endif
   miString key,value;
   vector <miString> tokens = complexString.split('/');
-  for (int i = 0; i<tokens.size();i++){
+  for (unsigned int i = 0; i<tokens.size();i++){
     vector <miString> stokens = tokens[i].split(':');
     if (stokens.size()==2){
       key = stokens[0].downcase();
@@ -1598,12 +1591,12 @@ void ComplexSymbolPlot::readComplexText(miString complexString){
       vector <miString> texts = value.split(',');
       if (key=="symbolstrings"){
 	symbolStrings=texts;
-	for (int i=0;i<symbolStrings.size();i++)
+	for (unsigned int i=0;i<symbolStrings.size();i++)
 	  WeatherSymbol::replaceText(symbolStrings[i],false);
       }
       else if (key=="xstrings"){
 	xstrings=texts;
-	for (int i=0;i<xstrings.size();i++)
+	for (unsigned int i=0;i<xstrings.size();i++)
 	  WeatherSymbol::replaceText(xstrings[i],false);
       }
     }

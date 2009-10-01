@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <diTesselation.h>
 #include <GL/glu.h>
 #include <stdio.h>
@@ -44,7 +44,7 @@
 /************************
 define DEBUGEACHCALLBACK
 define DEBUGCALLBACK
-************************/
+ ************************/
 
 static GLUtesselator *tess;
 
@@ -60,34 +60,34 @@ static int n_combine_callback;
 
 static void GLCALLBACK error_callback( GLenum err )
 {
-   const GLubyte* errmsg;
-   errmsg = gluErrorString( err );
-   fprintf(stderr, "tesselation error_callback %d : %s\n",err,errmsg );
+  const GLubyte* errmsg;
+  errmsg = gluErrorString( err );
+  fprintf(stderr, "tesselation error_callback %d : %s\n",err,errmsg );
 }
 
 
 static void GLCALLBACK combine_callback( GLdouble coords[3],
-					 GLdouble *vertex_data[4],
-					 GLfloat weight[4], void **data )
+    GLdouble *vertex_data[4],
+    GLfloat weight[4], void **data )
 {
-   GLdouble	*vertex;
+  GLdouble	*vertex;
 
 #ifdef DEBUGCALLBACK
-   num_combine_callback++;
+  num_combine_callback++;
 #endif
 
 #ifdef DEBUGEACHCALLBACK
-   n_combine_callback++;
-   fprintf(stderr, "tesselation combine_callback %d\n",n_combine_callback );
+  n_combine_callback++;
+  fprintf(stderr, "tesselation combine_callback %d\n",n_combine_callback );
 #endif
 
-   vertex = (GLdouble *) malloc( 3 * sizeof(GLdouble) );
+  vertex = (GLdouble *) malloc( 3 * sizeof(GLdouble) );
 
-   vertex[0] = coords[0];
-   vertex[1] = coords[1];
-   vertex[2] = coords[2];
+  vertex[0] = coords[0];
+  vertex[1] = coords[1];
+  vertex[2] = coords[2];
 
-   *data = vertex;
+  *data = vertex;
 }
 
 
@@ -126,9 +126,9 @@ void endTesselation()
   tess= NULL;
 
 #ifdef DEBUGCALLBACK
-   if (num_combine_callback>0)
-     fprintf(stderr, "tesselation start, combine_callbacks: %d %d\n",
-            num_start_tesselation, num_combine_callback );
+  if (num_combine_callback>0)
+    fprintf(stderr, "tesselation start, combine_callbacks: %d %d\n",
+        num_start_tesselation, num_combine_callback );
 #endif
 }
 

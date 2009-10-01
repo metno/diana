@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <qtAddtoMenu.h>
 #include <qtQuickMenu.h>
 
@@ -47,7 +47,7 @@
 using namespace std;
 
 AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
-  : QDialog(parent), quick(qm)
+: QDialog(parent), quick(qm)
 {
   QHBoxLayout* b= new QHBoxLayout(this);
   setModal(true);
@@ -58,18 +58,18 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   QString t= "<em><b>"+tr("Add current plot to a private quickmenu")+"</b></em>";
   QLabel* label= new QLabel(t, frame);
   label->setFrameStyle(QFrame::Panel | QFrame::Raised);
-  
+
   list= new QListWidget(frame);
   connect(list, SIGNAL( itemClicked( QListWidgetItem * )),
-			SLOT(menuSelected( QListWidgetItem * )));
+      SLOT(menuSelected( QListWidgetItem * )));
   connect(list, SIGNAL(itemDoubleClicked( QListWidgetItem *  )),
-	  SLOT(okClicked()));
+      SLOT(okClicked()));
   list->setMinimumWidth(100);
-  
+
   newButton = new QPushButton(QPixmap(filenew_xpm), tr("&Make new"), frame );
   newButton->setEnabled( true );
   connect( newButton, SIGNAL(clicked()), SLOT(newClicked()));
-  
+
   QHBoxLayout* hl= new QHBoxLayout();
   hl->addWidget(list);
   hl->addWidget(newButton);
@@ -88,7 +88,7 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   QHBoxLayout* hl2= new QHBoxLayout();
   hl2->addWidget(okButton);
   hl2->addWidget(cancel);
-  
+
   QVBoxLayout* vl= new QVBoxLayout(frame);
   vl->addWidget(label);
   vl->addLayout(hl);
@@ -98,7 +98,7 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
 
   b->addWidget(frame);
   b->activate();
- 
+
   resize(350,200);
   fillMenu();
   list->setFocus();
@@ -110,7 +110,7 @@ void AddtoMenu::fillMenu()
   if (!quick) return;
   vector<miString> vs= quick->getCustomMenus();
 
-  for (int i=0; i<vs.size(); i++){
+  for (unsigned int i=0; i<vs.size(); i++){
     list->addItem(QString(vs[i].cStr()));
   }
   if (vs.size()>0){
@@ -131,10 +131,10 @@ void AddtoMenu::newClicked()
 {
   bool ok = FALSE;
   QString text = QInputDialog::getText(this,
-				       tr("New Menu"),
-				       tr("Make new menu with name:"),
-				       QLineEdit::Normal,
-				       QString::null, &ok );
+      tr("New Menu"),
+      tr("Make new menu with name:"),
+      QLineEdit::Normal,
+      QString::null, &ok );
   if ( ok && !text.isEmpty() ){
     if (quick->addMenu(text.toStdString())){
       fillMenu();

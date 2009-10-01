@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -111,7 +111,7 @@ bool ObjectManager::parseSetup(SetupParser& sp) {
     if (name.exists() && olist.filename.exists()){
       if (objectFiles.find(name)==objectFiles.end()) {     //add new name
 	objectNames.push_back(name);
-      } 
+      }
       objectFiles[name]= olist;       //add or replace object
     } else {
       ok= false;
@@ -154,7 +154,7 @@ vector<miTime> ObjectManager::getObjectTimes(const vector<miString>& pinfos)
   int nn= pinfos.size();
   for (int i=0; i<nn; i++){
     vector<miTime> tv = getObjectTimes(pinfos[i]);
-    for (int j=0; j<tv.size(); j++){
+    for (unsigned int j=0; j<tv.size(); j++){
       timeset.insert(tv[j]);
     }
   }
@@ -181,7 +181,7 @@ vector<miTime> ObjectManager::getObjectTimes(const miString& pinfo)
     SetupParser::splitKeyValue(tokens[j],key,value);
     if (key=="name"){
       vector<ObjFileInfo> ofi= getObjectFiles(value,true);
-      for (int k=0; k<ofi.size(); k++){
+      for (unsigned int k=0; k<ofi.size(); k++){
 	timevec.push_back(ofi[k].time);
       }
       break;
@@ -205,7 +205,7 @@ void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 
   vector<miString> tokens= pinfo.split('"','"');
   int m= tokens.size();
-  for (int j=0; j<m; j++){ 
+  for (int j=0; j<m; j++){
     miString key,value;
     SetupParser::splitKeyValue(tokens[j],key,value);
     if (key=="name"){
@@ -330,7 +330,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
 
   glob(fileString.c_str(),0,0,&globBuf);
 
-  for (int i=0; i<globBuf.gl_pathc; i++) {
+  for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
     ObjFileInfo info;
     miString name = globBuf.gl_pathv[i];
     miTime time = timeFilterFileName(name,ol.filter);
@@ -708,6 +708,7 @@ bool ObjectManager::inDrawing(){
   else if (mapmode==combine_mode)
     return plotm->combiningobjects.inDrawing;
 
+  return false;
 }
 
 void ObjectManager::createNewObject()
@@ -1179,7 +1180,7 @@ miString ObjectManager::stringFromTime(const miTime& t,bool addMinutes){
 
 bool ObjectManager::_isafile(const miString name){
   FILE *fp;
-  if (fp=fopen(name.cStr(),"r")){
+  if ((fp=fopen(name.cStr(),"r"))){
     fclose(fp);
     return true;
   } else return false;

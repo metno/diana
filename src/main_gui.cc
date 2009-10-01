@@ -223,15 +223,15 @@ int main(int argc, char **argv)
     // translation files for application strings
     vector<miString> langpaths = sp.languagePaths();
 
-    for(int i=0;i<langpaths.size(); i++ )
+    for(unsigned int i=0;i<langpaths.size(); i++ )
       if( qt.load(    qtlang.cStr(),langpaths[i].cStr()))
 	break;
 
-    for(int i=0;i<langpaths.size(); i++ )
+    for(unsigned int i=0;i<langpaths.size(); i++ )
       if( myapp.load( dilang.cStr(),langpaths[i].cStr()))
 	break;
 
-    for(int i=0;i<langpaths.size(); i++ )
+    for(unsigned int i=0;i<langpaths.size(); i++ )
       if( qutil.load( qulang.cStr(),langpaths[i].cStr()))
 	break;
 

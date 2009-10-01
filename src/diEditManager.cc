@@ -50,10 +50,9 @@
 #include <glob.h>
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om)
-: plotm(pm), objm(om), mapmode(normal_mode), combinematrix(0),
-numregs(0), hiddenObjects(false),
-hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1),
-editpause(false)
+: plotm(pm), objm(om), mapmode(normal_mode), editpause(false),
+combinematrix(0),numregs(0), hiddenObjects(false),
+hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
 {
   if (plotm==0 || objm==0){
     cerr << "Catastrophic error: plotm or objm == 0" << endl;
@@ -314,7 +313,7 @@ bool EditManager::parseSetup(SetupParser& sp) {
       if (ep.commandFilename.exists()) readCommandFile(ep);
       // find duplicate
 
-      int q;
+      unsigned int q;
       for ( q=0; q<editproducts.size(); q++ )
         if ( editproducts[q].name == ep.name )
           break;
@@ -892,7 +891,7 @@ bool EditManager::unsavedEditChanges(){
 
   //returns true if objects or fields changed since last save
   bool editc= false;
-  for (int i=0; i<fedits.size(); i++)
+  for (unsigned int i=0; i<fedits.size(); i++)
     if (fedits[i]->changedEditField()) editc= true;
 
   bool drawc = !objm->areObjectsSaved();
@@ -1083,7 +1082,7 @@ bool EditManager::startEdit(const EditProduct& ep,
   combineprods.clear();
   cleanCombineData(true);
 
-  for (int i=0; i<fedits.size(); i++)
+  for (unsigned int i=0; i<fedits.size(); i++)
     delete fedits[i];
   fedits.clear();
 
@@ -1092,7 +1091,7 @@ bool EditManager::startEdit(const EditProduct& ep,
   plotm->prodtimedefined= true;
 
 
-  for (int j=0; j<EdProd.fields.size(); j++) {
+  for (unsigned int j=0; j<EdProd.fields.size(); j++) {
 
     miString fieldname= EdProd.fields[j].name;
 
@@ -1221,7 +1220,7 @@ bool EditManager::writeEditProduct(miString&  message,
   miTime t = plotm->producttime;
 
   if (wfield) {
-    for (int i=0; i<fedits.size(); i++) {
+    for (unsigned int i=0; i<fedits.size(); i++) {
       //cerr << "Writing field:" << i << endl;
       miString filenamePart =EdProd.fields[i].filenamePart;
       miString filename= editFileName(EdProd.savedir,EdProdId.name,
@@ -1389,7 +1388,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
   // element objects or fields
   if (element==-1)
     filenamePart= ep.objectsFilenamePart;
-  else if (element>-1 && element <ep.fields.size())
+  else if (element>-1 && element <int(ep.fields.size()))
     filenamePart= ep.fields[element].filenamePart;
   else
     return prods;
@@ -1437,7 +1436,6 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
 
   combineprods.clear();
 
-  int numids= ei.combineids.size();
   int numfields= ep.fields.size();
 
   pid= "*";
@@ -1529,7 +1527,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
   glob_t globBuf;
   glob(fileString.c_str(),0,0,&globBuf);
 
-  for (int i=0; i<globBuf.gl_pathc; i++) {
+  for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
     miString name = globBuf.gl_pathv[i];
     //cerr << "Found a file " << name << endl;
     savedProduct savedprod;
@@ -1589,12 +1587,12 @@ void EditManager::stopEdit()
 
   cleanCombineData(true);
 
-  for (int i=0; i<fedits.size(); i++)
+  for (unsigned int i=0; i<fedits.size(); i++)
     delete fedits[i];
   fedits.clear();
 
   plotm->editobjects.clear();
-  for (int i=0; i<plotm->editVap.size(); i++)
+  for (unsigned int i=0; i<plotm->editVap.size(); i++)
     delete plotm->editVap[i];
   plotm->editVap.clear();
   plotm->combiningobjects.clear();
@@ -1707,7 +1705,7 @@ EdProd = ep;
 EdProdId = ei;
 
 // delete editfields
-for (int i=0; i<fedits.size(); i++)
+for (unsigned int i=0; i<fedits.size(); i++)
   delete fedits[i];
 fedits.clear();
 
@@ -2049,7 +2047,7 @@ void EditManager::stopCombine()
   }
 
   if (!fieldsCombined) {
-    for (int j=0; j<fedits.size(); j++)
+    for (unsigned int j=0; j<fedits.size(); j++)
       fedits[j]->setConstantValue(fieldUndef);
   }
 
@@ -2069,7 +2067,6 @@ bool EditManager::combineFields(float zoneWidth) {
   int i,n, size= nx*ny;
 
   int nf= fedits.size();
-  int mc= combinefields[0].size();
   //cerr << "number of fedits:" << nf << endl;
   //cerr << "number of combinefields:" << mc << endl;
 
@@ -2223,7 +2220,6 @@ struct polygon{
 bool EditManager::recalcCombineMatrix(){
 
   //cerr << "recalcCombineMatrix" << endl;
-  int nborders= plotm->combiningobjects.objectCount(Border);
   int cosize= plotm->combiningobjects.objects.size();
   int nf= fedits.size();
 
@@ -2543,17 +2539,17 @@ void EditManager::prepareEditFields(const vector<miString>& inp)
   if (fedits.size()==0) return;
 
   vector<miString> vip= inp;
-  int npi= vip.size();
+  unsigned int npi= vip.size();
   if (npi>fedits.size()) npi= fedits.size();
 
-  for (int i=0; i<npi; i++)
+  for (unsigned int i=0; i<npi; i++)
     fedits[i]->editfieldplot->prepare(vip[i]);
 
   // for showing single region during and after combine
   npi= vip.size();
   if (npi>combinefields.size()) npi= combinefields.size();
 
-  for (int i=0; i<npi; i++) {
+  for (unsigned int i=0; i<npi; i++) {
     int nreg=combinefields[i].size();
     for (int r=0; r<nreg; r++)
       combinefields[i][r]->editfieldplot->prepare(vip[i]);
@@ -2567,7 +2563,7 @@ void EditManager::prepareEditFields(const vector<miString>& inp)
 
 bool EditManager::getFieldArea(Area& a)
 {
-  for (int i=0; i<fedits.size(); i++) {
+  for (unsigned int i=0; i<fedits.size(); i++) {
     if (fedits[i]->editfield) {
       a= fedits[i]->editfield->area;
       return true;
@@ -2709,14 +2705,14 @@ void EditManager::plotSingleRegion()
   int nf= combinefields.size();
 
   for (int i=0; i<nf; i++) {
-    if (showRegion<combinefields[i].size()) {
+    if (showRegion<int(combinefields[i].size())) {
       if (combinefields[i][showRegion]->editfield &&
           combinefields[i][showRegion]->editfieldplot)
         combinefields[i][showRegion]->plot(false);
     }
   }
 
-  if (showRegion<combineobjects.size()) {
+  if (showRegion<int(combineobjects.size())) {
     // projection may have been changed when showing single region data
     combineobjects[showRegion].changeProjection(plotm->getMapArea());
 
@@ -2834,55 +2830,6 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
   areas.push_back(newEditToolInfo("Reduced visibility",ReducedVisibility,"gulbrun"));
   areas.push_back(newEditToolInfo("Generic area",Genericarea,"red"));
-
-
-  // draw_mode types
-  //   fronts.push_back(newEditToolInfo("Kaldfront",Cold,"blue"));
-  //   fronts.push_back(newEditToolInfo("Varmfront",Warm,"red"));
-  //   fronts.push_back(newEditToolInfo("Okklusjon",Occluded,"purple"));
-  //   fronts.push_back(newEditToolInfo("KaldOkklusjon",ColdOccluded,"blue"));
-  //   fronts.push_back(newEditToolInfo("VarmOkklusjon",WarmOccluded,"red"));
-  //   fronts.push_back(newEditToolInfo("Stasjonær front",Stationary,"grey50"));
-  //   fronts.push_back(newEditToolInfo("Tråg",TroughLine,"blue"));
-  //   fronts.push_back(newEditToolInfo("Bygelinje",SquallLine,"blue"));
-  //   fronts.push_back(newEditToolInfo("Sig.vær",SigweatherFront,"black"));
-
-  //   symbols.push_back(newEditToolInfo("Lavtrykk",242,"red"));
-  //   symbols.push_back(newEditToolInfo("Høytrykk",243,"blue"));
-  //   symbols.push_back(newEditToolInfo("Kald",244,"blue"));\
-  //   symbols.push_back(newEditToolInfo("Varm",245,"red"));
-  //   symbols.push_back(newEditToolInfo("Tåke",62,"darkYellow"));
-  //   symbols.push_back(newEditToolInfo("Yr",80,"green"));
-  //   symbols.push_back(newEditToolInfo("Yr som fryser",83,"red"));
-  //   symbols.push_back(newEditToolInfo( "Regn som fryser",93,"red"));
-  //   symbols.push_back(newEditToolInfo( "Byger",109,"green"));
-  //   symbols.push_back(newEditToolInfo( "Regnbyger",110,"green"));
-  //   symbols.push_back(newEditToolInfo( "Regn",89,"green"));
-  //   symbols.push_back(newEditToolInfo( "Sluddbyger",126,"green"));
-  //   symbols.push_back(newEditToolInfo( "Haglbyger",117,"green"));
-  //   symbols.push_back(newEditToolInfo( "Snøbyger",114,"green"));
-  //   symbols.push_back(newEditToolInfo( "Tordenvær",119,"red"));
-  //   symbols.push_back(newEditToolInfo( "Tordenvær m/hagl",122,"red"));
-  //   symbols.push_back(newEditToolInfo( "Snøstjerne",254,"green"));
-  //   symbols.push_back(newEditToolInfo( "Tropisk orkan",253,"black"));
-  //   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
-  //   symbols.push_back(newEditToolInfo( "Sirkel",35,"blue"));
-  //   symbols.push_back(newEditToolInfo( "Kryss",255,"red"));
-  //   symbols.push_back(newEditToolInfo("Tekster",0,"black"));
-
-  // //   symbols.push_back(newEditToolInfo("Widespread BR",136,"yellow2"));
-  // //   symbols.push_back(newEditToolInfo("Mountain Obscuration",106,"black"));
-  // //   symbols.push_back(newEditToolInfo( "Hagl",238,"red"));
-
-  //   areas.push_back(newEditToolInfo("Nedbør",Rain,"green4"));
-  //   areas.push_back(newEditToolInfo("Byger",Showers,"green3"));
-  //   areas.push_back(newEditToolInfo("Skyer",Clouds,"orange"));
-  //   areas.push_back(newEditToolInfo("Tåke",Fog,"darkGray"));
-  //   areas.push_back(newEditToolInfo("Is",Ice,"darkYellow"));
-  //   areas.push_back(newEditToolInfo("Sig.vær",Sigweather,"black"));
-  //   areas.push_back(newEditToolInfo("Redusert sikt / lavt skydekke",ReducedVisibility,"gulbrun"));
-  //   areas.push_back(newEditToolInfo("Generisk område",Genericarea,"red"));
-
 
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black"));
   sigsymbols.push_back(newEditToolInfo("Tekst_1",1000,"black"));

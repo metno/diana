@@ -29,30 +29,35 @@ Area GridArea::getStandardProjection(){
 }
 
 
-GridArea::GridArea():Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
+GridArea::GridArea():
+  Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
 	Area stdProj = getStandardProjection();
 	init(stdProj,stdProj);
   saveChange();
 }
 
-GridArea::GridArea(string id):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
+GridArea::GridArea(string id):
+  Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
 	Area stdProj = getStandardProjection();
 	init(stdProj,stdProj);
   saveChange();
 }
 
-GridArea::GridArea(string id, Area org_proj):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
+GridArea::GridArea(string id, Area org_proj):
+  Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
 	init(org_proj,org_proj);
   saveChange();
 }
 
-GridArea::GridArea(string id, ProjectablePolygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
+GridArea::GridArea(string id, ProjectablePolygon area_):
+  Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
 	init(area_.getOriginalProjection(),area_.getOriginalProjection());
 	polygon.setOriginalProjectionPoints(area_);
   saveChange();
 }
 
-GridArea::GridArea(string id, Area org_proj, Polygon area_):Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),colours_defined(false),drawstyle(DEFAULT){
+GridArea::GridArea(string id, Area org_proj, Polygon area_):
+  Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
 	init(org_proj,org_proj);
 	polygon.setOriginalProjectionPoints(area_);
   saveChange();
@@ -262,7 +267,7 @@ void GridArea::fillActivePolygon(Polygon & p, bool main_polygon){
     y.push_back((*q).get_y());
   }
 
-  for(int i=0;i<x.size()-3;i+=4){
+  for(unsigned int i=0;i<x.size()-3;i+=4){
     glBegin(GL_POLYGON); // GL_LINE_LOOP
     glVertex2f(x[i],  y[i] );
     glVertex2f(x[i+1],y[i+1] );
@@ -536,7 +541,7 @@ void GridArea::saveChange() {
   if(redobuffer.size())
       redobuffer.clear();
   undobuffer.push_front(polygon);
-  if(undobuffer.size()>maxBuffer)
+  if(int(undobuffer.size())>maxBuffer)
     undobuffer.pop_back();
 }
 

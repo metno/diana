@@ -92,7 +92,7 @@ float  SpectrumPlot::eTotalMax= 0.0;
 
 // Default constructor
 SpectrumPlot::SpectrumPlot()
-	: sdata(0), xdata(0), ydata(0), numDirec(0), numFreq(0)
+	: numDirec(0), numFreq(0), sdata(0), xdata(0), ydata(0)
 {
 #ifdef DEBUGPRINT
   cerr << "++ SpectrumPlot::Default Constructor" << endl;

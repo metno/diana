@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -400,8 +400,6 @@ int CommandParser::findKey(vector<ParsedCommand>& vpc,
 bool CommandParser::removeValue(vector<ParsedCommand>& vpc,
 			         const miString& key){
 
-  int n= findKey(vpc,key,false);
-
   vector<ParsedCommand>::iterator p=vpc.begin(), pend=vpc.end();
   while(p!=pend && p->key!=key) p++;
   if(p!=pend) {
@@ -429,14 +427,14 @@ bool CommandParser::replaceValue(ParsedCommand& pc,
   // valueIndex > existing : append a new value element
   // valueIndex < 0        : value contains all values
 
-  int n, nstr= pc.strValue.size();
+  unsigned int n, nstr= pc.strValue.size();
 
   if (valueIndex<0) {
     // replace all values
     pc.allValue= value;
     pc.strValue= parseString(pc.allValue);
     n= pc.strValue.size();
-  } else if (valueIndex<nstr) {
+  } else if (valueIndex<int(nstr)) {
     // replace one value
     pc.strValue[valueIndex]= value;
     n= nstr;
@@ -450,7 +448,7 @@ bool CommandParser::replaceValue(ParsedCommand& pc,
     // this works losy if the original strings was of type "string"
     // and contained one ore more commas !!!
     pc.allValue.clear();
-    for (int i=0; i<n; i++) {
+    for (unsigned int i=0; i<n; i++) {
       if (i>0) pc.allValue+= ',';
       if (pc.strValue[i].find_first_of(' ') < pc.strValue[i].length())
 	pc.allValue+= ('"' + pc.strValue[i] + '"');

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -47,7 +47,7 @@ VprofTemp::VprofTemp()
 // land or ship station with name
 VprofTemp::VprofTemp(const miString& file, bool amdar,
 		     const vector<miString>& stationList)
-  : amdartemp(amdar), temp(file,stationList)
+  : temp(file,stationList), amdartemp(amdar)
 {
 }
 
@@ -56,9 +56,9 @@ VprofTemp::VprofTemp(const miString& file, bool amdar,
 VprofTemp::VprofTemp(const miString& file, bool amdar,
 		     float latitude, float longitude,
 		     float deltalat, float deltalong)
-  : amdartemp(amdar),
-    temp(file,geopos(latitude-deltalat,longitude-deltalong),
-              geopos(latitude+deltalat,longitude+deltalong))
+  : temp(file,geopos(latitude-deltalat,longitude-deltalong),
+      geopos(latitude+deltalat,longitude+deltalong)),
+      amdartemp(amdar)
     // unfortunately this request cannot be limited to the ship zone (99)
 {
 }

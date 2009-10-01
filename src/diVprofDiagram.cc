@@ -41,7 +41,7 @@
 
 // Default constructor
 VprofDiagram::VprofDiagram(VprofOptions *vpop) :
-  VprofTables(), vpopt(vpop), drawlist(0), diagramInList(false), numtemp(0),
+  VprofTables(), vpopt(vpop),diagramInList(false),  drawlist(0), numtemp(0),
       numprog(0)
 {
 #ifdef DEBUGPRINT
@@ -899,7 +899,7 @@ void VprofDiagram::plotDiagram()
   int i, k, kk, k1, n, it, it1, it2, itstep, numwid, kmin, kmax;
   float x1, x2, y1, y2, dx, dy, x, y, p, t, chx, chy, numrot, dx1, dx2, dxmin,
       dymin;
-  float cw, ch, xnext, xlast, ynext, ylast, xc, yc;
+  float cw, xnext, xlast, ynext, ylast, xc, yc;
 
   Linetype linetype;
 
@@ -1388,7 +1388,7 @@ void VprofDiagram::plotDiagram()
   // mixing ratio (lines for constant mixing ratio) (humidity)
   if (vpopt->pmixingratio) {
     int set = vpopt->mixingratioSet;
-    if (set < 0 || set >= vpopt->qtable.size())
+    if (set < 0 || set >= int(vpopt->qtable.size()))
       set = 1;
     Colour c(vpopt->mixingratioColour);
     glColor3ubv(c.RGB());

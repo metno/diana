@@ -453,7 +453,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <name>EditComment</name>
     <message>
         <source>Comments-editing</source>
-        <translation>Kommentarer-editering</translation>
+        <translation type="obsolete">Kommentarer-editering</translation>
     </message>
     <message>
         <source>Show previous comments</source>
@@ -462,6 +462,10 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <source>Comments</source>
         <translation>Kommentarer</translation>
+    </message>
+    <message>
+        <source>Comments-editing[*]</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

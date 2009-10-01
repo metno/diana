@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <qtTextDialog.h>
 
 #include <QPushButton>
@@ -47,22 +47,22 @@
 
 /*********************************************/
 TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
-  : QDialog(parent)
+: QDialog(parent)
 
-// 	    Qt::WindowTitleHint | 
-// 	    Qt::WindowSystemMenuHint |  
+// 	    Qt::WindowTitleHint |
+// 	    Qt::WindowSystemMenuHint |
 // 	    Qt::WA_DeleteOnClose)
 {
-  tb = new QTextBrowser( this ); 
+  tb = new QTextBrowser( this );
 
   QPushButton* cb= new QPushButton( QPixmap(kill_xpm),
-				    tr("Close window"), this );
+      tr("Close window"), this );
   connect( cb, SIGNAL( clicked()), this, SLOT(finish()) );
 
   QPushButton* ob= new QPushButton( QPixmap(fileopen_xpm),
-				    tr("Open file.."), this );
+      tr("Open file.."), this );
   connect( ob, SIGNAL( clicked()), this, SLOT(openwild()) );
-  
+
   fixedb= new QCheckBox(tr("Use fixed font"), this);
   connect( fixedb, SIGNAL(clicked()), this, SLOT(fixedfont()));
 
@@ -78,10 +78,10 @@ TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
   QVBoxLayout* vlayout = new QVBoxLayout( this);
   vlayout->addWidget( tb );
   vlayout->addLayout( hlayout );
-  
+
   setSource(ifile);
 
-  vlayout->activate(); 
+  vlayout->activate();
 
   resize(600,400);
 }
@@ -92,7 +92,7 @@ void TextDialog::setSource(const InfoFile ifile){
   const miString xml_type= "text/xml;charset=UTF-8";
   const miString txt_type= "text/plain";
   const miString htm_type= "text/html;charset=iso8859-1";
-  
+
   infofile= ifile;
   if (infofile.name.exists()){
     setWindowTitle(infofile.name.cStr());
@@ -105,20 +105,20 @@ void TextDialog::setSource(const InfoFile ifile){
       ext= vs[vs.size()-1];
       ext.trim();
     }
-    
+
     // find path and filename
     if (infofile.filename.contains("/")){
       vs= infofile.filename.split("/");
       if (infofile.filename[0]=='/') path= "/";
-      for (int i=0; i<vs.size()-1; i++)
-	path+= (vs[i] + "/");
+      for (unsigned int i=0; i<vs.size()-1; i++)
+        path+= (vs[i] + "/");
       file = vs[vs.size()-1];
     } else {
       path = "./";
       file= infofile.filename;
     }
 
-    
+
     // set courier-font if fixed font selected
     if (infofile.fonttype=="fixed"){
       int psize= font().pointSize();
@@ -173,12 +173,12 @@ void TextDialog::openwild()
   InfoFile f;
   QString filter= tr("Textfiles (*.txt *.text *.html);;All (*.*)");
   QString s(QFileDialog::getOpenFileName(this,
-					 tr("Open file"),
-					 path.cStr(),
-					 filter));
+      tr("Open file"),
+      path.cStr(),
+      filter));
   if ( s.isEmpty() )
     return;
-  
+
   f.name= s.toStdString();
   f.filename= s.toStdString();
   f.doctype= "auto";
@@ -193,11 +193,11 @@ void TextDialog::openwild()
 //     QPainter p;
 //     if( !p.begin( &printer ) )
 //       return; // paint on printer
-    
+
 // //     tb->draw(&p);
 // //     tb->drawFrame(&p);
 // //     tb->drawContents(&p);
-    
+
 //     p.end();  // send job to printer
 //   }
 // }

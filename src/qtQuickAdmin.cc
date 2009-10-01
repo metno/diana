@@ -63,12 +63,12 @@ private:
 public:
   QuickTreeWidgetItem(QTreeWidget * parent, QStringList t, int m, int i) :
     QTreeWidgetItem(parent, t), menu(m), item(i)
-  {
-  }
+    {
+    }
   QuickTreeWidgetItem(QTreeWidgetItem * parent, QStringList t, int m, int i) :
     QTreeWidgetItem(parent, t), menu(m), item(i)
-  {
-  }
+    {
+    }
   //   QuickTreeWidgetItem(QTreeWidget * parent, QTreeWidgetItem * after,
   // 		    QStringList t, int m, int i):
   //     QTreeWidgetItem(parent, after, t), menu(m), item(i)
@@ -89,9 +89,9 @@ public:
 };
 
 QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
-  QDialog(parent), menus(qm), firstcustom(fc), lastcustom(lc), activeMenu(-1),
-      activeElement(-1), copyMenu(-1), copyElement(-1), autochange(true)
-{
+  QDialog(parent), menus(qm), autochange(true),  activeMenu(-1),
+  activeElement(-1), copyMenu(-1), copyElement(-1),firstcustom(fc), lastcustom(lc)
+  {
   setModal(true);
   QFont m_font = QFont("Helvetica", 12, 75);
 
@@ -244,7 +244,7 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
 
   updateWidgets();
   resize(500, 550);
-}
+  }
 
 void QuickAdmin::selectionChanged(QTreeWidgetItem *p, int i)
 {
@@ -406,7 +406,7 @@ void QuickAdmin::upClicked()
   } else {
     quickMenuItem tmp = menus[activeMenu].menuitems[activeElement - 1];
     menus[activeMenu].menuitems[activeElement - 1]
-        = menus[activeMenu].menuitems[activeElement];
+                                = menus[activeMenu].menuitems[activeElement];
     menus[activeMenu].menuitems[activeElement] = tmp;
     activeElement--;
   }
@@ -423,7 +423,7 @@ void QuickAdmin::downClicked()
   } else {
     quickMenuItem tmp = menus[activeMenu].menuitems[activeElement + 1];
     menus[activeMenu].menuitems[activeElement + 1]
-        = menus[activeMenu].menuitems[activeElement];
+                                = menus[activeMenu].menuitems[activeElement];
     menus[activeMenu].menuitems[activeElement] = tmp;
     activeElement++;
   }
@@ -543,7 +543,7 @@ void QuickAdmin::eraseClicked()
   } else {
     menus[activeMenu].menuitems.erase(menus[activeMenu].menuitems.begin()
         + activeElement);
-    if (activeElement == menus[activeMenu].menuitems.size()) {
+    if (activeElement == int(menus[activeMenu].menuitems.size())) {
       if (activeElement == 0)
         activeElement = -1;
       else

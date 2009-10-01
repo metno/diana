@@ -119,13 +119,14 @@ bool ShapeObject::changeProj(Area fromArea)
   }
 #ifdef DEBUGPRINT
   cerr << "done!" << endl;
-#endif  
+#endif
   return success;
 }
 
 bool ShapeObject::read(miString filename)
 {
   read(filename, false);
+  return true;
 }
 
 bool ShapeObject::read(miString filename, bool convertFromGeo)
@@ -176,7 +177,7 @@ bool ShapeObject::read(miString filename, bool convertFromGeo)
 
   //read dbf file
 
-  int idbf= readDBFfile(filename, dbfIntName, dbfIntDesc, dbfDoubleName,
+  readDBFfile(filename, dbfIntName, dbfIntDesc, dbfDoubleName,
       dbfDoubleDesc, dbfStringName, dbfStringDesc);
 
   colourmapMade=false;
@@ -186,6 +187,9 @@ bool ShapeObject::read(miString filename, bool convertFromGeo)
 
   //writeCoordinates writes a file with coordinates to teddb
   //writeCoordinates();
+
+  return true;
+
 }
 
 bool ShapeObject::plot()
@@ -238,6 +242,9 @@ bool ShapeObject::plot()
     endTesselation();
     delete[] gldata;
   }
+
+  return true;
+
 }
 
 bool ShapeObject::plot(Area area, // current area
@@ -279,7 +286,7 @@ bool ShapeObject::plot(Area area, // current area
       kstep=1;
     } else {
       kstep=divider;
-    }    
+    }
     int *countpos= new int[nparts];//# of positions for each part
     int nv= shapes[i]->nVertices;
     GLdouble *gldata= new GLdouble[nv*3];
@@ -348,9 +355,10 @@ bool ShapeObject::plot(Area area, // current area
       beginTesselation();
       tesselation(gldata, nparts, countpos);
       endTesselation();
-    } 
+    }
     delete[] gldata;
   }
+  return true;
 }
 
 bool ShapeObject::getAnnoTable(miString & str)
@@ -430,7 +438,7 @@ void ShapeObject::makeColourmap()
     }
     return;
   }
-  //  
+  //
   //int, first find which vector of double to use, dbfDoubleDescr
   int nddn =dbfDoubleName.size();
   for (int iddn=0; iddn < nddn; iddn++) {
@@ -451,7 +459,7 @@ void ShapeObject::makeColourmap()
     }
     return;
   }
-  //  
+  //
   int ndin =dbfIntName.size();
   for (int idin=0; idin < ndin; idin++) {
     if (dbfIntName[idin]==fname) {
@@ -523,14 +531,11 @@ int ShapeObject::readDBFfile(const miString& filename,
     vector<miString>& dbfStringName, vector< vector<miString> >& dbfStringDesc)
 {
   DBFHandle hDBF;
-  int i, n, iRecord;
+  unsigned int i, n, iRecord;
   int nWidth, nDecimals;
   char szTitle[12];
 
-  int indexTema1= -1;
-  int indexTema2= -1;
-  int indexLength= -1;
-  int nFieldCount, nRecordCount;
+  unsigned int nFieldCount, nRecordCount;
 
   vector<int> indexInt, indexDouble, indexString;
 
@@ -593,7 +598,7 @@ int ShapeObject::readDBFfile(const miString& filename,
     }
   }
 #ifdef DEBUGPRINT
-  for (n=0; n<dbfIntName.size(); n++)    
+  for (n=0; n<dbfIntName.size(); n++)
     cerr<<"Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]<<endl;
   for (n=0; n<dbfDoubleName.size(); n++)
     cerr<<"Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]
@@ -627,7 +632,7 @@ int ShapeObject::readDBFfile(const miString& filename,
         if (iRecord < 10)
           cerr << "DBFReadDoubleAttribute( hDBF, iRecord, i )"
               << DBFReadDoubleAttribute(hDBF, iRecord, i) << endl;
-#endif        
+#endif
       }
     }
   }
@@ -640,11 +645,11 @@ int ShapeObject::readDBFfile(const miString& filename,
       else {
         dbfStringDesc[n].push_back(miString(DBFReadStringAttribute(hDBF,
             iRecord, i) ) );
-#ifdef DEBUGPRINT        
+#ifdef DEBUGPRINT
         if (iRecord < 10)
           cerr << "DBFReadStringAttribute( hDBF, iRecord, i )"
               << DBFReadStringAttribute(hDBF, iRecord, i) << endl;
-#endif        
+#endif
       }
     }
   }
@@ -656,7 +661,7 @@ int ShapeObject::readDBFfile(const miString& filename,
   double avglength=0.0;
   int n1=0, n10=0, n100=0, n1000=0;
 
-  int m= 0;
+  unsigned int m= 0;
   while (m<dbfDoubleName.size() && dbfDoubleName[m]!="LENGTH")
     m++;
 
@@ -715,7 +720,7 @@ void ShapeObject::writeCoordinates()
    for (int i=0;i<n;i++){
    if (shapes[i]->nSHPType!=5)
    continue;
-   int nr=650+i; 
+   int nr=650+i;
    dbfile << nr << "|" << "shape " << i << "|county|1|";
    int nparts=shapes[i]->nParts;
    cerr << "number of parts " << nparts << endl;
@@ -738,7 +743,7 @@ void ShapeObject::writeCoordinates()
    cerr << newcor.str() << endl;
    dbfile << newcor.iLon() << " " << newcor.iLat();
    //dbfile << shapes[i]->padfX[k] << "   " << shapes[i]->padfY[k];
-   if (k!=nstop-1) 
+   if (k!=nstop-1)
    dbfile << ":";
 
    }

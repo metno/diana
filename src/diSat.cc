@@ -41,11 +41,13 @@ bool Sat::defaultClasstable=false;
 
 // Default constructor
 Sat::Sat() :
-  approved(false), image(0), nx(0), ny(0), channelschanged(true), mosaicchanged(true), autoFile(true), rgboperchanged(true),
-  alphaoperchanged(true), classtable(defaultClasstable),
-  alphacut(defaultAlphacut), alpha(defaultAlpha), cut(defaultCut),
-  maxDiff(defaultTimediff), palette(false), calibidx(-1), mosaic(false),
-  commonColourStretch(false)
+  approved(false),  autoFile(true),
+  cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
+  maxDiff(defaultTimediff), classtable(defaultClasstable),
+  nx(0), ny(0), palette(false), mosaic(false),
+  commonColourStretch(false), image(0), calibidx(-1),
+  channelschanged(true), rgboperchanged(true),
+  alphaoperchanged(true),mosaicchanged(true)
   {
 
 #ifdef DEBUGPRINT
@@ -69,12 +71,13 @@ Sat::Sat (const Sat &rhs)
 }
 
 Sat::Sat (const miString &pin) :
-  approved(false), image(0), nx(0), ny(0), channelschanged(true),
-  mosaicchanged(true), autoFile(true), rgboperchanged(true),
-  alphaoperchanged(true), classtable(defaultClasstable),
-  alphacut(defaultAlphacut), alpha(defaultAlpha), cut(defaultCut),
-  maxDiff(defaultTimediff), palette(false), calibidx(-1), mosaic(false),
-  commonColourStretch(false)
+  approved(false),  autoFile(true),
+  cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
+  maxDiff(defaultTimediff), classtable(defaultClasstable),
+  nx(0), ny(0), palette(false), mosaic(false),
+  commonColourStretch(false), image(0), calibidx(-1),
+  channelschanged(true), rgboperchanged(true),
+  alphaoperchanged(true),mosaicchanged(true)
   {
 
 #ifdef DEBUGPRINT
@@ -271,13 +274,13 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
         pvalue = rawimage[p->first][index];
       }
       //return if colour is hidden
-      for (int i=0; i<hideColor.size(); i++) {
+      for (unsigned int i=0; i<hideColor.size(); i++) {
         if (hideColor[i] ==pvalue)
           return;
       }
       if (pvalue!=0) {
         if (p->second.val.size()>0) {
-          if (p->second.val.size()>pvalue) {
+          if (int(p->second.val.size())>pvalue) {
             if (palette) {
               sv.text = p->second.val[(int)pvalue];
             } else {
@@ -335,7 +338,7 @@ void Sat::setCalibration()
 
   //Table
   if (cal_table.size()>0) {
-    for (int i=0; i<cal_table.size(); i++) {
+    for (unsigned int i=0; i<cal_table.size(); i++) {
       table_cal ct;
       vector<miString> token = cal_table[i].split(",");
       if (token.size()!= 5)

@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <iostream>
 #include <vector>
@@ -47,10 +47,10 @@ GridConverter VcrossFile::gc;
 
 // Default constructor
 VcrossFile::VcrossFile(const miString& filename, const miString& modelname)
-    : fileName(filename), modelName(modelname), vfile(0),
-      numCross(0), numTime(0), numLev(0), numPar2d(0), numPar1d(0),
-      nposmap(0), xposmap(0), yposmap(0), dataAddress(0),
-      modificationtime(0)
+: fileName(filename), modelName(modelname), vfile(0),
+modificationtime(0),
+numCross(0), numTime(0), numLev(0), numPar2d(0), numPar1d(0),
+nposmap(0), xposmap(0), yposmap(0), dataAddress(0)
 {
 #ifdef DEBUGPRINT
   cerr << "++ VcrossFile::Constructor" << endl;
@@ -101,7 +101,7 @@ bool VcrossFile::update()
       if (readFileHeader())
         modificationtime= statbuf.st_ctime;
       else
-	ok= false;
+        ok= false;
     }
   } else {
     ok= false;
@@ -150,43 +150,43 @@ bool VcrossFile::readFileHeader() {
     float gridparam[6];
 
     vcoord=   vcinfo[ 0];
-  //mpoint=   vcinfo[ 1];
+    //mpoint=   vcinfo[ 1];
     numCross= vcinfo[ 2];
     numLev=   vcinfo[ 3];
     numPar2d= vcinfo[ 4];
-  //numlev1=  vcinfo[ 5];
+    //numlev1=  vcinfo[ 5];
     numPar1d= vcinfo[ 6];
-  //ntimud= vcinfo[ 7];
+    //ntimud= vcinfo[ 7];
     numTime=  vcinfo[ 8];
     nlvlid= vcinfo[ 9];
-  //nrprod= vcinfo[10];
-  //nrgrid= vcinfo[11];
+    //nrprod= vcinfo[10];
+    //nrgrid= vcinfo[11];
     lctext= vcinfo[12];
-  //mlname= vcinfo[13];
+    //mlname= vcinfo[13];
     npmap  =vcinfo[14];
     // data grid
     igtype   =vcinfo[15];
-  //igsize[1]=vcinfo[16];
-  //igsize[2]=vcinfo[17];
-  //igsize[3]=vcinfo[18];
-  //igsize[4]=vcinfo[19];
+    //igsize[1]=vcinfo[16];
+    //igsize[2]=vcinfo[17];
+    //igsize[3]=vcinfo[18];
+    //igsize[4]=vcinfo[19];
     // map grid (used if no other data or map spec. set)
-  //mgtype   =vcinfo[20];
-  //mgsize[1]=vcinfo[21];
-  //mgsize[2]=vcinfo[22];
-  //mgsize[3]=vcinfo[23];
-  //mgsize[4]=vcinfo[24];
+    //mgtype   =vcinfo[20];
+    //mgsize[1]=vcinfo[21];
+    //mgsize[2]=vcinfo[22];
+    //mgsize[3]=vcinfo[23];
+    //mgsize[4]=vcinfo[24];
 
     delete[] vcinfo;
 
-  // Vertical coordinates handled:
-  // vcoord:  2 = sigma (0.-1. with ps and ptop) ... Norlam
-  //         10 = eta (hybrid) ... Hirlam, Ecmwf,...
-  //          1 = pressure
-  //          4 = isentropic surfaces (potential temp., with p(th))
-  //          5 = z levels from sea model (possibly incl. sea elevation and bottom)
-  //         11 = sigma height levels (MEMO,MC2)
-  //         12 = sigma.MM5 (input P in all levels)
+    // Vertical coordinates handled:
+    // vcoord:  2 = sigma (0.-1. with ps and ptop) ... Norlam
+    //         10 = eta (hybrid) ... Hirlam, Ecmwf,...
+    //          1 = pressure
+    //          4 = isentropic surfaces (potential temp., with p(th))
+    //          5 = z levels from sea model (possibly incl. sea elevation and bottom)
+    //         11 = sigma height levels (MEMO,MC2)
+    //         12 = sigma.MM5 (input P in all levels)
 
     if (vcoord!=2 && vcoord!=10 && vcoord!=1 && vcoord!=4 &&
         vcoord!=5 && vcoord!=11 && vcoord!=12) {
@@ -230,14 +230,14 @@ bool VcrossFile::readFileHeader() {
     // parameter no. (multilevel and single level)
     identPar2d= vfile->getIntVector(numPar2d);
     identPar1d= vfile->getIntVector(numPar1d);
-//###################################################################
-//    cerr<<" numPar2d= "<<numPar2d<<endl;
-//    for (n=0; n<numPar2d; n++)
-//      cerr<<"    "<<n<<" : "<<identPar2d[n]<<endl;
-//    cerr<<" numPar1d= "<<numPar1d<<endl;
-//    for (n=0; n<numPar1d; n++)
-//      cerr<<"    "<<n<<" : "<<identPar1d[n]<<endl;
-//###################################################################
+    //###################################################################
+    //    cerr<<" numPar2d= "<<numPar2d<<endl;
+    //    for (n=0; n<numPar2d; n++)
+    //      cerr<<"    "<<n<<" : "<<identPar2d[n]<<endl;
+    //    cerr<<" numPar1d= "<<numPar1d<<endl;
+    //    for (n=0; n<numPar1d; n++)
+    //      cerr<<"    "<<n<<" : "<<identPar1d[n]<<endl;
+    //###################################################################
 
     // always need x,y positions in model grid
     nxgPar= nygPar=  nxsPar= nxdsPar= -1;
@@ -255,10 +255,10 @@ bool VcrossFile::readFileHeader() {
     // no. of positions in each crossection
     numPoint=  vfile->getIntVector(numCross);
 
-//###################################################################
-//cerr << "VcrossFile::readFileHeader fileName= " << fileName << endl;
-//cerr << "      sizes: "<<names.size()<<" "<<validTime.size()<<endl;
-//###################################################################
+    //###################################################################
+    //cerr << "VcrossFile::readFileHeader fileName= " << fileName << endl;
+    //cerr << "      sizes: "<<names.size()<<" "<<validTime.size()<<endl;
+    //###################################################################
     names.clear();
     validTime.clear();
     forecastHour.clear();
@@ -277,28 +277,28 @@ bool VcrossFile::readFileHeader() {
       if((pn=str.find("!!"))!=string::npos) {
         name=str.substr(0,pn-1);
         opts=str.substr(pn+2);
-	name.trim();
-	opts.trim();
+        name.trim();
+        opts.trim();
       } else {
         name=str;
-	name.trim();
+        name.trim();
       }
-//###################################################################
-//    cerr<<"crossection "<<n<<" : "<<name<<endl;
-//    cerr<<"       opts "<<n<<" : "<<opts<<endl;
-//###################################################################
+      //###################################################################
+      //    cerr<<"crossection "<<n<<" : "<<name<<endl;
+      //    cerr<<"       opts "<<n<<" : "<<opts<<endl;
+      //###################################################################
       // had many names without the last ')' making serious PostScript errors
       int nc1= name.countChar('(');
       int nc2= name.countChar(')');
       if (nc1!=nc2) {
-	while (nc1<nc2) {
-	  name= '(' + name;
-	  nc1++;
-	}
-	while (nc2<nc1) {
-	  name= name + ')';
-	  nc2++;
-	}
+        while (nc1<nc2) {
+          name= '(' + name;
+          nc1++;
+        }
+        while (nc2<nc1) {
+          name= name + ')';
+          nc2++;
+        }
       }
 
       names.push_back(name);
@@ -317,9 +317,9 @@ bool VcrossFile::readFileHeader() {
       int fchour= tmp[i++];
       miTime t= miTime(year,month,day,hour,0,0);
       if (fchour!=0) t.addHour(fchour);
-//###################################################################
-//      cerr<<"time "<<n<<" : "<<t<<endl;
-//###################################################################
+      //###################################################################
+      //      cerr<<"time "<<n<<" : "<<t<<endl;
+      //###################################################################
       validTime.push_back(t);
       forecastHour.push_back(fchour);
     }
@@ -357,7 +357,7 @@ bool VcrossFile::readFileHeader() {
       int word=   dataAddress[itime*numCross*2+n*2+1];
       // skip to single level data for first timestep
       int nskip= nlvlid*(1+numLev) + 2 + numPar2d*numLev
-	        + numPoint[n]*numLev*numPar2d;
+      + numPoint[n]*numLev*numPar2d;
       record+= (word+nskip)/bufferlength;  // ??????????????????????
       word=    (word+nskip)%bufferlength;  // ??????????????????????
       //record+= (word+nskip-1)/bufferlength;      // ??????????????????????
@@ -369,13 +369,13 @@ bool VcrossFile::readFileHeader() {
       if (nskip>0) vfile->skipData(nskip);
       vfile->getFloat(&xposmap[np],numPoint[n],tmp[nxgPar],iundef1d);
       vfile->getFloat(&yposmap[np],numPoint[n],tmp[nygPar],iundef1d);
-//###################################################################
-//      cerr<<"--------------------"<<endl;
-//      cerr<<"  nxgPar,nygPar: "<<nxgPar<<" "<<nygPar<<endl;
-//      cerr<<"  xscale,yscale: "<<tmp[nxgPar]<<" "<<tmp[nygPar]<<endl;
-//      for (i=0; i<numPoint[n]; i++)
-//	cerr<<"  x,y: "<<xposmap[np+i]<<" "<<yposmap[np+i]<<endl;
-//###################################################################
+      //###################################################################
+      //      cerr<<"--------------------"<<endl;
+      //      cerr<<"  nxgPar,nygPar: "<<nxgPar<<" "<<nygPar<<endl;
+      //      cerr<<"  xscale,yscale: "<<tmp[nxgPar]<<" "<<tmp[nygPar]<<endl;
+      //      for (i=0; i<numPoint[n]; i++)
+      //	cerr<<"  x,y: "<<xposmap[np+i]<<" "<<yposmap[np+i]<<endl;
+      //###################################################################
       delete[] tmp;
       np+=numPoint[n];
     }
@@ -389,16 +389,16 @@ bool VcrossFile::readFileHeader() {
     Rectangle  r;
     Area area(p,r);
     gc.xy2geo(area,nposmap,xposmap,yposmap);
-//###################################################################
-//    cerr<<"--------------------"<<endl;
-//    np= 0;
-//    for (n=0; n<numCross; n++) {
-//      cerr<<"crossection "<<n<<" : "<<names[n]<<endl;
-//      cerr<<"  lon,lat: "<<xposmap[np+0]<<" "<<yposmap[np+0]<<endl;
-//      cerr<<"  lon,lat: "<<xposmap[np+numPoint[n]-1]<<" "<<yposmap[np+numPoint[n]-1]<<endl;
-//      np+=numPoint[n];
-//    }
-//###################################################################
+    //###################################################################
+    //    cerr<<"--------------------"<<endl;
+    //    np= 0;
+    //    for (n=0; n<numCross; n++) {
+    //      cerr<<"crossection "<<n<<" : "<<names[n]<<endl;
+    //      cerr<<"  lon,lat: "<<xposmap[np+0]<<" "<<yposmap[np+0]<<endl;
+    //      cerr<<"  lon,lat: "<<xposmap[np+numPoint[n]-1]<<" "<<yposmap[np+numPoint[n]-1]<<endl;
+    //      np+=numPoint[n];
+    //    }
+    //###################################################################
     //...........................................................
 
   }  // end of try
@@ -410,12 +410,12 @@ bool VcrossFile::readFileHeader() {
     return false;
   }
 
-//############################################################################
-//  for (n=0; n<identPar1d.size(); n++)
-//    cerr<<"VcrossFile::readFileHeader n,identPar1d[n]: "<<n<<" "<<identPar1d[n]<<endl;
-//  for (n=0; n<identPar2d.size(); n++)
-//    cerr<<"VcrossFile::readFileHeader n,identPar2d[n]: "<<n<<" "<<identPar2d[n]<<endl;
-//############################################################################
+  //############################################################################
+  //  for (n=0; n<identPar1d.size(); n++)
+  //    cerr<<"VcrossFile::readFileHeader n,identPar1d[n]: "<<n<<" "<<identPar1d[n]<<endl;
+  //  for (n=0; n<identPar2d.size(); n++)
+  //    cerr<<"VcrossFile::readFileHeader n,identPar2d[n]: "<<n<<" "<<identPar2d[n]<<endl;
+  //############################################################################
 
   VcrossPlot::makeContents(fileName,identPar2d,vcoord);
 
@@ -459,7 +459,7 @@ void VcrossFile::getMapData(vector<LocationElement>& elements)
 
 
 VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
-				       int tgpos) {
+    int tgpos) {
 #ifdef DEBUGPRINT
   cerr << "++ VcrossFile::getCrossection" << endl;
 #endif
@@ -496,7 +496,7 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
   vcp->numLev=   numLev;
   vcp->nTotal=   nTotal;
 
-  int l,n,itime1,itime2,tgpos1,tgpos2;
+  int l,itime1,itime2,tgpos1,tgpos2;
 
   // for TimeGraph data (when tgpos>=0)
   vector<float*> tgdata1d;
@@ -513,11 +513,11 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
     // timegraph (timeseries, one point all timesteps)
     itime1= 0;
     itime2= numTime - 1;
-    for (n=0; n<numPar2d; n++) {
+    for (int n=0; n<numPar2d; n++) {
       float *p= new float[numTime*numLev];
       tgdata2d.push_back(p);
     }
-    for (n=0; n<numPar1d; n++) {
+    for (int n=0; n<numPar1d; n++) {
       float *p= new float[numTime];
       tgdata1d.push_back(p);
     }
@@ -530,37 +530,37 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
   if (tgpos<0 && !posOptions[iCross].empty()) {
     vcp->refPosition=0.;
     vector<miString> vopts= posOptions[iCross].split(' ');
-    for (n=0; n<vopts.size(); n++) {
+    for (unsigned int n=0; n<vopts.size(); n++) {
       vector<miString> vkeyvalue= vopts[n].split('=');
       if (vkeyvalue.size()==2) {
-	miString key= vkeyvalue[0].downcase();
-	if (key=="refpos") {
-	  // -1 : from fortran to C++
-	  vcp->refPosition= atof(vkeyvalue[1].cStr()) - 1.;
-	} else if (key=="mark") {
-	  vector<miString> vs= vkeyvalue[1].split(',');
-	  if (vs.size()==2) {
-	    float pos= atof(vs[0].cStr()) - 1.;
-	    vcp->markNamePosMin.push_back(pos);
-	    vcp->markNamePosMax.push_back(pos);
-	    vcp->markName.push_back(vs[1]);
-	  } else if (vs.size()==3) {
-	    float pos1= atof(vs[0].cStr()) - 1.;
-	    float pos2= atof(vs[1].cStr()) - 1.;
-	    vcp->markNamePosMin.push_back(pos1);
-	    vcp->markNamePosMax.push_back(pos2);
-	    vcp->markName.push_back(vs[2]);
-	  }
-	}
+        miString key= vkeyvalue[0].downcase();
+        if (key=="refpos") {
+          // -1 : from fortran to C++
+          vcp->refPosition= atof(vkeyvalue[1].cStr()) - 1.;
+        } else if (key=="mark") {
+          vector<miString> vs= vkeyvalue[1].split(',');
+          if (vs.size()==2) {
+            float pos= atof(vs[0].cStr()) - 1.;
+            vcp->markNamePosMin.push_back(pos);
+            vcp->markNamePosMax.push_back(pos);
+            vcp->markName.push_back(vs[1]);
+          } else if (vs.size()==3) {
+            float pos1= atof(vs[0].cStr()) - 1.;
+            float pos2= atof(vs[1].cStr()) - 1.;
+            vcp->markNamePosMin.push_back(pos1);
+            vcp->markNamePosMax.push_back(pos2);
+            vcp->markName.push_back(vs[2]);
+          }
+        }
       }
     }
   } else {
     vcp->refPosition= 0.;
   }
-//#################################################################################
-//  cerr<<"VcrossFile::getCrossection  refPosition=   "<<vcp->refPosition<<endl;
-//  cerr<<"VcrossFile::getCrossection  markName.size= "<<vcp->markName.size()<<endl;
-//#################################################################################
+  //#################################################################################
+  //  cerr<<"VcrossFile::getCrossection  refPosition=   "<<vcp->refPosition<<endl;
+  //  cerr<<"VcrossFile::getCrossection  markName.size= "<<vcp->markName.size()<<endl;
+  //#################################################################################
 
   int iscale, iundef, iundef1d, iundef2d, ns;
   int *tmp;
@@ -569,29 +569,29 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
 
     for (int itime=itime1; itime<=itime2; itime++) {
 
-//################################################################
-//if (tgpos>=0) cerr<<"read tgpos,itime: "<<tgpos<<" "<<itime<<endl;
-//################################################################
+      //################################################################
+      //if (tgpos>=0) cerr<<"read tgpos,itime: "<<tgpos<<" "<<itime<<endl;
+      //################################################################
 
       // set start position in file ("fortran" record and word)
       int record= dataAddress[itime*numCross*2+iCross*2];
       int word=   dataAddress[itime*numCross*2+iCross*2+1];
       if(!vfile->setFilePosition(record,word)){
-	vcp=0;
-	return  vcp;
+        vcp=0;
+        return  vcp;
       }
       iundef= 0;
 
       // level values
-      for (n=0; n<nlvlid; n++) {
-	iscale= vfile->getInt();
-	if (n==0) {
-	  vcp->alevel= vfile->getFloatVector(numLev,iscale,iundef);
-	} else if (n==1) {
-	  vcp->blevel= vfile->getFloatVector(numLev,iscale,iundef);
-	} else {
-	  vfile->skipData(numLev);
-	}
+      for (int n=0; n<nlvlid; n++) {
+        iscale= vfile->getInt();
+        if (n==0) {
+          vcp->alevel= vfile->getFloatVector(numLev,iscale,iundef);
+        } else if (n==1) {
+          vcp->blevel= vfile->getFloatVector(numLev,iscale,iundef);
+        } else {
+          vfile->skipData(numLev);
+        }
       }
 
       // existence of undefined values in the data
@@ -601,59 +601,59 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
       // multilevel data
       tmp= vfile->getInt(numPar2d*numLev); // scaling, each param and level!
       ns= 0;
-      for (n=0; n<numPar2d; n++) {
-	float* pdata= new float[nTotal];
-	for (l=0; l<numLev; l++)
-	  vfile->getFloat(&pdata[l*nPoint],nPoint,tmp[ns++],iundef2d);
-	vcp->addPar2d(identPar2d[n],pdata);
+      for (int n=0; n<numPar2d; n++) {
+        float* pdata= new float[nTotal];
+        for (l=0; l<numLev; l++)
+          vfile->getFloat(&pdata[l*nPoint],nPoint,tmp[ns++],iundef2d);
+        vcp->addPar2d(identPar2d[n],pdata);
       }
       delete[] tmp;
 
       // single level data (surface etc.)
       tmp= vfile->getInt(numPar1d); // scaling, each param
-      for (n=0; n<numPar1d; n++) {
-	float *pdata= vfile->getFloat(nPoint,tmp[n],iundef1d);
-	vcp->addPar1d(identPar1d[n],pdata);
+      for (int n=0; n<numPar1d; n++) {
+        float *pdata= vfile->getFloat(nPoint,tmp[n],iundef1d);
+        vcp->addPar1d(identPar1d[n],pdata);
       }
       delete[] tmp;
 
       if (iundef1d<1 && iundef2d<1)
-	vcp->iundef= 0;
+        vcp->iundef= 0;
       else
-	vcp->iundef= 1;
+        vcp->iundef= 1;
 
       if (tgpos>=0) {
-	// store data for time graph of one (horizontal) position
-	// cdata2d(nPoint,nlev,npar2d) -> tgdata2d(ntime,nlev,npar)
-	// cdata1d(nPoint,npar1d)      -> tgdata1d(ntime,npar1)
-	// (for alevel and blevel we use values from the last timestep)
-	for (n=0; n<numPar2d; n++)
-	  for (l=0; l<numLev; l++)
-	    tgdata2d[n][numTime*l+itime]= vcp->cdata2d[n][l*nPoint+tgpos];
-	vcp->tgdx=  vcp->cdata1d[nxgPar][tgpos2]
-		  - vcp->cdata1d[nxgPar][tgpos1];
-	vcp->tgdy=  vcp->cdata1d[nygPar][tgpos2]
-		  - vcp->cdata1d[nygPar][tgpos1];
-	if (nxdsPar>=0) {
-	  vcp->horizontalLength= 0.;
-	  for (n=1; n<nPoint; n++)
-	    vcp->horizontalLength+= vcp->cdata1d[nxdsPar][n];
-	} else if (nxsPar>=0) {
-	  vcp->horizontalLength=  vcp->cdata1d[nxsPar][nPoint-1]
-				- vcp->cdata1d[nxsPar][0];
-	} else {
-	  vcp->horizontalLength= 50000. * float(nPoint-1);
-	}
-	for (n=0; n<numPar1d; n++)
-	  tgdata1d[n][itime]= vcp->cdata1d[n][tgpos];
-	for (n=0; n<numPar2d; n++)
-	  delete[] vcp->cdata2d[n];
-	for (n=0; n<numPar1d; n++)
-	  delete[] vcp->cdata1d[n];
-	vcp->cdata2d.clear();
-	vcp->cdata1d.clear();
-	vcp->idPar2d.clear();
-	vcp->idPar1d.clear();
+        // store data for time graph of one (horizontal) position
+        // cdata2d(nPoint,nlev,npar2d) -> tgdata2d(ntime,nlev,npar)
+        // cdata1d(nPoint,npar1d)      -> tgdata1d(ntime,npar1)
+        // (for alevel and blevel we use values from the last timestep)
+        for (int n=0; n<numPar2d; n++)
+          for (l=0; l<numLev; l++)
+            tgdata2d[n][numTime*l+itime]= vcp->cdata2d[n][l*nPoint+tgpos];
+        vcp->tgdx=  vcp->cdata1d[nxgPar][tgpos2]
+                                         - vcp->cdata1d[nxgPar][tgpos1];
+        vcp->tgdy=  vcp->cdata1d[nygPar][tgpos2]
+                                         - vcp->cdata1d[nygPar][tgpos1];
+        if (nxdsPar>=0) {
+          vcp->horizontalLength= 0.;
+          for (int n=1; n<nPoint; n++)
+            vcp->horizontalLength+= vcp->cdata1d[nxdsPar][n];
+        } else if (nxsPar>=0) {
+          vcp->horizontalLength=  vcp->cdata1d[nxsPar][nPoint-1]
+                                                       - vcp->cdata1d[nxsPar][0];
+        } else {
+          vcp->horizontalLength= 50000. * float(nPoint-1);
+        }
+        for (int n=0; n<numPar1d; n++)
+          tgdata1d[n][itime]= vcp->cdata1d[n][tgpos];
+        for (int n=0; n<numPar2d; n++)
+          delete[] vcp->cdata2d[n];
+        for (int n=0; n<numPar1d; n++)
+          delete[] vcp->cdata1d[n];
+        vcp->cdata2d.clear();
+        vcp->cdata1d.clear();
+        vcp->idPar2d.clear();
+        vcp->idPar1d.clear();
       }
 
     }
@@ -670,18 +670,18 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
   if (tgpos>=0) {
     vcp->nPoint= numTime;
     vcp->nTotal= numTime*numLev;
-    for (n=0; n<numPar2d; n++)
+    for (int n=0; n<numPar2d; n++)
       vcp->addPar2d(identPar2d[n],tgdata2d[n]);
-    for (n=0; n<numPar1d; n++)
+    for (int n=0; n<numPar1d; n++)
       vcp->addPar1d(identPar1d[n],tgdata1d[n]);
     vcp->timeGraph= true;
   }
 
   if (vcp->alevel.size()==0) {
-    for (n=0; n<numLev; n++) vcp->alevel.push_back(0.0);
+    for (int n=0; n<numLev; n++) vcp->alevel.push_back(0.0);
   }
   if (vcp->blevel.size()==0) {
-    for (n=0; n<numLev; n++) vcp->blevel.push_back(0.0);
+    for (int n=0; n<numLev; n++) vcp->blevel.push_back(0.0);
   }
 
   vcp->vrangemin= vrangemin[iCross];

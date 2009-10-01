@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <diSpectrumManager.h>
 
@@ -41,7 +41,7 @@
 
 
 SpectrumManager::SpectrumManager()
-  : dataChange(true), showObs(false), plotw(0), ploth(0), hardcopy(false)
+: showObs(false), plotw(0), ploth(0), dataChange(true), hardcopy(false)
 {
 #ifdef DEBUGPRINT
   cerr << "SpectrumManager constructed" << endl;
@@ -69,7 +69,7 @@ SpectrumManager::~SpectrumManager()
 
   if (spopt) delete spopt;
 
-  for (int i=0; i<spfile.size(); i++)
+  for (unsigned int i=0; i<spfile.size(); i++)
     delete spfile[i];
 }
 
@@ -103,26 +103,26 @@ void SpectrumManager::parseSetup()
     for (int i=0; i<n; i++) {
       tokens= vstr[i].split('\"','\"'," ",true);
       if (tokens.size()==1) {
-	tokens1= tokens[0].split("=");
-	if (tokens1.size()==2) {
-	  if (tokens1[0].downcase()=="obs.aaa")
-	    obsAaaPaths.push_back(tokens1[1]);
-	  else if (tokens1[0].downcase()=="obs.bbb")
-	    obsBbbPaths.push_back(tokens1[1]);
-	}
+        tokens1= tokens[0].split("=");
+        if (tokens1.size()==2) {
+          if (tokens1[0].downcase()=="obs.aaa")
+            obsAaaPaths.push_back(tokens1[1]);
+          else if (tokens1[0].downcase()=="obs.bbb")
+            obsBbbPaths.push_back(tokens1[1]);
+        }
       } else if (tokens.size()==2) {
-	tokens1= tokens[0].split("=");
-	tokens2= tokens[1].split("=");
-	if (tokens1.size()==2          && tokens2.size()==2  &&
-	    tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
-	  model= tokens1[1];
-	  filename= tokens2[1];
-	  filenames[model]= filename;
-	  if (uniquefiles.find(filename)==uniquefiles.end()) {
-	    uniquefiles.insert(filename);
-	    dialogModelNames.push_back(model);
-	    dialogFileNames.push_back(filename);
-	  }
+        tokens1= tokens[0].split("=");
+        tokens2= tokens[1].split("=");
+        if (tokens1.size()==2          && tokens2.size()==2  &&
+            tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
+          model= tokens1[1];
+          filename= tokens2[1];
+          filenames[model]= filename;
+          if (uniquefiles.find(filename)==uniquefiles.end()) {
+            uniquefiles.insert(filename);
+            dialogModelNames.push_back(model);
+            dialogFileNames.push_back(filename);
+          }
         }
       }
     }
@@ -151,7 +151,7 @@ void SpectrumManager::updateObsFileList()
     of.modificationTime= 0;
     glob_t globBuf;
     glob(obsAaaPaths[j].c_str(),0,0,&globBuf);
-    for (int i=0; i<globBuf.gl_pathc; i++) {
+    for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
       of.filename= miString(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }
@@ -165,7 +165,7 @@ void SpectrumManager::updateObsFileList()
     of.modificationTime= 0;
     glob_t globBuf;
     glob(obsBbbPaths[j].c_str(),0,0,&globBuf);
-    for (int i=0; i<globBuf.gl_pathc; i++) {
+    for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
       of.filename= miString(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }
@@ -197,7 +197,7 @@ vector<miString> SpectrumManager::getLineThickness()
   linethickness.push_back("4");
   linethickness.push_back("5");
   linethickness.push_back("6");
- 
+
   return linethickness;
 }
 
@@ -211,58 +211,58 @@ void SpectrumManager::setModel()
 
   // should not clear all data, possibly needed again...
 
-  for (int i=0; i<spfile.size(); i++)
+  for (unsigned int i=0; i<spfile.size(); i++)
     delete spfile[i];
   spfile.clear();
 
   //check if there are any selected models, if not use default
-//   if (!selectedModels.size()&&!selectedFiles.size()
-//       &&(!asField || !fieldModels.size())){
-//     cerr << "No model selected" << endl;
-//     miString model = getDefaultModel();
-//     usemodels.insert(model);
-//   }
+  //   if (!selectedModels.size()&&!selectedFiles.size()
+  //       &&(!asField || !fieldModels.size())){
+  //     cerr << "No model selected" << endl;
+  //     miString model = getDefaultModel();
+  //     usemodels.insert(model);
+  //   }
 
   usemodels.clear();
 
   //if as field is selected find corresponding model
   if (asField){
     int n = fieldModels.size();
-    for (int i=0;i<n;i++) 
+    for (int i=0;i<n;i++)
       usemodels.insert(fieldModels[i]);
   }
 
   //models from model dialog
   int m= selectedModels.size();
-  for (int i=0;i<m;i++) 
+  for (int i=0;i<m;i++)
     usemodels.insert(selectedModels[i]);
 
   //define models/files  when "model" chosen in modeldialog
-  set <miString>::iterator p = usemodels.begin();  
+  set <miString>::iterator p = usemodels.begin();
   for (; p!=usemodels.end(); p++) {
     miString model= *p;
     map<miString,miString>::iterator pf;
     pf= filenames.find(model);
     if (pf==filenames.end()) {
       cerr << "NO SPECTRUMFILE for model " << model << endl;
-    } else 
+    } else
       initSpectrumFile(pf->second,model);
   }
 
   //define models/files  when "file" chosen in modeldialog
-  vector <miString>::iterator q = selectedFiles.begin();  
+  vector <miString>::iterator q = selectedFiles.begin();
   for (; q!=selectedFiles.end(); q++) {
     miString file= *q;
-    //HK ??? cheating... 
+    //HK ??? cheating...
     if (file.contains("obs")) {
       showObs = true;
     } else {
       map<miString,miString>::iterator pf=filenames.begin();
       for (; pf!=filenames.end(); pf++) {
-	if (file==pf->second){
-	  initSpectrumFile(file,pf->first);
-	  break;
-	}
+        if (file==pf->second){
+          initSpectrumFile(file,pf->first);
+          break;
+        }
       }
     }
   }
@@ -327,7 +327,7 @@ miString SpectrumManager::setStation(int step)
   int n= nameList.size();
   if (!plotStation.empty())
     while (i<n && nameList[i]!=plotStation) i++;
-  
+
   if (i<n) {
     i+=step;
     if (i<0)  i= n-1;
@@ -444,9 +444,8 @@ bool SpectrumManager::plot()
 
         vector<miString> stationList;
         stationList.push_back(obsList[i]);
-        int nf= obsfiles.size();
         SpectrumPlot *spp= 0;
-/**********************************************************************
+        /**********************************************************************
         int nn= 0;
         while (spp==0 && nn<nf) {
 	  if (obsfiles[nn].modificationTime &&
@@ -466,7 +465,7 @@ bool SpectrumManager::plot()
           }
           nn++;
         }
-**********************************************************************/
+         **********************************************************************/
         if (spp) {
           spp->plot(spopt);
           delete spp;
@@ -474,14 +473,14 @@ bool SpectrumManager::plot()
       }
     }
 
-//    SpectrumPlot::plotText(); // ????????????????????????????????
+    //    SpectrumPlot::plotText(); // ????????????????????????????????
   }
 
   SpectrumPlot::plotDiagram(spopt);
 
   // postscript output
-//  if (hardcopy) SpectrumPlot::endPSoutput();
-//  hardcopy= false;
+  //  if (hardcopy) SpectrumPlot::endPSoutput();
+  //  hardcopy= false;
 
 #ifdef DEBUGPRINT
   cerr << "SpectrumManager::plot finished" << endl;
@@ -547,7 +546,7 @@ void SpectrumManager::setFieldModels(const vector<miString>& fieldmodels)
 
 
 void SpectrumManager::setSelectedModels(const vector<miString>& models ,
-				        bool obs ,bool field)
+    bool obs ,bool field)
 {
   //called when model selected in model dialog
   showObs= obs;
@@ -559,7 +558,7 @@ void SpectrumManager::setSelectedModels(const vector<miString>& models ,
 
 
 void SpectrumManager::setSelectedFiles(const vector<miString>& files,
-				       bool obs ,bool field)
+    bool obs ,bool field)
 {
   //called when model selected in model dialog
   showObs= obs;
@@ -591,7 +590,7 @@ vector<miString> SpectrumManager::getSelectedModels()
 bool SpectrumManager::initSpectrumFile(miString file,miString model)
 {
   SpectrumFile *spf= new SpectrumFile(file,model);
-//if (spf->readFileHeader()) {
+  //if (spf->readFileHeader()) {
   if (spf->update()) {
     cerr << "SPECTRUMFILE READFILE OK for model " << model << endl;
     spfile.push_back(spf);
@@ -616,7 +615,7 @@ void SpectrumManager::initStations()
   obsList.clear();
 
   map<miString,StationPos> stations;
-  
+
   vector<miString> namelist;
   vector<float>    latitudelist;
   vector<float>    longitudelist;
@@ -628,18 +627,18 @@ void SpectrumManager::initStations()
     longitudelist= spfile[i]->getLongitudes();
     //obslist= spfile[i]->getObsNames();
     obslist= spfile[i]->getNames();
-    int n=namelist.size();
+    unsigned int n=namelist.size();
     if (n!=latitudelist.size()||n!=longitudelist.size()||
-	n!=obslist.size()) {
-      cerr << "diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!" 
-	   << endl;
+        n!=obslist.size()) {
+      cerr << "diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!"
+      << endl;
     } else{
-      for (int j = 0;j<n;j++){
-	StationPos newPos;
-	newPos.latitude= latitudelist[j];
-	newPos.longitude=longitudelist[j];
-	newPos.obs=obslist[j];
-	stations[namelist[j]] = newPos;
+      for (unsigned int j = 0;j<n;j++){
+        StationPos newPos;
+        newPos.latitude= latitudelist[j];
+        newPos.longitude=longitudelist[j];
+        newPos.obs=obslist[j];
+        stations[namelist[j]] = newPos;
       }
     }
   }
@@ -649,7 +648,7 @@ void SpectrumManager::initStations()
     int n= obsfiles.size();
     for (int i=0; i<n; i++) {
       if (obsfiles[i].time==plotTime) {
-/************************************************************************
+        /************************************************************************
 	try {
 	  // until robs' obs class can do the job:
 	  obsInfo ofile;
@@ -692,7 +691,7 @@ void SpectrumManager::initStations()
         catch (...) {
           cerr<<"Exception in: " <<obsfiles[i].filename<<endl;
         }
-************************************************************************/
+         ************************************************************************/
       }
     }
   }
@@ -702,7 +701,6 @@ void SpectrumManager::initStations()
   longitudelist.clear();
   obslist.clear();
 
-  int nstations = stations.size();
 #ifdef DEBUGPRINT
   cerr << "Number of stations" << nstations << endl;
 #endif
@@ -711,7 +709,7 @@ void SpectrumManager::initStations()
     miString name=p->first;
     StationPos pos = p->second;
 #ifdef DEBUGPRINT
-    cerr <<"Station name " << name << endl; 
+    cerr <<"Station name " << name << endl;
 #endif
     namelist.push_back(name);
     latitudelist.push_back(pos.latitude);
@@ -729,16 +727,16 @@ void SpectrumManager::initStations()
   cerr << "lastStation"  << lastStation << endl;
 #endif
   //if it's the first time, plotStation is first in list
-  if (lastStation.empty() && nameList.size()) 
-    plotStation=nameList[0];  
+  if (lastStation.empty() && nameList.size())
+    plotStation=nameList[0];
   else{
     int n = nameList.size();
     bool found = false;
     //find plot station
     for (int i=0;i<n;i++){
       if(nameList[i]== lastStation){
-	plotStation=nameList[i];
-	found=true;
+        plotStation=nameList[i];
+        found=true;
       }
     }
     if (!found) plotStation.clear();
@@ -746,7 +744,7 @@ void SpectrumManager::initStations()
   }
 #ifdef DEBUGPRINT
   cerr <<"plotStation" << plotStation << endl;
-#endif  
+#endif
 }
 
 
@@ -763,7 +761,7 @@ void SpectrumManager::initTimes()
 
   if (onlyObs)
     timeList= obsTime;
- 
+
   int n= timeList.size();
   int i= 0;
   while (i<n && timeList[i]!=plotTime) i++;
@@ -794,11 +792,11 @@ void SpectrumManager::checkObsTime(int hour)
 
   for (int i=0; i<n; i++) {
     if (obsfiles[i].modificationTime==0 || hour<0 ||
-	obsfiles[i].time.hour()==hour) {
+        obsfiles[i].time.hour()==hour) {
       if (stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
-	if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
-	  obsfiles[i].modificationTime= statbuf.st_mtime;
-/***************************************************************************
+        if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
+          obsfiles[i].modificationTime= statbuf.st_mtime;
+          /***************************************************************************
           try {
             obs ofile;
 	    ofile.readFileHeader(obsfiles[i].filename);
@@ -808,8 +806,8 @@ void SpectrumManager::checkObsTime(int hour)
           catch (...) {
             cerr<<"Exception in: "<<obsfiles[i].filename<<endl;
 	  }
-***************************************************************************/
-	}
+           ***************************************************************************/
+        }
       }
     }
   }
@@ -818,7 +816,7 @@ void SpectrumManager::checkObsTime(int hour)
     set<miTime> timeset;
     for (int i=0; i<n; i++)
       if (obsfiles[i].modificationTime)
-	timeset.insert(obsfiles[i].time);
+        timeset.insert(obsfiles[i].time);
     obsTime.clear();
     set<miTime>::iterator p= timeset.begin(), pend= timeset.end();
     for (; p!=pend; p++)
@@ -867,7 +865,7 @@ miString SpectrumManager::getAnnotationString()
   else
     for (set <miString>::iterator p=usemodels.begin();p!=usemodels.end();p++)
       str+=*p+miString(" ");
-  return str; 
+  return str;
 }
 
 
@@ -878,8 +876,8 @@ vector<miString> SpectrumManager::writeLog()
 
 
 void SpectrumManager::readLog(const vector<miString>& vstr,
-			      const miString& thisVersion,
-			      const miString& logVersion)
+    const miString& thisVersion,
+    const miString& logVersion)
 {
   spopt->readOptions(vstr);
 }

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -51,7 +51,7 @@ void TimeSlider::init(){
   tlist["sat"]= tmp;
   tlist["obs"]= tmp;
   tlist["product"]= tmp;
-  
+
   interval= 0.0;
   setEnabled(false);
   useminmax= false;
@@ -60,7 +60,7 @@ void TimeSlider::init(){
 }
 
 miTime TimeSlider::Value(){
-  int v= value();
+  unsigned int v= value();
   if (v < times.size())
     return times[v];
   else return miTime::nowTime();
@@ -120,7 +120,7 @@ bool TimeSlider::nextTime(const int dir, miTime& time, bool restricted){
   int i1= 0, i2= n-1;
 
   current= times[v];
-  
+
   if (!loop && !startani){
     if (dir>0 && v==i2) return false;
     if (dir<0 && v==i1) return false;
@@ -245,9 +245,9 @@ void TimeSlider::updateList(){
     if( q!=times.end() )
       q++;
     times.erase(q,times.end());
-    
+
   }
-    
+
 
 
   // make sure productimes are included
@@ -281,13 +281,13 @@ void TimeSlider::updateList(){
     iv= 180/meaniv;
     if (iv==0) iv= 1;
     while (n/iv>maxticks) iv*= 2;
-    
+
     // qt4 fix: Edited the line below (old line commented out)
     setTickPosition(TicksBelow); //setTickmarks(TickSetting(Below));
     setTickInterval(iv);
     setSingleStep(1);
     setPageStep(iv);
-    
+
     float hourinterval= miniv/60.0;
     // emit smallest timeinterval (in hours)
     // and steps for interval-spinbox
@@ -304,7 +304,7 @@ void TimeSlider::updateList(){
     setRange(0,n-1);
     setFirstTime(prevtime);
   } else if(n==1){
-    setFirstTime(prevtime);    
+    setFirstTime(prevtime);
     //emit minInterval(0);
     emit enableSpin(false);
     setEnabled(false);
@@ -339,14 +339,14 @@ void TimeSlider::setFirstTime(const miTime& t){
     ptime= now;  // try to choose nowtime
   } else
     ptime= t;
-  
+
   int n= times.size();
   int i;
-    
+
   for (i=0; i<n && times[i]<ptime; i++)
     ;
   if (i==n) i= n-1;
-  
+
   if(times[i]==ptime){ // exact time
     setSliderValue(i);
   } else if (i>=n-1 || i==0){ // previous time outside interval
@@ -381,7 +381,7 @@ void TimeSlider::setFirstTime(const miTime& t){
       setSliderValue(i);
     else setSliderValue(i-1);
   }
-  
+
   emit sliderSet();
 }
 
@@ -422,7 +422,7 @@ void TimeSlider::deleteType(const miString& type)
 {
   map< miString, vector<miTime> >::iterator p    = tlist.begin();
   map< miString, vector<miTime> >::iterator pend = tlist.end();
-  
+
   while( p!=pend && type!=p->first ) p++;
   if(p!=pend)
     tlist.erase(p);

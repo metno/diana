@@ -40,7 +40,7 @@
 
 
 VcrossManager::VcrossManager()
-: dataChange(true), hardcopy(false), timeGraphPos(-1) , timeGraphPosMax(-1)
+: dataChange(true), timeGraphPos(-1) , timeGraphPosMax(-1), hardcopy(false)
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossManager constructed" << endl;

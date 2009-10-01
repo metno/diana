@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 //#define DEBUGPRINT
 #include <diEditObjects.h>
 #include <diWeatherFront.h>
@@ -58,21 +58,21 @@ void EditObjects::init(){
   itsComments = miString();
   commentsChanged = false;
   commentsSaved = true;
-  labelsSaved=true; 
+  labelsSaved=true;
   prefix= miString();
   clear();
 }
 
 void EditObjects::defineModes(map<int,object_modes> objModes,
-			      map<int,combine_modes> combModes){
+    map<int,combine_modes> combModes){
   objectModes=objModes;
   combineModes=combModes;
 }
 
 
 void EditObjects::setEditMode(const mapMode mmode,
-				const int emode,
-				const miString etool){
+    const int emode,
+    const miString etool){
   //called when new edit mode/tool selected in gui (EditDIalog)
 #ifdef DEBUGPRINT
   cerr << "EditObjects::setEditMode" << endl;
@@ -122,7 +122,7 @@ void EditObjects::editStayMarked(){
 }
 
 void EditObjects::editNotMarked(){
-  
+
   int edsize=objects.size();
   for (int i =0; i < edsize; i++){
     // unmark objects
@@ -130,7 +130,7 @@ void EditObjects::editNotMarked(){
     objects[i]->unmarkAllPoints();
     objects[i]->setInBoundBox(false);
   }
-  setAllPassive();  
+  setAllPassive();
 }
 
 
@@ -138,7 +138,7 @@ bool EditObjects::editResumeDrawing(const float x, const float y) {
 #ifdef DEBUGPRINT
   cerr <<"EditObjects::Edit resume drawing" << endl;
   cerr << "mapmode = " << mapmode << "editmode = " << editmode << endl;
-#endif 
+#endif
 
   bool ok = false;
 
@@ -152,11 +152,11 @@ bool EditObjects::editResumeDrawing(const float x, const float y) {
     } else if (pobject->ismarkEndPoint() || pobject->ismarkBeginPoint()) {
       inDrawing = true;
       if (pobject->objectIs(wFront))
-	objectmode= front_drawing; 
+        objectmode= front_drawing;
       if (pobject->objectIs(wArea))
-	objectmode= area_drawing; 
+        objectmode= area_drawing;
       if (pobject->objectIs(Border))
-	combinemode= set_borders; 
+        combinemode= set_borders;
       removeObject(p); //remove from editobjects
       pobject->resumeDrawing();
       addObject(pobject); //put at the end
@@ -173,22 +173,22 @@ bool EditObjects::editResumeDrawing(const float x, const float y) {
 
 
 bool EditObjects::editDeleteMarkedPoints(){
-  
+
   bool ok=false;
- 
+
   if (mapmode==draw_mode){
-    
+
     vector <ObjectPlot*>::iterator p1 = objects.begin();
     while (p1!=objects.end()){
       ObjectPlot * pobject = *p1;
       if (pobject->deleteMarkPoints() &&  pobject->isEmpty()){
-	p1 = removeObject(p1); //remove from editobjects
-	delete pobject; 
+        p1 = removeObject(p1); //remove from editobjects
+        delete pobject;
       } else p1++;
     }
- 
-    ok=true;   
-    //Check if this affected the join points  
+
+    ok=true;
+    //Check if this affected the join points
     checkJoinPoints();
 
   } else if (mapmode == combine_mode){
@@ -197,15 +197,15 @@ bool EditObjects::editDeleteMarkedPoints(){
       ObjectPlot * qobject = *q1;
       //not allowed to remove the whole border
       if (!(qobject->ismarkAllPoints() && qobject->objectIs(Border) ) )
-	//not allowed to remove joined point
-	if (!qobject->ismarkJoinPoint()) 
-	  if (qobject->deleteMarkPoints()) ok = true;
+        //not allowed to remove joined point
+        if (!qobject->ismarkJoinPoint())
+          if (qobject->deleteMarkPoints()) ok = true;
       if( qobject->isEmpty()){
-	q1 = removeObject(q1); 
-	delete qobject;
+        q1 = removeObject(q1);
+        delete qobject;
       } else q1++;
     }
-    
+
   }
 
   setAllPassive();
@@ -227,48 +227,48 @@ bool EditObjects::editAddPoint(const float x, const float y){
 
   if (mapmode==draw_mode){
     if (createobject) {
-	if (objectmode == front_drawing){
-	addObject(new WeatherFront(drawingtool));
-	} else if (objectmode == area_drawing){
-	addObject(new WeatherArea(drawingtool));
-	}    
-	createobject= false;
+      if (objectmode == front_drawing){
+        addObject(new WeatherFront(drawingtool));
+      } else if (objectmode == area_drawing){
+        addObject(new WeatherArea(drawingtool));
+      }
+      createobject= false;
     }
-    
+
     if (objectmode==symbol_drawing){
-	//make a new vector for every new symbol
-	addObject(new WeatherSymbol(drawingtool,wSymbol));
-	if (objects.size()){
-	  objects.back()->addPoint(x,y);
-	  ok = true;
-	}
+      //make a new vector for every new symbol
+      addObject(new WeatherSymbol(drawingtool,wSymbol));
+      if (objects.size()){
+        objects.back()->addPoint(x,y);
+        ok = true;
+      }
     } else if (objectmode==front_drawing || objectmode==area_drawing){
       //fronts or areas
       if (objects.size()){
-	objects.back()->addPoint(x,y);
-	ok = true;
+        objects.back()->addPoint(x,y);
+        ok = true;
       }
     }
-    
+
   } else if (mapmode==combine_mode){
 
     if (combinemode == set_borders){
       if (objects.size()) {
-	objects.back()->addPoint(x,y);
-	ok = true;
+        objects.back()->addPoint(x,y);
+        ok = true;
       }
     } else if (combinemode == set_region){
       //make a new vector for every new Region (symbol)
       addObject(new WeatherSymbol(drawingtool,RegionName));
       if (objects.size()){
-	objects.back()->addPoint(x,y);
-	ok = true;
+        objects.back()->addPoint(x,y);
+        ok = true;
       }
     }
-    
-    
+
+
   }
-  
+
   return ok;
 }
 
@@ -284,7 +284,7 @@ bool EditObjects::editMergeFronts(bool mergeAll){
   int pcount=0;//for undo
   for (;p!=objects.end();p++){
     ObjectPlot * pfront = *p;
-    if (pfront->oktoMerge(mergeAll,pfront->getIndex())){    
+    if (pfront->oktoMerge(mergeAll,pfront->getIndex())){
       int end = pfront->endPoint();
       float xend[2],yend[2],xnew,ynew;
       vector<float> x=pfront->getX();
@@ -294,69 +294,69 @@ bool EditObjects::editMergeFronts(bool mergeAll){
       vector <ObjectPlot*>::iterator q = objects.begin();
       int qcount=0; //for undo
       while (q!=objects.end()){
-	bool merged = false;      
-	ObjectPlot * qfront = *q;
-	//for each front, check if it is separate front of same type
-	if (pfront !=qfront && qfront->oktoMerge(true,pfront->getIndex())){ 
-	  for (int i=0;i<2;i++){ //loop over endpoints 
-	    if(   qfront->isBeginPoint(xend[i],yend[i],xnew,ynew) ||
-		  qfront->isEndPoint(xend[i],yend[i],xnew,ynew)){
-	      pfront->addTop=(i==0);
-	      if (!merged){
-		ObjectPlot * pold
-		  = new WeatherFront(*((WeatherFront*)(pfront)));
-		ObjectPlot * qold
-		  = new WeatherFront(*((WeatherFront*)(qfront)));
-		if (pfront->addFront(qfront)){
-		  merged=true;
-		  q=objects.erase(q);
-		  delete qfront;
-		  //after merging, pfront has changed	
-		  end = pfront->endPoint();
-		  vector<float> x=pfront->getX();
-		  vector<float> y=pfront->getY();
-		  xend[0] = x[0];  yend[0] =y[0];
-		  xend[1] = x[end]; yend[1] =y[end];
-		  if (pcount<qcount){
-		    undoTemp->undoAdd(Replace,pold,pcount);
-		    undoTemp->undoAdd(Insert,qold,qcount);
-		  } else{
-		    undoTemp->undoAdd(Insert,qold,qcount);
-		    undoTemp->undoAdd(Replace,pold,pcount);
-		  }
-		  frontsChanged=true;
-		}
-		delete pold;
-		delete qold;
-	      }
-	    }
-	    if (merged){
-	      pfront->markAllPoints();
-	      break;
-	    }
+        bool merged = false;
+        ObjectPlot * qfront = *q;
+        //for each front, check if it is separate front of same type
+        if (pfront !=qfront && qfront->oktoMerge(true,pfront->getIndex())){
+          for (int i=0;i<2;i++){ //loop over endpoints
+            if(   qfront->isBeginPoint(xend[i],yend[i],xnew,ynew) ||
+                qfront->isEndPoint(xend[i],yend[i],xnew,ynew)){
+              pfront->addTop=(i==0);
+              if (!merged){
+                ObjectPlot * pold
+                = new WeatherFront(*((WeatherFront*)(pfront)));
+                ObjectPlot * qold
+                = new WeatherFront(*((WeatherFront*)(qfront)));
+                if (pfront->addFront(qfront)){
+                  merged=true;
+                  q=objects.erase(q);
+                  delete qfront;
+                  //after merging, pfront has changed
+                  end = pfront->endPoint();
+                  vector<float> x=pfront->getX();
+                  vector<float> y=pfront->getY();
+                  xend[0] = x[0];  yend[0] =y[0];
+                  xend[1] = x[end]; yend[1] =y[end];
+                  if (pcount<qcount){
+                    undoTemp->undoAdd(Replace,pold,pcount);
+                    undoTemp->undoAdd(Insert,qold,qcount);
+                  } else{
+                    undoTemp->undoAdd(Insert,qold,qcount);
+                    undoTemp->undoAdd(Replace,pold,pcount);
+                  }
+                  frontsChanged=true;
+                }
+                delete pold;
+                delete qold;
+              }
+            }
+            if (merged){
+              pfront->markAllPoints();
+              break;
+            }
 
-	  } // end loop over endpoints
-	} // end of test qfront
-	qcount++;	
-	if (!merged)
-	  q++;
-	else{
-	  checkJoinPoints();	    
-	  return frontsChanged;
-	}
-	  //	  break;
-      } //end of qloop    
-    }  //end of test pfront          
+          } // end loop over endpoints
+        } // end of test qfront
+        qcount++;
+        if (!merged)
+          q++;
+        else{
+          checkJoinPoints();
+          return frontsChanged;
+        }
+        //	  break;
+      } //end of qloop
+    }  //end of test pfront
     pcount++;
-  } //end of ploop 
+  } //end of ploop
   //after all fronts are merged...
-  checkJoinPoints();	    
+  checkJoinPoints();
   return frontsChanged;
 }
 
 
-  
-bool 
+
+bool
 EditObjects::editJoinFronts(bool joinAll,bool movePoints,bool joinOnLine){
   //input parameters
   //joinAll = true ->all fronts are joined
@@ -374,7 +374,7 @@ EditObjects::editJoinFronts(bool joinAll,bool movePoints,bool joinOnLine){
   vector <ObjectPlot*>::iterator p = objects.begin();
   for (;p!=objects.end();p++){
     ObjectPlot * pfront = *p;
-    if (pfront->oktoJoin(joinAll)){    
+    if (pfront->oktoJoin(joinAll)){
       bool endPointJoined[2] = {false,false};
       int end = pfront->endPoint();
       float xend[2],yend[2],xnew,ynew;
@@ -384,67 +384,67 @@ EditObjects::editJoinFronts(bool joinAll,bool movePoints,bool joinOnLine){
       xend[1] = x[end]; yend[1] =y[end];
       vector <ObjectPlot*>::iterator q = objects.begin();
       for (;q!=objects.end();q++){
-	ObjectPlot * qfront = *q;
-	if (pfront !=qfront && qfront->oktoJoin(true)){
-	  for (int i=0;i<2;i++){
-	    if (!endPointJoined[i]){
-	      // check if endpoints of front close to join point or endpoints
-	      if (qfront->isJoinPoint(xend[i],yend[i],xnew,ynew)  ||
-		  qfront->isBeginPoint(xend[i],yend[i],xnew,ynew) ||
-		  qfront->isEndPoint(xend[i],yend[i],xnew,ynew)){
-		// if we found a point, move front
-		if (movePoints) {
-		  pfront->movePoint(xend[i],yend[i],xnew,ynew);
-		  pfront->joinPoint(xnew,ynew);
-		  qfront->joinPoint(xnew,ynew);
-		} else { 
-		  pfront->joinPoint(xend[i],yend[i]);
-		}
-		endPointJoined[i] = true;
-	      }
-	    }
-	  }
-	}
+        ObjectPlot * qfront = *q;
+        if (pfront !=qfront && qfront->oktoJoin(true)){
+          for (int i=0;i<2;i++){
+            if (!endPointJoined[i]){
+              // check if endpoints of front close to join point or endpoints
+              if (qfront->isJoinPoint(xend[i],yend[i],xnew,ynew)  ||
+                  qfront->isBeginPoint(xend[i],yend[i],xnew,ynew) ||
+                  qfront->isEndPoint(xend[i],yend[i],xnew,ynew)){
+                // if we found a point, move front
+                if (movePoints) {
+                  pfront->movePoint(xend[i],yend[i],xnew,ynew);
+                  pfront->joinPoint(xnew,ynew);
+                  qfront->joinPoint(xnew,ynew);
+                } else {
+                  pfront->joinPoint(xend[i],yend[i]);
+                }
+                endPointJoined[i] = true;
+              }
+            }
+          }
+        }
       }
       if (joinOnLine && !(endPointJoined[0] && endPointJoined[1])){
-	//if no end/join points close to front join on line
-	vector <ObjectPlot*>::iterator q = objects.begin();
-	for (;q!=objects.end();q++){
-	  ObjectPlot * qfront = *q;
-	  if (pfront !=qfront && qfront->oktoJoin(true)){
-	    for (int i=0;i<2;i++){
-	      if (!endPointJoined[i]){
-		//check if end points close to node points
-		if (qfront->isInside(xend[i],yend[i],xnew,ynew)){
-		  pfront->movePoint(xend[i],yend[i],xnew,ynew);
-		  pfront->joinPoint(xnew,ynew);
-		  qfront->joinPoint(xnew,ynew);
-		  endPointJoined[i] = true;
-		}
-	      }	    
-	    }
-	  }
-	}
-	if (!(endPointJoined[0] && endPointJoined[1])){ 
-	  q = objects.begin();
-	  for (;q!=objects.end();q++){
-	    ObjectPlot * qfront = *q;
-	      if (pfront !=qfront && qfront->oktoJoin(true)){ 
-	      for (int i=0;i<2;i++){
-		//check if end points close to line
-		if (!endPointJoined[i] && qfront->onLine(xend[i],yend[i])){
-		  float distx = qfront->getDistX();
-		  float disty = qfront->getDistY();
-		  xnew = xend[i]+distx; ynew = yend[i]+disty;
-		  pfront->movePoint(xend[i],yend[i],xnew,ynew);
-		  pfront->joinPoint(xnew,ynew);
-		  qfront->insertPoint(xnew,ynew);
-		  qfront->joinPoint(xnew,ynew);
-		}
-	      }
-	    }
-	  }
-	}
+        //if no end/join points close to front join on line
+        vector <ObjectPlot*>::iterator q = objects.begin();
+        for (;q!=objects.end();q++){
+          ObjectPlot * qfront = *q;
+          if (pfront !=qfront && qfront->oktoJoin(true)){
+            for (int i=0;i<2;i++){
+              if (!endPointJoined[i]){
+                //check if end points close to node points
+                if (qfront->isInside(xend[i],yend[i],xnew,ynew)){
+                  pfront->movePoint(xend[i],yend[i],xnew,ynew);
+                  pfront->joinPoint(xnew,ynew);
+                  qfront->joinPoint(xnew,ynew);
+                  endPointJoined[i] = true;
+                }
+              }
+            }
+          }
+        }
+        if (!(endPointJoined[0] && endPointJoined[1])){
+          q = objects.begin();
+          for (;q!=objects.end();q++){
+            ObjectPlot * qfront = *q;
+            if (pfront !=qfront && qfront->oktoJoin(true)){
+              for (int i=0;i<2;i++){
+                //check if end points close to line
+                if (!endPointJoined[i] && qfront->onLine(xend[i],yend[i])){
+                  float distx = qfront->getDistX();
+                  float disty = qfront->getDistY();
+                  xnew = xend[i]+distx; ynew = yend[i]+disty;
+                  pfront->movePoint(xend[i],yend[i],xnew,ynew);
+                  pfront->joinPoint(xnew,ynew);
+                  qfront->insertPoint(xnew,ynew);
+                  qfront->joinPoint(xnew,ynew);
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -458,7 +458,7 @@ bool EditObjects::editMoveMarkedPoints(const float x, const float y){
   for (int i =0; i < edsize; i++) {
     if (objects[i]->moveMarkedPoints(x,y))
       changed = true;
-  }   
+  }
   return changed;
 }
 
@@ -478,7 +478,6 @@ void EditObjects::editCopyObjects(){
   cerr << "EditObjects::editCopyObjects !" << endl;
 #endif
   int edsize = objects.size();
-  int no = copyObjects.objects.size();
   copyObjects.clear();
   //position of objects
   copyObjects.xcopy=newx;
@@ -486,12 +485,12 @@ void EditObjects::editCopyObjects(){
   for (int i =0; i< edsize;i++){
     if (objects[i]->ismarkAllPoints()){
       ObjectPlot * copy;
-      if (objects[i]->objectIs(wFront)) 
-	copy = new WeatherFront(*((WeatherFront*)(objects[i])));
-      else if (objects[i]->objectIs(wSymbol)) 
-	copy = new WeatherSymbol(*((WeatherSymbol*)(objects[i]))); 
-      else if (objects[i]->objectIs(wArea)) 
-	copy = new WeatherArea(*((WeatherArea*)(objects[i]))); 
+      if (objects[i]->objectIs(wFront))
+        copy = new WeatherFront(*((WeatherFront*)(objects[i])));
+      else if (objects[i]->objectIs(wSymbol))
+        copy = new WeatherSymbol(*((WeatherSymbol*)(objects[i])));
+      else if (objects[i]->objectIs(wArea))
+        copy = new WeatherArea(*((WeatherArea*)(objects[i])));
       copyObjects.objects.push_back(copy);
     }
   }
@@ -500,21 +499,21 @@ void EditObjects::editCopyObjects(){
 }
 
 
-				  
+
 void EditObjects::editPasteObjects(){
 #ifdef DEBUGPRINT
   cerr << "EditObjects::editPasteObjects !" << endl;
 #endif
   float diffx,diffy;
   int csize = copyObjects.objects.size();
-  if (csize){ 
+  if (csize){
     unmarkAllPoints();
     copyObjects.changeProjection(itsArea);
     diffx=newx-copyObjects.xcopy;
     diffy=newy-copyObjects.ycopy;
     // AC: changed offset-check to absolute values
     if (fabs(diffx) < fabs(objects[0]->getFdeltaw()) &&
-	fabs(diffy) < fabs(objects[0]->getFdeltaw())){
+        fabs(diffy) < fabs(objects[0]->getFdeltaw())){
       diffx=objects[0]->getFdeltaw();
       diffy=objects[0]->getFdeltaw();
     }
@@ -523,15 +522,15 @@ void EditObjects::editPasteObjects(){
       ObjectPlot * paste;
       ObjectPlot * copy;
       copy=copyObjects.objects[i];
-      if (copy->objectIs(wFront)) 
-	paste = new WeatherFront(*((WeatherFront*)(copy)));
-      else if (copy->objectIs(wSymbol)) 
-	paste = new WeatherSymbol(*((WeatherSymbol*)(copy))); 
-      else if (copy->objectIs(wArea)) 
-	paste = new WeatherArea(*((WeatherArea*)(copy))); 
+      if (copy->objectIs(wFront))
+        paste = new WeatherFront(*((WeatherFront*)(copy)));
+      else if (copy->objectIs(wSymbol))
+        paste = new WeatherSymbol(*((WeatherSymbol*)(copy)));
+      else if (copy->objectIs(wArea))
+        paste = new WeatherArea(*((WeatherArea*)(copy)));
       addObject(paste);
     }
-    editMoveMarkedPoints(diffx,diffy);     
+    editMoveMarkedPoints(diffx,diffy);
     unmarkAllPoints();
   }
 }
@@ -546,12 +545,12 @@ void EditObjects::editFlipObjects(){
 
 void EditObjects::editUnJoinPoints(){
 
-    int edsize = objects.size();
-    for (int i=0; i<edsize; i++){
+  int edsize = objects.size();
+  for (int i=0; i<edsize; i++){
     //unjoin all points on marked fronts
-      if  (objects[i]->ismarkAllPoints())
-	objects[i]->unjoinAllPoints();
-    }
+    if  (objects[i]->ismarkAllPoints())
+      objects[i]->unjoinAllPoints();
+  }
 }
 
 
@@ -576,13 +575,13 @@ void EditObjects::editTestFront(){
 #endif
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!=objects.end())
-    {
-      ObjectPlot * pobject = *p;
-      if( pobject->ismarkAllPoints()){
-	pobject->test = !pobject->test;
-      }
-      p++;
+  {
+    ObjectPlot * pobject = *p;
+    if( pobject->ismarkAllPoints()){
+      pobject->test = !pobject->test;
     }
+    p++;
+  }
 }
 
 
@@ -595,9 +594,9 @@ bool EditObjects::editSplitFront(const float x, const float y){
       //split front - get pointer to new front
       ObjectPlot * newobject = pobject->splitFront(x,y);
       if (newobject !=NULL){
-	objects.push_back(newobject);
-	ok= true;
-	break;
+        objects.push_back(newobject);
+        ok= true;
+        break;
       }
     }
     p++;
@@ -627,40 +626,40 @@ bool EditObjects::editCheckPosition(const float x, const float y){
   bool found=false;
   bool changed=false;
   bool foundJoined=false;
-  
+
   int edsize=objects.size();
-  
+
   if (mapmode == draw_mode){
     //symbols
     for (int i=0; i< edsize;i++){
       ObjectPlot * pfront = objects[i];
-      if (!pfront->objectIs(wSymbol)) continue;  
+      if (!pfront->objectIs(wSymbol)) continue;
       if (found || !pfront->visible())
-	pfront->unmarkAllPoints();
+        pfront->unmarkAllPoints();
       else if (pfront->isOnObject(x,y))
-	found=true;
+        found=true;
       if (pfront->getMarkedChanged()) changed=true ;
-      }
+    }
     //fronts
-    foundJoined = findJoinedPoints(x,y,wFront);        
+    foundJoined = findJoinedPoints(x,y,wFront);
     for (int i=0; i< edsize;i++){
       ObjectPlot * pfront = objects[i];
-      if (!pfront->objectIs(wFront)) continue;  
+      if (!pfront->objectIs(wFront)) continue;
       pfront->setMarkedChanged(false);
       if (found || !pfront->visible()){
-	if (!pfront->getJoinedMarked()) pfront->unmarkAllPoints();
+        if (!pfront->getJoinedMarked()) pfront->unmarkAllPoints();
       }
       else if (foundJoined && pfront->isJoinPoint(x,y)){
-	pfront->markPoint(x,y);
-	if (!autoJoinOn)
-	  findJoinedFronts(pfront,wFront);  	 
+        pfront->markPoint(x,y);
+        if (!autoJoinOn)
+          findJoinedFronts(pfront,wFront);
       }
       else if (!foundJoined && pfront->isOnObject(x,y)){
-	found=true;
-	if (autoJoinOn)
-	  findJoinedFronts(pfront,wFront);  	 
+        found=true;
+        if (autoJoinOn)
+          findJoinedFronts(pfront,wFront);
       } else
-	pfront->unmarkAllPoints();
+        pfront->unmarkAllPoints();
       if (pfront->getMarkedChanged()) changed=true ;
     }
     if (foundJoined) found = true;
@@ -669,43 +668,43 @@ bool EditObjects::editCheckPosition(const float x, const float y){
       ObjectPlot * pfront = objects[i];
       if (!pfront->objectIs(wArea)) continue;
       if (found || !pfront->visible())
-	pfront->unmarkAllPoints();
+        pfront->unmarkAllPoints();
       else if (pfront->isOnObject(x,y))
-	found=true;	    
+        found=true;
       if (pfront->getMarkedChanged()) changed=true ;
-    }      
+    }
   } else if (mapmode == combine_mode){
     for (int i=0; i< edsize;i++){
       //region names
       ObjectPlot * pfront = objects[i];
-      if (!pfront->objectIs(RegionName)) continue; 
+      if (!pfront->objectIs(RegionName)) continue;
       if (found || !pfront->visible())
-	pfront->unmarkAllPoints();
+        pfront->unmarkAllPoints();
       else if (pfront->isOnObject(x,y))
-	found=true;
-      if (pfront->getMarkedChanged()) changed=true ;	
+        found=true;
+      if (pfront->getMarkedChanged()) changed=true ;
     }
     //borders
-    foundJoined = findJoinedPoints(x,y,Border);        
+    foundJoined = findJoinedPoints(x,y,Border);
     for (int i=0; i< edsize;i++){
       ObjectPlot * pfront = objects[i];
-      if (!pfront->objectIs(Border)) continue;  
+      if (!pfront->objectIs(Border)) continue;
       pfront->setMarkedChanged(false);
       if (found || !pfront->visible())
-	pfront->unmarkAllPoints();
+        pfront->unmarkAllPoints();
       else if (foundJoined && pfront->isJoinPoint(x,y)){
-	pfront->markPoint(x,y);
+        pfront->markPoint(x,y);
       }
       else if (!foundJoined && pfront->isOnObject(x,y)){
-	found=true;
-	findJoinedFronts(pfront,Border);  	 
+        found=true;
+        findJoinedFronts(pfront,Border);
       } else
-	pfront->unmarkAllPoints();
+        pfront->unmarkAllPoints();
       if (pfront->getMarkedChanged()) changed=true ;
     }
     if (foundJoined) found = true;
   }
-           
+
   return changed;
 }
 
@@ -716,7 +715,7 @@ bool EditObjects::editIncreaseSize(float val){
     if (objects[i]->ismarkAllPoints()){
       objects[i]->increaseSize(val);
       if (objects[i]->objectIs(Border))
-	doCombine= true;
+        doCombine= true;
     }
   }
   return doCombine;
@@ -798,7 +797,7 @@ void EditObjects::editHideCombineObjects(int ir ){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
       if(objects[i]->getRegion() != region)
-	objects[i]->setVisible(false);
+        objects[i]->setVisible(false);
     }
   }
 }
@@ -816,9 +815,9 @@ bool EditObjects::setRubber(bool rubber, const float x, const float y){
   if(!createobject){
     if (mapmode==draw_mode){
       if (objects.size()){
-	objects.back()->setRubber(rubber,x,y);
-	changed=true;
-      }      
+        objects.back()->setRubber(rubber,x,y);
+        changed=true;
+      }
     }
   }
   return changed;
@@ -862,22 +861,22 @@ void EditObjects::checkJoinPoints(){
     if (!objects[i]->objectIs(wFront)) continue;
     vector <float> xjoin=objects[i]->getXjoined();
     vector <float> yjoin=objects[i]->getYjoined();
-    int jsize=xjoin.size();
+    unsigned int jsize=xjoin.size();
     if (yjoin.size()<jsize) jsize=yjoin.size();
-      //loop over all the join rectangles
-      for (int k = 0;k<jsize;k++){ 
-	float x1=xjoin[k];
-	float y1=yjoin[k];
-	int njoin=0;
-	for (int j =0; j < edsize; j++)
-	  {
-	    if (!objects[i]->objectIs(wFront)) continue;
-	    if (i!=j && objects[j]->isJoinPoint(x1,y1))
-	      njoin=njoin+1;
-	  }
-	if (njoin < 1) 
-	  objects[i]->unJoinPoint(x1,y1);	      
+    //loop over all the join rectangles
+    for (unsigned int k = 0;k<jsize;k++){
+      float x1=xjoin[k];
+      float y1=yjoin[k];
+      int njoin=0;
+      for (int j =0; j < edsize; j++)
+      {
+        if (!objects[i]->objectIs(wFront)) continue;
+        if (i!=j && objects[j]->isJoinPoint(x1,y1))
+          njoin=njoin+1;
       }
+      if (njoin < 1)
+        objects[i]->unJoinPoint(x1,y1);
+    }
   }
 }
 
@@ -928,7 +927,7 @@ void EditObjects::newUndoCurrent(UndoFront * undoNew){
   undoNew->Next = NULL;
   undoCurrent->Next = undoNew;
   undoCurrent =  undoNew;
-  if (undoCurrent->Next !=0) cerr << "***********undoCurrent->Next !=0\n"; 
+  if (undoCurrent->Next !=0) cerr << "***********undoCurrent->Next !=0\n";
 }
 
 
@@ -937,7 +936,7 @@ bool EditObjects::redofront(){
 #ifdef DEBUGPRINT
   cerr << "EditObjects::redofront" << endl;
 #endif
-  if (undoCurrent->Next!=NULL){  
+  if (undoCurrent->Next!=NULL){
     undoCurrent = undoCurrent->Next;
     if (!changeCurrentFronts()){
       //something went wrong
@@ -956,7 +955,7 @@ bool EditObjects::redofront(){
 
 bool EditObjects::undofront(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::undofront" << endl;  
+  cerr << "EditObjects::undofront" << endl;
 #endif
   if (undoCurrent->Last!= NULL){
     if (!changeCurrentFronts()){
@@ -964,7 +963,7 @@ bool EditObjects::undofront(){
       undofrontClear();
       return false;
     }
-    undoCurrent = undoCurrent->Last;      
+    undoCurrent = undoCurrent->Last;
     if (undoCurrent->Last ==NULL)
       return false;
     else return true;
@@ -977,7 +976,7 @@ bool EditObjects::undofront(){
 
 void EditObjects::undofrontClear(){
   //Removes everything from undoFront buffers
-  UndoFront* undoObsolete = undoHead->Next; 
+  UndoFront* undoObsolete = undoHead->Next;
   while (undoObsolete != NULL) {
     if (undoObsolete->Next!=NULL){
       undoObsolete = undoObsolete->Next;
@@ -987,7 +986,7 @@ void EditObjects::undofrontClear(){
       undoObsolete = NULL;
     }
   }
-  
+
   undoCurrent = undoHead;
   undoCurrent->Next = NULL;
 }
@@ -1004,13 +1003,13 @@ bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo){
   undo->oldArea = itsArea;
   undo->iop = iop;
   undoTemp=undo;
-  //save objects according to sort of operation 
+  //save objects according to sort of operation
   switch (iop){
   case AddPoint:
     if (createobject || objectmode==symbol_drawing) {
       undo->undoAdd(Erase,0,edsize);
-    } 
-    else { 
+    }
+    else {
       ObjectPlot * pold = objects.back();
       undo->undoAdd(Replace,pold,edsize-1);
     }
@@ -1019,195 +1018,195 @@ bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo){
   case MoveMarkedPoints:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkSomePoint()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
   case DeleteMarkedPoints:
     for (int i =0; i <edsize; i++) {
       if (objects[i]->ismarkAllPoints()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Insert,pold,i);
-	frontsChanged = true;
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Insert,pold,i);
+        frontsChanged = true;
       } else if (objects[i]->ismarkSomePoint()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
-   case FlipObjects:
+  case FlipObjects:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkAllPoints() &&
-	  objects[i]->objectIs(wFront)){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+          objects[i]->objectIs(wFront)){
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
-   case DefaultSize:
+  case DefaultSize:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkAllPoints()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
-   case DefaultSizeAll:
+  case DefaultSizeAll:
     for (int i =0; i < edsize; i++) {
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+      ObjectPlot * pold = objects[i];
+      undo->undoAdd(Replace,pold,i);
+      frontsChanged = true;
     }
     break;
-   case HideAll:
+  case HideAll:
     for (int i =0; i < edsize; i++) {
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+      ObjectPlot * pold = objects[i];
+      undo->undoAdd(Replace,pold,i);
+      frontsChanged = true;
     }
     break;
   case IncreaseSize:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkSomePoint()){
-	if (!objects[i]->objectIs(wSymbol)) continue;
-	// now check if previous operation was IncreaseSize and the
-	//same symbols were affected
-	bool saveThis = true;
-	if (undoCurrent->iop == IncreaseSize){
-	  vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
-	  while (p2!=undoCurrent->saveobjects.end()){
-	    if (p2->place ==i){
-	      saveThis = false;
-	      break;
-	    }
-	    p2++;
-	  }
-	}
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	if (saveThis) frontsChanged = true;
+        if (!objects[i]->objectIs(wSymbol)) continue;
+        // now check if previous operation was IncreaseSize and the
+        //same symbols were affected
+        bool saveThis = true;
+        if (undoCurrent->iop == IncreaseSize){
+          vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
+          while (p2!=undoCurrent->saveobjects.end()){
+            if (p2->place ==i){
+              saveThis = false;
+              break;
+            }
+            p2++;
+          }
+        }
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        if (saveThis) frontsChanged = true;
       }
     }
     break;
   case ChangeObjectType:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkAllPoints()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
   case RotateLine:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkSomePoint() &&
-	  objects[i]->objectIs(wFront)){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+          objects[i]->objectIs(wFront)){
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
   case ResumeDrawing:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkAllPoints()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
-      } else if (objects[i]->ismarkEndPoint() || 
-		 objects[i]->ismarkBeginPoint()){
-	if (i==(edsize-1)){
-	  frontsChanged = false;
-	  break;
-	} else{
-	  ObjectPlot * pold = objects[i];
-	  undo->undoAdd(Insert,pold,i);
-	  undo->undoAdd(Erase,0,edsize);
-	  frontsChanged = true;
-	  break;
-	}	
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
+      } else if (objects[i]->ismarkEndPoint() ||
+          objects[i]->ismarkBeginPoint()){
+        if (i==(edsize-1)){
+          frontsChanged = false;
+          break;
+        } else{
+          ObjectPlot * pold = objects[i];
+          undo->undoAdd(Insert,pold,i);
+          undo->undoAdd(Erase,0,edsize);
+          frontsChanged = true;
+          break;
+        }
       }
     }
     break;
   case SplitFronts:
     for (int i =0; i < edsize; i++) {
-      if (objects[i]->ismarkAllPoints() && 
-	  objects[i]->onLine(newx,newy)){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;	
-	undo->undoAdd(Erase,0,edsize);
-	break;
+      if (objects[i]->ismarkAllPoints() &&
+          objects[i]->onLine(newx,newy)){
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
+        undo->undoAdd(Erase,0,edsize);
+        break;
       }
     }
     break;
-   case RotateObjects:
-     for (int i =0; i < edsize; i++) {
-       if (objects[i]->ismarkSomePoint()){
-	if (!objects[i]->objectIs(wSymbol)) continue;
-	// now check if previous operation was RotateObjects and the
-	//same symbols were affected
-	bool saveThis = true;
-	if (undoCurrent->iop == RotateObjects){
-	  vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
-	  while (p2!=undoCurrent->saveobjects.end()){
-	    if (p2->place ==i){
-	      saveThis = false;
-	      break;
-	    }
-	    p2++;
-	  }
-	}
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	if (saveThis) frontsChanged = true;
+  case RotateObjects:
+    for (int i =0; i < edsize; i++) {
+      if (objects[i]->ismarkSomePoint()){
+        if (!objects[i]->objectIs(wSymbol)) continue;
+        // now check if previous operation was RotateObjects and the
+        //same symbols were affected
+        bool saveThis = true;
+        if (undoCurrent->iop == RotateObjects){
+          vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
+          while (p2!=undoCurrent->saveobjects.end()){
+            if (p2->place ==i){
+              saveThis = false;
+              break;
+            }
+            p2++;
+          }
+        }
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        if (saveThis) frontsChanged = true;
       }
     }
     break;
   case ChangeText:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkAllPoints()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
   case HideBox:
     for (int i =0; i < edsize; i++) {
       if (objects[i]->ismarkAllPoints()){
-	ObjectPlot * pold = objects[i];
-	undo->undoAdd(Replace,pold,i);
-	frontsChanged = true;
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Replace,pold,i);
+        frontsChanged = true;
       }
     }
     break;
   case PasteObjects:
-    for (int i =0; i< copyObjects.objects.size();i++)
+    for (unsigned int i =0; i< copyObjects.objects.size();i++)
       undo->undoAdd(Erase,0,edsize+i);
     frontsChanged = true;
     break;
   case JoinFronts:
     frontsChanged = false;
     break;
- case CleanUp:
-   for (int i =0; i <edsize; i++) {
-     if (objects[i]->objectIs(wFront)&&
-	 objects[i]->isSinglePoint()){
-       ObjectPlot * pold = objects[i];
-       undo->undoAdd(Insert,pold,i);
-       frontsChanged = true;
-     }
-   }
-   break;
+  case CleanUp:
+    for (int i =0; i <edsize; i++) {
+      if (objects[i]->objectIs(wFront)&&
+          objects[i]->isSinglePoint()){
+        ObjectPlot * pold = objects[i];
+        undo->undoAdd(Insert,pold,i);
+        frontsChanged = true;
+      }
+    }
+    break;
   default:
-    cerr << "Error in saveCurrentFronts" << endl; 
-  }  
+    cerr << "Error in saveCurrentFronts" << endl;
+  }
   return frontsChanged;
 }
 
@@ -1233,7 +1232,7 @@ bool EditObjects::changeCurrentFronts(){
 #ifdef DEBUGPRINT
   cerr << "changeCurrentFronts" << endl;
   int edsize = objects.size();
-  cerr << "Number of objects " << edsize << endl; 
+  cerr << "Number of objects " << edsize << endl;
   switch (undoCurrent->iop){
   case AddPoint:
     cerr << "Type of operation;AddPoint " << endl;
@@ -1244,7 +1243,7 @@ bool EditObjects::changeCurrentFronts(){
   case DeleteMarkedPoints:
     cerr << "Type of operation;DeleteMarkedPoints " << endl;
     break;
-   case FlipObjects:
+  case FlipObjects:
     cerr << "Type of operation;FlipObjects " << endl;
     break;
   case IncreaseSize:
@@ -1289,22 +1288,22 @@ bool EditObjects::changeCurrentFronts(){
     q = objects.begin()+p1->place;
     q-=nFrontsDeleted;
 
-    int test = p1->place-nFrontsDeleted;
-    if (p1->todo!=Insert && 
-	(test<0 || test>=objects.size())){
+    unsigned int test = p1->place-nFrontsDeleted;
+    if (p1->todo!=Insert &&
+        (test<0 || test>=objects.size())){
       //HK ??? Something "strange" happened
       cerr << "Warning! diEditObjects	::changeCurrentFronts " << endl
-	   <<  "****************************************** "<< endl 	
-	   <<"undoCurrent->saveObjects.size()= " 
-	   << undoCurrent->saveobjects.size() << endl;
+      <<  "****************************************** "<< endl
+      <<"undoCurrent->saveObjects.size()= "
+      << undoCurrent->saveobjects.size() << endl;
       cerr << "p1->place = " <<p1->place << endl;
       cerr << "nFrontsDeleted" << nFrontsDeleted << endl;
-      cerr << "objects.size()=" << 
-	objects.size() << endl; 
-      cerr << "****************************************** "<<endl; 
-       return false;
+      cerr << "objects.size()=" <<
+      objects.size() << endl;
+      cerr << "****************************************** "<<endl;
+      return false;
     }
-        
+
     switch (p1->todo){
     case Replace:
       //  cerr << "Replace front ! " << endl;
@@ -1334,7 +1333,7 @@ bool EditObjects::changeCurrentFronts(){
     default:
       cerr << "Error in undofront ! " << endl;
     }
-    p1++;      
+    p1++;
   }
 
   // Changed/Added by ADC - 23.02.01
@@ -1355,12 +1354,12 @@ bool EditObjects::changeCurrentFronts(){
 
 bool EditObjects::findAllJoined(const float x,const float y,objectType wType){
   //cerr << "find all joined" << endl;
-  // recursive routine to find all joined fronts belonging to point x,y 
+  // recursive routine to find all joined fronts belonging to point x,y
   int frsize=objects.size();
   bool found = false;
-  for (int i=0; i< frsize;i++){  
+  for (int i=0; i< frsize;i++){
     ObjectPlot * pfront = objects[i];
-    if (!pfront->visible() || !pfront->objectIs(wType)) continue;  
+    if (!pfront->visible() || !pfront->objectIs(wType)) continue;
     if (pfront->getJoinedMarked()) continue;
     if (pfront->isJoinPoint(x,y)){
       pfront->markAllPoints();
@@ -1368,10 +1367,10 @@ bool EditObjects::findAllJoined(const float x,const float y,objectType wType){
       found = true;
       vector <float> xjoin=pfront->getXjoined();
       vector <float> yjoin=pfront->getYjoined();
-      int jsize=xjoin.size();
+      unsigned int jsize=xjoin.size();
       if (yjoin.size()<jsize) jsize=yjoin.size();
-      for (int j=0; j<jsize; j++){
-	findAllJoined(xjoin[j],yjoin[j],wType);	  
+      for (unsigned int j=0; j<jsize; j++){
+        findAllJoined(xjoin[j],yjoin[j],wType);
       }
     }
     else pfront->setJoinedMarked(false);
@@ -1384,23 +1383,23 @@ void EditObjects::findJoinedFronts(ObjectPlot * pfront,objectType wType){
   //routine to find fronts joined to pfront
   vector <float> xjoin=pfront->getXmarkedJoined();
   vector <float> yjoin=pfront->getYmarkedJoined();
-  int jsize=xjoin.size();
+  unsigned int jsize=xjoin.size();
   if (yjoin.size()<jsize) jsize=yjoin.size();
-  for (int j=0; j<jsize; j++){
-    findAllJoined(xjoin[j],yjoin[j],wType);	  
+  for (unsigned int j=0; j<jsize; j++){
+    findAllJoined(xjoin[j],yjoin[j],wType);
   }
 }
 
 
 bool EditObjects::findJoinedPoints(const float x,const float y,
-				   objectType wType){
+    objectType wType){
   //returns true if on joined point
   int frsize=objects.size();
   bool found = false;
-  for (int i=0; i< frsize ;i++){  
+  for (int i=0; i< frsize ;i++){
     ObjectPlot * pfront = objects[i];
     if (!pfront->visible() || !pfront->objectIs(wType)) continue;
-    pfront->setJoinedMarked(false); 
+    pfront->setJoinedMarked(false);
     if (pfront->isJoinPoint(x,y)) found = true;
   }
   return found;
@@ -1434,7 +1433,7 @@ void EditObjects::setScaleToField(float s){
 void EditObjects::putCommentStartLines(miString name,miString prefix){
   //return the startline of the comments file to read
   miString startline = prefix + miString(" ") + name +
-    miString(" ") + itsTime.isoTime()+ miString("\n");
+  miString(" ") + itsTime.isoTime()+ miString("\n");
   itsComments+=
     "*************************************************\n";
   itsComments+=startline;
@@ -1444,7 +1443,7 @@ void EditObjects::putCommentStartLines(miString name,miString prefix){
 
 miString EditObjects::getComments(){
   //return the comments
-  commentsChanged = false; 
+  commentsChanged = false;
   //HK ???
   commentsSaved = true;
   return itsComments;
@@ -1474,13 +1473,13 @@ miString EditObjects::getMarkedText(){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
       if (objects[i]->isText() && objects[i]->ismarkAllPoints()){
-	return objects[i]->getString();
+        return objects[i]->getString();
       }
     }
 
   }
   return miString();
-}  
+}
 
 
 Colour::ColourInfo EditObjects::getMarkedColour(){
@@ -1489,23 +1488,23 @@ Colour::ColourInfo EditObjects::getMarkedColour(){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
       if (objects[i]->isText() && objects[i]->ismarkAllPoints()){
-	return objects[i]->getObjectColor();
+        return objects[i]->getObjectColor();
       }
     }
 
   }
   return cinfo;
-}  
+}
 
 void EditObjects::changeMarkedText(const miString & newText){
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
       if (objects[i]->isText() && objects[i]->ismarkAllPoints()){
-	objects[i]->setString(newText);
+        objects[i]->setString(newText);
       }
-    }  
-  }  
+    }
+  }
 }
 
 void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
@@ -1513,10 +1512,10 @@ void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
       if (objects[i]->isText() && objects[i]->ismarkAllPoints()){
-	objects[i]->setObjectColor(newColour);
+        objects[i]->setObjectColor(newColour);
       }
-    }  
-  }  
+    }
+  }
 }
 
 
@@ -1528,9 +1527,9 @@ void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <m
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
-      if (objects[i]->isComplex() && objects[i]->ismarkAllPoints()){	
-	objects[i]->getComplexText(symbolText,xText);
-	if (symbolText.size()||xText.size()) return;
+      if (objects[i]->isComplex() && objects[i]->ismarkAllPoints()){
+        objects[i]->getComplexText(symbolText,xText);
+        if (symbolText.size()||xText.size()) return;
       }
     }
   }
@@ -1545,7 +1544,7 @@ void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, 
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
       if (objects[i]->isComplex() && objects[i]->ismarkAllPoints()){
- 	objects[i]->changeComplexText(symbolText,xText);
+        objects[i]->changeComplexText(symbolText,xText);
       }
     }
   }

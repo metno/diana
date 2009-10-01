@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -37,17 +37,17 @@ ProfetObjectFactory::ProfetObjectFactory()
 {
 #ifndef NOLOG4CXX
   logger = log4cxx::Logger::getLogger("diana.ProfetObjectFactory");
-#endif 
+#endif
 }
 
 
 void ProfetObjectFactory::outputExecuteResponce( vector<fetCodeExecutor::responce> & rl)
 {
   ostringstream ost;
-  for ( int i=0; i<rl.size(); i++ ){
+  for ( unsigned int i=0; i<rl.size(); i++ ){
     if ( rl[i].level != fetCodeExecutor::INFO )
-      ost << ( rl[i].level == fetCodeExecutor::ERROR  
-	       ? "ERROR:" : "WARNING:") 
+      ost << ( rl[i].level == fetCodeExecutor::ERROR
+	       ? "ERROR:" : "WARNING:")
 	  << rl[i].message << ", line " << rl[i].linenum
 	  << " in finished object-code" << endl;
   }
@@ -70,7 +70,7 @@ ProfetObjectFactory::getGuiComponents(const fetBaseObject& baseobj)
   LOG4CXX_DEBUG(logger,"getGuiComponents(fetBaseObject)");
 
   fetCodeExecutor executor; ///< the object executor
-  vector<fetCodeExecutor::responce> responcel; 
+  vector<fetCodeExecutor::responce> responcel;
   vector<fetDynamicGui::GuiComponent> components;
   map<miString,miString> guikeys;
   bool onlygui=true;
@@ -86,17 +86,17 @@ ProfetObjectFactory::getGuiComponents(const fetBaseObject& baseobj)
 
 
 vector<fetDynamicGui::GuiComponent>
-ProfetObjectFactory::getGuiComponents(const fetObject& fetobj) 
+ProfetObjectFactory::getGuiComponents(const fetObject& fetobj)
 {
   LOG4CXX_DEBUG(logger,"getGuiComponents(fetObject) for id="<< fetobj.id());
 
   fetCodeExecutor executor; ///< the object executor
   fetBaseObject baseobject = fetobj.baseObject();
-  vector<fetCodeExecutor::responce> responcel; 
+  vector<fetCodeExecutor::responce> responcel;
   vector<fetDynamicGui::GuiComponent> components;
   map<miString,miString> guikeys = fetobj.guiElements();
   bool onlygui = true;
-  
+
   // compile and fetch gui components from code
   bool ok = executor.compile( baseobject, responcel, guikeys, onlygui );
   if ( !ok ){
@@ -129,9 +129,9 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
     LOG4CXX_ERROR(logger,"Field-projection and size not set - undefined object!");
     return fetObj;
   }
-  
+
   fetCodeExecutor executor; ///< the object executor
-  vector<fetCodeExecutor::responce> responcel; 
+  vector<fetCodeExecutor::responce> responcel;
   map<miString,miString> guikeys;
   bool onlygui=false;
   miString id;
@@ -154,7 +154,7 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
   fetObj.setTimeVariables(executor.timevariables());
   fetObj.setValuesForZeroImpact(executor.valuesforzeroimpact());
   fetObj.setGuiComponents(components);
-  
+
   setGuiValues(fetObj,components);
 
   return fetObj;
@@ -164,10 +164,10 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
 
 /**
    =================================================
-   set Gui components in fetObject code 
+   set Gui components in fetObject code
    =================================================
 */
-bool ProfetObjectFactory::setGuiValues(fetObject& fetObj, 
+bool ProfetObjectFactory::setGuiValues(fetObject& fetObj,
 				      const vector<fetDynamicGui::GuiComponent>& components )
 {
 
@@ -178,29 +178,29 @@ bool ProfetObjectFactory::setGuiValues(fetObject& fetObj,
 
 }
 
-void ProfetObjectFactory::setPolygon(fetObject& fetObj, 
+void ProfetObjectFactory::setPolygon(fetObject& fetObj,
 				     ProjectablePolygon pp)
 {
-  
+
   fetObj.setPolygon(pp);
-  
+
 }
 
 // process the changes from a time edit..
 bool ProfetObjectFactory::processTimeValuesOnObject(fetObject& fetObj)
 {
-  
+
   // set elements in fetObjects: std::map<miString,float> parametersFromTimeValues_;
   // to real stuff ...
-   
+
   fetCodeExecutor executor;
   bool ok;
 
   // add changes to guielements
   ok = executor.changeGuiElements(fetObj,fetObj.parametersFromTimeValues());
-  
+
   // compile and fetch gui components from code
-  vector<fetCodeExecutor::responce> responcel; 
+  vector<fetCodeExecutor::responce> responcel;
   map<miString,miString> guikeys;
   bool onlygui=false;
   ok = executor.compile( fetObj.baseObject(), responcel, fetObj.guiElements(), onlygui );
@@ -208,17 +208,17 @@ bool ProfetObjectFactory::processTimeValuesOnObject(fetObject& fetObj)
     outputExecuteResponce(responcel);
   }
   vector<fetDynamicGui::GuiComponent> components = executor.getGuiComponents();
-  
+
   // set local values
   fetObj.setTimeVariables(executor.timevariables());
   fetObj.setValuesForZeroImpact(executor.valuesforzeroimpact());
-  
+
   // actuallly set the values!!
   setGuiValues(fetObj,components);
-  
+
   // remove time values
   fetObj.clearParametersFromTimeValues();
-  
+
   return ok;
 }
 

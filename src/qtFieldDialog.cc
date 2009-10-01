@@ -111,7 +111,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   fgTranslations["Ocean Model Levels"]= tr("Ocean Model Levels").toStdString();
   //fgTranslations[""]= tr("");
 
-  int i, n;
+  int i;
 
   // get all field plot options from setup file
   vector<miString> fieldNames;
@@ -1174,7 +1174,6 @@ void FieldDialog::updateModelBoxes()
   int nr_m = m_modelgroup.size();
   if (nr_m==0) return;
 
-  int m= 0;
   if (profetEnabled) {
     for (int i=0; i<nr_m; i++) {
       if (m_modelgroup[i].groupType=="profetfilegroup") {
@@ -1233,7 +1232,7 @@ void FieldDialog::modelGRboxActivated( int index )
   cerr<<"FieldDialog::modelGRboxActivated called"<<endl;
 #endif
 
-  if (index<0 || index>=indexMGRtable.size()) return;
+  if (index<0 || index>=int(indexMGRtable.size())) return;
 
   int indexMGR= indexMGRtable[index];
   modelbox->clear();
@@ -1512,7 +1511,7 @@ void FieldDialog::updateLevel(){
 
   int i= selectedFieldbox->currentRow();
 
-  if (i>=0 && i<selectedFields.size()) {
+  if (i>=0 && i<int(selectedFields.size())) {
     selectedFields[i].level= lastLevel;
     updateTime();
   }

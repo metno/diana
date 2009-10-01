@@ -46,7 +46,7 @@ MovieMaker::MovieMaker(string &filename, float delay)
 #endif
   g_strOutputVideoFile = filename;
   this->delay = delay;
-  
+
   // register all the codecs
   avcodec_register_all();
   av_register_all();
@@ -326,15 +326,18 @@ bool MovieMaker::addImage(QImage *image)
 {
   if (!image)
       return false;
-  
+
   // scale image to fit video format size
   QImage imageScaled = image->scaled(720, 480, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-  
+
   addImage(&outputVideo, imageScaled);
+
+  return true;
+
 }
 
 bool MovieMaker::addImage(OutputCtx *output, QImage &image)
-{ 
+{
   int frames = (int) (delay * 29.97);
 
   AVCodecContext *video = output->videoStream->codec;
@@ -373,4 +376,7 @@ bool MovieMaker::addImage(OutputCtx *output, QImage &image)
     if (!writeVideoFrame(output))
       return false;
   }
+
+  return true;
+
 }

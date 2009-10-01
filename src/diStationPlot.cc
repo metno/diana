@@ -41,10 +41,10 @@ StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
   Plot()
 {
   init();
-  int n = lons.size();
+  unsigned int n = lons.size();
   if (n > lats.size())
     n = lats.size();
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     addStation(lons[i], lats[i]);
   }
   defineCoordinates();
@@ -58,12 +58,12 @@ StationPlot::StationPlot(const vector<miString> & names,
   cerr << "StationPlot::StationPlot(miString,float,float)"<< endl;
 #endif
   init();
-  int n = names.size();
+  unsigned int n = names.size();
   if (n > lons.size())
     n = lons.size();
   if (n > lats.size())
     n = lats.size();
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     addStation(lons[i], lats[i], names[i]);
   }
   defineCoordinates();
@@ -78,12 +78,12 @@ StationPlot::StationPlot(const vector<miString> & names,
   cerr << "StationPlot::StationPlot(miString,float,float)"<< endl;
 #endif
   init();
-  int n = names.size();
+  unsigned int n = names.size();
   if (n > lons.size())
     n = lons.size();
   if (n > lats.size())
     n = lats.size();
-  for (int i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     addStation(lons[i], lats[i], names[i], images[i]);
   }
   useImage = true;
@@ -147,8 +147,8 @@ StationPlot::StationPlot(const miString& commondesc, const miString& common,
   //decode data
   int ndata = data.size();
   map<miString, int> datamap;
-  int ndesc = vdesc.size();
-  for (int i = 0; i < ndesc; i++)
+  unsigned int ndesc = vdesc.size();
+  for (unsigned int i = 0; i < ndesc; i++)
     datamap[vdesc[i]] = i;
   if (!datamap.count("name") || !datamap.count("lat") || !datamap.count("lon")) {
     cerr << "diStationPlot:" << endl;

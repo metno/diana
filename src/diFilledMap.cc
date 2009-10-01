@@ -63,14 +63,14 @@ inline void int16to32(const short a, const short b, int& i)
 }
 
 FilledMap::FilledMap() :
-  filename(""), timestamp(0), scale(1.0), tscale(1.0), opened(false),
-      contexist(false), numPolytiles(0), polydata(0), numGroups(0), groups(0)
+  filename(""), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
+  numPolytiles(0), polydata(0), opened(false), contexist(false)
 {
 }
 
 FilledMap::FilledMap(const miString fn) :
-  filename(fn), timestamp(0), scale(1.0), tscale(1.0), opened(false),
-      contexist(false), numPolytiles(0), polydata(0), numGroups(0), groups(0)
+  filename(fn), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
+  numPolytiles(0), polydata(0), opened(false), contexist(false)
 {
 }
 
@@ -850,9 +850,6 @@ void FilledMap::xyclip(int npos, float *x, float *y, float xylim[4])
   xb = xylim[1];
   ya = xylim[2];
   yb = xylim[3];
-
-  float xoffset = (xb - xa) / 200.0;
-  float yoffset = (yb - ya) / 200.0;
 
   if (x[0] < xa || x[0] > xb || y[0] < ya || y[0] > yb) {
     k2 = 0;

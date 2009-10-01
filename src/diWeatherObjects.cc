@@ -343,7 +343,7 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
   //split inputString into one string for each object
   vector <miString> objectStrings = inputString.split('!');
 
-  for (int i = 0;i<objectStrings.size();i++){
+  for (unsigned int i = 0;i<objectStrings.size();i++){
     //split objectString and check which type of new
     //object should be created from first keyword and value
     vector <miString> tokens = objectStrings[i].split(';');

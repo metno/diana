@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -49,7 +49,7 @@ public:
  // Constructor
   ComplexSymbolPlot();
   ComplexSymbolPlot(int drawIndex);
-  /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot 
+  /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot
   void draw(int drawIndex, float x,float y,int size, float rot);
   /// hides/shows the white box behind symbol
   void hideBox();
@@ -71,11 +71,11 @@ public:
   /// returns true if symbol is complex text
   static bool isComplexText(int drawIndex);
   /// gets current complex text (used in text dialog)
-  static void getCurrentComplexText(vector <miString> & symbolText, 
+  static void getCurrentComplexText(vector <miString> & symbolText,
 			     vector <miString> & xText);
   /// sets current complex text (used in text dialog)
   static void setCurrentComplexText(const vector <miString> & symbolText,
-			     const vector <miString> & xText); 
+			     const vector <miString> & xText);
   /// Initial values of current strings (used in text dialog)
   static void initCurrentStrings(int drawIndex);
   /// sets list of complex texts (used in text dialog)
@@ -125,13 +125,13 @@ private:
   void drawSymbol(int index,float x,float y);
 
   //text used in new complex symbols
-  static vector <miString> currentSymbolStrings; 
+  static vector <miString> currentSymbolStrings;
   static vector <miString> currentXStrings; //new sigstrings  (x/x)
   static set <miString> clist;
   vector <miString> symbolStrings; //text used in this complex symbols
   vector <miString> xstrings; // sigstrings  (x/x)
   bool xvisible; //used when editing strings
-  int nstringsvisible; //used when editing strings 
+  unsigned int nstringsvisible; //used when editing strings
   int symbolSizeToPlot;
 
   miString sigString;

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <diImageGallery.h>
 #include <diImageIO.h>
 #include <fstream>
@@ -42,8 +42,8 @@ map<int, vector<miString> > ImageGallery::Type;
 
 
 ImageGallery::image::image()
-  :alpha(true),width(0),height(0),data(0),
-   read_error(false)
+:alpha(true),width(0),height(0),data(0),
+read_error(false)
 {
 }
 
@@ -64,7 +64,7 @@ void ImageGallery::image::erase()
 }
 
 ImageGallery::pattern::pattern()
-  :pattern_data(0),read_error(false)
+:pattern_data(0),read_error(false)
 {
 }
 
@@ -84,7 +84,7 @@ void ImageGallery::pattern::erase()
 // -------------- IMAGEGALLERY -------------------------------
 
 ImageGallery::ImageGallery()
-  : Plot()
+: Plot()
 {
 }
 
@@ -93,14 +93,14 @@ void ImageGallery::clear()
 {
   map<miString,image>::iterator p= Images.begin();
   for( ; p!=Images.end(); p++){
-     p->second.erase();
-     Images.erase(p->first);
-   }
+    p->second.erase();
+    Images.erase(p->first);
+  }
   map<miString,pattern>::iterator q= Patterns.begin();
   for( ; q!=Patterns.end(); q++){
-     q->second.erase();
-     Patterns.erase(q->first);
-   }
+    q->second.erase();
+    Patterns.erase(q->first);
+  }
 }
 
 
@@ -110,26 +110,26 @@ void ImageGallery::addImageName(const miString& filename, int type)
   int n = filename.find_last_of("/");
   int m = filename.find_last_of(".");
   miString name = filename.substr(n+1,m-n-1);
-  
+
   if(type == fillpattern){
     if(Patterns.count(name)>0)
       Patterns[name].erase();
-  
+
     Patterns[name].name=name;
     Patterns[name].filename=filename;
     Type[type].push_back(name);
     return;
-  }  
+  }
 
   // images, markers ..
   if(Images.count(name)>0)
     Images[name].erase();
-  
+
   Images[name].name=name;
   Images[name].filename=filename;
   Images[name].type=type;
   Type[type].push_back(name);
-  
+
   //marker
   if(type == marker){
     glob_t globBuf;
@@ -152,12 +152,12 @@ bool ImageGallery::readImage(const miString& name)
 {
   if(Images[name].data != 0)
     return true; //Image ok
-  
+
   // if read_error == true, we have tried and failed before
   // Should we try again anyway?
   if (Images[name].read_error)
     return false;
-  
+
   //read image from file
   imageIO::Image_data img(Images[name].filename);
   img.pattern = false;
@@ -167,22 +167,22 @@ bool ImageGallery::readImage(const miString& name)
     Images[name].read_error= true;
     return false;
   }
-  
+
   return addImage(name,img.width,img.height,
-		  img.data,img.nchannels>3);
+      img.data,img.nchannels>3);
 }
 
 bool ImageGallery::readPattern(const miString& name)
 {
-    
-  if( Patterns[name].pattern_data!=0) 
+
+  if( Patterns[name].pattern_data!=0)
     return true; //Pattern ok
-  
+
   // if read_error == true, we have tried and failed before
   // Should we try again anyway?
   if (Patterns[name].read_error)
     return false;
-  
+
   //read image from file
   imageIO::Image_data img(Patterns[name].filename);
   img.pattern = true;
@@ -192,9 +192,9 @@ bool ImageGallery::readPattern(const miString& name)
     Patterns[name].read_error= true;
     return false;
   }
-  
+
   return addPattern(name,img.data);
-  
+
 }
 
 bool ImageGallery::addImage(const image& im)
@@ -203,27 +203,27 @@ bool ImageGallery::addImage(const image& im)
 }
 
 bool ImageGallery::addImage(const miString& name,
-			    const int w,
-			    const int h,
-			    const unsigned char* d,
-			    const bool a)
+    const int w,
+    const int h,
+    const unsigned char* d,
+    const bool a)
 {
 
   int size= w*h;
 
   if (!name.exists()){
     cerr << "ImageGallery::addImage ERROR trying to add image with no name"
-	 << endl;
+    << endl;
     return false;
   }
   if (size == 0){
     cerr << "ImageGallery::addImage ERROR trying to add image with zero width/height:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
   if (d==0){
     cerr << "ImageGallery::addImage ERROR trying to add image with no imagedata:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
 
@@ -237,26 +237,26 @@ bool ImageGallery::addImage(const miString& name,
   for (int j=0; j<fsize; j++)
     Images[name].data[j]= d[j];
 
-  if(Images[name].type==marker) 
+  if(Images[name].type==marker)
     if(!readFile(name,Images[name].markerFilename))
-       Images[name].type = basic;
+      Images[name].type = basic;
 
   return true;
 }
 
 bool ImageGallery::addPattern(const miString& name,
-			      const unsigned char* d)
+    const unsigned char* d)
 {
 
 
   if (!name.exists()){
     cerr << "ImageGallery::addPattern ERROR trying to add image with no name"
-	 << endl;
+    << endl;
     return false;
   }
   if (d==0){
     cerr << "ImageGallery::addPattern ERROR trying to add image with no data:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
 
@@ -274,7 +274,7 @@ float ImageGallery::width(const miString& name)
   float w= 0.0;
   if (!Images.count(name)){
     cerr << "ImageGallery::width ERROR image not found:"
-	 << name << endl;
+    << name << endl;
   } else {
     readImage(name);
     w= Images[name].width*fullrect.width()/(pwidth > 0 ? pwidth*1.0 : 1.0);;
@@ -287,7 +287,7 @@ float ImageGallery::height(const miString& name)
   float h= 0.0;
   if (!Images.count(name)){
     cerr << "ImageGallery::height ERROR image not found:"
-	 << name << endl;
+    << name << endl;
   } else {
     readImage(name);
     h= Images[name].height*fullrect.height()/(pheight > 0 ? pheight*1.0 : 1.0);
@@ -300,17 +300,17 @@ int ImageGallery::widthp(const miString& name)
   int w= 0;
   if (!Images.count(name)){
     cerr << "ImageGallery::pwidth ERROR image not found:"
-	 << name << endl;
+    << name << endl;
   } else {
     readImage(name);
     if( Images[name].type == marker ){
       float max=0.0,min=0.0;
-      for(int i=0;i<Images[name].line.size();i++)
-	for(int j=0;j<Images[name].line[i].x.size();j++)
-	  if(Images[name].line[i].x[j]>max)
-	    max = Images[name].line[i].x[j];
-	  else if(Images[name].line[i].y[j]<min)
-	    min = Images[name].line[i].y[j];
+      for(unsigned int i=0;i<Images[name].line.size();i++)
+        for(unsigned int j=0;j<Images[name].line[i].x.size();j++)
+          if(Images[name].line[i].x[j]>max)
+            max = Images[name].line[i].x[j];
+          else if(Images[name].line[i].y[j]<min)
+            min = Images[name].line[i].y[j];
       w=(int)(max-min);
     } else {
       w= Images[name].width;
@@ -324,17 +324,17 @@ int ImageGallery::heightp(const miString& name)
   int h= 0;
   if (!Images.count(name)){
     cerr << "ImageGallery::pheight ERROR image not found:"
-	 << name << endl;
+    << name << endl;
   } else {
     readImage(name);
     if( Images[name].type == marker ){
       float max=0.0,min=0.0;
-      for(int i=0;i<Images[name].line.size();i++)
-	for(int j=0;j<Images[name].line[i].y.size();j++)
-	  if(Images[name].line[i].y[j]>max)
-	    max = Images[name].line[i].y[j];
-	  else if(Images[name].line[i].y[j]<min)
-	    min = Images[name].line[i].y[j];
+      for(unsigned int i=0;i<Images[name].line.size();i++)
+        for(unsigned int j=0;j<Images[name].line[i].y.size();j++)
+          if(Images[name].line[i].y[j]>max)
+            max = Images[name].line[i].y[j];
+          else if(Images[name].line[i].y[j]<min)
+            min = Images[name].line[i].y[j];
       h=int(max-min);
     } else {
       h= Images[name].height;
@@ -347,7 +347,7 @@ bool ImageGallery::delImage(const miString& name)
 {
   if (!Images.count(name)){
     cerr << "ImageGallery::delImage ERROR image not found:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
   Images[name].erase();
@@ -358,7 +358,7 @@ bool ImageGallery::delPattern(const miString& name)
 {
   if (!Patterns.count(name)){
     cerr << "ImageGallery::delPattern ERROR pattern not found:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
   Patterns[name].erase();
@@ -367,16 +367,16 @@ bool ImageGallery::delPattern(const miString& name)
 
 
 bool ImageGallery::plotImage_(const miString name,
-			      const float& gx, const float& gy,
-			      const float scalex,
-			      const float scaley,
-			      const int alpha)
+    const float& gx, const float& gy,
+    const float scalex,
+    const float scaley,
+    const int alpha)
 {
 
   if (gx < fullrect.x1 || gx >= fullrect.x2 ||
       gy < fullrect.y1 || gy >= fullrect.y2)
     return true;
-  
+
   int nx= Images[name].width;
   int ny= Images[name].height;
   GLenum glformat= GL_RGBA;
@@ -398,21 +398,21 @@ bool ImageGallery::plotImage_(const miString name,
       // if original alpha-value lower: keep it
       if ((j+1) % 4 == 0 && newdata[j] > av) newdata[j] = av;
     }
-    
+
     glDrawPixels((GLint)nx,
-		 (GLint)ny,
-		 glformat,
-		 GL_UNSIGNED_BYTE,
-		 newdata);
+        (GLint)ny,
+        glformat,
+        GL_UNSIGNED_BYTE,
+        newdata);
 
     delete[] newdata;
-    
+
   } else {
     glDrawPixels((GLint)nx,
-		 (GLint)ny,
-		 glformat,
-		 GL_UNSIGNED_BYTE,
-		 Images[name].data);
+        (GLint)ny,
+        glformat,
+        GL_UNSIGNED_BYTE,
+        Images[name].data);
   }
 
   // for postscript output, add imagedata to glpfile
@@ -424,16 +424,16 @@ bool ImageGallery::plotImage_(const miString name,
     float pgy= (gy-fullrect.y1)*sy;
 
     if (!(pgx >= pwidth || pgy >= pheight ||
-	  // pgx+nx*scalex <= 0.0 || pgy+ny*scaley <= 0.0)){
-	  pgx <= 0.0 || pgy <= 0.0)){
+        // pgx+nx*scalex <= 0.0 || pgy+ny*scaley <= 0.0)){
+        pgx <= 0.0 || pgy <= 0.0)){
       psAddImage(Images[name].data,
-		 ncomp*nx*ny, nx, ny,
-		 pgx, pgy, scalex, scaley,
-		 0, 0, nx-1, ny-1,
-		 glformat, GL_UNSIGNED_BYTE);
-//       psGrabImage(pgx,pgy,nx*scalex,ny*scaley,
-// 		  glformat,GL_UNSIGNED_BYTE);
-      
+          ncomp*nx*ny, nx, ny,
+          pgx, pgy, scalex, scaley,
+          0, 0, nx-1, ny-1,
+          glformat, GL_UNSIGNED_BYTE);
+      //       psGrabImage(pgx,pgy,nx*scalex,ny*scaley,
+      // 		  glformat,GL_UNSIGNED_BYTE);
+
       // for postscript output
       UpdateOutput();
     }
@@ -442,8 +442,8 @@ bool ImageGallery::plotImage_(const miString name,
 }
 
 bool ImageGallery::plotMarker_(const miString name,
-			      const float& x, const float& y,
-			      const float scale)
+    const float& x, const float& y,
+    const float scale)
 {
   if (x < fullrect.x1 || x >= fullrect.x2 ||
       y < fullrect.y1 || y >= fullrect.y2)
@@ -451,35 +451,35 @@ bool ImageGallery::plotMarker_(const miString name,
 
   int nlines=Images[name].line.size();
   if(nlines>0) {
-    glPushMatrix(); 
+    glPushMatrix();
     glTranslatef(x,y,0.0);
     float Scalex= scale*fullrect.width()/pwidth*0.7;
     float Scaley= scale*fullrect.width()/pwidth*0.7;
     glScalef(Scalex,Scaley,0.0);
 
     for(int k=0; k<nlines; k++){
-            
+
       glLineWidth(Images[name].line[k].width);
-      
+
       int num=Images[name].line[k].x.size();
 
       if(Images[name].line[k].fill){
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glBegin(GL_POLYGON);
-	for (int j=0; j<num; j++) {
-	  glVertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
-	}
-	glEnd();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBegin(GL_POLYGON);
+        for (int j=0; j<num; j++) {
+          glVertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+        }
+        glEnd();
       }else{
-	glBegin(GL_LINE_STRIP);
-	for (int j=0; j<num; j++) {
-	  glVertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
-	}
-	glEnd();
+        glBegin(GL_LINE_STRIP);
+        for (int j=0; j<num; j++) {
+          glVertex2f(Images[name].line[k].x[j],Images[name].line[k].y[j]);
+        }
+        glEnd();
       }
     }
-    glPopMatrix(); 
-    
+    glPopMatrix();
+
   }
   return true;
 }
@@ -500,7 +500,7 @@ bool ImageGallery::readFile(const miString name, const miString filename)
     if (line.length()>0) {
       line.trim();
       if (line.length()>0 && line[0]!='#')
-	vline.push_back(line);
+        vline.push_back(line);
     }
   }
 
@@ -511,14 +511,14 @@ bool ImageGallery::readFile(const miString name, const miString filename)
   for( int i=0; i<nlines; i++){
     vector<miString> tokens = vline[i].split(" ");
     if( tokens.size() !=2) continue;
-    if( (tokens[0] == "mvto" && l.x.size()>0) 
-	|| (tokens[0] == "lw") || tokens[0] == "mode") {
+    if( (tokens[0] == "mvto" && l.x.size()>0)
+        || (tokens[0] == "lw") || tokens[0] == "mode") {
       Images[name].line.push_back(l);
       l.x.clear();
       l.y.clear();
       l.fill=false;
       l.width=1;
-    } 
+    }
     if( tokens[0] == "lto" || tokens[0] == "mvto" ){
       vector<miString> coor = tokens[1].split(",");
       if(coor.size() != 2) continue;
@@ -528,30 +528,30 @@ bool ImageGallery::readFile(const miString name, const miString filename)
       l.width = atoi(tokens[1].c_str());
     } else if( tokens[0] == "mode" ) {
       if(tokens[1] == "fill")
-	l.fill = true;
+        l.fill = true;
     }
   }
   if(l.x.size()>0) {
     Images[name].line.push_back(l);
   }
 
-  if(Images[name].line.size() == 0 ) 
+  if(Images[name].line.size() == 0 )
     return false;
 
   return true;
 }
 
 bool ImageGallery::plotImage(const miString& name,
-			     const float& x, const float& y,
-			     const bool center,
-			     const float scale,
-			     const int alpha)
+    const float& x, const float& y,
+    const bool center,
+    const float scale,
+    const int alpha)
 {
   if(!readImage(name)) return false;
 
   if (!Images.count(name)){
     cerr << "ImageGallery::plot ERROR image not found:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
 
@@ -560,10 +560,10 @@ bool ImageGallery::plotImage(const miString& name,
 
   if (Images[name].data==0) {
     cerr << "ImageGallery::plot ERROR no image-data:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
-  
+
   float gx= x, gy= y; // raster position
   int nx= Images[name].width;
   int ny= Images[name].height;
@@ -588,32 +588,32 @@ bool ImageGallery::plotImage(const miString& name,
   bool res= plotImage_(name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0); 
+  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
   glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
   glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
   glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-  glDisable(GL_BLEND);  
+  glDisable(GL_BLEND);
 
   return res;
 }
 
 
 bool ImageGallery::plotImages(const int n,
-			      const vector<miString>& vn,
-			      const float* x, const float* y,
-			      const bool center,
-			      const float scale,
-			      const int alpha)
+    const vector<miString>& vn,
+    const float* x, const float* y,
+    const bool center,
+    const float scale,
+    const int alpha)
 {
 
   if (n == 0){
     cerr << "ImageGallery::plotImages ERROR no positions:"
-	 << endl;
+    << endl;
     return false;
   }
-  if (n != vn.size()){
+  if (n != int(vn.size())){
     cerr << "ImageGallery::plotImages ERROR names and positions do not match:"
-	 << n << endl;
+    << n << endl;
     return false;
   }
 
@@ -634,7 +634,7 @@ bool ImageGallery::plotImages(const int n,
   for (int j=0; j<n; j++){
     if (!Images.count(vn[j])){
       cerr << "ImageGallery::plotImages ERROR image not found:"
-	   << vn[j] << endl;
+      << vn[j] << endl;
       return false;
     }
 
@@ -647,10 +647,10 @@ bool ImageGallery::plotImages(const int n,
 
     if (Images[vn[j]].data==0) {
       cerr << "ImageGallery::plotImages ERROR no image-data:"
-	   << vn[j] << endl;
+      << vn[j] << endl;
       return false;
     }
-  
+
     float gx= x[j], gy= y[j]; // raster position
     if (vn[j] != oldname){
       nx= Images[vn[j]].width;
@@ -667,32 +667,32 @@ bool ImageGallery::plotImages(const int n,
     plotImage_(vn[j], gx, gy, scalex, scaley, alpha);
     oldname = vn[j];
   }
-  
+
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0); 
+  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
   glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
   glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
   glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-  glDisable(GL_BLEND);  
+  glDisable(GL_BLEND);
 
   return true;
 }
 
 bool ImageGallery::plotImages(const int n,
-			      const miString& name,
-			      const float* x, const float* y,
-			      const bool center,
-			      const float scale,
-			      const int alpha)
+    const miString& name,
+    const float* x, const float* y,
+    const bool center,
+    const float scale,
+    const int alpha)
 {
   if(!readImage(name)) return false;
 
   if (n == 0){
     cerr << "ImageGallery::plotImages ERROR no positions:"
-	 << endl;
+    << endl;
     return false;
   }
-  
+
   vector<miString> vn(n,name);
 
   return plotImages(n, vn, x, y, center, scale, alpha);
@@ -700,16 +700,16 @@ bool ImageGallery::plotImages(const int n,
 
 
 bool ImageGallery::plotImageAtPixel(const miString& name,
-				    const float& x, const float& y,
-				    const bool center,
-				    const float scale,
-				    const int alpha)
+    const float& x, const float& y,
+    const bool center,
+    const float scale,
+    const int alpha)
 {
   if(!readImage(name)) return false;
 
   if (!Images.count(name)){
     cerr << "ImageGallery::plot ERROR image not found:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
 
@@ -718,10 +718,10 @@ bool ImageGallery::plotImageAtPixel(const miString& name,
 
   if (Images[name].data==0) {
     cerr << "ImageGallery::plot ERROR no image-data:"
-	 << name << endl;
+    << name << endl;
     return false;
   }
-  
+
   float gx= x, gy= y; // raster position
   int nx= Images[name].width;
   int ny= Images[name].height;
@@ -749,59 +749,59 @@ bool ImageGallery::plotImageAtPixel(const miString& name,
   bool res= plotImage_(name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
-  glPixelStorei(GL_UNPACK_SKIP_ROWS,0); 
+  glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
   glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
   glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
   glPixelStorei(GL_UNPACK_ALIGNMENT,4);
-  glDisable(GL_BLEND);  
+  glDisable(GL_BLEND);
 
   return res;
 }
 
-GLubyte* ImageGallery::getPattern(miString name) 
- {
+GLubyte* ImageGallery::getPattern(miString name)
+{
 
-   if(!readPattern(name)) return 0;
-   return Patterns[name].pattern_data;
+  if(!readPattern(name)) return 0;
+  return Patterns[name].pattern_data;
 
- }
+}
 
 void ImageGallery::printInfo() const
 {
   map<miString,image>::const_iterator p= Images.begin();
   for( ; p!=Images.end(); p++){
     cerr << "Image: " << p->second.name
-	 << " W:" << p->second.width
-	 << " H:" << p->second.height
-	 << " A:" << (p->second.alpha ? "YES" : "NO")
-	 << endl;
+    << " W:" << p->second.width
+    << " H:" << p->second.height
+    << " A:" << (p->second.alpha ? "YES" : "NO")
+    << endl;
   }
 }
 
-void ImageGallery::ImageNames(vector<miString>& vnames, 
-			      int type) const
-{
+void ImageGallery::ImageNames(vector<miString>& vnames,
+    int type) const
+    {
   vnames.clear();
-  
-//   map<miString,image>::const_iterator p= Images.begin();
 
-//   for (; p!=Images.end(); p++)
-//     vnames.push_back(p->first);
+  //   map<miString,image>::const_iterator p= Images.begin();
+
+  //   for (; p!=Images.end(); p++)
+  //     vnames.push_back(p->first);
   int n=Type[type].size();
   for(int i=0; i<n; i++)
     vnames.push_back(Type[type][i]);
-}
+    }
 
 miString ImageGallery::getFilename(const miString& name, bool pattern)
 {
   if(pattern)
     return Patterns[name].filename;
-  
+
   //images, markers ...
   return Images[name].filename;
 }
 
-bool ImageGallery::parseSetup(SetupParser &sp) 
+bool ImageGallery::parseSetup(SetupParser &sp)
 {
   //  cerr << "ImageGallery: parseSetup"<<endl;
   const miString ig_name = "IMAGE_GALLERY";
@@ -812,7 +812,7 @@ bool ImageGallery::parseSetup(SetupParser &sp)
     return false;
   }
 
-  for(int i=0; i<sect_ig.size(); i++) {
+  for(unsigned int i=0; i<sect_ig.size(); i++) {
     vector<miString> token = sect_ig[i].split("=");
 
     if(token.size() != 2){
@@ -823,8 +823,8 @@ bool ImageGallery::parseSetup(SetupParser &sp)
 
     miString key = token[0].downcase();
     miString value = token[1];
-//      cerr <<"key: "<<key<<endl;
-//      cerr <<"Value: "<<value<<endl;
+    //      cerr <<"key: "<<key<<endl;
+    //      cerr <<"Value: "<<value<<endl;
     if(key.contains("path")){
       key.replace("path","");
       value += "/*";
@@ -836,16 +836,16 @@ bool ImageGallery::parseSetup(SetupParser &sp)
     else continue;
     glob_t globBuf;
     glob(value.c_str(),0,0,&globBuf);
-    for( int k=0; k<globBuf.gl_pathc; k++) {
+    for( unsigned int k=0; k<globBuf.gl_pathc; k++) {
       miString fname = globBuf.gl_pathv[k];
       if((fname.contains(".png") || fname.contains(".xpm"))
-	 && !fname.contains("~"))
-	addImageName(fname,type);
+          && !fname.contains("~"))
+        addImageName(fname,type);
     }
-    globfree(&globBuf);    
+    globfree(&globBuf);
   }
 
-  
+
 
   return true;
 }

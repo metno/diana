@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -44,7 +44,6 @@ void ObsAireps::init(ObsPlot *oplot, vector<int> &levels){
 
   //Find <min,max> level
   float pmin,pmax;
-  int level;
 
   if (oplot->AllAirepsLevels()) {
 
@@ -109,9 +108,9 @@ void ObsAireps::putData(int i, ObsData &d){
 
   // AF: have seen some "strange" data, maybe not proper fixup...
   if (d.fdata.count("dd") && d.fdata.count("ff")) {
-    if(d.fdata["dd"]==0 && d.fdata["ff"]>0) 
+    if(d.fdata["dd"]==0 && d.fdata["ff"]>0)
       d.fdata["dd"]= 360;
-    if (d.fdata["ff"]==0 && d.fdata["dd"]>0 && d.fdata["dd"]<361) 
+    if (d.fdata["ff"]==0 && d.fdata["dd"]>0 && d.fdata["dd"]<361)
       d.fdata["ff"]= 1;
   }
   if(contents[i].data.TTT != undef)
@@ -120,7 +119,7 @@ void ObsAireps::putData(int i, ObsData &d){
    d.fdata["TdTdTd"]= contents[i].data.TdTdTd;	// Celsius
   if(contents[i].data.PPPP != undef)
    d.fdata["PPPP"]  = contents[i].data.PPPP;		// mb
-  
+
 }
 
 #endif

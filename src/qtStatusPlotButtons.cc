@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -59,10 +59,10 @@ PlotButton::PlotButton(QWidget * parent,
   setPlotElement(pe);
 
   connect(this,SIGNAL(toggled(bool)),SLOT(togg(bool)));
-  
+
   origcolor_= paletteBackgroundColor();
 }
-  
+
 void PlotButton::setPlotElement(const PlotElement& pe)
 {
   QtImageGallery ig;
@@ -71,10 +71,10 @@ void PlotButton::setPlotElement(const PlotElement& pe)
     if (plotelement_.icon!=pe.icon ){
       QImage image;
       if(ig.Image(pe.icon,image)){
-	QPixmap p(image); 
+	QPixmap p(image);
 	setPixmap(p);
-      } else { 
-	setPixmap(question_xpm);    
+      } else {
+	setPixmap(question_xpm);
       }
     }
   } else {
@@ -82,7 +82,7 @@ void PlotButton::setPlotElement(const PlotElement& pe)
   }
 
   plotelement_= pe;
-  
+
   tipstr_= QString(str.cStr());
   QToolTip::add(this, tipstr_);
   setToggleButton(true);
@@ -92,7 +92,7 @@ void PlotButton::setPlotElement(const PlotElement& pe)
 void PlotButton::togg(bool b)
 {
   plotelement_.enabled= b;
-  if (oktoemit) 
+  if (oktoemit)
     emit enabled(plotelement_);
 }
 
@@ -122,7 +122,7 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent)
   PlotElement pe;
   pe.enabled= true;
   oktoemit= false;
-  
+
   QHBoxLayout* hl= new QHBoxLayout(this,0); // parent,margin
   for (int i=0; i<MAXBUTTONS; i++){
 //     buttons[i] = new PlotButton(w, pe);
@@ -131,7 +131,7 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent)
 	    this, SLOT(enabled(PlotElement)));
     hl->addWidget(buttons[i]);
   }
-  
+
   showtip= new QMenu(this);
   showtip->setPaletteBackgroundColor(QColor(255,250,205));
 
@@ -153,7 +153,7 @@ void StatusPlotButtons::calcTipPos()
 
   int tx= (fx < bx ? fx : bx) + 10;
   int ty= y() + 5;
-  
+
   QPoint localtip_pos= QPoint(tx,ty);
   tip_pos = mapToGlobal(localtip_pos);
 }
@@ -181,10 +181,6 @@ void StatusPlotButtons::showActiveButton(bool b)
 {
   if (activebutton>=0 && activebutton<numbuttons){
     buttons[activebutton]->highlight(b);
-    
-    int x= buttons[activebutton]->x();
-    int y= buttons[activebutton]->y();
-    //    sv->ensureVisible(x,y);
 
     if (b) showText(buttons[activebutton]->tipText());
   }
