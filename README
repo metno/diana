@@ -98,6 +98,7 @@ NetCDF:
 libnetcdf++3 
 netcdfg-dev 
 udunits (ftp://ftp.unidata.ucar.edu/pub/udunits/udunits-1.12.7.tar.gz)
+(Do not use udunits2)
 
 Bufr:
 emos_000300.tar.gz  - libemos (from ECMWF)        
