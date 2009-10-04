@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -142,7 +142,7 @@ VprofWindow::VprofWindow()
 
   //combobox to select time
   vector<miString> times;
-  times.push_back("2002-01-01 00"); 
+  times.push_back("2002-01-01 00");
   timeBox = ComboBox( this, times, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
 		    SLOT( timeBoxActivated(int) ) );
@@ -267,15 +267,15 @@ bool VprofWindow::timeChangedSlot(int diff){
     if(--index < 0) {
       //set index to the last in the box !
       index=timeBox->count()-1;
-    } 
+    }
     timeBox->setCurrentItem(index);
     diff++;
-  }    
+  }
   while(diff>0){
     if(++index > timeBox->count()-1) {
       //set index to the first in the box !
       index=0;
-    } 
+    }
     timeBox->setCurrentItem(index);
     diff--;
   }
@@ -286,7 +286,7 @@ bool VprofWindow::timeChangedSlot(int diff){
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
-    for (int i = 0; i<n;i++){      
+    for (int i = 0; i<n;i++){
       if(tstring ==timeBox->text(i).toStdString()){
 	timeBox->setCurrentItem(i);
 	tbs=timeBox->currentText().toStdString();
@@ -327,15 +327,15 @@ bool VprofWindow::stationChangedSlot(int diff){
     if(--index < 0) {
       //set index to the last in the box !
       index=stationBox->count()-1;
-    } 
+    }
     stationBox->setCurrentItem(index);
     diff++;
-  }    
+  }
   while(diff>0){
     if(++index > stationBox->count()-1) {
       //set index to the first in the box !
       index=0;
-    } 
+    }
     stationBox->setCurrentItem(index);
     diff--;
   }
@@ -356,12 +356,12 @@ bool VprofWindow::stationChangedSlot(int diff){
     }
   }
   QString sq = s.c_str();
-  if (sbs==s) { 
-    emit stationChanged(sq); //name of current station (to mainWindow)      
+  if (sbs==s) {
+    emit stationChanged(sq); //name of current station (to mainWindow)
     return true;
   } else {
     //    cerr << "WARNING! stationChangedSlot  station from vprofm ="
-    // 	 << s    <<" not equal to stationBox text = " << sbs << endl;	
+    // 	 << s    <<" not equal to stationBox text = " << sbs << endl;
     //current or last station plotted is not in the list, insert it...
     stationBox->insertItem(sq,0);
     stationBox->setCurrentItem(0);
@@ -409,10 +409,10 @@ void VprofWindow::printClicked(){
     // if output to printer: call appropriate command
     if (!qprt.outputToFile()){
       priop.numcopies= qprt.numCopies();
-      
+
       // expand command-variables
       pman.expandCommand(command, priop);
-      
+
       system(command.c_str());
     }
     QApplication::restoreOverrideCursor();
@@ -550,7 +550,7 @@ void VprofWindow::helpClicked(){
 /***************************************************************************/
 
 void VprofWindow::MenuOK(){
-  //obsolete - nothing happens here 
+  //obsolete - nothing happens here
 #ifdef DEBUGPRINT
     cerr << "VprofWindow::MenuOK()" << endl;
 #endif
@@ -566,15 +566,15 @@ void VprofWindow::changeModel(){
     cerr << "VprofWindow::changeModel()" << endl;
 #endif
     vprofm->setModel();
-    
+
     onlyObs= vprofm->onlyObsState();
-    
+
     //emit to main Window (updates stationPlot)
-    emit modelChanged();  
+    emit modelChanged();
     //update combobox lists of stations and time
     updateStationBox();
     updateTimeBox();
-    //get correct selection in comboboxes 
+    //get correct selection in comboboxes
     stationChangedSlot(0);
     timeChangedSlot(0);
     vprofw->updateGL();
@@ -623,7 +623,6 @@ StationPlot* VprofWindow::getStations(){
   const vector <miString> stations = vprofm->getStationList();
   const vector <float> latitude = vprofm->getLatitudes();
   const vector <float> longitude = vprofm->getLongitudes();
-  int n =stations.size();
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
   miString ann = vprofm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
@@ -633,10 +632,10 @@ StationPlot* VprofWindow::getStations(){
 
   //the coordinates are defined here
 #ifdef DEBUGPRINT
- //  for (int i = 0; i<n;i++){ 
-//     cerr <<"Station number " << i << " name = " << stations[i] 
+ //  for (int i = 0; i<n;i++){
+//     cerr <<"Station number " << i << " name = " << stations[i]
 // 	 << " latitude = " << latitude[i]
-// 	 << " longitude = " << longitude[i] << endl; 
+// 	 << " longitude = " << longitude[i] << endl;
 //   }
 #endif
 
@@ -657,11 +656,11 @@ void VprofWindow::updateStationBox(){
   std::sort(stations.begin(),stations.end());
 
   //add dummy to make stationBox wide enough
-  stations.push_back("                        "); 
+  stations.push_back("                        ");
 
   int n =stations.size();
   for (int i=0; i<n; i++){
-    stationBox->addItem(QString(stations[i].c_str()));		
+    stationBox->addItem(QString(stations[i].c_str()));
   }
 }
 
@@ -680,7 +679,7 @@ void VprofWindow::updateTimeBox(){
   int n =times.size();
   for (int i=0; i<n; i++){
     timeBox->addItem(QString(times[i].isoTime(false,false).cStr()));
-  }		
+  }
 
   emit emitTimes("vprof",times);
 }
@@ -696,7 +695,7 @@ void VprofWindow::stationBoxActivated(int index){
   vprofm->setStation(sbs);
   vprofw->updateGL();
   QString sq = sbs.c_str();
-  emit stationChanged(sq); //name of current station (to mainWindow)      
+  emit stationChanged(sq); //name of current station (to mainWindow)
   //}
 }
 
@@ -706,7 +705,7 @@ void VprofWindow::timeBoxActivated(int index){
 
   vector<miTime> times= vprofm->getTimeList();
 
-  if (index>=0 && index<times.size()) {
+  if (index>=0 && index<int(times.size())) {
     vprofm->setTime(times[index]);
 
     if (onlyObs) {
@@ -743,7 +742,7 @@ bool VprofWindow::changeStation(const miString& station){
 void VprofWindow::setFieldModels(const vector<miString>& fieldmodels){
   vprofm->setFieldModels(fieldmodels);
   if (active) changeModel();
-  
+
 }
 
 /***************************************************************************/
@@ -764,7 +763,7 @@ void VprofWindow::mainWindowTimeChanged(const miTime& t){
     //update combobox lists of stations and time
     updateStationBox();
   }
-  //get correct selection in comboboxes 
+  //get correct selection in comboboxes
   stationChangedSlot(0);
   timeChangedSlot(0);
   vprofw->updateGL();

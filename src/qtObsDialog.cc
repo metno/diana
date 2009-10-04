@@ -199,7 +199,6 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
     showExtension(false);
   }
 
-  int oldselected = m_selected;
   m_selected = index;
 
   stackedWidget->setCurrentIndex(m_selected);
@@ -469,7 +468,6 @@ bool  ObsDialog::setPlottype(const miString& str, bool on)
 
   if( on ){
     plotbox->setCurrentItem(l);
-    int selected = m_selected;
     ObsWidget* ow = new ObsWidget( this );
     miString str = savelog[l];
     if (obsWidget[l]->initialized() ) {
@@ -706,7 +704,7 @@ void ObsDialog::sliderSlot( int number ){
 
 void ObsDialog::stepSlot( int number )
 {
-  float value = limitLcd->value();
+
   float scalesize = stepComboBox->currentText().toFloat();
   numberList(stepComboBox,scalesize);
   limitSlider->setValue(int(limitLcd->value()/scalesize));
@@ -1061,7 +1059,7 @@ void ObsDialog::updateExtension()
   if(n==0){ // no lists, read saved criterias
     cList = obsWidget[m_selected]->getSavedCriteria();
   } else {
-    for(int i=0;i<critName.size();i++) {
+    for(unsigned int i=0;i<critName.size();i++) {
       criteriaBox->insertItem(critName[i].cStr());
     }
     cList = obsWidget[m_selected]->getSavedCriteria();
@@ -1072,7 +1070,7 @@ void ObsDialog::updateExtension()
   lineedit->setText(criteriaBox->currentText());
 
   vector<miString> criteriaList = cList.criteria;
-  for(int j=0; j<criteriaList.size(); j++){
+  for(unsigned int j=0; j<criteriaList.size(); j++){
     criteriaListbox->addItem(QString(criteriaList[j].cStr()));
     markButton(criteriaList[j]);
   }

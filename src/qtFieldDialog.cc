@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 //#define DEBUGREDRAW
 
 #include <QApplication>
@@ -118,11 +118,11 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   m_ctrl->getAllFieldNames(fieldNames,fieldPrefixes,fieldSuffixes);
   PlotOptions::getAllFieldOptions(fieldNames,setupFieldOptions);
 
-//#################################################################
-//  map<miString,miString>::iterator pfopt, pfend= setupFieldOptions.end();
-//  for (pfopt=setupFieldOptions.begin(); pfopt!=pfend; pfopt++)
-//    cerr << pfopt->first << "   " << pfopt->second << endl;
-//#################################################################
+  //#################################################################
+  //  map<miString,miString>::iterator pfopt, pfend= setupFieldOptions.end();
+  //  for (pfopt=setupFieldOptions.begin(); pfopt!=pfend; pfopt++)
+  //    cerr << pfopt->first << "   " << pfopt->second << endl;
+  //#################################################################
 
 
   // Colours
@@ -132,21 +132,21 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
 
 
   // linewidths
-   nr_linewidths= 12;
+  nr_linewidths= 12;
 
   // linetypes
   linetypes = Linetype::getLinetypeNames();
 
   // density (of arrows etc, 0=automatic)
   densityStringList << "Auto";
-    QString qs;
+  QString qs;
   for (i=0;  i<10; i++) {
     densityStringList << qs.setNum(i);
   }
   for (i=10;  i<60; i+=10) {
     densityStringList << qs.setNum(i);
   }
-    densityStringList << qs.setNum(100);
+  densityStringList << qs.setNum(100);
 
   //----------------------------------------------------------------
   cp = new CommandParser();
@@ -222,14 +222,14 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   modelGRbox= new QComboBox( this );
 
   connect( modelGRbox, SIGNAL( activated( int ) ),
-	   SLOT( modelGRboxActivated( int ) ) );
+      SLOT( modelGRboxActivated( int ) ) );
 
   // modellabel
   QLabel *modellabel= TitleLabel( tr("Models"), this );
   //h1 modelbox
   modelbox = new QListWidget( this );
   connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
-	   SLOT( modelboxClicked( QListWidgetItem * ) ) );
+      SLOT( modelboxClicked( QListWidgetItem * ) ) );
 
   // fieldGRlabel
   QLabel *fieldGRlabel= TitleLabel( tr("Field group"), this );
@@ -238,49 +238,49 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   fieldGRbox= new QComboBox( this );
 
   connect( fieldGRbox, SIGNAL( activated( int ) ),
-	   SLOT( fieldGRboxActivated( int ) ) );
+      SLOT( fieldGRboxActivated( int ) ) );
 
   // fieldlabel
   QLabel *fieldlabel= TitleLabel( tr("Fields"), this );
 
   // fieldbox
   fieldbox = new QListWidget( this );
-// #ifdef DISPLAY1024X768
-//   fieldbox->setMinimumHeight( 64 );
-//   fieldbox->setMaximumHeight( 64 );
-// #else
-//   fieldbox->setMinimumHeight( 132 );
-//   fieldbox->setMaximumHeight( 132 );
-// #endif
+  // #ifdef DISPLAY1024X768
+  //   fieldbox->setMinimumHeight( 64 );
+  //   fieldbox->setMaximumHeight( 64 );
+  // #else
+  //   fieldbox->setMinimumHeight( 132 );
+  //   fieldbox->setMaximumHeight( 132 );
+  // #endif
   fieldbox->setSelectionMode( QAbstractItemView::MultiSelection );
 
   connect( fieldbox, SIGNAL( itemClicked(QListWidgetItem*) ),
-  	   SLOT( fieldboxChanged(QListWidgetItem*) ) );
+      SLOT( fieldboxChanged(QListWidgetItem*) ) );
 
   // selectedFieldlabel
   QLabel *selectedFieldlabel= TitleLabel( tr("Selected fields"), this );
 
   // selectedFieldbox
   selectedFieldbox = new QListWidget( this );
-// #ifdef DISPLAY1024X768
-//   selectedFieldbox->setMinimumHeight( 55 );
-//   selectedFieldbox->setMaximumHeight( 55 );
-// #else
-//   selectedFieldbox->setMinimumHeight( 80 );
-//   selectedFieldbox->setMaximumHeight( 80 );
-// #endif
+  // #ifdef DISPLAY1024X768
+  //   selectedFieldbox->setMinimumHeight( 55 );
+  //   selectedFieldbox->setMaximumHeight( 55 );
+  // #else
+  //   selectedFieldbox->setMinimumHeight( 80 );
+  //   selectedFieldbox->setMaximumHeight( 80 );
+  // #endif
   selectedFieldbox->setSelectionMode( QAbstractItemView::SingleSelection );
   selectedFieldbox->setEnabled( true );
 
   connect( selectedFieldbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
-	   SLOT( selectedFieldboxClicked( QListWidgetItem * ) ) );
+      SLOT( selectedFieldboxClicked( QListWidgetItem * ) ) );
 
   // Level: slider & label for the value
   levelLabel = new QLabel( "1000hPa", this );
   levelLabel->setMinimumSize(levelLabel->sizeHint().width() +10,
-		             levelLabel->sizeHint().height()+10);
+      levelLabel->sizeHint().height()+10);
   levelLabel->setMaximumSize(levelLabel->sizeHint().width() +10,
-		             levelLabel->sizeHint().height()+10);
+      levelLabel->sizeHint().height()+10);
   levelLabel->setText(" ");
 
   levelLabel->setFrameStyle( QFrame::Box | QFrame::Plain);
@@ -297,11 +297,11 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   levelSlider->setEnabled( false );
 
   connect( levelSlider, SIGNAL( valueChanged( int )),
-	                SLOT( levelChanged( int)));
+      SLOT( levelChanged( int)));
   connect( levelSlider, SIGNAL( sliderPressed() ),
-	                SLOT( levelPressed()) );
+      SLOT( levelPressed()) );
   connect( levelSlider, SIGNAL( sliderReleased() ),
-	                SLOT( updateLevel()) );
+      SLOT( updateLevel()) );
 
   levelInMotion= false;
 
@@ -311,9 +311,9 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   // Idnum: slider & label for the value
   idnumLabel = new QLabel( "EPS.Total", this );
   idnumLabel->setMinimumSize(idnumLabel->sizeHint().width() +10,
-		             idnumLabel->sizeHint().height()+10);
+      idnumLabel->sizeHint().height()+10);
   idnumLabel->setMaximumSize(idnumLabel->sizeHint().width() +10,
-		             idnumLabel->sizeHint().height()+10);
+      idnumLabel->sizeHint().height()+10);
   idnumLabel->setText(" ");
 
   idnumLabel->setFrameStyle( QFrame::Box | QFrame::Plain);
@@ -329,11 +329,11 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   idnumSlider->setEnabled( false );
 
   connect( idnumSlider, SIGNAL( valueChanged( int )),
-	                SLOT( idnumChanged( int)));
+      SLOT( idnumChanged( int)));
   connect( idnumSlider, SIGNAL( sliderPressed() ),
-	                SLOT( idnumPressed()) );
+      SLOT( idnumPressed()) );
   connect( idnumSlider, SIGNAL( sliderReleased() ),
-	                SLOT( updateIdnum()) );
+      SLOT( updateIdnum()) );
 
   idnumInMotion= false;
 
@@ -386,7 +386,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   // historyOk
   historyOkButton = NormalPushButton( "OK", this );
   historyOkButton->setMinimumWidth(hbutton*2);
-//historyOkButton->setMaximumWidth(hbutton*2+8);
+  //historyOkButton->setMaximumWidth(hbutton*2+8);
   highlightButton(historyOkButton,false);
 
   connect( historyOkButton, SIGNAL(clicked()), SLOT(historyOk()));
@@ -431,7 +431,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   colorCbox->setEnabled( false );
 
   connect( colorCbox, SIGNAL( activated(int) ),
-	   SLOT( colorCboxActivated(int) ) );
+      SLOT( colorCboxActivated(int) ) );
 
   // linewidthcbox
   QLabel* linewidthlabel= new QLabel( tr("Line width"), this );
@@ -439,14 +439,14 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   lineWidthCbox->setEnabled( false );
 
   connect( lineWidthCbox, SIGNAL( activated(int) ),
-	   SLOT( lineWidthCboxActivated(int) ) );
+      SLOT( lineWidthCboxActivated(int) ) );
 
   // linetypecbox
   QLabel* linetypelabel= new QLabel( tr("Line type"), this );
   lineTypeCbox=  LinetypeBox( this,false );
 
   connect( lineTypeCbox, SIGNAL( activated(int) ),
-	   SLOT( lineTypeCboxActivated(int) ) );
+      SLOT( lineTypeCboxActivated(int) ) );
 
   // lineinterval
   QLabel* lineintervallabel= new QLabel( tr("Line interval"), this );
@@ -454,14 +454,14 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   lineintervalCbox->setEnabled( false );
 
   connect( lineintervalCbox, SIGNAL( activated(int) ),
-	   SLOT( lineintervalCboxActivated(int) ) );
+      SLOT( lineintervalCboxActivated(int) ) );
 
-// density
+  // density
   QLabel* densitylabel= new QLabel( tr("Density"), this );
   densityCbox=  new QComboBox( this );
   densityCbox->setEnabled( false );
   connect( densityCbox, SIGNAL( activated(int) ),
-	   SLOT( densityCboxActivated(int) ) );
+      SLOT( densityCboxActivated(int) ) );
 
   // vectorunit
   QLabel* vectorunitlabel= new QLabel( tr("Unit"), this );
@@ -469,7 +469,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   vectorunitCbox->setEnabled( false );
 
   connect( vectorunitCbox, SIGNAL( activated(int) ),
-	   SLOT( vectorunitCboxActivated(int) ) );
+      SLOT( vectorunitCboxActivated(int) ) );
 
   // help
   fieldhelp = NormalPushButton( tr("Help"), this );
@@ -480,7 +480,7 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   allTimeStepButton->setCheckable(true);
   allTimeStepButton->setChecked(false);
   connect( allTimeStepButton, SIGNAL(toggled(bool)),
-	   SLOT(allTimeStepToggled(bool)));
+      SLOT(allTimeStepToggled(bool)));
 
   // advanced
   miString more_str[2] = { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
@@ -622,9 +622,9 @@ FieldDialog::FieldDialog( QWidget* parent, Controller* lctrl )
   advancedToggled( false );
 
   lastFieldGroupName= "Bakke m.m.";
-//##############################################
-//  lastFieldGroupName= tr("Surface etc."""";
-//##############################################
+  //##############################################
+  //  lastFieldGroupName= tr("Surface etc."""";
+  //##############################################
 
   // tool tips
   toolTips();
@@ -690,7 +690,7 @@ void FieldDialog::CreateAdvanced() {
   extremeType.push_back("C+W");
   extremeType.push_back("Value");
   connect( extremeTypeCbox, SIGNAL( activated(int) ),
-	   SLOT( extremeTypeActivated(int) ) );
+      SLOT( extremeTypeActivated(int) ) );
 
   QLabel* extremeSizeLabel= new QLabel( tr("Size"),  advFrame );
   extremeSizeSpinBox= new QSpinBox( advFrame );
@@ -702,7 +702,7 @@ void FieldDialog::CreateAdvanced() {
   extremeSizeSpinBox->setValue(100);
   extremeSizeSpinBox->setEnabled( false );
   connect( extremeSizeSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( extremeSizeChanged(int) ) );
+      SLOT( extremeSizeChanged(int) ) );
 
   QLabel* extremeRadiusLabel= new QLabel( tr("Radius"), advFrame );
   extremeRadiusSpinBox= new QSpinBox( advFrame );
@@ -714,7 +714,7 @@ void FieldDialog::CreateAdvanced() {
   extremeRadiusSpinBox->setValue(100);
   extremeRadiusSpinBox->setEnabled( false );
   connect( extremeRadiusSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( extremeRadiusChanged(int) ) );
+      SLOT( extremeRadiusChanged(int) ) );
 
   // line smoothing
   QLabel* lineSmoothLabel= new QLabel( tr("Smooth lines"), advFrame );
@@ -726,7 +726,7 @@ void FieldDialog::CreateAdvanced() {
   lineSmoothSpinBox->setValue(0);
   lineSmoothSpinBox->setEnabled( false );
   connect( lineSmoothSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( lineSmoothChanged(int) ) );
+      SLOT( lineSmoothChanged(int) ) );
 
   // field smoothing
   QLabel* fieldSmoothLabel= new QLabel( tr("Smooth fields"), advFrame );
@@ -738,7 +738,7 @@ void FieldDialog::CreateAdvanced() {
   fieldSmoothSpinBox->setValue(0);
   fieldSmoothSpinBox->setEnabled( false );
   connect( fieldSmoothSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( fieldSmoothChanged(int) ) );
+      SLOT( fieldSmoothChanged(int) ) );
 
   //  QLabel* labelSizeLabel= new QLabel( "Tallstørrelse",  advFrame );
   labelSizeSpinBox= new QSpinBox( advFrame );
@@ -750,7 +750,7 @@ void FieldDialog::CreateAdvanced() {
   labelSizeSpinBox->setValue(100);
   labelSizeSpinBox->setEnabled( false );
   connect( labelSizeSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( labelSizeChanged(int) ) );
+      SLOT( labelSizeChanged(int) ) );
 
   // grid values
   //  QLabel* gridLabel= TitleLabel( tr("Grid"), advFrame );
@@ -758,7 +758,7 @@ void FieldDialog::CreateAdvanced() {
   gridValueCheckBox->setChecked( false );
   gridValueCheckBox->setEnabled( false );
   connect( gridValueCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( gridValueCheckBoxToggled(bool) ) );
+      SLOT( gridValueCheckBoxToggled(bool) ) );
 
   // grid lines
   QLabel* gridLinesLabel= new QLabel( tr("Grid lines"), advFrame );
@@ -770,16 +770,16 @@ void FieldDialog::CreateAdvanced() {
   gridLinesSpinBox->setValue(0);
   gridLinesSpinBox->setEnabled( false );
   connect( gridLinesSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( gridLinesChanged(int) ) );
+      SLOT( gridLinesChanged(int) ) );
 
   // grid lines max
-//   QLabel* gridLinesMaxLabel= new QLabel( tr("Max grid l."), advFrame );
-//   gridLinesMaxSpinBox= new QSpinBox( 0,200,5, advFrame );
-//   gridLinesMaxSpinBox->setSpecialValueText(tr("All"));
-//   gridLinesMaxSpinBox->setValue(0);
-//   gridLinesMaxSpinBox->setEnabled( false );
-//   connect( gridLinesMaxSpinBox, SIGNAL( valueChanged(int) ),
-// 	   SLOT( gridLinesMaxChanged(int) ) );
+  //   QLabel* gridLinesMaxLabel= new QLabel( tr("Max grid l."), advFrame );
+  //   gridLinesMaxSpinBox= new QSpinBox( 0,200,5, advFrame );
+  //   gridLinesMaxSpinBox->setSpecialValueText(tr("All"));
+  //   gridLinesMaxSpinBox->setValue(0);
+  //   gridLinesMaxSpinBox->setEnabled( false );
+  //   connect( gridLinesMaxSpinBox, SIGNAL( valueChanged(int) ),
+  // 	   SLOT( gridLinesMaxChanged(int) ) );
 
 
   QLabel* hourOffsetLabel= new QLabel( tr("Time offset"),  advFrame );
@@ -791,7 +791,7 @@ void FieldDialog::CreateAdvanced() {
   hourOffsetSpinBox->setValue(0);
   hourOffsetSpinBox->setEnabled( false );
   connect( hourOffsetSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( hourOffsetChanged(int) ) );
+      SLOT( hourOffsetChanged(int) ) );
 
   QLabel* hourDiffLabel= new QLabel( tr("Time diff."),  advFrame );
   hourDiffSpinBox= new QSpinBox( advFrame );
@@ -803,7 +803,7 @@ void FieldDialog::CreateAdvanced() {
   hourDiffSpinBox->setValue(0);
   hourDiffSpinBox->setEnabled( false );
   connect( hourDiffSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( hourDiffChanged(int) ) );
+      SLOT( hourDiffChanged(int) ) );
 
   // Undefined masking
   QLabel* undefMaskingLabel= TitleLabel( tr("Undefined"), advFrame );
@@ -813,32 +813,32 @@ void FieldDialog::CreateAdvanced() {
   undefMasking.push_back(tr("Coloured").toStdString());
   undefMasking.push_back(tr("Lines").toStdString());
   connect( undefMaskingCbox, SIGNAL( activated(int) ),
-	   SLOT( undefMaskingActivated(int) ) );
+      SLOT( undefMaskingActivated(int) ) );
 
   // Undefined masking colour
   undefColourCbox= ColourBox(advFrame,colourInfo,false,0);
   undefColourCbox->setEnabled( false );
   connect( undefColourCbox, SIGNAL( activated(int) ),
-	   SLOT( undefColourActivated(int) ) );
+      SLOT( undefColourActivated(int) ) );
 
   // Undefined masking linewidth
   undefLinewidthCbox= LinewidthBox( advFrame,false );
   undefLinewidthCbox->setEnabled( false );
   connect( undefLinewidthCbox, SIGNAL( activated(int) ),
-	   SLOT( undefLinewidthActivated(int) ) );
+      SLOT( undefLinewidthActivated(int) ) );
 
   // Undefined masking linetype
   undefLinetypeCbox= LinetypeBox( advFrame,false );
   undefLinetypeCbox->setEnabled( false );
   connect( undefLinetypeCbox, SIGNAL( activated(int) ),
-	   SLOT( undefLinetypeActivated(int) ) );
+      SLOT( undefLinetypeActivated(int) ) );
 
   // enable/disable numbers on isolines
   valueLabelCheckBox= new QCheckBox(QString(tr("Numbers")), advFrame);
   valueLabelCheckBox->setChecked( true );
   valueLabelCheckBox->setEnabled( false );
   connect( valueLabelCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( valueLabelCheckBoxToggled(bool) ) );
+      SLOT( valueLabelCheckBoxToggled(bool) ) );
 
   //Options
   QLabel* shadingLabel    = new QLabel( tr("Palette"),            advFrame );
@@ -861,12 +861,12 @@ void FieldDialog::CreateAdvanced() {
   tableCheckBox = new QCheckBox(tr("Table"), advFrame);
   tableCheckBox->setEnabled(false);
   connect( tableCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( tableCheckBoxToggled(bool) ) );
+      SLOT( tableCheckBoxToggled(bool) ) );
 
   repeatCheckBox = new QCheckBox(tr("Repeat"), advFrame);
   repeatCheckBox->setEnabled(false);
   connect( repeatCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( repeatCheckBoxToggled(bool) ) );
+      SLOT( repeatCheckBoxToggled(bool) ) );
 
   //3 colours
   //  threeColoursCheckBox = new QCheckBox(tr("Three colours"), advFrame);
@@ -874,16 +874,16 @@ void FieldDialog::CreateAdvanced() {
   for(int i=0;i<3;i++){
     threeColourBox.push_back(ColourBox(advFrame,colourInfo,true,0,tr("Off").toStdString()));
     connect( threeColourBox[i], SIGNAL( activated(int) ),
-	     SLOT( threeColoursChanged() ) );
+        SLOT( threeColoursChanged() ) );
   }
 
   //shading
   shadingComboBox=
     PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
   shadingComboBox->
-    setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
+  setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   connect( shadingComboBox, SIGNAL( activated(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   shadingSpinBox= new QSpinBox( advFrame );
   shadingSpinBox->setMinimum(0);
@@ -892,14 +892,14 @@ void FieldDialog::CreateAdvanced() {
   shadingSpinBox->setSpecialValueText(tr("Auto"));
   shadingSpinBox->setEnabled(false);
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   shadingcoldComboBox=
     PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
   shadingcoldComboBox->
-    setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
+  setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   connect( shadingcoldComboBox, SIGNAL( activated(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   shadingcoldSpinBox= new QSpinBox( advFrame );
   shadingcoldSpinBox->setMinimum(0);
@@ -908,20 +908,20 @@ void FieldDialog::CreateAdvanced() {
   shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
   shadingcoldSpinBox->setEnabled(false);
   connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   //pattern
   patternComboBox =
     PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString(),true );
   patternComboBox ->
-    setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
+  setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
   connect( patternComboBox, SIGNAL( activated(int) ),
-	   SLOT( patternComboBoxToggled(int) ) );
+      SLOT( patternComboBoxToggled(int) ) );
 
   //pattern colour
   patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
   connect( patternColourBox, SIGNAL( activated(int) ),
-	   SLOT( patternColourBoxToggled(int) ) );
+      SLOT( patternColourBoxToggled(int) ) );
 
   //alpha blending
   alphaSpinBox= new QSpinBox( advFrame );
@@ -931,18 +931,18 @@ void FieldDialog::CreateAdvanced() {
   alphaSpinBox->setEnabled(false);
   alphaSpinBox->setValue(255);
   connect( alphaSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( alphaChanged(int) ) );
+      SLOT( alphaChanged(int) ) );
 
   //colour
   colour2ComboBox = ColourBox(advFrame,colourInfo,false,0,tr("Off").toStdString());
   connect( colour2ComboBox, SIGNAL( activated(int) ),
-	   SLOT( colour2ComboBoxToggled(int) ) );
+      SLOT( colour2ComboBoxToggled(int) ) );
 
   //line interval
   interval2ComboBox = new QComboBox(advFrame);
   interval2ComboBox->setEnabled( false );
   connect( interval2ComboBox, SIGNAL( activated(int) ),
- 	   SLOT( interval2ComboBoxToggled(int) ) );
+      SLOT( interval2ComboBoxToggled(int) ) );
 
   //zero value
   zero1ComboBox= new QComboBox( advFrame );
@@ -950,9 +950,9 @@ void FieldDialog::CreateAdvanced() {
   zero1ComboBox->setEnabled( false );
   zero2ComboBox->setEnabled( false );
   connect( zero1ComboBox, SIGNAL( activated(int) ),
-	   SLOT( zero1ComboBoxToggled(int) ) );
+      SLOT( zero1ComboBoxToggled(int) ) );
   connect( zero2ComboBox, SIGNAL( activated(int) ),
-	   SLOT( zero2ComboBoxToggled(int) ) );
+      SLOT( zero2ComboBoxToggled(int) ) );
 
   //min
   min1ComboBox = new QComboBox(advFrame);
@@ -967,24 +967,24 @@ void FieldDialog::CreateAdvanced() {
   max2ComboBox->setEnabled( false );
 
   connect( min1ComboBox, SIGNAL( activated(int) ),
-	   SLOT( min1ComboBoxToggled(int) ) );
+      SLOT( min1ComboBoxToggled(int) ) );
   connect( max1ComboBox, SIGNAL( activated(int) ),
-	   SLOT( max1ComboBoxToggled(int) ) );
+      SLOT( max1ComboBoxToggled(int) ) );
   connect( min2ComboBox, SIGNAL( activated(int) ),
-	   SLOT( min2ComboBoxToggled(int) ) );
+      SLOT( min2ComboBoxToggled(int) ) );
   connect( max2ComboBox, SIGNAL( activated(int) ),
-	   SLOT( max2ComboBoxToggled(int) ) );
+      SLOT( max2ComboBoxToggled(int) ) );
 
   //linewidth
   linewidth2ComboBox = LinewidthBox( advFrame);
   linewidth2ComboBox->setEnabled( false );
   connect( linewidth2ComboBox, SIGNAL( activated(int) ),
-	   SLOT( linewidth2ComboBoxToggled(int) ) );
+      SLOT( linewidth2ComboBoxToggled(int) ) );
   //linetype
   linetype2ComboBox = LinetypeBox( advFrame,false );
   linetype2ComboBox->setEnabled( false );
   connect( linetype2ComboBox, SIGNAL( activated(int) ),
-	   SLOT( linetype2ComboBoxToggled(int) ) );
+      SLOT( linetype2ComboBoxToggled(int) ) );
 
 
 
@@ -996,13 +996,13 @@ void FieldDialog::CreateAdvanced() {
 
   // enable/disable zero line (isoline with value=0)
   zeroLineCheckBox= new QCheckBox(QString(tr("Zero line")), advFrame);
-    //  zeroLineColourCBox= new QComboBox(advFrame);
+  //  zeroLineColourCBox= new QComboBox(advFrame);
   zeroLineCheckBox->setChecked( true );
 
   //  zeroLineCheckBox->setEnabled( false );
   zeroLineCheckBox->setEnabled( true );
   connect( zeroLineCheckBox, SIGNAL( toggled(bool) ),
-     SLOT( zeroLineCheckBoxToggled(bool) ) );
+      SLOT( zeroLineCheckBoxToggled(bool) ) );
 
   // Create horizontal frame lines
   QFrame *line0 = new QFrame( advFrame );
@@ -1177,16 +1177,16 @@ void FieldDialog::updateModelBoxes()
   if (profetEnabled) {
     for (int i=0; i<nr_m; i++) {
       if (m_modelgroup[i].groupType=="profetfilegroup") {
-	indexMGRtable.push_back(i);
-	modelGRbox->addItem( QString(m_modelgroup[i].groupName.c_str()));
+        indexMGRtable.push_back(i);
+        modelGRbox->addItem( QString(m_modelgroup[i].groupName.c_str()));
       }
     }
   }
   if (useArchive) {
     for (int i=0; i<nr_m; i++) {
       if (m_modelgroup[i].groupType=="archivefilegroup") {
-	indexMGRtable.push_back(i);
-	modelGRbox->addItem( QString(m_modelgroup[i].groupName.c_str()));
+        indexMGRtable.push_back(i);
+        modelGRbox->addItem( QString(m_modelgroup[i].groupName.c_str()));
       }
     }
   }
@@ -1291,13 +1291,13 @@ void FieldDialog::modelboxClicked( QListWidgetItem * item  ){
     } else {
       int l1,l2= lastFieldGroupName.length(), lm=0;
       for (i=0; i<nvfgi; i++) {
-	l1= vfgi[i].groupName.length();
-	if (l1>l2) l1=l2;
-	if (l1>lm && vfgi[i].groupName.substr(0,l1)==
-	             lastFieldGroupName.substr(0,l1)) {
-	  lm= l1;
-	  indexFGR=i;
-	}
+        l1= vfgi[i].groupName.length();
+        if (l1>l2) l1=l2;
+        if (l1>lm && vfgi[i].groupName.substr(0,l1)==
+          lastFieldGroupName.substr(0,l1)) {
+          lm= l1;
+          indexFGR=i;
+        }
       }
     }
     if (indexFGR<0) indexFGR= 0;
@@ -1355,30 +1355,30 @@ void FieldDialog::fieldGRboxActivated( int index ){
     for (i=0; i<n; ++i) {
       if (!selectedFields[i].inEdit &&
           selectedFields[i].indexMGR==indexMGR &&
-	  selectedFields[i].indexM  ==indexM) {
-	j=0;
-	if( selectedFields[i].modelName==vfgi[indexFGR].modelName) {
-	  while (j<nfield && selectedFields[i].fieldName!=
-		 vfgi[indexFGR].fieldNames[j])  j++;
-	  if (j<nfield) {
-	    if ((ml=vfgi[indexFGR].levelNames.size())>0) {
-	      int l= 0;
-	      while (l<ml && vfgi[indexFGR].levelNames[l]!=selectedFields[i].level) l++;
-	      if (l==ml) j= nfield;
-	    }
-	    if ((ml=vfgi[indexFGR].idnumNames.size())>0) {
-	      int l= 0;
-	      while (l<ml && vfgi[indexFGR].idnumNames[l]!=selectedFields[i].idnum) l++;
-	      if (l==ml) j= nfield;
-	    }
-	    if (j<nfield) {
-  	      fieldbox->item(j)->setSelected(true);
-	      fieldbox->setCurrentRow(j);
-	      countSelected[j]++;
-	      last= i;
-	    }
-	  }
-	}
+          selectedFields[i].indexM  ==indexM) {
+        j=0;
+        if( selectedFields[i].modelName==vfgi[indexFGR].modelName) {
+          while (j<nfield && selectedFields[i].fieldName!=
+            vfgi[indexFGR].fieldNames[j])  j++;
+          if (j<nfield) {
+            if ((ml=vfgi[indexFGR].levelNames.size())>0) {
+              int l= 0;
+              while (l<ml && vfgi[indexFGR].levelNames[l]!=selectedFields[i].level) l++;
+              if (l==ml) j= nfield;
+            }
+            if ((ml=vfgi[indexFGR].idnumNames.size())>0) {
+              int l= 0;
+              while (l<ml && vfgi[indexFGR].idnumNames[l]!=selectedFields[i].idnum) l++;
+              if (l==ml) j= nfield;
+            }
+            if (j<nfield) {
+              fieldbox->item(j)->setSelected(true);
+              fieldbox->setCurrentRow(j);
+              countSelected[j]++;
+              last= i;
+            }
+          }
+        }
       }
     }
   }
@@ -1636,11 +1636,12 @@ void FieldDialog::updateIdnum(){
   cerr<<"FieldDialog::updateIdnum called"<<endl;
 #endif
 
-  int i= selectedFieldbox->currentRow();
-
-  if (i>=0 && i<selectedFields.size()) {
-    selectedFields[i].idnum= lastIdnum;
-    updateTime();
+  if (selectedFieldbox->currentRow() >= 0 ) {
+    unsigned int i = selectedFieldbox->currentRow();
+    if(i < selectedFields.size()) {
+      selectedFields[i].idnum= lastIdnum;
+      updateTime();
+    }
   }
 
   idnumInMotion= false;
@@ -1728,7 +1729,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       last = selectedFields.size() - 1;
 
     } else if (!fieldbox->item(indexF)->isSelected() && countSelected[indexF]
-        > 0) {
+                                                                      > 0) {
       miString fieldName = vfgi[indexFGR].fieldNames[indexF];
       n = selectedFields.size();
       j = jp = -1;
@@ -1771,7 +1772,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 
   if (last < 0 && lastdelete >= 0 && selectedFields.size() > 0) {
     last = lastdelete;
-    if (last >= selectedFields.size())
+    if (last >= int(selectedFields.size()))
       last = selectedFields.size() - 1;
   }
 
@@ -1803,7 +1804,7 @@ void FieldDialog::enableFieldOptions(){
 #endif
 
   float e;
-  int   index, lastindex, nc, i, j, k, n;
+  int   index, lastindex, nc, i, n;
 
   index= selectedFieldbox->currentRow();
   lastindex= selectedFields.size()-1;
@@ -1811,7 +1812,7 @@ void FieldDialog::enableFieldOptions(){
   if (index<0 || index>lastindex) {
     cerr << "POGRAM ERROR.1 in FieldDialog::enableFieldOptions" << endl;
     cerr << "       index,selectedFields.size: "
-	 << index << " " << selectedFields.size() << endl;
+    << index << " " << selectedFields.size() << endl;
     disableFieldOptions();
     return;
   }
@@ -1828,7 +1829,7 @@ void FieldDialog::enableFieldOptions(){
     if (vfgi.size()==0)
       changeModelButton->setEnabled( false );
     else if (selectedFields[index].indexMGR==modelGRbox->currentIndex() &&
-             selectedFields[index].indexM  ==modelbox->currentRow() )
+        selectedFields[index].indexM  ==modelbox->currentRow() )
       changeModelButton->setEnabled( false );
     else
       changeModelButton->setEnabled( true );
@@ -1847,11 +1848,11 @@ void FieldDialog::enableFieldOptions(){
   currentFieldOpts= selectedFields[index].fieldOpts;
   currentFieldOptsInEdit= selectedFields[index].inEdit;
 
-//###############################################################################
-//  cerr << "FieldDialog::enableFieldOptions: "
-//       << selectedFields[index].fieldName << endl;
-//  cerr << "             " << selectedFields[index].fieldOpts << endl;
-//###############################################################################
+  //###############################################################################
+  //  cerr << "FieldDialog::enableFieldOptions: "
+  //       << selectedFields[index].fieldName << endl;
+  //  cerr << "             " << selectedFields[index].fieldOpts << endl;
+  //###############################################################################
 
   deleteAll->setEnabled( true );
   resetOptionsButton->setEnabled( true );
@@ -1885,10 +1886,10 @@ void FieldDialog::enableFieldOptions(){
 
   vpcopt= cp->parse(selectedFields[index].fieldOpts);
 
-//   cerr <<endl;
-//   cerr <<"STRENGEN SOM PARSES:"<<selectedFields[index].fieldOpts<<endl;
-//   cerr <<endl;
-/*******************************************************
+  //   cerr <<endl;
+  //   cerr <<"STRENGEN SOM PARSES:"<<selectedFields[index].fieldOpts<<endl;
+  //   cerr <<endl;
+  /*******************************************************
   n=vpcopt.size();
   bool err=false;
   bool listall= true;
@@ -1910,7 +1911,7 @@ void FieldDialog::enableFieldOptions(){
         cerr << "               " << k << "    intValue: " << vpcopt[j].intValue[k] << endl;
     }
   }
-*******************************************************/
+   *******************************************************/
 
   bool enableType2Opt=false;
   int nr_colors    = colourInfo.size();
@@ -1937,12 +1938,12 @@ void FieldDialog::enableFieldOptions(){
       enableType2Opt = true;
     i=0;
     if(vpcopt[nc].allValue.downcase() == "off" ||
-       vpcopt[nc].allValue.downcase() == "av" ){
+        vpcopt[nc].allValue.downcase() == "av" ){
       updateFieldOptions("colour","off");
       colorCbox->setCurrentIndex(0);
     } else {
       while (i<nr_colors
-	     && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
+          && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
       if (i==nr_colors) i=0;
       updateFieldOptions("colour",colourInfo[i].name);
       colorCbox->setCurrentIndex(i+1);
@@ -1954,10 +1955,10 @@ void FieldDialog::enableFieldOptions(){
     vector<miString> colours = vpcopt[nc].allValue.split(",");
     if(colours.size()==3){
       for(int j=0;j<3;j++){
-	i=0;
-	while (i<nr_colors && colours[j]!=colourInfo[i].name) i++;
-	if(i<nr_colors)
-	  threeColourBox[j]->setCurrentIndex(i+1);
+        i=0;
+        while (i<nr_colors && colours[j]!=colourInfo[i].name) i++;
+        if(i<nr_colors)
+          threeColourBox[j]->setCurrentIndex(i+1);
       }
       threeColoursChanged();
     }
@@ -1994,16 +1995,16 @@ void FieldDialog::enableFieldOptions(){
     if(tokens.size()==2){
       vector<miString> stokens = tokens[1].split(";");
       if(stokens.size()==2)
-	shadingcoldSpinBox->setValue(atoi(stokens[1].cStr()));
+        shadingcoldSpinBox->setValue(atoi(stokens[1].cStr()));
       else
-	shadingcoldSpinBox->setValue(0);
+        shadingcoldSpinBox->setValue(0);
       i=0;
       while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
       if (i==nr_cs) {
-	shadingcoldComboBox->setCurrentIndex(0);
+        shadingcoldComboBox->setCurrentIndex(0);
       }else {
-	str += "," + tokens[1];
-	shadingcoldComboBox->setCurrentIndex(i+1);
+        str += "," + tokens[1];
+        shadingcoldComboBox->setCurrentIndex(i+1);
       }
     } else {
       shadingcoldComboBox->setCurrentIndex(0);
@@ -2094,7 +2095,7 @@ void FieldDialog::enableFieldOptions(){
     if (!lineTypeCbox->isEnabled()) {
       lineTypeCbox->setEnabled(true);
       if(colour2ComboBox->currentIndex()>0)
-	linetype2ComboBox->setEnabled(true);
+        linetype2ComboBox->setEnabled(true);
     }
     i=0;
     while (i<nr_linetypes && vpcopt[nc].allValue!=linetypes[i]) i++;
@@ -2120,7 +2121,7 @@ void FieldDialog::enableFieldOptions(){
     if (!lineWidthCbox->isEnabled()) {
       lineWidthCbox->setEnabled(true);
       if(colour2ComboBox->currentIndex()>0)
-	linewidth2ComboBox->setEnabled(true);
+        linewidth2ComboBox->setEnabled(true);
     }
     i=0;
     while (i<nr_linewidths && vpcopt[nc].allValue!=miString(i+1)) i++;
@@ -2192,8 +2193,8 @@ void FieldDialog::enableFieldOptions(){
       i = densityStringList.indexOf(QString(s.cStr()));
       if (i==-1) {
         densityStringList <<QString(s.cStr());
-	densityCbox->addItem(QString(s.cStr()));
-	i=densityCbox->count()-1;
+        densityCbox->addItem(QString(s.cStr()));
+        i=densityCbox->count()-1;
       }
     }
     densityCbox->setCurrentIndex(i);
@@ -2317,15 +2318,15 @@ void FieldDialog::enableFieldOptions(){
     gridLinesSpinBox->setEnabled(false);
   }
 
-//   if ((nc=cp->findKey(vpcopt,"grid.lines.max"))>=0) {
-//     if (!vpcopt[nc].intValue.empty()) i=vpcopt[nc].intValue[0];
-//     else i=0;
-//     gridLinesMaxSpinBox->setValue(i);
-//     gridLinesMaxSpinBox->setEnabled(true);
-//   } else if (gridLinesMaxSpinBox->isEnabled()) {
-//     gridLinesMaxSpinBox->setValue(0);
-//     gridLinesMaxSpinBox->setEnabled(false);
-//   }
+  //   if ((nc=cp->findKey(vpcopt,"grid.lines.max"))>=0) {
+  //     if (!vpcopt[nc].intValue.empty()) i=vpcopt[nc].intValue[0];
+  //     else i=0;
+  //     gridLinesMaxSpinBox->setValue(i);
+  //     gridLinesMaxSpinBox->setEnabled(true);
+  //   } else if (gridLinesMaxSpinBox->isEnabled()) {
+  //     gridLinesMaxSpinBox->setValue(0);
+  //     gridLinesMaxSpinBox->setEnabled(false);
+  //   }
 
   // base
   miString base;
@@ -2343,8 +2344,8 @@ void FieldDialog::enableFieldOptions(){
     if( base.exists() ) updateFieldOptions("base_2",base);
     miString base_2;
     if (ekv>0. && (nc=cp->findKey(vpcopt,"base_2"))>=0) {
-    if (!vpcopt[nc].floatValue.empty()) e=vpcopt[nc].floatValue[0];
-    else e=0.0;
+      if (!vpcopt[nc].floatValue.empty()) e=vpcopt[nc].floatValue[0];
+      else e=0.0;
       base_2 = baseList(zero2ComboBox,e,ekv_2/2.0);
       if( base_2.exists() ) cp->replaceValue(vpcopt[nc],base_2,0);
     }
@@ -2361,12 +2362,12 @@ void FieldDialog::enableFieldOptions(){
     n= undefMasking.size();
     if (!undefMaskingCbox->isEnabled()) {
       for (i=0; i<n; i++ )
-	undefMaskingCbox->addItem(QString(undefMasking[i].c_str()));
+        undefMaskingCbox->addItem(QString(undefMasking[i].c_str()));
       undefMaskingCbox->setEnabled(true);
     }
     if (vpcopt[nc].intValue.size()==1) {
       iumask= vpcopt[nc].intValue[0];
-      if (iumask<0 || iumask>=undefMasking.size()) iumask=0;
+      if (iumask<0 || iumask>=int(undefMasking.size())) iumask=0;
     } else {
       iumask= 0;
     }
@@ -2420,7 +2421,7 @@ void FieldDialog::enableFieldOptions(){
 
   nc=cp->findKey(vpcopt,"frame");
   if (nc>=0 && vpcopt[nc].allValue=="0") {
-      frameCheckBox->setChecked( false );
+    frameCheckBox->setChecked( false );
   } else {
     frameCheckBox->setChecked( true );
   }
@@ -2471,12 +2472,12 @@ void FieldDialog::enableFieldOptions(){
     if (nc>=0) {
       float value;
       if(vpcopt[nc].allValue=="off")
-	value=atof(base.cStr());
+        value=atof(base.cStr());
       else
-	value = atof(vpcopt[nc].allValue.cStr());
+        value = atof(vpcopt[nc].allValue.cStr());
       baseList(min2ComboBox,value,ekv,true);
       if(vpcopt[nc].allValue=="off")
-	min2ComboBox->setCurrentIndex(0);
+        min2ComboBox->setCurrentIndex(0);
     }
   } else {
     min1ComboBox->setEnabled( false );
@@ -2500,12 +2501,12 @@ void FieldDialog::enableFieldOptions(){
     if (nc>=0) {
       float value;
       if(vpcopt[nc].allValue=="off")
-	value=atof(base.cStr());
+        value=atof(base.cStr());
       else
-	value = atof(vpcopt[nc].allValue.cStr());
+        value = atof(vpcopt[nc].allValue.cStr());
       baseList(max2ComboBox,value,ekv,true);
       if(vpcopt[nc].allValue=="off")
-	max2ComboBox->setCurrentIndex(0);
+        max2ComboBox->setCurrentIndex(0);
     }
   } else {
     max1ComboBox->setEnabled( false );
@@ -2615,8 +2616,8 @@ void FieldDialog::disableFieldOptions(int type)
   gridLinesSpinBox->setValue(0);
   gridLinesSpinBox->setEnabled( false );
 
-//   gridLinesMaxSpinBox->setValue(0);
-//   gridLinesMaxSpinBox->setEnabled( false );
+  //   gridLinesMaxSpinBox->setValue(0);
+  //   gridLinesMaxSpinBox->setEnabled( false );
 
   zero1ComboBox->clear();
   zero1ComboBox->setEnabled( false );
@@ -2670,7 +2671,7 @@ vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
 
   const int nenormal = 10;
   const float enormal[nenormal] = { 1., 2., 2.5, 3., 4., 5.,
-			            6., 7., 8., 9. };
+      6., 7., 8., 9. };
   float e, elog, ex, d, dd;
   int   i, j, k, n, ielog, nupdown;
 
@@ -2712,9 +2713,9 @@ vector<miString> FieldDialog::numberList( QComboBox* cBox, float number )
 }
 
 miString FieldDialog::baseList( QComboBox* cBox,
-				float base,
-				float ekv,
-				bool onoff )
+    float base,
+    float ekv,
+    bool onoff )
 {
   miString str;
 
@@ -2738,7 +2739,7 @@ miString FieldDialog::baseList( QComboBox* cBox,
     j++;
     float e= base + ekv*float(j);
     if(fabs(e)<ekv/2)
-    cBox->addItem("0");
+      cBox->addItem("0");
     else{
       miString estr(e);
       cBox->addItem(estr.cStr());
@@ -3029,7 +3030,7 @@ void FieldDialog::threeColoursChanged()
     colour2ComboBoxToggled(0);
 
     miString str = colourInfo[c1-1].name + ","
-      + colourInfo[c2-1].name + "," + colourInfo[c3-1].name;
+    + colourInfo[c2-1].name + "," + colourInfo[c3-1].name;
     updateFieldOptions("colours","remove");
     updateFieldOptions("colours",str);
   }
@@ -3210,20 +3211,20 @@ void FieldDialog::enableType2Options(bool on)
   if(on){
     if(!interval2ComboBox->currentText().isNull())
       updateFieldOptions("line.interval_2",
-			 interval2ComboBox->currentText().toStdString());
+          interval2ComboBox->currentText().toStdString());
     if(!zero2ComboBox->currentText().isNull())
       updateFieldOptions("base_2",
-			 zero2ComboBox->currentText().toStdString());
+          zero2ComboBox->currentText().toStdString());
     if(!min2ComboBox->currentText().isNull() && min2ComboBox->currentIndex()>0)
       updateFieldOptions("minvalue_2",
-			 min2ComboBox->currentText().toStdString());
+          min2ComboBox->currentText().toStdString());
     if(!max2ComboBox->currentText().isNull() && max2ComboBox->currentIndex()>0)
       updateFieldOptions("maxvalue_2",
-			 max2ComboBox->currentText().toStdString());
+          max2ComboBox->currentText().toStdString());
     updateFieldOptions("linewidth_2",
-		       miString(linewidth2ComboBox->currentIndex()+1));
+        miString(linewidth2ComboBox->currentIndex()+1));
     updateFieldOptions("linetype_2",
-		       linetypes[linetype2ComboBox->currentIndex()]);
+        linetypes[linetype2ComboBox->currentIndex()]);
   } else {
     colour2ComboBox->setCurrentIndex(0);
     updateFieldOptions("colour_2","off");
@@ -3236,12 +3237,12 @@ void FieldDialog::enableType2Options(bool on)
 }
 
 void FieldDialog::updateFieldOptions(const miString& name,
-				     const miString& value,
-				     int valueIndex)
+    const miString& value,
+    int valueIndex)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::updateFieldOptions  name= " << name
-			           << "  value= " << value <<endl;
+  << "  value= " << value <<endl;
 #endif
 
   if (currentFieldOpts.empty()) return;
@@ -3256,7 +3257,7 @@ void FieldDialog::updateFieldOptions(const miString& name,
   currentFieldOpts= cp->unParse(vpcopt);
   selectedFields[n].fieldOpts= currentFieldOpts;
 
-    // not update private settings if external/QuickMenu command...
+  // not update private settings if external/QuickMenu command...
   if (!selectedFields[n].external) {
     if (selectedFields[n].inEdit &&
         !selectedFields[n].editPlot ) {
@@ -3270,8 +3271,8 @@ void FieldDialog::updateFieldOptions(const miString& name,
 
 
 void FieldDialog::getFieldGroups(const miString& model,
-				 int& indexMGR, int& indexM,
-				 vector<FieldGroupInfo>& vfg)
+    int& indexMGR, int& indexM,
+    vector<FieldGroupInfo>& vfg)
 {
 
   miString modelName;
@@ -3286,10 +3287,10 @@ void FieldDialog::getFieldGroups(const miString& model,
     // field groups will be shown, translate the name parts
     map<miString,miString>::const_iterator pt, ptend=fgTranslations.end();
     size_t pos;
-    for (int n=0; n<vfg.size(); n++) {
+    for (unsigned int n=0; n<vfg.size(); n++) {
       for (pt=fgTranslations.begin(); pt!=ptend; pt++) {
-	if ((pos=vfg[n].groupName.find(pt->first))!=string::npos)
-	  vfg[n].groupName.string::replace(pos,pt->first.size(),pt->second);
+        if ((pos=vfg[n].groupName.find(pt->first))!=string::npos)
+          vfg[n].groupName.string::replace(pos,pt->first.size(),pt->second);
       }
     }
   } else {
@@ -3357,12 +3358,12 @@ vector<miString> FieldDialog::getOKString()
       ostr << " idnum=" << selectedFields[i].idnum;
 
     if (levelOKspec.empty() &&
-	selectedFields[i].levelOptions.size()>1) {
+        selectedFields[i].levelOptions.size()>1) {
       levelOKspec= selectedFields[i].level;
       levelOKlist= selectedFields[i].levelOptions;
     }
     if (idnumOKspec.empty() &&
-	selectedFields[i].idnumOptions.size()>1) {
+        selectedFields[i].idnumOptions.size()>1) {
       idnumOKspec= selectedFields[i].idnum;
       idnumOKlist= selectedFields[i].idnumOptions;
     }
@@ -3380,29 +3381,29 @@ vector<miString> FieldDialog::getOKString()
       ostr << " " << selectedFields[i+1].fieldName;
 
       if (selectedFields[i+1].level.exists())
-	ostr << " level=" << selectedFields[i+1].level;
+        ostr << " level=" << selectedFields[i+1].level;
       if (selectedFields[i+1].idnum.exists())
-	ostr << " idnum=" << selectedFields[i+1].idnum;
+        ostr << " idnum=" << selectedFields[i+1].idnum;
 
       if (levelOKspec.empty() &&
-	  selectedFields[i+1].levelOptions.size()>1) {
-	levelOKspec= selectedFields[i+1].level;
-	levelOKlist= selectedFields[i+1].levelOptions;
+          selectedFields[i+1].levelOptions.size()>1) {
+        levelOKspec= selectedFields[i+1].level;
+        levelOKlist= selectedFields[i+1].levelOptions;
       }
       if (idnumOKspec.empty() &&
-	  selectedFields[i+1].idnumOptions.size()>1) {
-	idnumOKspec= selectedFields[i+1].idnum;
-	idnumOKlist= selectedFields[i+1].idnumOptions;
+          selectedFields[i+1].idnumOptions.size()>1) {
+        idnumOKspec= selectedFields[i+1].idnum;
+        idnumOKlist= selectedFields[i+1].idnumOptions;
       }
 
       if (selectedFields[i+1].hourOffset!=0)
-	ostr << " hour.offset=" << selectedFields[i+1].hourOffset;
+        ostr << " hour.offset=" << selectedFields[i+1].hourOffset;
 
       if (selectedFields[i+1].hourDiff!=0)
-	ostr << " hour.diff=" << selectedFields[i+1].hourDiff;
+        ostr << " hour.diff=" << selectedFields[i+1].hourDiff;
 
       ostr <<" )";
-   }
+    }
 
     ostr << " " << selectedFields[i].fieldOpts;
 
@@ -3430,7 +3431,7 @@ vector<miString> FieldDialog::getOKString()
 
       // the History string (but not if quickmenu command)
       if (!selectedFields[i].external)
-	hstr.push_back(ostr.str());
+        hstr.push_back(ostr.str());
 
     }
 
@@ -3450,10 +3451,10 @@ vector<miString> FieldDialog::getOKString()
     if (hs>0) {
       hs--;
       if (commandHistory[hs].size()==hstr.size()) {
-	newcommand= false;
-	n= hstr.size();
-	for (int i=0; i<n; i++)
-	  if (commandHistory[hs][i]!=hstr[i]) newcommand= true;
+        newcommand= false;
+        n= hstr.size();
+        for (int i=0; i<n; i++)
+          if (commandHistory[hs][i]!=hstr[i]) newcommand= true;
       }
     }
     if (newcommand) commandHistory.push_back(hstr);
@@ -3520,49 +3521,49 @@ miString FieldDialog::getShortname()
 
       if (modelName!=pmodelName || modelName2!=pmodelName) {
 
-      if (i>numEditFields) ostr << "  ";
-	if (fielddiff) ostr << "( ";
-	ostr << modelName;
-	pmodelName= modelName;
+        if (i>numEditFields) ostr << "  ";
+        if (fielddiff) ostr << "( ";
+        ostr << modelName;
+        pmodelName= modelName;
       }
 
       if(!fielddiff && paramdiff)
-	ostr << " ( ";
+        ostr << " ( ";
       if (!fielddiff || (fielddiff && paramdiff) || (fielddiff && leveldiff))
-	ostr << " " << fieldName;
+        ostr << " " << fieldName;
 
       if (selectedFields[i].level.exists()){
-	if(!fielddiff && !paramdiff)
-	  ostr << " ( "<< selectedFields[i].level;
-	else if((fielddiff || paramdiff) && leveldiff)
-	  ostr << " "<<selectedFields[i].level;
+        if(!fielddiff && !paramdiff)
+          ostr << " ( "<< selectedFields[i].level;
+        else if((fielddiff || paramdiff) && leveldiff)
+          ostr << " "<<selectedFields[i].level;
       }
       if (selectedFields[i].idnum.exists() && leveldiff)
-	ostr << " " << selectedFields[i].idnum;
+        ostr << " " << selectedFields[i].idnum;
 
     } else if (selectedFields[i].minus){
       ostr << " - ";
 
       if (fielddiff) {
-	ostr << modelName;
-	pmodelName.clear();
+        ostr << modelName;
+        pmodelName.clear();
       }
 
       if(fielddiff && !paramdiff && !leveldiff)
-	ostr << " ) "<< fieldName;
+        ostr << " ) "<< fieldName;
       else if(paramdiff || (fielddiff && leveldiff))
-	ostr << " " << fieldName;
+        ostr << " " << fieldName;
 
       if (selectedFields[i].level.exists()) {
-	if(!leveldiff && paramdiff)
-	  ostr << " )";
-	ostr << " " << selectedFields[i].level;
-	if (selectedFields[i].idnum.exists())
-	  ostr << " " << selectedFields[i].idnum;
-	if(leveldiff)
-	  ostr <<  " )";
+        if(!leveldiff && paramdiff)
+          ostr << " )";
+        ostr << " " << selectedFields[i].level;
+        if (selectedFields[i].idnum.exists())
+          ostr << " " << selectedFields[i].idnum;
+        if(leveldiff)
+          ostr <<  " )";
       } else {
-	  ostr << " )";
+        ostr << " )";
       }
 
       fielddiff=paramdiff=leveldiff=false;
@@ -3572,16 +3573,16 @@ miString FieldDialog::getShortname()
       if (i>numEditFields) ostr << "  ";
 
       if (modelName!=pmodelName) {
-	ostr << modelName;
-	pmodelName= modelName;
+        ostr << modelName;
+        pmodelName= modelName;
       }
 
       ostr << " " << fieldName;
 
       if (selectedFields[i].level.exists())
-	ostr << " " << selectedFields[i].level;
+        ostr << " " << selectedFields[i].level;
       if (selectedFields[i].idnum.exists())
-	ostr << " " << selectedFields[i].idnum;
+        ostr << " " << selectedFields[i].idnum;
     }
   }
 
@@ -3593,7 +3594,7 @@ miString FieldDialog::getShortname()
 
 
 void FieldDialog::getOKlevels(vector<miString>& levelList,
-			      miString& levelSpec)
+    miString& levelSpec)
 {
   levelList.clear();
   for (int i=levelOKlist.size()-1; i>=0; i--)
@@ -3603,10 +3604,10 @@ void FieldDialog::getOKlevels(vector<miString>& levelList,
 
 
 void FieldDialog::getOKidnums(vector<miString>& idnumList,
-			      miString& idnumSpec)
+    miString& idnumSpec)
 {
   idnumList.clear();
-  for (int i=0; i<idnumOKlist.size(); i++)
+  for (unsigned int i=0; i<idnumOKlist.size(); i++)
     idnumList.push_back(idnumOKlist[i]);
   idnumSpec= idnumOKspec;
 }
@@ -3663,16 +3664,16 @@ void FieldDialog::showHistory(int step) {
     for (int i=0; i<n; i++) {
 
       if (history_str.empty())
-	history_str = commandHistory[historyPos][i];
+        history_str = commandHistory[historyPos][i];
 
       //if (field1 - field2)
       miString field1,field2;
       if (fieldDifference(history_str,field1,field2))
-	history_str= field1;
+        history_str= field1;
 
       vector<ParsedCommand> vpc= cp->parse( history_str );
 
-/*******************************************************
+      /*******************************************************
   int mmm= (vpc.size()<10) ? vpc.size() : 10;
   cerr<<"--------------------------------"<<endl;
     for (int j=0; j<mmm; j++) {
@@ -3686,21 +3687,21 @@ void FieldDialog::showHistory(int step) {
       for (int k=0; k<vpc[j].intValue.size(); k++)
         cerr << "               " << k << "    intValue: " << vpc[j].intValue[k] << endl;
     }
-*******************************************************/
+       *******************************************************/
       miString str;
       if (minus) str= "  -  ";
 
       if (vpc.size()>1 && vpc[0].key=="unknown") {
-	str+= vpc[0].allValue;  // modelName
-	if (vpc[1].key=="unknown") {
-	  str+=(" " + vpc[1].allValue); // fieldName
-	  int nc;
+        str+= vpc[0].allValue;  // modelName
+        if (vpc[1].key=="unknown") {
+          str+=(" " + vpc[1].allValue); // fieldName
+          int nc;
           if ((nc=cp->findKey(vpc,"level"))>=0)
-	    str+=(" " + vpc[nc].allValue);
+            str+=(" " + vpc[nc].allValue);
           if ((nc=cp->findKey(vpc,"idnum"))>=0)
-	    str+=(" " + vpc[nc].allValue);
-	  vstr.push_back(str);
-	}
+            str+=(" " + vpc[nc].allValue);
+          vstr.push_back(str);
+        }
       }
 
       //reset
@@ -3709,16 +3710,16 @@ void FieldDialog::showHistory(int step) {
 
       //if ( field1 - field2 )
       if (field2.exists()){
-	minus=true;
-	history_str = field2;
-	i--;
+        minus=true;
+        history_str = field2;
+        i--;
       }
     }
 
     int nvstr= vstr.size();
     if (nvstr>0) {
       for (int i=0; i<nvstr; i++){
-	selectedFieldbox->addItem(QString(vstr[i].c_str()));
+        selectedFieldbox->addItem(QString(vstr[i].c_str()));
       }
       deleteAll->setEnabled(true);
     }
@@ -3736,7 +3737,7 @@ void FieldDialog::historyOk() {
   cerr << "FieldDialog::historyOk()" << endl;
 #endif
 
-  if (historyPos<0 || historyPos>=commandHistory.size()) {
+  if (historyPos<0 || historyPos>=int(commandHistory.size())) {
     vector<miString> vstr;
     putOKString(vstr,false,false);
   } else {
@@ -3746,7 +3747,7 @@ void FieldDialog::historyOk() {
 
 
 void FieldDialog::putOKString(const vector<miString>& vstr,
-			      bool checkOptions, bool external)
+    bool checkOptions, bool external)
 {
 #ifdef DEBUGPRINT
   cerr << "FieldDialog::putOKString starts" << endl;
@@ -3776,9 +3777,9 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
   for (int ic=0; ic<nc; ic++) {
     if (str.empty())
       str=vstr[ic];
-//######################################################################
+    //######################################################################
     //    cerr << "P.OK>> " << vstr[ic] << endl;
-//######################################################################
+    //######################################################################
 
     //if prefix, remove it
     if (str.length()>6 && str.substr(0,6)=="FIELD ")
@@ -3805,42 +3806,42 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
     hourDiff= 0;
     forecastSpec= false;
 
-//######################################################################
-//  for (int j=0; j<vpc.size(); j++)
-//    cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-//         << "   " << vpc[j].allValue << endl;
-//######################################################################
+    //######################################################################
+    //  for (int j=0; j<vpc.size(); j++)
+    //    cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
+    //         << "   " << vpc[j].allValue << endl;
+    //######################################################################
 
     if (vpc.size()>1 && vpc[0].key=="unknown") {
       model= vpc[0].allValue;  // modelName
       if (vpc[1].key=="unknown") {
-	field= vpc[1].allValue; // fieldName
-	for (int j=2; j<vpc.size(); j++) {
-	  if (vpc[j].key=="level")
-	    level= vpc[j].allValue;
-	  else if (vpc[j].key=="idnum")
-	    idnum= vpc[j].allValue;
-	  else if (vpc[j].key=="hour.offset" && !vpc[j].intValue.empty())
-	    hourOffset= vpc[j].intValue[0];
-	  else if (vpc[j].key=="hour.diff"   && !vpc[j].intValue.empty())
-	    hourDiff= vpc[j].intValue[0];
-	  else if (vpc[j].key=="allTimeSteps" && vpc[j].allValue=="on")
-	    allTimeSteps= true;
-	  else if (vpc[j].key!="unknown") {
-	    if (!fOpts.empty()) fOpts+=" ";
-	    fOpts+= (vpc[j].key + "=" + vpc[j].allValue);
-	    if (vpc[j].idNumber==2) forecastSpec= true;
-	  }
- 	}
+        field= vpc[1].allValue; // fieldName
+        for (unsigned int j=2; j<vpc.size(); j++) {
+          if (vpc[j].key=="level")
+            level= vpc[j].allValue;
+          else if (vpc[j].key=="idnum")
+            idnum= vpc[j].allValue;
+          else if (vpc[j].key=="hour.offset" && !vpc[j].intValue.empty())
+            hourOffset= vpc[j].intValue[0];
+          else if (vpc[j].key=="hour.diff"   && !vpc[j].intValue.empty())
+            hourDiff= vpc[j].intValue[0];
+          else if (vpc[j].key=="allTimeSteps" && vpc[j].allValue=="on")
+            allTimeSteps= true;
+          else if (vpc[j].key!="unknown") {
+            if (!fOpts.empty()) fOpts+=" ";
+            fOpts+= (vpc[j].key + "=" + vpc[j].allValue);
+            if (vpc[j].idNumber==2) forecastSpec= true;
+          }
+        }
       }
     }
 
-//######################################################################
-//    cerr << " ->" << model << " " << field
-//    	   << " ln= " << levelName << " l2n= " << idnumName
-//    	   << " l= " << level << " l2= " << idnum
-//         << " " << fGroupName << endl;
-//######################################################################
+    //######################################################################
+    //    cerr << " ->" << model << " " << field
+    //    	   << " ln= " << levelName << " l2n= " << idnumName
+    //    	   << " l= " << level << " l2= " << idnum
+    //         << " " << fGroupName << endl;
+    //######################################################################
 
     if (model!=vfg2_model) {
       indexMGR=indexM=-1;
@@ -3859,10 +3860,10 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
       // Old syntax: Model, new syntax: Model(gridnr)
       miString modelName=vfg2[j].modelName;
       if(vfg2[j].modelName.contains("(") && !model.contains("(")){
-	modelName = modelName.substr(0,modelName.find(("(")));
+        modelName = modelName.substr(0,modelName.find(("(")));
       }
       if(!vfg2[j].modelName.contains("(") && model.contains("(")){
-	model = model.substr(0,model.find(("(")));
+        model = model.substr(0,model.find(("(")));
       }
 
       if (modelName.downcase()==model.downcase()) {
@@ -3872,17 +3873,17 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
         while (i<m && vfg2[j].fieldNames[i]!=field) i++;
 
         if (i<m) {
-	  ok= true;
-	  int m;
+          ok= true;
+          int m;
           if ((m=vfg2[j].levelNames.size())>0 && !level.empty()) {
             int l= 0;
             while (l<m && vfg2[j].levelNames[l]!=level) l++;
-	    if (l==m && cp->isInt(level)) {
-	      level+="hPa";
+            if (l==m && cp->isInt(level)) {
+              level+="hPa";
               l= 0;
               while (l<m && vfg2[j].levelNames[l]!=level) l++;
-	      if (l<m) level= vfg2[j].levelNames[l];
-	    }
+              if (l<m) level= vfg2[j].levelNames[l];
+            }
             if (l==m) ok= false;
           } else if (!vfg2[j].levelNames.empty()) {
             ok= false;
@@ -3898,11 +3899,11 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
           } else {
             idnum.clear();
           }
-	  if (ok) {
+          if (ok) {
             indexFGR= j;
-	    indexF= i;
+            indexF= i;
           }
-	}
+        }
       }
       j++;
     }
@@ -3971,8 +3972,8 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
             selectedFields[i].indexM  ==indexM) {
           int j=0;
           while (j<n &&
-		 vfgi[indexFGR].fieldNames[j]!=
-		 selectedFields[i].fieldName) j++;
+              vfgi[indexFGR].fieldNames[j]!=
+                selectedFields[i].fieldName) j++;
           if (j<n) {
             if ((ml=vfgi[indexFGR].levelNames.size())>0) {
               int l= 0;
@@ -3987,7 +3988,7 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
             if (j<n) {
               countSelected[j]++;
               fieldbox->item(j)->setSelected(true);
-	      change= true;
+              change= true;
             }
           }
         }
@@ -4013,7 +4014,7 @@ void FieldDialog::putOKString(const vector<miString>& vstr,
 
 
 void FieldDialog::requestQuickUpdate(const vector<miString>& oldstr,
-                                     vector<miString>& newstr)
+    vector<miString>& newstr)
 {
 #ifdef DEBUGPRINT
   cerr << "FieldDialog::requestQuickUpdate" << endl;
@@ -4078,53 +4079,55 @@ void FieldDialog::requestQuickUpdate(const vector<miString>& oldstr,
       float comp, compbest=-1, compmax=0;
       for (int jc=0; jc<nc; jc++) {
         if (!used[jc]) {
-	  // check model
-	  int n= vpold[jc][1].allValue.find('@');
-	  if (n==string::npos) n= vpold[jc][1].allValue.length();
-	  int nm= 0;
-	  for (int i=0; i<n; i++)
-	    if (vpold[jc][1].allValue[i]==vpnew[1].allValue[i]) nm++;
-	  comp= float(nm)/float(n);
-	  compmax+=1;
-	  // check field
-	  n= vpold[jc][2].allValue.find('@');
-	  if (n==string::npos) n= vpold[jc][2].allValue.length();
-	  nm= 0;
-	  for (int i=0; i<n; i++)
-	    if (vpold[jc][2].allValue[i]==vpnew[2].allValue[i]) nm++;
-	  comp= float(nm)/float(n);
-	  compmax+=1;
-	  // check level
-	  int nold= vpold[jc].size();
-	  for (int i=3; i<nold; i++) {
-	    if (vpold[jc][i].key=="level"      ||
-		vpold[jc][i].key=="idnum"     ||
+          // check model
+          unsigned int n= vpold[jc][1].allValue.find('@');
+          if (n==string::npos) n= vpold[jc][1].allValue.length();
+          int nm= 0;
+          for (unsigned int i=0; i<n; i++) {
+            if (vpold[jc][1].allValue[i]==vpnew[1].allValue[i]) nm++;
+          }
+          comp= float(nm)/float(n);
+          compmax+=1;
+          // check field
+          n= vpold[jc][2].allValue.find('@');
+          if (n==string::npos) n= vpold[jc][2].allValue.length();
+          nm= 0;
+          for (unsigned int i=0; i<n; i++) {
+            if (vpold[jc][2].allValue[i]==vpnew[2].allValue[i]) nm++;
+          }
+          comp= float(nm)/float(n);
+          compmax+=1;
+          // check level
+          int nold= vpold[jc].size();
+          for (int i=3; i<nold; i++) {
+            if (vpold[jc][i].key=="level"      ||
+                vpold[jc][i].key=="idnum"     ||
                 vpold[jc][i].key=="hour.offset") {
-	      for (int j=3; j<m; j++)
-	        if (vpnew[j].key==vpold[jc][i].key &&
+              for (int j=3; j<m; j++)
+                if (vpnew[j].key==vpold[jc][i].key &&
                     vpnew[j].allValue==vpold[jc][i].allValue) comp+=1;
-	      compmax+=1;
-	    }
-	  }
-	  comp/=compmax;
-	  if (comp>compbest) {
-	    compbest= comp;
-	    iold= jc;
-	  }
-	}
+              compmax+=1;
+            }
+          }
+          comp/=compmax;
+          if (comp>compbest) {
+            compbest= comp;
+            iold= jc;
+          }
+        }
       }
     }
 
     // not allowed to change hour.offset or field.smooth
-    for (int j=0; j<optkeep.size(); j++) {
+    for (unsigned int j=0; j<optkeep.size(); j++) {
       int i1= cp->findKey(vpnew,optkeep[j]);
       int i2= cp->findKey(vpold[iold],optkeep[j]);
       int i3= cp->findKey(vpopt,optkeep[j]);
       if (i1>=0) {
-	if (i2>=0 && vpold[iold][i2].allValue != vpnew[i1].allValue)
-	  cp->replaceValue(vpnew[i1],vpold[iold][i2].allValue,-1);
-	else if (i3>=0 && vpopt[i3].allValue != vpnew[i1].allValue)
-	  cp->replaceValue(vpnew[i1],vpopt[i3].allValue,-1);
+        if (i2>=0 && vpold[iold][i2].allValue != vpnew[i1].allValue)
+          cp->replaceValue(vpnew[i1],vpold[iold][i2].allValue,-1);
+        else if (i3>=0 && vpopt[i3].allValue != vpnew[i1].allValue)
+          cp->replaceValue(vpnew[i1],vpopt[i3].allValue,-1);
       }
     }
 
@@ -4134,27 +4137,27 @@ void FieldDialog::requestQuickUpdate(const vector<miString>& oldstr,
     vector<bool> newset(m,false);
     miString str;
     str= vpold[iold][0].allValue + " " +
-         vpold[iold][1].allValue + " " +
-         vpold[iold][2].allValue;
+    vpold[iold][1].allValue + " " +
+    vpold[iold][2].allValue;
 
     for (int j=3; j<nold; j++) {
       int i= cp->findKey(vpnew,vpold[iold][j].key);
       if (vpold[iold][j].idNumber!=0 ||
           vpold[iold][j].allValue.find('@')!=string::npos || i<0) {
-	str+=(" " + vpold[iold][j].key + "=" + vpold[iold][j].allValue);
-	if (i>=0) newset[i]= true;
+        str+=(" " + vpold[iold][j].key + "=" + vpold[iold][j].allValue);
+        if (i>=0) newset[i]= true;
       } else {
-	str+=(" " + vpnew[i].key + "=" + vpnew[i].allValue);
-	newset[i]= true;
+        str+=(" " + vpnew[i].key + "=" + vpnew[i].allValue);
+        newset[i]= true;
       }
     }
 
     for (int i=3; i<m; i++) {
       if (!newset[i]) {
-	// not adding options equal to the defaults (in diana.setup)
+        // not adding options equal to the defaults (in diana.setup)
         int j= cp->findKey(vpopt,vpnew[i].key);
-	if (j>=0 && vpnew[i].allValue!=vpopt[j].allValue)
-	  str+=(" " + vpnew[i].key + "=" + vpnew[i].allValue);
+        if (j>=0 && vpnew[i].allValue!=vpopt[j].allValue)
+          str+=(" " + vpnew[i].key + "=" + vpnew[i].allValue);
       }
     }
 
@@ -4170,37 +4173,37 @@ void FieldDialog::requestQuickUpdate(const vector<miString>& oldstr,
 
 
 bool FieldDialog::fieldDifference(const miString& str,
-				  miString& field1, miString& field2) const
-{
+    miString& field1, miString& field2) const
+    {
   size_t beginOper = str.find("( ");
   if (beginOper!=string::npos) {
     size_t oper = str.find(" - ",beginOper+3);
     if (oper!=string::npos) {
       size_t endOper = str.find(" )",oper+4);
       if (endOper!=string::npos) {
-	size_t end = str.size();
-	if (beginOper>1 && endOper<end-2) {
-	  field1 = str.substr(0,beginOper)
-		 + str.substr(beginOper+2,oper-beginOper-2)
-	         + str.substr(  endOper+2, end-endOper-1);
-	  field2 = str.substr(0,beginOper-1)
-		 + str.substr(oper+2, endOper-oper-2);
-	} else if (endOper<end-2) {
-	  field1 = str.substr(beginOper+2,oper-beginOper-2)
-	         + str.substr(  endOper+2, end-endOper-1);
-	  field2 = str.substr(oper+3, endOper-oper-3);
-	} else {
-	  field1 = str.substr(0,beginOper)
-		 + str.substr(beginOper+2,oper-beginOper-2);
-	  field2 = str.substr(0,beginOper)
-		 + str.substr(oper+3, endOper-oper-3);
-	}
-	return true;
+        size_t end = str.size();
+        if (beginOper>1 && endOper<end-2) {
+          field1 = str.substr(0,beginOper)
+          + str.substr(beginOper+2,oper-beginOper-2)
+          + str.substr(  endOper+2, end-endOper-1);
+          field2 = str.substr(0,beginOper-1)
+          + str.substr(oper+2, endOper-oper-2);
+        } else if (endOper<end-2) {
+          field1 = str.substr(beginOper+2,oper-beginOper-2)
+          + str.substr(  endOper+2, end-endOper-1);
+          field2 = str.substr(oper+3, endOper-oper-3);
+        } else {
+          field1 = str.substr(0,beginOper)
+          + str.substr(beginOper+2,oper-beginOper-2);
+          field2 = str.substr(0,beginOper)
+          + str.substr(oper+3, endOper-oper-3);
+        }
+        return true;
       }
     }
   }
   return false;
-}
+    }
 
 void FieldDialog::getEditPlotOptions(map< miString, map<miString,miString> >& po)
 {
@@ -4227,7 +4230,7 @@ void FieldDialog::getEditPlotOptions(map< miString, map<miString,miString> >& po
     //loop through options
     for (; q!=p->second.end(); q++) {
       miString opt = q->first.downcase();
-      int i=0;
+      unsigned int i=0;
       while (i<parsedComm.size() && parsedComm[i].key != opt) i++;
       //option found and value inserted
       if ( i<parsedComm.size() ) {
@@ -4288,8 +4291,8 @@ vector<miString> FieldDialog::writeLog() {
 
 
 void FieldDialog::readLog(const vector<miString>& vstr,
-			  const miString& thisVersion,
-			  const miString& logVersion) {
+    const miString& thisVersion,
+    const miString& logVersion) {
 
   miString str,fieldname,fopts,sopts;
   vector<miString> hstr;
@@ -4310,7 +4313,7 @@ void FieldDialog::readLog(const vector<miString>& vstr,
     if (vstr[ivstr].substr(0,4)=="----") {
       if (hstr.size()>0) {
         commandHistory.push_back(hstr);
-	hstr.clear();
+        hstr.clear();
       }
     } else {
       hstr.push_back(vstr[ivstr]);
@@ -4339,7 +4342,7 @@ void FieldDialog::readLog(const vector<miString>& vstr,
       sopts= getFieldOptions(fieldname,true);
 
       if (!sopts.empty()) {
-	// update options from setup, if necessary
+        // update options from setup, if necessary
         vector<ParsedCommand> vpopt= cp->parse( sopts );
         vector<ParsedCommand> vplog= cp->parse( fopts );
         nopt= vpopt.size();
@@ -4397,7 +4400,7 @@ miString FieldDialog::checkFieldOptions(const miString& str)
   int nlog= vplog.size();
 
   if (nlog>=2 && vplog[0].key=="unknown"
-	      && vplog[1].key=="unknown") {
+    && vplog[1].key=="unknown") {
     fieldname= vplog[1].allValue;
 
     miString fopts= getFieldOptions(fieldname, true);
@@ -4405,44 +4408,44 @@ miString FieldDialog::checkFieldOptions(const miString& str)
     if (!fopts.empty()) {
       vector<ParsedCommand> vpopt= cp->parse( fopts );
       int nopt= vpopt.size();
-//##################################################################
-//    cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
-//    for (int j=0; j<nlog; j++)
-//	cerr << "        log " << j << " : id " << vplog[j].idNumber
-//	     << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
-//##################################################################
+      //##################################################################
+      //    cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
+      //    for (int j=0; j<nlog; j++)
+      //	cerr << "        log " << j << " : id " << vplog[j].idNumber
+      //	     << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
+      //##################################################################
       newstr+= vplog[0].allValue + " " + vplog[1].allValue;
       for (int i=2; i<nlog; i++) {
-	if (vplog[i].idNumber==1)
-	  newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
+        if (vplog[i].idNumber==1)
+          newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
       }
       for (int j=0; j<nopt; j++) {
-	int i=0;
-	while (i<nlog && vplog[i].key!=vpopt[j].key) i++;
-	if (i<nlog) {
-	  // there is no option with variable no. of values, YET !!!!!
-	  if (vplog[i].allValue!=vpopt[j].allValue)
-	    cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
-	}
+        int i=0;
+        while (i<nlog && vplog[i].key!=vpopt[j].key) i++;
+        if (i<nlog) {
+          // there is no option with variable no. of values, YET !!!!!
+          if (vplog[i].allValue!=vpopt[j].allValue)
+            cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
+        }
       }
 
       for (int i=2; i<nlog; i++) {
-	if (vplog[i].key!="level" && vplog[i].key!="idnum") {
-	  int j=0;
-	  while (j<nopt && vpopt[j].key!=vplog[i].key) j++;
-	  if (j==nopt) {
-	    cp->replaceValue(vpopt,vplog[i].key,vplog[i].allValue);
-	  }
-	}
+        if (vplog[i].key!="level" && vplog[i].key!="idnum") {
+          int j=0;
+          while (j<nopt && vpopt[j].key!=vplog[i].key) j++;
+          if (j==nopt) {
+            cp->replaceValue(vpopt,vplog[i].key,vplog[i].allValue);
+          }
+        }
       }
 
       newstr+= " ";
       newstr+= cp->unParse(vpopt);
       // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
       for (int i=2; i<nlog; i++) {
-	if (vplog[i].idNumber==2 || vplog[i].idNumber==3 || vplog[i].idNumber==-1){
-	  newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
-	}
+        if (vplog[i].idNumber==2 || vplog[i].idNumber==3 || vplog[i].idNumber==-1){
+          newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
+        }
       }
     }
   }
@@ -4476,7 +4479,7 @@ void FieldDialog::deleteSelected()
       int n= vfgi[indexFGR].fieldNames.size();
       int i=0;
       while (i<n && vfgi[indexFGR].fieldNames[i]!=
-		    selectedFields[index].fieldName) i++;
+        selectedFields[index].fieldName) i++;
       if (i<n) {
         if ((ml=vfgi[indexFGR].levelNames.size())>0) {
           int l= 0;
@@ -4487,7 +4490,7 @@ void FieldDialog::deleteSelected()
           int l= 0;
           while (l<ml && vfgi[indexFGR].idnumNames[l]!=selectedFields[index].idnum) l++;
           if (l==ml) i= n;
-	}
+        }
         if (i<n) indexF= i;
       }
     }
@@ -4506,7 +4509,7 @@ void FieldDialog::deleteSelected()
   selectedFields.pop_back();
 
   if (selectedFields.size()>0) {
-    if (index>=selectedFields.size()) index= selectedFields.size()-1;
+    if (index >= int(selectedFields.size())) index= selectedFields.size()-1;
     selectedFieldbox->setCurrentRow( index );
     selectedFieldbox->item(index)->setSelected( true );
     enableFieldOptions();
@@ -4607,8 +4610,8 @@ void FieldDialog::copySelectedField(){
       int n= vfgi[indexFGR].fieldNames.size();
       int i= 0;
       while (i<n &&
-	     vfgi[indexFGR].fieldNames[i]!=
-	     selectedFields[index].fieldName) i++;
+          vfgi[indexFGR].fieldNames[i]!=
+            selectedFields[index].fieldName) i++;
       if (i<n) {
         int ml= vfgi[indexFGR].levelNames.size();
         if (ml>0 && selectedFields[index].level.exists()) {
@@ -4616,17 +4619,17 @@ void FieldDialog::copySelectedField(){
           while (l<ml && vfgi[indexFGR].levelNames[l]!=selectedFields[index].level) l++;
           if (l==ml) i= n;
         } else if (ml>0 || selectedFields[index].level.exists()) {
-	  i= n;
-	}
+          i= n;
+        }
         ml= vfgi[indexFGR].idnumNames.size();
         if (ml>0 && selectedFields[index].idnum.exists()) {
           int l= 0;
           while (l<ml && vfgi[indexFGR].idnumNames[l]!=selectedFields[index].idnum) l++;
           if (l==ml) i= n;
         } else if (ml>0 || selectedFields[index].idnum.exists()) {
-	  i= n;
+          i= n;
         }
-	if (i<n) countSelected[i]++;
+        if (i<n) countSelected[i]++;
       }
     }
   }
@@ -4667,7 +4670,7 @@ void FieldDialog::changeModel()
   indexMGR= indexMGRtable[indexMGR];
 
   int indexFGR = fieldGRbox->currentIndex();
-  if (indexFGR<0 || indexFGR>=vfgi.size()) return;
+  if (indexFGR<0 || indexFGR>=int(vfgi.size())) return;
 
   miString oldModel= selectedFields[index].modelName.downcase();
   miString newModel= vfgi[indexFGR].modelName.downcase();
@@ -4688,61 +4691,61 @@ void FieldDialog::changeModel()
       gbest=fbest=gnear=fnear= -1;
       int j= 0;
       while (gbest<0 && j<nvfgi) {
-	miString model=vfgi[j].modelName.downcase();
-	model=model.substr(0,model.find("("));
+        miString model=vfgi[j].modelName.downcase();
+        model=model.substr(0,model.find("("));
         if (model==newModel) {
- 	  int m= vfgi[j].fieldNames.size();
-	  int k= 0;
-	  while (k<m && vfgi[j].fieldNames[k]!=
-		         selectedFields[i].fieldName) k++;
-	  if (k<m) {
+          int m= vfgi[j].fieldNames.size();
+          int k= 0;
+          while (k<m && vfgi[j].fieldNames[k]!=
+            selectedFields[i].fieldName) k++;
+          if (k<m) {
             int ml= vfgi[j].levelNames.size();
             if (ml>0 && !selectedFields[i].level.empty()) {
               int l= 0;
               while (l<ml && vfgi[j].levelNames[l]!=selectedFields[i].level) l++;
               if (l==ml) k= m;
             } else if (ml>0 || !selectedFields[i].level.empty()) {
-	      k= m;
-	    }
+              k= m;
+            }
             ml= vfgi[j].idnumNames.size();
             if (ml>0 && !selectedFields[i].idnum.empty()) {
               int l= 0;
               while (l<ml && vfgi[j].idnumNames[l]!=selectedFields[i].idnum) l++;
               if (l==ml) k= m;
             } else if (ml>0 || !selectedFields[i].idnum.empty()) {
-	      k= m;
+              k= m;
             }
-	    if (k<m) {
-	      gbest= j;
-	      fbest= k;
+            if (k<m) {
+              gbest= j;
+              fbest= k;
             } else if (gnear<0) {
-	      gnear= j;
-	      fnear= k;
-	    }
-	  }
+              gnear= j;
+              fnear= k;
+            }
+          }
         }
-	j++;
+        j++;
       }
       if (gbest>=0 || gnear>=0) {
-	if (gbest<0) {
-	  gbest= gnear;
-	  fbest= fnear;
-	}
-	if (indexFGR==gbest) {
-	  countSelected[fbest]++;
-	  if (countSelected[fbest]==1 && fbest>0 && fbest<fieldbox->count()) {
-	    fieldbox->setCurrentRow( fbest );
-	    fieldbox->item(fbest)->setSelected( true );
-	  }
-	}
+        if (gbest<0) {
+          gbest= gnear;
+          fbest= fnear;
+        }
+        if (indexFGR==gbest) {
+          countSelected[fbest]++;
+          if (countSelected[fbest]==1 && fbest>0 && fbest<fieldbox->count()) {
+            fieldbox->setCurrentRow( fbest );
+            fieldbox->item(fbest)->setSelected( true );
+          }
+        }
         selectedFields[i].indexMGR = indexMGR;
         selectedFields[i].indexM   = indexM;
-	selectedFields[i].modelName= vfgi[gbest].modelName;
-	selectedFields[i].levelOptions= vfgi[gbest].levelNames;
-	selectedFields[i].idnumOptions= vfgi[gbest].idnumNames;
+        selectedFields[i].modelName= vfgi[gbest].modelName;
+        selectedFields[i].levelOptions= vfgi[gbest].levelNames;
+        selectedFields[i].idnumOptions= vfgi[gbest].idnumNames;
 
-	miString str= selectedFields[i].modelName + " " +
-		      selectedFields[i].fieldName;
+        miString str= selectedFields[i].modelName + " " +
+        selectedFields[i].fieldName;
         selectedFieldbox->item(i)->setText(QString(str.c_str()));
       }
     }
@@ -4850,10 +4853,10 @@ miString FieldDialog::getFieldOptions(const miString& fieldName, bool reset, boo
 
   if (!reset) {
     if (edit) {
-    // try private profet options
+      // try private profet options
       pfopt= editFieldOptions.find(fieldname);
       if (pfopt!=editFieldOptions.end())
-      return pfopt->second;
+        return pfopt->second;
     }
 
     // try private options used
@@ -4952,28 +4955,28 @@ void FieldDialog::updateTime(){
 
     for (int i=0; i<m; i++) {
       if (!selectedFields[i].inEdit ){
-	request.push_back(ftr);
+        request.push_back(ftr);
         request[nr].modelName=  selectedFields[i].modelName;
         request[nr].fieldName=  selectedFields[i].fieldName;
         request[nr].levelName=  selectedFields[i].level;
         request[nr].idnumName=  selectedFields[i].idnum;
         request[nr].hourOffset=  selectedFields[i].hourOffset;
-	request[nr].forecastSpec= 0;
+        request[nr].forecastSpec= 0;
 
-	if (selectedFields[i].forecastSpec) {
- 	  vector<ParsedCommand> vpc= cp->parse( selectedFields[i].fieldOpts );
-	  int nvpc= vpc.size();
-	  int j= 0;
-	  while (j<nvpc && vpc[j].idNumber!=2) j++;
-	  if (j<nvpc) {
-	    if (vpc[j].key=="forecast.hour")
-	      request[nr].forecastSpec= 1;
-	    else if (vpc[j].key=="forecast.hour.loop")
-	      request[nr].forecastSpec= 2;
-	    request[nr].forecast= vpc[j].intValue;
+        if (selectedFields[i].forecastSpec) {
+          vector<ParsedCommand> vpc= cp->parse( selectedFields[i].fieldOpts );
+          int nvpc= vpc.size();
+          int j= 0;
+          while (j<nvpc && vpc[j].idNumber!=2) j++;
+          if (j<nvpc) {
+            if (vpc[j].key=="forecast.hour")
+              request[nr].forecastSpec= 1;
+            else if (vpc[j].key=="forecast.hour.loop")
+              request[nr].forecastSpec= 2;
+            request[nr].forecast= vpc[j].intValue;
           }
-	}
-	nr++;
+        }
+        nr++;
       }
     }
 
@@ -4985,7 +4988,7 @@ void FieldDialog::updateTime(){
 
 #ifdef DEBUGREDRAW
   cerr<<"FieldDialog::updateTime emit emitTimes  fieldtime.size="
-      <<fieldtime.size()<<endl;
+  <<fieldtime.size()<<endl;
 #endif
   emit emitTimes("field",fieldtime);
 
@@ -5006,7 +5009,7 @@ void FieldDialog::addField(miString str)
 
   //remove option overlay=1 from all strings
   //(should be a more general setOption()
-  for(int i=0; i<vstr.size();i++){
+  for(unsigned int i=0; i<vstr.size();i++){
     vstr[i].replace("overlay=1","");
   }
 
@@ -5041,15 +5044,15 @@ void FieldDialog::fieldEditUpdate(miString str) {
     bool change= false;
     for (i=0; i<n; i++) {
       if (!selectedFields[i].inEdit) {
-	keep.push_back(i);
+        keep.push_back(i);
       } else if (i<m && selectedField2edit_exists[i]) {
-	selectedFields[i]= selectedField2edit[i];
+        selectedFields[i]= selectedField2edit[i];
         miString text= selectedFields[i].modelName + " "
-		     + selectedFields[i].fieldName;
+        + selectedFields[i].fieldName;
         QString qtext= text.c_str();
         selectedFieldbox->item(i)->setText(qtext);
-	keep.push_back(i);
-	change= true;
+        keep.push_back(i);
+        change= true;
       }
     }
     m= keep.size();
@@ -5057,15 +5060,15 @@ void FieldDialog::fieldEditUpdate(miString str) {
       for (i=0; i<m; i++) {
         j= keep[i];
         selectedFields[i]= selectedFields[j];
-	QString qstr= selectedFieldbox->item(j)->text();
-	selectedFieldbox->item(i)->setText(qstr);
+        QString qstr= selectedFieldbox->item(j)->text();
+        selectedFieldbox->item(i)->setText(qstr);
       }
       selectedFields.resize(m);
       if (m==0) {
-	selectedFieldbox->clear();
+        selectedFieldbox->clear();
       } else {
         for (i=m; i<n; i++)
-	  selectedFieldbox->takeItem(i);
+          selectedFieldbox->takeItem(i);
       }
     }
 
@@ -5095,14 +5098,14 @@ void FieldDialog::fieldEditUpdate(miString str) {
       fieldname= vstr[1];
       for (i=0; i<n; i++) {
         if (!selectedFields[i].inEdit) {
-	  if (selectedFields[i].modelName.downcase()==modelname.downcase() &&
+          if (selectedFields[i].modelName.downcase()==modelname.downcase() &&
               selectedFields[i].fieldName.downcase()==fieldname.downcase()) break;
-	}
+        }
       }
       if (i<n) {
-	sf= selectedFields[i];
-	indrm= i;
-	found= true;
+        sf= selectedFields[i];
+        indrm= i;
+        found= true;
       }
     }
 
@@ -5121,13 +5124,13 @@ void FieldDialog::fieldEditUpdate(miString str) {
     }
 
     // Searching for time=
-    int j=0;
+    unsigned int j=0;
     while(j<vstr.size() && !vstr[j].downcase().contains("time=")) j++;
     if(j<vstr.size()){
       vector<miString> stokens=vstr[j].split("=");
       if(stokens.size()==2){          //Profet edit, using FieldPlot
- 	sf.time = stokens[1];
-	sf.editPlot=false;
+        sf.time = stokens[1];
+        sf.editPlot=false;
       }
     } else {                        //Orig edit, using EditManager
       sf.editPlot=true;
@@ -5145,7 +5148,7 @@ void FieldDialog::fieldEditUpdate(miString str) {
       selectedField2edit_exists.push_back(true);
       n= selectedFields.size();
       for (i=indrm; i<n-1; i++)
-	selectedFields[i]= selectedFields[i+1];
+        selectedFields[i]= selectedFields[i+1];
       selectedFields.pop_back();
       selectedFieldbox->takeItem(indrm);
     } else {
@@ -5170,9 +5173,9 @@ void FieldDialog::fieldEditUpdate(miString str) {
     selectedFieldbox->setCurrentRow(numEditFields);
     if ( !sf.editPlot ) {
       selectedFields[numEditFields].fieldOpts
-	=getFieldOptions(selectedFields[numEditFields].fieldName,
-			 false,
-			 selectedFields[numEditFields].inEdit);
+      =getFieldOptions(selectedFields[numEditFields].fieldName,
+          false,
+          selectedFields[numEditFields].inEdit);
     }
     numEditFields++;
 

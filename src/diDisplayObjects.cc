@@ -115,7 +115,7 @@ bool DisplayObjects::define(const miString& pi)
  	  fixedsymbolsize= atoi(value.c_str());
  	} else if ( key=="symbolfilter") {
 	  vector <miString> vals=value.split(",");
-	  for (int i=0;i<vals.size();i++)
+	  for (unsigned int i=0;i<vals.size();i++)
 	    symbolfilter.push_back(vals[i]);
 	}
       }

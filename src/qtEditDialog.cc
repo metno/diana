@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <QMessageBox>
 #include <QComboBox>
@@ -80,7 +80,7 @@
 
 /*********************************************/
 EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
-  : QDialog(parent), m_ctrl(llctrl), m_editm(0)
+: QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
 #ifdef dEditDlg
   cout<<"EditDialog::EditDialog called"<<endl;
@@ -227,7 +227,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   twd->setEnabled(false); // initially disabled
 
   connect( twd, SIGNAL(selected( const QString& )),
-           SLOT( tabSelected( const QString& ) ));
+      SLOT( tabSelected( const QString& ) ));
   // **********
 
   //Spinbox for observation time step
@@ -241,14 +241,14 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   //toggle button for comments dialog
   pausebutton = new ToggleButton( this, tr("Pause").toStdString() );
   connect(  pausebutton, SIGNAL(toggled(bool)),
-	    SLOT( pauseClicked(bool) ));
+      SLOT( pauseClicked(bool) ));
   pausebutton->setOn(false);
 
 
   //toggle button for comments dialog
   commentbutton = new ToggleButton( this, tr("Comments").toStdString());
   connect(  commentbutton, SIGNAL(toggled(bool)),
-	    SLOT( commentClicked(bool) ));
+      SLOT( commentClicked(bool) ));
 
   QHBoxLayout* h2layout = new QHBoxLayout( 5 );
   h2layout->addWidget(timelabel);
@@ -290,17 +290,17 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   vlayout->addLayout( h2layout );
   vlayout->addLayout( hlayout );
 
-//   vlayout->activate();
-//   vlayout->freeze();
+  //   vlayout->activate();
+  //   vlayout->freeze();
 
   enew = new EditNewDialog( static_cast<QWidget*>(parent()), m_ctrl );
   enew->hide();
   connect(enew,
-	  SIGNAL(EditNewOk(EditProduct&, EditProductId&, miTime&)),
-	  SLOT(EditNewOk(EditProduct&, EditProductId&, miTime&)));
+      SIGNAL(EditNewOk(EditProduct&, EditProductId&, miTime&)),
+      SLOT(EditNewOk(EditProduct&, EditProductId&, miTime&)));
   connect(enew,
-	  SIGNAL(EditNewCombineOk(EditProduct&, EditProductId&, miTime&)),
-	  SLOT(EditNewCombineOk(EditProduct&, EditProductId&, miTime&)));
+      SIGNAL(EditNewCombineOk(EditProduct&, EditProductId&, miTime&)),
+      SLOT(EditNewCombineOk(EditProduct&, EditProductId&, miTime&)));
   connect(enew, SIGNAL(EditNewHelp()), SLOT(helpClicked()));
   connect(enew, SIGNAL(EditNewCancel()), SLOT(EditNewCancel()));
   connect(enew, SIGNAL(newLogin(editDBinfo&)), SLOT(newLogin(editDBinfo&)));
@@ -310,12 +310,12 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   ecomment->hide();
 
   mb = new QMessageBox(tr("New analysis"),
-		       tr("This will delete all your edits so far.\n Do you really want them to disappear?"),
-		       QMessageBox::Warning,
-		       QMessageBox::Yes | QMessageBox::Default,
-		       QMessageBox::Cancel | QMessageBox::Escape,
-		       Qt::NoButton,
-		       this);
+      tr("This will delete all your edits so far.\n Do you really want them to disappear?"),
+      QMessageBox::Warning,
+      QMessageBox::Yes | QMessageBox::Default,
+      QMessageBox::Cancel | QMessageBox::Escape,
+      Qt::NoButton,
+      this);
   mb->setButtonText( QMessageBox::Yes, tr("New") );
   mb->setButtonText( QMessageBox::Cancel, tr("Cancel"));
 
@@ -356,7 +356,7 @@ void  EditDialog::FieldTab()
   m_Fieldeditmethods->setMinimumHeight(HEIGHTLISTBOX);
 
   connect( m_Fieldeditmethods, SIGNAL( itemClicked ( QListWidgetItem * ) ),
-           SLOT( FieldEditMethods(QListWidgetItem * ) ) );
+      SLOT( FieldEditMethods(QListWidgetItem * ) ) );
 
   QButtonGroup* bgroupinfluence= new QButtonGroup(fieldtab);
 
@@ -374,7 +374,7 @@ void  EditDialog::FieldTab()
   rbInfluence[1]->setEnabled(false);
 
   connect (bgroupinfluence, SIGNAL(buttonClicked(int)),
-           SLOT(changeInfluence(int)));
+      SLOT(changeInfluence(int)));
 
   // set default (dialog and use)
   rbInfluence[0]->setChecked(true);
@@ -407,10 +407,10 @@ void  EditDialog::FieldTab()
   ellipseslider->setEnabled( true );
 
   connect( ellipseslider, SIGNAL( valueChanged( int )),
-           SLOT( fieldEllipseChanged( int)));
+      SLOT( fieldEllipseChanged( int)));
 
   connect( ellipseslider, SIGNAL( sliderReleased() ),
-           SLOT( fieldEllipseShape()) );
+      SLOT( fieldEllipseShape()) );
 
   QHBoxLayout* ehbox = new QHBoxLayout();
   ehbox->setMargin( mymargin );
@@ -427,7 +427,7 @@ void  EditDialog::FieldTab()
   exlineCheckBox->setEnabled( true );
 
   connect( exlineCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( exlineCheckBoxToggled(bool) ) );
+      SLOT( exlineCheckBoxToggled(bool) ) );
 
   // NOT USED YET....
   // QCheckBox* visible = new QCheckBox( "synlig", fieldtab );
@@ -576,7 +576,7 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
 
   if (index<numFieldEditTools) {
 
-      //    currFieldEditToolIndex= index;
+    //    currFieldEditToolIndex= index;
 
     currMapmode= m_EditDI.mapmodeinfo[0].mapmode;
     currEditmode = m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].editmode;
@@ -595,9 +595,9 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
     m_editm->notifyEditEvent(ee);
 
   } else if (fieldEditToolGroup==1 &&
-	     index<numFieldEditTools+numClassValues) {
+      index<numFieldEditTools+numClassValues) {
 
-//    currFieldEditToolIndex= index;
+    //    currFieldEditToolIndex= index;
 
     int n= index - numFieldEditTools;
     EditEvent ee;
@@ -610,7 +610,7 @@ void EditDialog::FieldEditMethods( QListWidgetItem * item  )
     m_editm->notifyEditEvent(ee);
 
   } else if (fieldEditToolGroup==1 &&
-  	     index<numFieldEditTools+numClassValues*2) {
+      index<numFieldEditTools+numClassValues*2) {
 
     int n= index - numFieldEditTools - numClassValues;
     EditEvent ee;
@@ -659,14 +659,14 @@ void  EditDialog::FrontTab()
   vector<miString> vstr;
   m_Frontcm = ComboBox( objecttab, vstr );
   connect( m_Frontcm, SIGNAL( activated(int) ),
-           SLOT( FrontTabBox(int) ) );
+      SLOT( FrontTabBox(int) ) );
 
   m_Fronteditmethods = new QListWidget(objecttab);
 
   connect( m_Fronteditmethods, SIGNAL(itemClicked(QListWidgetItem *) ),
-           SLOT( FrontEditClicked() ) );
+      SLOT( FrontEditClicked() ) );
   connect( m_Fronteditmethods, SIGNAL(itemDoubleClicked(QListWidgetItem *) ),
-           SLOT( FrontEditDoubleClicked() ) );
+      SLOT( FrontEditDoubleClicked() ) );
 
 
   undoFrontButton = NormalPushButton( tr("Undo"), this);
@@ -727,10 +727,10 @@ void EditDialog::FrontEditClicked()
   int index = m_Fronteditmethods->currentRow();
   if(index<0) {
     m_Fronteditmethods->setCurrentRow(0);
-      index=0;
+    index=0;
   }
 
-  if (m_FronteditList.size()>index) currEdittool= m_FronteditList[index];
+  if (int(m_FronteditList.size())>index) currEdittool= m_FronteditList[index];
   m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
   if (index!=m_FronteditIndex){
     m_FronteditIndex=index;
@@ -738,10 +738,10 @@ void EditDialog::FrontEditClicked()
       miString text = m_objm->getCurrentText();
       Colour::ColourInfo colour= m_objm->getCurrentColour();
       if (text.empty()){
-	if (getText(text,colour)){
-	  m_objm->setCurrentText(text);
-	  m_objm->setCurrentColour(colour);
-	}
+        if (getText(text,colour)){
+          m_objm->setCurrentText(text);
+          m_objm->setCurrentColour(colour);
+        }
       }
     }
     else if (m_objm->inComplexTextMode()){
@@ -749,7 +749,7 @@ void EditDialog::FrontEditClicked()
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getComplexText(symbolText,xText)){
-	m_objm->setCurrentComplexText(symbolText,xText);
+        m_objm->setCurrentComplexText(symbolText,xText);
       }
     }
   }
@@ -869,7 +869,7 @@ bool EditDialog::getText(miString & text, Colour::ColourInfo & colour)
   symbolText.push_back(text);
   set <miString> textList=m_objm->getTextList();
   ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
-				       textList,true);
+      textList,true);
   cText->setColour(colour);
   if (cText->exec()){
     cText->getComplexText(symbolText,xText);
@@ -885,13 +885,13 @@ bool EditDialog::getText(miString & text, Colour::ColourInfo & colour)
 
 
 bool EditDialog::getComplexText(vector <miString> & symbolText,
-				vector <miString> & xText)
+    vector <miString> & xText)
 {
   bool ok=false;
   if (symbolText.size()||xText.size()){
     set <miString> complexList = m_ctrl->getComplexList();
     ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
-					   complexList);
+        complexList);
     if (cText->exec()){
       cText->getComplexText(symbolText,xText);
       ok=true;
@@ -928,12 +928,12 @@ void  EditDialog::CombineTab()
   m_SelectAreas->setMinimumHeight(100);
 
   connect( m_SelectAreas, SIGNAL( itemClicked ( QListWidgetItem *  ) ),
-	   SLOT( selectAreas(QListWidgetItem * ) ));
+      SLOT( selectAreas(QListWidgetItem * ) ));
 
-//   QHBoxLayout* hbox = new QHBoxLayout(combinetab);
-//   hbox->setMargin( mymargin );
-//   hbox->setSpacing( myspacing );
-//   combinetab->setStretchFactor(hbox, 20);
+  //   QHBoxLayout* hbox = new QHBoxLayout(combinetab);
+  //   hbox->setMargin( mymargin );
+  //   hbox->setSpacing( myspacing );
+  //   combinetab->setStretchFactor(hbox, 20);
 
   stopCombineButton = new QPushButton( tr("Exit merge"), combinetab);
   connect(stopCombineButton, SIGNAL(clicked()), SLOT(stopCombine()));
@@ -1000,7 +1000,7 @@ void EditDialog::CombineEditMethods()
     if (inEdit) m_objm->createNewObject();
   } else {
     cerr << "EditDialog::CombineEditMethods    unknown combineAction:"
-	 << combineAction << endl;
+    << combineAction << endl;
     return;
   }
   if (inEdit)
@@ -1014,7 +1014,7 @@ void EditDialog::CombineEditMethods()
 void EditDialog::tabSelected( const QString& tabname)
 {
 #ifdef DEBUGREDRAW
-    cerr<<"EditDialog::tabSelected:"<<tabname<<endl;
+  cerr<<"EditDialog::tabSelected:"<<tabname<<endl;
 #endif
   if (tabname == TABNAME_FIELD) {
     //unmark all objects when changing mapMode
@@ -1083,10 +1083,10 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
       miString filename = path+ m_FronteditList[i] + ".png";
       QPixmap pmap(filename.c_str());
       if(!pmap.isNull()){
-	QListWidgetItem* item = new QListWidgetItem(QIcon(pmap),QString());
-	list->addItem(item);
+        QListWidgetItem* item = new QListWidgetItem(QIcon(pmap),QString());
+        list->addItem(item);
       } else {
-	list->addItem(QString(m_FronteditList[i].c_str()));
+        list->addItem(QString(m_FronteditList[i].c_str()));
       }
     }
   }
@@ -1115,10 +1115,10 @@ bool EditDialog::saveEverything(bool send)
 
   if (send){
     switch(QMessageBox::information(this, tr("Send product"),
-		tr("Start distribution of product to all regions.\n Use \"Approve produkt\" to give product official status\n as approved and ready."),
-		tr("&Distribution only"), tr("&Approve product"), tr("&Cancel"),
-		0,      // Enter == button 0
-		2 ) ) { // Escape == button 2
+        tr("Start distribution of product to all regions.\n Use \"Approve produkt\" to give product official status\n as approved and ready."),
+        tr("&Distribution only"), tr("&Approve product"), tr("&Cancel"),
+        0,      // Enter == button 0
+        2 ) ) { // Escape == button 2
 
 
     case 0: // "Kun distribusjon" clicked, Enter pressed.
@@ -1139,19 +1139,19 @@ bool EditDialog::saveEverything(bool send)
 
   if (!res){
     message= miString(tr("Problem saving/sending product\n").toStdString()) +
-      miString(tr("Message from server:\n").toStdString())
-      + message;
-      QMessageBox::warning( this, tr("Save error:"),
-			  message.c_str());
+    miString(tr("Message from server:\n").toStdString())
+    + message;
+    QMessageBox::warning( this, tr("Save error:"),
+        message.c_str());
 
     return false;
   }
 
   miTime t= miTime::nowTime();
   QString lcs(send ? " <font color=\"darkgreen\">"+tr("Saved") +"</font> "
-	    : " <font color=\"black\">"+tr("saved")+"</font> ");
+      : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
-    QString(t.isoTime().cStr()) + QString("</font> ");
+  QString(t.isoTime().cStr()) + QString("</font> ");
 
   QString qs= lcs + tcs;
 
@@ -1176,17 +1176,17 @@ void  EditDialog::groupClicked( int id )
     if (m_editm->unsavedEditChanges()){
       switch( mb->exec() ) { // ask if discard changes
       case QMessageBox::Cancel:
-	return;
-	break;
+        return;
+        break;
       }
     }
     // get productdefinitions etc. from Controller
     //if new-product-dialog already active, do nothing
     if (!enew->newActive)      {
-	enew->load(dbi);
-	// show start-new-product dialog
-	enew->show();
-      }
+      enew->load(dbi);
+      // show start-new-product dialog
+      enew->show();
+    }
     break;
   case 1:
     // Save all
@@ -1267,9 +1267,9 @@ bool EditDialog::okToExit()
     raise(); //put dialog on top
 
     switch(QMessageBox::information(this,tr("Exit editing"),
-					    tr("You have unsaved edits.\n Save before exiting?"),
-					    tr("&Save"), tr("&Don't save"), tr("&Cancel"),
-                                    0,2)){
+        tr("You have unsaved edits.\n Save before exiting?"),
+        tr("&Save"), tr("&Don't save"), tr("&Cancel"),
+        0,2)){
 
 
     case 0: // save clicked
@@ -1285,8 +1285,8 @@ bool EditDialog::okToExit()
   if(m_editm->unsentEditChanges()){
     raise(); //put dialog on top
     switch(QMessageBox::information(this,tr("Send analysis"),
-				    tr("Send last saved analysis to the database?"),
-				    tr("&Send"), tr("&Don't send"),0,1)){
+        tr("Send last saved analysis to the database?"),
+        tr("&Send"), tr("&Don't send"),0,1)){
     case 0: // send clicked
       saveEverything(true);
       break;
@@ -1351,10 +1351,10 @@ void EditDialog::updateLabels()
   miString s;
   if (inEdit)
     s= miString("<font color=\"darkgreen\">") +
-      currprod.name + miString("</font>") +
-      miString("<font color=\"blue\"> ") +
-      currid.name + miString("</font>") +
-      miString(" ") + prodtime.format("%D %H:%M");
+    currprod.name + miString("</font>") +
+    miString("<font color=\"blue\"> ") +
+    currid.name + miString("</font>") +
+    miString(" ") + prodtime.format("%D %H:%M");
   else
     s= "";
 
@@ -1369,8 +1369,8 @@ void EditDialog::newLogin(editDBinfo& d)
 
 
 void EditDialog::EditNewOk(EditProduct& ep,
-			   EditProductId& ci,
-			   miTime& time)
+    EditProductId& ci,
+    miTime& time)
 {
   cerr << "EditDialog::EditNewOk called................" << endl;
 
@@ -1477,37 +1477,37 @@ void EditDialog::EditNewOk(EditProduct& ep,
     miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
 
     vector<miString> vclass= str.split(',');
-    for (int i=0; i<vclass.size(); i++) {
+    for (unsigned int i=0; i<vclass.size(); i++) {
       vector<miString> vs= vclass[i].split(":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
-	classValues.push_back(atof(vs[0].cStr()));
-	classValuesLocked.push_back(false);
+        classValues.push_back(atof(vs[0].cStr()));
+        classValuesLocked.push_back(false);
       }
     }
     classNames.push_back(tr("Undefined").toStdString());
     classValues.push_back(1.e+35);        // the fieldUndef value
     classValuesLocked.push_back(false);
 
-    for (int i=0; i<classNames.size(); i++) {
+    for (unsigned int i=0; i<classNames.size(); i++) {
       miString estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 
-    for (int i=0; i<classNames.size(); i++) {
+    for (unsigned int i=0; i<classNames.size(); i++) {
       QListWidgetItem* item
-	= new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
+      = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
       m_Fieldeditmethods->addItem(item);
     }
 
     m_Fieldeditmethods->blockSignals(false);
-//     currFieldEditToolIndex=0;
-//     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
+    //     currFieldEditToolIndex=0;
+    //     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
 
     //    m_FieldA//OBSeditmethods->triggerUpdate(true);
   }
 
-//########################################################################
+  //########################################################################
   EditEvent ee;
   if (fieldEditToolGroup==2)
     ee.type= edit_show_numbers_on;
@@ -1517,7 +1517,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   ee.x= 0.;
   ee.y= 0.;
   m_editm->notifyEditEvent(ee);
-//########################################################################
+  //########################################################################
 
   //Fill object edit combobox
   ComboBoxData(m_Frontcm,1);
@@ -1563,7 +1563,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   emit emitTimes("product",Times);
 
   // update field dialog
-  for (int i=0; i<currprod.fields.size(); i++){
+  for (unsigned int i=0; i<currprod.fields.size(); i++){
     if (currprod.fields[i].fromfield){
       // this will remove the original field in the field dialog
 #ifdef DEBUGREDRAW
@@ -1596,18 +1596,18 @@ void EditDialog::EditNewOk(EditProduct& ep,
     emit Apply(ep.OKstrings,false);
     m_ctrl->keepCurrentArea(true); // reset area conservatism
   } else {
-//  m_ctrl->keepCurrentArea(true); // reset area conservatism
+    //  m_ctrl->keepCurrentArea(true); // reset area conservatism
 #ifdef DEBUGREDRAW
     cerr<<"EditDialog::EditNewOk emit editApply()"<<endl;
 #endif
     emit editApply();
-//  m_ctrl->keepCurrentArea(false); // reset area conservatism
+    //  m_ctrl->keepCurrentArea(false); // reset area conservatism
   }
 
 #ifdef DEBUGREDRAW
   cerr<<"REMOVED EditDialog::EditNewOk emit editUpdate()"<<endl;
 #endif
-//emit editUpdate();
+  //emit editUpdate();
 
 #ifdef DEBUGREDRAW
   cerr << "EditDialog::EditNewOk finished...................." << endl;
@@ -1616,8 +1616,8 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
 
 void EditDialog::EditNewCombineOk(EditProduct& ep,
-				  EditProductId& ci,
-				  miTime& time)
+    EditProductId& ci,
+    miTime& time)
 {
   cerr << "EditNewCombineOK" << endl;
   // Turn off Undo-buttons
@@ -1735,32 +1735,32 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     cerr<<" class str: "<<str<<endl;
 
     vector<miString> vclass= str.split(',');
-    for (int i=0; i<vclass.size(); i++) {
+    for (unsigned int i=0; i<vclass.size(); i++) {
       vector<miString> vs= vclass[i].split(":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
-	classValues.push_back(atof(vs[0].cStr()));
-	classValuesLocked.push_back(false);
+        classValues.push_back(atof(vs[0].cStr()));
+        classValuesLocked.push_back(false);
       }
     }
     classNames.push_back(tr("Undefined").toStdString());
     classValues.push_back(1.e+35);        // the fieldUndef value
     classValuesLocked.push_back(false);
 
-    for (int i=0; i<classNames.size(); i++) {
+    for (unsigned int i=0; i<classNames.size(); i++) {
       miString estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 
-    for (int i=0; i<classNames.size(); i++) {
+    for (unsigned int i=0; i<classNames.size(); i++) {
       QListWidgetItem* item
-	= new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
+      = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
       m_Fieldeditmethods->addItem(item);
     }
 
     m_Fieldeditmethods->blockSignals(false);
-//     currFieldEditToolIndex=0;
-//     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
+    //     currFieldEditToolIndex=0;
+    //     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
 
     //OBS    m_Fieldeditmethods->triggerUpdate(true);
   }
@@ -1791,7 +1791,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     Times.push_back(t);
     emit emitTimes("product",Times);
     // update field dialog
-    for (int i=0; i<currprod.fields.size(); i++){
+    for (unsigned int i=0; i<currprod.fields.size(); i++){
       // add a new selected field in the field dialog
       emit emitFieldEditUpdate(currprod.fields[i].name);
     }

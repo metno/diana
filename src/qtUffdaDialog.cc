@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,7 +33,7 @@
 #include <QListWidgetItem>
 #include <QPushButton>
 #include <QLabel>
-#include <QMessageBox> 
+#include <QMessageBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -47,17 +47,17 @@
 UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), m_ctrl(llctrl)
 {
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
   cout<<"UffdaDialog::UffdaDialog called"<<endl;
 #endif
 
   //caption to appear on top of dialog
   setWindowTitle(tr("Uffda"));
-    
+
   //********** the list of satellites to choose from **************
   satlist = new QListWidget( this );
 
-  connect( satlist, SIGNAL( itemClicked(QListWidgetItem* ) ), 
+  connect( satlist, SIGNAL( itemClicked(QListWidgetItem* ) ),
   SLOT( satlistSlot(QListWidgetItem*) ) );
 
   //********** the list of classes to choose from **************
@@ -68,12 +68,11 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
   m_ctrl->getUffdaClasses(vUffdaClass,vUffdaClassTip);
   int n=vUffdaClass.size();
-  int m=vUffdaClassTip.size();
   for (int i=0;i<n;i++){
     classlist->addItem(QString(vUffdaClass[i].c_str()));
   }
 
-  connect( classlist, SIGNAL( itemClicked(QListWidgetItem* ) ), 
+  connect( classlist, SIGNAL( itemClicked(QListWidgetItem* ) ),
   SLOT( classlistSlot(QListWidgetItem*) ) );
 
   // qt4 fix: new routine to make ToolTip
@@ -85,7 +84,7 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   poslist = new QListWidget( this );
 //   poslist->setMinimumHeight(HEIGHTLISTBOX);
 //   poslist->setMinimumWidth(WIDTHLISTBOX);
-  connect( poslist, SIGNAL( itemClicked(QListWidgetItem* ) ), 
+  connect( poslist, SIGNAL( itemClicked(QListWidgetItem* ) ),
   SLOT( poslistSlot(QListWidgetItem*) ) );
 
   satIndex=-1;
@@ -95,14 +94,14 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   Deleteb = NormalPushButton(tr("Delete"), this );
   connect( Deleteb, SIGNAL(clicked()), SLOT(DeleteClicked()));
   DeleteAllb = NormalPushButton(tr("Delete All"), this );
-  connect( DeleteAllb, SIGNAL( clicked() ), SLOT( DeleteAllClicked() )); 
+  connect( DeleteAllb, SIGNAL( clicked() ), SLOT( DeleteAllClicked() ));
   storeb = NormalPushButton(tr("Save"), this );
   connect( storeb, SIGNAL(clicked()), SLOT(storeClicked()));
 
 
   //push button to show help
-  helpb = NormalPushButton( tr("Help"), this);  
-  connect( helpb, SIGNAL(clicked()), SLOT( helpClicked()));    
+  helpb = NormalPushButton( tr("Help"), this);
+  connect( helpb, SIGNAL(clicked()), SLOT( helpClicked()));
   //push button to hide dialog
   hideb = NormalPushButton(tr("Hide"), this);
   connect( hideb, SIGNAL(clicked()), SIGNAL(uffdaHide()));
@@ -131,8 +130,8 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout* vlayout = new QVBoxLayout( this);                            
-  vlayout->addLayout( v3layout ); 
+  QVBoxLayout* vlayout = new QVBoxLayout( this);
+  vlayout->addLayout( v3layout );
   vlayout->addLayout( h1layout );
   //stationplotpointer
   sp=0;
@@ -148,9 +147,9 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 /***************************************************************************/
 void UffdaDialog::classlistSlot(QListWidgetItem*){
   //called when an uffda class is selected
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
     cerr<<"UffdaDialog::classlistSlot called"<<endl;
-#endif 
+#endif
     int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
     QString satclass = classlist->currentItem()->text();
@@ -161,9 +160,9 @@ void UffdaDialog::classlistSlot(QListWidgetItem*){
 /***************************************************************************/
 void UffdaDialog::satlistSlot(QListWidgetItem* item){
   //called when a satellite is selected
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
     cerr<<"UffdaDialog::satlistSlot called"<<endl;
-#endif 
+#endif
     int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
     QString sattime = satlist->currentItem()->text();
@@ -176,9 +175,9 @@ void UffdaDialog::satlistSlot(QListWidgetItem* item){
 /***************************************************************************/
 void UffdaDialog::poslistSlot(QListWidgetItem* item){
   //called when a satellite is selected
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
     cerr<<"UffdaDialog::poslistSlot called"<<endl;
-#endif 
+#endif
     int posIndex=poslist->row(item);
     if (posIndex < 0) return;
     if (sp)
@@ -190,23 +189,23 @@ void UffdaDialog::poslistSlot(QListWidgetItem* item){
 /***************************************************************************/
 void UffdaDialog::storeClicked(){
   //called when store button is pressed
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
     cerr<<"UffdaDialog::storeClicked called"<<endl;
-#endif 
-    miString body=getUffdaString();  
+#endif
+    miString body=getUffdaString();
     // write to local file (backup)
     ofstream file("uffda.dat");
     bool okfile;
-    if (file){ 
+    if (file){
       okfile=true;
       file << body;
       file.close();
     }
     QString messagestring;
     if (okfile)
-      messagestring= " <nobr>" + tr("Data saved in") + " <i>uffda.dat</i></nobr>"; 
+      messagestring= " <nobr>" + tr("Data saved in") + " <i>uffda.dat</i></nobr>";
     else
-      messagestring= "<nobr>" + tr("Data not saved") +"</nobr>"; 
+      messagestring= "<nobr>" + tr("Data not saved") +"</nobr>";
     QMessageBox::information(this,tr("Uffda - info"),messagestring);
 }
 
@@ -214,19 +213,19 @@ void UffdaDialog::storeClicked(){
 /***************************************************************************/
 void UffdaDialog::sendClicked(){
   //called when help button is pressed
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
     cerr<<"UffdaDialog::sendClicked called"<<endl;
-#endif 
+#endif
     bool okbody=false,okfile=false;
     miString subject ="REPLY";
-    miString body=getUffdaString();  
+    miString body=getUffdaString();
     if (!body.empty()){
-      // send mail to uffda user 
+      // send mail to uffda user
       okbody=true;
       send(mailto,subject,body); // this is the most important part
       // also write to local file (backup)
       ofstream file("uffda.dat");
-      if (file){ 
+      if (file){
 	okfile=true;
 	file << body;
 	file.close();
@@ -235,35 +234,35 @@ void UffdaDialog::sendClicked(){
       DeleteAllClicked();
     }
     //the rest is just to show a messagebox to the user, not so important
-    QString messagestring,tmp1; 
+    QString messagestring,tmp1;
     QString tmp2= mailto.c_str();
-    if (okbody){ 
-      tmp1=" <nobr>" + tr("Data sent to") + "<i> "; 
+    if (okbody){
+      tmp1=" <nobr>" + tr("Data sent to") + "<i> ";
       QString tmp3= "</i></nobr><br> <nobr> " + tr("Check incoming mail for receipt (up to 2 minutes)!") +
 						   "</nobr> ";
       messagestring = tmp1+tmp2+tmp3;
       if (okfile){
-	QString tmp4= "<br><nobr>" + tr("(Data also saved in local file") + " <i>uffda.dat</i></nobr>)"; 
+	QString tmp4= "<br><nobr>" + tr("(Data also saved in local file") + " <i>uffda.dat</i></nobr>)";
 	messagestring+=tmp4;
       }
     }
     else{
       tmp1=" <nobr>" + tr("Data not sent to") + " <i>";
-      QString tmp3= "</i></nobr><br> <nobr> " + tr("Incomplete information") + "</nobr>";   
+      QString tmp3= "</i></nobr><br> <nobr> " + tr("Incomplete information") + "</nobr>";
       messagestring = tmp1+tmp2 +tmp3;
-    } 
+    }
       QMessageBox::information(this,tr("Uffda - info"),messagestring);
 }
 
 
-    
+
 /***************************************************************************/
 void UffdaDialog::DeleteClicked(){
   //called when delete/slett button is called
   //unselects and unhighlights everything
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
     cerr<<"UffdaDialog::DeleteClicked called"<<endl;
-#endif 
+#endif
     //clear uffda deque
     int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
@@ -283,9 +282,9 @@ void UffdaDialog::DeleteClicked(){
 void UffdaDialog::DeleteAllClicked(){
   //called when delete/slett button is called
   //unselects and unhighlights everything
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
     cerr<<"UffdaDialog::DeleteAllClicked called"<<endl;
-#endif 
+#endif
     vector <float> vlat_uffda;
     vector <float> vlon_uffda;
     vector <miString> vname_uffda;
@@ -312,7 +311,7 @@ void UffdaDialog::helpClicked(){
 /********************************************/
 void UffdaDialog::closeEvent( QCloseEvent* e) {
   emit uffdaHide();
-} 
+}
 
 /********************************************/
 
@@ -338,9 +337,9 @@ bool UffdaDialog::okToExit(){
 /********************************************/
 
 void UffdaDialog::addPosition(float lat, float lon){
-#ifdef dUffdaDlg 
+#ifdef dUffdaDlg
   cerr<<"UffdaDialog::addPosition called"<<endl;
-#endif 
+#endif
   int currIndex=-1;
   QString sattime="dummy";
   uffdaElement ue;
@@ -352,7 +351,7 @@ void UffdaDialog::addPosition(float lat, float lon){
   //now get list of satellites available
   satlist->clear();
   vector <miString> satnames = m_ctrl->getSatnames();
-  for (int i=0; i<satnames.size(); i++){
+  for (unsigned int i=0; i<satnames.size(); i++){
     QString satname = QString(satnames[i].c_str());
     satname=satname.simplifyWhiteSpace();
     satlist->addItem(satname);
@@ -372,7 +371,7 @@ void UffdaDialog::addPosition(float lat, float lon){
   v_uffda.push_front(ue);
   updateStationPlot();
 }
- 
+
 
 /********************************************/
 
@@ -417,7 +416,7 @@ void UffdaDialog::updateStationPlot(){
   vector <float> vlon_uffda;
   vector <miString> vname_uffda;
   int n= v_uffda.size();
-  for (int i=0;i<n;i++){  
+  for (int i=0;i<n;i++){
     vlat_uffda.push_back(v_uffda[i].lat);
     vlon_uffda.push_back(v_uffda[i].lon);
     vname_uffda.push_back(v_uffda[i].posstring.toStdString());
@@ -442,23 +441,23 @@ void UffdaDialog::clearSelection(){
 
 void UffdaDialog::pointClicked(miString uffstation){
    int n= v_uffda.size();
-   for (int i=0;i<n;i++){  
+   for (int i=0;i<n;i++){
      if (v_uffda[i].posstring.toStdString()== uffstation){
        poslist->setCurrentRow(i);
       return;
     }
-  }  
+  }
 }
 
 /********************************************/
 
 miString UffdaDialog::getUffdaString(){
   miString uffstr;
-  int n= poslist->count();
-  for (int i=0;i<n;i++){  
+  unsigned int n= poslist->count();
+  for (unsigned int i=0;i<n;i++){
     if (i<v_uffda.size() && v_uffda[i].ok)
       uffstr+= poslist->item(i)->text().toStdString() + miString("\n");
-  }  
+  }
   return uffstr;
 }
 
@@ -466,17 +465,17 @@ miString UffdaDialog::getUffdaString(){
 
 // fra Juergen - sendmail rutine
 //
-void UffdaDialog::send(const miString& to, 
+void UffdaDialog::send(const miString& to,
 	  const miString& subject,const miString& body)
 {
    FILE* sendmail;
    sendmail=popen("/usr/lib/sendmail -t","w");
    fprintf(sendmail,"To: %s\nSubject: %s\n\n",to.cStr(),subject.cStr());
-   fprintf(sendmail,"<DATA>\n");   
+   fprintf(sendmail,"<DATA>\n");
    fprintf(sendmail,body.cStr());
    fprintf(sendmail,"\n</DATA>\n");
    pclose(sendmail);
-} 
+}
 
 
 /********************************************/

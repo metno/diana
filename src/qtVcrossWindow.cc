@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <qapplication.h>
 #include <QFileDialog>
 #include <QToolBar>
@@ -53,7 +53,7 @@
 
 
 VcrossWindow::VcrossWindow()
-  : QMainWindow( 0, "DIANA Vcross window")
+: QMainWindow( 0, "DIANA Vcross window")
 {
 #ifndef linux
   qApp->setStyle(new QMotifStyle);
@@ -115,9 +115,9 @@ VcrossWindow::VcrossWindow()
 
 
   QToolButton *leftCrossectionButton= new QToolButton(QPixmap(bakover_xpm),
-						      tr("previous crossections"), "",
-						      this, SLOT(leftCrossectionClicked()),
-						      this, "vcCstepB" );
+      tr("previous crossections"), "",
+      this, SLOT(leftCrossectionClicked()),
+      this, "vcCstepB" );
   leftCrossectionButton->setUsesBigPixmap(false);
   leftCrossectionButton->setAutoRepeat(true);
 
@@ -126,22 +126,22 @@ VcrossWindow::VcrossWindow()
   dummycross.push_back("                        ");
   crossectionBox = ComboBox(this, dummycross, true, 0);
   connect( crossectionBox, SIGNAL( activated(int) ),
-		       SLOT( crossectionBoxActivated(int) ) );
+      SLOT( crossectionBoxActivated(int) ) );
 
   QToolButton *rightCrossectionButton= new QToolButton(QPixmap(forward_xpm),
-						       tr("next crossection"), "",
-						       this, SLOT(rightCrossectionClicked()),
-						       this, "vcCstepF" );
+      tr("next crossection"), "",
+      this, SLOT(rightCrossectionClicked()),
+      this, "vcCstepF" );
   rightCrossectionButton->setUsesBigPixmap(false);
   rightCrossectionButton->setAutoRepeat(true);
-  
+
   QToolButton *leftTimeButton= new QToolButton(QPixmap(bakover_xpm),
-					       tr("previous timestep"), "",
-					       this, SLOT(leftTimeClicked()),
-					       this, "vcTstepB" );
+      tr("previous timestep"), "",
+      this, SLOT(leftTimeClicked()),
+      this, "vcTstepB" );
   leftTimeButton->setUsesBigPixmap(false);
   leftTimeButton->setAutoRepeat(true);
-  
+
   //combobox to select time
   miTime tnow= miTime::nowTime();
   miTime tset= miTime(tnow.year(),tnow.month(),tnow.day(),0,0,0);
@@ -149,12 +149,12 @@ VcrossWindow::VcrossWindow()
   dummytime.push_back(tset.isoTime(false,false));
   timeBox = ComboBox(this, dummytime, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
-		    SLOT( timeBoxActivated(int) ) );
+      SLOT( timeBoxActivated(int) ) );
 
   QToolButton *rightTimeButton= new QToolButton(QPixmap(forward_xpm),
-						tr("next timestep"), "",
-						this, SLOT(rightTimeClicked()),
-						this, "vcTstepF" );
+      tr("next timestep"), "",
+      this, SLOT(rightTimeClicked()),
+      this, "vcTstepF" );
   rightTimeButton->setUsesBigPixmap(false);
   rightTimeButton->setAutoRepeat(true);
 
@@ -181,19 +181,19 @@ VcrossWindow::VcrossWindow()
   connect(vcDialog, SIGNAL(VcrossDialogApply(bool)),SLOT(changeFields(bool)));
   connect(vcDialog, SIGNAL(VcrossDialogHide()),SLOT(hideDialog()));
   connect(vcDialog, SIGNAL(showsource(const miString, const miString)),
-	  SIGNAL(showsource(const miString, const miString)));
+      SIGNAL(showsource(const miString, const miString)));
 
 
   vcSetupDialog = new VcrossSetupDialog(this,vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vcSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
   connect(vcSetupDialog, SIGNAL(showsource(const miString, const miString)),
-	  SIGNAL(showsource(const miString, const miString)));
+      SIGNAL(showsource(const miString, const miString)));
 
 
   //inialize everything in startUp
   firstTime = true;
-  active = false; 
+  active = false;
 #ifdef DEBUGPRINT
   cerr<<"VcrossWindow::VcrossWindow() finished"<<endl;
 #endif
@@ -267,15 +267,15 @@ bool VcrossWindow::timeChangedSlot(int diff){
     if(--index < 0) {
       //set index to the last in the box !
       index=timeBox->count()-1;
-    } 
+    }
     timeBox->setCurrentItem(index);
     diff++;
-  }    
+  }
   while(diff>0){
     if(++index > timeBox->count()-1) {
       //set index to the first in the box !
       index=0;
-    } 
+    }
     timeBox->setCurrentItem(index);
     diff--;
   }
@@ -286,18 +286,18 @@ bool VcrossWindow::timeChangedSlot(int diff){
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
-    for (int i = 0; i<n;i++){      
+    for (int i = 0; i<n;i++){
       if(tstring ==timeBox->text(i).toStdString()){
-	timeBox->setCurrentItem(i);
-	tbs=timeBox->currentText().toStdString();
-	break;
+        timeBox->setCurrentItem(i);
+        tbs=timeBox->currentText().toStdString();
+        break;
       }
     }
   }
   if (tbs!=tstring){
     cerr << "WARNING! timeChangedSlot  time from vcrossm ="
-	 << t    <<" not equal to timeBox text = " << tbs << endl
-	 << "You should search through timelist!" << endl;
+    << t    <<" not equal to timeBox text = " << tbs << endl
+    << "You should search through timelist!" << endl;
     return false;
   }
 
@@ -318,15 +318,15 @@ bool VcrossWindow::crossectionChangedSlot(int diff){
     if(--index < 0) {
       //set index to the last in the box !
       index=crossectionBox->count()-1;
-    } 
+    }
     crossectionBox->setCurrentItem(index);
     diff++;
-  }    
+  }
   while(diff>0){
     if(++index > crossectionBox->count()-1) {
       //set index to the first in the box !
       index=0;
-    } 
+    }
     crossectionBox->setCurrentItem(index);
     diff--;
   }
@@ -340,19 +340,19 @@ bool VcrossWindow::crossectionChangedSlot(int diff){
     int n = crossectionBox->count();
     for(int i = 0;i<n;i++){
       if (s==crossectionBox->text(i).toStdString()){
-	crossectionBox->setCurrentItem(i);
-	sbs=miString(crossectionBox->currentText().toStdString());
-	break;
+        crossectionBox->setCurrentItem(i);
+        sbs=miString(crossectionBox->currentText().toStdString());
+        break;
       }
     }
   }
   QString sq = s.c_str();
-  if (sbs==s) { 
+  if (sbs==s) {
     emit crossectionChanged(sq); //name of current crossection (to mainWindow)
     return true;
   } else {
     //    cerr << "WARNING! crossectionChangedSlot  crossection from vcrossm ="
-    // 	 << s    <<" not equal to crossectionBox text = " << sbs << endl;	
+    // 	 << s    <<" not equal to crossectionBox text = " << sbs << endl;
     //current or last crossection plotted is not in the list, insert it...
     crossectionBox->insertItem(sq,0);
     crossectionBox->setCurrentItem(0);
@@ -416,10 +416,10 @@ void VcrossWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
   QString s = QFileDialog::getSaveFileName(this,
-				 tr("Save plot as image"),
-				 fname,
-				 tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
-  
+      tr("Save plot as image"),
+      fname,
+      tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+
 
   if (!s.isNull()) {// got a filename
     fname= s;
@@ -485,7 +485,7 @@ void VcrossWindow::timeGraphClicked(bool on)
 {
   //called when the timeGraph button is clicked
 #ifdef DEBUGPRINT
-    cerr << "TiemGraph button clicked on=" << on << endl;
+  cerr << "TiemGraph button clicked on=" << on << endl;
 #endif
   if (on && vcrossm->timeGraphOK()) {
     vcrossw->enableTimeGraph(true);
@@ -537,7 +537,7 @@ void VcrossWindow::helpClicked(){
 /***************************************************************************/
 
 void VcrossWindow::MenuOK(){
-  //obsolete - nothing happens here 
+  //obsolete - nothing happens here
 #ifdef DEBUGPRINT
   cerr << "VcrossWindow::MenuOK()" << endl;
 #endif
@@ -578,9 +578,9 @@ void VcrossWindow::changeSetup(){
 #endif
 
   //###if (mapOptionsChanged) {
-    // emit to MainWindow
-    // (updates crossectionPlot colour etc., not data, name etc.)
-    emit crossectionSetUpdate();
+  // emit to MainWindow
+  // (updates crossectionPlot colour etc., not data, name etc.)
+  emit crossectionSetUpdate();
   //###}
 
   vcrossw->updateGL();
@@ -645,7 +645,7 @@ void VcrossWindow::updateCrossectionBox(){
 
   int n =crossections.size();
   for (int i=0; i<n; i++){
-   crossectionBox->addItem(QString(crossections[i].c_str()));		
+    crossectionBox->addItem(QString(crossections[i].c_str()));
   }
 
 }
@@ -689,7 +689,7 @@ void VcrossWindow::timeBoxActivated(int index){
 
   vector<miTime> times= vcrossm->getTimeList();
 
-  if (index>=0 && index<times.size()) {
+  if (index>=0 && index<int(times.size())) {
     vcrossm->setTime(times[index]);
 
     vcrossw->updateGL();
@@ -722,12 +722,12 @@ bool VcrossWindow::changeCrossection(const miString& crossection){
 /***************************************************************************/
 
 void VcrossWindow::mainWindowTimeChanged(const miTime& t){
-  if (!active) return; 
+  if (!active) return;
 #ifdef DEBUGPRINT
   cerr << "vcrossWindow::mainWindowTimeChanged called with time " << t << endl;
 #endif
   vcrossm->mainWindowTimeChanged(t);
-  //get correct selection in comboboxes 
+  //get correct selection in comboboxes
   crossectionChangedSlot(0);
   timeChangedSlot(0);
   vcrossw->updateGL();
@@ -767,16 +767,16 @@ vector<miString> VcrossWindow::writeLog(const miString& logpart)
   if (logpart=="window") {
 
     str= "VcrossWindow.size " + miString(this->width()) + " "
-			      + miString(this->height());
+    + miString(this->height());
     vstr.push_back(str);
     str= "VcrossWindow.pos "  + miString(this->x()) + " "
-			      + miString(this->y());
+    + miString(this->y());
     vstr.push_back(str);
     str= "VcrossDialog.pos "  + miString(vcDialog->x()) + " "
-			      + miString(vcDialog->y());
+    + miString(vcDialog->y());
     vstr.push_back(str);
     str= "VcrossSetupDialog.pos " + miString(vcSetupDialog->x()) + " "
-			          + miString(vcSetupDialog->y());
+    + miString(vcSetupDialog->y());
     vstr.push_back(str);
 
     // printer name & options...
@@ -784,9 +784,9 @@ vector<miString> VcrossWindow::writeLog(const miString& logpart)
       str= "PRINTER " + priop.printer;
       vstr.push_back(str);
       if (priop.orientation==d_print::ori_portrait)
-	str= "PRINTORIENTATION portrait";
+        str= "PRINTORIENTATION portrait";
       else
-	str= "PRINTORIENTATION landscape";
+        str= "PRINTORIENTATION landscape";
       vstr.push_back(str);
     }
 
@@ -805,8 +805,8 @@ vector<miString> VcrossWindow::writeLog(const miString& logpart)
 
 
 void VcrossWindow::readLog(const miString& logpart, const vector<miString>& vstr,
-			   const miString& thisVersion, const miString& logVersion,
-			   int displayWidth, int displayHeight)
+    const miString& thisVersion, const miString& logVersion,
+    int displayWidth, int displayHeight)
 {
 
   if (logpart=="window") {
@@ -828,17 +828,17 @@ void VcrossWindow::readLog(const miString& logpart, const vector<miString>& vstr
           if      (tokens[0]=="VcrossWindow.pos")      this->move(x,y);
           else if (tokens[0]=="VcrossDialog.pos")      vcDialog->move(x,y);
           else if (tokens[0]=="VcrossSetupDialog.pos") vcSetupDialog->move(x,y);
-	}
+        }
 
       } else if (tokens.size()>=2) {
 
         if (tokens[0]=="PRINTER") {
           priop.printer=tokens[1];
         } else if (tokens[0]=="PRINTORIENTATION") {
-	  if (tokens[1]=="portrait")
-	    priop.orientation=d_print::ori_portrait;
-	  else
-	    priop.orientation=d_print::ori_landscape;
+          if (tokens[1]=="portrait")
+            priop.orientation=d_print::ori_portrait;
+          else
+            priop.orientation=d_print::ori_landscape;
         }
 
       }
@@ -859,6 +859,6 @@ void VcrossWindow::readLog(const miString& logpart, const vector<miString>& vstr
 
 void VcrossWindow::closeEvent(QCloseEvent * e)
 {
-   quitClicked();
+  quitClicked();
 }
 

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <QComboBox>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -50,18 +50,18 @@
 
 /*********************************************/
 EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
-					     Controller* llctrl, 
-					     int n,EditProduct ep)
-  : QDialog(parent,"definefield", true), m_ctrl(llctrl), num(n), EdProd(ep)
+    Controller* llctrl,
+    int n,EditProduct ep)
+: QDialog(parent,"definefield", true), m_ctrl(llctrl), EdProd(ep), num(n)
 {
 
-  m_editm= m_ctrl->getEditManager();  
+  m_editm= m_ctrl->getEditManager();
 
   if (num==-1){
     fieldname= tr("Objects").toStdString();
     setWindowTitle(tr("Pick objects for editing"));
   }
-  else if (num < EdProd.fields.size()){
+  else if (num < int(EdProd.fields.size())){
     fieldname=EdProd.fields[num].name;
     setWindowTitle(tr("Pick fields for editing"));
   }
@@ -70,21 +70,21 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 
   miString txt= fieldname + " " + miString(tr("from:").toStdString());
   QLabel* mainlabel= TitleLabel( txt.cStr(), this );
-  
+
   productNames=getProductNames();
   prodnamebox = ComboBox( this, productNames, true, 0);
   connect( prodnamebox, SIGNAL( activated(int) ),
-	   SLOT( prodnameActivated(int) )  );
+      SLOT( prodnameActivated(int) )  );
 
 
   fBox= new QListWidget(this);
 
-  connect(fBox, SIGNAL(itemClicked(QListWidgetItem *)), 
-	  SLOT(fieldselect(QListWidgetItem *)));
+  connect(fBox, SIGNAL(itemClicked(QListWidgetItem *)),
+      SLOT(fieldselect(QListWidgetItem *)));
 
 
   QString xps= tr("Official product") + " -- <i>" +
-    tr("Locally stored") ;
+  tr("Locally stored") ;
   QLabel* xplabel= new QLabel(xps, this);
 
   QVBoxLayout* vlayout = new QVBoxLayout( this);
@@ -108,12 +108,12 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 
   //*** the box (with label) showing which files/fields have been choosen ****
   if (num==-1)
-      filesLabel = TitleLabel(tr("Selected objects"), this);
+    filesLabel = TitleLabel(tr("Selected objects"), this);
   else
     filesLabel = TitleLabel(tr("Selected fields"), this);
   filenames = new QListWidget( this );
-  connect(filenames, SIGNAL(itemClicked( QListWidgetItem *)), 
-			    SLOT(filenameSlot(QListWidgetItem *)));
+  connect(filenames, SIGNAL(itemClicked( QListWidgetItem *)),
+      SLOT(filenameSlot(QListWidgetItem *)));
 
   vlayout->addWidget( filesLabel );
   vlayout->addWidget( filenames );
@@ -146,7 +146,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 
   //push button to refresh filelists
   refresh =NormalPushButton( tr("Refresh"), this );
-  connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() )); 
+  connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() ));
 
   //place  "delete" and "refresh" buttons in hor.layout
   QHBoxLayout* h0layout = new QHBoxLayout();
@@ -169,9 +169,9 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   //check existing selections for product
   if (num==-1 && EdProd.objectprods.size())
     vselectedprod=EdProd.objectprods;
-  else if (num>-1 && num < EdProd.fields.size()){
+  else if (num>-1 && num < int(EdProd.fields.size())){
     if (EdProd.fields[num].fromfield)
-      selectedfield=EdProd.fields[num].fromfname;  
+      selectedfield=EdProd.fields[num].fromfname;
     else
       vselectedprod.push_back(EdProd.fields[num].fromprod);
   }
@@ -183,19 +183,19 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 
   if (num>-1 && fields.size()==0){
     if (prodnamebox->count()>1) prodnamebox->setCurrentItem(1);
-    prodnameActivated(1); 
+    prodnameActivated(1);
   }
   else
     prodnameActivated(0);
 
-  
+
 }//end constructor EditDefineFieldDialog
 
 
 /*********************************************/
 
 vector <miString> EditDefineFieldDialog::getProductNames(){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout << "getProductNames called " << endl;
 #endif
   vector <miString> name;
@@ -203,7 +203,7 @@ vector <miString> EditDefineFieldDialog::getProductNames(){
   //get fields
   if (num>-1){
     name.push_back(MODELFIELDS);
-    fields= m_editm->getValidEditFields(EdProd,num);   
+    fields= m_editm->getValidEditFields(EdProd,num);
   }
   name.push_back(EdProd.name);
   vector<savedProduct> sp=
@@ -211,17 +211,17 @@ vector <miString> EditDefineFieldDialog::getProductNames(){
   pmap[EdProd.name]=sp;
   int n = EdProd.inputproducts.size();
   for (int i =0;i<n;i++){
-    if (EdProd.inputproducts[i]==EdProd.name) continue;  
+    if (EdProd.inputproducts[i]==EdProd.name) continue;
     EditProduct epin;
     if (m_editm->findProduct(epin,EdProd.inputproducts[i])){
       vector<savedProduct> spin;
       if (num>-1)
-	spin = m_editm->getSavedProducts(epin,EdProd.fields[num].name);
+        spin = m_editm->getSavedProducts(epin,EdProd.fields[num].name);
       else
-	spin = m_editm->getSavedProducts(epin,num);
+        spin = m_editm->getSavedProducts(epin,num);
       if (spin.size()){
-	name.push_back(epin.name);
-	pmap[epin.name]=spin;
+        name.push_back(epin.name);
+        pmap[epin.name]=spin;
       }
     }
   }
@@ -231,10 +231,10 @@ vector <miString> EditDefineFieldDialog::getProductNames(){
 /*********************************************/
 
 void EditDefineFieldDialog::prodnameActivated(int iprod){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout << "EditDefineFieldDialog::prodnameActivated " << iprod << endl;
 #endif
-  if (productNames.size()>iprod){
+  if (int(productNames.size())>iprod){
     currentProductName= productNames[iprod];
     fillList();
   }
@@ -244,19 +244,19 @@ void EditDefineFieldDialog::prodnameActivated(int iprod){
 
 void EditDefineFieldDialog::fillList()
 {
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout << "EditDefineFieldDialog::fillList for " << currentProductName << endl;
 #endif
   if (currentProductName.empty()) return;
   fBox->clear();
   fBox->clearFocus();
   if (currentProductName==MODELFIELDS){
-    for (int i=0; i<fields.size(); i++){
+    for (unsigned int i=0; i<fields.size(); i++){
       fBox->addItem(QString(fields[i].cStr()));
     }
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
-    for (int i=0; i<splist.size(); i++){
+    for (unsigned int i=0; i<splist.size(); i++){
       miString str = splist[i].pid + miString(" - ") +splist[i].ptime.isoTime();
       QListWidgetItem* item = new QListWidgetItem(QString(str.cStr()));
       bool italic= (splist[i].source==data_local);
@@ -272,7 +272,7 @@ void EditDefineFieldDialog::fillList()
 
 void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
 {
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout << "EditDefineFieldDialog::fieldselect" << endl;
 #endif
   int i =fBox->row(item);
@@ -308,7 +308,7 @@ void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
 /*********************************************/
 
 void EditDefineFieldDialog::updateFilenames(){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout << "EditDefineFieldDialog::updateFilenames" << endl;
 #endif
   filenames->clear();
@@ -319,24 +319,24 @@ void EditDefineFieldDialog::updateFilenames(){
     }
   }
   if (productSelected()){
-    for (int i = 0;i<vselectedprod.size();i++){
+    for (unsigned int i = 0;i<vselectedprod.size();i++){
       miString namestr=m_editm->savedProductString(vselectedprod[i]);
       if (!namestr.empty()) {
-	filenames->addItem(QString(namestr.c_str()));
-      }      
+        filenames->addItem(QString(namestr.c_str()));
+      }
     }
-  } 
+  }
 }
 
 /*********************************************/
 
 void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout << "EditDefineFieldDialog::filenameSlot" << endl;
 #endif
   selectedProdIndex=filenames->row(item);
   if (num==-1){
-    map<miString,bool> useEditobject = 
+    map<miString,bool> useEditobject =
       m_ctrl->decodeTypeString(vselectedprod[selectedProdIndex].selectObjectTypes);
     setCheckedCbs(useEditobject);
   }
@@ -344,14 +344,14 @@ void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item){
 
 /*********************************************/
 void EditDefineFieldDialog::DeleteClicked(){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout<<"EditDefineFieldDialog::DeleteClicked() called;" << endl;
 #endif
   if (fieldSelected()){
     selectedfield.clear();
     updateFilenames();
   }
-  else if (productSelected()&&selectedProdIndex<vselectedprod.size()){
+  else if (productSelected()&&selectedProdIndex < int(vselectedprod.size())){
     vselectedprod.erase(vselectedprod.begin()+selectedProdIndex);
     selectedProdIndex--;
     if (selectedProdIndex<0 && vselectedprod.size()) selectedProdIndex=0;
@@ -369,7 +369,7 @@ void EditDefineFieldDialog::DeleteClicked(){
 /*********************************************/
 
 void EditDefineFieldDialog::Refresh(){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout<<"EditDefineFieldDialog::Refresh() called;" << endl;
 #endif
   getProductNames();
@@ -378,16 +378,16 @@ void EditDefineFieldDialog::Refresh(){
 /***********************************************************/
 
 void EditDefineFieldDialog::cbsClicked(){
-#ifdef dEditDlg 
+#ifdef dEditDlg
   cout << "cbs0Clicked !" << endl;
 #endif
   if (num>-1) return;
   if (productSelected()){
-    if (selectedProdIndex < vselectedprod.size()){
+    if (selectedProdIndex < int(vselectedprod.size())){
       vselectedprod[selectedProdIndex].selectObjectTypes=selectedObjectTypes();
       updateFilenames();
       if (selectedProdIndex>-1 && selectedProdIndex < filenames->count())
-	filenames->item(selectedProdIndex)->setSelected(true);
+        filenames->item(selectedProdIndex)->setSelected(true);
     }
   }
   if (vselectedprod.size() && selectedProdIndex > -1) ok->setEnabled(true);
@@ -430,7 +430,7 @@ miString EditDefineFieldDialog::selectedObjectTypes() {
   if (num>-1) return miString(" ");
   miString str;
   str+="types=";
-  
+
   if (cbs0->isChecked()) str+="front,";
   if (cbs1->isChecked()) str+="symbol,";
   if (cbs2->isChecked()) str+="area,";

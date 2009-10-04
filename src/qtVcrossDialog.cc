@@ -897,7 +897,7 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
 
   if (last<0 && lastdelete>=0 && selectedFields.size()>0) {
     last= lastdelete;
-    if (last>=selectedFields.size()) last= selectedFields.size() - 1;
+    if (last>=int(selectedFields.size())) last= selectedFields.size() - 1;
   }
 
   if (last>=0 && selectedFieldbox->item(last)) {
@@ -921,7 +921,7 @@ void VcrossDialog::enableFieldOptions(){
 #endif
 
   float e;
-  int   index, lastindex, nc, i, j, k, n;
+  int   index, lastindex, nc, i;
 
   index= selectedFieldbox->currentRow();
   lastindex= selectedFields.size()-1;
@@ -938,7 +938,7 @@ void VcrossDialog::enableFieldOptions(){
 
   upFieldButton->setEnabled( (index>0) );
   downFieldButton->setEnabled( (index<lastindex) );
-  if (models.size()==0 || indexM<0 || indexM>=models.size())
+  if (models.size()==0 || indexM<0 || indexM>=int(models.size()))
     changeModelButton->setEnabled( false );
   else if (selectedFields[index].model==models[indexM])
     changeModelButton->setEnabled( false );
@@ -2074,7 +2074,7 @@ void VcrossDialog::historyOk() {
   cerr << "VcrossDialog::historyOk()" << endl;
 #endif
 
-  if (historyPos<0 || historyPos>=commandHistory.size()) {
+  if (historyPos<0 || historyPos>=int(commandHistory.size())) {
     vector<miString> vstr;
     putOKString(vstr,false,false);
   } else {
@@ -2438,7 +2438,7 @@ void VcrossDialog::deleteSelected(){
   }
 
   if (selectedFields.size()>0) {
-    if (index>=selectedFields.size()) index= selectedFields.size()-1;
+    if (index>=int(selectedFields.size())) index= selectedFields.size()-1;
     selectedFieldbox->setCurrentRow( index );
     selectedFieldbox->item(index)->setSelected( true );
     enableFieldOptions();
@@ -2507,7 +2507,6 @@ void VcrossDialog::copySelectedField(){
   int index= selectedFieldbox->currentRow();
 
   if (fields.size()>0) {
-    int indexM   = modelbox->currentRow();
     int n=         fields.size();
     int i=0;
     while (i<n && fields[i]!=selectedFields[index].field) i++;

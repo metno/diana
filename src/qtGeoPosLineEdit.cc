@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -52,14 +52,14 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
 
   // Hmmm..
   if (pos > input.length()) return QValidator::Intermediate;
-  
+
   // check for illegal characters
   if (!a.isDigit() && a!='-' && a!='+' &&
       a!='.' && a!=':' && a!=' ' && a!='N' &&
       a!='S' && a!='E' && a!='W')
     return QValidator::Invalid;
-  
-  // check if numbers are legal, and do not accept 
+
+  // check if numbers are legal, and do not accept
   // more than 2 numbers
   int n= input.length();
   int i=0, nnum=0;
@@ -72,7 +72,7 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
 
     // max two numbers
     if (nnum > 2) return QValidator::Invalid;
-    
+
     int i1= i;
     // check for appearance of different characters
     bool hascomma= false;
@@ -110,7 +110,7 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
     if (!toFloat(b.toStdString(),testval,nnum==1))
       return QValidator::Invalid;
   }
-  
+
   if (nnum < 2) // ok, but not quite ready
     return QValidator::Intermediate;
 
@@ -148,7 +148,7 @@ bool GeoPosLineEdit::geovalidator::toFloat(miString s, float& val,
   if (s.contains(":")){ // degrees:minutes:seconds
     vector<miString> vs= s.split(":");
     float asign;
-    for (int k=0; k<vs.size(); k++){
+    for (unsigned int k=0; k<vs.size(); k++){
       float tval= atof(vs[k].cStr());
       if (k==0) // degrees (determines sign)
 	asign = (tval < 0.0 ? -1.0 : 1.0);
@@ -197,7 +197,7 @@ bool GeoPosLineEdit::getValues(float& lat, float& lng)
   s.trim();
   vector<miString> vs= s.split(" ");
   if (vs.size() != 2) return false;
-  
+
   if (!gv->toFloat(vs[0],lat,true)) return false;
   return gv->toFloat(vs[1],lng,false);
 }

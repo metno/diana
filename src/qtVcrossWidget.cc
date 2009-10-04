@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -43,8 +43,8 @@
 VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
 			  QWidget* parent, const char* name )
     : QGLWidget( fmt, parent, name ),
-      vcrossm(vcm), fbuffer(0), timeGraph(false), startTimeGraph(false),
-      arrowKeyDirection(1)
+      vcrossm(vcm), fbuffer(0), arrowKeyDirection(1),
+      timeGraph(false), startTimeGraph(false)
 {
 
   if ( !isValid() ) {
@@ -214,7 +214,7 @@ void VcrossWidget::keyPressEvent(QKeyEvent *me)
       emit crossectionChanged(+1);
     } else {
       change= false;
-    } 
+    }
 
   } else if (me->key()==Qt::Key_Left){
     VcrossPlot::movePart(-arrowKeyDirection*plotw/8, 0);

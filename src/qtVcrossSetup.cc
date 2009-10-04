@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -400,7 +400,7 @@ void VcrossSetup::defineTextChoice2(const vector<miString>& vchoice, int ndefaul
     vTextChoice2= vchoice;
     int m= vTextChoice2.size();
     for (int i=0; i<m; i++)
-      textchoicebox2->addItem(QString(vTextChoice2[i].cStr()));		
+      textchoicebox2->addItem(QString(vTextChoice2[i].cStr()));
     textchoicebox2->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
       textchoicebox2->setCurrentItem(ndefault);
@@ -427,7 +427,7 @@ miString VcrossSetup::getTextChoice()
 {
   if (textchoicebox) {
     int i= textchoicebox->currentItem();
-    if (i<0 || i>=vTextChoice.size()) i=0;
+    if (i<0 || i>=int(vTextChoice.size())) i=0;
     return vTextChoice[i];
   } else
     return "";
@@ -450,7 +450,7 @@ miString VcrossSetup::getTextChoice2()
 {
   if (textchoicebox2) {
     int i= textchoicebox2->currentItem();
-    if (i<0 || i>=vTextChoice2.size()) i=0;
+    if (i<0 || i>=int(vTextChoice2.size())) i=0;
     return vTextChoice2[i];
   } else
     return "";

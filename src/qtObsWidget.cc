@@ -71,7 +71,7 @@ ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
   cerr<<"ObsWidget::ObsWidget called"<<endl;
 #endif
   initOK=false;
-  Qt::WA_DeleteOnClose;
+//  Qt::WA_DeleteOnClose;
 }
 
 void ObsWidget::setDialogInfo( Controller* ctrl,
@@ -367,7 +367,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
   //Priority list
   vector<miString> priName;
-  for(int i=0; i<priorityList.size(); i++)
+  for(unsigned int i=0; i<priorityList.size(); i++)
     priName.push_back(priorityList[i].name);
   pribox = ComboBox( this,priName,true);
   pribox->insertItem(tr("No priority list"),0);
@@ -545,7 +545,7 @@ void ObsWidget::displayDiff( int number ){
   /* This function is called when diffSslider sends a signal valueChanged(int)
      and changes the numerical value in the lcd display diffLcdnum */
 
-  if( number == time_slider2lcd.size() ) {
+  if( number == int(time_slider2lcd.size()) ) {
     diffLcdnum->display( tr("ALL") );
     timediff_minutes = "alltimes";
     return;
@@ -575,7 +575,7 @@ void ObsWidget::diffComboBoxSlot( int number )
 {
 
   int index = time_slider2lcd[diffSlider->value()];
-  bool maxValue = ( diffSlider->value() == time_slider2lcd.size() );
+  bool maxValue = ( diffSlider->value() == int(time_slider2lcd.size()) );
 
   int maxSliderValue, sliderStep;
   if(number==0){
@@ -688,7 +688,7 @@ miString ObsWidget::makeString(bool forLog){
 
   if (dVariables.data.size()) {
     str+= "data=";
-    for (int i=0; i<dVariables.data.size(); i++)
+    for (unsigned int i=0; i<dVariables.data.size(); i++)
       datastr+= dVariables.data[i] + ",";
     datastr= datastr.substr(0,datastr.length()-1);
     str+= datastr + ' ';
@@ -696,7 +696,7 @@ miString ObsWidget::makeString(bool forLog){
 
   if (dVariables.parameter.size()) {
     str+= "parameter=";
-    for (int i=0; i<dVariables.parameter.size(); i++)
+    for (unsigned int i=0; i<dVariables.parameter.size(); i++)
       str+= dVariables.parameter[i] + ",";
     str[str.length()-1]=' ';
   }
@@ -1257,7 +1257,7 @@ ObsDialogInfo::CriteriaList ObsWidget::getCriteriaList()
 bool ObsWidget::setCurrentCriteria(int i)
 {
 
-  if( i<criteriaList.size() ){
+  if( i<int(criteriaList.size()) ){
     currentCriteria=i;
     return true;
   }
@@ -1343,7 +1343,7 @@ vector<miString> ObsWidget::getCriteriaNames()
 {
 
   vector<miString> critName;
-  for(int i=0; i<criteriaList.size(); i++)
+  for(unsigned int i=0; i<criteriaList.size(); i++)
     critName.push_back(criteriaList[i].name);
   return critName;
 

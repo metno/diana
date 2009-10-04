@@ -393,7 +393,7 @@ void SatDialog::timefileListSlot(QListWidgetItem *)
   if (index < 0 && timefileList->count() > 0)
     index = 0;
 
-  if (index < 0 || files.size() <= index)
+  if (index < 0 || int(files.size()) <= index)
     return;
 
   m_time = files[index].time;
@@ -469,7 +469,7 @@ int SatDialog::addSelectedPicture()
   if (timeButton->isOn() || fileButton->isOn()) {
     //"time"/"file" clicked, find filename
     int current = timefileList->currentRow();
-    if (current > -1 && current < files.size()) {
+    if (current > -1 && current < int(files.size())) {
       fstring = files[current].name;
       ltime = files[current].time;
     }
@@ -504,7 +504,7 @@ int SatDialog::addSelectedPicture()
 
   if (!multiPicture->isOn()) {
     int i = pictures->currentRow();
-    if (i > -1 && i < m_state.size()) {
+    if (i > -1 && i < int(m_state.size())) {
       //replace existing picture(same sat). advanced options saved
       // get info about picture we are replacing
       vector<SatFileInfo> f = m_ctrl->getSatFiles(m_state[i].name,
@@ -626,7 +626,7 @@ void SatDialog::picturesSlot(QListWidgetItem * item)
       //downbutton
       downPictureButton->setEnabled(true);
       upPictureButton->setEnabled(false);
-    } else if (index == m_state.size() - 1) {
+    } else if (index == int(m_state.size()) - 1) {
       //upbutton
       upPictureButton->setEnabled(true);
       downPictureButton->setEnabled(false);
@@ -655,7 +655,7 @@ void SatDialog::RefreshList()
 
   //check if m_state - "Valgte bilder" contains pictures no longer existing
   //give a qmessagebox warning
-  for (int i = 0; i < m_state.size(); i++) {
+  for (unsigned int i = 0; i < m_state.size(); i++) {
     bool found = false;
     if (m_state[i].filename.empty()) {
       found = true;
@@ -698,7 +698,7 @@ void SatDialog::Refresh()
 #endif
   QApplication::setOverrideCursor(Qt::waitCursor);
 
-  for (int i = 0; i < m_state.size(); i++) {
+  for (unsigned int i = 0; i < m_state.size(); i++) {
     //    if(m_state[i].filename.empty()){
     //auto option for this state
     m_ctrl->SatRefresh(m_state[i].name, m_state[i].area);
@@ -717,7 +717,7 @@ void SatDialog::mosaicToggled(bool on)
 {
 
   int index = pictures->currentRow();
-  if (index > -1 && m_state.size() > index)
+  if (index > -1 && int(m_state.size()) > index)
     m_state[index].mosaic = on;
   updatePictures(index, false);
 
@@ -767,7 +767,7 @@ void SatDialog::doubleDisplayDiff(int number)
    and changes the numerical value in the lcd display diffLcdnum */
   int totalminutes = int(number * m_scalediff);
   int index = pictures->currentRow();
-  if (index > -1 && m_state.size() > index)
+  if (index > -1 && int(m_state.size()) > index)
     m_state[index].totalminutes = totalminutes;
   int hours = totalminutes / 60;
   int minutes = totalminutes - hours * 60;
@@ -848,7 +848,7 @@ vector<miString> SatDialog::getOKString()
 
   if (pictures->count()) {
 
-    for (int i = 0; i < m_state.size(); i++) {
+    for (unsigned int i = 0; i < m_state.size(); i++) {
       miString str = makeOKString(m_state[i]);
       satoptions[m_state[i].name][m_state[i].area] = str;
       vstr.push_back(str);
@@ -1001,7 +1001,7 @@ void SatDialog::putOptions(const state okVar)
       continue;
     miString listchannel = qstr.toStdString();
     if (okVar.channel == listchannel) {
-      int np = m_state.size();
+      unsigned int np = m_state.size();
       channelbox->setCurrentRow(j);
       channelboxSlot(channelbox->currentItem());
       // check if new picture added..
@@ -1022,7 +1022,7 @@ void SatDialog::putOptions(const state okVar)
 
   //advanced dialog
   int index = pictures->currentRow();
-  if (index < 0 || index >= m_state.size())
+  if (index < 0 || index >= int(m_state.size()))
     return;
   m_state[index].external = sda->putOKString(okVar.advanced);
   advancedChanged();
@@ -1088,7 +1088,7 @@ miString SatDialog::getShortname()
   miString name;
 
   if (pictures->count()) {
-    for (int i = 0; i < m_state.size(); i++)
+    for (unsigned int i = 0; i < m_state.size(); i++)
       name += pictureString(m_state[i], false);
   }
   if (name.exists())
@@ -1377,13 +1377,13 @@ void SatDialog::updatePictures(int index, bool updateAbove)
    */
   pictures->clear();
 
-  for (int i = 0; i < m_state.size(); i++) {
+  for (unsigned int i = 0; i < m_state.size(); i++) {
     //insert item into picturebox
     miString str = pictureString(m_state[i], true);
     pictures->addItem(str.c_str());
   }
 
-  if (index > -1 && index < m_state.size()) {
+  if (index > -1 && index < int(m_state.size())) {
     pictures->setCurrentRow(index);
     if (updateAbove)
       picturesSlot(pictures->currentItem());
@@ -1406,7 +1406,7 @@ void SatDialog::updatePictures(int index, bool updateAbove)
       //downbutton
       downPictureButton->setEnabled(true);
       upPictureButton->setEnabled(false);
-    } else if (index == m_state.size() - 1) {
+    } else if (index == int(m_state.size()) - 1) {
       //upbutton
       upPictureButton->setEnabled(true);
       downPictureButton->setEnabled(false);
@@ -1446,13 +1446,13 @@ void SatDialog::emitSatTimes(bool update)
   times.clear();
   set<miTime> timeset;
 
-  for (int i = 0; i < m_state.size(); i++) {
+  for (unsigned int i = 0; i < m_state.size(); i++) {
     if (m_state[i].filename.empty() || update) {
       //auto option for this state
       //get times to send to timeslider
       vector<SatFileInfo> f = m_ctrl->getSatFiles(m_state[i].name,
           m_state[i].area, update);
-      for (int i = 0; i < f.size(); i++)
+      for (unsigned int i = 0; i < f.size(); i++)
         timeset.insert(f[i].time);
     } else
       timeset.insert(m_state[i].filetime);

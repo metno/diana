@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #include <qapplication.h>
 #include <QFileDialog>
 #include <QToolBar>
@@ -53,7 +53,7 @@
 
 
 SpectrumWindow::SpectrumWindow()
-  : QMainWindow( 0)
+: QMainWindow( 0)
 {
 #ifndef linux
   qApp->setStyle(new QMotifStyle);
@@ -113,45 +113,45 @@ SpectrumWindow::SpectrumWindow()
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
   QToolButton *leftStationButton= new QToolButton(QPixmap(bakover_xpm),
-						  tr("previous station"), "",
-						  this, SLOT(leftStationClicked()),
-						  this, "spSstepB" );
+      tr("previous station"), "",
+      this, SLOT(leftStationClicked()),
+      this, "spSstepB" );
   leftStationButton->setUsesBigPixmap(false);
   leftStationButton->setAutoRepeat(true);
 
   //combobox to select station
   vector<miString> stations;
-  stations.push_back("                        "); 
+  stations.push_back("                        ");
   stationBox = ComboBox( this, stations, true, 0);
   connect( stationBox, SIGNAL( activated(int) ),
-		       SLOT( stationBoxActivated(int) ) );
+      SLOT( stationBoxActivated(int) ) );
 
   QToolButton *rightStationButton= new QToolButton(QPixmap(forward_xpm),
-						   tr("next station"), "",
-						   this, SLOT(rightStationClicked()),
-						   this, "spSstepF" );
+      tr("next station"), "",
+      this, SLOT(rightStationClicked()),
+      this, "spSstepF" );
   rightStationButton->setUsesBigPixmap(false);
   rightStationButton->setAutoRepeat(true);
 
   QToolButton *leftTimeButton= new QToolButton(QPixmap(bakover_xpm),
-					       tr("previous timestep"), "",
-					       this, SLOT(leftTimeClicked()),
-					       this, "spTstepB" );
+      tr("previous timestep"), "",
+      this, SLOT(leftTimeClicked()),
+      this, "spTstepB" );
 
   leftTimeButton->setUsesBigPixmap(false);
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
   vector<miString> times;
-  times.push_back("2002-01-01 00"); 
+  times.push_back("2002-01-01 00");
   timeBox = ComboBox( this, times, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
-		    SLOT( timeBoxActivated(int) ) );
+      SLOT( timeBoxActivated(int) ) );
 
   QToolButton *rightTimeButton= new QToolButton(QPixmap(forward_xpm),
-						tr("next timestep"), "",
-						this, SLOT(rightTimeClicked()),
-						this, "spTstepF" );
+      tr("next timestep"), "",
+      this, SLOT(rightTimeClicked()),
+      this, "spTstepF" );
   rightTimeButton->setUsesBigPixmap(false);
   rightTimeButton->setAutoRepeat(true);
 
@@ -178,20 +178,20 @@ SpectrumWindow::SpectrumWindow()
   connect(spModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(spModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
   connect(spModelDialog, SIGNAL(showsource(const miString, const miString)),
-	  SIGNAL(showsource(const miString, const miString)));
+      SIGNAL(showsource(const miString, const miString)));
 
 
   spSetupDialog = new SpectrumSetupDialog(this,spectrumm);
   connect(spSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(spSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
   connect(spSetupDialog, SIGNAL(showsource(const miString, const miString)),
-	  SIGNAL(showsource(const miString, const miString)));
+      SIGNAL(showsource(const miString, const miString)));
 
 
   //initialize everything in startUp
   firstTime = true;
   active = false;
-//mainWindowTime= miTime::nowTime();
+  //mainWindowTime= miTime::nowTime();
 
 #ifdef DEBUGPRINT
   cerr<<"SpectrumWindow::SpectrumWindow() finished"<<endl;
@@ -265,15 +265,15 @@ bool SpectrumWindow::timeChangedSlot(int diff)
     if(--index < 0) {
       //set index to the last in the box !
       index=timeBox->count()-1;
-    } 
+    }
     timeBox->setCurrentItem(index);
     diff++;
-  }    
+  }
   while(diff>0){
     if(++index > timeBox->count()-1) {
       //set index to the first in the box !
       index=0;
-    } 
+    }
     timeBox->setCurrentItem(index);
     diff--;
   }
@@ -284,18 +284,18 @@ bool SpectrumWindow::timeChangedSlot(int diff)
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
-    for (int i = 0; i<n;i++){      
+    for (int i = 0; i<n;i++){
       if(tstring ==timeBox->text(i).toStdString()){
-	timeBox->setCurrentItem(i);
-	tbs=timeBox->currentText().toStdString();
-	break;
+        timeBox->setCurrentItem(i);
+        tbs=timeBox->currentText().toStdString();
+        break;
       }
     }
   }
   if (tbs!=tstring){
     cerr << "WARNING! timeChangedSlot  time from spectrumm ="
-	 << t    <<" not equal to timeBox text = " << tbs << endl
-	 << "You should search through timelist!" << endl;
+    << t    <<" not equal to timeBox text = " << tbs << endl
+    << "You should search through timelist!" << endl;
     return false;
   }
 
@@ -324,15 +324,15 @@ bool SpectrumWindow::stationChangedSlot(int diff)
     if(--index < 0) {
       //set index to the last in the box !
       index=stationBox->count()-1;
-    } 
+    }
     stationBox->setCurrentItem(index);
     diff++;
-  }    
+  }
   while(diff>0){
     if(++index > stationBox->count()-1) {
       //set index to the first in the box !
       index=0;
-    } 
+    }
     stationBox->setCurrentItem(index);
     diff--;
   }
@@ -346,19 +346,19 @@ bool SpectrumWindow::stationChangedSlot(int diff)
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
       if (s==stationBox->text(i).toStdString()){
-	stationBox->setCurrentItem(i);
-	sbs=miString(stationBox->currentText().toStdString());
-	break;
+        stationBox->setCurrentItem(i);
+        sbs=miString(stationBox->currentText().toStdString());
+        break;
       }
     }
   }
   QString sq = s.c_str();
-  if (sbs==s) { 
+  if (sbs==s) {
     emit spectrumChanged(sq); //name of current station (to mainWindow)
     return true;
   } else {
     //    cerr << "WARNING! stationChangedSlot  station from spectrumm ="
-    // 	 << s    <<" not equal to stationBox text = " << sbs << endl;	
+    // 	 << s    <<" not equal to stationBox text = " << sbs << endl;
     //current or last station plotted is not in the list, insert it...
     stationBox->insertItem(sq,0);
     stationBox->setCurrentItem(0);
@@ -420,9 +420,9 @@ void SpectrumWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
   QString s = QFileDialog::getSaveFileName(this,
-				 tr("Save plot as image"),
-				 fname,
-				 tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+      tr("Save plot as image"),
+      fname,
+      tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
 
 
 
@@ -503,14 +503,14 @@ void SpectrumWindow::quitClicked()
   modelButton->setOn(false);
   setupButton->setOn(false);
 
-/*****************************************************************
+  /*****************************************************************
   // cleanup selections in dialog and data in memory
   spModelDialog->cleanup();
   spectrumm->cleanup();
 
   stationBox->clear();
   timeBox->clear();
-*****************************************************************/
+   *****************************************************************/
 
   active = false;
   emit SpectrumHide();
@@ -535,17 +535,17 @@ void SpectrumWindow::helpClicked()
 {
   //called when the help button in Spectrumwindow is clicked
 #ifdef DEBUGPRINT
-    cerr << "help clicked" << endl;
+  cerr << "help clicked" << endl;
 #endif
-    emit showsource("ug_spectrum.html");
+  emit showsource("ug_spectrum.html");
 }
 
 
 void SpectrumWindow::MenuOK()
 {
-  //obsolete - nothing happens here 
+  //obsolete - nothing happens here
 #ifdef DEBUGPRINT
-    cerr << "SpectrumWindow::MenuOK()" << endl;
+  cerr << "SpectrumWindow::MenuOK()" << endl;
 #endif
 }
 
@@ -555,21 +555,21 @@ void SpectrumWindow::changeModel()
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
 #ifdef DEBUGPRINT
-    cerr << "SpectrumWindow::changeModel()" << endl;
+  cerr << "SpectrumWindow::changeModel()" << endl;
 #endif
-    spectrumm->setModel();
+  spectrumm->setModel();
 
-    onlyObs= spectrumm->onlyObsState();
+  onlyObs= spectrumm->onlyObsState();
 
-    //emit to main Window (updates stationPlot)
-    emit spectrumSetChanged();
-    //update combobox lists of stations and time
-    updateStationBox();
-    updateTimeBox();
-    //get correct selection in comboboxes 
-    stationChangedSlot(0);
-    timeChangedSlot(0);
-    spectrumw->updateGL();
+  //emit to main Window (updates stationPlot)
+  emit spectrumSetChanged();
+  //update combobox lists of stations and time
+  updateStationBox();
+  updateTimeBox();
+  //get correct selection in comboboxes
+  stationChangedSlot(0);
+  timeChangedSlot(0);
+  spectrumw->updateGL();
 }
 
 
@@ -577,9 +577,9 @@ void SpectrumWindow::changeSetup()
 {
   //called when the apply from setup dialog is clicked
 #ifdef DEBUGPRINT
-    cerr << "SpectrumWindow::changeSetup()" << endl;
+  cerr << "SpectrumWindow::changeSetup()" << endl;
 #endif
-    spectrumw->updateGL();
+  spectrumw->updateGL();
 }
 
 
@@ -587,10 +587,10 @@ void SpectrumWindow::hideModel()
 {
   //called when the hide button (from model dialog) is clicked
 #ifdef DEBUGPRINT
-    cerr << "SpectrumWindow::hideModel()" << endl;
+  cerr << "SpectrumWindow::hideModel()" << endl;
 #endif
-    spModelDialog->hide();
-    modelButton->setOn(false);
+  spModelDialog->hide();
+  modelButton->setOn(false);
 }
 
 
@@ -598,10 +598,10 @@ void SpectrumWindow::hideSetup()
 {
   //called when the hide button (from setup dialog) is clicked
 #ifdef DEBUGPRINT
-    cerr << "SpectrumWindow::hideSetup()" << endl;
+  cerr << "SpectrumWindow::hideSetup()" << endl;
 #endif
-    spSetupDialog->hide();
-    setupButton->setOn(false);
+  spSetupDialog->hide();
+  setupButton->setOn(false);
 }
 
 
@@ -613,7 +613,6 @@ StationPlot* SpectrumWindow::getStations()
   const vector <miString> stations = spectrumm->getStationList();
   const vector <float> latitude = spectrumm->getLatitudes();
   const vector <float> longitude = spectrumm->getLongitudes();
-  int n =stations.size();
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
   miString ann = spectrumm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
@@ -623,11 +622,11 @@ StationPlot* SpectrumWindow::getStations()
 
   //the coordinates are defined here
 #ifdef DEBUGPRINT
- //  for (int i = 0; i<n;i++){ 
-//     cerr <<"Station number " << i << " name = " << stations[i] 
-// 	 << " latitude = " << latitude[i]
-// 	 << " longitude = " << longitude[i] << endl; 
-//   }
+  //  for (int i = 0; i<n;i++){
+  //     cerr <<"Station number " << i << " name = " << stations[i]
+  // 	 << " latitude = " << latitude[i]
+  // 	 << " longitude = " << longitude[i] << endl;
+  //   }
 #endif
 
   return stationPlot;
@@ -644,11 +643,11 @@ void SpectrumWindow::updateStationBox()
   stationBox->clear();
   vector<miString> stations= spectrumm->getStationList();
   //add dummy to make stationBox wide enough
-  stations.push_back("                        "); 
+  stations.push_back("                        ");
 
   int n =stations.size();
   for (int i=0; i<n; i++){
-    stationBox->addItem(QString(stations[i].c_str()));		
+    stationBox->addItem(QString(stations[i].c_str()));
   }
 
 }
@@ -690,7 +689,7 @@ void SpectrumWindow::timeBoxActivated(int index)
 {
   vector<miTime> times= spectrumm->getTimeList();
 
-  if (index>=0 && index<times.size()) {
+  if (index>=0 && index<int(times.size())) {
     spectrumm->setTime(times[index]);
 
     if (onlyObs) {
@@ -726,7 +725,7 @@ void SpectrumWindow::setFieldModels(const vector<miString>& fieldmodels)
 {
   spectrumm->setFieldModels(fieldmodels);
   if (active) changeModel();
-  
+
 }
 
 
@@ -746,7 +745,7 @@ void SpectrumWindow::mainWindowTimeChanged(const miTime& t)
     //update combobox lists of stations and time
     updateStationBox();
   }
-  //get correct selection in comboboxes 
+  //get correct selection in comboboxes
   stationChangedSlot(0);
   timeChangedSlot(0);
   spectrumw->updateGL();
@@ -785,16 +784,16 @@ vector<miString> SpectrumWindow::writeLog(const miString& logpart)
   if (logpart=="window") {
 
     str= "SpectrumWindow.size " + miString(this->width()) + " "
-			     + miString(this->height());
+    + miString(this->height());
     vstr.push_back(str);
     str= "SpectrumWindow.pos "  + miString(this->x()) + " "
-			     + miString(this->y());
+    + miString(this->y());
     vstr.push_back(str);
     str= "SpectrumModelDialog.pos " + miString(spModelDialog->x()) + " "
-			         + miString(spModelDialog->y());
+    + miString(spModelDialog->y());
     vstr.push_back(str);
     str= "SpectrumSetupDialog.pos " + miString(spSetupDialog->x()) + " "
-			         + miString(spSetupDialog->y());
+    + miString(spSetupDialog->y());
     vstr.push_back(str);
 
     // printer name & options...
@@ -802,9 +801,9 @@ vector<miString> SpectrumWindow::writeLog(const miString& logpart)
       str= "PRINTER " + priop.printer;
       vstr.push_back(str);
       if (priop.orientation==d_print::ori_portrait)
-	str= "PRINTORIENTATION portrait";
+        str= "PRINTORIENTATION portrait";
       else
-	str= "PRINTORIENTATION landscape";
+        str= "PRINTORIENTATION landscape";
       vstr.push_back(str);
     }
 
@@ -819,8 +818,8 @@ vector<miString> SpectrumWindow::writeLog(const miString& logpart)
 
 
 void SpectrumWindow::readLog(const miString& logpart, const vector<miString>& vstr,
-			  const miString& thisVersion, const miString& logVersion,
-			  int displayWidth, int displayHeight)
+    const miString& thisVersion, const miString& logVersion,
+    int displayWidth, int displayHeight)
 {
 
   if (logpart=="window") {
@@ -842,17 +841,17 @@ void SpectrumWindow::readLog(const miString& logpart, const vector<miString>& vs
           if      (tokens[0]=="SpectrumWindow.pos")      this->move(x,y);
           else if (tokens[0]=="SpectrumModelDialog.pos") spModelDialog->move(x,y);
           else if (tokens[0]=="SpectrumSetupDialog.pos") spSetupDialog->move(x,y);
-	}
+        }
 
       } else if (tokens.size()==2) {
 
         if (tokens[0]=="PRINTER") {
           priop.printer=tokens[1];
         } else if (tokens[0]=="PRINTORIENTATION") {
-	  if (tokens[1]=="portrait")
-	    priop.orientation=d_print::ori_portrait;
-	  else
-	    priop.orientation=d_print::ori_landscape;
+          if (tokens[1]=="portrait")
+            priop.orientation=d_print::ori_portrait;
+          else
+            priop.orientation=d_print::ori_landscape;
         }
 
       }

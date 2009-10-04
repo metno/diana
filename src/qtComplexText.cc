@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,14 +23,14 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 /*
   Input for adding complex text
-*/  
+*/
 
 #include <QLabel>
 #include <QHBoxLayout>
@@ -67,12 +67,12 @@ int                ComplexText::nr_colors=0;
 QColor*            ComplexText::pixcolor=0;
 
 /*********************************************/
-ComplexText::ComplexText( QWidget* parent, Controller* llctrl, 
-vector <miString> & symbolText, vector <miString>  & xText, 
+ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
+vector <miString> & symbolText, vector <miString>  & xText,
 			  set <miString> cList,bool useColour)
 : QDialog(parent,"complex",true), m_ctrl(llctrl)
 {
-#ifdef DEBUGPRINT 
+#ifdef DEBUGPRINT
   cout<<"ComplexText::ComplexText called"<<endl;
 #endif
 
@@ -89,8 +89,8 @@ vector <miString> & symbolText, vector <miString>  & xText,
     for(int i=0; i<nr_colors; i++ ){
       pixcolor[i]=QColor( colourInfo[i].rgb[0], colourInfo[i].rgb[1],
 			  colourInfo[i].rgb[2] );
-      
-    
+
+
     }
   }
   cv = 0;
@@ -113,16 +113,16 @@ vector <miString> & symbolText, vector <miString>  & xText,
       miString ltext="Text"+miString(i+1);
       QString labeltext=ltext.c_str();
       QLabel* namelabel= new QLabel(labeltext, this,"textlabel") ;
-    
+
       QComboBox *text = new QComboBox(TRUE,this,"text");
       text->setCompleter(NULL);
       if (!cv) cv = new complexValidator(this);
-      set <miString>::iterator p = complexList.begin();  
+      set <miString>::iterator p = complexList.begin();
       for (; p!=complexList.end(); p++) {
 	miString temp=*p;
 	text->insertItem(temp.c_str());
       }
-      text->setCurrentText(symbolText[i].c_str()); 
+      text->setCurrentText(symbolText[i].c_str());
       connect(text->lineEdit(),
 	      SIGNAL(selectionChanged()),SLOT(textSelected()));
       connect(text,SIGNAL(activated(const QString &)),
@@ -143,7 +143,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
 	glayout->addWidget(colourbox,i+1,3);
 	glayout->addColSpacing(4,10);
       }
-      else 
+      else
 	colourbox=0;
 
     }
@@ -153,7 +153,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
 
   }
 
-  
+
   if (nx){
     QGridLayout* glayout = new QGridLayout(nx,2,5,"xtext");
     hglayout->addLayout(glayout, 0);
@@ -170,7 +170,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
       glayout->addWidget(x, i+1,1);
       vXEdit.push_back(x);
     }
-    
+
   }
 
 
@@ -184,7 +184,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
   int height = quitb->sizeHint().height();
   //set button size
   okb->setMinimumSize( width, height );
-  okb->setMaximumSize( width, height );  
+  okb->setMaximumSize( width, height );
   quitb->setMinimumSize( width, height );
   quitb->setMaximumSize( width, height );
 
@@ -194,7 +194,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
   hlayout->addWidget(quitb, 10);
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                            
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );
   vlayout->addLayout(hglayout, 0);
   vlayout->addLayout(hlayout,0);
 
@@ -240,7 +240,7 @@ void ComplexText::setColour(Colour::ColourInfo &colour){
 
 void ComplexText::getColour(Colour::ColourInfo &colour){
   int index=colourbox->currentItem();
-  if (index>-1 && index<colourInfo.size())
+  if (index>-1 && index<int(colourInfo.size()))
     colour=colourInfo[index];
 }
 
@@ -250,8 +250,8 @@ int ComplexText::getColourIndex(vector <Colour::ColourInfo> & colourInfo,
   int i,index=-1;
   int nr_colors= colourInfo.size();
   for(i=0; i<nr_colors; i++ ){
-    if (colourInfo[i].rgb[0]== colour.rgb[0] && 
-	colourInfo[i].rgb[1]==colour.rgb[1] && 
+    if (colourInfo[i].rgb[0]== colour.rgb[0] &&
+	colourInfo[i].rgb[1]==colour.rgb[1] &&
 	colourInfo[i].rgb[2]==colour.rgb[2] )
       index=i;
   }
@@ -271,7 +271,7 @@ int ComplexText::getColourIndex(vector <Colour::ColourInfo> & colourInfo,
 
 
 void ComplexText::textActivated(const QString &textstring){
-  for (int i =0;i<vSymbolEdit.size();i++){
+  for (unsigned int i =0;i<vSymbolEdit.size();i++){
     if (!vSymbolEdit[i]->hasFocus()) continue;
     startEdit=true;
     selectText(i);
@@ -279,7 +279,8 @@ void ComplexText::textActivated(const QString &textstring){
 }
 
 
-void ComplexText::selectText(int i){
+void ComplexText::selectText(int i)
+{
   // Special routine to facilitate editing strings with "0°:"
   //
  if (startEdit){
@@ -300,8 +301,9 @@ void ComplexText::selectText(int i){
 
 
 
-void ComplexText::textSelected(){
-  for (int i =0;i<vSymbolEdit.size();i++){
+void ComplexText::textSelected()
+{
+  for (unsigned int i =0;i<vSymbolEdit.size();i++){
     selectText(i);
   }
 }

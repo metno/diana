@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -52,7 +52,7 @@
 ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), m_ctrl(llctrl)
 {
-#ifdef dObjectDlg 
+#ifdef dObjectDlg
   cout<<"ObjectDialog::ObjectDialog called"<<endl;
 #endif
 
@@ -60,21 +60,21 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //caption to appear on top of dialog
   setWindowTitle(tr("Weather Objects"));
-   
-  //initialization  
+
+  //initialization
 
   useArchive=false;
 //********** create the various QT widgets to appear in dialog ***********
 
   namebox = new QListWidget( this );
 
-  objectnames= m_ctrl->getObjectNames(useArchive);  
-  for (int i=0; i<objectnames.size(); i++){
+  objectnames= m_ctrl->getObjectNames(useArchive);
+  for (unsigned int i=0; i<objectnames.size(); i++){
     namebox->addItem(QString(objectnames[i].c_str()));
   }
-  
-  connect( namebox, SIGNAL(itemClicked(  QListWidgetItem * ) ), 
-	   SLOT( nameListClicked(  QListWidgetItem * ) ) );  
+
+  connect( namebox, SIGNAL(itemClicked(  QListWidgetItem * ) ),
+	   SLOT( nameListClicked(  QListWidgetItem * ) ) );
 
   //**** the three buttons "auto", "tid", "fil" *************
 
@@ -91,15 +91,15 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   timefileLayout->addWidget(fileButton);
   timefileBut->setExclusive( true );
   autoButton->setChecked(true);
-  //timefileClicked is called when auto,tid,fil buttons clicked 
-  connect( timefileBut, SIGNAL( buttonClicked(int) ), 
+  //timefileClicked is called when auto,tid,fil buttons clicked
+  connect( timefileBut, SIGNAL( buttonClicked(int) ),
 	   SLOT( timefileClicked(int) ) );
 
   //********** the list of files/times to choose from **************
 
   timefileList = new QListWidget( this );
 
-  connect( timefileList, SIGNAL( itemClicked( QListWidgetItem * ) ), 
+  connect( timefileList, SIGNAL( itemClicked( QListWidgetItem * ) ),
 	   SLOT( timefileListSlot( QListWidgetItem * ) ) );
 
 
@@ -140,10 +140,10 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   QLabel* diffLabel = new QLabel( tr("    Time diff."), this );
   diffLcdnum= LCDNumber( difflength, this);
-  diffSlider= Slider( timediff_minValue, timediff_maxValue, 1, 
+  diffSlider= Slider( timediff_minValue, timediff_maxValue, 1,
 		      timediff_value, Qt::Horizontal, this );
 
-  connect(diffSlider,SIGNAL( valueChanged(int)),SLOT(doubleDisplayDiff(int))); 
+  connect(diffSlider,SIGNAL( valueChanged(int)),SLOT(doubleDisplayDiff(int)));
 
 
 
@@ -155,23 +155,23 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   m_alphascale = 0.01;
 
 
-  alpha = new ToggleButton(this,tr("Alpha").toStdString()); 
+  alpha = new ToggleButton(this,tr("Alpha").toStdString());
   connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
-  
-  
+
+
   alphalcd = LCDNumber( 4, this);
-  
-  salpha  = Slider( alpha_minValue, alpha_maxValue, 1, alpha_value, 
+
+  salpha  = Slider( alpha_minValue, alpha_maxValue, 1, alpha_value,
 			    Qt::Horizontal, this);
-  
-  connect( salpha, SIGNAL( valueChanged( int )), 
+
+  connect( salpha, SIGNAL( valueChanged( int )),
 	      SLOT( alphaDisplay( int )));
-  
-  // INITIALISATION 
+
+  // INITIALISATION
   alphaDisplay( alpha_value );
   greyAlpha(false);
-  
-  //************************* standard Buttons ***************************** 
+
+  //************************* standard Buttons *****************************
 
    //push buttons to delete all selections
   QPushButton* deleteButton = NormalPushButton( tr("Delete"), this );
@@ -179,15 +179,15 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //push button to refresh filelistsw
   QPushButton* refresh =NormalPushButton( tr("Refresh"), this );
-  connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() )); 
+  connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() ));
 
   //push button to show help
-  QPushButton* objhelp = NormalPushButton( tr("Help"), this);  
-  connect(  objhelp, SIGNAL(clicked()), SLOT( helpClicked()));    
+  QPushButton* objhelp = NormalPushButton( tr("Help"), this);
+  connect(  objhelp, SIGNAL(clicked()), SLOT( helpClicked()));
 
-  //toggle button for comments 
-  commentbutton = new ToggleButton(this,tr("Comments").toStdString());     
-  connect(  commentbutton, SIGNAL(toggled(bool)), 
+  //toggle button for comments
+  commentbutton = new ToggleButton(this,tr("Comments").toStdString());
+  connect(  commentbutton, SIGNAL(toggled(bool)),
 	    SLOT( commentClicked(bool) ));
 
 
@@ -198,7 +198,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
    //push button to apply the selected command and then hide dialog
   QPushButton* objapplyhide = NormalPushButton(tr("Apply+Hide"), this );
   connect( objapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
- 
+
   //push button to apply the selected command
   QPushButton* objapply = NormalPushButton( tr("Apply"), this );
   connect(objapply, SIGNAL(clicked()), SIGNAL( ObjApply()) );
@@ -207,12 +207,12 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 // ********************* place all the widgets in layouts ****************
 
 
-  QGridLayout* gridlayout = new QGridLayout(); 
+  QGridLayout* gridlayout = new QGridLayout();
   gridlayout->addWidget( diffLabel,  0,0 );
   gridlayout->addWidget( diffLcdnum, 0,1 );
   gridlayout->addWidget( diffSlider, 0,2  );
   gridlayout->addWidget( alpha,    1,0 );
-  gridlayout->addWidget( alphalcd, 1,1 );  
+  gridlayout->addWidget( alphalcd, 1,1 );
   gridlayout->addWidget( salpha,   1,2 );
   gridlayout->addWidget( objhelp,2,0 );
   gridlayout->addWidget( refresh,2,1  );
@@ -222,8 +222,8 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   gridlayout->addWidget( objapply, 3,2 );
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout* vlayout = new QVBoxLayout( this);                            
-  vlayout->addWidget( namebox ); 
+  QVBoxLayout* vlayout = new QVBoxLayout( this);
+  vlayout->addWidget( namebox );
   vlayout->addLayout( timefileLayout );
   vlayout->addWidget( timefileList );
   vlayout->addWidget( filesLabel );
@@ -236,7 +236,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   objcomment = new EditComment( this, m_ctrl,false );
   connect(objcomment,SIGNAL(CommentHide()),SLOT(hideComment()));
   objcomment->hide();
-  
+
   //  atd = new AddtoDialog(this,m_ctrl);
 
 
@@ -244,7 +244,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   selectedFileList->clear();
   // initialisation and default of timediff
   doubleDisplayDiff(timediff_value);
-  
+
   //end of constructor
 }
 
@@ -253,8 +253,8 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 /*********************************************/
 void ObjectDialog::nameListClicked(  QListWidgetItem * item)
 {
-/* DESCRIPTION: This function is called when a value in namebox is 
- selected (region names or file prefixes), and is returned without doing 
+/* DESCRIPTION: This function is called when a value in namebox is
+ selected (region names or file prefixes), and is returned without doing
 anything if the new value  selected is equal to the old one.
  (HK ?? not yet) */
 
@@ -270,7 +270,7 @@ anything if the new value  selected is equal to the old one.
 /*********************************************/
 void ObjectDialog::timefileClicked(int tt){
 /* This function is called when timefileBut (auto/time/file)is selected*/
-#ifdef dObjectDlg 
+#ifdef dObjectDlg
   cerr<<"ObjectDialog::timefileClicked called,tt =" << tt << endl;
 #endif
 
@@ -313,11 +313,11 @@ sent from the list of time/file and a new list item is highlighted
 
 void ObjectDialog::DeleteClicked(){
   //unselects  everything
-#ifdef dObjectDlg 
+#ifdef dObjectDlg
     cerr<<"ObjectDialog::DeleteClicked called"<<endl;
-#endif 
+#endif
 
-    if(namebox->currentItem())    
+    if(namebox->currentItem())
       namebox->currentItem()->setSelected(false);
 
     timefileList->clear();
@@ -328,7 +328,7 @@ void ObjectDialog::DeleteClicked(){
     times.clear();
     emit emitTimes("obj",times,false );
 
-#ifdef dObjectDlg 
+#ifdef dObjectDlg
     cerr<<"ObjectDialog::DeleteClicked returned"<<endl;
 #endif
   return;
@@ -368,7 +368,7 @@ void ObjectDialog::helpClicked(){
 
 /*********************************************/
 void ObjectDialog::doubleDisplayDiff( int number ){
-/* This function is called when diffSlider sends a signal valueChanged(int) 
+/* This function is called when diffSlider sends a signal valueChanged(int)
    and changes the numerical value in the lcd display diffLcdnum */
     m_totalminutes=int(number*m_scalediff);
     int hours = m_totalminutes/60;
@@ -377,7 +377,7 @@ void ObjectDialog::doubleDisplayDiff( int number ){
     ostr << hours << ":" << setw(2) << setfill('0') << minutes;
     miString str= ostr.str();
     diffLcdnum->display( str.c_str() );
-}    
+}
 
 
 /*********************************************/
@@ -395,7 +395,7 @@ void ObjectDialog::greyAlpha( bool on ){
 }
 
 /*********************************************/
-void ObjectDialog::alphaDisplay( int number ){  
+void ObjectDialog::alphaDisplay( int number ){
    m_alphanr= ((double)number)*m_alphascale;
    alphalcd->display( m_alphanr );
 }
@@ -404,7 +404,7 @@ void ObjectDialog::alphaDisplay( int number ){
 /*********************************************/
 
 void  ObjectDialog::commentUpdate(){
-      objcomment->readComment();   
+      objcomment->readComment();
 }
 
 
@@ -413,7 +413,7 @@ void  ObjectDialog::commentUpdate(){
 void  ObjectDialog::commentClicked(bool on ){
   if (on){
     objcomment->show();
-    //start Comment 
+    //start Comment
     objcomment->readComment();
   }
   else{
@@ -444,13 +444,13 @@ void ObjectDialog::updateTimefileList(bool refresh){
   if (refresh) cerr << "refresh file list from disk" << endl;
 #endif
 
-  //clear box with list of files 
+  //clear box with list of files
   timefileList->clear();
 
   int index= namebox->currentRow();
 
   // get the list of object files
-  if (index>=0 && index<objectnames.size())
+  if (index>=0 && index<int(objectnames.size()))
     files= m_ctrl->getObjectFiles(objectnames[index],refresh);
   else
     files.clear();
@@ -470,16 +470,16 @@ void ObjectDialog::updateTimefileList(bool refresh){
     vector<miTime> noTimes; //Emit empty time list
     emit emitTimes( "obj",noTimes,false );
   }
- 
+
   //update time/file list
   if (timeButton->isOn()) {
 
     for (int i=0; i<nr_file; i++){
       timefileList->addItem(QString(files[i].time.isoTime().cStr()));
     }
-    
+
   } else if (fileButton->isOn()) {
-      
+
     for (int i=0; i<nr_file; i++){
       timefileList->addItem(QString(files[i].name.c_str()));
     }
@@ -528,8 +528,8 @@ void ObjectDialog::updateSelectedFileList()
   }
 
 #ifdef dObjectDlg
-  cerr << "...namestr=" <<namestr << endl; 
-#endif  
+  cerr << "...namestr=" <<namestr << endl;
+#endif
 
 }
 
@@ -547,11 +547,11 @@ vector<miString> ObjectDialog::getOKString(){
     str = "OBJECTS";
     int index = namebox->currentRow();
     int timefileListIndex = timefileList->currentRow();
-    if (index>-1 && index<objectnames.size()){
+    if (index>-1 && index<int(objectnames.size())){
       //item has been selected in dialog
       str+=(" NAME=\"" + objectnames[index] + "\"");
 
-      if ( timefileListIndex>-1 && timefileListIndex<files.size()) {
+      if ( timefileListIndex>-1 && timefileListIndex<int(files.size())) {
 
 	ObjFileInfo file=files[timefileListIndex];
 
@@ -563,7 +563,7 @@ vector<miString> ObjectDialog::getOKString(){
 	else if (fileButton->isOn()){
 	  if (file.name.exists())
 	    str+=(" FILE=" + file.name);
-	}	
+	}
       }
 
     }
@@ -591,7 +591,7 @@ vector<miString> ObjectDialog::getOKString(){
   } //end if on etc.
 
   return vstr;
-   
+
 
 }
 
@@ -604,22 +604,22 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
 
   //clear plot
   DeleteClicked();
- 
+
   // check PlotInfo (one for each plot)
   int npi= vstr.size();
 
   if (npi==0) return;
-  
+
   // loop through all PlotInfo's
-  for (int ip=0; ip<npi; ip++){ 
+  for (int ip=0; ip<npi; ip++){
     //(if there are several plotInfos, only the last one will be
-    //used 
+    //used
     vector<miString> tokens= vstr[ip].split('"','"');
     //get info from OKstring into struct PlotVariables
     plotVariables = decodeString(tokens);
   }
 
-   
+
   //update dialog
   bool found=false;
   int nc = namebox->count();
@@ -631,7 +631,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
       nameListClicked(namebox->item(j));
       found=true;
     }
-  }	  
+  }
 
   if (!found) return;
   if (!plotVariables.time.empty()) {
@@ -655,7 +655,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
 	timefileClicked(2);
 	timefileList->item(j)->setSelected(true);
       }
-    } 
+    }
   } else {
     timefileBut->button(0)->setChecked(true);
     timefileClicked(0);
@@ -672,7 +672,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
     //cerr << "totalminutes =" << plotVariables.totalminutes << endl;
     int number= int(plotVariables.totalminutes/m_scalediff + 0.5);
     diffSlider->setValue( number);
-  }    
+  }
   if (plotVariables.useobject["front"])
     cbs0->setChecked(true);
   else
@@ -693,7 +693,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
 }
 
 
-ObjectDialog::PlotVariables 
+ObjectDialog::PlotVariables
 ObjectDialog::decodeString(const vector <miString> & tokens)
 {
 #ifdef dObjectDlg
@@ -741,8 +741,8 @@ ObjectDialog::decodeString(const vector <miString> & tokens)
 	okVar.external+=" " + tokens[i];
       }
     }
-  }  
-  return okVar;  
+  }
+  return okVar;
 }
 
 
@@ -754,7 +754,7 @@ void ObjectDialog::requestQuickUpdate(const vector<miString>& oldstr,
   for(int i = 0;i<oldstr.size();i++)
     cerr << " oldstr = " << oldstr[i] << endl;
   for(int i = 0;i<newstr.size();i++)
-    cerr << " newstr = " << newstr[i] << endl;  
+    cerr << " newstr = " << newstr[i] << endl;
 #endif
 
 
@@ -762,10 +762,10 @@ void ObjectDialog::requestQuickUpdate(const vector<miString>& oldstr,
   if (!oldstr.size() || oldstr.size() != newstr.size()){
     newstr=oldstr;
     return;
-  } 
+  }
 
   bool diff = false;
-  for ( int i=0; i<oldstr.size(); i++)
+  for ( unsigned int i=0; i<oldstr.size(); i++)
     if ( oldstr[i] != newstr[i] ){
       diff = true;
       break;
@@ -779,23 +779,23 @@ void ObjectDialog::requestQuickUpdate(const vector<miString>& oldstr,
   // Structs containing info from OKstring
   PlotVariables oldOkVar = decodeString(oldtokens);
   PlotVariables newOkVar = decodeString(newtokens);
-  
+
   //check allowed changes
   if (oldOkVar.objectname !=newOkVar.objectname
       && !oldOkVar.objectname.contains("@") ){
     cerr << "requestQuickUpdate, changes not accepted !(1)" << endl;
     newstr=oldstr;
-    return;    
+    return;
   }
   if(oldOkVar.time!=newOkVar.time || oldOkVar.file!=newOkVar.file){
     cerr << "requestQuickUpdate, changes not accepted !(2)" << endl;
     newstr=oldstr;
-    return;    
+    return;
   }
   if(oldOkVar.totalminutes!=newOkVar.totalminutes){
     cerr << "requestQuickUpdate, changes not accepted !(3)" << endl;
     newstr=oldstr;
-    return;    
+    return;
   }
   if(oldOkVar.useobject!=newOkVar.useobject){
     cerr << "requestQuickUpdate, changes not accepted !(4)" << endl;
@@ -829,16 +829,16 @@ miString ObjectDialog::getShortname()
   int timefileListIndex = timefileList->currentRow();
 
   if ( selectedFileList->count() &&
-     (autoButton->isOn() || (timefileListIndex>=0 &&  
-			     timefileListIndex<files.size()))) {
+     (autoButton->isOn() || (timefileListIndex>=0 &&
+			     timefileListIndex<int(files.size())))) {
 
-    
+
     if (nameboxIndex > -1)
       name += "" + objectnames[nameboxIndex] + " ";
     else
-      name+= (" FILE=") + miString(selectedFileList->currentItem()->text().toStdString());	
+      name+= (" FILE=") + miString(selectedFileList->currentItem()->text().toStdString());
   }
-  
+
   return name;
 }
 
@@ -894,7 +894,7 @@ void ObjectDialog::archiveMode( bool on )
   //get new Objectnames
   namebox->clear();
   objectnames= m_ctrl->getObjectNames(useArchive);
-  for (int i=0; i<objectnames.size(); i++){
+  for (unsigned int i=0; i<objectnames.size(); i++){
     namebox->addItem(objectnames[i].c_str());
   }
 
@@ -920,7 +920,7 @@ miString ObjectDialog::stringFromTime(const miTime& t){
 
 void ObjectDialog::closeEvent( QCloseEvent* e) {
   emit ObjHide();
-} 
+}
 
 
 void ObjectDialog::hideComment(){
