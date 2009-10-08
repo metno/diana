@@ -33,13 +33,13 @@
 
 #include <qdialog.h>
 #include <qfont.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <diController.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <QListWidget>
-#include <diColour.h>
+#include <diField/diColour.h>
 #include <qtToggleButton.h>
 
 using namespace std;

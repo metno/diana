@@ -34,8 +34,8 @@
 #include <diVprofTables.h>
 #include <diVprofOptions.h>
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <GL/gl.h>
 

@@ -34,8 +34,8 @@
 #include <iostream>
 #include <vector>
 #include <diPlot.h>
-#include <miString.h>
-#include <diArea.h>
+#include <puTools/miString.h>
+#include <diField/diArea.h>
 
 using namespace std;
 

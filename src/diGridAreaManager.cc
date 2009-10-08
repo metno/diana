@@ -1,8 +1,8 @@
 #include <diGridAreaManager.h>
 #include <iostream>
-#include <AbstractablePolygon.h>
+#include <propoly/AbstractablePolygon.h>
 #include <propoly/Point.h>
-#include <diGridConverter.h>
+#include <diField/diGridConverter.h>
 #include <sstream>
 
 GridAreaManager::GridAreaManager() :

@@ -33,8 +33,8 @@
 
 #include <qslider.h>
 #include <qpalette.h>
-#include <miTime.h>
-#include <miString.h>
+#include <puTools/miTime.h>
+#include <puTools/miString.h>
 #include <map>
 #include <vector>
 

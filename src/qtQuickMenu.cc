@@ -48,7 +48,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <iostream>
 #include <qmessagebox.h>
 #include <qtooltip.h>

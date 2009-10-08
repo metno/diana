@@ -31,7 +31,7 @@
 #ifndef VCROSSSETUP_H
 #define VCROSSSETUP_H
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <vector>
 #include <qwidget.h>

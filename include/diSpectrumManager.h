@@ -31,8 +31,8 @@
 #ifndef SPECTRUMMANAGER_H
 #define SPECTRUMMANAGER_H
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <map>
 #include <set>

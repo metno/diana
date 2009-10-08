@@ -34,7 +34,7 @@
 #include <QDialog>
 
 #include <diCommonTypes.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 
 using namespace std;

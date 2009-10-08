@@ -34,7 +34,7 @@
 #include <diObjectPlot.h>
 #include <diComplexSymbolPlot.h>
 #include <diCommonTypes.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <set>
 
 

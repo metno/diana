@@ -32,9 +32,9 @@
 #define diFieldPlot_h
 
 #include <diPlot.h>
-#include <diField.h>
-#include <miTime.h>
-#include <miString.h>
+#include <diField/diField.h>
+#include <puTools/miTime.h>
+#include <puTools/miString.h>
 #include <vector>
 
 using namespace std;

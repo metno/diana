@@ -35,7 +35,7 @@
 #include <diDrawingTypes.h>
 #include <diMapMode.h>
 #include <diPrintOptions.h>
-#include <miTime.h>
+#include <puTools/miTime.h>
 #include <diLocationPlot.h>
 #include <vector>
 #include <set>

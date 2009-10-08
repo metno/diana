@@ -32,8 +32,8 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <diObsData.h>
 #include <diVprofPlot.h>
 #include <diObsBufr.h>

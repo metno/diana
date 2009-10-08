@@ -32,8 +32,8 @@
 #define diAnnotationPlot_h
 
 #include <diPlot.h>
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <map>
 

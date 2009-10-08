@@ -35,10 +35,10 @@
 #include <diSpectrumOptions.h>
 #include <diContouring.h>
 #include <diFontManager.h>
-#include <diPlotOptions.h>
-#include <diColour.h>
+#include <diField/diPlotOptions.h>
+#include <diField/diColour.h>
 #include <GL/gl.h>
-#include <glpfile.h>
+#include <glp/glpfile.h>
 
 #include <math.h>
 

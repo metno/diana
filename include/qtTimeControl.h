@@ -34,8 +34,8 @@
 #include <qdialog.h>
 //Added by qt3to4:
 #include <QLabel>
-#include <miTime.h>
-#include <miString.h>
+#include <puTools/miTime.h>
+#include <puTools/miString.h>
 #include <map>
 #include <vector>
 

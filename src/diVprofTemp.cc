@@ -34,7 +34,7 @@
 #include <iostream>
 #include <diVprofTemp.h>
 #include <diVprofPlot.h>
-#include <geopos.h>
+#include <robs/geopos.h>
 #include <math.h>
 
 

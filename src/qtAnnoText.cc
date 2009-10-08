@@ -38,7 +38,7 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <qstring.h>
 #include <qtToggleButton.h>
 #include <iostream>

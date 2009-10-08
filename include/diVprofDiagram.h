@@ -35,7 +35,7 @@
 #include <diVprofOptions.h>
 
 #include <vector>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <GL/gl.h>
 
 using namespace std;

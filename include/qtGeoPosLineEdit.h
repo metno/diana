@@ -33,7 +33,7 @@
 
 #include <qlineedit.h>
 #include <qvalidator.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std; 
 

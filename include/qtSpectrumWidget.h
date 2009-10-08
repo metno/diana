@@ -31,7 +31,7 @@
 #ifndef SPECTRUMWIDGET_H
 #define SPECTRUMWIDGET_H
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <map>
 
 #include <qgl.h>

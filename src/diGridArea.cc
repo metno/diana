@@ -1,9 +1,9 @@
 #include <diGridArea.h>
-#include <AbstractablePolygon.h>
-#include <Point.h>
+#include <propoly/AbstractablePolygon.h>
+#include <propoly/Point.h>
 #include <diTesselation.h>
 #include <polyStipMasks.h>
-#include <Segment.h>
+#include <propoly/Segment.h>
 #include <list>
 #include <math.h>
 

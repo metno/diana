@@ -44,7 +44,7 @@
 #include <MovieMaker.h>
 #endif
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <deque>
 

@@ -34,7 +34,7 @@
 #include <QDialog>
 
 #include <vector>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diController.h>
 
 class PushButton;

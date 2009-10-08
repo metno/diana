@@ -31,7 +31,7 @@
 #ifndef _diImageIO_h
 #define _diImageIO_h
 
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std; 
 

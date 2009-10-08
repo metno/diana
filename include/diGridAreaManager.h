@@ -34,11 +34,11 @@
 #include <map>
 #include <list>
 #include <diMapMode.h>
-#include <diGridConverter.h>
-#include <diProjectablePolygon.h>
+#include <diField/diGridConverter.h>
+#include <diField/diProjectablePolygon.h>
 #include <diGridArea.h>
-#include <miString.h>
-#include <diColour.h>
+#include <puTools/miString.h>
+#include <diField/diColour.h>
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>

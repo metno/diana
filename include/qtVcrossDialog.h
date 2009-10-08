@@ -35,11 +35,11 @@
 
 #include <vector>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <diCommandParser.h>
-#include <diColourShading.h>
-#include <diPattern.h>
+#include <diField/diColourShading.h>
+#include <diField/diPattern.h>
 
 using namespace std;
 

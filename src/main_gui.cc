@@ -39,8 +39,8 @@
 #include <diPrintOptions.h>
 #include <diController.h>
 #include <qtMainWindow.h>
-#include <miCommandLine.h>
-#include <miString.h>
+#include <puTools/miCommandLine.h>
+#include <puTools/miString.h>
 #include <iostream>
 
 #ifndef NOLOG4CXX

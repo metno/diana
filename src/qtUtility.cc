@@ -45,7 +45,7 @@
 #include <QIcon>
 
 #include <qtUtility.h>
-#include <diLinetype.h>
+#include <diField/diLinetype.h>
 #include <diImageGallery.h>
 
 

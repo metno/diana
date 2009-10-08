@@ -31,7 +31,7 @@
 #ifndef diObsDribu_h
 #define diObsDribu_h
 
-#include <dribu.h>
+#include <robs/dribu.h>
 #include <diObsPlot.h>
 
 /**

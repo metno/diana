@@ -31,7 +31,7 @@
 #ifndef diCommandParser_h
 #define diCommandParser_h
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <map>
 

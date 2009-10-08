@@ -41,7 +41,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <filenew.xpm>
 
 using namespace std;

@@ -30,7 +30,7 @@
 */
 
 #include <diPlot.h>
-#include <glpfile.h>
+#include <glp/glpfile.h>
 #include <diFontManager.h>
 
 // static class members

@@ -31,8 +31,8 @@
 #ifndef _qtTimeSpinbox_h
 #define _qtTimeSpinbox_h
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <QSpinBox>
 
 using namespace std; 

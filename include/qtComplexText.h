@@ -35,7 +35,7 @@
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qvalidator.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diCommonTypes.h> 
 #include <set>
 

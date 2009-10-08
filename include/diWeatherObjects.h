@@ -31,12 +31,12 @@
 #ifndef _diWeatherObjects_h
 #define _diWeatherObjects_h
 #include <vector>
-#include <diArea.h>
+#include <diField/diArea.h>
 #include <diObjectPlot.h>
 #include <diAreaBorder.h>
 #include <diUndoFront.h>
 #include <diMapMode.h>
-#include <diGridConverter.h>
+#include <diField/diGridConverter.h>
 
 using namespace std; 
 

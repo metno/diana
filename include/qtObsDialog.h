@@ -34,7 +34,7 @@
 #include <QDialog>
 
 #include <diController.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 class QComboBox;
 class ObsWidget;

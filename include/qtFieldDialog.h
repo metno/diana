@@ -45,12 +45,12 @@
 #include <map>
 #include <set>
 
-#include <miString.h>
-#include <miTime.h>
-#include <diCommonFieldTypes.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
+#include <diField/diCommonFieldTypes.h>
 #include <diCommandParser.h>
-#include <diColourShading.h>
-#include <diPattern.h>
+#include <diField/diColourShading.h>
+#include <diField/diPattern.h>
 
 using namespace std;
 

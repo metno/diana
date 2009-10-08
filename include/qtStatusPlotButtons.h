@@ -35,7 +35,7 @@
 #include <QToolButton>
 
 #include <diCommonTypes.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 //class QScrollArea;
 class QHBoxLayout;

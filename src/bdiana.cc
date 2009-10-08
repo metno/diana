@@ -45,8 +45,8 @@
 #include <GL/glu.h>
 #endif
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <diSetupParser.h>
 #include <diPrintOptions.h>
 #include <diFontManager.h>

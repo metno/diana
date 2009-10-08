@@ -31,7 +31,7 @@
 #ifndef diObsTide_h
 #define diObsTide_h
 
-#include <tide.h>
+#include <robs/tide.h>
 #include <diObsPlot.h>
 
 /**

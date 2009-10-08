@@ -34,9 +34,9 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <miString.h>
-#include <miTime.h>
-#include <diArea.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
+#include <diField/diArea.h>
 #include <diMapMode.h>
 #include <diWeatherObjects.h>
 #include <diEditObjects.h>

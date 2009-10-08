@@ -34,7 +34,7 @@
 #include <sstream>
 #include <math.h>
 #include <stdio.h>
-#include <diField.h>
+#include <diField/diField.h>
 #include <GL/gl.h>
 
 using namespace std;

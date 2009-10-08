@@ -39,7 +39,7 @@
 #include <diVprofPlot.h>
 #include <diVprofTemp.h>
 #include <diVprofPilot.h>
-#include <obs.h>
+#include <robs/obs.h>
 #endif
 #ifdef BUFROBS
 #include <diObsBufr.h>

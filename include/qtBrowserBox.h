@@ -33,7 +33,7 @@
 
 #include <QDialog>
 
-#include <miString.h>
+#include <puTools/miString.h>
 
 class QLabel;
   class QKeyEvent;

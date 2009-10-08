@@ -31,7 +31,7 @@
 #ifndef diFtnVfile_h
 #define diFtnVfile_h
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <stdio.h>
 

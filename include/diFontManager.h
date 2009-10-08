@@ -31,8 +31,8 @@
 #ifndef _diFontManager_h
 #define _diFontManager_h
 
-#include <miString.h>
-#include <glText.h>
+#include <puTools/miString.h>
+#include <glText/glText.h>
 #include <diSetupParser.h>
 #include <set>
 

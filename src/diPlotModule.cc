@@ -47,7 +47,7 @@
 #include <diWeatherArea.h>
 #include <diStationPlot.h>
 #include <diMapManager.h>
-#include <diFieldManager.h>
+#include <diField/diFieldManager.h>
 #include <diFieldPlotManager.h>
 
 #include <GL/gl.h>

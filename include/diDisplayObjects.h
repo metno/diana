@@ -31,15 +31,15 @@
 #ifndef _diDisplayObjects_h
 #define _diDisplayObjects_h
 #include <vector>
-#include <diArea.h>
+#include <diField/diArea.h>
 #include <diObjectPlot.h>
 #include <diWeatherObjects.h>
 #include <diAreaBorder.h>
 #include <diUndoFront.h>
 #include <diMapMode.h>
-#include <diGridConverter.h>
-#include <diColour.h>
-#include <miString.h>
+#include <diField/diGridConverter.h>
+#include <diField/diColour.h>
+#include <puTools/miString.h>
 
 using namespace std; 
 

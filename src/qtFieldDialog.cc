@@ -52,8 +52,8 @@
 #include <QVBoxLayout>
 
 #include <diController.h>
-#include <diRectangle.h>
-#include <diPlotOptions.h>
+#include <diField/diRectangle.h>
+#include <diField/diPlotOptions.h>
 
 #include <iostream>
 #include <math.h>

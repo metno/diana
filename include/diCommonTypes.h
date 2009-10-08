@@ -31,11 +31,11 @@
 #ifndef _diCommonTypes_h
 #define _diCommonTypes_h
 
-#include <miTime.h>
-#include <miString.h>
+#include <puTools/miTime.h>
+#include <puTools/miString.h>
 #include <vector>
-#include <diColour.h>
-#include <diArea.h>
+#include <diField/diColour.h>
+#include <diField/diArea.h>
 
 using namespace std;
 

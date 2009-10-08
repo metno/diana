@@ -31,7 +31,7 @@
 #ifndef diObsSatob_h
 #define diObsSatob_h
 
-#include <satob.h>
+#include <robs/satob.h>
 #include <diObsPlot.h>
 
 /**

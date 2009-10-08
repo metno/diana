@@ -34,7 +34,7 @@
 #include <QDialog>
 
 #include <diEditSpec.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <map>
 

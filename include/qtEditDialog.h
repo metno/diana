@@ -35,7 +35,7 @@
 #include <QDialog>
 #include <qpixmap.h>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <diCommonTypes.h>
 #include <diEditSpec.h>

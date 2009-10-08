@@ -32,7 +32,7 @@
 #define WeatherArea_h
 
 #include <diObjectPlot.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std;
 

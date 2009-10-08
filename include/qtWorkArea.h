@@ -33,7 +33,7 @@
 
 #include <qwidget.h>
 #include <qtGLwidget.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std;
 

@@ -31,8 +31,8 @@
 #ifndef diVprofTemp_h
 #define diVprofTemp_h
 
-#include <temp.h>
-#include <miTime.h>
+#include <robs/temp.h>
+#include <puTools/miTime.h>
 
 using namespace std;
 

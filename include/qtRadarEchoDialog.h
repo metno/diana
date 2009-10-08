@@ -34,7 +34,7 @@
 #include <QDialog>
 #include <QObject>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <diController.h>
 #include <qtTimeSlider.h>

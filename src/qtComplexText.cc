@@ -42,7 +42,7 @@
 #include <qtComplexText.h>
 #include <qtUtility.h>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <qstring.h>
 #include <qtToggleButton.h>
 #include <iostream>

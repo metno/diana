@@ -34,7 +34,7 @@
 
 /* Created at Thu Jul 18 14:15:29 2002 */
 
-#include <diRectangle.h>
+#include <diField/diRectangle.h>
 
 using namespace std; 
 

@@ -33,9 +33,9 @@
 
 #include <diFontManager.h>
 #include <diPrintOptions.h>
-#include <diColour.h>
-#include <miString.h>
-#include <miTime.h>
+#include <diField/diColour.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <GL/gl.h>
 

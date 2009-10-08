@@ -35,13 +35,13 @@
 #include <vector>
 #include <iostream>
 #include <diPlot.h>
-#include <diArea.h>
-#include <AbstractablePolygon.h>
-#include <miString.h>
+#include <diField/diArea.h>
+#include <propoly/AbstractablePolygon.h>
+#include <puTools/miString.h>
 #include <list>
-#include <diProjectablePolygon.h>
-#include <triangulation.h>
-#include <Segment.h>
+#include <diField/diProjectablePolygon.h>
+#include <propoly/triangulation.h>
+#include <propoly/Segment.h>
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>

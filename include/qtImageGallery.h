@@ -33,7 +33,7 @@
 
 
 #include <qimage.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <map>
 
 using namespace std; 

@@ -31,7 +31,7 @@
 #ifndef diObsMetar_h
 #define diObsMetar_h
 
-#include <metar.h>
+#include <robs/metar.h>
 #include <diObsPlot.h>
 
 /**

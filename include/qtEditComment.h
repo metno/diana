@@ -33,7 +33,7 @@
 
 #include <QDialog>
 #include <qsplitter.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std;
 

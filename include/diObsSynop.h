@@ -31,7 +31,7 @@
 #ifndef diObsSynop_h
 #define diObsSynop_h
 
-#include <synop.h>
+#include <robs/synop.h>
 #include <diObsPlot.h>
 
 /**

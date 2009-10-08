@@ -39,12 +39,12 @@
 #include <diVcrossOptions.h>
 #include <diCommandParser.h>
 #include <diSetupParser.h>
-#include <diFieldFunctions.h>
-#include <diMetConstants.h>
+#include <diField/diFieldFunctions.h>
+#include <diField/diMetConstants.h>
 #include <diContouring.h>
-#include <glText.h>
+#include <glText/glText.h>
 #include <GL/gl.h>
-#include <glpfile.h>
+#include <glp/glpfile.h>
 
 #include <math.h>
 

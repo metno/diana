@@ -33,10 +33,10 @@
 
 #include <diSpectrumOptions.h>
 #include <diPrintOptions.h>
-#include <diField.h>
+#include <diField/diField.h>
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <GL/gl.h>
 

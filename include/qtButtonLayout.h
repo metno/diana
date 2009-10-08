@@ -36,7 +36,7 @@
 #include <qlayout.h>
 #include <qbuttongroup.h>
 #include <qpalette.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 #include <diCommonTypes.h>
 #include <qtToggleButton.h>

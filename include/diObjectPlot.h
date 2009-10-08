@@ -35,11 +35,11 @@
 #include <deque>
 #include <iostream>
 #include <diPlot.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diCommonTypes.h>
-#include <diColour.h>
+#include <diField/diColour.h>
 #include <diObjectPoint.h>
-#include <diLinetype.h>
+#include <diField/diLinetype.h>
 
 using namespace std;
 

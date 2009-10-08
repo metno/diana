@@ -31,8 +31,8 @@
 
 #include <fstream>
 #include <diSetupParser.h>
-#include <diColourShading.h>
-#include <diPattern.h>
+#include <diField/diColourShading.h>
+#include <diField/diPattern.h>
 #include <diImageGallery.h>
 #include <list>
 #include <stdlib.h>

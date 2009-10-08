@@ -34,7 +34,7 @@
 #include <diPlot.h>
 #include <vector>
 #include <deque>
-#include <diLinetype.h>
+#include <diField/diLinetype.h>
 
 using namespace std;
 

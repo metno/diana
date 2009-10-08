@@ -31,11 +31,11 @@
 #ifndef _qtutility_h
 #define _qtutility_h
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <diCommonTypes.h>
-#include <diColourShading.h>
-#include <diPattern.h>
+#include <diField/diColourShading.h>
+#include <diField/diPattern.h>
 #include <QPixmap>
 #include <QLabel>
 

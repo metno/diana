@@ -34,7 +34,7 @@
 #include <qwidget.h>
 //Added by qt3to4:
 #include <QLabel>
-#include <miString.h>
+#include <puTools/miString.h>
 
 class QLabel;
 

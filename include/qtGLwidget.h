@@ -37,10 +37,10 @@
 #include <QKeyEvent>
 
 #include <vector>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <map>
 
-#include <diArea.h>
+#include <diField/diArea.h>
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 

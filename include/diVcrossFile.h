@@ -31,10 +31,10 @@
 #ifndef diVcrossFile_h
 #define diVcrossFile_h
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
-#include <diGridConverter.h>
+#include <diField/diGridConverter.h>
 #include <diLocationPlot.h>
 
 using namespace std;

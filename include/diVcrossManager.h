@@ -34,11 +34,11 @@
 
 #include <diCommonTypes.h>
 #include <diSetupParser.h>
-#include <diPlotOptions.h>
+#include <diField/diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <diLocationPlot.h>
-#include <miTime.h>
-#include <miString.h>
+#include <puTools/miTime.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <map>
 

@@ -32,7 +32,7 @@
 #define diLegendPlot_h
 
 #include <diPlot.h>
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std;
 

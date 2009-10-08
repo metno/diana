@@ -33,7 +33,7 @@
 #include <sstream>
 #include <diVprofPlot.h>
 
-#include <diColour.h>
+#include <diField/diColour.h>
 
 #include <math.h>
 

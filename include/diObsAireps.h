@@ -31,7 +31,7 @@
 #ifndef diObsAireps_h
 #define diObsAireps_h
 
-#include <aireps.h>
+#include <robs/aireps.h>
 #include <diObsPlot.h>
 
 /**

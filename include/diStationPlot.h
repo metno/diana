@@ -35,12 +35,12 @@
 #include <deque>
 #include <iostream>
 #include <diPlot.h>
-#include <diPlotOptions.h>
-#include <miString.h>
-#include <miCoordinates.h>
+#include <diField/diPlotOptions.h>
+#include <puTools/miString.h>
+#include <puDatatypes/miCoordinates.h>
 #include <diCommonTypes.h>
-#include <diColour.h>
-#include <diArea.h>
+#include <diField/diColour.h>
+#include <diField/diArea.h>
 
 using namespace std;
 

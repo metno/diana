@@ -30,7 +30,7 @@
 */
 #include <diVprofTables.h>
 #include <diSetupParser.h>
-#include <glpfile.h>
+#include <glp/glpfile.h>
 #include <iostream>
 #include <math.h>
 

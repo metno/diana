@@ -30,9 +30,9 @@
 */
 #include <diController.h>
 #include <diPlotModule.h>
-#include <diRectangle.h>
-#include <diArea.h>
-#include <diFieldManager.h>
+#include <diField/diRectangle.h>
+#include <diField/diArea.h>
+#include <diField/diFieldManager.h>
 #include <diFieldPlotManager.h>
 #include <diObsManager.h>
 #include <diSatManager.h>

@@ -31,7 +31,7 @@
 #ifndef diObsTemp_h
 #define diObsTemp_h
 
-#include <temp.h>
+#include <robs/temp.h>
 #include <diObsPlot.h>
 
 /**

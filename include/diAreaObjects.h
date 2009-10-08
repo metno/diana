@@ -31,10 +31,10 @@
 #ifndef _diAreaObjects_h
 #define _diAreaObjects_h
 #include <vector>
-#include <diArea.h>
+#include <diField/diArea.h>
 #include <diObjectPlot.h>
 #include <diWeatherObjects.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diCommonTypes.h>
 
 

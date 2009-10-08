@@ -43,7 +43,7 @@
 #include <qtUtility.h>
 #include <qtToggleButton.h>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <stdio.h>
 #include <iostream>
 

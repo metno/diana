@@ -36,9 +36,9 @@
 //  #define DEBUGPRINT
 //#endif
 
-#include <diArea.h>
-#include <miString.h>
-#include <miTime.h>
+#include <diField/diArea.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <diCommonTypes.h>
 
 

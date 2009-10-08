@@ -31,18 +31,18 @@
 #ifndef diVcrossPlot_h
 #define diVcrossPlot_h
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <map>
 #include <diFontManager.h>
 #include <GL/gl.h>
 
-#include <diGridConverter.h>
-#include <diColour.h>
-#include <diPlotOptions.h>
+#include <diField/diGridConverter.h>
+#include <diField/diColour.h>
+#include <diField/diPlotOptions.h>
 #include <diPrintOptions.h>
-#include <diField.h>
+#include <diField/diField.h>
 
 using namespace std;
 

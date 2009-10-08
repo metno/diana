@@ -42,7 +42,7 @@
 #include <QPixmap>
 #include <QVBoxLayout>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <stdio.h>
 #include <iostream>
 

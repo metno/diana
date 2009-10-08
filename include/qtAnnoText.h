@@ -38,7 +38,7 @@
 //Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std; 
 

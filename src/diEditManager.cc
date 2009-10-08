@@ -35,7 +35,7 @@
 #include <diEditManager.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
-#include <diField.h>
+#include <diField/diField.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
@@ -45,7 +45,7 @@
 #include <diFieldEdit.h>
 #include <set>
 #include <math.h>
-#include <miDirtools.h>
+#include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
 #include <glob.h>
 

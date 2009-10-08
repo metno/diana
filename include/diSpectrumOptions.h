@@ -31,7 +31,7 @@
 #ifndef SPECTRUMOPTIONS_H
 #define SPECTRUMOPTIONS_H
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 
 using namespace std;

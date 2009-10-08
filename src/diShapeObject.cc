@@ -30,10 +30,10 @@
  */
 #include <fstream>
 #include <iostream>
-#include <diColourShading.h>
+#include <diField/diColourShading.h>
 #include <diTesselation.h>
 #include <diShapeObject.h>
-#include <miCoordinates.h>
+#include <puDatatypes/miCoordinates.h>
 
 /* Created at Wed Oct 12 15:31:16 2005 */
 

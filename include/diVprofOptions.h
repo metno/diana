@@ -31,7 +31,7 @@
 #ifndef VPROFOPTIONS_H
 #define VPROFOPTIONS_H
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 
 using namespace std;

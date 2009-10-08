@@ -31,7 +31,7 @@
 #ifndef diObsPilot_h
 #define diObsPilot_h
 
-#include <pilot.h>
+#include <robs/pilot.h>
 #include <diObsPlot.h>
 
 /**

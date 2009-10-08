@@ -31,8 +31,8 @@
 #ifndef diObsAscii_h
 #define diObsAscii_h
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 
 class ObsPlot;
 

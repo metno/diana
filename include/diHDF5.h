@@ -31,7 +31,7 @@
 #ifndef diHDF5_h
 #define diHDF5_h
 
-#include <satimgh5.h>
+#include <diMItiff/satimgh5.h>
 #include <diSat.h>
 
 

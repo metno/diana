@@ -31,7 +31,7 @@
 #ifndef _diShapeObject_h
 #define _diShapeObject_h
 #include <diObjectPlot.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <shapefil.h>
 
 using namespace std;

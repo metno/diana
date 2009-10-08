@@ -49,10 +49,10 @@
 #include <QPixmap>
 #include <QVBoxLayout>
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <stdio.h>
 #include <iostream>
-#include <miTime.h>
+#include <puTools/miTime.h>
 
 #include <up12x12.xpm>
 #include <down12x12.xpm>

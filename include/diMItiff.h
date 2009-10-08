@@ -32,7 +32,7 @@
 #define diMItiff_h
 
 #include <diSat.h>
-#include <satimg.h>
+#include <diMItiff/satimg.h>
 
 /**
 

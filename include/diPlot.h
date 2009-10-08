@@ -32,10 +32,10 @@
 #define diPlot_h
 
 #include <GL/gl.h>
-#include <diArea.h>
-#include <diGridConverter.h>
-#include <miTime.h>
-#include <miString.h>
+#include <diField/diArea.h>
+#include <diField/diGridConverter.h>
+#include <puTools/miTime.h>
+#include <puTools/miString.h>
 #include <diSetupParser.h>
 #include <diPrintOptions.h>
 #include <vector>

@@ -31,7 +31,7 @@
 #ifndef diObsOcea_h
 #define diObsOcea_h
 
-#include <ocea.h>
+#include <robs/ocea.h>
 #include <diObsPlot.h>
 
 /**

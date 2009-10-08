@@ -29,10 +29,10 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include <diFontManager.h>
-#include <glTextX.h>
-#include <glTextTT.h>
-#include <glTextQtTexture.h>
-#include <GLP.h>
+#include <glText/glTextX.h>
+#include <glText/glTextQtTexture.h>
+#include <glText/glTextTT.h>
+#include <glp/GLP.h>
 
 miString FontManager::fontpath;
 miString FontManager::display_name;

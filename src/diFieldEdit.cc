@@ -35,9 +35,9 @@
 //#define DEBUGREDRAW
 
 #include <diFieldEdit.h>
-#include <diFortranUnit.h>
+#include <diField/diFortranUnit.h>
 #include <diPlotModule.h>
-#include <milib.h>
+#include <milib/milib.h>
 #include <math.h>
 #include <stdio.h>
 

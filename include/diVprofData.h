@@ -33,8 +33,8 @@
 
 #include <diVprofPlot.h>
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 
 using namespace std;

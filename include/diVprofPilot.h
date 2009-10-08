@@ -31,8 +31,8 @@
 #ifndef diVprofPilot_h
 #define diVprofPilot_h
 
-#include <pilot.h>
-#include <miTime.h>
+#include <robs/pilot.h>
+#include <puTools/miTime.h>
 
 using namespace std;
 

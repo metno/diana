@@ -31,15 +31,15 @@
 #ifndef _diFieldEdit_h
 #define _diFieldEdit_h
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <set>
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
 #include <diMapMode.h>
-#include <diGridConverter.h>
+#include <diField/diGridConverter.h>
 #include <diPlot.h>
-#include <diField.h>
+#include <diField/diField.h>
 #include <diFieldPlot.h>
 #include <diEditSpec.h>
 

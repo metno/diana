@@ -37,7 +37,7 @@
 #include <qpixmap.h>
 //Added by qt3to4:
 #include <QMouseEvent>
-#include <miString.h>
+#include <puTools/miString.h>
 
 
 using namespace std;

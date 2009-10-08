@@ -43,7 +43,7 @@
 
 #include <fstream>
 #include <qtEditComment.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <qtToggleButton.h>
 #include <iostream>
 #include <diController.h>

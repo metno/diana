@@ -31,7 +31,7 @@
 
 #include <diObjectPlot.h>
 #include <math.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <sstream>
 
 

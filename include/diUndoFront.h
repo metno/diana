@@ -32,7 +32,7 @@
 #define _diUndoFront_h
 #include <vector>
 #include <diObjectPlot.h>
-#include <diArea.h>
+#include <diField/diArea.h>
 #include <iostream>
 
   //for undo/redo stuff

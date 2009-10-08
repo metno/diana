@@ -32,18 +32,18 @@
 #define _diEditManager_h
 
 #include <vector>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
 #include <diMapMode.h>
-#include <diGridConverter.h>
+#include <diField/diGridConverter.h>
 #include <diObjectManager.h>
 #include <diFieldEdit.h>
 #include <diSetupParser.h>
 #include <diEditSpec.h>
 
 #ifdef METNOPRODDB
-#include <diProductionGate.h>
+#include <diSQL/diProductionGate.h>
 #endif
 
 using namespace std;

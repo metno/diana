@@ -30,7 +30,7 @@
  */
 
 #include <diFieldPlotManager.h>
-#include <diPlotOptions.h>
+#include <diField/diPlotOptions.h>
 
 using namespace std;
 

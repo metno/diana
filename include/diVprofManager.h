@@ -31,8 +31,8 @@
 #ifndef VPROFMANAGER_H
 #define VPROFMANAGER_H
 
-#include <miString.h>
-#include <miTime.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <map>
 #include <set>

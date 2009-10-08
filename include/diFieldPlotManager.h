@@ -32,10 +32,10 @@
 #define diFieldPlotManager_h
 
 #include <diSetupParser.h>
-#include <diCommonFieldTypes.h>
-#include <diFieldManager.h>
+#include <diField/diCommonFieldTypes.h>
+#include <diField/diFieldManager.h>
 
-#include <miString.h>
+#include <puTools/miString.h>
 
 #include <vector>
 

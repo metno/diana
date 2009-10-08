@@ -35,7 +35,7 @@
 
 #include <diController.h>
 #include <vector>
-#include <miString.h>
+#include <puTools/miString.h>
 
 using namespace std;
 

@@ -37,7 +37,7 @@
 
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <diStationPlot.h>
 #include <vector>
 

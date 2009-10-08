@@ -35,7 +35,7 @@
 #include <diTimeFilter.h>
 #include <diSetupParser.h>
 #include <diCommonTypes.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <set>
 
 class ObsData;

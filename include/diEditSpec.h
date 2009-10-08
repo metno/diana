@@ -31,9 +31,9 @@
 #ifndef _diEditSpec_h
 #define _diEditSpec_h
 
-#include <miString.h>
-#include <miTime.h>
-#include <diArea.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
+#include <diField/diArea.h>
 #include <vector>
 #include <set>
 

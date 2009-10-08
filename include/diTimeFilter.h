@@ -31,9 +31,9 @@
 #ifndef diTimeFilter_h
 #define diTimeFilter_h
 
-#include <miTime.h>
-#include <miClock.h>
-#include <miString.h>
+#include <puTools/miTime.h>
+#include <puTools/miClock.h>
+#include <puTools/miString.h>
 
 
 using namespace std;

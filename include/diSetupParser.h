@@ -31,12 +31,12 @@
 #ifndef diSetupParser_h
 #define diSetupParser_h
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <map>
-#include <diPlotOptions.h>
+#include <diField/diPlotOptions.h>
 #include <diCommonTypes.h>
-#include <diArea.h>
+#include <diField/diArea.h>
 
 using namespace std;
 

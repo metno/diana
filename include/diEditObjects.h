@@ -31,13 +31,13 @@
 #ifndef _diEditObjects_h
 #define _diEditObjects_h
 #include <vector>
-#include <diArea.h>
+#include <diField/diArea.h>
 #include <diObjectPlot.h>
 #include <diWeatherObjects.h>
 #include <diAreaBorder.h>
 #include <diUndoFront.h>
 #include <diMapMode.h>
-#include <diGridConverter.h>
+#include <diField/diGridConverter.h>
 
 using namespace std; 
 

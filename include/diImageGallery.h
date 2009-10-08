@@ -33,7 +33,7 @@
 
 
 #include <diPlot.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 #include <map>
 #include <GL/gl.h>

@@ -42,7 +42,7 @@
 #include <QString>
 
 #include <fstream>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <iostream>
 #include <diController.h>
 #include <diObjectManager.h>

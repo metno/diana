@@ -31,7 +31,7 @@
 
 #include <diAreaBorder.h>
 #include <math.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <sstream>
 
 // Default constructor

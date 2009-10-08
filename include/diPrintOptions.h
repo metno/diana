@@ -32,7 +32,7 @@
 #define _diPrintOptions_h
 
 #include <diSetupParser.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <map>
 
 using namespace std;

@@ -31,7 +31,7 @@
 #ifndef VCROSSOPTIONS_H
 #define VCROSSOPTIONS_H
 
-#include <miString.h>
+#include <puTools/miString.h>
 #include <vector>
 
 using namespace std;

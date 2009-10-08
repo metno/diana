@@ -32,18 +32,18 @@
 #define diController_h
 
 #include <diCommonTypes.h>
-#include <diCommonFieldTypes.h>
+#include <diField/diCommonFieldTypes.h>
 #include <diMapMode.h>
 #include <diDrawingTypes.h>
 #include <diSetupParser.h>
 #include <diPrintOptions.h>
-#include <diArea.h>
-#include <miString.h>
-#include <miTime.h>
+#include <diField/diArea.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <diLocationPlot.h>
 #include <vector>
 #include <set>
-#include <diColour.h>
+#include <diField/diColour.h>
 
 #ifdef PROFET
 

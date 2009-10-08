@@ -32,10 +32,10 @@
 #define _diFilledMap_h
 
 
-#include <miString.h>
-#include <diGridConverter.h>
+#include <puTools/miString.h>
+#include <diField/diGridConverter.h>
 #include <GL/gl.h>
-#include <porttypes.h>
+#include <puCtools/porttypes.h>
 
 using namespace std;
 

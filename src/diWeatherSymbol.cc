@@ -31,7 +31,7 @@
 #include <diWeatherSymbol.h>
 #include <diFontManager.h>
 #include <sstream>
-#include <diColour.h>
+#include <diField/diColour.h>
 #include <math.h>
 
 //static variables

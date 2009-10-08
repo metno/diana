@@ -34,7 +34,7 @@
 #include <QDialog>
 
 #include <qstring.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <map>
 
 class QTabWidget;

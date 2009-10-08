@@ -34,7 +34,7 @@
 #include <diVprofDiagram.h>
 #include <diVprofData.h>
 #include <diVprofPlot.h>
-#include <miString.h>
+#include <puTools/miString.h>
 #include <map>
 
 #include <qgl.h>
