@@ -1,6 +1,6 @@
 # $Id$
 
-bin_PROGRAMS = diana bdiana
+bin_PROGRAMS = diana.bin bdiana
 
 # automake requires one = before the first +=
 common_cppflags =
@@ -266,7 +266,7 @@ CLEANFILES += $(moc_sources)
 	$(MOC4) -o $@ $<
 
 # Full set of source code for diana
-diana_SOURCES = \
+diana_bin_SOURCES = \
 	$(common_c_sources) \
 	$(common_cxx_sources) \
 	$(moc_sources) \
@@ -275,9 +275,9 @@ diana_SOURCES = \
 	qtImageGallery.cc \
 	qtPrintManager.cc \
 	qtUtility.cc
-diana_CPPFLAGS = $(common_cppflags)
-diana_LDFLAGS = $(common_ldflags)
-diana_LDADD = $(common_ldadd)
+diana_bin_CPPFLAGS = $(common_cppflags)
+diana_bin_LDFLAGS = $(common_ldflags)
+diana_bin_LDADD = $(common_ldadd)
 
 # Full set of source code for bdiana
 bdiana_SOURCES = \
