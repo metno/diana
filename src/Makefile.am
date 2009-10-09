@@ -244,7 +244,8 @@ qt_sources += \
 	qtPolygonBookmarkModel.cc \
 	qtProfetWaitDialog.cc 
 common_cppflags += \
-	$(PROFET_CPPFLAGS)
+	$(PROFET_CPPFLAGS) \
+	-DPROFET
 common_ldflags += \
 	$(PROFET_LDFLAGS)
 common_ldadd += \
