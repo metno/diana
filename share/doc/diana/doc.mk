@@ -121,7 +121,6 @@ dist_doc_DATA= share/doc/diana/vprofWindow.png \
 	share/doc/diana/draw12.png \
 	share/doc/diana/draw11.png \
 	share/doc/diana/draw10.png \
-	share/doc/diana/Doxyfile
 	share/doc/diana/disconn.png \
 	share/doc/diana/dianaVprof.png \
 	share/doc/diana/dianaVcross.png \
