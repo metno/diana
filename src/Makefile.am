@@ -1,6 +1,6 @@
 # $Id$
 
-bin_PROGRAMS = diana.bin bdiana
+bin_PROGRAMS = diana.bin bdiana 
 
 # automake requires one = before the first +=
 common_cppflags =
@@ -289,6 +289,17 @@ bdiana_SOURCES = \
 bdiana_CPPFLAGS = $(common_cppflags)
 bdiana_LDFLAGS = $(common_ldflags)
 bdiana_LDADD = $(common_ldadd)
+
+
+LANGDIR=$(prefix)/src/diana/share/diana/lang
+LANGUAGES= $(LANGDIR)/diana_no.ts
+QSRC=  $(qt_sources:.o=.cc)
+
+
+languages:
+	lupdate  -verbose $(QSRC) -ts $(LANGUAGES)
+	cd $(LANGDIR) ;
+	lrelease -verbose $(LANGUAGES)
 
 # Generated header
 main_gui.cc: diBuild.h

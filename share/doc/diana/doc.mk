@@ -1,4 +1,4 @@
-docdir= $(datarootdir)/doc/diana
+docdir= $(datarootdir)/$(APP)/diana
 dist_doc_DATA= share/doc/diana/vprofWindow.png \
 	share/doc/diana/vprofSetup.png \
 	share/doc/diana/vprofSetup2.png \

@@ -1,4 +1,4 @@
-productsdir= $(datarootdir)/diana/products
+productsdir= $(datarootdir)/$(APP)/products
 dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/swikart.txt \
 	share/diana/products/SKVkart.txt \
@@ -10,7 +10,7 @@ dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/ANAborders.TEST \
 	share/diana/products/ANAborders.DNMI
 
-fontsdir= $(datarootdir)/diana/fonts
+fontsdir= $(datarootdir)/$(APP)/fonts
 dist_fonts_DATA= share/diana/fonts/metsymbols.ttf \
 	share/diana/fonts/Linedraw.ttf \
 	share/diana/fonts/dnmimet.ttf \
@@ -27,10 +27,10 @@ dist_fonts_DATA= share/diana/fonts/metsymbols.ttf \
 	share/diana/fonts/Arialbi.ttf \
 	share/diana/fonts/Arialbd.ttf 
 
-langdir= $(datarootdir)/diana/lang
+langdir= $(datarootdir)/$(APP)/lang
 dist_lang_DATA= share/diana/lang/diana_no.ts
 
-imagesdir= $(datarootdir)/diana/images
+imagesdir= $(datarootdir)/$(APP)/images
 dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/wwwmet7.png \
 	share/diana/images/wwwmet4.png \
@@ -105,7 +105,7 @@ dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/dnmi.xpm \
 	share/diana/images/dnmi.png 
 
-markersdir= $(datarootdir)/diana/images/markers
+markersdir= $(datarootdir)/$(APP)/images/markers
 dist_markers_DATA= share/diana/images/markers/x.xpm \
 	share/diana/images/markers/x.txt \
 	share/diana/images/markers/wbkz_yellow.xpm \
@@ -145,7 +145,7 @@ dist_markers_DATA= share/diana/images/markers/x.xpm \
 	share/diana/images/markers/cc_amber_trend.xpm \
 	share/diana/images/markers/cc_amber_obs.xpm 
 
-patternsdir= $(datarootdir)/diana/images/patterns
+patternsdir= $(datarootdir)/$(APP)/images/patterns
 dist_patterns_DATA= share/diana/images/patterns/vertical.xpm \
 	share/diana/images/patterns/vertical_broken.xpm \
 	share/diana/images/patterns/squares.xpm \
@@ -201,14 +201,14 @@ dist_patterns_DATA= share/diana/images/patterns/vertical.xpm \
 	share/diana/images/patterns/diagthick.xpm \
 	share/diana/images/patterns/circles.xpm 
 
-avatarsdir= $(datarootdir)/diana/images/avatars
+avatarsdir= $(datarootdir)/$(APP)/images/avatars
 dist_avatars_DATA= share/diana/images/avatars/avatar_root.png \
 	share/diana/images/avatars/avatar_lisbethb.png \
 	share/diana/images/avatars/avatar_juergens.png \
 	share/diana/images/avatars/avatar_bjornkl.png \
 	share/diana/images/avatars/avatar_audunc.png
 
-divdir= $(datarootdir)/diana/
+divdir= $(datarootdir)/$(APP)/
 dist_div_DATA= share/diana/VNNsynop.list \
 	share/diana/UK_lyn.header \
 	share/diana/UALF_diana.header \

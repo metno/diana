@@ -2,12 +2,16 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
+APP=diana
+
+include mk/install_test.mk
+
 SUBDIRS = src
 
-bindir= $(binrootdir)
-dist_bin_BIN= diana
+bdir= $(bindir)
+dist_b_SCRIPTS = bin/diana 
 
-etcdir = $(sysconfdir)/diana
+etcdir = $(sysconfdir)/$(APP)
 dist_etc_DATA = etc/diana/diana.setup
 
 pixmapsdir= $(datarootdir)/pixmaps
