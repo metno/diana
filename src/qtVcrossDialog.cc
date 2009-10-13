@@ -1214,6 +1214,7 @@ void VcrossDialog::enableFieldOptions(){
     if (vpcopt[nc].floatValue.size()>0) e= vpcopt[nc].floatValue[0];
     else e=5;
     vectorunit= numberList( vectorunitCbox, e);
+    vectorunitCbox->setEnabled(true);
   } else if (vectorunitCbox->isEnabled()) {
     vectorunitCbox->clear();
     vectorunitCbox->setEnabled(false);
