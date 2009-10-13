@@ -83,6 +83,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     QVBoxLayout * vlayout = new QVBoxLayout( this);
     vlayout->addWidget(split);
     vlayout->addWidget(showOld);
+    connect(mEdit, SIGNAL(textChanged ()),SLOT(textChanged()));
   }
   else {
     setGeometry(100,100,480,400);
@@ -93,7 +94,6 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     mEdit2->setGeometry(10,10,460,380);
   }
 
-  connect(mEdit, SIGNAL(textChanged ()),SLOT(textChanged()));
 }
 
 
