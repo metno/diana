@@ -1,0 +1,7 @@
+diana (3.8.2-ubuntu1) stable; urgency=low
+
+  * Initial debian package
+
+ -- Juergen Schulze <diana@met.no>  Wed, 30 Jul 2009 07:03:52 +0100
+
+
