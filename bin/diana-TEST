@@ -23,7 +23,7 @@ esac
 home=$HOME/.diana
 test -d $home || mkdir $home
 test -d $home/work  || mkdir $home/work
-setup=$dianadir/etc/diana/diana.setup-${region} 
+setup=$dianadir/etc/diana-TEST/diana.setup-${region} 
 test -e $home/diana.setup  && setup=$home/diana.setup
 
 
