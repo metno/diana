@@ -1,8 +1,8 @@
 
 #=========================================
 DIANA
-Version: 3.14.5
-(Using metlibs Version 2009-08-24)
+Version: 3.15.0
+(Using metlibs Version 2009-10-19)
 #=========================================
 
 Norwegian Meteorological Institute (met.no)
@@ -11,6 +11,8 @@ Box 43 Blindern
 NORWAY
 
 email: diana@met.no
+
+##################################################
 
 Contents:
 1. About Diana
@@ -47,25 +49,6 @@ running "make languages"
 In addition to the interactive tool, there is also a command line
 version of Diana for batch plotting (bdiana).
 
-User Guide and documentation in
-file:metnolocal/src/diana/doc/index.html (and
-file:metnolocal/diana/doc/index.html after install).  Doxygen style
-source code documentation in file:metnolocal/src/diana/html/index.html
-
-
-In addition, as a special exception, permission is granted to link the
-code of this release of Diana with the ECMWF "EMOS" library, and
-distribute the linked executables.  You must obey the GNU General
-Public License in all respects for all of the code used other than
-"EMOS".  If you modify this file, you may extend this exception to
-your version of the file, but you are not obligated to do so.  If you
-do not wish to do so, delete this exception statement from your
-version. 
-
-Depends on:
-Trolltech Qt
-OpenGL
-
 
 ++++++++++++++
 
@@ -74,117 +57,7 @@ OpenGL
 # 2. Install
 #-------------------------------------------
 
-You should use gcc version 4.1.1 or higher when compiling Diana, but older 
-versions may also work. Other compilers than gcc may also be used, but 
-only gcc has been thoroughly tested.
-
-External libraries needed
-----------------------------------------
-libqt4-dev
-libmysqlclient15-dev
-flex
-bison++
-ftgl-dev
-libboost-dev
-libboost-serialization-dev 
-libtiff4-dev
-libshp-dev 
-libuu-dev
-
-In order to compile with support for the following formats some more
-libraries are needed:
-
-NetCDF:
-libnetcdf++3 
-netcdfg-dev 
-udunits (ftp://ftp.unidata.ucar.edu/pub/udunits/udunits-1.12.7.tar.gz)
-(Do not use udunits2)
-
-Bufr:
-emos_000300.tar.gz  - libemos (from ECMWF)        
-
-Grib:
-grib_api-1.6.4.tar.gz - GRIB 1 & 2 Decoder/Encoder (from ECMWF)    
-
-Wdb:
-libpqxx-dev - C++ library to connect to PostgreSQL
-
-Internal libraries needed (metlibs)
-----------------------------------------
-puCtools    - General C tools
-puTools     - General tools (string, time, etc)
-libmi       - Fortran library, used to decode metno field files
-milib       - C wrapper for libmi (the fortran library) 
-parameter   - Some general functions
-puDatatypes - Some data types (coordinates etc)
-puSQL       - General mySQL
-diSQL       - Diana mySQL 
-diMItiff    - mitiff and hdf5 interface
-robs        - met.no obs file interface
-glp         - Used to generate PostScript
-glText      - Fonts
-qUtilities  - Qt utilities
-propoly     - Profet polygons
-diField     - Field interface
-
-If your not using log4cxx
-miLogger/
-
-Wdb support:
-diWdb/
-
-Profet: (field editing system, under development)
-proFunctions/
-pods/
-profet/
-
-
-Check out latest relese of metlibs, diana and puconf from svn
-
-cd topdir
-mkdir -p local/src
-cd local/src
-svn co https://svn.met.no/metlibs/branches/release_YYYY-MM-DD/ metlibs/
-svn co https://svn.met.no/diana/branches/release_X.X/ diana/
-svn co https://svn.met.no/puconf/branches/release_YYYY-MM-DD/ conf/
-
-Build and compile metlibs
-=========================
-Remove libraries not needed from bootstrap (see above)
-./bootstrap
-./build --prefix=/topdir/local 
-
-Usefull options:
---with-log4cxx=no - use miLogger instead of log4cxx
---with-NetCDF     - NetCDF support
---with-WDB        - WDB support
---with-Grib       - Grib support
---with-HDF5       - HDF5 support
---with-OMNIORB    - needed to run profet (field editing) 
-
-Compile Diana
-==============
-The Makefile uses the $OSTYPE env variable to find right
-configuration file. Make any necessary changes to
-these files, located in: /topdir/local/src/conf/$OSTYPE.mk
-
-(linux.mk is recommended)
-
-export OSTYPE=linux
-
-make without Bufr support
-export NOBUFROBS=1
-
-make without NetCDF support
-export NONETCDF=1
-
-run with WDB support
-export WDB=1
-
-make witout profet support (recommended)
-export NOPROFET=1
-
-make
+see INSTALL
 
 Demo data
 =================================================================
@@ -206,8 +79,7 @@ tar xzvf diana_maps.tar.gz
 Edit DIANADIR, OPDATA, MAPDIR
 
 2. Starting Diana:
- cd /TOPDIR/local/diana
- bin/diana.bin            # looks for diana.setup in current directory
+ diana.bin            # looks for diana.setup in current directory
  # or
  bin/diana -s /etc/diana/diana.setup
 
@@ -224,9 +96,9 @@ run "bin/bdiana -example" and study the Diana User Guide bdiana chapter.
 #-------------------------------------------
 
 All specifications of data access (incl. background map files) is in
-diana/etc/diana/diana.setup
+etc/diana/diana.setup
 
-Adding to the setup file:
+Changing the setup file:
 Example:To add a new field file to diana.setup, 
 put the following inside the <FIELD_FILES>
  section:
