@@ -38,7 +38,7 @@ find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
 
-$dianadir/bin/diana.bin-TEST  -s $setup -T TEST -p -S profet-test PROFFWDB=proffdb-test.met.no COMMON=TEST $@ 
+$dianadir/bin/diana.bin-TEST  -s $setup -T TEST -p -S profet-test PROFFWDB=proffdb-test.met.no COMMON=TEST APP_NAME=diana-TEST $@ 
 
 tstop=`date`
 
