@@ -2893,6 +2893,9 @@ void DianaMainWindow::saveAnimation() {
     QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
     showMinimized();
 
+    // save current format
+    QSize workAreaSize = w->Glw()->size();
+
     // first reset time-slider
     miTime startTime = tslider->getStartTime();
     tslider->set(startTime);
@@ -2910,6 +2913,7 @@ void DianaMainWindow::saveAnimation() {
       /// update progressbar
       progress.setValue(i);
 
+      w->Glw()->resize(720, 480);
       QImage image = w->Glw()->grabFrameBuffer();
       moviemaker.addImage(&image);
 
@@ -2919,6 +2923,9 @@ void DianaMainWindow::saveAnimation() {
       ++i;
     }
     progress.setValue(i);
+
+    // restore size
+    w->Glw()->resize(workAreaSize);
 
     showNormal();
     QMessageBox::information(this, tr("Done"), tr("Animation completed."));

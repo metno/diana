@@ -322,7 +322,7 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
   return true;
 }
 
-bool MovieMaker::addImage(QImage *image)
+/*bool MovieMaker::addImage(QImage *image)
 {
   if (!image)
       return false;
@@ -334,20 +334,22 @@ bool MovieMaker::addImage(QImage *image)
 
   return true;
 
-}
+}*/
 
-bool MovieMaker::addImage(OutputCtx *output, QImage &image)
+bool MovieMaker::addImage(QImage *image)
 {
+  OutputCtx *output = &outputVideo;
+
   int frames = (int) (delay * 29.97);
 
   AVCodecContext *video = output->videoStream->codec;
 
   // Allocate buffer for FFMPeg ...
   int width, height;
-  int size = image.width() * image.height();
+  int size = image->width() * image->height();
   uint8_t *buffer = new uint8_t[((size * 3) / 2) + 100]; // 100 bytes extra buffer
-  width = image.width();
-  height = image.height();
+  width = image->width();
+  height = image->height();
 
   output->frame->data[0] = buffer;
   output->frame->data[1] = output->frame->data[0] + size;
@@ -357,7 +359,7 @@ bool MovieMaker::addImage(OutputCtx *output, QImage &image)
   output->frame->linesize[2] = output->frame->linesize[1];
 
   // Copy data over from the QImage. Convert from 32bitRGB to YUV420P
-  RGBtoYUV420P(image.bits(), buffer, image.depth() / 8, true, width, height,
+  RGBtoYUV420P(image->bits(), buffer, image->depth() / 8, true, width, height,
       false);
 
   double duration = ((double) output->videoStream->pts.val)
