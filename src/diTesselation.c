@@ -31,6 +31,7 @@
 #include <diTesselation.h>
 #include <GL/glu.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 #ifndef GLCALLBACK
