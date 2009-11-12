@@ -1,6 +1,14 @@
 #!/bin/sh
 set -x
 
+SUFFIX=@program_suffix@
+
+if [  "$SUFFIX" = "NONE" ] ; then
+SUFFIX=
+fi
+
+
+
 input=$0
 dianadir="/usr/local"
 
@@ -23,7 +31,14 @@ esac
 home=$HOME/.diana
 test -d $home || mkdir $home
 test -d $home/work  || mkdir $home/work
+
+
+if [  -n "$SUFFIX" ] ; then
+setup=$dianadir/etc/diana-TEST/diana.setup-${region} 
+else
 setup=$dianadir/etc/diana/diana.setup-${region} 
+fi
+
 test -e $home/diana.setup  && setup=$home/diana.setup
 
 
@@ -37,8 +52,11 @@ test -s mail.core  && mv -f mail.core mail.core.old
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
-
+if [  -n "$SUFFIX" ] ; then
+$dianadir/bin/diana.bin-TEST  -s $setup -T TEST -p -S profet-test PROFFWDB=proffdb-test.met.no COMMON=TEST APP_NAME=diana-TEST $@ 
+else
 $dianadir/bin/diana.bin  -s $setup -p -S profet.met.no $@ 
+fi
 
 tstop=`date`
 
@@ -58,8 +76,13 @@ uname -a             >>mail.core
 echo "-------------" >>mail.core
 echo "START $tstart" >>mail.core
 echo "STOP  $tstop"  >>mail.core
+if [  -n "$SUFFIX" ] ; then
+echo "Diana version TEST:"              >>mail.core 
+$dianadir/bin/diana.bin-TEST --version  >>mail.core
+else
 echo "Diana version:"              >>mail.core 
 $dianadir/bin/diana.bin --version  >>mail.core
+fi
 echo "Diana version (diana.news):" >>mail.core 
 cat diana.news       >>mail.core
 echo "-------------" >>mail.core

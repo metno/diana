@@ -9,7 +9,7 @@ Standards-Version: 3.7.2
 Package: diana
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Diana - a meteorological visualisation tool
+Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
  license. See gpl.txt for details concerning the GPL license.
