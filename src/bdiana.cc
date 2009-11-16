@@ -64,7 +64,7 @@
 #include <diSpectrumManager.h>
 #include <diSpectrumOptions.h>
 
-#include <diVersion.h>
+#include <config.h>
 
 /*
  Signals..
@@ -725,7 +725,7 @@ void printUsage(bool showexample)
 {
   const miString help =
       "***************************************************             \n"
-        " DIANA batch version:" + version_string + "                  \n"
+        " DIANA batch version:" + miString(VERSION) + "                  \n"
         " plot products in batch                                         \n"
         "***************************************************             \n"
         " Available products:                                            \n"
@@ -2239,7 +2239,7 @@ int main(int argc, char** argv)
   if (!batchinput.exists())
     printUsage(false);
 
-  cout << argv[0] << " : DIANA batch version " << version_string << endl;
+  cout << argv[0] << " : DIANA batch version " << VERSION << endl;
 
 #ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {

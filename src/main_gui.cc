@@ -57,7 +57,7 @@
 #endif
 
 #include <diBuild.h>
-#include <diVersion.h>
+#include <config.h>
 
 using namespace std;
 
@@ -88,11 +88,11 @@ void printUsage(){
 
 int main(int argc, char **argv)
 {
-  cout << argv[0] << " : DIANA version: " << version_string << "  build: "
+  cout << argv[0] << " : DIANA version: " << VERSION << "  build: "
       << build_string << endl;
 
   miString logfilename;
-  miString ver_str= version_string;
+  miString ver_str= VERSION;
   miString build_str= build_string;
   miString cl_lang;
   bool profetEnabled= false;

@@ -320,7 +320,7 @@
         <translation>&amp;Valg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3151"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3158"/>
         <source>Zoom out</source>
         <translation>Zoom ut</translation>
     </message>
@@ -462,22 +462,22 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2924"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2931"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2924"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2931"/>
         <source>Animation completed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2929"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2936"/>
         <source>Compiled without video export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2929"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2936"/>
         <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -568,7 +568,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Vis tidligere kommentarer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditComment.cc" line="91"/>
+        <location filename="../../../src/qtEditComment.cc" line="92"/>
         <source>Comments</source>
         <translation>Kommentarer</translation>
     </message>
@@ -4517,7 +4517,7 @@ Vil du sende før du avslutter?</translation>
         <translation>Tall på linje</translation>
     </message>
     <message>
-        <location filename="../../../src/qtVcrossDialog.cc" line="1618"/>
+        <location filename="../../../src/qtVcrossDialog.cc" line="1619"/>
         <source>Off</source>
         <translation>Av</translation>
     </message>
