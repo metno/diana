@@ -562,6 +562,14 @@ CLEANFILES += $(moc_sources)
 	$(MOC4) -o $@ $<
 
 
+languagedir= $(datarootdir)/diana/lang
+nodist_language_DATA=$(top_srcdir)/share/diana/lang/diana_no.qm
+
+%.qm: %.ts
+	$(LUPDATE4)  $(qt_sources) -ts $< ; \
+	$(LRELEASE4)  $<
+
+
 # Full set of source code for diana
 diana_bin_SOURCES = \
 	$(common_c_sources) \
@@ -593,14 +601,7 @@ bdiana_LDFLAGS = $(common_ldflags)
 bdiana_LDADD = $(common_ldadd)
 
 
-LANGDIR=../share/diana/lang
-LANGUAGES= $(LANGDIR)/diana_no.ts
-QSRC=  $(qt_sources:.o=.cc)
 
-languages:
-	$(LUPDATE4) -verbose $(QSRC) -ts $(LANGUAGES)
-	cd $(LANGDIR) ;
-	$(LRELEASE4) -verbose $(LANGUAGES)
 
 # Generated header
 main_gui.cc: diBuild.h
