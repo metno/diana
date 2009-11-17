@@ -233,7 +233,6 @@ common_header_sources= diAnnotationPlot.h\
 	diVcrossManager.h\
 	diVcrossOptions.h\
 	diVcrossPlot.h\
-	diVersion.h\
 	diVprofData.h\
 	diVprofDiagram.h\
 	diVprofManager.h\
@@ -562,8 +561,10 @@ CLEANFILES += $(moc_sources)
 	$(MOC4) -o $@ $<
 
 
+language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts
+
 languagedir= $(datarootdir)/diana/lang
-nodist_language_DATA=$(top_srcdir)/share/diana/lang/diana_no.qm
+nodist_language_DATA=$(language_sources:.ts=.qm)
 
 %.qm: %.ts
 	$(LUPDATE4)  $(qt_sources) -ts $< ; \
@@ -577,6 +578,7 @@ diana_bin_SOURCES = \
 	$(qt_sources) \
 	$(common_header_sources) \
 	$(common_xpm_sources) \
+	$(language_sources) \
 	main_gui.cc \
 	qtImageGallery.cc \
 	qtPrintManager.cc \

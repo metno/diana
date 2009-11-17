@@ -27,10 +27,6 @@ dist_fonts_DATA= share/diana/fonts/metsymbols.ttf \
 	share/diana/fonts/Arialbi.ttf \
 	share/diana/fonts/Arialbd.ttf 
 
-langdir= $(datarootdir)/$(APP)/lang
-dist_lang_DATA= share/diana/lang/diana_no.ts \
-	share/diana/lang/diana_no.qm
-
 imagesdir= $(datarootdir)/$(APP)/images
 dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/wwwmet7.png \
