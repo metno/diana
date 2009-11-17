@@ -560,13 +560,16 @@ CLEANFILES += $(moc_sources)
 %.moc.cc: %.h
 	$(MOC4) -o $@ $<
 
+# Making languages 
 
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts
 
 languagedir= $(datarootdir)/diana/lang
 nodist_language_DATA=$(language_sources:.ts=.qm)
 
-%.qm: %.ts
+CLEANFILES += $(nodist_language_DATA)
+
+%.qm: %.ts  $(qt_sources)
 	$(LUPDATE4)  $(qt_sources) -ts $< ; \
 	$(LRELEASE4)  $<
 
