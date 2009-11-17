@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -31,6 +31,7 @@
 #include <diVcrossOptions.h>
 #include <iostream>
 
+using namespace::miutil;
 
 // default constructor
 VcrossOptions::VcrossOptions()
@@ -53,7 +54,7 @@ void VcrossOptions::setDefaults()
 
   pText= true;
   textColour= "black";
-  
+
   pPositionNames= true;
   positionNamesColour= "red";
 
@@ -175,38 +176,38 @@ vector<miString> VcrossOptions::writeOptions()
   str=  "text=" + miString(pText ? "on" : "off");
   str+= " textColour=" + textColour;
   vstr.push_back(str);
-  
+
   str=  "PositionNames=" + miString(pPositionNames ? "on" : "off");
   str+= " positionNamesColour=" + positionNamesColour;
   vstr.push_back(str);
-  
+
   str=  "frame=" + miString(pFrame ? "on" : "off");
   str+= " frameColour=" + frameColour;
   str+= " frameLinetype=" + frameLinetype;
   str+= " frameLinewidth=" + miString(frameLinewidth);
   vstr.push_back(str);
-  
+
   str=  "LevelNumbers=" + miString(pLevelNumbers ? "on" : "off");
   vstr.push_back(str);
-  
+
   str=  "UpperLevel=" + miString(pUpperLevel ? "on" : "off");
   str+= " upperLevelColour=" + upperLevelColour;
   str+= " upperLevelLinetype=" + upperLevelLinetype;
   str+= " upperLevelLinewidth=" + miString(upperLevelLinewidth);
   vstr.push_back(str);
-  
+
   str=  "LowerLevel=" + miString(pLowerLevel ? "on" : "off");
   str+= " lowerLevelColour=" + lowerLevelColour;
   str+= " lowerLevelLinetype=" + lowerLevelLinetype;
   str+= " lowerLevelLinewidth=" + miString(lowerLevelLinewidth);
   vstr.push_back(str);
-  
+
   str=  "OtherLevels=" + miString(pOtherLevels ? "on" : "off");
   str+= " otherLevelsColour=" + otherLevelsColour;
   str+= " otherLevelsLinetype=" + otherLevelsLinetype;
   str+= " otherLevelsLinewidth=" + miString(otherLevelsLinewidth);
   vstr.push_back(str);
-  
+
   str=  "Surface=" + miString(pSurface ? "on" : "off");
   str+= " surfaceColour=" + surfaceColour;
   str+= " surfaceLinetype=" + surfaceLinetype;
@@ -225,13 +226,13 @@ vector<miString> VcrossOptions::writeOptions()
   str=  "GeoPos=" + miString(pGeoPos ? "on" : "off");
   str+= " geoposColour=" + geoposColour;
   vstr.push_back(str);
-  
+
   str=  "VerticalGridLines=" + miString(pVerticalGridLines ? "on" : "off");
   str+= " vergridColour=" + vergridColour;
   str+= " vergridLinetype=" + vergridLinetype;
   str+= " vergridLinewidth=" + miString(vergridLinewidth);
   vstr.push_back(str);
-  
+
   str=  "Markerlines=" + miString(pMarkerlines ? "on" : "off");
   str+= " markerlinesColour=" + markerlinesColour;
   str+= " markerlinesLinetype=" + markerlinesLinetype;
@@ -255,16 +256,16 @@ vector<miString> VcrossOptions::writeOptions()
 
   str=  "Vertical=" + verticalType;
   vstr.push_back(str);
-  
+
   str=  "keepVerHorRatio=" + miString(keepVerHorRatio ? "on" : "off");
   str+= " verHorRatio=" + miString(verHorRatio);
   vstr.push_back(str);
-  
+
   str=  "stdVerticalArea=" + miString(stdVerticalArea ? "on" : "off");
   str+= " minVerticalArea=" + miString(minVerticalArea);
   str+= " maxVerticalArea=" + miString(maxVerticalArea);
   vstr.push_back(str);
-  
+
   str=  "stdHorizontalArea=" + miString(stdHorizontalArea ? "on" : "off");
   str+= " minHorizontalArea=" + miString(minHorizontalArea);
   str+= " maxHorizontalArea=" + miString(maxHorizontalArea);
@@ -368,15 +369,15 @@ void VcrossOptions::readOptions(const vector<miString>& vstr)
 	else if (key=="markerlinesLinetype")   markerlinesLinetype= value;
 	else if (key=="markerlinesLinewidth")  markerlinesLinewidth= atof(value.cStr());
 
-	else if (key=="VerticalMarker")           
+	else if (key=="VerticalMarker")
 	  pVerticalMarker= (value.downcase()=="on");
-	else if (key=="verticalMarkerColour")     
+	else if (key=="verticalMarkerColour")
 	  verticalMarkerColour= value;
-	else if (key=="verticalMarkerLinetype")   
+	else if (key=="verticalMarkerLinetype")
 	  verticalMarkerLinetype= value;
-	else if (key=="verticalMarkerLinewidth")  
+	else if (key=="verticalMarkerLinewidth")
 	  verticalMarkerLinewidth= atof(value.cStr());
-	else if (key=="verticalMarkerLimit")  
+	else if (key=="verticalMarkerLimit")
 	  verticalMarkerLimit= atof(value.cStr());
 
 	else if (key=="extrapolateFixedLevels") extrapolateFixedLevels= (value.downcase()=="on");

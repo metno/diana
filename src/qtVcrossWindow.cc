@@ -122,7 +122,7 @@ VcrossWindow::VcrossWindow()
   leftCrossectionButton->setAutoRepeat(true);
 
   //combobox to select crossection
-  vector<miString> dummycross;
+  vector<miutil::miString> dummycross;
   dummycross.push_back("                        ");
   crossectionBox = ComboBox(this, dummycross, true, 0);
   connect( crossectionBox, SIGNAL( activated(int) ),
@@ -143,9 +143,9 @@ VcrossWindow::VcrossWindow()
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
-  miTime tnow= miTime::nowTime();
-  miTime tset= miTime(tnow.year(),tnow.month(),tnow.day(),0,0,0);
-  vector<miString> dummytime;
+  miutil::miTime tnow= miutil::miTime::nowTime();
+  miutil::miTime tset= miutil::miTime(tnow.year(),tnow.month(),tnow.day(),0,0,0);
+  vector<miutil::miString> dummytime;
   dummytime.push_back(tset.isoTime(false,false));
   timeBox = ComboBox(this, dummytime, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
@@ -180,15 +180,15 @@ VcrossWindow::VcrossWindow()
   vcDialog = new VcrossDialog(this,vcrossm);
   connect(vcDialog, SIGNAL(VcrossDialogApply(bool)),SLOT(changeFields(bool)));
   connect(vcDialog, SIGNAL(VcrossDialogHide()),SLOT(hideDialog()));
-  connect(vcDialog, SIGNAL(showsource(const miString, const miString)),
-      SIGNAL(showsource(const miString, const miString)));
+  connect(vcDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
+      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
 
   vcSetupDialog = new VcrossSetupDialog(this,vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vcSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vcSetupDialog, SIGNAL(showsource(const miString, const miString)),
-      SIGNAL(showsource(const miString, const miString)));
+  connect(vcSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
+      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
 
   //inialize everything in startUp
@@ -221,7 +221,7 @@ void VcrossWindow::dataClicked( bool on ){
 
 void VcrossWindow::leftCrossectionClicked(){
   //called when the left Crossection button is clicked
-  miString s= vcrossm->setCrossection(-1);
+  miutil::miString s= vcrossm->setCrossection(-1);
   crossectionChangedSlot(-1);
   vcrossw->updateGL();
 }
@@ -230,7 +230,7 @@ void VcrossWindow::leftCrossectionClicked(){
 
 void VcrossWindow::rightCrossectionClicked(){
   //called when the right Crossection button is clicked
-  miString s= vcrossm->setCrossection(+1);
+  miutil::miString s= vcrossm->setCrossection(+1);
   crossectionChangedSlot(+1);
   vcrossw->updateGL();
 }
@@ -239,7 +239,7 @@ void VcrossWindow::rightCrossectionClicked(){
 
 void VcrossWindow::leftTimeClicked(){
   //called when the left time button is clicked
-  miTime t= vcrossm->setTime(-1);
+  miutil::miTime t= vcrossm->setTime(-1);
   //update combobox
   timeChangedSlot(-1);
   vcrossw->updateGL();
@@ -249,7 +249,7 @@ void VcrossWindow::leftTimeClicked(){
 
 void VcrossWindow::rightTimeClicked(){
   //called when the right Crossection button is clicked
-  miTime t= vcrossm->setTime(+1);
+  miutil::miTime t= vcrossm->setTime(+1);
   timeChangedSlot(+1);
   vcrossw->updateGL();
 }
@@ -279,10 +279,10 @@ bool VcrossWindow::timeChangedSlot(int diff){
     timeBox->setCurrentItem(index);
     diff--;
   }
-  miTime t = vcrossm->getTime();
-  miString tstring=t.isoTime(false,false);
+  miutil::miTime t = vcrossm->getTime();
+  miutil::miString tstring=t.isoTime(false,false);
   if (!timeBox->count()) return false;
-  miString tbs=timeBox->currentText().toStdString();
+  miutil::miString tbs=timeBox->currentText().toStdString();
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
@@ -331,17 +331,17 @@ bool VcrossWindow::crossectionChangedSlot(int diff){
     diff--;
   }
   //get current crossection
-  miString s = vcrossm->getCrossection();
+  miutil::miString s = vcrossm->getCrossection();
   if (!crossectionBox->count()) return false;
   //if no current crossection, use last crossection plotted
   if (s.empty()) s = vcrossm->getLastCrossection();
-  miString sbs=crossectionBox->currentText().toStdString();
+  miutil::miString sbs=crossectionBox->currentText().toStdString();
   if (sbs!=s){
     int n = crossectionBox->count();
     for(int i = 0;i<n;i++){
       if (s==crossectionBox->text(i).toStdString()){
         crossectionBox->setCurrentItem(i);
-        sbs=miString(crossectionBox->currentText().toStdString());
+        sbs=miutil::miString(crossectionBox->currentText().toStdString());
         break;
       }
     }
@@ -366,7 +366,7 @@ bool VcrossWindow::crossectionChangedSlot(int diff){
 void VcrossWindow::printClicked(){
   printerManager pman;
   //called when the print button is clicked
-  miString command= pman.printCommand();
+  miutil::miString command= pman.printCommand();
 
   QPrinter qprt;
   fromPrintOption(qprt,priop);
@@ -375,7 +375,7 @@ void VcrossWindow::printClicked(){
     if (qprt.outputToFile()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
-      priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
+      priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
 #ifdef linux
       command= "lpr -r " + command.substr(4,command.length()-4);
@@ -423,8 +423,8 @@ void VcrossWindow::saveClicked()
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miString filename= s.toStdString();
-    miString format= "PNG";
+    miutil::miString filename= s.toStdString();
+    miutil::miString format= "PNG";
     int quality= -1; // default quality
 
     // find format
@@ -445,7 +445,7 @@ void VcrossWindow::saveClicked()
 }
 
 
-void VcrossWindow::makeEPS(const miString& filename)
+void VcrossWindow::makeEPS(const miutil::miString& filename)
 {
   QApplication::setOverrideCursor( Qt::waitCursor );
   printOptions priop;
@@ -519,7 +519,7 @@ void VcrossWindow::quitClicked(){
 
   active = false;
   emit VcrossHide();
-  vector<miTime> t;
+  vector<miutil::miTime> t;
   emit emitTimes("vcross",t);
 }
 
@@ -641,7 +641,7 @@ void VcrossWindow::updateCrossectionBox(){
 #endif
 
   crossectionBox->clear();
-  vector<miString> crossections= vcrossm->getCrossectionList();
+  vector<miutil::miString> crossections= vcrossm->getCrossectionList();
 
   int n =crossections.size();
   for (int i=0; i<n; i++){
@@ -659,7 +659,7 @@ void VcrossWindow::updateTimeBox(){
 #endif
 
   timeBox->clear();
-  vector<miTime> times= vcrossm->getTimeList();
+  vector<miutil::miTime> times= vcrossm->getTimeList();
 
   int n =times.size();
   for (int i=0; i<n; i++){
@@ -673,8 +673,8 @@ void VcrossWindow::updateTimeBox(){
 
 void VcrossWindow::crossectionBoxActivated(int index){
 
-  //vector<miString> crossections= vcrossm->getCrossectionList();
-  miString cbs=crossectionBox->currentText().toStdString();
+  //vector<miutil::miString> crossections= vcrossm->getCrossectionList();
+  miutil::miString cbs=crossectionBox->currentText().toStdString();
   //if (index>=0 && index<crossections.size()) {
   vcrossm->setCrossection(cbs);
   vcrossw->updateGL();
@@ -687,7 +687,7 @@ void VcrossWindow::crossectionBoxActivated(int index){
 
 void VcrossWindow::timeBoxActivated(int index){
 
-  vector<miTime> times= vcrossm->getTimeList();
+  vector<miutil::miTime> times= vcrossm->getTimeList();
 
   if (index>=0 && index<int(times.size())) {
     vcrossm->setTime(times[index]);
@@ -698,7 +698,7 @@ void VcrossWindow::timeBoxActivated(int index){
 
 /***************************************************************************/
 
-bool VcrossWindow::changeCrossection(const miString& crossection){
+bool VcrossWindow::changeCrossection(const miutil::miString& crossection){
 #ifdef DEBUGPRINT
   cerr << "VcrossWindow::changeCrossection" << endl;
 #endif
@@ -714,14 +714,14 @@ bool VcrossWindow::changeCrossection(const miString& crossection){
 
 /***************************************************************************/
 
-//void VcrossWindow::setFieldModels(const vector<miString>& fieldmodels){
+//void VcrossWindow::setFieldModels(const vector<miutil::miString>& fieldmodels){
 //  vcrossm->setFieldModels(fieldmodels);
 //  if (active) changeModel();
 //}
 
 /***************************************************************************/
 
-void VcrossWindow::mainWindowTimeChanged(const miTime& t){
+void VcrossWindow::mainWindowTimeChanged(const miutil::miTime& t){
   if (!active) return;
 #ifdef DEBUGPRINT
   cerr << "vcrossWindow::mainWindowTimeChanged called with time " << t << endl;
@@ -736,7 +736,7 @@ void VcrossWindow::mainWindowTimeChanged(const miTime& t){
 
 /***************************************************************************/
 
-void VcrossWindow::startUp(const miTime& t){
+void VcrossWindow::startUp(const miutil::miTime& t){
 #ifdef DEBUGPRINT
   cerr << "vcrossWindow::startUp  t= " << t << endl;
 #endif
@@ -745,7 +745,7 @@ void VcrossWindow::startUp(const miTime& t){
   tsToolbar->show();
   //do something first time we start Vertical crossections
   if (firstTime){
-    //vector<miString> models;
+    //vector<miutil::miString> models;
     //define models for dialogs, comboboxes and crossectionplot
     //vcrossm->setSelectedModels(models, true,false);
     //vcDialog->setSelection();
@@ -759,24 +759,24 @@ void VcrossWindow::startUp(const miTime& t){
 
 /***************************************************************************/
 
-vector<miString> VcrossWindow::writeLog(const miString& logpart)
+vector<miutil::miString> VcrossWindow::writeLog(const miutil::miString& logpart)
 {
-  vector<miString> vstr;
-  miString str;
+  vector<miutil::miString> vstr;
+  miutil::miString str;
 
   if (logpart=="window") {
 
-    str= "VcrossWindow.size " + miString(this->width()) + " "
-    + miString(this->height());
+    str= "VcrossWindow.size " + miutil::miString(this->width()) + " "
+    + miutil::miString(this->height());
     vstr.push_back(str);
-    str= "VcrossWindow.pos "  + miString(this->x()) + " "
-    + miString(this->y());
+    str= "VcrossWindow.pos "  + miutil::miString(this->x()) + " "
+    + miutil::miString(this->y());
     vstr.push_back(str);
-    str= "VcrossDialog.pos "  + miString(vcDialog->x()) + " "
-    + miString(vcDialog->y());
+    str= "VcrossDialog.pos "  + miutil::miString(vcDialog->x()) + " "
+    + miutil::miString(vcDialog->y());
     vstr.push_back(str);
-    str= "VcrossSetupDialog.pos " + miString(vcSetupDialog->x()) + " "
-    + miString(vcSetupDialog->y());
+    str= "VcrossSetupDialog.pos " + miutil::miString(vcSetupDialog->x()) + " "
+    + miutil::miString(vcSetupDialog->y());
     vstr.push_back(str);
 
     // printer name & options...
@@ -804,14 +804,14 @@ vector<miString> VcrossWindow::writeLog(const miString& logpart)
 }
 
 
-void VcrossWindow::readLog(const miString& logpart, const vector<miString>& vstr,
-    const miString& thisVersion, const miString& logVersion,
+void VcrossWindow::readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
+    const miutil::miString& thisVersion, const miutil::miString& logVersion,
     int displayWidth, int displayHeight)
 {
 
   if (logpart=="window") {
 
-    vector<miString> tokens;
+    vector<miutil::miString> tokens;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {

@@ -47,22 +47,22 @@ using namespace std;
 
 class QtImageGallery {
 private:
-  static map<miString,QImage> Images;
+  static map<miutil::miString,QImage> Images;
 public:
   QtImageGallery();
 
   static void clear();                             ///< clear all images
-  bool delImage(const miString& name);             ///< remove image
+  bool delImage(const miutil::miString& name);             ///< remove image
 
   /// add a new QImage with name to gallery
-  bool addImageToGallery(const miString name, const QImage& image);
+  bool addImageToGallery(const miutil::miString name, const QImage& image);
 
-  bool addImageToGallery(const miString name, miString& imageStr);
+  bool addImageToGallery(const miutil::miString name, miutil::miString& imageStr);
 
-  void addImagesInDirectory(const miString& dir);
+  void addImagesInDirectory(const miutil::miString& dir);
 
-  void ImageNames(vector<miString>& vnames) const; ///< return all image-names
-  bool Image(const miString& name, QImage& image); ///< return QImage
+  void ImageNames(vector<miutil::miString>& vnames) const; ///< return all image-names
+  bool Image(const miutil::miString& name, QImage& image); ///< return QImage
 };
 
 #endif

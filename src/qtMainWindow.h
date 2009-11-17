@@ -109,9 +109,9 @@ class DianaMainWindow: public QMainWindow
   Q_OBJECT
 public:
   DianaMainWindow(Controller*,
-		  const miString ver_str,
-		  const miString buils_str,
-		  const miString dianaTitle="Diana",
+		  const miutil::miString ver_str,
+		  const miutil::miString buils_str,
+		  const miutil::miString dianaTitle="Diana",
 		  bool profetEnabled=false);
   ~DianaMainWindow();
 
@@ -166,8 +166,8 @@ private slots:
   void showNews();
 
   void about();
-  void quickMenuApply(const vector<miString>&);
-  void recallPlot(const vector<miString>&,bool);
+  void quickMenuApply(const vector<miutil::miString>&);
+  void recallPlot(const vector<miutil::miString>&,bool);
   void resetArea();
   void resetAll();
   void editApply();
@@ -179,7 +179,7 @@ private slots:
   void catchMouseMovePos(const mouseEvent,bool);
   void catchKeyPress(const keyboardEvent);
   void catchElement(const mouseEvent);
-  void sendSelectedStations(const miString& command);
+  void sendSelectedStations(const miutil::miString& command);
   void undo();
   void redo();
   void save();
@@ -188,10 +188,10 @@ private slots:
   void saveRasterImage(QString filename);
   void emailPicture();
   void saveAnimation();
-  void makeEPS(const miString& filename);
+  void makeEPS(const miutil::miString& filename);
   void TimeSliderMoved();
   void TimeSelected();
-  void setPlotTime(miTime& t);
+  void setPlotTime(miutil::miTime& t);
   void SliderSet();
   void editUpdate();
 
@@ -236,8 +236,8 @@ private slots:
   void browserSelect();
   void browserCancel();
   void addToMenu();
-  void requestQuickUpdate(const vector<miString>&,
-			  vector<miString>&);
+  void requestQuickUpdate(const vector<miutil::miString>&,
+			  vector<miutil::miString>&);
 
   void zoomTo(Rectangle);
   void zoomOut();
@@ -252,7 +252,7 @@ private slots:
   void setPaintMode(bool);
   void plotProfetMap(bool objectsOnly);
   void forceProfetDisconnect(bool disableGuiOnly);
-  void getFieldPlotOptions(map< miString, map<miString,miString> >&);
+  void getFieldPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >&);
 
 private:
   bool enableProfet;
@@ -262,11 +262,11 @@ private:
   bool updateBrowser();// update browser-window
   bool uffda;
 
-  void PrintPS(miString& filestr );
-  void PrintPS(vector <miString>& filestr );
+  void PrintPS(miutil::miString& filestr );
+  void PrintPS(vector <miutil::miString>& filestr );
 
-  miString version_string;
-  miString build_string;
+  miutil::miString version_string;
+  miutil::miString build_string;
   int displayWidth,displayHeight;
 
   /// Actions
@@ -389,7 +389,7 @@ private:
   VprofWindow       * vpWindow;
   VcrossWindow      * vcWindow;
   SpectrumWindow    * spWindow;
-  map<miString,InfoFile>    infoFiles;
+  map<miutil::miString,InfoFile>    infoFiles;
 
   // statusbar widgets
   QLabel            * smsg;
@@ -401,10 +401,10 @@ private:
   ClientButton      * pluginB;
   bool                dialogChanged;
 
-  vector<miString> vlabel;
+  vector<miutil::miString> vlabel;
   QButton* mwhelp;
   Controller* contr;
-  miString lastString;
+  miutil::miString lastString;
 
   // timer types
   int timeron;               ///> timer is turned on
@@ -446,12 +446,12 @@ private:
   map<int,bool> autoredraw;
   StationPlot *stationPlot;
 
-  vector<miString> levelList;
-  miString levelSpec;
+  vector<miutil::miString> levelList;
+  miutil::miString levelSpec;
   int levelIndex;
 
-  vector<miString> idnumList;
-  miString idnumSpec;
+  vector<miutil::miString> idnumList;
+  miutil::miString idnumSpec;
   int idnumIndex;
 
   void levelChange(int increment);
@@ -459,14 +459,14 @@ private:
 
   void writeLogFile();
   void readLogFile();
-  miString saveDocState();
-  void restoreDocState(miString logstr);
+  miutil::miString saveDocState();
+  void restoreDocState(miutil::miString logstr);
 
-  vector<miString> writeLog(const miString& thisVersion,
-			    const miString& thisBuild);
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion,
-	       miString& logVersion);
+  vector<miutil::miString> writeLog(const miutil::miString& thisVersion,
+			    const miutil::miString& thisBuild);
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion,
+	       miutil::miString& logVersion);
   void getDisplaySize();
   void timeChanged();
   void satFileListUpdate();
@@ -477,7 +477,7 @@ private:
   bool initProfet();
   bool profetConnect();
   void profetDisconnect();
-  bool ProfetUpdatePlot(const miTime& t);
+  bool ProfetUpdatePlot(const miutil::miTime& t);
   bool ProfetRightMouseClicked(float map_x, float map_y, int globalX, int globalY);
 };
 

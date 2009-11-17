@@ -49,8 +49,8 @@ public:
   void setDefaults();
 
   // log and setup
-  vector<miString> writeOptions();
-  void readOptions(const vector<miString>& vstr);
+  vector<miutil::miString> writeOptions();
+  void readOptions(const vector<miutil::miString>& vstr);
 
 private:
   friend class SpectrumSetupDialog;
@@ -60,39 +60,39 @@ private:
   bool changed;
 
   bool     pText;
-  miString textColour;
+  miutil::miString textColour;
 
   bool     pFixedText;
-  miString fixedTextColour;
+  miutil::miString fixedTextColour;
 
   bool     pFrame;
-  miString frameColour;
+  miutil::miString frameColour;
   float    frameLinewidth;
 
   bool     pSpectrumLines;
-  miString spectrumLineColour;
+  miutil::miString spectrumLineColour;
   float    spectrumLinewidth;
 
   bool     pSpectrumColoured;
 
   bool     pEnergyLine;
-  miString energyLineColour;
+  miutil::miString energyLineColour;
   float    energyLinewidth;
 
   bool     pEnergyColoured;
-  miString energyFillColour;
+  miutil::miString energyFillColour;
 
   bool     pWind;
-  miString windColour;
+  miutil::miString windColour;
   float    windLinewidth;
 
   bool     pPeakDirection;
-  miString peakDirectionColour;
+  miutil::miString peakDirectionColour;
   float    peakDirectionLinewidth;
 
   float    freqMax;
 
-  miString backgroundColour;
+  miutil::miString backgroundColour;
 
 };
 

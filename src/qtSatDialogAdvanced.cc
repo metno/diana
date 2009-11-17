@@ -276,9 +276,9 @@ void SatDialogAdvanced::colourcutClicked(bool on){
   }
 }
 /*********************************************/
-miString SatDialogAdvanced::getOKString()
+miutil::miString SatDialogAdvanced::getOKString()
 {
-  miString str;
+  miutil::miString str;
   ostringstream ostr;
   
   if(!palette){
@@ -329,7 +329,7 @@ miString SatDialogAdvanced::getOKString()
 
 
 /*********************************************/
-void SatDialogAdvanced::setPictures(miString str){
+void SatDialogAdvanced::setPictures(miutil::miString str){
   picturestring=str;
 }
 
@@ -393,18 +393,18 @@ void SatDialogAdvanced::setColours(vector <Colour> &colours){
 }
 
 /*********************************************/
-miString SatDialogAdvanced::putOKString(miString str){
+miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
   //  cerr << "SatDialogAdvanced::putOKString: " << str<<endl;
   setStandard();
   blockSignals(true);
   
-  miString external;
-  vector<miString> tokens= str.split('"','"');
+  miutil::miString external;
+  vector<miutil::miString> tokens= str.split('"','"');
   int n= tokens.size();
 
-  miString key, value;
+  miutil::miString key, value;
   for (int i=0; i<n; i++){    // search through plotinfo
-    vector<miString> stokens= tokens[i].split('=');
+    vector<miutil::miString> stokens= tokens[i].split('=');
     if ( stokens.size()==2) {
       key = stokens[0].downcase();
       value = stokens[1];
@@ -451,7 +451,7 @@ miString SatDialogAdvanced::putOKString(miString str){
       else if (key=="hide" && palette){
 	colourcut->setOn(true);
 	//set selected colours
-	vector <miString> stokens=value.split(',');
+	vector <miutil::miString> stokens=value.split(',');
 	int m= stokens.size();
 	for (int j=0; j<m; j++){
 	  int icol=stokens[j].toInt();

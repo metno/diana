@@ -50,18 +50,18 @@ class VprofTemp : public temp {
 public:
   // Constructors
   VprofTemp();
-  VprofTemp(const miString& file, bool amdar,
-	    const vector<miString>& stationList);
-  VprofTemp(const miString& file, bool amdar,
+  VprofTemp(const miutil::miString& file, bool amdar,
+	    const vector<miutil::miString>& stationList);
+  VprofTemp(const miutil::miString& file, bool amdar,
 	    float latitude, float longitude,
 	    float deltalat, float deltalong);
   // Destructor
   ~VprofTemp();
 
-  miTime getFileObsTime();
+  miutil::miTime getFileObsTime();
 
-  VprofPlot* getStation(const miString& station,
-			const miTime& time);
+  VprofPlot* getStation(const miutil::miString& station,
+			const miutil::miTime& time);
 			
 private:
   bool amdartemp;

@@ -65,12 +65,12 @@ ShowSatValues::ShowSatValues(QWidget* parent)
 void ShowSatValues::channelChanged(int index)
 {
   if( index < int(tooltip.size()) && index > -1 ){
-    miString tip = tooltip[index].replace('|',' ');
+    miutil::miString tip = tooltip[index].replace('|',' ');
     channelbox->setToolTip( QString(tip.cStr() ));
   }
 }
 
-void ShowSatValues::SetChannels(const vector<miString>& channel)
+void ShowSatValues::SetChannels(const vector<miutil::miString>& channel)
 {
   int nch = channel.size();
 
@@ -78,7 +78,7 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
   //try to remember currentItem
   int index = -1;
   if(tooltip.size( )> 0 && channelbox->count()>0  ){
-    miString currentText = tooltip[channelbox->currentIndex()];
+    miutil::miString currentText = tooltip[channelbox->currentIndex()];
     int i = 0;
     while(i<nch && channel[i]!=currentText) i++;
     if(i<nch) index=i;
@@ -88,7 +88,7 @@ void ShowSatValues::SetChannels(const vector<miString>& channel)
   channelbox->clear();
   for(int i=0;i<nch;i++){
     //    cerr <<"channel:"<<i<<"  "<<channel[i]<<endl;
-    vector<miString> token = channel[i].split("|");
+    vector<miutil::miString> token = channel[i].split("|");
     if(token.size()==2){
       channelbox->addItem(token[1].cStr());
       //if no currentItem, use channel"4"

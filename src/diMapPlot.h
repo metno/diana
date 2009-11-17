@@ -57,7 +57,7 @@ class MapPlot : public Plot {
 private:
   /// Lat/Lon Value Annotation with position on map
   struct ValueAnno {
-    miString t;
+    miutil::miString t;
     float x;
     float y;
   };
@@ -77,10 +77,10 @@ private:
   GLuint drawlist[3]; // openGL drawlists
   vector<ValueAnno> value_annotations;
 
-  static map<miString,FilledMap> filledmaps;
-  static set<miString> usedFilledmaps;
-  static map<miString,ShapeObject> shapemaps;
-  static map<miString,Area> shapeareas;
+  static map<miutil::miString,FilledMap> filledmaps;
+  static set<miutil::miString> usedFilledmaps;
+  static map<miutil::miString,ShapeObject> shapemaps;
+  static map<miutil::miString,Area> shapeareas;
 
   /**
   * remove large jumps in a set of lines. Calls xyclip
@@ -95,7 +95,7 @@ private:
   * @param anno
   */
   void clipPrimitiveLines(int npos, float *, float *, float xylim[4],
-      float jumplimit, bool plotanno=false, int anno_position=2, miString anno="");
+      float jumplimit, bool plotanno=false, int anno_position=2, miutil::miString anno="");
   /**
    * clip a set a lines to the viewport
    * @param npos
@@ -106,7 +106,7 @@ private:
    * @param anno_position
    * @param anno
    */
-  void xyclip(int, float[], float[], float[], bool, int, miString);
+  void xyclip(int, float[], float[], float[], bool, int, miutil::miString);
   /**
   * plot a map from a Land4 formatted file
   * @param filename
@@ -116,7 +116,7 @@ private:
   * @param
   * @return
   */
-  bool plotMapLand4(const miString&, float[], const Linetype&, float,
+  bool plotMapLand4(const miutil::miString&, float[], const Linetype&, float,
       const Colour&);
   /**
    * Plot Lat/Lon lines with optional numbering
@@ -132,7 +132,7 @@ private:
    * @param filename
    * @return
    */
-  bool plotLinesSimpleText(const miString& filename);
+  bool plotLinesSimpleText(const miutil::miString& filename);
 
 public:
   MapPlot();
@@ -149,7 +149,7 @@ public:
   /// plot map in a specific zorder layer
   bool plot(const int zorder);
   /// parse plotinfo
-  bool prepare(const miString&, bool ifequal =true);
+  bool prepare(const miutil::miString&, bool ifequal =true);
   /// return the area asked for
   bool requestedArea(Area& rarea); // return requested area
 };

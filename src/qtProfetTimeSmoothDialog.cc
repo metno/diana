@@ -43,7 +43,7 @@
 
 
 
-ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject::TimeValues>& obj, vector<miTime>& tim) 
+ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject::TimeValues>& obj, vector<miutil::miTime>& tim) 
 : QMainWindow(parent)
 {
   
@@ -156,7 +156,7 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    parametermenu         = new QMenu(tr("Parameters"),this);
 
    if(!obj.empty()) {
-     map<miString,float>::iterator itr=obj[0].parameters.begin();
+     map<miutil::miString,float>::iterator itr=obj[0].parameters.begin();
      for(;itr!=obj[0].parameters.end();itr++) {
        QString s = itr->first.cStr();
        QAction * act = new QAction(s, this);
@@ -214,11 +214,11 @@ void ProfetTimeSmoothDialog::closeEvent(QCloseEvent * e)
 
 void ProfetTimeSmoothDialog::toggleParameters(const QString& pname)
 {
-  miString p =pname.toStdString();
+  miutil::miString p =pname.toStdString();
   control->toggleParameters(p);  
 }
 
-void ProfetTimeSmoothDialog::warn(miString w)
+void ProfetTimeSmoothDialog::warn(miutil::miString w)
 {
   statusBar()->showMessage(w.cStr(),6000);
 }
@@ -286,7 +286,7 @@ void ProfetTimeSmoothDialog::setMethodLineReset()
   control->setMethod(ProfetTimeControl::RESETLINE);
 }
   
-void ProfetTimeSmoothDialog::processed(miTime tim, miString obj_id)
+void ProfetTimeSmoothDialog::processed(miutil::miTime tim, miutil::miString obj_id)
 {
   control->processed(tim,obj_id);  
 }

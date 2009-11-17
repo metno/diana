@@ -200,14 +200,14 @@ vector<fetDynamicGui::GuiComponent> ProfetObjectDialog::getCurrentGuiComponents(
 }
 
 
-void ProfetObjectDialog::setSession(const miTime & time){
+void ProfetObjectDialog::setSession(const miutil::miTime & time){
   ostringstream ost;
-  ost << time.hour() << ":00 " << miString(time.date().format("%a %e.%b"));
+  ost << time.hour() << ":00 " << miutil::miString(time.date().format("%a %e.%b"));
  // qt4 fix: setText takes QString as argument
   sessionLabel->setText(QString(ost.str().c_str()));
 }
 
-void ProfetObjectDialog::setParameter(const miString & p){
+void ProfetObjectDialog::setParameter(const miutil::miString & p){
   parameterLabel->setText(p.cStr());
 }
 
@@ -250,18 +250,18 @@ void ProfetObjectDialog::selectDefault(){
   baseObjectChanged(baseComboBox->text(0));
 }
 
-miString ProfetObjectDialog::getSelectedBaseObject(){
-//  miString r = baseComboBox->currentText().toStdString();
+miutil::miString ProfetObjectDialog::getSelectedBaseObject(){
+//  miutil::miString r = baseComboBox->currentText().toStdString();
   return selectedBaseObject;
 }
 
-miString ProfetObjectDialog::getReason(){
-  miString r = reasonText->text().toStdString();
+miutil::miString ProfetObjectDialog::getReason(){
+  miutil::miString r = reasonText->text().toStdString();
   return r;
 }
 
 
-void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
+void ProfetObjectDialog::setStatistics(map<miutil::miString,float>& stat)
 {
 
   if(!stat.size()) {
@@ -279,10 +279,10 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
     return;
   }
 
-  map<miString,float>::iterator itr=stat.begin();
+  map<miutil::miString,float>::iterator itr=stat.begin();
   ostringstream ost1;
   ostringstream ost2;
-  miString nb="&nbsp;&nbsp;";
+  miutil::miString nb="&nbsp;&nbsp;";
   ost1 << "<table border=0 align=center><tr>";
   ost2 << "<tr>";
   int i=1;
@@ -290,7 +290,7 @@ void ProfetObjectDialog::setStatistics(map<miString,float>& stat)
     float value = itr->second;
     int   prec  = ((int(value*100) == int(value)*100) ? 0 : 2);
 
-    miString bgcolor= (i%2?"lightGray":"white");
+    miutil::miString bgcolor= (i%2?"lightGray":"white");
 
     ost1	<< "<td halign=center bgcolor="<<bgcolor <<"><b>" << nb << itr->first.upcase() << nb <<" </b> </td> ";
     ost2  << "<td halign=center bgcolor="<<bgcolor <<"> "   << nb
@@ -309,7 +309,7 @@ void ProfetObjectDialog::quitBookmarks()
 }
 
 
-void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
+void ProfetObjectDialog::startBookmarkDialog(vector<miutil::miString>& boom)
 {
   if(boom.empty())
     return;
@@ -317,10 +317,10 @@ void ProfetObjectDialog::startBookmarkDialog(vector<miString>& boom)
   PolygonBookmarkDialog * bookmarks = new PolygonBookmarkDialog(this,boom,lastSavedPolygonName);
   connect(bookmarks,SIGNAL(polygonQuit()),
         this,SLOT(quitBookmarks()));
-  connect(bookmarks,SIGNAL(polygonCopied(miString,miString,bool)),
-      this,SIGNAL(copyPolygon(miString,miString,bool)));
-  connect(bookmarks,SIGNAL(polygonSelected(miString)),
-      this,SIGNAL(selectPolygon(miString)));
+  connect(bookmarks,SIGNAL(polygonCopied(miutil::miString,miutil::miString,bool)),
+      this,SIGNAL(copyPolygon(miutil::miString,miutil::miString,bool)));
+  connect(bookmarks,SIGNAL(polygonSelected(miutil::miString)),
+      this,SIGNAL(selectPolygon(miutil::miString)));
   bookmarks->show();
 
   databaseAreaButton->setEnabled(false);
@@ -331,7 +331,7 @@ void ProfetObjectDialog::logSizeAndPos()
 {
   miLogFile logfile;
   logfile.setSection("PROFET.LOG");
-  miString logname="ProfetEditObjectDialog";
+  miutil::miString logname="ProfetEditObjectDialog";
   if(mode == VIEW_OBJECT_MODE)
     logname="ProfetViewObjectDialog";
 

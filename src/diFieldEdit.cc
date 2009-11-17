@@ -41,6 +41,7 @@
 #include <math.h>
 #include <stdio.h>
 
+using namespace::miutil;
 
 // static class members
 editType FieldEdit::editstate= edit_value;

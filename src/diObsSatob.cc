@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -32,6 +32,8 @@
 #ifdef METNOOBS
 
 #include <diObsSatob.h>
+
+using namespace::miutil;
 
 ObsSatob::ObsSatob(const miString &file)
 :satob(file){
@@ -44,7 +46,7 @@ void ObsSatob::init(ObsPlot *oplot){
 
   int numStations= contents.size();
 
-  for(int i=0; i<numStations; i++) 
+  for(int i=0; i<numStations; i++)
     if(oplot->timeOK(contents[i].desc.obsTime)){
       ObsData &d = oplot->getNextObs();
       putData(i,d);
@@ -64,17 +66,17 @@ ObsSatob::putData(int i, ObsData &d){
   d.ypos = contents[i].desc.pos.latitude();
   d.zone = _IDtoZone(contents[i].stationID);
   d.obsTime = contents[i].desc.obsTime;
-  
+
   //Data
   if(contents[i].data.dd != undef)
     d.fdata["dd"]    = (float)contents[i].data.dd;		// grader
   if(contents[i].data.ff != undef)
     d.fdata["ff"]    = knots2ms(contents[i].data.ff);		// knop
-  
+
 }
 
 #endif
- 
+
 
 
 

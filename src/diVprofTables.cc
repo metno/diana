@@ -34,6 +34,8 @@
 #include <iostream>
 #include <math.h>
 
+using namespace::miutil;
+
 // static members
 
 FontManager* VprofTables::fp= 0; // fontpack

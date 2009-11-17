@@ -54,7 +54,7 @@ public:
   void enableRedo(bool enable);
 	
 private:
-  static miString helpPageName;
+  static miutil::miString helpPageName;
   QActionGroup *modeActions;
   QAction *selectAction;
   QAction *drawAction;
@@ -81,7 +81,7 @@ signals:
   void undoPressed();
   void redoPressed();
   // display help (using existing name convention)
-  void showsource(const miString source,const miString tag);
+  void showsource(const miutil::miString source,const miutil::miString tag);
 };
 
 #endif /*QTPAINTTOOLBAR_H_*/

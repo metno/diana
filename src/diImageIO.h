@@ -42,7 +42,7 @@ namespace imageIO {
   */
 
   struct Image_data {
-    miString filename;        // source filename
+    miutil::miString filename;        // source filename
     int width;                // width of image
     int height;               // height of image
     int nchannels;            // 3=RGB, 4=RGBA
@@ -50,7 +50,7 @@ namespace imageIO {
     bool pattern;             // read image as a pattern
     Image_data()
       :filename(""),width(0),height(0),nchannels(0),data(0){}
-    Image_data(const miString& f)
+    Image_data(const miutil::miString& f)
       :filename(f),width(0),height(0),nchannels(0),data(0){}
     ~Image_data(){if (data) delete[] data;}
   };

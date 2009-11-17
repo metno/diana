@@ -66,12 +66,12 @@ public:
   //the constructor
   ObjectDialog( QWidget* parent, Controller* llctrl );
   /// the plot info strings
-  vector<miString> getOKString();
+  vector<miutil::miString> getOKString();
   /// set the dialogue elements from a plot info string
-  void putOKString(const vector<miString>& vstr);
+  void putOKString(const vector<miutil::miString>& vstr);
   /// creates a short name for the current settings (used in quick menues)
-  miString getShortname();
-  void requestQuickUpdate(const vector<miString>& , vector<miString>& );
+  miutil::miString getShortname();
+  void requestQuickUpdate(const vector<miutil::miString>& , vector<miutil::miString>& );
   /// read comment belonging to objects
   void commentUpdate();
   /// show dialog
@@ -91,12 +91,12 @@ public:
 */
   struct PlotVariables {
     //variables for each plot
-    miString objectname;
-    miString file,time;
+    miutil::miString objectname;
+    miutil::miString file,time;
     int totalminutes;
     float alphanr;
-    map <miString,bool> useobject;    
-    miString external;
+    map <miutil::miString,bool> useobject;    
+    miutil::miString external;
   };
   
 private:
@@ -112,10 +112,10 @@ private:
   float m_alphanr;
 
   bool useArchive;
-  vector<miString> objectnames;
+  vector<miutil::miString> objectnames;
 
   //Emitted to TimeSlider 
-  vector<miTime> times;  
+  vector<miutil::miTime> times;  
   //list of object files currently selected
   vector <ObjFileInfo> files;
   //LB: current variables (only used for external)
@@ -127,11 +127,11 @@ private:
   void updateSelectedFileList();
 
   //decode part of OK string
-  PlotVariables decodeString(const vector <miString> & tokens);
+  PlotVariables decodeString(const vector <miutil::miString> & tokens);
   // make string from plotVariables
-  miString makeOKString(PlotVariables & okVar);
+  miutil::miString makeOKString(PlotVariables & okVar);
   // get the time string on the form yyyymmddhhmn from time
-  miString stringFromTime(const miTime& t);
+  miutil::miString stringFromTime(const miutil::miTime& t);
 
 
 //************** q tWidgets that appear in the dialog  *******************
@@ -194,8 +194,8 @@ private slots:
 signals:
   void ObjHide();
   void ObjApply();
-  void showsource(const miString, const miString="");
-  void emitTimes( const miString&, const vector<miTime>& ,bool );
+  void showsource(const miutil::miString, const miutil::miString="");
+  void emitTimes( const miutil::miString&, const vector<miutil::miTime>& ,bool );
 
 };
 

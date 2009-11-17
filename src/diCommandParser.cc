@@ -31,6 +31,8 @@
 
 #include <diCommandParser.h>
 
+using namespace::miutil;
+
 // Default constructor
 CommandParser::CommandParser()
   :caseType(cmdCaseDependant),commentSearch(false){

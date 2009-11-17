@@ -89,18 +89,18 @@ TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)
 
 void TextDialog::setSource(const InfoFile ifile){
 
-  const miString xml_type= "text/xml;charset=UTF-8";
-  const miString txt_type= "text/plain";
-  const miString htm_type= "text/html;charset=iso8859-1";
+  const miutil::miString xml_type= "text/xml;charset=UTF-8";
+  const miutil::miString txt_type= "text/plain";
+  const miutil::miString htm_type= "text/html;charset=iso8859-1";
 
   infofile= ifile;
   if (infofile.name.exists()){
     setWindowTitle(infofile.name.cStr());
 
-    miString ext, file;
+    miutil::miString ext, file;
     path= "";
     // find filename-extension
-    vector<miString> vs= infofile.filename.split(".");
+    vector<miutil::miString> vs= infofile.filename.split(".");
     if (vs.size()>1){
       ext= vs[vs.size()-1];
       ext.trim();

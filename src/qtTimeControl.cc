@@ -103,7 +103,7 @@ TimeControl::TimeControl(QWidget* parent)
   
   timeoutBox= new QComboBox(this);
   for(float f=0.2; f<2.1; f+=0.1){
-    miString text(f,2);
+    miutil::miString text(f,2);
     timeoutBox->addItem(text.cStr());
   }
 
@@ -152,19 +152,19 @@ TimeControl::TimeControl(QWidget* parent)
   vlayout->activate(); 
   //  vlayout->freeze();
 
-  vector<miTime> t;
+  vector<miutil::miTime> t;
   setTimes( t );
 
 }
 
 
-void TimeControl::setTimes( vector<miTime>& times ){
+void TimeControl::setTimes( vector<miutil::miTime>& times ){
 
   int n= times.size();
   int m= m_times.size();
   //try to remeber old limits
   bool resetSlider=false;
-  miTime start,stop;
+  miutil::miTime start,stop;
   if(m>0 && n>0 && (startSlider->value()>0 || stopSlider->value() <m-1)){
     resetSlider=true;
     start= m_times[startSlider->value()];
@@ -176,7 +176,7 @@ void TimeControl::setTimes( vector<miTime>& times ){
     m_times= times;
   } else {
     m_times.clear();
-    miTime t= miTime::nowTime();
+    miutil::miTime t= miutil::miTime::nowTime();
     m_times.push_back( t );
   }
 
@@ -241,8 +241,8 @@ void TimeControl::minmaxSlot(){
     if(istart<=0 && istop>=n-1){
       emit clearMinMax();
     } else {
-      miTime start= m_times[istart];
-      miTime stop= m_times[istop];
+      miutil::miTime start= m_times[istart];
+      miutil::miTime stop= m_times[istop];
       emit minmaxValue(start,stop);
     }
   } else {
@@ -252,7 +252,7 @@ void TimeControl::minmaxSlot(){
 }
 
 
-void TimeControl::useData(miString type, int id){
+void TimeControl::useData(miutil::miString type, int id){
 
   int n= dataname.size();
   for(int i=0;i<n;i++){
@@ -272,20 +272,20 @@ void TimeControl::useData(miString type, int id){
 }
 
 
-vector<miString> TimeControl::deleteType(int id)
+vector<miutil::miString> TimeControl::deleteType(int id)
 {
   //id=-1 means remove all external types
   //  cerr <<"TimeControl::deleteType:"<<id<<endl;
-  vector<miString>::iterator p = dataname.begin();
-  map<int,miString>::iterator q = external_id.begin();
-  map<int,miString>::iterator qend = external_id.end();
+  vector<miutil::miString>::iterator p = dataname.begin();
+  map<int,miutil::miString>::iterator q = external_id.begin();
+  map<int,miutil::miString>::iterator qend = external_id.end();
   
-  vector<miString> type;
+  vector<miutil::miString> type;
 
   for(;q!=qend;q++){
     if(id>-1 && q->first!=id) continue;
     int i=0;
-    vector<miString>::iterator pend = dataname.end();
+    vector<miutil::miString>::iterator pend = dataname.end();
     while( p!=pend && q->second != *p) {
       p++;
       i++;

@@ -49,7 +49,7 @@
 
 const int maxLines=1000000;
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 
 bool contour(int nx, int ny, float z[], float xz[], float yz[],

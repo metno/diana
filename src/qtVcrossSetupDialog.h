@@ -75,30 +75,30 @@ private:
 
   bool isInitialized;
 
-  miString TEXTPLOT;
-  miString FRAME;
-  miString POSNAMES;
-  miString LEVELNUMBERS;
-  miString UPPERLEVEL;
-  miString LOWERLEVEL;
-  miString OTHERLEVELS;
-  miString SURFACE;
-  miString DISTANCE;
-  miString GRIDPOS;
-  miString GEOPOS;
-  miString VERTGRID;
-  miString MARKERLINES;
-  miString VERTICALMARKER;
-  miString EXTRAPOLP;
-  miString BOTTOMEXT;
-  miString THINARROWS;
-  miString VERTICALTYPE;
-  miString VHSCALE;
-  miString STDVERAREA;
-  miString STDHORAREA;
-  miString BACKCOLOUR;
-  miString ONMAPDRAW;
-  miString HITMAPDRAW;
+  miutil::miString TEXTPLOT;
+  miutil::miString FRAME;
+  miutil::miString POSNAMES;
+  miutil::miString LEVELNUMBERS;
+  miutil::miString UPPERLEVEL;
+  miutil::miString LOWERLEVEL;
+  miutil::miString OTHERLEVELS;
+  miutil::miString SURFACE;
+  miutil::miString DISTANCE;
+  miutil::miString GRIDPOS;
+  miutil::miString GEOPOS;
+  miutil::miString VERTGRID;
+  miutil::miString MARKERLINES;
+  miutil::miString VERTICALMARKER;
+  miutil::miString EXTRAPOLP;
+  miutil::miString BOTTOMEXT;
+  miutil::miString THINARROWS;
+  miutil::miString VERTICALTYPE;
+  miutil::miString VHSCALE;
+  miutil::miString STDVERAREA;
+  miutil::miString STDHORAREA;
+  miutil::miString BACKCOLOUR;
+  miutil::miString ONMAPDRAW;
+  miutil::miString HITMAPDRAW;
 
 private slots:
   void standardClicked();
@@ -109,7 +109,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showsource(const miString, const miString="");
+  void showsource(const miutil::miString, const miutil::miString="");
 };
 
 #endif

@@ -87,7 +87,7 @@ struct EditEvent {
 
 const int numObjectTypes= 5;
 
-const miString ObjectTypeNames[numObjectTypes]=
+const miutil::miString ObjectTypeNames[numObjectTypes]=
 {"edittool","front","symbol","area","anno"};
 
 

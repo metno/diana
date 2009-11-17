@@ -59,7 +59,7 @@ class FtnVfile {
 
 public:
 
-  FtnVfile(miString filename, int bufferlength);
+  FtnVfile(miutil::miString filename, int bufferlength);
   ~FtnVfile();
   void init();
   bool setFilePosition(int record, int word);
@@ -73,7 +73,7 @@ public:
   void       getFloat   (float *fdata, int length,
 			 int iscale, int iundef);
   vector<float> getFloatVector(int length, int iscale, int iundef);
-  miString   getString  (int length);
+  miutil::miString   getString  (int length);
   void       skipData   (int length);
 
 private:
@@ -82,7 +82,7 @@ private:
   int bufferLength;
   short int *buffer;
 
-  miString fileName;
+  miutil::miString fileName;
   bool firstRead;
   bool swapFile;
   int  index;

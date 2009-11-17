@@ -46,9 +46,9 @@ int                VcrossSetup::nr_colors=0;
 QColor*            VcrossSetup::pixcolor=0;
 int                VcrossSetup::nr_linewidths=0;
 int                VcrossSetup::nr_linetypes=0;
-vector<miString>   VcrossSetup::linetypes;
+vector<miutil::miString>   VcrossSetup::linetypes;
 
-VcrossSetup::VcrossSetup( QWidget* parent, miString text,
+VcrossSetup::VcrossSetup( QWidget* parent, miutil::miString text,
 			QGridLayout * glayout, int row, int options)
   : QObject(parent),name(text)
 {
@@ -198,7 +198,7 @@ Colour::ColourInfo VcrossSetup::getColour()
 }
 
 
-void VcrossSetup::setColour(const miString& colourString)
+void VcrossSetup::setColour(const miutil::miString& colourString)
 {
   int nr_colours = m_cInfo.size();
   for (int i = 0;i<nr_colours;i++){
@@ -210,7 +210,7 @@ void VcrossSetup::setColour(const miString& colourString)
 }
 
 
-void VcrossSetup::setLinetype(const miString& linetype)
+void VcrossSetup::setLinetype(const miutil::miString& linetype)
 {
   if (linetypebox) {
     int index= 0;
@@ -221,9 +221,9 @@ void VcrossSetup::setLinetype(const miString& linetype)
 }
 
 
-miString VcrossSetup::getLinetype()
+miutil::miString VcrossSetup::getLinetype()
 {
-  miString sString;
+  miutil::miString sString;
   if (linetypebox) {
     int index = linetypebox->currentItem();
     sString = linetypes[index];
@@ -253,8 +253,8 @@ float VcrossSetup::getLinewidth()
 
 
 void VcrossSetup::defineValue(int low, int high, int step, int value,
-			      const miString& prefix,
-			      const miString& suffix)
+			      const miutil::miString& prefix,
+			      const miutil::miString& suffix)
 {
   if (valuespinbox) {
     valuespinbox->setMinValue(low);
@@ -287,8 +287,8 @@ int VcrossSetup::getValue()
 
 
 void VcrossSetup::defineMinValue(int low, int high, int step, int value,
-			         const miString& prefix,
-			         const miString& suffix)
+			         const miutil::miString& prefix,
+			         const miutil::miString& suffix)
 {
   if (minvaluespinbox) {
     minvaluespinbox->setMinValue(low);
@@ -321,8 +321,8 @@ int VcrossSetup::getMinValue()
 
 
 void VcrossSetup::defineMaxValue(int low, int high, int step, int value,
-			         const miString& prefix,
-			         const miString& suffix)
+			         const miutil::miString& prefix,
+			         const miutil::miString& suffix)
 {
   if (maxvaluespinbox) {
     maxvaluespinbox->setMinValue(low);
@@ -376,7 +376,7 @@ void VcrossSetup::forceMinValue(int maxvalue)
 }
 
 
-void VcrossSetup::defineTextChoice(const vector<miString>& vchoice, int ndefault)
+void VcrossSetup::defineTextChoice(const vector<miutil::miString>& vchoice, int ndefault)
 {
   if (textchoicebox) {
     textchoicebox->clear();
@@ -393,7 +393,7 @@ void VcrossSetup::defineTextChoice(const vector<miString>& vchoice, int ndefault
   }
 }
 
-void VcrossSetup::defineTextChoice2(const vector<miString>& vchoice, int ndefault)
+void VcrossSetup::defineTextChoice2(const vector<miutil::miString>& vchoice, int ndefault)
 {
   if (textchoicebox2) {
     textchoicebox2->clear();
@@ -410,10 +410,10 @@ void VcrossSetup::defineTextChoice2(const vector<miString>& vchoice, int ndefaul
 }
 
 
-void VcrossSetup::setTextChoice(const miString& choice)
+void VcrossSetup::setTextChoice(const miutil::miString& choice)
 {
   if (textchoicebox) {
-    miString t= choice.downcase();
+    miutil::miString t= choice.downcase();
     int m= vTextChoice.size();
     int i= 0;
     while (i<m && t!=vTextChoice[i].downcase()) i++;
@@ -423,7 +423,7 @@ void VcrossSetup::setTextChoice(const miString& choice)
 }
 
 
-miString VcrossSetup::getTextChoice()
+miutil::miString VcrossSetup::getTextChoice()
 {
   if (textchoicebox) {
     int i= textchoicebox->currentItem();
@@ -433,10 +433,10 @@ miString VcrossSetup::getTextChoice()
     return "";
 }
 
-void VcrossSetup::setTextChoice2(const miString& choice)
+void VcrossSetup::setTextChoice2(const miutil::miString& choice)
 {
   if (textchoicebox2) {
-    miString t= choice.downcase();
+    miutil::miString t= choice.downcase();
     int m= vTextChoice2.size();
     int i= 0;
     while (i<m && t!=vTextChoice2[i].downcase()) i++;
@@ -446,7 +446,7 @@ void VcrossSetup::setTextChoice2(const miString& choice)
 }
 
 
-miString VcrossSetup::getTextChoice2()
+miutil::miString VcrossSetup::getTextChoice2()
 {
   if (textchoicebox2) {
     int i= textchoicebox2->currentItem();

@@ -55,10 +55,10 @@ class AnnoText :public QDialog
 public:
 
   /// constructor for annotation text fpr product prodname, symbolText and xText are texts to be edited   
-  AnnoText( QWidget* parent, Controller* llctrl, miString prodname,
-vector <miString> & symbolText, vector <miString> & xText);
+  AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodname,
+vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
   /// get edited annotation text in symbolText and xtext
-  void getAnnoText(vector <miString> & symbolText, vector <miString>
+  void getAnnoText(vector <miutil::miString> & symbolText, vector <miutil::miString>
 		      & xText);
   ~AnnoText();
 
@@ -69,7 +69,7 @@ private:
   vector <QComboBox*> vSymbolEdit;
   QPushButton* quitb;
 
-  miString productname;
+  miutil::miString productname;
 
 signals:
   /// redraw (update GL)

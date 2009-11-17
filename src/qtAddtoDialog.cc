@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -54,10 +54,10 @@
 AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   : QDialog(parent), m_ctrl(llctrl), m_objm(0)
 {
-#ifdef DEBUGPRINT 
+#ifdef DEBUGPRINT
   cout<<"AddtoDialog::AddtoDialog called"<<endl;
 #endif
-     
+
   m_objm= m_ctrl->getObjectManager();
 
   setWindowTitle(tr("Add to objectdialog"));
@@ -65,7 +65,7 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
 
   QGridLayout* glayout = new QGridLayout();
 
-  QLabel* namelabel= new QLabel(tr("Dialog name:"), this); 
+  QLabel* namelabel= new QLabel(tr("Dialog name:"), this);
   QLabel* filelabel = new QLabel(tr("File name:"),   this);
 
   name  = new QLineEdit(this);
@@ -87,7 +87,7 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   int height = quitb->sizeHint().height();
   //set button size
   okb->setMinimumSize( width, height );
-  okb->setMaximumSize( width, height );  
+  okb->setMaximumSize( width, height );
   quitb->setMinimumSize( width, height );
   quitb->setMaximumSize( width, height );
 
@@ -97,28 +97,28 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   hlayout->addWidget(quitb, 10);
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this );                            
+  QVBoxLayout * vlayout = new QVBoxLayout( this );
   vlayout->addLayout(glayout, 0);
   vlayout->addLayout(hlayout,0);
 }
 
 
-miString AddtoDialog::getName(){
-  return name->text().toStdString(); 
+miutil::miString AddtoDialog::getName(){
+  return name->text().toStdString();
 }
 
 
-miString AddtoDialog::getFile(){
-  return file->text().toStdString(); 
+miutil::miString AddtoDialog::getFile(){
+  return file->text().toStdString();
 }
 
 
-void AddtoDialog::putName(const miString & namestring){
+void AddtoDialog::putName(const miutil::miString & namestring){
   name->setText(namestring.c_str());
 }
 
 
-void AddtoDialog::putFile(const miString & filestring){
+void AddtoDialog::putFile(const miutil::miString & filestring){
   file->setText(filestring.c_str());
 }
 

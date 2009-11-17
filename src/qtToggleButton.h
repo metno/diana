@@ -56,11 +56,11 @@ class ToggleButton : public QPushButton
 public:
 
  ToggleButton( QWidget* parent,
-	       miString name,
+	       miutil::miString name,
                QColor* color = 0 );
 
  ToggleButton( QWidget* parent,
-	       miString* name,
+	       miutil::miString* name,
 	       QColor* color = 0 );
 
  ToggleButton( QWidget* parent,
@@ -79,8 +79,8 @@ protected:
 private:
   bool usePalette;
   bool NameChange;
-  miString m_outName;
-  miString m_inName;
+  miutil::miString m_outName;
+  miutil::miString m_inName;
   QPalette outPalette;
   QPalette inPalette;
 };

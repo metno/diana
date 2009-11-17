@@ -67,8 +67,8 @@ public:
   ~GLwidget();
 
   /// save contents of widget as raster image
-  bool saveRasterImage(const miString fname,
-		       const miString format,
+  bool saveRasterImage(const miutil::miString fname,
+		       const miutil::miString format,
 		       const int quality = -1);
 
   /// toggles use of underlay

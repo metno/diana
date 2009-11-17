@@ -70,19 +70,19 @@ public:
 
 */  
   struct state{
-    miString OKString;
+    miutil::miString OKString;
     int iname;
     int iarea;
     int ifiletime;
     int ichannel;
     int iautotimefile;
-    miString name; ///<satellite name
-    miString area; ///>filetype
-    miTime filetime; ///<time
-    miString channel; ///<selected channel
-    miString filename; ///<filename
-    miString advanced; ///<plotting options
-    miString external; ///<nothing to do whith the dialog
+    miutil::miString name; ///<satellite name
+    miutil::miString area; ///>filetype
+    miutil::miTime filetime; ///<time
+    miutil::miString channel; ///<selected channel
+    miutil::miString filename; ///<filename
+    miutil::miString advanced; ///<plotting options
+    miutil::miString external; ///<nothing to do whith the dialog
     bool mosaic; ///<plot mosaic of pictures       
     int totalminutes;///<timediff
   };
@@ -90,31 +90,31 @@ public:
 
   SatDialog( QWidget* parent, Controller* llctrl );
   ///return command strings
-  vector<miString> getOKString();
+  vector<miutil::miString> getOKString();
   ///insert command strings
-  void putOKString(const vector<miString>& vstr);
+  void putOKString(const vector<miutil::miString>& vstr);
   ///return short name of current commonad
-  miString getShortname();
+  miutil::miString getShortname();
   ///check command strings, and return legal command strings
-  void requestQuickUpdate(const vector<miString>& , vector<miString>& );
+  void requestQuickUpdate(const vector<miutil::miString>& , vector<miutil::miString>& );
   /// refresh list of files in timefilelist
   void RefreshList();
   /// set mode to read files from archive
   void archiveMode(){emitSatTimes(true); updateTimefileList();}
-  vector<miString> writeLog() ;
+  vector<miutil::miString> writeLog() ;
   /// read log string
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion);
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
   ///called when the dialog is closed by the window manager
 protected:
   void closeEvent( QCloseEvent* );
 
 private:
 
-  map< miString,map< miString,miString > > satoptions;
+  map< miutil::miString,map< miutil::miString,miutil::miString > > satoptions;
   vector<state> m_state; //pictures to plot
-  vector<miTime> times;    //emitted to TimeSlider 
-  static miTime ztime;
+  vector<miutil::miTime> times;    //emitted to TimeSlider 
+  static miutil::miTime ztime;
 
 
   void updateFileListWidget(int);
@@ -124,17 +124,17 @@ private:
   void emitSatTimes(bool update=false);
   int addSelectedPicture();
   //decode part of OK string
-  state decodeString(const vector <miString> & tokens);
+  state decodeString(const vector <miutil::miString> & tokens);
   // make string from state
   bool compareStates(const state & oldOKVar,const state &newOkVar);
-  miString makeOKString(state & okVar);
+  miutil::miString makeOKString(state & okVar);
   void putOptions(const state okVar);
 
-  miString pictureString(state,bool);  
+  miutil::miString pictureString(state,bool);  
   // get the time string on the form yyyymmddhhmn from time
-  miString stringFromTime(const miTime& t);
+  miutil::miString stringFromTime(const miutil::miTime& t);
   //get time from string
-  miTime timeFromString(const miString & timeString);
+  miutil::miTime timeFromString(const miutil::miString & timeString);
 
 private slots:
   void DeleteClicked();
@@ -160,8 +160,8 @@ private slots:
 signals:
   void SatApply();
   void SatHide();
-  void showsource(const miString, const miString="");
-  void emitTimes( const miString& ,const vector<miTime>&,bool );
+  void showsource(const miutil::miString, const miutil::miString="");
+  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>&,bool );
 
 private:
 
@@ -169,8 +169,8 @@ private:
   
   int m_nr_image;
  
-  miString m_channelstr;
-  miTime m_time;  
+  miutil::miString m_channelstr;
+  miutil::miTime m_time;  
   vector<SatFileInfo> files;
   
   float m_scalediff;

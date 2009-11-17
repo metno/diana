@@ -62,12 +62,12 @@ private:
   void prepare();
   void condensationtrails();
   void plotDiagram();
-  void fpInitStr(const miString& str,
+  void fpInitStr(const miutil::miString& str,
 		 float x, float y, float z,
 		 float size,
 		 Colour c,
-		 miString format="",
-		 miString font="");
+		 miutil::miString format="",
+		 miutil::miString font="");
   void fpDrawStr(bool first=false);
 
   //-----------------------------------------------
@@ -104,12 +104,12 @@ private:
   float last_pmax;
 
   struct fpStrInfo{
-    miString str;
+    miutil::miString str;
     float x,y,z;
     float size;
     Colour c;
-    miString format;
-    miString font;
+    miutil::miString format;
+    miutil::miString font;
   };
 
   vector<fpStrInfo> fpStr;

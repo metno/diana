@@ -52,7 +52,7 @@ class QLabel;
 class DynamicTip: public QToolTip
 {
 public:
-  DynamicTip(QWidget * parent, vector <miString> tips);
+  DynamicTip(QWidget * parent, vector <miutil::miString> tips);
 protected:
   void maybeTip(const QPoint &);
 private:
@@ -79,7 +79,7 @@ public:
   /// add position x,y to the list
   void addPosition(float,float);
   /// called when user clicked on uffda station on map
-  void pointClicked(miString);
+  void pointClicked(miutil::miString);
   /// check if all Uffda data sent before exiting
   bool okToExit();
   /// deselects all items
@@ -134,12 +134,12 @@ private:
   deque <uffdaElement> v_uffda; 
   StationPlot * sp;
 
-  miString mailto; //mailadress to send Uffdastring to
+  miutil::miString mailto; //mailadress to send Uffdastring to
   void updatePoslist(uffdaElement &ue, int, bool);
   void updateStationPlot();
 
-  miString getUffdaString();
-  void send(const miString& to, const miString& subject,const miString& body);
+  miutil::miString getUffdaString();
+  void send(const miutil::miString& to, const miutil::miString& subject,const miutil::miString& body);
 
   int satIndex; //index of sat list
   int classIndex; //index of class list
@@ -157,7 +157,7 @@ private slots:
 
 signals:
   void uffdaHide();
-  void showsource(const miString, const miString=""); // activate help
+  void showsource(const miutil::miString, const miutil::miString=""); // activate help
   void stationPlotChanged();
 };
 

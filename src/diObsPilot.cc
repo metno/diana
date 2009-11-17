@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -32,6 +32,8 @@
 #ifdef METNOOBS
 
 #include <diObsPilot.h>
+
+using namespace::miutil;
 
 ObsPilot::ObsPilot(const miString &file)
 :pilot(file){
@@ -64,10 +66,10 @@ void ObsPilot::init(ObsPlot *oplot, vector<int> &levels){
 	pmin = (levels[j-1] + levels[j])/2. - 0.1;
       if( j < n-1 )
 	pmax = (levels[j] + levels[j+1])/2. + 0.1;
-    
+
     }
   }
-  
+
   // temp.numStations is all stations, contents may have less !!!
   int numStations= contents.size();
 
@@ -96,9 +98,9 @@ void ObsPilot::init(ObsPlot *oplot, vector<int> &levels){
 
 }
 
-int ObsPilot::getIndex(int& level, 
-		      float& pmin, 
-		      float& pmax, 
+int ObsPilot::getIndex(int& level,
+		      float& pmin,
+		      float& pmax,
 		      vector<float> & PPPP)
 {
 
@@ -150,9 +152,9 @@ ObsPilot::putData(int i, int levelIndex,miTime obsTime, ObsData &d){
     d.fdata["PPPP"]  = contents[i].data.PPPP[levelIndex];		// mb
   if(contents[i].data.HHH[levelIndex] != undef)
     d.fdata["HHH"]   = (float)contents[i].data.HHH[levelIndex];	// m
-  
+
 }
- 
+
 #endif
 
 

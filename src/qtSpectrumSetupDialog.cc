@@ -172,16 +172,16 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   nrow++;
   opts= VcrossSetup::useTextChoice;
   spSetups.push_back(new VcrossSetup(parent,FREQUENCYMAX,glayout,nrow++,opts));
-  vector<miString> vfreq;
-  vfreq.push_back(miString(0.50));
-  vfreq.push_back(miString(0.45));
-  vfreq.push_back(miString(0.40));
-  vfreq.push_back(miString(0.35));
-  vfreq.push_back(miString(0.30));
-  vfreq.push_back(miString(0.25));
-  vfreq.push_back(miString(0.20));
-  vfreq.push_back(miString(0.15));
-  vfreq.push_back(miString(0.10));
+  vector<miutil::miString> vfreq;
+  vfreq.push_back(miutil::miString(0.50));
+  vfreq.push_back(miutil::miString(0.45));
+  vfreq.push_back(miutil::miString(0.40));
+  vfreq.push_back(miutil::miString(0.35));
+  vfreq.push_back(miutil::miString(0.30));
+  vfreq.push_back(miutil::miString(0.25));
+  vfreq.push_back(miutil::miString(0.20));
+  vfreq.push_back(miutil::miString(0.15));
+  vfreq.push_back(miutil::miString(0.10));
   n= spSetups.size()-1;
   spSetups[n]->defineTextChoice(vfreq,4);
 
@@ -273,7 +273,7 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
       spSetups[i]->setLinewidth(spopt->peakDirectionLinewidth);
 
     } else if (spSetups[i]->name== FREQUENCYMAX) {
-      spSetups[i]->setTextChoice(miString(spopt->freqMax));
+      spSetups[i]->setTextChoice(miutil::miString(spopt->freqMax));
 
     } else if (spSetups[i]->name== BACKCOLOUR) {
       spSetups[i]->setColour(spopt->backgroundColour);
@@ -339,7 +339,7 @@ void SpectrumSetupDialog::applySetup()
       spopt->peakDirectionLinewidth= spSetups[i]->getLinewidth();
 
     } else if (spSetups[i]->name== FREQUENCYMAX) {
-      miString str= spSetups[i]->getTextChoice();
+      miutil::miString str= spSetups[i]->getTextChoice();
       spopt->freqMax= atof(str.cStr());
 
     } else if (spSetups[i]->name== BACKCOLOUR) {

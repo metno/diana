@@ -48,7 +48,7 @@ using namespace std;
 
 class FilledMap {
 private:
-  miString filename; // name of mapfile
+  miutil::miString filename; // name of mapfile
   long timestamp;    // file's change-time
   GridConverter gc;
 
@@ -107,7 +107,7 @@ private:
 public:
 
   FilledMap();
-  FilledMap(const miString fn);
+  FilledMap(const miutil::miString fn);
   ~FilledMap();
 
   /// Plot map (OpenGL)

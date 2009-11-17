@@ -43,6 +43,8 @@
 #include <diImageGallery.h>
 #include <diMapManager.h>
 
+using namespace::miutil;
+
 // Default constructor
 Controller::Controller()
   : plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0),

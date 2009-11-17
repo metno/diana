@@ -30,6 +30,8 @@
 */
 #include <diTimeFilter.h>
 
+using namespace::miutil;
+
 // Default constructor
 TimeFilter::TimeFilter():OK(false){
 }

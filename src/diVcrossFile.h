@@ -53,31 +53,31 @@ class VcrossFile
 {
 
 public:
-  VcrossFile(const miString& filename, const miString& modelname);
+  VcrossFile(const miutil::miString& filename, const miutil::miString& modelname);
   ~VcrossFile();
   void cleanup();
   bool update();
   bool readFileHeader();
-  vector<miString> getNames() { return names; }
-  vector<miTime> getTimes() { return validTime; }
-  vector<miString> getFieldNames();
+  vector<miutil::miString> getNames() { return names; }
+  vector<miutil::miTime> getTimes() { return validTime; }
+  vector<miutil::miString> getFieldNames();
   void getMapData(vector<LocationElement>& elements);
 
-  VcrossPlot* getCrossection(const miString& name, const miTime& time,
+  VcrossPlot* getCrossection(const miutil::miString& name, const miutil::miTime& time,
 			     int tgpos= -1);
 
 private:
 
   static GridConverter gc;
 
-  miString fileName;
-  miString modelName;
+  miutil::miString fileName;
+  miutil::miString modelName;
 
   FtnVfile *vfile;
 
   long int modificationtime;
 
-  miString modelName2; // from file
+  miutil::miString modelName2; // from file
   int vcoord;
   int numCross;
   int numTime;
@@ -97,9 +97,9 @@ private:
   float *xposmap;
   float *yposmap;
 
-  vector<miString> names;
-  vector<miString> posOptions;
-  vector<miTime>   validTime;
+  vector<miutil::miString> names;
+  vector<miutil::miString> posOptions;
+  vector<miutil::miTime>   validTime;
   vector<int>      forecastHour;
   vector<float>    vrangemin;
   vector<float>    vrangemax;

@@ -121,7 +121,7 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
 
 // Convert string to decimal value
 // If string contains ':', deg:min:sec format assumed
-bool GeoPosLineEdit::geovalidator::toFloat(miString s, float& val,
+bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
 					   bool isLat) const
 {
   float testval= 0;
@@ -146,7 +146,7 @@ bool GeoPosLineEdit::geovalidator::toFloat(miString s, float& val,
   }
 
   if (s.contains(":")){ // degrees:minutes:seconds
-    vector<miString> vs= s.split(":");
+    vector<miutil::miString> vs= s.split(":");
     float asign;
     for (unsigned int k=0; k<vs.size(); k++){
       float tval= atof(vs[k].cStr());
@@ -193,9 +193,9 @@ void GeoPosLineEdit::geovalidator::fixup(QString& input) const
 // get latitude, longitude from LineEdit-string
 bool GeoPosLineEdit::getValues(float& lat, float& lng)
 {
-  miString s(text().toStdString());
+  miutil::miString s(text().toStdString());
   s.trim();
-  vector<miString> vs= s.split(" ");
+  vector<miutil::miString> vs= s.split(" ");
   if (vs.size() != 2) return false;
 
   if (!gv->toFloat(vs[0],lat,true)) return false;

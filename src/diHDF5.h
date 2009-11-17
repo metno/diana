@@ -54,13 +54,13 @@ public:
   HDF5();
   
   ///read image
-  static bool readHDF5(const miString& filename, Sat& sd, int index=0);
+  static bool readHDF5(const miutil::miString& filename, Sat& sd, int index=0);
   ///read header info (time, channels)
   static bool readHDF5Header(SatFileInfo& file);
   ///read palette info
   static bool readHDF5Palette(SatFileInfo& file, vector<Colour>& col);
   ///set channels depending on solar heigt
-  //static bool day_night(const miString& filename, miString& channels);
+  //static bool day_night(const miutil::miString& filename, miutil::miString& channels);
 
 private: 
   //static satimgh5 hdf5api;

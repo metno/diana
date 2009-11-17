@@ -78,7 +78,7 @@
 
 /* Created at Wed May 23 15:28:41 2001 */
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 bool verbose = false;
 

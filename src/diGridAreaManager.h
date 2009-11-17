@@ -66,12 +66,12 @@ public:
 
     class SpatialInterpolateArea {
     public:
-      miString id;
-      miString parent;
-      miTime validTime;
+      miutil::miString id;
+      miutil::miString parent;
+      miutil::miTime validTime;
       GridArea area;
 
-      miString sortBy() const {return validTime.isoTime()+id;}
+      miutil::miString sortBy() const {return validTime.isoTime()+id;}
 
       friend bool operator>( const SpatialInterpolateArea& lhs,  const SpatialInterpolateArea& rhs)
       { return (lhs.sortBy() >  rhs.sortBy()); }
@@ -86,9 +86,9 @@ private:
 #ifndef NOLOG4CXX
     log4cxx::LoggerPtr logger;
 #endif
-	map<miString,GridArea> gridAreas;
-	miString currentId;
-  map<miString,GridArea> tmp_gridAreas;
+	map<miutil::miString,GridArea> gridAreas;
+	miutil::miString currentId;
+  map<miutil::miString,GridArea> tmp_gridAreas;
   vector<SpatialInterpolateArea> spatialAreas;
   mapMode mapmode;
 	GridConverter gc;   // gridconverter class
@@ -102,7 +102,7 @@ private:
   cursortype getCurrentCursor();
 	bool selectArea(Point p);
 	void updateSelectedArea();
-	void doSpatialInterpolation(const miString & movedId, float moveX, float moveY);
+	void doSpatialInterpolation(const miutil::miString & movedId, float moveX, float moveY);
 	void handleModeChanged(const mouseEvent& me, EventResult& res);
 	void handleSelectEvent(const mouseEvent& me, EventResult& res,
 	    const float& x, const float& y);
@@ -124,16 +124,16 @@ public:
 	GridAreaManager();
 	~GridAreaManager();
 	/// Replace all Grid-areas with specified areas
-	bool setGridAreas(map<miString,Polygon> newAreas, Area currentProj );
+	bool setGridAreas(map<miutil::miString,Polygon> newAreas, Area currentProj );
 	/// Returns current polygon
 	ProjectablePolygon getCurrentPolygon();
 	bool overrideMouseEvent;
   /// handling temporary areas
 	void clearTemporaryAreas();
-  void addOverviewArea(miString id, ProjectablePolygon area, Colour & colour);
+  void addOverviewArea(miutil::miString id, ProjectablePolygon area, Colour & colour);
   /// handling ghost areas for spatial interpolation
   void clearSpatialInterpolation();
-  void addSpatialInterpolateArea(miString id, miString parent, miTime valid, ProjectablePolygon area);
+  void addSpatialInterpolateArea(miutil::miString id, miutil::miString parent, miutil::miTime valid, ProjectablePolygon area);
   vector<SpatialInterpolateArea> getSpatialInterpolateAreas() const {return spatialAreas;}
   bool hasInterpolated() const {return hasinterpolated;}
   /// Setting current paint mode
@@ -141,18 +141,18 @@ public:
 	/// Returns current paint mode
 	PaintMode getPaintMode() const;
 	/// Adding new empty area with specified id (returns true if added)
-	bool addArea(miString id);
+	bool addArea(miutil::miString id);
 	/// Adding specified area with specified id. (returns true if added)
 	/// Current area changed if added!
-	bool addArea(miString id, ProjectablePolygon area, bool overwrite);
+	bool addArea(miutil::miString id, ProjectablePolygon area, bool overwrite);
 	/// Replaces area if id exist. Current area not affected.
-	bool updateArea(miString id, ProjectablePolygon area);
+	bool updateArea(miutil::miString id, ProjectablePolygon area);
 	/// Change area id (returns true if success, false if old ID not found)
-	bool changeAreaId(miString oldId, miString newId);
+	bool changeAreaId(miutil::miString oldId, miutil::miString newId);
 	/// Get area with specified id (returns empty polygon if ID not found)
-	ProjectablePolygon getArea(miString id);
+	ProjectablePolygon getArea(miutil::miString id);
 	/// Removes area with specified id (returns true if removed)
-	bool removeArea(miString id);
+	bool removeArea(miutil::miString id);
 	/// Removes current area (returns true if removed)
 	bool removeCurrentArea();
 	/// Handle mouse event
@@ -170,7 +170,7 @@ public:
   /// Perform redo. Returns true if success
   bool redo();
 	/// Sets selected area to specified id. Returns false if id not found.
-	bool setCurrentArea(miString id);
+	bool setCurrentArea(miutil::miString id);
 	/// True if current area exist
 	bool hasCurrentArea();
 	/// True if selected area is not empty (defined area selected)
@@ -178,11 +178,11 @@ public:
 	/// True if an empty area is selected. (returns false if no area selected)
 	bool isEmptyAreaSelected();
 	/// Returns selected id;
-	miString getCurrentId();
+	miutil::miString getCurrentId();
 	/// Returns current mode as string
-	miString getModeAsString();
+	miutil::miString getModeAsString();
 	/// Set plot enabled / disabled. Returns false if area id not found.
-	bool setEnabled(miString id, bool enabled);
+	bool setEnabled(miutil::miString id, bool enabled);
 	/// Clear / Remove all areas. No current area.
 	void clear();
 	/// Set projection of active field
@@ -192,7 +192,7 @@ public:
   /// set the list of Points which are actually affected by the mask
   void setActivePoints(vector<Point>);
   /// Returns id of all areas at p
-  vector<miString> getId(Point p);
+  vector<miutil::miString> getId(Point p);
 };
 
 

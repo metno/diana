@@ -32,7 +32,7 @@
 #include <diFieldPlotManager.h>
 #include <diField/diPlotOptions.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 
 FieldPlotManager::FieldPlotManager(FieldManager* fm)

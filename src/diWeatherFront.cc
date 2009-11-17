@@ -34,6 +34,7 @@
 #include <puTools/miString.h>
 #include <sstream>
 
+using namespace::miutil;
 
 vector<editToolInfo> WeatherFront::allFronts; //info about fronts
 map<miString,int> WeatherFront::frontTypes;   //finds front type number from name

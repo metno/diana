@@ -69,13 +69,13 @@ public:
 
   void getCrossections(LocationData& locationdata);
   void getCrossectionOptions(LocationData& locationdata);
-  bool changeCrossection(const miString& crossection);
-  void startUp(const miTime& t);
-  void mainWindowTimeChanged(const miTime& t);
+  bool changeCrossection(const miutil::miString& crossection);
+  void startUp(const miutil::miTime& t);
+  void mainWindowTimeChanged(const miutil::miTime& t);
 
-  vector<miString> writeLog(const miString& logpart);
-  void readLog(const miString& logpart, const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion,
+  vector<miutil::miString> writeLog(const miutil::miString& logpart);
+  void readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion,
 	       int displayWidth, int displayHeight);
 
   bool firstTime;
@@ -105,7 +105,7 @@ private:
   // printerdefinitions
   printOptions priop;
 
-  void makeEPS(const miString& filename);
+  void makeEPS(const miutil::miString& filename);
 
 private slots:
   void dataClicked(bool on);
@@ -131,12 +131,12 @@ private slots:
 
 signals:
   void VcrossHide();
-  void showsource(const miString, const miString=""); // activate help
+  void showsource(const miutil::miString, const miutil::miString=""); // activate help
   void crossectionChanged(const QString& );
   void crossectionSetChanged();
   void crossectionSetUpdate();
-  void emitTimes( const miString&,const vector<miTime>& );
-  void setTime(const miString&, const miTime&);
+  void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
+  void setTime(const miutil::miString&, const miutil::miTime&);
 };
 #endif
 

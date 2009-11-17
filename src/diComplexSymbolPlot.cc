@@ -33,6 +33,8 @@
 #include <diFontManager.h>
 #include <diWeatherSymbol.h>
 
+using namespace::miutil;
+
 //Define symbols from font
 #define SIG1SYMBOL 248
 #define SIG2SYMBOL 249

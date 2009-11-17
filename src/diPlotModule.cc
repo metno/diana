@@ -53,6 +53,8 @@
 #include <GL/gl.h>
 #include <sstream>
 
+using namespace::miutil;
+
 // static class members
 GridConverter PlotModule::gc; // Projection-converter
 

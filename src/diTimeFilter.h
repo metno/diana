@@ -54,20 +54,20 @@ private:
   bool advanced;
 
   void memberCopy(const TimeFilter& rhs);
-  void replaceKey(miString& str);
-  unsigned int findPos(const miString& filter, const miString& s);
-  bool getClock(miString name, miClock &);
+  void replaceKey(miutil::miString& str);
+  unsigned int findPos(const miutil::miString& filter, const miutil::miString& s);
+  bool getClock(miutil::miString name, miutil::miClock &);
 
 public:
 
   TimeFilter();
 
   ///remember time info, return filename whith time info replaced by *
-  bool initFilter(miString& filename);
+  bool initFilter(miutil::miString& filename);
   ///returns true if initFilter found timeinfo in filename
   bool ok(void) {return OK;}
   ///find time from filename
-  bool getTime(miString name, miTime & t);
+  bool getTime(miutil::miString name, miutil::miTime & t);
 
 
 };

@@ -98,13 +98,13 @@ private:
   void fillPrivateMenus();              // read menus from $HOMEDIR
   void fillStaticMenus();              // read initial menus from setup
   void saveChanges(int,int);            // save command-text into qm
-  void varExpand(vector<miString>&);    // expand variables in command-text
+  void varExpand(vector<miutil::miString>&);    // expand variables in command-text
   void fillMenuList();                  // fill main menu combobox
-  void getCommand(vector<miString>&);   // get command-text from comedit
+  void getCommand(vector<miutil::miString>&);   // get command-text from comedit
   void timerEvent(QTimerEvent*);        // timer for demo-mode
   bool itemChanged(int menu, int item); // check changes in static menus
-  void replaceDynamicOptions(vector<miString>& oldCommand,
-			     vector<miString>& newCommand);
+  void replaceDynamicOptions(vector<miutil::miString>& oldCommand,
+			     vector<miutil::miString>& newCommand);
 
 
 signals:
@@ -119,14 +119,14 @@ public:
 
   void start();
 
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion,
-	       miString& logVersion);
-  vector<miString> writeLog();
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion,
+	       miutil::miString& logVersion);
+  vector<miutil::miString> writeLog();
 
   /// add command to history
-  void pushPlot(const miString& name,
-		const vector<miString>& pstr);
+  void pushPlot(const miutil::miString& name,
+		const vector<miutil::miString>& pstr);
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot
@@ -135,25 +135,25 @@ public:
   bool prevList();  ///< previous Menu
   bool nextList();  ///< next Menu
 
-  bool applyItem(const miString &list, const miString &item); 
+  bool applyItem(const miutil::miString &list, const miutil::miString &item); 
 
   void applyPlot();
   
   void getDetails(int& plotidx,
-		  miString& listname,
-		  miString& plotname);
+		  miutil::miString& listname,
+		  miutil::miString& plotname);
   void startBrowsing();
 
   // quick-quick menu methods
-  vector<miString> getCustomMenus();
-  bool addMenu(const miString& name);
+  vector<miutil::miString> getCustomMenus();
+  bool addMenu(const miutil::miString& name);
   bool addToMenu(const int idx);
 
 signals:
-  void Apply(const vector<miString>& s, bool); ///< send plot-commands
-  void requestUpdate(const vector<miString>&,  ///< request static menu-item
-		     vector<miString>&);       // update: old,new
-  void showsource(const miString, const miString=""); ///< activate help
+  void Apply(const vector<miutil::miString>& s, bool); ///< send plot-commands
+  void requestUpdate(const vector<miutil::miString>&,  ///< request static menu-item
+		     vector<miutil::miString>&);       // update: old,new
+  void showsource(const miutil::miString, const miutil::miString=""); ///< activate help
 
 private slots:
   void menulistActivate(int);       // quick-menu combobox activated

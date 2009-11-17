@@ -34,6 +34,8 @@
 #include <glText/glTextTT.h>
 #include <glp/GLP.h>
 
+using namespace::miutil;
+
 miString FontManager::fontpath;
 miString FontManager::display_name;
 map<miString, miString> FontManager::defaults;

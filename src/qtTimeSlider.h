@@ -58,36 +58,36 @@ public:
 
   void clear();
   ///Current time
-  miTime Value();
+  miutil::miTime Value();
   /// current index
   int current() { return value(); };
   /// get start time
-  miTime getStartTime() { return start; };
+  miutil::miTime getStartTime() { return start; };
   ///Number of times currently in the slider
   int numTimes() const {return times.size();}
   ///Next/previous time
-  bool nextTime(const int dir, miTime& time, bool restricted =false);
+  bool nextTime(const int dir, miutil::miTime& time, bool restricted =false);
   void setLoop(const bool b);
-  vector<miTime> getTimes(){return times;}
+  vector<miutil::miTime> getTimes(){return times;}
   void startAnimation(){startani= true;}
   ///Remove times from data type
-  void deleteType(const miString& type);
+  void deleteType(const miutil::miString& type);
   
-  void set(const miTime&);
+  void set(const miutil::miTime&);
 
  public slots:
-  void setMinMax(const miTime& t1, const miTime& t2);
+  void setMinMax(const miutil::miTime& t1, const miutil::miTime& t2);
   void clearMinMax();
   ///add new times for datatype
-  void insert(const miString& datatype, const vector<miTime>&,bool =true);
+  void insert(const miutil::miString& datatype, const vector<miutil::miTime>&,bool =true);
  /// force new value
-  void setTime(const miTime&);
+  void setTime(const miutil::miTime&);
  /// force new value if datatype match
-  void setTime( const miString& datatype, const miTime&);
+  void setTime( const miutil::miString& datatype, const miutil::miTime&);
   /// time-interval changed
   void setInterval(int);
   ///use times from datatype(field, sat, obs ..)
-  void useData(miString datatype);
+  void useData(miutil::miString datatype);
 
   signals:
   /// emits smallest timeinterval (in hours)
@@ -98,26 +98,26 @@ public:
   void enableSpin(bool);
   void sliderSet();
   /// emits times
-  void newTimes(vector<miTime>&);
+  void newTimes(vector<miutil::miTime>&);
 
 private:
-  map<miString,vector<miTime> > tlist; // times
-  map<miString,bool>  usetlist; // false if only one spesific time is set
-  vector<miTime> orig_times; // the actual timepoints (all)
-  vector<miTime> times; // the actual timepoints (min-max)
-  miTime prevtime; // previous selected time
+  map<miutil::miString,vector<miutil::miTime> > tlist; // times
+  map<miutil::miString,bool>  usetlist; // false if only one spesific time is set
+  vector<miutil::miTime> orig_times; // the actual timepoints (all)
+  vector<miutil::miTime> times; // the actual timepoints (min-max)
+  miutil::miTime prevtime; // previous selected time
   float interval;  // timeinterval in hours
   bool loop;       // time-loop in use
-  miTime start;    // restrict nextTime()  
-  miTime stop;     // -------
+  miutil::miTime start;    // restrict nextTime()  
+  miutil::miTime stop;     // -------
   bool useminmax;  // use restricted timeinterval
   QPalette pal;    // keep original slider-palette
   bool startani;   // animation just started
-  miString  dataType; //dataType has priority   
-  miString  dataTypeUsed; //dataType in use
+  miutil::miString  dataType; //dataType has priority   
+  miutil::miString  dataTypeUsed; //dataType in use
 
   void init();
-  void setFirstTime(const miTime&);
+  void setFirstTime(const miutil::miTime&);
   void updateList();
   bool setSliderValue(const int v);
 };

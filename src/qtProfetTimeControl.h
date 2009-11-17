@@ -55,8 +55,8 @@ private:
   
   
   vector<ProfetSingleControl*>      objects;
-  map<miTime,int>                   time_index;
-  set<miString>                     parameters;
+  map<miutil::miTime,int>                   time_index;
+  set<miutil::miString>                     parameters;
   
   ring< vector<fetObject::TimeValues> >  undobuffer;
   ring< vector<fetObject::TimeValues> >  redobuffer;
@@ -65,26 +65,26 @@ private:
   int                               parenttimestep;
   methodTypes                       method; 
   bool                              changed;
-  void clearline(int from,int to,miString par);
-  void interpolate(miString par, int col);
+  void clearline(int from,int to,miutil::miString par);
+  void interpolate(miutil::miString par, int col);
   void setAll(vector<fetObject::TimeValues>);
   
 public:
-	ProfetTimeControl(QWidget* parent,vector<fetObject::TimeValues>& obj, vector<miTime>& times);
+	ProfetTimeControl(QWidget* parent,vector<fetObject::TimeValues>& obj, vector<miutil::miTime>& times);
 	
 	void setMethod(ProfetTimeControl::methodTypes);
 	bool hasChanged() const { return changed; }
 	void setChanged(bool a) { changed=a;      }
 	bool undo();
 	bool redo();
-	void processed(miTime tim, miString obj_id);
+	void processed(miutil::miTime tim, miutil::miString obj_id);
 	
   vector<fetObject::TimeValues>  collect(bool removeDiscardables=false);
 	
   ProfetSingleControl* parentObject() const {return objects[parenttimestep];}
   ProfetSingleControl* focusObject()  const;
   
-  void toggleParameters(miString p);
+  void toggleParameters(miutil::miString p);
   
   
 public slots:

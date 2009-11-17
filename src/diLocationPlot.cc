@@ -33,6 +33,7 @@
 #include <set>
 #include <math.h>
 
+using namespace::miutil;
 
 // constructor
 LocationPlot::LocationPlot()

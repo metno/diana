@@ -37,7 +37,7 @@
 
 /* Created at Wed Oct 12 15:31:16 2005 */
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 ShapeObject::ShapeObject() :
   ObjectPlot()

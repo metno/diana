@@ -88,43 +88,43 @@ public:
   FieldDialog( QWidget* parent, Controller* lctrl);
 
   /// follows levelUp/levelDown in main window toolbar
-  void changeLevel(const miString& level);
+  void changeLevel(const miutil::miString& level);
   /// follows idnumUp/idnumDown (EPS clusters etc) in mainwindow toolbar
-  void changeIdnum(const miString& idnum);
+  void changeIdnum(const miutil::miString& idnum);
   /// switch on/off access to archives
   void archiveMode(bool on);
   /// switch on/off access to profet fields
   void enableProfet(bool on);
   /// returns fiels command strings, one for each field
-  vector<miString> getOKString();
+  vector<miutil::miString> getOKString();
   /// return a short text for quickmenue
-  miString getShortname();
+  miutil::miString getShortname();
   /// return current changable level
-  void getOKlevels(vector<miString>& levelList, miString& levelSpec);
+  void getOKlevels(vector<miutil::miString>& levelList, miutil::miString& levelSpec);
   /// return current changable idnum (type/class/cluster/member/...)
-  void getOKidnums(vector<miString>& idnumList, miString& idnumSpec);
+  void getOKidnums(vector<miutil::miString>& idnumList, miutil::miString& idnumSpec);
   /// sets the dialogue according to (quickmenu) command strings
-  void putOKString(const vector<miString>& vstr,
+  void putOKString(const vector<miutil::miString>& vstr,
 		   bool checkOptions=true, bool external=true);
   /// returns checked command string to quickmenu
-  void requestQuickUpdate(const vector<miString>& oldstr,
-                                vector<miString>& newstr);
+  void requestQuickUpdate(const vector<miutil::miString>& oldstr,
+                                vector<miutil::miString>& newstr);
 
   /// insert editoption values of <field,option> specified
-  void getEditPlotOptions(map< miString, map<miString,miString> >& po);
+  void getEditPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >& po);
   /// make contents for the diana log file
-  vector<miString> writeLog();
+  vector<miutil::miString> writeLog();
   /// digest contents from the diana log file (a previous session)
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion);
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
 
 protected:
   void closeEvent( QCloseEvent* );
 
 public slots:
   void advancedToggled(bool on);
-  void fieldEditUpdate(miString str);
-  void addField(miString str);
+  void fieldEditUpdate(miutil::miString str);
+  void addField(miutil::miString str);
   void updateModels();
 
 private:
@@ -136,44 +136,44 @@ private:
     bool editPlot; //true: old field edit/false: profet
     int  indexMGR;
     int  indexM;
-    miString modelName;
-    miString fieldName;
-    miString level;
-    miString idnum;
+    miutil::miString modelName;
+    miutil::miString fieldName;
+    miutil::miString level;
+    miutil::miString idnum;
     int  hourOffset;
     int  hourDiff;
-    miString fieldOpts;
-    vector<miString> levelOptions;
-    vector<miString> idnumOptions;
+    miutil::miString fieldOpts;
+    vector<miutil::miString> levelOptions;
+    vector<miutil::miString> idnumOptions;
     bool minus;
-    miString time;
+    miutil::miString time;
   };
 
   void updateModelBoxes();
   void disableFieldOptions(int type=0);
   void enableFieldOptions();
   void enableType2Options(bool);
-  void updateFieldOptions(const miString& name,
-			  const miString& value, int valueIndex= 0);
+  void updateFieldOptions(const miutil::miString& name,
+			  const miutil::miString& value, int valueIndex= 0);
   void updateTime();
   void setLevel();
   void setIdnum();
-  void getFieldGroups(const miString& model, int& indexMGR, int& indexM,
+  void getFieldGroups(const miutil::miString& model, int& indexMGR, int& indexM,
 		      vector<FieldGroupInfo>& vfg);
   void showHistory(int step);
-  miString checkFieldOptions(const miString& str);
-  miString getFieldOptions(const miString& fieldName, bool reset, bool edit=false) const;
+  miutil::miString checkFieldOptions(const miutil::miString& str);
+  miutil::miString getFieldOptions(const miutil::miString& fieldName, bool reset, bool edit=false) const;
 
-  bool fieldDifference(const miString& str,
-		       miString& field1, miString& field2) const;
+  bool fieldDifference(const miutil::miString& str,
+		       miutil::miString& field1, miutil::miString& field2) const;
 
   void highlightButton(QPushButton* button, bool on);
 
   void toolTips();
 
-  static vector<miString> numberList( QComboBox* cBox, float number );
+  static vector<miutil::miString> numberList( QComboBox* cBox, float number );
 
-  miString baseList( QComboBox* cBox, float base, float ekv, bool onoff= false );
+  miutil::miString baseList( QComboBox* cBox, float base, float ekv, bool onoff= false );
 
   Controller* m_ctrl;
 
@@ -183,34 +183,34 @@ private:
   bool levelInMotion;
   bool idnumInMotion;
 
-  miString lastFieldGroupName;
+  miutil::miString lastFieldGroupName;
 
   CommandParser *cp;
   vector<ParsedCommand> vpcopt;
 
-  miString editName;  // replacing the modelName during editing
+  miutil::miString editName;  // replacing the modelName during editing
 
-  map<miString,miString> fgTranslations;
+  map<miutil::miString,miutil::miString> fgTranslations;
 
   // map<fieldName,fieldOptions>
-  map<miString,miString> setupFieldOptions;
-  map<miString,miString> fieldOptions;
-  map<miString,miString> editFieldOptions;
+  map<miutil::miString,miutil::miString> setupFieldOptions;
+  map<miutil::miString,miutil::miString> fieldOptions;
+  map<miutil::miString,miutil::miString> editFieldOptions;
 
   // possible extensions of fieldnames (not found in setup)
-  set<miString> fieldPrefixes;
-  set<miString> fieldSuffixes;
+  set<miutil::miString> fieldPrefixes;
+  set<miutil::miString> fieldSuffixes;
 
   vector<SelectedField> selectedFields;
   int numEditFields;
   vector<SelectedField> selectedField2edit;
   vector<bool>          selectedField2edit_exists;
 
-  miString levelOKspec;
-  vector<miString> levelOKlist;
+  miutil::miString levelOKspec;
+  vector<miutil::miString> levelOKlist;
 
-  miString idnumOKspec;
-  vector<miString> idnumOKlist;
+  miutil::miString idnumOKspec;
+  vector<miutil::miString> idnumOKlist;
 
   vector<int> countSelected;
 
@@ -218,26 +218,26 @@ private:
   vector<ColourShading::ColourShadingInfo> csInfo;
   vector<Pattern::PatternInfo> patternInfo;
 
-  vector<miString> linetypes;
-  vector<miString> lineintervals;
+  vector<miutil::miString> linetypes;
+  vector<miutil::miString> lineintervals;
   QStringList      densityStringList;
-  vector<miString> vectorunit;
-  vector<miString> extremeType;
-  miString currentFieldOpts;
+  vector<miutil::miString> vectorunit;
+  vector<miutil::miString> extremeType;
+  miutil::miString currentFieldOpts;
   bool     currentFieldOptsInEdit;
 
   // info about selected model, fields, levels, idnums and plot options
   vector<FieldGroupInfo> vfgi;
 
-  vector<vector<miString> > commandHistory;
+  vector<vector<miutil::miString> > commandHistory;
 
   vector<FieldDialogInfo> m_modelgroup;
   vector<int>             indexMGRtable;
 
-  miString lastLevel;
-  miString lastIdnum;
-  vector<miString> currentLevels;
-  vector<miString> currentIdnums;
+  miutil::miString lastLevel;
+  miutil::miString lastIdnum;
+  vector<miutil::miString> currentLevels;
+  vector<miutil::miString> currentIdnums;
 
   QColor* color;
 
@@ -309,9 +309,9 @@ private:
 signals:
   void FieldApply();
   void FieldHide();
-  void showsource(const miString, const miString="");
-  void emitTimes( const miString& ,const vector<miTime>& );
-  void fieldPlotOptionsChanged(map<miString,miString>&);
+  void showsource(const miutil::miString, const miutil::miString="");
+  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
+  void fieldPlotOptionsChanged(map<miutil::miString,miutil::miString>&);
 
 private slots:
   void modelGRboxActivated( int index );
@@ -445,7 +445,7 @@ private:
   QComboBox* type2ComboBox;
   FieldColourDialog* colourLineDialog;
 
-  vector<miString> undefMasking;
+  vector<miutil::miString> undefMasking;
 
 };
 

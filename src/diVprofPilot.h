@@ -49,18 +49,18 @@ class VprofPilot : public pilot {
 public:
   // Constructors
   VprofPilot();
-  VprofPilot(const miString& file,
-	     const vector<miString>& stationList);
-  VprofPilot(const miString& file,
+  VprofPilot(const miutil::miString& file,
+	     const vector<miutil::miString>& stationList);
+  VprofPilot(const miutil::miString& file,
 	     float latitude, float longitude,
 	     float deltalat, float deltalong);
   // Destructor
   ~VprofPilot();
 
-  miTime getFileObsTime();
+  miutil::miTime getFileObsTime();
 
-  VprofPlot* getStation(const miString& station,
-			const miTime& time);
+  VprofPlot* getStation(const miutil::miString& station,
+			const miutil::miTime& time);
 };
 
 #endif

@@ -109,7 +109,7 @@ public:
   /// parse setup
   bool parseSetup();
   /// set new plotcommands
-  void plotCommands(const vector<miString>&);
+  void plotCommands(const vector<miutil::miString>&);
   /// call PlotModule.plot()
   void plot(bool over =true, bool under =true);
   /// get plotwindow corners in GL-coordinates
@@ -136,31 +136,31 @@ public:
   /// end hardcopy plot
   void endHardcopy();
   /// return current plottime
-  void getPlotTime(miString&);
+  void getPlotTime(miutil::miString&);
   /// return current plottime
-  void getPlotTime(miTime&);
+  void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(vector<miTime>& fieldtimes,vector<miTime>& sattimes,
-		    vector<miTime>& obstimes,vector<miTime>& objtimes,
-		    vector<miTime>& ptimes);
+  void getPlotTimes(vector<miutil::miTime>& fieldtimes,vector<miutil::miTime>& sattimes,
+		    vector<miutil::miTime>& obstimes,vector<miutil::miTime>& objtimes,
+		    vector<miutil::miTime>& ptimes);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(set<miTime>& okTimes,
-			   set<miTime>& constTimes,
-			   const vector<miString>& pinfos,
+  void getCapabilitiesTime(set<miutil::miTime>& okTimes,
+			   set<miutil::miTime>& constTimes,
+			   const vector<miutil::miString>& pinfos,
 			   bool allTimes=true);
   /// returns the current product time
-  bool getProductTime(miTime& t);
+  bool getProductTime(miutil::miTime& t);
   /// returns the current product name
-  miString getProductName();
+  miutil::miString getProductName();
 
   /// set plottime
-  bool setPlotTime(miTime&);
+  bool setPlotTime(miutil::miTime&);
   /// update plots
   void updatePlots();
   /// update level
-  void updateLevel(const miString& levelSpec, const miString& levelSet);
+  void updateLevel(const miutil::miString& levelSpec, const miutil::miString& levelSet);
   /// update idnum (class/type/...)
-  void updateIdnum(const miString& idnumSpec, const miString& idnumSet);
+  void updateIdnum(const miutil::miString& idnumSpec, const miutil::miString& idnumSet);
   /// toggle area conservatism
   void keepCurrentArea(bool);
   /// update projection only
@@ -176,39 +176,39 @@ public:
   /// find obs in grid position x,y
   bool findObs(int,int);
   /// find name of obs in grid position x,y
-  bool getObsName(int x,int y, miString& name);
+  bool getObsName(int x,int y, miutil::miString& name);
   /// plot other observations
   void nextObs(bool);
   /// init hqcData from QSocket
-  bool initHqcdata(int from, const miString&, const miString&,
-		   const miString&, const vector<miString>&);
+  bool initHqcdata(int from, const miutil::miString&, const miutil::miString&,
+		   const miutil::miString&, const vector<miutil::miString>&);
   /// update hqcData from QSocket
-  void updateHqcdata(const miString&, const miString&,
-		     const miString&, const vector<miString>&);
+  void updateHqcdata(const miutil::miString&, const miutil::miString&,
+		     const miutil::miString&, const vector<miutil::miString>&);
   /// select obs parameter to flag from QSocket
-  void processHqcCommand(const miString&, const miString& ="");
+  void processHqcCommand(const miutil::miString&, const miutil::miString& ="");
   /// plot trajectory position
-  void  trajPos(vector<miString>&);
+  void  trajPos(vector<miutil::miString>&);
   /// plot radar echo position
-  void  radePos(vector<miString>&);
+  void  radePos(vector<miutil::miString>&);
   /// get trajectory fields
-  vector<miString> getTrajectoryFields();
+  vector<miutil::miString> getTrajectoryFields();
   /// get radarecho fields
-  vector<miString> getRadarEchoFields();
+  vector<miutil::miString> getRadarEchoFields();
   /// start trajectory computation
   bool startTrajectoryComputation();
 // print trajectory positions to file
-  bool printTrajectoryPositions(const miString& filename);
+  bool printTrajectoryPositions(const miutil::miString& filename);
   /// get field models used (for Vprof etc.)
-  vector<miString> getFieldModels();
+  vector<miutil::miString> getFieldModels();
   /// obs time step changed
   void obsStepChanged(int);
   /// get name++ of current channels (with calibration)
-  vector<miString> getCalibChannels();
+  vector<miutil::miString> getCalibChannels();
   /// show pixel values in status bar
   vector<SatValues> showValues(int, int);
   /// get satellite name from all SatPlots
-  vector <miString> getSatnames();
+  vector <miutil::miString> getSatnames();
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool);
   /// toggle scrollwheelzoom
@@ -216,16 +216,16 @@ public:
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
-  miString getMarkedAnnotation();
+  miutil::miString getMarkedAnnotation();
   /// change text of marked and editable annotationplot
-  void changeMarkedAnnotation(miString text,int cursor=0,
+  void changeMarkedAnnotation(miutil::miString text,int cursor=0,
 			      int sel1=0,int sel2=0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
   /// start editing annotations
   void startEditAnnotation();
   /// stop editing annotations
-  void stopEditAnnotation(miString prodname);
+  void stopEditAnnotation(miutil::miString prodname);
   /// go to next element in annotation being edited
   void editNextAnnoElement();
   /// go to last element in annotation being edited
@@ -244,28 +244,28 @@ public:
 
   // Sat-dialog routines
   /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
-  const vector<SatFileInfo>& getSatFiles(const miString & satellite, const miString & file,bool update);
+  const vector<SatFileInfo>& getSatFiles(const miutil::miString & satellite, const miutil::miString & file,bool update);
   /// returns colour palette for subproduct of class satellite and subclass file
-  const vector<Colour>& getSatColours(const miString & satellite, const miString & file);
+  const vector<Colour>& getSatColours(const miutil::miString & satellite, const miutil::miString & file);
   /// returns channels for subproduct of class satellite and subclass file
-  const vector<miString>& getSatChannels(const miString & satellite, const miString &file ,
+  const vector<miutil::miString>& getSatChannels(const miutil::miString & satellite, const miutil::miString &file ,
 					 int index=-1);
   /// returns true if satellite picture is a mosaic
-  bool isMosaic(const miString &, const miString &);
+  bool isMosaic(const miutil::miString &, const miutil::miString &);
   /// refresh list of satellite files
-  void SatRefresh(const miString &, const miString &);
+  void SatRefresh(const miutil::miString &, const miutil::miString &);
   /// returns information about whether list of satellite files have changed
   void satFileListUpdated();
   /// called when the dialog and timeSlider updated with info from satellite
   bool satFileListChanged();
   /// satellite follows main plot time
-  void setSatAuto(bool,const miString &, const miString &);
+  void setSatAuto(bool,const miutil::miString &, const miutil::miString &);
   /// get satellite classes for uffda dialog
-  void getUffdaClasses(vector <miString> &,vector <miString> &);
+  void getUffdaClasses(vector <miutil::miString> &,vector <miutil::miString> &);
   /// returns true if uffda option enables
   bool getUffdaEnabled();
   /// returns adress to send mail from uffda dialog
-  miString getUffdaMailAddress();
+  miutil::miString getUffdaMailAddress();
   /// return button names for SatDialog
   SatDialogInfo initSatDialog();
 
@@ -273,47 +273,47 @@ public:
   /// return button names for ObsDialog
   ObsDialogInfo initObsDialog();
   /// return button names for ObsDialog ... ascii files (when activated)
-  ObsDialogInfo updateObsDialog(const miString& name);
+  ObsDialogInfo updateObsDialog(const miutil::miString& name);
   /// get observation times for plot types name
-  vector<miTime> getObsTimes( vector<miString> name);
+  vector<miutil::miTime> getObsTimes( vector<miutil::miString> name);
 
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
   vector<FieldDialogInfo> initFieldDialog();
   /// return plot options for all defined plot fields in setup
-  void getAllFieldNames(vector<miString>& fieldNames,
-			set<miString>& fieldprefixes,
-			set<miString>& fieldsuffixes);
+  void getAllFieldNames(vector<miutil::miString>& fieldNames,
+			set<miutil::miString>& fieldprefixes,
+			set<miutil::miString>& fieldsuffixes);
   ///return levels
-  vector<miString> getFieldLevels(const miString& pinfo);
+  vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
-  void getFieldGroups(const miString& modelNameRequest,
-		      miString& modelName, vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const miutil::miString& modelNameRequest,
+		      miutil::miString& modelName, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
-  vector<miTime> getFieldTime(vector<FieldTimeRequest>& request,
+  vector<miutil::miTime> getFieldTime(vector<FieldTimeRequest>& request,
 			      bool allTimeSteps);
 
   // Map-dialog methods
   MapDialogInfo initMapDialog();
-  bool MapInfoParser(miString& str, MapInfo& mi, bool tostr);
+  bool MapInfoParser(miutil::miString& str, MapInfo& mi, bool tostr);
 
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui
   EditDialogInfo initEditDialog();
   /// get text list from complex weather symbol
-  set <miString> getComplexList();
+  set <miutil::miString> getComplexList();
   /// return class specifications from fieldplot setup to EditDialog
-  miString getFieldClassSpecifications(const miString& fieldName);
+  miutil::miString getFieldClassSpecifications(const miutil::miString& fieldName);
 
   // object-dialog methods
   /// get ObjectNames from setup file to be used in dialog etc.
-  vector<miString> getObjectNames(bool);
+  vector<miutil::miString> getObjectNames(bool);
   ///objects follow main plot time
   void setObjAuto(bool autoFile);
   /// returns list of objectfiles for use in dialog
-  vector<ObjFileInfo> getObjectFiles(miString objectname, bool refresh);
+  vector<ObjFileInfo> getObjectFiles(miutil::miString objectname, bool refresh);
   /// decode string with types of objects to plot
-  map <miString,bool> decodeTypeString(miString);
+  map <miutil::miString,bool> decodeTypeString(miutil::miString);
 
   // various GUI-methods
   vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
@@ -321,49 +321,49 @@ public:
 
   //stations
   void putStations(StationPlot*);
-  void makeStationPlot(const miString& commondesc, const miString& common,
-		       const miString& description, int from,
-		       const  vector<miString>& data);
-  void deleteStations(miString name);
+  void makeStationPlot(const miutil::miString& commondesc, const miutil::miString& common,
+		       const miutil::miString& description, int from,
+		       const  vector<miutil::miString>& data);
+  void deleteStations(miutil::miString name);
   void deleteStations(int id=-2);
-  miString findStation(int, int,miString name,int id=-1);
-  void findStations(int, int, bool add, vector<miString>& name,vector<int>& id,
-		    vector<miString>& station);
-  void getEditStation(int step, miString& name, int& id,
-		      vector<miString>& stations);
-  void stationCommand(const miString& Command,
-		      vector<miString>& data,
-		      const miString& name="", int id=-1,
-		      const miString& misc="");
-  void stationCommand(const miString& Command,
-		      const miString& name="", int id=-1);
+  miutil::miString findStation(int, int,miutil::miString name,int id=-1);
+  void findStations(int, int, bool add, vector<miutil::miString>& name,vector<int>& id,
+		    vector<miutil::miString>& station);
+  void getEditStation(int step, miutil::miString& name, int& id,
+		      vector<miutil::miString>& stations);
+  void stationCommand(const miutil::miString& Command,
+		      vector<miutil::miString>& data,
+		      const miutil::miString& name="", int id=-1,
+		      const miutil::miString& misc="");
+  void stationCommand(const miutil::miString& Command,
+		      const miutil::miString& name="", int id=-1);
 
   //areas
   ///put area into list of area objects
-  void makeAreas(const miString& name, miString areaString, int id=-1);
+  void makeAreas(const miutil::miString& name, miutil::miString areaString, int id=-1);
   ///send command to right area object
-  void areaCommand(const miString& command, const miString& dataSet,
-		   const miString& data, int id );
+  void areaCommand(const miutil::miString& command, const miutil::miString& dataSet,
+		   const miutil::miString& data, int id );
   ///find areas in position x,y
   vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
   // location (vcross,...)
   void putLocation(const LocationData& locationdata);
   void updateLocation(const LocationData& locationdata);
-  void deleteLocation(const miString& name);
-  void setSelectedLocation(const miString& name,
-			 const miString& elementname);
-  miString findLocation(int x, int y, const miString& name);
+  void deleteLocation(const miutil::miString& name);
+  void setSelectedLocation(const miutil::miString& name,
+			 const miutil::miString& elementname);
+  miutil::miString findLocation(int x, int y, const miutil::miString& name);
 
-  map<miString,InfoFile> getInfoFiles();
+  map<miutil::miString,InfoFile> getInfoFiles();
 
   vector<PlotElement>& getPlotElements();
   void enablePlotElement(const PlotElement& pe);
 
 /********************* reading and writing log file *******************/
- vector<miString> writeLog();
- void readLog(const vector<miString>& vstr,
-	      const miString& thisVersion, const miString& logVersion);
+ vector<miutil::miString> writeLog();
+ void readLog(const vector<miutil::miString>& vstr,
+	      const miutil::miString& thisVersion, const miutil::miString& logVersion);
 #ifdef PROFET
   bool initProfet();
 //  bool registerProfetUser(const Profet::PodsUser & u);

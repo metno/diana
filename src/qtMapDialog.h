@@ -61,16 +61,16 @@ public:
   MapDialog(QWidget* parent, Controller* llctrl);
 
   /// the plot info strings
-  vector<miString> getOKString();
+  vector<miutil::miString> getOKString();
   /// set the dialogue elements from a plot info string
-  void putOKString(const vector<miString>& vstr);
+  void putOKString(const vector<miutil::miString>& vstr);
   /// creates a short name for the current settings (used in quick menues)
-  miString getShortname();
+  miutil::miString getShortname();
   /// returns all settings in logfile format
-  vector<miString> writeLog();
+  vector<miutil::miString> writeLog();
   /// set the dialogue elements from logfile settings
-  void readLog(const vector<miString>& vstr, const miString& thisVersion,
-      const miString& logVersion);
+  void readLog(const vector<miutil::miString>& vstr, const miutil::miString& thisVersion,
+      const miutil::miString& logVersion);
   /// choose the favorite settings
   void useFavorite();
 
@@ -132,21 +132,21 @@ private slots:
   signals:
   void MapApply();
   void MapHide();
-  void showsource(const miString, const miString = "");
+  void showsource(const miutil::miString, const miutil::miString = "");
 
 private:
   MapDialogInfo m_MapDI; // all maps and areas
-  vector<miString> favorite; // favorite options
+  vector<miutil::miString> favorite; // favorite options
   int numMaps; // number of maps
   vector<int> selectedmaps; // maps selected
   int activemap; // active selected map
   vector<int> logmaps; // selected maps ready for logging
 
   vector<Colour::ColourInfo> cInfo; // all defined colours
-  vector<miString> linetypes; // all defined linetypes
-  vector<miString> zorders; // all defined zorders
-  vector<miString> densities; // latlon densities (degrees)
-  vector<miString> positions; // all defined positions
+  vector<miutil::miString> linetypes; // all defined linetypes
+  vector<miutil::miString> zorders; // all defined zorders
+  vector<miutil::miString> densities; // latlon densities (degrees)
+  vector<miutil::miString> positions; // all defined positions
   Controller* m_ctrl;
 
   // areas
@@ -169,9 +169,9 @@ private:
   QCheckBox* lon_showvalue;
   QComboBox* lon_valuepos;
   bool lonb;
-  miString lonc;
-  miString lonlw;
-  miString lonlt;
+  miutil::miString lonc;
+  miutil::miString lonlw;
+  miutil::miString lonlt;
   int lonz;
   float lond;
   bool lonshowvalue;
@@ -192,9 +192,9 @@ private:
   QCheckBox* lat_showvalue;
   QComboBox* lat_valuepos;
   bool latb;
-  miString latc;
-  miString latlw;
-  miString latlt;
+  miutil::miString latc;
+  miutil::miString latlw;
+  miutil::miString latlt;
   int latz;
   float latd;
   bool latshowvalue;
@@ -216,9 +216,9 @@ private:
   QComboBox* ff_linetypebox;
   QComboBox* ff_colorcbox;
   QComboBox* ff_zorder;
-  miString framec;
-  miString framelw;
-  miString framelt;
+  miutil::miString framec;
+  miutil::miString framelw;
+  miutil::miString framelt;
   int framez;
 
   // maps and selected maps

@@ -64,11 +64,11 @@ class SatDialogAdvanced: public QWidget
 public:
    SatDialogAdvanced( QWidget* parent,  SatDialogInfo info);
   /// the plot info strings
-  miString getOKString();
+  miutil::miString getOKString();
   /// set the dialogue elements from a plot info string
-  miString putOKString(miString);
+  miutil::miString putOKString(miutil::miString);
   /// set picture string
-  void setPictures(miString);
+  void setPictures(miutil::miString);
   /// set colours from palette in colourlist (to hide colours in picture)
   void setColours(vector <Colour>&);
   /// disable/enable options according to type of picture
@@ -138,7 +138,7 @@ private:
 
   QListWidget * colourList;
 
-  miString picturestring; //string describing selected picture
+  miutil::miString picturestring; //string describing selected picture
 
   void blockSignals(bool b);
 };

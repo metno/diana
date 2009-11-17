@@ -324,8 +324,8 @@ void VcrossWidget::enableTimeGraph(bool on)
 }
 
 
-bool VcrossWidget::saveRasterImage(const miString fname,
-			           const miString format,
+bool VcrossWidget::saveRasterImage(const miutil::miString fname,
+			           const miutil::miString format,
 			           const int quality)
 {
   // problems on SGI - make sure plot is flushed properly

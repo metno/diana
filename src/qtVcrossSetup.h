@@ -73,38 +73,38 @@ public:
 
   //the constructor
 
-  VcrossSetup( QWidget* parent, miString text,
+  VcrossSetup( QWidget* parent, miutil::miString text,
 	       QGridLayout* glayout,int row, int options);
 
   bool isOn();
   Colour::ColourInfo getColour();
-  void setColour(const miString&);
-  void setLinetype(const miString&);
-  miString getLinetype();
+  void setColour(const miutil::miString&);
+  void setLinetype(const miutil::miString&);
+  miutil::miString getLinetype();
   void setLinewidth(float linew);
   float getLinewidth();
 
   void defineValue(int low, int high, int step, int value,
-  		   const miString& prefix, const miString& suffix);
+  		   const miutil::miString& prefix, const miutil::miString& suffix);
   void setValue(int value);
   int getValue();
   void defineMinValue(int low, int high, int step, int value,
-		      const miString& prefix, const miString& suffix);
+		      const miutil::miString& prefix, const miutil::miString& suffix);
   void setMinValue(int value);
   int  getMinValue();
   void defineMaxValue(int low, int high, int step, int value,
-		      const miString& prefix, const miString& suffix);
+		      const miutil::miString& prefix, const miutil::miString& suffix);
   void setMaxValue(int value);
   int  getMaxValue();
-  void  defineTextChoice(const vector<miString>& vchoice, int ndefault=0);
-  void     setTextChoice(const miString& choice);
-  miString getTextChoice();
+  void  defineTextChoice(const vector<miutil::miString>& vchoice, int ndefault=0);
+  void     setTextChoice(const miutil::miString& choice);
+  miutil::miString getTextChoice();
 
-  void  defineTextChoice2(const vector<miString>& vchoice, int ndefault=0);
-  void     setTextChoice2(const miString& choice);
-  miString getTextChoice2();
+  void  defineTextChoice2(const vector<miutil::miString>& vchoice, int ndefault=0);
+  void     setTextChoice2(const miutil::miString& choice);
+  miutil::miString getTextChoice2();
 
-  miString name;
+  miutil::miString name;
 
 public slots:
   void setOn(bool on);
@@ -124,7 +124,7 @@ private:
   static QColor* pixcolor;
   static int        nr_linewidths;
   static int        nr_linetypes;
-  static vector<miString> linetypes;
+  static vector<miutil::miString> linetypes;
 
   QCheckBox * checkbox;
   QLabel    * label;
@@ -137,8 +137,8 @@ private:
   QComboBox * textchoicebox;
   QComboBox * textchoicebox2;
 
-  vector<miString> vTextChoice;
-  vector<miString> vTextChoice2;
+  vector<miutil::miString> vTextChoice;
+  vector<miutil::miString> vTextChoice2;
 
 };
 

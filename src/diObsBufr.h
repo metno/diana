@@ -71,7 +71,7 @@ class ObsBufr {
 
 private:
 
-  bool BUFRdecode(int* ibuff, int ilen, const miString& format);
+  bool BUFRdecode(int* ibuff, int ilen, const miutil::miString& format);
   bool get_diana_data(int ktdexl, int *ktdexp, double* values,
 		      const char cvals[][80], int len_cvals, 
 		      int subset, int kelem, ObsData &d);
@@ -87,38 +87,38 @@ private:
 
   bool get_data_level(int ktdexl, int *ktdexp, double* values,
 		      const char cvals[][80], int len_cvals, 
-		      int subset, int kelem, miTime time);
+		      int subset, int kelem, miutil::miTime time);
 
-  miString cloudAmount(int i);
-  miString cloudHeight(int i);
-  miString cloud_TCU_CB(int i);
+  miutil::miString cloudAmount(int i);
+  miutil::miString cloudHeight(int i);
+  miutil::miString cloud_TCU_CB(int i);
   float height_of_clouds(double height);
   void cloud_type(ObsData& d, double v);
   float ms2code4451(float v);
 
-  miTime obsTime;
+  miutil::miTime obsTime;
   VprofPlot *vplot;
   ObsPlot   *oplot;
-  map<miString,int> idmap;
-  vector<miString> id;
+  map<miutil::miString,int> idmap;
+  vector<miutil::miString> id;
   vector<float> latitude;
   vector<float> longitude;
   int izone;
   int istation;
   int index;
-  miString strStation;
+  miutil::miString strStation;
 
 public:
   ObsBufr(){;}
-  bool init(const miString& filename, const miString& format);
-  bool ObsTime(const miString& filename,miTime& time);
-  bool readStationInfo(const miString& bufr_file,
-		       vector<miString>& namelist,
+  bool init(const miutil::miString& filename, const miutil::miString& format);
+  bool ObsTime(const miutil::miString& filename,miutil::miTime& time);
+  bool readStationInfo(const miutil::miString& bufr_file,
+		       vector<miutil::miString>& namelist,
 		       vector<float>& latitudelist,
 		       vector<float>& longitudelist);
-  VprofPlot* getVprofPlot(const miString& bufr_file,
-			  const miString& station,
-			  const miTime& time);
+  VprofPlot* getVprofPlot(const miutil::miString& bufr_file,
+			  const miutil::miString& station,
+			  const miutil::miTime& time);
   ObsPlot*   getObsPlot(){return oplot;}
   void setObsPlot(ObsPlot* op){oplot=op;}
 };

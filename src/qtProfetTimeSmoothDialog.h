@@ -75,15 +75,15 @@ protected:
   void closeEvent( QCloseEvent* );
     
 public:
-  ProfetTimeSmoothDialog(QWidget* p, vector<fetObject::TimeValues>& obj,vector<miTime>& tim);
+  ProfetTimeSmoothDialog(QWidget* p, vector<fetObject::TimeValues>& obj,vector<miutil::miTime>& tim);
   
   
   
 public slots:
-  void processed(miTime tim, miString obj_id); 
+  void processed(miutil::miTime tim, miutil::miString obj_id); 
 
 private slots: 
-  void warn(miString w);
+  void warn(miutil::miString w);
   void undo();
   void redo();
   void run();

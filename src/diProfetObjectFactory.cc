@@ -31,6 +31,7 @@
 
 #include <diProfetObjectFactory.h>
 
+using namespace::miutil;
 
 ProfetObjectFactory::ProfetObjectFactory()
   : nx(0), ny(0)

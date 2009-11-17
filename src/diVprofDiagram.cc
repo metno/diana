@@ -39,6 +39,8 @@
 #include <sstream>
 #include <math.h>
 
+using namespace::miutil;
+
 // Default constructor
 VprofDiagram::VprofDiagram(VprofOptions *vpop) :
   VprofTables(), vpopt(vpop),diagramInList(false),  drawlist(0), numtemp(0),

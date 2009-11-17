@@ -43,12 +43,12 @@
 */class ObsOcea : public ocea {
 
 private:
-  void putData(int,int,miTime,ObsData &);
+  void putData(int,int,miutil::miTime,ObsData &);
   int getIndex(int, const vector<int16>&, int);
 
 public:
   // Constructors
-  ObsOcea(const miString&);
+  ObsOcea(const miutil::miString&);
 
   void init(ObsPlot *);
 

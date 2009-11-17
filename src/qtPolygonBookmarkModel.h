@@ -15,10 +15,10 @@
 class PolygonBookmarkModel : public QStandardItemModel {
   Q_OBJECT
 private:
-  map<QModelIndex,miString> bookmarks;
-  map<miString,QModelIndex> folders;
-  map<QModelIndex,miString> folderIndex;
-  set<QModelIndex>          deletionProtected;
+  std::map<QModelIndex,miutil::miString> bookmarks;
+  std::map<miutil::miString,QModelIndex> folders;
+  std::map<QModelIndex,miutil::miString> folderIndex;
+  std::set<QModelIndex>          deletionProtected;
   QModelIndexList           pasteBuffer;
   QModelIndex               currentIndex;
   QModelIndex               trashIndex;
@@ -30,16 +30,16 @@ private:
   QIcon bookmarkIcon;
   QIcon trashcanIcon;
 
-  void pasteList(QModelIndexList ilist,miString toDirName);
+  void pasteList(QModelIndexList ilist,miutil::miString toDirName);
 	void internalPaste(bool toTrash=false);
-	void changeEntry(miString path, QStandardItem* item);
+	void changeEntry(miutil::miString path, QStandardItem* item);
 	bool moveItems;
 
 public:
 	PolygonBookmarkModel(QObject *p);
 
-	void addBookmark(miString s,bool isFolder=false);
-	void addBookmarks(std::vector<miString>& s);
+	void addBookmark(miutil::miString s,bool isFolder=false);
+	void addBookmarks(std::vector<miutil::miString>& s);
 
 	bool     currentIsBookmark();
 	bool     currentIsProtected() const { return deletionProtected.count(currentIndex); }
@@ -49,10 +49,10 @@ public:
 	}
 
 	void     setCurrent(QModelIndex c) { currentIndex = c; }
-	bool     setCurrent(miString n,QModelIndex& c);
+	bool     setCurrent(miutil::miString n,QModelIndex& c);
 
 	// return the bookmark/folder(for paste purpose)
-	miString getCurrentName(bool folder=false);
+	miutil::miString getCurrentName(bool folder=false);
 
 	void paste(QModelIndex& c) { setCurrent(c); internalPaste();}
 	void moveToTrash(QModelIndexList& pb);
@@ -61,8 +61,8 @@ public slots:
   void bookmarkChanged(QStandardItem * item);
 
 signals:
-  void warn(miString);
-  void bookmarkCopied(miString,miString,bool); // from name, to name, move
+  void warn(miutil::miString);
+  void bookmarkCopied(miutil::miString,miutil::miString,bool); // from name, to name, move
 
 };
 

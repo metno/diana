@@ -62,7 +62,7 @@ protected:
   static Rectangle maprect;  // Size of map plot area
   static Rectangle fullrect; // Size of full plot area
   static GridConverter gc;   // gridconverter class
-  static miTime ctime;       // current time
+  static miutil::miTime ctime;       // current time
   static float pwidth;       // physical size of plotarea
   static float pheight;      // --- " ---
   static FontManager* fp;    // master fontpack
@@ -72,7 +72,7 @@ protected:
   static bool hardcopy;      // producing postscript
   static int pressureLevel;          // current pressure level
   static int oceandepth;       // current ocean depth
-  static miString bgcolour;  // name of background colour
+  static miutil::miString bgcolour;  // name of background colour
   static Colour backgroundColour;   // background colour
   static Colour backContrastColour; // suitable contrast colour
   static float gcd;          // great circle distance
@@ -83,10 +83,10 @@ protected:
   bool enabled;              // plot enabled
   bool datachanged;          // plotdata has changed
   bool rgbmode;              // rgb or colour-index mode
-  miString pinfo;            // plotinfo
+  miutil::miString pinfo;            // plotinfo
   PlotOptions poptions;      // plotoptions
   printerManager printman;   // printer manager
-  miString plotname;         // name of plot
+  miutil::miString plotname;         // name of plot
 
   void psAddImage(const GLvoid*,GLint,GLint,GLint, // pixels,size,nx,ny
 		  GLfloat,GLfloat,GLfloat,GLfloat, // x,y,sx,sy
@@ -140,9 +140,9 @@ public:
   void getPhysSize(float&, float&);
 
   /// set the current data time
-  void setTime(const miTime& t){ctime= t; }
+  void setTime(const miutil::miTime& t){ctime= t; }
   /// return the current data time
-  miTime getTime(){return ctime;}
+  miutil::miTime getTime(){return ctime;}
 
   /// set current pressure level
   void setPressureLevel(int l){pressureLevel= l; }
@@ -155,9 +155,9 @@ public:
   int getOceanDepth(){return oceandepth;}
 
   /// set name of background colour
-  void setBgColour(const miString& cn){bgcolour= cn;}
+  void setBgColour(const miutil::miString& cn){bgcolour= cn;}
   /// return the name of the current background colour
-  const miString& getBgColour() const {return bgcolour;}
+  const miutil::miString& getBgColour() const {return bgcolour;}
 
   /// set background colour
   void setBackgroundColour(const Colour& c){backgroundColour= c;}
@@ -170,13 +170,13 @@ public:
   Colour getBackContrastColour() const { return backContrastColour; }
 
   /// set the plot info string
-  void setPlotInfo(const miString& pin);
+  void setPlotInfo(const miutil::miString& pin);
 
   /// return n elements of the current plot info string
-  miString getPlotInfo(int n=0);
+  miutil::miString getPlotInfo(int n=0);
 
   /// return true if right plot string
-  bool plotInfoOK(const miString& pin){return (pinfo == pin);}
+  bool plotInfoOK(const miutil::miString& pin){return (pinfo == pin);}
 
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const { return poptions; }
@@ -198,9 +198,9 @@ public:
   void xyClear();
 
   /// set name of this plot object
-  void setPlotName(const miString& name){plotname= name;}
+  void setPlotName(const miutil::miString& name){plotname= name;}
   /// return name of this plot object
-  virtual void getPlotName(miString& name){name= plotname;}
+  virtual void getPlotName(miutil::miString& name){name= plotname;}
 
   // hardcopy routines
   /// start postscript output

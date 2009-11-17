@@ -40,21 +40,21 @@ using namespace std;
 
 /// options for plot-commands: Example: UTC= 0,6,12,18
 struct quickMenuOption{
-  miString key;             ///< name of key
-  vector<miString> options; ///< available options
-  miString def;             ///< default option
+  miutil::miString key;             ///< name of key
+  vector<miutil::miString> options; ///< available options
+  miutil::miString def;             ///< default option
 };
 
 /// one menuitem: menuname + plotcommands
 struct quickMenuItem{
-  miString name;            ///< menuname
-  vector<miString> command; ///< command strings
+  miutil::miString name;            ///< menuname
+  vector<miutil::miString> command; ///< command strings
 };
 
 /// contents of one quickmenu
 struct quickMenu{
-  miString filename; ///< file containing menu definitions
-  miString name;     ///< name of menuitem
+  miutil::miString filename; ///< file containing menu definitions
+  miutil::miString name;     ///< name of menuitem
   int plotindex;     ///< 
   vector<quickMenuOption> opt;   /// any quickMenuOption 
   deque<quickMenuItem> menuitems;/// all items in this menu
@@ -65,6 +65,6 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax=false);
 /// read quick-menu file, and fill struct
 bool readQuickMenu(quickMenu& qm);
 /// if old syntax, update
-int  updateSyntax(miString& line);
+int  updateSyntax(miutil::miString& line);
 
 #endif

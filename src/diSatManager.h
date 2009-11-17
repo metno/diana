@@ -71,16 +71,16 @@ class SatManager {
 private:
 
   struct subProdInfo {
-    vector<miString> pattern;
+    vector<miutil::miString> pattern;
     vector<bool> archive;
     vector<TimeFilter> filter;
-    miString formattype; //holds mitiff or hdf5
-    miString metadata;
-    miString channelinfo;
-    miString paletteinfo;
+    miutil::miString formattype; //holds mitiff or hdf5
+    miutil::miString metadata;
+    miutil::miString channelinfo;
+    miutil::miString paletteinfo;
     int hdf5type;
     vector<SatFileInfo> file;
-    vector<miString> channel;
+    vector<miutil::miString> channel;
     vector<Colour> colours;
     // HK variable to tell whether this list has been updated since
     //last time we clicked "refresh"
@@ -93,9 +93,9 @@ private:
   };
 
 
-  map<miString, map<miString,subProdInfo> > Prod;
+  map<miutil::miString, map<miutil::miString,subProdInfo> > Prod;
   SatDialogInfo Dialog;
-  map<miString,miString> channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
+  map<miutil::miString,miutil::miString> channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
 
   // needed for getFiles error return
   const vector<SatFileInfo> emptyfile;
@@ -108,7 +108,7 @@ private:
   SatPlot * sp;
 
   int updateFreq;   //Max time between filelist updates in seconds
-  miTime ztime;     //zero time = 00:00:00 UTC Jan 1 1970
+  miutil::miTime ztime;     //zero time = 00:00:00 UTC Jan 1 1970
   int timeDiff;
 
   // Copy members
@@ -121,11 +121,11 @@ private:
   void setRGB();
   void setPalette(SatFileInfo &);
   void listFiles(subProdInfo &subp);
-  bool readHeader(SatFileInfo &, vector<miString> &);
+  bool readHeader(SatFileInfo &, vector<miutil::miString> &);
 
-  bool _isafile(const miString name);
-  unsigned long _modtime(const miString fname);
-  void _filestat(const miString fname, struct stat& filestat);
+  bool _isafile(const miutil::miString name);
+  unsigned long _modtime(const miutil::miString fname);
+  void _filestat(const miutil::miString fname, struct stat& filestat);
   bool parseChannels(SatFileInfo &info);
   bool readSatFile();
 
@@ -134,7 +134,7 @@ private:
 
   //cut index from first picture,can be reused in other pictures
   struct ColourStretchInfo{
-    miString channels;
+    miutil::miString channels;
     int index1[3];
     int index2[3];
   };
@@ -144,42 +144,42 @@ public:
   // Constructors
   SatManager();
 
-  bool init(vector<SatPlot*>&, const vector<miString>&);
+  bool init(vector<SatPlot*>&, const vector<miutil::miString>&);
   bool setData(SatPlot *);
-  vector<miTime> getSatTimes(const vector<miString>&);
+  vector<miutil::miTime> getSatTimes(const vector<miutil::miString>&);
 
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miTime>& progTimes,
-			   miTime& constTime,
+  void getCapabilitiesTime(vector<miutil::miTime>& progTimes,
+			   miutil::miTime& constTime,
 			   int& timediff,
-			   const miString& pinfo);
+			   const miutil::miString& pinfo);
 
-  const vector<SatFileInfo> & getFiles(const miString &,
-				       const miString &,
+  const vector<SatFileInfo> & getFiles(const miutil::miString &,
+				       const miutil::miString &,
 				       bool =false);
-  const vector<Colour> & getColours(const miString &,
-				       const miString &);
+  const vector<Colour> & getColours(const miutil::miString &,
+				       const miutil::miString &);
 
-  const vector<miString>& getChannels(const miString &satellite,
-				      const miString & file,
+  const vector<miutil::miString>& getChannels(const miutil::miString &satellite,
+				      const miutil::miString & file,
 				      int index=-1);
-  bool isMosaic(const miString &satellite, const miString & file);
+  bool isMosaic(const miutil::miString &satellite, const miutil::miString & file);
 
-  int getFileName(miString &);
-  int getFileName(const miTime&);
+  int getFileName(miutil::miString &);
+  int getFileName(const miutil::miTime&);
 
   SatDialogInfo initDialog(void){ return Dialog;}
   bool parseSetup(SetupParser &);
 
-  //  Sat * findSatdata(const miString & filename);//search vsatdata
+  //  Sat * findSatdata(const miutil::miString & filename);//search vsatdata
   void updateFiles();
-  void setSatAuto(bool,const miString &, const miString &);
+  void setSatAuto(bool,const miutil::miString &, const miutil::miString &);
 
   void archiveMode( bool on ){useArchive=on; updateFiles();}
 
-  vector <miString> vUffdaClass;
-  vector <miString> vUffdaClassTip;
-  miString uffdaMailAddress;
+  vector <miutil::miString> vUffdaClass;
+  vector <miutil::miString> vUffdaClassTip;
+  miutil::miString uffdaMailAddress;
   bool uffdaEnabled;
 
   bool fileListChanged;

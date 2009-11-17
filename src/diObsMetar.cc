@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -32,6 +32,8 @@
 #ifdef METNOOBS
 
 #include <diObsMetar.h>
+
+using namespace::miutil;
 
 ObsMetar::ObsMetar(const miString &file)
 :metar(file){
@@ -45,7 +47,7 @@ void ObsMetar::init(ObsPlot *oplot){
 
   int numStations= contents.size();
 
-  for(int i=0; i<numStations; i++) 
+  for(int i=0; i<numStations; i++)
     if(oplot->timeOK(contents[i].desc.obsTime)){
       ObsData &d = oplot->getNextObs();
       putData(i,d);
@@ -72,11 +74,11 @@ ObsMetar::putData(int i,ObsData &d){
     d.fdata["dd"]    = (float)contents[i].data.ddd;	// grader
     //  if(contents[i].data.ff != undef)
     d.fdata["ff"]    = knots2ms(contents[i].data.ff);	// knop
-  if( contents[i].data.TT>-99.5 && contents[i].data.TT<99.5 )  
+  if( contents[i].data.TT>-99.5 && contents[i].data.TT<99.5 )
     d.fdata["TTT"]   = contents[i].data.TT;	// Celsius
-  if( contents[i].data.TdTd>-99.5 && contents[i].data.TdTd<99.5 )  
+  if( contents[i].data.TdTd>-99.5 && contents[i].data.TdTd<99.5 )
     d.fdata["TdTdTd"]= contents[i].data.TdTd;	// Celsius
-  d.CAVOK = contents[i].data.CAVOK;           
+  d.CAVOK = contents[i].data.CAVOK;
   if(contents[i].data.fmfm > 0 && contents[i].data.fmfm < 100 )
     d.fdata["fmfm"] = knots2ms(contents[i].data.fmfm);		// wind gust
   if(contents[i].data.dndndn > -1 && contents[i].data.dndndn < 37 )
@@ -106,21 +108,21 @@ ObsMetar::putData(int i,ObsData &d){
     d.cloud.push_back(cloud(contents[i].data.cloud[j]));	// Clouds
   d.appendix = contents[i].data.appendix;  // For whatever remains
 
-  
+
 }
- 
+
 miString ObsMetar::cloud(miString cl)
 {
 
   if(cl.empty()) return cl;
 
-  if(cl.contains("SCT"))      cl.replace("SCT","S/");  
+  if(cl.contains("SCT"))      cl.replace("SCT","S/");
   else if(cl.contains("BKN")) cl.replace("BKN","B/");
   else if(cl.contains("OVC")) cl.replace("OVC","O/");
   else if(cl.contains("FEW")) cl.replace("FEW","F/");
-	     
-  if(cl.contains("TCU")) cl.replace("TCU"," TCU");  
-  if(cl.contains("CB"))  cl.replace("CB"," CB");  
+
+  if(cl.contains("TCU")) cl.replace("TCU"," TCU");
+  if(cl.contains("CB"))  cl.replace("CB"," CB");
 
   return cl;
 

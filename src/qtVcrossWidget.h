@@ -64,8 +64,8 @@ public:
   void resizeGL( int w, int h );
   void enableTimeGraph(bool on);
 
-  bool saveRasterImage(const miString fname,
-  		       const miString format,
+  bool saveRasterImage(const miutil::miString fname,
+  		       const miutil::miString format,
 		       const int quality = -1);
 
   void startHardcopy(const printOptions& po);

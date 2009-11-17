@@ -34,6 +34,8 @@
 #include <diImageGallery.h>
 #include <diFontManager.h>
 
+using namespace::miutil;
+
 //  static members
 miString StationPlot::ddString[16];
 

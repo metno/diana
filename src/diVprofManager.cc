@@ -50,6 +50,8 @@
 #include <sys/stat.h>
 #include <math.h>
 
+using namespace::miutil;
+
 VprofManager::VprofManager()
 : amdarStationList(false), vpdiag(0), showObs(false),
 showObsTemp(false), showObsPilot(false), showObsAmdar(false),

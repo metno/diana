@@ -33,6 +33,8 @@
 #include <glp/glpfile.h>
 #include <diFontManager.h>
 
+using namespace::miutil;
+
 // static class members
 Area Plot::area;           // chosen projec./area in gridcoordinates
 Area Plot::requestedarea;  // requested projec./area in gridcoordinates

@@ -78,8 +78,8 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 void DianaProfetGUI::setParamColours()
 {
   vector<fetParameter> parameters = controller.getParameters();
-  map<miString,miString> plotname2name;
-  map<miString, map<miString, miString> > fieldoptions;
+  map<miutil::miString,miutil::miString> plotname2name;
+  map<miutil::miString, map<miutil::miString, miutil::miString> > fieldoptions;
   for (int i=0; i<parameters.size(); i++){
     fieldoptions[parameters[i].plotname().downcase()]["colour"] = "black";
     plotname2name[parameters[i].plotname().downcase()] = parameters[i].name().downcase();
@@ -87,13 +87,13 @@ void DianaProfetGUI::setParamColours()
 
   emit getFieldPlotOptions(fieldoptions);
 
-  map<miString, map<miString, miString> >::iterator itr = fieldoptions.begin();
+  map<miutil::miString, map<miutil::miString, miutil::miString> >::iterator itr = fieldoptions.begin();
   for (; itr != fieldoptions.end(); itr++) {
-    map<miString, miString>::iterator sitr = itr->second.begin();
+    map<miutil::miString, miutil::miString>::iterator sitr = itr->second.begin();
     for (; sitr != itr->second.end(); sitr++) {
       if (sitr->first.downcase() == "colour") {
         parameterColours[plotname2name[itr->first.downcase()]] = Colour(sitr->second
-            + miString(":150"));
+            + miutil::miString(":150"));
       }
     }
   }
@@ -148,18 +148,18 @@ void DianaProfetGUI::connectSignals()
   this, SLOT(saveObject()));
   connect(editObjectDialog, SIGNAL(cancelObjectDialog()),
   this, SLOT(cancelEditObjectDialog()));
-  connect(editObjectDialog, SIGNAL(baseObjectSelected(miString)),
-  this, SLOT(baseObjectSelected(miString)));
+  connect(editObjectDialog, SIGNAL(baseObjectSelected(miutil::miString)),
+  this, SLOT(baseObjectSelected(miutil::miString)));
   connect(editObjectDialog, SIGNAL(dynamicGuiChanged()),
   this, SLOT(dynamicGuiChanged()));
 
   connect(&sessionModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex & )),
   this, SLOT(sessionModified(const QModelIndex & , const QModelIndex & )));
 
-  connect(editObjectDialog, SIGNAL(copyPolygon(miString,miString,bool)),
-  this, SLOT(copyPolygon(miString,miString,bool)));
-  connect(editObjectDialog, SIGNAL(selectPolygon(miString)),
-  this, SLOT(selectPolygon(miString)));
+  connect(editObjectDialog, SIGNAL(copyPolygon(miutil::miString,miutil::miString,bool)),
+  this, SLOT(copyPolygon(miutil::miString,miutil::miString,bool)));
+  connect(editObjectDialog, SIGNAL(selectPolygon(miutil::miString)),
+  this, SLOT(selectPolygon(miutil::miString)));
   connect(editObjectDialog, SIGNAL(requestPolygonList()),
   this, SLOT(requestPolygonList()));
 
@@ -181,16 +181,16 @@ void DianaProfetGUI::closeSessionDialog()
 void DianaProfetGUI::showObjectOverview(const QList<QModelIndex> & selected)
 {
   QList<QModelIndex>::const_iterator i = selected.begin();
-  set<miString> parameters;
-  set<miTime> times;
+  set<miutil::miString> parameters;
+  set<miutil::miTime> times;
   for (; i != selected.end(); i++) {
-    miTime t = tableModel.getTime(*i);
-    miString p = tableModel.getParameter(*i);
+    miutil::miTime t = tableModel.getTime(*i);
+    miutil::miString p = tableModel.getParameter(*i);
     parameters.insert(p);
     times.insert(t);
   }
-  miString param;
-  miTime time;
+  miutil::miString param;
+  miutil::miTime time;
   if (parameters.size() == 1 && times.size() != 1) {
     param = (*parameters.begin());
   } else if (parameters.size() != 1 && times.size() == 1) {
@@ -203,8 +203,8 @@ void DianaProfetGUI::showObjectOverview(const QList<QModelIndex> & selected)
 }
 
 // void DianaProfetGUI::showObjectOverview(int row, int col){
-//   miString p;
-//   miTime t;
+//   miutil::miString p;
+//   miutil::miTime t;
 //   if ( row >= 0 ){
 //     p = getCurrentParameter();
 //   }
@@ -215,8 +215,8 @@ void DianaProfetGUI::showObjectOverview(const QList<QModelIndex> & selected)
 // }
 
 
-void DianaProfetGUI::toggleObjectOverview(bool turnon, miString par,
-    miTime time)
+void DianaProfetGUI::toggleObjectOverview(bool turnon, miutil::miString par,
+    miutil::miTime time)
 {
   if (turnon) {
     vector<fetObject> objects = controller.getOverviewObjects(par, time);
@@ -257,7 +257,7 @@ void DianaProfetGUI::sessionModified(const QModelIndex & topLeft,
 
 void DianaProfetGUI::popupMenuActivated(int i)
 {
-  miString id = popupMenu->text(i).toStdString();
+  miutil::miString id = popupMenu->text(i).toStdString();
   id = id.substr(id.find_last_of("|") + 2, id.size() - 1);
   areaManager->setCurrentArea(id);
   gridAreaChanged();
@@ -286,14 +286,14 @@ void DianaProfetGUI::enableObjectButtons(bool enableNewbutton,
   enableTable_ = enableTable;
 }
 
-void DianaProfetGUI::setCurrentParam(const miString & p)
+void DianaProfetGUI::setCurrentParam(const miutil::miString & p)
 {
   currentParamTimeMutex.lock();
   currentParam = p;
   currentParamTimeMutex.unlock();
 }
 
-void DianaProfetGUI::setCurrentTime(const miTime & t)
+void DianaProfetGUI::setCurrentTime(const miutil::miTime & t)
 {
   currentParamTimeMutex.lock();
   currentTime = t;
@@ -331,7 +331,7 @@ void DianaProfetGUI::setCurrentSession(const fetSession & session)
   QCoreApplication::flush();
 }
 
-bool DianaProfetGUI::selectTime(miTime time)
+bool DianaProfetGUI::selectTime(miutil::miTime time)
 {
   if (!enableTable_)
     return false;
@@ -485,7 +485,7 @@ void DianaProfetGUI::updateObjectSignature(const fetObject::Signature & s,
   QCoreApplication::flush();
 }
 
-void DianaProfetGUI::baseObjectSelected(miString id)
+void DianaProfetGUI::baseObjectSelected(miutil::miString id)
 {
   int i = getBaseObjectIndex(id);
   if (i != -1) {
@@ -493,7 +493,7 @@ void DianaProfetGUI::baseObjectSelected(miString id)
     editObjectDialog->addDymanicGui(objectFactory.getGuiComponents(
         baseObjects[i]));
     if (areaManager->isAreaSelected()) {
-      miTime refTime;
+      miutil::miTime refTime;
       try {
         fetSession s = getCurrentSession();
         refTime = s.referencetime();
@@ -503,8 +503,8 @@ void DianaProfetGUI::baseObjectSelected(miString id)
       }
 
       // TODO: fetch parent from somewhere...
-      miString parent_ = "";
-      miString username = controller.getCurrentUser().name;
+      miutil::miString parent_ = "";
+      miutil::miString username = controller.getCurrentUser().name;
       currentObjectMutex.lock();
       currentObject = objectFactory.makeObject(baseObjects[i],
           areaManager->getCurrentPolygon(), getCurrentParameter(),
@@ -626,7 +626,7 @@ void DianaProfetGUI::handleServerException(Profet::ServerException & se)
       se.getHtmlMessage(true).c_str());
 }
 void DianaProfetGUI::collectRelatedTimeValues(
-    vector<fetObject::TimeValues>& obj, miString id_, bool withPolygon)
+    vector<fetObject::TimeValues>& obj, miutil::miString id_, bool withPolygon)
 {
   if (!id_.exists()) {
     try {
@@ -653,7 +653,7 @@ void DianaProfetGUI::startTimesmooth()
   if (activeTimeSmooth)
     return;
 
-  vector<miTime> tim;
+  vector<miutil::miTime> tim;
   try {
     fetSession s = getCurrentSession();
     tim = s.times();
@@ -675,8 +675,8 @@ void DianaProfetGUI::startTimesmooth()
   connect(timesmoothdialog, SIGNAL(runObjects(vector<fetObject::TimeValues>)),
   this, SLOT(processTimesmooth(vector<fetObject::TimeValues>)));
 
-  connect(this, SIGNAL(timesmoothProcessed(miTime, miString)),
-  timesmoothdialog, SLOT(processed(miTime, miString)));
+  connect(this, SIGNAL(timesmoothProcessed(miutil::miTime, miutil::miString)),
+  timesmoothdialog, SLOT(processed(miutil::miTime, miutil::miString)));
 
   connect(timesmoothdialog, SIGNAL(endTimesmooth(vector<fetObject::TimeValues>)),
   this, SLOT(endTimesmooth(vector<fetObject::TimeValues>)));
@@ -687,12 +687,12 @@ void DianaProfetGUI::startTimesmooth()
 
 void DianaProfetGUI::processTimesmooth(vector<fetObject::TimeValues> tv)
 {
-  vector<miString> del_ids;
+  vector<miutil::miString> del_ids;
   processTimeValues(tv, del_ids);
 }
 
 void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
-    vector<miString> del_ids)
+    vector<miutil::miString> del_ids)
 {
   vector<fetObject> obj;
 
@@ -701,7 +701,7 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
     obj.push_back(currentObject);
   currentObjectMutex.unlock();
 
-  set<miString> deletion_ids;
+  set<miutil::miString> deletion_ids;
   controller.getTimeValueObjects(obj, tv, deletion_ids);
   for (int i = 0; i < del_ids.size(); ++i) {
     deletion_ids.insert(del_ids[i]);
@@ -721,8 +721,8 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
   }
 
   for (int i = 0; i < obj.size(); i++) {
-    miTime tim = obj[i].validTime();
-    miString obj_id = obj[i].id();
+    miutil::miTime tim = obj[i].validTime();
+    miutil::miString obj_id = obj[i].id();
     try {
       if (objectFactory.processTimeValuesOnObject(obj[i])) {
         controller.saveObject(obj[i], true);
@@ -749,7 +749,7 @@ void DianaProfetGUI::endTimesmooth(vector<fetObject::TimeValues> tv)
   enableObjectButtons(true, true, true);
 }
 
-void DianaProfetGUI::copyPolygon(miString fromPoly, miString toPoly, bool move)
+void DianaProfetGUI::copyPolygon(miutil::miString fromPoly, miutil::miString toPoly, bool move)
 {
   try {
     controller.copyPolygon(fromPoly, toPoly, move);
@@ -758,7 +758,7 @@ void DianaProfetGUI::copyPolygon(miString fromPoly, miString toPoly, bool move)
   }
 }
 
-void DianaProfetGUI::selectPolygon(miString polyname)
+void DianaProfetGUI::selectPolygon(miutil::miString polyname)
 {
   fetPolygon fpoly;
   try {
@@ -768,7 +768,7 @@ void DianaProfetGUI::selectPolygon(miString polyname)
     return;
   }
   if (areaManager) {
-    miString id = "newArea";
+    miutil::miString id = "newArea";
     currentObjectMutex.lock();
     if (currentObject.exists()) {
       id = currentObject.id();
@@ -785,7 +785,7 @@ void DianaProfetGUI::selectPolygon(miString polyname)
 
 void DianaProfetGUI::requestPolygonList()
 {
-  vector<miString> polynames;
+  vector<miutil::miString> polynames;
   try {
     polynames = controller.getPolygonIndex();
   } catch (Profet::ServerException & se) {
@@ -831,8 +831,8 @@ void DianaProfetGUI::sessionSelected(int index)
 
 void DianaProfetGUI::sendMessage(const QString & m)
 {
-  miString username = controller.getCurrentUser().name;
-  Profet::InstantMessage message(miTime::nowTime(), 0, username, "all",
+  miutil::miString username = controller.getCurrentUser().name;
+  Profet::InstantMessage message(miutil::miTime::nowTime(), 0, username, "all",
       m.latin1());
   try {
     controller.sendMessage(message);
@@ -843,7 +843,7 @@ void DianaProfetGUI::sendMessage(const QString & m)
 
 void DianaProfetGUI::paramAndTimeSelected(const QModelIndex & index)
 {
-  toggleObjectOverview(false, miString(), miTime());
+  toggleObjectOverview(false, miutil::miString(), miutil::miTime());
   bool newbutton = true;
   bool modbutton = false;
   bool thetable = true;
@@ -917,7 +917,7 @@ void DianaProfetGUI::editObject()
     error = "Unable to find selected object.";
   }
   if (!error.empty()) {
-    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+    InstantMessage m(miutil::miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
         "Edit Object Failed", "", error);
     showMessage(m);
   }
@@ -934,7 +934,7 @@ void DianaProfetGUI::deleteObject()
   } catch (Profet::ServerException & se) {
     handleServerException(se);
   } catch (InvalidIndexException & iie) {
-    InstantMessage m(miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
+    InstantMessage m(miutil::miTime::nowTime(), InstantMessage::WARNING_MESSAGE,
         "Delete Object Failed", "", "Unable to find selected object.");
     showMessage(m);
   }
@@ -949,7 +949,7 @@ void DianaProfetGUI::doReconnect()
 {
   Profet::DataManagerType preferredType = Profet::DISTRIBUTED_MANAGER;
   Profet::PodsUser user = controller.getCurrentUser();
-  miString password = controller.getPassword();
+  miutil::miString password = controller.getPassword();
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -979,13 +979,13 @@ void DianaProfetGUI::doUpdate()
   setParamColours();
 }
 
-void DianaProfetGUI::showField(const miTime & reftime, const miString & param,
-    const miTime & time)
+void DianaProfetGUI::showField(const miutil::miTime & reftime, const miutil::miString & param,
+    const miutil::miTime & time)
 {
   LOG4CXX_DEBUG(logger,"show field "<<param<<" "<<time);
 
   //send time(s) to TimeSlider and set time
-  vector<miTime> vtime;
+  vector<miutil::miTime> vtime;
   vtime.push_back(time);
   emit emitTimes("product", vtime);
   emit setTime(time);
@@ -994,7 +994,7 @@ void DianaProfetGUI::showField(const miTime & reftime, const miString & param,
   emit showProfetField(""); //FieldDialog::fieldEditUpdate
 
   // make plot string for new PROFET fieldPlot
-  miString plotString;
+  miutil::miString plotString;
   plotString += ModelNames::profetWork(reftime) + " ";
   plotString += param;
   plotString += " time=";
@@ -1026,20 +1026,20 @@ void DianaProfetGUI::updateMap()
 /**
  * Called by multiple threads
  */
-miString DianaProfetGUI::getCurrentParameter()
+miutil::miString DianaProfetGUI::getCurrentParameter()
 {
   currentParamTimeMutex.lock();
-  miString tmp = currentParam;
+  miutil::miString tmp = currentParam;
   currentParamTimeMutex.unlock();
   return tmp;
 }
 /**
  * Called by multiple threads
  */
-miTime DianaProfetGUI::getCurrentTime()
+miutil::miTime DianaProfetGUI::getCurrentTime()
 {
   currentParamTimeMutex.lock();
-  miTime tmp = currentTime;
+  miutil::miTime tmp = currentTime;
   currentParamTimeMutex.unlock();
   return tmp;
 }
@@ -1098,7 +1098,7 @@ void DianaProfetGUI::processSpatialsmooth()
   }
 
   // save them...
-  vector<miString> deletion_ids;
+  vector<miutil::miString> deletion_ids;
   processTimeValues(spatialsmoothtv, deletion_ids);
 }
 
@@ -1145,9 +1145,9 @@ void DianaProfetGUI::redoCurrentArea()
 void DianaProfetGUI::gridAreaChanged()
 {
   LOG4CXX_DEBUG(logger,"gridAreaChanged");
-  miString currentId = areaManager->getCurrentId();
+  miutil::miString currentId = areaManager->getCurrentId();
   currentObjectMutex.lock();
-  miString obj_id = currentObject.id();
+  miutil::miString obj_id = currentObject.id();
   currentObjectMutex.unlock();
   // Different object selected on map
   if (currentId != "newArea" && currentId != obj_id) {
@@ -1171,7 +1171,7 @@ void DianaProfetGUI::gridAreaChanged()
       int i = getBaseObjectIndex(editObjectDialog->getSelectedBaseObject());
       if (i != -1) {
         if (areaManager->isAreaSelected()) {
-          miTime refTime;
+          miutil::miTime refTime;
           try {
             fetSession s = getCurrentSession();
             refTime = s.referencetime();
@@ -1180,8 +1180,8 @@ void DianaProfetGUI::gridAreaChanged()
                 << endl;
           }
           // TODO: fetch parent from somewhere...
-          miString parent_ = "";
-          miString username = controller.getCurrentUser().name;
+          miutil::miString parent_ = "";
+          miutil::miString username = controller.getCurrentUser().name;
           currentObjectMutex.lock();
           currentObject = objectFactory.makeObject(baseObjects[i],
               areaManager->getCurrentPolygon(), getCurrentParameter(),
@@ -1306,7 +1306,7 @@ void DianaProfetGUI::setVisible(bool visible)
   }
 }
 
-int DianaProfetGUI::getBaseObjectIndex(miString name)
+int DianaProfetGUI::getBaseObjectIndex(miutil::miString name)
 {
   for (int i = 0; i < baseObjects.size(); i++)
     if (baseObjects[i].name() == name)
@@ -1314,7 +1314,7 @@ int DianaProfetGUI::getBaseObjectIndex(miString name)
   return -1;
 }
 
-void DianaProfetGUI::setStatistics(map<miString, float> m)
+void DianaProfetGUI::setStatistics(map<miutil::miString, float> m)
 {
   editObjectDialog->setStatistics(m);
 }
@@ -1328,7 +1328,7 @@ void DianaProfetGUI::rightMouseClicked(float x, float y, int globalX,
     int globalY)
 {
   popupMenu->clear();
-  vector<miString> areaId = areaManager->getId(Point(x, y));
+  vector<miutil::miString> areaId = areaManager->getId(Point(x, y));
   for (int i = 0; i < areaId.size(); i++) {
     QString idText = areaId[i].cStr();
     cerr << "id:" << areaId[i] << endl;

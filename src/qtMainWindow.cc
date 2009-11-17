@@ -156,9 +156,9 @@
 //#include <paint_mode.xpm>
 
 DianaMainWindow::DianaMainWindow(Controller *co,
-    const miString ver_str,
-    const miString build_str,
-    miString dianaTitle,
+    const miutil::miString ver_str,
+    const miutil::miString build_str,
+    miutil::miString dianaTitle,
     bool ep)
 : QMainWindow(),
 enableProfet(ep), push_command(true),browsing(false),
@@ -583,7 +583,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
       SLOT(info_activated(QAction *)));
   infoFiles= contr->getInfoFiles();
   if (infoFiles.size()>0){
-    map<miString,InfoFile>::iterator p=infoFiles.begin();
+    map<miutil::miString,InfoFile>::iterator p=infoFiles.begin();
     for (; p!=infoFiles.end(); p++){
       infomenu->addAction(p->first.cStr());
     }
@@ -666,14 +666,14 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   timecontrol = new TimeControl(this);
   connect(timecontrol, SIGNAL(timeoutChanged(float)),
       SLOT(timeoutChanged(float)));
-  connect(timecontrol, SIGNAL(minmaxValue(const miTime&, const miTime&)),
-      tslider, SLOT(setMinMax(const miTime&, const miTime&)));
+  connect(timecontrol, SIGNAL(minmaxValue(const miutil::miTime&, const miutil::miTime&)),
+      tslider, SLOT(setMinMax(const miutil::miTime&, const miutil::miTime&)));
   connect(timecontrol, SIGNAL(clearMinMax()),
       tslider, SLOT(clearMinMax()));
-  connect(tslider, SIGNAL(newTimes(vector<miTime>&)),
-      timecontrol, SLOT(setTimes(vector<miTime>&)));
-  connect(timecontrol, SIGNAL(data(miString)),
-      tslider, SLOT(useData(miString)));
+  connect(tslider, SIGNAL(newTimes(vector<miutil::miTime>&)),
+      timecontrol, SLOT(setTimes(vector<miutil::miTime>&)));
+  connect(timecontrol, SIGNAL(data(miutil::miString)),
+      tslider, SLOT(useData(miutil::miString)));
   connect(timecontrol, SIGNAL(timecontrolHide()),
       SLOT(timecontrolslot()));
 
@@ -765,7 +765,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 
   hqcTo = -1;
   qsocket = false;
-  miString server = setup.basicValue("qserver");
+  miutil::miString server = setup.basicValue("qserver");
   pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
   //   pluginB->setMinimumWidth( hpixbutton );
   //   pluginB->setMaximumWidth( hpixbutton );
@@ -792,9 +792,9 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   QImage sp_img(spectrum_xpm);
   ig.addImageToGallery("spectrum_icon",sp_img);
 
-  miString avatarpath = setup.basicValue("avatars");
+  miutil::miString avatarpath = setup.basicValue("avatars");
   if ( avatarpath.exists() ){
-    vector<miString> vs = avatarpath.split(":");
+    vector<miutil::miString> vs = avatarpath.split(":");
     for ( unsigned int i=0; i<vs.size(); i++ ){
       ig.addImagesInDirectory(vs[i]);
     }
@@ -867,18 +867,18 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 
   // GAMMEL PLOTTING, KOMMENTERT VEKK, MEN IKKE FJERN DENNE !
   //HK !!! kjekk � ha for � teste hurtigmenyer/OKstring uten dialoger
-  //connect(qm, SIGNAL(Apply(const vector<miString>&,bool)),
-  //  	  SLOT(quickMenuApply(const vector<miString>&)));
+  //connect(qm, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
+  //  	  SLOT(quickMenuApply(const vector<miutil::miString>&)));
 
   // DENNE SKAL BRUKES ETTER AT putOKString ER IMPLEMENTERT
-  connect(qm, SIGNAL(Apply(const vector<miString>&,bool)),
-      SLOT(recallPlot(const vector<miString>&,bool)));
+  connect(qm, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
+      SLOT(recallPlot(const vector<miutil::miString>&,bool)));
 
-  connect(qm, SIGNAL(requestUpdate(const vector<miString>&,vector<miString>&)),
-      SLOT(requestQuickUpdate(const vector<miString>&,vector<miString>&)));
+  connect(qm, SIGNAL(requestUpdate(const vector<miutil::miString>&,vector<miutil::miString>&)),
+      SLOT(requestQuickUpdate(const vector<miutil::miString>&,vector<miutil::miString>&)));
 
-  connect(em, SIGNAL(Apply(const vector<miString>&,bool)),
-      SLOT(recallPlot(const vector<miString>&,bool)));
+  connect(em, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
+      SLOT(recallPlot(const vector<miutil::miString>&,bool)));
 
 
   // Mark trajectory positions
@@ -938,30 +938,30 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   connect( uffm, SIGNAL(uffdaHide()),SLOT(uffMenu()));
 
   // update field dialog when editing field
-  connect( em, SIGNAL(emitFieldEditUpdate(miString)),
-      fm, SLOT(fieldEditUpdate(miString)));
+  connect( em, SIGNAL(emitFieldEditUpdate(miutil::miString)),
+      fm, SLOT(fieldEditUpdate(miutil::miString)));
 
   // HELP
-  connect( fm, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( om, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( sm, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( mm, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( em, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( qm, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( objm, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( trajm, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( uffm, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
-  connect( paintToolBar, SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
+  connect( fm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( om, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( sm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( mm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( em, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( qm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( objm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( trajm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( uffm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( paintToolBar, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
@@ -970,8 +970,8 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   // create a new main window
   vpWindow = new VprofWindow();
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
-  connect(vpWindow,SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
+  connect(vpWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
   connect(vpWindow,SIGNAL(stationChanged(const QString &)),
       SLOT(stationChangedSlot(const QString &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
@@ -980,8 +980,8 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   // create a new main window
   vcWindow = new VcrossWindow();
   connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
-  connect(vcWindow,SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
+  connect(vcWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
   connect(vcWindow,SIGNAL(crossectionChanged(const QString &)),
       SLOT(crossectionChangedSlot(const QString &)));
   connect(vcWindow,SIGNAL(crossectionSetChanged()),
@@ -993,8 +993,8 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   // create a new main window
   spWindow = new SpectrumWindow();
   connect(spWindow,SIGNAL(SpectrumHide()),SLOT(hideSpectrumWindow()));
-  connect(spWindow,SIGNAL(showsource(const miString,const miString)),
-      help,SLOT(showsource(const miString,const miString)));
+  connect(spWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
   connect(spWindow,SIGNAL(spectrumChanged(const QString &)),
       SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),
@@ -1010,53 +1010,53 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   connect(browser, SIGNAL(nextlist()), this, SLOT(nextList()));
   browser->hide();
 
-  connect( fm ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-      tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+  connect( fm ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
+      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
 
-  connect( om ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-      tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+  connect( om ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
+      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
 
-  connect( sm ,SIGNAL(emitTimes(const miString&,const vector<miTime>&,bool)),
-      tslider,SLOT(insert(const miString&,const vector<miTime>&,bool)));
+  connect( sm ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&,bool)),
+      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&,bool)));
 
-  connect( em ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-      tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+  connect( em ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
+      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
 
-  connect( objm ,SIGNAL(emitTimes(const miString&,const vector<miTime>&,bool)),
-      tslider,SLOT(insert(const miString&,const vector<miTime>&,bool)));
+  connect( objm ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&,bool)),
+      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&,bool)));
 
   if ( vpWindow ){
-    connect( vpWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-        tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+    connect( vpWindow ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
+        tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
 
-    connect( vpWindow ,SIGNAL(setTime(const miString&, const miTime&)),
-        tslider,SLOT(setTime(const miString&, const miTime&)));
+    connect( vpWindow ,SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
+        tslider,SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
   }
   if ( vcWindow ){
-    connect( vcWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-        tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+    connect( vcWindow ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
+        tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
 
-    connect( vcWindow ,SIGNAL(setTime(const miString&, const miTime&)),
-        tslider,SLOT(setTime(const miString&, const miTime&)));
+    connect( vcWindow ,SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
+        tslider,SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
   }
   if ( spWindow ){
-    connect( spWindow ,SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
-        tslider,SLOT(insert(const miString&,const vector<miTime>&)));
+    connect( spWindow ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
+        tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
 
-    connect( spWindow ,SIGNAL(setTime(const miString&, const miTime&)),
-        tslider,SLOT(setTime(const miString&, const miTime&)));
+    connect( spWindow ,SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
+        tslider,SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
   }
 
 
   //parse labels
-  const miString label_name = "LABELS";
-  vector<miString> sect_label;
+  const miutil::miString label_name = "LABELS";
+  vector<miutil::miString> sect_label;
 
   if (!setup.getSection(label_name,sect_label)){
     cerr << label_name << " section not found" << endl;
     //default
     vlabel.push_back("LABEL data font=BITMAPFONT");
-    miString labelstr= "LABEL text=\"$day $date $auto UTC\" ";
+    miutil::miString labelstr= "LABEL text=\"$day $date $auto UTC\" ";
     labelstr += "tcolour=red bcolour=black ";
     labelstr+= "fcolour=white:200 polystyle=both halign=left valign=top ";
     labelstr+= "font=BITMAPFONT fontsize=12";
@@ -1128,7 +1128,7 @@ void DianaMainWindow::editUpdate()
 
 
 
-void DianaMainWindow::quickMenuApply(const vector<miString>& s)
+void DianaMainWindow::quickMenuApply(const vector<miutil::miString>& s)
 {
 #ifdef DEBUGPRINT
   cerr << "quickMenuApply:" << endl;
@@ -1136,7 +1136,7 @@ void DianaMainWindow::quickMenuApply(const vector<miString>& s)
   QApplication::setOverrideCursor( Qt::WaitCursor );
   contr->plotCommands(s);
 
-  vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
+  vector<miutil::miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
   contr->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes);
 
   tslider->insert("field", fieldtimes);
@@ -1145,11 +1145,11 @@ void DianaMainWindow::quickMenuApply(const vector<miString>& s)
   tslider->insert("obs", objtimes);
   tslider->insert("product", ptimes);
 
-  miTime t= tslider->Value();
+  miutil::miTime t= tslider->Value();
   contr->setPlotTime(t);
   contr->updatePlots();
   //find current field models amd send to vprofwindow..
-  vector <miString> fieldmodels = contr->getFieldModels();
+  vector <miutil::miString> fieldmodels = contr->getFieldModels();
   if (vpWindow) vpWindow->setFieldModels(fieldmodels);
   if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
@@ -1162,27 +1162,27 @@ void DianaMainWindow::quickMenuApply(const vector<miString>& s)
 void DianaMainWindow::resetAll()
 {
   mm->useFavorite();
-  vector<miString> pstr = mm->getOKString();;
+  vector<miutil::miString> pstr = mm->getOKString();;
   recallPlot(pstr, true);
   MenuOK();
 }
 
-void DianaMainWindow::requestQuickUpdate(const vector<miString>& oldstr,
-    vector<miString>& newstr)
+void DianaMainWindow::requestQuickUpdate(const vector<miutil::miString>& oldstr,
+    vector<miutil::miString>& newstr)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
   // strings for each dialog
-  vector<miString> mapcom,fldcom,obscom,satcom,objcom,labcom;
-  vector<miString> oldfldcom,oldobscom,oldsatcom,oldobjcom;
+  vector<miutil::miString> mapcom,fldcom,obscom,satcom,objcom,labcom;
+  vector<miutil::miString> oldfldcom,oldobscom,oldsatcom,oldobjcom;
 
   int n= newstr.size();
   // sort new strings..
   for (int i=0; i<n; i++){
-    miString s= newstr[i];
+    miutil::miString s= newstr[i];
     s.trim();
     if (!s.exists()) continue;
-    vector<miString> vs= s.split(" ");
-    miString pre= vs[0].upcase();
+    vector<miutil::miString> vs= s.split(" ");
+    miutil::miString pre= vs[0].upcase();
     if (pre=="FIELD")      fldcom.push_back(s);
     else if (pre=="OBS")   obscom.push_back(s);
     else if (pre=="MAP")   mapcom.push_back(s);
@@ -1193,11 +1193,11 @@ void DianaMainWindow::requestQuickUpdate(const vector<miString>& oldstr,
   n= oldstr.size();
   // sort old strings..
   for (int i=0; i<n; i++){
-    miString s= oldstr[i];
+    miutil::miString s= oldstr[i];
     s.trim();
     if (!s.exists()) continue;
-    vector<miString> vs= s.split(" ");
-    miString pre= vs[0].upcase();
+    vector<miutil::miString> vs= s.split(" ");
+    miutil::miString pre= vs[0].upcase();
     if (pre=="FIELD")      oldfldcom.push_back(s);
     else if (pre=="OBS")   oldobscom.push_back(s);
     else if (pre=="SAT")   oldsatcom.push_back(s);
@@ -1224,19 +1224,19 @@ void DianaMainWindow::requestQuickUpdate(const vector<miString>& oldstr,
 }
 
 
-void DianaMainWindow::recallPlot(const vector<miString>& vstr,bool replace)
+void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool replace)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
   // strings for each dialog
-  vector<miString> mapcom,fldcom,obscom,satcom,objcom,labelcom;
+  vector<miutil::miString> mapcom,fldcom,obscom,satcom,objcom,labelcom;
   int n= vstr.size();
   // sort strings..
   for (int i=0; i<n; i++){
-    miString s= vstr[i];
+    miutil::miString s= vstr[i];
     s.trim();
     if (!s.exists()) continue;
-    vector<miString> vs= s.split(" ");
-    miString pre= vs[0].upcase();
+    vector<miutil::miString> vs= s.split(" ");
+    miutil::miString pre= vs[0].upcase();
     if (pre=="MAP") mapcom.push_back(s);
     else if (pre=="FIELD") fldcom.push_back(s);
     else if (pre=="OBS") obscom.push_back(s);
@@ -1244,7 +1244,7 @@ void DianaMainWindow::recallPlot(const vector<miString>& vstr,bool replace)
     else if (pre=="OBJECTS") objcom.push_back(s);
     else if (pre=="LABEL") labelcom.push_back(s);
   }
-  vector<miString> tmplabel = vlabel;
+  vector<miutil::miString> tmplabel = vlabel;
   // feed strings to dialogs
   if (replace || mapcom.size()) mm->putOKString(mapcom);
   if (replace || fldcom.size()) fm->putOKString(fldcom);
@@ -1302,9 +1302,9 @@ void DianaMainWindow::MenuOK()
   cerr<<"DianaMainWindow::MenuOK"<<endl;
 #endif
 
-  vector<miString> pstr;
-  vector<miString> diagstr;
-  vector<miString> shortnames;
+  vector<miutil::miString> pstr;
+  vector<miutil::miString> diagstr;
+  vector<miutil::miString> shortnames;
 
   levelList.clear();
   levelSpec.clear();
@@ -1389,14 +1389,14 @@ void DianaMainWindow::MenuOK()
     cerr << pstr[i] << endl;
   }
 
-  miTime t;
+  miutil::miTime t;
   t= tslider->Value();
   contr->plotCommands(pstr);
   contr->setPlotTime(t);
   contr->updatePlots();
 
   //find current field models and send to vprofwindow..
-  vector <miString> fieldmodels = contr->getFieldModels();
+  vector <miutil::miString> fieldmodels = contr->getFieldModels();
   if (vpWindow) vpWindow->setFieldModels(fieldmodels);
   if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
@@ -1406,7 +1406,7 @@ void DianaMainWindow::MenuOK()
   // push command on history-stack
   if (push_command){ // only when proper menuok
     // make shortname
-    miString plotname;
+    miutil::miString plotname;
     int m= shortnames.size();
     for (int j=0; j<m; j++)
       if (shortnames[j].exists()){
@@ -1482,7 +1482,7 @@ void DianaMainWindow::startBrowsing()
 bool DianaMainWindow::updateBrowser()
 {
   int plotidx;
-  miString listname,name;
+  miutil::miString listname,name;
   qm->getDetails(plotidx,listname,name);
   if (plotidx<0) return false;
   browser->upDate(listname,plotidx,name);
@@ -1637,7 +1637,7 @@ void DianaMainWindow::editMenu()
 
 bool DianaMainWindow::initProfet(){
 #ifdef PROFET
-  miString error = "";
+  miutil::miString error = "";
   if(!w || !w->Glw()) error += "GLwidget is NULL. ";
   if(!tslider) error += "TimeSlider is NULL. ";
   if(!contr) error += "diController is NULL. ";
@@ -1667,24 +1667,24 @@ bool DianaMainWindow::initProfet(){
         this,SLOT(toggleProfetGUI()));
     connect(profetGUI, SIGNAL(setPaintMode(bool)),
         this, SLOT(setPaintMode(bool)));
-    connect(profetGUI, SIGNAL(showProfetField(miString)),
-        fm, SLOT(fieldEditUpdate(miString)));
+    connect(profetGUI, SIGNAL(showProfetField(miutil::miString)),
+        fm, SLOT(fieldEditUpdate(miutil::miString)));
     connect(profetGUI, SIGNAL(prepareAndPlot()),
         SLOT(MenuOK()));
     connect( profetGUI, SIGNAL(repaintMap(bool)),
         SLOT(plotProfetMap(bool)));
     connect( profetGUI ,
-        SIGNAL(emitTimes(const miString&,const vector<miTime>&)),
+        SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
         tslider,
-        SLOT(insert(const miString&,const vector<miTime>&)));
-    connect( profetGUI, SIGNAL(setTime(const miTime&)),
-	     tslider, SLOT(setTime(const miTime&)));
+        SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+    connect( profetGUI, SIGNAL(setTime(const miutil::miTime&)),
+	     tslider, SLOT(setTime(const miutil::miTime&)));
     connect( profetGUI, SIGNAL(updateModelDefinitions()),
         fm,SLOT(updateModels()) );
     connect( profetGUI, SIGNAL(forceDisconnect(bool)),
         this, SLOT(forceProfetDisconnect(bool)));
-    connect( profetGUI, SIGNAL(getFieldPlotOptions(map< miString, map<miString,miString> >&)),
-        this,SLOT(getFieldPlotOptions(map< miString, map<miString,miString> >&)));
+    connect( profetGUI, SIGNAL(getFieldPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >&)),
+        this,SLOT(getFieldPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >&)));
     connect( profetGUI, SIGNAL(zoomTo(Rectangle)), this, SLOT(zoomTo(Rectangle)));
 
     QApplication::restoreOverrideCursor();
@@ -1701,7 +1701,7 @@ bool DianaMainWindow::initProfet(){
 
 bool DianaMainWindow::profetConnect(){
 #ifdef PROFET
-  miString error = "";
+  miutil::miString error = "";
   bool offerForcedConnection = false;
   bool useForcedConnection = false;
   bool retry = true;
@@ -1714,12 +1714,12 @@ bool DianaMainWindow::profetConnect(){
       retry = false;
       if(loginDialog.username().isEmpty())
         error += "Username not provided. ";
-      Profet::PodsUser u(miTime::nowTime(),
+      Profet::PodsUser u(miutil::miTime::nowTime(),
           getenv("HOSTNAME"),
           loginDialog.username().toStdString().data(),
           loginDialog.role().toStdString().data(),
-          "",miTime::nowTime(),"");
-      miString password = loginDialog.password().toStdString();
+          "",miutil::miTime::nowTime(),"");
+      miutil::miString password = loginDialog.password().toStdString();
       //TODO option for file manager
       Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
       if(contr->getProfetController() && !error.exists() ) {
@@ -1844,7 +1844,7 @@ void DianaMainWindow::forceProfetDisconnect(bool disableGuiOnly){
 #endif
 }
 
-bool DianaMainWindow::ProfetUpdatePlot(const miTime& t){
+bool DianaMainWindow::ProfetUpdatePlot(const miutil::miTime& t){
 #ifdef PROFET
   if(profetGUI){
     if( profetGUI->selectTime(t)) {
@@ -1869,7 +1869,7 @@ bool DianaMainWindow::ProfetRightMouseClicked(float map_x,
   return false;
 }
 
-void DianaMainWindow::getFieldPlotOptions(map< miString, map<miString,miString> >& options)
+void DianaMainWindow::getFieldPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >& options)
 {
   if (fm){
     fm->getEditPlotOptions(options);
@@ -1961,7 +1961,7 @@ void DianaMainWindow::vprofStartup()
 {
   if ( !vpWindow ) return;
   if (vpWindow->firstTime) MenuOK();
-  miTime t;
+  miutil::miTime t;
   contr->getPlotTime(t);
   vpWindow->startUp(t);
   vpWindow->show();
@@ -1973,7 +1973,7 @@ void DianaMainWindow::vcrossStartup()
 {
   if ( !vcWindow ) return;
   if (vcWindow->firstTime) MenuOK();
-  miTime t;
+  miutil::miTime t;
   contr->getPlotTime(t);
   vcWindow->startUp(t);
   vcWindow->show();
@@ -1984,7 +1984,7 @@ void DianaMainWindow::spectrumStartup()
 {
   if ( !spWindow ) return;
   if (spWindow->firstTime) MenuOK();
-  miTime t;
+  miutil::miTime t;
   contr->getPlotTime(t);
   spWindow->startUp(t);
   spWindow->show();
@@ -2039,8 +2039,8 @@ void DianaMainWindow::stationChangedSlot(const QString& station)
   //cerr << "DianaMainWindow::stationChangedSlot to " << station << endl;
   cerr << "DianaMainWindow::stationChangedSlot" << endl;
 #endif
-  miString s =station.toStdString();
-  vector<miString> data;
+  miutil::miString s =station.toStdString();
+  vector<miutil::miString> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"vprof");
   w->updateGL();
@@ -2068,7 +2068,7 @@ void DianaMainWindow::crossectionChangedSlot(const QString& name)
   //cerr << "DianaMainWindow::crossectionChangedSlot to " << name << endl;
   cerr << "DianaMainWindow::crossectionChangedSlot " << endl;
 #endif
-  miString s= name.toStdString();
+  miutil::miString s= name.toStdString();
   contr->setSelectedLocation("vcross", s);
   w->updateGL();
 }
@@ -2111,8 +2111,8 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
   //cerr << "DianaMainWindow::spectrumChangedSlot to " << name << endl;
   cerr << "DianaMainWindow::spectrumChangedSlot" << endl;
 #endif
-  miString s =station.toStdString();
-  vector<miString> data;
+  miutil::miString s =station.toStdString();
+  vector<miutil::miString> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"spectrum");
   //  contr->setSelectedStation(s, "spectrum");
@@ -2141,11 +2141,11 @@ void DianaMainWindow::connectionClosed()
   qsocket = false;
 
   contr->stationCommand("delete","all");
-  miString dummy;
+  miutil::miString dummy;
   contr->areaCommand("delete","all","all",-1);
 
   //remove times
-  vector<miString> type = timecontrol->deleteType(-1);
+  vector<miutil::miString> type = timecontrol->deleteType(-1);
   for(unsigned int i=0;i<type.size();i++)
     tslider->deleteType(type[i]);
 
@@ -2161,7 +2161,7 @@ void DianaMainWindow::connectionClosed()
 
 void DianaMainWindow::processLetter(miMessage &letter)
 {
-  miString from(letter.from);
+  miutil::miString from(letter.from);
   //  cerr<<"Command: "<<letter.command<<"  ";
   //  cerr <<endl;
   //   cerr<<" Description: "<<letter.description<<"  ";
@@ -2224,7 +2224,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: lat:lon
     vprofMenu();
     if(letter.data.size()){
-      vector<miString> tmp= letter.data[0].split(":");
+      vector<miutil::miString> tmp= letter.data[0].split(":");
       if(tmp.size()==2){
         float lat= atof(tmp[0].c_str());
         float lon= atof(tmp[1].c_str());
@@ -2233,7 +2233,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
         int ix= int(x);
         int iy= int(y);
         //find the name of station we clicked at (from plotModul->stationPlot)
-        miString station = contr->findStation(ix,iy,letter.command);
+        miutil::miString station = contr->findStation(ix,iy,letter.command);
         //now tell vpWindow about new station (this calls vpManager)
         if (vpWindow && !station.empty()) vpWindow->changeStation(station);
       }
@@ -2248,7 +2248,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     int n = letter.data.size();
     for(int i=0; i<n; i++){
       // separate name and data
-      vector<miString> vs= letter.data[i].split(":");
+      vector<miutil::miString> vs= letter.data[i].split(":");
       if (vs.size()<2) continue;
       ig.addImageToGallery(vs[0], vs[1]);
     }
@@ -2264,9 +2264,9 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
     //obsolete -> new syntax
     if(letter.description.contains(";")){
-      vector<miString> desc = letter.description.split(";");
+      vector<miutil::miString> desc = letter.description.split(";");
       if( desc.size() < 2 ) return;
-      miString dataSet = desc[0];
+      miutil::miString dataSet = desc[0];
       letter.description=desc[1];
       letter.commondesc = "dataset:" + letter.commondesc;
       letter.common = dataSet + ":" + letter.common;
@@ -2312,7 +2312,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
   //   else if (letter.command == qmstrings::changeimage ){ //Obsolete
   //     //description: dataset;stationname:image
   //     //find name of data set from description
-  //     vector<miString> desc = letter.description.split(";");
+  //     vector<miutil::miString> desc = letter.description.split(";");
   //     if( desc.size() < 2 ) return;
   //       contr->stationCommand("changeImageandText",
   // 			    letter.data,desc[0],letter.from,desc[1]);
@@ -2322,7 +2322,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //cerr << "Change text and image\n";
     //description: dataSet;stationname:image:text:alignment
     //find name of data set from description
-    vector<miString> desc = letter.description.split(";");
+    vector<miutil::miString> desc = letter.description.split(";");
     if( desc.size() == 2 ) { //obsolete syntax
       contr->stationCommand("changeImageandText",
           letter.data,desc[0],letter.from,desc[1]);
@@ -2341,7 +2341,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
   //     //cerr << "Change image and image\n";
   //     //description: dataset;stationname:image:image2
   //     //find name of data set from description
-  //     vector<miString> desc = letter.description.split(";");
+  //     vector<miutil::miString> desc = letter.description.split(";");
   //     if( desc.size() < 2 ) return;
   //       contr->stationCommand("changeImageandText",
   // 			    letter.data,desc[0],letter.from,desc[1]);
@@ -2374,10 +2374,10 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::areacommand ){
     //commondesc command:dataSet
-    vector<miString> token = letter.common.split(":");
+    vector<miutil::miString> token = letter.common.split(":");
     if(token.size()>1){
       int n = letter.data.size();
-      if(n==0) 	contr->areaCommand(token[0],token[1],miString(),letter.from);
+      if(n==0) 	contr->areaCommand(token[0],token[1],miutil::miString(),letter.from);
       for( int i=0;i<n;i++ )
         contr->areaCommand(token[0],token[1],letter.data[i],letter.from);
     }
@@ -2420,9 +2420,9 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: station:text
     if(letter.data.size()){
       textview_id = letter.from;
-      vector<miString> token = letter.data[0].split(1,":",true);
+      vector<miutil::miString> token = letter.data[0].split(1,":",true);
       if(token.size() == 2){
-        miString name = pluginB->getClientName(letter.from);
+        miutil::miString name = pluginB->getClientName(letter.from);
         textview->setText(textview_id,name,token[1]);
         textview->show();
       }
@@ -2432,7 +2432,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
   else if (letter.command == qmstrings::enableshowtext ){
     //description: dataset:on/off
     if(letter.data.size()){
-      vector<miString> token = letter.data[0].split(":");
+      vector<miutil::miString> token = letter.data[0].split(":");
       if(token.size() < 2) return;
       if(token[1] == "on"){
         textview->show();
@@ -2444,7 +2444,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::removeclient ){
     // commondesc = id:dataset
-    vector<miString> token = letter.common.split(":");
+    vector<miutil::miString> token = letter.common.split(":");
     if(token.size()<2) return;
     int id =atoi(token[0].c_str());
     //remove stationPlots from this client
@@ -2452,7 +2452,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //remove areas from this client
     contr->areaCommand("delete","all","all",id);
     //remove times
-    vector<miString> type = timecontrol->deleteType(id);
+    vector<miutil::miString> type = timecontrol->deleteType(id);
     for(unsigned int i=0;i<type.size();i++)
       tslider->deleteType(type[i]);
     //hide textview
@@ -2489,7 +2489,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     int n = letter.data.size();
     if(letter.commondesc == "datatype"){
       timecontrol->useData(letter.common,letter.from);
-      vector<miTime> times;
+      vector<miutil::miTime> times;
       for(int i=0;i<n;i++)
         times.push_back(letter.data[i]);
       tslider->insert(letter.common,times);
@@ -2497,7 +2497,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
           letter.common,letter.description,letter.data);
 
     } else if (letter.commondesc == "time"){
-      miTime t(letter.common);
+      miutil::miTime t(letter.common);
       tslider->setTime(t);
       contr->setPlotTime(t);
       timeChanged();
@@ -2586,14 +2586,14 @@ void DianaMainWindow::about()
 
 void DianaMainWindow::TimeSliderMoved()
 {
-  miTime t= tslider->Value();
+  miutil::miTime t= tslider->Value();
   timelabel->setText(t.isoTime().c_str());
 }
 
 void DianaMainWindow::TimeSelected()
 {
   //Timeslider released
-  miTime t= tslider->Value();
+  miutil::miTime t= tslider->Value();
   if (!dialogChanged){
     setPlotTime(t);
   }
@@ -2601,14 +2601,14 @@ void DianaMainWindow::TimeSelected()
 
 void DianaMainWindow::SliderSet()
 {
-  miTime t= tslider->Value();
+  miutil::miTime t= tslider->Value();
   contr->setPlotTime(t);
   TimeSliderMoved();
 }
 
 void DianaMainWindow::setTimeLabel()
 {
-  miTime t;
+  miutil::miTime t;
   contr->getPlotTime(t);
   tslider->setTime(t);
   TimeSliderMoved();
@@ -2635,7 +2635,7 @@ void DianaMainWindow::animationLoop()
 void DianaMainWindow::timerEvent(QTimerEvent *e)
 {
   if (e->timerId()==animationTimer){
-    miTime t;
+    miutil::miTime t;
     if (!tslider->nextTime(timeron, t, true)){
       stopAnimation();
       return;
@@ -2676,7 +2676,7 @@ void DianaMainWindow::animationStop()
 void DianaMainWindow::stepforward()
 {
   if (timeron) return;
-  miTime t;
+  miutil::miTime t;
   if (!tslider->nextTime(1, t)) return;
   setPlotTime(t);
 }
@@ -2684,7 +2684,7 @@ void DianaMainWindow::stepforward()
 void DianaMainWindow::stepback()
 {
   if (timeron) return;
-  miTime t;
+  miutil::miTime t;
   if (!tslider->nextTime(-1, t)) return;
   setPlotTime(t);
 }
@@ -2703,7 +2703,7 @@ void DianaMainWindow::increaseTimeStep()
 }
 
 
-void DianaMainWindow::setPlotTime(miTime& t)
+void DianaMainWindow::setPlotTime(miutil::miTime& t)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
   if (contr->setPlotTime(t)) {
@@ -2723,7 +2723,7 @@ void DianaMainWindow::timeChanged(){
   objm->commentUpdate();
   satFileListUpdate();
   setTimeLabel();
-  miTime t;
+  miutil::miTime t;
   contr->getPlotTime(t);
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
   if (spWindow) spWindow->mainWindowTimeChanged(t);
@@ -2731,7 +2731,7 @@ void DianaMainWindow::timeChanged(){
   if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
 
   //update sat channels in statusbar
-  vector<miString> channels = contr->getCalibChannels();
+  vector<miutil::miString> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
 
   if(qsocket){
@@ -2829,8 +2829,8 @@ void DianaMainWindow::saveraster()
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miString filename= s.toStdString();
-    miString format= "PNG";
+    miutil::miString filename= s.toStdString();
+    miutil::miString format= "PNG";
     int quality= -1; // default quality
 
     // find format
@@ -2852,8 +2852,8 @@ void DianaMainWindow::saveraster()
 
 void DianaMainWindow::saveRasterImage(QString filename) {
 
-  miString fname = filename.toStdString();
-    miString format= "PNG";
+  miutil::miString fname = filename.toStdString();
+    miutil::miString format= "PNG";
     int quality= -1; // default quality
     w->Glw()->saveRasterImage(fname, format, quality);
 
@@ -2877,8 +2877,8 @@ void DianaMainWindow::saveAnimation() {
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miString filename= s.toStdString();
-    miString format = "mpg";
+    miutil::miString filename= s.toStdString();
+    miutil::miString format = "mpg";
 
     /// find format
     if (filename.contains(".mpg") || filename.contains(".MPG")) {
@@ -2897,7 +2897,7 @@ void DianaMainWindow::saveAnimation() {
     QSize workAreaSize = w->Glw()->size();
 
     // first reset time-slider
-    miTime startTime = tslider->getStartTime();
+    miutil::miTime startTime = tslider->getStartTime();
     tslider->set(startTime);
     setPlotTime(startTime);
 
@@ -2937,7 +2937,7 @@ void DianaMainWindow::saveAnimation() {
 }
 #endif
 
-void DianaMainWindow::makeEPS(const miString& filename)
+void DianaMainWindow::makeEPS(const miutil::miString& filename)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
   printOptions priop;
@@ -2964,7 +2964,7 @@ void DianaMainWindow::makeEPS(const miString& filename)
 void DianaMainWindow::hardcopy()
 {
   QPrinter qprt;
-  miString command= pman.printCommand();
+  miutil::miString command= pman.printCommand();
   //   printOptions priop;
 
   fromPrintOption(qprt,priop);
@@ -2974,7 +2974,7 @@ void DianaMainWindow::hardcopy()
     if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
-      priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
+      priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
 #ifdef linux
       command= "lpr -r " + command.substr(4,command.length()-4);
@@ -3116,15 +3116,15 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
       //send position to all clients
       float lat=0,lon=0;
       contr->PhysToGeo(x,y,lat,lon);
-      miString latstr(lat,6);
-      miString lonstr(lon,6);
+      miutil::miString latstr(lat,6);
+      miutil::miString lonstr(lon,6);
       miMessage letter;
       letter.command     = qmstrings::positions;
       letter.commondesc  =  "dataset";
       letter.common      =  "diana";
       letter.description =  "lat:lon";
       letter.to = qmstrings::all;
-      letter.data.push_back(miString(latstr + ":" + lonstr));
+      letter.data.push_back(miutil::miString(latstr + ":" + lonstr));
       sendLetter(letter);
 
     }
@@ -3262,7 +3262,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
 
   bool needupdate= false; // updateGL necessary
 
-  miString uffstation = contr->findStation(x,y,"uffda");
+  miutil::miString uffstation = contr->findStation(x,y,"uffda");
   if (!uffstation.empty()) uffm->pointClicked(uffstation);
 
   //show closest observation
@@ -3272,7 +3272,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
 
   //find the name of station we clicked/pointed
   //at (from plotModul->stationPlot)
-  miString station = contr->findStation(x,y,"vprof");
+  miutil::miString station = contr->findStation(x,y,"vprof");
   //now tell vpWindow about new station (this calls vpManager)
   if (vpWindow && !station.empty()) {
     vpWindow->changeStation(station);
@@ -3289,7 +3289,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
   }
 
   // locationPlots (vcross,...)
-  miString crossection= contr->findLocation(x,y,"vcross");
+  miutil::miString crossection= contr->findLocation(x,y,"vcross");
   if (vcWindow && !crossection.empty()) {
     vcWindow->changeCrossection(crossection);
     //  needupdate= true;
@@ -3299,8 +3299,8 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
 
     //set selected and send position to plugin connected
     vector<int> id;
-    vector<miString> name;
-    vector<miString> station;
+    vector<miutil::miString> name;
+    vector<miutil::miString> station;
 
     bool add = false;
 //    if(mev.modifier==key_Shift) add = true; //todo: shift already used (skip editmode)
@@ -3345,20 +3345,20 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
       letter.description = "name:on/off";
       for(int i=0;i<nareas;i++){
         letter.to = areas[i].id;
-        miString datastr = areas[i].name + ":on";
+        miutil::miString datastr = areas[i].name + ":on";
         letter.data.push_back(datastr);
         sendLetter(letter);
       }
     }
 
     if(hqcTo>0){
-      miString name;
+      miutil::miString name;
       if(contr->getObsName(x,y,name)){
         miMessage letter;
         letter.to = hqcTo;
         letter.command = qmstrings::station;
         letter.commondesc = "name,time";
-        miTime t;
+        miutil::miTime t;
         contr->getPlotTime(t);
         letter.common = name + "," + t.isoTime();;
         sendLetter(letter);
@@ -3369,17 +3369,17 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
   if (needupdate) w->updateGL();
 }
 
-void DianaMainWindow::sendSelectedStations(const miString& command)
+void DianaMainWindow::sendSelectedStations(const miutil::miString& command)
 {
-  vector<miString> data;
+  vector<miutil::miString> data;
   contr->stationCommand("selected",data);
   int n=data.size();
   for(int i=0;i<n;i++){
-    vector<miString> token = data[i].split(":");
+    vector<miutil::miString> token = data[i].split(":");
     int m = token.size();
     if(token.size()<2) continue;
     int id=atoi(token[m-1].cStr());
-    miString dataset = token[m-2];
+    miutil::miString dataset = token[m-2];
     token.pop_back(); //remove id
     token.pop_back(); //remove dataset
     miMessage letter;
@@ -3399,9 +3399,9 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
   if(!em->inedit() && qsocket){
 
     if( kev.key == key_Plus || kev.key == key_Minus){
-      miString dataset;
+      miutil::miString dataset;
       int id;
-      vector<miString> stations;
+      vector<miutil::miString> stations;
       contr->getEditStation(0,dataset,id,stations);
       if( dataset.exists() ){
         miMessage letter;
@@ -3415,7 +3415,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
         else
           letter.description = "position:value_1";
         for(unsigned int i=0;i<stations.size();i++){
-          miString str = stations[i];
+          miutil::miString str = stations[i];
           if( kev.key == key_Plus )
             str += ":+1";
           else
@@ -3440,7 +3440,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       }
 
       else {
-        miString keyString;
+        miutil::miString keyString;
         if(kev.key == key_G) keyString = "ctrl_G";
         else if(kev.key == key_S)  keyString = "ctrl_S";
         else if(kev.key == key_Z)  keyString = "ctrl_Z";
@@ -3457,7 +3457,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
     }
 
     else if( kev.modifier == key_Alt){
-      miString keyString;
+      miutil::miString keyString;
       if(kev.key == key_F5) keyString = "alt_F5";
       else if(kev.key == key_F6) keyString = "alt_F6";
       else if(kev.key == key_F7) keyString = "alt_F7";
@@ -3474,9 +3474,9 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
 
 
     else if( kev.key == key_W || kev.key == key_S ) {
-      miString name;
+      miutil::miString name;
       int id;
-      vector<miString> stations;
+      vector<miutil::miString> stations;
       int step = (kev.key == key_S) ? 1 : -1;
       if(kev.modifier==key_Shift) name = "add";
       contr->getEditStation(step,name,id,stations);
@@ -3629,7 +3629,7 @@ void DianaMainWindow::timecontrolslot()
 }
 
 
-void DianaMainWindow::PrintPS(miString& filestr )
+void DianaMainWindow::PrintPS(miutil::miString& filestr )
 {
   QPrinter qprt;
   fromPrintOption(qprt,priop);
@@ -3641,8 +3641,8 @@ void DianaMainWindow::PrintPS(miString& filestr )
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     if (qprt.outputFileName().isNull()) {
-      miString command= pman.printCommand();
-      miString printern= qprt.printerName().toStdString();
+      miutil::miString command= pman.printCommand();
+      miutil::miString printern= qprt.printerName().toStdString();
 
 #ifndef linux
       if (command.substr(0,4)=="lpr ") {
@@ -3658,7 +3658,7 @@ void DianaMainWindow::PrintPS(miString& filestr )
       command.replace("{numcopies}","");
 #else
       command.replace("{hash}","#");
-      command.replace("{numcopies}",miString(numcopies));
+      command.replace("{numcopies}",miutil::miString(numcopies));
 #endif
       cerr<<"PRINT: "<< command << endl;
 
@@ -3669,7 +3669,7 @@ void DianaMainWindow::PrintPS(miString& filestr )
 }
 
 
-void DianaMainWindow::PrintPS(vector <miString>& filenames )
+void DianaMainWindow::PrintPS(vector <miutil::miString>& filenames )
 {
   QPrinter qprt;
   fromPrintOption(qprt,priop);
@@ -3681,8 +3681,8 @@ void DianaMainWindow::PrintPS(vector <miString>& filenames )
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
     if (qprt.outputFileName().isNull()){
-      miString printern= qprt.printerName().toStdString();
-      miString command;
+      miutil::miString printern= qprt.printerName().toStdString();
+      miutil::miString command;
       // Hmmm..should we really allow multiple copies here
       int numcopies= qprt.numCopies();
       for (int j=0; j<numcopies; j++)
@@ -3721,9 +3721,9 @@ void DianaMainWindow::writeLogFile()
 
   SetupParser setup;
   miLogFile milogfile; // static logger
-  miString logfile= setup.basicValue("homedir") + "/diana.log";
-  miString thisVersion= version_string;
-  miString thisBuild= build_string;
+  miutil::miString logfile= setup.basicValue("homedir") + "/diana.log";
+  miutil::miString thisVersion= version_string;
+  miutil::miString thisBuild= build_string;
   // open filestream
   ofstream file(logfile.c_str());
   if (!file){
@@ -3731,7 +3731,7 @@ void DianaMainWindow::writeLogFile()
     return;
   }
 
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   int i,n;
 
   vstr= writeLog(thisVersion,thisBuild);
@@ -3861,9 +3861,9 @@ void DianaMainWindow::readLogFile()
   getDisplaySize();
 
   SetupParser setup;
-  miString logfile= setup.basicValue("homedir") + "/diana.log";
-  miString thisVersion= version_string;
-  miString logVersion;
+  miutil::miString logfile= setup.basicValue("homedir") + "/diana.log";
+  miutil::miString thisVersion= version_string;
+  miutil::miString logVersion;
 
   miLogFile milogfile; // static logger from puTools - keeps stuff in mind
 
@@ -3878,8 +3878,8 @@ void DianaMainWindow::readLogFile()
 
   cerr << "READ " << logfile << endl;
 
-  miString beginStr, endStr, str;
-  vector<miString> vstr;
+  miutil::miString beginStr, endStr, str;
+  vector<miutil::miString> vstr;
 
   while (getline(file,beginStr)) {
     if (!beginStr.empty() && beginStr[0]!='#') {
@@ -3950,47 +3950,47 @@ void DianaMainWindow::readLogFile()
 }
 
 
-vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
-    const miString& thisBuild)
+vector<miutil::miString> DianaMainWindow::writeLog(const miutil::miString& thisVersion,
+    const miutil::miString& thisBuild)
 {
-  vector<miString> vstr;
-  miString str;
+  vector<miutil::miString> vstr;
+  miutil::miString str;
 
   // version & time
   str= "VERSION " + thisVersion;
   vstr.push_back(str);
   str= "BUILD " + thisBuild;
   vstr.push_back(str);
-  str= "LOGTIME " + miTime::nowTime().isoTime();
+  str= "LOGTIME " + miutil::miTime::nowTime().isoTime();
   vstr.push_back(str);
   vstr.push_back("================");
 
   // dialog positions
-  str= "MainWindow.size " + miString(this->width()) + " " + miString(this->height());
+  str= "MainWindow.size " + miutil::miString(this->width()) + " " + miutil::miString(this->height());
   vstr.push_back(str);
-  str= "MainWindow.pos "  + miString( this->x()) + " " + miString( this->y());
+  str= "MainWindow.pos "  + miutil::miString( this->x()) + " " + miutil::miString( this->y());
   vstr.push_back(str);
-  str= "QuickMenu.pos "   + miString(qm->x()) + " " + miString(qm->y());
+  str= "QuickMenu.pos "   + miutil::miString(qm->x()) + " " + miutil::miString(qm->y());
   vstr.push_back(str);
-  str= "FieldDialog.pos " + miString(fm->x()) + " " + miString(fm->y());
+  str= "FieldDialog.pos " + miutil::miString(fm->x()) + " " + miutil::miString(fm->y());
   vstr.push_back(str);
   fm->show();
   fm->advancedToggled(false);
-  str= "FieldDialog.size " + miString(fm->width()) + " " + miString(fm->height());
+  str= "FieldDialog.size " + miutil::miString(fm->width()) + " " + miutil::miString(fm->height());
   vstr.push_back(str);
-  str= "ObsDialog.pos "   + miString(om->x()) + " " + miString(om->y());
+  str= "ObsDialog.pos "   + miutil::miString(om->x()) + " " + miutil::miString(om->y());
   vstr.push_back(str);
-  str= "SatDialog.pos "   + miString(sm->x()) + " " + miString(sm->y());
+  str= "SatDialog.pos "   + miutil::miString(sm->x()) + " " + miutil::miString(sm->y());
   vstr.push_back(str);
-  str= "MapDialog.pos "   + miString(mm->x()) + " " + miString(mm->y());
+  str= "MapDialog.pos "   + miutil::miString(mm->x()) + " " + miutil::miString(mm->y());
   vstr.push_back(str);
-  str= "EditDialog.pos "  + miString(em->x()) + " " + miString(em->y());
+  str= "EditDialog.pos "  + miutil::miString(em->x()) + " " + miutil::miString(em->y());
   vstr.push_back(str);
-  str= "ObjectDialog.pos " + miString(objm->x()) + " " + miString(objm->y());
+  str= "ObjectDialog.pos " + miutil::miString(objm->x()) + " " + miutil::miString(objm->y());
   vstr.push_back(str);
-  str= "Textview.size "   + miString(textview->width()) + " " + miString(textview->height());
+  str= "Textview.size "   + miutil::miString(textview->width()) + " " + miutil::miString(textview->height());
   vstr.push_back(str);
-  str= "Textview.pos "  + miString(textview->x()) + " " + miString(textview->y());
+  str= "Textview.pos "  + miutil::miString(textview->x()) + " " + miutil::miString(textview->y());
   vstr.push_back(str);
   str="DocState " + saveDocState();
   vstr.push_back(str);
@@ -4009,29 +4009,29 @@ vector<miString> DianaMainWindow::writeLog(const miString& thisVersion,
   //vstr.push_back("================");
 
   // Status-buttons
-  str= "STATUSBUTTONS " + miString(showelem ? "ON" : "OFF");
+  str= "STATUSBUTTONS " + miutil::miString(showelem ? "ON" : "OFF");
   vstr.push_back(str);
   //vstr.push_back("================");
 
   // Automatic element selection
   autoselect= optAutoElementAction->isChecked();
-  str= "AUTOSELECT " + miString(autoselect ? "ON" : "OFF");
+  str= "AUTOSELECT " + miutil::miString(autoselect ? "ON" : "OFF");
   vstr.push_back(str);
 
   // scrollwheelzooming
   bool scrollwheelzoom = optScrollwheelZoomAction->isChecked();
-  str = "SCROLLWHEELZOOM " + miString(scrollwheelzoom ? "ON" : "OFF");
+  str = "SCROLLWHEELZOOM " + miutil::miString(scrollwheelzoom ? "ON" : "OFF");
   vstr.push_back(str);
 
   // GUI-font
-  str= "FONT " + miString(qApp->font().toString().toStdString());
+  str= "FONT " + miutil::miString(qApp->font().toString().toStdString());
   vstr.push_back(str);
   //vstr.push_back("================");
 
   return vstr;
 }
 
-miString DianaMainWindow::saveDocState()
+miutil::miString DianaMainWindow::saveDocState()
 {
   QByteArray state = saveState();
   ostringstream ost;
@@ -4041,11 +4041,11 @@ miString DianaMainWindow::saveDocState()
   return ost.str();
 }
 
-void DianaMainWindow::readLog(const vector<miString>& vstr,
-    const miString& thisVersion,
-    miString& logVersion)
+void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
+    const miutil::miString& thisVersion,
+    miutil::miString& logVersion)
 {
-  vector<miString> tokens;
+  vector<miutil::miString> tokens;
   int x,y;
 
   int nvstr= vstr.size();
@@ -4116,7 +4116,7 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
           toggleScrollwheelZoom();
         }
       } else if (tokens[0] == "FONT") {
-        miString fontstr = tokens[1];
+        miutil::miString fontstr = tokens[1];
         //LB:if the font name contains blanks,
         //the string will be cut in pieces, and must be put together again.
         for(unsigned int i=2;i<tokens.size();i++)
@@ -4134,9 +4134,9 @@ void DianaMainWindow::readLog(const vector<miString>& vstr,
     cerr << "log from version " << logVersion << endl;
 }
 
-void DianaMainWindow::restoreDocState(miString logstr)
+void DianaMainWindow::restoreDocState(miutil::miString logstr)
 {
-  vector<miString> vs= logstr.split(" ");
+  vector<miutil::miString> vs= logstr.split(" ");
   int n=vs.size();
   QByteArray state(n-1,' ');
   for (int i=1; i<n; i++){
@@ -4160,12 +4160,12 @@ void DianaMainWindow::getDisplaySize()
 void DianaMainWindow::checkNews()
 {
   SetupParser setup;
-  miString newsfile= setup.basicValue("homedir") + "/diana.news";
-  miString thisVersion= "yy";
-  miString newsVersion= "xx";
+  miutil::miString newsfile= setup.basicValue("homedir") + "/diana.news";
+  miutil::miString thisVersion= "yy";
+  miutil::miString newsVersion= "xx";
 
   // check modification time on news file
-  miString filename= setup.basicValue("docpath") + "/" + "news.html";
+  miutil::miString filename= setup.basicValue("docpath") + "/" + "news.html";
   QFileInfo finfo( filename.c_str() );
   if (finfo.exists()) {
     QDateTime dt = finfo.lastModified();
@@ -4219,7 +4219,7 @@ void DianaMainWindow::toggleElement(PlotElement pe)
 {
   contr->enablePlotElement(pe);
   //update sat channels in statusbar
-  vector<miString> channels = contr->getCalibChannels();
+  vector<miutil::miString> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
   w->updateGL();
 }
@@ -4360,13 +4360,13 @@ void DianaMainWindow::selectedAreas(int ia)
   //        << lastRightClicked << " " << ia << endl;
 
   //struct selectArea er i diCommonTypes.h
-  miString areaName=vselectAreas[ia].name;
+  miutil::miString areaName=vselectAreas[ia].name;
   bool selected=vselectAreas[ia].selected;
   int id=vselectAreas[ia].id;
   //det som er "selected" skal sl�s av og vice versa
   // (lastRightClicked skal v�re det samme som areaName HER)
-  miString misc=(selected) ? "off" : "on";
-  miString datastr = areaName + ":" + misc;
+  miutil::miString misc=(selected) ? "off" : "on";
+  miutil::miString datastr = areaName + ":" + misc;
   miMessage letter;
   letter.command = qmstrings::selectarea;
   letter.description = "name:on/off";
@@ -4379,7 +4379,7 @@ void DianaMainWindow::selectedAreas(int ia)
 void DianaMainWindow::inEdit(bool inedit)
 {
   if(qsocket){
-    miString str;
+    miutil::miString str;
     if(inedit)
       str = "on";
     else

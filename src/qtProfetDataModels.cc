@@ -89,7 +89,7 @@ QRgb UserListModel::getColorByIndex(int index) {
 QIcon UserListModel::getUserIcon(const PodsUser& user)
 {
   QtImageGallery gallery;
-  miString image_name = "avatar_" + user.name;
+  miutil::miString image_name = "avatar_" + user.name;
   QImage image;
   if (gallery.Image(image_name, image)) {
     return QIcon(QPixmap::fromImage(image));
@@ -195,9 +195,9 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
   if (sessions.empty() || index.row() >= sessions.size()) return QVariant();
   if (!sessions[index.row()].exists()) return QVariant();
   if (role == Qt::DisplayRole){
-    miTime rt = sessions[index.row()].referencetime();
-    miString mn = sessions[index.row()].modelsource();
-    miTime mt = sessions[index.row()].modeltime();
+    miutil::miTime rt = sessions[index.row()].referencetime();
+    miutil::miString mn = sessions[index.row()].modelsource();
+    miutil::miTime mt = sessions[index.row()].modeltime();
 
     QString str = QString("%1: %2, %3").arg(
         rt.isoTime().cStr()).arg(mn.cStr()).arg(mt.isoTime().cStr());
@@ -281,7 +281,7 @@ void SessionListModel::removeSession(const fetSession & s) {
   }
 }
 
-QModelIndex SessionListModel::getIndexByRefTime(const miTime & t){
+QModelIndex SessionListModel::getIndexByRefTime(const miutil::miTime & t){
   int n = sessions.size();
   for (int i=0; i<n; i++)
     if (sessions[i].referencetime() == t)
@@ -335,13 +335,13 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
   if (index.row() >= objects.size())
     return QVariant();
   if (role == Qt::DisplayRole){
-    miString user    = objects[index.row()].user();
-    miString objname = objects[index.row()].name();
-    miTime edittime  = objects[index.row()].editTime();
+    miutil::miString user    = objects[index.row()].user();
+    miutil::miString objname = objects[index.row()].name();
+    miutil::miTime edittime  = objects[index.row()].editTime();
     QString str = QString("%1: %2 - %3").arg(user.cStr()).arg(objname.cStr()).arg(edittime.isoTime().cStr());
     return str;
   } else if (role == Qt::DecorationRole) {
-    miString param = objects[index.row()].parameter();
+    miutil::miString param = objects[index.row()].parameter();
     if (param == "mslp")
       return QVariant(QIcon(QPixmap(fet_object_p_xpm)));
     else if (param.contains("temp"))
@@ -364,7 +364,7 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 }
 
-QModelIndex FetObjectListModel::getIndexById(const miString & id) const {
+QModelIndex FetObjectListModel::getIndexById(const miutil::miString & id) const {
   for (int i=0; i<objects.size(); i++)
     if (objects[i].id() == id)
       return index(i, 0);
@@ -397,7 +397,7 @@ void FetObjectListModel::setObject(const fetObject & obj) {
 //    dataChanged(objIndex,objIndex);
 }
 
-bool FetObjectListModel::removeObject(const miString & id){
+bool FetObjectListModel::removeObject(const miutil::miString & id){
   vector<fetObject>::iterator iter = objects.begin();
   for( ; iter != objects.end(); iter++ ){
     if((*iter).id() == id) {
@@ -430,7 +430,7 @@ QVariant FetObjectTableModel::headerData(int section,
 
   if (role == Qt::DisplayRole) {
     if (orientation == Qt::Vertical){
-      map<miString,fetParameter>::const_iterator itr = name2par.find(parameters[section]);
+      map<miutil::miString,fetParameter>::const_iterator itr = name2par.find(parameters[section]);
       fetParameter p;
       if ( itr != name2par.end())
         p = itr->second;
@@ -439,7 +439,7 @@ QVariant FetObjectTableModel::headerData(int section,
     return QString(times[section].format("%a %k").cStr());
 
   } else if (role == Qt::DecorationRole && orientation == Qt::Vertical) {
-    miString param = parameters[section];
+    miutil::miString param = parameters[section];
     if (headerDisplayMask & PARAM_COLOUR_RECT) {
       if (parameterColours.count(param.downcase())> 0) {
         Colour col = parameterColours.at(param.downcase());
@@ -468,7 +468,7 @@ QVariant FetObjectTableModel::headerData(int section,
 
   } else if (role == Qt::BackgroundRole && orientation == Qt::Vertical) {
     if (headerDisplayMask & PARAM_COLOUR_GRADIENT) {
-      miString param = parameters[section].downcase();
+      miutil::miString param = parameters[section].downcase();
       if (parameterColours.count(param)> 0) {
         Colour col = parameterColours.at(param);
         QColor colour = QColor(col.R(),col.G(),col.B(),col.A());
@@ -528,7 +528,7 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
 
 vector<PodsUser> FetObjectTableModel::getUsers(
     const QModelIndex & index,
-    const miTime & sessionRefTime) const
+    const miutil::miTime & sessionRefTime) const
 {
   vector<PodsUser> users;
   map<QModelIndex, vector<PodsUser> >::const_iterator i = userLocationMap.begin();
@@ -571,8 +571,8 @@ void FetObjectTableModel::setParameters(const vector<fetParameter>& vp)
 }
 
 
-void FetObjectTableModel::initTable(const vector<miTime> & t,
-    const vector<miString> & param) {
+void FetObjectTableModel::initTable(const vector<miutil::miTime> & t,
+    const vector<miutil::miString> & param) {
   times = t;
   parameters = param;
   int nParam = parameters.size();
@@ -624,7 +624,7 @@ void FetObjectTableModel::setObjectSignature(
   //reset();
 }
 
-bool  FetObjectTableModel::removeObjectSignature(const miString & id) {
+bool  FetObjectTableModel::removeObjectSignature(const miutil::miString & id) {
   int nObj = objects.size();
   for(int i=0;i<nObj; i++){
     if(objects[i].id == id){
@@ -703,7 +703,7 @@ void FetObjectTableModel::customEvent(QEvent * e){
   }
 }
 
-miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
+miutil::miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   int col = index.column();
   if(col < 0)
@@ -713,7 +713,7 @@ miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
   return times[col];
 }
 
-miString FetObjectTableModel::getParameter(const QModelIndex &index) const throw(
+miutil::miString FetObjectTableModel::getParameter(const QModelIndex &index) const throw(
     InvalidIndexException&) {
   int row = index.row();
   if(row < 0)
@@ -724,12 +724,12 @@ miString FetObjectTableModel::getParameter(const QModelIndex &index) const throw
 }
 
 
-miTime FetObjectTableModel::getCurrentTime() const throw(InvalidIndexException&){
+miutil::miTime FetObjectTableModel::getCurrentTime() const throw(InvalidIndexException&){
   try{ return getTime(lastSelected);}
   catch(InvalidIndexException & iie){ throw iie; }
 }
 
-miString FetObjectTableModel::getCurrentParameter() const throw(InvalidIndexException&){
+miutil::miString FetObjectTableModel::getCurrentParameter() const throw(InvalidIndexException&){
   try{ return getParameter(lastSelected); }
   catch(InvalidIndexException & iie){ throw iie; }
 }
@@ -758,7 +758,7 @@ QColor FetObjectTableModel::getCellBackgroundColor(CellType type, bool odd) cons
 
 
 
-QModelIndex FetObjectTableModel::getModelIndex(miTime time, miString param) {
+QModelIndex FetObjectTableModel::getModelIndex(miutil::miTime time, miutil::miString param) {
 
   if (paramIndexMap.count(param) && timeIndexMap.count(time)){
     return index(paramIndexMap[param], timeIndexMap[time]);
@@ -768,7 +768,7 @@ QModelIndex FetObjectTableModel::getModelIndex(miTime time, miString param) {
 
 }
 
-void FetObjectTableModel::setParamColours(map<miString,Colour>& paramCol){
+void FetObjectTableModel::setParamColours(map<miutil::miString,Colour>& paramCol){
   parameterColours = paramCol;
   emit headerDataChanged(Qt::Vertical,0,parameters.size()-1);
   //reset();

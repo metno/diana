@@ -55,37 +55,37 @@ public:
   // Destructor
   ~FieldPlot();
 
-  void setDifference(const miString& str1, const miString& str2)
+  void setDifference(const miutil::miString& str1, const miutil::miString& str2)
   	{ fieldDiff1=str1; fieldDiff2=str2; difference=true; }
   bool isDifference() const
   	{ return difference; }
-  void getDifference(miString& str1, miString& str2, int& vectorIdx) const
+  void getDifference(miutil::miString& str1, miutil::miString& str2, int& vectorIdx) const
   	{ str1=fieldDiff1; str2=fieldDiff2; vectorIdx=vectorIndex; }
   ///plot in overlay buffer
   bool overlayBuffer(){return overlay;}
 
-  bool getAnnotations(vector<miString>& anno);
-  bool getDataAnnotations(vector<miString>& anno);
+  bool getAnnotations(vector<miutil::miString>& anno);
+  bool getDataAnnotations(vector<miutil::miString>& anno);
   bool plot();
   bool plot(const int){return false;}
-  bool updateNeeded(miString&);
-  bool updateLevelNeeded(const miString& levelSpec, miString& pin);
-  bool updateIdnumNeeded(const miString& idnumSpec, miString& pin);
-  bool prepare(const miString&);
-  bool setData(const vector<Field*>&, const miTime&);
+  bool updateNeeded(miutil::miString&);
+  bool updateLevelNeeded(const miutil::miString& levelSpec, miutil::miString& pin);
+  bool updateIdnumNeeded(const miutil::miString& idnumSpec, miutil::miString& pin);
+  bool prepare(const miutil::miString&);
+  bool setData(const vector<Field*>&, const miutil::miTime&);
   Area& getFieldArea();
   bool getRealFieldArea(Area&);
   bool getShadePlot() const { return pshade; }
   bool getUndefinedPlot() const { return pundefined; }
-  void getFieldAnnotation(miString&, Colour&);
+  void getFieldAnnotation(miutil::miString&, Colour&);
   vector<Field*> getFields() {return fields; }
-  miTime getTime() const {return ftime;}
-  miTime getAnalysisTime() const {return analysisTime;}
+  miutil::miTime getTime() const {return ftime;}
+  miutil::miTime getAnalysisTime() const {return analysisTime;}
   bool plotUndefined();
   bool plotNumbers();
-  miString getModelName();
-  miString getTrajectoryFieldName();
-  miString getRadarEchoFieldName();
+  miutil::miString getModelName();
+  miutil::miString getTrajectoryFieldName();
+  miutil::miString getRadarEchoFieldName();
   bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
   void clearFields();
@@ -93,22 +93,22 @@ public:
 private:
   vector<Field*> fields; // fields, stored elsewhere
   vector<Field*> tmpfields; // tmp fields, stored here
-  miTime ftime;          // current field time
-  miTime analysisTime;   // time of model analysis
+  miutil::miTime ftime;          // current field time
+  miutil::miTime analysisTime;   // time of model analysis
 
   bool overlay; //plot in overlay;
   bool difference;
-  miString fieldDiff1, fieldDiff2;
+  miutil::miString fieldDiff1, fieldDiff2;
   int vectorIndex;
 
   // plotting parameters
-  miString ptype;       // plot-method to use
+  miutil::miString ptype;       // plot-method to use
   bool pshade;          // shaded (true) or line drawing (false)
   bool pundefined;      // mark undefined areas/values
 
   // from plotting routines to annotations
   float    vectorAnnotationSize;
-  miString vectorAnnotationText;
+  miutil::miString vectorAnnotationText;
 
   vector<float*> prepareVectors(int nfields, float* x, float* y);
   vector<float*> prepareDirectionVectors(int nfields, float* x, float* y);

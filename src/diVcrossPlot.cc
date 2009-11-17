@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 // static
 FontManager*  VcrossPlot::fp= 0; // fontpack

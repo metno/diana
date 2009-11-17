@@ -69,13 +69,13 @@ class VcrossDialog: public QDialog
 public:
   VcrossDialog( QWidget* parent, VcrossManager* vm);
 
-  vector<miString> getOKString();
-  void putOKString(const vector<miString>& vstr,
+  vector<miutil::miString> getOKString();
+  void putOKString(const vector<miutil::miString>& vstr,
 		   bool vcrossPrefix= true, bool checkOptions= true);
 
-  vector<miString> writeLog();
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion);
+  vector<miutil::miString> writeLog();
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
   void cleanup();
 
 protected:
@@ -84,22 +84,22 @@ protected:
 private:
 
   struct SelectedField {
-    miString model;
-    miString field;
-    miString fieldOpts;
+    miutil::miString model;
+    miutil::miString field;
+    miutil::miString fieldOpts;
     int      hourOffset;
   };
 
   void disableFieldOptions();
   void enableFieldOptions();
-  void updateFieldOptions(const miString& name,
-			  const miString& value, int valueIndex= 0);
-  vector<miString> numberList( QComboBox* cBox, float number );
-  miString baseList( QComboBox* cBox, float base, float ekv,
+  void updateFieldOptions(const miutil::miString& name,
+			  const miutil::miString& value, int valueIndex= 0);
+  vector<miutil::miString> numberList( QComboBox* cBox, float number );
+  miutil::miString baseList( QComboBox* cBox, float base, float ekv,
 		     bool onoff=false );
 
   void showHistory(int step);
-  miString checkFieldOptions(const miString& str, bool fieldPrefix);
+  miutil::miString checkFieldOptions(const miutil::miString& str, bool fieldPrefix);
 
   void highlightButton(QPushButton* button, bool on);
 
@@ -138,8 +138,8 @@ private slots:
 signals:
   void VcrossDialogApply(bool modelChange);
   void VcrossDialogHide();
-  void showsource(const miString, const miString="");
-  void emitVcrossTimes( vector<miTime> );
+  void showsource(const miutil::miString, const miutil::miString="");
+  void emitVcrossTimes( vector<miutil::miTime> );
 
 private:
   void toolTips();
@@ -148,16 +148,16 @@ private:
 
   bool m_advanced;
 
-  vector<miString> models;  // all models
-  vector<miString> fields;  // for current selected model
+  vector<miutil::miString> models;  // all models
+  vector<miutil::miString> fields;  // for current selected model
 
   CommandParser *cp;
   vector<ParsedCommand> vpcopt;
 
   // map<fieldname,fieldOpts>
-  map<miString,miString> setupFieldOptions;
-  map<miString,miString> fieldOptions;
-  map<miString,bool> changedOptions;
+  map<miutil::miString,miutil::miString> setupFieldOptions;
+  map<miutil::miString,miutil::miString> fieldOptions;
+  map<miutil::miString,bool> changedOptions;
 
   vector<SelectedField> selectedFields;
 
@@ -165,19 +165,19 @@ private:
 
   vector<Colour::ColourInfo> colourInfo;
   vector<ColourShading::ColourShadingInfo> csInfo;
-  vector<miString> twoColourNames;
-  vector<miString> threeColourNames;
+  vector<miutil::miString> twoColourNames;
+  vector<miutil::miString> threeColourNames;
   vector<Pattern::PatternInfo> patternInfo;
 
-  vector<miString> linetypes;
-  vector<miString> lineintervals;
+  vector<miutil::miString> linetypes;
+  vector<miutil::miString> lineintervals;
   QStringList      densityStringList;
-  vector<miString> vectorunit;
-  //vector<miString> extremeType;
+  vector<miutil::miString> vectorunit;
+  //vector<miutil::miString> extremeType;
 
-  miString currentFieldOpts;
+  miutil::miString currentFieldOpts;
 
-  vector< vector<miString> > commandHistory;
+  vector< vector<miutil::miString> > commandHistory;
 
   QListWidget*  modelbox;
   QListWidget*  fieldbox;
@@ -289,8 +289,8 @@ private:
   QComboBox* linetype1ComboBox;
   QComboBox* type1ComboBox;
 
-  vector<miString> baseopts;
-  vector<miString> undefMasking;
+  vector<miutil::miString> baseopts;
+  vector<miutil::miString> undefMasking;
 
 };
 

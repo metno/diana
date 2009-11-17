@@ -65,14 +65,14 @@ public:
   void setData(Sat *);
   void clearData();
   Area& getSatArea(void){ return satdata->area;}
-  void getSatAnnotation(miString &, Colour &);
-  void getSatName(miString &);
-  void getCalibChannels(vector<miString>& channels );
+  void getSatAnnotation(miutil::miString &, Colour &);
+  void getSatName(miutil::miString &);
+  void getCalibChannels(vector<miutil::miString>& channels );
   ///get pixel value
   void values(float x,float y, vector<SatValues>& satval);
   ///get legend
-  bool getAnnotations(vector<miString>& anno);
-  void setSatAuto(bool, const miString&, const miString&);
+  bool getAnnotations(vector<miutil::miString>& anno);
+  void setSatAuto(bool, const miutil::miString&, const miutil::miString&);
 };
 
 #endif

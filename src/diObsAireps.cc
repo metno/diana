@@ -33,6 +33,8 @@
 
 #include <diObsAireps.h>
 
+using namespace::miutil;
+
 ObsAireps::ObsAireps(const miString &file)
 :aireps(file){
 }

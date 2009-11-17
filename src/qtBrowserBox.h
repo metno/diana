@@ -61,9 +61,9 @@ public:
   BrowserBox(QWidget* parent);
 
 public slots:
-  void upDate(const miString& name,
+  void upDate(const miutil::miString& name,
 	      const int num,
-	      const miString& item);
+	      const miutil::miString& item);
 
 signals:
   void selectplot();

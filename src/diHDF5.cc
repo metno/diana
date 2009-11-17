@@ -30,6 +30,8 @@
 //#define DEBUGPRINT
 #include <diHDF5.h>
 
+using namespace::miutil;
+
 HDF5::HDF5()
 {
 
@@ -51,7 +53,7 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
   cerr << "HDF5::readHDF5Palette filename " << file.name << endl;
 #endif
 
-  // if not colour palette image    
+  // if not colour palette image
   //if (hdf5api.HDF5_head_diana(file.name, ginfo)!= 2)
   if(metno::satimgh5::HDF5_head_diana(file.name, ginfo)!= 2)
     return false;
@@ -64,7 +66,7 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
     for (int j=0; j<colmapsize; j++)
       colmap[k][j]= int (ginfo.cmap[k][j]/65535.0*255.0);
 
-  //clean up 
+  //clean up
   col.clear();
 
   int ncolours = ginfo.noofcl;
@@ -81,7 +83,7 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
   cerr << "HDF5::readHDF5Header" << endl;
   cerr << "HDF5::readHDF5Header file.name: " << file.name << endl;
   cerr << "HDF5::readHDF5Header hdf5type: " << file.hdf5type << endl;
-  
+
 #endif
 
   metno::satimgh5::dihead ginfo;
@@ -114,7 +116,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
 {
 
   //Read HDF5-file using libsatimgh5, HDF5_read_diana returns the images
-  //for each channel (index[i]) in rawimage[i], and  information about the 
+  //for each channel (index[i]) in rawimage[i], and  information about the
   // satellite pictures in the structure ginfo
 
 #ifdef DEBUGPRINT
@@ -182,7 +184,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
   sd.nx=ginfo.xsize;
   sd.ny=ginfo.ysize;
 
-  //grid 
+  //grid
   sd.TrueLat= ginfo.trueLat;
   sd.GridRot= ginfo.gridRot;
   sd.Ax = ginfo.Ax;
@@ -204,7 +206,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
  {
 
 
- int aa = metno::satimgh5::day_night(filename);  
+ int aa = metno::satimgh5::day_night(filename);
 
  if(aa<0) return false;
 
@@ -212,7 +214,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
  channels = "4";
  } else if(aa==2){ //day
  channels = "1+2+4";
- } else if(aa==1){ //night  
+ } else if(aa==1){ //night
  channels = "3+4+5";
  }
 

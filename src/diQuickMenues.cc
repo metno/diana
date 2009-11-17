@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -31,6 +31,8 @@
 #include <diQuickMenues.h>
 #include <diSetupParser.h>
 #include <fstream>
+
+using namespace::miutil;
 
 // write a quick-menu to file
 bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
@@ -57,7 +59,7 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
   }
 
   menufile << "# Tekst og Plottestreng for Quick-menyen" << endl;
-  menufile << "# '#' angir kommentarer" << endl; 
+  menufile << "# '#' angir kommentarer" << endl;
   menufile << "#------------------------------------------------" << endl;
   menufile << "#-- Navn paa hurtigmeny, angis i dialogen" << endl;
   menufile << "# \"navn\"" << endl;
@@ -75,7 +77,7 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
   menufile << endl;
 
   menufile << "# variables" << endl;
-  
+
   // write options
   int m,n= qm.opt.size();
   for (int i=0; i<n; i++){
@@ -89,7 +91,7 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
   }
 
   menufile << endl;
-  
+
   // the plots
   n= qm.menuitems.size();
   for (int i=0; i<n; i++){
@@ -120,7 +122,7 @@ bool readQuickMenu(quickMenu& qm)
   qm.menuitems.clear();
   qm.opt.clear();
   qm.plotindex= 0;
-    
+
   if (!menufile){ // menufile not ok
     cerr << "QuickMenu Warning: Could not open quickmenu file "
 	 << filename << endl;
@@ -133,14 +135,14 @@ bool readQuickMenu(quickMenu& qm)
     line.trim();
     if (line.length()==0) continue;
     if (line[0]=='#') continue;
-    
+
     if (line[0]=='"'){
       // name of quickmenu
       if (line[line.length()-1]=='"')
 	qm.name = line.substr(1,line.length()-2);
       else
 	qm.name = line.substr(1,line.length()-1);
-      
+
     } else if (line[0]=='['){
       // variable/options
       if (line[line.length()-1]==']')
@@ -183,7 +185,7 @@ bool readQuickMenu(quickMenu& qm)
   menufile.close();
   if (!qm.name.exists())
     qm.name= "Udefinert navn";
-  
+
   //if old syntax changed, update file
   if(updates > 0)
     writeQuickMenu(qm,true);
@@ -203,7 +205,7 @@ int updateSyntax(miString& line)
     line.replace("test.contour.shading=1","palettecolours=standard");
     return 1;
   }
-   
+
   if( line.contains("st.nr")){
     if( line.contains("st.nr("))
       line.replace("st.nr","st.no");
@@ -211,7 +213,7 @@ int updateSyntax(miString& line)
       line.replace("st.nr","st.no(5)");
     return 1;
   }
-   
+
   if( line.contains("(74,504)")){
     line.replace("(74,504)","(uk)");
     return 1;

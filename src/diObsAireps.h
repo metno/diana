@@ -50,7 +50,7 @@ private:
 
 public:
   // Constructors
-  ObsAireps(const miString&);
+  ObsAireps(const miutil::miString&);
 
   void init(ObsPlot *, vector<int>&);
 

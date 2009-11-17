@@ -69,9 +69,9 @@ public:
   //send all positions to TrajectoryPlotdiObsDi
   void sendAllPositions();
 
-  vector<miString> writeLog();
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion);
+  vector<miutil::miString> writeLog();
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
 protected:
   void closeEvent( QCloseEvent* );
 
@@ -81,13 +81,13 @@ private:
   struct posStruct {
     double lat,lon;
     int radius;
-    miString numPos;
+    miutil::miString numPos;
   };
   vector<posStruct> positionVector;
    
   //init QT stuff
   vector<Colour::ColourInfo> colourInfo;
-  vector<miString> linetypes;
+  vector<miutil::miString> linetypes;
 
   //qt widget
   QLabel* fieldName;
@@ -105,7 +105,7 @@ private:
   QComboBox* numposBox;
 
   //functions
-  miString makeString();
+  miutil::miString makeString();
   void update_posList(float lat, float lon); 
 
 private slots:
@@ -133,7 +133,7 @@ signals:
   void markPos(bool);
   void TrajHide();
   void updateTrajectories();
-  void showsource(const miString, const miString="");
+  void showsource(const miutil::miString, const miutil::miString="");
 };
 
 #endif

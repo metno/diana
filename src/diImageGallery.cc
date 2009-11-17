@@ -34,6 +34,8 @@
 #include <glob.h>
 #include <GL/gl.h>
 
+using namespace::miutil;
+
 //int ImageGallery::numimages= 0;
 //ImageGallery::image ImageGallery::Images[ImageGallery::maximages];
 map<miString,ImageGallery::image> ImageGallery::Images;

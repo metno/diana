@@ -61,20 +61,20 @@ ProfetSessionTable::ProfetSessionTable(QWidget* parent) :
 
 
 void ProfetSessionTable::rowClicked(int r){
-  miString pname = ((ProfetTableCell*)(cellWidget(r,0)))->getParameter();
-  miTime time;
+  miutil::miString pname = ((ProfetTableCell*)(cellWidget(r,0)))->getParameter();
+  miutil::miTime time;
   emit selectedPart(pname, time);
 }
 
 void ProfetSessionTable::columnClicked(int c){
-  miString pname;
-  miTime time = ((ProfetTableCell*)(cellWidget(0,c)))->getValidTime();
+  miutil::miString pname;
+  miutil::miTime time = ((ProfetTableCell*)(cellWidget(0,c)))->getValidTime();
   emit selectedPart(pname, time);
 }
 
 void ProfetSessionTable::cornerClicked(){
-  miString pname;
-  miTime time;
+  miutil::miString pname;
+  miutil::miTime time;
   emit selectedPart(pname, time);
 }
 
@@ -82,12 +82,12 @@ void ProfetSessionTable::selectDefault()
 {
   if(!times.size() || !parameters.size()) return;
 
-  miTime now=miTime::nowTime();
+  miutil::miTime now=miutil::miTime::nowTime();
 
   int col=0;
   int row=0;
 
-  map<miTime,int>::iterator itr=times.begin();
+  map<miutil::miTime,int>::iterator itr=times.begin();
   for(;itr!=times.end();itr++)
     if(itr->first >= now ) {
       col=itr->second;
@@ -100,7 +100,7 @@ void ProfetSessionTable::selectDefault()
   setCurrentCell(row,col);
 }
 
-void ProfetSessionTable::cellChanged(int row, int col,miString par, miTime tim)
+void ProfetSessionTable::cellChanged(int row, int col,miutil::miString par, miutil::miTime tim)
 {
   currentParameter = par;
   currentTime      = tim;
@@ -120,7 +120,7 @@ void ProfetSessionTable::cellChanged(int row, int col,miString par, miTime tim)
 }
 
 
-ProfetTableCell* ProfetSessionTable::getCell(miString par, miTime tim)
+ProfetTableCell* ProfetSessionTable::getCell(miutil::miString par, miutil::miTime tim)
 {
   if(!times.count(tim))      return 0;
   if(!parameters.count(par)) return 0;
@@ -156,7 +156,7 @@ void ProfetSessionTable::setObjectSignatures( vector<fetObject::Signature> s)
 }
 
 void ProfetSessionTable::initialize(const vector<fetParameter> & p,
-				    const vector<miTime> & t)
+				    const vector<miutil::miTime> & t)
 {
   if(!p.size() || !t.size()) return;
 
@@ -164,7 +164,7 @@ void ProfetSessionTable::initialize(const vector<fetParameter> & p,
   setNumRows(p.size());
 
   for(int col=0;col<t.size();col++){
-    miString tstr=t[col].format("%a %k");
+    miutil::miString tstr=t[col].format("%a %k");
     horizontalHeader()->setLabel(col, tstr.cStr());
     setColumnWidth(col,50);
     times[t[col]]=col;
@@ -181,8 +181,8 @@ void ProfetSessionTable::initialize(const vector<fetParameter> & p,
   for(int row=0;row<p.size();row++)
     for(int col=0;col<times.size();col++) {
       setCellWidget(row,col,new ProfetTableCell(this,row,col, p[row].name(),t[col]));
-      connect( cellWidget(row,col), SIGNAL (newCell(int,int,miString,miTime)),
-	       this, SLOT (cellChanged(int,int,miString,miTime)));
+      connect( cellWidget(row,col), SIGNAL (newCell(int,int,miutil::miString,miutil::miTime)),
+	       this, SLOT (cellChanged(int,int,miutil::miString,miutil::miTime)));
 
     }
 
@@ -195,7 +195,7 @@ void ProfetSessionTable::initialize(const vector<fetParameter> & p,
 
 /////////////////////// profetTableCell --------------------------------------------------------
 
-ProfetTableCell::ProfetTableCell(QWidget * parent,int row_, int col_, miString pname_, miTime vtime_)
+ProfetTableCell::ProfetTableCell(QWidget * parent,int row_, int col_, miutil::miString pname_, miutil::miTime vtime_)
   : QLabel(" ",parent)
 {
   col             = col_;

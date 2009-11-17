@@ -190,12 +190,12 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour | 
 	 VcrossSetup::useTextChoice | VcrossSetup::useTextChoice2);
   vcSetups.push_back(new VcrossSetup(parent,DISTANCE,glayout,nrow++,opts));
-  vector<miString> distunit;
+  vector<miutil::miString> distunit;
   distunit.push_back("km");
   distunit.push_back("nm");
   n= vcSetups.size()-1;
   vcSetups[n]->defineTextChoice(distunit,0);
-  vector<miString> diststep;
+  vector<miutil::miString> diststep;
   diststep.push_back("grid");
   diststep.push_back("1");
   diststep.push_back("10");
@@ -214,7 +214,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   nrow++;
   opts= VcrossSetup::useTextChoice;
   vcSetups.push_back(new VcrossSetup(parent,VERTICALTYPE,glayout,nrow++,opts));
-  vector<miString> vchoice;
+  vector<miutil::miString> vchoice;
   vchoice.push_back("Standard/P");
   vchoice.push_back("Standard/FL");
   vchoice.push_back("Pressure/P");

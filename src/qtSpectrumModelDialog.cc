@@ -62,7 +62,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   OBS     = tr("Observations").toStdString();
 
   // send translated menunames to manager
-  map<miString,miString> textconst;
+  map<miutil::miString,miutil::miString> textconst;
   textconst["ASFIELD"]  = ASFIELD;
   textconst["OBS"]      = OBS;
   vm->setMenuConst(textconst);
@@ -70,7 +70,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 //********** create the various QT widgets to appear in dialog ***********
 
   //**** the three buttons "auto", "tid", "fil" *************
-  vector<miString> model;
+  vector<miutil::miString> model;
   model.push_back(tr("Model").toStdString());
   model.push_back(tr("File").toStdString());
 
@@ -231,13 +231,13 @@ void SpectrumModelDialog::setSelection(){
   cerr<< "SpectrumModelDialog::setSelection()" << endl;
 #endif
   if (m_modelfileButIndex==0){
-    vector <miString> models = spectrumm->getSelectedModels();
+    vector <miutil::miString> models = spectrumm->getSelectedModels();
     int n = models.size();
     for (int i = 0;i<n;i++){
-      miString model = models[i];
+      miutil::miString model = models[i];
       int m = modelfileList->count();
       for (int j = 0;j<m;j++){
-	miString listModel =  modelfileList->item(j)->text().toStdString();
+	miutil::miString listModel =  modelfileList->item(j)->text().toStdString();
 	if (model==listModel) modelfileList->item(j)->setSelected(true);
       }
     }
@@ -255,11 +255,11 @@ void SpectrumModelDialog::setModel(){
 
   if (m_modelfileButIndex==0){
 
-    vector <miString> models;
+    vector <miutil::miString> models;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-	miString model = modelfileList->item(i)->text().toStdString();
+	miutil::miString model = modelfileList->item(i)->text().toStdString();
 	if(model==OBS){
 	  showObs=true;
 	} else if (model==ASFIELD){
@@ -271,11 +271,11 @@ void SpectrumModelDialog::setModel(){
 
   } else if (m_modelfileButIndex==1){
 
-    vector <miString> files;
+    vector <miutil::miString> files;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-	miString file = modelfileList->item(i)->text().toStdString(); 
+	miutil::miString file = modelfileList->item(i)->text().toStdString(); 
 	files.push_back(file);
       }
     }
@@ -292,17 +292,17 @@ void SpectrumModelDialog::updateModelfileList(){
 
   //want to keep the selected models/files
   int n= modelfileList->count();
-  set<miString> current;
+  set<miutil::miString> current;
   for (int i=0; i<n; i++)
     if (modelfileList->item(i)->isSelected())
-      current.insert(miString(modelfileList->item(i)->text().toStdString()));
+      current.insert(miutil::miString(modelfileList->item(i)->text().toStdString()));
 
   //clear box with list of files 
   modelfileList->clear();
 
   if (m_modelfileButIndex==0){
     //make a string list with models to insert into modelfileList
-    vector <miString> modelnames =spectrumm->getModelNames();
+    vector <miutil::miString> modelnames =spectrumm->getModelNames();
     int nr_models = modelnames.size();
   //modelfileList->insertItem(OBS);
     // qt4 fix: Made QString of ASFIELD
@@ -313,16 +313,16 @@ void SpectrumModelDialog::updateModelfileList(){
     //insert into modelfilelist
   } else if (m_modelfileButIndex==1){
     //make a string list with files to insert into modelfileList
-    vector <miString> modelfiles =spectrumm->getModelFiles();
+    vector <miutil::miString> modelfiles =spectrumm->getModelFiles();
     int nr_files = modelfiles.size();
     for (int i=0; i<nr_files; i++)
       modelfileList->addItem(QString(modelfiles[i].c_str()));
   }
 
-  set<miString>::iterator pend= current.end();
+  set<miutil::miString>::iterator pend= current.end();
   n= modelfileList->count();
   for (int i=0; i<n; i++)
-    if (current.find(miString(modelfileList->item(i)->text().toStdString()))!=pend)
+    if (current.find(miutil::miString(modelfileList->item(i)->text().toStdString()))!=pend)
       modelfileList->item(i)->setSelected(true);
   
 }

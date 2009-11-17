@@ -45,15 +45,15 @@ class ShapeObject : public ObjectPlot {
 private:
 
   vector <Colour> colours;
-  miString fname; //field name to colour by
-  map <miString,Colour> stringcolourmap; //descr, colour
+  miutil::miString fname; //field name to colour by
+  map <miutil::miString,Colour> stringcolourmap; //descr, colour
   map <int,Colour> intcolourmap; //descr, colour
   map <double,Colour> doublecolourmap; //descr, colour
   bool colourmapMade; //true if colour map made  
   bool stringcolourmapMade;
   bool intcolourmapMade;
   bool doublecolourmapMade;
-  vector<miString> dbfStringDescr;
+  vector<miutil::miString> dbfStringDescr;
   vector<int> dbfIntDescr;
   vector<double> dbfDoubleDescr;
   GridConverter gc;
@@ -64,17 +64,17 @@ private:
   void memberCopy(const ShapeObject& rhs);
 
   vector <SHPObject*> shapes;
-  vector<miString> dbfIntName;
-  vector<miString> dbfDoubleName;
-  vector<miString> dbfStringName;
+  vector<miutil::miString> dbfIntName;
+  vector<miutil::miString> dbfDoubleName;
+  vector<miutil::miString> dbfStringName;
   vector< vector<int> > dbfIntDesc;
   vector< vector<double> > dbfDoubleDesc;
-  vector< vector<miString> > dbfStringDesc;
+  vector< vector<miutil::miString> > dbfStringDesc;
 
-  int readDBFfile(const miString& filename, vector<miString>& dbfIntName,
-      vector< vector<int> >& dbfIntDesc, vector<miString>& dbfDoubleName,
-      vector< vector<double> >& dbfDoubleDesc, vector<miString>& dbfStringName,
-      vector< vector<miString> >& dbfStringDesc);
+  int readDBFfile(const miutil::miString& filename, vector<miutil::miString>& dbfIntName,
+      vector< vector<int> >& dbfIntDesc, vector<miutil::miString>& dbfDoubleName,
+      vector< vector<double> >& dbfDoubleDesc, vector<miutil::miString>& dbfStringName,
+      vector< vector<miutil::miString> >& dbfStringDesc);
 
 public:
   ShapeObject();
@@ -83,8 +83,8 @@ public:
   ShapeObject& operator=(const ShapeObject &shpObj);
   ~ShapeObject();
   bool changeProj(Area fromArea);
-  bool read(miString filename);
-  bool read(miString filename, bool convertFromGeo);
+  bool read(miutil::miString filename);
+  bool read(miutil::miString filename, bool convertFromGeo);
   bool plot(Area area, // current area
       double gcd, // size of plotarea in m
       bool land, // plot triangles
@@ -101,7 +101,7 @@ public:
   virtual vector<float> getX();
   virtual vector<float> getY();
   virtual void setXY(vector<float> x, vector <float> y);
-  virtual bool getAnnoTable(miString & str);
+  virtual bool getAnnoTable(miutil::miString & str);
 
 };
 

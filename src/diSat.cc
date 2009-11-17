@@ -32,6 +32,8 @@
 #include <diSat.h>
 #include <iostream>
 
+using namespace::miutil;
+
 //static values that should be set from SatManager
 float Sat::defaultCut=-1;
 int Sat::defaultAlphacut=0;

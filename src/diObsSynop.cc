@@ -33,6 +33,8 @@
 
 #include <diObsSynop.h>
 
+using namespace::miutil;
+
 ObsSynop::ObsSynop(const miString &file)
 :synop(file){
 }

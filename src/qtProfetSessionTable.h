@@ -56,16 +56,16 @@ private:
   
   vector<fetObject::Signature> allObjects; // quick check if something has been removed
 
-  map<miTime,int>   times;
-  map<miString,int> parameters;
+  map<miutil::miTime,int>   times;
+  map<miutil::miString,int> parameters;
 
-  miTime            currentTime;
-  miString          currentParameter;
+  miutil::miTime            currentTime;
+  miutil::miString          currentParameter;
   
   int               currentRow;
   int               currentCol;
  
-  ProfetTableCell*  getCell(miString par, miTime tim);
+  ProfetTableCell*  getCell(miutil::miString par, miutil::miTime tim);
   
 protected:
   
@@ -80,10 +80,10 @@ public:
   ProfetSessionTable(QWidget*);
 
   void      initialize( const vector<fetParameter> & p,     
-			const vector<miTime>       & t);
+			const vector<miutil::miTime>       & t);
 
-  miString  selectedParameter() const { return currentParameter; }
-  miTime    selectedTime()      const { return currentTime;      }
+  miutil::miString  selectedParameter() const { return currentParameter; }
+  miutil::miTime    selectedTime()      const { return currentTime;      }
 
   void      selectDefault();
   void      setObjectSignatures( vector<fetObject::Signature> s);
@@ -91,14 +91,14 @@ public:
 
 public slots:
   
-  void cellChanged(int row, int col, miString par, miTime tim);
+  void cellChanged(int row, int col, miutil::miString par, miutil::miTime tim);
   void rowClicked(int);
   void columnClicked(int);
   void cornerClicked();
 
 signals:
-  void paramAndTimeChanged(miString par, miTime tim);
-  void selectedPart(miString par, miTime tim);
+  void paramAndTimeChanged(miutil::miString par, miutil::miTime tim);
+  void selectedPart(miutil::miString par, miutil::miTime tim);
 
 };
 
@@ -113,8 +113,8 @@ private:
   bool     current;                  // is this the current field?
   int      row;                      // what row is this cell located in
   int      col;                      // what col     - " -
-  miString parametername;            // name of the row
-  miTime   validTime;                // the col name 
+  miutil::miString parametername;            // name of the row
+  miutil::miTime   validTime;                // the col name 
   int      odd;                      // odd julian day? for background color...
   set<fetObject::Signature> objects; // what objects on that field;
 
@@ -122,10 +122,10 @@ protected:
   void focusInEvent ( QFocusEvent * ); 
     
 public:
-  ProfetTableCell(QWidget * parent,int row_, int col_, miString pname_, miTime vtime_);
+  ProfetTableCell(QWidget * parent,int row_, int col_, miutil::miString pname_, miutil::miTime vtime_);
   
-  miString getParameter() const { return parametername; }
-  miTime   getValidTime() const { return validTime; }
+  miutil::miString getParameter() const { return parametername; }
+  miutil::miTime   getValidTime() const { return validTime; }
     
 public slots:
   void dropFocus();
@@ -138,7 +138,7 @@ public slots:
   void setTooltip();
 
 signals:
-  void newCell(int row_, int col_, miString pname_, miTime vtime_);  
+  void newCell(int row_, int col_, miutil::miString pname_, miutil::miTime vtime_);  
 
 };
 

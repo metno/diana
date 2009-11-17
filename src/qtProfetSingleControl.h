@@ -44,8 +44,8 @@ using namespace std;
 class ProfetSingleControl : public QFrame {
   Q_OBJECT
 private:
-  map<miString,miSliderWidget*> slider;
-  map<miString,float>           scale;
+  map<miutil::miString,miSliderWidget*> slider;
+  map<miutil::miString,float>           scale;
   QPushButton                  *button;
   fetObject::TimeValues         data;
   int                           column;
@@ -57,22 +57,22 @@ private:
 public:
   ProfetSingleControl(QWidget *p, fetObject::TimeValues, int col);
   bool   isParent() const  { return data.isParent();} 
-  void   setValue(miString par, float value);
-  void   resetValue(miString par);
-  miTime time() const {return data.validTime;}
+  void   setValue(miutil::miString par, float value);
+  void   resetValue(miutil::miString par);
+  miutil::miTime time() const {return data.validTime;}
   fetObject::TimeValues Data() const {return data;}
-  float  value(miString par)  { return data.parameters[par];}
-  float  zero(miString  par)  { return data.valuesForZeroImpact[par];}
+  float  value(miutil::miString par)  { return data.parameters[par];}
+  float  zero(miutil::miString  par)  { return data.valuesForZeroImpact[par];}
   void   set(fetObject::TimeValues);
  
   // empty processed removes object
-  void  processed(miString id);
+  void  processed(miutil::miString id);
  
   
 public slots:
   void buttonPressed();
-  void valueChanged(float,miString);
-  void valueChangedBySlider(float v, miString par);
+  void valueChanged(float,miutil::miString);
+  void valueChangedBySlider(float v, miutil::miString par);
 signals:
   void buttonAtPressed(int);
   void pushundo();

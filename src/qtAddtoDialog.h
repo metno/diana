@@ -52,13 +52,13 @@ public:
   
   AddtoDialog( QWidget* parent, Controller* llctrl);
   /// get name from dialog
-  miString getName();
+  miutil::miString getName();
   /// get file from dialog
-  miString getFile();
+  miutil::miString getFile();
   /// put name in dialog
-  void putName(const miString &);
+  void putName(const miutil::miString &);
   /// put file in dialog
-  void putFile(const miString &);
+  void putFile(const miutil::miString &);
     
 private:
   Controller*    m_ctrl;

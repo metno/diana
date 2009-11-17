@@ -713,7 +713,7 @@ void MapDialog::showframe_checkboxActivated(bool on)
 
 void MapDialog::ff_linecboxActivated(int index)
 {
-  framelw = miString(index + 1);
+  framelw = miutil::miString(index + 1);
 }
 
 void MapDialog::ff_linetypeboxActivated(int index)
@@ -898,7 +898,7 @@ void MapDialog::cont_linecboxActivated(int index)
     cerr << "linecboxactivated::Catastrophic: activemap < 0" << endl;
     return;
   }
-  m_MapDI.maps[activemap].contour.linewidth = miString(index + 1);
+  m_MapDI.maps[activemap].contour.linewidth = miutil::miString(index + 1);
 }
 
 void MapDialog::cont_linetypeboxActivated(int index)
@@ -983,7 +983,7 @@ void MapDialog::lon_checkboxActivated(bool on)
 
 void MapDialog::lon_linecboxActivated(int index)
 {
-  lonlw = miString(index + 1);
+  lonlw = miutil::miString(index + 1);
 }
 
 void MapDialog::lon_linetypeboxActivated(int index)
@@ -1032,7 +1032,7 @@ void MapDialog::lat_checkboxActivated(bool on)
 
 void MapDialog::lat_linecboxActivated(int index)
 {
-  latlw = miString(index + 1);
+  latlw = miutil::miString(index + 1);
 }
 
 void MapDialog::lat_linetypeboxActivated(int index)
@@ -1128,12 +1128,12 @@ void MapDialog::closeEvent(QCloseEvent* e)
  GetOKString
  */
 
-vector<miString> MapDialog::getOKString()
+vector<miutil::miString> MapDialog::getOKString()
 {
 #ifdef dMapDlg
   cerr<<"MapDialog::getOKString called"<<endl;
 #endif
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
 
   int lindex;
   int numselected = selectedmaps.size();
@@ -1175,7 +1175,7 @@ vector<miString> MapDialog::getOKString()
     mi.frame.linewidth = framelw;
     mi.frame.linetype = framelt;
 
-    miString mstr;
+    miutil::miString mstr;
     m_ctrl->MapInfoParser(mstr, mi, true);
     ostr << " " << mstr;
 
@@ -1235,7 +1235,7 @@ vector<miString> MapDialog::getOKString()
         m_MapDI.maps[lindex].frame.ison = false;
       }
 
-      miString mstr;
+      miutil::miString mstr;
       m_ctrl->MapInfoParser(mstr, m_MapDI.maps[lindex], true);
       ostr << " " << mstr;
 
@@ -1252,23 +1252,23 @@ vector<miString> MapDialog::getOKString()
  PutOKString
  */
 
-void MapDialog::putOKString(const vector<miString>& vstr)
+void MapDialog::putOKString(const vector<miutil::miString>& vstr)
 {
   int n = vstr.size();
   vector<int> themaps;
-  vector<miString> tokens, stokens;
-  miString bgcolour, area;
+  vector<miutil::miString> tokens, stokens;
+  miutil::miString bgcolour, area;
   int lastmap = -1;
 
   int iline;
   for (iline = 0; iline < n; iline++) {
-    miString str = vstr[iline];
+    miutil::miString str = vstr[iline];
     str.trim();
     if (!str.exists())
       continue;
     if (str[0] == '#')
       continue;
-    miString themap = "";
+    miutil::miString themap = "";
     tokens = str.split(" ");
     int m = tokens.size();
     if (m > 0 && tokens[0].upcase() != "MAP")
@@ -1422,17 +1422,17 @@ void MapDialog::putOKString(const vector<miString>& vstr)
     backcolorcbox->setCurrentItem(m_colIndex);
 }
 
-miString MapDialog::getShortname()
+miutil::miString MapDialog::getShortname()
 {
-  miString name;
+  miutil::miString name;
 
-  name = areabox->item(areabox->currentRow())->text().toStdString() + miString(
+  name = areabox->item(areabox->currentRow())->text().toStdString() + miutil::miString(
       " ");
 
   int numselected = selectedmaps.size();
   for (int i = 0; i < numselected; i++) {
     int lindex = selectedmaps[i];
-    name += m_MapDI.maps[lindex].name + miString(" ");
+    name += m_MapDI.maps[lindex].name + miutil::miString(" ");
   }
 
   name = "<font color=\"#009900\">" + name + "</font>";
@@ -1443,9 +1443,9 @@ miString MapDialog::getShortname()
 // LOG-FILE read/write methods
 // ------------------------------------------------
 
-vector<miString> MapDialog::writeLog()
+vector<miutil::miString> MapDialog::writeLog()
 {
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
 
   // first: write all map-specifications
   int n = m_MapDI.maps.size();
@@ -1486,7 +1486,7 @@ vector<miString> MapDialog::writeLog()
       m_MapDI.maps[i].frame.ison = false;
     }
 
-    miString mstr;
+    miutil::miString mstr;
     m_ctrl->MapInfoParser(mstr, m_MapDI.maps[i], true);
     ostr << mstr;
 
@@ -1516,27 +1516,27 @@ vector<miString> MapDialog::writeLog()
   return vstr;
 }
 
-void MapDialog::readLog(const vector<miString>& vstr,
-    const miString& thisVersion, const miString& logVersion)
+void MapDialog::readLog(const vector<miutil::miString>& vstr,
+    const miutil::miString& thisVersion, const miutil::miString& logVersion)
 {
   // version-check
   //bool oldversion= (thisVersion!=logVersion && logVersion < "2001-08-25");
 
   int n = vstr.size();
   vector<int> themaps;
-  vector<miString> tokens, stokens;
-  miString bgcolour, area;
+  vector<miutil::miString> tokens, stokens;
+  miutil::miString bgcolour, area;
   int lastmap = -1;
 
   int iline;
   for (iline = 0; iline < n; iline++) {
-    miString str = vstr[iline];
+    miutil::miString str = vstr[iline];
     str.trim();
     if (str.exists() && str[0] == '-')
       continue;
     if (str.exists() && str[0] == '=')
       break;
-    miString themap = "";
+    miutil::miString themap = "";
     tokens = str.split(" ");
     int m = tokens.size();
     for (int j = 0; j < m; j++) {
@@ -1571,7 +1571,7 @@ void MapDialog::readLog(const vector<miString>& vstr,
     themaps.clear();
     iline++;
     for (; iline < n; iline++) {
-      miString themap = vstr[iline];
+      miutil::miString themap = vstr[iline];
       themap.trim();
       if (!themap.exists())
         continue;
@@ -1590,7 +1590,7 @@ void MapDialog::readLog(const vector<miString>& vstr,
   if (iline < n && vstr[iline][0] == '=') {
     iline++;
     for (; iline < n; iline++) {
-      miString str = vstr[iline];
+      miutil::miString str = vstr[iline];
       str.trim();
       if (!str.exists())
         continue;

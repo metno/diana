@@ -8,6 +8,7 @@
 #include <math.h>
 
 using namespace std;
+using namespace miutil;
 
 int GridArea::maxBuffer = 8;
 

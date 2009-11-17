@@ -35,13 +35,13 @@
 #include <QDataStream>
 #include <QFileInfo>
 
-map<miString,QImage> QtImageGallery::Images;
+map<miutil::miString,QImage> QtImageGallery::Images;
 
 QtImageGallery::QtImageGallery()
 {
 }
 
-bool QtImageGallery::addImageToGallery(const miString name,
+bool QtImageGallery::addImageToGallery(const miutil::miString name,
 				       const QImage& image)
 {
   if (image.isNull()){
@@ -86,10 +86,10 @@ bool QtImageGallery::addImageToGallery(const miString name,
   return true;
 }
 
-bool QtImageGallery::addImageToGallery(const miString name,
-				       miString& imageStr)
+bool QtImageGallery::addImageToGallery(const miutil::miString name,
+				       miutil::miString& imageStr)
 {
-  vector<miString> vs= imageStr.split(" ");
+  vector<miutil::miString> vs= imageStr.split(" ");
   int n=vs.size();
   QByteArray a(n);
   for (int i=0; i<n; i++)
@@ -104,12 +104,12 @@ bool QtImageGallery::addImageToGallery(const miString name,
 
 }
 
-void QtImageGallery::addImagesInDirectory(const miString& dir){
+void QtImageGallery::addImagesInDirectory(const miutil::miString& dir){
 //  cerr << "============= globbing in:" << dir << endl;
   glob_t globBuf;
   glob(dir.c_str(),0,0,&globBuf);
   for( int k=0; k<globBuf.gl_pathc; k++) {
-    miString fname = globBuf.gl_pathv[k];
+    miutil::miString fname = globBuf.gl_pathv[k];
     if( !fname.contains("~") ){
       QString filename = fname.c_str();
       QFileInfo fileinfo(filename);
@@ -135,7 +135,7 @@ void QtImageGallery::clear()
 }
 
 
-bool QtImageGallery::delImage(const miString& name)
+bool QtImageGallery::delImage(const miutil::miString& name)
 {
   ImageGallery ig;
   
@@ -147,17 +147,17 @@ bool QtImageGallery::delImage(const miString& name)
   return true;
 }
 
-void QtImageGallery::ImageNames(vector<miString>& vnames) const
+void QtImageGallery::ImageNames(vector<miutil::miString>& vnames) const
 {
   vnames.clear();
   
-  map<miString,QImage>::const_iterator p= Images.begin();
+  map<miutil::miString,QImage>::const_iterator p= Images.begin();
 
   for (; p!=Images.end(); p++)
     vnames.push_back(p->first);
 }
 
-bool QtImageGallery::Image(const miString& name,
+bool QtImageGallery::Image(const miutil::miString& name,
 			   QImage& image) // return QImage
 {
   if (Images.count(name) == 0)

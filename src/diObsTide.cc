@@ -33,7 +33,7 @@
 
 #include <diObsTide.h>
 
-using namespace std; 
+using namespace std; using namespace miutil; 
 
 ObsTide::ObsTide(const miString &file)
 :tide(file){

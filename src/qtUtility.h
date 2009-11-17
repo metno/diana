@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -39,7 +39,7 @@
 #include <QPixmap>
 #include <QLabel>
 
-using namespace std; 
+using namespace std;
 
 class QWidget;
 class QPushButton;
@@ -53,9 +53,9 @@ class QPixmap;
 class QColor;
 
 
-int getIndex( vector<miString> vstr, miString def_str );
+int getIndex( vector<miutil::miString> vstr, miutil::miString def_str );
 
-int getIndex( vector<Colour::ColourInfo> cInfo, miString def_str );
+int getIndex( vector<Colour::ColourInfo> cInfo, miutil::miString def_str );
 
 
 // Lables
@@ -73,46 +73,46 @@ QPushButton* PixmapButton( const QPixmap& pixmap, QWidget* parent,
 
 // ComboBox
 
-QComboBox* ComboBox(QWidget* parent, vector<miString> vstr, 
+QComboBox* ComboBox(QWidget* parent, vector<miutil::miString> vstr,
 		    bool Enabled=true, int defItem=0);
 
-QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors, 
+QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors,
 		    bool Enabled=true, int defItem=0);
 
-QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>&, 
-		     bool Enabled=true, int defItem=0, 
-		     miString firstItem="", bool name=false);
+QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>&,
+		     bool Enabled=true, int defItem=0,
+		     miutil::miString firstItem="", bool name=false);
 
-QComboBox* PaletteBox(QWidget* parent, 
-		      const vector<ColourShading::ColourShadingInfo>&, 
-		      bool Enabled=true, int defItem=0, 
-		      miString firstItem="", bool name=false);
+QComboBox* PaletteBox(QWidget* parent,
+		      const vector<ColourShading::ColourShadingInfo>&,
+		      bool Enabled=true, int defItem=0,
+		      miutil::miString firstItem="", bool name=false);
 
-QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>&, 
-		      bool Enabled=true, int defItem=0, 
-		      miString firstItem="", bool name=false);
+QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>&,
+		      bool Enabled=true, int defItem=0,
+		      miutil::miString firstItem="", bool name=false);
 
 QComboBox* LinetypeBox(QWidget* parent,
 		    bool Enabled=true, int defItem=0);
 
 QComboBox* LinewidthBox(QWidget* parent,
-			bool Enabled=true, 
+			bool Enabled=true,
 			int nr_linewidths=12,
 			int defItem=0);
 
-QComboBox* PixmapBox(QWidget* parent, vector<miString>& markerName);
+QComboBox* PixmapBox(QWidget* parent, vector<miutil::miString>& markerName);
 
 // Div
 
 QLCDNumber* LCDNumber(uint numDigits, QWidget* parent=0);
 
-QSlider* Slider( int minValue, int maxValue, int pageStep, int value,  
+QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 		 Qt::Orientation orient, QWidget* parent, int width );
 
-QSlider* Slider( int minValue, int maxValue, int pageStep, int value,  
+QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 		 Qt::Orientation orient, QWidget* parent );
 
-void listWidget( QListWidget* box, vector<miString> vstr, int defItem=-1 );
+void listWidget( QListWidget* box, vector<miutil::miString> vstr, int defItem=-1 );
 
 QPixmap* linePixmap(const miutil::miString& pattern, int linewidth);
 

@@ -40,6 +40,8 @@
 #include <glob.h>
 #include <stdio.h>
 
+using namespace::miutil;
+
 ObjectManager::ObjectManager(PlotModule* pl)
   : plotm(pl)
 {

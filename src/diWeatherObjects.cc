@@ -37,6 +37,7 @@
 #include <diWeatherArea.h>
 #include <diShapeObject.h>
 
+using namespace::miutil;
 
 //static
 miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0);

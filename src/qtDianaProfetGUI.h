@@ -84,7 +84,7 @@ private:
   fetSession currentSession;
   QMenu * popupMenu;
   miLogFile logfile;
-  map<miString,Colour> parameterColours;
+  map<miutil::miString,Colour> parameterColours;
 
   ProfetTimeSmoothDialog* timesmoothdialog;
 
@@ -95,8 +95,8 @@ private:
   //to synchronize access to currentParam/curentTime
   mutable QMutex currentParamTimeMutex;
   // Cached because of many requests from multiple threads
-  miString currentParam;
-  miTime currentTime;
+  miutil::miString currentParam;
+  miutil::miTime currentTime;
   // needed to keep 'show-status' after hide
   bool showPaintToolBar;
   bool showViewObjectDialog;
@@ -112,10 +112,10 @@ private:
 
   void connectSignals();
   /// Synchronized set'ers
-  void setCurrentParam(const miString & p);
-  void setCurrentTime(const miTime & t);
+  void setCurrentParam(const miutil::miString & p);
+  void setCurrentTime(const miutil::miTime & t);
   /// gets baseObjects index by name. returns -1 if not found
-  int getBaseObjectIndex(miString name);
+  int getBaseObjectIndex(miutil::miString name);
   /// enable/disable gui elements
   void enableObjectButtons(bool enableNewbutton,
 			   bool enableModifyButtons,
@@ -152,7 +152,7 @@ public:
    * Plots specified field in Diana.
    * Field must be prepared in field-manager first
    */
-  void showField(const miTime & reftime, const miString & param, const miTime & time);
+  void showField(const miutil::miTime & reftime, const miutil::miString & param, const miutil::miTime & time);
   void setBaseProjection(Area a, int size_x, int size_y);
   /**
    * Repaints the Diana Map
@@ -165,11 +165,11 @@ public:
   /**
    * Gets the selected parameter in GUI
    */
-  miString getCurrentParameter();
+  miutil::miString getCurrentParameter();
   /**
    * Gets the selected time in GUI
    */
-  miTime getCurrentTime();
+  miutil::miTime getCurrentTime();
   /**
    * Gets the selected session in GUI
    */
@@ -205,7 +205,7 @@ public:
   /**
    * set some statistic information for the current object
    */
-  void setStatistics(map<miString,float>);
+  void setStatistics(map<miutil::miString,float>);
 
   /**
    * set the list of Points which are actually affected by the active
@@ -218,7 +218,7 @@ public:
    */
   void rightMouseClicked(float x, float y, int globalX, int globalY);
 
-  bool selectTime(miTime time);
+  bool selectTime(miutil::miTime time);
 
   /**
   * reset colours used for each parameter in tables and overview polygons
@@ -232,17 +232,17 @@ public:
 
 private slots:
   // EditObjectDialog
-  void baseObjectSelected(miString name);
+  void baseObjectSelected(miutil::miString name);
   void objectSelected(const QModelIndex &);
   void objectDoubleClicked(const QModelIndex &);
   void saveObject();
-  void copyPolygon(miString,miString,bool);
-  void selectPolygon(miString);
+  void copyPolygon(miutil::miString,miutil::miString,bool);
+  void selectPolygon(miutil::miString);
   void requestPolygonList();
-  void collectRelatedTimeValues(vector<fetObject::TimeValues>& tv, miString id_="", bool withPolygon=false);
+  void collectRelatedTimeValues(vector<fetObject::TimeValues>& tv, miutil::miString id_="", bool withPolygon=false);
   void startTimesmooth();
   void processTimesmooth(vector<fetObject::TimeValues> tv);
-  void processTimeValues(vector<fetObject::TimeValues> tv,vector<miString> del_ids);
+  void processTimeValues(vector<fetObject::TimeValues> tv,vector<miutil::miString> del_ids);
   void endTimesmooth(vector<fetObject::TimeValues> tv);
   void closeSessionDialog();
   void startSpatialsmooth();
@@ -265,7 +265,7 @@ private slots:
   void doReconnect();
   void doUpdate();
   void showObjectOverview(const QList<QModelIndex> &);
-  void toggleObjectOverview(bool turnon, miString par, miTime time);
+  void toggleObjectOverview(bool turnon, miutil::miString par, miutil::miTime time);
 
   // PaintToolBar
   void paintModeChanged(GridAreaManager::PaintMode mode);
@@ -283,19 +283,19 @@ private slots:
 
 signals:
   void setPaintMode(bool);
-  void showProfetField(miString field);
-  void emitTimes( const miString& ,const vector<miTime>& );
-  void setTime(const miTime & t);
+  void showProfetField(miutil::miString field);
+  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
+  void setTime(const miutil::miTime & t);
   void repaintMap(bool onlyObjects);
   void toggleProfetGui();
 
-  void timesmoothProcessed(miTime, miString);
+  void timesmoothProcessed(miutil::miTime, miutil::miString);
 
   void updateModelDefinitions();
   void prepareAndPlot();
   void forceDisconnect(bool disableGuiOnly);
 
-  void getFieldPlotOptions(map< miString, map<miString,miString> >&);
+  void getFieldPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >&);
   void zoomTo(Rectangle);
 };
 

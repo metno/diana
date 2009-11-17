@@ -106,7 +106,7 @@ private:
   bool areaminimize;
   float minValue,maxValue; // used if not fieldUndef
 
-  miString lastFileWritten;
+  miutil::miString lastFileWritten;
 
   int   metnoFieldFileIdentSpec[8];
   short metnoFieldFileIdent[20];
@@ -190,31 +190,31 @@ public:
   void setSpec(const EditProduct& ep, int fnum);
 
   void setData(const vector<Field*>& vf,
-               const miString& fieldname,
-	       const miTime& tprod);
+               const miutil::miString& fieldname,
+	       const miutil::miTime& tprod);
 
   bool notifyEditEvent(const EditEvent&);
 
   bool changedEditField();
   void getFieldSize(int &nx, int &ny);
-  bool prepareEditFieldPlot(const miString& fieldname,
-			    const miTime& tprod);
+  bool prepareEditFieldPlot(const miutil::miString& fieldname,
+			    const miutil::miTime& tprod);
 
   void setConstantValue(float value);
-  bool readEditFieldFile(const miString& filename,
-                         const miString& fieldname,
-			 const miTime& tprod);
-  bool OLDreadEditfield(const miString& filename);
-  bool readEditfield(const miString& filename);
-  void OLDwriteEditFieldFile(const miString& filename);
-  bool writeEditFieldFile(const miString& filename, bool returndata,
+  bool readEditFieldFile(const miutil::miString& filename,
+                         const miutil::miString& fieldname,
+			 const miutil::miTime& tprod);
+  bool OLDreadEditfield(const miutil::miString& filename);
+  bool readEditfield(const miutil::miString& filename);
+  void OLDwriteEditFieldFile(const miutil::miString& filename);
+  bool writeEditFieldFile(const miutil::miString& filename, bool returndata,
 			  short int** fdata, int& fdatalength);
 
   void activate();
   void deactivate() { active= false; };
   bool activated() { return active; }
   bool plot(bool showinfluence);
-  bool getAnnotations(vector<miString>& anno);
+  bool getAnnotations(vector<miutil::miString>& anno);
 };
 
 #endif

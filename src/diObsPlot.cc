@@ -38,7 +38,7 @@
 #include <math.h>
 #include <stdio.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 //  static members
 vector<float> ObsPlot::xUsed;

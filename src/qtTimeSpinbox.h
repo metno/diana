@@ -49,15 +49,15 @@ class TimeSpinbox : public QSpinBox {
 public:
   TimeSpinbox(bool w_s =false, QWidget *parent =0);
   /// get spinbox time
-  miTime Time();
+  miutil::miTime Time();
 
 public slots:
 /// set spinbox time 
-  void setTime(const miTime& t);
+  void setTime(const miutil::miTime& t);
 
 protected:
   bool with_sec;
-  miTime ref;
+  miutil::miTime ref;
 
   QString textFromValue(int) const; 
   int valueFromText(const QString& text) const;

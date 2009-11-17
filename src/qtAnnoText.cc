@@ -48,8 +48,8 @@
 
 
 /*********************************************/
-AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miString prodname,
-    vector <miString> & symbolText, vector <miString>  & xText)
+AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodname,
+    vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText)
 : QDialog(parent,"annotations",true), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -57,7 +57,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miString prodname,
 #endif
 
       productname=prodname;
-      miString caption=productname+tr(":Write text").toStdString();
+      miutil::miString caption=productname+tr(":Write text").toStdString();
       setWindowTitle(caption.c_str());
 
       //horizontal layout for holding grid layouts
@@ -69,7 +69,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miString prodname,
         hglayout->addLayout(glayout, 0);
 
         for (int i=0;i<ns;i++){
-          miString ltext="Text"+miString(i+1);
+          miutil::miString ltext="Text"+miutil::miString(i+1);
           QString labeltext=ltext.c_str();
           QLabel* namelabel= new QLabel(labeltext, this,"textlabel") ;
 
@@ -121,7 +121,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miString prodname,
     }
 
 
-    void AnnoText::getAnnoText(vector <miString> & symbolText, vector <miString>  & xText){
+    void AnnoText::getAnnoText(vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText){
       symbolText.clear();
       int ns=vSymbolEdit.size();
       for (int i =0; i<ns;i++)
@@ -151,14 +151,14 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miString prodname,
         return;
       } else if(e->key()==Qt::Key_PageDown){
         m_ctrl->editNextAnnoElement();
-        miString text=m_ctrl->getMarkedAnnotation();
+        miutil::miString text=m_ctrl->getMarkedAnnotation();
         if (vSymbolEdit.size()) vSymbolEdit[0]->setCurrentText(text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();
         }
       } else if(e->key()==Qt::Key_PageUp){
         m_ctrl->editLastAnnoElement();
-        miString text=m_ctrl->getMarkedAnnotation();
+        miutil::miString text=m_ctrl->getMarkedAnnotation();
         if (vSymbolEdit.size()) vSymbolEdit[0]->setCurrentText(text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();

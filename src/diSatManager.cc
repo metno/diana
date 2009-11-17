@@ -40,6 +40,8 @@
 #include <diHDF5.h>
 #endif
 
+using namespace::miutil;
+
 //#define DEBUGPRINT
 SatManager::SatManager()
 {

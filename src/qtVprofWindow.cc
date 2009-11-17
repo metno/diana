@@ -120,7 +120,7 @@ VprofWindow::VprofWindow()
   leftStationButton->setUsesBigPixmap(false);
   leftStationButton->setAutoRepeat(true);
 
-  vector<miString> stations;
+  vector<miutil::miString> stations;
   stations.push_back("                         ");
   stationBox = ComboBox( this, stations, true, 0);
   connect( stationBox, SIGNAL( activated(int) ),
@@ -141,7 +141,7 @@ VprofWindow::VprofWindow()
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
-  vector<miString> times;
+  vector<miutil::miString> times;
   times.push_back("2002-01-01 00");
   timeBox = ComboBox( this, times, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
@@ -176,20 +176,20 @@ VprofWindow::VprofWindow()
   vpModelDialog = new VprofModelDialog(this,vprofm);
   connect(vpModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(vpModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(vpModelDialog, SIGNAL(showsource(const miString, const miString)),
-	  SIGNAL(showsource(const miString, const miString)));
+  connect(vpModelDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
+	  SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
 
   vpSetupDialog = new VprofSetupDialog(this,vprofm);
   connect(vpSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vpSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vpSetupDialog, SIGNAL(showsource(const miString, const miString)),
-	  SIGNAL(showsource(const miString, const miString)));
+  connect(vpSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
+	  SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
   //initialize everything in startUp
   firstTime = true;
   active = false;
-  mainWindowTime= miTime::nowTime();
+  mainWindowTime= miutil::miTime::nowTime();
 
 #ifdef DEBUGPRINT
   cerr<<"VprofWindow::VprofWindow() finished"<<endl;
@@ -218,7 +218,7 @@ void VprofWindow::modelClicked( bool on ){
 
 void VprofWindow::leftStationClicked(){
   //called when the left Station button is clicked
-  miString s= vprofm->setStation(-1);
+  miutil::miString s= vprofm->setStation(-1);
   stationChangedSlot(-1);
   vprofw->updateGL();
 }
@@ -228,7 +228,7 @@ void VprofWindow::leftStationClicked(){
 
 void VprofWindow::rightStationClicked(){
   //called when the right Station button is clicked
-  miString s= vprofm->setStation(+1);
+  miutil::miString s= vprofm->setStation(+1);
   stationChangedSlot(+1);
   vprofw->updateGL();
 }
@@ -238,7 +238,7 @@ void VprofWindow::rightStationClicked(){
 
 void VprofWindow::leftTimeClicked(){
   //called when the left time button is clicked
-  miTime t= vprofm->setTime(-1);
+  miutil::miTime t= vprofm->setTime(-1);
   //update combobox
   timeChangedSlot(-1);
   vprofw->updateGL();
@@ -248,7 +248,7 @@ void VprofWindow::leftTimeClicked(){
 
 void VprofWindow::rightTimeClicked(){
   //called when the right Station button is clicked
-  miTime t= vprofm->setTime(+1);
+  miutil::miTime t= vprofm->setTime(+1);
   timeChangedSlot(+1);
   vprofw->updateGL();
 }
@@ -279,10 +279,10 @@ bool VprofWindow::timeChangedSlot(int diff){
     timeBox->setCurrentItem(index);
     diff--;
   }
-  miTime t = vprofm->getTime();
-  miString tstring=t.isoTime(false,false);
+  miutil::miTime t = vprofm->getTime();
+  miutil::miString tstring=t.isoTime(false,false);
   if (!timeBox->count()) return false;
-  miString tbs=timeBox->currentText().toStdString();
+  miutil::miString tbs=timeBox->currentText().toStdString();
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
@@ -340,17 +340,17 @@ bool VprofWindow::stationChangedSlot(int diff){
     diff--;
   }
   //get current station
-  miString s = vprofm->getStation();
+  miutil::miString s = vprofm->getStation();
   //if (!stationBox->count()) return false;
   //if no current station, use last station plotted
   if (s.empty()) s = vprofm->getLastStation();
-  miString sbs=stationBox->currentText().toStdString();
+  miutil::miString sbs=stationBox->currentText().toStdString();
   if (sbs!=s){
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
       if (s==stationBox->text(i).toStdString()){
 	stationBox->setCurrentItem(i);
-	sbs=miString(stationBox->currentText().toStdString());
+	sbs=miutil::miString(stationBox->currentText().toStdString());
 	break;
       }
     }
@@ -375,7 +375,7 @@ bool VprofWindow::stationChangedSlot(int diff){
 void VprofWindow::printClicked(){
   printerManager pman;
   //called when the print button is clicked
-  miString command= pman.printCommand();
+  miutil::miString command= pman.printCommand();
 
   QPrinter qprt;
   fromPrintOption(qprt,priop);
@@ -384,7 +384,7 @@ void VprofWindow::printClicked(){
     if (qprt.outputToFile()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
-      priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
+      priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
 #ifdef linux
       command= "lpr -r " + command.substr(4,command.length()-4);
@@ -432,8 +432,8 @@ void VprofWindow::saveClicked()
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miString filename= s.toStdString();
-    miString format= "PNG";
+    miutil::miString filename= s.toStdString();
+    miutil::miString format= "PNG";
     int quality= -1; // default quality
 
     // find format
@@ -454,7 +454,7 @@ void VprofWindow::saveClicked()
 }
 
 
-void VprofWindow::makeEPS(const miString& filename)
+void VprofWindow::makeEPS(const miutil::miString& filename)
 {
   QApplication::setOverrideCursor( Qt::waitCursor );
   printOptions priop;
@@ -510,7 +510,7 @@ void VprofWindow::quitClicked(){
     setupButton->setOn(false);
     active = false;
     emit VprofHide();
-    vector<miTime> t;
+    vector<miutil::miTime> t;
     emit emitTimes("vprof",t);
 }
 
@@ -532,7 +532,7 @@ void VprofWindow::updateClicked(){
   cerr << "update clicked" << endl;
 #endif
   vprofm->updateObs();      // check obs.files
-  miTime t= mainWindowTime; // use the main time (fields etc.)
+  miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
   mainWindowTimeChanged(t);
 }
 
@@ -620,11 +620,11 @@ StationPlot* VprofWindow::getStations(){
 #ifdef DEBUGPRINT
   cerr <<"VprofWindow::getStations()" << endl;
 #endif
-  const vector <miString> stations = vprofm->getStationList();
+  const vector <miutil::miString> stations = vprofm->getStationList();
   const vector <float> latitude = vprofm->getLatitudes();
   const vector <float> longitude = vprofm->getLongitudes();
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
-  miString ann = vprofm->getAnnotationString();
+  miutil::miString ann = vprofm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
 
   // ADC set plotname (for StatusPlotButtons)
@@ -651,7 +651,7 @@ void VprofWindow::updateStationBox(){
 #endif
 
   stationBox->clear();
-  vector<miString> stations= vprofm->getStationList();
+  vector<miutil::miString> stations= vprofm->getStationList();
 
   std::sort(stations.begin(),stations.end());
 
@@ -674,7 +674,7 @@ void VprofWindow::updateTimeBox(){
 #endif
 
   timeBox->clear();
-  vector<miTime> times= vprofm->getTimeList();
+  vector<miutil::miTime> times= vprofm->getTimeList();
 
   int n =times.size();
   for (int i=0; i<n; i++){
@@ -689,8 +689,8 @@ void VprofWindow::updateTimeBox(){
 void VprofWindow::stationBoxActivated(int index){
 
 
-  //vector<miString> stations= vprofm->getStationList();
-  miString sbs=stationBox->currentText().toStdString();
+  //vector<miutil::miString> stations= vprofm->getStationList();
+  miutil::miString sbs=stationBox->currentText().toStdString();
   //if (index>=0 && index<stations.size()) {
   vprofm->setStation(sbs);
   vprofw->updateGL();
@@ -703,7 +703,7 @@ void VprofWindow::stationBoxActivated(int index){
 
 void VprofWindow::timeBoxActivated(int index){
 
-  vector<miTime> times= vprofm->getTimeList();
+  vector<miutil::miTime> times= vprofm->getTimeList();
 
   if (index>=0 && index<int(times.size())) {
     vprofm->setTime(times[index]);
@@ -723,7 +723,7 @@ void VprofWindow::timeBoxActivated(int index){
 
 /***************************************************************************/
 
-bool VprofWindow::changeStation(const miString& station){
+bool VprofWindow::changeStation(const miutil::miString& station){
 #ifdef DEBUGPRINT
   cerr << "VprofWindow::changeStation" << endl;
 #endif
@@ -739,7 +739,7 @@ bool VprofWindow::changeStation(const miString& station){
 
 /***************************************************************************/
 
-void VprofWindow::setFieldModels(const vector<miString>& fieldmodels){
+void VprofWindow::setFieldModels(const vector<miutil::miString>& fieldmodels){
   vprofm->setFieldModels(fieldmodels);
   if (active) changeModel();
 
@@ -747,7 +747,7 @@ void VprofWindow::setFieldModels(const vector<miString>& fieldmodels){
 
 /***************************************************************************/
 
-void VprofWindow::mainWindowTimeChanged(const miTime& t){
+void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
 
   // keep time for next "update" (in case not found now)
   mainWindowTime= t;
@@ -772,7 +772,7 @@ void VprofWindow::mainWindowTimeChanged(const miTime& t){
 
 /***************************************************************************/
 
-void VprofWindow::startUp(const miTime& t){
+void VprofWindow::startUp(const miutil::miTime& t){
 #ifdef DEBUGPRINT
   cerr << "vprofWindow::startUp called with time " << t << endl;
 #endif
@@ -781,7 +781,7 @@ void VprofWindow::startUp(const miTime& t){
   tsToolbar->show();
   //do something first time we start Vertical profiles
   if (firstTime){
-    vector<miString> models;
+    vector<miutil::miString> models;
     //define models for dialogs, comboboxes and stationplot
     vprofm->setSelectedModels(models,false,true,true,true);
     vpModelDialog->setSelection();
@@ -796,24 +796,24 @@ void VprofWindow::startUp(const miTime& t){
 
 /***************************************************************************/
 
-vector<miString> VprofWindow::writeLog(const miString& logpart)
+vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
 {
-  vector<miString> vstr;
-  miString str;
+  vector<miutil::miString> vstr;
+  miutil::miString str;
 
   if (logpart=="window") {
 
-    str= "VprofWindow.size " + miString(this->width()) + " "
-			     + miString(this->height());
+    str= "VprofWindow.size " + miutil::miString(this->width()) + " "
+			     + miutil::miString(this->height());
     vstr.push_back(str);
-    str= "VprofWindow.pos "  + miString(this->x()) + " "
-			     + miString(this->y());
+    str= "VprofWindow.pos "  + miutil::miString(this->x()) + " "
+			     + miutil::miString(this->y());
     vstr.push_back(str);
-    str= "VprofModelDialog.pos " + miString(vpModelDialog->x()) + " "
-			         + miString(vpModelDialog->y());
+    str= "VprofModelDialog.pos " + miutil::miString(vpModelDialog->x()) + " "
+			         + miutil::miString(vpModelDialog->y());
     vstr.push_back(str);
-    str= "VprofSetupDialog.pos " + miString(vpSetupDialog->x()) + " "
-			         + miString(vpSetupDialog->y());
+    str= "VprofSetupDialog.pos " + miutil::miString(vpSetupDialog->x()) + " "
+			         + miutil::miString(vpSetupDialog->y());
     vstr.push_back(str);
 
     // printer name & options...
@@ -837,14 +837,14 @@ vector<miString> VprofWindow::writeLog(const miString& logpart)
 }
 
 
-void VprofWindow::readLog(const miString& logpart, const vector<miString>& vstr,
-			  const miString& thisVersion, const miString& logVersion,
+void VprofWindow::readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
+			  const miutil::miString& thisVersion, const miutil::miString& logVersion,
 			  int displayWidth, int displayHeight)
 {
 
   if (logpart=="window") {
 
-    vector<miString> tokens;
+    vector<miutil::miString> tokens;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {

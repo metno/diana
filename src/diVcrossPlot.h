@@ -48,7 +48,7 @@ using namespace std;
 
 const int numVcrossFunctions= 42;
 
-const miString vcrossFunctionDefs[numVcrossFunctions]= {
+const miutil::miString vcrossFunctionDefs[numVcrossFunctions]= {
   "add(a,b)",
   "subtract(a,b)",
   "multiply(a,b)",
@@ -145,7 +145,7 @@ enum VcrossFunction {
 
 const int numVcrossPlotTypes= 5;
 
-const miString vcrossPlotDefs[numVcrossPlotTypes]= {
+const miutil::miString vcrossPlotDefs[numVcrossPlotTypes]= {
   "contour(f)",
   "wind(u,v)",
   "vector(u,v)",
@@ -173,21 +173,21 @@ enum VcrossZoomType {
 /// Verical Crossection computations from setup file
 struct vcFunction {
   VcrossFunction function;
-  vector<miString> vars;
+  vector<miutil::miString> vars;
 };
 
 /// Vertical Crossection plottable fields from setup file
 struct vcField {
-  miString name;
-  vector<miString> vars;
+  miutil::miString name;
+  vector<miutil::miString> vars;
   VcrossPlotType plotType;
-  miString       plotOpts;
+  miutil::miString       plotOpts;
 };
 
 /// Vertical Crossection data contents incl. possible computations
 struct FileContents {
-  vector<miString> fieldNames;
-  map<miString,vcFunction> useFunctions;
+  vector<miutil::miString> fieldNames;
+  map<miutil::miString,vcFunction> useFunctions;
 };
 //----------------------------------------------------
 
@@ -203,11 +203,11 @@ enum VcrossVertical {
 struct VcrossText {
   bool     timeGraph;
   Colour   colour;
-  miString modelName;
-  miString crossectionName;
-  miString fieldName;
+  miutil::miString modelName;
+  miutil::miString crossectionName;
+  miutil::miString fieldName;
   int      forecastHour;
-  miTime   validTime;
+  miutil::miTime   validTime;
 };
 
 
@@ -233,12 +233,12 @@ public:
   ~VcrossPlot();
 
   static bool parseSetup(SetupParser& sp);
-  static void makeContents(const miString& fileName,
+  static void makeContents(const miutil::miString& fileName,
 			   const vector<int>& iparam, int vcoord);
-  static void deleteContents(const miString& fileName);
-  static vector<miString> getFieldNames(const miString& fileName);
-  static map<miString,miString> getAllFieldOptions(SetupParser& sp);
-  static miString getFieldOptions(const miString& fieldname);
+  static void deleteContents(const miutil::miString& fileName);
+  static vector<miutil::miString> getFieldNames(const miutil::miString& fileName);
+  static map<miutil::miString,miutil::miString> getAllFieldOptions(SetupParser& sp);
+  static miutil::miString getFieldOptions(const miutil::miString& fieldname);
 
   static void setPlotWindow(int w, int h);
 
@@ -264,11 +264,11 @@ public:
   static bool startPSnewpage();
   static bool endPSoutput();
 
-  bool prepareData(const miString& fileName);
+  bool prepareData(const miutil::miString& fileName);
   bool plot(VcrossOptions *vcoptions,
-	    const miString& fieldname, 
+	    const miutil::miString& fieldname, 
 	    PlotOptions& poptions);
-  bool plotBackground(const vector<miString>& labels);
+  bool plotBackground(const vector<miutil::miString>& labels);
 
   int getHorizontalPosNum() { return horizontalPosNum; }
   int getNearestPos(int px);
@@ -283,15 +283,15 @@ private:
   static GridConverter gc;  // gridconverter class
 
   //----------------------------------------------------
-  static map<miString,int> vcParName;    // name -> number
-  static map<int,miString> vcParNumber;  // number -> name
+  static map<miutil::miString,int> vcParName;    // name -> number
+  static map<int,miutil::miString> vcParNumber;  // number -> name
 
-  static multimap<miString,vcFunction> vcFunctions;
+  static multimap<miutil::miString,vcFunction> vcFunctions;
 
-  static map<miString,vcField> vcFields;
-  static vector<miString> vcFieldNames;  // setup/dialog sequence
+  static map<miutil::miString,vcField> vcFields;
+  static vector<miutil::miString> vcFieldNames;  // setup/dialog sequence
 
-  static map<miString,FileContents> fileContents;
+  static map<miutil::miString,FileContents> fileContents;
   //----------------------------------------------------
 
   static int plotw;
@@ -321,7 +321,7 @@ private:
   static VcrossZoomType zoomType;
   static int            zoomSpec[4];
 
-  static miTime timeGraphReference;
+  static miutil::miTime timeGraphReference;
   static float  timeGraphMinuteStep;
 
   static bool bottomStencil;
@@ -332,11 +332,11 @@ private:
 
   VcrossOptions* vcopt;
 
-  miString modelName;
-  miString crossectionName;
-  miTime   validTime;
+  miutil::miString modelName;
+  miutil::miString crossectionName;
+  miutil::miTime   validTime;
   int      forecastHour;
-  vector<miTime> validTimeSeries;
+  vector<miutil::miTime> validTimeSeries;
   vector<int>    forecastHourSeries;
   bool     timeGraph;
 
@@ -373,14 +373,14 @@ private:
 
   // plottable 2d parameters (fields), access by name
   // map<name,cdata2d_index>
-  map<miString,int> params;
+  map<miutil::miString,int> params;
 
-  map<miString,vcFunction> useFunctions;
+  map<miutil::miString,vcFunction> useFunctions;
 
   //----------------------------------
 
   VcrossVertical vcoordPlot;
-  miString       verticalAxis;;
+  miutil::miString       verticalAxis;;
   float v2hRatio;
   float yconst,yscale;
 
@@ -393,7 +393,7 @@ private:
   //----------------------------------
 
   float refPosition;
-  vector<miString> markName;
+  vector<miutil::miString> markName;
   vector<float>    markNamePosMin;
   vector<float>    markNamePosMax;
 
@@ -404,10 +404,10 @@ private:
   int addPar2d(int param, float *pdata = 0);
 
   bool computeSize();
-  bool plotData(const miString& fieldname,
+  bool plotData(const miutil::miString& fieldname,
 	        PlotOptions& poptions);
-  int findParam(const miString& var);
-  int computer(const miString& var, VcrossFunction vcfunc,
+  int findParam(const miutil::miString& var);
+  int computer(const miutil::miString& var, VcrossFunction vcfunc,
 	       vector<int> parloc);
 
   bool plotWind(float *u, float *v, float *x, float *y,
@@ -429,7 +429,7 @@ private:
   void replaceUndefinedValues(int nx, int ny, float *f,
 			      bool fillAll);
   void xyclip(int npos, float *x, float *y, float xylim[4]);
-  vector <miString> split(const miString,const char,const char);
+  vector <miutil::miString> split(const miutil::miString,const char,const char);
   void plotArrow(const float& x0, 
 		 const float& y0,
 		 const float& dx,

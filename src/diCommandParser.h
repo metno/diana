@@ -39,10 +39,10 @@ using namespace std;
 
 /// one element in CommandParser
 struct ParsedCommand {
-  miString key;
+  miutil::miString key;
   int      idNumber;
-  miString allValue;
-  vector<miString> strValue;
+  miutil::miString allValue;
+  vector<miutil::miString> strValue;
   vector<int>      intValue;
   vector<float>    floatValue;
 };
@@ -81,12 +81,12 @@ private:
 
   struct keyDescription {
     cmdValueType valueType;
-    miString     name;      // name (or group name)
+    miutil::miString     name;      // name (or group name)
     int          idNumber;  // user supplied
   };
 
   // map<key,keyDescription>
-  map<miString,keyDescription> keyDataBase;
+  map<miutil::miString,keyDescription> keyDataBase;
 
   cmdCaseType caseType; // default cmdCaseUndefined, may set this only once,
                         // and before first addKey !
@@ -105,15 +105,15 @@ public:
   // Equality operator
   bool operator==(const CommandParser &rhs) const;
 
-  static bool isInt(const miString& s);
+  static bool isInt(const miutil::miString& s);
 
-  static bool isFloat(const miString& s);
+  static bool isFloat(const miutil::miString& s);
 
-  static vector<miString> parseString(const miString& str);
+  static vector<miutil::miString> parseString(const miutil::miString& str);
 
-  static vector<float> parseFloat(const miString& str);
+  static vector<float> parseFloat(const miutil::miString& str);
 
-  static vector<int> parseInt(const miString& str);
+  static vector<int> parseInt(const miutil::miString& str);
 
   // case (conversion) type for keywords (not values), before first addKey !!!
   bool setCaseType(cmdCaseType casetype);
@@ -122,27 +122,27 @@ public:
   void setCommentSearch(bool on= true);
 
   // add key (name not used if cmdValueType==cmdNoValue)
-  bool addKey(const miString& name, const miString& key,
+  bool addKey(const miutil::miString& name, const miutil::miString& key,
 	      int idNumber, cmdValueType valuetype,
 	      bool printError= true );
 
-  vector<ParsedCommand> parse(const miString& str);
+  vector<ParsedCommand> parse(const miutil::miString& str);
 
   int findKey(vector<ParsedCommand>& vpc,
-	      const miString& key, bool addkey=false) const;
+	      const miutil::miString& key, bool addkey=false) const;
 
 
   bool removeValue(vector<ParsedCommand>& vpc,
-		   const miString& key);
+		   const miutil::miString& key);
 
   bool replaceValue(vector<ParsedCommand>& vpc,
-		    const miString& key,
-		    const miString value, int valueIndex=0) const;
+		    const miutil::miString& key,
+		    const miutil::miString value, int valueIndex=0) const;
 
   bool replaceValue(ParsedCommand& pc,
-		    const miString value, int valueIndex=0) const;
+		    const miutil::miString value, int valueIndex=0) const;
 
-  miString unParse(const vector<ParsedCommand>& vpc) const;
+  miutil::miString unParse(const vector<ParsedCommand>& vpc) const;
 };
 
 #endif

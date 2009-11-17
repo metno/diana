@@ -133,7 +133,7 @@ public:
   void setSessions(const vector<fetSession> & s);
   void setSession(const fetSession & s);
   void removeSession(const fetSession & s);
-  QModelIndex getIndexByRefTime(const miTime & t);
+  QModelIndex getIndexByRefTime(const miutil::miTime & t);
   void clearModel();
   void customEvent(QEvent * e);
   bool insertRows ( int row, int count, const QModelIndex & parent = QModelIndex() );
@@ -165,7 +165,7 @@ public:
   /**
    * Get index of object with specified id
    */
-  QModelIndex getIndexById(const miString & id) const;
+  QModelIndex getIndexById(const miutil::miString & id) const;
   /**
    * Setting all objects in model
    * Connected views are updated
@@ -180,7 +180,7 @@ public:
    * Remove object from model (by fetObject::id())
    * Connected views are updated
    */
-  bool removeObject(const miString & id);
+  bool removeObject(const miutil::miString & id);
   void clearModel();
 };
 
@@ -197,24 +197,24 @@ public:
   };
 private:
   vector<fetObject::Signature> objects;
-  map<miString,fetParameter> name2par;
-  vector<miString> parameters;
-  vector<miTime> times;
+  map<miutil::miString,fetParameter> name2par;
+  vector<miutil::miString> parameters;
+  vector<miutil::miTime> times;
   QModelIndex lastSelected;
-  miTime currentSessionRefTime;
+  miutil::miTime currentSessionRefTime;
   map<QModelIndex, vector<PodsUser> > userLocationMap;
-  map<miString,int> paramIndexMap;
-  map<miTime,int> timeIndexMap;
+  map<miutil::miString,int> paramIndexMap;
+  map<miutil::miTime,int> timeIndexMap;
   // map< timeIndex, map<paramIndex, signatureIndex> >
   map< int, map< int, vector< int > > > signatureIndexMap;
-  map<miString,Colour> parameterColours;
+  map<miutil::miString,Colour> parameterColours;
   int headerDisplayMask;
 
   // const access to signatureIndexMap
   vector<int> getObjectIndexList(int timeIndex, int paramIndex) const;
   QColor getCellBackgroundColor(CellType type, bool odd) const;
   vector<PodsUser> getUsers( const QModelIndex & index,
-      const miTime & sessionRefTime) const;
+      const miutil::miTime & sessionRefTime) const;
 
 public:
   FetObjectTableModel(QObject * parent): QAbstractTableModel(parent), headerDisplayMask(PARAM_ICON){
@@ -229,25 +229,25 @@ public:
   QVariant headerData(int section, Qt::Orientation orientation,
       int role = Qt::DisplayRole) const;
   QVariant data(const QModelIndex &index, int role) const;
-  void initTable(const vector<miTime> & t, const vector<miString> & param);
+  void initTable(const vector<miutil::miTime> & t, const vector<miutil::miString> & param);
   bool inited(){ return (parameters.size() && times.size()); }
   void setLastSelectedIndex(const QModelIndex & lsi){ lastSelected = lsi; }
-  void setCurrentSessionRefTime(const miTime & t) { currentSessionRefTime = t; }
+  void setCurrentSessionRefTime(const miutil::miTime & t) { currentSessionRefTime = t; }
   void setObjectSignatures(const vector<fetObject::Signature> & objects);
   void setObjectSignature(const fetObject::Signature & obj);
-  bool removeObjectSignature(const miString & id);
-  miTime getTime(const QModelIndex &index) const
+  bool removeObjectSignature(const miutil::miString & id);
+  miutil::miTime getTime(const QModelIndex &index) const
     throw(InvalidIndexException&);
-  miString getParameter(const QModelIndex &index) const
+  miutil::miString getParameter(const QModelIndex &index) const
     throw(InvalidIndexException&);
-  miTime getCurrentTime() const throw(InvalidIndexException&);
-  miString getCurrentParameter() const throw(InvalidIndexException&);
+  miutil::miTime getCurrentTime() const throw(InvalidIndexException&);
+  miutil::miString getCurrentParameter() const throw(InvalidIndexException&);
   void setUserLocation(const PodsUser &);
   void removeUserLocation(const PodsUser &);
   void clearModel();
   void customEvent(QEvent * e);
-  QModelIndex getModelIndex(miTime time, miString param);
-  void setParamColours(map<miString,Colour>& paramCol);
+  QModelIndex getModelIndex(miutil::miTime time, miutil::miString param);
+  void setParamColours(map<miutil::miString,Colour>& paramCol);
   void setHeaderDisplayMask(int mask);
   void setParameters(const vector<fetParameter>& vp);
 };

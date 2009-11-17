@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,6 +33,8 @@
 #include <diWeatherArea.h>
 #include <diAreaObjects.h>
 //#define DEBUGPRINT
+
+using namespace::miutil;
 
 AreaObjects::AreaObjects(){
 #ifdef DEBUGPRINT
@@ -44,7 +46,7 @@ AreaObjects::AreaObjects(){
 
 
 
-void AreaObjects::makeAreas(const miString& name, const miString& icon, 
+void AreaObjects::makeAreas(const miString& name, const miString& icon,
 			    const miString& areastring, int id,const Area& area){
 #ifdef DEBUGPRINT
   cerr << "AreaObjects::makeAreas\n";
@@ -66,7 +68,7 @@ void AreaObjects::makeAreas(const miString& name, const miString& icon,
 
   else
     cerr << "Areaobjects not read OK" << endl;
- 
+
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!= objects.end()){
     ObjectPlot * pobject = *p;
@@ -106,7 +108,7 @@ bool AreaObjects::areaCommand(const miString& command,const miString& data){
 
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!= objects.end() && (*p)->getName()!=token[0]) p++;
-  if( p== objects.end() ) return false;  
+  if( p== objects.end() ) return false;
   ObjectPlot * pobject = *p;
   //    cerr <<"pobject->getName():"<<pobject->getName()<<endl;
   if (command=="show"){
@@ -129,11 +131,11 @@ vector <selectArea> AreaObjects::findAreas(float x, float y, bool newArea){
 
   vector <selectArea> vsA;
 
-  //return first area, not selected and (x,y) inside 
+  //return first area, not selected and (x,y) inside
   if(newArea){
     //select by click disabled
     if(!clickSelect) return vsA;
-    
+
     //nothing new
     if(currentArea && currentArea->isInsideArea(x,y)){
       return vsA;
@@ -142,8 +144,8 @@ vector <selectArea> AreaObjects::findAreas(float x, float y, bool newArea){
     vector <ObjectPlot*>::iterator p = objects.begin();
     while (p!= objects.end()){
       ObjectPlot * pobject = *p;
-      if (pobject->visible() && 
-	  !pobject->selected() && 
+      if (pobject->visible() &&
+	  !pobject->selected() &&
 	  pobject->isInsideArea(x,y)){
 	selectArea sA;
 	sA.name=pobject->getName();
@@ -151,12 +153,12 @@ vector <selectArea> AreaObjects::findAreas(float x, float y, bool newArea){
 	sA.id=itsId;
 	vsA.push_back(sA);
 	break;
-      } 
-      p++;      
+      }
+      p++;
     }
   return vsA;
 
-  } 
+  }
 
   //return areas if selected or (x,y) inside
   vector <ObjectPlot*>::iterator p = objects.begin();
@@ -168,8 +170,8 @@ vector <selectArea> AreaObjects::findAreas(float x, float y, bool newArea){
       sA.selected=pobject->selected();
       sA.id=itsId;
       vsA.push_back(sA);
-    } 
-    p++;      
+    }
+    p++;
   }
   return vsA;
 }
@@ -182,7 +184,7 @@ Rectangle AreaObjects::getBoundBox(const miString& name){
   while (p!= objects.end()){
     ObjectPlot * pobject = *p;
     if (pobject->getName()==name){
-      box=pobject->getBoundBox(); 
+      box=pobject->getBoundBox();
       break;
     }
     p++;

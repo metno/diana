@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+using namespace::miutil;
 
 
 const miString SectColours=     "COLOURS";

@@ -83,12 +83,12 @@ public:
   /// make fetObject from fetBaseObject, ProjectablePolygon and more
   fetObject makeObject(const fetBaseObject& baseObj,
 		       ProjectablePolygon polygon,
-		       const miString parameter,
-		       const miTime   validtime,
-		       const miString reason,
-		       const miString user,
-		       const miTime   sessionreftime,
-		       const miString parent);
+		       const miutil::miString parameter,
+		       const miutil::miTime   validtime,
+		       const miutil::miString reason,
+		       const miutil::miString user,
+		       const miutil::miTime   sessionreftime,
+		       const miutil::miString parent);
 
   /// update gui values in fetObject
   bool setGuiValues(fetObject& fetObj, 

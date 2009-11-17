@@ -58,21 +58,21 @@ struct SliderValues{
    \brief GUI data for one geo image source
 */
 struct SatFileInfo{
-  miString name;
-  miString formattype; //mitiff or hdf5
-  miString metadata;
-  miString channelinfo;
-  miString paletteinfo;
+  miutil::miString name;
+  miutil::miString formattype; //mitiff or hdf5
+  miutil::miString metadata;
+  miutil::miString channelinfo;
+  miutil::miString paletteinfo;
   int hdf5type;
-  miTime time;
-  miClock clock;
+  miutil::miTime time;
+  miutil::miClock clock;
   int day;
   bool opened;
-  vector<miString> channel;
-  miString default_channel;
+  vector<miutil::miString> channel;
+  miutil::miString default_channel;
   bool palette; //palette or rgb file
   vector <Colour> col;    //vector of colours used
-  miString fileformat;
+  miutil::miString fileformat;
 };
 
 /**
@@ -82,17 +82,17 @@ struct SatDialogInfo{
 
   /// image file info
   struct File {
-    miString name;            ///< filename
-    vector<miString> channel; ///< channels available
-    miString default_channel; ///< default channel
-    miString fileformat;      ///< file format
+    miutil::miString name;            ///< filename
+    vector<miutil::miString> channel; ///< channels available
+    miutil::miString default_channel; ///< default channel
+    miutil::miString fileformat;      ///< file format
   };
 
   /// main image info
   struct Image{
-    miString name;           ///< main image name
+    miutil::miString name;           ///< main image name
     vector<File> file;       ///< files available
-    miString default_file;   ///< default filename
+    miutil::miString default_file;   ///< default filename
   };
 
   vector<Image> image;       ///< defined Images
@@ -111,8 +111,8 @@ struct SatDialogInfo{
    \brief GUI data for object file
 */
 struct ObjFileInfo{
-  miString name; ///< name of the file
-  miTime time;   ///< time of the file
+  miutil::miString name; ///< name of the file
+  miutil::miTime time;   ///< time of the file
 };
 
 
@@ -128,7 +128,7 @@ enum MapValuePosition {
    \brief GUI data for one map file
 */
 struct MapFileInfo {
-  miString fname;     ///< filename
+  miutil::miString fname;     ///< filename
   double sizelimit; ///< viewsize limit in km's
 };
 
@@ -137,10 +137,10 @@ struct MapFileInfo {
 */
 struct MapElementOption {
   bool ison;           ///< element is on
-  miString linecolour; ///< line color
-  miString fillcolour; ///< fill color
-  miString linetype;   ///< line type
-  miString linewidth;  ///< line width
+  miutil::miString linecolour; ///< line color
+  miutil::miString fillcolour; ///< fill color
+  miutil::miString linetype;   ///< line type
+  miutil::miString linewidth;  ///< line width
   int zorder;          ///< z-position on map
   float density;       ///< density in degrees (latlon)
   bool showvalue;      ///< plot value string (latlon)
@@ -152,8 +152,8 @@ struct MapElementOption {
    \brief GUI data for one map
 */
 struct MapInfo {
-  miString name;             ///< name of map
-  miString type;             ///< type of mapsource(s)
+  miutil::miString name;             ///< name of map
+  miutil::miString type;             ///< type of mapsource(s)
   bool logok;                ///< ok to log
   vector<MapFileInfo> mapfiles; ///< the file(s)
   MapElementOption contour;  ///< contourline options
@@ -167,11 +167,11 @@ struct MapInfo {
    \brief GUI data for all maps
 */
 struct MapDialogInfo {
-  vector<miString> areas; ///< all defined areas (names)
-  miString default_area;  ///< default area-name
+  vector<miutil::miString> areas; ///< all defined areas (names)
+  miutil::miString default_area;  ///< default area-name
   vector<MapInfo> maps;   ///< all defined maps
-  vector<miString> default_maps; ///< list of default maps (names)
-  miString backcolour;    ///< background colour
+  vector<miutil::miString> default_maps; ///< list of default maps (names)
+  miutil::miString backcolour;    ///< background colour
 };
 
 
@@ -186,35 +186,35 @@ struct ObsDialogInfo{
 
   /// list of prioritized stations
   struct PriorityList{
-    miString file;
-    miString name;
+    miutil::miString file;
+    miutil::miString name;
   };
 
   /// list of plotting criterias
   struct CriteriaList{
-    miString name;
-    vector<miString> criteria;
+    miutil::miString name;
+    vector<miutil::miString> criteria;
   };
   /// observation data type
   struct DataType {
-    miString name;
+    miutil::miString name;
     vector<bool> active;///< same length as button
   };
 
   /// data button info for observation dialogue
   struct Button {
-    miString name;
-    miString tooltip;
+    miutil::miString name;
+    miutil::miString tooltip;
     int high,low;
     bool Default;
   };
 
   /// observation plot type
   struct PlotType {
-    miString name;
+    miutil::miString name;
     vector<DataType> datatype;
     vector<Button> button;
-    miString misc;
+    miutil::miString misc;
     vector<int> pressureLevels; ///<Only used for PlotType "Pressure levels"
     vector<CriteriaList> criteriaList;
   };
@@ -222,7 +222,7 @@ struct ObsDialogInfo{
   vector<PlotType> plottype;
   vector<PriorityList> priority;
   SliderValues density, size, timediff;
-  miString defValues;
+  miutil::miString defValues;
 };
 
 
@@ -243,17 +243,17 @@ struct ObsPositions {
    \brief data for one edit tool
 */
 struct editToolInfo {
-  miString name;
+  miutil::miString name;
   int index;
-  miString colour;
-  miString borderColour;
+  miutil::miString colour;
+  miutil::miString borderColour;
 };
 
 /**
    \brief data for one edit mode (field-editing, object-drawing)
 */
 struct editModeInfo {
-  miString editmode;
+  miutil::miString editmode;
   vector<editToolInfo> edittools;
 };
 
@@ -261,7 +261,7 @@ struct editModeInfo {
    \brief data for one map mode (normal, editing)
 */
 struct mapModeInfo {
-  miString mapmode;
+  miutil::miString mapmode;
   vector<editModeInfo> editmodeinfo;
 };
 
@@ -277,7 +277,7 @@ struct EditDialogInfo {
    \brief metadata on one map area
 */
 struct selectArea{
-  miString name; ///<name of area ie. VV, Hordaland etc.
+  miutil::miString name; ///<name of area ie. VV, Hordaland etc.
   bool selected; ///<
   int id;        ///<id of group(areaObjects)
 };
@@ -288,9 +288,9 @@ struct selectArea{
    \brief geo image data value in one position
 */
 struct SatValues{
-  miString channel;
+  miutil::miString channel;
   float value; ///<rgb
-  miString text; ///<palette
+  miutil::miString text; ///<palette
 };
 
 
@@ -298,7 +298,7 @@ struct SatValues{
    \brief quick menu type
 */
 struct QuickMenuDefs {
-  miString filename;
+  miutil::miString filename;
 };
 
 
@@ -306,12 +306,12 @@ struct QuickMenuDefs {
    \brief metadata on one data layer (on map)
 */
 struct PlotElement {
-  miString type;
-  miString str;
-  miString icon;
+  miutil::miString type;
+  miutil::miString str;
+  miutil::miString icon;
   bool enabled;
   PlotElement():enabled(false){}
-  PlotElement(miString t,miString s,miString i,bool e):
+  PlotElement(miutil::miString t,miutil::miString s,miutil::miString i,bool e):
     type(t),str(s),icon(i),enabled(e){}
 };
 
@@ -319,10 +319,10 @@ struct PlotElement {
    \brief text information sources
 */
 struct InfoFile {
-  miString name;    ///< name of source
-  miString filename;///< name of file
-  miString doctype; ///< documenttype: auto,xml,html,text
-  miString fonttype;///< fonttype: auto, fixed
+  miutil::miString name;    ///< name of source
+  miutil::miString filename;///< name of file
+  miutil::miString doctype; ///< documenttype: auto,xml,html,text
+  miutil::miString fonttype;///< fonttype: auto, fixed
 };
 
 #endif

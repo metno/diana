@@ -5,6 +5,8 @@
 #include <diField/diGridConverter.h>
 #include <sstream>
 
+using namespace::miutil;
+
 GridAreaManager::GridAreaManager() :
   mapmode(normal_mode), hasinterpolated(false) {
   paintMode = SELECT_MODE;

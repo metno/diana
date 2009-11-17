@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -33,7 +33,8 @@
 
 #include <diObsDribu.h>
 
-using namespace std; 
+using namespace std;
+using namespace miutil;
 
 ObsDribu::ObsDribu(const miString &file)
 :dribu(file){
@@ -44,7 +45,7 @@ void ObsDribu::init(ObsPlot *oplot){
 
   int numStations= contents.size();
 
-  for(int i=0; i<numStations; i++) 
+  for(int i=0; i<numStations; i++)
     if(oplot->timeOK(contents[i].desc.obsTime)){
       ObsData &d = oplot->getNextObs();
       putData(i,d);
@@ -59,7 +60,7 @@ void ObsDribu::putData(int i, ObsData &d){
   d.dataType="dribu";
   //Description
   // Only the 5 last characters of kjennetegn should be used
-  // The last character is usually blank, this should be '0' 
+  // The last character is usually blank, this should be '0'
   d.id = contents[i].desc.kjennetegn;
   d.xpos =  contents[i].desc.pos.longitude();
   d.ypos = contents[i].desc.pos.latitude();

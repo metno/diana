@@ -49,7 +49,7 @@ class RadarEchoPlot : public Plot {
 
 private:
 
-  miString fieldStr;
+  miutil::miString fieldStr;
   Colour colour;
   int lineWidth;
   Linetype lineType;
@@ -66,7 +66,7 @@ private:
  struct RadarEchoData {
   Area    area;
   int     ndata;
-  miTime *time;   // time[ndata]
+  miutil::miTime *time;   // time[ndata]
   int    *first;  // first existing index, "x[i][first[i]]"
   int    *last;   // last  existing index, "x[i][ last[i]]"
   float  *x;  // "x[numTraj][ndata]"
@@ -77,8 +77,8 @@ private:
   Field *fu1;
   Field *fv1;
 
-  miTime firstTime;
-  miTime lastTime;
+  miutil::miTime firstTime;
+  miutil::miTime lastTime;
   float  timeStep;      // timestep in seconds
   int    numIterations; // fixed no. of iterations each timestep
 		        // (no convergence test)
@@ -106,17 +106,17 @@ public:
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  int  radePos(vector<miString>&);
+  int  radePos(vector<miutil::miString>&);
 
   bool startComputation(vector<Field*> vf);
   void stopComputation();
   void clearData();
   bool compute(vector<Field*> vf);
-  void getRadarEchoAnnotation(miString& s, Colour& c);
+  void getRadarEchoAnnotation(miutil::miString& s, Colour& c);
 
   bool inComputation() { return computing; }
-  miString getFieldName() { return fieldStr; }
-  bool printRadarEchoPositions(const miString& filename);
+  miutil::miString getFieldName() { return fieldStr; }
+  bool printRadarEchoPositions(const miutil::miString& filename);
 
 
 };

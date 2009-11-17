@@ -51,21 +51,21 @@ class WeatherSymbol: public ObjectPlot
 {
 private:
   float symbolSize;
-  miString symbolString;
+  miutil::miString symbolString;
   ComplexSymbolPlot * complexSymbol;
 
   static vector<editToolInfo>  allSymbols;
   static vector<editToolInfo> allRegions;
-  static map<miString,int> symbolTypes;  //finds symbol type number from name
-  static map<miString,int> regionTypes;  //finds region type number from name
+  static map<miutil::miString,int> symbolTypes;  //finds symbol type number from name
+  static map<miutil::miString,int> regionTypes;  //finds region type number from name
   static map<int,int> indexTypes;  //finds symbol type number 
   static map<int,int> next;  //finds next symbol type number from number
   static map<int,int> last;  //finds last symbol type number from number
   static float defaultSize;
   static float defaultComplexSize;
-  static miString currentText;
+  static miutil::miString currentText;
   static Colour::ColourInfo currentColour;
-  static set <miString> textlist;
+  static set <miutil::miString> textlist;
 
 public:
  /// default constructor
@@ -73,7 +73,7 @@ public:
   /// constructor with integer symbol type as argumet
   WeatherSymbol(int ty);
   /// constructor with symbol name and type of object as argument
-  WeatherSymbol(miString,int);
+  WeatherSymbol(miutil::miString,int);
   WeatherSymbol(const WeatherSymbol &rhs);
   /// Destructor
   ~WeatherSymbol();
@@ -83,35 +83,35 @@ public:
   /// define map to find region type number from name
   static void defineRegions(vector<editToolInfo>regions);
   /// set current text for text symbols
-  static void setCurrentText(const miString &);
+  static void setCurrentText(const miutil::miString &);
   /// set current colour for text symbols
   static void setCurrentColour(const Colour::ColourInfo &);
   /// get current text for text symbols
-  static miString getCurrentText();
+  static miutil::miString getCurrentText();
   /// get current colour for text symbols
   static Colour::ColourInfo getCurrentColour();
   /// returns true if symbol is simple text
-  static bool isSimpleText(miString edittool);
+  static bool isSimpleText(miutil::miString edittool);
   /// returns true if symbol is complex text
-  static bool isComplexText(miString edittool);
+  static bool isComplexText(miutil::miString edittool);
   /// get vectors with text from complex symbols
-  static void getCurrentComplexText(vector <miString> & symbolText, 
-			     vector <miString> & xText);
+  static void getCurrentComplexText(vector <miutil::miString> & symbolText, 
+			     vector <miutil::miString> & xText);
   /// set vectors with text from complex symbols
-  static void setCurrentComplexText(const vector <miString> & symbolText,
-			     const vector <miString> & xText); 
+  static void setCurrentComplexText(const vector <miutil::miString> & symbolText,
+			     const vector <miutil::miString> & xText); 
   /// initialise text for complex symbols
-  static void initCurrentComplexText(miString edittool);
+  static void initCurrentComplexText(miutil::miString edittool);
   /// sets list of complex texts (used in text dialog)
   static void initComplexList();
   /// get name of region number ir
-  static miString getAllRegions(int ir);
+  static miutil::miString getAllRegions(int ir);
   /// get list of text used in textsymbols (for dialog)
-  static set <miString> getTextList();
+  static set <miutil::miString> getTextList();
   /// get list of complex texts (used in text dialog)
-  static set <miString> getComplexList();
+  static set <miutil::miString> getComplexList();
   /// replace characters like !{ in string
-  static void replaceText(miString & tempString,bool writestring);
+  static void replaceText(miutil::miString & tempString,bool writestring);
   /// set standard size to use for new weathersymbols
   static void setStandardSize(int size1, int size2);
   /// add new point to weather symbol
@@ -121,7 +121,7 @@ public:
   /// set type of symbol
   void setType(int ty);
   /// set type of symbol
-  bool setType(miString tystring);
+  bool setType(miutil::miString tystring);
   /// set size of symbol
   void setSize(float si){setSymbolSize(si);}
    /// set size of symbol
@@ -143,21 +143,21 @@ public:
   /// set white box for complex symbol
   void setWhiteBox(int on); //only works for complex objects
   /// set symbol string
-  void setString(miString s);
+  void setString(miutil::miString s);
   /// get symbol string
-  miString getString(){return symbolString;}
+  miutil::miString getString(){return symbolString;}
   /// returns true if x,y on symbol
   virtual bool isOnObject(float x, float y);
   /// writes a string with Object and Type
-  miString writeTypeString();
+  miutil::miString writeTypeString();
   /// apply filter to hide some symbols
-  virtual void applyFilters(vector <miString>);
-  /// gets miString vectors with symboltext and xText
-  void getComplexText(vector <miString> & symbolText, vector <miString> & xText);
+  virtual void applyFilters(vector <miutil::miString>);
+  /// gets miutil::miString vectors with symboltext and xText
+  void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
   /// reads complex text to be plotted from a string (written by readComplexText)
-  void readComplexText(miString s);
+  void readComplexText(miutil::miString s);
   /// change text to be drawn
-  void changeComplexText(const vector <miString> & symbolText, const vector <miString> & xText);
+  void changeComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
 
 };
 

@@ -34,6 +34,7 @@
 #include <diObsPlot.h>
 #include <vector>
 
+using namespace::miutil;
 
 ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
     const miTime &filetime, ObsPlot *oplot, bool readData)

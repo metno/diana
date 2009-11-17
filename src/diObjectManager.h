@@ -57,7 +57,7 @@ class PlotModule;
      \brief list of object files
   */
 struct ObjectList{
-  miString filename;         ///< filename prefix, to be appended with time
+  miutil::miString filename;         ///< filename prefix, to be appended with time
   vector<ObjFileInfo> files; ///< filename and time
   bool updated;              ///< true if list updated
   bool archive;              ///< true if list should include archive
@@ -82,18 +82,18 @@ private:
   bool doCombine;
 
   //object dialog stuff
-  miTime ztime;
+  miutil::miTime ztime;
 
   // from diana.setup:
-  vector<miString> objectNames;
-  map<miString,ObjectList> objectFiles;
+  vector<miutil::miString> objectNames;
+  map<miutil::miString,ObjectList> objectFiles;
 
   UndoFront * undoTemp;
 
   mapMode mapmode;
 
-  miString EditCommentName(const miString region,
-			   const miTime& t);
+  miutil::miString EditCommentName(const miutil::miString region,
+			   const miutil::miTime& t);
 
   // list object files (for object dialog)
   vector<ObjFileInfo> listFiles(ObjectList & ol);
@@ -101,14 +101,14 @@ private:
   bool autoJoinOn();
 
   bool getFileName(DisplayObjects &wObjects);
-  miTime timeFilterFileName(miString fileName,TimeFilter filter);
-  miTime timeFromString(miString timeString);
+  miutil::miTime timeFilterFileName(miutil::miString fileName,TimeFilter filter);
+  miutil::miTime timeFromString(miutil::miString timeString);
   //get time string yyyymmddhh or yyyymmddhhmm from time
-  miString stringFromTime(const miTime& t,bool addMinutes);
+  miutil::miString stringFromTime(const miutil::miTime& t,bool addMinutes);
 
-  bool checkFileName(miString &fileName);
+  bool checkFileName(miutil::miString &fileName);
   //test to check whether file exist
-  bool _isafile(const miString name);
+  bool _isafile(const miutil::miString name);
 
 
 
@@ -132,61 +132,61 @@ public:
   /// parse OBJECTS section of setup file
   bool parseSetup(SetupParser& sp);
   /// get ObjectNames from setup file to be used in dialog etc.
-  vector<miString> getObjectNames(bool archive);
+  vector<miutil::miString> getObjectNames(bool archive);
   /// insert name and file into objectList
-  bool insertObjectName(const miString & name, const miString & file );
+  bool insertObjectName(const miutil::miString & name, const miutil::miString & file );
   /// sets current weather symbol text
-  void setCurrentText(const miString &);
+  void setCurrentText(const miutil::miString &);
   /// sets current weather symbol colour
   void setCurrentColour(const Colour::ColourInfo & newColour);
   /// get current weather symbol text
-  miString getCurrentText();
+  miutil::miString getCurrentText();
   /// get current weather symbol colour
   Colour::ColourInfo getCurrentColour();
   /// get text from marked text symbols in editObjects
-  miString getMarkedText();
+  miutil::miString getMarkedText();
   /// get colour from marked text symbols in editObjects
   Colour::ColourInfo getMarkedColour();
   /// change text of marked text symbols in editObjects
-  void changeMarkedText(const miString & newText);
+  void changeMarkedText(const miutil::miString & newText);
   /// change colour of marked text symbols in editObjects
   void changeMarkedColour(const Colour::ColourInfo & newColour);
   /// get text list from weather symbol
-  std::set<miString> getTextList();
+  std::set<miutil::miString> getTextList();
   /// returns true if currently editing text symbol
   bool inTextMode();
   /// returns true if currently editing complex text symbol
   bool inComplexTextMode();
   /// gets current text of complex text symbols
-  void getCurrentComplexText(vector <miString> & symbolText, vector <miString>& xText);
+  void getCurrentComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>& xText);
   /// sets current text of complex text symbols
-  void setCurrentComplexText(const vector <miString> & symbolText, const vector <miString> & xText);
+  void setCurrentComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
   /// inits current text of complex text symbols
   void initCurrentComplexText();
    /// get texts of marked complex text object
-  void getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText);
+  void getMarkedComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
   /// changes texts of marked complex text object
-  void changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText);
+  void changeMarkedComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
   /// get text list from complex weather symbol
-  set <miString> getComplexList();
+  set <miutil::miString> getComplexList();
   /// decode string with types of objects to plot
-  map <miString,bool> decodeTypeString(miString);
+  map <miutil::miString,bool> decodeTypeString(miutil::miString);
   /// prepare objects for displaying
-  bool prepareObjects(const miTime& t,
+  bool prepareObjects(const miutil::miTime& t,
 		      const Area& area,
 		      DisplayObjects& objects);
   /// reads the file with weather objectPlots
-  bool readEditDrawFile(const miString file,
+  bool readEditDrawFile(const miutil::miString file,
 			const Area& area,
 			WeatherObjects& objects);
   /// reads the file with edit comments
-  bool readEditCommentFile(const miString file,
+  bool readEditCommentFile(const miutil::miString file,
 			   WeatherObjects& objects);
   /// writes the file with weather objectPlots
-  bool writeEditDrawFile(const miString filename,
-			 const miString outputString);
+  bool writeEditDrawFile(const miutil::miString filename,
+			 const miutil::miString outputString);
   /// writes the string with weather objectPlots
-  miString writeEditDrawString(const miTime& t,
+  miutil::miString writeEditDrawString(const miutil::miTime& t,
 			 WeatherObjects& objects);
 
   // drawing events
@@ -281,40 +281,40 @@ public:
   */
   void editCommandJoinFronts(bool joinAll, bool movePoints, bool joinOnLine);
   /// read edit file with objects
-  bool editCommandReadDrawFile(const miString filename);
+  bool editCommandReadDrawFile(const miutil::miString filename);
   /// read edit file with comments
-  bool editCommandReadCommentFile(miString filename);
+  bool editCommandReadCommentFile(miutil::miString filename);
   /// return editobjects' comments
-  miString getComments();
+  miutil::miString getComments();
   /// read the old comments
-  miString readComments(bool);
+  miutil::miString readComments(bool);
   /// set comments
-  void putComments(const miString & comments);
+  void putComments(const miutil::miString & comments);
   /// put prefix, name and time at start of comments
-  void putCommentStartLines(miString name,miString prefix);
+  void putCommentStartLines(miutil::miString name,miutil::miString prefix);
   /// called when new edit mode/tool selected in gui (EditDIalog)
-  void setEditMode(const mapMode mmode,const int emode,const miString etool);
+  void setEditMode(const mapMode mmode,const int emode,const miutil::miString etool);
   // stop drawing objects
   void editStopDrawing();
 
   //Object dialog methods
   /// get prefix from a file with name  /.../../prefix_*.yyyymmddhh
-  miString prefixFileName(miString fileName);
+  miutil::miString prefixFileName(miutil::miString fileName);
   /// get time from a file with name *.yyyymmddhh
-  miTime timeFileName(miString fileName);
+  miutil::miTime timeFileName(miutil::miString fileName);
   /// returns list of objectfiles for use in dialog
-  vector <ObjFileInfo> getObjectFiles(const miString objectname,
+  vector <ObjFileInfo> getObjectFiles(const miutil::miString objectname,
 				      bool refresh);
   /// returns list of times
-  vector<miTime> getObjectTimes(const vector<miString>&pinfos);
-  vector<miTime> getObjectTimes(const miString& pinfo);
+  vector<miutil::miTime> getObjectTimes(const vector<miutil::miString>&pinfos);
+  vector<miutil::miTime> getObjectTimes(const miutil::miString& pinfo);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miTime>& normalTimes,
-			   miTime& constTime,
+  void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
+			   miutil::miTime& constTime,
 			   int& timediff,
-			   const miString& pinfo);
+			   const miutil::miString& pinfo);
   /// returns plot options for object file with name objectname
-  PlotOptions getPlotOptions(miString objectName);
+  PlotOptions getPlotOptions(miutil::miString objectName);
 
 };
 

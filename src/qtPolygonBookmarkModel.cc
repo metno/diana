@@ -7,6 +7,8 @@
 #include "trashcan.xpm"
 #include <QStringList>
 
+using namespace std;
+
 PolygonBookmarkModel::PolygonBookmarkModel(QObject* p) : QStandardItemModel(p)
 {
   directoryIcon.addPixmap(QPixmap(directory_xpm));
@@ -30,12 +32,12 @@ PolygonBookmarkModel::PolygonBookmarkModel(QObject* p) : QStandardItemModel(p)
 
 }
 
-void PolygonBookmarkModel::addBookmark(miString s,bool isFolder)
+void PolygonBookmarkModel::addBookmark(miutil::miString s,bool isFolder)
 {
-  vector<miString> words = s.split(".");
+  vector<miutil::miString> words = s.split(".");
 
   QStandardItem *parentItem = invisibleRootItem();
-  miString folder;
+  miutil::miString folder;
   int last=words.size();
   int size=last;
   last--;
@@ -107,18 +109,18 @@ void PolygonBookmarkModel::addBookmark(miString s,bool isFolder)
   }
 }
 
-void PolygonBookmarkModel::addBookmarks(std::vector<miString>& s)
+void PolygonBookmarkModel::addBookmarks(std::vector<miutil::miString>& s)
 {
   for (int i=0; i<s.size(); i++) {
     addBookmark(s[i]);
   }
 }
 
-bool PolygonBookmarkModel::setCurrent(miString name, QModelIndex& ind)
+bool PolygonBookmarkModel::setCurrent(miutil::miString name, QModelIndex& ind)
 {
   if(!name.exists()) return false;
 
-  map<QModelIndex,miString>::iterator idx;
+  map<QModelIndex,miutil::miString>::iterator idx;
   for(idx=bookmarks.begin();idx!=bookmarks.end();idx++) {
     if(idx->second==name) {
       setCurrent(idx->first);
@@ -129,7 +131,7 @@ bool PolygonBookmarkModel::setCurrent(miString name, QModelIndex& ind)
   return false;
 }
 
-miString PolygonBookmarkModel::getCurrentName(bool folder)
+miutil::miString PolygonBookmarkModel::getCurrentName(bool folder)
 {
   if(folder) {
     QModelIndex   idx;
@@ -164,13 +166,13 @@ void PolygonBookmarkModel::bookmarkChanged( QStandardItem * item )
 }
 
 // recursive....
-void PolygonBookmarkModel::changeEntry(miString path, QStandardItem* item)
+void PolygonBookmarkModel::changeEntry(miutil::miString path, QStandardItem* item)
 {
 
   QModelIndex idx = item->index();
-  miString newname = path+"."+item->text().toStdString();
+  miutil::miString newname = path+"."+item->text().toStdString();
   if(bookmarks.count(idx)) {
-    miString oldname=bookmarks[idx];
+    miutil::miString oldname=bookmarks[idx];
    bookmarks[idx]=newname;
    emit bookmarkCopied(oldname,newname,true);
    return;
@@ -178,7 +180,7 @@ void PolygonBookmarkModel::changeEntry(miString path, QStandardItem* item)
 
   if (folderIndex.count(idx)) {
 
-    miString oldname = folderIndex[idx];
+    miutil::miString oldname = folderIndex[idx];
     folderIndex[idx] = newname;
     folders.erase(oldname);
     folders[newname]=idx;
@@ -235,14 +237,14 @@ void PolygonBookmarkModel::moveToTrash(QModelIndexList& pb)
 
 
 
-void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miString toFolderName)
+void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miutil::miString toFolderName)
 {
 
   for (int i = 0; i < ilist.size(); ++i) {
 
     QModelIndex  cp_idx = ilist.at(i);
     QStandardItem *item = itemFromIndex(cp_idx);
-    miString fromFullName;
+    miutil::miString fromFullName;
     bool isFolder=false;
 
     if (folderIndex.count(cp_idx)) {
@@ -257,13 +259,13 @@ void PolygonBookmarkModel::pasteList(QModelIndexList ilist,miString toFolderName
 
     if(moveItems) {
       if(deletionProtected.count(cp_idx) || !item->parent()) {
-        miString w=fromFullName+" is protected - operation not permitted";
+        miutil::miString w=fromFullName+" is protected - operation not permitted";
         emit warn(w);
         return;
       }
     }
 
-    miString toFullName=toFolderName+"."+item->text().toStdString();
+    miutil::miString toFullName=toFolderName+"."+item->text().toStdString();
 
     if(fromFullName==toFullName) {
       emit warn("trying to copy "+toFullName+" to itself");

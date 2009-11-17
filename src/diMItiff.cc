@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,25 +23,27 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <diMItiff.h>
 
+using namespace::miutil;
+
 MItiff::MItiff(){
 }
 
-bool MItiff::readMItiffPalette(const miString& filename, 
+bool MItiff::readMItiffPalette(const miString& filename,
 				   vector<Colour>& col)
 {
 
-  satimg::dihead ginfo;   
+  satimg::dihead ginfo;
 
   // if not colour palette image
   if(satimg::MITIFF_head_diana(filename, ginfo)!= 2)
-    return false; 
+    return false;
 
   // index -> RGB
   const int colmapsize=256;
@@ -49,9 +51,9 @@ bool MItiff::readMItiffPalette(const miString& filename,
   //convert colormap
   for( int k=0; k<3; k++)
     for( int j=0; j<colmapsize; j++)
-      colmap[k][j]= int (ginfo.cmap[k][j]/65535.0*255.0);      
+      colmap[k][j]= int (ginfo.cmap[k][j]/65535.0*255.0);
 
-  //clean up 
+  //clean up
   col.clear();
 
   int ncolours = ginfo.noofcl;
@@ -76,7 +78,7 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
   else{
     cerr <<"MITIFF_head_diana returned false:"<<file.name<<endl;
     return false;
-  } 
+  }
 
   file.time = ginfo.time;
   file.opened = true;
@@ -89,7 +91,7 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
 bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
 {
   //Read TIFF-file using libsatimg, MITIFF_read_diana returns the images
-  //for each channel (index[i]) in rawimage[i], and  information about the 
+  //for each channel (index[i]) in rawimage[i], and  information about the
   // satellite pictures in the structure ginfo
 
   satimg::dihead    ginfo;
@@ -103,7 +105,7 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
   if (rres == 2) {
     // read palette files (colour index)
     sd.palette=true;
-       
+
     sd.paletteInfo.name = ginfo.name;
     sd.paletteInfo.noofcl = ginfo.noofcl;
     sd.paletteInfo.clname = ginfo.clname;
@@ -114,7 +116,7 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
 
   //name from file
   sd.satellite_name = ginfo.satellite;
-    
+
   //time
   sd.time = ginfo.time;
 
@@ -122,7 +124,7 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
   sd.nx=ginfo.xsize;
   sd.ny=ginfo.ysize;
 
-  //grid 
+  //grid
   sd.TrueLat= ginfo.trueLat;
   sd.GridRot= ginfo.gridRot;
   sd.Ax = ginfo.Ax;
@@ -131,25 +133,25 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
   sd.By = ginfo.By;
 
   // Calibration
-  sd.cal_vis = ginfo.cal_vis;  
-  sd.cal_ir = ginfo.cal_ir;  
-  sd.cal_table = ginfo.cal_table;  
+  sd.cal_vis = ginfo.cal_vis;
+  sd.cal_ir = ginfo.cal_ir;
+  sd.cal_table = ginfo.cal_table;
 
   return true;
 }
 
 
 bool  MItiff::day_night(const miString& filename, miString& channels) {
-  
-  int aa = satimg::day_night(filename);  
-  
+
+  int aa = satimg::day_night(filename);
+
   if(aa<0) return false;
-  
+
     if(aa==0){       //twilight
     channels = "4";
   } else if(aa==2){ //day
     channels = "1+2+4";
-  } else if(aa==1){ //night  
+  } else if(aa==1){ //night
     channels = "3+4+5";
   }
 

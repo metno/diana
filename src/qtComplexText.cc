@@ -53,7 +53,7 @@ QValidator::State ComplexText::complexValidator::validate(QString& input,
 							 int& pos) const
 {
   //validator, only used for zero isoterm input !!!
-  miString inputString = input.toStdString();
+  miutil::miString inputString = input.toStdString();
   if (!inputString.contains("0°:")){
     return QValidator::Invalid;
   }
@@ -68,8 +68,8 @@ QColor*            ComplexText::pixcolor=0;
 
 /*********************************************/
 ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
-vector <miString> & symbolText, vector <miString>  & xText,
-			  set <miString> cList,bool useColour)
+vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText,
+			  set <miutil::miString> cList,bool useColour)
 : QDialog(parent,"complex",true), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -106,20 +106,20 @@ vector <miString> & symbolText, vector <miString>  & xText,
     QGridLayout* glayout = new QGridLayout(ns,2,5,"symbol");
     hglayout->addLayout(glayout, 0);
 
-    //set <miString> complexList = m_ctrl->getComplexList();
-    set <miString> complexList = cList;
+    //set <miutil::miString> complexList = m_ctrl->getComplexList();
+    set <miutil::miString> complexList = cList;
 
     for (int i=0;i<ns;i++){
-      miString ltext="Text"+miString(i+1);
+      miutil::miString ltext="Text"+miutil::miString(i+1);
       QString labeltext=ltext.c_str();
       QLabel* namelabel= new QLabel(labeltext, this,"textlabel") ;
 
       QComboBox *text = new QComboBox(TRUE,this,"text");
       text->setCompleter(NULL);
       if (!cv) cv = new complexValidator(this);
-      set <miString>::iterator p = complexList.begin();
+      set <miutil::miString>::iterator p = complexList.begin();
       for (; p!=complexList.end(); p++) {
-	miString temp=*p;
+	miutil::miString temp=*p;
 	text->insertItem(temp.c_str());
       }
       text->setCurrentText(symbolText[i].c_str());
@@ -158,7 +158,7 @@ vector <miString> & symbolText, vector <miString>  & xText,
     QGridLayout* glayout = new QGridLayout(nx,2,5,"xtext");
     hglayout->addLayout(glayout, 0);
     for (int i=0;i<nx;i++){
-      miString ltext="X"+miString(i+1);
+      miutil::miString ltext="X"+miutil::miString(i+1);
       QString labeltext=ltext.c_str();
 
       QLabel* namelabel= new QLabel(labeltext, this,"xlabel") ;
@@ -219,7 +219,7 @@ ComplexText::~ComplexText(){
 }
 
 
-void ComplexText::getComplexText(vector <miString> & symbolText, vector <miString>  & xText){
+void ComplexText::getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText){
   symbolText.clear();
   int ns=vSymbolEdit.size();
   for (int i =0; i<ns;i++)
@@ -285,7 +285,7 @@ void ComplexText::selectText(int i)
   //
  if (startEdit){
     startEdit=false;
-    miString text = vSymbolEdit[i]->currentText().toStdString();
+    miutil::miString text = vSymbolEdit[i]->currentText().toStdString();
     if (!text.contains("0°:")){
       vSymbolEdit[i]->lineEdit()->clearValidator();
       return;

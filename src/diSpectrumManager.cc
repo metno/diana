@@ -39,6 +39,7 @@
 #include <glob.h>
 #include <sys/stat.h>
 
+using namespace::miutil;
 
 SpectrumManager::SpectrumManager()
 : showObs(false), plotw(0), ploth(0), dataChange(true), hardcopy(false)

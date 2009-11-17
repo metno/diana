@@ -48,7 +48,7 @@ class Controller;
    list of strings with references to original linenumbers and filesources
 */
 struct SetupSection {
-  vector<miString> strlist;
+  vector<miutil::miString> strlist;
   vector<int> linenum;
   vector<int> filenum;
 };
@@ -67,79 +67,79 @@ struct SetupSection {
 class SetupParser {
 private:
   /// list of setup-filenames
-  static vector<miString> sfilename;
+  static vector<miutil::miString> sfilename;
   /// Setuptext hashed by Section name
-  static map<miString, SetupSection> sectionm;
+  static map<miutil::miString, SetupSection> sectionm;
 
-  static map<miString, miString> substitutions;
-  static map<miString, miString> user_variables;
-  static map<miString, Filltype> filltypes;
+  static map<miutil::miString, miutil::miString> substitutions;
+  static map<miutil::miString, miutil::miString> user_variables;
+  static map<miutil::miString, Filltype> filltypes;
   static vector<QuickMenuDefs>   quickmenudefs;
-  static map<miString, miString> basic_values;
-  static map<miString, InfoFile> infoFiles;
-  static vector<miString>        langPaths;
+  static map<miutil::miString, miutil::miString> basic_values;
+  static map<miutil::miString, InfoFile> infoFiles;
+  static vector<miutil::miString>        langPaths;
 
   // parse basic info
-  bool parseBasics(const miString&);
+  bool parseBasics(const miutil::miString&);
   // parse section containing colour definitions
-  bool parseColours(const miString&);
+  bool parseColours(const miutil::miString&);
   // parse section containing colour-palette definitions
-  bool parsePalettes(const miString&);
+  bool parsePalettes(const miutil::miString&);
   // parse section containing fillpattern definitions
-  bool parseFillPatterns(const miString&);
+  bool parseFillPatterns(const miutil::miString&);
   // parse section containing linetype definitions
-  bool parseLineTypes(const miString&);
+  bool parseLineTypes(const miutil::miString&);
 
   // parse section containing definitions of quick-menus
-  bool parseQuickMenus(const miString&);
+  bool parseQuickMenus(const miutil::miString&);
   // parse text-information-files
-  bool parseTextInfoFiles(const miString&);
+  bool parseTextInfoFiles(const miutil::miString&);
   // expand local variables in string
-  bool checkSubstitutions(miString& t);
+  bool checkSubstitutions(miutil::miString& t);
   // expand environment values in string
-  bool checkEnvironment(miString& t);
+  bool checkEnvironment(miutil::miString& t);
   // check if fielname exists, if not make directory
-  bool makeDirectory(const miString& filename, miString & error);
+  bool makeDirectory(const miutil::miString& filename, miutil::miString & error);
   /// parse one setupfile
-  bool parseFile(const miString& filename,
-		 const miString& section,
+  bool parseFile(const miutil::miString& filename,
+		 const miutil::miString& section,
 		 int level);
   /// report an error with filename and linenumber
-  void internalErrorMsg(const miString& filename,
+  void internalErrorMsg(const miutil::miString& filename,
 			const int linenum,
-			const miString& error);
+			const miutil::miString& error);
 
 
 public:
   SetupParser(){}
 
   /// set user variables
-  void setUserVariables(const map<miString,miString> & user_var);
+  void setUserVariables(const map<miutil::miString,miutil::miString> & user_var);
   /// cleans a string
-  void cleanstr(miString&);
+  void cleanstr(miutil::miString&);
   /// finds key=value in string
-  static void splitKeyValue(const miString& s, miString& key, miString& value);
+  static void splitKeyValue(const miutil::miString& s, miutil::miString& key, miutil::miString& value);
   /// finds key=v1,v2,v3,... in string
-  static void splitKeyValue(const miString& s, miString& key, vector<miString>& value);
+  static void splitKeyValue(const miutil::miString& s, miutil::miString& key, vector<miutil::miString>& value);
 
   /// recursively parse setupfiles - mainfilename can be changed in the process
-  bool parse( miString& mainfilename );
+  bool parse( miutil::miString& mainfilename );
   /// get stringlist for a named section
-  bool getSection(const miString&,vector<miString>&);
+  bool getSection(const miutil::miString&,vector<miutil::miString>&);
   /// report an error with line# and sectionname
-  void errorMsg(const miString&,const int,const miString&);
+  void errorMsg(const miutil::miString&,const int,const miutil::miString&);
   /// report a warning with line# and sectionname
-  void warningMsg(const miString&,const int,const miString&);
+  void warningMsg(const miutil::miString&,const int,const miutil::miString&);
   /// get quick menues defined in setup
   bool getQuickMenus(vector<QuickMenuDefs>& qm);
   /// get list of lists of colours
   vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
   /// get list of InfoFile - used in textview
-  map<miString,InfoFile> getInfoFiles() const {return infoFiles;}
+  map<miutil::miString,InfoFile> getInfoFiles() const {return infoFiles;}
   /// paths to check for language files
-  vector<miString> languagePaths() const {return langPaths;}
+  vector<miutil::miString> languagePaths() const {return langPaths;}
   /// Basic types
-  miString basicValue(const miString& key) { return basic_values[key];}
+  miutil::miString basicValue(const miutil::miString& key) { return basic_values[key];}
 };
 
 #endif

@@ -23,7 +23,7 @@ namespace Profet{
     */
    class CurrentSessionEvent : public QEvent {
    public:
-     miTime refTime;
+     miutil::miTime refTime;
      CurrentSessionEvent():QEvent(
          QEvent::Type(CURRENT_SESSION_UPDATE_EVENT)){}
    };

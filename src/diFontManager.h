@@ -58,23 +58,23 @@ private:
   glTextTT* ttfonts;
   glTextQtTexture* texfonts;
   glText * current_engine;
-  std::set<miString> xfam;
-  std::set<miString> ttfam;
-  std::set<miString> texfam;
+  std::set<miutil::miString> xfam;
+  std::set<miutil::miString> ttfam;
+  std::set<miutil::miString> texfam;
 
-  static miString fontpath;
-  static miString display_name;
-  static map<miString,miString> defaults;
+  static miutil::miString fontpath;
+  static miutil::miString display_name;
+  static map<miutil::miString,miutil::miString> defaults;
 
-  glText::FontFace fontFace( const miString& );
-  bool check_family( const miString& fam, miString& family );
+  glText::FontFace fontFace( const miutil::miString& );
+  bool check_family( const miutil::miString& fam, miutil::miString& family );
 
 public:
   FontManager();
   ~FontManager();
 
   /// for use in batch - force different display
-  static void set_display_name(const miString name)
+  static void set_display_name(const miutil::miString name)
   {display_name= name;}
 
   /// start PS output
@@ -83,20 +83,20 @@ public:
   void endHardcopy();
 
   /// for test purposes, sets up a standard set of fonts
-  bool testDefineFonts(miString path = "fonts");
+  bool testDefineFonts(miutil::miString path = "fonts");
   /// parse fontsection in setup file
   bool parseSetup(SetupParser& sp);
 
   /// choose fonttype, face and size
-  bool set(const miString, const glText::FontFace, const float);
+  bool set(const miutil::miString, const glText::FontFace, const float);
   /// choose fonttype, face and size
-  bool set(const miString, const miString, const float);
+  bool set(const miutil::miString, const miutil::miString, const float);
   /// choose fonttype
-  bool setFont(const miString);
+  bool setFont(const miutil::miString);
   /// choose fontface from type
   bool setFontFace(const glText::FontFace);
   /// choose fontface from name
-  bool setFontFace(const miString);
+  bool setFontFace(const miutil::miString);
   /// choose fontsize
   bool setFontSize(const float);
 
@@ -140,7 +140,7 @@ public:
   /// return index of current font size
   int getFontSizeIndex();
   /// return name of font from index
-  miString getFontName(const int index);
+  miutil::miString getFontName(const int index);
   /// requested-size divided by actual-size
   float getSizeDiv();
 };

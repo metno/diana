@@ -34,6 +34,8 @@
 #include <puTools/miString.h>
 #include <sstream>
 
+using namespace::miutil;
+
 // Default constructor
 
 AreaBorder::AreaBorder() : ObjectPlot(){

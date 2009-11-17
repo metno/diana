@@ -48,7 +48,7 @@
 #include <paint_move_point.xpm>
 #include <paint_help.xpm>
 
-miString PaintToolBar::helpPageName = "ug_profetdrawingtools.html";
+miutil::miString PaintToolBar::helpPageName = "ug_profetdrawingtools.html";
 
 PaintToolBar::PaintToolBar(QMainWindow *parent)
 			: QToolBar(tr("Paint Operations"), parent) {

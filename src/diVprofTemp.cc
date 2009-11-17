@@ -37,6 +37,7 @@
 #include <robs/geopos.h>
 #include <math.h>
 
+using namespace::miutil;
 
 // Default constructor
 VprofTemp::VprofTemp()

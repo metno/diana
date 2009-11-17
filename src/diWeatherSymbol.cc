@@ -34,6 +34,8 @@
 #include <diField/diColour.h>
 #include <math.h>
 
+using namespace::miutil;
+
 //static variables
 vector<editToolInfo> WeatherSymbol::allSymbols;
 vector<editToolInfo> WeatherSymbol::allRegions;

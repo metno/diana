@@ -49,6 +49,8 @@
 #include <diAnnotationPlot.h>
 #include <glob.h>
 
+using namespace::miutil;
+
 EditManager::EditManager(PlotModule* pm, ObjectManager* om)
 : plotm(pm), objm(om), mapmode(normal_mode), editpause(false),
 combinematrix(0),numregs(0), hiddenObjects(false),

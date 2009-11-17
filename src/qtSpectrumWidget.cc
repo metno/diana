@@ -127,8 +127,8 @@ void SpectrumWidget::keyPressEvent(QKeyEvent *me)
 }
 
 
-bool SpectrumWidget::saveRasterImage(const miString fname,
-			          const miString format,
+bool SpectrumWidget::saveRasterImage(const miutil::miString fname,
+			          const miutil::miString format,
 			          const int quality)
 {
   // problems on SGI - make sure plot is flushed properly

@@ -167,7 +167,7 @@ void ButtonLayout::DEFAULTClicked(){
 }
 
 
-int ButtonLayout::setButtonOn( miString buttonName ){
+int ButtonLayout::setButtonOn( miutil::miString buttonName ){
 
   int n = buttonList.size();
 
@@ -216,9 +216,9 @@ void ButtonLayout::enableButtons(vector<bool> bArr){
 }
 
 
-vector<miString> ButtonLayout::getOKString(bool forLog) {
+vector<miutil::miString> ButtonLayout::getOKString(bool forLog) {
 
-  vector<miString> str;
+  vector<miutil::miString> str;
   int nr_buttons = buttonList.size();
 
   if(forLog){
@@ -234,7 +234,7 @@ vector<miString> ButtonLayout::getOKString(bool forLog) {
 }
 
 
-void ButtonLayout::setRightClicked(miString name,bool on  )
+void ButtonLayout::setRightClicked(miutil::miString name,bool on  )
 {
   //  cerr <<"setRightClicked:"<<name<<endl;
 
@@ -266,7 +266,7 @@ void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 
   unsigned int id = bgroup->id(butto);
   if(buttonList.size() > id){
-    miString name = buttonList[id].name;
+    miutil::miString name = buttonList[id].name;
     if( !buttonOn[id] ) return;
     emit rightClickedOn(name);
   }

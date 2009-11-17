@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -60,37 +60,37 @@ signalInit()
   sigset_t     oldmask;
   struct sigaction act, oldact;
 
-  sigemptyset(&act.sa_mask);  
+  sigemptyset(&act.sa_mask);
   act.sa_flags=0;
   act.sa_handler=sig_func;
-  
+
   if(sigaction(SIGTERM, &act, &oldact)<0){
     cerr << "ERROR: Can't install signal handler for SIGTERM!" << endl;
     return -1;
   }
-  
+
   if(sigaction(SIGINT, &act, &oldact)<0){
     cerr << "ERROR: Can't install signal handler for SIGINT!" << endl;
     return -1;
   }
- 
+
   if(sigaction(SIGUSR1, &act, &oldact)<0){
     cerr << "ERROR: Can't install signal handler for SIGUSR1!" << endl;
     return -1;
   }
- 
-    
+
+
   if(sigaction(SIGALRM, &act, &oldact)<0){
     cerr << "ERROR: Can't install signal handler for SIGALRM!" << endl;
     return -1;
   }
-  
+
   return 0;
-  
+
 }
 
 
-int 
+int
 waitOnSignal(int timeout_in_seconds, bool &timeout)
 {
   int ret=-1;
@@ -114,9 +114,9 @@ waitOnSignal(int timeout_in_seconds, bool &timeout)
     alarm(timeout_in_seconds);
 
   while(!sigAlarm && !sigTerm && !sigUsr1){
-   
+
     sigsuspend(&oldmask);
-    
+
     if(errno!=EINTR)
       break;
   }
@@ -130,7 +130,7 @@ waitOnSignal(int timeout_in_seconds, bool &timeout)
     timeout=true;
     ret=1;
   }
-  
+
   sigprocmask(SIG_SETMASK, &oldmask, NULL);
 
   return ret;
@@ -143,25 +143,25 @@ waitOnFifo(int fd, int timeout_in_seconds, bool &timeout)
   timeval tv;
   fd_set  fds;
   int     ret;
-  
+
   timeout=false;
 
   FD_ZERO(&fds);
   FD_SET(fd, &fds);
-  
+
   if(timeout_in_seconds>0){
     tv.tv_sec=timeout_in_seconds;
     tv.tv_usec=0;
-    
+
     ret=select(fd+1, &fds, NULL, NULL, &tv) ;
   }else{
     ret=select(fd+1, &fds, NULL, NULL, NULL) ;
   }
-  
+
   if(ret==-1){
     if(errno==EINTR)
       return 1;
-    else 
+    else
       return -1;
   }else if(ret==0){
     timeout=true;
@@ -170,7 +170,7 @@ waitOnFifo(int fd, int timeout_in_seconds, bool &timeout)
     char buf[1];
     int n;
   RETRY:
-    
+
     n=read(fd, buf, 1);
     if(n==-1){
       if(errno==EINTR)
@@ -183,7 +183,7 @@ waitOnFifo(int fd, int timeout_in_seconds, bool &timeout)
     return 0;
   }
 }
-  
+
 int
 mysleep(int ms)
 {
@@ -194,7 +194,7 @@ mysleep(int ms)
   t1.tv_nsec=(ms%1000)*1000000;
 
   ret=nanosleep(&t1, &t2);
-  
+
   while(ret==-1 && errno==EINTR){
     t1=t2;
     ret=nanosleep(&t1, &t2);
@@ -206,19 +206,19 @@ mysleep(int ms)
 
 
 namespace{
-  void 
+  void
   sig_func(int i)
   {
     switch(i){
-    case SIGUSR1: 
+    case SIGUSR1:
       sigUsr1=1;
       break;
-    case SIGINT: 
-    case SIGTERM: 
+    case SIGINT:
+    case SIGTERM:
       sigTerm=1;
       break;
-    case SIGALRM: 
-      sigAlarm=1; 
+    case SIGALRM:
+      sigAlarm=1;
       break;
     default:
       break;

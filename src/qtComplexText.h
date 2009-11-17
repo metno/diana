@@ -56,11 +56,11 @@ class ComplexText :public QDialog
 public:
   
   /// constructor, symboltext and xtext is text to put in input boxes, cList is the list of texts to choose from
-  ComplexText( QWidget* parent, Controller* llctrl, vector <miString> & 
-	       symbolText, vector <miString> & xText, set <miString> cList,
+  ComplexText( QWidget* parent, Controller* llctrl, vector <miutil::miString> & 
+	       symbolText, vector <miutil::miString> & xText, set <miutil::miString> cList,
 	       bool useColour=false);
   /// get text from dialogs input boxes
-  void getComplexText(vector <miString> & symbolText, vector <miString>
+  void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>
 		      & xText);
   /// set colourbox colour
   void setColour(Colour::ColourInfo & colour);

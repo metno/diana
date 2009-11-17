@@ -39,7 +39,7 @@
 #include <math.h>
 #include <sys/stat.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 // Default constructor
 SpectrumFile::SpectrumFile(const miString& filename, const miString& modelname)

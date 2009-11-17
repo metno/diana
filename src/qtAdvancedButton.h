@@ -55,7 +55,7 @@ class AdvancedButton : public QPushButton
  public: 
 
  AdvancedButton( QWidget* parent,
-	       miString name);
+	       miutil::miString name);
 
 
 

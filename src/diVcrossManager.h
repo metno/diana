@@ -58,18 +58,18 @@ class VcrossManager {
 private:
 
   struct VcrossData {
-    miString    filename;
-    miString    crossection;
+    miutil::miString    filename;
+    miutil::miString    crossection;
     int         tgpos;
-    miTime      time;
+    miutil::miTime      time;
     VcrossPlot* vcplot;
   };
 
   // map<model,filename>
-  map<miString,miString> filenames;
-  vector<miString> modelnames;
+  map<miutil::miString,miutil::miString> filenames;
+  vector<miutil::miString> modelnames;
 
-  map<miString,VcrossFile*> vcfiles;
+  map<miutil::miString,VcrossFile*> vcfiles;
 
   vector<VcrossData> vcdata;
 
@@ -79,27 +79,27 @@ private:
 
   bool dataChange;
 
-  vector<miString>    selectedModels;
-  vector<miString>    selectedFields;
+  vector<miutil::miString>    selectedModels;
+  vector<miutil::miString>    selectedFields;
   vector<int>         selectedHourOffset;
   vector<PlotOptions> selectedPlotOptions;
   vector<bool>        selectedPlotShaded;
-  vector<miString>    selectedVcFile;
+  vector<miutil::miString>    selectedVcFile;
   vector<int>         selectedVcData;
-  vector<miString>    selectedLabel;
+  vector<miutil::miString>    selectedLabel;
 
   //bool asField;
 
-  miString masterFile;
-  vector<miString> nameList;
-  vector<miTime>   timeList;
+  miutil::miString masterFile;
+  vector<miutil::miString> nameList;
+  vector<miutil::miTime>   timeList;
 
-  vector<miString> usedModels;
+  vector<miutil::miString> usedModels;
 
-  miString plotCrossection;
-  miString lastCrossection;
-  miTime   plotTime;
-  miTime   ztime;
+  miutil::miString plotCrossection;
+  miutil::miString lastCrossection;
+  miutil::miTime   plotTime;
+  miutil::miTime   ztime;
 
   int timeGraphPos;
   int timeGraphPosMax;
@@ -108,7 +108,7 @@ private:
   printOptions printoptions;
   bool hardcopystarted;
 
-  map<miString,miString> menuConst;
+  map<miutil::miString,miutil::miString> menuConst;
 
   bool parseSetup();
   bool setModels();
@@ -127,36 +127,36 @@ public:
   vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
 
   void preparePlot();
-  void setCrossection(const miString& crossection);
-  void setTime(const miTime& time);
-  miString setCrossection(int step);
-  miTime setTime(int step);
-  const miTime getTime() { return plotTime; }
+  void setCrossection(const miutil::miString& crossection);
+  void setTime(const miutil::miTime& time);
+  miutil::miString setCrossection(int step);
+  miutil::miTime setTime(int step);
+  const miutil::miTime getTime() { return plotTime; }
   void getCrossections(LocationData& locationdata);
   void getCrossectionOptions(LocationData& locationdata);
-  const miString getCrossection() { return plotCrossection; }
-  const miString getLastCrossection(){return lastCrossection;}
-  const vector<miString>& getCrossectionList() { return nameList; }
-  const vector<miTime>&   getTimeList() { return timeList; }
-  vector<miString> getAllModels();
-  map<miString,miString> getAllFieldOptions();
-  vector<miString> getFieldNames(const miString& model);
+  const miutil::miString getCrossection() { return plotCrossection; }
+  const miutil::miString getLastCrossection(){return lastCrossection;}
+  const vector<miutil::miString>& getCrossectionList() { return nameList; }
+  const vector<miutil::miTime>&   getTimeList() { return timeList; }
+  vector<miutil::miString> getAllModels();
+  map<miutil::miString,miutil::miString> getAllFieldOptions();
+  vector<miutil::miString> getFieldNames(const miutil::miString& model);
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
-  void mainWindowTimeChanged(const miTime& time);
-  bool setSelection(const vector<miString>& vstr);
+  void mainWindowTimeChanged(const miutil::miTime& time);
+  bool setSelection(const vector<miutil::miString>& vstr);
   bool timeGraphOK();
   void disableTimeGraph();
   void setTimeGraphPos(int plotx, int ploty);
   void setTimeGraphPos(int incr);
 
-  void setMenuConst(map<miString,miString> mc)
+  void setMenuConst(map<miutil::miString,miutil::miString> mc)
   { menuConst = mc;}
 
-  vector<miString> writeLog();
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion);
+  vector<miutil::miString> writeLog();
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
 
 };
 

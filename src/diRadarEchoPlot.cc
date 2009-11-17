@@ -37,7 +37,7 @@
 #include <diField/diField.h>
 #include <GL/gl.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 
 RadarEchoPlot::RadarEchoPlot()

@@ -199,7 +199,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   QHBoxLayout* bgroupLayout = new QHBoxLayout();
   int m_nr_buttons=3;
   b = new QPushButton*[m_nr_buttons];
-  vector<miString> vstr(3);
+  vector<miutil::miString> vstr(3);
   vstr[prodb]=tr("Product").toStdString();
   vstr[saveb]=tr("Save").toStdString();
   vstr[sendb]=tr("Send").toStdString();
@@ -296,11 +296,11 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   enew = new EditNewDialog( static_cast<QWidget*>(parent()), m_ctrl );
   enew->hide();
   connect(enew,
-      SIGNAL(EditNewOk(EditProduct&, EditProductId&, miTime&)),
-      SLOT(EditNewOk(EditProduct&, EditProductId&, miTime&)));
+      SIGNAL(EditNewOk(EditProduct&, EditProductId&, miutil::miTime&)),
+      SLOT(EditNewOk(EditProduct&, EditProductId&, miutil::miTime&)));
   connect(enew,
-      SIGNAL(EditNewCombineOk(EditProduct&, EditProductId&, miTime&)),
-      SLOT(EditNewCombineOk(EditProduct&, EditProductId&, miTime&)));
+      SIGNAL(EditNewCombineOk(EditProduct&, EditProductId&, miutil::miTime&)),
+      SLOT(EditNewCombineOk(EditProduct&, EditProductId&, miutil::miTime&)));
   connect(enew, SIGNAL(EditNewHelp()), SLOT(helpClicked()));
   connect(enew, SIGNAL(EditNewCancel()), SLOT(EditNewCancel()));
   connect(enew, SIGNAL(newLogin(editDBinfo&)), SLOT(newLogin(editDBinfo&)));
@@ -656,7 +656,7 @@ void  EditDialog::FrontTab()
 
   objecttab = new QWidget(twd );
 
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   m_Frontcm = ComboBox( objecttab, vstr );
   connect( m_Frontcm, SIGNAL( activated(int) ),
       SLOT( FrontTabBox(int) ) );
@@ -711,7 +711,7 @@ void  EditDialog::FrontTabBox( int index )
   } else if (m_FronteditIndex < m_Fronteditmethods->count()-1){
     m_Fronteditmethods->item(m_FronteditIndex)->setSelected(true);
   }
-  currEditmode= miString(m_Frontcm->text(m_FrontcmIndex).toStdString());
+  currEditmode= miutil::miString(m_Frontcm->text(m_FrontcmIndex).toStdString());
   FrontEditClicked();
   return;
 }
@@ -735,7 +735,7 @@ void EditDialog::FrontEditClicked()
   if (index!=m_FronteditIndex){
     m_FronteditIndex=index;
     if (m_objm->inTextMode()){
-      miString text = m_objm->getCurrentText();
+      miutil::miString text = m_objm->getCurrentText();
       Colour::ColourInfo colour= m_objm->getCurrentColour();
       if (text.empty()){
         if (getText(text,colour)){
@@ -745,7 +745,7 @@ void EditDialog::FrontEditClicked()
       }
     }
     else if (m_objm->inComplexTextMode()){
-      vector <miString> symbolText,xText;
+      vector <miutil::miString> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getComplexText(symbolText,xText)){
@@ -762,7 +762,7 @@ void EditDialog::FrontEditDoubleClicked()
 {
   //called when am item in the objects list box doubleclicked
   if (m_objm->inTextMode()){
-    miString text = m_objm->getCurrentText();
+    miutil::miString text = m_objm->getCurrentText();
     Colour::ColourInfo colour=m_objm->getCurrentColour();
     if (getText(text,colour)){
       //change objectmanagers current text !
@@ -770,7 +770,7 @@ void EditDialog::FrontEditDoubleClicked()
       m_objm->setCurrentColour(colour);
     }
   } else if (m_objm->inComplexTextMode()){
-    vector <miString> symbolText,xText;
+    vector <miutil::miString> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getComplexText(symbolText,xText)){
       m_objm->setCurrentComplexText(symbolText,xText);
@@ -828,8 +828,8 @@ void EditDialog::EditMarkedText()
 {
   //called from shortcut ctrl-e
   //changes all marked texts and objectmanagers current text !
-  vector <miString> symbolText,xText,eText;
-  miString text = m_objm->getMarkedText();
+  vector <miutil::miString> symbolText,xText,eText;
+  miutil::miString text = m_objm->getMarkedText();
   if (!text.empty()){
     //get new text from inputdialog box
     Colour::ColourInfo colour=m_objm->getMarkedColour();
@@ -861,13 +861,13 @@ void EditDialog::DeleteMarkedAnnotation()
 }
 
 
-bool EditDialog::getText(miString & text, Colour::ColourInfo & colour)
+bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
 {
   bool ok = false;
 
-  vector <miString> symbolText,xText;
+  vector <miutil::miString> symbolText,xText;
   symbolText.push_back(text);
-  set <miString> textList=m_objm->getTextList();
+  set <miutil::miString> textList=m_objm->getTextList();
   ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
       textList,true);
   cText->setColour(colour);
@@ -884,12 +884,12 @@ bool EditDialog::getText(miString & text, Colour::ColourInfo & colour)
 }
 
 
-bool EditDialog::getComplexText(vector <miString> & symbolText,
-    vector <miString> & xText)
+bool EditDialog::getComplexText(vector <miutil::miString> & symbolText,
+    vector <miutil::miString> & xText)
 {
   bool ok=false;
   if (symbolText.size()||xText.size()){
-    set <miString> complexList = m_ctrl->getComplexList();
+    set <miutil::miString> complexList = m_ctrl->getComplexList();
     ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
         complexList);
     if (cText->exec()){
@@ -974,7 +974,7 @@ void EditDialog::combine_action(int idx)
 void EditDialog::selectAreas(QListWidgetItem * item )
 {
   int index = m_SelectAreas->currentRow();
-  miString tmp= miString( m_SelectAreas->item(index)->text().toStdString());
+  miutil::miString tmp= miutil::miString( m_SelectAreas->item(index)->text().toStdString());
   if (tmp !=currEdittool){
     currEdittool= tmp;
     if (inEdit) m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
@@ -996,7 +996,7 @@ void EditDialog::CombineEditMethods()
   } else if (combineAction==1){ // region selections
     m_SelectAreas->setEnabled(true);
     currEditmode= m_EditDI.mapmodeinfo[2].editmodeinfo[1].editmode;
-    currEdittool= miString( m_SelectAreas->currentItem()->text().toStdString());
+    currEdittool= miutil::miString( m_SelectAreas->currentItem()->text().toStdString());
     if (inEdit) m_objm->createNewObject();
   } else {
     cerr << "EditDialog::CombineEditMethods    unknown combineAction:"
@@ -1052,11 +1052,11 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 
   cerr <<"mindex:"<<mindex<<"  index:"<<index<<endl;
   list->clear();
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools.size();
   list->setViewMode(QListView::ListMode);
   for ( int i=0; i<n; i++){
-    miString etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
+    miutil::miString etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
     vstr.push_back(etool);
     QString dialog_etool;
     //find translation
@@ -1079,8 +1079,8 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
     list->setViewMode(QListView::IconMode);
     SetupParser sp;
     for ( int i=0; i<n; i++){
-      miString path = sp.basicValue("imagepath");
-      miString filename = path+ m_FronteditList[i] + ".png";
+      miutil::miString path = sp.basicValue("imagepath");
+      miutil::miString filename = path+ m_FronteditList[i] + ".png";
       QPixmap pmap(filename.c_str());
       if(!pmap.isNull()){
         QListWidgetItem* item = new QListWidgetItem(QIcon(pmap),QString());
@@ -1098,7 +1098,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 void EditDialog::ComboBoxData(QComboBox* box, int mindex)
 {
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo.size();
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   m_Frontcm->clear();
   for( int i=0; i<n; i++ ){
     if (m_EditDI.mapmodeinfo[mindex].editmodeinfo[i].edittools.size()){
@@ -1134,12 +1134,12 @@ bool EditDialog::saveEverything(bool send)
   }
 
   ecomment->saveComment();
-  miString message;
+  miutil::miString message;
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
 
   if (!res){
-    message= miString(tr("Problem saving/sending product\n").toStdString()) +
-    miString(tr("Message from server:\n").toStdString())
+    message= miutil::miString(tr("Problem saving/sending product\n").toStdString()) +
+    miutil::miString(tr("Message from server:\n").toStdString())
     + message;
     QMessageBox::warning( this, tr("Save error:"),
         message.c_str());
@@ -1147,7 +1147,7 @@ bool EditDialog::saveEverything(bool send)
     return false;
   }
 
-  miTime t= miTime::nowTime();
+  miutil::miTime t= miutil::miTime::nowTime();
   QString lcs(send ? " <font color=\"darkgreen\">"+tr("Saved") +"</font> "
       : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
@@ -1327,7 +1327,7 @@ void EditDialog::exitClicked()
   emit EditHide();
   emit editApply();
   // empty timeslider producttime
-  vector<miTime> noTimes;
+  vector<miutil::miTime> noTimes;
   emit emitTimes("product",noTimes);
   inEdit= false;
   productApproved= false;
@@ -1348,13 +1348,13 @@ void EditDialog::helpClicked()
 void EditDialog::updateLabels()
 {
   // update top-labels etc.
-  miString s;
+  miutil::miString s;
   if (inEdit)
-    s= miString("<font color=\"darkgreen\">") +
-    currprod.name + miString("</font>") +
-    miString("<font color=\"blue\"> ") +
-    currid.name + miString("</font>") +
-    miString(" ") + prodtime.format("%D %H:%M");
+    s= miutil::miString("<font color=\"darkgreen\">") +
+    currprod.name + miutil::miString("</font>") +
+    miutil::miString("<font color=\"blue\"> ") +
+    currid.name + miutil::miString("</font>") +
+    miutil::miString(" ") + prodtime.format("%D %H:%M");
   else
     s= "";
 
@@ -1370,7 +1370,7 @@ void EditDialog::newLogin(editDBinfo& d)
 
 void EditDialog::EditNewOk(EditProduct& ep,
     EditProductId& ci,
-    miTime& time)
+    miutil::miTime& time)
 {
   cerr << "EditDialog::EditNewOk called................" << endl;
 
@@ -1468,17 +1468,17 @@ void EditDialog::EditNewOk(EditProduct& ep,
     int n= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools.size();
 
     for (int i=0; i<n; i++) {
-      miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
+      miutil::miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
       m_Fieldeditmethods->addItem(QString(ts.cStr()));
     }
 
     numFieldEditTools= n;
 
-    miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
+    miutil::miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
 
-    vector<miString> vclass= str.split(',');
+    vector<miutil::miString> vclass= str.split(',');
     for (unsigned int i=0; i<vclass.size(); i++) {
-      vector<miString> vs= vclass[i].split(":");
+      vector<miutil::miString> vs= vclass[i].split(":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
         classValues.push_back(atof(vs[0].cStr()));
@@ -1490,7 +1490,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     classValuesLocked.push_back(false);
 
     for (unsigned int i=0; i<classNames.size(); i++) {
-      miString estr= tr("New value:").toStdString() +  classNames[i];
+      miutil::miString estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 
@@ -1553,9 +1553,9 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
   lStatus->setText(tr("Not saved"));
   // set timeslider producttime
-  miTime t;
+  miutil::miTime t;
   m_editm->getProductTime(t);
-  vector<miTime> Times;
+  vector<miutil::miTime> Times;
   Times.push_back(t);
 #ifdef DEBUGREDRAW
   cerr<<"EditDialog::EditNewOk emit emitTimes(product): "<<Times[0]<<endl;
@@ -1617,7 +1617,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
 void EditDialog::EditNewCombineOk(EditProduct& ep,
     EditProductId& ci,
-    miTime& time)
+    miutil::miTime& time)
 {
   cerr << "EditNewCombineOK" << endl;
   // Turn off Undo-buttons
@@ -1651,7 +1651,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   // update field dialog
   emit emitFieldEditUpdate("");
 
-  vector<miString> combids;
+  vector<miutil::miString> combids;
   // try to start combine
   if (!m_editm->startCombineEdit(ep,ci,time,combids)){
     cerr << "Error starting combine" << endl;
@@ -1724,19 +1724,19 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     int n= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools.size();
 
     for (int i=0; i<n; i++) {
-      miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
+      miutil::miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
       m_Fieldeditmethods->addItem(QString(ts.cStr()));
     }
 
     numFieldEditTools= n;
 
-    miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
+    miutil::miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
 
     cerr<<" class str: "<<str<<endl;
 
-    vector<miString> vclass= str.split(',');
+    vector<miutil::miString> vclass= str.split(',');
     for (unsigned int i=0; i<vclass.size(); i++) {
-      vector<miString> vs= vclass[i].split(":");
+      vector<miutil::miString> vs= vclass[i].split(":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
         classValues.push_back(atof(vs[0].cStr()));
@@ -1748,7 +1748,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     classValuesLocked.push_back(false);
 
     for (unsigned int i=0; i<classNames.size(); i++) {
-      miString estr= tr("New value:").toStdString() +  classNames[i];
+      miutil::miString estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.cStr()));
     }
 
@@ -1785,9 +1785,9 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
   lStatus->setText(tr("Not saved"));
   // set timeslider producttime
-  miTime t;
+  miutil::miTime t;
   if (m_editm->getProductTime(t)){
-    vector<miTime> Times;
+    vector<miutil::miTime> Times;
     Times.push_back(t);
     emit emitTimes("product",Times);
     // update field dialog

@@ -38,6 +38,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+using namespace::miutil;
+
 #define DEG_TO_RAD  .0174532925199432958
 
 /* Created at Wed Aug  8 09:54:14 2001 */

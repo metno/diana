@@ -68,11 +68,11 @@ public:
  /// enable/disable objectplots
   void enable(const bool b);
   /// set prefix for object files
-  void setPrefix(miString p){prefix=p;}
+  void setPrefix(miutil::miString p){prefix=p;}
   /// sets the object time 
- void setTime(miTime t){itsTime=t;}
+ void setTime(miutil::miTime t){itsTime=t;}
   /// gets the object time
-  miTime getTime(){if (itsTime.undef()) return ztime; else return itsTime;}
+  miutil::miTime getTime(){if (itsTime.undef()) return ztime; else return itsTime;}
   /// returns number of object plots
   int getSize(){return objects.size();}
   /// return objects area
@@ -84,27 +84,27 @@ public:
   /// change projection to newAreas projection
   bool changeProjection(const Area& newArea);
   /// read file with comments
-  bool readEditCommentFile(const miString fn);
+  bool readEditCommentFile(const miutil::miString fn);
   /// returns objects' old comments
-  miString readComments();
+  miutil::miString readComments();
 
   ///return oldLabels from object file
-  vector <miString> getObjectLabels();
+  vector <miutil::miString> getObjectLabels();
   /// return new edited labels 
-  vector <miString> getEditLabels(); 
+  vector <miutil::miString> getEditLabels(); 
 
   /// read file with weather objects and change projection to newArea
-  bool readEditDrawFile(const miString ,const Area& newArea );
+  bool readEditDrawFile(const miutil::miString ,const Area& newArea );
   /// read  string with weather objects and change projection to newArea
-  bool readEditDrawString(const miString ,const Area& newArea, bool replace=false);
+  bool readEditDrawString(const miutil::miString ,const Area& newArea, bool replace=false);
   /// read file with area borders (for combining analyses)
-  bool readAreaBorders(const miString ,const Area& );
+  bool readAreaBorders(const miutil::miString ,const Area& );
   /// write file with area borders (for combining analyses)
-  bool writeAreaBorders(const miString);
+  bool writeAreaBorders(const miutil::miString);
   /// writes string with edited objects
-  miString writeEditDrawString(const miTime& );
+  miutil::miString writeEditDrawString(const miutil::miTime& );
   /// sets which object types should be plotted
-  void setSelectedObjectTypes(miString t){useobject = decodeTypeString(t);}
+  void setSelectedObjectTypes(miutil::miString t){useobject = decodeTypeString(t);}
   /// returns number of object of this type
   int objectCount(int type );
   /// add an object 
@@ -112,36 +112,36 @@ public:
   /// remove an object
   vector<ObjectPlot*>::iterator removeObject(vector<ObjectPlot*>::iterator );
  /// the file the objects are read from
-  miString filename;     
+  miutil::miString filename;     
   /// decode string with types of objects to plot
-  static map <miString,bool> decodeTypeString(miString);
+  static map <miutil::miString,bool> decodeTypeString(miutil::miString);
   /// x,y for copied objects
   float xcopy,ycopy; 
 
 private:
 
-  map<miString,bool> useobject;
-  static miTime ztime;
+  map<miutil::miString,bool> useobject;
+  static miutil::miTime ztime;
   GridConverter gc;              // gridconverter class
   bool enabled;
 
 
 protected:
 
-  miString prefix;               //VA,VV,VNN...   
+  miutil::miString prefix;               //VA,VV,VNN...   
   Area itsArea;                  // current object area
   Area geoArea;
 
 
 
-  miTime itsTime;                //plot time 
-  miString itsOldComments;       // the comment string to edit
-  vector <miString> itsLabels;            //edited labels
-  vector <miString> itsOldLabels;         //labels read in from object file
+  miutil::miTime itsTime;                //plot time 
+  miutil::miString itsOldComments;       // the comment string to edit
+  vector <miutil::miString> itsLabels;            //edited labels
+  vector <miutil::miString> itsOldLabels;         //labels read in from object file
 
   //static members
-  static miTime timeFromString(miString timeString);
-  static miString stringFromTime(const miTime& t,bool addMinutes);
+  static miutil::miTime timeFromString(miutil::miString timeString);
+  static miutil::miString stringFromTime(const miutil::miTime& t,bool addMinutes);
 
 };
 

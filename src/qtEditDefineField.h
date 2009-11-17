@@ -66,15 +66,15 @@ public:
   bool fieldSelected(){return selectedfield.exists();}
   bool productSelected(){return (vselectedprod.size()
 				 && vselectedprod[0].filename.exists());}
-  miString selectedField(){return selectedfield;}
+  miutil::miString selectedField(){return selectedfield;}
   vector <savedProduct> vselectedProd(){return vselectedprod;}
 
 private:
-  vector <miString> getProductNames();
+  vector <miutil::miString> getProductNames();
   void fillList();
   void updateFilenames();
-  miString selectedObjectTypes(); //fronts /symbols/areas ?
-  void setCheckedCbs(map<miString,bool> useEditobject);
+  miutil::miString selectedObjectTypes(); //fronts /symbols/areas ?
+  void setCheckedCbs(map<miutil::miString,bool> useEditobject);
   void initCbs();
 
 private slots:
@@ -110,17 +110,17 @@ private:
   QCheckBox *cbs3;
 
   EditProduct EdProd;
-  miString currentProductName;
-  miString fieldname;
-  vector<miString> fields;
+  miutil::miString currentProductName;
+  miutil::miString fieldname;
+  vector<miutil::miString> fields;
   int num;
   int selectedProdIndex;
-  map <miString, vector<savedProduct> > pmap;
-  miString selectedfield;
+  map <miutil::miString, vector<savedProduct> > pmap;
+  miutil::miString selectedfield;
   vector <savedProduct> vselectedprod;
-  vector<miString> productNames;  //list of products in prodnamebox
+  vector<miutil::miString> productNames;  //list of products in prodnamebox
 
-  miString MODELFIELDS;
+  miutil::miString MODELFIELDS;
 
 };
 

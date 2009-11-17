@@ -76,17 +76,17 @@ private:
 
   bool isInitialized;
 
-  miString TEXTPLOT;
-  miString FIXEDTEXT;
-  miString FRAME;
-  miString SPECTRUMLINES;
-  miString SPECTRUMCOLOUR;
-  miString ENERGYLINE;
-  miString ENERGYCOLOUR;
-  miString PLOTWIND;
-  miString PLOTPEAKDIREC;
-  miString FREQUENCYMAX;
-  miString BACKCOLOUR;
+  miutil::miString TEXTPLOT;
+  miutil::miString FIXEDTEXT;
+  miutil::miString FRAME;
+  miutil::miString SPECTRUMLINES;
+  miutil::miString SPECTRUMCOLOUR;
+  miutil::miString ENERGYLINE;
+  miutil::miString ENERGYCOLOUR;
+  miutil::miString PLOTWIND;
+  miutil::miString PLOTPEAKDIREC;
+  miutil::miString FREQUENCYMAX;
+  miutil::miString BACKCOLOUR;
 
 private slots:
   void standardClicked();
@@ -97,7 +97,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showsource(const miString, const miString=""); // activate help
+  void showsource(const miutil::miString, const miutil::miString=""); // activate help
 };
 
 #endif

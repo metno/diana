@@ -50,28 +50,28 @@ class SpectrumFile
 {
 
 public:
-  SpectrumFile(const miString& filename, const miString& modelname);
+  SpectrumFile(const miutil::miString& filename, const miutil::miString& modelname);
   ~SpectrumFile();
   void cleanup();
   bool update();
   bool readFileHeader();
-  vector<miString> getNames() { return posName; }
+  vector<miutil::miString> getNames() { return posName; }
   vector<float> getLatitudes() { return posLatitude; }
   vector<float> getLongitudes() { return posLongitude; }
-  vector<miTime> getTimes() { return validTime; }
+  vector<miutil::miTime> getTimes() { return validTime; }
 
-  SpectrumPlot* getData(const miString& name, const miTime& time);
+  SpectrumPlot* getData(const miutil::miString& name, const miutil::miTime& time);
 
 private:
 
-  miString fileName;
-  miString modelName;
+  miutil::miString fileName;
+  miutil::miString modelName;
 
   FtnVfile *vfile;
 
   long int modificationtime;
 
-  miString modelName2; // from file
+  miutil::miString modelName2; // from file
   int numPos;
   int numTime;
   int numDirec;
@@ -82,10 +82,10 @@ private:
   vector<float> frequences;
   vector<float> extraScale;
 
-  vector<miString> posName;
+  vector<miutil::miString> posName;
   vector<float>    posLatitude;
   vector<float>    posLongitude;
-  vector<miTime>   validTime;
+  vector<miutil::miTime>   validTime;
   vector<int>      forecastHour;
 
   // dataAddress[2][numPos][numTime]

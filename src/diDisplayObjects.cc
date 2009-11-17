@@ -35,6 +35,8 @@
 #include <diWeatherArea.h>
 //#define DEBUGPRINT
 
+using namespace::miutil;
+
 DisplayObjects::DisplayObjects(){
 #ifdef DEBUGPRINT
   cerr << "DisplayObjects::DisplayObjects\n";

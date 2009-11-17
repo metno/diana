@@ -68,7 +68,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 
   MODELFIELDS = tr("Model fields").toStdString();
 
-  miString txt= fieldname + " " + miString(tr("from:").toStdString());
+  miutil::miString txt= fieldname + " " + miutil::miString(tr("from:").toStdString());
   QLabel* mainlabel= TitleLabel( txt.cStr(), this );
 
   productNames=getProductNames();
@@ -194,11 +194,11 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 
 /*********************************************/
 
-vector <miString> EditDefineFieldDialog::getProductNames(){
+vector <miutil::miString> EditDefineFieldDialog::getProductNames(){
 #ifdef dEditDlg
   cout << "getProductNames called " << endl;
 #endif
-  vector <miString> name;
+  vector <miutil::miString> name;
   if (!m_editm) return name;
   //get fields
   if (num>-1){
@@ -257,7 +257,7 @@ void EditDefineFieldDialog::fillList()
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
     for (unsigned int i=0; i<splist.size(); i++){
-      miString str = splist[i].pid + miString(" - ") +splist[i].ptime.isoTime();
+      miutil::miString str = splist[i].pid + miutil::miString(" - ") +splist[i].ptime.isoTime();
       QListWidgetItem* item = new QListWidgetItem(QString(str.cStr()));
       bool italic= (splist[i].source==data_local);
       QFont font = item->font();
@@ -313,14 +313,14 @@ void EditDefineFieldDialog::updateFilenames(){
 #endif
   filenames->clear();
   if (fieldSelected()){
-    miString namestr=selectedfield;
+    miutil::miString namestr=selectedfield;
     if (!namestr.empty()) {
       filenames->addItem(QString(namestr.c_str()));
     }
   }
   if (productSelected()){
     for (unsigned int i = 0;i<vselectedprod.size();i++){
-      miString namestr=m_editm->savedProductString(vselectedprod[i]);
+      miutil::miString namestr=m_editm->savedProductString(vselectedprod[i]);
       if (!namestr.empty()) {
         filenames->addItem(QString(namestr.c_str()));
       }
@@ -336,7 +336,7 @@ void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item){
 #endif
   selectedProdIndex=filenames->row(item);
   if (num==-1){
-    map<miString,bool> useEditobject =
+    map<miutil::miString,bool> useEditobject =
       m_ctrl->decodeTypeString(vselectedprod[selectedProdIndex].selectObjectTypes);
     setCheckedCbs(useEditobject);
   }
@@ -395,7 +395,7 @@ void EditDefineFieldDialog::cbsClicked(){
 
 
 
-void EditDefineFieldDialog::setCheckedCbs(map<miString,bool> useEditobject){
+void EditDefineFieldDialog::setCheckedCbs(map<miutil::miString,bool> useEditobject){
   if (num>-1) return;
   if (useEditobject["front"])
     cbs0->setChecked(true);
@@ -425,10 +425,10 @@ void EditDefineFieldDialog::initCbs(){
 }
 
 
-miString EditDefineFieldDialog::selectedObjectTypes() {
+miutil::miString EditDefineFieldDialog::selectedObjectTypes() {
   //fronts /symbols/areas ?
-  if (num>-1) return miString(" ");
-  miString str;
+  if (num>-1) return miutil::miString(" ");
+  miutil::miString str;
   str+="types=";
 
   if (cbs0->isChecked()) str+="front,";

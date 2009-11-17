@@ -70,7 +70,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
   vector<ObsDialogInfo::PlotType> &plt = dialog.plottype;
 
-  vector<miString> dialog_name;
+  vector<miutil::miString> dialog_name;
   nr_plot = plt.size();
 
   if( nr_plot==0 ) return;
@@ -101,8 +101,8 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
       obsWidget[i]->setDialogInfo( m_ctrl, dialog, i );
       connect(obsWidget[i],SIGNAL(getTimes()),
           SLOT(getTimes()));
-      connect(obsWidget[i],SIGNAL(rightClicked(miString)),
-          SLOT(rightButtonClicked(miString)));
+      connect(obsWidget[i],SIGNAL(rightClicked(miutil::miString)),
+          SLOT(rightButtonClicked(miutil::miString)));
       connect(obsWidget[i],SIGNAL(extensionToggled(bool)),
           SLOT(extensionToggled(bool)));
       connect(obsWidget[i],SIGNAL(criteriaOn()),
@@ -177,8 +177,8 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
     obsWidget[index]->setDialogInfo( m_ctrl, dialog, index);
     connect(obsWidget[index],SIGNAL(getTimes()),
         SLOT(getTimes()));
-    connect(obsWidget[index],SIGNAL(rightClicked(miString)),
-        SLOT(rightButtonClicked(miString)));
+    connect(obsWidget[index],SIGNAL(rightClicked(miutil::miString)),
+        SLOT(rightButtonClicked(miutil::miString)));
     connect(obsWidget[index],SIGNAL(extensionToggled(bool)),
         SLOT(extensionToggled(bool)));
     connect(obsWidget[index],SIGNAL(criteriaOn()),
@@ -191,7 +191,7 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
   }
 
   //Emit empty time list
-  vector<miTime> noTimes;
+  vector<miutil::miTime> noTimes;
   emit emitTimes( "obs",noTimes );
 
   //criteria
@@ -221,20 +221,20 @@ void ObsDialog::getTimes(void){
 
   QApplication::setOverrideCursor( Qt::waitCursor );
 
-  vector<miString> dataName;
+  vector<miutil::miString> dataName;
   if(multiplot){
 
-    set<miString> nameset;
+    set<miutil::miString> nameset;
     for (int i=0; i<nr_plot; i++) {
       if (obsWidget[i]->initialized()) {
-        vector<miString> name=obsWidget[i]->getDataTypes();
-        vector<miString>::iterator p = name.begin();
+        vector<miutil::miString> name=obsWidget[i]->getDataTypes();
+        vector<miutil::miString>::iterator p = name.begin();
         for(;p!=name.end();p++)
           nameset.insert(*p);
       }
     }
     if(nameset.size()>0){
-      set<miString>::iterator p = nameset.begin();
+      set<miutil::miString>::iterator p = nameset.begin();
       for(;p!=nameset.end();p++)
         dataName.push_back(*p);
     }
@@ -245,7 +245,7 @@ void ObsDialog::getTimes(void){
 
   }
 
-  vector<miTime> times = m_ctrl->getObsTimes(dataName);
+  vector<miutil::miTime> times = m_ctrl->getObsTimes(dataName);
 
   emit emitTimes("obs",times);
 
@@ -287,18 +287,18 @@ void ObsDialog::archiveMode(bool on){
 
 
 /*******************************************************/
-vector<miString> ObsDialog::getOKString(){
+vector<miutil::miString> ObsDialog::getOKString(){
   /* This function is called by the external program */
   //  cerr <<"QT - getOKString  "<<m_selected<<endl;
 
-  vector<miString> str;
+  vector<miutil::miString> str;
 
   if(nr_plot==0) return str;
 
   if(multiplot) {
     for (int i=nr_plot-1; i>-1; i--) {
       if (obsWidget[i]->initialized()) {
-        miString  tmpstr = obsWidget[i]->getOKString();
+        miutil::miString  tmpstr = obsWidget[i]->getOKString();
         if(tmpstr.exists()){
           //          tmpstr += getCriteriaOKString();
           str.push_back(tmpstr);
@@ -306,7 +306,7 @@ vector<miString> ObsDialog::getOKString(){
       }
     }
   } else {
-    miString  tmpstr = obsWidget[m_selected]->getOKString();
+    miutil::miString  tmpstr = obsWidget[m_selected]->getOKString();
     //    if(tmpstr.exists()) tmpstr += getCriteriaOKString();
     str.push_back(tmpstr);
   }
@@ -315,13 +315,13 @@ vector<miString> ObsDialog::getOKString(){
 }
 
 
-vector<miString> ObsDialog::writeLog(){
+vector<miutil::miString> ObsDialog::writeLog(){
 
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
 
   if(nr_plot==0) return vstr;
 
-  miString str;
+  miutil::miString str;
 
   //first write the plot type selected now
   str = obsWidget[m_selected]->getOKString(true);
@@ -346,9 +346,9 @@ vector<miString> ObsDialog::writeLog(){
 }
 
 
-void ObsDialog::readLog(const vector<miString>& vstr,
-    const miString& thisVersion,
-    const miString& logVersion){
+void ObsDialog::readLog(const vector<miutil::miString>& vstr,
+    const miutil::miString& thisVersion,
+    const miutil::miString& logVersion){
 
   int n=0, nvstr= vstr.size();
   bool first=true;
@@ -375,10 +375,10 @@ void ObsDialog::readLog(const vector<miString>& vstr,
 }
 
 
-miString ObsDialog::getShortname()
+miutil::miString ObsDialog::getShortname()
 {
 
-  miString name;
+  miutil::miString name;
 
   if(nr_plot==0) return name;
 
@@ -391,7 +391,7 @@ miString ObsDialog::getShortname()
 }
 
 
-void ObsDialog::putOKString(const vector<miString>& vstr)
+void ObsDialog::putOKString(const vector<miutil::miString>& vstr)
 {
 
   //  if( multiplot )
@@ -399,10 +399,10 @@ void ObsDialog::putOKString(const vector<miString>& vstr)
   multiplotButton->setOn(false);
   multiplot=false;
   //Emit empty time list
-  vector<miTime> noTimes;
+  vector<miutil::miTime> noTimes;
   emit emitTimes( "obs",noTimes );
 
-  miString key,value;
+  miutil::miString key,value;
   int n=vstr.size();
   if(n>1) {
     multiplot=true;
@@ -419,8 +419,8 @@ void ObsDialog::putOKString(const vector<miString>& vstr)
 }
 
 
-void ObsDialog::requestQuickUpdate(vector<miString>& oldstr,
-    vector<miString>& newstr)
+void ObsDialog::requestQuickUpdate(vector<miutil::miString>& oldstr,
+    vector<miutil::miString>& newstr)
 {
   int n=oldstr.size();
   int m=newstr.size();
@@ -437,15 +437,15 @@ void ObsDialog::requestQuickUpdate(vector<miString>& oldstr,
 }
 
 
-int ObsDialog::findPlotnr(const miString& str)
+int ObsDialog::findPlotnr(const miutil::miString& str)
 {
 
-  vector<miString> tokens = str.split(" ");
+  vector<miutil::miString> tokens = str.split(" ");
   int m=tokens.size();
   for(int j=0; j<m; j++){
-    vector<miString> stokens = tokens[j].split("=");
+    vector<miutil::miString> stokens = tokens[j].split("=");
     if( stokens.size()==2 && stokens[0]=="plot"){
-      miString value = stokens[1].downcase();
+      miutil::miString value = stokens[1].downcase();
       if(value=="enkel") value="list"; //obsolete
       if(value=="trykk") value="pressure"; //obsolete
       int l=0;
@@ -458,7 +458,7 @@ int ObsDialog::findPlotnr(const miString& str)
 
 }
 
-bool  ObsDialog::setPlottype(const miString& str, bool on)
+bool  ObsDialog::setPlottype(const miutil::miString& str, bool on)
 {
   //  cerr <<"setplottype:"<<str<<endl;
   int l=0;
@@ -469,7 +469,7 @@ bool  ObsDialog::setPlottype(const miString& str, bool on)
   if( on ){
     plotbox->setCurrentItem(l);
     ObsWidget* ow = new ObsWidget( this );
-    miString str = savelog[l];
+    miutil::miString str = savelog[l];
     if (obsWidget[l]->initialized() ) {
       str = obsWidget[l]->getOKString();
     }
@@ -506,7 +506,7 @@ void ObsDialog::makeExtension()
   extension = new QWidget(this);
 
   QLabel* listLabel = TitleLabel(tr("List of Criteria"),extension);
-  vector<miString> critName = obsWidget[m_selected]->getCriteriaNames();
+  vector<miutil::miString> critName = obsWidget[m_selected]->getCriteriaNames();
   criteriaBox = ComboBox( extension,critName,true);
 
   QLabel* criteriaLabel = TitleLabel(tr("Criteria"),extension);
@@ -665,9 +665,9 @@ void ObsDialog::criteriaListSelected(int index)
 
 }
 
-void ObsDialog::markButton(miString& str)
+void ObsDialog::markButton(miutil::miString& str)
 {
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   if(str.contains("<"))
     vstr=str.split("<");
   else if(str.contains(">"))
@@ -728,13 +728,13 @@ void  ObsDialog::changeCriteriaString( )
 
   freeze = true; //don't change the string while updating the widgets
 
-  miString str=makeCriteriaString();
+  miutil::miString str=makeCriteriaString();
 
   if(str.exists()){
     criteriaListbox->currentItem()->setText(QString(str.c_str()));
     // save changes
     int n=criteriaListbox->count();
-    vector<miString> vstr;
+    vector<miutil::miString> vstr;
     for( int i=0; i<n; i++){
       vstr.push_back(criteriaListbox->item(i)->text().toStdString());
     }
@@ -753,7 +753,7 @@ bool  ObsDialog::newCriteriaString( )
 
   if(freeze)   return false;
 
-  miString str=makeCriteriaString();
+  miutil::miString str=makeCriteriaString();
   if(!str.exists()) return false;
 
   freeze=true;
@@ -761,8 +761,8 @@ bool  ObsDialog::newCriteriaString( )
   bool found=false;
   int i=0;
   for( ; i<n; i++){
-    miString sstr = criteriaListbox->item(i)->text().toStdString();
-    vector<miString> vstr;
+    miutil::miString sstr = criteriaListbox->item(i)->text().toStdString();
+    vector<miutil::miString> vstr;
     if(sstr.contains("<"))
       vstr=sstr.split("<");
     else if(sstr.contains(">"))
@@ -783,7 +783,7 @@ bool  ObsDialog::newCriteriaString( )
   criteriaListbox->setCurrentRow(i);
   // save changes
   n=criteriaListbox->count();
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   for( int i=0; i<n; i++){
     vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
@@ -794,16 +794,16 @@ bool  ObsDialog::newCriteriaString( )
   return true;
 }
 
-miString ObsDialog::makeCriteriaString( )
+miutil::miString ObsDialog::makeCriteriaString( )
 {
 
   //make string
-  miString str=parameter;
+  miutil::miString str=parameter;
 
-  miString sign = signBox->currentText().toStdString();
+  miutil::miString sign = signBox->currentText().toStdString();
   if(sign.exists()){
     str += sign;
-    miString lcdstr(limitLcd->value());
+    miutil::miString lcdstr(limitLcd->value());
     str += lcdstr;
   }
 
@@ -841,12 +841,12 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
 
   freeze=true;
 
-  miString str = item->text().toStdString();
+  miutil::miString str = item->text().toStdString();
 
-  vector<miString> sub = str.split(" ");
+  vector<miutil::miString> sub = str.split(" ");
 
-  //  miString sign,parameter;
-  miString sign;
+  //  miutil::miString sign,parameter;
+  miutil::miString sign;
   if( sub[0].contains(">") ){
     sign = ">";
     signBox->setCurrentItem(0);
@@ -862,7 +862,7 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
 
   float value;
   if(sign.exists()){
-    vector<miString> sstr = sub[0].split(sign);
+    vector<miutil::miString> sstr = sub[0].split(sign);
     if(sstr.size()!=2) return;
     parameter = sstr[0];
     value = atof(sstr[1].cStr());
@@ -939,7 +939,7 @@ void ObsDialog::deleteSlot( )
   criteriaListbox->takeItem(criteriaListbox->currentRow());
   criteriaSelected(criteriaListbox->currentItem());
   int n=criteriaListbox->count();
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   for( int i=0; i<n; i++){
     vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
@@ -957,7 +957,7 @@ void ObsDialog::deleteAllSlot( )
 {
 
   criteriaListbox->clear();
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   obsWidget[m_selected]->saveCriteria(vstr);
   obsWidget[m_selected]->markButton("ALL_PARAMS",false);
 }
@@ -965,11 +965,11 @@ void ObsDialog::deleteAllSlot( )
 void ObsDialog::saveSlot( )
 {
 
-  miString name = lineedit->text().toStdString();
+  miutil::miString name = lineedit->text().toStdString();
   if( !name.exists() ) return;
 
   int n=criteriaListbox->count();
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   for( int i=0; i<n; i++){
     vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
@@ -999,7 +999,7 @@ void ObsDialog::saveSlot( )
 
 }
 
-void ObsDialog::rightButtonClicked(miString name)
+void ObsDialog::rightButtonClicked(miutil::miString name)
 {
   //Wind
   if(name=="Wind") {
@@ -1054,7 +1054,7 @@ void ObsDialog::updateExtension()
 
   ObsDialogInfo::CriteriaList cList;
   criteriaBox->clear();
-  vector<miString> critName = obsWidget[m_selected]->getCriteriaNames();
+  vector<miutil::miString> critName = obsWidget[m_selected]->getCriteriaNames();
   int n = critName.size();
   if(n==0){ // no lists, read saved criterias
     cList = obsWidget[m_selected]->getSavedCriteria();
@@ -1069,7 +1069,7 @@ void ObsDialog::updateExtension()
   obsWidget[m_selected]->markButton("ALL_PARAMS",false);
   lineedit->setText(criteriaBox->currentText());
 
-  vector<miString> criteriaList = cList.criteria;
+  vector<miutil::miString> criteriaList = cList.criteria;
   for(unsigned int j=0; j<criteriaList.size(); j++){
     criteriaListbox->addItem(QString(criteriaList[j].cStr()));
     markButton(criteriaList[j]);

@@ -90,17 +90,17 @@ private:
   ProfetChatWidget * chatWidget;
   FetObjectTableView * table;
 
-  miString currentObject;
+  miutil::miString currentObject;
 
   /// Connecting all signals and slots
   void connectSignals();
-//  bool setSelectedObject(const miString &);
+//  bool setSelectedObject(const miutil::miString &);
 
 protected:
   void closeEvent( QCloseEvent* );
 
 public:
-  ProfetSessionDialog(QWidget* parent,miString hostname);
+  ProfetSessionDialog(QWidget* parent,miutil::miString hostname);
 
   void setModel(const fetModel & model);
   void setSessionModel(QAbstractItemModel * sessionModel);

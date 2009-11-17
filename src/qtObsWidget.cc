@@ -108,11 +108,11 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   //Info about colours
   cInfo = Colour::getColourInfo();
 
-  vector<miString> defV = dialog.defValues.split(" ");
+  vector<miutil::miString> defV = dialog.defValues.split(" ");
   int n=defV.size();
   int colIndex, devcol1Index, devcol2Index;
   for(int i=0;i<n;i++){
-    vector<miString> stokens = defV[i].split("=");
+    vector<miutil::miString> stokens = defV[i].split("=");
     if(stokens.size()==2){
       if(stokens[0]=="colour")
         colIndex=getIndex(cInfo,stokens[1]);
@@ -134,10 +134,10 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   markerboxVisible=false;
   leveldiffs=false;
   bool criteria=true;
-  vector<miString> tokens = dialogInfo.misc.split(" ");
+  vector<miutil::miString> tokens = dialogInfo.misc.split(" ");
   n=tokens.size();
   for(int i=0;i<n;i++){
-    vector<miString> stokens = tokens[i].split("=");
+    vector<miutil::miString> stokens = tokens[i].split("=");
     bool on = true;
     if(stokens.size()==2 && stokens[1].downcase()=="false") on=false;
     if(stokens.size()){
@@ -183,12 +183,12 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       SLOT(outTopClicked(int)));
   connect( datatypeButtons, SIGNAL(inGroupClicked(int)),
       SLOT( inTopClicked(int)));
-  connect( datatypeButtons, SIGNAL(rightClickedOn(miString)),
-      SLOT(rightClickedSlot(miString)));
-  connect( parameterButtons, SIGNAL(rightClickedOn(miString)),
-      SLOT(rightClickedSlot(miString)));
-  connect( this,SIGNAL(setRightClicked(miString,bool)),
-      parameterButtons,SLOT(setRightClicked(miString,bool)));
+  connect( datatypeButtons, SIGNAL(rightClickedOn(miutil::miString)),
+      SLOT(rightClickedSlot(miutil::miString)));
+  connect( parameterButtons, SIGNAL(rightClickedOn(miutil::miString)),
+      SLOT(rightClickedSlot(miutil::miString)));
+  connect( this,SIGNAL(setRightClicked(miutil::miString,bool)),
+      parameterButtons,SLOT(setRightClicked(miutil::miString,bool)));
 
   //AND-Buttons
   allButton  = NormalPushButton(tr("All"),this);
@@ -218,12 +218,12 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     pressureComboBox = new QComboBox(this);
     pressureComboBox->insertItem(tr("As field"));
     levelMap["asfield"] = 0;
-    //     vector<miString> vstr;
+    //     vector<miutil::miString> vstr;
     int psize=dialogInfo.pressureLevels.size();
     //     for(int i=0; i<psize; i++)
-    //       vstr.push_back(miString(dialogInfo.pressureLevels[i]));
+    //       vstr.push_back(miutil::miString(dialogInfo.pressureLevels[i]));
     for(int i=1; i<psize+1; i++){
-      miString str(dialogInfo.pressureLevels[psize-i]);
+      miutil::miString str(dialogInfo.pressureLevels[psize-i]);
       pressureComboBox->insertItem(str.cStr());
       levelMap[str]=i;
     }
@@ -236,13 +236,13 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       leveldiffComboBox = new QComboBox(this);
       for(int i=0;i<4;i++){
         int aa=(int)pow(10.0,i);
-        miString tmp(aa);
+        miutil::miString tmp(aa);
         leveldiffComboBox->insertItem(tmp.cStr());
         leveldiffMap[tmp]=i*3;
-        tmp = miString(aa*2);
+        tmp = miutil::miString(aa*2);
         leveldiffComboBox->insertItem(tmp.cStr());
         leveldiffMap[tmp]=1*3+1;
-        tmp = miString(aa*5);
+        tmp = miutil::miString(aa*5);
         leveldiffComboBox->insertItem(tmp.cStr());
         leveldiffMap[tmp]=i*3+2;
       }
@@ -303,7 +303,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   currentCriteria = -1;
   criteriaCheckBox = new QCheckBox(tr("Criterias"),this);
   criteriaChecked(false);
-  miString more_str[2] = { (tr("<<Less").toStdString()),
+  miutil::miString more_str[2] = { (tr("<<Less").toStdString()),
       (tr("More>>").toStdString()) };
   moreButton= new ToggleButton( this, more_str);
   moreButton->setOn(false);
@@ -366,7 +366,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
 
   //Priority list
-  vector<miString> priName;
+  vector<miutil::miString> priName;
   for(unsigned int i=0; i<priorityList.size(); i++)
     priName.push_back(priorityList[i].name);
   pribox = ComboBox( this,priName,true);
@@ -551,9 +551,9 @@ void ObsWidget::displayDiff( int number ){
     return;
   }
 
-  miString str;
+  miutil::miString str;
   int totalminutes = time_slider2lcd[number];
-  timediff_minutes = miString(totalminutes);
+  timediff_minutes = miutil::miString(totalminutes);
   if(diffComboBox->currentItem()<2){
     int hours = totalminutes/60;
     int minutes= totalminutes-hours*60;
@@ -652,13 +652,13 @@ void ObsWidget::outTopClicked( int id )
   //  cerr<<"ObsWidget::outTopClicked returned"<<endl;
 }
 
-void ObsWidget::markButton(const miString& str,bool on)
+void ObsWidget::markButton(const miutil::miString& str,bool on)
 {
   if(criteriaCheckBox->isChecked())
     emit setRightClicked(str,on);
 }
 
-void ObsWidget::rightClickedSlot(miString str)
+void ObsWidget::rightClickedSlot(miutil::miString str)
 {
   if(criteriaCheckBox->isChecked())
     emit rightClicked(str);
@@ -669,17 +669,17 @@ void ObsWidget::rightClickedSlot(miString str)
 
 
 /*****************************************************************/
-vector<miString> ObsWidget::getDataTypes(void){
+vector<miutil::miString> ObsWidget::getDataTypes(void){
 
-  vector<miString> vstr = datatypeButtons->getOKString();
+  vector<miutil::miString> vstr = datatypeButtons->getOKString();
   return vstr;
 
 }
 
 /****************************************************************/
-miString ObsWidget::makeString(bool forLog){
+miutil::miString ObsWidget::makeString(bool forLog){
 
-  miString str, datastr;
+  miutil::miString str, datastr;
 
   if(forLog)
     str = "plot=" + plotType + " ";
@@ -701,7 +701,7 @@ miString ObsWidget::makeString(bool forLog){
     str[str.length()-1]=' ';
   }
 
-  map<miString,miString>::iterator p= dVariables.misc.begin();
+  map<miutil::miString,miutil::miString>::iterator p= dVariables.misc.begin();
   for (; p!=dVariables.misc.end(); p++)
     str += p->first + "=" + p->second + " ";
 
@@ -710,11 +710,11 @@ miString ObsWidget::makeString(bool forLog){
   return str;
 }
 
-miString ObsWidget::getOKString(bool forLog){
+miutil::miString ObsWidget::getOKString(bool forLog){
 
   shortname.clear();
 
-  miString str;
+  miutil::miString str;
 
   dVariables.plotType = plotType;
 
@@ -770,12 +770,12 @@ miString ObsWidget::getOKString(bool forLog){
   if( allObs )
     dVariables.misc["density"] = "allobs";
   else{
-    miString tmp(densityLcdnum->value());
+    miutil::miString tmp(densityLcdnum->value());
     dVariables.misc["density"]= tmp;
   }
 
 
-  miString sc(sizeLcdnum->value());
+  miutil::miString sc(sizeLcdnum->value());
   dVariables.misc["scale"] = sc;
 
   dVariables.misc["timediff"]= timediff_minutes;
@@ -802,7 +802,7 @@ miString ObsWidget::getOKString(bool forLog){
       str+= criteriaList[i].name;
       str += ";";
       for( int j=0; j<m; j++){
-        vector<miString> sub = criteriaList[i].criteria[j].split(" ");
+        vector<miutil::miString> sub = criteriaList[i].criteria[j].split(" ");
         int size=sub.size();
         for(int k=0;k<size;k++){
           str += sub[k];
@@ -817,7 +817,7 @@ miString ObsWidget::getOKString(bool forLog){
     if( m==0 ) return str;
     str+= " criteria=";
     for( int j=0; j<m; j++){
-      vector<miString> sub = savedCriteria.criteria[j].split(" ");
+      vector<miutil::miString> sub = savedCriteria.criteria[j].split(" ");
       int size=sub.size();
       for(int k=0;k<size;k++){
         str += sub[k];
@@ -831,7 +831,7 @@ miString ObsWidget::getOKString(bool forLog){
   return str;
 }
 
-miString ObsWidget::getShortname()
+miutil::miString ObsWidget::getShortname()
 {
 
   return shortname;
@@ -840,7 +840,7 @@ miString ObsWidget::getShortname()
 
 
 
-void ObsWidget::putOKString(const miString& str){
+void ObsWidget::putOKString(const miutil::miString& str){
 
   dVariables.misc.clear();
 
@@ -853,7 +853,7 @@ void ObsWidget::putOKString(const miString& str){
 }
 
 
-void ObsWidget::readLog(const miString& str){
+void ObsWidget::readLog(const miutil::miString& str){
 
   //  cerr <<"ObsWidget::readLog"<<endl;
   setFalse();
@@ -863,15 +863,15 @@ void ObsWidget::readLog(const miString& str){
 
 }
 
-void ObsWidget::requestQuickUpdate(miString& oldstr,
-    miString& newstr)
+void ObsWidget::requestQuickUpdate(miutil::miString& oldstr,
+    miutil::miString& newstr)
 {
   //   cerr <<"ObsWidget::requestQuickUpdate"<<endl;
 
   dialogVariables oldvar;
 
   decodeString(oldstr,dVariables);
-  miString ostr = getOKString();
+  miutil::miString ostr = getOKString();
   decodeString(ostr,oldvar);
   decodeString(newstr,dVariables);
 
@@ -919,7 +919,7 @@ void ObsWidget::requestQuickUpdate(miString& oldstr,
   //it is allowed to change the rest
   //if old contains "@", old will be used, else new will be used
 
-  map<miString,miString>::iterator p= oldvar.misc.begin();
+  map<miutil::miString,miutil::miString>::iterator p= oldvar.misc.begin();
   for( ; p!=oldvar.misc.end(); p++){
     if( p->second.contains("@") )
       dVariables.misc[p->first]=p->second;
@@ -961,7 +961,7 @@ void ObsWidget::updateDialog(bool setOn){
     m = dVariables.parameter.size();
     for(j=0; j<m; j++){
       //old syntax
-      miString para = dVariables.parameter[j].downcase();
+      miutil::miString para = dVariables.parameter[j].downcase();
       if(para == "dd_ff" || para == "vind")
         dVariables.parameter[j] = "wind";
       if(para == "kjtegn")
@@ -1147,12 +1147,12 @@ void ObsWidget::updateDialog(bool setOn){
 
 }
 
-void ObsWidget::decodeString(const miString& str, dialogVariables& var,
+void ObsWidget::decodeString(const miutil::miString& str, dialogVariables& var,
     bool fromLog)
 {
   //   cerr <<"decodeString:"<<str<<endl;
-  vector<miString> parts= str.split(' ',true);
-  vector<miString> tokens;
+  vector<miutil::miString> parts= str.split(' ',true);
+  vector<miutil::miString> tokens;
   int nparts= parts.size();
 
   for (int i=0; i<nparts; i++) {
@@ -1167,13 +1167,13 @@ void ObsWidget::decodeString(const miString& str, dialogVariables& var,
       }else if (tokens[0]=="criteria" ){
         if(!fromLog){
           var.misc[tokens[0]]="true";
-          miString ss = tokens[1].replace(',',' ');
+          miutil::miString ss = tokens[1].replace(',',' ');
           saveCriteria(ss.split(';'),"");
         } else {
-          miString ss = tokens[1].replace(',',' ');
-          vector<miString> vstr = ss.split(';');
+          miutil::miString ss = tokens[1].replace(',',' ');
+          vector<miutil::miString> vstr = ss.split(';');
           if(vstr.size()>1){
-            miString name=vstr[0];
+            miutil::miString name=vstr[0];
             vstr.erase(vstr.begin());
             saveCriteria(vstr,name);
           } else {
@@ -1220,7 +1220,7 @@ void ObsWidget::setFalse(){
   }
 }
 
-void ObsWidget::setDatatype( const miString& type)
+void ObsWidget::setDatatype( const miutil::miString& type)
 {
   int index = datatypeButtons->setButtonOn(type);
   if(index<0) return;
@@ -1266,15 +1266,15 @@ bool ObsWidget::setCurrentCriteria(int i)
 
 }
 
-void ObsWidget::saveCriteria(const vector<miString>& vstr)
+void ObsWidget::saveCriteria(const vector<miutil::miString>& vstr)
 {
 
   savedCriteria.criteria = vstr;
 
 }
 
-bool ObsWidget::saveCriteria(const vector<miString>& vstr,
-    const miString& name)
+bool ObsWidget::saveCriteria(const vector<miutil::miString>& vstr,
+    const miutil::miString& name)
 {
   //  cerr <<"saveCriteria"<<endl;
 
@@ -1312,7 +1312,7 @@ bool ObsWidget::saveCriteria(const vector<miString>& vstr,
 }
 
 
-bool ObsWidget::getCriteriaLimits(const miString& name, int& low, int&high)
+bool ObsWidget::getCriteriaLimits(const miutil::miString& name, int& low, int&high)
 {
 
   int n = button.size();
@@ -1339,10 +1339,10 @@ bool ObsWidget::getCriteriaLimits(const miString& name, int& low, int&high)
 
 }
 
-vector<miString> ObsWidget::getCriteriaNames()
+vector<miutil::miString> ObsWidget::getCriteriaNames()
 {
 
-  vector<miString> critName;
+  vector<miutil::miString> critName;
   for(unsigned int i=0; i<criteriaList.size(); i++)
     critName.push_back(criteriaList[i].name);
   return critName;

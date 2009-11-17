@@ -74,8 +74,8 @@ private:
   //dialog indices, changed when something is clicked
   int m_modelfileButIndex;
 
-  miString ASFIELD;
-  miString OBS;
+  miutil::miString ASFIELD;
+  miutil::miString OBS;
 
   //functions
   void updateModelfileList();
@@ -92,7 +92,7 @@ private slots:
 signals:
   void ModelHide();
   void ModelApply();
-  void showsource(const miString, const miString=""); // activate help
+  void showsource(const miutil::miString, const miutil::miString=""); // activate help
 };
 
 #endif

@@ -37,18 +37,18 @@
 #include <vector>
 #include <set>
 
-const miString OBJECTS_ANALYSIS= "Analyse";
-const miString OBJECTS_SIGMAPS=  "Sigkart";
+const miutil::miString OBJECTS_ANALYSIS= "Analyse";
+const miutil::miString OBJECTS_SIGMAPS=  "Sigkart";
 
 
   /**
      \brief Database info
   */
 struct editDBinfo {
-  miString host;
-  miString user;
-  miString pass;
-  miString base;
+  miutil::miString host;
+  miutil::miString user;
+  miutil::miString pass;
+  miutil::miString base;
   unsigned int port;
   bool loggedin;
 };
@@ -67,13 +67,13 @@ enum dataSource {
      \brief saved "products" (product elements)
   */
 struct savedProduct {
-  miString productName;
-  miString pid;      ///< productid    ("VA")
-  miTime ptime;      ///< product time
+  miutil::miString productName;
+  miutil::miString pid;      ///< productid    ("VA")
+  miutil::miTime ptime;      ///< product time
   dataSource source; ///< source
   int  element;      ///< -1=objects, 0,1,...=field number
-  miString filename; ///< full filename
-  miString selectObjectTypes;   ///< fronts,symbols,areas to read
+  miutil::miString filename; ///< full filename
+  miutil::miString selectObjectTypes;   ///< fronts,symbols,areas to read
 };
 
 
@@ -81,10 +81,10 @@ struct savedProduct {
      \brief Product id
   */
 struct EditProductId {
-  miString name;                    ///< VA,VNN etc..
+  miutil::miString name;                    ///< VA,VNN etc..
   bool sendable;                    ///< 'send' enabled
   bool combinable;                  ///< may be used to combine ids
-  vector<miString> combineids;
+  vector<miutil::miString> combineids;
 };
 
   /**
@@ -92,16 +92,16 @@ struct EditProductId {
   */
 struct EditProductField {
   // gui <--> controller
-  miString name;                    ///< field-name
+  miutil::miString name;                    ///< field-name
   // gui --> controller
   bool fromfield;                   ///< make from field
-  miString fromfname;               ///< from-field: model,name,..
+  miutil::miString fromfname;               ///< from-field: model,name,..
   savedProduct fromprod;            ///< from-product
   // only used by EditManager
-  miString filenamePart;            ///< "ANAmslp"
+  miutil::miString filenamePart;            ///< "ANAmslp"
   int vcoord,param,level,level2;    ///< fieldfile identification
   float minValue,maxValue;          ///< check min,max value if not fieldUndef
-  vector<miString> editTools;       ///< standard/classes/numbers
+  vector<miutil::miString> editTools;       ///< standard/classes/numbers
 };
 
 
@@ -110,24 +110,24 @@ struct EditProductField {
   */
 struct EditProduct {
   // gui <--> controller
-  miString name;                    ///< productname
-  miString db_name;                 ///< productname in database
-  vector<miString> drawtools;       ///< tools to use
+  miutil::miString name;                    ///< productname
+  miutil::miString db_name;                 ///< productname in database
+  vector<miutil::miString> drawtools;       ///< tools to use
   vector<EditProductId> pids;       ///< legal product-id's
   vector <savedProduct> objectprods;///< products to fetch objects from
   vector<EditProductField> fields;  ///< required fields
   editDBinfo dbi;                   ///< Database info
   // only used by EditManager
-  miString savedir;                 ///< directory for saved product
-  vector<miString> inputdirs;       ///< savedir is always the first ???
-  vector<miString> inputproducts;   ///< products for input objects/fields
-  vector<miString> combinedirs;     ///< directory for combined product
-  miString combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
-  miString objectsFilenamePart;     ///< "ANAdraw"
-  miString commentFilenamePart;     ///< "ANAcomm"
-  vector <miString> labels;         ///< annotations
-  vector <miString> OKstrings;      ///< define map background and area and other OKStrings
-  miString commandFilename;         ///< file to read okstrings...
+  miutil::miString savedir;                 ///< directory for saved product
+  vector<miutil::miString> inputdirs;       ///< savedir is always the first ???
+  vector<miutil::miString> inputproducts;   ///< products for input objects/fields
+  vector<miutil::miString> combinedirs;     ///< directory for combined product
+  miutil::miString combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
+  miutil::miString objectsFilenamePart;     ///< "ANAdraw"
+  miutil::miString commentFilenamePart;     ///< "ANAcomm"
+  vector <miutil::miString> labels;         ///< annotations
+  vector <miutil::miString> OKstrings;      ///< define map background and area and other OKStrings
+  miutil::miString commandFilename;         ///< file to read okstrings...
   int   producer, gridnum;          ///< common field idents
   Area  area;                       ///< area/projection if gridnum>0 !
   bool  areaminimize;               ///< minimize area due to undef. values

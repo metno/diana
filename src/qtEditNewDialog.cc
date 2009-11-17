@@ -269,14 +269,14 @@ void EditNewDialog::tabSelected(const QString& name)
 
 void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
-  miString s= item->text().toStdString();
+  miutil::miString s= item->text().toStdString();
   //  cerr << "EditNewDialog::Combineselect:" << s << endl;
-  if (miTime::isValid(s)){
-    combinetime= miTime(s);
+  if (miutil::miTime::isValid(s)){
+    combinetime= miutil::miTime(s);
   }
   cselectlabel->setText(s.cStr());
-  miString tmp;
-  vector <miString> pids =
+  miutil::miString tmp;
+  vector <miutil::miString> pids =
     m_editm->getCombineIds(combinetime,products[currprod],pid);
   int n = pids.size();
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
@@ -436,7 +436,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
       for (int j=0; j<m; j++){
         products[i].fields[j].fromfield= true;
 
-        vector<miString> fstr=
+        vector<miutil::miString> fstr=
           m_editm->getValidEditFields(products[i],j);
         if (fstr.size())
           products[i].fields[j].fromfname= fstr[0];
@@ -451,7 +451,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
     }
     m_ctrl->getPlotTime(prodtime);
     //set to closest hour
-    miTime t= prodtime;
+    miutil::miTime t= prodtime;
     int nhour=t.hour(); int nmin=t.min();
     if (nmin>29) nhour++;
     t.setTime(t.year(),t.month(),t.day(),nhour);
@@ -469,13 +469,13 @@ bool EditNewDialog::load(editDBinfo& edbi){
 }
 
 
-miString EditNewDialog::savedProd2Str(const savedProduct& sp,
-    const miString undef)
+miutil::miString EditNewDialog::savedProd2Str(const savedProduct& sp,
+    const miutil::miString undef)
 {
   if (sp.ptime.undef())
     return undef;
   else
-    return sp.pid + miString(" - ") + sp.ptime.isoTime();
+    return sp.pid + miutil::miString(" - ") + sp.ptime.isoTime();
 }
 
 
@@ -512,13 +512,13 @@ bool EditNewDialog::setNormal()
 
 void EditNewDialog::setObjectLabel(){
   // set object label
-  miString tmp =
-    miString("<font color=\"blue\"> ") + tr("No startobjects").toStdString() + miString(" </font> ");
+  miutil::miString tmp =
+    miutil::miString("<font color=\"blue\"> ") + tr("No startobjects").toStdString() + miutil::miString(" </font> ");
   if (products[currprod].objectprods.size()){
     if (products[currprod].objectprods[0].filename.exists()){
-      tmp= miString("<font color=\"red\"> ") +
+      tmp= miutil::miString("<font color=\"red\"> ") +
       savedProd2Str(products[currprod].objectprods[0]) +
-      miString(" </font> ");
+      miutil::miString(" </font> ");
     }
   }
   elab[0]->setText(tmp.cStr());
@@ -530,19 +530,19 @@ void EditNewDialog::setFieldLabel(){
   int n= products[currprod].fields.size();
   for (int i=0; i<n && i<maxelements-1; i++){
 
-    miString s;
+    miutil::miString s;
     if (products[currprod].fields[i].fromfield){
       if (products[currprod].fields[i].fromfname.exists())
-        s= miString("<font color=\"blue\"> ") +
-        products[currprod].fields[i].fromfname + miString(" </font> ");
+        s= miutil::miString("<font color=\"blue\"> ") +
+        products[currprod].fields[i].fromfname + miutil::miString(" </font> ");
       else
-        s= miString("<font color=\"blue\"> ") + tr("Field undefined").toStdString() +
-        miString(" </font> ");
+        s= miutil::miString("<font color=\"blue\"> ") + tr("Field undefined").toStdString() +
+        miutil::miString(" </font> ");
     }
     else
-      s= miString("<font color=\"red\"> ") +
+      s= miutil::miString("<font color=\"red\"> ") +
       savedProd2Str(products[currprod].fields[i].fromprod) +
-      miString(" </font> ");
+      miutil::miString(" </font> ");
 
     elab[i+1]->setText(s.cStr());
   }
@@ -575,7 +575,7 @@ void EditNewDialog::handleFieldButton(int num)
     EditDefineFieldDialog edf(this,m_ctrl, num, products[currprod]);
     if (!edf.exec()) return;
 
-    miString s;
+    miutil::miString s;
     if (edf.fieldSelected()){
       products[currprod].fields[num].fromfname= edf.selectedField();
       products[currprod].fields[num].fromfield= true;
@@ -585,8 +585,8 @@ void EditNewDialog::handleFieldButton(int num)
         products[currprod].fields[num].fromprod= vsap[0];
         if (num==0){
           //product time=time of field 0 !
-          miTime t = vsap[0].ptime;
-          prodtime= miTime(t);
+          miutil::miTime t = vsap[0].ptime;
+          prodtime= miutil::miTime(t);
           timespin->setTime(prodtime);
         }
       }
@@ -631,13 +631,13 @@ bool EditNewDialog::load_combine(){
     return false;
   }
   if( m_editm ){
-    vector<miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
+    vector<miutil::miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
     int n= vt.size();
     int index=0;
     cBox->clear();
     if (n>0) {
       for (int i=0; i<n; i++){
-        miString tstr= vt[i].isoTime();
+        miutil::miString tstr= vt[i].isoTime();
         cBox->addItem(QString(tstr.cStr()));
         if (combinetime ==vt[i]) index=i; //selected time
       }
@@ -676,7 +676,7 @@ bool EditNewDialog::checkProductFree()
   }
 
   // send request to controller
-  miString message;
+  miutil::miString message;
   bool res= m_editm->checkProductAvailability(products[currprod].db_name,
       pid.name,
       prodtime,
@@ -693,7 +693,7 @@ bool EditNewDialog::checkProductFree()
 
 void EditNewDialog::kill_clicked()
 {
-  miString message=tr("Are you sure you want to take over this product?\n").toStdString();
+  miutil::miString message=tr("Are you sure you want to take over this product?\n").toStdString();
 
   QMessageBox *mb= new QMessageBox(tr("Warning!"),
       message.cStr(),
@@ -725,11 +725,11 @@ void EditNewDialog::kill_clicked()
 void EditNewDialog::setLoginLabel()
 {
   if (dbi.loggedin){
-    miString ltext;
+    miutil::miString ltext;
     int i= dbi.host.find_first_of(".");
     if (i>0) ltext= dbi.host.substr(0, i);
     else ltext= dbi.host;
-    ltext+= miString(" - ") + dbi.user;
+    ltext+= miutil::miString(" - ") + dbi.user;
     loginlabel->setText(QString(ltext.c_str()));
   } else {
     loginlabel->setText("--------------");
@@ -750,7 +750,7 @@ void EditNewDialog::login_clicked()
       dbi= db.getDbInfo();
     }
 
-    miString message;
+    miutil::miString message;
     if (!dbi.user.exists() || !dbi.host.exists()){
       message= tr("Username and server required").toStdString();
       dbi.loggedin= false;
@@ -774,7 +774,7 @@ void EditNewDialog::login_clicked()
 
       return;
     } else {
-      message= miString(tr("Can not log in. Message from server:\n").toStdString()) +message;
+      message= miutil::miString(tr("Can not log in. Message from server:\n").toStdString()) +message;
       QMessageBox::warning( this, "Diana database message",
           message.c_str());
 
@@ -787,11 +787,11 @@ void EditNewDialog::login_clicked()
 void EditNewDialog::ok_clicked(){
   productfree= checkProductFree();
 
-  miTime ptime;
+  miutil::miTime ptime;
   if (normal) ptime= prodtime;
   else        ptime= combinetime;
-  int minutes= miTime::minDiff(miTime::nowTime(),ptime);
-  //   miString msg;
+  int minutes= miutil::miTime::minDiff(miutil::miTime::nowTime(),ptime);
+  //   miutil::miString msg;
   //   if ((products[currprod].startEarly &&
   //        products[currprod].minutesStartEarly>minutes))
   //     msg= "Produktet lages nå tidligere enn normalt!";
@@ -799,8 +799,8 @@ void EditNewDialog::ok_clicked(){
   //        products[currprod].minutesStartLate<minutes))
   //     msg= "Produktet lages nå seinere enn normalt!";
   //   if (msg.exists()) {
-  //     miString pname= prodbox->currentText().toStdString();
-  //     miString message= pname + "\n" + msg;
+  //     miutil::miString pname= prodbox->currentText().toStdString();
+  //     miutil::miString message= pname + "\n" + msg;
   //     if (QMessageBox::warning( this, "Tid for produkt",message.c_str(),
   //     			     "Fortsett","Avbryt") != 0) return;
   //   }
@@ -823,7 +823,7 @@ void EditNewDialog::ok_clicked(){
 
   if (!productfree){
     // give error
-    //miString message= "Produktet er ikke tilgjengelig.\n Kan ikke starte produksjon";
+    //miutil::miString message= "Produktet er ikke tilgjengelig.\n Kan ikke starte produksjon";
     QMessageBox::warning( this, tr("Diana database message"),
         tr("Product not available.\n Can not start production"));
     return;

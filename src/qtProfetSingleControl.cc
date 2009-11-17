@@ -46,7 +46,7 @@ ProfetSingleControl::ProfetSingleControl(QWidget* p, fetObject::TimeValues tv, i
   connect(button,SIGNAL(pressed()),this,SLOT(buttonPressed()));
   
  
-  map<miString,float>::iterator itr=data.parameters.begin();
+  map<miutil::miString,float>::iterator itr=data.parameters.begin();
   for(;itr!=data.parameters.end();itr++) {
     if(!data.guiComponents.count(itr->first) ){
       cerr << "could not build GUI for timeSmooth - guiComponents missinng for parameter: "
@@ -66,8 +66,8 @@ ProfetSingleControl::ProfetSingleControl(QWidget* p, fetObject::TimeValues tv, i
         false,
         this);
     slider[itr->first] = mySlider;
-    connect(slider[itr->first],SIGNAL(valueChangedForPar(float,miString)),this,
-        SLOT(valueChangedBySlider(float,miString)));
+    connect(slider[itr->first],SIGNAL(valueChangedForPar(float,miutil::miString)),this,
+        SLOT(valueChangedBySlider(float,miutil::miString)));
 
     vb->addWidget(slider[itr->first]);
   }
@@ -79,12 +79,12 @@ void ProfetSingleControl::set(fetObject::TimeValues tv)
 {
   if(data.id.exists()) tv.id=data.id;
   data=tv;
-  map<miString,float>::iterator itr=data.parameters.begin();
+  map<miutil::miString,float>::iterator itr=data.parameters.begin();
    for(;itr!=data.parameters.end();itr++) 
      setValue(itr->first,itr->second);
 }
 
-void ProfetSingleControl::processed(miString newid)
+void ProfetSingleControl::processed(miutil::miString newid)
 {
   data.id=newid;  
   if(data.isParent())
@@ -102,7 +102,7 @@ void ProfetSingleControl::buttonPressed()
   emit buttonAtPressed(column);
 }
 
-void ProfetSingleControl::setValue(miString par, float value)
+void ProfetSingleControl::setValue(miutil::miString par, float value)
 {
   if(slider.count(par)) {
     value = float(int(value*scale[par]))/scale[par];
@@ -113,7 +113,7 @@ void ProfetSingleControl::setValue(miString par, float value)
   
 }
 
-void ProfetSingleControl::resetValue(miString par)
+void ProfetSingleControl::resetValue(miutil::miString par)
 {
   if(!data.valuesForZeroImpact.count(par)) return;
   float z=data.valuesForZeroImpact[par];
@@ -122,7 +122,7 @@ void ProfetSingleControl::resetValue(miString par)
 }
 
 
-void ProfetSingleControl::valueChangedBySlider(float v, miString par)
+void ProfetSingleControl::valueChangedBySlider(float v, miutil::miString par)
 {
   emit pushundo();
   valueChanged(v, par);
@@ -130,7 +130,7 @@ void ProfetSingleControl::valueChangedBySlider(float v, miString par)
     
     
     
-void ProfetSingleControl::valueChanged(float v, miString par)
+void ProfetSingleControl::valueChanged(float v, miutil::miString par)
 {
   if(!data.parameters.count(par))
     return;

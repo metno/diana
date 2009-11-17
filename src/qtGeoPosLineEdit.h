@@ -56,7 +56,7 @@ private:
       : QValidator(parent,name) {}
     virtual State validate(QString&,int&) const;
     virtual void fixup(QString&) const;
-    bool toFloat(miString s, float& val,
+    bool toFloat(miutil::miString s, float& val,
 		 bool isLat) const;
   };
   geovalidator* gv;

@@ -48,13 +48,13 @@ using namespace std;
 */
 class ObsAscii {
 private:
-  void readFile(const miString &filename, const miString &headerfile,
-		const miTime &filetime, ObsPlot *oplot, bool readData);
+  void readFile(const miutil::miString &filename, const miutil::miString &headerfile,
+		const miutil::miTime &filetime, ObsPlot *oplot, bool readData);
 
 
 public:
-  ObsAscii(const miString &filename, const miString &headerfile,
-	   const miTime &filetime, ObsPlot *oplot, bool readData);
+  ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
+	   const miutil::miTime &filetime, ObsPlot *oplot, bool readData);
 
 };
 

@@ -225,7 +225,7 @@ options(opt), keynum(-1)
       if (keynum>0) upButton->setEnabled(true);
       if (keynum<int(options.size())-1) downButton->setEnabled(true);
 
-      miString s;
+      miutil::miString s;
       int n= options[keynum].options.size();
       for (int i=0; i<n; i++){
         s+= options[keynum].options[i];
@@ -237,8 +237,8 @@ options(opt), keynum(-1)
     void QuickEditOptions::chChanged(const QString& s)
     {
       if (keynum<0 || keynum>=int(options.size())) return;
-      miString ms= s.toStdString();
-      vector<miString> vs= ms.split(",");
+      miutil::miString ms= s.toStdString();
+      vector<miutil::miString> vs= ms.split(",");
 
       options[keynum].options= vs;
     }

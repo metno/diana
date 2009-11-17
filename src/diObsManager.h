@@ -72,49 +72,49 @@ private:
 
   struct patternInfo {
     TimeFilter filter;
-    miString pattern;
+    miutil::miString pattern;
     bool archive;
-    miString fileType;  //bufr,miobs...
+    miutil::miString fileType;  //bufr,miobs...
   };
 
   struct FileInfo {
-    miString filename;
-    miTime   time;
-    miString filetype; //bufr,miobs...
+    miutil::miString filename;
+    miutil::miTime   time;
+    miutil::miString filetype; //bufr,miobs...
   };
 
   struct ProdInfo {
     ObsFormat obsformat;
-    miString dialogName; // mixedcase, always Prod[lowercase]
-    miString plotFormat;
+    miutil::miString dialogName; // mixedcase, always Prod[lowercase]
+    miutil::miString plotFormat;
     vector<patternInfo> pattern;
     vector<FileInfo> fileInfo; 
-    bool noTime; //files have no time, vector<miTime> time is empty
+    bool noTime; //files have no time, vector<miutil::miTime> time is empty
     int timeRangeMin;    
     int timeRangeMax;
     float current;
     bool synoptic;
-    miString headerfile;
+    miutil::miString headerfile;
     bool useFileTime;
-    vector<miString> parameter;
+    vector<miutil::miString> parameter;
   };
   
-  map<miString,ProdInfo> Prod;
+  map<miutil::miString,ProdInfo> Prod;
   ObsDialogInfo dialog;
   vector<ObsDialogInfo::PriorityList> priority;
   //one  criterialist pr plot type
-  map<miString, vector<ObsDialogInfo::CriteriaList> > criteriaList;
+  map<miutil::miString, vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
   vector<int> levels;
 
-  //  set<miString> dataTypesListed;
+  //  set<miutil::miString> dataTypesListed;
 
 
   //Used to find files
   bool firstTry; //false if times can't be found from filename
-  vector<miTime> termin; //list of times from all files used
-  miTime timeRangeMin;
-  miTime timeRangeMax;
+  vector<miutil::miTime> termin; //list of times from all files used
+  miutil::miTime timeRangeMin;
+  miutil::miTime timeRangeMax;
 
   bool useArchive; //read archive files too.
   bool mslp;
@@ -122,61 +122,61 @@ private:
   
   //HQC - perhaps its own class?
   vector<ObsData> hqcdata;
-  vector< vector<miString> > hqcdiffdata;
-  vector<miString> hqc_synop_parameter;
-  vector<miString> hqc_ascii_parameter;
-  miTime hqcTime;
-  miString hqcFlag;
-  miString hqcFlag_old;
+  vector< vector<miutil::miString> > hqcdiffdata;
+  vector<miutil::miString> hqc_synop_parameter;
+  vector<miutil::miString> hqc_ascii_parameter;
+  miutil::miTime hqcTime;
+  miutil::miString hqcFlag;
+  miutil::miString hqcFlag_old;
   int hqc_from;
-  miString hqcPlotType;
-  miString hqc_mark;
-  miString selectedStation;
-  //  miString obsdataType;
+  miutil::miString hqcPlotType;
+  miutil::miString hqc_mark;
+  miutil::miString selectedStation;
+  //  miutil::miString obsdataType;
   //--------------------------------------
 
-  ObsDialogInfo::Button addButton(const miString& name, const miString& tip, 
+  ObsDialogInfo::Button addButton(const miutil::miString& name, const miutil::miString& tip, 
 				  int low=-50, int high=50, bool def=true);
   void addType(ObsDialogInfo::PlotType& dialogInfo,
 	       const vector<ObsFormat>& obsformat);
-  void setActive(const vector<miString>& name, bool on, 
+  void setActive(const vector<miutil::miString>& name, bool on, 
 		 vector<bool>& active, 
 		 const vector<ObsDialogInfo::Button>& b);
 void setAllActive(ObsDialogInfo::PlotType& dialogInfo,
-		  const vector<miString>& parameter, 
-		  const miString& name,
+		  const vector<miutil::miString>& parameter, 
+		  const miutil::miString& name,
 		  const vector<ObsDialogInfo::Button>& b);
   void getFileName(vector<FileInfo>& finfo,
-		   miTime& , miString dataType, ObsPlot*);
-  bool updateTimesfromFile(miString obsType);
-  bool updateTimes(miString obsType);
+		   miutil::miTime& , miutil::miString dataType, ObsPlot*);
+  bool updateTimesfromFile(miutil::miString obsType);
+  bool updateTimes(miutil::miString obsType);
 
 
 //  HQC
-  bool changeHqcdata(ObsData&, const vector<miString>& param,
-			const vector<miString>& data);
-  Colour flag2colour(const miString& flag);
+  bool changeHqcdata(ObsData&, const vector<miutil::miString>& param,
+			const vector<miutil::miString>& data);
+  Colour flag2colour(const miutil::miString& flag);
 
 
 public:
   ObsManager();
 
   //parse PlotInfo
-  bool init(ObsPlot *, const miString&);
+  bool init(ObsPlot *, const miutil::miString&);
   //read data
-  bool prepare(ObsPlot *,miTime);
+  bool prepare(ObsPlot *,miutil::miTime);
   ObsDialogInfo initDialog(void);
-  ObsDialogInfo updateDialog(const miString& name);
+  ObsDialogInfo updateDialog(const miutil::miString& name);
   bool parseSetup(SetupParser &);
 //return observation times for list of PlotInfo's
-  vector<miTime> getTimes( vector<miString> pinfos);
+  vector<miutil::miTime> getTimes( vector<miutil::miString> pinfos);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miTime>& normalTimes,
-			   miTime& constTime,
+  void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
+			   miutil::miTime& constTime,
 			   int& timediff,
-			   const miString& pinfo);
+			   const miutil::miString& pinfo);
 // return observation times for list of obsTypes
-  vector<miTime> getObsTimes(const vector<miString>& obsTypes);
+  vector<miutil::miTime> getObsTimes(const vector<miutil::miString>& obsTypes);
   bool obs_mslp(){return mslp;}
   void updateObsPositions(const vector<ObsPlot*> oplot);
   ObsPositions& getObsPositions(){  return obsPositions;}
@@ -184,16 +184,16 @@ public:
   void calc_obs_mslp(const vector<ObsPlot*> oplot);
   void archiveMode( bool on ){useArchive=on;}
 //  HQC
-  ObsDialogInfo updateHqcDialog(const miString& plotType);
+  ObsDialogInfo updateHqcDialog(const miutil::miString& plotType);
   bool initHqcdata(int from, 
-		   const miString& commondesc, 
-		   const miString& common, 
-		   const miString& desc, 
-		   const vector<miString>&data);
-  bool updateHqcdata(const miString& commondesc, const miString& common,
-		     const miString& desc, const vector<miString>&data);
+		   const miutil::miString& commondesc, 
+		   const miutil::miString& common, 
+		   const miutil::miString& desc, 
+		   const vector<miutil::miString>&data);
+  bool updateHqcdata(const miutil::miString& commondesc, const miutil::miString& common,
+		     const miutil::miString& desc, const vector<miutil::miString>&data);
   bool sendHqcdata(ObsPlot* oplot);
-  void processHqcCommand(const miString&, const miString&);
+  void processHqcCommand(const miutil::miString&, const miutil::miString&);
 };
 
 #endif

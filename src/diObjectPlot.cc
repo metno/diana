@@ -34,6 +34,7 @@
 #include <puTools/miString.h>
 #include <sstream>
 
+using namespace::miutil;
 
 // static members
 int ObjectPlot::siglinewidth=2;

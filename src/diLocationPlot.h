@@ -47,23 +47,23 @@ using namespace std;
 
   /// Description of one location (name and position)
   struct LocationElement {
-    miString name;
+    miutil::miString name;
     vector<float> xpos;    // usually longitude
     vector<float> ypos;    // usually latitude
   };
 
   /// Data and info for a set of locations
   struct LocationData {
-    miString         name;
+    miutil::miString         name;
     LocationType     locationType; // for all elements
     Area             area;      // only Projection used (usually geo)
     vector<LocationElement> elements;
-    miString         annotation;
-    miString         colour;
-    miString         linetype;
+    miutil::miString         annotation;
+    miutil::miString         colour;
+    miutil::miString         linetype;
     float            linewidth;
-    miString         colourSelected;
-    miString         linetypeSelected;
+    miutil::miString         colourSelected;
+    miutil::miString         linetypeSelected;
     float            linewidthSelected;
   };
 
@@ -88,7 +88,7 @@ public:
   bool setData(const LocationData& locationdata);
   void updateOptions(const LocationData& locationdata);
 
-  void setSelected(const miString& name)
+  void setSelected(const miutil::miString& name)
 	{ selectedName= name; }
 
   void hide() { visible= false; }
@@ -97,9 +97,9 @@ public:
   bool plot();
   bool plot(const int) { return false; }
   bool changeProjection();
-  miString getName() { return locdata.name; }
-  miString find(int x, int y);
-  void getAnnotation(miString &str, Colour &col);
+  miutil::miString getName() { return locdata.name; }
+  miutil::miString find(int x, int y);
+  void getAnnotation(miutil::miString &str, Colour &col);
 
 private:
 
@@ -117,7 +117,7 @@ private:
 
   vector<InternalLocationInfo> locinfo;
 
-  miString selectedName;
+  miutil::miString selectedName;
 
   Area  posArea;
   int   numPos;

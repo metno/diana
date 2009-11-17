@@ -40,7 +40,7 @@
 #include <math.h>
 #include <polyStipMasks.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 // Default constructor
 LegendPlot::LegendPlot()

@@ -37,6 +37,8 @@
 
 #include <diTesselation.h>
 
+using namespace::miutil;
+
 vector<editToolInfo> WeatherArea::allAreas; //info about areas
 map<miString,int> WeatherArea::areaTypes;    //finds area type number from name
 float WeatherArea::defaultLineWidth=4;

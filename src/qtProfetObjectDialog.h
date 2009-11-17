@@ -81,8 +81,8 @@ private:
   Q3GroupBox     *statGroupBox;
   DynamicGuiMap  dynamicGuiMap;
   DescriptionMap descriptionMap;
-  miString       selectedBaseObject;
-  miString       lastSavedPolygonName;
+  miutil::miString       selectedBaseObject;
+  miutil::miString       lastSavedPolygonName;
   OperationMode  mode;
 
   void           initGui();
@@ -98,13 +98,13 @@ public:
   ProfetObjectDialog(QWidget* parent, OperationMode = NEW_OBJECT_MODE);
 
   void addDymanicGui(vector<fetDynamicGui::GuiComponent> components);
-  void setSession(const miTime & session);
-  void setParameter(const miString & parameter);
+  void setSession(const miutil::miTime & session);
+  void setParameter(const miutil::miString & parameter);
   void setBaseObjects(const vector<fetBaseObject> & o);
   void setAreaStatus(AreaStatus);
-  void setStatistics(map<miString,float>&);
-  miString getSelectedBaseObject();
-  miString getReason();
+  void setStatistics(map<miutil::miString,float>&);
+  miutil::miString getSelectedBaseObject();
+  miutil::miString getReason();
   void selectDefault();
   vector<fetDynamicGui::GuiComponent> getCurrentGuiComponents();
   void newObjectMode();
@@ -113,8 +113,8 @@ public:
   void editObjectMode(const fetObject & obj,
       vector<fetDynamicGui::GuiComponent> components);
   bool showingNewObject(){ return (mode==NEW_OBJECT_MODE);}
-  void startBookmarkDialog(vector<miString>& bookm);
-  void setLastSavedPolygonName(miString pn) {lastSavedPolygonName=pn;}
+  void startBookmarkDialog(vector<miutil::miString>& bookm);
+  void setLastSavedPolygonName(miutil::miString pn) {lastSavedPolygonName=pn;}
 private slots:
   void baseObjectChanged(const QString&);
   void quitBookmarks();
@@ -122,13 +122,13 @@ private slots:
   void saveDialog();
 
 signals:
-  void baseObjectSelected(miString name);
+  void baseObjectSelected(miutil::miString name);
   void dynamicGuiChanged();
   void saveObjectClicked();
   void cancelObjectDialog();
 
-  void copyPolygon(miString,miString,bool);
-  void selectPolygon(miString);
+  void copyPolygon(miutil::miString,miutil::miString,bool);
+  void selectPolygon(miutil::miString);
   void requestPolygonList();
 
 

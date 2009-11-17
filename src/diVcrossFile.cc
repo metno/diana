@@ -40,7 +40,7 @@
 #include <math.h>
 #include <sys/stat.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 //static
 GridConverter VcrossFile::gc;

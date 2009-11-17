@@ -39,7 +39,7 @@
 #include <diObsBufr.h>
 #include <algorithm>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 const double bufrMissing = 1.6e+38;
 

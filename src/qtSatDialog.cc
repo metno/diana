@@ -63,7 +63,7 @@
 
 //static
 
-miTime SatDialog::ztime = miTime(1970,1,1,0,0,0);
+miutil::miTime SatDialog::ztime = miutil::miTime(1970,1,1,0,0,0);
 
 /*********************************************/
 SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
@@ -75,7 +75,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   dialogInfo = llctrl->initSatDialog();
 
   //put satellite names (NOAA,Meteosat,radar) in namebox
-  vector<miString> name;
+  vector<miutil::miString> name;
   int nImage=dialogInfo.image.size();
   for( int i=0; i< nImage; i++ )
     name.push_back(dialogInfo.image[i].name);
@@ -199,7 +199,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   QPushButton* sathelp = NormalPushButton( tr("Help"), this );
   refresh = NormalPushButton(tr("Refresh"), this);
 
-  miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
+  miutil::miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
   advanced= new ToggleButton( this, more_str );
   advanced->setOn(false);
 
@@ -310,10 +310,10 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
   int index = timefileBut->checkedId();
 
   //restore options if possible
-  miString name = namebox->currentText().toStdString();
-  miString area = item->text().toStdString();
+  miutil::miString name = namebox->currentText().toStdString();
+  miutil::miString area = item->text().toStdString();
   if (satoptions[name][area].exists()) {
-    vector<miString> tokens = satoptions[name][area].split(" ");
+    vector<miutil::miString> tokens = satoptions[name][area].split(" ");
     state okVar = decodeString(tokens);
     putOptions(okVar);
     bool restore = multiPicture->isOn();
@@ -397,7 +397,7 @@ void SatDialog::timefileListSlot(QListWidgetItem *)
     return;
 
   m_time = files[index].time;
-  vector<miTime> tt;
+  vector<miutil::miTime> tt;
   tt.push_back(m_time);emit
   emitTimes("sat", tt, false);
 
@@ -464,8 +464,8 @@ int SatDialog::addSelectedPicture()
   if (!files.size())
     return -2;
 
-  miString fstring;
-  miTime ltime;
+  miutil::miString fstring;
+  miutil::miTime ltime;
   if (timeButton->isOn() || fileButton->isOn()) {
     //"time"/"file" clicked, find filename
     int current = timefileList->currentRow();
@@ -550,13 +550,13 @@ int SatDialog::addSelectedPicture()
 }
 
 /*********************************************/
-miString SatDialog::pictureString(state i_state, bool timefile)
+miutil::miString SatDialog::pictureString(state i_state, bool timefile)
 {
   /* make a string of the picture in m_state[i]*/
 #ifdef dSatDlg
   cerr<<"SatDialog::picturesString" << endl;
 #endif
-  miString str = i_state.name;
+  miutil::miString str = i_state.name;
   if (i_state.mosaic)
     str += " MOSAIKK ";
   str += " " + i_state.area + " " + i_state.channel + " ";
@@ -573,12 +573,12 @@ void SatDialog::picturesSlot(QListWidgetItem * item)
   cerr <<"m_state.size:"<<m_state.size()<<endl;
 #endif
 
-  miString str, advanced;
+  miutil::miString str, advanced;
   vector<Colour> colours;
   int index = pictures->currentRow();
 
   if (index > -1) {
-    vector<miString> vstr;
+    vector<miutil::miString> vstr;
     vstr.push_back(m_state[index].OKString);
     namebox->setCurrentItem(m_state[index].iname);
     nameActivated(m_state[index].iname); // update fileListWidget
@@ -596,7 +596,7 @@ void SatDialog::picturesSlot(QListWidgetItem * item)
           fileListWidget->currentItem()->text().toStdString());
       updateTimefileList();
       timefileList->setCurrentRow(m_state[index].ifiletime);
-      vector<miTime> tt;
+      vector<miutil::miTime> tt;
       tt.push_back(files[m_state[index].ifiletime].time);
       emit emitTimes("sat", tt, false);
     }
@@ -729,7 +729,7 @@ void SatDialog::advancedChanged()
 {
 
   int index = pictures->currentRow();
-  miString advancedstring = sda->getOKString();
+  miutil::miString advancedstring = sda->getOKString();
   if (index > -1)
     m_state[index].advanced = advancedstring;
 }
@@ -773,7 +773,7 @@ void SatDialog::doubleDisplayDiff(int number)
   int minutes = totalminutes - hours * 60;
   ostringstream ostr;
   ostr << hours << ":" << setw(2) << setfill('0') << minutes;
-  miString str = ostr.str();
+  miutil::miString str = ostr.str();
   diffLcdnum->display(str.c_str());
 }
 
@@ -838,18 +838,18 @@ void SatDialog::DeleteClicked()
 
 }
 /*********************************************/
-vector<miString> SatDialog::getOKString()
+vector<miutil::miString> SatDialog::getOKString()
 {
 #ifdef dSatDlg
   cerr<<"SatDialog::getOKString() called"<<endl;
 #endif
 
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
 
   if (pictures->count()) {
 
     for (unsigned int i = 0; i < m_state.size(); i++) {
-      miString str = makeOKString(m_state[i]);
+      miutil::miString str = makeOKString(m_state[i]);
       satoptions[m_state[i].name][m_state[i].area] = str;
       vstr.push_back(str);
     }
@@ -861,7 +861,7 @@ vector<miString> SatDialog::getOKString()
 
 /********************************************/
 
-miString SatDialog::makeOKString(state & okVar)
+miutil::miString SatDialog::makeOKString(state & okVar)
 {
   /* This function is called by getOKString and by requestQuickUpdate
    makes the part of OK string corresponding to state okVar  */
@@ -869,7 +869,7 @@ miString SatDialog::makeOKString(state & okVar)
   cerr << "SatDialog::makeOKString" << endl;
 #endif
 
-  miString str = "SAT ";
+  miutil::miString str = "SAT ";
   str += okVar.name;
   str += " ";
   str += okVar.area;
@@ -903,7 +903,7 @@ miString SatDialog::makeOKString(state & okVar)
  ***********quickMenu functions***************
  **********************************************/
 
-void SatDialog::putOKString(const vector<miString>& vstr)
+void SatDialog::putOKString(const vector<miutil::miString>& vstr)
 {
   /* Called from MainWindow to put vstr values into dialog  */
 #ifdef dSatDlg
@@ -924,7 +924,7 @@ void SatDialog::putOKString(const vector<miString>& vstr)
   // loop through all PlotInfo's
   for (int ip = 0; ip < npi; ip++) {
     //decode string
-    vector<miString> tokens = vstr[ip].split('"', '"');
+    vector<miutil::miString> tokens = vstr[ip].split('"', '"');
     state okVar = decodeString(tokens);
 
     if (okVar.name.empty() || okVar.area.empty() || okVar.channel.empty())
@@ -935,7 +935,7 @@ void SatDialog::putOKString(const vector<miString>& vstr)
       QString qstr = namebox->text(j);
       if (qstr.isNull())
         continue;
-      miString listname = qstr.toStdString();
+      miutil::miString listname = qstr.toStdString();
       if (okVar.name == listname) {
         namebox->setCurrentItem(j);
         nameActivated(j);
@@ -951,7 +951,7 @@ void SatDialog::putOKString(const vector<miString>& vstr)
       QString qstr = fileListWidget->item(j)->text();
       if (qstr.isNull())
         continue;
-      miString listname = qstr.toStdString();
+      miutil::miString listname = qstr.toStdString();
       if (okVar.area == listname) {
         fileListWidget->setCurrentRow(j);
         found = true;
@@ -999,7 +999,7 @@ void SatDialog::putOptions(const state okVar)
     QString qstr = channelbox->item(j)->text();
     if (qstr.isNull())
       continue;
-    miString listchannel = qstr.toStdString();
+    miutil::miString listchannel = qstr.toStdString();
     if (okVar.channel == listchannel) {
       unsigned int np = m_state.size();
       channelbox->setCurrentRow(j);
@@ -1030,7 +1030,7 @@ void SatDialog::putOptions(const state okVar)
 }
 /*********************************************/
 
-SatDialog::state SatDialog::decodeString(const vector<miString> & tokens)
+SatDialog::state SatDialog::decodeString(const vector<miutil::miString> & tokens)
 {
   /* This function is called by putOKstring and requestQuickUpdate.
    It decodes tokens, and puts plot variables into struct state */
@@ -1053,11 +1053,11 @@ SatDialog::state SatDialog::decodeString(const vector<miString> & tokens)
   okVar.mosaic = false;
 
   //loop
-  miString token;
+  miutil::miString token;
   for (int i = 4; i < n; i++) {
     token = tokens[i].downcase();
-    miString key, value;
-    vector<miString> stokens = tokens[i].split('=');
+    miutil::miString key, value;
+    vector<miutil::miString> stokens = tokens[i].split('=');
     if (stokens.size() == 2) {
       key = stokens[0].downcase();
       value = stokens[1];
@@ -1083,9 +1083,9 @@ SatDialog::state SatDialog::decodeString(const vector<miString> & tokens)
 
 /*********************************************/
 
-miString SatDialog::getShortname()
+miutil::miString SatDialog::getShortname()
 {
-  miString name;
+  miutil::miString name;
 
   if (pictures->count()) {
     for (unsigned int i = 0; i < m_state.size(); i++)
@@ -1098,8 +1098,8 @@ miString SatDialog::getShortname()
 
 /********************************************/
 
-void SatDialog::requestQuickUpdate(const vector<miString>& oldstr, vector<
-    miString>& newstr)
+void SatDialog::requestQuickUpdate(const vector<miutil::miString>& oldstr, vector<
+    miutil::miString>& newstr)
 {
   /*  This function is called from MainWindow after a request to update the
    quickmenu.
@@ -1127,16 +1127,16 @@ void SatDialog::requestQuickUpdate(const vector<miString>& oldstr, vector<
 
   // make state vectors from strings
   vector<state> oldOkVars, newOkVars;
-  vector<miString> oldvip = oldstr;
-  vector<miString> newvip = newstr;
+  vector<miutil::miString> oldvip = oldstr;
+  vector<miutil::miString> newvip = newstr;
   int newnpi = newvip.size(), oldnpi = oldvip.size();
   for (int ip = 0; ip < oldnpi; ip++) {
-    vector<miString> tokens = oldvip[ip].split('"', '"');
+    vector<miutil::miString> tokens = oldvip[ip].split('"', '"');
     state okVar = decodeString(tokens);
     oldOkVars.push_back(okVar);
   }
   for (int ip = 0; ip < newnpi; ip++) {
-    vector<miString> tokens = newvip[ip].split('"', '"');
+    vector<miutil::miString> tokens = newvip[ip].split('"', '"');
     state okVar = decodeString(tokens);
     newOkVars.push_back(okVar);
   }
@@ -1292,7 +1292,7 @@ void SatDialog::updateTimefileList()
     if (timeDefIndex > -1)
       timefileList->setCurrentRow(timeDefIndex);
     else {
-      m_time = miTime();
+      m_time = miutil::miTime();
       timefileList->setCurrentRow(0);
     }
   }
@@ -1317,7 +1317,7 @@ void SatDialog::updateChannelBox(bool select)
 
   channelbox->clear();
 
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
   int index;
   if (autoButton->isOn())
     index = -1;
@@ -1379,7 +1379,7 @@ void SatDialog::updatePictures(int index, bool updateAbove)
 
   for (unsigned int i = 0; i < m_state.size(); i++) {
     //insert item into picturebox
-    miString str = pictureString(m_state[i], true);
+    miutil::miString str = pictureString(m_state[i], true);
     pictures->addItem(str.c_str());
   }
 
@@ -1388,9 +1388,9 @@ void SatDialog::updatePictures(int index, bool updateAbove)
     if (updateAbove)
       picturesSlot(pictures->currentItem());
     updateColours();
-    miString str = pictureString(m_state[index], false);
+    miutil::miString str = pictureString(m_state[index], false);
     sda->setPictures(str);
-    miString advanced = m_state[index].advanced;
+    miutil::miString advanced = m_state[index].advanced;
     sda->putOKString(advanced);
     sda->greyOptions();
     int number = int(m_state[index].totalminutes / m_scalediff);
@@ -1444,7 +1444,7 @@ void SatDialog::emitSatTimes(bool update)
   QApplication::setOverrideCursor(Qt::waitCursor);
   //    cerr <<"emitSatTimes"<<endl;
   times.clear();
-  set<miTime> timeset;
+  set<miutil::miTime> timeset;
 
   for (unsigned int i = 0; i < m_state.size(); i++) {
     if (m_state[i].filename.empty() || update) {
@@ -1459,7 +1459,7 @@ void SatDialog::emitSatTimes(bool update)
   }
 
   if (timeset.size() > 0) {
-    set<miTime>::iterator p = timeset.begin();
+    set<miutil::miTime>::iterator p = timeset.begin();
     for (; p != timeset.end(); p++)
       times.push_back(*p);
   }
@@ -1472,7 +1472,7 @@ void SatDialog::emitSatTimes(bool update)
 
 /*********************************************/
 
-miString SatDialog::stringFromTime(const miTime& t)
+miutil::miString SatDialog::stringFromTime(const miutil::miTime& t)
 {
 
   ostringstream ostr;
@@ -1483,7 +1483,7 @@ miString SatDialog::stringFromTime(const miTime& t)
   return ostr.str();
 }
 
-miTime SatDialog::timeFromString(const miString &timeString)
+miutil::miTime SatDialog::timeFromString(const miutil::miString &timeString)
 {
   //get time from a string with yyyymmddhhmm
   int year = atoi(timeString.substr(0, 4).c_str());
@@ -1495,18 +1495,18 @@ miTime SatDialog::timeFromString(const miString &timeString)
     min = atoi(timeString.substr(10, 2).c_str());
   if (year < 0 || mon < 0 || day < 0 || hour < 0 || min < 0)
     return ztime;
-  return miTime(year, mon, day, hour, min, 0);
+  return miutil::miTime(year, mon, day, hour, min, 0);
 }
 
-vector<miString> SatDialog::writeLog()
+vector<miutil::miString> SatDialog::writeLog()
 {
-  vector<miString> vstr;
-  map<miString, map<miString, miString> >::iterator p = satoptions.begin();
-  map<miString, map<miString, miString> >::iterator pend = satoptions.end();
+  vector<miutil::miString> vstr;
+  map<miutil::miString, map<miutil::miString, miutil::miString> >::iterator p = satoptions.begin();
+  map<miutil::miString, map<miutil::miString, miutil::miString> >::iterator pend = satoptions.end();
 
   while (p != pend) {
-    map<miString, miString>::iterator q = p->second.begin();
-    map<miString, miString>::iterator qend = p->second.end();
+    map<miutil::miString, miutil::miString>::iterator q = p->second.begin();
+    map<miutil::miString, miutil::miString>::iterator qend = p->second.end();
     while (q != qend) {
       vstr.push_back(satoptions[p->first][q->first]);
       q++;
@@ -1517,12 +1517,12 @@ vector<miString> SatDialog::writeLog()
   return vstr;
 }
 
-void SatDialog::readLog(const vector<miString>& vstr,
-    const miString& thisVersion, const miString& logVersion)
+void SatDialog::readLog(const vector<miutil::miString>& vstr,
+    const miutil::miString& thisVersion, const miutil::miString& logVersion)
 {
   int n = vstr.size();
   for (int i = 0; i < n; i++) {
-    vector<miString> tokens = vstr[i].split(" ");
+    vector<miutil::miString> tokens = vstr[i].split(" ");
     if (tokens.size() < 4)
       continue;
     satoptions[tokens[1]][tokens[2]] = vstr[i];

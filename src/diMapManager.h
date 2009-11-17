@@ -71,21 +71,21 @@ public:
   bool parseSetup(SetupParser& sp);
 
   /// get list of predefined areas (names)
-  vector<miString> getMapAreaNames();
+  vector<miutil::miString> getMapAreaNames();
   /// get predefined area from name
-  bool getMapAreaByName(const miString&, Area&);
+  bool getMapAreaByName(const miutil::miString&, Area&);
   /// get predefined area from accelerator
-  bool getMapAreaByFkey(const miString&, Area&);
+  bool getMapAreaByFkey(const miutil::miString&, Area&);
   /// get list of defined maps
   vector<MapInfo> getMapInfo();
   /// get information on one specific map
-  bool getMapInfoByName(const miString&, MapInfo&);
+  bool getMapInfoByName(const miutil::miString&, MapInfo&);
   /// extract plot information from string
-  bool fillMapInfo(const miString&, MapInfo&, PlotOptions& contopts,
+  bool fillMapInfo(const miutil::miString&, MapInfo&, PlotOptions& contopts,
       PlotOptions& landopts, PlotOptions& lonopts, PlotOptions& latopts,
       PlotOptions& ffopts);
   /// make string representation of one MapInfo
-  miString MapInfo2str(const MapInfo&);
+  miutil::miString MapInfo2str(const MapInfo&);
   /// get all defined maps and areas for the GUI
   MapDialogInfo getMapDialogInfo();
 

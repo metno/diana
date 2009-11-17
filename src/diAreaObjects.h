@@ -56,31 +56,31 @@ public:
   AreaObjects();
   ~AreaObjects(){}
   /// assign name,icon and id, and read areastring to make WeatherArea objects  
-  void makeAreas(const miString& name, const miString& icon, 
-		 const miString& areastring, int id, const Area& );
+  void makeAreas(const miutil::miString& name, const miutil::miString& icon, 
+		 const miutil::miString& areastring, int id, const Area& );
   /// apply a command
-  bool areaCommand(const miString& command,const miString& data);
+  bool areaCommand(const miutil::miString& command,const miutil::miString& data);
   /// returns a vector of selectArea which x and y are inside
   vector <selectArea> findAreas(float x, float y, bool newArea=false);
   /// returns id
   int getId(){return itsId;}
   /// returns name
-  miString getName(){return itsName;}
+  miutil::miString getName(){return itsName;}
   /// gets name
-  void getPlotName(miString &name){name=itsName;}
+  void getPlotName(miutil::miString &name){name=itsName;}
   /// gets bounding box of area with name name
-  Rectangle getBoundBox(const miString& name);
+  Rectangle getBoundBox(const miutil::miString& name);
   /// returns autozoom
   bool autoZoom(){return autozoom;}
   /// sets icon   
-  void setIcon(miString icon){iconName = icon;}
+  void setIcon(miutil::miString icon){iconName = icon;}
   /// gets icon 
-  miString getIcon(){return iconName;}
+  miutil::miString getIcon(){return iconName;}
 
 private:
   int itsId;
-  miString itsName;
-  miString iconName;
+  miutil::miString itsName;
+  miutil::miString iconName;
   bool clickSelect;
   bool autozoom;
   ObjectPlot* currentArea;

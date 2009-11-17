@@ -51,91 +51,91 @@ class FieldPlotManager {
   // Constructor
 public:
   struct PlotField {
-    miString name;            ///< the field name in dialog etc.
-    miString fieldgroup;      ///< special fieldgroup name (to separate some fields)
-//     miString text;            ///< not used, yet...
-    miString plot;            ///< the plot type, for debugging only
-    vector<miString> input;   ///< the input fields, read or computed
+    miutil::miString name;            ///< the field name in dialog etc.
+    miutil::miString fieldgroup;      ///< special fieldgroup name (to separate some fields)
+//     miutil::miString text;            ///< not used, yet...
+    miutil::miString plot;            ///< the plot type, for debugging only
+    vector<miutil::miString> input;   ///< the input fields, read or computed
   };
 
   FieldPlotManager(FieldManager* fm);
 
-  void getAllFieldNames(vector<miString>& fieldNames);
+  void getAllFieldNames(vector<miutil::miString>& fieldNames);
   /// return lists of inputfields
-  vector<miString>  getFields();
-  vector<miString>  getPlotFields();
+  vector<miutil::miString>  getFields();
+  vector<miutil::miString>  getPlotFields();
   /// read setup section for field plots
   bool parseSetup(SetupParser& sp);
-  bool makeDifferenceField(const miString& fspec1, const miString& fspec2,
-			   const miTime& ptime,
+  bool makeDifferenceField(const miutil::miString& fspec1, const miutil::miString& fspec2,
+			   const miutil::miTime& ptime,
 			   vector<Field*>& fv,
-			   const miString& levelSpec, const miString& levelSet,
-			   const miString& idnumSpec, const miString& idnumSet,
+			   const miutil::miString& levelSpec, const miutil::miString& levelSet,
+			   const miutil::miString& idnumSpec, const miutil::miString& idnumSet,
 			   int vectorIndex);
 
-  bool makeFields(const miString& pin, const miTime& ptime,
+  bool makeFields(const miutil::miString& pin, const miutil::miTime& ptime,
 		  vector<Field*>& vfout,
-		  const miString& levelSpec, const miString& levelSet,
-		  const miString& idnumSpec, const miString& idnumSet,
+		  const miutil::miString& levelSpec, const miutil::miString& levelSet,
+		  const miutil::miString& idnumSpec, const miutil::miString& idnumSet,
 		  bool toCache=false);
   /// return available times for the requested models and fields
 
   void makeFieldText(Field* fout,
-		     const miString& plotName,
-		     const miString& levelSpecified,
-		     const miString& idnumSpecified);
+		     const miutil::miString& plotName,
+		     const miutil::miString& levelSpecified,
+		     const miutil::miString& idnumSpecified);
 
-  vector<miTime> getFieldTime(vector<FieldTimeRequest>& request,
+  vector<miutil::miTime> getFieldTime(vector<FieldTimeRequest>& request,
 			      bool allTimeSteps,
 			      bool& constTimes);
 
   /// return all field groups for one model/file (to FieldDialog)
-  void getFieldGroups(const miString& modelNameRequest,
-		      miString& modelName, vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const miutil::miString& modelNameRequest,
+		      miutil::miString& modelName, vector<FieldGroupInfo>& vfgi);
 
   /// return available times for the selceted models and fields
-  vector<miTime> getFieldTime(const vector<miString>& pinfos,
+  vector<miutil::miTime> getFieldTime(const vector<miutil::miString>& pinfos,
 			      bool& constTimes);
 
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miTime>& normalTimes,
-			   miTime& constTimes,
+  void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
+			   miutil::miTime& constTimes,
 			   int& timediff,
-			   const miString& pinfo);
+			   const miutil::miString& pinfo);
 
   ///return levels 
-  vector<miString> getFieldLevels(const miString& pinfo);
+  vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
 
 
 
   /// return all defined field plot names from setup
-  void getAllFieldNames(vector<miString>& fieldNames,
-			set<miString>& fieldprefixes,
-			set<miString>& fieldsuffixes);
+  void getAllFieldNames(vector<miutil::miString>& fieldNames,
+			set<miutil::miString>& fieldprefixes,
+			set<miutil::miString>& fieldsuffixes);
 
 
 private:
 
 
   vector<PlotField>  vPlotField;
-  map<miString, PlotField> mapPlotField;
-  set<miString> fieldprefixes;
-  set<miString> fieldsuffixes;
+  map<miutil::miString, PlotField> mapPlotField;
+  set<miutil::miString> fieldprefixes;
+  set<miutil::miString> fieldsuffixes;
 
-  vector<miString> splitComStr(const miString& s, bool splitall);
+  vector<miutil::miString> splitComStr(const miutil::miString& s, bool splitall);
 
-  bool splitSuffix(miString& plotName,
-		   miString& suffix);
+  bool splitSuffix(miutil::miString& plotName,
+		   miutil::miString& suffix);
 
-  bool parsePin(const miString& pin,
-		miString& modelName,
-		miString& plotName,
-		vector<miString>& fieldName,
-		miString& levelName,
-		miString& idnumName,
+  bool parsePin(const miutil::miString& pin,
+		miutil::miString& modelName,
+		miutil::miString& plotName,
+		vector<miutil::miString>& fieldName,
+		miutil::miString& levelName,
+		miutil::miString& idnumName,
 		int& hourOffset,
 		int& hourDiff,
-		miTime& time);
+		miutil::miTime& time);
 
 
   FieldManager* fieldManager;

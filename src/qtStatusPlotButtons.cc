@@ -66,7 +66,7 @@ PlotButton::PlotButton(QWidget * parent,
 void PlotButton::setPlotElement(const PlotElement& pe)
 {
   QtImageGallery ig;
-  miString str= pe.str;
+  miutil::miString str= pe.str;
   if (pe.icon.exists()){
     if (plotelement_.icon!=pe.icon ){
       QImage image;

@@ -50,7 +50,7 @@ private:
   static float defaultLineWidth;
   float scaledlinewidth;
   static vector<editToolInfo>  allFronts;
-  static map<miString,int> frontTypes;  //finds front type number from name
+  static map<miutil::miString,int> frontTypes;  //finds front type number from name
   int npoints;
   float * xplot;
   float * yplot;
@@ -79,7 +79,7 @@ private:
   /// constructor with integer front type as argumet
   WeatherFront(int ty);
   /// constructor with name of front type as argumet
-  WeatherFront(miString tystring);
+  WeatherFront(miutil::miString tystring);
   /// copy constructor
   WeatherFront(const WeatherFront &rhs);
   /// Destructor
@@ -97,7 +97,7 @@ private:
   /// set front type
   void setType(int ty);
   /// set front type
-  bool setType(miString tystring);
+  bool setType(miutil::miString tystring);
   /// turn front
   void flip();
   /// add qfront to front (the two fronts are merged)
@@ -107,7 +107,7 @@ private:
   /// returns true if of x,y on object
   bool isOnObject(float x, float y) {return showLine(x,y);}
   /// writes a string with Object and Type
-  miString writeTypeString();
+  miutil::miString writeTypeString();
   /// returns x distance from point to line after onLine is called
   float getDistX(){return distX;}
   /// returns y distance from point to line after onLine is called

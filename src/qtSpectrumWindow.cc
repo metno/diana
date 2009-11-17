@@ -120,7 +120,7 @@ SpectrumWindow::SpectrumWindow()
   leftStationButton->setAutoRepeat(true);
 
   //combobox to select station
-  vector<miString> stations;
+  vector<miutil::miString> stations;
   stations.push_back("                        ");
   stationBox = ComboBox( this, stations, true, 0);
   connect( stationBox, SIGNAL( activated(int) ),
@@ -142,7 +142,7 @@ SpectrumWindow::SpectrumWindow()
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
-  vector<miString> times;
+  vector<miutil::miString> times;
   times.push_back("2002-01-01 00");
   timeBox = ComboBox( this, times, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
@@ -177,21 +177,21 @@ SpectrumWindow::SpectrumWindow()
   spModelDialog = new SpectrumModelDialog(this,spectrumm);
   connect(spModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(spModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(spModelDialog, SIGNAL(showsource(const miString, const miString)),
-      SIGNAL(showsource(const miString, const miString)));
+  connect(spModelDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
+      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
 
   spSetupDialog = new SpectrumSetupDialog(this,spectrumm);
   connect(spSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(spSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(spSetupDialog, SIGNAL(showsource(const miString, const miString)),
-      SIGNAL(showsource(const miString, const miString)));
+  connect(spSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
+      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
 
   //initialize everything in startUp
   firstTime = true;
   active = false;
-  //mainWindowTime= miTime::nowTime();
+  //mainWindowTime= miutil::miTime::nowTime();
 
 #ifdef DEBUGPRINT
   cerr<<"SpectrumWindow::SpectrumWindow() finished"<<endl;
@@ -219,7 +219,7 @@ void SpectrumWindow::modelClicked( bool on )
 void SpectrumWindow::leftStationClicked()
 {
   //called when the left Station button is clicked
-  miString s= spectrumm->setStation(-1);
+  miutil::miString s= spectrumm->setStation(-1);
   stationChangedSlot(-1);
   spectrumw->updateGL();
 }
@@ -228,7 +228,7 @@ void SpectrumWindow::leftStationClicked()
 void SpectrumWindow::rightStationClicked()
 {
   //called when the right Station button is clicked
-  miString s= spectrumm->setStation(+1);
+  miutil::miString s= spectrumm->setStation(+1);
   stationChangedSlot(+1);
   spectrumw->updateGL();
 }
@@ -237,7 +237,7 @@ void SpectrumWindow::rightStationClicked()
 void SpectrumWindow::leftTimeClicked()
 {
   //called when the left time button is clicked
-  miTime t= spectrumm->setTime(-1);
+  miutil::miTime t= spectrumm->setTime(-1);
   //update combobox
   timeChangedSlot(-1);
   spectrumw->updateGL();
@@ -247,7 +247,7 @@ void SpectrumWindow::leftTimeClicked()
 void SpectrumWindow::rightTimeClicked()
 {
   //called when the right Station button is clicked
-  miTime t= spectrumm->setTime(+1);
+  miutil::miTime t= spectrumm->setTime(+1);
   timeChangedSlot(+1);
   spectrumw->updateGL();
 }
@@ -277,10 +277,10 @@ bool SpectrumWindow::timeChangedSlot(int diff)
     timeBox->setCurrentItem(index);
     diff--;
   }
-  miTime t = spectrumm->getTime();
-  miString tstring=t.isoTime(false,false);
+  miutil::miTime t = spectrumm->getTime();
+  miutil::miString tstring=t.isoTime(false,false);
   if (!timeBox->count()) return false;
-  miString tbs=timeBox->currentText().toStdString();
+  miutil::miString tbs=timeBox->currentText().toStdString();
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
@@ -337,17 +337,17 @@ bool SpectrumWindow::stationChangedSlot(int diff)
     diff--;
   }
   //get current station
-  miString s = spectrumm->getStation();
+  miutil::miString s = spectrumm->getStation();
   //if (!stationBox->count()) return false;
   //if no current station, use last station plotted
   if (s.empty()) s = spectrumm->getLastStation();
-  miString sbs=stationBox->currentText().toStdString();
+  miutil::miString sbs=stationBox->currentText().toStdString();
   if (sbs!=s){
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
       if (s==stationBox->text(i).toStdString()){
         stationBox->setCurrentItem(i);
-        sbs=miString(stationBox->currentText().toStdString());
+        sbs=miutil::miString(stationBox->currentText().toStdString());
         break;
       }
     }
@@ -371,7 +371,7 @@ void SpectrumWindow::printClicked()
 {
   printerManager pman;
   //called when the print button is clicked
-  miString command= pman.printCommand();
+  miutil::miString command= pman.printCommand();
 
   QPrinter qprt;
   fromPrintOption(qprt,priop);
@@ -380,7 +380,7 @@ void SpectrumWindow::printClicked()
     if (qprt.outputToFile()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
-      priop.fname= "prt_" + miTime::nowTime().isoTime() + ".ps";
+      priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
 #ifdef linux
       command= "lpr -r " + command.substr(4,command.length()-4);
@@ -428,8 +428,8 @@ void SpectrumWindow::saveClicked()
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miString filename= s.toStdString();
-    miString format= "PNG";
+    miutil::miString filename= s.toStdString();
+    miutil::miString format= "PNG";
     int quality= -1; // default quality
 
     // find format
@@ -450,7 +450,7 @@ void SpectrumWindow::saveClicked()
 }
 
 
-void SpectrumWindow::makeEPS(const miString& filename)
+void SpectrumWindow::makeEPS(const miutil::miString& filename)
 {
   QApplication::setOverrideCursor( Qt::waitCursor );
   printOptions priop;
@@ -514,7 +514,7 @@ void SpectrumWindow::quitClicked()
 
   active = false;
   emit SpectrumHide();
-  vector<miTime> t;
+  vector<miutil::miTime> t;
   emit emitTimes("spectrum",t);
 }
 
@@ -526,7 +526,7 @@ void SpectrumWindow::updateClicked()
   cerr << "update clicked" << endl;
 #endif
   spectrumm->updateObs();      // check obs.files
-  miTime t= mainWindowTime; // use the main time (fields etc.)
+  miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
   mainWindowTimeChanged(t);
 }
 
@@ -610,11 +610,11 @@ StationPlot* SpectrumWindow::getStations()
 #ifdef DEBUGPRINT
   cerr <<"SpectrumWindow::getStations()" << endl;
 #endif
-  const vector <miString> stations = spectrumm->getStationList();
+  const vector <miutil::miString> stations = spectrumm->getStationList();
   const vector <float> latitude = spectrumm->getLatitudes();
   const vector <float> longitude = spectrumm->getLongitudes();
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
-  miString ann = spectrumm->getAnnotationString();
+  miutil::miString ann = spectrumm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
 
   // ADC set plotname (for StatusPlotButtons)
@@ -641,7 +641,7 @@ void SpectrumWindow::updateStationBox()
 #endif
 
   stationBox->clear();
-  vector<miString> stations= spectrumm->getStationList();
+  vector<miutil::miString> stations= spectrumm->getStationList();
   //add dummy to make stationBox wide enough
   stations.push_back("                        ");
 
@@ -661,7 +661,7 @@ void SpectrumWindow::updateTimeBox()
 #endif
 
   timeBox->clear();
-  vector<miTime> times= spectrumm->getTimeList();
+  vector<miutil::miTime> times= spectrumm->getTimeList();
 
   int n =times.size();
   for (int i=0; i<n; i++){
@@ -674,8 +674,8 @@ void SpectrumWindow::updateTimeBox()
 
 void SpectrumWindow::stationBoxActivated(int index)
 {
-  //vector<miString> stations= spectrumm->getStationList();
-  miString sbs=stationBox->currentText().toStdString();
+  //vector<miutil::miString> stations= spectrumm->getStationList();
+  miutil::miString sbs=stationBox->currentText().toStdString();
   //if (index>=0 && index<stations.size()) {
   spectrumm->setStation(sbs);
   spectrumw->updateGL();
@@ -687,7 +687,7 @@ void SpectrumWindow::stationBoxActivated(int index)
 
 void SpectrumWindow::timeBoxActivated(int index)
 {
-  vector<miTime> times= spectrumm->getTimeList();
+  vector<miutil::miTime> times= spectrumm->getTimeList();
 
   if (index>=0 && index<int(times.size())) {
     spectrumm->setTime(times[index]);
@@ -706,7 +706,7 @@ void SpectrumWindow::timeBoxActivated(int index)
 }
 
 
-bool SpectrumWindow::changeStation(const miString& station)
+bool SpectrumWindow::changeStation(const miutil::miString& station)
 {
 #ifdef DEBUGPRINT
   cerr << "SpectrumWindow::changeStation" << endl;
@@ -721,7 +721,7 @@ bool SpectrumWindow::changeStation(const miString& station)
 }
 
 
-void SpectrumWindow::setFieldModels(const vector<miString>& fieldmodels)
+void SpectrumWindow::setFieldModels(const vector<miutil::miString>& fieldmodels)
 {
   spectrumm->setFieldModels(fieldmodels);
   if (active) changeModel();
@@ -729,7 +729,7 @@ void SpectrumWindow::setFieldModels(const vector<miString>& fieldmodels)
 }
 
 
-void SpectrumWindow::mainWindowTimeChanged(const miTime& t)
+void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 {
   // keep time for next "update" (in case not found now)
   mainWindowTime= t;
@@ -752,7 +752,7 @@ void SpectrumWindow::mainWindowTimeChanged(const miTime& t)
 }
 
 
-void SpectrumWindow::startUp(const miTime& t)
+void SpectrumWindow::startUp(const miutil::miTime& t)
 {
 #ifdef DEBUGPRINT
   cerr << "spectrumWindow::startUp called with time " << t << endl;
@@ -762,7 +762,7 @@ void SpectrumWindow::startUp(const miTime& t)
   tsToolbar->show();
   //do something first time we start
   if (firstTime){
-    //vector<miString> models;
+    //vector<miutil::miString> models;
     //define models for dialogs, comboboxes and stationplot
     //spectrumm->setSelectedModels(models,false,false);
     //spModelDialog->setSelection();
@@ -776,24 +776,24 @@ void SpectrumWindow::startUp(const miTime& t)
 }
 
 
-vector<miString> SpectrumWindow::writeLog(const miString& logpart)
+vector<miutil::miString> SpectrumWindow::writeLog(const miutil::miString& logpart)
 {
-  vector<miString> vstr;
-  miString str;
+  vector<miutil::miString> vstr;
+  miutil::miString str;
 
   if (logpart=="window") {
 
-    str= "SpectrumWindow.size " + miString(this->width()) + " "
-    + miString(this->height());
+    str= "SpectrumWindow.size " + miutil::miString(this->width()) + " "
+    + miutil::miString(this->height());
     vstr.push_back(str);
-    str= "SpectrumWindow.pos "  + miString(this->x()) + " "
-    + miString(this->y());
+    str= "SpectrumWindow.pos "  + miutil::miString(this->x()) + " "
+    + miutil::miString(this->y());
     vstr.push_back(str);
-    str= "SpectrumModelDialog.pos " + miString(spModelDialog->x()) + " "
-    + miString(spModelDialog->y());
+    str= "SpectrumModelDialog.pos " + miutil::miString(spModelDialog->x()) + " "
+    + miutil::miString(spModelDialog->y());
     vstr.push_back(str);
-    str= "SpectrumSetupDialog.pos " + miString(spSetupDialog->x()) + " "
-    + miString(spSetupDialog->y());
+    str= "SpectrumSetupDialog.pos " + miutil::miString(spSetupDialog->x()) + " "
+    + miutil::miString(spSetupDialog->y());
     vstr.push_back(str);
 
     // printer name & options...
@@ -817,14 +817,14 @@ vector<miString> SpectrumWindow::writeLog(const miString& logpart)
 }
 
 
-void SpectrumWindow::readLog(const miString& logpart, const vector<miString>& vstr,
-    const miString& thisVersion, const miString& logVersion,
+void SpectrumWindow::readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
+    const miutil::miString& thisVersion, const miutil::miString& logVersion,
     int displayWidth, int displayHeight)
 {
 
   if (logpart=="window") {
 
-    vector<miString> tokens;
+    vector<miutil::miString> tokens;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {

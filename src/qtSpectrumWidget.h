@@ -59,8 +59,8 @@ public:
   void paintGL();
   void resizeGL( int w, int h );
 
-  bool saveRasterImage(const miString fname,
-  		       const miString format,
+  bool saveRasterImage(const miutil::miString fname,
+  		       const miutil::miString format,
 		       const int quality = -1);
 
 protected:

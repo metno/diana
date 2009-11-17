@@ -67,20 +67,20 @@ public:
 
   ObsDialog( QWidget* parent, Controller* llctrl );
   ///return command strings
-  vector<miString> getOKString();
+  vector<miutil::miString> getOKString();
   ///insert command strings
-  void putOKString(const vector<miString>& vstr);
+  void putOKString(const vector<miutil::miString>& vstr);
   ///return short name of current commonad
-  miString getShortname();
+  miutil::miString getShortname();
   ///check command strings, and return legal command strings
-  void requestQuickUpdate(vector<miString>& oldstr,
-                          vector<miString>& newstr);
+  void requestQuickUpdate(vector<miutil::miString>& oldstr,
+                          vector<miutil::miString>& newstr);
   ///change plottype
-  bool setPlottype(const miString& name, bool on);
+  bool setPlottype(const miutil::miString& name, bool on);
 
-  vector<miString> writeLog();
-  void readLog(const vector<miString>& vstr,
-               const miString& thisVersion, const miString& logVersion);
+  vector<miutil::miString> writeLog();
+  void readLog(const vector<miutil::miString>& vstr,
+               const miutil::miString& thisVersion, const miutil::miString& logVersion);
 ///called when the dialog is closed by the window manager
 protected:
   void closeEvent( QCloseEvent* );
@@ -96,7 +96,7 @@ private slots:
   void multiplotClicked(bool);
   void extensionToggled(bool);
   void criteriaOn();
-  void rightButtonClicked(miString);
+  void rightButtonClicked(miutil::miString);
   void criteriaListSelected(int);
   void criteriaSelected(QListWidgetItem* );
   void signSlot(int);
@@ -110,29 +110,29 @@ private slots:
 signals:
   void ObsApply();
   void ObsHide();
-  void showsource(const miString, const miString="");
-  void emitTimes( const miString&,const vector<miTime>& );
-  void setCriteria( miString, bool );
+  void showsource(const miutil::miString, const miutil::miString="");
+  void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
+  void setCriteria( miutil::miString, bool );
 
 private:
   void makeExtension();
-  void markButton(miString& );
-  miString makeCriteriaString();
+  void markButton(miutil::miString& );
+  miutil::miString makeCriteriaString();
   bool newCriteriaString();
   void updateExtension();
   void numberList( QComboBox* cBox, float number );
-  int findPlotnr(const miString&);
+  int findPlotnr(const miutil::miString&);
 
  //ATTRIBUTES
   int nr_plot;
-  vector<miString> m_name;
-  vector<miString> savelog;
+  vector<miutil::miString> m_name;
+  vector<miutil::miString> savelog;
   int m_selected;
   QColor* colour;
   QComboBox* plotbox;
   QStackedWidget* stackedWidget;
   vector<ObsWidget*> obsWidget;
-  miString parameterSelected;
+  miutil::miString parameterSelected;
   QLabel * label;
   bool multiplot;
   ToggleButton* multiplotButton;
@@ -147,7 +147,7 @@ private:
   //  QLabel* parameterLabel;
   QComboBox* criteriaBox;
   QListWidget* criteriaListbox;
-  miString parameter;
+  miutil::miString parameter;
   QLCDNumber* limitLcd;
   QSlider* limitSlider;
   QComboBox* stepComboBox;
@@ -161,7 +161,7 @@ private:
   QComboBox* markerBox;
   QLineEdit* lineedit;
   vector<Colour::ColourInfo> cInfo;
-  vector<miString> markerName;
+  vector<miutil::miString> markerName;
   Controller* m_ctrl;
   bool freeze;
 };

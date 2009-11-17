@@ -37,7 +37,7 @@
 #include <sstream>
 #include <math.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 const int MaxWindsAuto=40;
 const int MaxArrowsAuto=55;

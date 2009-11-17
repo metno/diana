@@ -124,8 +124,8 @@ void VprofWidget::keyPressEvent(QKeyEvent *me)
 }
 
 
-bool VprofWidget::saveRasterImage(const miString fname,
-			          const miString format,
+bool VprofWidget::saveRasterImage(const miutil::miString fname,
+			          const miutil::miString format,
 			          const int quality)
 {
   // problems on SGI - make sure plot is flushed properly

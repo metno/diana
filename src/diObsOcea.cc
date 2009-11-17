@@ -33,7 +33,7 @@
 
 #include <diObsOcea.h>
 
-using namespace std; 
+using namespace std; using namespace miutil; 
 
 ObsOcea::ObsOcea(const miString &file)
 :ocea(file){

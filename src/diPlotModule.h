@@ -106,7 +106,7 @@ private:
   FieldManager *fieldm;   // field manager
   FieldPlotManager *fieldplotm;   // field plot manager
 
-  vector<miString> annotationStrings;//orig. strings from setup
+  vector<miutil::miString> annotationStrings;//orig. strings from setup
 
   bool mapdefined;       // area/projection defined for plot
   bool mapDefinedByUser; // map area set by user
@@ -124,13 +124,13 @@ private:
   // postscript production members
   printOptions printoptions;
   bool hardcopy;
-  miString bgcolourname;
+  miutil::miString bgcolourname;
 
   // drawing and edit members
   bool inEdit;                 // edit in progress
   mapMode mapmode;             // current mapmode
   bool prodtimedefined;        // producttime is set
-  miTime producttime;          // proper product time
+  miutil::miTime producttime;          // proper product time
 
   EditObjects editobjects;       // fronts,symbols,areas
   EditObjects combiningobjects;  // areaborders and textstrings
@@ -157,18 +157,18 @@ private:
   int obsnr; //which obs time
   int obsTimeStep;
 
-  miString levelSpecified;  // for level up/down changes
-  miString levelCurrent;
+  miutil::miString levelSpecified;  // for level up/down changes
+  miutil::miString levelCurrent;
 
-  miString idnumSpecified;  // for idnum up/down changes (class/type/...)
-  miString idnumCurrent;
+  miutil::miString idnumSpecified;  // for idnum up/down changes (class/type/...)
+  miutil::miString idnumCurrent;
 
   vector<PlotElement> plotelements;
 
   // static members
   static GridConverter gc;   // gridconverter class
 
-  void setEditMessage(const miString&); // special Edit message (shown region,...)
+  void setEditMessage(const miutil::miString&); // special Edit message (shown region,...)
   //Plot underlay
   void plotUnder();
   //Plot overlay
@@ -190,21 +190,21 @@ public:
   /// the main plot routine (plot for underlay, plot for overlay)
   void plot(bool under =true, bool over =true);
   /// split plot info strings and reroute them to appropriate handlers
-  void preparePlots(const vector<miString>&);
+  void preparePlots(const vector<miutil::miString>&);
   /// handles fields plot info strings
-  void prepareFields(const vector<miString>&);
+  void prepareFields(const vector<miutil::miString>&);
   /// handles observations plot info strings
-  void prepareObs(const vector<miString>&);
+  void prepareObs(const vector<miutil::miString>&);
   /// handles map plot info strings
-  void prepareMap(const vector<miString>&);
+  void prepareMap(const vector<miutil::miString>&);
   /// handles images plot info strings
-  void prepareSat(const vector<miString>&);
+  void prepareSat(const vector<miutil::miString>&);
   /// handles met. objects plot info strings
-  void prepareObjects(const vector<miString>&);
+  void prepareObjects(const vector<miutil::miString>&);
   /// handles trajectory plot info strings
-  void prepareTrajectory(const vector<miString>&);
+  void prepareTrajectory(const vector<miutil::miString>&);
   /// handles annotation plot info strings
-  void prepareAnnotation(const vector<miString>&);
+  void prepareAnnotation(const vector<miutil::miString>&);
 
   /// get annotations from all plots
   void setAnnotations();
@@ -212,9 +212,9 @@ public:
   void updateProjection();
 
   /// change levels - update data plots
-  void updateLevel(const miString& levelSpec, const miString& levelSet);
+  void updateLevel(const miutil::miString& levelSpec, const miutil::miString& levelSet);
   /// change "idnum" (class/type/...) - update data plots
-  void updateIdnum(const miString& idnumSpec, const miString& idnumSet);
+  void updateIdnum(const miutil::miString& idnumSpec, const miutil::miString& idnumSet);
   /// update all plot objects
   void updatePlots();
   /// toggle conservative map area
@@ -252,21 +252,21 @@ public:
 		   GridAreaManager*);
 
   /// return current plottime
-  void getPlotTime(miString&);
+  void getPlotTime(miutil::miString&);
   /// return current plottime
-  void getPlotTime(miTime&);
+  void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(vector<miTime>& fieldtimes,vector<miTime>& sattimes,
-		    vector<miTime>& obstimes,vector<miTime>& objtimes,
-		    vector<miTime>& ptimes);
+  void getPlotTimes(vector<miutil::miTime>& fieldtimes,vector<miutil::miTime>& sattimes,
+		    vector<miutil::miTime>& obstimes,vector<miutil::miTime>& objtimes,
+		    vector<miutil::miTime>& ptimes);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(set<miTime>& okTimes,
-			   set<miTime>& constTimes,
-			   const vector<miString>& pinfos,
+  void getCapabilitiesTime(set<miutil::miTime>& okTimes,
+			   set<miutil::miTime>& constTimes,
+			   const vector<miutil::miString>& pinfos,
 			   bool allTimes=true);
 
   /// set plottime
-  bool setPlotTime(miTime&);
+  bool setPlotTime(miutil::miTime&);
   ///return black/white depending on background colour
   Colour getContrastColour();
 
@@ -276,7 +276,7 @@ public:
   ///find obs in pos x,y
   bool findObs(int x,int y);
   ///get id of obsevation i pos x,y
-  bool getObsName(int x,int y, miString& name);
+  bool getObsName(int x,int y, miutil::miString& name);
   ///plot next/prev set of observations(PageUp/PageDown)
   void nextObs(bool next);
   ///in edit mode: change obs time, leave the rest unchanged
@@ -288,77 +288,77 @@ public:
   ///put StationPlot in list of StationPlots
   void putStations(StationPlot*);
   ///make StationPlot and put it in list of StationPlots
-  void makeStationPlot(const miString& commondesc, const miString& common,
-		       const miString& description, int from,
-		       const  vector<miString>& data);
+  void makeStationPlot(const miutil::miString& commondesc, const miutil::miString& common,
+		       const miutil::miString& description, int from,
+		       const  vector<miutil::miString>& data);
   ///find station in position x,y in StationPlot with name and id
-  miString findStation(int x, int y,miString name,int id=-1);
+  miutil::miString findStation(int x, int y,miutil::miString name,int id=-1);
   ///look for station in position x,y in all StationPlots
   void findStations(int x, int y, bool add,
-		    vector<miString>& name,vector<int>& id,
-		    vector<miString>& station);
+		    vector<miutil::miString>& name,vector<int>& id,
+		    vector<miutil::miString>& station);
   ///get editable stations, returns name/id of StationPlot and stations
-  void getEditStation(int step, miString& name, int& id,
-		      vector<miString>& stations);
+  void getEditStation(int step, miutil::miString& name, int& id,
+		      vector<miutil::miString>& stations);
   ///send command to StationPlot with name and id
-  void stationCommand(const miString& Command,
-		      vector<miString>& data,
-		      const miString& name="", int id=-1,
-		      const miString& misc="");
+  void stationCommand(const miutil::miString& Command,
+		      vector<miutil::miString>& data,
+		      const miutil::miString& name="", int id=-1,
+		      const miutil::miString& misc="");
   ///send command to StationPlot with name and id
-  void stationCommand(const miString& Command,
-		      const miString& name="", int id=-1);
+  void stationCommand(const miutil::miString& Command,
+		      const miutil::miString& name="", int id=-1);
 
   //Area
   ///put area into list of area objects
-  void makeAreas(miString name,miString areastring, int id);
+  void makeAreas(miutil::miString name,miutil::miString areastring, int id);
   ///send command to right area object
-  void areaCommand(const miString& command, const miString& dataSet,
-		   const miString& data, int id );
+  void areaCommand(const miutil::miString& command, const miutil::miString& dataSet,
+		   const miutil::miString& data, int id );
   ///find areas in position x,y
   vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
   // locationPlot (vcross,...)
   void putLocation(const LocationData& locationdata);
   void updateLocation(const LocationData& locationdata);
-  void deleteLocation(const miString& name);
-  void setSelectedLocation(const miString& name,
-			 const miString& elementname);
-  miString findLocation(int x, int y, const miString& name);
+  void deleteLocation(const miutil::miString& name);
+  void setSelectedLocation(const miutil::miString& name,
+			 const miutil::miString& elementname);
+  miutil::miString findLocation(int x, int y, const miutil::miString& name);
 
-  vector<miString> getFieldModels();
+  vector<miutil::miString> getFieldModels();
 
   // Trajectories
   /// handles trajectory plot info strings
-  void trajPos(vector<miString>&);
-  vector<miString> getTrajectoryFields();
-  vector<miString> getRadarEchoFields();
+  void trajPos(vector<miutil::miString>&);
+  vector<miutil::miString> getTrajectoryFields();
+  vector<miutil::miString> getRadarEchoFields();
   bool startTrajectoryComputation();
   void stopTrajectoryComputation();
   // print trajectory positions to file
-  bool printTrajectoryPositions(const miString& filename);
+  bool printTrajectoryPositions(const miutil::miString& filename);
 
   // radar echo
-  void radePos(vector<miString>&);
+  void radePos(vector<miutil::miString>&);
 
   //Satellite and radar
   /// get name++ of current channels (with calibration)
-  vector<miString> getCalibChannels();
+  vector<miutil::miString> getCalibChannels();
   ///show pixel values in status bar
   vector<SatValues> showValues(int, int);
   ///get satellite name from all SatPlots
-  vector <miString> getSatnames();
+  vector <miutil::miString> getSatnames();
   ///satellite follows main plot time
-  void setSatAuto(bool, const miString&, const miString&);
+  void setSatAuto(bool, const miutil::miString&, const miutil::miString&);
 
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool on){showanno=on;}
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
-  miString getMarkedAnnotation();
+  miutil::miString getMarkedAnnotation();
   /// change text of marked and editable annotationplot
-  void changeMarkedAnnotation(miString text,int cursor=0,
+  void changeMarkedAnnotation(miutil::miString text,int cursor=0,
 			      int sel1=0,int sel2=0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
@@ -370,11 +370,11 @@ public:
   void editNextAnnoElement();
   /// go to last element in annotation being edited
   void editLastAnnoElement();
-  /// return vector miStrings with edited annotation for product prodname
-  vector <miString> writeAnnotations(miString prodname);
+  /// return vector miutil::miStrings with edited annotation for product prodname
+  vector <miutil::miString> writeAnnotations(miutil::miString prodname);
   /// put info from saved edit labels into new annotation
-  void updateEditLabels(vector <miString> productLabelstrings,
-		    miString productName, bool newProduct);
+  void updateEditLabels(vector <miutil::miString> productLabelstrings,
+		    miutil::miString productName, bool newProduct);
 
   //Objects
   ///objects follow main plot time
@@ -402,10 +402,10 @@ public:
   void sendKeyboardEvent(const keyboardEvent& me, EventResult& res);
 
   // return settings formatted for log file
-  vector<miString> writeLog();
+  vector<miutil::miString> writeLog();
   // read settings from log file data
-  void readLog(const vector<miString>& vstr,
-	       const miString& thisVersion, const miString& logVersion);
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
 
 };
 

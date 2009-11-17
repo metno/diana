@@ -37,7 +37,7 @@
 #include <QMessageBox>
 #include <QWindowsStyle>
 
-ProfetSessionDialog::ProfetSessionDialog( QWidget* parent,miString hostname)
+ProfetSessionDialog::ProfetSessionDialog( QWidget* parent,miutil::miString hostname)
   : QDialog(parent )
   {
 

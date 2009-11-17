@@ -31,6 +31,8 @@
 
 #include <diMapManager.h>
 
+using namespace::miutil;
+
 vector<Area> MapManager::mapareas;
 vector<Area> MapManager::mapareas_Fkeys;
 vector<MapInfo> MapManager::mapfiles;

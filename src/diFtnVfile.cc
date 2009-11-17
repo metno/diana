@@ -36,6 +36,7 @@
 #include <math.h>
 #include <diFtnVfile.h>
 
+using namespace::miutil;
 
 // Default constructor
 FtnVfile::FtnVfile(miString filename, int bufferlength) :

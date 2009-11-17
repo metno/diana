@@ -59,7 +59,7 @@
 #include <diBuild.h>
 #include <config.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 
 void printUsage(){

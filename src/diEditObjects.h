@@ -63,7 +63,7 @@ public:
   /// called when a new object plot to be created
   void createNewObject();
   /// called when new edit mode/tool selected in gui (EditDIalog)
-  void setEditMode(const mapMode mmode,const int emode,const miString etool);
+  void setEditMode(const mapMode mmode,const int emode,const miutil::miString etool);
   /// flags comments as saved
   void commentsAreSaved(){commentsSaved=true;}
   /// flags comments as changed
@@ -85,17 +85,17 @@ public:
   /// sets scaleToField variable used for plotting areaBorders
   void setScaleToField(float s);
   /// returns text of marked text object
-  miString getMarkedText();
+  miutil::miString getMarkedText();
   /// returns colour of marked text object
   Colour::ColourInfo getMarkedColour();
   /// changes text of marked text object to newText
-  void changeMarkedText(const miString & newText);
+  void changeMarkedText(const miutil::miString & newText);
   /// changes colour of marked text object to newText
   void changeMarkedColour(const Colour::ColourInfo & newColour);
   /// get texts of marked complex text object
-  void getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText);
+  void getMarkedComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
   /// changes texts of marked complex text object
-  void changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText);
+  void changeMarkedComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
   /// returns true of current symbol is simple text
   bool inTextMode();
   /// returns true of current symbol is complext text
@@ -110,7 +110,7 @@ private:
   mapMode mapmode;
   int editmode; // edit mode index
   int edittool; // edit tools index
-  miString drawingtool; 
+  miutil::miString drawingtool; 
 
   object_modes objectmode;
   combine_modes combinemode;
@@ -126,7 +126,7 @@ private:
   bool commentsChanged;   // true if comments changed once
   bool commentsSaved;     // true if comments saved since last edit
   bool labelsSaved;     // true if comments saved since last edit
-  miString itsComments;   // old comment string
+  miutil::miString itsComments;   // old comment string
 
   WeatherObjects copyObjects;
 
@@ -173,7 +173,7 @@ public:
   /// show all hidden objectts
   void editUnHideAll();
   /// hide all combine objects from region 
-  void editHideCombineObjects(miString region);
+  void editHideCombineObjects(miutil::miString region);
   /// hide all combine objects from region number ir
   void editHideCombineObjects(int ir);
   /// adds a point at x,y to objects being edited
@@ -211,15 +211,15 @@ public:
   /// check all fronts for join points...
   void checkJoinPoints();
   /// put prefix, name and time at start of comments
-  void putCommentStartLines(miString name,miString prefix);
+  void putCommentStartLines(miutil::miString name,miutil::miString prefix);
   /// returns the comments
-  miString getComments();
+  miutil::miString getComments();
   /// set comments
-  void putComments(const miString & comments);
+  void putComments(const miutil::miString & comments);
   /// add comments
-  void addComments(const miString & comments){itsComments+=comments;}
+  void addComments(const miutil::miString & comments){itsComments+=comments;}
   /// save labels
-  void saveEditLabels(vector <miString> labels);
+  void saveEditLabels(vector <miutil::miString> labels);
 
   /// a new UndoFront is created and becomes undoCurrent
   void newUndoCurrent(UndoFront*);

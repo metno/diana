@@ -35,6 +35,8 @@
 #include <diWeatherArea.h>
 #include <math.h>
 
+using namespace::miutil;
+
 map<int,object_modes> EditObjects::objectModes;
 map<int,combine_modes> EditObjects::combineModes;
 

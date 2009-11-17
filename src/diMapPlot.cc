@@ -40,7 +40,7 @@
 #include <math.h>
 #include <values.h>
 
-using namespace std;
+using namespace std; using namespace miutil;
 
 // static members
 map<miString,FilledMap> MapPlot::filledmaps;

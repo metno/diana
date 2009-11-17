@@ -1,7 +1,7 @@
 #include "qtProfetTimeControl.h"
 #include <QLabel>
 
-ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValues>& obj,vector<miTime>& tim) :
+ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValues>& obj,vector<miutil::miTime>& tim) :
   QWidget(parent)
 {
   changed=false;
@@ -9,7 +9,7 @@ ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValu
   
   fetObject::TimeValues parent_obj;
   
-  map<miTime,fetObject::TimeValues> obj_idx;
+  map<miutil::miTime,fetObject::TimeValues> obj_idx;
   for(int i=0;i<obj.size();i++) {
     obj_idx[ obj[i].validTime ] = obj[i];
       if(obj[i].isParent()) 
@@ -24,7 +24,7 @@ ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValu
 
     gridl = new QGridLayout(this);
 
-    miString dayname = tim[0].format("%A %d.","no");
+    miutil::miString dayname = tim[0].format("%A %d.","no");
     int day = tim[0].day();
     int startcol = 0;
 
@@ -75,7 +75,7 @@ ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValu
   }
 }
 
-void ProfetTimeControl::processed(miTime tim, miString obj_id)
+void ProfetTimeControl::processed(miutil::miTime tim, miutil::miString obj_id)
 {
   
   if(time_index.count(tim)) {
@@ -92,9 +92,9 @@ void ProfetTimeControl::buttonAtPressed(int col)
      pushundo();
     
     fetObject::TimeValues data=objects[parenttimestep]->Data();
-    map<miString,float>::iterator itr=data.parameters.begin();
+    map<miutil::miString,float>::iterator itr=data.parameters.begin();
     for(;itr!=data.parameters.end();itr++) {
-        miString par=itr->first;
+        miutil::miString par=itr->first;
         interpolate(par,col);  
     } 
       
@@ -156,13 +156,13 @@ bool ProfetTimeControl::redo()
 }
 
 
-void ProfetTimeControl::clearline(int from,int to,miString par)
+void ProfetTimeControl::clearline(int from,int to,miutil::miString par)
 {
   for(int i=from; i<to;i++)
     objects[i]->resetValue(par);
 }
 
-void ProfetTimeControl::interpolate(miString par, int col)
+void ProfetTimeControl::interpolate(miutil::miString par, int col)
 {
   if(parameters.count(par)) return;
   
@@ -194,17 +194,17 @@ void ProfetTimeControl::interpolate(miString par, int col)
     clearline(fromall,toall,par);
     float fromvalue;
     float tovalue;
-    miTime a;
-    miTime b;
+    miutil::miTime a;
+    miutil::miTime b;
     if(col>parenttimestep) {
       fromvalue = objects[parenttimestep]->value(par);
       tovalue   = objects[parenttimestep]->zero(par);
       a=objects[parenttimestep]->time();
       if(to>=toall-1) {
         b        = objects[to-1]->time();
-        miTime c = objects[to-2]->time();
+        miutil::miTime c = objects[to-2]->time();
 
-        int aa=miTime::hourDiff(b,c);
+        int aa=miutil::miTime::hourDiff(b,c);
 
         b.addHour(aa);
       } else
@@ -217,17 +217,17 @@ void ProfetTimeControl::interpolate(miString par, int col)
       
       if(from==0) {
         a        = objects[from]->time();
-        miTime c = objects[from+1]->time();
-        int aa=miTime::hourDiff(a,c);
+        miutil::miTime c = objects[from+1]->time();
+        int aa=miutil::miTime::hourDiff(a,c);
         a.addHour(aa);
       } else  
         a=objects[from-1]->time();
     }    
 
-    float totaltime=float(miTime::minDiff(b,a));            
+    float totaltime=float(miutil::miTime::minDiff(b,a));            
 
     for(int i=from; i<to;i++) {
-      float done=float(miTime::minDiff(objects[i]->time(),a))/totaltime;
+      float done=float(miutil::miTime::minDiff(objects[i]->time(),a))/totaltime;
       float value=fromvalue-(fromvalue-tovalue)*done;
       objects[i]->setValue(par,value);  
     }
@@ -240,7 +240,7 @@ void ProfetTimeControl::interpolate(miString par, int col)
   } 
 }
 
-void ProfetTimeControl::toggleParameters(miString p)
+void ProfetTimeControl::toggleParameters(miutil::miString p)
 {
   if(parameters.count(p)) {
     parameters.erase(p);

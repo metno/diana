@@ -75,29 +75,29 @@ public:
   ///initialized?
   bool initialized() {return initOK;}
   ///return command strings
-  miString getOKString(bool forLog= false);
+  miutil::miString getOKString(bool forLog= false);
   ///insert command strings
-  void putOKString(const miString& str);
+  void putOKString(const miutil::miString& str);
   ///return short name of current commonad
-  miString getShortname();
+  miutil::miString getShortname();
   ///return legal command strings and update dialog
-  void requestQuickUpdate(miString& oldstr,miString& newstr);
-  void readLog(const miString& str);
+  void requestQuickUpdate(miutil::miString& oldstr,miutil::miString& newstr);
+  void readLog(const miutil::miString& str);
   void setFalse();
-  void setDatatype(const miString&);
-  vector<miString> getDataTypes();
+  void setDatatype(const miutil::miString&);
+  vector<miutil::miString> getDataTypes();
   bool moreToggled(){return moreButton->isOn();}
   //Criteria
   ObsDialogInfo::CriteriaList getSavedCriteria(){return savedCriteria;}
   ObsDialogInfo::CriteriaList getCriteriaList();
   bool setCurrentCriteria(int i);
   int getCurrentCriteria(){return currentCriteria;}
-  vector<miString> getCriteriaNames();
-  void saveCriteria(const vector<miString>& criteria);
-  bool saveCriteria(const vector<miString>& criteria,
-		    const miString& name);
-  bool getCriteriaLimits(const miString& name, int& low, int& high);
-  void markButton(const miString& name, bool on);
+  vector<miutil::miString> getCriteriaNames();
+  void saveCriteria(const vector<miutil::miString>& criteria);
+  bool saveCriteria(const vector<miutil::miString>& criteria,
+		    const miutil::miString& name);
+  bool getCriteriaLimits(const miutil::miString& name, int& low, int& high);
+  void markButton(const miutil::miString& name, bool on);
   bool noButton(){return nobutton;}
 
 private slots:
@@ -112,12 +112,12 @@ private slots:
   void criteriaChecked(bool on );
   void onlyposChecked(bool on );
   void extensionSlot(bool on);
-  void rightClickedSlot(miString str);
+  void rightClickedSlot(miutil::miString str);
 
 signals:
   void getTimes();
-  void rightClicked(miString);
-  void setRightClicked(miString,bool);
+  void rightClicked(miutil::miString);
+  void setRightClicked(miutil::miString,bool);
   void extensionToggled(bool);
   void criteriaOn();
   void newCriteriaList(ObsDialogInfo::CriteriaList);
@@ -128,7 +128,7 @@ private:
   bool initOK;
 
   vector<Colour::ColourInfo> cInfo;
-  vector<miString> markerName;
+  vector<miutil::miString> markerName;
 
   ButtonLayout* datatypeButtons;
   ButtonLayout* parameterButtons;
@@ -177,22 +177,22 @@ private:
   vector<int> time_slider2lcd;
 
   struct dialogVariables {
-    miString plotType;
-    vector<miString> data;
-    vector<miString> parameter;
-    map<miString,miString> misc;
+    miutil::miString plotType;
+    vector<miutil::miString> data;
+    vector<miutil::miString> parameter;
+    map<miutil::miString,miutil::miString> misc;
   };
 
   dialogVariables dVariables;
 
-  void decodeString(const miString&, dialogVariables&,bool fromLog=false);
+  void decodeString(const miutil::miString&, dialogVariables&,bool fromLog=false);
   void updateDialog(bool setOn);
-  miString makeString(bool forLog=false);
+  miutil::miString makeString(bool forLog=false);
 
   bool pressureLevels;
-  map<miString,int> levelMap;
+  map<miutil::miString,int> levelMap;
   bool leveldiffs;
-  map<miString,int> leveldiffMap;
+  map<miutil::miString,int> leveldiffMap;
 
   // LCD <-> slider
   float scaledensity;
@@ -204,10 +204,10 @@ private:
   bool markerboxVisible;
   bool allObs;
   int selectedPressure;
-  miString timediff_minutes;
+  miutil::miString timediff_minutes;
   int pri_selected;     // Wich priority file
-  miString plotType;
-  miString shortname;
+  miutil::miString plotType;
+  miutil::miString shortname;
   bool nobutton;
 
   QVBoxLayout *vlayout;

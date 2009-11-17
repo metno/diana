@@ -101,31 +101,31 @@ private:
 
   bool isInitialized;
 
-  miString TEMP;
-  miString DEWPOINT;
-  miString WIND;
-  miString VERTWIND;
-  miString RELHUM;
-  miString DUCTING;
-  miString KINDEX;
-  miString SIGNWIND;
-  miString PRESSLINES;
-  miString LINEFLIGHT;
-  miString TEMPLINES;
-  miString DRYADIABATS;
-  miString WETADIABATS;
-  miString MIXINGRATIO;
-  miString PTLABELS;
-  miString FRAME;
-  miString TEXT;
-  miString FLIGHTLEVEL;
-  miString FLIGHTLABEL;
-  miString SEPWIND;
-  miString CONDTRAIL;
-  miString GEOPOS;
-  miString PRESSRANGE;
-  miString TEMPRANGE;
-  miString BACKCOLOUR;
+  miutil::miString TEMP;
+  miutil::miString DEWPOINT;
+  miutil::miString WIND;
+  miutil::miString VERTWIND;
+  miutil::miString RELHUM;
+  miutil::miString DUCTING;
+  miutil::miString KINDEX;
+  miutil::miString SIGNWIND;
+  miutil::miString PRESSLINES;
+  miutil::miString LINEFLIGHT;
+  miutil::miString TEMPLINES;
+  miutil::miString DRYADIABATS;
+  miutil::miString WETADIABATS;
+  miutil::miString MIXINGRATIO;
+  miutil::miString PTLABELS;
+  miutil::miString FRAME;
+  miutil::miString TEXT;
+  miutil::miString FLIGHTLEVEL;
+  miutil::miString FLIGHTLABEL;
+  miutil::miString SEPWIND;
+  miutil::miString CONDTRAIL;
+  miutil::miString GEOPOS;
+  miutil::miString PRESSRANGE;
+  miutil::miString TEMPRANGE;
+  miutil::miString BACKCOLOUR;
 
 private slots:
   void standardClicked();
@@ -140,7 +140,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showsource(const miString, const miString="");
+  void showsource(const miutil::miString, const miutil::miString="");
 };
 
 #endif

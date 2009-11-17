@@ -32,6 +32,7 @@
 #include <diSatPlot.h>
 #include <GL/gl.h>
 
+using namespace::miutil;
 
 // Default constructor
 SatPlot::SatPlot()

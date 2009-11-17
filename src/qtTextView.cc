@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -36,9 +36,9 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-TextWidget::TextWidget(QWidget* parent, const miString& text, int id_)
+TextWidget::TextWidget(QWidget* parent, const miutil::miString& text, int id_)
   : QWidget(parent)
-{ 
+{
   id = id_;
 
   textEdit = new QTextEdit(this);
@@ -50,7 +50,7 @@ TextWidget::TextWidget(QWidget* parent, const miString& text, int id_)
 
 }
 
-void TextWidget::setText(miString text)
+void TextWidget::setText(miutil::miString text)
 {
   QString str = text.c_str();
   if(!str.isNull())
@@ -59,7 +59,7 @@ void TextWidget::setText(miString text)
 
 TextView::TextView(QWidget* parent)
   : QDialog(parent)
-{ 
+{
 
   tabwidget = new QTabWidget(this);
 
@@ -78,28 +78,28 @@ TextView::TextView(QWidget* parent)
 
 }
 
-void TextView::setText(int id, const miString& name,
-		      const miString& text)
+void TextView::setText(int id, const miutil::miString& name,
+		      const miutil::miString& text)
 {
-  if(!idmap.count(id)){
-    TextWidget* widget = new TextWidget(this,text,id);
-    idmap[id]=widget;
-    tabwidget->addTab(widget,name.cStr());
-  } else {
-    idmap[id]->setText(text);
-  }
+//  if(!idmap.count(id)){
+//    TextWidget* widget = new TextWidget(this,text,id);
+//    idmap[id]=widget;
+//    tabwidget->addTab(widget,name.cStr());
+//  } else {
+//    idmap[id]->setText(text);
+//  }
 }
 
 void TextView::deleteTab(int id)
 {
-
-  if(idmap.count(id)){
-    tabwidget->removePage(idmap[id]);
-    idmap.erase(id);
-  }
-
-  if(idmap.size()==0)
-    hide();
+//
+//  if(idmap.count(id)){
+//    tabwidget->removePage(idmap[id]);
+//    idmap.erase(id);
+//  }
+//
+//  if(idmap.size()==0)
+//    hide();
 }
 
 void TextView::printSlot()

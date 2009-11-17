@@ -61,34 +61,34 @@ public:
 
   /// initialize class variables to false/zero
   void init();
-  /// parse miString pi to define what objects to display
-  bool define(const miString& pi);
+  /// parse miutil::miString pi to define what objects to display
+  bool define(const miutil::miString& pi);
   /// prepares object plots by setting colour and alpha value, apply symbolfilter etc.
   bool prepareObjects();
   /// returns a string with objectname and time
-  void getObjAnnotation(miString &str, Colour &col);
+  void getObjAnnotation(miutil::miString &str, Colour &col);
   /// adds annotation tables from each objectplot (relevant for shapefiles)
-  bool getAnnotations(vector <miString> &);
+  bool getAnnotations(vector <miutil::miString> &);
   /// returns a string with object name and possibly time
-  void getPlotName(miString& name);
+  void getPlotName(miutil::miString& name);
   /// returns plotInfo string
-  miString getPlotInfo() const {return pin;}
+  miutil::miString getPlotInfo() const {return pin;}
 
   bool autoFile; // read new files
   bool approved;          //objects approved for plotting
   int timeDiff; 
-  miString objectname;
+  miutil::miString objectname;
   bool defined;
 
 private:
 
-  map<miString,bool> useobject;
+  map<miutil::miString,bool> useobject;
 
-  miString pin;
+  miutil::miString pin;
   int alpha;
   int newfrontlinewidth;
   int fixedsymbolsize;
-  vector <miString> symbolfilter;
+  vector <miutil::miString> symbolfilter;
 
 
 

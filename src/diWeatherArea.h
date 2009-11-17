@@ -51,7 +51,7 @@ private:
   bool drawSig;                   // draw sig weather arcs.
 
   static vector<editToolInfo>  allAreas;
-  static map<miString,int> areaTypes;  //finds area type number from name
+  static map<miutil::miString,int> areaTypes;  //finds area type number from name
 
   void recalculate();
   void drawSigweather();
@@ -74,7 +74,7 @@ public:
   /// constructor with integer area type as argumet
   WeatherArea(int ty);
   /// constructor with name of area type as argumet
-  WeatherArea(miString tystring);
+  WeatherArea(miutil::miString tystring);
   /// Destructor
   ~WeatherArea();
   /// define map to find area type number from name
@@ -90,13 +90,13 @@ public:
   /// set type of area
   void setType(int ty);
   /// set type of area
-  bool setType(miString tystring);
+  bool setType(miutil::miString tystring);
   /// turn area
   void flip();
   /// returns true if point x,y on area line
   virtual bool isOnObject(float x, float y) {return showLine(x,y);}
   /// writes a string with Object and Type
-  miString writeTypeString();
+  miutil::miString writeTypeString();
   /// selects or unselects area
   virtual void setSelected(bool s);
   /// returns true if x,y inside area

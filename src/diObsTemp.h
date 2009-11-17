@@ -44,13 +44,13 @@
 class ObsTemp : public temp {
 private:
 
-  void putData(int,int,miTime,ObsData &);
+  void putData(int,int,miutil::miTime,ObsData &);
   int getIndex(int& level,float& pmin, float& pmax, vector<float>& PPPP);
   float knots2ms(int ff) {return (float(ff)*1852.0/3600.0);}
 
 public:
   // Constructors
-  ObsTemp(const miString&);
+  ObsTemp(const miutil::miString&);
 
   void init(ObsPlot *, vector<int>&);
 

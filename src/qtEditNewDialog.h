@@ -79,8 +79,8 @@ private:
   void handleFieldButton(int);
   bool checkProductFree();
   void setLoginLabel();
-  miString savedProd2Str(const savedProduct& sp,
-			 const miString undef = "udefinert");
+  miutil::miString savedProd2Str(const savedProduct& sp,
+			 const miutil::miString undef = "udefinert");
   
 private slots:
   void login_clicked(); 
@@ -101,9 +101,9 @@ private slots:
 
 signals:
   /// emitted when starting new product
-  void EditNewOk(EditProduct&, EditProductId&, miTime&);
+  void EditNewOk(EditProduct&, EditProductId&, miutil::miTime&);
   /// emitted when starting new combine product
-  void EditNewCombineOk(EditProduct&, EditProductId&, miTime&);
+  void EditNewCombineOk(EditProduct&, EditProductId&, miutil::miTime&);
   /// emitted when help clicked
   void EditNewHelp();
   /// emitted when cancel clicked
@@ -142,8 +142,8 @@ private:
   bool normal;
   int currprod;
   EditProductId pid;
-  miTime prodtime; //time for normal analysis
-  miTime combinetime; //time for combined analysis
+  miutil::miTime prodtime; //time for normal analysis
+  miutil::miTime combinetime; //time for combined analysis
   // from EditManager
   vector<EditProduct> products;
   editDBinfo dbi;

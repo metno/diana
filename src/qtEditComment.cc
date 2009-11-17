@@ -111,7 +111,7 @@ void EditComment::textChanged()
   //start comments for editing
   if (inComment) return;
   mEdit->clear();
-  miString comments = m_objm->getComments();
+  miutil::miString comments = m_objm->getComments();
   mEdit->setText(comments.c_str());
   //   mEdit->insertLine("\n");
   //   int n = mEdit->numLines();
@@ -127,7 +127,7 @@ void EditComment::readComment()
 {
   //read comments only
   mEdit2->clear();
-  miString comments = m_objm->readComments(inEditSession);
+  miutil::miString comments = m_objm->readComments(inEditSession);
   mEdit2->setText(comments.c_str());
   //   mEdit2->insertLine("\n");
   //   int n = mEdit2->numLines();
@@ -140,7 +140,7 @@ void EditComment::readComment()
 void EditComment::saveComment()
 {
   if (inComment && isWindowModified()){
-    miString comments = miString(mEdit->text().toStdString());
+    miutil::miString comments = miutil::miString(mEdit->text().toStdString());
     //put comments into plotm->editobjects->comments;
     m_objm->putComments(comments);
     setWindowModified(false);

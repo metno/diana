@@ -127,9 +127,9 @@ private:
 
   bool prognostic;
 
-  miString modelName;
-  miString posName;
-  miTime   validTime;
+  miutil::miString modelName;
+  miutil::miString posName;
+  miutil::miTime   validTime;
   int      forecastHour;
 
   int  numDirec;

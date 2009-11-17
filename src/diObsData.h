@@ -42,26 +42,26 @@
 struct ObsData
 {
   //desc
-  miString dataType;
-  miString id;
+  miutil::miString dataType;
+  miutil::miString id;
   float xpos;
   float ypos;
   int zone;
-  miTime obsTime;
+  miutil::miTime obsTime;
 
   //metar
-  miString metarId;
+  miutil::miString metarId;
   bool CAVOK;              
-  vector<miString> REww;   ///< Recent weather
-  vector<miString> ww;     ///< Significant weather
-  vector<miString> cloud;  ///< Clouds
-  miString appendix;       ///< For whatever remains
+  vector<miutil::miString> REww;   ///< Recent weather
+  vector<miutil::miString> ww;     ///< Significant weather
+  vector<miutil::miString> cloud;  ///< Clouds
+  miutil::miString appendix;       ///< For whatever remains
   
-  map<miString,float> fdata;
+  map<miutil::miString,float> fdata;
 
   //Hqc  
-  map<miString,miString> flag; 
-  map<miString,Colour> flagColour; 
+  map<miutil::miString,miutil::miString> flag; 
+  map<miutil::miString,Colour> flagColour; 
 };
 
 #endif

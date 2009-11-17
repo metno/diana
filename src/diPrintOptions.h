@@ -81,8 +81,8 @@ namespace d_print {
 
 class printOptions {
 public:
-  miString fname;                   ///< name of output file
-  miString printer;                 ///< name of printer
+  miutil::miString fname;                   ///< name of output file
+  miutil::miString printer;                 ///< name of printer
   d_print::Orientation orientation; ///< paper-orientation
   d_print::ColourOption colop;      ///< use of colour
   d_print::PageSize pagesize;       ///< pagesize in standard notation
@@ -118,32 +118,32 @@ public:
 class printerManager {
 private:
   struct printerExtra { // extra commands for postscript
-    map<miString,miString> keys;// keys for matching..
+    map<miutil::miString,miutil::miString> keys;// keys for matching..
     map<string,string> commands;// Extra output-commands
   };
   static vector<printerExtra> printers;
-  static map<miString,d_print::PageSize> pages;
+  static map<miutil::miString,d_print::PageSize> pages;
   static map<d_print::PageSize,d_print::PaperSize> pagesizes;
-  static miString pcommand; // printercommand
+  static miutil::miString pcommand; // printercommand
 
 public:
   printerManager();
   /// parse the printer section of the setup file
   bool parseSetup(SetupParser& sp);
   /// parse printer-info file
-  bool readPrinterInfo(const miString fname);
+  bool readPrinterInfo(const miutil::miString fname);
   /// page from string
-  d_print::PageSize  getPage(const miString s);
+  d_print::PageSize  getPage(const miutil::miString s);
   /// size from page
   d_print::PaperSize getSize(const d_print::PageSize ps);
   /// check if special commands exist for this setup
   bool checkSpecial(const printOptions& po, map<string,string>& mc);
   /// expand variables in print-command
-  bool expandCommand(miString& com, const printOptions& po);
+  bool expandCommand(miutil::miString& com, const printOptions& po);
   /// set print command
-  void setPrintCommand(const miString pc){pcommand= pc; }
+  void setPrintCommand(const miutil::miString pc){pcommand= pc; }
   /// return current print command
-  miString printCommand() const {return pcommand; }
+  miutil::miString printCommand() const {return pcommand; }
 };
 
 #endif

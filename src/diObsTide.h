@@ -49,7 +49,7 @@ private:
 
 public:
   // Constructors
-  ObsTide(const miString&);
+  ObsTide(const miutil::miString&);
 
   void init(ObsPlot*);
 

@@ -4,7 +4,7 @@
 #include <qUtilities/miLogFile.h>
 using namespace std;
 
-PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& values, miString lastSavedPolygon ) :
+PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miutil::miString>& values, miutil::miString lastSavedPolygon ) :
   QMainWindow(w)
   {
   setAttribute(Qt::WA_DeleteOnClose);
@@ -103,7 +103,7 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
 
 
   model->addBookmarks(values);
-  connect(model,SIGNAL(warn(miString)),this,SLOT(warn(miString)));
+  connect(model,SIGNAL(warn(miutil::miString)),this,SLOT(warn(miutil::miString)));
 
 
   bookmarks = new QTreeView(this);
@@ -117,8 +117,8 @@ PolygonBookmarkDialog::PolygonBookmarkDialog(QWidget* w, std::vector<miString>& 
   connect(bookmarks, SIGNAL(clicked(QModelIndex)),
       this, SLOT(bookmarkClicked(QModelIndex)));
 
-  connect(model,SIGNAL(bookmarkCopied(miString,miString,bool)),
-      this,SIGNAL(polygonCopied(miString, miString, bool)));
+  connect(model,SIGNAL(bookmarkCopied(miutil::miString,miutil::miString,bool)),
+      this,SIGNAL(polygonCopied(miutil::miString, miutil::miString, bool)));
   resize(250,400);
 
   QModelIndex c;
@@ -164,7 +164,7 @@ void PolygonBookmarkDialog::paste()
   model->paste(idx);
 }
 
-void PolygonBookmarkDialog::warn(miString w)
+void PolygonBookmarkDialog::warn(miutil::miString w)
 {
   statusBar()->showMessage(w.cStr(),6000);
 }
@@ -228,7 +228,7 @@ void PolygonBookmarkDialog::newFolder()
   if(model->currentIsProtected())
     return;
 
-  miString newfolder= model->getCurrentName(true);
+  miutil::miString newfolder= model->getCurrentName(true);
   newfolder+=".New Folder";
   model->addBookmark(newfolder,true);
 }

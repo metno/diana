@@ -49,8 +49,8 @@ public:
   void setDefaults();
 
   // log and setup
-  vector<miString> writeOptions();
-  void readOptions(const vector<miString>& vstr);
+  vector<miutil::miString> writeOptions();
+  void readOptions(const vector<miutil::miString>& vstr);
 
 private:
   friend class VcrossSetupDialog;
@@ -60,63 +60,63 @@ private:
   bool changed;
 
   bool     pText;
-  miString textColour;
+  miutil::miString textColour;
 
   bool     pPositionNames;
-  miString positionNamesColour;
+  miutil::miString positionNamesColour;
 
   bool     pFrame;
-  miString frameColour;
-  miString frameLinetype;
+  miutil::miString frameColour;
+  miutil::miString frameLinetype;
   float    frameLinewidth;
 
   bool     pLevelNumbers;
 
   bool     pUpperLevel;
-  miString upperLevelColour;
-  miString upperLevelLinetype;
+  miutil::miString upperLevelColour;
+  miutil::miString upperLevelLinetype;
   float    upperLevelLinewidth;
 
   bool     pLowerLevel;
-  miString lowerLevelColour;
-  miString lowerLevelLinetype;
+  miutil::miString lowerLevelColour;
+  miutil::miString lowerLevelLinetype;
   float    lowerLevelLinewidth;
 
   bool     pOtherLevels;
-  miString otherLevelsColour;
-  miString otherLevelsLinetype;
+  miutil::miString otherLevelsColour;
+  miutil::miString otherLevelsLinetype;
   float    otherLevelsLinewidth;
 
   bool     pSurface;
-  miString surfaceColour;
-  miString surfaceLinetype;
+  miutil::miString surfaceColour;
+  miutil::miString surfaceLinetype;
   float    surfaceLinewidth;
 
   bool     pMarkerlines;
-  miString markerlinesColour;
-  miString markerlinesLinetype;
+  miutil::miString markerlinesColour;
+  miutil::miString markerlinesLinetype;
   float    markerlinesLinewidth;
 
   bool     pVerticalMarker;
-  miString verticalMarkerColour;
-  miString verticalMarkerLinetype;
+  miutil::miString verticalMarkerColour;
+  miutil::miString verticalMarkerLinetype;
   float    verticalMarkerLinewidth;
   float    verticalMarkerLimit;
 
   bool     pDistance;
-  miString distanceColour;
-  miString distanceUnit;
-  miString distanceStep;
+  miutil::miString distanceColour;
+  miutil::miString distanceUnit;
+  miutil::miString distanceStep;
 
   bool     pXYpos;
-  miString xyposColour;
+  miutil::miString xyposColour;
 
   bool     pGeoPos;
-  miString geoposColour;
+  miutil::miString geoposColour;
 
   bool     pVerticalGridLines;
-  miString vergridColour;
-  miString vergridLinetype;
+  miutil::miString vergridColour;
+  miutil::miString vergridLinetype;
   float    vergridLinewidth;
 
   bool     extrapolateFixedLevels;
@@ -124,7 +124,7 @@ private:
 
   bool     thinArrows;
 
-  miString verticalType;
+  miutil::miString verticalType;
 
   bool keepVerHorRatio;
   int  verHorRatio;
@@ -137,18 +137,18 @@ private:
   int  minHorizontalArea;
   int  maxHorizontalArea;
 
-  miString backgroundColour;
+  miutil::miString backgroundColour;
 
   vector<float> fixedPressureLevels;
 
   //-------------
 
-  miString vcOnMapColour;
-  miString vcOnMapLinetype;
+  miutil::miString vcOnMapColour;
+  miutil::miString vcOnMapLinetype;
   float    vcOnMapLinewidth;
 
-  miString vcSelectedOnMapColour;
-  miString vcSelectedOnMapLinetype;
+  miutil::miString vcSelectedOnMapColour;
+  miutil::miString vcSelectedOnMapLinetype;
   float    vcSelectedOnMapLinewidth;
 
 };

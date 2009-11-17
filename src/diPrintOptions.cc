@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -35,6 +35,7 @@
 /* Created at Wed Oct 31 18:26:24 2001 */
 
 using namespace d_print;
+using namespace::miutil;
 
 vector<printerManager::printerExtra> printerManager::printers;
 map<miString,d_print::PageSize> printerManager::pages;
@@ -174,7 +175,7 @@ bool printerManager::readPrinterInfo(const miString fname)
 {
   //   cerr << "Reading printerdef from:" << fname << endl;
   printers.clear();
-  
+
   if (!fname.exists()) return false;
 
   // open filestream
@@ -226,17 +227,17 @@ bool printerManager::readPrinterInfo(const miString fname)
       }
     }
   }
-  
+
   return true;
 }
 
 PageSize  printerManager::getPage(const miString s) // page from string
 {
   PageSize ps;
-  
+
   miString us= s.upcase();
   us.trim();
-  
+
   if (pages.count(us)>0)
     ps= pages[us];
 
@@ -249,7 +250,7 @@ PaperSize printerManager::getSize(const PageSize ps)// size from page
 
   if (pagesizes.count(ps)>0)
     prs= pagesizes[ps];
-  
+
   return prs;
 }
 
@@ -258,7 +259,7 @@ bool printerManager::checkSpecial(const printOptions& po,
 {
   if (!printers.size()) return false;
   mc.clear();
-  
+
   for (int i=0; i<printers.size(); i++){
     if (printers[i].keys["PRINTER"]==po.printer){
       // check rest of the keys

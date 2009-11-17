@@ -36,7 +36,7 @@
 
 
 ToggleButton::ToggleButton( QWidget* parent,
-			    miString name,
+			    miutil::miString name,
 			    QColor* color )
   : QPushButton( name.c_str(), parent)
 {
@@ -59,7 +59,7 @@ ToggleButton::ToggleButton( QWidget* parent,
 
 
 ToggleButton::ToggleButton( QWidget* parent,
-			    miString* name,
+			    miutil::miString* name,
 			    QColor* color )
   : QPushButton( (name[1]).c_str(),  parent )
 {

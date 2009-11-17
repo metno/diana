@@ -50,37 +50,37 @@ class VprofData
 {
 
 public:
-  VprofData(const miString& filename, const miString& modelname);
+  VprofData(const miutil::miString& filename, const miutil::miString& modelname);
   ~VprofData();
   bool readFile();
-  VprofPlot* getData(const miString& name, const miTime& time);
-  vector<miString> getNames() { return posName; }
+  VprofPlot* getData(const miutil::miString& name, const miutil::miTime& time);
+  vector<miutil::miString> getNames() { return posName; }
   vector <float> getLatitudes() { return posLatitude; }
   vector <float> getLongitudes() { return posLongitude; }
-  vector<miString> getObsNames() { return obsName; }
-  vector<miTime>   getTimes() { return validTime; }
+  vector<miutil::miString> getObsNames() { return obsName; }
+  vector<miutil::miTime>   getTimes() { return validTime; }
 
 private:
 
-  miString fileName;
-  miString modelName;
+  miutil::miString fileName;
+  miutil::miString modelName;
 
   int numPos;
   int numTime;
   int numParam;
   int numLevel;
 
-  vector<miString> posName;
-  vector<miString> obsName;
+  vector<miutil::miString> posName;
+  vector<miutil::miString> obsName;
   vector<int>      posTemp;
   vector<float>    posLatitude;
   vector<float>    posLongitude;
   vector<float>    posDeltaLatitude;
   vector<float>    posDeltaLongitude;
-  vector<miTime>   validTime;
+  vector<miutil::miTime>   validTime;
   vector<int>      forecastHour;
-  vector<miString> progText;
-  vector<miString> mainText;
+  vector<miutil::miString> progText;
+  vector<miutil::miString> mainText;
   vector<int>      paramId;
   vector<float>    paramScale;
 

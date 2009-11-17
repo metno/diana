@@ -375,7 +375,7 @@ void ObjectDialog::doubleDisplayDiff( int number ){
     int minutes=m_totalminutes-hours*60;
     ostringstream ostr;
     ostr << hours << ":" << setw(2) << setfill('0') << minutes;
-    miString str= ostr.str();
+    miutil::miString str= ostr.str();
     diffLcdnum->display( str.c_str() );
 }
 
@@ -467,7 +467,7 @@ void ObjectDialog::updateTimefileList(bool refresh){
   if (autoButton->isOn()) {
     emit emitTimes( "obj",times, true );
   } else {
-    vector<miTime> noTimes; //Emit empty time list
+    vector<miutil::miTime> noTimes; //Emit empty time list
     emit emitTimes( "obj",noTimes,false );
   }
 
@@ -506,7 +506,7 @@ void ObjectDialog::updateSelectedFileList()
   //clear box with names of files
   selectedFileList->clear();
 
-  miString namestr;
+  miutil::miString namestr;
 
   int index= namebox->currentRow();
   if(index<0) return;
@@ -535,15 +535,15 @@ void ObjectDialog::updateSelectedFileList()
 
 /*************************************************************************/
 
-vector<miString> ObjectDialog::getOKString(){
+vector<miutil::miString> ObjectDialog::getOKString(){
 #ifdef dObjectDlg
   cerr << "ObjectDialog::getOKstring" << endl;
 #endif
 
-  vector<miString> vstr;
+  vector<miutil::miString> vstr;
 
   if (selectedFileList->count()){
-    miString str;
+    miutil::miString str;
     str = "OBJECTS";
     int index = namebox->currentRow();
     int timefileListIndex = timefileList->currentRow();
@@ -556,7 +556,7 @@ vector<miString> ObjectDialog::getOKString(){
 	ObjFileInfo file=files[timefileListIndex];
 
 	if (timeButton->isOn()){
-	  miTime time=file.time;
+	  miutil::miTime time=file.time;
 	  if (!time.undef())
 	    str+=(" TIME=" + stringFromTime(time));
 	}
@@ -596,7 +596,7 @@ vector<miString> ObjectDialog::getOKString(){
 }
 
 
-void ObjectDialog::putOKString(const vector<miString>& vstr)
+void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
 {
 #ifdef dObjectDlg
   cerr << "ObjectDialog::putOKstring" << endl;
@@ -614,7 +614,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
   for (int ip=0; ip<npi; ip++){
     //(if there are several plotInfos, only the last one will be
     //used
-    vector<miString> tokens= vstr[ip].split('"','"');
+    vector<miutil::miString> tokens= vstr[ip].split('"','"');
     //get info from OKstring into struct PlotVariables
     plotVariables = decodeString(tokens);
   }
@@ -624,7 +624,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
   bool found=false;
   int nc = namebox->count();
   for (int j=0;j<nc;j++ ){
-    miString listname =  namebox->item(j)->text().toStdString();
+    miutil::miString listname =  namebox->item(j)->text().toStdString();
     if (plotVariables.objectname==listname){
       namebox->setCurrentRow(j);
       namebox->item(j)->setSelected(true);
@@ -638,7 +638,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
     //cerr << "time =" << plotVariables.time << endl;
     int nt=files.size();
     for (int j=0;j<nt;j++ ){
-      miString listtime=stringFromTime(files[j].time);
+      miutil::miString listtime=stringFromTime(files[j].time);
       if (plotVariables.time==listtime){
 	timefileBut->button(1)->setChecked(true);
 	timefileClicked(1);
@@ -649,7 +649,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
     //cerr << "file =" << plotVariables.file << endl;
     int nf = files.size();
     for (int j=0;j<nf;j++ ){
-      miString listfile =  files[j].name;
+      miutil::miString listfile =  files[j].name;
       if (plotVariables.file==listfile){
 	timefileBut->button(2)->setChecked(true);
 	timefileClicked(2);
@@ -694,7 +694,7 @@ void ObjectDialog::putOKString(const vector<miString>& vstr)
 
 
 ObjectDialog::PlotVariables
-ObjectDialog::decodeString(const vector <miString> & tokens)
+ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
 {
 #ifdef dObjectDlg
   cerr << "ObjectDialog::decodeString" << endl;
@@ -705,7 +705,7 @@ ObjectDialog::decodeString(const vector <miString> & tokens)
   okVar.alphanr=1.0;
 
   int n= tokens.size();
-  miString token;
+  miutil::miString token;
 
   //loop over OKstrings
   for (int i=0; i<n; i++){
@@ -714,8 +714,8 @@ ObjectDialog::decodeString(const vector <miString> & tokens)
     if (token.contains("types=")){
       okVar.useobject = m_ctrl->decodeTypeString(token);
     } else {
-      miString key, value;
-      vector<miString> stokens= tokens[i].split('=');
+      miutil::miString key, value;
+      vector<miutil::miString> stokens= tokens[i].split('=');
       if ( stokens.size()==2) {
 	key = stokens[0].downcase();
 	value = stokens[1];
@@ -746,8 +746,8 @@ ObjectDialog::decodeString(const vector <miString> & tokens)
 }
 
 
-void ObjectDialog::requestQuickUpdate(const vector<miString>& oldstr,
-				      vector<miString>& newstr){
+void ObjectDialog::requestQuickUpdate(const vector<miutil::miString>& oldstr,
+				      vector<miutil::miString>& newstr){
 #ifdef dObjectDlg
   cerr << "ObjectDialog::requestQuickUpdate" << endl;
   cerr << "start requestQuickUpdate" << endl;
@@ -772,8 +772,8 @@ void ObjectDialog::requestQuickUpdate(const vector<miString>& oldstr,
     }
   if ( !diff ) return;
 
-  vector<miString> oldtokens= oldstr;
-  vector<miString> newtokens= newstr;
+  vector<miutil::miString> oldtokens= oldstr;
+  vector<miutil::miString> newtokens= newstr;
   newstr.clear();
 
   // Structs containing info from OKstring
@@ -804,7 +804,7 @@ void ObjectDialog::requestQuickUpdate(const vector<miString>& oldstr,
   }
   oldOkVar.alphanr=newOkVar.alphanr;
 
-  miString resultstr= makeOKString(oldOkVar);
+  miutil::miString resultstr= makeOKString(oldOkVar);
   newstr.push_back(resultstr);
 
 #ifdef dObjectDlg
@@ -818,12 +818,12 @@ void ObjectDialog::requestQuickUpdate(const vector<miString>& oldstr,
 
 
 
-miString ObjectDialog::getShortname()
+miutil::miString ObjectDialog::getShortname()
 {
 #ifdef dObjectDlg
   cerr << "ObjectDialog::getShortname" << endl;
 #endif
-  miString name;
+  miutil::miString name;
 
   int nameboxIndex = namebox->currentRow();
   int timefileListIndex = timefileList->currentRow();
@@ -836,20 +836,20 @@ miString ObjectDialog::getShortname()
     if (nameboxIndex > -1)
       name += "" + objectnames[nameboxIndex] + " ";
     else
-      name+= (" FILE=") + miString(selectedFileList->currentItem()->text().toStdString());
+      name+= (" FILE=") + miutil::miString(selectedFileList->currentItem()->text().toStdString());
   }
 
   return name;
 }
 
 
-miString ObjectDialog::makeOKString(PlotVariables & okVar){
+miutil::miString ObjectDialog::makeOKString(PlotVariables & okVar){
 #ifdef dObjectDlg
   cerr << "ObjectDialog::makeOKString" << endl;
 #endif
 
 
-    miString str;
+    miutil::miString str;
     str = "OBJECTS";
 
     str+=(" NAME=\"" + okVar.objectname + "\"");
@@ -905,7 +905,7 @@ void ObjectDialog::archiveMode( bool on )
 
 /*************************************************************************/
 
-miString ObjectDialog::stringFromTime(const miTime& t){
+miutil::miString ObjectDialog::stringFromTime(const miutil::miTime& t){
 
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << t.year()

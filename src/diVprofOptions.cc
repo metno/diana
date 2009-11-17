@@ -31,6 +31,7 @@
 #include <diVprofOptions.h>
 #include <iostream>
 
+using namespace::miutil;
 
 // default constructor
 VprofOptions::VprofOptions()

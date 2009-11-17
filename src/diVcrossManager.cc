@@ -38,6 +38,7 @@
 
 #include <glob.h>
 
+using namespace::miutil;
 
 VcrossManager::VcrossManager()
 : dataChange(true), timeGraphPos(-1) , timeGraphPosMax(-1), hardcopy(false)

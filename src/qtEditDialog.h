@@ -142,8 +142,8 @@ private slots:
   void hideComment();
   void exitClicked(); 
   void helpClicked(); 
-  void EditNewOk(EditProduct&, EditProductId&, miTime&);
-  void EditNewCombineOk(EditProduct&, EditProductId&, miTime&);
+  void EditNewOk(EditProduct&, EditProductId&, miutil::miTime&);
+  void EditNewCombineOk(EditProduct&, EditProductId&, miutil::miTime&);
   void EditNewCancel();
   void newLogin(editDBinfo&);
 
@@ -163,13 +163,13 @@ signals:
   /// apply edit commands
   void editApply();
  /// send plot-commands
-  void Apply(const vector<miString>& s, bool);
+  void Apply(const vector<miutil::miString>& s, bool);
   /// show documentation 
-  void showsource(const miString, const miString="");
+  void showsource(const miutil::miString, const miutil::miString="");
   /// emit edit times
-  void emitTimes(const miString&,const vector<miTime>&);
+  void emitTimes(const miutil::miString&,const vector<miutil::miTime>&);
   /// update field dialog
-  void emitFieldEditUpdate(miString);
+  void emitFieldEditUpdate(miutil::miString);
   /// editing on or off
   void editMode(bool);
 
@@ -233,35 +233,35 @@ private:
 
   int m_FrontcmIndex; // index of m_Frontcm;
   int m_FronteditIndex; // index of m_Fronteditmethods;
-  vector <miString> m_FronteditList;// items in Frontedit
+  vector <miutil::miString> m_FronteditList;// items in Frontedit
 
-  map <miString,QString> editTranslations;//translate to any language
+  map <miutil::miString,QString> editTranslations;//translate to any language
 
   int fieldEditToolGroup;  // 0=standard 1=classes 2=numbers
   int numFieldEditTools;
   int currFieldEditToolIndex;
-  vector<miString> classNames;
+  vector<miutil::miString> classNames;
   vector<float>    classValues;
   vector<bool>     classValuesLocked;
 
-  miString currMapmode;
-  miString currEditmode;
-  miString currEdittool;
+  miutil::miString currMapmode;
+  miutil::miString currEditmode;
+  miutil::miString currEdittool;
   int combineAction;
   bool inEdit;          // editing is active
   bool productApproved; // product has been approved
   // current production
   EditProduct currprod;
   EditProductId currid;
-  miTime prodtime;
+  miutil::miTime prodtime;
   // database info
   editDBinfo dbi;
 
   TimeStepSpinbox* timestepspin;
   QLabel* timelabel;
 
-  bool getText(miString &, Colour::ColourInfo &);
-  bool getComplexText(vector <miString> &, vector <miString> &);
+  bool getText(miutil::miString &, Colour::ColourInfo &);
+  bool getComplexText(vector <miutil::miString> &, vector <miutil::miString> &);
 
   
   QString TABNAME_FIELD;

@@ -71,10 +71,10 @@ private:
   ToggleButton* fileButton;
   QListWidget * modelfileList;
 
-  miString ASFIELD;
-  miString OBSTEMP;
-  miString OBSPILOT;
-  miString OBSAMDAR;
+  miutil::miString ASFIELD;
+  miutil::miString OBSTEMP;
+  miutil::miString OBSPILOT;
+  miutil::miString OBSAMDAR;
 
   //functions
   void updateModelfileList();
@@ -91,7 +91,7 @@ private slots:
 signals:
   void ModelHide();
   void ModelApply();
-  void showsource(const miString, const miString="");
+  void showsource(const miutil::miString, const miutil::miString="");
 };
 
 #endif

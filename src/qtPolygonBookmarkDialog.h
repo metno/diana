@@ -35,11 +35,11 @@ protected:
   void closeEvent( QCloseEvent* );
 
 public:
-	PolygonBookmarkDialog(QWidget* w,std::vector<miString>& s, miString lastSavedPolygon="");
+	PolygonBookmarkDialog(QWidget* w,std::vector<miutil::miString>& s, miutil::miString lastSavedPolygon="");
 
 public slots:
   void bookmarkClicked(QModelIndex);
-  void warn(miString);
+  void warn(miutil::miString);
 
 private slots:
   void quit();
@@ -58,8 +58,8 @@ private slots:
 signals:
   void polygonCanceled();                       ///< emitted on cancel ( cast polygon)
   void polygonQuit();                           ///< close dialog but keep the polygon
-  void polygonCopied(miString, miString, bool); ///< from - to - move
-  void polygonSelected(miString);               ///< get from db and use that one
+  void polygonCopied(miutil::miString, miutil::miString, bool); ///< from - to - move
+  void polygonSelected(miutil::miString);               ///< get from db and use that one
 };
 
 #endif /*QPOLYGONBOOKMARKDIALOG_H_*/
