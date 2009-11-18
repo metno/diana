@@ -31,6 +31,8 @@
 
 #include <QMessageBox>
 #include "qtMailDialog.h"
+#include <QByteArray>
+#include <QImage>
 
 //******************************************************************************
 //* MailDialog::MailDialog( QWidget* parent, Controller* llctrl )
@@ -108,18 +110,33 @@ void MailDialog::createGridGroupBox()
 //******************************************************************************
 void MailDialog::accept()
 {
-	//--- Create a temporary file for the images ---
+	//--- Create a temporary file for the image ---
 	QTemporaryFile *mailtempfile = new QTemporaryFile(QDir::tempPath()+"/diana_XXXXXX.png");
 	mailtempfile->open();
 	QString filename = mailtempfile->fileName();
 
+	//--- create the image ---
 	emit saveImage(filename);
+
+	//--- read the image and convert to Base64 byte array ---
+	QFile file(filename);
+	if (!file.open(QIODevice::ReadOnly)){
+	  return;
+	}
+	QDataStream in(&file); // read the data serialized from the file
+	QByteArray rawarray;   // the raw data
+  QDataStream datastream(&rawarray, QIODevice::WriteOnly);
+  char a;
+  // copy between the two data streams
+  while (in.readRawData(&a,1) != 0){
+    datastream.writeRawData(&a,1);
+  }
+  QByteArray base64array = rawarray.toBase64();
 
 	FILE* sendmail;
 
-	UUInitialize();
 	//--- Send mail using code from qtUffdaDialog ---
-	sendmail=popen("/usr/lib/sendmail -t","w");
+  sendmail=popen("/usr/lib/sendmail -t","w");
 	//--- Mail header ---
 	fprintf(sendmail,"MIME-Version: 1.0\n");
 	fprintf(sendmail,"From: diana_noreply@met.no\n");
@@ -137,17 +154,16 @@ void MailDialog::accept()
 	fprintf(sendmail,"Content-type: image/png; name=\"diana.png\"\n");
 	fprintf(sendmail,"Content-Transfer-Encoding: base64\n");
 	fprintf(sendmail,"Content-Disposition: inline; filename=\"diana.png\"\n\n");
-	UUEncodeToStream(sendmail, NULL, (char *)filename.toAscii().data(), B64ENCODED, "diana.png", 644);
+	//--- the image data ---
+	const char *data = base64array.constData();
+	fprintf(sendmail,data);
+  fprintf(sendmail,"\n\n");
+
 	fprintf(sendmail,"--diana_auto_generated--\n\n");
 	//--- Finished with sendmail ---
-	pclose(sendmail);
-	//--- Done with UUEncoder, clean up & quit ---
-	UUCleanUp();
+  pclose(sendmail);
 	//--- Removing tmp file
 	mailtempfile->remove();
 	//--- We'll just hide ourselves, so we "remember" field contents from last time ---
 	hide();
-
-	
 }
-
