@@ -39,12 +39,13 @@
 
 using namespace std;
 
-MovieMaker::MovieMaker(string &filename, float delay)
+MovieMaker::MovieMaker(string &filename, string &format, float delay)
 {
 #ifdef HAVE_LOG4CXX
   logger = log4cxx::Logger::getLogger("diana.MovieMaker"); ///< LOG4CXX init
 #endif
   g_strOutputVideoFile = filename;
+  g_strOutputVideoFormat = format;
   this->delay = delay;
 
   // register all the codecs
@@ -146,11 +147,18 @@ bool MovieMaker::openVideoEncoder(OutputCtx *output)
 
 bool MovieMaker::initOutputStream(OutputCtx *output)
 {
-  AVOutputFormat *outputFormat = guess_format("dvd", NULL, NULL );
+  AVOutputFormat *outputFormat = 0;
+  if (!g_strOutputVideoFormat.compare("mpg")) {
+    outputFormat = guess_format("dvd", NULL, NULL);
+    if (outputFormat)
+        outputFormat->video_codec = CODEC_ID_MPEG2VIDEO;
+  } else if (!g_strOutputVideoFormat.compare("avi")) {
+      outputFormat = guess_format("avi", NULL, NULL);
+      if (outputFormat)
+          outputFormat->video_codec = CODEC_ID_MSMPEG4V2;
+  }
   if (!outputFormat)
     return false;
-
-  outputFormat->video_codec = CODEC_ID_MPEG2VIDEO;
 
   output->outputCtx = av_alloc_format_context();
   if (!output->outputCtx)

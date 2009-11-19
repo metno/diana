@@ -61,24 +61,23 @@ struct OutputCtx {
   short *videoBuffer;
 };
 
-using namespace std;
-
 class MovieMaker {
 public:
   /**
    * Constructor. Sets filename to save the finished animation to, and
    * which quality it will be saved in.
    */
-  MovieMaker(string &filename, float delay);
+  MovieMaker(std::string &filename, std::string &format, float delay);
 
   ~MovieMaker();
-  
+
   bool addImage(QImage *image);
 
 private:
   float delay;
-  string g_strOutputVideoFile;
-  string g_strInputImageFile;
+  std::string g_strOutputVideoFile;
+  std::string g_strOutputVideoFormat;
+  std::string g_strInputImageFile;
 
   OutputCtx outputVideo;
 

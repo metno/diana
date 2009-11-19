@@ -2872,23 +2872,28 @@ void DianaMainWindow::saveAnimation() {
     QFileDialog::getSaveFileName(this,
         tr("Save animation from current fields, satellite images, etc., using current settings"),
         fname,
-        tr("Movies (*.mpg);;All (*.*)"));
+        tr("Movies (*.mpg *.avi);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
-    fname= s;
-    miutil::miString filename= s.toStdString();
-    miutil::miString format = "mpg";
+    fname = s;
 
-    /// find format
-    if (filename.contains(".mpg") || filename.contains(".MPG")) {
+    const QString suffix = QFileInfo(s).suffix();
+    miString format;
+
+    if (!suffix.compare(QLatin1String("mpg"), Qt::CaseInsensitive)) {
       format = "mpg";
-    } else { ///< default to mpg
-      filename += ".mpg";
+    } else if (!suffix.compare(QLatin1String("avi"), Qt::CaseInsensitive)) {
+      format = "avi";
+    } else { // default to mpg
+      format = "mpg";
+      s += ".mpg";
     }
 
+    miString filename = s.toStdString();
+
     float delay = timeout_ms * 0.001;
-    MovieMaker moviemaker(filename, delay);
+    MovieMaker moviemaker(filename, format, delay);
 
     QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
     showMinimized();
@@ -2905,7 +2910,8 @@ void DianaMainWindow::saveAnimation() {
     int i = 0;
 
     int maxProgress = nrOfTimesteps - tslider->current() - 1;
-    QProgressDialog progress("Making animation...", "Hide", 0, maxProgress);
+    QProgressDialog progress(tr("Creating animation..."), tr("Hide"),
+                             0, maxProgress);
     progress.setWindowModality(Qt::WindowModal);
 
     /// save frames as images
