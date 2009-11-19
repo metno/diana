@@ -2879,7 +2879,7 @@ void DianaMainWindow::saveAnimation() {
     fname = s;
 
     const QString suffix = QFileInfo(s).suffix();
-    miString format;
+    miutil::miString format;
 
     if (!suffix.compare(QLatin1String("mpg"), Qt::CaseInsensitive)) {
       format = "mpg";
@@ -2890,7 +2890,7 @@ void DianaMainWindow::saveAnimation() {
       s += ".mpg";
     }
 
-    miString filename = s.toStdString();
+    miutil::miString filename = s.toStdString();
 
     float delay = timeout_ms * 0.001;
     MovieMaker moviemaker(filename, format, delay);
