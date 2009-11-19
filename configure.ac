@@ -109,9 +109,6 @@ AS_IF([test x$enable_video_export = xyes], [
     METNO_REQUIRE_C_LIBRARY([AVFORMAT], [avformat], [ffmpeg/avformat.h], [av_read_frame])
 ])
 
-# uudeview
-METNO_REQUIRE_C_LIBRARY([UU], [uu], [uudeview.h], [UUInitialize])
-
 # shapefile
 METNO_REQUIRE_C_LIBRARY([SHP], [shp], [], [SHPOpen])
 
