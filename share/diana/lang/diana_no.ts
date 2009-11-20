@@ -320,7 +320,7 @@
         <translation type="unfinished">&amp;Valg</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3158"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3164"/>
         <source>Zoom out</source>
         <translation type="unfinished">Zoom ut</translation>
     </message>
@@ -507,39 +507,49 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2875"/>
-        <source>Movies (*.mpg);;All (*.*)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2893"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2898"/>
         <source>Making animation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2893"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2898"/>
         <source>This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2931"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2937"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2931"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2937"/>
         <source>Animation completed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2936"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2942"/>
         <source>Compiled without video export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2936"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2942"/>
         <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="2875"/>
+        <source>Movies (*.mpg *.avi);;All (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="2913"/>
+        <source>Creating animation...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="2913"/>
+        <source>Hide</source>
+        <translation type="unfinished">Skjul</translation>
     </message>
 </context>
 <context>
@@ -1972,12 +1982,12 @@ Kan ikke starte produksjon</translation>
 <context>
     <name>MailDialog</name>
     <message>
-        <location filename="../../../src/qtMailDialog.cc" line="60"/>
+        <location filename="../../../src/qtMailDialog.cc" line="62"/>
         <source>E-Mail Picture</source>
         <translation type="unfinished">Send bilde som epost</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMailDialog.cc" line="75"/>
+        <location filename="../../../src/qtMailDialog.cc" line="77"/>
         <source>E-Mail Details</source>
         <translation type="unfinished">Epostdetaljer</translation>
     </message>
