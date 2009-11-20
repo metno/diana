@@ -59,7 +59,13 @@ AM_CONDITIONAL([WITH_OBS_BUFR], [test x$enable_obs_bufr = xyes])
 
 AC_ARG_ENABLE([video-export],
     [AS_HELP_STRING([--disable-video-export], [disable video export feature])],
-    [], [enable_video_export=yes])AM_CONDITIONAL([WITH_VIDEO_EXPORT], [test x$enable_video_export = xyes])
+    [], [enable_video_export=yes])
+AM_CONDITIONAL([WITH_VIDEO_EXPORT], [test x$enable_video_export = xyes])
+
+AC_ARG_ENABLE([xlib],
+    [AS_HELP_STRING([--enable-xlib], [enable X-lib usage])],
+    [], [enable_xlib=no])
+AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 
 #
 # metlibs

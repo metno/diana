@@ -29,7 +29,9 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include <diFontManager.h>
+#ifdef USE_XLIB
 #include <glText/glTextX.h>
+#endif
 #include <glText/glTextQtTexture.h>
 #include <glText/glTextTT.h>
 #include <glp/GLP.h>
@@ -49,21 +51,27 @@ static const miString key_scalefont = "scalefont";
 static const miString key_metsymbolfont = "metsymbolfont";
 
 FontManager::FontManager() :
-  xfonts(0), ttfonts(0), texfonts(0), current_engine(0)
+#ifdef USE_XLIB
+  xfonts(0),
+#endif
+  ttfonts(0), texfonts(0), current_engine(0)
 {
+#ifdef USE_XLIB
   if (display_name.exists()) // do not use environment-var DISPLAY
     xfonts = new glTextX(display_name);
   else
     xfonts = new glTextX();
-
+#endif
   ttfonts = new glTextTT();
   texfonts = new glTextQtTexture();
 }
 
 FontManager::~FontManager()
 {
+#ifdef USE_XLIB
   if (xfonts)
     delete xfonts;
+#endif
   if (ttfonts)
     delete ttfonts;
   if (texfonts)
@@ -72,8 +80,10 @@ FontManager::~FontManager()
 
 void FontManager::startHardcopy(GLPcontext* gc)
 {
+#ifdef USE_XLIB
   if (xfonts)
     xfonts->startHardcopy(gc);
+#endif
   if (ttfonts)
     ttfonts->startHardcopy(gc);
   if (texfonts)
@@ -82,8 +92,10 @@ void FontManager::startHardcopy(GLPcontext* gc)
 
 void FontManager::endHardcopy()
 {
+#ifdef USE_XLIB
   if (xfonts)
     xfonts->endHardcopy();
+#endif
   if (ttfonts)
     ttfonts->endHardcopy();
   if (texfonts)
@@ -94,16 +106,19 @@ void FontManager::endHardcopy()
 bool FontManager::testDefineFonts(miString path)
 {
   bool res = true;
-  res = xfonts->testDefineFonts(path);
+  int n;
   xfam.clear();
-  int n = xfonts->getNumFonts();
+  ttfam.clear();
+#ifdef USE_XLIB
+  res = xfonts->testDefineFonts(path);
+  n = xfonts->getNumFonts();
   cerr << "-- TEST Defined X-fonts:" << endl;
   for (int i = 0; i < n; i++) {
     miString s = xfonts->getFontName(i);
     xfam.insert(s);
     cerr << i << " " << s << endl;
   }
-
+#endif
   res = res && ttfonts->testDefineFonts(path);
   n = ttfonts->getNumFonts();
   cerr << "-- TEST Defined TT-fonts:" << endl;
@@ -200,10 +215,13 @@ bool FontManager::parseSetup(SetupParser& sp)
       continue;
 
     if (fonttype.downcase() == key_bitmap) {
+#ifdef USE_XLIB
       xfam.insert(fontfam);
       if (xfonts)
         xfonts->defineFonts(fontname, fontfam, postscript);
-
+#else
+      std::cerr << "X-FONTS not supported!" << std::endl;
+#endif
     } else if (fonttype.downcase() == key_scaleable) {
       ttfam.insert(fontfam);
       if (ttfonts)
@@ -247,13 +265,18 @@ bool FontManager::check_family(const miString& fam, miString& family)
   else
     family = fam;
 
-  if (find(xfam.begin(), xfam.end(), family) != xfam.end())
+  if (find(xfam.begin(), xfam.end(), family) != xfam.end()) {
+#ifdef USE_XLIB
     current_engine = xfonts;
-  else if (find(ttfam.begin(), ttfam.end(), family) != ttfam.end())
+#else
+    std::cerr << "X-FONTS not supported!" << std::endl;
+    return false;
+#endif
+  } else if (find(ttfam.begin(), ttfam.end(), family) != ttfam.end()) {
     current_engine = ttfonts;
-  else if (find(texfam.begin(), texfam.end(), family) != texfam.end())
+  } else if (find(texfam.begin(), texfam.end(), family) != texfam.end()) {
     current_engine = texfonts;
-  else {
+  } else {
     cerr << "FontManager::check_family ERROR, unknown font family:" << family
         << endl;
     return false;
@@ -329,14 +352,18 @@ bool FontManager::drawStr(const char* s, const float x, const float y,
 // Metric commands
 void FontManager::adjustSize(const int sa)
 {
+#ifdef USE_XLIB
   xfonts->adjustSize(sa);
+#endif
   ttfonts->adjustSize(sa);
   texfonts->adjustSize(sa);
 }
 
 void FontManager::setScalingType(const glText::FontScaling fs)
 {
+#ifdef USE_XLIB
   xfonts->setScalingType(fs);
+#endif
   ttfonts->setScalingType(fs);
   texfonts->setScalingType(fs);
 }
@@ -347,7 +374,9 @@ void FontManager::setGlSize(const float glx1, const float glx2,
 {
   float glw = glx2 - glx1;
   float glh = gly2 - gly1;
+#ifdef USE_XLIB
   xfonts->setGlSize(glw, glh);
+#endif
   ttfonts->setGlSize(glw, glh);
   texfonts->setGlSize(glw, glh);
   //texfonts->setGlSize(glx1, glx2, gly1, gly2);
@@ -356,7 +385,9 @@ void FontManager::setGlSize(const float glx1, const float glx2,
 // set viewport size in GL coordinates
 void FontManager::setGlSize(const float glw, const float glh)
 {
+#ifdef USE_XLIB
   xfonts->setGlSize(glw, glh);
+#endif
   ttfonts->setGlSize(glw, glh);
   texfonts->setGlSize(glw, glh);
 }
@@ -364,14 +395,18 @@ void FontManager::setGlSize(const float glw, const float glh)
 // set viewport size in physical coordinates (pixels)
 void FontManager::setVpSize(const float vpw, const float vph)
 {
+#ifdef USE_XLIB
   xfonts->setVpSize(vpw, vph);
+#endif
   ttfonts->setVpSize(vpw, vph);
   texfonts->setVpSize(vpw, vph);
 }
 
 void FontManager::setPixSize(const float pw, const float ph)
 {
+#ifdef USE_XLIB
   xfonts->setPixSize(pw, ph);
+#endif
   ttfonts->setPixSize(pw, ph);
   texfonts->setPixSize(pw, ph);
 }

@@ -1,33 +1,33 @@
 /*
-  Diana - A Free Meteorological Visualisation Tool
+ Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+ $Id$
 
-  Copyright (C) 2006 met.no
+ Copyright (C) 2006 met.no
 
-  Contact information:
-  Norwegian Meteorological Institute
-  Box 43 Blindern
-  0313 OSLO
-  NORWAY
-  email: diana@met.no
+ Contact information:
+ Norwegian Meteorological Institute
+ Box 43 Blindern
+ 0313 OSLO
+ NORWAY
+ email: diana@met.no
 
-  This file is part of Diana
+ This file is part of Diana
 
-  Diana is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+ Diana is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
 
-  Diana is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+ Diana is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Diana; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ You should have received a copy of the GNU General Public License
+ along with Diana; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 #ifndef _diFontManager_h
 #define _diFontManager_h
 
@@ -38,23 +38,27 @@
 
 using namespace std;
 
+#ifdef USE_XLIB
 class glTextX;
+#endif
 class glTextTT;
 class glTextQtTexture;
 class GLPcontext;
 
 /**
-   \brief Font manager for text plotting
+ \brief Font manager for text plotting
 
-   The font manager keeps multiple sets of font engines (X, truetype, texture).
-   - text managing commands are translated to the different font engines
-   - supports plotting and querying on geometry
+ The font manager keeps multiple sets of font engines (X, truetype, texture).
+ - text managing commands are translated to the different font engines
+ - supports plotting and querying on geometry
 
-*/
+ */
 
 class FontManager {
 private:
+#ifdef USE_XLIB
   glTextX* xfonts;
+#endif
   glTextTT* ttfonts;
   glTextQtTexture* texfonts;
   glText * current_engine;
@@ -64,10 +68,10 @@ private:
 
   static miutil::miString fontpath;
   static miutil::miString display_name;
-  static map<miutil::miString,miutil::miString> defaults;
+  static map<miutil::miString, miutil::miString> defaults;
 
-  glText::FontFace fontFace( const miutil::miString& );
-  bool check_family( const miutil::miString& fam, miutil::miString& family );
+  glText::FontFace fontFace(const miutil::miString&);
+  bool check_family(const miutil::miString& fam, miutil::miString& family);
 
 public:
   FontManager();
@@ -75,7 +79,9 @@ public:
 
   /// for use in batch - force different display
   static void set_display_name(const miutil::miString name)
-  {display_name= name;}
+  {
+    display_name = name;
+  }
 
   /// start PS output
   void startHardcopy(GLPcontext*);
@@ -102,11 +108,9 @@ public:
 
   // printing commands
   /// draw one character
-  bool drawChar(const int c, const float x,
-		const float y, const float a= 0);
+  bool drawChar(const int c, const float x, const float y, const float a = 0);
   /// draw a string
-  bool drawStr(const char* s, const float x,
-	       const float y, const float a= 0);
+  bool drawStr(const char* s, const float x, const float y, const float a = 0);
   // Metric commands
   /// always add this to fontsize
   void adjustSize(const int sa);
@@ -114,7 +118,8 @@ public:
   void setScalingType(const glText::FontScaling fs);
   /// set viewport size in GL coordinates
   void setGlSize(const float glw, const float glh);
-  void setGlSize(const float glx1, const float glx2, const float gly1, const float gly2);
+  void setGlSize(const float glx1, const float glx2, const float gly1,
+      const float gly2);
   /// set viewport size in physical coordinates (pixels)
   void setVpSize(const float vpw, const float vph);
   /// set size of one pixel in GL coordinates

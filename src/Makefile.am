@@ -554,6 +554,11 @@ common_ldflags += $(AVFORMAT_LDFLAGS)
 common_ldadd += $(AVFORMAT_LIBS)
 endif
 
+# Use Xlib-specific routines
+if WITH_XLIB
+common_cppflags += -DUSE_XLIB
+endif
+
 # Generated Qt source code - diana
 moc_sources = $(qt_sources:.cc=.moc.cc)
 CLEANFILES += $(moc_sources)

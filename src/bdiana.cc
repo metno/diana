@@ -29,8 +29,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-//#define USE_XLIB
-
 #include <QApplication>
 #include <QGLPixelBuffer>
 
@@ -753,11 +751,15 @@ void printUsage(bool showexample)
         "-s                : setupfile for diana                                 \n"
         "-v                : (verbose) for more job-output                       \n"
         "-signal           : production triggered by SIGUSR1 signal (see example)\n"
-        "-display          : x-server to use (default: env DISPLAY)              \n"
         "-example          : list example input-file and exit                    \n"
+#ifdef USE_XLIB
+        "-display          : x-server to use (default: env DISPLAY)              \n"
         "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium (default)  \n"
         "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
         "-use_qtgl         : use QGLPixelBuffer as drawing medium                \n"
+#else
+        "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
+#endif
         "-use_doublebuffer : use double buffering OpenGL (default)               \n"
         "-use_singlebuffer : use single buffering OpenGL                         \n"
         "                                                                        \n"
