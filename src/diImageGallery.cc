@@ -44,7 +44,7 @@ map<int, vector<miString> > ImageGallery::Type;
 
 
 ImageGallery::image::image()
-:alpha(true),width(0),height(0),data(0),
+:alpha(true),width(0),height(0),data(0),type(basic),
 read_error(false)
 {
 }
@@ -62,6 +62,7 @@ void ImageGallery::image::erase()
   alpha= true;
   if (data!=0) delete[] data;
   data= 0;
+  type= basic;
   read_error= false;
 }
 

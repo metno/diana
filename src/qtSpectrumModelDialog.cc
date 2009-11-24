@@ -82,7 +82,6 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   //  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
   modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
   modelfileList->setEnabled(true);
-  updateModelfileList();
 
   modelButton = new ToggleButton(this, tr("Model").toStdString());
   fileButton  = new ToggleButton(this, tr("File").toStdString());
@@ -94,6 +93,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   modelfileLayout->addWidget(fileButton);
   modelfileBut->setExclusive( true );
   modelButton->setChecked(true);
+  updateModelfileList();
 
   //modelfileClicked is called when auto,tid,fil buttons clicked
   connect( modelfileBut, SIGNAL( buttonClicked(int) ),
