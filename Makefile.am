@@ -10,7 +10,7 @@ APP=diana
 SUBDIRS = src
 
 bdir= $(bindir)
-dist_b_SCRIPTS = bin/$(APP)
+dist_b_SCRIPTS = bin/diana
 
 etcdir = $(sysconfdir)/$(APP)
 dist_etc_DATA = etc/diana/diana.setup

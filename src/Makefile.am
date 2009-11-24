@@ -569,7 +569,7 @@ CLEANFILES += $(moc_sources)
 
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts
 
-languagedir= $(datarootdir)/diana/lang
+languagedir= $(datarootdir)/$(APP)/lang
 nodist_language_DATA=$(language_sources:.ts=.qm)
 
 CLEANFILES += $(nodist_language_DATA)
