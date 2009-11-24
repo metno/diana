@@ -1,5 +1,5 @@
 /* XPM */
-static char * paint_help_xpm[] = {
+static const char * paint_help_xpm[] = {
 "32 32 2 1",
 " 	c None",
 ".	c #0049FF",
