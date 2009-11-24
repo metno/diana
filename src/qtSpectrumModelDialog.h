@@ -24,7 +24,7 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
+  You should have received a copy of the GNU General PubliJ_mc License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
@@ -70,9 +70,6 @@ private:
   ToggleButton* modelButton;
   ToggleButton* fileButton;
   QListWidget * modelfileList;
-
-  //dialog indices, changed when something is clicked
-  int m_modelfileButIndex;
 
   miutil::miString ASFIELD;
   miutil::miString OBS;

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 
 #include <QPushButton>
@@ -48,15 +48,15 @@
 /***************************************************************************/
 
 SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
-  : QDialog(parent),spectrumm(vm)
+: QDialog(parent),spectrumm(vm)
 {
-#ifdef DEBUGPRINT 
+#ifdef DEBUGPRINT
   cout<<"SpectrumModelDialog::SpectrumModelDialog called"<<endl;
 #endif
 
   //caption to appear on top of dialog
   setWindowTitle( tr("Diana Wavespectrum - models") );
-   
+
   // text constants
   ASFIELD = tr("As field").toStdString();
   OBS     = tr("Observations").toStdString();
@@ -66,8 +66,8 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   textconst["ASFIELD"]  = ASFIELD;
   textconst["OBS"]      = OBS;
   vm->setMenuConst(textconst);
-  
-//********** create the various QT widgets to appear in dialog ***********
+
+  //********** create the various QT widgets to appear in dialog ***********
 
   //**** the three buttons "auto", "tid", "fil" *************
   vector<miutil::miString> model;
@@ -81,7 +81,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   modelfileList = new QListWidget( this);
   //  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
   modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
-  modelfileList->setEnabled(true);  
+  modelfileList->setEnabled(true);
   updateModelfileList();
 
   modelButton = new ToggleButton(this, tr("Model").toStdString());
@@ -95,9 +95,9 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   modelfileBut->setExclusive( true );
   modelButton->setChecked(true);
 
-  //modelfileClicked is called when auto,tid,fil buttons clicked 
-  connect( modelfileBut, SIGNAL( buttonClicked(int) ), 
-	   SLOT( modelfileClicked(int) ) );
+  //modelfileClicked is called when auto,tid,fil buttons clicked
+  connect( modelfileBut, SIGNAL( buttonClicked(int) ),
+      SLOT( modelfileClicked(int) ) );
 
   //push button to show help
   QPushButton * modelhelp = NormalPushButton( tr("Help"), this );
@@ -115,7 +115,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   QPushButton * modelhide = NormalPushButton( tr("Hide"), this );
   connect( modelhide, SIGNAL(clicked()), SIGNAL(ModelHide()));
 
-   //push button to apply the selected command and then hide dialog
+  //push button to apply the selected command and then hide dialog
   QPushButton  * modelapplyhide = NormalPushButton( tr("Apply+Hide"), this );
   connect( modelapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
 
@@ -139,7 +139,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 
 
   //create a vertical layout to put all widgets and layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 5, 5 );                     
+  QVBoxLayout * vlayout = new QVBoxLayout( this, 5, 5 );
   vlayout->addLayout( modelfileLayout );
   vlayout->addWidget( modelfileList );
   vlayout->addLayout( hlayout1 );
@@ -147,8 +147,8 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 
   //redo and freeze the layout (this makes it impossible for the
   //user to change the size of the dialogbox
-//vlayout->activate();
-//vlayout->freeze();
+  //vlayout->activate();
+  //vlayout->freeze();
 
 }
 
@@ -160,12 +160,9 @@ void SpectrumModelDialog::modelfileClicked(int tt){
   cerr <<"SpectrumModelDialog::modelfileClicked()\n";
 #endif
 
-  //update the index to current item in time file button
-  m_modelfileButIndex = tt;
-
   updateModelfileList();
 }
-  
+
 
 /*********************************************/
 
@@ -230,15 +227,15 @@ void SpectrumModelDialog::setSelection(){
 #ifdef DEBUGPRINT
   cerr<< "SpectrumModelDialog::setSelection()" << endl;
 #endif
-  if (m_modelfileButIndex==0){
+  if (modelButton->isOn()){
     vector <miutil::miString> models = spectrumm->getSelectedModels();
     int n = models.size();
     for (int i = 0;i<n;i++){
       miutil::miString model = models[i];
       int m = modelfileList->count();
       for (int j = 0;j<m;j++){
-	miutil::miString listModel =  modelfileList->item(j)->text().toStdString();
-	if (model==listModel) modelfileList->item(j)->setSelected(true);
+        miutil::miString listModel =  modelfileList->item(j)->text().toStdString();
+        if (model==listModel) modelfileList->item(j)->setSelected(true);
       }
     }
   }
@@ -253,35 +250,35 @@ void SpectrumModelDialog::setModel(){
   bool showObs=false;
   bool asField=false;
 
-  if (m_modelfileButIndex==0){
+  if (modelButton->isOn()) {
 
     vector <miutil::miString> models;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-	miutil::miString model = modelfileList->item(i)->text().toStdString();
-	if(model==OBS){
-	  showObs=true;
-	} else if (model==ASFIELD){
-	  asField = true;
-	} else models.push_back(model);
+        miutil::miString model = modelfileList->item(i)->text().toStdString();
+        if(model==OBS){
+          showObs=true;
+        } else if (model==ASFIELD){
+          asField = true;
+        } else models.push_back(model);
       }
     }
     spectrumm->setSelectedModels(models,showObs,asField);
 
-  } else if (m_modelfileButIndex==1){
+  } else if (fileButton->isOn()) {
 
     vector <miutil::miString> files;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-	miutil::miString file = modelfileList->item(i)->text().toStdString(); 
-	files.push_back(file);
+        miutil::miString file = modelfileList->item(i)->text().toStdString();
+        files.push_back(file);
       }
     }
     spectrumm->setSelectedFiles(files,showObs,asField);
   }
-  
+
 }
 /*********************************************/
 
@@ -297,21 +294,21 @@ void SpectrumModelDialog::updateModelfileList(){
     if (modelfileList->item(i)->isSelected())
       current.insert(miutil::miString(modelfileList->item(i)->text().toStdString()));
 
-  //clear box with list of files 
+  //clear box with list of files
   modelfileList->clear();
 
-  if (m_modelfileButIndex==0){
+  if (modelButton->isOn()){
     //make a string list with models to insert into modelfileList
     vector <miutil::miString> modelnames =spectrumm->getModelNames();
     int nr_models = modelnames.size();
-  //modelfileList->insertItem(OBS);
+    //modelfileList->insertItem(OBS);
     // qt4 fix: Made QString of ASFIELD
     modelfileList->addItem(QString(ASFIELD.c_str()));
     for (int i=0; i<nr_models; i++)
       modelfileList->addItem(QString(modelnames[i].c_str()));
 
     //insert into modelfilelist
-  } else if (m_modelfileButIndex==1){
+  } else if (fileButton->isOn()){
     //make a string list with files to insert into modelfileList
     vector <miutil::miString> modelfiles =spectrumm->getModelFiles();
     int nr_files = modelfiles.size();
@@ -324,7 +321,7 @@ void SpectrumModelDialog::updateModelfileList(){
   for (int i=0; i<n; i++)
     if (current.find(miutil::miString(modelfileList->item(i)->text().toStdString()))!=pend)
       modelfileList->item(i)->setSelected(true);
-  
+
 }
 
 

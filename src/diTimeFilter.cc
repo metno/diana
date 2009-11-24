@@ -71,8 +71,11 @@ bool TimeFilter::initFilter(miString &filename){
     filter.remove(']');
   }
 
-  if( (yyyy = findPos(filter,"yyyy")) == filter.npos )
+  if( (yyyy = findPos(filter,"yyyy")) == filter.npos ){
     yy = findPos(filter,"yy");
+  } else {
+    yy = filter.npos;
+  }
 
   mm = findPos(filter,"mm");
   dd = findPos(filter,"dd");
