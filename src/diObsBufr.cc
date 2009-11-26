@@ -39,7 +39,8 @@
 #include <diObsBufr.h>
 #include <algorithm>
 
-using namespace std; using namespace miutil;
+using namespace std; 
+using namespace miutil;
 
 const double bufrMissing = 1.6e+38;
 
@@ -88,6 +89,8 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
     next = BUFRdecode(ibuff, ilen, format);
   }
 
+  pbclose_(&iunit,&iret);
+
   return !next;
 }
 
@@ -134,6 +137,9 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
 
   //read sec 0-2
   bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
+
+  //close file
+  pbclose_(&iunit,&iret);
 
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
@@ -1001,7 +1007,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     case 1011:
     {
       int index = int(values[j]) / 1000 - 1;
-      miString station;
+      //miString station;
       for (int k = 0; k < 4; k++) {
         station+= cvals[index][k];
       }
@@ -1043,10 +1049,8 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   if (idmap.count(station)) {
     ostr << "(" << idmap[station] << ")";
     idmap[station]++;
-    //    cerr <<"NEST:"<<tmpId<<endl;
   } else {
     idmap[station] = 1;
-    //    cerr <<"FØRST:"<<tmpId<<endl;
   }
   id.push_back(ostr.str());
   return true;
@@ -1338,23 +1342,23 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
         break;
 
         // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
-        //       case 1011:
-        // 	c=0;
-        // 	station.clear();
-        // 	while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
-        // 	  station += cvals[i][c];
-        // 	  c++;
-        // 	}
-        // 	if( strStation != station ) {
-        // 	  return false;
-        // 	}
-        // 	if( index != ii){
-        // 	  ii++;
-        // 	  return false;
-        // 	}
-        // 	//	if(station.exists()){
-        // 	  ii=0;
-        // 	  //	}
+      case 1011:
+		c=0;
+		station.clear();
+		while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
+		  station += cvals[i][c];
+		  c++;
+		}
+		if( strStation != station ) {
+		  return false;
+		}
+		if( index != ii){
+		  ii++;
+		  return false;
+		}
+		if(station.exists()){
+			ii=0;
+		}
         break;
 
         //   4001  YEAR

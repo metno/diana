@@ -39,6 +39,7 @@ using namespace std;
 extern "C" {
   extern void pbopen_(int* iunit, const char* bufr_file, const char* rw,
 		      int* iret, int len_bufr_file, int len_bufr_access);
+  extern void pbclose_(int* iunit, int* iret);
   extern void pbbufr_(int* iunit, int* ibuff, int* ibflen, int* ilen, int* iret);
   extern void bufrex_(int* ilen, int* ibuff, int* ksup, int* ksec0, int* ksec1,
 		      int* ksec2, int* ksec3, int* ksec4, int* kelem,
