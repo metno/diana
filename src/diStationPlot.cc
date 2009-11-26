@@ -538,8 +538,8 @@ bool StationPlot::changeProjection()
     u[i] = 0;
     v[i] = 10;
   }
-
-  gc.getVectors(oldarea, area, npos, xpos, ypos, u, v);
+//TODO: crashes, but why? Only do this if "wind"-image exists
+//  gc.getVectors(oldarea, area, npos, xpos, ypos, u, v);
 
   for (int i = 0; i < npos; i++) {
     if (stations[i]->image == "wind") {
