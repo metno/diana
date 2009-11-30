@@ -190,6 +190,7 @@ bool FieldPlot::prepare(const miString& pin)
   else if (ptype==fpt_box_alpha_shade)  cerr<<"FieldPlot "<<fname<<" : "<<"plotBox_alpha_shade"<<endl;
   else if (ptype==fpt_alpha_shade)      cerr<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade"<<endl;
   else if (ptype==fpt_alarm_box)        cerr<<"FieldPlot "<<fname<<" : "<<"plotAlarmBox"<<endl;
+  else if (ptype==fpt_fill_cell)        cerr<<"FieldPlot "<<fname<<" : "<<"plotFillCell"<<endl;
   else                                  cerr<<"FieldPlot "<<fname<<" : "<<"ERROR"<<endl;
 #endif
 
@@ -517,6 +518,7 @@ bool FieldPlot::plot(){
   else if (ptype==fpt_box_alpha_shade)  return plotBox_alpha_shade();
   else if (ptype==fpt_alpha_shade)      return plotAlpha_shade();
   else if (ptype==fpt_alarm_box)        return plotAlarmBox();
+  else if (ptype==fpt_fill_cell)      return plotFillCell();
   else return false;
 }
 
@@ -2794,6 +2796,57 @@ bool FieldPlot::plotAlarmBox(){
   return true;
 }
 
+bool FieldPlot::plotFillCell(){
+#ifdef DEBUGPRINT
+  cerr << "++ Plotter FillCell-felt.." << endl;
+#endif
+  int n= fields.size();
+  if (n<1) return false;
+  if (!fields[0]) return false;
+
+  if (!fields[0]->data) return false;
+
+  int i, ix, iy, i1, i2;
+
+  int nx= fields[0]->nx;
+  int ny= fields[0]->ny;
+
+  // convert gridbox corners to correct projection
+  int npos=0;
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  gc.getGridPoints(fields[0]->area, area, maprect, true, npos, &x, &y,
+      ix1, ix2, iy1, iy2);
+  if (ix1>ix2 || iy1>iy2) return false;
+
+  int nxc = nx + 1;
+  int nyc = ny + 1;
+
+  if ( poptions.frame ) {
+    plotFrame(nxc,nyc,x,y,2,NULL);
+  }
+
+  glColor3ubv(poptions.bordercolour.RGB());
+  glLineWidth(poptions.linewidth);
+
+  float dx = 0.5 * (x[1]-x[0]);
+  float dy = 0.5 * (y[nxc]-y[0]);
+  for (iy=iy1; iy<iy2; iy++) {
+    for (ix=ix1; ix<ix2; ix++) {
+      glBegin(GL_LINES);
+      glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+      glVertex2f(x[iy*nxc+ix+1]-dx, y[(iy+1)*nxc+ix]-dy);
+      glEnd();
+    }
+  }
+
+  UpdateOutput();
+
+#ifdef DEBUGPRINT
+  cerr << "++ Returning from FieldPlot::FillCell() ++" << endl;
+#endif
+  return true;
+}
 
 // plot scalar field with RGBA (RGB=constant)
 bool FieldPlot::plotAlpha_shade(){

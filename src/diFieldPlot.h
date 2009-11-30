@@ -128,6 +128,13 @@ private:
   bool plotBox_pattern();
   bool plotBox_alpha_shade();
   bool plotAlarmBox();
+
+  /**
+   * Fills grid cells, according to an input table and the grid cells values.
+   * @return Returns true on success
+   */
+  bool plotFillCell();
+
   bool plotAlpha_shade();
   void plotFrame(const int nx, const int ny,
   		 float *x, float *y,
