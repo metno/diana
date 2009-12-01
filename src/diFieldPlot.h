@@ -130,7 +130,9 @@ private:
   bool plotAlarmBox();
 
   /**
-   * Fills grid cells, according to an input table and the grid cells values.
+   * Fills grid cells with a color, according to an input table and the grid cells values.
+   * NOTE: Define "values" and "palettecolors" of equal size in the setup-file
+   * ("values" are then mapped to "palettecolors")
    * @return Returns true on success
    */
   bool plotFillCell();

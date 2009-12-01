@@ -36,6 +36,7 @@
 #include <GL/gl.h>
 #include <sstream>
 #include <math.h>
+#include <algorithm>
 
 using namespace std; using namespace miutil;
 
@@ -2822,23 +2823,61 @@ bool FieldPlot::plotFillCell(){
   int nxc = nx + 1;
   int nyc = ny + 1;
 
+  glLineWidth(poptions.linewidth);
+  glColor3ubv(poptions.bordercolour.RGB());
   if ( poptions.frame ) {
     plotFrame(nxc,nyc,x,y,2,NULL);
   }
 
-  glColor3ubv(poptions.bordercolour.RGB());
-  glLineWidth(poptions.linewidth);
+  float dx = poptions.relsize*(0.5) * (x[1]-x[0]);
+  float dy = poptions.relsize*(0.5) * (y[nxc]-y[0]);
 
-  float dx = 0.5 * (x[1]-x[0]);
-  float dy = 0.5 * (y[nxc]-y[0]);
+  if(poptions.values.empty()) {
+    cerr << "plotFillCell(): Must define values in setupfile" << endl;
+    return false;
+  }
+  // FIXME: For some frikkin reason, empty() returns true no matter what...?!
+  /*if(poptions.palettecolours.empty()) {
+    cerr << "plotFillCell(): Must define palettecolours in setupfile" << endl;
+    return false;
+  }*/
+
+  // find min/max
+  float min = poptions.values[0];
+  float max = poptions.values[0];
+  for(int i=0; i < poptions.values.size(); ++i) {
+    if(poptions.values[i] < min)
+      min = poptions.values[i];
+    if(poptions.values[i] > max)
+      max = poptions.values[i];
+  }
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glBegin(GL_QUADS);
+  vector<float>::iterator it;
   for (iy=iy1; iy<iy2; iy++) {
-    for (ix=ix1; ix<ix2; ix++) {
-      glBegin(GL_LINES);
-      glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
-      glVertex2f(x[iy*nxc+ix+1]-dx, y[(iy+1)*nxc+ix]-dy);
-      glEnd();
+    for (ix = ix1; ix < ix2; ix++) {
+      float value = fields[0]->data[ix + (iy * nx)];
+      if (value >= min && value <= max) {
+        // set fillcolor of cell
+        it = find(poptions.values.begin(), poptions.values.end(), value);
+        glColor3ubv(poptions.palettecolours[it - poptions.values.begin()].RGB());
+
+        // center of gridcell
+        //glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+        // lower-left corner of gridcell
+        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] - dy);
+        // lower-right corner of gridcell
+        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] - dy);
+        // upper-right corner of gridcell
+        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] + dy);
+        // upper-left corner of gridcell
+        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] + dy);
+
+      }
     }
   }
+  glEnd();
 
   UpdateOutput();
 
