@@ -296,9 +296,9 @@ void VprofModelDialog::setModel()
 
 void VprofModelDialog::updateModelfileList()
 {
-//#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
   cerr << "VprofModelDialog::updateModelfileList()\n";
-//#endif
+#endif
 
   //want to keep th selected models/files
   int n = modelfileList->count();
