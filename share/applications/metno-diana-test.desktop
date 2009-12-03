@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=diana-TEST
+Name=diana-test
 GenericName=diana
 Comment=Diana -  using test-servers
-Exec=diana-TEST
-Icon=/usr/local/share/pixmaps/diana-TEST.png
+Exec=diana-test
+Icon=/usr/local/share/pixmaps/diana-test.png
 BinaryPattern=
 Protocols=
 MimeType=

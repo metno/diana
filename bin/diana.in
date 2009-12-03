@@ -12,8 +12,6 @@ fi
 input=$0
 dianadir="/usr/local"
 
-export LD_LIBRARY_PATH=/metno/local/lib/mesa:$LD_LIBRARY_PATH
-
 export DIANADIR=$dianadir
 
 debugger="gdb"
@@ -33,11 +31,7 @@ test -d $home || mkdir $home
 test -d $home/work  || mkdir $home/work
 
 
-if [  -n "$SUFFIX" ] ; then
-setup=$dianadir/etc/diana-TEST/diana.setup-${region} 
-else
-setup=$dianadir/etc/diana/diana.setup-${region} 
-fi
+setup=$dianadir/etc/diana$SUFFIX/diana.setup-${region} 
 
 test -e $home/diana.setup  && setup=$home/diana.setup
 
@@ -52,11 +46,7 @@ test -s mail.core  && mv -f mail.core mail.core.old
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
-if [  -n "$SUFFIX" ] ; then
-$dianadir/bin/diana.bin-TEST  -s $setup -T TEST -p -S profet-test PROFFWDB=proffdb-test.met.no COMMON=TEST APP_NAME=diana-TEST $@ 
-else
-$dianadir/bin/diana.bin  -s $setup -p -S profet.met.no $@ 
-fi
+$dianadir/bin/diana.bin$SUFFIX  -s $setup -T $SUFFIX -p -S profet$SUFFIX PROFFWDB=proffdb$SUFFIX.met.no APP_NAME=diana$SUFFIX $@ 
 
 tstop=`date`
 
