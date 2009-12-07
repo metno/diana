@@ -121,6 +121,23 @@ private:
   bool plotWindColour();
   bool plotWindTempFL();
   bool plotVector();
+
+  /**
+   * Plots a layer, which is three numbers:
+   * ______________
+   * |   upper    |
+   * | middle/max |
+   * |   lower    |
+   * --------------
+   * where "upper" is the highest level (in feet) where the
+   * gridcell-value >= threshold, "middle/max" is  the (lowest) height (in feet)
+   * of maximum icing in the grid column, and "lower" is  the lowest
+   * level (in feet) where the gridcell-value >= threshold.
+   * Input: Layer threshold and middle/max of layer.
+   * @return Returns true on success
+   */
+  bool plotLayer();
+
   bool plotVectorColour();
   bool plotDirection();
   bool plotDirectionColour();

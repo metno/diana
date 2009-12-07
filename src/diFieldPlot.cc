@@ -192,6 +192,7 @@ bool FieldPlot::prepare(const miString& pin)
   else if (ptype==fpt_alpha_shade)      cerr<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade"<<endl;
   else if (ptype==fpt_alarm_box)        cerr<<"FieldPlot "<<fname<<" : "<<"plotAlarmBox"<<endl;
   else if (ptype==fpt_fill_cell)        cerr<<"FieldPlot "<<fname<<" : "<<"plotFillCell"<<endl;
+  else if (ptype==fpt_layer)            cerr<<"FieldPlot "<<fname<<" : "<<"plotLayer"<<endl;
   else                                  cerr<<"FieldPlot "<<fname<<" : "<<"ERROR"<<endl;
 #endif
 
@@ -519,7 +520,8 @@ bool FieldPlot::plot(){
   else if (ptype==fpt_box_alpha_shade)  return plotBox_alpha_shade();
   else if (ptype==fpt_alpha_shade)      return plotAlpha_shade();
   else if (ptype==fpt_alarm_box)        return plotAlarmBox();
-  else if (ptype==fpt_fill_cell)      return plotFillCell();
+  else if (ptype==fpt_fill_cell)        return plotFillCell();
+  else if (ptype==fpt_layer)            return plotLayer();
   else return false;
 }
 
@@ -1665,6 +1667,172 @@ bool FieldPlot::plotVector(){
   return true;
 }
 
+bool FieldPlot::plotLayer(){
+#ifdef DEBUGPRINT
+  cerr << "++ Entering FieldPlot::plotLayer.." << endl;
+#endif
+  int n= fields.size();
+  if (n<1) return false;
+  if (!fields[0]) return false;
+
+  if (!fields[0]->data) return false;
+
+  int i,ix,iy;
+  int nx= fields[0]->nx;
+  int ny= fields[0]->ny;
+
+  // convert gridpoints to correct projection
+  int npos=0;
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  gc.getGridPoints(fields[0]->area, area, maprect, false,
+      npos, &x, &y, ix1, ix2, iy1, iy2);
+  if (ix1>ix2 || iy1>iy2) return false;
+
+  /// DEBUG
+  int nxc = nx + 1;
+  int nyc = ny + 1;
+
+  // convert vectors to correct projection
+  /*vector<float*> uv= prepareVectors(2,x,y);
+  if (uv.size()!=2) return false;
+  float *u= uv[0];
+  float *v= uv[1];*/
+
+  int step= poptions.density;
+
+  // automatic wind/vector density
+  int autostep;
+  float dist;
+  bool xStepComp;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist, xStepComp);
+  if (step<1) step= autostep;
+  float sdist= dist*float(step);
+  int xstep= step;
+
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
+
+  /*float relarrowlen = poptions.relsize;
+  float unitlength  = poptions.vectorunit;*/
+
+  // length if abs(vector) = unitlength
+  /*float arrowlength = sdist * relarrowlen;
+
+  float scale = arrowlength / unitlength;*/
+
+  // for annotations .... should probably be resized if very small or large...
+  /*vectorAnnotationSize= arrowlength;
+  vectorAnnotationText= miString(unitlength) + poptions.vectorunitname;*/
+
+  // for arrow tip
+  /*const float afac = -0.333333;
+  const float sfac = afac * 0.5;*/
+
+  float gx,gy,dx,dy;
+
+  ix1-=step;     if (ix1<0)  ix1=0;
+  iy1-=step;     if (iy1<0)  iy1=0;
+  ix2+=(step+1); if (ix2>nx) ix2=nx;
+  iy2+=(step+1); if (iy2>ny) iy2=ny;
+
+  /*maprect.setExtension( arrowlength*1.5 );*/
+
+  // setup font plotting (may need "bitmap-code" from plotWindTempFL also)
+  float fontsize= 14. * poptions.labelSize;
+  fp->set("BITMAPFONT", poptions.fontface, fontsize);
+
+  float chx, chy;
+  fp->getStringSize("ps00", chx, chy);
+
+  if (chx * 1.4 > sdist)
+    fp->setFontSize(fontsize * sdist / (chx * 1.4));
+  else if (chy * 0.8 > dist)
+    fp->setFontSize(fontsize * sdist / (chy * 0.8));
+
+  fp->getCharSize('0', chx, chy);
+
+  // the real height for numbers 0-9 (width is ok)
+  chy *= 0.75;
+
+  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
+  glColor3ubv(poptions.linecolour.RGB());
+
+  /*glBegin(GL_LINES);
+
+  float w, h;
+  for (iy=iy1; iy<iy2; iy+=step){
+    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    for (ix=ix1; ix<ix2; ix+=xstep){
+      i= iy*nx+ix;
+      gx= x[i]; gy= y[i];*/
+
+      // do drawing
+
+
+      // test fontplotting
+      /*ostringstream ostr;
+      ostr << "T";
+      fp->getStringSize(ostr.str().c_str(), w, h);
+      fp->drawStr(ostr.str().c_str(), ix1, iy1, 0.0);*/
+
+      /*if (u[i]!=fieldUndef && v[i]!=fieldUndef &&
+          (u[i]!=0.0f || v[i]!=0.0f) && maprect.isnear(gx,gy)){
+        dx = scale * u[i];
+        dy = scale * v[i];
+        // direction
+        glVertex2f(gx,gy);
+        gx = gx + dx;
+        gy = gy + dy;
+        glVertex2f(gx,gy);
+
+        // arrow (drawn as two lines)
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx + sfac*dy,
+            gy + afac*dy - sfac*dx);
+        glVertex2f(gx,gy);
+        glVertex2f(gx + afac*dx - sfac*dy,
+            gy + afac*dy + sfac*dx);
+      }*/
+    /*}
+  }
+  glEnd();*/
+
+  /// DEBUG
+  dx = poptions.relsize*(0.5) * (x[1]-x[0]);
+  dy = poptions.relsize*(0.5) * (y[nxc]-y[0]);
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glBegin(GL_QUADS);
+  for (iy = iy1; iy < iy2; iy++) {
+    for (ix = ix1; ix < ix2; ix++) {
+
+        glColor3f(1.0, 0.0, 0.0);
+
+        // center of gridcell
+        //glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+        // lower-left corner of gridcell
+        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] - dy);
+        // lower-right corner of gridcell
+        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] - dy);
+        // upper-right corner of gridcell
+        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] + dy);
+        // upper-left corner of gridcell
+        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] + dy);
+
+
+    }
+  }
+  glEnd();
+
+  UpdateOutput();
+
+#ifdef DEBUGPRINT
+  cerr << "++ Returning from FieldPlot::plotLayer() ++" << endl;
+#endif
+  return true;
+}
 
 // PURPOSE:   plot vector field as arrows (wind,sea current,...)
 // ALGORITHM: Fields u(0) v(1) colorfield(2)
