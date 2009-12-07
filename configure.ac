@@ -103,10 +103,10 @@ AS_IF([test x$enable_profet = xyes], [
 #
 METNO_REQUIRE_QT4([
     Qt3Support
-    QtCore
-    QtGui
-    QtNetwork
-    QtOpenGL
+    Core
+    Gui
+    Network
+    OpenGL
 ])
 
 METNO_REQUIRE_FTGL
