@@ -235,7 +235,7 @@ void EditNewDialog::ConstructorCernel(){
   vlayout->addLayout( hlayout );
 
   vlayout->activate();
-  vlayout->freeze();
+ // vlayout->freeze();
 
   first= false;
   newActive = false;
