@@ -39,7 +39,8 @@
 
 using namespace std;
 
-MovieMaker::MovieMaker(string &filename, string &format, float delay)
+MovieMaker::MovieMaker(const string &filename, const string &format,
+                       float delay)
 {
 #ifdef HAVE_LOG4CXX
   logger = log4cxx::Logger::getLogger("diana.MovieMaker"); ///< LOG4CXX init
@@ -344,7 +345,7 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
 
 }*/
 
-bool MovieMaker::addImage(QImage *image)
+bool MovieMaker::addImage(const QImage *image)
 {
   OutputCtx *output = &outputVideo;
 

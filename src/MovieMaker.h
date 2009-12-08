@@ -67,11 +67,12 @@ public:
    * Constructor. Sets filename to save the finished animation to, and
    * which quality it will be saved in.
    */
-  MovieMaker(std::string &filename, std::string &format, float delay);
+  MovieMaker(const std::string &filename, const std::string &format,
+             float delay);
 
   ~MovieMaker();
 
-  bool addImage(QImage *image);
+  bool addImage(const QImage *image);
 
 private:
   float delay;
