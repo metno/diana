@@ -91,7 +91,6 @@ private:
   void RGBtoYUV420P(const uint8_t *RGB, uint8_t *YUV, uint RGBIncrement,
       bool swapRGB, int width, int height, bool flip);
   bool writeVideoFrame(OutputCtx *output);
-  bool addImage(OutputCtx *output, QImage &image);
 
 protected:
 #ifdef HAVE_LOG4CXX
