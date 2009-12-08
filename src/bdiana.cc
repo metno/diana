@@ -62,6 +62,10 @@
 #include <diSpectrumManager.h>
 #include <diSpectrumOptions.h>
 
+#ifdef VIDEO_EXPORT
+# include <MovieMaker.h>
+#endif
+
 #include <config.h>
 
 /*
@@ -147,7 +151,7 @@ enum canvas {
 };
 
 enum image_type {
-  image_rgb, image_png, image_unknown
+  image_rgb, image_png, image_avi, image_unknown
 };
 
 // types of plot
@@ -257,6 +261,10 @@ miString trajectory_options;
 
 miString time_options;
 miString time_format = "$time";
+
+#ifdef VIDEO_EXPORT
+MovieMaker *movieMaker = 0;
+#endif
 
 // list of lists..
 vector<stringlist> lists;
@@ -520,6 +528,54 @@ int prepareInput(const miString& filename)
   return 0;
 }
 
+#ifdef VIDEO_EXPORT
+void startVideo(const printOptions priop)
+{
+  const std::string format = "avi";
+  const std::string output = priop.fname;
+
+  if (movieMaker &&
+      !movieMaker->outputFormat().compare(format) &&
+      !movieMaker->outputFile().compare(output))
+  {
+    return;
+  }
+
+  delete movieMaker;
+  movieMaker = new MovieMaker(output, format, 0.2f);
+}
+
+bool addVideoFrame(const QImage &img)
+{
+  if (!movieMaker)
+    return false;
+
+  // currently hardcoded requirements in MovieMaker
+  const QImage::Format format = QImage::Format_ARGB32;
+  const QSize size(720, 480);
+
+  QImage image = img;
+
+  if (image.format() != format)
+    image = image.convertToFormat(QImage::Format_ARGB32);
+
+  if (image.size() != size) {
+    const qreal scaleWidth = qreal(size.width()) / image.width();
+    const qreal scaleHeight = qreal(size.height()) / image.height();
+    const QMatrix mat = QMatrix().scale(scaleWidth, scaleHeight);
+    image = image.transformed(mat);
+  }
+
+  return movieMaker->addImage(&image);
+}
+
+void endVideo()
+{
+  delete movieMaker;
+  movieMaker = 0;
+}
+#endif // VIDEO_EXPORT
+
 void startHardcopy(const plot_type pt, const printOptions priop)
 {
   if (pt == plot_standard && main_controller) {
@@ -735,6 +791,9 @@ void printUsage(bool showexample)
         " - as PostScript (to file and printer)                          \n"
         " - as EPS (Encapsulated PostScript)                             \n"
         " - as PNG (raster-format)                                       \n"
+#ifdef VIDEO_EXPORT
+        " - as AVI (MS MPEG4-v2 video format)                            \n"
+#endif
         " - using qtgl: all available raster formats in Qt               \n"
         "***************************************************             \n"
         "                                                                \n"
@@ -785,7 +844,7 @@ void printUsage(bool showexample)
             "                                                                  \n"
             "#- Optional: values for each option below are default-values      \n"
             "setupfile=diana.setup    # use a standard setup-file              \n"
-            "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER              \n"
+            "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI          \n"
             "                         #  RASTER: format from filename-suffix   \n"
             "colour=COLOUR            # GREYSCALE/COLOUR                       \n"
             "filename=tmp_diana.ps    # output filename                        \n"
@@ -1243,6 +1302,10 @@ int parseAndProcess(const miString& file)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
           multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+        } else if (raster & raster_type == image_avi) {
+            startVideo(priop);
+#endif
         }
 
         if (multiple_plots) {
@@ -1312,6 +1375,10 @@ int parseAndProcess(const miString& file)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vcross, priop);
           multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+        } else if (raster && raster_type == image_avi) {
+          startVideo(priop);
+#endif
         }
 
         if (multiple_plots) {
@@ -1366,6 +1433,10 @@ int parseAndProcess(const miString& file)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vprof, priop);
           multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+        } else if (raster && raster_type == image_avi) {
+          startVideo(priop);
+#endif
         }
 
         if (multiple_plots) {
@@ -1420,6 +1491,10 @@ int parseAndProcess(const miString& file)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_spectrum, priop);
           multiple_newpage = false;
+#ifdef VIDEO_EXPORT
+        } else if (raster && raster_type == image_avi) {
+          startVideo(priop);
+#endif
         }
 
         if (multiple_plots) {
@@ -1458,6 +1533,12 @@ int parseAndProcess(const miString& file)
         }
       }
 
+#ifdef VIDEO_EXPORT
+      if (!raster || !raster_type == image_avi) {
+        endVideo();
+      }
+#endif
+
       if (raster) {
 
         if (verbose)
@@ -1468,14 +1549,22 @@ int parseAndProcess(const miString& file)
           if (qpbuffer == 0) {
             cerr << " ERROR. when saving image - qpbuffer is NULL" << endl;
           } else {
-            QImage image = qpbuffer->toImage();
+            const QImage image = qpbuffer->toImage();
 
             if (verbose) {
               cout << "- Saving image to:" << priop.fname;
               cout.flush();
             }
 
-            bool result = image.save(priop.fname.c_str());
+            bool result = false;
+
+            if (raster_type == image_png || raster_type == image_unknown) {
+              result = image.save(priop.fname.c_str());
+#ifdef VIDEO_EXPORT
+            } else if (raster_type == image_avi) {
+              result = addVideoFrame(image);
+#endif
+            }
 
             if (verbose) {
               cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
@@ -1498,23 +1587,28 @@ int parseAndProcess(const miString& file)
           glReadPixels(0, 0, img.width, img.height, GL_RGBA, GL_UNSIGNED_BYTE,
               img.data);
 
-          int result;
+          int result = 0;
 
           // save as PNG -----------------------------------------------
           if (raster_type == image_png || raster_type == image_unknown) {
-
-            if (verbose)
+            if (verbose) {
               cout << "- Saving PNG-image to:" << img.filename;
-            if (verbose)
               cout.flush();
-
+            }
             result = imageIO::write_png(img);
-
-            if (verbose)
-              cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
-            else if (!result)
-              cerr << " ERROR, saving PNG-image to:" << img.filename << endl;
+#ifdef VIDEO_EXPORT
+          } else if (raster_type == image_avi) {
+            if (verbose) {
+              cout << "- Adding image to:" << img.filename;
+              cout.flush();
+            }
+//            result = addVideoFrame(img);
+#endif
           }
+          if (verbose)
+            cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
+          else if (!result)
+            cerr << " ERROR, saving PNG-image to:" << img.filename << endl;
           // -------------------------------------------------------------
 
         }
@@ -1971,6 +2065,9 @@ int parseAndProcess(const miString& file)
       } else if (value == "raster") {
         raster = true;
         raster_type = image_unknown;
+      } else if (value == "avi") {
+        raster = true;
+        raster_type = image_avi;
       } else {
         cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
             << linenumbers[k] << endl;

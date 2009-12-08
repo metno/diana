@@ -72,6 +72,9 @@ public:
 
   ~MovieMaker();
 
+  std::string outputFile() const;
+  std::string outputFormat() const;
+
   bool addImage(const QImage *image);
 
 private:

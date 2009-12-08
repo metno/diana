@@ -66,6 +66,16 @@ MovieMaker::~MovieMaker()
   endOutputStream(&outputVideo);
 }
 
+std::string MovieMaker::outputFile() const
+{
+  return g_strOutputVideoFile;
+}
+
+std::string MovieMaker::outputFormat() const
+{
+  return g_strOutputVideoFormat;
+}
+
 bool MovieMaker::addVideoStream(OutputCtx *output)
 {
   output->videoStream = av_new_stream(output->outputCtx, 0);
