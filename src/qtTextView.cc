@@ -45,9 +45,8 @@ TextWidget::TextWidget(QWidget* parent, const miutil::miString& text, int id_)
   textEdit->setReadOnly(true);
   textEdit->setText(QString(text.c_str()));
 
-  QVBoxLayout *vlayout = new QVBoxLayout( this);
-  vlayout->addWidget( textEdit );
-
+  QVBoxLayout *vlayout = new QVBoxLayout(this);
+  vlayout->addWidget(textEdit);
 }
 
 void TextWidget::setText(miutil::miString text)
@@ -60,14 +59,13 @@ void TextWidget::setText(miutil::miString text)
 TextView::TextView(QWidget* parent)
   : QDialog(parent)
 {
-
   tabwidget = new QTabWidget(this);
 
-  QPushButton* printButton = new QPushButton(tr("Print"),this);
-  connect( printButton,SIGNAL(clicked()), SLOT( printSlot() ));
+  QPushButton* printButton = new QPushButton(tr("Print"), this);
+  connect(printButton, SIGNAL(clicked()), SLOT(printSlot()));
 
-  QPushButton* hideButton = new QPushButton(tr("Hide"),this);
-  connect( hideButton,SIGNAL(clicked()),SLOT( hide() ));
+  QPushButton* hideButton = new QPushButton(tr("Hide"), this);
+  connect(hideButton, SIGNAL(clicked()), SLOT(hide()));
 
   QHBoxLayout* hlayout = new QHBoxLayout();
   hlayout->addWidget(printButton);
@@ -75,37 +73,31 @@ TextView::TextView(QWidget* parent)
   QVBoxLayout* vlayout = new QVBoxLayout(this);
   vlayout->addWidget(tabwidget);
   vlayout->addLayout(hlayout);
-
 }
 
 void TextView::setText(int id, const miutil::miString& name,
 		      const miutil::miString& text)
 {
-//  if(!idmap.count(id)){
-//    TextWidget* widget = new TextWidget(this,text,id);
-//    idmap[id]=widget;
-//    tabwidget->addTab(widget,name.cStr());
-//  } else {
-//    idmap[id]->setText(text);
-//  }
+  if (idmap.count(id) == 0) {
+    TextWidget* widget = new TextWidget(this, text, id);
+    idmap[id] = widget;
+    tabwidget->addTab(widget, name.cStr());
+  }
+  idmap[id]->setText(text);
 }
 
 void TextView::deleteTab(int id)
 {
-//
-//  if(idmap.count(id)){
-//    tabwidget->removePage(idmap[id]);
-//    idmap.erase(id);
-//  }
-//
-//  if(idmap.size()==0)
-//    hide();
+  if (idmap.count(id) != 0) {
+    tabwidget->removePage(idmap[id]);
+    idmap.erase(id);
+  }
+
+  if (idmap.size() == 0)
+    hide();
 }
 
 void TextView::printSlot()
 {
   emit printClicked(tabwidget->currentIndex());
 }
-
-
-
