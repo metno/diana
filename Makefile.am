@@ -2,13 +2,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-
-if ENABLE_BETA
-APP=diana@program_suffix@
-else
-APP=diana
-endif
-
 -include mk/debian.mk
 
 SUBDIRS = src

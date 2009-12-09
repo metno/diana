@@ -140,7 +140,7 @@ int main(int argc, char **argv)
     } else if (sarg=="-T" || sarg=="--title") {
         ac++;
         if (ac >= argc) printUsage();
-       diana_title+= " "+ miString(argv[ac]);
+       diana_title = miString(argv[ac]);
 
     } else {
       vector<miString> ks= sarg.split("=");

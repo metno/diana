@@ -70,10 +70,8 @@ bool MapManager::parseMapAreas(SetupParser& sp)
       if (tokens.size() > 1){
         miString value= tokens[1].downcase();
         Projection::setProjActive(value=="true");
-        cout <<"Projections: Using proj4"<<endl;
       } else {
         Projection::setProjActive(false);
-        cout <<"Projections: Using libmi"<<endl;
       }
 
     } else if (area.setAreaFromLog(setuplist[i])) {

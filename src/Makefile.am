@@ -565,8 +565,6 @@ CLEANFILES += $(moc_sources)
 %.moc.cc: %.h
 	$(MOC4) -o $@ $<
 
-# Making languages 
-
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts
 
 languagedir= $(datarootdir)/$(APP)/lang

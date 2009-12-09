@@ -54,9 +54,9 @@ WeatherObjects::WeatherObjects(){
 
   // correct spec. when making Projection for long/lat coordinates
   // (Projection constructor will update spec. to 1,1,1,1,0,0)
-  miString areaString = "proj=geographic grid=0:0:1:1:0:0 area=1:1:90:360";
+  miString areaString = "proj=geographic grid=1:1:1:1:0:0 area=1:1:90:360";
   geoArea.setAreaFromLog(areaString);
-
+//Todo: setGeographic() doesn't work, Why?
   useobject.clear();
   //use all objects if nothing else specified
   for (int i=0; i<numObjectTypes; i++)
@@ -144,8 +144,8 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherObjects::changeProjection" << endl;
-  cerr << "Change projection from " << itsArea.Name() <<" to " <<
-    newArea.Name() << endl;
+  cerr << "Change projection from " << itsArea <<" to " <<
+    newArea << endl;
 #endif
 
   if (itsArea.P() == newArea.P()) return false;
