@@ -119,8 +119,8 @@ void SatPlot::values(float x, float y, vector<SatValues>& satval){
 bool SatPlot::plot(){
 
 #ifdef DEBUGPRINT
-#endif
   cerr << "++ SatPlot::plot() ++" << endl;
+#endif
 
   if (!enabled)
     return false;
@@ -139,8 +139,6 @@ bool SatPlot::plot(){
   //Corners of total image (map coordinates)
   xmin = 0.;
   ymin = 0.;
-  cerr <<"area:"<<area<<endl;
-  cerr <<"sadata->area:"<<satdata->area<<endl<<endl;;
   if (!gc.getPoints(satdata->area, area, npos, &xmin, &ymin))
     return false;
   xmax = nx;
@@ -182,7 +180,7 @@ bool SatPlot::plot(){
   float ystart = bmStarty;
   if (!gc.getPoints(satdata->area, area, npos, &xstart, &ystart))
     return false;
-cerr <<"xstart:"<<xstart<<"  ystart:"<<ystart<<endl;
+
   //Strange, but needed
   float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
   float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;

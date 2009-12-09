@@ -1666,11 +1666,11 @@ void ObsPlot::plotList(int index)
   if( pFlag.count("pos")){
     ostringstream slat, slon;
     slat << setw(6) << setprecision(2)
-    << setiosflags(ios::fixed) << fabsf(y[index]);
+    << setiosflags(ios::fixed) << fabsf(dta.ypos);
     if (dta.ypos>=0.) slat << 'N';
     else               slat << 'S';
     slon << setw(6) << setprecision(2)
-    << setiosflags(ios::fixed) << fabsf(x[index]);
+    << setiosflags(ios::fixed) << fabsf(dta.xpos);
     if (dta.xpos>=0.) slon << 'E';
     else               slon << 'W';
     ypos -= yStep;

@@ -752,7 +752,6 @@ void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
   float PI       = acosf(-1.0);
   for (unsigned int i=0; i<msize; i++){
     glBegin(GL_POLYGON);
-    cerr <<"xdraw:"<<xdraw[i]<<"  :" <<ydraw[i]<<endl;
     if (objectIs(wFront) || objectIs(Border)){
       glVertex2f(xdraw[i]- deltaw,ydraw[i]- deltaw);
       glVertex2f(xdraw[i]+ deltaw,ydraw[i] - deltaw);
@@ -936,8 +935,8 @@ bool ObjectPlot::readObjectString(miString objectString)
        vector<miString> points2add=value.split(",");
        int nPoints = points2add.size()/2;
         for (int pp=0; pp< nPoints; pp++){
-	  cerr << points2add[pp*2] << endl;
-	  cerr << points2add[pp*2+1] << endl;
+	  //cerr << points2add[pp*2] << endl;
+	  //cerr << points2add[pp*2+1] << endl;
 	 addPoint( atof(points2add[pp*2].cStr()),
 		    atof(points2add[pp*2+1].cStr()));
        }

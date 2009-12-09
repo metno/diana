@@ -2326,147 +2326,147 @@ Kan ikke starte produksjon</translation>
 <context>
     <name>ObsDialog</name>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="68"/>
+        <location filename="../../../src/qtObsDialog.cc" line="66"/>
         <source>Observations</source>
         <translation type="unfinished">Observasjoner</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="123"/>
+        <location filename="../../../src/qtObsDialog.cc" line="121"/>
         <source>Help</source>
         <translation type="unfinished">Hjelp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="124"/>
+        <location filename="../../../src/qtObsDialog.cc" line="122"/>
         <source>Refresh</source>
         <translation type="unfinished">Oppdater</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="125"/>
+        <location filename="../../../src/qtObsDialog.cc" line="123"/>
         <source>Hide</source>
         <translation type="unfinished">Skjul</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="126"/>
+        <location filename="../../../src/qtObsDialog.cc" line="124"/>
         <source>Apply + Hide</source>
         <translation type="unfinished">Utfør+Skjul</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="127"/>
+        <location filename="../../../src/qtObsDialog.cc" line="125"/>
         <source>Apply</source>
         <translation type="unfinished">Utfør</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="121"/>
+        <location filename="../../../src/qtObsDialog.cc" line="119"/>
         <source>Show all</source>
         <translation type="unfinished">Vis alle</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="122"/>
+        <location filename="../../../src/qtObsDialog.cc" line="120"/>
         <source>Show all plot types</source>
         <translation type="unfinished">Vis alle plottetyper</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="525"/>
+        <location filename="../../../src/qtObsDialog.cc" line="515"/>
         <source>Delete</source>
         <translation type="unfinished">Slett</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="526"/>
+        <location filename="../../../src/qtObsDialog.cc" line="516"/>
         <source>Delete all</source>
         <translation type="unfinished">Slett alt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="592"/>
+        <location filename="../../../src/qtObsDialog.cc" line="582"/>
         <source>Save</source>
         <translation type="unfinished">Lagre</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="593"/>
+        <location filename="../../../src/qtObsDialog.cc" line="583"/>
         <source>Save criteria list</source>
         <translation type="unfinished">Lagre kriterieliste</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="595"/>
+        <location filename="../../../src/qtObsDialog.cc" line="585"/>
         <source>Name of list to save</source>
         <translation type="unfinished">Navn på liste som skal lagres</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="559"/>
+        <location filename="../../../src/qtObsDialog.cc" line="549"/>
         <source>Colour</source>
         <translation type="unfinished">Farge</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="561"/>
+        <location filename="../../../src/qtObsDialog.cc" line="551"/>
         <source>Limit</source>
         <translation type="unfinished">Grense</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="562"/>
+        <location filename="../../../src/qtObsDialog.cc" line="552"/>
         <source>Precision</source>
         <translation type="unfinished">Presisjon</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="532"/>
+        <location filename="../../../src/qtObsDialog.cc" line="522"/>
         <source>Plot</source>
         <translation type="unfinished">Plot</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="534"/>
+        <location filename="../../../src/qtObsDialog.cc" line="524"/>
         <source>Colour - parameter</source>
         <translation type="unfinished">Farge - parameter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="536"/>
+        <location filename="../../../src/qtObsDialog.cc" line="526"/>
         <source>Colour - observation</source>
         <translation type="unfinished">Farge - observasjon</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="518"/>
+        <location filename="../../../src/qtObsDialog.cc" line="508"/>
         <source>List of Criteria</source>
         <translation type="unfinished">Kriterieliste</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="522"/>
+        <location filename="../../../src/qtObsDialog.cc" line="512"/>
         <source>Criteria</source>
         <translation type="unfinished">Kriterier</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="527"/>
+        <location filename="../../../src/qtObsDialog.cc" line="517"/>
         <source>Delete selected criteria</source>
         <translation type="unfinished">Slett valgt kriterie</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="528"/>
+        <location filename="../../../src/qtObsDialog.cc" line="518"/>
         <source>Delete all criteria</source>
         <translation type="unfinished">Slett alle kriterier i listen</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="551"/>
+        <location filename="../../../src/qtObsDialog.cc" line="541"/>
         <source>Plot observations which meet all criteria of at least one parameter</source>
         <translation type="unfinished">Plot observasjoner som tilfredstiller alle kriteriene for minst en parameter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="553"/>
+        <location filename="../../../src/qtObsDialog.cc" line="543"/>
         <source>Plot a parameter in the colour specified if it meets any criteria of that parameter</source>
         <translation type="unfinished">Plot en parameter i valgt farge hvis den tilfredstiller minst ett kriterie for den parameteren</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="555"/>
+        <location filename="../../../src/qtObsDialog.cc" line="545"/>
         <source>Plot observations in the colour specified if one parameter meet any criteria of that parameter </source>
         <translation type="unfinished">Plot hele observaasjonen i valgt farge hvis en av parameterene tilfredstiller minst ett av kriteriene for den parametereren</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="95"/>
+        <location filename="../../../src/qtObsDialog.cc" line="93"/>
         <source>select plot type</source>
         <translation type="unfinished">velg plottetype</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="85"/>
+        <location filename="../../../src/qtObsDialog.cc" line="83"/>
         <source>Pressure</source>
         <translation type="unfinished">Trykk</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="560"/>
+        <location filename="../../../src/qtObsDialog.cc" line="550"/>
         <source>Marker</source>
         <translation type="unfinished">Markør
 </translation>
@@ -2477,12 +2477,12 @@ Kan ikke starte produksjon</translation>
         <translation type="obsolete">Plot valgt par</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="570"/>
+        <location filename="../../../src/qtObsDialog.cc" line="560"/>
         <source>Precision of limit</source>
         <translation type="unfinished">Presisjon for grense</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="557"/>
+        <location filename="../../../src/qtObsDialog.cc" line="547"/>
         <source>Plot marker specified if one parameter meets any criteria of that parameter </source>
         <translation type="unfinished">Plot valgt markør hivis en parameter tilfredstiller minst ett av kriteriene for den parametereren</translation>
     </message>
@@ -3742,12 +3742,12 @@ Vil du kjøre dine endringer først?</translation>
         <translation type="unfinished">Diana Bølgespekter - modeller</translation>
     </message>
     <message>
-        <location filename="../../../src/qtSpectrumModelDialog.cc" line="86"/>
+        <location filename="../../../src/qtSpectrumModelDialog.cc" line="87"/>
         <source>Model</source>
         <translation type="unfinished">Modell</translation>
     </message>
     <message>
-        <location filename="../../../src/qtSpectrumModelDialog.cc" line="87"/>
+        <location filename="../../../src/qtSpectrumModelDialog.cc" line="88"/>
         <source>File</source>
         <translation type="unfinished">Fil</translation>
     </message>

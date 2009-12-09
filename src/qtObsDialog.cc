@@ -46,8 +46,6 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QButtonGroup>
-#include <QHttp>
-
 
 #include <qtObsDialog.h>
 #include <qtObsWidget.h>
@@ -162,14 +160,6 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   makeExtension();
   setExtension(extension);
   showExtension(false);
-//testing
-  QHttp url;
-  url.setHost("met.no");
-  url.get("/index.html");
- char* data;
- QByteArray ba = url.readAll();
- miutil::miString mm(ba.data());
-  cerr <<mm<<endl;
 
 }
 
