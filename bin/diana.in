@@ -46,7 +46,7 @@ test -s mail.core  && mv -f mail.core mail.core.old
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
-$dianadir/bin/diana.bin$SUFFIX  -s $setup -T $SUFFIX -p -S profet$SUFFIX PROFFWDB=proffdb$SUFFIX.met.no APP_NAME=diana$SUFFIX $@ 
+$dianadir/bin/diana.bin$SUFFIX  -s $setup -T diana$SUFFIX -p -S profet$SUFFIX.met.no PROFFWDB=proffdb$SUFFIX.met.no APP_NAME=diana$SUFFIX $@ 
 
 tstop=`date`
 
@@ -102,7 +102,7 @@ done
 echo "===============================================" >>mail.core
 hinv                 >>mail.core
 
-adr="audun.christoffersen@met.no lisbeth.bergholt@met.no"
+adr="audun.christoffersen@met.no lisbeth.bergholt@met.no juergen.schulze@met.no"
 Mail -s "DIANA CRASH" $adr < mail.core
 
 fi
