@@ -41,6 +41,7 @@
 #include <qtMainWindow.h>
 #include <puTools/miCommandLine.h>
 #include <puTools/miString.h>
+#include <diField/diProjection.h>
 #include <iostream>
 
 #ifndef NOLOG4CXX
@@ -100,6 +101,7 @@ int main(int argc, char **argv)
   miString profetServer;
   miString setupfile;
   miString lang;
+  bool useprojlib=true;
   map<miString,miString> user_variables;
 
     // parsing command line arguments
@@ -138,9 +140,14 @@ int main(int argc, char **argv)
       if (ac >= argc) printUsage();
       profetServer= argv[ac];
     } else if (sarg=="-T" || sarg=="--title") {
-        ac++;
-        if (ac >= argc) printUsage();
-       diana_title = miString(argv[ac]);
+      ac++;
+      if (ac >= argc) printUsage();
+      diana_title+= " "+ miString(argv[ac]);
+
+    } else if (sarg=="--proj") {
+      ac++;
+      if (ac >= argc) printUsage();
+      useprojlib = (miString(argv[ac])=="true");
 
     } else {
       vector<miString> ks= sarg.split("=");
@@ -153,6 +160,8 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
+ //Set projection library (libmi or proj4)
+  Projection::setProjActive(useprojlib);
 
   // Fix logger
   if(logfilename.exists()) {

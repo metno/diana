@@ -60,23 +60,12 @@ bool MapManager::parseMapAreas(SetupParser& sp)
     return true;
   }
 
-  Projection::setProjActive(false); //default
   unsigned int q;
   unsigned int n = setuplist. size();
   for (unsigned int i = 0; i < n; i++) {
     Area area;
-    if (setuplist[i].downcase().contains("useprojlib")) {
-      vector<miString> tokens= setuplist[i].split("=");
-      if (tokens.size() > 1){
-        miString value= tokens[1].downcase();
-        Projection::setProjActive(value=="true");
-        cout <<"Projections: Using proj4"<<endl;
-      } else {
-        Projection::setProjActive(false);
-        cout <<"Projections: Using libmi"<<endl;
-      }
 
-    } else if (area.setAreaFromLog(setuplist[i])) {
+    if (area.setAreaFromLog(setuplist[i])) {
       miString name = area.Name();
 
       if (name.contains("[F5]") || name.contains("[F6]") || name.contains(

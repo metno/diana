@@ -53,10 +53,10 @@ WeatherObjects::WeatherObjects(){
   itsTime=ztime;
 
   // correct spec. when making Projection for long/lat coordinates
-  // (Projection constructor will update spec. to 1,1,1,1,0,0)
-  miString areaString = "proj=geographic grid=1:1:1:1:0:0 area=1:1:90:360";
-  geoArea.setAreaFromLog(areaString);
-//Todo: setGeographic() doesn't work, Why?
+  Projection geop;
+  geop.setGeographic();
+  geoArea.setP(geop);
+
   useobject.clear();
   //use all objects if nothing else specified
   for (int i=0; i<numObjectTypes; i++)

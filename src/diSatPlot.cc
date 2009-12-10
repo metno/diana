@@ -190,8 +190,8 @@ bool SatPlot::plot(){
   float pystart= (ystart-maprect.y1)*scaley;
 
   // update scaling with ratio image to map (was map to screen pixels)
-  scalex*= area.P().getGridResolutionX() / satdata->area.P().getGridResolutionX();
-  scaley*= area.P().getGridResolutionY() / satdata->area.P().getGridResolutionY();
+  scalex*= satdata->area.P().getGridResolutionX() / area.P().getGridResolutionX();
+  scaley*= satdata->area.P().getGridResolutionY() / area.P().getGridResolutionY();
 
   // width of image (pixels)
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image
@@ -266,7 +266,9 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
     int& bmStartx, int& bmStarty,
     float& scalex, float& scaley,int& nx, int& ny)
 {
-
+#ifdef DEBUGPRINT
+  cerr << "++ SatPlot::resampleImage() ++  " <<scalex<<" :" <<scaley<<endl;
+#endif
   unsigned char * cimage;
   int irs= 1;            // resample-size
 
