@@ -1672,10 +1672,10 @@ bool FieldPlot::plotLayer(){
   cerr << "++ Entering FieldPlot::plotLayer.." << endl;
 #endif
   int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
+  if (n<3) return false;
+  if (!fields[0] || !fields[1] || !fields[2]) return false;
 
-  if (!fields[0]->data) return false;
+  if (!fields[0]->data || !fields[1]->data || !fields[2]->data) return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -1688,10 +1688,6 @@ bool FieldPlot::plotLayer(){
   gc.getGridPoints(fields[0]->area, area, maprect, false,
       npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
-
-  /// DEBUG
-  int nxc = nx + 1;
-  int nyc = ny + 1;
 
   // convert vectors to correct projection
   /*vector<float*> uv= prepareVectors(2,x,y);
@@ -1709,38 +1705,26 @@ bool FieldPlot::plotLayer(){
   if (step<1) step= autostep;
   float sdist= dist*float(step);
   int xstep= step;
+  float gx,gy,dx,dy;
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  /*float relarrowlen = poptions.relsize;
-  float unitlength  = poptions.vectorunit;*/
-
-  // length if abs(vector) = unitlength
-  /*float arrowlength = sdist * relarrowlen;
-
-  float scale = arrowlength / unitlength;*/
-
-  // for annotations .... should probably be resized if very small or large...
-  /*vectorAnnotationSize= arrowlength;
-  vectorAnnotationText= miString(unitlength) + poptions.vectorunitname;*/
-
-  // for arrow tip
-  /*const float afac = -0.333333;
-  const float sfac = afac * 0.5;*/
-
-  float gx,gy,dx,dy;
+  dx = poptions.relsize*(0.5);
+  dy = poptions.relsize*(0.5);
 
   ix1-=step;     if (ix1<0)  ix1=0;
   iy1-=step;     if (iy1<0)  iy1=0;
   ix2+=(step+1); if (ix2>nx) ix2=nx;
   iy2+=(step+1); if (iy2>ny) iy2=ny;
 
-  /*maprect.setExtension( arrowlength*1.5 );*/
+  // FIXME: Adjust if needed
+  //maprect.setExtension( 0.0 );
 
   // setup font plotting (may need "bitmap-code" from plotWindTempFL also)
   float fontsize= 14. * poptions.labelSize;
+  float smallfontsize= 10. * poptions.labelSize;
   fp->set("BITMAPFONT", poptions.fontface, fontsize);
 
   float chx, chy;
@@ -1756,75 +1740,45 @@ bool FieldPlot::plotLayer(){
   // the real height for numbers 0-9 (width is ok)
   chy *= 0.75;
 
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
+  // FIXME: Necessary?
+  //glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
+  //glColor3ubv(poptions.linecolour.RGB());
 
-  /*glBegin(GL_LINES);
-
+  /*glBegin(GL_LINES);*/
   float w, h;
   for (iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
-      gx= x[i]; gy= y[i];*/
+      gx= x[i]; gy= y[i];
 
-      // do drawing
+      glColor3ubv(poptions.textcolour.RGB());
+      /*fp->set("BITMAPFONT", poptions.fontface, fontsize);*/
 
-
-      // test fontplotting
-      /*ostringstream ostr;
-      ostr << "T";
+      // middle
+      ostringstream ostr;
+      ostr << roundf(fields[0]->data[ix + (iy * nx)] * 0.001);
       fp->getStringSize(ostr.str().c_str(), w, h);
-      fp->drawStr(ostr.str().c_str(), ix1, iy1, 0.0);*/
+      fp->drawStr(ostr.str().c_str(), gx, gy, 0.0);
 
-      /*if (u[i]!=fieldUndef && v[i]!=fieldUndef &&
-          (u[i]!=0.0f || v[i]!=0.0f) && maprect.isnear(gx,gy)){
-        dx = scale * u[i];
-        dy = scale * v[i];
-        // direction
-        glVertex2f(gx,gy);
-        gx = gx + dx;
-        gy = gy + dy;
-        glVertex2f(gx,gy);
+      // FIXME: Must fix auto y-step also... to make it work with all three numbers
+      /*glColor3f(1.0, 0.0, 0.0);
+      fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
 
-        // arrow (drawn as two lines)
-        glVertex2f(gx,gy);
-        glVertex2f(gx + afac*dx + sfac*dy,
-            gy + afac*dy - sfac*dx);
-        glVertex2f(gx,gy);
-        glVertex2f(gx + afac*dx - sfac*dy,
-            gy + afac*dy + sfac*dx);
-      }*/
-    /*}
-  }
-  glEnd();*/
+      // bottom
+      ostringstream ostrBottom;
+      ostrBottom << roundf(fields[1]->data[ix + (iy * nx)] * 0.001);
+      fp->getStringSize(ostrBottom.str().c_str(), w, h);
+      fp->drawStr(ostrBottom.str().c_str(), gx, gy-h, 0.0);
 
-  /// DEBUG
-  dx = poptions.relsize*(0.5) * (x[1]-x[0]);
-  dy = poptions.relsize*(0.5) * (y[nxc]-y[0]);
-
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glBegin(GL_QUADS);
-  for (iy = iy1; iy < iy2; iy++) {
-    for (ix = ix1; ix < ix2; ix++) {
-
-        glColor3f(1.0, 0.0, 0.0);
-
-        // center of gridcell
-        //glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
-        // lower-left corner of gridcell
-        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] - dy);
-        // lower-right corner of gridcell
-        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] - dy);
-        // upper-right corner of gridcell
-        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] + dy);
-        // upper-left corner of gridcell
-        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] + dy);
-
-
+      // top
+      ostringstream ostrTop;
+      ostrTop << roundf(fields[2]->data[ix + (iy * nx)] * 0.001);
+      fp->getStringSize(ostrTop.str().c_str(), w, h);
+      fp->drawStr(ostrTop.str().c_str(), gx, gy+h, 0.0);*/
     }
   }
-  glEnd();
+  /*glEnd();*/
 
   UpdateOutput();
 

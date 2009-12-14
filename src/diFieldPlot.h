@@ -130,10 +130,10 @@ private:
    * |   lower    |
    * --------------
    * where "upper" is the highest level (in feet) where the
-   * gridcell-value >= threshold, "middle/max" is  the (lowest) height (in feet)
-   * of maximum icing in the grid column, and "lower" is  the lowest
-   * level (in feet) where the gridcell-value >= threshold.
-   * Input: Layer threshold and middle/max of layer.
+   * gridcell-value >= some threshold, "middle/max" is  the (lowest) height (in
+   * feet) of middle/maximum value in the grid column, and "lower" is  the
+   * lowest level (in feet) where the gridcell-value >= some threshold.
+   * Input: Three fields: LAYER(Middle/max, lower, upper)
    * @return Returns true on success
    */
   bool plotLayer();
