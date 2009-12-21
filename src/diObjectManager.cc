@@ -43,7 +43,7 @@
 using namespace::miutil;
 
 ObjectManager::ObjectManager(PlotModule* pl)
-  : plotm(pl)
+  : plotm(pl), mapmode(normal_mode)
 {
 #ifdef DEBUGPRINT
   cerr << "ObjectManager constructor" << endl;

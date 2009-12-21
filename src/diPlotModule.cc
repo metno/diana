@@ -62,7 +62,8 @@ GridConverter PlotModule::gc; // Projection-converter
 // Default constructor
 PlotModule::PlotModule() :
    apEditmessage(0),plotw(0),ploth(0),resizezoom(true),
-   showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),prodtimedefined(false),dorubberband(false),
+   showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
+   mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
    dopanning(false), keepcurrentarea(true), obsnr(0)
 {
 

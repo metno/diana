@@ -62,6 +62,7 @@ void EditObjects::init(){
   commentsSaved = true;
   labelsSaved=true;
   prefix= miString();
+  mapmode = normal_mode;
   clear();
 }
 
@@ -508,6 +509,7 @@ void EditObjects::editPasteObjects(){
 #endif
   float diffx,diffy;
   int csize = copyObjects.objects.size();
+
   if (csize){
     unmarkAllPoints();
     copyObjects.changeProjection(itsArea);

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,16 +23,16 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-//#define dSatDlg 
+//#define dSatDlg
 #include <QSlider>
 #include <QLabel>
 #include <qcheckbox.h>
-#include <qmessagebox.h> 
+#include <qmessagebox.h>
 #include <qlcdnumber.h>
 #include <qtSatDialogAdvanced.h>
 #include <qtToggleButton.h>
@@ -51,81 +51,81 @@
 SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
 				      SatDialogInfo info)
     : QWidget(parent){
-    
+
   m_cut = info.cut;
   m_alphacut = info.alphacut;
   m_alpha = info.alpha;
   m_cutscale=m_cut.scale;
   m_alphacutscale=m_alphacut.scale;
   m_alphascale=m_alpha.scale;
-  
+
 // Cut
   cutCheckBox = new QCheckBox(tr("Use stretch from first picture"),this);
 
-  cut = new ToggleButton( this,tr("Cut").toStdString() );      
+  cut = new ToggleButton( this,tr("Cut").toStdString() );
 
   cutlcd = LCDNumber( 4, this);
-  
-  scut  = Slider( m_cut.minValue, m_cut.maxValue, 1, m_cut.value, 
-		  Qt::Horizontal, this);  
+
+  scut  = Slider( m_cut.minValue, m_cut.maxValue, 1, m_cut.value,
+		  Qt::Horizontal, this);
   connect( cutCheckBox, SIGNAL( toggled( bool )), SLOT( cutCheckBoxSlot( bool )));
   connect( cutCheckBox, SIGNAL( toggled( bool )), SIGNAL( SatChanged()));
 
-  connect( scut, SIGNAL( valueChanged( int )), 
+  connect( scut, SIGNAL( valueChanged( int )),
 	   SLOT( cutDisplay( int )));
   connect(scut, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
-  
+
   connect( cut, SIGNAL( toggled(bool)), SLOT( greyCut( bool) ));
   connect( cut, SIGNAL( clicked()),SIGNAL(SatChanged()));
-  
+
   // AlphaCut
-  alphacut = new ToggleButton( this,tr("Alpha cut").toStdString() ); 
+  alphacut = new ToggleButton( this,tr("Alpha cut").toStdString() );
   connect( alphacut, SIGNAL( toggled(bool)), SLOT( greyAlphaCut( bool) ));
   connect( alphacut, SIGNAL( clicked()),SIGNAL(SatChanged()));
-  
+
   alphacutlcd = LCDNumber( 4, this);
-  
+
   salphacut  = Slider( m_alphacut.minValue, m_alphacut.maxValue, 1,
 		      m_alphacut.value, Qt::Horizontal, this);
-  
-  connect( salphacut, SIGNAL( valueChanged( int )), 
+
+  connect( salphacut, SIGNAL( valueChanged( int )),
 	   SLOT( alphacutDisplay( int )));
   connect(salphacut, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
 
   // Alpha
-  alpha = new ToggleButton( this,tr("Alpha").toStdString() ); 
+  alpha = new ToggleButton( this,tr("Alpha").toStdString() );
   connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
   connect( alpha, SIGNAL( clicked()),SIGNAL(SatChanged()));
-  
+
   m_alphanr= 1.0;
-  
+
   alphalcd = LCDNumber( 4, this);
-  
-  salpha  = Slider( m_alpha.minValue, m_alpha.maxValue, 1, m_alpha.value, 
+
+  salpha  = Slider( m_alpha.minValue, m_alpha.maxValue, 1, m_alpha.value,
 		   Qt::Horizontal, this);
-  
-  connect( salpha, SIGNAL( valueChanged( int )), 
+
+  connect( salpha, SIGNAL( valueChanged( int )),
 	   SLOT( alphaDisplay( int )));
   connect(salpha, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
-  
-  
-  legendButton = new ToggleButton( this,tr("Table").toStdString() ); 
+
+
+  legendButton = new ToggleButton( this,tr("Table").toStdString() );
   connect( legendButton, SIGNAL(clicked()),SIGNAL(SatChanged()));
-  
-  colourcut = new ToggleButton( this,tr("Colour cut").toStdString() ); 
+
+  colourcut = new ToggleButton( this,tr("Colour cut").toStdString() );
   connect( colourcut, SIGNAL(clicked()),SIGNAL(SatChanged()));
   connect( colourcut, SIGNAL(toggled(bool)),SLOT(colourcutClicked(bool)));
   colourcut->setOn(false);
-  
+
   standard=NormalPushButton( tr("Standard"), this);
   connect( standard, SIGNAL( clicked()), SLOT( setStandard()));
   connect( standard, SIGNAL( clicked()), SIGNAL( SatChanged()));
-  
+
   colourList = new QListWidget( this );
   colourList->setSelectionMode(QAbstractItemView::MultiSelection);
   connect(colourList, SIGNAL(itemClicked(QListWidgetItem *))
-   	  ,SIGNAL(SatChanged()));     
-  connect(colourList, SIGNAL(itemSelectionChanged ()),SLOT(colourcutOn()));     
+   	  ,SIGNAL(SatChanged()));
+  connect(colourList, SIGNAL(itemSelectionChanged ()),SLOT(colourcutOn()));
 
   QGridLayout*sliderlayout = new QGridLayout( this );
   sliderlayout->addWidget( cutCheckBox,0,0,1,3 );
@@ -137,12 +137,11 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   sliderlayout->addWidget( alphacutlcd, 2, 2 );
   sliderlayout->addWidget( alpha,       3, 0 );
   sliderlayout->addWidget( salpha,      3, 1 );
-  sliderlayout->addWidget( alphalcd,    3, 2 );  
+  sliderlayout->addWidget( alphalcd,    3, 2 );
   sliderlayout->addWidget( legendButton,4, 0 );
   sliderlayout->addWidget( colourcut,   4, 1 );
   sliderlayout->addWidget( standard,    4, 2 );
   sliderlayout->addWidget( colourList, 6,0,1,3 );
-
 
   setOff();
   greyOptions();
@@ -201,21 +200,21 @@ void SatDialogAdvanced::greyAlpha( bool on ){
 
 
 /*********************************************/
-void SatDialogAdvanced::cutDisplay( int number ){  
+void SatDialogAdvanced::cutDisplay( int number ){
    m_cutnr= ((double)number)*m_cutscale;
    cutlcd->display( m_cutnr );
 }
 
 
 /*********************************************/
-void SatDialogAdvanced::alphacutDisplay( int number ){  
+void SatDialogAdvanced::alphacutDisplay( int number ){
    m_alphacutnr= ((double)number)*m_alphacutscale;
    alphacutlcd->display( m_alphacutnr );
 }
 
 
 /*********************************************/
-void SatDialogAdvanced::alphaDisplay( int number ){  
+void SatDialogAdvanced::alphaDisplay( int number ){
    m_alphanr= ((double)number)*m_alphascale;
    alphalcd->display( m_alphanr );
 }
@@ -228,15 +227,15 @@ void SatDialogAdvanced::setStandard(){
   if (palette){
     cut->setOn(false); greyCut( false );
     legendButton->setOn(true);
-    scut->setValue(  m_cut.minValue ); 
+    scut->setValue(  m_cut.minValue );
   }
   else{
     cutCheckBox->setChecked(false);
     cut->setOn(true); greyCut(true );
     legendButton->setOn(false);
-    scut->setValue(  m_cut.value ); 
+    scut->setValue(  m_cut.value );
   }
-  salphacut->setValue(  m_alphacut.value ); 
+  salphacut->setValue(  m_alphacut.value );
   alphacut->setOn(false); greyAlphaCut( false );
   salpha->setValue(  m_alpha.value );
   alpha->setOn(false); greyAlpha( false );
@@ -249,12 +248,13 @@ void SatDialogAdvanced::setStandard(){
 
 /*********************************************/
 void SatDialogAdvanced::setOff(){
-  //turn off all options 
+  //turn off all options
   blockSignals(true);
+  palette = false;
   cutCheckBox->setChecked(false);
-  scut->setValue(  m_cut.minValue ); 
+  scut->setValue(  m_cut.minValue );
   cut->setOn(false); greyCut( false );
-  salphacut->setValue(  m_alphacut.value ); 
+  salphacut->setValue(  m_alphacut.value );
   alphacut->setOn(false); greyAlphaCut( false );
   salpha->setValue(  m_alpha.value );
   alpha->setOn(false); greyAlpha( false );
@@ -272,7 +272,7 @@ void SatDialogAdvanced::colourcutClicked(bool on){
 
   if (on){
     if (!colourList->count())
-      emit getSatColours();  
+      emit getSatColours();
   }
 }
 /*********************************************/
@@ -280,7 +280,7 @@ miutil::miString SatDialogAdvanced::getOKString()
 {
   miutil::miString str;
   ostringstream ostr;
-  
+
   if(!palette){
     if( cutCheckBox->isChecked() )
       ostr<<" cut=-0.5";
@@ -288,24 +288,24 @@ miutil::miString SatDialogAdvanced::getOKString()
       ostr<<" cut="<<m_cutnr;
     else
       ostr<<" cut=-1";
-    
+
     if( alphacut->isOn() )
       ostr<<" alphacut="<<m_alphacutnr;
     else
       ostr<<" alphacut=0";
   }
-  
+
   if( alpha->isOn() )
     ostr<<" alpha="<<m_alphanr;
   else
     ostr<<" alpha=1";
-  
+
   if (palette){
     if( legendButton->isOn())
       ostr<<" Table=1";
-    else 
+    else
       ostr<<" Table=0";
-    
+
     //colours to hide
     if(colourcut->isOn()){
       ostr << " hide=";
@@ -318,10 +318,10 @@ miutil::miString SatDialogAdvanced::getOKString()
       }
     }
   }
-  
+
 
   str = ostr.str();
-  
+
   return str;
 
 }
@@ -397,7 +397,7 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
   //  cerr << "SatDialogAdvanced::putOKString: " << str<<endl;
   setStandard();
   blockSignals(true);
-  
+
   miutil::miString external;
   vector<miutil::miString> tokens= str.split('"','"');
   int n= tokens.size();
@@ -415,21 +415,21 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
 	    cutCheckBox->setChecked(true);
 	    cutCheckBoxSlot(true);
 	  } else {
-	    cut->setOn(false); 
+	    cut->setOn(false);
 	    greyCut(false);
 	  }
 	}else{
 	  int cutvalue = int(m_cutnr/m_cutscale+m_cutscale/2);
 	  scut->setValue(  cutvalue);
-	  cut->setOn(true); 
+	  cut->setOn(true);
 	  greyCut( true );
-	} 
+	}
       }
       else if ( (key=="alphacut" || key=="alfacut") && !palette){
 	if (value!="0"){
 	  m_alphacutnr = atof(value.c_str());
 	  int m_alphacutvalue = int(m_alphacutnr/m_alphacutscale+m_alphacutscale/2);
-	  salphacut->setValue(  m_alphacutvalue ); 
+	  salphacut->setValue(  m_alphacutvalue );
 	  alphacut->setOn(true); greyAlphaCut( true );
 	}else{
 	  alphacut->setOn(false); greyAlphaCut(false);
@@ -439,7 +439,7 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
 	if (value!="1"){
 	  m_alphanr = atof(value.c_str());
 	  int m_alphavalue = int(m_alphanr/m_alphascale+m_alphascale/2);
-	  salpha->setValue(  m_alphavalue ); 
+	  salpha->setValue(  m_alphavalue );
 	  alpha->setOn(true); greyAlpha( true );
 	}else{
 	  alpha->setOn(false); greyAlpha(false);
@@ -478,7 +478,7 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
 
 void SatDialogAdvanced::closeEvent( QCloseEvent* e) {
   emit SatHide();
-} 
+}
 
 
 void SatDialogAdvanced::blockSignals(bool b){

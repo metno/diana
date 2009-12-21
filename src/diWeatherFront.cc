@@ -88,6 +88,7 @@ WeatherFront::WeatherFront(const WeatherFront &rhs) : ObjectPlot(rhs){
     x_s[i] = rhs.x_s[i];
     y_s[i] = rhs.y_s[i];
   }
+  drawSig = rhs.drawSig;
 }
 
 // Destructor

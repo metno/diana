@@ -97,7 +97,7 @@ int main(int argc, char **argv)
   miString build_str= build_string;
   miString cl_lang;
   bool profetEnabled= false;
-  miString diana_title="Diana";
+  miString diana_title="diana";
   miString profetServer;
   miString setupfile;
   miString lang;
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
     } else if (sarg=="-T" || sarg=="--title") {
       ac++;
       if (ac >= argc) printUsage();
-      diana_title+= " "+ miString(argv[ac]);
+      diana_title = miString(argv[ac]);
 
     } else if (sarg=="--proj") {
       ac++;

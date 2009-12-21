@@ -45,7 +45,9 @@ miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0);
 
 /*********************************************/
 
-WeatherObjects::WeatherObjects(){
+WeatherObjects::WeatherObjects()
+: xcopy(0), ycopy(0)
+{
 #ifdef DEBUGPRINT
   cerr << "WeatherObjects constructor" << endl;
 #endif

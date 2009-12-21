@@ -52,7 +52,7 @@
 using namespace::miutil;
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om)
-: plotm(pm), objm(om), mapmode(normal_mode), editpause(false),
+: plotm(pm), objm(om), mapmode(normal_mode), edittool(0), editpause(false),
 combinematrix(0),numregs(0), hiddenObjects(false),
 hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
 {
@@ -1368,7 +1368,7 @@ bool EditManager::findProduct(EditProduct& ep, miString pname){
 vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
     miString fieldname){
 
-  int num,n=ep.fields.size();
+  int num=-1,n=ep.fields.size();
   for (int i=0;i<n;i++){
     if (fieldname==ep.fields[i].name){
       num=i;

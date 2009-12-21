@@ -91,6 +91,7 @@ ObsPlot::ObsPlot()
   flaginfo    = false;
   parameterName = false;
   asciiHeader = false;
+  asciiData   = false;
   pcriteria   = false; //plot criteria
   ccriteria   = false; //colour criteria
   tccriteria  = false; // total colour criteria
