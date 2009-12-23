@@ -1689,19 +1689,14 @@ bool FieldPlot::plotLayer(){
       npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
-  // convert vectors to correct projection
-  /*vector<float*> uv= prepareVectors(2,x,y);
-  if (uv.size()!=2) return false;
-  float *u= uv[0];
-  float *v= uv[1];*/
-
   int step= poptions.density;
 
-  // automatic wind/vector density
   int autostep;
   float dist;
   bool xStepComp;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist, xStepComp);
+  // (easiest way of getting decent autosteps when drawing three numbers
+  // was to change MaxArrowsAuto)
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, 22/*MaxArrowsAuto*/, autostep, dist, xStepComp);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
   int xstep= step;
@@ -1753,7 +1748,7 @@ bool FieldPlot::plotLayer(){
       gx= x[i]; gy= y[i];
 
       glColor3ubv(poptions.textcolour.RGB());
-      /*fp->set("BITMAPFONT", poptions.fontface, fontsize);*/
+      fp->set("BITMAPFONT", poptions.fontface, fontsize);
 
       // middle
       ostringstream ostr;
@@ -1761,8 +1756,7 @@ bool FieldPlot::plotLayer(){
       fp->getStringSize(ostr.str().c_str(), w, h);
       fp->drawStr(ostr.str().c_str(), gx, gy, 0.0);
 
-      // FIXME: Must fix auto y-step also... to make it work with all three numbers
-      /*glColor3f(1.0, 0.0, 0.0);
+      glColor3f(1.0, 0.0, 0.0);
       fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
 
       // bottom
@@ -1775,7 +1769,7 @@ bool FieldPlot::plotLayer(){
       ostringstream ostrTop;
       ostrTop << roundf(fields[2]->data[ix + (iy * nx)] * 0.001);
       fp->getStringSize(ostrTop.str().c_str(), w, h);
-      fp->drawStr(ostrTop.str().c_str(), gx, gy+h, 0.0);*/
+      fp->drawStr(ostrTop.str().c_str(), gx, gy+h, 0.0);
     }
   }
   /*glEnd();*/
@@ -2938,21 +2932,24 @@ bool FieldPlot::plotFillCell(){
   int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  gc.getGridPoints(fields[0]->area, area, maprect, true, npos, &x, &y,
-      ix1, ix2, iy1, iy2);
+  gc.getGridPoints(fields[0]->area, area, maprect, false,//true,
+      npos, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
-  int nxc = nx + 1;
-  int nyc = ny + 1;
+  /* Uncomment the two lines below, and switch to true in
+   * getGradPoints() (above)
+   * to fill gridcells matching Dianas 'Gridlinjer' */
+  //++nx;
+  //++ny;
 
   glLineWidth(poptions.linewidth);
   glColor3ubv(poptions.bordercolour.RGB());
   if ( poptions.frame ) {
-    plotFrame(nxc,nyc,x,y,2,NULL);
+    plotFrame(nx,ny,x,y,2,NULL);
   }
 
   float dx = poptions.relsize*(0.5) * (x[1]-x[0]);
-  float dy = poptions.relsize*(0.5) * (y[nxc]-y[0]);
+  float dy = poptions.relsize*(0.5) * (y[nx]-y[0]);
 
   if(poptions.values.empty()) {
     cerr << "plotFillCell(): Must define values in setupfile" << endl;
@@ -2986,15 +2983,15 @@ bool FieldPlot::plotFillCell(){
         glColor3ubv(poptions.palettecolours[it - poptions.values.begin()].RGB());
 
         // center of gridcell
-        //glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+        //glVertex2f(x[iy*nx+ix], y[iy*nx+ix]);
         // lower-left corner of gridcell
-        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] - dy);
+        glVertex2f(x[iy * nx + ix] - dx, y[iy * nx + ix] - dy);
         // lower-right corner of gridcell
-        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] - dy);
+        glVertex2f(x[iy * nx + ix] + dx, y[iy * nx + ix] - dy);
         // upper-right corner of gridcell
-        glVertex2f(x[iy * nxc + ix] + dx, y[iy * nxc + ix] + dy);
+        glVertex2f(x[iy * nx + ix] + dx, y[iy * nx + ix] + dy);
         // upper-left corner of gridcell
-        glVertex2f(x[iy * nxc + ix] - dx, y[iy * nxc + ix] + dy);
+        glVertex2f(x[iy * nx + ix] - dx, y[iy * nx + ix] + dy);
 
       }
     }
