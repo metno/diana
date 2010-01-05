@@ -339,6 +339,10 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
   //Find file where time is within filetime +/- timeRange (from setup)
   for( int i=0; i<n; i++ ){
     miTime t=Prod[obsType].fileInfo[i].time;
+    if (t.undef()){
+      cerr <<"No time defined:"<<Prod[obsType].fileInfo[i].filename<<endl;
+      continue;
+    }
     int d = (miTime::minDiff(time, t));
     if( d > rangeMin && d < rangeMax+1){   //file found
       found = i;
