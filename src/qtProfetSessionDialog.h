@@ -39,6 +39,7 @@
 #include <QListView>
 #include <QTableView>
 #include <QEvent>
+#include <QLabel>
 
 #include <profet/ProfetCommon.h>
 #include <profet/fetModel.h>
@@ -46,7 +47,6 @@
 #include <profet/fetParameter.h>
 #include <profet/fetObject.h>
 #include "qtProfetChatWidget.h"
-#include "qtProfetSessionTable.h"
 
 #include <vector>
 
@@ -61,7 +61,7 @@ public:
   SessionComboBox(QWidget * parent = 0) : QComboBox(parent){}
 private slots:
   void handleEmptySelection(const QString & text){
-    cerr << "******************* handleEmptySelection: " << text.latin1() << endl;
+    cerr << "******************* handleEmptySelection: " << text.toStdString() << endl;
   }
 
 };
