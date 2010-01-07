@@ -279,7 +279,6 @@ common_header_sources= diAnnotationPlot.h\
 	qtProfetEvents.h\
 	qtProfetObjectDialog.h\
 	qtProfetSessionDialog.h\
-	qtProfetSessionTable.h\
 	qtProfetSingleControl.h\
 	qtProfetTimeControl.h\
 	qtProfetTimeSmoothDialog.h\
@@ -526,7 +525,6 @@ common_cxx_sources += \
 	diProfetObjectFactory.cc
 qt_sources += \
 	qtProfetSessionDialog.cc \
-	qtProfetSessionTable.cc \
 	qtProfetObjectDialog.cc \
 	qtDianaProfetGUI.cc \
 	qtProfetChatWidget.cc \
