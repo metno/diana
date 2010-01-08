@@ -260,7 +260,7 @@ bool printerManager::checkSpecial(const printOptions& po,
   if (!printers.size()) return false;
   mc.clear();
 
-  for (int i=0; i<printers.size(); i++){
+  for (unsigned int i=0; i<printers.size(); i++){
     if (printers[i].keys["PRINTER"]==po.printer){
       // check rest of the keys
       if (printers[i].keys.count("PAGESIZE")>0)

@@ -110,6 +110,8 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
   miString ch=ginfo.channel;
   file.channel=ch.split(" ");
 
+  return true;
+
 }
 
 bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)

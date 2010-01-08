@@ -429,7 +429,7 @@ void ObsAscii::readFile(const miString &filename, const miString &headerfile,
           oplot->asciip.push_back(pstr);
         }
         for (i=0; i<n; i++) {
-          if (oplot->asciiLengthMax[i]<pstr[i].length())
+          if ((unsigned int)oplot->asciiLengthMax[i]<pstr[i].length())
             oplot->asciiLengthMax[i]=pstr[i].length();
         }
       }

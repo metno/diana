@@ -189,7 +189,7 @@ bool FontManager::parseSetup(SetupParser& sp)
     miString postscript = "";
 
     vector<miString> stokens = sect_fonts[i].split(" ");
-    for (int j = 0; j < stokens.size(); j++) {
+    for (unsigned int j = 0; j < stokens.size(); j++) {
       miString key;
       miString val;
       sp.splitKeyValue(stokens[j], key, val);

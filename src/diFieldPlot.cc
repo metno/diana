@@ -2923,7 +2923,7 @@ bool FieldPlot::plotFillCell(){
 
   if (!fields[0]->data) return false;
 
-  int i, ix, iy, i1, i2;
+  int ix, iy;
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -2964,7 +2964,7 @@ bool FieldPlot::plotFillCell(){
   // find min/max
   float min = poptions.values[0];
   float max = poptions.values[0];
-  for(int i=0; i < poptions.values.size(); ++i) {
+  for(int unsigned i=0; i < poptions.values.size(); ++i) {
     if(poptions.values[i] < min)
       min = poptions.values[i];
     if(poptions.values[i] > max)

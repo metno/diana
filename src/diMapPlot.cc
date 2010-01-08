@@ -656,7 +656,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
         npp += npi;
         np += npi;
 
-        if ((npp == npos || np == maxpos) && np > 1) {
+        if ((npp == npos || (unsigned int)np == maxpos) && np > 1) {
           if (illegal_southpole || illegal_northpole){
           /*
           if (gridtype == 5 || gridtype == 6) {
@@ -764,7 +764,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     }
     glonmin = glonmax = x[0];
     glatmin = glatmax = y[0];
-    for (n = 1; n < nn; ++n) {
+    for (n = 1; n < (unsigned int)nn; ++n) {
       if (glonmin > x[n])
         glonmin = x[n];
       if (glonmax < x[n])
@@ -894,7 +894,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                 npp += npi;
                 np += npi;
 
-                if ((npp == npos || np == maxpos) && np > 1) {
+                if ((npp == npos || (unsigned int)np == maxpos) && np > 1) {
                   if (illegal_southpole || illegal_northpole){
                     for (i = 0; i < np; ++i) {
                       if (illegal_northpole && y[i] > +89.95)

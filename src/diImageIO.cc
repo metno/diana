@@ -517,7 +517,7 @@ bool imageIO::read_xpm(Image_data& img){
 
   //   cerr << "RESULTING DATA:" << endl;
   char **data = new (char*[vs.size()]);
-  for (int i=0; i<vs.size(); i++){
+  for (unsigned int i=0; i<vs.size(); i++){
     data[i]= strdup(vs[i].cStr());
     //     cerr << data[i] << endl;
   }
