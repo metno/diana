@@ -66,45 +66,44 @@ const miutil::miString vprefix= "@";
 
 QuickMenu::QuickMenu( QWidget *parent, Controller* c,
     Qt::WFlags f)
-: QDialog( parent, FALSE, f), contr(c), comset(false),
+: QDialog( parent, f), contr(c), comset(false),
 activemenu(0), timerinterval(10), timeron(false),
 browsing(false),
 prev_plotindex(0), prev_listindex(0),
 firstcustom(-1), lastcustom(-1), instaticmenu(false)
 {
 
-  setCaption(tr("Quickmenu"));
+  setWindowTitle(tr("Quickmenu"));
 
   // Create top-level layout manager
-  QBoxLayout* tlayout = new QHBoxLayout( this, 5, 20, "tlayout");
+  QBoxLayout* tlayout = new QHBoxLayout( this);
 
   // make a nice frame
-  QFrame* frame= new QFrame(this, "frame");
+  QFrame* frame= new QFrame(this);
   frame->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 
   //  frame->setPalette( QPalette( QColor(255, 80, 80) ) );
   tlayout->addWidget(frame,1);
 
   // Create layout manager
-  QBoxLayout* vlayout = new QVBoxLayout(frame,10,10,"vlayout");
+  QBoxLayout* vlayout = new QVBoxLayout(frame);
 
   // create quickmenu optionmenu
-  QBoxLayout *l2= new QHBoxLayout(vlayout);
+  QBoxLayout *l2= new QHBoxLayout();
   QLabel* menulistlabel= TitleLabel(tr("Menus"),frame);
 
-  menulist= new QComboBox(FALSE, frame, "menulist");
+  menulist= new QComboBox(frame);
   connect(menulist, SIGNAL(activated(int)),SLOT(menulistActivate(int)));
   QPushButton* adminbut= new QPushButton(tr("&Edit menus.."), frame );
-  QToolTip::add( adminbut,
-      tr("Menu editor: Copy, change name and sortorder etc. on your own menus") );
+  adminbut->setToolTip(tr("Menu editor: Copy, change name and sortorder etc. on your own menus") );
   connect(adminbut, SIGNAL(clicked()),SLOT(adminButton()));
 
   updatebut= new QPushButton(tr("&Update.."), frame );
-  QToolTip::add( updatebut, tr("Update command with current plot") );
+  updatebut->setToolTip(tr("Update command with current plot") );
   connect(updatebut, SIGNAL(clicked()),SLOT(updateButton()));
 
   resetbut= new QPushButton(tr("&Reset.."), frame );
-  QToolTip::add( resetbut, tr("Reset command to original copy") );
+  resetbut->setToolTip(tr("Reset command to original copy") );
   connect(resetbut, SIGNAL(clicked()),SLOT(resetButton()));
 
   l2->addWidget(menulistlabel);
@@ -122,20 +121,22 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
       SLOT(listClicked( QListWidgetItem * )));
   connect(list, SIGNAL(itemDoubleClicked( QListWidgetItem * )),
       SLOT(listDoubleClicked( QListWidgetItem * )));
+  vlayout->addLayout(l2);
   vlayout->addWidget(list, 10);
 
   // Create variables/options layout manager
   int half= maxoptions/2;
-  QGridLayout* varlayout = new QGridLayout(vlayout,2,maxoptions);
+  QGridLayout* varlayout = new QGridLayout();
   for (int i=0; i<maxoptions; i++){
-    optionlabel[i]= new QLabel("",frame,"optlabel");
-    optionmenu[i]=  new QComboBox(FALSE, frame, "optionmenu");
+    optionlabel[i]= new QLabel("",frame);
+    optionmenu[i]=  new QComboBox(frame);
     optionmenu[i]->setSizeAdjustPolicy ( QComboBox::AdjustToContents);
     int row = (i < half ? 0 : 1);
     int col = 2*(i - row*half);
     varlayout->addWidget(optionlabel[i],row,col,Qt::AlignRight);
     varlayout->addWidget(optionmenu[i],row,col+1);//Qt::AlignLeft);
   }
+  vlayout->addLayout(varlayout);
 
   QFrame *line;
   // Create a horizontal frame line
@@ -144,20 +145,20 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   vlayout->addWidget( line );
 
   // create commands-area
-  comedit= new QTextEdit(frame, "comedit");
+  comedit= new QTextEdit(frame);
   comedit->setLineWrapMode(QTextEdit::NoWrap);
   comedit->setFont(QFont("Courier",12,QFont::Normal));
   comedit->setReadOnly(false);
   comedit->setMinimumHeight(150);
   connect(comedit, SIGNAL(textChanged()), SLOT(comChanged()));
-  comlabel= new QLabel(comedit,tr("Command field"),frame,"comlabel");
+  comlabel= new QLabel(tr("Command field"),frame);
   comlabel->setMinimumSize(comlabel->sizeHint());
   comlabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
 
   comlabel->hide();
   comedit->hide();
 
-  QHBoxLayout* l3= new QHBoxLayout(5);
+  QHBoxLayout* l3= new QHBoxLayout();
   l3->addWidget(comlabel);
   l3->addStretch();
 
@@ -165,23 +166,26 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   vlayout->addWidget(comedit, 10);
 
   // buttons and stuff at the bottom
-  QBoxLayout *l= new QHBoxLayout(vlayout);
+  QBoxLayout *l= new QHBoxLayout();
 
   QPushButton* quickhide = new QPushButton( tr("&Hide"), frame );
   connect( quickhide, SIGNAL(clicked()),SIGNAL( QuickHide()) );
   l->addWidget(quickhide);
 
   QPushButton* combut= new QPushButton(tr("&Command"), frame );
-  combut->setToggleButton(true);
+  combut->setCheckable(true);
   connect(combut, SIGNAL(toggled(bool)),SLOT(comButton(bool)));
   l->addWidget(combut);
 
   QPushButton* demobut= new QPushButton(tr("&Demo"), frame );
-  demobut->setToggleButton(true);
+  demobut->setCheckable(true);
   connect(demobut, SIGNAL(toggled(bool)),SLOT(demoButton(bool)));
   l->addWidget(demobut);
 
-  QSpinBox* interval= new QSpinBox(2,360,2,frame,"interval");
+  QSpinBox* interval= new QSpinBox(frame);
+  interval->setMinimum(2);
+  interval->setMaximum(360);
+  interval->setSingleStep(2);
   interval->setValue(timerinterval);
   interval->setSuffix(" sek");
   connect(interval, SIGNAL(valueChanged(int)),SLOT(intervalChanged(int)));
@@ -201,6 +205,8 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   l->addWidget(plotbut);
   //  l->addStretch();
 
+  vlayout->addLayout(l);
+
   // Start the geometry management
   vlayout->activate();
   tlayout->activate();
@@ -212,7 +218,7 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
 // set active menu
 void QuickMenu::setCurrentMenu(int i)
 {
-  menulist->setCurrentItem(i);
+  menulist->setCurrentIndex(i);
   menulistActivate(i);
 }
 
@@ -470,7 +476,7 @@ bool QuickMenu::applyItem(const miutil::miString& mlist, const miutil::miString&
   if( itemIndex==m  ) return false;
 
   //set menu
-  menulist->setCurrentItem(listIndex);
+  menulist->setCurrentIndex(listIndex);
   menulistActivate(listIndex);
   qm[listIndex].plotindex=itemIndex;
   list->setCurrentRow(itemIndex);
@@ -516,7 +522,7 @@ void QuickMenu::fillPrivateMenus()
   //History
   quickMenu qtmp;
   qm.push_back(qtmp);
-  qm[0].name= tr("History").latin1();
+  qm[0].name= tr("History").toStdString();
   qm[0].filename= setup.basicValue("homedir") + "/History.quick";
   qm[0].plotindex= 0;
   if (!readQuickMenu(qm[0])) {
@@ -979,7 +985,7 @@ void QuickMenu::fillMenuList()
     qnames.push_back(qm[i].name.cStr());
   }
 
-  for (int i=0; i<n; i++) menulist->insertItem(qnames[i]);
+  for (int i=0; i<n; i++) menulist->addItem(qnames[i]);
 
   // set active menu
   if (activemenu >= int(qm.size())) activemenu= qm.size()-1;
@@ -1034,7 +1040,7 @@ void QuickMenu::menulistActivate(int idx)
           if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
             defidx= j;
         }
-        if (defidx>=0) optionmenu[i]->setCurrentItem(defidx);
+        if (defidx>=0) optionmenu[i]->setCurrentIndex(defidx);
       }
       optionmenu[i]->adjustSize();
       optionlabel[i]->show();
@@ -1087,7 +1093,7 @@ void QuickMenu::listClicked( QListWidgetItem * item)
 
 void QuickMenu::comChanged(){
   //   cerr << "Command text changed" << endl;
-  miutil::miString ts= comedit->text().latin1();
+  miutil::miString ts= comedit->toPlainText().toStdString();
   // check if any variables to set here
   int m= qm[activemenu].opt.size();
   if (m > maxoptions) m= maxoptions;
@@ -1108,14 +1114,14 @@ void QuickMenu::listDoubleClicked( QListWidgetItem * item)
 
 void QuickMenu::getCommand(vector<miutil::miString>& s){
 
-  miutil::miString text = comedit->text().latin1();
+  miutil::miString text = comedit->toPlainText().toStdString();
   s.clear();
   s = text.split("\n");
   //  int ni= comedit->paragraphs();
   int ni = s.size();
   for (int i=0; i<ni; i++){
     s[i].trim();
-    //     miutil::miString str= comedit->text(i).latin1();
+    //     miutil::miString str= comedit->text(i).toStdString();
     //     str.trim();
     //     if (str.contains("\n"))
     //       str.erase(str.end()-1);
@@ -1145,7 +1151,7 @@ void QuickMenu::varExpand(vector<miutil::miString>& com)
   for (int i=0; i<n; i++){
     for (int j=0; j<m; j++){
       miutil::miString key= vprefix+qm[activemenu].opt[keys[j]].key;
-      miutil::miString val= optionmenu[keys[j]]->currentText().latin1();
+      miutil::miString val= optionmenu[keys[j]]->currentText().toStdString();
       com[i].replace(key,val);
       // keep for later default
       qm[activemenu].opt[keys[j]].def= val;

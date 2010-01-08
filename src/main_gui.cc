@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 
   mw->start();
 
-  a.setMainWidget(mw);
+//  a.setMainWidget(mw);
   mw->show();
 
   // news ?

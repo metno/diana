@@ -62,16 +62,9 @@
 #endif
 
 EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
-: QDialog(parent,"editnewdialog",false), m_ctrl(llctrl), m_editm(0)
+: QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
-  ConstructorCernel();
-}
 
-/*********************************************/
-void EditNewDialog::ConstructorCernel(){
-#ifdef dEditDlg
-  cout<<"EditNewDialog::ConstructorCernel called"<<endl;
-#endif
 
   m_editm= m_ctrl->getEditManager();
 
@@ -112,7 +105,7 @@ void EditNewDialog::ConstructorCernel(){
   killb->setEnabled(false);
   connect(killb, SIGNAL(clicked()),  SLOT(kill_clicked()) );
 
-  QGridLayout* gridlayout = new QGridLayout( pframe, 4,3,5,5 );
+  QGridLayout* gridlayout = new QGridLayout(pframe);
 
   gridlayout->addWidget( prodlabel,0,0 );
   gridlayout->addWidget( prodbox,0,1 );
@@ -120,7 +113,7 @@ void EditNewDialog::ConstructorCernel(){
   gridlayout->addWidget( idbox,1,1 );
   gridlayout->addWidget( loginb,2,0 );
   gridlayout->addWidget( loginlabel,2,1 );
-  gridlayout->addMultiCellWidget( availlabel,3,3,0,1);
+  gridlayout->addWidget( availlabel,3,0,1,2);
   gridlayout->addWidget( killb,3,2);
 
   // TAB-widget
@@ -132,7 +125,7 @@ void EditNewDialog::ConstructorCernel(){
   QVBoxLayout* normallayout = new QVBoxLayout(normaltab);
 
   QLabel* normallabel= new QLabel( tr("Make product from:"), normaltab );
-  QGridLayout* fieldlayout = new QGridLayout(3,2);
+  QGridLayout* fieldlayout = new QGridLayout();
   for (int i=0; i<maxelements; i++){
     ebut[i]= new QPushButton(tr("Objects"),normaltab);
     elab[i]= new QLabel((i==0 ? tr("No startobjects"):tr("Field undefined")),normaltab);
@@ -153,7 +146,7 @@ void EditNewDialog::ConstructorCernel(){
 
   timespin= new TimeSpinbox(false, normaltab);
   connect(timespin, SIGNAL(valueChanged(int)), SLOT(prodtimechanged(int)));
-  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h2layout = new QHBoxLayout();
   h2layout->addWidget(timespin,0,Qt::AlignHCenter);
 
   normallayout->addWidget(normallabel);
@@ -177,20 +170,20 @@ void EditNewDialog::ConstructorCernel(){
   connect(cBox, SIGNAL(itemClicked ( QListWidgetItem * ) ),
       SLOT(combineSelect(QListWidgetItem * ) ));
 
-  QLabel* ctimelabel= TitleLabel(tr("Product validity time"), combinetab );
-  QHBoxLayout* h5layout = new QHBoxLayout( 5 );
+  QLabel* ctimelabel= TitleLabel(tr("Product validity time"), combinetab);
+  QHBoxLayout* h5layout = new QHBoxLayout();
   h5layout->addWidget(ctimelabel,0,Qt::AlignHCenter);
 
   cselectlabel= new QLabel(tr("Time undefined"), combinetab );
-  QHBoxLayout* h3layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h3layout = new QHBoxLayout();
   h3layout->addWidget(cselectlabel,0,Qt::AlignHCenter);
 
   QLabel* cpid1label= TitleLabel( tr("Product Ids to combine:"),combinetab );
-  QHBoxLayout* h6layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h6layout = new QHBoxLayout();
   h6layout->addWidget(cpid1label,0,Qt::AlignHCenter);
 
   cpid2label= new QLabel(tr("None"), combinetab );
-  QHBoxLayout* h4layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h4layout = new QHBoxLayout();
   h4layout->addWidget(cpid2label,0,Qt::AlignHCenter);
 
 
@@ -204,13 +197,13 @@ void EditNewDialog::ConstructorCernel(){
 
   twd->addTab( combinetab, tr("Combine") );
 
-  connect( twd, SIGNAL(selected( const QString& )),
-      SLOT( tabSelected( const QString& ) ));
+  connect( twd, SIGNAL(currentChanged( int )),
+      SLOT( tabSelected( const int ) ));
 
   // TAB-setup ended
 
   // lower buttons
-  QHBoxLayout* hlayout = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout = new QHBoxLayout();
   ok= NormalPushButton( tr("OK"), this);
 
   help = NormalPushButton(tr("Help"), this );
@@ -224,7 +217,7 @@ void EditNewDialog::ConstructorCernel(){
   connect( cancel, SIGNAL(clicked()), SLOT(cancel_clicked()) );
 
   // major layout
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this );
 
   vlayout->addWidget( pframe );
   vlayout->addSpacing(10);
@@ -242,10 +235,10 @@ void EditNewDialog::ConstructorCernel(){
 }//end constructor EditNewDialog
 
 
-void EditNewDialog::tabSelected(const QString& name)
+void EditNewDialog::tabSelected(int tabindex)
 {
-  //  cerr << "EditNewDialog::Selected tab:" << name.toStdString() << endl;
-  normal= (name==TABNAME_NORMAL);
+  //  cerr << "EditNewDialog::Selected tab:" <<tabindex<< endl;
+  normal= (tabindex == 0);
 
   if (normal)
     ok->setText(tr("OK Start") + " " + prodbox->currentText());
@@ -357,14 +350,14 @@ void EditNewDialog::prodBox(int idx)
   int m= products[currprod].pids.size();
   int sid= 0;
   for (int i=0; i<m; i++){
-    idbox->insertItem(products[currprod].pids[i].name.c_str());
+    idbox->addItem(products[currprod].pids[i].name.c_str());
     if (products[currprod].pids[i].name==pid.name)
       sid= i;
   }
 
   if (m>0) {
     idbox->setEnabled(true);
-    idbox->setCurrentItem(sid);
+    idbox->setCurrentIndex(sid);
     idBox(sid);
   } else {
     idbox->setEnabled(false);
@@ -406,10 +399,10 @@ void EditNewDialog::idBox(int idx)
   //cerr << "....Selected Pid:" << products[currprod].pids[idx].name << endl;
 
   if(!pid.combinable){
-    if (twd->currentPageIndex()!=0) twd->setCurrentPage(0);
-    twd->setTabEnabled(combinetab, false);
+    if (twd->currentIndex()!=0) twd->setCurrentIndex(0);
+    twd->setTabEnabled(1, false);
   } else
-    twd->setTabEnabled(combinetab, true);
+    twd->setTabEnabled(1, true);
 
   if (!normal) load_combine();
 
@@ -430,7 +423,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
     prodbox->clear();
     int n= products.size();
     for (int i=0; i<n; i++){
-      prodbox->insertItem(products[i].name.c_str());
+      prodbox->addItem(products[i].name.c_str());
       int m= products[i].fields.size();
       products[i].objectprods.clear();
       for (int j=0; j<m; j++){
@@ -446,7 +439,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
     }
     if (n>0) {
       prodbox->setEnabled(true);
-      prodbox->setCurrentItem(0);
+      prodbox->setCurrentIndex(0);
       prodBox(0);
     }
     m_ctrl->getPlotTime(prodtime);

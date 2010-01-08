@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -89,7 +89,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
 
   //******** standard buttons **************************************
 
-      
+
 //Press enter -> apply and hide. Must declare setupapplyhide first.
 
   // push button to apply the selected setup and then hide dialog
@@ -115,18 +115,18 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout();
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfr", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );
+  QVBoxLayout * vlayout = new QVBoxLayout( this );
   vlayout->addLayout( glayout );
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
@@ -148,7 +148,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes/spinboxes
   int numrows= 29;
-  glayout = new QGridLayout(numrows,4);
+  glayout = new QGridLayout();
   glayout->setMargin( 5 );
   glayout->setSpacing( 2 );
 
@@ -169,7 +169,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
   vcSetups.push_back(new VcrossSetup(parent,TEXTPLOT,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetup(parent,POSNAMES,glayout,nrow++,opts));
-  
+
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
 	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
   vcSetups.push_back(new VcrossSetup(parent,FRAME,glayout,nrow++,opts));
@@ -187,7 +187,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups.push_back(new VcrossSetup(parent,MARKERLINES,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetup(parent,VERTICALMARKER,glayout,nrow++,opts));
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour | 
+  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
 	 VcrossSetup::useTextChoice | VcrossSetup::useTextChoice2);
   vcSetups.push_back(new VcrossSetup(parent,DISTANCE,glayout,nrow++,opts));
   vector<miutil::miString> distunit;
@@ -201,7 +201,7 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   diststep.push_back("10");
   diststep.push_back("100");
   vcSetups[n]->defineTextChoice2(diststep,0);
-  
+
   opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
   vcSetups.push_back(new VcrossSetup(parent,GRIDPOS,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetup(parent,GEOPOS,glayout,nrow++,opts));
@@ -296,101 +296,101 @@ void VcrossSetupDialog::setup(VcrossOptions *vcopt)
   for (int i=0; i<n; i++) {
 
     if (vcSetups[i]->name== TEXTPLOT) {
-      vcSetups[i]->setOn    (vcopt->pText);
+      vcSetups[i]->setChecked    (vcopt->pText);
       vcSetups[i]->setColour(vcopt->textColour);
 
     } else if (vcSetups[i]->name== POSNAMES) {
-      vcSetups[i]->setOn    (vcopt->pPositionNames);
+      vcSetups[i]->setChecked    (vcopt->pPositionNames);
       vcSetups[i]->setColour(vcopt->positionNamesColour);
 
     } else if (vcSetups[i]->name== FRAME) {
-      vcSetups[i]->setOn       (vcopt->pFrame);
+      vcSetups[i]->setChecked       (vcopt->pFrame);
       vcSetups[i]->setColour   (vcopt->frameColour);
       vcSetups[i]->setLinewidth(vcopt->frameLinewidth);
       vcSetups[i]->setLinetype (vcopt->frameLinetype);
 
     } else if (vcSetups[i]->name== LEVELNUMBERS) {
-      vcSetups[i]->setOn(vcopt->pLevelNumbers);
+      vcSetups[i]->setChecked(vcopt->pLevelNumbers);
 
     } else if (vcSetups[i]->name== UPPERLEVEL) {
-      vcSetups[i]->setOn       (vcopt->pUpperLevel);
+      vcSetups[i]->setChecked       (vcopt->pUpperLevel);
       vcSetups[i]->setColour   (vcopt->upperLevelColour);
       vcSetups[i]->setLinewidth(vcopt->upperLevelLinewidth);
       vcSetups[i]->setLinetype (vcopt->upperLevelLinetype);
 
     } else if (vcSetups[i]->name== LOWERLEVEL) {
-      vcSetups[i]->setOn       (vcopt->pLowerLevel);
+      vcSetups[i]->setChecked       (vcopt->pLowerLevel);
       vcSetups[i]->setColour   (vcopt->lowerLevelColour);
       vcSetups[i]->setLinewidth(vcopt->lowerLevelLinewidth);
       vcSetups[i]->setLinetype (vcopt->lowerLevelLinetype);
 
     } else if (vcSetups[i]->name== OTHERLEVELS) {
-      vcSetups[i]->setOn       (vcopt->pOtherLevels);
+      vcSetups[i]->setChecked       (vcopt->pOtherLevels);
       vcSetups[i]->setColour   (vcopt->otherLevelsColour);
       vcSetups[i]->setLinewidth(vcopt->otherLevelsLinewidth);
       vcSetups[i]->setLinetype (vcopt->otherLevelsLinetype);
 
     } else if (vcSetups[i]->name== SURFACE) {
-      vcSetups[i]->setOn       (vcopt->pSurface);
+      vcSetups[i]->setChecked       (vcopt->pSurface);
       vcSetups[i]->setColour   (vcopt->surfaceColour);
       vcSetups[i]->setLinewidth(vcopt->surfaceLinewidth);
       vcSetups[i]->setLinetype (vcopt->surfaceLinetype);
 
     } else if (vcSetups[i]->name== DISTANCE) {
-      vcSetups[i]->setOn         (vcopt->pDistance);
+      vcSetups[i]->setChecked         (vcopt->pDistance);
       vcSetups[i]->setColour     (vcopt->distanceColour);
       vcSetups[i]->setTextChoice (vcopt->distanceUnit);
       vcSetups[i]->setTextChoice2(vcopt->distanceStep);
 
     } else if (vcSetups[i]->name== GRIDPOS) {
-      vcSetups[i]->setOn    (vcopt->pXYpos);
+      vcSetups[i]->setChecked    (vcopt->pXYpos);
       vcSetups[i]->setColour(vcopt->xyposColour);
 
     } else if (vcSetups[i]->name== GEOPOS) {
-      vcSetups[i]->setOn    (vcopt->pGeoPos);
+      vcSetups[i]->setChecked    (vcopt->pGeoPos);
       vcSetups[i]->setColour(vcopt->geoposColour);
 
     } else if (vcSetups[i]->name== VERTGRID) {
-      vcSetups[i]->setOn       (vcopt->pVerticalGridLines);
+      vcSetups[i]->setChecked       (vcopt->pVerticalGridLines);
       vcSetups[i]->setColour   (vcopt->vergridColour);
       vcSetups[i]->setLinewidth(vcopt->vergridLinewidth);
       vcSetups[i]->setLinetype (vcopt->vergridLinetype);
 
     } else if (vcSetups[i]->name== MARKERLINES) {
-      vcSetups[i]->setOn       (vcopt->pMarkerlines);
+      vcSetups[i]->setChecked       (vcopt->pMarkerlines);
       vcSetups[i]->setColour   (vcopt->markerlinesColour);
       vcSetups[i]->setLinewidth(vcopt->markerlinesLinewidth);
       vcSetups[i]->setLinetype (vcopt->markerlinesLinetype);
 
     } else if (vcSetups[i]->name== VERTICALMARKER) {
-      vcSetups[i]->setOn       (vcopt->pVerticalMarker);
+      vcSetups[i]->setChecked       (vcopt->pVerticalMarker);
       vcSetups[i]->setColour   (vcopt->verticalMarkerColour);
       vcSetups[i]->setLinewidth(vcopt->verticalMarkerLinewidth);
       vcSetups[i]->setLinetype (vcopt->verticalMarkerLinetype);
 
     } else if (vcSetups[i]->name== EXTRAPOLP) {
-      vcSetups[i]->setOn(vcopt->extrapolateFixedLevels);
+      vcSetups[i]->setChecked(vcopt->extrapolateFixedLevels);
 
     } else if (vcSetups[i]->name== BOTTOMEXT) {
-      vcSetups[i]->setOn(vcopt->extrapolateToBottom);
+      vcSetups[i]->setChecked(vcopt->extrapolateToBottom);
 
     } else if (vcSetups[i]->name== THINARROWS) {
-      vcSetups[i]->setOn(vcopt->thinArrows);
+      vcSetups[i]->setChecked(vcopt->thinArrows);
 
     } else if (vcSetups[i]->name== VERTICALTYPE) {
       vcSetups[i]->setTextChoice(vcopt->verticalType);
 
     } else if (vcSetups[i]->name== VHSCALE) {
-      vcSetups[i]->setOn   (vcopt->keepVerHorRatio);
+      vcSetups[i]->setChecked   (vcopt->keepVerHorRatio);
       vcSetups[i]->setValue(vcopt->verHorRatio);
 
     } else if (vcSetups[i]->name== STDVERAREA) {
-      vcSetups[i]->setOn      (vcopt->stdVerticalArea);
+      vcSetups[i]->setChecked      (vcopt->stdVerticalArea);
       vcSetups[i]->setMinValue(vcopt->minVerticalArea);
       vcSetups[i]->setMaxValue(vcopt->maxVerticalArea);
 
     } else if (vcSetups[i]->name== STDHORAREA) {
-      vcSetups[i]->setOn      (vcopt->stdHorizontalArea);
+      vcSetups[i]->setChecked      (vcopt->stdHorizontalArea);
       vcSetups[i]->setMinValue(vcopt->minHorizontalArea);
       vcSetups[i]->setMaxValue(vcopt->maxHorizontalArea);
 
@@ -428,101 +428,101 @@ void VcrossSetupDialog::applySetup()
   for (int i=0; i<n; i++) {
 
     if (vcSetups[i]->name== TEXTPLOT) {
-      vcopt->pText=      vcSetups[i]->isOn();
+      vcopt->pText=      vcSetups[i]->isChecked();
       vcopt->textColour= vcSetups[i]->getColour().name;
 
     } else if (vcSetups[i]->name== POSNAMES) {
-      vcopt->pPositionNames=      vcSetups[i]->isOn();
+      vcopt->pPositionNames=      vcSetups[i]->isChecked();
       vcopt->positionNamesColour= vcSetups[i]->getColour().name;
 
     } else if (vcSetups[i]->name== FRAME) {
-      vcopt->pFrame=         vcSetups[i]->isOn();
+      vcopt->pFrame=         vcSetups[i]->isChecked();
       vcopt->frameColour=    vcSetups[i]->getColour().name;
       vcopt->frameLinewidth= vcSetups[i]->getLinewidth();
       vcopt->frameLinetype=  vcSetups[i]->getLinetype();
 
     } else if (vcSetups[i]->name== LEVELNUMBERS) {
-      vcopt->pLevelNumbers= vcSetups[i]->isOn();
+      vcopt->pLevelNumbers= vcSetups[i]->isChecked();
 
     } else if (vcSetups[i]->name== UPPERLEVEL) {
-      vcopt->pUpperLevel=         vcSetups[i]->isOn();
+      vcopt->pUpperLevel=         vcSetups[i]->isChecked();
       vcopt->upperLevelColour=    vcSetups[i]->getColour().name;
       vcopt->upperLevelLinewidth= vcSetups[i]->getLinewidth();
       vcopt->upperLevelLinetype=  vcSetups[i]->getLinetype();
 
     } else if (vcSetups[i]->name== LOWERLEVEL) {
-      vcopt->pLowerLevel=         vcSetups[i]->isOn();
+      vcopt->pLowerLevel=         vcSetups[i]->isChecked();
       vcopt->lowerLevelColour=    vcSetups[i]->getColour().name;
       vcopt->lowerLevelLinewidth= vcSetups[i]->getLinewidth();
       vcopt->lowerLevelLinetype=  vcSetups[i]->getLinetype();
 
     } else if (vcSetups[i]->name== OTHERLEVELS) {
-      vcopt->pOtherLevels=         vcSetups[i]->isOn();
+      vcopt->pOtherLevels=         vcSetups[i]->isChecked();
       vcopt->otherLevelsColour=    vcSetups[i]->getColour().name;
       vcopt->otherLevelsLinewidth= vcSetups[i]->getLinewidth();
       vcopt->otherLevelsLinetype=  vcSetups[i]->getLinetype();
 
     } else if (vcSetups[i]->name== SURFACE) {
-      vcopt->pSurface=         vcSetups[i]->isOn();
+      vcopt->pSurface=         vcSetups[i]->isChecked();
       vcopt->surfaceColour=    vcSetups[i]->getColour().name;
       vcopt->surfaceLinewidth= vcSetups[i]->getLinewidth();
       vcopt->surfaceLinetype=  vcSetups[i]->getLinetype ();
 
     } else if (vcSetups[i]->name== DISTANCE) {
-      vcopt->pDistance=      vcSetups[i]->isOn();
+      vcopt->pDistance=      vcSetups[i]->isChecked();
       vcopt->distanceColour= vcSetups[i]->getColour().name;
       vcopt->distanceUnit=   vcSetups[i]->getTextChoice();
       vcopt->distanceStep=   vcSetups[i]->getTextChoice2();
 
     } else if (vcSetups[i]->name== GRIDPOS) {
-      vcopt->pXYpos=      vcSetups[i]->isOn();
+      vcopt->pXYpos=      vcSetups[i]->isChecked();
       vcopt->xyposColour= vcSetups[i]->getColour().name;
 
     } else if (vcSetups[i]->name== GEOPOS) {
-      vcopt->pGeoPos=      vcSetups[i]->isOn();
+      vcopt->pGeoPos=      vcSetups[i]->isChecked();
       vcopt->geoposColour= vcSetups[i]->getColour().name;
 
     } else if (vcSetups[i]->name== VERTGRID) {
-      vcopt->pVerticalGridLines= vcSetups[i]->isOn();
+      vcopt->pVerticalGridLines= vcSetups[i]->isChecked();
       vcopt->vergridColour=      vcSetups[i]->getColour().name;
       vcopt->vergridLinewidth=   vcSetups[i]->getLinewidth();
       vcopt->vergridLinetype=    vcSetups[i]->getLinetype ();
 
     } else if (vcSetups[i]->name== MARKERLINES) {
-      vcopt->pMarkerlines=         vcSetups[i]->isOn();
+      vcopt->pMarkerlines=         vcSetups[i]->isChecked();
       vcopt->markerlinesColour=    vcSetups[i]->getColour().name;
       vcopt->markerlinesLinewidth= vcSetups[i]->getLinewidth();
       vcopt->markerlinesLinetype=  vcSetups[i]->getLinetype ();
 
     } else if (vcSetups[i]->name== VERTICALMARKER) {
-      vcopt->pVerticalMarker=         vcSetups[i]->isOn();
+      vcopt->pVerticalMarker=         vcSetups[i]->isChecked();
       vcopt->verticalMarkerColour=    vcSetups[i]->getColour().name;
       vcopt->verticalMarkerLinewidth= vcSetups[i]->getLinewidth();
       vcopt->verticalMarkerLinetype=  vcSetups[i]->getLinetype ();
 
     } else if (vcSetups[i]->name== EXTRAPOLP) {
-      vcopt->extrapolateFixedLevels= vcSetups[i]->isOn();
+      vcopt->extrapolateFixedLevels= vcSetups[i]->isChecked();
 
     } else if (vcSetups[i]->name== BOTTOMEXT) {
-      vcopt->extrapolateToBottom= vcSetups[i]->isOn();
+      vcopt->extrapolateToBottom= vcSetups[i]->isChecked();
 
     } else if (vcSetups[i]->name== THINARROWS) {
-      vcopt->thinArrows= vcSetups[i]->isOn();
+      vcopt->thinArrows= vcSetups[i]->isChecked();
 
     } else if (vcSetups[i]->name== VERTICALTYPE) {
       vcopt->verticalType= vcSetups[i]->getTextChoice();
 
     } else if (vcSetups[i]->name== VHSCALE) {
-      vcopt->keepVerHorRatio= vcSetups[i]->isOn();
+      vcopt->keepVerHorRatio= vcSetups[i]->isChecked();
       vcopt->verHorRatio=     vcSetups[i]->getValue();
 
     } else if (vcSetups[i]->name== STDVERAREA) {
-      vcopt->stdVerticalArea= vcSetups[i]->isOn();
+      vcopt->stdVerticalArea= vcSetups[i]->isChecked();
       vcopt->minVerticalArea= vcSetups[i]->getMinValue();
       vcopt->maxVerticalArea= vcSetups[i]->getMaxValue();
 
     } else if (vcSetups[i]->name== STDHORAREA) {
-      vcopt->stdHorizontalArea= vcSetups[i]->isOn();
+      vcopt->stdHorizontalArea= vcSetups[i]->isChecked();
       vcopt->minHorizontalArea= vcSetups[i]->getMinValue();
       vcopt->maxHorizontalArea= vcSetups[i]->getMaxValue();
 
@@ -581,7 +581,7 @@ void VcrossSetupDialog::applyhideClicked()
 }
 
 
-void VcrossSetupDialog::closeEvent( QCloseEvent* e) 
+void VcrossSetupDialog::closeEvent( QCloseEvent* e)
 {
   emit SetupHide();
 }

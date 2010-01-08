@@ -155,13 +155,13 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editAction = new QAction(this);
   editAction->setShortcut(Qt::CTRL+Qt::Key_E);
   editAction->setShortcutContext(Qt::ApplicationShortcut);
-  connect(editAction, SIGNAL( activated() ), SLOT(EditMarkedText()));
+  connect(editAction, SIGNAL( triggered() ), SLOT(EditMarkedText()));
   addAction( editAction );
   // --------------------------------------------------------------------
   deleteAction = new QAction(this);
   deleteAction->setShortcut(Qt::CTRL+Qt::Key_Delete);
   deleteAction->setShortcutContext(Qt::ApplicationShortcut);
-  connect(deleteAction, SIGNAL( activated() ) , SLOT(DeleteMarkedAnnotation()));
+  connect(deleteAction, SIGNAL( triggered() ) , SLOT(DeleteMarkedAnnotation()));
   addAction( deleteAction );
 
 
@@ -226,14 +226,14 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 
   twd->setEnabled(false); // initially disabled
 
-  connect( twd, SIGNAL(selected( const QString& )),
-      SLOT( tabSelected( const QString& ) ));
+  connect( twd, SIGNAL(currentChanged( int )),
+      SLOT( tabSelected( int ) ));
   // **********
 
   //Spinbox for observation time step
   timelabel= new QLabel( tr("Obs. timestep:"), this );
   timestepspin= new TimeStepSpinbox(this);
-  timestepspin->setMinValue(1);
+  timestepspin->setMinimum(1);
   timestepspin->setValue(1);
   stepchanged(1);
   connect(timestepspin, SIGNAL(valueChanged(int)), SLOT(stepchanged(int)));
@@ -242,7 +242,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   pausebutton = new ToggleButton( this, tr("Pause").toStdString() );
   connect(  pausebutton, SIGNAL(toggled(bool)),
       SLOT( pauseClicked(bool) ));
-  pausebutton->setOn(false);
+  pausebutton->setChecked(false);
 
 
   //toggle button for comments dialog
@@ -250,7 +250,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   connect(  commentbutton, SIGNAL(toggled(bool)),
       SLOT( commentClicked(bool) ));
 
-  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h2layout = new QHBoxLayout();
   h2layout->addWidget(timelabel);
   h2layout->addWidget(timestepspin);
   h2layout->addWidget(pausebutton);
@@ -276,7 +276,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   lvlayout->addWidget(prodlabel);
   lvlayout->addWidget(lStatus);
 
-  QHBoxLayout* hlayout = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout = new QHBoxLayout();
 
   hlayout->addWidget(editexit);
   hlayout->addWidget(edithide);
@@ -394,14 +394,18 @@ void  EditDialog::FieldTab()
   ellipsenumber->setMaximumSize( 50, ellipsenumber->sizeHint().height() +6 );
   ellipsenumber->setFrameStyle( QFrame::Box | QFrame::Plain);
   ellipsenumber->setLineWidth(2);
-  ellipsenumber->setAlignment( Qt::AlignCenter | Qt::TextExpandTabs );
+  ellipsenumber->setAlignment( Qt::AlignCenter );
 
   int n= ellipsenumbers.size()-1;
   int index= (n+1)/2;
 
   ellipsenumber->setNum( double(ellipsenumbers[index]) );
 
-  ellipseslider  = new QSlider( 0, n, 1, index, Qt::Horizontal, this);
+  ellipseslider  = new QSlider( Qt::Horizontal, this);
+  ellipseslider->setMinimum(0);
+  ellipseslider->setMaximum(n);
+  ellipseslider->setPageStep(1);
+  ellipseslider->setValue(index);
   ellipseslider->setMinimumHeight( 16 );
   ellipseslider->setMaximumHeight( 16 );
   ellipseslider->setEnabled( true );
@@ -711,7 +715,7 @@ void  EditDialog::FrontTabBox( int index )
   } else if (m_FronteditIndex < m_Fronteditmethods->count()-1){
     m_Fronteditmethods->item(m_FronteditIndex)->setSelected(true);
   }
-  currEditmode= miutil::miString(m_Frontcm->text(m_FrontcmIndex).toStdString());
+  currEditmode= miutil::miString(m_Frontcm->itemText(m_FrontcmIndex).toStdString());
   FrontEditClicked();
   return;
 }
@@ -914,10 +918,10 @@ void  EditDialog::CombineTab()
   combinetab = new QWidget(twd );
 
   QButtonGroup* bg= new QButtonGroup(combinetab);
-  QRadioButton* rb1= new QRadioButton(tr("Change borders"),combinetab,0);
-  QRadioButton* rb2= new QRadioButton(tr("Set data sources"),combinetab,0);
-  bg->addButton(rb1);
-  bg->addButton(rb2);
+  QRadioButton* rb1= new QRadioButton(tr("Change borders"),this);
+  QRadioButton* rb2= new QRadioButton(tr("Set data sources"),this);
+  bg->addButton(rb1,0);
+  bg->addButton(rb2,1);
   QVBoxLayout* bgLayout = new QVBoxLayout();
   bgLayout->addWidget(rb1);
   bgLayout->addWidget(rb2);
@@ -952,10 +956,10 @@ void EditDialog::stopCombine()
 {
   cerr << "EditDialog::stopCombine called" << endl;
 
-  twd->setTabEnabled(fieldtab, true);
-  twd->setTabEnabled(objecttab, true);
-  twd->setCurrentPage(0);
-  twd->setTabEnabled(combinetab, false);
+  twd->setTabEnabled(0, true);
+  twd->setTabEnabled(1, true);
+  twd->setCurrentIndex(0);
+  twd->setTabEnabled(2, false);
   //not possible to save or send until combine stopped
   b[saveb]->setEnabled(true);
 #ifdef METNOPRODDB
@@ -1011,11 +1015,13 @@ void EditDialog::CombineEditMethods()
 // ------------- Common methods ---------------------------------
 // --------------------------------------------------------------
 
-void EditDialog::tabSelected( const QString& tabname)
+void EditDialog::tabSelected( int tabindex)
 {
 #ifdef DEBUGREDRAW
-  cerr<<"EditDialog::tabSelected:"<<tabname<<endl;
+  cerr<<"EditDialog::tabSelected:"<<tabindex<<endl;
 #endif
+  QString tabname = twd->tabText(tabindex);
+
   if (tabname == TABNAME_FIELD) {
     //unmark all objects when changing mapMode
     m_objm->editNotMarked();
@@ -1030,7 +1036,7 @@ void EditDialog::tabSelected( const QString& tabname)
   } else if (tabname == TABNAME_OBJECTS) {
     if (m_EditDI.mapmodeinfo.size()>1){
       currMapmode= m_EditDI.mapmodeinfo[1].mapmode;
-      m_Frontcm->setCurrentItem(m_FrontcmIndex);
+      m_Frontcm->setCurrentIndex(m_FrontcmIndex);
       FrontTabBox(m_FrontcmIndex);
     }
   } else if (tabname == TABNAME_COMBINE) {
@@ -1050,7 +1056,6 @@ void EditDialog::tabSelected( const QString& tabname)
 void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 {
 
-  cerr <<"mindex:"<<mindex<<"  index:"<<index<<endl;
   list->clear();
   vector<miutil::miString> vstr;
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools.size();
@@ -1222,7 +1227,7 @@ void  EditDialog::commentClicked( bool on )
   }
   else
     //comment button should not be shown
-    commentbutton->setOn(false);
+    commentbutton->setChecked(false);
 }
 
 void  EditDialog::pauseClicked( bool on )
@@ -1240,7 +1245,7 @@ void EditDialog::showAll()
   if (inEdit){
     //show this dialog
     this->show();
-    if(commentbutton ->isOn() )
+    if(commentbutton ->isChecked() )
       ecomment->show();
   } else{
     //load and start EditNewDialog
@@ -1254,7 +1259,7 @@ void EditDialog::hideAll()
 {
   this->hide();
   enew->hide();
-  if( commentbutton->isOn() )
+  if( commentbutton->isChecked() )
     ecomment->hide();
 }
 
@@ -1315,7 +1320,7 @@ void EditDialog::exitClicked()
   cerr<<"EditDialog::exitClicked...................."<<endl;
 #endif
   if (!cleanupForExit()) return;
-  commentbutton->setOn(false);
+  commentbutton->setChecked(false);
   // update field dialog
   emit emitFieldEditUpdate("");
   m_editm->setEditMode("normal_mode","","");
@@ -1534,15 +1539,15 @@ void EditDialog::EditNewOk(EditProduct& ep,
     mm=1;
   twd->setEnabled(true); // enable tab-widget
   if (mm==0){
-    twd->setTabEnabled(fieldtab, true);
+    twd->setTabEnabled(0, true);
   } else{
-    twd->setTabEnabled(fieldtab, false);
+    twd->setTabEnabled(0, false);
     FrontTabBox(0);
   }
-  twd->setTabEnabled(objecttab, currprod.objectsFilenamePart.exists() );
+  twd->setTabEnabled(1, currprod.objectsFilenamePart.exists() );
 
-  twd->setTabEnabled(combinetab, false);
-  if (twd->currentPageIndex()!=mm) twd->setCurrentPage(mm);
+  twd->setTabEnabled(2, false);
+  if (twd->currentIndex()!=mm) twd->setCurrentIndex(mm);
 
   b[saveb]->setEnabled(true);
 #ifdef METNOPRODDB
@@ -1581,11 +1586,11 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
   this->show();
   //qt4 fix
-  tabSelected(twd->tabText(twd->currentIndex()));
+  tabSelected(twd->currentIndex());
 
   ecomment->stopComment();
   ecomment->startComment();
-  pausebutton->setOn(false);
+  pausebutton->setChecked(false);
 
   if (ep.OKstrings.size()){
 #ifdef DEBUGREDRAW
@@ -1661,7 +1666,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
   // put combids into select-areas listbox
   m_SelectAreas->clear();
-  for (int i=0; i<combids.size(); i++){
+  for (unsigned int i=0; i<combids.size(); i++){
     m_SelectAreas->addItem(QString(combids[i].cStr()));
   }
   if(combids.size()) m_SelectAreas->setCurrentItem(0);
@@ -1774,12 +1779,12 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   m_FronteditIndex=-1;
 
   twd->setEnabled(true); // enable tab-widget
-  twd->setTabEnabled(fieldtab, false);
-  twd->setTabEnabled(objecttab, false);
-  twd->setTabEnabled(combinetab, true);
+  twd->setTabEnabled(0, false);
+  twd->setTabEnabled(1, false);
+  twd->setTabEnabled(2, true);
   // switch to combine tab - will automatically set correct
   // currEditmode, currEdittool
-  if (twd->currentPageIndex()!=2) twd->setCurrentPage(2);
+  if (twd->currentIndex()!=2) twd->setCurrentIndex(2);
 
   m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
 
@@ -1803,9 +1808,9 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
   this->show();
   //qt4 fix
-  tabSelected(twd->tabText(twd->currentIndex()));
+  tabSelected(twd->currentIndex());
 
-  pausebutton->setOn(false);
+  pausebutton->setChecked(false);
   ecomment->stopComment();
   ecomment->startComment();
   if (ep.OKstrings.size())
@@ -1827,7 +1832,7 @@ void EditDialog::closeEvent( QCloseEvent* e)
 
 void EditDialog::hideComment()
 {
-  commentbutton->setOn(false);
+  commentbutton->setChecked(false);
   ecomment->hide();
 }
 

@@ -166,7 +166,7 @@ bool ObsBufr::readStationInfo(const miString& bufr_file,
   namelist = id;
   latitudelist = latitude;
   longitudelist = longitude;
-
+  return true;			
 }
 
 VprofPlot* ObsBufr::getVprofPlot(const miString& bufr_file,
@@ -1079,8 +1079,6 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   int minute = 0;
   bool landStation = true;
 
-  int c;
-
   bool found = false;
   bool stop = false;
 
@@ -1257,8 +1255,8 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   const float rad = 3.141592654 / 180.;
   const double ms2knots = 3600.0 / 1852.0;
 
-  int wmoBlock = 0;
-  int wmoStation = 0;
+//  int wmoBlock = 0;
+//  int wmoStation = 0;
   miString station;
   int year = 0;
   int month = 0;
@@ -1269,7 +1267,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   float fff, ddd;
   int dd, ff, bpart;
   float lat, lon;
-  bool landStation = true;
+//  bool landStation = true;
   int c;
   int ffmax = -1, kmax = -1;
 

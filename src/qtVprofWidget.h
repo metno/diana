@@ -57,7 +57,7 @@ class VprofWidget : public QGLWidget
 
 public:
   VprofWidget(VprofManager *vpm, const QGLFormat fmt,
-	      QWidget* parent = 0, const char* name = 0 );
+	      QWidget* parent = 0);
 
   void initializeGL();
   void paintGL();

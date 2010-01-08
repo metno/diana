@@ -115,7 +115,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   colourcut = new ToggleButton( this,tr("Colour cut").toStdString() );
   connect( colourcut, SIGNAL(clicked()),SIGNAL(SatChanged()));
   connect( colourcut, SIGNAL(toggled(bool)),SLOT(colourcutClicked(bool)));
-  colourcut->setOn(false);
+  colourcut->setChecked(false);
 
   standard=NormalPushButton( tr("Standard"), this);
   connect( standard, SIGNAL( clicked()), SLOT( setStandard()));
@@ -225,22 +225,22 @@ void SatDialogAdvanced::setStandard(){
   blockSignals(true);
   //set standard dialog options for palette or rgb files
   if (palette){
-    cut->setOn(false); greyCut( false );
-    legendButton->setOn(true);
+    cut->setChecked(false); greyCut( false );
+    legendButton->setChecked(true);
     scut->setValue(  m_cut.minValue );
   }
   else{
     cutCheckBox->setChecked(false);
-    cut->setOn(true); greyCut(true );
-    legendButton->setOn(false);
+    cut->setChecked(true); greyCut(true );
+    legendButton->setChecked(false);
     scut->setValue(  m_cut.value );
   }
   salphacut->setValue(  m_alphacut.value );
-  alphacut->setOn(false); greyAlphaCut( false );
+  alphacut->setChecked(false); greyAlphaCut( false );
   salpha->setValue(  m_alpha.value );
-  alpha->setOn(false); greyAlpha( false );
+  alpha->setChecked(false); greyAlpha( false );
 
-  colourcut->setOn(false);
+  colourcut->setChecked(false);
   colourList->clearSelection();
   blockSignals(false);
 }
@@ -253,19 +253,19 @@ void SatDialogAdvanced::setOff(){
   palette = false;
   cutCheckBox->setChecked(false);
   scut->setValue(  m_cut.minValue );
-  cut->setOn(false); greyCut( false );
+  cut->setChecked(false); greyCut( false );
   salphacut->setValue(  m_alphacut.value );
-  alphacut->setOn(false); greyAlphaCut( false );
+  alphacut->setChecked(false); greyAlphaCut( false );
   salpha->setValue(  m_alpha.value );
-  alpha->setOn(false); greyAlpha( false );
-  legendButton->setOn(false);
-  colourcut->setOn(false);
+  alpha->setChecked(false); greyAlpha( false );
+  legendButton->setChecked(false);
+  colourcut->setChecked(false);
   colourList->clear();
   blockSignals(false);
 }
 /*********************************************/
 void SatDialogAdvanced::colourcutOn(){
-  colourcut->setOn(true);
+  colourcut->setChecked(true);
 }
 /*********************************************/
 void SatDialogAdvanced::colourcutClicked(bool on){
@@ -284,30 +284,30 @@ miutil::miString SatDialogAdvanced::getOKString()
   if(!palette){
     if( cutCheckBox->isChecked() )
       ostr<<" cut=-0.5";
-    else if( cut->isOn() )
+    else if( cut->isChecked() )
       ostr<<" cut="<<m_cutnr;
     else
       ostr<<" cut=-1";
 
-    if( alphacut->isOn() )
+    if( alphacut->isChecked() )
       ostr<<" alphacut="<<m_alphacutnr;
     else
       ostr<<" alphacut=0";
   }
 
-  if( alpha->isOn() )
+  if( alpha->isChecked() )
     ostr<<" alpha="<<m_alphanr;
   else
     ostr<<" alpha=1";
 
   if (palette){
-    if( legendButton->isOn())
+    if( legendButton->isChecked())
       ostr<<" Table=1";
     else
       ostr<<" Table=0";
 
     //colours to hide
-    if(colourcut->isOn()){
+    if(colourcut->isChecked()){
       ostr << " hide=";
       int n =colourList->count();
       for (int i=0;i<n;i++){
@@ -387,7 +387,7 @@ void SatDialogAdvanced::setColours(vector <Colour> &colours){
     pmap=0;
 
   } else {
-    colourcut->setOn(false);
+    colourcut->setChecked(false);
   }
 
 }
@@ -415,13 +415,13 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
 	    cutCheckBox->setChecked(true);
 	    cutCheckBoxSlot(true);
 	  } else {
-	    cut->setOn(false);
+	    cut->setChecked(false);
 	    greyCut(false);
 	  }
 	}else{
 	  int cutvalue = int(m_cutnr/m_cutscale+m_cutscale/2);
 	  scut->setValue(  cutvalue);
-	  cut->setOn(true);
+	  cut->setChecked(true);
 	  greyCut( true );
 	}
       }
@@ -430,9 +430,9 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
 	  m_alphacutnr = atof(value.c_str());
 	  int m_alphacutvalue = int(m_alphacutnr/m_alphacutscale+m_alphacutscale/2);
 	  salphacut->setValue(  m_alphacutvalue );
-	  alphacut->setOn(true); greyAlphaCut( true );
+	  alphacut->setChecked(true); greyAlphaCut( true );
 	}else{
-	  alphacut->setOn(false); greyAlphaCut(false);
+	  alphacut->setChecked(false); greyAlphaCut(false);
 	}
       }
       else if ( key=="alpha" || key=="alfa"){
@@ -440,16 +440,16 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
 	  m_alphanr = atof(value.c_str());
 	  int m_alphavalue = int(m_alphanr/m_alphascale+m_alphascale/2);
 	  salpha->setValue(  m_alphavalue );
-	  alpha->setOn(true); greyAlpha( true );
+	  alpha->setChecked(true); greyAlpha( true );
 	}else{
-	  alpha->setOn(false); greyAlpha(false);
+	  alpha->setChecked(false); greyAlpha(false);
 	}
       }else if ( key=="table" && palette){
-	if (atoi(value.c_str())!=0) legendButton->setOn(true);
-	else legendButton->setOn(false);
+	if (atoi(value.c_str())!=0) legendButton->setChecked(true);
+	else legendButton->setChecked(false);
       }
       else if (key=="hide" && palette){
-	colourcut->setOn(true);
+	colourcut->setChecked(true);
 	//set selected colours
 	vector <miutil::miString> stokens=value.split(',');
 	int m= stokens.size();
@@ -465,7 +465,7 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
       }
     } else if (stokens.size() ==1 && stokens[0].downcase()=="hide"){
       //colourList should be visible
-      colourcut->setOn(true);
+      colourcut->setChecked(true);
     }else{
       //anythig unknown, add to external string
       external+=" " + tokens[i];
@@ -497,11 +497,11 @@ void SatDialogAdvanced::blockSignals(bool b){
     //after signals have been turned off, make sure buttons and LCD displays
     // are correct
     cutCheckBox->setChecked(cutCheckBox->isChecked());
-    cut->Toggled(cut->isOn());
-    alphacut->Toggled(alphacut->isOn());
-    alpha->Toggled(alpha->isOn());
-    legendButton->Toggled(legendButton->isOn());
-    colourcut->Toggled(colourcut->isOn());
+    cut->Toggled(cut->isChecked());
+    alphacut->Toggled(alphacut->isChecked());
+    alpha->Toggled(alpha->isChecked());
+    legendButton->Toggled(legendButton->isChecked());
+    colourcut->Toggled(colourcut->isChecked());
     cutDisplay(scut->value());
     alphacutDisplay(salphacut->value());
     alphaDisplay(salpha->value());

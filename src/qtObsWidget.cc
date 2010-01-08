@@ -216,7 +216,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       pressureLabel = new QLabel(tr("Pressure"),this);
 
     pressureComboBox = new QComboBox(this);
-    pressureComboBox->insertItem(tr("As field"));
+    pressureComboBox->addItem(tr("As field"));
     levelMap["asfield"] = 0;
     //     vector<miutil::miString> vstr;
     int psize=dialogInfo.pressureLevels.size();
@@ -224,7 +224,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     //       vstr.push_back(miutil::miString(dialogInfo.pressureLevels[i]));
     for(int i=1; i<psize+1; i++){
       miutil::miString str(dialogInfo.pressureLevels[psize-i]);
-      pressureComboBox->insertItem(str.cStr());
+      pressureComboBox->addItem(str.cStr());
       levelMap[str]=i;
     }
 
@@ -237,13 +237,13 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       for(int i=0;i<4;i++){
         int aa=(int)pow(10.0,i);
         miutil::miString tmp(aa);
-        leveldiffComboBox->insertItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.cStr());
         leveldiffMap[tmp]=i*3;
         tmp = miutil::miString(aa*2);
-        leveldiffComboBox->insertItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.cStr());
         leveldiffMap[tmp]=1*3+1;
         tmp = miutil::miString(aa*5);
-        leveldiffComboBox->insertItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.cStr());
         leveldiffMap[tmp]=i*3+2;
       }
       pressureLayout->addWidget( leveldiffLabel );
@@ -254,7 +254,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   }
 
   //checkboxes
-  orientCheckBox= new QCheckBox(tr("Horisontal orientation"),this);
+  orientCheckBox= new QCheckBox(tr("HorisCheckedtal orientation"),this);
   if(!orient)
     orientCheckBox->hide();
   showposCheckBox= new QCheckBox(tr("Show all positions"),this);
@@ -306,7 +306,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   miutil::miString more_str[2] = { (tr("<<Less").toStdString()),
       (tr("More>>").toStdString()) };
   moreButton= new ToggleButton( this, more_str);
-  moreButton->setOn(false);
+  moreButton->setChecked(false);
   if(!criteria){
     criteriaCheckBox->hide();
     moreButton->hide();
@@ -346,13 +346,13 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       Qt::Horizontal, this);
 
   diffComboBox = new QComboBox(this);
-  diffComboBox->insertItem("3t");
-  diffComboBox->insertItem("24t");
-  diffComboBox->insertItem("7d");
+  diffComboBox->addItem("3t");
+  diffComboBox->addItem("24t");
+  diffComboBox->addItem("7d");
 
   displayDiff(diffSlider->value());
 
-  QGridLayout*slidergrid = new QGridLayout( 3, 3);
+  QGridLayout*slidergrid = new QGridLayout();
   slidergrid->addWidget( densityLabel, 0, 0 );
   slidergrid->addWidget( densityLcdnum,0, 1 );
   slidergrid->addWidget( densitySlider,0, 2 );
@@ -370,7 +370,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   for(unsigned int i=0; i<priorityList.size(); i++)
     priName.push_back(priorityList[i].name);
   pribox = ComboBox( this,priName,true);
-  pribox->insertItem(tr("No priority list"),0);
+  pribox->addItem(tr("No priority list"),0);
 
   //Colour
   colourBox = ColourBox( this, cInfo, true, colIndex );
@@ -427,7 +427,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addLayout( slidergrid );
   vcommonlayout->addLayout( colourlayout );
 
-  vlayout= new QVBoxLayout( this, 5 ,5);
+  vlayout= new QVBoxLayout( this);
   vlayout->addSpacing( 5 );
   vlayout->addLayout( datatypelayout );
   if(parameterButtons)
@@ -454,14 +454,13 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 }//END CONSTRUCTOR
 
 void ObsWidget::ToolTip(){
-  QToolTip::add( datatypeButtons,  tr("Data type") );
-  QToolTip::add( devColourBox1,    tr("PPPP-MSLP<0"));
-  QToolTip::add( devColourBox2,    tr("PPPP-MSLP>0"));
-  QToolTip::add( moreTimesCheckBox,
-      tr("Affecting synoptic data: All observations in the time interval given, mixing observations with different times"));
-  QToolTip::add( diffLcdnum,       tr("Max time difference"));
-  QToolTip::add( diffComboBox,     tr("Max value for the slider"));
-  QToolTip::add( colourBox,        tr("Colour") );
+  datatypeButtons->setToolTip(tr("Data type") );
+  devColourBox1->setToolTip(tr("PPPP-MSLP<0"));
+  devColourBox2->setToolTip(tr("PPPP-MSLP>0"));
+  moreTimesCheckBox->setToolTip(tr("Affecting synoptic data: All observations in the time interval given, mixing observations with different times"));
+  diffLcdnum->setToolTip(tr("Max time difference"));
+  diffComboBox->setToolTip(tr("Max value for the slider"));
+  colourBox->setToolTip(tr("Colour") );
   return;
 }
 
@@ -554,7 +553,7 @@ void ObsWidget::displayDiff( int number ){
   miutil::miString str;
   int totalminutes = time_slider2lcd[number];
   timediff_minutes = miutil::miString(totalminutes);
-  if(diffComboBox->currentItem()<2){
+  if(diffComboBox->currentIndex()<2){
     int hours = totalminutes/60;
     int minutes= totalminutes-hours*60;
     ostringstream ostr;
@@ -618,7 +617,7 @@ void ObsWidget::inTopClicked( int id )
 
 
   // Names of datatypes selected are sent to controller
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  QApplication::setOverrideCursor( Qt::WaitCursor );
   emit getTimes();
   QApplication::restoreOverrideCursor();
 
@@ -638,13 +637,13 @@ void ObsWidget::outTopClicked( int id )
 
   // "click the other buttons again"
   for(int i=0; i<nr_dataTypes; i++){
-    if(datatypeButtons->isOn(i))
+    if(datatypeButtons->isChecked(i))
       if(parameterButtons)
         parameterButtons->enableButtons(datatype[i].active);
   }
 
   // Names of datatypes selected are sent to controller
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  QApplication::setOverrideCursor( Qt::WaitCursor );
   emit getTimes();
   QApplication::restoreOverrideCursor();
 
@@ -725,38 +724,38 @@ miutil::miString ObsWidget::getOKString(bool forLog){
   if(parameterButtons)
     dVariables.parameter = parameterButtons->getOKString(forLog);
 
-  if( tempPrecisionCheckBox->isOn() )
+  if( tempPrecisionCheckBox->isChecked() )
     dVariables.misc["tempprecision"]="true";
 
-  if( parameterNameCheckBox->isOn() )
+  if( parameterNameCheckBox->isChecked() )
     dVariables.misc["parametername"]="true";
 
-  if( moreTimesCheckBox->isOn() )
+  if( moreTimesCheckBox->isChecked() )
     dVariables.misc["moretimes"]="true";
 
-  if( orientCheckBox->isOn() )
+  if( orientCheckBox->isChecked() )
     dVariables.misc["orientation"]="horizontal";
 
-  if( showposCheckBox->isOn() )
+  if( showposCheckBox->isChecked() )
     dVariables.misc["showpos"]="true";
 
-  if( onlyposCheckBox->isOn() ){
+  if( onlyposCheckBox->isChecked() ){
     dVariables.misc["onlypos"]="true";
   }
   if(markerName.size())
-    dVariables.misc["image"] = markerName[markerBox->currentItem()];
+    dVariables.misc["image"] = markerName[markerBox->currentIndex()];
 
-  if( devFieldCheckBox->isOn() ){
+  if( devFieldCheckBox->isChecked() ){
     dVariables.misc["devfield"] = "true";
-    dVariables.misc["devcolour1"] = cInfo[devColourBox1->currentItem()].name;
-    dVariables.misc["devcolour2"] = cInfo[devColourBox2->currentItem()].name;
+    dVariables.misc["devcolour1"] = cInfo[devColourBox1->currentIndex()].name;
+    dVariables.misc["devcolour2"] = cInfo[devColourBox2->currentIndex()].name;
   }
 
-  if( allAirepsLevelsCheckBox->isOn() )
+  if( allAirepsLevelsCheckBox->isChecked() )
     dVariables.misc["allAirepsLevels"]="true";
 
   if( pressureLevels ){
-    if(pressureComboBox->currentItem()>0 ){
+    if(pressureComboBox->currentIndex()>0 ){
       dVariables.misc["level"] = pressureComboBox->currentText().toStdString();
     } else {
       dVariables.misc["level"] = "asfield";
@@ -783,7 +782,7 @@ miutil::miString ObsWidget::getOKString(bool forLog){
   if( pri_selected > 0 )
     dVariables.misc["priority"]=priorityList[pri_selected-1].file;
 
-  dVariables.misc["colour"] = cInfo[colourBox->currentItem()].name;
+  dVariables.misc["colour"] = cInfo[colourBox->currentIndex()].name;
 
   str = makeString(forLog);
 
@@ -934,7 +933,7 @@ void ObsWidget::requestQuickUpdate(miutil::miString& oldstr,
 
 }
 
-void ObsWidget::updateDialog(bool setOn){
+void ObsWidget::updateDialog(bool setChecked){
 
   //    cerr<<"ObsWidget::updateDialog"<<endl;
   int number,m,j;
@@ -944,7 +943,7 @@ void ObsWidget::updateDialog(bool setOn){
   plotType = dVariables.plotType;
 
   //data types
-  if ( setOn ){
+  if ( setChecked ){
     m = dVariables.data.size();
     for(j=0; j<m; j++){
       //cerr <<"updateDialog: "<<dVariables.data[j]<<endl;
@@ -988,7 +987,7 @@ void ObsWidget::updateDialog(bool setOn){
   }
 
   //moreTimes (not from log)
-  if (setOn && dVariables.misc.count("moretimes") &&
+  if (setChecked && dVariables.misc.count("moretimes") &&
       dVariables.misc["moretimes"] == "true"){
     moreTimesCheckBox->setChecked(true);
   }
@@ -1000,11 +999,11 @@ void ObsWidget::updateDialog(bool setOn){
     devFieldChecked(true);
     number= getIndex( cInfo, dVariables.misc["devcolour1"]);
     if (number>=0) {
-      devColourBox1->setCurrentItem(number);
+      devColourBox1->setCurrentIndex(number);
     }
     number= getIndex( cInfo, dVariables.misc["devcolour2"]);
     if (number>=0) {
-      devColourBox2->setCurrentItem(number);
+      devColourBox2->setCurrentIndex(number);
     }
   }
 
@@ -1036,13 +1035,13 @@ void ObsWidget::updateDialog(bool setOn){
   if (pressureLevels && dVariables.misc.count("level")
       && levelMap.count(dVariables.misc["level"])){
     number = levelMap[dVariables.misc["level"]];
-    pressureComboBox->setCurrentItem(number);
+    pressureComboBox->setCurrentIndex(number);
   }
 
   if (leveldiffs && dVariables.misc.count("leveldiff")
       && leveldiffMap.count(dVariables.misc["leveldiff"])){
     number = leveldiffMap[dVariables.misc["leveldiff"]];
-    leveldiffComboBox->setCurrentItem(number);
+    leveldiffComboBox->setCurrentIndex(number);
   }
 
   //density
@@ -1100,7 +1099,7 @@ void ObsWidget::updateDialog(bool setOn){
       if(number>maxSliderValue-1) number = maxSliderValue-1;
     }
   }
-  diffComboBox->setCurrentItem(i);
+  diffComboBox->setCurrentIndex(i);
   diffSlider->setRange(0,maxSliderValue);
   time_slider2lcd.clear();
   for(int i=0;i<maxSliderValue;i++)
@@ -1119,7 +1118,7 @@ void ObsWidget::updateDialog(bool setOn){
   if (dVariables.misc.count("image") ){
     number = getIndex(markerName,dVariables.misc["image"]);
     if(number>=0)
-      markerBox->setCurrentItem(number);
+      markerBox->setCurrentIndex(number);
   }
 
   //priority
@@ -1129,19 +1128,19 @@ void ObsWidget::updateDialog(bool setOn){
     while (j<m && dVariables.misc["priority"]!=priorityList[j].file) j++;
     if (j<m) {
       pri_selected= ++j;
-      pribox->setCurrentItem(pri_selected);
+      pribox->setCurrentIndex(pri_selected);
     } else {
-      pribox->setCurrentItem(0);
+      pribox->setCurrentIndex(0);
     }
   } else {
-    pribox->setCurrentItem(0);
+    pribox->setCurrentIndex(0);
   }
 
   //colour
   if (dVariables.misc.count("colour") ){
     number= getIndex( cInfo, dVariables.misc["colour"]);
     if (number>=0)
-      colourBox->setCurrentItem(number);
+      colourBox->setCurrentIndex(number);
   }
 
 
@@ -1216,7 +1215,7 @@ void ObsWidget::setFalse(){
   criteriaChecked(false);
 
   if( pressureLevels ){
-    pressureComboBox->setCurrentItem(0);
+    pressureComboBox->setCurrentIndex(0);
   }
 }
 

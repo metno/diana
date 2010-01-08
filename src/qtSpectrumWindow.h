@@ -32,7 +32,6 @@
 #define _qt_spectrummainwindow_
 
 #include <QMainWindow>
-#include <QPrinter>
 #include <QString>
 
 #include <diCommonTypes.h>

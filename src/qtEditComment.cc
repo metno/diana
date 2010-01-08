@@ -78,7 +78,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     mEdit2 = new QTextEdit(split);
     mEdit2->hide();
     showOld = new ToggleButton(this,tr("Show previous comments").toStdString());
-    showOld->setOn(false);
+    showOld->setChecked(false);
     connect(showOld, SIGNAL( toggled(bool)),SLOT( showOldToggled( bool ) ));
     QVBoxLayout * vlayout = new QVBoxLayout( this);
     vlayout->addWidget(split);
@@ -118,7 +118,7 @@ void EditComment::textChanged()
   //   mEdit->setCursorPosition(n,0);
   setWindowModified(false);
   inComment = true;
-  if (showOld->isOn()) readComment();
+  if (showOld->isChecked()) readComment();
 }
 
 
@@ -140,7 +140,7 @@ void EditComment::readComment()
 void EditComment::saveComment()
 {
   if (inComment && isWindowModified()){
-    miutil::miString comments = miutil::miString(mEdit->text().toStdString());
+    miutil::miString comments = miutil::miString(mEdit->toPlainText().toStdString());
     //put comments into plotm->editobjects->comments;
     m_objm->putComments(comments);
     setWindowModified(false);

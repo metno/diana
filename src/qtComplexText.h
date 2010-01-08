@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -36,17 +36,17 @@
 #include <qcombobox.h>
 #include <qvalidator.h>
 #include <puTools/miString.h>
-#include <diCommonTypes.h> 
+#include <diCommonTypes.h>
 #include <set>
 
-using namespace std; 
+using namespace std;
 
 class Controller;
 
 
 /**
    \brief Dialogue for entering texts for complex symbol
-   
+
    several texts and colours to be entered
 */
 
@@ -54,9 +54,9 @@ class ComplexText :public QDialog
 {
   Q_OBJECT
 public:
-  
+
   /// constructor, symboltext and xtext is text to put in input boxes, cList is the list of texts to choose from
-  ComplexText( QWidget* parent, Controller* llctrl, vector <miutil::miString> & 
+  ComplexText( QWidget* parent, Controller* llctrl, vector <miutil::miString> &
 	       symbolText, vector <miutil::miString> & xText, set <miutil::miString> cList,
 	       bool useColour=false);
   /// get text from dialogs input boxes
@@ -68,7 +68,7 @@ public:
   void getColour(Colour::ColourInfo & colour);
   ~ComplexText();
 
-    
+
 private:
   Controller*    m_ctrl;
 
@@ -87,8 +87,8 @@ private:
 		     Colour::ColourInfo colour);
   class complexValidator:public QValidator{
   public:
-    complexValidator(QWidget * parent, const char * name = 0 )
-      : QValidator(parent,name) {}
+    complexValidator(QWidget * parent)
+      : QValidator(parent) {}
     virtual State validate(QString&,int&) const;
     // virtual void fixup(QString&) const;
   };

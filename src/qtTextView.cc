@@ -89,7 +89,7 @@ void TextView::setText(int id, const miutil::miString& name,
 void TextView::deleteTab(int id)
 {
   if (idmap.count(id) != 0) {
-    tabwidget->removePage(idmap[id]);
+    tabwidget->removeTab(tabwidget->indexOf(idmap[id]));
     idmap.erase(id);
   }
 

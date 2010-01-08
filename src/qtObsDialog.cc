@@ -90,7 +90,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   m_selected = 0;
 
   plotbox = ComboBox( this, dialog_name,true,0);
-  QToolTip::add( plotbox, tr("select plot type"));
+  plotbox->setToolTip(tr("select plot type"));
 
   stackedWidget = new QStackedWidget;
 
@@ -117,7 +117,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   multiplot = false;
 
   multiplotButton = new ToggleButton(  this, tr("Show all").toStdString() );
-  QToolTip::add( multiplotButton, tr("Show all plot types") );
+  multiplotButton->setToolTip(tr("Show all plot types") );
   obshelp =  NormalPushButton( tr("Help"), this );
   obsrefresh = NormalPushButton( tr("Refresh"), this );
   obshide = NormalPushButton( tr("Hide"), this);
@@ -219,7 +219,7 @@ void ObsDialog::getTimes(void){
   // Names of datatypes selected are sent to controller,
   // and times are returned
 
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  QApplication::setOverrideCursor( Qt::WaitCursor );
 
   vector<miutil::miString> dataName;
   if(multiplot){
@@ -360,7 +360,7 @@ void ObsDialog::readLog(const vector<miutil::miString>& vstr,
       if (obsWidget[index]->initialized() || first) {
         if (first) {  //will be selected
           first = false;
-          plotbox->setCurrentItem(index);
+          plotbox->setCurrentIndex(index);
           plotSelected(index);
         }
         obsWidget[index]->readLog(vstr[n]);
@@ -396,7 +396,7 @@ void ObsDialog::putOKString(const vector<miutil::miString>& vstr)
 
   //  if( multiplot )
   obsWidget[m_selected]->setFalse();
-  multiplotButton->setOn(false);
+  multiplotButton->setChecked(false);
   multiplot=false;
   //Emit empty time list
   vector<miutil::miTime> noTimes;
@@ -406,12 +406,12 @@ void ObsDialog::putOKString(const vector<miutil::miString>& vstr)
   int n=vstr.size();
   if(n>1) {
     multiplot=true;
-    multiplotButton->setOn(true);
+    multiplotButton->setChecked(true);
   }
   for(int i=0; i<n; i++){
     int l = findPlotnr(vstr[i]);
     if (l<nr_plot) {
-      plotbox->setCurrentItem(l);
+      plotbox->setCurrentIndex(l);
       plotSelected(l);
       obsWidget[l]->putOKString(vstr[i]);
     }
@@ -467,7 +467,7 @@ bool  ObsDialog::setPlottype(const miutil::miString& str, bool on)
   if( l == nr_plot) return false;
 
   if( on ){
-    plotbox->setCurrentItem(l);
+    plotbox->setCurrentIndex(l);
     ObsWidget* ow = new ObsWidget( this );
     miutil::miString str = savelog[l];
     if (obsWidget[l]->initialized() ) {
@@ -514,8 +514,8 @@ void ObsDialog::makeExtension()
 
   QPushButton* delButton = NormalPushButton(tr("Delete"),extension);
   QPushButton* delallButton = NormalPushButton(tr("Delete all"),extension);
-  QToolTip::add( delButton, tr("Delete selected criteria") );
-  QToolTip::add( delallButton, tr("Delete all criteria") );
+  delButton->setToolTip(tr("Delete selected criteria") );
+  delallButton->setToolTip( tr("Delete all criteria") );
 
   radiogroup  = new QButtonGroup(extension);
   plotButton =
@@ -537,37 +537,36 @@ void ObsDialog::makeExtension()
   radioLayout->addWidget(markerButton);
   radiogroup->setExclusive(TRUE);
   plotButton->setChecked(true);
-  QToolTip::add( plotButton,
-      tr("Plot observations which meet all criteria of at least one parameter") );
-  QToolTip::add( colourButton,
-      tr("Plot a parameter in the colour specified if it meets any criteria of that parameter") );
-  QToolTip::add( totalColourButton,
-      tr("Plot observations in the colour specified if one parameter meet any criteria of that parameter ") );
-  QToolTip::add( markerButton,
-      tr("Plot marker specified if one parameter meets any criteria of that parameter ") );
+  plotButton->setToolTip(tr("Plot observations which meet all criteria of at least one parameter") );
+  colourButton->setToolTip(tr("Plot a parameter in the colour specified if it meets any criteria of that parameter") );
+  totalColourButton->setToolTip(tr("Plot observations in the colour specified if one parameter meet any criteria of that parameter ") );
+  markerButton->setToolTip(tr("Plot marker specified if one parameter meets any criteria of that parameter ") );
 
   QLabel* colourLabel = TitleLabel(tr("Colour"),extension);
   QLabel* markerLabel = TitleLabel(tr("Marker"),extension);
   QLabel* limitLabel = TitleLabel(tr("Limit"),extension);
   QLabel* precLabel = TitleLabel(tr("Precision"),extension);
-  signBox = new QComboBox( false, extension );
-  signBox->insertItem(">");
-  signBox->insertItem("<");
-  signBox->insertItem("=");
-  signBox->insertItem("");
+  signBox = new QComboBox( extension );
+  signBox->addItem(">");
+  signBox->addItem("<");
+  signBox->addItem("=");
+  signBox->addItem("");
   stepComboBox = new QComboBox(extension);
   numberList(stepComboBox,1.0);
-  QToolTip::add( stepComboBox,tr("Precision of limit") );
+  stepComboBox->setToolTip(tr("Precision of limit") );
   limitLcd = LCDNumber(7,extension);
-  limitSlider = new QSlider(-100,100,1,0,Qt::Horizontal, extension);
-
+  limitSlider = new QSlider(Qt::Horizontal, extension);
+  limitSlider->setMinimum(-100);
+  limitSlider->setMaximum(100);
+  limitSlider->setPageStep(1);
+  limitSlider->setValue(0);
 
   cInfo = Colour::getColourInfo();
   colourBox = ColourBox( extension, cInfo);
   markerBox = PixmapBox( extension, markerName);
 
   // Layout for colour
-  QGridLayout* colourlayout = new QGridLayout(2,5);
+  QGridLayout* colourlayout = new QGridLayout();
   colourlayout->addWidget( colourLabel, 0,0);
   colourlayout->addWidget( colourBox,   0,1);
   colourlayout->addWidget( markerLabel, 1,0);
@@ -582,7 +581,7 @@ void ObsDialog::makeExtension()
   QPushButton* saveButton = NormalPushButton(tr("Save"),extension);
   QLabel* editLabel = TitleLabel(tr("Save criteria list"),extension);
   lineedit = new QLineEdit(extension);
-  QToolTip::add( lineedit, tr("Name of list to save") );
+  lineedit->setToolTip(tr("Name of list to save") );
 
 
   connect(criteriaBox,SIGNAL(activated(int)),
@@ -609,7 +608,7 @@ void ObsDialog::makeExtension()
   QFrame *line0 = new QFrame( extension );
   line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
-  QVBoxLayout *exLayout = new QVBoxLayout( 5 );
+  QVBoxLayout *exLayout = new QVBoxLayout();
   exLayout->addWidget( listLabel );
   exLayout->addWidget( criteriaBox );
   exLayout->addWidget( criteriaLabel );
@@ -628,7 +627,7 @@ void ObsDialog::makeExtension()
   verticalsep->setFrameStyle( QFrame::VLine | QFrame::Raised );
   verticalsep->setLineWidth( 5 );
 
-  QHBoxLayout *hLayout = new QHBoxLayout( extension,5,5 );
+  QHBoxLayout *hLayout = new QHBoxLayout( extension);
 
   hLayout->addWidget(verticalsep);
   hLayout->addLayout(exLayout);
@@ -807,18 +806,18 @@ miutil::miString ObsDialog::makeCriteriaString( )
     str += lcdstr;
   }
 
-  if(colourButton->isOn()){
+  if(colourButton->isChecked()){
     str += "  ";
-    str += cInfo[colourBox->currentItem()].name;
+    str += cInfo[colourBox->currentIndex()].name;
   }
-  else if(totalColourButton->isOn()){
+  else if(totalColourButton->isChecked()){
     str += "  ";
-    str += cInfo[colourBox->currentItem()].name;
+    str += cInfo[colourBox->currentIndex()].name;
     str += " total";
   }
-  else if(markerButton->isOn()){
+  else if(markerButton->isChecked()){
     str += "  ";
-    str += markerName[markerBox->currentItem()];
+    str += markerName[markerBox->currentIndex()];
     str += " marker";
   }
   else {
@@ -849,15 +848,15 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
   miutil::miString sign;
   if( sub[0].contains(">") ){
     sign = ">";
-    signBox->setCurrentItem(0);
+    signBox->setCurrentIndex(0);
   } else if( sub[0].contains("<") ){
     sign = "<";
-    signBox->setCurrentItem(1);
+    signBox->setCurrentIndex(1);
   } else if( sub[0].contains("=") ){
     sign = "=";
-    signBox->setCurrentItem(2);
+    signBox->setCurrentIndex(2);
   } else {
-    signBox->setCurrentItem(3);
+    signBox->setCurrentIndex(3);
   }
 
   float value;
@@ -874,12 +873,12 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
   if(  obsWidget[m_selected]->getCriteriaLimits(parameter,low,high)){
     plotButton->setEnabled(true);
     signBox->setEnabled(true);
-    limitSlider->setMinValue(low);
-    limitSlider->setMaxValue(high);
+    limitSlider->setMinimum(low);
+    limitSlider->setMaximum(high);
   } else {
     limitSlider->setEnabled(false);
     limitLcd->setEnabled(false);
-    signBox->setCurrentItem(3);
+    signBox->setCurrentIndex(3);
     signBox->setEnabled(false);
     colourButton->setChecked(true);
     plotButton->setEnabled(false);
@@ -915,11 +914,11 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
       markerBox->setEnabled(false);
     } else if( sub.size()>2 && sub[2]=="marker" ){
       int number= getIndex( markerName, sub[1]);
-      if (number>=0) markerBox->setCurrentItem(number);
+      if (number>=0) markerBox->setCurrentIndex(number);
       markerButton->setChecked(true);
     } else {
       int number= getIndex( cInfo, sub[1]);
-      if (number>=0) colourBox->setCurrentItem(number);
+      if (number>=0) colourBox->setCurrentIndex(number);
       if(sub.size()==3 && sub[2].downcase()=="total"){
         totalColourButton->setChecked(true);
       } else{
@@ -978,21 +977,21 @@ void ObsDialog::saveSlot( )
 
   bool newItem = obsWidget[m_selected]->saveCriteria(vstr,name);
   if( newItem ){
-    criteriaBox->insertItem(name.cStr());
+    criteriaBox->addItem(name.cStr());
     int index = criteriaBox->count()-1;
-    criteriaBox->setCurrentItem(index);
+    criteriaBox->setCurrentIndex(index);
     criteriaListSelected(index);
     return;
   }
 
   if(vstr.size()==0){
-    int index = criteriaBox->currentItem();
+    int index = criteriaBox->currentIndex();
     criteriaBox->removeItem(index);
     if(index==criteriaBox->count()) index--;
     if(index<0){
       lineedit->clear();
     } else {
-      criteriaBox->setCurrentItem(index);
+      criteriaBox->setCurrentIndex(index);
       criteriaListSelected(index);
     }
   }
@@ -1018,13 +1017,13 @@ void ObsDialog::rightButtonClicked(miutil::miString name)
 
   int low,high;
   if(  obsWidget[m_selected]->getCriteriaLimits(name,low,high)){
-    limitSlider->setMinValue(low);
-    limitSlider->setMaxValue(high);
+    limitSlider->setMinimum(low);
+    limitSlider->setMaximum(high);
     signBox->setEnabled(true);
     plotButton->setEnabled(true);
-    colourBox->setEnabled(colourButton->isOn() || totalColourButton->isOn());
-    markerBox->setEnabled(markerButton->isOn());
-    bool sign = (signBox->currentItem()!=3);
+    colourBox->setEnabled(colourButton->isChecked() || totalColourButton->isChecked());
+    markerBox->setEnabled(markerButton->isChecked());
+    bool sign = (signBox->currentIndex()!=3);
     limitSlider->setEnabled(sign);
     limitLcd->setEnabled(sign);
     if(!sameParameter){
@@ -1037,7 +1036,7 @@ void ObsDialog::rightButtonClicked(miutil::miString name)
   } else {
     limitSlider->setEnabled(false);
     limitLcd->setEnabled(false);
-    signBox->setCurrentItem(3);
+    signBox->setCurrentIndex(3);
     signBox->setEnabled(false);
     totalColourButton->setChecked(true);
     plotButton->setEnabled(false);
@@ -1060,7 +1059,7 @@ void ObsDialog::updateExtension()
     cList = obsWidget[m_selected]->getSavedCriteria();
   } else {
     for(unsigned int i=0;i<critName.size();i++) {
-      criteriaBox->insertItem(critName[i].cStr());
+      criteriaBox->addItem(critName[i].cStr());
     }
     cList = obsWidget[m_selected]->getSavedCriteria();
   }

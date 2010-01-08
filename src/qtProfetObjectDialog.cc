@@ -28,14 +28,13 @@
 */
 
 #include "qtProfetObjectDialog.h"
-#include <q3hbox.h>
-#include <q3vbox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-//Added by qt3to4:
+#include <QGroupBox>
+#include <QLayout>
 #include <QCloseEvent>
 #include <QLabel>
-#include <Q3VBoxLayout>
+#include <QTextEdit>
+#include <QComboBox>
+#include <QStackedWidget>
 #include <qUtilities/miLogFile.h>
 
 
@@ -60,60 +59,82 @@ ProfetObjectDialog::ProfetObjectDialog(QWidget * parent, OperationMode om)
 
 void ProfetObjectDialog::initGui()
 {
-  Q3VBoxLayout * mainLayout = new Q3VBoxLayout(this);
-  Q3HBox * titleBox = new Q3HBox(this);
-  parameterLabel = new QLabel(titleBox);
-  sessionLabel = new QLabel(titleBox);
 
-  mainLayout->addWidget(titleBox);
+  QVBoxLayout * mainLayout = new QVBoxLayout(this);
 
-  algGroupBox = new Q3GroupBox(2, Qt::Vertical, "Algorithm", this);
+  parameterLabel = new QLabel(this);
+  sessionLabel = new QLabel(this);
+  QHBoxLayout * titleLayout = new QHBoxLayout();
+  titleLayout->addWidget(parameterLabel);
+  titleLayout->addWidget(sessionLabel);
+
+  mainLayout->addLayout(titleLayout);
+
+//  alg_frame= new QFrame(this);
+ // alg_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+
+  algGroupBox = new QGroupBox(tr("Algorithm"),this);
   baseComboBox = new QComboBox(algGroupBox);
   algDescriptionLabel = new QLabel(algGroupBox);
+  QVBoxLayout * algoLayout = new QVBoxLayout(algGroupBox);
+  algoLayout->addWidget(baseComboBox);
+  algoLayout->addWidget(algDescriptionLabel);
 
   mainLayout->addWidget(algGroupBox);
 
-  areaGroupBox = new Q3GroupBox(4, Qt::Vertical, "Area", this);
+//  area_frame= new QFrame(this);
+//  area_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  areaGroupBox = new QGroupBox(tr("Area"), this);
   databaseAreaButton = new QPushButton("From Database", areaGroupBox);
   fileAreaButton = new QPushButton("From File", areaGroupBox);
   areaInfoLabel = new QLabel("", areaGroupBox);
 
+  QVBoxLayout * areaLayout = new QVBoxLayout(areaGroupBox);
+  areaLayout->addWidget(databaseAreaButton);
+  areaLayout->addWidget(fileAreaButton);
+  areaLayout->addWidget(areaInfoLabel);
   mainLayout->addWidget(areaGroupBox);
 
   if(mode == VIEW_OBJECT_MODE)
     areaGroupBox->setVisible(false);
 
-  stackGroupBox = new Q3GroupBox(1, Qt::Vertical, "Parameters", this);
-  stackGroupBox->setInsideMargin(2);
-  stackGroupBox->setInsideSpacing(2);
-
-  widgetStack = new Q3WidgetStack(stackGroupBox);
+  stackGroupBox = new QGroupBox(tr("Parameters"), this);
+  widgetStack = new QStackedWidget(stackGroupBox);
+  QVBoxLayout * stackLayout = new QVBoxLayout(stackGroupBox);
+  stackLayout->addWidget(widgetStack);
 
   mainLayout->addWidget(stackGroupBox);
 
-  reasonGroupBox = new Q3GroupBox(1, Qt::Vertical, "Reason", this);
-  reasonText = new Q3TextEdit(reasonGroupBox);
+  reasonGroupBox = new QGroupBox(tr("Reason"), this);
+  reasonText = new QTextEdit(reasonGroupBox);
+  QVBoxLayout * reasonLayout = new QVBoxLayout(reasonGroupBox);
+  reasonLayout->addWidget(reasonText);
 
   mainLayout->addWidget(reasonGroupBox);
 
-  statGroupBox = new Q3GroupBox(1, Qt::Vertical, "Statistics", this);
+  statGroupBox = new QGroupBox(tr("Statistics"), this);
   statisticLabel = new QLabel("", statGroupBox);
-
+  QVBoxLayout * statisticLayout = new QVBoxLayout(statGroupBox);
+  statisticLayout->addWidget(statisticLabel);
   mainLayout->addWidget(statGroupBox);
+
   if(mode == VIEW_OBJECT_MODE)
     statGroupBox->setVisible(false);
 
-  Q3HBox * buttonBox = new Q3HBox(this);
+ // QHBox * buttonBox = new QHBox(this);
 
   if(mode == VIEW_OBJECT_MODE){
     saveObjectButton = new QPushButton(tr("Save"));
-    cancelObjectButton = new QPushButton(tr("Close"), buttonBox);
+    cancelObjectButton = new QPushButton(tr("Close"), this);
   } else {
-    saveObjectButton = new QPushButton(tr("Save"), buttonBox);
-    cancelObjectButton = new QPushButton(tr("Cancel"), buttonBox);
+    saveObjectButton = new QPushButton(tr("Save"), this);
+    cancelObjectButton = new QPushButton(tr("Cancel"), this);
   }
+  QHBoxLayout * buttonLayout = new QHBoxLayout();
+  buttonLayout->addWidget(saveObjectButton);
+  buttonLayout->addWidget(cancelObjectButton);
 
-  mainLayout->addWidget(buttonBox);
+  mainLayout->addLayout(buttonLayout);
 }
 
 void ProfetObjectDialog::connectSignals(){
@@ -158,7 +179,7 @@ void ProfetObjectDialog::showObject(const fetObject & obj,
 {
   vector<fetBaseObject> fbo;
   setBaseObjects(fbo);//remove base objects/gui
-  baseComboBox->insertItem(obj.name().cStr(),0);
+  baseComboBox->insertItem(0,obj.name().cStr());
   baseComboBox->setEnabled(false);
   addDymanicGui(components);
   cerr << "ProfetObjectDialog::showObject reason: " << obj.reason() << endl;
@@ -179,20 +200,20 @@ void ProfetObjectDialog::editObjectMode(const fetObject & obj,
 
 void ProfetObjectDialog::addDymanicGui(
     vector<fetDynamicGui::GuiComponent> components){
-  int index = baseComboBox->currentItem();
+  int index = baseComboBox->currentIndex();
   if(!dynamicGuiMap[index]){
     dynamicGuiMap[index] = new fetDynamicGui(this,components);
-    int id = widgetStack->addWidget(dynamicGuiMap[index]);
+    widgetStack->addWidget(dynamicGuiMap[index]);
      connect( dynamicGuiMap[index], SIGNAL( valueChanged() ),
      this, SIGNAL( dynamicGuiChanged() ) );
   }
-  widgetStack->raiseWidget(dynamicGuiMap[index]);
+  widgetStack->setCurrentWidget(dynamicGuiMap[index]);
   widgetStack->show();
 }
 
 vector<fetDynamicGui::GuiComponent> ProfetObjectDialog::getCurrentGuiComponents(){
   vector<fetDynamicGui::GuiComponent> comp;
-  int index = baseComboBox->currentItem();
+  int index = baseComboBox->currentIndex();
   if(dynamicGuiMap[index]){
     dynamicGuiMap[index]->getValues(comp);
   }
@@ -219,8 +240,8 @@ void ProfetObjectDialog::setBaseObjects(const vector<fetBaseObject> & o){
   dynamicGuiMap.clear();
   baseComboBox->clear();
   descriptionMap.clear();
-  for(int i=0;i<o.size();i++){
-    baseComboBox->insertItem(o[i].name().cStr(),i);
+  for(unsigned int i=0;i<o.size();i++){
+    baseComboBox->insertItem(i,o[i].name().cStr());
     descriptionMap[QString(o[i].name().cStr())] = QString(o[i].description().cStr());
   }
 }
@@ -228,12 +249,12 @@ void ProfetObjectDialog::setBaseObjects(const vector<fetBaseObject> & o){
 void ProfetObjectDialog::setAreaStatus(AreaStatus status){
   areaInfoLabel->setText(getAreaStatusString(status));
   if(status == AREA_OK) {
-    areaInfoLabel->setBackgroundColor(QColor("Green"));
+ //   areaInfoLabel->setBackgroundColor(QColor("Green"));
     saveObjectButton->setEnabled(true);
     widgetStack->setEnabled(true);
   }
   else {
-    areaInfoLabel->setBackgroundColor(QColor("Red"));
+ //   areaInfoLabel->setBackgroundColor(QColor("Red"));
     saveObjectButton->setEnabled(false);
     widgetStack->setEnabled(true);
   }
@@ -246,8 +267,8 @@ QString ProfetObjectDialog::getAreaStatusString(AreaStatus status){
 }
 
 void ProfetObjectDialog::selectDefault(){
-  baseComboBox->setCurrentItem(0);
-  baseObjectChanged(baseComboBox->text(0));
+  baseComboBox->setCurrentIndex(0);
+  baseObjectChanged(baseComboBox->itemText(0));
 }
 
 miutil::miString ProfetObjectDialog::getSelectedBaseObject(){
@@ -256,7 +277,7 @@ miutil::miString ProfetObjectDialog::getSelectedBaseObject(){
 }
 
 miutil::miString ProfetObjectDialog::getReason(){
-  miutil::miString r = reasonText->text().toStdString();
+  miutil::miString r = reasonText->toPlainText().toStdString();
   return r;
 }
 

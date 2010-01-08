@@ -52,8 +52,10 @@
 EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
     Controller* llctrl,
     int n,EditProduct ep)
-: QDialog(parent,"definefield", true), m_ctrl(llctrl), EdProd(ep), num(n)
+: QDialog(parent), m_ctrl(llctrl), EdProd(ep), num(n)
 {
+
+  setModal(true);
 
   m_editm= m_ctrl->getEditManager();
 
@@ -182,7 +184,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   updateFilenames();
 
   if (num>-1 && fields.size()==0){
-    if (prodnamebox->count()>1) prodnamebox->setCurrentItem(1);
+    if (prodnamebox->count()>1) prodnamebox->setCurrentIndex(1);
     prodnameActivated(1);
   }
   else

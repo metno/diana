@@ -243,7 +243,7 @@ private slots:
   void zoomOut();
   void showUffda();
   void fillRightclickmenu();
-  void rightClickMenuActivated(int);
+  void rightClickMenuActivated(QAction*);
   void selectedAreas(int);
 
   void inEdit(bool);
@@ -304,6 +304,7 @@ private:
   QAction * showProfilesDialogAction;
   QAction * showCrossSectionDialogAction;
   QAction * showWaveSpectrumDialogAction;
+  QAction * zoomOutAction;
   QAction * showUffdaDialogAction;
   QShortcut * uffdaAction;
 

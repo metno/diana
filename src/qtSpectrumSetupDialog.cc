@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -98,18 +98,18 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout();
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );
+  QVBoxLayout * vlayout = new QVBoxLayout( this);
   vlayout->addLayout( glayout );
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
@@ -132,7 +132,7 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   // for the checkboxes/comboboxes/spinboxes
   int numrows= 14;
 //glayout = new QGridLayout(numrows,4); // linewidth not used, yet...
-  glayout = new QGridLayout(numrows,3);
+  glayout = new QGridLayout();
   glayout->setMargin( 5 );
   glayout->setSpacing( 2 );
 
@@ -233,42 +233,42 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
   for (int i=0; i<n; i++) {
 
     if (spSetups[i]->name== TEXTPLOT) {
-      spSetups[i]->setOn    (spopt->pText);
+      spSetups[i]->setChecked    (spopt->pText);
       spSetups[i]->setColour(spopt->textColour);
 
     } else if (spSetups[i]->name== FIXEDTEXT) {
-      spSetups[i]->setOn    (spopt->pFixedText);
+      spSetups[i]->setChecked    (spopt->pFixedText);
       spSetups[i]->setColour(spopt->fixedTextColour);
 
     } else if (spSetups[i]->name== FRAME) {
-      spSetups[i]->setOn       (spopt->pFrame);
+      spSetups[i]->setChecked       (spopt->pFrame);
       spSetups[i]->setColour   (spopt->frameColour);
       spSetups[i]->setLinewidth(spopt->frameLinewidth);
 
     } else if (spSetups[i]->name== SPECTRUMLINES) {
-      spSetups[i]->setOn       (spopt->pSpectrumLines);
+      spSetups[i]->setChecked       (spopt->pSpectrumLines);
       spSetups[i]->setColour   (spopt->spectrumLineColour);
       spSetups[i]->setLinewidth(spopt->spectrumLinewidth);
 
     } else if (spSetups[i]->name== SPECTRUMCOLOUR) {
-      spSetups[i]->setOn(spopt->pSpectrumColoured);
+      spSetups[i]->setChecked(spopt->pSpectrumColoured);
 
     } else if (spSetups[i]->name== ENERGYLINE) {
-      spSetups[i]->setOn       (spopt->pEnergyLine);
+      spSetups[i]->setChecked       (spopt->pEnergyLine);
       spSetups[i]->setColour   (spopt->energyLineColour);
       spSetups[i]->setLinewidth(spopt->energyLinewidth);
 
     } else if (spSetups[i]->name== ENERGYCOLOUR) {
-      spSetups[i]->setOn       (spopt->pEnergyColoured);
+      spSetups[i]->setChecked       (spopt->pEnergyColoured);
       spSetups[i]->setColour   (spopt->energyFillColour);
 
     } else if (spSetups[i]->name== PLOTWIND) {
-      spSetups[i]->setOn       (spopt->pWind);
+      spSetups[i]->setChecked       (spopt->pWind);
       spSetups[i]->setColour   (spopt->windColour);
       spSetups[i]->setLinewidth(spopt->windLinewidth);
 
     } else if (spSetups[i]->name== PLOTPEAKDIREC) {
-      spSetups[i]->setOn       (spopt->pPeakDirection);
+      spSetups[i]->setChecked       (spopt->pPeakDirection);
       spSetups[i]->setColour   (spopt->peakDirectionColour);
       spSetups[i]->setLinewidth(spopt->peakDirectionLinewidth);
 
@@ -299,42 +299,42 @@ void SpectrumSetupDialog::applySetup()
   for (int i=0; i<n; i++) {
 
     if (spSetups[i]->name== TEXTPLOT) {
-      spopt->pText=      spSetups[i]->isOn();
+      spopt->pText=      spSetups[i]->isChecked();
       spopt->textColour= spSetups[i]->getColour().name;
 
     } else if (spSetups[i]->name== FIXEDTEXT) {
-      spopt->pFixedText=      spSetups[i]->isOn();
+      spopt->pFixedText=      spSetups[i]->isChecked();
       spopt->fixedTextColour= spSetups[i]->getColour().name;
 
     } else if (spSetups[i]->name== FRAME) {
-      spopt->pFrame=         spSetups[i]->isOn();
+      spopt->pFrame=         spSetups[i]->isChecked();
       spopt->frameColour=    spSetups[i]->getColour().name;
       spopt->frameLinewidth= spSetups[i]->getLinewidth();
 
     } else if (spSetups[i]->name== SPECTRUMLINES) {
-      spopt->pSpectrumLines=     spSetups[i]->isOn();
+      spopt->pSpectrumLines=     spSetups[i]->isChecked();
       spopt->spectrumLineColour= spSetups[i]->getColour().name;
       spopt->spectrumLinewidth=  spSetups[i]->getLinewidth();
 
     } else if (spSetups[i]->name== SPECTRUMCOLOUR) {
-      spopt->pSpectrumColoured= spSetups[i]->isOn();
+      spopt->pSpectrumColoured= spSetups[i]->isChecked();
 
     } else if (spSetups[i]->name== ENERGYLINE) {
-      spopt->pEnergyLine=      spSetups[i]->isOn();
+      spopt->pEnergyLine=      spSetups[i]->isChecked();
       spopt->energyLineColour= spSetups[i]->getColour().name;
       spopt->energyLinewidth=  spSetups[i]->getLinewidth();
 
     } else if (spSetups[i]->name== ENERGYCOLOUR) {
-      spopt->pEnergyColoured=  spSetups[i]->isOn();
+      spopt->pEnergyColoured=  spSetups[i]->isChecked();
       spopt->energyFillColour= spSetups[i]->getColour().name;
 
     } else if (spSetups[i]->name== PLOTWIND) {
-      spopt->pWind=         spSetups[i]->isOn();
+      spopt->pWind=         spSetups[i]->isChecked();
       spopt->windColour=    spSetups[i]->getColour().name;
       spopt->windLinewidth= spSetups[i]->getLinewidth();
 
     } else if (spSetups[i]->name== PLOTPEAKDIREC) {
-      spopt->pPeakDirection=         spSetups[i]->isOn();
+      spopt->pPeakDirection=         spSetups[i]->isChecked();
       spopt->peakDirectionColour=    spSetups[i]->getColour().name;
       spopt->peakDirectionLinewidth= spSetups[i]->getLinewidth();
 
@@ -387,7 +387,7 @@ void SpectrumSetupDialog::applyhideClicked()
 }
 
 
-void SpectrumSetupDialog::closeEvent( QCloseEvent* e) 
+void SpectrumSetupDialog::closeEvent( QCloseEvent* e)
 {
   emit SetupHide();
 }

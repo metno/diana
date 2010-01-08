@@ -40,6 +40,8 @@
 #include <qmotifstyle.h>
 #include <qtUtility.h>
 #include <qtVprofWindow.h>
+#include <QPrintDialog>
+#include <QPrinter>
 //Added by qt3to4:
 #include <QPixmap>
 #include <diStationPlot.h>
@@ -69,7 +71,7 @@ VprofWindow::VprofWindow()
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
   //central widget
-  vprofw= new VprofWidget(vprofm, fmt, this, "Vprof");
+  vprofw= new VprofWidget(vprofm, fmt, this);
   setCentralWidget(vprofw);
   connect(vprofw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(vprofw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));
@@ -113,45 +115,31 @@ VprofWindow::VprofWindow()
 
 
   //combobox to select station
-  QToolButton *leftStationButton= new QToolButton(QPixmap(bakover_xpm),
-						  tr("previous station"), "",
-						  this, SLOT(leftStationClicked()),
-						  this, "vpSstepB" );
-  leftStationButton->setUsesBigPixmap(false);
+  QPushButton *leftStationButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  connect(leftStationButton, SIGNAL(clicked()), SLOT(leftStationClicked()) );
   leftStationButton->setAutoRepeat(true);
 
   vector<miutil::miString> stations;
   stations.push_back("                         ");
   stationBox = ComboBox( this, stations, true, 0);
-  connect( stationBox, SIGNAL( activated(int) ),
-		       SLOT( stationBoxActivated(int) ) );
+  connect( stationBox, SIGNAL( activated(int) ), SLOT( stationBoxActivated(int) ) );
 
-  QToolButton *rightStationButton= new QToolButton(QPixmap(forward_xpm),
-						   tr("next station"), "",
-						   this, SLOT(rightStationClicked()),
-						   this, "vpSstepF" );
-  rightStationButton->setUsesBigPixmap(false);
+  QPushButton *rightStationButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  connect(rightStationButton, SIGNAL(clicked()), SLOT(rightStationClicked()) );
   rightStationButton->setAutoRepeat(true);
 
-  QToolButton *leftTimeButton= new QToolButton(QPixmap(bakover_xpm),
-					       tr("previous timestep"), "",
-					       this, SLOT(leftTimeClicked()),
-					       this, "vpTstepB" );
-  leftTimeButton->setUsesBigPixmap(false);
+  QPushButton *leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  connect(leftTimeButton, SIGNAL(clicked()), SLOT(leftTimeClicked()) );
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
   vector<miutil::miString> times;
   times.push_back("2002-01-01 00");
   timeBox = ComboBox( this, times, true, 0);
-  connect( timeBox, SIGNAL( activated(int) ),
-		    SLOT( timeBoxActivated(int) ) );
+  connect( timeBox, SIGNAL( activated(int) ), SLOT( timeBoxActivated(int) ) );
 
-  QToolButton *rightTimeButton= new QToolButton(QPixmap(forward_xpm),
-						tr("next timestep"), "",
-						this, SLOT(rightTimeClicked()),
-						this, "vpTstepF" );
-  rightTimeButton->setUsesBigPixmap(false);
+  QPushButton *rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
 
   vpToolbar->addWidget(modelButton);
@@ -262,13 +250,13 @@ bool VprofWindow::timeChangedSlot(int diff){
 #ifdef DEBUGPRINT
   cerr << "timeChangedSlot(int) is called " << endl;
 #endif
-  int index=timeBox->currentItem();
+  int index=timeBox->currentIndex();
   while(diff<0){
     if(--index < 0) {
       //set index to the last in the box !
       index=timeBox->count()-1;
     }
-    timeBox->setCurrentItem(index);
+    timeBox->setCurrentIndex(index);
     diff++;
   }
   while(diff>0){
@@ -276,7 +264,7 @@ bool VprofWindow::timeChangedSlot(int diff){
       //set index to the first in the box !
       index=0;
     }
-    timeBox->setCurrentItem(index);
+    timeBox->setCurrentIndex(index);
     diff--;
   }
   miutil::miTime t = vprofm->getTime();
@@ -287,8 +275,8 @@ bool VprofWindow::timeChangedSlot(int diff){
     //search timeList
     int n = timeBox->count();
     for (int i = 0; i<n;i++){
-      if(tstring ==timeBox->text(i).toStdString()){
-	timeBox->setCurrentItem(i);
+      if(tstring ==timeBox->itemText(i).toStdString()){
+	timeBox->setCurrentIndex(i);
 	tbs=timeBox->currentText().toStdString();
 	break;
       }
@@ -322,13 +310,13 @@ bool VprofWindow::stationChangedSlot(int diff){
 #ifdef DEBUGPRINT
   cerr << "stationChangedSlot(int) is called " << endl;
 #endif
-  int index=stationBox->currentItem();
+  int index=stationBox->currentIndex();
   while(diff<0){
     if(--index < 0) {
       //set index to the last in the box !
       index=stationBox->count()-1;
     }
-    stationBox->setCurrentItem(index);
+    stationBox->setCurrentIndex(index);
     diff++;
   }
   while(diff>0){
@@ -336,7 +324,7 @@ bool VprofWindow::stationChangedSlot(int diff){
       //set index to the first in the box !
       index=0;
     }
-    stationBox->setCurrentItem(index);
+    stationBox->setCurrentIndex(index);
     diff--;
   }
   //get current station
@@ -348,8 +336,8 @@ bool VprofWindow::stationChangedSlot(int diff){
   if (sbs!=s){
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
-      if (s==stationBox->text(i).toStdString()){
-	stationBox->setCurrentItem(i);
+      if (s==stationBox->itemText(i).toStdString()){
+	stationBox->setCurrentIndex(i);
 	sbs=miutil::miString(stationBox->currentText().toStdString());
 	break;
       }
@@ -363,8 +351,8 @@ bool VprofWindow::stationChangedSlot(int diff){
     //    cerr << "WARNING! stationChangedSlot  station from vprofm ="
     // 	 << s    <<" not equal to stationBox text = " << sbs << endl;
     //current or last station plotted is not in the list, insert it...
-    stationBox->insertItem(sq,0);
-    stationBox->setCurrentItem(0);
+    stationBox->addItem(sq,0);
+    stationBox->setCurrentIndex(0);
     return false;
   }
 }
@@ -380,8 +368,9 @@ void VprofWindow::printClicked(){
   QPrinter qprt;
   fromPrintOption(qprt,priop);
 
-  if (qprt.setup(this)){
-    if (qprt.outputToFile()) {
+  QPrintDialog printerDialog(&qprt, this);
+  if (printerDialog.exec()) {
+    if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
       priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
@@ -399,7 +388,7 @@ void VprofWindow::printClicked(){
     toPrintOption(qprt, priop);
 
     // start the postscript production
-    QApplication::setOverrideCursor( Qt::waitCursor );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
 
     vprofm->startHardcopy(priop);
     vprofw->updateGL();
@@ -407,7 +396,7 @@ void VprofWindow::printClicked(){
     vprofw->updateGL();
 
     // if output to printer: call appropriate command
-    if (!qprt.outputToFile()){
+    if (!qprt.outputFileName().isNull()){
       priop.numcopies= qprt.numCopies();
 
       // expand command-variables
@@ -456,7 +445,7 @@ void VprofWindow::saveClicked()
 
 void VprofWindow::makeEPS(const miutil::miString& filename)
 {
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  QApplication::setOverrideCursor( Qt::WaitCursor );
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -506,8 +495,8 @@ void VprofWindow::quitClicked(){
     //for now, only hide window, not really quit !
     vpToolbar->hide();
     tsToolbar->hide();
-    modelButton->setOn(false);
-    setupButton->setOn(false);
+    modelButton->setChecked(false);
+    setupButton->setChecked(false);
     active = false;
     emit VprofHide();
     vector<miutil::miTime> t;
@@ -601,7 +590,7 @@ void VprofWindow::hideModel(){
     cerr << "VprofWindow::hideModel()" << endl;
 #endif
     vpModelDialog->hide();
-    modelButton->setOn(false);
+    modelButton->setChecked(false);
 }
 
 /***************************************************************************/
@@ -611,7 +600,7 @@ void VprofWindow::hideSetup(){
     cerr << "VprofWindow::hideSetup()" << endl;
 #endif
     vpSetupDialog->hide();
-    setupButton->setOn(false);
+    setupButton->setChecked(false);
 }
 
 /***************************************************************************/

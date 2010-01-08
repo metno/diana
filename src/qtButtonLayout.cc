@@ -88,7 +88,7 @@ ButtonLayout::ButtonLayout( QWidget* parent,
 }
 
 
-bool ButtonLayout::isOn(int id){
+bool ButtonLayout::isChecked(int id){
   int nr_buttons = buttonList.size();
   if(id<nr_buttons)
     return b[id]->isChecked();
@@ -204,7 +204,7 @@ void ButtonLayout::enableButtons(vector<bool> bArr){
   unsigned int nr_buttons = buttonList.size();
 
   if(bArr.size()!=nr_buttons) return;
-  for( int i=0; i < nr_buttons; i++ )
+  for( unsigned int i=0; i < nr_buttons; i++ )
     if( bArr[i] == true  ){
       b[i]->setEnabled(true);
       if(buttonOn[i]){

@@ -86,7 +86,7 @@ public:
   void setFalse();
   void setDatatype(const miutil::miString&);
   vector<miutil::miString> getDataTypes();
-  bool moreToggled(){return moreButton->isOn();}
+  bool moreToggled(){return moreButton->isChecked();}
   //Criteria
   ObsDialogInfo::CriteriaList getSavedCriteria(){return savedCriteria;}
   ObsDialogInfo::CriteriaList getCriteriaList();

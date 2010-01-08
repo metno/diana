@@ -51,7 +51,7 @@
 
 
 int getIndex( vector<miutil::miString> vstr, miutil::miString def_str  ){
-  for( int k=0; k<vstr.size(); k++){
+  for( unsigned int k=0; k<vstr.size(); k++){
     if( def_str == vstr[k] ){
       return k;
     }
@@ -61,7 +61,7 @@ int getIndex( vector<miutil::miString> vstr, miutil::miString def_str  ){
 
 
 int getIndex( vector<Colour::ColourInfo> cInfo, miutil::miString def_str  ){
-  for( int k=0; k<cInfo.size(); k++){
+  for( unsigned int k=0; k<cInfo.size(); k++){
     if( def_str == cInfo[k].name ){
       return k;
     }
@@ -73,7 +73,10 @@ int getIndex( vector<Colour::ColourInfo> cInfo, miutil::miString def_str  ){
 /*********************************************/
 QLabel* TitleLabel(const QString& name, QWidget* parent){
   QLabel* label= new QLabel( name, parent );
-  label->setPaletteForegroundColor ( QColor(0,0,128) );
+
+  QPalette pal(label->palette());
+  pal.setColor(QPalette::WindowText, QColor(0,0,128));
+  label->setPalette(pal);
 
   return label;
 }
@@ -105,7 +108,7 @@ QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent,
 
   QPushButton* b = new QPushButton( parent );
 
-  b->setIconSet(QIcon(pixmap));
+  b->setIcon(QIcon(pixmap));
 
   int width  = pixmap.width()  + deltaWidth;
   int height = pixmap.height() + deltaHeight;
@@ -122,7 +125,7 @@ QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent,
 QComboBox* ComboBox( QWidget* parent, vector<miutil::miString> vstr,
 		     bool Enabled, int defItem  ){
 
-  QComboBox* box = new QComboBox( false, parent );
+  QComboBox* box = new QComboBox( parent );
 
   int nr_box = vstr.size();
 
@@ -150,15 +153,15 @@ QComboBox* ComboBox( QWidget* parent, QColor* pixcolor, int nr_colors,
   for( t=0; t<nr_colors; t++ )
     pmap[t]->fill( pixcolor[t] );
 
-  QComboBox* box = new QComboBox( false, parent );
+  QComboBox* box = new QComboBox( parent );
 
   for( int i=0; i < nr_colors; i++){
-    box->insertItem ( *pmap[i] );
+    box->addItem ( *pmap[i], "");
   }
 
   box->setEnabled( Enabled );
 
-  box->setCurrentItem(defItem);
+  box->setCurrentIndex(defItem);
 
   for( t=0; t<nr_colors; t++ ){
     delete pmap[t];
@@ -176,10 +179,10 @@ QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
 		      bool Enabled, int defItem,
 		      miutil::miString firstItem, bool name ){
 
-  QComboBox* box = new QComboBox( false, parent );
+  QComboBox* box = new QComboBox( parent );
 
   if(firstItem.exists())
-    box->insertItem ( firstItem.cStr() );
+    box->addItem ( firstItem.cStr() );
 
   int nr_colors= cInfo.size();
   QPixmap* pmap = new QPixmap( 20, 20 );
@@ -194,7 +197,7 @@ QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
   }
 
   box->setEnabled( Enabled );
-  box->setCurrentItem(defItem);
+  box->setCurrentIndex(defItem);
 
   delete pmap;
   pmap=0;
@@ -210,12 +213,12 @@ QComboBox* PaletteBox( QWidget* parent,
 		       miutil::miString firstItem,
 		       bool name ){
 
-  QComboBox* box = new QComboBox( false, parent );
+  QComboBox* box = new QComboBox( parent );
 
   int nr_palettes= csInfo.size();
 
   if(firstItem.exists())
-    box->insertItem ( firstItem.cStr() );
+    box->addItem ( firstItem.cStr() );
 
   for( int i=0; i<nr_palettes; i++ ){
     int nr_colours = csInfo[i].colour.size();
@@ -248,7 +251,7 @@ QComboBox* PaletteBox( QWidget* parent,
 
   box->setEnabled( Enabled );
 
-  box->setCurrentItem(defItem);
+  box->setCurrentIndex(defItem);
 
   return box;
 }
@@ -261,13 +264,13 @@ QComboBox* PatternBox( QWidget* parent,
 		       miutil::miString firstItem,
 		       bool name ){
 
-  QComboBox* box = new QComboBox( false, parent );
+  QComboBox* box = new QComboBox( parent );
 
   ImageGallery ig;
   QColor pixcolor=QColor("black");
 
   if(firstItem.exists())
-    box->insertItem ( firstItem.cStr() );
+    box->addItem ( firstItem.cStr() );
 
   int nr_patterns= patternInfo.size();
   for( int i=0; i<nr_patterns; i++ ){
@@ -282,7 +285,7 @@ QComboBox* PatternBox( QWidget* parent,
 
   box->setEnabled( Enabled );
 
-  box->setCurrentItem(defItem);
+  box->setCurrentIndex(defItem);
 
   return box;
 }
@@ -310,7 +313,7 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem  )
 
   QComboBox* box = new QComboBox(parent);
   for(int i=0; i < nr_linetypes; i++)
-    box->insertItem ( *pmapLinetypes[i] );
+    box->addItem ( *pmapLinetypes[i], "" );
 
   box->setEnabled( Enabled );
 
@@ -324,7 +327,7 @@ QComboBox* LinewidthBox( QWidget* parent,
 			 int defItem  )
 {
 
-  QComboBox* box = new QComboBox( false, parent );
+  QComboBox* box = new QComboBox( parent );
 
   QPixmap**  pmapLinewidths = new QPixmap*[nr_linewidths];
   vector<miutil::miString> linewidths;
@@ -338,7 +341,7 @@ QComboBox* LinewidthBox( QWidget* parent,
 
   for( int i=0; i < nr_linewidths; i++){
     miutil::miString ss = "  " + miutil::miString(i+1);
-    box->insertItem ( *pmapLinewidths[i], ss.cStr() );
+    box->addItem ( *pmapLinewidths[i], ss.cStr() );
   }
   box->setEnabled(true);
 
@@ -348,7 +351,7 @@ QComboBox* LinewidthBox( QWidget* parent,
 /*********************************************/
 QComboBox* PixmapBox( QWidget* parent, vector<miutil::miString>& markerName){
 
-  QComboBox* box = new QComboBox( false, parent );
+  QComboBox* box = new QComboBox( parent );
 
   ImageGallery ig;
 
@@ -360,8 +363,9 @@ QComboBox* PixmapBox( QWidget* parent, vector<miutil::miString>& markerName){
     miutil::miString filename = ig.getFilename(name[i]);
     markerName.push_back(name[i]);
     QImage image(filename.c_str());
-    QPixmap p(image);
-    box->insertItem ( p );
+    QPixmap p;
+    p.fromImage(image);
+    box->addItem (p, "" );
   }
 
   return box;
@@ -380,8 +384,11 @@ QLCDNumber* LCDNumber( uint numDigits, QWidget * parent ){
 /*********************************************/
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 		 Qt::Orientation orient, QWidget* parent, int width ){
-  QSlider* slider = new QSlider( minValue, maxValue, pageStep, value,
-				 orient, parent);
+  QSlider* slider = new QSlider(orient, parent);
+  slider->setMinimum(minValue);
+  slider->setMaximum(maxValue);
+  slider->setSingleStep(pageStep);
+  slider->setValue(value);
   slider->setMinimumSize( slider->sizeHint() );
   slider->setMaximumWidth( width );
   return slider;
@@ -390,8 +397,11 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 /*********************************************/
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 		 Qt::Orientation orient, QWidget* parent ){
-  QSlider* slider = new QSlider( minValue, maxValue, pageStep, value,
-				 orient, parent);
+  QSlider* slider = new QSlider(orient, parent);
+  slider->setMinimum(minValue);
+  slider->setMaximum(maxValue);
+  slider->setSingleStep(pageStep);
+  slider->setValue(value);
   slider->setMinimumSize( slider->sizeHint() );
   slider->setMaximumSize( slider->sizeHint() );
   return slider;
@@ -404,7 +414,7 @@ void listWidget( QListWidget* listwidget, vector<miutil::miString> vstr, int def
   if( listwidget->count() )
     listwidget->clear();
 
-  for( int i=0; i<vstr.size(); i++ ){
+  for( unsigned int i=0; i<vstr.size(); i++ ){
     listwidget->addItem( QString(vstr[i].cStr()) );
   }
 

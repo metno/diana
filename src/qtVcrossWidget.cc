@@ -41,8 +41,8 @@
 
 
 VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-			  QWidget* parent, const char* name )
-    : QGLWidget( fmt, parent, name ),
+			  QWidget* parent)
+    : QGLWidget( fmt, parent),
       vcrossm(vcm), fbuffer(0), arrowKeyDirection(1),
       timeGraph(false), startTimeGraph(false)
 {
@@ -194,7 +194,7 @@ void VcrossWidget::keyPressEvent(QKeyEvent *me)
 
   bool change= true;
 
-  if (me->state() & Qt::ControlModifier) {
+  if (me->modifiers() & Qt::ControlModifier) {
 
     if (me->key()==Qt::Key_Left && timeGraph){
       vcrossm->setTimeGraphPos(-1);
@@ -226,7 +226,7 @@ void VcrossWidget::keyPressEvent(QKeyEvent *me)
     VcrossPlot::movePart(0, arrowKeyDirection*ploth/8);
   } else if (me->key()==Qt::Key_X) {
     VcrossPlot::increasePart();
-  } else if (me->key()==Qt::Key_Z && me->state() & Qt::ShiftModifier) {
+  } else if (me->key()==Qt::Key_Z && me->modifiers() & Qt::ShiftModifier) {
     VcrossPlot::increasePart();
   } else if (me->key()==Qt::Key_Z) {
     int dw= plotw - int(plotw/1.3);

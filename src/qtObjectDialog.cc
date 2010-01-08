@@ -425,14 +425,14 @@ void  ObjectDialog::commentClicked(bool on ){
 
 void ObjectDialog::showAll(){
   this->show();
-  if(commentbutton ->isOn() )
+  if(commentbutton ->isChecked() )
     objcomment->show();
 }
 
 
 void ObjectDialog::hideAll(){
   this->hide();
-  if( commentbutton->isOn() )
+  if( commentbutton->isChecked() )
     objcomment->hide();
 }
 
@@ -464,7 +464,7 @@ void ObjectDialog::updateTimefileList(bool refresh){
 
   sort(times.begin(),times.end());
 
-  if (autoButton->isOn()) {
+  if (autoButton->isChecked()) {
     emit emitTimes( "obj",times, true );
   } else {
     vector<miutil::miTime> noTimes; //Emit empty time list
@@ -472,13 +472,13 @@ void ObjectDialog::updateTimefileList(bool refresh){
   }
 
   //update time/file list
-  if (timeButton->isOn()) {
+  if (timeButton->isChecked()) {
 
     for (int i=0; i<nr_file; i++){
       timefileList->addItem(QString(files[i].time.isoTime().cStr()));
     }
 
-  } else if (fileButton->isOn()) {
+  } else if (fileButton->isChecked()) {
 
     for (int i=0; i<nr_file; i++){
       timefileList->addItem(QString(files[i].name.c_str()));
@@ -513,12 +513,12 @@ void ObjectDialog::updateSelectedFileList()
 
   int timefileListIndex = timefileList->currentRow();
 
-  if (autoButton->isOn()) {
+  if (autoButton->isChecked()) {
     namestr= objectnames[index];
-  } else if (timeButton->isOn() && timefileListIndex>-1) {
+  } else if (timeButton->isChecked() && timefileListIndex>-1) {
     namestr= objectnames[index] + " ";
     namestr+= files[timefileListIndex].time.isoTime();
-  } else if (fileButton->isOn() && timefileListIndex>-1) {
+  } else if (fileButton->isChecked() && timefileListIndex>-1) {
     namestr= files[timefileListIndex].name;
   }
 
@@ -555,12 +555,12 @@ vector<miutil::miString> ObjectDialog::getOKString(){
 
 	ObjFileInfo file=files[timefileListIndex];
 
-	if (timeButton->isOn()){
+	if (timeButton->isChecked()){
 	  miutil::miTime time=file.time;
 	  if (!time.undef())
 	    str+=(" TIME=" + stringFromTime(time));
 	}
-	else if (fileButton->isOn()){
+	else if (fileButton->isChecked()){
 	  if (file.name.exists())
 	    str+=(" FILE=" + file.name);
 	}
@@ -577,7 +577,7 @@ vector<miutil::miString> ObjectDialog::getOKString(){
 
     ostringstream ostr;
     ostr<<" timediff="<<m_totalminutes;
-    if( alpha->isOn() )
+    if( alpha->isChecked() )
 	ostr<<" alpha="<<m_alphanr;
     str += ostr.str();
 
@@ -665,7 +665,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
     //cerr << "alpha =" << plotVariables.alphanr << endl;
     int alphavalue = int(plotVariables.alphanr/m_alphascale + 0.5);
     salpha->setValue(  alphavalue );
-    alpha->setOn(true);
+    alpha->setChecked(true);
     greyAlpha( true );
   }
   if (plotVariables.totalminutes >=0){
@@ -829,7 +829,7 @@ miutil::miString ObjectDialog::getShortname()
   int timefileListIndex = timefileList->currentRow();
 
   if ( selectedFileList->count() &&
-     (autoButton->isOn() || (timefileListIndex>=0 &&
+     (autoButton->isChecked() || (timefileListIndex>=0 &&
 			     timefileListIndex<int(files.size())))) {
 
 
@@ -924,7 +924,7 @@ void ObjectDialog::closeEvent( QCloseEvent* e) {
 
 
 void ObjectDialog::hideComment(){
-  commentbutton->setOn(false);
+  commentbutton->setChecked(false);
   objcomment->hide();
 }
 

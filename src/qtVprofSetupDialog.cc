@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -53,13 +53,13 @@ const int tStep= 5;
 VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   : QDialog(parent),vprofm(vm)
 {
-#ifdef DEBUGPRINT 
+#ifdef DEBUGPRINT
   cout<<"VprofSetUpDialog::VprofSetUpDialog called"<<endl;
 #endif
 
   //caption to appear on top of dialog
   setWindowTitle(tr("Diana Vertical Profiles - settings"));
-   
+
 
   //********** String constants
 
@@ -98,17 +98,17 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   initDiagramtab();
   initColourtab();
 
-  
+
   // standard buttons *******************************************
-  
+
   //push button to show help
-  QPushButton * setuphelp = NormalPushButton( tr("Help"), this );  
-  connect(  setuphelp, SIGNAL(clicked()), SLOT( helpClicked()));    
+  QPushButton * setuphelp = NormalPushButton( tr("Help"), this );
+  connect(  setuphelp, SIGNAL(clicked()), SLOT( helpClicked()));
 
   //push button to set to default
   QPushButton * standard = NormalPushButton( tr("Default"), this );
-  connect(  standard, SIGNAL(clicked()), SLOT( standardClicked()));    
- 
+  connect(  standard, SIGNAL(clicked()), SLOT( standardClicked()));
+
   //push button to hide dialog
   QPushButton * setuphide = NormalPushButton( tr("Hide"), this );
   connect( setuphide, SIGNAL(clicked()), SIGNAL(SetupHide()));
@@ -124,20 +124,20 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   // *********** place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout();
   hlayout1->addWidget( setuphelp );
   hlayout1->addWidget( standard );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget( setuphide );
   hlayout2->addWidget( setupapplyhide );
   hlayout2->addWidget( setupapply );
 
   //now create a vertical layout to put all the other layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );                     
+  QVBoxLayout * vlayout = new QVBoxLayout( this);
   vlayout->addWidget( twd );
-  vlayout->addLayout( hlayout1 ); 
+  vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
 
   isInitialized=false;
@@ -148,25 +148,25 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
 
 void VprofSetupDialog::setPressureMin(int value){
   pressureMin = value;
-  pressureSpinHigh->setMinValue(pressureMin+pStep);
+  pressureSpinHigh->setMinimum(pressureMin+pStep);
 }
 
 
 void VprofSetupDialog::setPressureMax(int value){
   pressureMax = value;
-  pressureSpinLow->setMaxValue(pressureMax-pStep);
+  pressureSpinLow->setMaximum(pressureMax-pStep);
 }
 
 
 void VprofSetupDialog::setTemperatureMin(int value){
   temperatureMin = value;
-  temperatureSpinHigh->setMinValue(temperatureMin+tStep);
+  temperatureSpinHigh->setMinimum(temperatureMin+tStep);
 }
 
 
 void VprofSetupDialog::setTemperatureMax(int value){
   temperatureMax = value;
-  temperatureSpinLow->setMaxValue(temperatureMax-tStep);
+  temperatureSpinLow->setMaximum(temperatureMax-tStep);
 }
 
 /*********************************************/
@@ -205,86 +205,86 @@ void VprofSetupDialog::setup(VprofOptions *vpopt){
 
   int j, n = vpSetups.size();
 
-  for (int i = 0;i<n;i++){    
+  for (int i = 0;i<n;i++){
     if (vpSetups[i]->name== TEMP)
-      vpSetups[i]->setOn(vpopt->ptttt);
+      vpSetups[i]->setChecked(vpopt->ptttt);
     else if (vpSetups[i]->name== DEWPOINT)
-      vpSetups[i]->setOn(vpopt->ptdtd);
+      vpSetups[i]->setChecked(vpopt->ptdtd);
     else if (vpSetups[i]->name== WIND)
-      vpSetups[i]->setOn(vpopt->pwind);
+      vpSetups[i]->setChecked(vpopt->pwind);
     else if (vpSetups[i]->name== VERTWIND)
-      vpSetups[i]->setOn(vpopt->pvwind);
+      vpSetups[i]->setChecked(vpopt->pvwind);
     else if (vpSetups[i]->name== RELHUM)
-      vpSetups[i]->setOn(vpopt->prelhum);
+      vpSetups[i]->setChecked(vpopt->prelhum);
     else if (vpSetups[i]->name== DUCTING)
-      vpSetups[i]->setOn(vpopt->pducting);
+      vpSetups[i]->setChecked(vpopt->pducting);
     else if (vpSetups[i]->name== KINDEX)
-      vpSetups[i]->setOn(vpopt->pkindex);
+      vpSetups[i]->setChecked(vpopt->pkindex);
     else if (vpSetups[i]->name== SIGNWIND)
-     vpSetups[i]->setOn(vpopt->pslwind);
+     vpSetups[i]->setChecked(vpopt->pslwind);
     else if (vpSetups[i]->name== TEXT)
-      vpSetups[i]->setOn(vpopt->ptext);
+      vpSetups[i]->setChecked(vpopt->ptext);
     else if (vpSetups[i]->name== GEOPOS)
-      vpSetups[i]->setOn(vpopt->pgeotext);
+      vpSetups[i]->setChecked(vpopt->pgeotext);
     else if (vpSetups[i]->name== PRESSLINES){
-      vpSetups[i]->setOn(vpopt->pplines);
+      vpSetups[i]->setChecked(vpopt->pplines);
       vpSetups[i]->setColour(vpopt->pColour);
       vpSetups[i]->setLinewidth(vpopt->pLinewidth1);
       vpSetups[i]->setLinetype(vpopt->pLinetype);
     }
     else if (vpSetups[i]->name== LINEFLIGHT){
-      vpSetups[i]->setOn(vpopt->pplinesfl);
+      vpSetups[i]->setChecked(vpopt->pplinesfl);
     }
     else if (vpSetups[i]->name== TEMPLINES){
-      vpSetups[i]->setOn(vpopt->ptlines);
+      vpSetups[i]->setChecked(vpopt->ptlines);
       vpSetups[i]->setColour(vpopt->tColour);
       vpSetups[i]->setLinewidth(vpopt->tLinewidth1);
       vpSetups[i]->setLinetype(vpopt->tLinetype);
     }
     else if (vpSetups[i]->name== DRYADIABATS){
-      vpSetups[i]->setOn(vpopt->pdryadiabat);
+      vpSetups[i]->setChecked(vpopt->pdryadiabat);
       vpSetups[i]->setColour(vpopt->dryadiabatColour);
       vpSetups[i]->setLinewidth(vpopt->dryadiabatLinewidth);
       vpSetups[i]->setLinetype(vpopt->dryadiabatLinetype);
     }
     else if (vpSetups[i]->name== WETADIABATS){
-      vpSetups[i]->setOn(vpopt->pwetadiabat);
+      vpSetups[i]->setChecked(vpopt->pwetadiabat);
       vpSetups[i]->setColour(vpopt->wetadiabatColour);
       vpSetups[i]->setLinewidth(vpopt->wetadiabatLinewidth);
       vpSetups[i]->setLinetype(vpopt->wetadiabatLinetype);
     }
     else if (vpSetups[i]->name== MIXINGRATIO){
-      vpSetups[i]->setOn(vpopt->pmixingratio);
+      vpSetups[i]->setChecked(vpopt->pmixingratio);
       vpSetups[i]->setColour(vpopt->mixingratioColour);
       vpSetups[i]->setLinewidth(vpopt->mixingratioLinewidth);
       vpSetups[i]->setLinetype(vpopt->mixingratioLinetype);
     }
     else if (vpSetups[i]->name== PTLABELS){
-      vpSetups[i]->setOn(vpopt->plabelp);
+      vpSetups[i]->setChecked(vpopt->plabelp);
     }
     else if (vpSetups[i]->name== FRAME){
-      vpSetups[i]->setOn(vpopt->pframe);
+      vpSetups[i]->setChecked(vpopt->pframe);
       vpSetups[i]->setColour(vpopt->frameColour);
       vpSetups[i]->setLinewidth(vpopt->frameLinewidth);
       vpSetups[i]->setLinetype(vpopt->frameLinetype);
     }
     else if (vpSetups[i]->name== FLIGHTLEVEL){
-      vpSetups[i]->setOn(vpopt->pflevels);
+      vpSetups[i]->setChecked(vpopt->pflevels);
       vpSetups[i]->setColour(vpopt->flevelsColour);
       vpSetups[i]->setLinewidth(vpopt->flevelsLinewidth1);
       vpSetups[i]->setLinetype(vpopt->flevelsLinetype);
     }
     else if (vpSetups[i]->name== FLIGHTLABEL){
-      vpSetups[i]->setOn(vpopt->plabelflevels);
+      vpSetups[i]->setChecked(vpopt->plabelflevels);
     }
     else if (vpSetups[i]->name== CONDTRAIL){
-      vpSetups[i]->setOn(vpopt->pcotrails);
+      vpSetups[i]->setChecked(vpopt->pcotrails);
       vpSetups[i]->setColour(vpopt->cotrailsColour);
       vpSetups[i]->setLinewidth(vpopt->cotrailsLinewidth);
       vpSetups[i]->setLinetype(vpopt->cotrailsLinetype);
-    }    
+    }
     else if (vpSetups[i]->name== SEPWIND){
-      vpSetups[i]->setOn(vpopt->windseparate);
+      vpSetups[i]->setChecked(vpopt->windseparate);
     }
     else if (vpSetups[i]->name== BACKCOLOUR){
       vpSetups[i]->setColour(vpopt->backgroundColour);
@@ -361,85 +361,85 @@ void VprofSetupDialog::applySetup(){
   int j, n = vpSetups.size();
   for (int i = 0;i<n;i++){
     if (vpSetups[i]->name== TEMP)
-      vpopt->ptttt=vpSetups[i]->isOn();
+      vpopt->ptttt=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== DEWPOINT)
-      vpopt->ptdtd=vpSetups[i]->isOn();
+      vpopt->ptdtd=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== WIND)
-      vpopt->pwind=vpSetups[i]->isOn();
+      vpopt->pwind=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== VERTWIND)
-      vpopt->pvwind=vpSetups[i]->isOn();
+      vpopt->pvwind=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== RELHUM)
-      vpopt->prelhum=vpSetups[i]->isOn();
+      vpopt->prelhum=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== DUCTING)
-      vpopt->pducting=vpSetups[i]->isOn();
+      vpopt->pducting=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== KINDEX)
-      vpopt->pkindex=vpSetups[i]->isOn();
+      vpopt->pkindex=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== SIGNWIND)
-      vpopt->pslwind=vpSetups[i]->isOn();
+      vpopt->pslwind=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== TEXT)
-      vpopt->ptext=vpSetups[i]->isOn();
+      vpopt->ptext=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== GEOPOS)
-      vpopt->pgeotext=vpSetups[i]->isOn();
+      vpopt->pgeotext=vpSetups[i]->isChecked();
     else if (vpSetups[i]->name== PRESSLINES){
-      vpopt->pplines=vpSetups[i]->isOn();
+      vpopt->pplines=vpSetups[i]->isChecked();
       vpopt->pColour=vpSetups[i]->getColour().name;
       vpopt->pLinewidth1=vpSetups[i]->getLinewidth();
       vpopt->pLinetype=vpSetups[i]->getLinetype();
     }
     else if (vpSetups[i]->name== LINEFLIGHT){
-      vpopt->pplinesfl=vpSetups[i]->isOn();
+      vpopt->pplinesfl=vpSetups[i]->isChecked();
     }
     else if (vpSetups[i]->name== TEMPLINES){
-      vpopt->ptlines=vpSetups[i]->isOn();
+      vpopt->ptlines=vpSetups[i]->isChecked();
       vpopt->tColour=vpSetups[i]->getColour().name;
       vpopt->tLinewidth1=vpSetups[i]->getLinewidth();
       vpopt->tLinetype=vpSetups[i]->getLinetype();
     }
     else if (vpSetups[i]->name== DRYADIABATS){
-      vpopt->pdryadiabat=vpSetups[i]->isOn();
+      vpopt->pdryadiabat=vpSetups[i]->isChecked();
       vpopt->dryadiabatColour=vpSetups[i]->getColour().name;
       vpopt->dryadiabatLinewidth=vpSetups[i]->getLinewidth();
       vpopt->dryadiabatLinetype=vpSetups[i]->getLinetype();
     }
     else if (vpSetups[i]->name== WETADIABATS){
-      vpopt->pwetadiabat=vpSetups[i]->isOn();
+      vpopt->pwetadiabat=vpSetups[i]->isChecked();
       vpopt->wetadiabatColour=vpSetups[i]->getColour().name;
       vpopt->wetadiabatLinewidth=vpSetups[i]->getLinewidth();
       vpopt->wetadiabatLinetype=vpSetups[i]->getLinetype();
     }
     else if (vpSetups[i]->name== MIXINGRATIO){
-      vpopt->pmixingratio=vpSetups[i]->isOn();
+      vpopt->pmixingratio=vpSetups[i]->isChecked();
       vpopt->mixingratioColour=vpSetups[i]->getColour().name;
       vpopt->mixingratioLinewidth=vpSetups[i]->getLinewidth();
       vpopt->mixingratioLinetype=vpSetups[i]->getLinetype();
     }
     else if (vpSetups[i]->name== PTLABELS){
-      vpopt->plabelp=vpSetups[i]->isOn();
-      vpopt->plabelt=vpSetups[i]->isOn();
+      vpopt->plabelp=vpSetups[i]->isChecked();
+      vpopt->plabelt=vpSetups[i]->isChecked();
     }
     else if (vpSetups[i]->name== FRAME){
-      vpopt->pframe=vpSetups[i]->isOn();
+      vpopt->pframe=vpSetups[i]->isChecked();
       vpopt->frameColour=vpSetups[i]->getColour().name;
       vpopt->frameLinewidth=vpSetups[i]->getLinewidth();
       vpopt->frameLinetype=vpSetups[i]->getLinetype();
     }
     else if (vpSetups[i]->name== FLIGHTLEVEL){
-      vpopt->pflevels=vpSetups[i]->isOn();
+      vpopt->pflevels=vpSetups[i]->isChecked();
       vpopt->flevelsColour=vpSetups[i]->getColour().name;
       vpopt->flevelsLinewidth1=vpSetups[i]->getLinewidth();
       vpopt->flevelsLinetype=vpSetups[i]->getLinetype();
     }
     else if (vpSetups[i]->name== FLIGHTLABEL){
-      vpopt->plabelflevels=vpSetups[i]->isOn();
+      vpopt->plabelflevels=vpSetups[i]->isChecked();
     }
     else if (vpSetups[i]->name== CONDTRAIL){
-      vpopt->pcotrails=vpSetups[i]->isOn();
+      vpopt->pcotrails=vpSetups[i]->isChecked();
       vpopt->cotrailsColour=vpSetups[i]->getColour().name;
       vpopt->cotrailsLinewidth=vpSetups[i]->getLinewidth();
       vpopt->cotrailsLinetype=vpSetups[i]->getLinetype();
-    }    
+    }
     else if (vpSetups[i]->name== SEPWIND){
-      vpopt->windseparate=vpSetups[i]->isOn();
+      vpopt->windseparate=vpSetups[i]->isChecked();
     }
     else if (vpSetups[i]->name== BACKCOLOUR){
       vpopt->backgroundColour=vpSetups[i]->getColour().name;
@@ -511,7 +511,7 @@ void VprofSetupDialog::printSetup(){
   cerr<< "Number of setups =" << n << endl;
   for (int i = 0;i<n;i++){
     cerr << "Name =" << vpSetups[i]->name;
-    if (vpSetups[i]->isOn()){
+    if (vpSetups[i]->isChecked()){
       cerr << " is on !" << endl;
       ColourInfo sColour = vpSetups[i]->getColour();
       cerr << "    Colour = " << sColour.name << endl;
@@ -574,7 +574,7 @@ void VprofSetupDialog::initDatatab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout(datatab,13);
+  QGridLayout * glayout = new QGridLayout();
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -602,17 +602,29 @@ void VprofSetupDialog::initDatatab(){
 
   //spinbox for pressure and temperature range
   //value of spinLow must not exceed value of spinHigh
-  
+
   QLabel * pressurelabel = new QLabel(QString(PRESSRANGE.cStr()),datatab);
   QLabel * templabel = new QLabel(QString(TEMPRANGE.cStr()),datatab);
   pressurelabel->setAlignment(Qt::AlignLeft);
   templabel->setAlignment(Qt::AlignLeft);
   //pressure range 10-1200, steps of 50, init value 100-1050
-  pressureSpinLow  = new QSpinBox(0,1200,50,datatab);
-  pressureSpinHigh = new QSpinBox(0,1200,50,datatab);
+  pressureSpinLow  = new QSpinBox(datatab);
+  pressureSpinLow->setMinimum(0);
+  pressureSpinLow->setMaximum(1200);
+  pressureSpinLow->setSingleStep(50);
+  pressureSpinHigh = new QSpinBox(datatab);
+  pressureSpinHigh->setMinimum(0);
+  pressureSpinHigh->setMaximum(1200);
+  pressureSpinHigh->setSingleStep(50);
   //temperature range -70-70, steps of 5, init value -30-30
-  temperatureSpinLow = new QSpinBox(-70,70,5,datatab);
-  temperatureSpinHigh = new QSpinBox(-70,70,5,datatab);
+  temperatureSpinLow = new QSpinBox(datatab);
+  temperatureSpinLow->setMinimum(-70);
+  temperatureSpinLow->setMaximum(70);
+  temperatureSpinLow->setSingleStep(5);
+  temperatureSpinHigh = new QSpinBox(datatab);
+  temperatureSpinLow->setMinimum(-70);
+  temperatureSpinLow->setMaximum(70);
+  temperatureSpinLow->setSingleStep(5);
   //standardvalues
   pressureSpinLow->setValue(100);
   pressureSpinHigh->setValue(1050);
@@ -624,14 +636,14 @@ void VprofSetupDialog::initDatatab(){
   temperatureSpinLow->setSuffix("°C");
   temperatureSpinHigh->setSuffix("°C");
 
-  connect(  pressureSpinLow, SIGNAL(valueChanged(int)), 
-	    SLOT( setPressureMin(int)));    
-  connect(  pressureSpinHigh, SIGNAL(valueChanged(int)), 
-	    SLOT( setPressureMax(int)));    
-  connect(  temperatureSpinLow, SIGNAL(valueChanged(int)), 
-	    SLOT( setTemperatureMin(int)));    
-  connect(  temperatureSpinHigh, SIGNAL(valueChanged(int)), 
-	    SLOT( setTemperatureMax(int)));    
+  connect(  pressureSpinLow, SIGNAL(valueChanged(int)),
+	    SLOT( setPressureMin(int)));
+  connect(  pressureSpinHigh, SIGNAL(valueChanged(int)),
+	    SLOT( setPressureMax(int)));
+  connect(  temperatureSpinLow, SIGNAL(valueChanged(int)),
+	    SLOT( setTemperatureMin(int)));
+  connect(  temperatureSpinHigh, SIGNAL(valueChanged(int)),
+	    SLOT( setTemperatureMax(int)));
 
   setPressureMin(pressureSpinLow->value());
   setPressureMax(pressureSpinHigh->value());
@@ -664,7 +676,7 @@ void VprofSetupDialog::initDiagramtab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout(diagramtab,13,4);
+  QGridLayout * glayout = new QGridLayout();
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -744,7 +756,7 @@ void VprofSetupDialog::initColourtab(){
 
   // make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout(colourtab,9,4);
+  QGridLayout * glayout = new QGridLayout();
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 

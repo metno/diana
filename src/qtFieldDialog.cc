@@ -1034,8 +1034,8 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addWidget(extremeSizeSpinBox,   line, 1 );
   advLayout->addWidget(extremeRadiusSpinBox, line, 2 );
   line++;
-  advLayout->setRowStretch(line,5);;
-  advLayout->addMultiCellWidget(line0,    line,line,0,2 );
+  advLayout->setRowStretch(line,5);
+  advLayout->addWidget(line0,    line,0,1,3 );
 
   line++;
   advLayout->addWidget(gridLinesLabel,      line, 0 );
@@ -1055,7 +1055,7 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addWidget(hourDiffSpinBox,      line, 1 );
   line++;
   advLayout->setRowStretch(line,5);;
-  advLayout->addMultiCellWidget(line4,   line,line, 0,2 );
+  advLayout->addWidget(line4,   line,0, 1,3 );
   line++;
   advLayout->addWidget(undefMaskingLabel,   line, 0 );
   advLayout->addWidget(undefMaskingCbox,    line, 1 );
@@ -1065,7 +1065,7 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addWidget(undefLinetypeCbox,   line, 2 );
   line++;
   advLayout->setRowStretch(line,5);;
-  advLayout->addMultiCellWidget(line1,   line,line, 0,3 );
+  advLayout->addWidget(line1,   line,0, 1,4 );
 
   line++;
   advLayout->addWidget(frameCheckBox,       line, 0 );
@@ -1075,11 +1075,11 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addWidget(labelSizeSpinBox,    line, 1 );
   line++;
   advLayout->setRowStretch(line,5);;
-  advLayout->addMultiCellWidget(line2,   line,line, 0,2 );
+  advLayout->addWidget(line2,   line,0, 1,3 );
 
   line++;
   advLayout->addWidget( tableCheckBox,      line, 0 );
-  advLayout->addWidget( repeatCheckBox,  line, 1 );
+  advLayout->addWidget( repeatCheckBox,     line, 1 );
   line++;
   advLayout->addWidget( shadingLabel,       line, 0 );
   advLayout->addWidget( shadingComboBox,    line, 1 );
@@ -1097,7 +1097,7 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addWidget( alphaSpinBox,       line, 1 );
   line++;
   advLayout->setRowStretch(line,5);;
-  advLayout->addMultiCellWidget(line6,   line,line, 0,2 );
+  advLayout->addWidget(line6,   line,0, 1,3 );
 
   line++;
   advLayout->addWidget( baseLabel,          line, 0 );
@@ -1109,10 +1109,10 @@ void FieldDialog::CreateAdvanced() {
   advLayout->addWidget( max1ComboBox,       line, 2 );
   line++;
   advLayout->setRowStretch(line,5);;
-  advLayout->addMultiCellWidget(line3,   line,line, 0,2 );
+  advLayout->addWidget(line3,    line,0,1,3 );
 
   line++;
-  advLayout->addMultiCellWidget(headLabel,line,line,0,1);
+  advLayout->addWidget(headLabel,line,0,1,2);
   line++;
   advLayout->addWidget( colourLabel,        line, 0 );
   advLayout->addWidget( colour2ComboBox,    line, 1 );
@@ -1136,7 +1136,7 @@ void FieldDialog::CreateAdvanced() {
 
   line++;
   advLayout->setRowStretch(line,5);;
-  advLayout->addMultiCellWidget(line5,      line,line, 0,2 );
+  advLayout->addWidget(line5,      line,0, 1,3 );
   line++;
   advLayout->addWidget( threeColourLabel,    line, 0 );
   //  advLayout->addWidget( threeColoursCheckBox, 38, 0 );
@@ -1150,7 +1150,7 @@ void FieldDialog::CreateAdvanced() {
   advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
   advSep->setLineWidth(5);
 
-  QHBoxLayout *hLayout = new QHBoxLayout( advFrame,5,5 );
+  QHBoxLayout *hLayout = new QHBoxLayout( advFrame);
 
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
@@ -3277,7 +3277,7 @@ void FieldDialog::getFieldGroups(const miutil::miString& model,
 
   miutil::miString modelName;
 
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  QApplication::setOverrideCursor( Qt::WaitCursor );
 
   m_ctrl->getFieldGroups(model,modelName,vfg);
 

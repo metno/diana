@@ -32,7 +32,6 @@
 #define _qt_vcrossmainwindow_
 
 #include <QMainWindow>
-#include <qprinter.h>
 #include <qstring.h>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>

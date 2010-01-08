@@ -55,78 +55,78 @@ PaintToolBar::PaintToolBar(QMainWindow *parent)
 
   selectAction = new QAction( QPixmap(paint_select_xpm),tr("&Select"),this );
   selectAction->setShortcut(Qt::Key_1);
-  selectAction->setToggleAction(true);
-  connect( selectAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  selectAction->setCheckable(true);
+  connect( selectAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   drawAction = new QAction( QPixmap(paint_draw_xpm),tr("&Draw"),this );
   drawAction->setShortcut(Qt::Key_2);
-  drawAction->setToggleAction(true);
-  connect( drawAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  drawAction->setCheckable(true);
+  connect( drawAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   includeAction = new QAction( QPixmap(paint_include_xpm),tr("&Include"),this );
   includeAction->setShortcut(Qt::Key_3);
-  includeAction->setToggleAction(true);
-  connect( includeAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  includeAction->setCheckable(true);
+  connect( includeAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   cutAction = new QAction( QPixmap(paint_cut_xpm),tr("&Cut"),this );
   cutAction->setShortcut(Qt::Key_4);
-  cutAction->setToggleAction(true);
-  connect( cutAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  cutAction->setCheckable(true);
+  connect( cutAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   moveAction = new QAction( QPixmap(paint_move_xpm),tr("&Move"),this );
   moveAction->setShortcut(Qt::Key_5);
-  moveAction->setToggleAction(true);
-  connect( moveAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  moveAction->setCheckable(true);
+  connect( moveAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   addPointAction = new QAction( QPixmap(paint_add_point_xpm),tr("&Add Point"),this );
   addPointAction->setShortcut(Qt::Key_6);
-  addPointAction->setToggleAction(true);
-  connect( addPointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  addPointAction->setCheckable(true);
+  connect( addPointAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   removePointAction = new QAction( QPixmap(paint_remove_point_xpm),tr("&Remove Point"),this );
   removePointAction->setShortcut(Qt::Key_7);
-  removePointAction->setToggleAction(true);
-  connect( removePointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  removePointAction->setCheckable(true);
+  connect( removePointAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   movePointAction = new QAction( QPixmap(paint_move_point_xpm),tr("&Move Point"),this );
   movePointAction->setShortcut(Qt::Key_8);
-  movePointAction->setToggleAction(true);
-  connect( movePointAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  movePointAction->setCheckable(true);
+  connect( movePointAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   spatialAction = new QAction( QPixmap(paint_spatial_xpm),tr("&Spatial Interpolation"),this );
   spatialAction->setShortcut(Qt::Key_9);
-  spatialAction->setToggleAction(true);
-  connect( spatialAction, SIGNAL( activated() ), SLOT( sendPaintModeChanged() ) );
+  spatialAction->setCheckable(true);
+  connect( spatialAction, SIGNAL( triggered() ), SLOT( sendPaintModeChanged() ) );
   undoAction = new QAction( QPixmap(paint_undo_xpm),tr("&Undo"),this );
   undoAction->setShortcut(QKeySequence::Undo);
-  connect( undoAction, SIGNAL( activated() ), SIGNAL( undoPressed() ) );
+  connect( undoAction, SIGNAL( triggered() ), SIGNAL( undoPressed() ) );
   redoAction = new QAction( QPixmap(paint_redo_xpm),tr("&Redo"),this );
   redoAction->setShortcut(QKeySequence::Redo);
-  connect( redoAction, SIGNAL( activated() ), SIGNAL( redoPressed() ) );
+  connect( redoAction, SIGNAL( triggered() ), SIGNAL( redoPressed() ) );
   displayHelpAction = new QAction( QPixmap(paint_help_xpm),tr("&Help"),this );
-  connect( displayHelpAction, SIGNAL( activated() ), SLOT( helpPressed() ) );
+  connect( displayHelpAction, SIGNAL( triggered() ), SLOT( helpPressed() ) );
 
   modeActions = new QActionGroup(this);
-  modeActions->add(selectAction);
-  modeActions->add(drawAction);
-  modeActions->add(includeAction);
-  modeActions->add(cutAction);
-  modeActions->add(moveAction);
-  modeActions->add(addPointAction);
-  modeActions->add(removePointAction);
-  modeActions->add(movePointAction);
-  modeActions->add(spatialAction);
+  modeActions->addAction(selectAction);
+  modeActions->addAction(drawAction);
+  modeActions->addAction(includeAction);
+  modeActions->addAction(cutAction);
+  modeActions->addAction(moveAction);
+  modeActions->addAction(addPointAction);
+  modeActions->addAction(removePointAction);
+  modeActions->addAction(movePointAction);
+  modeActions->addAction(spatialAction);
 
-  selectAction->addTo(this);
+  addAction(selectAction);
   addSeparator();
-  drawAction->addTo(this);
-  includeAction->addTo(this);
-  cutAction->addTo(this);
+  addAction(drawAction);
+  addAction(includeAction);
+  addAction(cutAction);
   addSeparator();
-  moveAction->addTo(this);
+  addAction(moveAction);
   addSeparator();
-  addPointAction->addTo(this);
-  removePointAction->addTo(this);
-  movePointAction->addTo(this);
+  addAction(addPointAction);
+  addAction(removePointAction);
+  addAction(movePointAction);
   addSeparator();
-  spatialAction->addTo(this);
+  addAction(spatialAction);
   addSeparator();
-  undoAction->addTo(this);
-  redoAction->addTo(this);
+  addAction(undoAction);
+  addAction(redoAction);
   addSeparator();
-  displayHelpAction->addTo(this);
+  addAction(displayHelpAction);
 
   enableUndo(false);
   enableRedo(false);
@@ -181,41 +181,41 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
 
 void PaintToolBar::setPaintMode(GridAreaManager::PaintMode newMode){
 	if(newMode == GridAreaManager::DRAW_MODE)
-		drawAction->setOn(true);
+		drawAction->setChecked(true);
 	else if(newMode == GridAreaManager::INCLUDE_MODE)
-		includeAction->setOn(true);
+		includeAction->setChecked(true);
 	else if(newMode == GridAreaManager::CUT_MODE)
-		cutAction->setOn(true);
+		cutAction->setChecked(true);
 	else if(newMode == GridAreaManager::MOVE_MODE)
-		moveAction->setOn(true);
+		moveAction->setChecked(true);
   else if(newMode == GridAreaManager::SPATIAL_INTERPOLATION)
-    spatialAction->setOn(true);
+    spatialAction->setChecked(true);
 	else if(newMode == GridAreaManager::SELECT_MODE)
-		selectAction->setOn(true);
+		selectAction->setChecked(true);
   else if(newMode == GridAreaManager::ADD_POINT)
-    addPointAction->setOn(true);
+    addPointAction->setChecked(true);
   else if(newMode == GridAreaManager::REMOVE_POINT)
-    removePointAction->setOn(true);
+    removePointAction->setChecked(true);
   else if(newMode == GridAreaManager::MOVE_POINT)
-    movePointAction->setOn(true);
+    movePointAction->setChecked(true);
 	sendPaintModeChanged();
 }
 
 GridAreaManager::PaintMode PaintToolBar::getPaintMode(){
-	if(includeAction->isOn()) return GridAreaManager::INCLUDE_MODE;
-	else if(cutAction->isOn()) return GridAreaManager::CUT_MODE;
-	else if(moveAction->isOn()) return GridAreaManager::MOVE_MODE;
-	else if(spatialAction->isOn()) return GridAreaManager::SPATIAL_INTERPOLATION;
-	else if(selectAction->isOn()) return GridAreaManager::SELECT_MODE;
-	else if(addPointAction->isOn()) return GridAreaManager::ADD_POINT;
-  else if(removePointAction->isOn()) return GridAreaManager::REMOVE_POINT;
-  else if(movePointAction->isOn()) return GridAreaManager::MOVE_POINT;
+	if(includeAction->isChecked()) return GridAreaManager::INCLUDE_MODE;
+	else if(cutAction->isChecked()) return GridAreaManager::CUT_MODE;
+	else if(moveAction->isChecked()) return GridAreaManager::MOVE_MODE;
+	else if(spatialAction->isChecked()) return GridAreaManager::SPATIAL_INTERPOLATION;
+	else if(selectAction->isChecked()) return GridAreaManager::SELECT_MODE;
+	else if(addPointAction->isChecked()) return GridAreaManager::ADD_POINT;
+  else if(removePointAction->isChecked()) return GridAreaManager::REMOVE_POINT;
+  else if(movePointAction->isChecked()) return GridAreaManager::MOVE_POINT;
 	else return GridAreaManager::DRAW_MODE;
 }
 
 bool PaintToolBar::isPaintEnabled() {
   // Painting is possible whenever draw action is enabled
-  return drawAction->isOn();
+  return drawAction->isChecked();
 }
 
 void PaintToolBar::sendPaintModeChanged(){

@@ -37,6 +37,8 @@
 #include <qtToggleButton.h>
 #include <qlayout.h>
 #include <qfont.h>
+#include <QPrintDialog>
+#include <QPrinter>
 #include <qmotifstyle.h>
 #include <qtUtility.h>
 #include <qtSpectrumWindow.h>
@@ -69,7 +71,7 @@ SpectrumWindow::SpectrumWindow()
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
   //central widget
-  spectrumw= new SpectrumWidget(spectrumm, fmt, this, "Spectrum");
+  spectrumw= new SpectrumWidget(spectrumm, fmt, this);
   setCentralWidget(spectrumw);
   connect(spectrumw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(spectrumw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));
@@ -112,11 +114,8 @@ SpectrumWindow::SpectrumWindow()
   QPushButton * helpButton = NormalPushButton(tr("Help"),this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
-  QToolButton *leftStationButton= new QToolButton(QPixmap(bakover_xpm),
-      tr("previous station"), "",
-      this, SLOT(leftStationClicked()),
-      this, "spSstepB" );
-  leftStationButton->setUsesBigPixmap(false);
+  QPushButton * leftStationButton = new QPushButton(QPixmap(bakover_xpm),"",this);
+  connect(leftStationButton, SIGNAL(clicked()), SLOT(leftStationClicked()) );
   leftStationButton->setAutoRepeat(true);
 
   //combobox to select station
@@ -126,19 +125,12 @@ SpectrumWindow::SpectrumWindow()
   connect( stationBox, SIGNAL( activated(int) ),
       SLOT( stationBoxActivated(int) ) );
 
-  QToolButton *rightStationButton= new QToolButton(QPixmap(forward_xpm),
-      tr("next station"), "",
-      this, SLOT(rightStationClicked()),
-      this, "spSstepF" );
-  rightStationButton->setUsesBigPixmap(false);
+  QPushButton *rightStationButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  connect(rightStationButton, SIGNAL(clicked()), SLOT(rightStationClicked()) );
   rightStationButton->setAutoRepeat(true);
 
-  QToolButton *leftTimeButton= new QToolButton(QPixmap(bakover_xpm),
-      tr("previous timestep"), "",
-      this, SLOT(leftTimeClicked()),
-      this, "spTstepB" );
-
-  leftTimeButton->setUsesBigPixmap(false);
+  QPushButton *leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  connect(leftTimeButton, SIGNAL(clicked()), SLOT(leftTimeClicked()) );
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
@@ -148,11 +140,8 @@ SpectrumWindow::SpectrumWindow()
   connect( timeBox, SIGNAL( activated(int) ),
       SLOT( timeBoxActivated(int) ) );
 
-  QToolButton *rightTimeButton= new QToolButton(QPixmap(forward_xpm),
-      tr("next timestep"), "",
-      this, SLOT(rightTimeClicked()),
-      this, "spTstepF" );
-  rightTimeButton->setUsesBigPixmap(false);
+  QPushButton *rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
 
   spToolbar->addWidget(modelButton);
@@ -260,13 +249,13 @@ bool SpectrumWindow::timeChangedSlot(int diff)
 #ifdef DEBUGPRINT
   cerr << "timeChangedSlot(int) is called " << endl;
 #endif
-  int index=timeBox->currentItem();
+  int index=timeBox->currentIndex();
   while(diff<0){
     if(--index < 0) {
       //set index to the last in the box !
       index=timeBox->count()-1;
     }
-    timeBox->setCurrentItem(index);
+    timeBox->setCurrentIndex(index);
     diff++;
   }
   while(diff>0){
@@ -274,7 +263,7 @@ bool SpectrumWindow::timeChangedSlot(int diff)
       //set index to the first in the box !
       index=0;
     }
-    timeBox->setCurrentItem(index);
+    timeBox->setCurrentIndex(index);
     diff--;
   }
   miutil::miTime t = spectrumm->getTime();
@@ -285,8 +274,8 @@ bool SpectrumWindow::timeChangedSlot(int diff)
     //search timeList
     int n = timeBox->count();
     for (int i = 0; i<n;i++){
-      if(tstring ==timeBox->text(i).toStdString()){
-        timeBox->setCurrentItem(i);
+      if(tstring ==timeBox->itemText(i).toStdString()){
+        timeBox->setCurrentIndex(i);
         tbs=timeBox->currentText().toStdString();
         break;
       }
@@ -319,13 +308,13 @@ bool SpectrumWindow::stationChangedSlot(int diff)
 #ifdef DEBUGPRINT
   cerr << "stationChangedSlot(int) is called " << endl;
 #endif
-  int index=stationBox->currentItem();
+  int index=stationBox->currentIndex();
   while(diff<0){
     if(--index < 0) {
       //set index to the last in the box !
       index=stationBox->count()-1;
     }
-    stationBox->setCurrentItem(index);
+    stationBox->setCurrentIndex(index);
     diff++;
   }
   while(diff>0){
@@ -333,7 +322,7 @@ bool SpectrumWindow::stationChangedSlot(int diff)
       //set index to the first in the box !
       index=0;
     }
-    stationBox->setCurrentItem(index);
+    stationBox->setCurrentIndex(index);
     diff--;
   }
   //get current station
@@ -345,8 +334,8 @@ bool SpectrumWindow::stationChangedSlot(int diff)
   if (sbs!=s){
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
-      if (s==stationBox->text(i).toStdString()){
-        stationBox->setCurrentItem(i);
+      if (s==stationBox->itemText(i).toStdString()){
+        stationBox->setCurrentIndex(i);
         sbs=miutil::miString(stationBox->currentText().toStdString());
         break;
       }
@@ -360,8 +349,8 @@ bool SpectrumWindow::stationChangedSlot(int diff)
     //    cerr << "WARNING! stationChangedSlot  station from spectrumm ="
     // 	 << s    <<" not equal to stationBox text = " << sbs << endl;
     //current or last station plotted is not in the list, insert it...
-    stationBox->insertItem(sq,0);
-    stationBox->setCurrentItem(0);
+    stationBox->insertItem(0,sq);
+    stationBox->setCurrentIndex(0);
     return false;
   }
 }
@@ -376,8 +365,9 @@ void SpectrumWindow::printClicked()
   QPrinter qprt;
   fromPrintOption(qprt,priop);
 
-  if (qprt.setup(this)){
-    if (qprt.outputToFile()) {
+  QPrintDialog printerDialog(&qprt, this);
+  if (printerDialog.exec()) {
+    if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else if (command.substr(0,4)=="lpr ") {
       priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
@@ -395,7 +385,7 @@ void SpectrumWindow::printClicked()
     toPrintOption(qprt, priop);
 
     // start the postscript production
-    QApplication::setOverrideCursor( Qt::waitCursor );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
 
     spectrumm->startHardcopy(priop);
     spectrumw->updateGL();
@@ -403,7 +393,7 @@ void SpectrumWindow::printClicked()
     spectrumw->updateGL();
 
     // if output to printer: call appropriate command
-    if (!qprt.outputToFile()){
+    if (!qprt.outputFileName().isNull()){
       priop.numcopies= qprt.numCopies();
 
       // expand command-variables
@@ -452,7 +442,7 @@ void SpectrumWindow::saveClicked()
 
 void SpectrumWindow::makeEPS(const miutil::miString& filename)
 {
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  QApplication::setOverrideCursor( Qt::WaitCursor );
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -500,8 +490,8 @@ void SpectrumWindow::quitClicked()
   //for now, only hide window, not really quit !
   spToolbar->hide();
   tsToolbar->hide();
-  modelButton->setOn(false);
-  setupButton->setOn(false);
+  modelButton->setChecked(false);
+  setupButton->setChecked(false);
 
   /*****************************************************************
   // cleanup selections in dialog and data in memory
@@ -590,7 +580,7 @@ void SpectrumWindow::hideModel()
   cerr << "SpectrumWindow::hideModel()" << endl;
 #endif
   spModelDialog->hide();
-  modelButton->setOn(false);
+  modelButton->setChecked(false);
 }
 
 
@@ -601,7 +591,7 @@ void SpectrumWindow::hideSetup()
   cerr << "SpectrumWindow::hideSetup()" << endl;
 #endif
   spSetupDialog->hide();
-  setupButton->setOn(false);
+  setupButton->setChecked(false);
 }
 
 

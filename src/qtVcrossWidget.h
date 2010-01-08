@@ -56,7 +56,7 @@ class VcrossWidget : public QGLWidget
 
 public:
   VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-	       QWidget* parent = 0, const char* name = 0 );
+	       QWidget* parent = 0 );
   ~VcrossWidget();
 
   void initializeGL();

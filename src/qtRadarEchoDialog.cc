@@ -101,8 +101,7 @@ RadarEchoDialog::RadarEchoDialog( QWidget* parent, Controller* llctrl )
 
   //push button to print pos
   QPushButton * print = NormalPushButton( tr("Print"), this);
-  QToolTip::add( print,
-		 tr("Print calc. positions to file: trajectory.txt") );
+  print->setToolTip(tr("Print calc. positions to file: trajectory.txt") );
   connect(  print, SIGNAL(clicked()), SLOT( printClicked()));
   print->hide();
 
@@ -409,7 +408,6 @@ void RadarEchoDialog::calculateVelocity() {
 
   //ask for new fields
   vector<miutil::miString> fields = contr->getRadarEchoFields();
-  int nr_fields=fields.size();
   miutil::miString fName;
 
   //send field name to TrajectoryPlot
@@ -644,7 +642,7 @@ void RadarEchoDialog::showplus(){
 #endif
   this->show();
 
-  if(  posButton->isOn() )
+  if(  posButton->isChecked() )
     emit markRadePos(true);
 
   ostringstream ss;

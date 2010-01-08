@@ -130,19 +130,19 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   // ************ place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout(5);
+  QHBoxLayout* hlayout1 = new QHBoxLayout();
   hlayout1->addWidget(modelhelp);
   hlayout1->addWidget(deleteAll);
   hlayout1->addWidget(refresh);
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout(5);
+  QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget(modelhide);
   hlayout2->addWidget(modelapplyhide);
   hlayout2->addWidget(modelapply);
 
   //create a vertical layout to put all widgets and layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout(this, 5, 5);
+  QVBoxLayout * vlayout = new QVBoxLayout(this);
   vlayout->addLayout(modelfileLayout);
   vlayout->addWidget(modelfileList);
   vlayout->addLayout(hlayout1);

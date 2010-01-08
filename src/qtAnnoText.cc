@@ -50,33 +50,36 @@
 /*********************************************/
 AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodname,
     vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText)
-: QDialog(parent,"annotations",true), m_ctrl(llctrl)
+: QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
       cout<<"AnnoText::AnnoText called"<<endl;
 #endif
 
+      setModal(true);
       productname=prodname;
       miutil::miString caption=productname+tr(":Write text").toStdString();
       setWindowTitle(caption.c_str());
 
       //horizontal layout for holding grid layouts
-      QHBoxLayout * hglayout = new QHBoxLayout(20, "hglayout");
+      QHBoxLayout * hglayout = new QHBoxLayout();
       //grid layouts
       int ns = symbolText.size();
       if (ns){
-        QGridLayout* glayout = new QGridLayout(ns,2,5,"symbol");
+        QGridLayout* glayout = new QGridLayout();
         hglayout->addLayout(glayout, 0);
 
         for (int i=0;i<ns;i++){
           miutil::miString ltext="Text"+miutil::miString(i+1);
           QString labeltext=ltext.c_str();
-          QLabel* namelabel= new QLabel(labeltext, this,"textlabel") ;
+          QLabel* namelabel= new QLabel(labeltext, this) ;
 
-          QComboBox * text = new QComboBox(TRUE,this,"text");
+          QComboBox * text = new QComboBox(this);
+          text->setEditable(true);
+
           text->setMinimumWidth(150);
 
-          text->setCurrentText(symbolText[i].c_str());
+          text->addItem(symbolText[i].c_str());
           text->lineEdit()->deselect();
           connect(text->lineEdit(),
               SIGNAL(selectionChanged()),SLOT(textSelected()));
@@ -89,7 +92,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
         }
       }
 
-      quitb= new QPushButton(tr("Exit"),this, "quitb");
+      quitb= new QPushButton(tr("Exit"),this);
       connect(quitb, SIGNAL(clicked()), SLOT(stop()));
 
       int width  = quitb->sizeHint().width();
@@ -99,11 +102,11 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
       quitb->setMaximumSize( width, height );
 
       // buttons layout
-      QHBoxLayout * hlayout = new QHBoxLayout(20, "hlayout");
+      QHBoxLayout * hlayout = new QHBoxLayout();
       hlayout->addWidget(quitb, 10);
 
       //now create a vertical layout to put all the other layouts in
-      QVBoxLayout * vlayout = new QVBoxLayout( this, 10, 10 );
+      QVBoxLayout * vlayout = new QVBoxLayout( this);
       vlayout->addLayout(hglayout, 0);
       vlayout->addLayout(hlayout,0);
 
@@ -152,14 +155,14 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
       } else if(e->key()==Qt::Key_PageDown){
         m_ctrl->editNextAnnoElement();
         miutil::miString text=m_ctrl->getMarkedAnnotation();
-        if (vSymbolEdit.size()) vSymbolEdit[0]->setCurrentText(text.c_str());
+        if (vSymbolEdit.size()) vSymbolEdit[0]->setItemText(0,text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();
         }
       } else if(e->key()==Qt::Key_PageUp){
         m_ctrl->editLastAnnoElement();
         miutil::miString text=m_ctrl->getMarkedAnnotation();
-        if (vSymbolEdit.size()) vSymbolEdit[0]->setCurrentText(text.c_str());
+        if (vSymbolEdit.size()) vSymbolEdit[0]->setItemText(0,text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();
         }

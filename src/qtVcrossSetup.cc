@@ -88,7 +88,7 @@ VcrossSetup::VcrossSetup( QWidget* parent, miutil::miString text,
     checkbox = new QCheckBox(text.c_str(),parent);
     label= 0;
     glayout->addWidget(checkbox,row,ncol);
-    connect( checkbox, SIGNAL( toggled(bool)), SLOT( setOn( bool) ));
+    connect( checkbox, SIGNAL( toggled(bool)), SLOT( setChecked( bool) ));
     ncol++;
   } else{
     checkbox= 0;
@@ -165,7 +165,7 @@ VcrossSetup::VcrossSetup( QWidget* parent, miutil::miString text,
 }
 
 
-void VcrossSetup::setOn(bool on)
+void VcrossSetup::setChecked(bool on)
 {
   if (checkbox)               checkbox->setChecked(on);
   if (colourbox)             colourbox->setEnabled(on);
@@ -179,7 +179,7 @@ void VcrossSetup::setOn(bool on)
 }
 
 
-bool VcrossSetup::isOn()
+bool VcrossSetup::isChecked()
 {
   if (checkbox && checkbox->isChecked())
     return true;
@@ -191,7 +191,7 @@ Colour::ColourInfo VcrossSetup::getColour()
 {
   Colour::ColourInfo sColour;
   if (colourbox){
-    int index = colourbox->currentItem();
+    int index = colourbox->currentIndex();
     sColour = m_cInfo[index];
   }
   return sColour;
@@ -203,7 +203,7 @@ void VcrossSetup::setColour(const miutil::miString& colourString)
   int nr_colours = m_cInfo.size();
   for (int i = 0;i<nr_colours;i++){
     if (colourString==m_cInfo[i].name){
-      if (colourbox && i<colourbox->count()) colourbox->setCurrentItem(i);
+      if (colourbox && i<colourbox->count()) colourbox->setCurrentIndex(i);
       break;
     }
   }
@@ -216,7 +216,7 @@ void VcrossSetup::setLinetype(const miutil::miString& linetype)
     int index= 0;
     while (index<nr_linetypes && linetypes[index]!=linetype) index++;
     if (index==nr_linetypes) index= 0;
-    linetypebox->setCurrentItem(index);
+    linetypebox->setCurrentIndex(index);
   }
 }
 
@@ -225,7 +225,7 @@ miutil::miString VcrossSetup::getLinetype()
 {
   miutil::miString sString;
   if (linetypebox) {
-    int index = linetypebox->currentItem();
+    int index = linetypebox->currentIndex();
     sString = linetypes[index];
   }
   return sString;
@@ -238,7 +238,7 @@ void VcrossSetup::setLinewidth(float linew)
     int index = int(linew - 1.0);
     if (index<0) index= 0;
     if (index>=nr_linewidths) index= nr_linewidths-1;
-    linewidthbox->setCurrentItem(index);
+    linewidthbox->setCurrentIndex(index);
   }
 }
 
@@ -247,7 +247,7 @@ float VcrossSetup::getLinewidth()
 {
   float linew= 1.;
   if (linewidthbox)
-    linew= linewidthbox->currentItem() + 1.0;
+    linew= linewidthbox->currentIndex() + 1.0;
   return linew;
 }
 
@@ -257,9 +257,9 @@ void VcrossSetup::defineValue(int low, int high, int step, int value,
 			      const miutil::miString& suffix)
 {
   if (valuespinbox) {
-    valuespinbox->setMinValue(low);
-    valuespinbox->setMaxValue(high);
-    valuespinbox->setLineStep(step);
+    valuespinbox->setMinimum(low);
+    valuespinbox->setMaximum(high);
+    valuespinbox->setSingleStep(step);
     valuespinbox->setValue(value);
     if (prefix.exists())
       valuespinbox->setPrefix(QString(prefix.cStr()));
@@ -291,9 +291,9 @@ void VcrossSetup::defineMinValue(int low, int high, int step, int value,
 			         const miutil::miString& suffix)
 {
   if (minvaluespinbox) {
-    minvaluespinbox->setMinValue(low);
-    minvaluespinbox->setMaxValue(high);
-    minvaluespinbox->setLineStep(step);
+    minvaluespinbox->setMinimum(low);
+    minvaluespinbox->setMaximum(high);
+    minvaluespinbox->setSingleStep(step);
     minvaluespinbox->setValue(value);
     if (prefix.exists())
       minvaluespinbox->setPrefix(QString(prefix.cStr()));
@@ -325,9 +325,9 @@ void VcrossSetup::defineMaxValue(int low, int high, int step, int value,
 			         const miutil::miString& suffix)
 {
   if (maxvaluespinbox) {
-    maxvaluespinbox->setMinValue(low);
-    maxvaluespinbox->setMaxValue(high);
-    maxvaluespinbox->setLineStep(step);
+    maxvaluespinbox->setMinimum(low);
+    maxvaluespinbox->setMaximum(high);
+    maxvaluespinbox->setSingleStep(step);
     maxvaluespinbox->setValue(value);
     if (prefix.exists())
       maxvaluespinbox->setPrefix(QString(prefix.cStr()));
@@ -387,9 +387,9 @@ void VcrossSetup::defineTextChoice(const vector<miutil::miString>& vchoice, int 
     }
     textchoicebox->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
-      textchoicebox->setCurrentItem(ndefault);
+      textchoicebox->setCurrentIndex(ndefault);
     else
-      textchoicebox->setCurrentItem(0);
+      textchoicebox->setCurrentIndex(0);
   }
 }
 
@@ -403,9 +403,9 @@ void VcrossSetup::defineTextChoice2(const vector<miutil::miString>& vchoice, int
       textchoicebox2->addItem(QString(vTextChoice2[i].cStr()));
     textchoicebox2->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
-      textchoicebox2->setCurrentItem(ndefault);
+      textchoicebox2->setCurrentIndex(ndefault);
     else
-      textchoicebox2->setCurrentItem(0);
+      textchoicebox2->setCurrentIndex(0);
   }
 }
 
@@ -418,7 +418,7 @@ void VcrossSetup::setTextChoice(const miutil::miString& choice)
     int i= 0;
     while (i<m && t!=vTextChoice[i].downcase()) i++;
     if (i==m) i=0;
-    textchoicebox->setCurrentItem(i);
+    textchoicebox->setCurrentIndex(i);
   }
 }
 
@@ -426,7 +426,7 @@ void VcrossSetup::setTextChoice(const miutil::miString& choice)
 miutil::miString VcrossSetup::getTextChoice()
 {
   if (textchoicebox) {
-    int i= textchoicebox->currentItem();
+    int i= textchoicebox->currentIndex();
     if (i<0 || i>=int(vTextChoice.size())) i=0;
     return vTextChoice[i];
   } else
@@ -441,7 +441,7 @@ void VcrossSetup::setTextChoice2(const miutil::miString& choice)
     int i= 0;
     while (i<m && t!=vTextChoice2[i].downcase()) i++;
     if (i==m) i=0;
-    textchoicebox2->setCurrentItem(i);
+    textchoicebox2->setCurrentIndex(i);
   }
 }
 
@@ -449,7 +449,7 @@ void VcrossSetup::setTextChoice2(const miutil::miString& choice)
 miutil::miString VcrossSetup::getTextChoice2()
 {
   if (textchoicebox2) {
-    int i= textchoicebox2->currentItem();
+    int i= textchoicebox2->currentIndex();
     if (i<0 || i>=int(vTextChoice2.size())) i=0;
     return vTextChoice2[i];
   } else

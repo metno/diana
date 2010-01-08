@@ -140,15 +140,15 @@ void MailDialog::accept()
 	//--- Mail header ---
 	fprintf(sendmail,"MIME-Version: 1.0\n");
 	fprintf(sendmail,"From: diana_noreply@met.no\n");
-	fprintf(sendmail,"To: %s\n", (const char *)eToEdit->text());
-	fprintf(sendmail,"Cc: %s\n", (const char *)eCcEdit->text());
-	fprintf(sendmail,"Subject: %s\n", (const char *)eSubjectEdit->text());
+	fprintf(sendmail,"To: %s\n", eToEdit->text().toStdString().c_str());
+	fprintf(sendmail,"Cc: %s\n", eCcEdit->text().toStdString().c_str());
+	fprintf(sendmail,"Subject: %s\n", eSubjectEdit->text().toStdString().c_str());
 	fprintf(sendmail,"Content-Type: multipart/mixed; boundary=\"diana_auto_generated\"\n\n"),
 	fprintf(sendmail,"This is a multi-part, MIME format, message.\n");
 	//--- Mail body ---
 	fprintf(sendmail,"--diana_auto_generated\n");
 	fprintf(sendmail,"Content-type: text/plain\n\n");
-	fprintf(sendmail,"%s\n\n", (const char *)eTextEdit->text());
+	fprintf(sendmail,"%s\n\n", eTextEdit->toPlainText().toStdString().c_str());
 	//--- Mail attachments ---
 	fprintf(sendmail,"--diana_auto_generated\n");
 	fprintf(sendmail,"Content-type: image/png; name=\"diana.png\"\n");

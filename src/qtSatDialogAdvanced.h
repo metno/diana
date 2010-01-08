@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -51,15 +51,15 @@ class QLCDNumber;
 
 /**
 
-  \brief Advanced dialogue for plotting satellite and radar pictures 
-   
+  \brief Advanced dialogue for plotting satellite and radar pictures
+
       displayed when more>> is pressed in satellite dialog. colour cuts, alpha value etc.
 
 
 */
 class SatDialogAdvanced: public QWidget
 {
-   Q_OBJECT 
+   Q_OBJECT
 
 public:
    SatDialogAdvanced( QWidget* parent,  SatDialogInfo info);
@@ -76,17 +76,17 @@ public:
  // true if selected picture is palette file
   bool palette;
   /// true if colourcut button pressed
-  bool colourCutOn(){return (colourcut->isOn());}
+  bool colourCutOn(){return (colourcut->isChecked());}
 
 protected:
   ///called when the dialog is closed by the window manager
   void closeEvent( QCloseEvent* );
 
 signals:
-  /// emit when close selected 
+  /// emit when close selected
   void SatHide();
   ///emitted when dialog changed
-  void SatChanged(); 
+  void SatChanged();
   ///emitted when colourcut clicked
   void getSatColours();
 
@@ -105,12 +105,12 @@ public slots:
   void setStandard();
   void setOff();
 
-    
+
 private:
   float m_cutscale;
   float m_alphacutscale;
   float m_alphascale;
-   
+
   float m_cutnr;
   float m_alphacutnr;
   float m_alphanr;
@@ -146,4 +146,4 @@ private:
 #endif
 
 
-  
+

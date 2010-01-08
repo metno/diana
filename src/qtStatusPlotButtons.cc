@@ -27,16 +27,14 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #include <qtStatusPlotButtons.h>
 
 #include <QToolTip>
 #include <QLabel>
-//#include <QScrollArea>
 #include <QHBoxLayout>
 #include <QFocusEvent>
-#include <QFrame>
 #include <QKeyEvent>
 #include <QImage>
 #include <QPixmap>
@@ -51,8 +49,8 @@ static bool oktoemit;
 
 
 PlotButton::PlotButton(QWidget * parent,
-		       PlotElement& pe)
-  : QToolButton(parent)
+    PlotElement& pe)
+: QToolButton(parent)
 {
   setMinimumWidth(30);
 
@@ -60,7 +58,8 @@ PlotButton::PlotButton(QWidget * parent,
 
   connect(this,SIGNAL(toggled(bool)),SLOT(togg(bool)));
 
-  origcolor_= paletteBackgroundColor();
+  origcolor_= palette().color(backgroundRole());
+
 }
 
 void PlotButton::setPlotElement(const PlotElement& pe)
@@ -71,22 +70,21 @@ void PlotButton::setPlotElement(const PlotElement& pe)
     if (plotelement_.icon!=pe.icon ){
       QImage image;
       if(ig.Image(pe.icon,image)){
-	QPixmap p(image);
-	setPixmap(p);
+        setIcon(QPixmap::fromImage(image));
       } else {
-	setPixmap(question_xpm);
+        setIcon(QIcon(question_xpm));
       }
     }
   } else {
-    setPixmap(question_xpm);
+    setIcon(QIcon(question_xpm));
   }
 
   plotelement_= pe;
 
   tipstr_= QString(str.cStr());
-  QToolTip::add(this, tipstr_);
-  setToggleButton(true);
-  setOn(plotelement_.enabled);
+  setToolTip(tipstr_);
+  setCheckable(true);
+  setChecked(plotelement_.enabled);
 }
 
 void PlotButton::togg(bool b)
@@ -98,48 +96,43 @@ void PlotButton::togg(bool b)
 
 void PlotButton::highlight(bool b)
 {
+
+  QPalette pal(palette());
+  QPalette::ColorRole role(backgroundRole());
   if (b){
-    setPaletteBackgroundColor(origcolor_.dark(200));
+    QColor color(origcolor_.dark(200));
+    pal.setColor(role, color);
   } else {
-    setPaletteBackgroundColor(origcolor_);
+    QColor color(origcolor_);
+    pal.setColor(role, color);
   }
+  setPalette(pal);
 }
 
 
 StatusPlotButtons::StatusPlotButtons(QWidget* parent)
-  : QWidget(parent), numbuttons(0), activebutton(0) {
-  setMaximumHeight(35);
-
-//   sv = new QScrollArea(this);
-//   sv->setFrameStyle(QFrame::NoFrame);
-
-//   QWidget *w= new QWidget(this);
-//   sv->setWidget(w);
-
-//   sv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-//   sv->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+: QWidget(parent), numbuttons(0), activebutton(0) {
 
   PlotElement pe;
   pe.enabled= true;
   oktoemit= false;
 
-  QHBoxLayout* hl= new QHBoxLayout(this,0); // parent,margin
+  QHBoxLayout* hl= new QHBoxLayout(this); // parent,margin
+  hl->setMargin(1);
   for (int i=0; i<MAXBUTTONS; i++){
-//     buttons[i] = new PlotButton(w, pe);
     buttons[i] = new PlotButton(this, pe);
     connect(buttons[i], SIGNAL(enabled(PlotElement)),
-	    this, SLOT(enabled(PlotElement)));
+        this, SLOT(enabled(PlotElement)));
     hl->addWidget(buttons[i]);
   }
 
   showtip= new QMenu(this);
-  showtip->setPaletteBackgroundColor(QColor(255,250,205));
 
   //Action
   plotButtonsAction = new QAction( this );
   plotButtonsAction->setShortcutContext(Qt::ApplicationShortcut);
   plotButtonsAction->setShortcut(Qt::Key_End);
-  connect( plotButtonsAction, SIGNAL( activated() ),SLOT(setfocus()));
+  connect( plotButtonsAction, SIGNAL( triggered() ),SLOT(setfocus()));
   addAction( plotButtonsAction );
 
 
@@ -149,7 +142,7 @@ void StatusPlotButtons::calcTipPos()
 {
   int fx= x()+width();
   int bx= x()+(numbuttons>0 ? buttons[numbuttons-1]->x() +
-	       buttons[numbuttons-1]->width() : 0);
+      buttons[numbuttons-1]->width() : 0);
 
   int tx= (fx < bx ? fx : bx) + 10;
   int ty= y() + 5;
@@ -174,7 +167,6 @@ void StatusPlotButtons::showText(const QString& s)
   showtip->popup(tip_pos);
 
   showtip->clear();
-  showtip->insertItem(s);
 }
 
 void StatusPlotButtons::showActiveButton(bool b)
@@ -198,7 +190,7 @@ void StatusPlotButtons::releasefocus()
 void StatusPlotButtons::keyPressEvent ( QKeyEvent * e )
 {
   // no modifiers recognized here
-  if (e->state() != Qt::NoButton){
+  if (e->modifiers() != Qt::NoButton){
     releasefocus();
     e->ignore();
     return;
@@ -240,7 +232,7 @@ void StatusPlotButtons::reset()
 {
   oktoemit= true;
   for (int i=0; i<numbuttons; i++){
-    if (!buttons[i]->isOn()){
+    if (!buttons[i]->isChecked()){
       buttons[i]->toggle();
       buttons[i]->setDown(true);
     }

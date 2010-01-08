@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -44,12 +44,12 @@ class QMenu;
 class QFocusEvent;
 class QKeyEvent;
 
-using namespace std; 
+using namespace std;
 
 
 /**
    \brief Data layer button
-   
+
    One PlotButton for each data layer on the map, for quick toggle of layer
 
 */
@@ -58,7 +58,7 @@ class PlotButton : public QToolButton {
   Q_OBJECT
 public:
   PlotButton(QWidget * parent, PlotElement& pe);
-  
+
   /// Link this button to a specific PlotElement
   void setPlotElement(const PlotElement& pe);
   /// Return PlotElement for this button
@@ -82,7 +82,7 @@ signals:
 
 /**
    \brief Row of PlotButton
-   
+
    Resides in status bar, gives quick access to enable/disable plotting a specific data layer.
 
 */
@@ -91,7 +91,7 @@ class StatusPlotButtons : public QWidget {
   Q_OBJECT
 public:
   StatusPlotButtons(QWidget* parent = 0);
-  
+
 public slots:
   /// add several buttons
   void setPlotElements(const vector<PlotElement>& vpe);

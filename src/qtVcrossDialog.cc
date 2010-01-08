@@ -335,7 +335,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // lineinterval
   lineintervallabel= new QLabel( tr("Line interval"), this );
-  lineintervalCbox=  new QComboBox( false, this );
+  lineintervalCbox=  new QComboBox( this );
   lineintervalCbox->setEnabled( false );
 
   connect( lineintervalCbox, SIGNAL( activated(int) ),
@@ -343,7 +343,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // density
   densitylabel= new QLabel( tr("Density"), this );
-  densityCbox=  new QComboBox( false, this );
+  densityCbox=  new QComboBox( this );
   densityCbox->setEnabled( false );
 
   connect( densityCbox, SIGNAL( activated(int) ),
@@ -351,7 +351,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // vectorunit
   vectorunitlabel= new QLabel( tr("Unit"), this );
-  vectorunitCbox=  new QComboBox( false, this );
+  vectorunitCbox=  new QComboBox(this );
   vectorunitCbox->setEnabled( false );
 
   connect( vectorunitCbox, SIGNAL( activated(int) ),
@@ -375,12 +375,12 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   allTimeStepButton = 0;
   //allTimeStepButton = NormalPushButton( tr("All times"), this );
   //allTimeStepButton->setToggleButton(true);
-  //allTimeStepButton->setOn(false);
+  //allTimeStepButton->setChecked(false);
 
   // advanced
   miutil::miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
   advanced= new ToggleButton( this, more_str);
-  advanced->setOn(false);
+  advanced->setChecked(false);
   connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
 
   // hide
@@ -396,7 +396,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   connect( fieldapply, SIGNAL(clicked()), SLOT( applyClicked()));
 
   // layout
-  QVBoxLayout* v1layout = new QVBoxLayout( 5 );
+  QVBoxLayout* v1layout = new QVBoxLayout();
   v1layout->addWidget( modellabel );
   v1layout->addWidget( modelbox );
   v1layout->addSpacing( 5 );
@@ -406,38 +406,38 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   v1layout->addWidget( selectedFieldlabel );
   v1layout->addWidget( selectedFieldbox );
 
-  QVBoxLayout* h2layout= new QVBoxLayout( 2 );
+  QVBoxLayout* h2layout= new QVBoxLayout();
   h2layout->addWidget( upFieldButton );
   h2layout->addWidget( downFieldButton );
   h2layout->addWidget( resetOptionsButton );
   h2layout->addStretch(1);
 
-  QHBoxLayout* v1h4layout = new QHBoxLayout( 2 );
+  QHBoxLayout* v1h4layout = new QHBoxLayout();
   v1h4layout->addWidget( Delete );
   v1h4layout->addWidget( copyField );
 
-  QHBoxLayout* vxh4layout = new QHBoxLayout( 2 );
+  QHBoxLayout* vxh4layout = new QHBoxLayout();
   vxh4layout->addWidget( deleteAll );
   vxh4layout->addWidget( changeModelButton );
 
-  QVBoxLayout* v3layout= new QVBoxLayout( 2 );
+  QVBoxLayout* v3layout= new QVBoxLayout();
   v3layout->addLayout( v1h4layout );
   v3layout->addLayout( vxh4layout );
 
-  QHBoxLayout* v1h5layout= new QHBoxLayout( 2 );
+  QHBoxLayout* v1h5layout= new QHBoxLayout();
   v1h5layout->addWidget( historyBackButton );
   v1h5layout->addWidget( historyForwardButton );
 
-  QVBoxLayout* v4layout= new QVBoxLayout( 2 );
+  QVBoxLayout* v4layout= new QVBoxLayout();
   v4layout->addLayout( v1h5layout );
   v4layout->addWidget( historyOkButton, 1 );
 
-  QHBoxLayout* h3layout= new QHBoxLayout( 2 );
+  QHBoxLayout* h3layout= new QHBoxLayout();
   h3layout->addLayout( v3layout );
   h3layout->addLayout( v4layout );
 
   //optlayout = new QGridLayout( 7, 2, 1 );
-  QGridLayout* optlayout = new QGridLayout( 6, 2, 1 );
+  QGridLayout* optlayout = new QGridLayout();
   optlayout->addWidget( colorlabel,       0, 0 );
   optlayout->addWidget( colorCbox,        0, 1 );
   optlayout->addWidget( linewidthlabel,   1, 0 );
@@ -453,30 +453,27 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //optlayout->addWidget( extremeTypeLabel, 6, 0 );
   //optlayout->addWidget( extremeTypeCbox,  6, 1 );
 
-  QHBoxLayout* h4layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h4layout = new QHBoxLayout();
   h4layout->addLayout( h2layout );
   h4layout->addLayout( optlayout );
 
-  QHBoxLayout* h5layout = new QHBoxLayout( 2 );
+  QHBoxLayout* h5layout = new QHBoxLayout();
   h5layout->addWidget( fieldhelp );
   //h5layout->addWidget( allTimeStepButton );
   h5layout->addWidget( advanced );
 
-  QHBoxLayout* h6layout = new QHBoxLayout( 2 );
+  QHBoxLayout* h6layout = new QHBoxLayout();
   h6layout->addWidget( fieldhide );
   h6layout->addWidget( fieldapplyhide );
   h6layout->addWidget( fieldapply );
 
-  QVBoxLayout* v6layout= new QVBoxLayout( 2 );
+  QVBoxLayout* v6layout= new QVBoxLayout();
   v6layout->addLayout( h5layout );
   v6layout->addLayout( h6layout );
 
   // vlayout
-#ifdef DISPLAY1024X768
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5 );
-#else
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 10, 10 );
-#endif
+  QVBoxLayout* vlayout = new QVBoxLayout( this );
+
   vlayout->addLayout( v1layout );
   vlayout->addLayout( h3layout );
   vlayout->addLayout( h4layout );
@@ -505,17 +502,17 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
 void VcrossDialog::toolTips()
 {
-  QToolTip::add( upFieldButton,        tr("move selected field up"));
-  QToolTip::add( downFieldButton,      tr("move selected field down" ));
-  QToolTip::add( Delete,               tr("remove selected field"));
-  QToolTip::add( deleteAll,            tr("remove all selected fields") );
-  QToolTip::add( copyField,            tr("copy field") );
-  QToolTip::add( resetOptionsButton,   tr("reset plot layout"));
-  QToolTip::add( changeModelButton,    tr("change model/modeltime"));
-  QToolTip::add( historyBackButton,    tr("history backward"));
-  QToolTip::add( historyForwardButton, tr("history forward"));
-  QToolTip::add( historyOkButton,      tr("use current history"));
-  //QToolTip::add( allTimeStepButton,    tr("all times / union of times") );
+  upFieldButton->setToolTip(tr("move selected field up"));
+  downFieldButton->setToolTip(tr("move selected field down" ));
+  Delete->setToolTip(tr("remove selected field"));
+  deleteAll->setToolTip(tr("remove all selected fields") );
+  copyField->setToolTip(tr("copy field") );
+  resetOptionsButton->setToolTip(tr("reset plot layout"));
+  changeModelButton->setToolTip(tr("change model/modeltime"));
+  historyBackButton->setToolTip(tr("history backward"));
+  historyForwardButton->setToolTip(tr("history forward"));
+  historyOkButton->setToolTip(tr("use current history"));
+  //allTimeStepButton,    tr("all times / union of times") );
 }
 
 void VcrossDialog::advancedToggled(bool on){
@@ -533,7 +530,7 @@ void VcrossDialog::CreateAdvanced() {
   cerr<<"VcrossDialog::CreateAdvanced" <<endl;
 #endif
 
-  advFrame= new QWidget(this,"frame");
+  advFrame= new QWidget(this);
 
   //QLabel* extremeTypeLabelHead= new QLabel( "Min,max", advFrame );
   //QLabel* extremeSizeLabel= new QLabel( "Størrelse",  advFrame );
@@ -556,7 +553,10 @@ void VcrossDialog::CreateAdvanced() {
 
   // line smoothing
   QLabel* lineSmoothLabel= new QLabel( tr("Smooth lines"), advFrame );
-  lineSmoothSpinBox= new QSpinBox( 0,50,2, advFrame );
+  lineSmoothSpinBox= new QSpinBox( advFrame );
+  lineSmoothSpinBox->setMinimum(0);
+  lineSmoothSpinBox->setMaximum(50);
+  lineSmoothSpinBox->setSingleStep(2);
   lineSmoothSpinBox->setSpecialValueText(tr("Off"));
   lineSmoothSpinBox->setValue(0);
   lineSmoothSpinBox->setEnabled( false );
@@ -564,7 +564,10 @@ void VcrossDialog::CreateAdvanced() {
 	   SLOT( lineSmoothChanged(int) ) );
 
   QLabel* labelSizeLabel= new QLabel( tr("Digit size"),  advFrame );
-  labelSizeSpinBox= new QSpinBox( 5,300,5, advFrame );
+  labelSizeSpinBox= new QSpinBox( advFrame );
+  labelSizeSpinBox->setMinimum(5);
+  labelSizeSpinBox->setMaximum(399);
+  labelSizeSpinBox->setSingleStep(5);
   labelSizeSpinBox->setWrapping(true);
   labelSizeSpinBox->setSuffix("%");
   labelSizeSpinBox->setValue(100);
@@ -573,7 +576,9 @@ void VcrossDialog::CreateAdvanced() {
 	   SLOT( labelSizeChanged(int) ) );
 
   QLabel* hourOffsetLabel= new QLabel( tr("Time offset"),  advFrame );
-  hourOffsetSpinBox= new QSpinBox( -72,72,1, advFrame );
+  hourOffsetSpinBox= new QSpinBox( advFrame );
+  hourOffsetSpinBox->setMinimum(-72);
+  hourOffsetSpinBox->setMaximum(72);
   hourOffsetSpinBox->setSuffix(tr(" hour(s)"));
   hourOffsetSpinBox->setValue(0);
   hourOffsetSpinBox->setEnabled( false );
@@ -649,7 +654,9 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   connect( shadingComboBox, SIGNAL( activated(int) ),
 	   SLOT( shadingChanged() ) );
 
-  shadingSpinBox = new QSpinBox(0,99,1,advFrame);
+  shadingSpinBox = new QSpinBox(advFrame);
+  shadingSpinBox->setMinimum(0);
+  shadingSpinBox->setMaximum(99);
   shadingSpinBox->setSpecialValueText(tr("Auto"));
   shadingSpinBox->setEnabled(false);
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
@@ -659,7 +666,9 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   connect( shadingcoldComboBox, SIGNAL( activated(int) ),
 	   SLOT( shadingChanged() ) );
 
-  shadingcoldSpinBox = new QSpinBox(0,99,1,advFrame);
+  shadingcoldSpinBox = new QSpinBox(advFrame);
+  shadingcoldSpinBox->setMinimum(0);
+  shadingcoldSpinBox->setMaximum(99);
   shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
   shadingcoldSpinBox->setEnabled(false);
   connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
@@ -676,7 +685,10 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 	   SLOT( patternColourBoxToggled(int) ) );
 
   //alpha blending
-  alphaSpinBox = new QSpinBox(0,255,5,advFrame);
+  alphaSpinBox = new QSpinBox(advFrame);
+  alphaSpinBox->setMinimum(0);
+  alphaSpinBox->setMaximum(255);
+  alphaSpinBox->setSingleStep(5);
   alphaSpinBox->setEnabled(false);
   alphaSpinBox->setValue(255);
   connect( alphaSpinBox, SIGNAL( valueChanged(int) ),
@@ -703,7 +715,7 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 
   // layout......................................................
 
-  QVBoxLayout *adv1Layout = new QVBoxLayout( 1 );
+  QVBoxLayout *adv1Layout = new QVBoxLayout();
   int space= 6;
   adv1Layout->addStretch();
   adv1Layout->addWidget(lineSmoothLabel);
@@ -728,7 +740,7 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   advSep2->setFrameStyle( QFrame::HLine | QFrame::Raised );
   advSep2->setLineWidth( 5 );
 
-  QGridLayout* adv2Layout = new QGridLayout( 10, 3);
+  QGridLayout* adv2Layout = new QGridLayout();
   adv2Layout->addWidget(advSep2,               0, 0);
 //  adv2Layout->addWidget( tableCheckBox,      1, 0 );
   adv2Layout->addWidget( repeatCheckBox,  1, 0 );
@@ -750,11 +762,11 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   adv2Layout->addWidget( maxLabel,           8, 0 );
   adv2Layout->addWidget( max1ComboBox,       8, 1 );
 
-  QVBoxLayout *advLayout = new QVBoxLayout( 1 );
+  QVBoxLayout *advLayout = new QVBoxLayout();
   advLayout->addLayout(adv1Layout);
   advLayout->addLayout(adv2Layout);
 
-  QHBoxLayout *hLayout = new QHBoxLayout( advFrame,5,5 );
+  QHBoxLayout *hLayout = new QHBoxLayout( advFrame);
 
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
@@ -1002,13 +1014,13 @@ void VcrossDialog::enableFieldOptions(){
     if(vpcopt[nc].allValue.downcase() == "off" ||
        vpcopt[nc].allValue.downcase() == "av" ){
       updateFieldOptions("colour","off");
-      colorCbox->setCurrentItem(0);
+      colorCbox->setCurrentIndex(0);
     } else {
       while (i<nr_colors
 	     && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
       if (i==nr_colors) i=0;
       updateFieldOptions("colour",colourInfo[i].name);
-      colorCbox->setCurrentItem(i+1);
+      colorCbox->setCurrentIndex(i+1);
     }
   } else if (colorCbox->isEnabled()) {
     colorCbox->setEnabled(false);
@@ -1036,11 +1048,11 @@ void VcrossDialog::enableFieldOptions(){
     while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
     if (i==nr_cs) {
       str = "off";
-      shadingComboBox->setCurrentItem(0);
-      shadingcoldComboBox->setCurrentItem(0);
+      shadingComboBox->setCurrentIndex(0);
+      shadingcoldComboBox->setCurrentIndex(0);
     }else {
       str = tokens[0];
-      shadingComboBox->setCurrentItem(i+1);
+      shadingComboBox->setCurrentIndex(i+1);
     }
     if(tokens.size()==2){
       vector<miutil::miString> stokens = tokens[1].split(";");
@@ -1050,20 +1062,20 @@ void VcrossDialog::enableFieldOptions(){
       i=0;
       while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
       if (i==nr_cs) {
-	shadingcoldComboBox->setCurrentItem(0);
+	shadingcoldComboBox->setCurrentIndex(0);
       }else {
 	str += "," + tokens[1];
-	shadingcoldComboBox->setCurrentItem(i+1);
+	shadingcoldComboBox->setCurrentIndex(i+1);
       }
     } else {
-      shadingcoldComboBox->setCurrentItem(0);
+      shadingcoldComboBox->setCurrentIndex(0);
     }
     updateFieldOptions("palettecolours",str,-1);
   } else {
     updateFieldOptions("palettecolours","off",-1);
-    shadingComboBox->setCurrentItem(0);
+    shadingComboBox->setCurrentIndex(0);
     shadingComboBox->setEnabled(false);
-    shadingcoldComboBox->setCurrentItem(0);
+    shadingcoldComboBox->setCurrentIndex(0);
     shadingcoldComboBox->setEnabled(false);
 //    tableCheckBox->setEnabled(false);
 //    updateFieldOptions("table","remove");
@@ -1087,15 +1099,15 @@ void VcrossDialog::enableFieldOptions(){
     while (i<nr_p && value!=patternInfo[i].name) i++;
     if (i==nr_p) {
       str = "off";
-      patternComboBox->setCurrentItem(0);
+      patternComboBox->setCurrentIndex(0);
     }else {
       str = patternInfo[i].name;
-      patternComboBox->setCurrentItem(i+1);
+      patternComboBox->setCurrentIndex(i+1);
     }
     updateFieldOptions("patterns",str,-1);
   } else {
     updateFieldOptions("patterns","off",-1);
-    patternComboBox->setCurrentItem(0);
+    patternComboBox->setCurrentIndex(0);
   }
 
   //pattern colour
@@ -1104,10 +1116,10 @@ void VcrossDialog::enableFieldOptions(){
     while (i<nr_colors && vpcopt[nc].allValue!=colourInfo[i].name) i++;
     if (i==nr_colors) {
       updateFieldOptions("patterncolour","remove");
-      patternColourBox->setCurrentItem(0);
+      patternColourBox->setCurrentIndex(0);
     }else {
       updateFieldOptions("patterncolour",colourInfo[i].name);
-      patternColourBox->setCurrentItem(i+1);
+      patternColourBox->setCurrentIndex(i+1);
     }
   }
 
@@ -1149,7 +1161,7 @@ void VcrossDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("linetype",linetypes[i]);
     }
-    lineTypeCbox->setCurrentItem(i);
+    lineTypeCbox->setCurrentIndex(i);
   } else if (lineTypeCbox->isEnabled()) {
     lineTypeCbox->setEnabled(false);
   }
@@ -1163,7 +1175,7 @@ void VcrossDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("linewidth",miutil::miString(i+1));
     }
-    lineWidthCbox->setCurrentItem(i);
+    lineWidthCbox->setCurrentIndex(i);
   } else if (lineWidthCbox->isEnabled()) {
     lineWidthCbox->setEnabled(false);
   }
@@ -1203,7 +1215,7 @@ void VcrossDialog::enableFieldOptions(){
 	i=densityCbox->count()-1;
       }
     }
-    densityCbox->setCurrentItem(i);
+    densityCbox->setCurrentIndex(i);
   } else if (densityCbox->isEnabled()) {
     densityCbox->clear();
     densityCbox->setEnabled(false);
@@ -1240,7 +1252,7 @@ void VcrossDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("extreme.type",extremeType[i]);
     }
-    extremeTypeCbox->setCurrentItem(i);
+    extremeTypeCbox->setCurrentIndex(i);
   } else if (extremeTypeCbox->isEnabled()) {
     extremeTypeCbox->clear();
     extremeTypeCbox->setEnabled(false);
@@ -1324,7 +1336,7 @@ void VcrossDialog::enableFieldOptions(){
     } else {
       i= 0;
     }
-    undefMaskingCbox->setCurrentItem(i);
+    undefMaskingCbox->setCurrentIndex(i);
   } else if (undefMaskingCbox->isEnabled()) {
     undefMaskingCbox->clear();
     undefMaskingCbox->setEnabled(false);
@@ -1343,7 +1355,7 @@ void VcrossDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("undef.colour",colourInfo[i].name);
     }
-    undefColourCbox->setCurrentItem(i);
+    undefColourCbox->setCurrentIndex(i);
   } else if (undefColourCbox->isEnabled()) {
     undefColourCbox->clear();
     undefColourCbox->setEnabled(false);
@@ -1362,7 +1374,7 @@ void VcrossDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("undef.linewidth",linewidths[i]);
     }
-    undefLinewidthCbox->setCurrentItem(i);
+    undefLinewidthCbox->setCurrentIndex(i);
   } else if (undefLinewidthCbox->isEnabled()) {
     undefLinewidthCbox->clear();
     undefLinewidthCbox->setEnabled(false);
@@ -1381,7 +1393,7 @@ void VcrossDialog::enableFieldOptions(){
       i=0;
       updateFieldOptions("undef.linetype",linetypes[i]);
     }
-    undefLinetypeCbox->setCurrentItem(i);
+    undefLinetypeCbox->setCurrentIndex(i);
   } else if (undefLinetypeCbox->isEnabled()) {
     undefLinetypeCbox->clear();
     undefLinetypeCbox->setEnabled(false);
@@ -1425,7 +1437,7 @@ void VcrossDialog::enableFieldOptions(){
       value = atof(vpcopt[nc].allValue.cStr());
     baseList(min1ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
-      min1ComboBox->setCurrentItem(0);
+      min1ComboBox->setCurrentIndex(0);
   } else {
     min1ComboBox->setEnabled( false );
   }
@@ -1440,7 +1452,7 @@ void VcrossDialog::enableFieldOptions(){
       value = atof(vpcopt[nc].allValue.cStr());
     baseList(max1ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
-      max1ComboBox->setCurrentItem(0);
+      max1ComboBox->setCurrentIndex(0);
   } else {
     max1ComboBox->setEnabled( false );
   }
@@ -1468,11 +1480,11 @@ void VcrossDialog::disableFieldOptions(){
   resetOptionsButton->setEnabled( false );
 
   colorCbox->setEnabled( false );
-  shadingComboBox->setCurrentItem(0);
+  shadingComboBox->setCurrentIndex(0);
   shadingComboBox->setEnabled( false );
   shadingSpinBox->setValue(0);
   shadingSpinBox->setEnabled( false );
-  shadingcoldComboBox->setCurrentItem(0);
+  shadingcoldComboBox->setCurrentIndex(0);
   shadingcoldComboBox->setEnabled( false );
   shadingcoldSpinBox->setValue(0);
   shadingcoldSpinBox->setEnabled( false );
@@ -1590,7 +1602,7 @@ vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number
     cBox->addItem(QString(vnumber[i].cStr()));
   }
 
-  cBox->setCurrentItem(nupdown);
+  cBox->setCurrentIndex(nupdown);
 
   return vnumber;
 }
@@ -1616,23 +1628,23 @@ miutil::miString VcrossDialog::baseList( QComboBox* cBox,
   cBox->clear();
 
   if(onoff)
-    cBox->insertItem(tr("Off"));
+    cBox->addItem(tr("Off"));
 
   for (int i=0; i<n; ++i) {
     j++;
     float e= base + ekv*float(j);
     if(fabs(e)<ekv/2)
-    cBox->insertItem("0");
+    cBox->addItem("0");
     else{
       miutil::miString estr(e);
-      cBox->insertItem(estr.cStr());
+      cBox->addItem(estr.cStr());
     }
   }
 
   if(onoff)
-    cBox->setCurrentItem(k+1);
+    cBox->setCurrentIndex(k+1);
   else
-    cBox->setCurrentItem(k);
+    cBox->setCurrentIndex(k);
 
   return str;
 }
@@ -1798,13 +1810,13 @@ void VcrossDialog::shadingChanged(){
 
 void VcrossDialog::updatePaletteString(){
 
-  if(patternComboBox->currentItem()>0 && patternColourBox->currentItem()>0){
+  if(patternComboBox->currentIndex()>0 && patternColourBox->currentIndex()>0){
     updateFieldOptions("palettecolours","off",-1);
     return;
   }
 
-  int index1 = shadingComboBox->currentItem();
-  int index2 = shadingcoldComboBox->currentItem();
+  int index1 = shadingComboBox->currentIndex();
+  int index2 = shadingcoldComboBox->currentIndex();
   int value1 = shadingSpinBox->value();
   int value2 = shadingcoldSpinBox->value();
 

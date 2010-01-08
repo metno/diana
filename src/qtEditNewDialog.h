@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -52,8 +52,8 @@ class Controller;
 class EditManager;
 
 /**
-   \brief Dialogue for starting a new edit product 
-   
+   \brief Dialogue for starting a new edit product
+
 
 */
 class EditNewDialog: public QDialog
@@ -68,9 +68,8 @@ public:
   ///called when the dialog is closed by the window manager
 protected:
   void closeEvent( QCloseEvent* );
-  
+
 private:
-  void ConstructorCernel();
   bool load_combine();
   void combineClear();
   bool setNormal();
@@ -81,12 +80,12 @@ private:
   void setLoginLabel();
   miutil::miString savedProd2Str(const savedProduct& sp,
 			 const miutil::miString undef = "udefinert");
-  
-private slots:
-  void login_clicked(); 
 
-  void ok_clicked(); 
-  void help_clicked(); 
+private slots:
+  void login_clicked();
+
+  void ok_clicked();
+  void help_clicked();
   void cancel_clicked();
   void prodBox(int);
   void idBox(int);
@@ -96,7 +95,7 @@ private slots:
   void ebutton3();
   void prodtimechanged(int);
   void combineSelect(QListWidgetItem * );
-  void tabSelected(const QString&);
+  void tabSelected(int);
   void kill_clicked();
 
 signals:

@@ -163,13 +163,11 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 
   // delete buttons
   mapdelete= new QPushButton(tr("Delete"), this);
-  QToolTip::add( mapdelete,
-      tr("Remove selected map from the list \"Selected maps\"") );
+  mapdelete->setToolTip(tr("Remove selected map from the list \"Selected maps\"") );
   connect( mapdelete, SIGNAL(clicked()), SLOT(mapdeleteClicked()));
 
   mapalldelete= new QPushButton(tr("Delete all"), this);
-  QToolTip::add( mapalldelete,
-      tr("Clear list of selected maps") );
+  mapalldelete->setToolTip(tr("Clear list of selected maps") );
   connect( mapalldelete, SIGNAL(clicked()), SLOT(mapalldeleteClicked()));
 
   // ==================================================
@@ -180,16 +178,15 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( selectedMapboxClicked( QListWidgetItem*) ) );
 
   // --- Contourlines options ------------------------------
-  QFrame* cont_frame= new QFrame(this,"cont_frame");
+  QFrame* cont_frame= new QFrame(this);
   cont_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   // label
   cont_label= TitleLabel(tr("Contour lines"),cont_frame);
 
   // checkbox
-  contours= new QCheckBox("", cont_frame, "contours");
-  QToolTip::add( contours,
-      tr("Draw contour lines (mandatory for maps without filled land)") );
+  contours= new QCheckBox("", cont_frame);
+  contours->setToolTip(tr("Draw contour lines (mandatory for maps without filled land)") );
   connect( contours, SIGNAL( toggled(bool) ),
       SLOT( cont_checkboxActivated(bool) ) );
   // linecbox
@@ -214,16 +211,15 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( cont_zordercboxActivated(int) ) );
 
   // --- Filled land options ------------------------------
-  QFrame* land_frame= new QFrame(this,"land_frame");
+  QFrame* land_frame= new QFrame(this);
   land_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   // label
   land_label= TitleLabel(tr("Filled land"),land_frame);
 
   // checkbox
-  filledland= new QCheckBox("", land_frame, "land");
-  QToolTip::add( filledland,
-      tr("Draw land with separate colour (only available for selected maps)") );
+  filledland= new QCheckBox("", land_frame);
+  filledland->setToolTip(tr("Draw land with separate colour (only available for selected maps)") );
   connect( filledland, SIGNAL( toggled(bool) ),
       SLOT( land_checkboxActivated(bool) ) );
   // colorcbox
@@ -333,16 +329,15 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 
   // Show longitude lines
 
-  QFrame* lon_frame= new QFrame(this,"lon_frame");
+  QFrame* lon_frame= new QFrame(this);
   lon_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   // label
   lon_label= TitleLabel(tr("Longitude lines"),lon_frame);
 
   // checkbox
-  showlon= new QCheckBox("", lon_frame, "lonours");
-  QToolTip::add( showlon,
-      tr("Show longitude-lines on the map") );
+  showlon= new QCheckBox("", lon_frame);
+  showlon->setToolTip(tr("Show longitude-lines on the map") );
   connect( showlon, SIGNAL( toggled(bool) ),
       SLOT( lon_checkboxActivated(bool) ) );
   // linecbox
@@ -373,7 +368,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( lon_zordercboxActivated(int) ) );
   // show value checkbox
   lon_showvalue= new QCheckBox(tr("Show value"), lon_frame);
-  QToolTip::add( lon_showvalue,tr("Show longitude-values") );
+  lon_showvalue->setToolTip(tr("Show longitude-values") );
   connect( lon_showvalue, SIGNAL( toggled(bool) ),SLOT( lon_showValueActivated(bool) ) );
   lon_showvalue->setChecked(lonshowvalue);
   // value pos
@@ -385,16 +380,15 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 
   // Show latitude lines
 
-  QFrame* lat_frame= new QFrame(this,"lat_frame");
+  QFrame* lat_frame= new QFrame(this);
   lat_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   // label
   lat_label= TitleLabel(tr("Latitude lines"),lat_frame);
 
   // checkbox
-  showlat= new QCheckBox("", lat_frame, "latours");
-  QToolTip::add( showlat,
-      tr("Show latitude-lines on the map") );
+  showlat= new QCheckBox("", lat_frame);
+  showlat->setToolTip(tr("Show latitude-lines on the map") );
   connect( showlat, SIGNAL( toggled(bool) ),
       SLOT( lat_checkboxActivated(bool) ) );
   // linecbox
@@ -425,7 +419,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
       SLOT( lat_zordercboxActivated(int) ) );
   // show value checkbox
   lat_showvalue= new QCheckBox(tr("Show value"), lat_frame);
-  QToolTip::add( lat_showvalue,tr("Show latitude-values") );
+  lat_showvalue->setToolTip(tr("Show latitude-values") );
   connect( lat_showvalue, SIGNAL( toggled(bool) ),SLOT( lat_showValueActivated(bool) ) );
   lat_showvalue->setChecked(latshowvalue);
   // value pos
@@ -436,15 +430,14 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   showlat->setChecked(latb);
 
   // frame on map...
-  QFrame* ff_frame= new QFrame(this,"ff_frame");
+  QFrame* ff_frame= new QFrame(this);
   ff_frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   // frame checkbox
   frameb= false;
   framelabel= TitleLabel(tr("Show frame"),ff_frame);
-  showframe= new QCheckBox("", ff_frame, "showframe");
-  QToolTip::add( showframe,
-      tr("Draw boundary of selected area") );
+  showframe= new QCheckBox("", ff_frame);
+  showframe->setToolTip(tr("Draw boundary of selected area") );
   connect( showframe, SIGNAL( toggled(bool) ),
       SLOT( showframe_checkboxActivated(bool) ) );
 
@@ -473,7 +466,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   // Background colour
   backcolorlabel= TitleLabel( tr("Background colour"), this);
   backcolorcbox= ColourBox( this, cInfo, true, 0 ); // last one index
-  backcolorcbox->setCurrentItem(1);//Default colour white OBS
+  backcolorcbox->setCurrentIndex(1);//Default colour white OBS
   connect( backcolorcbox, SIGNAL( activated(int) ),
       SLOT( backcolorcboxActivated(int) ) );
 
@@ -487,10 +480,8 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   maphide = new QPushButton(tr("Hide"), this);
   maphelp = new QPushButton(tr("Help"), this);
 
-  QToolTip::add( savefavorite,
-      tr("Save this layout as your favorite") );
-  QToolTip::add( usefavorite,
-      tr("Use saved favorite layout") );
+  savefavorite->setToolTip(tr("Save this layout as your favorite") );
+  usefavorite->setToolTip(tr("Use saved favorite layout") );
 
   connect( savefavorite, SIGNAL(clicked()), SLOT(saveFavoriteClicked()));
   connect( usefavorite, SIGNAL(clicked()), SLOT(useFavoriteClicked()));
@@ -499,35 +490,31 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   connect( maphide, SIGNAL(clicked()), SIGNAL(MapHide()));
   connect( maphelp, SIGNAL(clicked()),SLOT(helpClicked()));
 
-  const int border= 5;
-  const int space= 5;
-
   // ==================================================
   // Area / Projection
   // ==================================================
-  QVBoxLayout* v1layout = new QVBoxLayout( 5 );
+  QVBoxLayout* v1layout = new QVBoxLayout();
   v1layout->addWidget( arealabel );
   v1layout->addWidget( areabox );
 
   // ==================================================
   // Latlon-lines and frame
   // ==================================================
-  QHBoxLayout* h2layout = new QHBoxLayout( 5 );
-  QVBoxLayout * frame2layout = new QVBoxLayout(5);
+  QHBoxLayout* h2layout = new QHBoxLayout();
+  QVBoxLayout * frame2layout = new QVBoxLayout();
 
   h2layout->addWidget(lon_frame);
   h2layout->addWidget(lat_frame);
   h2layout->addLayout(frame2layout);
 
   // Latlon layouts ---------
-  QVBoxLayout* lonlayout= new QVBoxLayout(lon_frame, border, space);
-  QHBoxLayout* lon_toplayout= new QHBoxLayout(lonlayout,5);
+  QVBoxLayout* lonlayout= new QVBoxLayout(lon_frame);
+  QHBoxLayout* lon_toplayout= new QHBoxLayout();
   lon_toplayout->addWidget(showlon);
   lon_toplayout->addWidget(lon_label);
   lon_toplayout->addStretch();
 
-  QGridLayout* lon_glayout= new QGridLayout(6,2,space);
-  lon_glayout->setColStretch(0,10);
+  QGridLayout* lon_glayout= new QGridLayout();
   lon_glayout->addWidget(lon_colorlabel,0,0);
   lon_glayout->addWidget(lon_colorcbox ,0,1);
   lon_glayout->addWidget(lon_linelabel ,1,0);
@@ -541,16 +528,16 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   lon_glayout->addWidget(lon_showvalue ,5,0);
   lon_glayout->addWidget(lon_valuepos ,5,1);
 
+  lonlayout->addLayout(lon_toplayout);
   lonlayout->addLayout(lon_glayout);
 
-  QVBoxLayout* latlayout= new QVBoxLayout(lat_frame, border, space);
-  QHBoxLayout* lat_toplayout= new QHBoxLayout(latlayout,5);
+  QVBoxLayout* latlayout= new QVBoxLayout(lat_frame);
+  QHBoxLayout* lat_toplayout= new QHBoxLayout();
   lat_toplayout->addWidget(showlat);
   lat_toplayout->addWidget(lat_label);
   lat_toplayout->addStretch();
 
-  QGridLayout* lat_glayout= new QGridLayout(6,2,space);
-  lat_glayout->setColStretch(0,10);
+  QGridLayout* lat_glayout= new QGridLayout();
   lat_glayout->addWidget(lat_colorlabel,0,0);
   lat_glayout->addWidget(lat_colorcbox ,0,1);
   lat_glayout->addWidget(lat_linelabel ,1,0);
@@ -564,17 +551,17 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   lat_glayout->addWidget(lat_showvalue ,5,0);
   lat_glayout->addWidget(lat_valuepos ,5,1);
 
+  latlayout->addLayout(lat_toplayout);
   latlayout->addLayout(lat_glayout);
 
   // frame layouts ---------
-  QVBoxLayout* framelayout= new QVBoxLayout(ff_frame, border, space);
-  QHBoxLayout* framehlayout= new QHBoxLayout(framelayout,5);
+  QVBoxLayout* framelayout= new QVBoxLayout(ff_frame);
+  QHBoxLayout* framehlayout= new QHBoxLayout();
   framehlayout->addWidget( showframe );
   framehlayout->addWidget(framelabel);
   framehlayout->addStretch();
 
-  QGridLayout* frame_glayout= new QGridLayout(5,2,space);
-  frame_glayout->setColStretch(0,10);
+  QGridLayout* frame_glayout= new QGridLayout();
   frame_glayout->addWidget(ff_colorlabel,0,0);
   frame_glayout->addWidget(ff_colorcbox ,0,1);
   frame_glayout->addWidget(ff_linelabel ,1,0);
@@ -584,11 +571,12 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   frame_glayout->addWidget(ff_zorderlabel, 3,0);
   frame_glayout->addWidget(ff_zorder ,3,1);
 
+  framelayout->addLayout(framehlayout);
   framelayout->addLayout(frame_glayout);
   framelayout->addStretch( );
 
   // background layout
-  QHBoxLayout* backlayout = new QHBoxLayout( 5 );
+  QHBoxLayout* backlayout = new QHBoxLayout();
   backlayout->addWidget( backcolorlabel );
   backlayout->addWidget( backcolorcbox );
   backlayout->addStretch();
@@ -601,10 +589,10 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   // Maps, selected maps with buttons and options
   // ==================================================
 
-  QHBoxLayout* h3layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h3layout = new QHBoxLayout();
   // maps layout
-  QVBoxLayout* mapsvlayout = new QVBoxLayout( 5 );
-  QVBoxLayout* smapsvlayout = new QVBoxLayout( 5 );
+  QVBoxLayout* mapsvlayout = new QVBoxLayout();
+  QVBoxLayout* smapsvlayout = new QVBoxLayout();
   mapsvlayout->addWidget( maplabel );
   mapsvlayout->addWidget( mapbox );
   smapsvlayout->addWidget( selectedMaplabel );
@@ -616,20 +604,19 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   h3layout->addLayout( smapsvlayout );
 
   // contours and filled maps
-  QHBoxLayout* h5layout = new QHBoxLayout( 5 );
+  QHBoxLayout* h5layout = new QHBoxLayout();
 
   // Contours layouts ---------
-  QHBoxLayout* cont_h3layout = new QHBoxLayout( 5 );
+  QHBoxLayout* cont_h3layout = new QHBoxLayout();
   cont_h3layout->addWidget(cont_frame);
 
-  QVBoxLayout* h3vlayout= new QVBoxLayout(cont_frame, border, space);
-  QHBoxLayout* h3vhlayout= new QHBoxLayout(h3vlayout,5);
+  QVBoxLayout* h3vlayout= new QVBoxLayout(cont_frame);
+  QHBoxLayout* h3vhlayout= new QHBoxLayout();
   h3vhlayout->addWidget(contours);
   h3vhlayout->addWidget(cont_label);
   h3vhlayout->addStretch();
 
-  QGridLayout* h3vglayout= new QGridLayout(4,2,space);
-  h3vglayout->setColStretch(0,10);
+  QGridLayout* h3vglayout= new QGridLayout();
   h3vglayout->addWidget(cont_colorlabel,0,0);
   h3vglayout->addWidget(cont_colorcbox ,0,1);
   h3vglayout->addWidget(cont_linelabel ,1,0);
@@ -639,34 +626,35 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   h3vglayout->addWidget(cont_zorderlabel,3,0);
   h3vglayout->addWidget(cont_zorder ,3,1);
 
+  h3vlayout->addLayout(h3vhlayout);
   h3vlayout->addLayout(h3vglayout);
 
   h5layout->addLayout( cont_h3layout );
 
   // Land layouts ---------
-  QHBoxLayout* land_h3layout = new QHBoxLayout( 5 );
+  QHBoxLayout* land_h3layout = new QHBoxLayout();
   land_h3layout->addWidget(land_frame);
 
-  QVBoxLayout* land_h3vlayout= new QVBoxLayout(land_frame, border, space);
-  QHBoxLayout* land_h3vhlayout= new QHBoxLayout(land_h3vlayout,5);
+  QVBoxLayout* land_h3vlayout= new QVBoxLayout(land_frame);
+  QHBoxLayout* land_h3vhlayout= new QHBoxLayout();
   land_h3vhlayout->addWidget(filledland);
   land_h3vhlayout->addWidget(land_label);
   land_h3vhlayout->addStretch();
 
-  QGridLayout* land_h3vglayout= new QGridLayout(2,2,space);
-  land_h3vglayout->setColStretch(0,10);
+  QGridLayout* land_h3vglayout= new QGridLayout();
   land_h3vglayout->addWidget(land_colorlabel,0,0);
   land_h3vglayout->addWidget(land_colorcbox ,0,1);
   land_h3vglayout->addWidget(land_zorderlabel,1,0);
   land_h3vglayout->addWidget(land_zorder ,1,1);
 
+  land_h3vlayout->addLayout(land_h3vhlayout);
   land_h3vlayout->addLayout(land_h3vglayout);
   land_h3vlayout->addStretch();
 
   h5layout->addLayout( land_h3layout );
 
   // buttons layout
-  QGridLayout* buttonlayout= new QGridLayout(2, 3, space);
+  QGridLayout* buttonlayout= new QGridLayout();
   buttonlayout->addWidget( maphelp, 0, 0 );
   buttonlayout->addWidget( savefavorite,0, 1 );
   buttonlayout->addWidget( usefavorite, 0, 2 );
@@ -676,7 +664,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   buttonlayout->addWidget( mapapply, 1, 2 );
 
   // vlayout
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 10 );
+  QVBoxLayout* vlayout = new QVBoxLayout( this );
   vlayout->addLayout( v1layout );
   vlayout->addLayout( h2layout );
   vlayout->addLayout( h3layout );
@@ -836,10 +824,10 @@ void MapDialog::selectedMapboxClicked(QListWidgetItem* item)
 
   // set contours options
   contours->setChecked(ison);
-  cont_colorcbox->setCurrentItem(m_colIndex);
-  cont_linecbox->setCurrentItem(m_linewIndex);
-  cont_linetypebox->setCurrentItem(m_linetIndex);
-  cont_zorder->setCurrentItem(m_zIndex);
+  cont_colorcbox->setCurrentIndex(m_colIndex);
+  cont_linecbox->setCurrentIndex(m_linewIndex);
+  cont_linetypebox->setCurrentIndex(m_linetIndex);
+  cont_zorder->setCurrentIndex(m_zIndex);
 
   // set filled land options
   ison = m_MapDI.maps[activemap].land.ison;
@@ -847,8 +835,8 @@ void MapDialog::selectedMapboxClicked(QListWidgetItem* item)
   m_zIndex = m_MapDI.maps[activemap].land.zorder;
 
   filledland->setChecked(ison);
-  land_colorcbox->setCurrentItem(m_colIndex);
-  land_zorder->setCurrentItem(m_zIndex);
+  land_colorcbox->setCurrentIndex(m_colIndex);
+  land_zorder->setCurrentIndex(m_zIndex);
 }
 
 void MapDialog::mapdeleteClicked()
@@ -1139,7 +1127,7 @@ vector<miutil::miString> MapDialog::getOKString()
   int numselected = selectedmaps.size();
 
   if (numselected == 0) { // no maps selected
-    int backc = backcolorcbox->currentItem();
+    int backc = backcolorcbox->currentIndex();
     ostringstream ostr;
     ostr << "MAP";
     // qt4 fix: added .toStdString()
@@ -1196,7 +1184,7 @@ vector<miutil::miString> MapDialog::getOKString()
       ostringstream ostr;
       ostr << "MAP";
       if (i == numselected - 1) { // common options for last map only
-        int backc = backcolorcbox->currentItem();
+        int backc = backcolorcbox->currentIndex();
         // qt4 fix: added .toStdString()
         ostr << " area=" << areabox->currentItem()->text().toStdString()
         << " backcolour="
@@ -1344,18 +1332,18 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     int m_zIndex = lonz;
     showlon->setChecked(lonb);
     if (m_colIndex >= 0)
-      lon_colorcbox->setCurrentItem(m_colIndex);
+      lon_colorcbox->setCurrentIndex(m_colIndex);
     if (m_linewIndex >= 0)
-      lon_linecbox->setCurrentItem(m_linewIndex);
+      lon_linecbox->setCurrentIndex(m_linewIndex);
     if (m_linetIndex >= 0)
-      lon_linetypebox->setCurrentItem(m_linetIndex);
+      lon_linetypebox->setCurrentIndex(m_linetIndex);
     if (m_densIndex >= 0)
-      lon_density->setCurrentItem(m_densIndex);
+      lon_density->setCurrentIndex(m_densIndex);
     if (m_zIndex >= 0)
-      lon_zorder->setCurrentItem(m_zIndex);
+      lon_zorder->setCurrentIndex(m_zIndex);
     lon_showvalue->setChecked(lonshowvalue);
     if (lonvaluepos >= 0)
-      lon_valuepos->setCurrentItem(lonvaluepos);
+      lon_valuepos->setCurrentIndex(lonvaluepos);
 
     latb = m_MapDI.maps[lastmap].lat.ison;
     latc = m_MapDI.maps[lastmap].lat.linecolour;
@@ -1380,18 +1368,18 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     m_zIndex = latz;
     showlat->setChecked(latb);
     if (m_colIndex >= 0)
-      lat_colorcbox->setCurrentItem(m_colIndex);
+      lat_colorcbox->setCurrentIndex(m_colIndex);
     if (m_linewIndex >= 0)
-      lat_linecbox->setCurrentItem(m_linewIndex);
+      lat_linecbox->setCurrentIndex(m_linewIndex);
     if (m_linetIndex >= 0)
-      lat_linetypebox->setCurrentItem(m_linetIndex);
+      lat_linetypebox->setCurrentIndex(m_linetIndex);
     if (m_densIndex >= 0)
-      lat_density->setCurrentItem(m_densIndex);
+      lat_density->setCurrentIndex(m_densIndex);
     if (m_zIndex >= 0)
-      lat_zorder->setCurrentItem(m_zIndex);
+      lat_zorder->setCurrentIndex(m_zIndex);
     lat_showvalue->setChecked(latshowvalue);
     if (latvaluepos >= 0)
-      lat_valuepos->setCurrentItem(latvaluepos);
+      lat_valuepos->setCurrentIndex(latvaluepos);
 
     // set frame options
     frameb = m_MapDI.maps[lastmap].frame.ison;
@@ -1407,19 +1395,19 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
 
     showframe->setChecked(frameb);
     if (m_colIndex >= 0)
-      ff_colorcbox->setCurrentItem(m_colIndex);
+      ff_colorcbox->setCurrentIndex(m_colIndex);
     if (m_linewIndex >= 0)
-      ff_linecbox->setCurrentItem(m_linewIndex);
+      ff_linecbox->setCurrentIndex(m_linewIndex);
     if (m_linetIndex >= 0)
-      ff_linetypebox->setCurrentItem(m_linetIndex);
+      ff_linetypebox->setCurrentIndex(m_linetIndex);
     if (m_zIndex >= 0)
-      ff_zorder->setCurrentItem(m_zIndex);
+      ff_zorder->setCurrentIndex(m_zIndex);
   }
 
   // set background
   int m_colIndex = getIndex(cInfo, bgcolour);
   if (m_colIndex >= 0)
-    backcolorcbox->setCurrentItem(m_colIndex);
+    backcolorcbox->setCurrentIndex(m_colIndex);
 }
 
 miutil::miString MapDialog::getShortname()
@@ -1455,7 +1443,7 @@ vector<miutil::miString> MapDialog::writeLog()
       // qt4 fix: added .toStdString()
       ostr << "area="
       << areabox->item(areabox->currentRow())->text().toStdString()
-      << " backcolour=" << cInfo[backcolorcbox->currentItem()].name << " ";
+      << " backcolour=" << cInfo[backcolorcbox->currentIndex()].name << " ";
       // set lon options
       m_MapDI.maps[i].lon.ison = lonb;
       m_MapDI.maps[i].lon.linecolour = lonc;
@@ -1646,18 +1634,18 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     int m_zIndex = lonz;
     showlon->setChecked(lonb);
     if (m_colIndex >= 0)
-      lon_colorcbox->setCurrentItem(m_colIndex);
+      lon_colorcbox->setCurrentIndex(m_colIndex);
     if (m_linewIndex >= 0)
-      lon_linecbox->setCurrentItem(m_linewIndex);
+      lon_linecbox->setCurrentIndex(m_linewIndex);
     if (m_linetIndex >= 0)
-      lon_linetypebox->setCurrentItem(m_linetIndex);
+      lon_linetypebox->setCurrentIndex(m_linetIndex);
     if (m_densIndex >= 0)
-      lon_density->setCurrentItem(m_densIndex);
+      lon_density->setCurrentIndex(m_densIndex);
     if (m_zIndex >= 0)
-      lon_zorder->setCurrentItem(m_zIndex);
+      lon_zorder->setCurrentIndex(m_zIndex);
     lon_showvalue->setChecked(lonshowvalue);
     if (lonvaluepos >= 0)
-      lon_valuepos->setCurrentItem(lonvaluepos);
+      lon_valuepos->setCurrentIndex(lonvaluepos);
 
     // set lat options
     latb = m_MapDI.maps[lastmap].lat.ison;
@@ -1683,18 +1671,18 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     m_zIndex = latz;
     showlat->setChecked(latb);
     if (m_colIndex >= 0)
-      lat_colorcbox->setCurrentItem(m_colIndex);
+      lat_colorcbox->setCurrentIndex(m_colIndex);
     if (m_linewIndex >= 0)
-      lat_linecbox->setCurrentItem(m_linewIndex);
+      lat_linecbox->setCurrentIndex(m_linewIndex);
     if (m_linetIndex >= 0)
-      lat_linetypebox->setCurrentItem(m_linetIndex);
+      lat_linetypebox->setCurrentIndex(m_linetIndex);
     if (m_densIndex >= 0)
-      lat_density->setCurrentItem(m_densIndex);
+      lat_density->setCurrentIndex(m_densIndex);
     if (m_zIndex >= 0)
-      lat_zorder->setCurrentItem(m_zIndex);
+      lat_zorder->setCurrentIndex(m_zIndex);
     lat_showvalue->setChecked(latshowvalue);
     if (latvaluepos >= 0)
-      lat_valuepos->setCurrentItem(latvaluepos);
+      lat_valuepos->setCurrentIndex(latvaluepos);
 
     // set frame options
     frameb = m_MapDI.maps[lastmap].frame.ison;
@@ -1710,18 +1698,18 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
 
     showframe->setChecked(frameb);
     if (m_colIndex >= 0)
-      ff_colorcbox->setCurrentItem(m_colIndex);
+      ff_colorcbox->setCurrentIndex(m_colIndex);
     if (m_linewIndex >= 0)
-      ff_linecbox->setCurrentItem(m_linewIndex);
+      ff_linecbox->setCurrentIndex(m_linewIndex);
     if (m_linetIndex >= 0)
-      ff_linetypebox->setCurrentItem(m_linetIndex);
+      ff_linetypebox->setCurrentIndex(m_linetIndex);
     if (m_zIndex >= 0)
-      ff_zorder->setCurrentItem(m_zIndex);
+      ff_zorder->setCurrentIndex(m_zIndex);
   }
 
   // set background
   int m_colIndex = getIndex(cInfo, bgcolour);
   if (m_colIndex >= 0)
-    backcolorcbox->setCurrentItem(m_colIndex);
+    backcolorcbox->setCurrentIndex(m_colIndex);
 }
 

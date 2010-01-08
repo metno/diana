@@ -126,20 +126,20 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   // ************ place all the widgets in layouts ****************
 
   //place buttons "oppdater", "hjelp" etc. in horizontal layout
-  QHBoxLayout* hlayout1 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout1 = new QHBoxLayout();
   hlayout1->addWidget( modelhelp );
   hlayout1->addWidget( deleteAll );
   hlayout1->addWidget( refresh );
 
   //place buttons "utfør", "help" etc. in horizontal layout
-  QHBoxLayout* hlayout2 = new QHBoxLayout( 5 );
+  QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget( modelhide );
   hlayout2->addWidget( modelapplyhide );
   hlayout2->addWidget( modelapply );
 
 
   //create a vertical layout to put all widgets and layouts in
-  QVBoxLayout * vlayout = new QVBoxLayout( this, 5, 5 );
+  QVBoxLayout * vlayout = new QVBoxLayout( this);
   vlayout->addLayout( modelfileLayout );
   vlayout->addWidget( modelfileList );
   vlayout->addLayout( hlayout1 );
@@ -227,7 +227,7 @@ void SpectrumModelDialog::setSelection(){
 #ifdef DEBUGPRINT
   cerr<< "SpectrumModelDialog::setSelection()" << endl;
 #endif
-  if (modelButton->isOn()){
+  if (modelButton->isChecked()){
     vector <miutil::miString> models = spectrumm->getSelectedModels();
     int n = models.size();
     for (int i = 0;i<n;i++){
@@ -250,7 +250,7 @@ void SpectrumModelDialog::setModel(){
   bool showObs=false;
   bool asField=false;
 
-  if (modelButton->isOn()) {
+  if (modelButton->isChecked()) {
 
     vector <miutil::miString> models;
     int n = modelfileList->count();
@@ -266,7 +266,7 @@ void SpectrumModelDialog::setModel(){
     }
     spectrumm->setSelectedModels(models,showObs,asField);
 
-  } else if (fileButton->isOn()) {
+  } else if (fileButton->isChecked()) {
 
     vector <miutil::miString> files;
     int n = modelfileList->count();
@@ -297,7 +297,7 @@ void SpectrumModelDialog::updateModelfileList(){
   //clear box with list of files
   modelfileList->clear();
 
-  if (modelButton->isOn()){
+  if (modelButton->isChecked()){
     //make a string list with models to insert into modelfileList
     vector <miutil::miString> modelnames =spectrumm->getModelNames();
     int nr_models = modelnames.size();
@@ -308,7 +308,7 @@ void SpectrumModelDialog::updateModelfileList(){
       modelfileList->addItem(QString(modelnames[i].c_str()));
 
     //insert into modelfilelist
-  } else if (fileButton->isOn()){
+  } else if (fileButton->isChecked()){
     //make a string list with files to insert into modelfileList
     vector <miutil::miString> modelfiles =spectrumm->getModelFiles();
     int nr_files = modelfiles.size();

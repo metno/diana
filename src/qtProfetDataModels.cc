@@ -102,7 +102,7 @@ QIcon UserListModel::getUserIcon(const PodsUser& user)
 QVariant UserListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
     return QVariant();
-  if (index.row() >= users.size())
+  if ((unsigned int)index.row() >= users.size())
     return QVariant();
 
   if (role == Qt::DisplayRole){
@@ -126,7 +126,7 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
 
 PodsUser UserListModel::getUser(const QModelIndex &index) const throw(
     InvalidIndexException&) {
-  if (index.row() >= users.size() || index.row() < 0)
+  if ((unsigned int)index.row() >= users.size() || index.row() < 0)
     throw InvalidIndexException();
   return users[index.row()];
 }
@@ -192,7 +192,7 @@ void UserListModel::clearModel(){
 
 QVariant SessionListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid()) return QVariant();
-  if (sessions.empty() || index.row() >= sessions.size()) return QVariant();
+  if (sessions.empty() || (unsigned int)index.row() >= sessions.size()) return QVariant();
   if (!sessions[index.row()].exists()) return QVariant();
   if (role == Qt::DisplayRole){
     miutil::miTime rt = sessions[index.row()].referencetime();
@@ -234,7 +234,7 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
 
 fetSession SessionListModel::getSession(const QModelIndex &index) const throw(
     InvalidIndexException&) {
-  if (index.row() >= sessions.size() || index.row() < 0)
+  if ((unsigned int)index.row() >= sessions.size() || index.row() < 0)
     throw InvalidIndexException();
   return sessions[index.row()];
 }
@@ -249,7 +249,7 @@ fetSession SessionListModel::getSession(int row_nr) const throw(InvalidIndexExce
 
 void SessionListModel::setSession(const fetSession & s) {
   int irow = sessions.size();
-  for( int i=0; i<sessions.size(); i++ ){
+  for( unsigned int i=0; i<sessions.size(); i++ ){
     if(sessions[i].referencetime() == s.referencetime()) {
       sessions[i] = s;
       emit dataChanged(index(i, 0),index(i, 0));
@@ -272,8 +272,7 @@ void SessionListModel::setSessions(const vector<fetSession> & s) {
 }
 
 void SessionListModel::removeSession(const fetSession & s) {
-  int irow = sessions.size();
-  for( int i=0; i<sessions.size(); i++ ){
+  for( unsigned int i=0; i<sessions.size(); i++ ){
     if(sessions[i].referencetime() == s.referencetime()) {
       removeRows(i,1);
       return;
@@ -332,7 +331,7 @@ bool SessionListModel::insertRows( int position, int rows, const QModelIndex & p
 QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
     return QVariant();
-  if (index.row() >= objects.size())
+  if ((unsigned int)index.row() >= objects.size())
     return QVariant();
   if (role == Qt::DisplayRole){
     miutil::miString user    = objects[index.row()].user();
@@ -365,7 +364,7 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
 }
 
 QModelIndex FetObjectListModel::getIndexById(const miutil::miString & id) const {
-  for (int i=0; i<objects.size(); i++)
+  for (unsigned int i=0; i<objects.size(); i++)
     if (objects[i].id() == id)
       return index(i, 0);
   return QModelIndex();
@@ -373,7 +372,7 @@ QModelIndex FetObjectListModel::getIndexById(const miutil::miString & id) const 
 
 fetObject FetObjectListModel::getObject(const QModelIndex &index) const throw(
     InvalidIndexException&) {
-  if (index.row() >= objects.size() || index.row() < 0)
+  if ((unsigned int)index.row() >= objects.size() || index.row() < 0)
     throw InvalidIndexException();
   return objects[index.row()];
 }
@@ -423,7 +422,7 @@ void FetObjectTableModel::setHeaderDisplayMask(int mask){
 
 QVariant FetObjectTableModel::headerData(int section,
     Qt::Orientation orientation, int role) const {
-  if (orientation == Qt::Vertical && parameters.size() <= section)
+  if (orientation == Qt::Vertical && parameters.size() <= (unsigned int)section)
     return QVariant();
   else if (orientation == Qt::Horizontal && times.size() <= section)
     return QVariant();
@@ -705,7 +704,7 @@ void FetObjectTableModel::customEvent(QEvent * e){
 
 miutil::miTime FetObjectTableModel::getTime(const QModelIndex &index) const throw(
     InvalidIndexException&) {
-  int col = index.column();
+  unsigned int col = index.column();
   if(col < 0)
     throw InvalidIndexException();
   if (col >= times.size())

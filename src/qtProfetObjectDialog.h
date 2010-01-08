@@ -29,17 +29,12 @@
 #ifndef QTPROFETOBJECTDIALOG_H_
 #define QTPROFETOBJECTDIALOG_H_
 
-#include <qdialog.h>
-#include <q3groupbox.h>
-#include <qstring.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <q3table.h>
-#include <qradiobutton.h>
-#include <qlineedit.h>
-#include <q3textedit.h>
-#include <qcombobox.h>
-#include <q3widgetstack.h>
+#include <QDialog>
+#include <QString>
+#include <QPushButton>
+//#include <QTableWidget>
+//#include <QRadioButton>
+//#include <QLineEdit>
 //Added by qt3to4:
 #include <QCloseEvent>
 #include <profet/fetSession.h>
@@ -51,6 +46,13 @@
 
 #include <vector>
 #include <map>
+
+class QGroupBox;
+class QLabel;
+class QTextEdit;
+class QComboBox;
+class QStackedWidget;
+
 /// map of baseComboBox index and dynamic-gui widget
 typedef map<int,fetDynamicGui*> DynamicGuiMap;
 /// map of baseObject name and description
@@ -70,15 +72,15 @@ private:
   QPushButton    *databaseAreaButton;
   QPushButton    *fileAreaButton;
   QLabel         *areaInfoLabel;
-  Q3TextEdit     *reasonText;
+  QTextEdit     *reasonText;
   QPushButton    *saveObjectButton;
   QPushButton    *cancelObjectButton;
-  Q3WidgetStack  *widgetStack;
-  Q3GroupBox     *algGroupBox;
-  Q3GroupBox     *areaGroupBox;
-  Q3GroupBox     *stackGroupBox;
-  Q3GroupBox     *reasonGroupBox;
-  Q3GroupBox     *statGroupBox;
+  QStackedWidget *widgetStack;
+  QGroupBox     *algGroupBox;
+  QGroupBox     *areaGroupBox;
+  QGroupBox     *stackGroupBox;
+  QGroupBox     *reasonGroupBox;
+  QGroupBox     *statGroupBox;
   DynamicGuiMap  dynamicGuiMap;
   DescriptionMap descriptionMap;
   miutil::miString       selectedBaseObject;

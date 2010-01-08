@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -93,7 +93,7 @@ QPrinter::Orientation getQPOrientation(d_print::Orientation ori)
 
 QPrinter::ColorMode getQPColourMode(d_print::ColourOption cm)
 {
-  
+
   QPrinter::ColorMode dcol = QPrinter::Color;
 
   if (cm==d_print::incolour)
@@ -120,7 +120,7 @@ QPrinter::PageSize getQPPageSize(d_print::PageSize ps)
   } else if (ps==d_print::A0){
     dps= QPrinter::A0;
   }
-  
+
   return dps;
 }
 
@@ -128,7 +128,7 @@ QPrinter::PageSize getQPPageSize(d_print::PageSize ps)
 // fill printOptions from QPrinter-selections
 void toPrintOption(const QPrinter& qp, printOptions& priop)
 {
-  priop.printer= (qp.outputToFile()?"":qp.printerName().toStdString());
+  priop.printer= (qp.outputFileName().isNull()?"":qp.printerName().toStdString());
   priop.colop= getColourMode(qp.colorMode());
   if (priop.colop==d_print::greyscale) priop.drawbackground= false;
 

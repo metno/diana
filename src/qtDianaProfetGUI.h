@@ -30,7 +30,7 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <qobject.h>
+
 #include <QEvent>
 #include <QMutex>
 #include <QMutexLocker>
@@ -60,6 +60,7 @@
 class PaintToolBar;
 class QString;
 class QMenu;
+class QAction;
 
 using namespace Profet;
 
@@ -109,6 +110,11 @@ private:
   bool enableTable_;
 
   bool ignoreSynchProblems;
+
+  /// Actions
+  QAction * deleteObjectAction;
+  QAction * editObjectAction;
+  QAction * startTimesmoothAction;
 
   void connectSignals();
   /// Synchronized set'ers

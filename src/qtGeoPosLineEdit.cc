@@ -203,8 +203,8 @@ bool GeoPosLineEdit::getValues(float& lat, float& lng)
 }
 
 
-GeoPosLineEdit::GeoPosLineEdit(QWidget* p, const char* n)
-  : QLineEdit(p,n)
+GeoPosLineEdit::GeoPosLineEdit(QWidget* p)
+  : QLineEdit(p)
 {
   gv= new geovalidator(0);
   setValidator(gv);

@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -82,7 +82,7 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
 
   // add image to local list
   Images[name] = image;
-  
+
   return true;
 }
 
@@ -91,7 +91,7 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
 {
   vector<miutil::miString> vs= imageStr.split(" ");
   int n=vs.size();
-  QByteArray a(n);
+  QByteArray a(n,' ');
   for (int i=0; i<n; i++)
     a[i]= char(atoi(vs[i].cStr()));
 
@@ -114,7 +114,7 @@ void QtImageGallery::addImagesInDirectory(const miutil::miString& dir){
       QString filename = fname.c_str();
       QFileInfo fileinfo(filename);
       QString name = fileinfo.baseName();
-      
+
       QImage image(filename);
       if ( !image.isNull() ){
 	addImageToGallery(name.toStdString(),image);
@@ -122,7 +122,7 @@ void QtImageGallery::addImagesInDirectory(const miutil::miString& dir){
       }
     }
   }
-  globfree(&globBuf);    
+  globfree(&globBuf);
 }
 
 
@@ -130,7 +130,7 @@ void QtImageGallery::clear()
 {
   ImageGallery ig;
   ig.clear();
-  
+
   Images.clear();
 }
 
@@ -138,10 +138,10 @@ void QtImageGallery::clear()
 bool QtImageGallery::delImage(const miutil::miString& name)
 {
   ImageGallery ig;
-  
+
   if ((Images.count(name) == 0) || (!ig.delImage(name)))
     return false;
-  
+
   Images.erase(name);
 
   return true;
@@ -150,7 +150,7 @@ bool QtImageGallery::delImage(const miutil::miString& name)
 void QtImageGallery::ImageNames(vector<miutil::miString>& vnames) const
 {
   vnames.clear();
-  
+
   map<miutil::miString,QImage>::const_iterator p= Images.begin();
 
   for (; p!=Images.end(); p++)

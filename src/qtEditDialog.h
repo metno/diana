@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -65,8 +65,8 @@ class ObjectManager;
 class TimeStepSpinbox;
 
 /**
-   \brief Dialogue for editing fields and weather objects and for combining 
-   
+   \brief Dialogue for editing fields and weather objects and for combining
+
 
 */
 
@@ -86,9 +86,9 @@ public:
   void showAll();
   /// hide dialog
   void hideAll();
-  /// returns true if currently editing (not pause) 
+  /// returns true if currently editing (not pause)
   bool inedit();
-    
+
 protected:
   ///called when the dialog is closed by the window manager
   void closeEvent( QCloseEvent* );
@@ -134,14 +134,14 @@ private slots:
   void combine_action(int);
   void selectAreas(QListWidgetItem * );
   // Common slots
-  void tabSelected( const QString& );
+  void tabSelected( int );
   void groupClicked( int );
   void stepchanged( int );
   void commentClicked(bool);
   void pauseClicked(bool);
   void hideComment();
-  void exitClicked(); 
-  void helpClicked(); 
+  void exitClicked();
+  void helpClicked();
   void EditNewOk(EditProduct&, EditProductId&, miutil::miTime&);
   void EditNewCombineOk(EditProduct&, EditProductId&, miutil::miTime&);
   void EditNewCancel();
@@ -156,7 +156,7 @@ public slots:
   void saveEdit();
 
 signals:
-  /// hide dialog 
+  /// hide dialog
   void EditHide();
   /// redraw (update GL)
   void editUpdate();
@@ -164,7 +164,7 @@ signals:
   void editApply();
  /// send plot-commands
   void Apply(const vector<miutil::miString>& s, bool);
-  /// show documentation 
+  /// show documentation
   void showsource(const miutil::miString, const miutil::miString="");
   /// emit edit times
   void emitTimes(const miutil::miString&,const vector<miutil::miTime>&);
@@ -263,7 +263,7 @@ private:
   bool getText(miutil::miString &, Colour::ColourInfo &);
   bool getComplexText(vector <miutil::miString> &, vector <miutil::miString> &);
 
-  
+
   QString TABNAME_FIELD;
   QString TABNAME_OBJECTS;
   QString TABNAME_COMBINE;

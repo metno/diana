@@ -76,7 +76,7 @@ public:
   VcrossSetup( QWidget* parent, miutil::miString text,
 	       QGridLayout* glayout,int row, int options);
 
-  bool isOn();
+  bool isChecked();
   Colour::ColourInfo getColour();
   void setColour(const miutil::miString&);
   void setLinetype(const miutil::miString&);
@@ -107,7 +107,7 @@ public:
   miutil::miString name;
 
 public slots:
-  void setOn(bool on);
+  void setChecked(bool on);
 
 private slots:
   void forceMaxValue(int minvalue);

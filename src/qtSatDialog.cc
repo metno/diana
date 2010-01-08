@@ -172,13 +172,12 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 	   SLOT(DeleteAllClicked()));
 
   multiPicture = new ToggleButton(  this, tr("Add picture").toStdString() );
-  QToolTip::add( multiPicture,
-		 tr("Add new picture if any of above settings change"));
+  multiPicture->setToolTip(tr("Add new picture if any of above settings change"));
   //		 "Nytt bilde legges til hvis noen av innstillingene over endres" );
 
   mosaic = new ToggleButton( this, tr("Mosaic").toStdString() );
   connect( mosaic, SIGNAL( toggled(bool)), SLOT( mosaicToggled( bool) ));
-  mosaic->setOn(false);
+  mosaic->setChecked(false);
   mosaic->setEnabled(false);
 
   //SLIDER FOR MAX TIME DIFFERENCE
@@ -186,10 +185,11 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   QLabel *diffLabel = new QLabel( tr("Time diff"), this);
   int difflength=dialogInfo.timediff.maxValue/40+3;
   diffLcdnum= LCDNumber( difflength, this);
-  diffSlider= new QSlider( dialogInfo.timediff.minValue,
-		      dialogInfo.timediff.maxValue, 1,
-		      dialogInfo.timediff.value, Qt::Horizontal, this );
-  QHBoxLayout* difflayout = new QHBoxLayout(5);
+  diffSlider= new QSlider(Qt::Horizontal, this );
+  diffSlider->setMinimum(dialogInfo.timediff.minValue);
+  diffSlider->setMaximum(dialogInfo.timediff.maxValue);
+  diffSlider->setValue(dialogInfo.timediff.value);
+  QHBoxLayout* difflayout = new QHBoxLayout();
   difflayout->addWidget( diffLabel,0,0 );
   difflayout->addWidget( diffLcdnum, 0,0 );
   difflayout->addWidget( diffSlider,0,0  );
@@ -201,7 +201,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 
   miutil::miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
   advanced= new ToggleButton( this, more_str );
-  advanced->setOn(false);
+  advanced->setChecked(false);
 
   QPushButton* sathide = NormalPushButton( tr("Hide"), this );
   QPushButton* satapplyhide = NormalPushButton( tr("Apply+hide"), this );
@@ -234,7 +234,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   hlayout3->addWidget( satapplyhide );
   hlayout3->addWidget( satapply );
 
-  QVBoxLayout* vlayout = new QVBoxLayout( this, 5, 5);
+  QVBoxLayout* vlayout = new QVBoxLayout( this);
   vlayout->setMargin(10);
   vlayout->addWidget( namebox );
   vlayout->addWidget( fileListWidget );
@@ -305,7 +305,7 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
   cerr<<"SatDialog::fileListWidgetClicked called"<<endl;
 #endif
 
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 
   int index = timefileBut->checkedId();
 
@@ -316,11 +316,11 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
     vector<miutil::miString> tokens = satoptions[name][area].split(" ");
     state okVar = decodeString(tokens);
     putOptions(okVar);
-    bool restore = multiPicture->isOn();
-    multiPicture->setOn(false);
+    bool restore = multiPicture->isChecked();
+    multiPicture->setChecked(false);
     timefileBut->button(index)->setChecked(true);
     timefileClicked(index);
-    multiPicture->setOn(restore);
+    multiPicture->setChecked(restore);
   } else { //no options saved
     timefileBut->button(index)->setChecked(true);
     timefileClicked(index);
@@ -466,7 +466,7 @@ int SatDialog::addSelectedPicture()
 
   miutil::miString fstring;
   miutil::miTime ltime;
-  if (timeButton->isOn() || fileButton->isOn()) {
+  if (timeButton->isChecked() || fileButton->isChecked()) {
     //"time"/"file" clicked, find filename
     int current = timefileList->currentRow();
     if (current > -1 && current < int(files.size())) {
@@ -477,7 +477,7 @@ int SatDialog::addSelectedPicture()
 
   //define a new state !
   state lstate;
-  lstate.iname = namebox->currentItem();
+  lstate.iname = namebox->currentIndex();
   lstate.iarea = fileListWidget->currentRow();
   lstate.iautotimefile = timefileBut->checkedId();
   lstate.ifiletime = timefileList->currentRow();
@@ -502,7 +502,7 @@ int SatDialog::addSelectedPicture()
   //   }
 
 
-  if (!multiPicture->isOn()) {
+  if (!multiPicture->isChecked()) {
     int i = pictures->currentRow();
     if (i > -1 && i < int(m_state.size())) {
       //replace existing picture(same sat). advanced options saved
@@ -580,18 +580,18 @@ void SatDialog::picturesSlot(QListWidgetItem * item)
   if (index > -1) {
     vector<miutil::miString> vstr;
     vstr.push_back(m_state[index].OKString);
-    namebox->setCurrentItem(m_state[index].iname);
+    namebox->setCurrentIndex(m_state[index].iname);
     nameActivated(m_state[index].iname); // update fileListWidget
-    fileListWidget->setCurrentRow(m_state[index].iarea);
+    fileListWidget->setCurrentItem(fileListWidget->item(m_state[index].iarea));
     if (m_state[index].iautotimefile == 0) {
-      autoButton->setOn(true);
+      autoButton->setChecked(true);
       m_ctrl->setSatAuto(true, namebox->currentText().toStdString(),
           fileListWidget->currentItem()->text().toStdString());
     } else {
       if (m_state[index].iautotimefile == 1)
-        timeButton->setOn(true);
+        timeButton->setChecked(true);
       else if (m_state[index].iautotimefile == 2)
-        fileButton->setOn(true);
+        fileButton->setChecked(true);
       m_ctrl->setSatAuto(false, namebox->currentText().toStdString(),
           fileListWidget->currentItem()->text().toStdString());
       updateTimefileList();
@@ -612,7 +612,7 @@ void SatDialog::picturesSlot(QListWidgetItem * item)
     int number = int(m_state[index].totalminutes / m_scalediff);
     diffSlider->setValue(number);
     bool mon = m_state[index].mosaic;
-    mosaic->setOn(mon);
+    mosaic->setChecked(mon);
     mosaic->setEnabled(true);
   } else {
     sda->setPictures("");
@@ -696,7 +696,7 @@ void SatDialog::Refresh()
   cerr<<"SatDialog::Refresh() called; Filene blir hentet nytt fra disken"
   <<endl;
 #endif
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 
   for (unsigned int i = 0; i < m_state.size(); i++) {
     //    if(m_state[i].filename.empty()){
@@ -793,7 +793,7 @@ void SatDialog::DeleteAllClicked()
   pictures->clear();
   downPictureButton->setEnabled(false);
   upPictureButton->setEnabled(false);
-  mosaic->setOn(false);
+  mosaic->setChecked(false);
   mosaic->setEnabled(false);
   sda->setPictures("");
   sda->setOff();
@@ -917,8 +917,8 @@ void SatDialog::putOKString(const vector<miutil::miString>& vstr)
   if (npi == 0)
     return;
 
-  bool restore = multiPicture->isOn();
-  multiPicture->setOn(true);
+  bool restore = multiPicture->isChecked();
+  multiPicture->setChecked(true);
 
   m_state.clear();
   // loop through all PlotInfo's
@@ -932,12 +932,12 @@ void SatDialog::putOKString(const vector<miutil::miString>& vstr)
     bool found = false;
     int ns = namebox->count();
     for (int j = 0; j < ns; j++) {
-      QString qstr = namebox->text(j);
+      QString qstr = namebox->itemText(j);
       if (qstr.isNull())
         continue;
       miutil::miString listname = qstr.toStdString();
       if (okVar.name == listname) {
-        namebox->setCurrentItem(j);
+        namebox->setCurrentIndex(j);
         nameActivated(j);
         found = true;
       }
@@ -963,7 +963,7 @@ void SatDialog::putOKString(const vector<miutil::miString>& vstr)
     putOptions(okVar);
   }
 
-  multiPicture->setOn(restore);
+  multiPicture->setChecked(restore);
 }
 
 void SatDialog::putOptions(const state okVar)
@@ -1018,7 +1018,7 @@ void SatDialog::putOptions(const state okVar)
     int number = int(okVar.totalminutes / m_scalediff);
     diffSlider->setValue(number);
   }
-  mosaic->setOn(okVar.mosaic);
+  mosaic->setChecked(okVar.mosaic);
 
   //advanced dialog
   int index = pictures->currentRow();
@@ -1250,12 +1250,12 @@ void SatDialog::updateTimefileList()
   timefileList->clear();
 
   //get new list of sat files
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
   files = m_ctrl->getSatFiles(namebox->currentText().toStdString(),
       fileListWidget->currentItem()->text().toStdString(), true);
   QApplication::restoreOverrideCursor();
 
-  if (autoButton->isOn())
+  if (autoButton->isChecked())
     return;
 
   channelbox->clear();
@@ -1265,13 +1265,13 @@ void SatDialog::updateTimefileList()
     return;
 
   //insert times into timefileList
-  if (timeButton->isOn()) {
+  if (timeButton->isChecked()) {
 
     for (int i = 0; i < nr_file; i++) {
       timefileList->addItem(QString(files[i].time.isoTime().cStr()));
     }
 
-  } else if (fileButton->isOn()) {
+  } else if (fileButton->isChecked()) {
 
     for (int i = 0; i < nr_file; i++) {
       timefileList->addItem(QString(files[i].name.c_str()));
@@ -1279,7 +1279,7 @@ void SatDialog::updateTimefileList()
 
   }
 
-  if (timeButton->isOn() || fileButton->isOn()) {
+  if (timeButton->isChecked() || fileButton->isChecked()) {
     //set current item in timefileList to same as before, or first item
     int timeDefIndex = -1;
     for (int i = 0; i < nr_file; i++) {
@@ -1319,7 +1319,7 @@ void SatDialog::updateChannelBox(bool select)
 
   vector<miutil::miString> vstr;
   int index;
-  if (autoButton->isOn())
+  if (autoButton->isChecked())
     index = -1;
   else
     index = timefileList->currentRow();
@@ -1396,7 +1396,7 @@ void SatDialog::updatePictures(int index, bool updateAbove)
     int number = int(m_state[index].totalminutes / m_scalediff);
     diffSlider->setValue(number);
     bool mon = m_state[index].mosaic;
-    mosaic->setOn(mon);
+    mosaic->setChecked(mon);
     mosaic->setEnabled(true);
   }
 
@@ -1441,7 +1441,7 @@ void SatDialog::updateColours()
 /*********************************************/
 void SatDialog::emitSatTimes(bool update)
 {
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
   //    cerr <<"emitSatTimes"<<endl;
   times.clear();
   set<miutil::miTime> timeset;

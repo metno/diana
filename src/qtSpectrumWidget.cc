@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -42,8 +42,8 @@
 
 
 SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
-			 QWidget* parent, const char* name )
-    : QGLWidget( fmt, parent, name ), spectrumm(spm)
+			 QWidget* parent)
+    : QGLWidget( fmt, parent), spectrumm(spm)
 {
 
   if ( !isValid() ) {
@@ -108,7 +108,7 @@ void SpectrumWidget::keyPressEvent(QKeyEvent *me)
       me->key()==Qt::Key_Right ||
       me->key()==Qt::Key_Down  ||
       me->key()==Qt::Key_Up) {
-  
+
     if (me->key()==Qt::Key_Left){
       spectrumm->setTime(-1);
       emit timeChanged(-1);
@@ -121,7 +121,7 @@ void SpectrumWidget::keyPressEvent(QKeyEvent *me)
     }else if (me->key()==Qt::Key_Up){
       spectrumm->setStation(+1);
       emit stationChanged(+1);
-    } 
+    }
     updateGL();
   }
 }

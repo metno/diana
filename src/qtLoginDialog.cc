@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -41,12 +41,14 @@
 
 
 LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
-  : QDialog( parent, "login", true ), dbi(d)
+  : QDialog( parent), dbi(d)
 {
+
+  setModal(true);
 
   QVBoxLayout* top_vlayout = new QVBoxLayout(this);
 
-  QFrame* ff = new QFrame( this, "loginframe" );
+  QFrame* ff = new QFrame( this);
   ff->setFrameStyle( QFrame::Sunken | QFrame::Panel );
   ff->setLineWidth( 1 );
   top_vlayout->addWidget( ff);
@@ -54,21 +56,21 @@ LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
   QVBoxLayout* f_vlayout=  new QVBoxLayout(ff);
 
    // Create a layout manager for the label
-  QHBoxLayout* h_hlayout = new QHBoxLayout(20, "h_hlayout");
-  QLabel* label= new QLabel(tr("Diana db login"), ff,"label");
+  QHBoxLayout* h_hlayout = new QHBoxLayout();
+  QLabel* label= new QLabel(tr("Diana db login"), ff);
   label->setFrameStyle( QFrame::Panel | QFrame::Raised );
   label->setFont(QFont( "Helvetica", 14, QFont::Normal, true ));
   label->setPalette( QPalette( QColor(255, 89, 0) ) );
   h_hlayout->addWidget(label);
   f_vlayout->addLayout(h_hlayout);
 
-  QGridLayout* glayout = new QGridLayout(3,2);
-  
+  QGridLayout* glayout = new QGridLayout();
+
   int startwidget= 0;
-  QLabel* server= new QLabel(tr("Database server:"), ff); 
-  QLabel* name= new QLabel(tr("Username:"), ff); 
+  QLabel* server= new QLabel(tr("Database server:"), ff);
+  QLabel* name= new QLabel(tr("Username:"), ff);
   QLabel* pwd= new QLabel(tr("Password:"), ff);
-  dbserver  = new QLineEdit(ff,"dbserver");
+  dbserver  = new QLineEdit(ff);
   dbserver->setMinimumWidth(200);
   if (dbi.host.length()>0){
     dbserver->setText(dbi.host.c_str());
@@ -89,11 +91,11 @@ LoginDialog::LoginDialog(editDBinfo& d,  QWidget* parent)
   glayout->addWidget(username, 2,2);
   glayout->addWidget(passwd, 3,2);
   f_vlayout->addLayout(glayout, 0);
- 
-  okb= new QPushButton(tr("Log in"),ff, "okb");
+
+  okb= new QPushButton(tr("Log in"),ff);
   okb->setDefault(true);
   connect(okb, SIGNAL(clicked()), SLOT(accept()));
-  quitb= new QPushButton(tr("Cancel"),ff, "quitb");
+  quitb= new QPushButton(tr("Cancel"),ff);
   connect(quitb, SIGNAL(clicked()), SLOT(reject()));
 
   // buttons layout

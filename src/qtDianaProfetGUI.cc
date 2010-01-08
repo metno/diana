@@ -34,10 +34,11 @@
 #include "qtProfetEvents.h"
 #include "qtProfetWaitDialog.h"
 #include <qstring.h>
-#include <QCoreApplication>
 #include <QMessageBox>
 #include <QApplication>
 #include <QMenu>
+#include <QAction>
+
 
 #include <diField/diRectangle.h>
 
@@ -73,6 +74,12 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
   showEditObjectDialog = false;
   emit setPaintMode(true);
   paintToolBar->enableButtons(PaintToolBar::SELECT_ONLY);
+
+
+  editObjectAction = new QAction(this);
+   connect(editObjectAction, SIGNAL( triggered() ), SLOT(editObject()));
+ //  addAction( editObjectAction );
+
 }
 
 void DianaProfetGUI::setParamColours()
@@ -163,8 +170,8 @@ void DianaProfetGUI::connectSignals()
   connect(editObjectDialog, SIGNAL(requestPolygonList()),
   this, SLOT(requestPolygonList()));
 
-  connect(popupMenu, SIGNAL(activated(int)),
-  SLOT(popupMenuActivated(int)));
+//  connect(popupMenu, SIGNAL(triggered(int)),
+//  SLOT(popupMenuActivated(int)));
 }
 
 DianaProfetGUI::~DianaProfetGUI()
@@ -257,10 +264,10 @@ void DianaProfetGUI::sessionModified(const QModelIndex & topLeft,
 
 void DianaProfetGUI::popupMenuActivated(int i)
 {
-  miutil::miString id = popupMenu->text(i).toStdString();
-  id = id.substr(id.find_last_of("|") + 2, id.size() - 1);
-  areaManager->setCurrentArea(id);
-  gridAreaChanged();
+//  miutil::miString id = popupMenu->text(i).toStdString();
+//  id = id.substr(id.find_last_of("|") + 2, id.size() - 1);
+//  areaManager->setCurrentArea(id);
+//  gridAreaChanged();
 }
 
 fetSession DianaProfetGUI::getCurrentSession()
@@ -489,7 +496,7 @@ void DianaProfetGUI::baseObjectSelected(miutil::miString id)
 {
   int i = getBaseObjectIndex(id);
   if (i != -1) {
-    LOG4CXX_WARN(logger,"base object selected " << baseObjects[i].name());
+    LOG4CXX_DEBUG(logger,"base object selected " << baseObjects[i].name());
     editObjectDialog->addDymanicGui(objectFactory.getGuiComponents(
         baseObjects[i]));
     if (areaManager->isAreaSelected()) {
@@ -833,7 +840,7 @@ void DianaProfetGUI::sendMessage(const QString & m)
 {
   miutil::miString username = controller.getCurrentUser().name;
   Profet::InstantMessage message(miutil::miTime::nowTime(), 0, username, "all",
-      m.latin1());
+      m.toStdString());
   try {
     controller.sendMessage(message);
   } catch (Profet::ServerException & se) {
@@ -1334,11 +1341,11 @@ void DianaProfetGUI::rightMouseClicked(float x, float y, int globalX,
     cerr << "id:" << areaId[i] << endl;
     QString menuText;
     menuText = "Edit             | " + idText;
-    popupMenu->insertItem(menuText, this, SLOT(editObject()));
+    popupMenu->addAction(editObjectAction);
     menuText = "Delete         | " + idText;
-    popupMenu->insertItem(menuText, this, SLOT(deleteObject()));
+    popupMenu->addAction(deleteObjectAction);
     menuText = "Timesmooth | " + idText;
-    popupMenu->insertItem(menuText, this, SLOT(startTimesmooth()));
+    popupMenu->addAction(startTimesmoothAction);
     popupMenu->addSeparator();
   }
   popupMenu->popup(QPoint(globalX, globalY), 0);
