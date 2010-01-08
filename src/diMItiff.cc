@@ -134,8 +134,8 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
   sd.By = ginfo.By;
 
   //Projection
-  sd.projection = ginfo.projection;
-  sd.proj_string = ginfo.proj_string;
+//  sd.projection = ginfo.projection;
+//  sd.proj_string = ginfo.proj_string;
 
   // Calibration
   sd.cal_vis = ginfo.cal_vis;
