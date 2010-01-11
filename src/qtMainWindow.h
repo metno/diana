@@ -446,6 +446,7 @@ private:
   bool qsocket;
   map<int,bool> autoredraw;
   StationPlot *stationPlot;
+  vector<miutil::miString> currentPlotCommand;
 
   vector<miutil::miString> levelList;
   miutil::miString levelSpec;

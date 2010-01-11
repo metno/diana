@@ -1420,6 +1420,8 @@ void DianaMainWindow::MenuOK()
     qm->pushPlot(plotname,pstr);
   }
 
+  currentPlotCommand = pstr;
+
   QApplication::restoreOverrideCursor();
 }
 
@@ -2507,6 +2509,16 @@ void DianaMainWindow::processLetter(miMessage &letter)
       timeChanged();
       contr->updatePlots();
     }
+  }
+
+  else if (letter.command == qmstrings::getcurrentplotcommand) {
+      miMessage l;
+      l.to = letter.from;
+      l.command = qmstrings::currentplotcommand;
+      l.data = currentPlotCommand;
+      sendLetter(l);
+
+      return; // no need to repaint
   }
 
   else {
