@@ -400,6 +400,8 @@ field4=multiply(field1,9.8067)
 	<tr><td>BOX_ALPHA_SHADE</td><td>translucency shading in grid boxes</td></tr>
 	<tr><td>BOX_PATTERN</td><td>patterns in grid boxes</td></tr>
 	<tr><td>ALARM_BOX</td><td>Alarm colour in grid boxes</td></tr>
+	<tr><td>FILL_CELL</td><td>Fills each grid cell with a color according to the given 'values' and 'palettecolours' vectors</td></tr>
+	<tr><td>LAYER</td><td>Prints three numbers vertically in each grid cell</td></tr>
     </table>
     <p>
 
@@ -426,6 +428,16 @@ loop [P2]=1000,1000,1000,850,700
 field=DZ([P1]-[P2])
       colour=red linetype=solid linewidth=1 line.interval=40.
       plot=CONTOUR(dz.[P1]-[P2])
+end.field
+
+field=ICING-SUM-COLOR
+      bordercolour=blue rel.size=0.8 values=4,5,6,7,8,9 palettecolours=green,yellow,yellow,orange,black,black
+      plot=FILL_CELL(icing.sum)
+end.field
+
+field=ICING-SUM-LAYER
+      bordercolour=blue rel.size=0.8 label.size=1.0
+      plot=LAYER(icing.height, icing.bottom, icing.top)
 end.field
     </pre>
     <p>
@@ -560,8 +572,8 @@ CLEAR_FILEGROUP
     plottype=Synop
     name=Temperature
     TTT&gt;0   plot
-    TTT&gt;10  red
-    TTT&gt;20  red total
+    TTT&gt;10 ï¿½red
+    TTT&gt;20 ï¿½red total
     </pre>
     <p>
     <table border="1" cellpadding="1" cellspacing="0" >

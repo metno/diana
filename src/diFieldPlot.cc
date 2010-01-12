@@ -1743,33 +1743,36 @@ bool FieldPlot::plotLayer(){
   float w, h;
   for (iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
+    for (ix = ix1; ix < ix2; ix += xstep) {
+      if (fields[2]->data[ix + (iy * nx)] != 0) {
+        i = iy * nx + ix;
+        gx = x[i];
+        gy = y[i];
 
-      glColor3ubv(poptions.textcolour.RGB());
-      fp->set("BITMAPFONT", poptions.fontface, fontsize);
+        glColor3ubv(poptions.textcolour.RGB());
+        fp->set("BITMAPFONT", poptions.fontface, fontsize);
 
-      // middle
-      ostringstream ostr;
-      ostr << roundf(fields[0]->data[ix + (iy * nx)] * 0.001);
-      fp->getStringSize(ostr.str().c_str(), w, h);
-      fp->drawStr(ostr.str().c_str(), gx, gy, 0.0);
+        // middle
+        ostringstream ostr;
+        ostr << roundf(fields[0]->data[ix + (iy * nx)] * 0.001);
+        fp->getStringSize(ostr.str().c_str(), w, h);
+        fp->drawStr(ostr.str().c_str(), gx, gy, 0.0);
 
-      glColor3f(1.0, 0.0, 0.0);
-      fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
+        glColor3f(1.0, 0.0, 0.0);
+        fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
 
-      // bottom
-      ostringstream ostrBottom;
-      ostrBottom << roundf(fields[1]->data[ix + (iy * nx)] * 0.001);
-      fp->getStringSize(ostrBottom.str().c_str(), w, h);
-      fp->drawStr(ostrBottom.str().c_str(), gx, gy-h, 0.0);
+        // bottom
+        ostringstream ostrBottom;
+        ostrBottom << roundf(fields[1]->data[ix + (iy * nx)] * 0.001);
+        fp->getStringSize(ostrBottom.str().c_str(), w, h);
+        fp->drawStr(ostrBottom.str().c_str(), gx, gy - h, 0.0);
 
-      // top
-      ostringstream ostrTop;
-      ostrTop << roundf(fields[2]->data[ix + (iy * nx)] * 0.001);
-      fp->getStringSize(ostrTop.str().c_str(), w, h);
-      fp->drawStr(ostrTop.str().c_str(), gx, gy+h, 0.0);
+        // top
+        ostringstream ostrTop;
+        ostrTop << roundf(fields[2]->data[ix + (iy * nx)] * 0.001);
+        fp->getStringSize(ostrTop.str().c_str(), w, h);
+        fp->drawStr(ostrTop.str().c_str(), gx, gy + h, 0.0);
+      }
     }
   }
   /*glEnd();*/
