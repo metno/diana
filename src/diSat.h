@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -47,7 +47,7 @@ using namespace std;
 /**
 
   \brief Satellite and radar data
-    
+
   Contains data neded to plot and manage satellite and radar images
 */
 class Sat {
@@ -64,7 +64,7 @@ public:
   vector<miutil::miString> vch; ///< name of channels selected
   miutil::miString filename;    ///< explicit selection of file
   miutil::miString actualfile;  ///< actual filename used
-  bool autoFile;        ///< filename from plot time 
+  bool autoFile;        ///< filename from plot time
   float cut;            ///< image cut/stretch factor
   int alphacut;          ///< alpha-blending cutoff value
   int alpha;             ///< alpha-blending value
@@ -78,7 +78,7 @@ public:
   miutil::miString plotname;    ///< unique plotname
   bool palette;         ///< palette sat-file
   miutil::miString plotChannels;///< channelname for annotation
-  bool mosaic;          ///< make mosaic plot 
+  bool mosaic;          ///< make mosaic plot
   miutil::miTime firstMosaicFileTime; ///< time start for mosaic image generation
   miutil::miTime lastMosaicFileTime;  ///< time stop for mosaic image generation
   miutil::miString satellite_name; ///< name of satellite from file
@@ -92,11 +92,15 @@ public:
   float Bx;      ///< grid parameter
   float By;      ///< grid parameter
 
+  //Projection
+  miutil::miString projection;
+  miutil::miString proj_string;
+
   // calibration
   //Strings from file header
   miutil::miString cal_vis;            /// calibration info visible channel
   miutil::miString cal_ir;             /// calibration info ir channel
-  vector<miutil::miString> cal_table;  /// calibration info 
+  vector<miutil::miString> cal_table;  /// calibration info
 
   struct table_cal{
     miutil::miString channel;
@@ -106,7 +110,7 @@ public:
   map<int,table_cal> calibrationTable; /// calibration of current channels
   vector<miutil::miString> cal_channels;  /// name++ of current channels
 
-  /// colour palette info 
+  /// colour palette info
   struct Palette {
     miutil::miString name;           ///< name of palette
     int noofcl;              ///< number of colours
@@ -125,7 +129,7 @@ public:
   unsigned char* rawimage[maxch]; ///< raw image
   float* origimage[3]; ///< original image for temperature display images
   int rawchannels[maxch];         ///< raw images channel numbers
-  
+
   int calibidx;         ///< channel to use in values routine
   /// calibration coefficients for channel values
   struct calib{
@@ -133,10 +137,10 @@ public:
     float a,b; ///< calibration coeff.
   };
   calib cal[maxch]; ///< calibration data for all channels
-  
+
   /// any images defined
   bool noimages(){return !(image && rawimage);}
-  
+
   // flags to indicate changes in parameters
   bool channelschanged;    ///< changes in selected channels
   bool rgboperchanged;     ///< changes in rgb-operation parameters
@@ -146,7 +150,7 @@ public:
   vector<int> hideColor;   ///< colour values to hide
 
   /// set default values from a SatDialogInfo
-  static void setDefaultValues(const SatDialogInfo &); 
+  static void setDefaultValues(const SatDialogInfo &);
 
 private:
   // Copy members
