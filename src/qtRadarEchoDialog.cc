@@ -344,7 +344,7 @@ void RadarEchoDialog::deleteAllClicked(){
 
 /*********************************************/
 
-static const double DEG_TO_RAD = 0.017453292519943295769236907684886;
+//static const double DEG_TO_RAD = 0.017453292519943295769236907684886;
 static const double EARTH_RADIUS_IN_METERS = 6372797.560856;
 
 double RadarEchoDialog::ArcInRadians(double lat1, double lon1, double lat2, double lon2) {
