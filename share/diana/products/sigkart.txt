@@ -39,21 +39,23 @@ anno=<text="   "><symbol=106,font=Symbol,size=0.6,tcolour=black> \
 anno=<text=" Mountain Obscuration",size=0.7> \
 
 anno=<image=reducedVis,size=0.2> \
+anno=<text="  CU/CB implies MOD/SEV ICE/TURB",size=0.7> \
 anno=<text="  Further information:",size=0.5> \
 anno=<text="  See ICAO anex III",size=0.5> \
+anno=<text="  ",size=0.5> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
 halign=left \
 font=Helvetica fontsize=10 \
 valign=bottom xoffset=0.00001 yoffset=0.0000001 margin=0.01 \
-xratio=0.23 yratio=0.35
+xratio=0.31 yratio=0.35
 
 
 
-MAP area=NyttSigkart4 backcolour=white map==Gshhs-Auto contour=on \
-cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
+MAP area=NyttSigkart4 backcolour=white map==Euro1 contour=on \
+cont.colour=grey50 cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
 land=off latlon=off frame=on
-MAP map=Riksgrense contour=on cont.colour=black cont.linewidth=1\
+MAP map=Riksgrense contour=on cont.colour=grey50 cont.linewidth=1\
 cont.linetype=solid cont.zorder=1 land=off latlon=on \
 latlon.colour=grey90 \
 latlon.linewidth=1 latlon.linetype=solid latlon.density=15 \

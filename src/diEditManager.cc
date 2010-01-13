@@ -2835,7 +2835,6 @@ void EditManager::initEditTools(){
 
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black"));
   sigsymbols.push_back(newEditToolInfo("Tekst_1",1000,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig17",1017,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig19",1019,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig12",1012,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig22",1022,"black"));

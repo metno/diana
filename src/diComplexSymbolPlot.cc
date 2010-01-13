@@ -171,9 +171,6 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
     currentSymbolStrings.push_back("");
     currentSymbolStrings.push_back("");
     break;
-  case 1017:
-    currentSymbolStrings.push_back("0°:x");
-    break;
   case 1018:
     //currentSymbolStrings.push_back("");
     break;
@@ -192,12 +189,12 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
   case 1023:
     currentXStrings.push_back("");
     currentXStrings.push_back("");
-    currentSymbolStrings.push_back("BKN/OVC");
+    currentSymbolStrings.push_back("BKN/OVC STF");
     break;
   case 1024:
     currentXStrings.push_back("");
     currentXStrings.push_back("");
-    currentSymbolStrings.push_back("BKN/OVC");
+    currentSymbolStrings.push_back("BKN/OVC STF");
     break;
   case 1027:
     currentSymbolStrings.push_back("");
@@ -297,16 +294,16 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   case 1016:
     drawSig16(0,0);
     break;
-  case 1017:
-    drawSig17(0,0);
-    break;
   case 1018:
+    symbolSizeToPlot=int (symbolSizeToPlot/1.5);
     drawSig1(0,0,RIGHTARROW);
     break;
   case 1019:
+    symbolSizeToPlot=int (symbolSizeToPlot*1.5);
     drawSig1(0,0,LOWSYMBOL);
     break;
   case 1020:
+    symbolSizeToPlot=int (symbolSizeToPlot*1.5);
     drawSig1(0,0,HIGHSYMBOL);
     break;
   case 1021:
@@ -376,9 +373,11 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig1(0,0,SNOWSYMBOL);
     break;
   case 1043:
+    symbolSizeToPlot=int (symbolSizeToPlot*2);
     drawSig1(0,0,SNOWSHOWERSYMBOL);
     break;
   case 1044:
+    symbolSizeToPlot=int (symbolSizeToPlot*2);
     drawSig1(0,0,SHOWERSYMBOL);
     break;
   case 1045:
@@ -693,14 +692,14 @@ void ComplexSymbolPlot::drawSig28(float x,float y){
 
 // Sea state, black flag
 void ComplexSymbolPlot::drawSig29(float x,float y){
-  symbolSizeToPlot=int(symbolSizeToPlot/textShrink/2);
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink/1.5);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawFlag(1000,x,y,true); //fill;
   drawFlag(1000,x,y,false); //border
   drawSigString(x,y,false);
   nstringsvisible=1;
-  symbolSizeToPlot=int(symbolSizeToPlot*textShrink*2);
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink*1.5);
 }
 
 // Freezing fog
@@ -1280,9 +1279,6 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       else
 	sh=ch2;
       break;
-    case 1017:
-      getComplexSize(1000,sw,sh);
-      break;
     case 1018:
       fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       fp->getCharSize(RIGHTARROW,cw,ch);
@@ -1473,8 +1469,6 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
     return true;
   case 1016:
     return true;
-  case 1017:
-    return true;
   case 1018:
     return false;
   case 1019:
@@ -1643,7 +1637,7 @@ miString ComplexSymbolPlot::writeComplexText(){
 
 
 void ComplexSymbolPlot::initComplexList(){
-  clist.insert("BKN/OVC");
+  clist.insert("BKN/OVC STF");
   clist.insert("RA");
   clist.insert("RADZ");
   clist.insert("SHRA");
