@@ -499,6 +499,11 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
   //  met.no    25.05.2009  Audun Christoffersen ... independent on met.no projections
   //---------------------------------------------------------------------
 
+  Area geoArea;
+  Projection geoProj;
+  geoProj.setGeographic();
+  geoArea.setP(geoProj);
+
   const unsigned int nwrec = 1024;
   const unsigned int maxpos = 2000;
   const int mlevel1 = 36 * 18;
@@ -575,7 +580,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     return false;
   }
 
-  //cerr << "plotMapLand4 file=" << filename << " version=" << version << endl;
+//  cerr << "plotMapLand4 file=" << filename << " version=" << version << endl;
 
   // for version 1 this is the scaling of all values (lat,long)
   // for version 2 this is the scaling of reference values (lat,long)
@@ -672,9 +677,9 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
           x1 = x[np - 1];
           y1 = y[np - 1];
           // convert coordinates from longitude,latitude to x,y
-          bool b = gc.geo2xy(area,np,x,y);
+          bool b = gc.getPoints(geoArea,area,np,x,y);
           if (!b){
-            cerr << "plotMapLand4(0), geo2xy returned false" << endl;
+            cerr << "plotMapLand4(0), getPoints returned false" << endl;
           }
 
           //xyconvert(np, x, y, igeogrid, geogrid, gridtype, gridparam, &ierror);
@@ -758,9 +763,9 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
       }
     }
     nn = n;
-    bool b = gc.xy2geo(area,nn,x,y);
+    bool b = gc.getPoints(area,geoArea,nn,x,y);
     if (!b){
-      cerr << "plotMapLand4(1), geo2xy returned false" << endl;
+      cerr << "plotMapLand4(1), getPoints returned false" << endl;
     }
     glonmin = glonmax = x[0];
     glatmin = glatmax = y[0];
@@ -906,9 +911,9 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                   x1 = x[np - 1];
                   y1 = y[np - 1];
                   // convert coordinates from longitude,latitude to x,y
-                  bool b = gc.geo2xy(area,np,x,y);
+                  bool b = gc.getPoints(geoArea,area,np,x,y);
                   if (!b){
-                    cerr << "plotMapLand4(2), geo2xy returned false" << endl;
+                    cerr << "plotMapLand4(2), getPoints returned false"<< endl;
                   }
 /*
 TODO: what about this?
