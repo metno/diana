@@ -2836,8 +2836,9 @@ void EditManager::initEditTools(){
   //arrow
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
   sigsymbols.push_back(newEditToolInfo("Tekst_1",1000,"black"));
+  //Low
   sigsymbols.push_back(newEditToolInfo("Sig19",1019,"black","black",1));
-  sigsymbols.push_back(newEditToolInfo("Sig12",1012,"black","black",1));
+  sigsymbols.push_back(newEditToolInfo("Sig12",1012,"black","black"));
   sigsymbols.push_back(newEditToolInfo("Sig22",1022,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig11",1011,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig3",1003,"black"));
@@ -2846,7 +2847,8 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig14",1014,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig23",1023,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig8",1008,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig20",1020,"black"));
+  //High
+  sigsymbols.push_back(newEditToolInfo("Sig20",1020,"black","black",1));
   sigsymbols.push_back(newEditToolInfo("Sig10",1010,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig16",1016,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig7",1007,"black"));
@@ -2865,7 +2867,7 @@ void EditManager::initEditTools(){
 
   //new
   //Sea temp, blue circle
-  sigsymbols.push_back(newEditToolInfo("Sig27",1027,"black", "blue",10));
+  sigsymbols.push_back(newEditToolInfo("Sig27",1027,"black", "blue"));
   //Mean SFC wind, red diamond
   sigsymbols.push_back(newEditToolInfo("Sig28",1028,"black", "red"));
   // Sea state, black flag

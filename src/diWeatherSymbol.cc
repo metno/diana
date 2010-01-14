@@ -51,7 +51,7 @@ Colour::ColourInfo WeatherSymbol::currentColour; //text colour
 set <miString> WeatherSymbol::textlist; //texts used in combobox
 
 //Constructor
-WeatherSymbol::WeatherSymbol() : ObjectPlot(wSymbol),complexSymbol(0){
+WeatherSymbol::WeatherSymbol() : ObjectPlot(wSymbol),complexSymbol(0) {
 #ifdef DEBUGPRINT
   cerr << "Weather symbol- default constructor" << endl;
 #endif
@@ -68,11 +68,9 @@ WeatherSymbol::WeatherSymbol(int ty) : ObjectPlot(wSymbol),complexSymbol(0){
 #ifdef DEBUGPRINT
   cerr << "Weather symbol - int constructor" << endl;
 #endif
+
   setType(ty);
-  if (drawIndex < 1000)
-    setSymbolSize(defaultSize);
-  else
-    setSymbolSize(defaultComplexSize);
+
 }
 
 
@@ -82,16 +80,12 @@ symbolSize(defaultSize),complexSymbol(0){
 #ifdef DEBUGPRINT
   cerr << "Weather symbol(miString,int) constructor" << endl;
 #endif
+
   // set correct symboltype
   if (tystring.empty())
     setType(0);
   else if (!setType(tystring))
     cerr << "WeatherSymbol constructor error, type " << tystring << " not found !!!" << endl;
-  if (drawIndex < 1000)
-    setSymbolSize(defaultSize);
-  else
-    setSymbolSize(defaultComplexSize);
-
 }
 
 
@@ -377,10 +371,16 @@ void WeatherSymbol::setType(int ty){
       return;
     setIndex(allSymbols[type].index);
     setBasisColor(allSymbols[type].colour);
+
+    if (drawIndex < 1000)
+      setSymbolSize(defaultSize);
+    else
+      setSymbolSize(defaultComplexSize);
+
     if (drawIndex>=1000 && complexSymbol==0) {
       complexSymbol= new ComplexSymbolPlot(drawIndex);
       complexSymbol->setBorderColour(allSymbols[type].borderColour);
-      setStandardSize(symbolSize,defaultComplexSize + allSymbols[type].sizeIncrement);
+      setSymbolSize(defaultComplexSize + allSymbols[type].sizeIncrement);
     }
     if (isText()){
       if (currentText.empty())
