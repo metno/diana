@@ -692,14 +692,14 @@ void ComplexSymbolPlot::drawSig28(float x,float y){
 
 // Sea state, black flag
 void ComplexSymbolPlot::drawSig29(float x,float y){
-  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink/2);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawFlag(1000,x,y,true); //fill;
   drawFlag(1000,x,y,false); //border
   drawSigString(x,y,false);
   nstringsvisible=1;
-  symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink*2);
 }
 
 // Freezing fog
