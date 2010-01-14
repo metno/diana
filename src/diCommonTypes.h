@@ -247,6 +247,7 @@ struct editToolInfo {
   int index;
   miutil::miString colour;
   miutil::miString borderColour;
+  int sizeIncrement;
 };
 
 /**

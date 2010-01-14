@@ -2833,10 +2833,11 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Reduced visibility",ReducedVisibility,"gulbrun"));
   areas.push_back(newEditToolInfo("Generic area",Genericarea,"red"));
 
-  sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black"));
+  //arrow
+  sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
   sigsymbols.push_back(newEditToolInfo("Tekst_1",1000,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig19",1019,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig12",1012,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig19",1019,"black","black",1));
+  sigsymbols.push_back(newEditToolInfo("Sig12",1012,"black","black",1));
   sigsymbols.push_back(newEditToolInfo("Sig22",1022,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig11",1011,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig3",1003,"black"));
@@ -2864,11 +2865,11 @@ void EditManager::initEditTools(){
 
   //new
   //Sea temp, blue circle
-  sigsymbols.push_back(newEditToolInfo("Sig27",1027,"black", "blue"));
+  sigsymbols.push_back(newEditToolInfo("Sig27",1027,"black", "blue",10));
   //Mean SFC wind, red diamond
   sigsymbols.push_back(newEditToolInfo("Sig28",1028,"black", "red"));
   // Sea state, black flag
-  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black"));
+  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",1));
   // Freezing fog
   sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
   //Nuclear
@@ -2894,9 +2895,9 @@ void EditManager::initEditTools(){
   //snow
   sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green"));
   //snow showers
-  sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green"));
+  sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green","green",2));
   //showers
-  sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green"));
+  sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green","green",2));
   //Freezing precip
   sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red"));
 
@@ -3038,12 +3039,14 @@ const miString EditManager::insertTime(const miString& s, const miTime& time) {
 editToolInfo newEditToolInfo(const miString & newName,
     const int newIndex,
     const miString & newColour,
-    const miString & newBorderColour){
+    const miString & newBorderColour,
+    const int & newsizeIncrement){
   editToolInfo eToolInfo;
   eToolInfo.name=  newName;
   eToolInfo.index= newIndex;
   eToolInfo.colour= newColour;
   eToolInfo.borderColour= newBorderColour;
+  eToolInfo.sizeIncrement= newsizeIncrement;
   return eToolInfo;
 }
 

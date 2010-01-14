@@ -295,15 +295,15 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig16(0,0);
     break;
   case 1018:
-    symbolSizeToPlot=int (symbolSizeToPlot/1.5);
+    symbolSizeToPlot=int (symbolSizeToPlot);
     drawSig1(0,0,RIGHTARROW);
     break;
   case 1019:
-    symbolSizeToPlot=int (symbolSizeToPlot*1.5);
+    symbolSizeToPlot=int (symbolSizeToPlot);
     drawSig1(0,0,LOWSYMBOL);
     break;
   case 1020:
-    symbolSizeToPlot=int (symbolSizeToPlot*1.5);
+    symbolSizeToPlot=int (symbolSizeToPlot);
     drawSig1(0,0,HIGHSYMBOL);
     break;
   case 1021:
@@ -373,11 +373,11 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig1(0,0,SNOWSYMBOL);
     break;
   case 1043:
-    symbolSizeToPlot=int (symbolSizeToPlot*2);
+    symbolSizeToPlot=int (symbolSizeToPlot);
     drawSig1(0,0,SNOWSHOWERSYMBOL);
     break;
   case 1044:
-    symbolSizeToPlot=int (symbolSizeToPlot*2);
+    symbolSizeToPlot=int (symbolSizeToPlot);
     drawSig1(0,0,SHOWERSYMBOL);
     break;
   case 1045:
@@ -692,14 +692,14 @@ void ComplexSymbolPlot::drawSig28(float x,float y){
 
 // Sea state, black flag
 void ComplexSymbolPlot::drawSig29(float x,float y){
-  symbolSizeToPlot=int(symbolSizeToPlot/textShrink/1.5);
+  symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawFlag(1000,x,y,true); //fill;
   drawFlag(1000,x,y,false); //border
   drawSigString(x,y,false);
   nstringsvisible=1;
-  symbolSizeToPlot=int(symbolSizeToPlot*textShrink*1.5);
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
 }
 
 // Freezing fog

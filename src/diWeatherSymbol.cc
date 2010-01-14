@@ -380,6 +380,7 @@ void WeatherSymbol::setType(int ty){
     if (drawIndex>=1000 && complexSymbol==0) {
       complexSymbol= new ComplexSymbolPlot(drawIndex);
       complexSymbol->setBorderColour(allSymbols[type].borderColour);
+      setStandardSize(symbolSize,defaultComplexSize + allSymbols[type].sizeIncrement);
     }
     if (isText()){
       if (currentText.empty())
