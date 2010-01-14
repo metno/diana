@@ -2871,7 +2871,7 @@ void EditManager::initEditTools(){
   //Mean SFC wind, red diamond
   sigsymbols.push_back(newEditToolInfo("Sig28",1028,"black", "red"));
   // Sea state, black flag
-  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",1));
+  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",2));
   // Freezing fog
   sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
   //Nuclear
