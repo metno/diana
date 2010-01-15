@@ -259,7 +259,7 @@ void ProfetSessionDialog::enableObjectButtons(bool enableNewButton,
 {
 
   newObjectButton->setEnabled(enableNewButton);
-//  newObjectButton->setEnabled(true);
+// newObjectButton->setEnabled(true);
 
   editObjectButton->setEnabled(enableModifyButtons);
   deleteObjectButton->setEnabled(enableModifyButtons);

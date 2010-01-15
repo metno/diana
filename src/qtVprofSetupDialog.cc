@@ -574,7 +574,7 @@ void VprofSetupDialog::initDatatab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout();
+  QGridLayout * glayout = new QGridLayout(datatab);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -676,7 +676,7 @@ void VprofSetupDialog::initDiagramtab(){
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout();
+  QGridLayout * glayout = new QGridLayout(diagramtab);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
@@ -756,7 +756,7 @@ void VprofSetupDialog::initColourtab(){
 
   // make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes
-  QGridLayout * glayout = new QGridLayout();
+  QGridLayout * glayout = new QGridLayout(colourtab);
   glayout->setMargin( mymargin );
   glayout->setSpacing( myspacing );
 
