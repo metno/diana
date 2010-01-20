@@ -49,8 +49,8 @@ AC_ARG_ENABLE([netcdf],
 AM_CONDITIONAL([WITH_NETCDF], [test x$enable_netcdf = xyes])
 
 AC_ARG_ENABLE([hdf5],
-    [AS_HELP_STRING([--disable-hdf5], [disable HDF5 support])],
-    [], [enable_hdf5=yes])
+    [AS_HELP_STRING([--enable-hdf5], [enable HDF5 support])],
+    [], [enable_hdf5=no])
 AM_CONDITIONAL([WITH_HDF5], [test x$enable_hdf5 = xyes])
 
 AC_ARG_ENABLE([obs-bufr],
