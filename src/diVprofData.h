@@ -36,6 +36,7 @@
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <vector>
+#include <diField/diFieldManager.h>
 
 using namespace std;
 
@@ -53,6 +54,7 @@ public:
   VprofData(const miutil::miString& filename, const miutil::miString& modelname);
   ~VprofData();
   bool readFile();
+  bool readField(miutil::miString type, FieldManager* fieldm);
   VprofPlot* getData(const miutil::miString& name, const miutil::miTime& time);
   vector<miutil::miString> getNames() { return posName; }
   vector <float> getLatitudes() { return posLatitude; }
@@ -64,11 +66,22 @@ private:
 
   miutil::miString fileName;
   miutil::miString modelName;
+  bool readFromField;
+  FieldManager* fieldManager;
 
   int numPos;
   int numTime;
   int numParam;
   int numLevel;
+
+  struct station {
+    miutil::miString id; /**< WMO number */
+    miutil::miString name; /**< name */
+    float lat; /**< latitude */
+    float lon; /**< longitude */
+    int height; /**< station height */
+    int barHeight; /**< barometer height */
+  };
 
   vector<miutil::miString> posName;
   vector<miutil::miString> obsName;
@@ -83,6 +96,10 @@ private:
   vector<miutil::miString> mainText;
   vector<int>      paramId;
   vector<float>    paramScale;
+  VprofPlot        *vProfPlot;
+  miutil::miString vProfPlotName;
+  miutil::miTime   vProfPlotTime;
+
 
   // dataBuffer[numPos][numTime][numParam][numLevel]
   short int *dataBuffer;

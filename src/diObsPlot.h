@@ -35,7 +35,9 @@
 #include <diObsData.h>
 #include <GL/gl.h>
 #include <set>
-
+#ifdef ROADOBS
+#include <roadAPI/diStation.h>
+#endif
 
 /**
 
@@ -247,6 +249,9 @@ private:
   void plotList(int index);
   void plotAscii(int index);
   void plotMetar(int index);
+#ifdef ROADOBS
+  void plotRoadobs(int index);
+#endif
   void priority_sort(void);
   void time_sort(void);
   int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
@@ -347,6 +352,48 @@ public:
   vector<int> asciidd;
   vector<float> asciiff;
 
+  // observations from road
+#ifdef ROADOBS
+  bool roadobsHeader;
+  bool roadobsData;
+  bool roadobsOK;
+  bool roadobsKnots;
+  int  roadobsSkipDataLines;
+  miutil::miString roadobsDataName;
+  miutil::miTime   roadobsMainTime;
+  miutil::miTime   roadobsStartTime;
+  miutil::miTime   roadobsEndTime;
+  vector<miutil::miString> roadobsColumnName;
+  vector<miutil::miString> roadobsColumnTooltip;
+  vector<miutil::miString> roadobsColumnType;
+  vector<miutil::miString> roadobsColumnHide;
+  vector<miutil::miString> roadobsColumnUndefined;
+
+  vector<miutil::miTime> roadobsTime;
+
+  //vector< vector<miutil::miString> > roadobsp;
+  // needed to get data from road ON DEMAND
+  miutil::miString filename;
+  miutil::miString databasefile;
+  miutil::miString stationfile;
+  miutil::miString headerfile;
+  miutil::miTime filetime;
+  map <int, vector<miutil::miString> > roadobsp;
+  vector<road::diStation>  * stationlist;
+  vector<road::diStation> stations_to_plot;
+  bool preparePlot(void);
+  vector<int> roadobsLengthMax;
+
+  map<miutil::miString,int> roadobsColumn; //column index(time, x,y,dd,ff etc)
+
+  vector<miutil::miString> roadobsParameter;
+  vector<int>      roadobspar;
+  bool             roadobsWind;
+
+  vector<int> roadobsdd;
+  vector<float> roadobsff;
+  static int ucount;
+#endif
 
 //Hqc
   bool flagInfo(){return flaginfo;}

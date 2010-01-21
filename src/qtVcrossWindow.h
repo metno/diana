@@ -63,7 +63,7 @@ class VcrossWindow: public QMainWindow
   Q_OBJECT
 
 public:
-  VcrossWindow();
+  VcrossWindow(Controller* co);
   ~VcrossWindow(){}
 
   void getCrossections(LocationData& locationdata);
@@ -79,6 +79,10 @@ public:
 
   bool firstTime;
   bool active;
+
+  ///add position to list of positions
+  void mapPos(float lat, float lon);
+
 
 protected:
   void closeEvent( QCloseEvent* );
@@ -118,6 +122,7 @@ private slots:
   void timeGraphClicked(bool on);
   void quitClicked();
   void helpClicked();
+  void dynCrossClicked();
   void MenuOK();
   void changeFields(bool modelChanged);
   void changeSetup();
@@ -136,6 +141,7 @@ signals:
   void crossectionSetUpdate();
   void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
   void setTime(const miutil::miString&, const miutil::miTime&);
+  void updateCrossSectionPos(bool);
 };
 #endif
 

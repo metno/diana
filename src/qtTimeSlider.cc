@@ -72,6 +72,11 @@ void TimeSlider::clear(){
   //  merge();
 }
 
+void TimeSlider::setLastTimeStep() {
+  setSliderValue(times.size()-1);
+  emit sliderSet();
+}
+
 void TimeSlider::setInterval(int in){
   interval= in;
 }

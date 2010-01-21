@@ -84,6 +84,7 @@ common_cxx_sources = \
 	diTimeFilter.cc \
 	diTrajectoryPlot.cc \
 	diUndoFront.cc \
+	diVcrossField.cc \
 	diVcrossFile.cc \
 	diVcrossManager.cc \
 	diVcrossOptions.cc \
@@ -229,6 +230,7 @@ common_header_sources= diAnnotationPlot.h\
 	diTimeFilter.h\
 	diTrajectoryPlot.h\
 	diUndoFront.h\
+	diVcrossField.h\
 	diVcrossFile.h\
 	diVcrossManager.h\
 	diVcrossOptions.h\
@@ -320,6 +322,7 @@ common_header_sources= diAnnotationPlot.h\
 
 # xpm files needed to build
 common_xpm_sources= active_object.xpm\
+	autoupdate.xpm\
 	back.xpm\
 	bakover.xpm\
 	balloon.xpm\
@@ -504,13 +507,45 @@ common_ldflags += \
 	${NETCDF_LDFLAGS}
 common_ldadd += \
 	${NETCDF_LIBS}
-endif 
+endif
+
+# Additional source code for RoadOBS support
+if WITH_ROADOBS
+common_cppflags += -DROADOBS
+common_cxx_sources += \
+	diObsRoad.cc\
+	diVprofRTemp.cc
+common_ldflags += \
+	${ROADAPI_LDFLAGS}
+common_ldadd += \
+	${ROADAPI_LIBS}
+endif
+
+if WITH_GRIBAPI
+common_ldflags += \
+	${GRIBAPI_LDFLAGS}
+common_ldadd += \
+	${GRIBAPI_LIBS} ${GRIBAPI_LIBS}
+endif
+
+# Additional source code for RoadOBS support
+if WITH_GEOTIFF
+common_cppflags += -DGEOTIFF
+common_cxx_sources += \
+	diGEOtiff.cc
+#common_ldflags += \
+#	${ROADAPI_LDFLAGS}
+common_ldadd += \
+	${ROADAPI_LIBS} ${GRIBAPI_LIBS}
+
+endif
 
 # Additional source code for HDF5 support
 if WITH_HDF5
+common_cppflags += -DHDF5FILE
 common_cxx_sources += \
 	diHDF5.cc
-endif 
+endif
 
 # Additional source code for observation buffers
 if WITH_OBS_BUFR

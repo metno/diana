@@ -54,7 +54,7 @@
 #include <bakover.xpm>
 
 
-VprofWindow::VprofWindow()
+VprofWindow::VprofWindow(Controller *co)
   : QMainWindow( 0)
 {
 #ifndef linux
@@ -62,7 +62,7 @@ VprofWindow::VprofWindow()
 #endif
 
   //HK ??? temporary create new VprofManager here
-  vprofm = new VprofManager();
+  vprofm = new VprofManager(co);
 
   setWindowTitle( tr("Diana Vertical Profiles") );
 
@@ -554,7 +554,9 @@ void VprofWindow::changeModel(){
 #ifdef DEBUGPRINT
     cerr << "VprofWindow::changeModel()" << endl;
 #endif
+    QApplication::setOverrideCursor( Qt::WaitCursor );
     vprofm->setModel();
+    QApplication::restoreOverrideCursor();
 
     onlyObs= vprofm->onlyObsState();
 

@@ -167,6 +167,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot) {
         gx= x0;
         gy= yy[k];
         ff= sqrtf(uu[k]*uu[k]+vv[k]*vv[k]);
+        if(!windInKnots)
+          ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
 
         if (ff>0.00001){
           gu= uu[k]/ff;
@@ -326,7 +328,17 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot) {
     }
   }
 
-  // realtive humidity
+  // levels for relative humidity (same as T levels)
+  if (vpopt->prelhum && ptt.size()>0 && (ptt.size() == ptd.size())) {
+    nlevel= ptt.size();
+    for (unsigned int k=0; k<nlevel; k++) {
+      x= ptt[k]*dpinv;
+      i= int(x);
+      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
+    }
+  }
+
+  // relative humidity
   if (vpopt->prelhum) {
     float dx= xysize[7][1] - xysize[7][0];
     float x0= xysize[7][0];
@@ -345,6 +357,16 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot) {
       xyclip(nlevel,xx,yy,xylimit);
     }
     UpdateOutput();
+  }
+
+  // levels for ducting (same as T levels)
+  if (vpopt->pducting && ptt.size()>0 && (ptt.size() == ptd.size())) {
+    nlevel= ptt.size();
+    for (unsigned int k=0; k<nlevel; k++) {
+      x= ptt[k]*dpinv;
+      i= int(x);
+      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
+    }
   }
 
   // ducting

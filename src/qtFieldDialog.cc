@@ -4080,7 +4080,7 @@ void FieldDialog::requestQuickUpdate(const vector<miutil::miString>& oldstr,
       for (int jc=0; jc<nc; jc++) {
         if (!used[jc]) {
           // check model
-          unsigned int n= vpold[jc][1].allValue.find('@');
+	  std::string::size_type n= vpold[jc][1].allValue.find('@');
           if (n==string::npos) n= vpold[jc][1].allValue.length();
           int nm= 0;
           for (unsigned int i=0; i<n; i++) {

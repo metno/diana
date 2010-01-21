@@ -40,6 +40,7 @@
 #include <diSetupParser.h>
 #include <diPrintOptions.h>
 #include <diTimeFilter.h>
+#include <diController.h>
 
 using namespace std;
 
@@ -50,7 +51,8 @@ class VprofDiagram;
 
 /**
    \brief Managing Vertical Profile observation and prognostic sources.
-
+   \brief If we use observations from road, the filename och filepath
+   \brief will not be used.
 */
 class VprofManager{
 
@@ -64,7 +66,12 @@ private:
 
   enum FileFormat {
     metnoobs,
+#ifdef ROADOBS
+    bufr,
+    roadobs
+#else
     bufr
+#endif
   };
 
   struct ObsFile {
@@ -73,6 +80,11 @@ private:
     FileFormat fileformat;
     miutil::miTime     time;
     long       modificationTime;
+#ifdef ROADOBS
+    miutil::miString parameterfile;
+    miutil::miString stationfile;
+    miutil::miString databasefile;
+#endif
   };
 
   struct ObsFilePath {
@@ -80,10 +92,17 @@ private:
     obsType    obstype;
     FileFormat fileformat;
     TimeFilter tf;
+#ifdef ROADOBS
+    miutil::miString parameterfile;
+    miutil::miString stationfile;
+    miutil::miString databasefile;
+#endif
+
   };
 
   // map<model,filename>
   map<miutil::miString,miutil::miString> filenames;
+  map<miutil::miString,miutil::miString> filetypes;
 
   // for use in dialog (unique lists in setup order)
   vector<miutil::miString> dialogModelNames;
@@ -98,6 +117,7 @@ private:
   vector<miutil::miString> amdarName;
 
   SetupParser sp;
+  FieldManager *fieldm;   // field manager
 
   VprofOptions *vpopt;
   VprofDiagram *vpdiag;
@@ -154,7 +174,7 @@ private:
 
 public:
   // constructor
-  VprofManager();
+  VprofManager(Controller *co);
   // destructor
   ~VprofManager();
 
@@ -198,6 +218,9 @@ public:
   vector<miutil::miString> writeLog();
   void readLog(const vector<miutil::miString>& vstr,
 	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  /* Added for debug purposes */
+  void printObsFiles(const ObsFile &of);
+  void printObsFilePath(const ObsFilePath & ofp);
 
 };
 

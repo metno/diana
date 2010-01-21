@@ -174,6 +174,7 @@ private slots:
   void MenuOK();
   void trajPositions(bool);
   void radePositions(bool);
+  void vCrossPositions(bool);
   void catchMouseGridPos(const mouseEvent);
   void catchMouseRightPos(const mouseEvent);
   void catchMouseMovePos(const mouseEvent,bool);
@@ -216,6 +217,7 @@ private slots:
   void sendLetter(miMessage&);
 
   void updateObs();
+  void autoUpdate();
   void updateGLSlot();
   void xyGeoPos();
   void latlonGeoPos();
@@ -261,6 +263,7 @@ private:
   BrowserBox* browser; // shows plot-stack
   bool updateBrowser();// update browser-window
   bool uffda;
+  bool doAutoUpdate;
 
   void PrintPS(miutil::miString& filestr );
   void PrintPS(vector <miutil::miString>& filestr );
@@ -331,6 +334,7 @@ private:
   QAction * toolIdnumDownAction;
 
   QAction * obsUpdateAction;
+  QAction * autoUpdateAction;
 
   QAction * undoAction;
   QAction * redoAction;
@@ -386,6 +390,7 @@ private:
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
   bool                markRadePos; //left mouse click -> mark radarecho position
+  bool                markVcross; //left mouse click -> mark Vcross position
 
   VprofWindow       * vpWindow;
   VcrossWindow      * vcWindow;

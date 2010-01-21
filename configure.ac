@@ -38,6 +38,21 @@ AC_LANG_POP([C++])
 #
 # Features
 #
+AC_ARG_ENABLE([roadobs],
+    [AS_HELP_STRING([--enable-roadobs], [enable ROAD observations])],
+    [], [enable_roadobs=no])
+AM_CONDITIONAL([WITH_ROADOBS], [test x$enable_roadobs = xyes])
+
+AC_ARG_ENABLE([gribfile],
+    [AS_HELP_STRING([--enable-gribfile], [enable Gribfile support])],
+    [], [enable_gribfile=no])
+AM_CONDITIONAL([WITH_GRIBAPI], [test x$enable_gribfile = xyes])
+
+AC_ARG_ENABLE([geotiff],
+    [AS_HELP_STRING([--enable-geotiff], [enable GeoTiff support])],
+    [], [enable_geotiff=no])
+AM_CONDITIONAL([WITH_GEOTIFF], [test x$enable_geotiff = xyes])
+
 AC_ARG_ENABLE([profet],
     [AS_HELP_STRING([--enable-profet], [enable Profet])],
     [], [enable_profet=no])
@@ -90,7 +105,14 @@ METNO_REQUIRE_PKG([PUTOOLS], [puTools])
 METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
 METNO_REQUIRE_PKG([ROBS], [robs])
 
-#METNO_REQUIRE_PKG([GRIBAPI], [GribAPI])
+AS_IF([test x$enable_gribfile = xyes], [
+    METNO_REQUIRE_PKG([GRIBAPI], [GribAPI])
+])
+
+AS_IF([test x$enable_roadobs = xyes], [
+    METNO_REQUIRE_PKG([RDKAPI], [rdkAPI])
+    METNO_REQUIRE_PKG([ROADAPI], [roadAPI])
+])
 
 AS_IF([test x$enable_profet = xyes], [
     METNO_REQUIRE_PKG([PODS], [pods])

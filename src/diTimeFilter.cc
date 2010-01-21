@@ -98,7 +98,7 @@ bool TimeFilter::initFilter(miString &filename){
 
   if(advanced){
     //replace [...] with [??..??]
-    unsigned int pos1,pos2;
+    std::string::size_type pos1,pos2;
     while(((pos1=filename.find("[")) != filename.npos)
 	  && ((pos2=filename.find("]")) != filename.npos)){
       miString s1= filename.substr(0,pos1);
@@ -127,11 +127,11 @@ void TimeFilter::replaceKey(miString& str)
   str.replace("XX","??");
 }
 
-unsigned int TimeFilter::findPos( const miString& filter, const miString& s)
+std::string::size_type TimeFilter::findPos( const miString& filter, const miString& s)
 {
 
   if(advanced){
-    unsigned int pos=0;
+    std::string::size_type pos=0;
     while(true){
       pos = filter.find(s,pos);
       if( pos==filter.npos)return filter.npos;

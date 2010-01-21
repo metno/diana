@@ -120,6 +120,8 @@ private:
   bool plotWind();
   bool plotWindColour();
   bool plotWindTempFL();
+  bool plotWindNumber();
+  bool plotValueMaxHeight();
   bool plotVector();
 
   /**

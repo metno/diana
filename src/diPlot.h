@@ -96,6 +96,7 @@ protected:
 public:
   // Constructors
   Plot();
+  virtual ~Plot() {}
 
   // Equality operator
   bool operator==(const Plot &rhs) const;

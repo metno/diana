@@ -34,6 +34,7 @@
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QApplication>
 
 #include <qtVcrossWidget.h>
 #include <diVcrossManager.h>
@@ -98,7 +99,9 @@ void VcrossWidget::paintGL()
 #ifdef DEBUGREDRAW
     cerr << "VcrossWidget::paintGL ... vcrossm->plot" << endl;
 #endif
+    QApplication::setOverrideCursor( Qt::WaitCursor );
     vcrossm->plot();
+    QApplication::restoreOverrideCursor();
 
     if (savebackground) {
 #ifdef DEBUGREDRAW

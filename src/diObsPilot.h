@@ -51,6 +51,7 @@ private:
 public:
   // Constructors
   ObsPilot(const miutil::miString&);
+  virtual ~ObsPilot() {}
 
   void init(ObsPlot *, vector<int>&);
 

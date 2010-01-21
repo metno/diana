@@ -156,7 +156,7 @@ bool SetupParser::makeDirectory(const miString& filename, miString & error)
 
 void SetupParser::cleanstr(miString& s)
 {
-  unsigned int p;
+  std::string::size_type p;
   if ((p = s.find("#")) != string::npos)
     s.erase(p);
 
@@ -176,7 +176,7 @@ void SetupParser::cleanstr(miString& s)
     while ((p = s.find_first_of("=", p)) != string::npos) {
       // check for "" - do not clean out blanks inside these
       vector<int> sf1, sf2;
-      unsigned int f1 = 0, f2;
+      std::string::size_type f1 = 0, f2;
       while ((f1 = s.find_first_of("\"", f1)) != string::npos && (f2
           = s.find_first_of("\"", f1 + 1)) != string::npos) {
         sf1.push_back(f1);
@@ -184,7 +184,7 @@ void SetupParser::cleanstr(miString& s)
         f1 = f2 + 1;
       }
       bool dropit = false;
-      for (unsigned int i = 0; i < sf1.size(); i++) {
+      for (std::string::size_type i = 0; i < sf1.size(); i++) {
         f1 = sf1[i];
         f2 = sf2[i];
         if (f1 > p) {

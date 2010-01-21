@@ -42,7 +42,6 @@
 #include <qtVcrossWindow.h>
 #include <QPrintDialog>
 #include <QPrinter>
-//Added by qt3to4:
 #include <QPixmap>
 #include <diLocationPlot.h>
 #include <qtVcrossWidget.h>
@@ -54,7 +53,7 @@
 #include <bakover.xpm>
 
 
-VcrossWindow::VcrossWindow()
+VcrossWindow::VcrossWindow(Controller *co)
 : QMainWindow( 0)
 {
 #ifndef linux
@@ -62,7 +61,7 @@ VcrossWindow::VcrossWindow()
 #endif
 
   //HK ??? temporary create new VcrossManager here
-  vcrossm = new VcrossManager();
+  vcrossm = new VcrossManager(co);
 
   setWindowTitle( tr("Diana Vertical Crossections") );
 
@@ -115,6 +114,10 @@ VcrossWindow::VcrossWindow()
   QPushButton * helpButton = NormalPushButton(tr("Help"),this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
+  //button for dynCross - pushbutton
+  QPushButton * dynCrossButton = NormalPushButton(tr("Draw cross/Clear"),this);
+  connect( dynCrossButton, SIGNAL(clicked()), SLOT(dynCrossClicked()) );
+  dynCrossButton->hide();
 
   QPushButton *leftCrossectionButton= new QPushButton(QPixmap(bakover_xpm),"",this);
   connect(leftCrossectionButton, SIGNAL(clicked()), SLOT(leftCrossectionClicked()) );
@@ -155,6 +158,7 @@ VcrossWindow::VcrossWindow()
   vcToolbar->addWidget(saveButton);
   vcToolbar->addWidget(quitButton);
   vcToolbar->addWidget(helpButton);
+  vcToolbar->addWidget(dynCrossButton);
 
   insertToolBarBreak(tsToolbar);
 
@@ -509,6 +513,7 @@ void VcrossWindow::quitClicked(){
   timeBox->clear();
 
   active = false;
+  emit updateCrossSectionPos(false);
   emit VcrossHide();
   vector<miutil::miTime> t;
   emit emitTimes("vcross",t);
@@ -524,6 +529,22 @@ void VcrossWindow::helpClicked(){
   emit showsource("ug_verticalcrosssections.html");
 }
 
+/***************************************************************************/
+//called when the Dynamic/Clear button in Vprofwindow is clicked
+void VcrossWindow::dynCrossClicked(){
+#ifdef DEBUGPRINT
+  cerr << "Dynamic/Clear clicked" << endl;
+#endif
+  // Clean up the current dynamic crossections
+  vcrossm->cleanupDynamicCrossSections();
+  updateCrossectionBox();
+  emit crossectionSetChanged();
+  // Tell mainWindow to start receiving notifications
+  // about mouse presses on the map
+  emit updateCrossSectionPos(true);
+  // Redraw to remove any old crossections
+  vcrossw->updateGL();
+}
 
 /***************************************************************************/
 
@@ -746,6 +767,21 @@ void VcrossWindow::startUp(const miutil::miTime& t){
   }
   //changeModel();
   mainWindowTimeChanged(t);
+}
+
+/*
+ * Set the position clicked on the map in the current VcrossPlot.
+ */
+void VcrossWindow::mapPos(float lat, float lon) {
+#ifdef DEBUGPRINT
+  cout<<"VcrossWindow::mapPos(" << lat << "," << lon << ")" <<endl;
+#endif
+  if(vcrossm->setCrossection(lat,lon)) {
+    // If the return is true (field) update the crossection box and
+    // tell mainWindow to reread the crossections.
+    updateCrossectionBox();
+    emit crossectionSetChanged();
+  }
 }
 
 /***************************************************************************/

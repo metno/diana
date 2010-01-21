@@ -46,7 +46,7 @@ using namespace std;
 class TimeFilter {
 private:
 
-  unsigned int yyyy,yy,mm,dd,HH,MM,M,XX;
+  std::string::size_type yyyy,yy,mm,dd,HH,MM,M,XX;
   bool dat;
   bool OK;
   bool noSlash;
@@ -55,7 +55,7 @@ private:
 
   void memberCopy(const TimeFilter& rhs);
   void replaceKey(miutil::miString& str);
-  unsigned int findPos(const miutil::miString& filter, const miutil::miString& s);
+  std::string::size_type findPos(const miutil::miString& filter, const miutil::miString& s);
   bool getClock(miutil::miString name, miutil::miClock &);
 
 public:

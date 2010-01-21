@@ -58,6 +58,9 @@ class VprofPlot : public VprofTables
 #ifdef BUFROBS
   friend class ObsBufr;
 #endif
+#ifdef ROADOBS
+  friend class VprofRTemp;
+#endif
 
 public:
   VprofPlot();
@@ -69,6 +72,7 @@ private:
 
   VprofText text;
   bool   prognostic;
+  bool   windInKnots;
   int    maxLevels;
 
   vector<float> ptt, tt;

@@ -31,6 +31,7 @@
 
 #include <fstream>
 #include <diVprofManager.h>
+#include <diField/diFieldManager.h>
 
 #include <diVprofOptions.h>
 #include <diVprofData.h>
@@ -44,15 +45,26 @@
 #ifdef BUFROBS
 #include <diObsBufr.h>
 #endif
+#ifdef ROADOBS
+#include <vector>
+#include <map>
+#include <roadAPI/diStation.h>
+#include <diVprofRTemp.h>
+#endif
 #include <diSetupParser.h>
 
 #include <glob.h>
 #include <sys/stat.h>
 #include <math.h>
 
+#ifdef ROADOBS
+using namespace std;
+using namespace road;
+#endif
+
 using namespace::miutil;
 
-VprofManager::VprofManager()
+VprofManager::VprofManager(Controller* co)
 : amdarStationList(false), vpdiag(0), showObs(false),
 showObsTemp(false), showObsPilot(false), showObsAmdar(false),
  plotw(0), ploth(0), hardcopy(false)
@@ -60,6 +72,7 @@ showObsTemp(false), showObsPilot(false), showObsAmdar(false),
 #ifdef DEBUGPRINT
   cerr << "VprofManager constructed" << endl;
 #endif
+  fieldm= co->getFieldManager(); // set fieldmanager
 
   vpopt= new VprofOptions();  // defaults are set
 
@@ -103,7 +116,7 @@ void VprofManager::parseSetup()
     set<miString> uniquefiles;
 
     miString model,filename;
-    vector<miString> tokens,tokens1,tokens2;
+    vector<miString> tokens,tokens1,tokens2, tokens3, tokens4;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
@@ -140,6 +153,7 @@ void VprofManager::parseSetup()
           model= tokens1[1];
           filename= tokens2[1];
           filenames[model]= filename;
+	  filetypes[filename] = "standard";
           if (uniquefiles.find(filename)==uniquefiles.end()) {
             uniquefiles.insert(filename);
             dialogModelNames.push_back(model);
@@ -147,9 +161,74 @@ void VprofManager::parseSetup()
           }
         }
       }
+      else if (tokens.size()==3) {
+	tokens1= tokens[0].split("=");
+	tokens2= tokens[1].split("=");
+	tokens3= tokens[2].split("=");
+	if (tokens1.size()==2 && tokens2.size()==2 && tokens3.size()==2
+	    && tokens1[0].downcase()=="m" && tokens2[0].downcase()=="t"
+	    && tokens3[0].downcase()=="s") {
+	  model= tokens1[1];
+	  miString filetype = tokens2[1];
+	  filename= tokens3[1];
+	  filenames[model]= filename;
+	  filetypes[filename] = filetype;
+	  uniquefiles.insert(filename);
+	  dialogModelNames.push_back(model);
+	  dialogFileNames.push_back(filename);
+	}
+      }
+#ifdef ROADOBS
+      /* Here we know that it is the extended obs format */
+      else if (tokens.size()==4) {
+	tokens1= tokens[0].split("=");
+	tokens2= tokens[1].split("=");
+	tokens3= tokens[2].split("=");
+	tokens4= tokens[3].split("=");
+	if (tokens1.size()==2 && tokens2.size()==2
+	    && tokens3.size()==2 && tokens4.size()==2
+	    && tokens2[0].downcase()=="p" && tokens3[0].downcase()=="s"
+	    && tokens4[0].downcase()=="d") {
+	  ObsFilePath ofp;
+	  /* the check for roadobs must be before the check of metnoobs. or obs. */
+	  if (tokens1[0].downcase().contains("roadobs."))
+	    ofp.fileformat = roadobs;
+	  else if (tokens1[0].downcase().contains("metnoobs.")
+		   || tokens1[0].downcase().contains("obs.") )
+	    ofp.fileformat = metnoobs;
+	  else if (tokens1[0].downcase().contains("bufr."))
+	    ofp.fileformat = bufr;
+	  else
+	    continue;
+	  if (tokens1[0].downcase().contains(".temp")) {
+	    ofp.obstype = temp;
+	  } else if (tokens1[0].downcase().contains(".amdar")) {
+	    ofp.obstype = amdar;
+	  } else if (tokens1[0].downcase().contains(".pilot")) {
+	    ofp.obstype = pilot;
+	  } else {
+	    continue;
+	  }
+	  ofp.tf.initFilter(tokens1[1]);
+	  ofp.filepath = tokens1[1];
+	  ofp.parameterfile = tokens2[1];
+	  ofp.stationfile = tokens3[1];
+	  ofp.databasefile = tokens4[1];
+	  filePaths.push_back(ofp);
+
+	}
+      }
+#endif
     }
 
     vstr.clear();
+#ifdef DEBUGPRINT
+    int l= filePaths.size();
+    for (int i=0; i<l; i++) {
+      cerr << "index: " << i << endl;
+      printObsFilePath(filePaths[i]);
+    }
+#endif
 
   } else {
 
@@ -171,7 +250,110 @@ void VprofManager::updateObsFileList()
   int n= filePaths.size();
   glob_t globBuf;
   for (int j=0; j<n; j++) {
-    glob(filePaths[j].filepath.c_str(),0,0,&globBuf);
+#ifdef ROADOBS
+    if (filePaths[j].fileformat == roadobs)
+      {
+	// Due to the fact that we have a database insteda of an archive,
+	// we maust fake the behavoir of anarchive
+	// Assume that all stations report every hour
+	// firt, get the current time.
+	//
+	// We assume that temograms are made 00Z, 06Z, 12Z and 18Z.
+	miTime now = miTime::nowTime();
+	miClock nowClock = now.clock();
+	miDate nowDate = now.date();
+	nowClock.setClock(nowClock.hour(),0,0);
+	now.setTime(nowDate, nowClock);
+	/* TBD: read from setup file */
+	int daysback = 4;
+	miTime starttime = now;
+	if (now.hour()%6 != 0)
+	  {
+	    /* Adjust start hour */
+	    switch (now.hour())
+	      {
+	      case 1: 
+	      case 7: 
+	      case 13: 
+	      case 19: 
+		now.addHour(-1); 
+		break; 
+	      case 2: 
+	      case 8: 
+	      case 14: 
+	      case 20: 
+		now.addHour(-2); 
+		break; 
+	      case 3: 
+	      case 9: 
+	      case 15: 
+	      case 21: 
+		now.addHour(-3); 
+		break; 
+	      case 4: 
+	      case 10: 
+	      case 16: 
+	      case 22: 
+		now.addHour(-4); 
+		break; 
+	      case 5: 
+	      case 11: 
+	      case 17: 
+	      case 23: 
+		now.addHour(-5); 
+		break; 
+	      } 
+	  } 
+	starttime.addDay(-daysback); 
+	int hourdiff; 
+	miTime time = now; 
+	/* init done, now loop in time */ 
+	ObsFile of; 
+	of.obstype = filePaths[j].obstype; 
+	of.fileformat= filePaths[j].fileformat; 
+	of.parameterfile= filePaths[j].parameterfile; 
+	of.stationfile= filePaths[j].stationfile; 
+	of.databasefile= filePaths[j].databasefile; 
+	of.time = time; 
+	of.modificationTime= 0; 
+	if (filePaths[j].obstype == temp) 
+	  of.filename = "ROADOBSTEMP_" + time.isoDate() + "_" + time.isoClock(true, true); 
+	else if (filePaths[j].obstype == pilot) 
+	  of.filename = "ROADOBSPILOT_" + time.isoDate() + "_" + time.isoClock(true, true); 
+	else if (filePaths[j].obstype == amdar) 
+	  of.filename = "ROADOBSAMDAR_" + time.isoDate() + "_" + time.isoClock(true, true); 
+	obsfiles.push_back(of); 
+	time.addHour(-6); 
+	while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) { 
+	  of.obstype = filePaths[j].obstype; 
+	  of.fileformat= filePaths[j].fileformat; 
+	  of.parameterfile= filePaths[j].parameterfile; 
+	  of.stationfile= filePaths[j].stationfile; 
+	  of.databasefile= filePaths[j].databasefile; 
+	  of.time = time; 
+	  of.modificationTime= 0; 
+	  if (filePaths[j].obstype == temp) 
+	    of.filename = "ROADOBSTEMP_" + time.isoDate() + "_" + time.isoClock(true, true); 
+	  else if (filePaths[j].obstype == pilot)
+	    of.filename = "ROADOBSPILOT_" + time.isoDate() + "_" + time.isoClock(true, true); 
+	  else if (filePaths[j].obstype == amdar) 
+	    of.filename = "ROADOBSAMDAR_" + time.isoDate() + "_" + time.isoClock(true, true); 
+	  obsfiles.push_back(of); 
+	  time.addHour(-6); 
+	} 
+    
+      } 
+    else 
+      { 
+	/* Use glob for ordinary files */ 
+	glob(filePaths[j].filepath.c_str(),0,0,&globBuf);
+      } 
+#else 
+    /* Use glob for ordinary files */ 
+    glob(filePaths[j].filepath.c_str(), 0, 0, &globBuf); 
+#endif 
+
+
     ObsFile of;
     of.obstype   = filePaths[j].obstype;
     of.fileformat= filePaths[j].fileformat;
@@ -201,6 +383,13 @@ void VprofManager::updateObsFileList()
     }
     globfree(&globBuf);
   }
+#ifdef DEBUGPRINT
+  int l= obsfiles.size();
+  for (int i=0; i<l; i++) {
+    cerr << "index: " << i << endl;
+    printObsFiles(obsfiles[i]);
+  }
+#endif
 }
 
 
@@ -515,6 +704,50 @@ bool VprofManager::plot()
               vp=bufr.getVprofPlot(obsfiles[nn].filename,obsList[i],plotTime);
 #endif
             }
+#ifdef ROADOBS
+	    /* NOTE! If metoobs are used, all data are fetched when constructing, for example, the VprofTemp object. */
+	    /* If we fetch data from road, we should fetch data for one station, obsList[i],plotTime, to improve performance */
+	    /*   The VprofRTemp class should be implemented, to simplify code */
+	    else if (obsfiles[nn].fileformat==roadobs) {
+	      try {
+		if (showObsTemp && obsfiles[nn].obstype==temp &&
+		    !nameList[i].contains("Pilot")) {
+		  if (obsList[i]!="99") {
+		    //land or ship station with name
+		    VprofRTemp vpobs(obsfiles[nn].parameterfile,false,stationList,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
+		    vp= vpobs.getStation(obsList[i],plotTime);
+		  } else {
+		    //ship station without name
+		    VprofRTemp vpobs(obsfiles[nn].parameterfile,false,
+				     latitudeList[i],longitudeList[i],2.0f,2.0f,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
+		    vp= vpobs.getStation(obsList[i],plotTime);
+		  }
+		} else if (showObsPilot && obsfiles[nn].obstype==pilot &&
+			   nameList[i].contains("Pilot")) {
+		  if (obsList[i]!="99") {
+		    // land or ship station with name
+		      VprofPilot vpobs(obsfiles[nn].filename,stationList);
+		    vp= vpobs.getStation(obsList[i],plotTime);
+		  } else {
+		    // ship station without name
+		    VprofPilot vpobs(obsfiles[nn].filename,
+				     latitudeList[i],longitudeList[i],2.0f,2.0f);
+		    vp= vpobs.getStation(obsList[i],plotTime);
+		  }
+		} else if (showObsAmdar && obsfiles[nn].obstype==amdar &&
+			   !nameList[i].contains("Pilot")) {
+		  VprofRTemp vpobs(obsfiles[nn].parameterfile,true,
+				   latitudeList[i],longitudeList[i],0.3f,0.3f,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
+		  vp= vpobs.getStation(obsList[i],plotTime);
+		  if (vp!=0) vp->setName(nameList[i]);
+		}
+	      }
+	      catch (...) {
+		cerr<<"Exception in: " <<obsfiles[nn].filename<<endl;
+	      }
+	    }
+#endif
+
           }
           nn++;
         }
@@ -554,9 +787,13 @@ vector <miString> VprofManager::getModelFiles(){
   vector<miString> modelfiles= dialogFileNames;
   updateObsFileList();
   int n= obsfiles.size();
-  for (int i=0; i<n; i++)
+  for (int i=0; i<n; i++) {
+#ifdef DEBUGPRINT
+    cerr << "index: " << i << endl;
+    printObsFiles(obsfiles[i]);
+#endif
     modelfiles.push_back(obsfiles[i].filename);
-
+  }
   return modelfiles;
 }
 
@@ -628,14 +865,24 @@ vector<miString> VprofManager::getSelectedModels(){
 
 bool VprofManager::initVprofData(miString file,miString model){
   VprofData *vpd= new VprofData(file,model);
-  if (vpd->readFile()) {
-    cerr << "VPROFDATA READFILE OK for model " << model << endl;
-    vpdata.push_back(vpd);
-    return true;
-  } else {
-    cerr << "VPROFDATA READFILE ERROR file " << file << endl;
-    delete vpd;
-    return false;
+  if(filetypes[file] == "standard") {
+    if (vpd->readFile()) {
+      cerr << "VPROFDATA READFILE OK for model " << model << endl;
+      vpdata.push_back(vpd);
+      return true;
+    } else {
+      cerr << "VPROFDATA READFILE ERROR file " << file << endl;
+      delete vpd;
+      return false;
+    }
+  } else if (filetypes[file] == "GribFile") {
+   //    cerr << "Model is a gribfile" << endl;
+    if (vpd->readField(filetypes[file],fieldm)) {
+      cerr << "VPROFDATA READFIELD OK for model " << model << endl;
+      vpdata.push_back(vpd);
+    } else {
+      cerr << "VPROFDATA READFIELD ERROR: " << file << endl;
+    }
   }
 }
 
@@ -707,7 +954,43 @@ void VprofManager::initStations(){
           cerr<<"Exception in: " <<obsfiles[i].filename<<endl;
         }
 #endif
+#ifdef ROADOBS
+      } else if (obsfiles[i].fileformat==roadobs) {
+	// TDB: Construct stationlist from temp, pilot or amdar stationlist
+	if ((obsfiles[i].obstype==temp )||(obsfiles[i].obstype==pilot )||(obsfiles[i].obstype==amdar ))
+	  {
+	    // TBD!
+	    // This creates the stationlist
+	    diStation::initStations(obsfiles[i].stationfile);
+	    // get the pointer to the actual station vector
+	    vector<diStation> * stations = NULL;
+	    map<miString, vector<diStation> * >::iterator its = diStation::station_map.find(obsfiles[i].stationfile);
+	    if (its != diStation::station_map.end())
+	      {
+		stations = its->second;
+	      }
+	    if (stations == NULL)
+	      {
+		cerr<<"Unable to find stationlist: " <<obsfiles[i].stationfile << endl;
+	      }
+	    else
+	      {
+		int noOfStations = stations->size();
+		namelist.clear();
+		latitudelist.clear();
+		longitudelist.clear();
+		for (int i = 0; i < noOfStations; i++)
+		  {
+		    namelist.push_back((*stations)[i].name());
+		    latitudelist.push_back((*stations)[i].lat());
+		    longitudelist.push_back((*stations)[i].lon());
+		  }
+	      }
+	  }
       }
+#else
+    }
+#endif
       obslist= namelist;
       unsigned int ns= namelist.size();
       if (ns!=latitudelist.size() || ns!=longitudelist.size() ||
@@ -815,7 +1098,24 @@ void VprofManager::checkObsTime(int hour) {
   struct stat statbuf;
 
   for (int i=0; i<n; i++) {
-    if (obsfiles[i].modificationTime<0) continue; //no need to check
+#ifdef DEBUGPRINT
+          cerr << "index: " << i << endl;
+          printObsFiles(obsfiles[i]);
+#endif
+    if (obsfiles[i].modificationTime<0)
+      continue; //no need to check
+#ifdef ROADOBS
+        if (obsfiles[i].fileformat == roadobs)
+        {
+                /* always read data from road */
+                if (obsfiles[i].modificationTime==0 || hour<0 ||
+                        obsfiles[i].time.hour()==hour) {
+                        obsfiles[i].modificationTime = time(NULL);
+                        newtime= true;
+                }
+        }
+        else
+        {
 #ifdef METNOOBS
     if (obsfiles[i].modificationTime==0 || hour<0 ||
         obsfiles[i].time.hour()==hour) {
@@ -835,8 +1135,31 @@ void VprofManager::checkObsTime(int hour) {
       }
     }
 #endif
+        } /* end if fileformat == roadobs */
+#else
+/* no roadobs support, use the old code */
+#ifdef METNOOBS
+    if (obsfiles[i].modificationTime==0 || hour<0 ||
+        obsfiles[i].time.hour()==hour) {
+      if (stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
+        if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
+          obsfiles[i].modificationTime= statbuf.st_mtime;
+          try {
+            obs ofile;
+            ofile.readFileHeader(obsfiles[i].filename);
+            if (obsfiles[i].time != ofile.fileObsTime()) newtime= true;
+            obsfiles[i].time= ofile.fileObsTime();
+          }
+          catch (...) {
+            cerr<<"Exception in: "<<obsfiles[i].filename<<endl;
+          }
+        }
+      }
+    }
+#endif
+#endif
   }
-
+/* TDB: is this correct for observations from ROAD also ? */
   if (newtime && hour<0) {
     set<miTime> timeset;
     for (int i=0; i<n; i++)
@@ -1013,7 +1336,7 @@ void VprofManager::readAmdarStationList()
   unsigned int i;
 
   while (getline(file,str)) {
-    unsigned n= str.find('#');
+    std::string::size_type n= str.find('#');
     if (n!=0) {
       if (n!=string::npos) str= str.substr(0,n);
       str.trim();
@@ -1051,3 +1374,49 @@ void VprofManager::readAmdarStationList()
   return;
 }
 
+void VprofManager::printObsFiles(const ObsFile &of) 
+{ 
+  /* 
+     struct ObsFile { 
+     miString   filename; 
+     obsType    obstype; 
+     FileFormat fileformat; 
+     miTime     time; 
+     long       modificationTime; 
+     }; 
+  */ 
+  cerr << "ObsFile: < " << endl; 
+  cerr << "filename: " << of.filename << endl; 
+  cerr << "obsType: " << of.obstype << endl; 
+  cerr << "FileFormat: " << of.fileformat << endl; 
+  cerr << "Time: " << of.time.isoTime(true, true) << endl; 
+  cerr << "ModificationTime: " << of.modificationTime << endl; 
+#ifdef ROADOBS 
+  cerr << "Parameterfile: " << of.parameterfile << endl; 
+  cerr << "Stationfile: " << of.stationfile << endl; 
+  cerr << "Databasefile: " << of.databasefile << endl; 
+#endif 
+  cerr << ">" << endl; 
+} 
+    
+void VprofManager::printObsFilePath(const ObsFilePath & ofp) 
+{ 
+  /* 
+     struct ObsFilePath { 
+     miString   filepath; 
+     obsType    obstype; 
+     FileFormat fileformat; 
+     TimeFilter tf; 
+     }; 
+  */ 
+  cerr << "ObsFilePath: < " << endl; 
+  cerr << "filepath: " << ofp.filepath << endl; 
+  cerr << "obsType: " << ofp.obstype << endl; 
+  cerr << "FileFormat: " << ofp.fileformat << endl; 
+#ifdef ROADOBS 
+  cerr << "Parameterfile: " << ofp.parameterfile << endl; 
+  cerr << "Stationfile: " << ofp.stationfile << endl; 
+  cerr << "Databasefile: " << ofp.databasefile << endl; 
+#endif 
+  cerr << ">" << endl; 
+} 

@@ -43,7 +43,7 @@ using namespace std; using namespace miutil;
 VprofData::VprofData(const miString& filename, const miString& modelname)
 : fileName(filename), modelName(modelname),
 numPos(0), numTime(0), numParam(0), numLevel(0),
-dataBuffer(0)
+dataBuffer(0), fieldManager(NULL)
 {
 #ifdef DEBUGPRINT
   cerr << "++ VprofData::Default Constructor" << endl;
@@ -56,7 +56,67 @@ VprofData::~VprofData() {
 #ifdef DEBUGPRINT
   cerr << "++ VprofData::Destructor" << endl;
 #endif
-  if (dataBuffer) delete[] dataBuffer;
+  if (dataBuffer)
+    delete[] dataBuffer;
+}
+
+bool VprofData::readField(miString type, FieldManager* fieldm)
+{
+#ifdef DEBUGPRINT
+  cerr << "++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName << endl;
+#endif
+  FILE *stationfile;
+  char line[1024];
+  miString correctFileName = fileName;
+  correctFileName.replace(modelName, "");
+  if ((stationfile = fopen(correctFileName.cStr(), "r")) == NULL) {
+    cerr << "Unable to open file!" << endl;
+    return false;
+  }
+  fieldManager = fieldm;
+
+  vector<miString> stationVector;
+  vector<station> stations;
+  miString miLine;
+  while (fgets(line, 1024, stationfile) != NULL) {
+    miLine = miString(line);
+    stationVector = miLine.split(",", false);
+    if (stationVector.size() == 7) {
+      station st;
+      st.id = stationVector[0];
+      st.name = stationVector[1];
+      st.lat = stationVector[2].toFloat();
+      st.lon = stationVector[3].toFloat();
+      st.height = stationVector[4].toInt(-1);
+      st.barHeight = stationVector[5].toInt(-1);
+      stations.push_back(st);
+    } else {
+      cerr << "Something is wrong with: " << miLine << endl;
+    }
+  }
+  for (int i = 0; i < stations.size(); i++) {
+    posName.push_back(stations[i].name);
+    obsName.push_back(stations[i].id);
+    posLatitude.push_back(stations[i].lat);
+    posLongitude.push_back(stations[i].lon);
+    posDeltaLatitude.push_back(0.0);
+    posDeltaLongitude.push_back(0.0);
+    posTemp.push_back(0);
+  }
+
+  //  bool success = fieldManager->invVProf(modelName, validTime, forecastHour);
+  numPos = posName.size();
+  numTime = validTime.size();
+  numParam = 6;
+  mainText.push_back(modelName);
+  for (int i = 0; i < forecastHour.size(); i++) {
+    progText.push_back(miString("+" + miString(forecastHour[i])));
+  }
+  readFromField = true;
+  vProfPlot = 0;
+
+  //  return success;
+  return true;
 }
 
 
@@ -102,7 +162,8 @@ bool VprofData::readFile() {
 
       switch (ctype) {
       case 101:
-        if (length<4) throw VfileError();
+        if (length<4)
+          throw VfileError();
         tmp= vfile->getInt(length);
         numPos=   tmp[0];
         numTime=  tmp[1];
@@ -115,16 +176,19 @@ bool VprofData::readFile() {
         //if (length>6) vCoord=  tmp[6];
         //if (length>7) interpol=tmp[7];
         //if (length>8) isurface=tmp[8];
-        delete[] tmp;  tmp= 0;
+        delete[] tmp;
+        tmp= 0;
         c1= true;
         break;
 
       case 201:
-        if (numTime<1) throw VfileError();
+        if (numTime<1)
+          throw VfileError();
         tmp= vfile->getInt(5*numTime);
         for (int n=0; n<5*numTime; n+=5) {
           miTime t= miTime(tmp[n],tmp[n+1],tmp[n+2],tmp[n+3],0,0);
-          if (tmp[n+4]!=0) t.addHour(tmp[n+4]);
+          if (tmp[n+4]!=0)
+            t.addHour(tmp[n+4]);
           validTime.push_back(t);
           forecastHour.push_back(tmp[n+4]);
         }
@@ -134,7 +198,8 @@ bool VprofData::readFile() {
           miString str= vfile->getString(tmp[n]);
           progText.push_back(str);
         }
-        delete[] tmp;  tmp= 0;
+        delete[] tmp;
+        tmp= 0;
         c2= true;
         break;
 
@@ -282,12 +347,92 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
 
   vp->prognostic= true;
   vp->maxLevels= numLevel;
+  vp->windInKnots = true;
 
   //####  ostringstream ostr;
   //####  ostr << " (" << setiosflags(ios::showpos) << forecastHour[iTime] << ") ";
   //####
   //####  vp->text= modelName + " " + posName[iPos]
   //####	   + ostr.str() + validTime[iTime].isoTime();
+
+  int k;
+  if (readFromField) {
+    vp->windInKnots = false;
+    if((name == vProfPlotName) && (time == vProfPlotTime)) {
+#ifdef DEBUGPRINT
+      cerr  << "returning cached VProfPlot" << endl;
+#endif
+      for (k=0; k<vProfPlot->ptt.size(); k++)
+        vp->ptt.push_back(vProfPlot->ptt[k]);
+      for (k=0; k<vProfPlot->tt.size(); k++)
+        vp->tt.push_back(vProfPlot->tt[k]);
+      for (k=0; k<vProfPlot->ptd.size(); k++)
+        vp->ptd.push_back(vProfPlot->ptd[k]);
+      for (k=0; k<vProfPlot->td.size(); k++)
+        vp->td.push_back(vProfPlot->td[k]);
+      for (k=0; k<vProfPlot->puv.size(); k++)
+        vp->puv.push_back(vProfPlot->puv[k]);
+      for (k=0; k<vProfPlot->uu.size(); k++)
+        vp->uu.push_back(vProfPlot->uu[k]);
+      for (k=0; k<vProfPlot->vv.size(); k++)
+        vp->vv.push_back(vProfPlot->vv[k]);
+      for (k=0; k<vProfPlot->om.size(); k++)
+        vp->om.push_back(vProfPlot->om[k]);
+      for (k=0; k<vProfPlot->pom.size(); k++)
+        vp->pom.push_back(vProfPlot->pom[k]);
+    } else {
+      bool success = fieldManager->makeVProf(modelName,validTime[iTime],posLatitude[iPos],posLongitude[iPos],
+          vp->tt,vp->ptt,vp->td,vp->ptd,vp->uu,vp->vv,vp->puv,vp->om,vp->pom);
+      numLevel = vp->tt.size();
+      vp->maxLevels = numLevel;
+      if (!success)
+        return vp;
+      vProfPlotTime = miTime(time);
+      vProfPlotName = miString(name);
+      if(vProfPlot) delete vProfPlot;
+      vProfPlot = new VprofPlot();
+      for (k=0; k<vp->ptt.size(); k++)
+        vProfPlot->ptt.push_back(vp->ptt[k]);
+      for (k=0; k<vp->tt.size(); k++)
+        vProfPlot->tt.push_back(vp->tt[k]);
+      for (k=0; k<vp->ptd.size(); k++)
+        vProfPlot->ptd.push_back(vp->ptd[k]);
+      for (k=0; k<vp->td.size(); k++)
+        vProfPlot->td.push_back(vp->td[k]);
+      for (k=0; k<vp->puv.size(); k++)
+        vProfPlot->puv.push_back(vp->puv[k]);
+      for (k=0; k<vp->uu.size(); k++)
+        vProfPlot->uu.push_back(vp->uu[k]);
+      for (k=0; k<vp->vv.size(); k++)
+        vProfPlot->vv.push_back(vp->vv[k]);
+      for (k=0; k<vp->om.size(); k++)
+        vProfPlot->om.push_back(vp->om[k]);
+      for (k=0; k<vp->pom.size(); k++)
+        vProfPlot->pom.push_back(vp->pom[k]);
+    }
+    //iPos = 0;
+    //iTime = 0;
+#ifdef DEBUGPRINT
+    for (k=0; k<vp->ptt.size(); k++)
+      cerr << "ptt["<<k<<"]: " <<vp->ptt[k] << endl;
+    for (k=0; k<vp->tt.size(); k++)
+      cerr << "tt["<<k<<"]: " <<vp->tt[k] << endl;
+    for (k=0; k<vp->ptd.size(); k++)
+      cerr << "ptd["<<k<<"]: " <<vp->ptd[k] << endl;
+    for (k=0; k<vp->td.size(); k++)
+      cerr << "td["<<k<<"]: " <<vp->td[k] << endl;
+    for (k=0; k<vp->puv.size(); k++)
+      cerr << "puv["<<k<<"]: " <<vp->puv[k] << endl;
+    for (k=0; k<vp->uu.size(); k++)
+      cerr << "uu["<<k<<"]: " <<vp->uu[k] << endl;
+    for (k=0; k<vp->vv.size(); k++)
+      cerr << "vv["<<k<<"]: " <<vp->vv[k] << endl;
+    for (k=0; k<vp->om.size(); k++)
+      cerr << "om["<<k<<"]: " <<vp->om[k] << endl;
+    for (k=0; k<vp->pom.size(); k++)
+      cerr << "pom["<<k<<"]: " <<vp->pom[k] << endl;
+#endif
+  } else {
 
   int j,k,n;
   float scale;
@@ -315,6 +460,18 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
         vp->om.push_back(scale*dataBuffer[j++]);
     }
   }
+#ifdef DEBUGPRINT
+    for (k=0; k<numLevel; k++) {
+      cerr << "ptt["<<k<<"]" <<vp->ptt[k] << endl;
+      cerr << "tt["<<k<<"]" <<vp->tt[k] << endl;
+      cerr << "td["<<k<<"]" <<vp->td[k] << endl;
+      cerr << "uu["<<k<<"]" <<vp->uu[k] << endl;
+      cerr << "vv["<<k<<"]" <<vp->vv[k] << endl;
+      cerr << "om["<<k<<"]" <<vp->om[k] << endl;
+    }
+  #endif
+  }
+
 
   // dd,ff and significant levels (as in temp observation...)
   if (int(vp->uu.size())==numLevel && int(vp->vv.size())==numLevel) {
@@ -327,14 +484,17 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
       vns= vp->vv[k];
       ff= int(sqrtf(uew*uew+vns*vns) + 0.5);
       dd= int(270.-degr*atan2f(vns,uew) + 0.5);
-      if (dd>360) dd-=360;
-      if (dd<= 0) dd+=360;
+      if (dd>360)
+        dd-=360;
+      if (dd<= 0)
+        dd+=360;
       if (ff==0) dd= 0;
       vp->dd.push_back(dd);
       vp->ff.push_back(ff);
       vp->sigwind.push_back(0);
       if (ff>vp->ff[kmax]) kmax=k;
     }
+    for (int l = 0; l < (vp->sigwind.size()); l++)
     for (k=1; k<numLevel-1; k++) {
       if (vp->ff[k]<vp->ff[k-1] && vp->ff[k]<vp->ff[k+1])
         vp->sigwind[k]= 1;

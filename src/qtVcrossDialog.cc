@@ -44,6 +44,7 @@
 #include <QPixmap>
 #include <QFrame>
 #include <QVBoxLayout>
+#include <QApplication>
 
 #include <qtVcrossDialog.h>
 #include <qtUtility.h>
@@ -781,8 +782,9 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
 #endif
 
   int index = modelbox->row(item);
-
+  QApplication::setOverrideCursor( Qt::WaitCursor );
   fields= vcrossm->getFieldNames(models[index]);
+  QApplication::restoreOverrideCursor();
 
 //###  fieldbox->clearSelection();
   if (fieldbox->count()>0) {

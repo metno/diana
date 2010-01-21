@@ -40,6 +40,10 @@
 #include <diObsAireps.h>
 #include <diObsSatob.h>
 #endif
+#ifdef ROADOBS
+// includes for road specific implementation 
+#include <diObsRoad.h>
+#endif
 
 #include <diObsAscii.h>
 
@@ -167,12 +171,18 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
     }
 
     ObsFormat obsformat= ofmt_unknown;
-    miString headerfile;
+    miutil::miString headerfile;
+#ifdef ROADOBS
+    miString stationfile, databasefile;
+#endif
     if (Prod.find(dataType[i])!=Prod.end()) {
       obsformat= Prod[dataType[i]].obsformat;
       headerfile= Prod[dataType[i]].headerfile;
+#ifdef ROADOBS
+      stationfile= Prod[dataType[i]].stationfile;
+      databasefile= Prod[dataType[i]].databasefile; 
+#endif
     }
-
     //get get pressure level etc from field (if needed)
     oplot->updateLevel(dataType[i]);
 
@@ -191,7 +201,20 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
       } else if(finfo[j].filetype =="ascii"){
         ObsAscii obsAscii =
           ObsAscii(finfo[j].filename,headerfile,finfo[j].time,oplot,true);
-      } else {
+      }
+#ifdef ROADOBS
+      else if(finfo[j].filetype =="roadobs"){
+	ObsRoad obsRoad =
+	  ObsRoad(finfo[j].filename,databasefile, stationfile, headerfile,finfo[j].time,oplot,false);
+	// initData inits the internal data structures in oplot, eg the roadobsp and stationlist.
+	obsRoad.initData(oplot);
+	// readData reads the data from road.
+	// it shoukle be complemented by a method on the ObsPlot objects that reads data from a single station from road,
+	// after ObsPlt has computed wich stations to plot.
+	obsRoad.readData(oplot);
+      }
+#endif
+      else {
 #ifdef METNOOBS
         try {
           if ( obsformat == ofmt_synop ){
@@ -442,7 +465,43 @@ bool ObsManager::updateTimes(miString obsType)
     return false;
 
   Prod[obsType].fileInfo.clear();
-
+#ifdef ROADOBS
+  if (Prod[obsType].obsformat == ofmt_roadobs)
+  {
+	// Due to the fact that we have a database insteda of an archive,
+	// we maust fake the behavoir of anarchive
+	// Assume that all stations report every hour
+	// firt, get the current time.
+	miTime now = miTime::nowTime();
+	miClock nowClock = now.clock();
+	miDate nowDate = now.date();
+	nowClock.setClock(nowClock.hour(),0,0);
+	now.setTime(nowDate, nowClock);
+	int daysback = Prod[obsType].daysback;
+	miTime starttime = now;
+	starttime.addDay(-daysback);
+	int npattern = Prod[obsType].pattern.size();
+	int hourdiff;
+	for( int j=0;j<npattern; j++) {
+		FileInfo finfo;
+		miTime time = now;
+		finfo.time = time;
+		finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
+		finfo.filetype = Prod[obsType].pattern[j].fileType;
+		Prod[obsType].fileInfo.push_back(finfo);
+		time.addHour(-1);
+		while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
+			finfo.time = time;
+			finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
+			finfo.filetype = Prod[obsType].pattern[j].fileType;
+			Prod[obsType].fileInfo.push_back(finfo);
+			time.addHour(-1);
+		}
+	 }
+  }
+  else
+  {
+#endif
   int npattern = Prod[obsType].pattern.size();
   for( int j=0;j<npattern; j++) {
 
@@ -487,6 +546,9 @@ bool ObsManager::updateTimes(miString obsType)
       globfree(&globBuf);
     }
   }
+#ifdef ROADOBS
+  } // end´if obstype == roadobs
+#endif
   return true;
 }
 
@@ -502,7 +564,43 @@ bool ObsManager::updateTimesfromFile(miString obsType)
     return false;
 
   Prod[obsType].fileInfo.clear();
-
+#ifdef ROADOBS
+if (Prod[obsType].obsformat == ofmt_roadobs)
+  {
+	// Due to the fact that we have a database insteda of an archive,
+	// we maust fake the behavoir of anarchive
+	// Assume that all stations report every hour
+	// firt, get the current time.
+	miTime now = miTime::nowTime();
+	miClock nowClock = now.clock();
+	miDate nowDate = now.date();
+	nowClock.setClock(nowClock.hour(),0,0);
+	now.setTime(nowDate, nowClock);
+	int daysback = Prod[obsType].daysback;
+	miTime starttime = now;
+	starttime.addDay(-daysback);
+	int npattern = Prod[obsType].pattern.size();
+	int hourdiff;
+	for( int j=0;j<npattern; j++) {
+		FileInfo finfo;
+		miTime time = now;
+		finfo.time = time;
+		finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
+		finfo.filetype = Prod[obsType].pattern[j].fileType;
+		Prod[obsType].fileInfo.push_back(finfo);
+		time.addHour(-1);
+		while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
+			finfo.time = time;
+			finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
+			finfo.filetype = Prod[obsType].pattern[j].fileType;
+			Prod[obsType].fileInfo.push_back(finfo);
+			time.addHour(-1);
+		}
+	 }
+  }
+  else
+  {
+#endif
   vector<miString> fname;
 
   for(unsigned int j=0;j<Prod[obsType].pattern.size(); j++) {
@@ -538,7 +636,9 @@ bool ObsManager::updateTimesfromFile(miString obsType)
       globfree(&globBuf);
     }
   }
-
+#ifdef ROADOBS
+}
+#endif
   return true;
 }
 
@@ -901,6 +1001,35 @@ ObsDialogInfo ObsManager::initDialog()
     }
   }
 
+  //+++++++++Plot type = Road-obs +++++++++++++++
+
+   // buttons made when plottype activated the first time...
+#ifdef ROADOBS
+  for (pr=prbegin; pr!=prend; pr++) {
+    if (pr->second.obsformat==ofmt_roadobs) {
+
+      ObsDialogInfo::PlotType proad;
+
+      proad.misc =
+	"markerboxVisible orientation  parameterName=true";
+
+      proad.criteriaList = criteriaList["roadobs"];
+
+      //proad.name= pr->second.dialogName;
+	  //proad.name= pr->second.plotFormat + ": " + pr->second.dialogName;
+	  proad.name= pr->second.plotFormat + ":" + pr->second.dialogName;
+      proad.button.clear();
+
+      type.active.clear();
+      type.name= pr->second.dialogName; // same name as the plot type
+      proad.datatype.push_back(type);
+      proad.criteriaList = criteriaList["roadobs"];
+
+      dialog.plottype.push_back(proad);
+    }
+  }
+#endif
+
   //+++++++++Plot type = Ocean+++++++++++++++
 
   ObsDialogInfo::PlotType pocea;
@@ -1098,16 +1227,97 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
   if(name == "Hqc_synop" || name == "Hqc_list")
     return updateHqcDialog(name);
 
+#ifdef DEBUGPRINT
+  cerr << "updateDialog: " << name << endl;
+#endif
   int nd= dialog.plottype.size();
   int id= 0;
   while (id<nd && dialog.plottype[id].name!=name) id++;
-  if (id==nd) return dialog;
-
+  if (id==nd) {
+    cerr << name << " not found in dialog.plottype" << endl;
+    return dialog;
+  }
   miString oname= name.downcase();
-
+  // BAD hack...
+  if (oname.contains(":")) {
+    std::string::size_type pos = oname.find(":");
+    oname = oname.substr(pos+1);
+  }
+#ifdef DEBUGPRINT
+  cerr << "updateDialog: " << oname << endl;
+  map<miString,ProdInfo>::iterator p= Prod.begin();
+  while (p != Prod.end()) {
+    cerr << p->first << endl;
+    p++;
+}
+#endif
+  
   map<miString,ProdInfo>::iterator pr= Prod.find(oname);
-  if (pr==Prod.end()) return dialog;
+  if (pr==Prod.end()) {
+    cerr << oname << " not found in Prod" << endl;
+    return dialog;
+  }
+#ifdef ROADOBS
+  // We must also support the ascii format until the 
+  // lightning is stored in road
+  if (pr->second.obsformat!=ofmt_roadobs)
+  {
+	  if (pr->second.obsformat!=ofmt_ascii)
+	  {
+		return dialog;
+	  }
+  }
+  // TDB: the ofmt_roadobs must be added
+  // **************************************
+  bool headerfound= false;
 
+  ObsPlot *roplot= new ObsPlot();
+
+  // The road format must have a header file, defined in prod
+  // This file, defines the parameters as well as the mapping
+  // between diana and road parameter space.
+  miString headerfile= Prod[oname].headerfile;
+  miString databasefile = Prod[oname].databasefile;
+  miString stationfile = Prod[oname].stationfile;
+  miString filename; // just dummy here
+  miTime filetime; // just dummy here
+  ObsRoad obsRoad = ObsRoad(filename,databasefile,stationfile,headerfile,filetime,roplot,false);
+  headerfound= roplot->roadobsOK;
+  if (roplot->roadobsOK && roplot->roadobsColumn.count("time")
+	 && !roplot->roadobsColumn.count("date"))
+	Prod[oname].useFileTime= true;
+  if (headerfound) {
+    int nc= roplot->roadobsColumnName.size();
+    int nh= roplot->roadobsColumnHide.size();
+    int addWind= -1;
+    bool on= (nc-nh<7); // ????????
+    if (roplot->roadobsColumn.count("dd") && roplot->roadobsColumn.count("ff")) {
+      addWind= (roplot->roadobsColumn["dd"] < roplot->roadobsColumn["ff"]) ?
+                roplot->roadobsColumn["dd"] : roplot->roadobsColumn["ff"];
+    }
+    for (int c=0; c<nc; c++) {
+      if (c==addWind) {
+        dialog.plottype[id].button.push_back(addButton("Wind",""));
+//         dialog.plottype[id].button.push_back("Wind");
+//         dialog.plottype[id].Default.push_back(true);
+        dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
+      }
+      int h= 0;
+      while (h<nh && roplot->roadobsColumnHide[h]!=
+		     roplot->roadobsColumnName[c]) h++;
+      if (h==nh) {
+        dialog.plottype[id].button.push_back
+	  (addButton(roplot->roadobsColumnName[c],
+		     roplot->roadobsColumnTooltip[c],
+		     -100,100,on));
+//         dialog.plottype[id].button.push_back(roplot->roadobsColumnName[c]);
+//         dialog.plottype[id].Default.push_back(on);
+        dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
+      }
+    }
+  }
+delete roplot;
+#endif
   if (pr->second.obsformat!=ofmt_ascii) return dialog;
 
   // open one file and find the available data parameters
@@ -1244,6 +1454,73 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
 
 }
 
+void ObsManager::printProdInfo(const ProdInfo & pinfo)
+{
+
+  int i;
+  cerr << "***** ProdInfo ******" << endl;
+#ifdef ROADOBS
+  if (pinfo.obsformat == ofmt_roadobs)
+    cerr << "obsformat: ofmt_roadobs" << endl;
+#endif
+  if (pinfo.obsformat == ofmt_unknown)
+    cerr << "obsformat: ofmt_unknown" << endl;
+  if (pinfo.obsformat == ofmt_synop)
+    cerr << "obsformat: ofmt_synop" << endl;
+  if (pinfo.obsformat == ofmt_aireps)
+    cerr << "obsformat: ofmt_aireps" << endl;
+  if (pinfo.obsformat == ofmt_satob)
+    cerr << "obsformat: ofmt_satob" << endl;
+  if (pinfo.obsformat == ofmt_dribu)
+    cerr << "obsformat: ofmt_dribu" << endl;
+  if (pinfo.obsformat == ofmt_temp)
+    cerr << "obsformat: ofmt_temp" << endl;
+  if (pinfo.obsformat == ofmt_ocea)
+    cerr << "obsformat: ofmt_ocea" << endl;
+  if (pinfo.obsformat == ofmt_tide)
+    cerr << "obsformat: ofmt_tide" << endl;
+  if (pinfo.obsformat == ofmt_pilot)
+    cerr << "obsformat: ofmt_pilot" << endl;
+  if (pinfo.obsformat == ofmt_metar)
+    cerr << "obsformat: ofmt_metar" << endl;
+  if (pinfo.obsformat == ofmt_ascii)
+    cerr << "obsformat: ofmt_ascii" << endl;
+  if (pinfo.obsformat == ofmt_hqc)
+    cerr << "obsformat: ofmt_hqc" << endl;
+  cerr << "dialogname: " << pinfo.dialogName << endl;
+  cerr << "plotFormat: " << pinfo.plotFormat << endl;
+  cerr << "pattern: " << endl;
+  for(i = 0; i < pinfo.pattern.size(); i++)
+    {
+      // TDB: timefiler
+      cerr << "\tpattern: " << pinfo.pattern[i].pattern << " archive: " << pinfo.pattern[i].archive << " fileType: " << pinfo.pattern[i].fileType << endl;
+    }
+  cerr << "fileInfo: " << endl;
+  for(i = 0; i < pinfo.fileInfo.size(); i++)
+    {
+      cerr << "\tfilename: " << pinfo.fileInfo[i].filename << " time: " << pinfo.fileInfo[i].time.isoTime() << " filetype: " << pinfo.fileInfo[i].filetype << endl;
+    }
+  cerr << "noTime: " << pinfo.noTime << endl;
+  cerr << "timeRangeMin: " << pinfo.timeRangeMin << endl;
+  cerr << "timeRangeMax: " << pinfo.timeRangeMax << endl;
+  cerr << "current: " << pinfo.current << endl;
+  cerr << "synoptic: " << pinfo.synoptic << endl;
+  cerr << "headerfile: " << pinfo.headerfile << endl;
+#ifdef ROADOBS
+  cerr << "databasefile: " << pinfo.databasefile << endl;
+  cerr << "stationfile: " << pinfo.stationfile << endl;
+  cerr << "daysback: " << pinfo.daysback << endl;
+#endif
+  cerr << "useFileTime: " << pinfo.useFileTime << endl;
+  cerr << "\tparameters: ";
+  for(i = 0; i < pinfo.parameter.size(); i++)
+    {
+      cerr << pinfo.parameter[i] << ",";
+    }
+  cerr << endl;
+  cerr << "**** end ProdInfo *****" << endl;
+}
+
 bool ObsManager::parseSetup(SetupParser &sp)
 {
 
@@ -1339,6 +1616,12 @@ bool ObsManager::parseSetup(SetupParser &sp)
   defProd["hqc"].timeRangeMin=-180;
   defProd["hqc"].timeRangeMax= 180;
   defProd["hqc"].synoptic= false;
+#ifdef ROADOBS
+  defProd["roadobs"].obsformat= ofmt_roadobs;
+  defProd["roadobs"].timeRangeMin=-180;
+  defProd["roadobs"].timeRangeMax= 180;
+  defProd["roadobs"].synoptic= true;
+#endif
 
   miString format,prod,dialogName;
   miString file;
@@ -1386,18 +1669,31 @@ bool ObsManager::parseSetup(SetupParser &sp)
         Prod[prod].useFileTime= false;
         Prod[prod].noTime= false;
       }
+#ifdef ROADOBS
+      if (Prod[prod].obsformat == ofmt_roadobs) {
+	Prod[prod].plotFormat= "roadobs";
+      }
+      else {
+	Prod[prod].plotFormat= plotFormat;
+      }
+#else
       Prod[prod].plotFormat= plotFormat;
+#endif
     } else if( key == "file"
-      || key == "archivefile"
-        || key == "ascii"
-          || key == "archive_ascii"
+	       || key == "archivefile"
+	       || key == "ascii"
+	       || key == "archive_ascii"
 #ifdef METNOOBS
-            || key == "metnoobs"
-              || key == "archive_metnoobs"
+	       || key == "metnoobs"
+	       || key == "archive_metnoobs"
 #endif
 #ifdef BUFROBS
-                || key == "bufr"
-                  || key == "archive_bufr"
+	       || key == "bufr"
+	       || key == "archive_bufr"
+#endif
+#ifdef ROADOBS
+	       || key == "roadobs"
+	       || key == "archive_roadobs"
 #endif
     ){
       if(prod.empty() ){
@@ -1423,6 +1719,10 @@ bool ObsManager::parseSetup(SetupParser &sp)
         pf.fileType="ascii";
       else if(key == "bufr" || key == "archive_bufr")
         pf.fileType="bufr";
+#ifdef ROADOBS
+      else if(key == "roadobs" || key == "archive_roadobs")
+	pf.fileType="roadobs";
+#endif
       if( key.contains("archive") )
         pf.archive = true;
       else
@@ -1439,7 +1739,32 @@ bool ObsManager::parseSetup(SetupParser &sp)
         continue;
       }
       Prod[prod].headerfile= token[1];
-    } else if( key == "timerange" && newprod ){
+    }
+#ifdef ROADOBS
+    else if( key == "databasefile"){
+      if(prod.empty() ){
+	miString errmsg="You must give prod before file/databasefile";
+	sp.errorMsg(obs_name,i,errmsg);
+	continue;
+      }
+      Prod[prod].databasefile= token[1];
+    }else if( key == "stationfile"){
+      if(prod.empty() ){
+	miString errmsg="You must give prod before file/stationfile";
+	sp.errorMsg(obs_name,i,errmsg);
+	continue;
+      }
+      Prod[prod].stationfile= token[1];
+    }else if( key == "daysback"){
+      if(prod.empty() ){
+	miString errmsg="You must give prod before file/stationfile";
+	sp.errorMsg(obs_name,i,errmsg);
+	continue;
+      }
+      Prod[prod].daysback= token[1].toInt();
+    }
+#endif
+    else if( key == "timerange" && newprod ){
       vector<miString> time = token[1].split(",");
       if(time.size()==2){
         Prod[prod].timeRangeMin=atoi(time[0].cStr());
@@ -1454,9 +1779,10 @@ bool ObsManager::parseSetup(SetupParser &sp)
       Prod[prod].current=atof(token[1].cStr());
 
     }
+#ifdef DEBUGPRINT
+  printProdInfo(Prod[prod]);
+#endif
   }
-
-
   // *******  Priority List ********************
 
   const miString key_name= "name";

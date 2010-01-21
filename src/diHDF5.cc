@@ -64,7 +64,7 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
   //convert colormap
   for (int k=0; k<3; k++)
     for (int j=0; j<colmapsize; j++)
-      colmap[k][j]= int (ginfo.cmap[k][j]/65535.0*255.0);
+      colmap[k][j]= int (ginfo.cmap[k][j]);
 
   //clean up
   col.clear();
@@ -109,7 +109,7 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
 
   miString ch=ginfo.channel;
   file.channel=ch.split(" ");
-
+  return true;
   return true;
 
 }
@@ -173,7 +173,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
 
     for (int j=0; j<3; j++)
       for (int i=0; i<256; i++)
-        sd.paletteInfo.cmap[j][i] = int(ginfo.cmap[j][i]/65535.0*255.0);
+        sd.paletteInfo.cmap[j][i] = int(ginfo.cmap[j][i]);
   }
 
   //name from file

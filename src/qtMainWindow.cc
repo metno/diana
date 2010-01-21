@@ -154,6 +154,7 @@
 #include <info.xpm>
 #include <profet.xpm>
 //#include <paint_mode.xpm>
+#include <autoupdate.xpm>
 
 DianaMainWindow::DianaMainWindow(Controller *co,
     const miutil::miString ver_str,
@@ -162,7 +163,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     bool ep)
 : QMainWindow(),
 enableProfet(ep), push_command(true),browsing(false),
-profetGUI(0),markTrajPos(false), markRadePos(false),
+profetGUI(0),markTrajPos(false), markRadePos(false), markVcross(false),
 vpWindow(0), vcWindow(0), spWindow(0),contr(co),
 timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
@@ -503,6 +504,14 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
       tr("Update observations"), this );
   connect( obsUpdateAction, SIGNAL( triggered() ), SLOT(updateObs()));
 
+  // Autoupdate ===============================
+  // --------------------------------------------------------------------
+  autoUpdateAction = new QAction( QPixmap(autoupdate_xpm),
+      tr("Automatic updates"), this );
+  autoUpdateAction->setCheckable(true);
+  doAutoUpdate = false;
+  connect( autoUpdateAction, SIGNAL( activated() ), SLOT(autoUpdate()));
+
   // edit  ===============================
   // --------------------------------------------------------------------
   undoAction = new QAction(this);
@@ -713,6 +722,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   levelToolbar->addAction( toolIdnumDownAction );
   levelToolbar->addSeparator();
   levelToolbar->addAction( obsUpdateAction );
+  //  levelToolbar->addAction( autoUpdateAction );
 
   /**************** Toolbar Buttons *********************************************/
 
@@ -972,7 +982,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 
   // vertical profiles
   // create a new main window
-  vpWindow = new VprofWindow();
+  vpWindow = new VprofWindow(contr);
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
   connect(vpWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
       help,SLOT(showsource(const miutil::miString,const miutil::miString)));
@@ -982,7 +992,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 
   // vertical crossections
   // create a new main window
-  vcWindow = new VcrossWindow();
+  vcWindow = new VcrossWindow(contr);
   connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
   connect(vcWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
       help,SLOT(showsource(const miutil::miString,const miutil::miString)));
@@ -992,6 +1002,8 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
       SLOT(crossectionSetChangedSlot()));
   connect(vcWindow,SIGNAL(crossectionSetUpdate()),
       SLOT(crossectionSetUpdateSlot()));
+  connect(vcWindow,SIGNAL(updateCrossSectionPos(bool)),
+          SLOT(vCrossPositions(bool)));
 
   // Wave spectrum
   // create a new main window
@@ -2521,6 +2533,43 @@ void DianaMainWindow::processLetter(miMessage &letter)
       return; // no need to repaint
   }
 
+  // If autoupdate is active, reread sat/radarfiles and
+ // show the latest timestep
+  else if (letter.command == qmstrings::directory_changed) {
+//#ifdef DEBUGPRINT
+  cerr << letter.command <<" received" << endl;
+//#endif
+
+  if (doAutoUpdate) {
+      QApplication::setOverrideCursor( Qt::WaitCursor );
+      om->getTimes();
+      sm->RefreshList();
+      contr->satFileListUpdated();
+      tslider->setLastTimeStep();
+      miutil::miTime t= tslider->Value();
+      setPlotTime(t);
+      stepforward();
+      QApplication::restoreOverrideCursor();
+    }
+  }
+
+// If autoupdate is active, reread thunder observations and
+// show the latest timestep
+  else if (letter.command == qmstrings::file_changed) {
+//#ifdef DEBUGPRINT
+  cerr << letter.command <<" received" << endl;
+//#endif
+    if (doAutoUpdate) {
+      QApplication::setOverrideCursor( Qt::WaitCursor );
+      contr->updateObs();
+      tslider->setLastTimeStep();
+      miutil::miTime t= tslider->Value();
+      setPlotTime(t);
+      w->updateGL();
+      QApplication::restoreOverrideCursor();
+    }
+  }
+
   else {
     return; //nothing to do
   }
@@ -2562,6 +2611,15 @@ void DianaMainWindow::updateObs()
   w->updateGL();
   QApplication::restoreOverrideCursor();
 
+}
+
+void DianaMainWindow::autoUpdate()
+{
+  doAutoUpdate = !doAutoUpdate;
+#ifdef DEBUGPRINT
+  cerr << "DianaMainWindow::autoUpdate(): " << doAutoUpdate << endl;
+#endif
+  autoUpdateAction->setChecked(doAutoUpdate);
 }
 
 void DianaMainWindow::updateGLSlot()
@@ -3047,6 +3105,7 @@ void DianaMainWindow::trajPositions(bool b)
 {
   markTrajPos = b;
   markRadePos = !b;
+  markVcross = !b;
 
 /*
   cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
@@ -3071,8 +3130,8 @@ void DianaMainWindow::trajPositions(bool b)
 void DianaMainWindow::radePositions(bool b)
 {
   markRadePos = b;
-
   markTrajPos = !b;
+  markVcross = !b;
 /*
     cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
     cerr << "\nRadarEchoDialog.hasFocus(): " << RadarEchoDialog::hasFocus() << "\n" << endl;
@@ -3093,6 +3152,15 @@ void DianaMainWindow::radePositions(bool b)
 
 }
 
+void DianaMainWindow::vCrossPositions(bool b)
+{
+#ifdef DEBUGPRINT
+  cerr << "vCrossPositions b=" << b << endl;
+#endif
+  markRadePos = false;
+  markTrajPos = false;
+  markVcross = b;
+}
 
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
@@ -3123,6 +3191,13 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     float lat=0,lon=0;
     contr->PhysToGeo(x,y,lat,lon);
     radem->mapPos(lat,lon);
+    w->updateGL(); // repaint window
+  }
+
+  if (markVcross) {
+    float lat=0,lon=0;
+    contr->PhysToGeo(x,y,lat,lon);
+    vcWindow->mapPos(lat,lon);
     w->updateGL(); // repaint window
   }
 

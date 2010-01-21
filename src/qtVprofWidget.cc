@@ -33,6 +33,7 @@
 
 #include <QImage>
 #include <QKeyEvent>
+#include <QApplication>
 
 #include <qtVprofWidget.h>
 #include <diVprofManager.h>
@@ -75,7 +76,9 @@ void VprofWidget::paintGL()
 
   if (!vprofm) return;
 
+  QApplication::setOverrideCursor( Qt::WaitCursor );
   vprofm->plot();
+  QApplication::restoreOverrideCursor();
 
   swapBuffers();
 }

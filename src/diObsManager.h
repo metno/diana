@@ -56,6 +56,9 @@ class ObsManager {
 private:
 
   enum ObsFormat {
+#ifdef ROADOBS
+    ofmt_roadobs,
+#endif
     ofmt_unknown,
     ofmt_synop,
     ofmt_aireps,
@@ -88,17 +91,22 @@ private:
     miutil::miString dialogName; // mixedcase, always Prod[lowercase]
     miutil::miString plotFormat;
     vector<patternInfo> pattern;
-    vector<FileInfo> fileInfo; 
+    vector<FileInfo> fileInfo;
     bool noTime; //files have no time, vector<miutil::miTime> time is empty
-    int timeRangeMin;    
+    int timeRangeMin;
     int timeRangeMax;
     float current;
     bool synoptic;
     miutil::miString headerfile;
+#ifdef ROADOBS
+    miutil::miString stationfile;
+    miutil::miString databasefile;
+    int daysback;
+#endif
     bool useFileTime;
     vector<miutil::miString> parameter;
   };
-  
+
   map<miutil::miString,ProdInfo> Prod;
   ObsDialogInfo dialog;
   vector<ObsDialogInfo::PriorityList> priority;
@@ -119,7 +127,7 @@ private:
   bool useArchive; //read archive files too.
   bool mslp;
   ObsPositions obsPositions;
-  
+
   //HQC - perhaps its own class?
   vector<ObsData> hqcdata;
   vector< vector<miutil::miString> > hqcdiffdata;
@@ -157,6 +165,7 @@ void setAllActive(ObsDialogInfo::PlotType& dialogInfo,
 			const vector<miutil::miString>& data);
   Colour flag2colour(const miutil::miString& flag);
 
+  void printProdInfo(const ProdInfo & pinfo);
 
 public:
   ObsManager();

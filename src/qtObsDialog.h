@@ -87,9 +87,9 @@ protected:
 
 public slots:
   void archiveMode( bool on );
+  void getTimes();
 
 private slots:
-  void getTimes();
   void plotSelected( int index , bool sendTimes=true);
   void applyhideClicked();
   void helpClicked();

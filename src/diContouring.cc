@@ -4241,6 +4241,7 @@ void fillContours(vector<ContourLine*>& contourlines,
   }
   int nclass= classValues.size();
 
+#ifdef SHAPE_TEST_POLY
   //##########################################################################
   static int numPolyShape= 0;
 
@@ -4362,7 +4363,7 @@ void fillContours(vector<ContourLine*>& contourlines,
     DBFClose( hDBF );
   }
   //##########################################################################
-
+#endif
   if (iconv==1) {
     for (jc=0; jc<ncl; jc++) {
       cl= contourlines[jc];

@@ -38,6 +38,7 @@
 #include <puTools/miString.h>
 #include <diStationPlot.h>
 #include <vector>
+ #include <diController.h>
 
 using namespace std;
 
@@ -62,7 +63,7 @@ class VprofWindow: public QMainWindow
   Q_OBJECT
 
 public:
-  VprofWindow();
+  VprofWindow(Controller *co);
   ~VprofWindow(){}
 
   StationPlot* getStations();

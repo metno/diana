@@ -227,6 +227,7 @@ class VcrossPlot
 {
 
   friend class VcrossFile;
+  friend class VcrossField;
 
 public:
   VcrossPlot();

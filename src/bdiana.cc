@@ -281,7 +281,7 @@ miString fifo_name;
  */
 void cleanstr(miString& s)
 {
-  unsigned int p;
+  std::string::size_type p;
   if ((p = s.find("#")) != string::npos)
     s.erase(p);
 
@@ -1338,7 +1338,7 @@ int parseAndProcess(const miString& file)
       } else if (plottype == plot_vcross) {
         // -- vcross plot
         if (!vcrossmanager) {
-          vcrossmanager = new VcrossManager;
+          vcrossmanager = new VcrossManager(main_controller);
         }
 
         // set size of plotwindow
@@ -1394,7 +1394,7 @@ int parseAndProcess(const miString& file)
       } else if (plottype == plot_vprof) {
         // -- vprof plot
         if (!vprofmanager) {
-          vprofmanager = new VprofManager;
+          vprofmanager = new VprofManager(main_controller);
         }
 
         // set size of plotwindow

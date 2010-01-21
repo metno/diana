@@ -461,7 +461,8 @@ void VcrossFile::getMapData(vector<LocationElement>& elements)
 VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
     int tgpos) {
 #ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::getCrossection" << endl;
+  cerr << "++ VcrossFile::getCrossection(" <<
+             time.format("%Y%m%d%H%M%S") << ", " << tgpos << ")" << endl;
 #endif
 
   VcrossPlot *vcp= 0;

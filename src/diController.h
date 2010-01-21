@@ -105,6 +105,7 @@ public:
   EditManager*   getEditManager()   { return editm; };
 //  GridEditManager* getGridEditManager()   { return gridm; };
   ObjectManager* getObjectManager() { return objm; };
+  FieldManager* getFieldManager() { return fieldm; };
 
   /// parse setup
   bool parseSetup();

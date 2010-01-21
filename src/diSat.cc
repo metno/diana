@@ -521,7 +521,10 @@ void Sat::setArea()
 #endif
 
   //Projection p;
-  int adjustGrid = (formatType=="mitiff") ? ny : 0;
+  int adjustGrid = 0;
+  if (formatType=="mitiff" || formatType== "geotiff") {
+    adjustGrid = ny;
+  }
   //p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid);
   if ( proj_string == "" )
     {

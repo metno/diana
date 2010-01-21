@@ -41,12 +41,14 @@
 #include <puTools/miString.h>
 #include <vector>
 #include <map>
+#include <diController.h>
 
 using namespace std;
 
 class VcrossOptions;
 class VcrossFile;
 class VcrossPlot;
+class VcrossField;
 
 
 /**
@@ -68,12 +70,15 @@ private:
   // map<model,filename>
   map<miutil::miString,miutil::miString> filenames;
   vector<miutil::miString> modelnames;
+  map<miutil::miString, miutil::miString> filetypes;
 
   map<miutil::miString,VcrossFile*> vcfiles;
+  map<miutil::miString,VcrossField*> vcfields;
 
   vector<VcrossData> vcdata;
 
   SetupParser sp;
+  FieldManager *fieldm;   // field manager
 
   VcrossOptions *vcopt;
 
@@ -115,11 +120,12 @@ private:
 
 public:
   // constructor
-  VcrossManager();
+  VcrossManager(Controller *co);
   // destructor
   ~VcrossManager();
 
   void cleanup();
+  void cleanupDynamicCrossSections();
 
   VcrossOptions* getOptions() { return vcopt; }
 
@@ -130,6 +136,7 @@ public:
   void setCrossection(const miutil::miString& crossection);
   void setTime(const miutil::miTime& time);
   miutil::miString setCrossection(int step);
+  bool setCrossection(float lat, float lon);
   miutil::miTime setTime(int step);
   const miutil::miTime getTime() { return plotTime; }
   void getCrossections(LocationData& locationdata);

@@ -33,19 +33,24 @@
 
 #include <diVcrossOptions.h>
 #include <diVcrossFile.h>
+#include <diVcrossField.h>
 #include <diVcrossPlot.h>
 #include <set>
 
 #include <glob.h>
 
+// #define DEBUGPRINT
+
 using namespace::miutil;
 
-VcrossManager::VcrossManager()
+VcrossManager::VcrossManager(Controller *co)
 : dataChange(true), timeGraphPos(-1) , timeGraphPosMax(-1), hardcopy(false)
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossManager constructed" << endl;
 #endif
+
+  fieldm= co->getFieldManager(); // set fieldmanager
 
   vcopt= new VcrossOptions();  // defaults are set
 
@@ -102,8 +107,29 @@ void VcrossManager::cleanup()
       vf->second= 0;
     }
   }
+
+  map<miString, VcrossField*>::iterator vfi, vfiend = vcfields.end();
+  for (vfi = vcfields.begin(); vfi != vfiend; vfi++) {
+    if (vfi->second) {
+      delete vfi->second;
+      vfi->second = 0;
+    }
+  }
+  vcfields.clear();
+
 }
 
+void VcrossManager::cleanupDynamicCrossSections() {
+#ifdef DEBUGPRINT
+  cerr << "VcrossManager::cleanupDynamicCrossSections" << endl;
+#endif
+  map<miString, VcrossField*>::iterator vfi, vfiend = vcfields.end();
+  for (vfi = vcfields.begin(); vfi != vfiend; vfi++) {
+    if (vfi->second) {
+      vfi->second->cleanup();
+    }
+  }
+}
 
 bool VcrossManager::parseSetup()
 {
@@ -130,14 +156,23 @@ bool VcrossManager::parseSetup()
       if (tokens.size()==2) {
         tokens1= tokens[0].split("=");
         tokens2= tokens[1].split("=");
-        if (tokens1.size()==2          && tokens2.size()==2  &&
-            tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
-          model= tokens1[1];
-          filename= tokens2[1];
-          filenames[model]= filename;
-          modelnames.push_back(model);
-          vcfiles[filename]= 0;
-        }
+        if (tokens1.size()==2          && tokens2.size()==2) {
+	  if (tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
+	    model= tokens1[1];
+	    filename= tokens2[1];
+	    filenames[model]= filename;
+	    modelnames.push_back(model);
+	    filetypes[model] = "standard";
+	    vcfiles[filename]= 0;
+	  }
+	  else if (tokens1[0].downcase() == "m" && tokens2[0].downcase() == "t") {
+            model = tokens1[1];
+            miString filetype = tokens2[1];
+	    modelnames.push_back(model);
+            filetypes[model] = filetype;
+	    vcfiles[filename]= 0;
+          }
+	}
       }
     }
 
@@ -170,6 +205,21 @@ void VcrossManager::setCrossection(const miString& crossection)
   dataChange= true;
 }
 
+bool VcrossManager::setCrossection(float lat, float lon) {
+#ifdef DEBUGPRINT
+  cerr << "VcrossManager::setCrossection (" << lat << "," << lon << ")" << endl;
+#endif
+  map<miutil::miString, VcrossField*>::iterator vfi;
+  if (vcfields.size() == 0)
+    return false;
+  for (vfi=vcfields.begin(); vfi != vcfields.end(); vfi++) {
+    (*vfi).second->setLatLon(lat, lon);
+    // Get the new namelist with the crossections
+    nameList = (*vfi).second->getNames();
+    timeList = (*vfi).second->getTimes();
+  }
+  return true;
+}
 
 void VcrossManager::setTime(const miTime& time)
 {
@@ -390,6 +440,25 @@ void VcrossManager::preparePlot()
             }
           }
         }
+      } else if (filetypes[model] == "GribFile") {
+        miTime t = plotTime;
+        if (selectedHourOffset[i] != 0)
+          t.addHour(selectedHourOffset[i]);
+        VcrossField *vcfield = vcfields[model];
+        if(vcfield) {
+          VcrossPlot *vcp = vcfield->getCrossection(plotCrossection,t,timeGraphPos);
+          if (vcp) {
+            timeGraphPosMax = vcp->getHorizontalPosNum() - 1;
+            selectedVcData[i] = vcdata.size();
+            VcrossData vcd;
+            vcd.filename = model;
+            vcd.crossection = plotCrossection;
+            vcd.tgpos = timeGraphPos;
+            vcd.time = t;
+            vcd.vcplot = vcp;
+            vcdata.push_back(vcd);
+          }
+        }
       }
     }
   }
@@ -431,10 +500,12 @@ vector<miString> VcrossManager::getFieldNames(const miString& model)
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossManager::getFields  model= " << model << endl;
+  cerr << "filetypes[model]=" << filetypes[model] << endl;
 #endif
 
   vector<miString> empty;
 
+  if(filetypes[model] == "standard") {
   map<miString,miString>::iterator p= filenames.find(model);
   if (p==filenames.end())
     return empty;
@@ -457,6 +528,17 @@ vector<miString> VcrossManager::getFieldNames(const miString& model)
   }
 
   return VcrossPlot::getFieldNames(p->second);
+ } else if(filetypes[model] == "GribFile") {
+    VcrossField *vcfield = new VcrossField(model,fieldm);
+    if(vcfield->getInventory()) {
+      vcfields[model] = vcfield;
+      return VcrossPlot::getFieldNames(model);
+    } else {
+      cerr << "Error making inventory of model " << model << endl;
+    }
+  } else {
+    return empty;
+  }
 }
 
 /***************************************************************************/
@@ -494,6 +576,36 @@ void VcrossManager::getCrossections(LocationData& locationdata){
       locationdata.colourSelected=    vcopt->vcSelectedOnMapColour;
       locationdata.linetypeSelected=  vcopt->vcSelectedOnMapLinetype;
       locationdata.linewidthSelected= vcopt->vcSelectedOnMapLinewidth;
+    }
+    else {
+      map<miString, VcrossField*>::iterator vfi = vcfields.find(masterFile);
+      if (vfi != vcfields.end()) {
+#ifdef DEBUGPRINT
+        cerr << "Found masterFile in vcfields" << endl;
+#endif
+
+        miString annot = "Vertikalsnitt";
+        int m = usedModels.size();
+        for (int i = 0; i < m; i++)
+          annot += (" " + usedModels[i]);
+
+	Projection pgeo;
+	pgeo.setGeographic();
+	Rectangle rgeo(0,0,90,360);
+	Area geoArea(pgeo,rgeo);
+
+        vfi->second->getMapData(locationdata.elements);
+        locationdata.name = "vcross";
+        locationdata.locationType = location_line;
+        locationdata.area = geoArea;
+        locationdata.annotation = annot;
+        locationdata.colour = vcopt->vcOnMapColour;
+        locationdata.linetype = vcopt->vcOnMapLinetype;
+        locationdata.linewidth = vcopt->vcOnMapLinewidth;
+        locationdata.colourSelected = vcopt->vcSelectedOnMapColour;
+        locationdata.linetypeSelected = vcopt->vcSelectedOnMapLinetype;
+        locationdata.linewidthSelected = vcopt->vcSelectedOnMapLinewidth;
+      }
     }
   }
 
@@ -608,7 +720,8 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
       }
     }
     if (model.exists() && field.exists() &&
-        filenames.find(model)!=filenames.end()) {
+        ((filenames.find(model)!=filenames.end())
+	 || (filetypes[model] == "GribFile"))) {
       // there may be options not handled in dialog
       // or uncomplete batch input
       miString defaultOptions= VcrossPlot::getFieldOptions(field);
@@ -647,6 +760,7 @@ bool VcrossManager::setModels()
   miString prevmasterFile= masterFile;
 
   VcrossFile *vcfile1= 0;
+  VcrossField *vcfield = 0;
   masterFile.clear();
   usedModels.clear();
 
@@ -655,7 +769,16 @@ bool VcrossManager::setModels()
     miString model=    selectedModels[i];
     miString filename= selectedVcFile[i];
 
-    if (vcfilesUsed.find(filename)==vcfilesUsed.end()) {
+     if (filetypes[model] == "GribFile") {
+      vcfield = vcfields[model];
+      int m = usedModels.size();
+      int j = 0;
+      while (j < m && usedModels[j] != model)
+        j++;
+      if (j == m)
+        usedModels.push_back(model);
+      masterFile = model;
+    } else if (vcfilesUsed.find(filename)==vcfilesUsed.end()) {
 
       vcfilesUsed.insert(filename);
 
@@ -715,8 +838,13 @@ bool VcrossManager::setModels()
     modelChange= prevmasterFile.exists();
   } else if (masterFile!=prevmasterFile) {
     // lists from the first model only, yet...
-    nameList= vcfile1->getNames();
-    timeList= vcfile1->getTimes();
+    if(vcfield) {
+      nameList = vcfield->getNames();
+      timeList = vcfield->getTimes();
+    } else {
+      nameList = vcfile1->getNames();
+      timeList = vcfile1->getTimes();
+    }
     //---------------------------------------------
     if (nameList.size() && timeList.size()) {
       int maxdiff= miTime::minDiff (plotTime,ztime);

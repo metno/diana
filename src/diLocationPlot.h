@@ -83,7 +83,7 @@ public:
   LocationPlot();
 
   // destructor
-  ~LocationPlot();
+  virtual ~LocationPlot();
 
   bool setData(const LocationData& locationdata);
   void updateOptions(const LocationData& locationdata);

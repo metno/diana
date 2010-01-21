@@ -239,3 +239,4 @@ void PaintToolBar::enableRedo(bool enable){
 void PaintToolBar::helpPressed() {
   emit showsource(helpPageName,"");
 }
+

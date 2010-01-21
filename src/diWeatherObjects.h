@@ -52,10 +52,10 @@ class WeatherObjects{
 public:
 
   WeatherObjects();
-  ~WeatherObjects(){}
+  virtual ~WeatherObjects(){}
 
   /// the weather objects to plot
-  vector<ObjectPlot*> objects;   
+  vector<ObjectPlot*> objects;
   /// clears all variables
   void clear();
   virtual void init(){}

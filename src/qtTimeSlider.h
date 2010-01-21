@@ -57,6 +57,7 @@ public:
   TimeSlider(Qt::Orientation, QWidget*);
 
   void clear();
+  void setLastTimeStep();
   ///Current time
   miutil::miTime Value();
   /// current index

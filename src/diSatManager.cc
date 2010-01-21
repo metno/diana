@@ -28,6 +28,7 @@
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#include <sys/stat.h> //stat, stat()
 #include <fstream>
 #include <diSatManager.h>
 #include <GL/gl.h>
@@ -38,6 +39,9 @@
 #include <diMItiff.h>
 #ifdef HDF5FILE
 #include <diHDF5.h>
+#endif
+#ifdef GEOTIFF
+#include <diGEOtiff.h>
 #endif
 
 using namespace::miutil;
@@ -203,8 +207,10 @@ bool SatManager::setData(SatPlot *satp)
       index=getFileName(satp->getTime());
   }
 
-  if (index <0)
+  if (index <0) {
+    cerr <<"No index" << endl;
     return false;
+  }
 
   //Read header if not opened
   if (!Prod[satdata->satellite][satdata->filetype].file[index].opened)
@@ -232,11 +238,15 @@ bool SatManager::setData(SatPlot *satp)
   if (readfresh) { // nothing to reuse..
     satp->clearData();
   //find out which channels to read (satdata->index), total no
-    if ( !parseChannels(fInfo) )
+    if ( !parseChannels(fInfo) ) {
+      cerr << "Failed parseChannels" << endl;
       return false;
+    }
     satdata->cleanup();
-    if (!readSatFile())
+    if (!readSatFile()) {
+      cerr << "Failed readSatFile" << endl;
       return false;
+    }
     satdata->setArea();
     satdata->setCalibration();
     satdata->setAnnotation();
@@ -327,7 +337,12 @@ bool SatManager::readSatFile()
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
 
+  // YE: Here we may have performace issues.
+  // This may take a long time when network is busy on an NFS mounted file system
+  // Use stat instead
+
   //first check if file exists
+  /*
   ifstream inFile(satdata->actualfile.c_str(), ios::in);
   if (!inFile) {
     inFile.close();
@@ -338,6 +353,21 @@ bool SatManager::readSatFile()
     return false;
   }
   inFile.close();
+  */
+  struct stat info;
+  int ret = -1;   //get the file attributes
+  ret = stat(satdata->actualfile.c_str(), &info);
+  if(ret != 0) {
+    //stat() is not able to get the file attributes,
+    //so the file obviously does not exist or
+    //more capabilities is required
+    cerr << "filename:" << satdata->actualfile << " does not exist" << endl;
+    return false;
+  }
+
+#ifdef DEBUGPRINT
+    cerr << "++ satdata->formattype:    " << satdata->formatType <<endl;
+#endif
 
   if (satdata->formatType == "mitiff") {
     if (!MItiff::readMItiff(satdata->actualfile, *satdata))
@@ -346,15 +376,18 @@ bool SatManager::readSatFile()
 
 #ifdef HDF5FILE
   if (satdata->formatType == "hdf5") {
-#ifdef DEBUGPRINT
-    cerr << "++ satdata->formattype:    " << satdata->formatType <<endl;
-#endif
     if(!HDF5::readHDF5(satdata->actualfile,*satdata)) {
       return false;
     }
   }
 #endif
-
+#ifdef GEOTIFF
+  if (satdata->formatType == "geotiff") {
+    if(!GEOtiff::readGEOtiff(satdata->actualfile,*satdata)) {
+      return false;
+    }
+  }
+#endif
   if (!satdata->palette) {
 
     if (satdata->plotChannels == "IR+V")
@@ -447,10 +480,19 @@ void SatManager::setRGB()
   if (size==0)
     return;
 
+
+
   unsigned char *color[3];//contains the three rgb channels ofraw image
-  color[0]= satdata->rawimage[satdata->rgbindex[0]];
-  color[1]= satdata->rawimage[satdata->rgbindex[1]];
-  color[2]= satdata->rawimage[satdata->rgbindex[2]];
+  if (satdata->formatType == "geotiff" ){
+    color[0]= satdata->rawimage[0];
+    color[1]= satdata->rawimage[1];
+    color[2]= satdata->rawimage[2];
+  }
+  else {
+    color[0]= satdata->rawimage[satdata->rgbindex[0]];
+    color[1]= satdata->rawimage[satdata->rgbindex[1]];
+    color[2]= satdata->rawimage[satdata->rgbindex[2]];
+  }
 
   bool dorgb= (satdata->noimages() || satdata->rgboperchanged);
   bool doalpha= (satdata->noimages() || satdata->alphaoperchanged || dorgb);
@@ -808,7 +850,21 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
 
 #ifdef HDF5FILE
   if (file.formattype=="hdf5" || file.formattype=="hdf5-standalone") {
+    cerr<<"SatManager----> readHeader: readHDF5Header"<<endl;
     HDF5::readHDF5Header(file);
+  }
+#endif
+
+#ifdef GEOTIFF
+  cerr<<"SatManager----> inside geotiff"<<file.name<<endl;
+  if (file.formattype=="geotiff") {
+#ifdef DEBUGPRINT
+    cerr<<"SatManager----> readHeader: reading geotiff"<<file.name<<endl;
+#endif
+    GEOtiff::readGEOtiffHeader(file);
+#ifdef DEBUGPRINT
+    cerr<<"SatManager----> readHeader: finished reading geotiff"<<file.name<<endl;
+#endif
   }
 #endif
 
@@ -828,7 +884,12 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
     else if (channel[k]=="day_night") {
       file.channel.push_back("day_night");
     }
-
+    else if (channel[k]=="RGB") {
+      file.channel.push_back("RGB");
+    }
+    else if (channel[k]=="IR") {
+      file.channel.push_back("IR");
+    }
     else if (channel[k].contains("+") ) {
       vector<miString> ch = channel[k].split("+");
       bool found =false;
@@ -1011,6 +1072,18 @@ void SatManager::listFiles(subProdInfo &subp)
   }
 #endif
 
+#ifdef GEOTIFF
+  else if (subp.formattype == "geotiff") {
+    //update Prod[satellite][file].colours
+    //Asumes that all files have same palette
+    int n=subp.file.size();
+    //check max 3 files,
+    int i=0;
+    while (i<n && i<3 && !GEOtiff::readGEOtiffPalette(subp.file[i].name.c_str(),
+						      subp.colours))
+      i++;
+  }
+#endif
 }
 
 const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
@@ -1315,6 +1388,8 @@ bool SatManager::parseSetup(SetupParser &sp)
         hdf5type = 1;
       } else if (value.downcase() == "msg") {
         hdf5type = 2;
+      } else if (value.downcase() == "saf") {
+        hdf5type = 3;
       }
     } else if (key == "sub.type") {
       if (!prod.exists()) {

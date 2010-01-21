@@ -64,6 +64,7 @@ private:
   void memberCopy(const ShapeObject& rhs);
 
   vector <SHPObject*> shapes;
+  vector <SHPObject*> orig_shapes;
   vector<miutil::miString> dbfIntName;
   vector<miutil::miString> dbfDoubleName;
   vector<miutil::miString> dbfStringName;
@@ -86,15 +87,16 @@ public:
   bool read(miutil::miString filename);
   bool read(miutil::miString filename, bool convertFromGeo);
   bool plot(Area area, // current area
-      double gcd, // size of plotarea in m
-      bool land, // plot triangles
-      bool cont, // plot contour-lines
-      bool keepcont, // keep contourlines for later
-      GLushort linetype, // contour line type
-      float linewidth, // contour linewidth
-      const uchar_t* lcolour, // contour linecolour
-      const uchar_t* fcolour, // triangles fill colour
-      const uchar_t* bcolour);
+  double gcd, // size of plotarea in m
+  bool land, // plot triangles
+  bool cont, // plot contour-lines
+  bool keepcont, // keep contourlines for later
+  GLushort linetype, // contour line type
+  float linewidth, // contour linewidth
+  const uchar_t* lcolour, // contour linecolour
+  const uchar_t* fcolour, // triangles fill colour
+  const uchar_t* bcolour);
+
   virtual bool plot();
 
   virtual int getXYZsize();
