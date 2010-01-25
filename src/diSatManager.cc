@@ -208,7 +208,6 @@ bool SatManager::setData(SatPlot *satp)
   }
 
   if (index <0) {
-    cerr <<"No index" << endl;
     return false;
   }
 

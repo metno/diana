@@ -3244,9 +3244,10 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   float map_x,map_y;
   contr->PhysToMap(mev.x,mev.y,map_x,map_y);
 
-  if (ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
-    return;
-  }
+  //todo: fix popup menus
+//  if (ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
+//    return;
+//  }
 
   xclick=x; yclick=y;
   //fill list of menuItems
