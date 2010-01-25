@@ -370,7 +370,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   for(unsigned int i=0; i<priorityList.size(); i++)
     priName.push_back(priorityList[i].name);
   pribox = ComboBox( this,priName,true);
-  pribox->addItem(tr("No priority list"),0);
+  pribox->insertItem(0,tr("No priority list"));
 
   //Colour
   QLabel *colourLabel = new QLabel( tr("Colour"), this);
