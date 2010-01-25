@@ -510,7 +510,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
       tr("Automatic updates"), this );
   autoUpdateAction->setCheckable(true);
   doAutoUpdate = false;
-  connect( autoUpdateAction, SIGNAL( activated() ), SLOT(autoUpdate()));
+  connect( autoUpdateAction, SIGNAL( triggered() ), SLOT(autoUpdate()));
 
   // edit  ===============================
   // --------------------------------------------------------------------

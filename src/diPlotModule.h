@@ -111,7 +111,6 @@ private:
   bool mapdefined;       // area/projection defined for plot
   bool mapDefinedByUser; // map area set by user
   bool mapDefinedByData; // for initial maps with fields or sat.
-  bool mapDefinedByNeed; // for initial maps with only obs or objects
   bool mapDefinedByView; // for initial maps without any data
 
   Area requestedarea;

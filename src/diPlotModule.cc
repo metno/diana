@@ -71,7 +71,6 @@ PlotModule::PlotModule() :
   mapdefined = false;
   mapDefinedByUser = false;
   mapDefinedByData = false;
-  mapDefinedByNeed = false;
   mapDefinedByView = false;
 
   // used to detect map area changes
@@ -950,31 +949,18 @@ void PlotModule::updatePlots()
   // set maparea from sat, map spec. or fields
 
   //######################################################################
-  //int gt;
-  //float gs[6];
-  //Area aa;
-  //cerr << "----------------------------------------------------" << endl;
-  //aa=previousrequestedarea;
-  //gt= aa.P().Gridtype();
-  //aa.P().Gridspec(gs);
-  //cerr << "previousrequestedarea " << gt;
-  //for (i=0; i<6; i++) cerr << " " << gs[i];
-  //cerr << "    " << aa.R().x1 << " " << aa.R().x2 << " "
-  //               << aa.R().y1 << " " << aa.R().y2 << endl;
-  //aa=requestedarea;
-  //gt= aa.P().Gridtype();
-  //aa.P().Gridspec(gs);
-  //cerr << "requestedarea         " << gt;
-  //for (i=0; i<6; i++) cerr << " " << gs[i];
-  //cerr << "    " << aa.R().x1 << " " << aa.R().x2 << " "
-  //               << aa.R().y1 << " " << aa.R().y2 << endl;
-  //cerr << "mapDefinedByUser= " << mapDefinedByUser << endl;
-  //cerr << "mapDefinedByData= " << mapDefinedByData << endl;
-  //cerr << "mapDefinedByNeed= " << mapDefinedByNeed << endl;
-  //cerr << "mapDefinedByView= " << mapDefinedByView << endl;
-  //cerr << "mapdefined=       " << mapdefined << endl;
-  //cerr << "keepcurrentarea=  " << keepcurrentarea << endl;
-  //cerr << "----------------------------------------------------" << endl;
+//  Area aa;
+//  cerr << "----------------------------------------------------" << endl;
+//  aa=previousrequestedarea;
+//  cerr << "previousrequestedarea " << aa << endl;
+//  aa=requestedarea;
+//  cerr << "requestedarea         " << aa.Name()<<" : "<<aa<<endl;
+//  cerr << "mapDefinedByUser= " << mapDefinedByUser << endl;
+//  cerr << "mapDefinedByData= " << mapDefinedByData << endl;
+//  cerr << "mapDefinedByView= " << mapDefinedByView << endl;
+//  cerr << "mapdefined=       " << mapdefined << endl;
+//  cerr << "keepcurrentarea=  " << keepcurrentarea << endl;
+//  cerr << "----------------------------------------------------" << endl;
   //######################################################################
   mapdefined = false;
 
@@ -1006,14 +992,16 @@ void PlotModule::updatePlots()
 
     // FIRST: forced change!
     if (!keepcurrentarea || !previousOK) {
-      if (keepcurrentarea) // but not similar enough
+      if (keepcurrentarea) {// but not similar enough
         newarea = splot.findBestMatch(satarea);
       // do not keep current area
-      else if (requestedOK) // change to requested
+      } else if (requestedOK) {// change to requested
         newarea = requestedarea;
-      else
+      } else {
         // change to satarea
-        newarea = satarea;
+        splot.setMapArea(requestedarea, keepcurrentarea);
+        newarea = splot.findBestMatch(satarea);
+      }
       splot.setMapArea(newarea, keepcurrentarea);
 
       // THEN: selected a new MAP-area
@@ -1022,7 +1010,6 @@ void PlotModule::updatePlots()
       if (requestedOK) // try to use requested area
         newarea = requestedarea;
       else { // find best match from satarea and requestedarea
-        splot.setMapArea(requestedarea, keepcurrentarea);
         newarea = splot.findBestMatch(satarea);
       }
       splot.setMapArea(newarea, keepcurrentarea);
@@ -1032,12 +1019,15 @@ void PlotModule::updatePlots()
 
     // ----- NO raster images
   } else if (mapDefinedByUser) { // area != "modell/sat-omr."
-    plotarea = splot.getMapArea();
-    if (!keepcurrentarea || // show def. area
-        plotarea.P() != requestedarea.P() || // or user just selected new area
-        previousrequestedarea.R() != requestedarea.R()) {
+     plotarea = splot.getMapArea();
+
+    if (!keepcurrentarea ){ // show def. area
       mapdefined = mapDefinedByUser = splot.setMapArea(requestedarea,
-          keepcurrentarea);
+           keepcurrentarea);
+     } else if( plotarea.P() != requestedarea.P() || // or user just selected new area
+        previousrequestedarea.R() != requestedarea.R()) {
+       newarea = splot.findBestMatch(requestedarea);
+       mapdefined = mapDefinedByUser = splot.setMapArea(newarea, keepcurrentarea);
     } else {
       mapdefined = true;
     }
@@ -1076,19 +1066,6 @@ void PlotModule::updatePlots()
       splot.setMapArea(newarea, keepcurrentarea);
       mapdefined = mapDefinedByData = true;
     }
-  }
-
-  if (!mapdefined && keepcurrentarea && mapDefinedByNeed)
-    mapdefined = true;
-
-  if (!mapdefined && (vop.size() > 0 || objects.defined || locationPlots.size()
-      > 0)) {
-    // obs or objects on initial map ... change to "Atlant" area
-    miString areaString = "proj=pstereo_60 grid=54:52:79:0:0:0 area=21:77:10:60";
-    Area a;
-    a.setAreaFromLog(areaString);
-    splot.setMapArea(a, keepcurrentarea);
-    mapdefined = mapDefinedByNeed = true;
   }
 
   // moved here ------------------------
