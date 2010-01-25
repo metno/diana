@@ -373,6 +373,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   pribox->addItem(tr("No priority list"),0);
 
   //Colour
+  QLabel *colourLabel = new QLabel( tr("Colour"), this);
   colourBox = ColourBox( this, cInfo, true, colIndex );
 
 
@@ -383,10 +384,18 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   connect( diffComboBox,SIGNAL(activated(int)),SLOT(diffComboBoxSlot(int)));
   connect( pribox, SIGNAL( activated(int) ), SLOT( priSelected(int) ) );
 
-
   // Layout for priority list, colours, criteria and extension
+  QHBoxLayout* prilayout = new QHBoxLayout();
+  QLabel *priLabel = new QLabel( tr("Priority list"), this);
+  prilayout->addWidget( priLabel );
+  prilayout->addWidget( pribox );
+
+  QHBoxLayout* prilayout2 = new QHBoxLayout();
+  pricheckbox = new QCheckBox(tr("Show only prioritized"), this);
+  prilayout2->addWidget( pricheckbox );
+
   QHBoxLayout* colourlayout = new QHBoxLayout();
-  colourlayout->addWidget( pribox );
+  colourlayout->addWidget( colourLabel );
   colourlayout->addWidget( colourBox );
 
   // layout
@@ -425,6 +434,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addLayout( criteriaLayout );
   vcommonlayout->addWidget( line1 );
   vcommonlayout->addLayout( slidergrid );
+  vcommonlayout->addLayout( prilayout );
+  vcommonlayout->addLayout( prilayout2 );
   vcommonlayout->addLayout( colourlayout );
 
   vlayout= new QVBoxLayout( this);
@@ -509,6 +520,11 @@ void ObsWidget::criteriaChecked(bool on){
 void ObsWidget::priSelected( int index ){
   //priority file
   pri_selected = index;
+  if(pribox->currentText() == tr("No priority list")) {
+    pricheckbox->setEnabled(false);
+  } else {
+    pricheckbox->setEnabled(true);
+  }
 }
 
 /***************************************************************************/
@@ -742,6 +758,9 @@ miutil::miString ObsWidget::getOKString(bool forLog){
   if( onlyposCheckBox->isChecked() ){
     dVariables.misc["onlypos"]="true";
   }
+  if( pricheckbox->isChecked() ){
+      dVariables.misc["showOnlyPrioritized"]="true";
+  }
   if(markerName.size())
     dVariables.misc["image"] = markerName[markerBox->currentIndex()];
 
@@ -969,7 +988,7 @@ void ObsWidget::updateDialog(bool setChecked){
         dVariables.parameter[j] = "date";
       if(para == "tid")
         dVariables.parameter[j] = "time";
-      if(para == "høyde")
+      if(para == "hï¿½yde")
         dVariables.parameter[j] = "height";
       parameterButtons->setButtonOn(dVariables.parameter[j]);
     }
@@ -1134,6 +1153,12 @@ void ObsWidget::updateDialog(bool setChecked){
     }
   } else {
     pribox->setCurrentIndex(0);
+  }
+
+  if (pribox->currentText() == tr("No priority list")) {
+    pricheckbox->setEnabled(false);
+  } else {
+    pricheckbox->setEnabled(true);
   }
 
   //colour

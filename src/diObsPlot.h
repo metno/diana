@@ -69,6 +69,7 @@ private:
   bool showpos;
   bool devfield;
   bool onlypos;
+  bool showOnlyPrioritized;
   miutil::miString image;
   int level;
   int leveldiff;

@@ -107,6 +107,7 @@ ObsPlot::ObsPlot()
   itab        = 0;
   iptab       = 0;
   onlypos     = false;
+  showOnlyPrioritized= false;
   flaginfo    = false;
   parameterName = false;
   asciiHeader = false;
@@ -545,13 +546,15 @@ bool ObsPlot::prepare(const miString& pin)
       else if( key == "leveldiff" ){
 	leveldiff = atoi(value.cStr());
       }
-      else if( key == "onlypos" )
+      else if( key == "onlypos" ) {
 	onlypos = true;
-      else if( key == "image" )
+      } else if (key == "showonlyprioritized") {
+        showOnlyPrioritized = true;
+      } else if (key == "image") {
 	image = orig_value;
-      else if( key == "showpos" )
+      } else if( key == "showpos" ) {
 	showpos = true;
-      else if( key == "orientation" ){
+      } else if( key == "orientation" ){
 	if(value == "horizontal")
 	  vertical = false;
       }else if( key == "criteria" ){
@@ -1068,7 +1071,7 @@ void ObsPlot::clear()
 void ObsPlot::priority_sort(void)
 {
 #ifdef DEBUGPRINT
-	cerr << "++ ObsPlot::priority_sort() ++" << endl;
+  cerr << "++ ObsPlot::priority_sort() ++" << endl;
 #endif
   //sort the observations according to priority list
   int numObs;
@@ -1102,9 +1105,9 @@ void ObsPlot::priority_sort(void)
     int n= 0;
     for (i=0; i<numObs; i++) {
       if (obsp[i].fdata.count("ix") && obsp[i].fdata["ix"]<4)
-	all_from_file[n++]= i;
+  all_from_file[n++]= i;
       else
-	automat.push_back(i);
+  automat.push_back(i);
     }
     int na= automat.size();
     for (i=0; i<na; i++)
@@ -1127,23 +1130,69 @@ void ObsPlot::priority_sort(void)
       // and mark them in tmpList
       int j, n= priorityList.size();
       for (j=0; j<n; j++) {
-	i= 0;
-	while (i<numObs && obsp[i].id!=priorityList[j]) i++;
-	if (i<numObs) {
-	  all_from_file.push_back(i);
-	  tmpList[i]= -1;
-	}
+  i= 0;
+  while (i<numObs && obsp[i].id!=priorityList[j]) i++;
+  if (i<numObs) {
+    all_from_file.push_back(i);
+    tmpList[i]= -1;
+  }
       }
 
-      for (i=0; i<tmpList.size(); i++)
-        if(tmpList[i] != -1)
-          all_from_file.push_back(i);
+      if (!showOnlyPrioritized) {
+        for (i = 0; i < tmpList.size(); i++)
+          if (tmpList[i] != -1)
+            all_from_file.push_back(i);
+      }
     }
   }
+
+  // find index of "Name"-parameter
+  bool nameParameterFound = false;
+  int nameIndex = 0;
+  for(vector<miutil::miString>::iterator it=asciiColumnName.begin(); it != asciiColumnName.end(); ++it) {
+    if(*it == "Name") {
+      nameParameterFound = true;
+      break;
+    } else {
+      nameIndex++;
+    }
+  }
+  if (asciiData && priority && nameParameterFound) {
+
+    if (currentPriorityFile != priorityFile)
+      readPriorityFile(priorityFile);
+
+    if (priorityList.size() > 0) {
+      vector<int> tmpList = all_from_file;
+      all_from_file.clear();
+
+      // Fill the stations from priority list into all_from_file,
+      // and mark them in tmpList
+      int j, n = priorityList.size();
+
+      for (j = 0; j < n; j++) {
+        i = 0;
+        while (i < numObs && asciip[i][nameIndex] != priorityList[j])
+          i++;
+        if (i < numObs) {
+          all_from_file.push_back(i);
+          tmpList[i] = -1;
+        }
+      }
+
+      if (!showOnlyPrioritized) {
+        for (i = 0; i < tmpList.size(); i++)
+          if (tmpList[i] != -1)
+            all_from_file.push_back(i);
+      }
+    }
+
+  }
 #ifdef DEBUGPRINT
-	cerr << "++ End ObsPlot::priority_sort() ++" << endl;
+  cerr << "++ End ObsPlot::priority_sort() ++" << endl;
 #endif
 }
+
 void ObsPlot::time_sort(void)
 {
 
@@ -3007,10 +3056,10 @@ void ObsPlot::plotList(int index)
       printList(undef,xpos,ypos,2,align);
     }
   }
-  if( pFlag.count("strøm")){
+  if( pFlag.count("strï¿½m")){
     ypos -= yStep;
-    if((f_p=dta.fdata.find("Strøm")) != dta.fdata.end()){
-      if(ccriteria) checkColourCriteria("Strøm",f_p->second);
+    if((f_p=dta.fdata.find("Strï¿½m")) != dta.fdata.end()){
+      if(ccriteria) checkColourCriteria("Strï¿½m",f_p->second);
       printList(f_p->second,xpos,ypos,2,align);
     } else {
       printList(undef,xpos,ypos,2,align);
@@ -4657,7 +4706,7 @@ void ObsPlot::metarWind(int dd, int ff, float & radius, int &lpos)
     glPushMatrix();
     glScalef(1.5,1.5,0.0);
     glCallList(circle);
-    cloudCover(9,radius);   //litt større kryss
+    cloudCover(9,radius);   //litt stï¿½rre kryss
     glPopMatrix();
     glPopMatrix();
     return;

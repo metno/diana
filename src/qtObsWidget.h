@@ -161,6 +161,7 @@ private:
 
   QComboBox* colourBox;
   QComboBox* pribox;    //List of priority files
+  QCheckBox* pricheckbox;
 
   QCheckBox* criteriaCheckBox;
   ToggleButton* moreButton;
