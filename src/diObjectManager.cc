@@ -37,7 +37,7 @@
 #include <diEditObjects.h>
 #include <diDisplayObjects.h>
 #include <diWeatherSymbol.h>
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <stdio.h>
 
 using namespace::miutil;

@@ -37,7 +37,7 @@
 #include <diVcrossPlot.h>
 #include <set>
 
-#include <glob.h>
+#include <puCtools/glob.h>
 
 // #define DEBUGPRINT
 

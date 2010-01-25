@@ -53,7 +53,7 @@
 #include <QFocusEvent>
 #include <QFrame>
 
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <qmotifstyle.h>
 #include <qwindowsstyle.h>
 

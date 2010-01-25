@@ -31,7 +31,7 @@
 #include <diImageGallery.h>
 #include <diImageIO.h>
 #include <fstream>
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <GL/gl.h>
 
 using namespace::miutil;

@@ -49,7 +49,7 @@
 #include <diPrintOptions.h>
 #include <diFontManager.h>
 #include <diImageIO.h>
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <unistd.h>
 
 #include <diVcrossManager.h>

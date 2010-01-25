@@ -47,7 +47,7 @@
 #include <math.h>
 #include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
-#include <glob.h>
+#include <puCtools/glob.h>
 
 using namespace::miutil;
 

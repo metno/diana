@@ -31,7 +31,7 @@
 #include <qtImageGallery.h>
 #include <diImageGallery.h>
 #include <diSetupParser.h>
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <QDataStream>
 #include <QFileInfo>
 

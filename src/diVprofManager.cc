@@ -53,7 +53,7 @@
 #endif
 #include <diSetupParser.h>
 
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <sys/stat.h>
 #include <math.h>
 

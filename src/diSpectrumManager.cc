@@ -36,7 +36,7 @@
 #include <diSpectrumPlot.h>
 #include <diSetupParser.h>
 
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <sys/stat.h>
 
 using namespace::miutil;

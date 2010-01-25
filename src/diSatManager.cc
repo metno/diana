@@ -32,7 +32,7 @@
 #include <fstream>
 #include <diSatManager.h>
 #include <GL/gl.h>
-#include <glob.h>
+#include <puCtools/glob.h>
 #include <set>
 //#include <diAnnotationPlot.h>
 #include <diSetupParser.h>

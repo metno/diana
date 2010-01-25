@@ -29,7 +29,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include <fstream>
-#include <glob.h>
+#include <puCtools/glob.h>
 
 #include <qtQuickMenu.h>
 #include <qtQuickAdmin.h>
