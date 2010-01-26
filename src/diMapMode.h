@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -62,7 +62,8 @@ enum mouseEventType{
   mousepress,
   mouserelease,
   mousemove,
-  mousedoubleclick
+  mousedoubleclick,
+  mouseunknown
 };
 
 /// the mouse buttons
@@ -76,7 +77,8 @@ enum mouseButton{
 /// types of keyboard events
 enum keyboardEventType{
   keypress,
-  keyrelease
+  keyrelease,
+  keytype_unknown
 };
 
 /// single mouse event from GUI
@@ -88,6 +90,11 @@ struct mouseEvent{
   int globalX;
   int globalY;
   KeyType modifier;
+  mouseEvent() :
+    button(noButton), type(mouseunknown), x(0), y(0), globalX(0), globalY(0),
+        modifier(key_unknown)
+  {
+  }
 };
 
 /// single keyboard event from GUI
@@ -95,6 +102,10 @@ struct keyboardEvent{
   keyboardEventType type;
   KeyType key;
   KeyType modifier;
+  keyboardEvent() :
+    type(keytype_unknown), key(key_unknown), modifier(key_unknown)
+  {
+  }
 };
 
 /// suggestive use of cursors
@@ -132,6 +143,11 @@ struct EventResult{
   bool savebackground;   // start saving background to pixelbuffer
   cursortype newcursor;  // set to new cursor or 'keep_it'
   actiontype action;     // should the event trigger a GUI-action
+  EventResult() :
+    repaint(false), background(false), savebackground(false),
+        newcursor(keep_it), action(no_action)
+  {
+  }
 };
 
 #endif
