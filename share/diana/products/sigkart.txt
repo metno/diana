@@ -39,7 +39,7 @@ anno=<text="   "><symbol=106,font=Symbol,size=0.6,tcolour=black> \
 anno=<text=" Mountain Obscuration",size=0.7> \
 
 anno=<image=reducedVis,size=0.2> \
-anno=<text="  CU/CB implies MOD/SEV ICE/TURB",size=0.7> \
+anno=<text="  TCU/CB implies MOD/SEV ICE/TURB",size=0.7> \
 anno=<text="  Further information:",size=0.5> \
 anno=<text="  See ICAO anex III",size=0.5> \
 anno=<text="  ",size=0.5> \
