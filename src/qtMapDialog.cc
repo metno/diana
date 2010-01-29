@@ -111,6 +111,8 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   densities.push_back("10");
   densities.push_back("15");
   densities.push_back("30");
+  densities.push_back("90");
+  densities.push_back("180");
 
   // positions
   positions.push_back(tr("left").toStdString());

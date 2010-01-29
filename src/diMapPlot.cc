@@ -990,10 +990,10 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     return false;
   }
 
-  if (latitudeStep>30.)
-    latitudeStep= 30.;
-  if (longitudeStep>30.)
-    longitudeStep= 30.;
+  if (latitudeStep>180.)
+    latitudeStep= 180.;
+  if (longitudeStep>180.)
+    longitudeStep= 180.;
   if (plotResolution<1)
     plotResolution= 10;
 
