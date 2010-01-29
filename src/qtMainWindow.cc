@@ -3073,7 +3073,6 @@ void DianaMainWindow::hardcopy()
       priop.printer= qprt.printerName().toStdString();
 
     // start the postscript production
-    //statusBar()->message( tr("Starter utskrift"), 2000 );
     QApplication::setOverrideCursor( Qt::WaitCursor );
     //     contr->startHardcopy(priop);
     w->Glw()->startHardcopy(priop);

@@ -360,12 +360,13 @@ bool VprofWindow::stationChangedSlot(int diff){
 
 /***************************************************************************/
 
-void VprofWindow::printClicked(){
+void VprofWindow::printClicked()
+{
+  QPrinter qprt;
+
   printerManager pman;
-  //called when the print button is clicked
   miutil::miString command= pman.printCommand();
 
-  QPrinter qprt;
   fromPrintOption(qprt,priop);
 
   QPrintDialog printerDialog(&qprt, this);
@@ -387,6 +388,10 @@ void VprofWindow::printClicked(){
     // fill printOption from qprinter-selections
     toPrintOption(qprt, priop);
 
+    // set printername
+    if (qprt.outputFileName().isNull())
+      priop.printer= qprt.printerName().toStdString();
+
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -396,7 +401,7 @@ void VprofWindow::printClicked(){
     vprofw->updateGL();
 
     // if output to printer: call appropriate command
-    if (!qprt.outputFileName().isNull()){
+    if (qprt.outputFileName().isNull()){
       priop.numcopies= qprt.numCopies();
 
       // expand command-variables

@@ -359,7 +359,6 @@ bool VcrossWindow::crossectionChangedSlot(int diff){
 
 void VcrossWindow::printClicked(){
   printerManager pman;
-  //called when the print button is clicked
   miutil::miString command= pman.printCommand();
 
   QPrinter qprt;
@@ -384,6 +383,10 @@ void VcrossWindow::printClicked(){
     // fill printOption from qprinter-selections
     toPrintOption(qprt, priop);
 
+    // set printername
+    if (qprt.outputFileName().isNull())
+      priop.printer= qprt.printerName().toStdString();
+
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -393,7 +396,7 @@ void VcrossWindow::printClicked(){
     vcrossw->updateGL();
 
     // if output to printer: call appropriate command
-    if (!qprt.outputFileName().isNull()){
+    if (qprt.outputFileName().isNull()){
       priop.numcopies= qprt.numCopies();
 
       // expand command-variables
