@@ -131,7 +131,7 @@ protected:
   bool isVisible;        // is the object to be drawn on screen ?
   bool isSelected;       // is the object to be drawn on screen ?
   float rotation;        // Rotation around center of object;
-  Colour* col;           // colour used
+  Colour objectColour;           // colour used
   Linetype itsLinetype;  // linetype used
   int currentState;              // holds current state
   float fSense;
@@ -185,7 +185,7 @@ public:
   void   setObjectColor(Colour::ColourInfo);      ///< sets actual color of object
   void   setObjectRGBColor(miutil::miString);             /// < sets actual color of object from rgb
   /// set alpha value of object colour
-  void   setColorAlpha(int alpha){if (col) col->set(Colour::alpha,alpha);}
+  void   setColorAlpha(int alpha){ objectColour.set(Colour::alpha,alpha);}
   Colour::ColourInfo getObjectColor();            ///< gets actual colour of object
 
   void updateBoundBox();                          ///< finds the new bound box

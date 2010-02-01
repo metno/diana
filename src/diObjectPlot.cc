@@ -76,8 +76,6 @@ ObjectPlot::~ObjectPlot(){
   if (x_s != NULL)  delete[] x_s;
   if (y_s != NULL)  delete[] y_s;
 
-  if (col) delete col;
-
 #ifdef DEBUGPRINT
   cerr << "end of objectplot- destructor" << endl;
 #endif
@@ -88,8 +86,8 @@ void ObjectPlot::initVariables(){
   isSelected=  false;
   spline=true;
   rotation=   0.0f;
-  basisColor= "white";
-  col=0;
+  basisColor= "black";
+  objectColour=Colour("black");
 
   currentState = active;  // points can be added
   addTop=false; //add elements to top instead of bottom
@@ -142,12 +140,8 @@ void ObjectPlot::memberCopy(const ObjectPlot &rhs){
   rubberx=rhs.rubberx;
   rubbery=rhs.rubbery;
   rotation= rhs.rotation;
-  if (rhs.col)
-    col=new Colour(*(rhs.col));
-  else {
-    col=0;
-    setBasisColor(rhs.basisColor);
-  }
+  basisColor = rhs.basisColor;
+  objectColour = rhs.objectColour;
   drawIndex = rhs.drawIndex;
   currentState = rhs.currentState;
   addTop = rhs.addTop;
@@ -848,19 +842,15 @@ void ObjectPlot::setWindowInfo()
 void  ObjectPlot::setBasisColor(miString colour) {
  // sets basis color of object
   basisColor = colour;
-  if (col) delete col;
-  col= new Colour(basisColor);
+  objectColour = Colour(colour);
 }
 
 void  ObjectPlot::setObjectColor(miString colour) {
-  //delete previous colours...
-  if (col) delete col;
-  col = new Colour(colour);
+  objectColour = Colour(colour);
 }
 
 void  ObjectPlot::setObjectColor(Colour::ColourInfo colour) {
-  if (col) delete col;
-  col = new Colour(colour.rgb[0],colour.rgb[1],colour.rgb[2]);
+  objectColour = Colour(colour.rgb[0],colour.rgb[1],colour.rgb[2]);
 }
 
 void  ObjectPlot::setObjectRGBColor(miString rgbstring) {
@@ -875,17 +865,18 @@ void  ObjectPlot::setObjectRGBColor(miString rgbstring) {
       //cerr << colours2add[cc*4+i] << endl;
       cadd[i] = atoi(colours2add[cc*4+i].c_str());
     }
-    if (col) delete col;
-    col = new Colour(cadd[0],cadd[1],cadd[2],cadd[3]);
+    objectColour = Colour(cadd[0],cadd[1],cadd[2],cadd[3]);
   }
+
 }
 
 
 Colour::ColourInfo  ObjectPlot::getObjectColor() {
   Colour::ColourInfo colour;
-  colour.rgb[0]= (int) col->R();
-  colour.rgb[1]= (int) col->G();
-  colour.rgb[2]= (int) col->B();
+  colour.rgb[0]= (int) objectColour.R();
+  colour.rgb[1]= (int) objectColour.G();
+  colour.rgb[2]= (int) objectColour.B();
+
   return colour;
 }
 
@@ -1009,14 +1000,12 @@ miString ObjectPlot::writeObjectString(){
   }
 
   ostringstream rs;
-  if (col){
-    ret+="RGBA=";
-    //write colour
-    rs << (int) col->R() << "," << (int) col->G()
-       << "," << (int) col->B() <<"," << (int) col->A();
-    rs <<";\n";
-    ret+=rs.str();
-  }
+  ret+="RGBA=";
+  //write colour
+  rs << (int) objectColour.R() << "," << (int) objectColour.G()
+  << "," << (int) objectColour.B() <<"," << (int) objectColour.A();
+  rs <<";\n";
+  ret+=rs.str();
   //write "!" to signal end of object
   ret+="!\n";
   return ret;

@@ -189,7 +189,7 @@ bool WeatherArea::plot()
     //enable blending and set colour
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4ub(col->R(),col->G(),col->B(),col->A());
+    glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
 
     if (itsLinetype.stipple) {
       glEnable(GL_LINE_STIPPLE);

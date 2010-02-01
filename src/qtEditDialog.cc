@@ -988,6 +988,7 @@ void EditDialog::selectAreas(QListWidgetItem * item )
 
 void EditDialog::CombineEditMethods()
 {
+
   if (combineAction<0){ // first time
     currEditmode= m_EditDI.mapmodeinfo[2].editmodeinfo[0].editmode;
     currEdittool= m_EditDI.mapmodeinfo[2].editmodeinfo[0].edittools[0].name;
@@ -998,17 +999,24 @@ void EditDialog::CombineEditMethods()
     currEdittool= m_EditDI.mapmodeinfo[2].editmodeinfo[0].edittools[0].name;
     if (inEdit) m_objm->setAllPassive();
   } else if (combineAction==1){ // region selections
-    m_SelectAreas->setEnabled(true);
-    currEditmode= m_EditDI.mapmodeinfo[2].editmodeinfo[1].editmode;
-    currEdittool= miutil::miString( m_SelectAreas->currentItem()->text().toStdString());
-    if (inEdit) m_objm->createNewObject();
+    if(m_SelectAreas->count() > 0) {
+      m_SelectAreas->setEnabled(true);
+      currEditmode= m_EditDI.mapmodeinfo[2].editmodeinfo[1].editmode;
+      if(m_SelectAreas->currentRow()<0) {
+        m_SelectAreas->setCurrentRow(0);
+      }
+      currEdittool= miutil::miString( m_SelectAreas->currentItem()->text().toStdString());
+      if (inEdit) m_objm->createNewObject();
+    }
   } else {
     cerr << "EditDialog::CombineEditMethods    unknown combineAction:"
     << combineAction << endl;
     return;
   }
-  if (inEdit)
+  if (inEdit) {
     m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
+  }
+
 }
 
 // --------------------------------------------------------------
