@@ -486,7 +486,6 @@ bool QuickMenu::applyItem(const miutil::miString& mlist, const miutil::miString&
 void QuickMenu::applyPlot()
 {
   plotButton();
-  //   emit Apply(qm[activemenu].menuitems[qm[activemenu].plotindex].command,true);
 }
 
 void QuickMenu::adminButton()
@@ -1117,15 +1116,9 @@ void QuickMenu::getCommand(vector<miutil::miString>& s){
   miutil::miString text = comedit->toPlainText().toStdString();
   s.clear();
   s = text.split("\n");
-  //  int ni= comedit->paragraphs();
   int ni = s.size();
   for (int i=0; i<ni; i++){
     s[i].trim();
-    //     miutil::miString str= comedit->text(i).toStdString();
-    //     str.trim();
-    //     if (str.contains("\n"))
-    //       str.erase(str.end()-1);
-    //     if (str.exists()) s.push_back(str);
   }
 }
 
@@ -1166,15 +1159,12 @@ void QuickMenu::plotButton()
 
   if (com.size()>0){
     if (optionsexist) varExpand(com);
-    //have to replot, or have to check if options has changed
-    //     if (!browsing ||  // plot if no browsing..
-    // 	(activemenu!=prev_listindex || // or if selected plot different
-    // 	 qm[activemenu].plotindex!=prev_plotindex))// from previous
     emit Apply(com,true);
     prev_plotindex= qm[activemenu].plotindex;
     prev_listindex= activemenu;
     browsing= false;
   }
+  saveChanges(-1,-1);
 }
 
 void QuickMenu::comButton(bool on)
