@@ -254,7 +254,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   }
 
   //checkboxes
-  orientCheckBox= new QCheckBox(tr("HorisCheckedtal orientation"),this);
+  orientCheckBox= new QCheckBox(tr("Horisontal orientation"),this);
   if(!orient)
     orientCheckBox->hide();
   showposCheckBox= new QCheckBox(tr("Show all positions"),this);
@@ -371,6 +371,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     priName.push_back(priorityList[i].name);
   pribox = ComboBox( this,priName,true);
   pribox->insertItem(0,tr("No priority list"));
+  QLabel *priLabel = new QLabel( tr("Priority "), this);
+  pricheckbox = new QCheckBox(tr("Prioritized only"), this);
 
   //Colour
   QLabel *colourLabel = new QLabel( tr("Colour"), this);
@@ -385,18 +387,16 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   connect( pribox, SIGNAL( activated(int) ), SLOT( priSelected(int) ) );
 
   // Layout for priority list, colours, criteria and extension
-  QHBoxLayout* prilayout = new QHBoxLayout();
-  QLabel *priLabel = new QLabel( tr("Priority list"), this);
-  prilayout->addWidget( priLabel );
-  prilayout->addWidget( pribox );
+  QGridLayout* prilayout = new QGridLayout();
 
-  QHBoxLayout* prilayout2 = new QHBoxLayout();
-  pricheckbox = new QCheckBox(tr("Show only prioritized"), this);
-  prilayout2->addWidget( pricheckbox );
+  prilayout->addWidget( priLabel, 0, 0 );
+  prilayout->addWidget( pribox, 0, 1 );
+  prilayout->addWidget( pricheckbox, 0, 2 );
 
-  QHBoxLayout* colourlayout = new QHBoxLayout();
-  colourlayout->addWidget( colourLabel );
-  colourlayout->addWidget( colourBox );
+
+  //QHBoxLayout* colourlayout = new QHBoxLayout();
+  prilayout->addWidget( colourLabel, 1, 0 );
+  prilayout->addWidget( colourBox, 1, 1 );
 
   // layout
   datatypelayout = new QHBoxLayout();
@@ -435,8 +435,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addWidget( line1 );
   vcommonlayout->addLayout( slidergrid );
   vcommonlayout->addLayout( prilayout );
-  vcommonlayout->addLayout( prilayout2 );
-  vcommonlayout->addLayout( colourlayout );
+  //vcommonlayout->addLayout( colourlayout );
 
   vlayout= new QVBoxLayout( this);
   vlayout->addSpacing( 5 );
@@ -471,7 +470,8 @@ void ObsWidget::ToolTip(){
   moreTimesCheckBox->setToolTip(tr("Affecting synoptic data: All observations in the time interval given, mixing observations with different times"));
   diffLcdnum->setToolTip(tr("Max time difference"));
   diffComboBox->setToolTip(tr("Max value for the slider"));
-  colourBox->setToolTip(tr("Colour") );
+  pricheckbox->setToolTip(tr("Show only observations in the priority list") );
+  colourBox->setToolTip(tr("Colour of the observations") );
   return;
 }
 
