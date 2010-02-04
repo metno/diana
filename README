@@ -1,7 +1,7 @@
 
 #=========================================
 DIANA
-Version: 3.16.4
+Version: 3.18.0
 (Using metlibs Version 2009-12-02)
 #=========================================
 
@@ -69,6 +69,8 @@ ftp://ftp.met.no/diana/diana_maps.tar.gz
 tar xzvf diana_demodata.tar.gz
 tar xzvf diana_maps.tar.gz
 
+Installing diana, see:
+https://diana.wiki.met.no/doku.php?do=show&id=autotools
 
 #-------------------------------------------
 # 3 Running Diana
