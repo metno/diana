@@ -459,6 +459,7 @@ common_cppflags += \
 	$(DIFIELD_CPPFLAGS) \
 	$(DIMITIFF_CPPFLAGS) \
 	$(DISQL_CPPFLAGS) \
+	$(MYSQL_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
 	$(FTGL_CPPFLAGS) \
 	$(GLP_CPPFLAGS) \
@@ -474,6 +475,7 @@ common_ldflags += \
 	$(DIFIELD_LDFLAGS) \
 	$(DIMITIFF_LDFLAGS) \
 	$(DISQL_LDFLAGS) \
+	$(MYSQL_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(FTGL_LDFLAGS) \
 	$(GLP_LDFLAGS) \
@@ -489,6 +491,7 @@ common_ldadd += \
 	$(DIFIELD_LIBS) \
 	$(DIMITIFF_LIBS) \
 	$(DISQL_LIBS) \
+	$(MYSQL_LIBS) \
 	$(EMOS_LIBS) \
 	$(FTGL_LIBS) \
 	$(GLP_LIBS) \
