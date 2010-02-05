@@ -1565,6 +1565,7 @@ int parseAndProcess(const miString& file)
               result = addVideoFrame(image);
 #endif
             }
+            cerr << "--------- write_png: " << priop.fname << endl;
 
             if (verbose) {
               cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
