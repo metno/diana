@@ -363,9 +363,7 @@ QComboBox* PixmapBox( QWidget* parent, vector<miutil::miString>& markerName){
     miutil::miString filename = ig.getFilename(name[i]);
     markerName.push_back(name[i]);
     QImage image(filename.c_str());
-    QPixmap p;
-    p.fromImage(image);
-    box->addItem (p, "" );
+    box->addItem (QPixmap::fromImage(image), "" );
   }
 
   return box;
