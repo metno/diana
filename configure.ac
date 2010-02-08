@@ -133,13 +133,6 @@ METNO_REQUIRE_QT4([
 
 METNO_REQUIRE_FTGL
 
-#mySQL
-AX_LIB_MYSQL()
-AC_SUBST([MYSQL_CPPFLAGS], [${MYSQL_CFLAGS}])
-MYSQL_CFLAGS=
-AC_SUBST([MYSQL_LIBS], [${MYSQL_LDFLAGS}])
-MYSQL_LDFLAGS=
-
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
     METNO_REQUIRE_C_LIBRARY([AVFORMAT], [avformat], [ffmpeg/avformat.h], [av_read_frame])
