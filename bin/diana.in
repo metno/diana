@@ -10,7 +10,7 @@ fi
 
 
 input=$0
-dianadir="/usr/local"
+dianadir="@prefix@"
 
 export DIANADIR=$dianadir
 
