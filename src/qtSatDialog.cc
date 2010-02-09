@@ -1224,14 +1224,16 @@ void SatDialog::hideClicked()
 void SatDialog::updateFileListWidget(int in)
 {
   // cerr <<"updateFileListWidget:"<<in<<endl;
+  if ( in < dialogInfo.image.size()) {
 
-  fileListWidget->clear();
-  //insert in fileListWidget the list of files.. Europa,N-Europa etc...
-  int nfile = dialogInfo.image[in].file.size();
-  for (int k = 0; k < nfile; k++) {
-    fileListWidget->addItem(dialogInfo.image[in].file[k].name.cStr());
+    fileListWidget->clear();
+    //insert in fileListWidget the list of files.. Europa,N-Europa etc...
+    int nfile = dialogInfo.image[in].file.size();
+    for (int k = 0; k < nfile; k++) {
+      fileListWidget->addItem(dialogInfo.image[in].file[k].name.cStr());
+    }
+
   }
-
 }
 
 /**********************************************/

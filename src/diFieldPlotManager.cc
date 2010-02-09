@@ -63,7 +63,7 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
 
   if (!sp.getSection(sect_name,lines)){
     cerr << sect_name << " section not found" << endl;
-    return false;
+    return true;
   }
 
   const miString key_loop=       "loop";
@@ -143,7 +143,7 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
             if (vstr.size()<2) {
               miString errm="Missing field name";
               sp.errorMsg(sect_name,i,errm);
-              return false;
+              continue;
             }
             name= vstr[1];
             if (name[0]=='"' && name[name.length()-1]=='"')
@@ -160,14 +160,14 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
                 if (!PlotOptions::updateFieldPlotOptions(name,option)) {
                   miString errm="|Unknown fieldplottype in plotcommand";
                   sp.errorMsg(sect_name,i,errm);
-                  return false;
+                  break;
                 }
                 str2=vstr[j+3].downcase().substr(1,vstr[j+3].length()-2);
                 input=str2.split(',',true);
                 if (input.size()<1 || input.size()>3) {
                   miString errm="Bad specification of plot arguments";
                   sp.errorMsg(sect_name,i,errm);
-                  return false;
+                  break;
                 }
                 for (unsigned int k=0; k<input.size(); k++)
                   input[k]= input[k].downcase();
@@ -182,12 +182,12 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
                 if (!PlotOptions::updateFieldPlotOptions(name,option)) {
                   miString errm="Something wrong in plotoption specifications";
                   sp.errorMsg(sect_name,i,errm);
-                  return false;
+                  break;
                 }
               } else {
                 miString errm="Unknown keyword in field specifications: " + vstr[0];
                 sp.errorMsg(sect_name,i,errm);
-                return false;
+                break;
                 //j-=2;
               }
               j+=3;

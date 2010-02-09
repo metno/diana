@@ -1289,7 +1289,7 @@ bool SatManager::parseSetup(SetupParser &sp)
 
   if (!sp.getSection(sat_name, sect_sat)) {
     cerr << "Missing section " << sat_name << " in setupfile." << endl;
-    return false;
+    return true;
   }
 
   miString prod;

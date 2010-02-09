@@ -1128,11 +1128,10 @@ vector<miutil::miString> MapDialog::getOKString()
   int lindex;
   int numselected = selectedmaps.size();
 
-  if (numselected == 0) { // no maps selected
+  if (numselected == 0 && areabox->count()>0 ) { // no maps selected
     int backc = backcolorcbox->currentIndex();
     ostringstream ostr;
     ostr << "MAP";
-    // qt4 fix: added .toStdString()
     ostr << " area=" << areabox->currentItem()->text().toStdString()
     << " backcolour="
     << (backc >= 0 && backc < int(cInfo.size()) ? cInfo[backc].name : "white");
@@ -1415,6 +1414,10 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
 miutil::miString MapDialog::getShortname()
 {
   miutil::miString name;
+
+  if ( areabox->count()== 0 ) {
+    return name;
+  }
 
   name = areabox->item(areabox->currentRow())->text().toStdString() + miutil::miString(
       " ");

@@ -41,7 +41,7 @@
 #include <diObsSatob.h>
 #endif
 #ifdef ROADOBS
-// includes for road specific implementation 
+// includes for road specific implementation
 #include <diObsRoad.h>
 #endif
 
@@ -180,7 +180,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
       headerfile= Prod[dataType[i]].headerfile;
 #ifdef ROADOBS
       stationfile= Prod[dataType[i]].stationfile;
-      databasefile= Prod[dataType[i]].databasefile; 
+      databasefile= Prod[dataType[i]].databasefile;
 #endif
     }
     //get get pressure level etc from field (if needed)
@@ -1251,14 +1251,14 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
     p++;
 }
 #endif
-  
+
   map<miString,ProdInfo>::iterator pr= Prod.find(oname);
   if (pr==Prod.end()) {
     cerr << oname << " not found in Prod" << endl;
     return dialog;
   }
 #ifdef ROADOBS
-  // We must also support the ascii format until the 
+  // We must also support the ascii format until the
   // lightning is stored in road
   if (pr->second.obsformat!=ofmt_roadobs)
   {
@@ -1530,7 +1530,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
 
   if (!sp.getSection(obs_name,sect_obs)){
     cerr << obs_name << " section not found" << endl;
-    return false;
+    return true;
   }
 
   // ********  Common to all plot types **********************
