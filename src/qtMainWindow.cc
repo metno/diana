@@ -2524,13 +2524,21 @@ void DianaMainWindow::processLetter(miMessage &letter)
   }
 
   else if (letter.command == qmstrings::getcurrentplotcommand) {
-      miMessage l;
-      l.to = letter.from;
-      l.command = qmstrings::currentplotcommand;
-      l.data = currentPlotCommand;
-      sendLetter(l);
+    miMessage l;
+    l.to = letter.from;
+    l.command = qmstrings::currentplotcommand;
+    l.data = currentPlotCommand;
+    sendLetter(l);
+    return; // no need to repaint
+  }
 
-      return; // no need to repaint
+  else if (letter.command == qmstrings::getmaparea) {
+    miMessage l;
+    l.to = letter.from;
+    l.command = qmstrings::maparea;
+    l.data.push_back(contr->getMapArea().toString());
+    sendLetter(l);
+    return; // no need to repaint
   }
 
   // If autoupdate is active, reread sat/radarfiles and
