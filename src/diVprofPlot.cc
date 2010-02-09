@@ -42,7 +42,7 @@ using namespace std; using namespace miutil;
 
 // Default constructor
 VprofPlot::VprofPlot()
-: VprofTables()
+: VprofTables(), windInKnots(true)
 {
 #ifdef DEBUGPRINT
   cerr << "++ VprofPlot::Default Constructor" << endl;
@@ -58,7 +58,8 @@ VprofPlot::~VprofPlot() {
 }
 
 
-bool VprofPlot::plot(VprofOptions *vpopt, int nplot) {
+bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
+{
 #ifdef DEBUGPRINT
   //  cerr << "++ VprofPlot::plot " << text << endl;
 #endif
