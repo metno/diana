@@ -16,9 +16,10 @@ common_ldflags += -L$(prefix)/lib
 # doesn't build cleanly with log4cxx
 common_cppflags += -DNOLOG4CXX
 
-
 # hard coded in old Makefile
-common_cppflags += -DMETNOFIELDFILE  -DMETNOPRODDB -DMETNOOBS
+# XXX should be optional
+# XXX XXX should be in config.h
+common_cppflags += -DMETNOFIELDFILE -DMETNOOBS
 
 # C source code common to diana and bdiana
 common_c_sources = \
@@ -458,7 +459,7 @@ common_xpm_sources= active_object.xpm\
 common_cppflags += \
 	$(DIFIELD_CPPFLAGS) \
 	$(DIMITIFF_CPPFLAGS) \
-	$(DISQL_CPPFLAGS) \
+	$(PUCTOOLS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
 	$(FTGL_CPPFLAGS) \
 	$(GLP_CPPFLAGS) \
@@ -473,7 +474,7 @@ common_cppflags += \
 common_ldflags += \
 	$(DIFIELD_LDFLAGS) \
 	$(DIMITIFF_LDFLAGS) \
-	$(DISQL_LDFLAGS) \
+	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(FTGL_LDFLAGS) \
 	$(GLP_LDFLAGS) \
@@ -488,7 +489,7 @@ common_ldflags += \
 common_ldadd += \
 	$(DIFIELD_LIBS) \
 	$(DIMITIFF_LIBS) \
-	$(DISQL_LIBS) \
+	$(PUCTOOLS_LIBS) \
 	$(EMOS_LIBS) \
 	$(FTGL_LIBS) \
 	$(GLP_LIBS) \
@@ -545,6 +546,20 @@ if WITH_HDF5
 common_cppflags += -DHDF5FILE
 common_cxx_sources += \
 	diHDF5.cc
+endif
+
+# Additional source code for met.no prod db
+if WITH_PRODDB
+common_cppflags += \
+	$(PUSQL_CPPFLAGS) \
+	$(DISQL_CPPFLAGS) \
+	-DMETNOPRODDB
+common_ldflags += \
+	$(PUSQL_LDFLAGS) \
+	$(DISQL_LDFLAGS)
+common_ldadd += \
+	$(PUSQL_LIBS) \
+	$(DISQL_LIBS)
 endif
 
 # Additional source code for observation buffers

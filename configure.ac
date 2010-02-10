@@ -10,6 +10,10 @@ AM_INIT_AUTOMAKE
 METNO_SET_VERSION_INFO
 METNO_PROGRAM_SUFFIX
 
+AC_LANG([C])
+AC_LANG([C++])
+AC_LANG([Fortran 77])
+
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_CXX
@@ -69,6 +73,11 @@ AC_ARG_ENABLE([hdf5],
     [], [enable_hdf5=no])
 AM_CONDITIONAL([WITH_HDF5], [test x$enable_hdf5 = xyes])
 
+AC_ARG_ENABLE([proddb],
+    [AS_HELP_STRING([--enable-proddb], [enable met.no production database])],
+    [], [enable_proddb=no])
+AM_CONDITIONAL([WITH_PRODDB], [test x$enable_proddb = xyes])
+
 AC_ARG_ENABLE([obs-bufr],
     [AS_HELP_STRING([--disable-obs-bufr], [disable observation buffers])],
     [], [enable_obs_bufr=no])
@@ -90,24 +99,28 @@ AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 # there must be a more elegant way to do this
 METNO_REQUIRE_PKG([DIFIELD], [diField])
 METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
-METNO_REQUIRE_PKG([DISQL], [diSQL])
 METNO_REQUIRE_PKG([DIWDB], [diWdb])
 METNO_REQUIRE_PKG([GLTEXT], [glText])
 METNO_REQUIRE_PKG([GLP], [glp])
 METNO_REQUIRE_PKG([LIBMI], [libmi])
+METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
 METNO_REQUIRE_PKG([MILIB], [milib])
 METNO_REQUIRE_PKG([PARAMETER], [parameter])
 METNO_REQUIRE_PKG([PROPOLY],[propoly])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
-METNO_REQUIRE_PKG([PUSQL], [puSQL])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
 METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
 METNO_REQUIRE_PKG([ROBS], [robs])
 
 AS_IF([test x$enable_gribfile = xyes], [
     METNO_REQUIRE_PKG([GRIBAPI], [GribAPI])
+])
+
+AS_IF([test x$enable_proddb = xyes], [
+    METNO_REQUIRE_PKG([DISQL], [diSQL])
+    METNO_REQUIRE_PKG([PUSQL], [puSQL])
 ])
 
 AS_IF([test x$enable_roadobs = xyes], [
@@ -130,8 +143,6 @@ METNO_REQUIRE_QT4([
     Network
     OpenGL
 ])
-
-METNO_REQUIRE_FTGL
 
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
