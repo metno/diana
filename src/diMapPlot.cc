@@ -996,6 +996,9 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     longitudeStep= 180.;
   if (plotResolution<1)
     plotResolution= 10;
+  if((latitudeStep>30 || longitudeStep>30) && plotResolution == 10) {
+    plotResolution = 100;
+  }
 
   float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
 
