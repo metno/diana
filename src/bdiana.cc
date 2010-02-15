@@ -226,7 +226,7 @@ int default_canvas = x_pixmap;
 int default_canvas = qt_glpixelbuffer;
 #endif
 int canvasType = default_canvas; // type of canvas to use
-
+bool use_nowtime = false;
 
 // replaceable values for plot-commands
 vector<keyvalue> keys;
@@ -1138,6 +1138,38 @@ void printUsage(bool showexample)
   exit(1);
 }
 
+static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
+                                    vector<miutil::miTime>& sattimes,
+                                    vector<miutil::miTime>& obstimes,
+                                    vector<miutil::miTime>& objtimes,
+                                    vector<miutil::miTime>& ptimes)
+{
+  const miTime::miTime now = miTime::nowTime();
+
+  if (fieldtimes.empty()) {
+    if (!sattimes.empty())
+      return sattimes.back();
+    else if (!obstimes.empty())
+      return obstimes.back();
+    else if (!objtimes.empty())
+      return objtimes.back();
+    else if (!ptimes.empty())
+      return ptimes.back();
+    else
+      return now;
+  }
+
+  // select closest to now without overstepping
+  const int n = fieldtimes.size();
+  for (int i = 0; i < n; i++) {
+    if (fieldtimes[i] >= now) {
+      return i > 0 ? fieldtimes[i - 1] : fieldtimes[i];
+    }
+  }
+
+  return fieldtimes.back();
+}
+
 int parseAndProcess(const miString& file)
 {
   if (verbose)
@@ -1278,7 +1310,9 @@ int parseAndProcess(const miString& file)
             ptimes);
 
         if (ptime.undef()) {
-          if (fieldtimes.size() > 0)
+          if (use_nowtime)
+            thetime = selectNowTime(fieldtimes, sattimes, obstimes, objtimes, ptimes);
+          else if (fieldtimes.size() > 0)
             thetime = fieldtimes[fieldtimes.size() - 1];
           else if (sattimes.size() > 0)
             thetime = sattimes[sattimes.size() - 1];
@@ -2310,6 +2344,12 @@ int main(int argc, char** argv)
 
     } else if (sarg == "-use_doublebuffer") {
       use_double_buffer = true;
+
+    } else if (sarg == "-use_nowtime") {
+        // Use time closest to the current time even if there exists a field
+        // and not the timestamps for the future. This corresponds to the
+        // default value when using the gui.
+        use_nowtime = true;
 
     } else {
       ks = sarg.split("=");
