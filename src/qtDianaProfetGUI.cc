@@ -68,17 +68,26 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
   sessionDialog->setSessionModel(&sessionModel);
   sessionDialog->setObjectModel(&objectModel);
   sessionDialog->setTableModel(&tableModel);
-  popupMenu = new QMenu(parent);
   connectSignals();
   showPaintToolBar = true;
   showEditObjectDialog = false;
   emit setPaintMode(true);
   paintToolBar->enableButtons(PaintToolBar::SELECT_ONLY);
 
-
-  editObjectAction = new QAction(this);
-   connect(editObjectAction, SIGNAL( triggered() ), SLOT(editObject()));
- //  addAction( editObjectAction );
+//Popupmenu
+  editObjectAction = new QAction(tr("Edit Object"),this);
+  editObjectAction->setVisible(false);
+  connect(editObjectAction, SIGNAL( triggered() ), SLOT(editObject()));
+  deleteObjectAction = new QAction(tr("Delete Object"),this);
+  deleteObjectAction->setVisible(false);
+  connect(deleteObjectAction, SIGNAL( triggered() ), SLOT(deleteObject()));
+  startTimesmoothAction = new QAction(tr("Time smooth"),this);
+  startTimesmoothAction->setVisible(false);
+  connect(startTimesmoothAction, SIGNAL( triggered() ), SLOT(startTimesmooth()));
+  popupMenu = new QMenu(parent);
+  popupMenu->addAction(editObjectAction);
+  popupMenu->addAction(deleteObjectAction);
+  popupMenu->addAction(startTimesmoothAction);
 
 }
 
@@ -1334,20 +1343,25 @@ void DianaProfetGUI::setActivePoints(vector<Point> points)
 void DianaProfetGUI::rightMouseClicked(float x, float y, int globalX,
     int globalY)
 {
-  popupMenu->clear();
-  vector<miutil::miString> areaId = areaManager->getId(Point(x, y));
-  for (int i = 0; i < areaId.size(); i++) {
-    QString idText = areaId[i].cStr();
-    cerr << "id:" << areaId[i] << endl;
-    QString menuText;
-    menuText = "Edit             | " + idText;
-    popupMenu->addAction(editObjectAction);
-    menuText = "Delete         | " + idText;
-    popupMenu->addAction(deleteObjectAction);
-    menuText = "Timesmooth | " + idText;
-    popupMenu->addAction(startTimesmoothAction);
-    popupMenu->addSeparator();
-  }
-  popupMenu->popup(QPoint(globalX, globalY), 0);
 
+  miutil::miString thisAreaId = areaManager->getCurrentId();
+
+  if ( !thisAreaId.exists() ){
+    return;
+  }
+
+  vector<miutil::miString> areaId = areaManager->getId(Point(x, y));
+  unsigned int i=0;
+  while (i<areaId.size() && areaId[i]!=thisAreaId) {
+    i++;
+  }
+  if( i==areaId.size()){
+    return;
+  }
+
+  editObjectAction->setVisible(true);
+  deleteObjectAction->setVisible(true);
+  startTimesmoothAction->setVisible(true);
+
+  popupMenu->popup(QPoint(globalX, globalY), 0);
 }

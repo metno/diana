@@ -122,10 +122,8 @@ void GridAreaManager::handleSelectEvent(const mouseEvent& me, EventResult& res,
     selectArea(Point(x, y));
     LOG4CXX_DEBUG(logger,"Selected area: " << currentId);
     gridAreas[currentId].setMode(GridArea::NORMAL);
-    if (currentId != prevId) {
-      res.repaint = true;
-      res.action=grid_area_changed;
-    }
+    res.repaint = true;
+    res.action=grid_area_changed;
   } else if (me.type == mouserelease) {
     overrideMouseEvent = false;
   }

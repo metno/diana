@@ -351,6 +351,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   connect( showWaveSpectrumDialogAction, SIGNAL( triggered() ) ,  SLOT( spectrumMenu() ) );
   // --------------------------------------------------------------------
   zoomOutAction = new QAction( tr("Zoom out"), this );
+  zoomOutAction->setVisible(false);
   connect( zoomOutAction, SIGNAL( triggered() ), SLOT( zoomOut() ) );
   // --------------------------------------------------------------------
   showUffdaDialogAction = new QAction( tr("&Uffda Service"), this );
@@ -583,11 +584,13 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 
   rightclickmenu = new QMenu(this);
   rightclickmenu->addAction(zoomOutAction);
-  connect(rightclickmenu,SIGNAL(aboutToShow()),
-      SLOT(fillRightclickmenu()));
-  connect(rightclickmenu,SIGNAL(triggered(QAction*)),
-      SLOT(rightClickMenuActivated(QAction*)));
-  lastRightClicked= tr("Zoom out");
+  for (int i=0; i<MaxSelectedAreas; i++){
+    selectAreaAction[i] = new QAction(this);
+    selectAreaAction[i]->setVisible(false);
+    connect(selectAreaAction[i], SIGNAL( triggered() ), SLOT(selectedAreas()));
+    rightclickmenu->addAction(selectAreaAction[i]);
+  }
+
   uffda=contr->getUffdaEnabled();
 
   QMenu* infomenu= new QMenu(tr("Info"),this);
@@ -3239,9 +3242,8 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 {
-  //  cerr <<"void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)"<<endl;
-  //Here we must check what should be in the Popupmenu
-  //(are we pointing at satpicture,classified, inEdit etc..)
+//  cerr <<"void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)"<<endl;
+
   int x = mev.x;
   int y = mev.y;
   int globalX = mev.globalX;
@@ -3251,74 +3253,32 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   float map_x,map_y;
   contr->PhysToMap(mev.x,mev.y,map_x,map_y);
 
-  //todo: fix popup menus
-//  if (ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
-//    return;
-//  }
+  if (mev.modifier!=key_Shift &&
+      ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
+    return;
+  }
 
   xclick=x; yclick=y;
-  //fill list of menuItems
-  vrightclickMenu.clear();
-  rightclickMenuItem rItem;
-  rItem.menuText= tr("Zoom out");
-  rItem.member=SLOT(zoomOut());
-  rItem.checked=false;
-  vrightclickMenu.push_back(rItem);
-   if (uffda && contr->getSatnames().size()){
-     rItem.menuText= tr("Uffda");
-     rItem.member=SLOT(showUffda());
-     rItem.checked=false;
-     rItem.param=0;
-     vrightclickMenu.push_back(rItem);
-   }
-  //}
 
-   //   if (contr->inSatTable(xclick,yclick)){
-   //     rItem.menuText= tr("Skjul/vis klassifisert");
-   //     rItem.member=SLOT(hideClassified());
-   //     rItem.checked=false;
-   //     rItem.param=0;
-   //     vrightclickMenu.push_back(rItem);
-   //   }
-   //   if (uffda && contr->getSatnames().size()){
-   //     rItem.menuText= tr("Uffda");
-   //     rItem.member=SLOT(showUffda());
-   //     rItem.checked=false;
-   //     rItem.param=0;
-   //     vrightclickMenu.push_back(rItem);
-   //   }
-//   vselectAreas=contr->findAreas(xclick,yclick);
-//   int n=vselectAreas.size();
-//   if (n)
-//     rightsep =vrightclickMenu.size();
-//   else
-//     rightsep=0;
-//   for (int i=0;i<n;i++){
-//     rItem.menuText=vselectAreas[i].name.cStr();
-//     rItem.member=SLOT(selectedAreas(int));
-//     rItem.checked=vselectAreas[i].selected;
-//     rItem.param=i;
-//     vrightclickMenu.push_back(rItem);
-//   }
-//   if (!vrightclickMenu.size()){
-//     return;
-//   }
-//   else if (vrightclickMenu.size()==1){
-     zoomOut();
-     return;
-     //   }
-     //   else{
-     //     rightclickmenu->popup(QPoint(globalX,globalY),0);
-     //     int item=0;
-     //     int n= rightclickmenu->actions().count();
-     //     for (int i = 0;i<n;i++){
-     //       int id = rightclickmenu->idAt(i);
-     //       QString rightClicked=rightclickmenu->text(id);
-     //       if (rightClicked== lastRightClicked)
-     //         item=i;
-     //     }
-     //     rightclickmenu->setActiveItem(item);
-     //   }
+   for (int i=0; i<MaxSelectedAreas; i++){
+     selectAreaAction[i]->setVisible(false);
+   }
+
+   vselectAreas=contr->findAreas(xclick,yclick);
+   int nAreas=vselectAreas.size();
+   if ( nAreas>0 ) {
+     zoomOutAction->setVisible(true);
+     for (int i=1; i<=nAreas && i<MaxSelectedAreas; i++){
+       selectAreaAction[i]->setText(vselectAreas[i-1].name.cStr());
+       selectAreaAction[i]->setData(i-1);
+       selectAreaAction[i]->setVisible(true);
+     }
+     rightclickmenu->popup(QPoint(globalX, globalY), 0);
+   } else {
+    zoomOut();
+   }
+
+  return;
 }
 
 
@@ -4404,40 +4364,6 @@ void DianaMainWindow::chooseFont()
   }
 }
 
-
-//SLOTS called from PopupMenu
-void DianaMainWindow::fillRightclickmenu()
-{
-  cerr <<"DianaMainWindow::fillRightclickmenu()"<<endl;
-  rightclickmenu->clear();
-  rightclickmenu->addAction(zoomOutAction);
-  if (uffda && contr->getSatnames().size()){
-    rightclickmenu->addAction(showUffdaDialogAction);
-  }
-//  int n=vrightclickMenu.size();
-//  for (int i=0;i<n;i++){
-//    QAction * action = new QAction(vrightclickMenu[i].menuText,rightclickmenu);
-//
-//    connect(action,SIGNAL(triggered()),SLOT(rightClickMenuActivated()));
-//    rightclickmenu->addAction(action);
-//    int ir = rightclickmenu->insertItem(vrightclickMenu[i].menuText,this,
-//        vrightclickMenu[i].member);
-//    if (vrightclickMenu[i].checked)
-//      rightclickmenu->setItemChecked(ir,true);
-//    else
-//      rightclickmenu->setItemChecked(ir,false);
-//    rightclickmenu->setItemParameter(ir,vrightclickMenu[i].param);
-//  }
- // rightclickmenu->insertSeparator(rightsep);
-}
-
-
-void DianaMainWindow::rightClickMenuActivated(QAction* action)
-{
-  cerr <<"DianaMainWindow::rightClickMenuActivated"<<endl;
- // lastRightClicked=rightclickmenu->text(i);
-}
-
 void DianaMainWindow::zoomTo(Rectangle r) {
   if(contr)
     contr->zoomTo(r);
@@ -4448,14 +4374,6 @@ void DianaMainWindow::zoomOut()
   contr->zoomOut();
   w->updateGL();
 }
-
-// void DianaMainWindow::hideClassified(){
-//   // check to see if we clicked inside a satellitte classification table
-//   // if we clicked on the title bar, show or hide it...
-//   contr->showSatTable(xclick,yclick);
-
-//   w->updateGL();
-// }
 
 void DianaMainWindow::showUffda()
 {
@@ -4479,17 +4397,19 @@ void DianaMainWindow::showUffda()
 }
 
 //this is called after an area selected from rightclickmenu
-void DianaMainWindow::selectedAreas(int ia)
+void DianaMainWindow::selectedAreas()
 {
-  //   cerr << "DianaMainWindow::selectedAreas "
-  //        << lastRightClicked << " " << ia << endl;
 
-  //struct selectArea er i diCommonTypes.h
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action){
+    return;
+  }
+
+  int ia = action->data().toInt();
+
   miutil::miString areaName=vselectAreas[ia].name;
   bool selected=vselectAreas[ia].selected;
   int id=vselectAreas[ia].id;
-  //det som er "selected" skal sl�s av og vice versa
-  // (lastRightClicked skal v�re det samme som areaName HER)
   miutil::miString misc=(selected) ? "off" : "on";
   miutil::miString datastr = areaName + ":" + misc;
   miMessage letter;

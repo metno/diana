@@ -244,9 +244,7 @@ private slots:
   void zoomTo(Rectangle);
   void zoomOut();
   void showUffda();
-  void fillRightclickmenu();
-  void rightClickMenuActivated(QAction*);
-  void selectedAreas(int);
+  void selectedAreas();
 
   void inEdit(bool);
   void sendPrintClicked(int);
@@ -340,6 +338,9 @@ private:
   QAction * redoAction;
   QAction * saveAction;
 
+  enum { MaxSelectedAreas = 5 };
+  QAction * selectAreaAction[MaxSelectedAreas];
+
   QShortcut * leftBrowsingAction;
   QShortcut * rightBrowsingAction;
   QShortcut * upBrowsingAction;
@@ -432,16 +433,6 @@ private:
   // x,y position of last uffda action
   int xlast,ylast;
 
-  struct rightclickMenuItem{
-    QString menuText;
-    QString member;
-    bool checked;
-    int param;
-  };
-  QString lastRightClicked;
-
-  vector <rightclickMenuItem> vrightclickMenu;
-  int rightsep; //pos of separator
   vector <selectArea> vselectAreas; //selected areas for rightclickmenu
 
   //QSocket
