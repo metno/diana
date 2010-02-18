@@ -970,7 +970,12 @@ void PlotModule::updatePlots()
     bool previousOK = false; // previous area ok to use
     bool requestedOK = false; // requested area ok to use
 
-    // if first plot: getMapArea returns undefined area
+    // area == "modell/sat-omr."
+    if (!requestedarea.P().isDefined()) {
+        requestedarea = satarea; // choose requested-area if existing
+    }
+
+      // if first plot: getMapArea returns undefined area
     if (!plotarea.P().isDefined()) {
       if (mapDefinedByUser)
         plotarea = requestedarea; // choose requested-area if existing
@@ -1007,9 +1012,9 @@ void PlotModule::updatePlots()
       // THEN: selected a new MAP-area
       // (keepcurrentarea=previousOK=TRUE)
     } else if (previousrequestedarea != requestedarea) {
-      if (requestedOK) // try to use requested area
+      if (requestedOK) {// try to use requested area
         newarea = requestedarea;
-      else { // find best match from satarea and requestedarea
+      } else { // find best match from satarea and requestedarea
         newarea = splot.findBestMatch(satarea);
       }
       splot.setMapArea(newarea, keepcurrentarea);
