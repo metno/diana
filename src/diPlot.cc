@@ -144,11 +144,11 @@ void Plot::getPhysSize(float& w, float& h){
 }
 
 Area Plot::findBestMatch(const Area& newa){
+
   Area a= newa;
-  // NEW - ADC 9.12.2002
+
   if (!area.P().isDefined())
     return a;
-  //-----
 
   int npos= 4;
   float *xpos = new float[npos];
@@ -171,8 +171,8 @@ Area Plot::findBestMatch(const Area& newa){
   }
 
   const float MAX=100000000;
-  float maxx= -10000, maxy= -10000,
-    minx= 10000, miny= 10000;
+  float maxx= -100000, maxy= -100000,
+    minx= 100000, miny= 100000;
   for (int i=0; i<npos; i++){
     // check for impossible numbers
     if (xpos[i] < -MAX || xpos[i] > MAX){
