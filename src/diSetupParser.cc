@@ -42,6 +42,7 @@
 #include <diField/diColourShading.h>
 #include <diField/diPattern.h>
 #include <diImageGallery.h>
+#include <puCtools/mkdir.h>
 #include <puCtools/stat.h>
 
 using namespace::miutil;
@@ -147,7 +148,7 @@ bool SetupParser::makeDirectory(const miString& filename, miString & error)
     }
   }
 
-  if (mkdir(filename.c_str(), 0755) != 0) {
+  if (pu_mkdir(filename.c_str(), 0755) != 0) {
     error = strerror(errno);
     return false;
   }
