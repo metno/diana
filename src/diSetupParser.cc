@@ -641,7 +641,12 @@ bool SetupParser::parseBasics(const miString& sectname){
     } else if (key==key_setenv){
       vector<miString> part = value.split(",");
       if(part.size()==3){
+#ifdef __WIN32__
+	miString envst = part[0] + "=" + part[1];
+	putenv(envst.cStr());
+#else
         setenv(part[0].cStr(),part[1].cStr(),part[2].toInt());
+#endif
       }
     }
   }
