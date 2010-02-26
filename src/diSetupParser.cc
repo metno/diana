@@ -29,16 +29,20 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <sys/types.h>
+
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <fstream>
+#include <list>
+
 #include <diSetupParser.h>
 #include <diField/diColourShading.h>
 #include <diField/diPattern.h>
 #include <diImageGallery.h>
-#include <list>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+#include <puCtools/stat.h>
 
 using namespace::miutil;
 
@@ -136,22 +140,18 @@ bool SetupParser::checkEnvironment(miString& t)
 
 bool SetupParser::makeDirectory(const miString& filename, miString & error)
 {
-  struct stat buff;
-  if (stat(filename.c_str(), &buff) != -1){
+  pu_struct_stat buff;
+  if (pu_stat(filename.c_str(), &buff) != -1){
     if ( S_ISDIR(buff.st_mode) ){
       return true;
     }
   }
 
-  mode_t mode =  S_IRWXU | S_IRWXG;
-  int errno = mkdir(filename.c_str(),mode);
-
-  if ( errno == 0 ){
-    return true;
+  if (mkdir(filename.c_str(), 0755) != 0) {
+    error = strerror(errno);
+    return false;
   }
-
-  error = strerror(errno);
-  return false;
+  return true;
 }
 
 void SetupParser::cleanstr(miString& s)
