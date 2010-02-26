@@ -29,6 +29,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <sys/types.h>
+
+#include <math.h>
+
+#include <algorithm>
+#include <iostream>
+#include <set>
+
 #ifdef METNOOBS
 #include <diObsSynop.h>
 #include <diObsDribu.h>
@@ -51,14 +59,8 @@
 #include <diObsBufr.h>
 #endif
 
-#include <iostream>
 #include <diObsManager.h>
 #include <puCtools/glob.h>
-#include <math.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <algorithm>
-#include <set>
 
 using namespace std; using namespace miutil;
 
