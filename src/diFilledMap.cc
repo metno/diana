@@ -33,6 +33,7 @@
 #include <diFilledMap.h>
 #include <stdio.h>
 
+#include <float.h>
 #include <math.h>
 #include <values.h>
 #include <sys/types.h>

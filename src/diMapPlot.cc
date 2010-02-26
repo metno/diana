@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <diFontManager.h>
 
+#include <float.h>
 #include <math.h>
 #include <values.h>
 
