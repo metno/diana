@@ -37,7 +37,7 @@
 #include <diFtnVfile.h>
 
 #include <math.h>
-#include <sys/stat.h>
+#include <puCtools/stat.h>
 
 using namespace std; using namespace miutil;
 
@@ -83,9 +83,9 @@ bool SpectrumFile::update()
 
   bool ok= true;
 
-  struct stat statbuf;
+  pu_struct_stat statbuf;
 
-  if (stat(fileName.c_str(),&statbuf)==0) {
+  if (pu_stat(fileName.c_str(),&statbuf)==0) {
     if (modificationtime != statbuf.st_ctime) {
       cleanup();
       if (readFileHeader())

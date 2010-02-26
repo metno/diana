@@ -31,17 +31,18 @@
 #ifndef diSatManager_h
 #define diSatManager_h
 
+#include <sys/types.h>
+
+#include <map>
+#include <set>
+
+#include <puCtools/stat.h>
+
 #include <diPlot.h>
 #include <diSat.h>
 #include <diSatPlot.h>
 #include <diCommonTypes.h>
 #include <diTimeFilter.h>
-#include <map>
-#include <set>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-
 
 //#ifndef HDF5_INC
 //#define HDF5_INC
@@ -125,7 +126,7 @@ private:
 
   bool _isafile(const miutil::miString name);
   unsigned long _modtime(const miutil::miString fname);
-  void _filestat(const miutil::miString fname, struct stat& filestat);
+  void _filestat(const miutil::miString fname, pu_struct_stat& filestat);
   bool parseChannels(SatFileInfo &info);
   bool readSatFile();
 

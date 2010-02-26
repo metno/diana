@@ -34,7 +34,6 @@
 #include <fstream>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 
 #include <qtTimeSlider.h>
 #include <qtTimeControl.h>

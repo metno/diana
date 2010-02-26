@@ -28,11 +28,11 @@
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include <sys/stat.h> //stat, stat()
 #include <fstream>
 #include <diSatManager.h>
 #include <GL/gl.h>
 #include <puCtools/glob.h>
+#include <puCtools/stat.h>
 #include <set>
 //#include <diAnnotationPlot.h>
 #include <diSetupParser.h>
@@ -353,9 +353,9 @@ bool SatManager::readSatFile()
   }
   inFile.close();
   */
-  struct stat info;
+  pu_struct_stat info;
   int ret = -1;   //get the file attributes
-  ret = stat(satdata->actualfile.c_str(), &info);
+  ret = pu_stat(satdata->actualfile.c_str(), &info);
   if(ret != 0) {
     //stat() is not able to get the file attributes,
     //so the file obviously does not exist or
@@ -1511,7 +1511,7 @@ bool SatManager::_isafile(const miString name)
 /*********************************************************************/
 unsigned long SatManager::_modtime(const miString fname)
 {
-  struct stat filestat;
+  pu_struct_stat filestat;
   // first check if fname is a proper file
   if (_isafile(fname)) {
     _filestat(fname, filestat);
@@ -1521,9 +1521,9 @@ unsigned long SatManager::_modtime(const miString fname)
 }
 
 /*********************************************************************/
-void SatManager::_filestat(const miString fname, struct stat& filestat)
+void SatManager::_filestat(const miString fname, pu_struct_stat& filestat)
 {
-  stat(fname.cStr(), &filestat);
+  pu_stat(fname.cStr(), &filestat);
 }
 
 void SatManager::init_rgbindex(Sat& sd)

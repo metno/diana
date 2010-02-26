@@ -37,7 +37,6 @@
 #include <diVcrossPlot.h>
 
 #include <math.h>
-#include <sys/stat.h>
 
 using namespace std;
 

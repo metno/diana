@@ -54,7 +54,7 @@
 #include <diSetupParser.h>
 
 #include <puCtools/glob.h>
-#include <sys/stat.h>
+#include <puCtools/stat.h>
 #include <math.h>
 
 #ifdef ROADOBS
@@ -1095,7 +1095,7 @@ void VprofManager::checkObsTime(int hour) {
   bool newtime= !obsTime.size();
   int n= obsfiles.size();
 
-  struct stat statbuf;
+  pu_struct_stat statbuf;
 
   for (int i=0; i<n; i++) {
 #ifdef DEBUGPRINT
@@ -1119,7 +1119,7 @@ void VprofManager::checkObsTime(int hour) {
 #ifdef METNOOBS
     if (obsfiles[i].modificationTime==0 || hour<0 ||
         obsfiles[i].time.hour()==hour) {
-      if (stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
+      if (pu_stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
         if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
           obsfiles[i].modificationTime= statbuf.st_mtime;
           try {
@@ -1141,7 +1141,7 @@ void VprofManager::checkObsTime(int hour) {
 #ifdef METNOOBS
     if (obsfiles[i].modificationTime==0 || hour<0 ||
         obsfiles[i].time.hour()==hour) {
-      if (stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
+      if (pu_stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
         if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
           obsfiles[i].modificationTime= statbuf.st_mtime;
           try {
