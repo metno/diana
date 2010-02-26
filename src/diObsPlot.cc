@@ -28,15 +28,20 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#include <sys/types.h>
+
+#include <math.h>
+#include <stdio.h>
+
 #include <fstream>
+#include <sstream>
+
 #include <diObsPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
-#include <sstream>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include <stdio.h>
+
+#include <puCtools/stat.h>
 
 //#define DEBUGPRINT 1
 //#ifndef ROADOBS
@@ -315,23 +320,23 @@ void ObsPlot::setModificationTime(const miString& fname)
 	else
 	{
 		// an ordinary filesystem file
-		struct stat buf;
+		pu_struct_stat buf;
 		fileNames.push_back(fname);
 		const char *path = fname.c_str();
-		if( !stat(path,&buf) ){
-			modificationTime.push_back((long)buf.st_ctime);
-		}else {
+		if (pu_stat(path, &buf) == 0) {
+			modificationTime.push_back(buf.st_ctime);
+		} else {
 			modificationTime.push_back(0);
 		}
 
 	}
 #else
-  struct stat buf;
+  pu_struct_stat buf;
   fileNames.push_back(fname);
   const char *path = fname.c_str();
-  if( !stat(path,&buf) ){
-    modificationTime.push_back((long)buf.st_ctime);
-  }else {
+  if (pu_stat(path,&buf) == 0) {
+    modificationTime.push_back(buf.st_ctime);
+  } else {
     modificationTime.push_back(0);
   }
 #endif
@@ -363,8 +368,8 @@ bool ObsPlot::updateObs()
 		else
 		{
 			const char *path = fileNames[i].c_str();
-			struct stat buf;
-			if( stat(path,&buf) ) {
+			pu_struct_stat buf;
+			if (stat(path, &buf) != 0) {
 #ifdef DEBUGPRINT
 				cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
 #endif
@@ -385,15 +390,15 @@ bool ObsPlot::updateObs()
 	for( int i=0; i<n; i++ ){
 
 		const char *path = fileNames[i].c_str();
-		struct stat buf;
-		if( stat(path,&buf) ) {
+		pu_struct_stat buf;
+		if (stat(path,&buf) != 0) {
 #ifdef DEBUGPRINT
 			cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
 #endif
 			//       cerr<<"Something is wrong"<<endl;
 			return true;
 		}
-		if( modificationTime[i] != (long)buf.st_ctime) {
+		if (modificationTime[i] != buf.st_ctime) {
 			//       cerr <<fileNames[i]<<" has changed"<<endl;
 #ifdef DEBUGPRINT
 			cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
