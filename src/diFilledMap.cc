@@ -28,16 +28,18 @@
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include <fstream>
-#include <iostream>
-#include <diFilledMap.h>
-#include <stdio.h>
 
+#include <sys/types.h>
 #include <float.h>
 #include <math.h>
+#include <stdio.h>
 #include <values.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+
+#include <fstream>
+#include <iostream>
+
+#include <diFilledMap.h>
+#include <puCtools/stat.h>
 
 using namespace::miutil;
 
@@ -135,12 +137,12 @@ void FilledMap::clearPolys()
 
 long FilledMap::gettimestamp()
 {
-  struct stat buf;
+  pu_struct_stat buf;
   const char *path = filename.cStr();
-  if (!stat(path, &buf)) {
-    return long(buf.st_ctime);
+  if (pu_stat(path, &buf) == 0) {
+    return buf.st_ctime;
   }
-  return long(0);
+  return 0;
 }
 
 bool FilledMap::readheader()
