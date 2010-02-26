@@ -214,7 +214,6 @@ common_header_sources= diAnnotationPlot.h\
 	diPlot.h\
 	diPlotModule.h\
 	diPrintOptions.h\
-	diProfetObjectFactory.h\
 	diQuickMenues.h\
 	diRadarEchoPlot.h\
 	diSat.h\
@@ -257,7 +256,6 @@ common_header_sources= diAnnotationPlot.h\
 	qtBrowserBox.h\
 	qtButtonLayout.h\
 	qtComplexText.h\
-	qtDianaProfetGUI.h\
 	qtEditComment.h\
 	qtEditDefineField.h\
 	qtEditDialog.h\
@@ -274,18 +272,7 @@ common_header_sources= diAnnotationPlot.h\
 	qtObsDialog.h\
 	qtObsWidget.h\
 	qtPaintToolBar.h\
-	qtPolygonBookmarkDialog.h\
-	qtPolygonBookmarkModel.h\
 	qtPrintManager.h\
-	qtProfetChatWidget.h\
-	qtProfetDataModels.h\
-	qtProfetEvents.h\
-	qtProfetObjectDialog.h\
-	qtProfetSessionDialog.h\
-	qtProfetSingleControl.h\
-	qtProfetTimeControl.h\
-	qtProfetTimeSmoothDialog.h\
-	qtProfetWaitDialog.h\
 	qtQuickAdmin.h\
 	qtQuickEditOptions.h\
 	qtQuickMenu.h\
@@ -410,7 +397,6 @@ common_xpm_sources= active_object.xpm\
 	pick.xpm\
 	preferences.xpm\
 	private_directory.xpm\
-	profet.xpm\
 	question.xpm\
 	rade.xpm\
 	redo.xpm\
@@ -573,6 +559,22 @@ endif
 if WITH_PROFET
 common_cxx_sources += \
 	diProfetObjectFactory.cc
+common_header_sources += \
+	qtPolygonBookmarkDialog.h \
+	qtPolygonBookmarkModel.h \
+	diProfetObjectFactory.h \
+	qtDianaProfetGUI.h \
+	qtProfetChatWidget.h \
+	qtProfetDataModels.h \
+	qtProfetEvents.h \
+	qtProfetObjectDialog.h \
+	qtProfetSessionDialog.h \
+	qtProfetSingleControl.h \
+	qtProfetTimeControl.h \
+	qtProfetTimeSmoothDialog.h \
+	qtProfetWaitDialog.h
+common_xpm_sources += \
+	profet.xpm
 qt_sources += \
 	qtProfetSessionDialog.cc \
 	qtProfetObjectDialog.cc \
