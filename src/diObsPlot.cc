@@ -369,7 +369,7 @@ bool ObsPlot::updateObs()
 		{
 			const char *path = fileNames[i].c_str();
 			pu_struct_stat buf;
-			if (stat(path, &buf) != 0) {
+			if (pu_stat(path, &buf) != 0) {
 #ifdef DEBUGPRINT
 				cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
 #endif
@@ -391,7 +391,7 @@ bool ObsPlot::updateObs()
 
 		const char *path = fileNames[i].c_str();
 		pu_struct_stat buf;
-		if (stat(path,&buf) != 0) {
+		if (pu_stat(path,&buf) != 0) {
 #ifdef DEBUGPRINT
 			cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
 #endif
