@@ -461,7 +461,7 @@ bool GLwidget::saveRasterImage(const miutil::miString fname, const miutil::miStr
   glFlush();
 
 #ifndef linux
-  QApplication::flushX();
+  QApplication::flush();
 
   updateGL();
   makeCurrent();

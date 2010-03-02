@@ -341,7 +341,7 @@ bool VcrossWidget::saveRasterImage(const miutil::miString fname,
   glFlush();
 
 #ifndef linux
-  QApplication::flushX();
+  QApplication::flush();
 
   updateGL();
   makeCurrent();
