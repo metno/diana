@@ -40,188 +40,179 @@
 
 using namespace std;
 
-namespace{
-  void sig_func(int i);
-  volatile sig_atomic_t sigTerm=0;
-  volatile sig_atomic_t sigAlarm=0;
-  volatile sig_atomic_t sigUsr1=0;
+namespace {
+	void sig_func(int i);
+	volatile sig_atomic_t sigTerm = 0;
+	volatile sig_atomic_t sigAlarm = 0;
+	volatile sig_atomic_t sigUsr1 = 0;
 }
 
 bool
 signalQuit()
 {
-  return sigTerm!=0;
+	return sigTerm != 0;
 }
-
 
 int
 signalInit()
 {
-  sigset_t     oldmask;
-  struct sigaction act, oldact;
+	sigset_t oldmask;
+	struct sigaction act, oldact;
 
-  sigemptyset(&act.sa_mask);
-  act.sa_flags=0;
-  act.sa_handler=sig_func;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags=0;
+	act.sa_handler=sig_func;
 
-  if(sigaction(SIGTERM, &act, &oldact)<0){
-    cerr << "ERROR: Can't install signal handler for SIGTERM!" << endl;
-    return -1;
-  }
+	if (sigaction(SIGTERM, &act, &oldact) < 0) {
+		cerr << "ERROR: Can't install signal handler for SIGTERM!" << endl;
+		return -1;
+	}
 
-  if(sigaction(SIGINT, &act, &oldact)<0){
-    cerr << "ERROR: Can't install signal handler for SIGINT!" << endl;
-    return -1;
-  }
+	if (sigaction(SIGINT, &act, &oldact) < 0) {
+		cerr << "ERROR: Can't install signal handler for SIGINT!" << endl;
+		return -1;
+	}
 
-  if(sigaction(SIGUSR1, &act, &oldact)<0){
-    cerr << "ERROR: Can't install signal handler for SIGUSR1!" << endl;
-    return -1;
-  }
+	if (sigaction(SIGUSR1, &act, &oldact) < 0) {
+		cerr << "ERROR: Can't install signal handler for SIGUSR1!" << endl;
+		return -1;
+	}
 
+	if (sigaction(SIGALRM, &act, &oldact) < 0) {
+		cerr << "ERROR: Can't install signal handler for SIGALRM!" << endl;
+		return -1;
+	}
 
-  if(sigaction(SIGALRM, &act, &oldact)<0){
-    cerr << "ERROR: Can't install signal handler for SIGALRM!" << endl;
-    return -1;
-  }
-
-  return 0;
+	return 0;
 
 }
-
 
 int
 waitOnSignal(int timeout_in_seconds, bool &timeout)
 {
-  int ret=-1;
-  sigset_t mask, oldmask;
+	int ret = -1;
+	sigset_t mask, oldmask;
 
-  timeout=false;
+	timeout=false;
 
-  sigemptyset(&mask);
+	sigemptyset(&mask);
 
-  sigaddset(&mask, SIGALRM);
-  sigaddset(&mask, SIGINT);
-  sigaddset(&mask, SIGTERM);
-  sigaddset(&mask, SIGUSR1);
+	sigaddset(&mask, SIGALRM);
+	sigaddset(&mask, SIGINT);
+	sigaddset(&mask, SIGTERM);
+	sigaddset(&mask, SIGUSR1);
 
-  if(sigprocmask(SIG_BLOCK, &mask, &oldmask)<0)
-    return -1;
+	if (sigprocmask(SIG_BLOCK, &mask, &oldmask) < 0)
+		return -1;
 
-  sigAlarm=0;
+	sigAlarm = 0;
 
-  if(timeout_in_seconds>0)
-    alarm(timeout_in_seconds);
+	if (timeout_in_seconds > 0)
+		alarm(timeout_in_seconds);
 
-  while(!sigAlarm && !sigTerm && !sigUsr1){
+	while (!sigAlarm && !sigTerm && !sigUsr1) {
+		sigsuspend(&oldmask);
+		if (errno != EINTR)
+			break;
+	}
 
-    sigsuspend(&oldmask);
+	if (sigTerm) {
+		ret = 1;
+	} else if (sigUsr1) {
+		sigUsr1 = 0;
+		ret = 0;
+	} else {
+		timeout=true;
+		ret = 1;
+	}
 
-    if(errno!=EINTR)
-      break;
-  }
+	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 
-  if(sigTerm){
-     ret=1;
-  }else  if(sigUsr1){
-    sigUsr1=0;
-    ret=0;
-  }else{
-    timeout=true;
-    ret=1;
-  }
-
-  sigprocmask(SIG_SETMASK, &oldmask, NULL);
-
-  return ret;
+	return ret;
 }
-
 
 int
 waitOnFifo(int fd, int timeout_in_seconds, bool &timeout)
 {
-  timeval tv;
-  fd_set  fds;
-  int     ret;
+	timeval tv;
+	fd_set  fds;
+	int     ret;
 
-  timeout=false;
+	timeout = false;
 
-  FD_ZERO(&fds);
-  FD_SET(fd, &fds);
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
 
-  if(timeout_in_seconds>0){
-    tv.tv_sec=timeout_in_seconds;
-    tv.tv_usec=0;
+	if (timeout_in_seconds > 0) {
+		tv.tv_sec = timeout_in_seconds;
+		tv.tv_usec = 0;
+		ret = select(fd + 1, &fds, NULL, NULL, &tv) ;
+	} else {
+		ret = select(fd + 1, &fds, NULL, NULL, NULL) ;
+	}
 
-    ret=select(fd+1, &fds, NULL, NULL, &tv) ;
-  }else{
-    ret=select(fd+1, &fds, NULL, NULL, NULL) ;
-  }
-
-  if(ret==-1){
-    if(errno==EINTR)
-      return 1;
-    else
-      return -1;
-  }else if(ret==0){
-    timeout=true;
-    return 1;
-  }else{
-    char buf[1];
-    int n;
-  RETRY:
-
-    n=read(fd, buf, 1);
-    if(n==-1){
-      if(errno==EINTR)
-	goto RETRY;
-      else
-	return -1;
-    }else if(n==0){
-      return -1;
-    }
-    return 0;
-  }
+	if (ret == -1) {
+		if (errno == EINTR)
+			return 1;
+		else
+			return -1;
+	} else if (ret == 0) {
+		timeout = true;
+		return 1;
+	} else {
+		char buf[1];
+		int n;
+RETRY:
+		n = read(fd, buf, 1);
+		if (n == -1) {
+			if (errno == EINTR)
+				goto RETRY;
+			else
+				return -1;
+		} else if (n == 0) {
+			return -1;
+		}
+		return 0;
+	}
 }
 
 int
 mysleep(int ms)
 {
-  timespec t1, t2;
-  int ret;
+	timespec t1, t2;
+	int ret;
 
-  t1.tv_sec=ms/1000;
-  t1.tv_nsec=(ms%1000)*1000000;
+	t1.tv_sec = ms / 1000;
+	t1.tv_nsec = (ms % 1000) * 1000000;
 
-  ret=nanosleep(&t1, &t2);
+	ret = nanosleep(&t1, &t2);
 
-  while(ret==-1 && errno==EINTR){
-    t1=t2;
-    ret=nanosleep(&t1, &t2);
-  }
+	while (ret == -1 && errno == EINTR){
+		t1 = t2;
+		ret = nanosleep(&t1, &t2);
+	}
 
-  return ret;
+	return ret;
 
 }
 
-
-namespace{
-  void
-  sig_func(int i)
-  {
-    switch(i){
-    case SIGUSR1:
-      sigUsr1=1;
-      break;
-    case SIGINT:
-    case SIGTERM:
-      sigTerm=1;
-      break;
-    case SIGALRM:
-      sigAlarm=1;
-      break;
-    default:
-      break;
-    }
-  }
+namespace {
+	void
+	sig_func(int i)
+	{
+		switch (i) {
+		case SIGUSR1:
+			sigUsr1 = 1;
+			break;
+		case SIGINT:
+		case SIGTERM:
+			sigTerm = 1;
+			break;
+		case SIGALRM:
+			sigAlarm = 1;
+			break;
+		default:
+			break;
+		}
+	}
 }
