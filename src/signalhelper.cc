@@ -54,35 +54,12 @@ signalQuit()
 int
 signalInit()
 {
-	sigset_t oldmask;
-	struct sigaction act, oldact;
 
-	sigemptyset(&act.sa_mask);
-	act.sa_flags=0;
-	act.sa_handler=sig_func;
-
-	if (sigaction(SIGTERM, &act, &oldact) < 0) {
-		cerr << "ERROR: Can't install signal handler for SIGTERM!" << endl;
-		return -1;
-	}
-
-	if (sigaction(SIGINT, &act, &oldact) < 0) {
-		cerr << "ERROR: Can't install signal handler for SIGINT!" << endl;
-		return -1;
-	}
-
-	if (sigaction(SIGUSR1, &act, &oldact) < 0) {
-		cerr << "ERROR: Can't install signal handler for SIGUSR1!" << endl;
-		return -1;
-	}
-
-	if (sigaction(SIGALRM, &act, &oldact) < 0) {
-		cerr << "ERROR: Can't install signal handler for SIGALRM!" << endl;
-		return -1;
-	}
-
+	signal(SIGALRM, sig_func);
+	signal(SIGINT, sig_func);
+	signal(SIGTERM, sig_func);
+	signal(SIGUSR1, sig_func);
 	return 0;
-
 }
 
 int
