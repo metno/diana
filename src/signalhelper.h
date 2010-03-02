@@ -87,16 +87,4 @@ waitOnFifo(int fd, int timeout_in_seconds, bool &timeout);
 bool
 signalQuit();
 
-
-
-/**
- * \brief a version of sleep that use nanosleep.
- *
- * nanosleep doen't use any signal to implement sleep, ie it has no side
- * effects to alarm, as is used to implement timeout in waitOnFifo and 
- * waitOnSignal.
- */
-int
-mysleep(int sleep_in_milliseconds);
-
 #endif

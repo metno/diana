@@ -2619,8 +2619,6 @@ int dispatchWork(const std::string &file)
         cerr << "FIFO client <" << fifo_name << "> notified!" << endl;
     }
 
-    //mysleep(100);
-
     close(fd);
     fifo_name = "";
   }

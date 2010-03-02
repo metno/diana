@@ -40,12 +40,10 @@
 
 using namespace std;
 
-namespace {
-	void sig_func(int i);
-	volatile sig_atomic_t sigTerm = 0;
-	volatile sig_atomic_t sigAlarm = 0;
-	volatile sig_atomic_t sigUsr1 = 0;
-}
+static void sig_func(int i);
+static volatile sig_atomic_t sigTerm;
+static volatile sig_atomic_t sigAlarm;
+static volatile sig_atomic_t sigUsr1;
 
 bool
 signalQuit()
@@ -176,43 +174,21 @@ RETRY:
 	}
 }
 
-int
-mysleep(int ms)
+static void
+sig_func(int i)
 {
-	timespec t1, t2;
-	int ret;
-
-	t1.tv_sec = ms / 1000;
-	t1.tv_nsec = (ms % 1000) * 1000000;
-
-	ret = nanosleep(&t1, &t2);
-
-	while (ret == -1 && errno == EINTR){
-		t1 = t2;
-		ret = nanosleep(&t1, &t2);
-	}
-
-	return ret;
-
-}
-
-namespace {
-	void
-	sig_func(int i)
-	{
-		switch (i) {
-		case SIGUSR1:
-			sigUsr1 = 1;
-			break;
-		case SIGINT:
-		case SIGTERM:
-			sigTerm = 1;
-			break;
-		case SIGALRM:
-			sigAlarm = 1;
-			break;
-		default:
-			break;
-		}
+	switch (i) {
+	case SIGUSR1:
+		sigUsr1 = 1;
+		break;
+	case SIGINT:
+	case SIGTERM:
+		sigTerm = 1;
+		break;
+	case SIGALRM:
+		sigAlarm = 1;
+		break;
+	default:
+		break;
 	}
 }
