@@ -31,6 +31,10 @@
 
 //#define DEBUGPRINT
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <qcombobox.h>
 #include <QListWidget>
 #include <QListWidgetItem>

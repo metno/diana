@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "qtPolygonBookmarkDialog.h"
 #include <iostream>
 #include <QStatusBar>

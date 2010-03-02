@@ -32,6 +32,10 @@
   Input for adding complex text
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QGridLayout>

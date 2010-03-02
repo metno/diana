@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "qtPolygonBookmarkModel.h"
 #include "directory.xpm"
 #include "private_directory.xpm"

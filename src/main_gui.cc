@@ -32,6 +32,10 @@
 // Diana main program
 //
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <qapplication.h>
 #include <qtranslator.h>
 

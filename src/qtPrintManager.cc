@@ -30,6 +30,10 @@
 */
 /* Created at Fri Nov  2 10:22:02 2001 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <qtPrintManager.h>
 
 

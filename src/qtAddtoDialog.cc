@@ -32,6 +32,10 @@
   Input for adding new choices to menus
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <qtAddtoDialog.h>
 
 #include <QLabel>

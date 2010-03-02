@@ -28,6 +28,11 @@
  */
 
 //#define DEBUGPRINT
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <diHDF5.h>
 
 using namespace::miutil;

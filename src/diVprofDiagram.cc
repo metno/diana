@@ -33,6 +33,10 @@
  vertical profile diagram/background
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <diVprofDiagram.h>
 #include <diField/diColour.h>
 #include <diField/diLinetype.h>

@@ -31,6 +31,10 @@
 //#define DEBUGPRINT
 //#define DEBUGREDRAW
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>

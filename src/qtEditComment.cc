@@ -36,6 +36,11 @@
  */
 
 //Added by qt3to4:
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QString>

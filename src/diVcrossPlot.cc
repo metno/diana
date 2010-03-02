@@ -33,6 +33,10 @@
    NOTES: Heavily based on old fortran code (1987-2001, A.Foss)
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <iostream>
 #include <iomanip>
 #include <diVcrossPlot.h>

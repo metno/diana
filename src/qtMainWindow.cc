@@ -31,6 +31,10 @@
 //#define DEBUGREDRAW
 //#define DEBUGREDRAWCATCH
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <fstream>
 
 #include <sys/types.h>

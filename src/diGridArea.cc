@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <diGridArea.h>
 #include <propoly/AbstractablePolygon.h>
 #include <propoly/Point.h>

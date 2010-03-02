@@ -33,6 +33,10 @@
   DESCRIPTION:    Plots classification table for classified data
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <diLegendPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
