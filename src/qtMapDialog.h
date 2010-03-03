@@ -95,7 +95,6 @@ private slots:
   void lon_densitycboxActivated(int index);
   void lon_zordercboxActivated(int index);
   void lon_showValueActivated(bool);
-  void lon_valueposboxActivated(int index);
 
   void lat_checkboxActivated(bool);
   void lat_linecboxActivated(int index);
@@ -104,7 +103,6 @@ private slots:
   void lat_densitycboxActivated(int index);
   void lat_zordercboxActivated(int index);
   void lat_showValueActivated(bool);
-  void lat_valueposboxActivated(int index);
 
   void backcolorcboxActivated(int index);
 
@@ -147,6 +145,7 @@ private:
   vector<miutil::miString> zorders; // all defined zorders
   vector<miutil::miString> densities; // latlon densities (degrees)
   vector<miutil::miString> positions; // all defined positions
+  map<miutil::miString,int> positions_map; // all defined positions
   Controller* m_ctrl;
 
   // areas
@@ -175,7 +174,6 @@ private:
   int lonz;
   float lond;
   bool lonshowvalue;
-  int lonvaluepos;
 
   QLabel* lat_label;
   QLabel* lat_linelabel;
@@ -198,7 +196,6 @@ private:
   int latz;
   float latd;
   bool latshowvalue;
-  int latvaluepos;
 
   // backgroundcolour
   QLabel* backcolorlabel;

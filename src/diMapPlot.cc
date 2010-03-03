@@ -969,12 +969,12 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
 {
   float longitudeStep = mapinfo.lon.density;
   bool lon_values     = mapinfo.lon.showvalue;
-  int lon_valuepos = mapinfo.lon.value_pos;
+  int lon_valuepos = convertLatLonPos(mapinfo.lon.value_pos);
   float lon_fontsize = mapinfo.lon.fontsize;
 
   float latitudeStep = mapinfo.lat.density;
   bool lat_values = mapinfo.lat.showvalue;
-  int lat_valuepos = mapinfo.lat.value_pos;
+  int lat_valuepos = convertLatLonPos(mapinfo.lat.value_pos);
   float lat_fontsize = mapinfo.lat.fontsize;
 
 /*
@@ -1453,4 +1453,28 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
     }
     glEnd();
   }
+}
+
+int MapPlot::convertLatLonPos(miutil::miString pos)
+{
+  pos = pos.downcase();
+  if(pos == "left") {
+    return map_left;
+  }
+  if(pos == "bottom") {
+    return map_bottom;
+  }
+  if(pos == "right") {
+    return map_right;
+  }
+  if(pos == "top") {
+    return map_top;
+  }
+  if(pos == "both") {
+    return map_all;
+  }
+
+  //obsolete syntax
+  return atoi(pos.c_str());
+
 }

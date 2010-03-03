@@ -168,7 +168,7 @@ bool MapManager::parseMapTypes(SetupParser& sp)
       mapinfo.lon.zorder = 2;
       mapinfo.lon.density = 10.0;
       mapinfo.lon.showvalue = false;
-      mapinfo.lon.value_pos = 1;
+      mapinfo.lon.value_pos = "bottom";
       mapinfo.lon.fontsize=10;
 
       mapinfo.lat.ison = false;
@@ -178,7 +178,7 @@ bool MapManager::parseMapTypes(SetupParser& sp)
       mapinfo.lat.zorder = 2;
       mapinfo.lat.density = 10.0;
       mapinfo.lat.showvalue = false;
-      mapinfo.lat.value_pos = 0;
+      mapinfo.lat.value_pos = "left";
       mapinfo.lat.fontsize=10;
 
       mapinfo.frame.ison = false;
@@ -371,7 +371,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
       } else if (key == "lon.showvalue") {
         mi.lon.showvalue = (value.upcase() == "ON");
       } else if (key == "lon.value_pos") {
-        mi.lon.value_pos = atoi(value.cStr());
+        mi.lon.value_pos = value;
       } else if (key == "lon.fontsize") {
         mi.lon.fontsize = atof(value.cStr());
 
@@ -393,7 +393,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
       } else if (key == "lat.showvalue") {
         mi.lat.showvalue = (value.upcase() == "ON");
       } else if (key == "lat.value_pos") {
-        mi.lat.value_pos = atoi(value.cStr());
+        mi.lat.value_pos = value;
       } else if (key == "lat.fontsize") {
         mi.lat.fontsize = atof(value.cStr());
 

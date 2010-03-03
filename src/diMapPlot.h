@@ -116,6 +116,10 @@ private:
   * @param
   * @return
   */
+
+  //convert position "bottom", left" etc to MapValuePosition
+  int convertLatLonPos(miutil::miString pos);
+
   bool plotMapLand4(const miutil::miString&, float[], const Linetype&, float,
       const Colour&);
   /**

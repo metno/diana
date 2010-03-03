@@ -120,9 +120,20 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   densities.push_back("180");
 
   // positions
-  positions.push_back(tr("left").toStdString());
-  positions.push_back(tr("bottom").toStdString());
-  positions.push_back(tr("both").toStdString());
+  vector<miutil::miString> positions_tr; // all defined positions
+  positions_tr.push_back(tr("left").toStdString());
+  positions_tr.push_back(tr("bottom").toStdString());
+  positions_tr.push_back(tr("both").toStdString());
+  positions.push_back("left");
+  positions.push_back("bottom");
+  positions.push_back("both");
+  positions_map["left"]=0;;
+  positions_map["bottom"]=1;;
+  positions_map["both"]=2;;
+//obsolete syntax
+  positions_map["0"]=0;;
+  positions_map["1"]=1;;
+  positions_map["2"]=2;;
 
   // ==================================================
   // arealabel
@@ -248,7 +259,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   lonz=2;
   lond=10.0;
   lonshowvalue=false;
-  lonvaluepos = 0;
   int lon_line= 0;
   int lon_linetype= 0;
   int lon_col= 0;
@@ -262,7 +272,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   latz=2;
   latd=10.0;
   latshowvalue=false;
-  latvaluepos = 1;
   int lat_line= 0;
   int lat_linetype= 0;
   int lat_col= 0;
@@ -288,7 +297,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     lond= m_MapDI.maps[nm].lon.density;
     lonz= m_MapDI.maps[nm].lon.zorder;
     lonshowvalue= m_MapDI.maps[nm].lon.showvalue;
-    lonvaluepos= m_MapDI.maps[nm].lon.value_pos;
     lon_line= atoi(lonlw.cStr())-1;
     lon_linetype= getIndex( linetypes, lonlt );
     lon_col= getIndex( cInfo, lonc );
@@ -309,7 +317,6 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     latd= m_MapDI.maps[nm].lat.density;
     latz= m_MapDI.maps[nm].lat.zorder;
     latshowvalue= m_MapDI.maps[nm].lat.showvalue;
-    latvaluepos= m_MapDI.maps[nm].lat.value_pos;
     lat_line= atoi(latlw.cStr())-1;
     lat_linetype= getIndex( linetypes, latlt );
     lat_col= getIndex( cInfo, latc );
@@ -379,10 +386,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   connect( lon_showvalue, SIGNAL( toggled(bool) ),SLOT( lon_showValueActivated(bool) ) );
   lon_showvalue->setChecked(lonshowvalue);
   // value pos
-  lon_valuepos= ComboBox( lon_frame, positions, true, lonvaluepos );
-  connect( lon_valuepos, SIGNAL( activated(int) ),
-      SLOT( lon_valueposboxActivated(int) ) );
-
+  lon_valuepos= ComboBox( lon_frame, positions_tr, true, 0 );
   showlon->setChecked(lonb);
 
   // Show latitude lines
@@ -430,9 +434,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   connect( lat_showvalue, SIGNAL( toggled(bool) ),SLOT( lat_showValueActivated(bool) ) );
   lat_showvalue->setChecked(latshowvalue);
   // value pos
-  lat_valuepos= ComboBox( lat_frame, positions, true, latvaluepos );
-  connect( lat_valuepos, SIGNAL( activated(int) ),
-      SLOT( lat_valueposboxActivated(int) ) );
+  lat_valuepos= ComboBox( lat_frame, positions_tr, true, 1);
 
   showlat->setChecked(latb);
 
@@ -1006,12 +1008,6 @@ void MapDialog::lon_showValueActivated(bool on)
   lonshowvalue = on;
 }
 
-void MapDialog::lon_valueposboxActivated( int index )
-{
-  lonvaluepos = index;
-}
-
-
 void MapDialog::lat_checkboxActivated(bool on)
 {
   latb = on;
@@ -1054,12 +1050,6 @@ void MapDialog::lat_showValueActivated(bool on)
 {
   latshowvalue = on;
 }
-
-void MapDialog::lat_valueposboxActivated( int index )
-{
-  latvaluepos = index;
-}
-
 
 // -----------------
 
@@ -1153,7 +1143,8 @@ vector<miutil::miString> MapDialog::getOKString()
     mi.lon.zorder = lonz;
     mi.lon.density = lond;
     mi.lon.showvalue = lonshowvalue;
-    mi.lon.value_pos = lonvaluepos;
+    if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<positions.size())
+      mi.lon.value_pos = positions[lon_valuepos->currentIndex()];
 
     mi.lat.ison = latb;
     mi.lat.linecolour = latc;
@@ -1162,7 +1153,8 @@ vector<miutil::miString> MapDialog::getOKString()
     mi.lat.zorder = latz;
     mi.lat.density = latd;
     mi.lat.showvalue = latshowvalue;
-    mi.lat.value_pos = latvaluepos;
+    if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<positions.size())
+      mi.lat.value_pos = positions[lat_valuepos->currentIndex()];
 
     mi.frame.ison = frameb;
     mi.frame.linecolour = framec;
@@ -1205,7 +1197,8 @@ vector<miutil::miString> MapDialog::getOKString()
         m_MapDI.maps[lindex].lon.zorder = lonz;
         m_MapDI.maps[lindex].lon.density = lond;
         m_MapDI.maps[lindex].lon.showvalue = lonshowvalue;
-        m_MapDI.maps[lindex].lon.value_pos = lonvaluepos;
+        if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<positions.size())
+        m_MapDI.maps[lindex].lon.value_pos = positions[lon_valuepos->currentIndex()];
 
         m_MapDI.maps[lindex].lat.ison = latb;
         m_MapDI.maps[lindex].lat.linecolour = latc;
@@ -1214,7 +1207,8 @@ vector<miutil::miString> MapDialog::getOKString()
         m_MapDI.maps[lindex].lat.zorder = latz;
         m_MapDI.maps[lindex].lat.density = latd;
         m_MapDI.maps[lindex].lat.showvalue = latshowvalue;
-        m_MapDI.maps[lindex].lat.value_pos = latvaluepos;
+        if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<positions.size())
+          m_MapDI.maps[lindex].lat.value_pos = positions[lat_valuepos->currentIndex()];
 
 
         // set frame options
@@ -1248,6 +1242,7 @@ vector<miutil::miString> MapDialog::getOKString()
 
 void MapDialog::putOKString(const vector<miutil::miString>& vstr)
 {
+
   int n = vstr.size();
   vector<int> themaps;
   vector<miutil::miString> tokens, stokens;
@@ -1322,7 +1317,6 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     lonz = m_MapDI.maps[lastmap].lon.zorder;
     lond = m_MapDI.maps[lastmap].lon.density;
     lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
-    lonvaluepos = m_MapDI.maps[lastmap].lon.value_pos;
 
     int m_colIndex = getIndex(cInfo, lonc);
     int m_linewIndex = atoi(lonlw.cStr()) - 1;
@@ -1348,9 +1342,9 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     if (m_zIndex >= 0)
       lon_zorder->setCurrentIndex(m_zIndex);
     lon_showvalue->setChecked(lonshowvalue);
-    if (lonvaluepos >= 0)
-      lon_valuepos->setCurrentIndex(lonvaluepos);
-
+    if (positions_map.count(m_MapDI.maps[lastmap].lon.value_pos)) {
+      lon_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lon.value_pos]);
+    }
     latb = m_MapDI.maps[lastmap].lat.ison;
     latc = m_MapDI.maps[lastmap].lat.linecolour;
     latlw = m_MapDI.maps[lastmap].lat.linewidth;
@@ -1358,7 +1352,6 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     latz = m_MapDI.maps[lastmap].lat.zorder;
     latd = m_MapDI.maps[lastmap].lat.density;
     latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
-    latvaluepos = m_MapDI.maps[lastmap].lat.value_pos;
 
     m_colIndex = getIndex(cInfo, latc);
     m_linewIndex = atoi(latlw.cStr()) - 1;
@@ -1384,8 +1377,9 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     if (m_zIndex >= 0)
       lat_zorder->setCurrentIndex(m_zIndex);
     lat_showvalue->setChecked(latshowvalue);
-    if (latvaluepos >= 0)
-      lat_valuepos->setCurrentIndex(latvaluepos);
+    if (positions_map.count(m_MapDI.maps[lastmap].lat.value_pos)) {
+      lat_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lat.value_pos]);
+    }
 
     // set frame options
     frameb = m_MapDI.maps[lastmap].frame.ison;
@@ -1462,7 +1456,9 @@ vector<miutil::miString> MapDialog::writeLog()
       m_MapDI.maps[i].lon.zorder = lonz;
       m_MapDI.maps[i].lon.density = lond;
       m_MapDI.maps[i].lon.showvalue = lonshowvalue;
-      m_MapDI.maps[i].lon.value_pos = lonvaluepos;
+      if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<positions.size()){
+        m_MapDI.maps[i].lon.value_pos = positions[lon_valuepos->currentIndex()];
+      }
 
       m_MapDI.maps[i].lat.ison = latb;
       m_MapDI.maps[i].lat.linecolour = latc;
@@ -1471,7 +1467,10 @@ vector<miutil::miString> MapDialog::writeLog()
       m_MapDI.maps[i].lat.zorder = latz;
       m_MapDI.maps[i].lat.density = latd;
       m_MapDI.maps[i].lat.showvalue = latshowvalue;
-      m_MapDI.maps[i].lat.value_pos = latvaluepos;
+      if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<positions.size()){
+        m_MapDI.maps[i].lat.value_pos = positions[lat_valuepos->currentIndex()];
+      }
+
 
       // set frame options
       m_MapDI.maps[i].frame.ison = frameb;
@@ -1628,7 +1627,6 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     lonz = m_MapDI.maps[lastmap].lon.zorder;
     lond = m_MapDI.maps[lastmap].lon.density;
     lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
-    lonvaluepos = m_MapDI.maps[lastmap].lon.value_pos;
 
     int m_colIndex = getIndex(cInfo, lonc);
     int m_linewIndex = atoi(lonlw.cStr()) - 1;
@@ -1654,9 +1652,9 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     if (m_zIndex >= 0)
       lon_zorder->setCurrentIndex(m_zIndex);
     lon_showvalue->setChecked(lonshowvalue);
-    if (lonvaluepos >= 0)
-      lon_valuepos->setCurrentIndex(lonvaluepos);
-
+    if (positions_map.count(m_MapDI.maps[lastmap].lon.value_pos)) {
+      lon_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lon.value_pos]);
+    }
     // set lat options
     latb = m_MapDI.maps[lastmap].lat.ison;
     latc = m_MapDI.maps[lastmap].lat.linecolour;
@@ -1665,7 +1663,6 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     latz = m_MapDI.maps[lastmap].lat.zorder;
     latd = m_MapDI.maps[lastmap].lat.density;
     latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
-    latvaluepos = m_MapDI.maps[lastmap].lat.value_pos;
 
     m_colIndex = getIndex(cInfo, latc);
     m_linewIndex = atoi(latlw.cStr()) - 1;
@@ -1691,8 +1688,10 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     if (m_zIndex >= 0)
       lat_zorder->setCurrentIndex(m_zIndex);
     lat_showvalue->setChecked(latshowvalue);
-    if (latvaluepos >= 0)
-      lat_valuepos->setCurrentIndex(latvaluepos);
+//    if (latvaluepos >= 0)
+    if (positions_map.count(m_MapDI.maps[lastmap].lat.value_pos)) {
+      lat_valuepos->setCurrentIndex(positions_map[m_MapDI.maps[lastmap].lat.value_pos]);
+    }
 
     // set frame options
     frameb = m_MapDI.maps[lastmap].frame.ison;
