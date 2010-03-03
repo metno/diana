@@ -263,9 +263,6 @@ private:
   bool uffda;
   bool doAutoUpdate;
 
-  void PrintPS(miutil::miString& filestr );
-  void PrintPS(vector <miutil::miString>& filestr );
-
   miutil::miString version_string;
   miutil::miString build_string;
   int displayWidth,displayHeight;
