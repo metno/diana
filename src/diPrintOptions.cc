@@ -162,16 +162,13 @@ printerManager::printerManager()
 // expand variables in pcommand
 bool printerManager::expandCommand(miString& com, const printOptions& po)
 {
+
   com.replace("{printer}",po.printer);
   com.replace("{filename}",po.fname);
-#ifdef linux
-  // current Debian linux version uses this # as start of comment !!!
-  com.replace("-{hash}",""); // setupParser is not fond of #'s
-  com.replace("{numcopies}","");
-#else
+
   com.replace("{hash}","#"); // setupParser is not fond of #'s
   com.replace("{numcopies}",miString(po.numcopies));
-#endif
+
   return true;
 }
 
