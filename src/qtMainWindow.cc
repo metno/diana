@@ -3058,8 +3058,8 @@ void DianaMainWindow::makeEPS(const miutil::miString& filename)
 void DianaMainWindow::hardcopy()
 {
   QPrinter qprt;
+
   miutil::miString command= pman.printCommand();
-  //   printOptions priop;
 
   fromPrintOption(qprt,priop);
 
@@ -3067,16 +3067,9 @@ void DianaMainWindow::hardcopy()
   if (printerDialog.exec()) {
     if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
-    } else if (command.substr(0,4)=="lpr ") {
+    } else {
       priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
-#ifdef linux
-      command= "lpr -r " + command.substr(4,command.length()-4);
-#else
-      command= "lpr -r -s " + command.substr(4,command.length()-4);
-#endif
-    } else {
-      priop.fname= "tmp_diana.ps";
     }
 
     // fill printOption from qprinter-selections
@@ -3096,6 +3089,9 @@ void DianaMainWindow::hardcopy()
 
     // if output to printer: call appropriate command
     if (qprt.outputFileName().isNull()){
+      //From Qt:On Windows, Mac OS X and X11 systems that support CUPS,
+      //this will always return 1 as these operating systems can internally
+      //handle the number of copies. (Doesn't work)
       priop.numcopies= qprt.numCopies();
 
       // expand command-variables

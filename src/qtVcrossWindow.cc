@@ -61,11 +61,7 @@
 VcrossWindow::VcrossWindow(Controller *co)
 : QMainWindow( 0)
 {
-#ifndef linux
-  qApp->setStyle(new QMotifStyle);
-#endif
 
-  //HK ??? temporary create new VcrossManager here
   vcrossm = new VcrossManager(co);
 
   setWindowTitle( tr("Diana Vertical Crossections") );
@@ -373,16 +369,9 @@ void VcrossWindow::printClicked(){
   if (printerDialog.exec()) {
     if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
-    } else if (command.substr(0,4)=="lpr ") {
+    } else {
       priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
-#ifdef linux
-      command= "lpr -r " + command.substr(4,command.length()-4);
-#else
-      command= "lpr -r -s " + command.substr(4,command.length()-4);
-#endif
-    } else {
-      priop.fname= "tmp_vcross.ps";
     }
 
     // fill printOption from qprinter-selections

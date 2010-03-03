@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -60,13 +60,9 @@
 
 
 VprofWindow::VprofWindow(Controller *co)
-  : QMainWindow( 0)
+: QMainWindow( 0)
 {
-#ifndef linux
-  qApp->setStyle(new QMotifStyle);
-#endif
 
-  //HK ??? temporary create new VprofManager here
   vprofm = new VprofManager(co);
 
   setWindowTitle( tr("Diana Vertical Profiles") );
@@ -170,14 +166,14 @@ VprofWindow::VprofWindow(Controller *co)
   connect(vpModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(vpModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
   connect(vpModelDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-	  SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
 
   vpSetupDialog = new VprofSetupDialog(this,vprofm);
   connect(vpSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vpSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
   connect(vpSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-	  SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
   //initialize everything in startUp
   firstTime = true;
@@ -281,16 +277,16 @@ bool VprofWindow::timeChangedSlot(int diff){
     int n = timeBox->count();
     for (int i = 0; i<n;i++){
       if(tstring ==timeBox->itemText(i).toStdString()){
-	timeBox->setCurrentIndex(i);
-	tbs=timeBox->currentText().toStdString();
-	break;
+        timeBox->setCurrentIndex(i);
+        tbs=timeBox->currentText().toStdString();
+        break;
       }
     }
   }
   if (tbs!=tstring){
     cerr << "WARNING! timeChangedSlot  time from vprofm ="
-	 << t    <<" not equal to timeBox text = " << tbs << endl
-	 << "You should search through timelist!" << endl;
+    << t    <<" not equal to timeBox text = " << tbs << endl
+    << "You should search through timelist!" << endl;
     return false;
   }
 
@@ -342,9 +338,9 @@ bool VprofWindow::stationChangedSlot(int diff){
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
       if (s==stationBox->itemText(i).toStdString()){
-	stationBox->setCurrentIndex(i);
-	sbs=miutil::miString(stationBox->currentText().toStdString());
-	break;
+        stationBox->setCurrentIndex(i);
+        sbs=miutil::miString(stationBox->currentText().toStdString());
+        break;
       }
     }
   }
@@ -378,16 +374,9 @@ void VprofWindow::printClicked()
   if (printerDialog.exec()) {
     if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
-    } else if (command.substr(0,4)=="lpr ") {
+    } else {
       priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
-#ifdef linux
-      command= "lpr -r " + command.substr(4,command.length()-4);
-#else
-      command= "lpr -r -s " + command.substr(4,command.length()-4);
-#endif
-    } else {
-      priop.fname= "tmp_vprof.ps";
     }
 
     // fill printOption from qprinter-selections
@@ -424,9 +413,9 @@ void VprofWindow::saveClicked()
 {
   static QString fname = "./"; // keep users preferred image-path for later
   QString s = QFileDialog::getSaveFileName(this,
-				 tr("Save plot as image"),
-				 fname,
-				 tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+      tr("Save plot as image"),
+      fname,
+      tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -500,17 +489,17 @@ void VprofWindow::setupClicked(bool on){
 void VprofWindow::quitClicked(){
   //called when the quit button is clicked
 #ifdef DEBUGPRINT
-    cerr << "quit clicked" << endl;
+  cerr << "quit clicked" << endl;
 #endif
-    //for now, only hide window, not really quit !
-    vpToolbar->hide();
-    tsToolbar->hide();
-    modelButton->setChecked(false);
-    setupButton->setChecked(false);
-    active = false;
-    emit VprofHide();
-    vector<miutil::miTime> t;
-    emit emitTimes("vprof",t);
+  //for now, only hide window, not really quit !
+  vpToolbar->hide();
+  tsToolbar->hide();
+  modelButton->setChecked(false);
+  setupButton->setChecked(false);
+  active = false;
+  emit VprofHide();
+  vector<miutil::miTime> t;
+  emit emitTimes("vprof",t);
 }
 
 
@@ -519,7 +508,7 @@ void VprofWindow::quitClicked(){
 void VprofWindow::hideClicked(){
   //called when the hide button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-    cerr << "hide clicked" << endl;
+  cerr << "hide clicked" << endl;
 #endif
 }
 
@@ -540,9 +529,9 @@ void VprofWindow::updateClicked(){
 void VprofWindow::helpClicked(){
   //called when the help button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-    cerr << "help clicked" << endl;
+  cerr << "help clicked" << endl;
 #endif
-    emit showsource("ug_verticalprofiles.html");
+  emit showsource("ug_verticalprofiles.html");
 }
 
 
@@ -551,7 +540,7 @@ void VprofWindow::helpClicked(){
 void VprofWindow::MenuOK(){
   //obsolete - nothing happens here
 #ifdef DEBUGPRINT
-    cerr << "VprofWindow::MenuOK()" << endl;
+  cerr << "VprofWindow::MenuOK()" << endl;
 #endif
 }
 
@@ -562,23 +551,23 @@ void VprofWindow::changeModel(){
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
 #ifdef DEBUGPRINT
-    cerr << "VprofWindow::changeModel()" << endl;
+  cerr << "VprofWindow::changeModel()" << endl;
 #endif
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    vprofm->setModel();
-    QApplication::restoreOverrideCursor();
+  QApplication::setOverrideCursor( Qt::WaitCursor );
+  vprofm->setModel();
+  QApplication::restoreOverrideCursor();
 
-    onlyObs= vprofm->onlyObsState();
+  onlyObs= vprofm->onlyObsState();
 
-    //emit to main Window (updates stationPlot)
-    emit modelChanged();
-    //update combobox lists of stations and time
-    updateStationBox();
-    updateTimeBox();
-    //get correct selection in comboboxes
-    stationChangedSlot(0);
-    timeChangedSlot(0);
-    vprofw->updateGL();
+  //emit to main Window (updates stationPlot)
+  emit modelChanged();
+  //update combobox lists of stations and time
+  updateStationBox();
+  updateTimeBox();
+  //get correct selection in comboboxes
+  stationChangedSlot(0);
+  timeChangedSlot(0);
+  vprofw->updateGL();
 }
 
 
@@ -587,9 +576,9 @@ void VprofWindow::changeModel(){
 void VprofWindow::changeSetup(){
   //called when the apply from setup dialog is clicked
 #ifdef DEBUGPRINT
-    cerr << "VprofWindow::changeSetup()" << endl;
+  cerr << "VprofWindow::changeSetup()" << endl;
 #endif
-    vprofw->updateGL();
+  vprofw->updateGL();
 }
 
 
@@ -599,20 +588,20 @@ void VprofWindow::changeSetup(){
 void VprofWindow::hideModel(){
   //called when the hide button (from model dialog) is clicked
 #ifdef DEBUGPRINT
-    cerr << "VprofWindow::hideModel()" << endl;
+  cerr << "VprofWindow::hideModel()" << endl;
 #endif
-    vpModelDialog->hide();
-    modelButton->setChecked(false);
+  vpModelDialog->hide();
+  modelButton->setChecked(false);
 }
 
 /***************************************************************************/
 void VprofWindow::hideSetup(){
   //called when the hide button (from setup dialog) is clicked
 #ifdef DEBUGPRINT
-    cerr << "VprofWindow::hideSetup()" << endl;
+  cerr << "VprofWindow::hideSetup()" << endl;
 #endif
-    vpSetupDialog->hide();
-    setupButton->setChecked(false);
+  vpSetupDialog->hide();
+  setupButton->setChecked(false);
 }
 
 /***************************************************************************/
@@ -633,11 +622,11 @@ StationPlot* VprofWindow::getStations(){
 
   //the coordinates are defined here
 #ifdef DEBUGPRINT
- //  for (int i = 0; i<n;i++){
-//     cerr <<"Station number " << i << " name = " << stations[i]
-// 	 << " latitude = " << latitude[i]
-// 	 << " longitude = " << longitude[i] << endl;
-//   }
+  //  for (int i = 0; i<n;i++){
+  //     cerr <<"Station number " << i << " name = " << stations[i]
+  // 	 << " latitude = " << latitude[i]
+  // 	 << " longitude = " << longitude[i] << endl;
+  //   }
 #endif
 
   return stationPlot;
@@ -805,16 +794,16 @@ vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
   if (logpart=="window") {
 
     str= "VprofWindow.size " + miutil::miString(this->width()) + " "
-			     + miutil::miString(this->height());
+    + miutil::miString(this->height());
     vstr.push_back(str);
     str= "VprofWindow.pos "  + miutil::miString(this->x()) + " "
-			     + miutil::miString(this->y());
+    + miutil::miString(this->y());
     vstr.push_back(str);
     str= "VprofModelDialog.pos " + miutil::miString(vpModelDialog->x()) + " "
-			         + miutil::miString(vpModelDialog->y());
+    + miutil::miString(vpModelDialog->y());
     vstr.push_back(str);
     str= "VprofSetupDialog.pos " + miutil::miString(vpSetupDialog->x()) + " "
-			         + miutil::miString(vpSetupDialog->y());
+    + miutil::miString(vpSetupDialog->y());
     vstr.push_back(str);
 
     // printer name & options...
@@ -822,9 +811,9 @@ vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
       str= "PRINTER " + priop.printer;
       vstr.push_back(str);
       if (priop.orientation==d_print::ori_portrait)
-	str= "PRINTORIENTATION portrait";
+        str= "PRINTORIENTATION portrait";
       else
-	str= "PRINTORIENTATION landscape";
+        str= "PRINTORIENTATION landscape";
       vstr.push_back(str);
     }
 
@@ -839,8 +828,8 @@ vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
 
 
 void VprofWindow::readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
-			  const miutil::miString& thisVersion, const miutil::miString& logVersion,
-			  int displayWidth, int displayHeight)
+    const miutil::miString& thisVersion, const miutil::miString& logVersion,
+    int displayWidth, int displayHeight)
 {
 
   if (logpart=="window") {
@@ -862,17 +851,17 @@ void VprofWindow::readLog(const miutil::miString& logpart, const vector<miutil::
           if      (tokens[0]=="VprofWindow.pos")      this->move(x,y);
           else if (tokens[0]=="VprofModelDialog.pos") vpModelDialog->move(x,y);
           else if (tokens[0]=="VprofSetupDialog.pos") vpSetupDialog->move(x,y);
-	}
+        }
 
       } else if (tokens.size()==2) {
 
         if (tokens[0]=="PRINTER") {
           priop.printer=tokens[1];
         } else if (tokens[0]=="PRINTORIENTATION") {
-	  if (tokens[1]=="portrait")
-	    priop.orientation=d_print::ori_portrait;
-	  else
-	    priop.orientation=d_print::ori_landscape;
+          if (tokens[1]=="portrait")
+            priop.orientation=d_print::ori_portrait;
+          else
+            priop.orientation=d_print::ori_landscape;
         }
 
       }
