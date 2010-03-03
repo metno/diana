@@ -335,18 +335,10 @@ bool VcrossWidget::saveRasterImage(const miutil::miString fname,
 			           const miutil::miString format,
 			           const int quality)
 {
-  // problems on SGI - make sure plot is flushed properly
-  updateGL();
-  makeCurrent();
-  glFlush();
-
-#ifndef linux
-  QApplication::flush();
 
   updateGL();
   makeCurrent();
   glFlush();
-#endif
 
   // test of new grabFrameBuffer command
   QImage image= grabFrameBuffer(true); // withAlpha=TRUE
