@@ -428,79 +428,6 @@ void FieldEdit::makeWorkfield()
   if (!workfield) workfield= editfield;
 }
 
-
-bool FieldEdit::OLDreadEditfield(const miString& filename)
-{
-  FILE *pfile;
-
-  int oldlength= filename.length() - 2;
-  miString oldfilename= filename.substr(0 ,oldlength);
-
-  if ((pfile= fopen(oldfilename.c_str(), "rb")) == NULL) {
-    cerr << "OPEN ERROR (READ) " << oldfilename << endl;
-    return false;
-  }
-
-  float gspec[Projection::speclen];
-  int   gtype;
-
-  editfield= new Field;
-
-  bool ok;
-  int nw,nx,ny;
-  nw= fread(metnoFieldFileIdent,2,20,pfile);
-  ok= (nw==20);
-
-  if (ok) {
-    nw= fread(&gtype,4,1,pfile);
-    ok= (nw==1);
-  }
-  if (ok) {
-    nw= fread(gspec,4,6,pfile);
-    ok= (nw==6);
-  }
-
-  if (ok) {
-    nx= metnoFieldFileIdent[ 9];
-    ny= metnoFieldFileIdent[10];
-    if (nx<1 || ny<1) {
-      cerr << "ERROR: EditField size:" << nx << " " << ny << endl;
-      ok= false;
-    }
-  }
-
-  if (ok) {
-    Projection p;
-    p.set_mi_gridspec(gtype, gspec);
-    Rectangle r(0., 0., float(nx-1), float(ny-1));
-    editfield->area.setP(p);
-    editfield->area.setR(r);
-    editfield->nx= nx;
-    editfield->ny= ny;
-    delete[] editfield->data;
-    editfield->data= new float[nx*ny];
-    nw= fread(editfield->data,4,nx*ny,pfile);
-    ok= (nw==nx*ny);
-    if (ok) {
-      int i=0;
-      while (i<nx*ny && editfield->data[i]!=fieldUndef) i++;
-      editfield->allDefined= (i==nx*ny);
-    }
-  }
-
-  fclose(pfile);
-
-  if (ok) return true;
-
-  cerr << "ERROR READ " << oldfilename << endl;
-  delete editfield;
-  editfield= 0;
-  fclose(pfile);
-
-  return false;
-}
-
-
 bool FieldEdit::readEditfield(const miString& filename)
 {
   // read a DNMI field file
@@ -659,76 +586,12 @@ bool FieldEdit::readEditFieldFile(const miString& filename,
   cleanup();
 
   if (!readEditfield(filename)) {
-    //if (!OLDreadEditfield(filename)) return false;
-    //########################################################
-    if (!OLDreadEditfield(filename)) {
-      miString filename2= filename + "00";
-      if (!OLDreadEditfield(filename2)) return false;
-    }
-    //########################################################
+    return false;
   }
 
-  prepareEditFieldPlot(fieldname,tprod);
+  return prepareEditFieldPlot(fieldname,tprod);
 
-  return true;
 }
-
-
-void FieldEdit::OLDwriteEditFieldFile(const miString& filename){
-
-  if (!editfield) return;
-  if (!editfield->data) return;
-
-  // all gridspec may not be in ident... use area
-  Projection p= editfield->area.P();
-  float gspec[Projection::speclen];
-  p.metno_Gridspecstd(gspec);
-  int gtype= p.metno_Gridtype();
-
-  FILE *pfile;
-
-  if ((pfile= fopen(filename.c_str(), "wb+")) == NULL) {
-    cerr << "OPEN ERROR (WRITE) " << filename << endl;
-    return;
-  }
-
-  bool ok;
-  int nw;
-  nw= fwrite(metnoFieldFileIdent,2,20,pfile);
-  ok= (nw==20);
-  if (ok) {
-    nw= fwrite(&gtype,4,1,pfile);
-    ok= (nw==1);
-  }
-  if (ok) {
-    nw= fwrite(gspec,4,6,pfile);
-    ok= (nw==6);
-  }
-
-  if (ok) {
-    int nx= editfield->nx;
-    int ny= editfield->ny;
-
-    nw= fwrite(editfield->data,4,nx*ny,pfile);
-    ok= (nw==nx*ny);
-  }
-
-  fclose(pfile);
-
-  if (!ok) {
-    cerr << "ERROR WRITE " << filename << endl;
-    return;
-  }
-
-  int n= undofields.size();
-  for (int i=0; i<n; i++) {
-    delete[] undofields[i].data[0];
-    delete[] undofields[i].data[1];
-  }
-  undofields.clear();
-  numundo=0;
-}
-
 
 bool FieldEdit::writeEditFieldFile(const miString& filename,
     bool returndata,

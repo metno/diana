@@ -204,9 +204,7 @@ public:
   bool readEditFieldFile(const miutil::miString& filename,
                          const miutil::miString& fieldname,
 			 const miutil::miTime& tprod);
-  bool OLDreadEditfield(const miutil::miString& filename);
   bool readEditfield(const miutil::miString& filename);
-  void OLDwriteEditFieldFile(const miutil::miString& filename);
   bool writeEditFieldFile(const miutil::miString& filename, bool returndata,
 			  short int** fdata, int& fdatalength);
 
