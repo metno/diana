@@ -149,7 +149,7 @@ METNO_REQUIRE_QT4([
 
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
-    METNO_REQUIRE_C_LIBRARY([AVFORMAT], [avformat], [ffmpeg/avformat.h], [av_read_frame])
+    METNO_REQUIRE_C_LIBRARY([AVFORMAT], [avformat], [ffmpeg/avformat.h], [av_read_frame], [-lavcodec -lavdevice -lavutil -lz])
 ])
 
 
