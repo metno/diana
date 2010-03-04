@@ -29,7 +29,7 @@ METNO_PROG_PKG_CONFIG
 #
 AC_LANG_PUSH([C])
 
-AC_DEFINE([NOGDI], [], [Hide the Win32 GDI API])
+AS_CASE([$target_os], [mingw32], [CPPFLAGS="${CPPFLAGS} -DNOGDI"])
 
 AC_LANG_POP([C])
 
