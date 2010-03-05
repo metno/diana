@@ -439,7 +439,6 @@ private:
   bool qsocket;
   map<int,bool> autoredraw;
   StationPlot *stationPlot;
-  vector<miutil::miString> currentPlotCommand;
 
   vector<miutil::miString> levelList;
   miutil::miString levelSpec;
@@ -468,7 +467,11 @@ private:
   void vprofStartup();
   void vcrossStartup();
   void spectrumStartup();
-  // Profet methods
+  void getPlotStrings(vector<miutil::miString> &pstr,
+                      vector<miutil::miString> &diagstr,
+                      vector<miutil::miString> &shortnames);
+
+// Profet methods
   bool initProfet();
   bool profetConnect();
   void profetDisconnect();

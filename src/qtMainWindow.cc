@@ -1318,43 +1318,31 @@ void DianaMainWindow::editApply()
   push_command= true;
 }
 
-void DianaMainWindow::MenuOK()
+void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
+                                     vector<miutil::miString> &diagstr,
+                                     vector<miutil::miString> &shortnames)
 {
-#ifdef DEBUGREDRAW
-  cerr<<"DianaMainWindow::MenuOK"<<endl;
-#endif
-
-  vector<miutil::miString> pstr;
-  vector<miutil::miString> diagstr;
-  vector<miutil::miString> shortnames;
-
+  // XXXX???
   levelList.clear();
   levelSpec.clear();
   levelIndex= -1;
 
+  // XXXX???
   idnumList.clear();
   idnumSpec.clear();
   idnumIndex= -1;
 
-  QApplication::setOverrideCursor( Qt::WaitCursor );
-
   // fields
-  pstr= fm->getOKString();
+  pstr = fm->getOKString();
   shortnames.push_back(fm->getShortname());
 
   if (pstr.size()>0) {
     fm->getOKlevels(levelList,levelSpec);
-    int n= levelList.size();
-    int i= 0;
-    while (i<n && levelList[i]!=levelSpec) i++;
-    levelIndex= (i<n) ? i : -1;
-  }
-  if (levelIndex>=0) {
-    toolLevelUpAction->setEnabled(levelIndex < int(levelList.size())-1);
-    toolLevelDownAction->setEnabled(levelIndex>0);
-  } else {
-    toolLevelUpAction->setEnabled(false);
-    toolLevelDownAction->setEnabled(false);
+    const int n = levelList.size();
+    int i = 0;
+    while (i < n && levelList[i] != levelSpec)
+      ++i;
+    levelIndex = (i < n) ? i : -1;
   }
 
   if (pstr.size()>0) {
@@ -1363,13 +1351,6 @@ void DianaMainWindow::MenuOK()
     int i= 0;
     while (i<n && idnumList[i]!=idnumSpec) i++;
     idnumIndex= (i<n) ? i : -1;
-  }
-  if (idnumIndex>=0) {
-    toolIdnumUpAction->setEnabled(idnumIndex < int(idnumList.size())-1);
-    toolIdnumDownAction->setEnabled(idnumIndex>0);
-  } else {
-    toolIdnumUpAction->setEnabled(false);
-    toolIdnumDownAction->setEnabled(false);
   }
 
   // Observations
@@ -1400,19 +1381,52 @@ void DianaMainWindow::MenuOK()
   }
 
   // remove empty lines
-  cerr << "------- the final string from all dialogs:" << endl;
-  for (unsigned i=0; i<pstr.size(); i++){
+  for (unsigned int i = 0; i < pstr.size(); ++i){
     pstr[i].trim();
     if (!pstr[i].exists()){
       pstr.erase(pstr.begin()+i);
-      i--;
+      --i;
       continue;
     }
-    cerr << pstr[i] << endl;
+  }
+}
+
+void DianaMainWindow::MenuOK()
+{
+#ifdef DEBUGREDRAW
+  cerr<<"DianaMainWindow::MenuOK"<<endl;
+#endif
+
+  QApplication::setOverrideCursor( Qt::WaitCursor );
+
+  vector<miutil::miString> pstr;
+  vector<miutil::miString> diagstr;
+  vector<miutil::miString> shortnames;
+
+  getPlotStrings(pstr, diagstr, shortnames);
+
+  if (levelIndex>=0) {
+    toolLevelUpAction->setEnabled(levelIndex < int(levelList.size())-1);
+    toolLevelDownAction->setEnabled(levelIndex>0);
+  } else {
+    toolLevelUpAction->setEnabled(false);
+    toolLevelDownAction->setEnabled(false);
   }
 
-  miutil::miTime t;
-  t= tslider->Value();
+  if (idnumIndex>=0) {
+    toolIdnumUpAction->setEnabled(idnumIndex < int(idnumList.size())-1);
+    toolIdnumDownAction->setEnabled(idnumIndex>0);
+  } else {
+    toolIdnumUpAction->setEnabled(false);
+    toolIdnumDownAction->setEnabled(false);
+  }
+
+  // printout
+  cerr << "------- the final string from all dialogs:" << endl;
+  for (unsigned int i = 0; i < pstr.size(); ++i)
+    cerr << pstr[i] << endl;
+
+  miutil::miTime t = tslider->Value();
   contr->plotCommands(pstr);
   contr->setPlotTime(t);
   contr->updatePlots();
@@ -1423,7 +1437,7 @@ void DianaMainWindow::MenuOK()
   if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
   timeChanged();
-  dialogChanged=false;
+  dialogChanged = false;
 
   // push command on history-stack
   if (push_command){ // only when proper menuok
@@ -1437,8 +1451,6 @@ void DianaMainWindow::MenuOK()
       }
     qm->pushPlot(plotname,pstr);
   }
-
-  currentPlotCommand = pstr;
 
   QApplication::restoreOverrideCursor();
 }
@@ -2530,10 +2542,13 @@ void DianaMainWindow::processLetter(miMessage &letter)
   }
 
   else if (letter.command == qmstrings::getcurrentplotcommand) {
+    vector<miutil::miString> v1, v2, v3;
+    getPlotStrings(v1, v2, v3);
+
     miMessage l;
     l.to = letter.from;
     l.command = qmstrings::currentplotcommand;
-    l.data = currentPlotCommand;
+    l.data = v1;
     sendLetter(l);
     return; // no need to repaint
   }
