@@ -163,282 +163,282 @@ qt_sources = \
 
 
 # header files needed to build
-common_header_sources= diAnnotationPlot.h\
-	diAreaBorder.h\
-	diAreaObjects.h\
-	diCommandParser.h\
-	diCommonTypes.h\
-	diComplexSymbolPlot.h\
-	diContouring.h\
-	diController.h\
-	diDisplayObjects.h\
-	diDrawingTypes.h\
-	diEditManager.h\
-	diEditObjects.h\
-	diEditSpec.h\
-	diFieldEdit.h\
-	diFieldPlot.h\
-	diFieldPlotManager.h\
-	diFilledMap.h\
-	diFontManager.h\
-	diFtnVfile.h\
-	diGridArea.h\
-	diGridAreaManager.h\
-	diHDF5.h\
-	diImageGallery.h\
-	diImageIO.h\
-	diKeys.h\
-	diLegendPlot.h\
-	diLocationPlot.h\
-	diMapManager.h\
-	diMapMode.h\
-	diMapPlot.h\
-	diMItiff.h\
-	diObjectManager.h\
-	diObjectPlot.h\
-	diObjectPoint.h\
-	diObsAireps.h\
-	diObsAscii.h\
-	diObsBufr.h\
-	diObsData.h\
-	diObsDribu.h\
-	diObsManager.h\
-	diObsMetar.h\
-	diObsOcea.h\
-	diObsPilot.h\
-	diObsPlot.h\
-	diObsSatob.h\
-	diObsSynop.h\
-	diObsTemp.h\
-	diObsTide.h\
-	diPlot.h\
-	diPlotModule.h\
-	diPrintOptions.h\
-	diQuickMenues.h\
-	diRadarEchoPlot.h\
-	diSat.h\
-	diSatManager.h\
-	diSatPlot.h\
-	diSetupParser.h\
-	diShapeObject.h\
-	diSpectrumFile.h\
-	diSpectrumManager.h\
-	diSpectrumOptions.h\
-	diSpectrumPlot.h\
-	diStationPlot.h\
-	diTesselation.h\
-	diTimeFilter.h\
-	diTrajectoryPlot.h\
-	diUndoFront.h\
-	diVcrossField.h\
-	diVcrossFile.h\
-	diVcrossManager.h\
-	diVcrossOptions.h\
-	diVcrossPlot.h\
-	diVprofData.h\
-	diVprofDiagram.h\
-	diVprofManager.h\
-	diVprofOptions.h\
-	diVprofPilot.h\
-	diVprofPlot.h\
-	diVprofTables.h\
-	diVprofTemp.h\
-	diWeatherArea.h\
-	diWeatherFront.h\
-	diWeatherObjects.h\
-	diWeatherSymbol.h\
-	MovieMaker.h\
-	polyStipMasks.h\
-	qtAddtoDialog.h\
-	qtAddtoMenu.h\
-	qtAdvancedButton.h\
-	qtAnnoText.h\
-	qtBrowserBox.h\
-	qtButtonLayout.h\
-	qtComplexText.h\
-	qtEditComment.h\
-	qtEditDefineField.h\
-	qtEditDialog.h\
-	qtEditNewDialog.h\
-	qtFieldDialog.h\
-	qtGeoPosLineEdit.h\
-	qtGLwidget.h\
-	qtImageGallery.h\
-	qtLoginDialog.h\
-	qtMailDialog.h\
-	qtMainWindow.h\
-	qtMapDialog.h\
-	qtObjectDialog.h\
-	qtObsDialog.h\
-	qtObsWidget.h\
-	qtPaintToolBar.h\
-	qtPrintManager.h\
-	qtQuickAdmin.h\
-	qtQuickEditOptions.h\
-	qtQuickMenu.h\
-	qtRadarEchoDialog.h\
-	qtSatDialogAdvanced.h\
-	qtSatDialog.h\
-	qtShowSatValues.h\
-	qtSpectrumModelDialog.h\
-	qtSpectrumSetupDialog.h\
-	qtSpectrumWidget.h\
-	qtSpectrumWindow.h\
-	qtStatusGeopos.h\
-	qtStatusPlotButtons.h\
-	qtTextDialog.h\
-	qtTextView.h\
-	qtTimeControl.h\
-	qtTimeSlider.h\
-	qtTimeSpinbox.h\
-	qtTimeStepSpinbox.h\
-	qtToggleButton.h\
-	qtTrajectoryDialog.h\
-	qtUffdaDialog.h\
-	qtUtility.h\
-	qtVcrossDialog.h\
-	qtVcrossSetupDialog.h\
-	qtVcrossSetup.h\
-	qtVcrossWidget.h\
-	qtVcrossWindow.h\
-	qtVprofModelDialog.h\
-	qtVprofSetupDialog.h\
-	qtVprofWidget.h\
-	qtVprofWindow.h\
-	qtWorkArea.h\
+common_header_sources= diAnnotationPlot.h \
+	diAreaBorder.h \
+	diAreaObjects.h \
+	diCommandParser.h \
+	diCommonTypes.h \
+	diComplexSymbolPlot.h \
+	diContouring.h \
+	diController.h \
+	diDisplayObjects.h \
+	diDrawingTypes.h \
+	diEditManager.h \
+	diEditObjects.h \
+	diEditSpec.h \
+	diFieldEdit.h \
+	diFieldPlot.h \
+	diFieldPlotManager.h \
+	diFilledMap.h \
+	diFontManager.h \
+	diFtnVfile.h \
+	diGridArea.h \
+	diGridAreaManager.h \
+	diHDF5.h \
+	diImageGallery.h \
+	diImageIO.h \
+	diKeys.h \
+	diLegendPlot.h \
+	diLocationPlot.h \
+	diMapManager.h \
+	diMapMode.h \
+	diMapPlot.h \
+	diMItiff.h \
+	diObjectManager.h \
+	diObjectPlot.h \
+	diObjectPoint.h \
+	diObsAireps.h \
+	diObsAscii.h \
+	diObsBufr.h \
+	diObsData.h \
+	diObsDribu.h \
+	diObsManager.h \
+	diObsMetar.h \
+	diObsOcea.h \
+	diObsPilot.h \
+	diObsPlot.h \
+	diObsSatob.h \
+	diObsSynop.h \
+	diObsTemp.h \
+	diObsTide.h \
+	diPlot.h \
+	diPlotModule.h \
+	diPrintOptions.h \
+	diQuickMenues.h \
+	diRadarEchoPlot.h \
+	diSat.h \
+	diSatManager.h \
+	diSatPlot.h \
+	diSetupParser.h \
+	diShapeObject.h \
+	diSpectrumFile.h \
+	diSpectrumManager.h \
+	diSpectrumOptions.h \
+	diSpectrumPlot.h \
+	diStationPlot.h \
+	diTesselation.h \
+	diTimeFilter.h \
+	diTrajectoryPlot.h \
+	diUndoFront.h \
+	diVcrossField.h \
+	diVcrossFile.h \
+	diVcrossManager.h \
+	diVcrossOptions.h \
+	diVcrossPlot.h \
+	diVprofData.h \
+	diVprofDiagram.h \
+	diVprofManager.h \
+	diVprofOptions.h \
+	diVprofPilot.h \
+	diVprofPlot.h \
+	diVprofTables.h \
+	diVprofTemp.h \
+	diWeatherArea.h \
+	diWeatherFront.h \
+	diWeatherObjects.h \
+	diWeatherSymbol.h \
+	MovieMaker.h \
+	polyStipMasks.h \
+	qtAddtoDialog.h \
+	qtAddtoMenu.h \
+	qtAdvancedButton.h \
+	qtAnnoText.h \
+	qtBrowserBox.h \
+	qtButtonLayout.h \
+	qtComplexText.h \
+	qtEditComment.h \
+	qtEditDefineField.h \
+	qtEditDialog.h \
+	qtEditNewDialog.h \
+	qtFieldDialog.h \
+	qtGeoPosLineEdit.h \
+	qtGLwidget.h \
+	qtImageGallery.h \
+	qtLoginDialog.h \
+	qtMailDialog.h \
+	qtMainWindow.h \
+	qtMapDialog.h \
+	qtObjectDialog.h \
+	qtObsDialog.h \
+	qtObsWidget.h \
+	qtPaintToolBar.h \
+	qtPrintManager.h \
+	qtQuickAdmin.h \
+	qtQuickEditOptions.h \
+	qtQuickMenu.h \
+	qtRadarEchoDialog.h \
+	qtSatDialogAdvanced.h \
+	qtSatDialog.h \
+	qtShowSatValues.h \
+	qtSpectrumModelDialog.h \
+	qtSpectrumSetupDialog.h \
+	qtSpectrumWidget.h \
+	qtSpectrumWindow.h \
+	qtStatusGeopos.h \
+	qtStatusPlotButtons.h \
+	qtTextDialog.h \
+	qtTextView.h \
+	qtTimeControl.h \
+	qtTimeSlider.h \
+	qtTimeSpinbox.h \
+	qtTimeStepSpinbox.h \
+	qtToggleButton.h \
+	qtTrajectoryDialog.h \
+	qtUffdaDialog.h \
+	qtUtility.h \
+	qtVcrossDialog.h \
+	qtVcrossSetupDialog.h \
+	qtVcrossSetup.h \
+	qtVcrossWidget.h \
+	qtVcrossWindow.h \
+	qtVprofModelDialog.h \
+	qtVprofSetupDialog.h \
+	qtVprofWidget.h \
+	qtVprofWindow.h \
+	qtWorkArea.h \
 	signalhelper.h
 
 # xpm files needed to build
-common_xpm_sources= active_object.xpm\
-	autoupdate.xpm\
-	back.xpm\
-	bakover.xpm\
-	balloon.xpm\
-	blocks.xpm\
-	bookmark.xpm\
-	clock.xpm\
-	convert.xpm\
-	custom_user.xpm\
-	dialoger.xpm\
-	diana_icon.xpm\
-	directory.xpm\
-	dnmi.xpm\
-	down12x12.xpm\
-	down12x14.xpm\
-	down20x20.xpm\
-	down32x24.xpm\
-	earth3.xpm\
-	editcopy.xpm\
-	editcut.xpm\
-	edit_lock_value.xpm\
-	editmode.xpm\
-	edit_open_value.xpm\
-	editpaste.xpm\
-	editundo.xpm\
-	exit.xpm\
-	face_grin.xpm\
-	felt.xpm\
-	fet_object_fog.xpm\
-	fet_object_normal.xpm\
-	fet_object_p.xpm\
-	fet_object_rain.xpm\
-	fet_object_sky.xpm\
-	fet_object_tmp.xpm\
-	fet_object_wave.xpm\
-	fet_object_wind.xpm\
-	filenew.xpm\
-	fileopen.xpm\
-	fileprint.xpm\
-	filesave.xpm\
-	forover.xpm\
-	forward.xpm\
-	front.xpm\
-	idnumDown.xpm\
-	idnumUp.xpm\
-	inactive_object.xpm\
-	info.xpm\
-	kill.xpm\
-	levelDown.xpm\
-	levelUp.xpm\
-	linear_copy.xpm\
-	linear_down.xpm\
-	linear_remove.xpm\
-	locked_bookmark.xpm\
-	locked_directory.xpm\
-	loop.xpm\
-	magnify2.xpm\
-	metno_sort_txt.xpm\
-	minus12x12.xpm\
-	multiple_users.xpm\
-	no_object.xpm\
-	paint_add_crusor.xpm\
-	paint_add_point.xpm\
-	paint_color.xpm\
-	paint_cursor.xpm\
-	paint_cut.xpm\
-	paint_delete.xpm\
-	paint_draw.xpm\
-	paint_forbidden_crusor.xpm\
-	paint_help.xpm\
-	paint_hide.xpm\
-	paint_include.xpm\
-	paint_mode.xpm\
-	paint_move_point.xpm\
-	paint_move.xpm\
-	paint_new.xpm\
-	paint_redo.xpm\
-	paint_remove_crusor.xpm\
-	paint_remove_point.xpm\
-	paint_select.xpm\
-	paint_spatial.xpm\
-	paint_undo.xpm\
-	parent_object.xpm\
-	pencil2.xpm\
-	pick.xpm\
-	preferences.xpm\
-	private_directory.xpm\
-	question.xpm\
-	rade.xpm\
-	redo.xpm\
-	revert.xpm\
-	Robot.xpm\
-	run_smooth.xpm\
-	sat.xpm\
-	session_deployed.xpm\
-	session_finalize.xpm\
-	session_lock.xpm\
-	session_open.xpm\
-	session_operational.xpm\
-	shuttle.xpm\
-	single_remove.xpm\
-	slutt.xpm\
-	small_metno_sort.xpm\
-	spectrum.xpm\
-	start.xpm\
-	stopp.xpm\
-	sun2.xpm\
-	synop_red.xpm\
-	synop.xpm\
-	tb_close.xpm\
-	tb_left_arrow.xpm\
-	tb_print.xpm\
-	tb_right_arrow.xpm\
-	thumbs_down.xpm\
-	thumbs_up.xpm\
-	Tool_32_draw.xpm\
-	traj.xpm\
-	trashcan.xpm\
-	undo.xpm\
-	up12x12.xpm\
-	up12x14.xpm\
-	up20x20.xpm\
-	up32x24.xpm\
-	user_admin.xpm\
-	user.xpm\
-	vcross.xpm\
-	vprof_normal.xpm\
-	vprof_selected.xpm\
-	weather_rain.xpm\
+common_xpm_sources= active_object.xpm \
+	autoupdate.xpm \
+	back.xpm \
+	bakover.xpm \
+	balloon.xpm \
+	blocks.xpm \
+	bookmark.xpm \
+	clock.xpm \
+	convert.xpm \
+	custom_user.xpm \
+	dialoger.xpm \
+	diana_icon.xpm \
+	directory.xpm \
+	dnmi.xpm \
+	down12x12.xpm \
+	down12x14.xpm \
+	down20x20.xpm \
+	down32x24.xpm \
+	earth3.xpm \
+	editcopy.xpm \
+	editcut.xpm \
+	edit_lock_value.xpm \
+	editmode.xpm \
+	edit_open_value.xpm \
+	editpaste.xpm \
+	editundo.xpm \
+	exit.xpm \
+	face_grin.xpm \
+	felt.xpm \
+	fet_object_fog.xpm \
+	fet_object_normal.xpm \
+	fet_object_p.xpm \
+	fet_object_rain.xpm \
+	fet_object_sky.xpm \
+	fet_object_tmp.xpm \
+	fet_object_wave.xpm \
+	fet_object_wind.xpm \
+	filenew.xpm \
+	fileopen.xpm \
+	fileprint.xpm \
+	filesave.xpm \
+	forover.xpm \
+	forward.xpm \
+	front.xpm \
+	idnumDown.xpm \
+	idnumUp.xpm \
+	inactive_object.xpm \
+	info.xpm \
+	kill.xpm \
+	levelDown.xpm \
+	levelUp.xpm \
+	linear_copy.xpm \
+	linear_down.xpm \
+	linear_remove.xpm \
+	locked_bookmark.xpm \
+	locked_directory.xpm \
+	loop.xpm \
+	magnify2.xpm \
+	metno_sort_txt.xpm \
+	minus12x12.xpm \
+	multiple_users.xpm \
+	no_object.xpm \
+	paint_add_crusor.xpm \
+	paint_add_point.xpm \
+	paint_color.xpm \
+	paint_cursor.xpm \
+	paint_cut.xpm \
+	paint_delete.xpm \
+	paint_draw.xpm \
+	paint_forbidden_crusor.xpm \
+	paint_help.xpm \
+	paint_hide.xpm \
+	paint_include.xpm \
+	paint_mode.xpm \
+	paint_move_point.xpm \
+	paint_move.xpm \
+	paint_new.xpm \
+	paint_redo.xpm \
+	paint_remove_crusor.xpm \
+	paint_remove_point.xpm \
+	paint_select.xpm \
+	paint_spatial.xpm \
+	paint_undo.xpm \
+	parent_object.xpm \
+	pencil2.xpm \
+	pick.xpm \
+	preferences.xpm \
+	private_directory.xpm \
+	question.xpm \
+	rade.xpm \
+	redo.xpm \
+	revert.xpm \
+	Robot.xpm \
+	run_smooth.xpm \
+	sat.xpm \
+	session_deployed.xpm \
+	session_finalize.xpm \
+	session_lock.xpm \
+	session_open.xpm \
+	session_operational.xpm \
+	shuttle.xpm \
+	single_remove.xpm \
+	slutt.xpm \
+	small_metno_sort.xpm \
+	spectrum.xpm \
+	start.xpm \
+	stopp.xpm \
+	sun2.xpm \
+	synop_red.xpm \
+	synop.xpm \
+	tb_close.xpm \
+	tb_left_arrow.xpm \
+	tb_print.xpm \
+	tb_right_arrow.xpm \
+	thumbs_down.xpm \
+	thumbs_up.xpm \
+	Tool_32_draw.xpm \
+	traj.xpm \
+	trashcan.xpm \
+	undo.xpm \
+	up12x12.xpm \
+	up12x14.xpm \
+	up20x20.xpm \
+	up32x24.xpm \
+	user_admin.xpm \
+	user.xpm \
+	vcross.xpm \
+	vprof_normal.xpm \
+	vprof_selected.xpm \
+	weather_rain.xpm \
 	weather_storm.xpm
 
 
@@ -500,7 +500,7 @@ endif
 if WITH_ROADOBS
 common_cppflags += -DROADOBS
 common_cxx_sources += \
-	diObsRoad.cc\
+	diObsRoad.cc \
 	diVprofRTemp.cc
 common_ldflags += \
 	${ROADAPI_LDFLAGS}
