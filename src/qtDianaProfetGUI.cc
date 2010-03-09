@@ -326,6 +326,9 @@ void DianaProfetGUI::resetStatus()
   sessionModel.clearModel();
   objectModel.clearModel();
   tableModel.clearModel();
+  vector<miutil::miTime> notimes;
+  emit emitTimes("product", notimes);
+
 }
 
 void DianaProfetGUI::setParameters(const vector<fetParameter>& vp){
