@@ -105,6 +105,10 @@ bool MapPlot::prepare(const miString& pinfo, bool ifequal)
       } else if (stokens[0].upcase()=="AREA") {
         mapm.getMapAreaByName(stokens[1], newarea);
         areadef= true;
+      } else if (stokens[0].upcase() == "PROJECTION") {
+        newarea.setArea(stokens[1]);
+        xyLimit.clear();
+        areadef = true;
       } else if (stokens[0].upcase()=="XYLIMIT") {
         vector<miString> vstr= stokens[1].split(',');
         if (vstr.size()>=4) {
