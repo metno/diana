@@ -653,6 +653,7 @@ bdiana_SOURCES = \
 	$(common_c_sources) \
 	$(common_cxx_sources) \
 	bdiana.cc \
+	orderbook.cc \
 	signalhelper.cc
 bdiana_CPPFLAGS = $(common_cppflags)
 bdiana_LDFLAGS = $(common_ldflags)
