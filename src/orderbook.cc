@@ -37,6 +37,7 @@
 #include <sys/socket.h>
 
 #include <errno.h>
+#include <string.h>
 #include <netdb.h>
 
 #include <iostream>
