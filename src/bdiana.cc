@@ -33,11 +33,19 @@
 #include "config.h"
 #endif
 
-#include <QApplication>
-#include <QGLPixelBuffer>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <ctype.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include <fstream>
 #include <iostream>
+
+#include <QApplication>
+#include <QGLPixelBuffer>
 
 #include <diController.h>
 #ifdef USE_XLIB
@@ -47,6 +55,7 @@
 #include <GL/glu.h>
 #endif
 
+#include <puCtools/sleep.h>
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <diSetupParser.h>
@@ -54,7 +63,6 @@
 #include <diFontManager.h>
 #include <diImageIO.h>
 #include <puCtools/glob.h>
-#include <unistd.h>
 
 #include <diVcrossManager.h>
 #include <diVcrossPlot.h>
@@ -70,17 +78,7 @@
 # include <MovieMaker.h>
 #endif
 
-#include <config.h>
-
-/*
- Signals..
- */
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <signalhelper.h>
-#include <ctype.h>
-#include <signal.h>
 
 /* Created at Wed May 23 15:28:41 2001 */
 
@@ -1840,7 +1838,7 @@ int parseAndProcess(const miString& file)
         number_of_files = globBuf.gl_pathc;
         if (number_of_files == 0) {
           globfree(&globBuf);
-          sleep(1);
+          pu_sleep(1);
         }
       }
 
@@ -2606,12 +2604,24 @@ int dispatchWork(const std::string &file)
 
   // if fifo name set, write response to fifo
   if (!fifo_name.empty()) {
-    int fd = open(fifo_name.c_str(), O_WRONLY| O_NONBLOCK );
-
+    int fd = open(fifo_name.c_str(), O_WRONLY);
     if (fd == -1) {
       cerr << "ERROR, can't open the fifo <" << fifo_name << ">!" << endl;
       goto ERROR;
     }
+    do {
+#ifdef WIN32
+      unsigned long o_nonblock = 1;
+      bool ok = (ioctlsocket(fd, FIONBIO, &o_nonblock) != SOCKET_ERROR);
+#else
+      bool ok = (fcntl(fd, F_SETFL, O_NONBLOCK) == -1);
+#endif
+      if (!ok) {
+	cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
+	close(fd);
+	goto ERROR;
+      }
+    } while (0);
 
     char buf[1];
     buf[0] = 'r';
