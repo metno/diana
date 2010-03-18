@@ -12,7 +12,6 @@ CLEANFILES =
 common_cppflags += -I$(prefix)/include
 common_ldflags += -L$(prefix)/lib
 
-
 # doesn't build cleanly with log4cxx
 common_cppflags += -DNOLOG4CXX
 
@@ -451,7 +450,6 @@ common_cppflags += \
 	$(GLP_CPPFLAGS) \
 	$(GLTEXT_CPPFLAGS) \
 	$(PUDATATYPES_CPPFLAGS) \
-	$(QT4_CPPFLAGS) \
 	$(QUTILITIES_CPPFLAGS) \
 	$(ROBS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
@@ -467,7 +465,6 @@ common_ldflags += \
 	$(GLP_LDFLAGS) \
 	$(GLTEXT_LDFLAGS) \
 	$(PUDATATYPES_LDFLAGS) \
-	$(QT4_LDFLAGS) \
 	$(QUTILITIES_LDFLAGS) \
 	$(ROBS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
@@ -483,7 +480,6 @@ common_ldadd += \
 	$(GLP_LIBS) \
 	$(GLTEXT_LIBS) \
 	$(PUDATATYPES_LIBS) \
-	$(QT4_LIBS) \
 	$(QUTILITIES_LIBS) \
 	$(ROBS_LIBS) \
 	$(SHP_LIBS) \
@@ -602,7 +598,7 @@ endif
 # Additional source code for video export feature
 if WITH_VIDEO_EXPORT
 common_cxx_sources += MovieMaker.cc
-common_cppflags += -DVIDEO_EXPORT
+common_cppflags += -DVIDEO_EXPORT $(AVFORMAT_CPPFLAGS)
 common_ldflags += $(AVFORMAT_LDFLAGS)
 common_ldadd += $(AVFORMAT_LIBS)
 endif
@@ -629,6 +625,21 @@ CLEANFILES += $(nodist_language_DATA)
 	$(LUPDATE4)  $(qt_sources) -ts $< ; \
 	$(LRELEASE4)  $<
 
+# Problem:
+#
+#  - zlib is used by several other libraries, so it must come last
+#  - QtCore contains a complete copy of zlib
+#  - hence, we can not link with *both* Qt *and* zlib
+#  - therefore, we link with Qt only, and place it at the end.
+#
+common_cppflags += $(QT4_CPPFLAGS)
+common_ldflags += $(QT4_LDFLAGS)
+common_ldadd += $(QT4_LIBS)
+
+# Win32 support
+common_cppflags += $(WIN32_CPPFLAGS)
+common_ldflags += $(WIN32_LDFLAGS)
+common_ldadd += $(WIN32_LIBS)
 
 # Full set of source code for diana
 diana_bin_SOURCES = \
@@ -646,7 +657,6 @@ diana_bin_SOURCES = \
 # moc files are not going into make dist
 nodist_diana_bin_SOURCES = $(moc_sources)
 
-
 diana_bin_CPPFLAGS = $(common_cppflags)
 diana_bin_LDFLAGS = $(common_ldflags)
 diana_bin_LDADD = $(common_ldadd)
@@ -658,12 +668,10 @@ bdiana_SOURCES = \
 	bdiana.cc \
 	orderbook.cc \
 	signalhelper.cc
+
 bdiana_CPPFLAGS = $(common_cppflags)
 bdiana_LDFLAGS = $(common_ldflags)
 bdiana_LDADD = $(common_ldadd)
-
-
-
 
 # Generated header
 main_gui.cc: diBuild.h

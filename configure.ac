@@ -25,11 +25,17 @@ AC_PROG_MAKE_SET
 METNO_PROG_PKG_CONFIG
 
 #
+# Win32 support
+#
+METNO_WIN32([0x0501])
+METNO_WIN32_NO_GDI
+METNO_WIN32_NO_UNICODE
+METNO_WIN32_WINSOCK
+
+#
 # C
 #
 AC_LANG_PUSH([C])
-
-AS_CASE([$target_os], [mingw32], [CPPFLAGS="${CPPFLAGS} -DNOGDI"])
 
 AC_LANG_POP([C])
 
@@ -170,7 +176,6 @@ AS_IF([test x$enable_obs_bufr = xyes], [
 # creating bin/diana from bin/diana.in - substituting test stuff
 AC_SUBST([program_suffix])
 AC_CONFIG_FILES([bin/diana])
-
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
