@@ -455,6 +455,7 @@ common_cppflags += \
 	$(QUTILITIES_CPPFLAGS) \
 	$(ROBS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
+	$(PNG_CPPFLAGS) \
 	$(UU_CPPFLAGS)
 
 common_ldflags += \
@@ -470,6 +471,7 @@ common_ldflags += \
 	$(QUTILITIES_LDFLAGS) \
 	$(ROBS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
+	$(PNG_LDFLAGS) \
 	$(UU_LDFLAGS)
 
 common_ldadd += \
@@ -485,6 +487,7 @@ common_ldadd += \
 	$(QUTILITIES_LIBS) \
 	$(ROBS_LIBS) \
 	$(SHP_LIBS) \
+	$(PNG_LIBS) \
 	$(UU_LIBS)
 
 # Additional source code for NetCDF support

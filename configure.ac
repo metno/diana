@@ -150,9 +150,10 @@ METNO_REQUIRE_QT4([
 
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
+    METNO_REQUIRE_C_LIBRARY([ZLIB], [z], [zlib.h], [zlibVersion])
+    METNO_REQUIRE_C_LIBRARY([PNG], [png], [png.h], [png_init_io], [${ZLIB_LIBS}])
     METNO_REQUIRE_AVFORMAT
 ])
-
 
 # shapefile
 METNO_REQUIRE_C_LIBRARY([SHP], [shp], [], [SHPOpen])
