@@ -34,11 +34,19 @@
 #endif
 
 #include <sys/types.h>
+
+#ifdef WIN32
+#include <io.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <sys/socket.h>
+#include <netdb.h>
+#endif
 
 #include <errno.h>
 #include <string.h>
-#include <netdb.h>
+#include <unistd.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -83,9 +91,10 @@ OrderBook::addListenAddress(const char *addr, const char *port)
 	hints.ai_flags = AI_CANONNAME | AI_PASSIVE;
 	ret = getaddrinfo(addr, port, &hints, &ais);
 	if (ret != 0) {
+		std::string errmsg(gai_strerror(ret));
 		std::cerr << "getaddrinfo(): " << addr <<
-		    ": " << gai_strerror(ret) << std::endl;
-		throw std::runtime_error(gai_strerror(ret));
+		    ": " << errmsg << std::endl;
+		throw std::runtime_error(errmsg);
 	}
 	for (ai = ais; ai != NULL; ai = ai->ai_next) {
 		sd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
