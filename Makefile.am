@@ -4,10 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 -include mk/debian.mk
 
-SUBDIRS = src
-
-bdir= $(bindir)
-dist_b_SCRIPTS = bin/diana
+SUBDIRS = src bin
 
 etcdir = $(sysconfdir)/$(APP)
 dist_etc_DATA = etc/diana/diana.setup
