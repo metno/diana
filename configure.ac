@@ -178,5 +178,6 @@ AC_SUBST([program_suffix])
 AC_CONFIG_FILES([bin/diana])
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_OUTPUT
