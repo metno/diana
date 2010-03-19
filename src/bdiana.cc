@@ -467,7 +467,7 @@ void unpackinput(vector<miString>& orig, // original setup
   }
 }
 
-int prepareInput(const miString& filename)
+int prepareInput(istream &is)
 {
   unsigned int linenum = 0;
   //   if ( tmplinenumbers.size() > 0 )
@@ -489,14 +489,7 @@ int prepareInput(const miString& filename)
    - merge lines (ending with \)
    */
 
-  // open batchinput
-  ifstream bfile(filename.cStr());
-  if (!bfile) {
-    cerr << "ERROR, cannot open inputfile " << filename << endl;
-    return 1;
-  }
-
-  while (getline(bfile, s)) {
+  while (getline(is, s)) {
     linenum++;
     cleanstr(s);
     n = s.length();
@@ -1172,12 +1165,10 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
-int parseAndProcess(const miString& file)
+int parseAndProcess(istream &is)
 {
-  if (verbose)
-    cerr << "parse and process file:" << file << endl;
   // unpack loops, make lists, merge lines etc.
-  int res = prepareInput(file);
+  int res = prepareInput(is);
   if (res != 0)
     return res;
 
@@ -2481,9 +2472,16 @@ int main(int argc, char** argv)
   /*
    Read initial input and process commands...
    */
-  int res = parseAndProcess(batchinput);
-  if (res != 0)
-    return 99;
+  do {
+    ifstream is(batchinput.c_str());
+    if (!is) {
+      cerr << "ERROR, cannot open inputfile " << batchinput << endl;
+      return 99;
+    }
+    int res = parseAndProcess(is);
+    if (res != 0)
+      return 99;
+  } while (0);
 
   /*
    Signal handling
@@ -2556,7 +2554,6 @@ int main(int argc, char** argv)
 
   return 0;
 }
-;
 
 /*
  SIGNAL HANDLING ROUTINES
@@ -2595,7 +2592,12 @@ void doWork()
 int dispatchWork(const std::string &file)
 {
   // commands in file
-  int res = parseAndProcess(file);
+  ifstream is(file.c_str());
+  if (!is) {
+    cerr << "ERROR, cannot open inputfile " << batchinput << endl;
+    return 99;
+  }
+  int res = parseAndProcess(is);
   if (res != 0)
     return 99;
 
