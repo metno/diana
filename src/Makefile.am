@@ -103,6 +103,8 @@ common_cxx_sources = \
 	diWeatherSymbol.cc
 
 # Qt sources
+common_qt_sources =
+
 diana_qt_sources = \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
@@ -160,8 +162,6 @@ diana_qt_sources = \
 	qtWorkArea.cc
 
 bdiana_qt_sources =
-
-qt_sources = $(diana_qt_sources) $(bdiana_qt_sources)
 
 noinst_HEADERS = \
 	diAnnotationPlot.h \
@@ -611,8 +611,10 @@ common_cppflags += -DUSE_XLIB
 endif
 
 # Generated Qt source code - diana
-moc_sources = $(qt_sources:.cc=.moc.cc)
-CLEANFILES += $(moc_sources)
+common_moc_sources = $(common_qt_sources:.cc=.moc.cc)
+diana_moc_sources = $(diana_qt_sources:.cc=.moc.cc)
+bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
+CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources)
 %.moc.cc: %.h
 	$(MOC4) -o $@ $<
 
@@ -655,8 +657,9 @@ diana_bin_SOURCES = \
 	qtPrintManager.cc \
 	qtUtility.cc
 
-# moc files are not going into make dist
-nodist_diana_bin_SOURCES = $(moc_sources)
+nodist_diana_bin_SOURCES = \
+	$(common_moc_sources) \
+	$(diana_moc_sources)
 
 diana_bin_CPPFLAGS = $(common_cppflags)
 diana_bin_LDFLAGS = $(common_ldflags)
@@ -669,6 +672,10 @@ bdiana_SOURCES = \
 	$(bdiana_qt_sources) \
 	bdiana.cc \
 	signalhelper.cc
+
+nodist_bdiana_bin_SOURCES = \
+	$(common_moc_sources) \
+	$(bdiana_moc_sources)
 
 bdiana_CPPFLAGS = $(common_cppflags)
 bdiana_LDFLAGS = $(common_ldflags)
