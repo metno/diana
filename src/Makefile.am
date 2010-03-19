@@ -673,7 +673,7 @@ bdiana_SOURCES = \
 	bdiana.cc \
 	signalhelper.cc
 
-nodist_bdiana_bin_SOURCES = \
+nodist_bdiana_SOURCES = \
 	$(common_moc_sources) \
 	$(bdiana_moc_sources)
 
