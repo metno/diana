@@ -102,8 +102,8 @@ common_cxx_sources = \
 	diWeatherObjects.cc \
 	diWeatherSymbol.cc
 
-# Qt sources - diana only
-qt_sources = \
+# Qt sources
+diana_qt_sources = \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAdvancedButton.cc \
@@ -159,10 +159,12 @@ qt_sources = \
 	qtVprofWindow.cc \
 	qtWorkArea.cc
 
+bdiana_qt_sources =
 
+qt_sources = $(diana_qt_sources) $(bdiana_qt_sources)
 
-# header files needed to build
-common_header_sources= diAnnotationPlot.h \
+noinst_HEADERS = \
+	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
 	diCommandParser.h \
@@ -558,7 +560,7 @@ endif
 if WITH_PROFET
 common_cxx_sources += \
 	diProfetObjectFactory.cc
-common_header_sources += \
+noinst_HEADERS += \
 	qtPolygonBookmarkDialog.h \
 	qtPolygonBookmarkModel.h \
 	diProfetObjectFactory.h \
@@ -574,7 +576,7 @@ common_header_sources += \
 	qtProfetWaitDialog.h
 common_xpm_sources += \
 	profet.xpm
-qt_sources += \
+diana_qt_sources += \
 	qtProfetSessionDialog.cc \
 	qtProfetObjectDialog.cc \
 	qtDianaProfetGUI.cc \
@@ -645,8 +647,7 @@ common_ldadd += $(WIN32_LIBS)
 diana_bin_SOURCES = \
 	$(common_c_sources) \
 	$(common_cxx_sources) \
-	$(qt_sources) \
-	$(common_header_sources) \
+	$(diana_qt_sources) \
 	$(common_xpm_sources) \
 	$(language_sources) \
 	main_gui.cc \
@@ -665,8 +666,8 @@ diana_bin_LDADD = $(common_ldadd)
 bdiana_SOURCES = \
 	$(common_c_sources) \
 	$(common_cxx_sources) \
+	$(bdiana_qt_sources) \
 	bdiana.cc \
-	orderbook.cc \
 	signalhelper.cc
 
 bdiana_CPPFLAGS = $(common_cppflags)
