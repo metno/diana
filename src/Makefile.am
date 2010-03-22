@@ -161,9 +161,14 @@ diana_qt_sources = \
 	qtVprofWindow.cc \
 	qtWorkArea.cc
 
-bdiana_qt_sources =
+bdiana_qt_sources = \
+	diOrderBook.cc \
+	diOrderClient.cc \
+	diOrderListener.cc \
+	diWorkOrder.cc
 
 noinst_HEADERS = \
+	MovieMaker.h \
 	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
@@ -191,10 +196,10 @@ noinst_HEADERS = \
 	diKeys.h \
 	diLegendPlot.h \
 	diLocationPlot.h \
+	diMItiff.h \
 	diMapManager.h \
 	diMapMode.h \
 	diMapPlot.h \
-	diMItiff.h \
 	diObjectManager.h \
 	diObjectPlot.h \
 	diObjectPoint.h \
@@ -212,6 +217,9 @@ noinst_HEADERS = \
 	diObsSynop.h \
 	diObsTemp.h \
 	diObsTide.h \
+	diOrderBook.h \
+	diOrderClient.h \
+	diOrderListener.h \
 	diPlot.h \
 	diPlotModule.h \
 	diPrintOptions.h \
@@ -248,7 +256,7 @@ noinst_HEADERS = \
 	diWeatherFront.h \
 	diWeatherObjects.h \
 	diWeatherSymbol.h \
-	MovieMaker.h \
+	diWorkOrder.h \
 	polyStipMasks.h \
 	qtAddtoDialog.h \
 	qtAddtoMenu.h \
@@ -262,8 +270,8 @@ noinst_HEADERS = \
 	qtEditDialog.h \
 	qtEditNewDialog.h \
 	qtFieldDialog.h \
-	qtGeoPosLineEdit.h \
 	qtGLwidget.h \
+	qtGeoPosLineEdit.h \
 	qtImageGallery.h \
 	qtLoginDialog.h \
 	qtMailDialog.h \
@@ -278,8 +286,8 @@ noinst_HEADERS = \
 	qtQuickEditOptions.h \
 	qtQuickMenu.h \
 	qtRadarEchoDialog.h \
-	qtSatDialogAdvanced.h \
 	qtSatDialog.h \
+	qtSatDialogAdvanced.h \
 	qtShowSatValues.h \
 	qtSpectrumModelDialog.h \
 	qtSpectrumSetupDialog.h \
@@ -298,8 +306,8 @@ noinst_HEADERS = \
 	qtUffdaDialog.h \
 	qtUtility.h \
 	qtVcrossDialog.h \
-	qtVcrossSetupDialog.h \
 	qtVcrossSetup.h \
+	qtVcrossSetupDialog.h \
 	qtVcrossWidget.h \
 	qtVcrossWindow.h \
 	qtVprofModelDialog.h \
@@ -707,3 +715,20 @@ CLEANFILES += diBuild.h
 # simply assume that a working version of the BSD "install" utility is
 # in PATH.
 INSTALL = install -p
+
+
+noinst_PROGRAMS = \
+	test-diOrderBook
+
+test_diOrderBook_qt_sources = \
+	diOrderBook.cc \
+	diOrderListener.cc \
+	diOrderClient.cc \
+	diWorkOrder.cc
+test_diOrderBook_SOURCES = \
+	$(test_diOrderBook_qt_sources) \
+	$(test_diOrderBook_qt_sources:.cc=.moc.cc) \
+	test-diOrderBook.cc
+test_diOrderBook_CPPFLAGS = $(QT4_CPPFLAGS)
+test_diOrderBook_LDFLAGS = $(QT4_LDFLAGS)
+test_diOrderBook_LDADD = $(QT4_LIBS)
