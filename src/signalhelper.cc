@@ -35,10 +35,18 @@
 
 #include <sys/types.h>
 
+#ifdef __WIN32__
+#include <winsock.h>
+#else
+#include <sys/select.h>
+#endif
+
 #include <errno.h>
 #include <signal.h>
 
 #include <iostream>
+
+#include <puCtools/sleep.h>
 
 #include "signalhelper.h"
 
@@ -59,16 +67,24 @@ int
 signalInit()
 {
 
-	signal(SIGALRM, sig_func);
 	signal(SIGINT, sig_func);
 	signal(SIGTERM, sig_func);
+#ifndef __WIN32__
+	signal(SIGALRM, sig_func);
 	signal(SIGUSR1, sig_func);
+#endif
 	return 0;
 }
 
 int
 waitOnSignal(int timeout_in_seconds, bool &timeout)
 {
+#ifdef __WIN32__
+	// dummy
+	pu_sleep(timeout_in_seconds);
+	timeout = true;
+	return 0;
+#else
 	int ret = -1;
 	sigset_t mask, oldmask;
 
@@ -78,8 +94,10 @@ waitOnSignal(int timeout_in_seconds, bool &timeout)
 
 	sigaddset(&mask, SIGALRM);
 	sigaddset(&mask, SIGINT);
+#ifndef WIN32
 	sigaddset(&mask, SIGTERM);
 	sigaddset(&mask, SIGUSR1);
+#endif
 
 	if (sigprocmask(SIG_BLOCK, &mask, &oldmask) < 0)
 		return -1;
@@ -108,6 +126,7 @@ waitOnSignal(int timeout_in_seconds, bool &timeout)
 	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 
 	return ret;
+#endif
 }
 
 int
@@ -159,16 +178,20 @@ static void
 sig_func(int i)
 {
 	switch (i) {
+#ifndef WIN32
 	case SIGUSR1:
 		sigUsr1 = 1;
 		break;
+#endif
 	case SIGINT:
 	case SIGTERM:
 		sigTerm = 1;
 		break;
+#ifndef WIN32
 	case SIGALRM:
 		sigAlarm = 1;
 		break;
+#endif
 	default:
 		break;
 	}
