@@ -49,7 +49,27 @@ private slots:
 	void clientStateChanged(QAbstractSocket::SocketState state);
 
 private:
+	void message(const QString &kw, const QString &msg);
+	void hello();
+	void error(const QString &msg);
+
+	enum OrderState {
+		idle = 0,
+		reading = 1,
+		pending = 2,
+		complete = 3,
+	};
+
+	static const QString kw_hello;
+	static const QString kw_error;
+	static const QString kw_start_order_text;
+	static const QString kw_start_order_base64;
+	static const QString kw_end_order;
+
 	QTcpSocket *socket;
+	QByteArray orderbuf;
+	OrderState state;
+	bool base64;
 };
 
 #endif
