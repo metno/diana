@@ -4,10 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 -include mk/debian.mk
 
-SUBDIRS = src bin
-
-etcdir = $(sysconfdir)/$(APP)
-dist_etc_DATA = etc/diana/diana.setup
+SUBDIRS = src bin etc
 
 pixmapsdir= $(datarootdir)/pixmaps
 dist_pixmaps_DATA= share/pixmaps/$(APP).png 

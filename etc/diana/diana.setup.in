@@ -34,10 +34,10 @@
 #----------------------------------------------------------------------------------
 
 #If you  install diana at /usr/local, just change TOPDIR 
-DIANADIR  =/usr/local
+DIANADIR  = ${DIANADIR} || @prefix@
 #OPDATA   =../demodata
 OPDATA    =/disk1/DIANA/demodata
-MAPDIR    = /usr/local/share/diana/maps
+MAPDIR    = $(DIANADIR)/share/diana/maps
 
 <BASIC>
 fontpath=$(DIANADIR)/share/diana/fonts
@@ -47,7 +47,7 @@ qserver=$(ROOT)/bin/coserver4
 imagepath=$(DIANADIR)/share/diana/images/
 amdarStationList=$(DIANADIR)/share/diana/amdar.stations
 languagepaths=$(DIANADIR)/share/diana/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
-setenv=BUFR_TABLES,/usr/local/lib/bufrtables/,1
+setenv=BUFR_TABLES,$(DIANADIR)/lib/bufrtables/,1
 language=no
 avatars=${HOME}/.diana/avatars/*.png
 </BASIC>
