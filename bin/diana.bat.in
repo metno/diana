@@ -1,0 +1,5 @@
+:: $Id$
+@echo off
+set DIANADIR=@prefix@
+set PATH=%DIANADIR%/bin;@QT4_DIR@/bin;%PATH%
+diana.bin
