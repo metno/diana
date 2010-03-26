@@ -112,8 +112,8 @@ bool SetupParser::checkEnvironment(miString& t)
 {
   int start = 0, stop = 0;
 
-  while ((start = t.find("$(", stop)) != t.npos) {
-    if ((stop = t.find(")", start)) == t.npos)
+  while ((start = t.find("${", stop)) != t.npos) {
+    if ((stop = t.find("}", start)) == t.npos)
       // unterminated
       return false;
     miString s = t.substr(start + 2, stop - start - 2);
