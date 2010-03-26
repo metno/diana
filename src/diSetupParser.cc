@@ -89,57 +89,41 @@ void SetupParser::setUserVariables(const map<miString, miString> & user_var)
 
 bool SetupParser::checkSubstitutions(miString& t)
 {
-  if(!t.contains("$("))
-    return false;
+  int start = 0, stop = 0;
 
-  int start,stop;
-
-  start = t.find("$(",0) + 2;
-  stop  = t.find(")",start);
-
-  if(stop < start ) {
-    return false;
+  while ((start = t.find("$(", stop)) != t.npos) {
+    if ((stop = t.find(")", start)) == t.npos)
+      // unterminated
+      return false;
+    miString s = t.substr(start + 2, stop - start - 2);
+    miString n;
+    s = s.upcase();
+    if (substitutions.count(s) > 0)
+      n = substitutions[s];
+    // this would be the logical solution, but miString overrides replace()
+    // t.replace(start, stop - start + 1, n.c_str());
+    t = t.substr(0, start) + n + t.substr(stop + 1);
   }
-
-  miString s = t.substr(start, stop-start);
-  miString r = miString("$(") + s + ")";
-  miString n;
-  s = s.upcase();
-
-  if( substitutions.count(s) > 0 )
-    n = substitutions[s];
-
-  t.replace(r,n);
-
-  //next substitution
-  checkSubstitutions(t);
-
   return true;
 }
 
 
 bool SetupParser::checkEnvironment(miString& t)
 {
-  if(!t.contains("${"))
-    return false;
+  int start = 0, stop = 0;
 
-  int start,stop;
-
-  start = t.find("${",0) + 2;
-  stop  = t.find("}",start);
-
-  if(stop < start ) {
-    return false;
+  while ((start = t.find("$(", stop)) != t.npos) {
+    if ((stop = t.find(")", start)) == t.npos)
+      // unterminated
+      return false;
+    miString s = t.substr(start + 2, stop - start - 2);
+    miString n;
+    s = s.upcase();
+    n = getenv(s.c_str());
+    // this would be the logical solution, but miString overrides replace()
+    // t.replace(start, stop - start + 1, n.c_str());
+    t = t.substr(0, start) + n + t.substr(stop + 1);
   }
-
-  miString s = t.substr(start, stop-start);
-  miString r = miString("${") + s + "}";
-
-  s = s.upcase();
-
-  miString n = getenv(s.cStr());
-
-  t.replace(r,n);
   return true;
 }
 
