@@ -46,11 +46,15 @@ main(int argc, char *argv[])
 	diOrderBook ob;
 
 	ob.start();
-	ob.addListener();
+	if (!ob.addListener()) {
+		std::cerr << "addListener() failed" << std::endl;
+		exit(1);
+	}
 	for (;;) {
+		qca.processEvents();
 		diWorkOrder *wo = ob.getNextOrderWait(2000);
 		std::cerr << "no order yet" << std::endl;
 	}
 
-	return (0);
+	exit(0);
 }
