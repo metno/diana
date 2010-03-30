@@ -33,20 +33,19 @@
 # valid within a section. Useful in local files which include the official setupfile
 #----------------------------------------------------------------------------------
 
-#If you  install diana at /usr/local, just change TOPDIR 
+
 DIANADIR  = ${DIANADIR} || @prefix@
-#OPDATA   =../demodata
-OPDATA    =/disk1/DIANA/demodata
+OPDATA    = $(DIANADIR)/share/diana/demodata
 MAPDIR    = $(DIANADIR)/share/diana/maps
 
 <BASIC>
 fontpath=$(DIANADIR)/share/diana/fonts
 docpath=$(DIANADIR)/share/doc/diana
 obsPlotFilePath=$(DIANADIR)/share/diana
-qserver=$(ROOT)/bin/coserver4
+qserver=$(DIANADIR)/bin/coserver4
 imagepath=$(DIANADIR)/share/diana/images/
 amdarStationList=$(DIANADIR)/share/diana/amdar.stations
-languagepaths=$(DIANADIR)/share/diana/lang:lang:../lang:$(ROOT)/translations:${QTDIR}/translations
+languagepaths=$(DIANADIR)/share/diana/lang:lang:../lang:$(DIANADIR)/translations:${QTDIR}/translations
 setenv=BUFR_TABLES,$(DIANADIR)/lib/bufrtables/,1
 language=no
 avatars=${HOME}/.diana/avatars/*.png
@@ -220,7 +219,7 @@ sos=     1010101100110011
 printcommand=lpr -h -{hash}{numcopies} -P {printer} {filename}
 
 # user-defined printer-specific commands
-manualcommands=$(TOPDIR)/diana/etc/printer.def
+manualcommands==$(DIANADIR)/diana/etc/printer.def
 </PRINTING>
 
 
@@ -1887,7 +1886,7 @@ timerange=-180,180
 
 <OBSERVATION_PRIORITY_LISTS>
 
-name=test-list	       file=$(TOPDIR)/diana/etc/priList.txt
+name=test-list	       file==$(DIANADIR)/diana/etc/priList.txt
 
 </OBSERVATION_PRIORITY_LISTS>
 
