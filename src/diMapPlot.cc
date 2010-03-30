@@ -686,8 +686,8 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
           x1 = x[np - 1];
           y1 = y[np - 1];
           // convert coordinates from longitude,latitude to x,y
-          bool b = area.P().convertFromGeographic(np,x,y);
-          if (!b){
+          int b = area.P().convertFromGeographic(np,x,y);
+          if (b!=0){
             cerr << "plotMapLand4(0), getPoints returned false" << endl;
           }
 
@@ -772,8 +772,8 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
       }
     }
     nn = n;
-    bool b = area.P().convertFromGeographic(nn,x,y);
-    if (!b){
+    int b = area.P().convertToGeographic(nn,x,y);
+    if (b!=0){
       cerr << "plotMapLand4(1), getPoints returned false" << endl;
     }
     glonmin = glonmax = x[0];
@@ -920,8 +920,8 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                   x1 = x[np - 1];
                   y1 = y[np - 1];
                   // convert coordinates from longitude,latitude to x,y
-                  bool b = area.P().convertToGeographic(np,x,y);
-                  if (!b){
+                  int b = area.P().convertFromGeographic(np,x,y);
+                  if (b!=0){
                     cerr << "plotMapLand4(2), getPoints returned false"<< endl;
                   }
 /*
