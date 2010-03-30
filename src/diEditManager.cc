@@ -302,10 +302,8 @@ bool EditManager::parseSetup(SetupParser& sp) {
       if (ep.gridnum>0 && nx>1 && ny>1 && gridtype>0) {
         Projection p;
         p.set_mi_gridspec(gridtype, gridspec);
-        Rectangle  r(0.,0.,float(nx-1),float(ny-1)); // as usual dimensions as rectangle...
+        Rectangle  r(0.,0.,float(nx-1)*p.getGridResolutionX(),float(ny-1)*p.getGridResolutionY()); // as usual dimensions as rectangle...
         ep.area= Area(p,r);
-//      } else {
-//        ep.gridnum= 0;
       }
       //
       if (ep.savedir.empty()) ep.savedir= ".";
@@ -1695,206 +1693,206 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
     const miTime& valid,
     vector<miString>& pids){
 #ifdef DEBUGPRINT
-cerr << "startCombineEdit  Time = " << valid << endl;
+  cerr << "startCombineEdit  Time = " << valid << endl;
 #endif
 
-int nfe = fedits.size();
-Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
+  int nfe = fedits.size();
+  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
 
-fieldsCombined= false;
+  fieldsCombined= false;
 
-// erase combine fields and objects
-cleanCombineData(true);
+  // erase combine fields and objects
+  cleanCombineData(true);
 
-//EdProd and EdProdId contains information about production
-EdProd = ep;
-EdProdId = ei;
+  //EdProd and EdProdId contains information about production
+  EdProd = ep;
+  EdProdId = ei;
 
-// delete editfields
-for (unsigned int i=0; i<fedits.size(); i++)
-  delete fedits[i];
-fedits.clear();
+  // delete editfields
+  for (unsigned int i=0; i<fedits.size(); i++)
+    delete fedits[i];
+  fedits.clear();
 
-// delete all previous objects
-plotm->editobjects.init();
-plotm->combiningobjects.init();
+  // delete all previous objects
+  plotm->editobjects.init();
+  plotm->combiningobjects.init();
 
-int ipc=0, npc=combineprods.size();
-while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
-if (ipc==npc) return false;
+  int ipc=0, npc=combineprods.size();
+  while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
+  if (ipc==npc) return false;
 
-int ipcbegin= ipc;
-ipc++;
-while (ipc<npc && combineprods[ipc].ptime==valid) ipc++;
-int ipcend= ipc;
+  int ipcbegin= ipc;
+  ipc++;
+  while (ipc<npc && combineprods[ipc].ptime==valid) ipc++;
+  int ipcend= ipc;
 
-regnames= findAcceptedCombine(ipcbegin,ipcend,EdProd,EdProdId);
+  regnames= findAcceptedCombine(ipcbegin,ipcend,EdProd,EdProdId);
 
-if (regnames.size()<2) return false;
+  if (regnames.size()<2) return false;
 
-// pids is returned to dialog!
-pids= regnames;
+  // pids is returned to dialog!
+  pids= regnames;
 
-numregs= regnames.size();
+  numregs= regnames.size();
 
-//get edit tools for this product (updates "region" stuff )
-setMapmodeinfo();
+  //get edit tools for this product (updates "region" stuff )
+  setMapmodeinfo();
 
-// set product time
-plotm->producttime= valid;
-plotm->prodtimedefined= true;
-
-
-miString filename = EdProd.combineBorders + EdProdId.name;
-//read AreaBorders
-if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
-  cerr << "EditManager::startCombineEdit  error reading borders" << endl;
-  return false;
-}
+  // set product time
+  plotm->producttime= valid;
+  plotm->prodtimedefined= true;
 
 
-plotm->editobjects.setPrefix(EdProdId.name);
+  miString filename = EdProd.combineBorders + EdProdId.name;
+  //read AreaBorders
+  if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
+    cerr << "EditManager::startCombineEdit  error reading borders" << endl;
+    return false;
+  }
 
-// read fields
 
-int nf= EdProd.fields.size();
+  plotm->editobjects.setPrefix(EdProdId.name);
 
-combinefields.resize(nf);
+  // read fields
 
-matrix_nx= matrix_ny= 0;
+  int nf= EdProd.fields.size();
 
-bool ok= true;
-int j=0;
+  combinefields.resize(nf);
 
-while (ok && j<nf) {
+  matrix_nx= matrix_ny= 0;
 
-  miString fieldname= EdProd.fields[j].name;
+  bool ok= true;
+  int j=0;
+
+  while (ok && j<nf) {
+
+    miString fieldname= EdProd.fields[j].name;
+
+    int i= 0;
+    while (ok && i<numregs) {
+      ipc= ipcbegin;
+      while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
+          combineprods[ipc].element!=j)) ipc++;
+      if (ipc<ipcend) {
+        FieldEdit *fed= new FieldEdit;
+        // spec. used when reading field
+        fed->setSpec(EdProd, j);
+        miString filename = combineprods[ipc].filename;
+        //cerr << "Read field file " << filename << endl;
+        if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
+          int nx,ny;
+          fed->getFieldSize(nx,ny);
+          if (matrix_nx==0 && matrix_ny==0) {
+            matrix_nx= nx;
+            matrix_ny= ny;
+          } else if (nx!=matrix_nx || ny!=matrix_ny) {
+            ok= false;
+          }
+        } else {
+          ok= false;
+        }
+        if (ok) combinefields[j].push_back(fed);
+        else    delete fed;
+      } else {
+        ok= false;
+      }
+      i++;
+    }
+    j++;
+  }
+
+  if (!ok) {
+    cerr << "EditManager::startCombineEdit  error reading fields" << endl;
+    cleanCombineData(true);
+    combineprods.clear(); // not needed to keep this, as dialog works now
+    return false;
+  }
+
+  // init editfield(s)
+  for (j=0; j<nf; j++) {
+    FieldEdit *fed= new FieldEdit;
+    *(fed)= *(combinefields[j][0]);
+    fed->setConstantValue(fieldUndef);
+    fedits.push_back(fed);
+  }
+
+  plotm->combiningobjects.changeProjection(newarea);
+
+  combineobjects.clear();
 
   int i= 0;
   while (ok && i<numregs) {
     ipc= ipcbegin;
     while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
-        combineprods[ipc].element!=j)) ipc++;
+        combineprods[ipc].element!=-1)) ipc++;
     if (ipc<ipcend) {
-      FieldEdit *fed= new FieldEdit;
-      // spec. used when reading field
-      fed->setSpec(EdProd, j);
       miString filename = combineprods[ipc].filename;
-      //cerr << "Read field file " << filename << endl;
-      if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
-        int nx,ny;
-        fed->getFieldSize(nx,ny);
-        if (matrix_nx==0 && matrix_ny==0) {
-          matrix_nx= nx;
-          matrix_ny= ny;
-        } else if (nx!=matrix_nx || ny!=matrix_ny) {
-          ok= false;
-        }
-      } else {
-        ok= false;
-      }
-      if (ok) combinefields[j].push_back(fed);
-      else    delete fed;
-    } else {
-      ok= false;
+      //cerr << "Read object file " << filename << endl;
+      EditObjects wo;
+      //init weather objects with correct prefix (region name)
+      wo.setPrefix(combineprods[ipc].pid);
+      objm->readEditDrawFile(filename, newarea, wo);
+      combineobjects.push_back(wo);
+      //open the comments file, which should have same path and
+      //extension as the object file
+      filename.replace(EdProd.objectsFilenamePart,
+          EdProd.commentFilenamePart);
+      objm->editCommandReadCommentFile(filename);
     }
     i++;
   }
-  j++;
-}
 
-if (!ok) {
-  cerr << "EditManager::startCombineEdit  error reading fields" << endl;
-  cleanCombineData(true);
-  combineprods.clear(); // not needed to keep this, as dialog works now
-  return false;
-}
+  plotm->editobjects.setTime(plotm->producttime);
+  objm->putCommentStartLines(EdProd.name,EdProdId.name);
 
-// init editfield(s)
-for (j=0; j<nf; j++) {
-  FieldEdit *fed= new FieldEdit;
-  *(fed)= *(combinefields[j][0]);
-  fed->setConstantValue(fieldUndef);
-  fedits.push_back(fed);
-}
+  // the list is needed later (editmanager or editdialog)
+  combineprods.clear();
 
-plotm->combiningobjects.changeProjection(newarea);
+  delete[] combinematrix;
 
-combineobjects.clear();
-
-int i= 0;
-while (ok && i<numregs) {
-  ipc= ipcbegin;
-  while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
-      combineprods[ipc].element!=-1)) ipc++;
-  if (ipc<ipcend) {
-    miString filename = combineprods[ipc].filename;
-    //cerr << "Read object file " << filename << endl;
-    EditObjects wo;
-    //init weather objects with correct prefix (region name)
-    wo.setPrefix(combineprods[ipc].pid);
-    objm->readEditDrawFile(filename, newarea, wo);
-    combineobjects.push_back(wo);
-    //open the comments file, which should have same path and
-    //extension as the object file
-    filename.replace(EdProd.objectsFilenamePart,
-        EdProd.commentFilenamePart);
-    objm->editCommandReadCommentFile(filename);
-  }
-  i++;
-}
-
-plotm->editobjects.setTime(plotm->producttime);
-objm->putCommentStartLines(EdProd.name,EdProdId.name);
-
-// the list is needed later (editmanager or editdialog)
-combineprods.clear();
-
-delete[] combinematrix;
-
-long fsize= matrix_nx*matrix_ny;
-combinematrix= new int[fsize];
-for (int i=0; i<fsize; i++)
-  combinematrix[i]= -1;
+  long fsize= matrix_nx*matrix_ny;
+  combinematrix= new int[fsize];
+  for (int i=0; i<fsize; i++)
+    combinematrix[i]= -1;
 
 
-// set correct time for labels
-for (vector<miString>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
-end();p++)
-  *p=insertTime(*p,valid);
-//Merge labels from EdProd  with object label input strings
-plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
-//save merged labels in editobjects
-vector <miString> labels = plotm->writeAnnotations(EdProd.name);
-saveProductLabels(labels);
-plotm->editobjects.labelsAreSaved();
+  // set correct time for labels
+  for (vector<miString>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
+  end();p++)
+    *p=insertTime(*p,valid);
+  //Merge labels from EdProd  with object label input strings
+  plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
+  //save merged labels in editobjects
+  vector <miString> labels = plotm->writeAnnotations(EdProd.name);
+  saveProductLabels(labels);
+  plotm->editobjects.labelsAreSaved();
 
-if (EdProdId.sendable) {
+  if (EdProdId.sendable) {
 #ifdef METNOPRODDB
-  // messages from ProductionGate
-  miString message;
-  if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
-    cerr << "We are allowed to start production" << endl;
-    // start production
-    if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
-      cerr << "We are in production" << endl;
-    else{
-      cerr << "We could not start production" << endl;
+    // messages from ProductionGate
+    miString message;
+    if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
+      cerr << "We are allowed to start production" << endl;
+      // start production
+      if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
+        cerr << "We are in production" << endl;
+      else{
+        cerr << "We could not start production" << endl;
+        return false;
+      }
+    } else{
+      cerr << "We are NOT allowed to start production" << endl;
       return false;
     }
-  } else{
-    cerr << "We are NOT allowed to start production" << endl;
-    return false;
-  }
-  cerr << "Message:" << message << endl;
+    cerr << "Message:" << message << endl;
 #endif
-}
+  }
 
-objm->setAllPassive();
+  objm->setAllPassive();
 
-editCombine();
+  editCombine();
 
-return true;
+  return true;
 }
 
 

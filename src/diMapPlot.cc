@@ -686,7 +686,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
           x1 = x[np - 1];
           y1 = y[np - 1];
           // convert coordinates from longitude,latitude to x,y
-          bool b = gc.getPoints(geoArea,area,np,x,y);
+          bool b = area.P().convertFromGeographic(np,x,y);
           if (!b){
             cerr << "plotMapLand4(0), getPoints returned false" << endl;
           }
@@ -772,7 +772,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
       }
     }
     nn = n;
-    bool b = gc.getPoints(area,geoArea,nn,x,y);
+    bool b = area.P().convertFromGeographic(nn,x,y);
     if (!b){
       cerr << "plotMapLand4(1), getPoints returned false" << endl;
     }
@@ -920,7 +920,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                   x1 = x[np - 1];
                   y1 = y[np - 1];
                   // convert coordinates from longitude,latitude to x,y
-                  bool b = gc.getPoints(geoArea,area,np,x,y);
+                  bool b = area.P().convertToGeographic(np,x,y);
                   if (!b){
                     cerr << "plotMapLand4(2), getPoints returned false"<< endl;
                   }
@@ -1004,10 +1004,8 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
   if (longitudeStep>180.)
     longitudeStep= 180.;
   if (plotResolution<1)
-    plotResolution= 10;
-  if((latitudeStep>30 || longitudeStep>30) && plotResolution == 10) {
-    plotResolution = 100;
-  }
+    plotResolution= 100;
+
 
   float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
 
@@ -1104,7 +1102,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
           x[n] = glon;
           y[n] = glat + dlat * float(n);
         }
-        if (gc.geo2xy(area, nlat, x, y)) {
+        if (area.P().convertFromGeographic(nlat, x, y)==0) {
           clipPrimitiveLines(nlat, x, y, xylim, jumplimit, lon_values,
               lon_valuepos, plotstr);
         } else {
@@ -1177,7 +1175,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
           x[n] = glon + dlon * float(n);
           y[n] = glat;
         }
-        if (gc.geo2xy(area, nlon, x, y)) {
+        if (area.P().convertFromGeographic(nlon, x, y)==0) {
           clipPrimitiveLines(nlon, x, y, xylim, jumplimit, lat_values,
               lat_valuepos, plotstr);
         } else {
@@ -1282,7 +1280,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
     if (n>1) {
       float xn= x[n-1];
       float yn= y[n-1];
-      if (gc.geo2xy(area, n, x, y)) {
+      if (area.P().convertFromGeographic(n, x, y)) {
         clipPrimitiveLines(n, x, y, xylim, jumplimit);
         nlines++;
       } else {

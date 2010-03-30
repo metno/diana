@@ -777,7 +777,7 @@ bool FieldPlot::plotWind(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
@@ -816,7 +816,6 @@ bool FieldPlot::plotWind(){
   iy1-=step;     if (iy1<0)  iy1=0;
   ix2+=(step+1); if (ix2>nx) ix2=nx;
   iy2+=(step+1); if (iy2>ny) iy2=ny;
-
   maprect.setExtension( flagl );
 
   glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
@@ -943,7 +942,7 @@ bool FieldPlot::plotWindColour(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
@@ -1178,7 +1177,7 @@ bool FieldPlot::plotWindTempFL(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
@@ -1590,7 +1589,7 @@ bool FieldPlot::plotWindNumber(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
@@ -2004,7 +2003,7 @@ bool FieldPlot::plotValueMaxHeight(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int step= poptions.density;
@@ -2262,7 +2261,7 @@ bool FieldPlot::plotVector(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
@@ -2371,7 +2370,7 @@ bool FieldPlot::plotLayer(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int step= poptions.density;
@@ -2492,7 +2491,7 @@ bool FieldPlot::plotVectorColour(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
@@ -2665,7 +2664,7 @@ bool FieldPlot::plotDirection(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
@@ -2774,7 +2773,7 @@ bool FieldPlot::plotDirectionColour(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
@@ -2975,8 +2974,12 @@ bool FieldPlot::plotContour(){
   float *x=0, *y=0;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
-        npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+        nx, ny, &x, &y, ix1, ix2, iy1, iy2)){
+      cerr <<"fieldPlot::plotContour() : getGridPoints returned false"<<endl;
+      return false;
+    }
   }
+
 
   if (ix1>=ix2 || iy1>=iy2) return false;
   if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0) return false;
@@ -3243,7 +3246,8 @@ bool FieldPlot::plotBox_pattern(){
   int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  gc.getGridPoints(fields[0]->area, area, maprect, true, npos, &x, &y,
+  gc.getGridPoints(fields[0]->area, area, maprect, true,
+      nx, ny, &x, &y,
       ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
@@ -3360,7 +3364,7 @@ bool FieldPlot::plotBox_alpha_shade(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, true,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int nxc = nx + 1;
@@ -3473,7 +3477,7 @@ bool FieldPlot::plotAlarmBox(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, true,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int nxc = nx + 1;
@@ -3561,7 +3565,6 @@ bool FieldPlot::plotAlarmBox(){
 
   for (iy=iy1; iy<iy2; iy++) {
     i2 = ix1-1;
-
     while (i2<ix2-1) {
 
       i1 = i2+1;
@@ -3582,6 +3585,7 @@ bool FieldPlot::plotAlarmBox(){
         glBegin(GL_QUAD_STRIP);
 
         for (ix=i1; ix<i2; ix++) {
+
           glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
           glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
         }
@@ -3621,7 +3625,7 @@ bool FieldPlot::plotFillCell(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,//true,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   /* Uncomment the two lines below, and switch to true in
@@ -3715,7 +3719,7 @@ bool FieldPlot::plotAlpha_shade(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   if ( poptions.frame ) {
@@ -3956,7 +3960,7 @@ bool FieldPlot::markExtreme(){
   float *x, *y;
   //####if (mapconvert==2) {
   if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
   //####}
 
   if (ix1>ix2 || iy1>iy2) return false;
@@ -4254,7 +4258,7 @@ bool FieldPlot::plotGridLines(){
   float *x, *y;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area, area, maprect, false,
-        npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+        fields[0]->nx, fields[0]->ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
   }
 
   if (ix1>ix2 || iy1>iy2) return false;
@@ -4375,7 +4379,7 @@ bool FieldPlot::plotUndefined(){
   float *x, *y;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area, area, maprect, true,
-        npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+        nx, ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
   }
 
   int nxc = nx + 1;
@@ -4607,7 +4611,7 @@ bool FieldPlot::plotNumbers(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area, area, maprect, false,
-      npos, &x, &y, ix1, ix2, iy1, iy2);
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   int autostep;
@@ -4634,7 +4638,6 @@ bool FieldPlot::plotNumbers(){
   float ww= chx*0.5;
   int iprec= -int(log10(fields[0]->storageScaling));
   if (iprec<0) iprec=0;
-  cerr <<"iprec:"<<iprec<<endl;
   miString str;
 
   glColor3ubv(poptions.linecolour.RGB());
@@ -4675,7 +4678,7 @@ bool FieldPlot::plotNumbers(){
 
   // convert gridpoints to correct projection
   if (!gc.getGridPoints(fields[0]->area, area, maprect, true,
-      npos, &x, &y, ix1, ix2, iy1, iy2)) return false;
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
 
   if (ix1>ix2 || iy1>iy2) return false;
 

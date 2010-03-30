@@ -648,59 +648,6 @@ void SpectrumManager::initStations()
     }
   }
 
-  if (onlyObs) {
-    // using current time until..................
-    int n= obsfiles.size();
-    for (int i=0; i<n; i++) {
-      if (obsfiles[i].time==plotTime) {
-        /************************************************************************
-	try {
-	  // until robs' obs class can do the job:
-	  obsInfo ofile;
-	  ofile.init(obsfiles[i].filename);
-          namelist=      ofile.getStationIds();
-          latitudelist=  ofile.getStationLatitudes();
-          longitudelist= ofile.getStationLongitudes();
-	  obslist= namelist;
-	  int ns= namelist.size();
-	  for (int j=0; j<ns; j++) {
-	    if (namelist[j].substr(0,2)=="99") {
-#ifdef linux
-	      // until robs (linux swap problem) fixed
-	      // (note that "obslist" is kept unchanged/wrong for reading)
-	      miString callsign=  namelist[j].substr(3,1)
-		  	        + namelist[j].substr(2,1)
-			        + namelist[j].substr(5,1)
-			        + namelist[j].substr(4,1);
-	      namelist[j]= callsign;
-#else
-	      namelist[j]= namelist[j].substr(2,namelist[j].length()-2);
-#endif
-	    }
-	  }
-          int nn=namelist.size();
-          if (nn!=latitudelist.size()||nn!=longitudelist.size()||
-	      nn!=obslist.size()) {
-            cerr << "diSpectrumManager::initStations - SOMETHING WRONG WITH OBS.STATIONLIST!"
-	         << endl;
-          } else {
-            for (int j = 0;j<nn;j++){
-	      StationPos newPos;
-	      newPos.latitude=latitudelist[j];
-	      newPos.longitude=longitudelist[j];
-	      newPos.obs=obslist[j];
-	      stations[namelist[j]] = newPos;
-            }
-          }
-        }
-        catch (...) {
-          cerr<<"Exception in: " <<obsfiles[i].filename<<endl;
-        }
-         ************************************************************************/
-      }
-    }
-  }
-
   namelist.clear();
   latitudelist.clear();
   longitudelist.clear();

@@ -184,7 +184,6 @@ private:
 
   vector <float> xplot; //x-positions to plot in current projection
   vector <float> yplot; //y-positions to plot in current projection
-  Area oldarea;   //plotarea corresponding to xplot,yplot
 
   bool visible;
   miutil::miString annotation;

@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 //#define DEBUGPRINT
 
 #ifdef HAVE_CONFIG_H
@@ -94,14 +94,14 @@ void WeatherObjects::clear()
 /*********************************************/
 
 bool WeatherObjects::empty(){
-return (objects.size() == 0 && itsLabels.size()==0);
+  return (objects.size() == 0 && itsLabels.size()==0);
 }
 
 /*********************************************/
 
 void WeatherObjects::plot(){
 #ifdef DEBUGPRINT
-  //cerr << "WeatherObjects::plot\n";
+  cerr << "WeatherObjects::plot\n";
 #endif
   if (!enabled) return;
   // draw objects
@@ -147,21 +147,22 @@ void WeatherObjects::plot(){
 /*********************************************/
 
 bool WeatherObjects::changeProjection(const Area& newArea)
-
 {
+
 #ifdef DEBUGPRINT
   cerr << "WeatherObjects::changeProjection" << endl;
-  cerr << "Change projection from " << itsArea <<" to " <<
-    newArea << endl;
+  cerr << "Change projection from " << itsArea <<endl<<" to " <<
+  newArea << endl;
 #endif
+
 
   if (itsArea.P() == newArea.P()) return false;
 
   if (empty())
-    {
-      itsArea= newArea;
-      return false;
-    }
+  {
+    itsArea= newArea;
+    return false;
+  }
 
   int i,j,npos= 0;
   int obsize = objects.size();
@@ -189,7 +190,15 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   xpos[n]=xcopy;
   ypos[n]=ycopy;
 
-  if (!gc.getPoints(itsArea,newArea,npos,xpos,ypos)) {
+  int ierror=0;
+  bool err=true;
+  if ( !itsArea.P().isDefined()) {
+    ierror = newArea.P().convertFromGeographic(npos,xpos,ypos);
+  } else {
+    err = gc.getPoints(itsArea,newArea,npos,xpos,ypos);
+  }
+
+  if(!err || ierror !=0 ) {
     cerr << "WeatherObjects::changeProjection: getPoints error" << endl;
     delete[] xpos;
     delete[] ypos;
@@ -212,15 +221,13 @@ bool WeatherObjects::changeProjection(const Area& newArea)
     objects[i]->setXY(x,y);
   }
 
-
-
-
   delete[] xpos;
   delete[] ypos;
 
   itsArea= newArea;
 
   updateObjects();
+
   return true;
 }
 
@@ -242,7 +249,7 @@ void WeatherObjects::updateObjects()
 /*********************************************/
 
 bool
- WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
+WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
 #ifdef DEBUGPRINT
   cerr << "WeatherObjects::readEditDrawFile(2)" << endl;
 #endif
@@ -252,14 +259,14 @@ bool
   vector <miString> parts= fn.split('.');
   miString ext = parts.back();
   if (ext=="shp"){
-  if (newArea.P()!=itsArea.P()){
+    if (newArea.P()!=itsArea.P()){
 #ifdef DEBUGPRINT
-    cerr << "----------------------OOPSSS curarea!=newarea" << endl;
+      cerr << "----------------------OOPSSS curarea!=newarea" << endl;
 #endif
-    changeProjection(newArea);
-  }
-  changeProjection(geoArea);
-  //}
+      changeProjection(newArea);
+    }
+    changeProjection(geoArea);
+    //}
     cerr << "This is a shapefile" << endl;
     ShapeObject * shape = new ShapeObject();
     addObject(shape);
@@ -278,7 +285,7 @@ bool
   }
 
 
- /* ---------------------------------------------------------------------
+  /* ---------------------------------------------------------------------
  -----------------------start to read new format--------------------------
   -----------------------------------------------------------------------*/
   miString str,value,key,fileString;
@@ -291,39 +298,39 @@ bool
     key = stokens[0].downcase();
     value = stokens[1];
   }
- //check if the line contains keyword date ?
- if (key == "date")
-   {
-     fileString = miString();
-     // read file
-     while (getline(file,str) && !file.eof()){
-       if (str.exists() && str[0]!='#'){
-	 //check if this is a LABEL string
-	if (str.substr(0,5)=="LABEL"){
-	  if (useobject["anno"])
-	    itsOldLabels.push_back(str);
-	}
-	  else
-	    fileString+=str;
+  //check if the line contains keyword date ?
+  if (key == "date")
+  {
+    fileString = miString();
+    // read file
+    while (getline(file,str) && !file.eof()){
+      if (str.exists() && str[0]!='#'){
+        //check if this is a LABEL string
+        if (str.substr(0,5)=="LABEL"){
+          if (useobject["anno"])
+            itsOldLabels.push_back(str);
+        }
+        else
+          fileString+=str;
       }
-     }
-     file.close();
+    }
+    file.close();
 
-     return readEditDrawString(fileString,newArea);
-   }
- else{
-   cerr << "This file is not in the new format " << endl;
-   file.close();
- }
+    return readEditDrawString(fileString,newArea);
+  }
+  else{
+    cerr << "This file is not in the new format " << endl;
+    file.close();
+  }
 
- return false;
+  return false;
 
 }
 
 
 
 bool WeatherObjects::readEditDrawString(const miString inputString,
-					const Area& newArea, bool replace){
+    const Area& newArea, bool replace){
 
 #ifdef DEBUGPRINT
   cerr << "readEditDrawString\n";
@@ -369,31 +376,31 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
     }
     else if (key == "object"){
       ObjectPlot * tObject;
-	 if (value == "Front")
-	   if (useobject["front"])
-	     tObject = new WeatherFront();
-	   else continue;
-	 else if (value == "Symbol")
-	   if (useobject["symbol"])
-	     tObject = new WeatherSymbol();
-	   else continue;
-	 else if (value == "Area")
-	   if (useobject["area"])
-	     tObject = new WeatherArea();
-	   else continue;
-	 else if (value == "Border")
-	   tObject = new AreaBorder();
-	 else if (value == "RegionName")
-	   tObject = new WeatherSymbol("",RegionName);
-	 else {
-	   cerr << "WeatherObjects::readEditDrawString Unknown object:"
-		<< value << endl;
-	   continue;
-	 }
-	 if (tObject->readObjectString(objectStrings[i]))
-	   //add a new object
-	   addObject(tObject,replace);
-	 else delete tObject;
+      if (value == "Front")
+        if (useobject["front"])
+          tObject = new WeatherFront();
+        else continue;
+      else if (value == "Symbol")
+        if (useobject["symbol"])
+          tObject = new WeatherSymbol();
+        else continue;
+      else if (value == "Area")
+        if (useobject["area"])
+          tObject = new WeatherArea();
+        else continue;
+      else if (value == "Border")
+        tObject = new AreaBorder();
+      else if (value == "RegionName")
+        tObject = new WeatherSymbol("",RegionName);
+      else {
+        cerr << "WeatherObjects::readEditDrawString Unknown object:"
+        << value << endl;
+        continue;
+      }
+      if (tObject->readObjectString(objectStrings[i]))
+        //add a new object
+        addObject(tObject,replace);
+      else delete tObject;
     }
     else cerr << "Error! Object key not found !" << endl;
   }
@@ -504,7 +511,7 @@ vector <miString> WeatherObjects::getEditLabels(){
  *************************************************/
 
 bool WeatherObjects::readAreaBorders(const miString fn,
-				     const Area& newArea){
+    const Area& newArea){
 
   // open filestream
   ifstream file(fn.cStr());
@@ -584,10 +591,10 @@ void WeatherObjects::addObject(ObjectPlot * object, bool replace){
 
   if(replace){ // remove old object
     vector <ObjectPlot*>::iterator p = objects.begin();
-      while (p!=objects.end() && (*p)->getName()!= object->getName())p++;
-      if(p!=objects.end()){
-	objects.erase(p);
-      }
+    while (p!=objects.end() && (*p)->getName()!= object->getName())p++;
+    if(p!=objects.end()){
+      objects.erase(p);
+    }
   }
 
   objects.push_back(object);
@@ -611,11 +618,11 @@ miString WeatherObjects::stringFromTime(const miTime& t,bool addMinutes){
 
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << yyyy
-       << setw(2) << setfill('0') << mm
-       << setw(2) << setfill('0') << dd
-       << setw(2) << setfill('0') << hh;
+  << setw(2) << setfill('0') << mm
+  << setw(2) << setfill('0') << dd
+  << setw(2) << setfill('0') << hh;
   if (addMinutes)
-       ostr << setw(2) << setfill('0') << mn;
+    ostr << setw(2) << setfill('0') << mn;
 
   miString timestring = ostr.str();
   return timestring;
@@ -628,15 +635,15 @@ miTime WeatherObjects::timeFromString(miString timeString)
 {
   if (timeString.length()<10) return ztime;
   //get time from a string with yyyymmddhhmm
-    int year= atoi(timeString.substr(0,4).c_str());
-    int mon=  atoi(timeString.substr(4,2).c_str());
-    int day=  atoi(timeString.substr(6,2).c_str());
-    int hour= atoi(timeString.substr(8,2).c_str());
-    int min= 0;
-    if (timeString.length() >= 12)
-      min= atoi(timeString.substr(10,2).c_str());
-    if (year<0 || mon <0 || day<0 || hour<0 || min < 0) return ztime;
-    return miTime(year,mon,day,hour,min,0);
+  int year= atoi(timeString.substr(0,4).c_str());
+  int mon=  atoi(timeString.substr(4,2).c_str());
+  int day=  atoi(timeString.substr(6,2).c_str());
+  int hour= atoi(timeString.substr(8,2).c_str());
+  int min= 0;
+  if (timeString.length() >= 12)
+    min= atoi(timeString.substr(10,2).c_str());
+  if (year<0 || mon <0 || day<0 || hour<0 || min < 0) return ztime;
+  return miTime(year,mon,day,hour,min,0);
 }
 
 /*********************************************/
@@ -654,7 +661,7 @@ map<miString,bool> WeatherObjects::decodeTypeString( miString token){
   for (int j=0; j<m; j++){
     if (stokens[j]=="all"){
       for (int k=0; k<numObjectTypes; k++)
-	use[ObjectTypeNames[k]]= true;
+        use[ObjectTypeNames[k]]= true;
       break;
     }
     use[stokens[j]]= true;

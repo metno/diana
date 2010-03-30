@@ -205,7 +205,8 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
       xpos[i] = longitude[i];
       ypos[i] = latitude[i];
     }
-    gc.geo2xy(area,nlon,xpos,ypos);
+
+    area.P().convertFromGeographic(nlon,xpos,ypos);
 
     if (numMarker==5 || numMarker==9){
 
@@ -226,8 +227,8 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
         float lat2 = float(markerRadius)*1000*dlat + latitude[i];
         float lon2 = longitude[i];
         int one=1;
-        gc.geo2xy(area,one,&lon1,&lat1);
-        gc.geo2xy(area,one,&lon2,&lat2);
+        area.P().convertFromGeographic(one,&lon1,&lat1);
+        area.P().convertFromGeographic(one,&lon2,&lat2);
         float dx=lon1 - xpos[i];
         float dy=lat2-ypos[i];
         for (int j=0; j<numMarker; j++, n++) {
@@ -241,7 +242,7 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
         y.push_back(ynew[i]);
       }
 
-      gc.xy2geo(area,n,xnew,ynew);
+      area.P().convertToGeographic(n,xnew,ynew);
 
       for (int i=0; i<n; i++) {
         lon.push_back(xnew[i]);
@@ -269,7 +270,7 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
     nlon = lon.size();
     for (int i=0; i<nlon; i++){
       cerr<<"   i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-                                                            <<"    "<<xpos[i]<<" "<<ypos[i]<<endl;
+                                                            <<"    "<<x[i]<<" "<<y[i]<<endl;
     }
 #endif
 
@@ -330,8 +331,6 @@ bool TrajectoryPlot::plot(){
 
     int vtsize= vtrajdata.size();
 
-
-
     for (int n=0; n<vtsize; n++) {
       if (vtrajdata[n]->area.P() != area.P()) {
         int npos= numTraj * vtrajdata[n]->ndata;
@@ -348,12 +347,12 @@ bool TrajectoryPlot::plot(){
     vector <float> xmark,ymark;
     TrajectoryData *td;
     for (int i=0; i<numTraj; i++) {
-      //      cerr <<"Traj no:"<<i<<endl;
+//      cerr <<"Traj no:"<<i<<endl;
       glEnable(GL_LINE_STIPPLE);
       glLineStipple(lineType.factor,lineType.bmap);
       glBegin(GL_LINE_STRIP);
       for (int n=0; n<vtsize; n++) {
-        //	cerr <<"??:"<<n<<endl;
+//        cerr <<"??:"<<n<<endl;
         td= vtrajdata[n];
         int j1= td->first[i];
         int j2= td->last[i] + 1;
@@ -648,7 +647,8 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
       sy[i]= lat[i];
     }
 
-    gc.geo2xy(fu1->area,npos,sx,sy);
+    fu1->area.P().convertFromGeographic(npos,sx,sy);
+    fu1->convertToGrid(npos,sx,sy);
 
     // check if inside area and not in undefined area of the fields
     int interpoltype= 1;
@@ -658,7 +658,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     numTraj= 0;
 
     for (int i=0; i<npos; i++) {
-      //cerr<<"x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]<<endl;
+//      cerr<<"x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]<<endl;
       if(su[i]!=fieldUndef && sv[i]!=fieldUndef) {
         sx[numTraj]= sx[i];
         sy[numTraj]= sy[i];
@@ -686,7 +686,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   // mapratios in Norlam style (inverse of Hirlam style)
   int icori=0;
   if (!gc.getMapFields(fu1->area, imapr, icori,
-      npos, &xmapr, &ymapr, &coriolis,
+      fu1->nx, fu1->ny, &xmapr, &ymapr, &coriolis,
       dxgrid, dygrid)) {
     cerr<<"TrajectoryPlot::compute : gc.getMapFields ERROR."
     <<"  Cannot compute trajectories !"<<endl;
@@ -706,8 +706,6 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   fry->area=   fu1->area;
   fry->allDefined= true;
   fry->data=   ymapr;
-
-  //........................................
 
   int ndata= nstep;
   if (firstStep) ndata++;
@@ -748,7 +746,9 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     for (int i=0; i<numTraj; i++) {
       trajdata->x[ndata*i+idata]= xt[i]= sx[i];
       trajdata->y[ndata*i+idata]= yt[i]= sy[i];
+    fu1->convertFromGrid(1, &trajdata->x[ndata*i+idata], &trajdata->y[ndata*i+idata]);
     }
+
     delete[] sx;
     delete[] sy;
     sx= sy= 0;
@@ -775,6 +775,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
       xt[i]= vtrajdata[n]->x[nd*i+id];
       yt[i]= vtrajdata[n]->y[nd*i+id];
     }
+
     if (vtrajdata[n]->area.P() != fieldArea.P()) {
       // posistions are converted to a different map projection
       if(!gc.getPoints(vtrajdata[n]->area,fieldArea,numTraj,xt,yt)) {
@@ -784,6 +785,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
         return false;
       }
     }
+    fu1->convertToGrid(numTraj,xt, yt);
 
   }
 
@@ -873,7 +875,8 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
         trajdata->x[ndata*i+idata]= 0.; // a very legal position !!!
         trajdata->y[ndata*i+idata]= 0.; // (cannot be checked later)
       }
-    }
+      fu1->convertFromGrid(1, &trajdata->x[ndata*i+idata], &trajdata->y[ndata*i+idata]);
+   }
 
     miTime tnow= t1;
     if (forward)
@@ -978,7 +981,7 @@ bool TrajectoryPlot::printTrajectoryPositions(const miString& filename)
       yyy[(n+1)*numTraj+i]=vtrajdata[n]->y[(i+1)*(vtrajdata[n]->ndata)-1];
     }
   }
-  gc.xy2geo(area,npos,xxx,yyy);
+  area.P().convertToGeographic(npos,xxx,yyy);
 
   //print to file
   fs <<"[NAME TRAJECTORY]"<<endl;

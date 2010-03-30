@@ -28,6 +28,7 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+//#define DEBUGPRINT
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -122,8 +123,8 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
 
     //Positions
   posButton = new QCheckBox(tr("Select positions on map"),this);
-  connect( posButton, SIGNAL( toggled(bool)), SLOT( posButtonToggled(bool) ) );
   posButton->setChecked(true);
+  connect( posButton, SIGNAL( toggled(bool)), SLOT( posButtonToggled(bool) ) );
 
   QLabel* posLabel = new QLabel( tr("Write positions (Lat Lon):"), this );
   edit = new GeoPosLineEdit(this);

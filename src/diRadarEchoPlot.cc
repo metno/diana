@@ -696,7 +696,7 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
   // mapratios in Norlam style (inverse of Hirlam style)
   int icori=0;
   if (!gc.getMapFields(fu1->area, imapr, icori,
-      npos, &xmapr, &ymapr, &coriolis,
+      fu1->nx, fu1->ny, &xmapr, &ymapr, &coriolis,
       dxgrid, dygrid)) {
     cerr<<"RadarEchoPlot::compute : gc.getMapFields ERROR."
     <<"  Cannot compute RadarEchoPlot !"<<endl;

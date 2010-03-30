@@ -177,7 +177,7 @@ bool LocationPlot::changeProjection()
     np+=np1;
   }
 
-  if (!gc.getPoints(locdata.area,area,numPos,px,py)) {
+  if (!gc.geo2xy(area,numPos,px,py)) {
      cerr << "LocationPlot::changeProjection getPoints error" << endl;
      return false;
   }

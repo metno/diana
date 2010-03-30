@@ -6,7 +6,6 @@
 #include <iostream>
 #include <propoly/AbstractablePolygon.h>
 #include <propoly/Point.h>
-#include <diField/diGridConverter.h>
 #include <sstream>
 
 using namespace::miutil;

@@ -130,7 +130,7 @@ private:
    * @param plotResolution
    * @return
    */
-  bool plotGeoGrid(const MapInfo & mapinfo, bool plot_lon, bool plot_lat, int plotResolution = 10);
+  bool plotGeoGrid(const MapInfo & mapinfo, bool plot_lon, bool plot_lat, int plotResolution = 100);
   /**
    * plot a map from a simple text formatted file
    * @param filename

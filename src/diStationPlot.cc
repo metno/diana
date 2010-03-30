@@ -484,12 +484,6 @@ void StationPlot::defineCoordinates()
   cerr << "StationPlot::defineCoordinates()" << endl;
 #endif
   // correct spec. when making Projection for long/lat coordinates
-  // (Projection constructor will update spec. to 1,1,1,1,0,0)
-  Projection pgeo;
-  pgeo.setGeographic();
-  Rectangle rgeo(0, 0, 90, 360);
-  Area geoArea(pgeo, rgeo);
-  oldarea = geoArea;
   //positions from lat/lon will be converted in changeprojection
   int npos = stations.size();
   xplot.clear();
@@ -503,28 +497,24 @@ void StationPlot::defineCoordinates()
 
 bool StationPlot::changeProjection()
 {
-  //change projection from oldarea to area
 #ifdef DEBUGPRINT
   cerr << "StationPlot::changeProjection" << endl;
-  cerr << "Change projection from " << oldarea.Name()
-  << " to "<< area.Name() << endl;
-
+  cerr << "Change projection to: "<< area << endl;
 #endif
 
-  if (oldarea.P() == area.P())
-    return false;
-
   int npos = xplot.size();
-  if (npos == 0)
+  if (npos == 0) {
     return false;
+  }
 
   float *xpos = new float[npos];
   float *ypos = new float[npos];
   for (int i = 0; i < npos; i++) {
-    xpos[i] = xplot[i];
-    ypos[i] = yplot[i];
+    xpos[i] = stations[i]->lon;
+    ypos[i] = stations[i]->lat;
   }
-  if (!gc.getPoints(oldarea, area, npos, xpos, ypos)) {
+
+  if (area.P().convertFromGeographic(npos, xpos, ypos) != 0 ) {
     cerr << "changeProjection: getPoints error" << endl;
     delete[] xpos;
     delete[] ypos;
@@ -563,7 +553,6 @@ bool StationPlot::changeProjection()
     }
   }
 
-  oldarea = area;
   delete[] xpos;
   delete[] ypos;
   delete[] u;

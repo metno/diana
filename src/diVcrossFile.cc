@@ -374,34 +374,36 @@ bool VcrossFile::readFileHeader() {
       vfile->getFloat(&xposmap[np],numPoint[n],tmp[nxgPar],iundef1d);
       vfile->getFloat(&yposmap[np],numPoint[n],tmp[nygPar],iundef1d);
       //###################################################################
-      //      cerr<<"--------------------"<<endl;
-      //      cerr<<"  nxgPar,nygPar: "<<nxgPar<<" "<<nygPar<<endl;
-      //      cerr<<"  xscale,yscale: "<<tmp[nxgPar]<<" "<<tmp[nygPar]<<endl;
-      //      for (i=0; i<numPoint[n]; i++)
-      //	cerr<<"  x,y: "<<xposmap[np+i]<<" "<<yposmap[np+i]<<endl;
+//            cerr<<"--------------------"<<endl;
+//            cerr<<"  nxgPar,nygPar: "<<nxgPar<<" "<<nygPar<<endl;
+//            cerr<<"  xscale,yscale: "<<tmp[nxgPar]<<" "<<tmp[nygPar]<<endl;
+//            for (i=0; i<numPoint[n]; i++)
+//      	cerr<<"  x,y: "<<xposmap[np+i]<<" "<<yposmap[np+i]<<endl;
       //###################################################################
       delete[] tmp;
       np+=numPoint[n];
     }
     // x,y from fortran...
-    for (n=0; n<nposmap; n++) {
-      xposmap[n]-=1.0f;
-      yposmap[n]-=1.0f;
-    }
     Projection p;
     p.set_mi_gridspec(igtype,gridparam);  // gridparam wil be C/C++ adjusted
     Rectangle  r;
     Area area(p,r);
-    gc.xy2geo(area,nposmap,xposmap,yposmap);
+    for (n=0; n<nposmap; n++) {
+      xposmap[n]-=1.0f;
+      xposmap[n]*=p.getGridResolutionX();;
+      yposmap[n]-=1.0f;
+      yposmap[n]*=p.getGridResolutionY();;
+    }
+    p.convertToGeographic(nposmap,xposmap,yposmap);
     //###################################################################
-    //    cerr<<"--------------------"<<endl;
-    //    np= 0;
-    //    for (n=0; n<numCross; n++) {
-    //      cerr<<"crossection "<<n<<" : "<<names[n]<<endl;
-    //      cerr<<"  lon,lat: "<<xposmap[np+0]<<" "<<yposmap[np+0]<<endl;
-    //      cerr<<"  lon,lat: "<<xposmap[np+numPoint[n]-1]<<" "<<yposmap[np+numPoint[n]-1]<<endl;
-    //      np+=numPoint[n];
-    //    }
+//        cerr<<"--------------------"<<endl;
+//        np= 0;
+//        for (n=0; n<numCross; n++) {
+//          cerr<<"crossection "<<n<<" : "<<names[n]<<endl;
+//          cerr<<"  lon,lat: "<<xposmap[np+0]<<" "<<yposmap[np+0]<<endl;
+//          cerr<<"  lon,lat: "<<xposmap[np+numPoint[n]-1]<<" "<<yposmap[np+numPoint[n]-1]<<endl;
+//          np+=numPoint[n];
+//        }
     //###################################################################
     //...........................................................
 

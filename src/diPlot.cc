@@ -175,8 +175,8 @@ Area Plot::findBestMatch(const Area& newa){
   }
 
   const float MAX=100000000;
-  float maxx= -100000, maxy= -100000,
-    minx= 100000, miny= 100000;
+  float maxx= -100000000, maxy= -1000000000,
+    minx= 100000000, miny= 1000000000;
   for (int i=0; i<npos; i++){
     // check for impossible numbers
     if (xpos[i] < -MAX || xpos[i] > MAX){
@@ -189,7 +189,6 @@ Area Plot::findBestMatch(const Area& newa){
     if (xpos[i] > maxx) maxx= xpos[i];
     if (ypos[i] > maxy) maxy= ypos[i];
   }
-
   a.setR(Rectangle(minx,miny,maxx,maxy));
 
   delete[] xpos;

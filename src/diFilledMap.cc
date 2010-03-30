@@ -439,8 +439,8 @@ bool FilledMap::plot(Area area, // current area
         cty[num4 + m] = groups[i].midlat[m];
       }
 
-      area.P().convertPoints(srcProj, num5, ctx, cty);
-      //gc.geo2xy(area, num5, ctx, cty);
+      area.P().convertFromGeographic(num5, ctx, cty);
+
       float minx = bignum, maxx = -bignum, miny = bignum, maxy = -bignum;
       // find min-max corners
       for (int j = 0; j < num; j++) {
@@ -734,8 +734,7 @@ bool FilledMap::plot(Area area, // current area
           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
           // convert vertices
-          area.P().convertPoints(srcProj, tidx, triverx, trivery);
-          //gc.geo2xy(area, tidx, triverx, trivery);
+          area.P().convertFromGeographic( tidx, triverx, trivery);
 
           clipTriangles(0, tidx, triverx, trivery, xylim, jumplimit);
 /*
@@ -753,8 +752,7 @@ bool FilledMap::plot(Area area, // current area
       if (numpo > 0 && (cont || keepcont)) {
 
         // convert vertices
-        area.P().convertPoints(srcProj, polydata[psize].np, polydata[psize].polyverx, polydata[psize].polyvery);
-        //gc.geo2xy(area, polydata[psize].np, polydata[psize].polyverx, polydata[psize].polyvery);
+        area.P().convertFromGeographic(polydata[psize].np, polydata[psize].polyverx, polydata[psize].polyvery);
 
         if (cont) {
           glColor4ubv(lcolour);
