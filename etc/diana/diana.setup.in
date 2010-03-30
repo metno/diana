@@ -67,15 +67,15 @@ avatars=${HOME}/.diana/avatars/*.png
 #-----------------------------------------------------------------------------
 # Use 'xfontsel' at the command line to find appropriate 'name's for your system
 #-----------------------------------------------------------------------------
-font=Helvetica type=bitmap name=*-helvetica-medium-r*iso8859-1 postscript=Helvetica
-font=Helvetica type=bitmap name=*-helvetica-bold-r*iso8859-1   postscript=Helvetica-Bold
-font=Helvetica type=bitmap name=*-helvetica-medium-o*iso8859-1 postscript=Helvetica-Oblique
-font=Helvetica type=bitmap name=*-helvetica-bold-o*iso8859-1   postscript=Helvetica-BoldOblique
+#font=Helvetica type=bitmap name=*-helvetica-medium-r*iso8859-1 postscript=Helvetica
+#font=Helvetica type=bitmap name=*-helvetica-bold-r*iso8859-1   postscript=Helvetica-Bold
+#font=Helvetica type=bitmap name=*-helvetica-medium-o*iso8859-1 postscript=Helvetica-Oblique
+#font=Helvetica type=bitmap name=*-helvetica-bold-o*iso8859-1   postscript=Helvetica-BoldOblique
 
-font=Courier   type=bitmap name=*-courier-medium-r*iso8859-1   postscript=Courier
-font=Courier   type=bitmap name=*-courier-bold-r*iso8859-1     postscript=Courier-Bold
-font=Courier   type=bitmap name=*-courier-medium-o*iso8859-1   postscript=Courier-Oblique
-font=Courier   type=bitmap name=*-courier-bold-o*iso8859-1     postscript=Courier-BoldOblique
+#font=Courier   type=bitmap name=*-courier-medium-r*iso8859-1   postscript=Courier
+#font=Courier   type=bitmap name=*-courier-bold-r*iso8859-1     postscript=Courier-Bold
+#font=Courier   type=bitmap name=*-courier-medium-o*iso8859-1   postscript=Courier-Oblique
+#font=Courier   type=bitmap name=*-courier-bold-o*iso8859-1     postscript=Courier-BoldOblique
 
 #-----------------------------------------------------------------------------
 # Scalable (truetype/polygon) fonts
@@ -86,6 +86,15 @@ font=Arial  type=scaleable face=ITALIC name=Arialni.ttf
 font=Arial  type=scaleable face=BOLD   name=Arialnb.ttf
 
 font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
+
+#-----------------------------------------------------------------------------
+# Texture (Qt-based) fonts
+#-----------------------------------------------------------------------------
+
+font=Helvetica type=texture face=NORMAL      name=Helvetica postscript=Helvetica
+font=Helvetica type=texture face=BOLD        name=Helvetica postscript=Helvetica-Bold
+font=Helvetica type=texture face=ITALIC      name=Helvetica postscript=Helvetica-Oblique
+font=Helvetica type=texture face=BOLD_ITALIC name=Helvetica postscript=Helvetica-BoldOblique
 
 #-----------------------------------------------------------------------------
 # Defaults for 'magic' fontnames
