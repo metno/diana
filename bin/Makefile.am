@@ -5,5 +5,3 @@ bin_SCRIPTS = diana.bat
 else
 bin_SCRIPTS = diana
 endif
-
-CLEANFILES = diana diana.bat
