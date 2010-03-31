@@ -1,11 +1,12 @@
 # $Id$
 
 bin_PROGRAMS = diana.bin bdiana 
+noinst_LIBRARIES = libdiana.a
 
 # automake requires one = before the first +=
 common_cppflags =
 common_ldflags =
-common_ldadd =
+common_ldadd = libdiana.a
 CLEANFILES =
 
 # convenience for developers using a non-standard $(prefix)
@@ -450,7 +451,6 @@ common_xpm_sources= active_object.xpm \
 	weather_rain.xpm \
 	weather_storm.xpm
 
-
 common_cppflags += \
 	$(DIFIELD_CPPFLAGS) \
 	$(DIMITIFF_CPPFLAGS) \
@@ -618,7 +618,7 @@ if WITH_XLIB
 common_cppflags += -DUSE_XLIB
 endif
 
-# Generated Qt source code - diana
+# Generated Qt source code
 common_moc_sources = $(common_qt_sources:.cc=.moc.cc)
 diana_moc_sources = $(diana_qt_sources:.cc=.moc.cc)
 bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
@@ -653,12 +653,23 @@ common_cppflags += $(WIN32_CPPFLAGS)
 common_ldflags += $(WIN32_LDFLAGS)
 common_ldadd += $(WIN32_LIBS)
 
-# Full set of source code for diana
-diana_bin_SOURCES = \
+# Full set of source code for libdiana
+libdiana_a_SOURCES = \
 	$(common_c_sources) \
-	$(common_cxx_sources) \
+	$(common_cxx_sources)
+
+nodist_libdiana_a_SOURCES = \
+	$(common_moc_sources)
+
+libdiana_a_CPPFLAGS = \
+	$(common_cppflags)
+# no LDFLAGS / LDADD needed for libdiana
+
+
+# diana-specific sources (the rest is in libdiana)
+diana_bin_SOURCES = \
 	$(diana_qt_sources) \
-	$(common_xpm_sources) \
+	$(xpm_sources) \
 	$(language_sources) \
 	main_gui.cc \
 	qtImageGallery.cc \
@@ -666,23 +677,19 @@ diana_bin_SOURCES = \
 	qtUtility.cc
 
 nodist_diana_bin_SOURCES = \
-	$(common_moc_sources) \
 	$(diana_moc_sources)
 
 diana_bin_CPPFLAGS = $(common_cppflags)
 diana_bin_LDFLAGS = $(common_ldflags)
 diana_bin_LDADD = $(common_ldadd)
 
-# Full set of source code for bdiana
+# bdiana-specific sources (the rest is in libdiana)
 bdiana_SOURCES = \
-	$(common_c_sources) \
-	$(common_cxx_sources) \
 	$(bdiana_qt_sources) \
 	bdiana.cc \
 	signalhelper.cc
 
 nodist_bdiana_SOURCES = \
-	$(common_moc_sources) \
 	$(bdiana_moc_sources)
 
 bdiana_CPPFLAGS = $(common_cppflags)
