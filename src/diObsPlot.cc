@@ -5597,7 +5597,7 @@ if( type == "synop" || type == "list" || type == "roadobs")
   else
     return false;  // table for unknown plot type;
 
-  FILE *fp = fopen(filename.c_str(),"r");
+  FILE *fp = fopen(filename.c_str(),"rb");
   if (!fp){
     cerr << "ObsPlot::readTable: Couldn't open "<<filename<<endl;
     return false;

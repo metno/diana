@@ -73,7 +73,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   char line[1024];
   miString correctFileName = fileName;
   correctFileName.replace(modelName, "");
-  if ((stationfile = fopen(correctFileName.cStr(), "r")) == NULL) {
+  if ((stationfile = fopen(correctFileName.cStr(), "rb")) == NULL) {
     cerr << "Unable to open file!" << endl;
     return false;
   }
