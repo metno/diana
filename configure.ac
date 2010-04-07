@@ -37,6 +37,10 @@ METNO_WIN32_WINSOCK
 #
 AC_LANG_PUSH([C])
 
+METNO_WIN32_IFELSE([DEBUG_FLAGS=-gstabs], [DEBUG_FLAGS=-g])
+CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra"
+AC_SYS_LARGEFILE
+
 AC_LANG_POP([C])
 
 #
@@ -177,6 +181,7 @@ AS_IF([test x$enable_obs_bufr = xyes], [
 AC_SUBST([program_suffix])
 AC_CONFIG_FILES([bin/diana])
 AC_CONFIG_FILES([bin/diana.bat])
+AC_CONFIG_FILES([bin/diana-zip.bat])
 AC_CONFIG_FILES([etc/diana/diana.setup])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
