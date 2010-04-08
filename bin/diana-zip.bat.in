@@ -25,20 +25,32 @@ echo.OK, I won't!
 goto end
 
 :create
-strip @prefix@/bin/bdiana.exe
-zip -9rv %zipfile% @prefix@/bin/bdiana.exe
-strip @prefix@/bin/bdiana.bin.exe
-zip -9rv %zipfile% @prefix@/bin/diana.bin.exe
+
+:: binaries
+set binaries=@prefix@/bin/diana.bin.exe @prefix@/bin/bdiana.exe
+strip %binaries%
+zip -9rv %zipfile% %binaries%
 zip -9rv %zipfile% @prefix@/bin/diana.bat
 zip -9rv %zipfile% @prefix@/bin/Qt*.dll
+
+:: diana.setup and udunits.dat
 zip -9rv %zipfile% @prefix@/etc
+
+:: misc. diana data
 zip -9rv %zipfile% @prefix@/share/applications
-zip -9rv %zipfile% @prefix@/share/diana
-zip -9rv %zipfile% @prefix@/share/doc/diana
 zip -9rv %zipfile% @prefix@/share/pixmaps
+
+:: fonts, icons, documentation etc. - except maps and demos
+set xdata=-x @prefix@/share/diana/maps/*
+set xdata=-x @prefix@/share/diana/demodata/* %xdata%
+zip -9rv %zipfile% @prefix@/share/diana %xdata%
+zip -9rv %zipfile% @prefix@/share/doc/diana
+
+:: data for third-party libraries
 zip -9rv %zipfile% @prefix@/share/grib_api/definitions
 zip -9rv %zipfile% @prefix@/share/proj
+
+:: copyright statements and licenses for third-party libraries
 zip -9rv %zipfile% @prefix@/copyright
-goto end
 
 :end
