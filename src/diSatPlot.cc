@@ -157,10 +157,8 @@ bool SatPlot::plot(){
       maprect.y1 >= ymax || maprect.y2 <= ymin) return true;
 
   // scaling
-  float scalex = float(pwidth)*area.P().getGridResolutionX() /fullrect.width();
-  float scaley = float(pheight)*area.P().getGridResolutionY()/fullrect.height();
-
-  //todo: area.P().getGridResolutionX() is obsolete
+  float scalex = float(pwidth) /fullrect.width();
+  float scaley = float(pheight)/fullrect.height();
 
   // Corners of image shown (map coordinates)
   float grStartx = (maprect.x1>xmin) ? maprect.x1 : xmin;
@@ -202,8 +200,8 @@ bool SatPlot::plot(){
   float pystart= (ystart-maprect.y1)*scaley;
 
   // update scaling with ratio image to map (was map to screen pixels)
-  scalex*= satdata->area.P().getGridResolutionX() / area.P().getGridResolutionX();
-  scaley*= satdata->area.P().getGridResolutionY() / area.P().getGridResolutionY();
+  scalex*= satdata->area.P().getGridResolutionX();
+  scaley*= satdata->area.P().getGridResolutionY();
 
   // width of image (pixels)
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image
