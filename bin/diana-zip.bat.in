@@ -32,6 +32,7 @@ strip %binaries%
 zip -9rv %zipfile% %binaries%
 zip -9rv %zipfile% @prefix@/bin/diana.bat
 zip -9rv %zipfile% @prefix@/bin/Qt*.dll
+zip -9rv %zipfile% @prefix@/bin/mingw*.dll
 
 :: diana.setup and udunits.dat
 zip -9rv %zipfile% @prefix@/etc
