@@ -176,9 +176,6 @@ AS_IF([test x$enable_obs_bufr = xyes], [
 #
 # Output
 #
-
-# creating bin/diana from bin/diana.in - substituting test stuff
-AC_SUBST([program_suffix])
 AC_CONFIG_FILES([bin/diana])
 AC_CONFIG_FILES([bin/diana.bat])
 AC_CONFIG_FILES([bin/diana-zip.bat])
