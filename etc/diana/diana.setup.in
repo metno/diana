@@ -90,15 +90,15 @@ font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
 # Texture (Qt-based) fonts
 #-----------------------------------------------------------------------------
 
-font=Helvetica type=texture face=NORMAL      name=Helvetica postscript=Helvetica
-font=Helvetica type=texture face=BOLD        name=Helvetica postscript=Helvetica-Bold
-font=Helvetica type=texture face=ITALIC      name=Helvetica postscript=Helvetica-Oblique
-font=Helvetica type=texture face=BOLD_ITALIC name=Helvetica postscript=Helvetica-BoldOblique
+#font=Helvetica type=texture face=NORMAL      name=Helvetica postscript=Helvetica
+#font=Helvetica type=texture face=BOLD        name=Helvetica postscript=Helvetica-Bold
+#font=Helvetica type=texture face=ITALIC      name=Helvetica postscript=Helvetica-Oblique
+#font=Helvetica type=texture face=BOLD_ITALIC name=Helvetica postscript=Helvetica-BoldOblique
 
 #-----------------------------------------------------------------------------
 # Defaults for 'magic' fontnames
 #-----------------------------------------------------------------------------
-BITMAPFONT=Helvetica    # Use this as default bitmap-font
+BITMAPFONT=Arial    # Use this as default bitmap-font
 SCALEFONT=Arial         # Use this as default scaleable-font
 METSYMBOLFONT=Symbol    # Use this as default font for meteorological symbols
 
@@ -106,8 +106,8 @@ METSYMBOLFONT=Symbol    # Use this as default font for meteorological symbols
 
 
 <LABELS>
-LABEL data font=Helvetica
-LABEL text="$dayeng $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+LABEL data font=BITMAPFONT
+LABEL text="$dayeng $date $auto UTC" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=BITMAPFONT fontsize=12
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12
 LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=14
 </LABELS>
