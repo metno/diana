@@ -1280,7 +1280,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
     if (n>1) {
       float xn= x[n-1];
       float yn= y[n-1];
-      if (area.P().convertFromGeographic(n, x, y)) {
+      if (area.P().convertFromGeographic(n, x, y) == 0 ) {
         clipPrimitiveLines(n, x, y, xylim, jumplimit);
         nlines++;
       } else {
