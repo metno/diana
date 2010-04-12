@@ -36,15 +36,6 @@
 #include <diSetupParser.h>
 #include <set>
 
-using namespace std;
-
-#ifdef USE_XLIB
-class glTextX;
-#endif
-class glTextTT;
-class glTextQtTexture;
-class GLPcontext;
-
 /**
  \brief Font manager for text plotting
 
@@ -56,19 +47,14 @@ class GLPcontext;
 
 class FontManager {
 private:
-#ifdef USE_XLIB
-  glTextX* xfonts;
-#endif
-  glTextTT* ttfonts;
-  glTextQtTexture* texfonts;
   glText * current_engine;
-  std::set<miutil::miString> xfam;
-  std::set<miutil::miString> ttfam;
-  std::set<miutil::miString> texfam;
+
+  std::map<miutil::miString, glText*> fontengines;
+  std::map<miutil::miString, std::set<miutil::miString> > enginefamilies;
 
   static miutil::miString fontpath;
   static miutil::miString display_name;
-  static map<miutil::miString, miutil::miString> defaults;
+  static std::map<miutil::miString, miutil::miString> defaults;
 
   glText::FontFace fontFace(const miutil::miString&);
   bool check_family(const miutil::miString& fam, miutil::miString& family);
