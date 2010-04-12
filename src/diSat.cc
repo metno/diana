@@ -196,6 +196,8 @@ void Sat::memberCopy(const Sat& rhs)
   nx = rhs.nx;
   ny = rhs.ny;
   area= rhs.area;
+  gridResolutionX = rhs.gridResolutionX;
+  gridResolutionY = rhs.gridResolutionY;
   time= rhs.time;
   annotation= rhs.annotation;
   plotname= rhs.plotname;
@@ -549,10 +551,14 @@ void Sat::setArea()
   //initializing libmi
   p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid);
 
-  Rectangle r(0., 0., nx, ny);
+  Rectangle r(0., 0., nx*Ax, ny*Ay);
 
   area.setP(p);
   area.setR(r);
+
+  gridResolutionX = Ax;
+  gridResolutionY = Ay;
+
 }
 
 void Sat::cleanup()

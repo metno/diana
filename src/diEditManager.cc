@@ -301,9 +301,13 @@ bool EditManager::parseSetup(SetupParser& sp) {
       //obsolete
       if (ep.gridnum>0 && nx>1 && ny>1 && gridtype>0) {
         Projection p;
-        p.set_mi_gridspec(gridtype, gridspec);
-        Rectangle  r(0.,0.,float(nx-1)*p.getGridResolutionX(),float(ny-1)*p.getGridResolutionY()); // as usual dimensions as rectangle...
+        double gridResolutionX;
+        double gridResolutionY;
+        p.set_mi_gridspec(gridtype, gridspec, gridResolutionX, gridResolutionX);
+        Rectangle  r(0.,0.,float(nx-1)*gridResolutionX,float(ny-1)*gridResolutionY); // as usual dimensions as rectangle...
         ep.area= Area(p,r);
+        ep.gridResolutionX = gridResolutionX;
+        ep.gridResolutionY = gridResolutionY;
       }
       //
       if (ep.savedir.empty()) ep.savedir= ".";

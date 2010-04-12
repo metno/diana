@@ -103,6 +103,9 @@ private:
 
   bool specset;
   Area areaspec;
+  double gridResolutionX;
+  double gridResolutionY;
+
   bool areaminimize;
   float minValue,maxValue; // used if not fieldUndef
 

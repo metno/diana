@@ -73,6 +73,8 @@ public:
   int nx;               ///< horizontal size of image
   int ny;               ///< vertical size of image
   Area area;            ///< Satellite area/projection
+  double gridResolutionX; /// Grid Resolution in the X direction
+  double gridResolutionY; /// Grid Resolution in the Y direction
   miutil::miTime time;          ///< valid time
   miutil::miString annotation;  ///< annotation string
   miutil::miString plotname;    ///< unique plotname

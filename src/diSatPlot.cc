@@ -145,12 +145,10 @@ bool SatPlot::plot(){
   ymin = 0.;
   if (!gc.getPoints(satdata->area, area, npos, &xmin, &ymin))
     return false;
-  xmax = nx* satdata->area.P().getGridResolutionX();
-  ymax = ny* satdata->area.P().getGridResolutionY();
+  xmax = nx* satdata->gridResolutionX;
+  ymax = ny* satdata->gridResolutionY;
   if (!gc.getPoints(satdata->area, area, npos, &xmax, &ymax))
     return false;
-
-  //todo: satdata->area.P().getGridResolutionX() -> satdata->getGridResolutionX() etc
 
   // exit if image is outside map area
   if (maprect.x1 >= xmax || maprect.x2 <= xmin ||
@@ -173,10 +171,10 @@ bool SatPlot::plot(){
   float y2= maprect.y2;
   if (!gc.getPoints(area, satdata->area, npos, &x2, &y2))
     return false;
-  x1/=satdata->area.P().getGridResolutionX();
-  x2/=satdata->area.P().getGridResolutionX();
-  y1/=satdata->area.P().getGridResolutionY();
-  y2/=satdata->area.P().getGridResolutionY();
+  x1/=satdata->gridResolutionX;
+  x2/=satdata->gridResolutionX;
+  y1/=satdata->gridResolutionY;
+  y2/=satdata->gridResolutionY;
 
   // Corners of image shown (image coordinates)
   int bmStartx= (maprect.x1>xmin) ? int(x1) : 0;
@@ -186,8 +184,8 @@ bool SatPlot::plot(){
 
   // lower left corner of displayed image part, in map coordinates
   // (part of lower left pixel may well be outside screen)
-  float xstart = bmStartx*satdata->area.P().getGridResolutionX();
-  float ystart = bmStarty*satdata->area.P().getGridResolutionY();
+  float xstart = bmStartx*satdata->gridResolutionX;
+  float ystart = bmStarty*satdata->gridResolutionY;
   if (!gc.getPoints(satdata->area, area, npos, &xstart, &ystart))
     return false;
 
@@ -200,8 +198,8 @@ bool SatPlot::plot(){
   float pystart= (ystart-maprect.y1)*scaley;
 
   // update scaling with ratio image to map (was map to screen pixels)
-  scalex*= satdata->area.P().getGridResolutionX();
-  scaley*= satdata->area.P().getGridResolutionY();
+  scalex*= satdata->gridResolutionX;
+  scaley*= satdata->gridResolutionY;
 
   // width of image (pixels)
   int currwid= bmStopx - bmStartx + 1;  // use pixels in image

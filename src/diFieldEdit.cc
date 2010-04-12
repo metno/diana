@@ -253,6 +253,8 @@ void FieldEdit::setSpec(const EditProduct& ep, int fnum) {
   metnoFieldFileIdentSpec[6]= ep.fields[fnum].level;
   metnoFieldFileIdentSpec[7]= ep.fields[fnum].level2;
   areaspec=     ep.area;
+  gridResolutionX = ep.gridResolutionX;
+  gridResolutionY = ep.gridResolutionY;
   areaminimize= ep.areaminimize;
   minValue=     ep.fields[fnum].minValue;
   maxValue=     ep.fields[fnum].maxValue;
@@ -513,14 +515,16 @@ bool FieldEdit::readEditfield(const miString& filename)
           delete editfield;
         } else {
           Projection p;
-          p.set_mi_gridspec(gtype, gspec);
+          double gridResolutionX;
+          double gridResolutionY;
+          p.set_mi_gridspec(gtype, gspec, gridResolutionX, gridResolutionX);
           Rectangle r(0., 0.,
-              float(nx-1)*p.getGridResolutionX(),
-              float(ny-1)*p.getGridResolutionY());
+              float(nx-1)*gridResolutionX,
+              float(ny-1)*gridResolutionY);
           editfield->area.setP(p);
           editfield->area.setR(r);
-          editfield->gridResolutionX = p.getGridResolutionX();
-          editfield->gridResolutionY = p.getGridResolutionY();
+          editfield->gridResolutionX = gridResolutionX;
+          editfield->gridResolutionY = gridResolutionY;
           editfield->nx= nx;
           editfield->ny= ny;
           found= true;
@@ -563,7 +567,7 @@ void FieldEdit::setData(const vector<Field*>& vf,
     miString demands= "fine.interpolation";
     if (areaminimize) demands+= " minimize.area";
     cerr << "Interpolation to analysis grid" << endl;
-    if (!editfield->changeGrid(areaspec,demands,gridnum))
+    if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,gridnum))
       cerr << "   specification/interpolation failure!!!!" << endl;
   }
 

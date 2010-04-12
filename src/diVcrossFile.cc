@@ -385,14 +385,16 @@ bool VcrossFile::readFileHeader() {
     }
     // x,y from fortran...
     Projection p;
-    p.set_mi_gridspec(igtype,gridparam);  // gridparam wil be C/C++ adjusted
+    double gridResolutionX;
+    double gridResolutionY;
+    p.set_mi_gridspec(igtype,gridparam, gridResolutionX, gridResolutionY);
     Rectangle  r;
     Area area(p,r);
     for (n=0; n<nposmap; n++) {
       xposmap[n]-=1.0f;
-      xposmap[n]*=p.getGridResolutionX();;
+      xposmap[n]*=gridResolutionX;
       yposmap[n]-=1.0f;
-      yposmap[n]*=p.getGridResolutionY();;
+      yposmap[n]*=gridResolutionY;
     }
     p.convertToGeographic(nposmap,xposmap,yposmap);
     //###################################################################
