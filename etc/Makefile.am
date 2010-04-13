@@ -2,5 +2,5 @@
 
 include $(top_srcdir)/diana.mk
 
-etcdir = ${sysconfdir}/${PACKAGE_NAME}
+etcdir = ${sysconfdir}/$(APP)
 etc_DATA = diana/diana.setup

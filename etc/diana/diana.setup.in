@@ -219,7 +219,7 @@ sos=     1010101100110011
 printcommand=lpr -h -{hash}{numcopies} -P {printer} {filename}
 
 # user-defined printer-specific commands
-manualcommands==$(DIANADIR)/diana/etc/printer.def
+manualcommands==$(DIANADIR)/share/diana/printer.def
 </PRINTING>
 
 
