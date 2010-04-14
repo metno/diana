@@ -35,7 +35,8 @@
 
 
 DIANADIR  = ${DIANADIR} || @prefix@
-OPDATA    = $(DIANADIR)/share/diana/demodata
+#OPDATA    = $(DIANADIR)/share/diana/demodata
+OPDATA = /disk1/demodata
 MAPDIR    = $(DIANADIR)/share/diana/maps
 
 <BASIC>
@@ -261,11 +262,13 @@ manualcommands==$(DIANADIR)/share/diana/printer.def
 psurf=8,2,1000
 uk_precip3h=17,2,1000:prod=74
 accumprecip=17,2,1000
+accumprecip.m=1117,2,1000
 frontalprec=19,2,1000
 convecprec=20,2,1000
 dpsdt=21,2,1000
 tclw=22,2,1000
 totcloud=25,2,1000
+totcloud.ratio=1125,2,1000
 tksoil=29,2,1000  tk0m=30,2,1000  tk2m=31,2,1000
 tdk2m=32,2,1000:prod=98:dtype=1
 tdk2m=32,2,1000:prod=98:dtype=2
@@ -277,15 +280,29 @@ total.water.vapour=42,2,1000
 globalrad.1hr.accum=46,2,1000
 ricnum=57,2,1000
 mslp=58,2,1000
+mslp.pa=1158,2,1000
 accumsnow_total_water=63,2,1000
-accumsnow_stratiform_water=64,2,1000  accumsnow_convective_water=65,2,1000
+accumsnow_stratiform_water=64,2,1000
+accumsnow_convective_water=65,2,1000
+accumrain_stratiform=74,2,1000
+accumrain_convective=75,2,1000
 snowdepth=66,2,1000
 roughness=83,2,1000
 soil_water_content=85,2,1000
 deep_soil_water_content=86,2,1000
-shortwave_radiation_flux=87,2,1000
+accumulated_net_surface_longwave_radiation=87,2,1000
 cape=93,2,1000
+tk2mland=131,2,1000 
 u.maxwind=152,2,1000 v.maxwind=153,2,1000 p.maxwind=154,2,1000
+smthconvecprec=171,2,1000
+maxconvecprec=172,2,1000
+minconvecprec=173,2,1000
+stdconvecprec=174,2,1000 
+mx2tk6=121,2,1000
+mn2tk6=122,2,1000
+10fg6=126,2,1000
+windgust=127,2,1000
+visibility.2m=1047,2,1000
 
 #### Inflight levels Simra
 z.inflight=1,2,999
@@ -320,41 +337,68 @@ turbulence=94 turb.dissip.length=95
 #                    param+4000=single.runs
 
 # ECMWF EPS probability (idnum is level2 in met.no fieldfiles)
-probab_precip>1mm=110,2,1000:idnum=1
-probab_precip>5mm=110,2,1000:idnum=2
-probab_precip>10mm=110,2,1000:idnum=3
-probab_precip>20mm=110,2,1000:idnum=4
-probab_wind>10ms=111,2,1000:idnum=1
-probab_wind>15ms=111,2,1000:idnum=2
-probab_t850_anomaly<-8=112,1,850:idnum=1
-probab_t850_anomaly<-4=112,1,850:idnum=2
-probab_t850_anomaly>+4=112,1,850:idnum=3
-probab_t850_anomaly>+8=112,1,850:idnum=4
+probab_precip>1mm=760,2,1000
+probab_precip>5mm=761,2,1000
+probab_precip>10mm=762,2,1000
+probab_precip>20mm=763,2,1000
+
+probab_wind>10ms=768,2,1000
+probab_wind>15ms=769,2,1000
+probab_wind_gust>15ms=770,2,1000
+probab_wind_gust>20ms=771,2,1000
+probab_wind_gust>25ms=772,2,1000
+
+#Extreme Forecast Index
+wind.gust.10m.index=796,2,1000 
+wind.speed.10m.index=797,2,1000
+temperature.2m.index=798,2,1000 
+total.precipitation.index=799,2,1000 
+
+probab_t850_anomaly<-2=720,1,850
+probab_t850_anomaly>+2=721,1,850
+probab_t850_anomaly<-8=722,1,850
+probab_t850_anomaly<-4=723,1,850
+probab_t850_anomaly>+4=724,1,850
+probab_t850_anomaly>+8=725,1,850
 
 # Wave model parameters, surface
 significant.wave.height=200,3,0
-peak.periode=201,3,0
-significant.periode=202,3,0
+peak.period=201,3,0
+significant.period=202,3,0
 peak.direction=203,3,0
 mean.direction=204,3,0
+mean.wavelength=205,3,0
 significant.windsea.wave.height=210,3,0
 significant.swell.wave.height=220,3,0
-peak.windsea.periode=211,3,0
+peak.windsea.period=211,3,0
 peak.windsea.direction=212,3,0
-mean.windsea.periode=213,3,0
+mean.windsea.period=213,3,0
 mean.windsea.direction=214,3,0
-peak.swell.periode=221,3,0
+peak.swell.period=221,3,0
 peak.swell.direction=222,3,0
-mean.swell.periode=223,3,0
+mean.swell.period=223,3,0
 mean.swell.direction=224,3,0
+mean.period.tmo2=261,3,0
+steepness=263,3,0
 ustokes=291,3,0  vstokes=292,3,0
 ice=293,3,0
-tauwg=295,3,0  drag_coeffisient=296,3,0  usnew=297,3,0
-ff_wind=298,3,0  dd_wind=299,3,0
+tauwg=295,3,0  
+drag_coefficient=296,3,0  
+usnew=297,3,0
+ff_wind=298,3,10  
+dd_wind=299,3,10
+t=303,8,0
+sst_c=308,8,0
+
+#### Wave model probability
+sign.wave.height>2m=774,3,0
+sign.wave.height>4m=775,3,0
+sign.wave.height>6m=776,3,0
+sign.wave.height>8m=777,3,0
 
 #### Wave model parameter fields
 mpp.processor.map=288,3,0
-botttom.depth=290,3,0
+bottom.depth=290,3,0
 
 #### Sea/Ocean model surface (single level) parameters"
 sea.surface=301,8,0
@@ -384,15 +428,15 @@ seatemp.c=308
 q2_turb.energy=312
 km_vertical_eddy_visc=313
 am_horizontal_eddy_visc=314
-kh_vertical_diffusion_coeffisient=315
+kh_vertical_diffusion_coefficient=315
 
 #### Sea/Ocean model Multilevel parameters, Biology
 nitrogen=371
 phosphate=372
 silicate=373
-detrius=374
-diatome=375
-flagellate=376
+detritus=374
+diatoms=375
+flagellates=376
 oxygen=377
 silica=378
 sediment2=379
@@ -424,6 +468,62 @@ bomb.dry.dep=521
 bomb.wet.dep=522
 bomb.accum.dry.dep=523
 bomb.accum.wet.dep=524
+
+#### LAMEPS Single level Probabilty parameters
+lameps_prob_rr>0.1mm=113,2,1000:idnum=1
+lameps_prob_rr>0.5mm=113,2,1000:idnum=2
+lameps_prob_rr>1.0mm=113,2,1000:idnum=3
+lameps_prob_rr>2.5mm=113,2,1000:idnum=4
+lameps_prob_rr>5.0mm=113,2,1000:idnum=5
+lameps_prob_rr>7.5mm=113,2,1000:idnum=6
+lameps_prob_rr>10mm=113,2,1000:idnum=7
+lameps_prob_rr>15mm=113,2,1000:idnum=8
+lameps_prob_rr>20mm=113,2,1000:idnum=9
+lameps_prob_rr>25mm=113,2,1000:idnum=10
+lameps_prob_rr>30mm=113,2,1000:idnum=11
+lameps_prob_rr>40mm=113,2,1000:idnum=12
+lameps_prob_rr>50mm=113,2,1000:idnum=13
+
+lameps_prob_wind>5ms=114,2,1000:idnum=1
+lameps_prob_wind>10ms=114,2,1000:idnum=2
+lameps_prob_wind>15ms=114,2,1000:idnum=3
+lameps_prob_wind>20ms=114,2,1000:idnum=4
+lameps_prob_wind>25ms=114,2,1000:idnum=5
+lameps_prob_wind>30ms=114,2,1000:idnum=6
+lameps_prob_wind>35ms=114,2,1000:idnum=7
+
+lameps_prob_t2m<-30=115,2,1000:idnum=1
+lameps_prob_t2m<-25=115,2,1000:idnum=2
+lameps_prob_t2m<-20=115,2,1000:idnum=3
+lameps_prob_t2m<-15=115,2,1000:idnum=4
+lameps_prob_t2m<-10=115,2,1000:idnum=5
+lameps_prob_t2m<-5=115,2,1000:idnum=6
+lameps_prob_t2m<-2=115,2,1000:idnum=7
+lameps_prob_t2m<0=115,2,1000:idnum=8
+lameps_prob_t2m>+2=115,2,1000:idnum=9
+lameps_prob_t2m>+5=115,2,1000:idnum=10
+lameps_prob_t2m>+10=115,2,1000:idnum=11
+lameps_prob_t2m>+15=115,2,1000:idnum=12
+lameps_prob_t2m>+20=115,2,1000:idnum=13
+lameps_prob_t2m>+25=115,2,1000:idnum=14
+lameps_prob_t2m>+30=115,2,1000:idnum=15
+
+lameps_prob_TS-T500>35=116,2,1000:idnum=1
+lameps_prob_TS-T500>37.5=116,2,1000:idnum=2
+lameps_prob_TS-T500>40=116,2,1000:idnum=3
+lameps_prob_TS-T500>41=116,2,1000:idnum=4
+lameps_prob_TS-T500>42=116,2,1000:idnum=5
+lameps_prob_TS-T500>43=116,2,1000:idnum=6
+lameps_prob_TS-T500>44=116,2,1000:idnum=7
+lameps_prob_TS-T500>45=116,2,1000:idnum=8
+lameps_prob_TS-T500>47.5=116,2,1000:idnum=9
+lameps_prob_TS-T500>50=116,2,1000:idnum=10
+
+lameps_prob_gust>15ms=117,2,1000:idnum=1
+lameps_prob_gust>20ms=117,2,1000:idnum=2
+lameps_prob_gust>25ms=117,2,1000:idnum=3
+lameps_prob_gust>30ms=117,2,1000:idnum=4
+lameps_prob_gust>35ms=117,2,1000:idnum=5
 
 #### PEPS Single level parameters
 peps_no_mod=9255,2,1000
@@ -478,19 +578,54 @@ osisaf.param_643=643,2,1000
 osisaf.ice.edge=644,2,1000
 osisaf.param_645=645,2,1000
 
+#### UV
+uvi = 900,2,1000
+
+#### Simulated imagery
+ir_rad = 1331,2,1000
+wv_rad = 1333,2,1000 
+
 # Season forecasts, Single level
 t.2m.season=163,2,1000
 
+t2m_anomali=801,2,1000
+#t2m_anomali_mean=2801,2,1000
+rr_weekly=812,2,1000 
+rr_anomali=802,2,1000 
+
+#### PROFF
+accumprecip.1h.proff=14,2,1000
+accumprecip.1h.m.proff=1114,2,1000
+topography.proff=1101,2,1000
+tc2m=1102,2,1000
+thunder.index=1103,2,1000
+fog.index=1104,2,1000
+tk2m.autocorr=1105,2,1000
+vessel_icing=1106,2,1000
+fraction.land.proff=1181,2,1000
+
+#### UM
+nswsrf=46,2,1000
+tswsrf=1035,2,1000
+nlwsrf=1036,2,1000
+tlwsrf=1037,2,1000
+shwsrf=1038,2,1000
+lhwsrf=1039,2,1000
+
+#### misc. parameters from postprocessing
+## single-level
+ducting.sum=123,2,1000
+icing.sum=1093,2,1000
+## multilevel
+ducting=81
+icing.index=1092
+icing.height=1094,2,1000
+icing.bottom=1095,2,1000
+icing.top=1096,2,1000
+cont=1097
+
 </METNOFIELDFILE_PARAMETERS>
 
-<NETCDF_PARAMETERS>
-
-tk2m=Temperature
-mslp_pa=Pressure
-u=x_wind
-v=y_wind
-
-</NETCDF_PARAMETERS>
 
 <FIELD_COMPUTE>
 
@@ -518,20 +653,29 @@ qvx,qvy=qvector.plevel_z_tk(z,tk)
 qvectorx=multiply(qvx,1.e+11)
 qvectory=multiply(qvy,1.e+11)
 qvector.divergence=divergence(qvectorx,qvectory)
-ducting=ducting.plevel_tk_rh(tk,rh)
-ducting=ducting.plevel_th_rh(th,rh)
+ducting.OLD=ducting.plevel_tk_rh(tk,rh)
+ducting.OLD=ducting.plevel_th_rh(th,rh)
 ug,vg=geostrophic.wind.plevel_z(z)
 uag=subtract(u,ug)
 vag=subtract(v,vg)
 gvorticity=geostrophic.vorticity.plevel_z(z)
+
+total.totals.1=add(tc,tdc)
+total.totals.2=multiply(tc,2.0)
+total.totals=subtract(total.totals.1:level=850hPa,total.totals.2:level=500hPa)
 k.index=kindex.plevel_th_rh(th:level=500hPa,th:level=700hPa,rh:level=700hPa,th:level=850hPa,rh:level=850hPa)
 k.index=kindex.plevel_tk_rh(tk:level=500hPa,tk:level=700hPa,rh:level=700hPa,tk:level=850hPa,rh:level=850hPa)
-ducting.index=ductingindex.plevel_th_rh(th:level=850hPa,rh:level=850hPa)
-ducting.index=ductingindex.plevel_tk_rh(tk:level=850hPa,rh:level=850hPa)
+ducting.index.OLD=ductingindex.plevel_th_rh(th:level=850hPa,rh:level=850hPa)
+ducting.index.OLD=ductingindex.plevel_tk_rh(tk:level=850hPa,rh:level=850hPa)
 showalter.index=showalterindex.plevel_th_rh(th:level=500hPa,th:level=850hPa,rh:level=850hPa)
 showalter.index=showalterindex.plevel_tk_rh(tk:level=500hPa,tk:level=850hPa,rh:level=850hPa)
 boyden.index=boydenindex.plevel_th_z(th:level=700hPa,z:level=700hPa,z:level=1000hPa)
 boyden.index=boydenindex.plevel_tk_z(tk:level=700hPa,z:level=700hPa,z:level=1000hPa)
+#fog.index=replace.all(cloud.fog,0)
+topodiff=subtract(topography.proff,topography)
+topodiff_06=multiply(topodiff,0.006)
+tk2m.autocorr=subtract(tk2m,topodiff_06)
+tc2m.autocorr=temp_k2c(tk2m.autocorr)
 
 # computations in hybrid/eta/sigma_norlam levels (needs psurf) (".hlevel_")
 tc=tc.hlevel_th_psurf(th,psurf)
@@ -549,8 +693,8 @@ rh=rh.hlevel_th_q_psurf(th,q,psurf)
 rh=rh.hlevel_tk_q_psurf(tk,q,psurf)
 q=q.hlevel_th_rh_psurf(th,rh,psurf)
 q=q.hlevel_tk_rh_psurf(tk,rh,psurf)
-ducting=ducting.hlevel_th_q_psurf(th,q,psurf)
-ducting=ducting.hlevel_tk_q_psurf(tk,q,psurf)
+ducting.OLD=ducting.hlevel_th_q_psurf(th,q,psurf)
+ducting.OLD=ducting.hlevel_tk_q_psurf(tk,q,psurf)
 p=pressure.hlevel_xx_psurf(th,psurf)
 p=pressure.hlevel_xx_psurf(tk,psurf)
 
@@ -570,10 +714,10 @@ tdc=tdc.alevel_th_q_p(th,q,p)
 tdc=tdc.alevel_tk_q_p(tk,q,p)
 tdc=tdc.alevel_th_rh_p(th,rh,p)
 tdc=tdc.alevel_tk_rh_p(tk,rh,p)
-ducting=ducting.alevel_th_q_p(th,q,p)
-ducting=ducting.alevel_tk_q_p(tk,q,p)
-ducting=ducting.alevel_th_rh_p(th,rh,p)
-ducting=ducting.alevel_tk_rh_p(tk,rh,p)
+ducting.OLD=ducting.alevel_th_q_p(th,q,p)
+ducting.OLD=ducting.alevel_tk_q_p(tk,q,p)
+ducting.OLD=ducting.alevel_th_rh_p(th,rh,p)
+ducting.OLD=ducting.alevel_tk_rh_p(tk,rh,p)
 
 # computations in isentropic levels (".ilevel_")
 ug,vg=geostrophic_wind.ilevel_mpot(montgomery.potential)
@@ -584,6 +728,9 @@ tc2m=temp_k2c(tk2m)
 tc0m=temp_k2c(tk0m)
 tcsoil=temp_k2c(tksoil)
 tdc2m=temp_k2c(tdk2m)
+mx2tc6=temp_k2c(mx2tk6)
+mn2tc6=temp_k2c(mn2tk6)
+tc2mland=temp_k2c(tk2mland) 
 
 tdk2m=tdk.tk_rh(tk2m,rh2m)
 tdc2m=tdc.tk_rh(tk2m,rh2m)
@@ -602,31 +749,86 @@ tcsc.param=temp_k2c(tksc.param)
 pressure.tendency.psurf=field.diff.forecast.hour(psurf,-3,0)
 pressure.tendency.mslp=field.diff.forecast.hour(mslp,-3,0)
 
+accumprecip=add(frontalprec,convecprec)  # in case the total is not input
+frontalprec=add(accumsnow_stratiform_water,accumrain_stratiform)
+convecprec=add(accumsnow_convective_water,accumrain_convective)
+accumsnow_total_water=add(accumsnow_stratiform_water,accumsnow_convective_water)
+totalrain=add(accumrain_stratiform,accumrain_convective)
+totalrain=subtract(accumprecip,accumsnow_total_water)
+accumrain_stratiform=subtract(frontalprec,accumsnow_stratiform_water)
+accumrain_convective=subtract(convecprec,accumsnow_convective_water)
+
 accumprecip.1h=accum.diff.forecast.hour(accumprecip,-1,0)
 accumprecip.3h=accum.diff.forecast.hour(accumprecip,-3,0)
 accumprecip.6h=accum.diff.forecast.hour(accumprecip,-6,0)
 accumprecip.12h=accum.diff.forecast.hour(accumprecip,-12,0)
 accumprecip.24h=accum.diff.forecast.hour(accumprecip,-24,0)
-accumprecip.30h=accum.diff.forecast.hour(accumprecip,-30,0)
 accumprecip.36h=accum.diff.forecast.hour(accumprecip,-36,0)
-accumprecip.37h=accum.diff.forecast.hour(accumprecip,-37,0)
-accumprecip.42h=accum.diff.forecast.hour(accumprecip,-42,0)
 
-accumprecip=add(frontalprec,convecprec)  # in case the total is not input
+accumfrontalprecip.1h=accum.diff.forecast.hour(frontalprec,-1,0)
+accumfrontalprecip.3h=accum.diff.forecast.hour(frontalprec,-3,0)
+accumfrontalprecip.6h=accum.diff.forecast.hour(frontalprec,-6,0)
+accumfrontalprecip.12h=accum.diff.forecast.hour(frontalprec,-12,0)
+accumfrontalprecip.24h=accum.diff.forecast.hour(frontalprec,-24,0)
+accumfrontalprecip.36h=accum.diff.forecast.hour(frontalprec,-36,0)
 
+accumconvecprecip.1h=accum.diff.forecast.hour(convecprec,-1,0)
+accumconvecprecip.3h=accum.diff.forecast.hour(convecprec,-3,0)
+accumconvecprecip.6h=accum.diff.forecast.hour(convecprec,-6,0)
+accumconvecprecip.12h=accum.diff.forecast.hour(convecprec,-12,0)
+accumconvecprecip.24h=accum.diff.forecast.hour(convecprec,-24,0)
+accumconvecprecip.36h=accum.diff.forecast.hour(convecprec,-36,0)
+
+accumsnow_total_water.1h=accum.diff.forecast.hour(accumsnow_total_water,-1,0)
 accumsnow_total_water.3h=accum.diff.forecast.hour(accumsnow_total_water,-3,0)
 accumsnow_total_water.6h=accum.diff.forecast.hour(accumsnow_total_water,-6,0)
 accumsnow_total_water.12h=accum.diff.forecast.hour(accumsnow_total_water,-12,0)
 accumsnow_total_water.24h=accum.diff.forecast.hour(accumsnow_total_water,-24,0)
+accumsnow_total_water.36h=accum.diff.forecast.hour(accumsnow_total_water,-36,0)
+
+totalrain.1h=accum.diff.forecast.hour(totalrain,-1,0)
+totalrain.3h=accum.diff.forecast.hour(totalrain,-3,0)
+totalrain.6h=accum.diff.forecast.hour(totalrain,-6,0)
+totalrain.12h=accum.diff.forecast.hour(totalrain,-12,0)
+totalrain.24h=accum.diff.forecast.hour(totalrain,-24,0)
+totalrain.36h=accum.diff.forecast.hour(totalrain,-36,0)
+
+accumrain_stratiform.1h=accum.diff.forecast.hour(accumrain_stratiform,-1,0)
+accumrain_stratiform.3h=accum.diff.forecast.hour(accumrain_stratiform,-3,0)
+accumrain_stratiform.6h=accum.diff.forecast.hour(accumrain_stratiform,-6,0)
+accumrain_stratiform.12h=accum.diff.forecast.hour(accumrain_stratiform,-12,0)
+accumrain_stratiform.24h=accum.diff.forecast.hour(accumrain_stratiform,-24,0)
+accumrain_stratiform.36h=accum.diff.forecast.hour(accumrain_stratiform,-36,0)
+
+accumrain_convective.1h=accum.diff.forecast.hour(accumrain_convective,-1,0)
+accumrain_convective.3h=accum.diff.forecast.hour(accumrain_convective,-3,0)
+accumrain_convective.6h=accum.diff.forecast.hour(accumrain_convective,-6,0)
+accumrain_convective.12h=accum.diff.forecast.hour(accumrain_convective,-12,0)
+accumrain_convective.24h=accum.diff.forecast.hour(accumrain_convective,-24,0)
+accumrain_convective.36h=accum.diff.forecast.hour(accumrain_convective,-36,0)
+
+accumsnow_stratiform_water.1h=accum.diff.forecast.hour(accumsnow_stratiform_water,-1,0)
+accumsnow_stratiform_water.3h=accum.diff.forecast.hour(accumsnow_stratiform_water,-3,0)
+accumsnow_stratiform_water.6h=accum.diff.forecast.hour(accumsnow_stratiform_water,-6,0)
+accumsnow_stratiform_water.12h=accum.diff.forecast.hour(accumsnow_stratiform_water,-12,0)
+accumsnow_stratiform_water.24h=accum.diff.forecast.hour(accumsnow_stratiform_water,-24,0)
+accumsnow_stratiform_water.36h=accum.diff.forecast.hour(accumsnow_stratiform_water,-36,0)
+
+accumsnow_convective_water.1h=accum.diff.forecast.hour(accumsnow_convective_water,-1,0)
+accumsnow_convective_water.3h=accum.diff.forecast.hour(accumsnow_convective_water,-3,0)
+accumsnow_convective_water.6h=accum.diff.forecast.hour(accumsnow_convective_water,-6,0)
+accumsnow_convective_water.12h=accum.diff.forecast.hour(accumsnow_convective_water,-12,0)
+accumsnow_convective_water.24h=accum.diff.forecast.hour(accumsnow_convective_water,-24,0)
+accumsnow_convective_water.36h=accum.diff.forecast.hour(accumsnow_convective_water,-36,0)
 
 # UK precipitation (not accumulation from start of forecast, for 3 hours)
 accumprecip.3h=sum_of_forecast_hours(uk_precip3h,0)
 accumprecip.6h=sum_of_forecast_hours(uk_precip3h,-3,0)
 accumprecip.12h=sum_of_forecast_hours(uk_precip3h,-9,-6,-3,0)
 accumprecip.24h=sum_of_forecast_hours(uk_precip3h,-21,-18,-15,-12,-9,-6,-3,0)
-accumprecip.30h=sum_of_forecast_hours(uk_precip3h,-27,-24,-21,-18,-15,-12,-9,-6,-3,0)
-accumprecip.36h=sum_of_forecast_hours(uk_precip3h,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0)
-accumprecip.42h=sum_of_forecast_hours(uk_precip3h,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0)
+#accumprecip.30h=sum_of_forecast_hours(uk_precip3h,-27,-24,-21,-18,-15,-12,-9,-6,-3,0)
+#accumprecip.36h=sum_of_forecast_hours(uk_precip3h,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0)
+#accumprecip.42h=sum_of_forecast_hours(uk_precip3h,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0)
 
 #..........................................the 3 last constants: precipMin,snowRateMax,tMax(C)
 danger.undercooled.rain=undercooled.rain(accumprecip.3h,accumsnow_total_water.3h,tk0m,0.2,0.08,0.0)
@@ -645,10 +847,29 @@ peps_t.2min_c=temp_k2c(peps_t.2min)
 z.foot.inflight=multiply(z.inflight,3.2808399)
 
 ff.maxwind=vector.abs(u.maxwind,v.maxwind)
+ff.maxwind.knot=multiply(ff.maxwind,1.94384)  # 1 knot = 1 m/s * 3600s/1852m
 flightlevel.maxwind=pressure2FlightLevel(p.maxwind)
 flightlevel.inflight=pressure2FlightLevel(p.inflight)
 
 flightlevel=pressure2FlightLevel(p)
+
+fluxs.3h=accum.diff.forecast.hour(fluxsens,-3,0)
+fluxsens.3h=divide(fluxs.3h,10800)	
+fluxs.6h=accum.diff.forecast.hour(fluxsens,-6,0)
+fluxsens.6h=divide(fluxs.6h,21600)	
+fluxs.12h=accum.diff.forecast.hour(fluxsens,-12,0)
+fluxsens.12h=divide(fluxs.12h,43200)	
+
+fluxl.3h=accum.diff.forecast.hour(fluxlat,-3,0)
+fluxlat.3h=divide(fluxl.3h,10800)	
+fluxl.6h=accum.diff.forecast.hour(fluxlat,-6,0)
+fluxlat.6h=divide(fluxl.6h,21600)	
+fluxl.12h=accum.diff.forecast.hour(fluxlat,-12,0)
+fluxlat.12h=divide(fluxl.12h,43200)	
+
+fluxsl.3h=add(fluxsens.3h,fluxlat.3h)	
+fluxsl.6h=add(fluxsens.6h,fluxlat.6h)	
+fluxsl.12h=add(fluxsens.12h,fluxlat.12h)	
 
 tc=temp_k2c(tk)
 tk=temp_c2k(tc)
@@ -656,8 +877,8 @@ vorticity=rel.vorticity(u,v)
 divergence=divergence(u,v)
 absvorticity=abs.vorticity(u,v)
 
-advection.vorticity=advection(vorticity,u,v,24.)  # advection in 24 hours (scaled)
-advection.t=advection(tk,u,v,24.)                 # advection in 24 hours (scaled)
+advection.vorticity=advection(vorticity,u,v,24.)
+advection.t=advection(tk,u,v,24.)
 
 tdc=tdc.tk_rh(tk,rh)
 tdc=tdc.tc_rh(tc,rh)
@@ -691,10 +912,33 @@ thediff.500-850=subtract(the:level=500hPa,the:level=850hPa)
 tdiff.sst-500=subtract(sst,tk:level=500hPa)
 tdiff.1000-sst=subtract(tk:level=1000hPa,sst)
 tdiff.500-1000=subtract(tk:level=500hPa,tk:level=1000hPa)
+tdiff.500-850=subtract(tk:level=500hPa,tk:level=850hPa)
 
 tcmean.500-1000=tcmean.plevel_z1_z2(z:level=500hPa,z:level=1000hPa)
 #tkmean.500-1000=tkmean.plevel_z1_z2(z:level=500hPa,z:level=1000hPa)
 #thmean.500-1000=thmean.plevel_z1_z2(z:level=500hPa,z:level=1000hPa)
+
+#Ising - Med formelen ff10m*(-1.7-tc2m)/(1+0.3*(sst+1.7))   - Overland (1990)
+#sst_c_corr=maxvalue.field.const(sst_C,-1.7) #Godtar ikke sst lavere enn -1.7
+#ppr_Tf_Ta=subtract(-1.7,tc2m)
+#ppr_teller=multiply(ff10m,ppr_Tf_Ta)
+#ppr_Tsea_Tf=add(sst_c_corr,1.7)
+#ppr_04Tsea_Tf=multiply(0.4,ppr_Tsea_Tf)
+#ppr_nevner=add(1,ppr_04Tsea_Tf)
+#vessel_icing=divide(ppr_teller,ppr_nevner)
+vessel_icing=vessel.icing(tk2m,sst,u10m,v10m,-1.7)
+
+windcooling_minus=subtract(0,windcooling) #For å vise graden av forfrysningsfare som felt. 
+
+#2m wetbulb temp from `1/3 rule`
+
+tctd=subtract(tc2m,tdc2m)
+tctd3=divide(tctd,3)
+wetbulb3=subtract(tc2m,tctd3)
+
+#Tzoneforecast=dz*9.81/(287*ln(1000/700))-273 = dz*0.09583287318-273  /From Eirik Samuelsen, implemented by Gjermund Mamen Haugen
+Tzoneforecast_kelvin = multiply(dz.700-1000,0.09583287318)
+Tzoneforecast=temp_k2c(Tzoneforecast_kelvin)
 
 # for ocean model fields
 current.speed=vector.abs(u.current,v.current)
@@ -714,20 +958,30 @@ mass.above.bl.average=subtract(100.,mass.in.bl.average)
 bomb.total.dep=add(bomb.dry.dep,bomb.wet.dep)
 bomb.accum.total.dep=add(bomb.accum.dry.dep,bomb.accum.wet.dep)
 
-# OSISAF (som fields)
+# OSISAF (som felt)
 osisaf.ice.concentration.classes=values2classes(osisaf.ice.concentration,0.0,0.1,19.9,39.9,59.9,79.9,99.9,999.)
+ncf.osisaf.icedrift.y.plot=multiply(ncf.osisaf.icedrift.y,-1)
 
 # Sesong-varsler
 t.2m.season_c=temp_k2c(t.2m.season)
 
-mslp=multiply(mslp_pa,0.01) 
+# DZ(850-1000).boyden
+dz.boyden.1=divide(z,30)
+dz.boyden.2=multiply(dz.boyden.1,29)
+dz.850-1000.boyden=subtract(z:level=850hPa,dz.boyden.2:level=1000hPa)
+
+# WDB
+mslp=divide(mslp.pa,100)
+accumprecip.1h.proff=multiply(accumprecip.1h.m.proff,1000)
+accumprecip=multiply(accumprecip.m,1000)
+totcloud=multiply(totcloud.ratio,100)
 
 </FIELD_COMPUTE>
-
 
 <FIELD_PLOT>
 
 ################### NWP models ##################################
+
 
 ##### surface etc. ##########
 
@@ -747,7 +1001,13 @@ end.field
 field=T.2M
       text = "2m Temperature"
       colour=red line.interval=2.
-      plot=CONTOUR(tc2m)
+      plot=CONTOUR(tc2m|tk2m)
+end.field
+
+field=T.2M_AUTOCORR
+      text = "2m Temperature"
+      colour=red line.interval=2.
+      plot=CONTOUR(tc2m.autocorr)
 end.field
 
 field=VIND.10M
@@ -778,16 +1038,31 @@ field=FF.10M.KNOP
       plot=CONTOUR(ff10mknots)
 end.field
 
-loop [HR]=1,3,6,12,24
-loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40","0.2,0.5,1,2,4,6,10,15,....50","0.5,1,2,4,6,10,15,....60","1,2,4,6,10,15,....100","0.5,1,2,4,6,10,15,....200"
+field=FF.10M.Beaufort
+      text = "Vindstyrke i beaufort/kt"
+      line.values=16.5,21.5,27.5,33.5,40.5,47.5,55.5,63.5
+      plot=CONTOUR(ff10mknots)
+end.field 
+
+field=NEDBØR.1T.PROFF
+      colour=red palettecolours=green linetype=solid linewidth=1 line.values=0.1,0.2,0.5,1,2,4,6,10,15,...40
+      plot=CONTOUR(accumprecip.1h.proff)
+end.field
+
+loop [HR]=1,3,6,12,24,36
+loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
+"0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
+"0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400"
 
 field=NEDBØR.[HR]T
       colour=red linetype=solid linewidth=1 line.values=[LINE]
       plot=CONTOUR(accumprecip.[HR]h)
 end.field
 
-loop [HR]=1,3,6,12,24
-loop [LINE]="0.1,0.2,0.5,1,2,4,6,10,15,....40","0.2,0.5,1,2,4,6,10,15,....50","0.5,1,2,4,6,10,15,....60","1,2,4,6,10,15,....100","0.5,1,2,4,6,10,15,....200"#
+loop [HR]=1,3,6,12,24,36
+loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
+"0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
+"0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400"
 
 field=NEDBØR(SNØ).[HR]T
       colour=red linetype=solid linewidth=1 line.values=[LINE]
@@ -801,7 +1076,7 @@ field=Underkjølt.Regn
 end.field
 
 field=TOTALT.SKYDEKKE
-      colour=red value.range=0.,100.
+      colour=red value.range=0.,100. 
       plot=ALPHA_SHADE(totcloud)
 end.field
 
@@ -825,6 +1100,10 @@ field=HØYE_SKYER
       plot=ALPHA_SHADE(cloud.high)
 end.field
 
+field=TOTALT.SKYDEKKE_CONTOUR
+      plot=CONTOUR(totcloud)
+end.field
+
 field=LAVE_SKYER_CONTOUR
       colour=white line.values=40,60,80,100
       plot=CONTOUR(cloud.low)
@@ -840,6 +1119,30 @@ field=HØYE_SKYER_CONTOUR
       plot=CONTOUR(cloud.high)
 end.field
 
+field=TÅKE_CONTOUR_EQUIDISTANT
+      colour=white
+      plot=CONTOUR(cloud.fog)
+end.field
+
+field=LAVE_SKYER_CONTOUR_EQUIDISTANT
+      colour=white
+      plot=CONTOUR(cloud.low)
+end.field
+
+field=MIDDELS_HØYE_SKYER_CONTOUR_EQUIDISTANT
+      colour=red
+      plot=CONTOUR(cloud.medium)
+end.field
+
+field=HØYE_SKYER_CONTOUR_EQUIDISTANT
+      colour=red
+      plot=CONTOUR(cloud.high)
+end.field 
+
+field=Visibility
+      plot=CONTOUR(visibility.2m)
+end.field 
+
 field=TCLW
       colour=red linetype=solid linewidth=1 line.interval=0.1
       plot=CONTOUR(tclw)
@@ -851,16 +1154,26 @@ field=Snø_dybde
       plot=CONTOUR(snowdepth)
 end.field
 
-field=Snow_slide_danger
-      forecast.length=+000,+06,+12,+24,+36,+48,+240  # forecast hour
-      forecast.value.min=3.,15.,25.,40.,50.,60.,250. # accumulated total precipitation (in forecast)
+field=Skredfare
+      forecast.length=+000,+06,+12,+24,+36,+48,+240
+      forecast.value.min=3.,15.,25.,40.,50.,60.,250.
       colour=red
       plot=ALARM_BOX(accumprecip)   # alarm if value>value.min
 end.field
 
-field=Wind_cooling
+field=Vindavkjøling
      colour=red linetype=solid linewidth=1 line.interval=5.
      plot=CONTOUR(windcooling)
+end.field
+
+field=Twb.2M
+       colour=red line.interval=2.
+       plot=CONTOUR(wetbulb3)
+end.field
+
+field=Total-totals
+      colour=black linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(total.totals)
 end.field
 
 field=K-INDEX
@@ -878,10 +1191,36 @@ field=SHOWALTER-INDEX
       plot=CONTOUR(showalter.index)
 end.field
 
-field=DUCTING-INDEX
+field=DUCTING-INDEX-OLD
       colour=red linetype=solid linewidth=1 line.interval=3.
-      plot=CONTOUR(ducting.index)
+      plot=CONTOUR(ducting.index.OLD)
 end.field
+
+field=DUCTING-SUM
+      colour=red linetype=solid linewidth=1 line.interval=3.
+      plot=CONTOUR(ducting.sum)
+end.field
+
+field=ICING-SUM
+      colour=blue linetype=solid linewidth=1 line.interval=2.
+      plot=CONTOUR(icing.sum)
+end.field
+
+field=ICING-SUM-COLOR
+      bordercolour=blue rel.size=0.8 values=4,5,6,7,8,9 palettecolours=green,yellow,yellow,orange,black,black
+      plot=FILL_CELL(icing.sum)
+end.field
+
+field=ICING-SUM-LAYER
+      bordercolour=blue rel.size=0.8 label.size=1.0
+      plot=LAYER(icing.height, icing.bottom, icing.top)
+end.field
+
+field=T.2M.land
+     text = "2m Temperature land"
+     colour=blue line.interval=2.
+     plot=CONTOUR(tc2mland|tk2mland)
+end.field 
 
 field=T.0M
       #"0m Temperature"
@@ -902,7 +1241,7 @@ field=RH.2M
 end.field
 
 field=Td.2M
-      #"2m Dewpoint temperature"
+      #"2m Dewpoint temp."
       colour=red linetype=solid linewidth=1 line.interval=2.
       plot=CONTOUR(tdc2m)
 end.field
@@ -913,9 +1252,30 @@ field=CAPE
       plot=CONTOUR(cape)
 end.field
 
-field=Precipitation.accum
+loop [HR] = 1,3,6,12,24
+loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
+"0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
+"0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400"
+
+field="FRONTAL_NEDBØR.[HR]T"
+      colour=red linetype=solid linewidth=1 line.values=[LINE] 
+      plot=CONTOUR(accumfrontalprecip.[HR]h)
+end.field
+
+loop [HR] = 1,3,6,12,24,36
+loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
+"0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
+"0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400"
+
+field="KONVEKTIV_NEDBØR.[HR]T"
+      colour=red linetype=solid linewidth=1 line.values=[LINE] 
+      plot=CONTOUR(accumconvecprecip.[HR]h)
+end.field
+
+
+field=NEDBØR.AKKUMULERT
       colour=red linetype=solid linewidth=1
-      line.values=1,2,4,6,10,15,...50,60,...300
+      line.values=1,2,4,6,10,15,...50,60,...500
       plot=CONTOUR(accumprecip)
 end.field
 
@@ -924,12 +1284,12 @@ field=RIC
       plot=CONTOUR(ricnum)
 end.field
 
-field=PSURF
+field=PS
       colour=red line.interval=25.
       plot=CONTOUR(psurf)
 end.field
 
-field=DPSURF/DT
+field=DPS/DT
       colour=red line.interval=0.001
       zero.line=1
       plot=CONTOUR(dpsdt)
@@ -947,52 +1307,66 @@ field=V10M
       plot=CONTOUR(v10m)
 end.field
 
-field=MAX.WIND
+field=MAX.VIND
       colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
       plot=WIND(u.maxwind,v.maxwind)
 end.field
 
-field=MAX.WIND.arrow
+field=MAX.VIND.PIL
       colour=red linetype=solid linewidth=2 rel.size=1. density=AUTO
       vector.unit=10.
       plot=VECTOR(u.maxwind,v.maxwind)
 end.field
 
-field=FF.MAX.WIND
+field=FF.MAX.VIND
       colour=red linetype=solid linewidth=1 line.interval=5.
       plot=CONTOUR(ff.maxwind)
 end.field
 
-field=P(MAX.WIND)
+field=FF.MAX.VIND.KNOP
+      colour=red linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(ff.maxwind.knot)
+end.field
+
+field=P(MAX.VIND)
       colour=red linetype=solid linewidth=1 line.interval=50.
       plot=CONTOUR(p.maxwind)
 end.field
 
-field=FlightLevel(MAX.WIND)
+field=FlightLevel(MAX.VIND)
       colour=blue
       line.values=0,25,50,100,140,180,240,300,340,390,450,530,600,700,800
       plot=CONTOUR(flightlevel.maxwind)
 end.field
 
-field=Global_radiation
+field=Global_stråling
       colour=red linetype=solid linewidth=1 line.interval=5000.
       zero.line=1
       plot=CONTOUR(globalrad)
 end.field
 
-field=FLUX.SENS
+loop [HR]=3,6,12
+field=FLUXS.avg_[HR]h
       colour=red linetype=solid linewidth=1 line.interval=50.
       zero.line=1
-      plot=CONTOUR(fluxsens)
+      plot=CONTOUR(fluxsens.[HR]h)
 end.field
 
-field=FLUX.LAT
+loop [HR]=3,6,12
+field=FLUXL.avg_[HR]h
       colour=red linetype=solid linewidth=1 line.interval=50.
       zero.line=1
-      plot=CONTOUR(fluxlat)
+      plot=CONTOUR(fluxlat.[HR]h)
 end.field
 
-field=Vertical_integrated_watervapour
+loop [HR]=3,6,12
+field=FLUX.S+L.avg_[HR]h
+      colour=red linetype=solid linewidth=1 line.interval=50.
+      zero.line=1
+      plot=CONTOUR(fluxsl.[HR]h)
+end.field
+
+field=Vertikalt_integrert_vanndamp
       colour=red linetype=solid linewidth=1 line.interval=10.
       plot=CONTOUR(total.water.vapour)
 end.field
@@ -1012,9 +1386,9 @@ field=Deep_soil_water_content
       plot=CONTOUR(deep_soil_water_content)
 end.field
 
-field=Shortwave_radiation_flux
+field=Accumulated_net_surface_longwave_radiation
       colour=red linetype=solid linewidth=1 line.interval=5000.
-      plot=CONTOUR(shortwave_radiation_flux)
+      plot=CONTOUR(accumulated_net_surface_longwave_radiation)
 end.field
 
 field=Albedo
@@ -1022,29 +1396,30 @@ field=Albedo
       plot=CONTOUR(albedo)
 end.field
 
-field=Snow(total_water)
+field=Snø(total_vannekvivalent)
       colour=red linetype=solid linewidth=1 line.interval=5.
       plot=CONTOUR(accumsnow_total_water)
 end.field
 
-field=Snø(stratiform_water)
+field=Snø(stratiform_vannekvivalent)
       colour=red linetype=solid linewidth=1 line.interval=5.
       plot=CONTOUR(accumsnow_stratiform_water)
 end.field
 
-field=Snow(convective_water)
+field=Snø(konvektiv_vannekvivalent)
       colour=red linetype=solid linewidth=1 line.interval=5.
       plot=CONTOUR(accumsnow_convective_water)
 end.field
 
-loop [HR]=30,36,37,42
-field=Precipitation.[HR]hr
-      colour=red linetype=solid linewidth=1
-      line.values=0.5,1,2,4,6,10,15,...70,80,...400
-      plot=CONTOUR(accumprecip.[HR]h)
-end.field
+#Do anyone use this?
+#loop [HR]=30,36,37,42
+#field=NEDBØR.[HR]T
+#      colour=red linetype=solid linewidth=1
+#      line.values=0.5,1,2,4,6,10,15,...70,80,...400
+#      plot=CONTOUR(accumprecip.[HR]h)
+#end.field
 
-field=Turbulence_intencity
+field=Turbulensintensitet
       colour=red linetype=solid linewidth=1 line.interval=0.01
       plot=CONTOUR(turbulence)
 end.field
@@ -1055,15 +1430,53 @@ field=Turb.dissip.length
 end.field
 
 
+field=smthconvecprec
+    colour=red linetype=solid linewidth=1
+    line.interval=2.5
+    plot=CONTOUR(smthconvecprec)
+end.field
+
+field=maxconvecprec
+    colour=red linetype=solid linewidth=1
+    line.interval=2.5
+    plot=CONTOUR(maxconvecprec)
+end.field
+
+field=minconvecprec
+    colour=red linetype=solid linewidth=1
+    line.interval=2.5
+    plot=CONTOUR(minconvecprec)
+end.field
+
+field=stdconvecprec
+    colour=red linetype=solid linewidth=1
+    line.interval=2.5        
+    plot=CONTOUR(stdconvecprec)
+end.field 
+
+field=max_duct
+     colour=red linetype=solid linewidth=2 line.interval=5.
+     plot=CONTOUR(max_duct)
+end.field
+
+field=p_max_duct
+     colour=red linetype=solid linewidth=2 line.interval=10.
+     plot=CONTOUR(p_max_duct)
+end.field
+
+field=z_max_duct
+     colour=red linetype=solid linewidth=2 line.interval=10.
+     plot=CONTOUR(z_max_duct)
+end.field 
 ### Inflight fields (Simra) ###
 
-field=Height_if
+field=Høyde_if
       fieldgroup="Inflight"
       colour=blue linetype=solid linewidth=1 line.interval=100.
       plot=CONTOUR(z.inflight)
 end.field
 
-field=Height_feet_if
+field=Høyde_fot_if
       fieldgroup="Inflight"
       colour=blue linetype=solid linewidth=1 line.interval=500.
       plot=CONTOUR(z.foot.inflight)
@@ -1077,31 +1490,57 @@ field=W_if
       plot=CONTOUR(w.inflight)
 end.field
 
-field=Turbulence_if
+field=Turbulens_if
       fieldgroup="Inflight"
       colour=red linetype=solid linewidth=1 line.interval=0.5
       plot=CONTOUR(turbulence.inflight)
 end.field
 
-field=Pressure_if
+field=Trykk_if
       fieldgroup="Inflight"
       colour=green linetype=solid linewidth=1 line.interval=10.
       plot=CONTOUR(p.inflight)
 end.field
 
-field=WIND_if
+field=VIND_if
       fieldgroup="Inflight"
       colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
       plot=WIND(u.inflight,v.inflight)
 end.field
 
-field=VIND.arrow_if
+field=VIND.PIL_if
       fieldgroup="Inflight"
       colour=red linetype=solid linewidth=2 rel.size=1. density=AUTO
       vector.unit=10.
       plot=VECTOR(u.inflight,v.inflight)
 end.field
 
+field=MAX.T2M.6T
+      colour=red line.interval=2.
+      plot=CONTOUR(mx2tc6)
+end.field
+
+field=MIN.T2M.6T
+      colour=red line.interval=2.
+      plot=CONTOUR(mn2tc6)
+end.field
+
+field=WIND.GUST.6T
+      colour=red line.interval=5.
+      plot=CONTOUR(10fg6)
+end.field
+
+field=Vessel_icing
+    text = "Vessel icing"
+    colour=red line.values=0,20.4,53.3,83.0  #Light, Moderate, Heavy, Extreme
+    plot=CONTOUR(vessel_icing)
+end.field
+
+field=Forfrysningsfare
+    text = "Forfrysningsfare"
+    colour=red line.values=10,25,45,60  #Light, Moderate, Heavy, Extreme, Stay_inside
+    plot=CONTOUR(windcooling_minus)
+end.field
 
 ######## Fields in several vertical coordinates (p/eta/sigma/pv/....) ###
 
@@ -1111,12 +1550,12 @@ field=Z
       plot=CONTOUR(z)
 end.field
 
-field=WIND
+field=VIND
       colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
       plot=WIND(u,v)
 end.field
 
-field=WIND.arrow
+field=VIND.PIL
       colour=red linetype=solid linewidth=2 rel.size=1. density=AUTO
       vector.unit=10.
       plot=VECTOR(u,v)
@@ -1137,12 +1576,18 @@ field=FF
       plot=CONTOUR(ff)
 end.field
 
-field=FF.KNOTS
+field=FF.KNOP
       colour=red linetype=solid linewidth=1 line.interval=5.
       plot=CONTOUR(ffknots)
 end.field
 
-field=FF.coloured
+field=FF.Beaufort
+      text = "Vindstyrke i beaufort/kt"
+      line.values=16.5,21.5,27.5,33.5,40.5,47.5,55.5,63.5
+      plot=CONTOUR(ffknots)
+end.field
+
+field=FF.FARGET
       colour=red value.range=0.,70.
       plot=ALPHA_SHADE(ff)
 end.field
@@ -1193,35 +1638,34 @@ field=Cloud_in_level
       plot=ALPHA_SHADE(cloud.level)
 end.field
 
-field=Pot.Vorticity
+field=Pot.Virvling
       colour=red line.values=1,2,3,...12
       plot=CONTOUR(pot.virv)
 end.field
 
-field=Q-VECTOR
+field=Q-VEKTOR
       colour=red linewidth=2 rel.size=1. density=1
       vector.unit=1.
       plot=VECTOR(qvectorx,qvectory)
 end.field
 
-field=Divergence(Q-VECTOR)
+field=Divergens(Q-VEKTOR)
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
       plot=CONTOUR(qvector.divergence)
 end.field
 
 field=TFP
-      #"Thermal Front Parameter"
       colour=red linetype=solid linewidth=1 line.interval=1. zero.line=1
       plot=CONTOUR(tfp)
 end.field
 
-field=GEOSTROPHIC.WIND
+field=GEOSTROFISK.VIND
       colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
       plot=WIND(ug,vg)
 end.field
 
-field=AGEOSTROPHIC.WIND
+field=AGEOSTROFISK.VIND
       colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
       plot=WIND(uag,vag)
 end.field
@@ -1236,42 +1680,57 @@ field=PRECIP.ETA
       plot=CONTOUR(levelprecip)
 end.field
 
-field=Vorticity
+field=Virvling
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
       plot=CONTOUR(vorticity)
 end.field
 
-field=Divergence
+field=Divergens
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
       plot=CONTOUR(divergence)
 end.field
 
-field=Abs.Vorticity
+field=Abs.Virvling
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
       plot=CONTOUR(absvorticity)
 end.field
 
-field=Geostrophic.Vorticity
+field=Geostrofisk.Virvling
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
       plot=CONTOUR(gvorticity)
 end.field
 
-field=DUCTING
-      colour=red linetype=solid linewidth=1 line.interval=10.
+field=DUCTING-GRADIENTS
+      colour=red linetype=solid linewidth=1 line.interval=9.
       plot=CONTOUR(ducting)
 end.field
 
-field=Advection(Vorticity)
+field=ICING-INDEX
+      colour=blue linetype=solid linewidth=1 line.interval=2.
+      plot=CONTOUR(icing.index)
+end.field
+
+field=CONTRAILS
+      colour=red linetype=solid linewidth=1 line.interval=1.
+      plot=CONTOUR(cont)
+end.field
+
+field=DUCTING-OLD
+      colour=red linetype=solid linewidth=1 line.interval=10.
+      plot=CONTOUR(ducting.OLD)
+end.field
+
+field=Adveksjon(Virvling)
       colour=red linetype=solid linewidth=1 line.interval=0.0001
       zero.line=1
       plot=CONTOUR(advection.vorticity)
 end.field
 
-field=Advection(Temp)
+field=Adveksjon(T)
       colour=red linetype=solid linewidth=1 line.interval=3.
       zero.line=1
       plot=CONTOUR(advection.t)
@@ -1295,7 +1754,7 @@ field=Omega
       plot=CONTOUR(omega)
 end.field
 
-field=Pressure
+field=Trykk
       colour=red line.interval=25.
       plot=CONTOUR(p)
 end.field
@@ -1312,12 +1771,12 @@ field=Etadot
       plot=CONTOUR(etadot)
 end.field
 
-field=M.comp
+field=M.komp
       colour=gray line.interval=2.
       plot=CONTOUR(mfield)
 end.field
 
-field=N.comp
+field=N.komp
       colour=gray line.interval=2.
       plot=CONTOUR(nfield)
 end.field
@@ -1327,6 +1786,11 @@ field=JACOBIAN(M,N)
       plot=CONTOUR(jacobian.mn)
 end.field
 
+field=W
+     colour=red linetype=solid linewidth=1 line.interval=0.1
+     zero.line=1
+     plot=CONTOUR(w)
+end.field 
 
 ### Single level computations mainly from pressure levels ###
 
@@ -1340,10 +1804,15 @@ end.field
 
 loop [P1]=500,500,700,300
 loop [P2]=1000,850,1000,700
-field=DZ([P1]-[P2])_farget
+field="DZ([P1]-[P2])_farget"
       #"Thickness"
       colour=orange value.range=5000.,5600.
       plot=ALPHA_SHADE(dz.[P1]-[P2])
+end.field
+
+field=DZ(850-1000).boyden
+    text = "dz.850-1000.boyden"
+    plot=CONTOUR(dz.850-1000.boyden)
 end.field
 
 loop [P1]=850,700,500,700,500
@@ -1372,10 +1841,20 @@ field=T500-T1000
       plot=CONTOUR(tdiff.500-1000)
 end.field
 
+field=T500-T850
+      #"Temperature difference 500-850"
+      colour=red linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(tdiff.500-850)
+end.field
+
+field=T(700-1000)
+     text = "Middeltemperatur mellom 700 og 1000hPa"
+     plot=CONTOUR(Tzoneforecast)
+end.field
 
 ### Parameter fields (constant in time, usually...) ###
 
-field=Topography
+field=Topografi
       colour=red line.interval=250.
       plot=CONTOUR(topography)
 end.field
@@ -1390,12 +1869,12 @@ field=SST
       plot=CONTOUR(sst_c)
 end.field
 
-field=Snowcoverage(lines)
+field=Snødekke(linje)
       colour=red line.interval=20.
       plot=CONTOUR(snowcoverage)
 end.field
 
-field=Snowcoverage(colours)
+field=Snødekke(farget)
       colours=darkblue,blue,yellow,magenta,red
       value.range=0.,100.       # limits=19.,39.,59.,79.,99.
       plot=ALPHA_SHADE(snowcoverage)
@@ -1453,13 +1932,85 @@ field=Probability_Wind>[MS]m/s
       plot=CONTOUR(probab_wind>[MS]ms)
 end.field
 
-loop [TA]="<-8","<-4",">+4",">+8"
+loop [MS]=15,20,25
+field=Probability_Wind_Gust>[MS]m/s
+      fieldgroup="EPS probability"
+      colour=red line.interval=20.
+      plot=CONTOUR(probab_wind_gust>[MS]ms)
+end.field
+
+loop [TA]="<-8","<-4","<-2",">+2",">+4",">+8"
 field=Probability_T850_Anomaly[TA]
       fieldgroup="EPS probability"
       colour=red line.interval=20.
       plot=CONTOUR(probab_t850_anomaly[TA])
 end.field
 
+field=Wind.gust.10m.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(wind.gust.10m.index)
+end.field
+
+field=Wind.speed.10m.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(wind.speed.10m.index)
+end.field
+
+field=Temperature.2m.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(temperature.2m.index)
+end.field
+
+field=Total.precipitation.index
+      fieldgroup="Extreme Forecast Index"
+      colour=red line.interval=1.
+      plot=CONTOUR(total.precipitation.index)
+end.field
+
+######################## LAMEPS ##############################
+
+loop [MS]=5,10,15,20,25,30,35
+field=Lameps_Probability_Wind>[MS]m/s
+      fieldgroup="EPS probability"
+      colour=red line.interval=10.
+      plot=CONTOUR(lameps_prob_wind>[MS]ms)
+end.field
+
+loop [TA]="<-30","<-25","<-20","<-15","<-10","<-5","<-2","<0",">+2",">+5",">+10",">+15",">+20",">+25",">+30"
+field=Lameps_Probability_T2M[TA]
+      fieldgroup="EPS probability"
+      colour=red line.interval=10.
+      plot=CONTOUR(lameps_prob_t2m[TA])
+end.field
+
+loop [TA]=35,37.5,40,41,42,43,44,45,47.5,50
+field=Lameps_Probability_TS-T500>[TA]
+      colour=red line.interval=10.
+      plot=CONTOUR(lameps_prob_TS-T500>[TA])
+end.field
+
+loop [MM]=0.1,0.5,1.0,2.5,5.0,7.5,10,15,20,25,30,40,50
+field=Lameps_Probability_Precip>[MM]mm/6h
+    fieldgroup="EPS probability"
+    colour=red line.interval=10.
+    plot=CONTOUR(lameps_prob_rr>[MM]mm)
+end.field 
+
+loop [MS]=15,20,25,30,35
+field=Lameps_Probability_Wind_Gust>[MS]m/s
+      fieldgroup="EPS probability"
+      colour=red line.interval=10.
+      plot=CONTOUR(lameps_prob_gust>[MS]ms)
+end.field
+
+field=WIND.GUST
+      text = "Wind Gust 10m m/s"
+      colour=blue linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(windgust)
+end.field
 
 ######################## PEPS ##############################
 
@@ -1541,25 +2092,25 @@ field=MPP_Processor_map
       plot=CONTOUR(mpp.processor.map)
 end.field
 
-field=ICE(lines)
+field=IS(linje)
       colour=red linewidth=3 line.values=0.5
       plot=CONTOUR(ice)
 end.field
 
-field=ICE(colours)
+field=IS(farget)
       colour=darkBlue value.range=0.,1.
       plot=ALPHA_SHADE(ice)
 end.field
 
 field=Significant_Wave_Height
-      colour=red line.interval=1.
+      colour=red line.values=0,0.1,0.5,1.25,2.5,4,6,9,14
       plot=CONTOUR(significant.wave.height)
 end.field
 
 loop [TYPE]=Peak,Significant
-field=[TYPE]_periode
+field=[TYPE]_period
       colour=red line.interval=1.
-      plot=CONTOUR([TYPE].periode)
+      plot=CONTOUR([TYPE].period)
 end.field
 
 loop [TYPE] = Peak,Mean
@@ -1570,7 +2121,7 @@ end.field
 
 loop [TYPE] = Peak,Mean
 field=[TYPE]_Direction_and_Significant_Height
-      colours=darkgray,black,blue,darkblue,magenta,red # N   colours
+      colours=darkgray,black,blue,darkblue,magenta,red # N colours
       limits=1.,2.,3.,4.,5.                            # N-1 limits
       rel.size=1.0
       plot=DIRECTION_COLOUR([TYPE].direction,significant.wave.height)
@@ -1590,9 +2141,9 @@ end.field
 
 loop [TYPE1]=Peak,Peak,Mean,Mean
 loop [TYPE2]=WINDSEA,SWELL,WINDSEA,SWELL
-field=[TYPE1]_[TYPE2]_periode
+field=[TYPE1]_[TYPE2]_period
       colour=red line.interval=1.
-      plot=CONTOUR([TYPE1].[TYPE2].periode)
+      plot=CONTOUR([TYPE1].[TYPE2].period)
 end.field
 
 loop [TYPE1]=Peak,Peak,Mean,Mean
@@ -1613,9 +2164,9 @@ field=TAUWG
       plot=CONTOUR(tauwg)
 end.field
 
-field=Drag_coeffisient
+field=Drag_coefficient
       colour=red line.interval=0.01
-      plot=CONTOUR(drag_coeffisient)
+      plot=CONTOUR(drag_coefficient)
 end.field
 
 field=USNEW
@@ -1631,6 +2182,37 @@ end.field
 field=Wind.direction
       colour=red rel.size=1.0
       plot=DIRECTION(dd_wind)
+end.field
+
+field=Mean_wavelength
+      line.interval=10
+      plot=CONTOUR(mean.wavelength)
+end.field
+
+field=Steepness
+      line.interval=0.1
+      plot=CONTOUR(steepness)
+end.field
+
+field=Mean_period_tm02
+      line.interval=1.
+      plot=CONTOUR(mean.period.tmo2)
+end.field
+
+field=Significant_Wave_Height>2m
+      plot=CONTOUR(sign.wave.height>2m)
+end.field
+
+field=Significant_Wave_Height>4m
+      plot=CONTOUR(sign.wave.height>4m)
+end.field
+
+field=Significant_Wave_Height>6m
+      plot=CONTOUR(sign.wave.height>6m)
+end.field
+
+field=Significant_Wave_Height>8m
+      plot=CONTOUR(sign.wave.height>8m)
 end.field
 
 
@@ -1665,7 +2247,7 @@ end.field
 
 field=Average_current_speed
       colour=red line.interval=0.1
-      plot=CONTOUR(ff.average.current)
+      plot=CONTOUR(average.current.speed)
 end.field
 
 field=Current
@@ -1675,7 +2257,7 @@ end.field
 
 field=Current_speed
       colour=red line.interval=0.1
-      plot=CONTOUR(ff.current)
+      plot=CONTOUR(current.speed)
 end.field
 
 field=Salt
@@ -1723,7 +2305,7 @@ end.field
 
 field=Stress-value
       colour=red line.interval=0.1
-      plot=CONTOUR(ff.stress)
+      plot=CONTOUR(stress)
 end.field
 
 field=X.stress
@@ -1738,14 +2320,14 @@ field=Y.stress
       plot=CONTOUR(y.stress)
 end.field
 
-field=KH_vertical_diffusion_coeffisient
+field=KH_vertical_diffusion_coefficient
       colour=red line.interval=100.
-      plot=CONTOUR(kh_vertical_diffusion_coeffisient)
+      plot=CONTOUR(kh_vertical_diffusion_coefficient)
 end.field
 
 ########### MIPOM BIOLOGY ############
 
-loop [BIO]=Nitrogen,Phosphate,Silicate,Detrius,Diatome,Flagellate,Oxygen,Silica,Sediment2,Sediment1
+loop [BIO]=Nitrogen,Phosphate,Silicate,Detritus,Diatoms,Flagellates,Oxygen,Silica,Sediment2,Sediment1
 loop [LIN]=100.,10.,100.,100.,10.,10.,10.,10.,10.,10.
 field=[BIO]
       colour=red line.interval=[LIN]
@@ -1797,37 +2379,289 @@ field=V.ice
       plot=CONTOUR(v.ice)
 end.field
 
+########### SNAP - Severe Nuclear Accident Program ############
 
-####################### OSISAF products som fields ######################
+field=HBL.INSTANT
+      colour=red line.interval=100.
+      plot=CONTOUR(hbl.instant)
+end.field
 
-field=ICEtype
+field=HBL.AVERAGE
+      colour=red line.interval=100.
+      plot=CONTOUR(hbl.average)
+end.field
+
+field=PRECIP.SNAP
+      line.values=.2,.5,1.,2.,4.,6.,10.,15.,20.,25.
+      colour=red linetype=solid linewidth=1
+      plot=CONTOUR(precip.snap)
+end.field
+
+# Translate level identifier to (component) name for a fieldgroup,
+# read file with same path and name as the fieldfile pluss a suffix string
+#
+####fieldgroup_level_translation_file="Farlige_stoffer","_level_names"
+
+field=CONC.INSTANT
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=100,300
+      plot=CONTOUR(conc.instant)
+end.field
+
+field=CONC.AVERAGE
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=100,300
+      plot=CONTOUR(conc.average)
+end.field
+
+field=CONC.ACCUM
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=1000
+      plot=CONTOUR(conc.accum)
+end.field
+
+field=DRY.DEP
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=1000,3000
+      plot=CONTOUR(dry.dep)
+end.field
+
+field=WET.DEP
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=1000,3000
+      plot=CONTOUR(wet.dep)
+end.field
+
+field=TOTAL.DEP
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=1000,3000
+      plot=CONTOUR(total.dep)
+end.field
+
+field=ACCUM.DRY.DEP
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=1000,3000
+      plot=CONTOUR(accum.dry.dep)
+end.field
+
+field=ACCUM.WET.DEP
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=1000,3000
+      plot=CONTOUR(accum.wet.dep)
+end.field
+
+field=ACCUM.TOTAL.DEP
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=1000,3000
+      plot=CONTOUR(accum.total.dep)
+end.field
+
+field=MASS.IN.BL.INSTANT
+      fieldgroup="Farlige_stoffer"
+      colour=red line.interval=100.
+      plot=CONTOUR(mass.in.bl.instant)
+end.field
+
+field=MASS.ABOVE.BL.INSTANT
+      fieldgroup="Farlige_stoffer"
+      colour=red line.interval=100.
+      plot=CONTOUR(mass.above.bl.instant)
+end.field
+
+field=MASS.IN.BL.AVERAGE
+      fieldgroup="Farlige_stoffer"
+      colour=red line.interval=100.
+      plot=CONTOUR(mass.in.bl.average)
+end.field
+
+field=MASS.ABOVE.BL.AVERAGE
+      fieldgroup="Farlige_stoffer"
+      colour=red line.interval=100.
+      plot=CONTOUR(mass.above.bl.average)
+end.field
+
+field=BOMB.DRY.DEP%
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=0.01,0.03
+      plot=CONTOUR(bomb.dry.dep)
+end.field
+
+field=BOMB.WET.DEP%
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=0.01,0.03
+      plot=CONTOUR(bomb.wet.dep)
+end.field
+
+field=BOMB.TOTAL.DEP%
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=0.01,0.03
+      plot=CONTOUR(bomb.total.dep)
+end.field
+
+field=BOMB.ACCUM.DRY.DEP%
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=0.01,0.03
+      plot=CONTOUR(bomb.accum.dry.dep)
+end.field
+
+field=BOMB.ACCUM.WET.DEP%
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=0.01,0.03
+      plot=CONTOUR(bomb.accum.wet.dep)
+end.field
+
+field=BOMB.ACCUM.TOTAL.DEP%
+      fieldgroup="Farlige_stoffer"
+      colour=red log.line.values=0.01,0.03
+      plot=CONTOUR(bomb.accum.total.dep)
+end.field
+
+####################### OSISAF-produkter som felt ######################
+
+field=Istype
       # value:name,value:name,... (for annotations and possibly field edit)
       classes=1:Isfritt,2:Første_år,3:Multi_år,4:Usikker,9:Land,10:Ubestemt
       colour=red line.interval=1. discontinuous=1
       plot=CONTOUR(osisaf.ice.type)
 end.field
 
-field=ICEconcentration
+field=Iskonsentrasjon
       colour=red line.interval=10.
       plot=CONTOUR(osisaf.ice.concentration)
 end.field
 
-field=ICEconcentration_classes
+field=Iskonsentrasjon_klasser
       # value:name,value:name,... (for annotations and possibly field edit)
       classes=0:Hav,1:0-20%,2:20-40%,3:40-60%,4:60-80%,5:80-99%,6:100%
       colour=red line.interval=1. discontinuous=1
       plot=CONTOUR(osisaf.ice.concentration.classes)
 end.field
 
-field=ICEedge
+field=param_643
+      colour=red line.interval=10.
+      plot=CONTOUR(osisaf.param_643)
+end.field
+
+field=Iskant
       # value:name,value:name,... (for annotations and possibly field edit)
-      classes=1:No_ice,2:Open_ice,3:Fast_ice,9:Land,10:Undefined
+      classes=1:Isfritt,2:Åpen_is,3:Fast_is,9:Land,10:Ubestemt
       colour=red line.interval=1. discontinuous=1
       plot=CONTOUR(osisaf.ice.edge)
 end.field
 
-</FIELD_PLOT>
+field=param_645
+      colour=red line.interval=10.
+      plot=CONTOUR(osisaf.param_645)
+end.field
 
+field=isdrift
+      colour=red rel.size=1. density=1
+      vector.unit=62.5 vector.unit.name="km"
+      plot=VECTOR(ncf.osisaf.icedrift.x,ncf.osisaf.icedrift.y.plot)
+end.field
+
+####################### UV  ########## ###########################################
+
+field=UV-indeks
+      line.values=0.,1.5,2.5,3.5,4.5,5.5,6.5,7.5,9.5,10.5,20.
+      colour=black field.smooth=1  colourcut=0 \
+      linewidth=2 value.label=1 label.size=1.3 palettecolours=who_uvi \
+      table=1 
+     plot = CONTOUR(uvi)
+end.field
+
+####################### Simulated imagery ###########################################
+
+field=ir_rad
+     text = "Simulated ir imagery"
+     value.range=240.,300.
+     colour=blue
+     plot=ALPHA_SHADE(ir_rad)
+end.field
+field=wv_rad
+     text = "Simulated wv imagery"
+     value.range=240.,300.
+     colour=blue
+     plot=ALPHA_SHADE(wv_rad)
+end.field 
+
+####################### Sesong-varsler ###########################################
+
+field=T.2M.medlem.sesong
+      colour=red line.interval=1.
+      plot=CONTOUR(t.2m.season_c)
+end.field
+
+####################### Måneds-varsler ###########################################
+
+field=T_ANOMALI.2M
+      text = "2m temperatur anomali"
+      colour=red line.interval=0.5
+      plot=CONTOUR(t2m_anomali)
+end.field
+
+field=NEDBØR.7D
+      text = "Akkumulert nedbør 7 døgn"
+      colour=red line.interval=10
+      plot=CONTOUR(rr_weekly)
+end.field 
+
+field=RR_ANOMALI
+      text = "Ukentlig nedbør anomali"
+      colour=red line.interval=2
+      plot=CONTOUR(rr_anomali)
+end.field
+
+####################### PROFF ###########################################
+
+
+field=THUNDER-INDEX
+      colour=red  minvalue=0.5 maxvalue=999. 
+      plot=ALARM_BOX(thunder.index)
+end.field
+
+field=FOG-INDEX
+      colour=red  minvalue=0.5 maxvalue=999. 
+      plot=ALARM_BOX(fog.index)
+end.field
+
+field=Topografi.proff
+      colour=red line.interval=250.
+      plot=CONTOUR(topography.proff)
+end.field
+
+field=Fraction_Land.proff
+      colour=red line.interval=10.
+      plot=CONTOUR(fraction.land.proff)
+end.field
+
+####################### UM ###########################################
+
+field=NET_DOWN_SURF_SW
+      plot=CONTOUR(nswsrf)
+end.field
+
+field=TOT_DOWN_SURF_SW
+      plot=CONTOUR(tswsrf)
+end.field
+
+field=NET_DOWN_SURF_LW
+      plot=CONTOUR(nlwsrf)
+end.field
+
+field=TOT_DOWN_SURF_LW
+      plot=CONTOUR(tlwsrf)
+end.field
+
+field=SURF_SENSIBLE_HEAT_FLUX
+      plot=CONTOUR(shwsrf)
+end.field
+
+field=SURF_LATENT_HEAT_FLUX 
+      plot=CONTOUR(lhwsrf)
+end.field
+
+</FIELD_PLOT>
 
 <FIELD_FILES>
 
@@ -1837,106 +2671,68 @@ end.field
 
 Default_Filetype=MetnoFieldFile
 
-filegroup=HIRLAM
-m=HIRLAM.00      f=$(OPDATA)/hirlam/grdh00.dat  f=$(OPDATA)/hirlam/grdhi00.dat
-m=HIRLAM.12      f=$(OPDATA)/hirlam/grdh12.dat  f=$(OPDATA)/hirlam/grdhi12.dat
+filegroup=ECMWF
+m=EC.GEO.0.25.00  g=98:103:0.5grad_NH  g=98:106:0.25grad  \
+                  f=$(OPDATA)/ec/ec_atmo_geo_00_mad.felt
 
+filegroup=HIRLAM8km
+m=HIRLAM.8KM.00    f=$(OPDATA)/hirlam8/h8km00.dat
 
+filegroup=UM.4km
+m=UM.HL.4KM.00    f=$(OPDATA)/um4km/grdq00.dat
+
+filegroup=UM.1km
+m=UM.Nord-Norge.1km.00      f=$(OPDATA)/um1km/um1nn00.dat
+
+filegroup=NORLAMEPS
+m=NORLAMEPS.18             f=$(OPDATA)/lameps/lameps18.dat               \
+                           f=$(OPDATA)/lameps/teps_hires_shifted12.dat   \
+                           f=$(OPDATA)/lameps/norlameps_prob18.dat       \
+                           f=$(OPDATA)/lameps/norlameps_pred18.dat
 
 filegroup=WAVE/WAM
-m=WAM.00         f=$(OPDATA)/wave/gwave00.dat
-m=WAM.12         f=$(OPDATA)/wave/gwave12.dat
+m=WAM.00            f=$(OPDATA)/wave/gwave00.dat
+m=WAM.10km.00       f=$(OPDATA)/wave/g10kmwave00.dat
+m=WAM.4km.00        f=$(OPDATA)/wave/g4kmwave00.dat
+m=SWAN.karmoy.500m.00 f=$(OPDATA)/wave/g500m_Karmoy_wave00.dat
+m=WAM.10KM.EPS.18   f=$(OPDATA)/wave_eps/g10kmwaveEPS_18.dat \
+                    f=$(OPDATA)/wave_eps/wave_prob.flt
 
-filegroup=SEA/ECOM3D
-m=ECOM3D.20KM.00    f=$(OPDATA)/sea/f3sea00.dat
-m=ECOM3D.20KM.12    f=$(OPDATA)/sea/f3sea12.dat
-
-
-filegroup=NetCDF
-m=rot_lat_long         t=NetCDF f=$(OPDATA)/netcdf/metno_test_rotated_latitude_longitude.nc
-m=geographic           t=NetCDF f=$(OPDATA)/netcdf/metno_test_geographic.nc
-m=polar_stereo         t=NetCDF f=$(OPDATA)/netcdf/metno_test_polar_stereographic.nc
-m=polar_stereo_depth  t=NetCDF f=$(OPDATA)/netcdf/metno_test_polar_stereographic_depth.nc
+filegroup=SEA
+m=NORDIC.4KM.00        f=$(OPDATA)/sea/f4Nordic00.dat
+m=VESTLAND_200M        f=$(OPDATA)/sea/f0.2Vestland00.dat
 
 </FIELD_FILES>
 
-
 <OBSERVATION_FILES>
 
-### PROD=obsFormat:obsName
-
-PROD=synop:Synop_BUFR
-bufr=$(OPDATA)/bufr/surf[yyyymmddHH]*.rdb
-timerange=-30,30
-
 PROD=synop:Synop
-metnoobs=$(OPDATA)/obs_dec/synoHH.yyyymmdd
+metnoobs=$(OPDATA)/obs_dec/synoHH.dat
 timerange=-30,30
 
 PROD=dribu:Dribu
-metnoobs=$(OPDATA)/obs_dec/drauHH.yyyymmdd
+metnoobs=$(OPDATA)/obs_dec/drauHH.dat
 timerange=-90,90
 
 PROD=metar:Metar
-bufr=$(OPDATA)/obs_dec/metaXX.yyyymmdd
+metnoobs=$(OPDATA)/obs_dec/metaXX.dat
 timerange=-15,15
 
-PROD=temp:Temp
-metnoobs=$(OPDATA)/obs_dec/tempHH.yyyymmdd
-timerange=-180,180
-
-PROD=aireps:Aireps
-metnoobs=$(OPDATA)/obs_dec/arepHH.yyyymmdd
-timerange=-180,180
-
 </OBSERVATION_FILES>
-
-
-<OBSERVATION_PRIORITY_LISTS>
-
-name=test-list	       file==$(DIANADIR)/diana/etc/priList.txt
-
-</OBSERVATION_PRIORITY_LISTS>
-
-
-<OBSERVATION_CRITERIA>
-
-plottype=Synop
-name=Wind
-ff>15 plot
-ff>20  red
-
-name=Temperature
-TTT<0  blue
-TTT>0 red
-
-plottype=List
-name=temperatur
-TTT<0  blue
-TTT>0 red
-
-</OBSERVATION_CRITERIA>
-
 
 <IMAGE>
 
 image=NOAA
   channels= day_night 2+4 4+2 1+2+4 2+3+4 3+4+5 5+4+3 2+6+4 6+4+5 5+4+6 1 2 3 4 5 6
-  sub.type= N-Europe
+  sub.type= N-Europa
       file= $(OPDATA)/meos/mchannel/noaa[yyyymmddHHMM]mne.mitiff
+  sub.type= S-Norge-(SAF_SE)
+      file= $(OPDATA3)/meos/mchannel/noaa[yyyymmddHHMM]mns.mitiff
 
-image=METEOSAT
-  channels= VIS_RAW IR+V
-  sub.type= Visuell
-      file= $(OPDATA)/meteosat/orig/g*bv.tif
-  channels= IR_CAL IR+V
-  sub.type= IR
-      file= $(OPDATA)/meteosat/orig/g*bi.tif
-
-image=Radar-precipitation
-   channels= PSC_RI
-   sub.type= Precip_itensity_mm/h
-       file= $(OPDATA)/radar/composite/PSC_RI-N2-ALL_PS0E60N1_[yyyymmdd]T[HHMM].mitiff
+image=Radar-obs
+  channels= PSC_Z
+  sub.type = Sørskandinavia_1km_dBZ
+      file = $(OPDATA)/nordrad/mitiff/RRPSC_Z_DSORSKAND_1000_[yyyymmddHHMM].mitiff
 
 </IMAGE>
 
@@ -1985,34 +2781,65 @@ name=Obsflagg       file=$(DIANADIR)/share/diana/obsflag.html
 #   the same for keys F5, F7 and F8  (keys F5,F6,F7,F8 from large to smaller areas of interest)
 #---------------------------------------------------------------------------
 
-name=Data-area     proj=undefined  grid=0:0:0:0
+name=modell/sat-område   proj=undefined  grid=0:0:0:0
 
-name=Europe        proj=pstereo_60  grid=115:148:237:0:0:0  area=51:181:45:134
-name=Norway[F6]    proj=pstereo_60  grid=115:148:237:0:0:0  area=100:140:77:117
-name=S-Norway[F7]  proj=pstereo_60  grid=115:148:237:0:0:0  area=112:134:77:97
-name=N-Norway      proj=pstereo_60  grid=115:148:237:0:0:0  area=118:140:94:115
-name=Norway.20W    proj=pstereo_60  grid=115:148:237:-20:0:0  area=130:160:85:125
+name=Europa   proj=pstereo_60  grid=115:148:237:0:0:0  area=51:181:45:134
+name=Norge[F6]     proj=pstereo_60  grid=115:148:237:0:0:0  area=100:140:77:117
+name=S-Norge[F7]   proj=pstereo_60  grid=115:148:237:0:0:0  area=112:134:77:97
+name=Trøndelag     proj=pstereo_60  grid=115:148:237:0:0:0  area=118:135:89:99
+name=N-Norge       proj=pstereo_60  grid=115:148:237:0:0:0  area=118:140:94:115
+name=Norge.20W     proj=pstereo_60  grid=115:148:237:-20:0:0  area=130:160:85:125
 
-name=VA-Norway[F8] proj=pstereo_60  grid=115:148:237:0:0:0  area=114:128:80:94
-name=VV-Norway     proj=pstereo_60  grid=115:148:237:0:0:0  area=104:126:80:94
-name=VNN-Norway    proj=pstereo_60  grid=115:148:237:0:0:0  area=120:138:95:114
+name=VA-Norge[F8]  proj=pstereo_60  grid=115:148:237:0:0:0  area=114:128:80:94
+name=VV-Norge      proj=pstereo_60  grid=115:148:237:0:0:0  area=104:126:80:94
+name=VNN-Norge     proj=pstereo_60  grid=115:148:237:0:0:0  area=120:138:95:114
 
 name=Atlant[F5]    proj=pstereo_60  grid=115:148:237:0:0:0  area=1:229:1:196
 
 name=SIGkart       proj=pstereo_60  grid=115:148:237:0:0:0  area=95:154:54:138
+name=NyttSigkart4  proj=pstereo_60  grid=11851:11851:11850:-17:60:0 area=11900:13450:8500:11150
 name=SWIkart       proj=pstereo_60  grid=115:148:237:0:0:0  area=107:145:81:135
 
-name=N.sphere      proj=pstereo_60      grid=11851:11851:11850:0:60:0     area=1:23701:1:23701
-name=S.sphere      proj=pstereographic  grid=11851:11851:11850:180:-60:0  area=1:23701:1:23701
+name=N.halvkule    proj=pstereo_60      grid=11851:11851:11850:0:60:0     area=1:23701:1:23701
+name=S.halvkule    proj=pstereographic  grid=11851:11851:11850:180:-60:0  area=1:23701:1:23701
 
-name=N.sphere-90   proj=pstereo_60  grid=11851:11851:11850:-90:60:0  area=1:23701:1:23701
-name=N.sphere+90   proj=pstereo_60  grid=11851:11851:11850:90:60:0   area=1:23701:1:23701
+name=N.halvkule-90  proj=pstereo_60  grid=11851:11851:11850:-90:60:0  area=1:23701:1:23701
+name=N.halvkule+90  proj=pstereo_60  grid=11851:11851:11850:90:60:0   area=1:23701:1:23701
 
-name=Hirlam-grid   proj=spherical_rot  grid=-46.5:-36.5:0.5:0.5:0:65  area=1:188:1:152
+name=Hirlam-grid  proj=spherical_rot  grid=-46.5:-36.5:0.5:0.5:0:65  area=1:188:1:152
 
-name=Mercator      proj=mercator    grid=-50:30:50:50:60:0  area=1:121:1:111
-name=Geographic    proj=geographic  grid=-30:30:1:1  area=1:91:1:41
-name=Global        proj=geographic  grid=-180:-90:1:1  area=1:361:1:181
+name=Merkator  proj=mercator  grid=-50:30:50:50:60:0  area=1:121:1:111
+name=Geografisk  proj=geographic  grid=-30:30:1:1  area=1:91:1:41
+name=Globalt  proj=geographic  grid=-180:-90:1:1  area=1:361:1:181
+
+name=Infosat.1  proj=pstereo_60  grid=115:148:237:0:0:0  area=95:148:52:127
+
+name=ENHF    proj=pstereo_60  grid=115:148:237:0:0:0  area=130.89:131.71:110.74:111.32
+name=ENST    proj=pstereo_60  grid=115:148:237:0:0:0  area=125.58:126.29:98.54:99.09
+name=ENHV    proj=pstereo_60  grid=115:148:237:0:0:0  area=132.2:132.55:112.22:112.55
+name=ENNK    proj=pstereo_60  grid=115:148:237:0:0:0  area=128.25:128.74:104.68:105.11
+name=Norge.smal     proj=pstereo_60  grid=115:148:237:-20:0:0  area=139.8:149.7:87:122.3
+# Utsnitt for batch
+name=Ishav     proj=pstereo_60  grid=115:148:237:0:0:0  area=92:157:90:138
+name=N-Europa  proj=pstereo_60  grid=115:148:237:0:0:0  area=60:172:56:138
+name=N.halvkule+65  proj=pstereo_60  grid=11851:11851:11850:65:60:0   area=10387:15012:4876:8185
+name=Troms  proj=pstereo_60  grid=115:148:237:0:0:0  area=124:133:104:110
+name=H10-stor  proj=pstereo_60  grid=115:148:237:0:0:0  area=95:163:80:130
+name=H10-liten  proj=pstereo_60  grid=115:148:237:0:0:0  area=102:149:96:130
+
+name=proj_ortho_north area=-1127.9:1127.9:-653.061:653.061 projdefinition="+proj=ortho +lon_0=0 +lat_0=90 +a=6371000.0 +b=6371000.0" resolutionx=10000 resolutiony=10000
+
+name=proj_hirlam area=0:100:0:100 projdefinition="+proj=ob_tran +o_proj=eqc +lon_0=0 +o_lat_p=25 +x_0=5.14744e+06 +y_0=4.03549e+06 +a=6371000.0 +b=6371000.0" resolutionx=10000 resolutiony=10000
+
+name=proj_bonne area=-1816.19:1790.7:-962.263:1127.95 projdefinition="+proj=bonne +lat_1=40 +a=6371000.0 +b=6371000.0" resolutionx=10000 resolutiony=10000
+
+name=proj_van_der_grinten area=-1483.29:1298.85:-354.151:1258.12 projdefinition="+proj=vandg +a=6371000.0 +b=6371000.0" resolutionx=10000 resolutiony=10000
+
+name=proj_eqc area=0:100:0:100 projdefinition="+proj=eqc +x_0=3.22465e+06 +y_0=-3.44704e+06 +a=6371000.0 +b=6371000.0" resolutionx=111195 resolutiony=111195
+
+name=proj_obtran area=0:100:0:100 projdefinition="+proj=ob_tran +o_proj=eqc +lon_0=0 +o_lat_p=25 +x_0=5.14744e+06 +y_0=4.03549e+06 +a=6371000.0 +b=6371000.0" resolutionx=11119 resolutiony=11119
+
+name=proj_lambert area=0:100:0:100 projdefinition=" +proj=lcca +lat_0=45 +lon_0=35 +x_0=229966 +y_0=215145 +a=6.371e+06 +b=6.371e+06" resolutionx=10000 resolutiony=10000
 
 </MAP_AREA>
 
@@ -2052,7 +2879,7 @@ contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 
 # the end of filenames are always "year month day hour minute" (.yyyymmddHHMM)
 
-name="met.no SurfaceAnalysis"  file=$(OPDATA)/diana/SurfaceAnalysis/objects/TEST_ANAdraw
+#name="met.no SurfaceAnalysis"  file=$(OPDATA)/diana/SurfaceAnalysis/objects/TEST_ANAdraw
 
 </OBJECTS>
 
@@ -2179,27 +3006,13 @@ end.product
 
 
 <VERTICAL_PROFILE_FILES>
-
-# prognostic data
-m=HIRLAM.00   f=$(OPDATA)/hirlam/vprof00.dat
-m=HIRLAM.12   f=$(OPDATA)/hirlam/vprof12.dat
-
-# observations (obs.xxxx are repeatable)
-
-#bufr.temp=     $(OPDATA)/obs_dec/rdb/temp/temp[yyyymmddHH].rdb
-#bufr.pilot=    $(OPDATA)/obs_dec/rdb/pilo/pilo[yyyymmddHH].rdb
-metnoobs.temp=  $(OPDATA)/obs_dec/temp??.*
-metnoobs.amdar= $(OPDATA)/obs_dec/amte??.*
-metnoobs.pilot= $(OPDATA)/obs_dec/pilo??.*
-
+m=HIRLAM.8KM.00   f=$(OPDATA)/hirlam8/vp8km00.dat
+m=UM.4KM             f=$(OPDATA)/um4km/vpUM4km.dat
 </VERTICAL_PROFILE_FILES>
 
-
 <VERTICAL_CROSSECTION_FILES>
-
-m=HIRLAM.00  f=$(OPDATA)/hirlam/vcross00.dat
-m=HIRLAM.12  f=$(OPDATA)/hirlam/vcross12.dat
-
+m=HIRLAM.8KM.00   f=$(OPDATA)/hirlam8/vc8km00.dat
+m=UM.4KM          f=$(OPDATA)/um4km/vcUM4km.dat
 </VERTICAL_CROSSECTION_FILES>
 
 
@@ -2207,14 +3020,19 @@ m=HIRLAM.12  f=$(OPDATA)/hirlam/vcross12.dat
 
 #---------------------------------------------------------------------------
 # NOTE: nothing is case sensitive (Tk=TK th=TH etc.)
+# WARNING!!! avoid spaces wherever not strictly necessary !!!
 #---------------------------------------------------------------------------
 
 # atmospheric model parameters
 u=2 v=3 tk=4 q=9 rh=10 omega=13 th=18 etadot=11 w=12
-turbulence=94
+qcloud=22 
+turbulens=94 d1=122
 
 # ocean model parameters
 ucurr=302 vcurr=303 salt=307 seatemp=308
+
+# misc. parameters from postprocessing
+ducting=81 icingind=1092 cont=1097
 
 # possibly computed in program vcdata (horizontal computations in fields)
 #   -1: Vorticity
@@ -2305,17 +3123,19 @@ name=VT+W           plot=VT+W(ff_tangent,w)   colour=darkgreen vector.unit=1.
 name=(VT-VGT)+W     plot=VT+W(ffag_tangent,w) colour=darkgreen vector.unit=1.
 name=Ekviv.pot.temp     plot=CONTOUR(the) colour=red line.interval=4.
 name=Sat.ekviv.pot.temp plot=CONTOUR(thesat) colour=red line.interval=4.
-name=M(Vn+f*s)   plot=CONTOUR(m) colour=red line.interval=4.
-name=Omega       plot=CONTOUR(omega) colour=red line.interval=0.001
+name=M(Vn+f*s) plot=CONTOUR(m) colour=red line.interval=4.
+name=Omega     plot=CONTOUR(omega) colour=red line.interval=0.001
 name=FF          plot=CONTOUR(ff_total)       colour=red  line.interval=4.
 name=FF.knop     plot=CONTOUR(ff_total_knots) colour=red  line.interval=4.
 name=FF_normal   plot=CONTOUR(ff_normal)      colour=red  line.interval=4.
 name=FF_tangent  plot=CONTOUR(ff_tangent)     colour=blue line.interval=4.
 name=FF_nord/sør plot=CONTOUR(ff_north_south) colour=red  line.interval=4.
 name=FF_øst/vest plot=CONTOUR(ff_east_west)   colour=blue line.interval=4.
-name=Vorticity   plot=CONTOUR(virvling)  colour=red  line.interval=0.00001
-name=Divergence  plot=CONTOUR(divergens) colour=red  line.interval=0.00001
-name=Turbulence  plot=CONTOUR(turbulence)  colour=red  line.interval=0.5
+name=Virvling    plot=CONTOUR(virvling)   colour=red   line.interval=0.00001
+name=Divergens   plot=CONTOUR(divergens)  colour=red   line.interval=0.00001
+name=Turbulens   plot=CONTOUR(turbulens)  colour=red   line.interval=0.5
+name=Duct.OLD        plot=CONTOUR(d1)         colour=black line.interval=10.
+name=QCLOUD      plot=CONTOUR(qcloud)     colour=red   line.interval=0.0001
 
 name=U(x_grid)  plot=CONTOUR(u)  colour=red  line.interval=4.
 name=V(y_grid)  plot=CONTOUR(v)  colour=blue line.interval=4.
@@ -2328,6 +3148,11 @@ name=HV_normal   plot=CONTOUR(hv_normal)      colour=red  line.interval=0.0004
 name=HV_tangent  plot=CONTOUR(hv_tangent)     colour=blue line.interval=0.0004
 name=HV_nord/sør plot=CONTOUR(hv_north_south) colour=red  line.interval=0.0004
 name=HV_øst/vest plot=CONTOUR(hv_east_west)   colour=blue line.interval=0.0004
+
+# misc. parameters from postprocessing
+name=DUCTING   plot=CONTOUR(ducting) colour=red  line.interval=5.
+name=ICING     plot=CONTOUR(icingind) colour=blue line.interval=1.
+name=CONTRAILS plot=CONTOUR(cont) colour=black line.interval=1.
 
 # Ocean model data
 name=Temp            plot=CONTOUR(seatemp)      colour=blue line.interval=0.2
@@ -2343,6 +3168,10 @@ name=Ucurr(x_grid)   plot=CONTOUR(ucurr)        colour=red  line.interval=0.1
 name=Vcurr(y_grid)   plot=CONTOUR(vcurr)        colour=blue line.interval=0.1
 
 </VERTICAL_CROSSECTION_PLOTS>
+
+
+
+
 
 
 <SPECTRUM_FILES>
