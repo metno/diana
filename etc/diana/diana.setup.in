@@ -87,6 +87,14 @@ font=Arial  type=scaleable face=BOLD   name=Arialnb.ttf
 font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
 
 #-----------------------------------------------------------------------------
+# Bitmap (truetype/bitmap) fonts
+#-----------------------------------------------------------------------------
+
+font=ArialBitmap  type=tt_bitmap face=NORMAL name=Arialn.ttf   postscript=Helvetica ps-scale-x=1.25
+font=ArialBitmap  type=tt_bitmap face=ITALIC name=Arialni.ttf  postscript=Helvetica-Bold ps-scale-x=1.25
+font=ArialBitmap  type=tt_bitmap face=BOLD   name=Arialnb.ttf  postscript=Helvetica-Oblique ps-scale-x=1.25
+
+#-----------------------------------------------------------------------------
 # Texture (Qt-based) fonts
 #-----------------------------------------------------------------------------
 
@@ -98,7 +106,7 @@ font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
 #-----------------------------------------------------------------------------
 # Defaults for 'magic' fontnames
 #-----------------------------------------------------------------------------
-BITMAPFONT=Arial    # Use this as default bitmap-font
+BITMAPFONT=ArialBitmap  # Use this as default bitmap-font
 SCALEFONT=Arial         # Use this as default scaleable-font
 METSYMBOLFONT=Symbol    # Use this as default font for meteorological symbols
 
