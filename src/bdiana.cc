@@ -1363,6 +1363,18 @@ int parseAndProcess(istream &is)
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
+
+        // Make Controller
+        if (!main_controller) {
+          main_controller = new Controller;
+          if (!main_controller->parseSetup()) {
+            cerr
+                << "ERROR, an error occured while main_controller parsed setup: "
+                << setupfile << endl;
+            return 99;
+          }
+        }
+
         // -- vcross plot
         if (!vcrossmanager) {
           vcrossmanager = new VcrossManager(main_controller);
@@ -1419,8 +1431,21 @@ int parseAndProcess(istream &is)
 
         // --------------------------------------------------------
       } else if (plottype == plot_vprof) {
+        // Make Controller
+        if (!main_controller) {
+          main_controller = new Controller;
+          if (!main_controller->parseSetup()) {
+            cerr
+                << "ERROR, an error occured while main_controller parsed setup: "
+                << setupfile << endl;
+            return 99;
+          }
+        }
+
         // -- vprof plot
         if (!vprofmanager) {
+          cerr <<"starting vprofmanager"<<endl;
+          if (main_controller ==NULL) cerr <<"controller null"<<endl;
           vprofmanager = new VprofManager(main_controller);
         }
 
