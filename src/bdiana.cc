@@ -1444,8 +1444,6 @@ int parseAndProcess(istream &is)
 
         // -- vprof plot
         if (!vprofmanager) {
-          cerr <<"starting vprofmanager"<<endl;
-          if (main_controller ==NULL) cerr <<"controller null"<<endl;
           vprofmanager = new VprofManager(main_controller);
         }
 
