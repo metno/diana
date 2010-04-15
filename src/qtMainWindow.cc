@@ -3305,8 +3305,11 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
   int x = mev.x;
   int y = mev.y;
 
-  //HK ??? nb
+  float xmap=-1., ymap=-1.;
+  contr->PhysToMap(x,y,xmap,ymap);
+
   xclick=x; yclick=y;
+
   // show geoposition in statusbar
   if (sgeopos->getGeographicMode()) {
     float lat=0, lon=0;
@@ -3316,14 +3319,12 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
       sgeopos->setPosition(lat,lon);
     }
   } else {
-    float xmap=-1., ymap=-1.;
-    contr->PhysToMap(x,y,xmap,ymap);
     sgeopos->setPosition(xmap,ymap);
   }
 
   // show sat-value at position
   vector<SatValues> satval;
-  satval = contr->showValues(x, y);
+  satval = contr->showValues(xmap, ymap);
   showsatval->ShowValues(satval);
 
   // no need for updateGL() here...only GUI-display

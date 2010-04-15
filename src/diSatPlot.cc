@@ -106,17 +106,17 @@ void SatPlot::getCalibChannels(vector<miString>& channels )
 
 void SatPlot::values(float x, float y, vector<SatValues>& satval){
 
-  //x og y i pixler
+  //x, y in map coordinates
+  int npos =1;
+  //Convert to satellite proj coordiantes
+  gc.getPoints(area, satdata->area, npos    , &x, &y);
+  // convert to satellite pixel
+  int xpos = x/satdata->gridResolutionX;
+  int ypos = y/satdata->gridResolutionY;
 
-  float scalex = satdata->area.R().width()/(xmax-xmin);
-  float scaley = satdata->area.R().height()/(ymax-ymin);
-
-  int  xpos=(int)((x*fullrect.width()/pwidth + fullrect.x1 - xmin)*scalex);
-  int  ypos=(int)((y*fullrect.height()/pheight + fullrect.y1 - ymin)*scaley);
-
-  //xpos og ypos i satellittbilde koordinater
-  if (satdata!=NULL && satdata->image != NULL && satdata->approved)
+  if (satdata!=NULL && satdata->image != NULL && satdata->approved){
     satdata->values(xpos,ypos,satval);
+  }
 
 }
 
