@@ -71,12 +71,11 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
   m_objm= m_ctrl->getObjectManager();
   inEditSession = edit;
   inComment = false;
-
+  setWindowTitle(tr("Comments[*]"));
   //one window mEdit for editing new comments
   // one window mEdit2 for showing old comments (also used in objectDialog)
   if (inEditSession){
     setGeometry(100,100,480,480);
-    setWindowTitle(tr("Comments-editing[*]"));
     split = new QSplitter(Qt::Vertical,this);
     split->setGeometry(10,10,460,380);
     mEdit = new QTextEdit(split);
@@ -94,7 +93,6 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     setGeometry(100,100,480,400);
     setMinimumSize(480,400);
     setMaximumSize(480,400);
-    setWindowTitle(tr("Comments"));
     mEdit2 = new QTextEdit(this);
     mEdit2->setGeometry(10,10,460,380);
   }
