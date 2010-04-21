@@ -517,7 +517,7 @@ bool FieldEdit::readEditfield(const miString& filename)
           Projection p;
           double gridResolutionX;
           double gridResolutionY;
-          p.set_mi_gridspec(gtype, gspec, gridResolutionX, gridResolutionX);
+          p.set_mi_gridspec(gtype, gspec, gridResolutionX, gridResolutionY);
           Rectangle r(0., 0.,
               float(nx-1)*gridResolutionX,
               float(ny-1)*gridResolutionY);

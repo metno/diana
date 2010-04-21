@@ -62,6 +62,7 @@ WeatherObjects::WeatherObjects()
   // correct spec. when making Projection for long/lat coordinates
   Projection geop;
   geop.setGeographic();
+  geop.setUsingLatLonValues(true);
   geoArea.setP(geop);
 
   useobject.clear();
@@ -192,8 +193,10 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 
   int ierror=0;
   bool err=true;
-  if ( !itsArea.P().isDefined()) {
+  if ( itsArea.P().getUsingLatLonValues()) {
     ierror = newArea.P().convertFromGeographic(npos,xpos,ypos);
+  } else if ( newArea.P().getUsingLatLonValues()) {
+      ierror = itsArea.P().convertToGeographic(npos,xpos,ypos);
   } else {
     err = gc.getPoints(itsArea,newArea,npos,xpos,ypos);
   }
@@ -260,13 +263,10 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
   miString ext = parts.back();
   if (ext=="shp"){
     if (newArea.P()!=itsArea.P()){
-#ifdef DEBUGPRINT
-      cerr << "----------------------OOPSSS curarea!=newarea" << endl;
-#endif
       changeProjection(newArea);
     }
     changeProjection(geoArea);
-    //}
+
     cerr << "This is a shapefile" << endl;
     ShapeObject * shape = new ShapeObject();
     addObject(shape);
@@ -344,15 +344,10 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
   // also in DisplayObjects::define and in EditManager::startEdit
 
   // first convert existing objects to geographic coordinates
-  //if (empty()){ //HK kommentert vekk uforståelig test
   if (newArea.P()!=itsArea.P()){
-#ifdef DEBUGPRINT
-    cerr << "----------------------OOPSSS curarea!=newarea" << endl;
-#endif
     changeProjection(newArea);
   }
   changeProjection(geoArea);
-  //}
 
 
   //split inputString into one string for each object
