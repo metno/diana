@@ -3233,23 +3233,21 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     if (uffda && contr->getSatnames().size()){
       showUffda();
     }
-    else {
-      //send position to all clients
-      float lat=0,lon=0;
-      contr->PhysToGeo(x,y,lat,lon);
-      miutil::miString latstr(lat,6);
-      miutil::miString lonstr(lon,6);
-      miMessage letter;
-      letter.command     = qmstrings::positions;
-      letter.commondesc  =  "dataset";
-      letter.common      =  "diana";
-      letter.description =  "lat:lon";
-      letter.to = qmstrings::all;
-      letter.data.push_back(miutil::miString(latstr + ":" + lonstr));
-      sendLetter(letter);
-
-    }
   }
+  //send position to all clients
+  float lat=0,lon=0;
+  contr->PhysToGeo(x,y,lat,lon);
+  miutil::miString latstr(lat,6);
+  miutil::miString lonstr(lon,6);
+  miMessage letter;
+  letter.command     = qmstrings::positions;
+  letter.commondesc  =  "dataset";
+  letter.common      =  "diana";
+  letter.description =  "lat:lon";
+  letter.to = qmstrings::all;
+  letter.data.push_back(miutil::miString(latstr + ":" + lonstr));
+  sendLetter(letter);
+
 }
 
 
