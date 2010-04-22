@@ -303,7 +303,7 @@ bool EditManager::parseSetup(SetupParser& sp) {
         Projection p;
         double gridResolutionX;
         double gridResolutionY;
-        p.set_mi_gridspec(gridtype, gridspec, gridResolutionX, gridResolutionX);
+        p.set_mi_gridspec(gridtype, gridspec, gridResolutionX, gridResolutionY);
         Rectangle  r(0.,0.,float(nx-1)*gridResolutionX,float(ny-1)*gridResolutionY); // as usual dimensions as rectangle...
         ep.area= Area(p,r);
         ep.gridResolutionX = gridResolutionX;
