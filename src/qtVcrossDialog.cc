@@ -106,6 +106,8 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // Colours
   colourInfo = Colour::getColourInfo();
+  nr_colors    = colourInfo.size();
+
   csInfo      = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
 
