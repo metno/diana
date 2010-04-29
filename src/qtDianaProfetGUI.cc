@@ -1030,13 +1030,13 @@ void DianaProfetGUI::showField(const miutil::miTime & reftime, const miutil::miS
   emit prepareAndPlot();
 }
 
-void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y)
+void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y, const double& gridResolutionX, const double& gridResolutionY)
 {
   if (size_x == 0 || size_y == 0 || a.R().width() == 0) {
     LOG4CXX_ERROR(logger,"Unvalid base projection set:" << a);
   } else {
-    objectFactory.initFactory(a, size_x, size_y);
-    areaManager->setBaseProjection(a);
+    objectFactory.initFactory(a, gridResolutionX, gridResolutionY, size_x, size_y);
+    areaManager->setBaseProjection(a,gridResolutionX, gridResolutionY);
   }
 }
 

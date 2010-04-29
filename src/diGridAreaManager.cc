@@ -603,7 +603,7 @@ bool GridAreaManager::setEnabled(miString id, bool enabled) {
 void GridAreaManager::setActivePoints(vector<Point> points) {
 
   if (gridAreas.count(currentId))
-    gridAreas[currentId].setActivePoints(points);
+    gridAreas[currentId].setActivePoints(points, gridResolutionX, gridResolutionY);
 
 }
 

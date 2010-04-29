@@ -153,7 +153,7 @@ public:
 	  setMousePoint(p);
 	  showNextPoint = true;
   }
-	
+
 	/// Set focused node. Returns true if changed
 	bool setNodeFocus(const Point & mouse);
 	/// Set segment node. Returns true if changed
@@ -188,7 +188,7 @@ public:
 	///Forced update to current diana projection
 	void updateCurrentProjection();
   /// set the list of Points which are actually affected by the mask
-  void setActivePoints(vector<Point>);
+  void setActivePoints(vector<Point>, const double& gridResolutionX, const double& gridResolutionY);
   /// true if undo is possible (buffer not empty)
   bool isUndoPossible();
   /// Perform undo. Returns true if success

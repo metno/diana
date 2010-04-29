@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -46,7 +46,7 @@ using namespace std;
 
 
 /**
-   
+
 \brief Makes Profet objects from base objects, and updates them with values from gui
 
 */
@@ -61,6 +61,8 @@ private:
 
   Area fieldArea;           ///< field projection and covered area
   int nx,ny;                ///< field dimension
+  double gridResolutionX;
+  double gridResolutionY;
 
   /// outputs responce strings from executor
   void outputExecuteResponce(vector<fetCodeExecutor::responce> & rl);
@@ -70,9 +72,9 @@ protected:
 public:
 
   ProfetObjectFactory();
-  
+
   /// initialise object factory to a field size and projection
-  void initFactory(Area a, int size_x, int size_y);
+  void initFactory(Area a, const double& gridresolutionX, const double& gridresolutionY, int size_x, int size_y);
 
   /// return gui-components from fetBaseObject
   vector<fetDynamicGui::GuiComponent> getGuiComponents(const fetBaseObject& baseobj);
@@ -91,16 +93,16 @@ public:
 		       const miutil::miString parent);
 
   /// update gui values in fetObject
-  bool setGuiValues(fetObject& fetObj, 
+  bool setGuiValues(fetObject& fetObj,
 		    const vector<fetDynamicGui::GuiComponent>& components);
 
-  /// update polygon in fetObject 
+  /// update polygon in fetObject
   void setPolygon(fetObject& fetObj, ProjectablePolygon pp);
-    
+
   // process the changes from a time edit..
   bool processTimeValuesOnObject(fetObject& fetObj);
-  
-  
+
+
 };
 
 #endif

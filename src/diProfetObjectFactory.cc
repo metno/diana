@@ -60,11 +60,14 @@ void ProfetObjectFactory::outputExecuteResponce( vector<fetCodeExecutor::responc
 }
 
 
-void ProfetObjectFactory::initFactory(Area a, int size_x, int size_y)
+void ProfetObjectFactory::initFactory(Area a, const double& gridresolutionX, const double& gridresolutionY, int size_x, int size_y)
 {
   fieldArea = a;
+  gridResolutionX = gridresolutionX;
+  gridResolutionY = gridresolutionY;
   nx= size_x;
   ny= size_y;
+
 }
 
 
@@ -151,7 +154,8 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
 
   // make object
   fetObj.setFromBaseObject(baseObj,
-			   sessionreftime,parent,reason,polygon,nx,ny,fieldArea,
+			   sessionreftime,parent,reason,polygon,nx,ny,
+			   gridResolutionX, gridResolutionY,fieldArea,
 			   executor.cleanCode(),executor.cleanCode(),user,
 			   validtime,edittime,parameter,guikeys,id);
 

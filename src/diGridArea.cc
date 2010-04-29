@@ -539,8 +539,8 @@ void GridArea::updateCurrentProjection(){
 	displayEditPolygon = editPolygon.getInCurrentProjection();
 }
 
-void  GridArea::setActivePoints(vector<Point> points){
-  polygon.initActivePoints(points);
+void  GridArea::setActivePoints(vector<Point> points, const double& gridResolutionX, const double& gridResolutionY){
+  polygon.initActivePoints(points, gridResolutionX, gridResolutionY);
   displayPolygon = polygon.getInCurrentProjection();
 }
 

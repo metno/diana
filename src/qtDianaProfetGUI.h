@@ -159,7 +159,7 @@ public:
    * Field must be prepared in field-manager first
    */
   void showField(const miutil::miTime & reftime, const miutil::miString & param, const miutil::miTime & time);
-  void setBaseProjection(Area a, int size_x, int size_y);
+  void setBaseProjection(Area a, int size_x, int size_y, const double& gridResolutionX, const double& gridResolutionY);
   /**
    * Repaints the Diana Map
    */

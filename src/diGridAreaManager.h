@@ -98,6 +98,8 @@ private:
 	PaintMode paintMode;
 	bool modeChanged;
   Area base_proj;
+  double gridResolutionX;
+  double gridResolutionY;
   bool hasinterpolated;
   cursortype getCurrentCursor();
 	bool selectArea(Point p);
@@ -186,7 +188,8 @@ public:
 	/// Clear / Remove all areas. No current area.
 	void clear();
 	/// Set projection of active field
-	void setBaseProjection(Area proj){base_proj = proj;}
+	void setBaseProjection(Area proj, const double& gridresolutionX, const double& gridresolutionY){base_proj = proj;
+	gridResolutionX=gridresolutionX; gridResolutionY=gridresolutionY; }
 	/// Get number of Areas
 	int getAreaCount(){ return gridAreas.size(); }
   /// set the list of Points which are actually affected by the mask
