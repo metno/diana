@@ -155,7 +155,8 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
   // make object
   fetObj.setFromBaseObject(baseObj,
 			   sessionreftime,parent,reason,polygon,nx,ny,
-			   gridResolutionX, gridResolutionY,fieldArea,
+         fieldArea,
+//         gridResolutionX, gridResolutionY,fieldArea,
 			   executor.cleanCode(),executor.cleanCode(),user,
 			   validtime,edittime,parameter,guikeys,id);
 
