@@ -109,12 +109,14 @@ bool MapPlot::prepare(const miString& pinfo, bool ifequal)
         newarea.setArea(stokens[1]);
         xyLimit.clear();
         areadef = true;
-      } else if (stokens[0].upcase()=="XYLIMIT") {
+      } else if (stokens[0].upcase()=="XYLIMIT") { //todo: add new option: XYLIMIT in proj coordinates
         vector<miString> vstr= stokens[1].split(',');
         if (vstr.size()>=4) {
           xyLimit.clear();
-          for (int j=0; j<4; j++)
-            xyLimit.push_back(atof(vstr[j].cStr()) - 1.0);
+          xyLimit.push_back((atof(vstr[0].cStr()) - 1.0)*newarea.P().getGridResolutionX());
+          xyLimit.push_back((atof(vstr[1].cStr()) - 1.0)*newarea.P().getGridResolutionX());
+          xyLimit.push_back((atof(vstr[2].cStr()) - 1.0)*newarea.P().getGridResolutionY());
+          xyLimit.push_back((atof(vstr[3].cStr()) - 1.0)*newarea.P().getGridResolutionY());
           if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
             xyLimit.clear();
         }
