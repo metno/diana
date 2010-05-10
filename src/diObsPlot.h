@@ -233,7 +233,7 @@ private:
   void metarWind(int,int,float &, int &);
   void arrow(float& angle, float xpos, float ypos, float scale=1.);
   void zigzagArrow(float& angle, float xpos, float ypos, float scale=1.);
-  void symbol(int, float, float,float scale=1, miutil::miString align="left");
+  void symbol(int, float, float,float scale=1, miutil::miString align="left", bool markSquare = false);
   void cloudCover(const float& fN, const float& radius);
   void plotWind(int dd,float ff_ms, bool ddvar,float &radius,float current=-1);
   //  void plotArrow(int,int, bool,float &);

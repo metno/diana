@@ -6,7 +6,7 @@
   Copyright (C) 2006 met.no
 
   Contact information:
-  Norwegian Meteorological Institute   
+  Norwegian Meteorological Institute
   Box 43 Blindern
   0313 OSLO
   NORWAY
@@ -211,7 +211,7 @@ if (!enabled || (obsp.size()==0 && asciip.size()==0 && roadobsp.size()==0) || cu
   }
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::getDataAnnotations() done, true ++" << endl;
-#endif	
+#endif
   return true;
 }
 
@@ -219,12 +219,12 @@ ObsData& ObsPlot::getNextObs()
 {
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::getNextObs() ++" << endl;
-#endif	
+#endif
 	ObsData d;
   obsp.push_back(d);
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::getNextObs() done ++" << endl;
-#endif	
+#endif
   return obsp[obsp.size()-1];
 }
 
@@ -232,12 +232,12 @@ void ObsPlot::updateLevel(const miString& dataType)
 {
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::updateLevel( dataType: " << dataType << " ) ++" << endl;
-#endif	
+#endif
   if( level < -1)
   {
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::updateLevel() done, level < -1 ++" << endl;
-#endif	
+#endif
 	  return; //no levels
   }
 
@@ -261,19 +261,19 @@ void ObsPlot::updateLevel(const miString& dataType)
   }
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::updateLevel() done ++" << endl;
-#endif	
+#endif
 }
 
 int ObsPlot::numPositions()
 {
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::numPositions() ++" << endl;
-#endif	
+#endif
   if(obsp.size()>0)
   {
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::numPositions() done, obsp.size() ++" << endl;
-#endif	
+#endif
 	  return obsp.size();
   }
   if(asciip.size()>0)
@@ -299,17 +299,17 @@ void ObsPlot::clearModificationTime()
 {
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::cleanModificationTime() ++" << endl;
-#endif	
+#endif
   fileNames.clear();
   modificationTime.clear();
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::cleanModificationTime() done ++" << endl;
-#endif	
+#endif
 }
 
 void ObsPlot::setModificationTime(const miString& fname)
 {
-  
+
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::setModificationTime( fname: " << fname << " ) ++" << endl;
 #endif
@@ -346,7 +346,7 @@ void ObsPlot::setModificationTime(const miString& fname)
 #endif
 #ifdef DEBUGPRINT
 	cerr << "++ ObsPlot::setModificationTime() done ++" << endl;
-#endif	
+#endif
 }
 
 bool ObsPlot::updateObs()
@@ -466,12 +466,12 @@ bool ObsPlot::prepare(const miString& pin)
 	}else if( value == "hqc_list"){
 	  value = "ascii";
 	  flaginfo = true;
-	} 
-#ifdef ROADOBS 
+	}
+#ifdef ROADOBS
 	// To avoid that roadobs will be set to ascii below
 	else if( value == "roadobs"){
 	  value = "roadobs";
-	} 
+	}
 #endif
 	else if (value != "synop" && value != "metar"){
 	  value = "ascii";
@@ -584,7 +584,7 @@ bool ObsPlot::prepare(const miString& pin)
       asciiParameter.push_back(parameter[i].downcase());
       if (parameter[i].downcase()=="wind") asciiWind= true;
     }
-  } 
+  }
 #ifdef ROADOBS
   else if (plottype=="roadobs") {
     roadobsParameter.clear();
@@ -593,7 +593,7 @@ bool ObsPlot::prepare(const miString& pin)
       roadobsParameter.push_back(parameter[i].downcase());
       if (parameter[i].downcase()=="wind") roadobsWind= true;
     }
-  } 
+  }
 #endif
   else {
     miString all="all";
@@ -644,7 +644,7 @@ bool ObsPlot::prepare(const miString& pin)
     itab=  itabMetar;
     iptab= iptabMetar;
 
-  } 
+  }
 #ifdef ROADOBS
   else if (plottype=="roadsynop") {
 
@@ -663,7 +663,7 @@ bool ObsPlot::prepare(const miString& pin)
     itab=  itabSynop;
     iptab= iptabSynop;
 
-  } 
+  }
 else {
     itab=  0;
     iptab= 0;
@@ -761,7 +761,7 @@ bool ObsPlot::setData(void)
 #ifdef ROADOBS
   else if (roadobsData) {
 	  // BEE CAREFULL! This code assumes that the number of entries in
-	  // stationlist are the same as in the roadobsp map. 
+	  // stationlist are the same as in the roadobsp map.
    for (i=0; i<numObs; i++){
 	  int stationid = (*stationlist)[i].wmonr();
 	  //cerr << "stationid: " << stationid << endl;
@@ -847,7 +847,7 @@ bool ObsPlot::setData(void)
 	  asciidd[i]= -32767;
         }
       }
-    } 
+    }
 #ifdef ROADOBS
 	else if (roadobsData) {
 
@@ -876,7 +876,7 @@ bool ObsPlot::setData(void)
 				roadobsdd[i]= -32767;
 			}
 		}
-	} 
+	}
 #endif
 	else {
 
@@ -1102,12 +1102,12 @@ void ObsPlot::priority_sort(void)
   if (asciiData) {
     for (i=0; i<numObs; i++)
       all_from_file[i]=i;
-  } 
+  }
 #ifdef ROADOBS
   else if (roadobsData) {
     for (i=0; i<numObs; i++)
       all_from_file[i]=i;
-  } 
+  }
 #endif
   else {
     vector<int> automat;
@@ -1217,12 +1217,12 @@ void ObsPlot::time_sort(void)
   if (asciiData) {
     if(asciiTime.size() == 0) return;
     numObs = asciiTime.size();
-  } 
+  }
 #ifdef ROADOBS
   else if (roadobsData) {
     if(roadobsTime.size() == 0) return;
     numObs = roadobsTime.size();
-  } 
+  }
 #endif
   else {
     numObs = obsp.size();
@@ -1236,13 +1236,13 @@ void ObsPlot::time_sort(void)
     // data from ascii-files
     for (i=0; i<numObs; i++)
       diff[i] = abs(miTime::minDiff(asciiTime[i],Time));
-  } 
+  }
 #ifdef ROADOBS
   else if (roadobsData) {
     // data from ascii-files
     for (i=0; i<numObs; i++)
       diff[i] = abs(miTime::minDiff(roadobsTime[i],Time));
-  } 
+  }
 #endif
   else {
     // Data from obs-files
@@ -1553,7 +1553,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
 
   if(asciiData && asciip[min_i].size()>0) {
     name = asciip[min_i][0];
-  } 
+  }
 #ifdef ROADOBS
   else if(roadobsData){
 	  // BEE CAREFULL! This code assumes that the number of entries in
@@ -1561,7 +1561,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
 	  int stationid = (*stationlist)[min_i].wmonr();
 	  if (roadobsp[stationid].size() != 0)
 		  name = roadobsp[stationid][0];
-  } 
+  }
 #endif
   else {
     name = obsp[min_i].id;
@@ -1654,11 +1654,11 @@ int numObs = 0;
   if (plottype=="ascii") {
     if (asciiWind)
       num--;
-  } 
+  }
   else if (plottype=="roadobs") {
     if (roadobsWind)
       num--;
-  } 
+  }
   else {
     if( pFlag.count("pos") )
       num++;
@@ -1877,7 +1877,7 @@ int numObs = 0;
 
 	  stations_to_plot.push_back((*stationlist)[nextplot[i]]);
   }
-  
+
   //reset
 
   next     = false;
@@ -1987,12 +1987,12 @@ int numObs = 0;
   if (plottype=="ascii") {
     if (asciiWind)
       num--;
-  } 
+  }
 #ifdef ROADOBS
   else if (plottype=="roadobs") {
     if (roadobsWind)
       num--;
-  } 
+  }
 #endif
   else {
     if( pFlag.count("pos") )
@@ -2372,7 +2372,7 @@ bool ObsPlot::areaFree(int idx) {
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::areaFree( idx: " << idx << " ) ++" << endl;
 #endif
-	
+
   float xc= x[idx];
   float yc= y[idx];
 
@@ -2756,8 +2756,7 @@ void ObsPlot::plotList(int index)
   }
   if( pFlag.count("ww")){
     ypos -= yStep;
-    //1-3 skal ikke plottes, tror jeg
-    if((f_p=dta.fdata.find("ww") ) != dta.fdata.end()&&  f_p->second >3
+    if((f_p=dta.fdata.find("ww") ) != dta.fdata.end()
        && (q_p=dta.fdata.find("TTT")) != dta.fdata.end()) {
       if(ccriteria) checkColourCriteria("ww",f_p->second);
       weather((int16)f_p->second,q_p->second,dta.zone,xpos*scale-xshift,
@@ -3337,11 +3336,11 @@ void ObsPlot::plotRoadobs(int index)
 // BEE CAREFULL! This code assumes that the number of entries in
   // stationlist are the same as in the roadobsp map.
   // we must check if its a faked line or a line vith data
-   
+
   int stationid = (*stationlist)[index].wmonr();
   int automationcode = (*stationlist)[index].environmentid();
   bool isData = (*stationlist)[index].data();
-  //NOTE! The plot is dependent of the plotting order of 
+  //NOTE! The plot is dependent of the plotting order of
   // the individual parameters.
   //cerr << "Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData << endl;
   // Do not plot stations with no data
@@ -3572,12 +3571,12 @@ void ObsPlot::plotRoadobs(int index)
     glVertex2f(x3,y3);
     glEnd();
   }
-  
+
   //wind - dd,ff
   //cerr << "wind - dd,ff" << endl;
   if( roadobsWind && roadobsdd[index] != undef ){
     bool ddvar=false;
-	
+
     int dd = roadobsdd[index];
     if(dd==990 || dd==510){
       ddvar=true;
@@ -3609,7 +3608,7 @@ void ObsPlot::plotRoadobs(int index)
   bool ClFlag = Cl_value != undef;
   bool precip = automationcode;
 
-  
+
   //Total cloud cover - N
   //cerr << "Total cloud cover - N: value " << N_value << endl;
   if(N_value != undef) {
@@ -3621,7 +3620,7 @@ void ObsPlot::plotRoadobs(int index)
     glColor4ubv(colour.RGBA());
     cloudCover(undef,radius);
   }
-  
+
   //Weather - WW
   //cerr << "Weather - WW: value " << ww_value << endl;
   float VVxpos = iptab[lpos+14] + 22;
@@ -3693,7 +3692,7 @@ void ObsPlot::plotRoadobs(int index)
     if(ccriteria) checkColourCriteria("W2",W2_value);
     pastWeather((int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
   }
-/* Currently not used 
+/* Currently not used
   // Direction of ship movement - ds
   if( pFlag.count("ds") && dta.fdata.find("vs") != fend
       && (f_p=dta.fdata.find("ds")) != fend ){
@@ -3738,7 +3737,7 @@ void ObsPlot::plotRoadobs(int index)
   if(Nh_value != undef || h_value != undef){
 	  float Nh,h;
 	  Nh = Nh_value;
-	  
+
 	  /* NOTE, the height should be converted to code table */
 	  if (h_value != undef)
 	  {
@@ -3760,7 +3759,7 @@ void ObsPlot::plotRoadobs(int index)
 			  h_value = 7;
 		  else if (h_value >= 2000 && h_value < 2500)
 			  h_value = 8;
-		  else 
+		  else
 			  h_value = 9;
 	  }
 	  h = h_value;
@@ -3895,7 +3894,7 @@ void ObsPlot::plotRoadobs(int index)
 		  printString(buf,iptab[lpos+46]+2,iptab[lpos+47]+2);
   }
 
-  
+
 
   glPopMatrix();
 #ifdef DEBUGPRINT
@@ -3989,8 +3988,7 @@ void ObsPlot::plotSynop(int index)
   //Weather - WW
   float VVxpos = iptab[lpos+14] + 22;
   if( pFlag.count("ww") &&
-      (f_p=dta.fdata.find("ww")) != fend &&
-      f_p->second >3) {//1-3 skal ikke plottes
+      (f_p=dta.fdata.find("ww")) != fend ) {
     if(ccriteria) checkColourCriteria("ww",dta.fdata["ww"]);
     weather((int16)f_p->second,ttt_p->second,dta.zone,
 	     iptab[lpos+12],iptab[lpos+13]);
@@ -5199,7 +5197,7 @@ void ObsPlot::zigzagArrow(float& angle, float xpos, float ypos,float scale)
   glPopMatrix();
 }
 
-void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align)
+void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align, bool markSquare)
 {
 
 #ifdef DEBUGPRINT
@@ -5212,6 +5210,17 @@ void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align)
   glPushMatrix();
   glTranslatef(xpos,ypos,0.0);
   glScalef(scale,scale,0.0);
+
+  //mark the symbol by a square
+  if(markSquare) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glBegin(GL_POLYGON);
+      glVertex2f(0,0);
+      glVertex2f(0,30);
+      glVertex2f(30,30);
+      glVertex2f(30,0);
+    glEnd();
+  }
 
   npos = iptab[n+3];
   nstep= iptab[n+9];
@@ -5235,8 +5244,9 @@ void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align)
     }
     else {
       glBegin(GL_LINE_STRIP);
-      for(int j=0; j<=k; j++)
-	glVertex2f(x[j],y[j]);
+      for(int j=0; j<=k; j++) {
+        glVertex2f(x[j],y[j]);
+      }
       glEnd();
       x[0] = x[k] + (ipx - (ipx/100)*100);
       y[0] = y[k] + ipy;
@@ -5247,8 +5257,9 @@ void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align)
 
   if( k > 0 ){
     glBegin(GL_LINE_STRIP);
-    for(int j=0; j<=k; j++)
+    for(int j=0; j<=k; j++) {
       glVertex2f(x[j],y[j]);
+    }
     glEnd();
   }
 
@@ -5479,6 +5490,8 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone,
 		       81,80,81,82,85,86,86,0,0,0,
 		       17,17,95,96,17,97,99,0,0,0};
 
+  bool autoww = false;
+
 #ifdef ROADOBS
   int16 wwTmp;
   if (ww == 508) ww = 0;
@@ -5489,9 +5502,19 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone,
 	  if (wwTmp > 99) return;
 	  ww= auto2man[wwTmp];
   }
-#else  
-  if(ww>99) ww= auto2man[ww-100];
+#else
+  if(ww>99) {
+    ww= auto2man[ww-100];
+    autoww = true;
+    //autoww will be marked by a square
+  }
 #endif
+
+  //do not plot ww<3
+  if (ww<3) {
+    return;
+  }
+
   int index;
 
   index = iptab[1247+ww];
@@ -5515,7 +5538,8 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone,
     if((TTT>=0 && TTT<3) && (ww==97)) n = itab[146];
   }
 
-  symbol(n,xpos,ypos,0.8*scale,align);
+  symbol(n,xpos,ypos,0.8*scale,align,autoww);
+
 }
 
 void ObsPlot::pastWeather(int w, float xpos, float ypos,
@@ -5929,3 +5953,4 @@ void ObsPlot::parameterDecode(miString parameter, bool add)
 
   pFlag[parameter]=add;
 }
+
