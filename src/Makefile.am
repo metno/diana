@@ -635,8 +635,8 @@ nodist_language_DATA=$(language_sources:.ts=.qm)
 
 CLEANFILES += $(nodist_language_DATA)
 
-%.qm: %.ts  $(qt_sources)
-	$(LUPDATE4)  $(qt_sources) -ts $< ; \
+%.qm: %.ts  $(diana_qt_sources)
+	$(LUPDATE4)  $(diana_qt_sources) -ts $< ; \
 	$(LRELEASE4)  $<
 
 # Problem:
