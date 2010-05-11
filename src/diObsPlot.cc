@@ -5197,7 +5197,7 @@ void ObsPlot::zigzagArrow(float& angle, float xpos, float ypos,float scale)
   glPopMatrix();
 }
 
-void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align, bool markSquare)
+void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align)
 {
 
 #ifdef DEBUGPRINT
@@ -5210,17 +5210,6 @@ void ObsPlot::symbol(int n, float xpos, float ypos,float scale, miString align, 
   glPushMatrix();
   glTranslatef(xpos,ypos,0.0);
   glScalef(scale,scale,0.0);
-
-  //mark the symbol by a square
-  if(markSquare) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glBegin(GL_POLYGON);
-      glVertex2f(0,0);
-      glVertex2f(0,30);
-      glVertex2f(30,30);
-      glVertex2f(30,0);
-    glEnd();
-  }
 
   npos = iptab[n+3];
   nstep= iptab[n+9];
@@ -5490,8 +5479,6 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone,
 		       81,80,81,82,85,86,86,0,0,0,
 		       17,17,95,96,17,97,99,0,0,0};
 
-  bool autoww = false;
-
 #ifdef ROADOBS
   int16 wwTmp;
   if (ww == 508) ww = 0;
@@ -5505,8 +5492,6 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone,
 #else
   if(ww>99) {
     ww= auto2man[ww-100];
-    autoww = true;
-    //autoww will be marked by a square
   }
 #endif
 
@@ -5538,7 +5523,7 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone,
     if((TTT>=0 && TTT<3) && (ww==97)) n = itab[146];
   }
 
-  symbol(n,xpos,ypos,0.8*scale,align,autoww);
+  symbol(n,xpos,ypos,0.8*scale,align);
 
 }
 
