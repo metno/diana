@@ -45,7 +45,7 @@
 #include <diFilledMap.h>
 #include <puCtools/stat.h>
 
-using namespace::miutil;
+using namespace ::miutil;
 
 #define DEG_TO_RAD  .0174532925199432958
 
@@ -73,13 +73,13 @@ inline void int16to32(const short a, const short b, int& i)
 
 FilledMap::FilledMap() :
   filename(""), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
-  numPolytiles(0), polydata(0), opened(false), contexist(false)
+      numPolytiles(0), polydata(0), opened(false), contexist(false)
 {
 }
 
 FilledMap::FilledMap(const miString fn) :
   filename(fn), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
-  numPolytiles(0), polydata(0), opened(false), contexist(false)
+      numPolytiles(0), polydata(0), opened(false), contexist(false)
 {
 }
 
@@ -333,7 +333,8 @@ bool FilledMap::plot(Area area, // current area
 
   bool startfresh = false;
 
-  float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
+  float xylim[4] =
+    { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
   float jumplimit = area.P().getMapLinesJumpLimit();
 
   // check if mapfile has been altered since header was read
@@ -374,15 +375,15 @@ bool FilledMap::plot(Area area, // current area
       for (int ipp = 0; ipp < numpo; ipp++) {
         id2 = id1 + polydata[psize].polysize[ipp];
 
-        clipPrimitiveLines(id1, id2-1, polydata[psize].polyverx,
-            polydata[psize].polyvery,xylim,jumplimit);
-/*
-        glBegin(GL_LINE_STRIP);
-        for (int iv = id1; iv < id2; iv++) {
-          glVertex2f(polydata[psize].polyverx[iv], polydata[psize].polyvery[iv]);
-        }
-        glEnd();
-*/
+        clipPrimitiveLines(id1, id2 - 1, polydata[psize].polyverx,
+            polydata[psize].polyvery, xylim, jumplimit);
+        /*
+         glBegin(GL_LINE_STRIP);
+         for (int iv = id1; iv < id2; iv++) {
+         glVertex2f(polydata[psize].polyverx[iv], polydata[psize].polyvery[iv]);
+         }
+         glEnd();
+         */
         id1 = id2;
       }
     }
@@ -420,7 +421,7 @@ bool FilledMap::plot(Area area, // current area
   if (area.P() != proj || startfresh) {
     bool cutsouth = false;//!area.P().isLegal(0.0,-90.0);
     bool cutnorth = false;//!area.P().isLegal(0.0,90.0);
-    area.P().filledMapCutparameters(cutnorth,cutsouth);
+    area.P().filledMapCutparameters(cutnorth, cutsouth);
     cutnorth = false; // no dangerous tiles at north pole
 
     // convert all borders to correct projection
@@ -734,16 +735,16 @@ bool FilledMap::plot(Area area, // current area
           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
           // convert vertices
-          area.P().convertFromGeographic( tidx, triverx, trivery);
+          area.P().convertFromGeographic(tidx, triverx, trivery);
 
           clipTriangles(0, tidx, triverx, trivery, xylim, jumplimit);
-/*
-          glBegin(GL_TRIANGLES);
-          for (int iv = 0; iv < tidx; iv++) {
-            glVertex2f(triverx[iv], trivery[iv]);
-          }
-          glEnd();
-*/
+          /*
+           glBegin(GL_TRIANGLES);
+           for (int iv = 0; iv < tidx; iv++) {
+           glVertex2f(triverx[iv], trivery[iv]);
+           }
+           glEnd();
+           */
         }
       }
 
@@ -752,7 +753,8 @@ bool FilledMap::plot(Area area, // current area
       if (numpo > 0 && (cont || keepcont)) {
 
         // convert vertices
-        area.P().convertFromGeographic(polydata[psize].np, polydata[psize].polyverx, polydata[psize].polyvery);
+        area.P().convertFromGeographic(polydata[psize].np,
+            polydata[psize].polyverx, polydata[psize].polyvery);
 
         if (cont) {
           glColor4ubv(lcolour);
@@ -760,16 +762,16 @@ bool FilledMap::plot(Area area, // current area
           for (int ipp = 0; ipp < numpo; ipp++) {
             id2 = id1 + polydata[psize].polysize[ipp];
 
-            clipPrimitiveLines(id1, id2-1, polydata[psize].polyverx,
-                polydata[psize].polyvery,xylim,jumplimit);
-/*
-            glBegin(GL_LINE_STRIP);
-            for (int iv = id1; iv < id2; iv++) {
-              glVertex2f(polydata[psize].polyverx[iv],
-                  polydata[psize].polyvery[iv]);
-            }
-            glEnd();
-            */
+            clipPrimitiveLines(id1, id2 - 1, polydata[psize].polyverx,
+                polydata[psize].polyvery, xylim, jumplimit);
+            /*
+             glBegin(GL_LINE_STRIP);
+             for (int iv = id1; iv < id2; iv++) {
+             glVertex2f(polydata[psize].polyverx[iv],
+             polydata[psize].polyvery[iv]);
+             }
+             glEnd();
+             */
             id1 = id2;
           }
         }
@@ -790,36 +792,35 @@ bool FilledMap::plot(Area area, // current area
   return true;
 }
 
-void FilledMap::clipTriangles(int i1, int i2, float * x, float * y, float xylim[4],
-    float jumplimit){
+void FilledMap::clipTriangles(int i1, int i2, float * x, float * y,
+    float xylim[4], float jumplimit)
+{
 
   const float bigjump = 1000000;
   glBegin(GL_TRIANGLES);
-  for (int iv = i1; iv < i2; iv+=3) {
-    float x1=x[iv], x2=x[iv+1], x3=x[iv+2];
-    float y1=y[iv], y2=y[iv+1], y3=y[iv+2];
+  for (int iv = i1; iv < i2; iv += 3) {
+    float x1 = x[iv], x2 = x[iv + 1], x3 = x[iv + 2];
+    float y1 = y[iv], y2 = y[iv + 1], y3 = y[iv + 2];
 
-    if (jumplimit > bigjump || (fabsf(x1 - x2) < jumplimit && fabsf(x2 - x3) < jumplimit &&
-        fabsf(x1 - x3) < jumplimit && fabsf(y1 - y2) < jumplimit &&
-        fabsf(y2 - y3) < jumplimit && fabsf(y1 - y3) < jumplimit)){
+    if (jumplimit > bigjump || (fabsf(x1 - x2) < jumplimit && fabsf(x2 - x3)
+        < jumplimit && fabsf(x1 - x3) < jumplimit && fabsf(y1 - y2) < jumplimit
+        && fabsf(y2 - y3) < jumplimit && fabsf(y1 - y3) < jumplimit)) {
       glVertex2f(x1, y1);
       glVertex2f(x2, y2);
       glVertex2f(x3, y3);
     }
-/*
-    glVertex2f(x[iv], y[iv]);
-    glVertex2f(x[iv+1], y[iv+1]);
-    glVertex2f(x[iv+2], y[iv+2]);
-*/
+    /*
+     glVertex2f(x[iv], y[iv]);
+     glVertex2f(x[iv+1], y[iv+1]);
+     glVertex2f(x[iv+2], y[iv+2]);
+     */
   }
   glEnd();
 
 }
 
-
-
-void FilledMap::clipPrimitiveLines(int i1, int i2, float *x, float *y, float xylim[4],
-    float jumplimit)
+void FilledMap::clipPrimitiveLines(int i1, int i2, float *x, float *y,
+    float xylim[4], float jumplimit)
 {
   int i, n = i1;
   while (n < i2) {
