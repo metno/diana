@@ -73,6 +73,10 @@ struct SatFileInfo{
   bool palette; //palette or rgb file
   vector <Colour> col;    //vector of colours used
   miutil::miString fileformat;
+  SatFileInfo() :
+    opened(false), palette(false)
+    {
+    }
 };
 
 /**
