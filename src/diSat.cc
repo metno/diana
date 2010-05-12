@@ -524,7 +524,7 @@ void Sat::setArea()
 {
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setArea" << endl;
+  cerr << "Sat::setArea: " << endl;
 #endif
 
   //Projection p;
@@ -549,15 +549,13 @@ void Sat::setArea()
   Projection p(proj_string, Ax, Ay);
 
   //initializing libmi
-  p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid);
 
-  Rectangle r(0., 0., nx*Ax, ny*Ay);
+  p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid, gridResolutionX, gridResolutionY);
+
+  Rectangle r(0., 0., nx*gridResolutionX, ny*gridResolutionY);
 
   area.setP(p);
   area.setR(r);
-
-  gridResolutionX = Ax;
-  gridResolutionY = Ay;
 
 }
 
