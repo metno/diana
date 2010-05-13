@@ -417,7 +417,6 @@ bool FilledMap::plot(Area area, // current area
   //Projection srcProj("+proj=lonlat +ellps=WGS84 ",DEG_TO_RAD,DEG_TO_RAD);
   //+to_meter=.0174532925199432958
 
-
   if (area.P() != proj || startfresh) {
     bool cutsouth = false;//!area.P().isLegal(0.0,-90.0);
     bool cutnorth = false;//!area.P().isLegal(0.0,90.0);
@@ -433,7 +432,19 @@ bool FilledMap::plot(Area area, // current area
       float *cty = new float[num5];
       for (int m = 0; m < num4; m++) {
         ctx[m] = groups[i].tilex[m];
+        // proj4 dislikes the corners of the world
+        if (ctx[m] > 179.999){
+          ctx[m] = 179.999;
+        } else if (ctx[m] < -179.999){
+          ctx[m] = -179.999;
+        }
         cty[m] = groups[i].tiley[m];
+        // proj4 dislikes the corners of the world
+        if (cty[m] > 89.999){
+          cty[m] = 89.999;
+        } else if (cty[m] < -89.999){
+          cty[m] = -89.999;
+        }
       }
       for (int m = 0; m < num; m++) {
         ctx[num4 + m] = groups[i].midlon[m];
@@ -475,6 +486,31 @@ bool FilledMap::plot(Area area, // current area
             && (cty[num4 + j] < cty[bidx + 2]) && (cty[num4 + j]
             < cty[bidx + 3]))) {
           groups[i].use[j] = false;
+#ifdef DEBUGPRINT
+          cerr << "Dropping tile " << j << " in group " << i << endl;
+          cerr << "X midlon:" << ctx[num4+j] << " " << groups[i].midlon[j] << endl;
+          cerr << "X borders:";
+          for (int k=0; k<4; ++k){
+            cerr << ctx[bidx+k] << ", ";
+          }
+          cerr << endl;
+          for (int k=0; k<4; ++k){
+            cerr << groups[i].tilex[bidx+k] << ", ";
+          }
+          cerr << endl;
+
+          cerr << "Y midlat:" << cty[num4+j] << " " << groups[i].midlat[j] << endl;
+          cerr << "Y borders:";
+          for (int k=0; k<4; ++k){
+            cerr << cty[bidx+k] << ", ";
+          }
+          cerr << endl;
+          for (int k=0; k<4; ++k){
+            cerr << groups[i].tiley[bidx+k] << ", ";
+          }
+          cerr << endl;
+          cerr << endl << endl;
+#endif
           continue;
         }
 
@@ -526,8 +562,9 @@ bool FilledMap::plot(Area area, // current area
     // start tile loop
     for (int i = 0; i < ngt; i++) {
       // check if legal tile for this projection
-      if (!groups[g].use[i])
+      if (!groups[g].use[i]){
         continue;
+      }
 
       // check if tile inside area
       if ((groups[g].mmx[i * 2 + 0] > x2) || (groups[g].mmx[i * 2 + 1] < x1)
@@ -572,8 +609,9 @@ bool FilledMap::plot(Area area, // current area
       ntv *= 3;
       short numtypes = indata[wp + 6]; // max polygontype
 
-      if (nump == 0 || (npv == 0 && ntv == 0) || numtypes == 0)
+      if (nump == 0 || (npv == 0 && ntv == 0) || numtypes == 0){
         continue;
+      }
 
       float midlon = groups[g].midlon[i];
       float midlat = groups[g].midlat[i];
@@ -739,12 +777,12 @@ bool FilledMap::plot(Area area, // current area
 
           clipTriangles(0, tidx, triverx, trivery, xylim, jumplimit);
           /*
-           glBegin(GL_TRIANGLES);
-           for (int iv = 0; iv < tidx; iv++) {
-           glVertex2f(triverx[iv], trivery[iv]);
-           }
-           glEnd();
-           */
+          glBegin(GL_TRIANGLES);
+          for (int iv = 0; iv < tidx; iv++) {
+            glVertex2f(triverx[iv], trivery[iv]);
+          }
+          glEnd();
+          */
         }
       }
 
@@ -764,14 +802,14 @@ bool FilledMap::plot(Area area, // current area
 
             clipPrimitiveLines(id1, id2 - 1, polydata[psize].polyverx,
                 polydata[psize].polyvery, xylim, jumplimit);
-            /*
+/*
              glBegin(GL_LINE_STRIP);
              for (int iv = id1; iv < id2; iv++) {
              glVertex2f(polydata[psize].polyverx[iv],
              polydata[psize].polyvery[iv]);
              }
              glEnd();
-             */
+*/
             id1 = id2;
           }
         }
@@ -813,7 +851,7 @@ void FilledMap::clipTriangles(int i1, int i2, float * x, float * y,
      glVertex2f(x[iv], y[iv]);
      glVertex2f(x[iv+1], y[iv+1]);
      glVertex2f(x[iv+2], y[iv+2]);
-     */
+    */
   }
   glEnd();
 
