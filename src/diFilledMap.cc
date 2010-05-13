@@ -352,7 +352,7 @@ bool FilledMap::plot(Area area, // current area
 
   if (startfresh) {
     if (!readheader()) {
-      cerr << "Returned false" << endl;
+      cerr << "Readheader returned false..exiting" << endl;
       return false;
     }
     opened = true;
