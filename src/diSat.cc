@@ -533,28 +533,32 @@ void Sat::setArea()
     adjustGrid = ny;
   }
   //p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid);
-  if ( proj_string == "" )
-    {
-      std::stringstream tmp_proj_string;
-      tmp_proj_string << "+proj=stere";
-      tmp_proj_string << " +lon_0=" << GridRot;
-      tmp_proj_string << " +lat_ts=" << TrueLat;
-      tmp_proj_string << " +lat_0=90";
-      tmp_proj_string << " +R=6371000";
-      tmp_proj_string << " +units=km";
-      tmp_proj_string << " +x_0=" << (Bx*-1000.);
-      tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*ny*1000.);
-      proj_string = tmp_proj_string.str();
-    }
-  Projection p(proj_string, Ax, Ay);
+  if ( proj_string == "" ) {
+//       std::stringstream tmp_proj_string;
+//       tmp_proj_string << "+proj=stere";
+//       tmp_proj_string << " +lon_0=" << GridRot;
+//       tmp_proj_string << " +lat_ts=" << TrueLat;
+//       tmp_proj_string << " +lat_0=90";
+//       tmp_proj_string << " +R=6371000";
+//       tmp_proj_string << " +units=km";
+//       tmp_proj_string << " +x_0=" << (Bx*-1000.);
+//       tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*ny*1000.);
+//       proj_string = tmp_proj_string.str();
 
   //initializing libmi
+    Projection p;
+    p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid, gridResolutionX, gridResolutionY);
+    area.setP(p);
+} else {
+    Projection p(proj_string, Ax, Ay);
+    area.setP(p);
+    gridResolutionX = Ax;
+    gridResolutionY = Ay;
+  }
 
-  p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid, gridResolutionX, gridResolutionY);
 
   Rectangle r(0., 0., nx*gridResolutionX, ny*gridResolutionY);
 
-  area.setP(p);
   area.setR(r);
 
 }
