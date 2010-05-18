@@ -490,7 +490,7 @@ QVariant FetObjectTableModel::headerData(int section,
 QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
   if(role == Qt::DisplayRole) {
     vector<int> oil = getObjectIndexList(index.column(),index.row());
-    if(oil.size()) return oil.size();
+    if(oil.size()) return (int)oil.size();
   }
   if(role == Qt::TextAlignmentRole) return Qt::AlignCenter;
   if(role == Qt::BackgroundRole) {

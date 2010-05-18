@@ -65,6 +65,8 @@ private:
   void drawOccluded();      // draws the occluded
   void drawSquallLine();    // draws the squall line crosses
   void drawSigweather();    // draws significant weather bubbles
+  void drawJetstream();          // draws jetstream line with arrow (smhi)
+  void drawTroughLine2();        // draws smhi-used troughline 
   bool smooth();
   void recalculate();
   float getLineWidth(){return linewidth;}

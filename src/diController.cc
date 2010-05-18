@@ -737,6 +737,18 @@ void Controller::satFileListUpdated(){
   satm->fileListChanged = false;
 }
 
+bool Controller::obsTimeListChanged(){
+  // returns information about whether list of observation files have changed
+  //hence dialog and timeSlider times should change as well
+  return obsm->timeListChanged;
+}
+
+void Controller::obsTimeListUpdated(){
+  //called when the dialog and timeSlider updated with info from observation
+  //file list
+  obsm->timeListChanged = false;
+}
+
 
 void Controller::setSatAuto(bool autoFile,const miString& satellite,
 			    const miString& file){
@@ -943,25 +955,39 @@ vector <selectArea> Controller::findAreas(int x, int y, bool newArea){
 
 
 //********** plotting and selecting locationPlots on the map **************
-
 void Controller::putLocation(const LocationData& locationdata){
+#ifdef DEBUGPRINT
+	cerr << "Controller::putLocation" << endl;
+#endif
   plotm->putLocation(locationdata);
 }
 
 void Controller::updateLocation(const LocationData& locationdata){
+#ifdef DEBUGPRINT
+	cerr << "Controller::updateLocation" << endl;
+#endif
   plotm->updateLocation(locationdata);
 }
 
 void Controller::deleteLocation(const miString& name){
+#ifdef DEBUGPRINT
+	cerr << "Controller::deleteLocation: " << name << endl;
+#endif
   plotm->deleteLocation(name);
 }
 
 void Controller::setSelectedLocation(const miString& name,
 			           const miString& elementname){
+#ifdef DEBUGPRINT
+	cerr << "Controller::setSelectedLocation: " << name << "," << elementname << endl;
+#endif
   plotm->setSelectedLocation(name,elementname);
 }
 
 miString Controller::findLocation(int x, int y, const miString& name){
+#ifdef DEBUGPRINT
+	cerr << "Controller::findLocation: " << x << "," << y << "," << name << endl;
+#endif
   return plotm->findLocation(x,y,name);
 }
 

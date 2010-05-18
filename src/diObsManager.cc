@@ -73,6 +73,7 @@ using namespace std; using namespace miutil;
 ObsManager::ObsManager(){
   useArchive=false;
   mslp = false;
+  timeListChanged = false;
   levels.push_back(10);
   levels.push_back(30);
   levels.push_back(50);
@@ -445,9 +446,11 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
   if(!timeOK){ //Wrong time, update file-time list
     if(firstTry){           // try to find times from filename
       firstTry=false;
-      updateTimes(obsType);
+      if(updateTimes(obsType))
+		  timeListChanged = true;
     }else {                 //if that did not work, open all files
-      updateTimesfromFile(obsType);
+      if (updateTimesfromFile(obsType))
+		  timeListChanged = true;
       //timefilter did not work, turn it off
       miString offstr("OFF");
       for(unsigned  int j=0;j<Prod[obsType].pattern.size(); j++)
@@ -469,7 +472,8 @@ bool ObsManager::updateTimes(miString obsType)
 
   if (Prod.find(obsType)==Prod.end())
     return false;
-
+  // make a copy of the old fileinfo
+  vector<FileInfo> oldfileInfo = Prod[obsType].fileInfo;
   Prod[obsType].fileInfo.clear();
 #ifdef ROADOBS
   if (Prod[obsType].obsformat == ofmt_roadobs)
@@ -483,6 +487,17 @@ bool ObsManager::updateTimes(miString obsType)
 	miDate nowDate = now.date();
 	nowClock.setClock(nowClock.hour(),0,0);
 	now.setTime(nowDate, nowClock);
+	// Check first if now already exists in oldfileInfo
+	int n = oldfileInfo.size();
+	for (int i = 0; i < n; i++)
+	{
+		if (oldfileInfo[i].time == now)
+		{
+			// restor the old fileinfo
+			Prod[obsType].fileInfo = oldfileInfo;
+			return false;
+		}
+	}
 	int daysback = Prod[obsType].daysback;
 	miTime starttime = now;
 	starttime.addDay(-daysback);
@@ -555,6 +570,21 @@ bool ObsManager::updateTimes(miString obsType)
 #ifdef ROADOBS
   } // end´if obstype == roadobs
 #endif
+  // Check if timeLists are equal
+  if (Prod[obsType].fileInfo.size() == oldfileInfo.size())
+  {
+	  // Compare the list members
+	  int n= Prod[obsType].fileInfo.size();
+	  for (int i = 0; i < n; i++)
+	  {
+		if (Prod[obsType].fileInfo[i].time != oldfileInfo[i].time)
+		{
+			return true;
+		}
+	  }
+	  // The lists are equal
+	  return false;
+  }
   return true;
 }
 
@@ -568,7 +598,8 @@ bool ObsManager::updateTimesfromFile(miString obsType)
 
   if (Prod.find(obsType)==Prod.end())
     return false;
-
+  // make a copy of the old fileinfo
+  vector<FileInfo> oldfileInfo = Prod[obsType].fileInfo;
   Prod[obsType].fileInfo.clear();
 #ifdef ROADOBS
 if (Prod[obsType].obsformat == ofmt_roadobs)
@@ -582,6 +613,17 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
 	miDate nowDate = now.date();
 	nowClock.setClock(nowClock.hour(),0,0);
 	now.setTime(nowDate, nowClock);
+	// Check first if now already exists in oldfileInfo
+	int n = oldfileInfo.size();
+	for (int i = 0; i < n; i++)
+	{
+		if (oldfileInfo[i].time == now)
+		{
+			// restor the old fileinfo
+			Prod[obsType].fileInfo = oldfileInfo;
+			return false;
+		}
+	}
 	int daysback = Prod[obsType].daysback;
 	miTime starttime = now;
 	starttime.addDay(-daysback);
@@ -645,6 +687,21 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
 #ifdef ROADOBS
 }
 #endif
+  // Check if timeLists are equal
+  if (Prod[obsType].fileInfo.size() == oldfileInfo.size())
+  {
+	  // Compare the list members
+	  int n= Prod[obsType].fileInfo.size();
+	  for (int i = 0; i < n; i++)
+	  {
+		if (Prod[obsType].fileInfo[i].time != oldfileInfo[i].time)
+		{
+			return true;
+		}
+	  }
+	  // The lists are equal
+	  return false;
+  }
   return true;
 }
 
@@ -718,7 +775,8 @@ vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
   for(int i=0; i<n; i++ ){
     miString obsType= obsTypes[i].downcase();
     if(!obsType.contains("hqc"))
-      updateTimes(obsType);
+      if (updateTimes(obsType))
+		  timeListChanged = true;
 
     if(Prod[obsType].noTime) continue;
 

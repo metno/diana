@@ -203,6 +203,8 @@ public:
 		     const miutil::miString& desc, const vector<miutil::miString>&data);
   bool sendHqcdata(ObsPlot* oplot);
   void processHqcCommand(const miutil::miString&, const miutil::miString&);
+  // Added for automatic updates
+  bool timeListChanged;
 };
 
 #endif

@@ -218,11 +218,27 @@ bool WeatherFront::plot(){
       case TroughLine:
         //drawTroughLine(); // nothing to draw, only the line (below)
         break;
+      case TroughLine2:
+        drawTroughLine2(); // nothing to draw, only the line (below)
+        break;
       case SquallLine:
         drawSquallLine();
         break;
       case SigweatherFront:
         if (drawSig) drawSigweather();
+        break;
+      case ShortDashedLine:
+        itsLinetype.stipple=true;
+        itsLinetype.factor=1;
+        itsLinetype.bmap=0x00FF;
+        break;
+      case LongDashedLine:
+        itsLinetype.stipple=true;
+        itsLinetype.factor=2;
+        itsLinetype.bmap=0x00FF;
+        break;
+      case Jetstream:
+        drawJetstream();
         break;
       }
 
@@ -235,6 +251,12 @@ bool WeatherFront::plot(){
         //draw the line, first set colour and linewidth
         glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
         glLineWidth(scaledlinewidth);
+        if (itsLinetype.stipple) {
+           glLineWidth(2.0);
+           glEnable(GL_LINE_STIPPLE);
+           glLineStipple(itsLinetype.factor,itsLinetype.bmap);
+        }
+
         glBegin(GL_LINE_STRIP);        // Draws the smooth line
         if (spline){
           for (int i=0; i<s_length; i++)
@@ -249,6 +271,9 @@ bool WeatherFront::plot(){
       }
 
       UpdateOutput();
+      if (itsLinetype.stipple) {
+        glDisable(GL_LINE_STIPPLE);
+      }
 
       glDisable(GL_BLEND);
 
@@ -399,7 +424,6 @@ void WeatherFront::drawColds(){
       i++;
     }
     if (s<slim) break;
-
     i--;
     istart= i-1;
     fraction= (slim-sprev)/(s-sprev);
@@ -972,9 +996,256 @@ void WeatherFront::drawSquallLine(){
 }
 
 
+/*
+  Draws jetstream 
+ */
+void WeatherFront::drawJetstream(){
+    cerr << "WeatherFront::drawJetstream" << endl;
+  float r = scaledlinewidth*2*getDwidth();
+  int end = s_length;
+ 
+  float xstart,ystart,xend,yend,xtop1,xtop2,ytop1,ytop2,dxs,dys,fraction;
+  float s,slim1,slim2,sprev, x1,y1,s1,x2,y2,xm,ym,sm;
+  int i,istart,j;
+
+  slim1= r*0.75;
+  s= 0.;
+        glPushMatrix();
+
+        //draw the line, first set colour and linewidth
+        glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
+        //glLineWidth(scaledlinewidth);
+        glLineWidth(4);
+        glBegin(GL_LINE_STRIP);        // Draws the smooth line
+        if (spline){
+          for ( i=0; i<s_length; i++)
+            glVertex2f((x_s[i]),(y_s[i]));
+        } else{
+          for ( i=0; i<end; i++)
+            glVertex2f(nodePoints[i].x,nodePoints[i].y);
+        }
+        glEnd();
+        UpdateOutput();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glLineWidth(4);
+        //glEnd();
+        //UpdateOutput();
+        xend = x_s[i-1];
+        yend = y_s[i-1];
+        i--;
+      slim2= r*2.;
+      x1= x_s[i-1];
+      y1= y_s[i-1];
+      s1= sqrtf((x1-xend)*(x1-xend)+(y1-yend)*(y1-yend));
+     
+      x2= x_s[i-2];
+      y2= y_s[i-2];
+      //for (j=0; j<10; j++) {
+      while (s1/slim2 == 1) {
+        xm= (x1+x2)*0.5;
+        ym= (y1+y2)*0.5;
+        sm= sqrtf((xm-xend)*(xm-xend)+(ym-yend)*(ym-yend));
+        slim1 = (s1-slim2)*(sm-slim2);
+        if (slim1 <=0.) {
+          x2= xm;
+          y2= ym;
+        } else {
+          x1= xm;
+          y1= ym;
+          s1= sm;
+        }
+      }
+      xstart= (x1+x2)*0.5;
+      ystart= (y1+y2)*0.5;
+   
+
+    dxs= xend - xstart;
+    dys= yend - ystart;
+
+    xtop2= (xstart+xend)*0.5 - dys*0.3;
+    ytop2= (ystart+yend)*0.5 + dxs*0.3;
+
+    xtop1= (xstart+xend)*0.5 + dys*0.3;
+    ytop1= (ystart+yend)*0.5 - dxs*0.3;
+      glBegin(GL_POLYGON);
+      glVertex2f(xend,yend);
+      glVertex2f(xtop1,ytop1);
+      glVertex2f(xtop2,ytop2);
+      glEnd();
+	
+ /*
+       glPointSize(4.0);
+  	//glLoadIdentity();
+	glColor3f(1.0, 0.0, 0.0); //red 
+	// Draw filtered points
+	glEnable(GL_POINT_SMOOTH);
+	glBegin(GL_POINTS);
+		glVertex2f(xstart,ystart);
+	glEnd();
+// Set the point size
+	glPointSize(3.0);
+ 
+	//glLoadIdentity();
+
+	glColor3f(1.0, 0.75, 0.0);   //orange
+	// Draw filtered points
+	glEnable(GL_POINT_SMOOTH);
+	glBegin(GL_POINTS);
+		glVertex2f(xend, yend);
+	glEnd();
+	//glLoadIdentity();
+
+	glColor3f(0.0, 0.0, 1.0);     //blue
+	// Draw filtered points
+	glEnable(GL_POINT_SMOOTH);
+	glBegin(GL_POINTS);
+		glVertex2f(xtop1,ytop1);
+	glEnd();
+
+	glLoadIdentity();
+	glColor3f(1.0, 0.0, 1.0);   //magenta
+	// Draw filtered points
+	glEnable(GL_POINT_SMOOTH);
+	glBegin(GL_POINTS);
+	glVertex2f(xtop2,ytop2);
+	glEnd(); // */
 
 
 
+   //}
+        UpdateOutput();
+
+
+       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glEnd();
+        glPopMatrix();
+
+}   //end of drawing jetstream 
+
+/*
+  Draws TroughLine
+ */
+void WeatherFront::drawTroughLine2(){
+  //  cerr << "WeatherFront::drawTroughLine2" << endl;
+  float r= scaledlinewidth*2*getDwidth();
+  int end= s_length;
+  int ncount=0;
+
+  float xstart,ystart,xend,yend,xtop1,ytop1,xtop2,ytop2,dxs,dys,fraction;
+  float s,slim,sprev, x1,y1,s1,x2,y2,xm,ym,sm;
+  int i,istart,j;
+
+ // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glLineWidth(scaledlinewidth);
+
+  slim= r*0.75;
+  s= 0.;
+  i=1;
+
+  while (i<end) {
+
+    while (s<slim && i<end) {
+      sprev= s;
+      dxs= x_s[i] - x_s[i-1];
+      dys= y_s[i] - y_s[i-1];
+      s+= sqrtf(dxs*dxs+dys*dys);
+    //cerr << "********** s1 =   " << s << endl;
+      i++;
+    }
+    if (s<slim) break;
+    //cerr << "********** i1 =   " << i << endl;
+    i--;
+    istart= i-1;
+    fraction= (slim-sprev)/(s-sprev);
+    xstart= x_s[i-1] + dxs * fraction;
+    ystart= y_s[i-1] + dys * fraction;
+    s= 0.;
+    slim= r*2.;
+
+    while (s<slim && i<end) {
+      dxs= x_s[i] - xstart;
+      dys= y_s[i] - ystart;
+      sprev= s;
+      s= sqrtf(dxs*dxs+dys*dys);
+      i++;
+    }
+    if (s<slim) break;
+    //cerr << "********** i2 =   " << i << endl;
+
+    i--;
+    if (istart==i-1) {
+      fraction= slim/s;
+      xend= xstart + dxs * fraction;
+      yend= ystart + dys * fraction;
+    } else {
+      x1= x_s[i-1];
+      y1= y_s[i-1];
+      s1= sqrtf((x1-xstart)*(x1-xstart)+(y1-ystart)*(y1-ystart));
+      x2= x_s[i];
+      y2= y_s[i];
+      for (j=0; j<10; j++) {
+        xm= (x1+x2)*0.5;
+        ym= (y1+y2)*0.5;
+        sm= sqrtf((xm-xstart)*(xm-xstart)+(ym-ystart)*(ym-ystart));
+        if ((s1-slim)*(sm-slim)<=0.) {
+          x2= xm;
+          y2= ym;
+        } else {
+          x1= xm;
+          y1= ym;
+          s1= sm;
+        }
+      }
+      xend= (x1+x2)*0.5;
+      yend= (y1+y2)*0.5;
+    }
+
+    dxs= xend - xstart;
+    dys= yend - ystart;
+
+    xtop1= (xstart+xend)*0.5 - dys*0.6;
+    ytop1= (ystart+yend)*0.5 + dxs*0.6;
+
+    xtop2= (xstart+xend)*0.5 + dys*0.6;
+    ytop2= (ystart+yend)*0.5 - dxs*0.6;
+
+    if (ncount%2==0){
+    //cerr << "********** ncount =   " << ncount << endl;
+      /*glBegin(GL_POLYGON);
+      glVertex2f(xstart,ystart);
+      glVertex2f(xend,yend);
+      glVertex2f(xtop,ytop);
+      glEnd();*/
+//	glColor3f(1.0, 0.75, 0.0);   //orange
+//
+      if (ncount%4==0) {
+         glBegin(GL_LINES);
+         glVertex2f(xstart,ystart);
+         glVertex2f(xtop1,ytop1);
+         glEnd();
+      } else { 
+         glBegin(GL_LINES);
+         glVertex2f(xstart,ystart);
+         glVertex2f(xtop2,ytop2);
+         glEnd();
+      }
+
+    }
+    ncount++;
+
+    dxs= xend - x_s[i-1];
+    dys= yend - y_s[i-1];
+    slim= sqrtf(dxs*dxs+dys*dys) + r*1.5;
+    s= 0.;
+
+  }
+
+  UpdateOutput();
+
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+}   //end of drawing TroughLine
 
 
 

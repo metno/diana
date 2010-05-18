@@ -70,6 +70,10 @@ public:
   void setBorderColour(const miutil::miString& colstring){borderColour= Colour(colstring);}
   /// returns true if symbol is complex text
   static bool isComplexText(int drawIndex);
+  /// returns true if symbol is colored complex text
+  static bool isComplexTextColor(int drawIndex);
+  /// returns true if symbol is edit text or textbox
+  static bool isTextEdit(int drawIndex);
   /// gets current complex text (used in text dialog)
   static void getCurrentComplexText(vector <miutil::miString> & symbolText,
 			     vector <miutil::miString> & xText);
@@ -87,7 +91,11 @@ public:
 private:
   void initStrings(int drawIndex);
   void drawSigString(float x,float y,bool whitebox=true);
+  void drawSigEditString(float& x,float& y,bool whitebox=true);
   void drawSigText(float x,float y, bool whitebox=true);
+  void drawSigTextBox();
+  void drawSigEditText(float x,float y, bool whitebox=true);
+  void drawColoredSigText(float x,float y,bool whitebox=true);
   void drawDoubleSigText(float x,float y, bool whitebox=true);
   void drawDoubleSigTextAndSymbol(int symbol,float x,float y);
   void drawSig1(float x,float y, int metSymbol);
@@ -123,6 +131,7 @@ private:
   void drawPrecipitation(float x,float y);
   void getComplexSize(int index, float& sw, float & sh);
   void drawSymbol(int index,float x,float y);
+  void drawSigNumber(float x,float y);
 
   //text used in new complex symbols
   static vector <miutil::miString> currentSymbolStrings;

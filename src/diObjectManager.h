@@ -157,6 +157,11 @@ public:
   bool inTextMode();
   /// returns true if currently editing complex text symbol
   bool inComplexTextMode();
+  /// returns true if currently editing colored complex text symbol 
+  bool inComplexTextColorMode();
+
+  /// returns true if currently editing edittext textbox
+  bool inEditTextMode();
   /// gets current text of complex text symbols
   void getCurrentComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>& xText);
   /// sets current text of complex text symbols

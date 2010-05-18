@@ -60,6 +60,7 @@
 #include <qtToggleButton.h>
 #include <qtTimeStepSpinbox.h>
 #include <qtComplexText.h>
+#include <qtEditText.h>
 #include <qtAnnoText.h>
 //Added by qt3to4:
 
@@ -81,6 +82,8 @@
 #define SYMBOL_INDEX 1
 #define AREA_INDEX 2
 #define SIGMAP_INDEX 3
+// #define dEditDlg
+// #define DEBUGPRINT
 
 /*********************************************/
 EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
@@ -144,6 +147,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Circle"]=tr("Circle"); //Sirkel
   editTranslations["Cross"]=tr("Cross");   //Kryss
   editTranslations["Text"]=tr("Text");   //Tekster
+  editTranslations["EditText"]=tr("EditText");   //Tekster
 
 
   editTranslations["Precipitation"]=tr("Precipitation"); //Nedbør ??
@@ -728,7 +732,7 @@ void  EditDialog::FrontTabBox( int index )
 
 void EditDialog::FrontEditClicked()
 {
-  //cerr << "FrontEditClicked "  << endl;
+  //  cerr << "FrontEditClicked "  << endl;
   //called when an item in the objects list box clicked
   if (!inEdit || m_Fronteditmethods->count()==0) return;
 
@@ -759,6 +763,25 @@ void EditDialog::FrontEditClicked()
       if (getComplexText(symbolText,xText)){
         m_objm->setCurrentComplexText(symbolText,xText);
       }
+    } 
+    else if (m_objm->inComplexTextColorMode()){
+      vector <miutil::miString> symbolText,xText;
+      m_objm->initCurrentComplexText();
+      m_objm->getCurrentComplexText(symbolText,xText);
+      Colour::ColourInfo colour=m_objm->getCurrentColour();
+      if (getComplexColoredText(symbolText,xText,colour)){
+        m_objm->setCurrentComplexText(symbolText,xText);
+        m_objm->setCurrentColour(colour);
+      }
+  
+    }
+    else if (m_objm->inEditTextMode()){
+      vector <miutil::miString> symbolText,xText;
+      m_objm->initCurrentComplexText();
+      m_objm->getCurrentComplexText(symbolText,xText);
+      if (getEditText(symbolText)){
+        m_objm->setCurrentComplexText(symbolText,xText);
+      }
     }
   }
   m_objm->createNewObject();
@@ -781,6 +804,22 @@ void EditDialog::FrontEditDoubleClicked()
     vector <miutil::miString> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getComplexText(symbolText,xText)){
+      m_objm->setCurrentComplexText(symbolText,xText);
+    }
+  
+  } else if (m_objm->inComplexTextColorMode()){
+    vector <miutil::miString> symbolText,xText;
+    m_objm->getCurrentComplexText(symbolText,xText);
+    Colour::ColourInfo colour=m_objm->getCurrentColour();
+    if (getComplexColoredText(symbolText,xText,colour)){
+      m_objm->setCurrentComplexText(symbolText,xText);
+      m_objm->setCurrentColour(colour);
+    }
+  
+  } else if (m_objm->inEditTextMode()){
+    vector <miutil::miString> symbolText,xText;
+    m_objm->getCurrentComplexText(symbolText,xText);
+    if (getEditText(symbolText)){
       m_objm->setCurrentComplexText(symbolText,xText);
     }
   }
@@ -871,6 +910,7 @@ void EditDialog::DeleteMarkedAnnotation()
 
 bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
 {
+//   cerr << "EditDialog::getText called"  << endl;
   bool ok = false;
 
   vector <miutil::miString> symbolText,xText;
@@ -891,10 +931,30 @@ bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
   return ok;
 }
 
+bool EditDialog::getComplexColoredText(vector <miutil::miString> & symbolText,
+    vector <miutil::miString> & xText,Colour::ColourInfo & colour)
+{
+  cerr << "EditDialog::getComplexColoredText called"  << endl;
+  bool ok=false;
+  if (symbolText.size()||xText.size()){
+    set <miutil::miString> complexList = m_ctrl->getComplexList();
+    ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
+        complexList,true);
+    cText->setColour(colour);
+    if (cText->exec()){
+      cText->getComplexText(symbolText,xText);
+      cText->getColour(colour);
+      ok=true;
+    }
+    delete cText;
+  }
+  return ok;
+}
 
 bool EditDialog::getComplexText(vector <miutil::miString> & symbolText,
     vector <miutil::miString> & xText)
 {
+//   cerr << "EditDialog::getComplexText called"  << endl;
   bool ok=false;
   if (symbolText.size()||xText.size()){
     set <miutil::miString> complexList = m_ctrl->getComplexList();
@@ -906,6 +966,23 @@ bool EditDialog::getComplexText(vector <miutil::miString> & symbolText,
     }
     delete cText;
   }
+  return ok;
+}
+
+bool EditDialog::getEditText(vector <miutil::miString> & editText)
+{
+//   cerr << "EditDialog::getEditText called"  << endl;
+  bool ok=false;
+  if (editText.size()) {
+     set <miutil::miString> complexList = m_ctrl->getComplexList();
+     //set <miutil::miString> textList=m_objm->getTextList();
+     EditText * eText =new EditText(this,m_ctrl, editText, complexList,true);
+     if (eText->exec()){
+      eText->getEditText(editText);
+      ok=true;
+    }
+    delete eText;
+  } 
   return ok;
 }
 
@@ -958,7 +1035,7 @@ void  EditDialog::CombineTab()
 
 void EditDialog::stopCombine()
 {
-  cerr << "EditDialog::stopCombine called" << endl;
+//   cerr << "EditDialog::stopCombine called" << endl;
 
   twd->setTabEnabled(0, true);
   twd->setTabEnabled(1, true);
@@ -1074,6 +1151,9 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
   list->setViewMode(QListView::ListMode);
   for ( int i=0; i<n; i++){
     miutil::miString etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
+#ifdef DEBUGPRINT
+  if (inEdit) cerr<<"ListWidgetData etool = "<< etool <<endl;
+#endif
     vstr.push_back(etool);
     QString dialog_etool;
     //find translation
@@ -1092,7 +1172,6 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
   if (mindex==OBJECT_INDEX && index==SIGMAP_INDEX){
     //for now, only sigmap symbols have images...
     list->clear();
-    cerr <<"CLEAR"<<endl;
     list->setViewMode(QListView::IconMode);
     SetupParser sp;
     for ( int i=0; i<n; i++){
@@ -1389,7 +1468,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     EditProductId& ci,
     miutil::miTime& time)
 {
-  cerr << "EditDialog::EditNewOk called................" << endl;
+//   cerr << "EditDialog::EditNewOk called................" << endl;
 
   emit editMode(true);
 
@@ -1636,7 +1715,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     EditProductId& ci,
     miutil::miTime& time)
 {
-  cerr << "EditNewCombineOK" << endl;
+//   cerr << "EditNewCombineOK" << endl;
   // Turn off Undo-buttons
   undoFrontsEnable();
   undoFieldsDisable();
@@ -1748,8 +1827,6 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     numFieldEditTools= n;
 
     miutil::miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
-
-    cerr<<" class str: "<<str<<endl;
 
     vector<miutil::miString> vclass= str.split(',');
     for (unsigned int i=0; i<vclass.size(); i++) {

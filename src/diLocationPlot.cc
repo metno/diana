@@ -95,25 +95,37 @@ bool LocationPlot::setData(const LocationData& locationdata)
   bool ok= true;
 
   int nelem= locationdata.elements.size();
-  if (nelem==0) ok= false;
+  if (nelem==0)
+  {
+	cerr<<"LocationPlot::setData nelem==0!"<<endl;
+    return false;
+  }
 
   set<miString> nameset;
 
   for (int i=0; i<nelem; i++) {
     if (locationdata.elements[i].name.empty())
-      ok= false;
+	{
+      cerr<<"LocationPlot::setData " << i << " locationdata.elements[i].name.empty()!"<<endl;
+      return false;
+	}
     else if (nameset.find(locationdata.elements[i].name)==nameset.end())
       nameset.insert(locationdata.elements[i].name);
     else
-      ok= false;
-    if (locationdata.elements[i].xpos.size()<2) ok=false;
-    if (locationdata.elements[i].xpos.size()!=
-        locationdata.elements[i].ypos.size()) ok= false;
-  }
-
-  if (!ok) {
-    cerr<<"LocationPlot::setData received bad data !!!!!!!!"<<endl;
-    return false;
+	{
+	  cerr<<"LocationPlot::setData duplicate name: " << i << " locationdata.elements[i].name!"<< locationdata.elements[i].name << endl;
+      return false;
+	}
+    if (locationdata.elements[i].xpos.size()<2)
+	{
+		cerr<<"LocationPlot::setData " << i << " locationdata.elements[i].xpos.size()<2!" << locationdata.elements[i].xpos.size() << endl;
+		return false;
+	}
+    if (locationdata.elements[i].xpos.size()!=locationdata.elements[i].ypos.size())
+	{
+		cerr<<"LocationPlot::setData " << i << " locationdata.elements[i].xpos.size()!=locationdata.elements[i].ypos.size()!" << locationdata.elements[i].xpos.size() << "," << locationdata.elements[i].ypos.size() << endl;
+		return false;
+	}
   }
 
   locdata= locationdata;

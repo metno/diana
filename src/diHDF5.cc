@@ -57,9 +57,15 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
   cerr << "HDF5::readHDF5Palette ginfo.metadata " << ginfo.metadata << endl;
   cerr << "HDF5::readHDF5Palette filename " << file.name << endl;
 #endif
+  cerr << "tjo" << endl;
 
   // if not colour palette image
   //if (hdf5api.HDF5_head_diana(file.name, ginfo)!= 2)
+  if (file.name == "") {
+  cerr << "tjo" << endl;
+    return false;
+  }
+  cerr << "tjo" << endl;
   if(metno::satimgh5::HDF5_head_diana(file.name, ginfo)!= 2)
     return false;
 
@@ -198,6 +204,10 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
   sd.Ay = ginfo.Ay;
   sd.Bx = ginfo.Bx;
   sd.By = ginfo.By;
+
+  //Projection
+  sd.projection = ginfo.projection;
+  sd.proj_string = ginfo.proj_string;
 
   // Calibration
   sd.cal_vis = ginfo.cal_vis;

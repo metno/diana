@@ -100,6 +100,11 @@ public:
   bool inTextMode();
   /// returns true of current symbol is complext text
   bool inComplexTextMode();
+  /// returns true of current symbol is complext text (for colored text)
+  bool inComplexTextColorMode();
+  
+  /// returns true if current symbol is edittext or textbox
+  bool inEditTextMode();
   /// initial text for complex text symbols
   void initCurrentComplexText();
   /// returns true if currently drawing an object

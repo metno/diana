@@ -51,7 +51,7 @@
 #include <qtToggleButton.h>
 #include <iostream>
 #include <diController.h>
-
+//#define DEBUGPRINT
 
 QValidator::State ComplexText::complexValidator::validate(QString& input,
     int& pos) const
@@ -116,6 +116,9 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
         set <miutil::miString> complexList = cList;
 
         for (int i=0;i<ns;i++){
+#ifdef DEBUGPRINT
+      cout<<"symbolText["<<i<<"]"<<symbolText[i] <<endl;
+#endif
           miutil::miString ltext="Text"+miutil::miString(i+1);
           QString labeltext=ltext.c_str();
           QLabel* namelabel= new QLabel(labeltext, this) ;
@@ -162,6 +165,9 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
         QGridLayout* glayout = new QGridLayout();
         hglayout->addLayout(glayout, 0);
         for (int i=0;i<nx;i++){
+#ifdef DEBUGPRINT
+      cout<<"xText["<<i<<"]"<<xText[i] <<endl;
+#endif
           miutil::miString ltext="X"+miutil::miString(i+1);
           QString labeltext=ltext.c_str();
 
@@ -224,6 +230,9 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
 
 
     void ComplexText::getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText){
+#ifdef DEBUGPRINT
+      cout<<"ComplexText::getComplexText called"<<endl;
+#endif
       symbolText.clear();
       int ns=vSymbolEdit.size();
       for (int i =0; i<ns;i++)
@@ -237,12 +246,18 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
 
 
     void ComplexText::setColour(Colour::ColourInfo &colour){
+#ifdef DEBUGPRINT
+      cout<<"ComplexText::setColour called"<<endl;
+#endif
       int index = getColourIndex(colourInfo,colour);
       colourbox-> setCurrentIndex(index);
 
     }
 
     void ComplexText::getColour(Colour::ColourInfo &colour){
+#ifdef DEBUGPRINT
+      cout<<"ComplexText::getColour called"<<endl;
+#endif
       int index=colourbox->currentIndex();
       if (index>-1 && index<int(colourInfo.size()))
         colour=colourInfo[index];
@@ -276,6 +291,9 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
 
 
     void ComplexText::textActivated(const QString &textstring){
+#ifdef DEBUGPRINT
+      cout<<"ComplexText::TextActivated called"<<endl;
+#endif
       for (unsigned int i =0;i<vSymbolEdit.size();i++){
         if (!vSymbolEdit[i]->hasFocus()) continue;
         startEdit=true;
@@ -286,11 +304,17 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
 
     void ComplexText::selectText(int i)
     {
+#ifdef DEBUGPRINT
+      cout<<"ComplexText::SelectText called"<<endl;
+#endif
       // Special routine to facilitate editing strings with "0°:"
       //
       if (startEdit){
         startEdit=false;
         miutil::miString text = vSymbolEdit[i]->currentText().toStdString();
+#ifdef DEBUGPRINT
+      cout<<"*** text =  "<< text <<endl;
+#endif
         if (!text.contains("0°:")){
           vSymbolEdit[i]->lineEdit()->setValidator(0);
           return;
@@ -308,6 +332,9 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
 
     void ComplexText::textSelected()
     {
+#ifdef DEBUGPRINT
+      cout<<"ComplexText::textSelected called"<<endl;
+#endif
       for (unsigned int i =0;i<vSymbolEdit.size();i++){
         selectText(i);
       }

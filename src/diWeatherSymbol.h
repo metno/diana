@@ -94,6 +94,10 @@ public:
   static bool isSimpleText(miutil::miString edittool);
   /// returns true if symbol is complex text
   static bool isComplexText(miutil::miString edittool);
+  /// returns true if symbol is colored complex text
+  static bool isComplexTextColor(miutil::miString edittool);
+  /// returns true if symbol is edit text or textbox
+  static bool isTextEdit(miutil::miString edittool);
   /// get vectors with text from complex symbols
   static void getCurrentComplexText(vector <miutil::miString> & symbolText, 
 			     vector <miutil::miString> & xText);

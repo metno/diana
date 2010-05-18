@@ -259,6 +259,10 @@ public:
   void satFileListUpdated();
   /// called when the dialog and timeSlider updated with info from satellite
   bool satFileListChanged();
+  /// returns information about whether list of observation files have changed
+  void obsTimeListUpdated();
+  /// called when the dialog and timeSlider updated with info from obs
+  bool obsTimeListChanged();
   /// satellite follows main plot time
   void setSatAuto(bool,const miutil::miString &, const miutil::miString &);
   /// get satellite classes for uffda dialog

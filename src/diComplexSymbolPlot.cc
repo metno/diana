@@ -62,6 +62,7 @@ using namespace::miutil;
 #define SHOWERSYMBOL 109
 #define FZRASYMBOL 93
 
+//#define DEBUGPRINT
 //static variables
 // text used in new complex symbols
 vector <miString> ComplexSymbolPlot::currentSymbolStrings; //symbolstrings
@@ -83,7 +84,7 @@ ComplexSymbolPlot::ComplexSymbolPlot() : Plot(){
 
 ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex) : Plot(){
 #ifdef DEBUGPRINT
-  cerr << "ComplexSymbolPlot::ComplexSymbolPlot()"<< endl;
+  cerr << "ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex)"<< endl;
 #endif
   xvisible=false;
   nstringsvisible=0;
@@ -99,6 +100,9 @@ ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex) : Plot(){
 
 
 void ComplexSymbolPlot::initStrings(int drawIndex){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::initStrings()"<< endl;
+#endif
   switch (drawIndex){
   case 1000:
     if (symbolStrings.size()==0)
@@ -110,11 +114,23 @@ void ComplexSymbolPlot::initStrings(int drawIndex){
     if (xstrings.size()==1)
       xstrings.push_back(xstrings[0]);
     break;
+  case 900:
+    if (xstrings.size()==0)
+      xstrings.push_back("");
+    break;
   case 2000:
     if (symbolStrings.size()==0)
       symbolStrings.push_back("");
     if (symbolStrings.size()==1)
       symbolStrings.push_back(symbolStrings[0]);
+    break;
+  case 3000:
+    if (symbolStrings.size()==0)
+      symbolStrings.push_back("");
+    break;
+  case 3001:
+    if (symbolStrings.size()==0)
+      symbolStrings.push_back("");
     break;
   case 1033:
     if (symbolStrings.size()==0)
@@ -125,6 +141,9 @@ void ComplexSymbolPlot::initStrings(int drawIndex){
 
 
 void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::initCurrentStrings()"<< endl;
+#endif
   currentSymbolStrings.clear();
   currentXStrings.clear();
   switch (drawIndex){
@@ -226,8 +245,18 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
     currentSymbolStrings.push_back("");
     currentSymbolStrings.push_back("");
     break;
+  case 900:
+    currentXStrings.push_back("");
+    currentSymbolStrings.push_back("");
+    break;
   case 2000:
     currentSymbolStrings.push_back("");
+    currentSymbolStrings.push_back("");
+    break;
+  case 3000:
+    currentSymbolStrings.push_back("");
+    break;
+  case 3001:
     currentSymbolStrings.push_back("");
     break;
   }
@@ -235,6 +264,12 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
 
 
 void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::draw()"<< endl;
+  cerr << "drawIndex = " << drawIndex << endl;
+  cerr << " float x = " << x << endl;
+  cerr << " float y = " << y << endl;
+#endif
   symbolSizeToPlot=size;
   xvisible=false;
   nstringsvisible=0;
@@ -387,10 +422,21 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
   case 1045:
     drawSig1(0,0,FZRASYMBOL);
     break;
-
+  case 900:
+    symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+    drawColoredSigText(0,0);
+    break;
   case 2000:
     symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
     drawDoubleSigText(0,0);
+    break;
+  case 3000:
+    symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+    drawSigEditText(0,0,whiteBox);
+    break;
+  case 3001:
+    symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+    drawSigTextBox();
     break;
   default:
     cerr << "ComplexSymbolPlot::drawComplexSymbols - Index " <<
@@ -403,6 +449,9 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
 
 
 void ComplexSymbolPlot::drawSymbol(int index,float x,float y){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawSymbol()"<< endl;
+#endif
   float cw,ch;
   fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
   fp->getCharSize(index,cw,ch);
@@ -411,6 +460,9 @@ void ComplexSymbolPlot::drawSymbol(int index,float x,float y){
 
 
 void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawSigString()"<< endl;
+#endif
   if (whitebox){
     drawBox(1999,x,y);
   }
@@ -420,16 +472,171 @@ void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox){
   fp->drawStr(sigString.c_str(),x-0.45*cw,y-0.4*ch,0.0);
 }
 
+void ComplexSymbolPlot::drawSigEditString(float& x,float& y, bool whitebox){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawSigEditString()"<< endl;
+  cerr << "x = " <<x << "         y = "<< y << endl;
+#endif
+  float cw,ch;
+  getComplexSize(1999,cw,ch);
+  fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  fp->drawStr(sigString.c_str(),x+0.45 ,y-0.4,0.0);
+#ifdef DEBUGPRINT
+  cerr << "** sigString  = **"<<sigString.c_str() << endl;
+#endif
+}
 
 void ComplexSymbolPlot::drawSigText(float x,float y, bool whitebox){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawSigText()"<< endl;
+#endif
   initStrings(1000);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawSigString(x,y,whitebox);
   nstringsvisible=1;
 }
+// Drawing texbox on right low corner of the frame
+void ComplexSymbolPlot::drawSigTextBox(){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawSigTextBox()"<< endl;
+ // cerr << "x = " <<x << "         y = "<< y << endl;
+#endif
+#ifdef DEBUGPRINT
+  cerr << "** drawing filled area**"<< endl;
+#endif
+   float x1, x2, y1, y2;
+   x1 = 111.651;
+   x2 = 131.999;
+   y1 = 66.0913;
+   y2 = 72.0713;
+//----------------------------------
+  // draw filled area
+  Colour fc = poptions.fillcolour;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4ub(0,0,0,0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBegin(GL_POLYGON);
+    glVertex2f(x1, y1);
+    glVertex2f(x1, y2);
+    glVertex2f(x2, y1);
+    glVertex2f(x2, y2);
+    glEnd();
+    glDisable(GL_BLEND); // end of drawing filled area
+
+    glIndexi(poptions.bordercolour.Index());
+    glLineWidth(1);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(x1, y1);
+    glVertex2f(x1, y2);
+    glVertex2f(x2, y1);
+    glVertex2f(x2, y2);
+    glEnd();
+//----------------------------
+/*  float x, y;
+  x = 0.0; y = 0.0;
+  bool whitebox = true;
+  initStrings(3000);
+  if (symbolStrings.size()>0)
+    for (int j= 0 ; j < symbolStrings.size(); j++)
+    {
+       sigString=symbolStrings[j];
+#ifdef DEBUGPRINT
+  cerr << "sigString = " << sigString.c_str() << endl;
+#endif
+       drawSigEditString(x,y,whitebox);
+       y -= 0.8;
+    }*/
+  nstringsvisible=1;
+}
+
+void ComplexSymbolPlot::drawColoredSigText(float x,float y, bool whitebox){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawColoredSigTextt()"<< endl;
+  cerr << "x = " <<x << "         y = "<< y << endl;
+#endif
+  //GLfloat currentColor[4];
+  //glGetFloatv(GL_CURRENT_COLOR,currentColor);
+  //glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
+
+  float sw,sh;
+ // symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+  initStrings(1000);
+  if (symbolStrings.size()>0)
+    sigString=symbolStrings[0];
+  getComplexSize(1999,sw,sh);
+  drawSigText(x-sw/2,y,whiteBox);
+  symbolSizeToPlot= int(symbolSizeToPlot/textShrink);
+  initStrings(900);
+  getComplexSize(900,sw,sh);
+  drawSigNumber(x+sw/2,y);
+  symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
+  nstringsvisible=1;
+
+}
+
+
+// Plotting multiline text
+void ComplexSymbolPlot::drawSigEditText(float x,float y, bool whitebox){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawSigEditText()"<< endl;
+  cerr << "x = " <<x << "         y = "<< y << endl;
+#endif
+/*#ifdef DEBUGPRINT
+  cerr << "** drawing filled area**"<< endl;
+#endif
+   float x1, x2, y1, y2;
+   x1 = 111.651;
+   x2 = 131.999;
+   y1 = 66.0913;
+   y2 = 72.0713;
+//----------------------------------
+  // draw filled area
+  Colour fc = poptions.fillcolour;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4ub(0,0,0,0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBegin(GL_POLYGON);
+    glVertex2f(x1, y1);
+    glVertex2f(x1, y2);
+    glVertex2f(x2, y1);
+    glVertex2f(x2, y2);
+    glEnd();
+    glDisable(GL_BLEND); // end of drawing filled area
+
+    glIndexi(poptions.bordercolour.Index());
+    glLineWidth(1);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(x1, y1);
+    glVertex2f(x1, y2);
+    glVertex2f(x2, y1);
+    glVertex2f(x2, y2);
+    glEnd();*/
+//----------------------------
+  float cw,ch;
+  initStrings(3000);
+  if (symbolStrings.size()>0)
+    for (int j= 0 ; j < symbolStrings.size(); j++)
+    {
+       sigString=symbolStrings[j];
+#ifdef DEBUGPRINT
+  cerr << "sigString = " << sigString.c_str() << endl;
+#endif
+       getComplexSize(1999,cw,ch);
+       drawSigEditString(x,y,whitebox);
+       y -= 0.9*ch;
+    }
+  nstringsvisible=1;
+}
 
 void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawDoubleSigText()"<< endl;
+#endif
   float cw1,ch1;
   float cw2,ch2;
   initStrings(2000);
@@ -445,6 +652,9 @@ void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox){
 }
 
 void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::idrawDoubleSigTextAndSymbol()"<< endl;
+#endif
   float cw1,ch1;
   float cw2,ch2;
   float sw,sh;
@@ -461,6 +671,25 @@ void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
   drawSigString(x,y-ch2/2);
   nstringsvisible=2;
 }
+
+void ComplexSymbolPlot::drawSigNumber(float x,float y){
+  if (xstrings.size()<1)
+    initStrings(900);
+  if(whiteBox){
+    drawBox(900,x,y);
+  }
+  fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  float cw1,ch1;
+  //float cw2,ch2;
+  fp->getStringSize(xstrings[0].c_str(),cw1,ch1);
+  //fp->getStringSize(xstrings[1].c_str(),cw2,ch2);
+  fp->drawStr(xstrings[0].c_str(),x-cw1/2,y-1.1*ch1,0.0);
+  //fp->drawStr(xstrings[1].c_str(),x-cw2/2,y-1.1*ch2,0.0);
+  float sw,sh;
+  getComplexSize(900,sw,sh);
+  //xvisible=true;
+}
+
 
 
 void ComplexSymbolPlot::drawSig1(float x,float y, int metSymbol){
@@ -780,12 +1009,22 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
 
 
 void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
+#ifdef DEBUGPRINT
+  cerr << "ComplexSymbolPlot::drawBox"<< endl;
+  cerr << "*float x = "<< x << endl;
+  cerr << "*float y = "<< y << endl;
+  cerr << "*float fill = "<< fill << endl;
+#endif
 
   GLfloat currentColor[4];
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
   float sw,sh;
   getComplexSize(index,sw,sh);
+#ifdef DEBUGPRINT
+  cerr << "float sw = "<< sw << endl;
+  cerr << "float sh = "<< sh << endl;
+#endif
 
   if( fill ){
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1120,9 +1359,30 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
     switch (index){
     case 1999:
       //sigstring
+      fp->set("BITMAPFONT",poptions.fontface,symbolSizeToPlot);
+      fp->getStringSize(sigString.c_str(),cw,ch);
+      sw=1.1*cw; sh=1.2*ch;
+      break;
+    case 3000:
+      //sigeditstring
       fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       fp->getStringSize(sigString.c_str(),cw,ch);
       sw=1.1*cw; sh=1.2*ch;
+      break;
+    case 900:
+      fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      if (xstrings.size()>0)
+	fp->getStringSize(xstrings[0].c_str(),cw1,ch1);
+      //if (xstrings.size()>1)
+	//fp->getStringSize(xstrings[1].c_str(),cw2,ch2);
+      //if (cw1>cw2)
+	sw=cw1;
+      //else
+	//sw=cw2;
+      //if (ch1>ch2)
+	sh=2.0*ch1;
+      //else
+	//sh=2.0*ch2;
       break;
     case 1000:
       if (symbolStrings.size()>0){
@@ -1435,6 +1695,28 @@ void ComplexSymbolPlot::setWhiteBox(int on){
 
 
 
+bool ComplexSymbolPlot::isTextEdit(int drawIndex){
+  //cerr << "complexSymbolPlot::isTextEdit " << drawIndex << endl;
+  switch (drawIndex){
+  case 3000:
+    return true;
+  case 3001:
+    return true;
+  default:
+    return false;
+  }
+}
+
+bool ComplexSymbolPlot::isComplexTextColor(int drawIndex){
+  cerr << "*************complexSymbolPlot::isComplexTextColor " << drawIndex << endl;
+  switch (drawIndex){
+  case 900:
+    return true;
+  default:
+    return false;
+  }
+}
+
 
 bool ComplexSymbolPlot::isComplexText(int drawIndex){
   //cerr << "complexSymbolPlot::isComplexText " << drawIndex << endl;
@@ -1547,8 +1829,12 @@ symbolText, const vector <miString> & xText){
 #endif
   currentSymbolStrings=symbolText;
   //insert into list of texts
-  for (unsigned int i =0;i<symbolText.size();i++)
+  for (unsigned int i =0;i<symbolText.size();i++){
+#ifdef DEBUGPRINT
+  cerr << "******* symbolText["<< i << "]"<<symbolText[i] << endl;
+#endif
     clist.insert(symbolText[i]);
+  }
   currentXStrings=xText;
 }
 

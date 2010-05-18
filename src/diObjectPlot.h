@@ -45,12 +45,13 @@ using namespace std;
 
 
 
-enum objectType{Anything,wFront,wSymbol,wArea,Border,RegionName,ShapeXXX};
+enum objectType{Anything,wFront,wSymbol,wArea,wText,Border,RegionName,ShapeXXX};
 
-enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,
-		TroughLine, SquallLine, SigweatherFront,BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine};
+enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,TroughLine, 
+          TroughLine2,ShortDashedLine,LongDashedLine,Jetstream,SquallLine, SigweatherFront,
+          BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine};
 
-enum AreaType{ Rain, Showers, Clouds, Fog, Ice, Sigweather,ReducedVisibility,Genericarea};
+enum AreaType{ Rain, Rainarea, Showers, Clouds, Fog, Ice, Sigweather,ReducedVisibility,Genericarea};
 
 //spline points for fronts/areas/borders
 const int divSpline= 5;
@@ -269,6 +270,8 @@ public:
   void setRubber(bool,float x,float y);
   /// returns true if object is text symbo
   bool isText(){return (objectIs(wSymbol) && drawIndex==0);}
+  /// returns true if object is text symbo
+  bool isTextColored(){return (objectIs(wSymbol) && drawIndex==900);}
   /// returns true if object is complex symbol
   bool isComplex(){return (objectIs(wSymbol) && drawIndex>=1000);}
 

@@ -39,7 +39,7 @@
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
 #include <math.h>
-
+//#define DEBUGPRINT
 using namespace::miutil;
 
 map<int,object_modes> EditObjects::objectModes;
@@ -1562,6 +1562,9 @@ void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, 
 
 
 bool EditObjects::inTextMode(){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::inTextMode called" << endl;
+#endif
   if (objectmode==symbol_drawing)
     return WeatherSymbol::isSimpleText(drawingtool);
   else
@@ -1570,13 +1573,42 @@ bool EditObjects::inTextMode(){
 
 
 bool EditObjects::inComplexTextMode(){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::inComplexTextMode called" << endl;
+  cerr << "drawingtool = " << drawingtool<< endl;
+#endif
   if (objectmode==symbol_drawing)
     return WeatherSymbol::isComplexText(drawingtool);
   else
     return false;
 }
 
+bool EditObjects::inComplexTextColorMode(){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::inComplexTextColorMode" << endl;
+  cerr << "drawingtool = " << drawingtool<< endl;
+#endif
+  if (objectmode==symbol_drawing)
+    return WeatherSymbol::isComplexTextColor(drawingtool);
+  else
+    return false;
+}
+
+bool EditObjects::inEditTextMode(){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::inEditTextMode" << endl;
+  cerr << "drawingtool = " << drawingtool<< endl;
+#endif
+  if (objectmode==symbol_drawing)
+    return WeatherSymbol::isTextEdit(drawingtool);
+  else
+    return false;
+}
+
 void EditObjects::initCurrentComplexText(){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::initCurrentComplexText called" << endl;
+#endif
   if (objectmode==symbol_drawing)
     WeatherSymbol::initCurrentComplexText(drawingtool);
 }

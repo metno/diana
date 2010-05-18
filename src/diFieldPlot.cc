@@ -189,6 +189,7 @@ bool FieldPlot::prepare(const miString& pin)
   else if (ptype==fpt_wind_temp_fl)     cerr<<"FieldPlot "<<fname<<" : "<<"plotWindTempFL"<<endl;
   else if (ptype==fpt_wind_number)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindNumber"<<endl;
   else if (ptype==fpt_value_max_height) cerr<<"FieldPlot "<<fname<<" : "<<"plotValueMaxHeight"<<endl;
+  else if (ptype==fpt_value_max_height_and_temp) cerr<<"FieldPlot "<<fname<<" : "<<"plotValueMaxHeightAndTemp"<<endl;
   else if (ptype==fpt_vector)           cerr<<"FieldPlot "<<fname<<" : "<<"plotVector"<<endl;
   else if (ptype==fpt_vector_colour)    cerr<<"FieldPlot "<<fname<<" : "<<"plotVectorColour"<<endl;
   else if (ptype==fpt_direction)        cerr<<"FieldPlot "<<fname<<" : "<<"plotDirection"<<endl;
@@ -521,6 +522,7 @@ bool FieldPlot::plot(){
   else if (ptype==fpt_wind_temp_fl)     return plotWindTempFL();
   else if (ptype==fpt_wind_number)      return plotWindNumber();
   else if (ptype==fpt_value_max_height) return plotValueMaxHeight();
+  else if (ptype==fpt_value_max_height_and_temp) return plotValueMaxHeightAndTemp();
   else if (ptype==fpt_vector)           return plotVector();
   else if (ptype==fpt_vector_colour)    return plotVectorColour();
   else if (ptype==fpt_direction)        return plotDirection();
@@ -1979,12 +1981,13 @@ bool FieldPlot::plotWindNumber(){
 }
 
 /*
-    ROUTINE:   FieldPlot::plotValueHeightIntervalMaxHeight
+    ROUTINE:   FieldPlot::plotValueMaxHeight
     PURPOSE:   plot amount, base, top and height as:
             top
     amount ----- height
             base
     ALGORITHM: Fields amount(0) base(1) top(2) height(3)
+	amount could be any heigth dependent field
  */
 
 bool FieldPlot::plotValueMaxHeight(){
@@ -2072,15 +2075,15 @@ bool FieldPlot::plotValueMaxHeight(){
   int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
   int *bmap= new int[nbmap];
   for (i=0; i<nbmap; i++) bmap[i]= 0;
-  int m,ib,jb,ibit,iwrd,nb;
-  float xb[20][2], yb[20][2];
+//  int m,ib,jb,ibit,iwrd,nb;
+//  float xb[20][2], yb[20][2];
 
   vector<int> vxstep;
 
   glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
 
   // plot wind............................................
-
+/*
   glBegin(GL_LINES);
 
   //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
@@ -2096,7 +2099,7 @@ bool FieldPlot::plotValueMaxHeight(){
   glEnd();
 
   UpdateOutput();
-
+*/
   // plot numbers.................................................
 
   float *amount= fields[0]->data;
@@ -2134,14 +2137,14 @@ bool FieldPlot::plotValueMaxHeight(){
   int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,value;
   float x1,x2,y1,y2,w,h;
   int ivx=0;
-  int min = poptions.base;
+  float min = poptions.base;
 
   for (iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) xstep= vxstep[ivx++];
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
-      if(amount[i]>=min) {
+      if(amount[i]>min) {
         // Amount
         if (amount[i]!=fieldUndef && maprect.isinside(gx,gy)){
           value= (amount[i]>=0.0f) ? int(amount[i]+0.5f) : int(amount[i]-0.5f);
@@ -2245,6 +2248,295 @@ bool FieldPlot::plotValueMaxHeight(){
   return true;
 }
 
+/*
+    ROUTINE:   FieldPlot::plotValueMaxHeightAndTemp
+    PURPOSE:   plot amount, base, top and t and ts as:
+            top    t
+    amount ----- 
+            base   ts
+    ALGORITHM: Fields amount(0) base(1) top(2) t(3) ts(4)
+	amount could be any heigth dependent field
+ */
+
+bool FieldPlot::plotValueMaxHeightAndTemp(){
+#ifdef DEBUGPRINT
+  cerr << "++ plotValueMaxHeightAndTemp" << endl;
+#endif
+  int n= fields.size();
+  if (n<4) return false;
+  if (!fields[0] || !fields[1] || !fields[2] || !fields[3] || !fields[4]) return false;
+
+  if (!fields[0]->data || !fields[1]->data
+      || !fields[2]->data || !fields[3]->data || !fields[4]->data) return false;
+
+  int i,ix,iy;
+  int nx= fields[0]->nx;
+  int ny= fields[0]->ny;
+
+  // convert gridpoints to correct projection
+  int npos=0;
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+      area, maprect, false,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
+
+  //  gc.getGridPoints(fields[0]->area, area, maprect, false,
+  //      npos, &x, &y, ix1, ix2, iy1, iy2);
+  if (ix1>ix2 || iy1>iy2) return false;
+
+  int step= poptions.density;
+
+  // automatic wind/vector density if step<1
+  int autostep;
+  float dist;
+  bool xStepComp;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, 15, autostep, dist, xStepComp);
+  if (step<1) step= autostep;
+  float sdist= dist*float(step);
+  int xstep= step;
+
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
+
+  ix1-=step;     if (ix1<0)  ix1=0;
+  iy1-=step;     if (iy1<0)  iy1=0;
+  ix2+=(step+1); if (ix2>nx) ix2=nx;
+  iy2+=(step+1); if (iy2>ny) iy2=ny;
+
+  if (xStepComp) {
+    // avoid double plotting of wind and number
+    iy=(iy1+iy2)/2;
+    int i1= iy*nx+ix1;
+    int i2= iy*nx+ix2-1;
+    if (fabsf(x[i1]-x[i2])<0.01 &&
+        fabsf(y[i1]-y[i2])<0.01) ix2--;
+  }
+
+  float fontsize= 14. * poptions.labelSize;
+
+  //fp->set(poptions.fontname,poptions.fontface,fontsize);
+  fp->set("BITMAPFONT",poptions.fontface,fontsize);
+
+  float chx,chy;
+  fp->getStringSize("000000000", chx, chy);
+
+  if (chx*1.4>sdist)
+    fp->setFontSize(fontsize*sdist/(chx*1.4));
+  else if (chy*0.8>dist)
+    fp->setFontSize(fontsize*sdist/(chy*0.8));
+
+  fp->getCharSize('0',chx,chy);
+
+  // the real height for numbers 0-9 (width is ok)
+  //chy *= 0.75;
+
+  // bit matrix used to avoid numbers plotted across wind and numbers
+  const int nbitwd= sizeof(int)*8;
+  float bres= 1.0/(chx*0.5);
+  float bx= maprect.x1 - 2.5;
+  float by= maprect.y1 - 2.5;
+  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
+  else          bx= float(int(bx*bres-1.0f))/bres;
+  if (by>=0.0f) by= float(int(by*bres))/bres;
+  else          by= float(int(by*bres-1.0f))/bres;
+  int nbx= int((maprect.x2 - bx)*bres) + 3;
+  int nby= int((maprect.y2 - by)*bres) + 3;
+  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
+  int *bmap= new int[nbmap];
+  for (i=0; i<nbmap; i++) bmap[i]= 0;
+//  int m,ib,jb,ibit,iwrd,nb;
+//  float xb[20][2], yb[20][2];
+
+  vector<int> vxstep;
+
+  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
+
+  // plot wind............................................
+/*
+  glBegin(GL_LINES);
+
+  //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
+  //poptions.density!=auto and proj=geographic
+  bool adjustToLatLon = poptions.density
+      && fields[0]->area.P().isGeographic()
+      && step > 0;
+  if(adjustToLatLon) iy1 = (iy1/step)*step;
+
+  glVertex2f(ix1,iy1);
+  glVertex2f(ix2,iy1);
+
+  glEnd();
+
+  UpdateOutput();
+*/
+  // plot numbers.................................................
+
+  float *amount= fields[0]->data;
+  float *base= fields[1]->data;
+  float *top= fields[2]->data;
+  float *t= fields[3]->data;
+  float *ts= fields[4]->data;
+
+  //-----------------------------------------------------------------------
+  //
+  //  -----------  standard:  (* = g;ridpunkt)
+  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
+  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
+  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
+  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
+  //
+  //  -----------  hvis standard-posisjon ikke kan benyttes.
+  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
+  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
+  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
+  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
+  //
+  //-----------------------------------------------------------------------
+  //
+  //..nedre venstre hj@rne for tall med 'nch' tegn:
+  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
+  //       yn = y0 + ady[ipos]
+
+  float hchy= chy*0.5;
+  float gx,gy,d= chx*0.5;
+
+  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
+  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
+  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
+
+  int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,value;
+  float x1,x2,y1,y2,w,h;
+  int ivx=0;
+  float min = poptions.base;
+
+  for (iy=iy1; iy<iy2; iy+=step){
+    if (xStepComp) xstep= vxstep[ivx++];
+    for (ix=ix1; ix<ix2; ix+=xstep){
+      i= iy*nx+ix;
+      gx= x[i]; gy= y[i];
+      if(amount[i]>min) {
+        // Amount
+        if (amount[i]!=fieldUndef && maprect.isinside(gx,gy)){
+          value= (amount[i]>=0.0f) ? int(amount[i]+0.5f) : int(amount[i]-0.5f);
+          ostringstream ostr;
+          ostr<<value;
+          ostr<<"  ";
+          miString str= ostr.str();
+          fp->getStringSize(str.c_str(), w, h);
+
+          ipos1= 5;
+          x1= gx + adx[ipos1] + cdx[ipos1]*w;
+          y1= gy + ady[ipos1];
+          x2= x1 + w;
+          y2= y1 + chy;
+          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+            glColor3ubv(poptions.textcolour.RGB());
+            fp->drawStr(str.c_str(),x1,y1,0.0);
+          }
+        }
+        glColor3ubv(BlackC.RGB());
+
+        // Base
+        if (base[i]!=fieldUndef && maprect.isinside(gx,gy)){
+          value= (base[i]>=0.0f) ? int(base[i]+0.5f) : int(base[i]-0.5f);
+          ostringstream ostr;
+          ostr<<value;
+          miString str= ostr.str();
+          fp->getStringSize(str.c_str(), w, h);
+
+          ipos1= 3;
+          x1= gx + adx[ipos1] + cdx[ipos1]*w;
+          y1= gy + ady[ipos1];
+          x2= x1 + w;
+          y2= y1 + chy;
+          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+            fp->drawStr(str.c_str(),x1,y1,0.0);
+          }
+        }
+        // Top
+        if (top[i]!=fieldUndef && maprect.isinside(gx,gy)){
+          value= (top[i]>=0.0f) ? int(top[i]+0.5f) : int(top[i]-0.5f);
+          ostringstream ostr;
+          ostr<<value;
+          miString str= ostr.str();
+          fp->getStringSize(str.c_str(), w, h);
+
+          ipos1= 7;
+          x1= gx + adx[ipos1] + cdx[ipos1]*w;
+          y1= gy + ady[ipos1];
+          x2= x1 + w;
+          y2= y1 + chy;
+          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+            fp->drawStr(str.c_str(),x1,y1,0.0);
+          }
+        }
+        // Temperature at level
+        if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
+          value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
+          ostringstream ostr;
+          ostr<<"  ";
+          ostr<<value;
+          miString str= ostr.str();
+          fp->getStringSize(str.c_str(), w, h);
+
+          ipos1= 0;
+          x1= gx + adx[ipos1] + cdx[ipos1]*w;
+          y1= gy + ady[ipos1];
+          x2= x1 + w;
+          y2= y1 + chy;
+          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+            fp->drawStr(str.c_str(),x1,y1,0.0);
+          }
+        }
+		// Temperature at surface
+        if (ts[i]!=fieldUndef && maprect.isinside(gx,gy)){
+          value= (ts[i]>=0.0f) ? int(ts[i]+0.5f) : int(ts[i]-0.5f);
+          ostringstream ostr;
+          ostr<<"  ";
+          ostr<<value;
+          miString str= ostr.str();
+          fp->getStringSize(str.c_str(), w, h);
+
+          ipos1= 2;
+          x1= gx + adx[ipos1] + cdx[ipos1]*w;
+          y1= gy + ady[ipos1];
+          x2= x1 + w;
+          y2= y1 + chy;
+          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+            fp->drawStr(str.c_str(),x1,y1,0.0);
+          }
+        }
+        // ---
+        ostringstream ostr;
+        ostr<<"----";
+        miString str= ostr.str();
+        fp->getStringSize(str.c_str(), w, h);
+
+        ipos1= 8;
+        x1= gx + adx[ipos1] + cdx[ipos1]*w;
+        y1= gy + ady[ipos1];
+        x2= x1 + w;
+        y2= y1 + chy;
+        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+          fp->drawStr(str.c_str(),x1,y1,0.0);
+        }
+      }
+    }
+  }
+
+  UpdateOutput();
+
+  delete[] bmap;
+
+  glDisable(GL_LINE_STIPPLE);
+
+#ifdef DEBUGPRINT
+  cerr << "++ Returning from FieldPlot::plotValueMaxHeightAndTemp() ++" << endl;
+#endif
+  return true;
+}
 
 //  plot vector field as arrows (wind,sea current,...)
 bool FieldPlot::plotVector(){

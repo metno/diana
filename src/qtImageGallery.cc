@@ -111,6 +111,20 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
 
 void QtImageGallery::addImagesInDirectory(const miutil::miString& dir){
 //  cerr << "============= globbing in:" << dir << endl;
+/* Image support in Qt
+BMP Windows Bitmap Read/write 
+GIF Graphic Interchange Format (optional) Read 
+JPG Joint Photographic Experts Group Read/write 
+JPEG Joint Photographic Experts Group Read/write 
+PNG Portable Network Graphics Read/write 
+PBM Portable Bitmap Read 
+PGM Portable Graymap Read 
+PPM Portable Pixmap Read/write 
+XBM X11 Bitmap Read/write 
+XPM X11 Pixmap Read/write
+*/
+
+
   glob_t globBuf;
   glob(dir.c_str(),0,0,&globBuf);
   for( int k=0; k<globBuf.gl_pathc; k++) {
@@ -119,17 +133,43 @@ void QtImageGallery::addImagesInDirectory(const miutil::miString& dir){
       QString filename = fname.c_str();
       QFileInfo fileinfo(filename);
       QString name = fileinfo.baseName();
-
-      QImage image(filename);
-      if ( !image.isNull() ){
-	addImageToGallery(name.toStdString(),image);
-//	cerr << "-- Added image:" << name.toStdString() << endl;
-      }
+	  miutil::miString format;
+	  // sometimes Qt doesnt understand the format
+	  if(fname.contains(".xpm"))
+		  format = "XPM";
+	  else if(fname.contains(".png"))
+		  format = "PNG";
+	  else if(fname.contains(".jpg"))
+		  format = "JPG";
+	  else if(fname.contains(".jpeg"))
+		  format = "JPEG";
+	  else if(fname.contains(".gif"))
+		  format = "GIF";
+	  else if(fname.contains(".pbm"))
+		  format = "PBM";
+	  else if(fname.contains(".pgm"))
+		  format = "PGM";
+	  else if(fname.contains(".ppm"))
+		  format = "PPM";
+	  else if(fname.contains(".xbm"))
+		  format = "XBM";
+	  else if(fname.contains(".bmp"))
+		  format = "BMP";
+	  QImage image;
+	  if (!format.empty())
+		  image.load(fname.c_str(),format.c_str());
+	  else
+		  image.load(fname.c_str(),NULL);
+	  if (image.isNull())
+	  {
+		  cerr << "QtImageGallery::addImagesInDirectory: problem loading image: " << fname << endl;
+		  continue;
+	  }
+	  addImageToGallery(name.toStdString(),image);
     }
   }
   globfree(&globBuf);
 }
-
 
 void QtImageGallery::clear()
 {

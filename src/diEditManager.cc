@@ -52,7 +52,7 @@
 #include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
 #include <puCtools/glob.h>
-
+//#define DEBUGPRINT
 using namespace::miutil;
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om)
@@ -81,6 +81,9 @@ EditManager::~EditManager()
 
 
 bool EditManager::parseSetup(SetupParser& sp) {
+#ifdef DEBUGPRINT
+  cerr << "++ EditManager::parseSetup" << endl;
+#endif
 
   miString section="EDIT";
   vector<miString> vstr;
@@ -345,6 +348,9 @@ bool EditManager::parseSetup(SetupParser& sp) {
 
 void EditManager::readCommandFile(EditProduct & ep)
 {
+#ifdef DEBUGPRINT
+  cerr << "++ EditManager::readCommandFile" << endl;
+#endif
   // the commands OKstrings to be exectuted when we start an
   // edit session, for the time being called from parseSeup
   // and the OKstrings stored for each product
@@ -388,6 +394,13 @@ void EditManager::readCommandFile(EditProduct & ep)
     else commands.push_back(s);
   }
   ep.labels=labcom;
+#ifdef DEBUGPRINT
+  cerr << "++ EditManager::readCommandFile start reading --------" << endl;
+  for (int ari=0; ari<ep.labels.size(); ari++)
+       cerr << "   " << ep.labels[ari ] << "  " << endl;
+  cerr << "++ EditManager::readCommandFile finish reading ------------" << endl;
+#endif
+
   ep.OKstrings=commands;
 }
 
@@ -1070,7 +1083,7 @@ bool EditManager::startEdit(const EditProduct& ep,
     const miTime& valid)
 {
 #ifdef DEBUGPRINT
-  cerr << "EditManager::startEdit" << endl;
+  cerr << "EditManager::startEdit()" << endl;
 #endif
 
   //this routine starts an Edit session
@@ -1697,7 +1710,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
     const miTime& valid,
     vector<miString>& pids){
 #ifdef DEBUGPRINT
-  cerr << "startCombineEdit  Time = " << valid << endl;
+cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
 #endif
 
   int nfe = fedits.size();

@@ -1082,121 +1082,165 @@ void ObsPlot::priority_sort(void)
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::priority_sort() ++" << endl;
 #endif
-  //sort the observations according to priority list
-  int numObs;
-  if(obsp.size()>0)
-    numObs = obsp.size();
-  if(asciip.size()>0)
-    numObs = asciip.size();
+	//sort the observations according to priority list
+	int numObs;
+	if(obsp.size()>0)
+		numObs = obsp.size();
+	if(asciip.size()>0)
+		numObs = asciip.size();
 #ifdef ROADOBS
-  if(roadobsp.size()>0)
-    numObs = roadobsp.size();
+	if(roadobsp.size()>0)
+		numObs = roadobsp.size();
 #endif
-  //  cerr <<"Priority_sort:"<<numObs<<endl;
-  int i;
+	//  cerr <<"Priority_sort:"<<numObs<<endl;
+	int i;
 
-  all_from_file.resize(numObs);
+	all_from_file.resize(numObs);
 
-  // AF: synop: put automatic stations after other types (fixed,ship)
-  //     (how to detect other obs. types, temp,aireps,... ???????)
-  if (asciiData) {
-    for (i=0; i<numObs; i++)
-      all_from_file[i]=i;
-  }
+	// AF: synop: put automatic stations after other types (fixed,ship)
+	//     (how to detect other obs. types, temp,aireps,... ???????)
+	if (asciiData) {
+		for (i=0; i<numObs; i++)
+			all_from_file[i]=i;
+	} 
 #ifdef ROADOBS
   else if (roadobsData) {
     for (i=0; i<numObs; i++)
       all_from_file[i]=i;
   }
 #endif
-  else {
-    vector<int> automat;
-    int n= 0;
-    for (i=0; i<numObs; i++) {
-      if (obsp[i].fdata.count("ix") && obsp[i].fdata["ix"]<4)
-  all_from_file[n++]= i;
-      else
-  automat.push_back(i);
-    }
-    int na= automat.size();
-    for (i=0; i<na; i++)
-      all_from_file[n++]= automat[i];
-  }
+	else {
+		vector<int> automat;
+		int n= 0;
+		for (i=0; i<numObs; i++) {
+			if (obsp[i].fdata.count("ix") && obsp[i].fdata["ix"]<4)
+				all_from_file[n++]= i;
+			else
+				automat.push_back(i);
+		}
+		int na= automat.size();
+		for (i=0; i<na; i++)
+			all_from_file[n++]= automat[i];
+	}
 #ifdef ROADOBS
-  if (!asciiData && !roadobsData && priority) {
+	if (!asciiData && !roadobsData && priority) {
 #else
-  if (!asciiData && priority) {
+	if (!asciiData && priority) {
 #endif
-    if (currentPriorityFile!=priorityFile)
-      readPriorityFile(priorityFile);
+		if (currentPriorityFile!=priorityFile)
+			readPriorityFile(priorityFile);
 
-    if (priorityList.size()>0) {
+		if (priorityList.size()>0) {
 
-      vector<int> tmpList= all_from_file;
-      all_from_file.clear();
+			vector<int> tmpList= all_from_file;
+			all_from_file.clear();
 
-      // Fill the stations from priority list into all_from_file,
-      // and mark them in tmpList
-      int j, n= priorityList.size();
-      for (j=0; j<n; j++) {
-  i= 0;
-  while (i<numObs && obsp[i].id!=priorityList[j]) i++;
-  if (i<numObs) {
-    all_from_file.push_back(i);
-    tmpList[i]= -1;
-  }
-      }
+			// Fill the stations from priority list into all_from_file,
+			// and mark them in tmpList
+			int j, n= priorityList.size();
+			for (j=0; j<n; j++) {
+				i= 0;
+				while (i<numObs && obsp[i].id!=priorityList[j]) i++;
+				if (i<numObs) {
+					all_from_file.push_back(i);
+					tmpList[i]= -1;
+				}
+			}
 
-      if (!showOnlyPrioritized) {
-        for (i = 0; i < tmpList.size(); i++)
-          if (tmpList[i] != -1)
-            all_from_file.push_back(i);
-      }
-    }
-  }
+			if (!showOnlyPrioritized) {
+				for (i = 0; i < tmpList.size(); i++)
+					if (tmpList[i] != -1)
+						all_from_file.push_back(i);
+			}
+		}
+	}
 
-  // find index of "Name"-parameter
-  bool nameParameterFound = false;
-  int nameIndex = 0;
-  for(vector<miutil::miString>::iterator it=asciiColumnName.begin(); it != asciiColumnName.end(); ++it) {
-    if(*it == "Name") {
-      nameParameterFound = true;
-      break;
-    } else {
-      nameIndex++;
-    }
-  }
-  if (asciiData && priority && nameParameterFound) {
+	// find index of "Name"-parameter
+	bool nameParameterFound = false;
+	int nameIndex = 0;
+#ifdef ROADOBS
+    for(vector<miutil::miString>::iterator it=roadobsColumnName.begin(); it != roadobsColumnName.end(); ++it) {
+		if(*it == "Name") {
+			nameParameterFound = true;
+			break;
+		} else {
+			nameIndex++;
+		}
+	}
+	if (roadobsData && priority && nameParameterFound) {
 
-    if (currentPriorityFile != priorityFile)
-      readPriorityFile(priorityFile);
+		if (currentPriorityFile != priorityFile)
+			readPriorityFile(priorityFile);
 
-    if (priorityList.size() > 0) {
-      vector<int> tmpList = all_from_file;
-      all_from_file.clear();
+		if (priorityList.size() > 0) {
+			vector<int> tmpList = all_from_file;
+			all_from_file.clear();
 
-      // Fill the stations from priority list into all_from_file,
-      // and mark them in tmpList
-      int j, n = priorityList.size();
+			// Fill the stations from priority list into all_from_file,
+			// and mark them in tmpList
+			int j, n = priorityList.size();
 
-      for (j = 0; j < n; j++) {
-        i = 0;
-        while (i < numObs && asciip[i][nameIndex] != priorityList[j])
-          i++;
-        if (i < numObs) {
-          all_from_file.push_back(i);
-          tmpList[i] = -1;
-        }
-      }
+			for (j = 0; j < n; j++) {
+				i = 0;
+				while (i < numObs && roadobsp[i][nameIndex] != priorityList[j])
+					i++;
+				if (i < numObs) {
+					all_from_file.push_back(i);
+					tmpList[i] = -1;
+				}
+			}
 
-      if (!showOnlyPrioritized) {
-        for (i = 0; i < tmpList.size(); i++)
-          if (tmpList[i] != -1)
-            all_from_file.push_back(i);
-      }
-    }
+			if (!showOnlyPrioritized) {
+				for (i = 0; i < tmpList.size(); i++)
+					if (tmpList[i] != -1)
+						all_from_file.push_back(i);
+			}
+		}
 
-  }
+	}
+	// Reset variables
+    nameParameterFound = false;
+	nameIndex = 0;
+#endif
+	for(vector<miutil::miString>::iterator it=asciiColumnName.begin(); it != asciiColumnName.end(); ++it) {
+		if(*it == "Name") {
+			nameParameterFound = true;
+			break;
+		} else {
+			nameIndex++;
+		}
+	}
+	if (asciiData && priority && nameParameterFound) {
+
+		if (currentPriorityFile != priorityFile)
+			readPriorityFile(priorityFile);
+
+		if (priorityList.size() > 0) {
+			vector<int> tmpList = all_from_file;
+			all_from_file.clear();
+
+			// Fill the stations from priority list into all_from_file,
+			// and mark them in tmpList
+			int j, n = priorityList.size();
+
+			for (j = 0; j < n; j++) {
+				i = 0;
+				while (i < numObs && asciip[i][nameIndex] != priorityList[j])
+					i++;
+				if (i < numObs) {
+					all_from_file.push_back(i);
+					tmpList[i] = -1;
+				}
+			}
+
+			if (!showOnlyPrioritized) {
+				for (i = 0; i < tmpList.size(); i++)
+					if (tmpList[i] != -1)
+						all_from_file.push_back(i);
+			}
+		}
+
+	}
 #ifdef DEBUGPRINT
   cerr << "++ End ObsPlot::priority_sort() ++" << endl;
 #endif
@@ -3586,11 +3630,11 @@ void ObsPlot::plotRoadobs(int index)
       dd=0;
     // Wind should be plotted in knots
     // From road m/s, convert it here...
-    float ffk = ms2knots(roadobsff[index]);
+    float ff = roadobsff[index];
     lpos = itab[(dd/10+3)/2]+10;
     if(ccriteria) checkColourCriteria("dd",dd);
-    if(ccriteria) checkColourCriteria("ff",ffk);
-    plotWind(dd,ffk,ddvar,radius);
+    if(ccriteria) checkColourCriteria("ff",ff);
+    plotWind(dd,ff,ddvar,radius);
   }
   else
     lpos = itab[1] +10;
@@ -5167,6 +5211,7 @@ void ObsPlot::arrow(float& angle, float xpos, float ypos,float scale)
 
   glPopMatrix();
 }
+
 void ObsPlot::zigzagArrow(float& angle, float xpos, float ypos,float scale)
 {
   glPushMatrix();
@@ -5781,7 +5826,17 @@ bool ObsPlot::checkPlotCriteria(int index)
       while(j<n && asciiColumnName[j]!=p->first) j++;
       if(j==n) continue;
       value = atof(asciip[index][j].cStr());
-    } else {
+    } 
+#ifdef ROADOBS
+	else if(plottype =="roadobs"){
+      int n=roadobsp[index].size();
+      int j=0;
+      while(j<n && roadobsColumnName[j]!=p->first) j++;
+      if(j==n) continue;
+      value = atof(roadobsp[index][j].cStr());
+    } 
+#endif
+	else {
       if(obsp[index].fdata.count(p->first))
 	value=obsp[index].fdata[p->first];
       else if (p->first.downcase() != obsp[index].dataType )
@@ -5830,7 +5885,17 @@ void  ObsPlot::checkTotalColourCriteria(int index)
       while(j<n && asciiColumnName[j]!=p->first) j++;
       if(j==n) continue;
       value = atof(asciip[index][j].cStr());
-    } else {
+    }
+#ifdef ROADOBS
+	else if(plottype =="roadobs"){
+      int n=roadobsp[index].size();
+      int j=0;
+      while(j<n && roadobsColumnName[j]!=p->first) j++;
+      if(j==n) continue;
+      value = atof(roadobsp[index][j].cStr());
+    }
+#endif
+	else {
       if(obsp[index].fdata.count(p->first))
 	value=obsp[index].fdata[p->first];
       else if (p->first.downcase() != obsp[index].dataType )
@@ -5874,7 +5939,17 @@ miString  ObsPlot::checkMarkerCriteria(int index)
       while(j<n && asciiColumnName[j]!=p->first) j++;
       if(j==n) continue;
       value = atof(asciip[index][j].cStr());
-    } else {
+    }
+#ifdef ROADOBS
+	else if(plottype =="roadobs"){
+      int n=roadobsp[index].size();
+      int j=0;
+      while(j<n && roadobsColumnName[j]!=p->first) j++;
+      if(j==n) continue;
+      value = atof(roadobsp[index][j].cStr());
+    }
+#endif
+	else {
       if(obsp[index].fdata.count(p->first))
 	value=obsp[index].fdata[p->first];
       else if (p->first.downcase() != obsp[index].dataType )

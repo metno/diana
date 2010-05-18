@@ -120,6 +120,7 @@ diana_qt_sources = \
 	qtEditDefineField.cc \
 	qtEditDialog.cc \
 	qtEditNewDialog.cc \
+	qtEditText.cc \
 	qtFieldDialog.cc \
 	qtGLwidget.cc \
 	qtGeoPosLineEdit.cc \
@@ -497,6 +498,7 @@ common_ldadd += \
 	$(SHP_LIBS) \
 	$(PNG_LIBS) \
 	$(UU_LIBS)
+
 
 # Additional source code for NetCDF support
 if WITH_NETCDF

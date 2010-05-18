@@ -38,7 +38,7 @@
 #include <sstream>
 #include <diField/diColour.h>
 #include <math.h>
-
+//#define DEBUGPRINT
 using namespace::miutil;
 
 //static variables
@@ -196,15 +196,32 @@ bool WeatherSymbol::isSimpleText(miString edittool){
 
 bool WeatherSymbol::isComplexText(miString edittool){
   //return true if editool corresponds to simple text, type 0
-  //cerr << "WeatherSymbol::isComplexText - edittool=" << edittool << endl;
   int edIndex=allSymbols[symbolTypes[edittool]].index;
-  if (edIndex >=1000){
+  if (edIndex >=1000 && edIndex<3000){
     return ComplexSymbolPlot::isComplexText(edIndex);
   }
   else
     return false;
 }
+bool WeatherSymbol::isComplexTextColor(miString edittool){
+  //return true if editool corresponds to simple text, type 0
+  int edIndex=allSymbols[symbolTypes[edittool]].index;
+  if (edIndex ==900){
+    return ComplexSymbolPlot::isComplexTextColor(edIndex);
+  }
+  else
+    return false;
+}
 
+bool WeatherSymbol::isTextEdit(miString edittool){
+  //return true if editool corresponds to simple text, type 0
+  int edIndex=allSymbols[symbolTypes[edittool]].index;
+  if (edIndex >=3000){
+    return ComplexSymbolPlot::isTextEdit(edIndex);
+  }
+  else
+    return false;
+}
 
 
 void WeatherSymbol::getCurrentComplexText(vector <miString> & symbolText,
@@ -223,7 +240,7 @@ void WeatherSymbol::setCurrentComplexText(const vector <miString> &
 
 void WeatherSymbol::initCurrentComplexText(miString edittool){
   int edIndex=allSymbols[symbolTypes[edittool]].index;
-  if (edIndex >=1000){
+  if (edIndex == 900 || edIndex >=1000){
     ComplexSymbolPlot::initCurrentStrings(edIndex);
   }
 }
@@ -254,6 +271,10 @@ void WeatherSymbol::addPoint( float x , float y){
  */
 bool WeatherSymbol::plot()
 {
+#ifdef DEBUGPRINT
+  cerr << " Weather symbol::plot()" << endl;
+  cerr << " drawIndex = " << drawIndex<< endl;
+#endif
   if (!enabled) return false;
 
   if (isVisible){
@@ -276,6 +297,7 @@ bool WeatherSymbol::plot()
     //enable blending and set colour
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (drawIndex == 900 ) setObjectColor(currentColour);
     glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
 
     int end = nodePoints.size();
@@ -283,7 +305,7 @@ bool WeatherSymbol::plot()
       float cw,ch;
       float x=nodePoints[i].x;
       float y=nodePoints[i].y;
-      if (drawIndex>=1000){
+      if (drawIndex == 900 || drawIndex >=1000){
         // this is a complex symbol
         if (complexSymbol!=0){
           complexSymbol->draw(drawIndex,x,y,symbolSizeToPlot,rotation);
@@ -344,9 +366,9 @@ void WeatherSymbol::increaseSize(float val){
 
 
 void WeatherSymbol::setDefaultSize( ){
-  if (drawIndex < 1000)
+  if (drawIndex < 1000) {
     setSymbolSize(defaultSize);
-  else
+ } else
     setSymbolSize(defaultComplexSize);
 }
 
@@ -377,15 +399,16 @@ void WeatherSymbol::setType(int ty){
     setIndex(allSymbols[type].index);
     setBasisColor(allSymbols[type].colour);
 
-    if (drawIndex < 1000)
-      setSymbolSize(defaultSize);
-    else
+    if (drawIndex < 1000){
+    setSymbolSize(defaultSize);
+    }else
       setSymbolSize(defaultComplexSize);
 
-    if (drawIndex>=1000 && complexSymbol==0) {
+    if ((drawIndex == 900 || drawIndex>=1000) && complexSymbol==0) {
       complexSymbol= new ComplexSymbolPlot(drawIndex);
       complexSymbol->setBorderColour(allSymbols[type].borderColour);
       setSymbolSize(defaultComplexSize + allSymbols[type].sizeIncrement);
+      if (drawIndex == 900 ) setObjectColor(currentColour);
     }
     if (isText()){
       if (currentText.empty())
@@ -490,7 +513,7 @@ miString WeatherSymbol::writeTypeString()
       replaceText(tempString,true);
       tstring+= "Text=" +tempString+ ";\n";
     }
-    else if (drawIndex>=1000){
+    else if (drawIndex==900 || drawIndex>=1000){
       if (complexSymbol!=0){
         tstring+=complexSymbol->writeComplexText();
         cs << "Rotation=" << rotation <<";\n";

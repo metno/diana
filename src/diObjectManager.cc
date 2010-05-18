@@ -507,6 +507,7 @@ bool ObjectManager::editCommandReadDrawFile(const miString filename)
 {
 #ifdef DEBUGPRINT
   cerr << "ObjectManager::editCommandReadDrawfile" << endl;
+  cerr << "ObjectManager::filename =   "<< filename << endl;
 #endif
 
   //size of objects to start with
@@ -657,10 +658,17 @@ bool ObjectManager::inTextMode(){
 }
 
 
+bool ObjectManager::inComplexTextColorMode(){
+  return plotm->editobjects.inComplexTextColorMode();
+}
+
 bool ObjectManager::inComplexTextMode(){
   return plotm->editobjects.inComplexTextMode();
 }
 
+bool ObjectManager::inEditTextMode(){
+  return plotm->editobjects.inEditTextMode();
+}
 
 void ObjectManager::getCurrentComplexText(vector <miString> & symbolText,
 					  vector <miString> & xText){

@@ -43,7 +43,7 @@
 
 #include <puCtools/glob.h>
 
-// #define DEBUGPRINT
+//#define DEBUGPRINT 1
 
 using namespace::miutil;
 

@@ -488,9 +488,10 @@ void SatManager::setRGB()
 
   unsigned char *color[3];//contains the three rgb channels ofraw image
   if (satdata->formatType == "geotiff" ){
-    color[0]= satdata->rawimage[0];
-    color[1]= satdata->rawimage[1];
-    color[2]= satdata->rawimage[2];
+    // IMAGE is in UINT32 RGBA buffer
+    color[0]= 0;
+    color[1]= 0;
+    color[2]= 0;
   }
   else {
     color[0]= satdata->rawimage[satdata->rgbindex[0]];
@@ -501,17 +502,21 @@ void SatManager::setRGB()
   bool dorgb= (satdata->noimages() || satdata->rgboperchanged);
   bool doalpha= (satdata->noimages() || satdata->alphaoperchanged || dorgb);
 
+  // cerr << dorgb << " " << doalpha << endl;
   if (dorgb) {
     // index -> RGB
     const int colmapsize=256;
     unsigned char colmap[3][colmapsize];
 
     //Improve color
+    if (satdata->formatType != "geotiff" ){
+
     if (satdata->cut > -1) {
       int shift;
       float factor;
       for (k=0; k<3; k++)
         if (color[k]!=NULL && (k==0 || color[k]!=color[k-1])) {
+
           int index1, index2;
           if (satdata->cut==-0.5 && //reuse stretch from first image
               satdata->plotChannels == colourStretchInfo.channels) {
@@ -552,12 +557,23 @@ void SatManager::setRGB()
         }
       }
     }
+    }
     // Put 1,2 or 3 different channels into satdata->image(RGBA).
     // Start in lower left corner instead of upper left.
 
-    if (satdata->image)
-      delete[] satdata->image;
-    satdata->image= new unsigned char[size*4];
+    if (satdata->formatType == "geotiff" ){
+      satdata->image= satdata->rawimage[0];
+      satdata->rawimage[0] = 0;
+      satdata->rawimage[1] = 0;
+      satdata->rawimage[2] = 0;
+
+      // Cut needs to bee implemented for UINT32 RGBA
+
+    }
+    else {
+      if (satdata->image)
+	delete[] satdata->image;
+      satdata->image= new unsigned char[size*4];
 
     for (k=0; k<3; k++)
       if (color[k]==NULL) {
@@ -575,6 +591,7 @@ void SatManager::setRGB()
           for (i=0; i<nx; i++)
             satdata->image[(i+(ny-j-1)*nx)*4+k] = color[k][j*nx+i];
       }
+    }
   }
 
   if (doalpha) {
@@ -594,9 +611,11 @@ void SatManager::setRGB()
         //set alpha value to default or the one chosen in dialog
         satdata->image[i*4+3] = (unsigned char) satdata->alpha;
         //remove black pixels
-        if (satdata->image[i*4] == 0 && satdata->image[i*4+1]== 0
-            && satdata->image[i*4+2] == 0)
-          satdata->image[i*4+3]=0;
+	if (satdata->formatType != "geotiff") {
+	  if (satdata->image[i*4] == 0 && satdata->image[i*4+1]== 0
+	      && satdata->image[i*4+2] == 0)
+	    satdata->image[i*4+3]=0;
+	}
       }
     }
   }
@@ -704,7 +723,7 @@ int SatManager::getFileName(const miTime &time)
 #ifdef DEBUGPRINT
   cerr<<"SatManager::getFileName: fileno: " << fileno << endl;
 #endif
-
+  //cerr<<"SatManager----> getFileName:  " << fileListChanged <<endl;
   return fileno;
 }
 
@@ -967,6 +986,10 @@ void SatManager::listFiles(subProdInfo &subp)
     cerr << "done!" << endl;
 #endif
     //loop over files
+    if (globBuf.gl_pathc == 0) {
+      cerr << "ERROR: No files found! " << subp.pattern[j].c_str() << endl;
+      //      cerr << "globBuf.gl_pathc" << globBuf.gl_pathc << endl;
+    }
     for (int i=globBuf.gl_pathc-1; i>=0; i--) {
       //remember that archive files are read
       if (subp.archive[j])
@@ -1072,7 +1095,9 @@ void SatManager::listFiles(subProdInfo &subp)
   }
 #ifdef HDF5FILE
   if(subp.formattype == "hdf5" || subp.formattype=="hdf5-standalone") {
-    HDF5::readHDF5Palette(subp.file[0],subp.colours);
+    if (subp.file[0].name != "") {
+      HDF5::readHDF5Palette(subp.file[0],subp.colours);
+    }
   }
 #endif
 
@@ -1088,6 +1113,7 @@ void SatManager::listFiles(subProdInfo &subp)
       i++;
   }
 #endif
+  //cerr<<"SatManager----> listFiles:  " << fileListChanged <<endl;
 }
 
 const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
@@ -1107,8 +1133,8 @@ const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
 
   //define new struct SubprodInfo
   subProdInfo &subp = Prod[satellite][file];
-
-  fileListChanged = false;
+  // reset flag only if update
+  if (update) fileListChanged = false;
   if (update) {
     int updiff;
     //don't update whith updateFreq in archive mode
@@ -1128,7 +1154,7 @@ const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
   }
 
   //  cerr <<"RETURN - getFiles"<<endl;
-
+  // cerr<<"SatManager----> getFiles:  " << fileListChanged <<endl;
   return Prod[satellite][file].file;
 
 }
@@ -1210,7 +1236,7 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos)
     for (; p!=timeset.end(); p++)
       timevec.push_back(*p);
   }
-
+  //cerr<<"SatManager----> getSatTimes:  " << fileListChanged <<endl;
   return timevec;
 }
 

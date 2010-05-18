@@ -109,36 +109,59 @@ void WeatherObjects::plot(){
   int n= objects.size();
   //draw areas, then fronts, then symbols
   for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(wArea))
-      objects[i]->plot();
+    if (objects[i]->objectIs(wArea)){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects:wArea plotted  ";
+#endif
+      objects[i]->plot();}
   }
 
   for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(wFront))
-      objects[i]->plot();
+    if (objects[i]->objectIs(wFront)){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects:wFront plotted  ";
+#endif
+
+      objects[i]->plot();}
   }
 
   for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(wSymbol))
-      objects[i]->plot();
-  }
+    if (objects[i]->objectIs(wSymbol)){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects:wSymbol plotted  ";
+#endif
 
-
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(Border))
-      objects[i]->plot();
-  }
-
-
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(RegionName))
-      objects[i]->plot();
+      objects[i]->plot();}
   }
 
 
   for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(ShapeXXX))
-      objects[i]->plot();
+    if (objects[i]->objectIs(Border)){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects:wBorder plotted  ";
+#endif
+
+      objects[i]->plot();}
+  }
+
+
+  for (int i=0; i<n; i++){
+    if (objects[i]->objectIs(RegionName)){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects:wRegionName plotted  ";
+#endif
+
+      objects[i]->plot();}
+  }
+
+
+  for (int i=0; i<n; i++){
+    if (objects[i]->objectIs(ShapeXXX)){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects:wShape plotted  ";
+#endif
+
+      objects[i]->plot();}
   }
 
 
@@ -255,6 +278,7 @@ bool
 WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
 #ifdef DEBUGPRINT
   cerr << "WeatherObjects::readEditDrawFile(2)" << endl;
+  cerr << "filename" << fn << endl;
 #endif
 
 
@@ -492,11 +516,17 @@ miString WeatherObjects::readComments(){
  *************************************************/
 
 vector <miString> WeatherObjects::getObjectLabels(){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects::getObjectLabels" << endl;
+#endif
   //oldLabels from object file
   return itsOldLabels;
 }
 
 vector <miString> WeatherObjects::getEditLabels(){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects::getEditLabels" << endl;
+#endif
   //new edited labels
   return itsLabels;
 }
@@ -506,7 +536,12 @@ vector <miString> WeatherObjects::getEditLabels(){
  *************************************************/
 
 bool WeatherObjects::readAreaBorders(const miString fn,
+
     const Area& newArea){
+#ifdef DEBUGPRINT
+  cerr << "WeatherObjects::readAreaBorders" << endl;
+  cerr << "filename = " << fn << endl;
+#endif
 
   // open filestream
   ifstream file(fn.cStr());

@@ -42,7 +42,6 @@
 
 using namespace std; using namespace miutil;
 
-
 // Default constructor
 VprofData::VprofData(const miString& filename, const miString& modelname)
 : fileName(filename), modelName(modelname),readFromField(false),
@@ -108,7 +107,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
     posTemp.push_back(0);
   }
 
-  //  bool success = fieldManager->invVProf(modelName, validTime, forecastHour);
+  bool success = fieldManager->invVProf(modelName, validTime, forecastHour);
   numPos = posName.size();
   numTime = validTime.size();
   numParam = 6;
@@ -119,8 +118,8 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   readFromField = true;
   vProfPlot = 0;
 
-  //  return success;
-  return true;
+  return success;
+    //return true;
 }
 
 

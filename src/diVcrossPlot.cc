@@ -102,6 +102,8 @@ bool VcrossPlot::bottomStencil= false;
 
 vector<VcrossText> VcrossPlot::vcText;
 
+//#define DEBUGPRINT 1
+//#define DEBUGCONTOUR 1
 
 // Default constructor
 VcrossPlot::VcrossPlot()
@@ -2016,8 +2018,8 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
   if (vcoord!=2 && vcoord!=10) return -1;
   if (nps<0) return -1;
   if (compute==1 && ntopo<0) return -1;
-  cwork1= new float(nPoint);
-  cwork2= new float(nPoint);
+  cwork1= new float[nPoint];
+  cwork2= new float[nPoint];
   if (compute==1) {
     for (i=0; i<nPoint; i++)
       cwork1[i]= cdata1d[ntopo][i];
@@ -3816,7 +3818,9 @@ bool VcrossPlot::plotData(const miString& fieldname,
       nxbmap= int((xPlotmax-xPlotmin)/dx+2.);
       nybmap= int((yPlotmax-yPlotmin)/dx+2.);
       lbmap= (nxbmap*nybmap+nbitwd-1)/nbitwd;
-      bmap= new int[lbmap];
+	  // It is very dagnerous to allocate a vector of size 0!
+	  if (lbmap != 0)
+		bmap= new int[lbmap];
       rbmap[0]= xPlotmin;
       rbmap[1]= yPlotmin;
       rbmap[2]= dx;
@@ -4107,6 +4111,46 @@ bool VcrossPlot::plotData(const miString& fieldname,
 
       int idraw2=0;
 
+#ifdef DEBUGCONTOUR
+	  /*
+	  bool contour(int nx, int ny, float z[], float xz[], float yz[],
+    int ipart[], int icxy, float cxy[], float xylim[],
+    int idraw, float zrange[], float zstep, float zoff,
+    int nlines, float rlines[],
+    int ncol, int icol[], int ntyp, int ityp[],
+    int nwid, int iwid[], int nlim, float rlim[],
+    int idraw2, float zrange2[], float zstep2, float zoff2,
+    int nlines2, float rlines2[],
+    int ncol2, int icol2[], int ntyp2, int ityp2[],
+    int nwid2, int iwid2[], int nlim2, float rlim2[],
+    int ismooth, int labfmt[], float chxlab, float chylab,
+    int ibcol,
+    int ibmap, int lbmap, int kbmap[],
+    int nxbmap, int nybmap, float rbmap[],
+    FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
+    const Area& fieldArea, const float& fieldUndef)
+	  */
+	  cerr << "contour: " << nPoint << "," << numLev << "," << "cdata2d[" << no1 << "]," << "cdata2d[" << nx << "]," << "cdata2d[" << ny << "]," << endl;
+	  cerr << 	  "part[" << part[0] << "," << part[1] << "," << part[2] << "," << part[3] << "]," << iconv << ",conv[" << conv[0] << "," << conv[1] << "," << conv[2] << "," << conv[3] << "," << conv[4]<< "," << conv[5] << "],xylim[" << xylim[0] << "," << xylim[1] << "," << xylim[2] << "," << xylim[3] << "]," << endl;
+	  cerr <<       idraw << ",zrange[" << zrange[0] << "," << zrange[1] << "]," << zstep << "," << zoff << "," << endl;
+	  cerr <<       nlines << ",rlines[100](" << rlines[0] <<")," << endl;
+	  cerr <<      ncol << ",icol[100](" << icol[0] <<")," << ntyp << ",ityp[100](" << ityp[0] <<")," << endl;
+	  cerr <<      nwid << ",iwid[100](" << iwid[0] <<")," << nlim << ",rlim[" << rlim[0] << "," << rlim[1] <<"]," << endl;
+	  cerr <<      idraw2 << ",zrange2[" << zrange2[0] << "," << zrange2[1] << "]," << zstep2 <<"," << zoff2 << "," << endl;
+	  cerr <<      nlines2 << ",rlines2[" << rlines2[0] << "," << rlines2[1] << "]," << endl;
+	  cerr <<      ncol2 << ",icol2[" << icol2[0] <<"," << icol2[1] << "],"<< ntyp2 << ",ityp2[" << ityp2[0]<<"," << ityp2[1] << "]," << endl;
+	  cerr <<      nwid2 << ",iwid2[" << iwid2[0]<<","<<iwid2[1] <<"]," << nlim2 << ",rlim2[" << rlim2[0] << "," << rlim2[1] <<"]," << endl;
+	  cerr <<      ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << "," << endl;
+	  cerr <<      ibcol << "," << endl;
+	  if (bmap != NULL)
+		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
+	  else
+		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl; 
+	  cerr <<      nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "]," << endl;
+	  cerr <<      "fp, poptions, psoutput," << endl;
+	  cerr <<      "dummyArea," << fieldUndef << endl;
+#endif
+
       res= contour(nPoint,numLev,cdata2d[no1],cdata2d[nx],cdata2d[ny],
           part, iconv, conv, xylim,
           idraw, zrange, zstep, zoff,
@@ -4123,9 +4167,11 @@ bool VcrossPlot::plotData(const miString& fieldname,
           nxbmap, nybmap, rbmap,
           fp, poptions, psoutput,
           dummyArea, fieldUndef);
+#ifdef DEBUGCONTOUR
+	cerr << "contour: poptions.contourShading!=0 res: " << res << endl;
+#endif
 
     }
-
     //Plot contour lines
     if(idraw>0 || idraw2>0){
 
@@ -4196,6 +4242,46 @@ bool VcrossPlot::plotData(const miString& fieldname,
       bool contourShading = poptions.contourShading;
       poptions.contourShading = 0;
 
+#ifdef DEBUGCONTOUR
+	  /*
+	  bool contour(int nx, int ny, float z[], float xz[], float yz[],
+    int ipart[], int icxy, float cxy[], float xylim[],
+    int idraw, float zrange[], float zstep, float zoff,
+    int nlines, float rlines[],
+    int ncol, int icol[], int ntyp, int ityp[],
+    int nwid, int iwid[], int nlim, float rlim[],
+    int idraw2, float zrange2[], float zstep2, float zoff2,
+    int nlines2, float rlines2[],
+    int ncol2, int icol2[], int ntyp2, int ityp2[],
+    int nwid2, int iwid2[], int nlim2, float rlim2[],
+    int ismooth, int labfmt[], float chxlab, float chylab,
+    int ibcol,
+    int ibmap, int lbmap, int kbmap[],
+    int nxbmap, int nybmap, float rbmap[],
+    FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
+    const Area& fieldArea, const float& fieldUndef)
+	  */
+	  cerr << "contour: " << nPoint << "," << numLev << "," << "cdata2d[" << no1 << "]," << "cdata2d[" << nx << "]," << "cdata2d[" << ny << "]," << endl;
+	  cerr << 	  "part[" << part[0] << "," << part[1] << "," << part[2] << "," << part[3] << "]," << iconv << ",conv[" << conv[0] << "," << conv[1] << "," << conv[2] << "," << conv[3] << "," << conv[4]<< "," << conv[5] << "],xylim[" << xylim[0] << "," << xylim[1] << "," << xylim[2] << "," << xylim[3] << "]," << endl;
+	  cerr <<       idraw << ",zrange[" << zrange[0] << "," << zrange[1] << "]," << zstep << "," << zoff << "," << endl;
+	  cerr <<       nlines << ",rlines[100](" << rlines[0] <<")," << endl;
+	  cerr <<      ncol << ",icol[100](" << icol[0] <<")," << ntyp << ",ityp[100](" << ityp[0] <<")," << endl;
+	  cerr <<      nwid << ",iwid[100](" << iwid[0] <<")," << nlim << ",rlim[" << rlim[0] << "," << rlim[1] <<"]," << endl;
+	  cerr <<      idraw2 << ",zrange2[" << zrange2[0] << "," << zrange2[1] << "]," << zstep2 <<"," << zoff2 << "," << endl;
+	  cerr <<      nlines2 << ",rlines2[" << rlines2[0] << "," << rlines2[1] << "]," << endl;
+	  cerr <<      ncol2 << ",icol2[" << icol2[0] <<"," << icol2[1] << "],"<< ntyp2 << ",ityp2[" << ityp2[0]<<"," << ityp2[1] << "]," << endl;
+	  cerr <<      nwid2 << ",iwid2[" << iwid2[0]<<","<<iwid2[1] <<"]," << nlim2 << ",rlim2[" << rlim2[0] << "," << rlim2[1] <<"]," << endl;
+	  cerr <<      ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << "," << endl;
+	  cerr <<      ibcol << "," << endl;
+	  if (bmap != NULL)
+		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
+	  else
+		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl; 
+	  cerr <<      nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "]," << endl;
+	  cerr <<      "fp, poptions, psoutput," << endl;
+	  cerr <<      "dummyArea," << fieldUndef << endl;
+#endif
+
       res= contour(nPoint,numLev,cdata2d[no1],cdata2d[nx],cdata2d[ny],
           part, iconv, conv, xylim,
           idraw, zrange, zstep, zoff,
@@ -4212,6 +4298,9 @@ bool VcrossPlot::plotData(const miString& fieldname,
           nxbmap, nybmap, rbmap,
           fp, poptions, psoutput,
           dummyArea, fieldUndef);
+#ifdef DEBUGCONTOUR
+	  cerr << "contour: poptions.contourShading = 0; res: " << res << endl;
+#endif
 
       //reset contour shading
       poptions.contourShading = contourShading;

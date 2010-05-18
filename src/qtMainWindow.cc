@@ -38,6 +38,7 @@
 #include <fstream>
 
 #include <sys/types.h>
+#include <sys/time.h>
 
 #include <qtTimeSlider.h>
 #include <qtTimeControl.h>
@@ -811,6 +812,8 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   ig.addImageToGallery("LOCATION",location_img);
   QImage sp_img(spectrum_xpm);
   ig.addImageToGallery("spectrum_icon",sp_img);
+
+  // Read the avatars to gallery
 
   miutil::miString avatarpath = setup.basicValue("avatars");
   if ( avatarpath.exists() ){
@@ -2101,8 +2104,8 @@ void DianaMainWindow::modelChangedSlot()
 void DianaMainWindow::crossectionChangedSlot(const QString& name)
 {
 #ifdef DEBUGPRINT
-  //cerr << "DianaMainWindow::crossectionChangedSlot to " << name << endl;
-  cerr << "DianaMainWindow::crossectionChangedSlot " << endl;
+  cerr << "DianaMainWindow::crossectionChangedSlot to " << name.toStdString() << endl;
+  //cerr << "DianaMainWindow::crossectionChangedSlot " << endl;
 #endif
   miutil::miString s= name.toStdString();
   contr->setSelectedLocation("vcross", s);
@@ -2563,39 +2566,47 @@ void DianaMainWindow::processLetter(miMessage &letter)
   }
 
   // If autoupdate is active, reread sat/radarfiles and
- // show the latest timestep
+  // show the latest timestep
   else if (letter.command == qmstrings::directory_changed) {
-//#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
   cerr << letter.command <<" received" << endl;
-//#endif
+#endif
 
   if (doAutoUpdate) {
+	  // Avoid not needed updates
       QApplication::setOverrideCursor( Qt::WaitCursor );
+	  // what to do with om->getTimes() ?
       om->getTimes();
       sm->RefreshList();
-      contr->satFileListUpdated();
+	  miutil::miTime tp = tslider->Value();
       tslider->setLastTimeStep();
       miutil::miTime t= tslider->Value();
-      setPlotTime(t);
+	  // Check if slider was not on latest timestep
+	  // or new image file arrived.
+	  // If t > tp force repaint...
+	  if (contr->satFileListChanged()|| contr->obsTimeListChanged()||(t > tp))
+	  {
+		  //cerr << "new satfile or satfile deleted!" << endl;
+		  //cerr << "setPlotTime" << endl;
+          setPlotTime(t);
+		  contr->satFileListUpdated();
+		  contr->obsTimeListUpdated();
+	  }
+	  //cerr << "stepforward" << endl;
       stepforward();
       QApplication::restoreOverrideCursor();
     }
   }
 
-// If autoupdate is active, reread thunder observations and
-// show the latest timestep
+// If autoupdate is active, do the same thing as 
+// when the user presses the updateObs button.
   else if (letter.command == qmstrings::file_changed) {
-//#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
   cerr << letter.command <<" received" << endl;
-//#endif
+#endif
     if (doAutoUpdate) {
-      QApplication::setOverrideCursor( Qt::WaitCursor );
-      contr->updateObs();
-      tslider->setLastTimeStep();
-      miutil::miTime t= tslider->Value();
-      setPlotTime(t);
-      w->updateGL();
-      QApplication::restoreOverrideCursor();
+	  // Just a call to update obs will work fine
+	  updateObs();
     }
   }
 
@@ -2809,13 +2820,22 @@ void DianaMainWindow::increaseTimeStep()
 void DianaMainWindow::setPlotTime(miutil::miTime& t)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
+#ifdef M_TIME
+  struct timeval pre;
+  struct timeval post;
+  gettimeofday(&pre, NULL);
+#endif
   if (contr->setPlotTime(t)) {
     contr->updatePlots();
     if( !ProfetUpdatePlot(t)){
       w->updateGL();
     }
   }
-
+#ifdef M_TIME
+  gettimeofday(&post, NULL);
+  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
+  cerr << "Plottime: " << s << endl;
+#endif
   timeChanged();
   QApplication::restoreOverrideCursor();
 

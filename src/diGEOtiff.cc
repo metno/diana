@@ -42,10 +42,10 @@ bool GEOtiff::readGEOtiffPalette(const miutil::miString& filename,
 				   vector<Colour>& col)
 {
 
-  satgeotiff::dihead ginfo;
+  satimg::dihead ginfo;
 
   // if not colour palette image
-  if(satgeotiff::GEOTIFF_head_diana(filename, ginfo)!= 2)
+  if(metno::GeoTiff::head_diana(filename, ginfo)!= 2)
     return false;
 
   // index -> RGB
@@ -73,9 +73,9 @@ bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
   cerr<<"GEOtiff::readGEOtiffHeader: inside the GEOtiff"<<file.name<<endl;
 #endif
 
-  satgeotiff::dihead ginfo;
+  satimg::dihead ginfo;
 
-  int rres =satgeotiff::GEOTIFF_head_diana(file.name, ginfo);
+  int rres = metno::GeoTiff::head_diana(file.name, ginfo);
 
   if (rres ==2)
     file.palette=true;
@@ -100,9 +100,9 @@ bool GEOtiff::readGEOtiff(const miutil::miString& filename, Sat& sd, int index)
   //for each channel (index[i]) in rawimage[i], and  information about the 
   // satellite pictures in the structure ginfo
 
-  satgeotiff::dihead    ginfo;
+  satimg::dihead    ginfo;
 
-  int rres= satgeotiff::GEOTIFF_read_diana(filename,&sd.rawimage[index], sd.no,sd.index, ginfo);
+  int rres= metno::GeoTiff::read_diana(filename,&sd.rawimage[index], sd.no,sd.index, ginfo);
   if (rres == -1) {
     cerr << "GEOTIFF_read_diana returned false:" << filename << endl;
     return false;
@@ -138,28 +138,16 @@ bool GEOtiff::readGEOtiff(const miutil::miString& filename, Sat& sd, int index)
   sd.Bx = ginfo.Bx;
   sd.By = ginfo.By;
 
+  //Projection
+  sd.projection = ginfo.projection;
+  sd.proj_string = ginfo.proj_string;
+
   // Calibration
   sd.cal_vis = ginfo.cal_vis;
   sd.cal_ir = ginfo.cal_ir;
   sd.cal_table = ginfo.cal_table;
+  sd.cut = -1;
 
   return true;
 }
 
-
-bool  GEOtiff::day_night(const miutil::miString& filename, miutil::miString& channels) {
-
-  int aa = satgeotiff::day_night(filename);
-
-  if(aa<0) return false;
-
-    if(aa==0){       //twilight
-    channels = "4";
-  } else if(aa==2){ //day
-    channels = "1+2+4";
-  } else if(aa==1){ //night
-    channels = "3+4+5";
-  }
-
-  return true;
-}

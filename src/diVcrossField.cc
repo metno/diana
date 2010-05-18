@@ -44,7 +44,7 @@
 
 using namespace std;
 
-//#define DEBUGPRINT
+//#define DEBUGPRINT 1
 
 // Default constructor
 VcrossField::VcrossField(const miutil::miString& modelname, FieldManager* fieldm)
@@ -270,6 +270,8 @@ bool VcrossField::setLatLon(float lat,float lon) {
 
     // 22 km between points
     int noOfPoints = (int)distance/22000;
+	// Test
+	//int noOfPoints = 128;
     int elem= crossSections.size()-1;
 
     float step = distance/(noOfPoints-1.0);

@@ -261,7 +261,9 @@ private:
   QLabel* timelabel;
 
   bool getText(miutil::miString &, Colour::ColourInfo &);
+  bool getEditText(vector <miutil::miString> &);
   bool getComplexText(vector <miutil::miString> &, vector <miutil::miString> &);
+  bool getComplexColoredText(vector <miutil::miString> &, vector <miutil::miString> &, Colour::ColourInfo &);
 
 
   QString TABNAME_FIELD;

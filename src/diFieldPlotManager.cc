@@ -168,7 +168,7 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
                 }
                 str2=vstr[j+3].downcase().substr(1,vstr[j+3].length()-2);
                 input=str2.split(',',true);
-                if (input.size()<1 || input.size()>3) {
+                if (input.size()<1 || input.size()>5 ) {
                   miString errm="Bad specification of plot arguments";
                   sp.errorMsg(sect_name,i,errm);
                   break;
@@ -529,6 +529,10 @@ bool FieldPlotManager::makeFields(const miString& pin,
   bool ok=false;
   for(unsigned int i=0;i<fieldName.size();i++){
     Field* fout;
+	// we must try to use the cache, if specified...
+	int cacheoptions = FieldManager::READ_ALL;
+	if (toCache)
+		cacheoptions = cacheoptions | FieldManager::WRITE_ALL;
     ok=fieldManager->makeField(fout,
         modelName,
         fieldName[i],
@@ -536,7 +540,7 @@ bool FieldPlotManager::makeFields(const miString& pin,
         levelName,
         idnumName,
         hourDiff,
-        FieldManager::READ_ALL );
+        cacheoptions );
 
     if (!ok) return false;
 

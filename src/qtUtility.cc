@@ -356,6 +356,19 @@ QComboBox* LinewidthBox( QWidget* parent,
 /*********************************************/
 QComboBox* PixmapBox( QWidget* parent, vector<miutil::miString>& markerName){
 
+/* Image support in Qt
+BMP Windows Bitmap Read/write 
+GIF Graphic Interchange Format (optional) Read 
+JPG Joint Photographic Experts Group Read/write 
+JPEG Joint Photographic Experts Group Read/write 
+PNG Portable Network Graphics Read/write 
+PBM Portable Bitmap Read 
+PGM Portable Graymap Read 
+PPM Portable Pixmap Read/write 
+XBM X11 Bitmap Read/write 
+XPM X11 Pixmap Read/write
+*/
+
   QComboBox* box = new QComboBox( parent );
 
   ImageGallery ig;
@@ -367,8 +380,46 @@ QComboBox* PixmapBox( QWidget* parent, vector<miutil::miString>& markerName){
   for( int i=0;i<n; i++){
     miutil::miString filename = ig.getFilename(name[i]);
     markerName.push_back(name[i]);
-    QImage image(filename.c_str());
-    box->addItem (QPixmap::fromImage(image), "" );
+
+    miutil::miString format;
+    // sometimes Qt doesnt understand the format
+    if(filename.contains(".xpm"))
+      format = "XPM";
+    else if(filename.contains(".png"))
+      format = "PNG";
+    else if(filename.contains(".jpg"))
+      format = "JPG";
+    else if(filename.contains(".jpeg"))
+      format = "JPEG";
+    else if(filename.contains(".gif"))
+      format = "GIF";
+    else if(filename.contains(".pbm"))
+      format = "PBM";
+    else if(filename.contains(".pgm"))
+      format = "PGM";
+    else if(filename.contains(".ppm"))
+      format = "PPM";
+    else if(filename.contains(".xbm"))
+      format = "XBM";
+    else if(filename.contains(".bmp"))
+      format = "BMP";
+    QImage image;
+    if (!format.empty())
+      image.load(filename.c_str(),format.c_str());
+    else
+      image.load(filename.c_str(),NULL);
+    if (image.isNull())
+      {
+	cerr << "PixmapBox: problem loading image: " << filename << endl;
+	continue;
+      }
+    QPixmap p = QPixmap::fromImage(image);
+    if (p.isNull())
+      {
+	cerr << "PixmapBox: problem converting from QImage to QPixmap" << filename << endl;
+	continue;
+      }
+    box->addItem (p, "" );
   }
 
   return box;
