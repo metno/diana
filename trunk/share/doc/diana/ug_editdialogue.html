@@ -1,0 +1,546 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Edit tools</title>
+  </head>
+
+  <body>
+    <table border="0" cellpadding="3" cellspacing="0" width="100%" >
+	<tr bgcolor="lightgrey">
+	  <td valign="center">&nbsp;Diana User Guide: Edit tools&nbsp;|&nbsp;
+	    <a href="ug_profeteditdrawingtools.html">Previous: Profet Drawing Tools</a>&nbsp;|&nbsp;
+	    <a href="ug_timecontrol.html">Next: Time Control</a>&nbsp;|&nbsp;
+	    <a href="index.html">Index</a></td>
+	  <td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+	</tr>
+    </table>
+
+    <p>
+    <h2>
+      <a NAME="Edit"></a><img SRC="edit_icon.png" align="MIDDLE" ALT="Edit icon">
+      Edit tools</h2>
+
+    <p>The edit dialogue is used during production of weather charts such as analyses and sigmaps. It 
+      contains tools for editing scalar fields and drawing tools for fronts, areas and symbols.<br>
+      Completed charts can be sent directly to a database for distribution to other regional offices.
+      Weather charts (possibly covering different regions) may be combined in to a master product with
+      special tools in this dialogue. See the <a href="ug_setupfile.html#EDIT">setup-file</a> for details in defining products.
+    <ul>
+      <li><a href="#newproduct">Start a new product</a>
+	<ul>
+	  <li> <a href="#define">Define start objects/-fields</a></li>
+	</ul></li>
+      <li><a href="#normalediting">Normal editing</a>
+	<ul>
+	  <li> <a href="#scalar">Editing of scalar fields</a></li>
+	  <li> <a href="#Objectediting">Drawing of objects</a></li>
+	  <li> <a href="#sigmaps">Drawing of sigmaps</a></li>
+	</ul></li>
+      <li><a href="#combining">Combining analyses</a></li>
+      <li><a href="#Comments">Comments</a></li>
+      <li><a href="#Form">Form</a></li>
+    </ul>
+    <!-- PAGEBREAK -->
+    <a NAME="newproduct"></a>
+    <br>
+    <h3> Start a new product:</h3>
+    <table WIDTH="100%" >
+	<tr VALIGN="TOP">
+	  <td><img SRC="newproduct.png" ALT="New product"></td>
+	  <td><img SRC="newcombine.png" ALT="New combine"></td>
+	</tr>
+    </table>
+    <ul>
+      <li> Select <b>Product type</b>, e.g. Ground analysis
+      <li> Select <b>Product Id</b>, e.g. VA.
+      <li> If you have selected a product Id which sends analyses to the database, 
+	you need to click <b>log in</b> and log in with your username and password.
+	<!-- PAGEBREAK -->
+      <li>
+	If no similar analysis with the same product type, product Id and time
+	already has been started, the message "Product available" will appear 
+	in the dialogue after logging in and editing can be started. Otherwise 
+	the message "Already in production by..." will appear. You can choose 
+	to take over the product by clicking the red x, you will be asked to 
+	confirm this choice.<br><br>
+	
+	<img SRC="takeover.png" ALT="Take over">
+      </li>
+      <li> Select <b>Normal</b> or <b>Combine</B> 
+	<ul>
+	  <li>
+	    <b>Normal</b> - starts a normal analysis based on scalar fields on 
+	    the screen or fields from earlier analyses. What fields are used as 
+	    a base is selected by clicking the button for each field included 
+	    in the analyses (e.g. MSLP and Tendency). Similarly objects from 
+	    earlier analyses can be used by clicking the button labelled 
+	    "Objects" (See below).</li>
+	  <li>
+	    <b> Combine </b> - starts combining. A list of available times for the 
+	    given product type and product id is displayed and can be selected from.
+	  </li>  
+	</ul>
+      <li> Insert the correct <b>validity time</b> for the product.</li>
+      <li> <b>OK ...</b> starts editing. If normal start time for the product 
+	is entered in the <a href="ug_setupfile.html#EDIT">setup-file</a> and the machine time 
+	is outside this, a message is displayed:<br><br>
+	<img SRC="editstarttime.png" ALT="Edit start time">
+	<br>
+	In normal analysis <b>fields</b> or <b>objects</b> can be edited. When 
+	combining, the <b>Connect</b> tab will be used, where several analyses 
+	can be connected.<br>
+	When a new analysis is started, existing edited fields, fronts and 
+	symbols will be deleted.</li>
+    </ul>
+    <p>
+      <!-- PAGEBREAK -->
+      <a NAME="define"></a>
+      <b> Define start objects/fields for editing:</b><br>
+    <table>		
+	<tr VALIGN="TOP">
+	  <td>
+	    <img SRC="objectsfrom.png" ALT="Objects from"> 
+	  </td>	
+	  <td>
+	    <img SRC="fieldfrom.png" ALT="Fields from"> 
+	  </td>
+    </table>
+    Clicking the <b>Objects</b> button in the 
+    <b>New product dialogue</b> will display the <b>Pick objects for editing</b> 
+    dialogue.</p>
+    <ul>
+      <li> Select the type of product the objects are from (e.g. sigmaps or surface 
+	analysis).</li>
+      <li> Select time and product id from the list. Products in <i>italic</i> are 
+	stored locally, others are official products.</li>
+      <li> Repeat for every product you want to add objects from.</li>
+      <li>The list <b>Selected objects</b> show what products the objects are read 
+  	from. If you don't want to add all types of objects, click the product in 
+  	the list and select fronts, symbols, areas and/or form. 
+  	Products can be deleted from the list by selecting them and clicking 
+  	<b>Delete</b>.
+      </li>
+      <li><b>Update</b> refreshes the list of available products.</li>
+    </ul>
+    Clicking the field buttons in the <b>New
+      product dialogue</b> displays the <b>Pick fields for editing</b> dialogue.
+    <ul>
+      <li> Select the type of product the field is retrieved from	or Model field.</li>
+      <li> If Model field is selected, choose between available fields in the list. 
+	If a product type is selected, select time and product id from the list. 
+	Products listed in <i>italic</i> are stored locally, others are official 
+	products.</li>
+      <li>The box <b>Selected fields</b> shows the selected fields or what 
+	products the field is read from. You can delete a product from this list by 
+	selecting it and clicking <b>Delete</b>.</li>
+      <li><b>Update</b> updates the list of available products/fields.</li>
+    </ul>
+    <!-- PAGEBREAK -->
+    <p><br>
+      <a NAME="normalediting"></a>
+    <h3> Normal Editing:</h3><br>
+    During normal editing you can choose between the tabs <b>Field</b> and 
+    <b>Objects</b> in the editing dialogue.
+    <a NAME="Editingsdialogue_saving"></a>
+    <p>You can at any time save changes you have done by clicking the 
+      <b>Save</b> button (or ctrl-s).
+      
+    <p>The <b>Send</b> button is used to send the analysis to the database for 
+      distribution to all regions, and to mark the analysis as approved and 
+      ready for sending to the weather service offices etc. By clicking 
+      "Approve product" here, the distribution will happen automatically 
+      within a short period.</p>
+    <img SRC="send.png" ALT="Send">
+    <p>Status of saving, sending and approving can be found at the top of the 
+      editing dialogue under the product indicator. If a local save has been 
+      done, it will show: <i>Saved 'date time'</i>. If the last changes also 
+      have been sent to the database <i>Saved</i> will be shown in green. If the 
+      analysis is approved the text <i>and approved</i> will be added in green. 
+      Finally if the product has been saved and/or distributed without being 
+      approved after approval: <i>approved</i> is shown in red.</p> 
+    <img SRC="savestate.png" ALT="Save state">
+    
+    <p>By selecting <b>Comments</b>, a window where you can enter 
+      <a href="#Comments">comments</a> related to the analysis is shown. These 
+      will also be saved, and will be read in if you start a new analysis by 
+      adding old objects.
+      <b>End</b> ends the editing. If you have not saved/sent your last changes 
+      you will be asked whether you want to.</p>
+    <p><b>Product</b> starts production of a new product.</p>
+    
+    <p>While editing the time of the observations can be altered. This is done 
+      with <b>shift-left arrow</b> and <b>shift-right arrow</b>. The time step 
+      can be altered with <b>Obs. time step</b> in the dialogue.</p>
+    
+    <p>
+      <br>LM = Left Mouse button
+      <br>RM = Right Mouse button
+      <br>MM = Middle Mouse button
+      
+      <!-- PAGEBREAK -->
+      <a NAME="scalar"></a>	
+    <table WIDTH="100%" >
+	<tr VALIGN="TOP">
+	  <td><img SRC="editing1.png" ALT="Editing scalar dialogue"></td>
+	  
+	  <td><b>Editing scalar fields</b>
+	    
+	    <p>Select the type you wish to use for the area of influence 
+	      (circle, ellipse, etc.). Use the RM on the map to change the size of this 
+	      area. If you select ellipse, you can choose the eccentricity of the 
+	      ellipse with the slider under <i>elliptical shape</i>.</p>
+	    <p>Then choose the type of activity in the list:</p>
+	    <ul>
+	      <li><i>Edit value</i> is used to increase/decrease the depth of the field 
+		- hold the LM down and move the mouse up/down.</li>
+	      
+	      <li><i>Move</i> is used to move an area. Hold the LM down and move.</li>
+	      
+	      <li><i>Alter gradient</i> is used to increase/decrease the gradient in the 
+		field i.e. the density of lines (For MSLP this works like adding a wind 
+		vector and then correcting the field geostrophically) - hold the LM down 
+		and move the mouse.</li>
+	      
+	      <li><i>Line w/o smoothing</i> is used to redraw a single isoline. Influence 
+		on the field is shown as a circle while the line is drawn. Hold the LM 
+		down and move the mouse.</li>
+	      
+	      <li><i>Line w/smoothing</i> is the same as the above option, but also 
+		adds smoothing of field and isoline. Hold the LM down and draw the 
+		isoline.</li>
+	      
+	      <li><i>Line, limited, w/o smoothing</i> is used to redraw a single 
+		isoline. Influence on the field is shown as a circle while the line is 
+		drawn, but is also restricted by the closest isolines. Hold the LM down 
+		and draw the isoline.</li>
+	      
+	      <li><i>Line, limited, w/smoothing</i> is the same as the above option, but also 
+		adds smoothing of field and isoline. Hold the LM down and draw the 
+		isoline.</li>
+	      
+	      <li><i>Smooth</i> will smooth the field in the area of influence. Hold the 
+	    	LM down while moving around. Only the area shown when the LM is released 
+		remains smoothed.</li>
+	    </ul>
+	    Use the <b>Undo</b> button (or ctrl-z) to undo edits. You can use <b>Redo</b> 
+	    (ctrl-y) to redo what you have undone.</td>
+	</tr>
+    </table>
+    
+    <!-- PAGEBREAK -->
+    <a NAME="Objectediting"></a>  
+    <p>
+      <b>Drawing objects</b>
+    <p>Here you will find tools for drawing graphical elements on the map. 
+      Select main category in the top list (fronts are default) and sub 
+      category in the list under.</p>
+    <p>All graphical elements consist of a lot of single points. To mark a 
+      point for editing, move the mouse pointer on top it (<b>without</b> 
+      clicking any of the mouse buttons), so that it lights up.<br>
+      The points (the "handles") are displayed as triangles for symbols, square 
+      for fronts and circles for areas. The points are shown in a weak grey 
+      colour when the mouse pointer is close to an object, to make it easier to 
+      find the "handle" and mark the object.<br>
+      Normally only one object can be marked at a time (first symbols are 
+      checked, then fronts and finally areas). To mark multiple objects, hold 
+      the mouse pointer over an object so that one or more points are marked and 
+      push <b>m</b>. Move on to the next object and mark this in the same way.
+      <br>
+      To clear the marks on all objects push <b>c</b>. To temporarily hide all 
+      marking of objects (e.g. to read observations) push <b>g</b>. Push 
+      <b>g</b> again to redisplay the objects.
+      Use the <b>Undo</b> button (or ctrl-z) to undo edits. You can use <b>Redo</b> 
+      (ctrl-y) to redo what you have undone.</p>
+    <!-- PAGEBREAK -->
+    <table WIDTH="100%" >
+	<tr VALIGN="TOP">					      
+	  <td><img SRC="editing2.png" ALT="Drawing objects dialogue"></td>
+	  <td>
+	    <b>Fronts</b> - select type of front from the list
+	    <br>Fronts are drawn by clicking the LM to mark where the front starts and 
+	    repeat to mark where it continues. The points are marked as squares. Push 
+	    <b>p</b> or RM to stop drawing the front.<br>
+	    
+	    <ul>
+	      <li>Deleting a whole front - mark the whole front (move the mouse pointer 
+	  	over the front until all the points light up), and push the delete key.
+	      </li>
+
+	      <li>Deleting one point of a front - mark the point and push the delete key.
+	      </li>
+	      
+	      <li>Moving a point - mark the point, hold your LM down and move.</li>
+	      
+	      <li>Moving the whole front - mark the whole front, hold your LM down and 
+	  	move</li>
+	      
+	      <li>Rotate/move front - mark one point, hold the MM down and move (one or 
+	  	both end-points will not move)</li>
+	      
+	      <li>Flip front - mark the whole front, push the <b>v</b> button.</li>
+	      
+	      <li>Change front type - mark the whole front and push <b>t</b>/<b>shift-t</b> 
+	  	to change type.</li>
+	      
+	      <li>New front of the same type - push the <b>n</b> button (new), and follow 
+		the instructions above for drawing.</li>
+	      
+	      <li>New front of a different type - choose a new type in the list and start 
+	  	drawing.</li>
+	      
+	      <li>Adding a node point in the middle of a front - hold the mouse pointer 
+	  	on the line segment where a new point is wanted and push the <b>f</b> 
+	  	button (for this to work, the whole front needs to be marked).</li>
+	      
+	      <li>Continue drawing a front - hold the mouse pointer over an end point, so 
+	  	that only this is marked and push the <b>f</b> button. New points can now 
+	  	be added by using the LM.</li>
+	      
+	      <li> Splitting a front - hold the mouse pointer on the line segment where 
+	  	you want to split the front and push <b>k</b> (for this to work, the 
+	  	whole front needs to be marked).</li>
+	      
+	      <li> Joining two fronts of the same type - move the fronts so that the end 
+	  	points are close to each other, mark one or both and push the <b>e</b> 
+	  	button.</li>
+
+	      <li> Copying and pasting fronts - To copy one or more fronts, mark the 
+		front and push <b>ctrl-c</b>. Paste the front on the map by placing the 
+		mouse pointer where you want the front and press <b>ctrl-v</b>.<br><br>
+	      </li>
+	    </ul> 
+	  </td></tr></table>
+    <!-- PAGEBREAK -->   	
+    <p>
+      <b> Connecting fronts.</b> <br>
+      When "Connecting fronts" is selected in the editing dialogue, fronts with 
+      end points close to each other will automatically connect. The end point 
+      of one of the fronts is moved so that it shares a point with the other 
+      front.<br>
+      This is checked every time a front is moved, rotated, split or when a 
+      point is added or removed from a front. If the "connecting fronts" 
+      function is turned off, the fronts can be connected by selecting one of 
+      the fronts and pushing <b>j</b>. <br>
+      When two fronts of the same type are connected, these will be connected 
+      as one front.  <br>
+      To connect the end points of a front to a arbitrary point on another front:
+      Move the front so that the end point is close to the other front, select 
+      the front and push <b>j</b>. <br>
+      The connection points will be shown as filled rectangles. <br>
+      When the "connecting fronts" function is activated connected fronts will 
+      behave as one front, meaning that if a front is selected by moving the 
+      mouse pointer over it, connected fronts will be selected as well and will 
+      for example be moved if one of the fronts is moved.<br>
+      To disconnect a front, select the front and push <b>q</b>, or turn off 
+      the "connecting fronts" function and move the front away from the 
+
+    <p>
+      <!-- PAGEBREAK -->
+
+    <table>
+	<tr>
+	  <td><img SRC="editing3.png" ALT="Editing symbols"></td>	
+	  <td>
+	    <b>Symbols</b> - choose wanted symbol from the list
+	    <ul>
+	      <li>Drawing symbol - LM.</li>
+	      
+	      <li>Changing symbol size - select the symbol and use the <b>+/-</b> buttons. 
+		The selected size will be the new default and new symbols will have this size. 
+		<br>
+		To make the size of a symbol the default size, select the symbol and push 
+		<b>b</b>. To set the default-size on all symbols, push <b>shift-b</b>.</li>
+	      
+	      <li> Changing symbol type - Select the symbol and push <b>t</b>/<b>shift-t</b> 
+		to change type.</li>
+
+	      <li> Moving, deleting and drawing new symbols (e.g. for fronts). </li>
+	      <li> You can write texts on the map by choosing symbol type <b>texts</b> from 
+		the menu. A text editing box will appear where text can be entered and 
+		colour selected:
+		
+		<br>
+		<img SRC="edittext.png" ALT="Editing texts">
+		<br>
+		Click OK, then place the text as many places as wanted with LM. The text 
+		can later be edited by moving the mouse pointer over the text and marking 
+		it (as with fronts, symbols, etc) and push <b>ctrl-e</b>. The text editing 
+		box appears and the text can be altered. The previously written text is 
+		default, i.e. if you select <b>texts</b> in the menu again, you will not 
+		get the text editing box, unless you double-click this selection in the menu. 
+		The texts can also be moved, deleted, etc. in the same way as with symbols.</li>
+	    </ul>
+	  </td>
+	</tr>
+    </table>
+    <!-- PAGEBREAK -->
+    <b>Areas</b> - choose type of area in the list.
+    <ul>
+      <li> These are drawn in the same way as fronts with the LM. The areas are 
+	filled when the drawing is ended by pushing <b>p</b> or RM.</li>
+      <li> Moving, deleting, drawing new, changing type and adding points are all 
+	the same as for fronts.</li>
+      <li> Copying and pasting areas - as for fronts.</li>
+    </ul>
+    <!-- PAGEBREAK -->
+    <a NAME="sigmaps"></a>
+    <b>Drawing sigmaps.</b> <br>
+    <img SRC="editsigmap.png" ALT="Sigmap">
+    <br>
+    If product type <i>sigmap</i> has been selected, in addition to drawing fronts, 
+    areas and symbols, symbols for significant weather maps can be drawn. Select 
+    main type of sigmap in the top menu in the editing dialogue and select the 
+    desired symbol in the submenu. Some of these symbols are made up of different 
+    types of symbols and texts, where the texts can be edited. <br>
+
+    <ul>
+      <li>Drawing sigmap symbols - LM.</li>
+      <li>Moving, deleting, resizing and changing type of sigmap symbols - as for 
+	symbols. Contrary to other symbols, the default size of sigmap symbols is  
+	not changed when resizing a symbol.</li>
+      <li>Copying and pasting sigmap symbols - as for fronts/symbols. If several 
+	of the same sigmap symbols with the same text are needed, one can be made 
+	and copied and pasted where required.</li>
+      <li>Rotating symbol - mark the symbol and push <b>ctrl +/-</b>. (Only works 
+	on sigmap symbols).</li>
+      <li>Sigmap symbols are by default surrounded by a white box which hides maps, 
+  	fields, etc. in the background. To toggle this, mark the symbol and push 
+  	<b>o</b>.</li>
+      <li>Changing symbol text - mark the symbol and push <b>ctrl-e</b>. (See also 
+	the paragraph on texts under <b>symbols</b>)</li>
+      <li>To draw the wavy lines surrounding the areas with significant weather, 
+  	select <b>areas</b> or <b>fronts</b> in the main menu and Sig.weather in the 
+  	submenu. These are drawn in the same way as areas/fronts, i.e. LM marks 
+	where the node points are and RM ends the drawing and closes the curve.</li>
+    </ul>
+    During sigmap editing a black frame will show what map section the
+    sigmap is valid for.
+
+    <!-- PAGEBREAK -->  
+    The symbol
+    <CENTER>
+      <img SRC="sigsymbol7.png" ALT="Sigsymbol" height="50" width="50">
+    </CENTER>
+    is for giving the altitude of significant weather. When it is selected, a text 
+    editing box is shown for entering the two values:<br>
+    <CENTER>
+      <img SRC="sigtext1.png" ALT="Sig text editing box">
+    </CENTER>
+    <br>
+    <p>
+      There are also symbols for entering one or two lines of text, e.g.:
+      <br>
+    <CENTER>
+      <img SRC="sigtextsymbol.png" ALT="Text symbol" height="50" width="50">
+    </CENTER>
+    <br>
+    the text editing box looks like this:
+    <CENTER>
+      <img SRC="sigtext2.png" ALT="Text editing box for symbol">
+    </CENTER>
+    <br>
+    <p>
+      Symbols with both altitude and text can look like this:
+      <br>
+    <CENTER>
+      <img SRC="sigsymbol16.png" ALT="Symbol for altitude and text" height="50" width="50">
+    </CENTER>
+    There are four fields in the text editing box, two for altitude and two for text:
+    <br>
+    <CENTER>
+      <img SRC="sigtext3.png" ALT="Text editing box for altitude and text">
+    </CENTER>
+    <br>
+    <p>
+      Tip: The easiest way to move from field to field when entering text is by using 
+      the TAB-button.
+
+      <!-- PAGEBREAK -->  
+
+    <p><br>
+      <a NAME="combining"></a>
+    <h3>Combining analyses</h3>
+    <table WIDTH="100%">
+	<tr VALIGN="TOP">
+	  <td><img SRC="editing4.png" ALT="Combining in new product"></td>
+	  <td>
+	    <p>To enter the <b>Connecting</b> tab, select <b>Combine</b> in 
+	      <b>New product</b>. Analysis for the selected time (The products validity 
+	      time) and for the product id's which are to be combined, are read.
+	      What analysis to apply where is selected through <i>borderline</i> and 
+	      <i>data source</i>.
+	    <ul>
+	      <li><b>Alter boundaries</b> - For setting the boundary lines between the 
+		different analyses. The lines can be moved and rotated, and points can 
+		be removed in the same way as for fronts. The width of the overlap is 
+		altered with the <b>+</b> and <b>-</b> buttons.</li>
+	      <li><b>Set data source</b> - The data sources can be set from the product 
+		id's available for the selected time and which belongs to the given 
+		combination product (i.e. VA, VV, VNN). These are set in the same way 
+		as symbols and can be moved, added and resized and type can be changed 
+		in the same way.</li>
+	      <li>As the borderline and data sources are altered, the resulting analysis 
+		will be shown. (While there is at least one data source in each area).</li>
+	      <li>To display an original region-analysis (fields and objects), push 
+		<b>1,2,3 etc</b>. The numbering corresponds to the list of data sources 
+		in the dialogue (e.g. <b>1</b> = <i> show VA-analysis</i>, <b>2</b> = 
+		<i>show VV-analysis</i>, <b>3</b> = <i>VNN-analysis</i>). The combined 
+		analyses are redisplayed by pushing the same button again. This also 
+		works during later editing. While combining analyses, borders/areas can 
+		be altered while only one region analyses is shown.</li>
+	      <li><b>Close connection</b> - Combining is ended and fields and objects 
+		in the analysis can be edited as normal.</li>
+	      <li>After combining is ended the borderlines will be shown. They can be 
+		hidden by pushing <b>l</b>.</li>
+	    </ul>
+    </table>
+    <!-- PAGEBREAK -->  
+    <p><br>      
+      <a NAME="Comments"></a>
+    <h3>Comments.</h3>
+    Here you can add comments to the product. These will be saved along with 
+    the objects in the database or on file and will be read when editing is 
+    done on previous objects or when the object is viewed in the 
+    object dialogue.<br>
+    Product id, product type and date is set automatically when you start 
+    comments (e.g. "DNMI round analysis1 2001-08-16 06:00:00").
+    <br>
+    <img SRC="comment1.png" ALT="Comment dialogue 1">
+    <br>
+    To view previous comments, select <b>Show previous comments</b>. 
+    <p><br>      
+      <a NAME="Form"></a>
+    <h3>Editing form.</h3>
+    For some products e.g. SWImaps, it is possible to define a form, where 
+    values can be entered; <br>
+    To write the form: Move the mouse pointer over the form. The places 
+    where you can edit will be marked in blue text (The first time this will 
+    be three dots "..."). When the mouse pointer is directly above where you 
+    can edit, the text will turn red. Push ctrl-e to alter the text. A 
+    dialogue will appear for entering the text, as you type the text on the 
+    map will also change. Click "End" in the text window or push the "End" 
+    button when finished.
+    To change multiple texts in the form successively: Place the mouse pointer 
+    over a text (e.g. "..." in front of "position") and push ctrl-e as above. 
+    Finish writing the text and push the "Page Down" button to go to the next 
+    form. "Page Up" takes you back to the previous form. Push the "End" button 
+    when you are finished writing. Note, as long as entering text in forms, 
+    other Diana commands will not work.
+    <p>
+      <br>
+      <img SRC="form.png" ALT="Form">
+      <br>
+      
+      <br>
+    <table border="0" cellpadding="3" cellspacing="0" width="100%" >
+	<tr bgcolor="lightgrey">
+	  <td valign="center">&nbsp;Diana User Guide: Edit tools&nbsp;|&nbsp;
+	    <a href="ug_profetdrawingtools.html">Previous: Profet
+	    Drawing Tools</a>&nbsp;|&nbsp;
+	    <a href="ug_timecontrol.html">Next: Time Control</a>&nbsp;|&nbsp;
+	    <a href="index.html">Index</a></td>
+	  <td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+	</tr>
+    </table>
+  </body>
+</html>

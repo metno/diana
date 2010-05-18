@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Quick menu</title>
+  </head>
+
+  <body>
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Quick menu&nbsp;|&nbsp;
+<a href="ug_mainwindow.html">Previous: Main window</a>&nbsp;|&nbsp;
+<a href="ug_mapdialogue.html">Next: Maps</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+
+      <h2>
+	<a NAME="Quick menu"></a><img SRC="quick.png" ALT="Quick menu" ALIGN="middle">
+	Quick menus</h2>
+
+  <p>
+	<img SRC="quickdialogue.png" ALT="Quick dialogue">
+      <p>
+
+	<ul>
+	  <li>
+	    Choose quickmenu from the toolbar, this has a list of plots from the
+	    chosen quick menu. To show a plot, double clicking one of the menu 
+	    headings or single click and select <b>Apply</b>.
+	  </li>
+          <li>
+	    Menus available: 
+            <ul>
+              <li><b>History</b> - a list of earlier plots.</li>
+	      <li> <b>Private</b> - menus defined in
+	      $HOME/.diana/*.quick. More menus can be made using  <b>Edit menus</b> 
+	      	or <b>F9</b>, which copies the current plot to the quick 
+	      	menu.</li>
+	      <li><b>Fixed</b> - menus defined in the setup file. These can not be 
+	      	deleted or moved, any changes in the plot-code are limited to 
+	      	cosmetic changes.</li>
+	    </ul>
+          </li>
+          <li>
+	    All plot-dialogues (field, obs etc.) will be updated to reflect the plot 
+	    on the screen. You can edit these, click <b>Apply</b>, then copy your 
+	    changes to the quick menu with the button <b>Update...</b>. Notice that 
+	    major changes to the fixed menus will be "censored". <p>
+	    The following changes are allowed in the fixed menus:	
+	     <ul>
+	       <li> <b> Map dialogue</b> All.
+	       <li> <b> Field dialogue</b> Order and everything except model, field, 
+	       	level, time deviation and smoothing of fields.
+	       	<li> <b> Observation dialogue</b> Several obs types and parameters 
+	       		are available, other settings can be altered freely.
+					<li> <b> Satellite dialogue</b> Order of pictures and everything in the 
+						advanced dialogue (cut, alpha cut, alpha, table, colour cut).
+					<li> <b> Object dialogue</b> Alpha.
+	     </ul>
+			The fixed menus can be reset to the original settings with the 
+			<b>reset</b> button.
+          </li>
+      
+      <!-- PAGEBREAK -->
+	  <li>
+			The "Command" button reveals an editing window for the plotting commands 
+			showing the commands for the chosen plot. Changes done here will be saved 
+			until you quit the program.
+		</li>
+	  <li>
+	  	Between the menu list and the commands window you'll find minor choices 
+	  	affecting the individual plots. These variables are defined in the 
+	  	menu file.
+	  </li>
+	  <li>
+	    "Demo" will start a time controlled showing of all the plots in the 
+	    chosen quick menu. The time interval between each plot is set in the box 
+	    next to the button.
+	  </li>
+	</ul>
+    
+
+    <p><p>
+      The <b>Edit menus</b> button shows a powerful dialogue for changing the 
+      menus. <p>
+	
+	<img SRC="quickeditdialogue.png" ALT="Quick Edit Dialogue">
+
+ <ul>
+	<li>
+		At the top we have the menu tree. Click a menu name to choose the entire menu, 
+		click + to show all the individual plots in a menu and click a plot to 
+		choose.
+	</li>
+	<li>
+       The arrows on the right are used to move a menu or plot up or down in 
+       the list. Notice that the fixed menus can not be moved, only the private 
+       ones.
+  </li>
+	<li>
+		The buttons change name and functionality depending on the context:
+	  <ul>
+	    <li>
+	      <b>New plot</b> or <b>New menu</b> will make a new empty plot or empty 
+	      menu (depending on where you are in the list), respectively. Will ask 
+	      for a name.
+	    </li>
+	    <li>
+	      <b>Remove plot</b> or <b>Remove menu</b> deletes the
+	      chosen menu item, or menu, 
+	      and makes the <b> Paste...</b> button
+	      active/available. <b>Remove menu</b> deletes the menu
+	      file from your filesystem.	
+	    </li>
+	    <li>
+	      <b>Copy plot</b> or <b>Copy menu</b> copies the chosen menu item, and 
+	      makes the <b> Paste ...</b> button active/available.
+	    </li>
+	    <li>
+	      <b>Paste plot</b> or <b>Paste menu</b> adds what you have either copied 
+	      or deleted to the list (underneath the chosen menu item).
+	    </li>
+	    <li>
+	      <b>New from file</b> lets you add a new menu from
+	      file. The menu file will be copied to $HOME/.diana/
+	    </li>
+	    <li>
+	      <b>Change name</b> requests a new name for a plot or menu item.
+	    </li>
+	    <li>
+	      <b>Dynamic options</b> - is used to edit the minor choices available in 
+	      the quick menu - only works for private quick menus. A dynamic choice 
+	      consists of a <b>key</b> and a comma separated list containing the 
+	      alternatives available for the key. In the quick menu text, occurrences of 
+	      <i>@key name</i> will be replaced by the chosen element.
+			</li>
+	  </ul>
+	</li>
+      </ul>
+	  <p>
+      <!-- PAGEBREAK -->
+      <img SRC="quickoptionsdialogue.png" ALT="Quick options Dialogue"><p><p><p>          
+      To quickly add a plot to a private menu you can use F9 in the main 
+      window. Chose the menu you want to add the plot to, and click ok. To 
+      make a new menu first, chose <b>Make new</b> first.<p>
+
+      <img SRC="savemenu.png" ALT="Save menu"><p><p><p>
+
+      F10 and F11 are used in the main window to jump forward and backwards in 
+      the <b>History</b> list. To quickly jump between all the quick menus use 
+      <b>ALT+arrowkeys</b>. Hold the ALT-key down and jump backwards and 
+      forwards with the right/left arrow key. As long as you hold the ALT-key 
+      down a window with the name of the plot will be shown. The up/down 
+      arrow keys jumps between the different quick menus. When you release the 
+      ALT-key you'll activate the plot shown in the window. Alternatively 
+      you can press ESC to cancel the operation (and then let go of the 
+      ALT-key).<p>
+      
+      <img SRC="altmenu.png" ALT="Alt menu"><p><p>
+
+      <p>
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Quick menus&nbsp;|&nbsp;
+<a href="ug_mainwindow.html">Previous: Main window</a>&nbsp;|&nbsp;
+<a href="ug_mapdialogue.html">Next: Maps</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+      
+  </body>
+</html>

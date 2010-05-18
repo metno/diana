@@ -1,0 +1,108 @@
+#!/bin/sh
+set -x
+
+SUFFIX=@program_suffix@
+
+if [  "$SUFFIX" = "NONE" ] ; then
+SUFFIX=
+fi
+
+
+
+input=$0
+dianadir="@prefix@"
+
+export DIANADIR=$dianadir
+
+debugger="gdb"
+ulimit -c 100000000000
+
+gw=`route | grep default | awk '{print $2}' `
+
+case "$gw" in
+    vpv*)   region="VV" ;;
+    vnn*)   region="VNN" ;;
+    vtk*)   region="VTK" ;;
+      *)   region="VA";;
+esac
+
+home=$HOME/.diana
+test -d $home || mkdir $home
+test -d $home/work  || mkdir $home/work
+
+
+setup=$dianadir/etc/diana$SUFFIX/diana.setup-${region} 
+
+test -e $home/diana.setup  && setup=$home/diana.setup
+
+
+cd $home
+
+rm core* 1>/dev/null 2>&1
+test -s dbxresult  && mv -f dbxresult dbxresult.old
+test -s mail.core  && mv -f mail.core mail.core.old
+
+# remove old lpr print files, left after failure...
+find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
+
+tstart=`date`
+$dianadir/bin/diana.bin$SUFFIX  -s $setup -T diana$SUFFIX -p -S profet$SUFFIX.met.no PROFFWDB=proffdb$SUFFIX.met.no APP_NAME=diana$SUFFIX $@ 
+
+
+tstop=`date`
+
+corefound="no"
+for corefile in core*
+do
+    test -f $corefile || continue
+    test -s $corefile || continue
+    corefound="yes"
+done
+
+if [ $corefound = "yes" ] ; then
+
+echo "USER $USER"     >mail.core
+echo "-------------" >>mail.core
+uname -a             >>mail.core
+echo "-------------" >>mail.core
+echo "START $tstart" >>mail.core
+echo "STOP  $tstop"  >>mail.core
+
+echo "Diana$SUFFIX version:"              >>mail.core 
+$dianadir/bin/diana.bin$SUFFIX --version  >>mail.core
+
+echo "Diana version (diana.news):" >>mail.core 
+cat diana.news       >>mail.core
+echo "-------------" >>mail.core
+pwd                  >>mail.core
+ls -ltr core*        >>mail.core
+
+for corefile in core*
+do
+
+test -f $corefile || continue
+test -s $corefile || continue
+
+#make gdb input:
+/bin/echo -e 'bt\nq\n' > /tmp/gdb.cmd.$$
+
+$debugger -batch -x /tmp/gdb.cmd.$$ $dianadir/bin/diana.bin$SUFFIX $corefile 1>dbxresult 2>&1 
+
+rm -f /tmp/gdb.cmd.$$
+
+echo "===============================================" >>mail.core
+cat dbxresult        >>mail.core
+
+rm $corefile
+
+done
+
+echo "===============================================" >>mail.core
+hinv                 >>mail.core
+
+adr="audun.christoffersen@met.no lisbeth.bergholt@met.no juergen.schulze@met.no"
+Mail -s "DIANA CRASH" $adr < mail.core
+
+fi
+
+exit

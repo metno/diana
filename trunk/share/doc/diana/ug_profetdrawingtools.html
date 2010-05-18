@@ -1,0 +1,311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Diana User Guide: Profet drawing tools</title>
+</head>
+
+<body>
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+  <tr bgcolor="lightgrey">
+    <td valign="center">&nbsp;Diana User Guide: Profet Drawing Tools &nbsp;|&nbsp;
+      <a href="ug_information.html">Previous: Information</a>&nbsp;|&nbsp;
+      <a href="ug_editdialogue.html">Next: Edit Tools</a>&nbsp;|&nbsp;
+      <a href="index.html">Index</a>
+    </td>
+    <td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+  </tr>
+</table>
+
+<h2>
+  <a name="Profet drawing"></a><img src="info.png" align="middle"
+  alt="Profet Drawing Icon"/>
+  Profet drawing tools
+</h2>
+
+<table border="0" cellpadding="10" cellspacing="0" width="100%">
+  <tr>
+    <td colspan="3">
+      The drawing tool is available when creating a new object or when editing an existing object. The tool is based on a set of drawing modes shown in a seperate toolbar. The toolbar is shown in the main window.
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <img src="toolbar.png" align="left" alt="Drawing Toolbar"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select Object - Mode for selecting objects by clicking on the map.</li>
+        <li>Draw Area - Mode for drawing and redrawing areas.</li>
+        <li>Add Area - Mode for adding another area.</li>
+        <li>Cut Area - Mode for removing another area.</li>
+        <li>Move Area - Mode for moving area to another location.</li>
+        <li>Add Point - Mode for adding a point (vertex) between two existing points.</li>
+        <li>Remove Point - Mode for removing existing point from area.</li>
+        <li>Move Point - Mode for move a point to another location.</li>
+        <li>Spatial Interpolation - Mode for interpolating the area.</li>
+        <li>Undo - Undo last action</li>
+        <li>Redo - Redo last action</li>
+      </ol>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      You can change mode by clicking in the toolbar or by using shortcuts (1-9). The shortcuts only works when the main window is in focus.
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Draw an area</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw2.png" alt="Drawing 1"/>
+    </td>
+    <td colspan="2">
+      <img src="draw3.png" align="left" alt="Drawing 2"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select draw mode from the toolbar (shortcut 2).</li>
+        <ul>
+          <li>Your mouse pointer should show a pencil on the map.</li>
+          <li>Existing area will be overwritten when you start to draw.</li>
+        </ul>
+        <li>Draw by clicking with the left mouse button in the map.</li>
+        <ul>
+          <li>Add individual points by clicking.</li>
+          <li>Add points continuously by holding the left mouse key down while moving the pointer.</li>
+        </ul>
+        <li>Finish drawing by clicking the right mouse button.</li>
+        <ul>
+          <li>Rightclick adds the last point in your area.</li>
+          <li>The area will be closed even if not the last point is close to the first point.</li>
+        </ul>
+        <li>The finished area will be filled.</li>
+        <ul>
+          <li>Moving mode will be selected automatically. This is to prevent users from overwriting the area next time clicking on the map.</li>
+          <li>The area will be adjusted to the underlying grid and might change.</li>
+          <li>Points that do not change the shape of the finished area will be removed.</li>
+          <li>The mask (grid points that will be affected by the algorithm) is shown in dark color.</li>
+        </ul>
+      </ol>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Add area</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw4.png" alt="Add 1"/>
+    </td>
+    <td colspan="2">
+      <img src="draw5.png" align="left" alt="Add 2"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select add mode from the toolbar (shortcut 3).</li>
+        <li>Draw an area in the same way as in draw mode.</li>
+        <ul>
+          <li>The area must be partly overlapping with the existing area.</li>
+        </ul>
+        <li>Finish drawing by clicking the right mouse button.</li>
+        <li>The area will include the new selection.</li>
+        <ul>
+          <li>Note that the new area will be adjusted to the underlying grid. If you have changed something that is less than the grid size, it will not change.</li>
+        </ul>
+      </ol>
+    <p>With continuous drawing the operation will not always work.</p>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Cut area</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw6.png" alt="Cut 1"/>
+    </td>
+    <td colspan="2">
+      <img src="draw7.png" align="left" alt="Cut 2"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select cut mode from the toolbar (shortcut 4).</li>
+        <li>Draw an area in the same way as in draw mode.</li>
+        <ul>
+          <li>The area must be partly overlapping with the existing area.</li>
+        </ul>
+        <li>Finish drawing by clicking the right mouse button.</li>
+        <li>The new selection will be removed from the area.</li>
+        <ul>
+          <li>Note that the new area will be adjusted to the underlying grid. If you have changed something that is less than the grid size, it will not change.</li>
+        </ul>
+      </ol>
+    <p>With continuous drawing the operation will not always work.</p>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Move area</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw8.png" alt="Move 1"/>
+    </td>
+    <td colspan="2">
+      <img src="draw9.png" align="left" alt="Move 2"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select move mode from the toolbar (shorcut 5).</li>
+        <li>Click and hold the left mouse button.</li>
+        <ul>
+          <li>Only the outline of the area is visible.</li>
+        </ul>
+        <li>Move the outline to the desired position.</li>
+        <li>Release the left mouse button to place the area.</li>
+        <ul>
+          <li>The area will now be displayed as normal.</li>
+          <li>The area will be moved to the closest grid point.</li>
+        </ul>
+      </ol>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Add point</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw10.png" alt="Add Point 1"/>
+    </td>
+    <td colspan="2">
+      <img src="draw11.png" align="left" alt="Add Point 2"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select the add point mode from the toolbar (shortcut 6).</li>
+        <ul>
+          <li>The existing points will be marked with squares.</li>
+        </ul>
+        <li>Move the cursor to the line where you want to add a point.</li>
+        <ul>
+          <li>The line closest to the mouse pointer will be split by the point you are pointing at.</li>
+          <li>The old line is shown as a dotted line.</li>
+        </ul>
+        <li>Press the left mouse button to add the point you are pointing at.</li>
+        <li>The new point will be added and the mode is set to move point.</li>
+        <li>To add more points you must select the mode again. It is convenient to use hotkey to add many points.</li>
+      </ol>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Remove point</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw12.png" alt="Remove Point 1"/>
+    </td>
+    <td colspan="2">
+      <img src="draw13.png" align="left" alt="Remove Point 2"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select remove point mode from the toolbar (shortcut 7).</li>
+        <ul>
+          <li>The existing points will be marked with squares.</li>
+        </ul>
+        <li>Move the cursor close to the point you want to remove.</li>
+        <ul>
+          <li>The point closest to the mouse pointer will be highlighted.</li>
+        </ul>
+        <li>Press the left mouse button to remove the point.</li>
+      </ol>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Move point</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw14.png" alt="Move Point 1"/>
+    </td>
+    <td>
+      <img src="draw15.png" align="left" alt="Move Point 2"/>
+    </td>
+    <td>
+      <img src="draw16.png" align="left" alt="Move Point 3"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>Select move point mode from the toolbar (hotkey 8).</li>
+        <ul>
+          <li>The existing points will be marked with squares.</li>
+        </ul>
+        <li>Move the mouse pointer close to the point you want to move.</li>
+        <ul>
+          <li>The point closest to the mouse pointer will be highlighted.</li>
+        </ul>
+        <li>Press and hold the left mouse button.</li>
+        <ul>
+          <li>You will now see only the outline of the area.</li>
+        </ul>
+        <li>Move the mouse pointer while you hold the mouse button down.</li>
+        <li>Release the mouse button where you want to set point.</li>
+        <li>The new area will be displayed as normal.</li>
+      </ol>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3"><h3>Undo / Redo</h3></td>
+  </tr>
+  <tr>
+    <td width="300">
+      <img src="draw17.png" alt="Undo 1"/>
+    </td>
+    <td>
+      <img src="draw18.png" align="left" alt="Undo 2"/>
+    </td>
+    <td>
+      <img src="draw19.png" align="left" alt="Redo 1"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <ol>
+        <li>You can undo the previous change by pressing the Undo button.</li>
+        <li>The previous area will then appear on the map.</li>
+        <li>To redo, press the redo button on the right.</li>
+      </ol>
+    </td>
+  </tr>
+</table>
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+  <tr bgcolor="lightgrey">
+    <td valign="center">&nbsp;Diana User Guide: Information&nbsp;|&nbsp;
+      <a href="ug_information.html">Previous: Information</a>&nbsp;|&nbsp;
+      <a href="ug_editdialogue.html">Next: Edit tools</a>&nbsp;|&nbsp;
+      <a href="index.html">Index</a>
+    </td>
+    <td valign="center" align="right">
+      <img src="diana_logo.png" align="right" border="0" />
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

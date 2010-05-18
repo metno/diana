@@ -1,0 +1,13 @@
+diana (3.16.4-ubuntu3) hardy; urgency=low
+
+  * Testing
+
+ -- Lisbeth Bergholt <diana@met.no>  Thu, 03 Dec 2009 14:41:13 +0100
+
+diana (3.8.2-ubuntu1) stable; urgency=low
+
+  * Initial debian package
+
+ -- Juergen Schulze <diana@met.no>  Wed, 30 Jul 2009 07:03:52 +0100
+
+

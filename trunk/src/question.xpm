@@ -1,0 +1,31 @@
+/* XPM */
+static const char * question_xpm[] = {
+/* width height ncolors chars_per_pixel */
+"20 20 5 1",
+/* colors */
+" 	c lavender",
+".	c dark slate grey",
+"X	c grey",
+"o	c black",
+"O	c red",
+/* pixels */
+"                   .",
+" XXXXXXXXXXXXXXXXXX.",
+" X............... X.",
+" X.XXXXXXXXXXXXXX X.",
+" X.XXXXooooooXXXX X.",
+" X.XXooOOOOOOooXX X.",
+" X.XoOOOooooOOOoX X.",
+" X.XoOOoXXXXoOOoX X.",
+" X.XoOoXXXXXoOOoX X.",
+" X.XoooXooooOOOoX X.",
+" X.XXXXXoOOOOooXX X.",
+" X.XXXXXoooooXXXX X.",
+" X.XXXXXXXXXXXXXX X.",
+" X.XXXXXooooXXXXX X.",
+" X.XXXXXoOOoXXXXX X.",
+" X.XXXXXooooXXXXX X.",
+" X.XXXXXXXXXXXXXX X.",
+" X                X.",
+" XXXXXXXXXXXXXXXXXX.",
+"...................."};

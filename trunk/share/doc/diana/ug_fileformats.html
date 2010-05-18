@@ -1,0 +1,317 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: File formats</title>
+  </head>
+  
+  <body>
+    <table border="0" cellpadding="3" cellspacing="0" width="100%" >
+	<tr bgcolor="lightgrey">
+	  <td valign="center">&nbsp;Diana User Guide: File formats&nbsp;|&nbsp;
+	    <a href="ug_vcrossfunctions.html">Previous: Vertical crossection functions</a>&nbsp;|&nbsp;
+	    <a href="ug_bdiana.html">Next: Batch plotting</a>&nbsp;|&nbsp;
+	    <a href="index.html">Index</a></td>
+	  <td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+	</tr>
+    </table>
+    
+     <h2>Description and specification of supported file formats in Diana</h2>
+    <ul>
+      <li> <a href="ug_fileformats.html#OBJECT.ASCII.FILES">Object files</a>
+      <li> <a
+      href="ug_fileformats.html#OBSERVATION.BUFR.FILES">Observations
+      in BUFR format</a>
+      <li> <a
+      href="ug_fileformats.html#OBSERVATION.ASCII.FILES">Observations
+      in ascii format</a>
+      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF files (CF-1.1 compatible)</a>
+    </ul>
+
+    <h2><a NAME="OBJECT.ASCII.FILES"></a>Object files</h2>
+Weather objects (fronts, symbols, areas etc.) are stored in object
+files which will normally have the time as extension on the form
+<i>.yyyymmddhhmm.</i>
+
+An example of such a file is given below:
+
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+Date=200510070900;
+
+Object=Front;
+Type=Warm front;
+LongitudeLatitude=
+-9.02711,59.8912,
+-3.86701,62.8109,
+5.02399,65.9834;
+RGBA=255,0,0,255;
+!
+Object=Symbol;
+Type=Fog;
+Size=10;
+LongitudeLatitude=
+1.86341,66.0907;
+RGBA=128,128,0,255;
+!
+Object=Symbol;
+Type=Low pressure;
+Size=10;
+LongitudeLatitude=
+0,82.2265;
+RGBA=255,0,0,255;
+!
+Object=Symbol;
+Type=Texts;
+Text=F~9;
+Size=10;
+LongitudeLatitude=
+0.532281,75.0545;
+RGBA=0,0,0,255;
+!
+
+
+LABEL anno=&lt;text="Surface analysis for 2005-10-07 09 UTC"&gt; tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top font=Helvetica fontsize=12
+
+</pre>
+</td></tr></table>
+
+<ul>
+<li>The files start with a line
+<pre>Date=<b>yyyymmddhhmm</b>;</pre>
+, e.g. <pre>Date=200510070900;</pre> There must be a semicolon at
+the end. This is followed by a blank line. </li>
+<li>Each new object description starts with the line <pre>Object=<b>TypeOfObject</b>;</pre>
+TypeOfObject can be Front, Symbol, or Area.</li>
+<li>Each object description ends with an exclamation mark and each
+line in the description ends with a semicolon.</li>
+      <!-- PAGEBREAK -->
+<li>A line describing the subtype, <pre>Type=<b>Subtype</b></pre>
+ is compulsory for each object.<br>
+The possible subtypes are:<br>
+<ul>
+<li><b>Fronts:</b>
+<i>Cold front, Warm front, Occlusion,Cold occlusion, Warm occlusion , Stationary
+front, Trough, Squall line, Significant weather</i>
+</li>
+<li><b>Areas:</b><i>
+ Precipitation, Showers, Clouds, Fog, Ice, Significant weather,
+ Generic area</i>
+</li>
+<li><b>Symbols:</b>
+<i>
+ Low pressure, High pressure, Cold, Warm, Fog, Drizzle, Freezing
+ drizzle, Freezing rain, Showers, Rain showers, Sleet showers, Hail
+ showers, Snow showers, Thunderstorm,
+ Thunderstorm with hail, Snow, Rain, Sleet, Hurricane, Disk, Circle, Cross, Text
+</i>
+</li>
+</ul>
+<li> A line giving the lon, lat coordinate(s),
+<pre>
+LongitudeLatitude=<b>Coordinates</b></pre>
+ is compulsory for each object.<br>
+Longitude and latitude for each point should be separated by a comma
+like this:<i> lon1,lat1,lon2,lat2,lon3,lat3;</i> and written in decimal
+format.</li>
+<li>A line describing the colour
+ <pre>RGBA=<b>r,g,b,a</b>;</pre> is optional. R,g,b and a, are the
+ red, green, blue and alpha components of the colour.<br>
+If this line is missing the default colour for this type of object will
+be used.</li>
+<li>A line describing the size can be used for symbols.
+<pre>Size=<b>Symbolsize</b></pre>
+Symbol size is the symbol's size in points.
+If this line is missing the default symbol size will be used.
+</li>
+<li>Symbols of type <i>text</i> have a line
+<pre>
+Text=<b>Symboltext</b>
+</pre>
+where Symbol text is the text to be displayed.
+</li>
+<li>A <b>LABEL</b> line can be used to write annotations on the plot.</li>
+
+</ul>
+
+
+<h2><a NAME="OBSERVATION.BUFR.FILES"></a>Observations in BUFR format</h2>
+
+    Diana supports reading observations in BUFR format with support of
+    standard WMO and rdb templates. More informations on wich
+    parameters that are decoded can be found on <a target="_blank" href="https://diana.wiki.met.no/doku.php?id=diana_bufr">https://diana.wiki.met.no/doku.php?id=diana_bufr</a>  
+
+<h2><a NAME="OBSERVATION.ASCII.FILES"></a>Observations in  ascii format</h2>
+
+
+An example an observation ascii file is given below:
+
+<p>
+
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+[COLUMNS
+Date:d      Time:t:"some text"     Lon:lon     Lat:lat      RRR:r   Station:s   Icon:image]
+
+[DATA]
+2004-11-20  12:00:00               10.86     59.55        0.4      "Dear home" wbkz_green
+2004-11-20  12:00:00               10.51     59.89        0.1      Home        wbkz_red
+2004-11-20  12:00:00                9.99     59.19        6.3      Somewhere   wbkz_white
+  
+
+
+</pre>
+</td></tr></table>
+
+
+<h3>Header</h3>
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Command</b></td><td><b>Example</b></td><td><b>Description</b></td></tr>
+  <tr><td>UNDEFINED</td><td><code>[UNDEFINED NaN,Inf]</code></td>
+  <td><code>NaN</code> and <code>Inf</code> are treated as
+    undefined values</td></tr>
+  <tr><td>SKIP_DATA_LINES</td><td><code>[SKIP_DATA_LINES 3]</code></td>
+	      <td>Skip first 3 data lines</td></tr>
+  <tr><td>LABEL</td><td><code>[LABEL text="Label text"] </code></td>
+  <td>Syntax: see <a href="ug_bdiana.html#PLOTSETTINGS.ANNOTATIONS">Labels</a></td></tr>
+  <tr><td>COLUMNS</td><td><code>[COLUMNS Date:d        Time:t:"some text"     Lon:r     Lat:r] </code></td>
+  <td><code>name:type or name:type:tooltip </code></a></td></tr>
+  <tr><td>DATA</td><td><code>[DATA] </code></td>
+  <td>Start of data section</a></td></tr>
+
+</table>
+<p>
+
+<h3>Column types</h3>
+
+
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Column type</b></td><td><b>Description</b></td></tr>
+  <tr><td>r </td><td>Real number</td></tr>
+  <tr><td>i </td><td>Integer number</td></tr>
+  <tr><td>s </td><td>String</td></tr>
+  <tr><td>d </td><td>Date (yyyy-mm-dd)</td></tr>
+  <tr><td>t </td><td>Time (HH:MM:SS)</td></tr>
+  <tr><td>year  </td><td>yyyy</td></tr>
+  <tr><td>month </td><td>mm</td></tr>
+  <tr><td>day   </td><td>dd</td></tr>
+  <tr><td>hour  </td><td>HH</td></tr>
+  <tr><td>time  </td><td>MM</td></tr>
+  <tr><td>lat   </td><td>Latitude in degrees</td></tr>
+  <tr><td>lon   </td><td>Longitude in degrees</td></tr>
+  <tr><td>dd   </td><td>Wind direction in degrees <0,360]</td></tr>
+  <tr><td>ff   </td><td>Wind speed in m/s</td></tr>
+  <tr><td>ffk   </td><td>Wind speed in knots</td></tr>
+  <tr><td>image </td>
+  <td>Name of xpm, must be defined in <a href="ug_setupfile.html#IMAGE_GALLERY">setup</a></td></tr>
+</table>
+<p>
+
+<ul>
+<li>The column names are used in the dialogues and in the command strings.
+<li>The column types <code> lat </code> and <code> lon </code> are mandatory.
+
+<li>If column type <code>dd</code> and <code>ff/ffk</code> are present,
+the parameter <code>Wind</code> will be added, and wind arrows can be
+plotted.
+<li>The column tooltips are used in the dialogues (optional)
+
+ </ul>
+
+<h3>Time</h3>
+<ul>
+<li>
+	If there are columns with  time information,
+	these observation times  will be used.
+<li>
+	If there are no time information in the file, but time
+        information from  the file name,
+	all observations will get observation time = file time.
+<li>	
+	If there is no time information,
+	the observations will have no time, and always be plotted.
+
+</li>
+</ul>
+
+    <hr>
+
+    <h2><a NAME="FIELD.NETCDF.FILES"></a>Fields in NetCDF files (CF-1.1 compatible)</h2>
+
+    Diana supports reading fields from NetCDF files following the CF-1.1
+    conventions for climate and forecast metadata (see <a target="_blank" href="http://www.cfstandard.org">http://www.cfstandard.org</a> for specifications of the standard), with the following limitations:
+    <h4>Regular grids</h4>
+    Diana supports regular grids only
+
+    <h4>Supported parameters</h4>
+    There are no limitations on the parameters you can include in the NetCDF file. Just make sure all the parameters you intend to show in Diana are declared in the <a href=ug_setupfile.html#NETCDF_PARAMETERS>NETCDF_PARAMETERS</a> section in the setupfile. Also, remember to set correct filetype to your NetCDF-files in the <a href=ug_setupfile.html#FIELD_FILES>FIELD_FILES</a> section in the setupfile.
+
+    <h4>Supported map projections</h4>
+    Diana supports a subset of the map projections specified in the CF metadata standard:
+    <ol>
+      <li><b>Geographic projection</b><br>
+	Note that the x/longitude dimension is ordered in Diana as [-180,180] degrees, and the fields will be recalculated to match this scheme if they are stored differently in the file (i.e. as [0,360] degrees). This will give some performance penalty when reading fields. Likewise, the y/latitude dimension is ordered as [-90,90] degrees in Diana, and you will find your grid flipped upside down if you order your data from [90,-90].<br>
+	The following attributes are supported:
+	<pre>
+ grid_mapping_name=geographic
+ false_easting
+ false_northing
+	</pre>
+      </li>
+
+      <li><b>Polar stereographic projection</b><br>
+	Diana also supports grid_mapping_name=stereographic with the limitation that latitude_of_projection_origin must be either -90 or 90, reducing the projection to a polar stereographic case.<br>
+	The following attributes are supported:
+	<pre>
+ grid_mapping_name=polar_stereographic
+ latitude_of_projection_origin= -90 <b>OR</b> 90
+ standard_parallel <b>OR</b> scale_factor_at_projection_origin
+ false_easting
+ false_northing
+	</pre>	
+      </li>
+
+      <li><b>Rotated latitude_longitude projection</b><br>
+	The following attributes are supported:
+	<pre>
+ grid_mapping_name=rotated_latitude_longitude
+ grid_north_pole_latitude
+ grid_north_pole_longitude
+ false_easting
+ false_northing
+	</pre>
+
+      </li>
+
+    </ol>
+
+<h4>IMPORTANT NOTES</h4>
+<p />
+
+  <ul>
+    <li>This is the first version of the NetCDF file reading capability, and you
+    may (and probably will) encounter some bugs.</li>
+    <li>Please report all bugs on <a
+    href="http://diana.bugs.met.no">http://diana.bugs.met.no</a>, or send
+    an e-mail to the Diana mailinglist.</li>
+    <li>For the time being we only support the map projections given above, but you
+    are welcome to send suggestions for any other projections you think we should 
+    support.</li>
+  </ul>
+
+<p>
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: File formats&nbsp;|&nbsp;
+<a href="ug_vcrossfunctions.html">Previous: Vertical crossection functions</a>&nbsp;|&nbsp;
+<a href="ug_bdiana.html">Next: Batch plotting</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+  </body>
+</html>

@@ -1,0 +1,5 @@
+[NAME UALF_Lyn]
+[COLUMNS
+Ver:f:"UALF versjons nummer" Year:year:"År" Month:month:"Måned" Day:day:"Dag" Hour:hour:"Time" Min:min:"Min" Sec:sec:"Sekund" Ns:f:"Nano sekunder"
+Lat:lat:"Breddegrad" Lon:lon:"Lengdegrad" Pk:f:"Beregnet maksstrøm i kA" Fd:f:"Multiplisitet for «flash» data(1 - 99) eller 0 for «strokes»" No_sens:f:"Antall sensorer med bidrag til beregningen" Df:f:"Antall frihetsgrader" Ea:r:"Ellipse vinkel fra 0 grader Nord" Major:r:"Lengste hovedakse i km" Minor:r:"Minste hovedakse i km" Chi:r:"Chi-kvadrat fra posisjons beregningen, 0-3.0 bra, 3.0-10.0 akseptabelt, >10.0 dårlig" Rise:r:"Stigetid for bølgeformen i mikrosekunder" Pz:r:"Tiden fra maks- til 0-strøm for bølgeformen i mikrosekunder" Mrr:r:"Maks stigningsforhold til bølgeformen i kA/µs" Ci:f:"1 Sky-Sky, 0 sky-bakke" Ai:f:"1 vinkel data benyttet til å beregne posisjonen, 0 ellers" Sig_i:f:"1 hvis sensor signal data er brukt til å beregne posisjonen. 0 ellers" Ti:f:"1 hvis timing data er brukt til å beregne posisjonen, 0 elles."]
+[DATA]

@@ -1,0 +1,57 @@
+:: $Id$
+@echo off
+
+set zipfile=@prefix@/diana-%1-win32.zip
+set checkfile=@prefix@/bin/diana.bin.exe
+
+:checkfile
+if exist %checkfile% goto checkqt
+echo.I can't find %checkfile%!
+goto end
+
+:checkqt
+if exist @prefix@/bin/QtCore4.dll goto :askuser
+echo.WARNING: I can't find Qt in @prefix@/bin!
+echo.The user will have to make sure the Qt DLLs are in PATH
+echo.before running Diana.
+echo.
+
+:askuser
+echo.This will create %zipfile%
+echo.from selected contents of @prefix@
+set /p yesno=Continue? (y/n)
+if [%yesno%]==[y] goto create
+echo.OK, I won't!
+goto end
+
+:create
+
+:: binaries
+set binaries=@prefix@/bin/diana.bin.exe @prefix@/bin/bdiana.exe
+strip %binaries%
+zip -9rv %zipfile% %binaries%
+zip -9rv %zipfile% @prefix@/bin/diana.bat
+zip -9rv %zipfile% @prefix@/bin/Qt*.dll
+zip -9rv %zipfile% @prefix@/bin/mingw*.dll
+
+:: diana.setup and udunits.dat
+zip -9rv %zipfile% @prefix@/etc
+
+:: misc. diana data
+zip -9rv %zipfile% @prefix@/share/applications
+zip -9rv %zipfile% @prefix@/share/pixmaps
+
+:: fonts, icons, documentation etc. - except maps and demos
+set xdata=-x @prefix@/share/diana/maps/*
+set xdata=-x @prefix@/share/diana/demodata/* %xdata%
+zip -9rv %zipfile% @prefix@/share/diana %xdata%
+zip -9rv %zipfile% @prefix@/share/doc/diana
+
+:: data for third-party libraries
+zip -9rv %zipfile% @prefix@/share/grib_api/definitions
+zip -9rv %zipfile% @prefix@/share/proj
+
+:: copyright statements and licenses for third-party libraries
+zip -9rv %zipfile% @prefix@/copyright
+
+:end

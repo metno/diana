@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Vertical crossection fuctions</title>
+  </head>
+
+  <body>
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide:Vertical crossection functions&nbsp;|&nbsp;
+<a href="ug_fieldfunctions.html">Previous: Field functions</a>&nbsp;|&nbsp;
+<a href="ug_fileformats.html">Next: File formats</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+<p>
+
+
+    <h2>
+      <a NAME="Vertical crossection functions"></a>Vertical crossection computation/conversion functions</h2>
+
+<pre>
+//----------------------------------------------------------------------
+// Field names:
+//-------------
+// th    = potential temperature (Kelvin)
+// tk    = temperature (Kelvin)
+// tc    = temperature (Celsius)
+// tdk   = dew point temperature (Kelvin)
+// tdc   = dew point temperature (Celsius)
+// rh    = relative humidity (%)
+// q     = specific humidity (kg/kg)
+// f     = any scalar field
+// u,v   = wind components in grid x- and y-direction (m/s)
+//----------
+// Notes:
+//----------
+// Function argument and result names are just examples.
+// Some surface parameters are also required (to be found in the input file).
+// Incl. crossection positions in the original grid.
+//----------
+// The real functions often need more arguments than used in setup. Like pressure.
+// This is done automatic. Also the existence of any undefined/missing values in the input data.
+// ---------
+// If the result field name also is among the input parameter/field names,
+// the function will not be activated when the input field is found.
+// The shortest "route" with fewest functions are chosen to make the final plot data.
+// Several of the (conversion) functions used are field functions.
+//----------------------------------------------------------------------
+</pre>
+<p>
+
+<table border="1" cellpadding="1" cellspacing="0" >
+  <tr><td><b>Result</b></td><td><b>Function(</b>argumet(s)<b>)</b></td></tr>
+  <tr><td>result = </td><td><b>add(</b>a,b<b>)</b></td></tr>
+  <tr><td>result = </td><td><b>subtract(</b>a,b<b>)</b></td></tr>
+  <tr><td>result = </td><td><b>multiply(</b>a,b<b>)</b></td></tr>
+  <tr><td>result = </td><td><b>divide(</b>a,b<b>)</b></td></tr>
+  <tr><td>tc = </td><td><b>tc_from_tk(</b>tk<b>)</b></td></tr>
+  <tr><td>tk = </td><td><b>tk_from_tc(</b>tc<b>)</b></td></tr>
+  <tr><td>tc = </td><td><b>tc_from_th(</b>th<b>)</b></td></tr>
+  <tr><td>tk = </td><td><b>tk_from_th(</b>th<b>)</b></td></tr>
+  <tr><td>th = </td><td><b>th_from_tk(</b>tk<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat_from_tk(</b>tk<b>)</b></td></tr>
+  <tr><td>thesat = </td><td><b>thesat_from_th(</b>th<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the_from_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>the = </td><td><b>the_from_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh_from_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>rh = </td><td><b>rh_from_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q_from_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>q = </td><td><b>q_from_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc_from_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc_from_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc_from_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>tdc = </td><td><b>tdc_from_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk_from_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk_from_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk_from_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>tdk = </td><td><b>tdk_from_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting_from_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting_from_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting_from_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>ducting_from_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>ducting = </td><td><b>d_ducting_dz_from_tk_q(</b>tk,q<b>)</b></td></tr>
+  <tr><td>d_ducting_dz = </td><td><b>d_ducting_dz_from_th_q(</b>th,q<b>)</b></td></tr>
+  <tr><td>d_ducting_dz = </td><td><b>d_ducting_dz_from_tk_rh(</b>tk,rh<b>)</b></td></tr>
+  <tr><td>d_ducting_dz = </td><td><b>d_ducting_dz_from_th_rh(</b>th,rh<b>)</b></td></tr>
+  <tr><td>ff_total = </td><td><b>ff_total(</b>u,v<b>)</b></td></tr>
+  <tr><td>ff_normal = </td><td><b>ff_normal(</b>u,v<b>)</b></td></tr>
+  <tr><td>ff_tangent = </td><td><b>ff_tangential(</b>u,v<b>)</b></td></tr>
+  <tr><td>ff_nort_south = </td><td><b>ff_north_south(</b>u,v<b>)</b></td></tr>
+  <tr><td>ff_east_west = </td><td><b>ff_east_west(</b>u,v<b>)</b></td></tr>
+  <tr><td>ff_knots = </td><td><b>ff_knots_from_ms(</b>ffms<b>)</b></td></tr>
+  <tr><td>m = </td><td><b>momentum_vn_fs(</b>vn<b>)</b></td></tr>
+  <tr><td>h_above_msl = </td><td><b>height_above_msl_from_th(</b>th<b>)</b></td></tr>
+  <tr><td>h_above_surface = </td><td><b>height_above_surface_from_th(</b>th<b>)</b></td></tr>
+</table>
+<p>
+
+
+
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide:Vertical crossection functions&nbsp;|&nbsp;
+<a href="ug_fieldfunctions.html">Previous: Field functions</a>&nbsp;|&nbsp;
+<a href="ug_fileformats.html">Next: File formats</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+<p>
+
+
+  </body>
+</html>

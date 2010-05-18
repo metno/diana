@@ -1,0 +1,846 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Setup file</title>
+  </head>
+
+  <body>
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Setup file&nbsp;|&nbsp;
+<a href="ug_shortcutkeys.html">Previous: Shortcut keys</a>&nbsp;|&nbsp;
+<a href="ug_fieldfunctions.html">Next: Field functions</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+<p>
+
+
+    <h2>
+      <a NAME="Setup file"></a>Setup file</h2>
+    The setup file contains information about:
+    <ul>
+      <li>
+	Where the different files with data are stored.</li>
+
+      <li>
+	Name of fields, satellite pictures, land contours etc. which are in the
+	dialogues.</li>
+
+      <li>Default colours, line widths, etc.</li>
+
+      <li>
+	Some information about what is on different files, amongst other things, how
+	the time can be determined from the filename.</li>
+
+      <li>
+	How some fields are made up from other fields.</li>
+      <li>
+	Definition of products for editing. The definition of what fields go in each
+	product and valid product Ids for normal analysis and combining. It also
+	contains information about where analyses files are read from/written to, and
+	whether they are written to a database.
+    </ul>
+
+    Each individual user can edit his/her setup file, and to a certain degree
+    customise the program to their needs.
+    <p>
+
+      The setup file is organized in sections.
+      A section is defined by a &lt;SSS&gt; &lt;/SSS&gt; pair, where SSS is the name of the section.<br>
+      Example: <code>&lt;BASIC&gt; ... &lt;/BASIC&gt;</code> contains the 'BASIC' section.
+    <p>
+
+      Common structures in all sections:
+    <table border="1" cellpadding="1" cellspacing="0" >
+      <tr><td>KEYWORD                     </td><td> Turns on/off feature</td>
+      <tr><td>KEY=VALUE                   </td><td> Defines keyword with value</td>
+      <tr><td>KEY=V1,V2,V3                </td><td> Defines keyword with list of values</td>
+      <tr><td>KEY=V11:V12:V13,V21:V22     </td><td> Defines keyword with list of lists of values</td>
+      <tr><td>KEY=VALUE KEY=V1,V2,V3 ...  </td><td> Combinations of key-defines</td>
+    </table>
+    <p>
+
+      Other features:
+    <ol>
+      <li>Refer to environment/shell variable XX with ${XX}<br><i>Example: ${HOME} will be expanded to the home-path</i>
+      <li>Define local variables with XX=yy (outside all sections),
+      and refer to them with $(XX)<br>
+<br><i>Example: Add ROOT=/metno/local in a separate line outside all sections. All occurrences of $(ROOT) in later lines will be expanded to /metno/local</i>
+      <li>Long lines may be split up by using '\'. Add a '\' (and newline) where you want to split a line.
+      <li>Include another file with %include "filename". Included file inherits section at the point of inclusion. File must start and end with the same section. Files may be nested.
+      <li>Use keyword CLEAR to clear all previous definitions for a specific section. Only valid within a section. Useful in local files which include the official setupfile.
+      <li><a name="TIME.INFO"></a>Time information in filenames/filepaths may be used as time filters.
+	Files like <code>temp2006052206.rdb</code> may be written
+	<code>tempyyyymmddHH.rdb</code> in order to extract the time
+	information. Parentheses may be skipped if none of the keys
+	below appear in the filename.
+      <li> Redefinitions of variables outside all sections will be
+      ignored, while redefinitions within sections are possible.
+
+<p>
+    <table border="1" cellpadding="1" cellspacing="0"  >
+	<tr><td>Time key</td><td>Description</td></tr>
+	<tr><td>yyyy</td><td>Year</td></tr>
+	<tr><td>yy</td><td>Year (yy>50 => 19yy, yy&lt;50 => 20yy) </td></tr>
+	<tr><td>mm</td><td>Month</td></tr>
+	<tr><td>dd</td><td>Day</td></tr>
+	<tr><td>HH</td><td>Year</td></tr>
+	<tr><td>MM</td><td>Minute</td></tr>
+	<tr><td>M</td><td>Minute (M*10)</td></tr>
+	<tr><td>XX</td><td>HH=XX/2, XX=0,2...=>MM=0, XX=1,3...=>MM=30 </td></tr>
+    </table>
+    </ol>
+    <p>
+
+      <!-- PAGEBREAK -->
+      Sections in use, preferably in this order:
+    <table border="1" cellpadding="1" cellspacing="0"  >
+	<tr><td><a href="#BASIC">BASIC</a></td>
+	  <td>contains various filepaths, and definitions for the system language</td></tr>
+	<tr><td><a href="#FONTS">FONTS</a></td>
+	  <td>contains definitions for the fonts used in visualisation</td></tr>
+	<tr><td><a href="#LABELS">LABELS</a></td>
+	  <td>lists the default plot commands for data labels and annotations on the map</td></tr>
+	<tr><td><a href="#IMAGE_GALLERY">IMAGE_GALLERY</a></td>
+	  <td>contains file paths to static raster images and simple vector patterns used in visualisations</td></tr>
+	<tr><td><a href="#COLOURS">COLOURS</a></td>
+	  <td>defines available colours with <i>name</i> and <i>rgba</i> values</td></tr>
+	<tr><td><a href="#PALETTES">PALETTES</a></td>
+	  <td>defines available colour palettes with  <i>name</i> and list of colour <i>values</i></td></tr>
+	<tr><td><a href="#FILLPATTERNS">FILLPATTERNS</a></td>
+	  <td>defines available palettes of <i>patterns</i></td></tr>
+	<tr><td><a href="#LINETYPES">LINETYPES</a></td>
+	  <td>defines available line stippling patterns with name and binary representation</td></tr>
+	<tr><td><a href="#PRINTING">PRINTING</a></td>
+	  <td>system specific print commands</td></tr>
+	<tr><td><a href="#QUICKMENUES">QUICKMENUES</a></td>
+	  <td>lists common (for all users) quick menues</td></tr>
+	<tr><td><a href="#METNOFIELDFILE_PARAMETERS">METNOFIELDFILE_PARAMETERS</a></td>
+	  <td>Defines field parameters used in the met.no field file format</td></tr>
+	<tr><td><a href="#NETCDF_PARAMETERS">NETCDF_PARAMETERS</a></td>
+	  <td>NetCDF field parameters used in the NetCDF files</td></tr>
+	<tr><td><a href="#FIELD_COMPUTE">FIELD_COMPUTE</a></td>
+	  <td>defines common (for all sources) field computations </td></tr>
+	<tr><td><a href="#FIELD_PLOT">FIELD_PLOT</a></td>
+	  <td>defines fields for visualisation with default plot options </td></tr>
+	<tr><td><a href="#FIELD_FILES">FIELD_FILES</a></td>
+	  <td>lists files or other sources for field data </td></tr>
+	<tr><td><a href="#OBSERVATION_FILES">OBSERVATION_FILES</a></td>
+	  <td>defines available observations for plotting </td></tr>
+	<tr><td><a href="#OBSERVATION_PRIORITY_LISTS">OBSERVATION_PRIORITY_LISTS</a></td>
+	  <td>defined priority lists for observation plotting</td></tr>
+	<tr><td><a href="#OBSERVATION_CRITERIA">OBSERVATION_CRITERIA</a></td>
+	  <td>definitions of criterias for plotting observations</td></tr>
+	<tr><td><a href="#IMAGE">IMAGE</a></td><td>geo images (satellite, radar) defined with file sources, available channels etc.</td></tr>
+	<tr><td><a href="#TEXT_INFORMATION_FILES">TEXT_INFORMATION_FILES</a></td>
+	  <td>list of files for the text viewer in Diana</td></tr>
+	<tr><td><a href="#MAP_AREA">MAP_AREA</a></td>
+	  <td>define available projections and standard areas</td></tr>
+	<tr><td><a href="#MAP_TYPE">MAP_TYPE</a></td>
+	  <td>list of available maps</td></tr>
+	<tr><td><a href="#OBJECTS">OBJECTS</a></td>
+	  <td>list of sources for meteorological objects (fronts, symbols etc)</td></tr>
+	<tr><td><a href="#EDIT">EDIT</a></td><td>define products for the editing tools</td></tr>
+	<tr><td><a href="#VERTICAL_PROFILE_FILES">VERTICAL_PROFILE_FILES</a></td>
+	  <td>list of sources for sounding data</td></tr>
+	<tr><td><a href="#VERTICAL_CROSSECTION_FILES">VERTICAL_CROSSECTION_FILES</a></td>
+	  <td>list of sources for vertical cross sections</td></tr>
+	<tr><td><a href="#VERTICAL_CROSSECTION_PARAMETERS">VERTICAL_CROSSECTION_PARAMETERS</a></td>
+	  <td>available parameter definitions  for vertical cross sections</td></tr>
+	<tr><td><a href="#VERTICAL_CROSSECTION_COMPUTATIONS">VERTICAL_CROSSECTION_COMPUTATIONS</a></td>
+	  <td>available computed parameters for vertical cross sections</td></tr>
+	<tr><td><a href="#VERTICAL_CROSSECTION_PLOTS">VERTICAL_CROSSECTION_PLOTS</a></td>
+	  <td>available visualisations of vertical cross sections</td></tr>
+	<tr><td><a href="#SPECTRUM_FILES">SPECTRUM_FILES</a></td>
+	  <td>list of sources for wave spectra visualisation</td></tr>
+	<tr><td><a href="#UFFDA">UFFDA</a></td>
+	  <td>met.no specific: Menu specification for interactive collocation of AVHRR training data.</td></tr>
+    </table>
+    <p>
+
+      <!-- PAGEBREAK -->
+
+    <a name="BASIC"></a><h3>Section BASIC</h3>
+    contains various filepaths, and definitions for the system language
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td></tr>
+	<tr><td>docpath=</td><td>path to this documentation (default <i>doc</i>)</td></tr>
+	<tr><td>obsPlotFilePath=</td><td>path to files describing symbol
+	and synop plot</td></tr>
+	<tr><td>qserver=</td><td>path to coserver program</tr>
+	<tr><td>imagepath=</td><td>main path to static images</tr>
+	<tr><td>amdarStationList=</td><td>path to list of amdar
+	stations used in vertical profiles</tr>
+	<tr><td>languagepaths=</td><td>path to gui language files (default <i>lang:${QTDIR}/translations</i>)</tr>
+	<tr><td>setenv=</td><td>set environment variables (<i>variable,value,overwrite</i>)</tr>
+	<tr><td>language=</td><td>system language to use ((default <i>en</i>)</tr>
+    </table>
+    <p>
+
+    <a name="FONTS"></a><h3>Section FONTS</h3>
+    contains definitions for the fonts used in visualisation. <br>
+    Definitions:<br>
+    <pre>
+    font:        Family name
+    type:        Bitmap (screen fonts with postscript equivalent) |
+                 Scaleable (truetype rendered as polygons)
+    name:        X-fontdefinitions for bitmap fonts, name of fontfile for scaleable fonts
+    face:        NORMAL | ITALIC | BOLD | BOLD_ITALIC (for scaleable fonts)
+    postscript : For bitmap fonts, postscript-equivalent name (for postscript output)
+    </pre>
+
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key(s)</td><td>Meaning</td></tr>
+	<tr><td>fontpath=</td><td>path to font files (default <i>fonts</i>)</td></tr>
+	<tr><td>font=X type=bitmap name=Y postscript=Z</td><td>define new bitmap font</td></tr>
+	<tr><td>font=X type=scalable name=Y</td><td>define new scalable font font</td></tr>
+	<tr><td>BITMAPFONT=X</td><td>use bitmap font named X as default bitmap font</td></tr>
+	<tr><td>SCALEFONT=X</td><td>use scalable font named X as default scaleable font</td></tr>
+	<tr><td>METSYMBOLFONT=X</td><td>use font named X as default font containing meteorological symbols</td></tr>
+    </table>
+
+    <p>
+
+    <a name="LABELS"></a><h3>Section LABELS</h3>
+    lists the default plot commands for data labels and annotations on the map.
+    <p>
+
+    <a name="IMAGE_GALLERY"></a><h3>Section IMAGE_GALLERY</h3>
+    contains file paths to static raster images and simple vector patterns used in visualisations.
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td></tr>
+	<tr><td>basicpath=</td><td>main image path</td></tr>
+	<tr><td>markerpath=</td><td>main path to small images used as markers on the map</td></tr>
+	<tr><td>marker=</td><td>additional path to a marker</td></tr>
+	<tr><td>patternpath=</td><td>path to patterns used in filled areas/fields</td></tr>
+    </table>
+    <p>
+
+      <!-- PAGEBREAK -->
+
+    <a name="COLOURS"></a><h3>Section COLOURS</h3>
+    defines available colours with <i>name</i> and <i>rgba values</i> (0 to 255).
+    <pre>
+ NAME=R,G,B[,A]
+    </pre>
+    <p>
+
+    <a name="PALETTES"></a><h3>Section PALETTES</h3>
+    defines available colour palettes with  <i>name</i> and list of colour <i>values</i> (0 - 255) or <i>names</i> as defined in section COLOURS.
+    <pre>
+ NAME=R1:G1:B1[:A1],R2:G2:B2[:A2],...Rn:Gn:Bn[:An]  # colour palette with n items
+ NAME=RED,YELLOW,BLUE                               # colour palette with 3 items
+    </pre>
+    <p>
+
+    <a name="FILLPATTERNS"></a><h3>Section FILLPATTERNS</h3>
+    defines available palettes of <i>patterns</i>.
+    <pre>
+ NAME=P1,P2,P3    # defines a palette of 3 patterns found under patternpath
+                  # (see IMAGE_GALLERY above)
+    </pre>
+
+    <p>
+
+    <a name="LINETYPES"></a><h3>Section LINETYPES</h3>
+    defines available line stippling patterns with name and binary representation.
+    <pre>
+ solid=   1111111111111111   # solid line
+ dash=    1111000011110000   # half on, half off
+    </pre>
+    <p>
+
+    <a name="PRINTING"></a><h3>Section PRINTING</h3>
+    system specific print commands.
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td></tr>
+	<tr><td>manualcommands=</td><td>is name of file with printer-specific commands (postscript)</td></tr>
+	<tr><td>printcommand=</td><td>typically: <b>lpr -h -{hash}{numcopies} -P {printer} {filename}</b></td></tr>
+    </table>
+    <br>where
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>{hash}</td><td>simply a '#'</td></tr>
+	<tr><td>{numcopies}</td><td>will be expanded to number of paper copies</td></tr>
+	<tr><td>{printer}</td><td>will be expanded to name of printer</td></tr>
+	<tr><td>{filename}</td><td>will be expanded to output filename</td></tr>
+    </table>
+    <p>
+
+    <a name="QUICKMENUES"></a><h3>Section QUICKMENUES</h3>
+    lists common (for all users) quick menues. Add lines containing:
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td></tr>
+	<tr><td>file=</td><td>path to file containing quick menu item</td></tr>
+    </table>
+    <p>
+
+      <!-- PAGEBREAK -->
+
+    <a name="METNOFIELDFILE_PARAMETERS"></a><h3>Section METNOFIELDFILE_PARAMETERS</h3>
+    met.no specific: field parameters used in met.no field file format.
+
+<br>met.no FIELD FILE parameters
+<pre>
+ Syntax:
+   Multilevel:               param_name=param_number
+   Surface and single level: param_name=param_number,vertical_coord,level
+   Additinal parameters for both types:
+        prod= produce_number
+        grid= grid_number
+        dtype= data_type  ..... usually:  1=analysis
+                                          2=forecast
+                                          3=initialized analysis
+                                          4=parameter fields (constant during forecast)
+        level= level_value
+        idnum= idnum_value   (level2 in met.no FieldFile descriptions)
+    </pre>
+    <p>
+
+    <br>Example:
+    <pre>
+    mslp=58,2,1000
+    z=1  u=2  v=3
+    </pre>
+    <p>
+
+    <a name="NETCDF_PARAMETERS"></a><h3>Section NETCDF_PARAMETERS</h3>
+
+
+    <b> Parameters</b>
+
+    <p />
+    Syntax:
+    <pre>
+    diana_name = netcdf_name
+    </pre>
+    Example:
+    <pre>
+       ice.concentration=sea_ice_concentration
+       salt=sea_water_salinity
+    </pre>
+Connects the name of variable used in diana with the local variable-name used in the NetCDF-files.
+To find the variable-names in a NetCDF-file, use 'ncdump -h <filename>'.
+
+    <p />
+
+    <b>Vertical coordinates</b>
+    
+ <p />
+     If not specified, the values of the attributes "standard_name" and
+      "units" of the variables with attribute "axis="Z"" is used.
+<p />
+    Syntax:
+<pre>
+    vertical_coordinate=A:B,C:D
+</pre>
+Where A is the name appearing in the dialog, B is the "standard_name"
+from the Netcdf files, C is "suffix" or "prefix", and D is name of the
+suffix/prefix (units) 
+<p />
+    Example:
+
+<pre>
+    vertical_coordinate=Depth:depth,suffix:m
+</pre>
+    <p />
+
+    <b>IMPORTANT NOTES</b>
+    <p />
+
+    <ul>
+    <li>This is the first version of the NetCDF filereading capabillity, and you
+    may (and probably will) encounter some bugs.</li>
+    <li>Please report all bugs on <a
+    href="http://diana.bugs.met.no">http://diana.bugs.met.no</a>, or send
+    an e-mail to the Diana mailinglist.</li>
+    <li>The NetCDF-files must conform to one of the following points: <br />
+    (i) Contain the metno_mapprojection_no, metno_grid_spec
+    and metno_grid_no attributes. The metno_mapprojection_no is a digit from 0 to 6, and
+    metno_grid_specs varies depending on which map projection that is selected.
+    See table in the <a href="#MAP_AREA">MAP_AREA-section</a> for further
+    information.<br />
+    (ii) Follow the CF-1.1 standard. See the <a
+    href="ug_fileformats.html#FIELD.NETCDF.FILES">NetCDF-section</a> under
+    "File formats" in the index for further information.</li>
+    </ul>
+
+    <a name="FIELD_COMPUTE"></a><h3>Section FIELD_COMPUTE</h3>
+    defines common (for all sources) field computations.
+    <p>
+      <a href="ug_fieldfunctions.html">Field computation/conversion functions</a>
+
+    <br>Example:
+    <pre>
+tc=tc.plevel_th(th)
+the=the.alevel_tk_q_p(tk,q,p)
+dz.500-1000=subtract(z:level=500hPa,z:level=1000hPa)
+ff10m=vector.abs(u10m,v10m)
+accumprecip.12h=accum.diff.forecast.hour(accumprecip,-12,0)
+field3=add(field1,field2)
+field4=multiply(field1,9.8067)
+    </pre>
+    <p>
+
+    <a name="FIELD_PLOT"></a><h3>Section FIELD_PLOT</h3>
+    defines fields for visualisation with default plot options.
+
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td><b>Field plot type</b></td><td><b>Comment</b></td></tr>
+	<tr><td>CONTOUR</td><td>isolines and/or shading between isolines</td></tr>
+	<tr><td>WIND</td><td>WMO wind</td></tr>
+	<tr><td>WIND_COLOUR</td><td>WMO wind coloured by any other field</td></tr>
+	<tr><td>WIND_TEMP_FL</td><td>FlightLevel chart, wind and T</td></tr>
+	<tr><td>VECTOR</td><td>a vector arrow</td></tr>
+	<tr><td>VECTOR_COLOUR</td><td>vector arrow coloured by any other field</td></tr>
+	<tr><td>DIRECTION</td><td>direction</td></tr>
+	<tr><td>DIRECTION_COLOUR</td><td>direction (true north) coloured by any other field</td></tr>
+	<tr><td>ALPHA_SHADE</td><td>translucency shading</td></tr>
+	<tr><td>BOX_ALPHA_SHADE</td><td>translucency shading in grid boxes</td></tr>
+	<tr><td>BOX_PATTERN</td><td>patterns in grid boxes</td></tr>
+	<tr><td>ALARM_BOX</td><td>Alarm colour in grid boxes</td></tr>
+	<tr><td>FILL_CELL</td><td>Fills each grid cell with a color according to the given 'values' and 'palettecolours' vectors</td></tr>
+	<tr><td>LAYER</td><td>Prints three numbers vertically in each grid cell</td></tr>
+    </table>
+    <p>
+
+    <br>Example:
+    <pre>
+field=MSLP
+      colour=blue linetype=solid linewidth=1 line.interval=5.
+      plot=CONTOUR(mslp)
+end.field
+
+field=WIND
+      colour=red linetype=solid linewidth=1 rel.size=1. density=AUTO
+      plot=WIND(u,v)
+end.field
+
+loop [P1]=500,700,850
+field=DZ([P1]-1000)
+      colour=red linetype=solid linewidth=1 line.interval=40.
+      plot=CONTOUR(dz.[P1]-1000)
+end.field
+
+loop [P1]=500,700,850,500,300
+loop [P2]=1000,1000,1000,850,700
+field=DZ([P1]-[P2])
+      colour=red linetype=solid linewidth=1 line.interval=40.
+      plot=CONTOUR(dz.[P1]-[P2])
+end.field
+
+field=ICING-SUM-COLOR
+      bordercolour=blue rel.size=0.8 values=4,5,6,7,8,9 palettecolours=green,yellow,yellow,orange,black,black
+      plot=FILL_CELL(icing.sum)
+end.field
+
+field=ICING-SUM-LAYER
+      bordercolour=blue rel.size=0.8 label.size=1.0
+      plot=LAYER(icing.height, icing.bottom, icing.top)
+end.field
+    </pre>
+    <p>
+
+    <a name="FIELD_FILES"></a><h3>Section FIELD_FILES</h3>
+    list of files or other sources of field data.
+
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td><td>Comment</td></tr>
+	<tr><td>Default_Filetype=</td><td>MetnoFieldFile, NetCDF, etc.</td><td>Type of field
+	Source</td></tr>
+	<tr><td>filegroup=</td><td>group name</td><td></td></tr>
+	<tr><td>archivefilegroup=</td><td>group name</td><td>Only used
+	in archive mode</td></tr>
+	<tr><td>m=</td><td>name</td><td>Model name</td></td></tr>
+	<tr><td>t=</td><td>MetnoFieldFile, NetCDF, etc.</td><td>Type of field Source</td></tr>
+	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
+	<tr><td>g=</td><td>88:1234:Name</td><td>for MetnoFieldfiles: prod:grid:Name</td></tr>
+	<tr><td>CLEAR_FILES</td><td></td><td>Delete all models in current
+	file group</td></tr>
+	<tr><td>CLEAR_FILEGROUP</td><td></td><td>Delete current file group</td></tr>
+    </table>
+
+    <br>Example:
+    <pre>
+filegroup=HIRLAM20km
+m=HIRLAM.20KM.00  t=MetnoFieldFile f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdnm00.dat  f=/opdata/hirlam20/grdni00.dat
+
+filegroup=HIRLAM4km
+m=HIRLAM.4KM.00  t=MetnoFieldFile f=/opdata/explam/grdqh00.dat
+m=HIRLAM.4KM.12  t=MetnoFieldFile f=/opdata/explam/grdqh12.dat
+
+filegroup=ice
+m=ice_sst t=NetCDF f=/disk1/tmp/iceSST.nc
+    </pre>
+Redefine models:
+    <pre>
+FileGroup=HIRLAM4km
+m=HIRLAM.4KM.00  t=MetnoFieldFile f=/disk1/grdqh00.dat
+m=HIRLAM.4KM.12  t=MetnoFieldFile f=/disk1/grdqh12.dat
+    </pre>
+Define new models in existing file group:
+    <pre>
+FileGroup=HIRLAM4km
+CLEAR_FILES
+m=MY_MODEL_00  t=MetnoFieldFile f=/disk1/grdqh00.dat
+m=MY_MODEL_12  t=MetnoFieldFile f=/disk1/grdqh12.dat
+    </pre>
+Delete file group:
+    <pre>
+FileGroup=HIRLAM4km
+CLEAR_FILEGROUP
+    </pre>
+
+      <!-- PAGEBREAK -->
+
+    <a name="OBSERVATION_FILES"></a><h3>Section OBSERVATION_FILES</h3>
+    defines available observations for plotting.
+
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td><td>Comment</td></tr>
+	<tr><td>PROD=</td><td>data type : name appearing in
+	menu</td><td></td></tr>
+	<tr><td>metnoobs=</td>
+	  <td>filename</td><td>met.no observation format, filename may
+	  include <a href="#TIME.INFO">time information</a></td>
+	</tr>
+	<tr><td>bufr=</td><td>filename</td>
+	  <td>bufr format, filename may include <a href="#TIME.INFO">time
+	    information</a></td>
+	</tr>
+  	</tr>
+	<tr><td>ascii=</td><td>filename</td>
+	  <td><a href="ug_fileformats.html#OBSERVATION.ASCII.FILES">
+	    ascii format</a>, filename may include <a href="#TIME.INFO">time
+	    information</a></td>
+	</tr>
+	<tr><td>timerange=</td><td>min,max</td>
+	  <td>Files include data from time range [time-min,time+max] (minutes)</td></tr>
+	<tr><td>current=</td><td>scale</td>
+	  <td>Plotting arrow with feathers, not wind. Scale = one
+	  full feather.</td></tr>
+    </table>
+    <p>
+
+    <br>Example:
+    <pre>
+     PROD=synop:Surf
+     bufr=/opdata/obs_dec/rdb/syno/surf[yyyymmddHH]*.rdb
+     timerange=-30,30
+    </pre>
+    <p>
+
+    Bufr data need Bufr tables to unpack data. To specify the path
+    for the Bufr tables, set the  environmental variable
+    <code>BUFR_TABLES</code>
+
+    <br>Example:
+    <pre>
+    export BUFR_TABLES=/usr/local/etc/emos/bufrtables/ 
+    </pre>
+    the path must end with "<code>/</code>".
+
+    
+    <a name="OBSERVATION_PRIORITY_LISTS"></a><h3>Section OBSERVATION_PRIORITY_LISTS</h3>
+    list of files with priority list for observation plotting.
+    Ascii files with one station id per line.
+    <br>
+    Add lines of this type:
+    <pre>
+ name=X file=Y
+    </pre>
+    where X is the name of the priority list as shown in menues and Y
+    is the filename.
+    <br>Example:
+    <pre>
+ name="Priority list", file=/metno/local/diana/etc/priList.txt
+    </pre>
+    <p>
+
+      <a name="OBSERVATION_CRITERIA"></a><h3>Section OBSERVATION_CRITERIA</h3>
+    Definitions of predefined criterias for plotting
+    observations. The criterias can be turned on/off and changed in the
+    <a href="ug_obsdialogue.html">observation dialogue</a>.
+<p>
+	plottype = name of plot type <br>
+        name = name of criterias <br>
+      parameter &lt;&gt;= value  plot/colour/colour total<br>
+<p>
+    <br>Example:
+    <pre>
+    plottype=Synop
+    name=Temperature
+    TTT&gt;0   plot
+    TTT&gt;10 �red
+    TTT&gt;20 �red total
+    </pre>
+    <p>
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Criteria</td><td>Description</td></tr>
+	<tr><td>TTT&gt;0 plot</td><td>Plot the observation if TTT>0</td></tr>
+	<tr><td>TTT>10 red</td>
+	  <td>Plot  the parameter TTT in red if TTT>10</td></tr>
+	<tr><td>TTT>20 red total</td>
+	  <td>Plot the entire observation in red if TTT>0</td></tr>
+	<tr><td>TTT plot</td>
+	  <td>Plot the observation if TTT is reported</td></tr>
+    </table>
+<p>
+
+      <!-- PAGEBREAK -->
+
+    <a name="IMAGE"></a><h3>Section IMAGE</h3>
+    geo images (satellite, radar) defined with file sources, available channels etc.<br>
+    Each image product is defined with (on separate lines):
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td></tr>
+	<tr><td>channels=</td><td>list of available channel-combinations. Example: [ day_night 2+4 4+2 .. ] </td></tr>
+	<tr><td>image=</td><td>main product name. Example: [NOAA] </td></tr>
+	<tr><td>sub.type=</td><td>sub product name. Example: [Europa] </td></tr>
+	<tr><td>file=</td>
+      <td><a href="#TIME.INFO">filter</a> for product files. Example: [/data/noaa[yyyymmddHHMM]meu.mitiff] </td></tr>
+    </table>
+    The section is read sequentially, so a suite of products is often defined by a <i>image=</i> line, followed by several <i>sub.type=</i> and <i>file=</i> lines. Add <i>channels=</i> lines to change the available channels.
+    <p>
+
+    <a name="TEXT_INFORMATION_FILES"></a><h3>Section TEXT_INFORMATION_FILES</h3>
+    list of files with simple ascii-text (+ subset of html). Contents of files available in separate text viewer. Add lines of this type:
+    <pre>
+ name=X file=Y [ type=auto|text|html|xml font=auto|fixed ]
+    </pre>
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td></tr>
+	<tr><td>name=</td><td>name as appearing in menu. mandatory</td></tr>
+	<tr><td>file=</td><td>path to file. mandatory</td></tr>
+	<tr><td>type=</td><td>auto means type is determined from filename extension</td></tr>
+	<tr><td>font=</td><td>fixed means "courier"-type font</td></tr>
+    </table>
+    <p>
+
+    <a name="MAP_AREA"></a><h3>Section MAP_AREA</h3>
+    define available projections and standard areas. Add lines of this type:
+    <pre>
+ name=X proj=Y grid=Z area=A
+    </pre>
+    where X is the name of the projection/area as shown in menues. To define one of the functionkeys from F5 to F8 as accelerator for an area: add any of [F5],[F6],[F7],[F8] at the end of the name.<br><br>
+    The keywords <b>proj</b>, <b>grid</b> and <b>area</b> can have the following values:
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Proj</td><td>Grid</td><td>Area</td><td>comment</td></tr>
+	<tr><td>pstereographic</td><td>xp,yp,an,fi,projection-latitude</td><td>x1,x2,y1,y2 (in gridunits)</td><td>Polar Stereographic</td></tr>
+	<tr><td>pstereo_60</td><td>xp,yp,an,fi</td><td>x1,x2,y1,y2 (in gridunits)</td><td>Polar Stereographic 60 degrees north</td></tr>
+	<tr><td>mercator</td><td>west,south,x_inc(km),y_inc(km),ref_lat(deg)</td><td>x1,x2,y1,y2 (in x_inc/y_inc units)</td><td>Mercator</td></tr>
+	<tr><td>geographic</td><td>west,south,lon_inc(deg),lat_inc(deg)</td><td>x1,x2,y1,y2 (in lon_inc/lat_inc units)</td><td>Geographic</td></tr>
+	<tr><td>spherical_rot</td><td>west,south,lon_inc(deg),lat_inc(deg),lon_eq,lat_eq</td><td>x1,x2,y1,y2 (in lon_inc/lat_inc units)</td><td>Spherical Rotated</td></tr>
+	<tr><td>undefined</td><td>0:0:0:0</td><td></td><td>use area from field or satellite</td></tr>
+	<tr><td>undefined</td><td>1:0:0:0</td><td></td><td>leave area unchanged</td></tr>
+    </table>
+
+      <!-- PAGEBREAK -->
+
+
+    <br>Examples:
+    <pre>
+ name=Data-area, proj=undefined, grid=0:0:0:0
+ name=Europa, proj=pstereo_60, grid=115:148:237:0:0:0, area=51:181:45:134
+ name=S.hemisphere, proj=pstereographic, grid=11851:11851:11850:180:-60:0, area=1:23701:1:23701
+    </pre>
+    <p>
+
+    <a name="MAP_TYPE"></a><h3>Section MAP_TYPE</h3>
+    define maps for Diana. Use lines of this type:
+    <pre>
+ map=NAME file=FILEPATH type=normal|triangles
+    </pre>
+    to add a single map. The types normal and triangles are met.no specific formats - the latter containing precalculated triangles for filled land areas.<p>
+    To add a map with <b>varying resolution</b> (depending on zoom factor):
+    <pre>
+ map=NAME type=normal|triangles
+ limit=X(in km) file=FILEPATH
+ limit=Y(in km) file=FILEPATH
+ ... etc
+    </pre>
+    where the limit in km defines the limiting resolution for use of this particular file. A line containing a new map=X marks the end of this definition. You may also add standard plot information inside such a block (See <a href="ug_bdiana.html#PLOTSETTINGS.MAPS">plot settings</a> documentation in the batch diana section). Example:
+    <pre>
+ map=Gshhs-Auto type=triangles
+ limit=10  file=/metno/local/maps/gshhs_25.map
+ limit=2.5 file=/metno/local/maps/gshhs_5.map
+ limit=0.5 file=/metno/local/maps/gshhs_1.map
+ limit=0.1 file=/metno/local/maps/gshhs_0.2.map
+ limit=0   file=/metno/local/maps/gshhs_0.1.map
+ contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
+ land=on land.colour=flesh
+    </pre>
+
+    <p>
+
+    <a name="OBJECTS"></a><h3>Section OBJECTS</h3>
+    list of sources for meteorological objects (fronts, symbols etc).<br>
+    Contains lines of this type:
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key(s)</td><td>Value</td></tr>
+	<tr><td>name=X file=Y</td><td>X=name of product as appearing in menues, Y=path to datafiles</td></tr>
+	<tr><td>archive_name=X file=Y</td><td>Same as above, but only applies when Diana is in <a href="ug_statusline.html#Archives">Archive</a> mode </td></tr>
+    </table>
+    <br>
+    The "path to datafiles" is given as <i>dirpath/prodname</i> and the datafiles themselves must have names like <i>dirpath/prodname.YYYYMMDDhhmm</i>, where YYYYMMDDhhmm is the timespecification.
+
+    <p>
+
+      <!-- PAGEBREAK -->
+
+    <a name="EDIT"></a><h3>Section EDIT</h3>
+    define products for the editing tools. Each product is defined inside a subsection:
+    <pre>
+ product="PRODNAME"
+   &lt;product-specification&gt;
+ end.product
+    </pre>
+    where the product-specification is like this:
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key(s)</td><td>Value</td></tr>
+	<tr><td>drawtools=</td><td>comma separated list of drawing tools [Analyse,Sigkart]</td></tr>
+	<tr><td>save_dir=</td><td>where to save product locally [./work]</td></tr>
+	<tr><td>input_dir=</td><td>where to fetch stored components</td></tr>
+	<tr><td>combine_input_dir=</td><td>where to fetch stored components when combining products</td></tr>
+	<tr><td>input_products=</td><td>other products to pick components from</td></tr>
+	<tr><td>field=</td><td>Field-Nametag, fieldname, met.no-field-specification</td></tr>
+	<tr><td>objects=</td><td>Objects-Nametag</td></tr>
+	<tr><td>comments=</td><td>Comments-Nametag</td></tr>
+	<tr><td>local_idents=</td><td>identies to choose from when
+	editing locally [comma separated list]</td></tr>
+	<tr><td>database_idents=</td><td>identies to choose from when editing in product database [comma separated list]</td></tr>
+	<tr><td>combine_ident=</td><td>Final-ID, ID1, ID2, .. final combine-identity with list of identies to combine. You may have several of these.</td></tr>
+	<tr><td>combine_borders=</td><td>name of file containing borderlines used when combining</td></tr>
+	<tr><td>database=</td><td>"mysqlservername databasename portnumber"</td></tr>
+	<tr><td>name_in_database=</td><td>which productname to use in database</td></tr>
+	<tr><td>time_start_early=</td><td>show warning if production starts before specified time, limit given as hour:minute (-=before,+=after product) [+00:00]</td></tr>
+	<tr><td>time_start_late=</td><td>show warning if production starts after specified time, limit given as hour:minute (-=before,+=after product) [+03:00]</td></tr>
+	<tr><td>grid=</td><td>for field editing, specify field grid [producer,grid,nx,ny,gridtype,gridspec[6]]</td></tr>
+	<tr><td>grid.minimize</td><td>possibly minimize grid to remove undefined values along border</td></tr>
+	<tr><td>commandfile=</td><td>annotations to show when editing</td></tr>
+	<tr><td>standard_symbolsize=</td><td>normal size of met. objects in this product [30]</td></tr>
+	<tr><td>complex_symbolsize=</td><td>normal size of sigkart
+	objects in this product [6]</td></tr>
+	<tr><td>frontlinewidth=</td><td>line width of fronts in this product [8]</td></tr>
+	<tr><td>arealinewidth=</td><td>line width of areas in this product [4]</td></tr>
+    </table>
+
+
+    <p>
+
+      <!-- PAGEBREAK -->
+
+    <a name="VERTICAL_PROFILE_FILES"></a><h3>Section VERTICAL_PROFILE_FILES</h3>
+    list of sources for sounding data.
+    <p>
+
+    <br>Example:
+    <pre>
+# prognostic data
+m=HIRLAM.20KM.00   f=/opdata/hirlam20/vp20km00.dat
+m=HIRLAM.20KM.12   f=/opdata/hirlam20/vp20km12.dat
+# observations
+#bufr.temp=  /opdata/obs_dec/rdb/temp/temp[yyyymmddHH].rdb
+#bufr.pilot=  /opdata/obs_dec/rdb/pilo/pilo[yyyymmddHH].rdb
+metnoobs.temp=  /opdata/obs_dec/temp??.dat*
+metnoobs.amdar= /opdata/obs_dec/amte??.dat*
+metnoobs.pilot= /opdata/obs_dec/pilo??.dat*
+    </pre>
+    <p>
+
+    <a name="VERTICAL_CROSSECTION_FILES"></a><h3>Section VERTICAL_CROSSECTION_FILES</h3>
+    list of sources for vertical cross sections.
+    <p>
+
+    <br>Example:
+    <pre>
+m=HIRLAM.20KM.00  f=/opdata/hirlam20/vc20km00.dat
+m=HIRLAM.20KM.12  f=/opdata/hirlam20/vc20km12.dat
+    </pre>
+    <p>
+
+    <a name="VERTICAL_CROSSECTION_PARAMETERS"></a><h3>Section VERTICAL_CROSSECTION_PARAMETERS</h3>
+    available parameter definitions for vertical cross sections.
+    <p>
+
+    <br>Example:
+    <pre>
+# atmospheric model parameters
+u=2 v=3 tk=4 q=9 rh=10 omega=13 th=18 etadot=11 w=12 turbulence=94
+# ocean model parameters
+ucurr=302 vcurr=303 salt=307 seatemp=308
+# possibly computed in program vcdata (horizontal computations in fields)
+vorticity=-1 divergence=-2 ug=-3 vg=-4 pv=-5
+    </pre>
+    <p>
+
+    <a name="VERTICAL_CROSSECTION_COMPUTATIONS"></a><h3>Section VERTICAL_CROSSECTION_COMPUTATIONS</h3>
+    available computed parameters for vertical cross sections.
+    <p>
+
+      <a href="ug_vcrossfunctions.html">Vertical crossection
+      computation/conversion functions</a>
+
+    <br>Example:
+    <pre>
+tc=TC_FROM_TH(th)
+rh=RH_FROM_TH_Q(th,q)
+q=Q_FROM_TK_RH(tk,rh)
+ff_tangent=FF_TANGENTIAL(u,v)
+ff_normal=FF_NORMAL(u,v)
+    </pre>
+    <p>
+
+    <a name="VERTICAL_CROSSECTION_PLOTS"></a><h3>Section VERTICAL_CROSSECTION_PLOTS</h3>
+    available visualisations of vertical cross sections.
+    <p>
+
+    <br>Example:
+    <pre>
+name=TH        plot=CONTOUR(th) colour=blue line.interval=4.
+name=Temp(C)   plot=CONTOUR(tc) colour=red  line.interval=4.
+name=Vind_NSEW plot=WIND(ff_east_west,ff_north_south) colour=black
+name=VT+OMEGA  plot=VT+OMEGA(ff_tangent,omega)   colour=darkgreen vector.unit=1.
+    </pre>
+    <p>
+
+    <a name="SPECTRUM_FILES"></a><h3>Section SPECTRUM_FILES</h3>
+    list of sources for wave spectra visualisation.
+    <p>
+
+    <br>Example:
+    <pre>
+m=WAM.50KM.00  f=/opdata/wave/wamspec00.dat
+m=WAM.50KM.12  f=/opdata/wave/wamspec12.dat
+    </pre>
+    <p>
+
+
+    <a name="UFFDA"></a><h3>Section UFFDA</h3>
+    met.no specific: Menu specification for interactive collocation of AVHRR training data.<br>
+    Contains lines of this type:
+
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key(s)</td><td>Value</td></tr>
+	<tr><td>mailto=</td><td>mailing address for sending UFFDA messages</td></tr>
+	<tr><td>class=X desc=Y</td><td>X="name of UFFDA class", Y="description of class"</td></tr>
+    </table>
+    <p>
+
+
+<table border="0" cellpadding="3" cellspacing="0" width="100%" >
+<tr bgcolor="lightgrey">
+<td valign="center">&nbsp;Diana User Guide: Setup file&nbsp;|&nbsp;
+<a href="ug_shortcutkeys.html">Previous: Shortcut keys</a>&nbsp;|&nbsp;
+<a href="ug_fieldfunctions.html">Next: Field functions</a>&nbsp;|&nbsp;
+<a href="index.html">Index</a></td>
+<td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+</tr>
+</table>
+
+<p>
+
+
+  </body>
+</html>
