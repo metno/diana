@@ -35,8 +35,7 @@
 
 
 DIANADIR  = ${DIANADIR} || @prefix@
-#OPDATA    = $(DIANADIR)/share/diana/demodata
-OPDATA = /disk1/demodata
+OPDATA    = $(DIANADIR)/share/diana/demodata
 MAPDIR    = $(DIANADIR)/share/diana/maps
 
 <BASIC>
