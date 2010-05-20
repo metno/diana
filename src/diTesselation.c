@@ -38,12 +38,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #ifndef GLCALLBACK
-#ifdef CALLBACK
-#define GLCALLBACK CALLBACK
+#ifdef GLAPIENTRY
+#define GLCALLBACK GLAPIENTRY
 #else
-#define GLCALLBACK
+#define GLCALLBACK APIENTRY
 #endif
 #endif
 
@@ -63,6 +62,17 @@ static int num_combine_callback;
 static int n_combine_callback;
 #endif
 
+typedef struct {
+	GLdouble x;
+	GLdouble y;
+	GLdouble z;
+	GLdouble r;
+	GLdouble g;
+	GLdouble b;
+	GLdouble a;
+} VERTEX;
+
+
 
 static void GLCALLBACK error_callback( GLenum err )
 {
@@ -71,33 +81,74 @@ static void GLCALLBACK error_callback( GLenum err )
   fprintf(stderr, "tesselation error_callback %d : %s\n",err,errmsg );
 }
 
-/*
-void combineCallback(GLdouble coords[3],
-                     GLdouble *vertex_data[4],
-                     GLfloat weight[4], GLdouble **dataOut )
- */
-
-static void GLCALLBACK combine_callback( GLdouble coords[3],
-    GLdouble *vertex_data[4],
-    GLfloat weight[4], GLdouble **data )
+static void GLCALLBACK combineCallback(GLdouble coords[3], 
+                     VERTEX *vertex_data[4],
+                     GLfloat weight[4], VERTEX **dataOut )
 {
-  GLdouble	*vertex;
-#ifdef DEBUGCALLBACK
-  num_combine_callback++;
-#endif
+   VERTEX *vertex;
+
+   vertex = (VERTEX *) malloc(sizeof(VERTEX));
 
 #ifdef DEBUGEACHCALLBACK
-  n_combine_callback++;
-  fprintf(stderr, "tesselation combine_callback %d\n",n_combine_callback );
+   if (vertex_data[0])
+	fprintf(stderr, "vertex_data[0] %f\n",vertex_data[0]->x );
+   if (vertex_data[1])
+	fprintf(stderr, "vertex_data[1] %f\n",vertex_data[1]->x );
+   if (vertex_data[2])
+	fprintf(stderr, "vertex_data[2] %f\n",vertex_data[2]->x );
+   if (vertex_data[3])
+	fprintf(stderr, "vertex_data[3] %f\n",vertex_data[3]->x );
+
+   fprintf(stderr, "vertex_data[x] done \n");
+
+   fprintf(stderr, "coords[0] %f\n",coords[0] );
+   fprintf(stderr, "coords[1] %f\n",coords[1] );
+   fprintf(stderr, "coords[2] %f\n",coords[2] );
 #endif
 
-  vertex = (GLdouble *) malloc( 3 * sizeof(GLdouble) );
+   vertex->x = coords[0];
+   vertex->y = coords[1];
+   vertex->z = coords[2];
 
-  vertex[0] = coords[0];
-  vertex[1] = coords[1];
-  vertex[2] = coords[2];
-  *data = vertex;
+#ifdef DEBUGEACHCALLBACK
+   fprintf(stderr, "coords to vertex done \n");
+#endif
+
+   if (vertex_data[0] != 0 && vertex_data[1] != 0 && vertex_data[2] != 0 && vertex_data[3] != 0)
+   {
+
+	   vertex->r = weight[0]*vertex_data[0]->r + weight[1]*vertex_data[1]->r + weight[2]*vertex_data[2]->r + 
+		   weight[3]*vertex_data[3]->r; 
+	   vertex->g = weight[0]*vertex_data[0]->g + weight[1]*vertex_data[1]->g + weight[2]*vertex_data[2]->g + 
+		   weight[3]*vertex_data[3]->g; 
+	   vertex->b = weight[0]*vertex_data[0]->b + weight[1]*vertex_data[1]->b + weight[2]*vertex_data[2]->b + 
+		   weight[3]*vertex_data[3]->b; 
+	   vertex->a = weight[0]*vertex_data[0]->a + weight[1]*vertex_data[1]->a + weight[2]*vertex_data[2]->a + 
+		   weight[3]*vertex_data[3]->a;
+   }
+   else if (vertex_data[0] != 0 && vertex_data[1] != 0 && vertex_data[2] != 0)
+   {
+	   vertex->r = weight[0]*vertex_data[0]->r + weight[1]*vertex_data[1]->r + weight[2]*vertex_data[2]->r ; 
+	   vertex->g = weight[0]*vertex_data[0]->g + weight[1]*vertex_data[1]->g + weight[2]*vertex_data[2]->g ; 
+	   vertex->b = weight[0]*vertex_data[0]->b + weight[1]*vertex_data[1]->b + weight[2]*vertex_data[2]->b ; 
+	   vertex->a = weight[0]*vertex_data[0]->a + weight[1]*vertex_data[1]->a + weight[2]*vertex_data[2]->a ;
+   }
+   else if (vertex_data[0] != 0 && vertex_data[1] != 0)
+   {
+	   vertex->r = weight[0]*vertex_data[0]->r + weight[1]*vertex_data[1]->r ; 
+	   vertex->g = weight[0]*vertex_data[0]->g + weight[1]*vertex_data[1]->g ; 
+	   vertex->b = weight[0]*vertex_data[0]->b + weight[1]*vertex_data[1]->b ; 
+	   vertex->a = weight[0]*vertex_data[0]->a + weight[1]*vertex_data[1]->a ;
+   }
+   
+   if (dataOut)
+	*dataOut = vertex;
+
+#ifdef DEBUGEACHCALLBACK
+   fprintf(stderr, "combineCallback done \n");
+#endif
 }
+
 
 
 void beginTesselation()
@@ -110,7 +161,7 @@ void beginTesselation()
   gluTessCallback(tess, GLU_TESS_END, glEnd );
 
   gluTessCallback(tess, GLU_TESS_ERROR, error_callback );
-  gluTessCallback(tess, GLU_TESS_COMBINE, combine_callback );
+  gluTessCallback(tess, GLU_TESS_COMBINE, combineCallback );
 
   gluTessProperty(tess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
   gluTessProperty(tess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
