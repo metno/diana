@@ -57,19 +57,21 @@ public:
 	diWorkOrder *getNextOrder();
 	diWorkOrder *getNextOrderWait(uint msec = 0);
 
+signals:
+	void newOrder();
+
 public slots:
 	void start(Priority priority = InheritPriority);
 
 private slots:
-	void newOrder(diWorkOrder *order);
+	void listenerHasNewOrder();
 
 private:
 	bool addListener(diOrderListener *listener);
 	void run();
 	QMutex mutex;
-	QWaitCondition condvar;
+	diOrderQueue orders;
 	QSet<diOrderListener *> listeners;
-	QQueue<diWorkOrder *> orders;
 };
 
 #endif

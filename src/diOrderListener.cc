@@ -40,7 +40,7 @@
 const int diOrderListener::DEFAULT_PORT = 3190;
 
 diOrderListener::diOrderListener(QObject *parent):
-	QObject(parent), server(this)
+	QObject(parent), server(this), orders(this)
 {
 	connect(&server, SIGNAL(newConnection()),
 	    this, SLOT(newClientConnection()));
@@ -50,25 +50,10 @@ diOrderListener::~diOrderListener()
 {
 	mutex.lock();
 	while (!clients.empty()) {
-		delete *clients.begin();
+		(*clients.begin())->deleteLater();
 		clients.erase(clients.begin());
 	}
 	mutex.unlock();
-}
-
-bool
-diOrderListener::listen(quint16 port)
-{
-	return (listen(QHostAddress::Any, port));
-}
-
-bool
-diOrderListener::listen(const QString &addr, quint16 port)
-{
-	QHostAddress qha;
-	if (!qha.setAddress(addr))
-		return (false);
-	return (listen(qha, port));
 }
 
 bool
@@ -85,25 +70,50 @@ diOrderListener::listen(const QHostAddress &addr, quint16 port)
 		std::cerr << "listening on " <<
 		    server.serverAddress().toString().toStdString() <<
 		    " port " << port << std::endl;
-	return (ok);
+	return ok;
+}
+
+bool
+diOrderListener::hasQueuedOrders()
+{
+	return orders.hasQueuedOrders();
+}
+
+uint
+diOrderListener::numQueuedOrders()
+{
+	return orders.numQueuedOrders();
+}
+
+diWorkOrder *
+diOrderListener::getNextOrder()
+{
+	return orders.getNextOrder();
+}
+
+diWorkOrder *
+diOrderListener::getNextOrderWait(uint msec)
+{
+	return orders.getNextOrderWait(msec);
 }
 
 void
 diOrderListener::clientConnectionClosed()
 {
-	diOrderClient *client = (diOrderClient *)sender();
+	diOrderClient *client =
+	    static_cast<diOrderClient *>(sender());
 	mutex.lock();
 	clients.erase(clients.find(client));
-	mutex.unlock();
 	client->deleteLater();
+	mutex.unlock();
 }
 
 void
 diOrderListener::newClientConnection()
 {
-	mutex.lock();
-	QTcpSocket *socket = server.nextPendingConnection();
-	mutex.unlock();
+	QTcpServer *server =
+	    static_cast<QTcpServer *>(sender());
+	QTcpSocket *socket = server->nextPendingConnection();
 	if (socket == NULL)
 		return;
 	std::cerr << "new client connection from " <<
@@ -117,5 +127,20 @@ diOrderListener::newClientConnection()
 	clients.insert(client);
 	connect(client, SIGNAL(connectionClosed()),
 	    this, SLOT(clientConnectionClosed()));
+	connect(client, SIGNAL(newOrder()),
+	    this, SLOT(clientHasNewOrder()));
 	mutex.unlock();
+}
+
+void
+diOrderListener::clientHasNewOrder()
+{
+	mutex.lock();
+	diOrderClient *client =
+	    static_cast<diOrderClient *>(sender());
+	diWorkOrder *order = client->getOrder();
+	mutex.unlock();
+	if (order != NULL)
+		orders.insertOrder(order);
+	emit newOrder();
 }

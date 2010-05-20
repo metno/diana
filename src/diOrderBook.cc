@@ -38,20 +38,15 @@
 #include <diOrderBook.h>
 
 diOrderBook::diOrderBook(QObject *parent):
-	QThread(parent)
+	QThread(parent), orders(this)
 {
 }
 
 diOrderBook::~diOrderBook()
 {
 	mutex.lock();
-	if (hasQueuedOrders())
-		std::cerr << "deleting diOrderBook with " <<
-		    numQueuedOrders() << " orders pending" << std::endl;
-	while (!orders.empty())
-		delete orders.dequeue();
 	while (!listeners.empty()) {
-		delete *listeners.begin();
+		(*listeners.begin())->deleteLater();
 		listeners.erase(listeners.begin());
 	}
 	mutex.unlock();
@@ -60,29 +55,13 @@ diOrderBook::~diOrderBook()
 bool
 diOrderBook::addListener(quint16 port)
 {
-	diOrderListener *listener =
-	    new diOrderListener(); // see comment in start()
-	if (listener == NULL)
-		return (false);
-	if (!listener->listen(port) || !addListener(listener)) {
-		delete listener;
-		return (false);
-	}
-	return (true);
+	return addListener(QHostAddress::Any, port);
 }
 
 bool
 diOrderBook::addListener(const QString &addr, quint16 port)
 {
-	diOrderListener *listener =
-	    new diOrderListener(); // see comment in start()
-	if (listener == NULL)
-		return (false);
-	if (!listener->listen(addr, port) || !addListener(listener)) {
-		delete listener;
-		return (false);
-	}
-	return (true);
+	return addListener(QHostAddress(addr), port);
 }
 
 bool
@@ -91,12 +70,12 @@ diOrderBook::addListener(const QHostAddress &addr, quint16 port)
 	diOrderListener *listener =
 	    new diOrderListener(); // see comment in start()
 	if (listener == NULL)
-		return (false);
+		return false;
 	if (!listener->listen(addr, port) || !addListener(listener)) {
 		delete listener;
-		return (false);
+		return false;
 	}
-	return (true);
+	return true;
 }
 
 bool
@@ -107,55 +86,34 @@ diOrderBook::addListener(diOrderListener *listener)
 		listener->moveToThread(this);
 	mutex.lock();
 	listeners.insert(listener);
+	connect(listener, SIGNAL(newOrder()),
+	    this, SLOT(listenerHasNewOrder()));
 	mutex.unlock();
-	return (true);
+	return true;
 }
 
 bool
 diOrderBook::hasQueuedOrders()
 {
-	mutex.lock();
-	bool ret = !orders.empty();
-	mutex.unlock();
-	return (ret);
+	return orders.hasQueuedOrders();
 }
 
 uint
 diOrderBook::numQueuedOrders()
 {
-	mutex.lock();
-	uint size = orders.size();
-	mutex.unlock();
-	return (size);
+	return orders.numQueuedOrders();
 }
 
 diWorkOrder *
 diOrderBook::getNextOrder()
 {
-	mutex.lock();
-	if (orders.empty()) {
-		mutex.unlock();
-		return (NULL);
-	}
-	diWorkOrder *wo = orders.dequeue();
-	mutex.unlock();
-	return (wo);
+	return orders.getNextOrder();
 }
 
 diWorkOrder *
 diOrderBook::getNextOrderWait(uint msec)
 {
-	mutex.lock();
-	while (orders.empty()) {
-		if (!condvar.wait(&mutex, msec ? msec : ULONG_MAX)) {
-			// timed out
-			mutex.unlock();
-			return (NULL);
-		}
-	}
-	diWorkOrder *wo = orders.dequeue();
-	mutex.unlock();
-	return (wo);
+	return orders.getNextOrderWait(msec);
 }
 
 void
@@ -180,6 +138,8 @@ diOrderBook::start(Priority priority)
 	 * variants of addListener() create listeners with no parent.  It
 	 * probably does not really matter, since our destructor destroys
 	 * all our listeners.
+	 *
+	 * XXX what happens if we setParent() after moving the listener?
 	 */
 	QSet<diOrderListener *>::iterator it;
 	for (it = listeners.begin(); it != listeners.end(); ++it)
@@ -187,12 +147,15 @@ diOrderBook::start(Priority priority)
 }
 
 void
-diOrderBook::newOrder(diWorkOrder *order)
+diOrderBook::listenerHasNewOrder()
 {
 	mutex.lock();
-	orders.enqueue(order);
-	condvar.wakeOne();
+	diOrderListener *listener =
+	    static_cast<diOrderListener *>(sender());
+	diWorkOrder *order = listener->getNextOrder();
 	mutex.unlock();
+	if (order != NULL)
+		orders.insertOrder(order);
 }
 
 void

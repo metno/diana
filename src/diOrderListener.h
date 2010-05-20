@@ -44,20 +44,28 @@ public:
 	diOrderListener(QObject *parent = NULL);
 	~diOrderListener();
 
-	bool listen(quint16 port = DEFAULT_PORT);
-	bool listen(const QString &addr, quint16 port = DEFAULT_PORT);
 	bool listen(const QHostAddress &addr, quint16 port = DEFAULT_PORT);
 
 	static const int DEFAULT_PORT;
 
+	bool hasQueuedOrders();
+	uint numQueuedOrders();
+	diWorkOrder *getNextOrder();
+	diWorkOrder *getNextOrderWait(uint msec = 0);
+
+signals:
+	void newOrder();
+
 private slots:
 	void clientConnectionClosed();
 	void newClientConnection();
+	void clientHasNewOrder();
 
 private:
 	QMutex mutex;
 	QTcpServer server;
 	QSet<diOrderClient *> clients;
+	diOrderQueue orders;
 };
 
 #endif

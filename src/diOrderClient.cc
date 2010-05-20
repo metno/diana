@@ -63,14 +63,15 @@
  *
  * TODO how do we report the results?
  */
-const QString diOrderClient::kw_hello("hello");
-const QString diOrderClient::kw_error("error");
-const QString diOrderClient::kw_start_order_text("start order text");
-const QString diOrderClient::kw_start_order_base64("start order base64");
-const QString diOrderClient::kw_end_order("end order");
+const char *diOrderClient::kw_hello = "hello";
+const char *diOrderClient::kw_error = "error";
+const char *diOrderClient::kw_start_order_text = "start order text";
+const char *diOrderClient::kw_start_order_base64 = "start order base64";
+const char *diOrderClient::kw_end_order = "end order";
+const char *diOrderClient::kw_goodbye = "goodbye";
 
 diOrderClient::diOrderClient(QObject *parent, QTcpSocket *socket):
-	QObject(parent), socket(socket), state(idle), base64(false)
+	QObject(parent), socket(socket), state(idle), base64(false), order(NULL)
 {
 	connect(socket, SIGNAL(readyRead()),
 	    this, SLOT(clientReadyRead()));
@@ -81,16 +82,37 @@ diOrderClient::diOrderClient(QObject *parent, QTcpSocket *socket):
 
 diOrderClient::~diOrderClient()
 {
-	delete socket;
+	socket->deleteLater();
+}
+
+bool
+diOrderClient::hasOrder()
+{
+	return (state == pending);
+}
+
+diWorkOrder *
+diOrderClient::getOrder()
+{
+	if (state == pending) {
+		std::cerr << __func__ << "(): order retrieved" << std::endl;
+		// actually, we should stick around until bdiana signals
+		// completion...
+		state = idle;
+		return order;
+	}
+	return NULL;
 }
 
 void
 diOrderClient::clientReadyRead()
 {
-	if (state != idle && state != reading)
+	if (state != idle && state != reading) {
+		std::cerr << "no input expected" << std::endl;
 		// not expecting any input
 		return;
-	if (socket->canReadLine()) {
+	}
+	while (socket->canReadLine()) {
 		QByteArray line = socket->readLine();
 		/*
 		 * Since canReadLine() was true, we know that an empty
@@ -100,36 +122,38 @@ diOrderClient::clientReadyRead()
 			socket->close();
 			return;
 		}
-		QString sline = line;
-		if (sline.contains('#'))
-			sline.truncate(sline.indexOf('#'));
-		sline = sline.simplified();
-		if (state != reading && sline.isEmpty())
+		if (line.contains('#'))
+			line.truncate(line.indexOf('#'));
+		line = line.simplified();
+		if (state != reading && line.isEmpty())
 			return;
+		std::string sline = line.constData();
 		// std::cerr << "[" << sline.toStdString() << "]" << std::endl;
 		if (state == idle) {
-			if (sline == kw_start_order_text) {
+			if (sline == kw_goodbye) {
+				message(kw_goodbye);
+				socket->close();
+				return;
+			} else if (sline == kw_start_order_text) {
 				state = reading;
 				base64 = false;
 			} else if (sline == kw_start_order_base64) {
 				state = reading;
 				base64 = true;
 			} else {
-				error(QString("expected 'start order'"));
+				error(QString("unrecognized command"));
 			}
 		} else if (state == reading) {
 			if (sline == kw_end_order) {
-				QString order;
 				if (base64)
-					order = QByteArray::fromBase64(orderbuf);
+					order = new diWorkOrder(QByteArray::fromBase64(orderbuf.c_str()).constData());
 				else
-					order = orderbuf;
-				std::cerr << "incoming order:" << std::endl <<
-				    order.toStdString() << std::endl;
+					order = new diWorkOrder(orderbuf.c_str());
 				state = pending;
-				// TODO dispatch work order
+				emit newOrder();
 			} else {
 				orderbuf += sline;
+				orderbuf += "\n";
 			}
 		} else {
 			error(QString("internal error"));
@@ -140,10 +164,8 @@ diOrderClient::clientReadyRead()
 void
 diOrderClient::clientStateChanged(QAbstractSocket::SocketState state)
 {
-	if (state == 0) {
-		// buh-bye
+	if (state == 0)
 		emit connectionClosed();
-	}
 }
 
 void
@@ -153,6 +175,15 @@ diOrderClient::message(const QString &kw, const QString &msg)
 	line += kw;
 	line += " // ";
 	line += msg.simplified();
+	line += "\n";
+	socket->write(line);
+}
+
+void
+diOrderClient::message(const QString &kw)
+{
+	QByteArray line;
+	line += kw;
 	line += "\n";
 	socket->write(line);
 }

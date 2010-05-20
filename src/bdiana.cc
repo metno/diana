@@ -48,12 +48,6 @@
 #include <QGLPixelBuffer>
 
 #include <diController.h>
-#ifdef USE_XLIB
-#include <X11/Intrinsic.h>
-#include <GL/glx.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
 
 #include <puCtools/sleep.h>
 #include <puTools/miString.h>
@@ -79,6 +73,16 @@
 #endif
 
 #include <signalhelper.h>
+
+#include <diOrderBook.h>
+
+// Keep X headers last, otherwise Qt will be very unhappy
+#ifdef USE_XLIB
+#include <X11/Intrinsic.h>
+#include <GL/glx.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
 
 /* Created at Wed May 23 15:28:41 2001 */
 
@@ -804,6 +808,7 @@ void printUsage(bool showexample)
         "-i                : job-control file. See example below                 \n"
         "-s                : setupfile for diana                                 \n"
         "-v                : (verbose) for more job-output                       \n"
+        "-address=addr     : production triggered by TCP connection              \n"
         "-signal           : production triggered by SIGUSR1 signal (see example)\n"
         "-example          : list example input-file and exit                    \n"
 #ifdef USE_XLIB
@@ -2297,8 +2302,11 @@ int dispatchWork(const std::string &file);
  */
 int main(int argc, char** argv)
 {
+  QCoreApplication qca(argc, argv);
+  diOrderBook *orderbook = NULL;
   miString xhost = ":0.0"; // default DISPLAY
   miString sarg;
+  int port;
 
 #ifdef USE_XLIB
   // get the DISPLAY variable
@@ -2341,6 +2349,10 @@ int main(int argc, char** argv)
       verbose = true;
 
     } else if (sarg == "-signal") {
+      if (orderbook != NULL) {
+	cerr << "ERROR, can't have both -address and -signal" << endl;
+	return 1;
+      }
       wait_for_signals = true;
 
     } else if (sarg == "-example") {
@@ -2367,6 +2379,41 @@ int main(int argc, char** argv)
         // default value when using the gui.
         use_nowtime = true;
 
+    } else if (sarg.find("-address=") == 0) {
+      if (wait_for_signals) {
+	cerr << "ERROR, can't have both -address and -signal" << endl;
+	return 1;
+      }
+      if (orderbook == NULL) {
+	orderbook = new diOrderBook();
+	orderbook->start();
+      }
+      ks = sarg.split("=");
+      if (ks.size() == 2) {
+ 	ks = ks[1].split(":");
+	if (ks.size() == 2) {
+	  if (ks[1].isNumber()) {
+	    port = ks[1].toInt();
+	  } else {
+	    cerr << "ERROR, " << ks[1] << " is not a valid TCP port number" << endl;
+	    return 1;
+	  }
+	  if (port < 1 || port > 65535) {
+	    cerr << "ERROR, " << port << "  is not a valid TCP port number" << endl;
+	    return 1;
+	  }
+	} else {
+	  port = diOrderListener::DEFAULT_PORT;
+	}
+	cerr << "listening on " << ks[0] << ":" << port << endl;
+	if (!orderbook->addListener(ks[0].c_str(), port)) {
+	  cerr << "ERROR, unable to listen on " << ks[0] << ":" << port << endl;
+	  return 1;
+	}
+      } else {
+	cerr << "ERROR, invalid argument to -address" << endl;
+	return 1;
+      }
     } else {
       ks = sarg.split("=");
       if (ks.size() == 2) {
@@ -2392,7 +2439,7 @@ int main(int argc, char** argv)
     ac++;
   } // command line parameters
 
-  if (!batchinput.exists())
+  if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
 
   cout << argv[0] << " : DIANA batch version " << VERSION << endl;
@@ -2495,7 +2542,7 @@ int main(int argc, char** argv)
   /*
    Read initial input and process commands...
    */
-  do {
+  if (!batchinput.empty()) {
     ifstream is(batchinput.c_str());
     if (!is) {
       cerr << "ERROR, cannot open inputfile " << batchinput << endl;
@@ -2504,7 +2551,7 @@ int main(int argc, char** argv)
     int res = parseAndProcess(is);
     if (res != 0)
       return 99;
-  } while (0);
+  }
 
   /*
    Signal handling
@@ -2530,6 +2577,7 @@ int main(int argc, char** argv)
     fs.close();
 
     while (!quit) {
+      qca.processEvents(); // do we actually care in this case?
       switch (waitOnSignal(10, timeout)) {
       case -1:
         cerr << "ERROR, a waitOnSignal error occured!" << endl;
@@ -2545,6 +2593,21 @@ int main(int argc, char** argv)
           cerr << "SIGTERM, SIGINT: received!" << endl;
           quit = true;
         }
+      }
+    }
+  } else if (orderbook != NULL) {
+    for (;;) {
+      diWorkOrder *order = orderbook->getNextOrder();
+      if (order != NULL) {
+	istringstream is(order->getText());
+	cerr << "processing order..." << endl;
+	parseAndProcess(is);
+	cerr << "done" << endl;
+	delete order;
+	qca.processEvents();
+      } else {
+	cerr << "waiting" << endl;
+	qca.processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
   }

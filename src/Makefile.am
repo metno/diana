@@ -169,6 +169,7 @@ bdiana_qt_sources = \
 	diOrderBook.cc \
 	diOrderClient.cc \
 	diOrderListener.cc \
+	diOrderQueue.cc \
 	diWorkOrder.cc
 
 noinst_HEADERS = \
@@ -224,6 +225,7 @@ noinst_HEADERS = \
 	diOrderBook.h \
 	diOrderClient.h \
 	diOrderListener.h \
+	diOrderQueue.h \
 	diPlot.h \
 	diPlotModule.h \
 	diPrintOptions.h \
@@ -723,8 +725,9 @@ noinst_PROGRAMS = \
 
 test_diOrderBook_qt_sources = \
 	diOrderBook.cc \
-	diOrderListener.cc \
 	diOrderClient.cc \
+	diOrderListener.cc \
+	diOrderQueue.cc \
 	diWorkOrder.cc
 test_diOrderBook_SOURCES = \
 	$(test_diOrderBook_qt_sources) \

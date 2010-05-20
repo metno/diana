@@ -12,7 +12,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -24,30 +24,42 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIWORKORDER_H_INCLUDED
-#define DIWORKORDER_H_INCLUDED
+#ifndef DIORDERQUEUE_H_INCLUDED
+#define DIORDERQUEUE_H_INCLUDED
 
-#include <string>
+#include <QMutex>
+#include <QQueue>
+#include <QSet>
+#include <QThread>
+#include <QWaitCondition>
 
-#include <QObject>
+#include "diWorkOrder.h"
 
-class diWorkOrder: public QObject {
+class diOrderQueue: public QObject {
 	Q_OBJECT;
 public:
-	diWorkOrder(QObject *, const char *);
-	diWorkOrder(const char *);
-	~diWorkOrder();
+	diOrderQueue(QObject *parent = NULL);
+	~diOrderQueue();
 
-	const char *getText() const;
+	bool hasQueuedOrders();
+	uint numQueuedOrders();
+	bool insertOrder(diWorkOrder *);
+	diWorkOrder *getNextOrder();
+	diWorkOrder *getNextOrderWait(uint msec = 0);
+
+signals:
+	void newOrderAvailable();
 
 private:
-	std::string text;
+	QMutex mutex;
+	QWaitCondition condvar;
+	QQueue<diWorkOrder *> orders;
 };
 
 #endif

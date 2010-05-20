@@ -35,14 +35,20 @@
 
 #include <QTcpSocket>
 
+#include "diOrderQueue.h"
+
 class diOrderClient: public QObject {
 	Q_OBJECT;
 public:
 	diOrderClient(QObject *parent, QTcpSocket *socket);
 	~diOrderClient();
 
+	bool hasOrder();
+	diWorkOrder *getOrder();
+
 signals:
 	void connectionClosed();
+	void newOrder();
 
 private slots:
 	void clientReadyRead();
@@ -50,6 +56,7 @@ private slots:
 
 private:
 	void message(const QString &kw, const QString &msg);
+	void message(const QString &kw);
 	void hello();
 	void error(const QString &msg);
 
@@ -60,16 +67,19 @@ private:
 		complete = 3,
 	};
 
-	static const QString kw_hello;
-	static const QString kw_error;
-	static const QString kw_start_order_text;
-	static const QString kw_start_order_base64;
-	static const QString kw_end_order;
+	static const char *kw_hello;
+	static const char *kw_error;
+	static const char *kw_start_order_text;
+	static const char *kw_start_order_base64;
+	static const char *kw_end_order;
+	static const char *kw_goodbye;
 
 	QTcpSocket *socket;
-	QByteArray orderbuf;
+	std::string orderbuf;
 	OrderState state;
 	bool base64;
+
+	diWorkOrder *order;
 };
 
 #endif

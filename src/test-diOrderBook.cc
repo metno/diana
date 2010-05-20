@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 	}
 	for (;;) {
 		qca.processEvents();
-		diWorkOrder *wo = ob.getNextOrderWait(2000);
+		diWorkOrder *wo = ob.getNextOrderWait(10000);
 		std::cerr << "no order yet" << std::endl;
 	}
 

@@ -33,12 +33,26 @@
 #include "config.h"
 #endif
 
+#include <sstream>
+
 #include <diWorkOrder.h>
 
-diWorkOrder::diWorkOrder()
+diWorkOrder::diWorkOrder(QObject *parent, const char *text):
+	QObject(parent), text(text)
+{
+}
+
+diWorkOrder::diWorkOrder(const char *text):
+	QObject(), text(text)
 {
 }
 
 diWorkOrder::~diWorkOrder()
 {
+}
+
+const char *
+diWorkOrder::getText() const
+{
+	return text.c_str();
 }
