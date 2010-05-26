@@ -214,7 +214,7 @@ GLXPbuffer pbuf; // GLX Pixel Buffer
 #endif
 #endif
 
-QApplication * application = 0; // The Qt Application object
+QCoreApplication * application = 0; // The Qt Application object
 QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
 int xsize; // total pixmap width
 int ysize; // total pixmap height
@@ -2302,7 +2302,6 @@ int dispatchWork(const std::string &file);
  */
 int main(int argc, char** argv)
 {
-  QCoreApplication qca(argc, argv);
   diOrderBook *orderbook = NULL;
   miString xhost = ":0.0"; // default DISPLAY
   miString sarg;
@@ -2553,6 +2552,9 @@ int main(int argc, char** argv)
       return 99;
   }
 
+  if (!application)
+      application = new QCoreApplication(argc, argv);
+
   /*
    Signal handling
    */
@@ -2577,7 +2579,7 @@ int main(int argc, char** argv)
     fs.close();
 
     while (!quit) {
-      qca.processEvents(); // do we actually care in this case?
+      application->processEvents(); // do we actually care in this case?
       switch (waitOnSignal(10, timeout)) {
       case -1:
         cerr << "ERROR, a waitOnSignal error occured!" << endl;
@@ -2604,10 +2606,10 @@ int main(int argc, char** argv)
 	parseAndProcess(is);
 	cerr << "done" << endl;
 	delete order;
-	qca.processEvents();
+	application->processEvents();
       } else {
 	cerr << "waiting" << endl;
-	qca.processEvents(QEventLoop::WaitForMoreEvents);
+	application->processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
   }
