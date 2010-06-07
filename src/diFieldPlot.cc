@@ -36,6 +36,7 @@
 #include <diFieldPlot.h>
 #include <diContouring.h>
 #include <diFontManager.h>
+#include <diField/diPlotOptions.h>
 #include <iostream>
 #include <GL/gl.h>
 #include <sstream>
@@ -2659,6 +2660,16 @@ bool FieldPlot::plotLayer(){
   if (!fields[0] || !fields[1] || !fields[2]) return false;
   if (!fields[0]->data || !fields[1]->data || !fields[2]->data) return false;
 
+  ///FIXME: Why does vector::size() return 0 for poptions.palettecolours???
+  /// Clearly it is not zero, since I'm accessing the vector further down in this
+  /// method (line 2749-ish). Am I blind, or is something very wrong here...?
+  //cout << "!!!!!!!!: " << poptions.palettecolours.size() << endl;
+  /*if (poptions.palettecolours.empty() != 3) {
+    cout << "FieldPlot::plotLayer() requires a palettecolours-vector of length "
+        << "three to be defined in the setup-file, see documentation." << endl;
+    return false;
+  }*/
+
   int i,ix,iy;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -2722,7 +2733,6 @@ bool FieldPlot::plotLayer(){
   //glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
   //glColor3ubv(poptions.linecolour.RGB());
 
-  /*glBegin(GL_LINES);*/
   float w, h;
   for (iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
@@ -2732,25 +2742,28 @@ bool FieldPlot::plotLayer(){
         gx = x[i];
         gy = y[i];
 
-        glColor3ubv(poptions.textcolour.RGB());
-        fp->set("BITMAPFONT", poptions.fontface, fontsize);
+        // using palettecolours instead of poptions.textcolour, since we have
+        // three "types" of text
 
         // middle
+        glColor3ubv(poptions.palettecolours[0].RGB());
+        fp->set("BITMAPFONT", poptions.fontface, fontsize);
         ostringstream ostr;
         ostr << roundf(fields[0]->data[ix + (iy * nx)] * 0.001);
         fp->getStringSize(ostr.str().c_str(), w, h);
         fp->drawStr(ostr.str().c_str(), gx, gy, 0.0);
 
-        glColor3f(1.0, 0.0, 0.0);
-        fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
-
         // bottom
+        glColor3ubv(poptions.palettecolours[1].RGB());
+        fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
         ostringstream ostrBottom;
         ostrBottom << roundf(fields[1]->data[ix + (iy * nx)] * 0.001);
         fp->getStringSize(ostrBottom.str().c_str(), w, h);
         fp->drawStr(ostrBottom.str().c_str(), gx, gy - h, 0.0);
 
         // top
+        glColor3ubv(poptions.palettecolours[2].RGB());
+        fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
         ostringstream ostrTop;
         ostrTop << roundf(fields[2]->data[ix + (iy * nx)] * 0.001);
         fp->getStringSize(ostrTop.str().c_str(), w, h);
@@ -2758,7 +2771,6 @@ bool FieldPlot::plotLayer(){
       }
     }
   }
-  /*glEnd();*/
 
   UpdateOutput();
 

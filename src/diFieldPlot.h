@@ -126,17 +126,17 @@ private:
   bool plotVector();
 
   /**
-   * Plots a layer, which is three numbers:
    * ______________
    * |   upper    |
    * | middle/max |
    * |   lower    |
    * --------------
-   * where "upper" is the highest level (in feet) where the
-   * gridcell-value >= some threshold, "middle/max" is  the (lowest) height (in
-   * feet) of middle/maximum value in the grid column, and "lower" is  the
-   * lowest level (in feet) where the gridcell-value >= some threshold.
-   * Input: Three fields: LAYER(Middle/max, lower, upper)
+   * Prints three numbers vertically in each grid cell with
+   * colors according to the given 'palettecolours' vectors, where the first
+   * element is colors the middle number, the second element the
+   * bottom number, and the third element the top number.
+   * Input: Three fields: LAYER(Middle/max, lower, upper), and a
+   * 'palettecolours'-vector of length three.
    * @return Returns true on success
    */
   bool plotLayer();
