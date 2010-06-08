@@ -832,7 +832,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         def_axellipse = dx;
         def_ayellipse = dy;
         axellipsePlot = def_axellipse*editfield->gridResolutionX;
-        ayellipsePlot = def_axellipse*editfield->gridResolutionY;
+        ayellipsePlot = def_ayellipse*editfield->gridResolutionY;
       }
 
     } else if (ee.type==edit_inspection && existing) {
