@@ -89,6 +89,8 @@ private:
   bool fieldsCombined;
   int matrix_nx;
   int matrix_ny;
+  double gridResolutionX;
+  double gridResolutionY;
   int *combinematrix;
   vector< vector<FieldEdit*> > combinefields;
   vector<EditObjects> combineobjects;

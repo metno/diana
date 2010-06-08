@@ -1802,7 +1802,11 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
           if (matrix_nx==0 && matrix_ny==0) {
             matrix_nx= nx;
             matrix_ny= ny;
-          } else if (nx!=matrix_nx || ny!=matrix_ny) {
+            gridResolutionX = fed->gridResolutionX;
+            gridResolutionY = fed->gridResolutionY;
+          } else if (nx!=matrix_nx || ny!=matrix_ny
+              || gridResolutionX != fed->gridResolutionX
+              || gridResolutionY != fed->gridResolutionY) {
             ok= false;
           }
         } else {
@@ -1961,14 +1965,15 @@ bool EditManager::editCombine()
   for (int j=0; j<cosize; j++){
     ObjectPlot * pobject = plotm->combiningobjects.objects[j];
     if (!pobject->objectIs(RegionName)) continue;
-    int idxold= pobject->combIndex(matrix_nx,matrix_ny,combinematrix);
+    int idxold= pobject->combIndex(matrix_nx,matrix_ny,gridResolutionX,gridResolutionY,combinematrix);
     int idxnew= pobject->getType();
-    if (idxold<0 || idxold>=nparts || idxnew<0 || idxnew>=nparts)
+    if (idxold<0 || idxold>=nparts || idxnew<0 || idxnew>=nparts){
       error= true;
-    else if (regindex[idxold]==-1)
+    }else if (regindex[idxold]==-1){
       regindex[idxold]= idxnew;
-    else if (regindex[idxold]!=idxnew)
+    }else if (regindex[idxold]!=idxnew){
       error= true;
+    }
   }
 
   for (int i=0; i<nparts; i++)
@@ -1996,7 +2001,7 @@ bool EditManager::editCombine()
     int obsize = combineobjects[i].objects.size();
     for (int j = 0;j<obsize;j++){
       ObjectPlot * pobject = combineobjects[i].objects[j];
-      if (pobject->isInRegion(i,matrix_nx,matrix_ny,combinematrix)){
+      if (pobject->isInRegion(i,matrix_nx, matrix_ny,gridResolutionX,gridResolutionY,combinematrix)){
         ObjectPlot * newobject;
         if (pobject->objectIs(wFront))
           newobject = new WeatherFront(*((WeatherFront*)(pobject)));
@@ -2266,27 +2271,27 @@ bool EditManager::recalcCombineMatrix(){
   float *xposis= new float[npos];
   float *yposis= new float[npos];
 
-  n = 0;
-  int m=0;
+  int nborders = 0;
+  int nposition=0;
   for (int i=0; i<cosize; i++){
     if (plotm->combiningobjects.objects[i]->objectIs(Border)){
       vector <float> xborder=plotm->combiningobjects.objects[i]->getX();
       vector <float> yborder=plotm->combiningobjects.objects[i]->getY();
-      for (int j=0; j<numv[n]; j++) {
-        xposis[m]=xborder[j];
-        yposis[m]=yborder[j];
-        m++;
+      for (int j=0; j<numv[nborders]; j++) {
+        xposis[nposition]=xborder[j];
+        yposis[nposition]=yborder[j];
+        nposition++;
       }
-      n++;
+      nborders++;
     }
   }
   //####################################################################
-  //cerr << "recalcCombineMatrix  nborders=" << nborders << endl;
-  //for (int nb=0; nb<nborders; nb++) {
-  //  cerr<<"PRE CONV border "<<nb<<endl;
-  //  for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-  //    cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
-  //}
+//  cerr << "recalcCombineMatrix  nborders=" << nborders << endl;
+//  for (int nb=0; nb<nborders; nb++) {
+//    cerr<<"PRE CONV border "<<nb<<endl;
+//    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
+//      cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
+//  }
   //####################################################################
 
   Area oldArea= plotm->getMapArea();
@@ -2296,20 +2301,20 @@ bool EditManager::recalcCombineMatrix(){
     return false;
   }
   //####################################################################
-  //for (int nb=0; nb<nborders; nb++) {
-  //  cerr<<"AFTER CONV border "<<nb<<endl;
-  //  for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-  //    cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
-  //}
+//  for (int nb=0; nb<nborders; nb++) {
+//    cerr<<"AFTER CONV border "<<nb<<endl;
+//    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
+//      cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
+//  }
   //####################################################################
 
   // Splines as shown (maybe approx due to map conversion...)
   int ndivs= 5;
-  m= npos*(ndivs+1) - n*ndivs;
+  int m= npos*(ndivs+1) - nborders*ndivs;
   float *xpos= new float[m];
   float *ypos= new float[m];
   npos= 0;
-  for (int i=0; i<n; i++){
+  for (int i=0; i<nborders; i++){
     int is= startv[i];
     int nfirst= 0;
     int nlast=  numv[i] - 1;
@@ -2329,11 +2334,11 @@ bool EditManager::recalcCombineMatrix(){
   vector<float> crossx, crossy;
   Rectangle r= fedits[0]->editfield->area.R();
 
-  r.setExtension(0.5);
+  r.setExtension(0.5*gridResolutionX);
 
   bool crossing;
 
-  for (int i=0; i<n; i++){
+  for (int i=0; i<nborders; i++){
     crossp.push_back(-1);
     quadr.push_back(-1);
     crossx.push_back(-1);
@@ -2359,20 +2364,20 @@ bool EditManager::recalcCombineMatrix(){
     float dy= ypos[p] - ypos[p-1];
     int nc= 0;
     if (dx<0.) {
-      xc[nc]= -0.5;
+      xc[nc]= -0.5*gridResolutionX;
       yc[nc]= ypos[p] + dy * (xc[nc]-xpos[p])/dx;
       cquadr[nc++]= 1;
     } else if (dx>0.) {
-      xc[nc]= matrix_nx-0.5;
+      xc[nc]= (matrix_nx-0.5)*gridResolutionX;
       yc[nc]= ypos[p] + dy * (xc[nc]-xpos[p])/dx;
       cquadr[nc++]= 3;
     }
     if (dy<0.) {
-      yc[nc]= -0.5;
+      yc[nc]= -0.5*gridResolutionY;
       xc[nc]= xpos[p] + dx * (yc[nc]-ypos[p])/dy;
       cquadr[nc++]= 0;
     } else if (dy>0.) {
-      yc[nc]= matrix_ny-0.5;
+      yc[nc]= (matrix_ny-0.5)*gridResolutionY;
       xc[nc]= xpos[p] + dx * (yc[nc]-ypos[p])/dy;
       cquadr[nc++]= 2;
     }
@@ -2392,7 +2397,7 @@ bool EditManager::recalcCombineMatrix(){
   // sort legs counter-clockwise
   vector<int> legorder;
   for (int j=0; j<4; j++)
-    for (int i=0; i<n; i++)
+    for (int i=0; i<nborders; i++)
       if (quadr[i]==j)
         legorder.push_back(i);
 
@@ -2495,12 +2500,14 @@ bool EditManager::recalcCombineMatrix(){
 
     int npol= P[k].x.size();
     for (int p=1; p<npol; p++){
-      x1= P[k].x[p-1];
-      y1= P[k].y[p-1];
-      x2= P[k].x[p];
-      y2= P[k].y[p];
+
+      x1= P[k].x[p-1]/gridResolutionX;
+      y1= P[k].y[p-1]/gridResolutionY;
+      x2= P[k].x[p]/gridResolutionX;
+      y2= P[k].y[p]/gridResolutionY;
+
       if (y1<y2) {
-        j1= int(y1+1.);  // NOT j1= int(y1)+1;
+        j1= int(y1+1.);
         j2= int(y2+1.);
       } else {
         j1= int(y2+1.);
@@ -2669,7 +2676,7 @@ void EditManager::plot(bool under, bool over)
 
   if (plotcombine && over){
     int n= plotm->combiningobjects.objects.size();
-    float scale= 1.0;
+    float scale= gridResolutionX;
     if (nf > 0 && plotm->getMapArea().P() != fedits[0]->editfield->area.P() ) {
       int npos= 0;
       for (int i=0; i<n; i++)
@@ -2698,7 +2705,7 @@ void EditManager::plot(bool under, bool over)
           float dy= y[j] - y[j+1];
           s+= sqrtf(dx*dx+dy*dy)/sqrtf(2.0);
         }
-        scale= npos*0.5/s;
+        scale= npos*0.5*gridResolutionX/s;
       } else {
         cerr << "EditManager::plot : getPoints error" << endl;
       }

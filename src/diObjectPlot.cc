@@ -1018,28 +1018,32 @@ miString ObjectPlot::writeObjectString(){
 
 
 
-bool ObjectPlot::isInRegion(int region,int matrix_nx,int matrix_ny,
+bool ObjectPlot::isInRegion(int region,int matrix_nx,int matrix_ny,double resx,double resy,
 			    int * combinematrix){
   int end = nodePoints.size();
   for (int i=0; i < end; i++){
-    if (nodePoints[i].x>=0. && nodePoints[i].x<=matrix_nx-1. &&
-        nodePoints[i].y>=0. && nodePoints[i].y<=matrix_ny-1.) {
-      int x= int(nodePoints[i].x+0.5);
-      int y= int(nodePoints[i].y+0.5);
+    float x1=nodePoints[i].x/resx;
+    float y1=nodePoints[i].y/resy;
+    if (x1>=0. && x1<=matrix_nx-1. &&
+        y1>=0. && y1<=matrix_ny-1.) {
+      int x= int(x1+0.5);
+      int y= int(y1+0.5);
       int index = matrix_nx*y+x;
       if (combinematrix[index] == region) return true;
     }
   }
+
   return false;
 }
 
-int ObjectPlot::combIndex(int matrix_nx, int matrix_ny, int * combinematrix){
+int ObjectPlot::combIndex(int matrix_nx, int matrix_ny, double resx, double resy, int * combinematrix){
 
-
-  if (nodePoints[0].x>=0. && nodePoints[0].x<=matrix_nx-1. &&
-      nodePoints[0].y>=0. && nodePoints[0].y<=matrix_ny-1.) {
-    int x= int(nodePoints[0].x+0.5);
-    int y= int(nodePoints[0].y+0.5);
+  float x1=nodePoints[0].x/resx;
+  float y1=nodePoints[0].y/resy;
+  if (x1>=0. && x1<=matrix_nx-1. &&
+    y1>=0. && y1<=matrix_ny-1.) {
+    int x= int(x1+0.5);
+    int y= int(y1+0.5);
     int index = matrix_nx*y+x;
     return combinematrix[index];
   }

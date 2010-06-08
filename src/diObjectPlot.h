@@ -47,7 +47,7 @@ using namespace std;
 
 enum objectType{Anything,wFront,wSymbol,wArea,wText,Border,RegionName,ShapeXXX};
 
-enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,TroughLine, 
+enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,TroughLine,
           TroughLine2,ShortDashedLine,LongDashedLine,Jetstream,SquallLine, SigweatherFront,
           BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine};
 
@@ -229,8 +229,8 @@ public:
   void drawNodePoints();                          ///< draws all the node points
   void drawJoinPoints();                          ///< draws all the join points
 
-  bool isInRegion(int, int, int, int *);          ///< returns true if object inside geographical region
-  int combIndex(int, int, int *);                 ///< returns index of combinematrix
+  bool isInRegion(int region, int matrix_x, int matrix_y, double resx, double resy, int *);  ///< returns true if object inside geographical region
+  int combIndex(int matrix_nx, int matrix_ny, double resx ,double resy, int *);             ///< returns index of combinematrix
   void setScaleToField(float s) { scaleToField= s; }
 
   virtual void setState(const state s) {currentState= s;}     ///< sets current state of object to s
