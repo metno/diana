@@ -53,8 +53,10 @@ signals:
 private slots:
 	void clientReadyRead();
 	void clientStateChanged(QAbstractSocket::SocketState state);
+	void workOrderCompleted();
 
 private:
+	void readCommands();
 	void message(const QString &kw, const QString &msg);
 	void message(const QString &kw);
 	void hello();
@@ -72,12 +74,15 @@ private:
 	static const char *kw_start_order_text;
 	static const char *kw_start_order_base64;
 	static const char *kw_end_order;
+	static const char *kw_running;
+	static const char *kw_complete;
 	static const char *kw_goodbye;
 
 	QTcpSocket *socket;
 	std::string orderbuf;
 	OrderState state;
 	bool base64;
+	int serial;
 
 	diWorkOrder *order;
 };

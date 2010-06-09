@@ -215,7 +215,7 @@ GLXPbuffer pbuf; // GLX Pixel Buffer
 #endif
 #endif
 
-QCoreApplication * application = 0; // The Qt Application object
+QApplication * application = 0; // The Qt Application object
 QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
 int xsize; // total pixmap width
 int ysize; // total pixmap height
@@ -2308,6 +2308,8 @@ int main(int argc, char** argv)
   miString sarg;
   int port;
 
+  application = new QApplication(argc, argv);
+
 #ifdef USE_XLIB
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
@@ -2467,7 +2469,6 @@ int main(int argc, char** argv)
 #endif
 
   if (canvasType == qt_glpixelbuffer) {
-    application = new QApplication(argc, argv);
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
       cerr << "This system does not support OpenGL pbuffers." << endl;
       return 1;
@@ -2553,9 +2554,6 @@ int main(int argc, char** argv)
       return 99;
   }
 
-  if (!application)
-      application = new QCoreApplication(argc, argv);
-
   /*
    Signal handling
    */
@@ -2599,13 +2597,20 @@ int main(int argc, char** argv)
       }
     }
   } else if (orderbook != NULL) {
-    for (;;) {
+    bool quit = false;
+    /*
+     * XXX should handle SIGTERM / SIGINT somehow; currently, quit can
+     * never be false in this branch, and a SIGTERM or SIGINT will
+     * terminate bdiana immediately, with no chance for cleanup.
+     */
+    while (!quit) {
       diWorkOrder *order = orderbook->getNextOrder();
       if (order != NULL) {
         istringstream is(order->getText());
         cerr << "processing order..." << endl;
         parseAndProcess(is);
         cerr << "done" << endl;
+        order->signalCompletion();
         delete order;
         application->processEvents();
       } else {
@@ -2613,10 +2618,16 @@ int main(int argc, char** argv)
         application->processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
+  } else {
+    cerr << "Neither -address nor -signal was specified" << endl;
   }
 
+  /*
+   * XXX What happens if this code is never reached?
+   */
+
   // finish off postscript-sessions
-  endHardcopy(plot_none);
+  endHardcopy(plot_none); // XXX probably a no-op
 
   // clean up structures
 #ifdef USE_XLIB

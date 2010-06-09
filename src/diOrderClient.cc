@@ -68,10 +68,12 @@ const char *diOrderClient::kw_error = "error";
 const char *diOrderClient::kw_start_order_text = "start order text";
 const char *diOrderClient::kw_start_order_base64 = "start order base64";
 const char *diOrderClient::kw_end_order = "end order";
+const char *diOrderClient::kw_running = "running";
+const char *diOrderClient::kw_complete = "complete";
 const char *diOrderClient::kw_goodbye = "goodbye";
 
 diOrderClient::diOrderClient(QObject *parent, QTcpSocket *socket):
-	QObject(parent), socket(socket), state(idle), base64(false), order(NULL)
+	QObject(parent), socket(socket), state(idle), base64(false), order(NULL), serial(0)
 {
 	connect(socket, SIGNAL(readyRead()),
 	    this, SLOT(clientReadyRead()));
@@ -96,23 +98,27 @@ diOrderClient::getOrder()
 {
 	if (state == pending) {
 		std::cerr << __func__ << "(): order retrieved" << std::endl;
-		// actually, we should stick around until bdiana signals
-		// completion...
-		state = idle;
 		return order;
 	}
 	return NULL;
 }
 
 void
-diOrderClient::clientReadyRead()
+diOrderClient::readCommands()
 {
-	if (state != idle && state != reading) {
-		std::cerr << "no input expected" << std::endl;
-		// not expecting any input
-		return;
-	}
+//	std::cerr << __func__ << "(): " <<
+//	    socket->bytesAvailable() << " bytes available" << std::endl;
 	while (socket->canReadLine()) {
+		if (state != idle && state != reading) {
+			/*
+			 * We are not in a state in which we will accept
+			 * input; defer it until later.
+			 */
+//			std::cerr << __func__ << "(): " <<
+//			    socket->bytesAvailable() << " bytes deferred" << std::endl;
+			break;
+		}
+
 		QByteArray line = socket->readLine();
 		/*
 		 * Since canReadLine() was true, we know that an empty
@@ -145,12 +151,18 @@ diOrderClient::clientReadyRead()
 			}
 		} else if (state == reading) {
 			if (sline == kw_end_order) {
+				++serial;
 				if (base64)
-					order = new diWorkOrder(QByteArray::fromBase64(orderbuf.c_str()).constData());
+					order = new diWorkOrder(serial,
+					    QByteArray::fromBase64(orderbuf.c_str()).constData());
 				else
-					order = new diWorkOrder(orderbuf.c_str());
+					order = new diWorkOrder(serial,
+					    orderbuf.c_str());
+				connect(order, SIGNAL(workComplete()),
+				    this, SLOT(workOrderCompleted()));
 				state = pending;
 				emit newOrder();
+				message(kw_running, QString("%1").arg(serial));
 			} else {
 				orderbuf += sline;
 				orderbuf += "\n";
@@ -162,10 +174,36 @@ diOrderClient::clientReadyRead()
 }
 
 void
+diOrderClient::clientReadyRead()
+{
+	readCommands();
+}
+
+void
 diOrderClient::clientStateChanged(QAbstractSocket::SocketState state)
 {
 	if (state == 0)
 		emit connectionClosed();
+}
+
+void
+diOrderClient::workOrderCompleted()
+{
+	diWorkOrder *order = static_cast<diWorkOrder *>(sender());
+	if (state != pending) {
+		std::cerr << "Received completion signal from work order " <<
+		    order->getSerial() << " while not in pending state" << std::endl;
+		return;
+	}
+	message(kw_complete, QString("%1").arg(order->getSerial()));
+	state = idle;
+	/*
+	 * If the client has been "typing ahead", so to speak, there may
+	 * be commands waiting in our input buffer.  Call readCommands()
+	 * to check, since otherwise they won't be processed until some
+	 * more input arrives to trigger the socket's readyRead().
+	 */
+	readCommands();
 }
 
 void
