@@ -17,7 +17,7 @@ using namespace miutil;
 int GridArea::maxBuffer = 8;
 
 GLfloat GridArea::nodeMarkRadius = 6.0f;
-GLfloat GridArea::nodeMarkMaxConstant = 0.2f;
+GLfloat GridArea::nodeMarkMaxConstant = 2000.0f;
 double GridArea::maxNodeSelectDistance = 20.0;
 
 
