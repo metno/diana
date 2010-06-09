@@ -109,7 +109,7 @@ void SatPlot::values(float x, float y, vector<SatValues>& satval){
   //x, y in map coordinates
   int npos =1;
   //Convert to satellite proj coordiantes
-  gc.getPoints(area, satdata->area, npos    , &x, &y);
+  gc.getPoints(area.P(), satdata->area.P(), npos    , &x, &y);
   // convert to satellite pixel
   int xpos = x/satdata->gridResolutionX;
   int ypos = y/satdata->gridResolutionY;
@@ -143,11 +143,12 @@ bool SatPlot::plot(){
   //Corners of total image (map coordinates)
   xmin = 0.;
   ymin = 0.;
-  if (!gc.getPoints(satdata->area, area, npos, &xmin, &ymin))
+  if (!gc.getPoints(satdata->area.P(), area.P(), npos, &xmin, &ymin))
     return false;
   xmax = nx* satdata->gridResolutionX;
   ymax = ny* satdata->gridResolutionY;
-  if (!gc.getPoints(satdata->area, area, npos, &xmax, &ymax))
+
+  if (!gc.getPoints(satdata->area.P(), area.P(), npos, &xmax, &ymax))
     return false;
 
   // exit if image is outside map area
@@ -165,11 +166,11 @@ bool SatPlot::plot(){
   // Corners of total image (image coordinates)
   float x1= maprect.x1;
   float y1= maprect.y1;
-  if (!gc.getPoints(area, satdata->area, npos, &x1, &y1))
+  if (!gc.getPoints(area.P(), satdata->area.P(), npos, &x1, &y1))
     return false;
   float x2= maprect.x2;
   float y2= maprect.y2;
-  if (!gc.getPoints(area, satdata->area, npos, &x2, &y2))
+  if (!gc.getPoints(area.P(), satdata->area.P(), npos, &x2, &y2))
     return false;
   x1/=satdata->gridResolutionX;
   x2/=satdata->gridResolutionX;
@@ -186,7 +187,7 @@ bool SatPlot::plot(){
   // (part of lower left pixel may well be outside screen)
   float xstart = bmStartx*satdata->gridResolutionX;
   float ystart = bmStarty*satdata->gridResolutionY;
-  if (!gc.getPoints(satdata->area, area, npos, &xstart, &ystart))
+  if (!gc.getPoints(satdata->area.P(), area.P(), npos, &xstart, &ystart))
     return false;
 
   //Strange, but needed

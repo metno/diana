@@ -2253,7 +2253,7 @@ bool FieldPlot::plotValueMaxHeight(){
     ROUTINE:   FieldPlot::plotValueMaxHeightAndTemp
     PURPOSE:   plot amount, base, top and t and ts as:
             top    t
-    amount ----- 
+    amount -----
             base   ts
     ALGORITHM: Fields amount(0) base(1) top(2) t(3) ts(4)
 	amount could be any heigth dependent field
@@ -3246,7 +3246,7 @@ bool FieldPlot::plotDirectionColour(){
 //  plot scalar field as contour lines
 bool FieldPlot::plotContour(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter konturert felt.." << endl;
+  cerr << "++ FieldPlot::plotContour()" << endl;
 #endif
 
   int n= fields.size();
@@ -5124,7 +5124,7 @@ bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
 
   //change projection if needed
   if ( obsPositions.obsArea.P() != fields[0]->area.P() ){
-    gc.getPoints(obsPositions.obsArea, fields[0]->area,
+    gc.getPoints(obsPositions.obsArea.P(), fields[0]->area.P(),
         obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fields[0]->area;
   }

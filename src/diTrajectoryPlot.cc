@@ -91,7 +91,7 @@ bool TrajectoryPlot::prepare(void){
 
 
   // convert points to correct projection
-  gc.getPoints(oldArea,area,npos,xpos,ypos);//) {
+  gc.getPoints(oldArea.P(),area.P(),npos,xpos,ypos);//) {
 
   for (int i=0; i<npos; i++){
     x[i] = xpos[i];
@@ -334,7 +334,7 @@ bool TrajectoryPlot::plot(){
     for (int n=0; n<vtsize; n++) {
       if (vtrajdata[n]->area.P() != area.P()) {
         int npos= numTraj * vtrajdata[n]->ndata;
-        if (!gc.getPoints(vtrajdata[n]->area, area,
+        if (!gc.getPoints(vtrajdata[n]->area.P(), area.P(),
             npos, vtrajdata[n]->x, vtrajdata[n]->y)) {
           cerr << "TrajectoryPlot::plot  getPoints ERROR" << endl;
           return false;
@@ -778,7 +778,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 
     if (vtrajdata[n]->area.P() != fieldArea.P()) {
       // posistions are converted to a different map projection
-      if(!gc.getPoints(vtrajdata[n]->area,fieldArea,numTraj,xt,yt)) {
+      if(!gc.getPoints(vtrajdata[n]->area.P(),fieldArea.P(),numTraj,xt,yt)) {
         cerr<<"TrajectoryPlot::compute : gc.getMapFields ERROR."
         <<"  Trajectory computation stopped !"<<endl;
         stopComputation();

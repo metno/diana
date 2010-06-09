@@ -167,7 +167,7 @@ Area Plot::findBestMatch(const Area& newa){
   xpos[3]= area.R().x2;
   ypos[3]= area.R().y1;
 
-  if (!gc.getPoints(area,newa,npos,xpos,ypos)) {
+  if (!gc.getPoints(area.P(),newa.P(),npos,xpos,ypos)) {
     cerr << "findBestMatch: getPoints error" << endl;
     delete[] xpos;
     delete[] ypos;

@@ -221,7 +221,7 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   } else if ( newArea.P().getUsingLatLonValues()) {
       ierror = itsArea.P().convertToGeographic(npos,xpos,ypos);
   } else {
-    err = gc.getPoints(itsArea,newArea,npos,xpos,ypos);
+    err = gc.getPoints(itsArea.P(),newArea.P(),npos,xpos,ypos);
   }
 
   if(!err || ierror !=0 ) {

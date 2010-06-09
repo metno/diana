@@ -108,6 +108,9 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs){
   miTime tprod= editfield->validFieldTime;
   vector<Field*> vf;
   vf.push_back(editfield);
+  gridResolutionX = rhs.gridResolutionX;
+  gridResolutionY = rhs.gridResolutionY;
+
 
   // fieldPlot
   editfieldplot= new FieldPlot();
@@ -843,7 +846,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       maparea = splot.getMapArea();
       if (maparea.P()!=editfield->area.P()) {
         int npos= 1;
-        if (!gc.getPoints(maparea,editfield->area,npos,&gx,&gy)) {
+        if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,&gx,&gy)) {
           cerr << "EDIT: getPoints error" << endl;
           return false;
         }
@@ -1035,7 +1038,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
     if (convertpos) {
       int npos= 1;
-      if (!gc.getPoints(maparea,editfield->area,npos,&gx,&gy)) {
+      if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,&gx,&gy)) {
         cerr << "EDIT: getPoints error" << endl;
         return false;
       }
@@ -1102,7 +1105,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
             (gy-ayellipse*0.5)*editfield->gridResolutionY,
             (gy+ayellipse*0.5)*editfield->gridResolutionY };
         int npos= 3;
-        if (!gc.getPoints(maparea,editfield->area,npos,rx,ry)) {
+        if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,rx,ry)) {
           cerr << "EDIT: getPoints error" << endl;
           return false;
         }
@@ -1155,7 +1158,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         float ry[4] = { rec.y1, rec.y2, rec.y2, rec.y1 };
         if (convertpos) {
           int npos= 4;
-          if (!gc.getPoints(maparea,editfield->area,npos,rx,ry)) {
+          if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,rx,ry)) {
             cerr << "EDIT: getPoints error" << endl;
             return false;
           }
@@ -1356,7 +1359,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           float ry[2] = { (gy-ayellipse*0.5)*editfield->gridResolutionY,
               (gy+ayellipse*0.5)*editfield->gridResolutionY };
           int npos= 2;
-          if (!gc.getPoints(editfield->area,maparea,npos,rx,ry)) {
+          if (!gc.getPoints(editfield->area.P(),maparea.P(),npos,rx,ry)) {
             cerr << "EDIT: getPoints error" << endl;
             return false;
           }
@@ -3686,7 +3689,7 @@ void FieldEdit::drawInfluence()
     glLineWidth(3.0);
     glBegin(GL_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
-      if (!gc.getPoints(editfield->area,maparea,n,xplot,yplot)) n=0;
+      if (!gc.getPoints(editfield->area.P(),maparea.P(),n,xplot,yplot)) n=0;
     }
     for (int i=0; i<n; ++i) {
       glVertex2f(xplot[i],yplot[i]);
@@ -3713,7 +3716,7 @@ void FieldEdit::drawInfluence()
     glLineWidth(1.0);
     glBegin(GL_LINE_STRIP);
     if (maparea.P()!=editfield->area.P()) {
-      if (!gc.getPoints(editfield->area,maparea,n,xplot,yplot)) n=0;
+      if (!gc.getPoints(editfield->area.P(),maparea.P(),n,xplot,yplot)) n=0;
     }
       for (int i=0; i<n; ++i) {
         glVertex2f(xplot[i],yplot[i]);

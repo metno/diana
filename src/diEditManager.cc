@@ -2296,7 +2296,7 @@ bool EditManager::recalcCombineMatrix(){
 
   Area oldArea= plotm->getMapArea();
   Area newArea= fedits[0]->editfield->area;
-  if (!gc.getPoints(oldArea,newArea,npos,xposis,yposis)) {
+  if (!gc.getPoints(oldArea.P(),newArea.P(),npos,xposis,yposis)) {
     cerr << "changeProjection: getPoints error" << endl;
     return false;
   }
@@ -2698,7 +2698,7 @@ void EditManager::plot(bool under, bool over)
           }
         }
       }
-      if (gc.getPoints(plotm->getMapArea(),fedits[0]->editfield->area,npos,x,y)) {
+      if (gc.getPoints(plotm->getMapArea().P(),fedits[0]->editfield->area.P(),npos,x,y)) {
         float s= 0.;
         for (int j=0; j<npos; j+=2) {
           float dx= x[j] - x[j+1];
@@ -2758,7 +2758,7 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
 
   //change projection if needed
   if ( obsPositions.obsArea.P() != fedits[0]->editfield->area.P() ){
-    gc.getPoints(obsPositions.obsArea, fedits[0]->editfield->area,
+    gc.getPoints(obsPositions.obsArea.P(), fedits[0]->editfield->area.P(),
         obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fedits[0]->editfield->area;
   }

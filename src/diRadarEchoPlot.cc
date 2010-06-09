@@ -91,7 +91,7 @@ bool RadarEchoPlot::prepare(void){
 
 
   // convert points to correct projection
-  gc.getPoints(oldArea,area,npos,xpos,ypos);//) {
+  gc.getPoints(oldArea.P(),area.P(),npos,xpos,ypos);//) {
 
   for (int i=0; i<npos; i++){
     x[i] = xpos[i];
@@ -345,7 +345,7 @@ bool RadarEchoPlot::plot(){
     for (int n=0; n<vtsize; n++) {
       if (vradedata[n]->area.P() != area.P()) {
         int npos= numTraj * vradedata[n]->ndata;
-        if (!gc.getPoints(vradedata[n]->area, area,
+        if (!gc.getPoints(vradedata[n]->area.P(), area.P(),
             npos, vradedata[n]->x, vradedata[n]->y)) {
           cerr << "RadarEchoPlot::plot  getPoints ERROR" << endl;
           return false;
@@ -787,7 +787,7 @@ bool RadarEchoPlot::compute(vector<Field*> vf)
     }
     if (vradedata[n]->area.P() != fieldArea.P()) {
       // posistions are converted to a different map projection
-      if(!gc.getPoints(vradedata[n]->area,fieldArea,numTraj,xt,yt)) {
+      if(!gc.getPoints(vradedata[n]->area.P(),fieldArea.P(),numTraj,xt,yt)) {
         cerr<<"RadarEchoPlot::compute : gc.getMapFields ERROR."
         <<"  RadarEchoPlot computation stopped !"<<endl;
         stopComputation();
