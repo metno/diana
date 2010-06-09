@@ -1,7 +1,0 @@
-#square
-lw 1
-mvto -6,-6
-lto -6,6
-lto 6,6
-lto 6,-6
-lto -6,-6

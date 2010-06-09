@@ -1,8 +1,0 @@
-#square
-lw 1
-mode fill
-mvto -6,-6
-lto -6,6
-lto 6,6
-lto 6,-6
-lto -6,-6
