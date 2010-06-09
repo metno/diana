@@ -1,3 +1,4 @@
+/*-*- mode: C++; c-basic-offset: 2; indent-tabs-mode: nil; -*-*/
 /*
  Diana - A Free Meteorological Visualisation Tool
 
@@ -390,8 +391,8 @@ void unpackloop(vector<miString>& orig, // original strings..
 
   // start unpacking loop
   for (; index < orig.size(); index++) {
-    if (orig[index].downcase() == com_endloop || orig[index].downcase()
-        == com_loopend) { // reached end
+    if (orig[index].downcase() == com_endloop || orig[index].downcase() ==
+        com_loopend) { // reached end
       // we have the loop-contents
       for (unsigned int i = 0; i < nargu; i++) { // loop over arguments
         for (unsigned int j = 0; j < tmppart.size(); j++) { // loop over lines
@@ -1929,7 +1930,7 @@ int parseAndProcess(istream &is)
         cerr
             << "WARNING, setupfile overrided by command line option. Linenumber:"
             << linenumbers[k] << endl;
-        // 	return 1;
+        //      return 1;
       } else {
         setupfile = value;
         setupread = readSetup(setupfile, *printman);
@@ -2349,8 +2350,8 @@ int main(int argc, char** argv)
 
     } else if (sarg == "-signal") {
       if (orderbook != NULL) {
-	cerr << "ERROR, can't have both -address and -signal" << endl;
-	return 1;
+        cerr << "ERROR, can't have both -address and -signal" << endl;
+        return 1;
       }
       wait_for_signals = true;
 
@@ -2380,38 +2381,38 @@ int main(int argc, char** argv)
 
     } else if (sarg.find("-address=") == 0) {
       if (wait_for_signals) {
-	cerr << "ERROR, can't have both -address and -signal" << endl;
-	return 1;
+        cerr << "ERROR, can't have both -address and -signal" << endl;
+        return 1;
       }
       if (orderbook == NULL) {
-	orderbook = new diOrderBook();
-	orderbook->start();
+        orderbook = new diOrderBook();
+        orderbook->start();
       }
       ks = sarg.split("=");
       if (ks.size() == 2) {
- 	ks = ks[1].split(":");
-	if (ks.size() == 2) {
-	  if (ks[1].isNumber()) {
-	    port = ks[1].toInt();
-	  } else {
-	    cerr << "ERROR, " << ks[1] << " is not a valid TCP port number" << endl;
-	    return 1;
-	  }
-	  if (port < 1 || port > 65535) {
-	    cerr << "ERROR, " << port << "  is not a valid TCP port number" << endl;
-	    return 1;
-	  }
-	} else {
-	  port = diOrderListener::DEFAULT_PORT;
-	}
-	cerr << "listening on " << ks[0] << ":" << port << endl;
-	if (!orderbook->addListener(ks[0].c_str(), port)) {
-	  cerr << "ERROR, unable to listen on " << ks[0] << ":" << port << endl;
-	  return 1;
-	}
+        ks = ks[1].split(":");
+        if (ks.size() == 2) {
+          if (ks[1].isNumber()) {
+            port = ks[1].toInt();
+          } else {
+            cerr << "ERROR, " << ks[1] << " is not a valid TCP port number" << endl;
+            return 1;
+          }
+          if (port < 1 || port > 65535) {
+            cerr << "ERROR, " << port << "  is not a valid TCP port number" << endl;
+            return 1;
+          }
+        } else {
+          port = diOrderListener::DEFAULT_PORT;
+        }
+        cerr << "listening on " << ks[0] << ":" << port << endl;
+        if (!orderbook->addListener(ks[0].c_str(), port)) {
+          cerr << "ERROR, unable to listen on " << ks[0] << ":" << port << endl;
+          return 1;
+        }
       } else {
-	cerr << "ERROR, invalid argument to -address" << endl;
-	return 1;
+        cerr << "ERROR, invalid argument to -address" << endl;
+        return 1;
       }
     } else {
       ks = sarg.split("=");
@@ -2601,15 +2602,15 @@ int main(int argc, char** argv)
     for (;;) {
       diWorkOrder *order = orderbook->getNextOrder();
       if (order != NULL) {
-	istringstream is(order->getText());
-	cerr << "processing order..." << endl;
-	parseAndProcess(is);
-	cerr << "done" << endl;
-	delete order;
-	application->processEvents();
+        istringstream is(order->getText());
+        cerr << "processing order..." << endl;
+        parseAndProcess(is);
+        cerr << "done" << endl;
+        delete order;
+        application->processEvents();
       } else {
-	cerr << "waiting" << endl;
-	application->processEvents(QEventLoop::WaitForMoreEvents);
+        cerr << "waiting" << endl;
+        application->processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
   }
@@ -2707,9 +2708,9 @@ int dispatchWork(const std::string &file)
       bool ok = (fcntl(fd, F_SETFL, O_NONBLOCK) == -1);
 #endif
       if (!ok) {
-	cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
-	close(fd);
-	goto ERROR;
+        cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
+        close(fd);
+        goto ERROR;
       }
     } while (0);
 
