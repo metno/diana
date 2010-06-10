@@ -91,15 +91,17 @@ bool SetupParser::checkSubstitutions(miString& t)
 {
   int start = 0, stop = 0;
 
-  while ((start = t.find("$(", stop)) != t.npos) {
-    if ((stop = t.find(")", start)) == t.npos)
+  while ((start = t.find("$(", 0)) != t.npos) {
+    if ((stop = t.find(")", start)) == t.npos) {
       // unterminated
       return false;
+    }
     miString s = t.substr(start + 2, stop - start - 2);
     miString n;
     s = s.upcase();
-    if (substitutions.count(s) > 0)
+    if (substitutions.count(s) > 0) {
       n = substitutions[s];
+    }
     // this would be the logical solution, but miString overrides replace()
     // t.replace(start, stop - start + 1, n.c_str());
     t = t.substr(0, start) + n + t.substr(stop + 1);
