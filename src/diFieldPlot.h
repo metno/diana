@@ -112,9 +112,9 @@ private:
 
   vector<float*> prepareVectors(int nfields, float* x, float* y);
   vector<float*> prepareDirectionVectors(int nfields, float* x, float* y);
-  void setAutoStep(float* x, float* y, int ix1, int ix2, int iy1, int iy2,
-		   int maxElementsX, int& step, float& dist, bool& xStepComp);
-  int xAutoStep(float* x, float* y, int ix1, int ix2, int iy, float sdist);
+  void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
+		   int maxElementsX, int& step, float& dist);
+  int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);
 
   // plotting methods
   bool plotWind();
