@@ -1359,7 +1359,7 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
     switch (index){
     case 1999:
       //sigstring
-      fp->set("BITMAPFONT",poptions.fontface,symbolSizeToPlot);
+      fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       fp->getStringSize(sigString.c_str(),cw,ch);
       sw=1.1*cw; sh=1.2*ch;
       break;
