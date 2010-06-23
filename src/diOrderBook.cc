@@ -33,6 +33,8 @@
 #include "config.h"
 #endif
 
+#include <QtNetwork>
+
 #include <iostream>
 
 #include <diOrderBook.h>
@@ -61,7 +63,22 @@ diOrderBook::addListener(quint16 port)
 bool
 diOrderBook::addListener(const QString &addr, quint16 port)
 {
-	return addListener(QHostAddress(addr), port);
+	QHostInfo hostinfo = QHostInfo::fromName(addr);
+	if (hostinfo.error() != QHostInfo::NoError) {
+		qDebug() << QString("%1: %2").
+		    arg(addr).arg(hostinfo.errorString());
+		return false;
+	}
+	QList<QHostAddress> addresses = hostinfo.addresses();
+	if (addresses.empty()) {
+		qDebug() << QString("%1: no address records").
+		    arg(addr);
+		return false;
+	}
+	for (int i = 0; i < addresses.size(); ++i)
+		if (!addListener(addresses.at(i), port))
+			return false;
+	return true;
 }
 
 bool
