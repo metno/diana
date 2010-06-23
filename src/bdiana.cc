@@ -45,8 +45,8 @@
 #include <fstream>
 #include <iostream>
 
-#include <QApplication>
-#include <QGLPixelBuffer>
+#include <QtCore>
+#include <QtOpenGL>
 
 #include <diController.h>
 
@@ -809,7 +809,10 @@ void printUsage(bool showexample)
         "-i                : job-control file. See example below                 \n"
         "-s                : setupfile for diana                                 \n"
         "-v                : (verbose) for more job-output                       \n"
-        "-address=addr     : production triggered by TCP connection              \n"
+        "-address=addr[:port]                                                    \n"
+        "                  : production triggered by TCP connection              \n"
+        "                    addr is a hostname or IP address                    \n"
+        "                    port is an optional port number, default is 3190    \n" // diOrderListener::DEFAULT_PORT
         "-signal           : production triggered by SIGUSR1 signal (see example)\n"
         "-example          : list example input-file and exit                    \n"
 #ifdef USE_XLIB
@@ -2407,7 +2410,6 @@ int main(int argc, char** argv)
         } else {
           port = diOrderListener::DEFAULT_PORT;
         }
-        cerr << "listening on " << ks[0] << ":" << port << endl;
         if (!orderbook->addListener(ks[0].c_str(), port)) {
           cerr << "ERROR, unable to listen on " << ks[0] << ":" << port << endl;
           return 1;
@@ -2604,14 +2606,16 @@ int main(int argc, char** argv)
      * terminate bdiana immediately, with no chance for cleanup.
      */
     while (!quit) {
-      diWorkOrder *order = orderbook->getNextOrder();
-      if (order != NULL) {
+      QPointer<diWorkOrder> order = orderbook->getNextOrder();
+      if (order) {
         istringstream is(order->getText());
         cerr << "processing order..." << endl;
         parseAndProcess(is);
         cerr << "done" << endl;
-        order->signalCompletion();
-        delete order;
+        if (order) // may have been deleted (if the client disconnected)
+          order->signalCompletion();
+        else
+          cerr << "diWorkOrder went away" << endl;
         application->processEvents();
       } else {
         cerr << "waiting" << endl;
