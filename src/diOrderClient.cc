@@ -85,6 +85,8 @@ diOrderClient::diOrderClient(QObject *parent, QTcpSocket *socket):
 diOrderClient::~diOrderClient()
 {
 	socket->deleteLater();
+	if (order != NULL)
+		order->deleteLater();
 }
 
 bool
@@ -153,10 +155,10 @@ diOrderClient::readCommands()
 			if (sline == kw_end_order) {
 				++serial;
 				if (base64)
-					order = new diWorkOrder(serial,
+					order = new diWorkOrder(this, serial,
 					    QByteArray::fromBase64(orderbuf.c_str()).constData());
 				else
-					order = new diWorkOrder(serial,
+					order = new diWorkOrder(this, serial,
 					    orderbuf.c_str());
 				connect(order, SIGNAL(workComplete()),
 				    this, SLOT(workOrderCompleted()));
@@ -189,13 +191,19 @@ diOrderClient::clientStateChanged(QAbstractSocket::SocketState state)
 void
 diOrderClient::workOrderCompleted()
 {
-	diWorkOrder *order = static_cast<diWorkOrder *>(sender());
 	if (state != pending) {
 		std::cerr << "Received completion signal from work order " <<
 		    order->getSerial() << " while not in pending state" << std::endl;
 		return;
 	}
+	if (static_cast<diWorkOrder *>(sender()) != order) {
+		std::cerr << "Received completion signal from unknown work order " <<
+		    std::endl;
+		return;
+	}
 	message(kw_complete, QString("%1").arg(order->getSerial()));
+	order->deleteLater();
+	order = NULL;
 	state = idle;
 	/*
 	 * If the client has been "typing ahead", so to speak, there may
@@ -229,7 +237,7 @@ diOrderClient::message(const QString &kw)
 void
 diOrderClient::hello()
 {
-	message(kw_hello, "bdiana"); // should include version #, parametrized?
+	message(kw_hello, "bdiana " PACKAGE_VERSION);
 }
 
 void
