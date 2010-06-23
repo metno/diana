@@ -2622,7 +2622,7 @@ int main(int argc, char** argv)
         application->processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
-  } else {
+  } else if (batchinput.empty()) {
     cerr << "Neither -address nor -signal was specified" << endl;
   }
 
