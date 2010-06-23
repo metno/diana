@@ -1,0 +1,13 @@
+bdiana.input		batch job
+
+  bdiana -s $DIANADIR/etc/diana/diana.setup -i bdiana.input
+
+bdiana.tcp.input	batch job for TCP submission
+
+  bdiana -s $DIANADIR/etc/diana/diana.setup -address localhost:3190 &
+  nc localhost 3190 <bdiana.tcp.input
+
+bdiana.tcp64.input	batch job for TCP submission, base64-encoded
+
+  bdiana -s $DIANADIR/etc/diana/diana.setup -address localhost:3190 &
+  nc localhost 3190 <bdiana.tcp64.input

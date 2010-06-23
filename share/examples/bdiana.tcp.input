@@ -1,0 +1,40 @@
+start order text
+#--------------------------------------------------------------   
+# inputfile for bdiana                                            
+# - '#' marks start of comment.                                   
+# - you may split long lines by adding '\' at the end.           
+#--------------------------------------------------------------   
+                                                                  
+#- Mandatory:                                                     
+buffersize=1200x1000     # plotbuffer (WIDTHxHEIGHT)              
+                         # For output=RASTER: size of plot.       
+                         # For output=POSTSCRIPT: size of buffer  
+                         #  affects output-quality. TIP: make     
+                         #  sure width/height ratio = width/height
+                         #  ratio of MAP-area (defined under PLOT)
+                                                                  
+#- Optional: values for each option below are default-values      
+output=PNG               # POSTSCRIPT/EPS/PNG/RASTER              
+                         #  RASTER: format from filename-suffix   
+colour=COLOUR            # GREYSCALE/COLOUR                       
+filename=map.png         # output filename                        
+keepPlotArea=NO          # YES=try to keep plotarea for several   
+                         # plots                                  
+                                                                  
+#--------------------------------------------------------------   
+# STANDARD MAP-PRODUCT SECTION:                                   
+PLOT                     # start of plot-command for map-product  
+# paste in commands from quick-menues (one line for each element) 
+FIELD HIRLAM.00 MSLP colour=dark_blue linetype=solid linewidth=1 base=0 minvalue=off maxvalue=off frame=1 line.interval=1 extreme.type=None extreme.size=1 extreme.radius=1 value.label=1 label.size=1 line.smooth=0 palettecolours=off table=0 repeat=0 colour_2=off field.smooth=0 grid.value=1 grid.lines=0 grid.lines.max=0 undef.masking=0 undef.colour=white undef.linewidth=1 undef.linetype=solid patterns=off zero.line=1                                                                  
+MAP area=Norge backcolour=white map=Gshhs-AUTO contour=on \
+ cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
+ land=on land.colour=landgul land.zorder=0 latlon=off frame=off
+LABEL data font=Helvetica
+LABEL text="$day $date $auto UTC" tcolour=red bcolour=black \
+ fcolour=white:200 polystyle=both halign=left valign=top \
+ font=Helvetica fontsize=12
+                                                                  
+ENDPLOT                  # End of plot-command                    
+#--------------------------------------------------------------   
+end order
+goodbye
