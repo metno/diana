@@ -69,9 +69,8 @@ bool MapManager::parseMapAreas(SetupParser& sp)
   for (unsigned int i = 0; i < n; i++) {
     Area area;
 
-    if (area.setAreaFromLog(setuplist[i])) {
+    if (area.setAreaFromString(setuplist[i])) {
       miString name = area.Name();
-
       if (name.contains("[F5]") || name.contains("[F6]") || name.contains(
           "[F7]") || name.contains("[F8]")) {
         miString Fkey = name.substr(name.find("["), 4);
@@ -235,7 +234,7 @@ bool MapManager::getMapAreaByName(const miString& name, Area& a)
 
 bool MapManager::getMapAreaByFkey(const miString& name, Area& a)
 {
-//     cerr<<"getMapAreaByFkey:"<<name<<endl;
+  //     cerr<<"getMapAreaByFkey:"<<name<<endl;
   int i, n = mapareas_Fkeys.size();
   for (i = 0; i < n; i++) {
     if (name == mapareas_Fkeys[i].Name()) {
