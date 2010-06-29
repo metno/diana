@@ -151,18 +151,18 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
 }
 
 
-bool  MItiff::day_night(const miString& filename, miString& channels) {
+bool  MItiff::day_night(SatFileInfo &fInfo, miString& channels) {
 
-  int aa = satimg::day_night(filename);
+  int aa = satimg::day_night(fInfo.name);
 
   if(aa<0) return false;
 
     if(aa==0){       //twilight
-    channels = "4";
+      channels = fInfo.channel.at(4-1); //"4"
   } else if(aa==2){ //day
-    channels = "1+2+4";
+    channels = fInfo.channel.at(1-1) + "+" + fInfo.channel.at(2-1) + "+" + fInfo.channel.at(4-1); //"1+2+4";
   } else if(aa==1){ //night
-    channels = "3+4+5";
+    channels = fInfo.channel.at(3-1) + "+" + fInfo.channel.at(4-1) + "+" + fInfo.channel.at(5-1); //"3+4+5";
   }
 
   return true;

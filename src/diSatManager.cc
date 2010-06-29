@@ -295,8 +295,8 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   else
     channels = satdata->plotChannels;
 
-  if (channels=="day_night" && !MItiff::day_night(fInfo.name, channels))
-    return false;
+  if (channels=="day_night" && !MItiff::day_night(fInfo, channels))
+  return false;
 
   //name of channels selected
 

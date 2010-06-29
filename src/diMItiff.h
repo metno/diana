@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -36,10 +36,10 @@
 
 /**
 
-  \brief Reading mitiff files 
-  
+  \brief Reading mitiff files
+
   - read header
-  - read data into class Sat 
+  - read data into class Sat
   - calc. solar heigt
 
 */
@@ -57,8 +57,8 @@ public:
   ///read palette info
   static bool readMItiffPalette(const miutil::miString& filename, vector<Colour>& col);
   ///set channels depending on solar heigt
-  static bool day_night(const miutil::miString& filename, miutil::miString& channels);
-
+//  static bool day_night(const miutil::miString& filename, miutil::miString& channels);
+  static bool day_night(SatFileInfo& file, miutil::miString& channels);
 };
 
 #endif
