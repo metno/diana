@@ -118,6 +118,9 @@ bool EditManager::parseSetup(SetupParser& sp) {
     ep.minutesStartLate=  0;
     ep.combineBorders="./ANAborders.";  // default as old version
 
+    Projection proj;
+    Rectangle rect;
+
     //obsolete
     int gridtype=0, nx=0, ny=0;          // no edit grid defined
     float gridspec[Projection::speclen]= { 0. };
@@ -242,10 +245,14 @@ bool EditManager::parseSetup(SetupParser& sp) {
       } else if (key=="field_id" && nval>1) {
         ep.producer= atoi(values[0].c_str());
         ep.gridnum=  atoi(values[1].c_str());
-      } else if (key=="area" && nval==1) {
-        if( !ep.area.setAreaFromLog(values[0]) ) {
-          ok=false;
-        }
+      } else if (key=="nx" && nval==1) {
+        ep.nx =  values[0].toInt();
+      } else if (key=="ny" && nval==1) {
+        ep.ny =  values[0].toInt();
+      } else if (key=="proj4string" && nval==1) {
+        proj.set_proj_definition(values[0]);
+      } else if (key=="rectangle" && nval==1) {
+        rect.setRectangle(values[0]);
       } else if (key=="database" && nval==1) {
         vector<miString> vs= values[0].split(' ',true);
         if (vs.size()==3) {
@@ -301,6 +308,9 @@ bool EditManager::parseSetup(SetupParser& sp) {
     }
 
     if (ok) {
+      ep.area=Area(proj,rect);
+      ep.gridResolutionX =rect.x2/ep.nx;
+      ep.gridResolutionY =rect.y2/ep.ny;
       //obsolete
       if (ep.gridnum>0 && nx>1 && ny>1 && gridtype>0) {
         Projection p;
