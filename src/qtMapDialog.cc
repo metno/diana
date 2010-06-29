@@ -1120,14 +1120,21 @@ vector<miutil::miString> MapDialog::getOKString()
 #endif
   vector<miutil::miString> vstr;
 
+//Area string
+  ostringstream areastr;
+  areastr << "AREA";
+  areastr << " areaname=" << areabox->currentItem()->text().toStdString();
+  vstr.push_back(areastr.str());
+
+  //Map strings
   int lindex;
   int numselected = selectedmaps.size();
 
   if (numselected == 0 && areabox->count()>0 ) { // no maps selected
     int backc = backcolorcbox->currentIndex();
+
     ostringstream ostr;
-    ostr << "MAP";
-    ostr << " area=" << areabox->currentItem()->text().toStdString()
+    ostr << "MAP"
     << " backcolour="
     << (backc >= 0 && backc < int(cInfo.size()) ? cInfo[backc].name : "white");
 
@@ -1183,9 +1190,7 @@ vector<miutil::miString> MapDialog::getOKString()
       ostr << "MAP";
       if (i == numselected - 1) { // common options for last map only
         int backc = backcolorcbox->currentIndex();
-        // qt4 fix: added .toStdString()
-        ostr << " area=" << areabox->currentItem()->text().toStdString()
-        << " backcolour="
+        ostr << " backcolour="
         << (backc >= 0 && backc < int(cInfo.size()) ? cInfo[backc].name
             : "white");
 
@@ -1260,14 +1265,14 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     miutil::miString themap = "";
     tokens = str.split(" ");
     int m = tokens.size();
-    if (m > 0 && tokens[0].upcase() != "MAP")
+    if (m > 0 && (tokens[0].upcase() != "MAP" && tokens[0].upcase() != "AREA"))
       continue;
     for (int j = 0; j < m; j++) {
       stokens = tokens[j].split('=');
       if (stokens.size() == 2) {
         if (stokens[0].upcase() == "BACKCOLOUR")
           bgcolour = stokens[1];
-        else if (stokens[0].upcase() == "AREA")
+        else if (stokens[0].upcase() == "AREANAME" || stokens[0].upcase() == "AREA")
           area = stokens[1];
         else if (stokens[0].upcase() == "MAP")
           themap = stokens[1];
@@ -1408,6 +1413,7 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
   int m_colIndex = getIndex(cInfo, bgcolour);
   if (m_colIndex >= 0)
     backcolorcbox->setCurrentIndex(m_colIndex);
+
 }
 
 miutil::miString MapDialog::getShortname()
