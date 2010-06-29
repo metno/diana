@@ -46,15 +46,20 @@
 
 StatusGeopos::StatusGeopos(QWidget* parent) :
   QWidget(parent)
-  {
-
-  geographicMode = true;
-  decimalMode = false;
+{
 
   // Create horisontal layout manager
   QHBoxLayout* thlayout = new QHBoxLayout(this);
   thlayout->setMargin(1);
   thlayout->setSpacing(5);
+
+  xybox = new QComboBox(this);
+  xybox->setMinimumWidth(xybox->sizeHint().width());
+  xybox->addItem(tr("Lat/Lon degree"));
+  xybox->addItem(tr("Lat/Lon decimal"));
+  xybox->addItem(tr("Proj coordinates"));
+  xybox->addItem(tr("Field grid"));
+  thlayout->addWidget(xybox);
 
   sxlabel = new QLabel(tr("Lat:"), this);
   sxlabel->setMinimumSize(sxlabel->sizeHint());
@@ -62,7 +67,6 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
 
   latlabel = new QLabel(" 00°00'N", this);
   latlabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  //   latlabel->setPalette( QPalette( QColor(0, 54, 125) ) );
   latlabel->setMinimumSize(latlabel->sizeHint());
   thlayout->addWidget(latlabel, 0);
 
@@ -79,25 +83,16 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
 
   // Start the geometry management
   thlayout->activate();
-  }
-
-void StatusGeopos::changeMode()
-{
-  geographicMode = !geographicMode;
-  if (geographicMode) {
-    sxlabel->setText(tr("Lat:"));
-    sylabel->setText(tr("Lon:"));
-  } else {
-    sxlabel->setText("  X:");
-    sylabel->setText("  Y:");
-  }
-  latlabel->clear();
-  lonlabel->clear();
 }
 
-void StatusGeopos::changeLatLonMode()
+bool StatusGeopos::geographicMode()
 {
-  decimalMode = !decimalMode;
+  return (xybox->currentIndex() < 2);
+}
+
+bool StatusGeopos::gridMode()
+{
+  return (xybox->currentIndex() == 3);
 }
 
 void StatusGeopos::setPosition(float lat, float lon)
@@ -105,9 +100,12 @@ void StatusGeopos::setPosition(float lat, float lon)
 
   ostringstream slat, slon;
 
-  if (geographicMode) {
+  if (xybox->currentIndex() < 2) {
 
-    if (decimalMode) {
+    sxlabel->setText(tr("Lat:"));
+    sylabel->setText(tr("Lon:"));
+
+    if (xybox->currentIndex() == 1) {
 
       slat << setw(6) << setprecision(5) << lat;
       slon << setw(6) << setprecision(5) << lon;
@@ -135,8 +133,11 @@ void StatusGeopos::setPosition(float lat, float lon)
 
   } else {
 
-    float x = lat + 1.; // fortran indexing
-    float y = lon + 1.;
+    sxlabel->setText("  X:");
+    sylabel->setText("  Y:");
+
+    float x = lat;
+    float y = lon;
     slat << setw(6) << x;
     slon << setw(6) << y;
 
@@ -146,3 +147,8 @@ void StatusGeopos::setPosition(float lat, float lon)
   lonlabel->setText(slon.str().c_str());
 }
 
+void StatusGeopos::undefPosition()
+{
+  latlabel->setText("");
+  lonlabel->setText("");
+}

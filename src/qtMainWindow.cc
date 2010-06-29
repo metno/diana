@@ -211,16 +211,6 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 
   // options ======================
   // --------------------------------------------------------------------
-  optXYAction = new QAction(tr("&X,Y positions"), this );
-  optXYAction->setShortcutContext(Qt::ApplicationShortcut);
-  optXYAction->setCheckable(true);
-  connect( optXYAction, SIGNAL( triggered() ) , SLOT( xyGeoPos() ) );
-  // --------------------------------------------------------------------
-  optLatLonAction = new QAction( tr("Lat/Lon in decimal degrees"), this );
-  optLatLonAction->setShortcutContext(Qt::ApplicationShortcut);
-  optLatLonAction->setCheckable(true);
-  connect( optLatLonAction, SIGNAL( triggered() ) , SLOT( latlonGeoPos() ) );
-  // --------------------------------------------------------------------
   optOnOffAction = new QAction( tr("S&peed buttons"), this );
   optOnOffAction->setShortcutContext(Qt::ApplicationShortcut);
   optOnOffAction->setCheckable(true);
@@ -571,8 +561,6 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 
   //-------Options menu
   optmenu = menuBar()->addMenu(tr("O&ptions"));
-  optmenu->addAction( optXYAction );
-  optmenu->addAction( optLatLonAction );
   optmenu->addAction( optOnOffAction );
   optmenu->addAction( optArchiveAction );
   optmenu->addAction( optAutoElementAction );
@@ -1211,6 +1199,7 @@ void DianaMainWindow::requestQuickUpdate(const vector<miutil::miString>& oldstr,
     if (pre=="FIELD")      fldcom.push_back(s);
     else if (pre=="OBS")   obscom.push_back(s);
     else if (pre=="MAP")   mapcom.push_back(s);
+    else if (pre=="AREA")   mapcom.push_back(s);
     else if (pre=="SAT")   satcom.push_back(s);
     else if (pre=="OBJECTS") objcom.push_back(s);
     else if (pre=="LABEL") labcom.push_back(s);
@@ -1263,6 +1252,7 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
     vector<miutil::miString> vs= s.split(" ");
     miutil::miString pre= vs[0].upcase();
     if (pre=="MAP") mapcom.push_back(s);
+    else if (pre=="AREA") mapcom.push_back(s);
     else if (pre=="FIELD") fldcom.push_back(s);
     else if (pre=="OBS") obscom.push_back(s);
     else if (pre=="SAT") satcom.push_back(s);
@@ -2598,7 +2588,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     }
   }
 
-// If autoupdate is active, do the same thing as 
+// If autoupdate is active, do the same thing as
 // when the user presses the updateObs button.
   else if (letter.command == qmstrings::file_changed) {
 #ifdef DEBUGPRINT
@@ -3331,13 +3321,20 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
   xclick=x; yclick=y;
 
   // show geoposition in statusbar
-  if (sgeopos->getGeographicMode()) {
+  if (sgeopos->geographicMode() )  {
     float lat=0, lon=0;
-    if(!contr->PhysToGeo(x,y,lat,lon)){
-      sgeopos->changeMode();
-    } else {
+    if(contr->PhysToGeo(x,y,lat,lon)){
       sgeopos->setPosition(lat,lon);
+    } else {
+        sgeopos->undefPosition();
     }
+  } else if (sgeopos->gridMode()) {
+      float gridx=0, gridy=0;
+      if(contr->MapToGrid(xmap,ymap,gridx,gridy)){
+        sgeopos->setPosition(gridx,gridy);
+      } else {
+        sgeopos->undefPosition();
+      }
   } else {
     sgeopos->setPosition(xmap,ymap);
   }
@@ -4228,18 +4225,6 @@ void DianaMainWindow::satFileListUpdate()
     contr->satFileListUpdated();
   }
 }
-
-
-void DianaMainWindow::xyGeoPos()
-{
-  sgeopos->changeMode();
-}
-
-void DianaMainWindow::latlonGeoPos()
-{
-  sgeopos->changeLatLonMode();
-}
-
 
 void DianaMainWindow::toggleElement(PlotElement pe)
 {

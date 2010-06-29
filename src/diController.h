@@ -132,6 +132,8 @@ public:
   bool GeoToPhys(const float,const float,float&,float&);
   /// return map x,y from physical x,y
   void PhysToMap(const float,const float,float&,float&);
+  /// return field grid x,y from map x,y if field defined and map proj = field proj
+  bool MapToGrid(const float,const float,float&,float&);
   /// start hardcopy plot
   void startHardcopy(const printOptions&);
   /// end hardcopy plot

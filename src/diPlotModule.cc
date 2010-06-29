@@ -122,6 +122,8 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
         obspi.push_back(vpi[i]);
       else if (type == "MAP")
         mappi.push_back(vpi[i]);
+      else if (type == "AREA")
+        mappi.push_back(vpi[i]);
       else if (type == "SAT")
         satpi.push_back(vpi[i]);
       else if (type == "OBJECTS")
@@ -232,8 +234,10 @@ void PlotModule::prepareMap(const vector<miString>& inp)
   // check area
   if (!mapDefinedByUser && arearequested) {
     mapDefinedByUser = (rarea.P().isDefined());
-    requestedarea = rarea;
-    splot.setRequestedarea(requestedarea);
+    if(mapDefinedByUser){
+      requestedarea = rarea;
+      splot.setRequestedarea(requestedarea);
+    }
   }
 }
 
@@ -956,9 +960,9 @@ void PlotModule::updatePlots()
 //  Area aa;
 //  cerr << "----------------------------------------------------" << endl;
 //  aa=previousrequestedarea;
-//  cerr << "previousrequestedarea " << aa << endl;
+//  cerr << "previousrequestedarea " << previousrequestedarea << endl;
 //  aa=requestedarea;
-//  cerr << "requestedarea         " << aa.Name()<<" : "<<aa<<endl;
+//  cerr << "requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea<<endl;
 //  cerr << "mapDefinedByUser= " << mapDefinedByUser << endl;
 //  cerr << "mapDefinedByData= " << mapDefinedByData << endl;
 //  cerr << "mapDefinedByView= " << mapDefinedByView << endl;
@@ -1083,9 +1087,10 @@ void PlotModule::updatePlots()
 
   if (!mapdefined) {
     // no data on initial map ... change to "Hirlam.50km" projection and area
-    miString areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
+//    miString areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
     Area a;
-    a.setAreaFromLog(areaString);
+    a.setDefault();
+//    a.setAreaFromLog(areaString);
     splot.setMapArea(a, keepcurrentarea);
     mapdefined = mapDefinedByView = true;
   }
@@ -1850,6 +1855,26 @@ void PlotModule::PhysToMap(const float x, const float y, float& xmap,
     xmap = r.x1 + r.width() / plotw * x;
     ymap = r.y1 + r.height() / ploth * y;
   }
+
+}
+
+/// return field grid x,y from map x,y if field defined and map proj = field proj
+bool PlotModule::MapToGrid(const float xmap, const float ymap,
+    float& gridx, float& gridy){
+
+  if (vfp.size()>0) {
+    if (splot.getMapArea().P() == vfp[0]->getFieldArea().P()) {
+      vector<Field*> ff = vfp[0]->getFields();
+      if (ff.size()>0) {
+        gridx = xmap/ff[0]->gridResolutionX;
+        gridy = ymap/ff[0]->gridResolutionY;
+        return true;
+      }
+    }
+   }
+
+  return false;
+
 }
 
 float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1,
@@ -2815,8 +2840,9 @@ void PlotModule::areaInsert(Area a, bool newArea)
     return;
   }
 
+if(areaIndex>-1){
   areaQ.erase(areaQ.begin() + areaIndex + 1, areaQ.end());
-
+}
   if (areaQ.size() > 20)
     areaQ.pop_front();
   else
@@ -3221,13 +3247,13 @@ vector<miString> PlotModule::writeLog()
   vector<miString> vstr;
 
   //Write self-defined area (F2)
-  miString aa = "name=F2 " + myArea.toLogString();
+  miString aa = "name=F2 " + myArea.getAreaString();
   vstr.push_back(aa);
 
   //Write all araes in list (areaQ)
   int n = areaQ.size();
   for (int i = 0; i < n; i++) {
-    aa = "name=" + miString(i) + " " + areaQ[i].toLogString();
+    aa = "name=" + miString(i) + " " + areaQ[i].getAreaString();
     vstr.push_back(aa);
   }
 
@@ -3243,10 +3269,11 @@ void PlotModule::readLog(const vector<miString>& vstr,
   int n = vstr.size();
   for (int i = 0; i < n; i++) {
 
-    if(!area.setAreaFromLog(vstr[i])) {
-      continue;
+    if(!area.setAreaFromString(vstr[i])) {
+      if(!area.setAreaFromLog(vstr[i])) { // try obsolete syntax
+        continue;
+      }
     }
-
     if (area.Name() == "F2") {
       myArea = area;
     } else {

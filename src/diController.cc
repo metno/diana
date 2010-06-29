@@ -216,14 +216,20 @@ bool Controller::PhysToGeo(const float x,const float y,
 
 // return physical x,y from latitude,longitude
 bool Controller::GeoToPhys(const float lat,const float lon,
-			   float& x,float& y){
+    float& x,float& y){
   return plotm->GeoToPhys(lat,lon,x,y);
 }
 
 // return map x,y from physical x,y
 void Controller::PhysToMap(const float x,const float y,
-			   float& xmap,float& ymap){
+         float& xmap,float& ymap){
   plotm->PhysToMap(x,y,xmap,ymap);
+}
+
+/// return field grid x,y from map x,y if field defined and map proj = field proj
+bool Controller::MapToGrid(const float xmap, const float ymap,
+    float& gridx, float& gridy){
+  plotm->MapToGrid(xmap,ymap,gridx,gridy);
 }
 
 // start hardcopy plot

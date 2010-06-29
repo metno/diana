@@ -44,7 +44,7 @@
 #include <float.h>
 #include <math.h>
 #include <values.h>
-
+//#define DEBUGPRINT
 using namespace std; using namespace miutil;
 
 // static members
@@ -87,80 +87,120 @@ MapPlot::~MapPlot()
  */
 bool MapPlot::prepare(const miString& pinfo, bool ifequal)
 {
-  miString bgcolourname;
+#ifdef DEBUGPRINT
+  cerr <<"MapPlot::prepare: "<<pinfo<<endl;
+#endif
+
   Area newarea;
-  bool areadef=false;
-  MapInfo tmpinfo;
   MapManager mapm;
 
   vector<miString> tokens= pinfo.split('"', '"'), stokens;
   int n= tokens.size();
-  for (int i=0; i<n; i++) {
-    stokens= tokens[i].split('=');
-    if (stokens.size()==2) {
-      if (stokens[0].upcase()=="MAP") {
-        mapm.getMapInfoByName(stokens[1], tmpinfo);
-      } else if (stokens[0].upcase()=="BACKCOLOUR") {
-        bgcolourname= stokens[1];
-      } else if (stokens[0].upcase()=="AREA") {
-        mapm.getMapAreaByName(stokens[1], newarea);
-        areadef= true;
-      } else if (stokens[0].upcase() == "PROJECTION") {
-        newarea.setArea(stokens[1]);
-        xyLimit.clear();
-        areadef = true;
-      } else if (stokens[0].upcase()=="XYLIMIT") { //todo: add new option: XYLIMIT in proj coordinates
-        vector<miString> vstr= stokens[1].split(',');
-        if (vstr.size()>=4) {
+  if (n == 0) {
+    return false;
+  }
+
+  //new syntax
+  //pinfo AREA defines area (projection,rectangle)
+  //pinfo MAP defines map (which map, colours, lat,lon etc)
+
+  //obsolete
+  //pinfo MAP contain "area=..."
+
+  //Perhaps XYPART should be implemented in the new syntax?
+  //No need for XYLIMIT
+
+  if (tokens[0] == "AREA"){
+    if ( n==2 ) {
+      stokens= tokens[1].split('=');
+      if (stokens.size()==2 &&  stokens[0].upcase()=="AREANAME") {
+          mapm.getMapAreaByName(stokens[1], newarea);
+          areadefined = true;
+          reqarea= newarea;
+      }
+    } else {
+      if ( reqarea.setAreaFromString(pinfo) ) {
+        areadefined = true;
+	xyLimit.clear();
+      }
+    }
+
+  } else if (tokens[0] == "MAP"){
+    miString bgcolourname;
+    bool areadef=false;
+    MapInfo tmpinfo;
+    for (int i=0; i<n; i++) {
+      stokens= tokens[i].split('=');
+      if (stokens.size()==2) {
+        if (stokens[0].upcase()=="MAP") {
+          mapm.getMapInfoByName(stokens[1], tmpinfo);
+        } else if (stokens[0].upcase()=="BACKCOLOUR") {
+          bgcolourname= stokens[1];
+        } else if (stokens[0].upcase()=="AREA") { //obsolete
+          mapm.getMapAreaByName(stokens[1], newarea);
+          areadef= true;
+        } else if (stokens[0].upcase() == "PROJECTION") { //obsolete
+          newarea.setArea(stokens[1]);
           xyLimit.clear();
-          xyLimit.push_back((atof(vstr[0].cStr()) - 1.0)*newarea.P().getGridResolutionX());
-          xyLimit.push_back((atof(vstr[1].cStr()) - 1.0)*newarea.P().getGridResolutionX());
-          xyLimit.push_back((atof(vstr[2].cStr()) - 1.0)*newarea.P().getGridResolutionY());
-          xyLimit.push_back((atof(vstr[3].cStr()) - 1.0)*newarea.P().getGridResolutionY());
-          if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
+          areadef = true;
+        } else if (stokens[0].upcase()=="XYLIMIT") { //todo: add warning and show new syntax
+          vector<miString> vstr= stokens[1].split(',');
+          if (vstr.size()>=4) {
             xyLimit.clear();
-        }
-      } else if (stokens[0].upcase()=="XYPART") {
-        vector<miString> vstr= stokens[1].split(',');
-        if (vstr.size()>=4) {
-          xyPart.clear();
-          for (int j=0; j<4; j++)
-            xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
-          if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3])
+            xyLimit.push_back((atof(vstr[0].cStr()) - 1.0)*newarea.P().getGridResolutionX());
+            xyLimit.push_back((atof(vstr[1].cStr()) - 1.0)*newarea.P().getGridResolutionX());
+            xyLimit.push_back((atof(vstr[2].cStr()) - 1.0)*newarea.P().getGridResolutionY());
+            xyLimit.push_back((atof(vstr[3].cStr()) - 1.0)*newarea.P().getGridResolutionY());
+            cerr <<"WARNING: using obsolete syntax xylimit"<<endl;
+            cerr <<"New syntax:"<<endl;
+            cerr <<"AREA "<<newarea.P()<<" rectangle="<<xyLimit[0]<<":"<<xyLimit[1]<<":"<<xyLimit[2]<<":"<<xyLimit[3]<<endl;
+ 
+            if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
+              xyLimit.clear();
+          }
+        } else if (stokens[0].upcase()=="XYPART") {//obsolete
+          vector<miString> vstr= stokens[1].split(',');
+          if (vstr.size()>=4) {
             xyPart.clear();
+            for (int j=0; j<4; j++)
+              xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
+            if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3])
+              xyPart.clear();
+          }
         }
       }
     }
+
+    bool equal= (tmpinfo.name == mapinfo.name);
+
+    if (ifequal && !equal) // check if essential mapinfo remains the same
+      return false;
+
+    mapinfo= tmpinfo;
+
+    if (bgcolourname.exists())
+      bgcolour= bgcolourname; // static Plot member
+    if (areadef) {
+      reqarea= newarea;
+    }
+    areadefined= areadef;
+
+    // fill in new options for mapinfo and make proper PlotOptions
+    // the different map-elements
+    mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, lonopts, latopts, ffopts);
+
+    // set active zorder layer
+    for (int i = 0; i < 3; i++) {
+      isactive[i] = ((mapinfo.contour.ison && mapinfo.contour.zorder == i)
+          || (mapinfo.land.ison && mapinfo.land.zorder == i)
+          || (mapinfo.lon.ison && mapinfo.lon.zorder == i)
+          || (mapinfo.lat.ison && mapinfo.lat.zorder == i)
+          || (mapinfo.frame.ison && mapinfo.frame.zorder == i));
+    }
+
+    mapchanged= true;
   }
 
-  bool equal= (tmpinfo.name == mapinfo.name);
-
-  if (ifequal && !equal) // check if essential mapinfo remains the same
-    return false;
-
-  mapinfo= tmpinfo;
-
-  if (bgcolourname.exists())
-    bgcolour= bgcolourname; // static Plot member
-  if (areadef) {
-    reqarea= newarea;
-  }
-  areadefined= areadef;
-
-  // fill in new options for mapinfo and make proper PlotOptions
-  // the different map-elements
-  mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, lonopts, latopts, ffopts);
-
-  // set active zorder layer
-  for (int i = 0; i < 3; i++) {
-    isactive[i] = ((mapinfo.contour.ison && mapinfo.contour.zorder == i)
-        || (mapinfo.land.ison && mapinfo.land.zorder == i)
-        || (mapinfo.lon.ison && mapinfo.lon.zorder == i)
-        || (mapinfo.lat.ison && mapinfo.lat.zorder == i)
-        || (mapinfo.frame.ison && mapinfo.frame.zorder == i));
-  }
-
-  mapchanged= true;
   return true;
 }
 
@@ -419,7 +459,7 @@ bool MapPlot::plot(const int zorder)
         x[5*nsub-i]= reqr.x1;
       }
       // convert points to current projection
-      gc.getPoints(reqarea, area, npos, x, y);
+      gc.getPoints(reqarea.P(), area.P(), npos, x, y);
 
       glBegin(GL_LINE_LOOP);
       for (int i=0; i<npos; i++) {

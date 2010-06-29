@@ -219,8 +219,6 @@ private slots:
   void updateObs();
   void autoUpdate();
   void updateGLSlot();
-  void xyGeoPos();
-  void latlonGeoPos();
   void showElements();
   void archiveMode();
   void autoElement();
@@ -274,8 +272,6 @@ private:
   QAction * filePrintAction;
   QAction * fileQuitAction;
 
-  QAction * optXYAction;
-  QAction * optLatLonAction;
   QAction * optOnOffAction;
   QAction * optArchiveAction;
   QAction * optAutoElementAction;

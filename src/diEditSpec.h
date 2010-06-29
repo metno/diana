@@ -132,6 +132,8 @@ struct EditProduct {
   Area  area;                       ///< area/projection if gridnum>0 !
   double gridResolutionX;
   double gridResolutionY;
+  int nx;
+  int ny;
   bool  areaminimize;               ///< minimize area due to undef. values
   int standardSymbolSize;           ///< default symbol size for this product
   int complexSymbolSize;            ///< default complex symbol size
