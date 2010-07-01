@@ -57,7 +57,6 @@ public:
   ///read palette info
   static bool readMItiffPalette(const miutil::miString& filename, vector<Colour>& col);
   ///set channels depending on solar heigt
-//  static bool day_night(const miutil::miString& filename, miutil::miString& channels);
   static bool day_night(SatFileInfo& file, miutil::miString& channels);
 };
 
