@@ -2293,6 +2293,9 @@ int parseAndProcess(istream &is)
     }
   }
 
+  // finish off any dangling postscript-sessions
+  endHardcopy(plot_none);
+
   return 0;
 }
 
@@ -2625,13 +2628,6 @@ int main(int argc, char** argv)
   } else if (batchinput.empty()) {
     cerr << "Neither -address nor -signal was specified" << endl;
   }
-
-  /*
-   * XXX What happens if this code is never reached?
-   */
-
-  // finish off postscript-sessions
-  endHardcopy(plot_none); // XXX probably a no-op
 
   // clean up structures
 #ifdef USE_XLIB
