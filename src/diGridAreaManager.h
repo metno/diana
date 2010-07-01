@@ -97,9 +97,7 @@ private:
 	float newx,newy;
 	PaintMode paintMode;
 	bool modeChanged;
-  Area base_proj;
-  double gridResolutionX;
-  double gridResolutionY;
+//  Projection base_proj;
   bool hasinterpolated;
   cursortype getCurrentCursor();
 	bool selectArea(Point p);
@@ -126,7 +124,7 @@ public:
 	GridAreaManager();
 	~GridAreaManager();
 	/// Replace all Grid-areas with specified areas
-	bool setGridAreas(map<miutil::miString,Polygon> newAreas, Area currentProj );
+//	bool setGridAreas(map<miutil::miString,Polygon> newAreas, Projection currentProj );
 	/// Returns current polygon
 	ProjectablePolygon getCurrentPolygon();
 	bool overrideMouseEvent;
@@ -188,12 +186,11 @@ public:
 	/// Clear / Remove all areas. No current area.
 	void clear();
 	/// Set projection of active field
-	void setBaseProjection(Area proj, const double& gridresolutionX, const double& gridresolutionY){base_proj = proj;
-	gridResolutionX=gridresolutionX; gridResolutionY=gridresolutionY; }
+//	void setBaseProjection(Projection proj){base_proj = proj; }
 	/// Get number of Areas
 	int getAreaCount(){ return gridAreas.size(); }
   /// set the list of Points which are actually affected by the mask
-  void setActivePoints(vector<Point>);
+  void setActivePoints(list<Point>);
   /// Returns id of all areas at p
   vector<miutil::miString> getId(Point p);
 };

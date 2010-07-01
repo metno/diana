@@ -18,56 +18,31 @@ int GridArea::maxBuffer = 8;
 
 GLfloat GridArea::nodeMarkRadius = 6.0f;
 GLfloat GridArea::nodeMarkMaxConstant = 2000.0f;
-double GridArea::maxNodeSelectDistance = 20.0;
-
-
-Area GridArea::getStandardProjection(){
-  Rectangle rect(-34.9654,350.661,-47.0971,524.112);
-  float pgf[6] = {11.045,-5.455,0.036,0.036,-24,66.5};
-// Hirlam20
-//  Rectangle rect(1,468,1,378);
-//  float pgf[6] = {-46.5,-36.5,0.2,0.2,0,65};
-  Projection proj;
-  double gridResolutionX;
-  double gridResolutionY;
-  proj.set_mi_gridspec(3,pgf, gridResolutionX, gridResolutionY);
-  Area a(proj,rect);
-  return a;
-}
+double GridArea::maxNodeSelectDistance = 20000.0;
 
 
 GridArea::GridArea():
   Plot(),polygon(""),displayPolygon(),editPolygon(""), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
-	Area stdProj = getStandardProjection();
-	init(stdProj,stdProj);
   saveChange();
 }
 
 GridArea::GridArea(string id):
   Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
-	Area stdProj = getStandardProjection();
-	init(stdProj,stdProj);
   saveChange();
 }
 
-GridArea::GridArea(string id, Area org_proj):
+GridArea::GridArea(string id, Projection org_proj):
   Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
-	init(org_proj,org_proj);
   saveChange();
 }
 
 GridArea::GridArea(string id, ProjectablePolygon area_):
   Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
-	init(area_.getOriginalProjection(),area_.getOriginalProjection());
-	polygon.setOriginalProjectionPoints(area_);
-  saveChange();
-}
 
-GridArea::GridArea(string id, Area org_proj, Polygon area_):
-  Plot(),polygon(id),displayPolygon(),editPolygon(id), displayEditPolygon(),drawstyle(DEFAULT),colours_defined(false){
-	init(org_proj,org_proj);
-	polygon.setOriginalProjectionPoints(area_);
+  init(area_.getCurrentProjection());
+	polygon.setProjectionPoints(area_);
   saveChange();
+
 }
 
 void GridArea::setColour(Colour & fc){
@@ -79,14 +54,12 @@ void GridArea::setStyle(const DrawStyle & ds){
   drawstyle = ds;
 }
 
-void GridArea::init(Area orgProj, Area currentProj){
+void GridArea::init(Projection currentProj){
 #ifndef NOLOG4CXX
 	logger = log4cxx::Logger::getLogger("diana.GridArea");
 #endif
 	polygon.setIntersectionsAccepted(false);
 	editPolygon.setIntersectionsAccepted(false);
-	polygon.setOriginalProjection(orgProj);
-	editPolygon.setOriginalProjection(orgProj);
 	polygon.setCurrentProjection(currentProj);
 	editPolygon.setCurrentProjection(currentProj);
 	reset();
@@ -378,7 +351,7 @@ bool GridArea::removeFocusedPoint() {
   if (nodeInFocus && displayPolygon.removePoint(focusedNode)) {
     polygon.setCurrentProjectionPoints(displayPolygon);
     polygon.makeAbstract();
-    displayPolygon = polygon.getInCurrentProjection();
+    displayPolygon = polygon.getPolygonInCurrentProjection();
     saveChange();
     mode = NODE_SELECT;
     return true;
@@ -395,13 +368,13 @@ bool GridArea::startEdit(Point start){
 
 bool GridArea::addEditPolygon(){
 	editPolygon.setCurrentProjectionPoints(displayEditPolygon);
-	AbstractablePolygon a1(1,polygon);
-	AbstractablePolygon a2(1,editPolygon);
+	AbstractablePolygon a1(0.001,polygon);
+	AbstractablePolygon a2(0.001,editPolygon);
 	a2.removeSharedSegments(a1);
 	bool added = a1.addPolygon(a2);
 	if(added){
 		polygon.setPoints(a1.getPoints());
-		displayPolygon = polygon.getInCurrentProjection();
+		displayPolygon = polygon.getPolygonInCurrentProjection();
 		saveChange();
 	}
 	resetEditPolygon();
@@ -411,13 +384,13 @@ bool GridArea::addEditPolygon(){
 
 bool GridArea::deleteEditPolygon(){
 	editPolygon.setCurrentProjectionPoints(displayEditPolygon);
-	AbstractablePolygon a1(1,polygon);
-	AbstractablePolygon a2(1,editPolygon);
+	AbstractablePolygon a1(0.001,polygon);
+	AbstractablePolygon a2(0.001,editPolygon);
   a2.removeSharedSegments(a1);
 	bool deleted = a1.deletePolygon(a2);
 	if(deleted){
 		polygon.setPoints(a1.getPoints());
-		displayPolygon = polygon.getInCurrentProjection();
+		displayPolygon = polygon.getPolygonInCurrentProjection();
     saveChange();
 	}
 	resetEditPolygon();
@@ -440,7 +413,7 @@ void GridArea::doNodeMove(){
     displayPolygon.movePoint(focusedNode,moveX,moveY);
     polygon.setCurrentProjectionPoints(displayPolygon);
     polygon.makeAbstract();
-    displayPolygon = polygon.getInCurrentProjection();
+    displayPolygon = polygon.getPolygonInCurrentProjection();
     moveX = moveY = 0;
     saveChange();
   }
@@ -452,7 +425,7 @@ void GridArea::doNodeInsert() {
     displayPolygon.insertPoint(focusedSegment, focusedNode);
     polygon.setCurrentProjectionPoints(displayPolygon);
     polygon.makeAbstract();
-    displayPolygon = polygon.getInCurrentProjection();
+    displayPolygon = polygon.getPolygonInCurrentProjection();
     segmentInFocus = false;
     saveChange();
   }
@@ -474,7 +447,7 @@ void GridArea::doMove(){
 		displayPolygon.move(moveX,moveY);
 		polygon.setCurrentProjectionPoints(displayPolygon);
 		polygon.makeAbstract();
-		displayPolygon = polygon.getInCurrentProjection();
+		displayPolygon = polygon.getPolygonInCurrentProjection();
 		moveX = moveY = 0;
     saveChange();
 	}
@@ -496,7 +469,7 @@ void GridArea::doDraw(){
 	else{
 		polygon.setCurrentProjectionPoints(displayPolygon);
 		polygon.makeAbstract(true);
-		displayPolygon = polygon.getInCurrentProjection();
+		displayPolygon = polygon.getPolygonInCurrentProjection();
 	}
   saveChange();
   mode = NORMAL;
@@ -533,15 +506,15 @@ void GridArea::resetEditPolygon(){
 }
 
 void GridArea::updateCurrentProjection(){
-	polygon.setCurrentProjection(area);
-	editPolygon.setCurrentProjection(area);
-	displayPolygon = polygon.getInCurrentProjection();
-	displayEditPolygon = editPolygon.getInCurrentProjection();
+	polygon.setCurrentProjection(area.P());
+	editPolygon.setCurrentProjection(area.P());
+	displayPolygon = polygon.getPolygonInCurrentProjection();
+	displayEditPolygon = editPolygon.getPolygonInCurrentProjection();
 }
 
-void  GridArea::setActivePoints(vector<Point> points, const double& gridResolutionX, const double& gridResolutionY){
-  polygon.initActivePoints(points, gridResolutionX, gridResolutionY);
-  displayPolygon = polygon.getInCurrentProjection();
+void  GridArea::setActivePoints(list<Point> points){
+  polygon.setActivePoints(points);
+  displayPolygon = polygon.getPolygonInCurrentProjection();
 }
 
 void GridArea::saveChange() {
@@ -563,7 +536,7 @@ bool GridArea::redo() {
   polygon = redobuffer.front();
   redobuffer.pop_front();
   undobuffer.push_front(polygon);
-  displayPolygon = polygon.getInCurrentProjection();
+  displayPolygon = polygon.getPolygonInCurrentProjection();
   dirty = true;
   return true;
 }
@@ -581,7 +554,7 @@ bool GridArea::undo() {
   redobuffer.push_front(polygon);
   undobuffer.pop_front();
   polygon = undobuffer.front();
-  displayPolygon = polygon.getInCurrentProjection();
+  displayPolygon = polygon.getPolygonInCurrentProjection();
 
   dirty = true;
   return true;

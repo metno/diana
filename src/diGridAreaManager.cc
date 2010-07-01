@@ -19,25 +19,8 @@ GridAreaManager::GridAreaManager() :
   overrideMouseEvent = false;
   modeChanged = true;
   currentId = "";
-  base_proj = GridArea::getStandardProjection();
 }
 GridAreaManager::~GridAreaManager() {
-}
-
-bool GridAreaManager::setGridAreas(map<miString,Polygon> newAreas,
-    Area currentProj) {
-  LOG4CXX_DEBUG(logger,"setGridAreas ("<<newAreas.size()<<" areas)");
-  if (!currentProj.P().isDefined())
-    return false;
-  gridAreas.clear();
-  map<miString,Polygon>::iterator iter = newAreas.begin();
-  for (iter = newAreas.begin(); iter != newAreas.end(); iter++) {
-    LOG4CXX_DEBUG(logger,"setGridAreas adding "<<iter->first<<" : "<<iter->second.toString());
-    GridArea newArea(iter->first, currentProj, iter->second);
-    gridAreas.insert(make_pair(iter->first, newArea));
-  }
-  currentId = "";
-  return true;
 }
 
 void GridAreaManager::clear() {
@@ -369,7 +352,8 @@ bool GridAreaManager::addArea(miString id) {
     LOG4CXX_WARN(logger,"Add area failed. Existing id " << id);
     return false;
   }
-  GridArea newArea(id, base_proj);
+//  GridArea newArea(id, base_proj);
+  GridArea newArea(id);
   newArea.updateCurrentProjection();
   gridAreas[id] = newArea;
   bool foundNewArea = setCurrentArea(id);
@@ -600,10 +584,10 @@ bool GridAreaManager::setEnabled(miString id, bool enabled) {
   return false;
 }
 
-void GridAreaManager::setActivePoints(vector<Point> points) {
+void GridAreaManager::setActivePoints(list<Point> points) {
 
   if (gridAreas.count(currentId))
-    gridAreas[currentId].setActivePoints(points, gridResolutionX, gridResolutionY);
+    gridAreas[currentId].setActivePoints(points);
 
 }
 

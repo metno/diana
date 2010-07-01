@@ -575,7 +575,7 @@ void DianaProfetGUI::objectDoubleClicked(const QModelIndex & index)
 
 void DianaProfetGUI::zoomToObject(const ProjectablePolygon & pp) {
   float offsetRatio = 0.3;
-  Polygon polygon = pp.getInCurrentProjection();
+  Polygon polygon = pp.getPolygonInCurrentProjection();
   Point minPoint = polygon.minBoundaryPoint();
   Point maxPoint = polygon.maxBoundaryPoint();
   Point offset = (maxPoint - minPoint) * offsetRatio;
@@ -1030,15 +1030,15 @@ void DianaProfetGUI::showField(const miutil::miTime & reftime, const miutil::miS
   emit prepareAndPlot();
 }
 
-void DianaProfetGUI::setBaseProjection(Area a, int size_x, int size_y, const double& gridResolutionX, const double& gridResolutionY)
-{
-  if (size_x == 0 || size_y == 0 || a.R().width() == 0) {
-    LOG4CXX_ERROR(logger,"Unvalid base projection set:" << a);
-  } else {
-    objectFactory.initFactory(a, gridResolutionX, gridResolutionY, size_x, size_y);
-    areaManager->setBaseProjection(a,gridResolutionX, gridResolutionY);
-  }
-}
+//void DianaProfetGUI::setBaseProjection(Projection p, int size_x, int size_y, const double& gridResolutionX, const double& gridResolutionY)
+//{
+//  if (size_x == 0 || size_y == 0 || !p.isDefined()) {
+//    LOG4CXX_ERROR(logger,"Unvalid base projection set:" << p);
+//  } else {
+////    objectFactory.initFactory(p, size_x, size_y);
+////    areaManager->setBaseProjection(p);
+//  }
+//}
 
 void DianaProfetGUI::updateMap()
 {
@@ -1342,7 +1342,7 @@ void DianaProfetGUI::setStatistics(map<miutil::miString, float> m)
   editObjectDialog->setStatistics(m);
 }
 
-void DianaProfetGUI::setActivePoints(vector<Point> points)
+void DianaProfetGUI::setActivePoints(list<Point> points)
 {
   areaManager->setActivePoints(points);
 }

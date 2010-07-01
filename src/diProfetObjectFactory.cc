@@ -38,7 +38,6 @@
 using namespace::miutil;
 
 ProfetObjectFactory::ProfetObjectFactory()
-  : nx(0), ny(0)
 {
 #ifndef NOLOG4CXX
   logger = log4cxx::Logger::getLogger("diana.ProfetObjectFactory");
@@ -60,15 +59,13 @@ void ProfetObjectFactory::outputExecuteResponce( vector<fetCodeExecutor::responc
 }
 
 
-void ProfetObjectFactory::initFactory(Area a, const double& gridresolutionX, const double& gridresolutionY, int size_x, int size_y)
-{
-  fieldArea = a;
-  gridResolutionX = gridresolutionX;
-  gridResolutionY = gridresolutionY;
-  nx= size_x;
-  ny= size_y;
-
-}
+//void ProfetObjectFactory::initFactory(Projection p, int size_x, int size_y)
+//{
+//  fieldProjection = p;
+//  nx= size_x;
+//  ny= size_y;
+//
+//}
 
 
 vector<fetDynamicGui::GuiComponent>
@@ -133,10 +130,6 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
   LOG4CXX_DEBUG(logger,"makeObject(fetBaseObject)");
 
   fetObject fetObj;
-  if ( nx==0 || ny==0 || fieldArea.R().width()==0 ){
-    LOG4CXX_ERROR(logger,"Field-projection and size not set - undefined object!");
-    return fetObj;
-  }
 
   fetCodeExecutor executor; ///< the object executor
   vector<fetCodeExecutor::responce> responcel;
@@ -154,9 +147,7 @@ ProfetObjectFactory::makeObject( const fetBaseObject& baseObj,
 
   // make object
   fetObj.setFromBaseObject(baseObj,
-			   sessionreftime,parent,reason,polygon,nx,ny,
-         fieldArea,
-//         gridResolutionX, gridResolutionY,fieldArea,
+			   sessionreftime,parent,reason,polygon,
 			   executor.cleanCode(),executor.cleanCode(),user,
 			   validtime,edittime,parameter,guikeys,id);
 

@@ -159,7 +159,7 @@ public:
    * Field must be prepared in field-manager first
    */
   void showField(const miutil::miTime & reftime, const miutil::miString & param, const miutil::miTime & time);
-  void setBaseProjection(Area a, int size_x, int size_y, const double& gridResolutionX, const double& gridResolutionY);
+//  void setBaseProjection(Projection p, int size_x, int size_y, const double& gridResolutionX, const double& gridResolutionY);
   /**
    * Repaints the Diana Map
    */
@@ -217,7 +217,7 @@ public:
    * set the list of Points which are actually affected by the active
    * object/mask
    */
-  void setActivePoints(vector<Point>);
+  void setActivePoints(list<Point>);
 
   /**
    * Right mouse clicked, make popup menu

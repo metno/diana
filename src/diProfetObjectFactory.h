@@ -59,11 +59,6 @@ private:
   log4cxx::LoggerPtr logger;
 #endif
 
-  Area fieldArea;           ///< field projection and covered area
-  int nx,ny;                ///< field dimension
-  double gridResolutionX;
-  double gridResolutionY;
-
   /// outputs responce strings from executor
   void outputExecuteResponce(vector<fetCodeExecutor::responce> & rl);
 
@@ -74,7 +69,7 @@ public:
   ProfetObjectFactory();
 
   /// initialise object factory to a field size and projection
-  void initFactory(Area a, const double& gridresolutionX, const double& gridresolutionY, int size_x, int size_y);
+  //void initFactory(Projection p, int size_x, int size_y);
 
   /// return gui-components from fetBaseObject
   vector<fetDynamicGui::GuiComponent> getGuiComponents(const fetBaseObject& baseobj);

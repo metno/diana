@@ -112,16 +112,16 @@ private:
 	//Used in move-mode to paint temp. moved polygon
 	double moveX;
 	double moveY;
-	void init(Area org, Area current);
+	void init(Projection current);
 	// Add current polygon to undo buffer
   void saveChange();
 
 public:
 	GridArea();
 	GridArea(string id);
-	GridArea(string id, Area org_proj);
+	GridArea(string id, Projection org_proj);
 	GridArea(string id, ProjectablePolygon area);
-	GridArea(string id, Area originalProjection, Polygon area);
+//	GridArea(string id, Projection originalProjection, Polygon area);
 
   void setColour(Colour & fc);
   void setStyle(const DrawStyle & ds);
@@ -188,7 +188,7 @@ public:
 	///Forced update to current diana projection
 	void updateCurrentProjection();
   /// set the list of Points which are actually affected by the mask
-  void setActivePoints(vector<Point>, const double& gridResolutionX, const double& gridResolutionY);
+  void setActivePoints(list<Point>);
   /// true if undo is possible (buffer not empty)
   bool isUndoPossible();
   /// Perform undo. Returns true if success
@@ -197,8 +197,6 @@ public:
   bool isRedoPossible();
   /// Perform redo. Returns true if success
   bool redo();
-  ///Standard Projection
-  static Area getStandardProjection();
 };
 
 #endif /*DIGRIDAREA_H_*/
