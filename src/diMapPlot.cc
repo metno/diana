@@ -154,7 +154,7 @@ bool MapPlot::prepare(const miString& pinfo, bool ifequal)
             cerr <<"WARNING: using obsolete syntax xylimit"<<endl;
             cerr <<"New syntax:"<<endl;
             cerr <<"AREA "<<newarea.P()<<" rectangle="<<xyLimit[0]<<":"<<xyLimit[1]<<":"<<xyLimit[2]<<":"<<xyLimit[3]<<endl;
- 
+
             if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
               xyLimit.clear();
           }
@@ -550,10 +550,9 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
   //  met.no    25.05.2009  Audun Christoffersen ... independent on met.no projections
   //---------------------------------------------------------------------
 
-  Area geoArea;
   Projection geoProj;
   geoProj.setGeographic();
-  geoArea.setP(geoProj);
+  Projection projection = area.P();
 
   const unsigned int nwrec = 1024;
   const unsigned int maxpos = 2000;
@@ -576,7 +575,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
   short int ilevel1[mlevel1][5];
   short int ilevel2[mlevel2][5];
 
-  float jumplimit = area.P().getMapLinesJumpLimit();
+  float jumplimit = projection.getMapLinesJumpLimit();
 
   // colour, linetype and -width
   glColor4ubv(colour.RGBA());
@@ -662,8 +661,8 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
   }
 */
 
-  bool illegal_southpole = !area.P().isLegal(0.0, -90.0);
-  bool illegal_northpole = !area.P().isLegal(0.0, 90.0);
+  bool illegal_southpole = !projection.isLegal(0.0, -90.0);
+  bool illegal_northpole = !projection.isLegal(0.0, 90.0);
 
   if (version == 1) {
 
@@ -728,7 +727,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
           x1 = x[np - 1];
           y1 = y[np - 1];
           // convert coordinates from longitude,latitude to x,y
-          int b = area.P().convertFromGeographic(np,x,y);
+          int b = projection.convertFromGeographic(np,x,y,geoProj);
           if (b!=0){
             cerr << "plotMapLand4(0), getPoints returned false" << endl;
           }
@@ -814,7 +813,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
       }
     }
     nn = n;
-    int b = area.P().convertToGeographic(nn,x,y);
+    int b = projection.convertToGeographic(nn,x,y,geoProj);
     if (b!=0){
       cerr << "plotMapLand4(1), getPoints returned false" << endl;
     }
@@ -835,7 +834,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     glatmin -= 1.;
     glatmax += 1.;
 
-    //area.P().adjustGeographicExtension(glonmin,glonmax,glatmin,glatmax);
+    //projection.adjustGeographicExtension(glonmin,glonmax,glatmin,glatmax);
 
     for (n1 = 0; n1 < nlevel1; ++n1) {
 
@@ -962,7 +961,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                   x1 = x[np - 1];
                   y1 = y[np - 1];
                   // convert coordinates from longitude,latitude to x,y
-                  int b = area.P().convertFromGeographic(np,x,y);
+                  int b = projection.convertFromGeographic(np,x,y, geoProj);
                   if (b!=0){
                     cerr << "plotMapLand4(2), getPoints returned false"<< endl;
                   }
