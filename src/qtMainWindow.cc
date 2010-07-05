@@ -3032,7 +3032,7 @@ void DianaMainWindow::saveAnimation() {
       /// update progressbar
       progress.setValue(i);
 
-      w->Glw()->resize(720, 480);
+      w->Glw()->resize(1280, 720);
       QImage image = w->Glw()->grabFrameBuffer();
       moviemaker.addImage(&image);
 

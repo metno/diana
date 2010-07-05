@@ -37,8 +37,11 @@
 
 #include "MovieMaker.h"
 
-#define VIDEO_BUF_SIZE 1835008
-#define VIDEO_BITRATE  6000 * 1024
+//#define VIDEO_BUF_SIZE 1835008
+//#define VIDEO_BITRATE  6000 * 1024
+
+#define VIDEO_BUF_SIZE 249835008
+#define VIDEO_BITRATE  12960000
 
 using namespace std;
 
@@ -89,19 +92,29 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
   video->codec_id = (CodecID) output->outputCtx->oformat->video_codec;
   video->codec_type = CODEC_TYPE_VIDEO;
   video->bit_rate = VIDEO_BITRATE;
-  video->sample_aspect_ratio.den = 4;
-  video->sample_aspect_ratio.num = 3;
+  video->sample_aspect_ratio.den = 16;
+  video->sample_aspect_ratio.num = 9;
   //  video->dtg_active_format = FF_DTG_AFD_4_3; only used for decoding
-  video->width = 720;
-  video->height = 480;
+  video->width = 1280;
+  video->height = 720;
   video->time_base.den = 30000;
   video->time_base.num = 1001;
-  video->gop_size = 18;
+  //video->gop_size = 18;
+  video->gop_size = 100;
 
   video->pix_fmt = PIX_FMT_YUV420P;
   video->rc_buffer_size = VIDEO_BUF_SIZE;
-  video->rc_max_rate = 9 * 1024 * 1024;
+  video->rc_max_rate = 14 * 1024 * 1024;
   video->rc_min_rate = 0;
+
+  // params from chris (Martin)
+  video->mb_decision = 2;
+  video->qblur = 1.0;
+  video->compression_level = 2;
+  video->me_sub_cmp = 2;
+  video->dia_size = 2;
+  //video->mv0_threshold = ???;
+  video->last_predictor_count = 3;
 
   return true;
 }
