@@ -106,10 +106,11 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
       if (key == key_loop && n >= 4) {
         vpar.clear();
         for (unsigned int i = 3; i < vstr.size(); i++) {
-          if (vstr[i][0] == '"')
+          if (vstr[i][0] == '"') {
             vpar.push_back(vstr[i].substr(1, vstr[i].length() - 2));
-          else
+          } else {
             vpar.push_back(vstr[i]);
+          }
         }
         loopname.push_back(vstr[1]);
         loopvars.push_back(vpar);
@@ -121,14 +122,17 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
       lastLine = l;
 
       unsigned int nl = loopname.size();
-      if (nl > loopvars.size())
+      if (nl > loopvars.size()) {
         nl = loopvars.size();
+      }
       unsigned int ml = 1;
       if (nl > 0) {
         ml = loopvars[0].size();
-        for (unsigned int il = 0; il < nl; il++)
-          if (ml > loopvars[il].size())
+        for (unsigned int il = 0; il < nl; il++) {
+          if (ml > loopvars[il].size()) {
             ml = loopvars[il].size();
+          }
+        }
       }
 
       for (unsigned int m = 0; m < ml; m++) {
@@ -137,8 +141,9 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
         vector<miString> input;
         for (int i = firstLine; i < lastLine; i++) {
           str = lines[i];
-          for (unsigned int il = 0; il < nl; il++)
+          for (unsigned int il = 0; il < nl; il++) {
             str.replace(loopname[il], loopvars[il][m]);
+          }
           if (i == firstLine) {
             // resplit to keep names with ()
             vstr = str.split('=', false);
@@ -148,8 +153,9 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
               continue;
             }
             name = vstr[1];
-            if (name[0] == '"' && name[name.length() - 1] == '"')
+            if (name[0] == '"' && name[name.length() - 1] == '"') {
               name = name.substr(1, name.length() - 2);
+            }
           } else {
             vstr = splitComStr(str, false);
             nv = vstr.size();
@@ -172,13 +178,15 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
                   sp.errorMsg(sect_name, i, errm);
                   break;
                 }
-                for (unsigned int k = 0; k < input.size(); k++)
+                for (unsigned int k = 0; k < input.size(); k++) {
                   input[k] = input[k].downcase();
+                }
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
                 fieldgroup = vstr[j + 2];
                 if (fieldgroup[0] == '"' && fieldgroup[fieldgroup.length() - 1]
-                    == '"')
+                    == '"') {
                   fieldgroup = fieldgroup.substr(1, fieldgroup.length() - 2);
+                }
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
                 option = vstr[j] + "=" + vstr[j + 2];
@@ -239,46 +247,56 @@ vector<miString> FieldPlotManager::splitComStr(const miString& s, bool splitall)
 
   int i = 0, j = 0, n = s.size();
   if (n) {
-    while (i < n && s[i] == ' ')
+    while (i < n && s[i] == ' ') {
       i++;
+    }
     j = i;
     for (; i < n; i++) {
       if (s[i] == '=') { // split on '=', but keep it
-        if (i - j > 0)
+        if (i - j > 0) {
           tmp.push_back(s.substr(j, i - j));
+        }
         tmp.push_back("=");
         j = i + 1;
       } else if (s[i] == ',' && splitall) { // split on ','
-        if (i - j > 0)
+        if (i - j > 0) {
           tmp.push_back(s.substr(j, i - j));
+        }
         j = i + 1;
       } else if (s[i] == '(') { // keep () blocks
-        if (i - j > 0)
+        if (i - j > 0) {
           tmp.push_back(s.substr(j, i - j));
+        }
         j = i;
         i++;
-        while (i < n && s[i] != ')')
+        while (i < n && s[i] != ')') {
           i++;
+        }
         tmp.push_back(s.substr(j, (i < n) ? (i - j + 1) : (i - j)));
         j = i + 1;
       } else if (s[i] == '"') { // keep "" blocks
-        if (i - j > 0)
+        if (i - j > 0) {
           tmp.push_back(s.substr(j, i - j));
+        }
         j = i;
         i++;
-        while (i < n && s[i] != '"')
+        while (i < n && s[i] != '"') {
           i++;
+        }
         tmp.push_back(s.substr(j, (i < n) ? (i - j + 1) : (i - j)));
         j = i + 1;
       } else if (s[i] == ' ') { // split on (multiple) blanks
-        if (i - j > 0)
+        if (i - j > 0) {
           tmp.push_back(s.substr(j, i - j));
-        while (i < n && s[i] == ' ')
+        }
+        while (i < n && s[i] == ' ') {
           i++;
+        }
         j = i;
         i--;
-      } else if (i == n - 1)
+      } else if (i == n - 1) {
         tmp.push_back(s.substr(j, i - j + 1));
+      }
     }
   }
 
@@ -297,8 +315,9 @@ vector<miString> FieldPlotManager::getFields()
 
   vector<miString> param;
   set<miString>::iterator p = paramSet.begin();
-  for (; p != paramSet.end(); p++)
+  for (; p != paramSet.end(); p++) {
     param.push_back(*p);
+  }
 
   return param;
 
@@ -330,13 +349,16 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
       // field difference ... two models and/or fields
 
       int km = 2;
-      while (km < n && tokens[km] != "-")
+      while (km < n && tokens[km] != "-") {
         km++;
+      }
       int ke = km + 1;
-      while (ke < n && tokens[ke] != ")")
+      while (ke < n && tokens[ke] != ")") {
         ke++;
-      if (km >= n || ke >= n || km > ke - 3)
+      }
+      if (km >= n || ke >= n || km > ke - 3) {
         continue;
+      }
 
       modelName = tokens[2].downcase();
       fieldName = tokens[3].downcase();
@@ -346,14 +368,15 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
       vector<miString> atokens = tokens;
       tokens.clear();
       tokens.push_back(atokens[0]);
-      for (int k = 2; k < km; k++)
+      for (int k = 2; k < km; k++) {
         tokens.push_back(atokens[k]);
-      for (int k = ke + 1; k < n; k++)
+      }
+      for (int k = ke + 1; k < n; k++) {
         tokens.push_back(atokens[k]);
+      }
       n = tokens.size();
 
     } else {
-
       modelName = tokens[1].downcase();
       fieldName = tokens[2].downcase();
     }
@@ -373,18 +396,21 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
         } else if (vtoken[0] == "hour.offset") {
           hourOffset = atoi(vtoken[1].cStr());
         } else if (vtoken[0] == "alltimesteps") {
-          if (vtoken[1] == "1" || vtoken[1] == "on" || vtoken[1] == "true")
+          if (vtoken[1] == "1" || vtoken[1] == "on" || vtoken[1] == "true") {
             allTimeSteps = true;
+          }
         } else if (vtoken[0] == "forecast.hour") {
           values = vtoken[1].split(',');
-          for (unsigned int i = 0; i < values.size(); i++)
+          for (unsigned int i = 0; i < values.size(); i++) {
             vfc.push_back(atoi(values[i].cStr()));
+          }
           fctype = 1;
         } else if (vtoken[0] == "forecast.hour.loop") {
           values = vtoken[1].split(',');
           if (values.size() == 3) { // first,last,step
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++) {
               vfc.push_back(atoi(values[i].cStr()));
+            }
             fctype = 2;
           }
         }
@@ -402,8 +428,9 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
     request[nr].forecast = vfc;
   }
 
-  if (request.size() == 0)
+  if (request.size() == 0) {
     return fieldtime;
+  }
 
   return getFieldTime(request, allTimeSteps, constTimes);
 }
@@ -431,8 +458,9 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   bool constT;
   normalTimes = getFieldTime(pinfos, constT);
   if (constT) {
-    if (normalTimes.size())
+    if (normalTimes.size()) {
       constTimes = normalTimes[0];
+    }
     normalTimes.clear();
   }
 
@@ -444,8 +472,9 @@ vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
   vector<miString> levels;
 
   vector<miString> tokens = pinfo.split(" ");
-  if (tokens.size() < 3 || tokens[0] != "FIELD")
+  if (tokens.size() < 3 || tokens[0] != "FIELD") {
     return levels;
+  }
 
   vector<FieldGroupInfo> vfgi;
   miString name;
@@ -454,8 +483,9 @@ vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
     levels.push_back(vfgi[i].groupName);
     int k = 0;
     int n = vfgi[i].fieldNames.size();
-    while (k < n && vfgi[i].fieldNames[k] != tokens[2])
+    while (k < n && vfgi[i].fieldNames[k] != tokens[2]) {
       k++;
+    }
     if (k < n) {
       //      levels.push_back("Levelgroup:" + vfgi[i].groupName);
       for (unsigned int j = 0; j < vfgi[i].levelNames.size(); j++) {
@@ -487,19 +517,18 @@ vector<miTime> FieldPlotManager::getFieldTime(
   //   cerr <<"FieldPlotManager::getFieldTime"<<endl;
   vector<miTime> vtime;
   for (unsigned int j = 0; j < request.size(); j++) {
-
     miString fieldName;
     miString plotName = request[j].fieldName.downcase();
     miString suffix;
     splitSuffix(plotName, suffix);
-    if (!mapPlotField.count(plotName))
+    if (!mapPlotField.count(plotName)) {
       return vtime;
+    }
     for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
       miString fieldName = mapPlotField[plotName].input[i].downcase();
       fieldName += suffix;
       request[j].fieldName = fieldName;
     }
-
   }
   return fieldManager->getFieldTime(request, allTimeSteps, constTimes);
 }
@@ -530,25 +559,29 @@ bool FieldPlotManager::makeFields(const miString& pin,
   miString idnumSpecified = idnumName;
 
   if (!levelSpec.empty() && !levelSet.empty() && levelName.downcase()
-      == levelSpec.downcase())
+      == levelSpec.downcase()) {
     levelName = levelSet;
+  }
 
   if (!idnumSpec.empty() && !idnumSet.empty() && idnumName.downcase()
-      == idnumSpec.downcase())
+      == idnumSpec.downcase()) {
     idnumName = idnumSet;
+  }
 
   bool ok = false;
   for (unsigned int i = 0; i < fieldName.size(); i++) {
     Field* fout;
     // we must try to use the cache, if specified...
     int cacheoptions = FieldManager::READ_ALL;
-    if (toCache)
+    if (toCache) {
       cacheoptions = cacheoptions | FieldManager::WRITE_ALL;
+    }
     ok = fieldManager->makeField(fout, modelName, fieldName[i], ptime,
         levelName, idnumName, hourDiff, cacheoptions);
 
-    if (!ok)
+    if (!ok) {
       return false;
+    }
 
     makeFieldText(fout, plotName, levelSpecified, idnumSpecified);
     vfout.push_back(fout);
@@ -564,27 +597,31 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName,
 {
 
   miString fieldtext = fout->modelName + " " + plotName;
-  if (!fout->leveltext.empty())
+  if (!fout->leveltext.empty()) {
     fieldtext += " " + fout->leveltext;
-  if (!fout->idnumtext.empty())
+  }
+  if (!fout->idnumtext.empty()) {
     fieldtext += " " + fout->idnumtext;
+  }
 
   ostringstream ostr;
-  if (fout->forecastHour >= 0)
+  if (fout->forecastHour >= 0) {
     ostr << "+" << fout->forecastHour;
-  else
+  } else {
     ostr << fout->forecastHour;
+  }
   miString progtext = "(" + ostr.str() + ")";
 
   miString sclock = fout->validFieldTime.isoClock();
   miString shour = sclock.substr(0, 2);
   miString smin = sclock.substr(3, 2);
   miString timetext;
-  if (smin == "00")
+  if (smin == "00") {
     timetext = fout->validFieldTime.isoDate() + " " + shour + " UTC";
-  else
+  } else {
     timetext = fout->validFieldTime.isoDate() + " " + shour + ":" + smin
         + " UTC";
+  }
   fout->name = plotName;
   fout->text = fieldtext + " " + progtext;
   fout->fulltext = fieldtext + " " + progtext + " " + timetext;
@@ -658,8 +695,9 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   for (int n = 0; n < mdiff; n++) {
     if (text1[n] != text2[n]) {
       diff[n] = true;
-      if (nbgn < 0)
+      if (nbgn < 0) {
         nbgn = n;
+      }
       nend = n;
       ndiff++;
     } else {
@@ -670,62 +708,79 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   if (ndiff == 0) {
     // may happen due to level/idnum up/down change or equal difference,
     // make an explaining text
-    if (!f1->leveltext.empty())
+    if (!f1->leveltext.empty()) {
       diff[2] = true;
-    else if (!f1->idnumtext.empty())
+    } else if (!f1->idnumtext.empty()) {
       diff[3] = true;
-    else
+    } else {
       diff[1] = true;
+    }
     ndiff = 1;
   }
 
-  if (diff[0])
+  if (diff[0]) {
     f1->modelName = "( " + text1[0] + " - " + text2[0] + " )";
+  }
   if (diff[1] && (diff[2] || diff[3])) {
     f1->name = "( " + text1[1];
-    if (!text1[2].empty())
+    if (!text1[2].empty()) {
       f1->name += " " + text1[2];
-    if (!text1[3].empty())
+    }
+    if (!text1[3].empty()) {
       f1->name += " " + text1[3];
+    }
     f1->name += " - " + text2[1];
-    if (!text2[2].empty())
+    if (!text2[2].empty()) {
       f1->name += " " + text2[2];
-    if (!text2[3].empty())
+    }
+    if (!text2[3].empty()) {
       f1->name += " " + text2[3];
+    }
     f1->name += " )";
     f1->leveltext.clear();
-    if (diff[2] && diff[3])
+    if (diff[2] && diff[3]) {
       ndiff -= 2;
-    else
+    } else {
       ndiff--;
+    }
   } else {
-    if (diff[1])
+    if (diff[1]) {
       f1->name = "( " + text1[1] + " - " + text2[1] + " )";
-    if (diff[2])
+    }
+    if (diff[2]) {
       f1->leveltext = "( " + text1[2] + " - " + text2[2] + " )";
-    if (diff[3])
+    }
+    if (diff[3]) {
       f1->idnumtext = "( " + text1[3] + " - " + text2[3] + " )";
+    }
   }
-  if (diff[4])
+  if (diff[4]) {
     f1->progtext = "( " + text1[4] + " - " + text2[4] + " )";
-  if (diff[5])
+  }
+  if (diff[5]) {
     f1->timetext = "( " + text1[5] + " - " + text2[5] + " )";
+  }
   if (ndiff == 1) {
     f1->fieldText = f1->modelName + " " + f1->name;
-    if (f1->leveltext.exists())
+    if (f1->leveltext.exists()) {
       f1->fieldText += " " + f1->leveltext;
+    }
     f1->text = f1->fieldText + " " + f1->progtext;
     f1->fulltext = f1->text + " " + f1->timetext;
   } else {
     if (nbgn == 1 && nend <= 3) {
-      if (!text1[2].empty())
+      if (!text1[2].empty()) {
         text1[1] += " " + text1[2];
-      if (!text1[3].empty())
+      }
+      if (!text1[3].empty()) {
         text1[1] += " " + text1[3];
-      if (!text2[2].empty())
+      }
+      if (!text2[2].empty()) {
         text2[1] += " " + text2[2];
-      if (!text2[3].empty())
+      }
+      if (!text2[3].empty()) {
         text2[1] += " " + text2[3];
+      }
       text1[2].clear();
       text1[3].clear();
       text2[2].clear();
@@ -736,33 +791,43 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
       { 5, 4, 3 };
     miString ftext[3];
     for (int t = 0; t < 3; t++) {
-      if (nbgn > nmax[t])
+      if (nbgn > nmax[t]) {
         nbgn = nmax[t];
-      if (nend > nmax[t])
+      }
+      if (nend > nmax[t]) {
         nend = nmax[t];
+      }
       bool first = true;
       for (int n = 0; n < nbgn; n++) {
-        if (first)
+        if (first) {
           ftext[t] = text1[n];
-        else
+        } else {
           ftext[t] += " " + text1[n];
+        }
         first = false;
       }
-      if (first)
+      if (first) {
         ftext[t] = "(";
-      else
+      } else {
         ftext[t] += " (";
-      for (int n = nbgn; n <= nend; n++)
-        if (!text1[n].empty())
+      }
+      for (int n = nbgn; n <= nend; n++) {
+        if (!text1[n].empty()) {
           ftext[t] += " " + text1[n];
+        }
+      }
       ftext[t] += " -";
-      for (int n = nbgn; n <= nend; n++)
-        if (!text2[n].empty())
+      for (int n = nbgn; n <= nend; n++) {
+        if (!text2[n].empty()) {
           ftext[t] += " " + text2[n];
+        }
+      }
       ftext[t] += " )";
-      for (int n = nend + 1; n <= nmax[t]; n++)
-        if (!text1[n].empty())
+      for (int n = nend + 1; n <= nmax[t]; n++) {
+        if (!text1[n].empty()) {
           ftext[t] += " " + text1[n];
+        }
+      }
     }
     f1->fulltext = ftext[0];
     f1->text = ftext[1];
@@ -786,9 +851,9 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   cerr<<"-----------------------------------------------------"<<endl;
 #endif
   bool ok = fieldManager->makeDifferenceFields(fv, fv2);
-  if (!ok)
+  if (!ok) {
     return false;
-
+  }
   return true;
 
 }
@@ -888,8 +953,9 @@ bool FieldPlotManager::parsePin(const miString& pin, miString& modelName,
 
   //if pin contains time, replace ptime
   int i = 0;
-  while (i < n && !tokens[i].downcase().contains("time="))
+  while (i < n && !tokens[i].downcase().contains("time=")) {
     i++;
+  }
   if (i < n) {
     vector<miString> stokens = tokens[i].split("=");
     if (stokens.size() == 2) {
@@ -923,8 +989,9 @@ bool FieldPlotManager::parsePin(const miString& pin, miString& modelName,
   miString suffix;
   splitSuffix(plotName, suffix);
 
-  if (!mapPlotField.count(plotName))
+  if (!mapPlotField.count(plotName)) {
     return false;
+  }
   for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
     miString fName = mapPlotField[plotName].input[i].downcase();
     fName += suffix;
