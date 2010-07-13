@@ -3342,8 +3342,14 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, int& indexMGR,
     while (indexMGR < ng && indexM < 0) {
       n = m_modelgroup[indexMGR].modelNames.size();
       i = 0;
-      while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i])
+      while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i]) {
+/*
+        cout << " getFieldGroups, checking group:" << indexMGR << " model:"
+            << m_modelgroup[indexMGR].modelNames[i] << " against " << modelName
+            << endl;
+*/
         i++;
+      }
       if (i < n)
         indexM = i;
       else
@@ -3898,6 +3904,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       getFieldGroups(model, indexMGR, indexM, vfg2);
       vfg2_model = model;
       nvfg = vfg2.size();
+      //cout << "getFieldGroups returned " << nvfg << " groups" << endl;
     }
 
     indexF = -1;
@@ -3906,6 +3913,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     bool ok = false;
 
     while (!ok && j < nvfg) {
+      //cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
 
       // Old syntax: Model, new syntax: Model(gridnr)
       miutil::miString modelName = vfg2[j].modelName;
@@ -3917,10 +3925,11 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       }
 
       if (modelName.downcase() == model.downcase()) {
-
+        //cout << "Found model:" << modelName << " in index:" << j << endl;
         int m = vfg2[j].fieldNames.size();
         int i = 0;
         while (i < m && vfg2[j].fieldNames[i] != field){
+          //cout << " .. skipping field:" << vfg2[j].fieldNames[i] << endl;
           i++;
         }
 
@@ -3928,6 +3937,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
           ok = true;
           int m;
           if ((m = vfg2[j].levelNames.size()) > 0 && !level.empty()) {
+            //cout << " .. level is not empty" << endl;
             int l = 0;
             while (l < m && vfg2[j].levelNames[l] != level)
               l++;
@@ -3939,8 +3949,10 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
               if (l < m)
                 level = vfg2[j].levelNames[l];
             }
-            if (l == m)
+            if (l == m){
+              //cout << " .. did not find level:" << level << " ok=false" << endl;
               ok = false;
+            }
           } else if (!vfg2[j].levelNames.empty()) {
             ok = false;
           } else {
