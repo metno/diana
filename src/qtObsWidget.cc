@@ -763,7 +763,7 @@ miutil::miString ObsWidget::getOKString(bool forLog){
     dVariables.misc["onlypos"]="true";
   }
   if( pricheckbox->isChecked() ){
-      dVariables.misc["showOnlyPrioritized"]="true";
+      dVariables.misc["showonlyprioritized"]="true";
   }
   if(markerName.size())
     dVariables.misc["image"] = markerName[markerBox->currentIndex()];
@@ -1163,6 +1163,12 @@ void ObsWidget::updateDialog(bool setChecked){
     pricheckbox->setEnabled(false);
   } else {
     pricheckbox->setEnabled(true);
+  }
+
+  // show only prioritized
+  if (dVariables.misc.count("showonlyprioritized")
+      && dVariables.misc["showonlyprioritized"] == "true") {
+    pricheckbox->setChecked(true);
   }
 
   //colour
