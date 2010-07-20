@@ -43,6 +43,7 @@
 #include <diField/diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <diField/diField.h>
+#include <diField/diFieldFunctions.h>
 
 using namespace std;
 
@@ -267,7 +268,7 @@ public:
 
   bool prepareData(const miutil::miString& fileName);
   bool plot(VcrossOptions *vcoptions,
-	    const miutil::miString& fieldname, 
+	    const miutil::miString& fieldname,
 	    PlotOptions& poptions);
   bool plotBackground(const vector<miutil::miString>& labels);
 
@@ -282,6 +283,7 @@ protected:
 private:
   static FontManager*  fp;  // fontpack
   static GridConverter gc;  // gridconverter class
+  FieldFunctions ffunc;     // Container for Field Functions
 
   //----------------------------------------------------
   static map<miutil::miString,int> vcParName;    // name -> number
@@ -431,7 +433,7 @@ private:
 			      bool fillAll);
   void xyclip(int npos, float *x, float *y, float xylim[4]);
   vector <miutil::miString> split(const miutil::miString,const char,const char);
-  void plotArrow(const float& x0, 
+  void plotArrow(const float& x0,
 		 const float& y0,
 		 const float& dx,
 		 const float& dy,

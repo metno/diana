@@ -43,7 +43,6 @@
 #include <diVcrossOptions.h>
 #include <diCommandParser.h>
 #include <diSetupParser.h>
-#include <diField/diFieldFunctions.h>
 #include <diField/diMetConstants.h>
 #include <diContouring.h>
 #include <glText/glText.h>
@@ -52,7 +51,8 @@
 
 #include <math.h>
 
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 
 // static
 FontManager*  VcrossPlot::fp= 0; // fontpack
@@ -1777,7 +1777,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
   case vcf_divide:   if (compute==0) compute= 4;
   n1= parloc[0];
   n2= parloc[1];
-  if (!fieldOPERfield(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
+  if (!ffunc.fieldOPERfield(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
       cdata2d[no],allDefined,fieldUndef))
     return -1;
   break;
@@ -1785,7 +1785,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
   case vcf_tc_from_tk: if (compute==0) compute= 1;
   case vcf_tk_from_tc: if (compute==0) compute= 2;
   n1= parloc[0];
-  if (!cvtemp(compute,nPoint,numLev,cdata2d[n1],
+  if (!ffunc.cvtemp(compute,nPoint,numLev,cdata2d[n1],
       cdata2d[no],allDefined,fieldUndef))
     return -1;
   break;
@@ -1797,7 +1797,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
   case vcf_thesat_from_th: if (compute==0) compute= 5;
   n1= parloc[0];
   if (npp<0) return -1;
-  if (!aleveltemp(compute,nPoint,numLev,cdata2d[n1],cdata2d[npp],
+  if (!ffunc.aleveltemp(compute,nPoint,numLev,cdata2d[n1],cdata2d[npp],
       cdata2d[no],allDefined,fieldUndef))
     return -1;
   break;
@@ -1807,7 +1807,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
   n1= parloc[0];
   n2= parloc[1];
   if (npp<0) return -1;
-  if (!alevelthe(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
+  if (!ffunc.alevelthe(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
       cdata2d[npp],cdata2d[no],allDefined,fieldUndef))
     return -1;
   break;
@@ -1827,7 +1827,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
   n1= parloc[0];
   n2= parloc[1];
   if (npp<0) return -1;
-  if (!alevelhum(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
+  if (!ffunc.alevelhum(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
       cdata2d[npp],cdata2d[no],allDefined,fieldUndef))
     return -1;
   break;
@@ -1848,7 +1848,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     if(npi<0) return -1;
     compute-=4;
   }
-  if (!alevelducting(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
+  if (!ffunc.alevelducting(compute,nPoint,numLev,cdata2d[n1],cdata2d[n2],
       cdata2d[npp],cdata2d[no],allDefined,fieldUndef))
     return -1;
   if (compddz>4) {
@@ -1984,7 +1984,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     n1= parloc[0];
     unitscale= 3600./1852.;
     compute= 3;
-    if(!fieldOPERconstant(compute,nPoint,numLev,cdata2d[n1],unitscale,
+    if(!ffunc.fieldOPERconstant(compute,nPoint,numLev,cdata2d[n1],unitscale,
         cdata2d[no],allDefined,fieldUndef))
       return -1;
     break;
@@ -4145,7 +4145,7 @@ bool VcrossPlot::plotData(const miString& fieldname,
 	  if (bmap != NULL)
 		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
 	  else
-		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl; 
+		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl;
 	  cerr <<      nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "]," << endl;
 	  cerr <<      "fp, poptions, psoutput," << endl;
 	  cerr <<      "dummyArea," << fieldUndef << endl;
@@ -4276,7 +4276,7 @@ bool VcrossPlot::plotData(const miString& fieldname,
 	  if (bmap != NULL)
 		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
 	  else
-		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl; 
+		cerr <<      ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl;
 	  cerr <<      nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "]," << endl;
 	  cerr <<      "fp, poptions, psoutput," << endl;
 	  cerr <<      "dummyArea," << fieldUndef << endl;
