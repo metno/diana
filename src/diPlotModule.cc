@@ -234,10 +234,8 @@ void PlotModule::prepareMap(const vector<miString>& inp)
   // check area
   if (!mapDefinedByUser && arearequested) {
     mapDefinedByUser = (rarea.P().isDefined());
-    if(mapDefinedByUser){
-      requestedarea = rarea;
-      splot.setRequestedarea(requestedarea);
-    }
+    requestedarea = rarea;
+    splot.setRequestedarea(requestedarea);
   }
 }
 
