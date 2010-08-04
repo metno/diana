@@ -1606,7 +1606,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
   dialog.density.scale = 0.1;
 
   dialog.size.minValue = 1;
-  dialog.size.maxValue = 25;
+  dialog.size.maxValue = 35;
   dialog.size.value = 10;
   dialog.size.scale = 0.1;
 

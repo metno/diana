@@ -1977,8 +1977,9 @@ int numObs = 0;
   if (origcolour==backgroundColour) origcolour= backContrastColour;
   glColor4ubv(origcolour.RGBA());
 
-  if(Scale<1.75) glLineWidth(1);
-  else           glLineWidth(2);
+  if(Scale<1.75)      glLineWidth(1);
+  else if(Scale<2.55) glLineWidth(2);
+  else                glLineWidth(3);
 
   fp->set(poptions.fontname,poptions.fontface,10*Scale);
 
