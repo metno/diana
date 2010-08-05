@@ -61,15 +61,16 @@ diOrderListener::listen(const QHostAddress &addr, quint16 port)
 {
 	bool ok;
 	mutex.lock();
-	if (server.isListening())
-		ok = false;
-	else
-		ok = server.listen(addr, port);
+	if ((ok = !server.isListening())) {
+		if ((ok = server.listen(addr, port))) {
+			qDebug() << this << QString("listening on %1:%2").
+			    arg(addr.toString()).arg(port);
+		} else {
+			qDebug() << this << QString("failed to listen on %1:%2: %3").
+			    arg(addr.toString()).arg(port).arg(server.errorString());
+		}
+	}
 	mutex.unlock();
-	if (ok)
-		std::cerr << "listening on " <<
-		    server.serverAddress().toString().toStdString() <<
-		    " port " << port << std::endl;
 	return ok;
 }
 
