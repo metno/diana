@@ -187,7 +187,7 @@ void PlotModule::prepareMap(const vector<miString>& inp)
     if (nm > 0) { // mapPlots exists
       for (int j = 0; j < nm; j++) {
         if (!inuse[j]) { // not already taken
-          if (vmp[j]->prepare(inp[k], true)) {
+          if (vmp[j]->prepare(inp[k], rarea, true)) {
             inuse[j] = true;
             isok = true;
             arearequested |= vmp[j]->requestedArea(rarea);
@@ -205,7 +205,7 @@ void PlotModule::prepareMap(const vector<miString>& inp)
     MapPlot *mp;
     vmp.push_back(mp);
     vmp[nnm] = new MapPlot();
-    if (!vmp[nnm]->prepare(inp[k], false)) {
+    if (!vmp[nnm]->prepare(inp[k], rarea, false)) {
       delete vmp[nnm];
       vmp.pop_back();
     } else {

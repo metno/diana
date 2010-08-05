@@ -153,7 +153,7 @@ public:
   /// plot map in a specific zorder layer
   bool plot(const int zorder);
   /// parse plotinfo
-  bool prepare(const miutil::miString&, bool ifequal =true);
+  bool prepare(const miutil::miString&, Area rarea, bool ifequal =true);
   /// return the area asked for
   bool requestedArea(Area& rarea); // return requested area
 };

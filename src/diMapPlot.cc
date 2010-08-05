@@ -85,7 +85,7 @@ MapPlot::~MapPlot()
 /*
  Extract plotting-parameters from PlotInfo.
  */
-bool MapPlot::prepare(const miString& pinfo, bool ifequal)
+bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
 {
 #ifdef DEBUGPRINT
   cerr <<"MapPlot::prepare: "<<pinfo<<endl;
@@ -93,6 +93,7 @@ bool MapPlot::prepare(const miString& pinfo, bool ifequal)
 
   Area newarea;
   MapManager mapm;
+  reqarea = rarea; //get requested area from previous MapPlot
 
   vector<miString> tokens= pinfo.split('"', '"'), stokens;
   int n= tokens.size();
@@ -407,7 +408,7 @@ bool MapPlot::plot(const int zorder)
 
   // plot frame
   if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder) {
-    //cerr << "Plotting frame for layer:" << zorder << endl;
+//    cerr << "Plotting frame for layer:" << zorder << endl;
     Rectangle reqr= reqarea.R();
     Colour c= ffopts.linecolour;
     if (c==backgroundColour)
