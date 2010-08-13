@@ -65,7 +65,7 @@ GridConverter PlotModule::gc; // Projection-converter
 
 // Default constructor
 PlotModule::PlotModule() :
-   apEditmessage(0),plotw(0),ploth(0),resizezoom(true),
+   apEditmessage(0),plotw(0.),ploth(0.),resizezoom(true),
    showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
    mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
    dopanning(false), keepcurrentarea(true), obsnr(0)
@@ -1576,10 +1576,10 @@ void PlotModule::plotOver()
     <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy<<endl;
 #endif
     Rectangle fullr = splot.getPlotSize();
-    float x1 = fullr.x1 + fullr.width() * oldx / float(plotw);
-    float y1 = fullr.y1 + fullr.height() * oldy / float(ploth);
-    float x2 = fullr.x1 + fullr.width() * newx / float(plotw);
-    float y2 = fullr.y1 + fullr.height() * newy / float(ploth);
+    float x1 = fullr.x1 + fullr.width() * oldx / plotw;
+    float y1 = fullr.y1 + fullr.height() * oldy / ploth;
+    float x2 = fullr.x1 + fullr.width() * newx / plotw;
+    float y2 = fullr.y1 + fullr.height() * newy / ploth;
 
     Colour c = getContrastColour();
     glColor4ubv(c.RGBA());
@@ -1607,26 +1607,26 @@ void PlotModule::PlotAreaSetup()
 
   if (plotw < 1 || ploth < 1)
     return;
-  float waspr = float(plotw) / float(ploth);
+  float waspr = plotw / ploth;
 
   Area ma = splot.getMapArea();
   Rectangle mapr = ma.R();
 
-  float d, del, delta = 0.01;
-  del = delta;
-  while (mapr.width() < delta) {
-    d = (del - mapr.width()) * 0.5;
-    mapr.x1 -= d;
-    mapr.x2 += d;
-    del = del * 2.;
-  }
-  del = delta;
-  while (mapr.height() < delta) {
-    d = (del - mapr.height()) * 0.5;
-    mapr.y1 -= d;
-    mapr.y2 += d;
-    del = del * 2.;
-  }
+//   float d, del, delta = 0.01;
+//   del = delta;
+//   while (mapr.width() < delta) {
+//     d = (del - mapr.width()) * 0.5;
+//     mapr.x1 -= d;
+//     mapr.x2 += d;
+//     del = del * 2.;
+//   }
+//   del = delta;
+//   while (mapr.height() < delta) {
+//     d = (del - mapr.height()) * 0.5;
+//     mapr.y1 -= d;
+//     mapr.y2 += d;
+//     del = del * 2.;
+//   }
 
   float maspr = mapr.width() / mapr.height();
 
@@ -1672,10 +1672,10 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
   " w=" << w << " h=" << h << endl;
 #endif
 
-  plotw = w;
-  ploth = h;
+  plotw = float(w);
+  ploth = float(h);
 
-  splot.setPhysSize(float(plotw), float(ploth));
+  splot.setPhysSize(plotw, ploth);
 
   PlotAreaSetup();
 
@@ -1773,10 +1773,10 @@ void PlotModule::PixelArea(const Rectangle r)
 
   // map to grid-coordinates
   Rectangle newr = fullr;
-  newr.x1 = fullr.x1 + fullr.width() * r.x1 / float(plotw);
-  newr.y1 = fullr.y1 + fullr.height() * r.y1 / float(ploth);
-  newr.x2 = fullr.x1 + fullr.width() * r.x2 / float(plotw);
-  newr.y2 = fullr.y1 + fullr.height() * r.y2 / float(ploth);
+  newr.x1 = fullr.x1 + fullr.width() * r.x1 / plotw;
+  newr.y1 = fullr.y1 + fullr.height() * r.y1 / ploth;
+  newr.x2 = fullr.x1 + fullr.width() * r.x2 / plotw;
+  newr.y2 = fullr.y1 + fullr.height() * r.y2 / ploth;
 
 #ifdef DEBUGPRINT
   cerr << "Fullplotarea:" << fullr << endl;
@@ -2195,8 +2195,6 @@ void PlotModule::makeStationPlot(const miString& commondesc,
 miString PlotModule::findStation(int x, int y, miString name, int id)
 {
 
-  //################  if(dopanning || dorubberband ) return miString();
-
   int n = stationPlots.size();
   for (int i = 0; i < n; i++) {
     if ((id == -1 || id == stationPlots[i]->getId()) && (name
@@ -2445,8 +2443,6 @@ void PlotModule::setSelectedLocation(const miString& name,
 
 miString PlotModule::findLocation(int x, int y, const miString& name)
 {
-
-  //################  if(dopanning || dorubberband ) return miString();
 
   int n = locationPlots.size();
   for (int i = 0; i < n; i++) {
@@ -2929,12 +2925,12 @@ void PlotModule::zoomTo(const Rectangle& rectangle)
 void PlotModule::zoomOut()
 {
   float scale = 1.3;
-  int wd = int((plotw * scale - plotw) / 2.);
-  int hd = int((ploth * scale - ploth) / 2.);
-  int x1 = -wd;
-  int y1 = -hd;
-  int x2 = plotw + wd;
-  int y2 = ploth + hd;
+  float wd = ((plotw * scale - plotw) / 2.);
+  float hd = ((ploth * scale - ploth) / 2.);
+  float x1 = -wd;
+  float y1 = -hd;
+  float x2 = plotw + wd;
+  float y2 = ploth + hd;
   //define new plotarea, first save the old one
   areaInsert(splot.getMapArea(), true);
   Rectangle r(x1, y1, x2, y2);
@@ -2988,9 +2984,9 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
       return;
 
     } else if (dopanning) {
-      int x1, y1, x2, y2;
-      int wd = me.x - oldx;
-      int hd = me.y - oldy;
+      float x1, y1, x2, y2;
+      float wd = me.x - oldx;
+      float hd = me.y - oldy;
       x1 = -wd;
       y1 = -hd;
       x2 = plotw - wd;
@@ -3015,7 +3011,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
 
     res.savebackground = false;
 
-    int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+    float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
     // minimum rubberband size for zooming (in pixels)
     const float rubberlimit = 15.;
 
@@ -3042,9 +3038,10 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
       if (fabsf(x2 - x1) > rubberlimit && fabsf(y2 - y1) > rubberlimit) {
         if (dorubberband)
           plotnew = true;
-      } else
+      } else {
         res.action = pointclick;
-      // 	moveClassified =false;
+      }
+
       dorubberband = false;
 
     } else if (me.button == midButton) {
@@ -3074,7 +3071,7 @@ void PlotModule::sendKeyboardEvent(const keyboardEvent& me, EventResult& res)
 {
   static int arrowKeyDirection = 1;
 
-  int dx = 0, dy = 0;
+  float dx = 0, dy = 0;
   float zoom = 0.;
 
   if (me.type == keypress) {
@@ -3123,8 +3120,8 @@ void PlotModule::sendKeyboardEvent(const keyboardEvent& me, EventResult& res)
     } else if (zoom > 0.) {
       //define new plotarea, first save the old one
       areaInsert(splot.getMapArea(), true);
-      dx = plotw - int(plotw * zoom);
-      dy = ploth - int(ploth * zoom);
+      dx = plotw - (plotw * zoom);
+      dy = ploth - (ploth * zoom);
       Rectangle r(dx, dy, plotw - dx, ploth - dy);
       PixelArea(r);
     }

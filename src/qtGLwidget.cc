@@ -120,9 +120,6 @@ void GLwidget::editPaint(bool drawb)
     float glx1, gly1, glx2, gly2, delta;
     contr->getPlotSize(glx1, gly1, glx2, gly2);
     delta = (fabs(glx1 - glx2) * 0.1 / plotw);
-    if (delta < 0.0005) {
-      delta = 0.0005;
-    }
 
     glPixelZoom(1, 1);
     glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);

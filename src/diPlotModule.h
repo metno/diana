@@ -116,7 +116,7 @@ private:
   Area requestedarea;
   Area previousrequestedarea;
 
-  int plotw, ploth;     // width and height of plotwindow (pixels)
+  float plotw, ploth;     // width and height of plotwindow (pixels)
   bool resizezoom;      // should resizing zoom splot.area?
   bool showanno;        // show standard annotations
 
@@ -139,8 +139,8 @@ private:
   vector <LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
   // event-handling
-  int oldx, oldy,xmoved,ymoved;
-  int newx, newy;
+  float oldx, oldy,xmoved,ymoved;
+  float newx, newy;
   Area myArea;
   deque<Area> areaQ;
   int areaIndex;
