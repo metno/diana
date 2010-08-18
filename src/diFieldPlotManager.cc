@@ -990,6 +990,7 @@ bool FieldPlotManager::parsePin(const miString& pin, miString& modelName,
   splitSuffix(plotName, suffix);
 
   if (!mapPlotField.count(plotName)) {
+    cerr <<"FieldPlotManager::parsePin: Parameter:"<<plotName<<" not defined i setup"<<endl;
     return false;
   }
   for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
