@@ -246,6 +246,7 @@ private:
   int visibility(float vv, bool ship);
   int vis_direction(float dv);
   void amountOfClouds(int16, int16, float,float);
+  void checkAccumulationTime(ObsData &dta);
   void plotSynop(int index);
   void plotList(int index);
   void plotAscii(int index);

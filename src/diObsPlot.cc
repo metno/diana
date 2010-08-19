@@ -2793,13 +2793,14 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("rrr")) {
     ypos -= yStep;
+    checkAccumulationTime(dta);
     if ((f_p = dta.fdata.find("RRR")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("RRR", f_p->second);
-      if (f_p->second < 0.1) { //No precipitation (0.)
-        printListString("0.", xpos, ypos, align);
-      } else if (f_p->second > 989) { //Precipitation, but less than 0.1 mm (0.0)
+      if (f_p->second < 0.0) { //Precipitation, but less than 0.1 mm (0.0)
         printListString("0.0", xpos, ypos, align);
+      } else if (f_p->second < 0.1) { //No precipitation (0.)
+        printListString("0.", xpos, ypos, align);
       } else {
         printList(f_p->second, xpos, ypos, 1, align);
       }
@@ -3111,6 +3112,71 @@ void ObsPlot::plotList(int index)
       printList(undef, xpos, ypos, 2, align);
     }
   }
+  if (pFlag.count("rrr_1")) {
+    ypos -= yStep;
+    if ((f_p = dta.fdata.find("RRR_1")) != dta.fdata.end()) {
+      if (ccriteria)
+        checkColourCriteria("RRR_1", f_p->second);
+      if (f_p->second < 0.0) { //Precipitation, but less than 0.1 mm (0.0)
+        printListString("0.0", xpos, ypos, align);
+      } else if (f_p->second < 0.1) { //No precipitation (0.)
+        printListString("0.", xpos, ypos, align);
+      } else {
+        printList(f_p->second, xpos, ypos, 1, align);
+      }
+    } else {
+      printUndef(xpos, ypos, align);
+    }
+  }
+  if (pFlag.count("rrr_6")) {
+    ypos -= yStep;
+    if ((f_p = dta.fdata.find("RRR_6")) != dta.fdata.end()) {
+      if (ccriteria)
+        checkColourCriteria("RRR_6", f_p->second);
+      if (f_p->second < 0.0) { //Precipitation, but less than 0.1 mm (0.0)
+        printListString("0.0", xpos, ypos, align);
+      } else if (f_p->second < 0.1) { //No precipitation (0.)
+        printListString("0.", xpos, ypos, align);
+      } else {
+        printList(f_p->second, xpos, ypos, 1, align);
+      }
+    } else {
+      printUndef(xpos, ypos, align);
+    }
+  }
+  if (pFlag.count("rrr_12")) {
+    ypos -= yStep;
+    if ((f_p = dta.fdata.find("RRR_12")) != dta.fdata.end()) {
+      if (ccriteria)
+        checkColourCriteria("RRR_12", f_p->second);
+      if (f_p->second < 0.0) { //Precipitation, but less than 0.1 mm (0.0)
+        printListString("0.0", xpos, ypos, align);
+      } else if (f_p->second < 0.1) { //No precipitation (0.)
+        printListString("0.", xpos, ypos, align);
+      } else {
+        printList(f_p->second, xpos, ypos, 1, align);
+      }
+    } else {
+      printUndef(xpos, ypos, align);
+    }
+  }
+  if (pFlag.count("rrr_24")) {
+    ypos -= yStep;
+    if ((f_p = dta.fdata.find("RRR_24")) != dta.fdata.end()) {
+      if (ccriteria)
+        checkColourCriteria("RRR_24", f_p->second);
+      if (f_p->second < 0.0) { //Precipitation, but less than 0.1 mm (0.0)
+        printListString("0.0", xpos, ypos, align);
+      } else if (f_p->second < 0.1) { //No precipitation (0.)
+        printListString("0.", xpos, ypos, align);
+      } else {
+        printList(f_p->second, xpos, ypos, 1, align);
+      }
+    } else {
+      printUndef(xpos, ypos, align);
+    }
+  }
+
   if (pFlag.count("dyp(1)")) {
     ypos -= yStep;
     if ((f_p = dta.fdata.find("Dyp(1)")) != dta.fdata.end()) {
@@ -4204,17 +4270,20 @@ void ObsPlot::plotSynop(int index)
   }
 
   //Precipitation - RRR
-  if (pFlag.count("rrr") && (f_p = dta.fdata.find("RRR")) != fend && !(dta.zone
-      == 99 && dta.fdata.count("ds") && dta.fdata.count("vs"))) {
-    if (ccriteria)
-      checkColourCriteria("RRR", f_p->second);
-    if (f_p->second < 0.1) //No precipitation (0.)
-      printString("0.", iptab[lpos + 32] + 2, iptab[lpos + 33] + 2);
-    else if (f_p->second > 989) //Precipitation, but less than 0.1 mm (0.0)
-      printString("0.0", iptab[lpos + 32] + 2, iptab[lpos + 33] + 2);
-    else
-      printNumber(f_p->second, iptab[lpos + 32] + 2, iptab[lpos + 33] + 2,
-          "RRR");
+  if (pFlag.count("rrr") && !(dta.zone == 99 && dta.fdata.count("ds")
+      && dta.fdata.count("vs"))) {
+    checkAccumulationTime(dta);
+    if ((f_p = dta.fdata.find("RRR")) != fend) {
+      if (ccriteria)
+        checkColourCriteria("RRR", f_p->second);
+      if (f_p->second < 0.0) //Precipitation, but less than 0.1 mm (0.0)
+        printString("0.0", iptab[lpos + 32] + 2, iptab[lpos + 33] + 2);
+      else if (f_p->second < 0.1) //No precipitation (0.)
+        printString("0.", iptab[lpos + 32] + 2, iptab[lpos + 33] + 2);
+      else
+        printNumber(f_p->second, iptab[lpos + 32] + 2, iptab[lpos + 33] + 2,
+            "RRR");
+    }
   }
   // Horizontal visibility - VV
   if (pFlag.count("vv") && (f_p = dta.fdata.find("VV")) != fend) {
@@ -5312,6 +5381,23 @@ void ObsPlot::amountOfClouds(int16 Nh, int16 h, float x, float y)
 
 }
 
+void ObsPlot::checkAccumulationTime(ObsData &dta)
+{
+
+  int hour = Time.hour();
+  if (hour == 6 && hour == 18 && dta.fdata.count("RRR_12")) {
+
+    dta.fdata["RRR"] = dta.fdata["RRR_12"];
+
+  } else if (hour == 0 && hour == 12 && dta.fdata.count("RRR_6")) {
+    dta.fdata["RRR"] = dta.fdata["RRR_6"];
+
+  } else if (dta.fdata.count("RRR_1")) {
+    dta.fdata["RRR"] = dta.fdata["RRR_1"];
+
+  }
+}
+
 void ObsPlot::arrow(float& angle, float xpos, float ypos, float scale)
 {
   glPushMatrix();
@@ -5905,13 +5991,15 @@ void ObsPlot::checkColourCriteria(const miString& param, float value)
   if (p == colourcriteria.end())
     return;
 
-  //RRR=990 - Precipitation, but less than 0.1 mm (0.0)
+  //RRR=-0.1 - Precipitation, but less than 0.1 mm (0.0)
   //RRR=0   - No precipitation (0.)
-  if (param == "RRR") {
-    if (value < 0.1)
-      value = -1.0;
-    if (value > 989)
+  //Change value to make criteria more sensible, > 0 is true if RRR=-0.1, but not if RRR=0.0
+  if (p->first == "RRR") {
+    if (value < 0.0) {
       value = 0.0;
+    } else if (value < 0.1) {
+      value = -1.0;
+    }
   }
 
   int n = colourcriteria[param].size();
@@ -5969,13 +6057,15 @@ bool ObsPlot::checkPlotCriteria(int index)
         continue;
     }
 
-    //RRR=990 - Precipitation, but less than 0.1 mm (0.0)
+    //RRR=-0.1 - Precipitation, but less than 0.1 mm (0.0)
     //RRR=0   - No precipitation (0.)
+    //Change value to make criteria more sensible, > 0 is true if RRR=-0.1, but not if RRR=0.0
     if (p->first == "RRR") {
-      if (value < 0.1)
-        value = -1.0;
-      if (value > 989)
+      if (value < 0.0) {
         value = 0.0;
+      } else if (value < 0.1) {
+        value = -1.0;
+      }
     }
 
     bool bplot = true;
@@ -6031,13 +6121,15 @@ void ObsPlot::checkTotalColourCriteria(int index)
         continue;
     }
 
-    //RRR=990 - Precipitation, but less than 0.1 mm (0.0)
+    //RRR=-0.1 - Precipitation, but less than 0.1 mm (0.0)
     //RRR=0   - No precipitation (0.)
+    //Change value to make criteria more sensible, > 0 is true if RRR=-0.1, but not if RRR=0.0
     if (p->first == "RRR") {
-      if (value < 0.1)
-        value = -1.0;
-      if (value > 989)
+      if (value < 0.0) {
         value = 0.0;
+      } else if (value < 0.1) {
+        value = -1.0;
+      }
     }
 
     for (int i = 0; i < ncrit; i++) {

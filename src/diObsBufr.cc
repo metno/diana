@@ -685,86 +685,57 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
         d.fdata["sss"] = 0.;
       break;
 
-      //Precipitation: 06 and 18: 13022, 00 and 12: 13021
-
-      //                          True              Not necessarily true!
-      // znd what about the other termins?
-
-      // PRECIPITATION:
-
-      // In current decoding of synop only one precipitation group is
-      // decoded, into surf files. This is 6RRRtR in section 1 or or
-      // 6RRRtR in section 3, in this priority. In addition, a synop
-      // may include 7R24R24R24R24 in section 3, but this is not
-      // decoded. Because Hirlam crashes if another descriptor than
-      // 13020-23 is used, 13019 is stored (wrongly) in surf as 13023.
-
-      // In the future surface observations are expected received as
-      // BUFR synop using one of the WMO recommended templates. This
-      // contains 13023 (should be included at least once a day, at
-      // one of the termins 00, 06, 12 or 18) All other precipitation
-      // is reported using 013011 preceded by 004024 to show the time
-      // period. Just as TAC synop today, BUFR synop may contain up to
-      // 3 precipitation groups.
-
-      // Should Diana be able to show more than one precipitation
-      // group and/or show the precipitation period? If not, we have
-      // to agree on what group at which termins to show. Today this
-      // is a mess. Also, does the special value -0.1 (meaning trace)
-      // need special treatment?.
-
       //13019 Total precipitation past 1 hour
-      //13020 Total precipitation past 3 hour
-      //13023 Total precipitation past 24 hour
     case 13019:
+      if (values[j] < bufrMissing) {
+          d.fdata["RRR_1"] = values[j];
+      }
+      break;
+
+      //13020 Total precipitation past 3 hour
     case 13020:
-    case 13023:
-      if (obsTime.hour() % 6 != 0 && values[j] < bufrMissing) {
-        if (values[j] < 0.0) {
-          d.fdata["RRR"] = 999.0;
-        } else {
-          d.fdata["RRR"] = values[j];
-        }
+      if (values[j] < bufrMissing) {
+          d.fdata["RRR_3"] = values[j];
       }
       break;
 
       //13021 Total precipitation past 6 hour
     case 13021:
-      if (obsTime.hour() != 6 && obsTime.hour() != 18 && values[j]
-          < bufrMissing) {
-        if (values[j] < 0.0) {
-          d.fdata["RRR"] = 999.0;
-        } else {
-          d.fdata["RRR"] = values[j];
-        }
-      }
+      if (values[j] < bufrMissing) {
+	          d.fdata["RRR_6"] = values[j];
+      }		
       break;
 
       //13022 Total precipitation past 12 hour
     case 13022:
-      if (obsTime.hour() % 12 != 0 && values[j] < bufrMissing) {
-        if (values[j] < 0.0) {
-          d.fdata["RRR"] = 999.0;
-        } else {
-          d.fdata["RRR"] = values[j];
-        }
+      if (values[j] < bufrMissing) {
+          d.fdata["RRR_12"] = values[j];
+      }
+      break;
+
+      //13023 Total precipitation past 24 hour
+    case 13023:
+      if (values[j] < bufrMissing) {
+          d.fdata["RRR_24"] = values[j];
       }
       break;
 
       // 13011 Total precipitation / total water equivalent of snow
     case 13011:
-      if (!d.fdata.count("RRR") && values[j] < bufrMissing) {
-        int hh = obsTime.hour();
-        if ((hh == 6 || hh == 18) && timePeriodHour == -12 || (hh == 0 || hh
-            == 12) && timePeriodHour == -6 || (hh != 0 && hh != 6 && hh != 12
-            && hh != 18)) {
-          if (values[j] < 0.0) {
-            d.fdata["RRR"] = 999.0;
-          } else {
-            d.fdata["RRR"] = values[j];
-          }
-        }
-        d.fdata["RRR"] = values[j];
+      if (values[j] < bufrMissing) {
+          d.fdata["RRR_accum"] =-1 * timePeriodHour;
+		            d.fdata["RRR"] = values[j];
+	        if (timePeriodHour == -24 ) {
+	            d.fdata["RRR_24"] = values[j];
+            } else if (timePeriodHour == -12 ) {
+	            d.fdata["RRR_12"] = values[j];
+            } else if (timePeriodHour == -6 ) {
+	            d.fdata["RRR_6"] = values[j];
+            } else if (timePeriodHour == -3 ) {
+	            d.fdata["RRR_3"] = values[j];
+            } else if (timePeriodHour == -1 ) {
+	            d.fdata["RRR_1"] = values[j];
+	            }
       }
       break;
 
