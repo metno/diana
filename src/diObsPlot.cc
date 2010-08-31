@@ -2999,6 +2999,7 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("911ff")) {
     ypos -= yStep;
+    checkGustTime(dta);
     if ((f_p = dta.fdata.find("911ff")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("911ff", f_p->second);
@@ -3019,6 +3020,7 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("fxfx")) {
     ypos -= yStep;
+    checkMaxWindTime(dta);
     if ((f_p = dta.fdata.find("fxfx")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("fxfx", f_p->second);
@@ -4325,11 +4327,14 @@ void ObsPlot::plotSynop(int index)
   }
 
   // Maximum wind speed (gusts) - 911ff
-  if (pFlag.count("911ff") && (f_p = dta.fdata.find("911ff")) != fend) {
-    if (ccriteria)
-      checkColourCriteria("911ff", f_p->second);
-    printNumber(ms2knots(f_p->second), iptab[lpos + 38] + 2, iptab[lpos + 39]
-        + 2, "fill_2", true);
+  if (pFlag.count("911ff") ) {
+    checkGustTime(dta);
+    if((f_p = dta.fdata.find("911ff")) != fend) {
+      if (ccriteria)
+        checkColourCriteria("911ff", f_p->second);
+      printNumber(ms2knots(f_p->second), iptab[lpos + 38] + 2, iptab[lpos + 39]
+                                                                     + 2, "fill_2", true);
+    }
   }
 
   // State of the sea - s
@@ -4343,16 +4348,19 @@ void ObsPlot::plotSynop(int index)
   }
 
   // Maximum wind speed
-  if (pFlag.count("fxfx") && (f_p = dta.fdata.find("fxfx")) != fend
-      && !(dta.zone > 1 && dta.zone < 99)) {
-    if (ccriteria)
-      checkColourCriteria("fxfx", f_p->second);
-    if (TxTnFlag)
-      printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 12, iptab[lpos + 7]
-          + 2, "fill_2", true);
-    else
-      printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 12, iptab[lpos + 7]
-          - 14, "fill_2", true);
+  if (pFlag.count("fxfx") ) {
+    checkMaxWindTime(dta);
+    if ( (f_p = dta.fdata.find("fxfx")) != fend
+        && !(dta.zone > 1 && dta.zone < 99)) {
+      if (ccriteria)
+        checkColourCriteria("fxfx", f_p->second);
+      if (TxTnFlag)
+        printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 12, iptab[lpos + 7]
+                                                                       + 2, "fill_2", true);
+      else
+        printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 12, iptab[lpos + 7]
+                                                                       - 14, "fill_2", true);
+    }
   }
 
   //Maritime
@@ -5384,16 +5392,68 @@ void ObsPlot::amountOfClouds(int16 Nh, int16 h, float x, float y)
 void ObsPlot::checkAccumulationTime(ObsData &dta)
 {
 
+  // todo: include this if all data sources reports time info
+//  if (dta.fdata.find("RRR")!= dta.fdata.end()){
+//    dta.fdata.erase(dta.fdata.find("RRR"));
+//  }
+
   int hour = Time.hour();
-  if (hour == 6 && hour == 18 && dta.fdata.count("RRR_12")) {
+  if ((hour == 6  || hour == 18 ) && dta.fdata.count("RRR_12")) {
 
     dta.fdata["RRR"] = dta.fdata["RRR_12"];
 
-  } else if (hour == 0 && hour == 12 && dta.fdata.count("RRR_6")) {
+  } else if ((hour == 0 || hour == 12 ) && dta.fdata.count("RRR_6")) {
     dta.fdata["RRR"] = dta.fdata["RRR_6"];
 
   } else if (dta.fdata.count("RRR_1")) {
     dta.fdata["RRR"] = dta.fdata["RRR_1"];
+
+  }
+}
+
+void ObsPlot::checkGustTime(ObsData &dta)
+{
+
+  // todo: include this if all data sources reports time info
+  //  if (dta.fdata.find("911ff")!= dta.fdata.end()){
+  //    dta.fdata.erase(dta.fdata.find("911ff"));
+  //  }
+  int hour = Time.hour();
+  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18 )
+      && dta.fdata.count("911ff_360")) {
+
+    dta.fdata["911ff"] = dta.fdata["911ff_360"];
+
+  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21 )
+      && dta.fdata.count("911ff_180")) {
+
+    dta.fdata["911ff"] = dta.fdata["911ff_180"];
+
+  } else if (dta.fdata.count("911ff_60")) {
+
+    dta.fdata["911ff"] = dta.fdata["911ff_60"];
+
+  }
+}
+
+void ObsPlot::checkMaxWindTime(ObsData &dta)
+{
+
+  // todo: include this if all data sources reports time info
+  //  if (dta.fdata.find("fxfx")!= dta.fdata.end()){
+  //    dta.fdata.erase(dta.fdata.find("fxfx"));
+  //  }
+
+  int hour = Time.hour();
+  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18 )
+      && dta.fdata.count("fxfx_360")) {
+
+    dta.fdata["fxfx"] = dta.fdata["fxfx_360"];
+
+  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21 )
+      && dta.fdata.count("fxfx_180")) {
+
+    dta.fdata["fxfx"] = dta.fdata["fxfx_180"];
 
   }
 }

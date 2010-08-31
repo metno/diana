@@ -43,7 +43,7 @@
 #include <diObsBufr.h>
 #include <algorithm>
 
-using namespace std; 
+using namespace std;
 using namespace miutil;
 
 const double bufrMissing = 1.6e+38;
@@ -51,7 +51,7 @@ const double bufrMissing = 1.6e+38;
 bool ObsBufr::init(const miString& bufr_file, const miString& format)
 {
 
-  //   cerr <<"ObsBufr::init:"<<bufr_file<<endl;
+//	     cerr	 <<"ObsBufr::init:"<<bufr_file<<endl;
   obsTime = miTime(); //undef
   //   const int ibflen=4*512000;
   //   int ibuff[512000];
@@ -170,7 +170,7 @@ bool ObsBufr::readStationInfo(const miString& bufr_file,
   namelist = id;
   latitudelist = latitude;
   longitudelist = longitude;
-  return true;			
+  return true;
 }
 
 VprofPlot* ObsBufr::getVprofPlot(const miString& bufr_file,
@@ -304,7 +304,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
   // constants for changing to met.no units
   const double pa2hpa = 0.01;
-  const double t0 = 273.2; // 273.15 ?????????
+  const double t0 = 273.15;
 
   int wmoBlock = 0;
   int wmoStation = 0;
@@ -367,6 +367,16 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //     break;
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
+    case 1006:
+    {
+      int index = int(values[j]) / 1000 - 1;
+      for (int k = 0; k < 6; k++) {
+        d.id += cvals[index][k];
+      }
+      landStation = false;
+    }
+    break;
+
     case 1011:
     {
       int index = int(values[j]) / 1000 - 1;
@@ -525,6 +535,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
     case 10051:
+    case 7004:
       if (values[j] < bufrMissing)
         d.fdata["PPPP"] = values[j] * pa2hpa;
       break;
@@ -555,8 +566,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       // 011001 WIND DIRECTION
     case 11001:
-      if (!d.fdata.count("dd") && values[j] < bufrMissing && timePeriodMinute
-          == -10) {
+      if (!d.fdata.count("dd") && values[j] < bufrMissing) {
         d.fdata["dd"] = values[j];
       }
       break;
@@ -568,8 +578,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       break;
       // 011002 WIND SPEED
     case 11002:
-      if (!d.fdata.count("ff") && values[j] < bufrMissing && timePeriodMinute
-          == -10)
+      if (!d.fdata.count("ff") && values[j] < bufrMissing )
         d.fdata["ff"] = values[j];
       break;
 
@@ -587,16 +596,30 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       // 011041 MAXIMUM WIND SPEED (GUSTS), m/s
     case 11041:
-      if (values[j] < bufrMissing && timePeriodMinute == -10) {
-        d.fdata["911ff"] = values[j];
+      if (values[j] < bufrMissing) {
+//        d.fdata["911ff"] = values[j];
         d.fdata["fmfm"] = values[j]; //metar
+        if (timePeriodMinute == -10) {
+          d.fdata["911ff_10"] = values[j];
+        } else if (timePeriodMinute == -60) {
+          d.fdata["911ff_60"] = values[j];
+        } else if (timePeriodMinute == -180) {
+          d.fdata["911ff_180"] = values[j];
+        } else if (timePeriodMinute == -360) {
+          d.fdata["911ff_360"] = values[j];
+        }
       }
       break;
 
       // 011042 MAXIMUM WIND SPEED (10 MIN MEAN WIND), m/s
     case 11042:
       if (values[j] < bufrMissing)
-        d.fdata["fxfx"] = values[j];
+//        d.fdata["fxfx"] = values[j];
+      if (timePeriodMinute == -180) {
+        d.fdata["fxfx_189"] = values[j];
+      } else if (timePeriodMinute == -360) {
+        d.fdata["fxfx_360"] = values[j];
+      }
       break;
 
       //   12104  DRY BULB TEMPERATURE AT 2M (16 bits), K->Celsius
@@ -632,21 +655,21 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   12014  MAX TEMPERATURE AT 2M, K->Celsius
     case 12014:
-      if (values[j] < bufrMissing && obsTime.hour() == 18)
+      if (values[j] < bufrMissing && hour == 18)
         d.fdata["TxTn"] = values[j] - t0;
       break;
       //   12111  MAX TEMPERATURE AT HEIGHT AND OVER PERIOD SPECIFIED (16 bits), K->Celsius
       //   12011  MAX TEMPERATURE AT HEIGHT AND OVER PERIOD SPECIFIED (12 bits), K->Celsius
     case 12111:
     case 12011:
-      if (!d.fdata.count("TxTn") && values[j] < bufrMissing && obsTime.hour()
+      if (!d.fdata.count("TxTn") && values[j] < bufrMissing && hour
           == 18 && timePeriodHour == -12 && timeDisplacement == 0)
         d.fdata["TxTn"] = values[j] - t0;
       break;
 
       //   12015  MIN TEMPERATURE AT 2M, K->Celsius
     case 12015:
-      if (values[j] < bufrMissing && obsTime.hour() == 6)
+      if (values[j] < bufrMissing && hour == 6)
         d.fdata["TxTn"] = values[j] - t0;
       break;
 
@@ -654,7 +677,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   12012  MIN TEMPERATURE AT HEIGHT AND OVER PERIOD SPECIFIED (12 bits), K->Celsius
     case 12112:
     case 12012:
-      if (!d.fdata.count("TxTn") && values[j] < bufrMissing && obsTime.hour()
+      if (!d.fdata.count("TxTn") && values[j] < bufrMissing && hour
           == 6 && timePeriodHour == -12 && timeDisplacement == 0)
         d.fdata["TxTn"] = values[j] - t0;
       break;
@@ -703,7 +726,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 13021:
       if (values[j] < bufrMissing) {
 	          d.fdata["RRR_6"] = values[j];
-      }		
+      }
       break;
 
       //13022 Total precipitation past 12 hour
@@ -723,19 +746,19 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       // 13011 Total precipitation / total water equivalent of snow
     case 13011:
       if (values[j] < bufrMissing) {
-          d.fdata["RRR_accum"] =-1 * timePeriodHour;
-		            d.fdata["RRR"] = values[j];
-	        if (timePeriodHour == -24 ) {
-	            d.fdata["RRR_24"] = values[j];
-            } else if (timePeriodHour == -12 ) {
-	            d.fdata["RRR_12"] = values[j];
-            } else if (timePeriodHour == -6 ) {
-	            d.fdata["RRR_6"] = values[j];
-            } else if (timePeriodHour == -3 ) {
-	            d.fdata["RRR_3"] = values[j];
-            } else if (timePeriodHour == -1 ) {
-	            d.fdata["RRR_1"] = values[j];
-	            }
+//        d.fdata["RRR_accum"] =-1 * timePeriodHour;
+//        d.fdata["RRR"] = values[j];
+        if (timePeriodHour == -24 ) {
+          d.fdata["RRR_24"] = values[j];
+        } else if (timePeriodHour == -12 ) {
+          d.fdata["RRR_12"] = values[j];
+        } else if (timePeriodHour == -6 ) {
+          d.fdata["RRR_6"] = values[j];
+        } else if (timePeriodHour == -3 ) {
+          d.fdata["RRR_3"] = values[j];
+        } else if (timePeriodHour == -1 ) {
+          d.fdata["RRR_1"] = values[j];
+        }
       }
       break;
 
@@ -1036,14 +1059,14 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
     const char cvals[][80], int len_cvals, int subset, int kelem, ObsData &d,
     int level)
 {
-  //  cerr <<"get_diana_data"<<endl;
+//    cerr <<"get_diana_data"<<endl;
   d.fdata.clear();
   d.id.clear();
   d.zone = 0;
 
   // constants for changing to met.no units
   const double pa2hpa = 0.01;
-  const double t0 = 273.2; // 273.15 ?????????
+  const double t0 = 273.15;
 
   int wmoBlock = 0;
   int wmoStation = 0;
@@ -1226,7 +1249,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 
   // constants for changing to met.no units
   const double pa2hpa = 0.01;
-  const double t0 = 273.2; // 273.15 ????????
+  const double t0 = 273.15;
   const float rad = 3.141592654 / 180.;
   const double ms2knots = 3600.0 / 1852.0;
 
@@ -1314,14 +1337,18 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
         ii = 0;
         break;
 
+
+
         // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
+    case 1006:
       case 1011:
-		c=0;
-		station.clear();
-		while (c<5 && int(cvals[j][c])!=0 && int(cvals[j][c])!=32) {
-		  station += cvals[i][c];
-		  c++;
-		}
+
+{
+      station.clear();
+      int iindex = int(values[j]) / 1000 - 1;
+      for (int k = 0; k < 6; k++) {
+        station += cvals[iindex][k];
+      }
 		if( strStation != station ) {
 		  return false;
 		}
@@ -1331,6 +1358,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 		}
 		if(station.exists()){
 			ii=0;
+		}
 		}
         break;
 

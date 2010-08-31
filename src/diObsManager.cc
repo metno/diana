@@ -592,8 +592,6 @@ bool ObsManager::updateTimesfromFile(miString obsType)
 {
   //Making list of file names and times, opening all files
 
-  //  cerr <<"Finner tider fra fil:"<<endl;
-
   obsType= obsType.downcase();
 
   if (Prod.find(obsType)==Prod.end())
@@ -604,10 +602,10 @@ bool ObsManager::updateTimesfromFile(miString obsType)
 #ifdef ROADOBS
 if (Prod[obsType].obsformat == ofmt_roadobs)
   {
-	// Due to the fact that we have a database insteda of an archive,
-	// we maust fake the behavoir of anarchive
+	// Due to the fact that we have a database instead of an archive,
+	// we must fake the behavoir of anarchive
 	// Assume that all stations report every hour
-	// firt, get the current time.
+	// first, get the current time.
 	miTime now = miTime::nowTime();
 	miClock nowClock = now.clock();
 	miDate nowDate = now.date();
@@ -866,7 +864,7 @@ ObsDialogInfo ObsManager::initDialog()
   psynop.button.push_back(addButton("Wind","Wind (direction and speed)"));
   psynop.button.push_back(addButton("TTT","Temperature (2m)",-50,50));
   psynop.button.push_back(addButton("TdTdTd","Dew point temperature",-50,50));
-  psynop.button.push_back(addButton("PPPP","Pressure ",950,1050));
+  psynop.button.push_back(addButton("PPPP","Pressure ",100,1050));
   psynop.button.push_back(addButton("ppp"," 3 hour pressure change",-10,10));
   psynop.button.push_back(addButton("a","Characteristic of pressure tendency",0,9));
   psynop.button.push_back(addButton("h","height of base of cloud",1,9));
@@ -901,6 +899,7 @@ ObsDialogInfo ObsManager::initDialog()
   obsformat.push_back(ofmt_dribu);
   obsformat.push_back(ofmt_metar);
   obsformat.push_back(ofmt_satob);
+  obsformat.push_back(ofmt_aireps);
   addType(psynop,obsformat);
 
   dialog.plottype.push_back(psynop);
@@ -968,6 +967,7 @@ ObsDialogInfo ObsManager::initDialog()
   obsformat.push_back(ofmt_dribu);
   obsformat.push_back(ofmt_metar);
   obsformat.push_back(ofmt_satob);
+  obsformat.push_back(ofmt_aireps);
   addType(plist,obsformat);
 
   dialog.plottype.push_back(plist);
@@ -978,7 +978,7 @@ ObsDialogInfo ObsManager::initDialog()
   ObsDialogInfo::PlotType ppressure;
   ppressure.name="Pressure";
   ppressure.misc =
-    "allAirepsLevels=true markerboxVisible asFieldButton orientation more_times";
+    "markerboxVisible asFieldButton orientation more_times";
   ppressure.criteriaList = criteriaList["pressure"];
 
   ppressure.pressureLevels = levels;
@@ -998,7 +998,6 @@ ObsDialogInfo ObsManager::initDialog()
   obsformat.clear();
   obsformat.push_back(ofmt_temp);
   obsformat.push_back(ofmt_pilot);
-  obsformat.push_back(ofmt_aireps);
   addType(ppressure,obsformat);
 
   dialog.plottype.push_back(ppressure);
@@ -1029,7 +1028,7 @@ ObsDialogInfo ObsManager::initDialog()
         }
       } else {
         psingle.misc =
-          "allAirepsLevels=true markerboxVisible asFieldButton orientation more_times";
+          "markerboxVisible asFieldButton orientation more_times";
         psingle.criteriaList = criteriaList["pressure"];
 
         psingle.pressureLevels = levels;
@@ -1155,7 +1154,7 @@ ObsDialogInfo ObsManager::initDialog()
   dialog.plottype.push_back(pocea);
 
 
-  //+++++++++Plot type = Tidevann+++++++++++++++
+  //+++++++++Plot type = Tide +++++++++++++++
 
   ObsDialogInfo::PlotType ptide;
   ptide.name="Tide";
@@ -1163,9 +1162,6 @@ ObsDialogInfo ObsManager::initDialog()
   ptide.criteriaList = criteriaList["tide"];
 
   ptide.button.push_back(addButton("Pos","Position",0,0,true));
-  ptide.button.push_back(addButton("Wind","Wind (direction and speed)"));
-  ptide.button.push_back(addButton("dd","wind direction",0,360,true));
-  ptide.button.push_back(addButton("ff","wind speed)",0,100,true));
   ptide.button.push_back(addButton("TE","Tide",-10,10,true));
   ptide.button.push_back(addButton("Id","Identification",0,0,true));
   ptide.button.push_back(addButton("Date","Date(mm-dd)",0,0));
@@ -1633,8 +1629,8 @@ bool ObsManager::parseSetup(SetupParser &sp)
   parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24";
   defProd["synop"].parameter= parameter.split(",");
   defProd["aireps"].obsformat= ofmt_aireps;
-  defProd["aireps"].timeRangeMin=-180;
-  defProd["aireps"].timeRangeMax= 180;
+  defProd["aireps"].timeRangeMin=-30;
+  defProd["aireps"].timeRangeMax= 30;
   defProd["aireps"].synoptic= false;
   parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
   defProd["aireps"].parameter= parameter.split(",");
@@ -1651,8 +1647,8 @@ bool ObsManager::parseSetup(SetupParser &sp)
   parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,ppp,a,TwTwTw,Id,Date,Time";
   defProd["dribu"].parameter= parameter.split(",");
   defProd["temp"].obsformat= ofmt_temp;
-  defProd["temp"].timeRangeMin=-180;
-  defProd["temp"].timeRangeMax= 180;
+  defProd["temp"].timeRangeMin=-30;
+  defProd["temp"].timeRangeMax= 30;
   defProd["temp"].synoptic= true;
   parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
   defProd["temp"].parameter= parameter.split(",");
@@ -1665,8 +1661,8 @@ bool ObsManager::parseSetup(SetupParser &sp)
   defProd["tide"].timeRangeMax= 180;
   defProd["tide"].synoptic= true;
   defProd["pilot"].obsformat= ofmt_pilot;
-  defProd["pilot"].timeRangeMin=-180;
-  defProd["pilot"].timeRangeMax= 180;
+  defProd["pilot"].timeRangeMin=-30;
+  defProd["pilot"].timeRangeMax= 30;
   defProd["pilot"].synoptic= true;
   parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
   defProd["pilot"].parameter= parameter.split(",");
