@@ -135,6 +135,7 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
 bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
     bool isLat) const
     {
+
   float testval = 0;
   float lettersign = 1.0;
   // check for letters
@@ -166,7 +167,7 @@ bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
     for (unsigned int k = 0; k < vs.size(); k++) {
       float tval = atof(vs[k].cStr());
       if (k == 0) // degrees (determines sign)
-        asign = (tval < 0.0 ? -1.0 : 1.0);
+        asign = (vs[k].contains("-") ? -1.0 : 1.0);
       else { // minutes or seconds
         if (tval > 59.999999)
           return false;
@@ -183,7 +184,6 @@ bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
   }
 
   testval *= lettersign; // modify sign
-
   // check for limits
   if (isLat) {
     if (testval > 90.00 || testval < -90.00)
