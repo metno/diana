@@ -154,7 +154,7 @@ const miString com_level = "level";
 const miString com_endlevel = "endlevel";
 
 enum canvas {
-  x_pixmap, glx_pixelbuffer, qt_glpixelbuffer
+  x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer
 };
 
 enum image_type {
@@ -217,6 +217,8 @@ GLXPbuffer pbuf; // GLX Pixel Buffer
 
 QApplication * application = 0; // The Qt Application object
 QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
+QGLFramebufferObject * qfbuffer = 0; // The Qt GLFrameBuffer used as canvas
+QGLWidget *qwidget = 0; // The rendering context used for Qt GLFrameBuffer
 int xsize; // total pixmap width
 int ysize; // total pixmap height
 bool multiple_plots = false; // multiple plots per page
@@ -250,6 +252,7 @@ bool keeparea = false;
 bool useArchive = false;
 bool toprinter = false;
 bool raster = false; // false means postscript
+bool shape = false; // false means postscript
 int raster_type = image_png; // see enum image_type above
 
 /*
@@ -848,7 +851,7 @@ void printUsage(bool showexample)
             "                                                                  \n"
             "#- Optional: values for each option below are default-values      \n"
             "setupfile=diana.setup    # use a standard setup-file              \n"
-            "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI          \n"
+            "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI/SHP          \n"
             "                         #  RASTER: format from filename-suffix   \n"
             "colour=COLOUR            # GREYSCALE/COLOUR                       \n"
             "filename=tmp_diana.ps    # output filename                        \n"
@@ -1254,6 +1257,19 @@ int parseAndProcess(istream &is)
       }
       multiple_plottype = plottype;
 
+      if (multiple_plots && shape ) {
+        cerr
+            << "ERROR, you can not use shape option for multiple plots "
+            << "..Exiting.." << endl;
+        return 1;
+      }
+      if ( !(plottype == plot_none || plottype == plot_standard)  && shape ) {
+        cerr
+            << "ERROR, you can only use plottype STANDARD when using shape option"
+            << "..Exiting.." << endl;
+        return 1;
+      }
+
       if (!buffermade) {
         cerr << "ERROR, no buffersize set..exiting" << endl;
         return 1;
@@ -1268,8 +1284,24 @@ int parseAndProcess(istream &is)
 
       vector<miString> pcom;
       for (int i = k + 1; i < linenum && lines[i].downcase() != com_endplot
-          && lines[i].downcase() != com_plotend; i++, k++)
+          && lines[i].downcase() != com_plotend; i++, k++) {
+        if (shape ) {
+        	if ( (lines[i].contains("OBS") || lines[i].contains("SAT") || lines[i].contains("OBJECTS") ||
+            		lines[i].contains("EDITFIELD") || lines[i].contains("TRAJECTORY"))) {
+        		cerr << "Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting" << endl;
+        		return 1;
+        	}
+        	if ( lines[i].contains("FIELD") ) {
+        		miString shapeFileName=priop.fname;
+        		lines[i]+= " shapefilename=" + shapeFileName;
+        		if ( lines[i].contains("shapefile=0") )
+        			lines[i].replace("shapefile=0","shapefile=1");
+        		else if ( !lines[i].contains("shapefile=") )
+        			lines[i]+=" shapefile=1";
+        	}
+        }
         pcom.push_back(lines[i]);
+      }
       k++;
 
       if (plottype == plot_standard) {
@@ -1335,7 +1367,7 @@ int parseAndProcess(istream &is)
           cout << "- updatePlots" << endl;
         main_controller->updatePlots();
 
-        if (!raster && (!multiple_plots || multiple_newpage)) {
+        if (!raster && !shape && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
           multiple_newpage = false;
 #ifdef VIDEO_EXPORT
@@ -1368,6 +1400,9 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
+        if (shape)
+        	main_controller->plot(true, false);
+        else
         main_controller->plot(true, true);
 
         // --------------------------------------------------------
@@ -1632,7 +1667,34 @@ int parseAndProcess(istream &is)
               cerr << " ERROR, saving image to:" << priop.fname << endl;
             }
           }
+        } else if (canvasType == qt_glframebuffer) {
+          if (qfbuffer == 0) {
+            cerr << " ERROR. when saving image - qfbuffer is NULL" << endl;
+          } else {
+            const QImage image = qfbuffer->toImage();
 
+            if (verbose) {
+              cout << "- Saving image to:" << priop.fname;
+              cout.flush();
+            }
+
+            bool result = false;
+
+            if (raster_type == image_png || raster_type == image_unknown) {
+              result = image.save(priop.fname.c_str());
+#ifdef VIDEO_EXPORT
+            } else if (raster_type == image_avi) {
+              result = addVideoFrame(image);
+#endif
+            }
+            cerr << "--------- write_png: " << priop.fname << endl;
+
+            if (verbose) {
+              cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
+            } else if (!result) {
+              cerr << " ERROR, saving image to:" << priop.fname << endl;
+            }
+          }
         } else {
           imageIO::Image_data img;
           img.width = xsize;
@@ -1672,6 +1734,18 @@ int parseAndProcess(istream &is)
           // -------------------------------------------------------------
 
         }
+
+      } else if (shape) { // Only shape output
+
+    	  if (priop.fname.contains("tmp_diana")) {
+    		  cout << "Using shape option without file name, it will be created automatically" << endl;
+    	  } else {
+    		  cout << "Using shape option with given file name : " << priop.fname << endl;
+		  }
+          // first stop postscript-generation
+          endHardcopy(plot_none);
+
+          // Anything more to be done here ???
 
       } else { // PostScript only
         if (toprinter) { // automatic print of each page
@@ -2064,8 +2138,21 @@ int parseAndProcess(istream &is)
         qpbuffer = new QGLPixelBuffer(xsize, ysize, format, 0);
 
         qpbuffer->makeCurrent();
+      } else if (canvasType == qt_glframebuffer) {
+          // delete old pixmaps
+          if (buffermade && qfbuffer) {
+            delete qfbuffer;
       }
 
+          //TODO -- need to set more format attributes than set in the qtwidget context?
+          //GLenum target = GL_TEXTURE_2D;
+          //QGLFramebufferObjectFormat formatFB;
+          //qfbuffer = new QGLFramebufferObject(xsize, ysize, formatFB);
+          qfbuffer = new QGLFramebufferObject(xsize, ysize);
+          qfbuffer->bind();
+          //qfbuffer->release();
+
+      }
       glShadeModel(GL_FLAT);
 
       glViewport(0, 0, xsize, ysize);
@@ -2125,6 +2212,8 @@ int parseAndProcess(istream &is)
       } else if (value == "raster") {
         raster = true;
         raster_type = image_unknown;
+      } else if (value == "shp") {
+          shape = true;
       } else if (value == "avi") {
         raster = true;
         raster_type = image_avi;
@@ -2139,7 +2228,7 @@ int parseAndProcess(istream &is)
             << lines[k] << " Linenumber:" << linenumbers[k] << endl;
         return 1;
       }
-      if (raster) {
+      if (raster || shape) {
         // first stop ongoing postscript sessions
         endHardcopy(plot_none);
       }
@@ -2375,6 +2464,9 @@ int main(int argc, char** argv)
     } else if (sarg == "-use_qtgl") {
       canvasType = qt_glpixelbuffer;
 
+    } else if (sarg == "-use_qtgl_fb") {
+      canvasType = qt_glframebuffer;
+
     } else if (sarg == "-use_singlebuffer") {
       use_double_buffer = false;
 
@@ -2478,6 +2570,30 @@ int main(int argc, char** argv)
       cerr << "This system does not support OpenGL pbuffers." << endl;
       return 1;
     }
+  } else if (canvasType == qt_glframebuffer) {
+	if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
+	  cerr << "This system does not support OpenGL framebuffers." << endl;
+	  return 1;
+	} else {
+	  //Create QGL widget as a rendering context
+      QGLFormat format = QGLFormat::defaultFormat();
+      format.setAlpha(true);
+      format.setDirectRendering(true);
+      if (use_double_buffer) {
+    	format.setDoubleBuffer(true);
+      }
+#ifdef DEBUG
+      cout << "format.rgba() = " << format.rgba() << endl;
+      cout << "format.alpha() = " << format.alpha() << endl;
+      cout << "format.directRendering() = " << format.directRendering() << endl;
+      cout << "format.doubleBuffer() = " << format.doubleBuffer() << endl;
+#endif
+      qwidget = new QGLWidget(format);
+      qwidget->makeCurrent();
+
+      //qwidget->doneCurrent(); // Probably not needed qwidget is deleted furthher down in the code
+
+	}
   }
 
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
@@ -2641,6 +2757,12 @@ int main(int argc, char** argv)
 
   if (qpbuffer) {
     delete qpbuffer;
+  }
+  if (qfbuffer) {
+    delete qfbuffer;
+  }
+  if (qwidget) {
+    delete qwidget;
   }
 
   if (vcrossmanager)
