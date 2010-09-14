@@ -32,10 +32,6 @@
 #include <QDialog>
 #include <QString>
 #include <QPushButton>
-//#include <QTableWidget>
-//#include <QRadioButton>
-//#include <QLineEdit>
-//Added by qt3to4:
 #include <QCloseEvent>
 #include <profet/fetSession.h>
 #include <profet/fetParameter.h>

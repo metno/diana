@@ -35,9 +35,9 @@
 #include <qcolor.h>
 #include <qdialog.h>
 #include <QLabel>
-#include <diCommonTypes.h>
-#include <diController.h>
-#include <qtToggleButton.h>
+#include "diCommonTypes.h"
+#include "diController.h"
+#include "qtToggleButton.h"
 #include <map>
 
 using namespace std;

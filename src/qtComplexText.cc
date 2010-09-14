@@ -43,14 +43,14 @@
 #include <QVBoxLayout>
 
 #include <fstream>
-#include <qtComplexText.h>
-#include <qtUtility.h>
+#include "qtComplexText.h"
+#include "qtUtility.h"
 
 #include <puTools/miString.h>
 #include <qstring.h>
-#include <qtToggleButton.h>
+#include "qtToggleButton.h"
 #include <iostream>
-#include <diController.h>
+#include "diController.h"
 //#define DEBUGPRINT
 
 QValidator::State ComplexText::complexValidator::validate(QString& input,

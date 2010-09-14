@@ -48,22 +48,22 @@
 #include <QFrame>
 #include <QVBoxLayout>
 
-#include <qtEditNewDialog.h>
-#include <qtUtility.h>
-#include <qtEditDefineField.h>
-#include <qtTimeSpinbox.h>
+#include "qtEditNewDialog.h"
+#include "qtUtility.h"
+#include "qtEditDefineField.h"
+#include "qtTimeSpinbox.h"
 
 
 #include <puTools/miString.h>
 #include <iostream>
 
-#include <diController.h>
-#include <diEditManager.h>
+#include "diController.h"
+#include "diEditManager.h"
 
-#include <kill.xpm>
+#include "kill.xpm"
 
 #ifdef METNOPRODDB
-#include <qtLoginDialog.h>
+#include "qtLoginDialog.h"
 #endif
 
 EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )

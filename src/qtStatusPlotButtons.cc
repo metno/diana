@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtStatusPlotButtons.h>
+#include "qtStatusPlotButtons.h"
 
 #include <QToolTip>
 #include <QLabel>
@@ -46,8 +46,8 @@
 #include <QMenu>
 
 #include <iostream>
-#include <qtImageGallery.h>
-#include <question.xpm>
+#include "qtImageGallery.h"
+#include "question.xpm"
 
 static bool oktoemit;
 

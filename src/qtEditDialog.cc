@@ -53,21 +53,20 @@
 #include <QVBoxLayout>
 
 #include <iostream>
-#include <qtEditDialog.h>
-#include <qtEditNewDialog.h>
-#include <qtEditComment.h>
-#include <qtUtility.h>
-#include <qtToggleButton.h>
-#include <qtTimeStepSpinbox.h>
-#include <qtComplexText.h>
-#include <qtEditText.h>
-#include <qtAnnoText.h>
-//Added by qt3to4:
 
-#include <diSetupParser.h>
-#include <diController.h>
-#include <diEditManager.h>
-#include <diObjectManager.h>
+#include "qtEditDialog.h"
+#include "qtEditNewDialog.h"
+#include "qtEditComment.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "qtTimeStepSpinbox.h"
+#include "qtComplexText.h"
+#include "qtEditText.h"
+#include "qtAnnoText.h"
+#include "diSetupParser.h"
+#include "diController.h"
+#include "diEditManager.h"
+#include "diObjectManager.h"
 
 #include <edit_open_value.xpm>
 #include <edit_lock_value.xpm>

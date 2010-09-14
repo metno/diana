@@ -33,9 +33,9 @@
 #include "config.h"
 #endif
 
-#include <qtImageGallery.h>
-#include <diImageGallery.h>
-#include <diSetupParser.h>
+#include "qtImageGallery.h"
+#include "diImageGallery.h"
+#include "diSetupParser.h"
 #include <puCtools/glob.h>
 #include <QDataStream>
 #include <QFileInfo>

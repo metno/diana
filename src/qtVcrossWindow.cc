@@ -39,23 +39,23 @@
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
-#include <qtToggleButton.h>
 #include <qlayout.h>
 #include <qfont.h>
-#include <qmotifstyle.h>
-#include <qtUtility.h>
-#include <qtVcrossWindow.h>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>
-#include <diLocationPlot.h>
-#include <qtVcrossWidget.h>
-#include <qtVcrossDialog.h>
-#include <qtVcrossSetupDialog.h>
-#include <diVcrossManager.h>
-#include <qtPrintManager.h>
-#include <forover.xpm>
-#include <bakover.xpm>
+
+#include "qtUtility.h"
+#include "qtVcrossWindow.h"
+#include "qtToggleButton.h"
+#include "diLocationPlot.h"
+#include "qtVcrossWidget.h"
+#include "qtVcrossDialog.h"
+#include "qtVcrossSetupDialog.h"
+#include "diVcrossManager.h"
+#include "qtPrintManager.h"
+#include "forover.xpm"
+#include "bakover.xpm"
 
 
 VcrossWindow::VcrossWindow(Controller *co)

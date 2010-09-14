@@ -39,24 +39,24 @@
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
-#include <qtToggleButton.h>
 #include <qlayout.h>
 #include <qfont.h>
 #include <qmotifstyle.h>
-#include <qtUtility.h>
-#include <qtVprofWindow.h>
 #include <QPrintDialog>
 #include <QPrinter>
-//Added by qt3to4:
 #include <QPixmap>
-#include <diStationPlot.h>
-#include <qtVprofWidget.h>
-#include <qtVprofModelDialog.h>
-#include <qtVprofSetupDialog.h>
-#include <diVprofManager.h>
-#include <qtPrintManager.h>
-#include <forover.xpm>
-#include <bakover.xpm>
+
+#include "qtVprofWindow.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+#include "diStationPlot.h"
+#include "qtVprofWidget.h"
+#include "qtVprofModelDialog.h"
+#include "qtVprofSetupDialog.h"
+#include "diVprofManager.h"
+#include "qtPrintManager.h"
+#include "forover.xpm"
+#include "bakover.xpm"
 
 
 VprofWindow::VprofWindow(Controller *co)

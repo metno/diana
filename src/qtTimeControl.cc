@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtTimeControl.h>
+#include "qtTimeControl.h"
 
 #include <QSlider>
 #include <QPushButton>
@@ -45,7 +45,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
+#include "qtUtility.h"
 #include <iostream>
 
 

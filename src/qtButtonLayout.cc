@@ -33,8 +33,8 @@
 #include "config.h"
 #endif
 
-#include <qtButtonLayout.h>
-#include <qtUtility.h>
+#include "qtButtonLayout.h"
+#include "qtUtility.h"
 #include <QGridLayout>
 #include <stdio.h>
 #include <QButtonGroup>

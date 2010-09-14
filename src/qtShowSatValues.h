@@ -32,10 +32,9 @@
 #define _qtShowSatValues_h
 
 #include <qwidget.h>
-//Added by qt3to4:
 #include <QLabel>
 #include <puTools/miString.h>
-#include <diCommonTypes.h>
+#include "diCommonTypes.h"
 
 class QLabel;
 class QComboBox;

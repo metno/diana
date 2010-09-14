@@ -34,7 +34,7 @@
 #endif
 
 #include <iostream>
-#include <qtTimeSpinbox.h>
+#include "qtTimeSpinbox.h"
 
 
 TimeSpinbox::TimeSpinbox(bool w_s, QWidget* parent):

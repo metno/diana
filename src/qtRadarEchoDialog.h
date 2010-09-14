@@ -36,8 +36,8 @@
 
 #include <puTools/miString.h>
 #include <vector>
-#include <diController.h>
-#include <qtTimeSlider.h>
+#include "diController.h"
+#include "qtTimeSlider.h"
 
 using namespace std;
 

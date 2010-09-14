@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtLoginDialog.h>
+#include "qtLoginDialog.h"
 
 #include <QPushButton>
 #include <QLineEdit>

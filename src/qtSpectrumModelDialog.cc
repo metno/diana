@@ -40,10 +40,10 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <qtToggleButton.h>
-#include <diSpectrumManager.h>
-#include <qtSpectrumModelDialog.h>
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "diSpectrumManager.h"
+#include "qtSpectrumModelDialog.h"
 
 
 //#define HEIGHTLISTBOX 100

@@ -46,11 +46,11 @@
 #include <QButtonGroup>
 #include <QGroupBox>
 
-#include <qtToggleButton.h>
-#include <qtObjectDialog.h>
-#include <qtEditComment.h>
-#include <diObjectManager.h>
-#include <qtUtility.h>
+#include "qtToggleButton.h"
+#include "qtObjectDialog.h"
+#include "qtEditComment.h"
+#include "diObjectManager.h"
+#include "qtUtility.h"
 
 /***************************************************************************/
 ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )

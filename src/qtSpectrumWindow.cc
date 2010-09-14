@@ -39,24 +39,24 @@
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
-#include <qtToggleButton.h>
 #include <qlayout.h>
 #include <qfont.h>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <qmotifstyle.h>
-#include <qtUtility.h>
-#include <qtSpectrumWindow.h>
-//Added by qt3to4:
 #include <QPixmap>
-#include <diStationPlot.h>
-#include <qtSpectrumWidget.h>
-#include <qtSpectrumModelDialog.h>
-#include <qtSpectrumSetupDialog.h>
-#include <diSpectrumManager.h>
-#include <qtPrintManager.h>
-#include <forover.xpm>
-#include <bakover.xpm>
+
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+#include "qtSpectrumWindow.h"
+#include "diStationPlot.h"
+#include "qtSpectrumWidget.h"
+#include "qtSpectrumModelDialog.h"
+#include "qtSpectrumSetupDialog.h"
+#include "diSpectrumManager.h"
+#include "qtPrintManager.h"
+#include "forover.xpm"
+#include "bakover.xpm"
 
 
 SpectrumWindow::SpectrumWindow()

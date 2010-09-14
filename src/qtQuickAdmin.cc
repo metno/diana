@@ -33,8 +33,8 @@
 #include "config.h"
 #endif
 
-#include <qtQuickAdmin.h>
-#include <qtQuickEditOptions.h>
+#include "qtQuickAdmin.h"
+#include "qtQuickEditOptions.h"
 
 #include <QPushButton>
 #include <QTreeWidget>
@@ -50,15 +50,15 @@
 #include <QVBoxLayout>
 #include <QShortcut>
 
-#include <up12x12.xpm>
-#include <down12x12.xpm>
-#include <filenew.xpm>
-#include <fileopen.xpm>
-#include <editcopy.xpm>
-#include <editcut.xpm>
-#include <editpaste.xpm>
+#include "up12x12.xpm"
+#include "down12x12.xpm"
+#include "filenew.xpm"
+#include "fileopen.xpm"
+#include "editcopy.xpm"
+#include "editcut.xpm"
+#include "editpaste.xpm"
 
-#include <qtUtility.h>
+#include "qtUtility.h"
 
 class QuickTreeWidgetItem: public QTreeWidgetItem {
 private:

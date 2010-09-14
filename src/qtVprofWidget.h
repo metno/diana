@@ -31,14 +31,13 @@
 #ifndef VPROFWIDGET_H
 #define VPROFWIDGET_H
 
-#include <diVprofDiagram.h>
-#include <diVprofData.h>
-#include <diVprofPlot.h>
+#include "diVprofDiagram.h"
+#include "diVprofData.h"
+#include "diVprofPlot.h"
 #include <puTools/miString.h>
 #include <map>
 
 #include <qgl.h>
-//Added by qt3to4:
 #include <QKeyEvent>
 
 using namespace std;

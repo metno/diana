@@ -40,11 +40,10 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <qtToggleButton.h>
-
-#include <diVprofManager.h>
-#include <qtVprofModelDialog.h>
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "diVprofManager.h"
+#include "qtVprofModelDialog.h"
 
 //#define HEIGHTLISTBOX 100
 

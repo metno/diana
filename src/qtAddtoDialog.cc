@@ -36,7 +36,7 @@
 #include "config.h"
 #endif
 
-#include <qtAddtoDialog.h>
+#include "qtAddtoDialog.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -48,8 +48,8 @@
 #include <fstream>
 #include <puTools/miString.h>
 #include <iostream>
-#include <diController.h>
-#include <diObjectManager.h>
+#include "diController.h"
+#include "diObjectManager.h"
 
 
 

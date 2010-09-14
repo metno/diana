@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtQuickEditOptions.h>
+#include "qtQuickEditOptions.h"
 
 #include <QPushButton>
 #include <QLabel>
@@ -47,11 +47,11 @@
 #include <QVBoxLayout>
 #include <QShortcut>
 
-#include <qtUtility.h>
-#include <up12x12.xpm>
-#include <down12x12.xpm>
-#include <filenew.xpm>
-#include <editcut.xpm>
+#include "qtUtility.h"
+#include "up12x12.xpm"
+#include "down12x12.xpm"
+#include "filenew.xpm"
+#include "editcut.xpm"
 
 QuickEditOptions::QuickEditOptions(QWidget* parent,
     vector<quickMenuOption>& opt)

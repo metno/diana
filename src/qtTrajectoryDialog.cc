@@ -47,9 +47,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <qtGeoPosLineEdit.h>
-#include <qtTrajectoryDialog.h>
+#include "qtUtility.h"
+#include "qtGeoPosLineEdit.h"
+#include "qtTrajectoryDialog.h"
 
 #include <math.h>
 #include <sstream>

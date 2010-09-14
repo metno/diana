@@ -42,11 +42,11 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <diVcrossManager.h>
-#include <qtVcrossSetup.h>
-#include <qtVcrossSetupDialog.h>
-#include <diVcrossOptions.h>
+#include "qtUtility.h"
+#include "diVcrossManager.h"
+#include "qtVcrossSetup.h"
+#include "qtVcrossSetupDialog.h"
+#include "diVcrossOptions.h"
 
 
 VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )

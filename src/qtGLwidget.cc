@@ -34,17 +34,19 @@
 #include "config.h"
 #endif
 
-#include <fstream>
 
 #include <QApplication>
 #include <QImage>
-#include <qtGLwidget.h>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <diController.h>
+
+#include "qtGLwidget.h"
+#include "diController.h"
 
 #include <math.h>
+#include <fstream>
 #include <iostream>
+
 #include <qpixmap.h>
 #include <qcursor.h>
 #include <paint_cursor.xpm>

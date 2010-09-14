@@ -37,7 +37,7 @@
 #include <qtextedit.h>
 #include <qvalidator.h>
 #include <puTools/miString.h>
-#include <diCommonTypes.h>
+#include "diCommonTypes.h"
 #include <set>
 
 using namespace std;

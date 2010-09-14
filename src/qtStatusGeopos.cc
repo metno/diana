@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtStatusGeopos.h>
+#include "qtStatusGeopos.h"
 
 #include <QLabel>
 #include <QFrame>

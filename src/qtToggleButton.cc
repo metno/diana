@@ -33,8 +33,8 @@
 #include "config.h"
 #endif
 
-#include <qtToggleButton.h>
-//Added by qt3to4:
+#include "qtToggleButton.h"
+
 #include <QMouseEvent>
 #include <QPixmap>
 #include <iostream>

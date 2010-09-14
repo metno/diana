@@ -45,12 +45,13 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <qtEditDefineField.h>
-#include <diController.h>
-#include <diEditManager.h>
-
 #include <iostream>
+
+#include "qtUtility.h"
+#include "qtEditDefineField.h"
+#include "diController.h"
+#include "diEditManager.h"
+
 
 
 /*********************************************/

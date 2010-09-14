@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtBrowserBox.h>
+#include "qtBrowserBox.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>

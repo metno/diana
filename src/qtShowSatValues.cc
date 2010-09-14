@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtShowSatValues.h>
+#include "qtShowSatValues.h"
 
 #include <QLabel>
 #include <QComboBox>

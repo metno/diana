@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtTimeSlider.h>
+#include "qtTimeSlider.h"
 #include <iostream>
 
 

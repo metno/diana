@@ -39,14 +39,14 @@
 #include <qcheckbox.h>
 #include <qmessagebox.h>
 #include <qlcdnumber.h>
-#include <qtSatDialogAdvanced.h>
-#include <qtToggleButton.h>
-#include <qtUtility.h>
 #include <QGridLayout>
 #include <QFrame>
 #include <QPixmap>
 #include <QVBoxLayout>
 
+#include "qtSatDialogAdvanced.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
 #include <puTools/miString.h>
 #include <stdio.h>
 #include <iostream>

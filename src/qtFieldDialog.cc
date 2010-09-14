@@ -46,27 +46,26 @@
 #include <qspinbox.h>
 #include <qcheckbox.h>
 #include <qtooltip.h>
-
-#include <qtFieldDialog.h>
-#include <qtUtility.h>
-#include <qtToggleButton.h>
 #include <QPixmap>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <diController.h>
+#include "qtFieldDialog.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "diController.h"
 #include <diField/diRectangle.h>
 #include <diField/diPlotOptions.h>
 
 #include <iostream>
 #include <math.h>
 
-#include <up20x20.xpm>
-#include <down20x20.xpm>
-#include <up12x12.xpm>
-#include <down12x12.xpm>
-#include <minus12x12.xpm>
+#include "up20x20.xpm"
+#include "down20x20.xpm"
+#include "up12x12.xpm"
+#include "down12x12.xpm"
+#include "minus12x12.xpm"
 
 // qt4 fix
 // #include <QString>

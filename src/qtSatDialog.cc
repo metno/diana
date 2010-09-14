@@ -46,10 +46,10 @@
 #include <QToolTip>
 #include <QButtonGroup>
 
-#include <qtSatDialog.h>
-#include <qtSatDialogAdvanced.h>
-#include <qtToggleButton.h>
-#include <qtUtility.h>
+#include "qtSatDialog.h"
+#include "qtSatDialogAdvanced.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
 #include <QHBoxLayout>
 #include <QPixmap>
 #include <QVBoxLayout>
@@ -59,8 +59,8 @@
 #include <iostream>
 #include <puTools/miTime.h>
 
-#include <up12x12.xpm>
-#include <down12x12.xpm>
+#include "up12x12.xpm"
+#include "down12x12.xpm"
 
 
 #define HEIGHTLISTBOX 45

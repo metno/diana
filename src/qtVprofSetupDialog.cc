@@ -43,11 +43,11 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <diVprofManager.h>
-#include <qtVcrossSetup.h>
-#include <qtVprofSetupDialog.h>
-#include <diVprofOptions.h>
+#include "qtUtility.h"
+#include "diVprofManager.h"
+#include "qtVcrossSetup.h"
+#include "qtVprofSetupDialog.h"
+#include "diVprofOptions.h"
 
 
 const int pStep= 50;

@@ -35,9 +35,9 @@
 
 #include <QVBoxLayout>
 
-#include <qtGLwidget.h>
-#include <qtWorkArea.h>
-#include <diController.h>
+#include "qtGLwidget.h"
+#include "qtWorkArea.h"
+#include "diController.h"
 
 
 WorkArea::WorkArea(Controller *co,  QWidget* parent)

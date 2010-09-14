@@ -35,7 +35,6 @@
   August 2001, two windows
  */
 
-//Added by qt3to4:
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -47,12 +46,12 @@
 #include <QTextEdit>
 
 #include <fstream>
-#include <qtEditComment.h>
-#include <puTools/miString.h>
-#include <qtToggleButton.h>
 #include <iostream>
-#include <diController.h>
-#include <diObjectManager.h>
+#include <puTools/miString.h>
+#include "qtEditComment.h"
+#include "qtToggleButton.h"
+#include "diController.h"
+#include "diObjectManager.h"
 
 
 /*********************************************/

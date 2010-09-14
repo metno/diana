@@ -272,6 +272,7 @@ noinst_HEADERS = \
 	qtButtonLayout.h \
 	qtComplexText.h \
 	qtEditComment.h \
+	qtEditText.h \
 	qtEditDefineField.h \
 	qtEditDialog.h \
 	qtEditNewDialog.h \
@@ -675,7 +676,7 @@ libdiana_a_CPPFLAGS = \
 # diana-specific sources (the rest is in libdiana)
 diana_bin_SOURCES = \
 	$(diana_qt_sources) \
-	$(xpm_sources) \
+	$(common_xpm_sources) \
 	$(language_sources) \
 	main_gui.cc \
 	qtImageGallery.cc \

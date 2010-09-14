@@ -42,11 +42,11 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <diSpectrumManager.h>
-#include <qtVcrossSetup.h>
-#include <qtSpectrumSetupDialog.h>
-#include <diSpectrumOptions.h>
+#include "qtUtility.h"
+#include "diSpectrumManager.h"
+#include "qtVcrossSetup.h"
+#include "qtSpectrumSetupDialog.h"
+#include "diSpectrumOptions.h"
 
 
 SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )

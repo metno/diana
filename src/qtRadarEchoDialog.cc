@@ -46,9 +46,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
-#include <qtGeoPosLineEdit.h>
-#include <qtRadarEchoDialog.h>
+#include "qtUtility.h"
+#include "qtGeoPosLineEdit.h"
+#include "qtRadarEchoDialog.h"
 
 #include <math.h>
 #include <sstream>

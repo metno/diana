@@ -33,7 +33,6 @@
 
 #include <qwidget.h>
 #include <qpushbutton.h>
-//Added by qt3to4:
 #include <QMouseEvent>
 #include <puTools/miString.h>
 

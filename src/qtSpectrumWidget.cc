@@ -38,11 +38,10 @@
 #include <qapplication.h>
 #include <QFrame>
 #include <qimage.h>
-
-#include <qtSpectrumWidget.h>
-//Added by qt3to4:
 #include <QKeyEvent>
-#include <diSpectrumManager.h>
+
+#include "qtSpectrumWidget.h"
+#include "diSpectrumManager.h"
 
 
 SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,

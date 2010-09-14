@@ -32,7 +32,7 @@
 #define WORKAREA_H
 
 #include <qwidget.h>
-#include <qtGLwidget.h>
+#include "qtGLwidget.h"
 #include <puTools/miString.h>
 
 using namespace std;

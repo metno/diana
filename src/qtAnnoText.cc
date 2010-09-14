@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtAnnoText.h>
+#include "qtAnnoText.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -44,9 +44,9 @@
 
 #include <puTools/miString.h>
 #include <qstring.h>
-#include <qtToggleButton.h>
+#include "qtToggleButton.h"
 #include <iostream>
-#include <diController.h>
+#include "diController.h"
 #include <set>
 #include <fstream>
 

@@ -38,8 +38,8 @@
 #include <qpalette.h>
 #include <puTools/miString.h>
 
-#include <diCommonTypes.h>
-#include <qtToggleButton.h>
+#include "diCommonTypes.h"
+#include "qtToggleButton.h"
 #include <vector>
 
 

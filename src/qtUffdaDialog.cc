@@ -42,9 +42,9 @@
 #include <QVBoxLayout>
 
 #include <fstream>
-#include <qtUtility.h>
-#include <qtUffdaDialog.h>
-#include <diStationPlot.h>
+#include "qtUtility.h"
+#include "qtUffdaDialog.h"
+#include "diStationPlot.h"
 
 /***************************************************************************/
 

@@ -40,16 +40,16 @@
 #include <QTextEdit>
 #include <QTextDocument>
 #include <QTextBlock>
+#include <QString>
 
 #include <fstream>
-#include <qtEditText.h>
-#include <qtUtility.h>
+#include <iostream>
 
 #include <puTools/miString.h>
-#include <qstring.h>
-#include <qtToggleButton.h>
-#include <iostream>
-#include <diController.h>
+#include "qtEditText.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "diController.h"
 //#define DEBUGPRINT
 
 QValidator::State EditText::complexValidator::validate(QString& input,

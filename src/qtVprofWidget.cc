@@ -39,8 +39,8 @@
 #include <QKeyEvent>
 #include <QApplication>
 
-#include <qtVprofWidget.h>
-#include <diVprofManager.h>
+#include "qtVprofWidget.h"
+#include "diVprofManager.h"
 
 
 VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,

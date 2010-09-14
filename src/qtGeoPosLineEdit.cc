@@ -34,7 +34,7 @@
 #endif
 
 #include <iostream>
-#include <qtGeoPosLineEdit.h>
+#include "qtGeoPosLineEdit.h"
 
 QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
     int& pos) const

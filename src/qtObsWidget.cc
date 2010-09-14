@@ -48,9 +48,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <qtButtonLayout.h>
-#include <qtObsWidget.h>
-#include <qtUtility.h>
+#include "qtButtonLayout.h"
+#include "qtObsWidget.h"
+#include "qtUtility.h"
 
 
 #include <stdio.h>

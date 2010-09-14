@@ -33,8 +33,8 @@
 #include "config.h"
 #endif
 
-#include <qtAddtoMenu.h>
-#include <qtQuickMenu.h>
+#include "qtAddtoMenu.h"
+#include "qtQuickMenu.h"
 
 #include <QFrame>
 #include <QPushButton>
@@ -47,7 +47,7 @@
 #include <QVBoxLayout>
 
 #include <puTools/miString.h>
-#include <filenew.xpm>
+#include "filenew.xpm"
 
 using namespace std;
 

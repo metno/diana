@@ -35,12 +35,12 @@
 #include <qfont.h>
 #include <puTools/miString.h>
 #include <vector>
-#include <diController.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <QListWidget>
 #include <diField/diColour.h>
-#include <qtToggleButton.h>
+#include "qtToggleButton.h"
+#include "diController.h"
 
 using namespace std;
 

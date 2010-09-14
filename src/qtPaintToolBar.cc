@@ -33,25 +33,25 @@
 #include "config.h"
 #endif
 
-#include <qtPaintToolBar.h>
+#include "qtPaintToolBar.h"
 #include <qpixmap.h>
 #include <qkeysequence.h>
 #include <QActionGroup>
 #include <puTools/miString.h>
-#include <paint_select.xpm>
-#include <paint_move.xpm>
-#include <paint_spatial.xpm>
-//#include <paint_hide.xpm>
-#include <paint_cut.xpm>
-#include <paint_undo.xpm>
-#include <paint_redo.xpm>
-#include <paint_include.xpm>
-#include <paint_draw.xpm>
-//#include <paint_color.xpm>
-#include <paint_add_point.xpm>
-#include <paint_remove_point.xpm>
-#include <paint_move_point.xpm>
-#include <paint_help.xpm>
+#include "paint_select.xpm"
+#include "paint_move.xpm"
+#include "paint_spatial.xpm"
+//#include "paint_hide.xpm"
+#include "paint_cut.xpm"
+#include "paint_undo.xpm"
+#include "paint_redo.xpm"
+#include "paint_include.xpm"
+#include "paint_draw.xpm"
+//#include "paint_color.xpm"
+#include "paint_add_point.xpm"
+#include "paint_remove_point.xpm"
+#include "paint_move_point.xpm"
+#include "paint_help.xpm"
 
 miutil::miString PaintToolBar::helpPageName = "ug_profetdrawingtools.html";
 

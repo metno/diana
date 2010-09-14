@@ -50,18 +50,18 @@
 #include <QVBoxLayout>
 #include <QApplication>
 
-#include <qtVcrossDialog.h>
-#include <qtUtility.h>
-#include <qtToggleButton.h>
-#include <diVcrossManager.h>
+#include "qtVcrossDialog.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "diVcrossManager.h"
 
 #include <iostream>
 #include <math.h>
 
-#include <up20x20.xpm>
-#include <down20x20.xpm>
-#include <up12x12.xpm>
-#include <down12x12.xpm>
+#include "up20x20.xpm"
+#include "down20x20.xpm"
+#include "up12x12.xpm"
+#include "down12x12.xpm"
 
 
 VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )

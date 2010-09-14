@@ -39,10 +39,10 @@
 #include <qapplication.h>
 #include <qtranslator.h>
 
-#include <diSetupParser.h>
-#include <diPrintOptions.h>
-#include <diController.h>
-#include <qtMainWindow.h>
+#include "diSetupParser.h"
+#include "diPrintOptions.h"
+#include "diController.h"
+#include "qtMainWindow.h"
 #include <puTools/miCommandLine.h>
 #include <puTools/miString.h>
 #include <diField/diProjection.h>

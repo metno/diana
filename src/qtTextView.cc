@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtTextView.h>
+#include "qtTextView.h"
 
 #include <QTextEdit>
 #include <QPushButton>

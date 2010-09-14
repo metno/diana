@@ -36,32 +36,29 @@
 #include <fstream>
 #include <puCtools/glob.h>
 
-#include <qtQuickMenu.h>
-#include <qtQuickAdmin.h>
+#include "qtQuickMenu.h"
+#include "qtQuickAdmin.h"
 
 #include <QPushButton>
 #include <QListWidget>
 #include <QTextEdit>
-//#include <QCursor>
 #include <QFrame>
 #include <QLabel>
 #include <QSpinBox>
 #include <QComboBox>
-//#include <QApplication>
 #include <QHBoxLayout>
 #include <QTimerEvent>
 #include <QGridLayout>
 #include <QVBoxLayout>
-
-#include <puTools/miString.h>
-#include <iostream>
 #include <qmessagebox.h>
 #include <qtooltip.h>
 #include <qregexp.h>
-#include <qtUtility.h>
-#include <diSetupParser.h>
 
-// qt4 fix
+#include <puTools/miString.h>
+#include <iostream>
+#include "qtUtility.h"
+#include "diSetupParser.h"
+
 #include <QString>
 #include <QStringList>
 

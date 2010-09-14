@@ -49,9 +49,9 @@
 #include <qbrush.h>
 #include <QIcon>
 
-#include <qtUtility.h>
+#include "qtUtility.h"
 #include <diField/diLinetype.h>
-#include <diImageGallery.h>
+#include "diImageGallery.h"
 
 
 

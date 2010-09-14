@@ -40,7 +40,7 @@
 #include <vector>
 #include <map>
 #include <QCloseEvent>
-#include <qtProfetTimeControl.h>
+#include "qtProfetTimeControl.h"
 
 
 using namespace std;

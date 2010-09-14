@@ -44,9 +44,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <qtMapDialog.h>
-#include <qtUtility.h>
-#include <qtToggleButton.h>
+#include "qtMapDialog.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
 
 #include <puTools/miString.h>
 #include <stdio.h>

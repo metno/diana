@@ -39,10 +39,10 @@
 #include <qspinbox.h>
 #include <QGridLayout>
 
-#include <qtUtility.h>
-#include <diCommonTypes.h>
-#include <diVcrossManager.h>
-#include <qtVcrossSetup.h>
+#include "qtUtility.h"
+#include "diCommonTypes.h"
+#include "diVcrossManager.h"
+#include "qtVcrossSetup.h"
 
 // initialize static members
 bool               VcrossSetup::initialized= false;

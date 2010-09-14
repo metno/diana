@@ -32,10 +32,9 @@
 #define VCROSSSETUP_H
 
 #include <puTools/miString.h>
-#include <diCommonTypes.h>
+#include "diCommonTypes.h"
 #include <vector>
 #include <qwidget.h>
-//Added by qt3to4:
 #include <QGridLayout>
 #include <QLabel>
 

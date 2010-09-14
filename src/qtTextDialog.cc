@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtTextDialog.h>
+#include "qtTextDialog.h"
 
 #include <QPushButton>
 #include <QTextBrowser>
@@ -44,11 +44,11 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <qtUtility.h>
+#include "qtUtility.h"
 #include <iostream>
 
-#include <kill.xpm>
-#include <fileopen.xpm>
+#include "kill.xpm"
+#include "fileopen.xpm"
 
 /*********************************************/
 TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)

@@ -51,11 +51,11 @@
 #include <QVBoxLayout>
 #include <QButtonGroup>
 
-#include <qtObsDialog.h>
-#include <qtObsWidget.h>
-#include <qtUtility.h>
-#include <qtToggleButton.h>
-#include <qtAdvancedButton.h>
+#include "qtObsDialog.h"
+#include "qtObsWidget.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "qtAdvancedButton.h"
 
 #include <iostream>
 #include <qpushbutton.h>

@@ -40,9 +40,9 @@
 #include <QKeyEvent>
 #include <QApplication>
 
-#include <qtVcrossWidget.h>
-#include <diVcrossManager.h>
-#include <diVcrossPlot.h>
+#include "qtVcrossWidget.h"
+#include "diVcrossManager.h"
+#include "diVcrossPlot.h"
 
 
 VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,

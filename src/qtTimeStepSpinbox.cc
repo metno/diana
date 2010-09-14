@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <qtTimeStepSpinbox.h>
+#include "qtTimeStepSpinbox.h"
 
 
 TimeStepSpinbox::TimeStepSpinbox(QWidget* parent):
