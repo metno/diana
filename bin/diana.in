@@ -11,6 +11,7 @@ fi
 
 input=$0
 dianadir="@prefix@"
+etcdir="@sysconfdir@"
 
 export DIANADIR=$dianadir
 
@@ -31,7 +32,7 @@ test -d $home || mkdir $home
 test -d $home/work  || mkdir $home/work
 
 
-setup=$dianadir/etc/diana$SUFFIX/diana.setup-${region} 
+setup=$etcdir/diana$SUFFIX/diana.setup-${region} 
 
 test -e $home/diana.setup  && setup=$home/diana.setup
 
