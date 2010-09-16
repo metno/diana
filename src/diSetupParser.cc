@@ -105,6 +105,7 @@ bool SetupParser::checkSubstitutions(miString& t)
     // this would be the logical solution, but miString overrides replace()
     // t.replace(start, stop - start + 1, n.c_str());
     t = t.substr(0, start) + n + t.substr(stop + 1);
+
   }
   return true;
 }
@@ -121,7 +122,11 @@ bool SetupParser::checkEnvironment(miString& t)
     miString s = t.substr(start + 2, stop - start - 2);
     miString n;
     s = s.upcase();
-    n = getenv(s.c_str());
+    if (substitutions.count(s) > 0) {
+      n = substitutions[s];
+    } else {
+      n = getenv(s.c_str());
+    }
     // this would be the logical solution, but miString overrides replace()
     // t.replace(start, stop - start + 1, n.c_str());
     t = t.substr(0, start) + n + t.substr(stop + 1);
@@ -152,10 +157,10 @@ void SetupParser::cleanstr(miString& s)
     s.erase(p);
 
   // substitute environment/shell variables
-  checkEnvironment(s);
+    checkEnvironment(s);
 
   // substitute local/setupfile variables
-  checkSubstitutions(s);
+    checkSubstitutions(s);
 
   s.remove('\n');
   s.trim();
