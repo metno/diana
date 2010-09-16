@@ -24,7 +24,11 @@ dist_fonts_DATA= share/diana/fonts/metsymbols.ttf \
 	share/diana/fonts/Arialnbi.ttf \
 	share/diana/fonts/Ariali.ttf \
 	share/diana/fonts/Arialbi.ttf \
-	share/diana/fonts/Arialbd.ttf 
+	share/diana/fonts/Arialbd.ttf \
+	share/diana/fonts/Vera.ttf \
+	share/diana/fonts/VeraIt.ttf \
+	share/diana/fonts/VeraBI.ttf \
+	share/diana/fonts/VeraBd.ttf 
 
 imagesdir= $(datarootdir)/$(APP)/images
 dist_images_DATA= share/diana/images/wwwmet7_transp.png \
