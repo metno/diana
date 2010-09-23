@@ -34,19 +34,23 @@
 #----------------------------------------------------------------------------------
 
 
-DIANADIR  = ${DIANADIR} || @prefix@
-OPDATA    = $(DIANADIR)/share/diana/demodata
-MAPDIR    = $(DIANADIR)/share/diana/maps
+prefix  = ${DIANADIR} || @prefix@
+exec_prefix     = @prefix@
+etc_dir         = @sysconfdir@
+share_dir       = @datarootdir@
+bin_dir         = @bindir@
+OPDATA    = $(share_dir)diana/demodata
+MAPDIR    = $(share_dir)/diana/maps
 
 <BASIC>
-fontpath=$(DIANADIR)/share/diana/fonts
-docpath=$(DIANADIR)/share/doc/diana
-obsPlotFilePath=$(DIANADIR)/share/diana
-qserver=$(DIANADIR)/bin/coserver4
-imagepath=$(DIANADIR)/share/diana/images/
-amdarStationList=$(DIANADIR)/share/diana/amdar.stations
-languagepaths=$(DIANADIR)/share/diana/lang:lang:../lang:$(DIANADIR)/translations:${QTDIR}/translations
-setenv=BUFR_TABLES,$(DIANADIR)/lib/bufrtables/,1
+fontpath=$(share_dir)/diana/fonts
+docpath=$(share_dir)/doc/diana
+obsPlotFilePath=$(share_dir)/diana
+qserver=$(bin_dir)/coserver4
+imagepath=$(share_dir)/diana/images/
+amdarStationList=$(share_dir)/diana/amdar.stations
+languagepaths=$(share_dir)/diana/lang:lang:../lang:$(prefix)/translations:${QTDIR}/translations
+setenv=BUFR_TABLES,$(prefix)/lib/bufrtables/,1
 language=no
 avatars=${HOME}/.diana/avatars/*.png
 </BASIC>
@@ -132,13 +136,13 @@ LABEL anno=<arrow> halign=right valign=bottom fcolour=220:220:220:160 fontsize=1
 
 
 <IMAGE_GALLERY>
-basicpath=$(DIANADIR)/share/diana/images
+basicpath=$(share_dir)/diana/images
 
-markerpath=$(DIANADIR)/share/diana/images/markers
-marker=$(DIANADIR)/share/diana/images/vprof_normal.xpm
-marker=$(DIANADIR)/share/diana/images/vprof_selected.xpm
+markerpath=$(share_dir)/diana/images/markers
+marker=$(share_dir)/diana/images/vprof_normal.xpm
+marker=$(share_dir)/diana/images/vprof_selected.xpm
 
-patternpath=$(DIANADIR)/share/diana/images/patterns
+patternpath=$(share_dir)/diana/images/patterns
 </IMAGE_GALLERY>
 
 
@@ -237,7 +241,7 @@ sos=     1010101100110011
 printcommand=lpr -h -{hash}{numcopies} -P {printer} {filename}
 
 # user-defined printer-specific commands
-manualcommands==$(DIANADIR)/share/diana/printer.def
+manualcommands==$(share_dir)/diana/printer.def
 </PRINTING>
 
 
@@ -2760,7 +2764,7 @@ image=Radar-obs
 # - font=fixed means "courier"-type font
 #---------------------------------------------------------------------------
 
-name=Obsflagg       file=$(DIANADIR)/share/diana/obsflag.html
+name=Obsflagg       file=$(share_dir)/diana/obsflag.html
 
 </TEXT_INFORMATION_FILES>
 
@@ -2921,7 +2925,7 @@ product="SurfaceAnalysis"
 
 #  combine_ident= DNMI, VA,VV,VNN
 #  combine_ident= TEST, VA,VV,VNN
-  combine_borders= $(DIANADIR)/share/diana/products/ANAborders.  ## + TEST/DNMI
+  combine_borders= $(share_dir)/diana/products/ANAborders.  ## + TEST/DNMI
 
   time_start_early=+00:00    # hour:minute (-=before,+=after product)
   time_start_late= +03:00
@@ -2931,7 +2935,7 @@ product="SurfaceAnalysis"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/share/diana/products/bakkeanalyse.txt
+  commandfile=$(share_dir)/diana/products/bakkeanalyse.txt
   standard_symbolsize=30
 
 end.product
@@ -2953,7 +2957,7 @@ product="SIGmap"
   time_start_early= -12:00    # hour:minute (-=before,+=after product)
   time_start_late=  -04:00
 
-  commandfile=$(DIANADIR)/share/diana/products/sigkart.txt
+  commandfile=$(share_dir)/diana/products/sigkart.txt
   standard_symbolsize=20
   complex_symbolsize=6
 
@@ -2982,7 +2986,7 @@ product="Forecast+36"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  commandfile=$(DIANADIR)/share/diana/products/prognose+36.txt
+  commandfile=$(share_dir)/diana/products/prognose+36.txt
   standard_symbolsize=30
 
 end.product
@@ -3006,7 +3010,7 @@ product="Forecast"
   # possibly minimize grid to remove undefined values along border
   #grid.minimize
 
-  #commandfile=$(DIANADIR)/share/diana/products/prognose.txt
+  #commandfile=$(share_dir)/diana/products/prognose.txt
   standard_symbolsize=30
 
 end.product

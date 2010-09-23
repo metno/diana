@@ -34,7 +34,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	./configure $(confflags) --enable-xlib --enable-obs-bufr=yes --enable-profet --enable-proddb \
+	./configure $(confflags) --enable-xlib --enable-obs-bufr=yes --enable-profet --enable-proddb --program-suffix=-test \
 		--prefix=/usr --sysconfdir=/etc --localstatedir=/var
 	touch configure-stamp
 
@@ -65,7 +65,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	# Add here commands to install the package into debian/diana
-	$(MAKE) DESTDIR=$(CURDIR)/debian/diana install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/diana-test install
 
 
 # Build architecture-independent files here.

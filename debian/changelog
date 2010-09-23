@@ -1,3 +1,15 @@
+diana (3.23.0ubuntu4) lucid; urgency=low
+
+  * configureoptions
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Thu, 16 Sep 2010 11:59:08 +0200
+
+diana (3.23.0ubuntu3) lucid; urgency=low
+
+  * more fonts added
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Thu, 16 Sep 2010 09:36:58 +0200
+ 
 diana (3.23.0ubuntu2) lucid; urgency=low
 
   * lucid and debian package related fixes
