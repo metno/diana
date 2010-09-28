@@ -143,7 +143,8 @@ OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\
  timediff=180 colour=black font=Helvetica face=normal
 OBJECTS NAME="DNMI Bakkeanalyse" types=front,symbol,area \
  timediff=60
-MAP area=Norge backcolour=white map=Gshhs-AUTO contour=on \
+AREA areaname=Norge 
+MAP backcolour=white map=Gshhs-AUTO contour=on \
  cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
  land=on land.colour=landgul land.zorder=0 latlon=off frame=off
 LABEL data font=Helvetica
@@ -378,9 +379,20 @@ ENDPLOT                  # End of plot-command
 
     </PRE>
     <h3>Plot settings</h3>
+<p>
+    <a NAME="PLOTSETTINGS.AREA"></a>
+    <b> Area (Those marked with * can only be used in bdiana)</b>
+<br>
+    <TABLE BORDER="1">
+	<tr><th><b>Explanation</b><th><b>Option w/default value</b><th><b>Values</b>
+	<tr><td>Area by name</td><td>area=Atlant</td><td>Areas defined in setup file</td></tr>
+	<tr><td>projection*</td><td>proj4string="+proj=.." </td><td><br></td></tr>
+	<tr><td>rectangle*</td><td>rectangle=x1:x2:y1:y2</td><td><br></td></tr>
+    </TABLE><p>
 
     <a NAME="PLOTSETTINGS.MAPS"></a>
     <b> Maps (Those marked with * can only be used in bdiana)</b>
+<br>
     <TABLE BORDER="1">
 	<tr><th><b>Explanation</b><th><b>Option w/default value</b><th><b>Values</b>
 	<tr><td>Background colour</td><td>backcolour=black</td><td>All colours</td></tr>
