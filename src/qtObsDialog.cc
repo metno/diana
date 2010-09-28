@@ -699,7 +699,7 @@ void ObsDialog::signSlot( int number ){
 
 void ObsDialog::sliderSlot( int number ){
 
-  double scalednumber= number * stepComboBox->currentText().toInt();
+  double scalednumber= number * stepComboBox->currentText().toFloat();
   limitLcd->display( scalednumber );
   changeCriteriaString();
 
@@ -708,8 +708,10 @@ void ObsDialog::sliderSlot( int number ){
 void ObsDialog::stepSlot( int number )
 {
 
+//todo: smarter slider limits
   float scalesize = stepComboBox->currentText().toFloat();
   numberList(stepComboBox,scalesize);
+  limitSlider->setMaximum(int(limitLcd->value()/scalesize));
   limitSlider->setValue(int(limitLcd->value()/scalesize));
   double scalednumber= limitSlider->value()*scalesize;
   limitLcd->display( scalednumber );
