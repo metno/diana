@@ -477,7 +477,7 @@ bool SetupParser::parse(miString & mainfilename){
       cerr << "filename:" << filename << endl;
       ifstream file2(filename.cStr());
       if (!file2) {
-        filename = "/usr/local/etc/diana/diana.setup-FOU";
+        filename = "/etc/diana/diana.setup-COMMON";
         filename_str += " or ";
         filename_str += filename;
         cerr << "filename:" << filename << endl;
