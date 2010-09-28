@@ -2771,6 +2771,8 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
     gc.getPoints(obsPositions.obsArea.P(), fedits[0]->editfield->area.P(),
         obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fedits[0]->editfield->area;
+    fedits[0]->editfield->convertToGrid(obsPositions.numObs,
+        obsPositions.xpos, obsPositions.ypos);
   }
 
   //get values
