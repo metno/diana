@@ -5156,6 +5156,9 @@ bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
     gc.getPoints(obsPositions.obsArea.P(), fields[0]->area.P(),
         obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fields[0]->area;
+    fields[0]->convertToGrid(obsPositions.numObs,
+        obsPositions.xpos, obsPositions.ypos);
+
   }
 
   //get values
