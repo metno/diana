@@ -165,6 +165,7 @@ bool ObsBufr::readStationInfo(const miString& bufr_file,
     vector<miString>& namelist, vector<float>& latitudelist,
     vector<float>& longitudelist)
 {
+  id.clear();
   idmap.clear();
   init(bufr_file, "stationInfo");
   namelist = id;
@@ -1003,6 +1004,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
+    case 1194:
     {
       int index = int(values[j]) / 1000 - 1;
       //miString station;
@@ -1246,7 +1248,6 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
     const char cvals[][80], int len_cvals, int subset, int kelem, miTime time)
 {
-
   // constants for changing to met.no units
   const double pa2hpa = 0.01;
   const double t0 = 273.15;
@@ -1272,6 +1273,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   static int ii = 0;
 
   bool ok = false;
+  bool found = false;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
 
@@ -1280,6 +1282,9 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
         || ktdexp[i] == 7004) { // next pressure level
 
       if (ktdexp[i] == 7004) { //new pressure level, save data
+        if(!found)   {
+          return false;
+        }
 
         if (p > 0. && p < 1300.) {
           if (tt > -30000.) {
@@ -1319,14 +1324,17 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 
       //   1001  WMO BLOCK NUMBER
       case 1001:
+      {
         if (izone != int(values[j])) {
           return false;
         }
+        found = true;
+      }
         break;
 
         //   1002  WMO STATION NUMBER
       case 1002:
-
+      {
         if (istation != int(values[j])) {
           return false;
         }
@@ -1335,13 +1343,16 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
           return false;
         }
         ii = 0;
+        found = true;
+      }
         break;
 
 
 
         // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1006:
-      case 1011:
+    case 1011:
+    case 1194:
 
 {
       station.clear();
@@ -1349,6 +1360,8 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
       for (int k = 0; k < 6; k++) {
         station += cvals[iindex][k];
       }
+      strStation.trim();
+      station.trim();
 		if( strStation != station ) {
 		  return false;
 		}
@@ -1359,6 +1372,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 		if(station.exists()){
 			ii=0;
 		}
+    found = true;
 		}
         break;
 
@@ -1390,15 +1404,18 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
         //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
         //   5002  LATITUDE (COARSE ACCURACY), DEGREE
       case 5001:
-      case 5002:
+      case 5002:{
         lat = values[j];
+      }
         break;
 
         //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
         //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
       case 6001:
       case 6002:
+      {
         lon = values[j];
+      }
         break;
 
         //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
