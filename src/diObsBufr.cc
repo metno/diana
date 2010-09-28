@@ -617,7 +617,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       if (values[j] < bufrMissing)
 //        d.fdata["fxfx"] = values[j];
       if (timePeriodMinute == -180) {
-        d.fdata["fxfx_189"] = values[j];
+        d.fdata["fxfx_180"] = values[j];
       } else if (timePeriodMinute == -360) {
         d.fdata["fxfx_360"] = values[j];
       }
