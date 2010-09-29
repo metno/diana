@@ -2772,6 +2772,7 @@ bool FieldPlot::plotLayer(){
         glColor3ubv(poptions.palettecolours[0].RGB());
         fp->set("BITMAPFONT", poptions.fontface, fontsize);
         ostringstream ostr;
+        //FIXME: Should not do scaling here.
         ostr << roundf(fields[0]->data[ix + (iy * nx)] * 0.001);
         fp->getStringSize(ostr.str().c_str(), w, h);
         fp->drawStr(ostr.str().c_str(), gx, gy, 0.0);
@@ -2780,6 +2781,7 @@ bool FieldPlot::plotLayer(){
         glColor3ubv(poptions.palettecolours[1].RGB());
         fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
         ostringstream ostrBottom;
+        //FIXME: Should not do scaling here.
         ostrBottom << roundf(fields[1]->data[ix + (iy * nx)] * 0.001);
         fp->getStringSize(ostrBottom.str().c_str(), w, h);
         fp->drawStr(ostrBottom.str().c_str(), gx, gy - h, 0.0);
@@ -2788,6 +2790,7 @@ bool FieldPlot::plotLayer(){
         glColor3ubv(poptions.palettecolours[2].RGB());
         fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
         ostringstream ostrTop;
+        //FIXME: Should not do scaling here.
         ostrTop << roundf(fields[2]->data[ix + (iy * nx)] * 0.001);
         fp->getStringSize(ostrTop.str().c_str(), w, h);
         fp->drawStr(ostrTop.str().c_str(), gx, gy + h, 0.0);
