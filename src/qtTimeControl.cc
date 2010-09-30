@@ -70,6 +70,9 @@ TimeControl::TimeControl(QWidget* parent)
   QLabel* stopLabel= new QLabel(tr("Stop"),frame);
   stopLabel->setMinimumSize(stopLabel->sizeHint());
 
+  QLabel* offsetLabel= new QLabel(tr("Offset"), frame);
+  offsetLabel->setMinimumSize(offsetLabel->sizeHint());
+
   startTimeLabel= new QLabel("0000-00-00 00:00:00",frame);
   startTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   startTimeLabel->setMinimumSize(startTimeLabel->sizeHint());
@@ -77,19 +80,28 @@ TimeControl::TimeControl(QWidget* parent)
   stopTimeLabel= new QLabel("0000-00-00 00:00:00",frame);
   stopTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   stopTimeLabel->setMinimumSize(stopTimeLabel->sizeHint());
-      
+
+  offsetTimeLabel= new QLabel("0", frame);
+  offsetTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  offsetTimeLabel->setMinimumSize(offsetTimeLabel->sizeHint());
+
   startSlider= new QSlider( Qt::Horizontal, frame);
   startSlider->setMinimumWidth(150);
 
   stopSlider= new QSlider( Qt::Horizontal, frame);
   stopSlider->setMinimumWidth(150);
 
+  offsetSlider= new QSlider( Qt::Horizontal, frame);
+  offsetSlider->setMinimumWidth(150);
+
   connect( startSlider, SIGNAL( valueChanged(int)),SLOT(StartValue(int)));
   connect( stopSlider, SIGNAL( valueChanged(int)),SLOT(StopValue(int)));
+  connect( offsetSlider, SIGNAL( valueChanged(int)),SLOT(OffsetValue(int)));
   connect( startSlider, SIGNAL( sliderReleased()),SLOT(minmaxSlot()));
   connect( stopSlider, SIGNAL( sliderReleased()),SLOT(minmaxSlot()));
+  connect( offsetSlider, SIGNAL( sliderReleased()),SLOT(minmaxSlot()));
 
-  QVBoxLayout* timeLayout = new QVBoxLayout(); 
+  QVBoxLayout* timeLayout = new QVBoxLayout();
   timeLayout->addWidget( timerangeCheckBox );
   timeLayout->addWidget( startLabel );
   timeLayout->addWidget( startTimeLabel );
@@ -97,6 +109,9 @@ TimeControl::TimeControl(QWidget* parent)
   timeLayout->addWidget( stopLabel );
   timeLayout->addWidget( stopTimeLabel );
   timeLayout->addWidget( stopSlider );
+  timeLayout->addWidget( offsetLabel );
+  timeLayout->addWidget( offsetTimeLabel );
+  timeLayout->addWidget( offsetSlider );
 
   QVBoxLayout* vblayout = new QVBoxLayout( frame);
   vblayout->addLayout( timeLayout );
@@ -105,7 +120,7 @@ TimeControl::TimeControl(QWidget* parent)
   timerangelayout->addWidget(frame);
 
   QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this);
-  
+
   timeoutBox= new QComboBox(this);
   for(float f=0.2; f<2.1; f+=0.1){
     miutil::miString text(f,2);
@@ -124,8 +139,8 @@ TimeControl::TimeControl(QWidget* parent)
   dataname[5] = "vcross";
   dataname[6] = "spectrum";
   dataname[7] = "product";
-  
-  QLabel* dataLabel = new QLabel(tr("Data basis for time slider:"),this); 
+
+  QLabel* dataLabel = new QLabel(tr("Data basis for time slider:"),this);
   dataBox = new QComboBox(this);
   dataBox->addItem(tr("Field"));
   dataBox->addItem(tr("Satellite"));
@@ -154,7 +169,7 @@ TimeControl::TimeControl(QWidget* parent)
   vlayout->addWidget( dataBox );
   vlayout->addSpacing(5);
   vlayout->addWidget( hideButton );
-  vlayout->activate(); 
+  vlayout->activate();
   //  vlayout->freeze();
 
   vector<miutil::miTime> t;
@@ -163,17 +178,20 @@ TimeControl::TimeControl(QWidget* parent)
 }
 
 
-void TimeControl::setTimes( vector<miutil::miTime>& times ){
+void TimeControl::setTimes( vector<miutil::miTime>& times ) {
 
   int n= times.size();
   int m= m_times.size();
   //try to remeber old limits
   bool resetSlider=false;
-  miutil::miTime start,stop;
-  if(m>0 && n>0 && (startSlider->value()>0 || stopSlider->value() <m-1)){
+  miutil::miTime start,stop,offset;
+  if (m>0 && n>0 &&
+      (startSlider->value()>0 || stopSlider->value() <m-1 || offsetSlider->value()>0) ){
     resetSlider=true;
     start= m_times[startSlider->value()];
     stop= m_times[stopSlider->value()];
+    offset= m_times[offsetSlider->value()];
+
   }
 
   //reset times
@@ -189,29 +207,34 @@ void TimeControl::setTimes( vector<miutil::miTime>& times ){
   n= m_times.size() - 1;
   startSlider->setRange(0,n);
   stopSlider->setRange(0,n);
-  if(resetSlider){
+  offsetSlider->setRange(0,n);
+  if (resetSlider) {
     int i = n;
     while(i>0 && times[i]>start) i--;
     StartValue(i);
     i=0;
     while(i<n && times[i]<stop) i++;
     StopValue(i);
+    // no need to reset offset
+    if (offsetSlider->value() > 0) {
+      minmaxSlot();
+    }
   } else{
     StartValue(0);
     StopValue(n);
-  } 
+    OffsetValue(0);
+  }
 }
 
 
 void TimeControl::StartValue( int v ){
   startSlider->setValue( v );
   if ( v > stopSlider->value() )
-    StopValue(v); 
+    StopValue(v);
   startTimeLabel->setText(m_times[v].isoTime().cStr());
 
   return;
 }
-
 
 void TimeControl::StopValue( int v ){
   stopSlider->setValue( v );
@@ -220,6 +243,14 @@ void TimeControl::StopValue( int v ){
   stopTimeLabel->setText(m_times[v].isoTime().cStr());
   return;
 }
+
+void TimeControl::OffsetValue( int v ){
+  offsetSlider->setValue( v );
+  int hour = miutil::miTime::hourDiff(m_times[v], m_times[0]);
+  offsetTimeLabel->setText(miutil::miString(hour).cStr());
+  return;
+}
+
 
 void TimeControl::timeoutSlot(int i){
 
@@ -240,20 +271,29 @@ void TimeControl::minmaxSlot(){
 
   if(timerangeCheckBox->isChecked()){
 
-    int istart, istop;    
+    int istart, istop, ioffset;
     istart= startSlider->value();
-    istop=  stopSlider->value(); 
-    if(istart<=0 && istop>=n-1){
-      emit clearMinMax();
-    } else {
-      miutil::miTime start= m_times[istart];
-      miutil::miTime stop= m_times[istop];
-      emit minmaxValue(start,stop);
+    istop=  stopSlider->value();
+    ioffset= offsetSlider->value();
+
+    if (ioffset > 0) {
+      // Offset is enabled
+      miutil::miTime start= m_times[n - ioffset - 1];
+      miutil::miTime stop= m_times[n - 1];
+      emit minmaxValue(start, stop);
+    }
+    else {
+      if (istart <= 0 && istop >= n-1) {
+	emit clearMinMax();
+      } else {
+	miutil::miTime start= m_times[istart];
+	miutil::miTime stop= m_times[istop];
+	emit minmaxValue(start, stop);
+      }
     }
   } else {
     emit clearMinMax();
   }
-    
 }
 
 
@@ -273,7 +313,7 @@ void TimeControl::useData(miutil::miString type, int id){
   dataBox->addItem(type.cStr());
   dataBox->setCurrentIndex(dataBox->count()-1);
   emit data(type);
-  
+
 }
 
 
@@ -284,8 +324,12 @@ vector<miutil::miString> TimeControl::deleteType(int id)
   vector<miutil::miString>::iterator p = dataname.begin();
   map<int,miutil::miString>::iterator q = external_id.begin();
   map<int,miutil::miString>::iterator qend = external_id.end();
-  
+
   vector<miutil::miString> type;
+  miutil::miString currentDataname;
+  if (dataBox->currentIndex() >=0) {
+    dataname[dataBox->currentIndex()];
+  }
 
   for(;q!=qend;q++){
     if(id>-1 && q->first!=id) continue;
@@ -295,23 +339,29 @@ vector<miutil::miString> TimeControl::deleteType(int id)
       p++;
       i++;
     }
-    if(p!=pend){ 
+    if(p!=pend){
       type.push_back(*p);
       dataname.erase(p);
       dataBox->removeItem(i);
+      if (*p == currentDataname) {
+	currentDataname = "";
+      }
       if(id>-1){  //remove id from external_id
 	external_id.erase(q);
 	break;
       }
     }
   }
-  
+
   if( id==-1 )
     external_id.clear();
 
-  useData("field");
+  if (currentDataname != "")
+    useData(currentDataname);
+  else
+    useData("field");
 
   return type;
 
-}				       
+}
 

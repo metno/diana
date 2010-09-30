@@ -145,10 +145,14 @@ public:
   Colour::ColourInfo getCurrentColour();
   /// get text from marked text symbols in editObjects
   miutil::miString getMarkedText();
+  /// get colour from marked colored text symbols in editObjects
+  Colour::ColourInfo getMarkedTextColour();
   /// get colour from marked text symbols in editObjects
   Colour::ColourInfo getMarkedColour();
   /// change text of marked text symbols in editObjects
   void changeMarkedText(const miutil::miString & newText);
+  /// change colour of marked colored text symbols in editObjects
+  void changeMarkedTextColour(const Colour::ColourInfo & newColour);
   /// change colour of marked text symbols in editObjects
   void changeMarkedColour(const Colour::ColourInfo & newColour);
   /// get text list from weather symbol
@@ -168,8 +172,16 @@ public:
   void setCurrentComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
   /// inits current text of complex text symbols
   void initCurrentComplexText();
+   /// get texts of marked complex colored text object
+  void getMarkedComplexTextColored(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+   /// get texts of marked complex multilinetext object
+  void getMarkedMultilineText(vector <miutil::miString> & symbolText);
    /// get texts of marked complex text object
   void getMarkedComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  /// changes texts of marked complex colored text object
+  void changeMarkedComplexTextColored(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  /// changes texts of marked multiline text object
+  void changeMarkedMultilineText(const vector <miutil::miString> & symbolText);
   /// changes texts of marked complex text object
   void changeMarkedComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
   /// get text list from complex weather symbol

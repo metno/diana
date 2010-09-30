@@ -166,6 +166,7 @@ public:
 				      int index=-1);
   bool isMosaic(const miutil::miString &satellite, const miutil::miString & file);
 
+  void cutImageRGBA(unsigned char *image, float cut, int *index);
   int getFileName(miutil::miString &);
   int getFileName(const miutil::miTime&);
 

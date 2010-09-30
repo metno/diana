@@ -203,9 +203,11 @@ bool WeatherArea::plot()
     //enable blending and set colour
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4ub(objectColour.R(), objectColour.G(), objectColour.B(),
-        objectColour.A());
-
+    glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
+    if (drawIndex == Rainarea) {
+      //glColor4ub(1.0, 1.0, 1.0, 1.0);
+      glColor3f(1.0, 1.0, 1.0);
+    }
     if (itsLinetype.stipple) {
       glEnable(GL_LINE_STIPPLE);
       glLineStipple(itsLinetype.factor, itsLinetype.bmap);

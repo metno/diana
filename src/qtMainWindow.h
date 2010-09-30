@@ -244,6 +244,7 @@ private slots:
   void showUffda();
   void selectedAreas();
 
+  void winResize(int, int);
   void inEdit(bool);
   void sendPrintClicked(int);
   void togglePaintMode();

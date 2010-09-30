@@ -264,10 +264,11 @@ bool SatManager::setData(SatPlot *satp)
 
   //************* Convert to RGB ***************************************
 
-  if (satdata->palette) {
+  if (satdata->palette && satdata->formatType != "geotiff") {
     // at the moment no controllable rgb or alpha operations here
     setPalette(fInfo);
   } else {
+    // GEOTIFF ALWAYS RGBA
     setRGB();
   }
 
@@ -509,88 +510,138 @@ void SatManager::setRGB()
     unsigned char colmap[3][colmapsize];
 
     //Improve color
-    if (satdata->formatType != "geotiff" ){
-
     if (satdata->cut > -1) {
       int shift;
       float factor;
-      for (k=0; k<3; k++)
-        if (color[k]!=NULL && (k==0 || color[k]!=color[k-1])) {
 
-          int index1, index2;
-          if (satdata->cut==-0.5 && //reuse stretch from first image
-              satdata->plotChannels == colourStretchInfo.channels) {
-            index1 = colourStretchInfo.index1[k];
-            index2 = colourStretchInfo.index2[k];
-          } else { //find stretch from this image
-            cutImage(color[k], satdata->cut, index1, index2);
-          }
-          //remember stretch from first image
-          if (!colourStretchInfo.channels.exists()
-              || satdata->commonColourStretch) {
-            colourStretchInfo.index1[k]= index1;
-            colourStretchInfo.index2[k]= index2;
-            colourStretchInfo.channels = satdata->plotChannels;
-            satdata->commonColourStretch=true;
-          }
-          factor=(float)(colmapsize-1)/(index2-index1+1);
-          shift=index1-1;
-          int index;
+      if (satdata->formatType == "geotiff" ) {
+	if (satdata->rawimage[0]!=NULL) {
+	  int index[6];
+	  if (satdata->cut==-0.5 && //reuse stretch from first image
+	      satdata->plotChannels == colourStretchInfo.channels) {
+	    for (k=0; k<3; k++) {
+	      index[0+k*2] = colourStretchInfo.index1[k];
+	      index[1+k*2] = colourStretchInfo.index2[k];
+	    }
+	  } else { //find stretch from this image
+	    cutImageRGBA(satdata->rawimage[0], satdata->cut, index);
+	  }
+	  //remember stretch from first image
+	  if (!colourStretchInfo.channels.exists()
+	      || satdata->commonColourStretch) {
+	    for (k=0; k<3; k++) {
+	      colourStretchInfo.index1[k]= index[0+k*2];
+	      colourStretchInfo.index2[k]= index[1+k*2];
+	    }
+	    colourStretchInfo.channels = satdata->plotChannels;
+	    satdata->commonColourStretch=true;
+	  }
 
-          colmap[k][0] = (unsigned char) (0);
-          for (i=1; i<colmapsize; i++) {
-            index=(int)(float(i-shift)*factor + 0.5);
-            if (index<1)
-              index=1;
-            if (index>255)
-              index=255;
-            colmap[k][i] = (unsigned char) (index);
-          }
-        }
+	  for (k=0; k<3; k++) {
+	    factor=(float)(colmapsize-1)/(index[1+k*2]-index[0+k*2]+1);
+	    shift=index[0+k*2]-1;
+	    int idx;
+	    colmap[k][0] = (unsigned char) (0);
+	    for (i=1; i<colmapsize; i++) {
+	      idx=(int)(float(i-shift)*factor + 0.5);
+	      if (idx<1)
+		idx=1;
+	      if (idx>255)
+		idx=255;
+	      colmap[k][i] = (unsigned char) (idx);
+	    }
+	  }
+	}
+      } else {
+	for (k=0; k<3; k++)
+	  if (color[k]!=NULL && (k==0 || color[k]!=color[k-1])) {
+
+	    int index1, index2;
+	    if (satdata->cut==-0.5 && //reuse stretch from first image
+		satdata->plotChannels == colourStretchInfo.channels) {
+	      index1 = colourStretchInfo.index1[k];
+	      index2 = colourStretchInfo.index2[k];
+	    } else { //find stretch from this image
+	      cutImage(color[k], satdata->cut, index1, index2);
+	    }
+	    //remember stretch from first image
+	    if (!colourStretchInfo.channels.exists()
+		|| satdata->commonColourStretch) {
+	      colourStretchInfo.index1[k]= index1;
+	      colourStretchInfo.index2[k]= index2;
+	      colourStretchInfo.channels = satdata->plotChannels;
+	      satdata->commonColourStretch=true;
+	    }
+	    factor=(float)(colmapsize-1)/(index2-index1+1);
+	    shift=index1-1;
+	    int index;
+
+	    colmap[k][0] = (unsigned char) (0);
+	    for (i=1; i<colmapsize; i++) {
+	      index=(int)(float(i-shift)*factor + 0.5);
+	      if (index<1)
+		index=1;
+	      if (index>255)
+		index=255;
+	      colmap[k][i] = (unsigned char) (index);
+	    }
+	  }
+      }
     } else { // set colourStretchInfo even if cut is off
       if (!colourStretchInfo.channels.exists()) {
-        for (k=0; k<3; k++) {
-          colourStretchInfo.index1[k]= 0;
-          colourStretchInfo.index2[k]= 255;
-          colourStretchInfo.channels = satdata->plotChannels;
-          satdata->commonColourStretch=true;
-        }
+	for (k=0; k<3; k++) {
+	  colourStretchInfo.index1[k]= 0;
+	  colourStretchInfo.index2[k]= 255;
+	  colourStretchInfo.channels = satdata->plotChannels;
+	  satdata->commonColourStretch=true;
+	}
       }
-    }
     }
     // Put 1,2 or 3 different channels into satdata->image(RGBA).
     // Start in lower left corner instead of upper left.
 
     if (satdata->formatType == "geotiff" ){
-      satdata->image= satdata->rawimage[0];
-      satdata->rawimage[0] = 0;
-      satdata->rawimage[1] = 0;
-      satdata->rawimage[2] = 0;
+      // UINT32 RGBA version
 
-      // Cut needs to bee implemented for UINT32 RGBA
-
-    }
-    else {
       if (satdata->image)
 	delete[] satdata->image;
       satdata->image= new unsigned char[size*4];
 
-    for (k=0; k<3; k++)
-      if (color[k]==NULL) {
-        for (i=0; i<size; i++)
-          satdata->image[i*4+k] = 0;
-      } else if (satdata->cut > -1 && (k==0 || color[k]!=color[k-1])) {
-        for (j=0; j<ny; j++)
-          for (i=0; i<nx; i++)
-            satdata->image[(i+(ny-j-1)*nx)*4+k] = colmap[k][int(color[k][j*nx+i])];
-      } else if (satdata->cut > -1) {
-        for (i=0; i<size; i++)
-          satdata->image[i*4+k] = satdata->image[i*4+k-1];
-      } else {
-        for (j=0; j<ny; j++)
-          for (i=0; i<nx; i++)
-            satdata->image[(i+(ny-j-1)*nx)*4+k] = color[k][j*nx+i];
-      }
+	if (satdata->rawimage[0] == NULL) {
+	  for (k=0; k<3; k++)
+	    for (i=0; i<size; i++)
+	      satdata->image[i*4+k] = 0;
+	} else if (satdata->cut > -1 ) {
+	  for (i=0; i<size; i++) {
+	    satdata->image[i*4+0] = colmap[0][(unsigned int)(satdata->rawimage[0][i*4+0])];
+	    satdata->image[i*4+1] = colmap[1][(unsigned int)(satdata->rawimage[0][i*4+1])];
+	    satdata->image[i*4+2] = colmap[2][(unsigned int)(satdata->rawimage[0][i*4+2])];
+	  }
+	} else {
+	  satdata->image= satdata->rawimage[0];
+	  satdata->rawimage[0] = NULL;
+	}
+    } else {
+      if (satdata->image)
+	delete[] satdata->image;
+      satdata->image= new unsigned char[size*4];
+
+      for (k=0; k<3; k++)
+	if (color[k]==NULL) {
+	  for (i=0; i<size; i++)
+	    satdata->image[i*4+k] = 0;
+	} else if (satdata->cut > -1 && (k==0 || color[k]!=color[k-1])) {
+	  for (j=0; j<ny; j++)
+	    for (i=0; i<nx; i++)
+	      satdata->image[(i+(ny-j-1)*nx)*4+k] = colmap[k][int(color[k][j*nx+i])];
+	} else if (satdata->cut > -1) {
+	  for (i=0; i<size; i++)
+	    satdata->image[i*4+k] = satdata->image[i*4+k-1];
+	} else {
+	  for (j=0; j<ny; j++)
+	    for (i=0; i<nx; i++)
+	      satdata->image[(i+(ny-j-1)*nx)*4+k] = color[k][j*nx+i];
+	}
     }
   }
 
@@ -611,11 +662,12 @@ void SatManager::setRGB()
         //set alpha value to default or the one chosen in dialog
         satdata->image[i*4+3] = (unsigned char) satdata->alpha;
         //remove black pixels
-	if (satdata->formatType != "geotiff") {
+	/*if (satdata->formatType != "geotiff") { */
 	  if (satdata->image[i*4] == 0 && satdata->image[i*4+1]== 0
 	      && satdata->image[i*4+2] == 0)
 	    satdata->image[i*4+3]=0;
-	}
+	  //	}
+
       }
     }
   }
@@ -1114,6 +1166,82 @@ void SatManager::listFiles(subProdInfo &subp)
   }
 #endif
   //cerr<<"SatManager----> listFiles:  " << fileListChanged <<endl;
+}
+
+void SatManager::cutImageRGBA(unsigned char *image, float cut, int *index)
+{
+
+  //  * PURPOSE:   (1-cut)*#pixels should have a value between index[0] and index[1]
+
+  int i;
+  int nindexR[256], nindexG[256], nindexB[256];
+  int size=satdata->nx*satdata->ny;
+
+  for (i=0; i<256; i++) {
+    nindexR[i]=0;
+    nindexG[i]=0;
+    nindexB[i]=0;
+  }
+
+  for (i=0; i<size; i++) {
+    nindexR[(int)image[4*i]]++;
+    nindexG[(int)image[4*i+1]]++;
+    nindexB[(int)image[4*i+2]]++;
+  }
+
+  float npixelR=size-nindexR[0]; //number of pixels, drop index=0
+  float npixelG=size-nindexG[0]; //number of pixels, drop index=0
+  float npixelB=size-nindexB[0]; //number of pixels, drop index=0
+
+  int ncutR=(int) (npixelR*cut); //number of pixels to cut   +1?
+  int ncutG=(int) (npixelG*cut); //number of pixels to cut   +1?
+  int ncutB=(int) (npixelB*cut); //number of pixels to cut   +1?
+  int nsum; //number of pixels dropped
+
+  // RED cut
+  index[0]=1;
+  index[1]=255;
+  nsum=0;
+  while (nsum<ncutR && index[0]<index[1]) {
+    if (nindexR[index[0]] < nindexR[index[1]]) {
+      nsum += nindexR[index[0]];
+      index[0]++;
+    } else {
+      nsum += nindexR[index[1]];
+      index[1]--;
+    }
+  }
+
+  // GREEN cut
+  index[2]=1;
+  index[3]=255;
+  nsum=0;
+  while (nsum<ncutG && index[2]<index[3]) {
+    if (nindexG[index[2]] < nindexG[index[3]]) {
+      nsum += nindexG[index[2]];
+      index[2]++;
+    } else {
+      nsum += nindexG[index[3]];
+      index[3]--;
+    }
+  }
+
+  // BLUE cut
+  index[4]=1;
+  index[5]=255;
+  nsum=0;
+  while (nsum<ncutB && index[4]<index[5]) {
+    if (nindexB[index[4]] < nindexB[index[5]]) {
+      nsum += nindexB[index[4]];
+      index[4]++;
+    } else {
+      nsum += nindexB[index[5]];
+      index[5]--;
+    }
+  }
+
+  //Strengt tatt skulle den index som sist ble flyttet, blitt flyttet
+  //tilbake.
 }
 
 const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,

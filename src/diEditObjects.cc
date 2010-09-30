@@ -1490,6 +1490,20 @@ miString EditObjects::getMarkedText(){
   return miString();
 }
 
+Colour::ColourInfo EditObjects::getMarkedTextColour(){
+  Colour::ColourInfo cinfo;
+  if (mapmode==draw_mode){
+    int edsize = objects.size();
+    for (int i =0; i< edsize;i++){
+      if (objects[i]->isTextColored() && objects[i]->ismarkAllPoints()){
+        return objects[i]->getObjectColor();
+      }
+    }
+
+  }
+  return cinfo;
+}
+
 
 Colour::ColourInfo EditObjects::getMarkedColour(){
   Colour::ColourInfo cinfo;
@@ -1516,6 +1530,17 @@ void EditObjects::changeMarkedText(const miString & newText){
   }
 }
 
+void EditObjects::changeMarkedTextColour(const Colour::ColourInfo & newColour){
+  if (mapmode==draw_mode){
+    int edsize = objects.size();
+    for (int i =0; i< edsize;i++){
+      if (objects[i]->isTextColored() && objects[i]->ismarkAllPoints()){
+        objects[i]->setObjectColor(newColour);
+      }
+    }
+  }
+}
+
 void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1527,6 +1552,20 @@ void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
   }
 }
 
+void EditObjects::getMarkedMultilineText(vector <miString> & symbolText){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects:::getMarkedMultilineText called" << endl;
+#endif
+  if (mapmode==draw_mode){
+    int edsize = objects.size();
+    for (int i =0; i< edsize;i++){
+      if (objects[i]->isTextMultiline() && objects[i]->ismarkAllPoints()){
+        objects[i]->getMultilineText(symbolText);
+        if (symbolText.size()) return;
+      }
+    }
+  }
+}
 
 void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText){
 #ifdef DEBUGPRINT
@@ -1544,6 +1583,48 @@ void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <m
   }
 }
 
+void EditObjects::getMarkedComplexTextColored(vector <miString> & symbolText, vector <miString> & xText){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::getMarkedComplexColored called" << endl;
+#endif
+  if (mapmode==draw_mode){
+    int edsize = objects.size();
+    for (int i =0; i< edsize;i++){
+      if (objects[i]->isTextColored() && objects[i]->ismarkAllPoints()){
+        objects[i]->getComplexText(symbolText,xText);
+        if (symbolText.size()&& xText.size()) return;
+      }
+    }
+  }
+}
+
+void EditObjects::changeMarkedComplexTextColored(const vector <miString> & symbolText, const vector <miString> & xText){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::changeMarkedComplex called" << endl;
+#endif
+  if (mapmode==draw_mode){
+    int edsize = objects.size();
+    for (int i =0; i< edsize;i++){
+      if (objects[i]->isTextColored() && objects[i]->ismarkAllPoints()){
+        objects[i]->changeComplexText(symbolText,xText);
+      }
+    }
+  }
+}
+
+void EditObjects::changeMarkedMultilineText(const vector <miString> & symbolText){
+#ifdef DEBUGPRINT
+  cerr << "EditObjects::changeMarkedMiltilineText called" << endl;
+#endif
+  if (mapmode==draw_mode){
+    int edsize = objects.size();
+    for (int i =0; i< edsize;i++){
+      if (objects[i]->isTextMultiline() && objects[i]->ismarkAllPoints()){
+        objects[i]->changeMultilineText(symbolText);
+      }
+    }
+  }
+}
 
 void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
 #ifdef DEBUGPRINT

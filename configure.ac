@@ -39,6 +39,8 @@ AC_LANG_PUSH([C])
 
 METNO_WIN32_IFELSE([DEBUG_FLAGS=-gstabs], [DEBUG_FLAGS=-g])
 CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra"
+METNO_WIN32_IFELSE([OPT_FLAGS="-msse2 -march=pentium4"], [OPT_FLAGS="-msse2 -march=core2"])
+CXXFLAGS="$CXXFLAGS ${OPT_FLAGS} -Wall"
 AC_SYS_LARGEFILE
 
 AC_LANG_POP([C])
@@ -61,6 +63,11 @@ AC_ARG_ENABLE([roadobs],
     [AS_HELP_STRING([--enable-roadobs], [enable ROAD observations])],
     [], [enable_roadobs=no])
 AM_CONDITIONAL([WITH_ROADOBS], [test x$enable_roadobs = xyes])
+
+AC_ARG_ENABLE([newarkobs],
+    [AS_HELP_STRING([--enable-newarkobs], [enable NEWARK observations])],
+    [], [enable_newarkobs=no])
+AM_CONDITIONAL([WITH_NEWARKOBS], [test x$enable_newarkobs = xyes])
 
 AC_ARG_ENABLE([gribfile],
     [AS_HELP_STRING([--enable-gribfile], [enable Gribfile support])],
@@ -142,6 +149,11 @@ AS_IF([test x$enable_roadobs = xyes], [
     METNO_REQUIRE_PKG([ROADAPI], [roadAPI])
 ])
 
+AS_IF([test x$enable_newarkobs = xyes], [
+    METNO_REQUIRE_PKG([NEWARKAPI], [newarkAPI])
+    METNO_REQUIRE_PKG([PGCONPOOL], [pgconpool])
+])
+
 AS_IF([test x$enable_profet = xyes], [
     METNO_REQUIRE_PKG([PODS], [pods])
     METNO_REQUIRE_PKG([PROFET], [profet])
@@ -166,7 +178,7 @@ AS_IF([test x$enable_video_export = xyes], [
 ])
 
 # shapefile
-METNO_REQUIRE_C_LIBRARY([SHP], [shp], [], [SHPOpen])
+METNO_REQUIRE_C_LIBRARY([SHP], [shp], [shapefil.h], [SHPOpen])
 
 # EMOSLIB
 AS_IF([test x$enable_obs_bufr = xyes], [

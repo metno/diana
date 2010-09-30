@@ -156,12 +156,15 @@ public:
   miutil::miString writeTypeString();
   /// apply filter to hide some symbols
   virtual void applyFilters(vector <miutil::miString>);
+  /// gets miutil::miString vectors with symboltext or multiline text
+  void getMultilineText(vector <miutil::miString> & symbolText);
   /// gets miutil::miString vectors with symboltext and xText
   void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
   /// reads complex text to be plotted from a string (written by readComplexText)
   void readComplexText(miutil::miString s);
   /// change text to be drawn
   void changeComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  void changeMultilineText(const vector <miutil::miString> & symbolText);
 
 };
 

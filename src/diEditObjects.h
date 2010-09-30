@@ -86,14 +86,26 @@ public:
   void setScaleToField(float s);
   /// returns text of marked text object
   miutil::miString getMarkedText();
+  /// returns colour of marked colored text object
+  Colour::ColourInfo getMarkedTextColour();
   /// returns colour of marked text object
   Colour::ColourInfo getMarkedColour();
   /// changes text of marked text object to newText
   void changeMarkedText(const miutil::miString & newText);
+  /// changes colour of marked colored text object to new colour
+  void changeMarkedTextColour(const Colour::ColourInfo & newColour);
   /// changes colour of marked text object to newText
   void changeMarkedColour(const Colour::ColourInfo & newColour);
+  /// get texts of marked complex colored text object
+  void getMarkedComplexTextColored(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  /// get texts of marked multiline text object
+  void getMarkedMultilineText(vector <miutil::miString> & symbolText);
   /// get texts of marked complex text object
   void getMarkedComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  /// changes texts of marked complex colored text object
+  void changeMarkedComplexTextColored(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  /// changes texts of marked multiline text object
+  void changeMarkedMultilineText(const vector <miutil::miString> & symbolText);
   /// changes texts of marked complex text object
   void changeMarkedComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
   /// returns true of current symbol is simple text

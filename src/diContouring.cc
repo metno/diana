@@ -35,6 +35,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <set>
 #include <math.h>
@@ -71,7 +72,9 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     int ibmap, int lbmap, int kbmap[],
     int nxbmap, int nybmap, float rbmap[],
     FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
-    const Area& fieldArea, const float& fieldUndef)
+    const Area& fieldArea, const float& fieldUndef,
+    const miString& modelName, const miString& paramName,
+    const int& fhour)
 {
   //  NAME:
   //     contour
@@ -298,6 +301,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 
   bool drawBorders= poptions.discontinuous!=0;
   bool shading=     poptions.contourShading!=0;
+  bool shape=       poptions.contourShape!=0;
 
   if (drawBorders) {
     if (idraw==1 || idraw==2) {
@@ -3010,8 +3014,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   horAttach.clear();
   verAttach.clear();
 
-
-  if (shading && contourlines.size()>0) {
+  if (shading && contourlines.size()>0 && !poptions.shapefilename.size() ) {
 
     int nclfirst= contourlines.size();
 
@@ -3060,6 +3063,16 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     fillContours(contourlines, nx, ny, z,
         iconv, cxy, xz, yz, idraw, poptions, drawBorders,
         psoutput, fieldArea,zrange,zstep,zoff,fieldUndef);
+  }
+
+  if (shape && contourlines.size()>0) {
+
+	  if (poptions.shapefilename.size())
+		  joinContours(contourlines,idraw,drawBorders,iconv,poptions.colourcut);
+
+	  writeShapefile(contourlines, nx, ny, iconv, cxy, xz, yz,
+			  idraw, poptions, drawBorders, fieldArea, zrange,
+			  zstep,zoff, fieldUndef, modelName, paramName, fhour);
   }
 
   if (contourlines.size()>0) {
@@ -3661,7 +3674,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
           nend= n/maxLines;
           n=    n%maxLines;
 
-          if (n>=int(contourlines.size()))
+	  	  if (n>=int(contourlines.size()))
             cerr<<"CONTOUR ERROR. n,contourlines.size(): "
             <<n<<" "<<contourlines.size()<<endl;
 
@@ -3711,7 +3724,8 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
         ContourLine *cl= new ContourLine();
         cl->original=   false;
         cl->ivalue=     contourlines[nc]->ivalue;
-        cl->value=      -999.; // dummy (one or two values)
+		//cl->value=      -999.; // dummy (one or two values)
+		cl->value=      contourlines[nc]->value; // value is used by Shape option
         cl->highInside= false;  // but not determined yet
         cl->highLeft=   contourlines[nc]->highLeft;
         cl->closed=     true;
@@ -3825,7 +3839,8 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
     ContourLine *cl= new ContourLine();
     cl->original=   false;
     cl->ivalue=     contourlines[0]->ivalue;
-    cl->value=      -999.; // dummy (one or two values)
+    //cl->value=      -999.; // dummy (one or two values)
+    cl->value=      contourlines[0]->value; // value is used by Shape option
     cl->highInside= false;  // but not determined yet
     cl->highLeft=   contourlines[0]->highLeft;
     cl->closed=     true;
@@ -4019,211 +4034,12 @@ void fillContours(vector<ContourLine*>& contourlines,
 
   ContourLine *cl;
   ContourLine *cl2;
-  int i,j,k,npos,ic,jc,nc,n,ncontours;
+  int i,j,npos,jc,n,ncontours;
 
-  float ycross,xtest;
-  vector<float> xcross;
-  vector<float> xcross2;
-
-  vector< vector<int> > insiders(ncl);
   vector< vector<int> > clindex(ncl);
-
-  for (jc=0; jc<ncl; jc++) {
-    if (contourlines[jc]->closed) {
-      cl= contourlines[jc];
-
-      ycross= fieldUndef;
-
-      int lowIndex=  cl->ivalue;
-      int highIndex= cl->ivalue;
-      if (cl->highInside)
-        highIndex++;
-      else
-        lowIndex--;
-
-      if (drawBorders) {
-        lowIndex=  -999999;
-        highIndex= +999999;
-      }
-
-      for (ic=0; ic<ncl; ic++) {
-        if (ic!=jc && contourlines[ic]->inner) {
-          cl2= contourlines[ic];
-          if ((cl2->ivalue >= lowIndex &&
-              cl2->ivalue <= highIndex) || cl2->undefLine || cl->undefLine) {
-            if (cl2->xmin >= cl->xmin && cl2->xmax <= cl->xmax &&
-                cl2->ymin >= cl->ymin && cl2->ymax <= cl->ymax) {
-              if (ycross <= cl2->ymin || ycross >= cl2->ymax) {
-                ycross= cl2->ymin + (cl2->ymax - cl2->ymin) * 0.55;
-                npos= cl->npos;
-                xcross= findCrossing(ycross, cl->npos, cl->xpos, cl->ypos);
-              }
-              nc= xcross.size();
-              if (nc>1) {
-                if (cl2->xmax > xcross[0] && cl2->xmin < xcross[nc-1]) {
-                  xcross2= findCrossing(ycross, cl2->npos, cl2->xpos, cl2->ypos);
-                  int nc2= xcross2.size();
-                  if (nc2>1) {
-                    bool search=true, inside=false, alleq=true;
-                    int c1=0, c2=0;
-                    while (search && c2<nc2) {
-                      if (c1<nc) {
-                        if (xcross[c1]<xcross2[c2]) {
-                          c1++;
-                        } else if (xcross[c1]>xcross2[c2]) {
-                          if (c1%2==0) {
-                            inside= false;
-                            search= false;
-                          } else {
-                            inside= true;
-                            search= false;
-                          }
-                          c2++;
-                          alleq=false;
-                        } else {
-                          if (c1%2 != c2%2) {
-                            inside= false;
-                            search= false;
-                          }
-                          c1++;
-                          c2++;
-                        }
-                      } else {
-                        c2++;
-                        if (c1%2 == c2%2) {
-                          inside= false;
-                          search= false;
-                        }
-                      }
-                    }
-                    if (search && alleq) {
-                      if (cl->ymin<cl2->ymin || cl->ymax>cl2->ymax ||
-                          cl->xmin<cl2->xmin || cl->xmax>cl2->xmax) {
-                        inside= true;
-                      } else {
-                        inside= true;
-                        int j1,nj1= cl->joined.size();
-                        int j2,nj2= cl2->joined.size();
-                        j2= 0;
-                        while (search && j2<nj2) {
-                          bool ok= true;
-                          for (int j1=0; j1<nj1; j1++)
-                            if (cl->joined[j1]==cl2->joined[j2]) ok= false;
-                          if (ok) {
-                            int kc= cl2->joined[j2];
-                            int nk= contourlines[kc]->npos;
-                            float xcp= contourlines[kc]->xpos[nk/2];
-                            float ycp= contourlines[kc]->ypos[nk/2];
-                            vector<float> xcross1;
-                            xcross1=  findCrossing(ycp, cl->npos, cl->xpos, cl->ypos);
-                            int nc1= xcross1.size();
-                            if (nc1>1) {
-                              i=0;
-                              while (i<nc1 && xcross1[i]<xcp) i++;
-                              if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
-                                inside=(i%2==1);
-                                search= false;
-                              }
-                            }
-                          }
-                          j2++;
-                        }
-                        j1= 0;
-                        while (search && j1<nj1) {
-                          bool ok= true;
-                          for (j2=0; j2<nj2; j2++)
-                            if (cl->joined[j1]==cl2->joined[j2]) ok= false;
-                          if (ok) {
-                            int kc= cl->joined[j1];
-                            int nk= contourlines[kc]->npos;
-                            float xcp= contourlines[kc]->xpos[nk/2];
-                            float ycp= contourlines[kc]->ypos[nk/2];
-                            vector<float> xcross1;
-                            xcross1=  findCrossing(ycp, cl2->npos, cl2->xpos, cl2->ypos);
-                            int nc1= xcross1.size();
-                            if (nc1>1) {
-                              i=0;
-                              while (i<nc1 && xcross1[i]<xcp) i++;
-                              if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
-                                inside=(i%2==0);
-                                search= false;
-                              }
-                            }
-                          }
-                          j1++;
-                        }
-                      }
-                    }
-                    if (inside) insiders[jc].push_back(ic);
-
-                  } else {
-
-                    if (!drawBorders && xcross2.size()>1)
-                      xtest= (xcross2[0]+xcross2[1])*0.5;
-                    else if (xcross2.size()>0)
-                      xtest= xcross2[0];
-                    else
-                      xtest= fieldUndef;
-                    n=0;
-                    while (n<nc && xcross[n]<=xtest) n++;
-                    if (n>0 && fabsf(xcross[n-1]-xtest)<0.0001) {
-                      if (!cl->undefLine && cl2->undefLine) n= 0;
-                    }
-                    if (n%2 == 1) {
-                      insiders[jc].push_back(ic);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-    }
-  }
-
-  for (jc=0; jc<ncl; jc++) {
-
-    if (contourlines[jc]->outer) {
-      clindex[jc].push_back(jc);
-      if (insiders[jc].size()>0) {
-        cl= contourlines[jc];
-        int ninside= insiders[jc].size();
-        vector<int> inside;
-        for (j=0; j<ninside; j++) {
-          ic= insiders[jc][j];
-          if (contourlines[ic]->inner) {
-            bool ok= true;
-            for (i=0; i<ninside; i++) {
-              int kc= insiders[jc][i];
-              int nk= insiders[kc].size();
-              for (k=0; k<nk; k++)
-                if (ic==insiders[kc][k]) ok= false;
-            }
-            if (ok) clindex[jc].push_back(ic);
-          }
-        }
-        int nj1= cl->joined.size();
-        ninside= clindex[jc].size();
-        bool ok= true;
-        j=1;
-        while (ok && j<ninside) {
-          ic= clindex[jc][j];
-          cl2= contourlines[ic];
-          int nj2= cl2->joined.size();
-          for (int j1=0; j1<nj1; j1++)
-            for (int j2=0; j2<nj2; j2++)
-              if (cl->joined[j1]==cl2->joined[j2]) ok= false;
-          j++;
-        }
-        if (!ok) {
-          cl->outer= false;
-          clindex[jc].clear();
-        }
-      }
-    }
-  }
+  // NEW function for countourline indexes to use, separated from the other code,
+  // to be used in other methods, such as writing shape files
+  getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
 
   vector<int>      classValues;
   vector<miString> classNames;
@@ -4236,138 +4052,16 @@ void fillContours(vector<ContourLine*>& contourlines,
     for (int i=0; i<nc; i++) {
       vector<miString> vstr=classSpec[i].split(":");
       if (vstr.size()>1) {
-        classValues.push_back(atoi(vstr[0].cStr()));
-        classNames.push_back(vstr[1]);
-        if (maxlen<vstr[1].length())
-          maxlen= vstr[1].length();
+	classValues.push_back(atoi(vstr[0].cStr()));
+	classNames.push_back(vstr[1]);
+	if (maxlen<vstr[1].length())
+	  maxlen= vstr[1].length();
       }
     }
   }
   int nclass= classValues.size();
 
-#ifdef SHAPE_TEST_POLY
-  //##########################################################################
-  static int numPolyShape= 0;
 
-  numPolyShape++;
-  miString shapefileName= "shapeTestPoly_" + miString(numPolyShape) + ".shp";
-
-  int minDump=1;
-  int maxDump=9999;
-
-  //    if (shapefileName.exists()) {
-  if (numPolyShape<10 && shapefileName.exists() && poptions.discontinuous==1) {
-
-    cerr<<"CONTOUR Writing Shapefile "<<shapefileName<<endl;
-
-    GridConverter gc;
-
-    int nSHPType= SHPT_POLYGON;
-    int iShape= 0;
-    SHPObject *psShape;
-    SHPHandle hSHP= SHPCreate( shapefileName.cStr(), nSHPType );
-
-    DBFHandle hDBF= DBFCreate( shapefileName.cStr() );
-    int iField;
-    if (nclass>0) {
-      iField= DBFAddField( hDBF, "Value_str", FTString, maxlen, 0);
-    } else {
-      iField= DBFAddField( hDBF, "Value_dbl", FTDouble, 8, 2);
-    }
-
-    for (jc=0; jc<ncl; jc++) {
-      cl= contourlines[jc];
-      if (cl->outer && cl->closed &&
-          (!cl->undefLine || (!cl->highInside && cl->joined.size()<2))) {
-
-        // colour index
-        int ivalue= cl->ivalue;
-        if (cl->isoLine && !cl->highInside)
-          ivalue--;
-        if (ivalue>=0 && idraw==2) ivalue++;
-
-        if (ivalue>=minDump && ivalue<=maxDump) {
-
-          ncontours= clindex[jc].size();
-          int nposis=0;
-          for (i=0; i<ncontours; i++) {
-            cl2= contourlines[clindex[jc][i]];
-            nposis+= cl2->npos;
-          }
-
-          if (nposis>2) {
-
-            float *fxshape= new float[nposis];
-            float *fyshape= new float[nposis];
-            int *partStart= new int[ncontours];
-            int *partType = new int[ncontours];
-            int n= 0;
-
-            for (i=0; i<ncontours; i++) {
-              partStart[i]= n;
-              if (i==0) partType[i]= SHPP_RING;
-              else      partType[i]= SHPP_INNERRING;
-              cl= contourlines[clindex[jc][i]];
-              int np= cl->npos;
-              if ((i==0 && cl->direction==-1) ||
-                  (i>0  && cl->direction==1)) {
-                for (j=0; j<np; j++) {
-                  fxshape[n]  = cl->xpos[j];
-                  fyshape[n++]= cl->ypos[j];
-                }
-              } else {
-                for (j=np-1; j>=0; j--) {
-                  fxshape[n]  = cl->xpos[j];
-                  fyshape[n++]= cl->ypos[j];
-                }
-              }
-            }
-
-            gc.xy2geo(fieldArea, nposis, fxshape, fyshape);
-
-            double *xshape= new double[nposis];
-            double *yshape= new double[nposis];
-
-            for (n=0; n<nposis; n++) {
-              xshape[n]= fxshape[n];
-              yshape[n]= fyshape[n];
-            }
-
-            delete[] fxshape;
-            delete[] fyshape;
-
-            psShape= SHPCreateObject( nSHPType, -1, ncontours, partStart, partType,
-                nposis, xshape, yshape, NULL, NULL );
-            SHPWriteObject( hSHP, -1, psShape );
-            SHPDestroyObject( psShape );
-
-            delete[] xshape;
-            delete[] yshape;
-            delete[] partStart;
-            delete[] partType;
-
-            int ii;
-            if (nclass>0) {
-              ii=0;
-              while (ii<nclass && classValues[ii]!=ivalue) ii++;
-              if (ii<nclass) {
-                DBFWriteStringAttribute( hDBF, iShape, iField, classNames[ii].cStr() );
-              } else {
-                DBFWriteDoubleAttribute( hDBF, iShape, iField, cl->value );
-              }
-            } else {
-            }
-
-            iShape++;
-          }
-        }
-      }
-    }
-    SHPClose( hSHP );
-    DBFClose( hDBF );
-  }
-  //##########################################################################
-#endif
   if (iconv==1) {
     for (jc=0; jc<ncl; jc++) {
       cl= contourlines[jc];
@@ -4525,7 +4219,414 @@ void fillContours(vector<ContourLine*>& contourlines,
 
 }
 
+void writeShapefile(vector<ContourLine*>& contourlines,
+		  int nx, int ny,
+		  int iconv, float *cxy,
+		  float *xz, float *yz,
+		  int idraw,
+		  const PlotOptions& poptions,
+		  bool drawBorders,
+		  const Area& fieldArea,
+		  float zrange[],
+		  float zstep,
+		  float zoff,
+		  const float& fieldUndef,
+		  const miString& modelName,
+		  const miString& paramName,
+		  const int& fhour)
+{
 
+  int ncl= contourlines.size();
+  if (ncl<1) return;
+
+  ContourLine *cl;
+  ContourLine *cl2;
+  int i,j,jc,ncontours;
+
+  vector< vector<int> > clindex(ncl);
+  // NEW function for countourline indexes to use, separated from the other code,
+  // to be used in other methods, such as writing shape files
+  getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
+
+  vector<int>      classValues;
+  vector<miString> classNames;
+  int maxlen=0;
+  if (poptions.discontinuous==1 && poptions.classSpecifications.exists()) {
+    // discontinuous (classes)
+    vector<miString> classSpec=poptions.classSpecifications.split(",");
+    int nc = classSpec.size();
+    for (int i=0; i<nc; i++) {
+      vector<miString> vstr=classSpec[i].split(":");
+      if (vstr.size()>1) {
+    	classValues.push_back(atoi(vstr[0].cStr()));
+		classNames.push_back(vstr[1]);
+		if (maxlen<vstr[1].length())
+			maxlen= vstr[1].length();
+      }
+    }
+  }
+  int nclass= classValues.size();
+
+  if (iconv==1) {
+    for (jc=0; jc<ncl; jc++) {
+      cl= contourlines[jc];
+      if (cl->closed) posConvert(cl->npos,cl->xpos,cl->ypos,cxy);
+    }
+  } else if (iconv==2) {
+    for (jc=0; jc<ncl; jc++) {
+      cl= contourlines[jc];
+      if (cl->closed) posConvert(cl->npos,cl->xpos,cl->ypos,nx,ny,xz,yz);
+    }
+  }
+
+  miString shapefileName;
+  if (poptions.shapefilename.size()>0 && !poptions.shapefilename.contains("tmp_diana") )
+	  shapefileName=poptions.shapefilename;
+  else
+	  shapefileName= modelName + "_" + paramName + "_" + miString(fhour) + ".shp";
+
+  // Projection -- DIANA uses sperical earth....
+  miString projStr = "GEOGCS[\"unnamed ellipse\",DATUM[\"D_unknown\",SPHEROID[\"Unknown\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]]";
+  miString projFileName;
+  projFileName = shapefileName;
+  projFileName.replace(".shp","");
+  projFileName+=".prj";
+
+  // open filestream and write .prj file
+  ofstream projfile(projFileName.c_str());
+  if (!projfile){
+    cerr << "ERROR OPEN (WRITE) " << projFileName << endl;
+    return;
+  }
+  projfile << projStr << endl;
+  projfile.close();
+
+  GridConverter gc;
+
+  int nSHPType= SHPT_POLYGON;
+  int iShape= 0;
+  SHPObject *psShape;
+  SHPHandle hSHP= SHPCreate( shapefileName.cStr(), nSHPType );
+
+  DBFHandle hDBF= DBFCreate( shapefileName.cStr() );
+  int iField;
+  if (nclass>0) {
+    iField= DBFAddField( hDBF, "Value_str", FTString, maxlen, 0);
+  } else {
+    iField= DBFAddField( hDBF, "Value_dbl", FTDouble, 8, 2);
+  }
+
+  for (jc=0; jc<ncl; jc++) {
+    cl= contourlines[jc];
+    if (cl->outer && cl->closed && cl->ivalue!=-300 &&
+    		(!cl->undefLine || (!cl->highInside && cl->joined.size()<2))) {
+    	// colour index - shape line index...
+		int ivalue= cl->ivalue;
+		if (cl->isoLine && !cl->highInside) ivalue--;
+		// If idraw=2, zero.line=0, and no zero line shall be drawn.... uncertain how this works with shape...
+		if (ivalue>=0 && idraw==2) ivalue++;
+		if( (idraw >2 || zrange[0]>zrange[1] ||
+		   ( ivalue<(zrange[1]-zoff)/zstep
+			 && ivalue>((zrange[0]-zoff)/zstep)-1) ) ) {
+
+		  ncontours= clindex[jc].size();
+		  int nposis=0;
+		  for (i=0; i<ncontours; i++) {
+			  cl2= contourlines[clindex[jc][i]];
+			  nposis+= cl2->npos;
+		  }
+
+		  if (nposis>2) {
+
+		  float *fxshape= new float[nposis];
+		  float *fyshape= new float[nposis];
+		  int *partStart= new int[ncontours];
+		  int *partType = new int[ncontours];
+		  int n= 0;
+
+		  for (i=0; i<ncontours; i++) {
+			partStart[i]= n;
+			if (i==0) partType[i]= SHPP_RING;
+			else      partType[i]= SHPP_INNERRING;
+			cl= contourlines[clindex[jc][i]];
+			int np= cl->npos;
+			if ((i==0 && cl->direction==-1) ||
+				(i>0  && cl->direction==1)) {
+			  for (j=0; j<np; j++) {
+				fxshape[n]  = cl->xpos[j];
+				fyshape[n++]= cl->ypos[j];
+			  }
+			} else {
+			  for (j=np-1; j>=0; j--) {
+				fxshape[n]  = cl->xpos[j];
+				fyshape[n++]= cl->ypos[j];
+			  }
+			}
+		  }
+
+		  gc.xy2geo(fieldArea, nposis, fxshape, fyshape);
+
+		  double *xshape= new double[nposis];
+		  double *yshape= new double[nposis];
+
+		  for (n=0; n<nposis; n++) {
+			xshape[n]= fxshape[n];
+			yshape[n]= fyshape[n];
+		  }
+
+		  delete[] fxshape;
+		  delete[] fyshape;
+
+		  psShape= SHPCreateObject( nSHPType, -1, ncontours, partStart, partType,
+				  nposis, xshape, yshape, NULL, NULL );
+		  SHPWriteObject( hSHP, -1, psShape );
+		  SHPDestroyObject( psShape );
+
+		  delete[] xshape;
+		  delete[] yshape;
+		  delete[] partStart;
+		  delete[] partType;
+
+		  int ii;
+		  if (nclass>0) {
+			ii=0;
+			while (ii<nclass && classValues[ii]!=ivalue) ii++;
+			if (ii<nclass) {
+				DBFWriteStringAttribute( hDBF, iShape, iField, classNames[ii].cStr() );
+			} else {
+				DBFWriteDoubleAttribute( hDBF, iShape, iField, cl->value );
+			}
+		  } else {
+			  DBFWriteDoubleAttribute( hDBF, iShape, iField, cl->value );
+		  }
+
+		  iShape++;
+		}
+	  }
+    }
+  }
+  SHPClose( hSHP );
+  DBFClose( hDBF );
+
+}
+
+
+void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind,
+		  const PlotOptions& poptions, bool drawBorders, const float& fieldUndef)
+{
+
+  int ncl = contourlines.size();
+
+  ContourLine *cl;
+  ContourLine *cl2;
+  int i,j,k,npos,ic,jc,nc,n,ncontours;
+
+  float ycross,xtest;
+  vector<float> xcross;
+  vector<float> xcross2;
+
+  vector< vector<int> > insiders(ncl);
+
+  // START FINDING clindex
+
+  for (jc=0; jc<ncl; jc++) {
+	if (contourlines[jc]->closed) {
+	  cl= contourlines[jc];
+
+	  ycross= fieldUndef;
+
+	  int lowIndex=  cl->ivalue;
+	  int highIndex= cl->ivalue;
+	  if (cl->highInside)
+	highIndex++;
+	  else
+	lowIndex--;
+
+	  if (drawBorders) {
+	lowIndex=  -999999;
+	highIndex= +999999;
+	  }
+
+	  for (ic=0; ic<ncl; ic++) {
+	if (ic!=jc && contourlines[ic]->inner) {
+	  cl2= contourlines[ic];
+	  if ((cl2->ivalue >= lowIndex &&
+		   cl2->ivalue <= highIndex) || cl2->undefLine || cl->undefLine) {
+		if (cl2->xmin >= cl->xmin && cl2->xmax <= cl->xmax &&
+			cl2->ymin >= cl->ymin && cl2->ymax <= cl->ymax) {
+		  if (ycross <= cl2->ymin || ycross >= cl2->ymax) {
+		ycross= cl2->ymin + (cl2->ymax - cl2->ymin) * 0.55;
+				npos= cl->npos;
+		xcross= findCrossing(ycross, cl->npos, cl->xpos, cl->ypos);
+		  }
+		  nc= xcross.size();
+		  if (nc>1) {
+		if (cl2->xmax > xcross[0] && cl2->xmin < xcross[nc-1]) {
+			  xcross2= findCrossing(ycross, cl2->npos, cl2->xpos, cl2->ypos);
+		  int nc2= xcross2.size();
+		  if (nc2>1) {
+			bool search=true, inside=false, alleq=true;
+			int c1=0, c2=0;
+			while (search && c2<nc2) {
+			  if (c1<nc) {
+			if (xcross[c1]<xcross2[c2]) {
+			  c1++;
+			} else if (xcross[c1]>xcross2[c2]) {
+			  if (c1%2==0) {
+				inside= false;
+				search= false;
+			  } else {
+				inside= true;
+				search= false;
+			  }
+			  c2++;
+			  alleq=false;
+			} else {
+			  if (c1%2 != c2%2) {
+				inside= false;
+				search= false;
+			  }
+			  c1++;
+			  c2++;
+			}
+			  } else {
+			c2++;
+			if (c1%2 == c2%2) {
+			  inside= false;
+			  search= false;
+			}
+			  }
+			}
+			if (search && alleq) {
+			  if (cl->ymin<cl2->ymin || cl->ymax>cl2->ymax ||
+			  cl->xmin<cl2->xmin || cl->xmax>cl2->xmax) {
+			inside= true;
+			  } else {
+			inside= true;
+			int j1,nj1= cl->joined.size();
+			int j2,nj2= cl2->joined.size();
+			j2= 0;
+			while (search && j2<nj2) {
+			  bool ok= true;
+			  for (int j1=0; j1<nj1; j1++)
+				if (cl->joined[j1]==cl2->joined[j2]) ok= false;
+			  if (ok) {
+				int kc= cl2->joined[j2];
+				int nk= contourlines[kc]->npos;
+				float xcp= contourlines[kc]->xpos[nk/2];
+				float ycp= contourlines[kc]->ypos[nk/2];
+				vector<float> xcross1;
+				xcross1=  findCrossing(ycp, cl->npos, cl->xpos, cl->ypos);
+				int nc1= xcross1.size();
+				if (nc1>1) {
+				  i=0;
+				  while (i<nc1 && xcross1[i]<xcp) i++;
+				  if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
+				inside=(i%2==1);
+				search= false;
+				  }
+				}
+			  }
+			  j2++;
+			}
+			j1= 0;
+			while (search && j1<nj1) {
+			  bool ok= true;
+			  for (j2=0; j2<nj2; j2++)
+				if (cl->joined[j1]==cl2->joined[j2]) ok= false;
+			  if (ok) {
+				int kc= cl->joined[j1];
+				int nk= contourlines[kc]->npos;
+				float xcp= contourlines[kc]->xpos[nk/2];
+				float ycp= contourlines[kc]->ypos[nk/2];
+				vector<float> xcross1;
+				xcross1=  findCrossing(ycp, cl2->npos, cl2->xpos, cl2->ypos);
+				int nc1= xcross1.size();
+				if (nc1>1) {
+				  i=0;
+				  while (i<nc1 && xcross1[i]<xcp) i++;
+				  if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
+				inside=(i%2==0);
+				search= false;
+				  }
+				}
+			  }
+			  j1++;
+			}
+			  }
+			}
+			if (inside) insiders[jc].push_back(ic);
+
+		  } else {
+
+			if (!drawBorders && xcross2.size()>1)
+			  xtest= (xcross2[0]+xcross2[1])*0.5;
+			else if (xcross2.size()>0)
+			  xtest= xcross2[0];
+			else
+			  xtest= fieldUndef;
+			n=0;
+			while (n<nc && xcross[n]<=xtest) n++;
+			if (n>0 && fabsf(xcross[n-1]-xtest)<0.0001) {
+			  if (!cl->undefLine && cl2->undefLine) n= 0;
+			}
+			if (n%2 == 1) {
+			  insiders[jc].push_back(ic);
+			}
+		  }
+		}
+		  }
+			}
+		  }
+	}
+	  }
+
+	}
+  }
+  for (jc=0; jc<ncl; jc++) {
+
+	if (contourlines[jc]->outer) {
+	  clind[jc].push_back(jc);
+	  if (insiders[jc].size()>0) {
+	cl= contourlines[jc];
+	int ninside= insiders[jc].size();
+	vector<int> inside;
+	for (j=0; j<ninside; j++) {
+	  ic= insiders[jc][j];
+	  if (contourlines[ic]->inner) {
+		bool ok= true;
+		for (i=0; i<ninside; i++) {
+		  int kc= insiders[jc][i];
+		  int nk= insiders[kc].size();
+		  for (k=0; k<nk; k++)
+		if (ic==insiders[kc][k]) ok= false;
+		}
+		if (ok) clind[jc].push_back(ic);
+	  }
+	}
+	int nj1= cl->joined.size();
+	ninside= clind[jc].size();
+	bool ok= true;
+	j=1;
+	while (ok && j<ninside) {
+	  ic= clind[jc][j];
+	  cl2= contourlines[ic];
+	  int nj2= cl2->joined.size();
+	  for (int j1=0; j1<nj1; j1++)
+		for (int j2=0; j2<nj2; j2++)
+		  if (cl->joined[j1]==cl2->joined[j2]) ok= false;
+	  j++;
+	}
+	if (!ok) {
+	  cl->outer= false;
+	  clind[jc].clear();
+	}
+	  }
+	}
+  }
+  // END FINDING clindex
+
+}
 
 void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
     const float& fieldUndef)

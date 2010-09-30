@@ -36,7 +36,11 @@
 #include <GL/gl.h>
 #include <set>
 #ifdef ROADOBS
+#ifdef NEWARK_INC
+#include <newarkAPI/diStation.h>
+#else
 #include <roadAPI/diStation.h>
+#endif
 #endif
 
 /**

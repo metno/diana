@@ -23,7 +23,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -31,28 +31,27 @@
 #ifndef diHDF5_h
 #define diHDF5_h
 
-#include <diMItiff/satimgh5.h>
 #include <diSat.h>
+#include <diMItiff/satimgh5.h>
 
 
 /**
 
-  \brief Reading hdf5 files 
-  
+  \brief Reading hdf5 files
+
   - read header
-  - read data into class Sat 
+  - read data into class Sat
   - calc. solar heigt
 
 */
 
 
-using namespace metno;
 class HDF5 {
 
-  
+
 public:
   HDF5();
-  
+
   ///read image
   static bool readHDF5(const miutil::miString& filename, Sat& sd, int index=0);
   ///read header info (time, channels)
@@ -62,7 +61,7 @@ public:
   ///set channels depending on solar heigt
   //static bool day_night(const miutil::miString& filename, miutil::miString& channels);
 
-private: 
+private:
   //static satimgh5 hdf5api;
 };
 

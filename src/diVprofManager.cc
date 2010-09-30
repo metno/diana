@@ -52,7 +52,11 @@
 #ifdef ROADOBS
 #include <vector>
 #include <map>
+#ifdef NEWARK_INC
+#include <newarkAPI/diStation.h>
+#else
 #include <roadAPI/diStation.h>
+#endif
 #include <diVprofRTemp.h>
 #endif
 #include <diSetupParser.h>

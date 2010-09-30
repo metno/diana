@@ -2,6 +2,7 @@ productsdir= $(datarootdir)/$(APP)/products
 dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/SKVkart.txt \
 	share/diana/products/sigkart.txt \
+	share/diana/products/analys_Europa.txt \
 	share/diana/products/prognose+36.txt \
 	share/diana/products/prognose+18.txt \
 	share/diana/products/iskart.txt \
@@ -28,7 +29,7 @@ dist_fonts_DATA= share/diana/fonts/metsymbols.ttf \
 	share/diana/fonts/Vera.ttf \
 	share/diana/fonts/VeraIt.ttf \
 	share/diana/fonts/VeraBI.ttf \
-	share/diana/fonts/VeraBd.ttf 
+	share/diana/fonts/VeraBd.ttf
 
 imagesdir= $(datarootdir)/$(APP)/images
 dist_images_DATA= share/diana/images/wwwmet7_transp.png \
@@ -90,6 +91,15 @@ dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/Sig12.png \
 	share/diana/images/Sig11.png \
 	share/diana/images/Sig10.png \
+	share/diana/images/Snow.png \
+	share/diana/images/Snow_showers.png \
+	share/diana/images/Showers.png \
+	share/diana/images/Drizzle.png \
+	share/diana/images/Freezing_drizzle.png \
+	share/diana/images/Hails.png \
+	share/diana/images/Snow_rain.png \
+	share/diana/images/Snow_rain_showers.png \
+	share/diana/images/Corn_snow.png \
 	share/diana/images/seastate10.png \
 	share/diana/images/sea10.png \
 	share/diana/images/reducedVis.png \

@@ -81,8 +81,8 @@
 #define SYMBOL_INDEX 1
 #define AREA_INDEX 2
 #define SIGMAP_INDEX 3
-// #define dEditDlg
-// #define DEBUGPRINT
+//#define dEditDlg
+//#define DEBUGPRINT
 
 /*********************************************/
 EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
@@ -874,8 +874,9 @@ void EditDialog::EditMarkedText()
 {
   //called from shortcut ctrl-e
   //changes all marked texts and objectmanagers current text !
-  vector <miutil::miString> symbolText,xText,eText;
+  vector <miutil::miString> symbolText,xText,eText, mText;
   miutil::miString text = m_objm->getMarkedText();
+     //cerr << "-----EditDialog::EditMarkedText called------- text = "  << text << endl;
   if (!text.empty()){
     //get new text from inputdialog box
     Colour::ColourInfo colour=m_objm->getMarkedColour();
@@ -897,8 +898,32 @@ void EditDialog::EditMarkedText()
     delete aText;
   }
   m_objm->getMarkedComplexText(symbolText,xText);
-  if (getComplexText(symbolText,xText))
-    m_objm->changeMarkedComplexText(symbolText,xText);
+  if (symbolText.size()||xText.size()){
+     //cerr << "-----EditDialog::getMarkedComplexText returns nonempty strings"  << endl;
+     //cerr << endl;
+     if (getComplexText(symbolText,xText))
+       m_objm->changeMarkedComplexText(symbolText,xText);
+  }
+  m_objm->getMarkedMultilineText(mText);
+  int ns = mText.size();
+  if (mText.size()){
+     //cerr << "-----EditDialog::getMarkedMultilineText returns nonempty strings"  << endl;
+     if (getEditText(mText))
+        m_objm->changeMarkedMultilineText(mText);
+  }
+
+
+  m_objm->getMarkedComplexTextColored(symbolText,xText);
+  if (symbolText.size()==1 && xText.size()==1){
+     //cerr << "------EditDialog::getMarkedComplexTextColored returns nonempty strings"  << endl;
+     Colour::ColourInfo colour=m_objm->getMarkedTextColour();
+     if (getComplexColoredText(symbolText,xText,colour)){
+       m_objm->changeMarkedComplexTextColored(symbolText,xText);
+       m_objm->changeMarkedTextColour(colour);
+       m_objm->setCurrentColour(colour);
+     }
+  }
+  
 }
 
 void EditDialog::DeleteMarkedAnnotation()
@@ -909,7 +934,6 @@ void EditDialog::DeleteMarkedAnnotation()
 
 bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
 {
-//   cerr << "EditDialog::getText called"  << endl;
   bool ok = false;
 
   vector <miutil::miString> symbolText,xText;
@@ -933,9 +957,9 @@ bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
 bool EditDialog::getComplexColoredText(vector <miutil::miString> & symbolText,
     vector <miutil::miString> & xText,Colour::ColourInfo & colour)
 {
-  cerr << "EditDialog::getComplexColoredText called"  << endl;
+  //cerr << "EditDialog::getComplexColoredText called"  << endl;
   bool ok=false;
-  if (symbolText.size()||xText.size()){
+  if (symbolText.size() && xText.size()){
     set <miutil::miString> complexList = m_ctrl->getComplexList();
     ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
         complexList,true);
@@ -953,7 +977,6 @@ bool EditDialog::getComplexColoredText(vector <miutil::miString> & symbolText,
 bool EditDialog::getComplexText(vector <miutil::miString> & symbolText,
     vector <miutil::miString> & xText)
 {
-//   cerr << "EditDialog::getComplexText called"  << endl;
   bool ok=false;
   if (symbolText.size()||xText.size()){
     set <miutil::miString> complexList = m_ctrl->getComplexList();
@@ -970,7 +993,6 @@ bool EditDialog::getComplexText(vector <miutil::miString> & symbolText,
 
 bool EditDialog::getEditText(vector <miutil::miString> & editText)
 {
-//   cerr << "EditDialog::getEditText called"  << endl;
   bool ok=false;
   if (editText.size()) {
      set <miutil::miString> complexList = m_ctrl->getComplexList();
@@ -1230,7 +1252,9 @@ bool EditDialog::saveEverything(bool send)
 
   ecomment->saveComment();
   miutil::miString message;
+  cerr << "?????????????? before message = " << message << endl;
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
+  cerr << "?????????????? after message = " << message << endl;
 
   if (!res){
     message= miutil::miString(tr("Problem saving/sending product\n").toStdString()) +
@@ -1247,8 +1271,9 @@ bool EditDialog::saveEverything(bool send)
       : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
   QString(t.isoTime().cStr()) + QString("</font> ");
-
+  //cerr << "?????????????? tcs = " << tcs << endl;
   QString qs= lcs + tcs;
+  //cerr << "?????????????? qs = " << qs << endl;
 
   if (send && approved){
     productApproved= true;
@@ -1468,7 +1493,6 @@ void EditDialog::EditNewOk(EditProduct& ep,
     miutil::miTime& time)
 {
 //   cerr << "EditDialog::EditNewOk called................" << endl;
-
   emit editMode(true);
 
   // Turn off Undo-buttons
@@ -1511,6 +1535,10 @@ void EditDialog::EditNewOk(EditProduct& ep,
   currid= ci;
   prodtime= time;
   inEdit= true;
+  
+  // Resize main window, depending on the map selected for sigkarta
+  if (currprod.winX>0 && currprod.winY>0)
+     emit emitResize(currprod.winX,currprod.winY);
   // update Product and Id label..
   updateLabels();
 

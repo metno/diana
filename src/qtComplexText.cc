@@ -51,7 +51,6 @@
 #include "qtToggleButton.h"
 #include <iostream>
 #include "diController.h"
-//#define DEBUGPRINT
 
 QValidator::State ComplexText::complexValidator::validate(QString& input,
     int& pos) const

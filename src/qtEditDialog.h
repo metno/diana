@@ -172,6 +172,8 @@ signals:
   void emitFieldEditUpdate(miutil::miString);
   /// editing on or off
   void editMode(bool);
+  /// resize main window
+  void emitResize(int, int);
 
 private:
   Controller*    m_ctrl;

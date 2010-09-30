@@ -89,7 +89,9 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 	     int ibmap, int lbmap, int kbmap[],
 	     int nxbmap, int nybmap, float rbmap[],
 	     FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
-	     const Area& fieldArea, const float& fieldUndef);
+	     const Area& fieldArea, const float& fieldUndef,
+	     const miutil::miString& modelName = "", const miutil::miString& paramName = "",
+	     const int& fhour = 0);
 
 // functions called from contour
 
@@ -134,5 +136,25 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 
 /// draw part of contour line
 void drawLine(int start, int stop, float* x, float* y);
+/// write shapefile
+void writeShapefile(vector<ContourLine*>& contourlines,
+		    int nx, int ny,
+		    int iconv, float *cxy,
+		    float *xz, float *yz,
+		    int idraw,
+		    const PlotOptions& poptions,
+		    bool drawBorders,
+		    const Area& fieldArea,
+		    float zrange[],
+		    float zstep,
+		    float zoff,
+		    const float& fieldUndef,
+		    const miutil::miString& modelName,
+		    const miutil::miString& paramName,
+		    const int& fhour);
+
+/// get CL index
+void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind,
+		const PlotOptions& poptions, bool drawBorders, const float& fieldUndef);
 
 #endif

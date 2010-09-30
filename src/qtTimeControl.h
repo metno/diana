@@ -88,6 +88,7 @@ private slots:
   void timeoutSlot(int);
   void dataSlot(int);
   void minmaxSlot();
+  void OffsetValue(int);
 
 private:
 
@@ -104,6 +105,9 @@ private:
   QComboBox* timeoutBox;
   vector<float> timeouts;
   QComboBox* dataBox;
+  QCheckBox* offsetCheckBox;
+  QLabel* offsetTimeLabel;
+  QSlider* offsetSlider;
 
 };
 

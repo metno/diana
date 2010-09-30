@@ -524,6 +524,18 @@ common_ldadd += \
 	${ROADAPI_LIBS}
 endif
 
+# Additional source code for RoadOBS support
+if WITH_NEWARKOBS
+common_cppflags += -DROADOBS -DNEWARK_INC
+common_cxx_sources += \
+	diObsRoad.cc \
+	diVprofRTemp.cc
+common_ldflags += \
+	${NEWARKAPI_LDFLAGS}
+common_ldadd += \
+	${NEWARKAPI_LIBS}
+endif
+
 if WITH_GRIBAPI
 common_ldflags += \
 	${GRIBAPI_LDFLAGS}

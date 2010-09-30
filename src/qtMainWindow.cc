@@ -952,6 +952,11 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   connect( em, SIGNAL(emitFieldEditUpdate(miutil::miString)),
       fm, SLOT(fieldEditUpdate(miutil::miString)));
 
+  // resize main window according to the active map area when using
+  // an editing tool
+  connect( em, SIGNAL(emitResize(int, int)),
+      this, SLOT(winResize(int, int)));
+
   // HELP
   connect( fm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
       help,SLOT(showsource(const miutil::miString,const miutil::miString)));
@@ -1290,6 +1295,11 @@ void DianaMainWindow::setPaintMode(bool enabled)
   if (enabled) paintToolBar->show();
   else paintToolBar->hide();
   contr->setPaintModeEnabled(enabled);
+}
+
+void DianaMainWindow::winResize(int w, int h)
+{
+  this->resize(w,h); 
 }
 
 void DianaMainWindow::resetArea()
@@ -2559,32 +2569,46 @@ void DianaMainWindow::processLetter(miMessage &letter)
   // show the latest timestep
   else if (letter.command == qmstrings::directory_changed) {
 #ifdef DEBUGPRINT
-  cerr << letter.command <<" received" << endl;
+    cerr << letter.command <<" received" << endl;
 #endif
 
-  if (doAutoUpdate) {
-	  // Avoid not needed updates
-      QApplication::setOverrideCursor( Qt::WaitCursor );
-	  // what to do with om->getTimes() ?
-      om->getTimes();
-      sm->RefreshList();
-	  miutil::miTime tp = tslider->Value();
-      tslider->setLastTimeStep();
-      miutil::miTime t= tslider->Value();
-	  // Check if slider was not on latest timestep
-	  // or new image file arrived.
-	  // If t > tp force repaint...
-	  if (contr->satFileListChanged()|| contr->obsTimeListChanged()||(t > tp))
+    if (doAutoUpdate) {
+      // running animation
+      if (timeron != 0) {
+	om->getTimes();
+	sm->RefreshList();
+	if (contr->satFileListChanged() || contr->obsTimeListChanged()) {
+	  //cerr << "new satfile or satfile deleted!" << endl;
+	  //cerr << "setPlotTime" << endl;
+	  //	  cerr << "doAutoUpdate  timer on" << endl;
+	  contr->satFileListUpdated();
+	  contr->obsTimeListUpdated();
+	}
+      }
+      else {
+	// Avoid not needed updates
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	// what to do with om->getTimes() ?
+	om->getTimes();
+	sm->RefreshList();
+	miutil::miTime tp = tslider->Value();
+	tslider->setLastTimeStep();
+	miutil::miTime t= tslider->Value();
+	// Check if slider was not on latest timestep
+	// or new image file arrived.
+	// If t > tp force repaint...
+	if (contr->satFileListChanged() || contr->obsTimeListChanged() || (t > tp))
 	  {
-		  //cerr << "new satfile or satfile deleted!" << endl;
-		  //cerr << "setPlotTime" << endl;
-          setPlotTime(t);
-		  contr->satFileListUpdated();
-		  contr->obsTimeListUpdated();
+	    //cerr << "new satfile or satfile deleted!" << endl;
+	    //cerr << "setPlotTime" << endl;
+	    setPlotTime(t);
+	    contr->satFileListUpdated();
+	    contr->obsTimeListUpdated();
 	  }
-	  //cerr << "stepforward" << endl;
-      stepforward();
-      QApplication::restoreOverrideCursor();
+	//cerr << "stepforward" << endl;
+	stepforward();
+	QApplication::restoreOverrideCursor();
+      }
     }
   }
 
@@ -3093,7 +3117,11 @@ void DianaMainWindow::hardcopy()
     if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else {
-      priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
+      priop.fname="";
+      if (getenv("TMP") != NULL) {
+	priop.fname=getenv("TMP");
+      }
+      priop.fname+= "/prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
     }
 

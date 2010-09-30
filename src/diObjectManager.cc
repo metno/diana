@@ -45,6 +45,7 @@
 #include <puCtools/glob.h>
 #include <stdio.h>
 
+
 using namespace::miutil;
 
 ObjectManager::ObjectManager(PlotModule* pl)
@@ -387,9 +388,16 @@ miTime ObjectManager::timeFileName(miString fileName)
 {
   //get time from a file with name *.yyyymmddhh
   vector <miString> parts= fileName.split('.');
-  if (parts.size() != 2) return ztime ;
-  if (parts[1].length() < 10) return ztime;
-  return timeFromString(parts[1]);
+  int nparts= parts.size();
+  //if (parts.size() != 2) {
+  //if (parts.size() < 2) {
+    //return ztime ;
+  //}
+  if (parts[nparts-1].length() < 10) 
+ // if (parts[1].length() < 10) 
+    return ztime;
+  
+  return timeFromString(parts[nparts-1]);
 }
 
 miTime ObjectManager::timeFromString(miString timeString)
@@ -612,6 +620,10 @@ miString ObjectManager::getMarkedText(){
   return plotm->editobjects.getMarkedText();
 }
 
+Colour::ColourInfo ObjectManager::getMarkedTextColour(){
+  return plotm->editobjects.getMarkedTextColour();
+}
+
 Colour::ColourInfo ObjectManager::getMarkedColour(){
   return plotm->editobjects.getMarkedColour();
 }
@@ -625,6 +637,13 @@ void ObjectManager::changeMarkedText(const miString & newText){
   }
 }
 
+void ObjectManager::changeMarkedTextColour(const Colour::ColourInfo & newColour){
+  if (mapmode==draw_mode){
+    editPrepareChange(ChangeText);
+    plotm->editobjects.changeMarkedTextColour(newColour);
+    editPostOperation();
+  }
+}
 
 void ObjectManager::changeMarkedColour(const Colour::ColourInfo & newColour){
   if (mapmode==draw_mode){
@@ -640,9 +659,32 @@ set <miString> ObjectManager::getTextList(){
   return WeatherSymbol::getTextList();
 }
 
+void ObjectManager::getMarkedMultilineText(vector <miString> & symbolText){
+  plotm->editobjects.getMarkedMultilineText(symbolText);
+}
+
 
 void ObjectManager::getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText){
   plotm->editobjects.getMarkedComplexText(symbolText,xText);
+}
+
+void ObjectManager::getMarkedComplexTextColored(vector <miString> & symbolText, vector <miString> & xText){
+  plotm->editobjects.getMarkedComplexTextColored(symbolText,xText);
+}
+
+void ObjectManager::changeMarkedComplexTextColored(const vector <miString> & symbolText, const vector <miString> & xText){
+  if (mapmode==draw_mode){
+    editPrepareChange(ChangeText);
+    plotm->editobjects.changeMarkedComplexTextColored(symbolText,xText);
+    editPostOperation();
+  }
+}
+void ObjectManager::changeMarkedMultilineText(const vector <miString> & symbolText){
+  if (mapmode==draw_mode){
+    editPrepareChange(ChangeText);
+    plotm->editobjects.changeMarkedMultilineText(symbolText);
+    editPostOperation();
+  }
 }
 
 void ObjectManager::changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
@@ -1204,6 +1246,10 @@ bool ObjectManager::_isafile(const miString name){
 
 bool ObjectManager::checkFileName(miString &fileName){
   if(!_isafile(fileName)) {
+#ifdef DEBUGPRINT
+  cerr << "ObjectManager::checkFileName" << endl;
+  cerr << "filename =  " << fileName << endl;
+#endif
     //find time of file
     miTime time = timeFileName(fileName);
     //old filename style

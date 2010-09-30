@@ -44,10 +44,15 @@
 #include <math.h>
 #include <vector>
 #include <map>
+#ifdef NEWARK_INC
+#include <newarkAPI/diRoaddata.h>
+#include <newarkAPI/diStation.h>
+#include <newarkAPI/rdkESQLTypes.h>
+#else
 #include <roadAPI/diRoaddata.h>
 #include <roadAPI/diStation.h>
 #include <rdkAPI/rdkESQLTypes.h>
-
+#endif
 
 using namespace std;
 using namespace road;

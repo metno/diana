@@ -42,9 +42,15 @@
 #include <diObsRoad.h>
 #include <diObsPlot.h>
 // from kvroadapi
+#ifdef NEWARK_INC
+#include <newarkAPI/diParam.h>
+#include <newarkAPI/diStation.h>
+#include <newarkAPI/diRoaddata.h>
+#else
 #include <roadAPI/diParam.h>
 #include <roadAPI/diStation.h>
 #include <roadAPI/diRoaddata.h>
+#endif
 #include <vector>
 
 //#define DEBUGPRINT 1

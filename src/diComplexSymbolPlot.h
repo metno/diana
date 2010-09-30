@@ -51,6 +51,8 @@ public:
   ComplexSymbolPlot(int drawIndex);
   /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot
   void draw(int drawIndex, float x,float y,int size, float rot);
+  /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot
+  void drawTextBox(int drawIndex,int size, float rot);
   /// hides/shows the white box behind symbol
   void hideBox();
   /// check if white box to be drawn
@@ -59,8 +61,14 @@ public:
   void setWhiteBox(int on);
   /// reads complex text to be plotted from a string (written by readComplexText)
   void readComplexText(miutil::miString complexString);
+  /// gets miutil::miString vectors with symboltext and xText for colored text
+  void getComplexColoredText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  /// gets miutil::miString vectors with multiline symboltext
+  void getMultilineText(vector <miutil::miString> & symbolText);
   /// gets miutil::miString vectors with symboltext and xText
   void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  /// change multiline text to be drawn
+  void changeMultilineText(const vector <miutil::miString> & symbolText);
   /// change text to be drawn
   void changeComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
   /// writes complex text to a string (read by readComplexText)
@@ -92,6 +100,7 @@ private:
   void initStrings(int drawIndex);
   void drawSigString(float x,float y,bool whitebox=true);
   void drawSigEditString(float& x,float& y,bool whitebox=true);
+  void drawSigTextBoxString(float& x,float& y,bool whitebox=true);
   void drawSigText(float x,float y, bool whitebox=true);
   void drawSigTextBox();
   void drawSigEditText(float x,float y, bool whitebox=true);

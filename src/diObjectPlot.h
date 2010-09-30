@@ -49,7 +49,7 @@ enum objectType{Anything,wFront,wSymbol,wArea,wText,Border,RegionName,ShapeXXX};
 
 enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,TroughLine,
           TroughLine2,ShortDashedLine,LongDashedLine,Jetstream,SquallLine, SigweatherFront,
-          BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine};
+          BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine,AshLineRed,AshLineGreen,AshLineBlue};
 
 enum AreaType{ Rain, Rainarea, Showers, Clouds, Fog, Ice, Sigweather,ReducedVisibility,Genericarea};
 
@@ -257,7 +257,9 @@ public:
   virtual void applyFilters(vector <miutil::miString>){};
 
   virtual void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText){}
+  virtual void getMultilineText(vector <miutil::miString> & symbolText){}
   virtual void changeComplexText(const vector <miutil::miString> & symbolText,const vector <miutil::miString> & xText){}
+  virtual void changeMultilineText(const vector <miutil::miString> & symbolText){}
   virtual void readComplexText(miutil::miString complexString){}
   virtual void rotateObject(float val){} //only works for complex objects
   virtual void hideBox(){} //only works for complex objects
@@ -268,12 +270,14 @@ public:
   bool oktoMerge(bool mergeAll,int index);                    ///< returns true if front ok to merge
   /// sets rubber flag (to draw rubberband) from x,y
   void setRubber(bool,float x,float y);
-  /// returns true if object is text symbo
+  /// returns true if object is text symbol
   bool isText(){return (objectIs(wSymbol) && drawIndex==0);}
-  /// returns true if object is text symbo
+  /// returns true if object is text symbol and colored
   bool isTextColored(){return (objectIs(wSymbol) && drawIndex==900);}
   /// returns true if object is complex symbol
-  bool isComplex(){return (objectIs(wSymbol) && drawIndex>=1000);}
+  bool isComplex(){return (objectIs(wSymbol) && (drawIndex>=1000 && drawIndex<3000));}
+  /// returns true if object is complex symbol and multiline text
+  bool isTextMultiline(){return (objectIs(wSymbol) && drawIndex>=3000);}
 
   void setRegion(miutil::miString tt){region=tt;}                    ///< set from which region object come
   miutil::miString getRegion(){return region;}                       ///< get from which region object come

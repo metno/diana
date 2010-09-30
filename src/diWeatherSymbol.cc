@@ -297,43 +297,53 @@ bool WeatherSymbol::plot()
     //enable blending and set colour
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    if (drawIndex == 900 ) setObjectColor(currentColour);
+    // SMHI
+    //if (drawIndex == 900 ) setObjectColor(currentColour);
     glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
 
-    int end = nodePoints.size();
-    for (int i=0; i<end; i++) {
-      float cw,ch;
-      float x=nodePoints[i].x;
-      float y=nodePoints[i].y;
-      if (drawIndex == 900 || drawIndex >=1000){
-        // this is a complex symbol
+    if (drawIndex == 3001){
         if (complexSymbol!=0){
-          complexSymbol->draw(drawIndex,x,y,symbolSizeToPlot,rotation);
-          complexSymbol->getComplexBoundingBox(drawIndex,cw,ch,x,y);
+          complexSymbol->drawTextBox(drawIndex,symbolSizeToPlot,rotation);
+        }
+    }
+    else
+    {
+
+      int end = nodePoints.size();
+      for (int i=0; i<end; i++) {
+        float cw,ch;
+        float x=nodePoints[i].x;
+        float y=nodePoints[i].y;
+        if (drawIndex == 900 || (drawIndex >=1000 && drawIndex<=3000)){
+          // this is a complex symbol
+          if (complexSymbol!=0){
+            complexSymbol->draw(drawIndex,x,y,symbolSizeToPlot,rotation);
+            complexSymbol->getComplexBoundingBox(drawIndex,cw,ch,x,y);
+          }
+
+        } else if (drawIndex>0) {
+          // this is a normal symbol
+          fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+          fp->getCharSize(drawIndex,cw,ch);
+          fp->drawChar(drawIndex,x-cw/2,y-ch/2,0.0);
+
+        } else if (drawIndex==0){
+          // this is a normal text
+          fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+          fp->getStringSize(symbolString.c_str(),cw,ch);
+          fp->drawStr(symbolString.c_str(),x-cw/2,y-ch/2,0.0);
         }
 
-      } else if (drawIndex>0) {
-        // this is a normal symbol
-        fp->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-        fp->getCharSize(drawIndex,cw,ch);
-        fp->drawChar(drawIndex,x-cw/2,y-ch/2,0.0);
-
-      } else if (drawIndex==0){
-        // this is a normal text
-        fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-        fp->getStringSize(symbolString.c_str(),cw,ch);
-        fp->drawStr(symbolString.c_str(),x-cw/2,y-ch/2,0.0);
+        // update boundBox according to symbolSizeToPlot
+        float PI       = acosf(-1.0);
+        float angle = PI*rotation/180.;
+        float cwr= fabsf(cos(angle))*cw+fabsf(sin(angle))*ch;
+        float chr= fabsf(cos(angle))*ch+fabsf(sin(angle))*cw;
+        boundBox.x1=x-cwr/2;
+        boundBox.x2=x+cwr/2;
+        boundBox.y1=y-chr/2;
+        boundBox.y2=y+chr/2;
       }
-
-      // update boundBox according to symbolSizeToPlot
-      float PI       = acosf(-1.0);
-      float angle = PI*rotation/180.;
-      float cwr= fabsf(cos(angle))*cw+fabsf(sin(angle))*ch;
-      float chr= fabsf(cos(angle))*ch+fabsf(sin(angle))*cw;
-      boundBox.x1=x-cwr/2;
-      boundBox.x2=x+cwr/2;
-      boundBox.y1=y-chr/2;
-      boundBox.y2=y+chr/2;
     }
 
     glPopMatrix();
@@ -554,8 +564,23 @@ void WeatherSymbol::getComplexText(vector <miString> & symbolText, vector <miStr
 #ifdef DEBUGPRINT
   cerr << "WeatherSymbol::getComplexText" << endl;
 #endif
-  if (complexSymbol!=0)
-    complexSymbol->getComplexText(symbolText,xText);
+  if (complexSymbol!=0) {
+    if (drawIndex==900)
+      complexSymbol->getComplexColoredText(symbolText,xText);
+    else if (drawIndex<=3000) 
+      complexSymbol->getComplexText(symbolText,xText);
+
+  }
+}
+
+void WeatherSymbol::getMultilineText(vector <miString> & symbolText){
+#ifdef DEBUGPRINT
+  cerr << "WeatherSymbol::getMultilineText" << endl;
+#endif
+  if (complexSymbol!=0) {
+    if (drawIndex>=3000)
+      complexSymbol->getMultilineText(symbolText);
+  }
 }
 
 void WeatherSymbol::readComplexText(miString s){
@@ -566,13 +591,24 @@ void WeatherSymbol::readComplexText(miString s){
     complexSymbol->readComplexText(s);
 }
 
+void WeatherSymbol::changeMultilineText(const vector <miString> & symbolText){
+#ifdef DEBUGPRINT
+  cerr << "WeatherSymbol::changeMultilineText" << endl;
+#endif
+  if (complexSymbol!=0) {
+    if (drawIndex>=3000)
+      complexSymbol->changeMultilineText(symbolText);
+  }
+}
 
 void WeatherSymbol::changeComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
 #ifdef DEBUGPRINT
   cerr << "WeatherSymbol::changeComplexText" << endl;
 #endif
-  if (complexSymbol!=0)
-    complexSymbol->changeComplexText(symbolText,xText);
+  if (complexSymbol!=0) {
+    if (drawIndex<=3000)  
+      complexSymbol->changeComplexText(symbolText,xText);
+  }
 }
 
 

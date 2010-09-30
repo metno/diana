@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <diHDF5.h>
+#include "diHDF5.h"
 
 using namespace::miutil;
 
@@ -46,7 +46,7 @@ HDF5::HDF5()
 bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
 {
 
-  satimgh5::dihead ginfo;
+  satimg::dihead ginfo;
 
   ginfo.metadata = file.metadata;
   ginfo.paletteinfo = file.paletteinfo;
@@ -57,15 +57,12 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
   cerr << "HDF5::readHDF5Palette ginfo.metadata " << ginfo.metadata << endl;
   cerr << "HDF5::readHDF5Palette filename " << file.name << endl;
 #endif
-  cerr << "tjo" << endl;
 
   // if not colour palette image
   //if (hdf5api.HDF5_head_diana(file.name, ginfo)!= 2)
   if (file.name == "") {
-  cerr << "tjo" << endl;
     return false;
   }
-  cerr << "tjo" << endl;
   if(metno::satimgh5::HDF5_head_diana(file.name, ginfo)!= 2)
     return false;
 
@@ -97,7 +94,7 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
 
 #endif
 
-  metno::satimgh5::dihead ginfo;
+  satimg::dihead ginfo;
 
   ginfo.metadata = file.metadata;
   ginfo.paletteinfo = file.paletteinfo;
@@ -136,7 +133,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
   cerr << "HDF5::readHDF5 (index:" << index << endl;
 #endif
 
-  metno::satimgh5::dihead ginfo;
+  satimg::dihead ginfo;
 
   ginfo.metadata = sd.metadata;
   ginfo.paletteinfo = sd.paletteinfo;

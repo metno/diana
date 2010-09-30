@@ -139,6 +139,8 @@ struct EditProduct {
   int complexSymbolSize;            ///< default complex symbol size
   int frontLineWidth;               ///< default front line width
   int areaLineWidth;                ///< default front line width
+  int winX;                         ///< main window width, adjustment to the map area
+  int winY;                         ///< main window height, adjustment to the map area
   bool  startEarly;                 ///< earliest start time set, or not
   bool  startLate;                  ///< latest   start time set, or not
   int   minutesStartEarly;          ///< earliest start time offset (+/-minutes)

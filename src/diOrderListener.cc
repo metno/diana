@@ -36,6 +36,7 @@
 #include <iostream>
 
 #include <diOrderListener.h>
+#include<QDebug>
 
 const int diOrderListener::DEFAULT_PORT = 3190;
 

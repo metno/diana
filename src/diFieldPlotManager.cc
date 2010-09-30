@@ -92,9 +92,9 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
 
   vector<miString> loopname;
   vector<vector<miString> > loopvars;
-  map<miString, int>::const_iterator pfp;
-  int firstLine, lastLine, nv;
-  bool waiting = true;
+  map<miString,int>::const_iterator pfp;
+  int firstLine = 0,lastLine,nv;
+  bool waiting= true;
 
   for (int l = 0; l < nlines; l++) {
 

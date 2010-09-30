@@ -3455,7 +3455,8 @@ bool FieldPlot::plotContour(){
         ibmap, lbmap, kbmap,
         nxbmap, nybmap, rbmap,
         fp, poptions, psoutput,
-        fields[0]->area, fieldUndef);
+	fields[0]->area, fieldUndef,
+	getModelName(), fields[0]->name, ftime.hour());
 
   }
 
@@ -3551,7 +3552,8 @@ bool FieldPlot::plotContour(){
         ibmap, lbmap, kbmap,
         nxbmap, nybmap, rbmap,
         fp, poptions, psoutput,
-        fields[0]->area, fieldUndef);
+	fields[0]->area, fieldUndef,
+        getModelName(), fields[0]->name, ftime.hour());
 
     //reset contour shading
     poptions.contourShading = contourShading;

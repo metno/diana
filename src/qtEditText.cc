@@ -52,11 +52,10 @@
 #include "diController.h"
 //#define DEBUGPRINT
 
-QValidator::State EditText::complexValidator::validate(QString& input,
+QValidator::State EditText::complexValidator::validate(QString& inputString,
     int& pos) const
     {
   //validator, only used for zero isoterm input !!!
-  miutil::miString inputString = input.toStdString();
   if (!inputString.contains("0°:")){
     return QValidator::Invalid;
   }
@@ -100,8 +99,9 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       cv = 0;
 
       setWindowTitle(tr("Write text for editing"));
-
+      QString multitext;
       int ns = symbolText.size();
+      cerr<<"?????????ns = "<< ns <<endl;
      // int nx = xText.size();
       //set <miutil::miString> complexList = m_ctrl->getEditList();
       set <miutil::miString> complexList = cList;
@@ -110,6 +110,15 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       edittext->setFont(QFont("Arial", 10, QFont::Normal));
       edittext->setReadOnly(false);
       edittext->setMaximumHeight(150);
+      if ( ns > 0 ) {
+        for(int i=0; i<ns; i++ ){
+           //multitext += symbolText[i].c_str();
+           multitext.append(symbolText[i].c_str());
+           multitext.append("\n");
+        } 
+      //edittext->setText("The QTextEdit class provides a widget that is used to edit and display both plain and rich text. More...");
+      edittext->setText(multitext);
+      } 
       //connect(edittext,SIGNAL(selectionChanged()),SLOT(textSelected()));
       //connect(edittext, SIGNAL(textChanged()), SLOT(textActivated()));
       vSymbolEdit =  edittext;  
@@ -162,7 +171,6 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
 
 
     EditText::~EditText(){
-      int i,n;
       delete vSymbolEdit;
       if (cv) delete cv;
       cv=0;
@@ -182,7 +190,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       symbolText.clear();
       for (QTextBlock it = doc->begin(); it!=doc->end(); it = it.next()) {
            line = it.text().toStdString();
-           if (line.length()<50){
+           if (line.length()<55){
               symbolText.push_back(line);
            } else {
                vector<miutil::miString> stokens = line.split(" ", true);
@@ -194,12 +202,12 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
                    slength += len;
                    token += stokens[k];
                    token += " ";
-                   if (token.length() > 45 && token.length() < 50) {
+                   if (token.length() > 50 && token.length() < 55) {
                       symbolText.push_back(token);
                       token = "";
                       slength = 0;
                    }
-                   else if (token.length() > 50){
+                   else if (token.length() > 55){
                      token = oldtoken;
                      symbolText.push_back(token); 
                      token = stokens[k];
