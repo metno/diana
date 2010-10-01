@@ -328,7 +328,7 @@ void ObsPlot::setModificationTime(const miString& fname)
   fileNames.push_back(fname);
   const char *path = fname.c_str();
   if (pu_stat(path, &buf) == 0) {
-    modificationTime.push_back(buf.st_mtime);
+    modificationTime.push_back(buf.st_ctime);
   } else {
     modificationTime.push_back(0);
   }
