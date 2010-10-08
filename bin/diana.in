@@ -13,10 +13,10 @@ OPDATA_PROFF="/opdata/proff_test"
 fi
 
 input=$0
-dianadir="@prefix@"
+prefix="@prefix@"
 etcdir="@sysconfdir@"
 
-export DIANADIR=$dianadir
+export DIANADIR=$prefix
 
 debugger="gdb"
 ulimit -c 100000000000
@@ -50,7 +50,7 @@ test -s mail.core  && mv -f mail.core mail.core.old
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
-$dianadir/bin/diana.bin$SUFFIX  -s $setup -T diana$SUFFIX -p -S profet$SUFFIX.met.no PROFFWDB=proffdb$SUFFIX.met.no OPDATA_PROFF=$OPDATA_PROFF APP_NAME=diana$SUFFIX $@ 
+$prefix/bin/diana.bin$SUFFIX  -s $setup -T diana$SUFFIX -p -S profet$SUFFIX.met.no PROFFWDB=proffdb$SUFFIX.met.no OPDATA_PROFF=$OPDATA_PROFF APP_NAME=diana$SUFFIX $@ 
 
 
 tstop=`date`
@@ -73,7 +73,7 @@ echo "START $tstart" >>mail.core
 echo "STOP  $tstop"  >>mail.core
 
 echo "Diana$SUFFIX version:"              >>mail.core 
-$dianadir/bin/diana.bin$SUFFIX --version  >>mail.core
+$prefix/bin/diana.bin$SUFFIX --version  >>mail.core
 
 echo "Diana version (diana.news):" >>mail.core 
 cat diana.news       >>mail.core
@@ -90,7 +90,7 @@ test -s $corefile || continue
 #make gdb input:
 /bin/echo -e 'bt\nq\n' > /tmp/gdb.cmd.$$
 
-$debugger -batch -x /tmp/gdb.cmd.$$ $dianadir/bin/diana.bin$SUFFIX $corefile 1>dbxresult 2>&1 
+$debugger -batch -x /tmp/gdb.cmd.$$ $prefix/bin/diana.bin$SUFFIX $corefile 1>dbxresult 2>&1 
 
 rm -f /tmp/gdb.cmd.$$
 
