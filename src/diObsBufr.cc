@@ -66,6 +66,7 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
   int len_bufr_access = bufr_access.length();
   pbopen_(&iunit, bufr_file.cStr(), bufr_access.cStr(), &iret, len_bufr_file,
       len_bufr_access);
+
   if (iret != 0) {
     cerr << "ObsBufr::init: PBOPEN failed for " << bufr_file << "   iret="
         << iret << endl;
@@ -79,23 +80,27 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
     int iibflen = ibflen;
     pbbufr_(&iunit, ibuff, &iibflen, &ilen, &iret);
 
-    if (iret == -1)
+    if (iret == -1) {
+      pbclose_(&iunit,&iret);
       return true; // EOF
+    }
 
     if (iret != 0) {
       if (iret == -2)
         cerr << "ObsBufr::init: ERROR: File handling problem" << endl;
       if (iret == -3)
         cerr << "ObsBufr::init: ERROR: Array too small" << endl;
+      pbclose_(&iunit,&iret);
       return false;
     }
 
     next = BUFRdecode(ibuff, ilen, format);
   }
 
-  pbclose_(&iunit,&iret);
 
-  return !next;
+  // NB this point is never reached because BUFRdecode always returns true
+  pbclose_(&iunit,&iret);
+  return false;
 }
 
 bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
@@ -475,7 +480,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       break;
 
       //   7001  HEIGHT OF STATION, M
-    case 7001:
+    case 7030:
       if (values[j] < bufrMissing)
         d.fdata["stationHeight"] = values[j];
       break;
@@ -614,12 +619,13 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       // 011042 MAXIMUM WIND SPEED (10 MIN MEAN WIND), m/s
     case 11042:
-      if (values[j] < bufrMissing)
-//        d.fdata["fxfx"] = values[j];
-      if (timePeriodMinute == -180) {
-        d.fdata["fxfx_180"] = values[j];
-      } else if (timePeriodMinute == -360) {
-        d.fdata["fxfx_360"] = values[j];
+      if (values[j] < bufrMissing) {
+        //        d.fdata["fxfx"] = values[j];
+        if (timePeriodMinute == -180) {
+          d.fdata["fxfx_180"] = values[j];
+        } else if (timePeriodMinute == -360) {
+          d.fdata["fxfx_360"] = values[j];
+        }
       }
       break;
 
@@ -685,7 +691,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   13013  Snow depth
     case 13013:
-      if (values[j] < bufrMissing)
+      if (values[j] < bufrMissing) {
         // note: -0.01 means a little (less than 0.005 m) snow
         //       -0.02 means snow cover not continuous
         if (values[j] < 0) {
@@ -693,6 +699,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
         } else {
           d.fdata["sss"] = values[j] * 100;
         }
+      }
       break;
       //   20062 State of the ground (with or without snow)
     case 20062:
@@ -1265,9 +1272,8 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   float p = 0, tt = -30000, td = -30000;
   float fff, ddd;
   int dd, ff, bpart;
-  float lat, lon;
+  float lat = 0., lon = 0.;
 //  bool landStation = true;
-  int c;
   int ffmax = -1, kmax = -1;
 
   static int ii = 0;
