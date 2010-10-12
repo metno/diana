@@ -1,29 +1,17 @@
-diana (3.23.0ubuntu4) lucid; urgency=low
+diana (3.23.0-ubuntu2) lucid; urgency=low
 
-  * configureoptions
+  * testing dependencies 
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Thu, 16 Sep 2010 11:59:08 +0200
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 12 Oct 2010 13:46:33 +0200
 
-diana (3.23.0ubuntu3) lucid; urgency=low
+diana (3.23.0-ubuntu1) lucid; urgency=low
 
-  * more fonts added
+  * fix ubuntu version
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Thu, 16 Sep 2010 09:36:58 +0200
- 
-diana (3.23.0ubuntu2) lucid; urgency=low
-
-  * lucid and debian package related fixes
-
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Wed, 15 Sep 2010 19:15:53 +0200
-
-diana (3.23.0ubuntu1) lucid; urgency=low
-
-  * startup script fixed
-
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Wed, 15 Sep 2010 12:18:48 +0200
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Fri, 01 Oct 2010 12:11:35 +0200
 
 diana (3.23.0) lucid; urgency=low
 
   * Initial release. 
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 14 Sep 2010 13:35:39 +0200
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Fri, 01 Oct 2010 12:10:45 +0200
