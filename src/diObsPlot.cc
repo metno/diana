@@ -102,7 +102,7 @@ ObsPlot::ObsPlot() :
   density = 1;
   numPar = 0;
   tempPrecision = false;
-  allAirepsLevels = false;
+  allAirepsLevels = true;
   vertical = true;
   showpos = false;
   devfield = false;
