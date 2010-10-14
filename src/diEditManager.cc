@@ -2891,26 +2891,28 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo("Warm",245,"red"));
   symbols.push_back(newEditToolInfo("Fog",62,"darkYellow"));
   symbols.push_back(newEditToolInfo("Drizzle",80,"green"));
+  symbols.push_back(newEditToolInfo("Freezing drizzle",83,"red"));
+  symbols.push_back(newEditToolInfo( "Freezing rain",93,"red"));
+  symbols.push_back(newEditToolInfo( "Showers",109,"green"));
   symbols.push_back(newEditToolInfo( "Rain showers",110,"green"));
   symbols.push_back(newEditToolInfo( "Sleet showers",126,"green"));
   symbols.push_back(newEditToolInfo( "Hail showers",117,"green"));
   symbols.push_back(newEditToolInfo( "Snow showers",114,"green"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
+  symbols.push_back(newEditToolInfo( "Snow",254,"green"));
   symbols.push_back(newEditToolInfo( "Rain",89,"green"));
   symbols.push_back(newEditToolInfo( "Sleet",96,"green"));
   symbols.push_back(newEditToolInfo( "Hurricane",253,"black"));
   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
   symbols.push_back(newEditToolInfo( "Circle",35,"blue"));
   symbols.push_back(newEditToolInfo( "Cross",255,"red"));
-  symbols.push_back(newEditToolInfo("Freezing drizzle",83,"red"));
-  symbols.push_back(newEditToolInfo( "Showers",109,"green"));
-  symbols.push_back(newEditToolInfo( "Snow",254,"green"));
-  symbols.push_back(newEditToolInfo( "Freezing rain",93,"red"));
 #endif
-  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
-  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
   symbols.push_back(newEditToolInfo("Text",0,"black"));
 
 #ifdef SMHI
+  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
   areas.push_back(newEditToolInfo("Showers",Showers,"green2"));
   areas.push_back(newEditToolInfo("Dis",Fog2,"red"));
   areas.push_back(newEditToolInfo("Dimma",Mist,"red"));
