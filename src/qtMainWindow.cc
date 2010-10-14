@@ -166,10 +166,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     miutil::miString dianaTitle,
     bool ep)
 : QMainWindow(),
-enableProfet(ep), push_command(true),browsing(false),
-profetGUI(0),markTrajPos(false), markRadePos(false), markVcross(false),
-vpWindow(0), vcWindow(0), spWindow(0),contr(co),
-timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
+  enableProfet(ep), push_command(true),browsing(false),
+  profetGUI(0),markTrajPos(false), markRadePos(false), markVcross(false),
+  vpWindow(0), vcWindow(0), spWindow(0),contr(co),
+  timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
   cerr << "Creating DianaMainWindow" << endl;
 
@@ -275,6 +275,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   showHideAllAction = new QAction( tr("&Hide All"), this );
   showHideAllAction->setShortcutContext(Qt::ApplicationShortcut);
   showHideAllAction->setShortcut(Qt::CTRL+Qt::Key_D);
+  showHideAllAction->setCheckable(true);
   connect( showHideAllAction, SIGNAL( triggered() ) ,  SLOT( toggleDialogs() ) );
 
   // --------------------------------------------------------------------
@@ -354,11 +355,11 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   showUffdaDialogAction->setCheckable(true);
   connect( showUffdaDialogAction, SIGNAL( triggered() ), SLOT( uffMenu() ) );
   // --------------------------------------------------------------------
-//   showRadarEchoDialogAction = new QAction( QPixmap( rade_xpm),tr("&Radar echo"), this );
-//   showRadarEchoDialogAction->setShortcutContext(Qt::ApplicationShortcut);
-//   showRadarEchoDialogAction->setShortcut(Qt::ALT+Qt::Key_R);
-//   showRadarEchoDialogAction->setCheckable(true);
-//   connect( showRadarEchoDialogAction, SIGNAL( triggered() ) ,  SLOT( radeMenu() ) );
+  //   showRadarEchoDialogAction = new QAction( QPixmap( rade_xpm),tr("&Radar echo"), this );
+  //   showRadarEchoDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  //   showRadarEchoDialogAction->setShortcut(Qt::ALT+Qt::Key_R);
+  //   showRadarEchoDialogAction->setCheckable(true);
+  //   connect( showRadarEchoDialogAction, SIGNAL( triggered() ) ,  SLOT( radeMenu() ) );
   // ----------------------------------------------------------------
   uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
   connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
@@ -375,7 +376,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   togglePaintModeAction->setShortcut(Qt::ALT+Qt::Key_P);
   togglePaintModeAction->setCheckable(true);
   connect( togglePaintModeAction, SIGNAL( toggled(bool) ), SLOT( togglePaintMode() ) );
-  */
+   */
   // ----------------------------------------------------------------
 
   if(enableProfet) {
@@ -1005,7 +1006,7 @@ timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
   connect(vcWindow,SIGNAL(crossectionSetUpdate()),
       SLOT(crossectionSetUpdateSlot()));
   connect(vcWindow,SIGNAL(updateCrossSectionPos(bool)),
-          SLOT(vCrossPositions(bool)));
+      SLOT(vCrossPositions(bool)));
 
   // Wave spectrum
   // create a new main window
@@ -1322,11 +1323,11 @@ void DianaMainWindow::editApply()
 }
 
 void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
-                                     vector<miutil::miString> &diagstr,
-                                     vector<miutil::miString> &shortnames)
+    vector<miutil::miString> &diagstr,
+    vector<miutil::miString> &shortnames)
 {
   // XXXX???
-  levelList.clear();
+      levelList.clear();
   levelSpec.clear();
   levelIndex= -1;
 
@@ -1562,15 +1563,15 @@ void DianaMainWindow::toggleDialogs()
   bool b = showHideAllAction->isChecked();
 
   if (b){
-    if (visi[0]= qm->isVisible())    quickMenu();
-    if (visi[1]= mm->isVisible())    mapMenu();
-    if (visi[2]= fm->isVisible())    fieldMenu();
-    if (visi[3]= om->isVisible())    obsMenu();
-    if (visi[4]= sm->isVisible())    satMenu();
-    //    if (visi[5]= em->isVisible())    editMenu();
-    if (visi[6]= objm->isVisible())  objMenu();
-    if (visi[7]= trajm->isVisible()) trajMenu();
-    if (visi[8]= radem->isVisible()) radeMenu();
+    if ((visi[0]= qm->isVisible()))    quickMenu();
+    if ((visi[1]= mm->isVisible()))     mapMenu();
+    if ((visi[2]= fm->isVisible()))    fieldMenu();
+    if ((visi[3]= om->isVisible()))    obsMenu();
+    if ((visi[4]= sm->isVisible()))    satMenu();
+//    if ((visi[5]= em->isVisible()))    editMenu();
+    if ((visi[6]= objm->isVisible()))  objMenu();
+    if ((visi[7]= trajm->isVisible())) trajMenu();
+//    if ((visi[8]= radem->isVisible())) radeMenu();
   } else {
     if (visi[0]) quickMenu();
     if (visi[1]) mapMenu();
@@ -1580,7 +1581,7 @@ void DianaMainWindow::toggleDialogs()
     //    if (visi[5]) editMenu();
     if (visi[6]) objMenu();
     if (visi[7]) trajMenu();
-    if (visi[8]) radeMenu();
+//    if (visi[8]) radeMenu();
   }
 }
 
@@ -1717,7 +1718,7 @@ bool DianaMainWindow::initProfet(){
         tslider,
         SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
     connect( profetGUI, SIGNAL(setTime(const miutil::miTime&)),
-	     tslider, SLOT(setTime(const miutil::miTime&)));
+        tslider, SLOT(setTime(const miutil::miTime&)));
     connect( profetGUI, SIGNAL(updateModelDefinitions()),
         fm,SLOT(updateModels()) );
     connect( profetGUI, SIGNAL(forceDisconnect(bool)),
@@ -1765,7 +1766,7 @@ bool DianaMainWindow::profetConnect(){
         try{
           QApplication::setOverrideCursor( Qt::WaitCursor );
           Profet::DataManagerType dmt =
-            contr->getProfetController()->connect(u,perferredType,password, useForcedConnection);
+              contr->getProfetController()->connect(u,perferredType,password, useForcedConnection);
           QApplication::restoreOverrideCursor();
           if(dmt != perferredType)
             QMessageBox::warning(0,"Running disconnected mode",
@@ -1774,8 +1775,8 @@ bool DianaMainWindow::profetConnect(){
         }catch(Profet::ServerException & se){
           contr->getProfetController()->disconnect();
           offerForcedConnection =
-            (se.getType() == Profet::ServerException::CONNECTION_ERROR &&
-                se.getMinorCode() == Profet::ServerException::DUPLICATE_CONNECTION);
+              (se.getType() == Profet::ServerException::CONNECTION_ERROR &&
+                  se.getMinorCode() == Profet::ServerException::DUPLICATE_CONNECTION);
           bool withMailToLink = true;
           error += se.getHtmlMessage(withMailToLink);
           QApplication::restoreOverrideCursor();
@@ -1827,10 +1828,10 @@ void DianaMainWindow::toggleProfetGUI(){
   // check turn on / off
   if(profetGUI && profetGUI->isVisible()){
     int i = (QMessageBox::question(this, tr("End Profet"),
-         tr("Do you want to stay connected to profet?"),
-         tr("Quit and disconnect"), tr("Quit and stay connected "), tr("&Cancel"),
-         0,      // Enter == button 0
-         2 ) ); // Escape == button 2
+        tr("Do you want to stay connected to profet?"),
+        tr("Quit and disconnect"), tr("Quit and stay connected "), tr("&Cancel"),
+        0,      // Enter == button 0
+        2 ) ); // Escape == button 2
 
     if(i==2 ){ // cancel: still connected
       toggleProfetGUIAction->setChecked(true); // might have been unchecked
@@ -1895,11 +1896,11 @@ bool DianaMainWindow::ProfetUpdatePlot(const miutil::miTime& t){
 }
 
 bool DianaMainWindow::ProfetRightMouseClicked(float map_x,
-					      float map_y,
-					      int globalX,
-					      int globalY){
+    float map_y,
+    int globalX,
+    int globalY){
 #ifdef PROFET
-  //if(togglePaintModeAction->isChecked()){
+//if(togglePaintModeAction->isChecked()){
   if (paintToolBar->isVisible()) {
     profetGUI->rightMouseClicked(map_x,map_y,globalX,globalY);
     return true;
@@ -2575,52 +2576,52 @@ void DianaMainWindow::processLetter(miMessage &letter)
     if (doAutoUpdate) {
       // running animation
       if (timeron != 0) {
-	om->getTimes();
-	sm->RefreshList();
-	if (contr->satFileListChanged() || contr->obsTimeListChanged()) {
-	  //cerr << "new satfile or satfile deleted!" << endl;
-	  //cerr << "setPlotTime" << endl;
-	  //	  cerr << "doAutoUpdate  timer on" << endl;
-	  contr->satFileListUpdated();
-	  contr->obsTimeListUpdated();
-	}
+        om->getTimes();
+        sm->RefreshList();
+        if (contr->satFileListChanged() || contr->obsTimeListChanged()) {
+          //cerr << "new satfile or satfile deleted!" << endl;
+          //cerr << "setPlotTime" << endl;
+          //	  cerr << "doAutoUpdate  timer on" << endl;
+          contr->satFileListUpdated();
+          contr->obsTimeListUpdated();
+        }
       }
       else {
-	// Avoid not needed updates
-	QApplication::setOverrideCursor( Qt::WaitCursor );
-	// what to do with om->getTimes() ?
-	om->getTimes();
-	sm->RefreshList();
-	miutil::miTime tp = tslider->Value();
-	tslider->setLastTimeStep();
-	miutil::miTime t= tslider->Value();
-	// Check if slider was not on latest timestep
-	// or new image file arrived.
-	// If t > tp force repaint...
-	if (contr->satFileListChanged() || contr->obsTimeListChanged() || (t > tp))
-	  {
-	    //cerr << "new satfile or satfile deleted!" << endl;
-	    //cerr << "setPlotTime" << endl;
-	    setPlotTime(t);
-	    contr->satFileListUpdated();
-	    contr->obsTimeListUpdated();
-	  }
-	//cerr << "stepforward" << endl;
-	stepforward();
-	QApplication::restoreOverrideCursor();
+        // Avoid not needed updates
+        QApplication::setOverrideCursor( Qt::WaitCursor );
+        // what to do with om->getTimes() ?
+        om->getTimes();
+        sm->RefreshList();
+        miutil::miTime tp = tslider->Value();
+        tslider->setLastTimeStep();
+        miutil::miTime t= tslider->Value();
+        // Check if slider was not on latest timestep
+        // or new image file arrived.
+        // If t > tp force repaint...
+        if (contr->satFileListChanged() || contr->obsTimeListChanged() || (t > tp))
+        {
+          //cerr << "new satfile or satfile deleted!" << endl;
+          //cerr << "setPlotTime" << endl;
+          setPlotTime(t);
+          contr->satFileListUpdated();
+          contr->obsTimeListUpdated();
+        }
+        //cerr << "stepforward" << endl;
+        stepforward();
+        QApplication::restoreOverrideCursor();
       }
     }
   }
 
-// If autoupdate is active, do the same thing as
-// when the user presses the updateObs button.
+  // If autoupdate is active, do the same thing as
+  // when the user presses the updateObs button.
   else if (letter.command == qmstrings::file_changed) {
 #ifdef DEBUGPRINT
-  cerr << letter.command <<" received" << endl;
+    cerr << letter.command <<" received" << endl;
 #endif
     if (doAutoUpdate) {
-	  // Just a call to update obs will work fine
-	  updateObs();
+      // Just a call to update obs will work fine
+      updateObs();
     }
   }
 
@@ -2645,14 +2646,14 @@ void DianaMainWindow::sendPrintClicked(int id)
 void DianaMainWindow::sendLetter(miMessage& letter)
 {
   pluginB->sendMessage(letter);
-//   cerr <<"SENDING>>>>"<<endl;
-//   cerr<<"Command: "<<letter.command<<endl;
-//   cerr<<"Description: "<<letter.description<<endl;
-//   cerr<<"commonDesc: "<<letter.commondesc<<endl;
-//   cerr<<"Common: "<<letter.common<<endl;
-//       for(int i=0;i<letter.data.size();i++)
-// 	cerr<<"data:"<<letter.data[i]<<endl;
-//   cerr <<"To: "<<letter.to<<endl;
+  //   cerr <<"SENDING>>>>"<<endl;
+  //   cerr<<"Command: "<<letter.command<<endl;
+  //   cerr<<"Description: "<<letter.description<<endl;
+  //   cerr<<"commonDesc: "<<letter.commondesc<<endl;
+  //   cerr<<"Common: "<<letter.common<<endl;
+  //       for(int i=0;i<letter.data.size();i++)
+  // 	cerr<<"data:"<<letter.data[i]<<endl;
+  //   cerr <<"To: "<<letter.to<<endl;
 }
 
 void DianaMainWindow::updateObs()
@@ -2706,7 +2707,7 @@ void DianaMainWindow::showNews()
 void DianaMainWindow::about()
 {
   QString str =
-    tr("Diana - a 2D presentation system for meteorological data, including fields, observations,\nsatellite- and radarimages, vertical profiles and cross sections.\nDiana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.\n")+"\n" + tr("To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). \n") +"\n\n"+ tr("version:") + " " + version_string.c_str()+"\n"+ tr("build:") + " " + build_string.c_str();
+      tr("Diana - a 2D presentation system for meteorological data, including fields, observations,\nsatellite- and radarimages, vertical profiles and cross sections.\nDiana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.\n")+"\n" + tr("To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). \n") +"\n\n"+ tr("version:") + " " + version_string.c_str()+"\n"+ tr("build:") + " " + build_string.c_str();
 
   QMessageBox::about( this, tr("about Diana"), str );
 }
@@ -2958,10 +2959,10 @@ void DianaMainWindow::saveraster()
   static QString fname = "./"; // keep users preferred image-path for later
 
   QString s =
-    QFileDialog::getSaveFileName(this,
-        tr("Save plot as image"),
-        fname,
-        tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
+      QFileDialog::getSaveFileName(this,
+          tr("Save plot as image"),
+          fname,
+          tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -2990,9 +2991,9 @@ void DianaMainWindow::saveraster()
 void DianaMainWindow::saveRasterImage(QString filename) {
 
   miutil::miString fname = filename.toStdString();
-    miutil::miString format= "PNG";
-    int quality= -1; // default quality
-    w->Glw()->saveRasterImage(fname, format, quality);
+  miutil::miString format= "PNG";
+  int quality= -1; // default quality
+  w->Glw()->saveRasterImage(fname, format, quality);
 
 }
 
@@ -3006,10 +3007,10 @@ void DianaMainWindow::saveAnimation() {
   static QString fname = "./"; // keep users preferred animation-path for later
 
   QString s =
-    QFileDialog::getSaveFileName(this,
-        tr("Save animation from current fields, satellite images, etc., using current settings"),
-        fname,
-        tr("Movies (*.mpg *.avi);;All (*.*)"));
+      QFileDialog::getSaveFileName(this,
+          tr("Save animation from current fields, satellite images, etc., using current settings"),
+          fname,
+          tr("Movies (*.mpg *.avi);;All (*.*)"));
 
 
   if (!s.isNull()) {// got a filename
@@ -3048,7 +3049,7 @@ void DianaMainWindow::saveAnimation() {
 
     int maxProgress = nrOfTimesteps - tslider->current() - 1;
     QProgressDialog progress(tr("Creating animation..."), tr("Hide"),
-                             0, maxProgress);
+        0, maxProgress);
     progress.setWindowModality(Qt::WindowModal);
 
     /// save frames as images
@@ -3117,11 +3118,11 @@ void DianaMainWindow::hardcopy()
     if (!qprt.outputFileName().isNull()) {
       priop.fname= qprt.outputFileName().toStdString();
     } else {
-      priop.fname="";
+      priop.fname="/tmp/";
       if (getenv("TMP") != NULL) {
-	priop.fname=getenv("TMP");
+        priop.fname=getenv("TMP");
       }
-      priop.fname+= "/prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
+      priop.fname+= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
       priop.fname= priop.fname.replace(' ','_');
     }
 
@@ -3169,7 +3170,7 @@ void DianaMainWindow::trajPositions(bool b)
   markRadePos = !b;
   markVcross = !b;
 
-/*
+  /*
   cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
   cerr << "\nRadarEchoDialog.hasFocus(): " << RadarEchoDialog::hasFocus() << "\n" << endl;
   cerr << "\nDianaMainWindow" << DianaMainWindow::hasFocus() << "\n" << endl;
@@ -3180,7 +3181,7 @@ void DianaMainWindow::trajPositions(bool b)
   if (b==true) {
     radePositions(false);
   }
-  */
+   */
   //LB: quit while overriderCursor is set -> core dump (why?)
   //   if(b)
   //     QApplication::setOverrideCursor(crossCursor);
@@ -3194,11 +3195,11 @@ void DianaMainWindow::radePositions(bool b)
   markRadePos = b;
   markTrajPos = !b;
   markVcross = !b;
-/*
+  /*
     cerr << "\nTrajectoryDialog.hasFocus(): " << TrajectoryDialog::hasFocus() << "\n" << endl;
     cerr << "\nRadarEchoDialog.hasFocus(): " << RadarEchoDialog::hasFocus() << "\n" << endl;
     cerr << "\nDianaMainWindow" << DianaMainWindow::hasFocus() << "\n" << endl;
-  */
+   */
 
 
   /*if (b==true) {
@@ -3232,7 +3233,7 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 
   //cerr << "+++++++++++++++++++++ radem->hasFocus()" << radem->hasFocus() << endl;
 
-/*
+  /*
   if(radem->hasFocus() == true) {
     cerr << "\n\nRade focus lostfocus == true \n\n" << endl;
   } else if(radem->hasFocus() == false) {
@@ -3241,7 +3242,7 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
   } else {
     cerr << "\n\nNone of the above\n\n" << endl;
   }
-*/
+   */
   if(markTrajPos){
     float lat=0,lon=0;
     contr->PhysToGeo(x,y,lat,lon);
@@ -3294,7 +3295,7 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 {
-//  cerr <<"void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)"<<endl;
+  //  cerr <<"void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)"<<endl;
 
   int x = mev.x;
   int y = mev.y;
@@ -3312,23 +3313,23 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 
   xclick=x; yclick=y;
 
-   for (int i=0; i<MaxSelectedAreas; i++){
-     selectAreaAction[i]->setVisible(false);
-   }
+  for (int i=0; i<MaxSelectedAreas; i++){
+    selectAreaAction[i]->setVisible(false);
+  }
 
-   vselectAreas=contr->findAreas(xclick,yclick);
-   int nAreas=vselectAreas.size();
-   if ( nAreas>0 ) {
-     zoomOutAction->setVisible(true);
-     for (int i=1; i<=nAreas && i<MaxSelectedAreas; i++){
-       selectAreaAction[i]->setText(vselectAreas[i-1].name.cStr());
-       selectAreaAction[i]->setData(i-1);
-       selectAreaAction[i]->setVisible(true);
-     }
-     rightclickmenu->popup(QPoint(globalX, globalY), 0);
-   } else {
+  vselectAreas=contr->findAreas(xclick,yclick);
+  int nAreas=vselectAreas.size();
+  if ( nAreas>0 ) {
+    zoomOutAction->setVisible(true);
+    for (int i=1; i<=nAreas && i<MaxSelectedAreas; i++){
+      selectAreaAction[i]->setText(vselectAreas[i-1].name.cStr());
+      selectAreaAction[i]->setData(i-1);
+      selectAreaAction[i]->setVisible(true);
+    }
+    rightclickmenu->popup(QPoint(globalX, globalY), 0);
+  } else {
     zoomOut();
-   }
+  }
 
   return;
 }
@@ -3354,15 +3355,15 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
     if(contr->PhysToGeo(x,y,lat,lon)){
       sgeopos->setPosition(lat,lon);
     } else {
-        sgeopos->undefPosition();
+      sgeopos->undefPosition();
     }
   } else if (sgeopos->gridMode()) {
-      float gridx=0, gridy=0;
-      if(contr->MapToGrid(xmap,ymap,gridx,gridy)){
-        sgeopos->setPosition(gridx,gridy);
-      } else {
-        sgeopos->undefPosition();
-      }
+    float gridx=0, gridy=0;
+    if(contr->MapToGrid(xmap,ymap,gridx,gridy)){
+      sgeopos->setPosition(gridx,gridy);
+    } else {
+      sgeopos->undefPosition();
+    }
   } else {
     sgeopos->setPosition(xmap,ymap);
   }
@@ -3438,7 +3439,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
     vector<miutil::miString> station;
 
     bool add = false;
-//    if(mev.modifier==key_Shift) add = true; //todo: shift already used (skip editmode)
+    //    if(mev.modifier==key_Shift) add = true; //todo: shift already used (skip editmode)
     contr->findStations(x,y,add,name,id,station);
     int n = name.size();
 
@@ -3896,8 +3897,8 @@ void DianaMainWindow::writeLogFile()
   }
 
   file << "[PROFET.LOG]" << endl
-    << milogfile.writeString("PROFET.LOG") << endl
-    << "[/PROFET.LOG]" << endl;
+      << milogfile.writeString("PROFET.LOG") << endl
+      << "[/PROFET.LOG]" << endl;
 
 
   file.close();
