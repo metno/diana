@@ -1564,7 +1564,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
   glob_t globBuf;
   glob(fileString.c_str(),0,0,&globBuf);
 
-  for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
+  for (int i=0; i<globBuf.gl_pathc; i++) {
     miString name = globBuf.gl_pathv[i];
     //cerr << "Found a file " << name << endl;
     savedProduct savedprod;
@@ -2777,8 +2777,12 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
     gc.getPoints(obsPositions.obsArea.P(), fedits[0]->editfield->area.P(),
         obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fedits[0]->editfield->area;
+  }
+
+  if ( obsPositions.convertToGrid ) {
     fedits[0]->editfield->convertToGrid(obsPositions.numObs,
         obsPositions.xpos, obsPositions.ypos);
+    obsPositions.convertToGrid = false;
   }
 
   //get values

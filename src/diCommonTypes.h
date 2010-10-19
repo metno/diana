@@ -236,7 +236,8 @@ struct ObsPositions {
   float* xpos;
   float* ypos;
   float* values;
-  ObsPositions():numObs(0),xpos(0),ypos(0),values(0){}
+  bool convertToGrid;
+  ObsPositions():numObs(0),xpos(0),ypos(0),values(0), convertToGrid(true){}
 };
 
 //--------------------------------------------------

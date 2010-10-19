@@ -818,6 +818,9 @@ void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
     obsPositions.obsArea = oplot[0]->getMapArea();
   }
 
+  //new conversion  needed
+  obsPositions.convertToGrid = true;
+
 }
 
 void ObsManager::clearObsPositions()

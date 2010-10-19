@@ -783,7 +783,6 @@ bool FieldPlot::plotWind(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -951,7 +950,6 @@ bool FieldPlot::plotWindColour(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -1189,7 +1187,6 @@ bool FieldPlot::plotWindTempFL(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -1604,7 +1601,6 @@ bool FieldPlot::plotWindNumber(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -2022,7 +2018,6 @@ bool FieldPlot::plotValueMaxHeight(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -2152,7 +2147,7 @@ bool FieldPlot::plotValueMaxHeight(){
   float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
   float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
 
-  int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,value;
+  int ipos1,value;
   float x1,x2,y1,y2,w,h;
   int ivx=0;
   float min = poptions.base;
@@ -2292,7 +2287,6 @@ bool FieldPlot::plotValueMaxHeightAndTemp(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -2426,7 +2420,7 @@ bool FieldPlot::plotValueMaxHeightAndTemp(){
   float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
   float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
 
-  int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,value;
+  int ipos1,value;
   float x1,x2,y1,y2,w,h;
   int ivx=0;
   float min = poptions.base;
@@ -2574,7 +2568,6 @@ bool FieldPlot::plotVector(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -2696,7 +2689,6 @@ bool FieldPlot::plotLayer(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -2824,7 +2816,6 @@ bool FieldPlot::plotVectorColour(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -3000,7 +2991,6 @@ bool FieldPlot::plotDirection(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -3112,7 +3102,6 @@ bool FieldPlot::plotDirectionColour(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -3302,7 +3291,7 @@ bool FieldPlot::plotContour(){
   float zrange[2], zstep, zoff, rlines[mmmUsed], rlim[mmm];
   int idraw2, nlines2, nlim2;
   int ncol2, icol2[mmm], ntyp2, ityp2[mmm], nwid2, iwid2[mmm];
-  float zrange2[2], zstep2, zoff2, rlines2[mmm], rlim2[mmm];
+  float zrange2[2], zstep2=0, zoff2=0, rlines2[mmm], rlim2[mmm];
   int   ibmap, lbmap, kbmap[mmm], nxbmap, nybmap;
   float rbmap[4];
 
@@ -3316,7 +3305,6 @@ bool FieldPlot::plotContour(){
     return false;
 
   // convert gridpoints to correct projection
-  int npos=0;
   float *x=0, *y=0;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -3592,7 +3580,6 @@ bool FieldPlot::plotBox_pattern(){
   int ny= fields[0]->ny;
 
   // convert gridbox corners to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -3710,7 +3697,6 @@ bool FieldPlot::plotBox_alpha_shade(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -3824,7 +3810,6 @@ bool FieldPlot::plotAlarmBox(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -3973,7 +3958,6 @@ bool FieldPlot::plotFillCell(){
   int ny= fields[0]->ny;
 
   // convert gridbox corners to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -4068,7 +4052,6 @@ bool FieldPlot::plotAlpha_shade(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -4310,7 +4293,6 @@ bool FieldPlot::markExtreme(){
     return false;
 
   // convert gridpoints to correct projection
-  int npos=0;
   float *x, *y;
   //####if (mapconvert==2) {
   if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -4609,7 +4591,6 @@ bool FieldPlot::plotGridLines(){
     return false;
 
   // convert gridpoints to correct projection
-  int npos=0;
   float *x, *y;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -4732,7 +4713,6 @@ bool FieldPlot::plotUndefined(){
     return false;
 
   // convert gridpoints to correct projection
-  int npos=0;
   float *x, *y;
   if (mapconvert==2) {
     if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -4965,7 +4945,6 @@ bool FieldPlot::plotNumbers(){
   int ny= fields[0]->ny;
 
   // convert gridpoints to correct projection
-  int npos=0;
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
@@ -5161,9 +5140,12 @@ bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
     gc.getPoints(obsPositions.obsArea.P(), fields[0]->area.P(),
         obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
     obsPositions.obsArea= fields[0]->area;
+  }
+
+  if ( obsPositions.convertToGrid ) {
     fields[0]->convertToGrid(obsPositions.numObs,
         obsPositions.xpos, obsPositions.ypos);
-
+    obsPositions.convertToGrid = false;
   }
 
   //get values

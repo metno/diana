@@ -1164,8 +1164,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           }
         }
         for( int i=0; i<4; i++) {
-          rx[i] / editfield->gridResolutionX;
-          ry[i] / editfield->gridResolutionY;
+          rx[i] /= editfield->gridResolutionX;
+          ry[i] /= editfield->gridResolutionY;
         }
         float avg= (sqrtf((rx[0]-rx[1])*(rx[0]-rx[1])+(ry[0]-ry[1])*(ry[0]-ry[1]))
             +sqrtf((rx[2]-rx[3])*(rx[2]-rx[3])+(ry[2]-ry[3])*(ry[2]-ry[3])))*0.5;
@@ -2775,8 +2775,8 @@ void FieldEdit::editBrush(float px, float py)
   else
     nstep= int(dy)+1;
 
-  float value;
-  float *fdata, *repdata;
+  float value=0.0;
+  float *fdata, *repdata=NULL;
 
   if (brushReplaceUndef) {
     fdata=   editfield->data;
