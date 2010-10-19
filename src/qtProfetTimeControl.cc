@@ -14,7 +14,7 @@ ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValu
   fetObject::TimeValues parent_obj;
   
   map<miutil::miTime,fetObject::TimeValues> obj_idx;
-  for(int i=0;i<obj.size();i++) {
+  for(size_t i=0;i<obj.size();i++) {
     obj_idx[ obj[i].validTime ] = obj[i];
       if(obj[i].isParent()) 
         parent_obj=obj[i];
@@ -22,7 +22,6 @@ ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValu
   
   
   int cols = tim.size();
-  int rows = 2;
   int col;
   if (!tim.empty()) {
 
@@ -109,7 +108,7 @@ vector<fetObject::TimeValues> ProfetTimeControl::collect(bool removeDiscardables
 {
   vector<fetObject::TimeValues> co;
 
-  for ( int i=0; i<objects.size();i++) {
+  for ( size_t i=0; i<objects.size();i++) {
     fetObject::TimeValues data = objects[i]->Data();
     if(removeDiscardables && data.isDiscardable() && !data.isParent())
       continue;
@@ -123,7 +122,7 @@ vector<fetObject::TimeValues> ProfetTimeControl::collect(bool removeDiscardables
 
 void ProfetTimeControl::setAll(vector<fetObject::TimeValues> a)
 {
-  for(int i=0;i<a.size();i++) {
+  for(size_t i=0;i<a.size();i++) {
     if(time_index.count(a[i].validTime))
       objects[ time_index[ a[i].validTime] ]->set(a[i]);
   }

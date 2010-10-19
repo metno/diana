@@ -812,7 +812,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     glBegin(GL_LINES);
 
     int   n,n50,n10,n05;
-    float gu,gv,gx,gy,dx,dy,dxf,dyf,gx50,gy50;
+    float gu,gv,gx,gy,dx,dy,dxf,dyf,gx50=0,gy50=0;
     float flagl = rwind*0.85;
     float flagstep = flagl/10.;
     float flagw = flagl * 0.35;

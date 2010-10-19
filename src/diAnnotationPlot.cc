@@ -993,7 +993,7 @@ void AnnotationPlot::getXYBox()
   bbox.y2 = bbox.y1 + totalhei;
 
   //rectangle for each annotation
-  float x1, x2, y1, y2;
+  float x1=0, x2=0, y1=0, y2=0;
   if (poptions.v_align == align_bottom) {
     y1 = bbox.y1 + totalhei;
   } else if (poptions.v_align == align_top) {

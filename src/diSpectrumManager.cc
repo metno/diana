@@ -156,7 +156,7 @@ void SpectrumManager::updateObsFileList()
     of.modificationTime= 0;
     glob_t globBuf;
     glob(obsAaaPaths[j].c_str(),0,0,&globBuf);
-    for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
+    for (int i=0; i<globBuf.gl_pathc; i++) {
       of.filename= miString(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }
@@ -170,7 +170,7 @@ void SpectrumManager::updateObsFileList()
     of.modificationTime= 0;
     glob_t globBuf;
     glob(obsBbbPaths[j].c_str(),0,0,&globBuf);
-    for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
+    for (int i=0; i<globBuf.gl_pathc; i++) {
       of.filename= miString(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }

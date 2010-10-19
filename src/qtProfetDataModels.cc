@@ -427,9 +427,9 @@ void FetObjectTableModel::setHeaderDisplayMask(int mask){
 
 QVariant FetObjectTableModel::headerData(int section,
     Qt::Orientation orientation, int role) const {
-  if (orientation == Qt::Vertical && parameters.size() <= (unsigned int)section)
+  if (orientation == Qt::Vertical && parameters.size() <= (size_t)section)
     return QVariant();
-  else if (orientation == Qt::Horizontal && times.size() <= section)
+  else if (orientation == Qt::Horizontal && times.size() <= size_t(section))
     return QVariant();
 
   if (role == Qt::DisplayRole) {

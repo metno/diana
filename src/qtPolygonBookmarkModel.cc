@@ -115,7 +115,7 @@ void PolygonBookmarkModel::addBookmark(miutil::miString s,bool isFolder)
 
 void PolygonBookmarkModel::addBookmarks(std::vector<miutil::miString>& s)
 {
-  for (int i=0; i<s.size(); i++) {
+  for (size_t i=0; i<s.size(); i++) {
     addBookmark(s[i]);
   }
 }
