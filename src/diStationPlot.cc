@@ -847,7 +847,7 @@ bool StationPlot::stationCommand(const miString& command,
     //decode data
     int n = data.size();
     miString name, image, image2, text, alignment;
-    int dd, ff, alpha;
+    int dd=0, ff=0, alpha=0;
     Colour colour;
     for (int i = 0; i < n; i++) {
       //       cerr <<"StationPlot::stationCommand:data:"<<data[i]<<endl;
