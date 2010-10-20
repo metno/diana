@@ -166,20 +166,26 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
 
 }
 
-bool ObsBufr::readStationInfo(const miString& bufr_file,
+bool ObsBufr::readStationInfo(const vector<miString>& bufr_file,
     vector<miString>& namelist, vector<float>& latitudelist,
     vector<float>& longitudelist)
 {
+
   id.clear();
   idmap.clear();
-  init(bufr_file, "stationInfo");
+
+  for( size_t i=0; i< bufr_file.size(); i++) {
+    init(bufr_file[i], "stationInfo");
+  }
+
   namelist = id;
   latitudelist = latitude;
   longitudelist = longitude;
   return true;
+
 }
 
-VprofPlot* ObsBufr::getVprofPlot(const miString& bufr_file,
+VprofPlot* ObsBufr::getVprofPlot(const vector<miString>& bufr_file,
     const miString& station, const miTime& time)
 {
 
@@ -199,7 +205,10 @@ VprofPlot* ObsBufr::getVprofPlot(const miString& bufr_file,
     istation = ii - izone * 1000;
   }
 
-  init(bufr_file, "vprofplot");
+  for( size_t i=0; i< bufr_file.size(); i++) {
+    init(bufr_file[i], "vprofplot");
+  }
+
   return vplot;
 
 }

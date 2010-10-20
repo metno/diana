@@ -113,11 +113,11 @@ public:
   ObsBufr(){;}
   bool init(const miutil::miString& filename, const miutil::miString& format);
   bool ObsTime(const miutil::miString& filename,miutil::miTime& time);
-  bool readStationInfo(const miutil::miString& bufr_file,
+  bool readStationInfo(const vector<miutil::miString>& bufr_file,
 		       vector<miutil::miString>& namelist,
 		       vector<float>& latitudelist,
 		       vector<float>& longitudelist);
-  VprofPlot* getVprofPlot(const miutil::miString& bufr_file,
+  VprofPlot* getVprofPlot(const vector<miutil::miString>& bufr_file,
 			  const miutil::miString& station,
 			  const miutil::miTime& time);
   ObsPlot*   getObsPlot(){return oplot;}
