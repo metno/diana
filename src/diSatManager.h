@@ -147,7 +147,7 @@ public:
 
   bool init(vector<SatPlot*>&, const vector<miutil::miString>&);
   bool setData(SatPlot *);
-  vector<miutil::miTime> getSatTimes(const vector<miutil::miString>&);
+  vector<miutil::miTime> getSatTimes(const vector<miutil::miString>&, bool updateFileList=false, bool openFiles=false);
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(vector<miutil::miTime>& progTimes,

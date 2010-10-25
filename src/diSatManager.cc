@@ -1120,18 +1120,6 @@ void SatManager::listFiles(subProdInfo &subp)
     globfree(&globBuf);
   }
 
-  //remove files no longer existing
-  vector<SatFileInfo>::iterator p = subp.file.begin();
-  while (p!=subp.file.end()) {
-    if (!_isafile(p->name)) {
-      cerr <<p->name << " removed from satfile list !" << endl;
-      //delete pointers
-      p=subp.file.erase(p);
-      fileListChanged = true;
-    } else
-      p++;
-  }
-
   //save time of last update
   subp.updateTime = miTime::secDiff(now, ztime);
 
@@ -1302,7 +1290,7 @@ bool SatManager::isMosaic(const miString &satellite, const miString & file)
   return Prod[satellite][file].mosaic;
 }
 
-vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos)
+vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool updateFileList, bool openFiles)
 {
   //  * PURPOSE:   return times for list of PlotInfo's
 
@@ -1315,8 +1303,6 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos)
   int m, nn= pinfos.size();
   vector<miString> tokens;
   miString satellite, file;
-  bool update=true;
-  bool open= true;
 
   for(int i=0; i<nn; i++) {
     tokens= pinfos[i].split('"', '"');
@@ -1337,12 +1323,14 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos)
     }
 
     subProdInfo &subp = Prod[satellite][file];
-    if (update || subp.file.size()==0)
+    if (updateFileList || subp.file.size()==0) {
       listFiles(subp);
-    else
+      subp.updated = true;
+    } else {
       fileListChanged = false;
+    }
 
-    if (open) {
+    if (openFiles) {
       int n=subp.file.size();
       for (int i=0; i<n; i++)
         if (!subp.file[i].opened) {
