@@ -259,8 +259,12 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
   //checkboxes
   orientCheckBox= new QCheckBox(tr("Horisontal orientation"),this);
-  if(!orient)
+  alignmentCheckBox= new QCheckBox(tr("Align right"),this);
+  if(!orient){
     orientCheckBox->hide();
+    alignmentCheckBox->hide();
+  }
+
   showposCheckBox= new QCheckBox(tr("Show all positions"),this);
   tempPrecisionCheckBox= new QCheckBox(tr("Temperatures as integers"),this);
   if(!tempPrecision) tempPrecisionCheckBox->hide();
@@ -428,6 +432,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addSpacing( 5 );
   vcommonlayout->addWidget( line0 );
   vcommonlayout->addWidget( orientCheckBox );
+  vcommonlayout->addWidget( alignmentCheckBox );
   vcommonlayout->addWidget( showposCheckBox );
   vcommonlayout->addWidget( tempPrecisionCheckBox );
   vcommonlayout->addWidget( parameterNameCheckBox );
@@ -756,6 +761,9 @@ miutil::miString ObsWidget::getOKString(bool forLog){
   if( orientCheckBox->isChecked() )
     dVariables.misc["orientation"]="horizontal";
 
+  if( alignmentCheckBox->isChecked() )
+    dVariables.misc["alignment"]="right";
+
   if( showposCheckBox->isChecked() )
     dVariables.misc["showpos"]="true";
 
@@ -1042,6 +1050,12 @@ void ObsWidget::updateDialog(bool setChecked){
     orientCheckBox ->setChecked(true);
   }
 
+  //alignment
+  if (dVariables.misc.count("alignment") &&
+      dVariables.misc["alignment"] == "right"){
+    alignmentCheckBox ->setChecked(true);
+  }
+
   //showpos
   if (dVariables.misc.count("showpos") &&
       dVariables.misc["showpos"] == "true"){
@@ -1240,6 +1254,8 @@ void ObsWidget::setFalse(){
   allAirepsLevelsCheckBox->setChecked(false);
 
   orientCheckBox->setChecked(false);
+
+  alignmentCheckBox->setChecked(false);
 
   showposCheckBox->setChecked(false);
 

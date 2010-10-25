@@ -69,7 +69,8 @@ private:
   Colour colour;
   Colour mslpColour1;
   Colour mslpColour2;
-  bool vertical;
+  bool vertical_orientation;
+  bool left_alignment;
   bool showpos;
   bool devfield;
   bool onlypos;

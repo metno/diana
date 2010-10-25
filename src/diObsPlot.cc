@@ -102,7 +102,7 @@ ObsPlot::ObsPlot() : Plot()
   numPar = 0;
   tempPrecision = false;
   allAirepsLevels = true;
-  vertical = true;
+  vertical_orientation = true;
   showpos = false;
   devfield = false;
   moretimes = false;
@@ -536,7 +536,10 @@ bool ObsPlot::prepare(const miString& pin)
         showpos = true;
       } else if (key == "orientation") {
         if (value == "horizontal")
-          vertical = false;
+          vertical_orientation = false;
+      } else if (key == "alignment") {
+        if (value == "right")
+          left_alignment = false;
       } else if (key == "criteria") {
         decodeCriteria(tokens[i]);
       } else if (key == "font") {
@@ -1695,7 +1698,7 @@ bool ObsPlot::preparePlot() {
     ydist = 90*scale/density;
   } else if (plottype == "list" || plottype == "ascii") {
     if (num>0) {
-      if(vertical) {
+      if(vertical_orientation) {
         xdist = 58*scale/density;
         ydist = 18*(num+0.2)*scale/density;
       } else {
@@ -2039,7 +2042,7 @@ bool ObsPlot::plot()
     ydist = 90 * scale / density;
   } else if (plottype == "list" || plottype == "ascii") {
     if (num > 0) {
-      if (vertical) {
+      if (vertical_orientation) {
         xdist = 58 * scale / density;
         ydist = 18 * (num + 0.2) * scale / density;
       } else {
@@ -2445,7 +2448,7 @@ bool ObsPlot::areaFree(int idx)
         ub[0].y2 = yc + yw + areaFreeSpace;
       }
       nb = 1;
-      if (vertical) {
+      if (vertical_orientation) {
         pos = (idd - 1) / 90;
       } else {
         if (idd < 91) {
@@ -2512,6 +2515,7 @@ void ObsPlot::plotList(int index)
 #endif
   GLfloat radius = 3.0;
   int printPos = -1;
+  if( !left_alignment ) printPos=0;
   float xpos = 0;
   float ypos = 0;
   float xshift = 0;
@@ -2575,7 +2579,7 @@ void ObsPlot::plotList(int index)
     if (ff_p->second == 0) {
       dd = 0;
       printPos = 1;
-      if (vertical)
+      if (vertical_orientation)
         ypos += yShift;
       xpos += xShift;
     }
@@ -2586,7 +2590,7 @@ void ObsPlot::plotList(int index)
       checkColourCriteria("ff", ff_p->second);
     plotWind(dd, ff_p->second, ddvar, radius, current);
 
-    if (!vertical && dd > 20 && dd < 92) {
+    if (!vertical_orientation && dd > 20 && dd < 92) {
       if (dd < 70) {
         xpos += 48 * sin(dd * PI / 180) / 2;
       } else if (dd < 85) {
@@ -2599,14 +2603,14 @@ void ObsPlot::plotList(int index)
     glPopMatrix();
 
   } else if (num > 0) {
-    if (vertical)
+    if (vertical_orientation)
       ypos += yShift;
     xpos += xShift;
     if (wind)
       printUndef(xpos, ypos, "left"); //undef wind
   }
 
-  if (!vertical) {
+  if (!vertical_orientation) {
     yStep = 0;
   } else {
 
@@ -2659,7 +2663,7 @@ void ObsPlot::plotList(int index)
       checkColourCriteria("Pos", 0);
     printString(strlat.c_str(), xpos, ypos, align);
     ypos -= yStep;
-    if (!vertical) {
+    if (!vertical_orientation) {
       const char * c = strlat.c_str();
       float w, h;
       fp->getStringSize(c, w, h);
@@ -2669,7 +2673,7 @@ void ObsPlot::plotList(int index)
     if (ccriteria)
       checkColourCriteria("Pos", 0);
     printString(strlon.c_str(), xpos, ypos, align);
-    if (!vertical) {
+    if (!vertical_orientation) {
       const char * c = strlon.c_str();
       float w, h;
       fp->getStringSize(c, w, h);
@@ -2736,7 +2740,7 @@ void ObsPlot::plotList(int index)
   if (devfield && (f_p = dta.fdata.find("PPPP_mslp")) != dta.fdata.end()) {
     ypos -= yStep;
     printAvvik(f_p->second, xpos, ypos, align);
-    if (!vertical)
+    if (!vertical_orientation)
       xpos += 2 * width / scale;
   }
   if (pFlag.count("ppp")) {
@@ -2757,7 +2761,7 @@ void ObsPlot::plotList(int index)
         checkColourCriteria("a", f_p->second);
       symbol(itab[201 + (int) f_p->second], xpos * scale - xshift,
           ypos * scale, 0.8 * scale, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else {
       printUndef(xpos, ypos, align);
@@ -2821,7 +2825,7 @@ void ObsPlot::plotList(int index)
       weather((int16) f_p->second, q_p->second, dta.zone,
           xpos * scale - xshift, (ypos - 0.2 * yStep) * scale, scale * 0.6,
           align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else {
       printUndef(xpos, ypos, align);
@@ -2835,7 +2839,7 @@ void ObsPlot::plotList(int index)
         checkColourCriteria("W1", f_p->second);
       pastWeather((int) f_p->second, xpos * scale - xshift, ypos * scale, 0.6
           * scale, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else
       printUndef(xpos, ypos, align);
@@ -2848,7 +2852,7 @@ void ObsPlot::plotList(int index)
         checkColourCriteria("W2", f_p->second);
       pastWeather((int) f_p->second, xpos * scale - xshift, ypos * scale, 0.6
           * scale, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else
       printUndef(xpos, ypos, align);
@@ -2871,7 +2875,7 @@ void ObsPlot::plotList(int index)
         checkColourCriteria("Cl", f_p->second);
       symbol(itab[190 + (int) f_p->second], xpos * scale - xshift,
           ypos * scale, 0.6 * scale, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else
       printUndef(xpos, ypos, align);
@@ -2884,7 +2888,7 @@ void ObsPlot::plotList(int index)
         checkColourCriteria("Cm", f_p->second);
       symbol(itab[180 + (int) f_p->second], xpos * scale - xshift,
           ypos * scale, 0.6 * scale, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else
       printUndef(xpos, ypos, align);
@@ -2897,7 +2901,7 @@ void ObsPlot::plotList(int index)
         checkColourCriteria("Ch", f_p->second);
       symbol(itab[170 + (int) f_p->second], xpos * scale - xshift,
           ypos * scale, 0.6 * scale, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else
       printUndef(xpos, ypos, align);
@@ -2920,7 +2924,7 @@ void ObsPlot::plotList(int index)
       if (ccriteria)
         checkColourCriteria("ds", f_p->second);
       arrow(f_p->second, xpos * scale - xshift, ypos * scale, scale * 0.6);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else
       printUndef(xpos, ypos, align);
@@ -2946,7 +2950,7 @@ void ObsPlot::plotList(int index)
       if (ccriteria)
         checkColourCriteria("PwaHwa", f_p->second);
       wave(f_p->second, p->second, xpos, ypos, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 5 * width / scale;
     } else {
       printUndef(xpos, ypos, align);
@@ -2958,7 +2962,7 @@ void ObsPlot::plotList(int index)
       if (ccriteria)
         checkColourCriteria("dw1dw1", f_p->second);
       zigzagArrow(f_p->second, xpos * scale - xshift, ypos * scale, scale * 0.6);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 20;
     } else {
       printUndef(xpos, ypos, align);
@@ -2972,7 +2976,7 @@ void ObsPlot::plotList(int index)
       if (ccriteria)
         checkColourCriteria("Pw1Hw1", f_p->second);
       wave(f_p->second, p->second, xpos, ypos, align);
-      if (!vertical)
+      if (!vertical_orientation)
         xpos += 5 * width / scale;
     } else {
       printUndef(xpos, ypos, align);
@@ -3067,7 +3071,7 @@ void ObsPlot::plotList(int index)
     if (ccriteria)
       checkColourCriteria("Dato", 0);
     printTime(dta.obsTime, xpos, ypos, align, "dato");
-    if (!vertical)
+    if (!vertical_orientation)
       xpos += 5 * width / scale;
   }
   if (pFlag.count("time")) {
@@ -3075,7 +3079,7 @@ void ObsPlot::plotList(int index)
     if (ccriteria)
       checkColourCriteria("Time", 0);
     printTime(dta.obsTime, xpos, ypos, align, "h.m");
-    if (!vertical)
+    if (!vertical_orientation)
       xpos += 5 * width / scale;
   }
   if (pFlag.count("hhh")) {
@@ -3274,7 +3278,7 @@ void ObsPlot::printUndef(float& xpos, float& ypos, miString align)
   fp->getStringSize(c, w, h);
   w *= fontsizeScale;
 
-  if (!vertical)
+  if (!vertical_orientation)
     xpos += w / scale + 5;
 
   if (align == "right") {
@@ -3319,7 +3323,7 @@ void ObsPlot::printList(float f, float& xpos, float& ypos, int precision,
   fp->getStringSize(c, w, h);
   w *= fontsizeScale;
 
-  if (!vertical)
+  if (!vertical_orientation)
     xpos += w / scale + 5;
 
   if (align == "right") {
@@ -3341,7 +3345,7 @@ void ObsPlot::printListString(const char *c, float& xpos, float& ypos,
   fp->getStringSize(c, w, h);
   w *= fontsizeScale;
 
-  if (!vertical)
+  if (!vertical_orientation)
     xpos += w / scale + 5;
 
   if (align == "right") {
@@ -3358,7 +3362,8 @@ void ObsPlot::plotAscii(int index)
   cerr << "++ ObsPlot::plotAscii( index: " << index << " ) ++" << endl;
 #endif
   GLfloat radius = 3.0;
-  int printPos = -1;
+  int printPos=-1;
+  if( !left_alignment ) printPos=0;
   float xpos = 0;
   float ypos = 0;
   float w, h;
@@ -3398,9 +3403,9 @@ void ObsPlot::plotAscii(int index)
   glPushMatrix();
   glTranslatef(x[index], y[index], 0.0);
 
-  if (asciiWind)
+  if (asciiWind) {
     num--;
-
+  }
   //wind
   //##############################################################
   //  if (asciiWind)
@@ -3422,7 +3427,7 @@ void ObsPlot::plotAscii(int index)
       xpos += xShift;
     }
 
-    if (!vertical && dd > 20 && dd < 92) {
+    if (!vertical_orientation && dd > 20 && dd < 92) {
       if (dd < 70) {
         xpos += 48 * sin(dd * PI / 180) / 2;
       } else if (dd < 85) {
@@ -3434,14 +3439,15 @@ void ObsPlot::plotAscii(int index)
 
     glPopMatrix();
   } else if (num > 0) {
-    if (vertical)
+    if (vertical_orientation) {
       ypos += yShift;
+    }
     xpos += xShift;
     if (wind)
       printUndef(xpos, ypos, "left"); //undef wind
   }
 
-  if (!vertical) {
+  if (!vertical_orientation) {
     yStep = 0;
   } else {
     switch (printPos) {
@@ -3472,6 +3478,7 @@ void ObsPlot::plotAscii(int index)
     int j = asciipar[i];
     ypos -= yStep;
     miString str = asciip[index][j];
+    str.remove('"');
     float value = atof(str.cStr());
     if (parameterName)
       str = asciiColumnName[j] + " " + str;
