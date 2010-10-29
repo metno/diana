@@ -49,9 +49,9 @@
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
     PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) :
   QObject(), Profet::ProfetGUI(pc), areaManager(gam), paintToolBar(ptb),
-      objectFactory(), objectModel(p), userModel(p), sessionModel(p),
-      tableModel(p), activeTimeSmooth(false), overviewactive(false), enableNewbutton_(true),
-      enableModifyButtons_(false), enableTable_(true),
+      objectFactory(), objectModel(p), userModel(p), tableModel(p),
+      sessionModel(p), activeTimeSmooth(false), overviewactive(false),
+      enableNewbutton_(true), enableModifyButtons_(false), enableTable_(true),
       ignoreSynchProblems(false)
 {
   parent = p;
