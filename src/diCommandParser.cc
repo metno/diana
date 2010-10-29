@@ -275,7 +275,7 @@ vector<ParsedCommand> CommandParser::parse(const miString& str) {
 
   vector<ParsedCommand> vpc;
 
-  size_t i,pos,end, strlen= str.length();
+  size_t i,pos,end = 0, strlen= str.length();
 
   if (commentSearch) {
     i= str.find_first_of('#');
