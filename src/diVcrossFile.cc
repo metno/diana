@@ -505,7 +505,7 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
   vcp->numLev=   numLev;
   vcp->nTotal=   nTotal;
 
-  int l,itime1,itime2,tgpos1,tgpos2;
+  int l,itime1,itime2,tgpos1 = 0,tgpos2 = 0;
 
   // for TimeGraph data (when tgpos>=0)
   vector<float*> tgdata1d;
