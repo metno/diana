@@ -97,7 +97,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
       cerr << "Something is wrong with: " << miLine << endl;
     }
   }
-  for (int i = 0; i < stations.size(); i++) {
+  for (size_t i = 0; i < stations.size(); i++) {
     posName.push_back(stations[i].name);
     obsName.push_back(stations[i].id);
     posLatitude.push_back(stations[i].lat);
@@ -112,7 +112,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   numTime = validTime.size();
   numParam = 6;
   mainText.push_back(modelName);
-  for (int i = 0; i < forecastHour.size(); i++) {
+  for (size_t i = 0; i < forecastHour.size(); i++) {
     progText.push_back(miString("+" + miString(forecastHour[i])));
   }
   readFromField = true;
@@ -358,7 +358,7 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
   //####  vp->text= modelName + " " + posName[iPos]
   //####	   + ostr.str() + validTime[iTime].isoTime();
 
-  int k;
+  size_t k;
   if (readFromField) {
     vp->windInKnots = false;
     if((name == vProfPlotName) && (time == vProfPlotTime)) {
@@ -497,12 +497,13 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
       vp->sigwind.push_back(0);
       if (ff>vp->ff[kmax]) kmax=k;
     }
-    for (int l = 0; l < (vp->sigwind.size()); l++)
-    for (k=1; k<numLevel-1; k++) {
-      if (vp->ff[k]<vp->ff[k-1] && vp->ff[k]<vp->ff[k+1])
-        vp->sigwind[k]= 1;
-      if (vp->ff[k]>vp->ff[k-1] && vp->ff[k]>vp->ff[k+1])
-        vp->sigwind[k]= 2;
+    for (size_t l = 0; l < (vp->sigwind.size()); l++){
+      for (k = 1; k < numLevel - 1; k++) {
+        if (vp->ff[k] < vp->ff[k - 1] && vp->ff[k] < vp->ff[k + 1])
+          vp->sigwind[k] = 1;
+        if (vp->ff[k] > vp->ff[k - 1] && vp->ff[k] > vp->ff[k + 1])
+          vp->sigwind[k] = 2;
+      }
     }
     vp->sigwind[kmax]= 3;
   }

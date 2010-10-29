@@ -90,7 +90,7 @@ void VcrossField::cleanupTGCache() {
   }
   lastVcrossPlot = 0;
   if (lastVcrossData.size()) {
-    for (int i=0;i<lastVcrossData.size();i++) {
+    for (size_t i=0;i<lastVcrossData.size();i++) {
       delete[] lastVcrossData[i];
     }
   }
@@ -109,14 +109,15 @@ void VcrossField::cleanupCache() {
   cerr << "VcrossField::cleanupCache()" << endl;
 #endif
 
-  for(int i=0;i<VcrossPlotVector.size();i++)
-    if(VcrossPlotVector[i]) delete VcrossPlotVector[i];
+  for (size_t i = 0; i < VcrossPlotVector.size(); i++)
+    if (VcrossPlotVector[i])
+      delete VcrossPlotVector[i];
   VcrossPlotVector.clear();
 
-  map<int,vector<float*> >::iterator vd, vdend = VcrossDataMap.end();
-  for(vd = VcrossDataMap.begin(); vd != vdend; vd++) {
-    if(vd->second.size()) {
-      for(int j=0; j<vd->second.size(); j++)
+  map<int, vector<float*> >::iterator vd, vdend = VcrossDataMap.end();
+  for (vd = VcrossDataMap.begin(); vd != vdend; vd++) {
+    if (vd->second.size()) {
+      for (size_t j = 0; j < vd->second.size(); j++)
         delete[] vd->second[j];
     }
   }
@@ -158,7 +159,7 @@ bool VcrossField::getInventory() {
   int vcoord = 10;
 
   // For every parameter, check if it is specified in the setup file
-  for(int i=0;i<params.size();i++) {
+  for (unsigned int i=0;i<params.size();i++) {
     pn= vcp->vcParName.find(params[i]);
     if(pn!=pnend) {
 #ifdef DEBUGPRINT
@@ -288,7 +289,7 @@ bool VcrossField::setLatLon(float lat,float lon) {
 
     // Rebuild the crossection list
     names.clear();
-    for(int i=0;i<crossSections.size();i++)
+    for(size_t i=0;i<crossSections.size();i++)
       names.push_back(crossSections[i].name);
     return true;
   } else {
@@ -318,7 +319,7 @@ void VcrossField::getMapData(vector<LocationElement>& elements)
 #endif
 
   int nelem= elements.size();
-  for(int i=0;i<crossSections.size();i++) {
+  for(size_t i=0;i<crossSections.size();i++) {
     LocationElement el;
     elements.push_back(el);
     int noPoints = crossSections[i].xpos.size();
@@ -342,14 +343,14 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
 #endif
   int vcross=-1;
   // Find crossection
-  for(int i=0;i<crossSections.size();i++) {
+  for(size_t i=0;i<crossSections.size();i++) {
     if(name == crossSections[i].name)
       vcross = i;
   }
 
   VcrossPlot *vcp= 0;
   // Return if something is wrong
-  if(crossSections.size() == 0 || crossSections.size() < vcross || vcross == -1)
+  if(crossSections.size() == 0 || int(crossSections.size()) < vcross || vcross == -1)
     return vcp;
   if(crossSections[vcross].xpos.size() <= 1) return vcp;
   vcp = new VcrossPlot();
@@ -370,7 +371,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       cerr << "Cleaning up cache" << endl;
 #endif
       cleanupCache();
-      for(int i=0;i<crossSections.size();i++)
+      for(size_t i=0;i<crossSections.size();i++)
         VcrossPlotVector.push_back(new VcrossPlot());
       lastVcrossTime = miutil::miTime(time);
     }
@@ -405,7 +406,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       vcp->vrangemin = VcrossPlotVector[vcross]->vrangemin;
       vcp->vrangemax = VcrossPlotVector[vcross]->vrangemax;
       vcp->iundef = VcrossPlotVector[vcross]->iundef;
-      for(int i=0;i<VcrossDataMap[vcross].size();i++) {
+      for(size_t i=0;i<VcrossDataMap[vcross].size();i++) {
         multiLevel.push_back(VcrossMultiLevelMap[vcross][i]);
         if(VcrossMultiLevelMap[vcross][i]) {
           float* data = new float[vcp->nPoint*vcp->numLev];
@@ -443,7 +444,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       vcp->vrangemin = 50;
       vcp->vrangemax = 1000;
 
-      if(VcrossPlotVector.size() < (vcross+1))
+      if(int(VcrossPlotVector.size()) < (vcross+1))
         VcrossPlotVector.push_back(new VcrossPlot());
       // Cache the crossection
       VcrossPlotVector[vcross]->alevel = vcp->alevel;
@@ -461,7 +462,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       VcrossPlotVector[vcross]->vrangemax = vcp->vrangemax;
       VcrossPlotVector[vcross]->iundef = vcp->iundef;
 
-      for(int i=0;i<crossData.size();i++) {
+      for(size_t i=0;i<crossData.size();i++) {
         VcrossMultiLevelMap[vcross].push_back(multiLevel[i]);
         if(VcrossMultiLevelMap[vcross][i]) {
           float* data = new float[VcrossPlotVector[vcross]->nPoint*VcrossPlotVector[vcross]->numLev];
@@ -498,7 +499,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       vcp->vrangemin = lastVcrossPlot->vrangemin;
       vcp->vrangemax = lastVcrossPlot->vrangemax;
       vcp->iundef = lastVcrossPlot->iundef;
-      for(int i=0;i<lastVcrossData.size();i++) {
+      for(size_t i=0;i<lastVcrossData.size();i++) {
         multiLevel.push_back(lastVcrossMultiLevel[i]);
         if(lastVcrossMultiLevel[i]) {
           float* data = new float[vcp->nPoint*vcp->numLev];
@@ -526,7 +527,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       xpos.push_back(crossSections[vcross].xpos[tgpos]);
       ypos.push_back(crossSections[vcross].ypos[tgpos]);
       // TimeGraph for every sixth hour
-      for(int step=0; step<validTime.size(); step+=6) {
+      for(unsigned int step=0; step<validTime.size(); step+=6) {
         forecastHours.push_back(step);
         validTimes.push_back(validTime[step]);
       }
@@ -578,7 +579,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       lastVcrossData.clear();
       lastVcrossMultiLevel.clear();
 
-      for(int i=0;i<crossData.size();i++) {
+      for(size_t i=0;i<crossData.size();i++) {
         lastVcrossMultiLevel.push_back(multiLevel[i]);
         if(lastVcrossMultiLevel[i]) {
           float* data = new float[lastVcrossPlot->nPoint*lastVcrossPlot->numLev];
@@ -617,7 +618,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
 
   // Insert data into VcrossPlot
   map<miutil::miString, int>::iterator pn, pnend= vcp->vcParName.end();
-  for(int i=0;i<params.size();i++) {
+  for(size_t i=0;i<params.size();i++) {
     int param = params[i].toInt(0);
     if(param < 0) {
       if(multiLevel[i])
@@ -642,12 +643,12 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
   /* Compute max/min mslp
    *(done every time, could be put in vector like in diVcrossFile.cc)
    */
-  int mslp;
-  for(int i=0;i<params.size();i++)
+  int mslp = 0.0;
+  for(size_t i=0;i<params.size();i++)
     if(params[i] == "mslp")
       mslp=i;
   float pressure=50;
-  for(int i=0;i<vcp->alevel.size();i++) {
+  for(size_t i=0;i<vcp->alevel.size();i++) {
     for(int j=0;j<vcp->nPoint;j++) {
       if(crossData[mslp][j] < fieldUndef) {
         pressure=vcp->alevel[i]+vcp->blevel[i]*crossData[mslp][j];

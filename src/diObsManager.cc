@@ -531,7 +531,7 @@ bool ObsManager::updateTimes(miString obsType)
 
       glob_t globBuf;
       glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for(unsigned int k=0; k<globBuf.gl_pathc; k++) {
+      for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if(ok &&
@@ -653,7 +653,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
     if( !Prod[obsType].pattern[j].archive || useArchive ){
       glob_t globBuf;
       glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for(unsigned int k=0; k<globBuf.gl_pathc; k++) {
+      for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if (Prod[obsType].pattern[j].fileType == "metnoobs") {
@@ -1400,7 +1400,7 @@ delete roplot;
       glob(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
       miString headerfile= Prod[oname].headerfile;
       unsigned int k= 0;
-      while (!found && k<globBuf.gl_pathc) {
+      while (!found && int(k)<globBuf.gl_pathc) {
         miString filename = globBuf.gl_pathv[k];
         miTime filetime; // just dummy here
         ObsAscii obsAscii = ObsAscii(filename,headerfile,filetime,oplot,false);
@@ -1524,7 +1524,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
 void ObsManager::printProdInfo(const ProdInfo & pinfo)
 {
 
-  int i;
+  unsigned int i;
   cerr << "***** ProdInfo ******" << endl;
 #ifdef ROADOBS
   if (pinfo.obsformat == ofmt_roadobs)

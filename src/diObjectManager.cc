@@ -338,7 +338,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
 
   glob(fileString.c_str(),0,0,&globBuf);
 
-  for (unsigned int i=0; i<globBuf.gl_pathc; i++) {
+  for (unsigned int i=0; int(i)<globBuf.gl_pathc; i++) {
     ObjFileInfo info;
     miString name = globBuf.gl_pathv[i];
     miTime time = timeFilterFileName(name,ol.filter);

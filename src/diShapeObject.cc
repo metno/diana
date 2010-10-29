@@ -1016,13 +1016,14 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
     vector<miutil::miString>& dbfStringName, vector< vector<miutil::miString> >& dbfStringDesc)
 {
   DBFHandle hDBF;
-  int i, n, iRecord;
+  int i, iRecord;
+  size_t n;
   int nWidth, nDecimals;
   char szTitle[12];
 
-  int indexTema1= -1;
-  int indexTema2= -1;
-  int indexLength= -1;
+  //int indexTema1= -1;
+  //int indexTema2= -1;
+  //int indexLength= -1;
   int nFieldCount, nRecordCount;
 
   vector<int> indexInt, indexDouble, indexString;
@@ -1161,7 +1162,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
   double avglength=0.0;
   int n1=0, n10=0, n100=0, n1000=0;
 
-  int m= 0;
+  unsigned int m= 0;
   while (m<dbfDoubleName.size() && dbfDoubleName[m]!="LENGTH")
     m++;
 
