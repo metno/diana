@@ -460,33 +460,34 @@ bool ObjectPlot::ismarkBeginPoint(){
 }
 
 
-bool ObjectPlot::joinPoint( float x , float y){
+bool ObjectPlot::joinPoint(float x, float y)
+{
   float dist;
-  int iJoin;
+  int iJoin = 0;
   //distmax = a large number
   float distmax = 100000;
   bool join = false;
-  if (isJoinPoint(x,y)){
+  if (isJoinPoint(x, y)) {
     return false;
   }
-  float fdeltaw=fSense*window_dw*w*0.5;
+  float fdeltaw = fSense * window_dw * w * 0.5;
   int end = nodePoints.size();
-  for (int i=0; i < end; i++){
-    if (nodePoints[i].isInRectangle(x,y,fdeltaw)){
-      dist = nodePoints[i].distSquared(x,y);
-      if (dist < distmax){
-	iJoin = i;
-	distmax = dist;
-	join = true;
+  for (int i = 0; i < end; i++) {
+    if (nodePoints[i].isInRectangle(x, y, fdeltaw)) {
+      dist = nodePoints[i].distSquared(x, y);
+      if (dist < distmax) {
+        iJoin = i;
+        distmax = dist;
+        join = true;
       }
     }
   }
-  if (join){
+  if (join) {
     //join to the closest point
-    nodePoints[iJoin].joined=true;
+    nodePoints[iJoin].joined = true;
     return true;
-  }
-  else return false;
+  } else
+    return false;
 }
 
 bool ObjectPlot::isJoinPoint( float x , float y, float &xjoin, float &yjoin){
