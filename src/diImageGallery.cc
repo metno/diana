@@ -844,7 +844,7 @@ bool ImageGallery::parseSetup(SetupParser &sp)
     else continue;
     glob_t globBuf;
     glob(value.c_str(),0,0,&globBuf);
-    for( unsigned int k=0; k<globBuf.gl_pathc; k++) {
+    for( unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
       miString fname = globBuf.gl_pathv[k];
       if((fname.contains(".png") || fname.contains(".xpm"))
           && !fname.contains("~"))
