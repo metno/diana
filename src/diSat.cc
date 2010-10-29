@@ -377,7 +377,7 @@ void Sat::setCalibration()
 
   //Visual
   bool vis=false;
-  float AVis, BVis;
+  float AVis = 0.0, BVis = 0.0;
   if (cal_vis.exists()) {
     vector<miString> cal = cal_vis.split("+");
     if (cal.size()==2) {
@@ -395,7 +395,7 @@ void Sat::setCalibration()
 
   //Infrared
   bool ir = false;
-  float AIr, BIr;
+  float AIr = 0.0, BIr = 0.0;
   if (cal_ir.exists()) {
     vector<miString> cal = cal_ir.split("+");
     if (cal.size()==2) {
