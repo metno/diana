@@ -163,7 +163,7 @@ bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
 
   if (s.contains(":")) { // degrees:minutes:seconds
     vector<miutil::miString> vs = s.split(":");
-    float asign;
+    float asign = 1.0;
     for (unsigned int k = 0; k < vs.size(); k++) {
       float tval = atof(vs[k].cStr());
       if (k == 0) // degrees (determines sign)
