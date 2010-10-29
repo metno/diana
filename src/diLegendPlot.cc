@@ -274,7 +274,7 @@ bool LegendPlot::plot(float x, float y)
   y2title = y;
   y1title = y - titleheight;
 
-  float x1table,x2table;
+  float x1table = 0.0, x2table = 0.0;
   if(poptions.h_align==align_right){
     x1table = x2title-tablewidth;
     x2table = x2title;
