@@ -213,7 +213,7 @@ bool WeatherArea::plot()
       glLineStipple(itsLinetype.factor, itsLinetype.bmap);
     }
 
-    float lwidth;
+    float lwidth = 1.0;
     //change the linewidth according to great circle distance
     float scalefactor = gcd / 7000000;
     if (scalefactor <= 1)
@@ -224,7 +224,7 @@ bool WeatherArea::plot()
       lwidth = 1;
 
     glLineWidth(lwidth);
-    int end;
+    int end = 0;
     if (!spline || s_length == 0) { // crude plotting: no splines or areafill
       end = nodePoints.size();
       glBegin(GL_LINE_STRIP);
@@ -609,6 +609,9 @@ bool WeatherArea::orientationClockwise()
         m1 = i;
       }
     }
+  } else {
+    // undefined...
+    return true;
   }
 
   n--; // the line should not be closed here

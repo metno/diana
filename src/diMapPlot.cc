@@ -565,7 +565,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
 
   unsigned int nw, npi, n, npp, npos;
   int np, irec, jrec, nd, err, nwdesc, version;
-  int iscale2, nlevel1, nlevel2, i, j;//, ibgn, ierror;
+  int iscale2 = 1, nlevel1 = 0, nlevel2 = 0, i, j;
   int n1, n2, nn, nwx1, nwx2, nlines, nl;
 
   float scale, slat2, slon2, x1, y1, x2, y2, dx, dy, dxbad;
@@ -1379,7 +1379,7 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
   //  xylim(1-4):      x1,x2,y1,y2 for aktuelt omraade
 
   int nint, nc, n, i, k1, k2;
-  float xa, xb, ya, yb, xint, yint, x1, x2, y1, y2;
+  float xa, xb, ya, yb, x1, x2, y1, y2;
   float xc[4], yc[4];
 
   if (npos < 2)
@@ -1393,6 +1393,7 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
   float xoffset = (xb - xa) / 200.0;
   float yoffset = (yb - ya) / 200.0;
 
+  int xint = 0, yint = 0;
   if (x[0] < xa || x[0] > xb || y[0] < ya || y[0] > yb) {
     k2 = 0;
   } else {

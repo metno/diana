@@ -772,8 +772,8 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
   vector<miutil::miString> vs,vvs;
   int n= vstr.size();
   bool skipmenu=true;
-  int actidx, oidx;
-  unsigned int priIndex=1;
+  int actidx = -1, oidx = -1;
+  unsigned int priIndex = 1;
   miutil::miString key,value;
 
   quickMenuItem tmpitem;
@@ -838,7 +838,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
       }
 
     } else if (line[0]=='%' && !skipmenu){ // dynamic options
-      if (line.length()>1 && actidx>=0){
+      if (line.length()>1 && actidx >= 0 && actidx < qm.size()){
         miutil::miString opt= line.substr(1,line.length()-1);
         vs= opt.split("=");
         if (vs.size()>1){
@@ -860,25 +860,31 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
 
         // maybe end of all items
         if (line[0]=='='){
-          // update static menus with logged items
-          int m= logitems.size();
-          for (int l=0; l<m; l++){
-            // find item in static list: actidx
-            int r= qm[actidx].menuitems.size();
-            int ridx=-1;
-            for (int k=0; k<r; k++){
-              if (qm[actidx].menuitems[k].name==logitems[l].name){
-                ridx= k;
-                break;
+          if (actidx >= 0 && actidx < qm.size()) {
+            // update static menus with logged items
+            int m = logitems.size();
+            for (int l = 0; l < m; l++) {
+              // find item in static list: actidx
+              int r = qm[actidx].menuitems.size();
+              int ridx = -1;
+              for (int k = 0; k < r; k++) {
+                if (qm[actidx].menuitems[k].name == logitems[l].name) {
+                  ridx = k;
+                  break;
+                }
               }
+              if (ridx < 0){
+                continue; // not found
+              }
+              // check that logged items are legal changes
+              if (oidx >= 0 && oidx < orig_qm.size() && ridx <= orig_qm[oidx].menuitems.size()) {
+                emit(requestUpdate(orig_qm[oidx].menuitems[ridx].command,
+                    logitems[l].command));
+              }
+              // Ok, change it
+              qm[actidx].menuitems[ridx].command = logitems[l].command;
+              chng_qm[oidx].menuitems[ridx].command = logitems[l].command;
             }
-            if (ridx==-1) continue; // not found
-            // check that logged items are legal changes
-            emit(requestUpdate(orig_qm[oidx].menuitems[ridx].command,
-                logitems[l].command));
-            // Ok, change it
-            qm[actidx].menuitems[ridx].command= logitems[l].command;
-            chng_qm[oidx].menuitems[ridx].command= logitems[l].command;
           }
           // update finished - remove it
           itemlog= false;

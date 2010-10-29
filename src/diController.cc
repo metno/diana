@@ -229,7 +229,7 @@ void Controller::PhysToMap(const float x,const float y,
 /// return field grid x,y from map x,y if field defined and map proj = field proj
 bool Controller::MapToGrid(const float xmap, const float ymap,
     float& gridx, float& gridy){
-  plotm->MapToGrid(xmap,ymap,gridx,gridy);
+  return plotm->MapToGrid(xmap,ymap,gridx,gridy);
 }
 
 // start hardcopy plot

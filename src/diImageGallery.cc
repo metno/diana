@@ -625,8 +625,8 @@ bool ImageGallery::plotImages(const int n,
     return false;
   }
 
-  int nx;
-  int ny;
+  int nx = 0;
+  int ny = 0;
   float scalex=scale, scaley=scale;
   miString oldname;
   float sx= scale*fullrect.width()/(pwidth > 0 ? 2.0*pwidth : 2.0);
@@ -660,7 +660,7 @@ bool ImageGallery::plotImages(const int n,
     }
 
     float gx= x[j], gy= y[j]; // raster position
-    if (vn[j] != oldname){
+    if (j == 0 || vn[j] != oldname){
       nx= Images[vn[j]].width;
       ny= Images[vn[j]].height;
       glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);

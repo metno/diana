@@ -2339,7 +2339,7 @@ void PlotModule::areaCommand(const miString& command, const miString& dataSet,
   int n = vareaobjects.size();
   for (int i = 0; i < n && i > -1; i++) {
     if ((id == -1 || id == vareaobjects[i].getId()) && (dataSet == "all"
-        || dataSet == vareaobjects[i].getName()))
+        || dataSet == vareaobjects[i].getName())) {
       if (command == "delete" && (data == "all" || !data.exists())) {
         vareaobjects.erase(vareaobjects.begin() + i);
         i--;
@@ -2354,6 +2354,7 @@ void PlotModule::areaCommand(const miString& command, const miString& dataSet,
           }
         }
       }
+    }
   }
 }
 

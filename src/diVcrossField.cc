@@ -48,8 +48,8 @@ using namespace std;
 
 // Default constructor
 VcrossField::VcrossField(const miutil::miString& modelname, FieldManager* fieldm)
-    : modelName(modelname), fieldManager(fieldm), lastVcross(-1),
-    lastVcrossPlot(0), lastTgpos(-1)
+    : modelName(modelname), fieldManager(fieldm), lastVcross(-1), lastTgpos(-1),
+    lastVcrossPlot(0)
 {
 #ifdef DEBUGPRINT
   cerr << "++ VcrossField::Constructor" << endl;

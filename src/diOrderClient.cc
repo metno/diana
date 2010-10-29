@@ -73,7 +73,7 @@ const char *diOrderClient::kw_complete = "complete";
 const char *diOrderClient::kw_goodbye = "goodbye";
 
 diOrderClient::diOrderClient(QObject *parent, QTcpSocket *socket):
-	QObject(parent), socket(socket), state(idle), base64(false), order(NULL), serial(0)
+	QObject(parent), socket(socket), state(idle), base64(false), serial(0), order(NULL)
 {
 	connect(socket, SIGNAL(readyRead()),
 	    this, SLOT(clientReadyRead()));

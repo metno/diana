@@ -114,7 +114,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
 
   vector<miutil::miString> defV = dialog.defValues.split(" ");
   int n=defV.size();
-  int colIndex, devcol1Index, devcol2Index;
+  int colIndex = 0, devcol1Index = 0, devcol2Index = 0;
   for(int i=0;i<n;i++){
     vector<miutil::miString> stokens = defV[i].split("=");
     if(stokens.size()==2){

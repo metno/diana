@@ -905,7 +905,6 @@ void EditDialog::EditMarkedText()
        m_objm->changeMarkedComplexText(symbolText,xText);
   }
   m_objm->getMarkedMultilineText(mText);
-  int ns = mText.size();
   if (mText.size()){
      //cerr << "-----EditDialog::getMarkedMultilineText returns nonempty strings"  << endl;
      if (getEditText(mText))

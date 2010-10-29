@@ -44,9 +44,9 @@ using namespace std; using namespace miutil;
 
 // Default constructor
 VprofData::VprofData(const miString& filename, const miString& modelname)
-: fileName(filename), modelName(modelname),readFromField(false),
+: fileName(filename), modelName(modelname),readFromField(false), fieldManager(NULL),
 numPos(0), numTime(0), numParam(0), numLevel(0),
-dataBuffer(0), fieldManager(NULL)
+dataBuffer(0)
 {
 #ifdef DEBUGPRINT
   cerr << "++ VprofData::Default Constructor" << endl;
