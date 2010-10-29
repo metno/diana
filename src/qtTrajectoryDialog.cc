@@ -618,7 +618,7 @@ void TrajectoryDialog::readLog(const vector<miutil::miString>& vstr,
 			       const miutil::miString& logVersion){
 
   int n=0, nvstr= vstr.size();
-  int radius;
+  int radius = 0;
   miutil::miString numPos;
 
   while (n<nvstr && vstr[n].substr(0,4)!="====") {
