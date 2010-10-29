@@ -838,7 +838,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
       }
 
     } else if (line[0]=='%' && !skipmenu){ // dynamic options
-      if (line.length()>1 && actidx >= 0 && actidx < qm.size()){
+      if (line.length()>1 && actidx >= 0 && actidx < int(qm.size())){
         miutil::miString opt= line.substr(1,line.length()-1);
         vs= opt.split("=");
         if (vs.size()>1){
