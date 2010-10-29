@@ -4265,7 +4265,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     int idraw, nlines, nlim;
     int ncol, icol[mmmUsed], ntyp, ityp[mmmUsed], nwid, iwid[mmmUsed];
     float zrange[2], zstep, zoff, rlines[mmmUsed], rlim[mmm];
-    int idraw2, nlines2, nlim2;
+    int idraw2 = 0, nlines2, nlim2;
     int ncol2, icol2[mmm], ntyp2, ityp2[mmm], nwid2, iwid2[mmm];
     float zrange2[2], zstep2 = 0.0, zoff2 = 0.0, rlines2[mmm], rlim2[mmm];
 
