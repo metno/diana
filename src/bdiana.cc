@@ -1371,7 +1371,7 @@ int parseAndProcess(istream &is)
           startHardcopy(plot_standard, priop);
           multiple_newpage = false;
 #ifdef VIDEO_EXPORT
-        } else if (raster & raster_type == image_avi) {
+        } else if (raster && raster_type == image_avi) {
             startVideo(priop);
 #endif
         }
@@ -1767,7 +1767,7 @@ int parseAndProcess(istream &is)
 
           if (verbose)
             cout << "- Issuing print command:" << command << endl;
-          system(command.c_str());
+          int res = system(command.c_str());
         }
       }
 
