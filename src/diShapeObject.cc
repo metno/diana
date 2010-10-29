@@ -161,7 +161,7 @@ bool ShapeObject::changeProj(Area fromArea)
 
 bool ShapeObject::read(miutil::miString filename)
 {
-  read(filename, false);
+  return read(filename, false);
 }
 
 bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
@@ -395,7 +395,7 @@ bool ShapeObject::plot(Area area, // current area
 			continue;
 		}
 		// Check if shape is outside
-		if(((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) &&
+		if(((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) && //TODO: should this be a ||???
 			(shapes[i]->dfYMin > y2) ||  (shapes[i]->dfYMin < y1 && shapes[i]->dfYMax < y1)) {
 #ifdef DEBUGPRINT
 				cerr << "minX: " << shapes[i]->dfXMin << " maxX: " << shapes[i]->dfXMax << " minY: " << shapes[i]->dfYMin << " maxY: " << shapes[i]->dfYMax << endl;
