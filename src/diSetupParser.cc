@@ -89,7 +89,7 @@ void SetupParser::setUserVariables(const map<miString, miString> & user_var)
 
 bool SetupParser::checkSubstitutions(miString& t)
 {
-  int start = 0, stop = 0;
+  unsigned int start = 0, stop = 0;
 
   while ((start = t.find("$(", 0)) != t.npos) {
     if ((stop = t.find(")", start)) == t.npos) {
@@ -113,7 +113,7 @@ bool SetupParser::checkSubstitutions(miString& t)
 
 bool SetupParser::checkEnvironment(miString& t)
 {
-  int start = 0, stop = 0;
+  unsigned int start = 0, stop = 0;
 
   while ((start = t.find("${", stop)) != t.npos) {
     if ((stop = t.find("}", start)) == t.npos)
@@ -305,7 +305,7 @@ bool SetupParser::parseFile(const miString& filename, // name of file
     - accumulate strings for each section
    */
   miString tmpstr;
-  int tmpln;
+  int tmpln = 0;
   bool merge = false, newmerge;
 
   while (getline(file, str)) {
