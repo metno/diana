@@ -92,62 +92,65 @@ bool LocationPlot::setData(const LocationData& locationdata)
   cleanup();
 
   // check if sensible input data
-  bool ok= true;
+  //bool ok= true;
 
-  int nelem= locationdata.elements.size();
-  if (nelem==0)
-  {
-	cerr<<"LocationPlot::setData nelem==0!"<<endl;
+  int nelem = locationdata.elements.size();
+  if (nelem == 0) {
+    cerr << "LocationPlot::setData nelem==0!" << endl;
     return false;
   }
 
   set<miString> nameset;
 
-  for (int i=0; i<nelem; i++) {
-    if (locationdata.elements[i].name.empty())
-	{
-      cerr<<"LocationPlot::setData " << i << " locationdata.elements[i].name.empty()!"<<endl;
+  for (int i = 0; i < nelem; i++) {
+    if (locationdata.elements[i].name.empty()) {
+      cerr << "LocationPlot::setData " << i
+          << " locationdata.elements[i].name.empty()!" << endl;
       return false;
-	}
-    else if (nameset.find(locationdata.elements[i].name)==nameset.end())
+    } else if (nameset.find(locationdata.elements[i].name) == nameset.end())
       nameset.insert(locationdata.elements[i].name);
-    else
-	{
-	  cerr<<"LocationPlot::setData duplicate name: " << i << " locationdata.elements[i].name!"<< locationdata.elements[i].name << endl;
+    else {
+      cerr << "LocationPlot::setData duplicate name: " << i
+          << " locationdata.elements[i].name!" << locationdata.elements[i].name
+          << endl;
       return false;
-	}
-    if (locationdata.elements[i].xpos.size()<2)
-	{
-		cerr<<"LocationPlot::setData " << i << " locationdata.elements[i].xpos.size()<2!" << locationdata.elements[i].xpos.size() << endl;
-		return false;
-	}
-    if (locationdata.elements[i].xpos.size()!=locationdata.elements[i].ypos.size())
-	{
-		cerr<<"LocationPlot::setData " << i << " locationdata.elements[i].xpos.size()!=locationdata.elements[i].ypos.size()!" << locationdata.elements[i].xpos.size() << "," << locationdata.elements[i].ypos.size() << endl;
-		return false;
-	}
+    }
+    if (locationdata.elements[i].xpos.size() < 2) {
+      cerr << "LocationPlot::setData " << i
+          << " locationdata.elements[i].xpos.size()<2!"
+          << locationdata.elements[i].xpos.size() << endl;
+      return false;
+    }
+    if (locationdata.elements[i].xpos.size()
+        != locationdata.elements[i].ypos.size()) {
+      cerr << "LocationPlot::setData " << i
+          << " locationdata.elements[i].xpos.size()!=locationdata.elements[i].ypos.size()!"
+          << locationdata.elements[i].xpos.size() << ","
+          << locationdata.elements[i].ypos.size() << endl;
+      return false;
+    }
   }
 
-  locdata= locationdata;
+  locdata = locationdata;
 
-  numPos= 0;
+  numPos = 0;
   locinfo.resize(nelem);
-  for (int i=0; i<nelem; i++) {
-    locinfo[i].beginpos= numPos;
-    numPos+=locdata.elements[i].xpos.size();
-    locinfo[i].endpos= numPos;
+  for (int i = 0; i < nelem; i++) {
+    locinfo[i].beginpos = numPos;
+    numPos += locdata.elements[i].xpos.size();
+    locinfo[i].endpos = numPos;
   }
 
-  px= new float[numPos];
-  py= new float[numPos];
+  px = new float[numPos];
+  py = new float[numPos];
   Projection p;
   Rectangle r;
-  posArea= Area(p,r);  // impossible area spec
+  posArea = Area(p, r); // impossible area spec
 
-  visible= true;
+  visible = true;
 
   // ADC - name appearing on StatusPlotButtons
-  plotname= locdata.annotation;
+  plotname = locdata.annotation;
 
   return true;
 }

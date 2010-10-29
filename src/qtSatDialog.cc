@@ -1229,7 +1229,7 @@ void SatDialog::hideClicked()
 void SatDialog::updateFileListWidget(int in)
 {
   // cerr <<"updateFileListWidget:"<<in<<endl;
-  if ( in < dialogInfo.image.size()) {
+  if ( in < int(dialogInfo.image.size())) {
 
     fileListWidget->clear();
     //insert in fileListWidget the list of files.. Europa,N-Europa etc...

@@ -178,8 +178,8 @@ void StatusPlotButtons::showActiveButton(bool b)
   if (activebutton>=0 && activebutton<numbuttons){
     buttons[activebutton]->highlight(b);
     
-    int x= buttons[activebutton]->x();
-    int y= buttons[activebutton]->y();
+    //int x= buttons[activebutton]->x();
+    //int y= buttons[activebutton]->y();
     //    sv->ensureVisible(x,y);
 
     if (b) showText(buttons[activebutton]->tipText());

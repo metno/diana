@@ -860,7 +860,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
 
         // maybe end of all items
         if (line[0]=='='){
-          if (actidx >= 0 && actidx < qm.size()) {
+          if (actidx >= 0 && actidx < int(qm.size())) {
             // update static menus with logged items
             int m = logitems.size();
             for (int l = 0; l < m; l++) {
@@ -877,7 +877,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
                 continue; // not found
               }
               // check that logged items are legal changes
-              if (oidx >= 0 && oidx < orig_qm.size() && ridx <= orig_qm[oidx].menuitems.size()) {
+              if (oidx >= 0 && oidx < int(orig_qm.size()) && ridx <= int(orig_qm[oidx].menuitems.size())) {
                 emit(requestUpdate(orig_qm[oidx].menuitems[ridx].command,
                     logitems[l].command));
               }

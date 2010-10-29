@@ -79,6 +79,7 @@ diOrderQueue::insertOrder(diWorkOrder *order)
 	condvar.wakeOne();
 	mutex.unlock();
 	emit newOrderAvailable();
+	return true;
 }
 
 diWorkOrder *
