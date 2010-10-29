@@ -865,7 +865,7 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
     signBox->setCurrentIndex(3);
   }
 
-  float value;
+  float value = 0.0;
   if(sign.exists()){
     vector<miutil::miString> sstr = sub[0].split(sign);
     if(sstr.size()!=2) return;
