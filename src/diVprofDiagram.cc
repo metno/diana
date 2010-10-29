@@ -903,9 +903,9 @@ void VprofDiagram::plotDiagram()
   int itmin1000 = (tmin1000 < 0.) ? int(tmin1000) : int(tmin1000) + 1;
 
   int i, k, kk, k1, n, it, it1, it2, itstep, numwid, kmin, kmax;
-  float x1, x2, y1, y2, dx, dy, x, y, p, t, chx, chy, numrot, dx1, dx2, dxmin,
+  float x1, x2, y1, y2, dx, dy, x, y, p, t = 0.0, chx, chy, numrot, dx1, dx2, dxmin,
       dymin;
-  float cw, xnext, xlast, ynext, ylast, xc, yc;
+  float cw = 1.0, xnext, xlast, ynext, ylast, xc, yc;
 
   Linetype linetype;
 
