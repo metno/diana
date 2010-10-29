@@ -414,8 +414,8 @@ void WeatherFront::drawColds(){
   int end= s_length;
   int ncount=0;
 
-  float xstart,ystart,xend,yend,xtop,ytop,dxs,dys,fraction;
-  float s,slim,sprev, x1,y1,s1,x2,y2,xm,ym,sm;
+  float xstart,ystart,xend,yend,xtop,ytop,dxs = 0.0,dys = 0.0,fraction;
+  float s,slim,sprev = 0.0, x1,y1,s1,x2,y2,xm,ym,sm;
   int i,istart,j;
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -520,8 +520,8 @@ void WeatherFront::drawWarms(){
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
-  float xstart,ystart,xend,yend,dxs,dys,fraction;
-  float s,slim,sprev, x1,y1,s1,x2,y2,xm,ym,sm;
+  float xstart,ystart,xend,yend,dxs = 0.0,dys = 0.0,fraction;
+  float s,slim,sprev =0.0, x1,y1,s1,x2,y2,xm,ym,sm;
   int i,istart,j;
 
   const int nwarmflag= 19;
@@ -638,9 +638,9 @@ void WeatherFront::drawOccluded(){
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
-  float xstart,ystart,xend,yend,xtop,ytop,dxs,dys,fraction;
-  float xstart1,ystart1,xend1,yend1;
-  float s,slim,sprev, x1,y1,s1,x2,y2,xm,ym,sm;
+  float xstart,ystart,xend,yend,xtop,ytop,dxs = 0.0,dys = 0.0,fraction;
+  float xstart1 = 0.0,ystart1 = 0.0,xend1 = 0.0,yend1 = 0.0;
+  float s,slim,sprev = 0.0, x1,y1,s1,x2,y2,xm,ym,sm;
   int i,istart,j;
   int ndrawflag= 0;
   int ncount=0;
@@ -806,8 +806,8 @@ void WeatherFront::drawStationary(){
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
-  float xstart,ystart,xend,yend,xtop,ytop,dxs,dys,fraction;
-  float s,slim,sprev, x1,y1,s1,x2,y2,xm,ym,sm;
+  float xstart,ystart,xend,yend,xtop,ytop,dxs = 0.0,dys = 0.0,fraction;
+  float s,slim,sprev = 0.0, x1,y1,s1,x2,y2,xm,ym,sm;
   int i,istart,j;
   int ndrawflag= 0;
   int ncount=0;
@@ -953,8 +953,8 @@ void WeatherFront::drawSquallLine(){
   int end= s_length;
   int ncount=0;
 
-  float dxs,dys,fraction;
-  float s,slim,sprev, xm,ym;
+  float dxs = 0.0,dys = 0.0,fraction;
+  float s,slim,sprev = 0.0, xm,ym;
   int i;
 
   slim= r*2.;
