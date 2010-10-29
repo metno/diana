@@ -573,7 +573,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       lastVcrossPlot->iundef = vcp->iundef;
 
       if(lastVcrossData.size()) {
-        for(int i=0;i<lastVcrossData.size();i++)
+        for(size_t i=0;i<lastVcrossData.size();i++)
           delete[] lastVcrossData[i];
       }
       lastVcrossData.clear();
