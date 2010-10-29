@@ -4045,17 +4045,17 @@ void fillContours(vector<ContourLine*>& contourlines,
   vector<miString> classNames;
   unsigned int maxlen=0;
 
-  if (poptions.discontinuous==1 && poptions.classSpecifications.exists()) {
+  if (poptions.discontinuous == 1 && poptions.classSpecifications.exists()) {
     // discontinuous (classes)
-    vector<miString> classSpec=poptions.classSpecifications.split(",");
+    vector<miString> classSpec = poptions.classSpecifications.split(",");
     int nc = classSpec.size();
-    for (int i=0; i<nc; i++) {
-      vector<miString> vstr=classSpec[i].split(":");
-      if (vstr.size()>1) {
-	classValues.push_back(atoi(vstr[0].cStr()));
-	classNames.push_back(vstr[1]);
-	if (maxlen<vstr[1].length())
-	  maxlen= vstr[1].length();
+    for (int i = 0; i < nc; i++) {
+      vector<miString> vstr = classSpec[i].split(":");
+      if (vstr.size() > 1) {
+        classValues.push_back(atoi(vstr[0].cStr()));
+        classNames.push_back(vstr[1]);
+        if (maxlen < vstr[1].length())
+          maxlen = vstr[1].length();
       }
     }
   }
@@ -4250,7 +4250,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
 
   vector<int>      classValues;
   vector<miString> classNames;
-  int maxlen=0;
+  unsigned int maxlen=0;
   if (poptions.discontinuous==1 && poptions.classSpecifications.exists()) {
     // discontinuous (classes)
     vector<miString> classSpec=poptions.classSpecifications.split(",");
