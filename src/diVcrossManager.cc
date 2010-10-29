@@ -543,6 +543,7 @@ vector<miString> VcrossManager::getFieldNames(const miString& model)
   } else {
     return empty;
   }
+  return empty;
 }
 
 /***************************************************************************/
