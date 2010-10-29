@@ -235,7 +235,7 @@ bool printerManager::readPrinterInfo(const miString fname)
 
 PageSize  printerManager::getPage(const miString s) // page from string
 {
-  PageSize ps;
+  PageSize ps = A4;
 
   miString us= s.upcase();
   us.trim();
