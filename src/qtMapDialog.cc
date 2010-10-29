@@ -1150,7 +1150,7 @@ vector<miutil::miString> MapDialog::getOKString()
     mi.lon.zorder = lonz;
     mi.lon.density = lond;
     mi.lon.showvalue = lonshowvalue;
-    if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<positions.size())
+    if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size()))
       mi.lon.value_pos = positions[lon_valuepos->currentIndex()];
 
     mi.lat.ison = latb;
@@ -1160,7 +1160,7 @@ vector<miutil::miString> MapDialog::getOKString()
     mi.lat.zorder = latz;
     mi.lat.density = latd;
     mi.lat.showvalue = latshowvalue;
-    if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<positions.size())
+    if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size()))
       mi.lat.value_pos = positions[lat_valuepos->currentIndex()];
 
     mi.frame.ison = frameb;
@@ -1202,7 +1202,7 @@ vector<miutil::miString> MapDialog::getOKString()
         m_MapDI.maps[lindex].lon.zorder = lonz;
         m_MapDI.maps[lindex].lon.density = lond;
         m_MapDI.maps[lindex].lon.showvalue = lonshowvalue;
-        if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<positions.size())
+        if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size()))
         m_MapDI.maps[lindex].lon.value_pos = positions[lon_valuepos->currentIndex()];
 
         m_MapDI.maps[lindex].lat.ison = latb;
@@ -1212,7 +1212,7 @@ vector<miutil::miString> MapDialog::getOKString()
         m_MapDI.maps[lindex].lat.zorder = latz;
         m_MapDI.maps[lindex].lat.density = latd;
         m_MapDI.maps[lindex].lat.showvalue = latshowvalue;
-        if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<positions.size())
+        if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size()))
           m_MapDI.maps[lindex].lat.value_pos = positions[lat_valuepos->currentIndex()];
 
 
@@ -1462,7 +1462,7 @@ vector<miutil::miString> MapDialog::writeLog()
       m_MapDI.maps[i].lon.zorder = lonz;
       m_MapDI.maps[i].lon.density = lond;
       m_MapDI.maps[i].lon.showvalue = lonshowvalue;
-      if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<positions.size()){
+      if(lon_valuepos->currentIndex()>-1 && lon_valuepos->currentIndex()<int(positions.size())){
         m_MapDI.maps[i].lon.value_pos = positions[lon_valuepos->currentIndex()];
       }
 
@@ -1473,7 +1473,7 @@ vector<miutil::miString> MapDialog::writeLog()
       m_MapDI.maps[i].lat.zorder = latz;
       m_MapDI.maps[i].lat.density = latd;
       m_MapDI.maps[i].lat.showvalue = latshowvalue;
-      if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<positions.size()){
+      if(lat_valuepos->currentIndex()>-1 && lat_valuepos->currentIndex()<int(positions.size())){
         m_MapDI.maps[i].lat.value_pos = positions[lat_valuepos->currentIndex()];
       }
 

@@ -177,7 +177,7 @@ bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
 
   if (hSHP == NULL) {
     cerr<<"Unable to open: "<<filename<<endl;
-    return 1;
+    return false;
   }
 
   SHPGetInfo(hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound);
@@ -245,6 +245,7 @@ bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
 
   //writeCoordinates writes a file with coordinates to teddb
   //writeCoordinates();
+  return true;
 }
 
 bool ShapeObject::plot()
@@ -297,6 +298,7 @@ bool ShapeObject::plot()
     endTesselation();
     delete[] gldata;
   }
+  return true;
 }
 
 bool ShapeObject::plot(Area area, // current area
@@ -311,8 +313,8 @@ bool ShapeObject::plot(Area area, // current area
 					   const uchar_t* bcolour)
 {
 	float x1, y1, x2, y2;
-	GLenum errCode;
-    const GLubyte *errString;
+	//GLenum errCode;
+  //const GLubyte *errString;
 
 	x1= area.R().x1 -1.;
 	x2= area.R().x2 +1.;
@@ -817,7 +819,7 @@ bool ShapeObject::plot(Area area, // current area
 		// fill the polygons
 		if (land && visible && shapes[i]->nSHPType==SHPT_POLYGON) {
 			// sanity check, how?
-			int a, p,npos,pos;
+			int p,npos,pos;
 			pos = 0;
 			
 			for (p=0; p<nparts; p++) {
@@ -843,6 +845,7 @@ bool ShapeObject::plot(Area area, // current area
 		delete[] small;
 
 	}
+	return true;
 }
 
 bool ShapeObject::getAnnoTable(miutil::miString & str)
@@ -1170,7 +1173,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
     n= dbfDoubleDesc[m].size();
     if (n>0) {
       minlength= maxlength= dbfDoubleDesc[m][0];
-      for (i=0; i<n; i++) {
+      for (i=0; i<int(n); i++) {
         if (minlength>dbfDoubleDesc[m][i])
           minlength= dbfDoubleDesc[m][i];
         if (maxlength<dbfDoubleDesc[m][i])

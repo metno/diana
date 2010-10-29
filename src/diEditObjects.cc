@@ -528,8 +528,8 @@ void EditObjects::editPasteObjects(){
     }
     for (int i =0; i< csize;i++){
       copyObjects.objects[i]->markAllPoints();
-      ObjectPlot * paste;
-      ObjectPlot * copy;
+      ObjectPlot * paste = 0;
+      ObjectPlot * copy = 0;
       copy=copyObjects.objects[i];
       if (copy->objectIs(wFront))
         paste = new WeatherFront(*((WeatherFront*)(copy)));
@@ -1293,7 +1293,7 @@ bool EditObjects::changeCurrentFronts(){
   int nFrontsDeleted = 0; // number of symbols deleted
   while (p1!=undoCurrent->saveobjects.end()){
     vector <ObjectPlot*>::iterator q;
-    ObjectPlot * pold;
+    ObjectPlot * pold = 0;
     q = objects.begin()+p1->place;
     q-=nFrontsDeleted;
 

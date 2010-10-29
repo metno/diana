@@ -570,7 +570,7 @@ vector<int> FetObjectTableModel::getObjectIndexList(
 void FetObjectTableModel::setParameters(const vector<fetParameter>& vp)
 {
   name2par.clear();
-  for (int i=0; i<vp.size(); i++)
+  for (size_t i=0; i<vp.size(); i++)
     name2par[vp[i].name()] = vp[i];
 }
 
@@ -722,7 +722,7 @@ miutil::miString FetObjectTableModel::getParameter(const QModelIndex &index) con
   int row = index.row();
   if(row < 0)
     throw InvalidIndexException();
-  if (row >= parameters.size())
+  if (row >= int(parameters.size()))
     throw InvalidIndexException();
   return parameters[row];
 }

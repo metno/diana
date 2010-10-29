@@ -1320,7 +1320,7 @@ void VprofDiagram::plotDiagram()
         it2 -= itstep;
       int loop1 = (kpmax > k1000) ? 1 : 2;
       int loop2 = (kmin < k1000) ? 2 : 1;
-      float t1, tcl1, qcl1, tcl, qcl, tx, pi, pi1, esat, qsat, dq, a1, a2, ytmp;
+      float t1, tcl1, qcl1, tcl, qcl, tx = 0.0, pi, pi1, esat, qsat, dq, a1, a2, ytmp;
       int kstop, kstep;
       for (it = it1; it <= it2; it += itstep) {
         t1 = it;

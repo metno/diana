@@ -618,6 +618,7 @@ void WeatherObjects::addObject(ObjectPlot * object, bool replace){
 #ifdef DEBUGPRINT
   cerr <<"WeatherObjects::addObject" << endl;
 #endif
+  if (!object) return;
 
   if(replace){ // remove old object
     vector <ObjectPlot*>::iterator p = objects.begin();

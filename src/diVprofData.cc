@@ -482,7 +482,7 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
     float uew,vns;
     int dd,ff;
     int kmax= 0;
-    for (k=0; k<numLevel; k++) {
+    for (k = 0; k < size_t(numLevel); k++) {
       uew= vp->uu[k];
       vns= vp->vv[k];
       ff= int(sqrtf(uew*uew+vns*vns) + 0.5);
@@ -498,7 +498,7 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
       if (ff>vp->ff[kmax]) kmax=k;
     }
     for (size_t l = 0; l < (vp->sigwind.size()); l++){
-      for (k = 1; k < numLevel - 1; k++) {
+      for (k = 1; k < size_t(numLevel) - 1; k++) {
         if (vp->ff[k] < vp->ff[k - 1] && vp->ff[k] < vp->ff[k + 1])
           vp->sigwind[k] = 1;
         if (vp->ff[k] > vp->ff[k - 1] && vp->ff[k] > vp->ff[k + 1])

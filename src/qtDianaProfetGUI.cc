@@ -49,7 +49,7 @@
 DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
     PaintToolBar * ptb, GridAreaManager * gam, QWidget* p) :
   QObject(), Profet::ProfetGUI(pc), areaManager(gam), paintToolBar(ptb),
-      objectFactory(), objectModel(p), userModel(p), tableModel(p),
+      objectFactory(), objectModel(p), tableModel(p), userModel(p),
       sessionModel(p), activeTimeSmooth(false), overviewactive(false),
       enableNewbutton_(true), enableModifyButtons_(false), enableTable_(true),
       ignoreSynchProblems(false)
@@ -100,7 +100,7 @@ void DianaProfetGUI::setParamColours()
   vector<fetParameter> parameters = controller.getParameters();
   map<miutil::miString,miutil::miString> plotname2name;
   map<miutil::miString, map<miutil::miString, miutil::miString> > fieldoptions;
-  for (int i=0; i<parameters.size(); i++){
+  for (size_t i=0; i<parameters.size(); i++){
     fieldoptions[parameters[i].plotname().downcase()]["colour"] = "black";
     plotname2name[parameters[i].plotname().downcase()] = parameters[i].name().downcase();
   }
@@ -243,7 +243,7 @@ void DianaProfetGUI::toggleObjectOverview(bool turnon, miutil::miString par,
     cerr << "Got " << objects.size() << " objects for par:" << par << endl;
 
     areaManager->clearTemporaryAreas();
-    for (int i = 0; i < objects.size(); i++) {
+    for (size_t i = 0; i < objects.size(); i++) {
       Colour colour = Colour(128, 128, 128, 100);
       if (parameterColours.count(objects[i].parameter().downcase()) > 0) {
         colour = parameterColours[objects[i].parameter().downcase()];
@@ -431,7 +431,7 @@ void DianaProfetGUI::customEvent(QEvent * e)
   } else if (e->type() == Profet::OBJECT_LIST_UPDATE_EVENT) {
     Profet::ObjectListUpdateEvent * oue = (Profet::ObjectListUpdateEvent*) e;
     objectModel.setObjects(oue->objects);
-    bool removeAreas = (areaManager->getAreaCount() > 0);
+    //bool removeAreas = (areaManager->getAreaCount() > 0);
     areaManager->clear();
     int nObjects = oue->objects.size();
     for (int i = 0; i < nObjects; i++) {
@@ -726,13 +726,13 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
 
   set<miutil::miString> deletion_ids;
   controller.getTimeValueObjects(obj, tv, deletion_ids);
-  for (int i = 0; i < del_ids.size(); ++i) {
+  for (size_t i = 0; i < del_ids.size(); ++i) {
     deletion_ids.insert(del_ids[i]);
   }
 
   // deleting objects without effect
   try {
-    for (int i = 0; i < tv.size(); i++) {
+    for (size_t i = 0; i < tv.size(); i++) {
       if (deletion_ids.count(tv[i].id)) {
         controller.deleteObject(tv[i].id);
         emit timesmoothProcessed(tv[i].validTime, "");
@@ -743,7 +743,7 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
         << "deprecated object. (Not significant)" << endl;
   }
 
-  for (int i = 0; i < obj.size(); i++) {
+  for (size_t i = 0; i < obj.size(); i++) {
     miutil::miTime tim = obj[i].validTime();
     miutil::miString obj_id = obj[i].id();
     try {
@@ -1079,7 +1079,7 @@ void DianaProfetGUI::startSpatialsmooth()
   // Set child-areas (used for spatial interpolation)
   areaManager->clearSpatialInterpolation();
   collectRelatedTimeValues(spatialsmoothtv, fo.id(), true);
-  for (int i = 0; i < spatialsmoothtv.size(); i++) {
+  for (size_t i = 0; i < spatialsmoothtv.size(); i++) {
     areaManager->addSpatialInterpolateArea(spatialsmoothtv[i].id,
         spatialsmoothtv[i].parent, spatialsmoothtv[i].validTime,
         spatialsmoothtv[i].polygon);
@@ -1105,7 +1105,7 @@ void DianaProfetGUI::processSpatialsmooth()
       areaManager->getSpatialInterpolateAreas();
   int n = va.size();
 
-  for (int i = 0; i < spatialsmoothtv.size(); i++) {
+  for (size_t i = 0; i < spatialsmoothtv.size(); i++) {
     bool foundit = false;
     for (int j = 0; j < n; j++) {
       if (va[j].id == spatialsmoothtv[i].id) {
@@ -1331,9 +1331,9 @@ void DianaProfetGUI::setVisible(bool visible)
 
 int DianaProfetGUI::getBaseObjectIndex(miutil::miString name)
 {
-  for (int i = 0; i < baseObjects.size(); i++)
+  for (size_t i = 0; i < baseObjects.size(); i++)
     if (baseObjects[i].name() == name)
-      return i;
+      return int(i);
   return -1;
 }
 

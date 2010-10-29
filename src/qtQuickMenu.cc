@@ -538,7 +538,7 @@ void QuickMenu::fillPrivateMenus()
   miutil::miString quickfile= setup.basicValue("homedir") + "/*.quick";
   glob_t globBuf;
   glob(quickfile.c_str(),0,0,&globBuf);
-  for( unsigned int k=0; k<globBuf.gl_pathc; k++) {
+  for(int k=0; k<globBuf.gl_pathc; k++) {
     qtmp.name= "";
     qtmp.filename= globBuf.gl_pathv[k];
     if (qtmp.filename == qm[0].filename) continue; //History

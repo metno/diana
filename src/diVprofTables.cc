@@ -164,7 +164,7 @@ void VprofTables::xyclip(int npos, float *x, float *y, float xylim[4])
   //  xylim(1-4):      x1,x2,y1,y2 for aktuelt omraade
 
   int   nint, nc, n, i, k1, k2;
-  float xa, xb, ya, yb, xint, yint, x1, x2, y1, y2;
+  float xa, xb, ya, yb, xint = 0.0, yint = 0.0, x1, x2, y1, y2;
   float xc[4], yc[4];
 
   if (npos<2) return;
