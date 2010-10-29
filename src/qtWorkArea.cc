@@ -59,7 +59,7 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
     fmt.setDoubleBuffer(false);
     glw->setFormat( fmt );
     if ( !glw->isValid() )
-      qFatal( tr("Failed to create OpenGL rendering context on this display").toAscii() );
+      qFatal("Failed to create OpenGL rendering context on this display");
   }
   glw->setMinimumSize( 300, 200 );
   
