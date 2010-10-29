@@ -4267,7 +4267,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     float zrange[2], zstep, zoff, rlines[mmmUsed], rlim[mmm];
     int idraw2, nlines2, nlim2;
     int ncol2, icol2[mmm], ntyp2, ityp2[mmm], nwid2, iwid2[mmm];
-    float zrange2[2], zstep2, zoff2, rlines2[mmm], rlim2[mmm];
+    float zrange2[2], zstep2 = 0.0, zoff2 = 0.0, rlines2[mmm], rlim2[mmm];
 
     bool res = true;
 
@@ -5219,7 +5219,7 @@ void VcrossPlot::xyclip(int npos, float *x, float *y, float xylim[4])
   //  xylim(1-4):      x1,x2,y1,y2 for aktuelt omraade
 
   int nint, nc, n, i, k1, k2;
-  float xa, xb, ya, yb, xint, yint, x1, x2, y1, y2;
+  float xa, xb, ya, yb, xint = 0.0, yint = 0.0, x1, x2, y1, y2;
   float xc[4], yc[4];
 
   if (npos < 2)
