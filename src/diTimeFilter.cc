@@ -248,7 +248,7 @@ bool TimeFilter::getTime(miString name, miTime &time) {
     return true;
   }
 
-  int y,m,d;
+  int y = 0,m,d;
 
   if(dd==name.npos || dd>name.size()-2)
     return false;
