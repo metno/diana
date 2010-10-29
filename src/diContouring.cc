@@ -3890,7 +3890,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
         if (ymin > cl->ypos[i]) ymin= cl->ypos[i];
         if (ymax < cl->ypos[i]) ymax= cl->ypos[i];
         if (ylr > cl->ypos[i] ||
-            ylr == cl->ypos[i] && xlr > cl->xpos[i]) {
+            (ylr == cl->ypos[i] && xlr > cl->xpos[i])) {
           xlr= cl->xpos[i];
           ylr= cl->ypos[i];
           m1= i;
@@ -4419,7 +4419,7 @@ void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind
 
   ContourLine *cl;
   ContourLine *cl2;
-  int i,j,k,npos,ic,jc,nc,n,ncontours;
+  int i,j,k,npos,ic,jc,nc,n;//,ncontours;
 
   float ycross,xtest;
   vector<float> xcross;
