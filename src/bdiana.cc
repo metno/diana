@@ -1768,6 +1768,8 @@ int parseAndProcess(istream &is)
           if (verbose)
             cout << "- Issuing print command:" << command << endl;
           int res = system(command.c_str());
+          if (verbose)
+            cout << " result:" << res << endl;
         }
       }
 
@@ -1895,7 +1897,9 @@ int parseAndProcess(istream &is)
 
       if (verbose)
         cout << "- Issuing print command:" << command << endl;
-      system(command.c_str());
+      int res = system(command.c_str());
+      if (verbose)
+        cout << "Result:" << res << endl;
 
       continue;
 
@@ -1971,7 +1975,7 @@ int parseAndProcess(istream &is)
         ostringstream ost;
         ost << "rm -f " << filenames[ik];
         cerr << "==== Cleaning up with:" << ost.str() << endl;
-        system(ost.str().c_str());
+        int res = system(ost.str().c_str());
       }
       // add new wait-command
       if (waitline.size() > 0)
