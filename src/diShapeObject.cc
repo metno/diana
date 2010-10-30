@@ -245,7 +245,7 @@ bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
 
   //writeCoordinates writes a file with coordinates to teddb
   //writeCoordinates();
-  return true;
+  return (idbf == 0);
 }
 
 bool ShapeObject::plot()
