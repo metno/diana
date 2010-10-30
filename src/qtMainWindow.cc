@@ -3154,7 +3154,12 @@ void DianaMainWindow::hardcopy()
       //########################################################################
       cerr<<"PRINT: "<< command << endl;
       //########################################################################
-      system(command.c_str());
+      int res = system(command.c_str());
+
+      if (res != 0){
+        cerr << "Print command:" << command << " failed" << endl;
+      }
+
     }
     QApplication::restoreOverrideCursor();
 
