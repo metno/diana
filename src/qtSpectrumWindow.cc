@@ -396,7 +396,11 @@ void SpectrumWindow::printClicked()
       // expand command-variables
       pman.expandCommand(command, priop);
 
-      system(command.c_str());
+      int res = system(command.c_str());
+
+      if (res != 0){
+        cerr << "Print command:" << command << " failed" << endl;
+      }
     }
     QApplication::restoreOverrideCursor();
   }
