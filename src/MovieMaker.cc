@@ -187,7 +187,10 @@ bool MovieMaker::initOutputStream(OutputCtx *output)
   if (!outputFormat)
     return false;
 
-  output->outputCtx = av_alloc_format_context();
+  // av_alloc_format_context is deprecated
+  //output->outputCtx = av_alloc_format_context();
+  // TODO: check if avformat_alloc_context works (video production crashes on lucid, regardless of method...)
+  output->outputCtx = avformat_alloc_context();
   if (!output->outputCtx)
     return false;
 
