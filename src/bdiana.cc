@@ -1974,8 +1974,14 @@ int parseAndProcess(istream &is)
       for (unsigned int ik = 0; ik < filenames.size(); ik++) {
         ostringstream ost;
         ost << "rm -f " << filenames[ik];
-        cerr << "==== Cleaning up with:" << ost.str() << endl;
-        int res = system(ost.str().c_str());
+        std::string command = ost.str();
+
+        cerr << "==== Cleaning up with:" << command << endl;
+        int res = system(command.c_str());
+
+        if (res != 0){
+          cerr << "Command:" << command << " failed" << endl;
+        }
       }
       // add new wait-command
       if (waitline.size() > 0)
