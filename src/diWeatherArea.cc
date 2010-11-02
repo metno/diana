@@ -590,7 +590,7 @@ bool WeatherArea::orientationClockwise()
     ylr = y_s[0];
     m1 = 0;
     for (int i = 1; i < n; i++) {
-      if (ylr > x_s[i] || ylr == y_s[i] && xlr > x_s[i]) {
+      if (ylr > x_s[i] || (ylr == y_s[i] && xlr > x_s[i])) {
         xlr = x_s[i];
         ylr = y_s[i];
         m1 = i;
@@ -602,8 +602,8 @@ bool WeatherArea::orientationClockwise()
     ylr = nodePoints[0].y;
     m1 = 0;
     for (int i = 1; i < n; i++) {
-      if (ylr > nodePoints[i].x || ylr == nodePoints[i].y && xlr
-          > nodePoints[i].x) {
+      if (ylr > nodePoints[i].x || (ylr == nodePoints[i].y && xlr
+				    > nodePoints[i].x)) {
         xlr = nodePoints[i].x;
         ylr = nodePoints[i].y;
         m1 = i;

@@ -45,7 +45,6 @@
 #include <fet_object_sky.xpm>
 #include <fet_object_wave.xpm>
 #include <fet_object_fog.xpm>
-#include <user.xpm>
 #include <custom_user.xpm>
 #include <multiple_users.xpm>
 #include <user_admin.xpm>

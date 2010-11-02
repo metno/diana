@@ -50,6 +50,15 @@ namespace Profet{
   };
 
   /**
+   * Threadsafe event for incomming SessionList changes
+   */
+  class UpdateMapEvent : public QEvent {
+  public:
+    UpdateMapEvent():QEvent(
+        QEvent::Type(UPDATE_MAP_EVENT)){}
+  };
+
+  /**
    * Threadsafe event for incomming UserList
    */
   class UserListEvent : public QEvent {

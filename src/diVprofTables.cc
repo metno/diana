@@ -59,7 +59,7 @@ float VprofTables::chylab= 0.;
 float VprofTables::chxtxt= 0.;   // text (name etc.) character size
 float VprofTables::chytxt= 0.;
 
-float VprofTables::xysize[mxysize][4]= { 0. };
+float VprofTables::xysize[mxysize][4];
 
 int   VprofTables::iptab[mptab]= { 0  }; // pressure in unit hPa
 float VprofTables::pptab[mptab]= { 0. }; // pressure in unit hPa
