@@ -156,7 +156,7 @@ void beginTesselation()
   tess= gluNewTess();
 
   gluTessCallback(tess, GLU_TESS_BEGIN, glBegin );
-  gluTessCallback(tess, GLU_TESS_EDGE_FLAG, glEdgeFlag );
+  gluTessCallback(tess, GLU_TESS_EDGE_FLAG, (GLvoid*)glEdgeFlag );
   gluTessCallback(tess, GLU_TESS_VERTEX, glVertex2dv );
   gluTessCallback(tess, GLU_TESS_END, glEnd );
 

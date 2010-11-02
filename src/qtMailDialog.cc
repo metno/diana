@@ -160,7 +160,7 @@ void MailDialog::accept()
 	fprintf(sendmail,"Content-Disposition: inline; filename=\"diana.png\"\n\n");
 	//--- the image data ---
 	const char *data = base64array.constData();
-	fprintf(sendmail,data);
+	fprintf(sendmail,"%s",data);
   fprintf(sendmail,"\n\n");
 
 	fprintf(sendmail,"--diana_auto_generated--\n\n");
