@@ -978,6 +978,11 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     cloudStr.clear();
   }
 
+  //PRESSURE TENDENCY - ppp may or may not include sign, if a>4 then ppp<0
+  if(d.fdata.count("ppp") && d.fdata.count("a") && d.fdata["a"]>4 && d.fdata["ppp"]>0) {
+    d.fdata["ppp"] *= -1;
+  }
+
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
