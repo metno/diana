@@ -1834,28 +1834,12 @@ void VprofDiagram::plotDiagram()
       chx = dx / 5.;
       chy = chx * chylab / chxlab;
     }
-    //     setFontsize(chy);
     x = (xysize[8][0] + xysize[8][1]) * 0.5;
-    //     fp->drawStr("DUCT",x-chx*2.,ymaxd+0.25*chy,0.0);
     fpInitStr("DUCT", x - chx * 2., ymaxd + 0.25 * chy, 0.0, chy, c);
     miString str1 = miString(vpopt->ductingMin);
-    //     miString str2= miString("0");
     miString str3 = miString(vpopt->ductingMax);
-    float cw1, cw2, cw3, cw, ch;
-    //     fp->getStringSize(str1.c_str(), cw1, ch);
-    //     fp->getStringSize(str2.c_str(), cw2, ch);
-    //     fp->getStringSize(str3.c_str(), cw3, ch);
-    cw = cw1 + cw2 * 2 + cw3;
-    ch = chy;
-    if (cw > dx) {
-      ch *= (dx / cw);
-      //       setFontsize(ch);
-      //       fp->getStringSize(str2.c_str(), cw2, ch);
-      //       fp->getStringSize(str3.c_str(), cw3, ch);
-    }
+    float ch = chy;
     glColor3ubv(c2.RGB());
-    //     fp->drawStr(str1.c_str(),xysize[8][0]+cw2*0.3,ymind-1.25*chy,0.0);
-    //     fp->drawStr(str3.c_str(),xysize[8][1]-cw3-cw2*0.3,ymind-1.25*chy,0.0);
     fpInitStr(str1.c_str(), xysize[8][0], ymind - 1.25 * chy, 0.0, ch, c2,
         "ductingmin");
     fpInitStr(str3.c_str(), xysize[8][1], ymind - 1.25 * chy, 0.0, ch, c2,
