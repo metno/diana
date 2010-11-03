@@ -395,8 +395,8 @@ bool ShapeObject::plot(Area area, // current area
 			continue;
 		}
 		// Check if shape is outside
-		if(((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) && //TODO: should this be a ||???
-			(shapes[i]->dfYMin > y2) ||  (shapes[i]->dfYMin < y1 && shapes[i]->dfYMax < y1)) {
+		if((((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) && (shapes[i]->dfYMin > y2))
+		    || (shapes[i]->dfYMin < y1 && shapes[i]->dfYMax < y1)) {
 #ifdef DEBUGPRINT
 				cerr << "minX: " << shapes[i]->dfXMin << " maxX: " << shapes[i]->dfXMax << " minY: " << shapes[i]->dfYMin << " maxY: " << shapes[i]->dfYMax << endl;
 				cerr << "x1: " << x1 << " x2: " << x2 << " y1: " << y1 << " y2: " << y2 << endl;
