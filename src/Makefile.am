@@ -645,7 +645,8 @@ CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources)
 %.moc.cc: %.h
 	$(MOC4) -o $@ $<
 
-language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts
+language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
+	$(top_srcdir)/share/diana/lang/diana_es.ts
 
 languagedir= $(datarootdir)/$(APP)/lang
 nodist_language_DATA=$(language_sources:.ts=.qm)
