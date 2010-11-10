@@ -1,3 +1,9 @@
+diana (3.23.1-ubuntu2) lucid; urgency=low
+
+  * Satellite: show grid coordinates 
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Wed, 10 Nov 2010 13:34:02 +0100
+
 diana (3.23.1-ubuntu1) lucid; urgency=low
 
   * Bugfix:Observations, pressure tendency
