@@ -1,5 +1,5 @@
-diana-test (3.23.0ubuntu1) lucid; urgency=low
+diana-test (3.23.1-ubuntu1) lucid; urgency=low
 
   * Initial release. 
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Thu, 16 Sep 2010 14:51:43 +0200
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 04 Nov 2010 09:51:52 +0100

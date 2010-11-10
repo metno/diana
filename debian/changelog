@@ -1,3 +1,16 @@
+diana (3.23.1-ubuntu1) lucid; urgency=low
+
+  * Bugfix:Observations, pressure tendency
+  * Linked with metlibs/trunk
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 05 Nov 2010 09:02:57 +0100
+
+diana (3.23.0-ubuntu3) lucid; urgency=low
+
+  * bufr support  
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 18 Oct 2010 12:48:57 +0200
+
 diana (3.23.0-ubuntu2) lucid; urgency=low
 
   * testing dependencies 
