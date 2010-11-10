@@ -65,6 +65,8 @@ public:
   void setData(Sat *);
   void clearData();
   Area& getSatArea(void){ return satdata->area;}
+  double getGridResolutionX(){ return satdata->gridResolutionX;}
+  double getGridResolutionY() {return satdata->gridResolutionY;}
   void getSatAnnotation(miutil::miString &, Colour &);
   void getSatName(miutil::miString &);
   void getCalibChannels(vector<miutil::miString>& channels );

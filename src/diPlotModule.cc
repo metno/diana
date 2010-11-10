@@ -56,6 +56,7 @@
 
 #include <GL/gl.h>
 #include <sstream>
+//#define DEBUGPRINT
 
 using namespace::miutil;
 
@@ -1859,6 +1860,14 @@ void PlotModule::PhysToMap(const float x, const float y, float& xmap,
 /// return field grid x,y from map x,y if field defined and map proj = field proj
 bool PlotModule::MapToGrid(const float xmap, const float ymap,
     float& gridx, float& gridy){
+
+  if (vsp.size()>0) {
+    if (splot.getMapArea().P() == vsp[0]->getSatArea().P()) {
+      gridx = xmap/vsp[0]->getGridResolutionX();
+      gridy = ymap/vsp[0]->getGridResolutionY();
+      return true;
+    }
+   }
 
   if (vfp.size()>0) {
     if (splot.getMapArea().P() == vfp[0]->getFieldArea().P()) {

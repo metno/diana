@@ -58,7 +58,7 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
   xybox->addItem(tr("Lat/Lon degree"));
   xybox->addItem(tr("Lat/Lon decimal"));
   xybox->addItem(tr("Proj coordinates"));
-  xybox->addItem(tr("Field grid"));
+  xybox->addItem(tr("Grid coordinates"));
   thlayout->addWidget(xybox);
 
   sxlabel = new QLabel(tr("Lat:"), this);
