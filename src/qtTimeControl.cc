@@ -42,6 +42,7 @@
 #include <QToolTip>
 #include <QCheckBox>
 #include <QFrame>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -56,12 +57,15 @@ TimeControl::TimeControl(QWidget* parent)
   //m_font= QFont( IQ.fontName.c_str(), IQ.fontSize, IQ.fontWeight );
   m_font= QFont( "Helvetica", 12, 75 );
 
-  QFrame* frame= new QFrame(this);
-  frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
+  //  QFrame* frame= new QFrame(this);
+  QGroupBox* frame= new QGroupBox("Time Control", this);
+
+  //  frame->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
   timerangeCheckBox = new  QCheckBox( tr("Time interval"),frame);
   timerangeCheckBox->setChecked(false);
-  timerangeCheckBox->setToolTip(tr("Use time interval limits")); 
+  timerangeCheckBox->setToolTip(tr("Use time interval limits"));
+  connect(timerangeCheckBox,SIGNAL(clicked(bool)),SLOT(timerangeCheckBoxClicked()));
   connect(timerangeCheckBox,SIGNAL(toggled(bool)),SLOT(minmaxSlot()));
 
   QLabel* startLabel= new QLabel(tr("Start"),frame);
@@ -69,9 +73,6 @@ TimeControl::TimeControl(QWidget* parent)
 
   QLabel* stopLabel= new QLabel(tr("Stop"),frame);
   stopLabel->setMinimumSize(stopLabel->sizeHint());
-
-  QLabel* offsetLabel= new QLabel(tr("Offset"), frame);
-  offsetLabel->setMinimumSize(offsetLabel->sizeHint());
 
   startTimeLabel= new QLabel("0000-00-00 00:00:00",frame);
   startTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -81,15 +82,27 @@ TimeControl::TimeControl(QWidget* parent)
   stopTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   stopTimeLabel->setMinimumSize(stopTimeLabel->sizeHint());
 
-  offsetTimeLabel= new QLabel("0", frame);
-  offsetTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-  offsetTimeLabel->setMinimumSize(offsetTimeLabel->sizeHint());
-
   startSlider= new QSlider( Qt::Horizontal, frame);
   startSlider->setMinimumWidth(150);
 
   stopSlider= new QSlider( Qt::Horizontal, frame);
   stopSlider->setMinimumWidth(150);
+
+  //  QFrame* offsetframe= new QFrame(this);
+  //  offsetframe->setFrameStyle(QFrame::Box | QFrame::Sunken);
+
+  timeoffsetCheckBox = new  QCheckBox( tr("Time offset"), frame);
+  timeoffsetCheckBox->setChecked(false);
+  timeoffsetCheckBox->setToolTip(tr("Use time interval from latest timestamp"));
+  connect(timeoffsetCheckBox,SIGNAL(clicked(bool)),SLOT(timeoffsetCheckBoxClicked()));
+  connect(timeoffsetCheckBox,SIGNAL(toggled(bool)),SLOT(minmaxSlot()));
+
+  QLabel* offsetLabel= new QLabel(tr("Offset"), frame);
+  offsetLabel->setMinimumSize(offsetLabel->sizeHint());
+
+  offsetTimeLabel= new QLabel("0", frame);
+  offsetTimeLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  offsetTimeLabel->setMinimumSize(offsetTimeLabel->sizeHint());
 
   offsetSlider= new QSlider( Qt::Horizontal, frame);
   offsetSlider->setMinimumWidth(150);
@@ -109,15 +122,24 @@ TimeControl::TimeControl(QWidget* parent)
   timeLayout->addWidget( stopLabel );
   timeLayout->addWidget( stopTimeLabel );
   timeLayout->addWidget( stopSlider );
+  timeLayout->addWidget( timeoffsetCheckBox );
   timeLayout->addWidget( offsetLabel );
   timeLayout->addWidget( offsetTimeLabel );
   timeLayout->addWidget( offsetSlider );
+
 
   QVBoxLayout* vblayout = new QVBoxLayout( frame);
   vblayout->addLayout( timeLayout );
 
   QHBoxLayout* timerangelayout = new QHBoxLayout();
   timerangelayout->addWidget(frame);
+
+  /*  QVBoxLayout* vblayout2 = new QVBoxLayout( offsetframe);
+  vblayout2->addLayout( offsetLayout );
+
+  QHBoxLayout* offsetrangelayout = new QHBoxLayout();
+  offsetrangelayout->addWidget(offsetframe);
+  */
 
   QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this);
 
@@ -162,6 +184,7 @@ TimeControl::TimeControl(QWidget* parent)
 
   QVBoxLayout* vlayout=new QVBoxLayout(this);
   vlayout->addLayout( timerangelayout );
+  //  vlayout->addLayout( offsetrangelayout );
   vlayout->addSpacing(5);
   vlayout->addWidget( timeoutLabel );
   vlayout->addWidget( timeoutBox );
@@ -177,6 +200,13 @@ TimeControl::TimeControl(QWidget* parent)
 
 }
 
+void TimeControl::timeoffsetCheckBoxClicked() {
+  timerangeCheckBox->setChecked(false);
+}
+
+void TimeControl::timerangeCheckBoxClicked() {
+  timeoffsetCheckBox->setChecked(false);
+}
 
 void TimeControl::setTimes( vector<miutil::miTime>& times ) {
 
@@ -269,29 +299,29 @@ void TimeControl::minmaxSlot(){
   int n = m_times.size();
   if(n==0) return;
 
-  if(timerangeCheckBox->isChecked()){
+  if (timerangeCheckBox->isChecked()){
 
-    int istart, istop, ioffset;
+    int istart, istop;
     istart= startSlider->value();
     istop=  stopSlider->value();
-    ioffset= offsetSlider->value();
 
-    if (ioffset > 0) {
-      // Offset is enabled
-      miutil::miTime start= m_times[n - ioffset - 1];
-      miutil::miTime stop= m_times[n - 1];
+    if (istart <= 0 && istop >= n-1) {
+      emit clearMinMax();
+    } else {
+      miutil::miTime start= m_times[istart];
+      miutil::miTime stop= m_times[istop];
       emit minmaxValue(start, stop);
     }
-    else {
-      if (istart <= 0 && istop >= n-1) {
-	emit clearMinMax();
-      } else {
-	miutil::miTime start= m_times[istart];
-	miutil::miTime stop= m_times[istop];
-	emit minmaxValue(start, stop);
-      }
-    }
-  } else {
+  }
+  else if (timeoffsetCheckBox->isChecked()){
+    int ioffset;
+    ioffset= offsetSlider->value();
+    // Offset is enabled
+    miutil::miTime start= m_times[n - ioffset - 1];
+    miutil::miTime stop= m_times[n - 1];
+    emit minmaxValue(start, stop);
+  }
+  else {
     emit clearMinMax();
   }
 }

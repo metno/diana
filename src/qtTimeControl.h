@@ -45,6 +45,7 @@ class QLabel;
 class QSlider;
 class QComboBox;
 class QCheckBox;
+class QRadioButton;
 
 /**
 
@@ -83,6 +84,8 @@ public slots:
   void setTimes( vector<miutil::miTime>& times );
 
 private slots:
+  void timeoffsetCheckBoxClicked();
+  void timerangeCheckBoxClicked();
   void StartValue(int);
   void StopValue(int);
   void timeoutSlot(int);
@@ -105,7 +108,7 @@ private:
   QComboBox* timeoutBox;
   vector<float> timeouts;
   QComboBox* dataBox;
-  QCheckBox* offsetCheckBox;
+  QCheckBox* timeoffsetCheckBox;
   QLabel* offsetTimeLabel;
   QSlider* offsetSlider;
 
