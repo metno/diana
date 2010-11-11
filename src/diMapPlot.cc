@@ -1366,17 +1366,17 @@ void MapPlot::clipPrimitiveLines(int npos, float *x, float *y, float xylim[4],
 void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
     bool plotanno, int anno_position, miString anno)
 {
-  //  plotter del(er) av sammenhengende linje som er innenfor gitt
-  //  omraade, ogsaa linjestykker mellom 'nabopunkt' som begge er
-  //  utenfor omraadet.
-  //  (farge, linje-type og -tykkelse maa vaere satt paa forhaand)
+  // ploting part(s) of the continuous line that is within the given
+  // area, also the segments between 'neighboring point' both of which are
+  // Outside the area.
+  // (Color, line type and thickness must be set in advance)
   //
-  //  grafikk: OpenGL
+  // Graphics: OpenGL
   //
   //  input:
   //  ------
-  //  x(npos),y(npos): linje med 'npos' punkt (npos>1)
-  //  xylim(1-4):      x1,x2,y1,y2 for aktuelt omraade
+  //  x(npos),y(npos): line with 'npos' points (npos>1)
+  //  xylim(1-4):      x1,x2,y1,y2 limits of given area
 
   int nint, nc, n, i, k1, k2;
   float xa, xb, ya, yb, x1, x2, y1, y2;
@@ -1393,14 +1393,14 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
   float xoffset = (xb - xa) / 200.0;
   float yoffset = (yb - ya) / 200.0;
 
-  int xint = 0, yint = 0;
+  float xx = 0, yy = 0;
   if (x[0] < xa || x[0] > xb || y[0] < ya || y[0] > yb) {
     k2 = 0;
   } else {
     k2 = 1;
     nint = 0;
-    xint = x[0];
-    yint = y[0];
+    xx = x[0];
+    yy = y[0];
   }
 
   for (n = 1; n < npos; ++n) {
@@ -1410,25 +1410,25 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
     if (x[n] < xa || x[n] > xb || y[n] < ya || y[n] > yb)
       k2 = 0;
 
-    // sjekk om 'n' og 'n-1' er innenfor
+    // check if 'n' and 'n-1' are inside area
     if (k1 + k2 == 2)
       continue;
 
-    // k1+k2=1: punkt 'n' eller 'n-1' er utenfor
-    // k1+k2=0: sjekker om 2 nabopunkt som begge er utenfor omraadet
-    //          likevel har en del av linja innenfor.
+    // k1+k2=1: point 'n' or 'n-1' are outside
+    // k1+k2=0: checks if two neighboring points which are both outside the area
+    //          still has a part of the line within the area.
 
     x1 = x[n - 1];
     y1 = y[n - 1];
     x2 = x[n];
     y2 = y[n];
 
-    // sjekker om 'n-1' og 'n' er utenfor paa samme side
+    // checking if the 'n-1' and 'n' is outside at the same side
     if (k1 + k2 == 0 && ((x1 < xa && x2 < xa) || (x1 > xb && x2 > xb) || (y1
         < ya && y2 < ya) || (y1 > yb && y2 > yb)))
       continue;
 
-    // sjekker alle skjaerings-muligheter
+    // checks all intersection possibilities
     nc = -1;
     if (x1 != x2) {
       nc++;
@@ -1456,32 +1456,32 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
     }
 
     if (k2 == 1) {
-      // foerste punkt paa linjestykke innenfor
+      // first point at a segment within the area
       nint = n - 1;
-      xint = xc[0];
-      yint = yc[0];
+      xx = xc[0];
+      yy = yc[0];
       if (plotanno) {
         if ((anno_position == map_all) ||
-            (anno_position == map_left && fabsf(xint - xa) < 0.001) ||
-            (anno_position == map_bottom && fabsf(yint - ya) < 0.001)) {
+            (anno_position == map_left && fabsf(xx - xa) < 0.001) ||
+            (anno_position == map_bottom && fabsf(yy - ya) < 0.001)) {
           ValueAnno va;
           va.t = anno;
-          va.x = xint + xoffset;
-          va.y = yint + yoffset;
+          va.x = xx + xoffset;
+          va.y = yy + yoffset;
           value_annotations.push_back(va);
         }
       }
     } else if (k1 == 1) {
-      // siste punkt paa linjestykke innenfor
+      // last point at a segment within the area
       glBegin(GL_LINE_STRIP);
-      glVertex2f(xint, yint);
+      glVertex2f(xx, yy);
       for (i = nint + 1; i < n; i++) {
         glVertex2f(x[i], y[i]);
       }
       glVertex2f(xc[0], yc[0]);
       glEnd();
     } else if (nc > 0) {
-      // to 'nabopunkt' utenfor, men del av linja innenfor
+      // two 'neighboring points' outside the area, but part of the line within
       glBegin(GL_LINE_STRIP);
       glVertex2f(xc[0], yc[0]);
       glVertex2f(xc[1], yc[1]);
@@ -1490,9 +1490,9 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
   }
 
   if (k2 == 1) {
-    // siste punkt er innenfor omraadet
+    // last point is within the area
     glBegin(GL_LINE_STRIP);
-    glVertex2f(xint, yint);
+    glVertex2f(xx, yy);
     for (i = nint + 1; i < npos; i++) {
       glVertex2f(x[i], y[i]);
     }
