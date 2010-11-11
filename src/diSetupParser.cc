@@ -89,7 +89,7 @@ void SetupParser::setUserVariables(const map<miString, miString> & user_var)
 
 bool SetupParser::checkSubstitutions(miString& t)
 {
-  unsigned int start = 0, stop = 0;
+  std::string::size_type start = 0, stop = 0;
 
   while ((start = t.find("$(", 0)) != t.npos) {
     if ((stop = t.find(")", start)) == t.npos) {
@@ -113,7 +113,7 @@ bool SetupParser::checkSubstitutions(miString& t)
 
 bool SetupParser::checkEnvironment(miString& t)
 {
-  unsigned int start = 0, stop = 0;
+  std::string::size_type start = 0, stop = 0;
 
   while ((start = t.find("${", stop)) != t.npos) {
     if ((stop = t.find("}", start)) == t.npos)
