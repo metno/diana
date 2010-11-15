@@ -500,6 +500,34 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
     </message>
 </context>
 <context>
+    <name>DianaProfetGUI</name>
+    <message>
+        <location filename="../../../src/qtDianaProfetGUI.cc" line="82"/>
+        <source>Edit Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtDianaProfetGUI.cc" line="85"/>
+        <source>Delete Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtDianaProfetGUI.cc" line="88"/>
+        <source>Time smooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtDianaProfetGUI.cc" line="1095"/>
+        <source>Diana / Profet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtDianaProfetGUI.cc" line="1096"/>
+        <source>You have moved a set of objects to new locations. Would you like to save the changes?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EditComment</name>
     <message>
         <location filename="../../../src/qtEditComment.cc" line="73"/>
@@ -2584,6 +2612,492 @@ como aprovado y listo.</translation>
     </message>
 </context>
 <context>
+    <name>PolygonBookmarkDialog</name>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="19"/>
+        <source>&amp;Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="20"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="21"/>
+        <source>Copy polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="25"/>
+        <source>Cut</source>
+        <translation type="unfinished">Cortar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="26"/>
+        <source>Ctrl+X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="27"/>
+        <source>Cut polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="31"/>
+        <source>&amp;Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="32"/>
+        <source>Ctrl+V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="33"/>
+        <source>Paste polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="37"/>
+        <source>&amp;Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="38"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="39"/>
+        <source>Move to Trash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="43"/>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="44"/>
+        <source>Ctrl+-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="45"/>
+        <source>Collapse the whole tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="49"/>
+        <source>expand All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="50"/>
+        <source>Ctrl++</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="51"/>
+        <source>expand the whole tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="55"/>
+        <source>New Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="56"/>
+        <source>Ctrl+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="57"/>
+        <source>Create a new folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="60"/>
+        <source>Rename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="61"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="62"/>
+        <source>Rename a Folder/Bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="66"/>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="68"/>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="84"/>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="67"/>
+        <source>Space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="72"/>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="74"/>
+        <source>Select and exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="73"/>
+        <source>Return</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="78"/>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="79"/>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="80"/>
+        <source>Quit</source>
+        <translation type="unfinished">Salir</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="89"/>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PolygonBookmarkModel</name>
+    <message>
+        <location filename="../../../src/qtPolygonBookmarkModel.cc" line="29"/>
+        <source>Polygon Bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetChatWidget</name>
+    <message>
+        <location filename="../../../src/qtProfetChatWidget.cc" line="17"/>
+        <source>Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetChatWidget.cc" line="26"/>
+        <source>&amp;Send</source>
+        <translation type="unfinished">&amp;Enviar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetChatWidget.cc" line="32"/>
+        <source>Users</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetObjectDialog</name>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="48"/>
+        <source>New Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="49"/>
+        <source>View Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="50"/>
+        <source>Current Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="80"/>
+        <source>Algorithm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="91"/>
+        <source>Area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="105"/>
+        <source>Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="112"/>
+        <source>Reason</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="119"/>
+        <source>Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="131"/>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="134"/>
+        <source>Save</source>
+        <translation type="unfinished">Guardar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="132"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="135"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancelar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetObjectDialog.cc" line="303"/>
+        <source>&lt;font color=red&gt;&lt;b&gt;EMPTY OBJECT - NOTHING TO EDIT!&lt;/b&gt;&lt;/font&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetSessionDialog</name>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="49"/>
+        <source>Edit Field Session at: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="65"/>
+        <source>Time follows map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="98"/>
+        <source>Objects</source>
+        <translation type="unfinished">Objetos</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="110"/>
+        <source>View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="112"/>
+        <source>Auto Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="114"/>
+        <source>New</source>
+        <translation type="unfinished">Nuevo</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="115"/>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="116"/>
+        <source>Timesmooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="117"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="130"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="132"/>
+        <source>Update view, color definitions etc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="134"/>
+        <source>Reconnect...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="136"/>
+        <source>Reconnect to PODS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetSessionDialog.cc" line="138"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetTimeSmoothDialog</name>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="60"/>
+        <source>&amp;Undo</source>
+        <translation type="unfinished">&amp;Deshacer</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="61"/>
+        <source>Ctrl+Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="62"/>
+        <source>Undo</source>
+        <translation type="unfinished">Deshacer</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="66"/>
+        <source>&amp;Redo</source>
+        <translation type="unfinished">&amp;Rehacer</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="67"/>
+        <source>Ctrl+Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="68"/>
+        <source>redo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="73"/>
+        <source>&amp;Run</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="74"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="75"/>
+        <source>Run the current objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="79"/>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="80"/>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="81"/>
+        <source>Close this window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="85"/>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="97"/>
+        <source>&amp;Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="98"/>
+        <source>F10</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="99"/>
+        <source>Copy from the parent object </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="105"/>
+        <source>&amp;Linear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="106"/>
+        <source>F11</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="107"/>
+        <source>Linear Interpolation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="112"/>
+        <source>&amp;Reset Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="113"/>
+        <source>F9</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="114"/>
+        <source>Reset from the parent to the choosen one </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="119"/>
+        <source>Reset &amp;Single</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="120"/>
+        <source>F8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="121"/>
+        <source>Reset single column </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="134"/>
+        <source>Method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="160"/>
+        <source>Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="254"/>
+        <source>timesmooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="255"/>
+        <source>There are changed and unprocessed objects.
+Do you want to run your changes first?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProfetWaitDialog</name>
+    <message>
+        <location filename="../../../src/qtProfetWaitDialog.cc" line="13"/>
+        <source>Reconnecting..</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QuickAdmin</name>
     <message>
         <location filename="../../../src/qtQuickAdmin.cc" line="102"/>
@@ -3356,8 +3870,12 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location filename="../../../src/qtStatusGeopos.cc" line="61"/>
+        <source>Grid coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Field grid</source>
-        <translation>Grilla de campo</translation>
+        <translation type="obsolete">Grilla de campo</translation>
     </message>
     <message>
         <location filename="../../../src/qtStatusGeopos.cc" line="64"/>
@@ -3416,82 +3934,92 @@ como aprovado y listo.</translation>
 <context>
     <name>TimeControl</name>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="62"/>
+        <location filename="../../../src/qtTimeControl.cc" line="65"/>
         <source>Time interval</source>
         <translation>Intervalo de tiempo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="64"/>
+        <location filename="../../../src/qtTimeControl.cc" line="67"/>
         <source>Use time interval limits</source>
         <translation>USar los limites de intevalo de tiempo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="67"/>
+        <location filename="../../../src/qtTimeControl.cc" line="71"/>
         <source>Start</source>
         <translation>Comenzar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="70"/>
+        <location filename="../../../src/qtTimeControl.cc" line="74"/>
         <source>Stop</source>
         <translation>Detener</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="73"/>
+        <location filename="../../../src/qtTimeControl.cc" line="94"/>
+        <source>Time offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtTimeControl.cc" line="96"/>
+        <source>Use time interval from latest timestamp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtTimeControl.cc" line="100"/>
         <source>Offset</source>
         <translation>Compensacion</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="122"/>
+        <location filename="../../../src/qtTimeControl.cc" line="144"/>
         <source>Animation speed (sec):</source>
         <translation>Velocidad de animación (seg):</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="143"/>
+        <location filename="../../../src/qtTimeControl.cc" line="165"/>
         <source>Data basis for time slider:</source>
         <translation>Base de datos para deslizador:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="145"/>
+        <location filename="../../../src/qtTimeControl.cc" line="167"/>
         <source>Field</source>
         <translation>Campo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="146"/>
+        <location filename="../../../src/qtTimeControl.cc" line="168"/>
         <source>Satellite</source>
         <translation>Satélite</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="147"/>
+        <location filename="../../../src/qtTimeControl.cc" line="169"/>
         <source>Observations</source>
         <translation>Observaciones</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="148"/>
+        <location filename="../../../src/qtTimeControl.cc" line="170"/>
         <source>Objects</source>
         <translation>Objetos</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="149"/>
+        <location filename="../../../src/qtTimeControl.cc" line="171"/>
         <source>Vertical profiles</source>
         <translation>Perfiles verticales</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="150"/>
+        <location filename="../../../src/qtTimeControl.cc" line="172"/>
         <source>Vertical cross-sections</source>
         <translation>Secciones tranversales verticales</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="151"/>
+        <location filename="../../../src/qtTimeControl.cc" line="173"/>
         <source>Wave spectra</source>
         <translation>Espectro de onda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="152"/>
+        <location filename="../../../src/qtTimeControl.cc" line="174"/>
         <source>Products</source>
         <translation>Productos</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTimeControl.cc" line="156"/>
+        <location filename="../../../src/qtTimeControl.cc" line="178"/>
         <source>Hide</source>
         <translation>Esconder</translation>
     </message>

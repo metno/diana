@@ -1,3 +1,9 @@
+diana (3.23.1-ubuntu3) lucid; urgency=low
+
+  * Compiled with metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Mon, 15 Nov 2010 18:37:33 +0100
+
 diana (3.23.1-ubuntu2) lucid; urgency=low
 
   * Satellite: show grid coordinates 
