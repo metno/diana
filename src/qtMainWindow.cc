@@ -80,28 +80,31 @@
 #include <qfontdialog.h>
 #include <qtooltip.h>
 #include <QProgressDialog>
-
-#include "qtMainWindow.h"
-#include "qtWorkArea.h"
-#include "qtVprofWindow.h"
-#include "qtVcrossWindow.h"
-#include "qtSpectrumWindow.h"
-#include "diController.h"
-#include "diPrintOptions.h"
-#include "diSetupParser.h"
-#include "diStationPlot.h"
-#include "diLocationPlot.h"
-
-#include "qtQuickMenu.h"
-#include "qtObsDialog.h"
-#include "qtSatDialog.h"
-#include "qtMapDialog.h"
-#include "qtFieldDialog.h"
-#include "qtEditDialog.h"
-#include "qtObjectDialog.h"
-#include "qtTrajectoryDialog.h"
-#include "qtRadarEchoDialog.h"
-#include "qUtilities/qtHelpDialog.h"
+#include <qtMainWindow.h>
+#include <qtWorkArea.h>
+#include <qtVprofWindow.h>
+#include <qtVcrossWindow.h>
+#include <qtSpectrumWindow.h>
+#include <diController.h>
+#include <diPrintOptions.h>
+#include <diSetupParser.h>
+#include <diStationPlot.h>
+#include <diLocationPlot.h>
+#include <qtQuickMenu.h>
+#include <qtObsDialog.h>
+#include <qtSatDialog.h>
+#include <qtMapDialog.h>
+#include <qtFieldDialog.h>
+#include <qtEditDialog.h>
+#include <qtObjectDialog.h>
+#include <qtTrajectoryDialog.h>
+#include <qtRadarEchoDialog.h>
+#include <qUtilities/qtHelpDialog.h>
+#include <qtPrintManager.h>
+#include <qtBrowserBox.h>
+#include <qtAddtoMenu.h>
+#include <qtUffdaDialog.h>
+#include <qUtilities/qtHelpers.h>
 #include "qtPrintManager.h"
 #include "qtBrowserBox.h"
 #include "qtAddtoMenu.h"
@@ -911,7 +914,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   HelpDialog::Info info;
   HelpDialog::Info::Source helpsource;
-  info.path= setup.basicValue("docpath");
+  info.path = QtHelpers::mi2qt_string(setup.basicValue("docpath"));
 
   helpsource.source= "index.html";
   helpsource.name= "Help";
@@ -2222,10 +2225,11 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if( letter.command == qmstrings::init_HQC_params){
     if( contr->initHqcdata(letter.from,
-        letter.commondesc,
-        letter.common,
-        letter.description,
-        letter.data) ){
+    		               QtHelpers::QtHelpers::qt2mi_string(letter.commondesc),
+                           QtHelpers::QtHelpers::qt2mi_string(letter.common),
+                           QtHelpers::QtHelpers::qt2mi_string(letter.description),
+                           QtHelpers::qt2mi_vector_string(letter.data)) )
+    {
       if(letter.common.contains("synop"))
         om->setPlottype("Hqc_synop",true);
       else
@@ -2235,25 +2239,27 @@ void DianaMainWindow::processLetter(miMessage &letter)
   }
 
   else if( letter.command == qmstrings::update_HQC_params){
-    contr->updateHqcdata(letter.commondesc,letter.common,
-        letter.description,letter.data);
+    contr->updateHqcdata(QtHelpers::QtHelpers::qt2mi_string(letter.commondesc),
+    		             QtHelpers::QtHelpers::qt2mi_string(letter.common),
+    		             QtHelpers::QtHelpers::qt2mi_string(letter.description),
+    		             QtHelpers::qt2mi_vector_string(letter.data));
     MenuOK();
   }
 
   else if( letter.command == qmstrings::select_HQC_param){
-    contr->processHqcCommand("flag",letter.common);
+    contr->processHqcCommand("flag", QtHelpers::QtHelpers::qt2mi_string(letter.common));
     contr->updatePlots();
   }
 
   else   if( letter.command == qmstrings::station){
-    contr->processHqcCommand("station",letter.common);
+    contr->processHqcCommand("station", QtHelpers::QtHelpers::qt2mi_string(letter.common));
     contr->updatePlots();
   }
 
   else   if( letter.command == qmstrings::apply_quickmenu){
     //data[0]=menu, data[1]=item
     if(letter.data.size()==2) {
-      qm->applyItem(letter.data[0],letter.data[1]);
+      qm->applyItem(QtHelpers::QtHelpers::qt2mi_string(letter.data[0]), QtHelpers::QtHelpers::qt2mi_string(letter.data[1]));
       qm->applyPlot();
     } else {
       MenuOK();
@@ -2264,7 +2270,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: lat:lon
     vprofMenu();
     if(letter.data.size()){
-      vector<miutil::miString> tmp= letter.data[0].split(":");
+      vector<miutil::miString> tmp= QtHelpers::QtHelpers::qt2mi_string(letter.data[0]).split(":");
       if(tmp.size()==2){
         float lat= atof(tmp[0].c_str());
         float lon= atof(tmp[1].c_str());
@@ -2273,7 +2279,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
         int ix= int(x);
         int iy= int(y);
         //find the name of station we clicked at (from plotModul->stationPlot)
-        miutil::miString station = contr->findStation(ix,iy,letter.command);
+        miutil::miString station = contr->findStation(ix, iy, QtHelpers::QtHelpers::qt2mi_string(letter.command));
         //now tell vpWindow about new station (this calls vpManager)
         if (vpWindow && !station.empty()) vpWindow->changeStation(station);
       }
@@ -2288,7 +2294,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     int n = letter.data.size();
     for(int i=0; i<n; i++){
       // separate name and data
-      vector<miutil::miString> vs= letter.data[i].split(":");
+      vector<miutil::miString> vs= QtHelpers::qt2mi_string(letter.data[i]).split(":");
       if (vs.size()<2) continue;
       ig.addImageToGallery(vs[0], vs[1]);
     }
@@ -2304,17 +2310,19 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
     //obsolete -> new syntax
     if(letter.description.contains(";")){
-      vector<miutil::miString> desc = letter.description.split(";");
+      vector<miutil::miString> desc = QtHelpers::QtHelpers::qt2mi_string(letter.description).split(";");
       if( desc.size() < 2 ) return;
       miutil::miString dataSet = desc[0];
-      letter.description=desc[1];
+      letter.description= QtHelpers::mi2qt_string(desc[1]);
       letter.commondesc = "dataset:" + letter.commondesc;
-      letter.common = dataSet + ":" + letter.common;
+      letter.common = QtHelpers::mi2qt_string(dataSet) + ":" + letter.common;
     }
 
-    contr->makeStationPlot(letter.commondesc,letter.common,
-        letter.description,
-        letter.from,letter.data);
+    contr->makeStationPlot(QtHelpers::qt2mi_string(letter.commondesc),
+    		               QtHelpers::qt2mi_string(letter.common),
+    		               QtHelpers::qt2mi_string(letter.description),
+    		               letter.from,
+    		               QtHelpers::qt2mi_vector_string(letter.data));
 
     //    sendSelectedStations(qmstrings::selectposition);
     return;
@@ -2323,28 +2331,41 @@ void DianaMainWindow::processLetter(miMessage &letter)
   else if (letter.command == qmstrings::seteditpositions ){
     //     commondesc = dataset;
     //     description = name;
+	  vector<miutil::miString> miLetterData = QtHelpers::qt2mi_vector_string(letter.data);
     contr->stationCommand("setEditStations",
-        letter.data,letter.common,letter.from);
+    		              miLetterData,
+    		              QtHelpers::qt2mi_string(letter.common),
+    		              letter.from);
+    letter.data = QtHelpers::mi2qt_vector_string(miLetterData);
     //    sendSelectedStations(qmstrings::selectposition);
   }
 
   else if (letter.command == qmstrings::annotation ){
     //     commondesc = dataset;
     //     description = annotation;
+	vector<miutil::miString> miLetterData = QtHelpers::qt2mi_vector_string(letter.data);
     contr->stationCommand("annotation",
-        letter.data,letter.common,letter.from);
+    		              miLetterData,
+    		              QtHelpers::qt2mi_string(letter.common),
+    		              letter.from);
+    letter.data = QtHelpers::mi2qt_vector_string(miLetterData);
+
   }
 
   else if (letter.command == qmstrings::showpositions ){
     //description: dataset
-    contr->stationCommand("show",letter.description,letter.from);
+    contr->stationCommand("show",
+    		              QtHelpers::qt2mi_string(letter.description),
+    		              letter.from);
     if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
 
   }
 
   else if (letter.command == qmstrings::hidepositions ){
     //description: dataset
-    contr->stationCommand("hide",letter.description,letter.from);
+    contr->stationCommand("hide",
+    		              QtHelpers::qt2mi_string(letter.description),
+    		              letter.from);
     if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
 
   }
@@ -2362,18 +2383,26 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //cerr << "Change text and image\n";
     //description: dataSet;stationname:image:text:alignment
     //find name of data set from description
-    vector<miutil::miString> desc = letter.description.split(";");
+	vector<miutil::miString> desc = QtHelpers::qt2mi_string(letter.description).split(";");
     if( desc.size() == 2 ) { //obsolete syntax
+      vector<miutil::miString> miLetterData = QtHelpers::qt2mi_vector_string(letter.data);
       contr->stationCommand("changeImageandText",
-          letter.data,desc[0],letter.from,desc[1]);
+    		                miLetterData,
+    		                desc[0],
+    		                letter.from,
+    		                desc[1]);
+      letter.data = QtHelpers::mi2qt_vector_string(miLetterData);
     } else { //new syntax
       //commondesc: name of dataset
       //description: stationname:image:image2:text
       //             :alignment:rotation (0-7):alpha
-
+      vector<miutil::miString> miLetterData = QtHelpers::qt2mi_vector_string(letter.data);
       contr->stationCommand("changeImageandText",
-          letter.data,letter.common,letter.from,
-          letter.description);
+                            miLetterData,
+                            QtHelpers::qt2mi_string(letter.common),
+                            letter.from,
+                            QtHelpers::qt2mi_string(letter.description));
+      letter.data = QtHelpers::mi2qt_vector_string(miLetterData);
     }
   }
 
@@ -2390,36 +2419,51 @@ void DianaMainWindow::processLetter(miMessage &letter)
   else if (letter.command == qmstrings::selectposition ){
     //commondesc: dataset
     //description: stationName
+    vector<miutil::miString> miLetterData = QtHelpers::qt2mi_vector_string(letter.data);
     contr->stationCommand("selectPosition",
-        letter.data,letter.common,letter.from);
+    		              miLetterData,
+    		              QtHelpers::qt2mi_string(letter.common),
+    		              letter.from);
+    letter.data = QtHelpers::mi2qt_vector_string(miLetterData);
   }
 
   else if (letter.command == qmstrings::showpositionname ){
     //description: normal:selected
+    vector<miutil::miString> miLetterData = QtHelpers::qt2mi_vector_string(letter.data);
     contr->stationCommand("showPositionName",
-        letter.data,letter.common,letter.from);
+                          miLetterData,
+                          QtHelpers::qt2mi_string(letter.common),
+                          letter.from);
+    letter.data = QtHelpers::mi2qt_vector_string(miLetterData);
   }
 
   else if (letter.command == qmstrings::showpositiontext ){
     //description: showtext:colour:size
-    contr->stationCommand("showPositionText",letter.data,
-        letter.common,letter.from,letter.description);
+	vector<miutil::miString> miLetterData = QtHelpers::qt2mi_vector_string(letter.data);
+    contr->stationCommand("showPositionText",
+    		              miLetterData,
+    		              QtHelpers::qt2mi_string(letter.common),
+    		              letter.from,
+    		              QtHelpers::qt2mi_string(letter.description));
+    letter.data = QtHelpers::mi2qt_vector_string(miLetterData);
   }
 
   else if (letter.command == qmstrings::areas ){
     if(letter.data.size()>0)
-      contr->makeAreas(letter.common,letter.data[0],letter.from);
+      contr->makeAreas(QtHelpers::qt2mi_string(letter.common),
+    		           QtHelpers::qt2mi_string(letter.data[0]),
+    		           letter.from);
     if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
   }
 
   else if (letter.command == qmstrings::areacommand ){
     //commondesc command:dataSet
-    vector<miutil::miString> token = letter.common.split(":");
+    vector<miutil::miString> token = QtHelpers::qt2mi_string(letter.common).split(":");
     if(token.size()>1){
       int n = letter.data.size();
       if(n==0) 	contr->areaCommand(token[0],token[1],miutil::miString(),letter.from);
       for( int i=0;i<n;i++ )
-        contr->areaCommand(token[0],token[1],letter.data[i],letter.from);
+        contr->areaCommand(token[0], token[1], QtHelpers::qt2mi_string(letter.data[i]), letter.from);
     }
   }
 
@@ -2428,7 +2472,10 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description name,on/off
     int n = letter.data.size();
     for( int i=0;i<n;i++ ){
-      contr->areaCommand("select",letter.common,letter.data[i],letter.from);
+      contr->areaCommand("select",
+    		             QtHelpers::qt2mi_string(letter.common),
+    		             QtHelpers::qt2mi_string(letter.data[i]),
+    		             letter.from);
     }
   }
 
@@ -2437,7 +2484,10 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description name,on/off
     int n = letter.data.size();
     for( int i=0;i<n;i++ ){
-      contr->areaCommand("show",letter.common,letter.data[i],letter.from);
+      contr->areaCommand("show",
+    		             QtHelpers::qt2mi_string(letter.common),
+    		             QtHelpers::qt2mi_string(letter.data[i]),
+    		             letter.from);
     }
   }
 
@@ -2446,13 +2496,19 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description name,colour
     int n = letter.data.size();
     for( int i=0;i<n;i++ ){
-      contr->areaCommand("setcolour",letter.common,letter.data[i],letter.from);
+      contr->areaCommand("setcolour",
+    		             QtHelpers::qt2mi_string(letter.common),
+    		             QtHelpers::qt2mi_string(letter.data[i]),
+    		             letter.from);
     }
   }
 
   else if (letter.command == qmstrings::deletearea ){
     //commondesc dataSet
-    contr->areaCommand("delete",letter.common,"all",letter.from);
+    contr->areaCommand("delete",
+    		           QtHelpers::qt2mi_string(letter.common),
+    		           "all",
+    		           letter.from);
     if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
   }
 
@@ -2460,9 +2516,9 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: station:text
     if(letter.data.size()){
       textview_id = letter.from;
-      vector<miutil::miString> token = letter.data[0].split(1,":",true);
+      vector<miutil::miString> token = QtHelpers::qt2mi_string(letter.data[0]).split(1,":",true);
       if(token.size() == 2){
-        miutil::miString name = pluginB->getClientName(letter.from);
+        miutil::miString name = QtHelpers::qt2mi_string(pluginB->getClientName(letter.from));
         textview->setText(textview_id,name,token[1]);
         textview->show();
       }
@@ -2472,7 +2528,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
   else if (letter.command == qmstrings::enableshowtext ){
     //description: dataset:on/off
     if(letter.data.size()){
-      vector<miutil::miString> token = letter.data[0].split(":");
+      vector<miutil::miString> token = QtHelpers::qt2mi_string(letter.data[0]).split(":");
       if(token.size() < 2) return;
       if(token[1] == "on"){
         textview->show();
@@ -2484,7 +2540,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::removeclient ){
     // commondesc = id:dataset
-    vector<miutil::miString> token = letter.common.split(":");
+    vector<miutil::miString> token = QtHelpers::qt2mi_string(letter.common).split(":");
     if(token.size()<2) return;
     int id =atoi(token[0].c_str());
     //remove stationPlots from this client
@@ -2512,7 +2568,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::newclient ){
     qsocket = true;
-    autoredraw[atoi(letter.common.cStr())] = true;
+    autoredraw[letter.common.toInt()] = true;
     autoredraw[0] = true; //from server
   }
 
@@ -2528,16 +2584,19 @@ void DianaMainWindow::processLetter(miMessage &letter)
   else if (letter.command == qmstrings::settime ){
     int n = letter.data.size();
     if(letter.commondesc == "datatype"){
-      timecontrol->useData(letter.common,letter.from);
+      timecontrol->useData(QtHelpers::qt2mi_string(letter.common), letter.from);
       vector<miutil::miTime> times;
       for(int i=0;i<n;i++)
-        times.push_back(letter.data[i]);
-      tslider->insert(letter.common,times);
-      contr->initHqcdata(letter.from,letter.commondesc,
-          letter.common,letter.description,letter.data);
+        times.push_back(QtHelpers::qt2mi_string(letter.data[i]));
+      tslider->insert(QtHelpers::qt2mi_string(letter.common), times);
+      contr->initHqcdata(letter.from,
+    		             QtHelpers::qt2mi_string(letter.commondesc),
+    		             QtHelpers::qt2mi_string(letter.common),
+    		             QtHelpers::qt2mi_string(letter.description),
+    		             QtHelpers::qt2mi_vector_string(letter.data));
 
     } else if (letter.commondesc == "time"){
-      miutil::miTime t(letter.common);
+      miutil::miTime t(QtHelpers::qt2mi_string(letter.common));
       tslider->setTime(t);
       contr->setPlotTime(t);
       timeChanged();
@@ -2546,13 +2605,15 @@ void DianaMainWindow::processLetter(miMessage &letter)
   }
 
   else if (letter.command == qmstrings::getcurrentplotcommand) {
-    vector<miutil::miString> v1, v2, v3;
+    vector<miutil::miString> v1;
+    vector<miutil::miString> v2;
+    vector<miutil::miString> v3;
     getPlotStrings(v1, v2, v3);
 
     miMessage l;
     l.to = letter.from;
     l.command = qmstrings::currentplotcommand;
-    l.data = v1;
+    l.data = QtHelpers::mi2qt_vector_string(v1);
     sendLetter(l);
     return; // no need to repaint
   }
@@ -2561,7 +2622,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
     miMessage l;
     l.to = letter.from;
     l.command = qmstrings::maparea;
-    l.data.push_back(contr->getMapArea().toString());
+    l.data.push_back(QtHelpers::mi2qt_string(contr->getMapArea().toString()));
     sendLetter(l);
     return; // no need to repaint
   }
@@ -2876,7 +2937,7 @@ void DianaMainWindow::timeChanged(){
     miMessage letter;
     letter.command= qmstrings::timechanged;
     letter.commondesc= "time";
-    letter.common = t.isoTime();
+    letter.common = QtHelpers::mi2qt_string(t.isoTime());
     letter.to = qmstrings::all;
     sendLetter(letter);
   }
@@ -3290,7 +3351,7 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     letter.common      =  "diana";
     letter.description =  "lat:lon";
     letter.to = qmstrings::all;
-    letter.data.push_back(miutil::miString(latstr + ":" + lonstr));
+    letter.data.push_back(QtHelpers::mi2qt_string(latstr) + ":" + QtHelpers::mi2qt_string(lonstr));
     sendLetter(letter);
   }
 
@@ -3464,12 +3525,12 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
       }
       //Obsolete command and syntax
       old_letter.to = id[i];
-      old_letter.description =  name[i]+";name";
-      old_letter.data.push_back(station[i]);
+      old_letter.description = QtHelpers::mi2qt_string(name[i]) + ";name";
+      old_letter.data.push_back(QtHelpers::mi2qt_string(station[i]));
       //New command and syntax
-      letter.to         = id[i];
-      letter.common     =  name[i];
-      letter.data.push_back(station[i]);
+      letter.to = id[i];
+      letter.common = QtHelpers::mi2qt_string(name[i]);
+      letter.data.push_back(QtHelpers::mi2qt_string(station[i]));
     }
     if(letter.data.size()>0) {
       sendLetter(old_letter);
@@ -3487,7 +3548,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
       for(int i=0;i<nareas;i++){
         letter.to = areas[i].id;
         miutil::miString datastr = areas[i].name + ":on";
-        letter.data.push_back(datastr);
+        letter.data.push_back(QtHelpers::mi2qt_string(datastr));
         sendLetter(letter);
       }
     }
@@ -3501,7 +3562,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
         letter.commondesc = "name,time";
         miutil::miTime t;
         contr->getPlotTime(t);
-        letter.common = name + "," + t.isoTime();;
+        letter.common = QtHelpers::mi2qt_string(name) + "," + QtHelpers::mi2qt_string(t.isoTime());
         sendLetter(letter);
       }
     }
@@ -3513,7 +3574,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
 void DianaMainWindow::sendSelectedStations(const miutil::miString& command)
 {
   vector<miutil::miString> data;
-  contr->stationCommand("selected",data);
+  contr->stationCommand("selected", data);
   int n=data.size();
   for(int i=0;i<n;i++){
     vector<miutil::miString> token = data[i].split(":");
@@ -3524,11 +3585,11 @@ void DianaMainWindow::sendSelectedStations(const miutil::miString& command)
     token.pop_back(); //remove id
     token.pop_back(); //remove dataset
     miMessage letter;
-    letter.command    = command;
-    letter.commondesc =  "dataset";
-    letter.common=dataset;
+    letter.command = QtHelpers::mi2qt_string(command);
+    letter.commondesc = "dataset";
+    letter.common = QtHelpers::mi2qt_string(dataset);
     letter.description =  "name";
-    letter.data = token;
+    letter.data = QtHelpers::mi2qt_vector_string(token);
     letter.to = id;
     sendLetter(letter);
   }
@@ -3548,7 +3609,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
         miMessage letter;
         letter.command = qmstrings::editposition;
         letter.commondesc = "dataset";
-        letter.common = dataset;
+        letter.common = QtHelpers::mi2qt_string(dataset);
         if(kev.modifier == key_Control)
           letter.description = "position:value_2";
         else if(kev.modifier == key_Alt)
@@ -3561,7 +3622,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
             str += ":+1";
           else
             str += ":-1";
-          letter.data.push_back(str);
+          letter.data.push_back(QtHelpers::mi2qt_string(str));
         }
         letter.to = id;
         sendLetter(letter);
@@ -3571,12 +3632,12 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
     else if( kev.modifier == key_Control){
 
       if( kev.key == key_C ) {
-        sendSelectedStations(qmstrings::copyvalue);
+        sendSelectedStations(QtHelpers::qt2mi_string(qmstrings::copyvalue));
       }
 
       else if( kev.key == key_U) {
         contr->stationCommand("unselect");
-        sendSelectedStations(qmstrings::selectposition);
+        sendSelectedStations(QtHelpers::qt2mi_string(qmstrings::selectposition));
         w->updateGL();
       }
 
@@ -3591,7 +3652,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
         miMessage letter;
         letter.command    = qmstrings::sendkey;
         letter.commondesc =  "key";
-        letter.common =  keyString;
+        letter.common =  QtHelpers::mi2qt_string(keyString);
         letter.to = qmstrings::all;;
         sendLetter(letter);
       }
@@ -3608,7 +3669,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       miMessage letter;
       letter.command    = qmstrings::sendkey;
       letter.commondesc =  "key";
-      letter.common =  keyString;
+      letter.common =  QtHelpers::mi2qt_string(keyString);
       letter.to = qmstrings::all;
       sendLetter(letter);
     }
@@ -3627,9 +3688,9 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
         //	cerr <<"To: "<<letter.to<<endl;
         letter.command    = qmstrings::selectposition;
         letter.commondesc =  "dataset";
-        letter.common     =  name;
+        letter.common     =  QtHelpers::mi2qt_string(name);
         letter.description =  "station";
-        letter.data.push_back(stations[0]);
+        letter.data.push_back(QtHelpers::mi2qt_string(stations[0]));
         sendLetter(letter);
 
       }
@@ -3902,8 +3963,13 @@ void DianaMainWindow::writeLogFile()
   }
 
   file << "[PROFET.LOG]" << endl
+<<<<<<< HEAD
       << milogfile.writeString("PROFET.LOG") << endl
       << "[/PROFET.LOG]" << endl;
+=======
+       << QtHelpers::qt2mi_string(milogfile.writeString("PROFET.LOG")) << endl
+       << "[/PROFET.LOG]" << endl;
+>>>>>>> this version is using metlibs that avoid miString
 
 
   file.close();
@@ -3994,7 +4060,7 @@ void DianaMainWindow::readLogFile()
             displayWidth,displayHeight);
       else if ( beginStr=="[PROFET.LOG]") {
         milogfile.setSection("PROFET.LOG");
-        milogfile.readStrings(vstr,beginStr);
+        milogfile.readStrings(QtHelpers::mi2qt_vector_string(vstr), QtHelpers::mi2qt_string(beginStr));
       }
 
       //else
@@ -4385,7 +4451,7 @@ void DianaMainWindow::selectedAreas()
   miMessage letter;
   letter.command = qmstrings::selectarea;
   letter.description = "name:on/off";
-  letter.data.push_back(datastr);
+  letter.data.push_back(QtHelpers::mi2qt_string(datastr));
   letter.to = id;
   sendLetter(letter);
 }
@@ -4402,7 +4468,7 @@ void DianaMainWindow::inEdit(bool inedit)
     miMessage letter;
     letter.command    = qmstrings::editmode;
     letter.commondesc = "on/off";
-    letter.common     = str;
+    letter.common     = QtHelpers::mi2qt_string(str);
     letter.to         = qmstrings::all;
     sendLetter(letter);
   }

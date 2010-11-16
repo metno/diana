@@ -120,7 +120,6 @@ AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 # there must be a more elegant way to do this
 METNO_REQUIRE_PKG([DIFIELD], [diField])
 METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
-METNO_REQUIRE_PKG([DIWDB], [diWdb])
 METNO_REQUIRE_PKG([GLTEXT], [glText])
 METNO_REQUIRE_PKG([GLP], [glp])
 METNO_REQUIRE_PKG([LIBMI], [libmi])
