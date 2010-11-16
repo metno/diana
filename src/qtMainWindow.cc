@@ -3963,14 +3963,8 @@ void DianaMainWindow::writeLogFile()
   }
 
   file << "[PROFET.LOG]" << endl
-<<<<<<< HEAD
-      << milogfile.writeString("PROFET.LOG") << endl
-      << "[/PROFET.LOG]" << endl;
-=======
        << QtHelpers::qt2mi_string(milogfile.writeString("PROFET.LOG")) << endl
        << "[/PROFET.LOG]" << endl;
->>>>>>> this version is using metlibs that avoid miString
-
 
   file.close();
   cerr << "Finished writing " << logfile << endl;
