@@ -56,14 +56,13 @@ PlotButton::PlotButton(QWidget * parent,
     PlotElement& pe)
 : QToolButton(parent)
 {
+
   setMinimumWidth(30);
-
   setPlotElement(pe);
-
+  setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
   connect(this,SIGNAL(toggled(bool)),SLOT(togg(bool)));
-
   origcolor_= palette().color(backgroundRole());
-
+  highlightcolor_ = QColor(Qt::lightGray);
 }
 
 void PlotButton::setPlotElement(const PlotElement& pe)
@@ -87,6 +86,15 @@ void PlotButton::setPlotElement(const PlotElement& pe)
 
   tipstr_= QString(str.cStr());
   setToolTip(tipstr_);
+  setText(tipstr_.right(1));
+  QString rawstyle = "QToolButton { background: rgb(%1,%2,%3);}";
+  QColor color = origcolor_;
+  QString scr, scg, scb;
+  scr.setNum(color.red());
+  scg.setNum(color.green());
+  scb.setNum(color.blue());
+  QString stylesheet = rawstyle.arg(scr,scg,scb);
+  setStyleSheet(stylesheet);
   setCheckable(true);
   setChecked(plotelement_.enabled);
 }
@@ -100,17 +108,19 @@ void PlotButton::togg(bool b)
 
 void PlotButton::highlight(bool b)
 {
-
-  QPalette pal(palette());
-  QPalette::ColorRole role(backgroundRole());
+  QString rawstyle = "QToolButton { background: rgb(%1,%2,%3);}";
+  QColor color;
   if (b){
-    QColor color(origcolor_.dark(200));
-    pal.setColor(role, color);
+    color = highlightcolor_;
   } else {
-    QColor color(origcolor_);
-    pal.setColor(role, color);
+    color = origcolor_;
   }
-  setPalette(pal);
+    QString scr, scg, scb;
+    scr.setNum(color.red());
+    scg.setNum(color.green());
+    scb.setNum(color.blue());
+    QString stylesheet = rawstyle.arg(scr,scg,scb);
+    setStyleSheet(stylesheet);
 }
 
 
