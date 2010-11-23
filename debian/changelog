@@ -1,3 +1,9 @@
+diana (3.23.1-ubuntu4) lucid; urgency=low
+
+  * Added export LANG=en_US in diana.in
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 23 Nov 2010 13:51:17 +0100
+
 diana (3.23.1-ubuntu3) lucid; urgency=low
 
   * Compiled with metlibs_2010-11-15
