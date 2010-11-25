@@ -912,7 +912,7 @@ ObsDialogInfo ObsManager::initDialog()
   ObsDialogInfo::PlotType pmetar;
 
   pmetar.name="Metar";
-  pmetar.misc = "more_times";
+  pmetar.misc = "more_times tempPrecision=true";
   pmetar.criteriaList = criteriaList["metar"];
 
   pmetar.button.push_back(addButton("Wind","Wind (direction and speed)"));

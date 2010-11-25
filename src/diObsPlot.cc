@@ -4586,8 +4586,7 @@ void ObsPlot::plotMetar(int index)
     if (ccriteria)
       checkColourCriteria("TTT", f_p->second);
     //    if( dta.TT>-99.5 && dta.TT<99.5 ) //right aligned
-    printNumber(f_p->second, iptab[lpos + 12] + 23, iptab[lpos + 13] + 16,
-        "right");
+    printNumber(f_p->second, iptab[lpos + 12] + 23, iptab[lpos + 13] + 16, "temp");
   }
 
   //Dewpoint temperature
@@ -4595,8 +4594,7 @@ void ObsPlot::plotMetar(int index)
     if (ccriteria)
       checkColourCriteria("TdTdTd", f_p->second);
     //    if( dta.TdTd>-99.5 && dta.TdTd<99.5 )  //right aligned and underlined
-    printNumber(f_p->second, iptab[lpos + 14] + 23, iptab[lpos + 15] - 16,
-        "right", true);
+    printNumber(f_p->second, iptab[lpos + 14] + 23, iptab[lpos + 15] - 16, "temp", true);
   }
   glPushMatrix();
   glScalef(scale, scale, 0.0);
@@ -4707,7 +4705,7 @@ void ObsPlot::plotMetar(int index)
 
   glPopMatrix();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotMeter() ++" << endl;
+  cerr << "++ End ObsPlot::plotMetar() ++" << endl;
 #endif
 }
 

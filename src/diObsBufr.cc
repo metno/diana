@@ -825,9 +825,10 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       // 20013 HEIGHT OF BASE OF CLOUD (M)
     case 20013:
-      if (!d.fdata.count("h") && values[j] < bufrMissing) {
-        //	if (i<32)
-        d.fdata["h"] = height_of_clouds(values[j]);
+        if (values[j] < bufrMissing) {
+          if (!d.fdata.count("h")) {
+            d.fdata["h"] = height_of_clouds(values[j]);
+          }
         cloudStr += cloudHeight(int(values[j]));
       }
       break;
