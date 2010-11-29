@@ -1,6 +1,25 @@
+diana-test (3.23.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix obsplot: pressure tendency, temperature precision, metar clouds 
+  * Bugfix editing: Snow_showers -> Snow showers
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 29 Nov 2010 13:23:09 +0100
+
+diana-test (3.23.1-ubuntu6) lucid; urgency=low
+
+  * Added export LANG=en_US in diana.in
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 23 Nov 2010 14:04:44 +0100
+
+diana-test (3.23.1-ubuntu5) lucid; urgency=low
+
+  * Fixed version number in configure.ac
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 23 Nov 2010 14:04:03 +0100
+
 diana-test (3.23.1-ubuntu4) lucid; urgency=low
 
-  * Added export LANG=en_US in diana.in  
+  * Bugfix uninitialised variable contourShape
 
  -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 23 Nov 2010 13:52:01 +0100
 
