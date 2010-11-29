@@ -3011,7 +3011,7 @@ void EditManager::initEditTools(){
   //snow
   sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green"));
   //snow showers
-  sigsymbols.push_back(newEditToolInfo( "Snow_showers",1043,"green","green",2));
+  sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green","green",2));
   //showers
   sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green","green",2));
 #endif
