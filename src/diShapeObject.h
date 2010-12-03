@@ -71,7 +71,7 @@ private:
   vector< vector<int> > dbfIntDesc;
   vector< vector<double> > dbfDoubleDesc;
   vector< vector<miutil::miString> > dbfStringDesc;
-
+  map <miutil::miString, vector<miutil::miString> > dbfPlotDesc;
   int readDBFfile(const miutil::miString& filename, vector<miutil::miString>& dbfIntName,
       vector< vector<int> >& dbfIntDesc, vector<miutil::miString>& dbfDoubleName,
       vector< vector<double> >& dbfDoubleDesc, vector<miutil::miString>& dbfStringName,
@@ -87,15 +87,18 @@ public:
   bool read(miutil::miString filename);
   bool read(miutil::miString filename, bool convertFromGeo);
   bool plot(Area area, // current area
-  double gcd, // size of plotarea in m
-  bool land, // plot triangles
-  bool cont, // plot contour-lines
-  bool keepcont, // keep contourlines for later
-  GLushort linetype, // contour line type
-  float linewidth, // contour linewidth
-  const uchar_t* lcolour, // contour linecolour
-  const uchar_t* fcolour, // triangles fill colour
-  const uchar_t* bcolour);
+            double gcd, // size of plotarea in m
+            bool land, // plot triangles
+            bool cont, // plot contour-lines
+            bool keepcont, // keep contourlines for later
+            bool special, // special case, when plotting symbol instead of a point
+            int symbol, // symbol number to be plottet
+            miutil::miString dbfcol, // text in dfb file to be plottet for that column
+            GLushort linetype, // contour line type
+            float linewidth, // contour linewidth
+            const uchar_t* lcolour, // contour linecolour
+            const uchar_t* fcolour, // triangles fill colour
+            const uchar_t* bcolour);
 
   virtual bool plot();
 

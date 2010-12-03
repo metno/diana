@@ -37,6 +37,7 @@
 #include <diImageIO.h>
 #include <fstream>
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 #include <GL/gl.h>
 
 using namespace::miutil;
@@ -146,13 +147,13 @@ void ImageGallery::addImageName(const miString& filename, int type)
       markerFilename.replace("png","txt");
     else if(filename.contains("xpm"))
       markerFilename.replace("xpm","txt");
-    glob(markerFilename.c_str(),0,0,&globBuf);
+    glob_cache(markerFilename.c_str(),0,0,&globBuf);
     if(globBuf.gl_pathc == 1){
       Images[name].markerFilename=markerFilename;
     } else {
       Images[name].type = basic;
     }
-    globfree(&globBuf);
+    globfree_cache(&globBuf);
   }
 }
 
@@ -843,14 +844,14 @@ bool ImageGallery::parseSetup(SetupParser &sp)
     else if(key=="marker")  type = marker;
     else continue;
     glob_t globBuf;
-    glob(value.c_str(),0,0,&globBuf);
+    glob_cache(value.c_str(),0,0,&globBuf);
     for( unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
       miString fname = globBuf.gl_pathv[k];
       if((fname.contains(".png") || fname.contains(".xpm"))
           && !fname.contains("~"))
         addImageName(fname,type);
     }
-    globfree(&globBuf);
+    globfree_cache(&globBuf);
   }
 
 

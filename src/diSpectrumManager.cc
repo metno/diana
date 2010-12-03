@@ -41,6 +41,7 @@
 #include <diSetupParser.h>
 
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
 
 using namespace::miutil;
@@ -155,12 +156,12 @@ void SpectrumManager::updateObsFileList()
     of.time=    miTime(1970,1,1,0,0,0);
     of.modificationTime= 0;
     glob_t globBuf;
-    glob(obsAaaPaths[j].c_str(),0,0,&globBuf);
+    glob_cache(obsAaaPaths[j].c_str(),0,0,&globBuf);
     for (int i=0; i<globBuf.gl_pathc; i++) {
       of.filename= miString(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }
-    globfree(&globBuf);
+    globfree_cache(&globBuf);
   }
   n= obsBbbPaths.size();
   for (int j=0; j<n; j++) {
@@ -169,12 +170,12 @@ void SpectrumManager::updateObsFileList()
     of.time=    miTime(1970,1,1,0,0,0);
     of.modificationTime= 0;
     glob_t globBuf;
-    glob(obsBbbPaths[j].c_str(),0,0,&globBuf);
+    glob_cache(obsBbbPaths[j].c_str(),0,0,&globBuf);
     for (int i=0; i<globBuf.gl_pathc; i++) {
       of.filename= miString(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }
-    globfree(&globBuf);
+    globfree_cache(&globBuf);
   }
 }
 

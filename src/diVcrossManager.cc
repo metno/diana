@@ -539,6 +539,7 @@ vector<miString> VcrossManager::getFieldNames(const miString& model)
       return VcrossPlot::getFieldNames(model);
     } else {
       cerr << "Error making inventory of model " << model << endl;
+      return empty;
     }
   } else {
     return empty;

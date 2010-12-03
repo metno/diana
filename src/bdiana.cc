@@ -58,6 +58,7 @@
 #include <diFontManager.h>
 #include <diImageIO.h>
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 
 #include <diVcrossManager.h>
 #include <diVcrossPlot.h>
@@ -74,6 +75,9 @@
 #endif
 
 #include <signalhelper.h>
+
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 
 #include <diOrderBook.h>
 
@@ -1935,10 +1939,10 @@ int parseAndProcess(istream &is)
       glob_t globBuf;
       int number_of_files = 0;
       while (number_of_files == 0) {
-        glob(pattern.c_str(), 0, 0, &globBuf);
+        glob_cache(pattern.c_str(), 0, 0, &globBuf);
         number_of_files = globBuf.gl_pathc;
         if (number_of_files == 0) {
-          globfree(&globBuf);
+          globfree_cache(&globBuf);
           pu_sleep(1);
         }
       }
@@ -1969,7 +1973,7 @@ int parseAndProcess(istream &is)
           }
         }
       }
-      globfree(&globBuf);
+      globfree_cache(&globBuf);
       // remove processed files
       for (unsigned int ik = 0; ik < filenames.size(); ik++) {
         ostringstream ost;
@@ -2412,6 +2416,7 @@ int main(int argc, char** argv)
   miString xhost = ":0.0"; // default DISPLAY
   miString sarg;
   int port;
+  milogger::LogHandler * plog = NULL;
 
   application = new QApplication(argc, argv);
 
@@ -2550,34 +2555,36 @@ int main(int argc, char** argv)
 
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
-
-  cout << argv[0] << " : DIANA batch version " << VERSION << endl;
+  // Init loghandler with debug level
+  plog = milogger::LogHandler::initLogHandler( 1, "" );
+  plog->setObjectName("diana.bdiana.main");
+  COMMON_LOG::getInstance("common").infoStream() << argv[0] << " : DIANA batch version " << VERSION;
 
 #ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
-    cerr << "===================================================" << endl
-        << " WARNING !" << endl
-        << " X pixmaps or GLX pixelbuffers not supported" << endl
-        << " Forcing use of default canvas" << endl
-        << "===================================================" << endl;
+	  COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
+        << " WARNING !" << "\n"
+        << " X pixmaps or GLX pixelbuffers not supported" << "\n"
+        << " Forcing use of default canvas" << "\n"
+        << "===================================================";
     canvasType = default_canvas;
   }
 #endif
 
 #ifndef GLX_VERSION_1_3
   if (canvasType == glx_pixelbuffer) {
-    cerr << "===================================================" << endl
-        << " WARNING !" << endl
-        << " This version of GLX does not support PixelBuffers." << endl
-        << " Forcing use of default canvas" << endl
-        << "===================================================" << endl;
+	  COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
+        << " WARNING !" << "\n"
+        << " This version of GLX does not support PixelBuffers." << "\n"
+        << " Forcing use of default canvas" << "\n"
+        << "===================================================";
     canvasType = default_canvas;
   }
 #endif
 
   if (canvasType == qt_glpixelbuffer) {
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
-      cerr << "This system does not support OpenGL pbuffers." << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
       return 1;
     }
   } else if (canvasType == qt_glframebuffer) {
@@ -2613,7 +2620,7 @@ int main(int argc, char** argv)
 
     dpy = XOpenDisplay(xhost.cStr());
     if (!dpy) {
-      cerr << "ERROR, could not open X-display:" << xhost << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
       return 1;
     }
 #endif
@@ -2625,7 +2632,7 @@ int main(int argc, char** argv)
     pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
         (use_double_buffer ? dblBuf : snglBuf));
     if (!pdvi) {
-      cerr << "ERROR, no RGB visual with depth buffer" << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
       return 1;
     }
 
@@ -2633,7 +2640,7 @@ int main(int argc, char** argv)
     cx = glXCreateContext(dpy, pdvi,// display and visual
         0, 0); // sharing and direct rendering
     if (!cx) {
-      cerr << "ERROR, could not create rendering context" << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
       return 1;
     }
 #endif
@@ -2666,7 +2673,7 @@ int main(int argc, char** argv)
   if (setupfilegiven) {
     setupread = readSetup(setupfile, *printman);
     if (!setupread) {
-      cerr << "ERROR, unable to read setup:" << setupfile << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
       return 99;
     }
   }
@@ -2677,7 +2684,7 @@ int main(int argc, char** argv)
   if (!batchinput.empty()) {
     ifstream is(batchinput.c_str());
     if (!is) {
-      cerr << "ERROR, cannot open inputfile " << batchinput << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
       return 99;
     }
     int res = parseAndProcess(is);
@@ -2696,12 +2703,12 @@ int main(int argc, char** argv)
     signalInit();
 
     if (verbose)
-      cerr << "PID: " << getpid() << endl;
+    	COMMON_LOG::getInstance("common").infoStream() << "PID: " << getpid();
 
     fs.open("bdiana.pid");
 
     if (!fs) {
-      cerr << "ERROR, can't open file <bdiana.pid>!" << endl;
+    	COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
       return 1;
     }
 
@@ -2712,17 +2719,17 @@ int main(int argc, char** argv)
       application->processEvents(); // do we actually care in this case?
       switch (waitOnSignal(10, timeout)) {
       case -1:
-        cerr << "ERROR, a waitOnSignal error occured!" << endl;
+    	  COMMON_LOG::getInstance("common").infoStream() << "ERROR, a waitOnSignal error occured!";
         quit = true;
         break;
       case 0:
         if (verbose)
-          cerr << "SIGUSR1: received!" << endl;
+        	COMMON_LOG::getInstance("common").infoStream() << "SIGUSR1: received!";
         doWork();
         break;
       case 1:
         if (!timeout) {
-          cerr << "SIGTERM, SIGINT: received!" << endl;
+        	COMMON_LOG::getInstance("common").infoStream()<< "SIGTERM, SIGINT: received!";
           quit = true;
         }
       }
@@ -2794,8 +2801,7 @@ int main(int argc, char** argv)
 void doWork()
 {
   if (!command_path.exists()) {
-    cerr << "ERROR, trying to scan for commands, but command_path not set!"
-        << endl;
+	  COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
     return;
   }
 
@@ -2803,12 +2809,12 @@ void doWork()
   glob_t globBuf;
   int number_of_files = 0;
 
-  glob(pattern.c_str(), 0, 0, &globBuf);
+  glob_cache(pattern.c_str(), 0, 0, &globBuf);
   number_of_files = globBuf.gl_pathc;
 
   if (number_of_files == 0) {
-    cerr << "WARNING, scan for commands returned nothing" << endl;
-    globfree(&globBuf);
+	  COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
+    globfree_cache(&globBuf);
     return;
   }
 
@@ -2818,7 +2824,7 @@ void doWork()
     dispatchWork(filename);
   }
 
-  globfree(&globBuf);
+  globfree_cache(&globBuf);
 }
 
 int dispatchWork(const std::string &file)
@@ -2826,7 +2832,7 @@ int dispatchWork(const std::string &file)
   // commands in file
   ifstream is(file.c_str());
   if (!is) {
-    cerr << "ERROR, cannot open inputfile " << batchinput << endl;
+	  COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
     return 99;
   }
   int res = parseAndProcess(is);
@@ -2840,7 +2846,7 @@ int dispatchWork(const std::string &file)
   if (!fifo_name.empty()) {
     int fd = open(fifo_name.c_str(), O_WRONLY);
     if (fd == -1) {
-      cerr << "ERROR, can't open the fifo <" << fifo_name << ">!" << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
       goto ERROR;
     }
     do {
@@ -2861,10 +2867,10 @@ int dispatchWork(const std::string &file)
     buf[0] = 'r';
 
     if (write(fd, buf, 1) == -1) {
-      cerr << "ERROR, can't write to fifo <" << fifo_name << ">!" << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't write to fifo <" << fifo_name << ">!";
     } else {
       if (verbose)
-        cerr << "FIFO client <" << fifo_name << "> notified!" << endl;
+    	  COMMON_LOG::getInstance("common").infoStream() << "FIFO client <" << fifo_name << "> notified!";
     }
 
     close(fd);

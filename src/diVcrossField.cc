@@ -188,7 +188,8 @@ bool VcrossField::getInventory() {
 #endif
 
   // Put some special parameters (see diVcrossPlot.cc, prepareData for description)
-  params.push_back("mslp");
+  params.push_back("psurf");
+  params.push_back("topography");
   params.push_back("-1001");
   params.push_back("-1002");
   params.push_back("-1007");
@@ -269,10 +270,10 @@ bool VcrossField::setLatLon(float lat,float lon) {
     float distance = acosf(sinf(lat1)*sin(lat2) +
                 cos(lat1)*cos(lat2) * cos(lon2-lon1)) * radius;
 
-    // 22 km between points
-    int noOfPoints = (int)distance/22000;
-	// Test
-	//int noOfPoints = 128;
+    // 10 km between points or minimum 100 points
+    int noOfPoints = (int)distance/14000;
+    if (noOfPoints<100)
+      noOfPoints = 100;
     int elem= crossSections.size()-1;
 
     float step = distance/(noOfPoints-1.0);
@@ -427,6 +428,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       bool gotCrossection = fieldManager->makeVCross(modelName,time,
           crossSections[vcross].ypos,crossSections[vcross].xpos,params,
           vcp->alevel,vcp->blevel,vcp->nPoint,crossData,multiLevel,vcp->iundef);
+
       if(!gotCrossection) {
         delete vcp;
         vcp= 0;
@@ -435,7 +437,10 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
 
       vcp->numLev = vcp->alevel.size();
       vcp->horizontalPosNum = vcp->nPoint;
-      vcp->vcoord = 10;
+      if (vcp->blevel.size())
+    	vcp->vcoord = 10;
+      else
+    	vcp->vcoord = 1;
       vcp->nTotal = (vcp->nPoint * vcp->numLev);
       vcp->validTime = miutil::miTime(time);
       vcp->forecastHour = 0;
@@ -545,7 +550,10 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       vcp->numLev = vcp->alevel.size();
       vcp->nTotal = vcp->nPoint*vcp->numLev;
       vcp->horizontalPosNum = forecastHours.size();
-      vcp->vcoord = 10;
+      if (vcp->blevel.size())
+    	vcp->vcoord = 10;
+      else
+    	vcp->vcoord = 1;
       vcp->validTimeSeries = validTimes;
       vcp->forecastHourSeries = forecastHours;
       vcp->refPosition=0.;
@@ -643,15 +651,18 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
   /* Compute max/min mslp
    *(done every time, could be put in vector like in diVcrossFile.cc)
    */
-  int mslp = 0.0;
+  int psurf = 0.0;
   for(size_t i=0;i<params.size();i++)
-    if(params[i] == "mslp")
-      mslp=i;
+    if(params[i] == "psurf")
+      psurf=i;
   float pressure=50;
   for(size_t i=0;i<vcp->alevel.size();i++) {
     for(int j=0;j<vcp->nPoint;j++) {
-      if(crossData[mslp][j] < fieldUndef) {
-        pressure=vcp->alevel[i]+vcp->blevel[i]*crossData[mslp][j];
+      if(crossData[psurf][j] < fieldUndef) {
+    	if (vcp->vcoord == 1)
+    	  pressure=vcp->alevel[i];
+    	else
+          pressure=vcp->alevel[i]+vcp->blevel[i]*crossData[psurf][j];
       }
       if(pressure>vcp->vrangemax)
         vcp->vrangemax=pressure;

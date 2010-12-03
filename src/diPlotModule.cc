@@ -58,7 +58,8 @@
 #include <sstream>
 //#define DEBUGPRINT
 
-using namespace::miutil;
+using namespace miutil;
+using namespace milogger;
 
 // static class members
 GridConverter PlotModule::gc; // Projection-converter
@@ -397,8 +398,12 @@ void PlotModule::prepareAnnotation(const vector<miString>& inp)
 #endif
 
   // for now -- erase all annotationplots
-  for (unsigned int i = 0; i < vap.size(); i++)
-    delete vap[i];
+  int n = vap.size();
+  for (int i = 0; i < n; i++)
+  {
+    if (vap[i] != 0)
+	  delete vap[i];
+  }
   vap.clear();
 
   if (inp.size() == 0)
@@ -638,21 +643,26 @@ void PlotModule::setAnnotations()
 
   int n = vap.size();
   for (int i = 0; i < n; i++)
-    delete vap[i];
+  {
+    if (vap[i] != 0)
+	  delete vap[i];
+  }
   vap.clear();
 
   int npi = annotationStrings.size();
 
-  AnnotationPlot* ap;
-
   for (int i = 0; i < npi; i++) {
-    n = vap.size();
-    vap.push_back(ap);
-    vap[n] = new AnnotationPlot();
-    if (!vap[n]->prepare(annotationStrings[i])) {
-      delete vap[n];
-      vap.pop_back();
-    }
+	  AnnotationPlot* ap= new AnnotationPlot();
+	  // Dont add an invalid object to vector
+	  if (!ap->prepare(annotationStrings[i]))
+	  {
+	      delete ap;
+	  }
+	  else
+	  {
+		  // Add to vector
+		  vap.push_back(ap);
+	  }
   }
 
   //Annotations from setup, qmenu, etc.
@@ -1743,7 +1753,10 @@ void PlotModule::cleanup()
 
   n = vap.size();
   for (i = 0; i < n; i++)
-    delete vap[i];
+  {
+    if (vap[i] != 0)
+	  delete vap[i];
+  }
   vap.clear();
   if (apEditmessage)
     delete apEditmessage;

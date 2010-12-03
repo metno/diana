@@ -165,6 +165,10 @@ struct MapInfo {
   MapElementOption lon;      ///< lon-lines options
   MapElementOption lat;      ///< lat-lines options
   MapElementOption frame;    ///< area-frame options
+  bool special;        ///< plot a symbol instead of a point (special case)
+  int symbol;          ///< symbol number in ttf file (special case)
+  miutil::miString dbfcol;     ///< column name in dbf file, values to be plottet 
+                                ///< (special case)
 };
 
 /**

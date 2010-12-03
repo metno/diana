@@ -546,10 +546,13 @@ void Sat::setArea()
 //       proj_string = tmp_proj_string.str();
 
   //initializing libmi
+
+    cerr << "setArea 1 " << proj_string <<  endl;
     Projection p;
     p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid, gridResolutionX, gridResolutionY);
     area.setP(p);
 } else {
+    cerr << "setArea 2 " << proj_string <<  endl;
     Projection p(proj_string, Ax, Ay);
     area.setP(p);
     gridResolutionX = Ax;

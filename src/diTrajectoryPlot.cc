@@ -221,7 +221,7 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
       for (int i=0; i<nlon; i++) {
 
         float dlat,dlon;
-        Projection::getLatLonIncrement(latitude[i],longitude[i],dlat,dlon);
+        area.P().getLatLonIncrement(latitude[i],longitude[i],dlat,dlon);
         float lat1 = latitude[i];
         float lon1 = float(markerRadius)*1000*dlon + longitude[i];
         float lat2 = float(markerRadius)*1000*dlat + latitude[i];

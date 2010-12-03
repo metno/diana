@@ -123,7 +123,8 @@
 #include <profet/LoginDialog.h>
 #include <profet/ProfetCommon.h>
 #endif
-
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 #include <qUtilities/miLogFile.h>
 
 #include <diana_icon.xpm>
@@ -159,6 +160,8 @@
 #include <profet.xpm>
 //#include <paint_mode.xpm>
 #include <autoupdate.xpm>
+
+using namespace milogger;
 
 DianaMainWindow::DianaMainWindow(Controller *co,
     const miutil::miString ver_str,
@@ -650,7 +653,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   tslider= new TimeSlider(Qt::Horizontal,this);
   tslider->setMinimumWidth(90);
-  tslider->setMaximumWidth(90);
+  //tslider->setMaximumWidth(90);
   connect(tslider,SIGNAL(valueChanged(int)),SLOT(TimeSliderMoved()));
   connect(tslider,SIGNAL(sliderReleased()),SLOT(TimeSelected()));
   connect(tslider,SIGNAL(sliderSet()),SLOT(SliderSet()));
@@ -2849,7 +2852,9 @@ void DianaMainWindow::setPlotTime(miutil::miTime& t)
 #ifdef M_TIME
   gettimeofday(&post, NULL);
   double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  cerr << "Plottime: " << s << endl;
+  LogHandler::getInstance()->setObjectName("diana.DianaMainWindow.setPlotTime");
+  COMMON_LOG::getInstance("common").infoStream() << "Plottime: " << s << " s";
+  COMMON_LOG::getInstance("common").infoStream().flush();
 #endif
   timeChanged();
   QApplication::restoreOverrideCursor();

@@ -62,6 +62,7 @@
 #include <diSetupParser.h>
 
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
 #include <math.h>
 
@@ -389,7 +390,7 @@ void VprofManager::updateObsFileList()
       }
 #endif
     }
-    globfree(&globBuf);
+    globfree_cache(&globBuf);
   }
 #ifdef DEBUGPRINT
   int l= obsfiles.size();

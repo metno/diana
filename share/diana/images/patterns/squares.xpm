@@ -1,5 +1,5 @@
 /* XPM */                          
-static const char *squares]={	   
+static const char *squares[]={	   
 "32 32 2 1",
 ". c None",
 "# c #000000",        	       	  	     	   

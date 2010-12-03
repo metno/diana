@@ -2,6 +2,10 @@ productsdir= $(datarootdir)/$(APP)/products
 dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/SKVkart.txt \
 	share/diana/products/sigkart.txt \
+	share/diana/products/sigkarta_SodraFlyg.txt \
+	share/diana/products/sigkarta_SodraArlanda.txt \
+	share/diana/products/sigkarta_SodraFlyg.txt \
+	share/diana/products/sigkarta_SodraArlanda.txt \
 	share/diana/products/analys_Europa.txt \
 	share/diana/products/prognose+36.txt \
 	share/diana/products/prognose+18.txt \
@@ -209,6 +213,10 @@ dist_patterns_DATA= share/diana/images/patterns/vertical.xpm \
 	share/diana/images/patterns/dot-0.05.xpm \
 	share/diana/images/patterns/diag.xpm \
 	share/diana/images/patterns/diagthick.xpm \
+	share/diana/images/patterns/diagthick1.xpm \
+	share/diana/images/patterns/snowflake.xpm \
+	share/diana/images/patterns/snowflake_cloud.xpm \
+	share/diana/images/patterns/diagthick_cloud.xpm \
 	share/diana/images/patterns/circles.xpm 
 
 avatarsdir= $(datarootdir)/$(APP)/images/avatars

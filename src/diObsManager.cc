@@ -65,6 +65,7 @@
 
 #include <diObsManager.h>
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 
 using namespace std; using namespace miutil;
 
@@ -530,7 +531,7 @@ bool ObsManager::updateTimes(miString obsType)
       bool ok = Prod[obsType].pattern[j].filter.ok();
 
       glob_t globBuf;
-      glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
+      glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
       for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
@@ -564,7 +565,7 @@ bool ObsManager::updateTimes(miString obsType)
         finfo.filetype = Prod[obsType].pattern[j].fileType;
         Prod[obsType].fileInfo.push_back(finfo);
       }
-      globfree(&globBuf);
+      globfree_cache(&globBuf);
     }
   }
 #ifdef ROADOBS
@@ -652,7 +653,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
   for(unsigned int j=0;j<Prod[obsType].pattern.size(); j++) {
     if( !Prod[obsType].pattern[j].archive || useArchive ){
       glob_t globBuf;
-      glob(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
+      glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
       for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
@@ -679,7 +680,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
         finfo.filetype = Prod[obsType].pattern[j].fileType;
         Prod[obsType].fileInfo.push_back(finfo);
       }
-      globfree(&globBuf);
+      globfree_cache(&globBuf);
     }
   }
 #ifdef ROADOBS
@@ -1397,7 +1398,7 @@ delete roplot;
   while (!found && j<Prod[oname].pattern.size()) {
     if (!Prod[oname].pattern[j].archive || useArchive ) {
       glob_t globBuf;
-      glob(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
+      glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
       miString headerfile= Prod[oname].headerfile;
       unsigned int k= 0;
       while (!found && int(k)<globBuf.gl_pathc) {
@@ -1410,7 +1411,7 @@ delete roplot;
           Prod[oname].useFileTime= true;
         k++;
       }
-      globfree(&globBuf);
+      globfree_cache(&globBuf);
     }
     j++;
   }

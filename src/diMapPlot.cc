@@ -377,6 +377,7 @@ bool MapPlot::plot(const int zorder)
       }
       Area fullarea(area.P(), fullrect);
       shapemaps[mapfile].plot(fullarea, gcd, land, cont, !cont && mapinfo.contour.ison,
+          mapinfo.special,mapinfo.symbol,mapinfo.dbfcol,
           contopts.linetype.bmap, contopts.linewidth, c.RGBA(),
           landopts.fillcolour.RGBA(), backgroundColour.RGBA());
     } else {

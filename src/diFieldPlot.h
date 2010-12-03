@@ -31,7 +31,7 @@
 #ifndef diFieldPlot_h
 #define diFieldPlot_h
 
-#include <diPlot.h>
+#include "diPlot.h"
 #include <diField/diField.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
@@ -121,9 +121,13 @@ private:
   bool plotWindColour();
   bool plotWindTempFL();
   bool plotWindNumber();
+  bool plotWindNumberColour();
   bool plotValueMaxHeight();
   bool plotValueMaxHeightAndTemp();
   bool plotVector();
+  bool plotNumber();
+  bool plotNumberPositive();
+  bool plotNumberColour();
 
   /**
    * ______________

@@ -35,6 +35,7 @@
 
 #include <fstream>
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 
 #include "qtQuickMenu.h"
 #include "qtQuickAdmin.h"
@@ -537,7 +538,7 @@ void QuickMenu::fillPrivateMenus()
   //Private menus
   miutil::miString quickfile= setup.basicValue("homedir") + "/*.quick";
   glob_t globBuf;
-  glob(quickfile.c_str(),0,0,&globBuf);
+  glob_cache(quickfile.c_str(),0,0,&globBuf);
   for(int k=0; k<globBuf.gl_pathc; k++) {
     qtmp.name= "";
     qtmp.filename= globBuf.gl_pathv[k];

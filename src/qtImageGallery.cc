@@ -37,6 +37,7 @@
 #include "diImageGallery.h"
 #include "diSetupParser.h"
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 #include <QDataStream>
 #include <QFileInfo>
 
@@ -126,7 +127,7 @@ XPM X11 Pixmap Read/write
 
 
   glob_t globBuf;
-  glob(dir.c_str(),0,0,&globBuf);
+  glob_cache(dir.c_str(),0,0,&globBuf);
   for( int k=0; k<globBuf.gl_pathc; k++) {
     miutil::miString fname = globBuf.gl_pathv[k];
     if( !fname.contains("~") ){
@@ -168,7 +169,7 @@ XPM X11 Pixmap Read/write
 	  addImageToGallery(name.toStdString(),image);
     }
   }
-  globfree(&globBuf);
+  globfree_cache(&globBuf);
 }
 
 void QtImageGallery::clear()

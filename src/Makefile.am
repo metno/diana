@@ -502,6 +502,10 @@ common_ldadd += \
 	$(PNG_LIBS) \
 	$(UU_LIBS)
 
+# Additional source code for SMHI support
+if WITH_SMHI
+common_cppflags += -DSMHI
+endif
 
 # Additional source code for NetCDF support
 if WITH_NETCDF
@@ -536,7 +540,7 @@ common_ldadd += \
 	${NEWARKAPI_LIBS}
 endif
 
-if WITH_GRIBAPI
+if WITH_GRIBFILE
 common_ldflags += \
 	${GRIBAPI_LDFLAGS}
 common_ldadd += \

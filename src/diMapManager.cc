@@ -150,6 +150,9 @@ bool MapManager::parseMapTypes(SetupParser& sp)
       mapinfo.mapfiles.clear();
       mapinfo.type = "normal";
       mapinfo.logok = true;
+      mapinfo.special = false;
+      mapinfo.symbol = 0;
+      mapinfo.dbfcol = "";
       mapinfo.contour.ison = true;
       mapinfo.contour.linecolour = "black";
       mapinfo.contour.linewidth = "1";
@@ -409,6 +412,12 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         ffopts.linetype = Linetype(value);
       } else if (key == "frame.zorder") {
         mi.frame.zorder = atoi(value.cStr());
+      } else if (key == "symbol") {
+        mi.symbol = atoi(value.cStr());
+        mi.special = true;
+      } else if (key == "dbfcol") {
+        mi.dbfcol = value;
+        mi.special = true;
       }
     }
   }

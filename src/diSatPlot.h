@@ -52,6 +52,8 @@ private:
       int& bmStartx, int& bmStarty,
       float& scales, float& scaley, int& nx, int& ny);
 
+  GLuint texture;
+
 public:
   // Constructors
   SatPlot();

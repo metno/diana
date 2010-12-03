@@ -43,6 +43,8 @@
 #include <diDisplayObjects.h>
 #include <diEditObjects.h>
 #include <diAreaObjects.h>
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 
 class ObsPlot;
 class SatPlot;

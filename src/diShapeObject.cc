@@ -38,12 +38,14 @@
 #include <diField/diColourShading.h>
 #include <diTesselation.h>
 #include <diShapeObject.h>
+#include <diFontManager.h>
 #include <puDatatypes/miCoordinates.h>
+#include <puTools/miString.h>
 #include <GL/glu.h>
 
 /* Created at Wed Oct 12 15:31:16 2005 */
 
-using namespace std;
+using namespace std; using namespace miutil;
 //#define DEBUGPRINT
 
 ShapeObject::ShapeObject() :
@@ -89,6 +91,8 @@ void ShapeObject::memberCopy(const ShapeObject& rhs)
     SHPDestroyObject(shapes[i]);
   }
 
+  shapes.clear();
+
   colours = rhs.colours;
   fname = rhs.fname;
   dbfIntName = rhs.dbfIntName;
@@ -96,10 +100,9 @@ void ShapeObject::memberCopy(const ShapeObject& rhs)
   dbfStringName = rhs.dbfStringName;
 
   // Copy shapes
-  if (n) {
-    for (int i=0; i<n; i++) {
-      shapes.push_back(rhs.shapes[i]);
-    }
+  int m=rhs.shapes.size();
+  for (int i=0; i<m; i++) {
+     shapes.push_back(rhs.shapes[i]);
   }
 }
 
@@ -302,19 +305,28 @@ bool ShapeObject::plot()
 }
 
 bool ShapeObject::plot(Area area, // current area
-					   double gcd, // size of plotarea in m
-					   bool land, // plot triangles
-					   bool cont, // plot contour-lines
-					   bool keepcont, // keep contourlines for later
-					   GLushort linetype, // contour line type
-					   float linewidth, // contour linewidth
-					   const uchar_t* lcolour, // contour linecolour
-					   const uchar_t* fcolour, // triangles fill colour
-					   const uchar_t* bcolour)
+		   double gcd, // size of plotarea in m
+		   bool land, // plot triangles
+		   bool cont, // plot contour-lines
+		   bool keepcont, // keep contourlines for later
+                   bool special, // special case, when plotting symbol instead of a point
+                   int symbol, // symbol number to be plottet
+                   miutil::miString dbfcol, // column name in dfb file, text to be plottet
+ 		   GLushort linetype, // contour line type
+		   float linewidth, // contour linewidth
+		   const uchar_t* lcolour, // contour linecolour
+		   const uchar_t* fcolour, // triangles fill colour
+		   const uchar_t* bcolour)
 {
 	float x1, y1, x2, y2;
 	//GLenum errCode;
   //const GLubyte *errString;
+	float scalefactor = gcd/7000000;
+	int fontSizeToPlot = int(2/scalefactor);
+
+        //also scale according to windowheight and width (standard is 500)
+        scalefactor = sqrtf(pheight*pheight+pwidth*pwidth)/500;
+        fontSizeToPlot = int(fontSizeToPlot*scalefactor);
 
 	x1= area.R().x1 -1.;
 	x2= area.R().x2 +1.;
@@ -382,10 +394,12 @@ bool ShapeObject::plot(Area area, // current area
 #define SHPP_FIRSTRING  4
 #define SHPP_RING       5
 */
+        // Retrieving text for plotting from the dbf file and col=dbfcol
+        vector<miutil::miString> tmpDesc=dbfPlotDesc[dbfcol];
 
 	int n=shapes.size();
 #ifdef DEBUGPRINT
-	cerr << "Map contains " << n <<  " shapes. " << endl;
+	cerr << "***Map contains " << n <<  " shapes. " << endl;
 #endif
 	for (int i=0; i<n; i++) {
 		// Debug......
@@ -427,9 +441,33 @@ bool ShapeObject::plot(Area area, // current area
 		{
 			if (nparts == 0)
 			{
+                           if (special==true && nv==1){
+                               float cw,ch;
+                               miString astring = " "+tmpDesc[i];
+                               fp->set(poptions.fontname,"NORMAL",fontSizeToPlot); //fp->set("Arial","BOLD",8);
+                               fp->getStringSize(astring.cStr(),cw,ch);
+                               fp->drawStr(astring.cStr(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
+                               //fp->drawStr("SSS",shapes[i]->padfX[0], shapes[i]->padfY[0],0.0);
+                               glLineWidth(2);
+			       glColor4ubv(lcolour);
+                               glBegin(GL_POLYGON);
+                               float PI       = acosf(-1.0);
+                               GLfloat xc,yc;
+                               GLfloat radius=symbol;          //16271;
+                               for(int j=0;j<150;j++){
+                                   xc = radius*cos(j*2*PI/150.0);
+                                   //xc = radius*cos(j*2*PI/100.0);
+                                   yc = radius*sin(j*2*PI/150.0);
+                                   //yc = radius*sin(j*2*PI/100.0);
+                                   glVertex2f(shapes[i]->padfX[0]+xc,shapes[i]->padfY[0]+yc);
+                               }
+                               glEnd();
+                           }
+                           else {
 				// set the point size
-				glPointSize(linewidth);
+				//glPointSize(linewidth*10);
 				glEnable(GL_POINT_SMOOTH);
+				glPointSize(linewidth*2);
 				glColor4ubv(lcolour);
 				// not so fast but accurate
 						
@@ -437,11 +475,12 @@ bool ShapeObject::plot(Area area, // current area
 				// just display the point(s)
 				for (int k = 0; k < nv; k++) {
 					glVertex2f(shapes[i]->padfX[k],shapes[i]->padfY[k]);
-				}
+	
+                        	}
 					
 				glEnd();
-				
 				glDisable(GL_POINT_SMOOTH);
+                            }
 			}
 		}
 
@@ -449,10 +488,10 @@ bool ShapeObject::plot(Area area, // current area
 		//# of positions for each part
 		int *small= new int[nparts];
 		// should be set to 1 if part should not be filled ?!
-		
+/*		
 #ifdef DEBUGPRINT
 		cerr << "shapes["<<i<<"] contains " << nv << " vertices and " << nparts << " parts. " << endl;
-#endif
+#endif*/
 		GLdouble *gldata= new GLdouble[nv*3];
 		GLdouble *pdata= new GLdouble[nv*2];
 		int j=0;
@@ -1090,12 +1129,12 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
     }
   }
 #ifdef DEBUGPRINT
-  for (n=0; n<dbfIntName.size(); n++)
+  for ( int n=0; n<dbfIntName.size(); n++)
     cerr<<"Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]<<endl;
-  for (n=0; n<dbfDoubleName.size(); n++)
+  for (int n=0; n<dbfDoubleName.size(); n++)
     cerr<<"Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]
         <<endl;
-  for (n=0; n<dbfStringName.size(); n++)
+  for (int n=0; n<dbfStringName.size(); n++)
     cerr<<"String description:  "<<indexString[n]<<"  "<<dbfStringName[n]
         <<endl;
 #endif
@@ -1141,6 +1180,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
 
   for (n=0; n<dbfStringName.size(); n++) {
     i= indexString[n];
+    vector<miutil::miString> tempStr;
 #ifdef DEBUGPRINT
 	cerr<<"String description:  "<<indexString[n]<<"  "<<dbfStringName[n]<<endl;
 #endif
@@ -1150,13 +1190,34 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
       else {
         dbfStringDesc[n].push_back(miutil::miString(DBFReadStringAttribute(hDBF,
             iRecord, i) ) );
+        tempStr.push_back(miutil::miString(DBFReadStringAttribute(hDBF,
+            iRecord, i) ) );
 #ifdef DEBUGPRINT
           cerr << "DBFReadStringAttribute( hDBF, iRecord, i )"
-              << DBFReadStringAttribute(hDBF, iRecord, i) << endl;
+              << DBFReadStringAttribute(hDBF, iRecord, i) << "**temp= " << tempStr[iRecord] <<endl;
 #endif
       }
     }
+    dbfPlotDesc[dbfStringName[n]]=tempStr;
+    tempStr.clear();
+
+    
+
   }
+ /* map <miutil::miString, vector<miutil::miString> >::iterator it=dbfPlotDesc.begin();
+    for (; it!=dbfPlotDesc.end(); it++) {
+      vector<miutil::miString> temp=it->second;
+        cerr << "*** ID_temp " << it->first << endl;
+      for (int ar=0; ar<temp.size(); ar++) {
+        cerr << "***temp [" << ar <<"] =  " << temp[ar] << endl;
+      }
+    }
+*/
+
+
+
+
+
 
   DBFClose(hDBF);
 

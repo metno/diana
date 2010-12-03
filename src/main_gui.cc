@@ -55,6 +55,7 @@
 #include <log4cxx/level.h>
 #else
 #include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 #endif
 
 #ifdef PROFET
@@ -107,6 +108,7 @@ int main(int argc, char **argv)
   miString lang;
   bool useprojlib=true;
   map<miString,miString> user_variables;
+  milogger::LogHandler * plog = NULL;
 
     // parsing command line arguments
   int ac= 1;
@@ -168,9 +170,12 @@ int main(int argc, char **argv)
   Projection::setProjActive(useprojlib);
 
   // Fix logger
+  // initLogHandler must always be done
   if(logfilename.exists()) {
 #ifndef NOLOG4CXX
     log4cxx::PropertyConfigurator::configure(logfilename.cStr());
+#else
+    plog = milogger::LogHandler::initLogHandler( 1, logfilename.cStr() );
 #endif
   }
   else {
@@ -178,19 +183,20 @@ int main(int argc, char **argv)
     log4cxx::BasicConfigurator::configure();
     //log4cxx::Logger::getRootLogger()->setLevel(log4cxx::Level::WARN_INT);
     log4cxx::Logger::getRootLogger()->setLevel(log4cxx::Level::getWarn());
+#else
+    plog = milogger::LogHandler::initLogHandler( 1, "" );
 #endif
   }
-
+  plog->setObjectName("diana.main_gui.main");
   SetupParser sp;
   sp.setUserVariables(user_variables);
   if (!sp.parse(setupfile)){
-    cerr << "An error occured while reading setup: " << setupfile << endl;
+	  COMMON_LOG::getInstance("common").errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
   printerManager printman;
   if (!printman.parseSetup(sp)){
-    cerr << "An error occured while reading setup: "
-	 << setupfile << endl;
+	  COMMON_LOG::getInstance("common").errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
 
@@ -198,7 +204,7 @@ int main(int argc, char **argv)
 
   // read setup
   if (!contr.parseSetup()){
-    cerr << "An error occured while reading setup: " << setupfile << endl;
+	  COMMON_LOG::getInstance("common").errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
 #ifdef PROFET
@@ -227,7 +233,7 @@ int main(int argc, char **argv)
 
   if(lang.exists()) {
 
-    cout << "SYSTEM LANGUAGE: " << lang << endl;
+	COMMON_LOG::getInstance("common").infoStream() << "SYSTEM LANGUAGE: " << lang.cStr();
 
     miString qtlang   = "qt_" +lang;
     miString dilang   = "diana_"+lang;
@@ -252,7 +258,6 @@ int main(int argc, char **argv)
     a.installTranslator( &myapp );
     a.installTranslator( &qutil );
   }
-
   DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title, profetEnabled);
 
   mw->start();

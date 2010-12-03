@@ -43,6 +43,7 @@
 #include <diDisplayObjects.h>
 #include <diWeatherSymbol.h>
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 #include <stdio.h>
 
 
@@ -336,7 +337,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
 
   vector<ObjFileInfo> files;
 
-  glob(fileString.c_str(),0,0,&globBuf);
+  glob_cache(fileString.c_str(),0,0,&globBuf);
 
   for (unsigned int i=0; int(i)<globBuf.gl_pathc; i++) {
     ObjFileInfo info;
@@ -356,7 +357,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
     }
   }
 
-  globfree(&globBuf);
+  globfree_cache(&globBuf);
 
   return files;
 }

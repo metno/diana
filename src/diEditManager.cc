@@ -52,6 +52,7 @@
 #include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
 #include <puCtools/glob.h>
+#include <puCtools/glob_cache.h>
 //#define DEBUGPRINT
 using namespace::miutil;
 
@@ -1562,7 +1563,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
 
   //get files matching fileString
   glob_t globBuf;
-  glob(fileString.c_str(),0,0,&globBuf);
+  glob_cache(fileString.c_str(),0,0,&globBuf);
 
   for (int i=0; i<globBuf.gl_pathc; i++) {
     miString name = globBuf.gl_pathv[i];
@@ -1583,7 +1584,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
       prods.insert(p,savedprod);
     }
   }
-  globfree(&globBuf);
+  globfree_cache(&globBuf);
 }
 
 
@@ -2976,8 +2977,6 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
   //Nuclear
   sigsymbols.push_back(newEditToolInfo("Sig31",1031,"black"));
-  //precipitation, green lines
-  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green"));
   //Visibility, black rectangular box
   //  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));
   //Vulcano box
@@ -2995,6 +2994,8 @@ void EditManager::initEditTools(){
   //Fog
   sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun"));
 #ifdef SMHI
+  //precipitation, green lines
+  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green4"));
   //snow
   sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green4"));
   //snow showers
@@ -3008,6 +3009,8 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Corn_snow",44,"red","red",2));
   sigsymbols.push_back(newEditToolInfo("Hails",118,"red","red",2));
 #else
+  //precipitation, green lines
+  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green"));
   //snow
   sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green"));
   //snow showers

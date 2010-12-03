@@ -45,7 +45,7 @@ bool GEOtiff::readGEOtiffPalette(const miutil::miString& filename,
   satimg::dihead ginfo;
 
   // if not colour palette image
-  if(metno::GeoTiff::head_diana(filename, ginfo)!= 2)
+  if (metno::GeoTiff::head_diana(filename, ginfo)!= 2)
     return false;
 
   // index -> RGB

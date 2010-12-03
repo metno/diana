@@ -44,6 +44,9 @@
 #include <diCommonTypes.h>
 #include <diTimeFilter.h>
 
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
+
 //#ifndef HDF5_INC
 //#define HDF5_INC
 //#endif
@@ -126,7 +129,7 @@ private:
 
   bool _isafile(const miutil::miString name);
   unsigned long _modtime(const miutil::miString fname);
-  void _filestat(const miutil::miString fname, pu_struct_stat& filestat);
+  int _filestat(const miutil::miString fname, pu_struct_stat& filestat);
   bool parseChannels(SatFileInfo &info);
   bool readSatFile();
 

@@ -36,6 +36,7 @@
 #include <fstream>
 #include <diSatManager.h>
 #include <GL/gl.h>
+#include <puCtools/glob_cache.h>
 #include <puCtools/glob.h>
 #include <puCtools/stat.h>
 #include <set>
@@ -49,7 +50,8 @@
 #include <diGEOtiff.h>
 #endif
 
-using namespace::miutil;
+using namespace miutil;
+using namespace milogger;
 
 //#define DEBUGPRINT
 SatManager::SatManager()
@@ -61,6 +63,7 @@ SatManager::SatManager()
   //zero time = 00:00:00 UTC Jan 1 1970
   ztime = miTime(1970, 1, 1, 0, 0, 0);
   useArchive=false;
+
 }
 
 bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
@@ -70,8 +73,10 @@ bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
   //                -if similar plot alredy exists, just make a copy of the
   //                 old one (satellite,filetype and channel the same)
 
+LogHandler::getInstance()->setObjectName("diana.SatManager.init");
 #ifdef DEBUGPRINT
-  cerr << "++ SatManager::init() ++" << endl;
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::init() ++";
+  //cerr << "++ SatManager::init() ++" << endl;
 #endif
 
   int nsp= vsatp.size();
@@ -136,10 +141,8 @@ bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
           sdp->hdf5type = satdata->hdf5type;
 
 #ifdef DEBUGPRINT
-          cerr << "++ SatManager::init(): sdp->formatType ++"
-          << sdp->formatType << endl;
-          cerr << "++ SatManager::init(): sdp->metadata ++" << sdp->metadata
-          << endl;
+          COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::init(): sdp->formatType ++" << sdp->formatType;
+          COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::init(): sdp->metadata ++" << sdp->metadata;
 #endif
 
           sdp->classtable= satdata->classtable;
@@ -189,9 +192,9 @@ bool SatManager::setData(SatPlot *satp)
 {
 
   //  PURPOSE:s   Read data from file, and init. SatPlot
-
+  LogHandler::getInstance()->setObjectName("diana.SatManager.setData");
 #ifdef DEBUGPRINT
-  cerr << "++ SatManager::setData() ++" << endl;
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::setData() ++";
 #endif
 
 
@@ -243,12 +246,12 @@ bool SatManager::setData(SatPlot *satp)
     satp->clearData();
   //find out which channels to read (satdata->index), total no
     if ( !parseChannels(fInfo) ) {
-      cerr << "Failed parseChannels" << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "Failed parseChannels";
       return false;
     }
     satdata->cleanup();
     if (!readSatFile()) {
-      cerr << "Failed readSatFile" << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "Failed readSatFile";
       return false;
     }
     satdata->setArea();
@@ -289,7 +292,7 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   //   1,2 are in the visual spectrum, 3-5 infrared
   // METEOSAT 1 channel per file
   //   either VIS_RAW(visual) or IR_CAL(infrared)
-
+  LogHandler::getInstance()->setObjectName("diana.SatManager.parseChannels");
   miString channels;
   if (channelmap.count(satdata->plotChannels))
     channels = channelmap[satdata->plotChannels];
@@ -325,7 +328,7 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   }
 
   if (no==0) {
-    cerr<< "Channel(s):"<<satdata->plotChannels<<" doesn't exist"<<endl;
+	COMMON_LOG::getInstance("common").errorStream() << "Channel(s):"<<satdata->plotChannels<<" doesn't exist";
     return false;
   }
 
@@ -341,37 +344,17 @@ bool SatManager::readSatFile()
 
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
-
-  // YE: Here we may have performace issues.
-  // This may take a long time when network is busy on an NFS mounted file system
-  // Use stat instead
-
-  //first check if file exists
-  /*
-  ifstream inFile(satdata->actualfile.c_str(), ios::in);
-  if (!inFile) {
-    inFile.close();
-    cerr << "filename:" << satdata->actualfile << " does not exist" << endl;
-    //update the filelist
-    listFiles(Prod[satdata->satellite][satdata->filetype]);
-    satdata->filename.erase();
-    return false;
-  }
-  inFile.close();
-  */
-  pu_struct_stat info;
-  int ret = -1;   //get the file attributes
-  ret = pu_stat(satdata->actualfile.c_str(), &info);
-  if(ret != 0) {
+	LogHandler::getInstance()->setObjectName("diana.SatManager.readSatFile");
+  if(!_isafile(satdata->actualfile)) {
     //stat() is not able to get the file attributes,
     //so the file obviously does not exist or
     //more capabilities is required
-    cerr << "filename:" << satdata->actualfile << " does not exist" << endl;
+	  COMMON_LOG::getInstance("common").errorStream() << "filename:" << satdata->actualfile << " does not exist or is not readable";
     return false;
   }
 
 #ifdef DEBUGPRINT
-    cerr << "++ satdata->formattype:    " << satdata->formatType <<endl;
+  COMMON_LOG::getInstance("common").debugStream() << "++ satdata->formattype: " << satdata->formatType;
 #endif
 
   if (satdata->formatType == "mitiff") {
@@ -414,9 +397,9 @@ void SatManager::setPalette(SatFileInfo &fInfo)
 {
 
   //  PURPOSE:   uses palette to put data from image into satdata.image
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.setPalette");
 #ifdef DEBUGPRINT
-  cerr <<"++ SatManager::setPalette  " <<miTime::nowTime()<<endl;
+	COMMON_LOG::getInstance("common").debugStream() <<"++ SatManager::setPalette  " << miTime::nowTime();
 #endif
 
   int nx=satdata->nx;
@@ -472,9 +455,9 @@ void SatManager::setRGB()
 {
 
   //   * PURPOSE:   put data from 3 images into satdata.image
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.setRGB");
 #ifdef DEBUGPRINT
-  cerr <<"++ SatManager::setRGB  " <<satdata->filetype<<endl;
+	COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::setRGB " << satdata->filetype;
 #endif
 
   int i, j, k;
@@ -713,9 +696,9 @@ void SatManager::cutImage(unsigned char *image, float cut, int &index1,
 
 int SatManager::getFileName(miString &name)
 {
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.getFileName");
 #ifdef DEBUGPRINT
-  cerr<<"getFileName:"<<name<<endl;
+	COMMON_LOG::getInstance("common").debugStream()<<"getFileName:"<<name;
 #endif
 
   vector<SatFileInfo> &ft = Prod[satdata->satellite][satdata->filetype].file;
@@ -735,9 +718,9 @@ int SatManager::getFileName(miString &name)
 
 int SatManager::getFileName(const miTime &time)
 {
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.getFileName");
 #ifdef DEBUGPRINT
-  cerr<<"SatManager::getFileName: time: " << time << endl;
+	COMMON_LOG::getInstance("common").debugStream()<<"SatManager::getFileName: time: " << time;
 #endif
 
   int fileno=-1;
@@ -747,8 +730,8 @@ int SatManager::getFileName(const miTime &time)
   subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
 
 #ifdef DEBUGPRINT
-  cerr<<"SatManager::getFileName: satdata->satellite satdata->filetype: "
-  << satdata->satellite << " " << satdata->filetype << endl;
+  COMMON_LOG::getInstance("common").debugStream()<<"SatManager::getFileName: satdata->satellite satdata->filetype: "
+  << satdata->satellite << " " << satdata->filetype;
 #endif
 
   miTime now = miTime::nowTime();
@@ -773,7 +756,8 @@ int SatManager::getFileName(const miTime &time)
   }
 
 #ifdef DEBUGPRINT
-  cerr<<"SatManager::getFileName: fileno: " << fileno << endl;
+
+  COMMON_LOG::getInstance("common").debugStream()<<"SatManager::getFileName: fileno: " << fileno;
 #endif
   //cerr<<"SatManager----> getFileName:  " << fileListChanged <<endl;
   return fileno;
@@ -783,9 +767,9 @@ void SatManager::addMosaicfiles()
 {
 
   //  * PURPOSE:   add files to existing image
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.addMosaicfiles");
 #ifdef DEBUGPRINT
-  cerr << "SatManager::addMosaicfiles" << endl;
+	COMMON_LOG::getInstance("common").debugStream() << "SatManager::addMosaicfiles";
 #endif
 
   unsigned char *color[3];//contains the three rgb channels of raw image
@@ -826,7 +810,7 @@ void SatManager::addMosaicfiles()
     int size =sd.nx*sd.ny;
     if (sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay || sd.Bx!=satdata->Bx || sd.By
         !=satdata->By) {
-      cerr << "Warning: SatManager::addMosaicfiles(): File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok"<< endl;
+    	COMMON_LOG::getInstance("common").warnStream() << "Warning: SatManager::addMosaicfiles(): File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok";
       continue;
     }
 
@@ -875,9 +859,9 @@ void SatManager::addMosaicfiles()
 
 void SatManager::getMosaicfiles()
 {
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.getMosaicfiles");
 #ifdef DEBUGPRINT
-  cerr<<"getMosaicfiles:"<<endl;
+	COMMON_LOG::getInstance("common").debugStream()<<"getMosaicfiles:";
 #endif
 
   int satdiff, plotdiff, diff= satdata->maxDiff+1;
@@ -913,10 +897,10 @@ void SatManager::getMosaicfiles()
 
 bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
 {
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.readHeader");
 #ifdef DEBUGPRINT
-  cerr<<"SatManager----> readHeader: file.name "<<file.name<<endl;
-  cerr<<"SatManager----> readHeader: file.formattype "<<file.formattype<<endl;
+	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: file.name "<<file.name;
+	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: file.formattype "<<file.formattype;
 #endif
 
   if (file.formattype=="mitiff") {
@@ -925,20 +909,22 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
 
 #ifdef HDF5FILE
   if (file.formattype=="hdf5" || file.formattype=="hdf5-standalone") {
-    cerr<<"SatManager----> readHeader: readHDF5Header"<<endl;
+#ifdef DEBUGPRINT
+	  COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: readHDF5Header";
+#endif
     HDF5::readHDF5Header(file);
   }
 #endif
 
 #ifdef GEOTIFF
-  cerr<<"SatManager----> inside geotiff"<<file.name<<endl;
+  //cerr<<"SatManager----> inside geotiff"<<file.name<<endl;
   if (file.formattype=="geotiff") {
 #ifdef DEBUGPRINT
-    cerr<<"SatManager----> readHeader: reading geotiff"<<file.name<<endl;
+	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: reading geotiff"<<file.name;
 #endif
     GEOtiff::readGEOtiffHeader(file);
 #ifdef DEBUGPRINT
-    cerr<<"SatManager----> readHeader: finished reading geotiff"<<file.name<<endl;
+    COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: finished reading geotiff"<<file.name;
 #endif
   }
 #endif
@@ -1009,9 +995,9 @@ const vector<miString>& SatManager::getChannels(const miString &satellite,
 
 void SatManager::listFiles(subProdInfo &subp)
 {
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.listFiles");
 #ifdef DEBUGPRINT
-  cerr<<"SatManager----> List files "<<endl;
+	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> List files ";
 #endif
 
   miTime now = miTime::nowTime();
@@ -1030,17 +1016,10 @@ void SatManager::listFiles(subProdInfo &subp)
     //Number of files in globBuf.gl._pathc
     //file names in globBuf.gl._pathv[i]
     glob_t globBuf;
-#ifdef DEBUGPRINT
-    cerr << "GLOB: ";
-#endif
-    glob(subp.pattern[j].c_str(), 0, 0, &globBuf);
-#ifdef DEBUGPRINT
-    cerr << "done!" << endl;
-#endif
+    glob_cache(subp.pattern[j].c_str(), 0, 0, &globBuf);
     //loop over files
     if (globBuf.gl_pathc == 0) {
-      cerr << "ERROR: No files found! " << subp.pattern[j].c_str() << endl;
-      //      cerr << "globBuf.gl_pathc" << globBuf.gl_pathc << endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR: No files found! " << subp.pattern[j].c_str();
     }
     for (int i=globBuf.gl_pathc-1; i>=0; i--) {
       //remember that archive files are read
@@ -1117,7 +1096,7 @@ void SatManager::listFiles(subProdInfo &subp)
         }
       }
     }
-    globfree(&globBuf);
+    globfree_cache(&globBuf);
   }
 
   //save time of last update
@@ -1135,7 +1114,7 @@ void SatManager::listFiles(subProdInfo &subp)
   }
 #ifdef HDF5FILE
   if(subp.formattype == "hdf5" || subp.formattype=="hdf5-standalone") {
-    if (subp.file[0].name != "") {
+    if (subp.file.size() > 0 && subp.file[0].name != "") {
       HDF5::readHDF5Palette(subp.file[0],subp.colours);
     }
   }
@@ -1145,12 +1124,9 @@ void SatManager::listFiles(subProdInfo &subp)
   else if (subp.formattype == "geotiff") {
     //update Prod[satellite][file].colours
     //Asumes that all files have same palette
-    int n=subp.file.size();
-    //check max 3 files,
-    int i=0;
-    while (i<n && i<3 && !GEOtiff::readGEOtiffPalette(subp.file[i].name.c_str(),
-						      subp.colours))
-      i++;
+	  if (subp.file.size() > 0 && subp.file[0].name != "") {
+		  GEOtiff::readGEOtiffPalette(subp.file[0].name.c_str(), subp.colours);
+	  }
   }
 #endif
   //cerr<<"SatManager----> listFiles:  " << fileListChanged <<endl;
@@ -1235,15 +1211,15 @@ void SatManager::cutImageRGBA(unsigned char *image, float cut, int *index)
 const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
     const miString & file, bool update)
 {
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.getFiles");
   //check if satellite exists, (name occurs in prod)
   if (Prod.find(satellite)==Prod.end()) {
-    cerr << "Product doesn't exist:"<<satellite<<endl;
+	COMMON_LOG::getInstance("common").errorStream() << "Product doesn't exist:"<<satellite;
     return emptyfile;
   }
   //check if filetype exist...
   if (Prod[satellite].find(file)==Prod[satellite].end()) {
-    cerr << "Subproduct doesn't exist:"<<file<<endl;
+	COMMON_LOG::getInstance("common").errorStream() << "Subproduct doesn't exist:"<<file;
     return emptyfile;
   }
 
@@ -1293,9 +1269,9 @@ bool SatManager::isMosaic(const miString &satellite, const miString & file)
 vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool updateFileList, bool openFiles)
 {
   //  * PURPOSE:   return times for list of PlotInfo's
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.getSatTimes");
 #ifdef DEBUGPRINT
-  cerr<<"SatManager----> getSatTimes "<<endl;
+	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> getSatTimes ";
 #endif
 
   set<miTime> timeset;
@@ -1313,12 +1289,12 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool upda
     file = tokens[2];
 
     if (Prod.find(satellite)==Prod.end()) {
-      cerr << "Product doesn't exist:"<<satellite<<endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "Product doesn't exist:"<<satellite;
       continue;
     }
 
     if (Prod[satellite].find(file)==Prod[satellite].end()) {
-      cerr << "Subproduct doesn't exist:"<<file<<endl;
+    	COMMON_LOG::getInstance("common").errorStream() << "Subproduct doesn't exist:"<<file;
       continue;
     }
 
@@ -1403,9 +1379,9 @@ void SatManager::updateFiles()
 {
 
   //  * PURPOSE: sets flag to update filelists for all satellites
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.updateFiles");
 #ifdef DEBUGPRINT
-  cerr << "++SatManager::updateFiles" << endl;
+	COMMON_LOG::getInstance("common").debugStream() << "++SatManager::updateFiles";
 #endif
 
   //loop over all satellites and filetypes
@@ -1426,16 +1402,16 @@ void SatManager::updateFiles()
 bool SatManager::parseSetup(SetupParser &sp)
 {
   //  * PURPOSE:   Info to fro setup
-
+	LogHandler::getInstance()->setObjectName("diana.SatManager.parseSetup");
 #ifdef DEBUGPRINT
-  cerr << "++SatManager: parseSetup"<<endl;
+	COMMON_LOG::getInstance("common").debugStream() << "++SatManager: parseSetup";
 #endif
 
   const miString sat_name = "IMAGE";
   vector<miString> sect_sat;
 
   if (!sp.getSection(sat_name, sect_sat)) {
-    cerr << "Missing section " << sat_name << " in setupfile." << endl;
+	COMMON_LOG::getInstance("common").errorStream() << "Missing section " << sat_name << " in setupfile.";
     return true;
   }
 
@@ -1647,12 +1623,19 @@ bool SatManager::parseSetup(SetupParser &sp)
 /*********************************************************************/
 bool SatManager::_isafile(const miString name)
 {
-  FILE *fp = fopen(name.cStr(), "rb");
-  if (fp) {
-    fclose(fp);
-    return true;
-  } else
-    return false;
+	pu_struct_stat filestat;
+	// first check if fname is a proper file
+	int result = _filestat(name, filestat);
+	if (!result) {
+	    return true;
+	  }
+	else
+	  {
+		//stat() is not able to get the file attributes,
+		//so the file obviously does not exist or
+		//more capabilities is required
+		return false;
+	  }
 }
 
 /*********************************************************************/
@@ -1660,22 +1643,23 @@ unsigned long SatManager::_modtime(const miString fname)
 {
   pu_struct_stat filestat;
   // first check if fname is a proper file
-  if (_isafile(fname)) {
-    _filestat(fname, filestat);
+  int result = _filestat(fname, filestat);
+  if (!result) {
     return (unsigned long)filestat.st_mtime;
   } else
     return 1;
 }
 
 /*********************************************************************/
-void SatManager::_filestat(const miString fname, pu_struct_stat& filestat)
+int SatManager::_filestat(const miString fname, pu_struct_stat& filestat)
 {
-  pu_stat(fname.cStr(), &filestat);
+  return pu_stat(fname.cStr(), &filestat);
 }
 
 void SatManager::init_rgbindex(Sat& sd)
 {
-  if (sd.no==1) {
+	LogHandler::getInstance()->setObjectName("diana.SatManager.init_rgbindex");
+	if (sd.no==1) {
     sd.rgbindex[0]= 0;
     sd.rgbindex[1]= 0;
     sd.rgbindex[2]= 0;
@@ -1691,7 +1675,7 @@ void SatManager::init_rgbindex(Sat& sd)
     sd.rgbindex[2]= 2;
 
   } else {
-    cerr << "SatManage r: number of channels: " << sd.no << endl;
+	  COMMON_LOG::getInstance("common").infoStream() << "SatManage r: number of channels: " << sd.no;
     //    return false;
   }
 }

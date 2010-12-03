@@ -1110,9 +1110,9 @@ void ObsPlot::priority_sort(void)
   bool doSort = (!asciiData && priority);
 #ifdef ROADOBS
   doSort = (!asciiData && !roadobsData && priority);
-#else
-  if ( doSort ) {
 #endif
+  if ( doSort ) {
+
     if (currentPriorityFile != priorityFile)
       readPriorityFile(priorityFile);
 
