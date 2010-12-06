@@ -94,6 +94,8 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
   video->bit_rate = VIDEO_BITRATE;
   video->sample_aspect_ratio.den = 16;
   video->sample_aspect_ratio.num = 9;
+  output->videoStream->sample_aspect_ratio.den = 16;
+  output->videoStream->sample_aspect_ratio.num = 9;
   //  video->dtg_active_format = FF_DTG_AFD_4_3; only used for decoding
   video->width = 1280;
   video->height = 720;
@@ -187,9 +189,6 @@ bool MovieMaker::initOutputStream(OutputCtx *output)
   if (!outputFormat)
     return false;
 
-  // av_alloc_format_context is deprecated
-  //output->outputCtx = av_alloc_format_context();
-  // TODO: check if avformat_alloc_context works (video production crashes on lucid, regardless of method...)
   output->outputCtx = avformat_alloc_context();
   if (!output->outputCtx)
     return false;
