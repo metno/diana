@@ -51,7 +51,7 @@ enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,TroughL
           TroughLine2,ShortDashedLine,LongDashedLine,Jetstream,SquallLine, SigweatherFront,
           BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine,AshLineRed,AshLineGreen,AshLineBlue};
 
-enum AreaType{ Rain, Rainarea, Showers, Clouds, Fog, Ice, Sigweather,ReducedVisibility,Genericarea};
+enum AreaType{ Rain, Rainarea, Showers, Clouds, Fog, Fog2, Mist, Ice, Sigweather,ReducedVisibility,Genericarea};
 
 //spline points for fronts/areas/borders
 const int divSpline= 5;
