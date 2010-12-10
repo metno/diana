@@ -1611,11 +1611,9 @@ bool FieldPlot::plotNumberPositive(){
   cerr << "++ plotNumberColour" << endl;
 #endif
   int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
+  if (n<1) return false;
+  if (!fields[0]) return false;
+  if (!fields[0]->data) return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -1629,12 +1627,6 @@ bool FieldPlot::plotNumberPositive(){
       area, maprect, false,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
-
-  // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
-  if (uv.size()!=2) return false;
-  //float *u= uv[0];
-  //float *v= uv[1];
 
   int step= poptions.density;
 
@@ -1730,7 +1722,7 @@ bool FieldPlot::plotNumberPositive(){
 
   // plot numbers.................................................
 
-  float *t= fields[2]->data;
+  float *t= fields[0]->data;
 
   //-----------------------------------------------------------------------
   //
@@ -1900,11 +1892,10 @@ bool FieldPlot::plotNumberColour(){
   cerr << "++ plotNumberColour" << endl;
 #endif
   int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
 
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
+  if (n<1) return false;
+  if (!fields[0]) return false;
+  if (!fields[0]->data) return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -1917,10 +1908,6 @@ bool FieldPlot::plotNumberColour(){
       area, maprect, false,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
-
-  // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
-  if (uv.size()!=2) return false;
 
   int step= poptions.density;
 
@@ -2012,7 +1999,7 @@ bool FieldPlot::plotNumberColour(){
 
   // plot numbers.................................................
 
-  float *t= fields[2]->data;
+  float *t= fields[0]->data;
 
   //-----------------------------------------------------------------------
   //
@@ -2182,11 +2169,11 @@ bool FieldPlot::plotNumber(){
   cerr << "++ plotNumber" << endl;
 #endif
   int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
 
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
+
+  if (n<1) return false;
+  if (!fields[0]) return false;
+  if (!fields[0]->data) return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -2199,10 +2186,6 @@ bool FieldPlot::plotNumber(){
       area, maprect, false,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
-
-  // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
-  if (uv.size()!=2) return false;
 
   int step= poptions.density;
 
@@ -2438,7 +2421,7 @@ bool FieldPlot::plotNumber(){
 
   // plot numbers.................................................
 
-  float *t= fields[2]->data;
+  float *t= fields[0]->data;
 
   //-----------------------------------------------------------------------
   //
