@@ -3074,7 +3074,7 @@ void DianaMainWindow::saveAnimation() {
     progress.setValue(i);
 
     // restore size
-    w->Glw()->resize(workAreaSize);
+    //w->Glw()->resize(workAreaSize);
 
     showNormal();
     QMessageBox::information(this, tr("Done"), tr("Animation completed."));

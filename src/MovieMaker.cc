@@ -40,7 +40,7 @@
 //#define VIDEO_BUF_SIZE 1835008
 //#define VIDEO_BITRATE  6000 * 1024
 
-#define VIDEO_BUF_SIZE 249835008
+#define VIDEO_BUF_SIZE 700835008
 #define VIDEO_BITRATE  12960000
 
 using namespace std;
@@ -106,7 +106,7 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
 
   video->pix_fmt = PIX_FMT_YUV420P;
   video->rc_buffer_size = VIDEO_BUF_SIZE;
-  video->rc_max_rate = 14 * 1024 * 1024;
+  video->rc_max_rate = VIDEO_BUF_SIZE;
   video->rc_min_rate = 0;
 
   // params from chris (Martin)
@@ -359,15 +359,12 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
   return true;
 }
 
-/*bool MovieMaker::addImage(QImage *image)
+/*bool MovieMaker::addImage(QImage& image)
 {
-  if (!image)
-      return false;
-
   // scale image to fit video format size
-  QImage imageScaled = image->scaled(720, 480, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  const QImage imageScaled = image.scaled(1280, 720, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-  addImage(&outputVideo, imageScaled);
+  addImage(&imageScaled);
 
   return true;
 
