@@ -3038,11 +3038,17 @@ void DianaMainWindow::saveAnimation() {
     float delay = timeout_ms * 0.001;
     MovieMaker moviemaker(filename, format, delay);
 
-    QMessageBox::information(this, tr("Making animation"), tr("This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
-    showMinimized();
-
-    // save current format
+    // save current sizes
+    QSize mainWindowSize = size();
     QSize workAreaSize = w->Glw()->size();
+
+    QMessageBox::information(
+        this,
+        tr("Making animation"),
+        tr(
+            "This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin."));
+    resize(1440, 850); ///< w/o this, grabFrameBuffer() only returns the (OpenGL-)part of the WorkArea visible in the DianaMainWindow
+    showMinimized();
 
     // first reset time-slider
     miutil::miTime startTime = tslider->getStartTime();
@@ -3056,14 +3062,16 @@ void DianaMainWindow::saveAnimation() {
     QProgressDialog progress(tr("Creating animation..."), tr("Hide"),
         0, maxProgress);
     progress.setWindowModality(Qt::WindowModal);
+    progress.show();
 
     /// save frames as images
     while(tslider->current() < nrOfTimesteps-1) {
       /// update progressbar
-      progress.setValue(i);
+      if(!progress.isHidden())
+        progress.setValue(i);
 
       w->Glw()->resize(1280, 720);
-      QImage image = w->Glw()->grabFrameBuffer();
+      QImage image = w->Glw()->grabFrameBuffer(true);
       moviemaker.addImage(&image);
 
       /// go to next frame
@@ -3071,10 +3079,12 @@ void DianaMainWindow::saveAnimation() {
 
       ++i;
     }
-    progress.setValue(i);
+    if(!progress.isHidden())
+      progress.setValue(i);
 
-    // restore size
-    //w->Glw()->resize(workAreaSize);
+    // restore sizes
+    w->Glw()->resize(workAreaSize);
+    resize(mainWindowSize);
 
     showNormal();
     QMessageBox::information(this, tr("Done"), tr("Animation completed."));
