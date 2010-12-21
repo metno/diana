@@ -61,7 +61,7 @@ class QTextEdit;
 class QuickMenu : public QDialog {
   Q_OBJECT
 private:
-  enum { maxoptions= 10 };      // maximum options
+  enum { maxoptions= 20 };      // maximum options
   enum { maxplotsinstack= 100}; // size of history-stack
 
   QComboBox* menulist;     // main quickmenu-combobox
