@@ -36,8 +36,8 @@
 #include "config.h"
 #endif
 
-#include <qapplication.h>
-#include <qtranslator.h>
+#include <QApplication>
+#include <QTranslator>
 
 #include "diSetupParser.h"
 #include "diPrintOptions.h"
@@ -48,15 +48,8 @@
 #include <diField/diProjection.h>
 #include <iostream>
 
-#ifndef NOLOG4CXX
-#include <log4cxx/logger.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/basicconfigurator.h>
-#include <log4cxx/level.h>
-#else
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
-#endif
 
 #ifdef PROFET
 #include <profet/ProfetController.h>
@@ -108,7 +101,6 @@ int main(int argc, char **argv)
   miString lang;
   bool useprojlib=true;
   map<miString,miString> user_variables;
-  milogger::LogHandler * plog = NULL;
 
     // parsing command line arguments
   int ac= 1;
@@ -171,32 +163,23 @@ int main(int argc, char **argv)
 
   // Fix logger
   // initLogHandler must always be done
-  if(logfilename.exists()) {
-#ifndef NOLOG4CXX
-    log4cxx::PropertyConfigurator::configure(logfilename.cStr());
-#else
-    plog = milogger::LogHandler::initLogHandler( 1, logfilename.cStr() );
-#endif
+  if (logfilename.exists()) {
+    milogger::LogHandler::initLogHandler(logfilename);
   }
   else {
-#ifndef NOLOG4CXX
-    log4cxx::BasicConfigurator::configure();
-    //log4cxx::Logger::getRootLogger()->setLevel(log4cxx::Level::WARN_INT);
-    log4cxx::Logger::getRootLogger()->setLevel(log4cxx::Level::getWarn());
-#else
-    plog = milogger::LogHandler::initLogHandler( 1, "" );
-#endif
+    milogger::LogHandler::initLogHandler( 4, "");
   }
-  plog->setObjectName("diana.main_gui.main");
+  MI_LOG & log = MI_LOG::getInstance("diana.main_gui");
+
   SetupParser sp;
   sp.setUserVariables(user_variables);
   if (!sp.parse(setupfile)){
-	  COMMON_LOG::getInstance("common").errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
   printerManager printman;
   if (!printman.parseSetup(sp)){
-	  COMMON_LOG::getInstance("common").errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
 
@@ -204,7 +187,7 @@ int main(int argc, char **argv)
 
   // read setup
   if (!contr.parseSetup()){
-	  COMMON_LOG::getInstance("common").errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
 #ifdef PROFET
@@ -233,7 +216,7 @@ int main(int argc, char **argv)
 
   if(lang.exists()) {
 
-	COMMON_LOG::getInstance("common").infoStream() << "SYSTEM LANGUAGE: " << lang.cStr();
+    log.infoStream() << "SYSTEM LANGUAGE: " << lang.cStr();
 
     miString qtlang   = "qt_" +lang;
     miString dilang   = "diana_"+lang;
