@@ -1,3 +1,10 @@
+diana (3.23.3-ubuntu1) lucid; urgency=low
+
+  * Bugfix parsing logfile
+  * Using metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@vpn-117-63.met.no>  Mon, 06 Dec 2010 09:00:58 +0100
+
 diana (3.23.2-ubuntu1) lucid; urgency=low
 
   * Bugfix obsplot: pressure tendency, temperature precision, metar clouds 
