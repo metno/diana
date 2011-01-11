@@ -1313,6 +1313,10 @@ void VcrossDialog::enableFieldOptions(){
   // base
   miutil::miString base;
   if (ekv>0. && (nc=cp->findKey(vpcopt,"base"))>=0) {
+    if (!vpcopt[nc].floatValue.empty())
+      e = vpcopt[nc].floatValue[0];
+    else
+      e = 0.0;
     zero1ComboBox->setEnabled(true);
     base = baseList(zero1ComboBox,vpcopt[nc].floatValue[0],ekv/2.0);
     if( base.exists() ) cp->replaceValue(vpcopt[nc],base,0);
