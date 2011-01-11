@@ -492,6 +492,7 @@ vector<PlotElement>& PlotModule::getPlotElements()
   // get obj names
   objects.getPlotName(str);
   if (str.exists()) {
+    str += "# " + miString("0");
     bool enabled = objects.isEnabled();
     // add plotelement
     pel.push_back(PlotElement("OBJECTS", str, "OBJECTS", enabled));
