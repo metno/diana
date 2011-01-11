@@ -4,8 +4,6 @@ dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/sigkart.txt \
 	share/diana/products/sigkarta_SodraFlyg.txt \
 	share/diana/products/sigkarta_SodraArlanda.txt \
-	share/diana/products/sigkarta_SodraFlyg.txt \
-	share/diana/products/sigkarta_SodraArlanda.txt \
 	share/diana/products/analys_Europa.txt \
 	share/diana/products/prognose+36.txt \
 	share/diana/products/prognose+18.txt \
