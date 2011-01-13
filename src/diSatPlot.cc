@@ -112,6 +112,16 @@ void SatPlot::getCalibChannels(vector<miString>& channels )
 
 void SatPlot::values(float x, float y, vector<SatValues>& satval){
 
+  if (!enabled) {
+    return;
+  }
+
+  if ((satdata == NULL)||
+      (satdata->image == NULL)||
+      (!satdata->approved)) {
+    return;
+  }
+
   //x, y in map coordinates
   int npos =1;
   //Convert to satellite proj coordiantes
@@ -120,9 +130,7 @@ void SatPlot::values(float x, float y, vector<SatValues>& satval){
   int xpos = x/satdata->gridResolutionX;
   int ypos = y/satdata->gridResolutionY;
 
-  if (satdata!=NULL && satdata->image != NULL && satdata->approved){
-    satdata->values(xpos,ypos,satval);
-  }
+  satdata->values(xpos,ypos,satval);
 
 }
 
