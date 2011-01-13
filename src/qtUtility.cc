@@ -317,10 +317,15 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem  )
 
 
   QComboBox* box = new QComboBox(parent);
-  for(int i=0; i < nr_linetypes; i++)
+  for(int i=0; i < nr_linetypes; i++){
     box->addItem ( *pmapLinetypes[i], "" );
+    delete pmapLinetypes[i];
+    pmapLinetypes[i] = NULL;
+  }
 
   box->setEnabled( Enabled );
+
+  delete [] pmapLinetypes;
 
   return box;
 }
@@ -347,9 +352,12 @@ QComboBox* LinewidthBox( QWidget* parent,
   for( int i=0; i < nr_linewidths; i++){
     miutil::miString ss = "  " + miutil::miString(i+1);
     box->addItem ( *pmapLinewidths[i], ss.cStr() );
+    delete pmapLinewidths[i];
+    pmapLinewidths[i] = NULL;
   }
   box->setEnabled(true);
 
+  delete [] pmapLinewidths;
   return box;
 }
 

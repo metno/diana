@@ -65,6 +65,20 @@ AnnotationPlot::AnnotationPlot(const miString& po) :
   prepare(po);
 }
 
+// Destructor
+AnnotationPlot::~AnnotationPlot()
+{
+  size_t n = annotations.size();
+  for ( size_t i = 0; i < n; ++i ) {
+    size_t m = annotations[i].annoElements.size();
+    for ( size_t j = 0; j < m; ++j ) {
+      delete annotations[i].annoElements[j].classplot;
+      annotations[i].annoElements[j].classplot = NULL;
+    }
+  }
+
+}
+
 void AnnotationPlot::init()
 {
   plotRequested = false;
@@ -305,6 +319,11 @@ bool AnnotationPlot::putElements()
   int n = annotations.size();
   for (int i = 0; i < n; i++) {
     int subel = 0;
+    size_t m = annotations[i].annoElements.size();
+    for ( size_t j = 0; j < m; ++j ) {
+      delete annotations[i].annoElements[j].classplot;
+      annotations[i].annoElements[j].classplot = NULL;
+    }
     annotations[i].annoElements.clear();
     annotations[i].hAlign = align_left;//default
     annotations[i].polystyle = poly_none;//default

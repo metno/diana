@@ -84,6 +84,9 @@ class AnnotationPlot: public Plot {
     float width, height;
     bool horizontal;
     polyStyle polystyle;
+    element():classplot(0)
+    {
+    }
   };
 
 public:
@@ -172,6 +175,8 @@ public:
   // Constructors
   AnnotationPlot();
   AnnotationPlot(const miutil::miString&);
+  // Destructor
+  ~AnnotationPlot();
 
   bool plot();
   bool plot(const int)
