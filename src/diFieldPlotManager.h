@@ -88,7 +88,7 @@ public:
 
   /// return all field groups for one model/file (to FieldDialog)
   void getFieldGroups(const miutil::miString& modelNameRequest,
-      miutil::miString& modelName, vector<FieldGroupInfo>& vfgi);
+      miutil::miString& modelName, miutil::miTime refTime, vector<FieldGroupInfo>& vfgi);
 
   /// return available times for the selceted models and fields
   vector<miutil::miTime> getFieldTime(const vector<miutil::miString>& pinfos,
@@ -103,24 +103,34 @@ public:
 
   /// return all defined field plot names from setup
   void getAllFieldNames(vector<miutil::miString>& fieldNames,
-      set<miutil::miString>& fieldprefixes, set<miutil::miString>& fieldsuffixes);
+      set<std::string>& fieldprefixes, set<std::string>& fieldsuffixes);
 
 private:
 
   vector<PlotField> vPlotField;
-  map<miutil::miString, PlotField> mapPlotField;
-  set<miutil::miString> fieldprefixes;
-  set<miutil::miString> fieldsuffixes;
+  map<std::string, PlotField> mapPlotField;
+  set<std::string> fieldprefixes;
+  set<std::string> fieldsuffixes;
 
   vector<miutil::miString>
       splitComStr(const miutil::miString& s, bool splitall);
 
-  bool splitSuffix(miutil::miString& plotName, miutil::miString& suffix);
+  bool splitSuffix(std::string& plotName, std::string& suffix);
 
-  bool parsePin(const miutil::miString& pin, miutil::miString& modelName,
-      miutil::miString& plotName, vector<miutil::miString>& fieldName,
-      miutil::miString& levelName, miutil::miString& idnumName,
-      int& hourOffset, int& hourDiff, miutil::miTime& time);
+//  bool parsePin(const miutil::miString& pin, miutil::miString& modelName,
+//      miutil::miString& plotName, vector<miutil::miString>& fieldName,
+//      miutil::miString& levelName, miutil::miString& idnumName,
+//      int& hourOffset, int& hourDiff, miutil::miTime& time);
+  bool parsePin(std::string& pin,
+      std::string& modelName, std::string& plotName,
+      miutil::miTime& refTime,  std::string& grid,
+      vector<std::string>& paramName,
+      std::string& zaxis,  std::string& taxis,
+      std::string& runaxis,  std::string& version,
+      std::string& plevel,  miutil::miTime& time,
+      std::string& run,  int & time_tolerance,
+      int& hourOffset,
+      int& refhour, int& refoffset);
 
   FieldManager* fieldManager;
 

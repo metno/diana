@@ -147,6 +147,12 @@ private:
     vector<miutil::miString> idnumOptions;
     bool minus;
     miutil::miString time;
+    //Used in gridio
+    miutil::miTime refTime;
+    std::string zaxis;
+    std::string runaxis;
+    std::string taxis;
+    std::string grid;
   };
 
   void updateModelBoxes();
@@ -198,8 +204,8 @@ private:
   map<miutil::miString,miutil::miString> editFieldOptions;
 
   // possible extensions of fieldnames (not found in setup)
-  set<miutil::miString> fieldPrefixes;
-  set<miutil::miString> fieldSuffixes;
+  set<std::string> fieldPrefixes;
+  set<std::string> fieldSuffixes;
 
   vector<SelectedField> selectedFields;
   int numEditFields;

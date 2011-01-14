@@ -289,13 +289,13 @@ public:
   vector<FieldDialogInfo> initFieldDialog();
   /// return plot options for all defined plot fields in setup
   void getAllFieldNames(vector<miutil::miString>& fieldNames,
-			set<miutil::miString>& fieldprefixes,
-			set<miutil::miString>& fieldsuffixes);
+			set<std::string>& fieldprefixes,
+			set<std::string>& fieldsuffixes);
   ///return levels
   vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const miutil::miString& modelNameRequest,
-		      miutil::miString& modelName, vector<FieldGroupInfo>& vfgi);
+		      miutil::miString& modelName, miutil::miTime refTime, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
   vector<miutil::miTime> getFieldTime(vector<FieldTimeRequest>& request,
 			      bool allTimeSteps);

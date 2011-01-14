@@ -800,8 +800,8 @@ vector<FieldDialogInfo> Controller::initFieldDialog(){
 }
 
 void Controller::getAllFieldNames(vector<miString> & fieldNames,
-				    set<miString>& fieldprefixes,
-				    set<miString>& fieldsuffixes)
+				    set<std::string>& fieldprefixes,
+				    set<std::string>& fieldsuffixes)
 {
   fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
 }
@@ -818,11 +818,12 @@ vector<miString> Controller::getFieldLevels(const miString& pinfo)
 
 void Controller::getFieldGroups(const miString& modelNameRequest,
 				miString& modelName,
+				miutil::miTime refTime,
 				vector<FieldGroupInfo>& vfgi)
 {
 //   cerr <<"modelNameRequest: "<<modelNameRequest<<endl;
 
-  fieldplotm->getFieldGroups(modelNameRequest, modelName, vfgi);
+  fieldplotm->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 //   for(int i=0;i<vfgi.size();i++){
 //     cerr <<"------------ "<<vfgi[i].groupName<<" ---------------------"<<endl;
 //     for(int j=0;j<vfgi[i].fieldNames.size();j++)

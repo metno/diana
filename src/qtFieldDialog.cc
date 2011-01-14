@@ -57,6 +57,7 @@
 #include "diController.h"
 #include <diField/diRectangle.h>
 #include <diField/diPlotOptions.h>
+#include <diField/FieldSpecTranslation.h>
 
 #include <iostream>
 #include <math.h>
@@ -1255,6 +1256,17 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 
   getFieldGroups(model, indexMGR, indexM, vfgi);
 
+  int nmodels = vfgi.size();
+  for (size_t i = 0; i < nmodels; i++) {
+
+    for(size_t ii = 0; ii <  vfgi[i].levelNames.size(); ii++ ) {
+
+      vfgi[i].levelNames[ii] = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].levelNames[ii]);
+    }
+    vfgi[i].defaultLevel = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].defaultLevel);
+  }
+
+
   int i, indexFGR, nvfgi = vfgi.size();
 
   if (nvfgi > 0) {
@@ -1691,6 +1703,11 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.fieldName = vfgi[indexFGR].fieldNames[indexF];
       sf.levelOptions = vfgi[indexFGR].levelNames;
       sf.idnumOptions = vfgi[indexFGR].idnumNames;
+      sf.refTime = vfgi[indexFGR].refTime;
+      sf.zaxis = vfgi[indexFGR].zaxis;
+      sf.taxis = vfgi[indexFGR].taxis;
+      sf.runaxis = vfgi[indexFGR].runaxis;
+      sf.grid = vfgi[indexFGR].grid;
       sf.minus = false;
 
       if (!vfgi[indexFGR].defaultLevel.empty()) {
@@ -1703,6 +1720,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
         else
           sf.level = vfgi[indexFGR].defaultLevel;
       }
+
       if (!vfgi[indexFGR].defaultIdnum.empty()) {
         n = vfgi[indexFGR].idnumNames.size();
         i = 0;
@@ -3315,11 +3333,12 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, int& indexMGR,
     int& indexM, vector<FieldGroupInfo>& vfg)
 {
 
+
   miutil::miString modelName;
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  m_ctrl->getFieldGroups(model, modelName, vfg);
+  m_ctrl->getFieldGroups(model, modelName, miutil::miTime(), vfg);
 
   QApplication::restoreOverrideCursor();
 
@@ -3341,12 +3360,13 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, int& indexMGR,
     while (indexMGR < ng && indexM < 0) {
       n = m_modelgroup[indexMGR].modelNames.size();
       i = 0;
-      while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i]) {
-/*
-        cout << " getFieldGroups, checking group:" << indexMGR << " model:"
-            << m_modelgroup[indexMGR].modelNames[i] << " against " << modelName
-            << endl;
-*/
+      modelName = modelName.downcase();
+      while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i].downcase()) {
+
+//        cout << " getFieldGroups, checking group:" << indexMGR << " model:"
+//            << m_modelgroup[indexMGR].modelNames[i] << " against " << modelName
+//            << endl;
+
         i++;
       }
       if (i < n)
@@ -3831,7 +3851,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     if (str.empty())
       str = vstr[ic];
     //######################################################################
-    //    cerr << "P.OK>> " << vstr[ic] << endl;
+//        cerr << "P.OK>> " << vstr[ic] << endl;
     //######################################################################
 
     //if prefix, remove it
@@ -3861,10 +3881,10 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     forecastSpec = false;
 
     //######################################################################
-    //for (int j = 0; j < vpc.size(); j++) {
-    //  cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-    //      << "   " << vpc[j].allValue << endl;
-    //}
+//    for (int j = 0; j < vpc.size(); j++) {
+//      cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
+//          << "   " << vpc[j].allValue << endl;
+//    }
     //######################################################################
 
     if (vpc.size() > 1 && vpc[0].key == "unknown") {
@@ -3894,8 +3914,8 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     }
 
     //######################################################################
-    //cerr << " ->" << model << " " << field << " l= " << level << " l2= "
-    //    << idnum << endl;
+//    cerr << " ->" << model << " " << field << " l= " << level << " l2= "
+//        << idnum << endl;
     //######################################################################
 
     if (model != vfg2_model) {
@@ -3903,7 +3923,6 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       getFieldGroups(model, indexMGR, indexM, vfg2);
       vfg2_model = model;
       nvfg = vfg2.size();
-      //cout << "getFieldGroups returned " << nvfg << " groups" << endl;
     }
 
     indexF = -1;
@@ -3912,7 +3931,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     bool ok = false;
 
     while (!ok && j < nvfg) {
-      //cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
+//      cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
 
       // Old syntax: Model, new syntax: Model(gridnr)
       miutil::miString modelName = vfg2[j].modelName;
@@ -3924,11 +3943,11 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       }
 
       if (modelName.downcase() == model.downcase()) {
-        //cout << "Found model:" << modelName << " in index:" << j << endl;
+//        cout << "Found model:" << modelName << " in index:" << j << endl;
         int m = vfg2[j].fieldNames.size();
         int i = 0;
         while (i < m && vfg2[j].fieldNames[i] != field){
-          //cout << " .. skipping field:" << vfg2[j].fieldNames[i] << endl;
+//          cout << " .. skipping field:" << vfg2[j].fieldNames[i] << endl;
           i++;
         }
 
@@ -3936,7 +3955,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
           ok = true;
           int m;
           if ((m = vfg2[j].levelNames.size()) > 0 && !level.empty()) {
-            //cout << " .. level is not empty" << endl;
+//            cout << " .. level is not empty" << endl;
             int l = 0;
             while (l < m && vfg2[j].levelNames[l] != level)
               l++;
@@ -3949,7 +3968,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
                 level = vfg2[j].levelNames[l];
             }
             if (l == m){
-              //cout << " .. did not find level:" << level << " ok=false" << endl;
+//             cout << " .. did not find level:" << level << " ok=false" << endl;
               ok = false;
             }
           } else if (!vfg2[j].levelNames.empty()) {
@@ -4004,11 +4023,11 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
 
       //############################################################################
-      //cerr << "  ok: " << str << " " << fOpts << endl;
+//      cerr << "  ok: " << str << " " << fOpts << endl;
       //############################################################################
     }
     //############################################################################
-    //else cerr << "  error" << endl;
+//    else cerr << "  error" << endl;
     //############################################################################
 
     if (minus) {
@@ -4863,6 +4882,11 @@ void FieldDialog::changeModel()
         selectedFields[i].modelName = vfgi[gbest].modelName;
         selectedFields[i].levelOptions = vfgi[gbest].levelNames;
         selectedFields[i].idnumOptions = vfgi[gbest].idnumNames;
+        selectedFields[i].refTime = vfgi[indexFGR].refTime;
+        selectedFields[i].zaxis = vfgi[indexFGR].zaxis;
+        selectedFields[i].taxis = vfgi[indexFGR].taxis;
+        selectedFields[i].runaxis = vfgi[indexFGR].runaxis;
+        selectedFields[i].grid = vfgi[indexFGR].grid;
 
         miutil::miString str = selectedFields[i].modelName + " "
             + selectedFields[i].fieldName;
@@ -5006,7 +5030,7 @@ miutil::miString FieldDialog::getFieldOptions(
   map<miutil::miString, miutil::miString>::const_iterator pfend =
       setupFieldOptions.end();
 
-  set<miutil::miString>::const_iterator ps;
+  set<std::string>::const_iterator ps;
   size_t l, lname = fieldname.length();
 
   ps = fieldSuffixes.begin();
@@ -5093,6 +5117,11 @@ void FieldDialog::updateTime()
         request[nr].idnumName = selectedFields[i].idnum;
         request[nr].hourOffset = selectedFields[i].hourOffset;
         request[nr].forecastSpec = 0;
+        request[nr].refTime = selectedFields[i].refTime;
+        request[nr].zaxis = selectedFields[i].zaxis;
+        request[nr].taxis = selectedFields[i].taxis;
+        request[nr].runaxis = selectedFields[i].runaxis;
+        request[nr].grid = selectedFields[i].grid;
 
         if (selectedFields[i].forecastSpec) {
           vector<ParsedCommand> vpc = cp->parse(selectedFields[i].fieldOpts);
