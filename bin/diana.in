@@ -104,7 +104,6 @@ rm $corefile
 done
 
 echo "===============================================" >>mail.core
-hinv                 >>mail.core
 
 adr="audun.christoffersen@met.no lisbeth.bergholt@met.no juergen.schulze@met.no"
 Mail -s "DIANA CRASH" $adr < mail.core
