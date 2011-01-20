@@ -72,8 +72,6 @@ public slots:
 
 protected:
   PlotElement plotelement_;
-  QColor origcolor_;
-  QColor highlightcolor_;
   QString tipstr_;
 
 signals:

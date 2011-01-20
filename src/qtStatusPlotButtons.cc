@@ -61,8 +61,6 @@ PlotButton::PlotButton(QWidget * parent,
   setPlotElement(pe);
   setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
   connect(this,SIGNAL(toggled(bool)),SLOT(togg(bool)));
-  origcolor_= palette().color(backgroundRole());
-  highlightcolor_ = QColor(Qt::lightGray);
 }
 
 void PlotButton::setPlotElement(const PlotElement& pe)
@@ -87,14 +85,7 @@ void PlotButton::setPlotElement(const PlotElement& pe)
   tipstr_= QString(str.cStr());
   setToolTip(tipstr_);
   setText(tipstr_.right(1));
-  QString rawstyle = "QToolButton { background: rgb(%1,%2,%3);}";
-  QColor color = origcolor_;
-  QString scr, scg, scb;
-  scr.setNum(color.red());
-  scg.setNum(color.green());
-  scb.setNum(color.blue());
-  QString stylesheet = rawstyle.arg(scr,scg,scb);
-  setStyleSheet(stylesheet);
+  setStyleSheet("QToolButton { background-color: lightGray }");
   setCheckable(true);
   setChecked(plotelement_.enabled);
 }
@@ -106,21 +97,15 @@ void PlotButton::togg(bool b)
     emit enabled(plotelement_);
 }
 
+
 void PlotButton::highlight(bool b)
 {
-  QString rawstyle = "QToolButton { background: rgb(%1,%2,%3);}";
-  QColor color;
+
   if (b){
-    color = highlightcolor_;
+    setStyleSheet("QToolButton { background-color: darkGray }");
   } else {
-    color = origcolor_;
+    setStyleSheet("QToolButton { background-color: lightGray }");
   }
-    QString scr, scg, scb;
-    scr.setNum(color.red());
-    scg.setNum(color.green());
-    scb.setNum(color.blue());
-    QString stylesheet = rawstyle.arg(scr,scg,scb);
-    setStyleSheet(stylesheet);
 }
 
 
@@ -167,7 +152,7 @@ void StatusPlotButtons::calcTipPos()
 
 void StatusPlotButtons::setfocus()
 {
-
+  releasefocus();
   grabKeyboard();
   activebutton= 0;
 
@@ -188,10 +173,6 @@ void StatusPlotButtons::showActiveButton(bool b)
   if (activebutton>=0 && activebutton<numbuttons){
     buttons[activebutton]->highlight(b);
     
-    //int x= buttons[activebutton]->x();
-    //int y= buttons[activebutton]->y();
-    //    sv->ensureVisible(x,y);
-
     if (b) showText(buttons[activebutton]->tipText());
   }
 }
@@ -207,12 +188,6 @@ void StatusPlotButtons::releasefocus()
 
 void StatusPlotButtons::keyPressEvent ( QKeyEvent * e )
 {
-  // no modifiers recognized here
-  if (e->modifiers() != Qt::NoButton){
-    releasefocus();
-    e->ignore();
-    return;
-  }
 
   if (e->key() == Qt::Key_Left){
     if (activebutton > 0){
@@ -230,8 +205,6 @@ void StatusPlotButtons::keyPressEvent ( QKeyEvent * e )
     if (activebutton>=0 && activebutton < numbuttons){
       buttons[activebutton]->toggle();
     }
-  } else if (e->key() == Qt::Key_End){
-    releasefocus();
   } else {
     releasefocus();
     e->ignore();
