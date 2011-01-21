@@ -75,7 +75,7 @@
 
 
 FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl) :
-  QDialog(parent)
+QDialog(parent)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::FieldDialog called"<<endl;
@@ -475,14 +475,14 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl) :
 
   // allTimeStep
   allTimeStepButton
-      = new ToggleButton(this, tr("All time steps").toStdString());
+  = new ToggleButton(this, tr("All time steps").toStdString());
   allTimeStepButton->setCheckable(true);
   allTimeStepButton->setChecked(false);connect( allTimeStepButton, SIGNAL(toggled(bool)),
       SLOT(allTimeStepToggled(bool)));
 
   // advanced
   miutil::miString more_str[2] =
-    { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
+  { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
   advanced = new ToggleButton(this, more_str);
   advanced->setChecked(false);connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
 
@@ -855,286 +855,286 @@ void FieldDialog::CreateAdvanced()
   for (int i = 0; i < 3; i++) {
     threeColourBox.push_back(ColourBox(advFrame, colourInfo, true, 0,
         tr("Off").toStdString()));
-connect  ( threeColourBox[i], SIGNAL( activated(int) ),
-      SLOT( threeColoursChanged() ) );
-}
+    connect  ( threeColourBox[i], SIGNAL( activated(int) ),
+        SLOT( threeColoursChanged() ) );
+  }
 
-//shading
-shadingComboBox=
-PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
-shadingComboBox->
-setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
-connect( shadingComboBox, SIGNAL( activated(int) ),
-    SLOT( shadingChanged() ) );
+  //shading
+  shadingComboBox=
+      PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
+  shadingComboBox->
+  setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
+  connect( shadingComboBox, SIGNAL( activated(int) ),
+      SLOT( shadingChanged() ) );
 
-shadingSpinBox= new QSpinBox( advFrame );
-shadingSpinBox->setMinimum(0);
-shadingSpinBox->setMaximum(99);
-shadingSpinBox->setSingleStep(1);
-shadingSpinBox->setSpecialValueText(tr("Auto"));
-shadingSpinBox->setEnabled(false);
-connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
-    SLOT( shadingChanged() ) );
+  shadingSpinBox= new QSpinBox( advFrame );
+  shadingSpinBox->setMinimum(0);
+  shadingSpinBox->setMaximum(99);
+  shadingSpinBox->setSingleStep(1);
+  shadingSpinBox->setSpecialValueText(tr("Auto"));
+  shadingSpinBox->setEnabled(false);
+  connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
+      SLOT( shadingChanged() ) );
 
-shadingcoldComboBox=
-PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
-shadingcoldComboBox->
-setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
-connect( shadingcoldComboBox, SIGNAL( activated(int) ),
-    SLOT( shadingChanged() ) );
+  shadingcoldComboBox=
+      PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString(),true );
+  shadingcoldComboBox->
+  setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
+  connect( shadingcoldComboBox, SIGNAL( activated(int) ),
+      SLOT( shadingChanged() ) );
 
-shadingcoldSpinBox= new QSpinBox( advFrame );
-shadingcoldSpinBox->setMinimum(0);
-shadingcoldSpinBox->setMaximum(99);
-shadingcoldSpinBox->setSingleStep(1);
-shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
-shadingcoldSpinBox->setEnabled(false);
-connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
-    SLOT( shadingChanged() ) );
+  shadingcoldSpinBox= new QSpinBox( advFrame );
+  shadingcoldSpinBox->setMinimum(0);
+  shadingcoldSpinBox->setMaximum(99);
+  shadingcoldSpinBox->setSingleStep(1);
+  shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
+  shadingcoldSpinBox->setEnabled(false);
+  connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
+      SLOT( shadingChanged() ) );
 
-//pattern
-patternComboBox =
-PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString(),true );
-patternComboBox ->
-setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
-connect( patternComboBox, SIGNAL( activated(int) ),
-    SLOT( patternComboBoxToggled(int) ) );
+  //pattern
+  patternComboBox =
+      PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString(),true );
+  patternComboBox ->
+  setSizeAdjustPolicy ( QComboBox::AdjustToMinimumContentsLength);
+  connect( patternComboBox, SIGNAL( activated(int) ),
+      SLOT( patternComboBoxToggled(int) ) );
 
-//pattern colour
-patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
-connect( patternColourBox, SIGNAL( activated(int) ),
-    SLOT( patternColourBoxToggled(int) ) );
+  //pattern colour
+  patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
+  connect( patternColourBox, SIGNAL( activated(int) ),
+      SLOT( patternColourBoxToggled(int) ) );
 
-//alpha blending
-alphaSpinBox= new QSpinBox( advFrame );
-alphaSpinBox->setMinimum(0);
-alphaSpinBox->setMaximum(255);
-alphaSpinBox->setSingleStep(5);
-alphaSpinBox->setEnabled(false);
-alphaSpinBox->setValue(255);
-connect( alphaSpinBox, SIGNAL( valueChanged(int) ),
-    SLOT( alphaChanged(int) ) );
+  //alpha blending
+  alphaSpinBox= new QSpinBox( advFrame );
+  alphaSpinBox->setMinimum(0);
+  alphaSpinBox->setMaximum(255);
+  alphaSpinBox->setSingleStep(5);
+  alphaSpinBox->setEnabled(false);
+  alphaSpinBox->setValue(255);
+  connect( alphaSpinBox, SIGNAL( valueChanged(int) ),
+      SLOT( alphaChanged(int) ) );
 
-//colour
-colour2ComboBox = ColourBox(advFrame,colourInfo,false,0,tr("Off").toStdString());
-connect( colour2ComboBox, SIGNAL( activated(int) ),
-    SLOT( colour2ComboBoxToggled(int) ) );
+  //colour
+  colour2ComboBox = ColourBox(advFrame,colourInfo,false,0,tr("Off").toStdString());
+  connect( colour2ComboBox, SIGNAL( activated(int) ),
+      SLOT( colour2ComboBoxToggled(int) ) );
 
-//line interval
-interval2ComboBox = new QComboBox(advFrame);
-interval2ComboBox->setEnabled( false );
-connect( interval2ComboBox, SIGNAL( activated(int) ),
-    SLOT( interval2ComboBoxToggled(int) ) );
+  //line interval
+  interval2ComboBox = new QComboBox(advFrame);
+  interval2ComboBox->setEnabled( false );
+  connect( interval2ComboBox, SIGNAL( activated(int) ),
+      SLOT( interval2ComboBoxToggled(int) ) );
 
-//zero value
-zero1ComboBox= new QComboBox( advFrame );
-zero2ComboBox = new QComboBox(advFrame);
-zero1ComboBox->setEnabled( false );
-zero2ComboBox->setEnabled( false );
-connect( zero1ComboBox, SIGNAL( activated(int) ),
-    SLOT( zero1ComboBoxToggled(int) ) );
-connect( zero2ComboBox, SIGNAL( activated(int) ),
-    SLOT( zero2ComboBoxToggled(int) ) );
+  //zero value
+  zero1ComboBox= new QComboBox( advFrame );
+  zero2ComboBox = new QComboBox(advFrame);
+  zero1ComboBox->setEnabled( false );
+  zero2ComboBox->setEnabled( false );
+  connect( zero1ComboBox, SIGNAL( activated(int) ),
+      SLOT( zero1ComboBoxToggled(int) ) );
+  connect( zero2ComboBox, SIGNAL( activated(int) ),
+      SLOT( zero2ComboBoxToggled(int) ) );
 
-//min
-min1ComboBox = new QComboBox(advFrame);
-min2ComboBox = new QComboBox(advFrame);
-min1ComboBox->setEnabled( false );
-min2ComboBox->setEnabled( false );
+  //min
+  min1ComboBox = new QComboBox(advFrame);
+  min2ComboBox = new QComboBox(advFrame);
+  min1ComboBox->setEnabled( false );
+  min2ComboBox->setEnabled( false );
 
-//max
-max1ComboBox = new QComboBox(advFrame);
-max2ComboBox = new QComboBox(advFrame);
-max1ComboBox->setEnabled( false );
-max2ComboBox->setEnabled( false );
+  //max
+  max1ComboBox = new QComboBox(advFrame);
+  max2ComboBox = new QComboBox(advFrame);
+  max1ComboBox->setEnabled( false );
+  max2ComboBox->setEnabled( false );
 
-connect( min1ComboBox, SIGNAL( activated(int) ),
-    SLOT( min1ComboBoxToggled(int) ) );
-connect( max1ComboBox, SIGNAL( activated(int) ),
-    SLOT( max1ComboBoxToggled(int) ) );
-connect( min2ComboBox, SIGNAL( activated(int) ),
-    SLOT( min2ComboBoxToggled(int) ) );
-connect( max2ComboBox, SIGNAL( activated(int) ),
-    SLOT( max2ComboBoxToggled(int) ) );
+  connect( min1ComboBox, SIGNAL( activated(int) ),
+      SLOT( min1ComboBoxToggled(int) ) );
+  connect( max1ComboBox, SIGNAL( activated(int) ),
+      SLOT( max1ComboBoxToggled(int) ) );
+  connect( min2ComboBox, SIGNAL( activated(int) ),
+      SLOT( min2ComboBoxToggled(int) ) );
+  connect( max2ComboBox, SIGNAL( activated(int) ),
+      SLOT( max2ComboBoxToggled(int) ) );
 
-//linewidth
-linewidth2ComboBox = LinewidthBox( advFrame);
-linewidth2ComboBox->setEnabled( false );
-connect( linewidth2ComboBox, SIGNAL( activated(int) ),
-    SLOT( linewidth2ComboBoxToggled(int) ) );
-//linetype
-linetype2ComboBox = LinetypeBox( advFrame,false );
-linetype2ComboBox->setEnabled( false );
-connect( linetype2ComboBox, SIGNAL( activated(int) ),
-    SLOT( linetype2ComboBoxToggled(int) ) );
+  //linewidth
+  linewidth2ComboBox = LinewidthBox( advFrame);
+  linewidth2ComboBox->setEnabled( false );
+  connect( linewidth2ComboBox, SIGNAL( activated(int) ),
+      SLOT( linewidth2ComboBoxToggled(int) ) );
+  //linetype
+  linetype2ComboBox = LinetypeBox( advFrame,false );
+  linetype2ComboBox->setEnabled( false );
+  connect( linetype2ComboBox, SIGNAL( activated(int) ),
+      SLOT( linetype2ComboBoxToggled(int) ) );
 
-// Plot frame
-frameCheckBox= new QCheckBox(QString(tr("Frame")), advFrame);
-frameCheckBox->setChecked( true );
-connect( frameCheckBox, SIGNAL( toggled(bool) ),
-    SLOT( frameCheckBoxToggled(bool) ) );
+  // Plot frame
+  frameCheckBox= new QCheckBox(QString(tr("Frame")), advFrame);
+  frameCheckBox->setChecked( true );
+  connect( frameCheckBox, SIGNAL( toggled(bool) ),
+      SLOT( frameCheckBoxToggled(bool) ) );
 
-// enable/disable zero line (isoline with value=0)
-zeroLineCheckBox= new QCheckBox(QString(tr("Zero line")), advFrame);
-//  zeroLineColourCBox= new QComboBox(advFrame);
-zeroLineCheckBox->setChecked( true );
+  // enable/disable zero line (isoline with value=0)
+  zeroLineCheckBox= new QCheckBox(QString(tr("Zero line")), advFrame);
+  //  zeroLineColourCBox= new QComboBox(advFrame);
+  zeroLineCheckBox->setChecked( true );
 
-//  zeroLineCheckBox->setEnabled( false );
-zeroLineCheckBox->setEnabled( true );
-connect( zeroLineCheckBox, SIGNAL( toggled(bool) ),
-    SLOT( zeroLineCheckBoxToggled(bool) ) );
+  //  zeroLineCheckBox->setEnabled( false );
+  zeroLineCheckBox->setEnabled( true );
+  connect( zeroLineCheckBox, SIGNAL( toggled(bool) ),
+      SLOT( zeroLineCheckBoxToggled(bool) ) );
 
-// Create horizontal frame lines
-QFrame *line0 = new QFrame( advFrame );
-line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-QFrame *line1 = new QFrame( advFrame );
-line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-QFrame *line2 = new QFrame( advFrame );
-line2->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-QFrame *line3 = new QFrame( advFrame );
-line3->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-QFrame *line4 = new QFrame( advFrame );
-line4->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-QFrame *line5 = new QFrame( advFrame );
-line5->setFrameStyle( QFrame::HLine | QFrame::Sunken );
-QFrame *line6 = new QFrame( advFrame );
-line6->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  // Create horizontal frame lines
+  QFrame *line0 = new QFrame( advFrame );
+  line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  QFrame *line1 = new QFrame( advFrame );
+  line1->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  QFrame *line2 = new QFrame( advFrame );
+  line2->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  QFrame *line3 = new QFrame( advFrame );
+  line3->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  QFrame *line4 = new QFrame( advFrame );
+  line4->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  QFrame *line5 = new QFrame( advFrame );
+  line5->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+  QFrame *line6 = new QFrame( advFrame );
+  line6->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 
-// layout......................................................
+  // layout......................................................
 
-QGridLayout* advLayout = new QGridLayout( );
-advLayout->setSpacing(1);
-int line = 0;
-advLayout->addWidget( extremeTypeLabel, line, 0 );
-advLayout->addWidget(extremeSizeLabel, line, 1 );
-advLayout->addWidget(extremeRadiusLabel, line, 2 );
-line++;
-advLayout->addWidget( extremeTypeCbox, line, 0 );
-advLayout->addWidget(extremeSizeSpinBox, line, 1 );
-advLayout->addWidget(extremeRadiusSpinBox, line, 2 );
-line++;
-advLayout->setRowStretch(line,5);
-advLayout->addWidget(line0, line,0,1,3 );
+  QGridLayout* advLayout = new QGridLayout( );
+  advLayout->setSpacing(1);
+  int line = 0;
+  advLayout->addWidget( extremeTypeLabel, line, 0 );
+  advLayout->addWidget(extremeSizeLabel, line, 1 );
+  advLayout->addWidget(extremeRadiusLabel, line, 2 );
+  line++;
+  advLayout->addWidget( extremeTypeCbox, line, 0 );
+  advLayout->addWidget(extremeSizeSpinBox, line, 1 );
+  advLayout->addWidget(extremeRadiusSpinBox, line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);
+  advLayout->addWidget(line0, line,0,1,3 );
 
-line++;
-advLayout->addWidget(gridLinesLabel, line, 0 );
-advLayout->addWidget(gridLinesSpinBox, line, 1 );
-advLayout->addWidget(gridValueCheckBox, line, 2 );
-line++;
-advLayout->addWidget(lineSmoothLabel, line, 0 );
-advLayout->addWidget(lineSmoothSpinBox, line, 1 );
-line++;
-advLayout->addWidget(fieldSmoothLabel, line, 0 );
-advLayout->addWidget(fieldSmoothSpinBox, line, 1 );
-line++;
-advLayout->addWidget(hourOffsetLabel, line, 0 );
-advLayout->addWidget(hourOffsetSpinBox, line, 1 );
-line++;
-advLayout->addWidget(hourDiffLabel, line, 0 );
-advLayout->addWidget(hourDiffSpinBox, line, 1 );
-line++;
-advLayout->setRowStretch(line,5);;
-advLayout->addWidget(line4, line,0, 1,3 );
-line++;
-advLayout->addWidget(undefMaskingLabel, line, 0 );
-advLayout->addWidget(undefMaskingCbox, line, 1 );
-line++;
-advLayout->addWidget(undefColourCbox, line, 0 );
-advLayout->addWidget(undefLinewidthCbox, line, 1 );
-advLayout->addWidget(undefLinetypeCbox, line, 2 );
-line++;
-advLayout->setRowStretch(line,5);;
-advLayout->addWidget(line1, line,0, 1,4 );
+  line++;
+  advLayout->addWidget(gridLinesLabel, line, 0 );
+  advLayout->addWidget(gridLinesSpinBox, line, 1 );
+  advLayout->addWidget(gridValueCheckBox, line, 2 );
+  line++;
+  advLayout->addWidget(lineSmoothLabel, line, 0 );
+  advLayout->addWidget(lineSmoothSpinBox, line, 1 );
+  line++;
+  advLayout->addWidget(fieldSmoothLabel, line, 0 );
+  advLayout->addWidget(fieldSmoothSpinBox, line, 1 );
+  line++;
+  advLayout->addWidget(hourOffsetLabel, line, 0 );
+  advLayout->addWidget(hourOffsetSpinBox, line, 1 );
+  line++;
+  advLayout->addWidget(hourDiffLabel, line, 0 );
+  advLayout->addWidget(hourDiffSpinBox, line, 1 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addWidget(line4, line,0, 1,3 );
+  line++;
+  advLayout->addWidget(undefMaskingLabel, line, 0 );
+  advLayout->addWidget(undefMaskingCbox, line, 1 );
+  line++;
+  advLayout->addWidget(undefColourCbox, line, 0 );
+  advLayout->addWidget(undefLinewidthCbox, line, 1 );
+  advLayout->addWidget(undefLinetypeCbox, line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addWidget(line1, line,0, 1,4 );
 
-line++;
-advLayout->addWidget(frameCheckBox, line, 0 );
-advLayout->addWidget(zeroLineCheckBox, line, 1 );
-line++;
-advLayout->addWidget(valueLabelCheckBox, line, 0 );
-advLayout->addWidget(labelSizeSpinBox, line, 1 );
-line++;
-advLayout->setRowStretch(line,5);;
-advLayout->addWidget(line2, line,0, 1,3 );
+  line++;
+  advLayout->addWidget(frameCheckBox, line, 0 );
+  advLayout->addWidget(zeroLineCheckBox, line, 1 );
+  line++;
+  advLayout->addWidget(valueLabelCheckBox, line, 0 );
+  advLayout->addWidget(labelSizeSpinBox, line, 1 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addWidget(line2, line,0, 1,3 );
 
-line++;
-advLayout->addWidget( tableCheckBox, line, 0 );
-advLayout->addWidget( repeatCheckBox, line, 1 );
-line++;
-advLayout->addWidget( shadingLabel, line, 0 );
-advLayout->addWidget( shadingComboBox, line, 1 );
-advLayout->addWidget( shadingSpinBox, line, 2 );
-line++;
-advLayout->addWidget( shadingcoldLabel, line, 0 );
-advLayout->addWidget( shadingcoldComboBox,line, 1 );
-advLayout->addWidget( shadingcoldSpinBox, line, 2 );
-line++;
-advLayout->addWidget( patternLabel, line, 0 );
-advLayout->addWidget( patternComboBox, line, 1 );
-advLayout->addWidget( patternColourBox, line, 2 );
-line++;
-advLayout->addWidget( alphaLabel, line, 0 );
-advLayout->addWidget( alphaSpinBox, line, 1 );
-line++;
-advLayout->setRowStretch(line,5);;
-advLayout->addWidget(line6, line,0, 1,3 );
+  line++;
+  advLayout->addWidget( tableCheckBox, line, 0 );
+  advLayout->addWidget( repeatCheckBox, line, 1 );
+  line++;
+  advLayout->addWidget( shadingLabel, line, 0 );
+  advLayout->addWidget( shadingComboBox, line, 1 );
+  advLayout->addWidget( shadingSpinBox, line, 2 );
+  line++;
+  advLayout->addWidget( shadingcoldLabel, line, 0 );
+  advLayout->addWidget( shadingcoldComboBox,line, 1 );
+  advLayout->addWidget( shadingcoldSpinBox, line, 2 );
+  line++;
+  advLayout->addWidget( patternLabel, line, 0 );
+  advLayout->addWidget( patternComboBox, line, 1 );
+  advLayout->addWidget( patternColourBox, line, 2 );
+  line++;
+  advLayout->addWidget( alphaLabel, line, 0 );
+  advLayout->addWidget( alphaSpinBox, line, 1 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addWidget(line6, line,0, 1,3 );
 
-line++;
-advLayout->addWidget( baseLabel, line, 0 );
-advLayout->addWidget( minLabel, line, 1 );
-advLayout->addWidget( maxLabel, line, 2 );
-line++;
-advLayout->addWidget( zero1ComboBox, line, 0 );
-advLayout->addWidget( min1ComboBox, line, 1 );
-advLayout->addWidget( max1ComboBox, line, 2 );
-line++;
-advLayout->setRowStretch(line,5);;
-advLayout->addWidget(line3, line,0,1,3 );
+  line++;
+  advLayout->addWidget( baseLabel, line, 0 );
+  advLayout->addWidget( minLabel, line, 1 );
+  advLayout->addWidget( maxLabel, line, 2 );
+  line++;
+  advLayout->addWidget( zero1ComboBox, line, 0 );
+  advLayout->addWidget( min1ComboBox, line, 1 );
+  advLayout->addWidget( max1ComboBox, line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addWidget(line3, line,0,1,3 );
 
-line++;
-advLayout->addWidget(headLabel,line,0,1,2);
-line++;
-advLayout->addWidget( colourLabel, line, 0 );
-advLayout->addWidget( colour2ComboBox, line, 1 );
-line++;
-advLayout->addWidget( intervalLabel, line, 0 );
-advLayout->addWidget( interval2ComboBox, line, 1 );
-line++;
-advLayout->addWidget( linewidthLabel, line, 0 );
-advLayout->addWidget( linewidth2ComboBox, line, 1 );
-line++;
-advLayout->addWidget( linetypeLabel, line, 0 );
-advLayout->addWidget( linetype2ComboBox, line, 1 );
-line++;
-advLayout->addWidget( base2Label, line, 0 );
-advLayout->addWidget( min2Label, line, 1 );
-advLayout->addWidget( max2Label, line, 2 );
-line++;
-advLayout->addWidget( zero2ComboBox, line, 0 );
-advLayout->addWidget( min2ComboBox, line, 1 );
-advLayout->addWidget( max2ComboBox, line, 2 );
+  line++;
+  advLayout->addWidget(headLabel,line,0,1,2);
+  line++;
+  advLayout->addWidget( colourLabel, line, 0 );
+  advLayout->addWidget( colour2ComboBox, line, 1 );
+  line++;
+  advLayout->addWidget( intervalLabel, line, 0 );
+  advLayout->addWidget( interval2ComboBox, line, 1 );
+  line++;
+  advLayout->addWidget( linewidthLabel, line, 0 );
+  advLayout->addWidget( linewidth2ComboBox, line, 1 );
+  line++;
+  advLayout->addWidget( linetypeLabel, line, 0 );
+  advLayout->addWidget( linetype2ComboBox, line, 1 );
+  line++;
+  advLayout->addWidget( base2Label, line, 0 );
+  advLayout->addWidget( min2Label, line, 1 );
+  advLayout->addWidget( max2Label, line, 2 );
+  line++;
+  advLayout->addWidget( zero2ComboBox, line, 0 );
+  advLayout->addWidget( min2ComboBox, line, 1 );
+  advLayout->addWidget( max2ComboBox, line, 2 );
 
-line++;
-advLayout->setRowStretch(line,5);;
-advLayout->addWidget(line5, line,0, 1,3 );
-line++;
-advLayout->addWidget( threeColourLabel, line, 0 );
-//  advLayout->addWidget( threeColoursCheckBox, 38, 0 );
-line++;
-advLayout->addWidget( threeColourBox[0], line, 0 );
-advLayout->addWidget( threeColourBox[1], line, 1 );
-advLayout->addWidget( threeColourBox[2], line, 2 );
+  line++;
+  advLayout->setRowStretch(line,5);;
+  advLayout->addWidget(line5, line,0, 1,3 );
+  line++;
+  advLayout->addWidget( threeColourLabel, line, 0 );
+  //  advLayout->addWidget( threeColoursCheckBox, 38, 0 );
+  line++;
+  advLayout->addWidget( threeColourBox[0], line, 0 );
+  advLayout->addWidget( threeColourBox[1], line, 1 );
+  advLayout->addWidget( threeColourBox[2], line, 2 );
 
-// a separator
-QFrame* advSep= new QFrame( advFrame );
-advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
-advSep->setLineWidth(5);
+  // a separator
+  QFrame* advSep= new QFrame( advFrame );
+  advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
+  advSep->setLineWidth(5);
 
-QHBoxLayout *hLayout = new QHBoxLayout( advFrame);
+  QHBoxLayout *hLayout = new QHBoxLayout( advFrame);
 
-hLayout->addWidget(advSep);
-hLayout->addLayout(advLayout);
+  hLayout->addWidget(advSep);
+  hLayout->addLayout(advLayout);
 
-return;
+  return;
 }
 
 void FieldDialog::updateModelBoxes()
@@ -1360,7 +1360,7 @@ void FieldDialog::fieldGRboxActivated(int index)
             if ((ml = vfgi[indexFGR].levelNames.size()) > 0) {
               int l = 0;
               while (l < ml && vfgi[indexFGR].levelNames[l]
-                  != selectedFields[i].level)
+                                                         != selectedFields[i].level)
                 l++;
               if (l == ml)
                 j = nfield;
@@ -1368,7 +1368,7 @@ void FieldDialog::fieldGRboxActivated(int index)
             if ((ml = vfgi[indexFGR].idnumNames.size()) > 0) {
               int l = 0;
               while (l < ml && vfgi[indexFGR].idnumNames[l]
-                  != selectedFields[i].idnum)
+                                                         != selectedFields[i].idnum)
                 l++;
               if (l == ml)
                 j = nfield;
@@ -1746,7 +1746,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       last = selectedFields.size() - 1;
 
     } else if (!fieldbox->item(indexF)->isSelected() && countSelected[indexF]
-        > 0) {
+                                                                      > 0) {
       miutil::miString fieldName = vfgi[indexFGR].fieldNames[indexF];
       n = selectedFields.size();
       j = jp = -1;
@@ -2736,7 +2736,7 @@ vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number)
 
   const int nenormal = 10;
   const float enormal[nenormal] =
-    { 1., 2., 2.5, 3., 4., 5., 6., 7., 8., 9. };
+  { 1., 2., 2.5, 3., 4., 5., 6., 7., 8., 9. };
   float e, elog, ex, d, dd;
   int i, j, k, n, ielog, nupdown;
 
@@ -3301,7 +3301,7 @@ void FieldDialog::updateFieldOptions(const miutil::miString& name,
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::updateFieldOptions  name= " << name
-  << "  value= " << value <<endl;
+      << "  value= " << value <<endl;
 #endif
 
   if (currentFieldOpts.empty())
@@ -3321,7 +3321,7 @@ void FieldDialog::updateFieldOptions(const miutil::miString& name,
   if (!selectedFields[n].external) {
     if (selectedFields[n].inEdit && !selectedFields[n].editPlot) {
       editFieldOptions[selectedFields[n].fieldName.downcase()]
-          = currentFieldOpts;
+                       = currentFieldOpts;
     } else {
       fieldOptions[selectedFields[n].fieldName.downcase()] = currentFieldOpts;
     }
@@ -3363,9 +3363,9 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, int& indexMGR,
       modelName = modelName.downcase();
       while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i].downcase()) {
 
-//        cout << " getFieldGroups, checking group:" << indexMGR << " model:"
-//            << m_modelgroup[indexMGR].modelNames[i] << " against " << modelName
-//            << endl;
+        //        cout << " getFieldGroups, checking group:" << indexMGR << " model:"
+        //            << m_modelgroup[indexMGR].modelNames[i] << " against " << modelName
+        //            << endl;
 
         i++;
       }
@@ -3851,7 +3851,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     if (str.empty())
       str = vstr[ic];
     //######################################################################
-//        cerr << "P.OK>> " << vstr[ic] << endl;
+    //        cerr << "P.OK>> " << vstr[ic] << endl;
     //######################################################################
 
     //if prefix, remove it
@@ -3881,10 +3881,10 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     forecastSpec = false;
 
     //######################################################################
-//    for (int j = 0; j < vpc.size(); j++) {
-//      cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-//          << "   " << vpc[j].allValue << endl;
-//    }
+    //    for (int j = 0; j < vpc.size(); j++) {
+    //      cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
+    //          << "   " << vpc[j].allValue << endl;
+    //    }
     //######################################################################
 
     if (vpc.size() > 1 && vpc[0].key == "unknown") {
@@ -3914,8 +3914,8 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     }
 
     //######################################################################
-//    cerr << " ->" << model << " " << field << " l= " << level << " l2= "
-//        << idnum << endl;
+    //    cerr << " ->" << model << " " << field << " l= " << level << " l2= "
+    //        << idnum << endl;
     //######################################################################
 
     if (model != vfg2_model) {
@@ -3931,7 +3931,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     bool ok = false;
 
     while (!ok && j < nvfg) {
-//      cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
+      //      cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
 
       // Old syntax: Model, new syntax: Model(gridnr)
       miutil::miString modelName = vfg2[j].modelName;
@@ -3943,11 +3943,11 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       }
 
       if (modelName.downcase() == model.downcase()) {
-//        cout << "Found model:" << modelName << " in index:" << j << endl;
+        //        cout << "Found model:" << modelName << " in index:" << j << endl;
         int m = vfg2[j].fieldNames.size();
         int i = 0;
         while (i < m && vfg2[j].fieldNames[i] != field){
-//          cout << " .. skipping field:" << vfg2[j].fieldNames[i] << endl;
+          //          cout << " .. skipping field:" << vfg2[j].fieldNames[i] << endl;
           i++;
         }
 
@@ -3955,7 +3955,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
           ok = true;
           int m;
           if ((m = vfg2[j].levelNames.size()) > 0 && !level.empty()) {
-//            cout << " .. level is not empty" << endl;
+            //            cout << " .. level is not empty" << endl;
             int l = 0;
             while (l < m && vfg2[j].levelNames[l] != level)
               l++;
@@ -3968,7 +3968,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
                 level = vfg2[j].levelNames[l];
             }
             if (l == m){
-//             cout << " .. did not find level:" << level << " ok=false" << endl;
+              //             cout << " .. did not find level:" << level << " ok=false" << endl;
               ok = false;
             }
           } else if (!vfg2[j].levelNames.empty()) {
@@ -4023,11 +4023,11 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
 
       //############################################################################
-//      cerr << "  ok: " << str << " " << fOpts << endl;
+      //      cerr << "  ok: " << str << " " << fOpts << endl;
       //############################################################################
     }
     //############################################################################
-//    else cerr << "  error" << endl;
+    //    else cerr << "  error" << endl;
     //############################################################################
 
     if (minus) {
@@ -4060,13 +4060,13 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
             == indexM) {
           int j = 0;
           while (j < n && vfgi[indexFGR].fieldNames[j]
-              != selectedFields[i].fieldName)
+                                                    != selectedFields[i].fieldName)
             j++;
           if (j < n) {
             if ((ml = vfgi[indexFGR].levelNames.size()) > 0) {
               int l = 0;
               while (l < ml && vfgi[indexFGR].levelNames[l]
-                  != selectedFields[i].level)
+                                                         != selectedFields[i].level)
                 l++;
               if (l == ml)
                 j = n;
@@ -4074,7 +4074,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
             if ((ml = vfgi[indexFGR].idnumNames.size()) > 0) {
               int l = 0;
               while (l < ml && vfgi[indexFGR].idnumNames[l]
-                  != selectedFields[i].idnum)
+                                                         != selectedFields[i].idnum)
                 l++;
               if (l == ml)
                 j = n;
@@ -4287,7 +4287,7 @@ bool FieldDialog::fieldDifference(const miutil::miString& str,
               - oper - 2);
         } else if (endOper < end - 2) {
           field1 = str.substr(beginOper + 2, oper - beginOper - 2)
-              + str.substr(endOper + 2, end - endOper - 1);
+                  + str.substr(endOper + 2, end - endOper - 1);
           field2 = str.substr(oper + 3, endOper - oper - 3);
         } else {
           field1 = str.substr(0, beginOper) + str.substr(beginOper + 2, oper
@@ -4588,13 +4588,13 @@ void FieldDialog::deleteSelected()
       int n = vfgi[indexFGR].fieldNames.size();
       int i = 0;
       while (i < n && vfgi[indexFGR].fieldNames[i]
-          != selectedFields[index].fieldName)
+                                                != selectedFields[index].fieldName)
         i++;
       if (i < n) {
         if ((ml = vfgi[indexFGR].levelNames.size()) > 0) {
           int l = 0;
           while (l < ml && vfgi[indexFGR].levelNames[l]
-              != selectedFields[index].level)
+                                                     != selectedFields[index].level)
             l++;
           if (l == ml)
             i = n;
@@ -4602,7 +4602,7 @@ void FieldDialog::deleteSelected()
         if ((ml = vfgi[indexFGR].idnumNames.size()) > 0) {
           int l = 0;
           while (l < ml && vfgi[indexFGR].idnumNames[l]
-              != selectedFields[index].idnum)
+                                                     != selectedFields[index].idnum)
             l++;
           if (l == ml)
             i = n;
@@ -4731,14 +4731,14 @@ void FieldDialog::copySelectedField()
       int n = vfgi[indexFGR].fieldNames.size();
       int i = 0;
       while (i < n && vfgi[indexFGR].fieldNames[i]
-          != selectedFields[index].fieldName)
+                                                != selectedFields[index].fieldName)
         i++;
       if (i < n) {
         int ml = vfgi[indexFGR].levelNames.size();
         if (ml > 0 && selectedFields[index].level.exists()) {
           int l = 0;
           while (l < ml && vfgi[indexFGR].levelNames[l]
-              != selectedFields[index].level)
+                                                     != selectedFields[index].level)
             l++;
           if (l == ml)
             i = n;
@@ -4749,7 +4749,7 @@ void FieldDialog::copySelectedField()
         if (ml > 0 && selectedFields[index].idnum.exists()) {
           int l = 0;
           while (l < ml && vfgi[indexFGR].idnumNames[l]
-              != selectedFields[index].idnum)
+                                                     != selectedFields[index].idnum)
             l++;
           if (l == ml)
             i = n;
@@ -5149,7 +5149,7 @@ void FieldDialog::updateTime()
 
 #ifdef DEBUGREDRAW
   cerr<<"FieldDialog::updateTime emit emitTimes  fieldtime.size="
-  <<fieldtime.size()<<endl;
+      <<fieldtime.size()<<endl;
 #endif
   emit emitTimes("field", fieldtime);
 
