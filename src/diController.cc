@@ -291,16 +291,8 @@ void Controller::updatePlots(){
   plotm->updatePlots();
 }
 
-// update plot-classes with new level
-void Controller::updateLevel(const miString& levelSpec,
-			     const miString& levelSet){
-  plotm->updateLevel(levelSpec,levelSet);
-}
-
-// update plot-classes with new idnum (EPS cluster/member etc)
-void Controller::updateIdnum(const miString& idnumSpec,
-			     const miString& idnumSet){
-  plotm->updateIdnum(idnumSpec,idnumSet);
+void Controller::updateFieldPlot(const vector<miString>& pin){
+  plotm->updateFieldPlot(pin);
 }
 
 //update projection only

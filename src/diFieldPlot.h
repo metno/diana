@@ -69,8 +69,6 @@ public:
   bool plot();
   bool plot(const int){return false;}
   bool updateNeeded(miutil::miString&);
-  bool updateLevelNeeded(const miutil::miString& levelSpec, miutil::miString& pin);
-  bool updateIdnumNeeded(const miutil::miString& idnumSpec, miutil::miString& pin);
   bool prepare(const miutil::miString&);
   bool setData(const vector<Field*>&, const miutil::miTime&);
   Area& getFieldArea();

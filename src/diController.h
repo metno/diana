@@ -160,10 +160,8 @@ public:
   bool setPlotTime(miutil::miTime&);
   /// update plots
   void updatePlots();
-  /// update level
-  void updateLevel(const miutil::miString& levelSpec, const miutil::miString& levelSet);
-  /// update idnum (class/type/...)
-  void updateIdnum(const miutil::miString& idnumSpec, const miutil::miString& idnumSet);
+  /// update FieldPlots
+  void updateFieldPlot(const vector<miutil::miString>& pin);
   /// toggle area conservatism
   void keepCurrentArea(bool);
   /// update projection only

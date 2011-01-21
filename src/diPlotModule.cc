@@ -52,6 +52,7 @@
 #include <diStationPlot.h>
 #include <diMapManager.h>
 #include <diField/diFieldManager.h>
+#include <diField/FieldSpecTranslation.h>
 #include <diFieldPlotManager.h>
 
 #include <GL/gl.h>
@@ -822,36 +823,31 @@ void PlotModule::setAnnotations()
 
 }
 
-void PlotModule::updateLevel(const miString& levelSpec,
-    const miString& levelSet)
+
+void PlotModule::updateFieldPlot(const vector<miString>& pin)
 {
-  levelSpecified = levelSpec;
-  levelCurrent = levelSet;
-  miString pin;
   vector<Field*> fv;
   int i, n, vectorIndex;
   miTime t = splot.getTime();
 
   n = vfp.size();
   for (i = 0; i < n; i++) {
-    if (vfp[i]->updateLevelNeeded(levelSpec, pin)) {
-      bool res;
-      if (vfp[i]->isDifference()) {
-        miString fspec1, fspec2;
-        vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
-        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
-            levelSpecified, levelCurrent, idnumSpecified, idnumCurrent,
-            vectorIndex);
-      } else {
-        res = fieldplotm->makeFields(pin, t, fv, levelSpecified, levelCurrent,
-            idnumSpecified, idnumCurrent);
-      }
-      //free old fields
-      freeFields(vfp[i]);
-      //set new fields
-      vfp[i]->setData(fv, t);
+    //    if (vfp[i]->updateNeeded(pin[i])) // not implemented, all fields are re-read
+    bool res;
+    if (vfp[i]->isDifference()) {
+      miString fspec1, fspec2;
+      vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
+      res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
+          vectorIndex);
+    } else {
+      res = fieldplotm->makeFields(pin[i], t, fv);
     }
+    //free old fields
+    freeFields(vfp[i]);
+    //set new fields
+    vfp[i]->setData(fv, t);
   }
+  //  }
 
   if (fv.size() && fv[0]->oceanDepth >= 0 && vop.size() > 0)
     splot.setOceanDepth(int(fv[0]->oceanDepth));
@@ -871,41 +867,6 @@ void PlotModule::updateLevel(const miString& levelSpec,
   setAnnotations();
 }
 
-void PlotModule::updateIdnum(const miString& idnumSpec,
-    const miString& idnumSet)
-{
-  idnumSpecified = idnumSpec;
-  idnumCurrent = idnumSet;
-
-  miString pin;
-  vector<Field*> fv;
-  int i, n, vectorIndex;
-  miTime t = splot.getTime();
-
-  n = vfp.size();
-  for (i = 0; i < n; i++) {
-    if (vfp[i]->updateIdnumNeeded(idnumSpec, pin)) {
-      bool res;
-      if (vfp[i]->isDifference()) {
-        miString fspec1, fspec2;
-        vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
-        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
-            levelSpecified, levelCurrent, idnumSpecified, idnumCurrent,
-            vectorIndex);
-      } else {
-        res = fieldplotm->makeFields(pin, t, fv, levelSpecified, levelCurrent,
-            idnumSpecified, idnumCurrent);
-      }
-      //free old fields
-      freeFields(vfp[i]);
-      //set new fields
-      vfp[i]->setData(fv, t);
-    }
-  }
-
-  // get annotations from all plots
-  setAnnotations();
-}
 
 // update plots
 void PlotModule::updatePlots()
@@ -929,11 +890,9 @@ void PlotModule::updatePlots()
         miString fspec1, fspec2;
         vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
         res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
-            levelSpecified, levelCurrent, idnumSpecified, idnumCurrent,
             vectorIndex);
       } else {
-        res = fieldplotm->makeFields(pin, t, fv, levelSpecified, levelCurrent,
-            idnumSpecified, idnumCurrent);
+        res = fieldplotm->makeFields(pin, t, fv);
       }
       //free old fields
       freeFields(vfp[i]);

@@ -114,38 +114,6 @@ bool FieldPlot::updateNeeded(miString& pin){
 }
 
 
-bool FieldPlot::updateLevelNeeded(const miString& levelSpec, miString& pin)
-{
-  if (fields.size()>0) {
-    if (fields[0]->levelSpec.downcase()==levelSpec.downcase()) {
-      pin= pinfo;
-      return true;
-    }
-  } else {
-    // was not found at previous level, try this...
-    pin= pinfo;
-    return true;
-  }
-  return false;
-}
-
-
-bool FieldPlot::updateIdnumNeeded(const miString& idnumSpec, miString& pin)
-{
-  if (fields.size()>0) {
-    if (fields[0]->idnumSpec.downcase()==idnumSpec.downcase()) {
-      pin= pinfo;
-      return true;
-    }
-  } else {
-    // was not found at previous idnum, try this...
-    pin= pinfo;
-    return true;
-  }
-  return false;
-}
-
-
 void FieldPlot::getFieldAnnotation(miString& s, Colour& c){
   if(poptions.options_1)
     c= poptions.linecolour;

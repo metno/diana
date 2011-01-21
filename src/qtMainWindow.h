@@ -437,14 +437,6 @@ private:
   map<int,bool> autoredraw;
   StationPlot *stationPlot;
 
-  vector<miutil::miString> levelList;
-  miutil::miString levelSpec;
-  int levelIndex;
-
-  vector<miutil::miString> idnumList;
-  miutil::miString idnumSpec;
-  int idnumIndex;
-
   void levelChange(int increment);
   void idnumChange(int increment);
 

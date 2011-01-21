@@ -88,22 +88,16 @@ public:
   FieldDialog( QWidget* parent, Controller* lctrl);
 
   /// follows levelUp/levelDown in main window toolbar
-  void changeLevel(const miutil::miString& level);
-  /// follows idnumUp/idnumDown (EPS clusters etc) in mainwindow toolbar
-  void changeIdnum(const miutil::miString& idnum);
-  /// switch on/off access to archives
+  vector<miutil::miString> changeLevel(int increment, int type = 0);
+
   void archiveMode(bool on);
   /// switch on/off access to profet fields
   void enableProfet(bool on);
   /// returns fiels command strings, one for each field
-  vector<miutil::miString> getOKString();
+  vector<miutil::miString> getOKString(bool resetLevelMove=true);
   /// return a short text for quickmenue
   miutil::miString getShortname();
-  /// return current changable level
-  void getOKlevels(vector<miutil::miString>& levelList, miutil::miString& levelSpec);
-  /// return current changable idnum (type/class/cluster/member/...)
-  void getOKidnums(vector<miutil::miString>& idnumList, miutil::miString& idnumSpec);
-  /// sets the dialogue according to (quickmenu) command strings
+  bool levelsExists(bool up, int type=0);
   void putOKString(const vector<miutil::miString>& vstr,
 		   bool checkOptions=true, bool external=true);
   /// returns checked command string to quickmenu
@@ -153,6 +147,11 @@ private:
     std::string runaxis;
     std::string taxis;
     std::string grid;
+    bool levelmove;
+    bool idnummove;
+    SelectedField() : levelmove(true), idnummove(true)
+    {
+    }
   };
 
   void updateModelBoxes();
@@ -211,12 +210,6 @@ private:
   int numEditFields;
   vector<SelectedField> selectedField2edit;
   vector<bool>          selectedField2edit_exists;
-
-  miutil::miString levelOKspec;
-  vector<miutil::miString> levelOKlist;
-
-  miutil::miString idnumOKspec;
-  vector<miutil::miString> idnumOKlist;
 
   vector<int> countSelected;
 

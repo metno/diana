@@ -1256,8 +1256,10 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 
   getFieldGroups(model, indexMGR, indexM, vfgi);
 
-  int nmodels = vfgi.size();
-  for (size_t i = 0; i < nmodels; i++) {
+  size_t nvfgi = vfgi.size();
+
+  //Translate level names
+  for (size_t i = 0; i < nvfgi; i++) {
 
     for(size_t ii = 0; ii <  vfgi[i].levelNames.size(); ii++ ) {
 
@@ -1267,7 +1269,7 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
   }
 
 
-  int i, indexFGR, nvfgi = vfgi.size();
+  int i, indexFGR;
 
   if (nvfgi > 0) {
     for (i = 0; i < nvfgi; i++) {
@@ -1474,40 +1476,87 @@ void FieldDialog::levelChanged(int index)
   return;
 }
 
-void FieldDialog::changeLevel(const miutil::miString& level)
+vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
 {
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::changeLevel called"<<endl;
+  cerr<<"FieldDialog::changeLevel called: "<<increment<<endl;
 #endif
   // called from MainWindow levelUp/levelDown
 
-  int index = selectedFieldbox->currentRow();
-  bool setlevel = false;
+  miutil::miString level;
+  vector<miutil::miString> vlevels;
+  int n = selectedFields.size();
 
-  int i, n = selectedFields.size();
+  //For some reason (?) vertical levels and extra levels are sorted i opposite directions
+  if ( type == 0 ) {
+    increment *= -1;
+  }
 
-  for (i = 0; i < n; i++) {
-    if (selectedFields[i].level == levelOKspec) {
-      selectedFields[i].level = level;
-      if (i == index)
-        setlevel = true;
+  //find first plot with levels, use use this plot to select next level
+  int i = 0;
+  if ( type==0 ) { //vertical levels
+    while ( i < n && selectedFields[i].levelOptions.size() == 0) i++;
+    if( i != n ) {
+      vlevels = selectedFields[i].levelOptions;
+      level = selectedFields[i].level;
+    }
+  } else { // extra levels
+    while ( i < n && selectedFields[i].idnumOptions.size() == 0) i++;
+    if( i != n ) {
+      vlevels = selectedFields[i].idnumOptions;
+      level = selectedFields[i].idnum;
     }
   }
 
-  levelOKspec = level;
 
-  if (setlevel) {
-    n = currentLevels.size();
-    i = 0;
-    while (i < n && currentLevels[i] != levelOKspec)
-      i++;
-    if (i < n) {
-      levelSlider->blockSignals(true);
-      levelSlider->setValue(i);
-      levelSlider->blockSignals(false);
-      levelChanged(i);
+  //plot with levels exists, find nex level
+  if( i != n ) {
+    miutil::miString level_incremented;
+    int m = vlevels.size();
+    int current = 0;
+    while (current < m && vlevels[current] != level) current++;
+    if (current < m) {
+      level_incremented = vlevels[current + increment];
     }
+
+    //loop through all plots to see if is possible to
+
+    if ( type == 0 ) { //vertical levels
+      for (int j = 0; j < n; j++) {
+        if (selectedFields[j].levelmove && selectedFields[j].level == level) {
+          selectedFields[j].level = level_incremented;
+          //update dialog
+          if(j==selectedFieldbox->currentRow()){
+            levelSlider->blockSignals(true);
+            levelSlider->setValue(current + increment);
+            levelSlider->blockSignals(false);
+            levelChanged(current + increment);
+          }
+        } else {
+          selectedFields[j].levelmove = false;
+        }
+      }
+    } else { // extra levels
+      for (int j = 0; j < n; j++) {
+        if (selectedFields[j].idnummove && selectedFields[j].idnum == level) {
+          selectedFields[j].idnum = level_incremented;
+          //update dialog
+          if(j==selectedFieldbox->currentRow()){
+            idnumSlider->blockSignals(true);
+            idnumSlider->setValue(current + increment);
+            idnumSlider->blockSignals(false);
+            idnumChanged(current + increment);
+          }
+        } else {
+          selectedFields[j].idnummove = false;
+        }
+      }
+    }
+
   }
+
+
+  return getOKString(false);
 }
 
 void FieldDialog::updateLevel()
@@ -1605,41 +1654,6 @@ void FieldDialog::idnumChanged(int index)
   return;
 }
 
-void FieldDialog::changeIdnum(const miutil::miString& idnum)
-{
-#ifdef DEBUGPRINT
-  cerr<<"FieldDialog::changeIdnum called"<<endl;
-#endif
-  // called from MainWindow idnumUp/idnumDown
-
-  int index = selectedFieldbox->currentRow();
-  bool setidnum = false;
-
-  int i, n = selectedFields.size();
-
-  for (i = 0; i < n; i++) {
-    if (selectedFields[i].idnum == idnumOKspec) {
-      selectedFields[i].idnum = idnum;
-      if (i == index)
-        setidnum = true;
-    }
-  }
-
-  idnumOKspec = idnum;
-
-  if (setidnum) {
-    n = currentIdnums.size();
-    i = 0;
-    while (i < n && currentIdnums[i] != idnumOKspec)
-      i++;
-    if (i < n) {
-      idnumSlider->blockSignals(true);
-      idnumSlider->setValue(i);
-      idnumSlider->blockSignals(false);
-      idnumChanged(i);
-    }
-  }
-}
 
 void FieldDialog::updateIdnum()
 {
@@ -3381,11 +3395,19 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, int& indexMGR,
   }
 }
 
-vector<miutil::miString> FieldDialog::getOKString()
+vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::getOKString called"<<endl;
 #endif
+
+  if ( resetLevelMove) {
+    int n = selectedFields.size();
+    for (int i = 0; i < n; i++) {
+      selectedFields[i].levelmove = true;
+      selectedFields[i].idnummove = true;
+    }
+  }
 
   if (historyOkButton->isEnabled())
     historyOk();
@@ -3397,11 +3419,6 @@ vector<miutil::miString> FieldDialog::getOKString()
   bool allTimeSteps = allTimeStepButton->isChecked();
 
   vector<miutil::miString> hstr;
-
-  levelOKlist.clear();
-  levelOKspec.clear();
-  idnumOKlist.clear();
-  idnumOKspec.clear();
 
   int n = selectedFields.size();
 
@@ -3429,15 +3446,6 @@ vector<miutil::miString> FieldDialog::getOKString()
     if (selectedFields[i].idnum.exists())
       ostr << " idnum=" << selectedFields[i].idnum;
 
-    if (levelOKspec.empty() && selectedFields[i].levelOptions.size() > 1) {
-      levelOKspec = selectedFields[i].level;
-      levelOKlist = selectedFields[i].levelOptions;
-    }
-    if (idnumOKspec.empty() && selectedFields[i].idnumOptions.size() > 1) {
-      idnumOKspec = selectedFields[i].idnum;
-      idnumOKlist = selectedFields[i].idnumOptions;
-    }
-
     if (selectedFields[i].hourOffset != 0)
       ostr << " hour.offset=" << selectedFields[i].hourOffset;
 
@@ -3454,15 +3462,6 @@ vector<miutil::miString> FieldDialog::getOKString()
         ostr << " level=" << selectedFields[i + 1].level;
       if (selectedFields[i + 1].idnum.exists())
         ostr << " idnum=" << selectedFields[i + 1].idnum;
-
-      if (levelOKspec.empty() && selectedFields[i + 1].levelOptions.size() > 1) {
-        levelOKspec = selectedFields[i + 1].level;
-        levelOKlist = selectedFields[i + 1].levelOptions;
-      }
-      if (idnumOKspec.empty() && selectedFields[i + 1].idnumOptions.size() > 1) {
-        idnumOKspec = selectedFields[i + 1].idnum;
-        idnumOKlist = selectedFields[i + 1].idnumOptions;
-      }
 
       if (selectedFields[i + 1].hourOffset != 0)
         ostr << " hour.offset=" << selectedFields[i + 1].hourOffset;
@@ -3664,22 +3663,47 @@ miutil::miString FieldDialog::getShortname()
   return name;
 }
 
-void FieldDialog::getOKlevels(vector<miutil::miString>& levelList,
-    miutil::miString& levelSpec)
+bool FieldDialog::levelsExists(bool up, int type)
 {
-  levelList.clear();
-  for (int i = levelOKlist.size() - 1; i >= 0; i--)
-    levelList.push_back(levelOKlist[i]);
-  levelSpec = levelOKspec;
-}
 
-void FieldDialog::getOKidnums(vector<miutil::miString>& idnumList,
-    miutil::miString& idnumSpec)
-{
-  idnumList.clear();
-  for (unsigned int i = 0; i < idnumOKlist.size(); i++)
-    idnumList.push_back(idnumOKlist[i]);
-  idnumSpec = idnumOKspec;
+  //returns true if there exist plots with levels available: up/down of type (0=vertical/ 1=extra/eps)
+
+  int n = selectedFields.size();
+
+  if ( type == 0 ) {
+
+    int i = 0;
+    while ( i < n && selectedFields[i].levelOptions.size() == 0) i++;
+    if( i == n ) {
+      return false;
+    } else {
+      int m = selectedFields[i].levelOptions.size();
+      if ( up ) {
+        return ( selectedFields[i].level != selectedFields[i].levelOptions[0]);
+      } else {
+        return ( selectedFields[i].level != selectedFields[i].levelOptions[m-1]);
+      }
+    }
+
+  } else {
+
+    int i = 0;
+    while ( i < n && selectedFields[i].idnumOptions.size() == 0) i++;
+    if( i == n ) {
+      return false;
+    } else {
+      int m = selectedFields[i].idnumOptions.size();
+      if ( up ) {
+        return ( selectedFields[i].idnum != selectedFields[i].idnumOptions[m-1]);
+      } else {
+        return ( selectedFields[i].idnum != selectedFields[i].idnumOptions[0]);
+      }
+    }
+
+  }
+
+  return false;
+
 }
 
 void FieldDialog::historyBack()

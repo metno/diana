@@ -538,9 +538,7 @@ vector<miTime> FieldPlotManager::getFieldTime(
 }
 
 bool FieldPlotManager::makeFields(const miString& pin_const,
-    const miTime& const_ptime, vector<Field*>& vfout,
-    const miString& levelSpec, const miString& levelSet,
-    const miString& idnumSpec, const miString& idnumSet, bool toCache)
+    const miTime& const_ptime, vector<Field*>& vfout, bool toCache)
 {
 
   vfout.clear();
@@ -569,18 +567,6 @@ bool FieldPlotManager::makeFields(const miString& pin_const,
     ptime.addHour(hourOffset);
   }
 
-  miString levelSpecified = plevel;
-  miString idnumSpecified = elevel;
-
-  if (!levelSpec.empty() && !levelSet.empty() && boost::algorithm::to_lower_copy(plevel)
-  == levelSpec.downcase()) {
-    plevel = levelSet;
-  }
-
-  if (!idnumSpec.empty() && !idnumSet.empty() && boost::algorithm::to_lower_copy(elevel)
-  == idnumSpec.downcase()) {
-    elevel = idnumSet;
-  }
 
   bool ok = false;
   for (unsigned int i = 0; i < fieldName.size(); i++) {
@@ -599,7 +585,7 @@ bool FieldPlotManager::makeFields(const miString& pin_const,
       return false;
     }
 
-    makeFieldText(fout, plotName, levelSpecified, idnumSpecified);
+    makeFieldText(fout, plotName);
     vfout.push_back(fout);
 
   }
@@ -608,8 +594,7 @@ bool FieldPlotManager::makeFields(const miString& pin_const,
 
 }
 
-void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName,
-    const miString& levelSpecified, const miString& idnumSpecified)
+void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
 {
 
   miString fieldtext = fout->modelName + " " + plotName;
@@ -644,25 +629,20 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName,
   fout->fieldText = fieldtext;
   fout->progtext = progtext;
   fout->timetext = timetext;
-  fout->levelSpec = levelSpecified;
-  fout->idnumSpec = idnumSpecified;
 
 }
 
 bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
     const miString& fspec2, const miTime& const_ptime, vector<Field*>& fv,
-    const miString& levelSpec, const miString& levelSet,
-    const miString& idnumSpec, const miString& idnumSet, int vectorIndex)
+    int vectorIndex)
 {
 
   fv.clear();
   vector<Field*> fv1;
   vector<Field*> fv2;
 
-  if (makeFields(fspec1, const_ptime, fv1, levelSpec, levelSet, idnumSpec,
-      idnumSet)) {
-    if (!makeFields(fspec2, const_ptime, fv2, levelSpec, levelSet, idnumSpec,
-        idnumSet)) {
+  if (makeFields(fspec1, const_ptime, fv1)) {
+    if (!makeFields(fspec2, const_ptime, fv2)) {
 
       for (unsigned int i = 0; i < fv1.size(); i++) {
         fieldManager->fieldcache->freeField(fv1[i]);
@@ -859,9 +839,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   cerr<<"F1-F2: modelName:      "<<f1->modelName<<endl;
   cerr<<"F1-F2: fieldText:      "<<f1->fieldText<<endl;
   cerr<<"F1-F2: leveltext:      "<<f1->leveltext<<endl;
-  cerr<<"F1-F2: levelSpec:      "<<f1->levelSpec<<endl;
   cerr<<"F1-F2: idnumtext:      "<<f1->idnumtext<<endl;
-  cerr<<"F1-F2: idnumSpec:      "<<f1->idnumSpec<<endl;
   cerr<<"F1-F2: progtext:       "<<f1->progtext<<endl;
   cerr<<"F1-F2: timetext:       "<<f1->timetext<<endl;
   cerr<<"-----------------------------------------------------"<<endl;

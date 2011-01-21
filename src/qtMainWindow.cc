@@ -1329,36 +1329,10 @@ void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
     vector<miutil::miString> &diagstr,
     vector<miutil::miString> &shortnames)
 {
-  // XXXX???
-      levelList.clear();
-  levelSpec.clear();
-  levelIndex= -1;
-
-  // XXXX???
-  idnumList.clear();
-  idnumSpec.clear();
-  idnumIndex= -1;
 
   // fields
   pstr = fm->getOKString();
   shortnames.push_back(fm->getShortname());
-
-  if (pstr.size()>0) {
-    fm->getOKlevels(levelList,levelSpec);
-    const int n = levelList.size();
-    int i = 0;
-    while (i < n && levelList[i] != levelSpec)
-      ++i;
-    levelIndex = (i < n) ? i : -1;
-  }
-
-  if (pstr.size()>0) {
-    fm->getOKidnums(idnumList,idnumSpec);
-    int n= idnumList.size();
-    int i= 0;
-    while (i<n && idnumList[i]!=idnumSpec) i++;
-    idnumIndex= (i<n) ? i : -1;
-  }
 
   // Observations
   diagstr = om->getOKString();
@@ -1412,21 +1386,11 @@ void DianaMainWindow::MenuOK()
 
   getPlotStrings(pstr, diagstr, shortnames);
 
-  if (levelIndex>=0) {
-    toolLevelUpAction->setEnabled(levelIndex < int(levelList.size())-1);
-    toolLevelDownAction->setEnabled(levelIndex>0);
-  } else {
-    toolLevelUpAction->setEnabled(false);
-    toolLevelDownAction->setEnabled(false);
-  }
-
-  if (idnumIndex>=0) {
-    toolIdnumUpAction->setEnabled(idnumIndex < int(idnumList.size())-1);
-    toolIdnumDownAction->setEnabled(idnumIndex>0);
-  } else {
-    toolIdnumUpAction->setEnabled(false);
-    toolIdnumDownAction->setEnabled(false);
-  }
+//init level up/down arrows
+  toolLevelUpAction->setEnabled(fm->levelsExists(true,0));
+  toolLevelDownAction->setEnabled(fm->levelsExists(false,0));
+  toolIdnumUpAction->setEnabled(fm->levelsExists(true,1));
+  toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
 
   // printout
   cerr << "------- the final string from all dialogs:" << endl;
@@ -2907,21 +2871,14 @@ void DianaMainWindow::levelDown()
 
 void DianaMainWindow::levelChange(int increment)
 {
-  levelIndex+=increment;
-  int n= levelList.size()-1;
-  if (levelIndex<0)
-    levelIndex= 0;
-  else if (levelIndex>n)
-    levelIndex= n;
-
-  toolLevelUpAction->  setEnabled(levelIndex<n);
-  toolLevelDownAction->setEnabled(levelIndex>0);
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
-  fm->changeLevel(levelList[levelIndex]); // update field dialog
-  contr->updateLevel(levelSpec,levelList[levelIndex]);
+  // update field dialog and FieldPlots
+  contr->updateFieldPlot(fm->changeLevel(increment,0));
   updateGLSlot();
   QApplication::restoreOverrideCursor();
+  toolLevelUpAction->  setEnabled(fm->levelsExists(true,0));
+  toolLevelDownAction->setEnabled(fm->levelsExists(false,0));
 }
 
 
@@ -2941,21 +2898,15 @@ void DianaMainWindow::idnumDown()
 
 void DianaMainWindow::idnumChange(int increment)
 {
-  idnumIndex+=increment;
-  int n= idnumList.size()-1;
-  if (idnumIndex<0)
-    idnumIndex= 0;
-  else if (idnumIndex>n)
-    idnumIndex= n;
-
-  toolIdnumUpAction->  setEnabled(idnumIndex<n);
-  toolIdnumDownAction->setEnabled(idnumIndex>0);
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
-  fm->changeIdnum(idnumList[idnumIndex]); // update field dialog
-  contr->updateIdnum(idnumSpec,idnumList[idnumIndex]);
+  // update field dialog and FieldPlots
+  contr->updateFieldPlot(fm->changeLevel(increment, 1));
   updateGLSlot();
   QApplication::restoreOverrideCursor();
+  toolIdnumUpAction->  setEnabled(fm->levelsExists(true,1));
+  toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
+
 }
 
 

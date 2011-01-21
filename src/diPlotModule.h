@@ -212,10 +212,8 @@ public:
   /// update projection used with minimum update of data
   void updateProjection();
 
-  /// change levels - update data plots
-  void updateLevel(const miutil::miString& levelSpec, const miutil::miString& levelSet);
-  /// change "idnum" (class/type/...) - update data plots
-  void updateIdnum(const miutil::miString& idnumSpec, const miutil::miString& idnumSet);
+  /// update FieldPlots
+  void updateFieldPlot(const vector<miutil::miString>& pin);
   /// update all plot objects
   void updatePlots();
   /// toggle conservative map area

@@ -69,19 +69,13 @@ public:
 
   bool makeDifferenceField(const miutil::miString& fspec1,
       const miutil::miString& fspec2, const miutil::miTime& ptime,
-      vector<Field*>& fv, const miutil::miString& levelSpec,
-      const miutil::miString& levelSet, const miutil::miString& idnumSpec,
-      const miutil::miString& idnumSet, int vectorIndex);
+      vector<Field*>& fv, int vectorIndex);
 
   bool makeFields(const miutil::miString& pin, const miutil::miTime& ptime,
-      vector<Field*>& vfout, const miutil::miString& levelSpec,
-      const miutil::miString& levelSet, const miutil::miString& idnumSpec,
-      const miutil::miString& idnumSet, bool toCache = false);
+      vector<Field*>& vfout,bool toCache = false);
 
   /// return available times for the requested models and fields
-  void makeFieldText(Field* fout, const miutil::miString& plotName,
-      const miutil::miString& levelSpecified,
-      const miutil::miString& idnumSpecified);
+  void makeFieldText(Field* fout, const miutil::miString& plotName);
 
   vector<miutil::miTime> getFieldTime(vector<FieldTimeRequest>& request,
       bool allTimeSteps, bool& constTimes);
