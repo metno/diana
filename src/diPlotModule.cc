@@ -587,8 +587,10 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     }
   } else if (pe.type == "OBJECTS") {
     objects.getPlotName(str);
-    if (str == pe.str)
+    str += "# 0" ;
+    if (str == pe.str) {
       objects.enable(pe.enabled);
+    }
   } else if (pe.type == "TRAJECTORY") {
     for (unsigned int i = 0; i < vtp.size(); i++) {
       vtp[i]->getPlotName(str);
