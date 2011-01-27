@@ -1,3 +1,17 @@
+diana (3.24.0-ubuntu2) lucid; urgency=low
+
+  * Bugfix: enable/disable ObjectPlots
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 24 Jan 2011 11:01:52 +0100
+
+diana (3.24.0-ubuntu1) lucid; urgency=low
+
+  * Using metlibs_2011-01-13
+  * new version of profet
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 21 Jan 2011 13:26:08 +0100
+
 diana (3.23.3-ubuntu1) lucid; urgency=low
 
   * Bugfix parsing logfile

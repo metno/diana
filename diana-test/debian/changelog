@@ -1,3 +1,43 @@
+diana-test (3.24.0-ubuntu6) lucid; urgency=low
+
+  * Testing fimex
+  * Using metlibs/trunk
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 26 Jan 2011 11:07:42 +0100
+
+diana-test (3.24.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix: enable/disable ObjectPlots
+  * Using metlibs_2011-01-13
+	
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 24 Jan 2011 10:04:28 +0100
+
+diana-test (3.24.0-ubuntu4) lucid; urgency=low
+
+  * charset=UTF-8 removed from news.html
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 14 Jan 2011 09:39:03 +0100
+
+diana-test (3.24.0-ubuntu3) lucid; urgency=low
+
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 13 Jan 2011 14:43:54 +0100
+
+diana-test (3.24.0-ubuntu2) lucid; urgency=low
+
+  * test package compiled with current metlibs/trunk
+  * testing new version of profet
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 12 Jan 2011 15:14:18 +0100
+
+diana-test (3.24.0-ubuntu1) lucid; urgency=low
+
+  * test package using trunk
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 10 Jan 2011 13:58:12 +0100
+
 diana-test (3.23.3-ubuntu1) lucid; urgency=low
 
   * Bugfix parsing logfile
