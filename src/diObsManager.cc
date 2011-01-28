@@ -1106,7 +1106,7 @@ ObsDialogInfo ObsManager::initDialog()
   ObsDialogInfo::PlotType pocea;
   pocea.name="Ocean";
   pocea.misc =
-    "markerboxVisible asFieldButton leveldiff orientation more_times";
+    "markerboxVisible asFieldButton  orientation more_times";
   pocea.criteriaList = criteriaList["ocean"];
 
   pocea.pressureLevels.push_back(0);
@@ -1137,12 +1137,9 @@ ObsDialogInfo ObsManager::initDialog()
   pocea.button.push_back(addButton("Id","Identifcation",0,0,true));
   pocea.button.push_back(addButton("PwaPwa","period of waves"));
   pocea.button.push_back(addButton("HwaHwa","height of waves"));
-  pocea.button.push_back(addButton("Dyp(1)","Dyp: temp,salt",0,100,true));
+  pocea.button.push_back(addButton("depth","depth",0,100,true));
   pocea.button.push_back(addButton("TTTT","sea/water temperature",-50,50,true));
   pocea.button.push_back(addButton("SSSS","Salt",0,50,true));
-  pocea.button.push_back(addButton("Dyp(2)","Dyp, strøm",0,100,true));
-  pocea.button.push_back(addButton("Retn","Strømretning",0,360,true));
-  pocea.button.push_back(addButton("Strøm","Strøm"));
   pocea.button.push_back(addButton("Date","Date(mm-dd)",0,0));
   pocea.button.push_back(addButton("Time","hh.mm  ",0,0,true));
 

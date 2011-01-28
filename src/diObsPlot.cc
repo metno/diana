@@ -3187,11 +3187,11 @@ void ObsPlot::plotList(int index)
     }
   }
 
-  if (pFlag.count("dyp(1)")) {
+  if (pFlag.count("depth")) {
     ypos -= yStep;
-    if ((f_p = dta.fdata.find("Dyp(1)")) != dta.fdata.end()) {
+    if ((f_p = dta.fdata.find("depth")) != dta.fdata.end()) {
       if (ccriteria)
-        checkColourCriteria("Dyp(1)", f_p->second);
+        checkColourCriteria("depth", f_p->second);
       printList(f_p->second, xpos, ypos, 0, align);
     } else {
       printList(undef, xpos, ypos, 2, align);
@@ -3212,36 +3212,6 @@ void ObsPlot::plotList(int index)
     if ((f_p = dta.fdata.find("SSSS")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("SSSS", f_p->second);
-      printList(f_p->second, xpos, ypos, 2, align);
-    } else {
-      printList(undef, xpos, ypos, 2, align);
-    }
-  }
-  if (pFlag.count("dyp(2)")) {
-    ypos -= yStep;
-    if ((f_p = dta.fdata.find("Dyp(2)")) != dta.fdata.end()) {
-      if (ccriteria)
-        checkColourCriteria("Dyp(2)", f_p->second);
-      printList(f_p->second, xpos, ypos, 0, align);
-    } else {
-      printList(undef, xpos, ypos, 2, align);
-    }
-  }
-  if (pFlag.count("retn")) {
-    ypos -= yStep;
-    if ((f_p = dta.fdata.find("Retn")) != dta.fdata.end()) {
-      if (ccriteria)
-        checkColourCriteria("Retn", f_p->second);
-      printList(f_p->second, xpos, ypos, 2, align);
-    } else {
-      printList(undef, xpos, ypos, 2, align);
-    }
-  }
-  if (pFlag.count("str�m")) {
-    ypos -= yStep;
-    if ((f_p = dta.fdata.find("Str�m")) != dta.fdata.end()) {
-      if (ccriteria)
-        checkColourCriteria("Str�m", f_p->second);
       printList(f_p->second, xpos, ypos, 2, align);
     } else {
       printList(undef, xpos, ypos, 2, align);
@@ -5464,7 +5434,11 @@ void ObsPlot::checkMaxWindTime(ObsData &dta)
 
     dta.fdata["fxfx"] = dta.fdata["fxfx_180"];
 
+  } else if (dta.fdata.count("fxfx_60")) {
+
+    dta.fdata["fxfx"] = dta.fdata["fxfx_60"];
   }
+
 }
 
 void ObsPlot::arrow(float& angle, float xpos, float ypos, float scale)
