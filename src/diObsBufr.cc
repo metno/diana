@@ -1299,7 +1299,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         // 22043 SEA/WATER TEMPERATURE [K]
       case 22043:
         if (values[j] < bufrMissing)
-          d.fdata["TTTT"] = values[j];
+          d.fdata["TTTT"] = values[j] - t0;
         break;
 
         // 22062 SALINITY [PART PER THOUSAND]
