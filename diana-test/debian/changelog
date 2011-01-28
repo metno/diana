@@ -1,3 +1,10 @@
+diana-test (3.25.0-ubuntu1) lucid; urgency=low
+
+  * New field reader using fimex
+  * Using metlibs_2011-01-28
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Fri, 28 Jan 2011 12:49:16 +0100
+
 diana-test (3.24.0-ubuntu6) lucid; urgency=low
 
   * Testing fimex
