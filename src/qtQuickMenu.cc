@@ -128,16 +128,23 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   vlayout->addWidget(list, 10);
 
   // Create variables/options layout manager
-  int half= maxoptions/2;
+  int quarter= maxoptions/4;
+  int breakpoint = quarter;
+  int row = 0;
+  int col = 0;
   QGridLayout* varlayout = new QGridLayout();
   for (int i=0; i<maxoptions; i++){
     optionlabel[i]= new QLabel("",frame);
     optionmenu[i]=  new QComboBox(frame);
     optionmenu[i]->setSizeAdjustPolicy ( QComboBox::AdjustToContents);
-    int row = (i < half ? 0 : 1);
-    int col = 2*(i - row*half);
+    if( i >= breakpoint ) {
+      row ++;
+      col = 0;
+      breakpoint += quarter;
+    }
     varlayout->addWidget(optionlabel[i],row,col,Qt::AlignRight);
-    varlayout->addWidget(optionmenu[i],row,col+1);//Qt::AlignLeft);
+    varlayout->addWidget(optionmenu[i],row,col+1);
+    col += 2;
   }
   vlayout->addLayout(varlayout);
 
@@ -206,13 +213,8 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   QPushButton* plotbut= new QPushButton(tr("&Apply"), frame );
   connect(plotbut, SIGNAL(clicked()),SLOT(plotButton()));
   l->addWidget(plotbut);
-  //  l->addStretch();
 
   vlayout->addLayout(l);
-
-  // Start the geometry management
-  vlayout->activate();
-  tlayout->activate();
 
   fillPrivateMenus();
   fillStaticMenus();
