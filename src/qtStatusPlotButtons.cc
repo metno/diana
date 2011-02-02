@@ -85,7 +85,6 @@ void PlotButton::setPlotElement(const PlotElement& pe)
   tipstr_= QString(str.cStr());
   setToolTip(tipstr_);
   setText(tipstr_.right(1));
-  setStyleSheet("QToolButton { background-color: lightGray }");
   setCheckable(true);
   setChecked(plotelement_.enabled);
 }
@@ -100,11 +99,8 @@ void PlotButton::togg(bool b)
 
 void PlotButton::highlight(bool b)
 {
-
   if (b){
-    setStyleSheet("QToolButton { background-color: darkGray }");
-  } else {
-    setStyleSheet("QToolButton { background-color: lightGray }");
+    setFocus();
   }
 }
 
