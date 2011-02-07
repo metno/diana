@@ -117,6 +117,7 @@ protected:
 
 signals:
   void toggleElement(PlotElement);
+  void releaseFocus();
 };
 
 #endif

@@ -175,11 +175,14 @@ void StatusPlotButtons::showActiveButton(bool b)
 
 void StatusPlotButtons::releasefocus()
 {
+
   showActiveButton(false);
   activebutton= 0;
   showActiveButton(false);
   releaseKeyboard();
   showtip->hide();
+  emit releaseFocus();
+
 }
 
 void StatusPlotButtons::keyPressEvent ( QKeyEvent * e )

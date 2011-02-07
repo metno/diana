@@ -756,6 +756,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   statusbuttons= new StatusPlotButtons();
   connect(statusbuttons, SIGNAL(toggleElement(PlotElement)),
       SLOT(toggleElement(PlotElement)));
+  connect(statusbuttons, SIGNAL(releaseFocus()),
+      SLOT(setFocus()));
   statusBar()->addWidget(statusbuttons);
   if (!showelem) statusbuttons->hide();
 
