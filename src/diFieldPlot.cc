@@ -113,6 +113,19 @@ bool FieldPlot::updateNeeded(miString& pin){
   return false;
 }
 
+// check if current has same level
+bool FieldPlot::updatePinNeeded(const miString pin)
+{
+
+  if (pinfo == pin ) {
+    return false;
+  }
+
+  pinfo = pin;
+  return true;
+
+}
+
 
 void FieldPlot::getFieldAnnotation(miString& s, Colour& c){
   if(poptions.options_1)

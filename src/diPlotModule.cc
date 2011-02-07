@@ -68,10 +68,10 @@ GridConverter PlotModule::gc; // Projection-converter
 
 // Default constructor
 PlotModule::PlotModule() :
-   apEditmessage(0),plotw(0.),ploth(0.),resizezoom(true),
-   showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
-   mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
-   dopanning(false), keepcurrentarea(true), obsnr(0)
+       apEditmessage(0),plotw(0.),ploth(0.),resizezoom(true),
+       showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
+       mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
+       dopanning(false), keepcurrentarea(true), obsnr(0)
 {
 
   oldx = newx = oldy = newy = 0;
@@ -111,7 +111,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
 
   // split up input into separate products
   vector<miString> fieldpi, obspi, mappi, satpi, objectpi, trajectorypi,
-      labelpi, editfieldpi;
+  labelpi, editfieldpi;
 
   int n = vpi.size();
   // merge PlotInfo's for same type
@@ -403,7 +403,7 @@ void PlotModule::prepareAnnotation(const vector<miString>& inp)
   for (int i = 0; i < n; i++)
   {
     if (vap[i] != 0)
-	  delete vap[i];
+      delete vap[i];
   }
   vap.clear();
 
@@ -649,24 +649,24 @@ void PlotModule::setAnnotations()
   for (int i = 0; i < n; i++)
   {
     if (vap[i] != 0)
-	  delete vap[i];
+      delete vap[i];
   }
   vap.clear();
 
   int npi = annotationStrings.size();
 
   for (int i = 0; i < npi; i++) {
-	  AnnotationPlot* ap= new AnnotationPlot();
-	  // Dont add an invalid object to vector
-	  if (!ap->prepare(annotationStrings[i]))
-	  {
-	      delete ap;
-	  }
-	  else
-	  {
-		  // Add to vector
-		  vap.push_back(ap);
-	  }
+    AnnotationPlot* ap= new AnnotationPlot();
+    // Dont add an invalid object to vector
+    if (!ap->prepare(annotationStrings[i]))
+    {
+      delete ap;
+    }
+    else
+    {
+      // Add to vector
+      vap.push_back(ap);
+    }
   }
 
   //Annotations from setup, qmenu, etc.
@@ -834,22 +834,22 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
 
   n = vfp.size();
   for (i = 0; i < n; i++) {
-    //    if (vfp[i]->updateNeeded(pin[i])) // not implemented, all fields are re-read
-    bool res;
-    if (vfp[i]->isDifference()) {
-      miString fspec1, fspec2;
-      vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
-      res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
-          vectorIndex);
-    } else {
-      res = fieldplotm->makeFields(pin[i], t, fv);
+    if (vfp[i]->updatePinNeeded(pin[i])) {
+      bool res;
+      if (vfp[i]->isDifference()) {
+        miString fspec1, fspec2;
+        vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
+        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
+            vectorIndex);
+      } else {
+        res = fieldplotm->makeFields(pin[i], t, fv);
+      }
+      //free old fields
+      freeFields(vfp[i]);
+      //set new fields
+      vfp[i]->setData(fv, t);
     }
-    //free old fields
-    freeFields(vfp[i]);
-    //set new fields
-    vfp[i]->setData(fv, t);
   }
-  //  }
 
   if (fv.size() && fv[0]->oceanDepth >= 0 && vop.size() > 0)
     splot.setOceanDepth(int(fv[0]->oceanDepth));
@@ -928,18 +928,18 @@ void PlotModule::updatePlots()
   // set maparea from sat, map spec. or fields
 
   //######################################################################
-//  Area aa;
-//  cerr << "----------------------------------------------------" << endl;
-//  aa=previousrequestedarea;
-//  cerr << "previousrequestedarea " << previousrequestedarea << endl;
-//  aa=requestedarea;
-//  cerr << "requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea<<endl;
-//  cerr << "mapDefinedByUser= " << mapDefinedByUser << endl;
-//  cerr << "mapDefinedByData= " << mapDefinedByData << endl;
-//  cerr << "mapDefinedByView= " << mapDefinedByView << endl;
-//  cerr << "mapdefined=       " << mapdefined << endl;
-//  cerr << "keepcurrentarea=  " << keepcurrentarea << endl;
-//  cerr << "----------------------------------------------------" << endl;
+  //  Area aa;
+  //  cerr << "----------------------------------------------------" << endl;
+  //  aa=previousrequestedarea;
+  //  cerr << "previousrequestedarea " << previousrequestedarea << endl;
+  //  aa=requestedarea;
+  //  cerr << "requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea<<endl;
+  //  cerr << "mapDefinedByUser= " << mapDefinedByUser << endl;
+  //  cerr << "mapDefinedByData= " << mapDefinedByData << endl;
+  //  cerr << "mapDefinedByView= " << mapDefinedByView << endl;
+  //  cerr << "mapdefined=       " << mapdefined << endl;
+  //  cerr << "keepcurrentarea=  " << keepcurrentarea << endl;
+  //  cerr << "----------------------------------------------------" << endl;
   //######################################################################
   mapdefined = false;
 
@@ -951,10 +951,10 @@ void PlotModule::updatePlots()
 
     // area == "modell/sat-omr."
     if (!requestedarea.P().isDefined()) {
-        requestedarea = satarea; // choose requested-area if existing
+      requestedarea = satarea; // choose requested-area if existing
     }
 
-      // if first plot: getMapArea returns undefined area
+    // if first plot: getMapArea returns undefined area
     if (!plotarea.P().isDefined()) {
       if (mapDefinedByUser)
         plotarea = requestedarea; // choose requested-area if existing
@@ -978,7 +978,7 @@ void PlotModule::updatePlots()
     if (!keepcurrentarea || !previousOK) {
       if (keepcurrentarea) {// but not similar enough
         newarea = splot.findBestMatch(satarea);
-      // do not keep current area
+        // do not keep current area
       } else if (requestedOK) {// change to requested
         newarea = requestedarea;
       } else {
@@ -1003,15 +1003,15 @@ void PlotModule::updatePlots()
 
     // ----- NO raster images
   } else if (mapDefinedByUser) { // area != "modell/sat-omr."
-     plotarea = splot.getMapArea();
+    plotarea = splot.getMapArea();
 
     if (!keepcurrentarea ){ // show def. area
       mapdefined = mapDefinedByUser = splot.setMapArea(requestedarea,
-           keepcurrentarea);
-     } else if( plotarea.P() != requestedarea.P() || // or user just selected new area
+          keepcurrentarea);
+    } else if( plotarea.P() != requestedarea.P() || // or user just selected new area
         previousrequestedarea.R() != requestedarea.R()) {
-       newarea = splot.findBestMatch(requestedarea);
-       mapdefined = mapDefinedByUser = splot.setMapArea(newarea, keepcurrentarea);
+      newarea = splot.findBestMatch(requestedarea);
+      mapdefined = mapDefinedByUser = splot.setMapArea(newarea, keepcurrentarea);
     } else {
       mapdefined = true;
     }
@@ -1058,10 +1058,10 @@ void PlotModule::updatePlots()
 
   if (!mapdefined) {
     // no data on initial map ... change to "Hirlam.50km" projection and area
-//    miString areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
+    //    miString areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
     Area a;
     a.setDefault();
-//    a.setAreaFromLog(areaString);
+    //    a.setAreaFromLog(areaString);
     splot.setMapArea(a, keepcurrentarea);
     mapdefined = mapDefinedByView = true;
   }
@@ -1546,7 +1546,7 @@ void PlotModule::plotOver()
   if (dorubberband) {
 #ifdef DEBUGREDRAW
     cerr<<"PlotModule::plot rubberband oldx,oldy,newx,newy: "
-    <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy<<endl;
+        <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy<<endl;
 #endif
     Rectangle fullr = splot.getPlotSize();
     float x1 = fullr.x1 + fullr.width() * oldx / plotw;
@@ -1585,21 +1585,21 @@ void PlotModule::PlotAreaSetup()
   Area ma = splot.getMapArea();
   Rectangle mapr = ma.R();
 
-//   float d, del, delta = 0.01;
-//   del = delta;
-//   while (mapr.width() < delta) {
-//     d = (del - mapr.width()) * 0.5;
-//     mapr.x1 -= d;
-//     mapr.x2 += d;
-//     del = del * 2.;
-//   }
-//   del = delta;
-//   while (mapr.height() < delta) {
-//     d = (del - mapr.height()) * 0.5;
-//     mapr.y1 -= d;
-//     mapr.y2 += d;
-//     del = del * 2.;
-//   }
+  //   float d, del, delta = 0.01;
+  //   del = delta;
+  //   while (mapr.width() < delta) {
+  //     d = (del - mapr.width()) * 0.5;
+  //     mapr.x1 -= d;
+  //     mapr.x2 += d;
+  //     del = del * 2.;
+  //   }
+  //   del = delta;
+  //   while (mapr.height() < delta) {
+  //     d = (del - mapr.height()) * 0.5;
+  //     mapr.y1 -= d;
+  //     mapr.y2 += d;
+  //     del = del * 2.;
+  //   }
 
   float maspr = mapr.width() / mapr.height();
 
@@ -1642,7 +1642,7 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
 {
 #ifdef DEBUGPRINT
   cerr << "++ PlotModule.setPlotWindow() ++" <<
-  " w=" << w << " h=" << h << endl;
+      " w=" << w << " h=" << h << endl;
 #endif
 
   plotw = float(w);
@@ -1717,7 +1717,7 @@ void PlotModule::cleanup()
   for (i = 0; i < n; i++)
   {
     if (vap[i] != 0)
-	  delete vap[i];
+      delete vap[i];
   }
   vap.clear();
   if (apEditmessage)
@@ -1842,7 +1842,7 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
       gridy = ymap/vsp[0]->getGridResolutionY();
       return true;
     }
-   }
+  }
 
   if (vfp.size()>0) {
     if (splot.getMapArea().P() == vfp[0]->getFieldArea().P()) {
@@ -1853,7 +1853,7 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
         return true;
       }
     }
-   }
+  }
 
   return false;
 
@@ -1947,7 +1947,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 #ifdef DEBUGPRINT
   cerr << "--- Found fieldtimes:" << endl;
   for (unsigned int i=0; i<fieldtimes.size(); i++)
-  cerr << fieldtimes[i] << endl;
+    cerr << fieldtimes[i] << endl;
 #endif
 
   n = vsp.size();
@@ -1960,7 +1960,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 #ifdef DEBUGPRINT
   cerr << "--- Found sattimes:" << endl;
   for (unsigned int i=0; i<sattimes.size(); i++)
-  cerr << sattimes[i] << endl;
+    cerr << sattimes[i] << endl;
 #endif
 
   n = vop.size();
@@ -1973,7 +1973,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 #ifdef DEBUGPRINT
   cerr << "--- Found obstimes:" << endl;
   for (unsigned int i=0; i<obstimes.size(); i++)
-  cerr << obstimes[i] << endl;
+    cerr << obstimes[i] << endl;
 #endif
 
   pinfos.clear();
@@ -1984,7 +1984,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 #ifdef DEBUGPRINT
   cerr << "--- Found objtimes:" << endl;
   for (unsigned int i=0; i<objtimes.size(); i++)
-  cerr << objtimes[i] << endl;
+    cerr << objtimes[i] << endl;
 #endif
 
 }
@@ -2043,7 +2043,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
         for (; p != okTimes.end(); p++) {
           int k = 0;
           while (k < nTimes && abs(miTime::minDiff(*p, normalTimes[k]))
-              > timediff)
+          > timediff)
             k++;
           if (k < nTimes)
             tmptimes.insert(*p); //time ok
@@ -2819,9 +2819,9 @@ void PlotModule::areaInsert(Area a, bool newArea)
     return;
   }
 
-if(areaIndex>-1){
-  areaQ.erase(areaQ.begin() + areaIndex + 1, areaQ.end());
-}
+  if(areaIndex>-1){
+    areaQ.erase(areaQ.begin() + areaIndex + 1, areaQ.end());
+  }
   if (areaQ.size() > 20)
     areaQ.pop_front();
   else
