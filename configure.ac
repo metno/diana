@@ -180,6 +180,9 @@ AS_IF([test x$enable_video_export = xyes], [
 # shapefile
 METNO_REQUIRE_C_LIBRARY([SHP], [shp], [shapefil.h], [SHPOpen])
 
+# libcurl - the multiprotocol file transfer library 
+METNO_REQUIRE_C_LIBRARY([CURL], [curl], [curl/curl.h])
+
 # EMOSLIB
 AS_IF([test x$enable_obs_bufr = xyes], [
     METNO_REQUIRE_C_LIBRARY([EMOS], [emos], [], [pbopen])

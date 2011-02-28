@@ -100,6 +100,8 @@ private:
   bool checkEnvironment(miutil::miString& t);
   // check if fielname exists, if not make directory
   bool makeDirectory(const miutil::miString& filename, miutil::miString & error);
+  vector<miutil::miString> getFromHttp(miutil::miString url);
+  vector<miutil::miString> getFromFile(miutil::miString filename);
   /// parse one setupfile
   bool parseFile(const miutil::miString& filename,
 		 const miutil::miString& section,

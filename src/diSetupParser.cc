@@ -49,6 +49,8 @@
 #include <puCtools/mkdir.h>
 #include <puCtools/stat.h>
 
+#include <curl/curl.h>
+
 using namespace::miutil;
 
 
@@ -263,13 +265,78 @@ void SetupParser::splitKeyValue(const miString& s,
   }
 }
 
+size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
+{
+  (*(ostringstream*) userp) << (char *) buffer;
 
+  return (size_t) (size * nmemb);
+}
+
+vector<miString> SetupParser::getFromHttp(miString url)
+{
+  CURL *curl = NULL;
+  CURLcode res;
+  ostringstream ost;
+  vector<miString> result;
+
+  curl = curl_easy_init();
+  if (curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ost);
+    res = curl_easy_perform(curl);
+
+    curl_easy_cleanup(curl);
+  }
+
+  miString data = ost.str();
+
+  //remove wiki tags
+  data.replace("<code>", "");
+  data.replace("</code>", "");
+
+  result = data.split("\n");
+
+  return result;
+}
+
+vector<miString> SetupParser::getFromFile(miString filename)
+{
+
+  vector<miString> result;
+
+  // open filestream
+  ifstream file(filename.cStr());
+  if (!file) {
+    cerr << "SetupParser::readSetup. cannot open setupfile " << filename
+    << endl;
+    return result;
+  }
+
+  miString str;
+  while (getline(file, str)) {
+    result.push_back(str);
+  }
+
+  return result;
+
+}
 
 // parse one setupfile
 bool SetupParser::parseFile(const miString& filename, // name of file
     const miString& section, // inherited section
     int level) // recursive level
 {
+
+  bool isfile = !filename.contains("http");
+
+  vector<miString> lines;
+  if (isfile) {
+    lines = getFromFile(filename);
+  } else {
+    lines = getFromHttp(filename);
+  }
+
   // list of filenames, index to them
   sfilename.push_back(filename);
   int activefile = sfilename.size() - 1;
@@ -290,14 +357,6 @@ bool SetupParser::parseFile(const miString& filename, // name of file
   miString str;
   int n, ln = 0, linenum;
 
-  // open filestream
-  ifstream file(filename.cStr());
-  if (!file) {
-    cerr << "SetupParser::readSetup. cannot open setupfile " << filename
-    << endl;
-    return false;
-  }
-
   /*
    - skip blank lines,
    - strip lines for comments and left/right whitespace
@@ -308,12 +367,16 @@ bool SetupParser::parseFile(const miString& filename, // name of file
   int tmpln = 0;
   bool merge = false, newmerge;
 
-  while (getline(file, str)) {
+  for ( size_t i = 0; i < lines.size(); ++i ) {
+
+    str = lines[i];
     ln++;
     str.trim();
     n = str.length();
     if (n == 0)
       continue;
+
+
 
     /*
      check for linemerging
