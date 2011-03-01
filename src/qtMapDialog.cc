@@ -1122,9 +1122,12 @@ vector<miutil::miString> MapDialog::getOKString()
 
 //Area string
   ostringstream areastr;
-  areastr << "AREA";
-  areastr << " areaname=" << areabox->currentItem()->text().toStdString();
-  vstr.push_back(areastr.str());
+
+  if (areabox->currentRow() > -1) {
+    areastr << "AREA";
+    areastr << " areaname=" << areabox->currentItem()->text().toStdString();
+    vstr.push_back(areastr.str());
+  }
 
   //Map strings
   int lindex;
