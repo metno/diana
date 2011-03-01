@@ -291,9 +291,15 @@ vector<miString> SetupParser::getFromHttp(miString url)
 
   miString data = ost.str();
 
-  //remove wiki tags
-  data.replace("<code>", "");
-  data.replace("</code>", "");
+  //must contain diana.setup tags
+  if (data.find("<diana.setup>") == data.npos || data.find("</diana.setup>") == data.npos) {
+    cerr <<"WARNING: SetupParser::getFromHttp: "<<url
+        <<": <diana.setup> or </diana.setup> tags are missing"<<endl;
+    return result;
+  }
+
+  data = data.substr(data.find("<diana.setup>") + 13);
+  data = data.substr(0,data.find("</diana.setup>"));
 
   result = data.split("\n");
 
@@ -313,13 +319,13 @@ vector<miString> SetupParser::getFromFile(miString filename)
     return result;
   }
 
-  file.close();
 
   miString str;
   while (getline(file, str)) {
     result.push_back(str);
   }
 
+  file.close();
   return result;
 
 }
@@ -329,15 +335,6 @@ bool SetupParser::parseFile(const miString& filename, // name of file
     const miString& section, // inherited section
     int level) // recursive level
 {
-
-  bool isfile = !filename.contains("http");
-
-  vector<miString> lines;
-  if (isfile) {
-    lines = getFromFile(filename);
-  } else {
-    lines = getFromHttp(filename);
-  }
 
   // list of filenames, index to them
   sfilename.push_back(filename);
@@ -350,6 +347,13 @@ bool SetupParser::parseFile(const miString& filename, // name of file
     dummy += ".";
   cerr << dummy << " reading \t[" << filename << "] " << endl;
   // ===================
+
+  vector<miString> lines;
+  if (filename.contains("http")) {
+    lines = getFromHttp(filename);
+  } else {
+    lines = getFromFile(filename);
+  }
 
   const miString undefsect = "_UNDEF_";
   miString origsect = (section.exists() ? section : undefsect);
