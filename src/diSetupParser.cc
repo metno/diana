@@ -313,6 +313,8 @@ vector<miString> SetupParser::getFromFile(miString filename)
     return result;
   }
 
+  file.close();
+
   miString str;
   while (getline(file, str)) {
     result.push_back(str);
@@ -496,7 +498,6 @@ bool SetupParser::parseFile(const miString& filename, // name of file
     }
   }
 
-  file.close();
 
   // File should start and end in same section
   if (sectname != origsect) {
