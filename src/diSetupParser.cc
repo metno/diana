@@ -678,12 +678,12 @@ bool SetupParser::parseBasics(const miString& sectname){
 
   // default values
   miString langpaths="lang:/metno/local/translations:${QTDIR}/translations";
-  miString language="no";
-  basic_values[key_fontpath]   = "../fonts";
-  basic_values[key_docpath]    = "../doc";
-  basic_values[key_obspath]    = "../etc";
-  basic_values[key_qserver]    = "/metno/local/bin/coserver";
-  basic_values[key_imagepath]  = "../images";
+  miString language="en";
+  basic_values[key_fontpath]   = "share/diana/fonts";
+  basic_values[key_docpath]    = "share/doc/diana";
+  basic_values[key_obspath]    = "share/diana";
+  basic_values[key_qserver]    = "/usr/bin/coserver";
+  basic_values[key_imagepath]  = "share/diana/images";
   basic_values[key_language]   = language;
 
   vector<miString> list,tokens;
