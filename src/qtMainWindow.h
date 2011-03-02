@@ -164,6 +164,7 @@ private slots:
   void showHelp();
   void showAccels();
   void showNews();
+  void showUrl();
 
   void about();
   void quickMenuApply(const vector<miutil::miString>&);
@@ -309,6 +310,7 @@ private:
   QAction * helpDocAction;
   QAction * helpAccelAction;
   QAction * helpNewsAction;
+  QAction * helpBugAction;
   QAction * helpAboutAction;
 
   QAction * timeBackwardAction;

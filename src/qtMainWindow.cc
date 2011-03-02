@@ -56,6 +56,8 @@
 #include <QTimerEvent>
 #include <QFocusEvent>
 #include <QFrame>
+#include <QDesktopServices>
+#include <QUrl>
 
 #include <puCtools/glob.h>
 #include <qmotifstyle.h>
@@ -413,6 +415,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   helpNewsAction->setCheckable(false);
   connect( helpNewsAction, SIGNAL( triggered() ) ,  SLOT( showNews() ) );
   // --------------------------------------------------------------------
+  helpBugAction = new QAction( tr("&Report bug"), this );
+  helpBugAction->setShortcutContext(Qt::ApplicationShortcut);
+  helpBugAction->setCheckable(false);
+  connect( helpBugAction, SIGNAL( triggered() ) ,  SLOT( showUrl() ) );
+  // --------------------------------------------------------------------
   helpAboutAction = new QAction( tr("About Diana"), this );
   helpAboutAction->setShortcutContext(Qt::ApplicationShortcut);
   helpAboutAction->setCheckable(false);
@@ -639,6 +646,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   helpmenu->addSeparator();
   helpmenu->addAction ( helpAccelAction );
   helpmenu->addAction ( helpNewsAction );
+  helpmenu->addAction ( helpBugAction );
   helpmenu->addSeparator();
   helpmenu->addAction ( helpAboutAction );
 
@@ -917,7 +925,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   HelpDialog::Info info;
   HelpDialog::Info::Source helpsource;
   info.path= setup.basicValue("docpath");
-
   helpsource.source= "index.html";
   helpsource.name= "Help";
   helpsource.defaultlink= "START";
@@ -2671,6 +2678,12 @@ void DianaMainWindow::showAccels()
 void DianaMainWindow::showNews()
 {
   help->showdoc(2,"news.html");
+}
+
+void DianaMainWindow::showUrl()
+{
+  SetupParser setup;
+  QDesktopServices::openUrl(QUrl(setup.basicValue("bugzilla").c_str()));
 }
 
 void DianaMainWindow::about()
