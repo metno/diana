@@ -127,30 +127,17 @@ bool FieldPlot::updatePinNeeded(const miString pin)
 }
 
 
-void FieldPlot::getFieldAnnotation(miString& s, Colour& c){
+void FieldPlot::getFieldAnnotation(miString& s, Colour& c)
+{
   if(poptions.options_1)
     c= poptions.linecolour;
   else
     c= poptions.fillcolour;
-  int n = fields.size();
-  if (n>0) {
-    if (n==3) {
-      // number plot functions that use 3 params (u and v + another)
-      if (fields[2]) {
-          if (fields[2]->data) { s= fields[2]->fulltext;
-     //cerr<<".......????????FieldPlot::getFieldAnnotation Annotext = "<<s<<endl;
-          }
-      } 
-      return;
-    } else if (fields[0]) {
-      if (fields[0]->data) { s= fields[0]->fulltext;
-     //cerr<<".......????????FieldPlot::getFieldAnnotation Annotext = "<<s<<endl;
-  
-      }
-    }
+
+  if (fields.size()>0 && fields[0] && fields[0]->data) {
+    s= fields[0]->fulltext;
     return;
   }
-
   s= "";
 }
 
