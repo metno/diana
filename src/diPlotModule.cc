@@ -829,7 +829,7 @@ void PlotModule::setAnnotations()
 void PlotModule::updateFieldPlot(const vector<miString>& pin)
 {
   vector<Field*> fv;
-  int i, n, vectorIndex;
+  int i, n;
   miTime t = splot.getTime();
 
   n = vfp.size();
@@ -838,9 +838,8 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
       bool res;
       if (vfp[i]->isDifference()) {
         miString fspec1, fspec2;
-        vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
-        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
-            vectorIndex);
+        vfp[i]->getDifference(fspec1, fspec2);
+        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv);
       } else {
         res = fieldplotm->makeFields(pin[i], t, fv);
       }
@@ -878,7 +877,7 @@ void PlotModule::updatePlots()
 #endif
   miString pin;
   vector<Field*> fv;
-  int i, n, vectorIndex;
+  int i, n;
   miTime t = splot.getTime();
   bool satOK = false;
   Area satarea, plotarea, newarea;
@@ -890,9 +889,8 @@ void PlotModule::updatePlots()
       bool res;
       if (vfp[i]->isDifference()) {
         miString fspec1, fspec2;
-        vfp[i]->getDifference(fspec1, fspec2, vectorIndex);
-        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv,
-            vectorIndex);
+        vfp[i]->getDifference(fspec1, fspec2);
+        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv);
       } else {
         res = fieldplotm->makeFields(pin, t, fv);
       }

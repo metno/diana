@@ -67,7 +67,6 @@ map<miString,miString>     SetupParser::substitutions;
 map<miString,miString>     SetupParser::user_variables;
 vector<miString>           SetupParser::sfilename;
 map<miString,SetupSection> SetupParser::sectionm;
-map<miString,Filltype>     SetupParser::filltypes;
 vector<QuickMenuDefs>      SetupParser::quickmenudefs;
 map<miString,miString>     SetupParser::basic_values;
 map<miString,InfoFile>     SetupParser::infoFiles;

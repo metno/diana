@@ -671,21 +671,19 @@ map<miString, miString> VcrossPlot::getAllFieldOptions(SetupParser& sp)
     } else if (vcf->second.plotType == vcpt_vector) {
       ostr << "colour=" << po.linecolour.Name() << " linewidth="
           << po.linewidth << " density=" << po.density << " vector.unit="
-          << po.vectorunit << " rel.size=" << po.relsize;
+          << po.vectorunit;
       //  } else if (po.fptype==fpt_vector_colour) {
       //    ostr << "linewidth="   << po.linewidth
       //	   << " density="    << po.density
       //	   << " vector.unit="<< po.vectorunit
-      //	   << " rel.size="   << po.relsize;
     } else if (vcf->second.plotType == vcpt_vt_omega || vcf->second.plotType
         == vcpt_vt_w) {
       ostr << "colour=" << po.linecolour.Name() << " linewidth="
           << po.linewidth << " density=" << po.density << " vector.unit="
-          << po.vectorunit << " rel.size=" << po.relsize;
+          << po.vectorunit;
       //  } else if (po.fptype==fpt_direction_colour) {
       //    ostr << "linewidth="   << po.linewidth
       //	   << " density="    << po.density
-      //	   << " rel.size="   << po.relsize;
       //  } else if (po.fptype==fpt_box_pattern) {
       //    ostr << "colour="      << po.linecolour.Name();
       //  } else if (po.fptype==fpt_box_alpha_shade) {
@@ -4651,11 +4649,9 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
       uselevel[k] = true;
   }
 
-  float relflaglen = poptions.relsize;
-
   int i, n, n50, n10, n05;
   float ff, gu, gv, gx, gy, dx, dy, dxf, dyf;
-  float flagl = size * relflaglen * 0.85;
+  float flagl = size * 0.85;
   float flagstep = flagl / 10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -4964,11 +4960,10 @@ bool VcrossPlot::plotVector(float *u, float *v, float *x, float *y, int *part,
       uselevel[k] = true;
   }
 
-  float relarrowlen = poptions.relsize;
   float unitlength = poptions.vectorunit;
 
   // length if abs(vector) = unitlength
-  float arrowlength = size * hstep * relarrowlen;
+  float arrowlength = size * hstep;
 
   float scale = arrowlength / unitlength;
 

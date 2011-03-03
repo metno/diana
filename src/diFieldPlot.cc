@@ -51,7 +51,7 @@ const int MaxArrowsAuto=55;
 
 // Default constructor
 FieldPlot::FieldPlot()
-:Plot(), overlay(false), difference(false), vectorIndex(-1),
+:Plot(), overlay(false), difference(false),
 pshade(false), pundefined(false),vectorAnnotationSize(0.) {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::Default Constructor" << endl;
@@ -197,15 +197,6 @@ bool FieldPlot::prepare(const miString& pin)
     pshade= true;
 
   pundefined= (poptions.undefMasking>0);
-
-  if      (ptype==fpt_wind)          vectorIndex=0;
-  else if (ptype==fpt_wind_colour)   vectorIndex=0;
-  else if (ptype==fpt_wind_temp_fl)  vectorIndex=0;
-  else if (ptype==fpt_wind_number)   vectorIndex=0;
-  else if (ptype==fpt_wind_number_colour)   vectorIndex=0;
-  else if (ptype==fpt_vector)        vectorIndex=0;
-  else if (ptype==fpt_vector_colour) vectorIndex=0;
-  else                               vectorIndex=-1;
 
   return true;
 }
@@ -802,11 +793,9 @@ bool FieldPlot::plotWind(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relflaglen = poptions.relsize;
-
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -1020,11 +1009,9 @@ bool FieldPlot::plotWindColour(){
 
   }
 
-  float relflaglen = poptions.relsize;
-
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -1206,11 +1193,9 @@ bool FieldPlot::plotWindTempFL(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relflaglen = poptions.relsize;
-
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -1610,12 +1595,10 @@ bool FieldPlot::plotNumberPositive(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relflaglen = poptions.relsize;
-
   //  int   n50,n10,n05;
   //float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
   float gx,gy;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
   //float flagstep = flagl/10.;
   //float flagw = flagl * 0.35;
   //float hflagw = 0.6;
@@ -1891,10 +1874,9 @@ bool FieldPlot::plotNumberColour(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relflaglen = poptions.relsize;
 
   float gx,gy;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
   //  float flagstep = flagl/10.;
   //  float flagw = flagl * 0.35;
   //  float hflagw = 0.6;
@@ -2169,10 +2151,9 @@ bool FieldPlot::plotNumber(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relflaglen = poptions.relsize;
 
   float gx,gy;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
 
   //vector<float> vx,vy; // keep vertices for 50-knot flags
 
@@ -2598,11 +2579,10 @@ bool FieldPlot::plotWindNumberColour(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relflaglen = poptions.relsize;
 
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -3022,11 +3002,10 @@ bool FieldPlot::plotWindNumber(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relflaglen = poptions.relsize;
 
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * relflaglen * 0.85;
+  float flagl = sdist * 0.85;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -3990,11 +3969,10 @@ bool FieldPlot::plotVector(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relarrowlen = poptions.relsize;
   float unitlength  = poptions.vectorunit;
 
   // length if abs(vector) = unitlength
-  float arrowlength = sdist * relarrowlen;
+  float arrowlength = sdist;
 
   float scale = arrowlength / unitlength;
 
@@ -4107,8 +4085,8 @@ bool FieldPlot::plotLayer(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  dx = poptions.relsize*(0.5);
-  dy = poptions.relsize*(0.5);
+  dx = 0.5;
+  dy = 0.5;
 
   ix1-=step;     if (ix1<0)  ix1=0;
   iy1-=step;     if (iy1<0)  iy1=0;
@@ -4289,11 +4267,10 @@ bool FieldPlot::plotVectorColour(){
 
   }
 
-  float relarrowlen = poptions.relsize;
   float unitlength  = poptions.vectorunit;
 
   // length if abs(vector) = unitlength
-  float arrowlength = sdist * relarrowlen;
+  float arrowlength = sdist;
 
   float scale = arrowlength / unitlength;
 
@@ -4413,10 +4390,8 @@ bool FieldPlot::plotDirection(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float relarrowlen = poptions.relsize;
-
   // length if abs(vector) = 1
-  float arrowlength = sdist * relarrowlen;
+  float arrowlength = sdist;
 
   float scale = arrowlength;
 
@@ -4585,10 +4560,8 @@ bool FieldPlot::plotDirectionColour(){
   //      <<endl;
   //##############################################################
 
-  float relarrowlen = poptions.relsize;
-
   // length if abs(vector) = 1
-  float arrowlength = sdist * relarrowlen;
+  float arrowlength = sdist;
 
   float scale = arrowlength;
 
@@ -5369,8 +5342,8 @@ bool FieldPlot::plotFillCell(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  float dx = poptions.relsize*(0.5) * (x[1]-x[0]);
-  float dy = poptions.relsize*(0.5) * (y[nx]-y[0]);
+  float dx = poptions.density*(0.1) * (x[1]-x[0]);
+  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
 
   if(poptions.values.empty()) {
     cerr << "plotFillCell(): Must define values in setupfile" << endl;

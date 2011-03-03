@@ -633,8 +633,7 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
 }
 
 bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
-    const miString& fspec2, const miTime& const_ptime, vector<Field*>& fv,
-    int vectorIndex)
+    const miString& fspec2, const miTime& const_ptime, vector<Field*>& fv)
 {
 
   fv.clear();

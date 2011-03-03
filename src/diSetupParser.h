@@ -73,7 +73,6 @@ private:
 
   static map<miutil::miString, miutil::miString> substitutions;
   static map<miutil::miString, miutil::miString> user_variables;
-  static map<miutil::miString, Filltype> filltypes;
   static vector<QuickMenuDefs>   quickmenudefs;
   static map<miutil::miString, miutil::miString> basic_values;
   static map<miutil::miString, InfoFile> infoFiles;

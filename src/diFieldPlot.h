@@ -59,8 +59,8 @@ public:
   	{ fieldDiff1=str1; fieldDiff2=str2; difference=true; }
   bool isDifference() const
   	{ return difference; }
-  void getDifference(miutil::miString& str1, miutil::miString& str2, int& vectorIdx) const
-  	{ str1=fieldDiff1; str2=fieldDiff2; vectorIdx=vectorIndex; }
+  void getDifference(miutil::miString& str1, miutil::miString& str2) const
+  	{ str1=fieldDiff1; str2=fieldDiff2; }
   ///plot in overlay buffer
   bool overlayBuffer(){return overlay;}
 
@@ -99,7 +99,6 @@ private:
   bool overlay; //plot in overlay;
   bool difference;
   miutil::miString fieldDiff1, fieldDiff2;
-  int vectorIndex;
 
   // plotting parameters
   miutil::miString ptype;       // plot-method to use

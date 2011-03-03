@@ -145,7 +145,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   cp->addKey("line.interval",  "",0,CommandParser::cmdFloat);
   cp->addKey("density",        "",0,CommandParser::cmdInt);
   cp->addKey("vector.unit",    "",0,CommandParser::cmdFloat);
-  cp->addKey("rel.size",       "",0,CommandParser::cmdFloat);
   //cp->addKey("extreme.type",   "",0,CommandParser::cmdString);
   //cp->addKey("extreme.size",   "",0,CommandParser::cmdFloat);
   //cp->addKey("extreme.radius", "",0,CommandParser::cmdFloat);

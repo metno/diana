@@ -69,7 +69,7 @@ public:
 
   bool makeDifferenceField(const miutil::miString& fspec1,
       const miutil::miString& fspec2, const miutil::miTime& ptime,
-      vector<Field*>& fv, int vectorIndex);
+      vector<Field*>& fv);
 
   bool makeFields(const miutil::miString& pin, const miutil::miTime& ptime,
       vector<Field*>& vfout,bool toCache = false);
