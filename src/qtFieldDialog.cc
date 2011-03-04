@@ -45,6 +45,7 @@
 #include <qsplitter.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
+#include <QRadioButton>
 #include <qtooltip.h>
 #include <QPixmap>
 #include <QGridLayout>
@@ -68,9 +69,6 @@
 #include "down12x12.xpm"
 #include "minus12x12.xpm"
 
-// qt4 fix
-// #include <QString>
-// #include <QStringList>
 //#define DEBUGPRINT
 
 
@@ -133,9 +131,23 @@ QDialog(parent)
   colourInfo = Colour::getColourInfo();
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
+  map<miutil::miString, miutil::miString> enabledOptions = PlotOptions::getEnabledOptions();
+  plottypes = PlotOptions::getPlotTypes();
 
-  // linewidths
-  nr_linewidths = 12;
+  for ( size_t i = 0; i< plottypes.size(); i++ ) {
+    if(enabledOptions.count(plottypes[i])) {
+      enableMap[plottypes[i]].contourWidgets =  (enabledOptions[plottypes[i]].contains("contour") );
+      enableMap[plottypes[i]].extremeWidgets =  (enabledOptions[plottypes[i]].contains("extreme") );
+      enableMap[plottypes[i]].shadingWidgets =  (enabledOptions[plottypes[i]].contains("shading") );
+      enableMap[plottypes[i]].lineWidgets =  (enabledOptions[plottypes[i]].contains("line") );
+      enableMap[plottypes[i]].fontWidgets =  (enabledOptions[plottypes[i]].contains("font") );
+      enableMap[plottypes[i]].densityWidgets =  (enabledOptions[plottypes[i]].contains("density") );
+      enableMap[plottypes[i]].unitWidgets =  (enabledOptions[plottypes[i]].contains("unit") );
+    }
+  }
+
+// linewidths
+nr_linewidths = 12;
 
   // linetypes
   linetypes = Linetype::getLinetypeNames();
@@ -164,6 +176,7 @@ QDialog(parent)
   cp->addKey("MINUS", "", 1, CommandParser::cmdNoValue);
 
   // add more plot options to the cp's keyDataBase
+  cp->addKey("plottype", "", 0, CommandParser::cmdString);
   cp->addKey("colour", "", 0, CommandParser::cmdString);
   cp->addKey("colours", "", 0, CommandParser::cmdString);
   cp->addKey("linewidth", "", 0, CommandParser::cmdInt);
@@ -217,61 +230,35 @@ QDialog(parent)
   cp->addKey("allTimeSteps", "", 3, CommandParser::cmdString);
   //----------------------------------------------------------------
 
-  // modelGRlabel
-  QLabel *modelGRlabel = TitleLabel(tr("Model group"), this);
-
   // modelGRbox
+  QLabel *modelGRlabel = TitleLabel(tr("Model group"), this);
   modelGRbox = new QComboBox(this);
-
   connect( modelGRbox, SIGNAL( activated( int ) ),
       SLOT( modelGRboxActivated( int ) ) );
 
-  // modellabel
+  //modelbox
   QLabel *modellabel = TitleLabel(tr("Models"), this);
-  //h1 modelbox
-  modelbox = new QListWidget(this);connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
+  modelbox = new QListWidget(this);
+  connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
       SLOT( modelboxClicked( QListWidgetItem * ) ) );
 
-  // fieldGRlabel
-  QLabel *fieldGRlabel = TitleLabel(tr("Field group"), this);
-
   // fieldGRbox
+  QLabel *fieldGRlabel = TitleLabel(tr("Field group"), this);
   fieldGRbox = new QComboBox(this);
-
   connect( fieldGRbox, SIGNAL( activated( int ) ),
       SLOT( fieldGRboxActivated( int ) ) );
 
-  // fieldlabel
-  QLabel *fieldlabel = TitleLabel(tr("Fields"), this);
-
   // fieldbox
+  QLabel *fieldlabel = TitleLabel(tr("Fields"), this);
   fieldbox = new QListWidget(this);
-  // #ifdef DISPLAY1024X768
-  //   fieldbox->setMinimumHeight( 64 );
-  //   fieldbox->setMaximumHeight( 64 );
-  // #else
-  //   fieldbox->setMinimumHeight( 132 );
-  //   fieldbox->setMaximumHeight( 132 );
-  // #endif
   fieldbox->setSelectionMode(QAbstractItemView::MultiSelection);
-
   connect( fieldbox, SIGNAL( itemClicked(QListWidgetItem*) ),
       SLOT( fieldboxChanged(QListWidgetItem*) ) );
 
-  // selectedFieldlabel
-  QLabel *selectedFieldlabel = TitleLabel(tr("Selected fields"), this);
-
   // selectedFieldbox
+  QLabel *selectedFieldlabel = TitleLabel(tr("Selected fields"), this);
   selectedFieldbox = new QListWidget(this);
-  // #ifdef DISPLAY1024X768
-  //   selectedFieldbox->setMinimumHeight( 55 );
-  //   selectedFieldbox->setMaximumHeight( 55 );
-  // #else
-  //   selectedFieldbox->setMinimumHeight( 80 );
-  //   selectedFieldbox->setMaximumHeight( 80 );
-  // #endif
   selectedFieldbox->setSelectionMode(QAbstractItemView::SingleSelection);
-  selectedFieldbox->setEnabled(true);
 
   connect( selectedFieldbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
       SLOT( selectedFieldboxClicked( QListWidgetItem * ) ) );
@@ -294,8 +281,6 @@ QDialog(parent)
   levelSlider->setMaximum(1);
   levelSlider->setPageStep(1);
   levelSlider->setValue(0);
-
-  levelSlider->setEnabled(false);
 
   connect( levelSlider, SIGNAL( valueChanged( int )),
       SLOT( levelChanged( int)));
@@ -325,8 +310,6 @@ QDialog(parent)
   idnumSlider->setPageStep(1);
   idnumSlider->setValue(0);
 
-  idnumSlider->setEnabled(false);
-
   connect( idnumSlider, SIGNAL( valueChanged( int )),
       SLOT( idnumChanged( int)));
   connect(idnumSlider, SIGNAL(sliderPressed()), SLOT(idnumPressed()));
@@ -339,132 +322,101 @@ QDialog(parent)
 
   // deleteSelected
   Delete = NormalPushButton(tr("Delete"), this);
-  Delete->setEnabled(false);
-
   connect(Delete, SIGNAL(clicked()), SLOT(deleteSelected()));
-
-  // get the standard button height from first PushButton
-  int hbutton = Delete->sizeHint().height();
 
   // copyField
   copyField = NormalPushButton(tr("Copy"), this);
-  copyField->setEnabled(false);
-
   connect(copyField, SIGNAL(clicked()), SLOT(copySelectedField()));
 
-  // deleteAllSelected
+  // deleteAll
   deleteAll = NormalPushButton(tr("Delete all"), this);
-  deleteAll->setEnabled(false);
-
   connect(deleteAll, SIGNAL(clicked()), SLOT(deleteAllSelected()));
 
   // changeModelButton
   changeModelButton = NormalPushButton(tr("Model"), this);
-  changeModelButton->setEnabled(false);
-
   connect(changeModelButton, SIGNAL(clicked()), SLOT(changeModel()));
+
+  int width = changeModelButton->sizeHint().width()/3;
+  int height = changeModelButton->sizeHint().height();;
 
   // historyBack
   historyBackButton = new QPushButton(QPixmap(up20x20_xpm), "", this);
-  historyBackButton->setMinimumSize(hbutton + 4, hbutton);
-  historyBackButton->setMaximumSize(hbutton + 4, hbutton);
-  historyBackButton->setEnabled(false);
-
+  historyBackButton->setMaximumSize(width,height);
   connect(historyBackButton, SIGNAL(clicked()), SLOT(historyBack()));
 
   // historyForward
   historyForwardButton = new QPushButton(QPixmap(down20x20_xpm), "", this);
-  historyForwardButton->setMinimumSize(hbutton + 4, hbutton);
-  historyForwardButton->setMaximumSize(hbutton + 4, hbutton);
-  historyForwardButton->setEnabled(false);
-
+  historyForwardButton->setMaximumSize(width,height);
   connect(historyForwardButton, SIGNAL(clicked()), SLOT(historyForward()));
 
   // historyOk
   historyOkButton = NormalPushButton("OK", this);
-  historyOkButton->setMinimumWidth(hbutton * 2);
-  //historyOkButton->setMaximumWidth(hbutton*2+8);
-  highlightButton(historyOkButton, false);
-
+  historyOkButton->setMaximumSize(width*2,height);
+  historyOkButton->setEnabled( false );
   connect(historyOkButton, SIGNAL(clicked()), SLOT(historyOk()));
-
-  int wbutton = hbutton - 4;
 
   // upField
   upFieldButton = new QPushButton(QPixmap(up12x12_xpm), "", this);
-  upFieldButton->setMinimumSize(wbutton, hbutton);
-  upFieldButton->setMaximumSize(wbutton, hbutton);
-  upFieldButton->setEnabled(false);
-
+  upFieldButton->setMaximumSize(width,height);
   connect(upFieldButton, SIGNAL(clicked()), SLOT(upField()));
 
   // downField
   downFieldButton = new QPushButton(QPixmap(down12x12_xpm), "", this);
-  downFieldButton->setMinimumSize(wbutton, hbutton);
-  downFieldButton->setMaximumSize(wbutton, hbutton);
-  downFieldButton->setEnabled(false);
-
+  downFieldButton->setMaximumSize(width,height);
   connect(downFieldButton, SIGNAL(clicked()), SLOT(downField()));
 
   // resetOptions
   resetOptionsButton = NormalPushButton(tr("R"), this);
-  resetOptionsButton->setMinimumWidth(wbutton);
-  resetOptionsButton->setEnabled(false);
-
+  resetOptionsButton->setMaximumSize(width,height);
   connect(resetOptionsButton, SIGNAL(clicked()), SLOT(resetOptions()));
 
   // minus
   minusButton = new ToggleButton(this, QPixmap(minus12x12_xpm));
-  minusButton->setMinimumSize(wbutton, hbutton);
-  minusButton->setMaximumSize(wbutton, hbutton);
-  minusButton->setEnabled(false);
-
+  minusButton->setMaximumSize(width,height);
   connect( minusButton, SIGNAL(toggled(bool)), SLOT(minusField(bool)));
+
+  // plottype
+  QLabel* plottypelabel = new QLabel(tr("Plot type"), this);
+  plottypeComboBox = ComboBox(this, plottypes);
+  connect( plottypeComboBox, SIGNAL( activated(int) ),
+      SLOT( plottypeComboBoxActivated(int) ) );
+
 
   // colorCbox
   QLabel* colorlabel = new QLabel(tr("Line colour"), this);
-  colorCbox = ColourBox(this, colourInfo, false, 0, tr("off").toStdString(),
-      true);
+  colorCbox = ColourBox(this, colourInfo, false, 0, tr("off").toStdString(),true);
   colorCbox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-  colorCbox->setEnabled(false);
-
   connect( colorCbox, SIGNAL( activated(int) ),
       SLOT( colorCboxActivated(int) ) );
 
   // linewidthcbox
   QLabel* linewidthlabel = new QLabel(tr("Line width"), this);
   lineWidthCbox = LinewidthBox(this, false);
-  lineWidthCbox->setEnabled(false);
-
   connect( lineWidthCbox, SIGNAL( activated(int) ),
       SLOT( lineWidthCboxActivated(int) ) );
 
   // linetypecbox
   QLabel* linetypelabel = new QLabel(tr("Line type"), this);
   lineTypeCbox = LinetypeBox(this, false);
-
   connect( lineTypeCbox, SIGNAL( activated(int) ),
       SLOT( lineTypeCboxActivated(int) ) );
 
   // lineinterval
   QLabel* lineintervallabel = new QLabel(tr("Line interval"), this);
   lineintervalCbox = new QComboBox(this);
-  lineintervalCbox->setEnabled(false);
-
   connect( lineintervalCbox, SIGNAL( activated(int) ),
       SLOT( lineintervalCboxActivated(int) ) );
 
   // density
   QLabel* densitylabel = new QLabel(tr("Density"), this);
   densityCbox = new QComboBox(this);
-  densityCbox->setEnabled(false);connect( densityCbox, SIGNAL( activated(int) ),
+  densityCbox->addItems(densityStringList);
+  connect( densityCbox, SIGNAL( activated(int) ),
       SLOT( densityCboxActivated(int) ) );
 
   // vectorunit
   QLabel* vectorunitlabel = new QLabel(tr("Unit"), this);
   vectorunitCbox = new QComboBox(this);
-  vectorunitCbox->setEnabled(false);
-
   connect( vectorunitCbox, SIGNAL( activated(int) ),
       SLOT( vectorunitCboxActivated(int) ) );
 
@@ -498,20 +450,16 @@ QDialog(parent)
   connect(fieldapply, SIGNAL(clicked()), SLOT(applyClicked()));
 
   // layout
-  v1layout = new QVBoxLayout();
+  QVBoxLayout* v1layout = new QVBoxLayout();
   v1layout->setSpacing(1);
   v1layout->addWidget(modelGRlabel);
   v1layout->addWidget(modelGRbox);
-  //  v1layout->addSpacing();
   v1layout->addWidget(modellabel);
   v1layout->addWidget(modelbox, 2);
-  //  v1alayout->addSpacing();
   v1layout->addWidget(fieldGRlabel);
   v1layout->addWidget(fieldGRbox);
-  //  v1layout->addSpacing();
   v1layout->addWidget(fieldlabel);
   v1layout->addWidget(fieldbox, 4);
-  //  v1layout->addSpacing();
   v1layout->addWidget(selectedFieldlabel);
   v1layout->addWidget(selectedFieldbox, 2);
 
@@ -522,7 +470,7 @@ QDialog(parent)
   h2layout->addWidget(minusButton);
   h2layout->addStretch(1);
 
-  v1h4layout = new QHBoxLayout();
+  QHBoxLayout* v1h4layout = new QHBoxLayout();
   v1h4layout->addWidget(Delete);
   v1h4layout->addWidget(copyField);
 
@@ -546,19 +494,21 @@ QDialog(parent)
   h3layout->addLayout(v3layout);
   h3layout->addLayout(v4layout);
 
-  optlayout = new QGridLayout();
-  optlayout->addWidget(colorlabel, 0, 0);
-  optlayout->addWidget(colorCbox, 0, 1);
-  optlayout->addWidget(linewidthlabel, 1, 0);
-  optlayout->addWidget(lineWidthCbox, 1, 1);
-  optlayout->addWidget(linetypelabel, 2, 0);
-  optlayout->addWidget(lineTypeCbox, 2, 1);
-  optlayout->addWidget(lineintervallabel, 3, 0);
-  optlayout->addWidget(lineintervalCbox, 3, 1);
-  optlayout->addWidget(densitylabel, 4, 0);
-  optlayout->addWidget(densityCbox, 4, 1);
-  optlayout->addWidget(vectorunitlabel, 5, 0);
-  optlayout->addWidget(vectorunitCbox, 5, 1);
+  QGridLayout* optlayout = new QGridLayout();
+  optlayout->addWidget(plottypelabel, 0, 0);
+  optlayout->addWidget(plottypeComboBox, 0, 1);
+  optlayout->addWidget(colorlabel, 1, 0);
+  optlayout->addWidget(colorCbox, 1, 1);
+  optlayout->addWidget(linewidthlabel, 2, 0);
+  optlayout->addWidget(lineWidthCbox, 2, 1);
+  optlayout->addWidget(linetypelabel, 3, 0);
+  optlayout->addWidget(lineTypeCbox, 3, 1);
+  optlayout->addWidget(lineintervallabel, 4, 0);
+  optlayout->addWidget(lineintervalCbox, 4, 1);
+  optlayout->addWidget(densitylabel, 5, 0);
+  optlayout->addWidget(densityCbox, 5, 1);
+  optlayout->addWidget(vectorunitlabel, 6, 0);
+  optlayout->addWidget(vectorunitCbox, 6, 1);
 
   QHBoxLayout* levelsliderlayout = new QHBoxLayout();
   levelsliderlayout->setAlignment(Qt::AlignHCenter);
@@ -568,27 +518,27 @@ QDialog(parent)
   levelsliderlabellayout->setAlignment(Qt::AlignHCenter);
   levelsliderlabellayout->addWidget(levelsliderlabel);
 
-  levellayout = new QVBoxLayout();
+  QVBoxLayout* levellayout = new QVBoxLayout();
   levellayout->addWidget(levelLabel);
   levellayout->addLayout(levelsliderlayout);
   levellayout->addLayout(levelsliderlabellayout);
 
-  h4layout = new QHBoxLayout();
+  QHBoxLayout* h4layout = new QHBoxLayout();
   h4layout->addLayout(h2layout);
   h4layout->addLayout(optlayout);
   h4layout->addLayout(levellayout);
 
-  idnumlayout = new QHBoxLayout();
+  QHBoxLayout* idnumlayout = new QHBoxLayout();
   idnumlayout->addWidget(idnumLabel);
   idnumlayout->addWidget(idnumSlider);
   idnumlayout->addWidget(idnumsliderlabel);
 
-  h5layout = new QHBoxLayout();
+  QHBoxLayout* h5layout = new QHBoxLayout();
   h5layout->addWidget(fieldhelp);
   h5layout->addWidget(allTimeStepButton);
   h5layout->addWidget(advanced);
 
-  h6layout = new QHBoxLayout();
+  QHBoxLayout* h6layout = new QHBoxLayout();
   h6layout->addWidget(fieldhide);
   h6layout->addWidget(fieldapplyhide);
   h6layout->addWidget(fieldapply);
@@ -598,11 +548,7 @@ QDialog(parent)
   v6layout->addLayout(h6layout);
 
   // vlayout
-#ifdef DISPLAY1024X768
-  vlayout = new QVBoxLayout( this);
-#else
-  vlayout = new QVBoxLayout(this);
-#endif
+  QVBoxLayout* vlayout = new QVBoxLayout(this);
   vlayout->addLayout(v1layout);
   vlayout->addLayout(h3layout);
   vlayout->addLayout(h4layout);
@@ -617,15 +563,11 @@ QDialog(parent)
   this->setExtension(advFrame);
   advancedToggled(false);
 
-  lastFieldGroupName = "Bakke m.m.";
-  //##############################################
-  //  lastFieldGroupName= tr("Surface etc."""";
-  //##############################################
-
   // tool tips
   toolTips();
 
   updateModelBoxes();
+  setDefaultFieldOptions();
 
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::ConstructorCernel returned"<<endl;
@@ -680,12 +622,12 @@ void FieldDialog::CreateAdvanced()
 
   // Extreme (min,max): type, size and search radius
   QLabel* extremeTypeLabel = TitleLabel(tr("Min,max"), advFrame);
-  extremeTypeCbox = new QComboBox(advFrame);
-  extremeTypeCbox->setEnabled(false);
   extremeType.push_back("None");
   extremeType.push_back("L+H");
   extremeType.push_back("C+W");
-  extremeType.push_back("Value");connect( extremeTypeCbox, SIGNAL( activated(int) ),
+  extremeType.push_back("Value");
+  extremeTypeCbox = ComboBox(advFrame, extremeType);
+  connect( extremeTypeCbox, SIGNAL( activated(int) ),
       SLOT( extremeTypeActivated(int) ) );
 
   QLabel* extremeSizeLabel = new QLabel(tr("Size"), advFrame);
@@ -696,7 +638,7 @@ void FieldDialog::CreateAdvanced()
   extremeSizeSpinBox->setWrapping(true);
   extremeSizeSpinBox->setSuffix("%");
   extremeSizeSpinBox->setValue(100);
-  extremeSizeSpinBox->setEnabled(false);connect( extremeSizeSpinBox, SIGNAL( valueChanged(int) ),
+  connect( extremeSizeSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( extremeSizeChanged(int) ) );
 
   QLabel* extremeRadiusLabel = new QLabel(tr("Radius"), advFrame);
@@ -707,7 +649,7 @@ void FieldDialog::CreateAdvanced()
   extremeRadiusSpinBox->setWrapping(true);
   extremeRadiusSpinBox->setSuffix("%");
   extremeRadiusSpinBox->setValue(100);
-  extremeRadiusSpinBox->setEnabled(false);connect( extremeRadiusSpinBox, SIGNAL( valueChanged(int) ),
+  connect( extremeRadiusSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( extremeRadiusChanged(int) ) );
 
   // line smoothing
@@ -718,7 +660,7 @@ void FieldDialog::CreateAdvanced()
   lineSmoothSpinBox->setSingleStep(2);
   lineSmoothSpinBox->setSpecialValueText(tr("Off"));
   lineSmoothSpinBox->setValue(0);
-  lineSmoothSpinBox->setEnabled(false);connect( lineSmoothSpinBox, SIGNAL( valueChanged(int) ),
+  connect( lineSmoothSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( lineSmoothChanged(int) ) );
 
   // field smoothing
@@ -729,10 +671,9 @@ void FieldDialog::CreateAdvanced()
   fieldSmoothSpinBox->setSingleStep(1);
   fieldSmoothSpinBox->setSpecialValueText(tr("Off"));
   fieldSmoothSpinBox->setValue(0);
-  fieldSmoothSpinBox->setEnabled(false);connect( fieldSmoothSpinBox, SIGNAL( valueChanged(int) ),
+  connect( fieldSmoothSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( fieldSmoothChanged(int) ) );
 
-  //  QLabel* labelSizeLabel= new QLabel( "Tallstørrelse",  advFrame );
   labelSizeSpinBox = new QSpinBox(advFrame);
   labelSizeSpinBox->setMinimum(5);
   labelSizeSpinBox->setMaximum(300);
@@ -740,14 +681,13 @@ void FieldDialog::CreateAdvanced()
   labelSizeSpinBox->setWrapping(true);
   labelSizeSpinBox->setSuffix("%");
   labelSizeSpinBox->setValue(100);
-  labelSizeSpinBox->setEnabled(false);connect( labelSizeSpinBox, SIGNAL( valueChanged(int) ),
+  connect( labelSizeSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( labelSizeChanged(int) ) );
 
   // grid values
-  //  QLabel* gridLabel= TitleLabel( tr("Grid"), advFrame );
   gridValueCheckBox = new QCheckBox(QString(tr("Grid value")), advFrame);
   gridValueCheckBox->setChecked(false);
-  gridValueCheckBox->setEnabled(false);connect( gridValueCheckBox, SIGNAL( toggled(bool) ),
+  connect( gridValueCheckBox, SIGNAL( toggled(bool) ),
       SLOT( gridValueCheckBoxToggled(bool) ) );
 
   // grid lines
@@ -758,7 +698,7 @@ void FieldDialog::CreateAdvanced()
   gridLinesSpinBox->setSingleStep(1);
   gridLinesSpinBox->setSpecialValueText(tr("Off"));
   gridLinesSpinBox->setValue(0);
-  gridLinesSpinBox->setEnabled(false);connect( gridLinesSpinBox, SIGNAL( valueChanged(int) ),
+  connect( gridLinesSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( gridLinesChanged(int) ) );
 
   // grid lines max
@@ -766,7 +706,6 @@ void FieldDialog::CreateAdvanced()
   //   gridLinesMaxSpinBox= new QSpinBox( 0,200,5, advFrame );
   //   gridLinesMaxSpinBox->setSpecialValueText(tr("All"));
   //   gridLinesMaxSpinBox->setValue(0);
-  //   gridLinesMaxSpinBox->setEnabled( false );
   //   connect( gridLinesMaxSpinBox, SIGNAL( valueChanged(int) ),
   // 	   SLOT( gridLinesMaxChanged(int) ) );
 
@@ -778,7 +717,7 @@ void FieldDialog::CreateAdvanced()
   hourOffsetSpinBox->setSingleStep(1);
   hourOffsetSpinBox->setSuffix(tr(" hour(s)"));
   hourOffsetSpinBox->setValue(0);
-  hourOffsetSpinBox->setEnabled(false);connect( hourOffsetSpinBox, SIGNAL( valueChanged(int) ),
+  connect( hourOffsetSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( hourOffsetChanged(int) ) );
 
   QLabel* hourDiffLabel = new QLabel(tr("Time diff."), advFrame);
@@ -789,37 +728,37 @@ void FieldDialog::CreateAdvanced()
   hourDiffSpinBox->setSuffix(tr(" hour(s)"));
   hourDiffSpinBox->setPrefix(" +/-");
   hourDiffSpinBox->setValue(0);
-  hourDiffSpinBox->setEnabled(false);connect( hourDiffSpinBox, SIGNAL( valueChanged(int) ),
+  connect( hourDiffSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( hourDiffChanged(int) ) );
 
   // Undefined masking
   QLabel* undefMaskingLabel = TitleLabel(tr("Undefined"), advFrame);
-  undefMaskingCbox = new QComboBox(advFrame);
-  undefMaskingCbox->setEnabled(false);
   undefMasking.push_back(tr("Unmarked").toStdString());
   undefMasking.push_back(tr("Coloured").toStdString());
-  undefMasking.push_back(tr("Lines").toStdString());connect( undefMaskingCbox, SIGNAL( activated(int) ),
+  undefMasking.push_back(tr("Lines").toStdString());
+  undefMaskingCbox = ComboBox(advFrame, undefMasking);
+  connect( undefMaskingCbox, SIGNAL( activated(int) ),
       SLOT( undefMaskingActivated(int) ) );
 
   // Undefined masking colour
   undefColourCbox = ColourBox(advFrame, colourInfo, false, 0);
-  undefColourCbox->setEnabled(false);connect( undefColourCbox, SIGNAL( activated(int) ),
+  connect( undefColourCbox, SIGNAL( activated(int) ),
       SLOT( undefColourActivated(int) ) );
 
   // Undefined masking linewidth
   undefLinewidthCbox = LinewidthBox(advFrame, false);
-  undefLinewidthCbox->setEnabled(false);connect( undefLinewidthCbox, SIGNAL( activated(int) ),
+  connect( undefLinewidthCbox, SIGNAL( activated(int) ),
       SLOT( undefLinewidthActivated(int) ) );
 
   // Undefined masking linetype
   undefLinetypeCbox = LinetypeBox(advFrame, false);
-  undefLinetypeCbox->setEnabled(false);connect( undefLinetypeCbox, SIGNAL( activated(int) ),
+  connect( undefLinetypeCbox, SIGNAL( activated(int) ),
       SLOT( undefLinetypeActivated(int) ) );
 
   // enable/disable numbers on isolines
   valueLabelCheckBox = new QCheckBox(QString(tr("Numbers")), advFrame);
   valueLabelCheckBox->setChecked(true);
-  valueLabelCheckBox->setEnabled(false);connect( valueLabelCheckBox, SIGNAL( toggled(bool) ),
+  connect( valueLabelCheckBox, SIGNAL( toggled(bool) ),
       SLOT( valueLabelCheckBoxToggled(bool) ) );
 
   //Options
@@ -841,11 +780,11 @@ void FieldDialog::CreateAdvanced()
   QLabel* threeColourLabel = TitleLabel(tr("Three colours"), advFrame);
 
   tableCheckBox = new QCheckBox(tr("Table"), advFrame);
-  tableCheckBox->setEnabled(false);connect( tableCheckBox, SIGNAL( toggled(bool) ),
+  connect( tableCheckBox, SIGNAL( toggled(bool) ),
       SLOT( tableCheckBoxToggled(bool) ) );
 
   repeatCheckBox = new QCheckBox(tr("Repeat"), advFrame);
-  repeatCheckBox->setEnabled(false);connect( repeatCheckBox, SIGNAL( toggled(bool) ),
+  connect( repeatCheckBox, SIGNAL( toggled(bool) ),
       SLOT( repeatCheckBoxToggled(bool) ) );
 
   //3 colours
@@ -871,7 +810,6 @@ void FieldDialog::CreateAdvanced()
   shadingSpinBox->setMaximum(99);
   shadingSpinBox->setSingleStep(1);
   shadingSpinBox->setSpecialValueText(tr("Auto"));
-  shadingSpinBox->setEnabled(false);
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( shadingChanged() ) );
 
@@ -887,7 +825,6 @@ void FieldDialog::CreateAdvanced()
   shadingcoldSpinBox->setMaximum(99);
   shadingcoldSpinBox->setSingleStep(1);
   shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
-  shadingcoldSpinBox->setEnabled(false);
   connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( shadingChanged() ) );
 
@@ -909,7 +846,6 @@ void FieldDialog::CreateAdvanced()
   alphaSpinBox->setMinimum(0);
   alphaSpinBox->setMaximum(255);
   alphaSpinBox->setSingleStep(5);
-  alphaSpinBox->setEnabled(false);
   alphaSpinBox->setValue(255);
   connect( alphaSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( alphaChanged(int) ) );
@@ -921,15 +857,12 @@ void FieldDialog::CreateAdvanced()
 
   //line interval
   interval2ComboBox = new QComboBox(advFrame);
-  interval2ComboBox->setEnabled( false );
   connect( interval2ComboBox, SIGNAL( activated(int) ),
       SLOT( interval2ComboBoxToggled(int) ) );
 
   //zero value
   zero1ComboBox= new QComboBox( advFrame );
   zero2ComboBox = new QComboBox(advFrame);
-  zero1ComboBox->setEnabled( false );
-  zero2ComboBox->setEnabled( false );
   connect( zero1ComboBox, SIGNAL( activated(int) ),
       SLOT( zero1ComboBoxToggled(int) ) );
   connect( zero2ComboBox, SIGNAL( activated(int) ),
@@ -938,14 +871,10 @@ void FieldDialog::CreateAdvanced()
   //min
   min1ComboBox = new QComboBox(advFrame);
   min2ComboBox = new QComboBox(advFrame);
-  min1ComboBox->setEnabled( false );
-  min2ComboBox->setEnabled( false );
 
   //max
   max1ComboBox = new QComboBox(advFrame);
   max2ComboBox = new QComboBox(advFrame);
-  max1ComboBox->setEnabled( false );
-  max2ComboBox->setEnabled( false );
 
   connect( min1ComboBox, SIGNAL( activated(int) ),
       SLOT( min1ComboBoxToggled(int) ) );
@@ -958,12 +887,10 @@ void FieldDialog::CreateAdvanced()
 
   //linewidth
   linewidth2ComboBox = LinewidthBox( advFrame);
-  linewidth2ComboBox->setEnabled( false );
   connect( linewidth2ComboBox, SIGNAL( activated(int) ),
       SLOT( linewidth2ComboBoxToggled(int) ) );
   //linetype
   linetype2ComboBox = LinetypeBox( advFrame,false );
-  linetype2ComboBox->setEnabled( false );
   connect( linetype2ComboBox, SIGNAL( activated(int) ),
       SLOT( linetype2ComboBoxToggled(int) ) );
 
@@ -978,8 +905,6 @@ void FieldDialog::CreateAdvanced()
   //  zeroLineColourCBox= new QComboBox(advFrame);
   zeroLineCheckBox->setChecked( true );
 
-  //  zeroLineCheckBox->setEnabled( false );
-  zeroLineCheckBox->setEnabled( true );
   connect( zeroLineCheckBox, SIGNAL( toggled(bool) ),
       SLOT( zeroLineCheckBoxToggled(bool) ) );
 
@@ -1217,19 +1142,14 @@ void FieldDialog::modelGRboxActivated(int index)
   int indexMGR = indexMGRtable[index];
   modelbox->clear();
   fieldGRbox->clear();
-  //Warning: with qt4, fieldboxChanged() called
   fieldbox->clear();
-  fieldGRbox->setEnabled(false);
-  fieldbox->setEnabled(false);
-  levelSlider->setEnabled(false);
-  levelLabel->clear();
 
   int nr_model = m_modelgroup[indexMGR].modelNames.size();
   for (int i = 0; i < nr_model; i++) {
     modelbox->addItem(QString(m_modelgroup[indexMGR].modelNames[i].c_str()));
   }
 
-  modelbox->setEnabled(true);
+//  modelbox->setEnabled(true);
 
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::modelGRboxActivated returned"<<endl;
@@ -1245,8 +1165,6 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
   int index = modelbox->row(item);
   fieldGRbox->clear();
   fieldbox->clear();
-  levelSlider->setEnabled(false);
-  levelLabel->clear();
 
   int indexM = index;
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
@@ -1255,10 +1173,10 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 
   getFieldGroups(model, indexMGR, indexM, vfgi);
 
-  size_t nvfgi = vfgi.size();
+  int nvfgi = vfgi.size();
 
   //Translate level names
-  for (size_t i = 0; i < nvfgi; i++) {
+  for (int i = 0; i < nvfgi; i++) {
 
     for(size_t ii = 0; ii <  vfgi[i].levelNames.size(); ii++ ) {
 
@@ -1274,7 +1192,6 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
     for (i = 0; i < nvfgi; i++) {
       fieldGRbox->addItem(QString(vfgi[i].groupName.c_str()));
     }
-    fieldGRbox->setEnabled(true);
 
     indexFGR = -1;
     i = 0;
@@ -1321,7 +1238,6 @@ void FieldDialog::fieldGRboxActivated(int index)
 #endif
 
   fieldbox->clear();
-  fieldbox->setEnabled(false);
   fieldbox->blockSignals(true);
 
   int i, j, n;
@@ -1339,8 +1255,6 @@ void FieldDialog::fieldGRboxActivated(int index)
     for (i = 0; i < nfield; i++) {
       fieldbox->addItem(QString(vfgi[indexFGR].fieldNames[i].c_str()));
     }
-
-    fieldbox->setEnabled(true);
 
     countSelected.resize(nfield);
     for (i = 0; i < nfield; ++i)
@@ -1391,7 +1305,7 @@ void FieldDialog::fieldGRboxActivated(int index)
     selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
   } else if (selectedFields.empty()) {
-    disableFieldOptions();
+    enableWidgets("none");
   }
 
   fieldbox->blockSignals(false);
@@ -1407,12 +1321,9 @@ void FieldDialog::setLevel()
   cerr<<"FieldDialog::setLevel called"<<endl;
 #endif
 
-  if (selectedFields.empty() || selectedFieldbox->currentRow() < 0)
-    return;
-
   int i = selectedFieldbox->currentRow();
   int n = 0, l = 0;
-  if (selectedFields[i].level.exists()) {
+  if (i >= 0 && selectedFields[i].level.exists()) {
     lastLevel = selectedFields[i].level;
     n = selectedFields[i].levelOptions.size();
     l = 0;
@@ -1585,40 +1496,37 @@ void FieldDialog::setIdnum()
   cerr<<"FieldDialog::setIdnum called"<<endl;
 #endif
 
-  if (!selectedFields.empty()) {
-
-    int i = selectedFieldbox->currentRow();
-    int n = 0, l = 0;
-    if (selectedFields[i].idnum.exists()) {
-      lastIdnum = selectedFields[i].idnum;
-      n = selectedFields[i].idnumOptions.size();
-      l = 0;
-      while (l < n && selectedFields[i].idnumOptions[l] != lastIdnum)
-        l++;
-      if (l == n)
-        l = 0; // should not happen!
-    }
-
-    idnumSlider->blockSignals(true);
-
-    if (n > 0) {
-      currentIdnums = selectedFields[i].idnumOptions;
-      idnumSlider->setRange(0, n - 1);
-      idnumSlider->setValue(l);
-      idnumSlider->setEnabled(true);
-      QString qstr = lastIdnum.c_str();
-      idnumLabel->setText(qstr);
-    } else {
-      currentIdnums.clear();
-      // keep slider in a fixed position when disabled
-      idnumSlider->setEnabled(false);
-      idnumSlider->setValue(1);
-      idnumSlider->setRange(0, 1);
-      idnumLabel->clear();
-    }
-
-    idnumSlider->blockSignals(false);
+  int i = selectedFieldbox->currentRow();
+  int n = 0, l = 0;
+  if (i >= 0 && selectedFields[i].idnum.exists()) {
+    lastIdnum = selectedFields[i].idnum;
+    n = selectedFields[i].idnumOptions.size();
+    l = 0;
+    while (l < n && selectedFields[i].idnumOptions[l] != lastIdnum)
+      l++;
+    if (l == n)
+      l = 0; // should not happen!
   }
+
+  idnumSlider->blockSignals(true);
+
+  if (n > 0) {
+    currentIdnums = selectedFields[i].idnumOptions;
+    idnumSlider->setRange(0, n - 1);
+    idnumSlider->setValue(l);
+    idnumSlider->setEnabled(true);
+    QString qstr = lastIdnum.c_str();
+    idnumLabel->setText(qstr);
+  } else {
+    currentIdnums.clear();
+    // keep slider in a fixed position when disabled
+    idnumSlider->setEnabled(false);
+    idnumSlider->setValue(1);
+    idnumSlider->setRange(0, 1);
+    idnumLabel->clear();
+  }
+
+  idnumSlider->blockSignals(false);
 
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::setIdnum returned"<<endl;
@@ -1678,9 +1586,9 @@ void FieldDialog::updateIdnum()
 
 void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 {
-#ifdef DEBUGPRINT
+//#ifdef DEBUGPRINT
   cerr<<"FieldDialog::fieldboxChanged called:"<<fieldbox->count()<<endl;
-#endif
+//#endif
 
   if (!fieldGRbox->count())
     return;
@@ -1811,7 +1719,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     selectedFieldbox->item(last)->setSelected(true);
     enableFieldOptions();
   } else if (selectedFields.size() == 0) {
-    disableFieldOptions();
+    enableWidgets("none");
   }
 
   updateTime();
@@ -1833,23 +1741,22 @@ void FieldDialog::enableFieldOptions()
   cerr<<"FieldDialog::enableFieldOptions called"<<endl;
 #endif
 
-  float e;
-  int index, lastindex, nc, i, n;
+  setDefaultFieldOptions();
 
-  index = selectedFieldbox->currentRow();
-  lastindex = selectedFields.size() - 1;
+  int nc, i, n;
+
+  int index = selectedFieldbox->currentRow();
+  int lastindex = selectedFields.size() - 1;
 
   if (index < 0 || index > lastindex) {
     cerr << "POGRAM ERROR.1 in FieldDialog::enableFieldOptions" << endl;
     cerr << "       index,selectedFields.size: " << index << " "
         << selectedFields.size() << endl;
-    disableFieldOptions();
+    enableWidgets("none");
     return;
   }
 
   if (selectedFields[index].inEdit) {
-    upFieldButton->setEnabled(false);
-    downFieldButton->setEnabled(false);
     changeModelButton->setEnabled(false);
     Delete->setEnabled(false);
     copyField->setEnabled(false);
@@ -1870,6 +1777,8 @@ void FieldDialog::enableFieldOptions()
   setLevel();
   setIdnum();
   minusButton->setEnabled(index > 0 && !selectedFields[index - 1].minus);
+  deleteAll->setEnabled(true);
+  resetOptionsButton->setEnabled(true);
 
   if (selectedFields[index].fieldOpts == currentFieldOpts
       && selectedFields[index].inEdit == currentFieldOptsInEdit
@@ -1880,13 +1789,11 @@ void FieldDialog::enableFieldOptions()
   currentFieldOptsInEdit = selectedFields[index].inEdit;
 
   //###############################################################################
-  //  cerr << "FieldDialog::enableFieldOptions: "
-  //       << selectedFields[index].fieldName << endl;
-  //  cerr << "             " << selectedFields[index].fieldOpts << endl;
+//    cerr << "FieldDialog::enableFieldOptions: "
+//         << selectedFields[index].fieldName << endl;
+//    cerr << "             " << selectedFields[index].fieldOpts << endl;
   //###############################################################################
 
-  deleteAll->setEnabled(true);
-  resetOptionsButton->setEnabled(true);
 
   if (selectedFields[index].minus && !minusButton->isChecked())
     minusButton->setChecked(true);
@@ -1919,7 +1826,7 @@ void FieldDialog::enableFieldOptions()
   vpcopt = cp->parse(selectedFields[index].fieldOpts);
 
   //   cerr <<endl;
-  //   cerr <<"STRENGEN SOM PARSES:"<<selectedFields[index].fieldOpts<<endl;
+  //   cerr <<"FieldOpt string: "<<selectedFields[index].fieldOpts<<endl;
   //   cerr <<endl;
   /*******************************************************
    n=vpcopt.size();
@@ -1945,12 +1852,31 @@ void FieldDialog::enableFieldOptions()
    }
    *******************************************************/
 
-  bool enableType2Opt = false;
   int nr_colors = colourInfo.size();
   int nr_linetypes = linetypes.size();
+  enableWidgets("contour");
+
+  //plottype
+    if ((nc = cp->findKey(vpcopt, "plottype")) >= 0) {
+      miutil::miString value = vpcopt[nc].allValue;
+      int nr_plottypes = plottypes.size();
+      i = 0;
+      while (i < nr_plottypes && value != plottypes[i])
+        i++;
+      if (i == nr_plottypes) {
+        i=0;
+      }
+      plottypeComboBox->setCurrentIndex(i);
+      updateFieldOptions("plottype", value, -1);
+      enableWidgets(plottypes[i]);
+    } else {
+      updateFieldOptions("plottype", plottypes[0], -1);
+      plottypeComboBox->setCurrentIndex(0);
+      enableWidgets(plottypes[0]);
+    }
+
 
   // colour(s)
-  colorCbox->setEnabled(true);
   if ((nc = cp->findKey(vpcopt, "colour_2")) >= 0) {
     i = 0;
     while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
@@ -1963,23 +1889,15 @@ void FieldDialog::enableFieldOptions()
       colour2ComboBox->setCurrentIndex(i + 1);
     }
   }
+
   if ((nc = cp->findKey(vpcopt, "colour")) >= 0) {
-    enableType2Opt = true;
-    shadingComboBox->setEnabled(true);
-    shadingcoldComboBox->setEnabled(true);
-    if (colour2ComboBox->currentIndex() > 0)
-      enableType2Opt = true;
     i = 0;
-    if (vpcopt[nc].allValue.downcase() == "off"
-        || vpcopt[nc].allValue.downcase() == "av") {
+    while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
+      i++;
+    if (i == nr_colors) {
       updateFieldOptions("colour", "off");
       colorCbox->setCurrentIndex(0);
     } else {
-      while (i < nr_colors && vpcopt[nc].allValue.downcase()
-          != colourInfo[i].name)
-        i++;
-      if (i == nr_colors)
-        i = 0;
       updateFieldOptions("colour", colourInfo[i].name);
       colorCbox->setCurrentIndex(i + 1);
     }
@@ -2002,14 +1920,6 @@ void FieldDialog::enableFieldOptions()
 
   //contour shading
   if ((nc = cp->findKey(vpcopt, "palettecolours")) >= 0) {
-    shadingComboBox->setEnabled(true);
-    shadingSpinBox->setEnabled(true);
-    shadingcoldComboBox->setEnabled(true);
-    shadingcoldSpinBox->setEnabled(true);
-    tableCheckBox->setEnabled(true);
-    patternComboBox->setEnabled(true);
-    repeatCheckBox->setEnabled(true);
-    alphaSpinBox->setEnabled(true);
     vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
     vector<miutil::miString> stokens = tokens[0].split(";");
     if (stokens.size() == 2)
@@ -2051,23 +1961,15 @@ void FieldDialog::enableFieldOptions()
   } else {
     updateFieldOptions("palettecolours", "off", -1);
     shadingComboBox->setCurrentIndex(0);
-    shadingComboBox->setEnabled(false);
     shadingcoldComboBox->setCurrentIndex(0);
-    shadingcoldComboBox->setEnabled(false);
-    tableCheckBox->setEnabled(false);
     updateFieldOptions("table", "remove");
-    patternComboBox->setEnabled(false);
     updateFieldOptions("patterns", "remove");
-    repeatCheckBox->setEnabled(false);
     updateFieldOptions("repeat", "remove");
-    alphaSpinBox->setEnabled(false);
     updateFieldOptions("alpha", "remove");
   }
 
   //pattern
   if ((nc = cp->findKey(vpcopt, "patterns")) >= 0) {
-    patternComboBox->setEnabled(true);
-    patternColourBox->setEnabled(true);
     miutil::miString value = vpcopt[nc].allValue;
     int nr_p = patternInfo.size();
     miutil::miString str;
@@ -2106,7 +2008,6 @@ void FieldDialog::enableFieldOptions()
   if (nc >= 0) {
     bool on = vpcopt[nc].allValue == "1";
     tableCheckBox->setChecked(on);
-    tableCheckBox->setEnabled(true);
     tableCheckBoxToggled(on);
   }
 
@@ -2115,7 +2016,6 @@ void FieldDialog::enableFieldOptions()
   if (nc >= 0) {
     bool on = vpcopt[nc].allValue == "1";
     repeatCheckBox->setChecked(on);
-    repeatCheckBox->setEnabled(true);
     repeatCheckBoxToggled(on);
   }
 
@@ -2127,18 +2027,10 @@ void FieldDialog::enableFieldOptions()
       i = 255;
     alphaSpinBox->setValue(i);
     alphaSpinBox->setEnabled(true);
-  } else {
-    alphaSpinBox->setValue(255);
-    updateFieldOptions("alpha", "remove");
   }
 
   // linetype
   if ((nc = cp->findKey(vpcopt, "linetype")) >= 0) {
-    if (!lineTypeCbox->isEnabled()) {
-      lineTypeCbox->setEnabled(true);
-      if (colour2ComboBox->currentIndex() > 0)
-        linetype2ComboBox->setEnabled(true);
-    }
     i = 0;
     while (i < nr_linetypes && vpcopt[nc].allValue != linetypes[i])
       i++;
@@ -2157,18 +2049,10 @@ void FieldDialog::enableFieldOptions()
     } else {
       linetype2ComboBox->setCurrentIndex(0);
     }
-  } else if (lineTypeCbox->isEnabled()) {
-    lineTypeCbox->setEnabled(false);
-    linetype2ComboBox->setEnabled(false);
   }
 
   // linewidth
   if ((nc = cp->findKey(vpcopt, "linewidth")) >= 0) {
-    if (!lineWidthCbox->isEnabled()) {
-      lineWidthCbox->setEnabled(true);
-      if (colour2ComboBox->currentIndex() > 0)
-        linewidth2ComboBox->setEnabled(true);
-    }
     i = 0;
     while (i < nr_linewidths && vpcopt[nc].allValue != miutil::miString(i + 1))
       i++;
@@ -2188,51 +2072,28 @@ void FieldDialog::enableFieldOptions()
     } else {
       linewidth2ComboBox->setCurrentIndex(0);
     }
-  } else if (lineWidthCbox->isEnabled()) {
-    lineWidthCbox->setEnabled(false);
-    linewidth2ComboBox->setEnabled(false);
   }
 
   // line interval (isoline contouring)
-  float ekv = -1.;
-  float ekv_2 = -1.;
   if ((nc = cp->findKey(vpcopt, "line.interval")) >= 0 || (nc = cp->findKey(
       vpcopt, "line.values")) >= 0) {
     if ((nc = cp->findKey(vpcopt, "line.interval")) >= 0
         && (!vpcopt[nc].floatValue.empty())) {
-      ekv = vpcopt[nc].floatValue[0];
+      float ekv = vpcopt[nc].floatValue[0];
       lineintervals = numberList(lineintervalCbox, ekv);
-    } else {
-      ekv = 10.;
-      lineintervals = numberList(lineintervalCbox, ekv);
-      lineintervalCbox->setCurrentIndex(0);
+      numberList(interval2ComboBox, ekv);
     }
-    numberList(interval2ComboBox, ekv);
     if ((nc = cp->findKey(vpcopt, "line.interval_2")) >= 0) {
-      if (!vpcopt[nc].floatValue.empty())
-        ekv_2 = vpcopt[nc].floatValue[0];
-      else
-        ekv_2 = 10.;
-      numberList(interval2ComboBox, ekv_2);
+      if (!vpcopt[nc].floatValue.empty()){
+        float ekv = vpcopt[nc].floatValue[0];
+        cerr <<"LIneint 2 :"<<ekv<<endl;
+        numberList(interval2ComboBox, ekv);
+      }
     }
-    if (colour2ComboBox->currentIndex() > 0) {
-      enableType2Opt = true;
-    }
-    lineintervalCbox->setEnabled(true);
-    interval2ComboBox->setEnabled(true);
-  } else {
-    interval2ComboBox->clear();
-    enableType2Options(false);
-    lineintervalCbox->clear();
-    lineintervalCbox->setEnabled(false);
   }
 
   // wind/vector density
   if ((nc = cp->findKey(vpcopt, "density")) >= 0) {
-    if (!densityCbox->isEnabled()) {
-      densityCbox->addItems(densityStringList);
-      densityCbox->setEnabled(true);
-    }
     miutil::miString s;
     if (!vpcopt[nc].strValue.empty()) {
       s = vpcopt[nc].strValue[0];
@@ -2251,84 +2112,59 @@ void FieldDialog::enableFieldOptions()
       }
     }
     densityCbox->setCurrentIndex(i);
-  } else if (densityCbox->isEnabled()) {
-    densityCbox->clear();
-    densityCbox->setEnabled(false);
   }
 
   // vectorunit (vector length unit)
   if ((nc = cp->findKey(vpcopt, "vector.unit")) >= 0) {
+    float e;
     if (!vpcopt[nc].floatValue.empty())
       e = vpcopt[nc].floatValue[0];
     else
       e = 5;
     vectorunit = numberList(vectorunitCbox, e);
-    vectorunitCbox->setEnabled(true);
-  } else if (vectorunitCbox->isEnabled()) {
-    vectorunitCbox->clear();
-    vectorunitCbox->setEnabled(false);
   }
 
   // extreme.type (L+H, C+W or none)
-  bool extreme = false;
   if ((nc = cp->findKey(vpcopt, "extreme.type")) >= 0) {
-    extreme = true;
-    n = extremeType.size();
-    if (!extremeTypeCbox->isEnabled()) {
-      for (i = 0; i < n; i++) {
-        extremeTypeCbox->addItem(QString(tr(extremeType[i].c_str())));
-      }
-      extremeTypeCbox->setEnabled(true);
-    }
     i = 0;
-    while (i < n && vpcopt[nc].allValue != extremeType[i])
+    n= extremeType.size();
+    while (i < n && vpcopt[nc].allValue != extremeType[i]) {
       i++;
+    }
     if (i == n) {
       i = 0;
-      updateFieldOptions("extreme.type", extremeType[i]);
     }
+    updateFieldOptions("extreme.type", extremeType[i]);
     extremeTypeCbox->setCurrentIndex(i);
-  } else if (extremeTypeCbox->isEnabled()) {
-    extremeTypeCbox->clear();
-    extremeTypeCbox->setEnabled(false);
   }
 
-  if (extreme && (nc = cp->findKey(vpcopt, "extreme.size")) >= 0) {
-    if (!vpcopt[nc].floatValue.empty())
+  if ((nc = cp->findKey(vpcopt, "extreme.size")) >= 0) {
+    float e;
+    if (!vpcopt[nc].floatValue.empty()) {
       e = vpcopt[nc].floatValue[0];
-    else
+    } else {
       e = 1.0;
+    }
     i = (int(e * 100. + 0.5)) / 5 * 5;
     extremeSizeSpinBox->setValue(i);
-    extremeSizeSpinBox->setEnabled(true);
-  } else if (extremeSizeSpinBox->isEnabled()) {
-    extremeSizeSpinBox->setValue(100);
-    extremeSizeSpinBox->setEnabled(false);
   }
 
-  if (extreme && (nc = cp->findKey(vpcopt, "extreme.radius")) >= 0) {
-    if (!vpcopt[nc].floatValue.empty())
+  if ((nc = cp->findKey(vpcopt, "extreme.radius")) >= 0) {
+    float e;
+    if (!vpcopt[nc].floatValue.empty()) {
       e = vpcopt[nc].floatValue[0];
-    else
+    } else {
       e = 1.0;
+    }
     i = (int(e * 100. + 0.5)) / 5 * 5;
     extremeRadiusSpinBox->setValue(i);
-    extremeRadiusSpinBox->setEnabled(true);
-  } else if (extremeRadiusSpinBox->isEnabled()) {
-    extremeRadiusSpinBox->setValue(100);
-    extremeRadiusSpinBox->setEnabled(false);
   }
 
-  if ((nc = cp->findKey(vpcopt, "line.smooth")) >= 0) {
-    if (!vpcopt[nc].intValue.empty())
-      i = vpcopt[nc].intValue[0];
-    else
-      i = 0;
+  if ((nc = cp->findKey(vpcopt, "line.smooth")) >= 0 && !vpcopt[nc].intValue.empty()) {
+    i = vpcopt[nc].intValue[0];
     lineSmoothSpinBox->setValue(i);
-    lineSmoothSpinBox->setEnabled(true);
-  } else if (lineSmoothSpinBox->isEnabled()) {
+  } else {
     lineSmoothSpinBox->setValue(0);
-    lineSmoothSpinBox->setEnabled(false);
   }
 
   if (currentFieldOptsInEdit) {
@@ -2340,20 +2176,18 @@ void FieldDialog::enableFieldOptions()
     else
       i = 0;
     fieldSmoothSpinBox->setValue(i);
-    fieldSmoothSpinBox->setEnabled(true);
   } else if (fieldSmoothSpinBox->isEnabled()) {
     fieldSmoothSpinBox->setValue(0);
-    fieldSmoothSpinBox->setEnabled(false);
   }
 
   if ((nc = cp->findKey(vpcopt, "label.size")) >= 0) {
+    float e;
     if (!vpcopt[nc].floatValue.empty())
       e = vpcopt[nc].floatValue[0];
     else
       e = 1.0;
     i = (int(e * 100. + 0.5)) / 5 * 5;
     labelSizeSpinBox->setValue(i);
-    labelSizeSpinBox->setEnabled(true);
   } else if (labelSizeSpinBox->isEnabled()) {
     labelSizeSpinBox->setValue(100);
     labelSizeSpinBox->setEnabled(false);
@@ -2380,10 +2214,6 @@ void FieldDialog::enableFieldOptions()
     else
       i = 0;
     gridLinesSpinBox->setValue(i);
-    gridLinesSpinBox->setEnabled(true);
-  } else if (gridLinesSpinBox->isEnabled()) {
-    gridLinesSpinBox->setValue(0);
-    gridLinesSpinBox->setEnabled(false);
   }
 
   //   if ((nc=cp->findKey(vpcopt,"grid.lines.max"))>=0) {
@@ -2396,50 +2226,9 @@ void FieldDialog::enableFieldOptions()
   //     gridLinesMaxSpinBox->setEnabled(false);
   //   }
 
-  // base
-  miutil::miString base;
-  if (ekv > 0. && (nc = cp->findKey(vpcopt, "base")) >= 0) {
-    if (!vpcopt[nc].floatValue.empty())
-      e = vpcopt[nc].floatValue[0];
-    else
-      e = 0.0;
-    zero1ComboBox->setEnabled(true);
-    if (colour2ComboBox->currentIndex() > 0) {
-      zero2ComboBox->setEnabled(true);
-    }
-    base = baseList(zero1ComboBox, e, ekv / 2.0);
-    if (base.exists())
-      cp->replaceValue(vpcopt[nc], base, 0);
-    base.clear();
-    base = baseList(zero2ComboBox, e, ekv / 2.0);
-    if (base.exists())
-      updateFieldOptions("base_2", base);
-    miutil::miString base_2;
-    if (ekv > 0. && (nc = cp->findKey(vpcopt, "base_2")) >= 0) {
-      if (!vpcopt[nc].floatValue.empty())
-        e = vpcopt[nc].floatValue[0];
-      else
-        e = 0.0;
-      base_2 = baseList(zero2ComboBox, e, ekv_2 / 2.0);
-      if (base_2.exists())
-        cp->replaceValue(vpcopt[nc], base_2, 0);
-    }
-  } else if (zero1ComboBox->isEnabled()) {
-    zero1ComboBox->clear();
-    zero1ComboBox->setEnabled(false);
-    zero2ComboBox->clear();
-    zero2ComboBox->setEnabled(false);
-  }
-
   // undefined masking
   int iumask = 0;
   if ((nc = cp->findKey(vpcopt, "undef.masking")) >= 0) {
-    n = undefMasking.size();
-    if (!undefMaskingCbox->isEnabled()) {
-      for (i = 0; i < n; i++)
-        undefMaskingCbox->addItem(QString(undefMasking[i].c_str()));
-      undefMaskingCbox->setEnabled(true);
-    }
     if (vpcopt[nc].intValue.size() == 1) {
       iumask = vpcopt[nc].intValue[0];
       if (iumask < 0 || iumask >= int(undefMasking.size()))
@@ -2448,9 +2237,7 @@ void FieldDialog::enableFieldOptions()
       iumask = 0;
     }
     undefMaskingCbox->setCurrentIndex(iumask);
-  } else if (undefMaskingCbox->isEnabled()) {
-    undefMaskingCbox->clear();
-    undefMaskingCbox->setEnabled(false);
+    undefMaskingActivated(iumask);
   }
 
   // undefined masking colour
@@ -2463,9 +2250,6 @@ void FieldDialog::enableFieldOptions()
       updateFieldOptions("undef.colour", colourInfo[i].name);
     }
     undefColourCbox->setCurrentIndex(i);
-    undefColourCbox->setEnabled(iumask > 0);
-  } else if (undefColourCbox->isEnabled()) {
-    undefColourCbox->setEnabled(false);
   }
 
   // undefined masking linewidth
@@ -2473,14 +2257,11 @@ void FieldDialog::enableFieldOptions()
     i = 0;
     while (i < nr_linewidths && vpcopt[nc].allValue != miutil::miString(i + 1))
       i++;
-    if (i == nr_linewidths) {
+    if (i < nr_linewidths) {
       i = 0;
       updateFieldOptions("undef.linewidth", miutil::miString(i + 1));
     }
     undefLinewidthCbox->setCurrentIndex(i);
-    undefLinewidthCbox->setEnabled(iumask > 1);
-  } else if (undefLinewidthCbox->isEnabled()) {
-    undefLinewidthCbox->setEnabled(false);
   }
 
   // undefined masking linetype
@@ -2493,247 +2274,234 @@ void FieldDialog::enableFieldOptions()
       updateFieldOptions("undef.linetype", linetypes[i]);
     }
     undefLinetypeCbox->setCurrentIndex(i);
-    undefLinetypeCbox->setEnabled(iumask > 1);
-  } else if (undefLinetypeCbox->isEnabled()) {
-    undefLinetypeCbox->setEnabled(false);
   }
 
-  nc = cp->findKey(vpcopt, "frame");
-  if (nc >= 0 && vpcopt[nc].allValue == "0") {
-    frameCheckBox->setChecked(false);
-  } else {
-    frameCheckBox->setChecked(true);
+  if ((nc = cp->findKey(vpcopt, "frame")) >= 0 ) {
+    frameCheckBox->setChecked(vpcopt[nc].allValue != "0");
   }
 
-  nc = cp->findKey(vpcopt, "zero.line");
-  if (nc >= 0) {
-    if (vpcopt[nc].allValue == "-1") {
-      nc = -1;
-    } else {
-      bool on = vpcopt[nc].allValue == "1";
-      zeroLineCheckBox->setChecked(on);
-      zeroLineCheckBox->setEnabled(true);
-    }
-  }
-  if (nc < 0 && zeroLineCheckBox->isEnabled()) {
-    zeroLineCheckBox->setChecked(true);
-    //    zeroLineCheckBox->setEnabled( false );
-    zeroLineCheckBox->setEnabled(true);
+  if ((nc = cp->findKey(vpcopt, "zero.line")) >= 0) {
+    bool on = vpcopt[nc].allValue == "1";
+    zeroLineCheckBox->setChecked(on);
   }
 
-  nc = cp->findKey(vpcopt, "value.label");
-  if (nc >= 0) {
+  if ((nc = cp->findKey(vpcopt, "value.label")) >= 0) {
     bool on = vpcopt[nc].allValue == "1";
     valueLabelCheckBox->setChecked(on);
-    valueLabelCheckBox->setEnabled(true);
-  }
-  if (nc < 0 && valueLabelCheckBox->isEnabled()) {
-    valueLabelCheckBox->setChecked(true);
-    valueLabelCheckBox->setEnabled(false);
   }
 
-  nc = cp->findKey(vpcopt, "minvalue");
-  if (nc >= 0) {
-    min1ComboBox->setEnabled(true);
-    if (colour2ComboBox->currentIndex() > 0)
-      min2ComboBox->setEnabled(true);
-    float value;
-    if (vpcopt[nc].allValue == "off")
-      value = atof(base.cStr());
-    else
-      value = atof(vpcopt[nc].allValue.cStr());
-    baseList(min1ComboBox, value, ekv, true);
-    baseList(min2ComboBox, value, ekv, true);
-    if (vpcopt[nc].allValue == "off")
-      min1ComboBox->setCurrentIndex(0);
-    min2ComboBox->setCurrentIndex(0);
-    nc = cp->findKey(vpcopt, "minvalue_2");
-    if (nc >= 0) {
-      float value;
-      if (vpcopt[nc].allValue == "off")
-        value = atof(base.cStr());
-      else
-        value = atof(vpcopt[nc].allValue.cStr());
-      baseList(min2ComboBox, value, ekv, true);
-      if (vpcopt[nc].allValue == "off")
-        min2ComboBox->setCurrentIndex(0);
+  // base
+  if ((nc = cp->findKey(vpcopt, "base")) >= 0) {
+    float e;
+    if (!vpcopt[nc].floatValue.empty()){
+      e = vpcopt[nc].floatValue[0];
+      baseList(zero1ComboBox, e);
     }
-  } else {
-    min1ComboBox->setEnabled(false);
-    min2ComboBox->setEnabled(false);
-  }
-
-  nc = cp->findKey(vpcopt, "maxvalue");
-  if (nc >= 0) {
-    max1ComboBox->setEnabled(true);
-    float value;
-    if (vpcopt[nc].allValue == "off")
-      value = atof(base.cStr());
-    else
-      value = atof(vpcopt[nc].allValue.cStr());
-    baseList(max1ComboBox, value, ekv, true);
-    baseList(max2ComboBox, value, ekv, true);
-    if (vpcopt[nc].allValue == "off")
-      max1ComboBox->setCurrentIndex(0);
-    max2ComboBox->setCurrentIndex(0);
-    nc = cp->findKey(vpcopt, "maxvalue_2");
-    if (nc >= 0) {
-      float value;
-      if (vpcopt[nc].allValue == "off")
-        value = atof(base.cStr());
-      else
-        value = atof(vpcopt[nc].allValue.cStr());
-      baseList(max2ComboBox, value, ekv, true);
-      if (vpcopt[nc].allValue == "off")
-        max2ComboBox->setCurrentIndex(0);
+    if ((nc = cp->findKey(vpcopt, "base_2")) >= 0) {
+      if (!vpcopt[nc].floatValue.empty()) {
+        e = vpcopt[nc].floatValue[0];
+        baseList(zero2ComboBox, e);
+      }
     }
-  } else {
-    max1ComboBox->setEnabled(false);
-    max2ComboBox->setEnabled(false);
   }
 
-  if (enableType2Opt)
-    enableType2Options(true);
+  if (( nc = cp->findKey(vpcopt, "minvalue")) >= 0 ) {
+    if (vpcopt[nc].allValue != "off") {
+      float value = atof(vpcopt[nc].allValue.cStr());
+      baseList(min1ComboBox, value, true);
+    }
+  }
+
+  if ((nc = cp->findKey(vpcopt, "minvalue_2")) >= 0) {
+    if (vpcopt[nc].allValue != "off") {
+      float value = atof(vpcopt[nc].allValue.cStr());
+      baseList(min2ComboBox, value, true);
+    }
+  }
+
+  if (( nc = cp->findKey(vpcopt, "maxvalue")) >= 0 ) {
+    if (vpcopt[nc].allValue != "off") {
+      float value = atof(vpcopt[nc].allValue.cStr());
+      baseList(max1ComboBox, value, true);
+    }
+  }
+
+  if ((nc = cp->findKey(vpcopt, "maxvalue_2")) >= 0) {
+    if (vpcopt[nc].allValue != "off") {
+      float value = atof(vpcopt[nc].allValue.cStr());
+      baseList(max2ComboBox, value, true);
+    }
+  }
+
 
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::enableFieldOptions returned"<<endl;
 #endif
 }
 
-void FieldDialog::disableFieldOptions(int type)
+void FieldDialog::setDefaultFieldOptions()
 {
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::disableFieldOptions called:"<<type<<endl;
+  cerr<<"FieldDialog::setDefaultFieldOptions called"<<endl;
 #endif
 
   // show levels for the current field group
-  setLevel();
+//  setLevel();
 
-  if (currentFieldOpts.empty())
-    return;
   currentFieldOpts.clear();
 
-  if (type == 0) {
-    Delete->setEnabled(false);
-    deleteAll->setEnabled(false);
-    copyField->setEnabled(false);
-    changeModelButton->setEnabled(false);
-    upFieldButton->setEnabled(false);
-    downFieldButton->setEnabled(false);
-    resetOptionsButton->setEnabled(false);
-    minusButton->setChecked(false);
-    minusButton->setEnabled(false);
-  }
+  Delete->setEnabled( false );
+  deleteAll->setEnabled( false );
+  copyField->setEnabled( false );
+  changeModelButton->setEnabled( false );
+  upFieldButton->setEnabled( false );
+  downFieldButton->setEnabled( false );
+  resetOptionsButton->setEnabled( false );
+  minusButton->setEnabled( false );
 
-  colorCbox->setEnabled(false);
-  colour2ComboBox->setCurrentIndex(0);
-  colour2ComboBox->setEnabled(false);
-  shadingComboBox->setCurrentIndex(0);
-  shadingComboBox->setEnabled(false);
-  shadingSpinBox->setValue(0);
-  shadingSpinBox->setEnabled(false);
-  shadingcoldComboBox->setCurrentIndex(0);
-  shadingcoldComboBox->setEnabled(false);
-  shadingcoldSpinBox->setValue(0);
-  shadingcoldSpinBox->setEnabled(false);
-  tableCheckBox->setEnabled(false);
-  patternComboBox->setEnabled(false);
-  patternColourBox->setEnabled(false);
-  repeatCheckBox->setEnabled(false);
-  alphaSpinBox->setValue(255);
-  alphaSpinBox->setEnabled(false);
-
-  //  lineTypeCbox->clear();
-  lineTypeCbox->setEnabled(false);
-  linetype2ComboBox->setEnabled(false);
-
-  //  lineWidthCbox->clear();
-  lineWidthCbox->setEnabled(false);
-  linewidth2ComboBox->setEnabled(false);
-
-  lineintervalCbox->clear();
-  lineintervalCbox->setEnabled(false);
-  interval2ComboBox->clear();
-  interval2ComboBox->setEnabled(false);
-
-  densityCbox->clear();
-  densityCbox->setEnabled(false);
-
-  vectorunitCbox->clear();
-  vectorunitCbox->setEnabled(false);
-
-  extremeTypeCbox->clear();
-  extremeTypeCbox->setEnabled(false);
-
-  extremeSizeSpinBox->setValue(100);
-  extremeSizeSpinBox->setEnabled(false);
-
-  extremeRadiusSpinBox->setValue(100);
-  extremeRadiusSpinBox->setEnabled(false);
-
-  lineSmoothSpinBox->setValue(0);
-  lineSmoothSpinBox->setEnabled(false);
-
+  plottypeComboBox->setCurrentIndex(0);
+  colorCbox->setCurrentIndex(1);
   fieldSmoothSpinBox->setValue(0);
-  fieldSmoothSpinBox->setEnabled(false);
-
-  frameCheckBox->setChecked(true);
-
-  zeroLineCheckBox->setChecked(true);
-  //  zeroLineCheckBox->setEnabled( false );
-  zeroLineCheckBox->setEnabled(true);
-
-  valueLabelCheckBox->setChecked(true);
-  valueLabelCheckBox->setEnabled(false);
-
-  labelSizeSpinBox->setValue(100);
-  labelSizeSpinBox->setEnabled(false);
-
   gridValueCheckBox->setChecked(false);
-  gridValueCheckBox->setEnabled(false);
-
   gridLinesSpinBox->setValue(0);
-  gridLinesSpinBox->setEnabled(false);
-
-  //   gridLinesMaxSpinBox->setValue(0);
-  //   gridLinesMaxSpinBox->setEnabled( false );
-
-  zero1ComboBox->clear();
-  zero1ComboBox->setEnabled(false);
-
-  zero2ComboBox->clear();
-  zero2ComboBox->setEnabled(false);
-
-  if (type == 0) {
-    hourOffsetSpinBox->setValue(0);
-    hourOffsetSpinBox->setEnabled(false);
-
-    hourDiffSpinBox->setValue(0);
-    hourDiffSpinBox->setEnabled(false);
-  }
-
-  undefMaskingCbox->clear();
-  undefMaskingCbox->setEnabled(false);
-
-  undefColourCbox->clear();
-  undefColourCbox->setEnabled(false);
-
-  undefLinewidthCbox->setEnabled(false);
-
-  undefLinetypeCbox->setEnabled(false);
-
-  min1ComboBox->setEnabled(false);
-  max1ComboBox->setEnabled(false);
-  min2ComboBox->setEnabled(false);
-  max2ComboBox->setEnabled(false);
-
+  hourOffsetSpinBox->setValue(0);
+  hourDiffSpinBox->setValue(0);
+  undefMaskingCbox->setCurrentIndex(0);
+  undefColourCbox->setCurrentIndex(1);
+  undefLinewidthCbox->setCurrentIndex(0);
+  undefLinetypeCbox->setCurrentIndex(0);
+  frameCheckBox->setChecked(true);
   for (int i = 0; i < 3; i++) {
     threeColourBox[i]->setCurrentIndex(0);
-    //    threeColourBox[i]->setEnabled(false);
   }
 
+  lineTypeCbox->setCurrentIndex(0);
+  lineSmoothSpinBox->setValue(0);
+  zeroLineCheckBox->setChecked(true);
+  colour2ComboBox->setCurrentIndex(0);
+  interval2ComboBox->setCurrentIndex(0);
+  linewidth2ComboBox->setCurrentIndex(0);
+  linetype2ComboBox->setCurrentIndex(0);
+  valueLabelCheckBox->setChecked(true);
+
+  extremeTypeCbox->setCurrentIndex(0);
+  extremeSizeSpinBox->setValue(100);
+  extremeRadiusSpinBox->setValue(100);
+
+//  lineintervalCbox->setCurrentIndex(0);
+  tableCheckBox->setChecked(false);
+  repeatCheckBox->
+  setChecked(false);
+  shadingComboBox->setCurrentIndex(0);
+  shadingcoldComboBox->setCurrentIndex(0);
+  shadingSpinBox->setValue(0);
+  shadingcoldSpinBox->setValue(0);
+  patternComboBox->setCurrentIndex(0);
+  patternColourBox->setCurrentIndex(0);
+  alphaSpinBox->setValue(0);
+
+  lineWidthCbox->setCurrentIndex(0);
+  labelSizeSpinBox->setValue(0);
+
+  densityCbox->setCurrentIndex(0);
+
+  vectorunitCbox->setCurrentIndex(0);
+
+  lineintervals = numberList(lineintervalCbox, 10);
+  lineintervalCbox->setCurrentIndex(0);
+  baseList(zero1ComboBox, 0);
+  baseList(zero2ComboBox, 0);
+  baseList(min2ComboBox, 0, true);
+  baseList(min1ComboBox, 0, true);
+  baseList(max1ComboBox, 0, true);
+  baseList(max2ComboBox, 0, true);
+  min1ComboBox->setCurrentIndex(0);
+  min2ComboBox->setCurrentIndex(0);
+  max1ComboBox->setCurrentIndex(0);
+  max2ComboBox->setCurrentIndex(0);
+
+  hourOffsetSpinBox->setValue(0);
+  hourDiffSpinBox->setValue(0);
+
+
+
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::disableFieldOptions returned"<<endl;
+  cerr<<"Leaving FieldDialog::setDefaultFieldOptions"<<endl;
+#endif
+}
+
+void FieldDialog::enableWidgets(miutil::miString plottype)
+{
+#ifdef DEBUGPRINT
+  cerr<<"FieldDialog::enableWidgets called:"<<plottype<<endl;
+#endif
+  bool enable = (plottype != "none");
+
+  //used for all plottypes
+  plottypeComboBox->setEnabled(enable);
+  colorCbox->setEnabled(enable);
+  fieldSmoothSpinBox->setEnabled(enable);
+  gridValueCheckBox->setEnabled(enable);
+  gridLinesSpinBox->setEnabled(enable);
+  hourOffsetSpinBox->setEnabled(enable);
+  hourDiffSpinBox->setEnabled(enable);
+  undefMaskingCbox->setEnabled(enable);
+  undefColourCbox->setEnabled(enable);
+  undefLinewidthCbox->setEnabled(enable);
+  undefLinetypeCbox->setEnabled(enable);
+  frameCheckBox->setEnabled(enable);
+  zero1ComboBox->setEnabled(enable);
+  min1ComboBox->setEnabled(enable);
+  max1ComboBox->setEnabled(enable);
+  for (int i = 0; i < 3; i++) {
+    threeColourBox[i]->setEnabled(enable);
+  }
+
+  enable= enableMap[plottype].contourWidgets;
+  lineTypeCbox->setEnabled(enable);
+  lineSmoothSpinBox->setEnabled(enable);
+  zeroLineCheckBox->setEnabled(enable);
+  colour2ComboBox->setEnabled(enable);
+  interval2ComboBox->setEnabled(enable);
+  zero2ComboBox->setEnabled(enable);
+  min2ComboBox->setEnabled(enable);
+  max2ComboBox->setEnabled(enable);
+  linewidth2ComboBox->setEnabled(enable);
+  linetype2ComboBox->setEnabled(enable);
+  valueLabelCheckBox->setEnabled(enable);
+
+  enable =  enableMap[plottype].extremeWidgets;
+  extremeTypeCbox->setEnabled(enable);
+  extremeSizeSpinBox->setEnabled(enable);
+  extremeRadiusSpinBox->setEnabled(enable);
+
+  enable =  enableMap[plottype].shadingWidgets;
+  lineintervalCbox->setEnabled(enable);
+  tableCheckBox->setEnabled(enable);
+  repeatCheckBox->setEnabled(enable);
+  shadingComboBox->setEnabled(enable);
+  shadingcoldComboBox->setEnabled(enable);
+  shadingSpinBox->setEnabled(enable);
+  shadingcoldSpinBox->setEnabled(enable);
+  patternComboBox->setEnabled(enable);
+  patternColourBox->setEnabled(enable);
+  alphaSpinBox->setEnabled(enable);
+
+  enable = enableMap[plottype].lineWidgets;
+  lineWidthCbox->setEnabled(enable);
+
+  enable = enableMap[plottype].fontWidgets;
+  labelSizeSpinBox->setEnabled(enable);
+
+  enable = enableMap[plottype].densityWidgets;
+  densityCbox->setEnabled(enable);
+
+  enable = enableMap[plottype].unitWidgets;
+  vectorunitCbox->setEnabled(enable);
+
+
+#ifdef DEBUGPRINT
+  cerr<<"FieldDialog::enableWidgets returned"<<endl;
 #endif
 }
 
@@ -2795,10 +2563,13 @@ vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number)
   return vnumber;
 }
 
-miutil::miString FieldDialog::baseList(QComboBox* cBox, float base, float ekv,
-    bool onoff)
+void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
 {
-  miutil::miString str;
+
+  float ekv=10;
+  if (lineintervalCbox->currentIndex() >0 && !lineintervalCbox->currentText().isNull()) {
+    ekv = atof(lineintervalCbox->currentText().toAscii());
+  }
 
   int n;
   if (base < 0.)
@@ -2807,7 +2578,6 @@ miutil::miString FieldDialog::baseList(QComboBox* cBox, float base, float ekv,
     n = int(base / ekv + 0.5);
   if (fabsf(base - ekv * float(n)) > 0.01 * ekv) {
     base = ekv * float(n);
-    str = miutil::miString(base);
   }
   n = 21;
   int k = n / 2;
@@ -2834,7 +2604,6 @@ miutil::miString FieldDialog::baseList(QComboBox* cBox, float base, float ekv,
   else
     cBox->setCurrentIndex(k);
 
-  return str;
 }
 
 void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
@@ -2845,7 +2614,6 @@ void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
   if (index < 0 || selectedFields.size() == 0)
     return;
 
-  disableFieldOptions(1);
   enableFieldOptions();
 
 #ifdef DEBUGPRINT
@@ -2854,14 +2622,14 @@ void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
   return;
 }
 
+void FieldDialog::plottypeComboBoxActivated(int index)
+{
+  updateFieldOptions("plottype", plottypes[index]);
+  enableWidgets(plottypes[index]);
+}
+
 void FieldDialog::colorCboxActivated(int index)
 {
-  //turn of 3 colours
-  threeColourBox[0]->setCurrentIndex(0);
-  threeColourBox[1]->setCurrentIndex(0);
-  threeColourBox[2]->setCurrentIndex(0);
-  threeColoursChanged();
-
   if (index == 0)
     updateFieldOptions("colour", "off");
   else
@@ -2962,11 +2730,6 @@ void FieldDialog::gridLinesChanged(int value)
 // }
 
 
-void FieldDialog::baseoptionsActivated(int index)
-{
-  updateFieldOptions("base", zero1ComboBox->currentText().toStdString());
-}
-
 void FieldDialog::hourOffsetChanged(int value)
 {
   int n = selectedFieldbox->currentRow();
@@ -3028,10 +2791,6 @@ void FieldDialog::valueLabelCheckBoxToggled(bool on)
     updateFieldOptions("value.label", "0");
 }
 
-void FieldDialog::colour1ComboBoxToggled(int index)
-{
-}
-
 void FieldDialog::colour2ComboBoxToggled(int index)
 {
   if (index == 0) {
@@ -3089,7 +2848,6 @@ void FieldDialog::threeColoursChanged()
   int c2 = threeColourBox[1]->currentIndex();
   int c3 = threeColourBox[2]->currentIndex();
   if (c1 == 0 || c2 == 0 || c3 == 0) {
-    //    threeColoursCheckBox->setChecked(false);
     updateFieldOptions("colours", "remove");
   } else {
 
@@ -3165,10 +2923,10 @@ void FieldDialog::zero1ComboBoxToggled(int index)
 {
   if (!zero1ComboBox->currentText().isNull()) {
     miutil::miString str = zero1ComboBox->currentText().toStdString();
-    updateFieldOptions("base", str);
     float a = atof(str.cStr());
-    float b = atof(lineintervalCbox->currentText().toAscii()) / 2.0;
-    baseList(zero1ComboBox, a, b);
+    baseList(zero1ComboBox, a);
+    str = zero1ComboBox->currentText().toStdString();
+    updateFieldOptions("base", str);
   }
 }
 
@@ -3178,8 +2936,8 @@ void FieldDialog::zero2ComboBoxToggled(int index)
     miutil::miString str = zero2ComboBox->currentText().toStdString();
     updateFieldOptions("base_2", str);
     float a = atof(str.cStr());
-    float b = atof(lineintervalCbox->currentText().toAscii()) / 2.0;
-    baseList(zero2ComboBox, a, b);
+    str = zero2ComboBox->currentText().toStdString();
+    baseList(zero2ComboBox, a);
   }
 }
 
@@ -3189,12 +2947,9 @@ void FieldDialog::min1ComboBoxToggled(int index)
     updateFieldOptions("minvalue", "off");
   else if (!min1ComboBox->currentText().isNull()) {
     miutil::miString str = min1ComboBox->currentText().toStdString();
-    updateFieldOptions("minvalue", str);
     float a = atof(str.cStr());
-    float b = 1.0;
-    if (!lineintervalCbox->currentText().isNull())
-      b = atof(lineintervalCbox->currentText().toAscii());
-    baseList(min1ComboBox, a, b, true);
+    baseList(min1ComboBox, a, true);
+    updateFieldOptions("minvalue", min1ComboBox->currentText().toStdString());
   }
 }
 
@@ -3204,12 +2959,9 @@ void FieldDialog::max1ComboBoxToggled(int index)
     updateFieldOptions("maxvalue", "off");
   else if (!max1ComboBox->currentText().isNull()) {
     miutil::miString str = max1ComboBox->currentText().toStdString();
-    updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
     float a = atof(str.cStr());
-    float b = 1.0;
-    if (!lineintervalCbox->currentText().isNull())
-      b = atof(lineintervalCbox->currentText().toAscii());
-    baseList(max1ComboBox, a, b, true);
+    baseList(max1ComboBox, a, true);
+    updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
   }
 }
 
@@ -3220,12 +2972,9 @@ void FieldDialog::min2ComboBoxToggled(int index)
     updateFieldOptions("minvalue_2", "remove");
   else if (!min2ComboBox->currentText().isNull()) {
     miutil::miString str = min2ComboBox->currentText().toStdString();
-    updateFieldOptions("minvalue_2", min2ComboBox->currentText().toStdString());
     float a = atof(str.cStr());
-    float b = 1.0;
-    if (!lineintervalCbox->currentText().isNull())
-      b = atof(interval2ComboBox->currentText().toAscii());
-    baseList(min2ComboBox, a, b, true);
+    baseList(min2ComboBox, a, true);
+    updateFieldOptions("minvalue_2", min2ComboBox->currentText().toStdString());
   }
 }
 
@@ -3235,12 +2984,9 @@ void FieldDialog::max2ComboBoxToggled(int index)
     updateFieldOptions("maxvalue_2", "remove");
   else if (!max2ComboBox->currentText().isNull()) {
     miutil::miString str = max2ComboBox->currentText().toStdString();
-    updateFieldOptions("maxvalue_2", max2ComboBox->currentText().toStdString());
     float a = atof(str.cStr());
-    float b = 1.0;
-    if (!lineintervalCbox->currentText().isNull())
-      b = atof(interval2ComboBox->currentText().toAscii());
-    baseList(max2ComboBox, a, b, true);
+    baseList(max2ComboBox, a, true);
+    updateFieldOptions("maxvalue_2", max2ComboBox->currentText().toStdString());
   }
 }
 
@@ -3723,7 +3469,7 @@ void FieldDialog::showHistory(int step)
     historyPos = -1;
     historyBackButton->setEnabled(false);
     historyForwardButton->setEnabled(false);
-    highlightButton(historyOkButton, false);
+    historyOkButton->setEnabled(false);
     return;
   }
 
@@ -3743,10 +3489,7 @@ void FieldDialog::showHistory(int step)
     if (!historyOkButton->isEnabled()) {
       deleteAllSelected(); // some cleanup before browsing history
       if (numEditFields > 0)
-        disableFieldOptions();
-      fieldGRbox->setEnabled(false);
-      fieldbox->setEnabled(false);
-      selectedFieldbox->setEnabled(false);
+        enableWidgets("none");
     }
 
     // not show edit fields during history browsing
@@ -3821,7 +3564,8 @@ void FieldDialog::showHistory(int step)
       deleteAll->setEnabled(true);
     }
 
-    highlightButton(historyOkButton, true);
+    historyOkButton->setEnabled(true);
+
   }
 
   historyBackButton->setEnabled(historyPos > -1);
@@ -4655,7 +4399,10 @@ void FieldDialog::deleteSelected()
     selectedFieldbox->item(index)->setSelected(true);
     enableFieldOptions();
   } else {
-    disableFieldOptions();
+    setDefaultFieldOptions();
+    enableWidgets("none");
+    setLevel();
+    setIdnum();
   }
 
   updateTime();
@@ -4698,16 +4445,7 @@ void FieldDialog::deleteAllSelected()
   selectedFieldbox->clear();
   minusButton->setChecked(false);
   minusButton->setEnabled(false);
-
-  if (historyOkButton->isEnabled()) {
-    // terminate browsing history
-    if (fieldGRbox->count() > 0)
-      fieldGRbox->setEnabled(true);
-    if (fieldbox->count() > 0)
-      fieldbox->setEnabled(true);
-    selectedFieldbox->setEnabled(true);
-    highlightButton(historyOkButton, false);
-  }
+  historyOkButton->setEnabled(false);
 
   if (numEditFields > 0) {
     // show edit fields
@@ -4719,7 +4457,10 @@ void FieldDialog::deleteAllSelected()
     selectedFieldbox->item(0)->setSelected(true);
     enableFieldOptions();
   } else {
-    disableFieldOptions();
+    setDefaultFieldOptions();
+    enableWidgets("none");
+    setLevel();
+    setIdnum();
   }
 
   updateTime();
@@ -5016,7 +4757,7 @@ void FieldDialog::resetOptions()
   selectedFields[index].fieldOpts = fopts;
   selectedFields[index].hourOffset = 0;
   selectedFields[index].hourDiff = 0;
-  disableFieldOptions();
+  enableWidgets("none");
   currentFieldOpts.clear();
   enableFieldOptions();
 }
@@ -5098,7 +4839,7 @@ void FieldDialog::minusField(bool on)
       selectedFieldbox->item(i)->setText("  -  " + qstr);
       selectedFieldbox->blockSignals(false);
     }
-    disableFieldOptions(1);
+    enableWidgets("none");
     //next field can't be minus
     if (selectedFieldbox->count() > i + 1 && selectedFields[i + 1].minus) {
       selectedFieldbox->setCurrentRow(i + 1);
@@ -5374,7 +5115,7 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
   if (!selectedFields.empty())
     enableFieldOptions();
   else
-    disableFieldOptions();
+    enableWidgets("none");
 }
 
 void FieldDialog::allTimeStepToggled(bool on)
@@ -5413,16 +5154,4 @@ void FieldDialog::closeEvent(QCloseEvent* e)
   emit FieldHide();
 }
 
-void FieldDialog::highlightButton(QPushButton* button, bool on)
-{
-  if (button->isEnabled() != on) {
-    if (on) {
-      button->setPalette(QPalette(QColor(255, 0, 0), QColor(192, 192, 192)));
-      button->setEnabled(true);
-    } else {
-      button->setPalette(this->palette());
-      button->setEnabled(false);
-    }
-  }
-}
 

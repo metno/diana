@@ -33,6 +33,8 @@
 #include "config.h"
 #endif
 
+//#define DEBUGPRINT
+
 #include "diFieldPlot.h"
 #include "diContouring.h"
 #include "diFontManager.h"
@@ -134,11 +136,8 @@ void FieldPlot::getFieldAnnotation(miString& s, Colour& c)
   else
     c= poptions.fillcolour;
 
-  if (fields.size()>0 && fields[0] && fields[0]->data) {
-    s= fields[0]->fulltext;
-    return;
-  }
-  s= "";
+  s = plotname;
+
 }
 
 
@@ -161,39 +160,27 @@ bool FieldPlot::prepare(const miString& pin)
 
   poptions.fillFieldPlotOptions(fname,pin,poptions);
 
-  ptype= poptions.fptype;
+  plottype= poptions.plottype;
 
 #ifdef DEBUGPRINT
-  if      (ptype==fpt_contour)          cerr<<"FieldPlot "<<fname<<" : "<<"plotContour"<<endl;
-  else if (ptype==fpt_wind)             cerr<<"FieldPlot "<<fname<<" : "<<"plotWind"<<endl;
-  else if (ptype==fpt_wind_colour)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindColour"<<endl;
-  else if (ptype==fpt_wind_temp_fl)     cerr<<"FieldPlot "<<fname<<" : "<<"plotWindTempFL"<<endl;
-  else if (ptype==fpt_wind_number)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindNumber"<<endl;
-  else if (ptype==fpt_wind_number_colour)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindNumberColour"<<endl;
-  else if (ptype==fpt_value_max_height) cerr<<"FieldPlot "<<fname<<" : "<<"plotValueMaxHeight"<<endl;
-  else if (ptype==fpt_value_max_height_and_temp) cerr<<"FieldPlot "<<fname<<" : "<<"plotValueMaxHeightAndTemp"<<endl;
-  else if (ptype==fpt_number)           cerr<<"FieldPlot "<<fname<<" : "<<"plotNumber"<<endl;
-  else if (ptype==fpt_number_positive)  cerr<<"FieldPlot "<<fname<<" : "<<"plotNumberPositive"<<endl;
-  else if (ptype==fpt_number_colour)    cerr<<"FieldPlot "<<fname<<" : "<<"plotNumberColour"<<endl;
-  else if (ptype==fpt_vector)           cerr<<"FieldPlot "<<fname<<" : "<<"plotVector"<<endl;
-  else if (ptype==fpt_vector_colour)    cerr<<"FieldPlot "<<fname<<" : "<<"plotVectorColour"<<endl;
-  else if (ptype==fpt_direction)        cerr<<"FieldPlot "<<fname<<" : "<<"plotDirection"<<endl;
-  else if (ptype==fpt_direction_colour) cerr<<"FieldPlot "<<fname<<" : "<<"plotDirectionColour"<<endl;
-  else if (ptype==fpt_box_pattern)      cerr<<"FieldPlot "<<fname<<" : "<<"plotBox_pattern"<<endl;
-  else if (ptype==fpt_box_alpha_shade)  cerr<<"FieldPlot "<<fname<<" : "<<"plotBox_alpha_shade"<<endl;
-  else if (ptype==fpt_alpha_shade)      cerr<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade"<<endl;
-  else if (ptype==fpt_alarm_box)        cerr<<"FieldPlot "<<fname<<" : "<<"plotAlarmBox"<<endl;
-  else if (ptype==fpt_fill_cell)        cerr<<"FieldPlot "<<fname<<" : "<<"plotFillCell"<<endl;
-  else if (ptype==fpt_layer)            cerr<<"FieldPlot "<<fname<<" : "<<"plotLayer"<<endl;
+  if      (plottype==fpt_contour)          cerr<<"FieldPlot "<<fname<<" : "<<"plotContour"<<endl;
+  else if (plottype==fpt_wind)             cerr<<"FieldPlot "<<fname<<" : "<<"plotWind"<<endl;
+  else if (plottype==fpt_wind_temp_fl)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
+  else if (plottype==fpt_wind_value)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
+  else if (plottype==fpt_value)           cerr<<"FieldPlot "<<fname<<" : "<<"plotValue"<<endl;
+  else if (plottype==fpt_vector)           cerr<<"FieldPlot "<<fname<<" : "<<"plotVector"<<endl;
+  else if (plottype==fpt_direction)        cerr<<"FieldPlot "<<fname<<" : "<<"plotDirection"<<endl;
+  else if (plottype==fpt_alpha_shade)      cerr<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade"<<endl;
+  else if (plottype==fpt_alarm_box)        cerr<<"FieldPlot "<<fname<<" : "<<"plotAlarmBox"<<endl;
+  else if (plottype==fpt_fill_cell)        cerr<<"FieldPlot "<<fname<<" : "<<"plotFillCell"<<endl;
   else                                  cerr<<"FieldPlot "<<fname<<" : "<<"ERROR"<<endl;
 #endif
 
-  pshade= (ptype==fpt_box_alpha_shade ||
-      ptype==fpt_alpha_shade ||
-      ptype==fpt_box_pattern ||
-      ptype==fpt_alarm_box);
+  pshade= (plottype==fpt_alpha_shade ||
+      plottype==fpt_alarm_box ||
+      plottype==fpt_fill_cell);
 
-  if (ptype==fpt_contour && poptions.contourShading>0)
+  if (plottype==fpt_contour && poptions.contourShading>0)
     pshade= true;
 
   pundefined= (poptions.undefMasking>0);
@@ -489,31 +476,20 @@ bool FieldPlot::plot(){
     if (poptions.colours[i]==backgroundColour)
       poptions.colours[i]= backContrastColour;
 
-  // should be below all real fields ???  colour etc ??????
+  // should be below all real fields
   if (poptions.gridLines>0) plotGridLines();
   if (poptions.gridValue>0) plotNumbers();
 
-  if       (ptype==fpt_contour)          return plotContour();
-  else if (ptype==fpt_wind)             return plotWind();
-  else if (ptype==fpt_wind_colour)      return plotWindColour();
-  else if (ptype==fpt_wind_temp_fl)     return plotWindTempFL();
-  else if (ptype==fpt_wind_number)      return plotWindNumber();
-  else if (ptype==fpt_wind_number_colour)      return plotWindNumberColour();
-  else if (ptype==fpt_value_max_height) return plotValueMaxHeight();
-  else if (ptype==fpt_value_max_height_and_temp) return plotValueMaxHeightAndTemp();
-  else if (ptype==fpt_number)           return plotNumber();
-  else if (ptype==fpt_number_positive)  return plotNumberPositive();
-  else if (ptype==fpt_number_colour)    return plotNumberColour();
-  else if (ptype==fpt_vector)           return plotVector();
-  else if (ptype==fpt_vector_colour)    return plotVectorColour();
-  else if (ptype==fpt_direction)        return plotDirection();
-  else if (ptype==fpt_direction_colour) return plotDirectionColour();
-  else if (ptype==fpt_box_pattern)      return plotBox_pattern();
-  else if (ptype==fpt_box_alpha_shade)  return plotBox_alpha_shade();
-  else if (ptype==fpt_alpha_shade)      return plotAlpha_shade();
-  else if (ptype==fpt_alarm_box)        return plotAlarmBox();
-  else if (ptype==fpt_fill_cell)        return plotFillCell();
-  else if (ptype==fpt_layer)            return plotLayer();
+  if       (plottype==fpt_contour)          return plotContour();
+  else if (plottype==fpt_wind)             return plotWind();
+  else if (plottype==fpt_wind_temp_fl)     return plotWindAndValue(true);
+  else if (plottype==fpt_wind_value)      return plotWindAndValue(false);
+  else if (plottype==fpt_value)           return plotValue();
+  else if (plottype==fpt_vector)           return plotVector();
+  else if (plottype==fpt_direction)        return plotDirection();
+  else if (plottype==fpt_alpha_shade)      return plotAlpha_shade();
+  else if (plottype==fpt_alarm_box)        return plotAlarmBox();
+  else if (plottype==fpt_fill_cell)        return plotFillCell();
   else return false;
 }
 
@@ -753,6 +729,12 @@ bool FieldPlot::plotWind(){
   cerr << "++ FieldPlot::plotWind" << endl;
 #endif
   int n= fields.size();
+
+
+  if ( n==3) {
+    return plotWindColour();
+  }
+
   if (n<2) return false;
   if (!fields[0] || !fields[1]) return false;
 
@@ -1137,19 +1119,125 @@ bool FieldPlot::plotWindColour(){
   return true;
 }
 
+   
+/*
+    ROUTINE:   FieldPlot::plotValue
+    PURPOSE:   plot field value as number
+    ALGORITHM: 
+   */
+
+bool FieldPlot::plotValue(){
+#ifdef DEBUGPRINT
+  cerr << "++ plotValue" << endl;
+#endif
+
+  int n= fields.size();
+
+  if ( n>1 ) {
+    return plotValues();
+  }
+
+  if (n<1) return false;
+  if (!fields[0]) return false;
+  if (!fields[0]->data) return false;
+
+  int i,ix,iy;
+  int nx= fields[0]->nx;
+  int ny= fields[0]->ny;
+
+  // convert gridpoints to correct projection
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+      area, maprect, false,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
+  if (ix1>ix2 || iy1>iy2) return false;
+
+  float* field = fields[0]->data;
+  int step= poptions.density;
+
+  // automatic wind/vector density if step<1
+  int autostep;
+  float dist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
+  if (step<1) step= autostep;
+  float sdist= dist*float(step);
+  int xstep= step;
+
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
+
+  float gx,gy;
+  float flagl = sdist * 0.85;
+
+  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
+  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
+
+  ix1-=step;     if (ix1<0)  ix1=0;
+  iy1-=step;     if (iy1<0)  iy1=0;
+  ix2+=(step+1); if (ix2>nx) ix2=nx;
+  iy2+=(step+1); if (iy2>ny) iy2=ny;
+
+  glColor3ubv(poptions.linecolour.RGB());
+  maprect.setExtension( flagl );
+
+  float fontsize= 14. * poptions.labelSize;
+  fp->set("BITMAPFONT",poptions.fontface,fontsize);
+
+  float chx,chy;
+  fp->getCharSize('0',chx,chy);
+  chy *= 0.75;
+
+  for (iy=iy1; iy<iy2; iy+=step){
+    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    for (ix=ix1; ix<ix2; ix+=xstep){
+      i= iy*nx+ix;
+      gx= x[i]; gy= y[i];
+      if (field[i]!=fieldUndef && maprect.isnear(gx,gy)&&
+        field[i] > poptions.minvalue && field[i] < poptions.maxvalue ) {
+        int value= (field[i]>=0.0f) ? int(field[i]+0.5f) : int(field[i]-0.5f);
+
+        if ( poptions.colours.size()>2){
+          if ( value < poptions.base ) {
+            glColor3ubv(poptions.colours[0].RGB());
+          } else if ( value > poptions.base ) {
+            glColor3ubv(poptions.colours[2].RGB());
+          } else {
+            glColor3ubv(poptions.colours[1].RGB());
+          }
+        }
+
+        ostringstream ostr;
+        ostr<<value;
+        miString str= ostr.str();
+        fp->drawStr(str.c_str(),gx-chx/2,gy-chy/2,0.0);
+      }
+    }
+  }
+  glEnd();
+
+  UpdateOutput();
+
+
+#ifdef DEBUGPRINT
+  cerr << "++ Returning from FieldPlot::plotValue() ++" << endl;
+#endif
+
+  return true;
+}
+
+
 
 /*
-  ROUTINE:   FieldPlot::plotWindTempFL
-  PURPOSE:   plot vector field as wind arrows and temp. as "number",
-             a standard FlighLevel chart.
-             T=-25  plott: 25
-             T=+10  plott: ps10
-  ALGORITHM: Fields u(0) v(1) temp(2)
- */
+    ROUTINE:   FieldPlot::plotWindAndValue
+    PURPOSE:   plot vector field as wind arrows and third field as number.
+    ALGORITHM: Fields u(0) v(1) number(2)
+   */
 
-bool FieldPlot::plotWindTempFL(){
+bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
 #ifdef DEBUGPRINT
-  cerr << "++ plotWindTempFL" << endl;
+  cerr << "++ plotWindAndValue" << endl;
 #endif
   int n= fields.size();
   if (n<3) return false;
@@ -1161,6 +1249,8 @@ bool FieldPlot::plotWindTempFL(){
   int i,ix,iy;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
+
+  float *t= fields[2]->data;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
@@ -1217,19 +1307,12 @@ bool FieldPlot::plotWindTempFL(){
   }
 
   maprect.setExtension( flagl );
+  float fontsize= 7. * poptions.labelSize;
 
-  float fontsize= 14. * poptions.labelSize;
-
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
   fp->set("BITMAPFONT",poptions.fontface,fontsize);
 
   float chx,chy;
   fp->getStringSize("ps00", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
 
   fp->getCharSize('0',chx,chy);
 
@@ -1262,13 +1345,434 @@ bool FieldPlot::plotWindTempFL(){
 
   glBegin(GL_LINES);
 
-  //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
+  //Wind arrows are adjusted to lat=10 and Lon=10 if
   //poptions.density!=auto and proj=geographic
+  bool adjustToLatLon = poptions.density
+      && fields[0]->area.P().isGeographic()
+      && step > 0;
+  if(adjustToLatLon) iy1 = (iy1/step)*step;
+  for (iy=iy1; iy<iy2; iy+=step){
+    if (xStepComp) {
+      xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+      if(adjustToLatLon){
+        xstep = (xstep/step)*step;
+        if(xstep==0) xstep=step;
+        ix1 = (ix1/xstep)*xstep;
+      }
+      vxstep.push_back(xstep);
+    }
+    for (ix=ix1; ix<ix2; ix+=xstep){
+      i= iy*nx+ix;
+      gx= x[i]; gy= y[i];
+      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy) &&
+          t[i] > poptions.minvalue && t[i] < poptions.maxvalue ) {
+        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
+        if (ff>0.00001){
+
+          gu= u[i]/ff;
+          gv= v[i]/ff;
+
+          ff *= 3600.0/1852.0;
+
+          // find no. of 50,10 and 5 knot flags
+          if (ff<182.49) {
+            n05  = int(ff*0.2 + 0.5);
+            n50  = n05/10;
+            n05 -= n50*10;
+            n10  = n05/2;
+            n05 -= n10*2;
+          } else if (ff<190.) {
+            n50 = 3;  n10 = 3;  n05 = 0;
+          } else if(ff<205.) {
+            n50 = 4;  n10 = 0;  n05 = 0;
+          } else if (ff<225.) {
+            n50 = 4;  n10 = 1;  n05 = 0;
+          } else {
+            n50 = 5;  n10 = 0;  n05 = 0;
+          }
+
+          dx = flagstep*gu;
+          dy = flagstep*gv;
+          dxf = -flagw*gv - dx;
+          dyf =  flagw*gu - dy;
+
+          nb= 0;
+          xb[nb][0]= gx;
+          yb[nb][0]= gy;
+
+          // direction
+          glVertex2f(gx,gy);
+          gx = gx - flagl*gu;
+          gy = gy - flagl*gv;
+          glVertex2f(gx,gy);
+
+          xb[nb]  [1]= gx;
+          yb[nb++][1]= gy;
+
+          // 50-knot flags, store for plot below
+          if (n50>0) {
+            for (n=0; n<n50; n++) {
+              xb[nb][0]= gx;
+              yb[nb][0]= gy;
+              vx.push_back(gx);
+              vy.push_back(gy);
+              gx+=dx*2.;  gy+=dy*2.;
+              vx.push_back(gx+dxf);
+              vy.push_back(gy+dyf);
+              vx.push_back(gx);
+              vy.push_back(gy);
+              xb[nb]  [1]= gx+dxf;
+              yb[nb++][1]= gy+dyf;
+              xb[nb][0]= gx+dxf;
+              yb[nb][0]= gy+dyf;
+              xb[nb]  [1]= gx;
+              yb[nb++][1]= gy;
+            }
+            gx+=dx; gy+=dy;
+          }
+
+          // 10-knot flags
+          for (n=0; n<n10; n++) {
+            glVertex2f(gx,gy);
+            glVertex2f(gx+dxf,gy+dyf);
+            xb[nb][0]= gx;
+            yb[nb][0]= gy;
+            xb[nb]  [1]= gx+dxf;
+            yb[nb++][1]= gy+dyf;
+            gx+=dx; gy+=dy;
+          }
+          // 5-knot flag
+          if (n05>0) {
+            if (n50+n10==0) { gx+=dx; gy+=dy; }
+            glVertex2f(gx,gy);
+            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
+            xb[nb][0]= gx;
+            yb[nb][0]= gy;
+            xb[nb]  [1]= gx+hflagw*dxf;
+            yb[nb++][1]= gy+hflagw*dyf;
+          }
+
+          // mark used space (lines) in bitmap
+          for (n=0; n<nb; n++) {
+            dx= xb[n][1] - xb[n][0];
+            dy= yb[n][1] - yb[n][0];
+            if (fabsf(dx)>fabsf(dy))
+              m= int(fabsf(dx)*bres) + 2;
+            else
+              m= int(fabsf(dy)*bres) + 2;
+            dx/=float(m-1);
+            dy/=float(m-1);
+            gx= xb[n][0];
+            gy= yb[n][0];
+            for (i=0; i<m; i++) {
+              ib= int((gx-bx)*bres);
+              jb= int((gy-by)*bres);
+              ibit= jb*nbx+ib;
+              iwrd= ibit/nbitwd;
+              ibit= ibit%nbitwd;
+              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
+              gx+=dx;
+              gy+=dy;
+            }
+          }
+
+        }
+      }
+    }
+  }
+  glEnd();
+
+  UpdateOutput();
+
+  // draw 50-knot flags
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  int vi= vx.size();
+  if (vi>=3){
+    glBegin(GL_TRIANGLES);
+    for (i=0; i<vi; i++)
+      glVertex2f(vx[i],vy[i]);
+    glEnd();
+  }
+
+  UpdateOutput();
+
+  // plot numbers.................................................
+
+
+  //-----------------------------------------------------------------------
+  //
+  //  -----------  Default:  (* = grid point)
+  //  |  3   0  |  wind in quadrant 0 => number in quadrant 3   (pos. 6)
+  //  |    *    |  wind in quadrant 1 => number in quadrant 0   (pos. 0)
+  //  |  2   1  |  wind in quadrant 2 => number in quadrant 1   (pos. 2)
+  //  -----------  wind in quadrant 3 => number in quadrant 2   (pos. 4)
+  //
+  //  -----------  If the default position can not be used:
+  //  |  6 7 0  |  look for an o.k. position in 8 different positions
+  //  |  5 * 1  | (all 'busy'=> use the least busy position)
+  //  |  4 3 2  |  if wind is not plotted (not wind or undefined)
+  //  -----------  the number is plotted at the grid point (*, pos. 8)
+  //
+  //-----------------------------------------------------------------------
+  //
+
+  float hchy= chy*0.5;
+  float d= chx*0.5;
+
+  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
+  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
+  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
+
+  int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,value;
+  float x1,x2,y1,y2,w,h;
+  int ivx=0;
+
+  for (iy=iy1; iy<iy2; iy+=step){
+    if (xStepComp) xstep= vxstep[ivx++];
+    for (ix=ix1; ix<ix2; ix+=xstep){
+      i= iy*nx+ix;
+      gx= x[i]; gy= y[i];
+      if (t[i]!=fieldUndef && maprect.isinside(gx,gy) &&
+          t[i] > poptions.minvalue && t[i] < poptions.maxvalue ) {
+
+        if (u[i]!=fieldUndef && v[i]!=fieldUndef)
+          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
+        else
+          ff= 0.0f;
+        if (ff>0.00001){
+          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
+          else if (u[i]>=0.0f)               ipos0= 4;
+          else if (v[i]>=0.0f)               ipos0= 0;
+          else                               ipos0= 6;
+          m= 8;
+        } else {
+          ipos0= 8;
+          m= 9;
+        }
+
+        value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
+        if ( poptions.colours.size()>2){
+          if ( value < poptions.base) {
+            glColor4ubv(poptions.colours[0].RGBA());
+          } else if ( value > poptions.base ) {
+            glColor4ubv(poptions.colours[2].RGBA());
+          } else {
+            glColor4ubv(poptions.colours[1].RGBA());
+          }
+        }
+
+        ostringstream ostr;
+        if ( flightlevelChart ) {
+          if (value <=0) {
+            ostr<<-value;
+          } else {
+            ostr<<"ps"<<value;
+          }
+        } else {
+          ostr<<value;
+        }
+
+        miString str= ostr.str();
+        fp->getStringSize(str.c_str(), w, h);
+        //###########################################################################
+        //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
+        //        y1= gy + ady[ipos0];
+        //        x2= x1 + w;
+        //        y2= y1 + chy;
+        //        glBegin(GL_LINE_LOOP);
+        //        glVertex2f(x1,y1);
+        //        glVertex2f(x2,y1);
+        //        glVertex2f(x2,y2);
+        //        glVertex2f(x1,y2);
+        //        glEnd();
+        //###########################################################################
+
+        mused= nbx*nby;
+        ipos1= ipos0;
+
+        for (j=0; j<m; j++) {
+          ipos= (ipos0+j)%m;
+          x1= gx + adx[ipos] + cdx[ipos]*w;
+          y1= gy + ady[ipos];
+          x2= x1 + w;
+          y2= y1 + chy;
+          ib1= int((x1-bx)*bres);
+          ib2= int((x2-bx)*bres)+1;
+          jb1= int((y1-by)*bres);
+          jb2= int((y2-by)*bres)+1;
+          nused= 0;
+          for (jb=jb1; jb<jb2; jb++) {
+            for (ib=ib1; ib<ib2; ib++) {
+              ibit= jb*nbx+ib;
+              iwrd= ibit/nbitwd;
+              ibit= ibit%nbitwd;
+              if (bmap[iwrd] & (1<<ibit)) nused++;
+            }
+          }
+          if (nused<mused) {
+            mused= nused;
+            ipos1=ipos;
+            if (nused==0) break;
+          }
+        }
+
+        x1= gx + adx[ipos1] + cdx[ipos1]*w;
+        y1= gy + ady[ipos1];
+        x2= x1 + w;
+        y2= y1 + chy;
+        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+          fp->drawStr(str.c_str(),x1,y1,0.0);
+          // mark used space for number (line around)
+                ib1= int((x1-bx)*bres);
+                ib2= int((x2-bx)*bres)+1;
+                jb1= int((y1-by)*bres);
+                jb2= int((y2-by)*bres)+1;
+                for (jb=jb1; jb<jb2; jb++) {
+                  for (ib=ib1; ib<ib2; ib++) {
+                    ibit= jb*nbx+ib;
+                    iwrd= ibit/nbitwd;
+                    ibit= ibit%nbitwd;
+                    bmap[iwrd]= bmap[iwrd] | (1<<ibit);
+                  }
+                }
+        }
+
+      }
+    }
+  }
+
+  UpdateOutput();
+
+  delete[] bmap;
+
+  glDisable(GL_LINE_STIPPLE);
+
+#ifdef DEBUGPRINT
+  cerr << "++ Returning from FieldPlot::plotWindAndValue() ++" << endl;
+#endif
+  return true;
+}
+
+/*
+    ROUTINE:   FieldPlot::plotValues
+    PURPOSE:   plot the values of three, four or five fields:
+    field1  |       field1      |         field1  field4
+    field3  | field3     filed4 |  field3  -----
+    field2  |      field2       |          field2 field5
+    colours are set by poptions.textcolour or poptions.colours
+    minvalue and maxvalue refer to field1
+ */
+
+bool FieldPlot::plotValues(){
+#ifdef DEBUGPRINT
+  cerr << "++ plotValues" << endl;
+#endif
+
+  size_t nfields= fields.size();
+
+  for(size_t i=0; i<nfields; i++) {
+    if (nfields < i+1 || !fields[i] || !fields[i]->data) {
+      return false;
+    }
+  }
+
+  int nx= fields[0]->nx;
+  int ny= fields[0]->ny;
+
+  // convert gridpoints to correct projection
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+      area, maprect, false,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
+
+  if (ix1>ix2 || iy1>iy2) return false;
+
+  int step= poptions.density;
+
+  // automatic wind/vector density if step<1
+  int autostep;
+  float dist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, 15, autostep, dist);
+  if (step<1) step= autostep;
+  float sdist= dist*float(step);
+  int xstep= step;
+
+  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
+  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
+
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y,2,NULL);
+  }
+
+  ix1-=step;     if (ix1<0)  ix1=0;
+  iy1-=step;     if (iy1<0)  iy1=0;
+  ix2+=(step+1); if (ix2>nx) ix2=nx;
+  iy2+=(step+1); if (iy2>ny) iy2=ny;
+
+  float fontsize= 8. * poptions.labelSize;
+
+  fp->set("BITMAPFONT",poptions.fontface,fontsize);
+
+  float chx,chy;
+  fp->getCharSize('0',chx,chy);
+  float hchy= chy*0.5;
+
+
+  //-----------------------------------------------------------------------
+  //  -----------  Plotting numbers in position 0 - 8
+  //  |  6 7 0  |  3 numbers: pos 7, 3, 8
+  //  |  5 8 1  |  4 numbers: pos 7, 3, 5, 1
+  //  |  4 3 2  |  5 numbers: pos 7, 3, 5, 0, 2 and line in pos 8
+  //  -----------
+  //
+  //-----------------------------------------------------------------------
+  //
+
+  float xshift= chx*2;
+  float yshift= chx*0.5;
+
+  if(nfields == 3) {
+    yshift *= 1.5;
+  }
+
+
+  float adx[9]= {xshift, xshift, xshift,  0, -xshift, -xshift, -xshift, 0, 0 };
+  float cdx[9]= { 0.0, 0.0,  0.0, -0.5, -1.0, -1.0, -1.0, -0.5, -0.5 };
+  float ady[9]= {yshift,  -yshift, -yshift-chy, -yshift-chy, -yshift-chy,-hchy, yshift,  yshift, -hchy };
+
+  int position[5];
+  position[0] = 7;
+  position[1] = 3;
+  if ( nfields == 3) {
+    position[2] = 8;
+  } else {
+    position[2] = 5;
+  }
+  if ( nfields == 4) {
+    position[3] = 1;
+  } else {
+    position[3] = 0;
+  }
+  position[4] = 2;
+
+  Colour col[5];
+  for(size_t i=0; i<nfields; i++) {
+    if (poptions.colours.size() > i) {
+      col[i] = poptions.colours[i];
+    } else {
+      col[i] = poptions.textcolour;
+    }
+  }
+
+  //Wind arrows are adjusted to lat=10 and Lon=10 if
+  //poptions.density!=auto and proj=geographic
+  vector<int> vxstep;
   bool adjustToLatLon = poptions.density
   && fields[0]->area.P().isGeographic()
   && step > 0;
   if(adjustToLatLon) iy1 = (iy1/step)*step;
-  for (iy=iy1; iy<iy2; iy+=step){
+  for (int iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) {
       xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
       if(adjustToLatLon){
@@ -1278,2647 +1782,68 @@ bool FieldPlot::plotWindTempFL(){
       }
       vxstep.push_back(xstep);
     }
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        if (ff>0.00001){
-
-          gu= u[i]/ff;
-          gv= v[i]/ff;
-
-          ff *= 3600.0/1852.0;
-
-          // find no. of 50,10 and 5 knot flags
-          if (ff<182.49) {
-            n05  = int(ff*0.2 + 0.5);
-            n50  = n05/10;
-            n05 -= n50*10;
-            n10  = n05/2;
-            n05 -= n10*2;
-          } else if (ff<190.) {
-            n50 = 3;  n10 = 3;  n05 = 0;
-          } else if(ff<205.) {
-            n50 = 4;  n10 = 0;  n05 = 0;
-          } else if (ff<225.) {
-            n50 = 4;  n10 = 1;  n05 = 0;
-          } else {
-            n50 = 5;  n10 = 0;  n05 = 0;
-          }
-
-          dx = flagstep*gu;
-          dy = flagstep*gv;
-          dxf = -flagw*gv - dx;
-          dyf =  flagw*gu - dy;
-
-          nb= 0;
-          xb[nb][0]= gx;
-          yb[nb][0]= gy;
-
-          // direction
-          glVertex2f(gx,gy);
-          gx = gx - flagl*gu;
-          gy = gy - flagl*gv;
-          glVertex2f(gx,gy);
-
-          xb[nb]  [1]= gx;
-          yb[nb++][1]= gy;
-
-          // 50-knot flags, store for plot below
-          if (n50>0) {
-            for (n=0; n<n50; n++) {
-              xb[nb][0]= gx;
-              yb[nb][0]= gy;
-              vx.push_back(gx);
-              vy.push_back(gy);
-              gx+=dx*2.;  gy+=dy*2.;
-              vx.push_back(gx+dxf);
-              vy.push_back(gy+dyf);
-              vx.push_back(gx);
-              vy.push_back(gy);
-              xb[nb]  [1]= gx+dxf;
-              yb[nb++][1]= gy+dyf;
-              xb[nb][0]= gx+dxf;
-              yb[nb][0]= gy+dyf;
-              xb[nb]  [1]= gx;
-              yb[nb++][1]= gy;
-            }
-            gx+=dx; gy+=dy;
-          }
-
-          // 10-knot flags
-          for (n=0; n<n10; n++) {
-            glVertex2f(gx,gy);
-            glVertex2f(gx+dxf,gy+dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+dxf;
-            yb[nb++][1]= gy+dyf;
-            gx+=dx; gy+=dy;
-          }
-          // 5-knot flag
-          if (n05>0) {
-            if (n50+n10==0) { gx+=dx; gy+=dy; }
-            glVertex2f(gx,gy);
-            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+hflagw*dxf;
-            yb[nb++][1]= gy+hflagw*dyf;
-          }
-
-          // mark used space (lines) in bitmap
-          for (n=0; n<nb; n++) {
-            dx= xb[n][1] - xb[n][0];
-            dy= yb[n][1] - yb[n][0];
-            if (fabsf(dx)>fabsf(dy))
-              m= int(fabsf(dx)*bres) + 2;
-            else
-              m= int(fabsf(dy)*bres) + 2;
-            dx/=float(m-1);
-            dy/=float(m-1);
-            gx= xb[n][0];
-            gy= yb[n][0];
-            for (i=0; i<m; i++) {
-              ib= int((gx-bx)*bres);
-              jb= int((gy-by)*bres);
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-              gx+=dx;
-              gy+=dy;
-            }
-          }
-
-        }
-      }
-    }
-  }
-  glEnd();
-
-  UpdateOutput();
-
-  // draw 50-knot flags
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int vi= vx.size();
-  if (vi>=3){
-    glBegin(GL_TRIANGLES);
-    for (i=0; i<vi; i++)
-      glVertex2f(vx[i],vy[i]);
-    glEnd();
   }
 
-  UpdateOutput();
-
-  // plot numbers.................................................
-
-  float *t= fields[2]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = gridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,temp;
   float x1,x2,y1,y2,w,h;
   int ivx=0;
-
-  for (iy=iy1; iy<iy2; iy+=step){
+  for (int iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
-        if (u[i]!=fieldUndef && v[i]!=fieldUndef)
-          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        else
-          ff= 0.0f;
-        if (ff>0.00001){
-          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
-          else if (u[i]>=0.0f)               ipos0= 4;
-          else if (v[i]>=0.0f)	             ipos0= 0;
-          else             	             ipos0= 6;
-          m= 8;
-        } else {
-          ipos0= 8;
-          m= 9;
-        }
+    for (int ix=ix1; ix<ix2; ix+=xstep){
+      int i= iy*nx+ix;
+      float gx= x[i];
+      float gy= y[i];
 
-        temp= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-        ostringstream ostr;
-        if (temp<=0) ostr<<-temp;
-        else         ostr<<"ps"<<temp;
-        miString str= ostr.str();
-        fp->getStringSize(str.c_str(), w, h);
-        //###########################################################################
-        //	  x1= gx + adx[ipos0] + cdx[ipos0]*w;
-        //	  y1= gy + ady[ipos0];
-        //	  x2= x1 + w;
-        //	  y2= y1 + chy;
-        //	  glBegin(GL_LINE_LOOP);
-        //	  glVertex2f(x1,y1);
-        //	  glVertex2f(x2,y1);
-        //	  glVertex2f(x2,y2);
-        //	  glVertex2f(x1,y2);
-        //	  glEnd();
-        //###########################################################################
+      if(fields[0]->data[i]>poptions.minvalue &&
+          fields[0]->data[i]<poptions.maxvalue) {
 
-        mused= nbx*nby;
-        ipos1= ipos0;
+        for ( size_t j=0; j<nfields; j++ ) {
+          float * fieldData = fields[j]->data;
+          if (fieldData[i]!=fieldUndef && maprect.isinside(gx,gy)){
+            int value= (fieldData[i]>=0.0f) ? int(fieldData[i]+0.5f) : int(fieldData[i]-0.5f);
+            ostringstream ostr;
+            ostr<<value;
+            miString str= ostr.str();
+            fp->getStringSize(str.c_str(), w, h);
 
-        for (j=0; j<m; j++) {
-          ipos= (ipos0+j)%m;
-          x1= gx + adx[ipos] + cdx[ipos]*w;
-          y1= gy + ady[ipos];
-          x2= x1 + w;
-          y2= y1 + chy;
-          ib1= int((x1-bx)*bres);
-          ib2= int((x2-bx)*bres)+1;
-          jb1= int((y1-by)*bres);
-          jb2= int((y2-by)*bres)+1;
-          nused= 0;
-          for (jb=jb1; jb<jb2; jb++) {
-            for (ib=ib1; ib<ib2; ib++) {
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              if (bmap[iwrd] & (1<<ibit)) nused++;
-            }
-          }
-          if (nused<mused) {
-            mused= nused;
-            ipos1=ipos;
-            if (nused==0) break;
-          }
-        }
-
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1,y1,0.0);
-          // mark used space for number (line around)
-          ib1= int((x1-bx)*bres);
-          ib2= int((x2-bx)*bres)+1;
-          jb1= int((y1-by)*bres);
-          jb2= int((y2-by)*bres)+1;
-          for (jb=jb1; jb<jb2; jb++) {
-            for (ib=ib1; ib<ib2; ib++) {
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
+            int ipos1= position[j];
+            x1= gx + adx[ipos1] + cdx[ipos1]*w;
+            y1= gy + ady[ipos1];
+            x2= x1 + w;
+            y2= y1 + chy;
+            if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+              glColor3ubv(col[j].RGB());
+              fp->drawStr(str.c_str(),x1,y1,0.0);
             }
           }
         }
 
-      }
-    }
-  }
-
-  UpdateOutput();
-
-  delete[] bmap;
-
-  glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWindTempFL() ++" << endl;
-#endif
-  return true;
-}
-
-/*
-    ROUTINE:   FieldPlot::plotNumberPositive
-    PURPOSE:   plot fields as Numbers in colour.
-    ALGORITHM: 
-   */
-
-bool FieldPlot::plotNumberPositive(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotNumberColour" << endl;
-#endif
-  int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
-  if (!fields[0]->data) return false;
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
- // int npos=0;
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-  //  int   n50,n10,n05;
-  //float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float gx,gy;
-  float flagl = sdist * 0.85;
-  //float flagstep = flagl/10.;
-  //float flagw = flagl * 0.35;
-  //float hflagw = 0.6;
-
-  //vector<float> vx,vy; // keep vertices for 50-knot flags
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
-
-  maprect.setExtension( flagl );
-
-  float fontsize= 14. * poptions.labelSize;
-  //float fontsize= poptions.fontsize;
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("BITMAPFONT",poptions.fontface,fontsize);
-
-  float chx,chy;
-  fp->getStringSize("ps00", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
-
-  fp->getCharSize('0',chx,chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  chy *= 0.75;
-
-  // bit matrix used to avoid numbers plotted across wind and numbers
-  const int nbitwd= sizeof(int)*8;
-  float bres= 1.0/(chx*0.5);
-  float bx= maprect.x1 - flagl*2.5;
-  float by= maprect.y1 - flagl*2.5;
-  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
-  else          bx= float(int(bx*bres-1.0f))/bres;
-  if (by>=0.0f) by= float(int(by*bres))/bres;
-  else          by= float(int(by*bres-1.0f))/bres;
-  int nbx= int((maprect.x2 + flagl*2.5 - bx)*bres) + 3;
-  int nby= int((maprect.y2 + flagl*2.5 - by)*bres) + 3;
-  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
-  int *bmap= new int[nbmap];
-  for (i=0; i<nbmap; i++) bmap[i]= 0;
-  int m,ib,jb,ibit,iwrd;
-  //  float xb[20][2], yb[20][2];
-
-  vector<int> vxstep;
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  // plot wind............................................
-
-/*  glBegin(GL_LINES);
-
-
-  UpdateOutput();*/
-
-  // plot numbers.................................................
-
-  float *t= fields[0]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = gridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int j,ipos0,ipos1,ipos,ipos2,ib1,ib2,jb1,jb2,mused,nused,value,alignX, alignY;
-  float x1,x2,y1,y2,w,h;
-  int ivx=0;
-  alignX=0;
-  alignY=0;
-  if (poptions.alignX >= 0) {
-    alignX = poptions.alignX;
-    alignY = poptions.alignY;
- // cerr << "******alignX och alignY = " << alignX << "   " << alignY << endl;
-  } 
-  ipos2=4;
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
-       /* if (u[i]!=fieldUndef && v[i]!=fieldUndef)
-          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        else
-          ff= 0.0f;
-        if (ff>0.00001){
-          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
-          else if (u[i]>=0.0f)               ipos0= 4;
-          else if (v[i]>=0.0f)               ipos0= 0;
-          else                               ipos0= 6;
-          m= 8;
-        } else {*/
-        ipos0 = ipos2;
-        if (ipos2== 4) ipos=0;
-        else ipos=4;
-        
-          //ipos0= 8;
-          m= 9;
-        //}
-
-        value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-        if (value >0){
-          // glColor3f(1.0, 0.0, 0.0);
-          // } else 
-          // glColor3f(0.0, 0.0, 1.0);
-         
-        ostringstream ostr;
-        ostr<<value;
-        miString str= ostr.str();
-//cerr << "******Temp2m= " << str << endl;
-        fp->set(poptions.fontname,poptions.fontface,poptions.fontsize);
-        //fp->set(poptions.fontname,poptions.fontface,12);
-        fp->getStringSize(str.c_str(), w, h);
-        //###########################################################################
-        //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
-        //        y1= gy + ady[ipos0];
-        //        x2= x1 + w;
-        //        y2= y1 + chy;
-        //        glBegin(GL_LINE_LOOP);
-        //        glVertex2f(x1,y1);
-        //        glVertex2f(x2,y1);
-        //        glVertex2f(x2,y2);
-        //        glVertex2f(x1,y2);
-        //        glEnd();
-        //###########################################################################
-
-        mused= nbx*nby;
-        ipos1= ipos0;
-
-        for (j=0; j<m; j++) {
-          ipos= (ipos0+j)%m;
-          x1= gx + adx[ipos] + cdx[ipos]*w;
-          y1= gy + ady[ipos];
-          x2= x1 + w;
-          y2= y1 + chy;
-          ib1= int((x1-bx)*bres);
-          ib2= int((x2-bx)*bres)+1;
-          jb1= int((y1-by)*bres);
-          jb2= int((y2-by)*bres)+1;
-          nused= 0;
-          for (jb=jb1; jb<jb2; jb++) {
-            for (ib=ib1; ib<ib2; ib++) {
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              if (bmap[iwrd] & (1<<ibit)) nused++;
-            }
-          }
-          if (nused<mused) {
-            mused= nused;
-            ipos1=ipos;
-            if (nused==0) break;
-          }
-        }
-
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1+alignX,y1+alignY,0.0);
-          // mark used space for number (line around)
-                ib1= int((x1-bx)*bres);
-                ib2= int((x2-bx)*bres)+1;
-                jb1= int((y1-by)*bres);
-                jb2= int((y2-by)*bres)+1;
-                for (jb=jb1; jb<jb2; jb++) {
-                  for (ib=ib1; ib<ib2; ib++) {
-                    ibit= jb*nbx+ib;
-                    iwrd= ibit/nbitwd;
-                    ibit= ibit%nbitwd;
-                    bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-                  }
-                }
-        } //end of maprect
-       } //end of if
-
-      }
-    }
-  }
-
-  UpdateOutput();
-
-  delete[] bmap;
-
-  //glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotNumberPositive() ++" << endl;
-#endif
-  return true;
-}
-
-
-/*
-    ROUTINE:   FieldPlot::plotNumberColour
-    PURPOSE:   plot fields as Numbers in colour.
-    ALGORITHM: 
-   */
-
-bool FieldPlot::plotNumberColour(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotNumberColour" << endl;
-#endif
-  int n= fields.size();
-
-  if (n<1) return false;
-  if (!fields[0]) return false;
-  if (!fields[0]->data) return false;
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-
-  float gx,gy;
-  float flagl = sdist * 0.85;
-  //  float flagstep = flagl/10.;
-  //  float flagw = flagl * 0.35;
-  //  float hflagw = 0.6;
-
-  //vector<float> vx,vy; // keep vertices for 50-knot flags
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
-
-  maprect.setExtension( flagl );
-
-  float fontsize= 14. * poptions.labelSize;
-  //float fontsize= poptions.fontsize;
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("BITMAPFONT",poptions.fontface,fontsize);
-
-  float chx,chy;
-  fp->getStringSize("ps00", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
-
-  fp->getCharSize('0',chx,chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  chy *= 0.75;
-
-  // bit matrix used to avoid numbers plotted across wind and numbers
-  const int nbitwd= sizeof(int)*8;
-  float bres= 1.0/(chx*0.5);
-  float bx= maprect.x1 - flagl*2.5;
-  float by= maprect.y1 - flagl*2.5;
-  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
-  else          bx= float(int(bx*bres-1.0f))/bres;
-  if (by>=0.0f) by= float(int(by*bres))/bres;
-  else          by= float(int(by*bres-1.0f))/bres;
-  int nbx= int((maprect.x2 + flagl*2.5 - bx)*bres) + 3;
-  int nby= int((maprect.y2 + flagl*2.5 - by)*bres) + 3;
-  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
-  int *bmap= new int[nbmap];
-  for (i=0; i<nbmap; i++) bmap[i]= 0;
-  int m,ib,jb,ibit,iwrd;
-
-  vector<int> vxstep;
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  // plot wind............................................
-
-/*  glBegin(GL_LINES);
-
-
-  UpdateOutput();*/
-
-  // plot numbers.................................................
-
-  float *t= fields[0]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = gridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int j,ipos0,ipos1,ipos,ipos2,ib1,ib2,jb1,jb2,mused,nused,value,alignX,alignY;
-  float x1,x2,y1,y2,w,h;
-  int ivx=0;
-  ipos2=4;
-  alignX=0;
-  alignY=0;
-  if (poptions.alignX >= 0) {
-    alignX = poptions.alignX;
-    alignY = poptions.alignY;
- // cerr << "******alignX och alignY = " << alignX << "   " << alignY << endl;
-  }
-
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
-       /* if (u[i]!=fieldUndef && v[i]!=fieldUndef)
-          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        else
-          ff= 0.0f;
-        if (ff>0.00001){
-          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
-          else if (u[i]>=0.0f)               ipos0= 4;
-          else if (v[i]>=0.0f)               ipos0= 0;
-          else                               ipos0= 6;
-          m= 8;
-        } else {*/
-        ipos0 = ipos2;
-        if (ipos2== 4) ipos=0;
-        else ipos=4;
-
-          //ipos0= 8;
-          m= 9;
-        //}
-
-        value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-        if (value >0){
-           glColor3f(1.0, 0.0, 0.0);
-        } else 
-           glColor3f(0.0, 0.0, 1.0);
-         
-        ostringstream ostr;
-        ostr<<value;
-        miString str= ostr.str();
-        fp->set(poptions.fontname,poptions.fontface,poptions.fontsize);
-        fp->getStringSize(str.c_str(), w, h);
-        //###########################################################################
-        //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
-        //        y1= gy + ady[ipos0];
-        //        x2= x1 + w;
-        //        y2= y1 + chy;
-        //        glBegin(GL_LINE_LOOP);
-        //        glVertex2f(x1,y1);
-        //        glVertex2f(x2,y1);
-        //        glVertex2f(x2,y2);
-        //        glVertex2f(x1,y2);
-        //        glEnd();
-        //###########################################################################
-
-        mused= nbx*nby;
-        ipos1= ipos0;
-
-        for (j=0; j<m; j++) {
-          ipos= (ipos0+j)%m;
-          x1= gx + adx[ipos] + cdx[ipos]*w;
-          y1= gy + ady[ipos];
-          x2= x1 + w;
-          y2= y1 + chy;
-          ib1= int((x1-bx)*bres);
-          ib2= int((x2-bx)*bres)+1;
-          jb1= int((y1-by)*bres);
-          jb2= int((y2-by)*bres)+1;
-          nused= 0;
-          for (jb=jb1; jb<jb2; jb++) {
-            for (ib=ib1; ib<ib2; ib++) {
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              if (bmap[iwrd] & (1<<ibit)) nused++;
-            }
-          }
-          if (nused<mused) {
-            mused= nused;
-            ipos1=ipos;
-            if (nused==0) break;
-          }
-        }
-
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1+alignX,y1+alignY,0.0);
-          // mark used space for number (line around)
-                ib1= int((x1-bx)*bres);
-                ib2= int((x2-bx)*bres)+1;
-                jb1= int((y1-by)*bres);
-                jb2= int((y2-by)*bres)+1;
-                for (jb=jb1; jb<jb2; jb++) {
-                  for (ib=ib1; ib<ib2; ib++) {
-                    ibit= jb*nbx+ib;
-                    iwrd= ibit/nbitwd;
-                    ibit= ibit%nbitwd;
-                    bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-                  }
-                }
-        } //end of maprect
-       // } //end of if
-
-      }
-    }
-  }
-
-  UpdateOutput();
-
-  delete[] bmap;
-
-  //glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotNumberColour() ++" << endl;
-#endif
-  return true;
-}
-
-
-   
-/*
-    ROUTINE:   FieldPlot::plotNumber
-    PURPOSE:   plot Number Precipitation as number.
-    ALGORITHM: 
-   */
-
-bool FieldPlot::plotNumber(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotNumber" << endl;
-#endif
-  int n= fields.size();
-
-
-  if (n<1) return false;
-  if (!fields[0]) return false;
-  if (!fields[0]->data) return false;
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-
-  float gx,gy;
-  float flagl = sdist * 0.85;
-
-  //vector<float> vx,vy; // keep vertices for 50-knot flags
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
-
-  maprect.setExtension( flagl );
-
-  float fontsize= 14. * poptions.labelSize;
-  //float fontsize= poptions.fontsize;
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("BITMAPFONT",poptions.fontface,fontsize);
-
-  float chx,chy;
-  fp->getStringSize("ps00", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
-
-  fp->getCharSize('0',chx,chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  chy *= 0.75;
-
-  // bit matrix used to avoid numbers plotted across wind and numbers
-  const int nbitwd= sizeof(int)*8;
-  float bres= 1.0/(chx*0.5);
-  float bx= maprect.x1 - flagl*2.5;
-  float by= maprect.y1 - flagl*2.5;
-  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
-  else          bx= float(int(bx*bres-1.0f))/bres;
-  if (by>=0.0f) by= float(int(by*bres))/bres;
-  else          by= float(int(by*bres-1.0f))/bres;
-  int nbx= int((maprect.x2 + flagl*2.5 - bx)*bres) + 3;
-  int nby= int((maprect.y2 + flagl*2.5 - by)*bres) + 3;
-  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
-  int *bmap= new int[nbmap];
-  for (i=0; i<nbmap; i++) bmap[i]= 0;
-  int m,ib,jb,ibit,iwrd;
-
-  vector<int> vxstep;
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  // plot wind............................................
-
-/*  glBegin(GL_LINES);
-
-  //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
-  //poptions.density!=auto and proj=geographic
-  bool adjustToLatLon = poptions.density
-      && fields[0]->area.P().isGeographic()
-      && step > 0;
-  if(adjustToLatLon) iy1 = (iy1/step)*step;
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) {
-      xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-      if(adjustToLatLon){
-        xstep = (xstep/step)*step;
-        if(xstep==0) xstep=step;
-        ix1 = (ix1/xstep)*xstep;
-      }
-      vxstep.push_back(xstep);
-    }
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        if (ff>0.00001){
-
-          gu= u[i]/ff;
-          gv= v[i]/ff;
-
-          ff *= 3600.0/1852.0;
-
-          // find no. of 50,10 and 5 knot flags
-          if (ff<182.49) {
-            n05  = int(ff*0.2 + 0.5);
-            n50  = n05/10;
-            n05 -= n50*10;
-            n10  = n05/2;
-            n05 -= n10*2;
-          } else if (ff<190.) {
-            n50 = 3;  n10 = 3;  n05 = 0;
-          } else if(ff<205.) {
-            n50 = 4;  n10 = 0;  n05 = 0;
-          } else if (ff<225.) {
-            n50 = 4;  n10 = 1;  n05 = 0;
-          } else {
-            n50 = 5;  n10 = 0;  n05 = 0;
-          }
-
-          dx = flagstep*gu;
-          dy = flagstep*gv;
-          dxf = -flagw*gv - dx;
-          dyf =  flagw*gu - dy;
-
-          nb= 0;
-          xb[nb][0]= gx;
-          yb[nb][0]= gy;
-
-          // direction
-          glVertex2f(gx,gy);
-          gx = gx - flagl*gu;
-          gy = gy - flagl*gv;
-          glVertex2f(gx,gy);
-
-          xb[nb]  [1]= gx;
-          yb[nb++][1]= gy;
-
-          // 50-knot flags, store for plot below
-          if (n50>0) {
-            for (n=0; n<n50; n++) {
-              xb[nb][0]= gx;
-              yb[nb][0]= gy;
-              vx.push_back(gx);
-              vy.push_back(gy);
-              gx+=dx*2.;  gy+=dy*2.;
-              vx.push_back(gx+dxf);
-              vy.push_back(gy+dyf);
-              vx.push_back(gx);
-              vy.push_back(gy);
-              xb[nb]  [1]= gx+dxf;
-              yb[nb++][1]= gy+dyf;
-              xb[nb][0]= gx+dxf;
-              yb[nb][0]= gy+dyf;
-              xb[nb]  [1]= gx;
-              yb[nb++][1]= gy;
-            }
-            gx+=dx; gy+=dy;
-          }
-
-          // 10-knot flags
-          for (n=0; n<n10; n++) {
-            glVertex2f(gx,gy);
-            glVertex2f(gx+dxf,gy+dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+dxf;
-            yb[nb++][1]= gy+dyf;
-            gx+=dx; gy+=dy;
-          }
-          // 5-knot flag
-          if (n05>0) {
-            if (n50+n10==0) { gx+=dx; gy+=dy; }
-            glVertex2f(gx,gy);
-            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+hflagw*dxf;
-            yb[nb++][1]= gy+hflagw*dyf;
-          }
-
-          // mark used space (lines) in bitmap
-          for (n=0; n<nb; n++) {
-            dx= xb[n][1] - xb[n][0];
-            dy= yb[n][1] - yb[n][0];
-            if (fabsf(dx)>fabsf(dy))
-              m= int(fabsf(dx)*bres) + 2;
-            else
-              m= int(fabsf(dy)*bres) + 2;
-            dx/=float(m-1);
-            dy/=float(m-1);
-            gx= xb[n][0];
-            gy= yb[n][0];
-            for (i=0; i<m; i++) {
-              ib= int((gx-bx)*bres);
-              jb= int((gy-by)*bres);
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-              gx+=dx;
-              gy+=dy;
-            }
-          }
-
-        }
-      }
-    }
-  }
-  glEnd();
-
-  UpdateOutput();
-
-  // draw 50-knot flags
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int vi= vx.size();
-  if (vi>=3){
-    glBegin(GL_TRIANGLES);
-    for (i=0; i<vi; i++)
-      glVertex2f(vx[i],vy[i]);
-    glEnd();
-  }
-
-  UpdateOutput();*/
-
-  // plot numbers.................................................
-
-  float *t= fields[0]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = gridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int j,ipos0,ipos1,ipos,ipos2,ib1,ib2,jb1,jb2,mused,nused,value,alignX,alignY;
-  float x1,x2,y1,y2,w,h;
-  int ivx=0;
-  ipos2=4;
-  alignX=0;
-  alignY=0;
-  if (poptions.alignX >= 0) {
-    alignX = poptions.alignX;
-    alignY = poptions.alignY;
- // cerr << "******alignX och alignY = " << alignX << "   " << alignY << endl;
-  } 
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
-       /* if (u[i]!=fieldUndef && v[i]!=fieldUndef)
-          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        else
-          ff= 0.0f;
-        if (ff>0.00001){
-          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
-          else if (u[i]>=0.0f)               ipos0= 4;
-          else if (v[i]>=0.0f)               ipos0= 0;
-          else                               ipos0= 6;
-          m= 8;
-        } else {*/
-        ipos0 = ipos2;
-        if (ipos2== 4) ipos=0;
-        else ipos=4;
-        
-          //ipos0= 8;
-          m= 9;
-        //}
-
-        value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-       // if (value >0){
-           //glColor3f(1.0, 0.0, 0.0);
-           //} else 
-           //glColor3f(0.0, 0.0, 1.0);
-         
-        ostringstream ostr;
-        ostr<<value;
-        miString str= ostr.str();
-        //cerr << "******Temp2m= " << str << endl;
-        fp->set(poptions.fontname,poptions.fontface,poptions.fontsize);
-        fp->getStringSize(str.c_str(), w, h);
-        //###########################################################################
-        //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
-        //        y1= gy + ady[ipos0];
-        //        x2= x1 + w;
-        //        y2= y1 + chy;
-        //        glBegin(GL_LINE_LOOP);
-        //        glVertex2f(x1,y1);
-        //        glVertex2f(x2,y1);
-        //        glVertex2f(x2,y2);
-        //        glVertex2f(x1,y2);
-        //        glEnd();
-        //###########################################################################
-
-        mused= nbx*nby;
-        ipos1= ipos0;
-
-        for (j=0; j<m; j++) {
-          ipos= (ipos0+j)%m;
-          x1= gx + adx[ipos] + cdx[ipos]*w;
-          y1= gy + ady[ipos];
-          x2= x1 + w;
-          y2= y1 + chy;
-          ib1= int((x1-bx)*bres);
-          ib2= int((x2-bx)*bres)+1;
-          jb1= int((y1-by)*bres);
-          jb2= int((y2-by)*bres)+1;
-          nused= 0;
-          for (jb=jb1; jb<jb2; jb++) {
-            for (ib=ib1; ib<ib2; ib++) {
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              if (bmap[iwrd] & (1<<ibit)) nused++;
-            }
-          }
-          if (nused<mused) {
-            mused= nused;
-            ipos1=ipos;
-            if (nused==0) break;
-          }
-        }
-
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1+alignX,y1+alignY,0.0);
-          // mark used space for number (line around)
-                ib1= int((x1-bx)*bres);
-                ib2= int((x2-bx)*bres)+1;
-                jb1= int((y1-by)*bres);
-                jb2= int((y2-by)*bres)+1;
-                for (jb=jb1; jb<jb2; jb++) {
-                  for (ib=ib1; ib<ib2; ib++) {
-                    ibit= jb*nbx+ib;
-                    iwrd= ibit/nbitwd;
-                    ibit= ibit%nbitwd;
-                    bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-                  }
-                }
-        } //end of maprect
-       //} //end of if
-
-      }
-    }
-  }
-
-  UpdateOutput();
-
-  delete[] bmap;
-
-  //glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotNumber() ++" << endl;
-#endif
-  return true;
-}
-
-
-
-
-/*
-    ROUTINE:   FieldPlot::plotWindNumberColour
-    PURPOSE:   plot vector field as wind arrows and temperature as number (red>0 and blue<0).
-    ALGORITHM: Fields u(0) v(1) height(2)
-   */
-
-bool FieldPlot::plotWindNumberColour(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotWindNumberColour" << endl;
-#endif
-  int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
-  if (uv.size()!=2) return false;
-  float *u= uv[0];
-  float *v= uv[1];
-
-  int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-
-  int   n50,n10,n05;
-  float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85;
-  float flagstep = flagl/10.;
-  float flagw = flagl * 0.35;
-  float hflagw = 0.6;
-
-  vector<float> vx,vy; // keep vertices for 50-knot flags
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
-
-  maprect.setExtension( flagl );
-
-  float fontsize= 14. * poptions.labelSize;
-
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("BITMAPFONT",poptions.fontface,fontsize);
-
-  float chx,chy;
-  fp->getStringSize("ps00", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
-
-  fp->getCharSize('0',chx,chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  chy *= 0.75;
-
-  // bit matrix used to avoid numbers plotted across wind and numbers
-  const int nbitwd= sizeof(int)*8;
-  float bres= 1.0/(chx*0.5);
-  float bx= maprect.x1 - flagl*2.5;
-  float by= maprect.y1 - flagl*2.5;
-  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
-  else          bx= float(int(bx*bres-1.0f))/bres;
-  if (by>=0.0f) by= float(int(by*bres))/bres;
-  else          by= float(int(by*bres-1.0f))/bres;
-  int nbx= int((maprect.x2 + flagl*2.5 - bx)*bres) + 3;
-  int nby= int((maprect.y2 + flagl*2.5 - by)*bres) + 3;
-  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
-  int *bmap= new int[nbmap];
-  for (i=0; i<nbmap; i++) bmap[i]= 0;
-  int m,ib,jb,ibit,iwrd,nb;
-  float xb[20][2], yb[20][2];
-
-  vector<int> vxstep;
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  // plot wind............................................
-
-  glBegin(GL_LINES);
-
-  //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
-  //poptions.density!=auto and proj=geographic
-  bool adjustToLatLon = poptions.density
-      && fields[0]->area.P().isGeographic()
-      && step > 0;
-  if(adjustToLatLon) iy1 = (iy1/step)*step;
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) {
-      xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-      if(adjustToLatLon){
-        xstep = (xstep/step)*step;
-        if(xstep==0) xstep=step;
-        ix1 = (ix1/xstep)*xstep;
-      }
-      vxstep.push_back(xstep);
-    }
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        if (ff>0.00001){
-
-          gu= u[i]/ff;
-          gv= v[i]/ff;
-
-          ff *= 3600.0/1852.0;
-
-          // find no. of 50,10 and 5 knot flags
-          if (ff<182.49) {
-            n05  = int(ff*0.2 + 0.5);
-            n50  = n05/10;
-            n05 -= n50*10;
-            n10  = n05/2;
-            n05 -= n10*2;
-          } else if (ff<190.) {
-            n50 = 3;  n10 = 3;  n05 = 0;
-          } else if(ff<205.) {
-            n50 = 4;  n10 = 0;  n05 = 0;
-          } else if (ff<225.) {
-            n50 = 4;  n10 = 1;  n05 = 0;
-          } else {
-            n50 = 5;  n10 = 0;  n05 = 0;
-          }
-
-          dx = flagstep*gu;
-          dy = flagstep*gv;
-          dxf = -flagw*gv - dx;
-          dyf =  flagw*gu - dy;
-
-          nb= 0;
-          xb[nb][0]= gx;
-          yb[nb][0]= gy;
-
-          // direction
-          glVertex2f(gx,gy);
-          gx = gx - flagl*gu;
-          gy = gy - flagl*gv;
-          glVertex2f(gx,gy);
-
-          xb[nb]  [1]= gx;
-          yb[nb++][1]= gy;
-
-          // 50-knot flags, store for plot below
-          if (n50>0) {
-            for (n=0; n<n50; n++) {
-              xb[nb][0]= gx;
-              yb[nb][0]= gy;
-              vx.push_back(gx);
-              vy.push_back(gy);
-              gx+=dx*2.;  gy+=dy*2.;
-              vx.push_back(gx+dxf);
-              vy.push_back(gy+dyf);
-              vx.push_back(gx);
-              vy.push_back(gy);
-              xb[nb]  [1]= gx+dxf;
-              yb[nb++][1]= gy+dyf;
-              xb[nb][0]= gx+dxf;
-              yb[nb][0]= gy+dyf;
-              xb[nb]  [1]= gx;
-              yb[nb++][1]= gy;
-            }
-            gx+=dx; gy+=dy;
-          }
-
-          // 10-knot flags
-          for (n=0; n<n10; n++) {
-            glVertex2f(gx,gy);
-            glVertex2f(gx+dxf,gy+dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+dxf;
-            yb[nb++][1]= gy+dyf;
-            gx+=dx; gy+=dy;
-          }
-          // 5-knot flag
-          if (n05>0) {
-            if (n50+n10==0) { gx+=dx; gy+=dy; }
-            glVertex2f(gx,gy);
-            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+hflagw*dxf;
-            yb[nb++][1]= gy+hflagw*dyf;
-          }
-
-          // mark used space (lines) in bitmap
-          for (n=0; n<nb; n++) {
-            dx= xb[n][1] - xb[n][0];
-            dy= yb[n][1] - yb[n][0];
-            if (fabsf(dx)>fabsf(dy))
-              m= int(fabsf(dx)*bres) + 2;
-            else
-              m= int(fabsf(dy)*bres) + 2;
-            dx/=float(m-1);
-            dy/=float(m-1);
-            gx= xb[n][0];
-            gy= yb[n][0];
-            for (i=0; i<m; i++) {
-              ib= int((gx-bx)*bres);
-              jb= int((gy-by)*bres);
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-              gx+=dx;
-              gy+=dy;
-            }
-          }
-
-        }
-      }
-    }
-  }
-  glEnd();
-
-  UpdateOutput();
-
-  // draw 50-knot flags
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int vi= vx.size();
-  if (vi>=3){
-    glBegin(GL_TRIANGLES);
-    for (i=0; i<vi; i++)
-      glVertex2f(vx[i],vy[i]);
-    glEnd();
-  }
-
-  UpdateOutput();
-
-  // plot numbers.................................................
-
-  float *t= fields[2]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = gridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,value;
-  float x1,x2,y1,y2,w,h;
-  int ivx=0;
-
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
-        if (u[i]!=fieldUndef && v[i]!=fieldUndef)
-          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        else
-          ff= 0.0f;
-        if (ff>0.00001){
-          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
-          else if (u[i]>=0.0f)               ipos0= 4;
-          else if (v[i]>=0.0f)               ipos0= 0;
-          else                               ipos0= 6;
-          m= 8;
-        } else {
-          ipos0= 8;
-          m= 9;
-        }
-
-        value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-        if (value >0)
-           glColor3f(1.0, 0.0, 0.0);
-        else 
-           glColor3f(0.0, 0.0, 1.0);
-   
-        ostringstream ostr;
-        ostr<<value;
-        miString str= ostr.str();
-cerr << "******Temp2m= " << str << endl;
-        fp->set(poptions.fontname,poptions.fontface,12);
-        fp->getStringSize(str.c_str(), w, h);
-        //###########################################################################
-        //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
-        //        y1= gy + ady[ipos0];
-        //        x2= x1 + w;
-        //        y2= y1 + chy;
-        //        glBegin(GL_LINE_LOOP);
-        //        glVertex2f(x1,y1);
-        //        glVertex2f(x2,y1);
-        //        glVertex2f(x2,y2);
-        //        glVertex2f(x1,y2);
-        //        glEnd();
-        //###########################################################################
-
-        mused= nbx*nby;
-        ipos1= ipos0;
-
-        for (j=0; j<m; j++) {
-          ipos= (ipos0+j)%m;
-          x1= gx + adx[ipos] + cdx[ipos]*w;
-          y1= gy + ady[ipos];
-          x2= x1 + w;
-          y2= y1 + chy;
-          ib1= int((x1-bx)*bres);
-          ib2= int((x2-bx)*bres)+1;
-          jb1= int((y1-by)*bres);
-          jb2= int((y2-by)*bres)+1;
-          nused= 0;
-          for (jb=jb1; jb<jb2; jb++) {
-            for (ib=ib1; ib<ib2; ib++) {
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              if (bmap[iwrd] & (1<<ibit)) nused++;
-            }
-          }
-          if (nused<mused) {
-            mused= nused;
-            ipos1=ipos;
-            if (nused==0) break;
-          }
-        }
-
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1,y1,0.0);
-          // mark used space for number (line around)
-                ib1= int((x1-bx)*bres);
-                ib2= int((x2-bx)*bres)+1;
-                jb1= int((y1-by)*bres);
-                jb2= int((y2-by)*bres)+1;
-                for (jb=jb1; jb<jb2; jb++) {
-                  for (ib=ib1; ib<ib2; ib++) {
-                    ibit= jb*nbx+ib;
-                    iwrd= ibit/nbitwd;
-                    ibit= ibit%nbitwd;
-                    bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-                  }
-                }
-        }
-
-      }
-    }
-  }
-
-  UpdateOutput();
-
-  delete[] bmap;
-
-  glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWindNumberColour() ++" << endl;
-#endif
-  return true;
-}
-
-
-
-/*
-    ROUTINE:   FieldPlot::plotWindNumber
-    PURPOSE:   plot vector field as wind arrows and height as number.
-    ALGORITHM: Fields u(0) v(1) height(2)
-   */
-
-bool FieldPlot::plotWindNumber(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotWindNumber" << endl;
-#endif
-  int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
-  if (uv.size()!=2) return false;
-  float *u= uv[0];
-  float *v= uv[1];
-
-  int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-
-  int   n50,n10,n05;
-  float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85;
-  float flagstep = flagl/10.;
-  float flagw = flagl * 0.35;
-  float hflagw = 0.6;
-
-  vector<float> vx,vy; // keep vertices for 50-knot flags
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
-
-  maprect.setExtension( flagl );
-
-  float fontsize= 14. * poptions.labelSize;
-
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("BITMAPFONT",poptions.fontface,fontsize);
-
-  float chx,chy;
-  fp->getStringSize("ps00", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
-
-  fp->getCharSize('0',chx,chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  chy *= 0.75;
-
-  // bit matrix used to avoid numbers plotted across wind and numbers
-  const int nbitwd= sizeof(int)*8;
-  float bres= 1.0/(chx*0.5);
-  float bx= maprect.x1 - flagl*2.5;
-  float by= maprect.y1 - flagl*2.5;
-  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
-  else          bx= float(int(bx*bres-1.0f))/bres;
-  if (by>=0.0f) by= float(int(by*bres))/bres;
-  else          by= float(int(by*bres-1.0f))/bres;
-  int nbx= int((maprect.x2 + flagl*2.5 - bx)*bres) + 3;
-  int nby= int((maprect.y2 + flagl*2.5 - by)*bres) + 3;
-  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
-  int *bmap= new int[nbmap];
-  for (i=0; i<nbmap; i++) bmap[i]= 0;
-  int m,ib,jb,ibit,iwrd,nb;
-  float xb[20][2], yb[20][2];
-
-  vector<int> vxstep;
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-  glColor3ubv(poptions.linecolour.RGB());
-
-  // plot wind............................................
-
-  glBegin(GL_LINES);
-
-  //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
-  //poptions.density!=auto and proj=geographic
-  bool adjustToLatLon = poptions.density
-      && fields[0]->area.P().isGeographic()
-      && step > 0;
-  if(adjustToLatLon) iy1 = (iy1/step)*step;
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) {
-      xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-      if(adjustToLatLon){
-        xstep = (xstep/step)*step;
-        if(xstep==0) xstep=step;
-        ix1 = (ix1/xstep)*xstep;
-      }
-      vxstep.push_back(xstep);
-    }
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        if (ff>0.00001){
-
-          gu= u[i]/ff;
-          gv= v[i]/ff;
-
-          ff *= 3600.0/1852.0;
-
-          // find no. of 50,10 and 5 knot flags
-          if (ff<182.49) {
-            n05  = int(ff*0.2 + 0.5);
-            n50  = n05/10;
-            n05 -= n50*10;
-            n10  = n05/2;
-            n05 -= n10*2;
-          } else if (ff<190.) {
-            n50 = 3;  n10 = 3;  n05 = 0;
-          } else if(ff<205.) {
-            n50 = 4;  n10 = 0;  n05 = 0;
-          } else if (ff<225.) {
-            n50 = 4;  n10 = 1;  n05 = 0;
-          } else {
-            n50 = 5;  n10 = 0;  n05 = 0;
-          }
-
-          dx = flagstep*gu;
-          dy = flagstep*gv;
-          dxf = -flagw*gv - dx;
-          dyf =  flagw*gu - dy;
-
-          nb= 0;
-          xb[nb][0]= gx;
-          yb[nb][0]= gy;
-
-          // direction
-          glVertex2f(gx,gy);
-          gx = gx - flagl*gu;
-          gy = gy - flagl*gv;
-          glVertex2f(gx,gy);
-
-          xb[nb]  [1]= gx;
-          yb[nb++][1]= gy;
-
-          // 50-knot flags, store for plot below
-          if (n50>0) {
-            for (n=0; n<n50; n++) {
-              xb[nb][0]= gx;
-              yb[nb][0]= gy;
-              vx.push_back(gx);
-              vy.push_back(gy);
-              gx+=dx*2.;  gy+=dy*2.;
-              vx.push_back(gx+dxf);
-              vy.push_back(gy+dyf);
-              vx.push_back(gx);
-              vy.push_back(gy);
-              xb[nb]  [1]= gx+dxf;
-              yb[nb++][1]= gy+dyf;
-              xb[nb][0]= gx+dxf;
-              yb[nb][0]= gy+dyf;
-              xb[nb]  [1]= gx;
-              yb[nb++][1]= gy;
-            }
-            gx+=dx; gy+=dy;
-          }
-
-          // 10-knot flags
-          for (n=0; n<n10; n++) {
-            glVertex2f(gx,gy);
-            glVertex2f(gx+dxf,gy+dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+dxf;
-            yb[nb++][1]= gy+dyf;
-            gx+=dx; gy+=dy;
-          }
-          // 5-knot flag
-          if (n05>0) {
-            if (n50+n10==0) { gx+=dx; gy+=dy; }
-            glVertex2f(gx,gy);
-            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-            xb[nb][0]= gx;
-            yb[nb][0]= gy;
-            xb[nb]  [1]= gx+hflagw*dxf;
-            yb[nb++][1]= gy+hflagw*dyf;
-          }
-
-          // mark used space (lines) in bitmap
-          for (n=0; n<nb; n++) {
-            dx= xb[n][1] - xb[n][0];
-            dy= yb[n][1] - yb[n][0];
-            if (fabsf(dx)>fabsf(dy))
-              m= int(fabsf(dx)*bres) + 2;
-            else
-              m= int(fabsf(dy)*bres) + 2;
-            dx/=float(m-1);
-            dy/=float(m-1);
-            gx= xb[n][0];
-            gy= yb[n][0];
-            for (i=0; i<m; i++) {
-              ib= int((gx-bx)*bres);
-              jb= int((gy-by)*bres);
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-              gx+=dx;
-              gy+=dy;
-            }
-          }
-
-        }
-      }
-    }
-  }
-  glEnd();
-
-  UpdateOutput();
-
-  // draw 50-knot flags
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int vi= vx.size();
-  if (vi>=3){
-    glBegin(GL_TRIANGLES);
-    for (i=0; i<vi; i++)
-      glVertex2f(vx[i],vy[i]);
-    glEnd();
-  }
-
-  UpdateOutput();
-
-  // plot numbers.................................................
-
-  float *t= fields[2]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = gridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int j,ipos0,ipos1,ipos,ib1,ib2,jb1,jb2,mused,nused,value;
-  float x1,x2,y1,y2,w,h;
-  int ivx=0;
-
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
-        if (u[i]!=fieldUndef && v[i]!=fieldUndef)
-          ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        else
-          ff= 0.0f;
-        if (ff>0.00001){
-          if      (u[i]>=0.0f && v[i]>=0.0f) ipos0= 2;
-          else if (u[i]>=0.0f)               ipos0= 4;
-          else if (v[i]>=0.0f)               ipos0= 0;
-          else                               ipos0= 6;
-          m= 8;
-        } else {
-          ipos0= 8;
-          m= 9;
-        }
-
-        value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-   
-        ostringstream ostr;
-        ostr<<value;
-        miString str= ostr.str();
-        fp->getStringSize(str.c_str(), w, h);
-        //###########################################################################
-        //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
-        //        y1= gy + ady[ipos0];
-        //        x2= x1 + w;
-        //        y2= y1 + chy;
-        //        glBegin(GL_LINE_LOOP);
-        //        glVertex2f(x1,y1);
-        //        glVertex2f(x2,y1);
-        //        glVertex2f(x2,y2);
-        //        glVertex2f(x1,y2);
-        //        glEnd();
-        //###########################################################################
-
-        mused= nbx*nby;
-        ipos1= ipos0;
-
-        for (j=0; j<m; j++) {
-          ipos= (ipos0+j)%m;
-          x1= gx + adx[ipos] + cdx[ipos]*w;
-          y1= gy + ady[ipos];
-          x2= x1 + w;
-          y2= y1 + chy;
-          ib1= int((x1-bx)*bres);
-          ib2= int((x2-bx)*bres)+1;
-          jb1= int((y1-by)*bres);
-          jb2= int((y2-by)*bres)+1;
-          nused= 0;
-          for (jb=jb1; jb<jb2; jb++) {
-            for (ib=ib1; ib<ib2; ib++) {
-              ibit= jb*nbx+ib;
-              iwrd= ibit/nbitwd;
-              ibit= ibit%nbitwd;
-              if (bmap[iwrd] & (1<<ibit)) nused++;
-            }
-          }
-          if (nused<mused) {
-            mused= nused;
-            ipos1=ipos;
-            if (nused==0) break;
-          }
-        }
-
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1,y1,0.0);
-          // mark used space for number (line around)
-                ib1= int((x1-bx)*bres);
-                ib2= int((x2-bx)*bres)+1;
-                jb1= int((y1-by)*bres);
-                jb2= int((y2-by)*bres)+1;
-                for (jb=jb1; jb<jb2; jb++) {
-                  for (ib=ib1; ib<ib2; ib++) {
-                    ibit= jb*nbx+ib;
-                    iwrd= ibit/nbitwd;
-                    ibit= ibit%nbitwd;
-                    bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-                  }
-                }
-        }
-
-      }
-    }
-  }
-
-  UpdateOutput();
-
-  delete[] bmap;
-
-  glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWindNumber() ++" << endl;
-#endif
-  return true;
-}
-
-/*
-    ROUTINE:   FieldPlot::plotValueMaxHeight
-    PURPOSE:   plot amount, base, top and height as:
-            top
-    amount ----- height
-            base
-    ALGORITHM: Fields amount(0) base(1) top(2) height(3)
-	amount could be any heigth dependent field
- */
-
-bool FieldPlot::plotValueMaxHeight(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotValueMaxHeight" << endl;
-#endif
-  int n= fields.size();
-  if (n<4) return false;
-  if (!fields[0] || !fields[1] || !fields[2] || !fields[3]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data || !fields[3]->data) return false;
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, 15, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
-
-  float fontsize= 14. * poptions.labelSize;
-
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("BITMAPFONT",poptions.fontface,fontsize);
-
-  float chx,chy;
-  fp->getStringSize("000000000", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
-
-  fp->getCharSize('0',chx,chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  //chy *= 0.75;
-
-  // bit matrix used to avoid numbers plotted across wind and numbers
-  const int nbitwd= sizeof(int)*8;
-  float bres= 1.0/(chx*0.5);
-  float bx= maprect.x1 - 2.5;
-  float by= maprect.y1 - 2.5;
-  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
-  else          bx= float(int(bx*bres-1.0f))/bres;
-  if (by>=0.0f) by= float(int(by*bres))/bres;
-  else          by= float(int(by*bres-1.0f))/bres;
-  int nbx= int((maprect.x2 - bx)*bres) + 3;
-  int nby= int((maprect.y2 - by)*bres) + 3;
-  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
-  int *bmap= new int[nbmap];
-  for (i=0; i<nbmap; i++) bmap[i]= 0;
-//  int m,ib,jb,ibit,iwrd,nb;
-//  float xb[20][2], yb[20][2];
-
-  vector<int> vxstep;
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-
-  // plot wind............................................
-/*
-  glBegin(GL_LINES);
-
-  //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
-  //poptions.density!=auto and proj=geographic
-  bool adjustToLatLon = poptions.density
-      && fields[0]->area.P().isGeographic()
-      && step > 0;
-  if(adjustToLatLon) iy1 = (iy1/step)*step;
-
-  glVertex2f(ix1,iy1);
-  glVertex2f(ix2,iy1);
-
-  glEnd();
-
-  UpdateOutput();
-*/
-  // plot numbers.................................................
-
-  float *amount= fields[0]->data;
-  float *base= fields[1]->data;
-  float *top= fields[2]->data;
-  float *height= fields[3]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = g;ridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float gx,gy,d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int ipos1,value;
-  float x1,x2,y1,y2,w,h;
-  int ivx=0;
-  float min = poptions.base;
-
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if(amount[i]>min) {
-        // Amount
-        if (amount[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (amount[i]>=0.0f) ? int(amount[i]+0.5f) : int(amount[i]-0.5f);
-          ostringstream ostr;
-          ostr<<value;
-          ostr<<"  ";
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 5;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            glColor3ubv(poptions.textcolour.RGB());
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-        glColor3ubv(BlackC.RGB());
-
-        // Base
-        if (base[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (base[i]>=0.0f) ? int(base[i]+0.5f) : int(base[i]-0.5f);
-          ostringstream ostr;
-          ostr<<value;
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 3;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-        // Top
-        if (top[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (top[i]>=0.0f) ? int(top[i]+0.5f) : int(top[i]-0.5f);
-          ostringstream ostr;
-          ostr<<value;
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 7;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-        // Height
-        if (height[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (height[i]>=0.0f) ? int(height[i]+0.5f) : int(height[i]-0.5f);
-          ostringstream ostr;
-          ostr<<"  ";
-          ostr<<value;
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 1;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
         // ---
-        ostringstream ostr;
-        ostr<<"----";
-        miString str= ostr.str();
-        fp->getStringSize(str.c_str(), w, h);
+        if(nfields == 5) {
+          ostringstream ostr;
+          ostr<<"----";
+          miString str= ostr.str();
+          fp->getStringSize(str.c_str(), w, h);
 
-        ipos1= 8;
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1,y1,0.0);
+          x1= gx + adx[8] + cdx[8]*w;
+          y1= gy + ady[8];
+          x2= x1 + w;
+          y2= y1 + chy;
+          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
+            fp->drawStr(str.c_str(),x1,y1,0.0);
+          }
         }
+
       }
     }
   }
 
   UpdateOutput();
 
-  delete[] bmap;
 
   glDisable(GL_LINE_STIPPLE);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotValueMaxHeight() ++" << endl;
-#endif
-  return true;
-}
-
-/*
-    ROUTINE:   FieldPlot::plotValueMaxHeightAndTemp
-    PURPOSE:   plot amount, base, top and t and ts as:
-            top    t
-    amount -----
-            base   ts
-    ALGORITHM: Fields amount(0) base(1) top(2) t(3) ts(4)
-	amount could be any heigth dependent field
- */
-
-bool FieldPlot::plotValueMaxHeightAndTemp(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotValueMaxHeightAndTemp" << endl;
-#endif
-  int n= fields.size();
-  if (n<4) return false;
-  if (!fields[0] || !fields[1] || !fields[2] || !fields[3] || !fields[4]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data || !fields[3]->data || !fields[4]->data) return false;
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-
-  //  gc.getGridPoints(fields[0]->area, area, maprect, false,
-  //      npos, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, 15, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
-
-  float fontsize= 14. * poptions.labelSize;
-
-  //fp->set(poptions.fontname,poptions.fontface,fontsize);
-  fp->set("BITMAPFONT",poptions.fontface,fontsize);
-
-  float chx,chy;
-  fp->getStringSize("000000000", chx, chy);
-
-  if (chx*1.4>sdist)
-    fp->setFontSize(fontsize*sdist/(chx*1.4));
-  else if (chy*0.8>dist)
-    fp->setFontSize(fontsize*sdist/(chy*0.8));
-
-  fp->getCharSize('0',chx,chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  //chy *= 0.75;
-
-  // bit matrix used to avoid numbers plotted across wind and numbers
-  const int nbitwd= sizeof(int)*8;
-  float bres= 1.0/(chx*0.5);
-  float bx= maprect.x1 - 2.5;
-  float by= maprect.y1 - 2.5;
-  if (bx>=0.0f) bx= float(int(bx*bres))/bres;
-  else          bx= float(int(bx*bres-1.0f))/bres;
-  if (by>=0.0f) by= float(int(by*bres))/bres;
-  else          by= float(int(by*bres-1.0f))/bres;
-  int nbx= int((maprect.x2 - bx)*bres) + 3;
-  int nby= int((maprect.y2 - by)*bres) + 3;
-  int nbmap= (nbx*nby+nbitwd-1)/nbitwd;
-  int *bmap= new int[nbmap];
-  for (i=0; i<nbmap; i++) bmap[i]= 0;
-//  int m,ib,jb,ibit,iwrd,nb;
-//  float xb[20][2], yb[20][2];
-
-  vector<int> vxstep;
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-
-  // plot wind............................................
-/*
-  glBegin(GL_LINES);
-
-  //LB: Wind arrows are adjusted to lat=10 and Lon=10 if
-  //poptions.density!=auto and proj=geographic
-  bool adjustToLatLon = poptions.density
-      && fields[0]->area.P().isGeographic()
-      && step > 0;
-  if(adjustToLatLon) iy1 = (iy1/step)*step;
-
-  glVertex2f(ix1,iy1);
-  glVertex2f(ix2,iy1);
-
-  glEnd();
-
-  UpdateOutput();
-*/
-  // plot numbers.................................................
-
-  float *amount= fields[0]->data;
-  float *base= fields[1]->data;
-  float *top= fields[2]->data;
-  float *t= fields[3]->data;
-  float *ts= fields[4]->data;
-
-  //-----------------------------------------------------------------------
-  //
-  //  -----------  standard:  (* = g;ridpunkt)
-  //  |  3   0  |  vind i kvadrant 0 => tall i kvadrant 3   (pos. 6)
-  //  |    *    |  vind i kvadrant 1 => tall i kvadrant 0   (pos. 0)
-  //  |  2   1  |  vind i kvadrant 2 => tall i kvadrant 1   (pos. 2)
-  //  -----------  vind i kvadrant 3 => tall i kvadrant 2   (pos. 4)
-  //
-  //  -----------  hvis standard-posisjon ikke kan benyttes.
-  //  |  6 7 0  |  leter en etter o.k. posisjon 8 andre steder
-  //  |  5 * 1  |  (alle 'opptatt' => benytter minst opptatte posisjon)
-  //  |  4 3 2  |  hvis vind ikke er plottet (ikke vind eller udefinert)
-  //  -----------  plottes tallet midt over grid-punktet (*, pos. 8)
-  //
-  //-----------------------------------------------------------------------
-  //
-  //..nedre venstre hj@rne for tall med 'nch' tegn:
-  //       xn = x0 + adx[ipos] + cdx[ipos] * text_width
-  //       yn = y0 + ady[ipos]
-
-  float hchy= chy*0.5;
-  float gx,gy,d= chx*0.5;
-
-  float adx[9]= {    d,   d,     d,  0.0f,    -d,   -d,   -d, 0.0f, 0.0f };
-  float cdx[9]= { 0.0f,0.0f,  0.0f, -0.5f, -1.0f,-1.0f,-1.0f,-0.5f,-0.5f };
-  float ady[9]= {    d,  -d,-d-chy,-d-chy,-d-chy,-hchy,    d,    d,-hchy };
-
-  int ipos1,value;
-  float x1,x2,y1,y2,w,h;
-  int ivx=0;
-  float min = poptions.base;
-
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if(amount[i]>min) {
-        // Amount
-        if (amount[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (amount[i]>=0.0f) ? int(amount[i]+0.5f) : int(amount[i]-0.5f);
-          ostringstream ostr;
-          ostr<<value;
-          ostr<<"  ";
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 5;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            glColor3ubv(poptions.textcolour.RGB());
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-        glColor3ubv(BlackC.RGB());
-
-        // Base
-        if (base[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (base[i]>=0.0f) ? int(base[i]+0.5f) : int(base[i]-0.5f);
-          ostringstream ostr;
-          ostr<<value;
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 3;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-        // Top
-        if (top[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (top[i]>=0.0f) ? int(top[i]+0.5f) : int(top[i]-0.5f);
-          ostringstream ostr;
-          ostr<<value;
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 7;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-        // Temperature at level
-        if (t[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (t[i]>=0.0f) ? int(t[i]+0.5f) : int(t[i]-0.5f);
-          ostringstream ostr;
-          ostr<<"  ";
-          ostr<<value;
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 0;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-		// Temperature at surface
-        if (ts[i]!=fieldUndef && maprect.isinside(gx,gy)){
-          value= (ts[i]>=0.0f) ? int(ts[i]+0.5f) : int(ts[i]-0.5f);
-          ostringstream ostr;
-          ostr<<"  ";
-          ostr<<value;
-          miString str= ostr.str();
-          fp->getStringSize(str.c_str(), w, h);
-
-          ipos1= 2;
-          x1= gx + adx[ipos1] + cdx[ipos1]*w;
-          y1= gy + ady[ipos1];
-          x2= x1 + w;
-          y2= y1 + chy;
-          if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-            fp->drawStr(str.c_str(),x1,y1,0.0);
-          }
-        }
-        // ---
-        ostringstream ostr;
-        ostr<<"----";
-        miString str= ostr.str();
-        fp->getStringSize(str.c_str(), w, h);
-
-        ipos1= 8;
-        x1= gx + adx[ipos1] + cdx[ipos1]*w;
-        y1= gy + ady[ipos1];
-        x2= x1 + w;
-        y2= y1 + chy;
-        if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
-          fp->drawStr(str.c_str(),x1,y1,0.0);
-        }
-      }
-    }
-  }
-
-  UpdateOutput();
-
-  delete[] bmap;
-
-  glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotValueMaxHeightAndTemp() ++" << endl;
+  cerr << "++ Returning from FieldPlot::plotValues() ++" << endl;
 #endif
   return true;
 }
@@ -3926,9 +1851,14 @@ bool FieldPlot::plotValueMaxHeightAndTemp(){
 //  plot vector field as arrows (wind,sea current,...)
 bool FieldPlot::plotVector(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter vector-felt.." << endl;
+  cerr << "++ Plotting vector field.." << endl;
 #endif
   int n= fields.size();
+
+  if ( n==3) {
+    return plotVectorColour();
+  }
+
   if (n<2) return false;
   if (!fields[0] || !fields[1]) return false;
 
@@ -4031,139 +1961,6 @@ bool FieldPlot::plotVector(){
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotVector() ++" << endl;
-#endif
-  return true;
-}
-
-bool FieldPlot::plotLayer(){
-#ifdef DEBUGPRINT
-  cerr << "++ Entering FieldPlot::plotLayer.." << endl;
-#endif
-  int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
-  if (!fields[0]->data || !fields[1]->data || !fields[2]->data) return false;
-
-  ///FIXME: Why does vector::size() return 0 for poptions.palettecolours???
-  /// Clearly it is not zero, since I'm accessing the vector further down in this
-  /// method (line 2749-ish). Am I blind, or is something very wrong here...?
-  //cout << "!!!!!!!!: " << poptions.palettecolours.size() << endl;
-  /*if (poptions.palettecolours.empty() != 3) {
-    cout << "FieldPlot::plotLayer() requires a palettecolours-vector of length "
-        << "three to be defined in the setup-file, see documentation." << endl;
-    return false;
-  }*/
-
-  int i,ix,iy;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  int step= poptions.density;
-
-  int autostep;
-  float dist;
-  // (easiest way of getting decent autosteps when drawing three numbers
-  // was to change MaxArrowsAuto)
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, 22/*MaxArrowsAuto*/, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  int xstep= step;
-  float gx,gy,dx,dy;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-  dx = 0.5;
-  dy = 0.5;
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  // FIXME: Adjust if needed
-  //maprect.setExtension( 0.0 );
-
-  // setup font plotting (may need "bitmap-code" from plotWindTempFL also)
-  float fontsize= 14. * poptions.labelSize;
-  float smallfontsize= 10. * poptions.labelSize;
-  fp->set("BITMAPFONT", poptions.fontface, fontsize);
-
-  float chx, chy;
-  fp->getStringSize("ps00", chx, chy);
-
-  if (chx * 1.4 > sdist)
-    fp->setFontSize(fontsize * sdist / (chx * 1.4));
-  else if (chy * 0.8 > dist)
-    fp->setFontSize(fontsize * sdist / (chy * 0.8));
-
-  fp->getCharSize('0', chx, chy);
-
-  // the real height for numbers 0-9 (width is ok)
-  chy *= 0.75;
-
-  // FIXME: Necessary?
-  //glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-  //glColor3ubv(poptions.linecolour.RGB());
-
-  float w, h;
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-    for (ix = ix1; ix < ix2; ix += xstep) {
-      if (fields[2]->data[ix + (iy * nx)] != 0) {
-        i = iy * nx + ix;
-        gx = x[i];
-        gy = y[i];
-
-        // using palettecolours instead of poptions.textcolour, since we have
-        // three "types" of text
-
-        // middle
-        glColor3ubv(poptions.palettecolours[0].RGB());
-        fp->set("BITMAPFONT", poptions.fontface, fontsize);
-        ostringstream ostr;
-        //FIXME: Should not do scaling here.
-        ostr << roundf(fields[0]->data[ix + (iy * nx)] * 0.001);
-        fp->getStringSize(ostr.str().c_str(), w, h);
-        fp->drawStr(ostr.str().c_str(), gx, gy, 0.0);
-
-        // bottom
-        glColor3ubv(poptions.palettecolours[1].RGB());
-        fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
-        ostringstream ostrBottom;
-        //FIXME: Should not do scaling here.
-        ostrBottom << roundf(fields[1]->data[ix + (iy * nx)] * 0.001);
-        fp->getStringSize(ostrBottom.str().c_str(), w, h);
-        fp->drawStr(ostrBottom.str().c_str(), gx, gy - h, 0.0);
-
-        // top
-        glColor3ubv(poptions.palettecolours[2].RGB());
-        fp->set("BITMAPFONT", poptions.fontface, smallfontsize);
-        ostringstream ostrTop;
-        //FIXME: Should not do scaling here.
-        ostrTop << roundf(fields[2]->data[ix + (iy * nx)] * 0.001);
-        fp->getStringSize(ostrTop.str().c_str(), w, h);
-        fp->drawStr(ostrTop.str().c_str(), gx, gy + h, 0.0);
-      }
-    }
-  }
-
-  UpdateOutput();
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotLayer() ++" << endl;
 #endif
   return true;
 }
@@ -4350,6 +2147,11 @@ bool FieldPlot::plotDirection(){
   cerr << "++ Plotter retnings-felt.." << endl;
 #endif
   int n= fields.size();
+
+  if ( n==2) {
+    return plotDirectionColour();
+  }
+
   if (n<1) return false;
   if (!fields[0]) return false;
 
@@ -4929,6 +2731,7 @@ bool FieldPlot::plotContour(){
 }
 
 // plot scalar field as boxes with filled with patterns (cloud)
+//not used, do not work properly
 bool FieldPlot::plotBox_pattern(){
 #ifdef DEBUGPRINT
   cerr << "++ Plotter Box_pattern-felt.." << endl;
@@ -4953,11 +2756,10 @@ bool FieldPlot::plotBox_pattern(){
       ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
-  int nxc = nx + 1;
-  int nyc = ny + 1;
+  int nxc = nx;
 
   if ( poptions.frame ) {
-    plotFrame(nxc,nyc,x,y,2,NULL);
+    plotFrame(nx,ny,x,y,2,NULL);
   }
 
   const int npattern=4;
@@ -5069,11 +2871,9 @@ bool FieldPlot::plotBox_alpha_shade(){
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
-  int nxc = nx + 1;
-  int nyc = ny + 1;
 
   if ( poptions.frame ) {
-    plotFrame(nxc,nyc,x,y,2,NULL);
+    plotFrame(nx,ny,x,y,2,NULL);
   }
 
   float cmin, cmax;
@@ -5122,22 +2922,22 @@ bool FieldPlot::plotBox_alpha_shade(){
 
         i2 = i1+1;
         // find end of cloud area
-        while (i2<ix2 && fields[0]->data[iy*nx+i2]>=cmin
+        while (i2<ix2 && fields[0]->data[iy*nx+i2]>=cmax
             && fields[0]->data[iy*nx+i2]!=fieldUndef) i2++;
 
         i2++;
         glBegin(GL_QUAD_STRIP);
 
         for (ix=i1; ix<i2; ix++) {
-          glVertex2f(x[(iy+1)*nxc+ix], y[(iy+1)*nxc+ix]);
+          glVertex2f(x[(iy+1)*nx+ix], y[(iy+1)*nx+ix]);
           if (ix>i1) {
-            alpha = (fields[0]->data[iy*nx+ix-1] - cmin) / (cmax-cmin);
+            alpha = (fields[0]->data[iy*nx+ix] - cmin) / (cmax-cmin);
             //if (fields[0]->data[iy*nx+ix-1]==fieldUndef) alpha=0.;
             //if (alpha < 0.) alpha=0.;
             //if (alpha > 1.) alpha=1.;
             glColor4f(red, green, blue, alpha);
           }
-          glVertex2f(x[iy*nxc+ix], y[iy*nxc+ix]);
+          glVertex2f(x[iy*nx+ix], y[iy*nx+ix]);
         }
         glEnd();
         i2-=2;
@@ -5183,7 +2983,6 @@ bool FieldPlot::plotAlarmBox(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   int nxc = nx + 1;
-  int nyc = ny + 1;
 
   // vmin,vmax: ok range, without alarm !!!
   float vmin= -fieldUndef;
@@ -5254,7 +3053,7 @@ bool FieldPlot::plotAlarmBox(){
   }
 
   if ( poptions.frame ) {
-    plotFrame(nxc,nyc,x,y,2,NULL);
+    plotFrame(nxc,ny+1,x,y,2,NULL);
   }
 
   glShadeModel(GL_FLAT);
@@ -5317,7 +3116,7 @@ bool FieldPlot::plotFillCell(){
 
   if (!fields[0]->data) return false;
 
-  int ix, iy;
+  if ( poptions.palettecolours.size() == 0 ) return false;
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -5330,67 +3129,71 @@ bool FieldPlot::plotFillCell(){
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
-  /* Uncomment the two lines below, and switch to true in
-   * getGradPoints() (above)
-   * to fill gridcells matching Dianas 'Gridlinjer' */
-  //++nx;
-  //++ny;
-
   glLineWidth(poptions.linewidth);
   glColor3ubv(poptions.bordercolour.RGB());
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
+  //auto -> 0
+  if ( poptions.density == 0 ) {
+    poptions.density = 10;
+  }
+
   float dx = poptions.density*(0.1) * (x[1]-x[0]);
   float dy = poptions.density*(0.1) * (y[nx]-y[0]);
 
-  if(poptions.values.empty()) {
-    cerr << "plotFillCell(): Must define values in setupfile" << endl;
-    return false;
-  }
-  // FIXME: For some frikkin reason, empty() returns true no matter what...?!
-  /*if(poptions.palettecolours.empty()) {
-    cerr << "plotFillCell(): Must define palettecolours in setupfile" << endl;
-    return false;
-  }*/
-
-  // find min/max
-  float min = poptions.values[0];
-  float max = poptions.values[0];
-  for(int unsigned i=0; i < poptions.values.size(); ++i) {
-    if(poptions.values[i] < min)
-      min = poptions.values[i];
-    if(poptions.values[i] > max)
-      max = poptions.values[i];
+  if(poptions.alpha<255){
+    for(size_t  i=0;i<poptions.palettecolours.size();i++) {
+      poptions.palettecolours[i].set(Colour::alpha,uchar_t(poptions.alpha));
+    }
   }
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBegin(GL_QUADS);
   vector<float>::iterator it;
-  for (iy=iy1; iy<iy2; iy++) {
-    for (ix = ix1; ix < ix2; ix++) {
-      float value = fields[0]->data[ix + (iy * nx)];
-      if (value >= min && value <= max) {
-        // set fillcolor of cell
-        it = find(poptions.values.begin(), poptions.values.end(), value);
-        glColor3ubv(poptions.palettecolours[it - poptions.values.begin()].RGB());
+  for (int iy=iy1; iy<=iy2; iy++) {
+    for (int ix = ix1; ix <= ix2; ix++) {
+      int xx = x[iy * nx + ix];
+      int yy = y[iy * nx + ix];
+      float fvalue = fields[0]->data[ix + (iy * nx)];
+      if (fvalue >= poptions.minvalue && fvalue <= poptions.maxvalue) {
+      int value= (fvalue>=0.0f) ? int(fvalue+0.5f) : int(fvalue-0.5f);
 
-        // center of gridcell
-        //glVertex2f(x[iy*nx+ix], y[iy*nx+ix]);
-        // lower-left corner of gridcell
-        glVertex2f(x[iy * nx + ix] - dx, y[iy * nx + ix] - dy);
+      // set fillcolor of cell
+      if(poptions.linevalues.size() == 0){
+        size_t index = 0;
+        if ( value >0) {
+          index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
+        } else{
+          index = int(-value/poptions.lineinterval)%poptions.palettecolours.size();
+        }
+        if ( value <0 && index !=0) {
+          index = poptions.palettecolours.size() - index;
+        }
+        if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
+        if (index<0) index=0;
+        glColor4ubv(poptions.palettecolours[index].RGBA());
+      } else {
+        it = find(poptions.linevalues.begin(), poptions.linevalues.end(), value);
+        glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()].RGBA());
+      }
+
+        glVertex2f(xx - dx, yy - dy);
         // lower-right corner of gridcell
-        glVertex2f(x[iy * nx + ix] + dx, y[iy * nx + ix] - dy);
+        glVertex2f(xx + dx, yy - dy);
         // upper-right corner of gridcell
-        glVertex2f(x[iy * nx + ix] + dx, y[iy * nx + ix] + dy);
+        glVertex2f(xx + dx, yy + dy);
         // upper-left corner of gridcell
-        glVertex2f(x[iy * nx + ix] - dx, y[iy * nx + ix] + dy);
+        glVertex2f(xx - dx, yy + dy);
 
       }
     }
   }
   glEnd();
+  glDisable(GL_BLEND);
 
   UpdateOutput();
 
@@ -5430,10 +3233,9 @@ bool FieldPlot::plotAlpha_shade(){
 
   float cmin, cmax;
 
-  if (poptions.valuerange.size()==2 &&
-      poptions.valuerange[0]<=poptions.valuerange[1]) {
-    cmin = poptions.valuerange[0];
-    cmax = poptions.valuerange[1];
+  if ( poptions.minvalue != -fieldUndef &&  poptions.maxvalue != fieldUndef) {
+    cmin = poptions.minvalue;
+    cmax = poptions.maxvalue;
   } else {
     //##### not nice in timeseries... !!!!!!!!!!!!!!!!!!!!!
     cmin=  fieldUndef;
@@ -5445,7 +3247,6 @@ bool FieldPlot::plotAlpha_shade(){
       }
     }
   }
-
   glShadeModel(GL_SMOOTH);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_BLEND);
@@ -5496,7 +3297,7 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     const int mapconvert,
     float *cvfield2map){
 #ifdef DEBUGPRINT
-  cerr << "++ Plot frame.." << endl;
+  cerr << "++ Plot frame.." << nx<<" : "<<ny<<endl;
 #endif
 
   if (!rgbmode) return;
@@ -6086,7 +3887,6 @@ bool FieldPlot::plotUndefined(){
   }
 
   int nxc = nx + 1;
-  //int nyc = ny + 1;
 
   if (ix1>ix2 || iy1>iy2) return false;
   if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0) return false;
@@ -6450,10 +4250,8 @@ miString FieldPlot::getTrajectoryFieldName()
 {
   miString str;
   unsigned int nf= 0;
-  if (ptype==fpt_wind)          nf= 2;
-  if (ptype==fpt_wind_colour)   nf= 3;
-  if (ptype==fpt_vector)        nf= 2;
-  if (ptype==fpt_vector_colour) nf= 3;
+  if (plottype==fpt_wind)          nf= 2;
+  if (plottype==fpt_vector)        nf= 2;
 
   if (nf>=2 && fields.size()>=nf) {
     bool ok= true;
@@ -6472,10 +4270,8 @@ miString FieldPlot::getRadarEchoFieldName()
 {
   miString str;
   unsigned int nf= 0;
-  if (ptype==fpt_wind)          nf= 2;
-  if (ptype==fpt_wind_colour)   nf= 3;
-  if (ptype==fpt_vector)        nf= 2;
-  if (ptype==fpt_vector_colour) nf= 3;
+  if (plottype==fpt_wind)          nf= 2;
+  if (plottype==fpt_vector)        nf= 2;
 
   if (nf>=2 && fields.size()>=nf) {
     bool ok= true;

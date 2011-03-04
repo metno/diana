@@ -101,7 +101,7 @@ private:
   miutil::miString fieldDiff1, fieldDiff2;
 
   // plotting parameters
-  miutil::miString ptype;       // plot-method to use
+  miutil::miString plottype;       // plot-method to use
   bool pshade;          // shaded (true) or line drawing (false)
   bool pundefined;      // mark undefined areas/values
 
@@ -118,32 +118,10 @@ private:
   // plotting methods
   bool plotWind();
   bool plotWindColour();
-  bool plotWindTempFL();
-  bool plotWindNumber();
-  bool plotWindNumberColour();
-  bool plotValueMaxHeight();
-  bool plotValueMaxHeightAndTemp();
+  bool plotWindAndValue(bool flightlevelChart=false);
   bool plotVector();
-  bool plotNumber();
-  bool plotNumberPositive();
-  bool plotNumberColour();
-
-  /**
-   * ______________
-   * |   upper    |
-   * | middle/max |
-   * |   lower    |
-   * --------------
-   * Prints three numbers vertically in each grid cell with
-   * colors according to the given 'palettecolours' vectors, where the first
-   * element is colors the middle number, the second element the
-   * bottom number, and the third element the top number.
-   * Input: Three fields: LAYER(Middle/max, lower, upper), and a
-   * 'palettecolours'-vector of length three.
-   * @return Returns true on success
-   */
-  bool plotLayer();
-
+  bool plotValue();
+  bool plotValues();
   bool plotVectorColour();
   bool plotDirection();
   bool plotDirectionColour();

@@ -65,6 +65,7 @@ class QGridLayout;
 class QSlider;
 class QSpinBox;
 class QCheckBox;
+class QRadioButton;
 
 class ToggleButton;
 class Controller;
@@ -154,8 +155,19 @@ private:
     }
   };
 
+  struct EnableWidget {
+    bool contourWidgets;
+    bool extremeWidgets;
+    bool shadingWidgets;
+    bool lineWidgets;
+    bool fontWidgets;
+    bool densityWidgets;
+    bool unitWidgets;
+  };
+
   void updateModelBoxes();
-  void disableFieldOptions(int type=0);
+  void setDefaultFieldOptions();
+  void enableWidgets(miutil::miString plottype);
   void enableFieldOptions();
   void enableType2Options(bool);
   void updateFieldOptions(const miutil::miString& name,
@@ -172,13 +184,11 @@ private:
   bool fieldDifference(const miutil::miString& str,
 		       miutil::miString& field1, miutil::miString& field2) const;
 
-  void highlightButton(QPushButton* button, bool on);
-
   void toolTips();
 
-  static vector<miutil::miString> numberList( QComboBox* cBox, float number );
+  vector<miutil::miString> numberList( QComboBox* cBox, float number );
 
-  miutil::miString baseList( QComboBox* cBox, float base, float ekv, bool onoff= false );
+  void baseList( QComboBox* cBox, float base, bool onoff= false );
 
   Controller* m_ctrl;
 
@@ -213,6 +223,8 @@ private:
 
   vector<int> countSelected;
 
+  vector<miutil::miString> plottypes;
+  map<miutil::miString, EnableWidget> enableMap;
   vector<Colour::ColourInfo> colourInfo;
   vector<ColourShading::ColourShadingInfo> csInfo;
   vector<Pattern::PatternInfo> patternInfo;
@@ -265,6 +277,7 @@ private:
   QPushButton*  historyOkButton;
   int           historyPos;
 
+  QComboBox* plottypeComboBox;
   QComboBox* colorCbox;
 
   QComboBox* lineWidthCbox;
@@ -291,19 +304,6 @@ private:
   ToggleButton* allTimeStepButton;
 
   void CreateAdvanced();
-
-  // layout
-  QVBoxLayout* v1layout;
-  QHBoxLayout* v1h4layout;
-  QGridLayout* optlayout;
-  QVBoxLayout* levellayout;
-  QHBoxLayout* idnumlayout;
-  QHBoxLayout* h4layout;
-  QHBoxLayout* h5layout;
-  QHBoxLayout* h6layout;
-
-  //toplayout
-  QVBoxLayout* vlayout;
 
 signals:
   void FieldApply();
@@ -332,6 +332,7 @@ private slots:
   void historyBack();
   void historyForward();
   void historyOk();
+  void plottypeComboBoxActivated( int index );
   void colorCboxActivated( int index );
   void lineWidthCboxActivated( int index );
   void lineTypeCboxActivated( int index );
@@ -363,7 +364,6 @@ private slots:
   void gridValueCheckBoxToggled(bool on);
   void gridLinesChanged(int value);
   //  void gridLinesMaxChanged(int value);
-  void baseoptionsActivated( int index );
   void hourOffsetChanged(int value);
   void hourDiffChanged(int value);
   void undefMaskingActivated(int index);
@@ -373,7 +373,6 @@ private slots:
   void frameCheckBoxToggled(bool on);
   void zeroLineCheckBoxToggled(bool on);
   void valueLabelCheckBoxToggled(bool on);
-  void colour1ComboBoxToggled(int index);
   void colour2ComboBoxToggled(int index);
   void tableCheckBoxToggled(bool on);
   void repeatCheckBoxToggled(bool on);
@@ -405,8 +404,6 @@ private:
   QSpinBox*  labelSizeSpinBox;
   QCheckBox* gridValueCheckBox;
   QSpinBox*  gridLinesSpinBox;
-  //  QSpinBox*  gridLinesMaxSpinBox;
-  QComboBox* baseoptionsCbox;
   QSpinBox*  hourOffsetSpinBox;
   QSpinBox*  hourDiffSpinBox;
   QComboBox* undefMaskingCbox;
@@ -415,11 +412,9 @@ private:
   QComboBox* undefLinetypeCbox;
   QCheckBox* frameCheckBox;
   QCheckBox* zeroLineCheckBox;
-  QComboBox* zeroLineColourCBox;
   QCheckBox* valueLabelCheckBox;
   QCheckBox* tableCheckBox;
   QCheckBox* repeatCheckBox;
-  //  QCheckBox* threeColoursCheckBox;
   vector<QComboBox*> threeColourBox;
   QComboBox* shadingComboBox;
   QComboBox* shadingcoldComboBox;
@@ -440,8 +435,6 @@ private:
   QComboBox* linewidth2ComboBox;
   QComboBox* linetype1ComboBox;
   QComboBox* linetype2ComboBox;
-  QComboBox* type1ComboBox;
-  QComboBox* type2ComboBox;
   FieldColourDialog* colourLineDialog;
 
   vector<miutil::miString> undefMasking;

@@ -77,7 +77,7 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
   const miString key_fieldgroup = "fieldgroup";
   const miString key_plot = "plot";
 
-  const miString key_plottype = "ftype";
+  const miString key_plottype = "plottype";
 
   //   if (!sp.getSection(section,lines)) {
   //     cerr<<"Missing section "<< section<<" in setupfile."<<endl;
@@ -167,7 +167,6 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
               key = vstr[j].downcase();
               if (key == key_plot && vstr[j + 1] == "=" && j < nv - 3) {
                 option = key_plottype + "=" + vstr[j + 2];
-
                 if (!PlotOptions::updateFieldPlotOptions(name, option)) {
                   miString errm = "|Unknown fieldplottype in plotcommand";
                   sp.errorMsg(sect_name, i, errm);
@@ -180,6 +179,12 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
                   miString errm = "Bad specification of plot arguments";
                   sp.errorMsg(sect_name, i, errm);
                   break;
+                }
+                option = "dimension=" + miString(int(input.size()));
+                if (!PlotOptions::PlotOptions::updateFieldPlotOptions(name, option)){
+                  miString errm = "|Unknown fieldplottype in plotcommand";
+                                    sp.errorMsg(sect_name, i, errm);
+                                    break;
                 }
                 for (unsigned int k = 0; k < input.size(); k++) {
                   input[k] = input[k].downcase();
