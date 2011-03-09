@@ -59,11 +59,23 @@ void FieldPlotManager::getAllFieldNames(vector<miString>& fieldNames)
 bool FieldPlotManager::parseSetup(SetupParser &sp)
 {
 
+  if ( !parseFieldPlotSetup(sp) ) {
+    return false;
+  }
+  if ( !parseFieldGroupSetup(sp) ) {
+    return false;
+  }
+  return true;
+}
+
+bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
+{
+
   //   cerr <<"bool FieldPlotManager::parseSetup"<<endl;
 
   fieldManager->getPrefixandSuffix(fieldprefixes, fieldsuffixes);
 
-  const miString sect_name = "FIELD_PLOT";
+  miString sect_name = "FIELD_PLOT";
   vector<miString> lines;
 
   if (!sp.getSection(sect_name, lines)) {
@@ -239,6 +251,38 @@ bool FieldPlotManager::parseSetup(SetupParser &sp)
       loopname.clear();
       loopvars.clear();
       waiting = true;
+    }
+  }
+
+}
+
+bool FieldPlotManager::parseFieldGroupSetup(SetupParser &sp)
+{
+
+  miString sect_name = "FIELD_GROUPS";
+  vector<miString> lines;
+
+  if (!sp.getSection(sect_name, lines)) {
+    cerr << sect_name << " section not found" << endl;
+    return true;
+  }
+
+  const miString key_name = "name";
+  const miString key_group = "group";
+
+  int nlines = lines.size();
+
+    for (int l = 0; l < nlines; l++) {
+    vector<miString> tokens= lines[l].split('"','"');
+    if ( tokens.size()== 2 ) {
+      vector<miString> stokens= tokens[0].split('"','"',"=",true);
+      if (stokens.size() == 2 && stokens[0] == key_name ){
+        miString name = stokens[1];
+        stokens= tokens[1].split('"','"',"=",true);
+        if (stokens.size() == 2 && stokens[0] == key_group ){
+          groupNames[stokens[1]] = name;
+        }
+      }
     }
   }
 
@@ -531,12 +575,13 @@ vector<miTime> FieldPlotManager::getFieldTime(
     miString suffix;
     splitSuffix(plotName, suffix);
     if (!mapPlotField.count(plotName)) {
-      return vtime;
-    }
-    for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
-      miString fieldName = mapPlotField[plotName].input[i].downcase();
-      fieldName += suffix;
-      request[j].fieldName = fieldName;
+      request[j].fieldName = plotName;
+    } else {
+      for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
+        miString fieldName = mapPlotField[plotName].input[i].downcase();
+        fieldName += suffix;
+        request[j].fieldName = fieldName;
+      }
     }
   }
   return fieldManager->getFieldTime(request, allTimeSteps, constTimes);
@@ -859,10 +904,20 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
     miString& modelName, miTime refTime, vector<FieldGroupInfo>& vfgi)
 {
+
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 
+  size_t nvfgi = vfgi.size();
   //replace fieldnames with plotnames
-  for (unsigned int i = 0; i < vfgi.size(); i++) {
+  for (size_t i = 0; i < nvfgi; i++) {
+
+    //Make copy with filed names from file
+    vfgi.push_back(vfgi[i]);
+
+    //use groupname from setup if defined
+    if ( groupNames.count(vfgi[i].groupName)) {
+      vfgi[i].groupName = groupNames[vfgi[i].groupName];
+    }
 
     //sort fieldnames and suffixes
     map<miString, vector<miString> > fieldName_suffix;
@@ -870,6 +925,11 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
       miString suffix;
       miString fieldName = vfgi[i].fieldNames[l];
       splitSuffix(fieldName, suffix);
+      fieldName_suffix[fieldName].push_back(suffix);
+    }
+    for (unsigned int l = 0; l < vfgi[i].standard_names.size(); l++) {
+      miString suffix;
+      miString fieldName = vfgi[i].standard_names[l];
       fieldName_suffix[fieldName].push_back(suffix);
     }
 
@@ -1012,10 +1072,12 @@ bool FieldPlotManager::parsePin( std::string& pin,
 
   std::locale::global(std::locale("C"));
 
+//If plotName not defined, use plotName as fieldName
   if (!mapPlotField.count(plotName)) {
-    cerr <<"FieldPlotManager::parsePin: Parameter:"<<plotName<<" not defined i setup"<<endl;
-    return false;
+    paramName.push_back(plotName);
+    return true;
   }
+
   for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
     std::string fName = boost::algorithm::to_lower_copy(std::string(mapPlotField[plotName].input[i]));
     fName += suffix;

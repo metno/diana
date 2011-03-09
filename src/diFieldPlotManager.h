@@ -66,6 +66,8 @@ public:
 
   /// read setup section for field plots
   bool parseSetup(SetupParser& sp);
+  bool parseFieldPlotSetup(SetupParser& sp);
+  bool parseFieldGroupSetup(SetupParser& sp);
 
   bool makeDifferenceField(const miutil::miString& fspec1,
       const miutil::miString& fspec2, const miutil::miTime& ptime,
@@ -125,6 +127,7 @@ private:
       std::string& run,  int & time_tolerance,
       int& hourOffset,
       int& refhour, int& refoffset);
+      map<miutil::miString, miutil::miString> groupNames;
 
   FieldManager* fieldManager;
 
