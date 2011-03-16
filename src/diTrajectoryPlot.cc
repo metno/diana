@@ -651,7 +651,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     fu1->convertToGrid(npos,sx,sy);
 
     // check if inside area and not in undefined area of the fields
-    int interpoltype= 1;
+    int interpoltype= 101;
     fu1->interpolate(npos, sx, sy, su, interpoltype);
     fv1->interpolate(npos, sx, sy, sv, interpoltype);
 
@@ -826,7 +826,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     for (int iter=0; iter<=numIterations; iter++) {
       //cerr<<"   iter: "<<iter<<endl;
 
-      int interpoltype= 1;
+      int interpoltype= 101;
       fu1->interpolate(numTraj, xt, yt, u1, interpoltype);
       fv1->interpolate(numTraj, xt, yt, v1, interpoltype);
       fu2->interpolate(numTraj, xt, yt, u2, interpoltype);
