@@ -1110,9 +1110,9 @@ void PlotModule::updatePlots()
     vtp[0]->prepare();
 
     if (vtp[0]->inComputation()) {
-      miString fieldname = vtp[0]->getFieldName();
+      miString fieldname = vtp[0]->getFieldName().downcase();
       int i = 0, n = vfp.size();
-      while (i < n && vfp[i]->getTrajectoryFieldName() != fieldname)
+      while (i < n && vfp[i]->getTrajectoryFieldName().downcase() != fieldname)
         i++;
       if (i < n) {
         vector<Field*> vf = vfp[i]->getFields();
@@ -3183,11 +3183,11 @@ bool PlotModule::startTrajectoryComputation()
   if (vtp.size() < 1)
     return false;
 
-  miString fieldname = vtp[0]->getFieldName();
+  miString fieldname = vtp[0]->getFieldName().downcase();
 
   int i = 0, n = vfp.size();
 
-  while (i < n && vfp[i]->getTrajectoryFieldName() != fieldname)
+  while (i < n && vfp[i]->getTrajectoryFieldName().downcase() != fieldname)
     i++;
   if (i == n)
     return false;
