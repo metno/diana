@@ -53,9 +53,9 @@ xratio=0.31 yratio=0.35
 
 
 MAP area=NyttSigkart4 backcolour=white map==Euro1 contour=on \
-cont.colour=grey50 cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
+cont.colour=grey25 cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
 land=off latlon=off frame=on
-MAP map=Riksgrense contour=on cont.colour=grey50 cont.linewidth=1\
+MAP map=Riksgrense contour=on cont.colour=grey25 cont.linewidth=1\
 cont.linetype=solid cont.zorder=1 land=off latlon=on \
 latlon.colour=grey90 \
 latlon.linewidth=1 latlon.linetype=solid latlon.density=15 \

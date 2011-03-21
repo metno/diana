@@ -1881,18 +1881,26 @@ void FieldDialog::enableFieldOptions()
     i = 0;
     while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
       i++;
-    if (i == nr_colors) i=0;
-    updateFieldOptions("colour_2", colourInfo[i].name);
-    colour2ComboBox->setCurrentIndex(i + 1);
+    if (i == nr_colors) {
+      updateFieldOptions("colour_2", "off");
+      colour2ComboBox->setCurrentIndex(0);
+    } else {
+      updateFieldOptions("colour_2", colourInfo[i].name);
+      colour2ComboBox->setCurrentIndex(i + 1);
+    }
   }
 
   if ((nc = cp->findKey(vpcopt, "colour")) >= 0) {
     i = 0;
     while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
       i++;
-    if (i == nr_colors) i=0;
-    updateFieldOptions("colour", colourInfo[i].name);
-    colorCbox->setCurrentIndex(i + 1);
+    if (i == nr_colors) {
+      updateFieldOptions("colour", "off");
+      colorCbox->setCurrentIndex(0);
+    } else {
+      updateFieldOptions("colour", colourInfo[i].name);
+      colorCbox->setCurrentIndex(i + 1);
+    }
   }
 
   // 3 colours

@@ -4578,11 +4578,11 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     vcMovement(cdata2d[no1], cdata2d[no2], cdata2d[npp], cdata2d[nx],
         cdata2d[ny], partwind, ylim, hours, hstepAuto, windlevel, poptions);
 
-  } else if (vcf->second.plotType == vcpt_vt_w && vcoordPlot == vcv_height) {
+  } else if (vcf->second.plotType == vcpt_vt_w && vcoordPlot == vcv_exner) {
 
     float hours = poptions.vectorunit;
 
-    vcMovement(cdata2d[no1], cdata2d[no2], NULL,
+    vcMovement(cdata2d[no1], cdata2d[no2],cdata2d[npp] ,
     cdata2d[nx], cdata2d[ny], partwind, ylim, hours, hstepAuto, windlevel,
         poptions);
 
