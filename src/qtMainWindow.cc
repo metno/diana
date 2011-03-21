@@ -4026,6 +4026,8 @@ vector<miutil::miString> DianaMainWindow::writeLog(const miutil::miString& thisV
   vstr.push_back(str);
   str= "ObjectDialog.pos " + miutil::miString(objm->x()) + " " + miutil::miString(objm->y());
   vstr.push_back(str);
+  str= "TrajectoryDialog.pos " + miutil::miString(trajm->x()) + " " + miutil::miString(trajm->y());
+  vstr.push_back(str);
   str= "Textview.size "   + miutil::miString(textview->width()) + " " + miutil::miString(textview->height());
   vstr.push_back(str);
   str= "Textview.pos "  + miutil::miString(textview->x()) + " " + miutil::miString(textview->y());
@@ -4124,7 +4126,8 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
         else if (tokens[0]=="SatDialog.pos")   sm->move(x,y);
         else if (tokens[0]=="MapDialog.pos")   mm->move(x,y);
         else if (tokens[0]=="EditDialog.pos")  em->move(x,y);
-        else if (tokens[0]=="ObjectDialog.pos")objm->move(x,y);
+        else if (tokens[0]=="ObjectDialog.pos") objm->move(x,y);
+        else if (tokens[0]=="TrajectoryDialog.pos") trajm->move(x,y);
         else if (tokens[0]=="Textview.size")   textview->resize(x,y);
         else if (tokens[0]=="Textview.pos")    textview->move(x,y);
       }
