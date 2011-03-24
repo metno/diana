@@ -58,8 +58,9 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
     // Try without double-buffering
     fmt.setDoubleBuffer(false);
     glw->setFormat( fmt );
-    if ( !glw->isValid() )
-      qFatal("Failed to create OpenGL rendering context on this display");
+    if ( !glw->isValid() ){
+      qCritical("Failed to create OpenGL rendering context on this display");
+    }
   }
   glw->setMinimumSize( 300, 200 );
   
