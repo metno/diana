@@ -2146,9 +2146,8 @@ int parseAndProcess(istream &is)
         if (buffermade && qpbuffer) {
           delete qpbuffer;
         }
-cerr <<"++++++++++++++FORMAT????"<<endl;
+
         QGLFormat format = QGLFormat::defaultFormat();
-        format.setRgba(true);
         //TODO: any specific format specifications?
         qpbuffer = new QGLPixelBuffer(xsize, ysize, format, 0);
 
@@ -2157,7 +2156,7 @@ cerr <<"++++++++++++++FORMAT????"<<endl;
           // delete old pixmaps
           if (buffermade && qfbuffer) {
             delete qfbuffer;
-      }
+          }
 
           //TODO -- need to set more format attributes than set in the qtwidget context?
           //GLenum target = GL_TEXTURE_2D;
@@ -2437,14 +2436,14 @@ int main(int argc, char** argv)
   int ac = 1;
   while (ac < argc) {
     sarg = argv[ac];
-    //cerr << "Checking arg:" << sarg << endl;
+    cerr << "Checking arg:" << sarg << endl;
 
-    if (sarg == "-display") {
+    if (sarg == "-dissplay") {
       ac++;
       if (ac >= argc)
         printUsage(false);
       xhost = argv[ac];
-
+cerr <<"DEF xhost:"<<xhost<<endl;
     } else if (sarg == "-input" || sarg == "-i") {
       ac++;
       if (ac >= argc)
@@ -2554,6 +2553,17 @@ int main(int argc, char** argv)
     ac++;
   } // command line parameters
 
+//  cerr <<"Start QAPP"<<endl;
+//  dpy = XOpenDisplay(xhost.cStr());
+//  if (!dpy) {
+//    cerr << "ERROR, could not open X-display:" << xhost<<endl;
+//    return 1;
+//  }
+//
+//  application = new QApplication(dpy,argc, argv);
+  cerr <<"xhost:"<<xhost<<endl;
+  FontManager::set_display_name(xhost);
+
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
@@ -2584,45 +2594,45 @@ int main(int argc, char** argv)
 #endif
 
   if (canvasType == qt_glpixelbuffer) {
+    cerr <<"qt_glpixelbuffer"<<endl;
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
-      COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
+    	COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
       return 1;
     }
   } else if (canvasType == qt_glframebuffer) {
-    if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
-      cerr << "This system does not support OpenGL framebuffers." << endl;
-      return 1;
-    } else {
-      //Create QGL widget as a rendering context
+	if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
+	  cerr << "This system does not support OpenGL framebuffers." << endl;
+	  return 1;
+	} else {
+	  //Create QGL widget as a rendering context
       QGLFormat format = QGLFormat::defaultFormat();
       format.setAlpha(true);
       format.setDirectRendering(true);
       if (use_double_buffer) {
-        format.setDoubleBuffer(true);
+    	format.setDoubleBuffer(true);
       }
-      //#ifdef DEBUG
+#ifdef DEBUG
       cout << "format.rgba() = " << format.rgba() << endl;
       cout << "format.alpha() = " << format.alpha() << endl;
       cout << "format.directRendering() = " << format.directRendering() << endl;
       cout << "format.doubleBuffer() = " << format.doubleBuffer() << endl;
-      //#endif
+#endif
       qwidget = new QGLWidget(format);
       qwidget->makeCurrent();
 
       //qwidget->doneCurrent(); // Probably not needed qwidget is deleted furthher down in the code
 
-    }
+	}
   }
 
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
 #ifdef USE_XLIB
-    cerr <<"XHOST:"<<xhost<<endl;
     // prepare font-pack for display
     FontManager::set_display_name(xhost);
 
     dpy = XOpenDisplay(xhost.cStr());
     if (!dpy) {
-      COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
+    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
       return 1;
     }
 #endif

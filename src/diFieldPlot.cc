@@ -159,6 +159,7 @@ bool FieldPlot::prepare(const miString& pin)
     return false;
 
   poptions.fillFieldPlotOptions(fname,pin,poptions);
+
   plottype= poptions.plottype;
 
 #ifdef DEBUGPRINT
@@ -853,14 +854,14 @@ bool FieldPlot::plotWind(){
           // 10-knot flags
           for (n=0; n<n10; n++) {
             glVertex2f(gx,gy);
-            glVertex2f(gx+dxf,gy-dyf);
+            glVertex2f(gx+dxf,gy+dyf);
             gx+=dx; gy+=dy;
           }
           // 5-knot flag
           if (n05>0) {
             if (n50+n10==0) { gx+=dx; gy+=dy; }
             glVertex2f(gx,gy);
-            glVertex2f(gx+hflagw*dxf,gy-hflagw*dyf);
+            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
           }
         }
       }
@@ -2577,15 +2578,6 @@ bool FieldPlot::plotContour(){
   iwid2[0] = -1;
   nlim2 = 0;
   rlim2[0] = 0.;
-
-  if(poptions.linetypes.size() == 0 ) {
-    poptions.linetypes.push_back(poptions.linetype);
-  }
-
-  if(poptions.linewidths.size() == 0 ) {
-    poptions.linewidths.push_back(poptions.linewidth);
-  }
-
 
   ismooth = poptions.lineSmooth;
   if (ismooth<0) ismooth=0;
