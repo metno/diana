@@ -469,6 +469,7 @@ common_cppflags += \
 	$(QUTILITIES_CPPFLAGS) \
 	$(ROBS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
+	$(CURL_CPPFLAGS) \
 	$(PNG_CPPFLAGS) \
 	$(UU_CPPFLAGS)
 
@@ -484,6 +485,7 @@ common_ldflags += \
 	$(QUTILITIES_LDFLAGS) \
 	$(ROBS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
+	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
 	$(UU_LDFLAGS)
 
@@ -499,6 +501,7 @@ common_ldadd += \
 	$(QUTILITIES_LIBS) \
 	$(ROBS_LIBS) \
 	$(SHP_LIBS) \
+	$(CURL_LIBS) \
 	$(PNG_LIBS) \
 	$(UU_LIBS)
 
