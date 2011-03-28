@@ -112,18 +112,26 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
   //No need for XYLIMIT
 
   if (tokens[0] == "AREA"){
-    if ( n==2 ) {
-      stokens= tokens[1].split('=');
-      if (stokens.size()==2 &&  stokens[0].upcase()=="AREANAME") {
-          mapm.getMapAreaByName(stokens[1], newarea);
-          areadefined = true;
-          reqarea= newarea;
-      }
-    } else {
+    if(pinfo.contains("proj4string=") && pinfo.contains("rectangle") ) {
       if ( reqarea.setAreaFromString(pinfo) ) {
         areadefined = true;
-	xyLimit.clear();
+        xyLimit.clear();
       }
+    } else {
+
+        for ( int i = 0; i < n; ++i ) {
+          stokens= tokens[i].split('=');
+          if (stokens.size()==2 &&  stokens[0] == "areaname") {
+            mapm.getMapAreaByName(stokens[1], newarea);
+            areadefined = true;
+            reqarea= newarea;
+          } else if (stokens.size()==2 &&  stokens[0] == "rectangle") {
+            Rectangle r;
+            if( r.setRectangle(stokens[1],false) ) {
+              reqarea.setR(r);
+            }
+          }
+        }
     }
 
   } else if (tokens[0] == "MAP"){
