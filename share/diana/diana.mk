@@ -153,6 +153,9 @@ dist_markers_DATA= share/diana/images/markers/x.xpm \
 	share/diana/images/markers/cc_blue.xpm \
 	share/diana/images/markers/cc_blue_trend.xpm \
 	share/diana/images/markers/cc_blue_obs.xpm \
+	share/diana/images/markers/cc_black.xpm \
+	share/diana/images/markers/cc_black_trend.xpm \
+	share/diana/images/markers/cc_black_obs.xpm \
 	share/diana/images/markers/cc_amber.xpm \
 	share/diana/images/markers/cc_amber_trend.xpm \
 	share/diana/images/markers/cc_amber_obs.xpm 

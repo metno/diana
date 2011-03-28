@@ -1,5 +1,5 @@
 /* XPM */
-static char * cc_default_xpm[] = {
+static char * cc_black_xpm[] = {
 "17 17 4 1",
 " 	c None",
 ".	c #3F270C",
