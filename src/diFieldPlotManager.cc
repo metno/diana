@@ -254,6 +254,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
     }
   }
 
+  return true;
 }
 
 bool FieldPlotManager::parseFieldGroupSetup(SetupParser &sp)
