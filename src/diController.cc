@@ -101,17 +101,16 @@ void Controller::setColourIndices(vector<Colour::ColourInfo>& vc){
   }
 }
 
-
+bool Controller::restartFontManager()
+{
+  Plot::restartFontManager();
+}
 
 // parse setup
 bool Controller::parseSetup()
 {
-  // init fontpacks (fontpath from setupparser)
-  Plot::afterSetup();
 
-  // Only one of these parts needed to make diana work
-  // and without any the map may be shown !
-  // Missing part not allowed now ?????????????????????????????????
+  Plot::initFontManager();
 
   //Parse field sections
   vector<miString> fieldSubSect = fieldm->subsections();
@@ -131,7 +130,7 @@ bool Controller::parseSetup()
     setupParser.errorMsg(token[0],atoi(token[1].cStr()),token[2]);
   }
 
-  //parse fielPlotSetup
+  //parse some setup sections
   if (!fieldplotm->parseSetup(setupParser)) return false;
   fieldm->setFieldNames(fieldplotm->getFields());
   if (!obsm->parseSetup(setupParser)) return false;
@@ -144,10 +143,6 @@ bool Controller::parseSetup()
 
   ImageGallery ig;
   ig.parseSetup(setupParser);
-//   if (!ig.parseSetup(setupParser)) return false;
-
-  //setupParser."cleanup()"; // clear stuff not needed later ??????
-
 
   return true;
 }

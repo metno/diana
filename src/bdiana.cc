@@ -2152,6 +2152,8 @@ int parseAndProcess(istream &is)
         qpbuffer = new QGLPixelBuffer(xsize, ysize, format, 0);
 
         qpbuffer->makeCurrent();
+        main_controller->restartFontManager();
+
       } else if (canvasType == qt_glframebuffer) {
           // delete old pixmaps
           if (buffermade && qfbuffer) {
@@ -2420,12 +2422,11 @@ int main(int argc, char** argv)
 
   application = new QApplication(argc, argv);
 
-#ifdef USE_XLIB
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
-  if (ctmp)
-  xhost = ctmp;
-#endif
+  if (ctmp) {
+    xhost = ctmp;
+  }
 
   // check command line arguments
   if (argc < 2) {
@@ -2438,13 +2439,8 @@ int main(int argc, char** argv)
     sarg = argv[ac];
     cerr << "Checking arg:" << sarg << endl;
 
-    if (sarg == "-dissplay") {
-      ac++;
-      if (ac >= argc)
-        printUsage(false);
-      xhost = argv[ac];
-cerr <<"DEF xhost:"<<xhost<<endl;
-    } else if (sarg == "-input" || sarg == "-i") {
+
+    if (sarg == "-input" || sarg == "-i") {
       ac++;
       if (ac >= argc)
         printUsage(false);
@@ -2553,15 +2549,7 @@ cerr <<"DEF xhost:"<<xhost<<endl;
     ac++;
   } // command line parameters
 
-//  cerr <<"Start QAPP"<<endl;
-//  dpy = XOpenDisplay(xhost.cStr());
-//  if (!dpy) {
-//    cerr << "ERROR, could not open X-display:" << xhost<<endl;
-//    return 1;
-//  }
-//
-//  application = new QApplication(dpy,argc, argv);
-  cerr <<"xhost:"<<xhost<<endl;
+  // prepare font-pack for display
   FontManager::set_display_name(xhost);
 
   if (!batchinput.empty() && !batchinput.exists())
@@ -2611,12 +2599,6 @@ cerr <<"DEF xhost:"<<xhost<<endl;
       if (use_double_buffer) {
     	format.setDoubleBuffer(true);
       }
-#ifdef DEBUG
-      cout << "format.rgba() = " << format.rgba() << endl;
-      cout << "format.alpha() = " << format.alpha() << endl;
-      cout << "format.directRendering() = " << format.directRendering() << endl;
-      cout << "format.doubleBuffer() = " << format.doubleBuffer() << endl;
-#endif
       qwidget = new QGLWidget(format);
       qwidget->makeCurrent();
 
@@ -2627,8 +2609,6 @@ cerr <<"DEF xhost:"<<xhost<<endl;
 
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
 #ifdef USE_XLIB
-    // prepare font-pack for display
-    FontManager::set_display_name(xhost);
 
     dpy = XOpenDisplay(xhost.cStr());
     if (!dpy) {

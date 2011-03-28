@@ -101,8 +101,11 @@ public:
   // Equality operator
   bool operator==(const Plot &rhs) const;
 
-  /// some init after setup is read
-  static void afterSetup();
+  /// init fonts
+  static void initFontManager();
+
+  /// kill current FontManager, start new and init
+  static void restartFontManager();
 
   /// plot
   virtual bool plot(){return false; }

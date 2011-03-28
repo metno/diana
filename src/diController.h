@@ -103,10 +103,10 @@ public:
   ~Controller();
 
   EditManager*   getEditManager()   { return editm; };
-//  GridEditManager* getGridEditManager()   { return gridm; };
   ObjectManager* getObjectManager() { return objm; };
   FieldManager* getFieldManager() { return fieldm; };
-
+  /// init static FontManager in class Plot
+  bool restartFontManager();
   /// parse setup
   bool parseSetup();
   /// set new plotcommands

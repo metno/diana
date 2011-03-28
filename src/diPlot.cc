@@ -66,7 +66,6 @@ vector<float> Plot::xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
 // Default constructor
 Plot::Plot()
   : enabled(true),datachanged(true),rgbmode(true){
-
   if (!fp) fp= new FontManager();
 }
 
@@ -75,9 +74,20 @@ bool Plot::operator==(const Plot &rhs) const{
   return false;
 }
 
-// some init after setup is read
-void Plot::afterSetup(){
+void Plot::initFontManager(){
+
   if (fp) fp->parseSetup( setup );
+
+}
+
+void Plot::restartFontManager(){
+
+  if (fp) {
+    delete fp;
+  }
+  fp = new FontManager();
+  if (fp) fp->parseSetup( setup );
+
 }
 
 void Plot::enable(const bool f){
@@ -85,6 +95,7 @@ void Plot::enable(const bool f){
 }
 
 bool Plot::setMapArea(const Area& a, bool keepcurrentarea){
+
   if (a.P().isDefined()){
     // change plot-Area
     area= a;
