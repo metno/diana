@@ -2420,8 +2420,7 @@ int main(int argc, char** argv)
   int port;
   milogger::LogHandler * plog = NULL;
 
-  application = new QApplication(argc, argv);
-
+ 
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
   if (ctmp) {
@@ -2437,10 +2436,15 @@ int main(int argc, char** argv)
   int ac = 1;
   while (ac < argc) {
     sarg = argv[ac];
-    cerr << "Checking arg:" << sarg << endl;
+//    cerr << "Checking arg:" << sarg << endl;
 
+    if (sarg == "-display") {
+      ac++;
+      if (ac >= argc)
+        printUsage(false);
+      xhost = argv[ac];
 
-    if (sarg == "-input" || sarg == "-i") {
+    } else if (sarg == "-input" || sarg == "-i") {
       ac++;
       if (ac >= argc)
         printUsage(false);
@@ -2549,8 +2553,11 @@ int main(int argc, char** argv)
     ac++;
   } // command line parameters
 
+
   // prepare font-pack for display
   FontManager::set_display_name(xhost);
+
+  application = new QApplication(argc, argv);
 
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
