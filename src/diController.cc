@@ -101,7 +101,7 @@ void Controller::setColourIndices(vector<Colour::ColourInfo>& vc){
   }
 }
 
-bool Controller::restartFontManager()
+void  Controller::restartFontManager()
 {
   Plot::restartFontManager();
 }

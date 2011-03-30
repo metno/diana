@@ -106,7 +106,7 @@ public:
   ObjectManager* getObjectManager() { return objm; };
   FieldManager* getFieldManager() { return fieldm; };
   /// init static FontManager in class Plot
-  bool restartFontManager();
+  void restartFontManager();
   /// parse setup
   bool parseSetup();
   /// set new plotcommands
