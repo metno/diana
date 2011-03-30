@@ -91,12 +91,6 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
 
   const miString key_plottype = "plottype";
 
-  //   if (!sp.getSection(section,lines)) {
-  //     cerr<<"Missing section "<< section<<" in setupfile."<<endl;
-  //     return false;
-  //   }
-
-
   // parse setup
 
   int nlines = lines.size();
@@ -909,11 +903,14 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 
   size_t nvfgi = vfgi.size();
+
   //replace fieldnames with plotnames
   for (size_t i = 0; i < nvfgi; i++) {
 
     //Make copy with filed names from file
-    vfgi.push_back(vfgi[i]);
+    if(fieldManager->isGridCollection(modelNameRequest)) {
+      vfgi.push_back(vfgi[i]);
+    }
 
     //use groupname from setup if defined
     if ( groupNames.count(vfgi[i].groupName)) {
