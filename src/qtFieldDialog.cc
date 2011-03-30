@@ -1586,9 +1586,9 @@ void FieldDialog::updateIdnum()
 
 void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 {
-//#ifdef DEBUGPRINT
+#ifdef DEBUGPRINT
   cerr<<"FieldDialog::fieldboxChanged called:"<<fieldbox->count()<<endl;
-//#endif
+#endif
 
   if (!fieldGRbox->count())
     return;
