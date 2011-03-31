@@ -1967,8 +1967,12 @@ void DianaMainWindow::spectrumMenu()
 void DianaMainWindow::info_activated(QAction *action)
 {
   if (action && infoFiles.count(action->text().toStdString())){
-    TextDialog* td= new TextDialog(this, infoFiles[action->text().toStdString()]);
-    td->show();
+    if ( infoFiles[action->text().toStdString()].filename.contains("http") ) {
+      QDesktopServices::openUrl(QUrl(infoFiles[action->text().toStdString()].filename.c_str()));
+    } else {
+      TextDialog* td= new TextDialog(this, infoFiles[action->text().toStdString()]);
+      td->show();
+    }
   }
 }
 
