@@ -37,7 +37,7 @@
 	      <b>Field group</b> - when a field group is chosen, the available fields 
 	    are shown.</li>
 	    <li>
-	      <b>Field</b> - when a field is chosen it will appear in "Selected fields".</li>
+	      <b>Field</b> - when a field is chosen, it will appear in "Selected fields".</li>
 	    <li>
 	      <b>Selected fields</b> - shows which fields have been chosen.&nbsp;<br><br>
 	      <img SRC="fieldbuttons1.png" ALT="Field buttons"></li>
@@ -93,6 +93,10 @@
       <li>
   The horizontal slider shows EPS cluster, member, or other type depending on the field group.</li>
       <li>
+  Plot type - change plot method (contour, value, vector, etc). Note
+  that some of the methods can only be used with 2- or 3-dimentional fields
+  (Wind, vewctor)
+      <li>
   Line colour - change colour of the contour lines for selected fields. If "off" is 
   chosen, no contour lines are shown.
       <li>
@@ -107,8 +111,6 @@
   Density - change density of wind/vectors for selected field.</li>
       <li>
   Unit - change unit (length) of wind-arrow/current/vector for selected field.</li>
-      <li>
-  Min, max - choose whether to show L/H or C/W for extreme points in selected field.&nbsp;</li>
       <li>
 	<b>All timesteps</b> is used to show all times when at least one of the two 
 	selected fields exist. Otherwise only times when all fields exist are 
@@ -137,10 +139,17 @@
 
 	      <td>
 	  <ul>
+	      <li>
+		Min, max - choose whether to show L/H, C/W or value for extreme points in selected field.&nbsp;</li>
 	    <li>
 	      Min, max size - size of marking (L/H, C/W).</li>
 	    <li>
 	      Min, max radius - search radius, will change the number of L/H, C/W shown.</li>
+	    <li>
+	    	Grid lines in selected resolution (1=all) shows lines along constant x 
+	    	and y axis.</li>
+	    <li>
+	    	Grid value - shows the grid values when zooming in.</li>
 	    <li>
 	    	Smooth lines - smoothes isolines by entering no. of extra points. Gives a 
 	    	nicer look, when a small field-area is displayed.</li>
@@ -149,9 +158,6 @@
 	    	wind-/vectorfields u and v are smoothed separately). No. of smoothing 
 	    	operations is selected. Method: "Low-bandpass filter", which removes 
 	    	short wavelengths ("noise").</li>
-	    <li>
-	    	Grid lines in selected resolution (1=all) shows lines along constant x 
-	    	and y axis.</li>
 	    <li>
 	    	Time offset is used to show fields with different times, the offset 
 	    	is given in hours relatively to "valid time" (negative=earlier, 
@@ -163,11 +169,12 @@
 	    	Undefined - marks undefined/missing values in fields, e.g. land point in 
 	    	wave model. Colour, line-thickness and -type can be selected.</li>
 	    <li>
+	    	Frame - plot a frame around the model</li>
+	    <li>
+	    	Zero-line - turn on/off the isoline with value=0</li>
+	    <li>
 	    	Numbers on isolines can be turned on/off, and the no.-size can be altered
 	    	(relative standard-size).</li>
-	    <li>
-	    	Zero-line can be deleted from certain fields (defined in the 
-	    	setup-file). E.g. trend</li>
 	    <li>
 	      Table - annotation table on the map.
 	    </li>
@@ -192,7 +199,8 @@
 	    	Alpha value - transparency for selected fields.
 	    </li>
 	    <li>
-	    	Base value - 
+	    	Base value - sets the start point of isolines and
+	    	palette. (Used to get isolines -3, -1, 1, 3)
 	    </li>
 	    <li>
 	    	Min value - contour lines with values under min value are not displayed.
@@ -203,6 +211,11 @@
 	    <li>
 	    	Extra contour lines - can be used e.g. to draw some contour lines with 
 	    	thicker lines or in other colours.
+	    </li>
+	    <li>
+	    	Three colours - First colour used for values &lt; basevalue,
+	    	second colour used for values = basevalue, third
+	    	colour used for values &gt; base value
 	    </li>
 	  </ul>
 	</td>
