@@ -4578,7 +4578,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     vcMovement(cdata2d[no1], cdata2d[no2], cdata2d[npp], cdata2d[nx],
         cdata2d[ny], partwind, ylim, hours, hstepAuto, windlevel, poptions);
 
-  } else if (vcf->second.plotType == vcpt_vt_w && vcoordPlot == vcv_height) {
+  } else if (vcf->second.plotType == vcpt_vt_w ) {
 
     float hours = poptions.vectorunit;
 
@@ -4903,7 +4903,10 @@ bool VcrossPlot::vcMovement(float *vt, float *wom, float *p, float *x,
         if (y0 >= ymin && y0 <= ymax && vt[n] != fieldUndef && wom[n]
             != fieldUndef && (vt[n] != 0. || wom[n] != 0.)) {
 
-          if (vcoordPlot == vcv_exner) {
+        if (p==NULL) {
+          // independent of vertical coordinate
+          dy = v2hRatio * dt * wom[n];
+        } else if (vcoordPlot == vcv_exner) {
             // exner function as output vertical coordinate
             p2 = p[n] + dt * wom[n];
             pi2 = cp * powf(p2 * p0inv, kappa);
@@ -4916,9 +4919,6 @@ bool VcrossPlot::vcMovement(float *vt, float *wom, float *p, float *x,
             yend = yconst + yscale * p2;
             // vertical component
             dy = yend - y0;
-          } else if (vcoordPlot == vcv_height) {
-            // height as vertical coordinate
-            dy = v2hRatio * dt * wom[n];
           }
 
           // horizontal component
