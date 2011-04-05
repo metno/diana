@@ -1693,7 +1693,7 @@ bool FieldPlot::plotValues(){
   // automatic wind/vector density if step<1
   int autostep;
   float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, 15, autostep, dist);
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
   int xstep= step;
