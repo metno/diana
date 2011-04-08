@@ -575,8 +575,8 @@ CLEAR_FILEGROUP
     plottype=Synop
     name=Temperature
     TTT&gt;0   plot
-    TTT&gt;10 �red
-    TTT&gt;20 �red total
+    TTT&gt;10 $(0!;(Bred
+    TTT&gt;20 $(0!;(Bred total
     </pre>
     <p>
     <table border="1" cellpadding="1" cellspacing="0" >
@@ -651,14 +651,23 @@ CLEAR_FILEGROUP
     <p>
 
     <a name="MAP_TYPE"></a><h3>Section MAP_TYPE</h3>
-    define maps for Diana. Use lines of this type:
+    define maps for Diana. Use lines of this type to add a single map:
     <pre>
- map=NAME file=FILEPATH type=normal|triangles
+ map=NAME file=FILEPATH type=pland|triangles|lines_simple_text|shape
     </pre>
-    to add a single map. The types normal and triangles are met.no specific formats - the latter containing precalculated triangles for filled land areas.<p>
+    
+The different types available are:
+<ul>
+<li> <b>pland </b> - met.no specific format
+<li> <b>triangles</b> - met.no specific format, containing precalculated triangles
+    for filled land areas. 
+<li> <b>lines_simple_text </b> - a simple
+    <a href="ug_fileformats.html#MAP.ASCII.FILES">ascii format</a>
+<li> <b>shape</b> - the esri shapefile format<p>
+
     To add a map with <b>varying resolution</b> (depending on zoom factor):
     <pre>
- map=NAME type=normal|triangles
+ map=NAME type=normal|triangles|lines_simple_text|shape
  limit=X(in km) file=FILEPATH
  limit=Y(in km) file=FILEPATH
  ... etc

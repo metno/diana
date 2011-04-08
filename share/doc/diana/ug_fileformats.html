@@ -24,7 +24,10 @@
       <li> <a
       href="ug_fileformats.html#OBSERVATION.ASCII.FILES">Observations
       in ascii format</a>
-      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF files (CF-1.1 compatible)</a>
+<!--      <li> <a href="ug_fileformats.html#FIELD.NETCDF.FILES">Fields in NetCDF files (CF-1.1 compatible)</a>-->
+      <li> <a
+      href="ug_fileformats.html#MAP.ASCII.FILES">Maps
+      in ascii format</a>
     </ul>
 
     <h2><a NAME="OBJECT.ASCII.FILES"></a>Object files</h2>
@@ -236,6 +239,48 @@ plotted.
 </li>
 </ul>
 
+    <h2><a NAME="MAP.ASCII.FILES"></a>Map ascii files</h2>
+
+This is a simple ascii map format,  used to plot lines.
+<br>
+An example of such a file is given below:
+
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+#FIR
+69.8  30.82
+70.37 31.72
+71    30
+71.33 28
+71.33 25
+70    15
+65.75 7
+-999.999 -999.999
+65.75 7
+65    6.1
+63    4
+62    5
+62    7.5
+62    12.2
+-999.999 -999.999
+65    6.1
+65    6.5
+65    7.5
+65    8.33
+65    12.23
+-999.999 -999.999
+
+</pre>
+</td></tr></table>
+
+<ul>
+<li> Each line in the file contains: latitude(desimal,float) longitude(desimal,float)
+<li> End of line is given by out of ranges values  
+(lat&lt;90 or lat&gt;90,or lon&lt;-360 or lon&gt;360)
+</ul>
+
+<!--
     <hr>
 
     <h2><a NAME="FIELD.NETCDF.FILES"></a>Fields in NetCDF files (CF-1.1 compatible)</h2>
@@ -303,6 +348,7 @@ plotted.
 
 <p>
 
+-->
 <table border="0" cellpadding="3" cellspacing="0" width="100%" >
 <tr bgcolor="lightgrey">
 <td valign="center">&nbsp;Diana User Guide: File formats&nbsp;|&nbsp;
@@ -312,6 +358,7 @@ plotted.
 <td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
 </tr>
 </table>
+
 
   </body>
 </html>
