@@ -148,7 +148,7 @@ bool MapManager::parseMapTypes(SetupParser& sp)
       // set default values ( mapfiles[m] --> mapinfo )
       mapinfo.name = "";
       mapinfo.mapfiles.clear();
-      mapinfo.type = "normal";
+      mapinfo.type = "pland";
       mapinfo.logok = true;
       mapinfo.special = false;
       mapinfo.symbol = 0;

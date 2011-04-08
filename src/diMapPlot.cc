@@ -325,7 +325,7 @@ bool MapPlot::plot(const int zorder)
     if (c==backgroundColour)
       c= backContrastColour;
 
-    if (mapinfo.type=="normal") {
+    if (mapinfo.type=="normal" || mapinfo.type=="pland") {
       // check contours
       if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
         float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
@@ -1322,11 +1322,11 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
       n++;
     }
 
-    if (endline)
+    if (endline) {
       n--;
-
-    else if (n<nmax)
+    } else if (n<nmax) {
       endfile= true;
+    }
 
     if (n>1) {
       float xn= x[n-1];
