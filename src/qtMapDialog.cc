@@ -1125,7 +1125,7 @@ vector<miutil::miString> MapDialog::getOKString()
 
   if (areabox->currentRow() > -1) {
     areastr << "AREA";
-    areastr << " areaname=" << areabox->currentItem()->text().toStdString();
+    areastr << " name=" << areabox->currentItem()->text().toStdString();
     vstr.push_back(areastr.str());
   }
 

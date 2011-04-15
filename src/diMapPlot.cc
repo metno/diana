@@ -93,9 +93,12 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
 
   Area newarea;
   MapManager mapm;
+
+  xyLimit.clear();
   reqarea = rarea; //get requested area from previous MapPlot
 
-  vector<miString> tokens= pinfo.split('"', '"'), stokens;
+  // split on blank, preserve ""
+  vector<miString> tokens= pinfo.split('"','"'," ",true);
   int n= tokens.size();
   if (n == 0) {
     return false;
@@ -108,38 +111,61 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
   //obsolete
   //pinfo MAP contain "area=..."
 
-  //Perhaps XYPART should be implemented in the new syntax?
-  //No need for XYLIMIT
-
   if (tokens[0] == "AREA"){
-    if(pinfo.contains("proj4string=") && pinfo.contains("rectangle") ) {
-      if ( reqarea.setAreaFromString(pinfo) ) {
-        areadefined = true;
-        xyLimit.clear();
-      }
-    } else {
 
-        for ( int i = 0; i < n; ++i ) {
-          stokens= tokens[i].split('=');
-          if (stokens.size()==2 &&  stokens[0] == "areaname") {
-            mapm.getMapAreaByName(stokens[1], newarea);
-            areadefined = true;
-            reqarea= newarea;
-          } else if (stokens.size()==2 &&  stokens[0] == "rectangle") {
-            Rectangle r;
-            if( r.setRectangle(stokens[1],false) ) {
-              reqarea.setR(r);
-            }
-          }
+  const miString key_name=  "name";
+  const miString key_areaname=  "areaname"; //old syntax
+  const miString key_proj=  "proj4string";
+  const miString key_rectangle=  "rectangle";
+  const miString key_xypart=  "xypart";
+
+  Projection proj;
+  Rectangle rect;
+
+  int n = tokens.size();
+  for (int i=0; i<n; i++){
+    vector<miString> stokens= tokens[i].split(1,'=');
+    if (stokens.size() > 1) {
+      miString key= stokens[0].downcase();
+
+      if (key==key_name || key==key_areaname){
+        mapm.getMapAreaByName(stokens[1], newarea);
+        areadefined = true;
+	reqarea= newarea;
+      } else if (key==key_proj){
+	if ( proj.set_proj_definition(stokens[1]) ) {
+          reqarea.setP(proj);
+          areadefined = true;
+	}
+      } else if (key==key_rectangle){
+        if ( rect.setRectangle(stokens[1],false) ) {
+            reqarea.setR(rect);
         }
+      } else if (key==key_xypart) {
+      cerr <<"xypart:"<<stokens[1]<<endl;
+        vector<miString> vstr= stokens[1].split(',');
+        if (vstr.size()>=4) {
+          xyPart.clear();
+          for (int j=0; j<4; j++) {
+            xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
+	  }
+	  if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3]) {
+            xyPart.clear();
+          }
+      }
     }
+    cerr <<"size:"<<xyPart.size()<<endl;
+  }
+  }
+
 
   } else if (tokens[0] == "MAP"){
+
     miString bgcolourname;
-    bool areadef=false;
     MapInfo tmpinfo;
+    bool areadef=false;
     for (int i=0; i<n; i++) {
-      stokens= tokens[i].split('=');
+       vector<miString> stokens= tokens[i].split('=');
       if (stokens.size()==2) {
         if (stokens[0].upcase()=="MAP") {
           mapm.getMapInfoByName(stokens[1], tmpinfo);
