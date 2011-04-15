@@ -821,7 +821,7 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updatePinNeeded(pin[i])) {
-      bool res = fieldplotm->makeFields(pin[i], t, fv);
+      fieldplotm->makeFields(pin[i], t, fv);
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -865,8 +865,8 @@ void PlotModule::updatePlots()
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
-      bool res = fieldplotm->makeFields(pin, t, fv);
-Rdicon      //free old fields
+      fieldplotm->makeFields(pin, t, fv);
+      //free old fields
       freeFields(vfp[i]);
       //set new fields
       vfp[i]->setData(fv, t);
