@@ -291,8 +291,8 @@ void Controller::updateFieldPlot(const vector<miString>& pin){
 }
 
 //update projection only
-void Controller::updateProjection(){
-  plotm->updateProjection();
+const Area& Controller::getCurrentArea(){
+  plotm->getCurrentArea();
 }
 
 

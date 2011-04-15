@@ -1370,6 +1370,7 @@ int parseAndProcess(istream &is)
         if (verbose)
           cout << "- updatePlots" << endl;
         main_controller->updatePlots();
+        cout <<main_controller->getMapArea()<<endl;
 
         if (!raster && !shape && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);

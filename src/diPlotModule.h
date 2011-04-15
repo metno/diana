@@ -209,8 +209,8 @@ public:
 
   /// get annotations from all plots
   void setAnnotations();
-  /// update projection used with minimum update of data
-  void updateProjection();
+  /// get current Area
+  const Area& getCurrentArea(){return splot.getMapArea();}
 
   /// update FieldPlots
   void updateFieldPlot(const vector<miutil::miString>& pin);

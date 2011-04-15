@@ -1130,60 +1130,6 @@ void PlotModule::updatePlots()
   PlotAreaSetup();
 }
 
-// update projection used...minimum update of data
-void PlotModule::updateProjection()
-{
-  //cerr << "++++++++ CALLING updateProjection" << endl;
-  miTime t = splot.getTime();
-  bool satOK = false;
-  Area satarea, plotarea;
-
-  if (vsp.size() > 0) {
-    satarea = vsp[0]->getSatArea();
-    satOK = true;
-  }
-
-  // set maparea from sat or fields
-  if (keepcurrentarea) {
-    mapdefined = true;
-  }
-  if (satOK) {
-    plotarea = splot.getMapArea();
-    if (!(plotarea.P() == satarea.P())) {
-      splot.setMapArea(satarea, keepcurrentarea);
-    }
-    mapdefined = true;
-  }
-  if (!mapdefined && inEdit) {
-    // set area equal to editfield-area
-    Area a;
-    if (editm->getFieldArea(a)) {
-      splot.setMapArea(a, true);
-      mapdefined = true;
-    }
-  }
-  if (!mapdefined && vfp.size() > 0) {
-    // else set area equal to first field-area
-    Area a = vfp[0]->getFieldArea();
-    splot.setMapArea(a, keepcurrentarea);
-    mapdefined = true;
-  }
-
-  // prepare met-objects
-  objm->prepareObjects(t, splot.getMapArea(), objects);
-
-  // prepare editobjects (projection etc.)
-  editobjects.changeProjection(splot.getMapArea());
-  combiningobjects.changeProjection(splot.getMapArea());
-
-  int n = stationPlots.size();
-  for (int i = 0; i < n; i++) {
-    stationPlots[i]->changeProjection();
-  }
-
-  PlotAreaSetup();
-}
-
 // start hardcopy plot
 void PlotModule::startHardcopy(const printOptions& po)
 {

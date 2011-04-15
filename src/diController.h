@@ -164,8 +164,8 @@ public:
   void updateFieldPlot(const vector<miutil::miString>& pin);
   /// toggle area conservatism
   void keepCurrentArea(bool);
-  /// update projection only
-  void updateProjection();
+  /// get current area
+  const Area& getCurrentArea();
   /// set colourindices from gui
   void setColourIndices(vector<Colour::ColourInfo>&);
 

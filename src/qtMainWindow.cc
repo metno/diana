@@ -890,12 +890,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   textview->hide();
 
 
-  // GAMMEL PLOTTING, KOMMENTERT VEKK, MEN IKKE FJERN DENNE !
-  //HK !!! kjekk � ha for � teste hurtigmenyer/OKstring uten dialoger
+  //used for testing qickMenus without dialogs
   //connect(qm, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
   //  	  SLOT(quickMenuApply(const vector<miutil::miString>&)));
 
-  // DENNE SKAL BRUKES ETTER AT putOKString ER IMPLEMENTERT
+
   connect(qm, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
       SLOT(recallPlot(const vector<miutil::miString>&,bool)));
 
@@ -1410,6 +1409,7 @@ void DianaMainWindow::MenuOK()
   contr->plotCommands(pstr);
   contr->setPlotTime(t);
   contr->updatePlots();
+  cout <<contr->getMapArea()<<endl;
 
   //find current field models and send to vprofwindow..
   vector <miutil::miString> fieldmodels = contr->getFieldModels();
