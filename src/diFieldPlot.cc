@@ -53,7 +53,7 @@ const int MaxArrowsAuto=55;
 
 // Default constructor
 FieldPlot::FieldPlot()
-:Plot(), overlay(false), difference(false),
+:Plot(), overlay(false),
 pshade(false), pundefined(false),vectorAnnotationSize(0.) {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::Default Constructor" << endl;
@@ -151,9 +151,7 @@ bool FieldPlot::prepare(const miString& pin)
   int n= tokens.size();
   miString fname= tokens[2];
 
-  if (difference && n>3)
-    fname= tokens[3];
-  else if (n>2)
+  if (n>2)
     fname= tokens[2];
   else
     return false;

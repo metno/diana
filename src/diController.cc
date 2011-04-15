@@ -290,11 +290,9 @@ void Controller::updateFieldPlot(const vector<miString>& pin){
   plotm->updateFieldPlot(pin);
 }
 
-//update projection only
 const Area& Controller::getCurrentArea(){
-  plotm->getCurrentArea();
+  return plotm->getCurrentArea();
 }
-
 
 // get colour which is visible on the present background
 Colour Controller::getContrastColour(){
@@ -823,11 +821,10 @@ void Controller::getFieldGroups(const miString& modelNameRequest,
 
 }
 
-vector<miTime> Controller::getFieldTime(vector<FieldTimeRequest>& request,
-				        bool allTimeSteps)
+vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
 {
   bool constT;
-  return fieldplotm->getFieldTime(request, allTimeSteps,constT);
+  return fieldplotm->getFieldTime(request,constT);
 }
 
 MapDialogInfo Controller::initMapDialog(){

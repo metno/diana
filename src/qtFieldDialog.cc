@@ -1878,26 +1878,32 @@ void FieldDialog::enableFieldOptions()
 
   // colour(s)
   if ((nc = cp->findKey(vpcopt, "colour_2")) >= 0) {
-    i = 0;
-    while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
-      i++;
-    if (i == nr_colors) {
+    if (vpcopt[nc].allValue.downcase() == "off" ) {
       updateFieldOptions("colour_2", "off");
       colour2ComboBox->setCurrentIndex(0);
     } else {
+      i = 0;
+      while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
+        i++;
+      if (i == nr_colors) {
+        i = 0;
+      }
       updateFieldOptions("colour_2", colourInfo[i].name);
       colour2ComboBox->setCurrentIndex(i + 1);
     }
   }
 
   if ((nc = cp->findKey(vpcopt, "colour")) >= 0) {
-    i = 0;
-    while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
-      i++;
-    if (i == nr_colors) {
+    if (vpcopt[nc].allValue.downcase() == "off" ) {
       updateFieldOptions("colour", "off");
       colorCbox->setCurrentIndex(0);
     } else {
+      i = 0;
+      while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
+        i++;
+      if (i == nr_colors) {
+        i = 0;
+      }
       updateFieldOptions("colour", colourInfo[i].name);
       colorCbox->setCurrentIndex(i + 1);
     }
@@ -4869,8 +4875,8 @@ void FieldDialog::updateTime()
 
   if ((m = selectedFields.size()) > 0) {
 
-    vector<FieldTimeRequest> request;
-    FieldTimeRequest ftr;
+    vector<FieldRequest> request;
+    FieldRequest ftr;
 
     int nr = 0;
 
@@ -4878,16 +4884,17 @@ void FieldDialog::updateTime()
       if (!selectedFields[i].inEdit) {
         request.push_back(ftr);
         request[nr].modelName = selectedFields[i].modelName;
-        request[nr].fieldName = selectedFields[i].fieldName;
-        request[nr].levelName = selectedFields[i].level;
-        request[nr].idnumName = selectedFields[i].idnum;
+        request[nr].paramName = selectedFields[i].fieldName;
+        request[nr].plevel = selectedFields[i].level;
+        request[nr].elevel = selectedFields[i].idnum;
         request[nr].hourOffset = selectedFields[i].hourOffset;
         request[nr].forecastSpec = 0;
         request[nr].refTime = selectedFields[i].refTime;
         request[nr].zaxis = selectedFields[i].zaxis;
         request[nr].taxis = selectedFields[i].taxis;
-        request[nr].runaxis = selectedFields[i].runaxis;
+        request[nr].eaxis = selectedFields[i].runaxis;
         request[nr].grid = selectedFields[i].grid;
+        request[nr].allTimeSteps = allTimeStepButton->isChecked();
 
         if (selectedFields[i].forecastSpec) {
           vector<ParsedCommand> vpc = cp->parse(selectedFields[i].fieldOpts);
@@ -4908,8 +4915,7 @@ void FieldDialog::updateTime()
     }
 
     if (nr > 0) {
-      bool allTimeSteps = allTimeStepButton->isChecked();
-      fieldtime = m_ctrl->getFieldTime(request, allTimeSteps);
+      fieldtime = m_ctrl->getFieldTime(request);
     }
   }
 

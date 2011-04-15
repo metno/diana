@@ -271,20 +271,6 @@ void PlotModule::prepareFields(const vector<miString>& inp)
     vfp.push_back(fp);
     vfp[n] = new FieldPlot();
 
-    if (inp[i].contains(" ( ") && inp[i].contains(" - ") && inp[i].contains(
-        " ) ")) {
-      size_t p1 = inp[i].find(" ( ", 0);
-      size_t p2 = inp[i].find(" - ", p1 + 3);
-      size_t p3 = inp[i].find(" ) ", p2 + 3);
-      if (p1 != string::npos && p2 != string::npos && p3 != string::npos) {
-        miString fspec1 = inp[i].substr(0, p1) + inp[i].substr(p1 + 2, p2 - p1
-            - 2);
-        miString fspec2 = inp[i].substr(0, p1) + inp[i].substr(p2 + 2, p3 - p2
-            - 2);
-        vfp[n]->setDifference(fspec1, fspec2);
-      }
-    }
-
     if (!vfp[n]->prepare(inp[i])) {
       delete vfp[n];
       vfp.pop_back();
@@ -835,14 +821,7 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updatePinNeeded(pin[i])) {
-      bool res;
-      if (vfp[i]->isDifference()) {
-        miString fspec1, fspec2;
-        vfp[i]->getDifference(fspec1, fspec2);
-        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv);
-      } else {
-        res = fieldplotm->makeFields(pin[i], t, fv);
-      }
+      bool res = fieldplotm->makeFields(pin[i], t, fv);
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -886,15 +865,8 @@ void PlotModule::updatePlots()
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
-      bool res;
-      if (vfp[i]->isDifference()) {
-        miString fspec1, fspec2;
-        vfp[i]->getDifference(fspec1, fspec2);
-        res = fieldplotm->makeDifferenceField(fspec1, fspec2, t, fv);
-      } else {
-        res = fieldplotm->makeFields(pin, t, fv);
-      }
-      //free old fields
+      bool res = fieldplotm->makeFields(pin, t, fv);
+Rdicon      //free old fields
       freeFields(vfp[i]);
       //set new fields
       vfp[i]->setData(fv, t);

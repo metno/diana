@@ -377,109 +377,30 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
 
   int numf = pinfos.size();
 
-  vector<FieldTimeRequest> request;
-  FieldTimeRequest ftr;
+  vector<FieldRequest> request;
   miString modelName, modelName2, fieldName;
-  bool allTimeSteps = false;
 
-  for (int nf = 0; nf < numf; nf++) {
-    vector<miString> tokens = pinfos[nf].split('"', '"');
+  for (int i = 0; i < numf; i++) {
 
-    int n = tokens.size();
-    // at least FIELD <model> <field>..
-    //      or  FIELD ( <model> <field> .. - <model> <field> .. ) .....
-    if (n < 3)
-      continue;
-
-    if (tokens[1] == "(") {
-
-      // field difference ... two models and/or fields
-
-      int km = 2;
-      while (km < n && tokens[km] != "-") {
-        km++;
-      }
-      int ke = km + 1;
-      while (ke < n && tokens[ke] != ")") {
-        ke++;
-      }
-      if (km >= n || ke >= n || km > ke - 3) {
-        continue;
-      }
-
-      modelName = tokens[2].downcase();
-      fieldName = tokens[3].downcase();
-
-      modelName2 = tokens[km + 1].downcase();
-
-      vector<miString> atokens = tokens;
-      tokens.clear();
-      tokens.push_back(atokens[0]);
-      for (int k = 2; k < km; k++) {
-        tokens.push_back(atokens[k]);
-      }
-      for (int k = ke + 1; k < n; k++) {
-        tokens.push_back(atokens[k]);
-      }
-      n = tokens.size();
-
-    } else {
-      modelName = tokens[1].downcase();
-      fieldName = tokens[2].downcase();
+    // if difference, use first field
+    miString fspec1,fspec2;
+    if (!splitDifferenceCommandString(pinfos[i],fspec1,fspec2)) {
+      fspec1 = pinfos[i];
     }
 
-    vector<miString> vtoken, values;
-    miString levelName, idnumName;
-    int hourOffset = 0, fctype = 0;
-    vector<int> vfc;
+    vector<FieldRequest> fieldrequest;
+    std::string plotName;
+    parsePin(fspec1, fieldrequest,plotName);
+    request.insert(request.begin(),fieldrequest.begin(),fieldrequest.end());
 
-    for (int k = 3; k < n; k++) {
-      vtoken = tokens[k].downcase().split('=');
-      if (vtoken.size() >= 2) {
-        if (vtoken[0] == "level") {
-          levelName = vtoken[1];
-        } else if (vtoken[0] == "idnum") {
-          idnumName = vtoken[1];
-        } else if (vtoken[0] == "hour.offset") {
-          hourOffset = atoi(vtoken[1].cStr());
-        } else if (vtoken[0] == "alltimesteps") {
-          if (vtoken[1] == "1" || vtoken[1] == "on" || vtoken[1] == "true") {
-            allTimeSteps = true;
-          }
-        } else if (vtoken[0] == "forecast.hour") {
-          values = vtoken[1].split(',');
-          for (unsigned int i = 0; i < values.size(); i++) {
-            vfc.push_back(atoi(values[i].cStr()));
-          }
-          fctype = 1;
-        } else if (vtoken[0] == "forecast.hour.loop") {
-          values = vtoken[1].split(',');
-          if (values.size() == 3) { // first,last,step
-            for (int i = 0; i < 3; i++) {
-              vfc.push_back(atoi(values[i].cStr()));
-            }
-            fctype = 2;
-          }
-        }
-      }
-    }
-
-    int nr = request.size();
-    request.push_back(ftr);
-    request[nr].modelName = modelName;
-    request[nr].fieldName = fieldName;
-    request[nr].levelName = levelName;
-    request[nr].idnumName = idnumName;
-    request[nr].hourOffset = hourOffset;
-    request[nr].forecastSpec = fctype;
-    request[nr].forecast = vfc;
   }
+
 
   if (request.size() == 0) {
     return fieldtime;
   }
 
-  return getFieldTime(request, allTimeSteps, constTimes);
+  return getFieldTime(request, constTimes);
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
@@ -559,62 +480,49 @@ vector<miString> FieldPlotManager::getPlotFields()
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(
-    vector<FieldTimeRequest>& request, bool allTimeSteps, bool& constTimes)
+    vector<FieldRequest>& request, bool& constTimes)
 
 {
-  //   cerr <<"FieldPlotManager::getFieldTime"<<endl;
+
   vector<miTime> vtime;
-  for (unsigned int j = 0; j < request.size(); j++) {
-    miString fieldName;
-    miString plotName = request[j].fieldName.downcase();
-    miString suffix;
-    splitSuffix(plotName, suffix);
-    if (!mapPlotField.count(plotName)) {
-      request[j].fieldName = plotName;
-    } else {
-      for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
-        miString fieldName = mapPlotField[plotName].input[i].downcase();
-        fieldName += suffix;
-        request[j].fieldName = fieldName;
-      }
+  for (size_t i = 0; i <request.size(); ++i ) {
+    vector<std::string> name = getParamNames(request[i].paramName);
+    if ( name.size()>0 ) {
+      request[i].paramName = name[0];
     }
   }
-  return fieldManager->getFieldTime(request, allTimeSteps, constTimes);
+  return fieldManager->getFieldTime(request, constTimes);
 }
 
 bool FieldPlotManager::makeFields(const miString& pin_const,
     const miTime& const_ptime, vector<Field*>& vfout, bool toCache)
 {
 
-  vfout.clear();
-  std::string modelName;
-  miTime refTime;
-  std::string plotName;
-  vector<std::string> fieldName;
-  std::string zaxis;;
-  std::string eaxis;;
-  std::string taxis;;
-  std::string plevel;
-  std::string elevel;
-  std::string grid;
-  std::string version;
-  int hourOffset = 0;
-  int time_tolerance = 0;
-  miTime ptime = const_ptime;
-  int refhour=-1;
-  int refoffset=0;
-
-  std::string pin = std::string(pin_const);
-  parsePin(pin, modelName, plotName, refTime, grid, fieldName,  zaxis, eaxis, taxis, version, plevel, ptime, elevel,
-      hourOffset, time_tolerance,refhour,refoffset);
-
-  if (hourOffset != 0) {
-    ptime.addHour(hourOffset);
+  // if difference
+  miString fspec1,fspec2;
+  if (splitDifferenceCommandString(pin_const,fspec1,fspec2)) {
+    return makeDifferenceField(fspec1, fspec2, const_ptime, vfout);
   }
+
+  vfout.clear();
+
+  vector<FieldRequest> vfieldrequest;
+  std::string plotName;
+  std::string pin = pin_const;
+  parsePin(pin, vfieldrequest, plotName);
+
 
 
   bool ok = false;
-  for (unsigned int i = 0; i < fieldName.size(); i++) {
+  for (unsigned int i = 0; i < vfieldrequest.size(); i++) {
+
+    if (vfieldrequest[i].ptime.undef()) {
+      vfieldrequest[i].ptime = const_ptime;
+    }
+
+    if (vfieldrequest[i].hourOffset != 0) {
+      vfieldrequest[i].ptime.addHour(vfieldrequest[i].hourOffset);
+    }
     Field* fout;
     // we must try to use the cache, if specified...
     int cacheoptions = FieldManager::READ_ALL;
@@ -624,8 +532,7 @@ bool FieldPlotManager::makeFields(const miString& pin_const,
     //    ok = fieldManager->makeField(fout, modelName, fieldName[i], ptime,
     //        levelName, idnumName, hourDiff, cacheoptions);
 
-    ok = fieldManager->makeField(fout, modelName, refTime, fieldName[i], grid, zaxis, taxis,
-        eaxis, version, plevel, ptime, elevel, time_tolerance, refhour,refoffset,cacheoptions);
+    ok = fieldManager->makeField(fout, vfieldrequest[i],cacheoptions);
     if (!ok) {
       return false;
     }
@@ -908,7 +815,7 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
   for (size_t i = 0; i < nvfgi; i++) {
 
     //Make copy with filed names from file
-    if(fieldManager->isGridCollection(modelNameRequest)) {
+    if(fieldManager->isGridCollection(modelName)) {
       vfgi.push_back(vfgi[i]);
     }
 
@@ -992,35 +899,26 @@ bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
   return false;
 }
 
-bool FieldPlotManager::parsePin( std::string& pin,
-    std::string& modelName, std::string& plotName,
-    miutil::miTime& refTime,  std::string& grid,
-    vector<std::string>& paramName,
-    std::string& zaxis,  std::string& taxis,
-    std::string& eaxis,  std::string& version,
-    std::string& plevel,  miutil::miTime& time,
-    std::string& elevel,  int & time_tolerance,
-    int& hourOffset,
-    int& refhour, int& refoffset)
+bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 
 
 //    miString& modelName,
 //    miString& plotName, vector<miString>& fieldName, miString& levelName,
 //    miString& idnumName, int& hourOffset, int& hourDiff, miTime& time)
 {
+  cerr <<"PIN: "<<pin<<endl;
 
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
-
+cerr <<"PIN: "<<pin<<endl;
   std::vector<std::string> tokens;
   //NB! what about ""
   boost::algorithm::split(tokens, pin, boost::algorithm::is_space());
 
   size_t n = tokens.size();
   std::string str, key;
-  hourOffset = 0;
-  time_tolerance = 0;
+  FieldRequest fieldrequest;
 
   for (size_t k = 1; k < n; k++) {
     std::vector<std::string> vtoken;
@@ -1028,39 +926,73 @@ bool FieldPlotManager::parsePin( std::string& pin,
     if (vtoken.size() >= 2) {
       key = boost::algorithm::to_lower_copy(vtoken[0]);
       if (key == "model") {
-        modelName = vtoken[1];
+        fieldrequest.modelName = vtoken[1];
       }else if (key == "parameter") {
         plotName = vtoken[1];
       } else if (key == "vcoor") {
-        zaxis = vtoken[1];
+        fieldrequest.zaxis = vtoken[1];
       } else if (key == "tcoor") {
-        taxis = vtoken[1];
+        fieldrequest.taxis = vtoken[1];
       } else if (key == "ecoor") {
-        eaxis = vtoken[1];
+        fieldrequest.eaxis = vtoken[1];
       } else if (key == "vlevel") {
-        plevel = vtoken[1];
+        fieldrequest.plevel = vtoken[1];
       } else if (key == "elevel") {
-        elevel = vtoken[1];
+        fieldrequest.elevel = vtoken[1];
       } else if (key == "grid") {
-        grid = vtoken[1];
+        fieldrequest.grid = vtoken[1];
       } else if (key == "time") {
-        time = miTime(vtoken[1]);
+        fieldrequest.ptime = miTime(vtoken[1]);
       } else if (key == "reftime") {
-        refTime = miTime(vtoken[1]);
+        fieldrequest.refTime = miTime(vtoken[1]);
       } else if (key == "refhour") {
-        refhour = atoi(vtoken[1].c_str());
+        fieldrequest.refhour = atoi(vtoken[1].c_str());
       } else if (key == "refoffset") {
-        refoffset = atoi(vtoken[1].c_str());
+        fieldrequest.refoffset = atoi(vtoken[1].c_str());
       } else if (key == "hour.offset") {
-        hourOffset = atoi(vtoken[1].c_str());
+        fieldrequest.hourOffset = atoi(vtoken[1].c_str());
       } else if (key == "hour.diff") {
-        time_tolerance = atoi(vtoken[1].c_str());
-      }
+        fieldrequest.time_tolerance = atoi(vtoken[1].c_str());
+      } else if (key == "alltimesteps") {
+        if (vtoken[1] == "1" || vtoken[1] == "on" || vtoken[1] == "true") {
+          fieldrequest.allTimeSteps = true;
+        }
+      } else if (key == "forecast.hour") {
+       std::vector<std::string> values;
+       boost::algorithm::split(values,vtoken[1], boost::algorithm::is_any_of(std::string(",")));
+       for (unsigned int i = 0; i < values.size(); i++) {
+         fieldrequest.forecast.push_back(atoi(values[i].c_str()));
+       }
+       fieldrequest.forecastSpec = 1;
+     } else if (vtoken[0] == "forecast.hour.loop") {
+       std::vector<std::string> values;
+       boost::algorithm::split(values,vtoken[1], boost::algorithm::is_any_of(std::string(",")));
+       if (values.size() == 3) { // first,last,step
+         for (int i = 0; i < 3; i++) {
+           fieldrequest.forecast.push_back(atoi(values[i].c_str()));
+         }
+         fieldrequest.forecastSpec = 2;
+       }
+     }
     }
   }
 
+  vector<std::string> paramNames = getParamNames(plotName);
   //  //plotName -> fieldName
 
+  for (size_t i = 0; i < paramNames.size(); i++) {
+    fieldrequest.paramName = paramNames[i];
+    vfieldrequest.push_back(fieldrequest);
+  }
+
+  return true;
+
+}
+
+vector<std::string> FieldPlotManager::getParamNames(std::string plotName)
+{
+
+  vector<std::string> paramNames;
   std::string suffix;
   splitSuffix(plotName, suffix);
 
@@ -1072,18 +1004,39 @@ bool FieldPlotManager::parsePin( std::string& pin,
 
 //If plotName not defined, use plotName as fieldName
   if (!mapPlotField.count(plotName)) {
-    paramName.push_back(plotName);
-    return true;
+    paramNames.push_back(plotName);
+    return paramNames;
   }
 
-  for (unsigned int i = 0; i < mapPlotField[plotName].input.size(); i++) {
-    std::string fName = boost::algorithm::to_lower_copy(std::string(mapPlotField[plotName].input[i]));
-    fName += suffix;
-    paramName.push_back(fName);
+  for (size_t i = 0; i < mapPlotField[plotName].input.size(); i++) {
+    std::string inputName = boost::algorithm::to_lower_copy(std::string(mapPlotField[plotName].input[i]));
+    inputName += suffix;
+    paramNames.push_back(inputName);
   }
 
-  plotName += suffix;
+  return paramNames;
+//  plotName += suffix;
 
-  return true;
+}
+
+bool FieldPlotManager::splitDifferenceCommandString(miString pin, miString& fspec1, miString& fspec2)
+{
+
+  //if difference, split pin and return true
+  if (pin.contains(" ( ") && pin.contains(" - ") && pin.contains(" ) ")) {
+    size_t p1 = pin.find(" ( ", 0);
+    size_t p2 = pin.find(" - ", p1 + 3);
+    size_t p3 = pin.find(" ) ", p2 + 3);
+    if (p1 != string::npos && p2 != string::npos && p3 != string::npos) {
+      fspec1 = pin.substr(0, p1) + pin.substr(p1 + 2, p2 - p1
+          - 2);
+      fspec2 = pin.substr(0, p1) + pin.substr(p2 + 2, p3 - p2
+          - 2);
+      return true;
+    }
+  }
+
+  // if not difference, return false
+  return false;
 
 }

@@ -295,8 +295,7 @@ public:
   void getFieldGroups(const miutil::miString& modelNameRequest,
 		      miutil::miString& modelName, miutil::miTime refTime, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
-  vector<miutil::miTime> getFieldTime(vector<FieldTimeRequest>& request,
-			      bool allTimeSteps);
+  vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
 
   // Map-dialog methods
   MapDialogInfo initMapDialog();

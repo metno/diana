@@ -79,8 +79,7 @@ public:
   /// return available times for the requested models and fields
   void makeFieldText(Field* fout, const miutil::miString& plotName);
 
-  vector<miutil::miTime> getFieldTime(vector<FieldTimeRequest>& request,
-      bool allTimeSteps, bool& constTimes);
+  vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request, bool& constTimes);
 
   /// return all field groups for one model/file (to FieldDialog)
   void getFieldGroups(const miutil::miString& modelNameRequest,
@@ -112,22 +111,13 @@ private:
       splitComStr(const miutil::miString& s, bool splitall);
 
   bool splitSuffix(std::string& plotName, std::string& suffix);
+  bool parsePin(std::string& pin, vector<FieldRequest>& fieldrequest, std::string& plotName);
+  vector<std::string> getParamNames(std::string plotName);
 
-//  bool parsePin(const miutil::miString& pin, miutil::miString& modelName,
-//      miutil::miString& plotName, vector<miutil::miString>& fieldName,
-//      miutil::miString& levelName, miutil::miString& idnumName,
-//      int& hourOffset, int& hourDiff, miutil::miTime& time);
-  bool parsePin(std::string& pin,
-      std::string& modelName, std::string& plotName,
-      miutil::miTime& refTime,  std::string& grid,
-      vector<std::string>& paramName,
-      std::string& zaxis,  std::string& taxis,
-      std::string& runaxis,  std::string& version,
-      std::string& plevel,  miutil::miTime& time,
-      std::string& run,  int & time_tolerance,
-      int& hourOffset,
-      int& refhour, int& refoffset);
-      map<miutil::miString, miutil::miString> groupNames;
+  bool splitDifferenceCommandString(miutil::miString pin, miutil::miString& fspec1, miutil::miString& fspec2);
+
+  map<miutil::miString, miutil::miString> groupNames;
+
 
   FieldManager* fieldManager;
 
