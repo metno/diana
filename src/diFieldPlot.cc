@@ -39,6 +39,7 @@
 #include "diContouring.h"
 #include "diFontManager.h"
 #include <diField/diPlotOptions.h>
+#include <diField/diColourShading.h>
 #include <iostream>
 #include <GL/gl.h>
 #include <sstream>
@@ -54,7 +55,7 @@ const int MaxArrowsAuto=55;
 // Default constructor
 FieldPlot::FieldPlot()
 :Plot(), overlay(false),
-pshade(false), pundefined(false),vectorAnnotationSize(0.) {
+ pshade(false), pundefined(false),vectorAnnotationSize(0.) {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::Default Constructor" << endl;
 #endif
@@ -227,170 +228,170 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           (poptions.palettecolours.size()==0 && poptions.patterns.size()==0))
         continue;;
 
-        miString endString;
-        miString startString;
-        if(anno[j].contains(",")){
-          size_t nn = anno[j].find_first_of(",");
-          endString = anno[j].substr(nn);
-          startString =anno[j].substr(0,nn);
-        } else {
-          startString =anno[j];
-        }
+      miString endString;
+      miString startString;
+      if(anno[j].contains(",")){
+        size_t nn = anno[j].find_first_of(",");
+        endString = anno[j].substr(nn);
+        startString =anno[j].substr(0,nn);
+      } else {
+        startString =anno[j];
+      }
 
-        //if asking for spesific field
-        if(anno[j].contains("table=")){
-          miString name = startString.substr(startString.find_first_of("=")+1);
-          if( name[0]=='"' )
-            name.remove('"');
-          name.trim();
-          if(!fields[0]->fieldText.contains(name))	continue;
-        }
+      //if asking for spesific field
+      if(anno[j].contains("table=")){
+        miString name = startString.substr(startString.find_first_of("=")+1);
+        if( name[0]=='"' )
+          name.remove('"');
+        name.trim();
+        if(!fields[0]->fieldText.contains(name))	continue;
+      }
 
-        miString str  = "table=\"";
-        str += fields[0]->fieldText;
+      miString str  = "table=\"";
+      str += fields[0]->fieldText;
 
-        //find min/max if repeating colours
-        float cmin=  fieldUndef;
-        float cmax= -fieldUndef;
-        if(!poptions.repeat){
-          cmin = poptions.base;
-        } else {
-          int ndata = fields[0]->nx*fields[0]->ny;
-          for (int i=0; i<ndata; ++i) {
-            if (fields[0]->data[i]!=fieldUndef) {
-              if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
-              if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
-            }
+      //find min/max if repeating colours
+      float cmin=  fieldUndef;
+      float cmax= -fieldUndef;
+      if(!poptions.repeat){
+        cmin = poptions.base;
+      } else {
+        int ndata = fields[0]->nx*fields[0]->ny;
+        for (int i=0; i<ndata; ++i) {
+          if (fields[0]->data[i]!=fieldUndef) {
+            if (cmin>fields[0]->data[i]) cmin= fields[0]->data[i];
+            if (cmax<fields[0]->data[i]) cmax= fields[0]->data[i];
           }
         }
+      }
 
 
-        aTable table;
-        vector<aTable> vtable;
+      aTable table;
+      vector<aTable> vtable;
 
-        int ncolours  = poptions.palettecolours.size();
-        int ncold     = poptions.palettecolours_cold.size();
-        int npatterns = poptions.patterns.size();
-        int nlines    = poptions.linevalues.size();
-        int nloglines = poptions.loglinevalues.size();
-        int ncodes = (ncolours>npatterns ? ncolours : npatterns);
+      int ncolours  = poptions.palettecolours.size();
+      int ncold     = poptions.palettecolours_cold.size();
+      int npatterns = poptions.patterns.size();
+      int nlines    = poptions.linevalues.size();
+      int nloglines = poptions.loglinevalues.size();
+      int ncodes = (ncolours>npatterns ? ncolours : npatterns);
 
-        if(cmin>poptions.base) ncold=0;
+      if(cmin>poptions.base) ncold=0;
 
 
-        //discontinuous - no more entries than class specifications
-        vector<miString> classSpec;
-        if(poptions.discontinuous == 1 &&
-            poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
-          classSpec = poptions.classSpecifications.split(",");
-          ncodes = classSpec.size();
+      //discontinuous - no more entries than class specifications
+      vector<miString> classSpec;
+      if(poptions.discontinuous == 1 &&
+          poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
+        classSpec = poptions.classSpecifications.split(",");
+        ncodes = classSpec.size();
+      }
+
+      if(nlines > 0 && nlines-1 < ncodes)
+        ncodes = nlines-1;
+
+      for(int i=ncold-1; i>=0; i--){
+        table.colour = poptions.palettecolours_cold[i].Name();
+        if(npatterns>0){
+          int ii = (npatterns-1) - i%npatterns;
+          table.pattern = poptions.patterns[ii];
         }
+        vtable.push_back(table);
+      }
 
-        if(nlines > 0 && nlines-1 < ncodes)
-          ncodes = nlines-1;
-
-        for(int i=ncold-1; i>=0; i--){
-          table.colour = poptions.palettecolours_cold[i].Name();
-          if(npatterns>0){
-            int ii = (npatterns-1) - i%npatterns;
-            table.pattern = poptions.patterns[ii];
-          }
-          vtable.push_back(table);
+      for (int i=0; i<ncodes; i++){
+        if(ncolours>0){
+          int ii = i%ncolours;
+          table.colour = poptions.palettecolours[ii].Name();
+        } else {
+          table.colour = poptions.fillcolour.Name();
         }
+        if(npatterns>0){
+          int ii = i%npatterns;
+          table.pattern = poptions.patterns[ii];
+        }
+        vtable.push_back(table);
+      }
 
+      if(poptions.discontinuous == 1 &&
+          poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
         for (int i=0; i<ncodes; i++){
-          if(ncolours>0){
-            int ii = i%ncolours;
-            table.colour = poptions.palettecolours[ii].Name();
-          } else {
-            table.colour = poptions.fillcolour.Name();
-          }
-          if(npatterns>0){
-            int ii = i%npatterns;
-            table.pattern = poptions.patterns[ii];
-          }
-          vtable.push_back(table);
-        }
-
-        if(poptions.discontinuous == 1 &&
-            poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
-          for (int i=0; i<ncodes; i++){
-            vector<miString> tstr = classSpec[i].split(":");
-            if(tstr.size()>1) {
-              vtable[i].text = tstr[1];
-            }
-          }
-
-        } else if(nlines>0){
-          for(int i=0; i<ncodes; i++){
-            float min = poptions.linevalues[i];
-            float max = poptions.linevalues[i+1];
-            ostringstream ostr;
-            ostr <<min<<" - "<<max;
-            vtable[i].text = ostr.str();
-          }
-
-        } else if(nloglines>0){
-          vector<float> vlog;
-          for (int n=0; n<ncodes; n++) {
-            float slog= powf(10.0,n);
-            for (int i=0; i<nloglines; i++)
-              vlog.push_back(slog*poptions.loglinevalues[i]);
-          }
-          for(int i=0; i<ncodes; i++){
-            float min = vlog[i];
-            float max = vlog[i+1];
-            ostringstream ostr;
-            ostr <<min<<" - "<<max;
-            vtable[i].text = ostr.str();
-          }
-
-        } else {
-
-          //cold colours
-          float max=poptions.base;
-          float min=max;
-          for(int i=ncold-1; i>-1; i--){
-            min = max - poptions.lineinterval;
-            ostringstream ostr;
-            if(fabs(min)<poptions.lineinterval/10) min=0.;
-            if(fabs(max)<poptions.lineinterval/10) max=0.;
-            ostr <<min<<" - "<<max;
-            max=min;
-            vtable[i].text = ostr.str();
-          }
-
-          //colours
-          if(cmin>poptions.base){
-            float step = ncodes*poptions.lineinterval;
-            min = int((cmin-poptions.base)/step)*step+poptions.base;
-            if(cmax+cmin > 2*(min+step)) min += step;
-          }else{
-            min=poptions.base;
-          }
-          for(int i=ncold; i<ncodes+ncold; i++){
-            max = min + poptions.lineinterval;
-            ostringstream ostr;
-            ostr <<min<<" - "<<max;
-            min=max;
-            vtable[i].text = ostr.str();
+          vector<miString> tstr = classSpec[i].split(":");
+          if(tstr.size()>1) {
+            vtable[i].text = tstr[1];
           }
         }
 
-
-        int n= vtable.size();
-        for( int i=n-1; i>-1; i--){
-          str +=";";
-          str +=vtable[i].colour;
-          str +=";";
-          str +=vtable[i].pattern;
-          str +=";";
-          str +=vtable[i].text;
+      } else if(nlines>0){
+        for(int i=0; i<ncodes; i++){
+          float min = poptions.linevalues[i];
+          float max = poptions.linevalues[i+1];
+          ostringstream ostr;
+          ostr <<min<<" - "<<max;
+          vtable[i].text = ostr.str();
         }
-        str += "\"";
-        str += endString;
 
-        anno.push_back(str);
+      } else if(nloglines>0){
+        vector<float> vlog;
+        for (int n=0; n<ncodes; n++) {
+          float slog= powf(10.0,n);
+          for (int i=0; i<nloglines; i++)
+            vlog.push_back(slog*poptions.loglinevalues[i]);
+        }
+        for(int i=0; i<ncodes; i++){
+          float min = vlog[i];
+          float max = vlog[i+1];
+          ostringstream ostr;
+          ostr <<min<<" - "<<max;
+          vtable[i].text = ostr.str();
+        }
+
+      } else {
+
+        //cold colours
+        float max=poptions.base;
+        float min=max;
+        for(int i=ncold-1; i>-1; i--){
+          min = max - poptions.lineinterval;
+          ostringstream ostr;
+          if(fabs(min)<poptions.lineinterval/10) min=0.;
+          if(fabs(max)<poptions.lineinterval/10) max=0.;
+          ostr <<min<<" - "<<max;
+          max=min;
+          vtable[i].text = ostr.str();
+        }
+
+        //colours
+        if(cmin>poptions.base){
+          float step = ncodes*poptions.lineinterval;
+          min = int((cmin-poptions.base)/step)*step+poptions.base;
+          if(cmax+cmin > 2*(min+step)) min += step;
+        }else{
+          min=poptions.base;
+        }
+        for(int i=ncold; i<ncodes+ncold; i++){
+          max = min + poptions.lineinterval;
+          ostringstream ostr;
+          ostr <<min<<" - "<<max;
+          min=max;
+          vtable[i].text = ostr.str();
+        }
+      }
+
+
+      int n= vtable.size();
+      for( int i=n-1; i>-1; i--){
+        str +=";";
+        str +=vtable[i].colour;
+        str +=";";
+        str +=vtable[i].pattern;
+        str +=";";
+        str +=vtable[i].text;
+      }
+      str += "\"";
+      str += endString;
+
+      anno.push_back(str);
 
     }
   }
@@ -428,10 +429,10 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
       //       }
 
       miString str  = "arrow=" + miString (vectorAnnotationSize)
-      + ",tcolour=" + poptions.linecolour.Name() + endString;
+          + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
-      + ",tcolour=" + poptions.linecolour.Name() + endString ;
+          + ",tcolour=" + poptions.linecolour.Name() + endString ;
       anno.push_back(str);
 
     }
@@ -459,7 +460,7 @@ bool FieldPlot::plot(){
         cerr << endl;
         cerr << "FieldPlot::plot ERROR: field smoothed too much !!!" << endl;
         cerr << "    numSmoothed,fieldSmooth: "
-        << fields[i]->numSmoothed << " " << poptions.fieldSmooth << endl;
+            << fields[i]->numSmoothed << " " << poptions.fieldSmooth << endl;
         cerr << endl;
       }
     }
@@ -587,7 +588,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
     // data interpolated to polarstereographic grids are usually turned
     // met.no WAM wave directions are "oceanographic to-direction".
     bool turn= fields[0]->turnWaveDirection;
-//    //##################################################################
+    //    //##################################################################
 
     if( !gc.getDirectionVectors(area,turn,npos,x,y,u,v) ) {
       return uv;
@@ -944,27 +945,40 @@ bool FieldPlot::plotWindColour(){
   int nlim= poptions.limits.size();
   int ncol= poptions.colours.size();
 
-  if (nlim>=1 && ncol>=2) {
-
-    if (nlim>ncol-1) nlim= ncol-1;
-    if (ncol>nlim+1) ncol= nlim+1;
-    limits= new float[nlim];
+  if ( ncol>=2 ) {
     rgb=    new GLfloat[ncol*3];
-    for (i=0; i<nlim; i++)
-      limits[i]= poptions.limits[i];
     for (i=0; i<ncol; i++) {
       rgb[i*3+0]=  poptions.colours[i].fR();
       rgb[i*3+1]=  poptions.colours[i].fG();
       rgb[i*3+2]=  poptions.colours[i].fB();
+    }
+  } else {
+    const int maxdef= 4;
+    float rgbdef[maxdef][3]={{0.5,0.5,0.5},{0,0,0},{0,1,1},{1,0,0}};
+
+    ncol= maxdef;
+
+    rgb=    new GLfloat[ncol*3];
+    for (i=0; i<ncol; i++) {
+      rgb[i*3+0]= rgbdef[i][0];
+      rgb[i*3+1]= rgbdef[i][1];
+      rgb[i*3+2]= rgbdef[i][2];
+    }
+  }
+
+  if (nlim>=1 ) {
+
+    if (nlim>ncol-1) nlim= ncol-1;
+    if (ncol>nlim+1) ncol= nlim+1;
+    limits= new float[nlim];
+    for (i=0; i<nlim; i++) {
+      limits[i]= poptions.limits[i];
     }
 
   } else {
 
     // default, should be handled when reading setup, if allowed...
     const int maxdef= 4;
-    float rgbdef[maxdef][3]={{0.5,0.5,0.5},{0,0,0},{0,1,1},{1,0,0}};
-
-    ncol= maxdef;
     nlim= maxdef-1;
 
     float fmin=fieldUndef, fmax=-fieldUndef;
@@ -977,17 +991,13 @@ bool FieldPlot::plotWindColour(){
     if (fmin>fmax) return false;
 
     limits= new float[nlim];
-    rgb=    new GLfloat[ncol*3];
     float dlim= (fmax-fmin)/float(ncol);
-    for (i=0; i<nlim; i++)
-      limits[i]= fmin + dlim*float(i+1);
-    for (i=0; i<ncol; i++) {
-      rgb[i*3+0]= rgbdef[i][0];
-      rgb[i*3+1]= rgbdef[i][1];
-      rgb[i*3+2]= rgbdef[i][2];
-    }
 
+    for (i=0; i<nlim; i++) {
+      limits[i]= fmin + dlim*float(i+1);
+    }
   }
+
 
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
@@ -1117,12 +1127,12 @@ bool FieldPlot::plotWindColour(){
   return true;
 }
 
-   
+
 /*
     ROUTINE:   FieldPlot::plotValue
     PURPOSE:   plot field value as number
-    ALGORITHM: 
-   */
+    ALGORITHM:
+ */
 
 bool FieldPlot::plotValue(){
 #ifdef DEBUGPRINT
@@ -1166,6 +1176,17 @@ bool FieldPlot::plotValue(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
+  int npos = nx*ny;
+  int ii = 0;
+  while ( ii < npos && (fabsf(field[ii]) == fieldUndef || fabsf(field[ii]) < 1 )) {
+    ++ii;
+  }
+  bool smallvalues = ( ii == npos);
+
+  if (smallvalues) {
+    xstep *= 2;
+  }
+
   float gx,gy;
   float flagl = sdist * 0.85;
 
@@ -1180,7 +1201,7 @@ bool FieldPlot::plotValue(){
   glColor3ubv(poptions.linecolour.RGB());
   maprect.setExtension( flagl );
 
-  float fontsize= 14. * poptions.labelSize;
+  float fontsize= 10. * poptions.labelSize;
   fp->set("BITMAPFONT",poptions.fontface,fontsize);
 
   float chx,chy;
@@ -1193,8 +1214,8 @@ bool FieldPlot::plotValue(){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
       if (field[i]!=fieldUndef && maprect.isnear(gx,gy)&&
-        field[i] > poptions.minvalue && field[i] < poptions.maxvalue ) {
-        int value= (field[i]>=0.0f) ? int(field[i]+0.5f) : int(field[i]-0.5f);
+          field[i] > poptions.minvalue && field[i] < poptions.maxvalue ) {
+        float value= (field[i]);
 
         if ( poptions.colours.size()>2){
           if ( value < poptions.base ) {
@@ -1207,6 +1228,13 @@ bool FieldPlot::plotValue(){
         }
 
         ostringstream ostr;
+        if ( smallvalues ) {
+          ostr.setf(ios::scientific);
+          ostr.precision(1);
+        } else {
+          ostr.setf(ios::fixed);
+          ostr.precision(0);
+        }
         ostr<<value;
         miString str= ostr.str();
         fp->drawStr(str.c_str(),gx-chx/2,gy-chy/2,0.0);
@@ -1231,7 +1259,7 @@ bool FieldPlot::plotValue(){
     ROUTINE:   FieldPlot::plotWindAndValue
     PURPOSE:   plot vector field as wind arrows and third field as number.
     ALGORITHM: Fields u(0) v(1) number(2)
-   */
+ */
 
 bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
 #ifdef DEBUGPRINT
@@ -1621,18 +1649,18 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
         if (maprect.isinside(x1,y1) && maprect.isinside(x2,y2)) {
           fp->drawStr(str.c_str(),x1,y1,0.0);
           // mark used space for number (line around)
-                ib1= int((x1-bx)*bres);
-                ib2= int((x2-bx)*bres)+1;
-                jb1= int((y1-by)*bres);
-                jb2= int((y2-by)*bres)+1;
-                for (jb=jb1; jb<jb2; jb++) {
-                  for (ib=ib1; ib<ib2; ib++) {
-                    ibit= jb*nbx+ib;
-                    iwrd= ibit/nbitwd;
-                    ibit= ibit%nbitwd;
-                    bmap[iwrd]= bmap[iwrd] | (1<<ibit);
-                  }
-                }
+          ib1= int((x1-bx)*bres);
+          ib2= int((x2-bx)*bres)+1;
+          jb1= int((y1-by)*bres);
+          jb2= int((y2-by)*bres)+1;
+          for (jb=jb1; jb<jb2; jb++) {
+            for (ib=ib1; ib<ib2; ib++) {
+              ibit= jb*nbx+ib;
+              iwrd= ibit/nbitwd;
+              ibit= ibit%nbitwd;
+              bmap[iwrd]= bmap[iwrd] | (1<<ibit);
+            }
+          }
         }
 
       }
@@ -1767,8 +1795,8 @@ bool FieldPlot::plotValues(){
   //poptions.density!=auto and proj=geographic
   vector<int> vxstep;
   bool adjustToLatLon = poptions.density
-  && fields[0]->area.P().isGeographic()
-  && step > 0;
+      && fields[0]->area.P().isGeographic()
+      && step > 0;
   if(adjustToLatLon) iy1 = (iy1/step)*step;
   for (int iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) {
@@ -2608,8 +2636,8 @@ bool FieldPlot::plotContour(){
         ibmap, lbmap, kbmap,
         nxbmap, nybmap, rbmap,
         fp, poptions, psoutput,
-	fields[0]->area, fieldUndef,
-	getModelName(), fields[0]->name, ftime.hour());
+        fields[0]->area, fieldUndef,
+        getModelName(), fields[0]->name, ftime.hour());
 
   }
 
@@ -2705,7 +2733,7 @@ bool FieldPlot::plotContour(){
         ibmap, lbmap, kbmap,
         nxbmap, nybmap, rbmap,
         fp, poptions, psoutput,
-	fields[0]->area, fieldUndef,
+        fields[0]->area, fieldUndef,
         getModelName(), fields[0]->name, ftime.hour());
 
     //reset contour shading
@@ -2900,8 +2928,8 @@ bool FieldPlot::plotBox_alpha_shade(){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   float red=poptions.linecolour.fR(),
-  green=poptions.linecolour.fG(),
-  blue=poptions.linecolour.fB(), alpha;
+      green=poptions.linecolour.fG(),
+      blue=poptions.linecolour.fB(), alpha;
 
   ix2++;
   iy2++;
@@ -3004,7 +3032,7 @@ bool FieldPlot::plotAlarmBox(){
     if (i==sf) i=sf-1;
 
     float r1= float(poptions.forecastLength[i] - fc)/
-    float(poptions.forecastLength[i] - poptions.forecastLength[i-1]);
+        float(poptions.forecastLength[i] - poptions.forecastLength[i-1]);
     float r2= 1.-r1;
 
     if (sf==s1 && s2==0) {
@@ -3114,7 +3142,11 @@ bool FieldPlot::plotFillCell(){
 
   if (!fields[0]->data) return false;
 
-  if ( poptions.palettecolours.size() == 0 ) return false;
+  vector<Colour> palette;
+
+  if ( poptions.palettecolours.size() == 0 ) {
+    poptions.palettecolours = ColourShading::getColourShading("standard");
+  }
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -3158,26 +3190,26 @@ bool FieldPlot::plotFillCell(){
       int yy = y[iy * nx + ix];
       float fvalue = fields[0]->data[ix + (iy * nx)];
       if (fvalue >= poptions.minvalue && fvalue <= poptions.maxvalue) {
-      int value= (fvalue>=0.0f) ? int(fvalue+0.5f) : int(fvalue-0.5f);
+        int value= (fvalue>=0.0f) ? int(fvalue+0.5f) : int(fvalue-0.5f);
 
-      // set fillcolor of cell
-      if(poptions.linevalues.size() == 0){
-        size_t index = 0;
-        if ( value >0) {
-          index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
-        } else{
-          index = int(-value/poptions.lineinterval)%poptions.palettecolours.size();
+        // set fillcolor of cell
+        if(poptions.linevalues.size() == 0){
+          size_t index = 0;
+          if ( value > poptions.base) {
+            index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
+          } else{
+            index = int(-value/poptions.lineinterval)%poptions.palettecolours.size();
+          }
+          if ( value <poptions.base && index !=0) {
+            index = poptions.palettecolours.size() - index;
+          }
+          if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
+          if (index<0) index=0;
+          glColor4ubv(poptions.palettecolours[index].RGBA());
+        } else {
+          it = find(poptions.linevalues.begin(), poptions.linevalues.end(), value);
+          glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()].RGBA());
         }
-        if ( value <0 && index !=0) {
-          index = poptions.palettecolours.size() - index;
-        }
-        if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
-        if (index<0) index=0;
-        glColor4ubv(poptions.palettecolours[index].RGBA());
-      } else {
-        it = find(poptions.linevalues.begin(), poptions.linevalues.end(), value);
-        glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()].RGBA());
-      }
 
         glVertex2f(xx - dx, yy - dy);
         // lower-right corner of gridcell
@@ -3251,8 +3283,8 @@ bool FieldPlot::plotAlpha_shade(){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   float red=poptions.linecolour.fR(),
-  green=poptions.linecolour.fG(),
-  blue=poptions.linecolour.fB(), alpha;
+      green=poptions.linecolour.fG(),
+      blue=poptions.linecolour.fB(), alpha;
 
   ix2++;
 

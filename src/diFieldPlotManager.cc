@@ -186,7 +186,9 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
                   sp.errorMsg(sect_name, i, errm);
                   break;
                 }
-                option = "dimension=" + miString(int(input.size()));
+
+                option = "dim=" + miString(int(input.size()));
+
                 if (!PlotOptions::PlotOptions::updateFieldPlotOptions(name, option)){
                   miString errm = "|Unknown fieldplottype in plotcommand";
                                     sp.errorMsg(sect_name, i, errm);

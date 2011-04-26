@@ -132,17 +132,23 @@ QDialog(parent)
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
   map<miutil::miString, miutil::miString> enabledOptions = PlotOptions::getEnabledOptions();
-  plottypes = PlotOptions::getPlotTypes();
+  plottypes_dim = PlotOptions::getPlotTypes();
+  if ( plottypes_dim.size() > 1 ) {
+    plottypes = plottypes_dim[1];
+  }
 
-  for ( size_t i = 0; i< plottypes.size(); i++ ) {
-    if(enabledOptions.count(plottypes[i])) {
-      enableMap[plottypes[i]].contourWidgets =  (enabledOptions[plottypes[i]].contains("contour") );
-      enableMap[plottypes[i]].extremeWidgets =  (enabledOptions[plottypes[i]].contains("extreme") );
-      enableMap[plottypes[i]].shadingWidgets =  (enabledOptions[plottypes[i]].contains("shading") );
-      enableMap[plottypes[i]].lineWidgets =  (enabledOptions[plottypes[i]].contains("line") );
-      enableMap[plottypes[i]].fontWidgets =  (enabledOptions[plottypes[i]].contains("font") );
-      enableMap[plottypes[i]].densityWidgets =  (enabledOptions[plottypes[i]].contains("density") );
-      enableMap[plottypes[i]].unitWidgets =  (enabledOptions[plottypes[i]].contains("unit") );
+
+  if ( plottypes_dim.size() > 1 ) {
+    for ( size_t i = 0; i< plottypes_dim[0].size(); i++ ) {
+      if(enabledOptions.count(plottypes_dim[0][i])) {
+        enableMap[plottypes_dim[0][i]].contourWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("contour") );
+        enableMap[plottypes_dim[0][i]].extremeWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("extreme") );
+        enableMap[plottypes_dim[0][i]].shadingWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("shading") );
+        enableMap[plottypes_dim[0][i]].lineWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("line") );
+        enableMap[plottypes_dim[0][i]].fontWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("font") );
+        enableMap[plottypes_dim[0][i]].densityWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("density") );
+        enableMap[plottypes_dim[0][i]].unitWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("unit") );
+      }
     }
   }
 
@@ -1629,6 +1635,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.taxis = vfgi[indexFGR].taxis;
       sf.runaxis = vfgi[indexFGR].runaxis;
       sf.grid = vfgi[indexFGR].grid;
+      sf.cdmSyntax = vfgi[indexFGR].cdmSyntax;
       sf.minus = false;
 
       if (!vfgi[indexFGR].defaultLevel.empty()) {
@@ -1856,10 +1863,25 @@ void FieldDialog::enableFieldOptions()
   int nr_linetypes = linetypes.size();
   enableWidgets("contour");
 
-  //plottype
+  //dimension (1dim = contour,..., 2dim=wind,...)
+    if ((nc = cp->findKey(vpcopt, "dim")) >= 0) {
+      if (!vpcopt[nc].intValue.empty() && vpcopt[nc].intValue[0] < plottypes_dim.size()) {
+          plottypes = plottypes_dim[vpcopt[nc].intValue[0]];
+      } else if( plottypes_dim.size() > 0 ){
+        plottypes = plottypes_dim[0];
+      }
+    } else if( plottypes_dim.size() > 0 ){
+      plottypes = plottypes_dim[0];
+    }
+    plottypeComboBox->clear();
+    int nr_plottypes = plottypes.size();
+    for( int i=0; i<nr_plottypes; i++ ){
+      plottypeComboBox->addItem(QString(plottypes[i].c_str()));
+    }
+
+      //plottype
     if ((nc = cp->findKey(vpcopt, "plottype")) >= 0) {
       miutil::miString value = vpcopt[nc].allValue;
-      int nr_plottypes = plottypes.size();
       i = 0;
       while (i < nr_plottypes && value != plottypes[i])
         i++;
@@ -3185,41 +3207,11 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
       ostr << "( ";
     }
 
-    if (selectedFields[i].inEdit && selectedFields[i].editPlot)
-      ostr << editName;
-    else
-      ostr << selectedFields[i].modelName;
-
-    ostr << " " << selectedFields[i].fieldName;
-
-    if (selectedFields[i].level.exists())
-      ostr << " level=" << selectedFields[i].level;
-    if (selectedFields[i].idnum.exists())
-      ostr << " idnum=" << selectedFields[i].idnum;
-
-    if (selectedFields[i].hourOffset != 0)
-      ostr << " hour.offset=" << selectedFields[i].hourOffset;
-
-    if (selectedFields[i].hourDiff != 0)
-      ostr << " hour.diff=" << selectedFields[i].hourDiff;
+    ostr << getParamString(i);
 
     if (minus) {
       ostr << " - ";
-
-      ostr << selectedFields[i + 1].modelName;
-      ostr << " " << selectedFields[i + 1].fieldName;
-
-      if (selectedFields[i + 1].level.exists())
-        ostr << " level=" << selectedFields[i + 1].level;
-      if (selectedFields[i + 1].idnum.exists())
-        ostr << " idnum=" << selectedFields[i + 1].idnum;
-
-      if (selectedFields[i + 1].hourOffset != 0)
-        ostr << " hour.offset=" << selectedFields[i + 1].hourOffset;
-
-      if (selectedFields[i + 1].hourDiff != 0)
-        ostr << " hour.diff=" << selectedFields[i + 1].hourDiff;
-
+      ostr << getParamString(i+1);
       ostr << " )";
     }
 
@@ -3307,6 +3299,62 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
   historyForwardButton->setEnabled(false);
 
   return vstr;
+}
+
+std::string FieldDialog::getParamString(int i)
+{
+
+  ostringstream ostr;
+
+  if( selectedFields[i].cdmSyntax ) {
+    if (selectedFields[i].inEdit && selectedFields[i].editPlot)
+      ostr << " model="<< editName;
+    else
+      ostr <<" model="<< selectedFields[i].modelName;
+
+    ostr << " parameter=" << selectedFields[i].fieldName;
+
+    if (selectedFields[i].level.exists()) {
+      ostr << " vcoor=" << selectedFields[i].zaxis;
+      ostr << " vlevel=" << selectedFields[i].level.toInt();
+    }
+    if (selectedFields[i].idnum.exists()) {
+      ostr << " ecoor="<< selectedFields[i].runaxis;
+      ostr << " elevel=" << selectedFields[i].idnum;
+    }
+    //    if (selectedFields[i].grid.exists()) {
+    ostr << " grid="<< selectedFields[i].grid;
+    //    }
+    if (selectedFields[i].hourOffset != 0)
+      ostr << " hour.offset=" << selectedFields[i].hourOffset;
+
+    if (selectedFields[i].hourDiff != 0)
+      ostr << " hour.diff=" << selectedFields[i].hourDiff;
+
+  } else {
+
+    if (selectedFields[i].inEdit && selectedFields[i].editPlot)
+      ostr << editName;
+    else
+      ostr << selectedFields[i].modelName;
+
+    ostr << " " << selectedFields[i].fieldName;
+
+    if (selectedFields[i].level.exists())
+      ostr << " level=" << selectedFields[i].level;
+    if (selectedFields[i].idnum.exists())
+      ostr << " idnum=" << selectedFields[i].idnum;
+
+    if (selectedFields[i].hourOffset != 0)
+      ostr << " hour.offset=" << selectedFields[i].hourOffset;
+
+    if (selectedFields[i].hourDiff != 0)
+      ostr << " hour.diff=" << selectedFields[i].hourDiff;
+
+  }
+
+  return ostr.str();
+
 }
 
 miutil::miString FieldDialog::getShortname()

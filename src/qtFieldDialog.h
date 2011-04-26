@@ -148,6 +148,7 @@ private:
     std::string runaxis;
     std::string taxis;
     std::string grid;
+    bool cdmSyntax;
     bool levelmove;
     bool idnummove;
     SelectedField() : levelmove(true), idnummove(true)
@@ -189,6 +190,7 @@ private:
   vector<miutil::miString> numberList( QComboBox* cBox, float number );
 
   void baseList( QComboBox* cBox, float base, bool onoff= false );
+  std::string getParamString(int i);
 
   Controller* m_ctrl;
 
@@ -223,7 +225,9 @@ private:
 
   vector<int> countSelected;
 
+  vector< vector<miutil::miString> > plottypes_dim;
   vector<miutil::miString> plottypes;
+
   map<miutil::miString, EnableWidget> enableMap;
   vector<Colour::ColourInfo> colourInfo;
   vector<ColourShading::ColourShadingInfo> csInfo;
