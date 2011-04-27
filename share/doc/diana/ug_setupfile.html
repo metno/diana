@@ -305,66 +305,6 @@
     </pre>
     <p>
 
-    <a name="NETCDF_PARAMETERS"></a><h3>Section NETCDF_PARAMETERS</h3>
-
-
-    <b> Parameters</b>
-
-    <p />
-    Syntax:
-    <pre>
-    diana_name = netcdf_name
-    </pre>
-    Example:
-    <pre>
-       ice.concentration=sea_ice_concentration
-       salt=sea_water_salinity
-    </pre>
-Connects the name of variable used in diana with the local variable-name used in the NetCDF-files.
-To find the variable-names in a NetCDF-file, use 'ncdump -h <filename>'.
-
-    <p />
-
-    <b>Vertical coordinates</b>
-    
- <p />
-     If not specified, the values of the attributes "standard_name" and
-      "units" of the variables with attribute "axis="Z"" is used.
-<p />
-    Syntax:
-<pre>
-    vertical_coordinate=A:B,C:D
-</pre>
-Where A is the name appearing in the dialog, B is the "standard_name"
-from the Netcdf files, C is "suffix" or "prefix", and D is name of the
-suffix/prefix (units) 
-<p />
-    Example:
-
-<pre>
-    vertical_coordinate=Depth:depth,suffix:m
-</pre>
-    <p />
-
-    <b>IMPORTANT NOTES</b>
-    <p />
-
-    <ul>
-    <li>This is the first version of the NetCDF filereading capabillity, and you
-    may (and probably will) encounter some bugs.</li>
-    <li>Please report all bugs on <a
-    href="http://diana.bugs.met.no">http://diana.bugs.met.no</a>, or send
-    an e-mail to the Diana mailinglist.</li>
-    <li>The NetCDF-files must conform to one of the following points: <br />
-    (i) Contain the metno_mapprojection_no, metno_grid_spec
-    and metno_grid_no attributes. The metno_mapprojection_no is a digit from 0 to 6, and
-    metno_grid_specs varies depending on which map projection that is selected.
-    See table in the <a href="#MAP_AREA">MAP_AREA-section</a> for further
-    information.<br />
-    (ii) Follow the CF-1.1 standard. See the <a
-    href="ug_fileformats.html#FIELD.NETCDF.FILES">NetCDF-section</a> under
-    "File formats" in the index for further information.</li>
-    </ul>
 
     <a name="FIELD_COMPUTE"></a><h3>Section FIELD_COMPUTE</h3>
     defines common (for all sources) field computations.
@@ -624,30 +564,16 @@ CLEAR_FILEGROUP
     <a name="MAP_AREA"></a><h3>Section MAP_AREA</h3>
     define available projections and standard areas. Add lines of this type:
     <pre>
- name=X proj=Y grid=Z area=A
+ name=NAME proj4string="+proj=..." rectangle=x1:x2:y1:y2
     </pre>
-    where X is the name of the projection/area as shown in menues. To define one of the functionkeys from F5 to F8 as accelerator for an area: add any of [F5],[F6],[F7],[F8] at the end of the name.<br><br>
-    The keywords <b>proj</b>, <b>grid</b> and <b>area</b> can have the following values:
-    <table border="1" cellpadding="1" cellspacing="0" >
-	<tr><td>Proj</td><td>Grid</td><td>Area</td><td>comment</td></tr>
-	<tr><td>pstereographic</td><td>xp,yp,an,fi,projection-latitude</td><td>x1,x2,y1,y2 (in gridunits)</td><td>Polar Stereographic</td></tr>
-	<tr><td>pstereo_60</td><td>xp,yp,an,fi</td><td>x1,x2,y1,y2 (in gridunits)</td><td>Polar Stereographic 60 degrees north</td></tr>
-	<tr><td>mercator</td><td>west,south,x_inc(km),y_inc(km),ref_lat(deg)</td><td>x1,x2,y1,y2 (in x_inc/y_inc units)</td><td>Mercator</td></tr>
-	<tr><td>geographic</td><td>west,south,lon_inc(deg),lat_inc(deg)</td><td>x1,x2,y1,y2 (in lon_inc/lat_inc units)</td><td>Geographic</td></tr>
-	<tr><td>spherical_rot</td><td>west,south,lon_inc(deg),lat_inc(deg),lon_eq,lat_eq</td><td>x1,x2,y1,y2 (in lon_inc/lat_inc units)</td><td>Spherical Rotated</td></tr>
-	<tr><td>undefined</td><td>0:0:0:0</td><td></td><td>use area from field or satellite</td></tr>
-	<tr><td>undefined</td><td>1:0:0:0</td><td></td><td>leave area unchanged</td></tr>
-    </table>
 
-      <!-- PAGEBREAK -->
-
+To define one of the function keys from F5 to F8 as accelerator for an area: add any of [F5],[F6],[F7],[F8] at the end of the name.<br>
 
     <br>Examples:
     <pre>
- name=Data-area, proj=undefined, grid=0:0:0:0
- name=Europa, proj=pstereo_60, grid=115:148:237:0:0:0, area=51:181:45:134
- name=S.hemisphere, proj=pstereographic, grid=11851:11851:11850:180:-60:0, area=1:23701:1:23701
-    </pre>
+ name=Data-area proj4string=undefined
+ name=Europa  proj4string="+proj=stere +lat_ts=60 +lat_0=90.0 +lon_0=0 +x_0=5.71849e+06 +y_0=7.37385e+06 +R=6.371e+06"  rectangle=2.50e+06:9.02e+06:2.20e+06:6.67e+06
+     </pre>
     <p>
 
     <a name="MAP_TYPE"></a><h3>Section MAP_TYPE</h3>

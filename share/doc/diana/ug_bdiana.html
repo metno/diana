@@ -143,7 +143,7 @@ OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\
  timediff=180 colour=black font=Helvetica face=normal
 OBJECTS NAME="DNMI Bakkeanalyse" types=front,symbol,area \
  timediff=60
-AREA areaname=Norge 
+AREA name=Norge 
 MAP backcolour=white map=Gshhs-AUTO contour=on \
  cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \
  land=on land.colour=landgul land.zorder=0 latlon=off frame=off
@@ -382,12 +382,19 @@ ENDPLOT                  # End of plot-command
 <p>
     <a NAME="PLOTSETTINGS.AREA"></a>
     <b> Area (Those marked with * can only be used in bdiana)</b>
-<br>
+<br><br>
+<b>Examples:</b> <br>
+AREA name=Atlant <br>
+AREA name=Atlant rectangle=4.0e+06:8.0e06:4.0e+06:6.0e06<br>
+AREA proj4string="+proj=ob_tran +o_proj=eqc +lon_0=0 +o_lat_p=25
++x_0=5.14744e+06 +y_0=4.03549e+06 +a=6371000.0 +b=6371000.0"
+rectangle=4.0e+06:8.0e06:4.0e+06:6.0e06<br>
+<p>
     <TABLE BORDER="1">
 	<tr><th><b>Explanation</b><th><b>Option w/default value</b><th><b>Values</b>
-	<tr><td>Area by name</td><td>area=Atlant</td><td>Areas defined in setup file</td></tr>
+	<tr><td>Area by name</td><td>name=Atlant</td><td>Area defined in setup file</td></tr>
 	<tr><td>projection*</td><td>proj4string="+proj=.." </td><td><br></td></tr>
-	<tr><td>rectangle*</td><td>rectangle=x1:x2:y1:y2</td><td><br></td></tr>
+	<tr><td>rectangle*</td><td>rectangle=x1:x2:y1:y2</td><td>in proj coordinates</td></tr>
     </TABLE><p>
 
     <a NAME="PLOTSETTINGS.MAPS"></a>
@@ -396,7 +403,6 @@ ENDPLOT                  # End of plot-command
     <TABLE BORDER="1">
 	<tr><th><b>Explanation</b><th><b>Option w/default value</b><th><b>Values</b>
 	<tr><td>Background colour</td><td>backcolour=black</td><td>All colours</td></tr>
-	<tr><td>Area by name</td><td>area=Atlant</td><td>Areas defined in setup file</td></tr>
 	<tr><td>Force area*</td><td>xylimit=x1,x2,y1,y2</td><td>Set new corner values</td></tr>
 	<tr><td>Force area*</td><td>xypart=x1%,x2%,y1%,y2%</td><td>Set new corner values as percent of width/height</td></tr>
 	<tr><td>Map name</td><td>map=Euro1</td><td>maps defined in setup file</td></tr>
