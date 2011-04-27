@@ -601,10 +601,17 @@ vector<miutil::miString> TrajectoryDialog::writeLog(){
     miutil::miString str = ost.str();
     vstr.push_back(str);
   }
+
   ostringstream ostr;
-  ostr <<"colour="<<colourInfo[colbox->currentIndex()].name;
-  ostr <<" linewidth="<< lineWidthBox->currentIndex() + 1;  // 1,2,3,...
-  ostr <<" linetype="<< linetypes[lineTypeBox->currentIndex()];
+  if ( colbox->currentIndex() > -1 ) {
+    ostr <<"colour="<<colourInfo[colbox->currentIndex()].name;
+  }
+  if ( lineWidthBox->currentIndex() > -1 ) {
+    ostr <<" linewidth="<< lineWidthBox->currentIndex() + 1;  // 1,2,3,...
+  }
+  if ( lineTypeBox->currentIndex() > -1 ) {
+    ostr <<" linetype="<< linetypes[lineTypeBox->currentIndex()];
+  }
   miutil::miString str = ostr.str() + makeString();
   vstr.push_back(str);
   vstr.push_back("================");
