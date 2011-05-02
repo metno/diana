@@ -819,6 +819,7 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
     //Make copy with filed names from file
     if(fieldManager->isGridCollection(modelName)) {
       vfgi.push_back(vfgi[i]);
+      vfgi[vfgi.size()-1].plotDefinitions = false;
     }
 
     //use groupname from setup if defined
@@ -834,11 +835,11 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
       splitSuffix(fieldName, suffix);
       fieldName_suffix[fieldName].push_back(suffix);
     }
-    for (unsigned int l = 0; l < vfgi[i].standard_names.size(); l++) {
-      miString suffix;
-      miString fieldName = vfgi[i].standard_names[l];
-      fieldName_suffix[fieldName].push_back(suffix);
-    }
+//    for (unsigned int l = 0; l < vfgi[i].standard_names.size(); l++) {
+//      miString suffix;
+//      miString fieldName = vfgi[i].standard_names[l];
+//      fieldName_suffix[fieldName].push_back(suffix);
+//    }
 
     //find plotNames
     vector<miString> plotNames;
@@ -908,12 +909,12 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 //    miString& plotName, vector<miString>& fieldName, miString& levelName,
 //    miString& idnumName, int& hourOffset, int& hourDiff, miTime& time)
 {
-  cerr <<"PIN: "<<pin<<endl;
+ // cerr <<"PIN: "<<pin<<endl;
 
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
-cerr <<"PIN: "<<pin<<endl;
+  cerr <<"PIN: "<<pin<<endl;
   std::vector<std::string> tokens;
   //NB! what about ""
   boost::algorithm::split(tokens, pin, boost::algorithm::is_space());
@@ -921,6 +922,7 @@ cerr <<"PIN: "<<pin<<endl;
   size_t n = tokens.size();
   std::string str, key;
   FieldRequest fieldrequest;
+  vector<std::string> paramNames;
 
   for (size_t k = 1; k < n; k++) {
     std::vector<std::string> vtoken;
@@ -931,6 +933,10 @@ cerr <<"PIN: "<<pin<<endl;
         fieldrequest.modelName = vtoken[1];
       }else if (key == "parameter") {
         plotName = vtoken[1];
+        paramNames.push_back(vtoken[1]);
+      }else if (key == "plot") {
+        plotName = vtoken[1];
+        paramNames = getParamNames(vtoken[1]);
       } else if (key == "vcoor") {
         fieldrequest.zaxis = vtoken[1];
       } else if (key == "tcoor") {
@@ -979,7 +985,6 @@ cerr <<"PIN: "<<pin<<endl;
     }
   }
 
-  vector<std::string> paramNames = getParamNames(plotName);
   //  //plotName -> fieldName
 
   for (size_t i = 0; i < paramNames.size(); i++) {

@@ -149,9 +149,10 @@ private:
     std::string taxis;
     std::string grid;
     bool cdmSyntax;
+    bool plotDefinition;
     bool levelmove;
     bool idnummove;
-    SelectedField() : levelmove(true), idnummove(true)
+    SelectedField() : levelmove(true), idnummove(true), cdmSyntax(false), plotDefinition(true)
     {
     }
   };

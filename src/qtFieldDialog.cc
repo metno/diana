@@ -1181,16 +1181,18 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 
   int nvfgi = vfgi.size();
 
-  //Translate level names
+  //Translate level names if not cdmSyntax
   for (int i = 0; i < nvfgi; i++) {
 
-    for(size_t ii = 0; ii <  vfgi[i].levelNames.size(); ii++ ) {
+    if( !vfgi[i].cdmSyntax ) {
+      for(size_t ii = 0; ii <  vfgi[i].levelNames.size(); ii++ ) {
 
-      vfgi[i].levelNames[ii] = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].levelNames[ii]);
+        vfgi[i].levelNames[ii] = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].levelNames[ii]);
+      }
+      vfgi[i].defaultLevel = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].defaultLevel);
     }
-    vfgi[i].defaultLevel = FieldSpecTranslation::getOldLevel(vfgi[i].zaxis, vfgi[i].defaultLevel);
-  }
 
+  }
 
   int i, indexFGR;
 
@@ -1636,6 +1638,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.runaxis = vfgi[indexFGR].runaxis;
       sf.grid = vfgi[indexFGR].grid;
       sf.cdmSyntax = vfgi[indexFGR].cdmSyntax;
+      sf.plotDefinition = vfgi[indexFGR].plotDefinitions;
       sf.minus = false;
 
       if (!vfgi[indexFGR].defaultLevel.empty()) {
@@ -3312,11 +3315,15 @@ std::string FieldDialog::getParamString(int i)
     else
       ostr <<" model="<< selectedFields[i].modelName;
 
-    ostr << " parameter=" << selectedFields[i].fieldName;
+    if (selectedFields[i].plotDefinition) {
+      ostr << " plot=" << selectedFields[i].fieldName;
+    } else {
+      ostr << " parameter=" << selectedFields[i].fieldName;
+    }
 
     if (selectedFields[i].level.exists()) {
       ostr << " vcoor=" << selectedFields[i].zaxis;
-      ostr << " vlevel=" << selectedFields[i].level.toInt();
+      ostr << " vlevel=" << selectedFields[i].level;
     }
     if (selectedFields[i].idnum.exists()) {
       ostr << " ecoor="<< selectedFields[i].runaxis;
@@ -4705,6 +4712,8 @@ void FieldDialog::changeModel()
         selectedFields[i].taxis = vfgi[indexFGR].taxis;
         selectedFields[i].runaxis = vfgi[indexFGR].runaxis;
         selectedFields[i].grid = vfgi[indexFGR].grid;
+        selectedFields[i].cdmSyntax = vfgi[indexFGR].cdmSyntax;
+        selectedFields[i].plotDefinition = vfgi[indexFGR].plotDefinitions;
 
         miutil::miString str = selectedFields[i].modelName + " "
             + selectedFields[i].fieldName;
