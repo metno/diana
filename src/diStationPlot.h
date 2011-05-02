@@ -69,6 +69,7 @@ struct Station{
   bool edit;
   int dd,ff,north;
   int alpha;
+  float scale;
   Colour colour;
   vector <stationText> vsText;
 };
@@ -136,10 +137,18 @@ public:
   /// return id
   int getId(){return id;}
   int getPriority(){return priority;}
+  /**
+   * Get image scale for a station
+   * @param i Index of station
+   * @return Current image scale for station i
+   */
+  float getImageScale(int i);
   /// set normal and selected image to im1
   void setImage(miutil::miString im1);
   /// set normal image to im1, selected image to im2
   void setImage(miutil::miString im1,miutil::miString im2);
+  /// set new scale for all images
+  void setImageScale(float new_scale);
   /// clears all text
   void clearText();
   /// if normal=true write name on all plotted stations, if selected=true write name on all selected stations
@@ -174,7 +183,7 @@ private:
   void addStation(const float lon, const float lat,
 		  const miutil::miString name="",
 		  const miutil::miString image="",
-		  int alpha=255);
+		  int alpha=255, float scale=1.0);
   void defineCoordinates();
   void init();
   void plotStation(int i);
@@ -205,7 +214,7 @@ private:
   GLuint circle;
 
 
-  static miutil::miString ddString[16]; // NNØ,NØ,ØNØ,Ø,ØSØ etc.
+  static miutil::miString ddString[16]; // NNï¿½,Nï¿½,ï¿½Nï¿½,ï¿½,ï¿½Sï¿½ etc.
  };
 
 #endif

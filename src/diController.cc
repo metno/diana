@@ -608,10 +608,10 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
 //    cerr << "F9 - ikke definert" << endl;
       return;
     } else if (me.key==key_F10){
-//    cerr << "Vis forrige plott(utfør)" << endl;
+//    cerr << "Vis forrige plott(utfï¿½r)" << endl;
       return;
     } else if (me.key==key_F11){
-//    cerr << "Vis neste plott (utfør)" << endl;
+//    cerr << "Vis neste plott (utfï¿½r)" << endl;
       return;
       //####################################################################
     } else if ((me.key==key_Left && me.modifier==key_Shift) ||
@@ -925,6 +925,14 @@ void Controller::stationCommand(const miString& command,
 				const miString& name, int id)
 {
   plotm->stationCommand(command,name,id);
+}
+float Controller::getStationsScale()
+{
+  return plotm->getStationsScale();
+}
+void Controller::setStationsScale(float new_scale)
+{
+  plotm->setStationsScale(new_scale);
 }
 
 //areas

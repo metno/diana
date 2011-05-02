@@ -341,6 +341,8 @@ public:
 		      const miutil::miString& misc="");
   void stationCommand(const miutil::miString& Command,
 		      const miutil::miString& name="", int id=-1);
+  float getStationsScale();
+  void setStationsScale(float new_scale);
 
   //areas
   ///put area into list of area objects

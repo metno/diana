@@ -234,7 +234,7 @@ StationPlot::~StationPlot()
 
 
 void StationPlot::addStation(const float lon, const float lat,
-    const miString newname, const miString newimage, int alpha)
+    const miString newname, const miString newimage, int alpha, float scale)
 {
   //at the moment, this should only be called from constructor, since
   //define coordinates must be called to actually plot stations
@@ -248,6 +248,7 @@ void StationPlot::addStation(const float lon, const float lat,
   newStation->lon = lon;
   newStation->lat = lat;
   newStation->alpha = alpha;
+  newStation->scale = scale;
   newStation->isSelected = false;
   if (newimage == "HIDE") {
     newStation->isVisible = false;
@@ -343,7 +344,7 @@ void StationPlot::plotStation(int i)
         w = ig.width(stations[i]->image);
         // 	if(stations[i]->edit)
         // 	  glPlot(redCircle,x,y,h,w);
-        if (!ig.plotImage(stations[i]->image, x, y, true, 1.0,
+        if (!ig.plotImage(stations[i]->image, x, y, true, stations[i]->scale,
             stations[i]->alpha))
           plotted = false;
       }
@@ -616,6 +617,11 @@ vector<miString> StationPlot::findStation(int x, int y, bool add)
   return stationstring;
 }
 
+float StationPlot::getImageScale(int i)
+{
+  return stations[i]->scale;
+}
+
 void StationPlot::setSelectedStation(miString station, bool add)
 {
 #ifdef DEBUGPRINT
@@ -690,6 +696,18 @@ void StationPlot::setImage(miString im1, miString im2)
   imageNormal = im1;
   imageSelected = im2;
   useImage = true;
+}
+
+void StationPlot::setImageScale(float new_scale)
+{
+#ifdef DEBUGPRINT
+  cerr << "StationPlot::setImageScale "
+  << endl;
+#endif
+  int n = stations.size();
+  for (int i = 0; i < n; i++) {
+    stations[i]->scale = new_scale;
+  }
 }
 
 void StationPlot::clearText()
@@ -917,13 +935,13 @@ bool StationPlot::stationCommand(const miString& command,
             //init ddString
             if (!ddString[0].exists()) {
               ddString[0] = "N";
-              ddString[1] = "NNØ";
-              ddString[2] = "NØ";
-              ddString[3] = "ØNØ";
-              ddString[4] = "Ø";
-              ddString[5] = "ØSØ";
-              ddString[6] = "SØ";
-              ddString[7] = "SSØ";
+              ddString[1] = "NNï¿½";
+              ddString[2] = "Nï¿½";
+              ddString[3] = "ï¿½Nï¿½";
+              ddString[4] = "ï¿½";
+              ddString[5] = "ï¿½Sï¿½";
+              ddString[6] = "Sï¿½";
+              ddString[7] = "SSï¿½";
               ddString[8] = "S";
               ddString[9] = "SSV";
               ddString[10] = "SV";

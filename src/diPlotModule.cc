@@ -2195,6 +2195,23 @@ void PlotModule::stationCommand(const miString& command, const miString& name,
 
 }
 
+float PlotModule::getStationsScale()
+{
+  if(!stationPlots.empty())
+    return stationPlots[0]->getImageScale(0);
+  else
+    return .0;
+}
+void PlotModule::setStationsScale(float new_scale)
+{
+  vector<StationPlot*>::iterator p = stationPlots.begin();
+
+  while (p != stationPlots.end()) {
+    (*p)->setImageScale(new_scale);
+    ++p;
+  }
+}
+
 //areas
 void PlotModule::makeAreas(miString name, miString areastring, int id)
 {

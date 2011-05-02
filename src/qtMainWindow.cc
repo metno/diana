@@ -3520,9 +3520,10 @@ void DianaMainWindow::sendSelectedStations(const miutil::miString& command)
 }
 
 
+
 void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
 {
-  if(!em->inedit() && qsocket){
+  if (!em->inedit() && qsocket) {
 
     if( kev.key == key_Plus || kev.key == key_Minus){
       miutil::miString dataset;
@@ -3652,6 +3653,18 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       letter.description =  "name";
       letter.to = qmstrings::all;;
       sendLetter(letter);
+    }
+
+    //FIXME (?): Will resize stationplots when connected to a coserver, regardless of which other client(s) are connected.
+    if (kev.modifier == key_Control && kev.key == key_Plus) {
+      float current_scale = contr->getStationsScale();
+      contr->setStationsScale(current_scale + 0.1); //FIXME: No hardcoding of increment.
+      w->updateGL();
+    }
+    if (kev.modifier == key_Control && kev.key == key_Minus) {
+      float current_scale = contr->getStationsScale();
+      contr->setStationsScale(current_scale - 0.1); //FIXME: No hardcoding of decrement.
+      w->updateGL();
     }
 
   }

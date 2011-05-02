@@ -309,6 +309,17 @@ public:
   ///send command to StationPlot with name and id
   void stationCommand(const miutil::miString& Command,
 		      const miutil::miString& name="", int id=-1);
+  /**
+   * This method is only sound as long as all Stations in all StationPlots have the same scale.
+   * @return Current scale for the first Station in the first StationPlot
+   */
+  float getStationsScale();
+
+  /**
+   * Set new scale for all Stations.
+   * @param new_scale New scale (1.0 original size)
+   */
+  void setStationsScale(float new_scale);
 
   //Area
   ///put area into list of area objects
