@@ -364,21 +364,21 @@ void StationPlot::plotStation(int i)
       else
         w = 2 * w2;
       glPlot(greyRectangle, x, y, w, h);
-      if (!ig.plotImage(stations[i]->image, x - w1 / 2, y, true, 1.0,
+      if (!ig.plotImage(stations[i]->image, x - w1 / 2, y, true, stations[i]->scale,
           stations[i]->alpha))
         plotted = false;
-      if (!ig.plotImage(stations[i]->image2, x + w2 / 2, y, true, 1.0,
+      if (!ig.plotImage(stations[i]->image2, x + w2 / 2, y, true, stations[i]->scale,
           stations[i]->alpha))
         plotted = false;
       if (stations[i]->isSelected)
         glPlot(redRectangle, x, y, w, h);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
-      if (!ig.plotImage(imageNormal, x, y, true, 1.0, stations[i]->alpha))
+      if (!ig.plotImage(imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
       h = ig.height(imageNormal);
     } else if (stations[i]->isSelected && !imageSelected.empty()) {
-      if (!ig.plotImage(imageSelected, x, y, true, 1.0, stations[i]->alpha))
+      if (!ig.plotImage(imageSelected, x, y, true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
       h = ig.height(imageSelected);
     } else {
