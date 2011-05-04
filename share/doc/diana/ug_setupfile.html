@@ -374,13 +374,14 @@ field=DZ([P1]-[P2])
 end.field
 
 field=ICING-SUM-COLOR
-      bordercolour=blue rel.size=0.8 values=4,5,6,7,8,9 palettecolours=green,yellow,yellow,orange,black,black
+      density=4 line.values=4,5,6,7,8,9 palettecolours=gyyorr
       plot=FILL_CELL(icing.sum)
 end.field
 
 field=ICING-SUM-LAYER
-      bordercolour=blue rel.size=0.8 label.size=1.0 palettecolours=magenta,blue,blue
-      plot=LAYER(icing.height, icing.bottom, icing.top)
+      bordercolour=blue vector.unit=0.8 label.size=1.6
+      colours=black,black,blue minvalue=0
+      plot=Value(icing.top.scaled, icing.bottom.scaled, icing.height.scaled)
 end.field
     </pre>
     <p>
@@ -390,13 +391,15 @@ end.field
 
     <table border="1" cellpadding="1" cellspacing="0" >
 	<tr><td>Key</td><td>Value</td><td>Comment</td></tr>
-	<tr><td>Default_Filetype=</td><td>MetnoFieldFile, NetCDF, etc.</td><td>Type of field
-	Source</td></tr>
+	<tr><td>Default_Filetype=</td><td>MetnoFieldFile, fimex, etc.</td><td>Type of field
+	source</td></tr>
 	<tr><td>filegroup=</td><td>group name</td><td></td></tr>
 	<tr><td>archivefilegroup=</td><td>group name</td><td>Only used
 	in archive mode</td></tr>
 	<tr><td>m=</td><td>name</td><td>Model name</td></td></tr>
-	<tr><td>t=</td><td>MetnoFieldFile, NetCDF, etc.</td><td>Type of field Source</td></tr>
+	<tr><td>t=</td><td>MetnoFieldFile, fimex, etc.</td><td>Type of field source</td></tr>
+	<tr><td>format=</td><td>MetnoFieldFile, netcdf, ncml, grib, etc.</td><td>Used by fimex </td></tr>
+	<tr><td>config=</td><td>/usr/share/fimex/cdmGribReaderConfig.xml </td><td>Parameter and axis definitions, used by fimex</td></tr>
 	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
 	<tr><td>g=</td><td>88:1234:Name</td><td>for MetnoFieldfiles: prod:grid:Name</td></tr>
 	<tr><td>CLEAR_FILES</td><td></td><td>Delete all models in current
@@ -413,8 +416,8 @@ filegroup=HIRLAM4km
 m=HIRLAM.4KM.00  t=MetnoFieldFile f=/opdata/explam/grdqh00.dat
 m=HIRLAM.4KM.12  t=MetnoFieldFile f=/opdata/explam/grdqh12.dat
 
-filegroup=ice
-m=ice_sst t=NetCDF f=/disk1/tmp/iceSST.nc
+filegroup=NetCDF
+m=ice_sst t=fimex f=/disk1/tmp/iceSST.nc format=netcdf 
     </pre>
 Redefine models:
     <pre>
