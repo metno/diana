@@ -50,7 +50,7 @@ qserver=$(bin_dir)/coserver4
 imagepath=$(share_dir)/diana/images/
 amdarStationList=$(share_dir)/diana/amdar.stations
 languagepaths=$(share_dir)/diana/lang:lang:../lang:$(prefix)/translations:${QTDIR}/translations
-setenv=BUFR_TABLES,$(prefix)/lib/bufrtables/,1
+setenv=BUFR_TABLES,/usr/local/lib/bufrtables/,1
 language=en
 avatars=${HOME}/.diana/avatars/*.png
 </BASIC>
@@ -70,10 +70,10 @@ avatars=${HOME}/.diana/avatars/*.png
 #-----------------------------------------------------------------------------
 # Use 'xfontsel' at the command line to find appropriate 'name's for your system
 #-----------------------------------------------------------------------------
-#font=Helvetica type=bitmap name=*-helvetica-medium-r*iso8859-1 postscript=Helvetica
-#font=Helvetica type=bitmap name=*-helvetica-bold-r*iso8859-1   postscript=Helvetica-Bold
-#font=Helvetica type=bitmap name=*-helvetica-medium-o*iso8859-1 postscript=Helvetica-Oblique
-#font=Helvetica type=bitmap name=*-helvetica-bold-o*iso8859-1   postscript=Helvetica-BoldOblique
+font=Helvetica type=bitmap name=*-helvetica-medium-r*iso8859-1 postscript=Helvetica
+font=Helvetica type=bitmap name=*-helvetica-bold-r*iso8859-1   postscript=Helvetica-Bold
+font=Helvetica type=bitmap name=*-helvetica-medium-o*iso8859-1 postscript=Helvetica-Oblique
+font=Helvetica type=bitmap name=*-helvetica-bold-o*iso8859-1   postscript=Helvetica-BoldOblique
 
 #font=Courier   type=bitmap name=*-courier-medium-r*iso8859-1   postscript=Courier
 #font=Courier   type=bitmap name=*-courier-bold-r*iso8859-1     postscript=Courier-Bold
@@ -737,8 +737,8 @@ end.product
 
 
 <VERTICAL_PROFILE_FILES>
-m=HIRLAM.8KM.00   f=$(OPDATA)/hirlam8/vp8km00.dat
-m=UM.4KM             f=$(OPDATA)/um4km/vpUM4km.dat
+bufr.temp=  $(OPDATA)/bufr/temp_[yyyymmddHH].bufr
+
 </VERTICAL_PROFILE_FILES>
 
 <VERTICAL_CROSSECTION_FILES>

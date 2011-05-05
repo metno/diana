@@ -914,7 +914,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
-  cerr <<"PIN: "<<pin<<endl;
+
   std::vector<std::string> tokens;
   //NB! what about ""
   boost::algorithm::split(tokens, pin, boost::algorithm::is_space());

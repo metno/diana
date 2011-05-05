@@ -131,31 +131,30 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
       if (key==key_name || key==key_areaname){
         mapm.getMapAreaByName(stokens[1], newarea);
         areadefined = true;
-	reqarea= newarea;
+        reqarea= newarea;
       } else if (key==key_proj){
-	if ( proj.set_proj_definition(stokens[1]) ) {
+        if ( proj.set_proj_definition(stokens[1]) ) {
           reqarea.setP(proj);
           areadefined = true;
-	}
+        }
       } else if (key==key_rectangle){
         if ( rect.setRectangle(stokens[1],false) ) {
-            reqarea.setR(rect);
+          reqarea.setR(rect);
         }
       } else if (key==key_xypart) {
-      cerr <<"xypart:"<<stokens[1]<<endl;
+        cerr <<"xypart:"<<stokens[1]<<endl;
         vector<miString> vstr= stokens[1].split(',');
         if (vstr.size()>=4) {
           xyPart.clear();
           for (int j=0; j<4; j++) {
             xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
-	  }
-	  if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3]) {
+          }
+          if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3]) {
             xyPart.clear();
           }
+        }
       }
     }
-    cerr <<"size:"<<xyPart.size()<<endl;
-  }
   }
 
 

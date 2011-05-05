@@ -152,7 +152,7 @@ private:
     bool plotDefinition;
     bool levelmove;
     bool idnummove;
-    SelectedField() : levelmove(true), idnummove(true), cdmSyntax(false), plotDefinition(true)
+    SelectedField() : cdmSyntax(false), plotDefinition(true), levelmove(true), idnummove(true)
     {
     }
   };
