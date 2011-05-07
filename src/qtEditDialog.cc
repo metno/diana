@@ -1251,9 +1251,7 @@ bool EditDialog::saveEverything(bool send)
 
   ecomment->saveComment();
   miutil::miString message;
-  cerr << "?????????????? before message = " << message << endl;
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
-  cerr << "?????????????? after message = " << message << endl;
 
   if (!res){
     message= miutil::miString(tr("Problem saving/sending product\n").toStdString()) +
@@ -1270,9 +1268,7 @@ bool EditDialog::saveEverything(bool send)
       : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
   QString(t.isoTime().cStr()) + QString("</font> ");
-  //cerr << "?????????????? tcs = " << tcs << endl;
   QString qs= lcs + tcs;
-  //cerr << "?????????????? qs = " << qs << endl;
 
   if (send && approved){
     productApproved= true;

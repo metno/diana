@@ -476,7 +476,7 @@ f=$(OPDATA)/hirlam12/hirlam12pl.nc \
 f=$(OPDATA)/hirlam12/hirlam12sf-1h.nc \
 f=$(OPDATA)/hirlam12/hirlam12sf-3h.nc 
 
-m=hirlam4km t=fimex format=netcdf f=$(OPDATA)/hirlam4/hirlam4km.nc 
+#m=hirlam4km t=fimex format=netcdf f=$(OPDATA)/hirlam4/hirlam4km.nc 
 
 </FIELD_FILES>
 
@@ -742,7 +742,7 @@ bufr.temp=  $(OPDATA)/bufr/temp_[yyyymmddHH].bufr
 </VERTICAL_PROFILE_FILES>
 
 <VERTICAL_CROSSECTION_FILES>
-m=HIRLAM.8KM.00   f=$(OPDATA)/hirlam8/vc8km00.dat
+#m=HIRLAM.8KM.00   f=$(OPDATA)/hirlam8/vc8km00.dat
 m=UM.4KM          f=$(OPDATA)/um4km/vcUM4km.dat
 </VERTICAL_CROSSECTION_FILES>
 
