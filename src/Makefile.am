@@ -555,6 +555,8 @@ if WITH_GEOTIFF
 common_cppflags += -DGEOTIFF
 common_cxx_sources += \
 	diGEOtiff.cc
+noinst_HEADERS += \
+	diGEOtiff.h
 #common_ldflags += \
 #	${ROADAPI_LDFLAGS}
 common_ldadd += \

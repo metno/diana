@@ -35,7 +35,7 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	./configure $(confflags) --enable-xlib  --enable-profet --enable-proddb --with-emos=/usr/local \
-		--enable-obs-bufr=yes --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+		--enable-obs-bufr=yes --enable-geotiff --prefix=/usr --sysconfdir=/etc --localstatedir=/var
 	touch configure-stamp
 
 
