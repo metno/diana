@@ -100,7 +100,7 @@ public slots:
   void showText(const QString&);
 
 protected:
-  enum { MAXBUTTONS=30};
+  enum { MAXBUTTONS=50};
   int numbuttons;
 //   QScrollArea* sv;
   PlotButton* buttons[MAXBUTTONS];
