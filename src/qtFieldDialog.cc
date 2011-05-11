@@ -4941,7 +4941,7 @@ void FieldDialog::updateTime()
       if (!selectedFields[i].inEdit) {
         request.push_back(ftr);
         request[nr].modelName = selectedFields[i].modelName;
-        request[nr].paramName = selectedFields[i].fieldName;
+        request[nr].paramName = selectedFields[i].fieldName.downcase();
         request[nr].plevel = selectedFields[i].level;
         request[nr].elevel = selectedFields[i].idnum;
         request[nr].hourOffset = selectedFields[i].hourOffset;

@@ -488,9 +488,11 @@ vector<miTime> FieldPlotManager::getFieldTime(
 
   vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
-    vector<std::string> name = getParamNames(request[i].paramName);
-    if ( name.size()>0 ) {
-      request[i].paramName = name[0];
+    if (request[i].plotDefinition ) {
+      vector<std::string> name = getParamNames(request[i].paramName);
+      if ( name.size()>0 ) {
+        request[i].paramName = name[0];
+      }
     }
   }
   return fieldManager->getFieldTime(request, constTimes);
@@ -933,7 +935,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
         fieldrequest.modelName = vtoken[1];
       }else if (key == "parameter") {
         plotName = vtoken[1];
-        paramNames.push_back(vtoken[1]);
+        paramNames.push_back(boost::algorithm::to_lower_copy(vtoken[1]));
       }else if (key == "plot") {
         plotName = vtoken[1];
         paramNames = getParamNames(vtoken[1]);
