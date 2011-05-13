@@ -739,7 +739,7 @@ bool FieldPlot::plotWind(){
 
   if (!fields[0]->data || !fields[1]->data) return false;
 
-  int i,ix,iy;
+  int ix,iy;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
 
@@ -789,6 +789,11 @@ bool FieldPlot::plotWind(){
 
   maprect.setExtension( flagl );
 
+  Projection geoProj;
+  geoProj.setGeographic();
+  Projection projection = area.P();
+
+
   glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
   glColor3ubv(poptions.linecolour.RGB());
 
@@ -797,7 +802,18 @@ bool FieldPlot::plotWind(){
   for (iy=iy1; iy<iy2; iy+=step){
     if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
+
+      int i= iy*nx+ix;
+
+      //If southern hemisphere, turn the feathers
+      float xx = x[i];
+      float yy = y[i];
+      int sign = 1;
+      projection.convertToGeographic(1,&xx,&yy,geoProj);
+      if(yy<0) {
+        sign = -1;
+      }
+
       gx= x[i]; gy= y[i];
       if (u[i]!=fieldUndef &&
           v[i]!=fieldUndef && maprect.isnear(gx,gy)){
@@ -828,8 +844,8 @@ bool FieldPlot::plotWind(){
 
           dx = flagstep*gu;
           dy = flagstep*gv;
-          dxf = -flagw*gv - dx;
-          dyf =  flagw*gu - dy;
+          dxf = -sign*flagw*gv - dx;
+          dyf = sign*flagw*gu - dy;
 
           // direction
           glVertex2f(gx,gy);
@@ -875,7 +891,7 @@ bool FieldPlot::plotWind(){
   int vi= vx.size();
   if (vi>=3){
     glBegin(GL_TRIANGLES);
-    for (i=0; i<vi; i++)
+    for (int i=0; i<vi; i++)
       glVertex2f(vx[i],vy[i]);
     glEnd();
   }
