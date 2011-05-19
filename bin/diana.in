@@ -9,9 +9,9 @@ if [  "$SUFFIX" = "NONE" ] ; then
 SUFFIX=
 fi
 
-OPDATA_PROFF="/opdata/proff"
+PROFFDIR="/proff"
 if [  "$SUFFIX" = "-test" ] ; then
-OPDATA_PROFF="/opdata/proff_test"
+PROFFDIR="/proff_test"
 fi
 
 input=$0
@@ -52,7 +52,7 @@ test -s mail.core  && mv -f mail.core mail.core.old
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
-$prefix/bin/diana.bin$SUFFIX  -s $setup -T diana$SUFFIX -p -S profet$SUFFIX.met.no PROFFWDB=proffdb$SUFFIX.met.no OPDATA_PROFF=$OPDATA_PROFF APP_NAME=diana$SUFFIX $@ 
+$prefix/bin/diana.bin$SUFFIX  -s $setup -T diana$SUFFIX -p -S profet$SUFFIX.met.no PROFFWDB=proffdb$SUFFIX.met.no PROFFDIR=$PROFFDIR APP_NAME=diana$SUFFIX $@ 
 
 
 tstop=`date`
