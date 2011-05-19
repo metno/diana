@@ -1019,7 +1019,7 @@ void SatManager::listFiles(subProdInfo &subp)
     glob_cache(subp.pattern[j].c_str(), 0, 0, &globBuf);
     //loop over files
     if (globBuf.gl_pathc == 0) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR: No files found! " << subp.pattern[j].c_str();
+    	COMMON_LOG::getInstance("common").infoStream() << "No files found: " << subp.pattern[j].c_str();
     }
     for (int i=globBuf.gl_pathc-1; i>=0; i--) {
       //remember that archive files are read
@@ -1411,7 +1411,7 @@ bool SatManager::parseSetup(SetupParser &sp)
   vector<miString> sect_sat;
 
   if (!sp.getSection(sat_name, sect_sat)) {
-	COMMON_LOG::getInstance("common").errorStream() << "Missing section " << sat_name << " in setupfile.";
+	COMMON_LOG::getInstance("common").infoStream() << "Missing section " << sat_name << " in setupfile.";
     return true;
   }
 
@@ -1675,7 +1675,7 @@ void SatManager::init_rgbindex(Sat& sd)
     sd.rgbindex[2]= 2;
 
   } else {
-	  COMMON_LOG::getInstance("common").infoStream() << "SatManage r: number of channels: " << sd.no;
+	  COMMON_LOG::getInstance("common").infoStream() << "SatManager: number of channels: " << sd.no;
     //    return false;
   }
 }
