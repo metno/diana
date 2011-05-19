@@ -178,7 +178,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
                   sp.errorMsg(sect_name, i, errm);
                   break;
                 }
-                str2 = vstr[j + 3].downcase().substr(1, vstr[j + 3].length()
+                str2 = vstr[j + 3].substr(1, vstr[j + 3].length()
                     - 2);
                 input = str2.split(',', true);
                 if (input.size() < 1 || input.size() > 5) {
@@ -195,7 +195,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
                                     break;
                 }
                 for (unsigned int k = 0; k < input.size(); k++) {
-                  input[k] = input[k].downcase();
+                  input[k] = input[k];
                 }
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
                 fieldgroup = vstr[j + 2];
@@ -935,7 +935,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
         fieldrequest.modelName = vtoken[1];
       }else if (key == "parameter") {
         plotName = vtoken[1];
-        paramNames.push_back(boost::algorithm::to_lower_copy(vtoken[1]));
+        paramNames.push_back(vtoken[1]);
       }else if (key == "plot") {
         plotName = vtoken[1];
         paramNames = getParamNames(vtoken[1]);
@@ -1018,7 +1018,7 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName)
   }
 
   for (size_t i = 0; i < mapPlotField[plotName].input.size(); i++) {
-    std::string inputName = boost::algorithm::to_lower_copy(std::string(mapPlotField[plotName].input[i]));
+    std::string inputName = std::string(mapPlotField[plotName].input[i]);
     inputName += suffix;
     paramNames.push_back(inputName);
   }
