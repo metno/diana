@@ -898,9 +898,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(qm, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
       SLOT(recallPlot(const vector<miutil::miString>&,bool)));
 
-  connect(qm, SIGNAL(requestUpdate(const vector<miutil::miString>&,vector<miutil::miString>&)),
-      SLOT(requestQuickUpdate(const vector<miutil::miString>&,vector<miutil::miString>&)));
-
   connect(em, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
       SLOT(recallPlot(const vector<miutil::miString>&,bool)));
 
@@ -1197,66 +1194,9 @@ void DianaMainWindow::resetAll()
   MenuOK();
 }
 
-void DianaMainWindow::requestQuickUpdate(const vector<miutil::miString>& oldstr,
-    vector<miutil::miString>& newstr)
-{
-  QApplication::setOverrideCursor( Qt::WaitCursor );
-  // strings for each dialog
-  vector<miutil::miString> mapcom,fldcom,obscom,satcom,objcom,labcom;
-  vector<miutil::miString> oldfldcom,oldobscom,oldsatcom,oldobjcom;
-
-  int n= newstr.size();
-  // sort new strings..
-  for (int i=0; i<n; i++){
-    miutil::miString s= newstr[i];
-    s.trim();
-    if (!s.exists()) continue;
-    vector<miutil::miString> vs= s.split(" ");
-    miutil::miString pre= vs[0].upcase();
-    if (pre=="FIELD")      fldcom.push_back(s);
-    else if (pre=="OBS")   obscom.push_back(s);
-    else if (pre=="MAP")   mapcom.push_back(s);
-    else if (pre=="AREA")   mapcom.push_back(s);
-    else if (pre=="SAT")   satcom.push_back(s);
-    else if (pre=="OBJECTS") objcom.push_back(s);
-    else if (pre=="LABEL") labcom.push_back(s);
-  }
-  n= oldstr.size();
-  // sort old strings..
-  for (int i=0; i<n; i++){
-    miutil::miString s= oldstr[i];
-    s.trim();
-    if (!s.exists()) continue;
-    vector<miutil::miString> vs= s.split(" ");
-    miutil::miString pre= vs[0].upcase();
-    if (pre=="FIELD")      oldfldcom.push_back(s);
-    else if (pre=="OBS")   oldobscom.push_back(s);
-    else if (pre=="SAT")   oldsatcom.push_back(s);
-    else if (pre=="OBJECTS") oldobjcom.push_back(s);
-  }
-
-  // maps and labels taken as is
-
-  // strings to dialogs
-  fm->requestQuickUpdate(oldfldcom,fldcom);
-  om->requestQuickUpdate(oldobscom,obscom);
-  sm->requestQuickUpdate(oldsatcom,satcom);
-  objm->requestQuickUpdate(oldobjcom,objcom);
-
-  newstr.clear();
-  for (unsigned int i=0; i<mapcom.size(); i++) newstr.push_back(mapcom[i]);
-  for (unsigned int i=0; i<fldcom.size(); i++) newstr.push_back(fldcom[i]);
-  for (unsigned int i=0; i<obscom.size(); i++) newstr.push_back(obscom[i]);
-  for (unsigned int i=0; i<satcom.size(); i++) newstr.push_back(satcom[i]);
-  for (unsigned int i=0; i<objcom.size(); i++) newstr.push_back(objcom[i]);
-  for (unsigned int i=0; i<labcom.size(); i++) newstr.push_back(labcom[i]);
-
-  QApplication::restoreOverrideCursor();
-}
-
-
 void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool replace)
 {
+
   QApplication::setOverrideCursor( Qt::WaitCursor );
   // strings for each dialog
   vector<miutil::miString> mapcom,fldcom,obscom,satcom,objcom,labelcom;
@@ -1276,6 +1216,7 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
     else if (pre=="OBJECTS") objcom.push_back(s);
     else if (pre=="LABEL") labelcom.push_back(s);
   }
+
   vector<miutil::miString> tmplabel = vlabel;
   // feed strings to dialogs
   if (replace || mapcom.size()) mm->putOKString(mapcom);

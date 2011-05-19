@@ -95,8 +95,6 @@ public:
   void putOKString(const vector<miutil::miString>& vstr);
   ///return short name of current commonad
   miutil::miString getShortname();
-  ///check command strings, and return legal command strings
-  void requestQuickUpdate(const vector<miutil::miString>& , vector<miutil::miString>& );
   /// refresh list of files in timefilelist
   void RefreshList();
   /// set mode to read files from archive
@@ -126,7 +124,6 @@ private:
   //decode part of OK string
   state decodeString(const vector <miutil::miString> & tokens);
   // make string from state
-  bool compareStates(const state & oldOKVar,const state &newOkVar);
   miutil::miString makeOKString(state & okVar);
   void putOptions(const state okVar);
 

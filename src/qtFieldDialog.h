@@ -101,9 +101,6 @@ public:
   bool levelsExists(bool up, int type=0);
   void putOKString(const vector<miutil::miString>& vstr,
 		   bool checkOptions=true, bool external=true);
-  /// returns checked command string to quickmenu
-  void requestQuickUpdate(const vector<miutil::miString>& oldstr,
-                                vector<miutil::miString>& newstr);
 
   /// insert editoption values of <field,option> specified
   void getEditPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >& po);

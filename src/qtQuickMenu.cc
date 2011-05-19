@@ -597,7 +597,7 @@ void QuickMenu::updateButton()
         QString mess=
           "<b>"+tr("Do you want to replace the content of this menuitem with current plot?")+
           "</b><br>"+
-          tr("Be aware that this is a static/official menuitem, and you are not guaranteed to be able to keep all changes.");
+          tr("This is a static/official menuitem, which can be reset to default value.");
 
 
         QMessageBox mb("Diana",mess,
@@ -620,7 +620,7 @@ void QuickMenu::updateButton()
         QString mess=
           "<b>"+tr("Do you want to replace the content of this menuitem with current plot?")+
           "</b><br>"+
-          tr("The name can also be automatically created from the underlying data in the plot");
+          tr("The menu name can be automatically created from the underlying data in the plot");
 
         QMessageBox mb("Diana",mess,
             QMessageBox::Information,
@@ -650,9 +650,6 @@ void QuickMenu::updateButton()
         qm[prev_listindex].menuitems[prev_plotindex].command;
 
       if (instaticmenu) {
-        // get legal version of current commands
-        emit(requestUpdate(chng_qm[activemenu-i].menuitems[idx].command,
-            vs));
         // set it..
         if (vs.size()>0){
           qm[activemenu].menuitems[idx].command= vs;
@@ -878,11 +875,6 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
               }
               if (ridx < 0){
                 continue; // not found
-              }
-              // check that logged items are legal changes
-              if (oidx >= 0 && oidx < int(orig_qm.size()) && ridx <= int(orig_qm[oidx].menuitems.size())) {
-                emit(requestUpdate(orig_qm[oidx].menuitems[ridx].command,
-                    logitems[l].command));
               }
               // Ok, change it
               qm[actidx].menuitems[ridx].command = logitems[l].command;

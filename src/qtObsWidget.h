@@ -80,8 +80,6 @@ public:
   void putOKString(const miutil::miString& str);
   ///return short name of current commonad
   miutil::miString getShortname();
-  ///return legal command strings and update dialog
-  void requestQuickUpdate(miutil::miString& oldstr,miutil::miString& newstr);
   void readLog(const miutil::miString& str);
   void setFalse();
   void setDatatype(const miutil::miString&);

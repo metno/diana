@@ -868,7 +868,7 @@ vector<miutil::miString> SatDialog::getOKString()
 
 miutil::miString SatDialog::makeOKString(state & okVar)
 {
-  /* This function is called by getOKString and by requestQuickUpdate
+  /* This function is called by getOKString,
    makes the part of OK string corresponding to state okVar  */
 #ifdef dSatDlg
   cerr << "SatDialog::makeOKString" << endl;
@@ -1037,7 +1037,7 @@ void SatDialog::putOptions(const state okVar)
 
 SatDialog::state SatDialog::decodeString(const vector<miutil::miString> & tokens)
 {
-  /* This function is called by putOKstring and requestQuickUpdate.
+  /* This function is called by putOKstring.
    It decodes tokens, and puts plot variables into struct state */
 
 #ifdef dObjectDlg
@@ -1102,98 +1102,6 @@ miutil::miString SatDialog::getShortname()
 }
 
 /********************************************/
-
-void SatDialog::requestQuickUpdate(const vector<miutil::miString>& oldstr, vector<
-    miutil::miString>& newstr)
-{
-  /*  This function is called from MainWindow after a request to update the
-   quickmenu.
-   oldstr = the old quickmenu string
-   newstr = the new string from dialog
-   when the function returns newstr is the new string to be put in quickmenu
-   Updates not accepted if not total match in name,area,channel
-   ,filetime/filename and totalminutes in all strings.
-   Updates only allowed in cut,alphacut,alpha,table,colourcut.
-   */
-#ifdef dSatDlg
-  cerr << "SatDialog::requestQuickUpdate" << endl;
-#endif
-
-  //if they are the same, do nothing
-  if (oldstr == newstr)
-    return;
-
-  //if old string is empty, or old and new string vector different size
-  //nothing should be changed
-  if (!oldstr.size() || oldstr.size() != newstr.size()) {
-    newstr = oldstr;
-    return;
-  }
-
-  // make state vectors from strings
-  vector<state> oldOkVars, newOkVars;
-  vector<miutil::miString> oldvip = oldstr;
-  vector<miutil::miString> newvip = newstr;
-  int newnpi = newvip.size(), oldnpi = oldvip.size();
-  for (int ip = 0; ip < oldnpi; ip++) {
-    vector<miutil::miString> tokens = oldvip[ip].split('"', '"');
-    state okVar = decodeString(tokens);
-    oldOkVars.push_back(okVar);
-  }
-  for (int ip = 0; ip < newnpi; ip++) {
-    vector<miutil::miString> tokens = newvip[ip].split('"', '"');
-    state okVar = decodeString(tokens);
-    newOkVars.push_back(okVar);
-  }
-  if (oldOkVars.size() != newOkVars.size()) {
-    //something went wrong in decoding
-    newstr = oldstr;
-    return;
-  }
-
-  //compare old and new okVar. If match found and accepted update
-  //remove state from oldOkVar and add string to newstr vector.
-  newstr.clear();
-  for (vector<state>::iterator p = newOkVars.begin(); p != newOkVars.end(); p++) {
-    vector<state>::iterator q = oldOkVars.begin();
-    for (; q != oldOkVars.end() && !compareStates(*p, *q); q++)
-      ;
-    if (q != oldOkVars.end()) {
-      oldOkVars.erase(q);
-      newstr.push_back(makeOKString(*p));
-      continue;
-    }
-  }
-
-  //if oldOkVar not empty, we have not managed to match old and new strings
-  //do not change any of the strings ??? HK ???
-  if (oldOkVars.size()) {
-    newstr = oldstr;
-  }
-
-}
-
-/********************************************/
-
-bool SatDialog::compareStates(const state & newOkVar, const state &oldOkVar)
-{
-  /* This function is called by requestQuickupdate. Returns true if
-   oldOKVar and newOKVar have same values for all parameters not allowed
-   to change in requestQuickUpdate*/
-  if (newOkVar.name != oldOkVar.name)
-    return false;
-  if (newOkVar.area != oldOkVar.area)
-    return false;
-  if (newOkVar.channel != oldOkVar.channel)
-    return false;
-  if (newOkVar.filetime != oldOkVar.filetime)
-    return false;
-  if (newOkVar.filename != oldOkVar.filename)
-    return false;
-  if (newOkVar.totalminutes != oldOkVar.totalminutes)
-    return false;
-  return true;
-}
 
 /*********************************************
  ****  end of quickMenu functions***************

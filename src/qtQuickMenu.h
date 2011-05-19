@@ -151,8 +151,6 @@ public:
 
 signals:
   void Apply(const vector<miutil::miString>& s, bool); ///< send plot-commands
-  void requestUpdate(const vector<miutil::miString>&,  ///< request static menu-item
-		     vector<miutil::miString>&);       // update: old,new
   void showsource(const miutil::miString, const miutil::miString=""); ///< activate help
 
 private slots:

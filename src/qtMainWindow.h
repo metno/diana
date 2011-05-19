@@ -237,8 +237,6 @@ private slots:
   void browserSelect();
   void browserCancel();
   void addToMenu();
-  void requestQuickUpdate(const vector<miutil::miString>&,
-			  vector<miutil::miString>&);
 
   void zoomTo(Rectangle);
   void zoomOut();

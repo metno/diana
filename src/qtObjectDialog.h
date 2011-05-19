@@ -71,7 +71,6 @@ public:
   void putOKString(const vector<miutil::miString>& vstr);
   /// creates a short name for the current settings (used in quick menues)
   miutil::miString getShortname();
-  void requestQuickUpdate(const vector<miutil::miString>& , vector<miutil::miString>& );
   /// read comment belonging to objects
   void commentUpdate();
   /// show dialog

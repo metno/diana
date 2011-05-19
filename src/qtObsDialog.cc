@@ -423,24 +423,6 @@ void ObsDialog::putOKString(const vector<miutil::miString>& vstr)
 }
 
 
-void ObsDialog::requestQuickUpdate(vector<miutil::miString>& oldstr,
-    vector<miutil::miString>& newstr)
-{
-  int n=oldstr.size();
-  int m=newstr.size();
-
-  if(n != m) return;
-
-  for( int i=0; i<n; i++){
-    int oldindex=findPlotnr(oldstr[i]);
-    int newindex=findPlotnr(newstr[i]);
-    if(oldindex<nr_plot && oldindex==newindex && obsWidget[oldindex]->initialized())
-      obsWidget[oldindex]->requestQuickUpdate(oldstr[i],newstr[i]);
-  }
-
-}
-
-
 int ObsDialog::findPlotnr(const miutil::miString& str)
 {
 

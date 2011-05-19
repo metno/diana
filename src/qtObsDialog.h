@@ -72,9 +72,6 @@ public:
   void putOKString(const vector<miutil::miString>& vstr);
   ///return short name of current commonad
   miutil::miString getShortname();
-  ///check command strings, and return legal command strings
-  void requestQuickUpdate(vector<miutil::miString>& oldstr,
-                          vector<miutil::miString>& newstr);
   ///change plottype
   bool setPlottype(const miutil::miString& name, bool on);
 
