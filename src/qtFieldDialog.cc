@@ -173,6 +173,17 @@ nr_linewidths = 12;
   cp = new CommandParser();
 
   // add level options to the cp's keyDataBase
+  cp->addKey("model", "", 1, CommandParser::cmdString);
+  cp->addKey("plot", "", 1, CommandParser::cmdString);
+  cp->addKey("parameter", "", 1, CommandParser::cmdString);
+  cp->addKey("vlevel", "", 1, CommandParser::cmdString);
+  cp->addKey("elevel", "", 1, CommandParser::cmdString);
+  cp->addKey("vcoor", "", 1, CommandParser::cmdString);
+  cp->addKey("ecoor", "", 1, CommandParser::cmdString);
+  cp->addKey("taxis", "", 1, CommandParser::cmdString);
+  cp->addKey("grid", "", 1, CommandParser::cmdString);
+
+  // old syntax
   cp->addKey("level", "", 1, CommandParser::cmdString);
   cp->addKey("idnum", "", 1, CommandParser::cmdString);
 
@@ -1868,7 +1879,7 @@ void FieldDialog::enableFieldOptions()
 
   //dimension (1dim = contour,..., 2dim=wind,...)
     if ((nc = cp->findKey(vpcopt, "dim")) >= 0) {
-      if (!vpcopt[nc].intValue.empty() && vpcopt[nc].intValue[0] < plottypes_dim.size()) {
+      if (!vpcopt[nc].intValue.empty() && vpcopt[nc].intValue[0] < int(plottypes_dim.size())) {
           plottypes = plottypes_dim[vpcopt[nc].intValue[0]];
       } else if( plottypes_dim.size() > 0 ){
         plottypes = plottypes_dim[0];
@@ -3666,12 +3677,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
   }
 
   miutil::miString vfg2_model, model, field, level, idnum, fOpts;
-  int hourOffset, hourDiff;
-  int indexMGR, indexM, indexFGR, indexF;
-  bool forecastSpec;
-  vector<FieldGroupInfo> vfg2;
-  int nvfg = 0;
-  vector<ParsedCommand> vpc;
+  int indexMGR, indexM, indexFGR;
   bool minus = false;
   miutil::miString str;
 
@@ -3679,7 +3685,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     if (str.empty())
       str = vstr[ic];
     //######################################################################
-    //        cerr << "P.OK>> " << vstr[ic] << endl;
+//            cerr << "P.OK>> " << vstr[ic] << endl;
     //######################################################################
 
     //if prefix, remove it
@@ -3691,156 +3697,24 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     if (fieldDifference(str, field1, field2))
       str = field1;
 
+    SelectedField sf;
+    sf.external = external; // from QuickMenu
+    bool decodeOK = false;
+    sf.cdmSyntax = str.contains("model=");
+
     if (checkOptions) {
-      str = checkFieldOptions(str);
+      str = checkFieldOptions(str, sf.cdmSyntax);
       if (str.empty())
         continue;
     }
 
-    vpc = cp->parse(str);
-
-    model.clear();
-    field.clear();
-    level.clear();
-    idnum.clear();
-    fOpts.clear();
-    hourOffset = 0;
-    hourDiff = 0;
-    forecastSpec = false;
-
-    //######################################################################
-    //    for (int j = 0; j < vpc.size(); j++) {
-    //      cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-    //          << "   " << vpc[j].allValue << endl;
-    //    }
-    //######################################################################
-
-    if (vpc.size() > 1 && vpc[0].key == "unknown") {
-      model = vpc[0].allValue; // modelName
-      if (vpc[1].key == "unknown") {
-        field = vpc[1].allValue; // fieldName
-        for (unsigned int j = 2; j < vpc.size(); j++) {
-          if (vpc[j].key == "level")
-            level = vpc[j].allValue;
-          else if (vpc[j].key == "idnum")
-            idnum = vpc[j].allValue;
-          else if (vpc[j].key == "hour.offset" && !vpc[j].intValue.empty())
-            hourOffset = vpc[j].intValue[0];
-          else if (vpc[j].key == "hour.diff" && !vpc[j].intValue.empty())
-            hourDiff = vpc[j].intValue[0];
-          else if (vpc[j].key == "allTimeSteps" && vpc[j].allValue == "on")
-            allTimeSteps = true;
-          else if (vpc[j].key != "unknown") {
-            if (!fOpts.empty())
-              fOpts += " ";
-            fOpts += (vpc[j].key + "=" + vpc[j].allValue);
-            if (vpc[j].idNumber == 2)
-              forecastSpec = true;
-          }
-        }
-      }
+    if ( sf.cdmSyntax ) {
+      decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
+    } else {
+      decodeOK = decodeString_oldSyntax(str, sf, allTimeSteps);
     }
 
-    //######################################################################
-    //    cerr << " ->" << model << " " << field << " l= " << level << " l2= "
-    //        << idnum << endl;
-    //######################################################################
-
-    if (model != vfg2_model) {
-      indexMGR = indexM = -1;
-      getFieldGroups(model, indexMGR, indexM, vfg2);
-      vfg2_model = model;
-      nvfg = vfg2.size();
-    }
-
-    indexF = -1;
-    indexFGR = -1;
-    int j = 0;
-    bool ok = false;
-
-    while (!ok && j < nvfg) {
-      //      cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
-
-      // Old syntax: Model, new syntax: Model(gridnr)
-      miutil::miString modelName = vfg2[j].modelName;
-      if (vfg2[j].modelName.contains("(") && !model.contains("(")) {
-        modelName = modelName.substr(0, modelName.find(("(")));
-      }
-      if (!vfg2[j].modelName.contains("(") && model.contains("(")) {
-        model = model.substr(0, model.find(("(")));
-      }
-
-      if (modelName.downcase() == model.downcase()) {
-        //        cout << "Found model:" << modelName << " in index:" << j << endl;
-        int m = vfg2[j].fieldNames.size();
-        int i = 0;
-        while (i < m && vfg2[j].fieldNames[i] != field){
-          //          cout << " .. skipping field:" << vfg2[j].fieldNames[i] << endl;
-          i++;
-        }
-
-        if (i < m) {
-          ok = true;
-          int m;
-          if ((m = vfg2[j].levelNames.size()) > 0 && !level.empty()) {
-            //            cout << " .. level is not empty" << endl;
-            int l = 0;
-            while (l < m && vfg2[j].levelNames[l] != level)
-              l++;
-            if (l == m && cp->isInt(level)) {
-              level += "hPa";
-              l = 0;
-              while (l < m && vfg2[j].levelNames[l] != level)
-                l++;
-              if (l < m)
-                level = vfg2[j].levelNames[l];
-            }
-            if (l == m){
-              //             cout << " .. did not find level:" << level << " ok=false" << endl;
-              ok = false;
-            }
-          } else if (!vfg2[j].levelNames.empty()) {
-            ok = false;
-          } else {
-            level.clear();
-          }
-          if ((m = vfg2[j].idnumNames.size()) > 0 && !idnum.empty()) {
-            int l = 0;
-            while (l < m && vfg2[j].idnumNames[l] != idnum)
-              l++;
-            if (l == m)
-              ok = false;
-          } else if (!vfg2[j].idnumNames.empty()) {
-            ok = false;
-          } else {
-            idnum.clear();
-          }
-          if (ok) {
-            indexFGR = j;
-            indexF = i;
-          }
-        }
-      }
-      j++;
-    }
-
-    if (indexFGR >= 0 && indexF >= 0) {
-      SelectedField sf;
-      sf.inEdit = false;
-      sf.external = external; // from QuickMenu
-      sf.forecastSpec = forecastSpec; // only if external
-      sf.indexMGR = indexMGR;
-      sf.indexM = indexM;
-      sf.modelName = vfg2[indexFGR].modelName;
-      sf.fieldName = vfg2[indexFGR].fieldNames[indexF];
-      sf.levelOptions = vfg2[indexFGR].levelNames;
-      sf.idnumOptions = vfg2[indexFGR].idnumNames;
-      sf.level = level;
-      sf.idnum = idnum;
-      sf.hourOffset = hourOffset;
-      sf.hourDiff = hourDiff;
-      sf.fieldOpts = fOpts;
-      sf.minus = false;
+    if ( decodeOK ) {
 
       selectedFields.push_back(sf);
 
@@ -3851,12 +3725,9 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
 
       //############################################################################
-      //      cerr << "  ok: " << str << " " << fOpts << endl;
+//           cerr << "  ok: " << str << " " << fOpts << endl;
       //############################################################################
     }
-    //############################################################################
-    //    else cerr << "  error" << endl;
-    //############################################################################
 
     if (minus) {
       minus = false;
@@ -3874,7 +3745,6 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
   }
 
   int m = selectedFields.size();
-  int ml;
 
   if (m > 0) {
     if (vfgi.size() > 0) {
@@ -3886,18 +3756,24 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       for (int i = 0; i < m; i++) {
         if (selectedFields[i].indexMGR == indexMGR && selectedFields[i].indexM
             == indexM) {
-          int j = 0;
-          while (j < n && vfgi[indexFGR].fieldNames[j]
-                                                    != selectedFields[i].fieldName)
-            j++;
-          if (j < n) {
+          bool groupOK = true;
+          if ( selectedFields[i].cdmSyntax ) {
+            if ( selectedFields[i].zaxis != vfgi[indexFGR].zaxis
+                || selectedFields[i].runaxis != vfgi[indexFGR].runaxis
+                || selectedFields[i].taxis != vfgi[indexFGR].taxis
+                || selectedFields[i].grid != vfgi[indexFGR].grid
+                || selectedFields[i].plotDefinition != vfgi[indexFGR].plotDefinitions) {
+              groupOK = false;
+            }
+          } else { //old syntax
+            int ml;
             if ((ml = vfgi[indexFGR].levelNames.size()) > 0) {
               int l = 0;
               while (l < ml && vfgi[indexFGR].levelNames[l]
                                                          != selectedFields[i].level)
                 l++;
               if (l == ml)
-                j = n;
+                groupOK = false;
             }
             if ((ml = vfgi[indexFGR].idnumNames.size()) > 0) {
               int l = 0;
@@ -3905,8 +3781,14 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
                                                          != selectedFields[i].idnum)
                 l++;
               if (l == ml)
-                j = n;
+                groupOK = false;
             }
+          }
+          if ( groupOK ) {
+            int j = 0;
+            while (j < n && vfgi[indexFGR].fieldNames[j]
+                                                      != selectedFields[i].fieldName)
+              j++;
             if (j < n) {
               countSelected[j]++;
               fieldbox->item(j)->setSelected(true);
@@ -3933,6 +3815,283 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
 #ifdef DEBUGPRINT
   cerr << "FieldDialog::putOKString finished" << endl;
 #endif
+}
+
+bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, SelectedField& sf, bool& allTimeSteps )
+{
+
+  vector<ParsedCommand> vpc;
+
+  vpc = cp->parse(fieldString);
+
+   //######################################################################
+  //    for (int j = 0; j < vpc.size(); j++) {
+  //      cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
+  //          << "   " << vpc[j].allValue << endl;
+  //    }
+  //######################################################################
+
+  sf.inEdit = false;
+
+  for (size_t j = 0; j < vpc.size(); j++) {
+    if (vpc[j].key == "model") {
+      sf.modelName = vpc[j].allValue;
+    } else if (vpc[j].key == "plot") {
+      sf.fieldName = vpc[j].allValue;
+    } else if (vpc[j].key == "parameter") {
+      sf.fieldName = vpc[j].allValue;
+      sf.plotDefinition = false;
+    } else if (vpc[j].key == "level") {
+      sf.level = vpc[j].allValue;
+    } else if (vpc[j].key == "vlevel") {
+      sf.level = vpc[j].allValue;
+    } else if (vpc[j].key == "idnum") {
+      sf.idnum = vpc[j].allValue;
+    } else if (vpc[j].key == "vcoor") {
+      sf.zaxis = vpc[j].allValue;
+    } else if (vpc[j].key == "tcoor") {
+      sf.taxis = vpc[j].allValue;
+    } else if (vpc[j].key == "ecoor") {
+      sf.runaxis = vpc[j].allValue;
+    } else if (vpc[j].key == "grid") {
+      sf. grid = vpc[j].allValue;
+    } else if (vpc[j].key == "vccor") {
+      sf. zaxis = vpc[j].allValue;
+    } else if (vpc[j].key == "hour.offset" && !vpc[j].intValue.empty()) {
+      sf. hourOffset = vpc[j].intValue[0];
+    } else if (vpc[j].key == "hour.diff" && !vpc[j].intValue.empty()) {
+      sf. hourDiff = vpc[j].intValue[0];
+    } else if (vpc[j].key == "allTimeSteps" && vpc[j].allValue == "on") {
+      allTimeSteps = true;
+    } else if (vpc[j].key != "unknown") {
+      if (!sf.fieldOpts.empty())
+        sf.fieldOpts += " ";
+      sf.fieldOpts += (vpc[j].key + "=" + vpc[j].allValue);
+      if (vpc[j].idNumber == 2)
+        sf.forecastSpec = true;
+    }
+  }
+
+  //######################################################################
+//  cerr << " ->" << sf.modelName << " " << sf.fieldName << " l= " << sf.level << " l2= "
+//      << sf.idnum << endl;
+  //######################################################################
+
+  vector<FieldGroupInfo> vfg;
+
+  //find index of modelgroup and model. Keep name of model and reuse info if same model
+  int indexMGR = -1;
+  int indexM = -1;
+  getFieldGroups(sf.modelName, indexMGR, indexM, vfg);
+
+  //find index of fieldgroup and field
+  bool fieldFound = false;
+  int nvfg = vfg.size();
+  int indexFGR = 0;
+  while (indexFGR < nvfg) {
+         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis<<endl;
+    if (sf.zaxis == vfg[indexFGR].zaxis
+        && sf.runaxis == vfg[indexFGR].runaxis
+        && (sf.taxis == vfg[indexFGR].taxis || sf.taxis=="")
+        && sf.grid == vfg[indexFGR].grid
+        && sf.plotDefinition == vfg[indexFGR].plotDefinitions) {
+      if ( sf.taxis=="" ) {
+        sf.taxis = vfg[indexFGR].taxis;
+      }
+      int m = vfg[indexFGR].fieldNames.size();
+      int indexF = 0;
+      while (indexF < m && vfg[indexFGR].fieldNames[indexF] != sf.fieldName){
+                  cout << " .. skipping field:" << vfg[indexFGR].fieldNames[indexF] << endl;
+        indexF++;
+      }
+
+      if (indexF < m) {
+        fieldFound = true;
+        break;
+      }
+
+    }
+    indexFGR++;
+  }
+
+  if (fieldFound) {
+
+    sf.indexMGR = indexMGR;
+    sf.indexM = indexM;
+    sf.levelOptions = vfg[indexFGR].levelNames;
+    sf.idnumOptions = vfg[indexFGR].idnumNames;
+    sf.minus = false;
+    return true;
+  }
+
+  //############################################################################
+//     else cerr << "  error" << endl;
+  //############################################################################
+
+  return false;
+}
+
+bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, SelectedField& sf, bool& allTimeSteps )
+{
+
+  miutil::miString vfg2_model, model, field, level, idnum, fOpts;
+  int hourOffset, hourDiff;
+  int indexMGR, indexM, indexFGR, indexF;
+  bool forecastSpec;
+
+  vector<ParsedCommand> vpc;
+
+  vpc = cp->parse(fieldString);
+
+  model.clear();
+  field.clear();
+  level.clear();
+  idnum.clear();
+  fOpts.clear();
+  hourOffset = 0;
+  hourDiff = 0;
+  forecastSpec = false;
+
+  //######################################################################
+  //    for (int j = 0; j < vpc.size(); j++) {
+  //      cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
+  //          << "   " << vpc[j].allValue << endl;
+  //    }
+  //######################################################################
+
+  if (vpc.size() > 1 && vpc[0].key == "unknown") {
+    model = vpc[0].allValue; // modelName
+    if (vpc[1].key == "unknown") {
+      field = vpc[1].allValue; // fieldName
+      for (unsigned int j = 2; j < vpc.size(); j++) {
+        if (vpc[j].key == "level")
+          level = vpc[j].allValue;
+        else if (vpc[j].key == "idnum")
+          idnum = vpc[j].allValue;
+        else if (vpc[j].key == "hour.offset" && !vpc[j].intValue.empty())
+          hourOffset = vpc[j].intValue[0];
+        else if (vpc[j].key == "hour.diff" && !vpc[j].intValue.empty())
+          hourDiff = vpc[j].intValue[0];
+        else if (vpc[j].key == "allTimeSteps" && vpc[j].allValue == "on")
+          allTimeSteps = true;
+        else if (vpc[j].key != "unknown") {
+          if (!fOpts.empty())
+            fOpts += " ";
+          fOpts += (vpc[j].key + "=" + vpc[j].allValue);
+          if (vpc[j].idNumber == 2)
+            forecastSpec = true;
+        }
+      }
+    }
+  }
+
+  //######################################################################
+//     cerr << " ->" << model << " " << field << " l= " << level << " l2= "
+//        << idnum << endl;
+  //######################################################################
+  vector<FieldGroupInfo> vfg2;
+  int nvfg = 0;
+
+//  if (model != vfg2_model) {
+    indexMGR = indexM = -1;
+    getFieldGroups(model, indexMGR, indexM, vfg2);
+//    vfg2_model = model;
+    nvfg = vfg2.size();
+//  }
+
+  indexF = -1;
+  indexFGR = -1;
+  int j = 0;
+  bool ok = false;
+
+  while (!ok && j < nvfg) {
+    //      cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
+
+    // Old syntax: Model, new syntax: Model(gridnr)
+    miutil::miString modelName = vfg2[j].modelName;
+    if (vfg2[j].modelName.contains("(") && !model.contains("(")) {
+      modelName = modelName.substr(0, modelName.find(("(")));
+    }
+    if (!vfg2[j].modelName.contains("(") && model.contains("(")) {
+      model = model.substr(0, model.find(("(")));
+    }
+
+    if (modelName.downcase() == model.downcase()) {
+      //        cout << "Found model:" << modelName << " in index:" << j << endl;
+      int m = vfg2[j].fieldNames.size();
+      int i = 0;
+      while (i < m && vfg2[j].fieldNames[i] != field){
+        //          cout << " .. skipping field:" << vfg2[j].fieldNames[i] << endl;
+        i++;
+      }
+
+      if (i < m) {
+        ok = true;
+        int m;
+        if ((m = vfg2[j].levelNames.size()) > 0 && !level.empty()) {
+          //            cout << " .. level is not empty" << endl;
+          int l = 0;
+          while (l < m && vfg2[j].levelNames[l] != level)
+            l++;
+          if (l == m && cp->isInt(level)) {
+            level += "hPa";
+            l = 0;
+            while (l < m && vfg2[j].levelNames[l] != level)
+              l++;
+            if (l < m)
+              level = vfg2[j].levelNames[l];
+          }
+          if (l == m){
+            //             cout << " .. did not find level:" << level << " ok=false" << endl;
+            ok = false;
+          }
+        } else if (!vfg2[j].levelNames.empty()) {
+          ok = false;
+        } else {
+          level.clear();
+        }
+        if ((m = vfg2[j].idnumNames.size()) > 0 && !idnum.empty()) {
+          int l = 0;
+          while (l < m && vfg2[j].idnumNames[l] != idnum)
+            l++;
+          if (l == m)
+            ok = false;
+        } else if (!vfg2[j].idnumNames.empty()) {
+          ok = false;
+        } else {
+          idnum.clear();
+        }
+        if (ok) {
+          indexFGR = j;
+          indexF = i;
+        }
+      }
+    }
+    j++;
+  }
+
+  if (indexFGR >= 0 && indexF >= 0) {
+    sf.inEdit = false;
+    sf.forecastSpec = forecastSpec; // only if external
+    sf.indexMGR = indexMGR;
+    sf.indexM = indexM;
+    sf.modelName = vfg2[indexFGR].modelName;
+    sf.fieldName = vfg2[indexFGR].fieldNames[indexF];
+    sf.levelOptions = vfg2[indexFGR].levelNames;
+    sf.idnumOptions = vfg2[indexFGR].idnumNames;
+    sf.level = level;
+    sf.idnum = idnum;
+    sf.hourOffset = hourOffset;
+    sf.hourDiff = hourDiff;
+    sf.fieldOpts = fOpts;
+    sf.minus = false;
+    return true;
+  }
+  //############################################################################
+//     else cerr << "  error" << endl;
+  //############################################################################
+  return false;
+
 }
 
 
@@ -4158,11 +4317,13 @@ void FieldDialog::readLog(const vector<miutil::miString>& vstr,
   historyForwardButton->setEnabled(false);
 }
 
-miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str)
+miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str, bool cdmSyntax)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::checkFieldOptions:"<<str<<endl;
 #endif
+
+  //merging fieldOptions from str whith current fieldOptions from same field
 
   miutil::miString newstr;
 
@@ -4171,25 +4332,44 @@ miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str)
   vector<ParsedCommand> vplog = cp->parse(str);
   int nlog = vplog.size();
 
-  if (nlog >= 2 && vplog[0].key == "unknown" && vplog[1].key == "unknown") {
-    fieldname = vplog[1].allValue;
+  // find fieldname
+  if( cdmSyntax ) {
+    for (unsigned int j = 0; j < vplog.size(); j++) {
+      if (vplog[j].key == "plot" || vplog[j].key == "parameter" ) {
+        fieldname = vplog[j].allValue;
+        break;
+      }
+    }
+  } else {
+    if (nlog >= 2 && vplog[0].key == "unknown" && vplog[1].key == "unknown") {
+      fieldname = vplog[1].allValue;
+    }
+  }
 
+  if ( fieldname.exists() ) {
     miutil::miString fopts = getFieldOptions(fieldname, true);
 
     if (!fopts.empty()) {
       vector<ParsedCommand> vpopt = cp->parse(fopts);
       int nopt = vpopt.size();
       //##################################################################
-      //    cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
-      //    for (int j=0; j<nlog; j++)
-      //	cerr << "        log " << j << " : id " << vplog[j].idNumber
-      //	     << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
+//      cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
+//      for (int j=0; j<nlog; j++)
+//        cerr << "        log " << j << " : id " << vplog[j].idNumber
+//        << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
       //##################################################################
-      newstr += vplog[0].allValue + " " + vplog[1].allValue;
-      for (int i = 2; i < nlog; i++) {
+
+      // model + field, old syntax
+      if ( !cdmSyntax ) {
+        newstr += vplog[0].allValue + " " + vplog[1].allValue;
+      }
+
+      for (int i = 0; i < nlog; i++) {
         if (vplog[i].idNumber == 1)
           newstr += (" " + vplog[i].key + "=" + vplog[i].allValue);
       }
+
+      //loop through current options, replace the value if the new string has same option with different value
       for (int j = 0; j < nopt; j++) {
         int i = 0;
         while (i < nlog && vplog[i].key != vpopt[j].key)
@@ -4201,6 +4381,7 @@ miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str)
         }
       }
 
+      //loop through new options, add new option if it is not a part og current options
       for (int i = 2; i < nlog; i++) {
         if (vplog[i].key != "level" && vplog[i].key != "idnum") {
           int j = 0;
@@ -4779,7 +4960,7 @@ void FieldDialog::updateTime()
       if (!selectedFields[i].inEdit) {
         request.push_back(ftr);
         request[nr].modelName = selectedFields[i].modelName;
-        request[nr].paramName = selectedFields[i].fieldName.downcase();
+        request[nr].paramName = selectedFields[i].fieldName;
         request[nr].plevel = selectedFields[i].level;
         request[nr].elevel = selectedFields[i].idnum;
         request[nr].hourOffset = selectedFields[i].hourOffset;
@@ -4789,8 +4970,8 @@ void FieldDialog::updateTime()
         request[nr].taxis = selectedFields[i].taxis;
         request[nr].eaxis = selectedFields[i].runaxis;
         request[nr].grid = selectedFields[i].grid;
+        request[nr].plotDefinition = selectedFields[i].plotDefinition;
         request[nr].allTimeSteps = allTimeStepButton->isChecked();
-
         if (selectedFields[i].forecastSpec) {
           vector<ParsedCommand> vpc = cp->parse(selectedFields[i].fieldOpts);
           int nvpc = vpc.size();

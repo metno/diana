@@ -84,41 +84,6 @@ class FieldDialog: public QDialog
 {
   Q_OBJECT
 
-public:
-
-  FieldDialog( QWidget* parent, Controller* lctrl);
-
-  /// follows levelUp/levelDown in main window toolbar
-  vector<miutil::miString> changeLevel(int increment, int type = 0);
-
-  void archiveMode(bool on);
-  /// switch on/off access to profet fields
-  void enableProfet(bool on);
-  /// returns fiels command strings, one for each field
-  vector<miutil::miString> getOKString(bool resetLevelMove=true);
-  /// return a short text for quickmenue
-  miutil::miString getShortname();
-  bool levelsExists(bool up, int type=0);
-  void putOKString(const vector<miutil::miString>& vstr,
-		   bool checkOptions=true, bool external=true);
-
-  /// insert editoption values of <field,option> specified
-  void getEditPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >& po);
-  /// make contents for the diana log file
-  vector<miutil::miString> writeLog();
-  /// digest contents from the diana log file (a previous session)
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
-
-protected:
-  void closeEvent( QCloseEvent* );
-
-public slots:
-  void advancedToggled(bool on);
-  void fieldEditUpdate(miutil::miString str);
-  void addField(miutil::miString str);
-  void updateModels();
-
 private:
 
   struct SelectedField {
@@ -149,7 +114,9 @@ private:
     bool plotDefinition;
     bool levelmove;
     bool idnummove;
-    SelectedField() : cdmSyntax(false), plotDefinition(true), levelmove(true), idnummove(true)
+    SelectedField() : inEdit(false), external(false), forecastSpec(false), editPlot(false),
+        hourOffset(0), hourDiff(0), minus(false),
+        cdmSyntax(false), plotDefinition(true), levelmove(true), idnummove(true)
     {
     }
   };
@@ -164,6 +131,45 @@ private:
     bool unitWidgets;
   };
 
+public:
+
+  FieldDialog( QWidget* parent, Controller* lctrl);
+
+  /// follows levelUp/levelDown in main window toolbar
+  vector<miutil::miString> changeLevel(int increment, int type = 0);
+
+  void archiveMode(bool on);
+  /// switch on/off access to profet fields
+  void enableProfet(bool on);
+  /// returns fiels command strings, one for each field
+  vector<miutil::miString> getOKString(bool resetLevelMove=true);
+  /// return a short text for quickmenue
+  miutil::miString getShortname();
+  bool levelsExists(bool up, int type=0);
+  void putOKString(const vector<miutil::miString>& vstr,
+		   bool checkOptions=true, bool external=true);
+  bool decodeString_cdmSyntax(const miutil::miString& fieldstr, SelectedField& sf, bool& allTimeSteps);
+  bool decodeString_oldSyntax(const miutil::miString& fieldstr, SelectedField& sf, bool& allTimeSteps);
+
+  /// insert editoption values of <field,option> specified
+  void getEditPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >& po);
+  /// make contents for the diana log file
+  vector<miutil::miString> writeLog();
+  /// digest contents from the diana log file (a previous session)
+  void readLog(const vector<miutil::miString>& vstr,
+	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+
+protected:
+  void closeEvent( QCloseEvent* );
+
+public slots:
+  void advancedToggled(bool on);
+  void fieldEditUpdate(miutil::miString str);
+  void addField(miutil::miString str);
+  void updateModels();
+
+private:
+
   void updateModelBoxes();
   void setDefaultFieldOptions();
   void enableWidgets(miutil::miString plottype);
@@ -177,7 +183,7 @@ private:
   void getFieldGroups(const miutil::miString& model, int& indexMGR, int& indexM,
 		      vector<FieldGroupInfo>& vfg);
   void showHistory(int step);
-  miutil::miString checkFieldOptions(const miutil::miString& str);
+  miutil::miString checkFieldOptions(const miutil::miString& str, bool cdmSyntax);
   miutil::miString getFieldOptions(const miutil::miString& fieldName, bool reset, bool edit=false) const;
 
   bool fieldDifference(const miutil::miString& str,
