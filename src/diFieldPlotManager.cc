@@ -561,13 +561,16 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
     fieldtext += " " + fout->idnumtext;
   }
 
-  ostringstream ostr;
-  if (fout->forecastHour >= 0) {
-    ostr << "+" << fout->forecastHour;
-  } else {
-    ostr << fout->forecastHour;
+  miString progtext;
+  if( fout->forecastHour != -32767 ) {
+    ostringstream ostr;
+    if (fout->forecastHour >= 0) {
+      ostr << "+" << fout->forecastHour;
+    } else {
+      ostr << fout->forecastHour;
+    }
+    progtext = "(" + ostr.str() + ")";
   }
-  miString progtext = "(" + ostr.str() + ")";
 
   miString sclock = fout->validFieldTime.isoClock();
   miString shour = sclock.substr(0, 2);
