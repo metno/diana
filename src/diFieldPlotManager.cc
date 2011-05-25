@@ -908,13 +908,9 @@ bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
 }
 
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
-
-
-//    miString& modelName,
-//    miString& plotName, vector<miString>& fieldName, miString& levelName,
-//    miString& idnumName, int& hourOffset, int& hourDiff, miTime& time)
 {
- // cerr <<"PIN: "<<pin<<endl;
+
+  //  cerr <<"PIN: "<<pin<<endl;
 
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
@@ -939,9 +935,11 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
       }else if (key == "parameter") {
         plotName = vtoken[1];
         paramNames.push_back(vtoken[1]);
+        fieldrequest.plotDefinition=false;
       }else if (key == "plot") {
         plotName = vtoken[1];
         paramNames = getParamNames(vtoken[1]);
+        fieldrequest.plotDefinition=true;
       } else if (key == "vcoor") {
         fieldrequest.zaxis = vtoken[1];
       } else if (key == "tcoor") {
