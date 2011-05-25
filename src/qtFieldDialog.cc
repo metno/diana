@@ -3889,7 +3889,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
   int nvfg = vfg.size();
   int indexFGR = 0;
   while (indexFGR < nvfg) {
-         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis<<endl;
+//         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis<<endl;
     if (sf.zaxis == vfg[indexFGR].zaxis
         && sf.runaxis == vfg[indexFGR].runaxis
         && (sf.taxis == vfg[indexFGR].taxis || sf.taxis=="")
