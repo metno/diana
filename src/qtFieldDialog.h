@@ -105,9 +105,9 @@ private:
     bool minus;
     miutil::miString time;
     //Used in gridio
-    miutil::miTime refTime;
+    std::string refTime;
     std::string zaxis;
-    std::string runaxis;
+    std::string extraaxis;
     std::string taxis;
     std::string grid;
     bool cdmSyntax;
@@ -180,7 +180,7 @@ private:
   void updateTime();
   void setLevel();
   void setIdnum();
-  void getFieldGroups(const miutil::miString& model, int& indexMGR, int& indexM,
+  void getFieldGroups(const miutil::miString& model, const std::string& refTime, int& indexMGR, int& indexM,
 		      vector<FieldGroupInfo>& vfg);
   void showHistory(int step);
   miutil::miString checkFieldOptions(const miutil::miString& str, bool cdmSyntax);

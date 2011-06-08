@@ -182,6 +182,7 @@ nr_linewidths = 12;
   cp->addKey("ecoor", "", 1, CommandParser::cmdString);
   cp->addKey("taxis", "", 1, CommandParser::cmdString);
   cp->addKey("grid", "", 1, CommandParser::cmdString);
+  cp->addKey("unit", "", 1, CommandParser::cmdString);
 
   // old syntax
   cp->addKey("level", "", 1, CommandParser::cmdString);
@@ -1188,8 +1189,14 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 
   miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
 
-  getFieldGroups(model, indexMGR, indexM, vfgi);
+  set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(model);
 
+  //todo: select refTime from gui
+  if( refTimes.size() > 0 ) {
+    getFieldGroups(model, *refTimes.begin(), indexMGR, indexM, vfgi);
+  } else {
+    getFieldGroups(model, "", indexMGR, indexM, vfgi);
+  }
   int nvfgi = vfgi.size();
 
   //Translate level names if not cdmSyntax
@@ -1646,7 +1653,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.refTime = vfgi[indexFGR].refTime;
       sf.zaxis = vfgi[indexFGR].zaxis;
       sf.taxis = vfgi[indexFGR].taxis;
-      sf.runaxis = vfgi[indexFGR].runaxis;
+      sf.extraaxis = vfgi[indexFGR].extraaxis;
       sf.grid = vfgi[indexFGR].grid;
       sf.cdmSyntax = vfgi[indexFGR].cdmSyntax;
       sf.plotDefinition = vfgi[indexFGR].plotDefinitions;
@@ -3130,7 +3137,7 @@ void FieldDialog::updateFieldOptions(const miutil::miString& name,
 
 }
 
-void FieldDialog::getFieldGroups(const miutil::miString& model, int& indexMGR,
+void FieldDialog::getFieldGroups(const miutil::miString& model, const std::string& refTime, int& indexMGR,
     int& indexM, vector<FieldGroupInfo>& vfg)
 {
 
@@ -3139,7 +3146,7 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, int& indexMGR,
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  m_ctrl->getFieldGroups(model, modelName, miutil::miTime(), vfg);
+  m_ctrl->getFieldGroups(model, modelName, refTime, vfg);
 
   QApplication::restoreOverrideCursor();
 
@@ -3337,7 +3344,7 @@ std::string FieldDialog::getParamString(int i)
       ostr << " vlevel=" << selectedFields[i].level;
     }
     if (selectedFields[i].idnum.exists()) {
-      ostr << " ecoor="<< selectedFields[i].runaxis;
+      ostr << " ecoor="<< selectedFields[i].extraaxis;
       ostr << " elevel=" << selectedFields[i].idnum;
     }
     //    if (selectedFields[i].grid.exists()) {
@@ -3759,7 +3766,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
           bool groupOK = true;
           if ( selectedFields[i].cdmSyntax ) {
             if ( selectedFields[i].zaxis != vfgi[indexFGR].zaxis
-                || selectedFields[i].runaxis != vfgi[indexFGR].runaxis
+                || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis
                 || selectedFields[i].taxis != vfgi[indexFGR].taxis
                 || selectedFields[i].grid != vfgi[indexFGR].grid
                 || selectedFields[i].plotDefinition != vfgi[indexFGR].plotDefinitions) {
@@ -3852,7 +3859,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
     } else if (vpc[j].key == "tcoor") {
       sf.taxis = vpc[j].allValue;
     } else if (vpc[j].key == "ecoor") {
-      sf.runaxis = vpc[j].allValue;
+      sf.extraaxis = vpc[j].allValue;
     } else if (vpc[j].key == "grid") {
       sf. grid = vpc[j].allValue;
     } else if (vpc[j].key == "vccor") {
@@ -3882,7 +3889,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
   //find index of modelgroup and model. Keep name of model and reuse info if same model
   int indexMGR = -1;
   int indexM = -1;
-  getFieldGroups(sf.modelName, indexMGR, indexM, vfg);
+  getFieldGroups(sf.modelName, sf.refTime, indexMGR, indexM, vfg);
 
   //find index of fieldgroup and field
   bool fieldFound = false;
@@ -3891,7 +3898,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
   while (indexFGR < nvfg) {
 //         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis<<endl;
     if (sf.zaxis == vfg[indexFGR].zaxis
-        && sf.runaxis == vfg[indexFGR].runaxis
+        && sf.extraaxis == vfg[indexFGR].extraaxis
         && (sf.taxis == vfg[indexFGR].taxis || sf.taxis=="")
         && sf.grid == vfg[indexFGR].grid
         && sf.plotDefinition == vfg[indexFGR].plotDefinitions) {
@@ -3994,7 +4001,7 @@ bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, S
 
 //  if (model != vfg2_model) {
     indexMGR = indexM = -1;
-    getFieldGroups(model, indexMGR, indexM, vfg2);
+    getFieldGroups(model, "",indexMGR, indexM, vfg2);
 //    vfg2_model = model;
     nvfg = vfg2.size();
 //  }
@@ -4729,7 +4736,7 @@ void FieldDialog::changeModel()
         selectedFields[i].refTime = vfgi[indexFGR].refTime;
         selectedFields[i].zaxis = vfgi[indexFGR].zaxis;
         selectedFields[i].taxis = vfgi[indexFGR].taxis;
-        selectedFields[i].runaxis = vfgi[indexFGR].runaxis;
+        selectedFields[i].extraaxis = vfgi[indexFGR].extraaxis;
         selectedFields[i].grid = vfgi[indexFGR].grid;
         selectedFields[i].cdmSyntax = vfgi[indexFGR].cdmSyntax;
         selectedFields[i].plotDefinition = vfgi[indexFGR].plotDefinitions;
@@ -4968,7 +4975,7 @@ void FieldDialog::updateTime()
         request[nr].refTime = selectedFields[i].refTime;
         request[nr].zaxis = selectedFields[i].zaxis;
         request[nr].taxis = selectedFields[i].taxis;
-        request[nr].eaxis = selectedFields[i].runaxis;
+        request[nr].eaxis = selectedFields[i].extraaxis;
         request[nr].grid = selectedFields[i].grid;
         request[nr].plotDefinition = selectedFields[i].plotDefinition;
         request[nr].allTimeSteps = allTimeStepButton->isChecked();

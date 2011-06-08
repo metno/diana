@@ -801,9 +801,14 @@ vector<miString> Controller::getFieldLevels(const miString& pinfo)
   return fieldplotm->getFieldLevels(pinfo);
 }
 
+set<std::string> Controller::getFieldReferenceTimes(const std::string model)
+{
+  return fieldm->getReferenceTimes(model);
+}
+
 void Controller::getFieldGroups(const miString& modelNameRequest,
 				miString& modelName,
-				miutil::miTime refTime,
+				std::string refTime,
 				vector<FieldGroupInfo>& vfgi)
 {
 //   cerr <<"modelNameRequest: "<<modelNameRequest<<endl;

@@ -285,6 +285,8 @@ public:
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
   vector<FieldDialogInfo> initFieldDialog();
+  ///return all reference times for given model
+  set<std::string> getFieldReferenceTimes(const std::string model);
   /// return plot options for all defined plot fields in setup
   void getAllFieldNames(vector<miutil::miString>& fieldNames,
 			set<std::string>& fieldprefixes,
@@ -293,7 +295,7 @@ public:
   vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const miutil::miString& modelNameRequest,
-		      miutil::miString& modelName, miutil::miTime refTime, vector<FieldGroupInfo>& vfgi);
+		      miutil::miString& modelName, std::string refTime, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
 

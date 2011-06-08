@@ -448,7 +448,7 @@ vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
 
   vector<FieldGroupInfo> vfgi;
   miString name;
-  miTime refTime;
+  std::string refTime;
   getFieldGroups(tokens[1], name, refTime, vfgi);
   for (unsigned int i = 0; i < vfgi.size(); i++) {
     levels.push_back(vfgi[i].groupName);
@@ -811,7 +811,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 }
 
 void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
-    miString& modelName, miTime refTime, vector<FieldGroupInfo>& vfgi)
+    miString& modelName, std::string refTime, vector<FieldGroupInfo>& vfgi)
 {
 
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
@@ -952,10 +952,12 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
         fieldrequest.elevel = vtoken[1];
       } else if (key == "grid") {
         fieldrequest.grid = vtoken[1];
+      } else if (key == "unit") {
+        fieldrequest.unit = vtoken[1];
       } else if (key == "time") {
         fieldrequest.ptime = miTime(vtoken[1]);
       } else if (key == "reftime") {
-        fieldrequest.refTime = miTime(vtoken[1]);
+        fieldrequest.refTime = vtoken[1];
       } else if (key == "refhour") {
         fieldrequest.refhour = atoi(vtoken[1].c_str());
       } else if (key == "refoffset") {
