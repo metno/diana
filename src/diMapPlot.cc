@@ -55,7 +55,7 @@ map<miString,Area> MapPlot::shapeareas;
 
 // Default constructor
 MapPlot::MapPlot() :
-  Plot(), mapchanged(true), haspanned(false), usedrawlists(true)
+      Plot(), mapchanged(true), haspanned(false), usedrawlists(true)
 {
 #ifdef DEBUGPRINT
   cerr << "++ MapPlot::Default Constructor" << endl;
@@ -94,7 +94,6 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
   Area newarea;
   MapManager mapm;
 
-  xyLimit.clear();
   reqarea = rarea; //get requested area from previous MapPlot
 
   // split on blank, preserve ""
@@ -113,49 +112,51 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
 
   if (tokens[0] == "AREA"){
 
-  const miString key_name=  "name";
-  const miString key_areaname=  "areaname"; //old syntax
-  const miString key_proj=  "proj4string";
-  const miString key_rectangle=  "rectangle";
-  const miString key_xypart=  "xypart";
+    xyLimit.clear();
 
-  Projection proj;
-  Rectangle rect;
+    const miString key_name=  "name";
+    const miString key_areaname=  "areaname"; //old syntax
+    const miString key_proj=  "proj4string";
+    const miString key_rectangle=  "rectangle";
+    const miString key_xypart=  "xypart";
 
-  int n = tokens.size();
-  for (int i=0; i<n; i++){
-    vector<miString> stokens= tokens[i].split(1,'=');
-    if (stokens.size() > 1) {
-      miString key= stokens[0].downcase();
+    Projection proj;
+    Rectangle rect;
 
-      if (key==key_name || key==key_areaname){
-        mapm.getMapAreaByName(stokens[1], newarea);
-        areadefined = true;
-        reqarea= newarea;
-      } else if (key==key_proj){
-        if ( proj.set_proj_definition(stokens[1]) ) {
-          reqarea.setP(proj);
+    int n = tokens.size();
+    for (int i=0; i<n; i++){
+      vector<miString> stokens= tokens[i].split(1,'=');
+      if (stokens.size() > 1) {
+        miString key= stokens[0].downcase();
+
+        if (key==key_name || key==key_areaname){
+          mapm.getMapAreaByName(stokens[1], newarea);
           areadefined = true;
-        }
-      } else if (key==key_rectangle){
-        if ( rect.setRectangle(stokens[1],false) ) {
-          reqarea.setR(rect);
-        }
-      } else if (key==key_xypart) {
-        cerr <<"xypart:"<<stokens[1]<<endl;
-        vector<miString> vstr= stokens[1].split(',');
-        if (vstr.size()>=4) {
-          xyPart.clear();
-          for (int j=0; j<4; j++) {
-            xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
+          reqarea= newarea;
+        } else if (key==key_proj){
+          if ( proj.set_proj_definition(stokens[1]) ) {
+            reqarea.setP(proj);
+            areadefined = true;
           }
-          if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3]) {
+        } else if (key==key_rectangle){
+          if ( rect.setRectangle(stokens[1],false) ) {
+            reqarea.setR(rect);
+          }
+        } else if (key==key_xypart) {
+          cerr <<"xypart:"<<stokens[1]<<endl;
+          vector<miString> vstr= stokens[1].split(',');
+          if (vstr.size()>=4) {
             xyPart.clear();
+            for (int j=0; j<4; j++) {
+              xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
+            }
+            if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3]) {
+              xyPart.clear();
+            }
           }
         }
       }
     }
-  }
 
 
   } else if (tokens[0] == "MAP"){
@@ -164,7 +165,7 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
     MapInfo tmpinfo;
     bool areadef=false;
     for (int i=0; i<n; i++) {
-       vector<miString> stokens= tokens[i].split('=');
+      vector<miString> stokens= tokens[i].split('=');
       if (stokens.size()==2) {
         if (stokens[0].upcase()=="MAP") {
           mapm.getMapInfoByName(stokens[1], tmpinfo);
@@ -442,7 +443,7 @@ bool MapPlot::plot(const int zorder)
 
   // plot frame
   if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder) {
-//    cerr << "Plotting frame for layer:" << zorder << endl;
+    //    cerr << "Plotting frame for layer:" << zorder << endl;
     Rectangle reqr= reqarea.R();
     Colour c= ffopts.linecolour;
     if (c==backgroundColour)
@@ -468,7 +469,7 @@ bool MapPlot::plot(const int zorder)
 
       // first check if difference only in translation/scaling
       bool similarAreas=false;
-//      gc.checkAreaSimilarity(reqarea, area, similarAreas);
+      //      gc.checkAreaSimilarity(reqarea, area, similarAreas);
       // number of subdivisions for each frame-side
       int nsub = (similarAreas ? 1 : 20);
       int npos = 4*nsub;
@@ -665,7 +666,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     return false;
   }
 
-//  cerr << "plotMapLand4 file=" << filename << " version=" << version << endl;
+  //  cerr << "plotMapLand4 file=" << filename << " version=" << version << endl;
 
   // for version 1 this is the scaling of all values (lat,long)
   // for version 2 this is the scaling of reference values (lat,long)
@@ -685,7 +686,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
   dxbad = 1.e+35;
   // TODO: remove this?
   // polar stereographic
-/*
+  /*
   if (gridtype != 1 && gridtype != 4) {
     float tx[2] = { -170., 170. };
     float ty[2] = { 60., 60. };
@@ -694,7 +695,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
   } else {
     dxbad = 1.e+35;
   }
-*/
+   */
 
   bool illegal_southpole = !projection.isLegal(0.0, -90.0);
   bool illegal_northpole = !projection.isLegal(0.0, 90.0);
@@ -748,7 +749,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
 
         if ((npp == npos || (unsigned int)np == maxpos) && np > 1) {
           if (illegal_southpole || illegal_northpole){
-          /*
+            /*
           if (gridtype == 5 || gridtype == 6) {
             // mercator/lambert, avoid latitudes +90 and -90
              */
@@ -768,8 +769,8 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
           }
 
           //xyconvert(np, x, y, igeogrid, geogrid, gridtype, gridparam, &ierror);
-/*
- * TODO: what about this?
+          /*
+           * TODO: what about this?
           if (gridtype == 1 || gridtype == 4) {
             xyclip(np, &x[0], &y[0], &xylim[0], jumplimit);
           } else {
@@ -788,7 +789,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
             if (np - ibgn > 1)
               xyclip(np - ibgn, &x[ibgn], &y[ibgn], &xylim[0], jumplimit);
           }
-          */
+           */
           clipPrimitiveLines(np,x,y,xylim,jumplimit);
           x[0] = x1;
           y[0] = y1;
@@ -1000,7 +1001,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                   if (b!=0){
                     cerr << "plotMapLand4(2), getPoints returned false"<< endl;
                   }
-/*
+                  /*
 TODO: what about this?
                   if (gridtype == 1 || gridtype == 4) {
                     xyclip(np, &x[0], &y[0], &xylim[0], jumplimit);
@@ -1022,7 +1023,7 @@ TODO: what about this?
                       xyclip(np - ibgn, &x[ibgn], &y[ibgn], &xylim[0],
                           jumplimit);
                   }
-*/
+                   */
                   clipPrimitiveLines(np, x, y, xylim, jumplimit);
 
                   x[0] = x1;
@@ -1057,11 +1058,11 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
   int lat_valuepos = convertLatLonPos(mapinfo.lat.value_pos);
   float lat_fontsize = mapinfo.lat.fontsize;
 
-/*
+  /*
   cerr << (lon_values ? "lon_values=ON" : "lon_values=OFF") << " "
   << (lat_values ? "lat_values=ON" : "lat_values=OFF") << " lon_valuepos="
   << lon_valuepos << " lat_valuepos=" << lat_valuepos << endl;
-*/
+   */
 
 
   Projection p= area.P();
@@ -1114,13 +1115,13 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
   float glon, glat;
 
 
-//########################################################################
-//cerr<<"longitudeStep,latitudeStep:  "<<longitudeStep<<" "<<latitudeStep<<endl;
-//cerr<<"ilon1,ilon2,ilat1,ilat2:     "<<ilon1<<" "<<ilon2<<" "<<ilat1<<" "<<ilat2<<endl;
-//cerr<<"glon1,glon2,glat1,glat2:     "<<glon1<<" "<<glon2<<" "<<glat1<<" "<<glat2<<endl;
-//cerr<<"lonmin,lonmax,latmin,latmax: "<<lonmin<<" "<<lonmax<<" "<<latmin<<" "<<latmax<<endl;
-//cerr<<"maprect x1,x2,y1,y2:         "<<xylim[0]<<" "<<xylim[1]<<" "<<xylim[2]<<" "<<xylim[3]<<endl;
-//########################################################################
+  //########################################################################
+  //cerr<<"longitudeStep,latitudeStep:  "<<longitudeStep<<" "<<latitudeStep<<endl;
+  //cerr<<"ilon1,ilon2,ilat1,ilat2:     "<<ilon1<<" "<<ilon2<<" "<<ilat1<<" "<<ilat2<<endl;
+  //cerr<<"glon1,glon2,glat1,glat2:     "<<glon1<<" "<<glon2<<" "<<glat1<<" "<<glat2<<endl;
+  //cerr<<"lonmin,lonmax,latmin,latmax: "<<lonmin<<" "<<lonmax<<" "<<latmin<<" "<<latmax<<endl;
+  //cerr<<"maprect x1,x2,y1,y2:         "<<xylim[0]<<" "<<xylim[1]<<" "<<xylim[2]<<" "<<xylim[3]<<endl;
+  //########################################################################
 
   n= (ilat2-ilat1+1)*(ilon2-ilon1+1);
   if (n>1200) {
@@ -1165,7 +1166,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     nlat += (n1 + n2);
     if (nlat < 2)
       cerr << "** MapPlot::plotGeoGrid ERROR in Curved longitude lines, nlat="
-          << nlat << endl;
+      << nlat << endl;
     else {
       float *x = new float[nlat];
       float *y = new float[nlat];
@@ -1285,7 +1286,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     UpdateOutput();
   }
 
-/*  }*/
+  /*  }*/
 
   if (geo2xyError) {
     cerr<<"MapPlot::plotGeoGrid ERROR: gc.geo2xy failure(s)"<<endl;
@@ -1340,7 +1341,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
         y[n]= atof(coords[0].c_str()); // latitude
         x[n]= atof(coords[1].c_str()); // longitude
         endline= (y[n]< -90.01f || y[n]> +90.01f || x[n]<-360.01f || x[n]
-            >+360.01f);
+                                                                       >+360.01f);
       } else {
         endline= true;
       }
@@ -1390,7 +1391,7 @@ void MapPlot::clipPrimitiveLines(int npos, float *x, float *y, float xylim[4],
   while (n < npos) {
     i = n++;
     while (n < npos && fabsf(x[n - 1] - x[n]) < jumplimit && fabsf(y[n - 1]
-        - y[n]) < jumplimit) {
+                                                                     - y[n]) < jumplimit) {
       n++;
     }
     xyclip(n - i, &x[i], &y[i], xylim, plotanno, anno_position, anno);
