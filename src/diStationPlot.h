@@ -41,6 +41,7 @@
 #include <diCommonTypes.h>
 #include <diField/diColour.h>
 #include <diField/diArea.h>
+#include <diImageGallery.h>
 
 using namespace std;
 
@@ -212,6 +213,7 @@ private:
 
   float pi;
   GLuint circle;
+  ImageGallery ig;
 
 
   static miutil::miString ddString[16]; // NN�,N�,�N�,�,�S� etc.

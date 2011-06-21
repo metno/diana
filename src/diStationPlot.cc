@@ -35,7 +35,6 @@
 
 #include <diStationPlot.h>
 #include <math.h>
-#include <diImageGallery.h>
 #include <diFontManager.h>
 
 using namespace::miutil;
@@ -274,7 +273,6 @@ bool StationPlot::plot()
 #endif
   if (!enabled || !visible)
     return false;
-  ImageGallery ig;
 
   //Circle
   GLfloat xc, yc;
@@ -320,7 +318,6 @@ void StationPlot::plotStation(int i)
   cerr <<"StationPlot::plotStation "<< i <<endl;
 #endif
 
-  ImageGallery ig;
   float h = 0, w = 0; //height for displaying text
   float x = xplot[i];
   float y = yplot[i];
