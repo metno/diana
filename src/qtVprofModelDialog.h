@@ -59,6 +59,8 @@ public:
   //the constructor
   VprofModelDialog( QWidget* parent, VprofManager * vm );
   void setSelection();
+  void updateModelfileList();
+
 protected:
   void closeEvent( QCloseEvent* );
 
@@ -77,7 +79,6 @@ private:
   miutil::miString OBSAMDAR;
 
   //functions
-  void updateModelfileList();
   void setModel();
 
 private slots:
