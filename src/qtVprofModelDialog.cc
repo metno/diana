@@ -100,7 +100,6 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   modelfileLayout->addWidget(fileButton);
   modelfileBut->setExclusive(true);
   modelButton->setChecked(true);
-  updateModelfileList();
 
   //modelfileClicked is called when auto,tid,fil buttons clicked
   connect( modelfileBut, SIGNAL( buttonClicked(int) ),

@@ -779,6 +779,7 @@ void VprofWindow::startUp(const miutil::miTime& t){
     vector<miutil::miString> models;
     //define models for dialogs, comboboxes and stationplot
     vprofm->setSelectedModels(models,false,true,true,true);
+    vpModelDialog->updateModelfileList();
     vpModelDialog->setSelection();
     firstTime=false;
     // show default diagram without any data

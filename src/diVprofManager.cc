@@ -87,8 +87,6 @@ VprofManager::VprofManager(Controller* co)
 
   parseSetup();
 
-  updateObsFileList();
-
   //zero time = 00:00:00 UTC Jan 1 1970
   ztime = miTime(1970,1,1,0,0,0);
 
