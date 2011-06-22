@@ -98,8 +98,11 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
   }
 
 
-  // NB this point is never reached because BUFRdecode always returns true
+
   pbclose_(&iunit,&iret);
+
+  //init returns false when BUFRdecode returns false
+  //BUFRdecode returns false when vprof station is found. Todo: make this more intuitive
   return false;
 }
 
@@ -167,18 +170,20 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
 }
 
 bool ObsBufr::readStationInfo(const vector<miString>& bufr_file,
-    vector<miString>& namelist, vector<float>& latitudelist,
+    vector<miString>& namelist, vector<miTime>& timelist, vector<float>& latitudelist,
     vector<float>& longitudelist)
 {
 
   id.clear();
   idmap.clear();
+  id_time.clear();
 
   for( size_t i=0; i< bufr_file.size(); i++) {
     init(bufr_file[i], "stationInfo");
   }
 
   namelist = id;
+  timelist = id_time;
   latitudelist = latitude;
   longitudelist = longitude;
   return true;
@@ -186,11 +191,15 @@ bool ObsBufr::readStationInfo(const vector<miString>& bufr_file,
 }
 
 VprofPlot* ObsBufr::getVprofPlot(const vector<miString>& bufr_file,
-    const miString& station, const miTime& time)
+    const miString& modelName,
+    const miString& station,
+    const miTime& time)
 {
 
   index = izone = istation = 0;
   vplot = new VprofPlot;
+
+  vplot->text.modelName = modelName;
 
   //if station(no)
   vector<miString> token = station.split("(");
@@ -206,10 +215,14 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<miString>& bufr_file,
   }
 
   for( size_t i=0; i< bufr_file.size(); i++) {
-    init(bufr_file[i], "vprofplot");
+    //init returns true when reaching end of file, returns false when station is found
+    if (!init(bufr_file[i], "vprofplot") ) {
+      return vplot;
+    }
   }
 
-  return vplot;
+  // No station found
+  return NULL;
 
 }
 
@@ -1007,6 +1020,11 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
 
   int wmoBlock = 0;
   int wmoStation = 0;
+  int year = 0;
+  int month = 0;
+  int day = 0;
+  int hour = 0;
+  int minute = 0;
   miString station;
   bool landStation = true;
   int nn = 0; //what is nn used for??
@@ -1033,7 +1051,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     {
       int index = int(values[j]) / 1000 - 1;
       //miString station;
-      for (int k = 0; k < 4; k++) {
+      for (int k = 0; k < 6; k++) {
         station+= cvals[index][k];
       }
       if (station.exists()) {
@@ -1042,6 +1060,31 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
       }
     }
     break;
+
+    //   4001  YEAR
+    case 4001:
+      year = int(values[j]);
+      break;
+
+      //   4002  MONTH
+    case 4002:
+      month = int(values[j]);
+      break;
+
+      //   4003  DAY
+    case 4003:
+      day = int(values[j]);
+      break;
+
+      //   4004  HOUR
+    case 4004:
+      hour = int(values[j]);
+      break;
+
+      //   4005  MINUTE
+    case 4005:
+      minute = int(values[j]);
+      break;
 
     //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
     //   5002  LATITUDE (COARSE ACCURACY), DEGREE
@@ -1078,6 +1121,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     idmap[station] = 1;
   }
   id.push_back(ostr.str());
+  id_time.push_back( miTime(year, month, day, hour, minute, 0));
   return true;
 
 }
@@ -1513,6 +1557,9 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
         if (values[j] < bufrMissing) {
           p = int(values[j] * pa2hpa);
           ok = (p > 0. && p < 1300.);
+        } else {
+          p=-1;
+         ok=false;
         }
         break;
 

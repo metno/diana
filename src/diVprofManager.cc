@@ -712,7 +712,15 @@ bool VprofManager::plot()
               if (nn>0  && abs(miTime::minDiff(obsfiles[nn-1].time, plotTime)) <= 60 ) {
                 vprofFiles.push_back(obsfiles[nn-1].filename);
               }
-              vp=bufr.getVprofPlot(vprofFiles,obsList[i],plotTime);
+              miString modelName;
+              if ( obsfiles[nn].obstype==amdar ) {
+                modelName="AMDAR";
+              } else if (obsfiles[nn].obstype == temp ) {
+                modelName="TEMP";
+              } else if (obsfiles[nn].obstype == pilot ) {
+                modelName="PILOT";
+              }
+              vp=bufr.getVprofPlot(vprofFiles, modelName, obsList[i], plotTime);
 #endif
             }
 #ifdef ROADOBS
@@ -957,7 +965,7 @@ void VprofManager::initStations(){
           vprofFiles.push_back(obsfiles[i-1].filename);
         }
         bufr.readStationInfo(vprofFiles,
-            namelist,latitudelist,longitudelist);
+            namelist, tlist, latitudelist, longitudelist);
 #endif
       } else if(obsfiles[i].fileformat==metnoobs){
 #ifdef METNOOBS

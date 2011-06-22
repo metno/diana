@@ -102,6 +102,7 @@ private:
   ObsPlot   *oplot;
   map<miutil::miString,int> idmap;
   vector<miutil::miString> id;
+  vector<miutil::miTime> id_time;
   vector<float> latitude;
   vector<float> longitude;
   int izone;
@@ -114,12 +115,14 @@ public:
   bool init(const miutil::miString& filename, const miutil::miString& format);
   bool ObsTime(const miutil::miString& filename,miutil::miTime& time);
   bool readStationInfo(const vector<miutil::miString>& bufr_file,
-		       vector<miutil::miString>& namelist,
-		       vector<float>& latitudelist,
-		       vector<float>& longitudelist);
+      vector<miutil::miString>& namelist,
+      vector<miutil::miTime>& timelist,
+      vector<float>& latitudelist,
+      vector<float>& longitudelist);
   VprofPlot* getVprofPlot(const vector<miutil::miString>& bufr_file,
-			  const miutil::miString& station,
-			  const miutil::miTime& time);
+      const miutil::miString& modelName,
+      const miutil::miString& station,
+      const miutil::miTime& time);
   ObsPlot*   getObsPlot(){return oplot;}
   void setObsPlot(ObsPlot* op){oplot=op;}
 };
