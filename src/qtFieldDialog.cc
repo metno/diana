@@ -3218,6 +3218,11 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
 
   for (int i = 0; i < n; i++) {
 
+    //Skip edit strings when the strings are used to change level
+    if (!resetLevelMove && selectedFields[i].inEdit && selectedFields[i].editPlot) {
+      continue;
+    }
+
     ostringstream ostr;
 
     if (selectedFields[i].minus)
