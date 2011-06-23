@@ -227,8 +227,8 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
 
         if (!name.empty() && !input.empty()) {
           unsigned int i = 0;
-          while (i < vPlotField.size() && vPlotField[i].name.downcase()
-              != name.downcase())
+          while (i < vPlotField.size() && vPlotField[i].name
+              != name)
             i++;
           if (i < vPlotField.size()) {
             cerr << "  replacing plot specs. for field " << name << endl;
@@ -240,7 +240,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
             pf.input = input;
             vPlotField.push_back(pf);
           }
-          mapPlotField[name.downcase()] = vPlotField[i];
+          mapPlotField[name] = vPlotField[i];
         }
       }
 
@@ -910,7 +910,7 @@ bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
 
-  //  cerr <<"PIN: "<<pin<<endl;
+//     cerr <<"PIN: "<<pin<<endl;
 
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
@@ -1007,12 +1007,6 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName)
   vector<std::string> paramNames;
   std::string suffix;
   splitSuffix(plotName, suffix);
-
-  std::locale::global(std::locale(""));
-  boost::algorithm::to_lower(plotName, locale());
-  //  std::cout << std::locale().name() << std::endl;
-
-  std::locale::global(std::locale("C"));
 
 //If plotName not defined, use plotName as fieldName
   if (!mapPlotField.count(plotName)) {
