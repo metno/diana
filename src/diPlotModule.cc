@@ -796,7 +796,7 @@ void PlotModule::setAnnotations()
     vector<miString> obsinfo = vop[i]->getObsExtraAnnotations();
     int npi = obsinfo.size();
     for (int j = 0; j < npi; j++) {
-      AnnotationPlot* ap = new AnnotationPlot(obsinfo[i]);
+      AnnotationPlot* ap = new AnnotationPlot(obsinfo[j]);
       vap.push_back(ap);
     }
   }
