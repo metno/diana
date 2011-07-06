@@ -91,8 +91,9 @@ private:
     bool external;     // from QuickMenu,...
     bool forecastSpec; // yet only if external
     bool editPlot; //true: old field edit/false: profet
-    int  indexMGR;
-    int  indexM;
+    int indexMGR; //index model group
+    int indexM;   //index model
+    int indexRefTime; //index reference time
     miutil::miString modelName;
     miutil::miString fieldName;
     miutil::miString level;
@@ -262,6 +263,7 @@ private:
 
   QComboBox* modelGRbox;
   QListWidget*  modelbox;
+  QComboBox* refTimeComboBox;
   QComboBox* fieldGRbox;
   QListWidget*  fieldbox;
   QListWidget*  selectedFieldbox;
@@ -324,6 +326,7 @@ private slots:
   void modelGRboxActivated( int index );
   void modelboxClicked( QListWidgetItem * item );
 
+  void refTimeComboBoxActivated( int index );
   void fieldGRboxActivated( int index );
   void fieldboxChanged(QListWidgetItem*);
 

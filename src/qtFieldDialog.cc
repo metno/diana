@@ -260,6 +260,12 @@ nr_linewidths = 12;
   connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
       SLOT( modelboxClicked( QListWidgetItem * ) ) );
 
+  // refTime
+  QLabel *refTimelabel = TitleLabel(tr("Reference time"), this);
+  refTimeComboBox = new QComboBox(this);
+  connect( refTimeComboBox, SIGNAL( activated( int ) ),
+      SLOT( refTimeComboBoxActivated( int ) ) );
+
   // fieldGRbox
   QLabel *fieldGRlabel = TitleLabel(tr("Field group"), this);
   fieldGRbox = new QComboBox(this);
@@ -474,6 +480,8 @@ nr_linewidths = 12;
   v1layout->addWidget(modelGRbox);
   v1layout->addWidget(modellabel);
   v1layout->addWidget(modelbox, 2);
+  v1layout->addWidget(refTimelabel);
+  v1layout->addWidget(refTimeComboBox);
   v1layout->addWidget(fieldGRlabel);
   v1layout->addWidget(fieldGRbox);
   v1layout->addWidget(fieldlabel);
@@ -1117,7 +1125,6 @@ void FieldDialog::updateModelBoxes()
       modelGRbox->addItem(QString(m_modelgroup[i].groupName.c_str()));
     }
   }
-
   modelGRbox->setCurrentIndex(0);
 
   if (selectedFields.size() > 0)
@@ -1159,6 +1166,7 @@ void FieldDialog::modelGRboxActivated(int index)
 
   int indexMGR = indexMGRtable[index];
   modelbox->clear();
+  refTimeComboBox->clear();
   fieldGRbox->clear();
   fieldbox->clear();
 
@@ -1166,8 +1174,6 @@ void FieldDialog::modelGRboxActivated(int index)
   for (int i = 0; i < nr_model; i++) {
     modelbox->addItem(QString(m_modelgroup[indexMGR].modelNames[i].c_str()));
   }
-
-//  modelbox->setEnabled(true);
 
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::modelGRboxActivated returned"<<endl;
@@ -1180,23 +1186,43 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
   cerr<<"FieldDialog::modelboxClicked called"<<endl;
 #endif
 
-  int index = modelbox->row(item);
+  refTimeComboBox->clear();
   fieldGRbox->clear();
   fieldbox->clear();
 
-  int indexM = index;
+  int indexM =modelbox->row(item);
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
 
   miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
 
   set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(model);
 
-  //todo: select refTime from gui
-  if( refTimes.size() > 0 ) {
-    getFieldGroups(model, *refTimes.begin(), indexMGR, indexM, vfgi);
-  } else {
-    getFieldGroups(model, "", indexMGR, indexM, vfgi);
-  }
+  set<std::string>::const_iterator ip=refTimes.begin();
+    for (; ip != refTimes.end(); ++ip) {
+      refTimeComboBox->addItem(QString((*ip).c_str()));
+    }
+
+    refTimeComboBoxActivated(refTimeComboBox->currentIndex());
+#ifdef DEBUGPRINT
+  cerr<<"FieldDialog::modelboxClicked returned"<<endl;
+#endif
+}
+
+void FieldDialog::refTimeComboBoxActivated(int index)
+{
+#ifdef DEBUGPRINT
+  cerr<<"FieldDialog::refTimeComboBoxActivated called"<<endl;
+#endif
+
+  fieldGRbox->clear();
+  fieldbox->clear();
+
+  int indexM =modelbox->currentRow();
+  int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
+  miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
+
+  getFieldGroups(model, refTimeComboBox->currentText().toStdString(), indexMGR, indexM, vfgi);
+
   int nvfgi = vfgi.size();
 
   //Translate level names if not cdmSyntax
@@ -1252,9 +1278,6 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 
   updateTime();
 
-#ifdef DEBUGPRINT
-  cerr<<"FieldDialog::modelboxClicked returned"<<endl;
-#endif
 }
 
 void FieldDialog::fieldGRboxActivated(int index)
@@ -1273,6 +1296,7 @@ void FieldDialog::fieldGRboxActivated(int index)
 
     int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
     int indexM = modelbox->currentRow();
+    int indexRefTime = refTimeComboBox->currentIndex();
     int indexFGR = index;
 
     lastFieldGroupName = vfgi[indexFGR].groupName;
@@ -1290,14 +1314,18 @@ void FieldDialog::fieldGRboxActivated(int index)
     int ml;
 
     for (i = 0; i < n; ++i) {
-      if (!selectedFields[i].inEdit && selectedFields[i].indexMGR == indexMGR
-          && selectedFields[i].indexM == indexM) {
+      //mark fields in FieldBox if current selection (modelgroup, model,refTime) match a selectedField
+      if (!selectedFields[i].inEdit &&
+          selectedFields[i].indexMGR == indexMGR &&
+          selectedFields[i].indexM == indexM &&
+          selectedFields[i].indexRefTime == indexRefTime ) {
         j = 0;
         if (selectedFields[i].modelName == vfgi[indexFGR].modelName) {
           while (j < nfield && selectedFields[i].fieldName
               != vfgi[indexFGR].fieldNames[j])
             j++;
           if (j < nfield) {
+            //Check if level match
             if ((ml = vfgi[indexFGR].levelNames.size()) > 0) {
               int l = 0;
               while (l < ml && vfgi[indexFGR].levelNames[l]
@@ -1306,6 +1334,7 @@ void FieldDialog::fieldGRboxActivated(int index)
               if (l == ml)
                 j = nfield;
             }
+            // Check if idnum match
             if ((ml = vfgi[indexFGR].idnumNames.size()) > 0) {
               int l = 0;
               while (l < ml && vfgi[indexFGR].idnumNames[l]
@@ -1445,7 +1474,7 @@ vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
   }
 
 
-  //plot with levels exists, find nex level
+  //plot with levels exists, find next level
   if( i != n ) {
     miutil::miString level_incremented;
     int m = vlevels.size();
@@ -1490,7 +1519,6 @@ vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
     }
 
   }
-
 
   return getOKString(false);
 }
@@ -3234,7 +3262,6 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
     }
 
     ostr << getParamString(i);
-
     if (minus) {
       ostr << " - ";
       ostr << getParamString(i+1);
@@ -3337,6 +3364,10 @@ std::string FieldDialog::getParamString(int i)
       ostr << " model="<< editName;
     else
       ostr <<" model="<< selectedFields[i].modelName;
+
+    if ( !selectedFields[i].refTime.empty() ) {
+      ostr <<" refTime="<<selectedFields[i].refTime<<endl;
+    }
 
     if (selectedFields[i].plotDefinition) {
       ostr << " plot=" << selectedFields[i].fieldName;
