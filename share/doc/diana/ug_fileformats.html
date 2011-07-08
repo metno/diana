@@ -147,7 +147,7 @@ where Symbol text is the text to be displayed.
 <h2><a NAME="OBSERVATION.ASCII.FILES"></a>Observations in  ascii format</h2>
 
 
-An example an observation ascii file is given below:
+An simple example an observation ascii file is given below:
 
 <p>
 
@@ -178,6 +178,8 @@ Date:d      Time:t:"some text"     Lon:lon     Lat:lat      RRR:r   Station:s   
 	      <td>Skip first 3 data lines</td></tr>
   <tr><td>LABEL</td><td><code>[LABEL text="Label text"] </code></td>
   <td>Syntax: see <a href="ug_bdiana.html#PLOTSETTINGS.ANNOTATIONS">Labels</a></td></tr>
+  <tr><td>SEPARATOR</td><td><code>[SEPARATOR ;] </code></td>
+  <td>Character used to separate the data colomns. Default separator is space</td></tr>
   <tr><td>COLUMNS</td><td><code>[COLUMNS Date:d        Time:t:"some text"     Lon:r     Lat:r] </code></td>
   <td><code>name:type or name:type:tooltip </code></a></td></tr>
   <tr><td>DATA</td><td><code>[DATA] </code></td>
@@ -238,6 +240,49 @@ plotted.
 
 </li>
 </ul>
+
+<h3>Separate headerfile</h3>
+The header information can be given in a separate header file. This is
+usefull when plotting ascii files with a different format
+
+
+An example of a headerfile and a seperate datafile is given below:
+
+<p>
+
+<b>Headerfile:</b>
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+[SKIP_DATA_LINES 1]
+[SPLIT_CHAR ;]
+[COLUMNS 
+;DEPARTMENT:s;DEPT_NO:s;MUNICIPALITY:s;MUNI_NO:s;ST_NAME:s;STNR:s;UTM_E:s;UTM_N:s;AMSL:s;LAT_DEC:lat;LON_DEC:lon;WMO_NO:s]
+[DATA]
+
+</pre>
+</td></tr></table>
+
+<p>
+
+<b>Datafile:</b>
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+DEPARTMENT;DEPT_NO;MUNICIPALITY;MUNI_NO;ST_NAME;STNR;UTM_E;UTM_N;AMSL;LAT_DEC;LON_DEC;WMO_NO
+-999;-1;;-1;TESTSTASJON 86;99986;-999;-999;-999;-999;-999;-999
+-999;-1;;-1;TROLL I ANTARKTIS;99990;-999;-999;1277;-72.0167;2.5333;89504
+-999;-1;;-1;KATTERJAKK;202000;-999;-999;516;68.4167;18.1667;02020
+-999;-1;;-1;NIKKALUOKTA;203600;-999;-999;466;67.85;19.0167;02036
+-999;-1;;-1;GALLIVARE;204900;-999;-999;358;67.1333;20.6333;02049
+</pre>
+</td></tr></table>
+
+If there are some header lines in the datafiles. use the the command
+[SKIP_DATA_LINES X] to skip the X first lines of the data files.
+
+
+
 
     <h2><a NAME="MAP.ASCII.FILES"></a>Map ascii files</h2>
 

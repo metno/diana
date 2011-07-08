@@ -48,9 +48,17 @@ using namespace std;
 */
 class ObsAscii {
 private:
+
+  miutil::miString separator;
+
   void readFile(const miutil::miString &filename, const miutil::miString &headerfile,
 		const miutil::miTime &filetime, ObsPlot *oplot, bool readData);
 
+  void decodeHeader(ObsPlot *oplot, vector<miutil::miString> lines);
+  void decodeData(ObsPlot *oplot, vector<miutil::miString> lines, const miutil::miTime &filetime);
+
+  void getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines);
+  void getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines);
 
 public:
   ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,

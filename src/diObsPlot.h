@@ -332,32 +332,20 @@ public:
   void updateLevel(const miutil::miString& dataType);
 
   //ascii files
-  bool asciiHeader;
   bool asciiData;
   bool asciiOK;
   bool asciiKnots;
   int  asciiSkipDataLines;
-  miutil::miString asciiDataName;
-  miutil::miTime   asciiMainTime;
-  miutil::miTime   asciiStartTime;
-  miutil::miTime   asciiEndTime;
   vector<miutil::miString> asciiColumnName;
   vector<miutil::miString> asciiColumnTooltip;
   vector<miutil::miString> asciiColumnType;
-  vector<miutil::miString> asciiColumnHide;
   vector<miutil::miString> asciiColumnUndefined;
-
   vector<miutil::miTime> asciiTime;
-
   vector< vector<miutil::miString> > asciip;
-  vector<int> asciiLengthMax;
-
   map<miutil::miString,int> asciiColumn; //column index(time, x,y,dd,ff etc)
-
   vector<miutil::miString> asciiParameter;
   vector<int>      asciipar;
   bool             asciiWind;
-
   vector<int> asciidd;
   vector<float> asciiff;
 

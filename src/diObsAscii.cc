@@ -38,6 +38,7 @@
 #include <diObsAscii.h>
 #include <diObsPlot.h>
 #include <vector>
+#include <curl/curl.h>
 
 using namespace::miutil;
 
@@ -47,292 +48,312 @@ ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
   readFile(filename,headerfile,filetime,oplot,readData );
 }
 
+void ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines)
+{
+
+  // open filestream
+  ifstream file(filename.cStr());
+  if (!file) {
+    cerr << "ObsAscii: " << filename << " not found" << endl;
+    return;
+  }
+
+  miString str;
+  while (getline(file, str)) {
+    lines.push_back(str);
+  }
+
+  file.close();
+
+}
+
+size_t write_dataa(void *buffer, size_t size, size_t nmemb, void *userp)
+{
+  string tmp =(char *)buffer;
+  (*(string*) userp)+=tmp.substr(0,nmemb);
+  return (size_t)(size *nmemb);
+}
+
+
+
+void ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines)
+{
+
+  CURL *curl = NULL;
+  CURLcode res;
+  string data;
+
+  curl = curl_easy_init();
+  if (curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_dataa);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+    res = curl_easy_perform(curl);
+
+    curl_easy_cleanup(curl);
+  }
+
+  miString mdata=data;
+  vector<miString> result;
+  result = mdata.split("\n");
+  lines.insert(lines.end(),result.begin(),result.end());
+
+}
 
 void ObsAscii::readFile(const miString &filename, const miString &headerfile,
     const miTime &filetime, ObsPlot *oplot, bool readData)
 {
+
   //####################################################################
-  //  cerr<<"ObsAscii::readFile  filename= "<<filename
-  //      <<"   filetime= "<<filetime<<endl;
+//  cerr<<"ObsAscii::readFile  filename= "<<filename
+//      <<"   filetime= "<<filetime<<endl;
+//  cerr <<"Headerfiles:"<<headerfile<<endl;
   //####################################################################
-  unsigned int n,i;
-  vector<miString> vstr,pstr;
-  miString str;
+
+  vector<miString> lines;
 
   // open filestream
-  ifstream file;
-  if (headerfile.empty() || oplot->asciiHeader) {
-    file.open(filename.c_str());
-    if (file.bad()) {
-      cerr << "ObsAscii: " << filename << " not found" << endl;
-      return;
-    }
-  } else if (!oplot->asciiHeader) {
-    file.open(headerfile.c_str());
-    if (file.bad()) {
-      cerr << "ObsAscii: " << headerfile << " not found" << endl;
-      return;
+  if ( !headerfile.empty() ) {
+    if (headerfile.contains("http")) {
+      getFromHttp(headerfile,lines);
+    } else {
+      getFromFile(headerfile, lines);
     }
   }
 
+  if (headerfile.empty() || readData) {
+    if (filename.contains("http")) {
+      getFromHttp(filename, lines);
+    } else {
+      getFromFile(filename, lines);
+    }
+  }
 
-  if (!oplot->asciiHeader || headerfile.empty()) {
-    // read header
-    size_t p;
+  decodeHeader(oplot, lines);
 
-    while (getline(file,str)) {
-      str.trim();
-      if (str.exists()) {
-        p= str.find('#');
-        if (p==string::npos) {
-          if (str=="[DATA]") break;  // end of header, start data
-          vstr.push_back(str);
-        } else if (p>0) {
-          pstr= str.split("#");
-          if (pstr[0]=="[DATA]") break;  // end of header, start data
-          vstr.push_back(pstr[0]);
-        }
+  if ( readData ) {
+    decodeData(oplot, lines, filetime);
+  }
+}
+
+void ObsAscii::decodeHeader(ObsPlot *oplot, vector<miutil::miString> lines)
+{
+
+  vector<miString> vstr,pstr;
+  miString str;
+  size_t p;
+
+  for (size_t i = 0; i < lines.size(); ++i ) {
+    lines[i].trim();
+    if (lines[i].exists()) {
+      p= lines[i].find('#');
+      if (p==string::npos) {
+        if (lines[i]=="[DATA]") break;  // end of header, start data
+        vstr.push_back(lines[i]);
+      } else if (p>0) {
+        pstr= lines[i].split("#");
+        if (pstr[0]=="[DATA]") break;  // end of header, start data
+        vstr.push_back(pstr[0]);
       }
     }
   }
+
+
+
+  oplot->asciiOK=   false;
+  oplot->asciiColumn.clear();
+  oplot->asciiSkipDataLines= 0;
+
+  oplot->asciip.clear();
+  oplot->asciiColumnName.clear();
+  oplot->asciiColumnTooltip.clear();
+  oplot->asciiColumnType.clear();
+  oplot->asciiColumnUndefined.clear();
+
+  // parse header
+
+  const miString key_columns=   "COLUMNS";
+  const miString key_undefined= "UNDEFINED";
+  const miString key_skiplines= "SKIP_DATA_LINES";
+  const miString key_label=     "LABEL";
+  const miString key_splitchar=     "SEPARATOR";
+
+  bool ok= true;
+  int n= vstr.size();
   //####################################################################
-  //  cerr<<"----------- at start -----------------------------"<<endl;
-  //  cerr<<"   oplot->asciip.size()= "<<oplot->asciip.size()<<endl;
-  //  cerr<<"     oplot->dateAscii= "<<oplot->dateAscii<<endl;
-  //  cerr<<"     oplot->timeAscii= "<<oplot->timeAscii<<endl;
-  //  cerr<<"     oplot->xAscii=    "<<oplot->xAscii<<endl;
-  //  cerr<<"     oplot->yAscii=    "<<oplot->yAscii<<endl;
-  //  cerr<<"     oplot->ddAscii=   "<<oplot->ddAscii<<endl;
-  //  cerr<<"     oplot->ffAscii=   "<<oplot->ffAscii<<endl;
-  //  cerr<<"     oplot->asciiColumnName.size()= "<<oplot->asciiColumnName.size()<<endl;
-  //  cerr<<"     oplot->asciiColumnType.size()= "<<oplot->asciiColumnType.size()<<endl;
-  //  cerr<<"     oplot->asciiHeader= "<<oplot->asciiHeader<<endl;
-  //  cerr<<"--------------------------------------------------"<<endl;
+//  cerr<<"HEADER:"<<endl;
+//  for (int  j=0; j<n; j++)
+//    cerr<<vstr[j]<<endl;
+//  cerr<<"-----------------"<<endl;
   //####################################################################
+  size_t p1,p2;
+  int i= 0;
 
-
-  if (!oplot->asciiHeader) {
-
-    oplot->asciiOK=   false;
-    oplot->asciiColumn.clear();
-    oplot->asciiSkipDataLines= 0;
-
-    oplot->asciip.clear();
-    oplot->asciiColumnName.clear();
-    oplot->asciiColumnTooltip.clear();
-    oplot->asciiColumnType.clear();
-    oplot->asciiColumnHide.clear();
-    oplot->asciiColumnUndefined.clear();
-    oplot->asciiLengthMax.clear();
-    bool useLabel = false;
-
-    // parse header
-
-    //     const miString key_name=      "NAME";
-    //     const miString key_mainTime=  "MAINTIME";
-    //     const miString key_startTime= "STARTTIME";
-    //     const miString key_endTime=   "ENDTIME";
-    const miString key_columns=   "COLUMNS";
-    //     const miString key_hide=      "HIDE";
-    const miString key_undefined= "UNDEFINED";
-    const miString key_skiplines= "SKIP_DATA_LINES";
-    const miString key_label=     "LABEL";
-    //const miString key_plot=      "PLOT";
-    //const miString key_format=    "FORMAT";
-
-    bool ok= true;
-    n= vstr.size();
-    //####################################################################
-    //cerr<<"HEADER:"<<endl;
-    //for (int j=0; j<n; j++)
-    //  cerr<<vstr[j]<<endl;
-    //cerr<<"-----------------"<<endl;
-    //####################################################################
-    size_t p1,p2;
-    i= 0;
-
-    while (i<n) {
-      str= vstr[i];
-      p1= str.find('[');
-      if (p1!=string::npos) {
+  while (i<n) {
+    str= vstr[i];
+    p1= str.find('[');
+    if (p1!=string::npos) {
+      p2= str.find(']');
+      i++;
+      while (p2==string::npos && i<n) {
+        str+=(" " + vstr[i]);
         p2= str.find(']');
         i++;
-        while (p2==string::npos && i<n) {
-          str+=(" " + vstr[i]);
-          p2= str.find(']');
-          i++;
-        }
-        if (p2==string::npos) {
-          ok= false;
-          break;
-        }
-        str= str.substr(p1+1,p2-p1-1);
-        pstr= str.split('"','"'," ",true);
-        int j,m= pstr.size();
+      }
+      if (p2==string::npos) {
+        ok= false;
+        break;
+      }
+      str= str.substr(p1+1,p2-p1-1);
+      pstr= str.split('"','"');
+      int j,m= pstr.size();
 
-        if (m>1) {
-          if (pstr[0]==key_columns) {
-            vector<miString> vs;
-            for (j=1; j<m; j++) {
-              pstr[j].remove('"');
-              vs= pstr[j].split(':');
-              if (vs.size()>1) {
-                oplot->asciiColumnName.push_back(vs[0]);
-                oplot->asciiColumnType.push_back(vs[1].downcase());
-                if (vs.size()>2) {
-                  oplot->asciiColumnTooltip.push_back(vs[2]);
-                }else{
-                  oplot->asciiColumnTooltip.push_back("");
-                }
-              }
-            }
-            // 	  } else if (pstr[0]==key_hide) {
-            //             for (j=1; j<m; j++)
-            // 	      oplot->asciiColumnHide.push_back(pstr[j]);
-          } else if (pstr[0]==key_undefined && m>1) {
-            vector<miString> vs= pstr[1].split(',');
-            int nu= vs.size();
-            // sort with longest undefined strings first
-            vector<int> len;
-            for (j=0; j<nu; j++)
-              len.push_back(vs[j].length());
-            for (int k=0; k<nu; k++) {
-              int lmax=0, jmax=0;
-              for (j=0; j<nu; j++) {
-                if (len[j]>lmax) {
-                  lmax= len[j];
-                  jmax= j;
-                }
-              }
-              len[jmax]= 0;
-              oplot->asciiColumnUndefined.push_back(vs[jmax]);
-            }
-          } else if (pstr[0]==key_skiplines && m>1) {
-            oplot->asciiSkipDataLines= atoi(pstr[1].cStr());
-
-          } else if (pstr[0]==key_label) {
-            oplot->setLabel(str);
-            useLabel=true;
-            //} else if (pstr[0]==key_plot) {
-
-            //} else if (pstr[0]==key_format) {
-
+      if (m>1) {
+        if (pstr[0]==key_columns) {
+          if ( separator.exists()  ) {
+            pstr= str.split(separator);
           }
+          vector<miString> vs;
+          m=pstr.size();
+          for (j=1; j<m; j++) {
+            pstr[j].remove('"');
+            vs= pstr[j].split(':');
+            if (vs.size()>1) {
+              oplot->asciiColumnName.push_back(vs[0]);
+              oplot->asciiColumnType.push_back(vs[1].downcase());
+              if (vs.size()>2) {
+                oplot->asciiColumnTooltip.push_back(vs[2]);
+              }else{
+                oplot->asciiColumnTooltip.push_back("");
+              }
+            }
+          }
+        } else if (pstr[0]==key_undefined ) {
+          vector<miString> vs= pstr[1].split(',');
+          int nu= vs.size();
+          // sort with longest undefined strings first
+          vector<int> len;
+          for (j=0; j<nu; j++)
+            len.push_back(vs[j].length());
+          for (int k=0; k<nu; k++) {
+            int lmax=0, jmax=0;
+            for (j=0; j<nu; j++) {
+              if (len[j]>lmax) {
+                lmax= len[j];
+                jmax= j;
+              }
+            }
+            len[jmax]= 0;
+            oplot->asciiColumnUndefined.push_back(vs[jmax]);
+          }
+        } else if (pstr[0]==key_skiplines && m>1) {
+          oplot->asciiSkipDataLines= atoi(pstr[1].cStr());
+
+        } else if (pstr[0]==key_label) {
+          oplot->setLabel(str);
+
+        } else if (pstr[0]==key_splitchar) {
+          separator = pstr[1];
         }
-      } else {
-        i++;
       }
+    } else {
+      i++;
     }
+  }
 
-    if (!ok) {
-      //####################################################################
-      //    cerr<<"   bad header !!!!!!!!!"<<endl;
-      //####################################################################
-      file.close();
-      return;
-    }
-
-    n= oplot->asciiColumnType.size();
+  if (!ok) {
     //####################################################################
-    //  cerr<<"     coloumns= "<<n<<endl;
+    cerr<<"   bad header !!!!!!!!!"<<endl;
     //####################################################################
+    return;
+  }
 
-    oplot->asciiKnots=false;
-    for (i=0; i<n; i++) {
-      //####################################################################
-      //cerr<<"   column "<<i<<" : "<<oplot->asciiColumnName[i]<<"  "
-      //		            <<oplot->asciiColumnType[i]<<endl;
-      //####################################################################
-      if      (oplot->asciiColumnType[i]=="d")
-        oplot->asciiColumn["date"]= i;
-      else if (oplot->asciiColumnType[i]=="t")
-        oplot->asciiColumn["time"]= i;
-      else if (oplot->asciiColumnType[i]=="year")
-        oplot->asciiColumn["year"] = i;
-      else if (oplot->asciiColumnType[i]=="month")
-        oplot->asciiColumn["month"] = i;
-      else if (oplot->asciiColumnType[i]=="day")
-        oplot->asciiColumn["day"] = i;
-      else if (oplot->asciiColumnType[i]=="hour")
-        oplot->asciiColumn["hour"] = i;
-      else if (oplot->asciiColumnType[i]=="min")
-        oplot->asciiColumn["min"] = i;
-      else if (oplot->asciiColumnType[i]=="sec")
-        oplot->asciiColumn["sec"] = i;
-      else if (oplot->asciiColumnType[i].downcase()=="lon")
-        oplot->asciiColumn["x"]= i;
-      else if (oplot->asciiColumnType[i].downcase()=="lat")
-        oplot->asciiColumn["y"]= i;
-      else if (oplot->asciiColumnType[i].downcase()=="dd")
-        oplot->asciiColumn["dd"]= i;
-      else if (oplot->asciiColumnType[i].downcase()=="ff")    //Wind speed in m/s
-        oplot->asciiColumn["ff"]= i;
-      else if (oplot->asciiColumnType[i].downcase()=="ffk")   //Wind speed in knots
-        oplot->asciiColumn["ff"]= i;
-      else if (oplot->asciiColumnType[i].downcase()=="image")
-        oplot->asciiColumn["image"]= i;
-      else if (oplot->asciiColumnName[i].downcase()=="lon" &&  //Obsolete
-          oplot->asciiColumnType[i]=="r")
-        oplot->asciiColumn["x"]= i;
-      else if (oplot->asciiColumnName[i].downcase()=="lat" &&  //Obsolete
-          oplot->asciiColumnType[i]=="r")
-        oplot->asciiColumn["y"]= i;
-      else if (oplot->asciiColumnName[i].downcase()=="dd" &&   //Obsolete
-          oplot->asciiColumnType[i]=="r")
-        oplot->asciiColumn["dd"]= i;
-      else if (oplot->asciiColumnName[i].downcase()=="ff" &&    //Obsolete
-          oplot->asciiColumnType[i]=="r")
-        oplot->asciiColumn["ff"]= i;
-      else if (oplot->asciiColumnName[i].downcase()=="ffk" &&    //Obsolete
-          oplot->asciiColumnType[i]=="r")
-        oplot->asciiColumn["ff"]= i;
-      else if (oplot->asciiColumnName[i].downcase()=="image" && //Obsolete
-          oplot->asciiColumnType[i]=="s")
-        oplot->asciiColumn["image"]= i;
+  n= oplot->asciiColumnType.size();
+  //####################################################################
+//  cerr<<"     coloumns= "<<n<<endl;
+  //####################################################################
 
-      if (oplot->asciiColumnType[i].downcase()=="ffk" ||
-          oplot->asciiColumnName[i].downcase()=="ffk")
-        oplot->asciiKnots=true;
+  oplot->asciiKnots=false;
+  for (i=0; i<n; i++) {
+    //####################################################################
+//    cerr<<"   column "<<i<<" : "<<oplot->asciiColumnName[i]<<"  "
+//        <<oplot->asciiColumnType[i]<<endl;
+    //####################################################################
+    if      (oplot->asciiColumnType[i]=="d")
+      oplot->asciiColumn["date"]= i;
+    else if (oplot->asciiColumnType[i]=="t")
+      oplot->asciiColumn["time"]= i;
+    else if (oplot->asciiColumnType[i]=="year")
+      oplot->asciiColumn["year"] = i;
+    else if (oplot->asciiColumnType[i]=="month")
+      oplot->asciiColumn["month"] = i;
+    else if (oplot->asciiColumnType[i]=="day")
+      oplot->asciiColumn["day"] = i;
+    else if (oplot->asciiColumnType[i]=="hour")
+      oplot->asciiColumn["hour"] = i;
+    else if (oplot->asciiColumnType[i]=="min")
+      oplot->asciiColumn["min"] = i;
+    else if (oplot->asciiColumnType[i]=="sec")
+      oplot->asciiColumn["sec"] = i;
+    else if (oplot->asciiColumnType[i].downcase()=="lon")
+      oplot->asciiColumn["x"]= i;
+    else if (oplot->asciiColumnType[i].downcase()=="lat")
+      oplot->asciiColumn["y"]= i;
+    else if (oplot->asciiColumnType[i].downcase()=="dd")
+      oplot->asciiColumn["dd"]= i;
+    else if (oplot->asciiColumnType[i].downcase()=="ff")    //Wind speed in m/s
+      oplot->asciiColumn["ff"]= i;
+    else if (oplot->asciiColumnType[i].downcase()=="ffk")   //Wind speed in knots
+      oplot->asciiColumn["ff"]= i;
+    else if (oplot->asciiColumnType[i].downcase()=="image")
+      oplot->asciiColumn["image"]= i;
+    else if (oplot->asciiColumnName[i].downcase()=="lon" &&  //Obsolete
+        oplot->asciiColumnType[i]=="r")
+      oplot->asciiColumn["x"]= i;
+    else if (oplot->asciiColumnName[i].downcase()=="lat" &&  //Obsolete
+        oplot->asciiColumnType[i]=="r")
+      oplot->asciiColumn["y"]= i;
+    else if (oplot->asciiColumnName[i].downcase()=="dd" &&   //Obsolete
+        oplot->asciiColumnType[i]=="r")
+      oplot->asciiColumn["dd"]= i;
+    else if (oplot->asciiColumnName[i].downcase()=="ff" &&    //Obsolete
+        oplot->asciiColumnType[i]=="r")
+      oplot->asciiColumn["ff"]= i;
+    else if (oplot->asciiColumnName[i].downcase()=="ffk" &&    //Obsolete
+        oplot->asciiColumnType[i]=="r")
+      oplot->asciiColumn["ff"]= i;
+    else if (oplot->asciiColumnName[i].downcase()=="image" && //Obsolete
+        oplot->asciiColumnType[i]=="s")
+      oplot->asciiColumn["image"]= i;
 
-    }
-
-    for (i=0; i<n; i++)
-      oplot->asciiLengthMax.push_back(0);
-
-    if (!oplot->asciiColumn.count("x") || !oplot->asciiColumn.count("y")) {
-      //####################################################################
-      //    cerr<<"   bad header, missing lat,lon !!!!!!!!!"<<endl;
-      //####################################################################
-      file.close();
-      return;
-    }
-
-    if (!readData) {
-      file.close();
-      oplot->asciiOK= true;
-      return;
-    }
-
-    if(!useLabel) //if there are labels, the header must be read each time
-      oplot->asciiHeader = true;
-
-    if (headerfile.exists()) {
-      file.close();
-      file.open(filename.c_str());
-      if (file.bad()) {
-        cerr << "ObsAscii: " << filename << " not found" << endl;
-        return;
-      }
-    }
+    if (oplot->asciiColumnType[i].downcase()=="ffk" ||
+        oplot->asciiColumnName[i].downcase()=="ffk")
+      oplot->asciiKnots=true;
 
   }
+
+  if (!oplot->asciiColumn.count("x") || !oplot->asciiColumn.count("y")) {
+    //####################################################################
+    cerr<<"   bad header, missing lat,lon !!!!!!!!!"<<endl;
+    //####################################################################
+    return;
+  }
+
+  oplot->asciiOK= true;
+  return;
+
+
+}
+
+void ObsAscii::decodeData(ObsPlot *oplot, vector<miutil::miString> lines, const miutil::miTime &filetime)
+{
 
   // read data....................................................
 
   miTime tplot= oplot->getObsTime();
   int    tdiff= oplot->getTimeDiff() + 1;
 
-  n= oplot->asciiColumnType.size();
+  size_t n= oplot->asciiColumnType.size();
 
   int nu= oplot->asciiColumnUndefined.size();
 
@@ -352,17 +373,32 @@ void ObsAscii::readFile(const miString &filename, const miString &headerfile,
 
   miDate filedate= filetime.date();
 
-  int nskip= oplot->asciiSkipDataLines;
+  //skip header
+  size_t ii=0;
+  while ( ii < lines.size() && !lines[ii].contains("[DATA]")) {
+    ++ii;
+  }
+  ++ii; //skip [DATA] line too
+
+  int nskip= oplot->asciiSkipDataLines + ii;
   int nline= 0;
 
-  while (getline(file,str)) {
-    str.trim();
+  for (size_t ii = 0; ii < lines.size(); ++ii ) {
+    lines[ii].trim();
     nline++;
-    if (nline>nskip && str.exists() && str[0]!='#') {
-      pstr= str.split('"','"');
+    if (nline>nskip && lines[ii].exists() && lines[ii][0]!='#') {
+      vector<miString> pstr;
+      if ( separator.exists() ) {
+        pstr= lines[ii].split(separator, false);
+      } else {
+        pstr= lines[ii].split('"','"');
+      }
+
       if (pstr.size()>=n) {
+
+        //undefined value
         if (nu>0) {
-          for (i=0; i<n; i++) {
+          for (size_t i=0; i<n; i++) {
             int iu= 0;
             while (iu<nu && pstr[i]!=oplot->asciiColumnUndefined[iu]) iu++;
             if (iu<nu) pstr[i]="X";
@@ -419,10 +455,12 @@ void ObsAscii::readFile(const miString &filename, const miString &headerfile,
           }
 
           //#################################################################
-          //  if (abs(miTime::minDiff(obstime,tplot))<tdiff)
-          //    cerr<<obstime<<" ok"<<endl;
-          //  else
-          //    cerr<<obstime<<" not ok"<<endl;
+//          cerr <<"obstime:"<<obstime<<endl;
+//          cerr <<"tplot:"<<tplot<<endl;
+//          if (abs(miTime::minDiff(obstime,tplot))<tdiff)
+//            cerr<<obstime<<" ok"<<endl;
+//          else
+//            cerr<<obstime<<" not ok"<<endl;
           //#################################################################
           if (oplot->getTimeDiff() <0
               || abs(miTime::minDiff(obstime,tplot))<tdiff){
@@ -433,29 +471,17 @@ void ObsAscii::readFile(const miString &filename, const miString &headerfile,
         } else {
           oplot->asciip.push_back(pstr);
         }
-        for (i=0; i<n; i++) {
-          if ((unsigned int)oplot->asciiLengthMax[i]<pstr[i].length())
-            oplot->asciiLengthMax[i]=pstr[i].length();
-        }
       }
     }
+    //####################################################################
+//    cerr<<"----------- at end -----------------------------"<<endl;
+//    cerr<<"   oplot->asciip.size()= "<<oplot->asciip.size()<<endl;
+//    cerr<<"     oplot->asciiColumnName.size()= "<<oplot->asciiColumnName.size()<<endl;
+//    cerr<<"     oplot->asciiColumnType.size()= "<<oplot->asciiColumnType.size()<<endl;
+//    cerr<<"------------------------------------------------"<<endl;
+    //####################################################################
+
+
+    oplot->asciiOK= (oplot->asciip.size()>0);
   }
-  //####################################################################
-  //  cerr<<"----------- at end -----------------------------"<<endl;
-  //  cerr<<"   oplot->asciip.size()= "<<oplot->asciip.size()<<endl;
-  //  cerr<<"     oplot->dateAscii= "<<oplot->dateAscii<<endl;
-  //  cerr<<"     oplot->timeAscii= "<<oplot->timeAscii<<endl;
-  //  cerr<<"     oplot->xAscii=    "<<oplot->xAscii<<endl;
-  //  cerr<<"     oplot->yAscii=    "<<oplot->yAscii<<endl;
-  //  cerr<<"     oplot->ddAscii=   "<<oplot->ddAscii<<endl;
-  //  cerr<<"     oplot->ffAscii=   "<<oplot->ffAscii<<endl;
-  //  cerr<<"     oplot->asciiColumnName.size()= "<<oplot->asciiColumnName.size()<<endl;
-  //  cerr<<"     oplot->asciiColumnType.size()= "<<oplot->asciiColumnType.size()<<endl;
-  //  cerr<<"     oplot->asciiHeader= "<<oplot->asciiHeader<<endl;
-  //  cerr<<"------------------------------------------------"<<endl;
-  //####################################################################
-
-  file.close();
-
-  oplot->asciiOK= (oplot->asciip.size()>0);
 }

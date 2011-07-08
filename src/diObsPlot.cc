@@ -118,10 +118,6 @@ ObsPlot::ObsPlot() : Plot()
   showOnlyPrioritized = false;
   flaginfo = false;
   parameterName = false;
-  asciiHeader = false;
-#ifdef ROADOBS
-  roadobsHeader = false;
-#endif
   pcriteria = false; //plot criteria
   ccriteria = false; //colour criteria
   tccriteria = false; // total colour criteria

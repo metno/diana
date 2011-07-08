@@ -153,7 +153,6 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
     vector<FileInfo> finfo;
     if(Prod[dataType[i]].noTime){
       finfo = Prod[dataType[i]].fileInfo;
-      //      cerr <<"NOTIME:"<<finfo[0].filename<<endl;
     } else {
       getFileName(finfo,time,dataType[i],oplot);
     }
@@ -526,7 +525,13 @@ bool ObsManager::updateTimes(miString obsType)
 #endif
   int npattern = Prod[obsType].pattern.size();
   for( int j=0;j<npattern; j++) {
-
+    if(Prod[obsType].pattern[j].pattern.contains("http")) {
+      FileInfo finfo;
+      finfo.filename = Prod[obsType].pattern[j].pattern;
+      finfo.filetype = Prod[obsType].pattern[j].fileType;
+      Prod[obsType].fileInfo.push_back(finfo);
+      continue;;
+    }
     if( !Prod[obsType].pattern[j].archive || useArchive ){
       bool ok = Prod[obsType].pattern[j].filter.ok();
 
@@ -1394,9 +1399,18 @@ delete roplot;
 
   while (!found && j<Prod[oname].pattern.size()) {
     if (!Prod[oname].pattern[j].archive || useArchive ) {
+      miString headerfile= Prod[oname].headerfile;
+      if(Prod[oname].pattern[j].pattern.contains("http")) {
+
+        miTime filetime; // just dummy here
+        ObsAscii obsAscii = ObsAscii(Prod[oname].pattern[j].pattern,headerfile,filetime,oplot,false);
+        found= oplot->asciiOK;
+        if (oplot->asciiOK && oplot->asciiColumn.count("time")
+            && !oplot->asciiColumn.count("date"))
+          Prod[oname].useFileTime= true;
+      }
       glob_t globBuf;
       glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
-      miString headerfile= Prod[oname].headerfile;
       unsigned int k= 0;
       while (!found && int(k)<globBuf.gl_pathc) {
         miString filename = globBuf.gl_pathv[k];
@@ -1415,9 +1429,7 @@ delete roplot;
 
   if (found) {
     int nc= oplot->asciiColumnName.size();
-    int nh= oplot->asciiColumnHide.size();
     int addWind= -1;
-    bool on= (nc-nh<7); // ????????
     if (oplot->asciiColumn.count("dd") && oplot->asciiColumn.count("ff")) {
       addWind= (oplot->asciiColumn["dd"] < oplot->asciiColumn["ff"]) ?
           oplot->asciiColumn["dd"] : oplot->asciiColumn["ff"];
@@ -1425,22 +1437,11 @@ delete roplot;
     for (int c=0; c<nc; c++) {
       if (c==addWind) {
         dialog.plottype[id].button.push_back(addButton("Wind",""));
-        //         dialog.plottype[id].button.push_back("Wind");
-        //         dialog.plottype[id].Default.push_back(true);
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
       }
-      int h= 0;
-      while (h<nh && oplot->asciiColumnHide[h]!=
-        oplot->asciiColumnName[c]) h++;
-      if (h==nh) {
-        dialog.plottype[id].button.push_back
-        (addButton(oplot->asciiColumnName[c],
-            oplot->asciiColumnTooltip[c],
-            -100,100,on));
-        //         dialog.plottype[id].button.push_back(oplot->asciiColumnName[c]);
-        //         dialog.plottype[id].Default.push_back(on);
-        dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-      }
+      dialog.plottype[id].button.push_back
+      (addButton(oplot->asciiColumnName[c], oplot->asciiColumnTooltip[c], -100,100,true));
+      dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
     }
   }
 
@@ -1695,7 +1696,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
 
   for(unsigned int i=0; i<sect_obs.size(); i++) {
 
-    vector<miString> token = sect_obs[i].split("=");
+    vector<miString> token = sect_obs[i].split('"','"',"=",true);
 
     if(token.size() != 2){
       miString errmsg="Line must contain '='";
@@ -1705,7 +1706,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
 
     key = token[0].downcase();
     value = token[0];
-
+    token[1].remove('\"');
     if( key == "prod" ){
       vector<miString> stoken= token[1].split(":");
       miString plotFormat;
