@@ -2478,6 +2478,15 @@ void DianaMainWindow::processLetter(miMessage &letter)
     return; // no need to repaint
   }
 
+  else if (letter.command == qmstrings::getproj4maparea) {
+    miMessage l;
+    l.to = letter.from;
+    l.command = qmstrings::proj4maparea;
+    l.data.push_back(contr->getMapArea().getAreaString());
+    sendLetter(l);
+    return; // no need to repaint
+  }
+
   else if (letter.command == qmstrings::getmaparea) {
     miMessage l;
     l.to = letter.from;
