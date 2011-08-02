@@ -813,6 +813,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
     miString& modelName, std::string refTime, vector<FieldGroupInfo>& vfgi)
 {
+//  cerr <<__FUNCTION__<<endl;
 
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 
@@ -915,6 +916,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
+//  cerr <<"PIN NEW: "<<pin<<endl;
 
   std::vector<std::string> tokens;
   //NB! what about ""
@@ -965,7 +967,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
       } else if (key == "hour.offset") {
         fieldrequest.hourOffset = atoi(vtoken[1].c_str());
       } else if (key == "hour.diff") {
-        fieldrequest.time_tolerance = atoi(vtoken[1].c_str());
+        fieldrequest.time_tolerance = atoi(vtoken[1].c_str()) * 60; //time_tolerance in minutes, hour.diff in hours
       } else if (key == "alltimesteps") {
         if (vtoken[1] == "1" || vtoken[1] == "on" || vtoken[1] == "true") {
           fieldrequest.allTimeSteps = true;
