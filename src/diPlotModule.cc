@@ -40,7 +40,7 @@
 #include <diSatPlot.h>
 #include <diMapPlot.h>
 #include <diTrajectoryPlot.h>
-#include <diRadarEchoPlot.h>
+#include <diMeasurementsPlot.h>
 
 #include <diObsManager.h>
 #include <diSatManager.h>
@@ -726,20 +726,6 @@ void PlotModule::setAnnotations()
     }
   }
 
-  // get radar echo annotations
-  m = vrp.size();
-  for (int j = 0; j < m; j++) {
-    if (!vrp[j]->Enabled())
-      continue;
-    vrp[j]->getRadarEchoAnnotation(str, col);
-    // empty string if data plot is off
-    if (str.exists()) {
-      ann.str = str;
-      ann.col = col;
-      annotations.push_back(ann);
-    }
-  }
-
   // get stationPlot annotations
   m = stationPlots.size();
   for (int j = 0; j < m; j++) {
@@ -1096,6 +1082,11 @@ void PlotModule::updatePlots()
     }
   }
 
+  // Prepare measurement positions - change projection
+  if (vMeasurementsPlot.size() > 0) {
+    vMeasurementsPlot[0]->prepare();
+  }
+
   // get annotations from all plots
   setAnnotations();
 
@@ -1355,6 +1346,10 @@ void PlotModule::plotUnder()
   m = vtp.size();
   for (i = 0; i < m; i++)
     vtp[i]->plot();
+
+  m = vMeasurementsPlot.size();
+  for (i = 0; i < m; i++)
+    vMeasurementsPlot[i]->plot();
 
   if (showanno && !inEdit) {
     // plot Annotations
@@ -1617,15 +1612,18 @@ void PlotModule::cleanup()
   }
   vobsTimes.clear();
   vop.clear();
-  //BAD!!!!!!obsm->clear();
 
   objects.clear();
-  //BAD!!!!!!!!!!!!objm->clear();
 
   n = vtp.size();
   for (i = 0; i < n; i++)
     delete vtp[i];
   vtp.clear();
+
+  n = vMeasurementsPlot.size();
+  for (i = 0; i < n; i++)
+    delete vMeasurementsPlot[i];
+  vMeasurementsPlot.clear();
 
   annotationStrings.clear();
 
@@ -2533,33 +2531,27 @@ void PlotModule::trajPos(vector<miString>& vstr)
   }
 }
 
-void PlotModule::radePos(vector<miString>& vstr)
+void PlotModule::measurementsPos(vector<miString>& vstr)
 {
-  int n = vrp.size();
-
-  //if vstr starts with "quit", delete all trajectoryPlot objects
+  int n = vMeasurementsPlot.size();
+  //if vstr starts with "quit", delete all MeasurementsPlot objects
   int m = vstr.size();
   for (int j = 0; j < m; j++) {
     if (vstr[j].substr(0, 4) == "quit") {
       for (int i = 0; i < n; i++)
-        delete vrp[i];
-      vrp.clear();
-      setAnnotations(); // will remove tarjectoryPlot annotation
+        delete vMeasurementsPlot[i];
+      vMeasurementsPlot.clear();
       return;
     }
   }
 
-  //if no trajectoryPlot object, make one
-  if (n == 0)
-    vrp.push_back(new RadarEchoPlot());
-
-  //there are never more than one trajectoryPlot object (so far..)
-  int action = vrp[0]->radePos(vstr);
-
-  if (action == 1) {
-    // trajectories cleared, reset annotations
-    setAnnotations(); // will remove tarjectoryPlot annotation
+  //if no MeasurementsPlot object, make one
+  if (n == 0) {
+    vMeasurementsPlot.push_back(new MeasurementsPlot());
   }
+  //there are never more than one MeasurementsPlot object (so far..)
+  vMeasurementsPlot[0]->measurementsPos(vstr);
+
 }
 
 vector<miString> PlotModule::getCalibChannels()
@@ -3095,18 +3087,6 @@ vector<miString> PlotModule::getTrajectoryFields()
   int n = vfp.size();
   for (int i = 0; i < n; i++) {
     miString fname = vfp[i]->getTrajectoryFieldName();
-    if (fname.exists())
-      vstr.push_back(fname);
-  }
-  return vstr;
-}
-
-vector<miString> PlotModule::getRadarEchoFields()
-{
-  vector<miString> vstr;
-  int n = vfp.size();
-  for (int i = 0; i < n; i++) {
-    miString fname = vfp[i]->getRadarEchoFieldName();
     if (fname.exists())
       vstr.push_back(fname);
   }

@@ -4312,26 +4312,6 @@ miString FieldPlot::getTrajectoryFieldName()
   return str;
 }
 
-miString FieldPlot::getRadarEchoFieldName()
-{
-  miString str;
-  unsigned int nf= 0;
-  if (plottype==fpt_wind)          nf= 2;
-  if (plottype==fpt_vector)        nf= 2;
-
-  if (nf>=2 && fields.size()>=nf) {
-    bool ok= true;
-    for (unsigned int i=0; i<nf; i++) {
-      if (!fields[i])
-        ok= false;
-      else if (!fields[i]->data)
-        ok= false;
-    }
-    if (ok) str= fields[0]->fieldText;
-  }
-  return str;
-}
-
 bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
 
   if (!enabled || fields.size()!=1) return false;

@@ -33,12 +33,8 @@
 #include "config.h"
 #endif
 
-#include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
-#include <QListWidget>
-#include <QSpinBox>
-#include <QCheckBox>
 #include <QString>
 #include <QToolTip>
 #include <QFrame>
@@ -47,72 +43,30 @@
 #include <QVBoxLayout>
 
 #include "qtUtility.h"
-#include "qtGeoPosLineEdit.h"
-#include "qtRadarEchoDialog.h"
+#include "qtMeasurementsDialog.h"
 
 #include <math.h>
 #include <sstream>
 
-#include <QString>
 
-RadarEchoDialog::RadarEchoDialog( QWidget* parent, Controller* llctrl )
+MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), contr(llctrl)
 {
 #ifdef DEBUGPRINT
-  cout<<"RadarEchoDialog::RadarEchoDialog called"<<endl;
+  cout<<"MeasurementsDialog::MeasurementsDialog called"<<endl;
 #endif
 
   //caption to appear on top of dialog
-  setWindowTitle(tr("Radar echo"));
+  setWindowTitle(tr("Measurements"));
   this->setFocusPolicy(Qt::StrongFocus);
 
-
-
-
-    //Positions
-  posButton = new QCheckBox(tr("Select positions on map"),this);
-  connect( posButton, SIGNAL( toggled(bool)), SLOT( posButtonToggled(bool) ) );
-  posButton->setChecked(true);
-  posButton->hide();
-
-  QLabel* posLabel = new QLabel( tr("Write positions (Lat Lon):"), this );
-  /*edit = new GeoPosLineEdit(this);
-  QToolTip::add( edit,
-		 tr("Lat Lon (deg:min:sec or decimal)") );
-  connect( edit, SIGNAL( returnPressed()), SLOT( editDone() ));*/
-  posLabel->hide();
-
-  posList = new QListWidget(this);
-//   connect( posList, SIGNAL( itemClicked( QListWidgetItem * ) ),
-// 	   SLOT( posListSlot( ) ) );
-  posList->hide();
-
   //push button to delete last pos
-  deleteButton = new QPushButton(tr("Clear"), this );
+  QPushButton * deleteButton = new QPushButton(tr("Clear"), this );
   connect( deleteButton, SIGNAL(clicked()),SLOT(deleteClicked()));
-
-  //push button to start calculation
-  startCalcButton = new QPushButton( tr("Calculate"), this );
-  connect(startCalcButton, SIGNAL(clicked()), SLOT( startCalcButtonClicked()));
-  startCalcButton->hide();
-
-  fieldName = new QLabel(this);
-  fieldName->setAlignment(Qt::AlignCenter);
-
-  //push button to show help
-  QPushButton * Help = NormalPushButton( tr("Help"), this);
-  connect(  Help, SIGNAL(clicked()), SLOT( helpClicked()));
-  Help->hide();
-
-  //push button to print pos
-  QPushButton * print = NormalPushButton( tr("Print"), this);
-  print->setToolTip(tr("Print calc. positions to file: trajectory.txt") );
-  connect(  print, SIGNAL(clicked()), SLOT( printClicked()));
-  print->hide();
 
   //push button to hide dialog
   QPushButton * Hide = NormalPushButton(tr("Hide"), this);
-  connect( Hide, SIGNAL(clicked()), SIGNAL(RadeHide()));
+  connect( Hide, SIGNAL(clicked()), SIGNAL(MeasurementsHide()));
 
   //push button to quit, deletes all trajectoryPlot objects
   QPushButton * quit = NormalPushButton( tr("Quit"), this);
@@ -260,7 +214,6 @@ RadarEchoDialog::RadarEchoDialog( QWidget* parent, Controller* llctrl )
   gridlayout->addWidget(timebox2,           4,3);
   gridlayout->addWidget(line1,              5,0,1,4);
   gridlayout->addWidget(deleteButton,       6,0,1,4);//6,0,1,2);
-  gridlayout->addWidget(startCalcButton,    6,2,1,2);
   gridlayout->addWidget(line2,              7,0,1,4);
   gridlayout->addWidget(speedlabel1,        8,0,1,2);
   gridlayout->addWidget(speedbox1,          8,2,1,2);
@@ -271,48 +224,16 @@ RadarEchoDialog::RadarEchoDialog( QWidget* parent, Controller* llctrl )
   gridlayout->addWidget(distancelabel,      11,0,1,2);
   gridlayout->addWidget(distancebox,        11,2,1,2);
   gridlayout->addWidget(line3,              12,0,1,4);
-  gridlayout->addWidget( Help,              14,0,1,2);
-  gridlayout->addWidget( print,          14,2,1,2);
   gridlayout->addWidget( Hide,           15,0,1,2);
   gridlayout->addWidget( quit,           15,2,1,2);
 }
 /********************************************************/
 
 
-void RadarEchoDialog::posButtonToggled(bool b){
-#ifdef DEBUGPRINT
-  cout<<"TrajectoryDialog::posButtonToggled  b="<<b<<endl;
-#endif
-  //called when "Select positions om map" is clicked
-
-  emit markRadePos(b);
-  vector<miutil::miString> vstr;
-  vstr.push_back("clear"); //delete all trajectories
-  contr->radePos(vstr);
-
-
-}
-
-
-void RadarEchoDialog::editDone(){
-  //this slot is called when return is pressed in the line edit
-
-  vector<miutil::miString> vstr;
-  vstr.push_back("clear"); //delete all trajectories
-  contr->radePos(vstr);
-
-  float lat=0,lon=0;
-  if(!edit->getValues(lat,lon))
-    cerr<<"getValues returned false"<<endl;
-
-  mapPos(lat,lon);
-  edit->clear();
-}
-
 
 /*********************************************/
 
-void RadarEchoDialog::deleteClicked(){
+void MeasurementsDialog::deleteClicked(){
   //delete selected group of start positions
 
   positionVector.clear();
@@ -330,21 +251,13 @@ void RadarEchoDialog::deleteClicked(){
   speedbox3->setText("0 knots");
   distancebox->setText("0 km");
 
-}
-
-/*********************************************/
-void RadarEchoDialog::deleteAllClicked(){
-  //this slot is called when delete all button pressed
-
-  posList->clear();
-  positionVector.clear();
-
   vector<miutil::miString> vstr;
-  vstr.push_back("clear");//delete all trajectories
-  vstr.push_back("delete"); //delete all start positions
-  contr->radePos(vstr);
+  vstr.push_back("delete");
+  contr->measurementsPos(vstr);
+  sendAllPositions();
 
-  emit updateRadarEchos();
+  emit updateMeasurements();
+
 }
 
 /*********************************************/
@@ -352,7 +265,7 @@ void RadarEchoDialog::deleteAllClicked(){
 //static const double DEG_TO_RAD = 0.017453292519943295769236907684886;
 static const double EARTH_RADIUS_IN_METERS = 6372797.560856;
 
-double RadarEchoDialog::ArcInRadians(double lat1, double lon1, double lat2, double lon2) {
+double MeasurementsDialog::ArcInRadians(double lat1, double lon1, double lat2, double lon2) {
     double latitudeArc  = (lat1 - lat2) * DEG_TO_RAD;
     double longitudeArc = (lon1 - lon2) * DEG_TO_RAD;
     double latitudeH = sin(latitudeArc * 0.5);
@@ -363,17 +276,11 @@ double RadarEchoDialog::ArcInRadians(double lat1, double lon1, double lat2, doub
     return 2.0 * asin(sqrt(latitudeH + tmp*lontitudeH));
 }
 
-double RadarEchoDialog::DistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
+double MeasurementsDialog::DistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
     return EARTH_RADIUS_IN_METERS*ArcInRadians(lat1, lon1, lat2, lon2);
 }
 
-void RadarEchoDialog::startCalcButtonClicked(){
-
-  calculateVelocity();
-}
-
-
-void RadarEchoDialog::calculateVelocity() {
+void MeasurementsDialog::calculateVelocity() {
   //this slot is called when start calc. button pressed
 #ifdef DEBUGPRINT
   cout<<"TrajectoryDialog::startCalcButtonClicked"<<endl;
@@ -410,23 +317,8 @@ void RadarEchoDialog::calculateVelocity() {
     distancebox->setText(distanceresult);
   }
 
+  emit updateMeasurements();
 
-  //ask for new fields
-  vector<miutil::miString> fields = contr->getRadarEchoFields();
-  miutil::miString fName;
-
-  //send field name to TrajectoryPlot
-  miutil::miString str = " field=\"";
-  str+= fName;
-  str+= "\"";
-  vector<miutil::miString> vstr;
-  vstr.push_back("clear");
-  vstr.push_back(str);
-  contr->radePos(vstr);
-
-  emit updateRadarEchos();
-
-  //contr->startRadarEchoComputation();
 
 
 }
@@ -434,54 +326,28 @@ void RadarEchoDialog::calculateVelocity() {
 
 /*********************************************/
 
-void RadarEchoDialog::quitClicked(){
+void MeasurementsDialog::quitClicked(){
 
   vector<miutil::miString> vstr;
   vstr.push_back("quit");
-  contr->radePos(vstr);
-  //   posList->clear();
-  emit markRadePos(false);
-  emit RadeHide();
+  contr->measurementsPos(vstr);
+  emit markMeasurementsPos(false);
+  emit MeasurementsHide();
 }
 /*********************************************/
 
-void RadarEchoDialog::helpClicked(){
-  emit showsource("ug_trajectories.html");
-}
-
-/*********************************************/
-
-void RadarEchoDialog::printClicked(){
-  contr->printTrajectoryPositions("trajectory.txt");
+void MeasurementsDialog::helpClicked(){
+//  emit showsource("ug_messurements.html");
 }
 
 /*********************************************/
 
-void RadarEchoDialog::applyhideClicked(){
-  emit RadeHide();
-}
-
-/*********************************************/
-
-miutil::miString RadarEchoDialog::makeString() {
-
-  miutil::miString str;
-
-
-  ostringstream ss;
-  //ss <<" radius="<<radiusSpin->value();
-  //ss <<" numpos="<<numposBox->currentText().toStdString();
-  str+= ss.str();
-
-  return str;
-}
-
 /*********************************************/
 
 
-void RadarEchoDialog::mapPos(float lat, float lon) {
+void MeasurementsDialog::mapPos(float lat, float lon) {
 #ifdef DEBUGPRINT
-  cout<<"RadarEchoDialog::mapPos"<<endl;
+  cout<<"MeasurementsDialog::mapPos"<<endl;
 #endif
 
   //Put this position in vector of positions
@@ -493,9 +359,6 @@ void RadarEchoDialog::mapPos(float lat, float lon) {
   contr->getPlotTime(t);
   pos.time = t;
 
-
-  //pos.radius=radiusSpin->value();
-  //pos.numPos=numposBox->currentText().toStdString();
   if (positionVector.size() < 3) {
     positionVector.push_back(pos);
   }
@@ -503,37 +366,35 @@ void RadarEchoDialog::mapPos(float lat, float lon) {
   //Make string and insert in posList
   if ((positionVector.size() == 1) || (positionVector.size() == 2)) {
     update_posList(lat,lon,t, positionVector.size());
+  } else {
+    return;
   }
 
-
-  //Make string and send to trajectoryPlot
+//  //Make string and send to trajectoryPlot
   ostringstream str;
   str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
-  //str << "latitudelongitude=" << lat << "," << lon;
   str << "latitudelongitude=" << lat << "," << lon;
-  //str <<" radius="<<radiusSpin->value();
-  //str <<" numpos="<<pos.numPos;
+  str << " latitudelongitude=" << lat << "," << lon;
   str <<" numpos="<<1;
   str <<" time="<<pos.time;
 
   miutil::miString posString = str.str();
   vector<miutil::miString> vstr;
-  vstr.push_back("clear");
   vstr.push_back(posString);
 
-  contr->radePos(vstr);
+  contr->measurementsPos(vstr);
 
-  emit updateRadarEchos();
+  emit updateMeasurements();
 
 
 }
 
 /*********************************************/
 
-void RadarEchoDialog::update_posList(float lat, float lon, miutil::miTime t, int index) {
+void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, int index) {
 
 #ifdef DEBUGPRINT
-  cout<<"RadarEchoDialog::update_posList"<<endl;
+  cout<<"MeasurementsDialog::update_posList"<<endl;
 #endif
 
   int latdeg, latmin, londeg, lonmin;
@@ -583,44 +444,13 @@ void RadarEchoDialog::update_posList(float lat, float lon, miutil::miTime t, int
       break;
   }
 
-  //Make string and insert in posList
-
-#ifdef DEBUGPRINT
-  cerr << "Make string for posList Insertion." << endl;
-#endif
-
-  ostringstream ost;
-
-  int deg, min;
-
-  min= int(fabsf(lat)*60.+0.5);
-  deg= min/60;
-  min= min%60;
-  ost << setw(2) << deg << "°" << setw(2) << setfill('0') << min;
-  if (lat>=0.0)
-    ost << "'N   ";
-  else
-    ost << "'S   ";
-
-  min= int(fabsf(lon)*60.+0.5);
-  deg= min/60;
-  min= min%60;
-  ost << setfill(' ')<< setw(3) << deg << "°"
-      << setw(2) << setfill('0') << min;
-  if (lon>=0.0)
-    ost << "'E";
-  else
-    ost << "'W";
-
-  // qt4 fix: insertItem takes QString as argument
-  posList->addItem(QString(ost.str().c_str()));
 }
 
 /*********************************************/
 
-void RadarEchoDialog::sendAllPositions(){
+void MeasurementsDialog::sendAllPositions(){
 #ifdef DEBUGPRINT
-  cout<<"RadarEchoDialog::sendAllPositions"<<endl;
+  cout<<"MeasurementsDialog::sendAllPositions"<<endl;
 #endif
 
   vector<miutil::miString> vstr;
@@ -631,158 +461,49 @@ void RadarEchoDialog::sendAllPositions(){
     str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
     str << "latitudelongitude=";
     str << positionVector[i].lat << "," << positionVector[i].lon;
-    str <<" radius="<<positionVector[i].radius;
-    str <<" numpos="<<positionVector[i].numPos;
     miutil::miString posString = str.str();
     vstr.push_back(posString);
   }
-  contr->radePos(vstr);
-  emit updateRadarEchos();
+  contr->measurementsPos(vstr);
+  emit updateMeasurements();
 }
 
 
-void RadarEchoDialog::showplus(){
+void MeasurementsDialog::showplus(){
 #ifdef DEBUGPRINT
-  cout<<"RadarEchoDialog::showplus"<<endl;
+  cout<<"MeasurementsDialog::showplus"<<endl;
 #endif
   this->show();
 
-  if(  posButton->isChecked() )
-    emit markRadePos(true);
-
-  ostringstream ss;
-
-//  ss <<"colour="<<colourInfo[colbox->currentItem()].name;
-//  ss <<" linewidth="<< lineWidthBox->currentItem() + 1;  // 1,2,3,...
-//  ss <<" linetype="<< linetypes[lineTypeBox->currentItem()];  // 1,2,3,...
-
-  ss <<"colour=name: black red: 000 green: 000 blue: 000 alpha: 255 Index: 52";
-  ss <<" linewidth=2";  // 1,2,3,...
-  ss <<" linetype=2";  // 1,2,3,...
-
-  ss <<" plot=on";
-
-  miutil::miString str= ss.str();
-
-  vector<miutil::miString> vstr;
-  vstr.push_back(str);
-  contr->radePos(vstr);
-
+  emit markMeasurementsPos(true);
 
   sendAllPositions();
 
-  emit updateRadarEchos();
-}
-/*********************************************/
-
-
-vector<miutil::miString> RadarEchoDialog::writeLog(){
-  vector<miutil::miString> vstr;
-
-  int n=positionVector.size();
-  for(int i=0;i<n; i++){
-    ostringstream ost;
-    ost << "latitudelongitude=";
-    ost << positionVector[i].lat << "," << positionVector[i].lon;
-    ost <<" radius="<<positionVector[i].radius;
-    ost <<" numpos="<<positionVector[i].numPos;
-    miutil::miString str = ost.str();
-    vstr.push_back(str);
-  }
-  ostringstream ostr;
-  //ostr <<"colour="<<colourInfo[colbox->currentItem()].name;
-  //ostr <<" linewidth="<< lineWidthBox->currentItem() + 1;  // 1,2,3,...
-  //ostr <<" linetype="<< linetypes[lineTypeBox->currentItem()];
-  miutil::miString str = ostr.str() + makeString();
-  vstr.push_back(str);
-  vstr.push_back("================");
-  return vstr;
-
-}
-/*********************************************/
-
-void RadarEchoDialog::readLog(const vector<miutil::miString>& vstr,
-			       const miutil::miString& thisVersion,
-			       const miutil::miString& logVersion){
-
-  int n=0, nvstr= vstr.size();
-  int radius;
-  miutil::miString numPos;
-
-  while (n<nvstr && vstr[n].substr(0,4)!="====") {
-
-    posStruct pos;
-    bool position=false;
-    vector<miutil::miString> parts= vstr[n].split(' ',true);
-
-    int nr=parts.size();
-    for( int i=0; i<nr; i++){
-      vector<miutil::miString> tokens= parts[i].split('=',true);
-      if( tokens.size() == 2) {
-	miutil::miString key = tokens[0].downcase();
-	miutil::miString value = tokens[1].downcase();
-	if (key == "radius" ){
-	  radius=atoi(value.c_str());
-	  pos.radius=radius;
-	}else if (key == "numpos" ){
-	  numPos=pos.numPos=value;
-	}else if (key == "latitudelongitude" ){
-	  vector<miutil::miString> latlon = value.split(',');
-	  int nr=latlon.size();
-	  if(nr!=2) continue;
-	  pos.lat=atof(latlon[0].c_str());
-	  pos.lon=atof(latlon[1].c_str());
-	  position=true;
-
-	  update_posList(pos.lat,pos.lon,pos.time, 1);
-	}
-      }
-    }
-    if( position)
-      positionVector.push_back(pos);
-    n++;
-  }
-
-  //radiusSpin->setValue(radius);
-  //if(radius>100)
-    // qt4 fix: insertStrList() -> insertStringList()
-    // (uneffective, have to make QStringList and QString!)
-    // Old line: radiusSpin->setSteps(50,50);
-    //radiusSpin->setSingleStep(50);
-  /*if(numPos == "5")
-    numposBox->setCurrentItem(1);
-  else if(numPos == "1")
-    numposBox->setCurrentItem(0);
-  else
-    numposBox->setCurrentItem(2);
-  */
-  //positions are not sent to TrajectoryPlot yet
-
+  emit updateMeasurements();
 }
 
-
-bool RadarEchoDialog::close(bool alsoDelete){
-  emit markRadePos(false);
-  emit RadeHide();
+bool MeasurementsDialog::close(bool alsoDelete){
+  emit markMeasurementsPos(false);
+  emit MeasurementsHide();
   return true;
 }
 
-bool RadarEchoDialog::hasFocus() {
-  emit markRadePos(true);
+bool MeasurementsDialog::hasFocus() {
+  emit markMeasurementsPos(true);
   return this->isActiveWindow();
 }
 
-void RadarEchoDialog::focusInEvent( QFocusEvent * )
+void MeasurementsDialog::focusInEvent( QFocusEvent * )
 {
-  emit markRadePos(true);
+  emit markMeasurementsPos(true);
 }
 
-void RadarEchoDialog::focusOutEvent( QFocusEvent * )
+void MeasurementsDialog::focusOutEvent( QFocusEvent * )
 {
-  emit markRadePos(false);
+  emit markMeasurementsPos(false);
 }
 
-void RadarEchoDialog::focusChanged( QWidget * old, QWidget * now )
+void MeasurementsDialog::focusChanged( QWidget * old, QWidget * now )
 {
     QWidget* p = now;
     while(p)

@@ -79,7 +79,6 @@ public:
   bool plotNumbers();
   miutil::miString getModelName();
   miutil::miString getTrajectoryFieldName();
-  miutil::miString getRadarEchoFieldName();
   bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
   void clearFields();

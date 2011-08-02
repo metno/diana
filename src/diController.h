@@ -190,12 +190,10 @@ public:
   void processHqcCommand(const miutil::miString&, const miutil::miString& ="");
   /// plot trajectory position
   void  trajPos(vector<miutil::miString>&);
-  /// plot radar echo position
-  void  radePos(vector<miutil::miString>&);
+  /// plot measurements position
+  void  measurementsPos(vector<miutil::miString>&);
   /// get trajectory fields
   vector<miutil::miString> getTrajectoryFields();
-  /// get radarecho fields
-  vector<miutil::miString> getRadarEchoFields();
   /// start trajectory computation
   bool startTrajectoryComputation();
 // print trajectory positions to file

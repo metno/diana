@@ -346,9 +346,9 @@ void Controller::trajPos(vector<miString>& str){
   plotm->trajPos(str);
 }
 
-//plot radar echo position
-void Controller::radePos(vector<miString>& str){
-  plotm->radePos(str);
+//plot measurements position
+void Controller::measurementsPos(vector<miString>& str){
+  plotm->measurementsPos(str);
 }
 
 // start trajectory computation
@@ -360,12 +360,6 @@ bool Controller::startTrajectoryComputation(){
 vector<miString> Controller::getTrajectoryFields(){
   return plotm->getTrajectoryFields();
 }
-
-// get radarecho fields
-vector<miString> Controller::getRadarEchoFields(){
-  return plotm->getRadarEchoFields();
-}
-
 
 // write trajectory positions to file
 bool Controller::printTrajectoryPositions(const miString& filename ){

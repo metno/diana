@@ -28,8 +28,8 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef RADARECHODIALOG_H
-#define RADARECHODIALOG_H
+#ifndef MEASUREMENTSDIALOG_H
+#define MEASUREMENTSDIALOG_H
 
 #include <QDialog>
 #include <QObject>
@@ -37,41 +37,32 @@
 #include <puTools/miString.h>
 #include <vector>
 #include "diController.h"
-#include "qtTimeSlider.h"
 
 using namespace std;
 
-class QComboBox;
-class QListWidget;
 class QPushButton;
-class QSpinBox;
 class QLabel;
-class GeoPosLineEdit;
 class QCheckBox;
 
 /**
 
-  \brief Dialogue for radar echo speed and distance calculation
+  \brief Dialogue for speed and distance calculation
    
-   -select coords in for different timeslots in a radar och satellite image
+   -select coords in  different timeslots and calculate speed
 
 */
-class RadarEchoDialog: public QDialog
+class MeasurementsDialog: public QDialog
 {
   Q_OBJECT
 
 public:
 
-  RadarEchoDialog( QWidget* parent,Controller* llctrl);
+  MeasurementsDialog( QWidget* parent,Controller* llctrl);
 
   ///add position to list of positions
   void mapPos(float lat, float lon);
-  //send all positions to TrajectoryPlotdiObsDi
   void sendAllPositions();
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
   bool close(bool alsoDelete);
   bool hasFocus();
 
@@ -112,31 +103,9 @@ private:
  
   struct posStruct {
     double lat,lon;
-    int radius;
-    miutil::miString numPos;
     miutil::miTime time;
   };
   vector<posStruct> positionVector;
-   
-  //init QT stuff
-  vector<Colour::ColourInfo> colourInfo;
-  vector<miutil::miString> linetypes;
-
-  //qt widget
-  QLabel* fieldName;
-  QComboBox* colbox;
-  QComboBox* lineWidthBox;
-  QComboBox* lineTypeBox;
-  GeoPosLineEdit* edit;
-  QListWidget* posList;
-  QCheckBox* posButton;
-  QSpinBox* radiusSpin;
-  QSpinBox* timeSpin;
-  QPushButton* deleteButton;
-  QPushButton* deleteAllButton;
-  QPushButton* startCalcButton;
-  QComboBox* numposBox;
-  
 
   //functions
   miutil::miString makeString();
@@ -144,15 +113,9 @@ private:
   void calculateVelocity();
 
 private slots:
-  void posButtonToggled(bool);
   void deleteClicked();
-  void deleteAllClicked();
-  void startCalcButtonClicked();
   void helpClicked();
-  void printClicked();
-  void applyhideClicked();
   void quitClicked();
-  void editDone();
   double ArcInRadians(double lat1, double lon1, double lat2, double lon2);
   double DistanceInMeters(double lat1, double lon1, double lat2, double lon2);
   
@@ -162,9 +125,9 @@ private slots:
  void showplus();
 
 signals:
-  void markRadePos(bool);
-  void RadeHide();
-  void updateRadarEchos();
+  void markMeasurementsPos(bool);
+  void MeasurementsHide();
+  void updateMeasurements();
   void showsource(const miutil::miString, const miutil::miString="");  
 };
 

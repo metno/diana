@@ -54,6 +54,7 @@ common_cxx_sources = \
 	diMItiff.cc \
 	diMapManager.cc \
 	diMapPlot.cc \
+	diMeasurementsPlot.cc \
 	diObjectManager.cc \
 	diObjectPlot.cc \
 	diObjectPoint.cc \
@@ -73,7 +74,6 @@ common_cxx_sources = \
 	diPlotModule.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
-	diRadarEchoPlot.cc \
 	diSat.cc \
 	diSatManager.cc \
 	diSatPlot.cc \
@@ -128,6 +128,7 @@ diana_qt_sources = \
 	qtMailDialog.cc \
 	qtMainWindow.cc \
 	qtMapDialog.cc \
+	qtMeasurementsDialog.cc \
 	qtObjectDialog.cc \
 	qtObsDialog.cc \
 	qtObsWidget.cc \
@@ -135,7 +136,6 @@ diana_qt_sources = \
 	qtQuickAdmin.cc \
 	qtQuickEditOptions.cc \
 	qtQuickMenu.cc \
-	qtRadarEchoDialog.cc \
 	qtSatDialog.cc \
 	qtSatDialogAdvanced.cc \
 	qtShowSatValues.cc \
@@ -205,6 +205,7 @@ noinst_HEADERS = \
 	diMapManager.h \
 	diMapMode.h \
 	diMapPlot.h \
+	diMeasurementsPlot.h \
 	diObjectManager.h \
 	diObjectPlot.h \
 	diObjectPoint.h \
@@ -230,7 +231,6 @@ noinst_HEADERS = \
 	diPlotModule.h \
 	diPrintOptions.h \
 	diQuickMenues.h \
-	diRadarEchoPlot.h \
 	diSat.h \
 	diSatManager.h \
 	diSatPlot.h \
@@ -284,6 +284,7 @@ noinst_HEADERS = \
 	qtMailDialog.h \
 	qtMainWindow.h \
 	qtMapDialog.h \
+	qtMeasurementsDialog.h \
 	qtObjectDialog.h \
 	qtObsDialog.h \
 	qtObsWidget.h \
@@ -292,7 +293,6 @@ noinst_HEADERS = \
 	qtQuickAdmin.h \
 	qtQuickEditOptions.h \
 	qtQuickMenu.h \
-	qtRadarEchoDialog.h \
 	qtSatDialog.h \
 	qtSatDialogAdvanced.h \
 	qtShowSatValues.h \
@@ -414,7 +414,7 @@ common_xpm_sources= active_object.xpm \
 	preferences.xpm \
 	private_directory.xpm \
 	question.xpm \
-	rade.xpm \
+	ruler.xpm \
 	redo.xpm \
 	revert.xpm \
 	Robot.xpm \
