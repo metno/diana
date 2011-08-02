@@ -749,7 +749,7 @@ void FieldDialog::CreateAdvanced()
   QLabel* hourDiffLabel = new QLabel(tr("Time diff."), advFrame);
   hourDiffSpinBox = new QSpinBox(advFrame);
   hourDiffSpinBox->setMinimum(0);
-  hourDiffSpinBox->setMaximum(12);
+  hourDiffSpinBox->setMaximum(24);
   hourDiffSpinBox->setSingleStep(1);
   hourDiffSpinBox->setSuffix(tr(" hour(s)"));
   hourDiffSpinBox->setPrefix(" +/-");
