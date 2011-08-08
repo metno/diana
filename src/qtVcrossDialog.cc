@@ -367,7 +367,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //QLabel* extremeTypeLabel= new QLabel( "Min,max", this );
   //extremeTypeCbox= new QComboBox( false, this );
   //extremeTypeCbox->setEnabled( false );
-  //extremeType.push_back("Ingen");
+  //extremeType.push_back("None");
   //extremeType.push_back("L+H");
   //extremeType.push_back("C+W");
   //connect( extremeTypeCbox, SIGNAL( activated(int) ),

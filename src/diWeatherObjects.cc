@@ -506,7 +506,7 @@ miString WeatherObjects::readComments(){
 #endif
   //read the old comments
   if (itsOldComments.empty())
-    return "Ingen kommentarer";
+    return "No comments";
   else
     return itsOldComments;
 }

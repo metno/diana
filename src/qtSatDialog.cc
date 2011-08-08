@@ -178,7 +178,6 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 
   multiPicture = new ToggleButton(  this, tr("Add picture").toStdString() );
   multiPicture->setToolTip(tr("Add new picture if any of above settings change"));
-  //		 "Nytt bilde legges til hvis noen av innstillingene over endres" );
 
   mosaic = new ToggleButton( this, tr("Mosaic").toStdString() );
   connect( mosaic, SIGNAL( toggled(bool)), SLOT( mosaicToggled( bool) ));
