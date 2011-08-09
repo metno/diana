@@ -292,9 +292,9 @@ bool VcrossWindow::timeChangedSlot(int diff){
     }
   }
   if (tbs!=tstring){
-    cerr << "WARNING! timeChangedSlot  time from vcrossm ="
-    << t    <<" not equal to timeBox text = " << tbs << endl
-    << "You should search through timelist!" << endl;
+//    cerr << "WARNING! timeChangedSlot  time from vcrossm ="
+//    << t    <<" not equal to timeBox text = " << tbs << endl
+//    << "You should search through timelist!" << endl;
     return false;
   }
 

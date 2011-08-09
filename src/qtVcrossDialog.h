@@ -126,7 +126,6 @@ private slots:
   void lineintervalCboxActivated( int index );
   void densityCboxActivated( int index );
   void vectorunitCboxActivated( int index );
-  //void extremeTypeActivated(int index);
 
   void applyClicked();
   void applyhideClicked();
@@ -173,7 +172,6 @@ private:
   vector<miutil::miString> lineintervals;
   QStringList      densityStringList;
   vector<miutil::miString> vectorunit;
-  //vector<miutil::miString> extremeType;
 
   miutil::miString currentFieldOpts;
 
@@ -219,8 +217,6 @@ private:
   const char** cdensities;
   int        nr_densities;
 
-  //QComboBox* extremeTypeCbox;
-
   QLabel*    vectorunitlabel;
   QComboBox* vectorunitCbox;
 
@@ -237,8 +233,8 @@ private:
 
 
 private slots:
-  //void extremeSizeChanged(int value);
-  //void extremeRadiusChanged(int value);
+  void extremeValueCheckBoxToggled(bool on);
+  void extremeSizeChanged(int value);
   void lineSmoothChanged(int value);
   void labelSizeChanged(int value);
   void hourOffsetChanged(int value);
@@ -261,8 +257,8 @@ private slots:
 
 private:
   QWidget* advFrame;
-  //QSpinBox*  extremeSizeSpinBox;
-  //QSpinBox*  extremeRadiusSpinBox;
+  QCheckBox*  extremeValueCheckBox;
+  QSpinBox*  extremeSizeSpinBox;
   QSpinBox*  lineSmoothSpinBox;
   QSpinBox*  labelSizeSpinBox;
   QSpinBox*  hourOffsetSpinBox;

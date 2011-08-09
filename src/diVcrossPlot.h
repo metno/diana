@@ -209,6 +209,7 @@ struct VcrossText {
   miutil::miString fieldName;
   int      forecastHour;
   miutil::miTime   validTime;
+  miutil::miString extremeValueString;
 };
 
 
@@ -271,7 +272,17 @@ public:
 	    const miutil::miString& fieldname,
 	    PlotOptions& poptions);
   bool plotBackground(const vector<miutil::miString>& labels);
-
+  void plotFrame();
+  void plotAnnotations(const vector<miutil::miString>& labels);
+  void plotVerticalMarkerLines();
+  void plotMarkerLines();
+  void plotVerticalGridLines();
+  void plotSurfacePressure();
+  void plotLevels();
+  void plotXLabels();
+  void plotTitle();
+  void plotMax(float x, float y, float scale);
+  void plotMin(float x, float y, float scale);
   int getHorizontalPosNum() { return horizontalPosNum; }
   int getNearestPos(int px);
 

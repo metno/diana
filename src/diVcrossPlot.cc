@@ -94,7 +94,7 @@ Colour VcrossPlot::contrastColour = Colour();
 
 VcrossZoomType VcrossPlot::zoomType = vczoom_standard;
 int VcrossPlot::zoomSpec[4] =
-  { 0, 0, 0, 0 };
+{ 0, 0, 0, 0 };
 
 miTime VcrossPlot::timeGraphReference = miTime(2002, 1, 1, 0, 0);
 float VcrossPlot::timeGraphMinuteStep = 0.;
@@ -108,7 +108,7 @@ vector<VcrossText> VcrossPlot::vcText;
 
 // Default constructor
 VcrossPlot::VcrossPlot() :
-  vcopt(0), timeGraph(false), horizontalPosNum(0), nPoint(0), numLev(0),
+      vcopt(0), timeGraph(false), horizontalPosNum(0), nPoint(0), numLev(0),
       nTotal(0)
 {
 #ifdef DEBUGPRINT
@@ -305,7 +305,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
             while (j < numVcrossFunctions && func != vcrossFunctionNames[j])
               j++;
             if (j < numVcrossFunctions && int(names.size())
-                == vcrossFunctionArguments[j]) {
+            == vcrossFunctionArguments[j]) {
               for (unsigned int i = 0; i < names.size(); i++) {
                 if (definedNames.find(names[i]) == definedNames.end()) {
                   msg = "Input name not defined: " + names[i];
@@ -376,7 +376,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
               while (j < numVcrossPlotTypes && func != vcrossPlotNames[j])
                 j++;
               if (j < numVcrossPlotTypes && int(names.size())
-                  == vcrossPlotArguments[j]) {
+              == vcrossPlotArguments[j]) {
                 for (unsigned int i = 0; i < names.size(); i++) {
                   if (definedNames.find(names[i]) == definedNames.end()) {
                     msg = "Input name not defined: " + names[i];
@@ -496,7 +496,7 @@ void VcrossPlot::makeContents(const miString& fileName,
     }
 #ifdef DEBUGPRINT
     cerr<<"   numfound,params.size(): "
-    <<numfound<<" "<<paramdef.size()<<endl;
+        <<numfound<<" "<<paramdef.size()<<endl;
 #endif
   }
 #ifdef DEBUGPRINT
@@ -544,7 +544,7 @@ void VcrossPlot::makeContents(const miString& fileName,
 #ifdef DEBUGPRINT
   cerr<<"  no. of output fields: "<<fco.fieldNames.size()<<endl;
   for (int j=0; j<fco.fieldNames.size(); j++)
-  cerr<<setw(5)<<j<<": "<<fco.fieldNames[j]<<endl;
+    cerr<<setw(5)<<j<<": "<<fco.fieldNames[j]<<endl;
 #endif
 
   fileContents[fileName] = fco;
@@ -772,7 +772,7 @@ void VcrossPlot::plotText()
   float wspace, w, h;
   fp->getStringSize("oo", wspace, h);
 
-  float wmod = 0., wcrs = 0., wfn = 0, wfc = 0;
+  float wmod = 0., wcrs = 0., wfn = 0, wfc = 0, wtime = 0;
 
   vector<miString> fctext(n);
 
@@ -793,6 +793,10 @@ void VcrossPlot::plotText()
       fp->getStringSize(fctext[i].c_str(), w, h);
       if (wfc < w)
         wfc = w;
+      miString ts = vcText[i].validTime.isoTime();
+      fp->getStringSize(ts.c_str(), w, h);
+      if (wtime < w)
+        wtime = w;
     }
   }
 
@@ -801,6 +805,7 @@ void VcrossPlot::plotText()
   float xfn = xcrs + wcrs + wspace;
   float xfc = xfn + wfn + wspace;
   float xtime = xfc + wfc + wspace;
+  float xextreme = xtime + wtime + wspace;
 
   float dy = chydef * 1.5;
   float y = yWindowmin + dy * n;
@@ -815,6 +820,7 @@ void VcrossPlot::plotText()
       miString ts = vcText[i].validTime.isoTime();
       fp->drawStr(ts.c_str(), xtime, y, 0.0);
     }
+    fp->drawStr(vcText[i].extremeValueString.c_str(), xextreme, y, 0.0);
     y -= dy;
   }
 
@@ -1605,9 +1611,9 @@ void VcrossPlot::prepareVertical()
         if (k < numLev) {
           float dy = 0.;
           if (k > 0 && k < numLev - 1 && cdata2d[ny][(k + 1) * nPoint + i]
-              != fieldUndef)
+                                                     != fieldUndef)
             dy = cdata2d[ny][(k + 1) * nPoint + i]
-                - cdata2d[ny][k * nPoint + i];
+                             - cdata2d[ny][k * nPoint + i];
           cdata1d[npy1][i] = cdata2d[ny][k * nPoint + i] - dy * 0.5;
         } else {
           cdata1d[npy1][i] = fieldUndef;
@@ -1969,8 +1975,8 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
         for (k = 0; k < numLev - 1; k++) {
           for (i = 0, n = nPoint * k; i < nPoint; i++, n++) {
             if (cdata2d[ntk][n] != fieldUndef && cdata2d[ntk][n + nPoint]
-                != fieldUndef && cdata2d[no][n] != fieldUndef && cdata2d[no][n
-                + nPoint] != fieldUndef) {
+                                                              != fieldUndef && cdata2d[no][n] != fieldUndef && cdata2d[no][n
+                                                                                                                           + nPoint] != fieldUndef) {
               th1 = cp * cdata2d[ntk][n] / cdata2d[npi][n];
               th2 = cp * cdata2d[ntk][n + nPoint] / cdata2d[npi][n + nPoint];
               pi1 = cdata2d[npi][n];
@@ -1990,8 +1996,8 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
         for (k = 0; k < numLev - 1; k++) {
           for (i = 0, n = nPoint * k; i < nPoint; i++, n++) {
             if (cdata2d[nth][n] != fieldUndef && cdata2d[nth][n + nPoint]
-                != fieldUndef && cdata2d[no][n] != fieldUndef && cdata2d[no][n
-                + nPoint] != fieldUndef) {
+                                                              != fieldUndef && cdata2d[no][n] != fieldUndef && cdata2d[no][n
+                                                                                                                           + nPoint] != fieldUndef) {
               th1 = cdata2d[nth][n];
               th2 = cdata2d[nth][n + nPoint];
               pi1 = cdata2d[npi][n];
@@ -2081,7 +2087,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
         for (i = 0, n = nPoint * k; i < nPoint; i++, n++) {
           if (cdata2d[nu][n] != fieldUndef && cdata2d[nv][n] != fieldUndef)
             cdata2d[no][n] = cdata1d[nrot1][i] * cdata2d[nu][n] * s1
-                + cdata1d[nrot2][i] * cdata2d[nv][n];
+            + cdata1d[nrot2][i] * cdata2d[nv][n];
           else
             cdata2d[no][n] = fieldUndef;
         }
@@ -2113,7 +2119,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
         for (i = 0, n = nPoint * k; i < nPoint; i++, n++) {
           if (cdata2d[nvn][n] != fieldUndef)
             cdata2d[no][n] = cdata2d[nvn][n] + cdata1d[ncor][i]
-                * cdata1d[nxs][i];
+                                                             * cdata1d[nxs][i];
           else
             cdata2d[no][n] = fieldUndef;
         }
@@ -2145,7 +2151,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     }
     // height computed in sigma1/eta_half levels (plot in sigma2/eta_full)
     float alvl1, blvl1, alvl2, blvl2, p2, pi1, pi2, dz, z1, px, pim1, pip1,
-        dthdpi, pifull, thhalf;
+    dthdpi, pifull, thhalf;
     int km, kp;
     for (i = 0; i < nPoint; i++)
       cwork2[i] = cp * powf(cdata1d[nps][i] * p0inv, kappa);
@@ -2179,8 +2185,8 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
         px = alevel[kp] + blevel[kp] * cdata1d[nps][i];
         pip1 = cp * powf(px * p0inv, kappa);
         dthdpi
-            = (cdata2d[nth][km * nPoint + i] - cdata2d[nth][kp * nPoint + i])
-                / (pim1 - pip1);
+        = (cdata2d[nth][km * nPoint + i] - cdata2d[nth][kp * nPoint + i])
+        / (pim1 - pip1);
         // get temperature at half level (bottom of layer)
         px = alevel[k] + blevel[k] * cdata1d[nps][i];
         pifull = cp * powf(px * p0inv, kappa);
@@ -2397,16 +2403,16 @@ bool VcrossPlot::computeSize()
       yPlotmax = yDatamax;
       if (vcopt->stdVerticalArea) {
         yPlotmin = yDatamin + (yDatamax - yDatamin)
-            * float(vcopt->minVerticalArea) * 0.01;
+                * float(vcopt->minVerticalArea) * 0.01;
         yPlotmax = yDatamin + (yDatamax - yDatamin)
-            * float(vcopt->maxVerticalArea) * 0.01;
+                * float(vcopt->maxVerticalArea) * 0.01;
         hfree = false;
       }
       if (vcopt->stdHorizontalArea) {
         xPlotmin = xDatamin + (xDatamax - xDatamin)
-            * float(vcopt->minHorizontalArea) * 0.01;
+                * float(vcopt->minHorizontalArea) * 0.01;
         xPlotmax = xDatamin + (xDatamax - xDatamin)
-            * float(vcopt->maxHorizontalArea) * 0.01;
+                * float(vcopt->maxHorizontalArea) * 0.01;
         wfree = false;
       }
     } else {
@@ -2547,150 +2553,184 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
   if (xPlotmin >= xPlotmax || yPlotmin >= yPlotmax)
     return false;
 
-  int i, k, k1, k2, l, ibgn, iend;
-  float p, pi, x, x1, x2, y, y1, y2, y3, dx, dy, xlen, xcut;
+  plotFrame();
 
-  const int npfixed1 = 17;
-  float pfixed1[npfixed1] =
-    { 1000., 925., 850., 700., 600., 500., 400., 300., 250., 200., 150., 100.,
-        70., 50., 30., 10., 5. };
-  const int npfixed2 = 22;
-  float pfixed2[npfixed2] =
-    { 1000., 950., 900., 850., 800., 750., 700., 650., 600., 550., 500., 450.,
-        400., 350., 300., 250., 200., 150., 100., 50., 10., 5. };
-  const int nzsteps = 10;
-  float zsteps[nzsteps] =
-    { 5., 10., 25., 50., 100., 250., 500., 1000., 2500., 5000. };
+  fp->setFont("BITMAPFONT");
 
-  const int nflsteps = 8;
-  float flsteps[nflsteps] =
-    { 1., 2., 5., 10., 50., 100., 200., 500. };
+  plotXLabels();
 
-  // P -> FlightLevels (used for remapping fields from P to FL)
-  const int mfl = 16;
-  const int plevels[mfl] =
-    { 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30,
-        10 };
-  const int flevels[mfl] =
-    { 0, 25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 530, 600, 700, 800,
-        999 };
+  // position names at the top
+  if (vcopt->pPositionNames && markName.size() > 0 && !timeGraph && nxs >= 0) {
+    plotTitle();
+  }
 
-  // Warning: pressure at flight levels found by looking at an Amble diagram!
-  // (used for Vertical Profiles)
-  const int mflvl = 45;
-  int iflvl[mflvl] =
-    { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160,
-        170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300,
-        310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 450, 500, 550, 600 };
-  float pflvl[mflvl] =
-    { 1013., 978., 942., 907., 874., 843., 812., 782., 751., 722., 696., 670.,
-        642., 619., 595., 572., 549., 526., 505., 485., 465., 445., 428., 410.,
-        393., 378., 359., 344., 329., 314., 300., 288., 274., 261., 250., 239.,
-        227., 216., 206., 197., 188., 147., 116., 91., 71. };
+  UpdateOutput();
 
-  const float fl2m = 1. / 3.2808399; // flightlevel (100 feet unit) to meter
 
-  int npfixed = 0;
-  float *pfixed = 0;
-  float *ypfixed = 0;
+  // upper level, lower level, other levels
+  plotLevels();
 
-  if (vcoord != 5 && vcoord != 11) {
-    // fixed pressure levels possibly shown..
-    if (vcoordPlot == vcv_exner) {
-      if (verticalAxis == "hPa") {
-        npfixed = npfixed1;
-        pfixed = new float[npfixed];
-        ypfixed = new float[npfixed];
-        for (k = 0; k < npfixed; k++) {
-          p = pfixed[k] = pfixed1[k];
-          pi = cp * powf(p * p0inv, kappa);
-          ypfixed[k] = yconst + yscale * pi;
-        }
-      } else if (verticalAxis == "FL") {
-        npfixed = mfl;
-        pfixed = new float[npfixed];
-        ypfixed = new float[npfixed];
-        for (k = 0; k < npfixed; k++) {
-          pfixed[k] = flevels[k];
-          p = plevels[k];
-          pi = cp * powf(p * p0inv, kappa);
-          ypfixed[k] = yconst + yscale * pi;
-        }
-      }
-    } else if (vcoordPlot == vcv_pressure) {
-      if (verticalAxis == "hPa") {
-        npfixed = npfixed2;
-        pfixed = new float[npfixed];
-        ypfixed = new float[npfixed];
-        for (k = 0; k < npfixed; k++) {
-          p = pfixed[k] = pfixed2[k];
-          ypfixed[k] = yconst + yscale * p;
-        }
-      } else if (verticalAxis == "FL") {
-        npfixed = mflvl;
-        pfixed = new float[npfixed];
-        ypfixed = new float[npfixed];
-        for (k = 0; k < npfixed; k++) {
-          pfixed[k] = iflvl[k];
-          p = pflvl[k];
-          ypfixed[k] = yconst + yscale * p;
-        }
-      }
-    } else if (vcoordPlot == vcv_height) {
-      float zmin = (yPlotmin - yconst) / yscale;
-      float zmax = (yPlotmax - yconst) / yscale;
-      float dz = zmax - zmin;
-      if (verticalAxis == "m") {
-        int n = 1;
-        while (n < nzsteps && zsteps[n] * 10. < dz)
-          n++;
-        n--;
-        npfixed = int(dz / zsteps[n]) + 1;
-        k = int(zmin / zsteps[n]) + 1;
-        if (zmin < 0.)
-          k--;
-        pfixed = new float[npfixed];
-        ypfixed = new float[npfixed];
-        for (i = 0; i < npfixed; i++) {
-          pfixed[i] = zsteps[n] * float(k + i);
-          ypfixed[i] = yconst + yscale * zsteps[n] * float(k + i);
-        }
-      } else if (verticalAxis == "Ft") {
-        zmin /= fl2m;
-        zmax /= fl2m;
-        dz /= fl2m;
-        int n = 1;
-        while (n < nflsteps && flsteps[n] * 10. < dz)
-          n++;
-        n--;
-        npfixed = int(dz / flsteps[n]) + 1;
-        k = int(zmin / flsteps[n]) + 1;
-        if (zmin < 0.)
-          k--;
-        pfixed = new float[npfixed];
-        ypfixed = new float[npfixed];
-        for (i = 0; i < npfixed; i++) {
-          pfixed[i] = flsteps[n] * float(k + i);
-          ypfixed[i] = (yconst + yscale * flsteps[n] * float(k + i)) * fl2m;
-        }
+  // surface pressure (ps)
+  // or approx. surface when isentropic levels (vcoord=4)
+  // or sea bottom + sea surface elevation (vcoord=5)
+  // or surface height (vcoord=11)
+  if (vcopt->pSurface) {
+    plotSurfacePressure();
+  }
+
+  // vertical grid lines
+  if (vcopt->pVerticalGridLines) {
+    plotVerticalGridLines();
+  }
+
+  if (vcopt->pMarkerlines) {
+    plotMarkerLines();
+  }
+
+  plotVerticalMarkerLines();
+  plotAnnotations(labels);
+
+  return true;
+}
+
+void VcrossPlot::plotTitle()
+{
+  float chystp = 1.5;
+  float chx = chxdef;
+  float chy = chydef;
+//  float dchy = chy * 0.6;
+  float chxt, chyt;
+
+  int nn = markName.size();
+  float y = yWindowmax - 1.25 * chy * chystp;
+  fp->setFontSize(fontscale * 1.25);
+  chxt = 1.25 * chx;
+  chyt = 1.25 * chy;
+  Colour c(vcopt->positionNamesColour);
+  if (c == backColour)
+    c = contrastColour;
+  glColor3ubv(c.RGB());
+  float xm, dxh;
+  float xlen = 0., xmin = xWindowmax, xmax = xWindowmin;
+  vector<int> vpos;
+  vector<float> vdx, vxm, vx1, vx2;
+
+  for (int n = 0; n < nn; n++) {
+    float x = markNamePosMin[n];
+    int i = int(x);
+    if (i < 0)
+      i = 0;
+    if (i > nPoint - 2)
+      i = nPoint - 2;
+    float x1 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x
+        - float(i));
+    x = markNamePosMax[n];
+    i = int(x);
+    if (i < 0)
+      i = 0;
+    if (i > nPoint - 2)
+      i = nPoint - 2;
+    float x2 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x
+        - float(i));
+    if (x2 > xDatamin && x1 < xDatamax) {
+      float dx,dy;
+      fp->getStringSize(markName[n].cStr(), dx, dy);
+      float dxh = dx * 0.5 + chxt;
+      xm = (x1 + x2) * 0.5;
+      if (x1 < xWindowmin + dxh)
+        x1 = xWindowmin + dxh;
+      if (x2 > xWindowmax - dxh)
+        x2 = xWindowmax - dxh;
+      if (x1 <= x2) {
+        if (xm < x1)
+          xm = x1;
+        if (xm > x2)
+          xm = x2;
+        vpos.push_back(n);
+        vdx.push_back(dx);
+        vxm.push_back(xm);
+        vx1.push_back(x1);
+        vx2.push_back(x2);
+        xlen += dxh * 2.;
+        if (xmin > x1)
+          xmin = x1;
+        if (xmax < x2)
+          xmax = x2;
       }
     }
   }
 
-  int ipd1, ipd2, npd, ilev1, ilev2;
+  nn = vpos.size();
 
-  float chystp = 1.5;
-  float chx = chxdef;
-  float chy = chydef;
-  float dchy = chy * 0.6;
-  float chxt, chyt;
+  if (nn > 0) {
 
-  Linetype linetype;
+    if (xlen > xmax - xmin) {
+      float s = (xmax - xmin) / xlen;
+      if (s < 0.75)
+        s = 0.75;
+      chxt = chxt * s;
+      chyt = chyt * s;
+      fp->setFontSize(fontscale * 1.25 * s);
+      for (int n = 0; n < nn; n++) {
+        float dx, dy;
+        fp->getStringSize(markName[n].cStr(), dx, dy);
+        vdx[n] = dx;
+      }
+    }
 
+    for (int n = 0; n < nn; n++) {
+      float x = vxm[n];
+      dxh = vdx[n] * 0.5 + chxt;
+      xmin = vx1[n] - dxh;
+      xmax = vx2[n] + dxh;
+      int k1 = -1;
+      int k2 = -1;
+      for (int i = 0; i < nn; i++) {
+        if (i != n) {
+          float x1 = vxm[i] - vdx[i] * 0.5 - chxt;
+          float x2 = vxm[i] + vdx[i] * 0.5 + chxt;
+          if (vxm[i] < x && xmin < x2) {
+            xmin = x2;
+            k1 = i;
+          }
+          if (vxm[i] > x && xmax > x1) {
+            xmax = x1;
+            k2 = i;
+          }
+        }
+      }
+      float x1 = x - dxh;
+      float x2 = x + dxh;
+      if (xmin > x1 && k1 >= 0) {
+        if (k1 < n)
+          x1 = xmin;
+      }
+      if (xmax < x2 && k2 >= 0) {
+        if (k2 < n)
+          x2 = xmax;
+      }
+      if (x1 < vx1[n] - dxh)
+        x1 = vx1[n] - dxh;
+      if (x2 > vx2[n] + dxh)
+        x2 = vx2[n] + dxh;
+      if (x2 - x1 > dxh * 1.99) {
+        x = (x1 + x2) * 0.5;
+        vxm[n] = x;
+        x -= vdx[n] * 0.5;
+        fp->drawStr(markName[vpos[n]].cStr(), x, y, 0.0);
+      }
+    }
+  }
+
+
+}
+
+void VcrossPlot::plotXLabels()
+{
   // horizontal part of total crossection
-  ipd1 = 0;
-  ipd2 = 1;
-  for (i = 0; i < nPoint - 1; i++) {
+  int ipd1 = 0;
+  int ipd2 = 1;
+  for (int i = 0; i < nPoint - 1; i++) {
     if (cdata1d[nxs][i] < xPlotmin)
       ipd1 = i;
     if (cdata1d[nxs][i] < xPlotmax)
@@ -2700,291 +2740,23 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
   int ip1 = (cdata1d[nxs][ipd1] < xPlotmin) ? ipd1 + 1 : ipd1;
   int ip2 = (cdata1d[nxs][ipd2] > xPlotmax) ? ipd2 - 1 : ipd2;
 
-  // find lower and upper level inside current window
-  // (contour plot: ilev1 - ilev2    wind plot: iwlev1 - iwlev2)
-  ilev1 = 0;
-  ilev2 = 1;
-  for (k = 0; k < numLev - 1; k++) {
-    if (vlimitmax[k] < yPlotmin)
-      ilev1 = k;
-    if (vlimitmin[k] < yPlotmax)
-      ilev2 = k + 1;
-  }
-
-  fp->setFont("BITMAPFONT");
+  float chystp = 1.5;
+  float chx = chxdef;
+  float chy = chydef;
+  float dchy = chy * 0.6;
+  float chxt, chyt;
 
   Colour c;
 
-  float xylim[4] =
-    { xPlotmin, xPlotmax, yPlotmin, yPlotmax };
 
   chxt = chx;
   chyt = chy;
 
   // colour etc. for frame etc.
-  c = Colour(vcopt->frameColour);
-  if (c == backColour)
-    c = contrastColour;
-  glColor3ubv(c.RGB());
   glLineWidth(vcopt->frameLinewidth);
 
-  // frame
-  if (vcopt->pFrame) {
-    linetype = Linetype(vcopt->frameLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(xPlotmin, yPlotmin);
-    glVertex2f(xPlotmax, yPlotmin);
-    glVertex2f(xPlotmax, yPlotmax);
-    glVertex2f(xPlotmin, yPlotmax);
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
-    if (vcopt->pLevelNumbers) {
-      if ((vcoord != 5 && vcoord != 11) && npfixed > 0) {
-        y1 = yPlotmin - (yPlotmax - yPlotmin) * 0.005;
-        y2 = yPlotmax + (yPlotmax - yPlotmin) * 0.005;
-        k1 = -1;
-        k2 = -2;
-        for (k = 0; k < npfixed; k++) {
-          if (ypfixed[k] > y1 && ypfixed[k] < y2) {
-            if (k1 < 0)
-              k1 = k;
-            k2 = k;
-          }
-        }
-        glBegin(GL_LINES);
-        for (k = k1; k <= k2; k++) {
-          glVertex2f(xPlotmin - chx, ypfixed[k]);
-          glVertex2f(xPlotmin, ypfixed[k]);
-          glVertex2f(xPlotmax, ypfixed[k]);
-          glVertex2f(xPlotmax + chx, ypfixed[k]);
-        }
-        glEnd();
 
-        if (vcopt->pLevelNumbers && k1 >= 0) {
-          chyt = chy;
-          chxt = chyt * chx / chy;
-          fp->setFontSize(fontscale * chyt / chy);
-          x1 = xPlotmin - chx - chxt * 0.5;
-          x2 = xPlotmax + chx + chxt * 0.5;
-          y1 = yPlotmin - chy * 2.;
-          for (k = k1; k <= k2; k++) {
-            y = ypfixed[k] - chyt * 0.5;
-            if (y > y1) {
-              ostringstream ostr;
-              string str;
-              // 	      if (verticalAxis=="FL") {
-              // 	        ostr << setw(3) << setfill('0') << int(pfixed[k]);
-              // 	        str= verticalAxis + ostr.str();
-              // 	      } else {
-              ostr << setw(4) << int(pfixed[k]);
-              str = ostr.str() + verticalAxis;
-              // 	      }
-              fp->getStringSize(str.c_str(), dx, dy);
-              fp->drawStr(str.c_str(), x1 - dx, y, 0.0);
-              fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
-            }
-          }
-          // needed after drawStr, otherwise colour change may not work
-          glShadeModel(GL_FLAT);
-        }
-      } else if (vcoord == 5) {
-        // sea depth
-        y1 = yPlotmin - (yPlotmax - yPlotmin) * 0.005;
-        y2 = yPlotmax + (yPlotmax - yPlotmin) * 0.005;
-        k1 = -1;
-        k2 = -2;
-        for (k = 0; k < numLev; k++) {
-          y = v2hRatio * alevel[k];
-          if (y > y1 && y < y2) {
-            if (k1 < 0)
-              k1 = k;
-            k2 = k;
-          }
-        }
-        glBegin(GL_LINES);
-        for (k = k1; k <= k2; k++) {
-          y = v2hRatio * alevel[k];
-          glVertex2f(xPlotmin - chx, y);
-          glVertex2f(xPlotmin, y);
-          glVertex2f(xPlotmax, y);
-          glVertex2f(xPlotmax + chx, y);
-        }
-        glEnd();
-        if (vcopt->pLevelNumbers && k1 >= 0) {
-          chyt = chy;
-          chxt = chyt * chx / chy;
-          fp->setFontSize(fontscale * chyt / chy);
-          x1 = xPlotmin - chx - chxt * 4.5;
-          x2 = xPlotmax + chx + chxt * 0.5;
-          y1 = yPlotmin - chy * 2.;
-          for (k = k1; k <= k2; k++) {
-            y = v2hRatio * alevel[k] - chyt * 0.5;
-            if (y > y1) {
-              ostringstream ostr;
-              ostr << setw(4) << -int(alevel[k] - 0.5);
-              string str = ostr.str();
-              fp->drawStr(str.c_str(), x1, y, 0.0);
-              fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
-            }
-          }
-          // needed after drawStr, otherwise colour change may not work
-          glShadeModel(GL_FLAT);
-        }
-      } else if (vcoord == 11) {
-        // sigma height
-        int izmin, izmax, izstp, kz1, kz2;
-        y1 = yPlotmin - (yPlotmax - yPlotmin) * 0.005;
-        y2 = yPlotmax + (yPlotmax - yPlotmin) * 0.005;
-        izmin = int(yDatamin / v2hRatio + 0.5);
-        izmax = int(yDatamax / v2hRatio + 0.5);
-        izstp = 500;
-        if (izmax - izmin > 6000)
-          izstp = 1000;
-        kz1 = (izmin + izstp - 1) / izstp;
-        kz2 = izmax / izstp;
-        k1 = -1;
-        k2 = -2;
-        for (k = kz1; k <= kz2; k++) {
-          y = v2hRatio * float(izstp * k);
-          if (y > y1 && y < y2) {
-            if (k1 < 0)
-              k1 = k;
-            k2 = k;
-          }
-        }
-        glBegin(GL_LINES);
-        for (k = k1; k <= k2; k++) {
-          y = v2hRatio * float(izstp * k);
-          glVertex2f(xPlotmin - chx, y);
-          glVertex2f(xPlotmin, y);
-          glVertex2f(xPlotmax, y);
-          glVertex2f(xPlotmax + chx, y);
-        }
-        glEnd();
-        if (vcopt->pLevelNumbers && k1 >= 0) {
-          chyt = chy;
-          chxt = chyt * chx / chy;
-          fp->setFontSize(fontscale * chyt / chy);
-          x1 = xPlotmin - chx - chxt * 5.5;
-          x2 = xPlotmax + chx + chxt * 0.5;
-          y1 = yPlotmin - chy * 2.;
-          for (k = k1; k <= k2; k++) {
-            y = v2hRatio * float(izstp * k) - chyt * 0.5;
-            if (y > y1) {
-              ostringstream ostr;
-              ostr << setw(5) << izstp * k;
-              string str = ostr.str();
-              fp->drawStr(str.c_str(), x1, y, 0.0);
-              fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
-            }
-          }
-          // needed after drawStr, otherwise colour change may not work
-          glShadeModel(GL_FLAT);
-        }
-      }
-      // horizontal grid resolution
-      glBegin(GL_LINES);
-      for (i = ip1; i <= ip2; i++) {
-        glVertex2f(cdata1d[nxs][i], yPlotmin);
-        glVertex2f(cdata1d[nxs][i], yPlotmin - dchy * 0.5);
-        glVertex2f(cdata1d[nxs][i], yPlotmax);
-        glVertex2f(cdata1d[nxs][i], yPlotmax + dchy * 0.5);
-      }
-      glEnd();
-      UpdateOutput();
-    }
-  }
-
-  /************************************************************************
-   if (!timeGraph && posmarkName.size()>0) {
-
-   // extra position marks
-   int nposmark= posmarkName.size();
-   float *xposmark= new float[nposmark];
-   float *yposmark= new float[nposmark];
-
-   for (n=0; n<nposmark; n++) {
-   xposmark[n]= posmarkLongitude[n];
-   yposmark[n]= posmarkLatitude[n];
-   }
-   if (!gc.geo2xy(gridArea,nposmark,xposmark,yposmark))
-   nposmark= 0;
-   // gridcoordinates in cdata1d are fortran type, add 1.0
-   for (n=0; n<nposmark; n++) {
-   xposmark[n]+=1.;
-   yposmark[n]+=1.;
-   }
-
-   bool first= true;
-   float r2min= posmarkDistance*posmarkDistance;
-
-   for (n=0; n<nposmark; n++) {
-
-   float dxp,dyp,linerate,r2,rr;
-   int imark= -1;
-   for (i=0; i<nPoint; i++) {
-   dxp= xposmark[n]-cdata1d[nxg][i];
-   dyp= yposmark[n]-cdata1d[nyg][i];
-   r2= dxp*dxp+dyp*dyp;
-   if (r2min>r2) {
-   r2min= r2;
-   imark= i;
-   linerate= 0.;
-   }
-   if (i<nPoint-1) {
-   dx= cdata1d[nxg][i+1]-cdata1d[nxg][i];
-   dy= cdata1d[nyg][i+1]-cdata1d[nyg][i];
-   rr= (dx*dxp+dy*dyp)/(dx*dx+dy*dy);
-   if (rr>=0. && rr<=1.) {
-   dxp= cdata1d[nxg][i] + rr*dx - xposmark[n];
-   dyp= cdata1d[nyg][i] + rr*dy - yposmark[n];
-   r2= dxp*dxp+dyp*dyp;
-   if (r2min>r2) {
-   r2min= r2;
-   imark= i;
-   linerate= rr;
-   }
-   }
-   }
-   }
-
-   if ((imark>=ip1 && imark<ip2) ||
-   (imark==ip2 && linerate==0.)) {
-   if (first) {
-   fp->setFontSize(fontscale*chyt/chy);
-   first= false;
-   }
-   if (imark<nPoint-1)
-   x=  cdata1d[nxs][imark]
-   + linerate*(cdata1d[nxs][imark+1]-cdata1d[nxs][imark]);
-   else
-   x= cdata1d[nxs][nPoint-1];
-   glBegin(GL_LINE_STRIP);
-   glVertex2f(x,yPlotmin);
-   glVertex2f(x,yWindowmax-chy*1.5);
-   glEnd();
-
-   fp->getStringSize(posmarkName[n].c_str(),dx,dy);
-   x-=(dx*0.5);
-   y= yWindowmax-chy*1.25;
-   fp->drawStr(posmarkName[n].c_str(),x,y,0.0);
-   }
-   }
-
-   delete[] xposmark;
-   delete[] yposmark;
-   }
-   ************************************************************************/
-
-  y = yPlotmin - dchy * 0.5;
+  float y = yPlotmin - dchy * 0.5;
 
   if (!timeGraph) {
 
@@ -2997,18 +2769,18 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
       chxt = chx * 0.75;
       chyt = chy * 0.75;
       fp->setFontSize(fontscale * chyt / chy);
-      y1 = y - chyt * chystp;
+      float y1 = y - chyt * chystp;
       y = y - chyt * chystp * 1.2;
-      xlen = chxt * 6.75;
-      xcut = xPlotmax - xlen;
-      x = xPlotmin - xlen * 2.;
-      i = int(refPosition);
+      float xlen = chxt * 6.75;
+      float xcut = xPlotmax - xlen;
+      float x = xPlotmin - xlen * 2.;
+      int i = int(refPosition);
       if (i < 0)
         i = 0;
       if (i > nPoint - 2)
         i = nPoint - 2;
       float rpos = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i])
-          * (refPosition - float(i));
+              * (refPosition - float(i));
       float unit;
       miString uname;
       if (vcopt->distanceUnit.downcase() == "nm") {
@@ -3027,6 +2799,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
             xostr << setprecision(1) << setiosflags(ios::fixed) << fabsf(
                 (cdata1d[nxs][i] - rpos) / unit);
             miString xstr = xostr.str() + uname;
+            float dx, dy;
             fp->getStringSize(xstr.c_str(), dx, dy);
             x = cdata1d[nxs][i];
             fp->drawStr(xstr.c_str(), x + chxt * 1.5 - dx, y1, 0.0);
@@ -3045,13 +2818,13 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
         int i = ip1;
         //pos first possible label
         while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i]
-            > xcut))
+                                                                       > xcut))
           i++;
         float p1 = ((cdata1d[nxs][i] - rpos) / unit);
         x = cdata1d[nxs][i];
         //pos nex possible label
         while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i]
-            > xcut))
+                                                                       > xcut))
           i++;
         float p2 = ((cdata1d[nxs][i] - rpos) / unit);
         //step
@@ -3072,6 +2845,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
             ostringstream xostr;
             xostr << abs(xLabel);
             miString xstr = xostr.str() + uname;
+            float dx, dy;
             fp->getStringSize(xstr.c_str(), dx, dy);
             fp->drawStr(xstr.c_str(), x + chxt * 1.5 - dx, y1, 0.0);
             //draw tickmarks
@@ -3096,22 +2870,22 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
       chxt = chx * 0.75;
       chyt = chy * 0.75;
       fp->setFontSize(fontscale * chyt / chy);
-      y1 = y - chyt * chystp;
-      y2 = y - chyt * chystp * 2.;
+      float y1 = y - chyt * chystp;
+      float y2 = y - chyt * chystp * 2.;
       y = y - chyt * chystp * 2.2;
-      xlen = chxt * 6.75;
-      xcut = xPlotmax - xlen;
-      x = xPlotmin - xlen * 2.;
-      for (i = ip1; i <= ip2; i++) {
+      float xlen = chxt * 6.75;
+      float xcut = xPlotmax - xlen;
+      float x = xPlotmin - xlen * 2.;
+      for (int i = ip1; i <= ip2; i++) {
         if ((cdata1d[nxs][i] > x + xlen && cdata1d[nxs][i] < xcut) || i == ip2) {
           ostringstream xostr, yostr;
           xostr << setw(6) << setprecision(1) << setiosflags(ios::fixed)
-              << cdata1d[nxg][i];
+                  << cdata1d[nxg][i];
           yostr << setw(6) << setprecision(1) << setiosflags(ios::fixed)
-              << cdata1d[nyg][i];
+                  << cdata1d[nyg][i];
           string xstr = xostr.str();
           string ystr = yostr.str();
-          float xdx, ydx;
+          float xdx, ydx, dy;
           fp->getStringSize(xstr.c_str(), xdx, dy);
           fp->getStringSize(ystr.c_str(), ydx, dy);
           x = cdata1d[nxs][i];
@@ -3130,32 +2904,32 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
       chxt = chx * 0.75;
       chyt = chy * 0.75;
       fp->setFontSize(fontscale * chyt / chy);
-      y1 = y - chyt * chystp;
-      y2 = y - chyt * chystp * 2.;
+      float y1 = y - chyt * chystp;
+      float y2 = y - chyt * chystp * 2.;
       y = y - chyt * chystp * 2.2;
-      xlen = chxt * 6.75;
-      xcut = xPlotmax - xlen;
-      x = xPlotmin - xlen * 2.;
-      for (i = ip1; i <= ip2; i++) {
+      float xlen = chxt * 6.75;
+      float xcut = xPlotmax - xlen;
+      float x = xPlotmin - xlen * 2.;
+      for (int i = ip1; i <= ip2; i++) {
         if ((cdata1d[nxs][i] > x + xlen && cdata1d[nxs][i] < xcut) || i == ip2) {
           float glat = cdata1d[nlat][i];
           float glon = cdata1d[nlon][i];
           ostringstream xostr, yostr;
           xostr << setw(5) << setprecision(1) << setiosflags(ios::fixed)
-              << fabsf(glat);
+                  << fabsf(glat);
           if (glat < 0.)
             xostr << 'S';
           else
             xostr << 'N';
           yostr << setw(5) << setprecision(1) << setiosflags(ios::fixed)
-              << fabsf(glon);
+                  << fabsf(glon);
           if (glon < 0.)
             yostr << 'W';
           else
             yostr << 'E';
           string xstr = xostr.str();
           string ystr = yostr.str();
-          float xdx, ydx;
+          float xdx, ydx,dy;
           fp->getStringSize(xstr.c_str(), xdx, dy);
           fp->getStringSize(ystr.c_str(), ydx, dy);
           x = cdata1d[nxs][i];
@@ -3177,7 +2951,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
       vector<string> fctext(nPoint);
       vector<bool> showday(nPoint, false);
       unsigned int lmax = 0;
-      for (i = ip1; i <= ip2; i++) {
+      for (int i = ip1; i <= ip2; i++) {
         ostringstream ostr;
         ostr << setiosflags(ios::showpos) << forecastHourSeries[i];
         string str = ostr.str();
@@ -3190,19 +2964,19 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
       int ittday = ip1;
       float dxday = cdata1d[nxs][ip2] - cdata1d[nxs][ip1];
       float dxhr = cdata1d[nxs][ip2] - cdata1d[nxs][ip1];
-      for (i = ip1 + 1; i <= ip2; i++) {
+      for (int i = ip1 + 1; i <= ip2; i++) {
         if (validTimeSeries[i].hour() < ihrmin) {
           ihrmin = validTimeSeries[i].hour();
           ittmin = i;
         }
         if (validTimeSeries[i].date() != validTimeSeries[ittday].date()) {
-          dx = cdata1d[nxs][i] - cdata1d[nxs][ittday];
+          float dx = cdata1d[nxs][i] - cdata1d[nxs][ittday];
           if (dxday > dx)
             dxday = dx;
           ittday = i;
           showday[i] = true;
         }
-        dx = cdata1d[nxs][i] - cdata1d[nxs][i - 1];
+        float dx = cdata1d[nxs][i] - cdata1d[nxs][i - 1];
         if (dxhr > dx)
           dxhr = dx;
       }
@@ -3218,16 +2992,17 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
       else if (cdata1d[nxs][ittmin] - cdata1d[nxs][ip1] > chxt * (lmax + 1))
         showday[ip1] = true;
       chyt = chxt * chy / chx;
-      y1 = y - chyt * chystp;
-      y2 = y - chyt * chystp * 2.;
-      y3 = y - chyt * chystp * 3.;
+      float y1 = y - chyt * chystp;
+      float y2 = y - chyt * chystp * 2.;
+      float y3 = y - chyt * chystp * 3.;
       y = y - chyt * chystp * 3.2;
       fp->setFontSize(fontscale * chyt / chy);
-      for (i = ip1; i <= ip2; i++) {
-        x = cdata1d[nxs][i];
+      for (int i = ip1; i <= ip2; i++) {
+        float x = cdata1d[nxs][i];
         ostringstream ostr;
         ostr << setw(2) << setfill('0') << validTimeSeries[i].hour();
         string str = ostr.str();
+        float dx, dy;
         fp->getStringSize(str.c_str(), dx, dy);
         fp->drawStr(str.c_str(), x - dx * 0.5, y1, 0.0);
         if (showday[i]) {
@@ -3243,20 +3018,20 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     if (vcopt->pDistance || vcopt->pXYpos || vcopt->pGeoPos) {
       y -= (chy * chystp);
       vector<miString> vpstr, vpcol;
-      l = 0;
+      int l = 0;
       if (vcopt->pDistance) {
         //----------------------------------------------------------
-        i = int(refPosition);
+        int i = int(refPosition);
         if (i < 0)
           i = 0;
         if (i > nPoint - 2)
           i = nPoint - 2;
         float rpos = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i])
-            * (refPosition - float(i));
+                * (refPosition - float(i));
         //----------------------------------------------------------
         ostringstream xostr;
         xostr << "Distance=" << setprecision(1) << setiosflags(ios::fixed)
-            << (cdata1d[nxs][i] - rpos) / 1000.;
+                << (cdata1d[nxs][i] - rpos) / 1000.;
         miString xstr = xostr.str();
         xstr.trim();
         xstr += "km";
@@ -3286,7 +3061,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
         else
           xostr << 'N';
         yostr << "  Long=" << setprecision(1) << setiosflags(ios::fixed)
-            << fabsf(glon);
+                << fabsf(glon);
         if (glon < 0.)
           yostr << 'W';
         else
@@ -3302,7 +3077,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
         chxt = (cdata1d[nxs][ipd2] - cdata1d[nxs][ipd1]) / float(l);
       chyt = chxt * chy / chx;
       fp->setFontSize(fontscale * chyt / chy);
-      x = xPlotmin;
+      float x = xPlotmin;
       for (unsigned int n = 0; n < vpstr.size(); n++) {
         c = Colour(vpcol[n]);
         if (c == backColour)
@@ -3315,137 +3090,39 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
 
   }
 
-  // position names at the top
-  if (vcopt->pPositionNames && markName.size() > 0 && !timeGraph && nxs >= 0) {
+}
 
-    int nn = markName.size();
-    y = yWindowmax - 1.25 * chy * chystp;
-    fp->setFontSize(fontscale * 1.25);
-    chxt = 1.25 * chx;
-    chyt = 1.25 * chy;
-    c = Colour(vcopt->positionNamesColour);
-    if (c == backColour)
-      c = contrastColour;
-    glColor3ubv(c.RGB());
-    float xm, dxh;
-    float xlen = 0., xmin = xWindowmax, xmax = xWindowmin;
-    vector<int> vpos;
-    vector<float> vdx, vxm, vx1, vx2;
-
-    for (int n = 0; n < nn; n++) {
-      x = markNamePosMin[n];
-      i = int(x);
-      if (i < 0)
-        i = 0;
-      if (i > nPoint - 2)
-        i = nPoint - 2;
-      x1 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x
-          - float(i));
-      x = markNamePosMax[n];
-      i = int(x);
-      if (i < 0)
-        i = 0;
-      if (i > nPoint - 2)
-        i = nPoint - 2;
-      x2 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x
-          - float(i));
-      if (x2 > xDatamin && x1 < xDatamax) {
-        fp->getStringSize(markName[n].cStr(), dx, dy);
-        dxh = dx * 0.5 + chxt;
-        xm = (x1 + x2) * 0.5;
-        if (x1 < xWindowmin + dxh)
-          x1 = xWindowmin + dxh;
-        if (x2 > xWindowmax - dxh)
-          x2 = xWindowmax - dxh;
-        if (x1 <= x2) {
-          if (xm < x1)
-            xm = x1;
-          if (xm > x2)
-            xm = x2;
-          vpos.push_back(n);
-          vdx.push_back(dx);
-          vxm.push_back(xm);
-          vx1.push_back(x1);
-          vx2.push_back(x2);
-          xlen += dxh * 2.;
-          if (xmin > x1)
-            xmin = x1;
-          if (xmax < x2)
-            xmax = x2;
-        }
-      }
-    }
-
-    nn = vpos.size();
-
-    if (nn > 0) {
-
-      if (xlen > xmax - xmin) {
-        float s = (xmax - xmin) / xlen;
-        if (s < 0.75)
-          s = 0.75;
-        chxt = chxt * s;
-        chyt = chyt * s;
-        fp->setFontSize(fontscale * 1.25 * s);
-        for (int n = 0; n < nn; n++) {
-          fp->getStringSize(markName[n].cStr(), dx, dy);
-          vdx[n] = dx;
-        }
-      }
-
-      for (int n = 0; n < nn; n++) {
-        x = vxm[n];
-        dxh = vdx[n] * 0.5 + chxt;
-        xmin = vx1[n] - dxh;
-        xmax = vx2[n] + dxh;
-        k1 = k2 = -1;
-        for (i = 0; i < nn; i++) {
-          if (i != n) {
-            x1 = vxm[i] - vdx[i] * 0.5 - chxt;
-            x2 = vxm[i] + vdx[i] * 0.5 + chxt;
-            if (vxm[i] < x && xmin < x2) {
-              xmin = x2;
-              k1 = i;
-            }
-            if (vxm[i] > x && xmax > x1) {
-              xmax = x1;
-              k2 = i;
-            }
-          }
-        }
-        x1 = x - dxh;
-        x2 = x + dxh;
-        if (xmin > x1 && k1 >= 0) {
-          if (k1 < n)
-            x1 = xmin;
-          //	  else      x1=(xmin+x1)*0.5;
-          //	  x2= x1+dxh*2.;
-        }
-        if (xmax < x2 && k2 >= 0) {
-          if (k2 < n)
-            x2 = xmax;
-          //	  else      x2=(xmax+x2)*0.5;
-          //	  x1= x2-dxh*2.;
-        }
-        if (x1 < vx1[n] - dxh)
-          x1 = vx1[n] - dxh;
-        if (x2 > vx2[n] + dxh)
-          x2 = vx2[n] + dxh;
-        if (x2 - x1 > dxh * 1.99) {
-          x = (x1 + x2) * 0.5;
-          vxm[n] = x;
-          x -= vdx[n] * 0.5;
-          fp->drawStr(markName[vpos[n]].cStr(), x, y, 0.0);
-        }
-      }
-    }
+void VcrossPlot::plotLevels()
+{
+  // horizontal part of total crossection
+  int ipd1 = 0;
+  int ipd2 = 1;
+  for (int i = 0; i < nPoint - 1; i++) {
+    if (cdata1d[nxs][i] < xPlotmin)
+      ipd1 = i;
+    if (cdata1d[nxs][i] < xPlotmax)
+      ipd2 = i + 1;
   }
 
-  UpdateOutput();
+  int npd = ipd2 - ipd1 + 1;
 
-  npd = ipd2 - ipd1 + 1;
+  // find lower and upper level inside current window
+  // (contour plot: ilev1 - ilev2    wind plot: iwlev1 - iwlev2)
+  int ilev1 = 0;
+  int ilev2 = 1;
+  for (int k = 0; k < numLev - 1; k++) {
+    if (vlimitmax[k] < yPlotmin)
+      ilev1 = k;
+    if (vlimitmin[k] < yPlotmax)
+      ilev2 = k + 1;
+  }
 
-  // upper level, lower level, other levels
+  float xylim[4] =
+  { xPlotmin, xPlotmax, yPlotmin, yPlotmax };
+
+  Colour c;
+  int k1,k2;
+
   for (int loop = 0; loop < 3; loop++) {
     float lwidth;
     miString ltype;
@@ -3480,27 +3157,27 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
         c = contrastColour;
       glColor3ubv(c.RGB());
       glLineWidth(lwidth);
-      linetype = Linetype(ltype);
+      Linetype linetype(ltype);
       if (linetype.stipple) {
         glEnable(GL_LINE_STIPPLE);
         glLineStipple(linetype.factor, linetype.bmap);
       }
       if (vcoord != 4) {
-        for (k = k1; k < k2; k++)
+        for (int k = k1; k < k2; k++)
           xyclip(npd, &cdata2d[nx][k * nPoint + ipd1], &cdata2d[ny][k * nPoint
-              + ipd1], xylim);
+                                                                    + ipd1], xylim);
       } else {
         // theta levels
-        for (k = k1; k < k2; k++) {
-          i = ipd1 - 1;
+        for (int k = k1; k < k2; k++) {
+          int i = ipd1 - 1;
           while (i < ipd2) {
             i++;
             while (i <= ipd2 && cdata2d[ny][k * nPoint + i] == fieldUndef)
               i++;
-            ibgn = i;
+            int ibgn = i;
             while (i <= ipd2 && cdata2d[ny][k * nPoint + i] != fieldUndef)
               i++;
-            iend = i;
+            int iend = i;
             if (ibgn < iend - 1)
               xyclip(iend - ibgn, &cdata2d[nx][k * nPoint + ibgn],
                   &cdata2d[ny][k * nPoint + ibgn], xylim);
@@ -3512,172 +3189,231 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     }
   }
 
-  // surface pressure (ps)
-  // or approx. surface when isentropic levels (vcoord=4)
-  // or sea bottom + sea surface elevation (vcoord=5)
-  // or surface height (vcoord=11)
+}
+
+void VcrossPlot::plotSurfacePressure()
+{
+
+  // horizontal part of total crossection
+  int ipd1 = 0;
+  int ipd2 = 1;
+  for (int i = 0; i < nPoint - 1; i++) {
+    if (cdata1d[nxs][i] < xPlotmin)
+      ipd1 = i;
+    if (cdata1d[nxs][i] < xPlotmax)
+      ipd2 = i + 1;
+  }
+
+//  int ip1 = (cdata1d[nxs][ipd1] < xPlotmin) ? ipd1 + 1 : ipd1;
+//  int ip2 = (cdata1d[nxs][ipd2] > xPlotmax) ? ipd2 - 1 : ipd2;
+  int npd = ipd2 - ipd1 + 1;
+
+  float xylim[4] =
+  { xPlotmin, xPlotmax, yPlotmin, yPlotmax };
+
+
+  Colour c(vcopt->surfaceColour);
+  if (c == backColour)
+    c = contrastColour;
+  glColor3ubv(c.RGB());
+  glLineWidth(vcopt->surfaceLinewidth);
+  Linetype linetype(vcopt->surfaceLinetype);
+  if (linetype.stipple) {
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(linetype.factor, linetype.bmap);
+  }
+
   if (vcopt->pSurface && npy1 >= 0) {
-    c = Colour(vcopt->surfaceColour);
-    if (c == backColour)
-      c = contrastColour;
-    glColor3ubv(c.RGB());
-    glLineWidth(vcopt->surfaceLinewidth);
-    linetype = Linetype(vcopt->surfaceLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
+
     if (vcoord != 5) {
       xyclip(npd, &cdata1d[nxs][ipd1], &cdata1d[npy1][ipd1], xylim);
     } else if (vcoord == 5) {
       // sea bottom: coast drawn between the horizontal points
-      i = ipd1 - 1;
+      int i = ipd1 - 1;
       while (i < ipd2) {
         i++;
         while (i <= ipd2 && cdata1d[npy1][i] == fieldUndef)
           i++;
-        ibgn = i;
+        int ibgn = i;
         while (i <= ipd2 && cdata1d[npy1][i] != fieldUndef)
           i++;
-        iend = i - 1;
+        int iend = i - 1;
         if (ibgn <= ipd2) {
           if (ibgn > ipd1) {
-            x = (cdata1d[nxs][ibgn - 1] + cdata1d[nxs][ibgn]) * 0.5;
+            float x = (cdata1d[nxs][ibgn - 1] + cdata1d[nxs][ibgn]) * 0.5;
             float xline[3] =
-              { x, x, cdata1d[nxs][ibgn] };
+            { x, x, cdata1d[nxs][ibgn] };
             float yline[3] =
-              { yPlotmax, 0., cdata1d[npy1][ibgn] };
+            { yPlotmax, 0., cdata1d[npy1][ibgn] };
             xyclip(3, xline, yline, xylim);
           }
           xyclip(iend - ibgn + 1, &cdata1d[nxs][ibgn], &cdata1d[npy1][ibgn],
               xylim);
           if (iend < ipd2) {
-            x = (cdata1d[nxs][iend] + cdata1d[nxs][iend + 1]) * 0.5;
+            float x = (cdata1d[nxs][iend] + cdata1d[nxs][iend + 1]) * 0.5;
             float xline[3] =
-              { cdata1d[nxs][iend], x, x };
+            { cdata1d[nxs][iend], x, x };
             float yline[3] =
-              { cdata1d[npy1][iend], 0., yPlotmax };
+            { cdata1d[npy1][iend], 0., yPlotmax };
             xyclip(3, xline, yline, xylim);
           }
         }
       }
     }
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
   }
-  if (vcopt->pSurface && npy2 >= 0) {
-    c = Colour(vcopt->surfaceColour);
-    if (c == backColour)
-      c = contrastColour;
-    glColor3ubv(c.RGB());
-    glLineWidth(vcopt->surfaceLinewidth);
-    linetype = Linetype(vcopt->surfaceLinetype);
-    if (linetype.stipple) {
-      glEnable(GL_LINE_STIPPLE);
-      glLineStipple(linetype.factor, linetype.bmap);
-    }
+
+  if (npy2 >= 0) {
     xyclip(npd, &cdata1d[nxs][ipd1], &cdata1d[npy2][ipd1], xylim);
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
   }
 
-  // vertical grid lines
-  if (vcopt->pVerticalGridLines) {
-    c = Colour(vcopt->vergridColour);
+  UpdateOutput();
+  glDisable(GL_LINE_STIPPLE);
+
+}
+
+void VcrossPlot::plotVerticalGridLines()
+{
+
+  // horizontal part of total crossection
+  int ipd1 = 0;
+  int ipd2 = 1;
+  for (int i = 0; i < nPoint - 1; i++) {
+    if (cdata1d[nxs][i] < xPlotmin)
+      ipd1 = i;
+    if (cdata1d[nxs][i] < xPlotmax)
+      ipd2 = i + 1;
+  }
+
+  int ip1 = (cdata1d[nxs][ipd1] < xPlotmin) ? ipd1 + 1 : ipd1;
+  int ip2 = (cdata1d[nxs][ipd2] > xPlotmax) ? ipd2 - 1 : ipd2;
+
+  Colour c(vcopt->vergridColour);
+  if (c == backColour)
+    c = contrastColour;
+  glColor3ubv(c.RGB());
+  glLineWidth(vcopt->vergridLinewidth);
+  Linetype linetype(vcopt->vergridLinetype);
+  if (linetype.stipple) {
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(linetype.factor, linetype.bmap);
+  }
+  glBegin(GL_LINES);
+  for (int i = ip1; i <= ip2; i++) {
+    glVertex2f(cdata1d[nxs][i], yPlotmin);
+    glVertex2f(cdata1d[nxs][i], yPlotmax);
+  }
+  glEnd();
+  UpdateOutput();
+  glDisable(GL_LINE_STIPPLE);
+}
+
+void VcrossPlot::plotMarkerLines()
+{
+
+  // horizontal part of total crossection
+  int ipd1 = 0;
+  int ipd2 = 1;
+  for (int i = 0; i < nPoint - 1; i++) {
+    if (cdata1d[nxs][i] < xPlotmin)
+      ipd1 = i;
+    if (cdata1d[nxs][i] < xPlotmax)
+      ipd2 = i + 1;
+  }
+
+  float xylim[4] =
+  { xPlotmin, xPlotmax, yPlotmin, yPlotmax };
+
+  int numPar1d = cdata1d.size();
+  vector<int> mlines;
+  if (vcoordPlot == vcv_height) {
+    for (int n = 0; n < numPar1d; n++) {
+      if (idPar1d[n] == 907)
+        mlines.push_back(n); // inflight height above sealevel
+    }
+  } else if (vcoordPlot == vcv_exner || vcoordPlot == vcv_pressure) {
+    for (int n = 0; n < numPar1d; n++) {
+      if (idPar1d[n] == 908)
+        mlines.push_back(n); // inflight pressure
+    }
+  }
+  if (mlines.size() > 0) {
+    Colour c(vcopt->markerlinesColour);
     if (c == backColour)
       c = contrastColour;
     glColor3ubv(c.RGB());
-    glLineWidth(vcopt->vergridLinewidth);
-    linetype = Linetype(vcopt->vergridLinetype);
+    glLineWidth(vcopt->markerlinesLinewidth);
+    Linetype linetype(vcopt->markerlinesLinetype);
     if (linetype.stipple) {
       glEnable(GL_LINE_STIPPLE);
       glLineStipple(linetype.factor, linetype.bmap);
     }
-    glBegin(GL_LINES);
-    for (i = ip1; i <= ip2; i++) {
-      glVertex2f(cdata1d[nxs][i], yPlotmin);
-      glVertex2f(cdata1d[nxs][i], yPlotmax);
-    }
-    glEnd();
-    UpdateOutput();
-    glDisable(GL_LINE_STIPPLE);
-  }
-
-  if (vcopt->pMarkerlines) {
-    int numPar1d = cdata1d.size();
-    vector<int> mlines;
-    if (vcoordPlot == vcv_height) {
-      for (int n = 0; n < numPar1d; n++) {
-        if (idPar1d[n] == 907)
-          mlines.push_back(n); // inflight height above sealevel
-      }
-    } else if (vcoordPlot == vcv_exner || vcoordPlot == vcv_pressure) {
-      for (int n = 0; n < numPar1d; n++) {
-        if (idPar1d[n] == 908)
-          mlines.push_back(n); // inflight pressure
-      }
-    }
-    if (mlines.size() > 0) {
-      c = Colour(vcopt->markerlinesColour);
-      if (c == backColour)
-        c = contrastColour;
-      glColor3ubv(c.RGB());
-      glLineWidth(vcopt->markerlinesLinewidth);
-      linetype = Linetype(vcopt->markerlinesLinetype);
-      if (linetype.stipple) {
-        glEnable(GL_LINE_STIPPLE);
-        glLineStipple(linetype.factor, linetype.bmap);
-      }
-      float *y1d = new float[nPoint];
-      for (unsigned int m = 0; m < mlines.size(); m++) {
-        int n = mlines[m];
-        i = ipd1 - 1;
-        while (i < ipd2) {
+    float *y1d = new float[nPoint];
+    for (unsigned int m = 0; m < mlines.size(); m++) {
+      int n = mlines[m];
+      int i = ipd1 - 1;
+      while (i < ipd2) {
+        i++;
+        while (i <= ipd2 && cdata1d[n][i] == fieldUndef)
           i++;
-          while (i <= ipd2 && cdata1d[n][i] == fieldUndef)
-            i++;
-          ibgn = i;
-          while (i <= ipd2 && cdata1d[n][i] != fieldUndef)
-            i++;
-          iend = i;
-          if (ibgn < iend - 1) {
-            if (vcoordPlot == vcv_exner) {
-              for (int j = ibgn; j < iend; j++) {
-                p = cdata1d[n][j];
-                pi = cp * powf(p * p0inv, kappa);
-                y1d[j] = yconst + yscale * pi;
-              }
-            } else {
-              for (int j = ibgn; j < iend; j++) {
-                y1d[j] = yconst + yscale * cdata1d[n][j];
-              }
+        int ibgn = i;
+        while (i <= ipd2 && cdata1d[n][i] != fieldUndef)
+          i++;
+        int iend = i;
+        if (ibgn < iend - 1) {
+          if (vcoordPlot == vcv_exner) {
+            for (int j = ibgn; j < iend; j++) {
+              float p = cdata1d[n][j];
+              float pi = cp * powf(p * p0inv, kappa);
+              y1d[j] = yconst + yscale * pi;
             }
-            xyclip(iend - ibgn, &cdata1d[nxs][ibgn], &y1d[ibgn], xylim);
+          } else {
+            for (int j = ibgn; j < iend; j++) {
+              y1d[j] = yconst + yscale * cdata1d[n][j];
+            }
           }
+          xyclip(iend - ibgn, &cdata1d[nxs][ibgn], &y1d[ibgn], xylim);
         }
       }
-      delete[] y1d;
-      UpdateOutput();
-      glDisable(GL_LINE_STIPPLE);
     }
+    delete[] y1d;
+    UpdateOutput();
+    glDisable(GL_LINE_STIPPLE);
   }
+
+}
+
+void VcrossPlot::plotVerticalMarkerLines()
+{
+
+  // horizontal part of total crossection
+  int ipd1 = 0;
+  int ipd2 = 1;
+  for (int i = 0; i < nPoint - 1; i++) {
+    if (cdata1d[nxs][i] < xPlotmin)
+      ipd1 = i;
+    if (cdata1d[nxs][i] < xPlotmax)
+      ipd2 = i + 1;
+  }
+
+  int ip1 = (cdata1d[nxs][ipd1] < xPlotmin) ? ipd1 + 1 : ipd1;
+  int ip2 = (cdata1d[nxs][ipd2] > xPlotmax) ? ipd2 - 1 : ipd2;
 
   // vertical marker lines
   if (vcopt->pVerticalMarker) {
     if (ip2 - ip1 > 3) {
-      c = Colour(vcopt->verticalMarkerColour);
+      Colour c(vcopt->verticalMarkerColour);
       if (c == backColour)
         c = contrastColour;
       glColor3ubv(c.RGB());
       glLineWidth(vcopt->verticalMarkerLinewidth);
-      linetype = Linetype(vcopt->verticalMarkerLinetype);
+      Linetype linetype(vcopt->verticalMarkerLinetype);
       if (linetype.stipple) {
         glEnable(GL_LINE_STIPPLE);
         glLineStipple(linetype.factor, linetype.bmap);
       }
       glBegin(GL_LINES);
       float delta1 = cdata1d[nxs][ip1 + 1] - cdata1d[nxs][ip1];
-      for (i = ip1 + 1; i < ip2; i++) {
+      for (int i = ip1 + 1; i < ip2; i++) {
         float delta2 = cdata1d[nxs][i + 1] - cdata1d[nxs][i];
         if (fabs(delta1 - delta2) > 1.0) {
           delta1 = delta2;
@@ -3691,6 +3427,11 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     }
   }
 
+
+}
+
+void VcrossPlot::plotAnnotations(const vector<miutil::miString>& labels)
+{
   //Annotations
   float xoffset = (xPlotmax - xPlotmin) / 50;
   float yoffset = (yPlotmax - yPlotmin) / 50;
@@ -3762,6 +3503,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
       ddy = 3600 * unit * v2hRatio * yfac;
       ddx = 3600 * unit * xfac;
     }
+    float dx,dy;
     fp->setFontSize(fontscale);
     fp->getStringSize(text.c_str(), dx, dy);
     dy = dy > ddy ? dy : ddy;
@@ -3817,13 +3559,357 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
     }
   }
   //end annotations
+}
 
+void VcrossPlot::plotFrame()
+{
+  const int nzsteps = 10;
+  float zsteps[nzsteps] =
+  { 5., 10., 25., 50., 100., 250., 500., 1000., 2500., 5000. };
+
+  const int nflsteps = 8;
+  float flsteps[nflsteps] =
+  { 1., 2., 5., 10., 50., 100., 200., 500. };
+
+  const int npfixed1 = 17;
+  float pfixed1[npfixed1] =
+  { 1000., 925., 850., 700., 600., 500., 400., 300., 250., 200., 150., 100.,
+      70., 50., 30., 10., 5. };
+  const int npfixed2 = 22;
+  float pfixed2[npfixed2] =
+  { 1000., 950., 900., 850., 800., 750., 700., 650., 600., 550., 500., 450.,
+      400., 350., 300., 250., 200., 150., 100., 50., 10., 5. };
+  // P -> FlightLevels (used for remapping fields from P to FL)
+  const int mfl = 16;
+  const int plevels[mfl] =
+  { 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30,
+      10 };
+  const int flevels[mfl] =
+  { 0, 25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 530, 600, 700, 800,
+      999 };
+
+  // Warning: pressure at flight levels found by looking at an Amble diagram!
+  // (used for Vertical Profiles)
+  const int mflvl = 45;
+  int iflvl[mflvl] =
+  { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160,
+      170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300,
+      310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 450, 500, 550, 600 };
+  float pflvl[mflvl] =
+  { 1013., 978., 942., 907., 874., 843., 812., 782., 751., 722., 696., 670.,
+      642., 619., 595., 572., 549., 526., 505., 485., 465., 445., 428., 410.,
+      393., 378., 359., 344., 329., 314., 300., 288., 274., 261., 250., 239.,
+      227., 216., 206., 197., 188., 147., 116., 91., 71. };
+
+  const float fl2m = 1. / 3.2808399; // flightlevel (100 feet unit) to meter
+
+
+  int npfixed = 0;
+  float *pfixed = 0;
+  float *ypfixed = 0;
+
+  if (vcoord != 5 && vcoord != 11) {
+    // fixed pressure levels possibly shown..
+    if (vcoordPlot == vcv_exner) {
+      if (verticalAxis == "hPa") {
+        npfixed = npfixed1;
+        pfixed = new float[npfixed];
+        ypfixed = new float[npfixed];
+        for (int k = 0; k < npfixed; k++) {
+          float p =pfixed[k] = pfixed1[k];
+          float pi =cp * powf(p * p0inv, kappa);
+          ypfixed[k] = yconst + yscale * pi;
+        }
+      } else if (verticalAxis == "FL") {
+        npfixed = mfl;
+        pfixed = new float[npfixed];
+        ypfixed = new float[npfixed];
+        for (int k = 0; k < npfixed; k++) {
+          pfixed[k] = flevels[k];
+          float p =plevels[k];
+          float pi =cp * powf(p * p0inv, kappa);
+          ypfixed[k] = yconst + yscale * pi;
+        }
+      }
+    } else if (vcoordPlot == vcv_pressure) {
+      if (verticalAxis == "hPa") {
+        npfixed = npfixed2;
+        pfixed = new float[npfixed];
+        ypfixed = new float[npfixed];
+        for (int k = 0; k < npfixed; k++) {
+          float p =pfixed[k] = pfixed2[k];
+          ypfixed[k] = yconst + yscale * p;
+        }
+      } else if (verticalAxis == "FL") {
+        npfixed = mflvl;
+        pfixed = new float[npfixed];
+        ypfixed = new float[npfixed];
+        for (int k = 0; k < npfixed; k++) {
+          pfixed[k] = iflvl[k];
+          float p =pflvl[k];
+          ypfixed[k] = yconst + yscale * p;
+        }
+      }
+    } else if (vcoordPlot == vcv_height) {
+      float zmin = (yPlotmin - yconst) / yscale;
+      float zmax = (yPlotmax - yconst) / yscale;
+      float dz = zmax - zmin;
+      if (verticalAxis == "m") {
+        int n = 1;
+        while (n < nzsteps && zsteps[n] * 10. < dz)
+          n++;
+        n--;
+        npfixed = int(dz / zsteps[n]) + 1;
+        int k = int(zmin / zsteps[n]) + 1;
+        if (zmin < 0.)
+          k--;
+        pfixed = new float[npfixed];
+        ypfixed = new float[npfixed];
+        for (int i = 0; i < npfixed; i++) {
+          pfixed[i] = zsteps[n] * float(k + i);
+          ypfixed[i] = yconst + yscale * zsteps[n] * float(k + i);
+        }
+      } else if (verticalAxis == "Ft") {
+        zmin /= fl2m;
+        zmax /= fl2m;
+        dz /= fl2m;
+        int n = 1;
+        while (n < nflsteps && flsteps[n] * 10. < dz)
+          n++;
+        n--;
+        npfixed = int(dz / flsteps[n]) + 1;
+        int k = int(zmin / flsteps[n]) + 1;
+        if (zmin < 0.)
+          k--;
+        pfixed = new float[npfixed];
+        ypfixed = new float[npfixed];
+        for (int i = 0; i < npfixed; i++) {
+          pfixed[i] = flsteps[n] * float(k + i);
+          ypfixed[i] = (yconst + yscale * flsteps[n] * float(k + i)) * fl2m;
+        }
+      }
+    }
+  }
+
+  // frame
+
+  Linetype linetype;
+  float y1,y2;
+  int k1,k2;
+  float chx = chxdef;
+  float chy = chydef;
+  float chxt, chyt;
+  float dchy = chy * 0.6;
+
+  fp->setFont("BITMAPFONT");
+
+  // horizontal part of total crossection
+  int ipd1 = 0;
+  int ipd2 = 1;
+  for (int i = 0; i < nPoint - 1; i++) {
+    if (cdata1d[nxs][i] < xPlotmin)
+      ipd1 = i;
+    if (cdata1d[nxs][i] < xPlotmax)
+      ipd2 = i + 1;
+  }
+  int ip1 = (cdata1d[nxs][ipd1] < xPlotmin) ? ipd1 + 1 : ipd1;
+  int ip2 = (cdata1d[nxs][ipd2] > xPlotmax) ? ipd2 - 1 : ipd2;
+
+
+  Colour c;
+
+  //  float xylim[4] =
+  //    { xPlotmin, xPlotmax, yPlotmin, yPlotmax };
+
+  chxt = chx;
+  chyt = chy;
+
+  // colour etc. for frame etc.
+  c = Colour(vcopt->frameColour);
+  if (c == backColour)
+    c = contrastColour;
+  glColor3ubv(c.RGB());
+  glLineWidth(vcopt->frameLinewidth);
+
+  if (vcopt->pFrame) {
+    linetype = Linetype(vcopt->frameLinetype);
+    if (linetype.stipple) {
+      glEnable(GL_LINE_STIPPLE);
+      glLineStipple(linetype.factor, linetype.bmap);
+    }
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(xPlotmin, yPlotmin);
+    glVertex2f(xPlotmax, yPlotmin);
+    glVertex2f(xPlotmax, yPlotmax);
+    glVertex2f(xPlotmin, yPlotmax);
+    glEnd();
+    UpdateOutput();
+    glDisable(GL_LINE_STIPPLE);
+    if (vcopt->pLevelNumbers) {
+      if ((vcoord != 5 && vcoord != 11) && npfixed > 0) {
+        y1 = yPlotmin - (yPlotmax - yPlotmin) * 0.005;
+        y2 = yPlotmax + (yPlotmax - yPlotmin) * 0.005;
+        k1 = -1;
+        k2 = -2;
+        for (int k = 0; k < npfixed; k++) {
+          if (ypfixed[k] > y1 && ypfixed[k] < y2) {
+            if (k1 < 0)
+              k1 = k;
+            k2 = k;
+          }
+        }
+        glBegin(GL_LINES);
+        for (int k = k1; k <= k2; k++) {
+          glVertex2f(xPlotmin - chx, ypfixed[k]);
+          glVertex2f(xPlotmin, ypfixed[k]);
+          glVertex2f(xPlotmax, ypfixed[k]);
+          glVertex2f(xPlotmax + chx, ypfixed[k]);
+        }
+        glEnd();
+
+        if (vcopt->pLevelNumbers && k1 >= 0) {
+          chyt = chy;
+          chxt = chyt * chx / chy;
+          fp->setFontSize(fontscale * chyt / chy);
+          float x1 = xPlotmin - chx - chxt * 0.5;
+          float x2 = xPlotmax + chx + chxt * 0.5;
+          float y1 = yPlotmin - chy * 2.;
+          for (int k = k1; k <= k2; k++) {
+            float y = ypfixed[k] - chyt * 0.5;
+            if (y > y1) {
+              ostringstream ostr;
+              string str;
+              //        if (verticalAxis=="FL") {
+              //          ostr << setw(3) << setfill('0') << int(pfixed[k]);
+              //          str= verticalAxis + ostr.str();
+              //        } else {
+              ostr << setw(4) << int(pfixed[k]);
+              str = ostr.str() + verticalAxis;
+              //        }
+              float dx,dy;
+              fp->getStringSize(str.c_str(), dx, dy);
+              fp->drawStr(str.c_str(), x1 - dx, y, 0.0);
+              fp->drawStr(str.c_str(), x2, y, 0.0);
+              y1 = y + chyt * 1.2;
+            }
+          }
+          // needed after drawStr, otherwise colour change may not work
+          glShadeModel(GL_FLAT);
+        }
+      } else if (vcoord == 5) {
+        // sea depth
+        float y1 = yPlotmin - (yPlotmax - yPlotmin) * 0.005;
+        float y2 = yPlotmax + (yPlotmax - yPlotmin) * 0.005;
+        k1 = -1;
+        k2 = -2;
+        for (int k = 0; k < numLev; k++) {
+          float y = v2hRatio * alevel[k];
+          if (y > y1 && y < y2) {
+            if (k1 < 0)
+              k1 = k;
+            k2 = k;
+          }
+        }
+        glBegin(GL_LINES);
+        for (int k = k1; k <= k2; k++) {
+          float y = v2hRatio * alevel[k];
+          glVertex2f(xPlotmin - chx, y);
+          glVertex2f(xPlotmin, y);
+          glVertex2f(xPlotmax, y);
+          glVertex2f(xPlotmax + chx, y);
+        }
+        glEnd();
+        if (vcopt->pLevelNumbers && k1 >= 0) {
+          chyt = chy;
+          chxt = chyt * chx / chy;
+          fp->setFontSize(fontscale * chyt / chy);
+          float x1 = xPlotmin - chx - chxt * 4.5;
+          float x2 = xPlotmax + chx + chxt * 0.5;
+          float y1 = yPlotmin - chy * 2.;
+          for (int k = k1; k <= k2; k++) {
+            float y = v2hRatio * alevel[k] - chyt * 0.5;
+            if (y > y1) {
+              ostringstream ostr;
+              ostr << setw(4) << -int(alevel[k] - 0.5);
+              string str = ostr.str();
+              fp->drawStr(str.c_str(), x1, y, 0.0);
+              fp->drawStr(str.c_str(), x2, y, 0.0);
+              y1 = y + chyt * 1.2;
+            }
+          }
+          // needed after drawStr, otherwise colour change may not work
+          glShadeModel(GL_FLAT);
+        }
+      } else if (vcoord == 11) {
+        // sigma height
+        int izmin, izmax, izstp, kz1, kz2;
+        float y1 = yPlotmin - (yPlotmax - yPlotmin) * 0.005;
+        float y2 = yPlotmax + (yPlotmax - yPlotmin) * 0.005;
+        izmin = int(yDatamin / v2hRatio + 0.5);
+        izmax = int(yDatamax / v2hRatio + 0.5);
+        izstp = 500;
+        if (izmax - izmin > 6000)
+          izstp = 1000;
+        kz1 = (izmin + izstp - 1) / izstp;
+        kz2 = izmax / izstp;
+        k1 = -1;
+        k2 = -2;
+        for (int k = kz1; k <= kz2; k++) {
+          float y = v2hRatio * float(izstp * k);
+          if (y > y1 && y < y2) {
+            if (k1 < 0)
+              k1 = k;
+            k2 = k;
+          }
+        }
+        glBegin(GL_LINES);
+        for (int k = k1; k <= k2; k++) {
+          float y = v2hRatio * float(izstp * k);
+          glVertex2f(xPlotmin - chx, y);
+          glVertex2f(xPlotmin, y);
+          glVertex2f(xPlotmax, y);
+          glVertex2f(xPlotmax + chx, y);
+        }
+        glEnd();
+        if (vcopt->pLevelNumbers && k1 >= 0) {
+          chyt = chy;
+          chxt = chyt * chx / chy;
+          fp->setFontSize(fontscale * chyt / chy);
+          float x1 = xPlotmin - chx - chxt * 5.5;
+          float x2 = xPlotmax + chx + chxt * 0.5;
+          float y1 = yPlotmin - chy * 2.;
+          for (int k = k1; k <= k2; k++) {
+            float y = v2hRatio * float(izstp * k) - chyt * 0.5;
+            if (y > y1) {
+              ostringstream ostr;
+              ostr << setw(5) << izstp * k;
+              string str = ostr.str();
+              fp->drawStr(str.c_str(), x1, y, 0.0);
+              fp->drawStr(str.c_str(), x2, y, 0.0);
+              y1 = y + chyt * 1.2;
+            }
+          }
+          // needed after drawStr, otherwise colour change may not work
+          glShadeModel(GL_FLAT);
+        }
+      }
+      // horizontal grid resolution
+      glBegin(GL_LINES);
+      for (int i = ip1; i <= ip2; i++) {
+        glVertex2f(cdata1d[nxs][i], yPlotmin);
+        glVertex2f(cdata1d[nxs][i], yPlotmin - dchy * 0.5);
+        glVertex2f(cdata1d[nxs][i], yPlotmax);
+        glVertex2f(cdata1d[nxs][i], yPlotmax + dchy * 0.5);
+      }
+      glEnd();
+      UpdateOutput();
+    }
+  }
   if (pfixed)
     delete[] pfixed;
   if (ypfixed)
     delete[] ypfixed;
 
-  return true;
 }
 
 bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
@@ -3854,12 +3940,12 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
 
   const int npfixed1 = 16;
   float pfixed1[npfixed1] =
-    { 1000., 925., 850., 700., 600., 500., 400., 300., 250., 200., 150., 100.,
-        70., 50., 30., 10. };
+  { 1000., 925., 850., 700., 600., 500., 400., 300., 250., 200., 150., 100.,
+      70., 50., 30., 10. };
   const int npfixed2 = 21;
   float pfixed2[npfixed2] =
-    { 1000., 950., 900., 850., 800., 750., 700., 650., 600., 550., 500., 450.,
-        400., 350., 300., 250., 200., 150., 100., 50., 10. };
+  { 1000., 950., 900., 850., 800., 750., 700., 650., 600., 550., 500., 450.,
+      400., 350., 300., 250., 200., 150., 100., 50., 10. };
   int npfixed = 0;
   float *pfixed = 0;
   float *ypfixed = 0;
@@ -3871,8 +3957,8 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       pfixed = pfixed1;
       ypfixed = new float[npfixed];
       for (k = 0; k < npfixed; k++) {
-        p = pfixed[k];
-        pi = cp * powf(p * p0inv, kappa);
+        p =pfixed[k];
+        pi =cp * powf(p * p0inv, kappa);
         ypfixed[k] = yconst + yscale * pi;
       }
     } else if (vcoordPlot == vcv_pressure) {
@@ -3880,7 +3966,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       pfixed = pfixed2;
       ypfixed = new float[npfixed];
       for (k = 0; k < npfixed; k++) {
-        p = pfixed[k];
+        p =pfixed[k];
         ypfixed[k] = yconst + yscale * p;
       }
     }
@@ -3948,13 +4034,13 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
 
   int iwpdm = (iwpd1 + iwpd2) / 2;
   int iwpd[5] =
-    { iwpd1, (iwpd1 + iwpdm) / 2, iwpdm, (iwpdm + iwpd2) / 2, iwpd2 };
+  { iwpd1, (iwpd1 + iwpdm) / 2, iwpdm, (iwpdm + iwpd2) / 2, iwpd2 };
   int kprev = iwlev1;
   for (k = iwlev1 + 1; k <= iwlev2; k++) {
     float dy = 0.;
     for (int i = 0; i < 5; i++)
       dy += (cdata2d[ny][k * nPoint + iwpd[i]] - cdata2d[ny][kprev * nPoint
-          + iwpd[i]]);
+                                                             + iwpd[i]]);
     dy /= 5.;
     if (dy > rwindAuto * 0.8)
       kprev = k;
@@ -3974,9 +4060,9 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
 
   // for line contouring etc.
   int part[4] =
-    { ipd1, ipd2, ilev1, ilev2 };
+  { ipd1, ipd2, ilev1, ilev2 };
   int partwind[4] =
-    { iwpd1, iwpd2, iwlev1, iwlev2 };
+  { iwpd1, iwpd2, iwlev1, iwlev2 };
   xylim[0] = xPlotmin;
   xylim[1] = xPlotmax;
   xylim[2] = yPlotmin;
@@ -4018,7 +4104,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
 
     float chxlab, chylab;
     int labfmt[3] =
-      { -1, 0, 0 };
+    { -1, 0, 0 };
     if (poptions.valueLabel == 0)
       labfmt[0] = 0;
     else
@@ -4075,7 +4161,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       // mark area below bottom in the bitmap
       for (i = ipd1; i < ipd2; i++) {
         if (cdata1d[npy1][i] != fieldUndef && cdata1d[npy1][i + 1]
-            != fieldUndef) {
+                                                            != fieldUndef) {
           xline[0] = cdata1d[nxs][i];
           xline[1] = cdata1d[nxs][i + 1];
           yline[0] = cdata1d[npy1][i];
@@ -4111,7 +4197,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
           for (int ixb = i1; ixb <= i2; ixb++) {
             x = rbmap[0] + rbmap[2] * (ixb - 0.5);
             y = yline[n] + (yline[n + 1] - yline[n]) * (x - xline[n])
-                / (xline[n + 1] - xline[n]);
+                    / (xline[n + 1] - xline[n]);
             int iyb = int((y - rbmap[1]) / rbmap[3]) + 1;
             if (iyb >= nybmap)
               iyb = nybmap - 1;
@@ -4395,9 +4481,9 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       cerr << ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << "," << endl;
       cerr << ibcol << "," << endl;
       if (bmap != NULL)
-      cerr << ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
+        cerr << ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
       else
-      cerr << ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl;
+        cerr << ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl;
       cerr << nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "]," << endl;
       cerr << "fp, poptions, psoutput," << endl;
       cerr << "dummyArea," << fieldUndef << endl;
@@ -4521,9 +4607,9 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       cerr << ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << "," << endl;
       cerr << ibcol << "," << endl;
       if (bmap != NULL)
-      cerr << ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
+        cerr << ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")" << endl;
       else
-      cerr << ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl;
+        cerr << ibmap << "," << lbmap << ",bmap[lbmap](NULL)," << endl;
       cerr << nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "]," << endl;
       cerr << "fp, poptions, psoutput," << endl;
       cerr << "dummyArea," << fieldUndef << endl;
@@ -4583,7 +4669,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     float hours = poptions.vectorunit;
 
     vcMovement(cdata2d[no1], cdata2d[no2], NULL,
-    cdata2d[nx], cdata2d[ny], partwind, ylim, hours, hstepAuto, windlevel,
+        cdata2d[nx], cdata2d[ny], partwind, ylim, hours, hstepAuto, windlevel,
         poptions);
 
   } else if (vcf->second.plotType == vcpt_vector) {
@@ -4611,9 +4697,54 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       vct.forecastHour = forecastHour;
       vct.validTime = validTime;
     }
+
+    if(poptions.extremeType=="Value" && no2 == -1) { //no2>-1 -> vectordata
+
+      //find min/max
+      float minValue = fieldUndef;
+      float maxValue = -fieldUndef;
+      int ii_min=-1, ii_max=-1;
+      for( j= partwind[2]; j<partwind[3]-1; ++j ) {
+        for( k= partwind[0]; k<partwind[1]-1; ++k ) {
+          int i = j*nPoint + k;
+          if(cdata2d[no1][i] > maxValue ) {
+            ii_max = i;
+            maxValue = cdata2d[no1][i];
+          }
+          if(cdata2d[no1][i] < minValue ) {
+            ii_min=i;
+            minValue = cdata2d[no1][i];
+          }
+        }
+      }
+      ostringstream ost;
+      ost << setprecision(1) << setiosflags(ios::fixed);
+      if ( ii_min > 1 ) {
+        ost <<"Min: "<<cdata2d[no1][ii_min]<<"("<<cdata1d[nlat][ii_min%nPoint];
+        if( cdata1d[nlat][ii_min%nPoint] > 0 ) ost <<"N, ";
+        else ost <<"S, ";
+        ost <<cdata1d[nlon][ii_min%nPoint];
+        if( cdata1d[nlon][ii_min%nPoint] > 0 ) ost<<"E, ";
+        else ost <<"W, ";
+        ost <<cdata2d[npp][ii_min]<<"hPa"<<")";
+      }
+      if ( ii_max > 1 ) {
+        ost <<" Max: "<<cdata2d[no1][ii_max]<<"("<<cdata1d[nlat][ii_max%nPoint];
+        if( cdata1d[nlat][ii_max%nPoint] > 0 ) ost <<"N, ";
+        else ost <<"S, ";
+        ost <<cdata1d[nlon][ii_max%nPoint];
+        if( cdata1d[nlon][ii_max%nPoint] > 0 ) ost<<"E, ";
+        else ost <<"W, ";
+        ost <<cdata2d[npp][ii_max]<<"hPa"<<")";
+      }
+      vct.extremeValueString = ost.str();
+
+      float scale = (xylim[1] - xylim[0])/100 * poptions.extremeSize;
+      plotMin(cdata2d[nx][ii_min],cdata2d[ny][ii_min],scale);
+      plotMax(cdata2d[nx][ii_max],cdata2d[ny][ii_max],scale);
+    }
     vcText.push_back(vct);
   }
-
   // reset in case contrast used
   poptions.linecolour = linecolour;
 
@@ -4621,7 +4752,34 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     delete[] ypfixed;
   delete[] windlevel;
 
+
+
   return true;
+}
+
+void VcrossPlot::plotMin(float x, float y, float scale)
+{
+  glLineWidth(3);
+
+  glBegin(GL_LINES);
+  glVertex2f(x, y);
+  glVertex2f(x+scale, y+scale);
+  glVertex2f(x, y);
+  glVertex2f(x-scale, y+scale);
+  glEnd();
+
+}
+void VcrossPlot::plotMax(float x, float y, float scale)
+{
+  glLineWidth(3);
+
+  glBegin(GL_LINES);
+  glVertex2f(x-scale, y-scale);
+  glVertex2f(x, y);
+  glVertex2f(x+scale, y-scale);
+  glVertex2f(x, y);
+  glEnd();
+
 }
 
 bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
@@ -4673,7 +4831,7 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
         gx = x[i];
         gy = y[i];
         if (u[i] != fieldUndef && v[i] != fieldUndef && y[i] >= ymin && y[i]
-            <= ymax) {
+                                                                          <= ymax) {
           ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
           if (ff > 0.00001) {
 
@@ -4901,12 +5059,12 @@ bool VcrossPlot::vcMovement(float *vt, float *wom, float *p, float *x,
         y0 = y[n];
 
         if (y0 >= ymin && y0 <= ymax && vt[n] != fieldUndef && wom[n]
-            != fieldUndef && (vt[n] != 0. || wom[n] != 0.)) {
+                                                                   != fieldUndef && (vt[n] != 0. || wom[n] != 0.)) {
 
-        if (p==NULL) {
-          // independent of vertical coordinate
-          dy = v2hRatio * dt * wom[n];
-        } else if (vcoordPlot == vcv_exner) {
+          if (p==NULL) {
+            // independent of vertical coordinate
+            dy = v2hRatio * dt * wom[n];
+          } else if (vcoordPlot == vcv_exner) {
             // exner function as output vertical coordinate
             p2 = p[n] + dt * wom[n];
             pi2 = cp * powf(p2 * p0inv, kappa);
@@ -4986,7 +5144,7 @@ bool VcrossPlot::plotVector(float *u, float *v, float *x, float *y, int *part,
         gx = x[i];
         gy = y[i];
         if (u[i] != fieldUndef && v[i] != fieldUndef && y[i] >= ymin && y[i]
-            <= ymax) {
+                                                                          <= ymax) {
           ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
           if (ff > 0.00001) {
             dx = scale * u[i];

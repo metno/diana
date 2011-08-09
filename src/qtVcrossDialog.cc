@@ -145,8 +145,8 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   cp->addKey("line.interval",  "",0,CommandParser::cmdFloat);
   cp->addKey("density",        "",0,CommandParser::cmdInt);
   cp->addKey("vector.unit",    "",0,CommandParser::cmdFloat);
-  //cp->addKey("extreme.type",   "",0,CommandParser::cmdString);
-  //cp->addKey("extreme.size",   "",0,CommandParser::cmdFloat);
+  cp->addKey("extreme.type",   "",0,CommandParser::cmdString);
+  cp->addKey("extreme.size",   "",0,CommandParser::cmdFloat);
   //cp->addKey("extreme.radius", "",0,CommandParser::cmdFloat);
   cp->addKey("line.smooth",    "",0,CommandParser::cmdInt);
   cp->addKey("zero.line",      "",0,CommandParser::cmdInt);
@@ -363,16 +363,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   connect( vectorunitCbox, SIGNAL( activated(int) ),
 	   SLOT( vectorunitCboxActivated(int) ) );
 
-  // Extreme (min,max): type, size and search radius
-  //QLabel* extremeTypeLabel= new QLabel( "Min,max", this );
-  //extremeTypeCbox= new QComboBox( false, this );
-  //extremeTypeCbox->setEnabled( false );
-  //extremeType.push_back("None");
-  //extremeType.push_back("L+H");
-  //extremeType.push_back("C+W");
-  //connect( extremeTypeCbox, SIGNAL( activated(int) ),
-  //	   SLOT( extremeTypeActivated(int) ) );
-
   // help
   fieldhelp = NormalPushButton( tr("Help"), this );
   connect( fieldhelp, SIGNAL(clicked()), SLOT(helpClicked()));
@@ -538,15 +528,25 @@ void VcrossDialog::CreateAdvanced() {
 
   advFrame= new QWidget(this);
 
+  // mark min/max values
+  extremeValueCheckBox= new QCheckBox(tr("Min/max values"), advFrame);
+  extremeValueCheckBox->setChecked( false );
+  extremeValueCheckBox->setEnabled( false );
+  connect( extremeValueCheckBox, SIGNAL( toggled(bool) ),
+     SLOT( extremeValueCheckBoxToggled(bool) ) );
+
   //QLabel* extremeTypeLabelHead= new QLabel( "Min,max", advFrame );
-  //QLabel* extremeSizeLabel= new QLabel( "Størrelse",  advFrame );
-  //extremeSizeSpinBox= new QSpinBox( 5,300,5, advFrame );
-  //extremeSizeSpinBox->setWrapping(true);
-  //extremeSizeSpinBox->setSuffix("%");
-  //extremeSizeSpinBox->setValue(100);
-  //extremeSizeSpinBox->setEnabled( false );
-  //connect( extremeSizeSpinBox, SIGNAL( valueChanged(int) ),
-  //	   SLOT( extremeSizeChanged(int) ) );
+  QLabel* extremeSizeLabel= new QLabel( "Størrelse",  advFrame );
+  extremeSizeSpinBox= new QSpinBox( advFrame );
+  extremeSizeSpinBox->setMinimum(5);
+  extremeSizeSpinBox->setMaximum(300);
+  extremeSizeSpinBox->setSingleStep(5);
+  extremeSizeSpinBox->setWrapping(true);
+  extremeSizeSpinBox->setSuffix("%");
+  extremeSizeSpinBox->setValue(100);
+  extremeSizeSpinBox->setEnabled( false );
+  connect( extremeSizeSpinBox, SIGNAL( valueChanged(int) ),
+  	   SLOT( extremeSizeChanged(int) ) );
 
   //QLabel* extremeRadiusLabel= new QLabel( "Søkeradius", advFrame );
   //extremeRadiusSpinBox= new QSpinBox( 5,300,5, advFrame );
@@ -724,6 +724,11 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   QVBoxLayout *adv1Layout = new QVBoxLayout();
   int space= 6;
   adv1Layout->addStretch();
+  adv1Layout->addWidget(extremeValueCheckBox);
+  adv1Layout->addSpacing(space);
+  adv1Layout->addWidget(extremeSizeLabel);
+  adv1Layout->addWidget(extremeSizeSpinBox);
+  adv1Layout->addSpacing(space);
   adv1Layout->addWidget(lineSmoothLabel);
   adv1Layout->addWidget(lineSmoothSpinBox);
   adv1Layout->addSpacing(space);
@@ -938,6 +943,8 @@ void VcrossDialog::enableFieldOptions(){
 #ifdef DEBUGPRINT
   cerr<<"VcrossDialog::enableFieldOptions called"<<endl;
 #endif
+
+  disableFieldOptions();
 
   float e;
   int   index, lastindex, nc, i;
@@ -1239,43 +1246,28 @@ void VcrossDialog::enableFieldOptions(){
     vectorunitCbox->setEnabled(false);
   }
 
-/*************************************************************************
   // extreme.type (L+H, C+W or none)
-  bool extreme= false;
   if ((nc=cp->findKey(vpcopt,"extreme.type"))>=0) {
-    extreme= true;
-    n= extremeType.size();
-    if (!extremeTypeCbox->isEnabled()) {
-      const char** cvstr= new const char*[n];
-      for (i=0; i<n; i++ )
-        cvstr[i]=  extremeType[i].c_str();
-      extremeTypeCbox->insertStrList( cvstr, n );
-      delete[] cvstr;
-      extremeTypeCbox->setEnabled(true);
+    if( vpcopt[nc].allValue.downcase() == "value" ) {
+      extremeValueCheckBox->setChecked(true);
+    } else {
+      extremeValueCheckBox->setChecked(false);
     }
-    i=0;
-    while (i<n && vpcopt[nc].allValue!=extremeType[i]) i++;
-    if (i==n) {
-      i=0;
-      updateFieldOptions("extreme.type",extremeType[i]);
-    }
-    extremeTypeCbox->setCurrentIndex(i);
-  } else if (extremeTypeCbox->isEnabled()) {
-    extremeTypeCbox->clear();
-    extremeTypeCbox->setEnabled(false);
+    updateFieldOptions("extreme.type", vpcopt[nc].allValue);
   }
+  extremeValueCheckBox->setEnabled(true);
 
-  if (extreme && (nc=cp->findKey(vpcopt,"extreme.size"))>=0) {
+  if ((nc=cp->findKey(vpcopt,"extreme.size"))>=0) {
     if (vpcopt[nc].floatValue.size()>0) e=vpcopt[nc].floatValue[0];
     else e=1.0;
     i= (int(e*100.+0.5))/5 * 5;
     extremeSizeSpinBox->setValue(i);
-    extremeSizeSpinBox->setEnabled(true);
-  } else if (extremeSizeSpinBox->isEnabled()) {
+  } else {
     extremeSizeSpinBox->setValue(100);
-    extremeSizeSpinBox->setEnabled(false);
   }
+  extremeSizeSpinBox->setEnabled(true);
 
+  /*************************************************************************
   if (extreme && (nc=cp->findKey(vpcopt,"extreme.radius"))>=0) {
     if (vpcopt[nc].floatValue.size()>0) e=vpcopt[nc].floatValue[0];
     else e=1.0;
@@ -1519,11 +1511,11 @@ void VcrossDialog::disableFieldOptions(){
   vectorunitCbox->clear();
   vectorunitCbox->setEnabled( false );
 
-  //extremeTypeCbox->clear();
-  //extremeTypeCbox->setEnabled( false );
+  extremeValueCheckBox->setChecked( false );
+  extremeValueCheckBox->setEnabled( false );
 
-  //extremeSizeSpinBox->setValue(100);
-  //extremeSizeSpinBox->setEnabled( false );
+  extremeSizeSpinBox->setValue(100);
+  extremeSizeSpinBox->setEnabled( false );
 
   //extremeRadiusSpinBox->setValue(100);
   //extremeRadiusSpinBox->setEnabled( false );
@@ -1719,15 +1711,20 @@ void VcrossDialog::vectorunitCboxActivated( int index ){
 }
 
 
+void VcrossDialog::extremeValueCheckBoxToggled(bool on){
+  if (on) updateFieldOptions("extreme.type","Value");
+  else    updateFieldOptions("extreme.type","None");
+}
+
 //void VcrossDialog::extremeTypeActivated(int index){
 //  updateFieldOptions("extreme.type",extremeType[index]);
 //}
 
 
-//void VcrossDialog::extremeSizeChanged(int value){
-//  miutil::miString str= miutil::miString( float(value)*0.01 );
-//  updateFieldOptions("extreme.size",str);
-//}
+void VcrossDialog::extremeSizeChanged(int value){
+  miutil::miString str= miutil::miString( float(value)*0.01 );
+  updateFieldOptions("extreme.size",str);
+}
 
 
 //void VcrossDialog::extremeRadiusChanged(int value){
@@ -2451,15 +2448,16 @@ void VcrossDialog::deleteSelected(){
   }
 
   if (indexF>=0) {
-    fieldbox->setCurrentRow(indexF);
-    fieldbox->item(indexF)->setSelected(false);
-    fieldboxChanged(fieldbox->currentItem());
-  } else {
-    selectedFieldbox->takeItem(index);
-    for (i=index; i<ns; i++)
-      selectedFields[i]= selectedFields[i+1];
-    selectedFields.pop_back();
+    countSelected[indexF]--;
+    if (countSelected[indexF] == 0) {
+      fieldbox->item(indexF)->setSelected(false);
+    }
   }
+  selectedFieldbox->takeItem(index);
+  for (int i = index; i < ns; i++) {
+    selectedFields[i] = selectedFields[i + 1];
+  }
+  selectedFields.pop_back();
 
   if (selectedFields.size()>0) {
     if (index>=int(selectedFields.size())) index= selectedFields.size()-1;
