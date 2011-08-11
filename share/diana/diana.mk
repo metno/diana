@@ -147,9 +147,6 @@ dist_markers_DATA= share/diana/images/markers/x.xpm \
 	share/diana/images/markers/cc_green.xpm \
 	share/diana/images/markers/cc_green_trend.xpm \
 	share/diana/images/markers/cc_green_obs.xpm \
-	share/diana/images/markers/cc_default.xpm \
-	share/diana/images/markers/cc_default_trend.xpm \
-	share/diana/images/markers/cc_default_obs.xpm \
 	share/diana/images/markers/cc_blue.xpm \
 	share/diana/images/markers/cc_blue_trend.xpm \
 	share/diana/images/markers/cc_blue_obs.xpm \
