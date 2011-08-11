@@ -64,6 +64,12 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
   QLabel* label= new QLabel(t, frame);
   label->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
+  QString plotname;
+  if( quick ) {
+    plotname = quick->getCurrentName().c_str();
+  }
+  QLabel* plotnameLabel = new QLabel(plotname,this);
+
   list= new QListWidget(frame);
   connect(list, SIGNAL( itemClicked( QListWidgetItem * )),
       SLOT(menuSelected( QListWidgetItem * )));
@@ -96,6 +102,7 @@ AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
 
   QVBoxLayout* vl= new QVBoxLayout(frame);
   vl->addWidget(label);
+  vl->addWidget(plotnameLabel);
   vl->addLayout(hl);
   vl->addWidget(line);
   vl->addLayout(hl2);

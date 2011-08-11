@@ -63,17 +63,17 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
     return false;
   }
 
-  menufile << "# Tekst og Plottestreng for Quick-menyen" << endl;
-  menufile << "# '#' angir kommentarer" << endl;
+  menufile << "# Name and plot string of Quick-menu" << endl;
+  menufile << "# '#' marks comments" << endl;
   menufile << "#------------------------------------------------" << endl;
-  menufile << "#-- Navn paa hurtigmeny, angis i dialogen" << endl;
-  menufile << "# \"navn\"" << endl;
+  menufile << "#-- Name of quick-menu, given in the dialog" << endl;
+  menufile << "# \"name\"" << endl;
   menufile << "#------------------------------------------------" << endl;
-  menufile << "#-- Definisjon av variable" << endl;
+  menufile << "#-- Variable definitions" << endl;
   menufile << "# [XX=a,b,c,d,..]" << endl;
   menufile << "#------------------------------------------------" << endl;
-  menufile << "#-- Plottevalg" << endl;
-  menufile << "# '>Plottenavn' er skilletegn for plotte-valgene" << endl;
+  menufile << "#-- Plots" << endl;
+  menufile << "# '>Plot name' is separator between the different plots" << endl;
   menufile << "#------------------------------------------------" << endl;
   menufile << endl;
   menufile << "# quickmenu name" << endl;

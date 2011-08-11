@@ -684,6 +684,9 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
   cerr << "VcrossManager::setSelection" << endl;
 #endif
 
+  //save plotStrings
+  plotStrings = vstr;
+
   selectedModels.clear();
   selectedFields.clear();
   selectedHourOffset.clear();
@@ -944,6 +947,58 @@ void VcrossManager::setTimeGraphPos(int incr)
   dataChange= (timeGraphPos!=tgp);
 }
 
+void VcrossManager::parseQuickMenuStrings( const vector<miutil::miString>& vstr )
+{
+  vector<miString> vcross_data, vcross_options;
+  miString crossection;
+
+  bool data_exist = false;
+  int n = vstr.size();
+  for (int i = 1; i < n; i++) {
+    miString line = vstr[i];
+    line.trim();
+    if (!line.exists())
+      continue;
+    miString upline = line.upcase();
+
+    if (upline.contains("CROSSECTION=")) {
+      vector<miString> vs = line.split("=");
+      crossection = vs[1];
+      if (crossection.contains("\""))
+        crossection.remove('\"');
+    } else if (upline.contains("VCROSS ")) {
+      if (!data_exist)
+        vcross_data.clear();
+      vcross_data.push_back(line);
+      data_exist = true;
+    } else {
+      // assume plot-options
+      vcross_options.push_back(line);
+    }
+  }
+
+    getOptions()->readOptions(vcross_options);
+    setSelection(vcross_data);
+    setCrossection(crossection);
+
+}
+
+vector<miutil::miString> VcrossManager::getQuickMenuStrings()
+{
+
+  vector<miString> vstr;
+
+  vector<miString> vstrOpt = getOptions()->writeOptions();
+  vector<miString> vstrPlot = getPlotStrings();
+  miString crossection = "CROSSECTION=" + getCrossection();
+
+  vstr.push_back("VCROSS");
+  vstr.insert(vstr.end(),vstrOpt.begin(),vstrOpt.end());
+  vstr.insert(vstr.end(),vstrPlot.begin(),vstrPlot.end());
+  vstr.push_back(crossection);
+
+  return vstr;
+}
 
 vector<miString> VcrossManager::writeLog()
 {

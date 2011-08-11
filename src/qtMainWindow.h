@@ -173,6 +173,7 @@ private slots:
   void resetAll();
   void editApply();
   void MenuOK();
+  void updateQuickMenuHistory(const miutil::miString plotname, const vector<miutil::miString>&);
   void trajPositions(bool);
   void measurementsPositions(bool);
   void vCrossPositions(bool);
@@ -229,6 +230,8 @@ private slots:
   void toggleElement(PlotElement);
   void prevHPlot();
   void nextHPlot();
+  void prevHVcrossPlot();
+  void nextHVcrossPlot();
   void prevQPlot();
   void nextQPlot();
   void prevList();

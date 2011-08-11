@@ -693,7 +693,8 @@ void ObsDialog::stepSlot( int number )
 //todo: smarter slider limits
   float scalesize = stepComboBox->currentText().toFloat();
   numberList(stepComboBox,scalesize);
-  limitSlider->setMaximum(int(limitLcd->value()/scalesize));
+  limitSlider->setMaximum(100);
+  limitSlider->setMinimum(-100);
   limitSlider->setValue(int(limitLcd->value()/scalesize));
   double scalednumber= limitSlider->value()*scalesize;
   limitLcd->display( scalednumber );
@@ -883,9 +884,9 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
     } else {
       float absvalue = fabsf(value);
       int ii = int(log10(absvalue));
-      if(absvalue<1) ii--;
       scalesize = powf(10.0,ii-1);
     }
+
     numberList(stepComboBox,scalesize);
     float r = value>0 ? 0.5:-0.5;
     int ivalue = int(value/scalesize+r);

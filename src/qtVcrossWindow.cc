@@ -44,6 +44,7 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>
+#include <QAction>
 
 #include "qtUtility.h"
 #include "qtVcrossWindow.h"
@@ -187,6 +188,17 @@ VcrossWindow::VcrossWindow(Controller *co)
   connect(vcSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
       SIGNAL(showsource(const miutil::miString, const miutil::miString)));
 
+  // --------------------------------------------------------------------
+  showPrevPlotAction = new QAction( tr("P&revious plot"), this );
+  showPrevPlotAction->setShortcut(Qt::Key_F10);
+  connect( showPrevPlotAction, SIGNAL( triggered() ) ,  SIGNAL( prevHVcrossPlot() ) );
+  addAction( showPrevPlotAction );
+  // --------------------------------------------------------------------
+  showNextPlotAction = new QAction( tr("&Next plot"), this );
+  showNextPlotAction->setShortcut(Qt::Key_F11);
+  connect( showNextPlotAction, SIGNAL( triggered() ) ,  SIGNAL( nextHVcrossPlot() ) );
+  addAction( showNextPlotAction );
+  // --------------------------------------------------------------------
 
   //inialize everything in startUp
   firstTime = true;
@@ -221,6 +233,8 @@ void VcrossWindow::leftCrossectionClicked(){
   miutil::miString s= vcrossm->setCrossection(-1);
   crossectionChangedSlot(-1);
   vcrossw->updateGL();
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
 }
 
 /***************************************************************************/
@@ -230,6 +244,9 @@ void VcrossWindow::rightCrossectionClicked(){
   miutil::miString s= vcrossm->setCrossection(+1);
   crossectionChangedSlot(+1);
   vcrossw->updateGL();
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+
 }
 
 /***************************************************************************/
@@ -583,6 +600,10 @@ void VcrossWindow::changeFields(bool modelChanged){
   }
 
   vcrossw->updateGL();
+
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+
 }
 
 /***************************************************************************/
@@ -600,6 +621,9 @@ void VcrossWindow::changeSetup(){
   //###}
 
   vcrossw->updateGL();
+
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
 }
 
 /***************************************************************************/
@@ -721,6 +745,9 @@ bool VcrossWindow::changeCrossection(const miutil::miString& crossection){
   vcrossm->setCrossection(crossection); //HK ??? should check if crossection exists ?
   vcrossw->updateGL();
   raise();
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+
   if (crossectionChangedSlot(0))
     return true;
   else
@@ -786,6 +813,25 @@ void VcrossWindow::mapPos(float lat, float lon) {
     updateCrossectionBox();
     emit crossectionSetChanged();
   }
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+
+
+}
+
+void VcrossWindow::parseQuickMenuStrings(const vector<miutil::miString>& vstr)
+{
+
+  vcrossm->parseQuickMenuStrings(vstr);
+  vcDialog->putOKString(vstr);
+  emit crossectionSetChanged();
+
+  //update combobox lists of crossections and time
+  updateCrossectionBox();
+  updateTimeBox();
+
+  crossectionChangedSlot(0);
+  vcrossw->updateGL();
 }
 
 /***************************************************************************/

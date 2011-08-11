@@ -70,6 +70,9 @@ public:
   VcrossDialog( QWidget* parent, VcrossManager* vm);
 
   vector<miutil::miString> getOKString();
+  /// returns a short text for quickmenue
+  miutil::miString getShortname();
+
   void putOKString(const vector<miutil::miString>& vstr,
 		   bool vcrossPrefix= true, bool checkOptions= true);
 

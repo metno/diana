@@ -2014,6 +2014,37 @@ vector<miutil::miString> VcrossDialog::getOKString(){
   return vstr;
 }
 
+miutil::miString VcrossDialog::getShortname()
+{
+
+  miutil::miString name;
+  int n = selectedFields.size();
+  ostringstream ostr;
+  miutil::miString pmodelName;
+
+  for (int i = 0; i < n; i++) {
+    miutil::miString modelName = selectedFields[i].model;
+    miutil::miString fieldName = selectedFields[i].field;
+
+
+    if (i > 0)
+      ostr << "  ";
+
+    if (modelName != pmodelName) {
+      ostr << modelName;
+      pmodelName = modelName;
+    }
+
+    ostr << " " << fieldName;
+
+  }
+
+  if (n > 0)
+    name = ostr.str();
+
+  return name;
+}
+
 
 void VcrossDialog::historyBack() {
   showHistory(-1);

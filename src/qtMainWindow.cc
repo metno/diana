@@ -268,12 +268,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( showAddQuickAction, SIGNAL( triggered() ) ,  SLOT( addToMenu() ) );
   // --------------------------------------------------------------------
   showPrevPlotAction = new QAction( tr("P&revious plot"), this );
-  showPrevPlotAction->setShortcutContext(Qt::ApplicationShortcut);
+//  showPrevPlotAction->setShortcutContext(Qt::ApplicationShortcut);
   showPrevPlotAction->setShortcut(Qt::Key_F10);
   connect( showPrevPlotAction, SIGNAL( triggered() ) ,  SLOT( prevHPlot() ) );
   // --------------------------------------------------------------------
   showNextPlotAction = new QAction( tr("&Next plot"), this );
-  showNextPlotAction->setShortcutContext(Qt::ApplicationShortcut);
+  //showNextPlotAction->setShortcutContext(Qt::ApplicationShortcut);
   showNextPlotAction->setShortcut(Qt::Key_F11);
   connect( showNextPlotAction, SIGNAL( triggered() ) ,  SLOT( nextHPlot() ) );
   // --------------------------------------------------------------------
@@ -1015,7 +1015,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       SLOT(crossectionSetUpdateSlot()));
   connect(vcWindow,SIGNAL(updateCrossSectionPos(bool)),
       SLOT(vCrossPositions(bool)));
-
+  connect(vcWindow,SIGNAL(quickMenuStrings(const miutil::miString, const vector<miutil::miString>&)),
+      SLOT(updateQuickMenuHistory(const miutil::miString, const vector<miutil::miString>&)));
+  connect (vcWindow, SIGNAL(prevHVcrossPlot()), SLOT(prevHVcrossPlot()));
+  connect (vcWindow, SIGNAL(nextHVcrossPlot()), SLOT(nextHVcrossPlot()));
   // Wave spectrum
   // create a new main window
   spWindow = new SpectrumWindow();
@@ -1175,7 +1178,7 @@ void DianaMainWindow::quickMenuApply(const vector<miutil::miString>& s)
   miutil::miTime t= tslider->Value();
   contr->setPlotTime(t);
   contr->updatePlots();
-  //find current field models amd send to vprofwindow..
+  //find current field models and send to vprofwindow..
   vector <miutil::miString> fieldmodels = contr->getFieldModels();
   if (vpWindow) vpWindow->setFieldModels(fieldmodels);
   if (spWindow) spWindow->setFieldModels(fieldmodels);
@@ -1196,41 +1199,47 @@ void DianaMainWindow::resetAll()
 
 void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool replace)
 {
-
   QApplication::setOverrideCursor( Qt::WaitCursor );
-  // strings for each dialog
-  vector<miutil::miString> mapcom,fldcom,obscom,satcom,objcom,labelcom;
-  int n= vstr.size();
-  // sort strings..
-  for (int i=0; i<n; i++){
-    miutil::miString s= vstr[i];
-    s.trim();
-    if (!s.exists()) continue;
-    vector<miutil::miString> vs= s.split(" ");
-    miutil::miString pre= vs[0].upcase();
-    if (pre=="MAP") mapcom.push_back(s);
-    else if (pre=="AREA") mapcom.push_back(s);
-    else if (pre=="FIELD") fldcom.push_back(s);
-    else if (pre=="OBS") obscom.push_back(s);
-    else if (pre=="SAT") satcom.push_back(s);
-    else if (pre=="OBJECTS") objcom.push_back(s);
-    else if (pre=="LABEL") labelcom.push_back(s);
+
+  if ( vstr.size() > 0 && vstr[0] == "VCROSS") {
+    vcrossMenu();
+    vcWindow->parseQuickMenuStrings(vstr);
+  } else {
+
+    // strings for each dialog
+    vector<miutil::miString> mapcom,fldcom,obscom,satcom,objcom,labelcom;
+    int n= vstr.size();
+    // sort strings..
+    for (int i=0; i<n; i++){
+      miutil::miString s= vstr[i];
+      s.trim();
+      if (!s.exists()) continue;
+      vector<miutil::miString> vs= s.split(" ");
+      miutil::miString pre= vs[0].upcase();
+      if (pre=="MAP") mapcom.push_back(s);
+      else if (pre=="AREA") mapcom.push_back(s);
+      else if (pre=="FIELD") fldcom.push_back(s);
+      else if (pre=="OBS") obscom.push_back(s);
+      else if (pre=="SAT") satcom.push_back(s);
+      else if (pre=="OBJECTS") objcom.push_back(s);
+      else if (pre=="LABEL") labelcom.push_back(s);
+    }
+
+    vector<miutil::miString> tmplabel = vlabel;
+    // feed strings to dialogs
+    if (replace || mapcom.size()) mm->putOKString(mapcom);
+    if (replace || fldcom.size()) fm->putOKString(fldcom);
+    if (replace || obscom.size()) om->putOKString(obscom);
+    if (replace || satcom.size()) sm->putOKString(satcom);
+    if (replace || objcom.size()) objm->putOKString(objcom);
+    if (replace ) vlabel=labelcom;
+
+    // call full plot
+    push_command= false; // do not push this command on stack
+    MenuOK();
+    push_command= true;
+    vlabel = tmplabel;
   }
-
-  vector<miutil::miString> tmplabel = vlabel;
-  // feed strings to dialogs
-  if (replace || mapcom.size()) mm->putOKString(mapcom);
-  if (replace || fldcom.size()) fm->putOKString(fldcom);
-  if (replace || obscom.size()) om->putOKString(obscom);
-  if (replace || satcom.size()) sm->putOKString(satcom);
-  if (replace || objcom.size()) objm->putOKString(objcom);
-  if (replace ) vlabel=labelcom;
-
-  // call full plot
-  push_command= false; // do not push this command on stack
-  MenuOK();
-  push_command= true;
-  vlabel = tmplabel;
   QApplication::restoreOverrideCursor();
 }
 
@@ -1370,12 +1379,16 @@ void DianaMainWindow::MenuOK()
         plotname+= shortnames[j];
         if (j!=m-1) plotname+= " ";
       }
-    qm->pushPlot(plotname,pstr);
+    qm->pushPlot(plotname,pstr,QuickMenu::MAP);
   }
 
   QApplication::restoreOverrideCursor();
 }
 
+void DianaMainWindow::updateQuickMenuHistory(const miutil::miString plotname, const vector<miutil::miString>& pstr)
+{
+  qm->pushPlot(plotname,pstr,QuickMenu::VCROSS);
+}
 
 // recall previous QuickMenu plot (if exists)
 void DianaMainWindow::prevQPlot()
@@ -1402,13 +1415,23 @@ void DianaMainWindow::nextQPlot()
 // recall previous plot in plot-stack (if exists)
 void DianaMainWindow::prevHPlot()
 {
-  qm->prevHPlot();
+  qm->prevHPlot(QuickMenu::MAP);
 }
 
 // recall next plot in plot-stack (if exists)
 void DianaMainWindow::nextHPlot()
 {
-  qm->nextHPlot();
+  qm->nextHPlot(QuickMenu::MAP);
+}
+void DianaMainWindow::prevHVcrossPlot()
+{
+  qm->prevHPlot(QuickMenu::VCROSS);
+}
+
+// recall next plot in plot-stack (if exists)
+void DianaMainWindow::nextHVcrossPlot()
+{
+  qm->nextHPlot(QuickMenu::VCROSS);
 }
 
 // switch to next quick-list
@@ -3133,6 +3156,7 @@ void DianaMainWindow::vCrossPositions(bool b)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 {
+
   int x = mev.x;
   int y = mev.y;
 

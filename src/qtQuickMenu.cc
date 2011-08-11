@@ -303,19 +303,27 @@ bool QuickMenu::addToMenu(const int idx)
   return true;
 }
 
+miutil::miString QuickMenu::getCurrentName()
+{
+  if (prev_listindex>=0 && prev_plotindex>=0 &&
+      prev_listindex<int(qm.size())){
+    return qm[prev_listindex].menuitems[prev_plotindex].name;
+  }
+  return miutil::miString();
+}
 
 // Push a new command on the history-stack
 void QuickMenu::pushPlot(const miutil::miString& name,
-    const vector<miutil::miString>& pstr)
+    const vector<miutil::miString>& pstr, int index)
 {
   if (qm.size()==0) return;
   bool goon= true;
-  int m= qm[0].menuitems.size();
+  int m= qm[index].menuitems.size();
   if (m > 0){ // check for duplicate
-    if (qm[0].menuitems[0].command.size()==pstr.size()){
+    if (qm[index].menuitems[0].command.size()==pstr.size()){
       goon= false;
       for (unsigned int i=0; i<pstr.size(); i++){
-        if (pstr[i] != qm[0].menuitems[0].command[i]){
+        if (pstr[i] != qm[index].menuitems[0].command[i]){
           goon= true;
           break;
         }
@@ -324,24 +332,23 @@ void QuickMenu::pushPlot(const miutil::miString& name,
   }
   if (goon) {
     // keep stack within bounds
-    int ms= qm[0].menuitems.size();
+    int ms= qm[index].menuitems.size();
     if (ms >= maxplotsinstack)
-      qm[0].menuitems.pop_back();
+      qm[index].menuitems.pop_back();
     // update pointer
-    qm[0].plotindex=0;
+    qm[index].plotindex=0;
     // push plot on stack
     miutil::miString plotname= name;
     plotname.trim();
     quickMenuItem dummy;
-    qm[0].menuitems.push_front(dummy);
-    qm[0].menuitems[0].command= pstr;
-    qm[0].menuitems[0].name= plotname;
+    qm[index].menuitems.push_front(dummy);
+    qm[index].menuitems[0].command= pstr;
+    qm[index].menuitems[0].name= plotname;
     // switch to history-menu
-    //     if (!isVisible() || activemenu==0) setCurrentMenu(0);
-    if (activemenu==0) setCurrentMenu(0);
+    if (activemenu==index) setCurrentMenu(index);
 
     prev_plotindex= 0;
-    prev_listindex= 0;
+    prev_listindex= index;
   }
 }
 
@@ -361,8 +368,8 @@ bool QuickMenu::prevQPlot(){
 }
 
 // Go to previous History-plot
-bool QuickMenu::prevHPlot(){
-  int menu= 0;
+bool QuickMenu::prevHPlot(int index){
+  int menu= index;
   if (qm.size()==0 || int(qm.size())<menu+1)
     return false;
   int n= qm[menu].menuitems.size();
@@ -403,8 +410,8 @@ bool QuickMenu::nextQPlot(){
 }
 
 // Go to next History-plot
-bool QuickMenu::nextHPlot(){
-  int menu= 0;
+bool QuickMenu::nextHPlot(int index){
+  int menu= index;
   if (qm.size()==0 || int(qm.size())<menu+1)
     return false;
   int n= qm[menu].menuitems.size();
@@ -523,19 +530,20 @@ void QuickMenu::fillPrivateMenus()
 {
   SetupParser setup;
 
-  //History
   quickMenu qtmp;
+
+  //History
   qm.push_back(qtmp);
   qm[0].name= tr("History").toStdString();
   qm[0].filename= setup.basicValue("homedir") + "/History.quick";
   qm[0].plotindex= 0;
-  if (!readQuickMenu(qm[0])) {
-    qm[0].filename= setup.basicValue("homedir") + "/Historie.quick"; //obsolete
-    readQuickMenu(qm[0]);
-    // Write history to History.quick
-    qm[0].filename= setup.basicValue("homedir") + "/History.quick";
-  }
+  readQuickMenu(qm[0]);
 
+  qm.push_back(qtmp);
+  qm[1].name= tr("History-vcross").toStdString();
+  qm[1].filename= setup.basicValue("homedir") + "/History-vcross.quick";
+  qm[1].plotindex= 0;
+  readQuickMenu(qm[1]);
 
   //Private menus
   miutil::miString quickfile= setup.basicValue("homedir") + "/*.quick";
@@ -544,11 +552,15 @@ void QuickMenu::fillPrivateMenus()
   for(int k=0; k<globBuf.gl_pathc; k++) {
     qtmp.name= "";
     qtmp.filename= globBuf.gl_pathv[k];
-    if (qtmp.filename == qm[0].filename) continue; //History
-    qtmp.plotindex= 0;
+    int i = 0;
+    while ( i<QMENU &&  qtmp.filename != qm[i].filename ) i++;
+    if ( i<QMENU ) continue; //History
+    qtmp.plotindex = 0;
     qtmp.menuitems.clear();
     if (readQuickMenu(qtmp)){
-      if(qtmp.name == qm[0].name) continue; //Avoid mix with History
+      i = 0;
+      while ( i<QMENU &&  qtmp.name != qm[i].name ) i++;
+      if ( i<QMENU ) continue; //Avoid mix with History
       qm.push_back(qtmp);
     }
     if (firstcustom<0){
@@ -773,7 +785,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
   int n= vstr.size();
   bool skipmenu=true;
   int actidx = -1, oidx = -1;
-  unsigned int priIndex = 1;
+  unsigned int priIndex = QMENU;
   miutil::miString key,value;
 
   quickMenuItem tmpitem;
@@ -822,7 +834,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
         oidx= actidx-itmp; // in original list
 
       } else if (name.exists()){ // custom menus, sort according to log
-        for (unsigned int l=1; l<qm.size(); l++){ //skip History (l=0)
+        for (unsigned int l=QMENU; l<qm.size(); l++){ //skip History
           if (qm[l].name==name){
             actidx = priIndex;
             if (l!=priIndex) {
@@ -918,9 +930,11 @@ vector<miutil::miString> QuickMenu::writeLog()
 
   if (n > 0){
 
-    writeQuickMenu(qm[0]); // save History to file
+    for (int j=0; j<QMENU; j++){
+      writeQuickMenu(qm[j]); // save History to file
+    }
 
-    for (int j=1; j<n; j++){
+    for (int j=QMENU; j<n; j++){
 
       // menuname
       if (j<i2 ){ //custom menus

@@ -60,6 +60,7 @@ class QTextEdit;
 
 class QuickMenu : public QDialog {
   Q_OBJECT
+
 private:
   enum { maxoptions= 20 };      // maximum options
   enum { maxplotsinstack= 100}; // size of history-stack
@@ -114,6 +115,13 @@ protected:
   void closeEvent( QCloseEvent* );
 
 public:
+
+  enum {
+    MAP,
+    VCROSS,
+    QMENU
+  };
+
   QuickMenu(QWidget *parent, Controller* c,
 	    Qt::WFlags f=0);
 
@@ -126,12 +134,12 @@ public:
 
   /// add command to history
   void pushPlot(const miutil::miString& name,
-		const vector<miutil::miString>& pstr);
+		const vector<miutil::miString>& pstr, int index=0);
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot
-  bool prevHPlot(); ///< previous History plot
-  bool nextHPlot(); ///< next History plot
+  bool prevHPlot(int index=0); ///< previous History plot
+  bool nextHPlot(int index=0); ///< next History plot
   bool prevList();  ///< previous Menu
   bool nextList();  ///< next Menu
 
@@ -148,6 +156,7 @@ public:
   vector<miutil::miString> getCustomMenus();
   bool addMenu(const miutil::miString& name);
   bool addToMenu(const int idx);
+  miutil::miString getCurrentName();
 
 signals:
   void Apply(const vector<miutil::miString>& s, bool); ///< send plot-commands

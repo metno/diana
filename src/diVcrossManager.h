@@ -92,6 +92,7 @@ private:
   vector<miutil::miString>    selectedVcFile;
   vector<int>         selectedVcData;
   vector<miutil::miString>    selectedLabel;
+  vector<miutil::miString>    plotStrings;
 
   //bool asField;
 
@@ -112,8 +113,6 @@ private:
   bool hardcopy;
   printOptions printoptions;
   bool hardcopystarted;
-
-  map<miutil::miString,miutil::miString> menuConst;
 
   bool parseSetup();
   bool setModels();
@@ -148,6 +147,8 @@ public:
   vector<miutil::miString> getAllModels();
   map<miutil::miString,miutil::miString> getAllFieldOptions();
   vector<miutil::miString> getFieldNames(const miutil::miString& model);
+  vector<miutil::miString> getPlotStrings(){return plotStrings;}
+
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
@@ -157,9 +158,8 @@ public:
   void disableTimeGraph();
   void setTimeGraphPos(int plotx, int ploty);
   void setTimeGraphPos(int incr);
-
-  void setMenuConst(map<miutil::miString,miutil::miString> mc)
-  { menuConst = mc;}
+  void parseQuickMenuStrings(const vector<miutil::miString>& vstr);
+  vector<miutil::miString> getQuickMenuStrings();
 
   vector<miutil::miString> writeLog();
   void readLog(const vector<miutil::miString>& vstr,

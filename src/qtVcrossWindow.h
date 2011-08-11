@@ -49,6 +49,7 @@ class VcrossManager;
 class VcrossDialog;
 class VcrossSetupDialog;
 class QPrinter;
+class QAction;
 
 
 /**
@@ -71,6 +72,7 @@ public:
   bool changeCrossection(const miutil::miString& crossection);
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
+  void parseQuickMenuStrings(const vector<miutil::miString>& vstr);
 
   vector<miutil::miString> writeLog(const miutil::miString& logpart);
   void readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
@@ -94,6 +96,8 @@ private:
   VcrossSetupDialog * vcSetupDialog;
 
   //qt widgets
+  QAction *showPrevPlotAction;
+  QAction *showNextPlotAction;
   QToolBar *vcToolbar;
   QToolBar *tsToolbar;
   ToggleButton * dataButton;
@@ -142,6 +146,9 @@ signals:
   void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
   void setTime(const miutil::miString&, const miutil::miTime&);
   void updateCrossSectionPos(bool);
+  void quickMenuStrings(const miutil::miString, const vector<miutil::miString>&);
+  void nextHVcrossPlot();
+  void prevHVcrossPlot();
 };
 #endif
 
