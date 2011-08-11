@@ -1275,12 +1275,13 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
       if (stokens.size() == 2) {
         if (stokens[0].upcase() == "BACKCOLOUR")
           bgcolour = stokens[1];
-        else if (stokens[0].upcase() == "AREANAME" || stokens[0].upcase() == "AREA")
+        else if (stokens[0].upcase() == "NAME" || stokens[0].upcase() == "AREANAME" || stokens[0].upcase() == "AREA")
           area = stokens[1];
         else if (stokens[0].upcase() == "MAP")
           themap = stokens[1];
       }
     }
+
     // find the logged map in full list
     if (themap.exists()) {
       int idx = -1;
