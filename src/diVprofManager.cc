@@ -1370,7 +1370,7 @@ void VprofManager::readAmdarStationList()
       if (n!=string::npos) str= str.substr(0,n);
       str.trim();
       if (str.exists()) {
-        vstr= str.split(" ");
+        vstr= str.split('"', '"');
         float latitude=notFound, longitude=notFound;
         miString name;
         n=vstr.size();
