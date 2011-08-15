@@ -43,9 +43,10 @@
 using namespace::miutil;
 
 ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
-    const miTime &filetime, ObsPlot *oplot, bool readData)
+    const vector<miutil::miString> headerinfo, const miTime &filetime,
+    ObsPlot *oplot, bool readData)
 {
-  readFile(filename,headerfile,filetime,oplot,readData );
+  readFile(filename,headerfile, headerinfo, filetime,oplot,readData );
 }
 
 void ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines)
@@ -101,13 +102,17 @@ void ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>
 }
 
 void ObsAscii::readFile(const miString &filename, const miString &headerfile,
-    const miTime &filetime, ObsPlot *oplot, bool readData)
+    const vector<miutil::miString> headerinfo, const miTime &filetime,
+    ObsPlot *oplot, bool readData)
 {
 
   //####################################################################
 //  cerr<<"ObsAscii::readFile  filename= "<<filename
 //      <<"   filetime= "<<filetime<<endl;
 //  cerr <<"Headerfiles:"<<headerfile<<endl;
+//  for(size_t i = 0; i < headerinfo.size(); i++) {
+//      cerr << "headerinfo: " << headerinfo[i]<<endl;
+//    }
   //####################################################################
 
   vector<miString> lines;
@@ -119,6 +124,8 @@ void ObsAscii::readFile(const miString &filename, const miString &headerfile,
     } else {
       getFromFile(headerfile, lines);
     }
+  } else if (headerinfo.size() > 0 ) {
+    lines = headerinfo;
   }
 
   if (headerfile.empty() || readData) {

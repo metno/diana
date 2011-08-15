@@ -207,7 +207,8 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 #endif
       } else if(finfo[j].filetype =="ascii"){
         ObsAscii obsAscii =
-          ObsAscii(finfo[j].filename,headerfile,finfo[j].time,oplot,true);
+          ObsAscii(finfo[j].filename, headerfile, Prod[dataType[i]].headerinfo,
+              finfo[j].time, oplot, true);
       }
 #ifdef ROADOBS
       else if(finfo[j].filetype =="roadobs"){
@@ -1403,7 +1404,8 @@ delete roplot;
       if(Prod[oname].pattern[j].pattern.contains("http")) {
 
         miTime filetime; // just dummy here
-        ObsAscii obsAscii = ObsAscii(Prod[oname].pattern[j].pattern,headerfile,filetime,oplot,false);
+        ObsAscii obsAscii = ObsAscii(Prod[oname].pattern[j].pattern, headerfile, Prod[oname].headerinfo,
+            filetime, oplot, false);
         found= oplot->asciiOK;
         if (oplot->asciiOK && oplot->asciiColumn.count("time")
             && !oplot->asciiColumn.count("date"))
@@ -1415,7 +1417,7 @@ delete roplot;
       while (!found && int(k)<globBuf.gl_pathc) {
         miString filename = globBuf.gl_pathv[k];
         miTime filetime; // just dummy here
-        ObsAscii obsAscii = ObsAscii(filename,headerfile,filetime,oplot,false);
+        ObsAscii obsAscii = ObsAscii(filename, headerfile, Prod[oname].headerinfo, filetime, oplot, false);
         found= oplot->asciiOK;
         if (oplot->asciiOK && oplot->asciiColumn.count("time")
             && !oplot->asciiColumn.count("date"))
@@ -1572,6 +1574,10 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
   cerr << "current: " << pinfo.current << endl;
   cerr << "synoptic: " << pinfo.synoptic << endl;
   cerr << "headerfile: " << pinfo.headerfile << endl;
+  for(i = 0; i < pinfo.headerinfo.size(); i++)
+    {
+      cerr << "\t headerinfo: " << pinfo.headerinfo[i]<<endl;
+    }
 #ifdef ROADOBS
   cerr << "databasefile: " << pinfo.databasefile << endl;
   cerr << "stationfile: " << pinfo.stationfile << endl;
@@ -1706,7 +1712,6 @@ bool ObsManager::parseSetup(SetupParser &sp)
 
     key = token[0].downcase();
     value = token[0];
-    token[1].remove('\"');
     if( key == "prod" ){
       vector<miString> stoken= token[1].split(":");
       miString plotFormat;
@@ -1767,6 +1772,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
         sp.errorMsg(obs_name,i,errmsg);
         continue;
       }
+      token[1].remove('\"');
       TimeFilter tf;
       // init time filter and replace yyyy etc. with *
       tf.initFilter(token[1]);
@@ -1843,6 +1849,8 @@ bool ObsManager::parseSetup(SetupParser &sp)
         Prod[prod].synoptic=false;
     } else if( key == "current" && newprod ){
       Prod[prod].current=atof(token[1].cStr());
+    } else if( key == "headerinfo" && newprod ){
+      Prod[prod].headerinfo.push_back(token[1]);
 
     }
 #ifdef DEBUGPRINT

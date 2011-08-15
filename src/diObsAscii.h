@@ -52,7 +52,8 @@ private:
   miutil::miString separator;
 
   void readFile(const miutil::miString &filename, const miutil::miString &headerfile,
-		const miutil::miTime &filetime, ObsPlot *oplot, bool readData);
+      const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
+      ObsPlot *oplot, bool readData);
 
   void decodeHeader(ObsPlot *oplot, vector<miutil::miString> lines);
   void decodeData(ObsPlot *oplot, vector<miutil::miString> lines, const miutil::miTime &filetime);
@@ -62,7 +63,8 @@ private:
 
 public:
   ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
-	   const miutil::miTime &filetime, ObsPlot *oplot, bool readData);
+	   const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
+	   ObsPlot *oplot, bool readData);
 
 };
 

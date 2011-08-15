@@ -241,9 +241,15 @@ plotted.
 </li>
 </ul>
 
-<h3>Separate headerfile</h3>
-The header information can be given in a separate header file. This is
-usefull when plotting ascii files with a different format
+<h3>Header</h3>
+The header information can be given:
+<ul>
+<li> in each datafile
+<li> in a separate headerfile
+<li> in the setupfile
+</ul>
+
+The last to alternatives are used when plotting asciifiels with a different format.
 
 
 An example of a headerfile and a seperate datafile is given below:
@@ -281,7 +287,25 @@ DEPARTMENT;DEPT_NO;MUNICIPALITY;MUNI_NO;ST_NAME;STNR;UTM_E;UTM_N;AMSL;LAT_DEC;LO
 If there are some header lines in the datafiles. use the the command
 [SKIP_DATA_LINES X] to skip the X first lines of the data files.
 
+<p>
 
+Alternatively, the header information can be given in the setupfile:
+<p>
+
+<b>Setupfile:</b>
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+PROD=ascii:Stations
+file="http://klapp.oslo.dnmi.no/metnopub/production/metno?re=16&ct=text/plain&nod=-999&del=semicolon"
+headerinfo=[SKIP_DATA_LINES 1]
+headerinfo=[SEPARATOR ;]
+headerinfo=[COLUMNS 
+headerinfo=;DEPARTMENT:s;DEPT_NO:s;MUNICIPALITY:s;MUNI_NO:s;ST_NAME:s; \
+STNR:s;UTM_E:s;UTM_N:s;AMSL:s;LAT_DEC:lat;LON_DEC:lon;WMO_NO:s]
+headerinfo=[DATA]
+</pre>
+</td></tr></table>
 
 
     <h2><a NAME="MAP.ASCII.FILES"></a>Map ascii files</h2>

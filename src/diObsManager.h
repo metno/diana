@@ -92,6 +92,7 @@ private:
     miutil::miString plotFormat;
     vector<patternInfo> pattern;
     vector<FileInfo> fileInfo;
+    vector<miutil::miString> headerinfo;
     bool noTime; //files have no time, vector<miutil::miTime> time is empty
     int timeRangeMin;
     int timeRangeMax;
