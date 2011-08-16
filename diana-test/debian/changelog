@@ -1,3 +1,100 @@
+diana-test (3.25.5-ubuntu2) lucid; urgency=low
+
+  * Bugfix: bdiana did not find fieldTimes
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 04 Jul 2011 12:40:39 +0200
+
+diana-test (3.25.5-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Labels from ObsAscii files
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.29
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 27 Jun 2011 09:46:48 +0200
+
+diana-test (3.25.1-ubuntu1) lucid; urgency=low
+
+  * Field: model and field are now case sensitive
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 16 Jun 2011 15:04:52 +0200
+
+diana-test (3.25.0-ubuntu13) lucid; urgency=low
+
+  * Bugfixes GridIO
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 23 May 2011 10:15:37 +0200
+
+diana-test (3.25.0-ubuntu12) lucid; urgency=low
+
+  * geotiff enabled
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 11 May 2011 11:08:04 +0200
+
+diana-test (3.25.0-ubuntu11) lucid; urgency=low
+
+  * Using metlibs_4.1
+  * Usng libfimex-dev 0.28-2
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 11 May 2011 10:21:04 +0200
+
+diana-test (3.25.0-ubuntu10) lucid; urgency=low
+
+  * Vertical crossections: vt+w plotted independent of vertical coordinat
+  * Using metlibs_4.0
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 05 Apr 2011 17:52:38 +0200
+
+diana-test (3.25.0-ubuntu9) lucid; urgency=low
+
+  * documatation
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 31 Mar 2011 11:11:22 +0200
+
+diana-test (3.25.0-ubuntu8) lucid; urgency=low
+
+  * Fields: plot method can be selected in dialog
+  * Using metlibs_4.0
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 31 Mar 2011 10:33:16 +0200
+
+diana-test (3.25.0-ubuntu7) lucid; urgency=low
+
+  * Bugfix trajectories could not cross from 0 to nx in global fields
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Sun, 13 Mar 2011 19:31:39 +0100
+
+diana-test (3.25.0-ubuntu6) lucid; urgency=low
+
+  * ...
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 01 Mar 2011 13:28:49 +0100
+ 
+diana-test (3.25.0-ubuntu5) lucid; urgency=low
+
+  * using <diana.setup> tags when reading from url
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 01 Mar 2011 12:10:07 +0100
+
+diana-test (3.25.0-ubuntu4) lucid; urgency=low
+
+  * Reading setup from wiki
+  * Fixing plotbuttons focus
+  * Bugfix: observations, sea temperature
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 01 Mar 2011 08:13:13 +0100
+
+diana-test (3.25.0-ubuntu3) lucid; urgency=low
+
+  * Fimex: Fixed one time step per file and different time units
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 16 Feb 2011 13:14:15 +0100
+
+diana-test (3.25.0-ubuntu2) lucid; urgency=low
+
+  * bugfix
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 28 Jan 2011 15:28:57 +0100
+
 diana-test (3.25.0-ubuntu1) lucid; urgency=low
 
   * New field reader using fimex

@@ -1,3 +1,76 @@
+diana (3.25.5-ubuntu2) lucid; urgency=low
+
+  * Bugfix: bdiana did not find fieldTimes
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 04 Jul 2011 12:41:27 +0200
+
+diana (3.25.5-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Labels from ObsAscii files
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.29
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 27 Jun 2011 09:45:07 +0200
+
+diana (3.25.4-ubuntu2) lucid; urgency=low
+
+  * Bugfix was not included in last version
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 22 Jun 2011 08:52:03 +0200
+
+diana (3.25.4-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Memory leak in StationPlot
+  * PostScript fix: Always set font-specification
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 21 Jun 2011 14:53:45 +0200
+
+diana (3.25.3-ubuntu1) lucid; urgency=low
+
+  * More bugfix: profet
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 20 Jun 2011 13:30:54 +0200
+
+diana (3.25.2-ubuntu2) lucid; urgency=low
+
+  * Bugfix case insensitivity
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 17 Jun 2011 14:54:36 +0200
+
+diana (3.25.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix xylimit
+  * Reverted fix: model and field are now case insensitive
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 17 Jun 2011 08:28:03 +0200
+
+diana (3.25.1-ubuntu1) lucid; urgency=low
+
+  * Field: model and field are now case sensitive
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 16 Jun 2011 11:26:45 +0200
+
+diana (3.25.0-ubuntu4) lucid; urgency=low
+
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.28-2
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 15 Jun 2011 10:06:40 +0200
+
+diana (3.25.0-ubuntu3) lucid; urgency=low
+
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.28
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 10 May 2011 08:31:50 +0200
+
+diana (3.25.0-ubuntu2) lucid; urgency=low
+
+  * Geotiff support enabled
+  * Using metlibs_4.1
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 05 May 2011 12:02:30 +0200
+
 diana (3.25.0-ubuntu1) lucid; urgency=low
 
   * New field reader using fimex
