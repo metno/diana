@@ -1,3 +1,16 @@
+diana-test (3.26.0-ubuntu2) lucid; urgency=low
+
+  * Fixed typo in the news
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Thu, 18 Aug 2011 09:53:38 +0200
+
+diana-test (3.26.0-ubuntu1) lucid; urgency=low
+
+  * Testversion from trunk
+  * Using metlibs trunk
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Thu, 18 Aug 2011 09:51:15 +0200
+
 diana-test (3.25.5-ubuntu2) lucid; urgency=low
 
   * Bugfix: bdiana did not find fieldTimes
