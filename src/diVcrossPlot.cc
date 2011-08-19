@@ -5060,10 +5060,15 @@ bool VcrossPlot::vcMovement(float *vt, float *wom, float *p, float *x,
 
         if (y0 >= ymin && y0 <= ymax && vt[n] != fieldUndef && wom[n]
                                                                    != fieldUndef && (vt[n] != 0. || wom[n] != 0.)) {
-
+          // vt+w
           if (p==NULL) {
-            // independent of vertical coordinate
+            if (vcoordPlot == vcv_height) {
+              dy = v2hRatio * dt * wom[n];
+            } else {
+              dy = v2hRatio * dt * 0.1 * wom[n];
+            }
             dy = v2hRatio * dt * wom[n];
+            // vt+omega
           } else if (vcoordPlot == vcv_exner) {
             // exner function as output vertical coordinate
             p2 = p[n] + dt * wom[n];
