@@ -456,31 +456,31 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   4001  YEAR
     case 4001:
-      if (!skip_time)
+      if (!skip_time && values[j]<bufrMissing )
         year = int(values[j]);
       break;
 
       //   4002  MONTH
     case 4002:
-      if (!skip_time)
+      if (!skip_time && values[j]<bufrMissing )
         month = int(values[j]);
       break;
 
       //   4003  DAY
     case 4003:
-      if (!skip_time)
+      if (!skip_time && values[j]<bufrMissing )
         day = int(values[j]);
       break;
 
       //   4004  HOUR
     case 4004:
-      if (!skip_time)
+      if (!skip_time && values[j]<bufrMissing )
         hour = int(values[j]);
       break;
 
       //   4005  MINUTE
     case 4005:
-      if (!skip_time)
+      if (!skip_time && values[j]<bufrMissing )
         minute = int(values[j]);
       break;
 
