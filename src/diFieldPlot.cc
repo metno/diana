@@ -143,22 +143,14 @@ void FieldPlot::getFieldAnnotation(miString& s, Colour& c)
 
 
 // Extract plotting-parameters from PlotInfo.
-bool FieldPlot::prepare(const miString& pin)
+bool FieldPlot::prepare(const miString& fname, const miString& pin)
 {
   pinfo= pin;
   setPlotInfo(pin);
 
   vector<miString> tokens= pinfo.split();
-  int n= tokens.size();
-  miString fname= tokens[2];
-
-  if (n>2)
-    fname= tokens[2];
-  else
-    return false;
 
   poptions.fillFieldPlotOptions(fname,pin,poptions);
-
   plottype= poptions.plottype;
 
 #ifdef DEBUGPRINT

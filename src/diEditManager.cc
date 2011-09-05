@@ -2573,7 +2573,7 @@ bool EditManager::recalcCombineMatrix(){
  -----------------------------------------------------------------------*/
 
 
-void EditManager::prepareEditFields(const vector<miString>& inp)
+void EditManager::prepareEditFields(const miString& plotName, const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
   cerr << "++ EditManager::prepareEditFields ++" << endl;
@@ -2587,8 +2587,9 @@ void EditManager::prepareEditFields(const vector<miString>& inp)
   unsigned int npi= vip.size();
   if (npi>fedits.size()) npi= fedits.size();
 
-  for (unsigned int i=0; i<npi; i++)
-    fedits[i]->editfieldplot->prepare(vip[i]);
+  for (unsigned int i=0; i<npi; i++) {
+    fedits[i]->editfieldplot->prepare(plotName, vip[i]);
+  }
 
   // for showing single region during and after combine
   npi= vip.size();
@@ -2596,8 +2597,9 @@ void EditManager::prepareEditFields(const vector<miString>& inp)
 
   for (unsigned int i=0; i<npi; i++) {
     int nreg=combinefields[i].size();
-    for (int r=0; r<nreg; r++)
-      combinefields[i][r]->editfieldplot->prepare(vip[i]);
+    for (int r=0; r<nreg; r++) {
+      combinefields[i][r]->editfieldplot->prepare(plotName, vip[i]);
+    }
   }
 
 #ifdef DEBUGPRINT

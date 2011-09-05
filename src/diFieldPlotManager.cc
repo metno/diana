@@ -88,7 +88,6 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
   const miString key_endfield = "end.field";
   const miString key_fieldgroup = "fieldgroup";
   const miString key_plot = "plot";
-
   const miString key_plottype = "plottype";
 
   // parse setup
@@ -240,7 +239,6 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
             pf.input = input;
             vPlotField.push_back(pf);
           }
-          mapPlotField[name] = vPlotField[i];
         }
       }
 
@@ -358,7 +356,11 @@ vector<miString> FieldPlotManager::getFields()
   set<miString> paramSet;
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
     for (unsigned int j = 0; j < vPlotField[i].input.size(); j++) {
-      paramSet.insert(vPlotField[i].input[j]);
+      //remove extra info like ":standard_name"
+      miString input = vPlotField[i].input[j];
+      vector<miString> vstr = input.split(":");
+      paramSet.insert(vstr[0]);
+      paramSet.insert(vstr[0]);
     }
   }
 
@@ -489,7 +491,7 @@ vector<miTime> FieldPlotManager::getFieldTime(
   vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
     if (request[i].plotDefinition ) {
-      vector<std::string> name = getParamNames(request[i].paramName);
+      vector<std::string> name = getParamNames(request[i].paramName,request[i].zaxis);
       if ( name.size()>0 ) {
         request[i].paramName = name[0];
       }
@@ -813,7 +815,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
     miString& modelName, std::string refTime, vector<FieldGroupInfo>& vfgi)
 {
-//  cerr <<__FUNCTION__<<endl;
+  //cerr <<__FUNCTION__<<endl;
 
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 
@@ -835,48 +837,72 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
 
     //sort fieldnames and suffixes
     map<miString, vector<miString> > fieldName_suffix;
+    map<miString, vector<miString> > standardName_suffix;
     for (unsigned int l = 0; l < vfgi[i].fieldNames.size(); l++) {
       miString suffix;
       miString fieldName = vfgi[i].fieldNames[l];
       splitSuffix(fieldName, suffix);
       fieldName_suffix[fieldName].push_back(suffix);
     }
-//    for (unsigned int l = 0; l < vfgi[i].standard_names.size(); l++) {
-//      miString suffix;
-//      miString fieldName = vfgi[i].standard_names[l];
-//      fieldName_suffix[fieldName].push_back(suffix);
-//    }
+
+    for (unsigned int l = 0; l < vfgi[i].standard_names.size(); l++) {
+      miString suffix;
+      miString fieldName = vfgi[i].standard_names[l];
+      splitSuffix(fieldName, suffix);
+      standardName_suffix[fieldName].push_back(suffix);
+      standardNameMap[vfgi[i].standard_names[l]] = vfgi[i].fieldNames[l];
+    }
 
     //find plotNames
     vector<miString> plotNames;
     for (unsigned int j = 0; j < vPlotField.size(); j++) {
-      miString plotName = vPlotField[j].name;
-      //check that all fields needed exist with same suffix
-      map<std::string, unsigned int> suffixmap;
-      for (unsigned int k = 0; k < vPlotField[j].input.size(); k++) {
-        std::string fieldName = std::string(vPlotField[j].input[k]);
-        if (!fieldName_suffix.count(fieldName)) {
-          break;
+        miString plotName = vPlotField[j].name;
+        //check that all fields needed exist with same suffix
+        map<std::string, unsigned int> suffixmap;
+        for (unsigned int k = 0; k < vPlotField[j].input.size(); k++) {
+          miString fieldName = miString(vPlotField[j].input[k]);
+          vector<miString> vstr = fieldName.split(":");
+          fieldName = vstr[0];
+          bool standard_name = false;
+          if (vstr.size() == 2 && vstr[1] == "standard_name" ){
+            standard_name = true;
+            if ( !standardName_suffix.count(fieldName) ) {
+              break;
+            }
+            for (unsigned int l = 0; l < standardName_suffix[fieldName].size(); l++) {
+              suffixmap[standardName_suffix[fieldName][l]] += 1;
+            }
+          } else {
+            if (!fieldName_suffix.count(fieldName)) {
+              break;
+            }
+            for (unsigned int l = 0; l < fieldName_suffix[fieldName].size(); l++) {
+              suffixmap[fieldName_suffix[fieldName][l]] += 1;
+            }
+          }
         }
-        for (unsigned int l = 0; l < fieldName_suffix[fieldName].size(); l++) {
-          suffixmap[fieldName_suffix[fieldName][l]] += 1;
-        }
-      }
 
-      //add plotNames without suffix
-      if (suffixmap[""] >= vPlotField[j].input.size()) {
-        plotNames.push_back(plotName);
-      }
+        //add plotNames without suffix
+        if (suffixmap[""] >= vPlotField[j].input.size()) {
+          plotNames.push_back(plotName);
+          vPlotField[j].vcoord.insert(vfgi[i].zaxis);
+          //old syntax, no zaxis
+          if( vfgi[i].zaxis.empty() && vfgi[i].levelNames.size()!=0 ) {
+            vPlotField[j].vcoord.insert(FieldSpecTranslation::getVcoorFromLevel(vfgi[i].levelNames[0]));
+          }
+        }
 
-      //add plotNames with suffix
-      set<std::string>::iterator p;
-      for (p = fieldsuffixes.begin(); p != fieldsuffixes.end(); p++) {
-        if (suffixmap[*p] >= vPlotField[j].input.size()) {
-          miString pN = plotName + *p;
-          plotNames.push_back(pN);
+        //add plotNames with suffix
+        set<std::string>::iterator p;
+        for (p = fieldsuffixes.begin(); p != fieldsuffixes.end(); p++) {
+          if (suffixmap[*p] >= vPlotField[j].input.size()) {
+            miString pN = plotName + *p;
+            plotNames.push_back(pN);
+          }
         }
       }
-    }
+    //}
+
     vfgi[i].fieldNames = plotNames;
 
   }
@@ -940,7 +966,6 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
         fieldrequest.plotDefinition=false;
       }else if (key == "plot") {
         plotName = vtoken[1];
-        paramNames = getParamNames(vtoken[1]);
         fieldrequest.plotDefinition=true;
       } else if (key == "vcoor") {
         fieldrequest.zaxis = vtoken[1];
@@ -993,6 +1018,9 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   }
 
   //  //plotName -> fieldName
+  if ( fieldrequest.plotDefinition) {
+    paramNames = getParamNames(plotName,fieldrequest.zaxis);
+  }
 
   for (size_t i = 0; i < paramNames.size(); i++) {
     fieldrequest.paramName = paramNames[i];
@@ -1003,28 +1031,43 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
 }
 
-vector<std::string> FieldPlotManager::getParamNames(std::string plotName)
+vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::string vcoord)
 {
+
+  //search through vPlotField
+  //if plotName and vcoord ok -> use it
+  //else use fieldname= plotname
 
   vector<std::string> paramNames;
   std::string suffix;
   splitSuffix(plotName, suffix);
 
-//If plotName not defined, use plotName as fieldName
-  if (!mapPlotField.count(plotName)) {
-    paramNames.push_back(plotName);
-    return paramNames;
+  for ( size_t i=0; i<vPlotField.size(); ++i ) {
+      if ( vPlotField[i].name == plotName && vPlotField[i].vcoord.count(vcoord)) {
+      for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
+        miString inputName = vPlotField[i].input[j];
+        vector<miString> vstr = inputName.split(":");
+        inputName = vstr[0];
+        if (vstr.size() == 2 && vstr[1] == "standard_name" ){
+          if (standardNameMap.count(inputName)) {
+            inputName = standardNameMap[inputName];
+          }
+        }
+
+        inputName += suffix;
+        paramNames.push_back(inputName);
+      }
+
+      return paramNames;
+
+//    }
+    }
+
   }
 
-  for (size_t i = 0; i < mapPlotField[plotName].input.size(); i++) {
-    std::string inputName = std::string(mapPlotField[plotName].input[i]);
-    inputName += suffix;
-    paramNames.push_back(inputName);
-  }
-
+  //If plotName not defined, use plotName as fieldName
+  paramNames.push_back(plotName);
   return paramNames;
-//  plotName += suffix;
-
 }
 
 bool FieldPlotManager::splitDifferenceCommandString(miString pin, miString& fspec1, miString& fspec2)

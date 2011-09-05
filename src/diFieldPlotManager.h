@@ -54,6 +54,7 @@ public:
     //miutil::miString text;            ///< not used, yet...
     miutil::miString plot; ///< the plot type, for debugging only
     vector<miutil::miString> input; ///< the input fields, read or computed
+    set< miutil::miString > vcoord;
   };
 
   FieldPlotManager(FieldManager* fm);
@@ -100,19 +101,21 @@ public:
   void getAllFieldNames(vector<miutil::miString>& fieldNames,
       set<std::string>& fieldprefixes, set<std::string>& fieldsuffixes);
 
+  /// Parse plotInfo string into FieldReqests and plotName
+  bool parsePin(std::string& pin, vector<FieldRequest>& fieldrequest, std::string& plotName);
+
 private:
 
   vector<PlotField> vPlotField;
-  map<std::string, PlotField> mapPlotField;
   set<std::string> fieldprefixes;
   set<std::string> fieldsuffixes;
+  map<std::string,std::string> standardNameMap;
 
   vector<miutil::miString>
       splitComStr(const miutil::miString& s, bool splitall);
 
   bool splitSuffix(std::string& plotName, std::string& suffix);
-  bool parsePin(std::string& pin, vector<FieldRequest>& fieldrequest, std::string& plotName);
-  vector<std::string> getParamNames(std::string plotName);
+  vector<std::string> getParamNames(std::string plotName, std::string vcoord);
 
   bool splitDifferenceCommandString(miutil::miString pin, miutil::miString& fspec1, miutil::miString& fspec2);
 

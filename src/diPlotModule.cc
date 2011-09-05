@@ -154,8 +154,12 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   prepareTrajectory(trajectorypi);
   prepareAnnotation(labelpi);
 
-  if (inEdit)
-    editm->prepareEditFields(editfieldpi);
+  if (inEdit & editfieldpi.size()) {
+    std::string plotName;
+    vector<FieldRequest> vfieldrequest;
+    fieldplotm->parsePin(editfieldpi[0],vfieldrequest,plotName);
+    editm->prepareEditFields(plotName,editfieldpi);
+  }
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from PlotModule::preparePlots ++" << endl;
@@ -271,7 +275,11 @@ void PlotModule::prepareFields(const vector<miString>& inp)
     vfp.push_back(fp);
     vfp[n] = new FieldPlot();
 
-    if (!vfp[n]->prepare(inp[i])) {
+    std::string plotName;
+    vector<FieldRequest> vfieldrequest;
+    std::string inpstr = std::string(inp[i]);
+    fieldplotm->parsePin(inpstr,vfieldrequest,plotName);
+    if (!vfp[n]->prepare(plotName, inp[i])) {
       delete vfp[n];
       vfp.pop_back();
     } else {
