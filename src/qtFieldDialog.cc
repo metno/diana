@@ -180,7 +180,6 @@ nr_linewidths = 12;
   cp->addKey("elevel", "", 1, CommandParser::cmdString);
   cp->addKey("vcoor", "", 1, CommandParser::cmdString);
   cp->addKey("ecoor", "", 1, CommandParser::cmdString);
-  cp->addKey("taxis", "", 1, CommandParser::cmdString);
   cp->addKey("grid", "", 1, CommandParser::cmdString);
   cp->addKey("unit", "", 1, CommandParser::cmdString);
 
@@ -1680,7 +1679,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.idnumOptions = vfgi[indexFGR].idnumNames;
       sf.refTime = vfgi[indexFGR].refTime;
       sf.zaxis = vfgi[indexFGR].zaxis;
-      sf.taxis = vfgi[indexFGR].taxis;
       sf.extraaxis = vfgi[indexFGR].extraaxis;
       sf.grid = vfgi[indexFGR].grid;
       sf.cdmSyntax = vfgi[indexFGR].cdmSyntax;
@@ -3803,7 +3801,6 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
           if ( selectedFields[i].cdmSyntax ) {
             if ( selectedFields[i].zaxis != vfgi[indexFGR].zaxis
                 || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis
-                || selectedFields[i].taxis != vfgi[indexFGR].taxis
                 || selectedFields[i].grid != vfgi[indexFGR].grid
                 || selectedFields[i].plotDefinition != vfgi[indexFGR].plotDefinitions) {
               groupOK = false;
@@ -3892,8 +3889,6 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
       sf.idnum = vpc[j].allValue;
     } else if (vpc[j].key == "vcoor") {
       sf.zaxis = vpc[j].allValue;
-    } else if (vpc[j].key == "tcoor") {
-      sf.taxis = vpc[j].allValue;
     } else if (vpc[j].key == "ecoor") {
       sf.extraaxis = vpc[j].allValue;
     } else if (vpc[j].key == "grid") {
@@ -3935,12 +3930,8 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
 //         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis<<endl;
     if (sf.zaxis == vfg[indexFGR].zaxis
         && sf.extraaxis == vfg[indexFGR].extraaxis
-        && (sf.taxis == vfg[indexFGR].taxis || sf.taxis=="")
         && sf.grid == vfg[indexFGR].grid
         && sf.plotDefinition == vfg[indexFGR].plotDefinitions) {
-      if ( sf.taxis=="" ) {
-        sf.taxis = vfg[indexFGR].taxis;
-      }
       int m = vfg[indexFGR].fieldNames.size();
       int indexF = 0;
       while (indexF < m && vfg[indexFGR].fieldNames[indexF] != sf.fieldName){
@@ -4771,7 +4762,6 @@ void FieldDialog::changeModel()
         selectedFields[i].idnumOptions = vfgi[gbest].idnumNames;
         selectedFields[i].refTime = vfgi[indexFGR].refTime;
         selectedFields[i].zaxis = vfgi[indexFGR].zaxis;
-        selectedFields[i].taxis = vfgi[indexFGR].taxis;
         selectedFields[i].extraaxis = vfgi[indexFGR].extraaxis;
         selectedFields[i].grid = vfgi[indexFGR].grid;
         selectedFields[i].cdmSyntax = vfgi[indexFGR].cdmSyntax;
@@ -5010,7 +5000,6 @@ void FieldDialog::updateTime()
         request[nr].forecastSpec = 0;
         request[nr].refTime = selectedFields[i].refTime;
         request[nr].zaxis = selectedFields[i].zaxis;
-        request[nr].taxis = selectedFields[i].taxis;
         request[nr].eaxis = selectedFields[i].extraaxis;
         request[nr].grid = selectedFields[i].grid;
         request[nr].plotDefinition = selectedFields[i].plotDefinition;
