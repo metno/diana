@@ -70,7 +70,7 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
   m_objm= m_ctrl->getObjectManager();
   inEditSession = edit;
   inComment = false;
-  setWindowTitle(tr("Comments[*]"));
+  setWindowTitle("Comments[*]");
   //one window mEdit for editing new comments
   // one window mEdit2 for showing old comments (also used in objectDialog)
   if (inEditSession){
