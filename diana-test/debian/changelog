@@ -1,3 +1,12 @@
+diana-test (3.26.0-ubuntu4) lucid; urgency=low
+
+  * Using metlibs_4.2
+  * Using libfimex-0.31-1
+  * New profet function
+  * Improved fimex reading
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Fri, 09 Sep 2011 13:16:17 +0200
+
 diana-test (3.26.0-ubuntu3) lucid; urgency=low
 
   * Vertical crossections: vt+omega / vt+w fixed
