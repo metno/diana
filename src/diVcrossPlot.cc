@@ -4703,22 +4703,30 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       //find min/max
       float minValue = fieldUndef;
       float maxValue = -fieldUndef;
+      float maxPressure = fieldUndef;
+      float minPressure = -fieldUndef;
+      if ( poptions.extremeLimits.size() > 0 ) {
+        minPressure = poptions.extremeLimits[0];
+        if ( poptions.extremeLimits.size() > 1 ) {
+          maxPressure = poptions.extremeLimits[1];
+        }
+      }
       int ii_min=-1, ii_max=-1;
       for( j= partwind[2]; j<partwind[3]-1; ++j ) {
         for( k= partwind[0]; k<partwind[1]-1; ++k ) {
           int i = j*nPoint + k;
-          if(cdata2d[no1][i] > maxValue ) {
+          if(cdata2d[no1][i] > maxValue && cdata2d[npp][i] > minPressure && cdata2d[npp][i] < maxPressure ) {
             ii_max = i;
             maxValue = cdata2d[no1][i];
           }
-          if(cdata2d[no1][i] < minValue ) {
+          if(cdata2d[no1][i] < minValue && cdata2d[npp][i] > minPressure && cdata2d[npp][i] < maxPressure ) {
             ii_min=i;
             minValue = cdata2d[no1][i];
           }
         }
       }
       ostringstream ost;
-      ost << setprecision(1) << setiosflags(ios::fixed);
+      ost << setprecision(3);
       if ( ii_min > 1 ) {
         ost <<"Min: "<<cdata2d[no1][ii_min]<<"("<<cdata1d[nlat][ii_min%nPoint];
         if( cdata1d[nlat][ii_min%nPoint] > 0 ) ost <<"N, ";

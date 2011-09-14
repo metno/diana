@@ -175,7 +175,7 @@ private:
   vector<miutil::miString> lineintervals;
   QStringList      densityStringList;
   vector<miutil::miString> vectorunit;
-
+  QStringList extremeLimits;
   miutil::miString currentFieldOpts;
 
   vector< vector<miutil::miString> > commandHistory;
@@ -238,6 +238,7 @@ private:
 private slots:
   void extremeValueCheckBoxToggled(bool on);
   void extremeSizeChanged(int value);
+  void extremeLimitsChanged();
   void lineSmoothChanged(int value);
   void labelSizeChanged(int value);
   void hourOffsetChanged(int value);
@@ -262,6 +263,8 @@ private:
   QWidget* advFrame;
   QCheckBox*  extremeValueCheckBox;
   QSpinBox*  extremeSizeSpinBox;
+  QComboBox* extremeLimitMaxComboBox;
+  QComboBox* extremeLimitMinComboBox;
   QSpinBox*  lineSmoothSpinBox;
   QSpinBox*  labelSizeSpinBox;
   QSpinBox*  hourOffsetSpinBox;
