@@ -3,7 +3,7 @@ static char * cc_yellow_obs_xpm[] = {
 "17 17 3 1",
 " 	c None",
 ".	c #000000",
-"+	c #FFA500",
+"+	c #FFFF00",
 "     ....        ",
 "   ...+++        ",
 "  ..+++++        ",
