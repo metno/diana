@@ -527,12 +527,7 @@ void Sat::setArea()
   cerr << "Sat::setArea: " << endl;
 #endif
 
-  //Projection p;
-  int adjustGrid = 0;
-  if (formatType=="mitiff" || formatType== "geotiff") {
-    adjustGrid = ny;
-  }
-  //p.setProjectionFromAB(Ax, Ay, Bx, By, TrueLat, GridRot, adjustGrid);
+
   if ( proj_string == "" ) {
        std::stringstream tmp_proj_string;
        tmp_proj_string << "+proj=stere";
@@ -543,7 +538,7 @@ void Sat::setArea()
        tmp_proj_string << " +units=km";
        tmp_proj_string << " +x_0=" << (Bx*-1000.);
        tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*ny*1000.);
-       tmp_proj_string << " +towgs=0,0,0 +no_defs";
+       tmp_proj_string << " +towgs84=0,0,0 +no_defs";
        proj_string = tmp_proj_string.str();
   }
 
