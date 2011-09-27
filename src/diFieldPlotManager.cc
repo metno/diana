@@ -1043,7 +1043,10 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::s
   splitSuffix(plotName, suffix);
 
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
-      if ( vPlotField[i].name == plotName && vPlotField[i].vcoord.count(vcoord)) {
+    //Do not remember why vcoord had to match,
+    //Removed test in order to fix bdiana
+//    if ( vPlotField[i].name == plotName && vPlotField[i].vcoord.count(vcoord)) {
+    if ( vPlotField[i].name == plotName ) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
         miString inputName = vPlotField[i].input[j];
         vector<miString> vstr = inputName.split(":");
@@ -1060,7 +1063,6 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::s
 
       return paramNames;
 
-//    }
     }
 
   }
