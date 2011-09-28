@@ -1,3 +1,21 @@
+diana-test (3.26.0-ubuntu7) lucid; urgency=low
+
+  * Bugfix projections: towgs -> towgs84
+
+ -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 21 Sep 2011 14:11:12 +0200
+
+diana-test (3.26.0-ubuntu6) lucid; urgency=low
+
+  * Bugfix: projection of sat-images
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 13 Sep 2011 09:44:28 +0200
+
+diana-test (3.26.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix:projections
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Sep 2011 11:57:05 +0200
+
 diana-test (3.26.0-ubuntu4) lucid; urgency=low
 
   * Using metlibs_4.2
