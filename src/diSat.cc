@@ -534,7 +534,7 @@ void Sat::setArea()
        tmp_proj_string << " +lon_0=" << GridRot;
        tmp_proj_string << " +lat_ts=" << TrueLat;
        tmp_proj_string << " +lat_0=90";
-       tmp_proj_string << " +R=6371000";
+       tmp_proj_string << " +ellps=WGS84";
        tmp_proj_string << " +units=km";
        tmp_proj_string << " +x_0=" << (Bx*-1000.);
        tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*ny*1000.);
