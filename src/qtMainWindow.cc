@@ -3130,16 +3130,16 @@ void DianaMainWindow::hardcopy()
 void DianaMainWindow::trajPositions(bool b)
 {
   markTrajPos = b;
-  markMeasurementsPos = !b;
-  markVcross = !b;
+  markMeasurementsPos = false;
+  markVcross = false;
 
 }
 
 void DianaMainWindow::measurementsPositions(bool b)
 {
   markMeasurementsPos = b;
-  markTrajPos = !b;
-  markVcross = !b;
+  markTrajPos = false;
+  markVcross = false;
 
 }
 
