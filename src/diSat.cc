@@ -524,21 +524,23 @@ void Sat::setArea()
 {
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setArea: " << endl;
+  cerr << "Sat::setArea: " << Ax<<" : "<<Ay<<" : "<<Bx<<" : "<<By<<endl;
 #endif
 
-
+  // If the mitiff image contains no proj string, it is probably transformed to +R=6371000
+  // and adjusted to fit nwp-data and maps.
+  //These adjustments require no conversion between +R=6371000 and ellps=WGS84,
+  // and therefore no +datum or +towgs84 are given.
   if ( proj_string == "" ) {
        std::stringstream tmp_proj_string;
        tmp_proj_string << "+proj=stere";
        tmp_proj_string << " +lon_0=" << GridRot;
        tmp_proj_string << " +lat_ts=" << TrueLat;
        tmp_proj_string << " +lat_0=90";
-       tmp_proj_string << " +ellps=WGS84";
+       tmp_proj_string << " +R=6371000";
        tmp_proj_string << " +units=km";
        tmp_proj_string << " +x_0=" << (Bx*-1000.);
        tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*ny*1000.);
-       tmp_proj_string << " +towgs84=0,0,0 +no_defs";
        proj_string = tmp_proj_string.str();
   }
 
