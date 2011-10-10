@@ -1,3 +1,11 @@
+diana-test (3.27.0-ubuntu1) lucid; urgency=low
+
+  * Skipping -towgs in mitiff files whitout proj string
+  * Using metlibs_trunk
+  * Using libfimex-0.32-2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 10 Oct 2011 12:14:43 +0200
+
 diana-test (3.26.0-ubuntu7) lucid; urgency=low
 
   * Bugfix projections: towgs -> towgs84
