@@ -4706,9 +4706,9 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
       float maxPressure = fieldUndef;
       float minPressure = -fieldUndef;
       if ( poptions.extremeLimits.size() > 0 ) {
-        minPressure = poptions.extremeLimits[0];
+        maxPressure = poptions.extremeLimits[0];
         if ( poptions.extremeLimits.size() > 1 ) {
-          maxPressure = poptions.extremeLimits[1];
+          minPressure = poptions.extremeLimits[1];
         }
       }
       int ii_min=-1, ii_max=-1;
