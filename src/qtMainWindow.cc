@@ -2222,7 +2222,15 @@ void DianaMainWindow::processLetter(miMessage &letter)
         if (vpWindow && !station.empty()) vpWindow->changeStation(station);
       }
     }
+  }
 
+  else if( letter.command == qmstrings::vcross){
+    //description: name
+    vcrossMenu();
+    if(letter.data.size()){
+        //tell vcWindow to plot this corssection
+        if (vcWindow) vcWindow->changeCrossection(letter.data[0]);
+    }
   }
 
   else if (letter.command == qmstrings::addimage){

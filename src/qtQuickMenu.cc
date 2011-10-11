@@ -477,15 +477,23 @@ bool QuickMenu::applyItem(const miutil::miString& mlist, const miutil::miString&
   while(listIndex<n && qm[listIndex].name != mlist){
     listIndex++;
   }
-  if( listIndex==n ) return false;
+  if( listIndex==n ) {
+    cerr <<"list not found"<<endl;
+    return false;
+  }
 
   //find item index
   int m=qm[listIndex].menuitems.size();
   int itemIndex=0;
+  cerr <<item<<endl;
   while(itemIndex<m && qm[listIndex].menuitems[itemIndex].name != item){
+    cerr <<qm[listIndex].menuitems[itemIndex].name<<endl;
     itemIndex++;
   }
-  if( itemIndex==m  ) return false;
+  if( itemIndex==m  ) {
+    cerr <<"item not found"<<endl;
+    return false;
+  }
 
   //set menu
   menulist->setCurrentIndex(listIndex);

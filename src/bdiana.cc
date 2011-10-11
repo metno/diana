@@ -83,7 +83,7 @@
 
 // Keep X headers last, otherwise Qt will be very unhappy
 #ifdef USE_XLIB
-#include <X11/Intrinsic.h>
+//#include <X11/Intrinsic.h>
 #include <GL/glx.h>
 #include <GL/gl.h>
 #include <GL/glu.h>

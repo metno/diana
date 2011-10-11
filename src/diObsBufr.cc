@@ -305,6 +305,8 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
       if (oplot->getLevel() < -1) {
         if (!get_diana_data(ktdexl, ktdexp, values, cvals, len_cvals, i - 1,
             kxelem, obs) || !oplot->timeOK(obs.obsTime)){
+          if (!oplot->timeOK(obs.obsTime)) cerr <<"time not ok"<<endl;
+          cerr <<"Remove Obs"<<endl;
           oplot->removeObs();
         }
       } else {
@@ -361,7 +363,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   d.ypos = -32767;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
-
+//cerr <<ktdexp[i]<<" : "<<values[j]<<endl;
     switch (ktdexp[i]) {
     //   8021  TIME SIGNIFICANCE
     case 8021:
@@ -1004,12 +1006,12 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
   }
-
+cerr <<"year:"<<year<<"  month:"<<month<<"  day:"<<day<<"  hour:"<<hour<<"  min:"<<minute<<"  d.xpos:" <<d.xpos<<"  d.ypos:"<<d.ypos<<endl;
   //skip obs if xpos or ypos  or obsTime not ok
   if ( d.xpos > -32767 && d.ypos > -32767 && !d.obsTime.undef()) {
+cerr <<"time:"<<d.obsTime<<endl;
     return true;
   }
-
   return false;
 
 }
