@@ -491,6 +491,10 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
   }
 
   int nPoint= numPoint[iCross];
+  if(nPoint==0) {
+    cerr <<"VcrossFile::getCrossection: The crossection "<<name<<" contains no positions"<<endl;
+    return vcp;
+  }
   int nTotal= nPoint*numLev;
 
   vcp= new VcrossPlot();
