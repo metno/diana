@@ -84,7 +84,7 @@ public:
 
   /// return all field groups for one model/file (to FieldDialog)
   void getFieldGroups(const miutil::miString& modelNameRequest,
-      miutil::miString& modelName, std::string refTime, vector<FieldGroupInfo>& vfgi);
+      miutil::miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
 
   /// return available times for the selceted models and fields
   vector<miutil::miTime> getFieldTime(const vector<miutil::miString>& pinfos,

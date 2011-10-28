@@ -803,20 +803,11 @@ set<std::string> Controller::getFieldReferenceTimes(const std::string model)
 void Controller::getFieldGroups(const miString& modelNameRequest,
 				miString& modelName,
 				std::string refTime,
+				bool plotGroups,
 				vector<FieldGroupInfo>& vfgi)
 {
-//   cerr <<"modelNameRequest: "<<modelNameRequest<<endl;
 
-  fieldplotm->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
-//   for(int i=0;i<vfgi.size();i++){
-//     cerr <<"------------ "<<vfgi[i].groupName<<" ---------------------"<<endl;
-//     for(int j=0;j<vfgi[i].fieldNames.size();j++)
-//       cerr <<vfgi[i].fieldNames[j]<<endl;
-//     cerr <<"+++++++++++++++++++++++++++++++"<<endl;
-//     for(int j=0;j<vfgi[i].idnumNames.size();j++)
-//       cerr <<vfgi[i].idnumNames[j]<<endl;
-//   }
-//   cerr <<"modelName: "<<modelName<<endl;
+  fieldplotm->getFieldGroups(modelNameRequest, modelName, refTime, plotGroups, vfgi);
 
 }
 

@@ -451,7 +451,7 @@ vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
   vector<FieldGroupInfo> vfgi;
   miString name;
   std::string refTime;
-  getFieldGroups(tokens[1], name, refTime, vfgi);
+  getFieldGroups(tokens[1], name, refTime, true, vfgi);
   for (unsigned int i = 0; i < vfgi.size(); i++) {
     levels.push_back(vfgi[i].groupName);
     int k = 0;
@@ -813,22 +813,28 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 }
 
 void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
-    miString& modelName, std::string refTime, vector<FieldGroupInfo>& vfgi)
+    miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
 {
   //cerr <<__FUNCTION__<<endl;
 
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 
+  //Return vfgi whith parameter names from file + computed parameters
+  if(!plotGroups) {
+    return;
+  }
+
+  //replace parameters in vfgi with plots defined in setup
   size_t nvfgi = vfgi.size();
 
   //replace fieldnames with plotnames
   for (size_t i = 0; i < nvfgi; i++) {
 
-    //Make copy with filed names from file
-    if(fieldManager->isGridCollection(modelName)) {
-      vfgi.push_back(vfgi[i]);
-      vfgi[vfgi.size()-1].plotDefinitions = false;
-    }
+//    //Make copy with field names from file
+//    if(fieldManager->isGridCollection(modelName) && !plotGroups) {
+//      vfgi.push_back(vfgi[i]);
+//      vfgi[vfgi.size()-1].plotDefinitions = false;
+//    }
 
     //use groupname from setup if defined
     if ( groupNames.count(vfgi[i].groupName)) {
@@ -905,6 +911,16 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
 
     vfgi[i].fieldNames = plotNames;
 
+  }
+
+  //remove fieldgroups with no plots
+  vector<FieldGroupInfo>::iterator p = vfgi.begin();
+  for (; p != vfgi.end(); p++) {
+    if ( (*p).fieldNames.size() == 0 ) {
+      p = vfgi.erase(p);
+      if (p == vfgi.end())
+        break;
+    }
   }
 
 }

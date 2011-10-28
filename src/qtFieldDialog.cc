@@ -263,13 +263,19 @@ nr_linewidths = 12;
   QLabel *refTimelabel = TitleLabel(tr("Reference time"), this);
   refTimeComboBox = new QComboBox(this);
   connect( refTimeComboBox, SIGNAL( activated( int ) ),
-      SLOT( refTimeComboBoxActivated( int ) ) );
+      SLOT( updateFieldGroups(  ) ) );
 
   // fieldGRbox
   QLabel *fieldGRlabel = TitleLabel(tr("Field group"), this);
   fieldGRbox = new QComboBox(this);
   connect( fieldGRbox, SIGNAL( activated( int ) ),
       SLOT( fieldGRboxActivated( int ) ) );
+
+  //fieldGroupCheckBox
+  fieldGroupCheckBox = new QCheckBox(tr("Predefined plots"));
+  fieldGroupCheckBox->setChecked(true);
+  connect( fieldGroupCheckBox, SIGNAL( toggled(bool) ),
+      SLOT( updateFieldGroups(  ) ) );
 
   // fieldbox
   QLabel *fieldlabel = TitleLabel(tr("Fields"), this);
@@ -473,6 +479,10 @@ nr_linewidths = 12;
   connect(fieldapply, SIGNAL(clicked()), SLOT(applyClicked()));
 
   // layout
+  QHBoxLayout* grouplayout = new QHBoxLayout();
+  grouplayout->addWidget(fieldGRbox);
+  grouplayout->addWidget(fieldGroupCheckBox);
+
   QVBoxLayout* v1layout = new QVBoxLayout();
   v1layout->setSpacing(1);
   v1layout->addWidget(modelGRlabel);
@@ -482,7 +492,7 @@ nr_linewidths = 12;
   v1layout->addWidget(refTimelabel);
   v1layout->addWidget(refTimeComboBox);
   v1layout->addWidget(fieldGRlabel);
-  v1layout->addWidget(fieldGRbox);
+  v1layout->addLayout(grouplayout);
   v1layout->addWidget(fieldlabel);
   v1layout->addWidget(fieldbox, 4);
   v1layout->addWidget(selectedFieldlabel);
@@ -601,6 +611,7 @@ nr_linewidths = 12;
 
 void FieldDialog::toolTips()
 {
+  fieldGroupCheckBox->setToolTip(tr("Show predefined plots or all parameters from file"));
   upFieldButton->setToolTip(tr("move selected field up"));
   downFieldButton->setToolTip(tr("move selected field down"));
   Delete->setToolTip(tr("delete selected field"));
@@ -1201,13 +1212,13 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
       refTimeComboBox->addItem(QString((*ip).c_str()));
     }
 
-    refTimeComboBoxActivated(refTimeComboBox->currentIndex());
+    updateFieldGroups();
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::modelboxClicked returned"<<endl;
 #endif
 }
 
-void FieldDialog::refTimeComboBoxActivated(int index)
+void FieldDialog::updateFieldGroups()
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::refTimeComboBoxActivated called"<<endl;
@@ -3172,7 +3183,7 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, const std::strin
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  m_ctrl->getFieldGroups(model, modelName, refTime, vfg);
+  m_ctrl->getFieldGroups(model, modelName, refTime, fieldGroupCheckBox->isChecked(), vfg);
 
   QApplication::restoreOverrideCursor();
 

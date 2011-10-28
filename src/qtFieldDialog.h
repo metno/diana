@@ -265,6 +265,7 @@ private:
   QListWidget*  modelbox;
   QComboBox* refTimeComboBox;
   QComboBox* fieldGRbox;
+  QCheckBox* fieldGroupCheckBox;
   QListWidget*  fieldbox;
   QListWidget*  selectedFieldbox;
 
@@ -326,7 +327,7 @@ private slots:
   void modelGRboxActivated( int index );
   void modelboxClicked( QListWidgetItem * item );
 
-  void refTimeComboBoxActivated( int index );
+  void updateFieldGroups();
   void fieldGRboxActivated( int index );
   void fieldboxChanged(QListWidgetItem*);
 

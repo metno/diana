@@ -293,7 +293,7 @@ public:
   vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const miutil::miString& modelNameRequest,
-		      miutil::miString& modelName, std::string refTime, vector<FieldGroupInfo>& vfgi);
+		      miutil::miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
 
