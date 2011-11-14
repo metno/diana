@@ -1018,10 +1018,14 @@ void DianaProfetGUI::showField(const miutil::miTime & reftime, const miutil::miS
 
   // make plot string for new PROFET fieldPlot
   miutil::miString plotString;
+  plotString += " model=";
   plotString += ModelNames::profetWork(reftime) + " ";
+  plotString += " plot=";
   plotString += param;
   plotString += " time=";
   plotString += time.isoTime("T");
+  plotString += " reftime=";
+  plotString += reftime.isoTime("T");
   plotString += " overlay=1";
   LOG4CXX_DEBUG(logger,"showField: "<<plotString);
   emit showProfetField(plotString); //FieldDialog::fieldEditUpdate

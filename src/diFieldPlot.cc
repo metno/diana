@@ -108,7 +108,7 @@ bool FieldPlot::getRealFieldArea(Area& a){
 // check if current data from plottime
 bool FieldPlot::updateNeeded(miString& pin){
   if (ftime.undef() ||
-      (ftime != ctime && !pinfo.contains("time="))
+      (ftime != ctime && !pinfo.contains(" time="))
       || fields.size()==0){
     pin= pinfo;
     return true;
