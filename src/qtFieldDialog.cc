@@ -3165,10 +3165,10 @@ void FieldDialog::updateFieldOptions(const miutil::miString& name,
   // not update private settings if external/QuickMenu command...
   if (!selectedFields[n].external) {
     if (selectedFields[n].inEdit && !selectedFields[n].editPlot) {
-      editFieldOptions[selectedFields[n].fieldName.downcase()]
+      editFieldOptions[selectedFields[n].fieldName]
                        = currentFieldOpts;
     } else {
-      fieldOptions[selectedFields[n].fieldName.downcase()] = currentFieldOpts;
+      fieldOptions[selectedFields[n].fieldName] = currentFieldOpts;
     }
   }
 
@@ -3205,8 +3205,8 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, const std::strin
     while (indexMGR < ng && indexM < 0) {
       n = m_modelgroup[indexMGR].modelNames.size();
       i = 0;
-      modelName = modelName.downcase();
-      while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i].downcase()) {
+      modelName = modelName;
+      while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i]) {
 
         //        cout << " getFieldGroups, checking group:" << indexMGR << " model:"
         //            << m_modelgroup[indexMGR].modelNames[i] << " against " << modelName
@@ -3375,7 +3375,7 @@ std::string FieldDialog::getParamString(int i)
       ostr <<" model="<< selectedFields[i].modelName;
 
     if ( !selectedFields[i].refTime.empty() ) {
-      ostr <<" refTime="<<selectedFields[i].refTime<<endl;
+      ostr <<" reftime="<<selectedFields[i].refTime;
     }
 
     if (selectedFields[i].plotDefinition) {
@@ -3887,6 +3887,8 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
   for (size_t j = 0; j < vpc.size(); j++) {
     if (vpc[j].key == "model") {
       sf.modelName = vpc[j].allValue;
+    } else if (vpc[j].key == "reftime") {
+      sf.refTime = vpc[j].allValue;
     } else if (vpc[j].key == "plot") {
       sf.fieldName = vpc[j].allValue;
     } else if (vpc[j].key == "parameter") {
@@ -4061,7 +4063,7 @@ bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, S
       model = model.substr(0, model.find(("(")));
     }
 
-    if (modelName.downcase() == model.downcase()) {
+    if (modelName == model) {
       //        cout << "Found model:" << modelName << " in index:" << j << endl;
       int m = vfg2[j].fieldNames.size();
       int i = 0;
@@ -4183,7 +4185,7 @@ void FieldDialog::getEditPlotOptions(map<miutil::miString, map<
   //loop through parameters
   for (; p != po.end(); p++) {
     miutil::miString options;
-    miutil::miString parameter = p->first.downcase();
+    miutil::miString parameter = p->first;
     if (editFieldOptions.count(parameter)) {
       options = editFieldOptions[parameter];
     } else if (fieldOptions.count(parameter)) {
@@ -4345,9 +4347,9 @@ void FieldDialog::readLog(const vector<miutil::miString>& vstr,
         }
         if (changed) {
           if (editOptions) {
-            editFieldOptions[fieldname.downcase()] = cp->unParse(vpopt);
+            editFieldOptions[fieldname] = cp->unParse(vpopt);
           } else {
-            fieldOptions[fieldname.downcase()] = cp->unParse(vpopt);
+            fieldOptions[fieldname] = cp->unParse(vpopt);
           }
         }
 
@@ -4694,8 +4696,8 @@ void FieldDialog::changeModel()
   if (indexFGR < 0 || indexFGR >= int(vfgi.size()))
     return;
 
-  miutil::miString oldModel = selectedFields[index].modelName.downcase();
-  miutil::miString newModel = vfgi[indexFGR].modelName.downcase();
+  miutil::miString oldModel = selectedFields[index].modelName;
+  miutil::miString newModel = vfgi[indexFGR].modelName;
   if (oldModel == newModel)
     return;
   //ignore (gridnr)
@@ -4707,14 +4709,14 @@ void FieldDialog::changeModel()
   int gbest, fbest, gnear, fnear;
 
   for (int i = 0; i < n; i++) {
-    miutil::miString selectedModel = selectedFields[i].modelName.downcase();
+    miutil::miString selectedModel = selectedFields[i].modelName;
     selectedModel = selectedModel.substr(0, selectedModel.find("("));
     if (selectedModel == oldModel) {
       // check if field exists for the new model
       gbest = fbest = gnear = fnear = -1;
       int j = 0;
       while (gbest < 0 && j < nvfgi) {
-        miutil::miString model = vfgi[j].modelName.downcase();
+        miutil::miString model = vfgi[j].modelName;
         model = model.substr(0, model.find("("));
         if (model == newModel) {
           int m = vfgi[j].fieldNames.size();
@@ -4891,7 +4893,7 @@ void FieldDialog::resetOptions()
 miutil::miString FieldDialog::getFieldOptions(
     const miutil::miString& fieldName, bool reset, bool edit) const
 {
-  miutil::miString fieldname = fieldName.downcase();
+  miutil::miString fieldname = fieldName;
 
   map<miutil::miString, miutil::miString>::const_iterator pfopt;
 
@@ -5144,16 +5146,21 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
     int indrm = -1;
     SelectedField sf;
     vector<miutil::miString> vstr = str.split(' ');
-    miutil::miString modelname;
-    miutil::miString fieldname;
-    if (vstr.size() >= 2) {
+    bool allTimeSteps;
+    bool decodeOK = false;
+    sf.cdmSyntax = str.contains("model=");
+    if ( sf.cdmSyntax ) {
+      decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
+    } else {
+      decodeOK = decodeString_oldSyntax(str, sf, allTimeSteps);
+    }
+    if (decodeOK) {
       // new edit field
-      modelname = vstr[0];
-      fieldname = vstr[1];
       for (i = 0; i < n; i++) {
         if (!selectedFields[i].inEdit) {
-          if (selectedFields[i].modelName.downcase() == modelname.downcase()
-              && selectedFields[i].fieldName.downcase() == fieldname.downcase())
+          if (selectedFields[i].modelName == sf.modelName
+              && selectedFields[i].fieldName == sf.fieldName
+            && selectedFields[i].refTime == sf.refTime)
             break;
         }
       }
@@ -5166,15 +5173,14 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
 
     if (vstr.size() == 1 || !found) {
       // open/combine edit field
-      if (vstr.size() == 1)
-        fieldname = vstr[0];
+      if (vstr.size() == 1) {
+        sf.fieldName = vstr[0];
+      }
       map<miutil::miString, miutil::miString>::const_iterator pfo;
-      sf.modelName = modelname;
-      sf.fieldName = fieldname;
-      if ((pfo = editFieldOptions.find(fieldname.downcase()))
+      if ((pfo = editFieldOptions.find(sf.fieldName))
           != editFieldOptions.end()) {
         sf.fieldOpts = pfo->second;
-      } else if ((pfo = fieldOptions.find(fieldname.downcase()))
+      } else if ((pfo = fieldOptions.find(sf.fieldName))
           != fieldOptions.end()) {
         sf.fieldOpts = pfo->second;
       }
