@@ -305,8 +305,6 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
       if (oplot->getLevel() < -1) {
         if (!get_diana_data(ktdexl, ktdexp, values, cvals, len_cvals, i - 1,
             kxelem, obs) || !oplot->timeOK(obs.obsTime)){
-          if (!oplot->timeOK(obs.obsTime)) cerr <<"time not ok"<<endl;
-          cerr <<"Remove Obs"<<endl;
           oplot->removeObs();
         }
       } else {
@@ -352,6 +350,9 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   int timePeriodMinute = timePeriodMissing;
   int timeDisplacement = 0;
   miString cloudStr;
+  unsigned int selected_wind_vector_ambiguities = 0;
+  unsigned int wind_speed_selection_count = 1;
+  unsigned int wind_dir_selection_count = 1;
 
   bool skip_time = false; // Will be set to true if 008021 is encountered
   // with value 26, which means 'Time of last
@@ -591,8 +592,17 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   11011  WIND DIRECTION AT 10 M, DEGREE TRUE
     case 11011:
-      if (values[j] < bufrMissing)
-        d.fdata["dd"] = values[j];
+      if (values[j] < bufrMissing) {
+        if ( selected_wind_vector_ambiguities ) {
+          if ( selected_wind_vector_ambiguities == wind_dir_selection_count ) {
+            d.fdata["dd"] = values[j];
+            //cerr<<"dd:"<<values[j]<<endl;
+          }
+          wind_dir_selection_count++;
+        } else {
+          d.fdata["dd"] = values[j];
+        }
+      }
       break;
 
       // 011001 WIND DIRECTION
@@ -604,10 +614,21 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
       //   11012  WIND SPEED AT 10 M, m/s
     case 11012:
-      if (values[j] < bufrMissing)
-        d.fdata["ff"] = values[j];
+      if (values[j] < bufrMissing) {
+        if ( selected_wind_vector_ambiguities ) {
+        //cerr <<"wind_speed_selection_count:"<<wind_speed_selection_count<<endl;
+          if ( selected_wind_vector_ambiguities == wind_speed_selection_count ) {
+            d.fdata["ff"] = values[j];
+          //  cerr<<"ff:"<<values[j]<<endl;
+          }
+          wind_speed_selection_count++;
+        } else {
+          d.fdata["ff"] = values[j];
+        }
+      }
       break;
-      // 011002 WIND SPEED
+
+    // 011002 WIND SPEED
     case 11002:
       if (!d.fdata.count("ff") && values[j] < bufrMissing )
         d.fdata["ff"] = values[j];
@@ -910,6 +931,13 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     }
     break;
 
+    case 21102:
+      if ( values[j] < bufrMissing ) {
+        selected_wind_vector_ambiguities = values[j];
+        //cerr <<"selected_wind_vector_ambiguities:"<<selected_wind_vector_ambiguities<<endl;
+      }
+    break;
+
     // 022011 PERIOD OF WAVES, s
     case 22011:
       if (values[j] < bufrMissing)
@@ -1006,12 +1034,12 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
   }
-cerr <<"year:"<<year<<"  month:"<<month<<"  day:"<<day<<"  hour:"<<hour<<"  min:"<<minute<<"  d.xpos:" <<d.xpos<<"  d.ypos:"<<d.ypos<<endl;
+
   //skip obs if xpos or ypos  or obsTime not ok
   if ( d.xpos > -32767 && d.ypos > -32767 && !d.obsTime.undef()) {
-cerr <<"time:"<<d.obsTime<<endl;
     return true;
   }
+
   return false;
 
 }
@@ -1230,12 +1258,16 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 
         //   4004  HOUR
       case 4004:
-        hour = int(values[j]);
+        if (values[j] < bufrMissing) {
+          hour = int(values[j]);
+        }
         break;
 
         //   4005  MINUTE
       case 4005:
-        minute = int(values[j]);
+        if (values[j] < bufrMissing) {
+          minute = int(values[j]);
+        }
         break;
 
         //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
