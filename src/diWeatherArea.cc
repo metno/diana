@@ -484,6 +484,7 @@ void WeatherArea::setPlotVariables()
     case Ice:
       setSpline(true);
       setFillArea(true);
+      break;
     case ReducedVisibility:
       setSpline(true);
       setFillArea(false);

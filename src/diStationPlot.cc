@@ -1182,6 +1182,7 @@ void StationPlot::glPlot(thingToPlot tp, float x, float y, float w, float h)
     }
     glDisable(GL_BLEND);
     glEnd();
+    break;
   }
 }
 

@@ -1155,7 +1155,7 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
                                     vector<miutil::miTime>& objtimes,
                                     vector<miutil::miTime>& ptimes)
 {
-  const miTime::miTime now = miTime::nowTime();
+  const miTime now = miTime::nowTime();
 
   if (fieldtimes.empty()) {
     if (!sattimes.empty())

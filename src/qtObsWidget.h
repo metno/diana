@@ -51,7 +51,6 @@ class QHBoxLayout;
 class QGridLayout;
 class QCheckBox;
 class QLCDNumber;
-class QCHeckBox;
 
 class ButtonLayout;
 
