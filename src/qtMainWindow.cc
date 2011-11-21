@@ -2964,7 +2964,7 @@ void DianaMainWindow::saveAnimation() {
 
   QString s =
       QFileDialog::getSaveFileName(this,
-          tr("Save animation from current fields, satellite images, etc., using current settings"),
+          tr("Save animation from current fields, satellite images, etc. (*.mpg or *.avi)"),
           fname,
           tr("Movies (*.mpg *.avi);;All (*.*)"));
 
