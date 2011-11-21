@@ -171,7 +171,6 @@ void ObsAscii::decodeHeader(ObsPlot *oplot, vector<miutil::miString> lines)
   oplot->asciiColumn.clear();
   oplot->asciiSkipDataLines= 0;
 
-  oplot->asciip.clear();
   oplot->asciiColumnName.clear();
   oplot->asciiColumnTooltip.clear();
   oplot->asciiColumnType.clear();
