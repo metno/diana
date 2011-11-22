@@ -953,7 +953,13 @@ bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
 
-//     cerr <<"PIN: "<<pin<<endl;
+//  cerr <<"PIN: "<<pin<<endl;
+
+  // if difference
+  miString fspec1,fspec2;
+  if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
+    return parsePin(fspec1, vfieldrequest, plotName);
+  }
 
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
@@ -1098,9 +1104,9 @@ bool FieldPlotManager::splitDifferenceCommandString(miString pin, miString& fspe
     size_t p3 = pin.find(" ) ", p2 + 3);
     if (p1 != string::npos && p2 != string::npos && p3 != string::npos) {
       fspec1 = pin.substr(0, p1) + pin.substr(p1 + 2, p2 - p1
-          - 2);
+          - 2) + pin.substr(p3+2);
       fspec2 = pin.substr(0, p1) + pin.substr(p2 + 2, p3 - p2
-          - 2);
+          - 2) + pin.substr(p3+2);
       return true;
     }
   }
