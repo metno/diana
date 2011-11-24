@@ -196,6 +196,7 @@ void DianaProfetGUI::closeSessionDialog()
 {
   logfile.logSizeAndPos(sessionDialog, "ProfetSessionDialog");
   emit toggleProfetGui();
+  emit updateModelDefinitions();
 }
 
 void DianaProfetGUI::showObjectOverview(const QList<QModelIndex> & selected)
