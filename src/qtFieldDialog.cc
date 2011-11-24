@@ -1159,12 +1159,6 @@ void FieldDialog::archiveMode(bool on)
   updateModelBoxes();
 }
 
-void FieldDialog::enableProfet(bool on)
-{
-  profetEnabled = on;
-  updateModelBoxes();
-}
-
 void FieldDialog::modelGRboxActivated(int index)
 {
 #ifdef DEBUGPRINT
@@ -1221,7 +1215,7 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 void FieldDialog::updateFieldGroups()
 {
 #ifdef DEBUGPRINT
-  cerr<<"FieldDialog::refTimeComboBoxActivated called"<<endl;
+  cerr<<"FieldDialog::updateFieldGroups called"<<endl;
 #endif
 
   fieldGRbox->clear();

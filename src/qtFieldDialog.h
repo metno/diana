@@ -140,8 +140,6 @@ public:
   vector<miutil::miString> changeLevel(int increment, int type = 0);
 
   void archiveMode(bool on);
-  /// switch on/off access to profet fields
-  void enableProfet(bool on);
   /// returns fiels command strings, one for each field
   vector<miutil::miString> getOKString(bool resetLevelMove=true);
   /// return a short text for quickmenue
