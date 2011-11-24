@@ -231,7 +231,6 @@ dist_div_DATA= share/diana/VNNsynop.list \
 	share/diana/jason_swh.header \
 	share/diana/synpltab.dat \
 	share/diana/metpltab.dat \
-	share/diana/radiofyr.txt \
 	share/diana/printer.def \
 	share/diana/priList.txt \
 	share/diana/obsflag.html \
