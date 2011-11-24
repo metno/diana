@@ -42,7 +42,7 @@
 #include <diVcrossPlot.h>
 #include <diVcrossOptions.h>
 #include <diCommandParser.h>
-#include <diSetupParser.h>
+#include <puTools/miSetupParser.h>
 #include <diField/diMetConstants.h>
 #include <diContouring.h>
 #include <glText/glText.h>
@@ -129,9 +129,8 @@ VcrossPlot::VcrossPlot() :
   v2hRatio = -1.;
 
   if (!fp) {
-    SetupParser sp;
     fp = new FontManager();
-    fp->parseSetup(sp);
+    fp->parseSetup();
     fp->setFont("BITMAPFONT");
     fp->setFontFace(glText::F_NORMAL);
     fp->setScalingType(glText::S_FIXEDSIZE);
@@ -157,7 +156,7 @@ VcrossPlot::~VcrossPlot()
 }
 
 // static function
-bool VcrossPlot::parseSetup(SetupParser& sp)
+bool VcrossPlot::parseSetup()
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossPlot::parseSetup" << endl;
@@ -236,7 +235,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
 
   // section2 = VERTICAL_CROSSECTION_PARAMETERS
 
-  if (sp.getSection(section2, vstr)) {
+  if (SetupParser::getSection(section2, vstr)) {
 
     nvstr = vstr.size();
 
@@ -266,7 +265,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
           msg = "Not a definition: " + tokens[t];
         }
         if (!msg.empty()) {
-          sp.errorMsg(section2, l, msg);
+          SetupParser::errorMsg(section2, l, msg);
           error = true;
           msg.clear();
         }
@@ -281,7 +280,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
 
   // section3 = VERTICAL_CROSSECTION_COMPUTATIONS
 
-  if (sp.getSection(section3, vstr)) {
+  if (SetupParser::getSection(section3, vstr)) {
 
     nvstr = vstr.size();
 
@@ -325,7 +324,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
           msg = "Not a definition: " + tokens[t];
         }
         if (!msg.empty()) {
-          sp.errorMsg(section3, l, msg);
+          SetupParser::errorMsg(section3, l, msg);
           error = true;
           msg.clear();
         }
@@ -340,7 +339,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
 
   // section4 = VERTICAL_CROSSECTION_PLOTS
 
-  if (sp.getSection(section4, vstr)) {
+  if (SetupParser::getSection(section4, vstr)) {
 
     nvstr = vstr.size();
 
@@ -405,7 +404,7 @@ bool VcrossPlot::parseSetup(SetupParser& sp)
             vcf.plotOpts += (" " + tokens[t]);
         }
         if (!msg.empty()) {
-          sp.errorMsg(section4, l, msg);
+          SetupParser::errorMsg(section4, l, msg);
           error = true;
           msg.clear();
         }
@@ -579,7 +578,7 @@ vector<miString> VcrossPlot::getFieldNames(const miString& fileName)
 }
 
 // static function
-map<miString, miString> VcrossPlot::getAllFieldOptions(SetupParser& sp)
+map<miString, miString> VcrossPlot::getAllFieldOptions()
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossPlot::getAllFieldOptions" << endl;

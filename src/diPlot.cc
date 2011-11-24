@@ -51,7 +51,6 @@ float Plot::pheight=0;     // physical plotheight
 float Plot::gcd=0;         // great circle distance (corner to corner)
 FontManager* Plot::fp=0;   // master fontpack
 bool Plot::dirty=true;     // plotsize has changed
-SetupParser Plot::setup;   // setup-info and parser class
 GLPfile* Plot::psoutput=0; // PostScript module
 bool Plot::hardcopy=false; // producing postscript
 int Plot::pressureLevel=-1;// current pressure level
@@ -76,7 +75,7 @@ bool Plot::operator==(const Plot &rhs) const{
 
 void Plot::initFontManager(){
 
-  if (fp) fp->parseSetup( setup );
+  if (fp) fp->parseSetup();
 
 }
 
@@ -86,7 +85,7 @@ void Plot::restartFontManager(){
     delete fp;
   }
   fp = new FontManager();
-  if (fp) fp->parseSetup( setup );
+  if (fp) fp->parseSetup();
 
 }
 

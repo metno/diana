@@ -31,7 +31,6 @@
 #ifndef _diPrintOptions_h
 #define _diPrintOptions_h
 
-#include <diSetupParser.h>
 #include <puTools/miString.h>
 #include <map>
 
@@ -129,7 +128,7 @@ private:
 public:
   printerManager();
   /// parse the printer section of the setup file
-  bool parseSetup(SetupParser& sp);
+  bool parseSetup();
   /// parse printer-info file
   bool readPrinterInfo(const miutil::miString fname);
   /// page from string

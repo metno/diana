@@ -42,7 +42,6 @@
 #include <diEditObjects.h>
 #include <diDisplayObjects.h>
 #include <diAreaBorder.h>
-#include <diSetupParser.h>
 #include <diCommonTypes.h>
 #include <diUndoFront.h>
 #include <diTimeFilter.h>
@@ -130,7 +129,7 @@ public:
   /// returns true if objects should be combined
   bool toDoCombine(){return doCombine;}
   /// parse OBJECTS section of setup file
-  bool parseSetup(SetupParser& sp);
+  bool parseSetup();
   /// get ObjectNames from setup file to be used in dialog etc.
   vector<miutil::miString> getObjectNames(bool archive);
   /// insert name and file into objectList

@@ -33,8 +33,8 @@
 
 #include <puTools/miString.h>
 #include <glText/glText.h>
-#include <diSetupParser.h>
 #include <set>
+#include <map>
 
 /**
  \brief Font manager for text plotting
@@ -77,7 +77,7 @@ public:
   /// for test purposes, sets up a standard set of fonts
   bool testDefineFonts(miutil::miString path = "fonts");
   /// parse fontsection in setup file
-  bool parseSetup(SetupParser& sp);
+  bool parseSetup();
 
   /// choose fonttype, face and size
   bool set(const miutil::miString, const glText::FontFace, const float);

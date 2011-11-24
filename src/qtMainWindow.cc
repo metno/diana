@@ -90,7 +90,7 @@
 #include "qtSpectrumWindow.h"
 #include "diController.h"
 #include "diPrintOptions.h"
-#include "diSetupParser.h"
+#include "diLocalSetupParser.h"
 #include "diStationPlot.h"
 #include "diLocationPlot.h"
 
@@ -183,8 +183,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   setWindowIcon(QIcon(diana_icon_xpm));
   setWindowTitle(tr(dianaTitle.cStr()));
-
-  SetupParser setup;
 
 
   //-------- The Actions ---------------------------------
@@ -788,7 +786,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   hqcTo = -1;
   qsocket = false;
-  miutil::miString server = setup.basicValue("qserver");
+  miutil::miString server = LocalSetupParser::basicValue("qserver");
   pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
   //   pluginB->setMinimumWidth( hpixbutton );
   //   pluginB->setMaximumWidth( hpixbutton );
@@ -817,7 +815,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // Read the avatars to gallery
 
-  miutil::miString avatarpath = setup.basicValue("avatars");
+  miutil::miString avatarpath = LocalSetupParser::basicValue("avatars");
   if ( avatarpath.exists() ){
     vector<miutil::miString> vs = avatarpath.split(":");
     for ( unsigned int i=0; i<vs.size(); i++ ){
@@ -920,7 +918,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   HelpDialog::Info info;
   HelpDialog::Info::Source helpsource;
-  info.path= setup.basicValue("docpath");
+  info.path= LocalSetupParser::basicValue("docpath");
   helpsource.source= "index.html";
   helpsource.name= "Help";
   helpsource.defaultlink= "START";
@@ -1082,7 +1080,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   const miutil::miString label_name = "LABELS";
   vector<miutil::miString> sect_label;
 
-  if (!setup.getSection(label_name,sect_label)){
+  if (!miutil::SetupParser::getSection(label_name,sect_label)){
     cerr << label_name << " section not found" << endl;
     //default
     vlabel.push_back("LABEL data font=BITMAPFONT");
@@ -2667,8 +2665,7 @@ void DianaMainWindow::showNews()
 
 void DianaMainWindow::showUrl()
 {
-  SetupParser setup;
-  QDesktopServices::openUrl(QUrl(setup.basicValue("bugzilla").c_str()));
+  QDesktopServices::openUrl(QUrl(LocalSetupParser::basicValue("bugzilla").c_str()));
 }
 
 void DianaMainWindow::about()
@@ -3710,9 +3707,8 @@ void DianaMainWindow::writeLogFile()
 {
   // write the system log file to $HOME/.diana.log
 
-  SetupParser setup;
   miLogFile milogfile; // static logger
-  miutil::miString logfile= setup.basicValue("homedir") + "/diana.log";
+  miutil::miString logfile= LocalSetupParser::basicValue("homedir") + "/diana.log";
   miutil::miString thisVersion= version_string;
   miutil::miString thisBuild= build_string;
   // open filestream
@@ -3851,8 +3847,7 @@ void DianaMainWindow::readLogFile()
 
   getDisplaySize();
 
-  SetupParser setup;
-  miutil::miString logfile= setup.basicValue("homedir") + "/diana.log";
+  miutil::miString logfile= LocalSetupParser::basicValue("homedir") + "/diana.log";
   miutil::miString thisVersion= version_string;
   miutil::miString logVersion;
 
@@ -4153,13 +4148,12 @@ void DianaMainWindow::getDisplaySize()
 
 void DianaMainWindow::checkNews()
 {
-  SetupParser setup;
-  miutil::miString newsfile= setup.basicValue("homedir") + "/diana.news";
+  miutil::miString newsfile= LocalSetupParser::basicValue("homedir") + "/diana.news";
   miutil::miString thisVersion= "yy";
   miutil::miString newsVersion= "xx";
 
   // check modification time on news file
-  miutil::miString filename= setup.basicValue("docpath") + "/" + "news.html";
+  miutil::miString filename= LocalSetupParser::basicValue("docpath") + "/" + "news.html";
   QFileInfo finfo( filename.c_str() );
   if (finfo.exists()) {
     QDateTime dt = finfo.lastModified();

@@ -39,7 +39,7 @@
 #include <QApplication>
 #include <QTranslator>
 
-#include "diSetupParser.h"
+#include "diLocalSetupParser.h"
 #include "diPrintOptions.h"
 #include "diController.h"
 #include "qtMainWindow.h"
@@ -171,14 +171,13 @@ int main(int argc, char **argv)
   }
   MI_LOG & log = MI_LOG::getInstance("diana.main_gui");
 
-  SetupParser sp;
-  sp.setUserVariables(user_variables);
-  if (!sp.parse(setupfile)){
+  SetupParser::setUserVariables(user_variables);
+  if (!LocalSetupParser::parse(setupfile)){
     log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
   printerManager printman;
-  if (!printman.parseSetup(sp)){
+  if (!printman.parseSetup()){
     log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
     return 99;
   }
@@ -198,8 +197,8 @@ int main(int argc, char **argv)
 #endif
 
   // language from setup
-  if(sp.basicValue("language").exists())
-    lang=sp.basicValue("language");
+  if(LocalSetupParser::basicValue("language").exists())
+    lang=LocalSetupParser::basicValue("language");
 
   // language from command line
   if(cl_lang.exists())
@@ -223,7 +222,7 @@ int main(int argc, char **argv)
     miString qulang   = "qUtilities_"+lang;
 
     // translation files for application strings
-    vector<miString> langpaths = sp.languagePaths();
+    vector<miString> langpaths = LocalSetupParser::languagePaths();
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
       if( qt.load(    qtlang.cStr(),langpaths[i].cStr()))

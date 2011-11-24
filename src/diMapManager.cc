@@ -34,6 +34,7 @@
 #endif
 
 #include <diMapManager.h>
+#include <puTools/miSetupParser.h>
 
 using namespace::miutil;
 
@@ -44,23 +45,23 @@ vector<MapInfo> MapManager::mapfiles;
 const miString SectMapAreas = "MAP_AREA";
 const miString SectMapTypes = "MAP_TYPE";
 
-bool MapManager::parseSetup(SetupParser& sp)
+bool MapManager::parseSetup()
 {
-  if (!parseMapAreas(sp))
+  if (!parseMapAreas())
     return false;
-  if (!parseMapTypes(sp))
+  if (!parseMapTypes())
     return false;
   return true;
 }
 
 // parse section containing definitions of map-areas
-bool MapManager::parseMapAreas(SetupParser& sp)
+bool MapManager::parseMapAreas()
 {
 
   mapareas.clear();
 
   vector<miString> setuplist;
-  if (!sp.getSection(SectMapAreas, setuplist)) {
+  if (!SetupParser::getSection(SectMapAreas, setuplist)) {
     return true;
   }
 
@@ -106,7 +107,7 @@ bool MapManager::parseMapAreas(SetupParser& sp)
       //cerr << "Adding area:" << name << " defined by:" << area << endl;
 
     } else {
-      sp.errorMsg(SectMapAreas, i, "Incomplete maparea-specification");
+      SetupParser::errorMsg(SectMapAreas, i, "Incomplete maparea-specification");
       return false;
     }
 
@@ -114,7 +115,7 @@ bool MapManager::parseMapAreas(SetupParser& sp)
   return true;
 }
 
-bool MapManager::parseMapTypes(SetupParser& sp)
+bool MapManager::parseMapTypes()
 {
 
   const miString key_name = "map=";
@@ -128,7 +129,7 @@ bool MapManager::parseMapTypes(SetupParser& sp)
   mapfiles.clear();
   m = -1;
 
-  if (!sp.getSection(SectMapTypes, strlist))
+  if (!SetupParser::getSection(SectMapTypes, strlist))
     return true;
 
   n = strlist.size();

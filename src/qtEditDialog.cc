@@ -63,7 +63,7 @@
 #include "qtComplexText.h"
 #include "qtEditText.h"
 #include "qtAnnoText.h"
-#include "diSetupParser.h"
+#include "diLocalSetupParser.h"
 #include "diController.h"
 #include "diEditManager.h"
 #include "diObjectManager.h"
@@ -1193,9 +1193,8 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
     //for now, only sigmap symbols have images...
     list->clear();
     list->setViewMode(QListView::IconMode);
-    SetupParser sp;
     for ( int i=0; i<n; i++){
-      miutil::miString path = sp.basicValue("imagepath");
+      miutil::miString path = LocalSetupParser::basicValue("imagepath");
       miutil::miString filename = path+ m_FronteditList[i] + ".png";
       QPixmap pmap(filename.c_str());
       if(!pmap.isNull()){

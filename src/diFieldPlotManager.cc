@@ -36,6 +36,7 @@
 #include <diFieldPlotManager.h>
 #include <diField/diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
+#include <puTools/miSetupParser.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
@@ -56,19 +57,19 @@ void FieldPlotManager::getAllFieldNames(vector<miString>& fieldNames)
 
 }
 
-bool FieldPlotManager::parseSetup(SetupParser &sp)
+bool FieldPlotManager::parseSetup()
 {
 
-  if ( !parseFieldPlotSetup(sp) ) {
+  if ( !parseFieldPlotSetup() ) {
     return false;
   }
-  if ( !parseFieldGroupSetup(sp) ) {
+  if ( !parseFieldGroupSetup() ) {
     return false;
   }
   return true;
 }
 
-bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
+bool FieldPlotManager::parseFieldPlotSetup()
 {
 
   //   cerr <<"bool FieldPlotManager::parseSetup"<<endl;
@@ -78,7 +79,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
   miString sect_name = "FIELD_PLOT";
   vector<miString> lines;
 
-  if (!sp.getSection(sect_name, lines)) {
+  if (!SetupParser::getSection(sect_name, lines)) {
     cerr << sect_name << " section not found" << endl;
     return true;
   }
@@ -157,7 +158,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
             vstr = str.split('=', false);
             if (vstr.size() < 2) {
               miString errm = "Missing field name";
-              sp.errorMsg(sect_name, i, errm);
+              SetupParser::errorMsg(sect_name, i, errm);
               continue;
             }
             name = vstr[1];
@@ -174,7 +175,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
                 option = key_plottype + "=" + vstr[j + 2];
                 if (!PlotOptions::updateFieldPlotOptions(name, option)) {
                   miString errm = "|Unknown fieldplottype in plotcommand";
-                  sp.errorMsg(sect_name, i, errm);
+                  SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
                 str2 = vstr[j + 3].substr(1, vstr[j + 3].length()
@@ -182,7 +183,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
                 input = str2.split(',', true);
                 if (input.size() < 1 || input.size() > 5) {
                   miString errm = "Bad specification of plot arguments";
-                  sp.errorMsg(sect_name, i, errm);
+                  SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
 
@@ -190,7 +191,7 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
 
                 if (!PlotOptions::PlotOptions::updateFieldPlotOptions(name, option)){
                   miString errm = "|Unknown fieldplottype in plotcommand";
-                                    sp.errorMsg(sect_name, i, errm);
+                                    SetupParser::errorMsg(sect_name, i, errm);
                                     break;
                 }
                 for (unsigned int k = 0; k < input.size(); k++) {
@@ -209,13 +210,13 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
                 if (!PlotOptions::updateFieldPlotOptions(name, option)) {
                   miString errm =
                       "Something wrong in plotoption specifications";
-                  sp.errorMsg(sect_name, i, errm);
+                  SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
               } else {
                 miString errm = "Unknown keyword in field specifications: "
                     + vstr[0];
-                sp.errorMsg(sect_name, i, errm);
+                SetupParser::errorMsg(sect_name, i, errm);
                 break;
                 //j-=2;
               }
@@ -251,13 +252,13 @@ bool FieldPlotManager::parseFieldPlotSetup(SetupParser &sp)
   return true;
 }
 
-bool FieldPlotManager::parseFieldGroupSetup(SetupParser &sp)
+bool FieldPlotManager::parseFieldGroupSetup()
 {
 
   miString sect_name = "FIELD_GROUPS";
   vector<miString> lines;
 
-  if (!sp.getSection(sect_name, lines)) {
+  if (!SetupParser::getSection(sect_name, lines)) {
     cerr << sect_name << " section not found" << endl;
     return true;
   }

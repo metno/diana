@@ -37,10 +37,10 @@
 #include <sstream>
 #include <diSpectrumPlot.h>
 #include <diSpectrumOptions.h>
-#include <diContouring.h>
 #include <diFontManager.h>
 #include <diField/diPlotOptions.h>
 #include <diField/diColour.h>
+#include <diContouring.h>
 #include <GL/gl.h>
 #include <glp/glpfile.h>
 
@@ -103,9 +103,8 @@ SpectrumPlot::SpectrumPlot()
 #endif
 
   if (!fp) {
-    SetupParser sp;
     fp= new FontManager();
-    fp->parseSetup(sp);
+    fp->parseSetup();
     fp->setFont("BITMAPFONT");
     fp->setFontFace(glText::F_NORMAL);
     fp->setScalingType(glText::S_FIXEDSIZE);
@@ -198,9 +197,8 @@ bool SpectrumPlot::startPSoutput(const printOptions& po){
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   if (!fp) {
-    SetupParser sp;
     fp= new FontManager();
-    fp->parseSetup(sp);
+    fp->parseSetup();
     fp->setFont("BITMAPFONT");
     fp->setFontFace(glText::F_NORMAL);
     fp->setScalingType(glText::S_FIXEDSIZE);
@@ -383,9 +381,8 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
 
 
   if (!fp) {
-    SetupParser sp;
     fp= new FontManager();
-    fp->parseSetup(sp);
+    fp->parseSetup();
     fp->setFont("BITMAPFONT");
     fp->setFontFace(glText::F_NORMAL);
     fp->setScalingType(glText::S_FIXEDSIZE);

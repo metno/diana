@@ -42,6 +42,7 @@
 #include <glText/glTextTTPixmap.h>
 #include <glText/glTextTTTexture.h>
 #include <glText/glTextQtTexture.h>
+#include <diLocalSetupParser.h>
 
 #include <glp/GLP.h>
 
@@ -153,7 +154,7 @@ glText::FontFace FontManager::fontFace(const miString& s)
   return face;
 }
 
-bool FontManager::parseSetup(SetupParser& sp)
+bool FontManager::parseSetup()
 {
   const miString sf_name = "FONTS";
   vector<miString> sect_fonts;
@@ -174,12 +175,12 @@ bool FontManager::parseSetup(SetupParser& sp)
   enginefamilies.clear();
 
   if (!fontpath.exists()) {
-    fontpath = sp.basicValue("fontpath");
+    fontpath = LocalSetupParser::basicValue("fontpath");
     if (!fontpath.exists())
       fontpath = "fonts/";
   }
 
-  if (!sp.getSection(sf_name, sect_fonts)) {
+  if (!SetupParser::getSection(sf_name, sect_fonts)) {
     //cerr << "Missing section " << sf_name << " in setupfile." << endl;
     testDefineFonts(fontpath);
     return false;
@@ -199,7 +200,7 @@ bool FontManager::parseSetup(SetupParser& sp)
     for (unsigned int j = 0; j < stokens.size(); j++) {
       miString key;
       miString val;
-      sp.splitKeyValue(stokens[j], key, val);
+      SetupParser::splitKeyValue(stokens[j], key, val);
 
       if (key == key_font)
         fontfam = val;

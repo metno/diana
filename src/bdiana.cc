@@ -53,7 +53,7 @@
 #include <puCtools/sleep.h>
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <diSetupParser.h>
+#include <diLocalSetupParser.h>
 #include <diPrintOptions.h>
 #include <diFontManager.h>
 #include <diImageIO.h>
@@ -764,13 +764,12 @@ bool readSetup(const miString& constSetupfile, printerManager& printmanager)
   miString setupfile = constSetupfile;
   cout << "Reading setupfile:" << setupfile << endl;
 
-  SetupParser sp;
-  if (!sp.parse(setupfile)) {
+  if (!LocalSetupParser::parse(setupfile)) {
     cerr << "ERROR, an error occured while reading setup: " << setupfile
         << endl;
     return false;
   }
-  if (!printmanager.parseSetup(sp)) {
+  if (!printmanager.parseSetup()) {
     cerr << "ERROR, an error occured while reading setup: " << setupfile
         << endl;
     return false;

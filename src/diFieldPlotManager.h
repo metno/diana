@@ -31,7 +31,6 @@
 #ifndef diFieldPlotManager_h
 #define diFieldPlotManager_h
 
-#include <diSetupParser.h>
 #include <diField/diCommonFieldTypes.h>
 #include <diField/diFieldManager.h>
 
@@ -66,9 +65,9 @@ public:
   vector<miutil::miString> getPlotFields();
 
   /// read setup section for field plots
-  bool parseSetup(SetupParser& sp);
-  bool parseFieldPlotSetup(SetupParser& sp);
-  bool parseFieldGroupSetup(SetupParser& sp);
+  bool parseSetup();
+  bool parseFieldPlotSetup();
+  bool parseFieldGroupSetup();
 
   bool makeDifferenceField(const miutil::miString& fspec1,
       const miutil::miString& fspec2, const miutil::miTime& ptime,

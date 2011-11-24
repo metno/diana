@@ -36,6 +36,7 @@
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diLocationPlot.h>
+#include <diController.h>
 #include <puTools/miString.h>
 #include <vector>
 

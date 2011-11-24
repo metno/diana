@@ -39,7 +39,6 @@
 #include <diField/diGridConverter.h>
 #include <diObjectManager.h>
 #include <diFieldEdit.h>
-#include <diSetupParser.h>
 #include <diEditSpec.h>
 
 #ifdef METNOPRODDB
@@ -147,7 +146,7 @@ public:
   ~EditManager();
 
   /// parse EDIT section of setup file. (defines Edit products)
-  bool parseSetup(SetupParser& sp);
+  bool parseSetup();
   /// reads the command file with OKstrings to be executed when we start an edit session
   void readCommandFile(EditProduct& ep);
   /// return names of existing fields valid for editing

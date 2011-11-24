@@ -47,6 +47,7 @@
 #include <diStationPlot.h>
 #include <diImageGallery.h>
 #include <diMapManager.h>
+#include <diLocalSetupParser.h>
 
 using namespace::miutil;
 
@@ -118,7 +119,7 @@ bool Controller::parseSetup()
   vector<miString> errors;
   for( int i=0; i<nsect; i++){
     vector<miString> lines;
-    if (!setupParser.getSection(fieldSubSect[i],lines)) {
+    if (!SetupParser::getSection(fieldSubSect[i],lines)) {
       //      cerr<<"Missing section "<<fieldSubSect[i]<<" in setupfile."<<endl;
     }
     fieldm->parseSetup(lines,fieldSubSect[i],errors,false);
@@ -127,22 +128,22 @@ bool Controller::parseSetup()
   int nerror = errors.size();
   for( int i=0; i<nerror; i++){
     vector<miString> token = errors[i].split("|");
-    setupParser.errorMsg(token[0],atoi(token[1].cStr()),token[2]);
+    SetupParser::errorMsg(token[0],atoi(token[1].cStr()),token[2]);
   }
 
   //parse some setup sections
-  if (!fieldplotm->parseSetup(setupParser)) return false;
+  if (!fieldplotm->parseSetup()) return false;
   fieldm->setFieldNames(fieldplotm->getFields());
-  if (!obsm->parseSetup(setupParser)) return false;
-  if (!satm->parseSetup(setupParser)) return false;
-  if (!objm->parseSetup(setupParser)) return false;
-  if (!editm->parseSetup(setupParser)) return false;
+  if (!obsm->parseSetup()) return false;
+  if (!satm->parseSetup()) return false;
+  if (!objm->parseSetup()) return false;
+  if (!editm->parseSetup()) return false;
 
   MapManager mapm;
-  if (!mapm.parseSetup(setupParser)) return false;
+  if (!mapm.parseSetup()) return false;
 
   ImageGallery ig;
-  ig.parseSetup(setupParser);
+  ig.parseSetup();
 
   return true;
 }
@@ -856,12 +857,12 @@ map<miString,bool> Controller::decodeTypeString( miString token){
 }
 
 vector< vector<Colour::ColourInfo> > Controller::getMultiColourInfo(int multiNum){
-  return setupParser.getMultiColourInfo(multiNum);
+  return LocalSetupParser::getMultiColourInfo(multiNum);
 }
 
 bool Controller::getQuickMenus(vector<QuickMenuDefs>& qm)
 {
-  return setupParser.getQuickMenus(qm);
+  return LocalSetupParser::getQuickMenus(qm);
 }
 
 
@@ -984,7 +985,7 @@ miString Controller::findLocation(int x, int y, const miString& name){
 
 map<miString,InfoFile> Controller::getInfoFiles()
 {
-  return setupParser.getInfoFiles();
+  return LocalSetupParser::getInfoFiles();
 }
 
 

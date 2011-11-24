@@ -34,6 +34,7 @@
 #endif
 
 #include <diPrintOptions.h>
+#include <diLocalSetupParser.h>
 #include <fstream>
 #include <iostream>
 
@@ -279,7 +280,7 @@ bool printerManager::checkSpecial(const printOptions& po,
 }
 
 
-bool printerManager::parseSetup(SetupParser& sp) {
+bool printerManager::parseSetup() {
 
   miString section="PRINTING";
   vector<miString> vstr;
@@ -290,7 +291,7 @@ bool printerManager::parseSetup(SetupParser& sp) {
   pcommand= "lp -c -d {printer} {filename}";
   miString printerfile= "";
 
-  if (!sp.getSection(section,vstr)){
+  if (!SetupParser::getSection(section,vstr)){
     cerr << "No " << section << " section in setupfile, ok." << endl;
     return true;
   }
@@ -304,7 +305,7 @@ bool printerManager::parseSetup(SetupParser& sp) {
     miString name;
 
     for (i=0; i<n; i++) {
-      sp.splitKeyValue(tokens[i],key,value);
+      SetupParser::splitKeyValue(tokens[i],key,value);
       if (key==key_command)
 	pcommand= value;
       else if (key==key_manualcom)

@@ -44,6 +44,7 @@
 #include <diObsPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
+#include <diLocalSetupParser.h>
 
 #include <puCtools/stat.h>
 
@@ -103,6 +104,7 @@ ObsPlot::ObsPlot() : Plot()
   tempPrecision = false;
   allAirepsLevels = true;
   vertical_orientation = true;
+  left_alignment = true;
   showpos = false;
   devfield = false;
   moretimes = false;
@@ -576,7 +578,7 @@ bool ObsPlot::prepare(const miString& pin)
 
   // static tables, read once
 
-  miString path = setup.basicValue("obsplotfilepath");
+  miString path = LocalSetupParser::basicValue("obsplotfilepath");
 
   bool synop_list = (plottype == "synop" || plottype == "list");
 

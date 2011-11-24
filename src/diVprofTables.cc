@@ -34,7 +34,7 @@
 #endif
 
 #include <diVprofTables.h>
-#include <diSetupParser.h>
+#include <diLocalSetupParser.h>
 #include <glp/glpfile.h>
 #include <iostream>
 #include <math.h>
@@ -78,9 +78,8 @@ vector<VprofText> VprofTables::vptext; // info for text plotting
 VprofTables::VprofTables()
 {
   if (!fp) {
-    SetupParser sp;
     fp= new FontManager();
-    fp->parseSetup(sp);
+    fp->parseSetup();
     fp->setFont(defaultFont);
     fp->setFontFace(glText::F_NORMAL);
     fp->setScalingType(glText::S_FIXEDSIZE);

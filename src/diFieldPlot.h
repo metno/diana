@@ -32,6 +32,7 @@
 #define diFieldPlot_h
 
 #include "diPlot.h"
+#include <diCommonTypes.h>
 #include <diField/diField.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>

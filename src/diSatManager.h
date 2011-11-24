@@ -174,7 +174,7 @@ public:
   int getFileName(const miutil::miTime&);
 
   SatDialogInfo initDialog(void){ return Dialog;}
-  bool parseSetup(SetupParser &);
+  bool parseSetup();
 
   //  Sat * findSatdata(const miutil::miString & filename);//search vsatdata
   void updateFiles();

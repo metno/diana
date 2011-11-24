@@ -213,7 +213,6 @@ struct VcrossText {
 };
 
 
-class SetupParser;
 class VcrossOptions;
 class GLPfile;
 
@@ -235,12 +234,12 @@ public:
   VcrossPlot();
   ~VcrossPlot();
 
-  static bool parseSetup(SetupParser& sp);
+  static bool parseSetup();
   static void makeContents(const miutil::miString& fileName,
 			   const vector<int>& iparam, int vcoord);
   static void deleteContents(const miutil::miString& fileName);
   static vector<miutil::miString> getFieldNames(const miutil::miString& fileName);
-  static map<miutil::miString,miutil::miString> getAllFieldOptions(SetupParser& sp);
+  static map<miutil::miString,miutil::miString> getAllFieldOptions();
   static miutil::miString getFieldOptions(const miutil::miString& fieldname);
 
   static void setPlotWindow(int w, int h);

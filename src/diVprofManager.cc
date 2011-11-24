@@ -59,7 +59,7 @@
 #endif
 #include <diVprofRTemp.h>
 #endif
-#include <diSetupParser.h>
+#include <diLocalSetupParser.h>
 
 #include <puCtools/glob.h>
 #include <puCtools/glob_cache.h>
@@ -118,7 +118,7 @@ void VprofManager::parseSetup()
   const miString section2 = "VERTICAL_PROFILE_FILES";
   vector<miString> vstr;
 
-  if (sp.getSection(section2,vstr)) {
+  if (SetupParser::getSection(section2,vstr)) {
 
     set<miString> uniquefiles;
 
@@ -243,7 +243,7 @@ void VprofManager::parseSetup()
 
   }
 
-  amdarStationFile= sp.basicValue("amdarstationlist");
+  amdarStationFile= LocalSetupParser::basicValue("amdarstationlist");
 
 }
 

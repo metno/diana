@@ -33,7 +33,6 @@
 
 
 #include <diCommonTypes.h>
-#include <diSetupParser.h>
 #include <diField/diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <diLocationPlot.h>
@@ -77,7 +76,6 @@ private:
 
   vector<VcrossData> vcdata;
 
-  SetupParser sp;
   FieldManager *fieldm;   // field manager
 
   VcrossOptions *vcopt;

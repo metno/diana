@@ -174,8 +174,6 @@ void PlotModule::prepareMap(const vector<miString>& inp)
 
   splot.xyClear();
 
-  SetupParser setupParser;
-
   // init inuse array
   vector<bool> inuse;
   int nm = vmp.size();

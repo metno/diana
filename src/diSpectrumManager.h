@@ -37,7 +37,6 @@
 #include <map>
 #include <set>
 #include <diCommonTypes.h>
-#include <diSetupParser.h>
 #include <diPrintOptions.h>
 
 using namespace std;
@@ -84,8 +83,6 @@ private:
   vector<miutil::miString> obsAaaPaths;
   // pilot file paths ("/dir/xxxx??.dat*")
   vector<miutil::miString> obsBbbPaths;
-
-  SetupParser sp;
 
   SpectrumOptions *spopt;
   vector<SpectrumFile*> spfile;

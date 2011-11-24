@@ -37,7 +37,6 @@
 #include <map>
 #include <set>
 #include <diCommonTypes.h>
-#include <diSetupParser.h>
 #include <diPrintOptions.h>
 #include <diTimeFilter.h>
 #include <diController.h>
@@ -116,7 +115,6 @@ private:
   vector<float>    amdarLongitude;
   vector<miutil::miString> amdarName;
 
-  SetupParser sp;
   FieldManager *fieldm;   // field manager
 
   VprofOptions *vpopt;

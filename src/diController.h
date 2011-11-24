@@ -35,7 +35,6 @@
 #include <diField/diCommonFieldTypes.h>
 #include <diMapMode.h>
 #include <diDrawingTypes.h>
-#include <diSetupParser.h>
 #include <diPrintOptions.h>
 #include <diField/diArea.h>
 #include <puTools/miString.h>
@@ -91,8 +90,6 @@ private:
 #endif
 
   GridAreaManager *aream;
-
-  SetupParser setupParser;
 
   bool editoverride; // do not route mouse/key-events to editmanager
   bool paintModeEnabled;

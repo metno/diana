@@ -53,6 +53,7 @@
 #include <diAnnotationPlot.h>
 #include <puCtools/glob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miSetupParser.h>
 //#define DEBUGPRINT
 using namespace::miutil;
 
@@ -81,7 +82,7 @@ EditManager::~EditManager()
 }
 
 
-bool EditManager::parseSetup(SetupParser& sp) {
+bool EditManager::parseSetup() {
 #ifdef DEBUGPRINT
   cerr << "++ EditManager::parseSetup" << endl;
 #endif
@@ -89,7 +90,7 @@ bool EditManager::parseSetup(SetupParser& sp) {
   miString section="EDIT";
   vector<miString> vstr;
 
-  if (!sp.getSection(section,vstr)){
+  if (!SetupParser::getSection(section,vstr)){
     cerr << "No " << section << " section in setupfile, ok." << endl;
     return true;
   }
@@ -101,7 +102,7 @@ bool EditManager::parseSetup(SetupParser& sp) {
 
   while (ok && nv<nvstr) {
 
-    sp.splitKeyValue(vstr[nv],key,values);
+    SetupParser::splitKeyValue(vstr[nv],key,values);
     nval= values.size();
 
     // yet only products in this setup section...
@@ -138,7 +139,7 @@ bool EditManager::parseSetup(SetupParser& sp) {
 
     while (ok && nv<nvstr) {
 
-      sp.splitKeyValue(vstr[nv],key,values);
+      SetupParser::splitKeyValue(vstr[nv],key,values);
       nval= values.size();
 
       if (key=="end.product") {
@@ -354,7 +355,7 @@ bool EditManager::parseSetup(SetupParser& sp) {
 
   if (!ok) {
     error="Error in edit product definition";
-    sp.errorMsg(section,nv,error);
+    SetupParser::errorMsg(section,nv,error);
     return false;
   }
 

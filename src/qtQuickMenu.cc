@@ -58,7 +58,7 @@
 #include <puTools/miString.h>
 #include <iostream>
 #include "qtUtility.h"
-#include "diSetupParser.h"
+#include "diLocalSetupParser.h"
 
 #include <QString>
 #include <QStringList>
@@ -536,25 +536,24 @@ void QuickMenu::adminButton()
 
 void QuickMenu::fillPrivateMenus()
 {
-  SetupParser setup;
 
   quickMenu qtmp;
 
   //History
   qm.push_back(qtmp);
   qm[0].name= tr("History").toStdString();
-  qm[0].filename= setup.basicValue("homedir") + "/History.quick";
+  qm[0].filename= LocalSetupParser::basicValue("homedir") + "/History.quick";
   qm[0].plotindex= 0;
   readQuickMenu(qm[0]);
 
   qm.push_back(qtmp);
   qm[1].name= tr("History-vcross").toStdString();
-  qm[1].filename= setup.basicValue("homedir") + "/History-vcross.quick";
+  qm[1].filename= LocalSetupParser::basicValue("homedir") + "/History-vcross.quick";
   qm[1].plotindex= 0;
   readQuickMenu(qm[1]);
 
   //Private menus
-  miutil::miString quickfile= setup.basicValue("homedir") + "/*.quick";
+  miutil::miString quickfile= LocalSetupParser::basicValue("homedir") + "/*.quick";
   glob_t globBuf;
   glob_cache(quickfile.c_str(),0,0,&globBuf);
   for(int k=0; k<globBuf.gl_pathc; k++) {

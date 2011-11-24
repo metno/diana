@@ -33,7 +33,6 @@
 
 #include <diObsPlot.h>
 #include <diTimeFilter.h>
-#include <diSetupParser.h>
 #include <diCommonTypes.h>
 #include <puTools/miString.h>
 #include <set>
@@ -177,7 +176,7 @@ public:
   bool prepare(ObsPlot *,miutil::miTime);
   ObsDialogInfo initDialog(void);
   ObsDialogInfo updateDialog(const miutil::miString& name);
-  bool parseSetup(SetupParser &);
+  bool parseSetup();
 //return observation times for list of PlotInfo's
   vector<miutil::miTime> getTimes( vector<miutil::miString> pinfos);
   ///returns union or intersection of plot times from all pinfos

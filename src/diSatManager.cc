@@ -39,9 +39,8 @@
 #include <puCtools/glob_cache.h>
 #include <puCtools/glob.h>
 #include <puCtools/stat.h>
+#include <puTools/miSetupParser.h>
 #include <set>
-//#include <diAnnotationPlot.h>
-#include <diSetupParser.h>
 #include <diMItiff.h>
 #ifdef HDF5FILE
 #include <diHDF5.h>
@@ -1399,7 +1398,7 @@ void SatManager::updateFiles()
 }
 
 /*********************************************************************/
-bool SatManager::parseSetup(SetupParser &sp)
+bool SatManager::parseSetup()
 {
   //  * PURPOSE:   Info to fro setup
 	LogHandler::getInstance()->setObjectName("diana.SatManager.parseSetup");
@@ -1410,7 +1409,7 @@ bool SatManager::parseSetup(SetupParser &sp)
   const miString sat_name = "IMAGE";
   vector<miString> sect_sat;
 
-  if (!sp.getSection(sat_name, sect_sat)) {
+  if (!SetupParser::getSection(sat_name, sect_sat)) {
 	COMMON_LOG::getInstance("common").infoStream() << "Missing section " << sat_name << " in setupfile.";
     return true;
   }
@@ -1433,7 +1432,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     vector<miString> token = sect_sat[i].split("=");
     if (token.size() != 2) {
       miString errmsg="Line must contain '='";
-      sp.errorMsg(sat_name, i, errmsg);
+      SetupParser::errorMsg(sat_name, i, errmsg);
       return false;
     }
     key = token[0].downcase();
@@ -1469,7 +1468,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     } else if (key == "formattype") {
       if (!prod.exists()) {
         miString errmsg="You must give image and sub.type before formattype";
-        sp.errorMsg(sat_name, i, errmsg);
+        SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       formattype = value;
@@ -1477,7 +1476,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     } else if (key == "channelinfo") {
       if (!prod.exists()) {
         miString errmsg="You must give image and sub.type before formattype";
-        sp.errorMsg(sat_name, i, errmsg);
+        SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       channelinfo = value;
@@ -1485,7 +1484,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     } else if (key == "paletteinfo") {
       if (!prod.exists()) {
         miString errmsg="You must give image and sub.type before palette";
-        sp.errorMsg(sat_name, i, errmsg);
+        SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       paletteinfo = value;
@@ -1493,7 +1492,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     } else if (key == "metadata") {
       if (!prod.exists()) {
         miString errmsg="You must give image and sub.type before formattype";
-        sp.errorMsg(sat_name, i, errmsg);
+        SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       metadata = value;
@@ -1501,7 +1500,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     } else if (key == "hdf5type") {
       if (!prod.exists()) {
         miString errmsg="You must give image and sub.type before type";
-        sp.errorMsg(sat_name, i, errmsg);
+        SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       if (value.downcase() == "radar") {
@@ -1516,7 +1515,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     } else if (key == "sub.type") {
       if (!prod.exists()) {
         miString errmsg="You must give image before sub.type";
-        sp.errorMsg(sat_name, i, errmsg);
+        SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       subprod=value;
@@ -1534,7 +1533,7 @@ bool SatManager::parseSetup(SetupParser &sp)
     } else if (key == "file" || key == "archivefile") {
       if (!subprod.exists() ) {
         miString errmsg="You must give image and sub.type before file";
-        sp.errorMsg(sat_name, i, errmsg);
+        SetupParser::errorMsg(sat_name, i, errmsg);
         return false;
       }
       TimeFilter tf;
@@ -1590,7 +1589,7 @@ bool SatManager::parseSetup(SetupParser &sp)
   const miString section = "UFFDA";
   vector<miString> vstr;
 
-  if (!sp.getSection(section, vstr)) {
+  if (!SetupParser::getSection(section, vstr)) {
     uffdaEnabled=false;
   } else {
     uffdaEnabled=true;

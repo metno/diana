@@ -177,7 +177,7 @@ public:
   /// return binary pattern by name
   GLubyte* getPattern(miutil::miString name);
   /// parse the images section of the setup file
-  bool parseSetup(SetupParser &);
+  bool parseSetup();
 };
 
 #endif

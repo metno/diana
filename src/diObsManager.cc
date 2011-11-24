@@ -66,6 +66,7 @@
 #include <diObsManager.h>
 #include <puCtools/glob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miSetupParser.h>
 
 using namespace std; using namespace miutil;
 
@@ -1593,14 +1594,14 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
   cerr << "**** end ProdInfo *****" << endl;
 }
 
-bool ObsManager::parseSetup(SetupParser &sp)
+bool ObsManager::parseSetup()
 {
 
   //  cerr << "Obs: parseSetup"<<endl;
   const miString obs_name = "OBSERVATION_FILES";
   vector<miString> sect_obs;
 
-  if (!sp.getSection(obs_name,sect_obs)){
+  if (!SetupParser::getSection(obs_name,sect_obs)){
     cerr << obs_name << " section not found" << endl;
     return true;
   }
@@ -1706,7 +1707,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
 
     if(token.size() != 2){
       miString errmsg="Line must contain '='";
-      sp.errorMsg(obs_name,i,errmsg);
+      SetupParser::errorMsg(obs_name,i,errmsg);
       continue;
     }
 
@@ -1731,7 +1732,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
       if (newprod) {
         if (defProd.find(format)==defProd.end()) {
           miString errmsg="Unknown obs data format: " + format;
-          sp.errorMsg(obs_name,i,errmsg);
+          SetupParser::errorMsg(obs_name,i,errmsg);
           continue;
         }
         Prod[prod]= defProd[format];
@@ -1769,7 +1770,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
     ){
       if(prod.empty() ){
         miString errmsg="You must give prod before file";
-        sp.errorMsg(obs_name,i,errmsg);
+        SetupParser::errorMsg(obs_name,i,errmsg);
         continue;
       }
       token[1].remove('\"');
@@ -1807,7 +1808,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
     } else if( key == "headerfile"){
       if(prod.empty() ){
         miString errmsg="You must give prod before file/headerfile";
-        sp.errorMsg(obs_name,i,errmsg);
+        SetupParser::errorMsg(obs_name,i,errmsg);
         continue;
       }
       Prod[prod].headerfile= token[1];
@@ -1816,21 +1817,21 @@ bool ObsManager::parseSetup(SetupParser &sp)
     else if( key == "databasefile"){
       if(prod.empty() ){
 	miString errmsg="You must give prod before file/databasefile";
-	sp.errorMsg(obs_name,i,errmsg);
+	SetupParser::errorMsg(obs_name,i,errmsg);
 	continue;
       }
       Prod[prod].databasefile= token[1];
     }else if( key == "stationfile"){
       if(prod.empty() ){
 	miString errmsg="You must give prod before file/stationfile";
-	sp.errorMsg(obs_name,i,errmsg);
+	SetupParser::errorMsg(obs_name,i,errmsg);
 	continue;
       }
       Prod[prod].stationfile= token[1];
     }else if( key == "daysback"){
       if(prod.empty() ){
 	miString errmsg="You must give prod before file/stationfile";
-	sp.errorMsg(obs_name,i,errmsg);
+	SetupParser::errorMsg(obs_name,i,errmsg);
 	continue;
       }
       Prod[prod].daysback= token[1].toInt();
@@ -1871,7 +1872,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
   const miString pri_name = "OBSERVATION_PRIORITY_LISTS";
   vector<miString> sect_pri;
 
-  if (sp.getSection(pri_name,sect_pri)){
+  if (SetupParser::getSection(pri_name,sect_pri)){
 
     for (unsigned int i=0; i<sect_pri.size(); i++){
       name= "";
@@ -1898,7 +1899,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
         pri.file= file;
         dialog.priority.push_back(pri);
       } else {
-        sp.errorMsg(pri_name,i,"Incomplete observation priority specification");
+        SetupParser::errorMsg(pri_name,i,"Incomplete observation priority specification");
         continue;
       }
     }
@@ -1910,7 +1911,7 @@ bool ObsManager::parseSetup(SetupParser &sp)
   vector<miString> sect_obs_crit;
 
 
-  if (sp.getSection(obs_crit_name,sect_obs_crit)){
+  if (SetupParser::getSection(obs_crit_name,sect_obs_crit)){
 
     int ncrit=sect_obs_crit.size();
 

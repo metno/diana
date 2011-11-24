@@ -44,6 +44,7 @@
 #include <diWeatherSymbol.h>
 #include <puCtools/glob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miSetupParser.h>
 #include <stdio.h>
 
 
@@ -72,12 +73,12 @@ ObjectManager::~ObjectManager()
 }
 
 
-bool ObjectManager::parseSetup(SetupParser& sp) {
+bool ObjectManager::parseSetup() {
 
   miString section="OBJECTS";
   vector<miString> vstr;
 
-  if (!sp.getSection(section,vstr)){
+  if (!SetupParser::getSection(section,vstr)){
     cerr << "No " << section << " section in setupfile, ok." << endl;
     return true;
   }
@@ -97,7 +98,7 @@ bool ObjectManager::parseSetup(SetupParser& sp) {
     bool ok= true;
 
     for (i=0; i<n; i++) {
-      sp.splitKeyValue(tokens[i],key,value);
+      SetupParser::splitKeyValue(tokens[i],key,value);
       if (key=="name"){
 	name= value;
 	olist.archive=false;
@@ -127,7 +128,7 @@ bool ObjectManager::parseSetup(SetupParser& sp) {
     }
     if (!ok) {
       error= "Bad object";
-      sp.errorMsg(section,nv,error);
+      SetupParser::errorMsg(section,nv,error);
     }
   }
 

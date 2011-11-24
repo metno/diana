@@ -38,6 +38,7 @@
 #include <fstream>
 #include <puCtools/glob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miSetupParser.h>
 #include <GL/gl.h>
 
 using namespace::miutil;
@@ -810,13 +811,13 @@ miString ImageGallery::getFilename(const miString& name, bool pattern)
   return Images[name].filename;
 }
 
-bool ImageGallery::parseSetup(SetupParser &sp)
+bool ImageGallery::parseSetup()
 {
   //  cerr << "ImageGallery: parseSetup"<<endl;
   const miString ig_name = "IMAGE_GALLERY";
   vector<miString> sect_ig;
 
-  if (!sp.getSection(ig_name,sect_ig)){
+  if (!SetupParser::getSection(ig_name,sect_ig)){
     cerr << ig_name << " section not found" << endl;
     return false;
   }
@@ -826,7 +827,7 @@ bool ImageGallery::parseSetup(SetupParser &sp)
 
     if(token.size() != 2){
       miString errmsg="Line must contain '='";
-      sp.errorMsg(ig_name,i,errmsg);
+      SetupParser::errorMsg(ig_name,i,errmsg);
       return false;
     }
 

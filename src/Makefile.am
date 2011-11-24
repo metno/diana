@@ -50,6 +50,7 @@ common_cxx_sources = \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
+	diLocalSetupParser.cc \
 	diLocationPlot.cc \
 	diMItiff.cc \
 	diMapManager.cc \
@@ -77,7 +78,6 @@ common_cxx_sources = \
 	diSat.cc \
 	diSatManager.cc \
 	diSatPlot.cc \
-	diSetupParser.cc \
 	diShapeObject.cc \
 	diSpectrumFile.cc \
 	diSpectrumManager.cc \
@@ -200,6 +200,7 @@ noinst_HEADERS = \
 	diImageIO.h \
 	diKeys.h \
 	diLegendPlot.h \
+	diLocalSetupParser.h \
 	diLocationPlot.h \
 	diMItiff.h \
 	diMapManager.h \
@@ -234,7 +235,6 @@ noinst_HEADERS = \
 	diSat.h \
 	diSatManager.h \
 	diSatPlot.h \
-	diSetupParser.h \
 	diShapeObject.h \
 	diSpectrumFile.h \
 	diSpectrumManager.h \

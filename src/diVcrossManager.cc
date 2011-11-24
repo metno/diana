@@ -41,6 +41,7 @@
 #include <diVcrossPlot.h>
 #include <set>
 
+#include <diLocalSetupParser.h>
 #include <puCtools/glob.h>
 
 //#define DEBUGPRINT 1
@@ -147,7 +148,7 @@ bool VcrossManager::parseSetup()
 
   bool ok= true;
 
-  if (sp.getSection(section1,vstr)) {
+  if (SetupParser::getSection(section1,vstr)) {
 
     set<miString> uniquemodels;
 
@@ -188,14 +189,14 @@ bool VcrossManager::parseSetup()
   }
 
   // parse remaining setup sections
-  if (!VcrossPlot::parseSetup(sp)) ok= false;
+  if (!VcrossPlot::parseSetup()) ok= false;
 
   return ok;
 }
 
 
 vector< vector<Colour::ColourInfo> > VcrossManager::getMultiColourInfo(int multiNum){
-  return sp.getMultiColourInfo(multiNum);
+  return LocalSetupParser::getMultiColourInfo(multiNum);
 }
 
 
@@ -496,7 +497,7 @@ map<miString,miString> VcrossManager::getAllFieldOptions()
   cerr << "VcrossManager::getAllFieldOptions" << endl;
 #endif
 
-  return VcrossPlot::getAllFieldOptions(sp);
+  return VcrossPlot::getAllFieldOptions();
 }
 
 

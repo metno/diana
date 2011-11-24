@@ -39,7 +39,6 @@
 
 #include <diField/diPlotOptions.h>
 #include <diCommonTypes.h>
-#include <diSetupParser.h>
 
 using namespace std;
 
@@ -58,9 +57,9 @@ private:
   static vector<MapInfo> mapfiles;
 
   // parse section containing definitions of map-areas
-  bool parseMapAreas(SetupParser&);
+  bool parseMapAreas();
   // parse section containing definitions of map-types
-  bool parseMapTypes(SetupParser&);
+  bool parseMapTypes();
 
 public:
   MapManager()
@@ -68,7 +67,7 @@ public:
   }
 
   /// parse the maps section in the setup file
-  bool parseSetup(SetupParser& sp);
+  bool parseSetup();
 
   /// get list of predefined areas (names)
   vector<miutil::miString> getMapAreaNames();

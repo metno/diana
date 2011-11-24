@@ -36,7 +36,8 @@
 #include <diField/diGridConverter.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
-#include <diSetupParser.h>
+#include <diField/diColour.h>
+#include <diField/diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <vector>
 
@@ -67,7 +68,6 @@ protected:
   static float pheight;      // --- " ---
   static FontManager* fp;    // master fontpack
   static bool dirty;         // plotarea has changed
-  static SetupParser setup;  // setup-info and parser class
   static GLPfile* psoutput;  // PostScript module
   static bool hardcopy;      // producing postscript
   static int pressureLevel;          // current pressure level

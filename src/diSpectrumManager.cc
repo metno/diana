@@ -38,11 +38,11 @@
 #include <diSpectrumOptions.h>
 #include <diSpectrumFile.h>
 #include <diSpectrumPlot.h>
-#include <diSetupParser.h>
 
 #include <puCtools/glob.h>
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
+#include <puTools/miSetupParser.h>
 
 using namespace::miutil;
 
@@ -90,13 +90,13 @@ void SpectrumManager::parseSetup()
   const miString section2 = "SPECTRUM_FILES";
   vector<miString> vstr;
 
-  //if (!sp.getSection(section1,vstr)) {
+  //if (!SetupParser::getSection(section1,vstr)) {
   //  cerr << "Missing section " << section1 << " in setupfile." << endl;
   //  return false;
   //}
   //vstr.clear();
 
-  if (sp.getSection(section2,vstr)) {
+  if (SetupParser::getSection(section2,vstr)) {
 
     // not many error messages here yet...
 

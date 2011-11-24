@@ -34,7 +34,7 @@
 #endif
 
 #include <diQuickMenues.h>
-#include <diSetupParser.h>
+#include <diLocalSetupParser.h>
 #include <fstream>
 
 using namespace::miutil;
@@ -43,11 +43,10 @@ using namespace::miutil;
 bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
 {
 
-  SetupParser setup;
   miString filename;
 
   if( !qm.filename.contains("/") ){
-    filename = setup.basicValue("homedir") + "/";
+    filename = LocalSetupParser::basicValue("homedir") + "/";
   }
   filename += qm.filename;
   ofstream menufile(filename.c_str());
