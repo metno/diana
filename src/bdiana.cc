@@ -233,11 +233,7 @@ int margin, spacing; // margin and spacing for multiple plots
 bool multiple_newpage = false; // start new page for multiple plots
 
 bool use_double_buffer = true; // use double buffering
-#ifdef USE_XLIB
-int default_canvas = x_pixmap;
-#else
 int default_canvas = qt_glpixelbuffer;
-#endif
 int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
 
@@ -808,7 +804,7 @@ void printUsage(bool showexample)
         " [-v]"
         " [-display xhost:display]"
         " [-example]"
-        " [-use_pixmap | -use_pbuffer | -use_qtgl ]"
+        " [-use_qtgl | -use_pbuffer | -use_pixmap ]"
         " [-use_doublebuffer | -use_singlebuffer]"
         " [key=value key=value] \n"
         "                                                                        \n"
@@ -1624,10 +1620,6 @@ int parseAndProcess(istream &is)
           glXSwapBuffers(dpy, pbuf);
 #endif
 #endif
-        } else if (canvasType == qt_glpixelbuffer) {
-          cerr
-              << "WARNING! double buffer swapping not implemented for qt_glpixelbuffer"
-              << endl;
         }
       }
 
