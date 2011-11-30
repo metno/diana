@@ -127,6 +127,7 @@ ObsPlot::ObsPlot() : Plot()
   knotParameters.insert("911ff");
   knotParameters.insert("fxfx");
   knotParameters.insert("fmfm");
+  roadobsData = false;
 
 }
 
@@ -162,11 +163,11 @@ bool ObsPlot::getDataAnnotations(vector<miString>& anno)
   cerr << "++ ObsPlot::getDataAnnotations() ++" << endl;
 #endif
 #ifdef ROADOBS
-  if (!enabled || (obsp.size()==0 && asciip.size()==0 && roadobsp.size()==0) || current<0) {
+  if (!enabled || (obsp.size()==0 && roadobsp.size()==0) || current<0) {
     return false;
   }
 #else
-  if (!enabled || (obsp.size() == 0 && asciip.size() == 0) || current < 0) {
+  if (!enabled || obsp.size() == 0 || current < 0) {
     return false;
   }
 #endif
@@ -262,13 +263,8 @@ int ObsPlot::numPositions()
 #endif
     return obsp.size();
   }
-  if (asciip.size() > 0) {
-#ifdef DEBUGPRINT
-    cerr << "++ ObsPlot::numPositions() done, asciip.size() ++" << endl;
-#endif
-    return asciip.size();
-  }
-#ifdef ROADOBS
+
+  #ifdef ROADOBS
   if(roadobsp.size()>0)
   {
 #ifdef DEBUGPRINT
@@ -464,7 +460,7 @@ bool ObsPlot::prepare(const miString& pin)
       } else if (key == "data") {
         datatypes = value.split(",");
       } else if (key == "parameter") {
-        parameter = value.split(',');
+        parameter = orig_value.split(',');
         numPar = parameter.size();
       } else if (key == "scale")
         Scale = atof(value.c_str());
@@ -548,17 +544,8 @@ bool ObsPlot::prepare(const miString& pin)
     }
   }
 
-  if (plottype == "ascii") {
-    asciiParameter.clear();
-    asciiWind = false;
-    for (int i = 0; i < numPar; i++) {
-      asciiParameter.push_back(parameter[i].downcase());
-      if (parameter[i].downcase() == "wind")
-        asciiWind = true;
-    }
-  }
 #ifdef ROADOBS
-  else if (plottype=="roadobs") {
+  if (plottype=="roadobs") {
     roadobsParameter.clear();
     roadobsWind= false;
     for (int i=0; i<numPar; i++) {
@@ -567,11 +554,11 @@ bool ObsPlot::prepare(const miString& pin)
     }
   }
 #endif
-  else {
-    miString all = "all";
-    parameterDecode(all, false);
-    for (int i = 0; i < numPar; i++)
-      parameterDecode(parameter[i].downcase());
+
+  miString all = "all";
+  parameterDecode(all, false);
+  for (int i = 0; i < numPar; i++) {
+    parameterDecode(parameter[i]);
   }
 
   clearPos();
@@ -676,12 +663,6 @@ bool ObsPlot::setData(void)
   int numSynop = obsp.size();
   int numObs = numSynop;
 
-  if (asciip.size() > 0) {
-    asciiData = true;
-    numObs = asciip.size();
-  } else {
-    asciiData = false;
-  }
 #ifdef ROADOBS
   if(roadobsp.size()>0) {
     roadobsData=true;
@@ -704,91 +685,63 @@ bool ObsPlot::setData(void)
   x = new float[numObs];
   y = new float[numObs];
 
-  if (asciiData) {
-    for (i = 0; i < numObs; i++) {
-      x[i] = atof(asciip[i][asciiColumn["x"]].c_str());
-      y[i] = atof(asciip[i][asciiColumn["y"]].c_str());
-    }
-    asciipar.clear();
-    int nc = asciiColumnName.size();
-    int np = asciiParameter.size();
-    //######################################################################
-    //    for (int c=0; c<nc; c++)
-    //      cerr<<"ASCII.PLOT  asciiColumnName: "<<asciiColumnName[c]<<endl;
-    //    for (int p=0; p<np; p++)
-    //      cerr<<"ASCII.PLOT  asciiParameter: "<<asciiParameter[p]<<endl;
-    //######################################################################
-    for (int c = 0; c < nc; c++) {
-      miString cpar = asciiColumnName[c].downcase();
-      int p = 0;
-      while (p < np && asciiParameter[p] != cpar)
-        p++;
-      if (p < np)
-        asciipar.push_back(c);
-      //######################################################################
-      //       cerr<<"ASCII.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p<<endl;
-      //######################################################################
-    }
+//#ifdef ROADOBS
+//  else if (roadobsData) {
+//    // BEE CAREFULL! This code assumes that the number of entries in
+//    // stationlist are the same as in the roadobsp map.
+//    for (i=0; i<numObs; i++) {
+//      int stationid = (*stationlist)[i].wmonr();
+//      //cerr << "stationid: " << stationid << endl;
+//      if (roadobsp[stationid].size() != 0)
+//      {
+//        x[i] = atof(roadobsp[stationid][roadobsColumn["x"]].c_str());
+//        y[i] = atof(roadobsp[stationid][roadobsColumn["y"]].c_str());
+//      }
+//      else
+//      {
+//        x[i] = (*stationlist)[i].lat();
+//        y[i] = (*stationlist)[i].lon();
+//      }
+//      //cerr << x[i] << ", " << y[i] << endl;
+//    }
+//    roadobspar.clear();
+//    int nc= roadobsColumnName.size();
+//    int np= roadobsParameter.size();
+//    //######################################################################
+//    //for (int c=0; c<nc; c++)
+//    //  cerr<<"ROADOBS.PLOT  roadobsColumnName: "<<roadobsColumnName[c]<<endl;
+//    //for (int p=0; p<np; p++)
+//    //  cerr<<"ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p]<<endl;
+//    //######################################################################
+//    for (int c=0; c<nc; c++) {
+//      miString cpar= roadobsColumnName[c].downcase();
+//      int p= 0;
+//      while (p<np && roadobsParameter[p]!=cpar) p++;
+//      if (p<np) roadobspar.push_back(c);
+//      //######################################################################
+//      /*      cerr<<"ROADOBS.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p<<endl;*/
+//      //######################################################################
+//    }
+//
+//  }
+//#endif
+//  else {
 
-  }
-#ifdef ROADOBS
-  else if (roadobsData) {
-    // BEE CAREFULL! This code assumes that the number of entries in
-    // stationlist are the same as in the roadobsp map.
-    for (i=0; i<numObs; i++) {
-      int stationid = (*stationlist)[i].wmonr();
-      //cerr << "stationid: " << stationid << endl;
-      if (roadobsp[stationid].size() != 0)
-      {
-        x[i] = atof(roadobsp[stationid][roadobsColumn["x"]].c_str());
-        y[i] = atof(roadobsp[stationid][roadobsColumn["y"]].c_str());
-      }
-      else
-      {
-        x[i] = (*stationlist)[i].lat();
-        y[i] = (*stationlist)[i].lon();
-      }
-      //cerr << x[i] << ", " << y[i] << endl;
-    }
-    roadobspar.clear();
-    int nc= roadobsColumnName.size();
-    int np= roadobsParameter.size();
-    //######################################################################
-    //for (int c=0; c<nc; c++)
-    //  cerr<<"ROADOBS.PLOT  roadobsColumnName: "<<roadobsColumnName[c]<<endl;
-    //for (int p=0; p<np; p++)
-    //  cerr<<"ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p]<<endl;
-    //######################################################################
-    for (int c=0; c<nc; c++) {
-      miString cpar= roadobsColumnName[c].downcase();
-      int p= 0;
-      while (p<np && roadobsParameter[p]!=cpar) p++;
-      if (p<np) roadobspar.push_back(c);
-      //######################################################################
-      /*      cerr<<"ROADOBS.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p<<endl;*/
-      //######################################################################
-    }
-
-  }
-#endif
-  else {
-    for (i = 0; i < numObs; i++) {
+  for (i = 0; i < numObs; i++) {
       x[i] = obsp[i].xpos;
       y[i] = obsp[i].ypos;
     }
-  }
 
   // convert points to correct projection
   gc.geo2xy(area, numObs, x, y);
 
   bool ddff = true;
 
-  if (asciiData && (!asciiColumn.count("dd") || !asciiColumn.count("ff")))
-    ddff = false;
 #ifdef ROADOBS
   if (roadobsData && (!roadobsColumn.count("dd") || !roadobsColumn.count("ff")))
     ddff= false;
 #endif
+
   if (ddff) {
 
     // find direction of north for each observation
@@ -802,59 +755,37 @@ bool ObsPlot::setData(void)
 
     gc.geov2xy(area, numObs, x, y, u, v);
 
-    if (asciiData) {
-
-      asciidd.resize(numObs);
-      asciiff.resize(numObs);
-
-      for (i = 0; i < numObs; i++) {
-        float add = atof(asciip[i][asciiColumn["dd"]].c_str());
-        float aff = atof(asciip[i][asciiColumn["ff"]].c_str());
-        if (asciiKnots)
-          aff = knots2ms(aff);
-        asciiff[i] = int(aff + 0.5);
-        if (add > 0.0 && add <= 360.0) {
-          asciidd[i] = int(add + atan2f(u[i], v[i]) * 180 / PI);
-          if (asciidd[i] <= 0)
-            asciidd[i] += 360;
-          if (asciidd[i] > 360)
-            asciidd[i] -= 360;
-        } else {
-          asciidd[i] = -32767;
-        }
-      }
-    }
-#ifdef ROADOBS
-    else if (roadobsData) {
-
-      roadobsdd.resize(numObs);
-      roadobsff.resize(numObs);
-
-      for (i=0; i<numObs; i++) {
-        float add = -1.0;
-        float aff = 0.0;
-        // BEE CAREFULL! This code assumes that the number of entries in
-        // stationlist are the same as in the roadobsp map.
-        int stationid = (*stationlist)[i].wmonr();
-        if (roadobsp[stationid].size() != 0)
-        {
-          add= atof( roadobsp[stationid][roadobsColumn["dd"]].c_str());
-          aff= atof( roadobsp[stationid][roadobsColumn["ff"]].c_str());
-        }
-        //cerr << "add: " << add << " aff: " << aff << endl;
-        if(roadobsKnots) aff = knots2ms(aff);
-        roadobsff[i]= int(aff + 0.5);
-        if( add> 0.0 && add <= 360.0 ) {
-          roadobsdd[i]= int(add + atan2f(u[i],v[i])*180/PI);
-          if( roadobsdd[i]<=0 ) roadobsdd[i] += 360;
-          if( roadobsdd[i]>360) roadobsdd[i] -= 360;
-        } else {
-          roadobsdd[i]= -32767;
-        }
-      }
-    }
-#endif
-    else {
+//#ifdef ROADOBS
+//    else if (roadobsData) {
+//
+//      roadobsdd.resize(numObs);
+//      roadobsff.resize(numObs);
+//
+//      for (i=0; i<numObs; i++) {
+//        float add = -1.0;
+//        float aff = 0.0;
+//        // BEE CAREFULL! This code assumes that the number of entries in
+//        // stationlist are the same as in the roadobsp map.
+//        int stationid = (*stationlist)[i].wmonr();
+//        if (roadobsp[stationid].size() != 0)
+//        {
+//          add= atof( roadobsp[stationid][roadobsColumn["dd"]].c_str());
+//          aff= atof( roadobsp[stationid][roadobsColumn["ff"]].c_str());
+//        }
+//        //cerr << "add: " << add << " aff: " << aff << endl;
+//        if(roadobsKnots) aff = knots2ms(aff);
+//        roadobsff[i]= int(aff + 0.5);
+//        if( add> 0.0 && add <= 360.0 ) {
+//          roadobsdd[i]= int(add + atan2f(u[i],v[i])*180/PI);
+//          if( roadobsdd[i]<=0 ) roadobsdd[i] += 360;
+//          if( roadobsdd[i]>360) roadobsdd[i] -= 360;
+//        } else {
+//          roadobsdd[i]= -32767;
+//        }
+//      }
+//    }
+//#endif
+//    else {
 
       for (i = 0; i < numObs; i++) {
         //##############################################################
@@ -891,7 +822,7 @@ bool ObsPlot::setData(void)
           obsp[i].fdata["ds"] = dd;
         }
       }
-    }
+//    }
 
     delete[] u;
     delete[] v;
@@ -942,12 +873,7 @@ void ObsPlot::logStations()
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::logStations() ++" << endl;
 #endif
-  if (asciiData) {
-#ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::logStations(), asciiData ++" << endl;
-#endif
-    return; // difficult to log because no "Id"
-  }
+
 #ifdef ROADOBS
   if(roadobsData)
   {
@@ -957,14 +883,15 @@ void ObsPlot::logStations()
     return; // difficult to log because no "Id"
   }
 #endif
+
   int n = nextplot.size();
-  //    cerr <<"n:"<<n<<endl;
-  //    cerr <<"numObs"<<obsp.size()<<endl;
-  if (n) {
+   if (n) {
     visibleStations[plottype].clear();
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++) {
       visibleStations[plottype].push_back(obsp[nextplot[i]].id);
+    }
   }
+
 #ifdef DEBUGPRINT
   cerr << "++ End ObsPlot::logStations() ++" << endl;
 #endif
@@ -975,14 +902,7 @@ void ObsPlot::readStations()
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::readStations() ++" << endl;
 #endif
-  // difficult to log asciidata because no "Id"
-  if (asciiData) {
-    all_stations = all_from_file;
-#ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::readStations(), asciiData ++" << endl;
-#endif
-    return;
-  }
+
 #ifdef ROADOBS
   // difficult to log roadobsdata because no "Id"
   if(roadobsData) {
@@ -995,7 +915,6 @@ void ObsPlot::readStations()
 #endif
 
   int n = visibleStations[plottype].size();
-  //    cerr <<"no. of vis. st.:"<<n<<endl;
   if (n > 0) {
 
     vector<int> tmpList = all_from_file;
@@ -1031,10 +950,10 @@ void ObsPlot::readStations()
   notplot.clear();
   list_plotnr.clear();
   fromFile = false;
+
 #ifdef DEBUGPRINT
   cerr << "++ End ObsPlot::readStations() ++" << endl;
 #endif
-  //  cerr <<"Leaving read_stations"<<endl;
 }
 
 void ObsPlot::clear()
@@ -1047,7 +966,6 @@ void ObsPlot::clear()
   nextplot.clear();
   notplot.clear();
   obsp.clear();
-  asciip.clear();
 #ifdef ROADOBS
   roadobsp.clear();
 #endif
@@ -1066,11 +984,11 @@ void ObsPlot::priority_sort(void)
 #endif
   //sort the observations according to priority list
   int numObs = 0;
-  if (obsp.size() > 0)
+  if (obsp.size() > 0) {
     numObs = obsp.size();
-  if (asciip.size() > 0)
-    numObs = asciip.size();
-#ifdef ROADOBS
+  }
+
+  #ifdef ROADOBS
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
 #endif
@@ -1081,17 +999,12 @@ void ObsPlot::priority_sort(void)
 
   // AF: synop: put automatic stations after other types (fixed,ship)
   //     (how to detect other obs. types, temp,aireps,... ???????)
-  if (asciiData) {
-    for (i = 0; i < numObs; i++)
-      all_from_file[i] = i;
-  }
+  if (roadobsData) {
 #ifdef ROADOBS
-  else if (roadobsData) {
     for (i=0; i<numObs; i++)
       all_from_file[i]=i;
-  }
 #endif
-  else {
+  } else {
     vector<int> automat;
     int n = 0;
     for (i = 0; i < numObs; i++) {
@@ -1105,9 +1018,9 @@ void ObsPlot::priority_sort(void)
       all_from_file[n++] = automat[i];
   }
 
-  bool doSort = (!asciiData && priority);
+  bool doSort = priority;
 #ifdef ROADOBS
-  doSort = (!asciiData && !roadobsData && priority);
+  doSort = (!roadobsData && priority);
 #endif
   if ( doSort ) {
 
@@ -1141,9 +1054,9 @@ void ObsPlot::priority_sort(void)
   }
 
   // find index of "Name"-parameter
+#ifdef ROADOBS
   bool nameParameterFound = false;
   int nameIndex = 0;
-#ifdef ROADOBS
   for(vector<miutil::miString>::iterator it=roadobsColumnName.begin(); it != roadobsColumnName.end(); ++it) {
     if(*it == "Name") {
       nameParameterFound = true;
@@ -1187,47 +1100,8 @@ void ObsPlot::priority_sort(void)
   nameParameterFound = false;
   nameIndex = 0;
 #endif
-  for (vector<miutil::miString>::iterator it = asciiColumnName.begin(); it
-  != asciiColumnName.end(); ++it) {
-    if (*it == "Name") {
-      nameParameterFound = true;
-      break;
-    } else {
-      nameIndex++;
-    }
-  }
-  if (asciiData && priority && nameParameterFound) {
 
-    if (currentPriorityFile != priorityFile)
-      readPriorityFile(priorityFile);
-
-    if (priorityList.size() > 0) {
-      vector<int> tmpList = all_from_file;
-      all_from_file.clear();
-
-      // Fill the stations from priority list into all_from_file,
-      // and mark them in tmpList
-      int j, n = priorityList.size();
-
-      for (j = 0; j < n; j++) {
-        i = 0;
-        while (i < numObs && asciip[i][nameIndex] != priorityList[j])
-          i++;
-        if (i < numObs) {
-          all_from_file.push_back(i);
-          tmpList[i] = -1;
-        }
-      }
-
-      if (!showOnlyPrioritized) {
-        for (size_t i = 0; i < tmpList.size(); i++)
-          if (tmpList[i] != -1)
-            all_from_file.push_back(i);
-      }
-    }
-
-  }
-#ifdef DEBUGPRINT
+  #ifdef DEBUGPRINT
   cerr << "++ End ObsPlot::priority_sort() ++" << endl;
 #endif
 }
@@ -1241,21 +1115,15 @@ void ObsPlot::time_sort(void)
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::time_sort() ++" << endl;
 #endif
-  int i, index, numObs;
+  int index, numObs = 0;
 
-  //data from ascii-files
-  if (asciiData) {
-    if (asciiTime.size() == 0)
-      return;
-    numObs = asciiTime.size();
-  }
+
+  if (roadobsData) {
 #ifdef ROADOBS
-  else if (roadobsData) {
     if(roadobsTime.size() == 0) return;
     numObs = roadobsTime.size();
-  }
 #endif
-  else {
+  } else {
     numObs = obsp.size();
   }
 
@@ -1263,19 +1131,13 @@ void ObsPlot::time_sort(void)
   multimap<int, int> sortmap1;
   multimap<int, int> sortmap2;
 
-  if (asciiData) {
-    // data from ascii-files
-    for (i = 0; i < numObs; i++)
-      diff[i] = abs(miTime::minDiff(asciiTime[i], Time));
-  }
+  if (roadobsData) {
 #ifdef ROADOBS
-  else if (roadobsData) {
-    // data from ascii-files
     for (i=0; i<numObs; i++)
       diff[i] = abs(miTime::minDiff(roadobsTime[i],Time));
-  }
 #endif
-  else {
+
+  } else {
     // Data from obs-files
     // find mindiff = abs(obsTime-plotTime) for all observations
     for (int i = 0; i < numObs; i++)
@@ -1356,11 +1218,8 @@ bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
 
   startxy = xpos.size();
 
-  int numObs = 0;
-  if (obsp.size() > 0)
-    numObs = obsp.size();
-  if (asciip.size() > 0)
-    numObs = asciip.size();
+  int   numObs = obsp.size();
+
 #ifdef ROADOBS
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
@@ -1370,6 +1229,7 @@ bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
     xpos.push_back(x[i]);
     ypos.push_back(y[i]);
   }
+
 #ifdef DEBUGPRINT
   cerr << "++ End ObsPlot::getPositions() ++" << endl;
 #endif
@@ -1390,11 +1250,8 @@ int ObsPlot::getPositions(float *xpos, float *ypos, int n)
 
   startxy = n;
 
-  int numObs = 0;
-  if (obsp.size() > 0)
-    numObs = obsp.size();
-  if (asciip.size() > 0)
-    numObs = asciip.size();
+  int numObs = obsp.size();
+
 #ifdef ROADOBS
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
@@ -1520,7 +1377,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::getObsName( xx: " << " yy: " << yy << " ) ++" << endl;
 #endif
-  //  if(asciiData) return false;
+
 
   static miString lastName;
   float min_r = 10.0f * fullrect.width() / pwidth;
@@ -1531,11 +1388,8 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
   float xpos = xx * fullrect.width() / pwidth + fullrect.x1;
   float ypos = yy * fullrect.height() / pheight + fullrect.y1;
 
-  int numObs = 0;
-  if (obsp.size() > 0)
-    numObs = obsp.size();
-  if (asciip.size() > 0)
-    numObs = asciip.size();
+  int numObs = obsp.size();
+
 #ifdef ROADOBS
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
@@ -1573,19 +1427,15 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
     min_i = nextplot[min_i];
   }
 
-  if (asciiData && asciip[min_i].size() > 0) {
-    name = asciip[min_i][0];
-  }
+  if(roadobsData) {
 #ifdef ROADOBS
-  else if(roadobsData) {
     // BEE CAREFULL! This code assumes that the number of entries in
     // stationlist are the same as in the roadobsp map.
     int stationid = (*stationlist)[min_i].wmonr();
     if (roadobsp[stationid].size() != 0)
       name = roadobsp[stationid][0];
-  }
 #endif
-  else {
+  } else {
     name = obsp[min_i].id;
   }
 
@@ -1644,7 +1494,7 @@ bool ObsPlot::preparePlot() {
 #endif
     return false;
   }
-  if(obsp.size()==0 && asciip.size()==0 && roadobsp.size() == 0) {
+  if(obsp.size()==0 && roadobsp.size() == 0) {
 
 #ifdef DEBUGPRINT
     cerr << "++ Returning from ObsPlot::preparePlot(), Nothing to plot ++" << endl;
@@ -1652,11 +1502,8 @@ bool ObsPlot::preparePlot() {
     return false;
   }
 
-  int numObs = 0;
-  if(obsp.size()>0)
-    numObs = obsp.size();
-  if(asciip.size()>0)
-    numObs = asciip.size();
+  int numObs = obsp.size();
+
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
   fp->set(poptions.fontname,poptions.fontface,10*Scale);
@@ -1673,7 +1520,7 @@ bool ObsPlot::preparePlot() {
   // I think we should check for roadobsWind here also
   // OBS!******************************************
   if (plottype=="ascii") {
-    if (asciiWind)
+    if( pFlag.count("wind") )
       num--;
   }
   else if (plottype=="roadobs") {
@@ -1932,11 +1779,8 @@ bool ObsPlot::plot()
   }
 
 
-  int numObs = 0;
-  if (obsp.size() > 0)
-    numObs = obsp.size();
-  if (asciip.size() > 0)
-    numObs = asciip.size();
+  int numObs = obsp.size();
+
 #ifdef ROADOBS
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
@@ -2009,7 +1853,7 @@ bool ObsPlot::plot()
   // I think we should check for roadobsWind here also
   // OBS!******************************************
   if (plottype == "ascii") {
-    if (asciiWind)
+    if (pFlag.count("wind"))
       num--;
   }
 #ifdef ROADOBS
@@ -2367,15 +2211,12 @@ void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
 #endif
   areaFreeSpace = space;
 
-  bool wind;
-  if (plottype == "ascii")
-    wind = asciiWind;
+  bool wind = pFlag.count("wind");
+
 #ifdef ROADOBS
-  else if (plottype=="roadobs")
+  if (plottype=="roadobs")
     wind= roadobsWind;
 #endif
-  else
-    wind = pFlag.count("wind");
 
   if (wind)
     areaFreeWindSize = scale * 47.;
@@ -2419,14 +2260,15 @@ bool ObsPlot::areaFree(int idx)
   int pos = 1;
 
   if (areaFreeWindSize > 0.0) {
-    if (plottype == "ascii")
-      idd = asciidd[idx];
+    if (plottype=="roadobs") {
 #ifdef ROADOBS
-    else if (plottype=="roadobs")
       idd= roadobsdd[idx];
 #endif
-    else if (obsp[idx].fdata.count("dd"))
-      idd = (int) obsp[idx].fdata["dd"];
+    } else {
+      if ( obsp[idx].fdata.count("dd") ) {
+        idd = (int) obsp[idx].fdata["dd"];
+      }
+    }
     if (idd > 0 && idd < 361) {
       float dd = float(idd) * PI / 180.;
       float xw = areaFreeWindSize * sin(dd);
@@ -3324,11 +3166,15 @@ void ObsPlot::printListString(const char *c, float& xpos, float& ypos,
 
 }
 
+
 void ObsPlot::plotAscii(int index)
 {
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::plotAscii( index: " << index << " ) ++" << endl;
 #endif
+  ObsData &dta = obsp[index];
+
+
   GLfloat radius = 3.0;
   int printPos=-1;
   if( !left_alignment ) printPos=0;
@@ -3340,7 +3186,7 @@ void ObsPlot::plotAscii(int index)
   float yStep = h / scale; //depend on character height
   miString align;
   int num = numPar;
-  bool wind = pFlag.count("wind");
+  bool windOK = pFlag.count("Wind") && dta.fdata.count("dd") && dta.fdata.count("ff");
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -3357,9 +3203,9 @@ void ObsPlot::plotAscii(int index)
   float xShift = ig.widthp(image) / 2;
   float yShift = ig.heightp(image) / 2;
 
-  if (!asciiWind) {
-    if (asciiColumn.count("image")) {
-      miString thisImage = asciip[index][asciiColumn["image"]];
+  if (!windOK) {
+    if (dta.stringdata.count("Image")) {
+      miString thisImage = dta.stringdata["Image"];
       xShift = ig.widthp(thisImage) / 2;
       yShift = ig.heightp(thisImage) / 2;
       ig.plotImage(thisImage, x[index], y[index], true, Scale);
@@ -3371,26 +3217,23 @@ void ObsPlot::plotAscii(int index)
   glPushMatrix();
   glTranslatef(x[index], y[index], 0.0);
 
-  if (asciiWind) {
+  if (windOK) {
     num--;
   }
-  //wind
-  //##############################################################
-  //  if (asciiWind)
-  //    cerr<<"ASCIIWIND dd,ff: "<<asciidd[index]<<" "
-  //			     <<asciiff[index]<<endl;
-  //##############################################################
-  if (asciip[index].size() > 0 && asciip[index][0] == selectedStation) {
+
+  if ( dta.id == selectedStation ) {
     Colour c("red");
     glColor4ubv(c.RGBA());
   }
-  if (asciiWind && asciidd[index] != undef) {
-    int dd = asciidd[index];
+
+    if (windOK) {
+    int dd = int(dta.fdata["dd"]);
+    float ff = dta.fdata["ff"];
     glPushMatrix();
     glScalef(scale, scale, 0.0);
-    plotWind(dd, asciiff[index], false, radius, current);
+    plotWind(dd, ff, false, radius, current);
     printPos = (dd - 1) / 90;
-    if (asciiff[index] == 0) {
+    if (ff == 0) {
       printPos = 1;
       xpos += xShift;
     }
@@ -3411,7 +3254,7 @@ void ObsPlot::plotAscii(int index)
       ypos += yShift;
     }
     xpos += xShift;
-    if (wind)
+    if (windOK)
       printUndef(xpos, ypos, "left"); //undef wind
   }
 
@@ -3441,18 +3284,24 @@ void ObsPlot::plotAscii(int index)
     }
   }
 
-  int n = asciipar.size();
+//  map<miutil::miString,bool>::iterator p=pFlag.begin();
+
+  int n = columnName.size();
+//  for ( ; p!=pFlag.end();p++ ){
   for (int i = 0; i < n; i++) {
-    int j = asciipar[i];
-    ypos -= yStep;
-    miString str = asciip[index][j];
-    str.remove('"');
-    float value = atof(str.cStr());
-    if (parameterName)
-      str = asciiColumnName[j] + " " + str;
-    if (ccriteria)
-      checkColourCriteria(asciiColumnName[j], value);
-    printListString(str.cStr(), xpos, ypos, align);
+   // int j = asciipar[i];
+    miString param = columnName[i];
+    if ( pFlag.count(param) ) {
+      ypos -= yStep;
+      miString str = dta.stringdata[param];
+      str.remove('"');
+      float value = atof(str.cStr());
+      if (parameterName)
+        str = param + " " + str;
+      if (ccriteria)
+        checkColourCriteria(param, value);
+      printListString(str.cStr(), xpos, ypos, align);
+    }
   }
 
   glPopMatrix();
@@ -6074,25 +5923,16 @@ bool ObsPlot::checkPlotCriteria(int index)
   for (; p != plotcriteria.end(); p++) {
     int ncrit = p->second.size();
     float value = 0;
-    if (plottype == "ascii") {
-      int n = asciip[index].size();
-      int j = 0;
-      while (j < n && asciiColumnName[j] != p->first)
-        j++;
-      if (j == n)
-        continue;
-      value = atof(asciip[index][j].cStr());
-    }
+
+    if(plottype =="roadobs") {
 #ifdef ROADOBS
-    else if(plottype =="roadobs") {
       int n=roadobsp[index].size();
       int j=0;
       while(j<n && roadobsColumnName[j]!=p->first) j++;
       if(j==n) continue;
       value = atof(roadobsp[index][j].cStr());
-    }
 #endif
-    else {
+    } else {
       if (obsp[index].fdata.count(p->first))
         value = obsp[index].fdata[p->first];
       else if (p->first.downcase() != obsp[index].dataType)
@@ -6138,25 +5978,17 @@ void ObsPlot::checkTotalColourCriteria(int index)
   for (; p != totalcolourcriteria.end(); p++) {
     int ncrit = p->second.size();
     float value = 0;
-    if (plottype == "ascii") {
-      int n = asciip[index].size();
-      int j = 0;
-      while (j < n && asciiColumnName[j] != p->first)
-        j++;
-      if (j == n)
-        continue;
-      value = atof(asciip[index][j].cStr());
-    }
+
+
+    if(plottype =="roadobs") {
 #ifdef ROADOBS
-    else if(plottype =="roadobs") {
       int n=roadobsp[index].size();
       int j=0;
       while(j<n && roadobsColumnName[j]!=p->first) j++;
       if(j==n) continue;
       value = atof(roadobsp[index][j].cStr());
-    }
 #endif
-    else {
+    } else {
       if (obsp[index].fdata.count(p->first))
         value = obsp[index].fdata[p->first];
       else if (p->first.downcase() != obsp[index].dataType)
@@ -6197,25 +6029,16 @@ miString ObsPlot::checkMarkerCriteria(int index)
   for (; p != markercriteria.end(); p++) {
     int ncrit = p->second.size();
     float value = 0;
-    if (plottype == "ascii") {
-      int n = asciip[index].size();
-      int j = 0;
-      while (j < n && asciiColumnName[j] != p->first)
-        j++;
-      if (j == n)
-        continue;
-      value = atof(asciip[index][j].cStr());
-    }
+
+    if(plottype =="roadobs") {
 #ifdef ROADOBS
-    else if(plottype =="roadobs") {
       int n=roadobsp[index].size();
       int j=0;
       while(j<n && roadobsColumnName[j]!=p->first) j++;
       if(j==n) continue;
       value = atof(roadobsp[index][j].cStr());
-    }
 #endif
-    else {
+    } else {
       if (obsp[index].fdata.count(p->first))
         value = obsp[index].fdata[p->first];
       else if (p->first.downcase() != obsp[index].dataType)
@@ -6278,5 +6101,6 @@ void ObsPlot::parameterDecode(miString parameter, bool add)
     parameter = "date";
 
   pFlag[parameter] = add;
+  pFlag[parameter.downcase()] = add;
 }
 

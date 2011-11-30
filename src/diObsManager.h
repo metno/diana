@@ -130,9 +130,7 @@ private:
 
   //HQC - perhaps its own class?
   vector<ObsData> hqcdata;
-  vector< vector<miutil::miString> > hqcdiffdata;
   vector<miutil::miString> hqc_synop_parameter;
-  vector<miutil::miString> hqc_ascii_parameter;
   miutil::miTime hqcTime;
   miutil::miString hqcFlag;
   miutil::miString hqcFlag_old;

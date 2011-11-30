@@ -58,6 +58,7 @@ struct ObsData
   miutil::miString appendix;       ///< For whatever remains
   
   map<miutil::miString,float> fdata;
+  map<miutil::miString,miutil::miString> stringdata;
 
   //Hqc  
   map<miutil::miString,miutil::miString> flag; 

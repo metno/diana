@@ -33,6 +33,7 @@
 
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
+#include <map>
 
 class ObsPlot;
 
@@ -50,6 +51,11 @@ class ObsAscii {
 private:
 
   miutil::miString separator;
+  bool fileOK;
+  bool knots;
+  vector<miutil::miString> asciiColumnUndefined;
+  map<miutil::miString,int> asciiColumn; //column index(time, x,y,dd,ff etc)
+  int  asciiSkipDataLines;
 
   void readFile(const miutil::miString &filename, const miutil::miString &headerfile,
       const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
@@ -60,12 +66,16 @@ private:
 
   void getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines);
   void getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines);
+  void addStationsToUrl(miutil::miString& filename);
 
 public:
   ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
 	   const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
 	   ObsPlot *oplot, bool readData);
 
+  bool asciiOK() { return fileOK;}
+
+  bool parameterType(miutil::miString param) { return asciiColumn.count(param); }
 };
 
 #endif

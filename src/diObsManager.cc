@@ -1399,6 +1399,7 @@ delete roplot;
 
   ObsPlot *oplot= new ObsPlot();
 
+  bool addWind = false;
   while (!found && j<Prod[oname].pattern.size()) {
     if (!Prod[oname].pattern[j].archive || useArchive ) {
       miString headerfile= Prod[oname].headerfile;
@@ -1407,10 +1408,13 @@ delete roplot;
         miTime filetime; // just dummy here
         ObsAscii obsAscii = ObsAscii(Prod[oname].pattern[j].pattern, headerfile, Prod[oname].headerinfo,
             filetime, oplot, false);
-        found= oplot->asciiOK;
-        if (oplot->asciiOK && oplot->asciiColumn.count("time")
-            && !oplot->asciiColumn.count("date"))
+        found= obsAscii.asciiOK();
+        if (obsAscii.asciiOK() && obsAscii.parameterType("time")
+            && !obsAscii.parameterType("date"))
           Prod[oname].useFileTime= true;
+        if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
+          addWind = true;
+        }
       }
       glob_t globBuf;
       glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
@@ -1419,31 +1423,30 @@ delete roplot;
         miString filename = globBuf.gl_pathv[k];
         miTime filetime; // just dummy here
         ObsAscii obsAscii = ObsAscii(filename, headerfile, Prod[oname].headerinfo, filetime, oplot, false);
-        found= oplot->asciiOK;
-        if (oplot->asciiOK && oplot->asciiColumn.count("time")
-            && !oplot->asciiColumn.count("date"))
+        found= obsAscii.asciiOK();
+        if (obsAscii.asciiOK() && obsAscii.parameterType("time")
+            && !obsAscii.parameterType("date"))
           Prod[oname].useFileTime= true;
         k++;
+        if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
+          addWind = true;
+        }
       }
+
       globfree_cache(&globBuf);
     }
     j++;
   }
 
   if (found) {
-    int nc= oplot->asciiColumnName.size();
-    int addWind= -1;
-    if (oplot->asciiColumn.count("dd") && oplot->asciiColumn.count("ff")) {
-      addWind= (oplot->asciiColumn["dd"] < oplot->asciiColumn["ff"]) ?
-          oplot->asciiColumn["dd"] : oplot->asciiColumn["ff"];
+    if ( addWind) {
+      dialog.plottype[id].button.push_back(addButton("Wind",""));
+      dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
     }
+    int nc= oplot->columnName.size();
     for (int c=0; c<nc; c++) {
-      if (c==addWind) {
-        dialog.plottype[id].button.push_back(addButton("Wind",""));
-        dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-      }
       dialog.plottype[id].button.push_back
-      (addButton(oplot->asciiColumnName[c], oplot->asciiColumnTooltip[c], -100,100,true));
+      (addButton(oplot->columnName[c], oplot->columnTooltip[c], -100,100,true));
       dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
     }
   }
@@ -1501,12 +1504,12 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
     }
   } else if( plotType == "Hqc_list"){
     int wind=0;
-    for(unsigned int i=0; i<hqc_ascii_parameter.size(); i++){
+    for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
       //      cerr <<"para: "<<hqc_ascii_parameter[i]<<endl;
-      if(hqc_ascii_parameter[i]=="DD" || hqc_ascii_parameter[i]=="FF" ) wind++;
-      if(hqc_ascii_parameter[i]=="auto")continue;
+      if(hqc_synop_parameter[i]=="DD" || hqc_synop_parameter[i]=="FF" ) wind++;
+      if(hqc_synop_parameter[i]=="auto")continue;
       dialog.plottype[id].button.push_back
-      (addButton(hqc_ascii_parameter[i]," ",0,0,true));
+      (addButton(hqc_synop_parameter[i]," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
       if(wind==2){
         wind=0;
@@ -1960,9 +1963,7 @@ bool ObsManager::initHqcdata(int from,
 
   if(common == "remove") {
     hqcdata.clear();
-    hqcdiffdata.clear();
     hqc_synop_parameter.clear();
-    hqc_ascii_parameter.clear();
     return true;
   }
 
@@ -2005,26 +2006,14 @@ bool ObsManager::initHqcdata(int from,
     }
   }
 
-  if(hqcPlotType == "synop"){
-    hqcdata.clear();
-    hqc_synop_parameter = desc.split(",");
-  } else {
-    hqcdiffdata.clear();
-    hqc_ascii_parameter = desc.split(",");
-  }
-
 
   int numStations = data.size();
   for(int j=0; j<numStations; j++){
     //    cerr <<j<<":"<<data[j]<<endl;
     vector<miString> tokens = data[j].split(",");
-    if(hqcPlotType == "synop"){
-      ObsData obsd;
-      if( !changeHqcdata(obsd,hqc_synop_parameter,tokens)) return false;
-      hqcdata.push_back(obsd);
-    } else if(hqcPlotType == "list"){
-      hqcdiffdata.push_back(tokens);
-    }
+    ObsData obsd;
+    if( !changeHqcdata(obsd,hqc_synop_parameter,tokens)) return false;
+    hqcdata.push_back(obsd);
   }
   //  cerr <<"returning from initHqcdata"<<endl;
   return true;
@@ -2033,24 +2022,7 @@ bool ObsManager::initHqcdata(int from,
 bool ObsManager::sendHqcdata(ObsPlot* oplot)
 {
   //  cerr <<"sendHqcData"<<endl;
-  if( oplot->plotType() == "synop"){
-    oplot->addObs(hqcdata);
-  }else if( oplot->plotType() == "ascii"){
-    oplot->asciiColumn.erase("dd");
-    oplot->asciiColumn.erase("ff");
-    oplot->asciip = hqcdiffdata;
-    for(unsigned int i=0; i<hqc_ascii_parameter.size();i++){
-      if(hqc_ascii_parameter[i]=="lon")
-        oplot->asciiColumn["x"] = i;
-      else if(hqc_ascii_parameter[i]=="lat")
-        oplot->asciiColumn["y"] = i;
-      else if(hqc_ascii_parameter[i]=="DD")
-        oplot->asciiColumn["dd"] = i;
-      else if(hqc_ascii_parameter[i]=="FF")
-        oplot->asciiColumn["ff"] = i;
-    }
-    oplot->asciiColumnName = hqc_ascii_parameter;
-  }
+  oplot->addObs(hqcdata);
   oplot->setSelectedStation(selectedStation);
   oplot->setHqcFlag(hqcFlag);
   //  oplot->flaginfo=true;
@@ -2116,34 +2088,13 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
   for(unsigned int j=0; j<data.size(); j++){
     vector<miString> datastr = data[j].split(",");
     if( datastr.size() !=param.size() ) continue;
-    if(plotType == "synop"){
-      //find station
-      int i=0;
-      int n=hqcdata.size();
-      while(i<n && hqcdata[i].id != datastr[0])
-        i++;
-      if(i==n) continue; // station not found
-      if(!changeHqcdata(hqcdata[i],param,datastr)) return false;
-    } else if(plotType == "list"){
-      int i=0;
-      int n=hqcdiffdata.size();
-      while(i<n && hqcdiffdata[i][0] != datastr[0])
-        i++;
-      if(i==n) {
-        cerr <<"station:"<<datastr[0]<<" not found"<<endl;
-        continue; // station not found
-      }
-      n=hqc_ascii_parameter.size();
-      for(unsigned int k=0; k<param.size(); k++){
-        int j=0;
-        while( j<n && hqc_ascii_parameter[j] !=param[k]) j++;
-        if(j==n) {
-          cerr <<"Parameter:"<<param[k]<<" not found"<<endl;
-          continue; //parameter not found
-        }
-        hqcdiffdata[i][j]=datastr[k];
-      }
-    }
+    //find station
+    int i=0;
+    int n=hqcdata.size();
+    while(i<n && hqcdata[i].id != datastr[0])
+      i++;
+    if(i==n) continue; // station not found
+    if(!changeHqcdata(hqcdata[i],param,datastr)) return false;
   }
   return true;
 }
@@ -2290,9 +2241,7 @@ void ObsManager::processHqcCommand(const miString& command,
 
   if(command == "remove") {
     hqcdata.clear();
-    hqcdiffdata.clear();
     hqc_synop_parameter.clear();
-    hqc_ascii_parameter.clear();
   } else if( command == "flag" ){
     hqcFlag_old = hqcFlag;
     hqcFlag = str;

@@ -263,8 +263,6 @@ private:
 #endif
   void priority_sort(void);
   void time_sort(void);
-  int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
-  float knots2ms(float ff) {return (ff*1852.0/3600.0);}
 
 
 
@@ -330,29 +328,19 @@ public:
   bool timeOK(const miutil::miTime& t);
   //get get pressure level etc from field (if needed)
   void updateLevel(const miutil::miString& dataType);
+  int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
+  float knots2ms(float ff) {return (ff*1852.0/3600.0);}
 
-  //ascii files
-  bool asciiData;
-  bool asciiOK;
-  bool asciiKnots;
-  int  asciiSkipDataLines;
-  vector<miutil::miString> asciiColumnName;
-  vector<miutil::miString> asciiColumnTooltip;
-  vector<miutil::miString> asciiColumnType;
-  vector<miutil::miString> asciiColumnUndefined;
-  vector<miutil::miTime> asciiTime;
-  vector< vector<miutil::miString> > asciip;
-  map<miutil::miString,int> asciiColumn; //column index(time, x,y,dd,ff etc)
-  vector<miutil::miString> asciiParameter;
-  vector<int>      asciipar;
-  bool             asciiWind;
-  vector<int> asciidd;
-  vector<float> asciiff;
+
+  //Dialog info: Name, tooltip and type of parameter buttons. Used in ascii files
+  vector<miutil::miString> columnName;
+  vector<miutil::miString> columnTooltip;
+  vector<miutil::miString> columnType;
 
   // observations from road
+  bool roadobsData;
 #ifdef ROADOBS
   bool roadobsHeader;
-  bool roadobsData;
   bool roadobsOK;
   bool roadobsKnots;
   int  roadobsSkipDataLines;
