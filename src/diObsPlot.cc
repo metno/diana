@@ -217,6 +217,7 @@ ObsData& ObsPlot::getNextObs()
   return obsp[obsp.size() - 1];
 }
 
+
 void ObsPlot::updateLevel(const miString& dataType)
 {
 #ifdef DEBUGPRINT
@@ -685,52 +686,52 @@ bool ObsPlot::setData(void)
   x = new float[numObs];
   y = new float[numObs];
 
-//#ifdef ROADOBS
-//  else if (roadobsData) {
-//    // BEE CAREFULL! This code assumes that the number of entries in
-//    // stationlist are the same as in the roadobsp map.
-//    for (i=0; i<numObs; i++) {
-//      int stationid = (*stationlist)[i].wmonr();
-//      //cerr << "stationid: " << stationid << endl;
-//      if (roadobsp[stationid].size() != 0)
-//      {
-//        x[i] = atof(roadobsp[stationid][roadobsColumn["x"]].c_str());
-//        y[i] = atof(roadobsp[stationid][roadobsColumn["y"]].c_str());
-//      }
-//      else
-//      {
-//        x[i] = (*stationlist)[i].lat();
-//        y[i] = (*stationlist)[i].lon();
-//      }
-//      //cerr << x[i] << ", " << y[i] << endl;
-//    }
-//    roadobspar.clear();
-//    int nc= roadobsColumnName.size();
-//    int np= roadobsParameter.size();
-//    //######################################################################
-//    //for (int c=0; c<nc; c++)
-//    //  cerr<<"ROADOBS.PLOT  roadobsColumnName: "<<roadobsColumnName[c]<<endl;
-//    //for (int p=0; p<np; p++)
-//    //  cerr<<"ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p]<<endl;
-//    //######################################################################
-//    for (int c=0; c<nc; c++) {
-//      miString cpar= roadobsColumnName[c].downcase();
-//      int p= 0;
-//      while (p<np && roadobsParameter[p]!=cpar) p++;
-//      if (p<np) roadobspar.push_back(c);
-//      //######################################################################
-//      /*      cerr<<"ROADOBS.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p<<endl;*/
-//      //######################################################################
-//    }
-//
-//  }
-//#endif
-//  else {
+  if (roadobsData) {
+#ifdef ROADOBS
+    // BEE CAREFULL! This code assumes that the number of entries in
+    // stationlist are the same as in the roadobsp map.
+    for (i=0; i<numObs; i++) {
+      int stationid = (*stationlist)[i].wmonr();
+      //cerr << "stationid: " << stationid << endl;
+      if (roadobsp[stationid].size() != 0)
+      {
+        x[i] = atof(roadobsp[stationid][roadobsColumn["x"]].c_str());
+        y[i] = atof(roadobsp[stationid][roadobsColumn["y"]].c_str());
+      }
+      else
+      {
+        x[i] = (*stationlist)[i].lat();
+        y[i] = (*stationlist)[i].lon();
+      }
+      //cerr << x[i] << ", " << y[i] << endl;
+    }
+    roadobspar.clear();
+    int nc= roadobsColumnName.size();
+    int np= roadobsParameter.size();
+    //######################################################################
+    //for (int c=0; c<nc; c++)
+    //  cerr<<"ROADOBS.PLOT  roadobsColumnName: "<<roadobsColumnName[c]<<endl;
+    //for (int p=0; p<np; p++)
+    //  cerr<<"ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p]<<endl;
+    //######################################################################
+    for (int c=0; c<nc; c++) {
+      miString cpar= roadobsColumnName[c].downcase();
+      int p= 0;
+      while (p<np && roadobsParameter[p]!=cpar) p++;
+      if (p<np) roadobspar.push_back(c);
+      //######################################################################
+      /*      cerr<<"ROADOBS.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p<<endl;*/
+      //######################################################################
+    }
 
-  for (i = 0; i < numObs; i++) {
+#endif
+  } else {
+
+    for (i = 0; i < numObs; i++) {
       x[i] = obsp[i].xpos;
       y[i] = obsp[i].ypos;
     }
+  }
 
   // convert points to correct projection
   gc.geo2xy(area, numObs, x, y);
@@ -755,37 +756,36 @@ bool ObsPlot::setData(void)
 
     gc.geov2xy(area, numObs, x, y, u, v);
 
-//#ifdef ROADOBS
-//    else if (roadobsData) {
-//
-//      roadobsdd.resize(numObs);
-//      roadobsff.resize(numObs);
-//
-//      for (i=0; i<numObs; i++) {
-//        float add = -1.0;
-//        float aff = 0.0;
-//        // BEE CAREFULL! This code assumes that the number of entries in
-//        // stationlist are the same as in the roadobsp map.
-//        int stationid = (*stationlist)[i].wmonr();
-//        if (roadobsp[stationid].size() != 0)
-//        {
-//          add= atof( roadobsp[stationid][roadobsColumn["dd"]].c_str());
-//          aff= atof( roadobsp[stationid][roadobsColumn["ff"]].c_str());
-//        }
-//        //cerr << "add: " << add << " aff: " << aff << endl;
-//        if(roadobsKnots) aff = knots2ms(aff);
-//        roadobsff[i]= int(aff + 0.5);
-//        if( add> 0.0 && add <= 360.0 ) {
-//          roadobsdd[i]= int(add + atan2f(u[i],v[i])*180/PI);
-//          if( roadobsdd[i]<=0 ) roadobsdd[i] += 360;
-//          if( roadobsdd[i]>360) roadobsdd[i] -= 360;
-//        } else {
-//          roadobsdd[i]= -32767;
-//        }
-//      }
-//    }
-//#endif
-//    else {
+    if (roadobsData) {
+#ifdef ROADOBS
+
+      roadobsdd.resize(numObs);
+      roadobsff.resize(numObs);
+
+      for (i=0; i<numObs; i++) {
+        float add = -1.0;
+        float aff = 0.0;
+        // BEE CAREFULL! This code assumes that the number of entries in
+        // stationlist are the same as in the roadobsp map.
+        int stationid = (*stationlist)[i].wmonr();
+        if (roadobsp[stationid].size() != 0)
+        {
+          add= atof( roadobsp[stationid][roadobsColumn["dd"]].c_str());
+          aff= atof( roadobsp[stationid][roadobsColumn["ff"]].c_str());
+        }
+        //cerr << "add: " << add << " aff: " << aff << endl;
+        if(roadobsKnots) aff = knots2ms(aff);
+        roadobsff[i]= int(aff + 0.5);
+        if( add> 0.0 && add <= 360.0 ) {
+          roadobsdd[i]= int(add + atan2f(u[i],v[i])*180/PI);
+          if( roadobsdd[i]<=0 ) roadobsdd[i] += 360;
+          if( roadobsdd[i]>360) roadobsdd[i] -= 360;
+        } else {
+          roadobsdd[i]= -32767;
+        }
+      }
+#endif
+    } else {
 
       for (i = 0; i < numObs; i++) {
         //##############################################################
@@ -822,14 +822,14 @@ bool ObsPlot::setData(void)
           obsp[i].fdata["ds"] = dd;
         }
       }
-//    }
+    }
 
-    delete[] u;
-    delete[] v;
-  }
+      delete[] u;
+      delete[] v;
+    }
 
-  //sort stations according to priority file
-  priority_sort();
+    //sort stations according to priority file
+    priority_sort();
   //put stations plotted last time on top of list
   readStations();
   //sort stations according to time
