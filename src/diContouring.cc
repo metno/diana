@@ -46,7 +46,6 @@
 #include <diFontManager.h>
 #include <diField/diPlotOptions.h>
 #include <diField/diArea.h>
-#include <glp/glpfile.h>
 #include <diContouring.h>
 #include <diTesselation.h>
 #include <diImageGallery.h>

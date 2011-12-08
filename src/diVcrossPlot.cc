@@ -45,9 +45,7 @@
 #include <puTools/miSetupParser.h>
 #include <diField/diMetConstants.h>
 #include <diContouring.h>
-#include <glText/glText.h>
-#include <GL/gl.h>
-#include <glp/glpfile.h>
+#include "GL/gl.h"
 
 #include <math.h>
 

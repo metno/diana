@@ -88,7 +88,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 	     int ibcol,
 	     int ibmap, int lbmap, int kbmap[],
 	     int nxbmap, int nybmap, float rbmap[],
-	     FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
+             FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
 	     const Area& fieldArea, const float& fieldUndef,
 	     const miutil::miString& modelName = "", const miutil::miString& paramName = "",
 	     const int& fhour = 0);
@@ -126,7 +126,7 @@ void fillContours(vector<ContourLine*>& contourlines,
 		  int nx, int ny, float z[],
 		  int iconv, float *cxy, float *xz, float *yz, int idraw,
 		  const PlotOptions& poptions, bool drawBorders,
-		  GLPfile* psoutput, const Area& fieldArea,
+                  GLPfile* psoutput, const Area& fieldArea,
 		  float zrange[], float zstep, float zoff,
 		  const float& fieldUndef);
 

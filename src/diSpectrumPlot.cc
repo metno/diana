@@ -41,8 +41,7 @@
 #include <diField/diPlotOptions.h>
 #include <diField/diColour.h>
 #include <diContouring.h>
-#include <GL/gl.h>
-#include <glp/glpfile.h>
+#include "GL/gl.h"
 
 #include <math.h>
 
@@ -553,7 +552,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
     x= xplot1 + dytext1*0.25;
     y= yefdiag + dyefdiag + chy*0.35;
     fp->drawStr(str.cStr(),x,y,0.0);
-    // tick labels
+    // tick labels
     for (int i=0; i<numyefdiag; i++) {
       int ivalue= i*incyefdiag;
       v=float(ivalue);
@@ -567,7 +566,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
     x= xefdiag + dxefdiag + chy*0.5;
     y= yefdiag - chy*0.5;
     fp->drawStr(str.cStr(),x,y,0.0);
-    // tick labels
+    // tick labels
     n= int(vxefdiag*10.-0.5);
     for (int i=0; i<=n; i++) {
       v=float(i)*0.1;

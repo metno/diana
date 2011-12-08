@@ -44,23 +44,10 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
     : QWidget( parent), contr(co)
 {
   QVBoxLayout* vlayout = new QVBoxLayout(this);
-  // Create an openGL widget
-  QGLFormat fmt, ofmt;
-  ofmt= QGLFormat::defaultOverlayFormat();
-  ofmt.setDoubleBuffer(true);
-  QGLFormat::setDefaultOverlayFormat(ofmt);
-  fmt.setOverlay(false);
-  fmt.setDoubleBuffer(true);
-  fmt.setDirectRendering(false);
-  glw = new GLwidget(contr, fmt, this);
+  glw = new GLwidget(contr, this);
   
   if ( !glw->isValid() ) {
-    // Try without double-buffering
-    fmt.setDoubleBuffer(false);
-    glw->setFormat( fmt );
-    if ( !glw->isValid() ){
-      qCritical("Failed to create OpenGL rendering context on this display");
-    }
+    qCritical("Failed to create OpenGL rendering context on this display");
   }
   glw->setMinimumSize( 300, 200 );
   

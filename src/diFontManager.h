@@ -32,9 +32,10 @@
 #define _diFontManager_h
 
 #include <puTools/miString.h>
-#include <glText/glText.h>
 #include <set>
 #include <map>
+
+#include "GL/paintgl.h"
 
 /**
  \brief Font manager for text plotting

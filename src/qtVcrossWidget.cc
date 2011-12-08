@@ -45,9 +45,8 @@
 #include "diVcrossPlot.h"
 
 
-VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-			  QWidget* parent)
-    : QGLWidget( fmt, parent),
+VcrossWidget::VcrossWidget(VcrossManager *vcm, QWidget* parent)
+    : PaintGLWidget(parent, true),
       vcrossm(vcm), fbuffer(0), arrowKeyDirection(1),
       timeGraph(false), startTimeGraph(false)
 {

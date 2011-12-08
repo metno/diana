@@ -36,12 +36,14 @@
 
 
 #include <QApplication>
+#include <QDebug>
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
 
 #include "qtGLwidget.h"
 #include "diController.h"
+#include "paintgl.h"
 
 #include <math.h>
 #include <fstream>
@@ -55,8 +57,8 @@
 #include <paint_forbidden_crusor.xpm>
 
 // GLwidget constructor
-GLwidget::GLwidget(Controller* c, const QGLFormat fmt, QWidget* parent) :
-  QGLWidget(fmt, parent), curcursor(keep_it), contr(c), fbuffer(0)
+GLwidget::GLwidget(Controller* c, QWidget* parent) :
+  PaintGLWidget(parent), curcursor(keep_it), contr(c), fbuffer(0)
 
 {
   setFocusPolicy(Qt::StrongFocus);
@@ -80,7 +82,7 @@ void GLwidget::paintGL()
 {
 
 #ifdef DEBUGPRINT
-  cerr << "paintGL()" << endl;
+  cerr << "paintEvent()" << endl;
 #endif
 
 #ifdef DEBUGREDRAW

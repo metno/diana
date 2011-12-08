@@ -35,7 +35,6 @@
 
 #include <diVprofTables.h>
 #include <diLocalSetupParser.h>
-#include <glp/glpfile.h>
 #include <iostream>
 #include <math.h>
 

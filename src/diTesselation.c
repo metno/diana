@@ -34,17 +34,10 @@
 #endif
 
 #include <diTesselation.h>
-#include <GL/glu.h>
+#include "GL/gl.h"
+#include "GL/glu.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifndef GLCALLBACK
-#ifdef GLAPIENTRY
-#define GLCALLBACK GLAPIENTRY
-#else
-#define GLCALLBACK APIENTRY
-#endif
-#endif
 
 /************************
 define DEBUGEACHCALLBACK
@@ -74,14 +67,14 @@ typedef struct {
 
 
 
-static void GLCALLBACK error_callback( GLenum err )
+static void error_callback( GLenum err )
 {
   const GLubyte* errmsg;
   errmsg = gluErrorString( err );
   fprintf(stderr, "tesselation error_callback %d : %s\n",err,errmsg );
 }
 
-static void GLCALLBACK combineCallback(GLdouble coords[3], 
+static void combineCallback(GLdouble coords[3],
                      VERTEX *vertex_data[4],
                      GLfloat weight[4], VERTEX **dataOut )
 {

@@ -31,10 +31,9 @@
 #ifndef _qtGLwidget_h
 #define _qtGLwidget_h
 
-#include <qgl.h>
-
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QWidget>
 
 #include <vector>
 #include <puTools/miString.h>
@@ -44,9 +43,13 @@
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 
+#include "GL/gl.h"
+#include "GL/paintgl.h"
+
 using namespace std;
 
 class Controller;
+class PaintGLContext;
 
 /**
    \brief the map OpenGL widget
@@ -57,13 +60,12 @@ class Controller;
 
 */
 
-class GLwidget : public QGLWidget {
+class GLwidget : public PaintGLWidget {
 
   Q_OBJECT
 
 public:
-  GLwidget(Controller*, const QGLFormat,
-	   QWidget*);
+  GLwidget(Controller*, QWidget*);
   ~GLwidget();
 
   /// save contents of widget as raster image
@@ -80,7 +82,7 @@ public:
   /// end hardcopy plot
   void endHardcopy();
 
-  signals:
+signals:
   /// single click signal
   void mouseGridPos(const mouseEvent mev);
   /// single click signal (right mouse button)
@@ -99,7 +101,7 @@ protected:
   void initializeGL();
   void paintGL();
   void editPaint(bool drawb= true);
-  void resizeGL(int w, int h);
+  void resizeGL(int width, int height);
 
   void buildKeyMap();
   void fillMouseEvent(const QMouseEvent*,mouseEvent&);
@@ -126,10 +128,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-

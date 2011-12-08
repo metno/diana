@@ -6,7 +6,7 @@ bin_PROGRAMS = diana.bin bdiana
 noinst_LIBRARIES = libdiana.a
 
 # automake requires one = before the first +=
-common_cppflags =
+common_cppflags = -I$(top_srcdir)/src/GL
 common_ldflags =
 common_ldadd = libdiana.a
 CLEANFILES =
@@ -25,7 +25,19 @@ common_cppflags += -DMETNOFIELDFILE -DMETNOOBS
 
 # C source code common to diana and bdiana
 common_c_sources = \
-	diTesselation.c
+        diTesselation.c \
+        GL/libtess/dict.c \
+        GL/libtess/geom.c \
+        GL/libtess/memalloc.c \
+        GL/libtess/mesh.c \
+        GL/libtess/normal.c \
+        GL/libtess/priorityq.c \
+        GL/libtess/render.c \
+        GL/libtess/sweep.c \
+        GL/libtess/tess.c \
+        GL/libtess/tessmono.c \
+        GL/libutil/error.c \
+        GL/libutil/glue.c
 
 # C++ source code common to diana and bdiana
 common_cxx_sources = \
@@ -103,7 +115,8 @@ common_cxx_sources = \
 	diWeatherArea.cc \
 	diWeatherFront.cc \
 	diWeatherObjects.cc \
-	diWeatherSymbol.cc
+        diWeatherSymbol.cc \
+        GL/paintgl.cc
 
 # Qt sources
 common_qt_sources =
@@ -322,7 +335,24 @@ noinst_HEADERS = \
 	qtVprofWidget.h \
 	qtVprofWindow.h \
 	qtWorkArea.h \
-	signalhelper.h
+        signalhelper.h \
+        GL/gl.h \
+        GL/glu.h \
+        GL/gluint.h \
+        GL/gluos.h \
+        GL/paintgl.h \
+        GL/libtess/dict.h \
+        GL/libtess/dict-list.h \
+        GL/libtess/geom.h \
+        GL/libtess/memalloc.h \
+        GL/libtess/mesh.h \
+        GL/libtess/normal.h \
+        GL/libtess/priorityq.h \
+        GL/libtess/priorityq-sort.h \
+        GL/libtess/render.h \
+        GL/libtess/sweep.h \
+        GL/libtess/tess.h \
+        GL/libtess/tessmono.h
 
 # xpm files needed to build
 common_xpm_sources= active_object.xpm \
@@ -462,9 +492,6 @@ common_cppflags += \
 	$(DIMITIFF_CPPFLAGS) \
 	$(PUCTOOLS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
-	$(FTGL_CPPFLAGS) \
-	$(GLP_CPPFLAGS) \
-	$(GLTEXT_CPPFLAGS) \
 	$(PUDATATYPES_CPPFLAGS) \
 	$(QUTILITIES_CPPFLAGS) \
 	$(ROBS_CPPFLAGS) \
@@ -478,9 +505,6 @@ common_ldflags += \
 	$(DIMITIFF_LDFLAGS) \
 	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
-	$(FTGL_LDFLAGS) \
-	$(GLP_LDFLAGS) \
-	$(GLTEXT_LDFLAGS) \
 	$(PUDATATYPES_LDFLAGS) \
 	$(QUTILITIES_LDFLAGS) \
 	$(ROBS_LDFLAGS) \
@@ -494,9 +518,6 @@ common_ldadd += \
 	$(DIMITIFF_LIBS) \
 	$(PUCTOOLS_LIBS) \
 	$(EMOS_LIBS) \
-	$(FTGL_LIBS) \
-	$(GLP_LIBS) \
-	$(GLTEXT_LIBS) \
 	$(PUDATATYPES_LIBS) \
 	$(QUTILITIES_LIBS) \
 	$(ROBS_LIBS) \

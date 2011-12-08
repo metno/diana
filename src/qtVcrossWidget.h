@@ -32,12 +32,15 @@
 #define VCROSSWIDGET_H
 
 #include <iostream>
-#include <qgl.h>
 
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QWidget>
 #include <diField/diColour.h>
 #include <diPrintOptions.h>
+
+#include "GL/gl.h"
+#include "GL/paintgl.h"
 
 using namespace std;
 
@@ -50,18 +53,14 @@ class VcrossManager;
    Handles widget paint/redraw events.
    Receives mouse and keybord events and initiates actions.
 */
-class VcrossWidget : public QGLWidget
+class VcrossWidget : public PaintGLWidget
 {
   Q_OBJECT
 
 public:
-  VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-	       QWidget* parent = 0 );
+  VcrossWidget(VcrossManager *vcm, QWidget* parent = 0 );
   ~VcrossWidget();
 
-  void initializeGL();
-  void paintGL();
-  void resizeGL( int w, int h );
   void enableTimeGraph(bool on);
 
   bool saveRasterImage(const miutil::miString fname,
@@ -71,7 +70,18 @@ public:
   void startHardcopy(const printOptions& po);
   void endHardcopy();
 
+  bool isValid() { return true; }
+  void makeCurrent() {}
+  void swapBuffers() {}
+  void setAutoBufferSwap(bool enable) {}
+  void updateGL() { update(); }
+  QImage grabFrameBuffer(bool withAlpha = false) { return QImage(); }
+
 protected:
+
+  void initializeGL();
+  void paintGL();
+  void resizeGL( int w, int h );
 
 private:
   VcrossManager *vcrossm;

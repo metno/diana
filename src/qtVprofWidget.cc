@@ -43,9 +43,8 @@
 #include "diVprofManager.h"
 
 
-VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
-			 QWidget* parent )
-    : QGLWidget( fmt, parent ), vprofm(vpm)
+VprofWidget::VprofWidget(VprofManager *vpm, QWidget* parent)
+    : PaintGLWidget(parent, true), vprofm(vpm)
 {
 
   if ( !isValid() ) {

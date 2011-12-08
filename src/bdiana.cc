@@ -46,7 +46,13 @@
 #include <iostream>
 
 #include <QtCore>
+#if defined(Q_WS_QWS) || !defined(USE_XLIB)
+#include <QtGui>
+#include <QtSvg>
+#include "GL/paintgl.h"
+#else
 #include <QtOpenGL>
+#endif
 
 #include <diController.h>
 
@@ -158,7 +164,7 @@ const miString com_level = "level";
 const miString com_endlevel = "endlevel";
 
 enum canvas {
-  x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer
+  x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer, qt_qimage
 };
 
 enum image_type {
@@ -220,9 +226,16 @@ GLXPbuffer pbuf; // GLX Pixel Buffer
 #endif
 
 QApplication * application = 0; // The Qt Application object
+#if !defined(Q_WS_QWS) && defined(USE_XLIB)
 QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
 QGLFramebufferObject * qfbuffer = 0; // The Qt GLFrameBuffer used as canvas
 QGLWidget *qwidget = 0; // The rendering context used for Qt GLFrameBuffer
+#else
+QPainter painter;
+PaintGL wrapper;
+PaintGLContext context;
+#endif
+QPicture picture;
 int xsize; // total pixmap width
 int ysize; // total pixmap height
 bool multiple_plots = false; // multiple plots per page
@@ -233,7 +246,15 @@ int margin, spacing; // margin and spacing for multiple plots
 bool multiple_newpage = false; // start new page for multiple plots
 
 bool use_double_buffer = true; // use double buffering
+#ifdef USE_XLIB
+int default_canvas = x_pixmap;
+#else
+#ifdef Q_WS_QWS
+int default_canvas = qt_qimage;
+#else
 int default_canvas = qt_glpixelbuffer;
+#endif
+#endif
 int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
 
@@ -253,6 +274,8 @@ bool useArchive = false;
 bool toprinter = false;
 bool raster = false; // false means postscript
 bool shape = false; // false means postscript
+bool svg = false;
+bool pdf = false;
 int raster_type = image_png; // see enum image_type above
 
 /*
@@ -796,7 +819,10 @@ void printUsage(bool showexample)
 #ifdef VIDEO_EXPORT
         " - as AVI (MS MPEG4-v2 video format)                            \n"
 #endif
+#if !defined(Q_WS_QWS) && defined(USE_XLIB)
         " - using qtgl: all available raster formats in Qt               \n"
+#endif
+        " - using qimage: all available raster formats in Qt             \n"
         "***************************************************             \n"
         "                                                                \n"
         "Usage: bdiana -i <job-filename>"
@@ -804,7 +830,11 @@ void printUsage(bool showexample)
         " [-v]"
         " [-display xhost:display]"
         " [-example]"
-        " [-use_qtgl | -use_pbuffer | -use_pixmap ]"
+        " ["
+#ifdef USE_XLIB
+        "-use_pixmap | -use_pbuffer |"
+#endif
+        " -use_qimage ]"
         " [-use_doublebuffer | -use_singlebuffer]"
         " [key=value key=value] \n"
         "                                                                        \n"
@@ -821,12 +851,12 @@ void printUsage(bool showexample)
         "-display          : x-server to use (default: env DISPLAY)              \n"
         "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium (default)  \n"
         "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
-        "-use_qtgl         : use QGLPixelBuffer as drawing medium                \n"
-#else
-        "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
 #endif
+        "-use_qimage       : use QImage as drawing medium                        \n"
+#if !defined(Q_WS_QWS) && defined(USE_XLIB)
         "-use_doublebuffer : use double buffering OpenGL (default)               \n"
         "-use_singlebuffer : use single buffering OpenGL                         \n"
+#endif
         "                                                                        \n"
         "special key/value pairs:                                                \n"
         " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time                          \n"
@@ -1398,12 +1428,17 @@ int parseAndProcess(istream &is)
           trajectory_started = false;
         }
 
+        if (canvasType == qt_qimage) {
+            if (raster)
+                painter.setRenderHint(QPainter::Antialiasing);
+        }
+
         if (verbose)
           cout << "- plot" << endl;
         if (shape)
         	main_controller->plot(true, false);
         else
-        main_controller->plot(true, true);
+          main_controller->plot(true, true);
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
@@ -1620,6 +1655,10 @@ int parseAndProcess(istream &is)
           glXSwapBuffers(dpy, pbuf);
 #endif
 #endif
+        } else if (canvasType == qt_glpixelbuffer) {
+          cerr
+              << "WARNING! double buffer swapping not implemented for qt_glpixelbuffer"
+              << endl;
         }
       }
 
@@ -1635,6 +1674,7 @@ int parseAndProcess(istream &is)
           cout << "- Preparing for raster output" << endl;
         glFlush();
 
+#if !defined(Q_WS_QWS) && defined(USE_XLIB)
         if (canvasType == qt_glpixelbuffer) {
           if (qpbuffer == 0) {
             cerr << " ERROR. when saving image - qpbuffer is NULL" << endl;
@@ -1691,7 +1731,22 @@ int parseAndProcess(istream &is)
               cerr << " ERROR, saving image to:" << priop.fname << endl;
             }
           }
-        } else {
+        }
+#else
+        if (canvasType == qt_qimage && raster) {
+          context.end();
+          painter.end();
+
+          QImage image(xsize, ysize, QImage::Format_ARGB32);
+          painter.begin(&image);
+          painter.setRenderHint(QPainter::Antialiasing);
+          painter.drawPicture(0, 0, picture);
+          painter.end();
+
+          image.save(QString::fromStdString(priop.fname));
+        }
+#endif
+        else {
           imageIO::Image_data img;
           img.width = xsize;
           img.height = ysize;
@@ -1743,6 +1798,32 @@ int parseAndProcess(istream &is)
 
           // Anything more to be done here ???
 
+#ifdef Q_WS_QWS
+      } else if (svg) {
+
+          context.end();
+          painter.end();
+
+          QSvgGenerator svgFile;
+          svgFile.setFileName(QString::fromStdString(priop.fname));
+          svgFile.setSize(QSize(xsize, ysize));
+          svgFile.setViewBox(QRect(0, 0, xsize, ysize));
+          painter.begin(&svgFile);
+          painter.drawPicture(0, 0, picture);
+          painter.end();
+
+      } else if (pdf) {
+
+          context.end();
+          painter.end();
+
+          QPrinter printer;
+          printer.setOutputFileName(QString::fromStdString(priop.fname));
+          printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
+          painter.begin(&printer);
+          painter.drawPicture(0, 0, picture);
+          painter.end();
+#endif
       } else { // PostScript only
         if (toprinter) { // automatic print of each page
           // Note that this option works bad for multi-page output:
@@ -2134,6 +2215,8 @@ int parseAndProcess(istream &is)
 #endif
 #endif
       } else if (canvasType == qt_glpixelbuffer) {
+
+#if !defined(Q_WS_QWS) && defined(USE_XLIB)
         // delete old pixmaps
         if (buffermade && qpbuffer) {
           delete qpbuffer;
@@ -2160,6 +2243,7 @@ int parseAndProcess(istream &is)
           qfbuffer->bind();
           //qfbuffer->release();
 
+#endif
       }
       glShadeModel(GL_FLAT);
 
@@ -2222,6 +2306,10 @@ int parseAndProcess(istream &is)
         raster_type = image_unknown;
       } else if (value == "shp") {
           shape = true;
+      } else if (value == "svg") {
+          svg = true;
+      } else if (value == "pdf") {
+          pdf = true;
       } else if (value == "avi") {
         raster = true;
         raster_type = image_avi;
@@ -2474,6 +2562,9 @@ int main(int argc, char** argv)
     } else if (sarg == "-use_qtgl_fb") {
       canvasType = qt_glframebuffer;
 
+    } else if (sarg == "-use_qimage") {
+      canvasType = qt_qimage;
+
     } else if (sarg == "-use_singlebuffer") {
       use_double_buffer = false;
 
@@ -2580,31 +2671,38 @@ int main(int argc, char** argv)
   }
 #endif
 
+#if !defined(Q_WS_QWS) && defined(USE_XLIB)
   if (canvasType == qt_glpixelbuffer) {
     cerr <<"qt_glpixelbuffer"<<endl;
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
-    	COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
+      COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
       return 1;
     }
   } else if (canvasType == qt_glframebuffer) {
-	if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
-	  cerr << "This system does not support OpenGL framebuffers." << endl;
-	  return 1;
-	} else {
-	  //Create QGL widget as a rendering context
+    if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
+      cerr << "This system does not support OpenGL framebuffers." << endl;
+      return 1;
+    } else {
+      //Create QGL widget as a rendering context
       QGLFormat format = QGLFormat::defaultFormat();
       format.setAlpha(true);
       format.setDirectRendering(true);
       if (use_double_buffer) {
-    	format.setDoubleBuffer(true);
+       format.setDoubleBuffer(true);
       }
       qwidget = new QGLWidget(format);
       qwidget->makeCurrent();
 
       //qwidget->doneCurrent(); // Probably not needed qwidget is deleted furthher down in the code
 
-	}
+    }
   }
+#else
+  if (canvasType == qt_qimage) {
+    painter.begin(&picture);
+    context.begin(&painter);
+  }
+#endif
 
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
 #ifdef USE_XLIB
@@ -2763,6 +2861,7 @@ int main(int argc, char** argv)
   }
 #endif
 
+#if !defined(Q_WS_QWS) && defined(USE_XLIB)
   if (qpbuffer) {
     delete qpbuffer;
   }
@@ -2772,6 +2871,7 @@ int main(int argc, char** argv)
   if (qwidget) {
     delete qwidget;
   }
+#endif
 
   if (vcrossmanager)
     delete vcrossmanager;

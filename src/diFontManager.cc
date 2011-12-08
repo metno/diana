@@ -34,17 +34,9 @@
 #endif
 
 #include <diFontManager.h>
-#ifdef USE_XLIB
-#include <glText/glTextX.h>
-#endif
-#include <glText/glTextTT.h>
-#include <glText/glTextTTBitmap.h>
-#include <glText/glTextTTPixmap.h>
-#include <glText/glTextTTTexture.h>
-#include <glText/glTextQtTexture.h>
 #include <diLocalSetupParser.h>
 
-#include <glp/GLP.h>
+#include "GL/paintgl.h"
 
 using namespace ::miutil;
 using namespace std;
@@ -67,29 +59,12 @@ static const miString key_metsymbolfont = "metsymbolfont";
 FontManager::FontManager() :
   current_engine(0)
 {
-#ifdef USE_XLIB
-  glTextX * xfonts;
-  if (display_name.exists()) // do not use environment-var DISPLAY
-  xfonts = new glTextX(display_name);
-  else
-  xfonts = new glTextX();
-  fontengines[key_bitmap] = xfonts;
-#endif
-
-  glTextTT * ttfonts = new glTextTT();
-  fontengines[key_scaleable] = ttfonts;
-
-  glTextTTBitmap * ttbfonts = new glTextTTBitmap();
-  fontengines[key_ttbitmap] = ttbfonts;
-
-  glTextTTPixmap * ttpixfonts = new glTextTTPixmap();
-  fontengines[key_ttpixmap] = ttpixfonts;
-
-  glTextTTTexture * tttexfonts = new glTextTTTexture();
-  fontengines[key_tttexture] = tttexfonts;
-
-  glTextQtTexture * texfonts = new glTextQtTexture();
-  fontengines[key_texture] = texfonts;
+  glText * fonts = new glText();
+  fontengines[key_scaleable] = fonts;
+  fontengines[key_ttbitmap] = fonts;
+  fontengines[key_ttpixmap] = fonts;
+  fontengines[key_tttexture] = fonts;
+  fontengines[key_texture] = fonts;
 }
 
 FontManager::~FontManager()
@@ -237,14 +212,14 @@ bool FontManager::parseSetup()
     } else if (fonttype.downcase() == key_scaleable) {
       enginefamilies[key_scaleable].insert(fontfam);
       if (fontengines[key_scaleable]) {
-        static_cast<glTextTT*> (fontengines[key_scaleable])->defineFont(
+        static_cast<glText*> (fontengines[key_scaleable])->defineFont(
             fontfam, fontfilename, fontFace(fontface), 20);
       }
 
     } else if (fonttype.downcase() == key_ttbitmap) {
       enginefamilies[key_ttbitmap].insert(fontfam);
       if (fontengines[key_ttbitmap]) {
-        static_cast<glTextTTBitmap*> (fontengines[key_ttbitmap])->defineFont(
+        static_cast<glText*> (fontengines[key_ttbitmap])->defineFont(
             fontfam, fontfilename, fontFace(fontface), 20, postscript,
             psxscale, psyscale);
       }
@@ -252,7 +227,7 @@ bool FontManager::parseSetup()
     } else if (fonttype.downcase() == key_ttpixmap) {
       enginefamilies[key_ttpixmap].insert(fontfam);
       if (fontengines[key_ttpixmap]) {
-        static_cast<glTextTTPixmap*> (fontengines[key_ttpixmap])->defineFont(
+        static_cast<glText*> (fontengines[key_ttpixmap])->defineFont(
             fontfam, fontfilename, fontFace(fontface), 20, postscript,
             psxscale, psyscale);
       }
@@ -260,7 +235,7 @@ bool FontManager::parseSetup()
     } else if (fonttype.downcase() == key_tttexture) {
       enginefamilies[key_tttexture].insert(fontfam);
       if (fontengines[key_tttexture]) {
-        static_cast<glTextTTTexture*> (fontengines[key_tttexture])->defineFont(
+        static_cast<glText*> (fontengines[key_tttexture])->defineFont(
             fontfam, fontfilename, fontFace(fontface), 20, postscript,
             psxscale, psyscale);
       }
@@ -268,7 +243,7 @@ bool FontManager::parseSetup()
     } else if (fonttype.downcase() == key_texture) {
       enginefamilies[key_texture].insert(fontfam);
       if (fontengines[key_texture]) {
-        static_cast<glTextQtTexture*> (fontengines[key_texture])->defineFont(
+        static_cast<glText*> (fontengines[key_texture])->defineFont(
             fontfam, fontname, fontFace(fontface), 20, postscript, psxscale,
             psyscale);
       }

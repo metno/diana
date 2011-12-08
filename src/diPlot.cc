@@ -34,7 +34,6 @@
 #endif
 
 #include <diPlot.h>
-#include <glp/glpfile.h>
 #include <diFontManager.h>
 
 using namespace::miutil;
