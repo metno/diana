@@ -152,7 +152,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
     firstTry=true; //false if times can't be found from filename
 
     vector<FileInfo> finfo;
-    if(Prod[dataType[i]].noTime){
+    if(!Prod[dataType[i]].timeInfo.empty() || Prod[dataType[i]].obsformat == ofmt_url){
       finfo = Prod[dataType[i]].fileInfo;
     } else {
       getFileName(finfo,time,dataType[i],oplot);
@@ -194,22 +194,33 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
     //get get pressure level etc from field (if needed)
     oplot->updateLevel(dataType[i]);
 
+
+
+
     for(int j=0; j<nFiles; j++){
+      //Add stations and time to url
+      if ( !Prod[dataType[i]].metaData.empty() ) {
+        if ( !addStationsAndTimeFromMetaData( Prod[dataType[i]].metaData, finfo[j].filename, time) ) {
+          break;
+        }
+      }
+
       int num=oplot->numPositions();
 
       if(finfo[j].filetype =="bufr"){
 #ifdef BUFROBS
         ObsBufr bufr;
+        oplot->setDataType(dataType[i]);
         bufr.setObsPlot(oplot);
         if(!bufr.init(finfo[j].filename,"obsplot")){
           //reset oplot
           oplot->resetObs(num);
         }
 #endif
-      } else if(finfo[j].filetype =="ascii"){
+      } else if(finfo[j].filetype =="ascii" || finfo[j].filetype =="url"){
         ObsAscii obsAscii =
           ObsAscii(finfo[j].filename, headerfile, Prod[dataType[i]].headerinfo,
-              finfo[j].time, oplot, true);
+              finfo[j].time, oplot);
       }
 #ifdef ROADOBS
       else if(finfo[j].filetype =="roadobs"){
@@ -265,6 +276,11 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 #endif
       }
 
+    }
+
+    //Add metadata
+    if ( !Prod[dataType[i]].metaData.empty() ) {
+      oplot->mergeMetaData( metaDataMap[Prod[dataType[i]].metaData]->metaData );
     }
   }
 
@@ -348,7 +364,40 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
   return true;
 }
+bool ObsManager::addStationsAndTimeFromMetaData( const miutil::miString& metaData,
+    miutil::miString& url, const miutil::miTime& time)
+{
+  //cerr <<__FUNCTION__<<endl;
+  //read metadata
+  if ( !metaDataMap.count(metaData) ) {
 
+    ObsMetaData* pMetaData = new ObsMetaData();
+    if ( !Prod.count(metaData) || !Prod[metaData].pattern.size()) {
+      cerr <<"WARNING: ObsManager::prepare:  meatdata "<<metaData<<" not available"<<endl;
+      return false;
+    }
+
+    //read metaData
+    miString fileName = Prod[metaData].pattern[0].pattern;
+    miString headerfile = Prod[metaData].headerfile;
+    vector<miString> headerinfo = Prod[metaData].headerinfo;
+    ObsAscii obsAscii(fileName, headerfile, headerinfo, pMetaData);
+    metaDataMap[metaData] = pMetaData;
+  }
+
+  //add stations
+  metaDataMap[metaData]->addStationsToUrl(url);
+
+  //add time
+  miString timeString = time.format("fd=%d.%m.%Y&td=%d.%m.%Y&h=%H");
+  url.replace("TIME", timeString);
+  int mm = time.month()-1;
+  timeString = "m=" + miString(mm);
+  url.replace("MONTH", timeString);
+
+  return true;
+
+}
 
 void ObsManager::getFileName(vector<FileInfo>& finfo,
     miTime &time, miString obsType,
@@ -527,13 +576,6 @@ bool ObsManager::updateTimes(miString obsType)
 #endif
   int npattern = Prod[obsType].pattern.size();
   for( int j=0;j<npattern; j++) {
-    if(Prod[obsType].pattern[j].pattern.contains("http")) {
-      FileInfo finfo;
-      finfo.filename = Prod[obsType].pattern[j].pattern;
-      finfo.filetype = Prod[obsType].pattern[j].fileType;
-      Prod[obsType].fileInfo.push_back(finfo);
-      continue;;
-    }
     if( !Prod[obsType].pattern[j].archive || useArchive ){
       bool ok = Prod[obsType].pattern[j].filter.ok();
 
@@ -683,7 +725,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
           if(!bufr.ObsTime(finfo.filename,finfo.time)) continue;
 #endif
         }
-        if(finfo.time.undef()&& !Prod[obsType].noTime) continue;
+        if(finfo.time.undef()&& Prod[obsType].timeInfo != "notime") continue;
         finfo.filetype = Prod[obsType].pattern[j].fileType;
         Prod[obsType].fileInfo.push_back(finfo);
       }
@@ -779,16 +821,54 @@ vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
 
   int n=obsTypes.size();
   for(int i=0; i<n; i++ ){
+
     miString obsType= obsTypes[i].downcase();
-    if(!obsType.contains("hqc"))
-      if (updateTimes(obsType))
-		  timeListChanged = true;
+    if(obsType.contains("hqc")) {
+      continue;
+    }
+    if ( Prod[obsType].obsformat == ofmt_url ) {
+      //todo: move some of this to parseSetup
+      FileInfo finfo;
+      if( !Prod[obsType].pattern.size() ) continue;
+      finfo.filename = Prod[obsType].pattern[0].pattern;
+      finfo.filetype = Prod[obsType].pattern[0].fileType;
+      Prod[obsType].fileInfo.push_back(finfo);
 
-    if(Prod[obsType].noTime) continue;
 
-    vector<FileInfo>::iterator p= Prod[obsType].fileInfo.begin();
-    for (; p!=Prod[obsType].fileInfo.end(); p++)
-      timeset.insert((*p).time);
+      vector<miString> tokens = Prod[obsType].timeInfo.split(";");
+      miTime from = miTime::nowTime();
+      miTime to = miTime::nowTime();
+      int interval = 3;
+      for ( size_t j = 0; j< tokens.size(); ++j ){
+        vector<miString> stokens = tokens[j].split("=");
+        if ( stokens.size() != 2 ) continue;
+        if ( stokens[0] == "from" ) {
+          from = miTime(stokens[1]);
+        } else if ( stokens[0] == "to" ) {
+            to = miTime(stokens[1]);
+        } else if ( stokens[0] == "interval" ) {
+            interval = atoi(stokens[1].c_str());
+        }
+      }
+      while ( from < to ) {
+        timeset.insert(from);
+        from.addHour( interval );
+      }
+
+    } else {
+
+      if (updateTimes(obsType)) {
+        timeListChanged = true;
+      }
+
+      if(Prod[obsType].timeInfo == "notime") continue;
+
+      vector<FileInfo>::iterator p= Prod[obsType].fileInfo.begin();
+      for (; p!=Prod[obsType].fileInfo.end(); p++)
+        timeset.insert((*p).time);
+
+
+    }
 
   }
 
@@ -1058,7 +1138,7 @@ ObsDialogInfo ObsManager::initDialog()
   // buttons made when plottype activated the first time...
 
   for (pr=prbegin; pr!=prend; pr++) {
-    if (pr->second.obsformat==ofmt_ascii) {
+    if (pr->second.obsformat==ofmt_ascii || pr->second.obsformat==ofmt_url) {
 
       ObsDialogInfo::PlotType pascii;
 
@@ -1390,68 +1470,66 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
   }
 delete roplot;
 #endif
-  if (pr->second.obsformat!=ofmt_ascii) return dialog;
+  if (pr->second.obsformat!=ofmt_ascii && pr->second.obsformat!=ofmt_url) return dialog;
 
   // open one file and find the available data parameters
 
-  bool found= false;
   unsigned int j= 0;
 
-  ObsPlot *oplot= new ObsPlot();
+  vector<miutil::miString> columnName;
+  vector<miutil::miString> columnTooltip;
 
-  bool addWind = false;
-  while (!found && j<Prod[oname].pattern.size()) {
+  while (j<Prod[oname].pattern.size()) {
     if (!Prod[oname].pattern[j].archive || useArchive ) {
       miString headerfile= Prod[oname].headerfile;
       if(Prod[oname].pattern[j].pattern.contains("http")) {
 
-        miTime filetime; // just dummy here
-        ObsAscii obsAscii = ObsAscii(Prod[oname].pattern[j].pattern, headerfile, Prod[oname].headerinfo,
-            filetime, oplot, false);
-        found= obsAscii.asciiOK();
+        ObsAscii obsAscii = ObsAscii(Prod[oname].pattern[j].pattern, headerfile, Prod[oname].headerinfo);
         if (obsAscii.asciiOK() && obsAscii.parameterType("time")
             && !obsAscii.parameterType("date"))
           Prod[oname].useFileTime= true;
         if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
-          addWind = true;
+          dialog.plottype[id].button.push_back(addButton("Wind",""));
+          dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
         }
-      }
-      glob_t globBuf;
-      glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
-      unsigned int k= 0;
-      while (!found && int(k)<globBuf.gl_pathc) {
-        miString filename = globBuf.gl_pathv[k];
-        miTime filetime; // just dummy here
-        ObsAscii obsAscii = ObsAscii(filename, headerfile, Prod[oname].headerinfo, filetime, oplot, false);
-        found= obsAscii.asciiOK();
-        if (obsAscii.asciiOK() && obsAscii.parameterType("time")
-            && !obsAscii.parameterType("date"))
-          Prod[oname].useFileTime= true;
-        k++;
-        if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
-          addWind = true;
+        int nc= obsAscii.columnName.size();
+        for (int c=0; c<nc; c++) {
+          dialog.plottype[id].button.push_back
+          (addButton(obsAscii.columnName[c], obsAscii.columnTooltip[c], -100,100,true));
+          dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
         }
-      }
 
-      globfree_cache(&globBuf);
+      } else {
+
+        bool found= false;
+        glob_t globBuf;
+        glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
+        unsigned int k= 0;
+        while (!found && int(k)<globBuf.gl_pathc) {
+          miString filename = globBuf.gl_pathv[k];
+          ObsAscii obsAscii = ObsAscii(filename, headerfile, Prod[oname].headerinfo);
+          found= obsAscii.asciiOK();
+          if (obsAscii.asciiOK() && obsAscii.parameterType("time")
+              && !obsAscii.parameterType("date"))
+            Prod[oname].useFileTime= true;
+          k++;
+          if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
+            dialog.plottype[id].button.push_back(addButton("Wind",""));
+            dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
+          }
+          int nc= obsAscii.columnName.size();
+          for (int c=0; c<nc; c++) {
+            dialog.plottype[id].button.push_back
+            (addButton(obsAscii.columnName[c], obsAscii.columnTooltip[c], -100,100,true));
+            dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
+          }
+        }
+
+        globfree_cache(&globBuf);
+      }
     }
     j++;
   }
-
-  if (found) {
-    if ( addWind) {
-      dialog.plottype[id].button.push_back(addButton("Wind",""));
-      dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-    }
-    int nc= oplot->columnName.size();
-    for (int c=0; c<nc; c++) {
-      dialog.plottype[id].button.push_back
-      (addButton(oplot->columnName[c], oplot->columnTooltip[c], -100,100,true));
-      dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-    }
-  }
-
-  delete oplot;
 
   return dialog;
 }
@@ -1572,7 +1650,8 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
     {
       cerr << "\tfilename: " << pinfo.fileInfo[i].filename << " time: " << pinfo.fileInfo[i].time.isoTime() << " filetype: " << pinfo.fileInfo[i].filetype << endl;
     }
-  cerr << "noTime: " << pinfo.noTime << endl;
+  cerr << "timeInfo"
+      ": " << pinfo.timeInfo << endl;
   cerr << "timeRangeMin: " << pinfo.timeRangeMin << endl;
   cerr << "timeRangeMax: " << pinfo.timeRangeMax << endl;
   cerr << "current: " << pinfo.current << endl;
@@ -1692,6 +1771,7 @@ bool ObsManager::parseSetup()
   defProd["hqc"].timeRangeMin=-180;
   defProd["hqc"].timeRangeMax= 180;
   defProd["hqc"].synoptic= false;
+  defProd["url"].obsformat= ofmt_url;
 #ifdef ROADOBS
   defProd["roadobs"].obsformat= ofmt_roadobs;
   defProd["roadobs"].timeRangeMin=-180;
@@ -1742,7 +1822,7 @@ bool ObsManager::parseSetup()
         Prod[prod].current=-1;
         Prod[prod].dialogName= dialogName;
         Prod[prod].useFileTime= false;
-        Prod[prod].noTime= false;
+        //Prod[prod].noTime= false;
       }
 #ifdef ROADOBS
       if (Prod[prod].obsformat == ofmt_roadobs) {
@@ -1755,9 +1835,10 @@ bool ObsManager::parseSetup()
       Prod[prod].plotFormat= plotFormat;
 #endif
     } else if( key == "file"
-	       || key == "archivefile"
-	       || key == "ascii"
-	       || key == "archive_ascii"
+        || key == "archivefile"
+        || key == "url"
+        || key == "ascii"
+        || key == "archive_ascii"
 #ifdef METNOOBS
 	       || key == "metnoobs"
 	       || key == "archive_metnoobs"
@@ -1795,6 +1876,9 @@ bool ObsManager::parseSetup()
         pf.fileType="ascii";
       else if(key == "bufr" || key == "archive_bufr")
         pf.fileType="bufr";
+      else if(key == "url") {
+        pf.fileType="url";
+      }
 #ifdef ROADOBS
       else if(key == "roadobs" || key == "archive_roadobs")
 	pf.fileType="roadobs";
@@ -1805,7 +1889,7 @@ bool ObsManager::parseSetup()
         pf.archive = false;
       // Ascii files without timefilter has no time
       if (Prod[prod].obsformat==ofmt_ascii && !pf.filter.ok()) {
-        Prod[prod].noTime=true;
+        Prod[prod].timeInfo="notime";
       }
       Prod[prod].pattern.push_back(pf);
     } else if( key == "headerfile"){
@@ -1855,6 +1939,11 @@ bool ObsManager::parseSetup()
       Prod[prod].current=atof(token[1].cStr());
     } else if( key == "headerinfo" && newprod ){
       Prod[prod].headerinfo.push_back(token[1]);
+    } else if( key == "metadata" && newprod ){
+      Prod[prod].metaData = token[1];
+    } else if( key == "timeinfo" && newprod ){
+      Prod[prod].timeInfo = token[1];
+      Prod[prod].timeInfo.remove('"');
 
     }
 #ifdef DEBUGPRINT
@@ -2022,7 +2111,7 @@ bool ObsManager::initHqcdata(int from,
 bool ObsManager::sendHqcdata(ObsPlot* oplot)
 {
   //  cerr <<"sendHqcData"<<endl;
-  oplot->addObs(hqcdata);
+  oplot->addObsVector(hqcdata);
   oplot->setSelectedStation(selectedStation);
   oplot->setHqcFlag(hqcFlag);
   //  oplot->flaginfo=true;

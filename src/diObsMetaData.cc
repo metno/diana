@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+  $Id: diObsAscii.cc 2603 2011-08-15 08:58:42Z lisbethb $
 
   Copyright (C) 2006 met.no
 
@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,53 +23,31 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-#ifndef diObsData_h
-#define diObsData_h
+ */
 
-#include <diField/diColour.h>
-#include <puTools/miTime.h>
-
-
-/**
-
-  \brief Observation data
-  
-*/
-class ObsData
-{
-public:
-  //desc
-  miutil::miString dataType;
-  miutil::miString id;
-  float xpos;
-  float ypos;
-  int zone;
-  miutil::miTime obsTime;
-
-  //metar
-  miutil::miString metarId;
-  bool CAVOK;              
-  vector<miutil::miString> REww;   ///< Recent weather
-  vector<miutil::miString> ww;     ///< Significant weather
-  vector<miutil::miString> cloud;  ///< Clouds
-  miutil::miString appendix;       ///< For whatever remains
-  
-  map<miutil::miString,float> fdata;
-  map<miutil::miString,miutil::miString> stringdata;
-
-  //Hqc  
-  map<miutil::miString,miutil::miString> flag; 
-  map<miutil::miString,Colour> flagColour;
-
-};
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
 
+#include <diObsMetaData.h>
+#include <diObsPlot.h>
+#include <vector>
+#include <curl/curl.h>
 
 
+void ObsMetaData::addStationsToUrl(miutil::miString& filename)
+{
+
+  miutil::miString string;
+  map<miutil::miString, ObsData>::iterator p = metaData.begin();
+  for ( ; p != metaData.end(); ++p ) {
+    string +=("&s=" + p->second.id);
+  }
+
+  filename.replace("STATIONS",string);
+}
 

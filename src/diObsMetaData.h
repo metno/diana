@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+  $Id: diObsData.h 2025 2010-05-18 13:20:28Z lisbethb $
 
   Copyright (C) 2006 met.no
 
@@ -28,44 +28,28 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diObsData_h
-#define diObsData_h
+#ifndef diObsMetaData_h
+#define diObsMetaData_h
 
-#include <diField/diColour.h>
-#include <puTools/miTime.h>
-
+#include <puTools/miString.h>
+#include <diObsData.h>
+#include <diObsPlot.h>
 
 /**
 
-  \brief Observation data
+  \brief Observation metadata
   
 */
-class ObsData
+struct ObsMetaData
 {
+
 public:
-  //desc
-  miutil::miString dataType;
-  miutil::miString id;
-  float xpos;
-  float ypos;
-  int zone;
-  miutil::miTime obsTime;
+  void setObsData( map< miutil::miString, ObsData> obs) { metaData = obs; }
+  void addStationsToUrl(miutil::miString& url);
+  map<miutil::miString, ObsData > metaData;
 
-  //metar
-  miutil::miString metarId;
-  bool CAVOK;              
-  vector<miutil::miString> REww;   ///< Recent weather
-  vector<miutil::miString> ww;     ///< Significant weather
-  vector<miutil::miString> cloud;  ///< Clouds
-  miutil::miString appendix;       ///< For whatever remains
-  
-  map<miutil::miString,float> fdata;
-  map<miutil::miString,miutil::miString> stringdata;
-
-  //Hqc  
-  map<miutil::miString,miutil::miString> flag; 
-  map<miutil::miString,Colour> flagColour;
-
+private:
+  miutil::miString stationString;
 };
 
 #endif
