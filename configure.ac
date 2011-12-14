@@ -118,6 +118,11 @@ AC_ARG_ENABLE([xlib],
     [], [enable_xlib=no])
 AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 
+AC_ARG_ENABLE([embedded],
+    [AS_HELP_STRING([--enable-embedded], [enable embedded usage])],
+	[], [enable_embedded=no])
+AM_CONDITIONAL([WITH_EMBEDDED], [test x$enable_embedded = xyes])
+
 #
 # metlibs
 #

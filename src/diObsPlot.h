@@ -56,6 +56,7 @@ class ObsPlot : public Plot {
 
 private:
   vector<ObsData> obsp;
+  map< miutil::miString, int > idmap; // maps obsData with id to index in obsp
   //obs positions
   float *x, *y;
 
@@ -80,6 +81,7 @@ private:
   int leveldiff;
   bool levelAsField;
   miutil::miString plottype;
+  miutil::miString currentDatatype;
   vector<miutil::miString> datatypes;
   bool priority;
   miutil::miString priorityFile;
@@ -294,6 +296,7 @@ public:
   void setObsAnnotation(miutil::miString &anno){annotation =anno;}
   vector<miutil::miString> getObsExtraAnnotations(){return labels;}
   void setLabel(const miutil::miString& pin){labels.push_back(pin);}
+  void setLabels(const vector<miutil::miString>& l){labels = l;}
   bool getPositions(vector<float>&,vector<float>&);
   int  getPositions(float*,float*,int);
   int  numPositions();
@@ -305,10 +308,11 @@ public:
   void putStations(vector<miutil::miString>);
   miutil::miString getInfoStr(){return infostr;}
   bool mslp(){return devfield;}
-  int float2int(float f){return (int)(f > 0.0 ? f + 0.5 : f - 0.5);}
+  static int float2int(float f){return (int)(f > 0.0 ? f + 0.5 : f - 0.5);}
   void changeParamColour(const miutil::miString& param, bool select);
 
   bool moreTimes(){return moretimes;}
+  void setDataType(miutil::miString datatype){currentDatatype = datatype;}
   vector<miutil::miString>& dataTypes(){return datatypes;}
   miutil::miTime getObsTime(){return Time;}
   void setObsTime(const miutil::miTime& t){Time=t;}
@@ -324,18 +328,18 @@ public:
   int sizeObs(){return obsp.size();}
   void removeObs(){obsp.pop_back();}
   ObsData& getNextObs();
-  void addObs(vector<ObsData> vdata){obsp = vdata;}
+  void mergeMetaData(map<miutil::miString, ObsData>& metaData);
+  void setObsData( vector<ObsData> obs) { obsp = obs; }
+  void addObsVector(vector<ObsData> vdata){obsp = vdata;}
   bool timeOK(const miutil::miTime& t);
   //get get pressure level etc from field (if needed)
   void updateLevel(const miutil::miString& dataType);
-  int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
-  float knots2ms(float ff) {return (ff*1852.0/3600.0);}
+  static int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
+  static float knots2ms(float ff) {return (ff*1852.0/3600.0);}
 
 
   //Dialog info: Name, tooltip and type of parameter buttons. Used in ascii files
   vector<miutil::miString> columnName;
-  vector<miutil::miString> columnTooltip;
-  vector<miutil::miString> columnType;
 
   // observations from road
   bool roadobsData;

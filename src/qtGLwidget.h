@@ -81,6 +81,8 @@ public:
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
   void endHardcopy();
+  /// Print the visible contents of the widget.
+  void print(QPaintDevice* device);
 
 signals:
   /// single click signal

@@ -210,6 +210,7 @@ ObsData& ObsPlot::getNextObs()
   cerr << "++ ObsPlot::getNextObs() ++" << endl;
 #endif
   ObsData d;
+  d.dataType = currentDatatype;
   obsp.push_back(d);
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::getNextObs() done ++" << endl;
@@ -217,6 +218,16 @@ ObsData& ObsPlot::getNextObs()
   return obsp[obsp.size() - 1];
 }
 
+void ObsPlot::mergeMetaData(map<miutil::miString, ObsData>& metaData) {
+
+  //cerr <<__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size()<<endl;
+  for(size_t i=0; i<obsp.size(); ++i ) {
+    if(metaData.count(obsp[i].id)) {
+      obsp[i].xpos = metaData[obsp[i].id].xpos;
+      obsp[i].ypos = metaData[obsp[i].id].ypos;
+    }
+  }
+}
 
 void ObsPlot::updateLevel(const miString& dataType)
 {

@@ -452,6 +452,17 @@ void GLwidget::endHardcopy()
   contr->endHardcopy();
 }
 
+void GLwidget::print(QPaintDevice* device)
+{
+  QPainter painter;
+  painter.begin(device);
+  PaintGLContext context;
+  context.begin(&painter);
+  paintGL();
+  context.end();
+  painter.end();
+}
+
 bool GLwidget::saveRasterImage(const miutil::miString fname, const miutil::miString format,
     const int quality)
 {

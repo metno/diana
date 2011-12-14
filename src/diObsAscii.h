@@ -31,11 +31,13 @@
 #ifndef diObsAscii_h
 #define diObsAscii_h
 
+#include <diObsData.h>
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <map>
 
 class ObsPlot;
+class ObsMetaData;
 
 using namespace std;
 
@@ -50,28 +52,48 @@ using namespace std;
 class ObsAscii {
 private:
 
+  vector<miutil::miString> lines;
+  vector<ObsData> vObsData;
+  map< miutil::miString, ObsData > mObsData;
   miutil::miString separator;
   bool fileOK;
   bool knots;
+  miutil::miTime plotTime;
+  miutil::miTime fileTime;
+  int    timeDiff;
+
+  vector<miutil::miString> columnType;
   vector<miutil::miString> asciiColumnUndefined;
   map<miutil::miString,int> asciiColumn; //column index(time, x,y,dd,ff etc)
   int  asciiSkipDataLines;
+  vector<miutil::miString> labels;
 
-  void readFile(const miutil::miString &filename, const miutil::miString &headerfile,
-      const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
-      ObsPlot *oplot, bool readData);
+  void readHeaderInfo(const miutil::miString &filename, const miutil::miString &headerfile,
+      const vector<miutil::miString> headerinfo);
 
-  void decodeHeader(ObsPlot *oplot, vector<miutil::miString> lines);
-  void decodeData(ObsPlot *oplot, vector<miutil::miString> lines, const miutil::miTime &filetime);
+  void readData(const miutil::miString &filename);
+
+  void decodeHeader();
+  void decodeData();
 
   void getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines);
   void getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines);
   void addStationsToUrl(miutil::miString& filename);
 
 public:
+  vector<miutil::miString> columnName;
+  vector<miutil::miString> columnTooltip;
+
   ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
-	   const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
-	   ObsPlot *oplot, bool readData);
+     const vector<miutil::miString> headerinfo);
+
+  ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
+     const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
+     ObsPlot *oplot);
+
+  ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
+     const vector<miutil::miString> headerinfo,
+     ObsMetaData *metaData);
 
   bool asciiOK() { return fileOK;}
 

@@ -876,7 +876,9 @@ bool glText::getCharSize(const int c, float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
+    qDebug() << __FUNCTION__ << "begin";
     QRectF rect = ctx->painter->transform().inverted().mapRect(fm.boundingRect(QChar(c)));
+    qDebug() << __FUNCTION__ << "end";
     w = rect.width();
     h = rect.height();
     return true;
@@ -887,7 +889,9 @@ bool glText::getMaxCharSize(float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
+    qDebug() << __FUNCTION__ << "begin";
     QPointF p = QPointF(fm.maxWidth(), fm.height()) * ctx->painter->transform().inverted();
+    qDebug() << __FUNCTION__ << "end";
     w = p.x();
     h = p.y();
     return true;
@@ -898,7 +902,9 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
+    qDebug() << __FUNCTION__ << "begin";
     QRectF rect = ctx->painter->transform().inverted().mapRect(fm.boundingRect(s));
+    qDebug() << __FUNCTION__ << "end";
     w = rect.width();
     h = rect.height();
     return true;

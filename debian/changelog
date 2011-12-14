@@ -1,8 +1,72 @@
+diana (3.26.4-ubuntu3) lucid; urgency=low
+
+  * bdiana: default canvas changed to QGLPixelBuffer
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Mon, 28 Nov 2011 09:42:43 +0100
+
+diana (3.26.4-ubuntu2) lucid; urgency=low
+
+  * using +towgs in all proj strings except old mitiff files.
+  * Using metlibs_4.2
+  * Using libfimex-0.33-1
+
+ -- Lisbeth Bergholt <lisbethb@vpn-116-99.met.no>  Sat, 26 Nov 2011 16:42:14 +0100
+
+diana (3.26.4-ubuntu1) lucid; urgency=low
+
+  * Bugfix:DifferenceField - plot string was not parsed correctly
+  * Using metlibs_trunk (by mistake)
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 22 Nov 2011 13:54:05 +0100
+
+diana (3.26.3-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Ascii-observations - only observations from one file were used
+  * Using metlibs_trunk (by mistake)
+
+ -- Lisbeth Bergholt <lisbethb@.met.no>  Mon, 21 Nov 2011 13:30:46 +0100
+
+diana (3.26.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix: mark measurements/trajectory positions
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 09 Oct 2011 17:28:50 +0200
+
+diana (3.26.1-ubuntu2) lucid; urgency=low
+
+  * Bugfix bdiana: vertical levels
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 27 Sep 2011 14:09:07 +0200
+
+diana (3.26.1-ubuntu1) lucid; urgency=low
+
+  * Bugfix bdiana: translation from plot name to field name
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 27 Sep 2011 12:52:03 +0200
+
+diana (3.26.0-ubuntu2) lucid; urgency=low
+
+  * Projections: datum fix removed
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 26 Sep 2011 10:39:04 +0200
+
+diana (3.26.0-ubuntu1) lucid; urgency=low
+
+  * Using metlibs_4.2
+  * Using libfimex-0.31-2
+  * New profet function
+  * Improved fimex reading
+  * Vertical crossections: vt+omega / vt+w fixed
+  * Bufr: skip time variables with missing valaues 
+  * Bugfix:projections
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 23 Sep 2011 15:38:14 +0200
+
 diana (3.25.5-ubuntu2) lucid; urgency=low
 
   * Bugfix: bdiana did not find fieldTimes
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 04 Jul 2011 12:41:27 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 04 Jul 2011 12:41:27 +0200
 
 diana (3.25.5-ubuntu1) lucid; urgency=low
 
@@ -10,87 +74,87 @@ diana (3.25.5-ubuntu1) lucid; urgency=low
   * Using metlibs_4.1
   * Using libfimex-dev 0.29
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 27 Jun 2011 09:45:07 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Jun 2011 09:45:07 +0200
 
 diana (3.25.4-ubuntu2) lucid; urgency=low
 
   * Bugfix was not included in last version
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 22 Jun 2011 08:52:03 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 22 Jun 2011 08:52:03 +0200
 
 diana (3.25.4-ubuntu1) lucid; urgency=low
 
   * Bugfix: Memory leak in StationPlot
   * PostScript fix: Always set font-specification
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 21 Jun 2011 14:53:45 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 21 Jun 2011 14:53:45 +0200
 
 diana (3.25.3-ubuntu1) lucid; urgency=low
 
   * More bugfix: profet
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 20 Jun 2011 13:30:54 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 20 Jun 2011 13:30:54 +0200
 
 diana (3.25.2-ubuntu2) lucid; urgency=low
 
   * Bugfix case insensitivity
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 17 Jun 2011 14:54:36 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 17 Jun 2011 14:54:36 +0200
 
 diana (3.25.2-ubuntu1) lucid; urgency=low
 
   * Bugfix xylimit
   * Reverted fix: model and field are now case insensitive
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 17 Jun 2011 08:28:03 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 17 Jun 2011 08:28:03 +0200
 
 diana (3.25.1-ubuntu1) lucid; urgency=low
 
   * Field: model and field are now case sensitive
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 16 Jun 2011 11:26:45 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Jun 2011 11:26:45 +0200
 
 diana (3.25.0-ubuntu4) lucid; urgency=low
 
   * Using metlibs_4.1
   * Using libfimex-dev 0.28-2
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Wed, 15 Jun 2011 10:06:40 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 15 Jun 2011 10:06:40 +0200
 
 diana (3.25.0-ubuntu3) lucid; urgency=low
 
   * Using metlibs_4.1
   * Using libfimex-dev 0.28
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 10 May 2011 08:31:50 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 10 May 2011 08:31:50 +0200
 
 diana (3.25.0-ubuntu2) lucid; urgency=low
 
   * Geotiff support enabled
   * Using metlibs_4.1
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Thu, 05 May 2011 12:02:30 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 05 May 2011 12:02:30 +0200
 
 diana (3.25.0-ubuntu1) lucid; urgency=low
 
   * New field reader using fimex
   * Using metlibs_2011-01-28
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Fri, 28 Jan 2011 12:47:24 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 28 Jan 2011 12:47:24 +0100
 
 diana (3.24.0-ubuntu2) lucid; urgency=low
 
   * Bugfix: enable/disable ObjectPlots
   * Using metlibs_2011-01-13
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 24 Jan 2011 11:01:52 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 24 Jan 2011 11:01:52 +0100
 
 diana (3.24.0-ubuntu1) lucid; urgency=low
 
   * Using metlibs_2011-01-13
   * new version of profet
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 21 Jan 2011 13:26:08 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 21 Jan 2011 13:26:08 +0100
 
 diana (3.23.3-ubuntu1) lucid; urgency=low
 
@@ -104,65 +168,65 @@ diana (3.23.2-ubuntu1) lucid; urgency=low
   * Bugfix obsplot: pressure tendency, temperature precision, metar clouds 
   * Bugfix editing: Snow_showers -> Snow showers
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 29 Nov 2010 13:22:29 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 29 Nov 2010 13:22:29 +0100
 
 diana (3.23.1-ubuntu6) lucid; urgency=low
 
   * Added export LANG=en_US in diana.in
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 23 Nov 2010 14:00:45 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:00:45 +0100
 
 diana (3.23.1-ubuntu5) lucid; urgency=low
 
   * Fixed version number in configure.ac
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Tue, 23 Nov 2010 13:59:34 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 13:59:34 +0100
 
 diana (3.23.1-ubuntu4) lucid; urgency=low
 
   * Bugfix uninitialised variable contourShape
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 23 Nov 2010 13:51:17 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 13:51:17 +0100
 
 diana (3.23.1-ubuntu3) lucid; urgency=low
 
   * Compiled with metlibs_2010-11-15
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Mon, 15 Nov 2010 18:37:33 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 15 Nov 2010 18:37:33 +0100
 
 diana (3.23.1-ubuntu2) lucid; urgency=low
 
   * Satellite: show grid coordinates 
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Wed, 10 Nov 2010 13:34:02 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 10 Nov 2010 13:34:02 +0100
 
 diana (3.23.1-ubuntu1) lucid; urgency=low
 
   * Bugfix:Observations, pressure tendency
   * Linked with metlibs/trunk
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Fri, 05 Nov 2010 09:02:57 +0100
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 05 Nov 2010 09:02:57 +0100
 
 diana (3.23.0-ubuntu3) lucid; urgency=low
 
   * bufr support  
 
- -- Lisbeth Bergholt <lisbethb@eurus10.met.no>  Mon, 18 Oct 2010 12:48:57 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 18 Oct 2010 12:48:57 +0200
 
 diana (3.23.0-ubuntu2) lucid; urgency=low
 
   * testing dependencies 
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 12 Oct 2010 13:46:33 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 12 Oct 2010 13:46:33 +0200
 
 diana (3.23.0-ubuntu1) lucid; urgency=low
 
   * fix ubuntu version
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Fri, 01 Oct 2010 12:11:35 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 01 Oct 2010 12:11:35 +0200
 
 diana (3.23.0) lucid; urgency=low
 
   * Initial release. 
 
- -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Fri, 01 Oct 2010 12:10:45 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 01 Oct 2010 12:10:45 +0200

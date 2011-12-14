@@ -32,6 +32,7 @@
 #define diObsManager_h
 
 #include <diObsPlot.h>
+#include <diObsMetaData.h>
 #include <diTimeFilter.h>
 #include <diCommonTypes.h>
 #include <puTools/miString.h>
@@ -69,7 +70,8 @@ private:
     ofmt_pilot,
     ofmt_metar,
     ofmt_ascii,
-    ofmt_hqc
+    ofmt_hqc,
+    ofmt_url
   };
 
   struct patternInfo {
@@ -92,13 +94,14 @@ private:
     vector<patternInfo> pattern;
     vector<FileInfo> fileInfo;
     vector<miutil::miString> headerinfo;
-    bool noTime; //files have no time, vector<miutil::miTime> time is empty
+    miutil::miString timeInfo;// noTime or timeInfo from setup: from=;to=;interval
     int timeRangeMin;
     int timeRangeMax;
     float current;
     bool synoptic;
     miutil::miString headerfile;
-#ifdef ROADOBS
+    miutil::miString metaData;
+    #ifdef ROADOBS
     miutil::miString stationfile;
     miutil::miString databasefile;
     int daysback;
@@ -108,6 +111,7 @@ private:
   };
 
   map<miutil::miString,ProdInfo> Prod;
+  map< miutil::miString, ObsMetaData*> metaDataMap;
   ObsDialogInfo dialog;
   vector<ObsDialogInfo::PriorityList> priority;
   //one  criterialist pr plot type
@@ -141,6 +145,7 @@ private:
   //  miutil::miString obsdataType;
   //--------------------------------------
 
+  bool addStationsAndTimeFromMetaData( const miutil::miString& metaData, miutil::miString& url, const miutil::miTime& time);
   ObsDialogInfo::Button addButton(const miutil::miString& name, const miutil::miString& tip, 
 				  int low=-50, int high=50, bool def=true);
   void addType(ObsDialogInfo::PlotType& dialogInfo,
