@@ -184,7 +184,7 @@ bool VcrossManager::parseSetup()
     vstr.clear();
 
   } else {
-    cerr << "Missing section " << section1 << " in setupfile." << endl;
+    //cerr << "Missing section " << section1 << " in setupfile." << endl;
     //ok= false;
   }
 
