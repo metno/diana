@@ -3058,11 +3058,10 @@ void DianaMainWindow::makeEPS(const miutil::miString& filename)
   priop.drawbackground= true;
   priop.doEPS= true;
 
-  //   contr->startHardcopy(priop);
-  w->Glw()->startHardcopy(priop);
-  w->updateGL();
-  w->Glw()->endHardcopy();
-  w->updateGL();
+  //w->Glw()->startHardcopy(priop);
+  //w->updateGL();
+  //w->Glw()->endHardcopy();
+  //w->updateGL();
 
   QApplication::restoreOverrideCursor();
 }
@@ -3099,9 +3098,7 @@ void DianaMainWindow::hardcopy()
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
     //     contr->startHardcopy(priop);
-    w->Glw()->startHardcopy(priop);
-    w->updateGL();
-    w->Glw()->endHardcopy();
+    w->Glw()->print(&qprt);
     w->updateGL();
 
     // if output to printer: call appropriate command

@@ -50,6 +50,7 @@ using namespace std;
 
 class Controller;
 class PaintGLContext;
+class QPrinter;
 
 /**
    \brief the map OpenGL widget
@@ -82,7 +83,7 @@ public:
   /// end hardcopy plot
   void endHardcopy();
   /// Print the visible contents of the widget.
-  void print(QPaintDevice* device);
+  void print(QPrinter* device);
 
 signals:
   /// single click signal

@@ -257,6 +257,7 @@ int default_canvas = qt_glpixelbuffer;
 #endif
 int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
+bool antialias = false;
 
 // replaceable values for plot-commands
 vector<keyvalue> keys;
@@ -853,6 +854,7 @@ void printUsage(bool showexample)
         "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
 #endif
         "-use_qimage       : use QImage as drawing medium                        \n"
+        "-antialias        : use anti-aliasing when using -use_qimage            \n"
 #if !defined(Q_WS_QWS) && defined(USE_XLIB)
         "-use_doublebuffer : use double buffering OpenGL (default)               \n"
         "-use_singlebuffer : use single buffering OpenGL                         \n"
@@ -1428,10 +1430,10 @@ int parseAndProcess(istream &is)
           trajectory_started = false;
         }
 
-        if (canvasType == qt_qimage) {
-            if (raster)
-                painter.setRenderHint(QPainter::Antialiasing);
-        }
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
 
         if (verbose)
           cout << "- plot" << endl;
@@ -1739,7 +1741,6 @@ int parseAndProcess(istream &is)
 
           QImage image(xsize, ysize, QImage::Format_ARGB32);
           painter.begin(&image);
-          painter.setRenderHint(QPainter::Antialiasing);
           painter.drawPicture(0, 0, picture);
           painter.end();
 
@@ -2564,6 +2565,9 @@ int main(int argc, char** argv)
 
     } else if (sarg == "-use_qimage") {
       canvasType = qt_qimage;
+
+    } else if (sarg == "-antialias") {
+      antialias = true;
 
     } else if (sarg == "-use_singlebuffer") {
       use_double_buffer = false;

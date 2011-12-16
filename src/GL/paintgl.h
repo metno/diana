@@ -9,6 +9,7 @@
 #include <QPicture>
 #include <QPointF>
 #include <QStack>
+#include <QTransform>
 #include <QVector>
 #include <QWidget>
 
@@ -19,6 +20,9 @@ struct PaintAttributes {
     float width;
     QHash<GLenum,GLenum> polygonMode;
     QPointF textureCoordinate;
+    QVector<qreal> dashes;
+    qreal dashOffset;
+    bool stipple;
 };
 
 struct RenderItem {
@@ -44,6 +48,7 @@ public:
 
     QStack<GLenum> stack;
     QStack<RenderItem> renderStack;
+    QStack<QTransform> transformStack;
 
     bool blend;
     QPainter::CompositionMode blendMode;
@@ -66,6 +71,7 @@ public:
     QVector<QPointF> points;
     QVector<QColor> colors;
     QVector<QPointF> textureCoordinates;
+    QTransform transform;
 
     QHash<GLuint, QPicture> lists;
     QHash<GLuint,QImage> textures;
@@ -321,7 +327,8 @@ protected:
     virtual void resizeGL(int width, int height);
     void setAutoBufferSwap(bool enable);
 
-private:
+    virtual void paint(QPainter *painter);
+
     PaintGLContext *glContext;
     bool initialized;
     bool antialiasing;

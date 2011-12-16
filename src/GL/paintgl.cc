@@ -49,6 +49,13 @@ void PaintGLContext::begin(QPainter *painter)
 
     points.clear();
     colors.clear();
+    textureCoordinates.clear();
+
+    stack.clear();
+    renderStack.clear();
+    transformStack.clear();
+
+    transform = QTransform();
 }
 
 bool PaintGLContext::isPainting() const
@@ -64,7 +71,23 @@ void PaintGLContext::end()
 void PaintGLContext::setPen()
 {
     QPen pen = QPen(attributes.color, attributes.width);
-    pen.setCosmetic(true);
+    pen.setCapStyle(Qt::FlatCap);
+    if (attributes.stipple && !attributes.dashes.isEmpty()) {
+        /* Set the dash pattern on the pen if defined, adjusting
+           the length of each element to compensate for the line
+           width. */
+        QVector<qreal> dashes;
+        qreal width = attributes.width;
+        if (width == 0)
+            width = 1;
+
+        for (int i = 0; i < attributes.dashes.size(); ++i)
+            dashes << attributes.dashes[i]/width;
+
+        pen.setDashPattern(dashes);
+        pen.setDashOffset(attributes.dashOffset/width);
+    }
+
     painter->setPen(pen);
 }
 
@@ -72,14 +95,14 @@ void PaintGLContext::setPolygonColor(const QColor &color)
 {
     switch (attributes.polygonMode[GL_FRONT]) {
     case GL_FILL:
-        if (painter->testRenderHint(QPainter::Antialiasing))
+        if (painter->testRenderHint(QPainter::Antialiasing)) {
             setPen();
-        else
+        } else
             painter->setPen(Qt::NoPen);
         painter->setBrush(color);
         break;
     case GL_LINE: {
-        painter->setPen(QPen(color, attributes.width));
+        setPen();
         painter->setBrush(Qt::NoBrush);
         break;
     }
@@ -168,7 +191,8 @@ void PaintGLContext::renderPrimitive()
                 QPolygonF source(QRectF(texture.rect()));
                 if (QTransform::quadToQuad(source, poly, t)) {
                     painter->save();
-                    painter->setTransform(t, true);
+                    // No need to record this transformation.
+                    painter->setTransform(transform * t);
                     painter->drawImage(0, 0, texture);
                     painter->restore();
                 }
@@ -210,15 +234,16 @@ void PaintGLContext::renderPrimitive()
 
     points.clear();
     colors.clear();
+    textureCoordinates.clear();
 }
 
 void PaintGLContext::setViewportTransform()
 {
     QTransform t;
-    t = t.translate(viewport.left(), viewport.top());
+    t = transform.translate(viewport.left(), viewport.top());
     t = t.scale(viewport.width()/window.width(), viewport.height()/window.height());
     t = t.translate(-window.left(), -window.top());
-    painter->setTransform(t * painter->transform());
+    transform = t;
 }
 
 #define ENSURE_CTX if (!globalGL || !ctx) return;
@@ -247,7 +272,7 @@ void glBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
     ENSURE_CTX
 
     // Diana only uses this to displace bitmaps.
-    ctx->bitmapMove = QPointF(xmove, ymove);
+    ctx->bitmapMove = ctx->transform * QPointF(xmove, ymove);
 }
 
 void glBlendFunc(GLenum sfactor, GLenum dfactor)
@@ -387,6 +412,9 @@ void glDisable(GLenum cap)
     case GL_TEXTURE_2D:
         ctx->useTexture = false;
         break;
+    case GL_LINE_STIPPLE:
+        ctx->attributes.stipple = false;
+        break;
     default:
         break;
     }
@@ -416,9 +444,10 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
 
     QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32);
 
-    QPointF pos = ctx->painter->transform() * (ctx->rasterPos + ctx->bitmapMove);
+    QPointF pos = ctx->rasterPos + ctx->bitmapMove;
 
     ctx->painter->save();
+    // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(pos);
     ctx->painter->scale(ctx->pixelZoom.x(), -ctx->pixelZoom.y());
@@ -439,6 +468,9 @@ void glEnable(GLenum cap)
         break;
     case GL_TEXTURE_2D:
         ctx->useTexture = true;
+        break;
+    case GL_LINE_STIPPLE:
+        ctx->attributes.stipple = true;
         break;
     default:
         break;
@@ -494,7 +526,7 @@ void glGenTextures(GLsizei n, GLuint *textures)
 {
     ENSURE_CTX
 
-    GLuint min = ctx->lists.keys()[0];
+    GLuint min = ctx->textures.keys()[0];
     foreach (GLuint i, ctx->textures.keys()) {
         if (i < min) min = i;
     }
@@ -573,7 +605,46 @@ GLboolean glIsList(GLuint list)
 
 void glLineStipple(GLint factor, GLushort pattern)
 {
-    // To do
+    ENSURE_CTX
+
+    QVector<qreal> dashes;
+    GLushort state = pattern & 1;
+    bool gapStart = (pattern & 1) == 0;
+    int number = 0;
+    int total = 0;
+
+    for (int i = 0; i < 16; ++i) {
+        GLushort dash = pattern & 1;
+        if (dash == state)
+            number++;
+        else {
+            dashes << number * factor;
+            total += number * factor;
+            state = dash;
+            number = 1;
+        }
+        pattern = pattern >> 1;
+    }
+    if (number > 0)
+        dashes << number * factor;
+
+    // Ensure that the pattern has an even number of elements by inserting
+    // a zero-size element if necessary.
+    if (dashes.size() % 2 == 1)
+        dashes << 0;
+
+    /* If the pattern starts with a gap then move it to the end of the
+       vector and adjust the starting offset to its location to ensure
+       that it appears at the start of the pattern. (This is because
+       QPainter's dash pattern rendering assumes that the first element
+       is a line. */
+    if (gapStart) {
+        dashes << dashes.first();
+        dashes.pop_front();
+        ctx->attributes.dashOffset = total - dashes.last();
+    } else
+        ctx->attributes.dashOffset = 0;
+    ctx->attributes.dashes = dashes;
 }
 
 void glLineWidth(GLfloat width)
@@ -585,7 +656,7 @@ void glLineWidth(GLfloat width)
 void glLoadIdentity()
 {
     ENSURE_CTX_AND_PAINTER
-    ctx->painter->resetTransform();
+    ctx->transform = QTransform();
 }
 
 void glNewList(GLuint list, GLenum mode)
@@ -607,7 +678,7 @@ void glNewList(GLuint list, GLenum mode)
 void glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
              GLdouble near_val, GLdouble far_val)
 {
-    ENSURE_CTX_AND_PAINTER
+    ENSURE_CTX
 
     ctx->window = QRectF(left, top, right - left, bottom - top);
     ctx->setViewportTransform();
@@ -659,20 +730,20 @@ void glPolygonStipple(const GLubyte *mask)
 
 void glPopMatrix()
 {
-    ENSURE_CTX_AND_PAINTER
-    ctx->painter->restore();
+    ENSURE_CTX
+    ctx->transform = ctx->transformStack.pop();
 }
 
 void glPushMatrix()
 {
-    ENSURE_CTX_AND_PAINTER
-    ctx->painter->save();
+    ENSURE_CTX
+    ctx->transformStack.push(ctx->transform);
 }
 
 void glRasterPos2f(GLfloat x, GLfloat y)
 {
     ENSURE_CTX
-    ctx->rasterPos = QPointF(x, y);
+    ctx->rasterPos = ctx->transform * QPointF(x, y);
 }
 
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
@@ -692,17 +763,17 @@ void glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 
 void glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 {
-    ENSURE_CTX_AND_PAINTER
+    ENSURE_CTX
 
     // Diana only rotates about the z axis.
-    ctx->painter->rotate(angle);
+    ctx->transform = ctx->transform.rotate(angle);
 }
 
 void glScalef(GLfloat x, GLfloat y, GLfloat z)
 {
     Q_UNUSED(z)
-    ENSURE_CTX_AND_PAINTER
-    ctx->painter->scale(x, y);
+    ENSURE_CTX
+    ctx->transform = ctx->transform.scale(x, y);
 }
 
 void glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
@@ -757,14 +828,14 @@ void glTexParameteri(GLenum target, GLenum pname, GLint param)
 void glTranslatef(GLfloat x, GLfloat y, GLfloat z)
 {
     Q_UNUSED(z)
-    ENSURE_CTX_AND_PAINTER
-    ctx->painter->translate(x, y);
+    ENSURE_CTX
+    ctx->transform = ctx->transform.translate(x, y);
 }
 
 void glVertex2dv(GLdouble *v)
 {
     ENSURE_CTX
-    ctx->points.append(QPointF(v[0], v[1]));
+    ctx->points.append(ctx->transform * QPointF(v[0], v[1]));
     ctx->colors.append(ctx->attributes.color);
     ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
@@ -772,7 +843,7 @@ void glVertex2dv(GLdouble *v)
 void glVertex2f(GLfloat x, GLfloat y)
 {
     ENSURE_CTX
-    ctx->points.append(QPointF(x, y));
+    ctx->points.append(ctx->transform * QPointF(x, y));
     ctx->colors.append(ctx->attributes.color);
     ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
@@ -781,7 +852,7 @@ void glVertex3f(GLfloat x, GLfloat y, GLfloat z)
 {
     Q_UNUSED(z)
     ENSURE_CTX
-    ctx->points.append(QPointF(x, y));
+    ctx->points.append(ctx->transform * QPointF(x, y));
     ctx->colors.append(ctx->attributes.color);
     ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
@@ -800,7 +871,7 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 
 bool glText::set(const std::string name, const glText::FontFace face, const float size)
 {
-    ENSURE_CTX_AND_PAINTER_BOOL
+    ENSURE_CTX_BOOL
 
     setFont(name);
     setFontFace(face);
@@ -810,7 +881,7 @@ bool glText::set(const std::string name, const glText::FontFace face, const floa
 
 bool glText::setFont(const std::string name)
 {
-    ENSURE_CTX_AND_PAINTER_BOOL
+    ENSURE_CTX_BOOL
 
     ctx->font.setFamily(QString::fromStdString(name));
     return true;
@@ -818,7 +889,7 @@ bool glText::setFont(const std::string name)
 
 bool glText::setFontFace(const glText::FontFace face)
 {
-    ENSURE_CTX_AND_PAINTER_BOOL
+    ENSURE_CTX_BOOL
 
     if (face & 1)
         ctx->font.setWeight(QFont::Bold);
@@ -829,7 +900,7 @@ bool glText::setFontFace(const glText::FontFace face)
 
 bool glText::setFontSize(const float size)
 {
-    ENSURE_CTX_AND_PAINTER_BOOL
+    ENSURE_CTX_BOOL
 
     ctx->font.setPointSizeF(size);
     return true;
@@ -840,10 +911,11 @@ bool glText::drawChar(const int c, const float x, const float y,
 {
     ENSURE_CTX_AND_PAINTER_BOOL
 
-    QPointF sp = ctx->painter->transform() * QPointF(x, y);
+    QPointF sp = ctx->transform * QPointF(x, y);
 
     ctx->painter->setFont(ctx->font);
     ctx->painter->save();
+    // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(sp);
     ctx->painter->rotate(a);
@@ -858,10 +930,11 @@ bool glText::drawStr(const char* s, const float x, const float y,
 {
     ENSURE_CTX_AND_PAINTER_BOOL
 
-    QPointF sp = ctx->painter->transform() * QPointF(x, y);
+    QPointF sp = ctx->transform * QPointF(x, y);
 
     ctx->painter->setFont(ctx->font);
     ctx->painter->save();
+    // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(sp);
     ctx->painter->rotate(-a);
@@ -876,9 +949,7 @@ bool glText::getCharSize(const int c, float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
-    qDebug() << __FUNCTION__ << "begin";
-    QRectF rect = ctx->painter->transform().inverted().mapRect(fm.boundingRect(QChar(c)));
-    qDebug() << __FUNCTION__ << "end";
+    QRectF rect = ctx->transform.inverted().mapRect(fm.boundingRect(QChar(c)));
     w = rect.width();
     h = rect.height();
     return true;
@@ -889,9 +960,7 @@ bool glText::getMaxCharSize(float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
-    qDebug() << __FUNCTION__ << "begin";
-    QPointF p = QPointF(fm.maxWidth(), fm.height()) * ctx->painter->transform().inverted();
-    qDebug() << __FUNCTION__ << "end";
+    QPointF p = QPointF(fm.maxWidth(), fm.height()) * ctx->transform.inverted();
     w = p.x();
     h = p.y();
     return true;
@@ -902,9 +971,7 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
-    qDebug() << __FUNCTION__ << "begin";
-    QRectF rect = ctx->painter->transform().inverted().mapRect(fm.boundingRect(s));
-    qDebug() << __FUNCTION__ << "end";
+    QRectF rect = ctx->transform.inverted().mapRect(fm.boundingRect(s));
     w = rect.width();
     h = rect.height();
     return true;
@@ -937,11 +1004,8 @@ QImage PaintGLWidget::grabFrameBuffer(bool withAlpha)
 
     QPainter painter;
     painter.begin(&image);
-    glContext->begin(&painter);
-
-    paintGL();
-
-    glContext->end();
+    painter.setRenderHint(QPainter::Antialiasing);
+    paint(&painter);
     painter.end();
 
     return image;
@@ -968,14 +1032,23 @@ void PaintGLWidget::updateGL()
     update();
 }
 
+/**
+  * This function is intended to be implemented in a subclass.
+  */
 void PaintGLWidget::initializeGL()
 {
 }
 
+/**
+  * This function is intended to be implemented in a subclass.
+  */
 void PaintGLWidget::paintGL()
 {
 }
 
+/**
+  * This function is intended to be implemented in a subclass.
+  */
 void PaintGLWidget::resizeGL(int width, int height)
 {
 }
@@ -1013,4 +1086,11 @@ void PaintGLWidget::resizeEvent(QResizeEvent* event)
 void PaintGLWidget::setAutoBufferSwap(bool enable)
 {
     Q_UNUSED(enable)
+}
+
+void PaintGLWidget::paint(QPainter *painter)
+{
+    glContext->begin(painter);
+    paintGL();
+    glContext->end();
 }
