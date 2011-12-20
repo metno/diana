@@ -182,6 +182,9 @@ nr_linewidths = 12;
   cp->addKey("ecoor", "", 1, CommandParser::cmdString);
   cp->addKey("grid", "", 1, CommandParser::cmdString);
   cp->addKey("unit", "", 1, CommandParser::cmdString);
+  cp->addKey("reftime", "", 1, CommandParser::cmdString);
+  cp->addKey("refhour", "", 1, CommandParser::cmdInt);
+  cp->addKey("refoffset", "", 1, CommandParser::cmdInt);
 
   // old syntax
   cp->addKey("level", "", 1, CommandParser::cmdString);
@@ -1202,10 +1205,12 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
   set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(model);
 
   set<std::string>::const_iterator ip=refTimes.begin();
-    for (; ip != refTimes.end(); ++ip) {
-      refTimeComboBox->addItem(QString((*ip).c_str()));
-    }
-
+  for (; ip != refTimes.end(); ++ip) {
+    refTimeComboBox->addItem(QString((*ip).c_str()));
+  }
+  if ( refTimeComboBox->count() ) {
+    refTimeComboBox->setCurrentIndex(refTimeComboBox->count()-1);
+  }
     updateFieldGroups();
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::modelboxClicked returned"<<endl;
@@ -3878,11 +3883,18 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
 
   sf.inEdit = false;
 
+  int refOffset = 0;
+  int refHour = -1;
+
   for (size_t j = 0; j < vpc.size(); j++) {
     if (vpc[j].key == "model") {
       sf.modelName = vpc[j].allValue;
     } else if (vpc[j].key == "reftime") {
       sf.refTime = vpc[j].allValue;
+    } else if (vpc[j].key == "refoffset" && !vpc[j].intValue.empty())  {
+      refOffset = vpc[j].intValue[0];
+    } else if (vpc[j].key == "refhour" && !vpc[j].intValue.empty())  {
+      refHour = vpc[j].intValue[0];
     } else if (vpc[j].key == "plot") {
       sf.fieldName = vpc[j].allValue;
     } else if (vpc[j].key == "parameter") {
@@ -3915,6 +3927,11 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
       if (vpc[j].idNumber == 2)
         sf.forecastSpec = true;
     }
+  }
+
+  //find referencetime
+  if ( sf.refTime.empty() ) {
+    sf.refTime = m_ctrl->getBestFieldReferenceTime(sf.modelName, refOffset, refHour);
   }
 
   //######################################################################
@@ -4691,8 +4708,10 @@ void FieldDialog::changeModel()
     return;
 
   miutil::miString oldModel = selectedFields[index].modelName;
+  miutil::miString oldRefTime = selectedFields[index].refTime;
   miutil::miString newModel = vfgi[indexFGR].modelName;
-  if (oldModel == newModel)
+  miutil::miString newRefTime = vfgi[indexFGR].refTime;
+  if ( (oldModel == newModel) && (oldRefTime == newRefTime) )
     return;
   //ignore (gridnr)
   newModel = newModel.substr(0, newModel.find("("));
@@ -4705,14 +4724,16 @@ void FieldDialog::changeModel()
   for (int i = 0; i < n; i++) {
     miutil::miString selectedModel = selectedFields[i].modelName;
     selectedModel = selectedModel.substr(0, selectedModel.find("("));
-    if (selectedModel == oldModel) {
+    miutil::miString selectedRefTime = selectedFields[i].refTime;
+    if ( (selectedModel == oldModel) && (selectedRefTime == oldRefTime) ) {
       // check if field exists for the new model
       gbest = fbest = gnear = fnear = -1;
       int j = 0;
       while (gbest < 0 && j < nvfgi) {
         miutil::miString model = vfgi[j].modelName;
         model = model.substr(0, model.find("("));
-        if (model == newModel) {
+        miutil::miString refTime = vfgi[j].refTime;
+        if ( (model == newModel) && (refTime == newRefTime) ) {
           int m = vfgi[j].fieldNames.size();
           int k = 0;
           while (k < m && vfgi[j].fieldNames[k] != selectedFields[i].fieldName)
@@ -4765,6 +4786,7 @@ void FieldDialog::changeModel()
         selectedFields[i].indexMGR = indexMGR;
         selectedFields[i].indexM = indexM;
         selectedFields[i].modelName = vfgi[gbest].modelName;
+        selectedFields[i].refTime = vfgi[gbest].refTime;
         selectedFields[i].levelOptions = vfgi[gbest].levelNames;
         selectedFields[i].idnumOptions = vfgi[gbest].idnumNames;
         selectedFields[i].refTime = vfgi[indexFGR].refTime;
