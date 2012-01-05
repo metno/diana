@@ -2390,6 +2390,17 @@ void ObsPlot::plotList(int index)
   glColor4ubv(origcolour.RGBA());
   colour = origcolour;
 
+  //Select parameter with correct accumulation/max value interval
+  if (pFlag.count("911ff")) {
+    checkGustTime(dta);
+  }
+  if (pFlag.count("rrr")) {
+    checkAccumulationTime(dta);
+  }
+  if (pFlag.count("fxfx")) {
+    checkMaxWindTime(dta);
+  }
+
   if (tccriteria)
     checkTotalColourCriteria(index);
 
@@ -2652,7 +2663,6 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("rrr")) {
     ypos -= yStep;
-    checkAccumulationTime(dta);
     if ((f_p = dta.fdata.find("RRR")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("RRR", f_p->second);
@@ -2858,7 +2868,6 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("911ff")) {
     ypos -= yStep;
-    checkGustTime(dta);
     if ((f_p = dta.fdata.find("911ff")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("911ff", f_p->second);
@@ -2879,7 +2888,6 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("fxfx")) {
     ypos -= yStep;
-    checkMaxWindTime(dta);
     if ((f_p = dta.fdata.find("fxfx")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("fxfx", f_p->second);
@@ -3922,6 +3930,17 @@ void ObsPlot::plotSynop(int index)
   bool timeFlag = (pFlag.count("time") && dta.zone == 99);
   bool precip = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
 
+  //Select parameter with correct accumulation/max value interval
+  if (pFlag.count("911ff")) {
+    checkGustTime(dta);
+  }
+  if (pFlag.count("rrr")) {
+    checkAccumulationTime(dta);
+  }
+  if (pFlag.count("fxfx")) {
+    checkMaxWindTime(dta);
+  }
+
   //reset colour
   glColor4ubv(origcolour.RGBA());
   colour = origcolour;
@@ -4113,7 +4132,6 @@ void ObsPlot::plotSynop(int index)
   //Precipitation - RRR
   if (pFlag.count("rrr") && !(dta.zone == 99 && dta.fdata.count("ds")
       && dta.fdata.count("vs"))) {
-    checkAccumulationTime(dta);
     if ((f_p = dta.fdata.find("RRR")) != fend) {
       if (ccriteria)
         checkColourCriteria("RRR", f_p->second);
@@ -4167,7 +4185,6 @@ void ObsPlot::plotSynop(int index)
 
   // Maximum wind speed (gusts) - 911ff
   if (pFlag.count("911ff") ) {
-    checkGustTime(dta);
     if((f_p = dta.fdata.find("911ff")) != fend) {
       if (ccriteria)
         checkColourCriteria("911ff", f_p->second);
@@ -4188,7 +4205,6 @@ void ObsPlot::plotSynop(int index)
 
   // Maximum wind speed
   if (pFlag.count("fxfx") ) {
-    checkMaxWindTime(dta);
     if ( (f_p = dta.fdata.find("fxfx")) != fend
         && !(dta.zone > 1 && dta.zone < 99)) {
       if (ccriteria)
