@@ -400,11 +400,6 @@ sea.soundspeed=sea.soundspeed.ozlevel_tc_salt(seatemp.c,salt)
 sea.soundspeed=sea.soundspeed.ozlevel_tk_salt(seatemp.k,salt)
 ice.speed=vector.abs(u.ice,v.ice)
 
-sea_water_temperature_c=temp_k2c_possibly(sea_water_temperature:standard_name)  # sometimes Celsius, sometimes Kelvin, output Celsius
-Current_speed=vector.abs(sea_water_x_velocity:standard_name,sea_water_y_velocity:standard_name)
-current_speed=vector.abs(x_sea_water_velocity:standard_name,y_sea_water_velocity:standard_name)
-ice_speed=vector.abs(sea_ice_x_velocity:standard_name,sea_ice_y_velocity:standard_name)
-sea_ice_concentration=multiply(sea_ice_area_fraction,100.0) # to %age
 
 </FIELD_COMPUTE>
 
@@ -456,181 +451,6 @@ field=Precipitation.[HR]h
       plot=CONTOUR(accumprecip.[HR]h)
 end.field
 
-# For netCDF files these use the variable names, not the standard_names.
-# Thus, this section must be tailored for various datasets, i.e., 
-# a separate setup file for each dataset. 
-# For example: different setup files for TOPAZ, MIPOM, ROMS, etc.
-
-########### MYOCEAN ###########  !! Incomplete !!
-
-field=BottomDepth
-      text = "Bottom Depth"
-      colour=black line.interval=200.0
-      plot=CONTOUR(sea_floor_depth_below_sea_level:standard_name)
-end.field
-
-field=SeaSurfaceHeight
-      text = "Sea Surface Height"
-      colour=black line.interval=0.1
-      plot=CONTOUR(sea_surface_height_above_geoid:standard_name)
-end.field
-
-field=SeaSurfaceElevation
-      text = "Sea Surface Height"
-      colour=black line.interval=0.1
-      plot=CONTOUR(sea_surface_elevation:standard_name)
-end.field
-
-field=Salinity
-      text = "Salinity"
-      colour=black line.interval=0.5
-      plot=CONTOUR(sea_water_salinity:standard_name)
-end.field
-
-field=PotTemperature.K
-      text = "Potential Temperature"
-      colour=black line.interval=0.5
-      plot=CONTOUR(sea_water_potential_temperature_k)
-end.field
-
-field=PotTemperature.C
-      text = "Potential Temperature"
-      colour=black line.interval=0.5
-      plot=CONTOUR(sea_water_potential_temperature:standard_name)
-end.field
-
-field=Temperature.C
-      text = "Temperature"
-      colour=black line.interval=0.5
-      plot=CONTOUR(sea_water_temperature_c)
-end.field
-
-field=Temperature.K
-      text = "Temperature (K)"
-      colour=black line.interval=0.5
-      plot=CONTOUR(sea_water_temperature:standard_name)
-end.field
-
-field=X.current
-      text = "Current x velocity"
-      colour=black line.interval=0.2
-      plot=CONTOUR(sea_water_x_velocity:standard_name)
-end.field
-
-field=Y.current
-      text = "Current y velocity"
-      colour=black line.interval=0.2
-      plot=CONTOUR(sea_water_y_velocity:standard_name)
-end.field
-
-field=Current
-      text = "Current"
-      colour=blue rel.size=1.0 vector.unit=0.5
-      plot=VECTOR(sea_water_x_velocity:standard_name,sea_water_y_velocity:standard_name)
-end.field
-
-field=CurrentSpeed
-      text = "Current Speed"
-      colour=black line.interval=0.2
-      plot=CONTOUR(Current_speed)
-end.field
-
-field=x.current
-      text = "Current x velocity"
-      colour=black line.interval=0.2
-      plot=CONTOUR(x_sea_water_velocity:standard_name)
-end.field
-
-field=y.current
-      text = "Current y velocity"
-      colour=black line.interval=0.2
-      plot=CONTOUR(y_sea_water_velocity:standard_name)
-end.field
-
-field=current
-      text = "Current"
-      colour=blue rel.size=1.0 vector.unit=0.5
-      plot=VECTOR(x_sea_water_velocity:standard_name,y_sea_water_velocity:standard_name)
-end.field
-
-field=currentSpeed
-      text = "Current Speed"
-      colour=black line.interval=0.2
-      plot=CONTOUR(current_speed)
-end.field
-
-field=BaroStreamFn
-      text = "Barotropic Stream Function"
-      colour=black line.interval=1e+07
-      plot=CONTOUR(ocean_barotropic_streamfunction:standard_name)
-end.field
-
-field=MixLayerDep
-      text = "Mixed Layer Depth"
-      colour=black line.interval=100.0
-      plot=CONTOUR(ocean_mixed_layer_thickness:standard_name)
-end.field
-
-field=FreshwaterFlux
-      text = "Freshwater Flux"
-      colour=black line.interval=1e-05
-      plot=CONTOUR(water_flux_into_ocean:standard_name)
-end.field
-
-field=SeaIce.Fraction
-      text = "Sea Ice Fraction"
-      colour=black line.interval=0.1
-      plot=CONTOUR(sea_ice_area_fraction:standard_name)
-end.field
-
-field=SeaIce.Conc
-      text = "Sea Ice Concentration"
-      colour=black line.interval=10.
-      plot=CONTOUR(sea_ice_concentration:standard_name)
-end.field
-
-field=SeaIce.Thick
-      text = "Sea Ice Thickness"
-      colour=black line.interval=1.0
-      plot=CONTOUR(sea_ice_thickness:standard_name)
-end.field
-
-field=SeaIce.X-vel
-      text = "Sea Ice X-Velocity"
-      colour=black line.interval=0.1
-      plot=CONTOUR(sea_ice_x_velocity:standard_name)
-end.field
-
-field=SeaIce.Y-vel
-      text = "Sea Ice Y-Velocity"
-      colour=black line.interval=0.1
-      plot=CONTOUR(sea_ice_y_velocity:standard_name)
-end.field
-
-field=SeaIce.Velocity
-      text = "Sea Ice Velocity"
-      colour=blue rel.size=1.0 vector.unit=0.2
-      plot=VECTOR(sea_ice_x_velocity:standard_name,sea_ice_y_velocity:standard_name)
-end.field
-
-field=Snow.Thickness
-      text = "Surface Snow Thickness"
-      colour=black line.interval=0.25
-      plot=CONTOUR(surface_snow_thickness:standard_name)
-end.field
-
-field=SeaIce.1stYr.fraction
-      text = "Sea Ice 1st Year Fraction"
-      colour=black line.interval=0.1
-      plot=CONTOUR(fraction_of_first_year_ice:standard_name)
-end.field
-
-field=SeaIce.1stYr.age
-      text = "Sea Ice 1st Year Age"
-      colour=black line.interval=50
-      plot=CONTOUR(age_of_first_year_ice:standard_name)
-end.field
-
 </FIELD_PLOT>
 
 <FIELD_VERTICAL_COORDINATES>
@@ -676,15 +496,6 @@ f=$(OPDATA)/hirlam12/hirlam12pl.nc
 m=hirlam12km t=fimex format=netcdf \
 f=$(OPDATA)/hirlam12/hirlam12sf-1h.nc \
 f=$(OPDATA)/hirlam12/hirlam12sf-3h.nc 
-
-#m=hirlam4km t=fimex format=netcdf f=$(OPDATA)/hirlam4/hirlam4km.nc 
-m=myocean_hirlam.fc t=fimex f=/opdata/myocean/hirlam.fc.*.nc format=netcdf
-filegroup=MyOcean.ARC
-
-m=TOPAZ.V1.ARC.be     t=fimex  f=http://thredds.met.no/thredds/dodsC/topaz/dataset-topaz4-arc-myocean-be  format=netcdf
-m=TOPAZ.V1.NAT.be     t=fimex  f=http://thredds.met.no/thredds/dodsC/topaz/dataset-topaz4-nat-myocean-be  format=netcdf
-m=TOPAZ.V0.ARC.be     t=fimex  f=http://thredds.met.no/thredds/dodsC/topaz/dataset-topaz3-arc-myocean-be  format=netcdf
-m=MIPOM.V0.ARC.be     t=fimex  f=http://thredds.met.no/thredds/dodsC/arctic20/dataset-arctic20-mipom-arc-myocean-be  format=netcdf
 
 
 </FIELD_FILES>
