@@ -253,10 +253,8 @@ manualcommands==$(share_dir)/diana/printer.def
 
 # Computations are common for all file types ( met.no FieldFile, Grib, NetCDF,...)
 # See diFieldFunctions.h or other documnetation
-
-air_pressure_at_sea_level_hpa=multiply(air_pressure_at_sea_level,0.1)
+air_temperature_c=tc.plevel_th(air_potential_temperature)
 air_temperature_c=temp_k2c(air_temperature)
-air_temperature_c=temp_k2c(air_potential_temperature)
 ff=vector.abs(x_wind,y_wind)
 ffknots=multiply(ff,1.94384)        # 1 knot = 1 m/s * 3600s/1852m
 accumprecip.1h=accum.diff.forecast.hour(precipitation_amount,-1,0)
@@ -403,7 +401,6 @@ sea.soundspeed=sea.soundspeed.ozlevel_tk_salt(seatemp.k,salt)
 ice.speed=vector.abs(u.ice,v.ice)
 
 
-
 </FIELD_COMPUTE>
 
 <FIELD_PLOT>
@@ -414,13 +411,18 @@ ice.speed=vector.abs(u.ice,v.ice)
 ##### surface etc. ##########
 
 field=MSLP
-      colour=blue linetype=solid linewidth=1 line.interval=5.
-      plot=CONTOUR(air_pressure_at_sea_level_hpa)
+      colour=blue linetype=solid linewidth=1 line.interval=5. unit=hectopascal
+      plot=CONTOUR(air_pressure_at_sea_level:standard_name)
 end.field
 
 field=T
-      colour=red line.interval=2.
+      colour=red line.interval=2. 
       plot=CONTOUR(air_temperature_c)
+end.field
+
+field=TH
+      colour=red line.interval=2. 
+      plot=CONTOUR(air_potential_temperature)
 end.field
 
 field=WIND
@@ -444,41 +446,61 @@ loop [LINE] = "0.1,0.2,0.5,1,2,4,6,10,15,...40","0.2,0.5,1,2,4,6,10,15,...80",\
 "0.5,1,2,4,6,10,15,...100","1,2,4,6,10,15,...200",\
 "0.5,1,2,4,6,10,15,...300","0.5,1,2,4,6,10,15,...70,80,...400"
 
-field=NEDBØR.[HR]T
+field=Precipitation.[HR]h
       colour=red linetype=solid linewidth=1 line.values=[LINE]
       plot=CONTOUR(accumprecip.[HR]h)
 end.field
 
-
-
 </FIELD_PLOT>
 
+<FIELD_VERTICAL_COORDINATES>
+name=pressure vc_type=pressure levelsuffix=hpa 
+name=pv vc_type=other levelsuffix=pvu 
+name=k vc_type=hybrid levelprefix=E. 
+name=k_ vc_type=hybrid levelprefix=E. 
+name=temperature vc_type=other levelsuffix=C 
+name=theta vc_type=isentropic levelsuffix=K 
+name=l vc_type=atmospheric levelprefix=L.
+name=depth vc_type=oceandepth levelsuffix=m
+
+</FIELD_VERTICAL_COORDINATES>
+
+
 <FIELD_GROUPS>
-name=Sigma_surfaces group=xcyc_sigma_time_
-name=Pressure_surfaces group=xcyc_pressure_time_
-name=Model_surfaces group=xcyc_k_time_
-name=Surface group=xcyc__time_
-name=Time_independent group=xcyc___
+name=Sigma_surfaces group=XcYc_sigma_time
+name=Pressure_surfaces group=XcYc_pressure__time
+name=Model_surfaces group=XcYc_k__time
+name=Surface group=XcYc___time
+name=Time_independent group=XcYc__
+name=Depth group=xy_depth__time
+name=Surface group=xy___time
+name=Time_independent group=xy__
+name=Depth group=longitudelatitude_depth__time
+name=Surface group=longitudelatitude___time
+name=Time_independent group=longitudelatitude__
 </FIELD_GROUPS>
   
 
 <FIELD_FILES>
 
 #-------------------------------------------------------------------------------
-#  m=NAME t=MetnoFieldFile  g=PRODUCER:GRIDNUMBER:GRIDNAME  g=....  f=FILENAME
+#  m=NAME t=fimex format=netcdf|grib|ncml|wdb|metnofieldfile  f=filename|database-config|http
 #-------------------------------------------------------------------------------
 
 
-filegroup=NetCDF
-m=hirlam12km t=fimex format=netcdf \
+filegroup=Hirlam
+m=hirlam24km t=fimex format=netcdf \
 f=$(OPDATA)/hirlam12/hirlam12ml.nc \
-f=$(OPDATA)/hirlam12/hirlam12pl.nc \
+f=$(OPDATA)/hirlam12/hirlam12pl.nc 
+
+m=hirlam12km t=fimex format=netcdf \
 f=$(OPDATA)/hirlam12/hirlam12sf-1h.nc \
 f=$(OPDATA)/hirlam12/hirlam12sf-3h.nc 
 
-#m=hirlam4km t=fimex format=netcdf f=$(OPDATA)/hirlam4/hirlam4km.nc 
 
 </FIELD_FILES>
+
+
 
 <OBSERVATION_FILES>
 

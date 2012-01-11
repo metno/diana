@@ -342,7 +342,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   int day = 0;
   int hour = 0;
   int minute = 0;
-  bool landStation = true;
+  bool landStation = false;
   float heightOfSensor = -1.0;
   float depth = -1.0;
   int timePeriodMissing = -9999;
@@ -381,6 +381,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   1002  WMO STATION NUMBER
     case 1002:
       wmoStation = int(values[j]);
+      landStation = true;
       break;
 
       //   1005 BUOY/PLATFORM IDENTIFIER

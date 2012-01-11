@@ -801,6 +801,11 @@ set<std::string> Controller::getFieldReferenceTimes(const std::string model)
   return fieldm->getReferenceTimes(model);
 }
 
+std::string Controller::getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour)
+{
+  return fieldm->getBestReferenceTime(model, refOffset, refHour);
+}
+
 void Controller::getFieldGroups(const miString& modelNameRequest,
 				miString& modelName,
 				std::string refTime,

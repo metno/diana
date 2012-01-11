@@ -850,8 +850,9 @@ void printUsage(bool showexample)
         "-example          : list example input-file and exit                    \n"
 #ifdef USE_XLIB
         "-display          : x-server to use (default: env DISPLAY)              \n"
-        "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium (default)  \n"
+        "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium            \n"
         "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
+        "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
 #endif
         "-use_qimage       : use QImage as drawing medium                        \n"
         "-antialias        : use anti-aliasing when using -use_qimage            \n"

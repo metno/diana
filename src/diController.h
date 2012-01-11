@@ -282,6 +282,8 @@ public:
   vector<FieldDialogInfo> initFieldDialog();
   ///return all reference times for given model
   set<std::string> getFieldReferenceTimes(const std::string model);
+  ///return referencetime given by refoffset and refhour or last referencetime for given model
+  std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   /// return plot options for all defined plot fields in setup
   void getAllFieldNames(vector<miutil::miString>& fieldNames,
 			set<std::string>& fieldprefixes,

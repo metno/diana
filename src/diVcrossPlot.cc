@@ -272,7 +272,7 @@ bool VcrossPlot::parseSetup()
     vstr.clear();
 
   } else {
-    cerr << "Missing section " << section2 << " in setupfile." << endl;
+//    cerr << "Missing section " << section2 << " in setupfile." << endl;
     //error= true;
   }
 
@@ -331,7 +331,7 @@ bool VcrossPlot::parseSetup()
     vstr.clear();
 
   } else {
-    cerr << "Missing section " << section3 << " in setupfile." << endl;
+    //cerr << "Missing section " << section3 << " in setupfile." << endl;
     //error= true;
   }
 
@@ -416,7 +416,7 @@ bool VcrossPlot::parseSetup()
     vstr.clear();
 
   } else {
-    cerr << "Missing section " << section4 << " in setupfile." << endl;
+    //cerr << "Missing section " << section4 << " in setupfile." << endl;
     //error= true;
   }
 
@@ -1270,7 +1270,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
 
   // check if necessary parameters exist
   if ((vcoord == 2 || vcoord == 10) && nps < 0) {
-    cerr << "ps (single level parameter 8) missing" << endl;
+    cerr << "ps (single level parameter 8) g" << endl;
     error = true;
   }
   //if (vcoord==5 && npss<0) {

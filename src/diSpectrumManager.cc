@@ -137,7 +137,7 @@ void SpectrumManager::parseSetup()
 
   } else {
 
-    cerr << "Missing section " << section2 << " in setupfile." << endl;
+    //cerr << "Missing section " << section2 << " in setupfile." << endl;
 
   }
 }
