@@ -46,6 +46,9 @@
 #include <diFontManager.h>
 #include <diField/diPlotOptions.h>
 #include <diField/diArea.h>
+#ifndef Q_WS_QWS
+#include <glp/glpfile.h>
+#endif
 #include <diContouring.h>
 #include <diTesselation.h>
 #include <diImageGallery.h>

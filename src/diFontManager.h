@@ -31,11 +31,16 @@
 #ifndef _diFontManager_h
 #define _diFontManager_h
 
+#include <qglobal.h>
+
 #include <puTools/miString.h>
+#ifndef Q_WS_QWS
+#include <glText/glText.h>
+#else
+#include "PaintGL/paintgl.h"
+#endif
 #include <set>
 #include <map>
-
-#include "GL/paintgl.h"
 
 /**
  \brief Font manager for text plotting

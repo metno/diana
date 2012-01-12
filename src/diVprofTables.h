@@ -31,6 +31,8 @@
 #ifndef VPROFTABLES_H
 #define VPROFTABLES_H
 
+#include <qglobal.h>
+
 #include <diFontManager.h>
 #include <diPrintOptions.h>
 #include <diField/diColour.h>

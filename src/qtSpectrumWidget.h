@@ -31,13 +31,19 @@
 #ifndef SPECTRUMWIDGET_H
 #define SPECTRUMWIDGET_H
 
+#include <qglobal.h>
+
 #include <puTools/miString.h>
 #include <map>
 
+#ifndef Q_WS_QWS
+#include <qgl.h>
+#else
+#include "PaintGL/paintgl.h"
+#define QGLWidget PaintGLWidget
+#endif
 #include <QKeyEvent>
 #include <QWidget>
-
-#include "GL/paintgl.h"
 
 using namespace std;
 
@@ -49,12 +55,17 @@ class SpectrumManager;
    Handles widget paint/redraw events.
    Receives keybord events and initiates actions.
 */
-class SpectrumWidget : public PaintGLWidget
+class SpectrumWidget : public QGLWidget
 {
   Q_OBJECT
 
 public:
+#ifndef Q_WS_QWS
+  SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
+             QWidget* parent = 0);
+#else
   SpectrumWidget(SpectrumManager *spm, QWidget* parent = 0);
+#endif
 
   bool saveRasterImage(const miutil::miString fname,
   		       const miutil::miString format,

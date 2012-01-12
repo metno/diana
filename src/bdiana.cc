@@ -34,6 +34,8 @@
 #include "config.h"
 #endif
 
+#include <qglobal.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -46,10 +48,10 @@
 #include <iostream>
 
 #include <QtCore>
-#if defined(Q_WS_QWS) || !defined(USE_XLIB)
+#if defined(Q_WS_QWS)
 #include <QtGui>
 #include <QtSvg>
-#include "GL/paintgl.h"
+#include "PaintGL/paintgl.h"
 #else
 #include <QtOpenGL>
 #endif
@@ -226,7 +228,7 @@ GLXPbuffer pbuf; // GLX Pixel Buffer
 #endif
 
 QApplication * application = 0; // The Qt Application object
-#if !defined(Q_WS_QWS) && defined(USE_XLIB)
+#if !defined(Q_WS_QWS)
 QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
 QGLFramebufferObject * qfbuffer = 0; // The Qt GLFrameBuffer used as canvas
 QGLWidget *qwidget = 0; // The rendering context used for Qt GLFrameBuffer
@@ -820,7 +822,7 @@ void printUsage(bool showexample)
 #ifdef VIDEO_EXPORT
         " - as AVI (MS MPEG4-v2 video format)                            \n"
 #endif
-#if !defined(Q_WS_QWS) && defined(USE_XLIB)
+#if !defined(Q_WS_QWS)
         " - using qtgl: all available raster formats in Qt               \n"
 #endif
         " - using qimage: all available raster formats in Qt             \n"
@@ -856,7 +858,7 @@ void printUsage(bool showexample)
 #endif
         "-use_qimage       : use QImage as drawing medium                        \n"
         "-antialias        : use anti-aliasing when using -use_qimage            \n"
-#if !defined(Q_WS_QWS) && defined(USE_XLIB)
+#if !defined(Q_WS_QWS)
         "-use_doublebuffer : use double buffering OpenGL (default)               \n"
         "-use_singlebuffer : use single buffering OpenGL                         \n"
 #endif
@@ -1431,10 +1433,12 @@ int parseAndProcess(istream &is)
           trajectory_started = false;
         }
 
+#ifdef Q_WS_QWS
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
         else if (svg || pdf)
           painter.setRenderHint(QPainter::Antialiasing);
+#endif
 
         if (verbose)
           cout << "- plot" << endl;
@@ -1677,7 +1681,7 @@ int parseAndProcess(istream &is)
           cout << "- Preparing for raster output" << endl;
         glFlush();
 
-#if !defined(Q_WS_QWS) && defined(USE_XLIB)
+#if !defined(Q_WS_QWS)
         if (canvasType == qt_glpixelbuffer) {
           if (qpbuffer == 0) {
             cerr << " ERROR. when saving image - qpbuffer is NULL" << endl;
@@ -2218,7 +2222,7 @@ int parseAndProcess(istream &is)
 #endif
       } else if (canvasType == qt_glpixelbuffer) {
 
-#if !defined(Q_WS_QWS) && defined(USE_XLIB)
+#if !defined(Q_WS_QWS)
         // delete old pixmaps
         if (buffermade && qpbuffer) {
           delete qpbuffer;
@@ -2676,7 +2680,7 @@ int main(int argc, char** argv)
   }
 #endif
 
-#if !defined(Q_WS_QWS) && defined(USE_XLIB)
+#if !defined(Q_WS_QWS)
   if (canvasType == qt_glpixelbuffer) {
     cerr <<"qt_glpixelbuffer"<<endl;
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
@@ -2866,7 +2870,7 @@ int main(int argc, char** argv)
   }
 #endif
 
-#if !defined(Q_WS_QWS) && defined(USE_XLIB)
+#if !defined(Q_WS_QWS)
   if (qpbuffer) {
     delete qpbuffer;
   }

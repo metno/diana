@@ -67,8 +67,18 @@ SpectrumWindow::SpectrumWindow()
 
   setWindowTitle( tr("Diana Wavespectrum") );
 
+#ifndef Q_WS_QWS
+  QGLFormat fmt;
+  fmt.setOverlay(false);
+  fmt.setDoubleBuffer(true);
+  fmt.setDirectRendering(false);
+#endif
   //central widget
+#ifndef Q_WS_QWS
+  spectrumw= new SpectrumWidget(spectrumm, fmt, this);
+#else
   spectrumw= new SpectrumWidget(spectrumm, this);
+#endif
   setCentralWidget(spectrumw);
   connect(spectrumw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(spectrumw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));

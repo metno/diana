@@ -15,7 +15,7 @@
 #include <QVector>
 #include <QWidget>
 
-#include "gl.h"
+#include "GL/gl.h"
 
 struct PaintAttributes {
     QColor color;

@@ -35,6 +35,9 @@
 
 #include <diVprofTables.h>
 #include <diLocalSetupParser.h>
+#ifndef Q_WS_QWS
+#include <glp/glpfile.h>
+#endif
 #include <iostream>
 #include <math.h>
 

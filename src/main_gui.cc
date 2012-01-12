@@ -43,7 +43,9 @@
 #include "diPrintOptions.h"
 #include "diController.h"
 #include "qtMainWindow.h"
-#include "GL/paintgl.h"
+#ifdef Q_WS_QWS
+#include "PaintGL/paintgl.h"
+#endif
 #include <puTools/miCommandLine.h>
 #include <puTools/miString.h>
 #include <diField/diProjection.h>
@@ -242,7 +244,9 @@ int main(int argc, char **argv)
     a.installTranslator( &qutil );
   }
   DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title, profetEnabled);
+#ifdef Q_WS_QWS
   PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
+#endif
 
   mw->start();
 

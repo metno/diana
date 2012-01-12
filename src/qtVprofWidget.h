@@ -31,16 +31,22 @@
 #ifndef VPROFWIDGET_H
 #define VPROFWIDGET_H
 
+#include <qglobal.h>
+
 #include "diVprofDiagram.h"
 #include "diVprofData.h"
 #include "diVprofPlot.h"
 #include <puTools/miString.h>
 #include <map>
 
-#include <QKeyEvent>
+#ifndef Q_WS_QWS
+#include <qgl.h>
+#else
+#include "PaintGL/paintgl.h"
 #include <QWidget>
-
-#include "GL/paintgl.h"
+#define QGLWidget PaintGLWidget
+#endif
+#include <QKeyEvent>
 
 using namespace std;
 
@@ -52,23 +58,30 @@ class VprofManager;
    Handles widget paint/redraw events.
    Receives mouse and keybord events and initiates actions.
 */
-class VprofWidget : public PaintGLWidget
+class VprofWidget : public QGLWidget
 {
   Q_OBJECT
 
 public:
+#ifndef Q_WS_QWS
+  VprofWidget(VprofManager *vpm, const QGLFormat fmt,
+             QWidget* parent = 0);
+#else
   VprofWidget(VprofManager *vpm, QWidget* parent = 0);
+#endif
 
   bool saveRasterImage(const miutil::miString fname,
   		       const miutil::miString format,
 		       const int quality = -1);
 
+#ifdef Q_WS_QWS
   bool isValid() { return true; }
   void makeCurrent() {}
   void swapBuffers() {}
   void setAutoBufferSwap(bool enable) {}
   void updateGL() { update(); }
   QImage grabFrameBuffer(bool withAlpha = false) { return QImage(); }
+#endif
 
 protected:
 

@@ -119,7 +119,7 @@ AC_ARG_ENABLE([xlib],
 AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 
 AC_ARG_ENABLE([embedded],
-    [AS_HELP_STRING([--enable-embedded], [enable embedded usage])],
+    [AS_HELP_STRING([--enable-embedded], [enable embedded usage (removes X and OpenGL dependencies])],
 	[], [enable_embedded=no])
 AM_CONDITIONAL([WITH_EMBEDDED], [test x$enable_embedded = xyes])
 
@@ -130,7 +130,18 @@ AM_CONDITIONAL([WITH_EMBEDDED], [test x$enable_embedded = xyes])
 METNO_REQUIRE_PKG([DIFIELD], [diField])
 METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
 METNO_REQUIRE_PKG([DIWDB], [diWdb])
+
+AS_IF([test x$enable_embedded != xyes], [
+    METNO_REQUIRE_PKG([GLTEXT], [glText])
+    METNO_REQUIRE_PKG([GLP], [glp])
+])
+
 METNO_REQUIRE_PKG([LIBMI], [libmi])
+
+AS_IF([test x$enable_embedded != xyes], [
+    METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
+])
+
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
 METNO_REQUIRE_PKG([MILIB], [milib])
 METNO_REQUIRE_PKG([PARAMETER], [parameter])
@@ -165,11 +176,23 @@ AS_IF([test x$enable_profet = xyes], [
 #
 # Other third-party dependencies
 #
-METNO_REQUIRE_QT4([
-    Core
-    Gui
-    Network
-	Svg
+AS_IF([test x$enable_embedded = xyes], [
+    METNO_REQUIRE_QT4([
+        Core
+        Gui
+        Network
+    	Svg
+    ])
+])
+
+AS_IF([test x$enable_embedded != xyes], [
+    METNO_REQUIRE_QT4([
+        Core
+        Gui
+        Network
+        OpenGL
+    	Svg
+    ])
 ])
 
 # libavformat for video production

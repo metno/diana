@@ -33,6 +33,8 @@
 #include "config.h"
 #endif
 
+#include <qglobal.h>
+
 #include <iostream>
 #include <sstream>
 #include <diSpectrumPlot.h>
@@ -41,7 +43,10 @@
 #include <diField/diPlotOptions.h>
 #include <diField/diColour.h>
 #include <diContouring.h>
-#include "GL/gl.h"
+#include <GL/gl.h>
+#ifndef Q_WS_QWS
+#include <glp/glpfile.h>
+#endif
 
 #include <math.h>
 

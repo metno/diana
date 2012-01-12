@@ -36,15 +36,16 @@
 
 
 #include <QApplication>
-#include <QDebug>
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QPrinter>
 
 #include "qtGLwidget.h"
 #include "diController.h"
-#include "paintgl.h"
+
+#ifdef Q_WS_QWS
+#include <QPrinter>
+#endif
 
 #include <math.h>
 #include <fstream>
@@ -58,9 +59,13 @@
 #include <paint_forbidden_crusor.xpm>
 
 // GLwidget constructor
+#ifndef Q_WS_QWS
+GLwidget::GLwidget(Controller* c, const QGLFormat fmt, QWidget* parent) :
+  QGLWidget(fmt, parent), curcursor(keep_it), contr(c), fbuffer(0)
+#else
 GLwidget::GLwidget(Controller* c, QWidget* parent) :
   PaintGLWidget(parent), curcursor(keep_it), contr(c), fbuffer(0)
-
+#endif
 {
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -83,7 +88,7 @@ void GLwidget::paintGL()
 {
 
 #ifdef DEBUGPRINT
-  cerr << "paintEvent()" << endl;
+  cerr << "paintGL()" << endl;
 #endif
 
 #ifdef DEBUGREDRAW
@@ -453,6 +458,7 @@ void GLwidget::endHardcopy()
   contr->endHardcopy();
 }
 
+#ifdef Q_WS_QWS
 void GLwidget::print(QPrinter* device)
 {
   makeCurrent();
@@ -478,6 +484,7 @@ void GLwidget::print(QPrinter* device)
   painter.drawPicture(0, 0, picture);
   painter.end();
 }
+#endif
 
 bool GLwidget::saveRasterImage(const miutil::miString fname, const miutil::miString format,
     const int quality)

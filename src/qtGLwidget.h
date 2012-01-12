@@ -31,9 +31,16 @@
 #ifndef _qtGLwidget_h
 #define _qtGLwidget_h
 
+#include <qglobal.h>
+
+#ifndef Q_WS_QWS
+#include <qgl.h>
+#else
+#include <QWidget>
+#endif
+
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QWidget>
 
 #include <vector>
 #include <puTools/miString.h>
@@ -43,14 +50,19 @@
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 
-#include "GL/gl.h"
-#include "GL/paintgl.h"
+#ifdef Q_WS_QWS
+#include <GL/gl.h>
+#include "PaintGL/paintgl.h"
+#endif
 
 using namespace std;
 
 class Controller;
+#ifdef Q_WS_QWS
 class PaintGLContext;
 class QPrinter;
+#define QGLWidget PaintGLWidget
+#endif
 
 /**
    \brief the map OpenGL widget
@@ -60,13 +72,17 @@ class QPrinter;
    - keyboard/mouse event translation to Diana types
 
 */
-
-class GLwidget : public PaintGLWidget {
+class GLwidget : public QGLWidget {
 
   Q_OBJECT
 
 public:
+#ifndef Q_WS_QWS
+  GLwidget(Controller*, const QGLFormat,
+           QWidget*);
+#else
   GLwidget(Controller*, QWidget*);
+#endif
   ~GLwidget();
 
   /// save contents of widget as raster image
@@ -82,8 +98,10 @@ public:
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
   void endHardcopy();
+#ifdef Q_WS_QWS
   /// Print the visible contents of the widget.
   void print(QPrinter* device);
+#endif
 
 signals:
   /// single click signal

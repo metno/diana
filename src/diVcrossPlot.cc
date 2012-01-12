@@ -37,6 +37,8 @@
 #include "config.h"
 #endif
 
+#include <qglobal.h>
+
 #include <iostream>
 #include <iomanip>
 #include <diVcrossPlot.h>
@@ -45,7 +47,11 @@
 #include <puTools/miSetupParser.h>
 #include <diField/diMetConstants.h>
 #include <diContouring.h>
-#include "GL/gl.h"
+#include <GL/gl.h>
+#ifndef Q_WS_QWS
+#include <glText/glText.h>
+#include <glp/glpfile.h>
+#endif
 
 #include <math.h>
 

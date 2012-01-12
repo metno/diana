@@ -40,14 +40,21 @@
 #include <qimage.h>
 #include <QKeyEvent>
 
-#include "GL/gl.h"
-
 #include "qtSpectrumWidget.h"
 #include "diSpectrumManager.h"
 
+#ifdef Q_WS_QWS
+#include "GL/gl.h"
+#endif
 
+#ifndef Q_WS_QWS
+SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
+                        QWidget* parent)
+    : QGLWidget( fmt, parent), spectrumm(spm)
+#else
 SpectrumWidget::SpectrumWidget(SpectrumManager *spm, QWidget* parent)
-    : PaintGLWidget(parent, true), spectrumm(spm)
+    : QGLWidget(parent, true), spectrumm(spm)
+#endif
 {
 
   if ( !isValid() ) {

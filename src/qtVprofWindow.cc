@@ -67,8 +67,18 @@ VprofWindow::VprofWindow(Controller *co)
 
   setWindowTitle( tr("Diana Vertical Profiles") );
 
+#ifndef Q_WS_QWS
+  QGLFormat fmt;
+  fmt.setOverlay(false);
+  fmt.setDoubleBuffer(true);
+  fmt.setDirectRendering(false);
+#endif
   //central widget
+#ifndef Q_WS_QWS
+  vprofw= new VprofWidget(vprofm, fmt, this);
+#else
   vprofw= new VprofWidget(vprofm, this);
+#endif
   setCentralWidget(vprofw);
   connect(vprofw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(vprofw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));
