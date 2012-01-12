@@ -1,6 +1,8 @@
 #ifndef PAINTGL_H
 #define PAINTGL_H
 
+#include <map>
+
 #include <QColor>
 #include <QHash>
 #include <QPainter>
@@ -13,7 +15,7 @@
 #include <QVector>
 #include <QWidget>
 
-#include "GL/gl.h"
+#include "gl.h"
 
 struct PaintAttributes {
     QColor color;
