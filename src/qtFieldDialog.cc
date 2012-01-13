@@ -5161,32 +5161,17 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
     bool found = false;
     int indrm = -1;
     SelectedField sf;
-    vector<miutil::miString> vstr = str.split(' ');
-    bool allTimeSteps;
-    bool decodeOK = false;
-    sf.cdmSyntax = str.contains("model=");
-    if ( sf.cdmSyntax ) {
-      decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
-    } else {
-      decodeOK = decodeString_oldSyntax(str, sf, allTimeSteps);
-    }
-    if (decodeOK) {
-      // new edit field
-      for (i = 0; i < n; i++) {
-        if (!selectedFields[i].inEdit) {
-          if (selectedFields[i].modelName == sf.modelName
-              && selectedFields[i].fieldName == sf.fieldName
-            && selectedFields[i].refTime == sf.refTime)
-            break;
-        }
-      }
-      if (i < n) {
+
+    for (  i = 0; i< selectedFieldbox->count(); ++i ) {
+      if( miutil::miString(selectedFieldbox->currentItem()->text().toStdString()) == str ) {
         sf = selectedFields[i];
         indrm = i;
         found = true;
+        break;
       }
     }
 
+    vector<miutil::miString> vstr = str.split(' ');
     if (vstr.size() == 1 || !found) {
       // open/combine edit field
       if (vstr.size() == 1) {

@@ -194,9 +194,6 @@ bool FieldPlotManager::parseFieldPlotSetup()
                                     SetupParser::errorMsg(sect_name, i, errm);
                                     break;
                 }
-                for (unsigned int k = 0; k < input.size(); k++) {
-                  input[k] = input[k];
-                }
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
                 fieldgroup = vstr[j + 2];
                 if (fieldgroup[0] == '"' && fieldgroup[fieldgroup.length() - 1]
@@ -500,6 +497,21 @@ vector<miTime> FieldPlotManager::getFieldTime(
   }
   return fieldManager->getFieldTime(request, constTimes);
 }
+
+bool FieldPlotManager::addGridCollection(const miutil::miString fileType,
+    const miutil::miString& modelName,
+    const std::vector<miutil::miString>& filenames,
+    const std::vector<std::string>& format,
+    std::vector<std::string> config,
+    const std::vector<miutil::miString>& option)
+{
+
+
+  return fieldManager->addGridCollection(fileType, modelName, filenames,
+      format,config, option);
+
+}
+
 
 bool FieldPlotManager::makeFields(const miString& pin_const,
     const miTime& const_ptime, vector<Field*>& vfout, bool toCache)
@@ -925,6 +937,12 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
   }
 
 }
+
+std::string FieldPlotManager::getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour)
+{
+  return fieldManager->getBestReferenceTime(model, refOffset, refHour);
+}
+
 
 void FieldPlotManager::getAllFieldNames(vector<miString> & fieldNames,
     set<std::string>& fprefixes, set<std::string>& fsuffixes)

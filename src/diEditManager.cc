@@ -39,7 +39,7 @@
 #include <diEditManager.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
-#include <diField/diField.h>
+#include <diFieldPlotManager.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
@@ -57,8 +57,8 @@
 //#define DEBUGPRINT
 using namespace::miutil;
 
-EditManager::EditManager(PlotModule* pm, ObjectManager* om)
-: plotm(pm), objm(om), mapmode(normal_mode), edittool(0), editpause(false),
+EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
+: plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),
 combinematrix(0),numregs(0), hiddenObjects(false),
 hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
 {
@@ -161,6 +161,12 @@ bool EditManager::parseSetup() {
         ep.inputdirs.insert(ep.inputdirs.end(),
             values.begin(),values.end());
 
+      } else if (key=="input_field_format") {
+        ep.inputFieldFormat = values[0];
+
+      } else if (key=="input_field_config") {
+        ep.inputFieldConfig = values[0];
+
       } else if (key=="combine_input_dir") {
         ep.combinedirs.insert(ep.combinedirs.end(),
             values.begin(),values.end());
@@ -193,6 +199,8 @@ bool EditManager::parseSetup() {
               epf.maxValue= atof(vsub[1].c_str());
             } else if (vsub[0]=="tool") {
               epf.editTools= vsub[1].downcase().split('+',true);
+            } else if (vsub[0]=="unit") {
+              epf.unit= vsub[1];
             }
           }
         }
@@ -882,7 +890,7 @@ bool EditManager::notifyEditEvent(const EditEvent& ee){
   if (nf>0) return fedits[0]->notifyEditEvent(ee);
 
   // no objects, probably only setting static members (not often)
-  FieldEdit* fed= new FieldEdit;
+  FieldEdit* fed= new FieldEdit( fieldPlotManager );
   bool res= fed->notifyEditEvent(ee);
   delete fed;
 
@@ -1144,11 +1152,11 @@ bool EditManager::startEdit(const EditProduct& ep,
         vf=  plotm->vfp[i]->getFields();
         // for now, only accept scalar fields
         if (vf.size()==1 &&
-            vf[0]->text==EdProd.fields[j].fromfname) break;
+            vf[0]->fieldText==EdProd.fields[j].fromfname) break;
       }
       if (i==n) return false;
 
-      FieldEdit *fed= new FieldEdit();
+      FieldEdit *fed= new FieldEdit( fieldPlotManager );
       // spec. used when writing field
       fed->setSpec(EdProd, j);
       fed->setData(vf, fieldname, plotm->producttime);
@@ -1162,7 +1170,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
       //cerr << "filename for saved field file to open:" << filename << endl;
 
-      FieldEdit *fed= new FieldEdit;
+      FieldEdit *fed= new FieldEdit( fieldPlotManager );
       // spec. used when reading and writing field
       fed->setSpec(EdProd, j);
       if(!fed->readEditFieldFile(filename,fieldname,plotm->producttime))
@@ -1603,8 +1611,9 @@ vector<miString> EditManager::getValidEditFields(const EditProduct& ep,
     // for now, only accept scalar fields
     if (vf.size() == 1) {
       miString s= vf[0]->name.downcase();
-      if (s.find(fname)!=string::npos)
-        vstr.push_back(vf[0]->text);
+      if (s.find(fname)!=string::npos) {
+        vstr.push_back(vf[0]->fieldText);
+      }
     }
   }
 
@@ -1809,7 +1818,7 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
       while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
           combineprods[ipc].element!=j)) ipc++;
       if (ipc<ipcend) {
-        FieldEdit *fed= new FieldEdit;
+        FieldEdit *fed= new FieldEdit( fieldPlotManager );
         // spec. used when reading field
         fed->setSpec(EdProd, j);
         miString filename = combineprods[ipc].filename;
@@ -1849,7 +1858,7 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
 
   // init editfield(s)
   for (j=0; j<nf; j++) {
-    FieldEdit *fed= new FieldEdit;
+    FieldEdit *fed= new FieldEdit( fieldPlotManager );
     *(fed)= *(combinefields[j][0]);
     fed->setConstantValue(fieldUndef);
     fedits.push_back(fed);
