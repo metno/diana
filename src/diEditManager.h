@@ -50,6 +50,7 @@ using namespace std;
 
 class PlotModule;
 class ObjectManager;
+class FieldPlotManager;
 class Field;
 
 
@@ -64,6 +65,7 @@ class EditManager {
 private:
   PlotModule* plotm;
   ObjectManager* objm;
+  FieldPlotManager* fieldPlotManager;
 
   vector<FieldEdit*> fedits;
 
@@ -142,7 +144,7 @@ private:
   vector<editToolInfo> sigsymbols;
 
 public:
-  EditManager(PlotModule*, ObjectManager*);
+  EditManager(PlotModule*, ObjectManager*, FieldPlotManager*);
   ~EditManager();
 
   /// parse EDIT section of setup file. (defines Edit products)

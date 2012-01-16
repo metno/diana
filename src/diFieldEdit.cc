@@ -39,9 +39,10 @@
 #endif
 
 #include <diFieldEdit.h>
-#include <diField/diFortranUnit.h>
+#include <diField/diMetnoFieldFile.h>
 #include <diPlotModule.h>
-#include <milib/milib.h>
+#include <diFieldPlotManager.h>
+//#include <milib/milib.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -54,8 +55,8 @@ float    FieldEdit::def_ecellipse= 0.88;
 bool     FieldEdit::drawExtraLines= false;
 
 
-FieldEdit::FieldEdit()
-: workfield(0), editfield(0), editfieldplot(0),
+FieldEdit::FieldEdit(FieldPlotManager* fm)
+: fieldPlotManager(fm), workfield(0), editfield(0), editfieldplot(0),
 showNumbers(false), numbersDisplayed(false),
 specset(false),minValue(fieldUndef), maxValue(fieldUndef),
 lastFileWritten(""), numundo(0), active(false),
@@ -262,6 +263,10 @@ void FieldEdit::setSpec(const EditProduct& ep, int fnum) {
   minValue=     ep.fields[fnum].minValue;
   maxValue=     ep.fields[fnum].maxValue;
 
+  inputFieldFormat = ep.inputFieldFormat;
+  inputFieldConfig = ep.inputFieldConfig;
+  plotName = ep.fields[fnum].name;
+  fieldUnit = ep.fields[fnum].unit;
   specset= true;
 }
 
@@ -433,124 +438,58 @@ void FieldEdit::makeWorkfield()
   if (!workfield) workfield= editfield;
 }
 
-bool FieldEdit::readEditfield(const miString& filename)
+void FieldEdit::changeGrid()
 {
-  // read a DNMI field file
-
-  FortranUnit funit;
-
-  if (!funit.Lock()) {
-    cerr << "No available fortran file unitnumber" << endl;
-    return false;
+  int gridnum= metnoFieldFileIdentSpec[1];
+  miString demands= "fine.interpolation";
+  if (areaminimize) demands+= " minimize.area";
+  if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,gridnum)) {
+    cerr << "   specification/interpolation failure!!!!" << endl;
   }
-
-  bool found= false;
-
-  const int maxinh= 8;
-  short int inh[maxinh][16];
-  int   nfoundq, ifoundq[maxinh];
-  int   iunit, irequest, iexist, iend, ioerr;
-  int   ninh= maxinh;
-
-  int   mode  = 1;
-  int   ipack = 2;
-  float fscale= 1.0;
-  float fdum=   0.0;
-  short idfile[32];
-  int   ierror= 1;
-
-  // open the DNMI field file
-  mrfelt(mode,filename.c_str(),funit.Num(),&inh[0][0],ipack,1,&fdum,1.0,
-      32,idfile,&ierror);
-  if (ierror) {
-    cerr << "Something went wrong during opening.." << endl;
-    funit.Unlock();
-    return false;
-  }
-
-  // initialize qfelt (always smart...)
-  qfelt(0,0,0,ninh,&inh[0][0],ifoundq,&nfoundq,&iend,&ierror,&ioerr);
-
-  iunit=    funit.Num();
-  irequest= 11;
-  iexist  = 1;
-
-
-  for (int i=0; i<16; ++i) inh[0][i]=-32767;
-
-  // find existing fields
-  qfelt(iunit,irequest,iexist,ninh,&inh[0][0],ifoundq,&nfoundq,
-      &iend,&ierror,&ioerr);
-  if (ierror!=0) cerr << "QFELT ERROR,IOERROR: "
-  << ierror << " " << ioerr << endl;
-
-  for (int n=0; n<nfoundq; n++) {
-
-    bool read= true;
-    if (specset) {
-      read= (inh[n][10]==metnoFieldFileIdentSpec[4] &&
-          inh[n][11]==metnoFieldFileIdentSpec[5] &&
-          inh[n][12]==metnoFieldFileIdentSpec[6] &&
-          inh[n][13]==metnoFieldFileIdentSpec[7]);
-    }
-
-    if (read) {
-      mode=2;
-      int ldata=  ifoundq[n] + 20 + 100;
-      int lfield= ifoundq[n];
-      short int *idata= new short int[ldata];
-      float *field= new float[lfield];
-      mrfelt(mode,filename.c_str(),funit.Num(),&inh[n][0],
-          ipack,lfield,field,fscale,
-          ldata,idata,&ierror);
-      if (ierror) {
-        cerr << "Something went wrong during reading.." << endl;
-        delete[] field;
-      } else {
-        editfield= new Field;
-        editfield->data= field;
-        for (int i=0; i<20; i++) metnoFieldFileIdent[i]= idata[i];
-        float gspec[Projection::speclen];
-        int   gtype;
-        gridpar(+1,ldata,idata,&gtype,&nx,&ny,gspec,&ierror);
-        if (ierror) {
-          cerr << "FieldEdit::readEditfield GRIDPAR ERROR" << endl;
-          delete editfield;
-        } else {
-          Projection p;
-          double gridResolutionX;
-          double gridResolutionY;
-          p.set_mi_gridspec(gtype, gspec, gridResolutionX, gridResolutionY);
-          Rectangle r(0., 0.,
-              float(nx-1)*gridResolutionX,
-              float(ny-1)*gridResolutionY);
-          editfield->area.setP(p);
-          editfield->area.setR(r);
-          editfield->gridResolutionX = gridResolutionX;
-          editfield->gridResolutionY = gridResolutionY;
-          editfield->nx= nx;
-          editfield->ny= ny;
-          found= true;
-          int i=0;
-          while (i<nx*ny && editfield->data[i]!=fieldUndef) i++;
-          editfield->allDefined= (i==nx*ny);
-        }
-      }
-      delete[] idata;
-      if (found) break;
-    }
-  }
-
-  // close the DNMI field file
-  mode= 3;
-  mrfelt(mode,filename.c_str(),funit.Num(),&inh[0][0],ipack,1,&fdum,1.0,
-      1,idfile,&ierror);
-
-  funit.Unlock();
-
-  return found;
 }
 
+bool FieldEdit::readEditfield(const miString& filename,
+    const miString& fieldname)
+{
+
+  miutil::miString fileType = "fimex";
+  miutil::miString modelName = filename;
+  std::vector<miutil::miString> filenames;
+  filenames.push_back(filename);
+
+  std::vector<std::string> format;
+  if ( !inputFieldFormat.empty() ) {
+    format.push_back(inputFieldFormat);
+  } else {
+    format.push_back("felt");
+  }
+
+  std::vector<std::string> config;
+  if ( !inputFieldConfig.empty() ) {
+    config.push_back(inputFieldConfig);
+  }
+
+  std::vector<miutil::miString> option;
+
+  fieldPlotManager->addGridCollection(fileType, modelName, filenames,
+      format,config, option);
+
+  vector<FieldGroupInfo> fgi;
+  std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
+  fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
+  vector<Field*> vfout;
+  miString pin = "FIELD model=" + modelName + " plot=" + plotName;
+  if ( !fieldUnit.empty() ) {
+    pin +=  (" unit=" + fieldUnit);
+  }
+  if (fieldPlotManager->makeFields(pin, miTime(), vfout) && vfout.size() ) {
+    editfield = vfout[0];
+    return true;
+  }
+
+  return false;
+
+}
 
 void FieldEdit::setData(const vector<Field*>& vf,
     const miString& fieldname,
@@ -566,17 +505,11 @@ void FieldEdit::setData(const vector<Field*>& vf,
   *(editfield)= *(vf[0]);
 
   if (specset && metnoFieldFileIdentSpec[1]>0) {
-    int gridnum= metnoFieldFileIdentSpec[1];
-    miString demands= "fine.interpolation";
-    if (areaminimize) demands+= " minimize.area";
-    cerr << "Interpolation to analysis grid" << endl;
-    if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,gridnum))
-      cerr << "   specification/interpolation failure!!!!" << endl;
+    changeGrid();
   }
 
   prepareEditFieldPlot(fieldname,tprod);
 }
-
 
 void FieldEdit::setConstantValue(float value) {
 
@@ -596,12 +529,53 @@ bool FieldEdit::readEditFieldFile(const miString& filename,
 
   cleanup();
 
-  if (!readEditfield(filename)) {
+  if (!readEditfield(filename, fieldname)) {
     return false;
   }
 
+  changeGrid();
+
   return prepareEditFieldPlot(fieldname,tprod);
 
+}
+
+bool FieldEdit::writeEditField(const miString& filename)
+{
+
+  editfield->gridnum = metnoFieldFileIdentSpec[1];
+  editfield->dtype = metnoFieldFileIdentSpec[2];
+  editfield->forecastHour = metnoFieldFileIdentSpec[3];
+  editfield->vcoord = metnoFieldFileIdentSpec[4];
+  editfield->level = metnoFieldFileIdentSpec[6];
+  editfield->idnum = metnoFieldFileIdentSpec[7];
+  editfield->vcoord = metnoFieldFileIdentSpec[4];
+
+  FortranUnit funit;
+
+  //create file
+  if (filename != lastFileWritten) {
+    if (!MetnoFieldFile::createFile(editfield, 1, filename)) {
+      cerr << "Error creating file:" << filename << endl;
+      return false;
+    }
+    lastFileWritten= filename;
+  }
+
+
+  if (!MetnoFieldFile::openFile(filename,funit)) {
+    cerr << "Error opening file:" << filename << endl;
+    return false;
+  }
+  if ( !MetnoFieldFile::writeField(editfield,filename, funit,metnoFieldFileIdentSpec[5]) ) {
+      cerr << "Error writing file:" << filename << endl;
+      return false;
+    }
+  if (!MetnoFieldFile::closeFile(filename,funit)) {
+    cerr << "Error closing file:" << filename << endl;
+    return false;
+  }
+
+  return true;
 }
 
 bool FieldEdit::writeEditFieldFile(const miString& filename,
@@ -614,104 +588,17 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
   if (!editfield) return false;
   if (!editfield->data) return false;
 
-  //   cerr << "FieldEdit::writeEditFieldFile" << endl;
-  //   for ( int i=0; i<8; i++)
-  //     cerr << " metnoFieldFileIdentSpec[" << i << "]=" << metnoFieldFileIdentSpec[i] << endl;
-  //   for ( int i=0; i<20; i++)
-  //     cerr << " metnoFieldFileIdent[" << i << "]=" << metnoFieldFileIdent[i] << endl;
+  if ( !writeEditField(filename) ) return false;
 
-  // all gridspec may not be in ident... use area
-  Projection p= editfield->area.P();
-  float gspec[Projection::speclen];
-  p.metno_Gridspecstd(gspec);
-  int gtype= p.metno_Gridtype();
   nx= editfield->nx;
   ny= editfield->ny;
 
-  int ierror;
+//  int ierror;
   int ldata = 20 + nx*ny + 100;
   short int *idata= new short int[ldata];
 
   for (int i=0; i<20; i++) idata[i]= metnoFieldFileIdent[i];
 
-  gridpar(-1,ldata,idata,&gtype,&nx,&ny,gspec,&ierror);
-  if (ierror) {
-    cerr << "FieldEdit::writeEditFieldFile GRIDPAR ERROR" << endl;
-    delete[] idata;
-    return false;
-  }
-
-  // always creating a DNMI field file when writing the first time
-  // (avoiding misc. testing of possibly existing file and contents...
-  //  the file is meant to be in a portable transfer format)
-
-  FortranUnit funit;
-
-  if (!funit.Lock()) {
-    cerr << "No available unitnumber" << endl;
-    return false;
-  }
-
-  if (filename != lastFileWritten) {
-
-    int itype= 999;
-    int ltime= 5;
-    int itime[5];
-    itime[0]= editfield->validFieldTime.year();
-    itime[1]= editfield->validFieldTime.month();
-    itime[2]= editfield->validFieldTime.day();
-    itime[3]= editfield->validFieldTime.hour();
-    itime[4]= editfield->validFieldTime.min();
-    int icode= 0;
-    int lspec= 3;
-    short ispec[3];
-    ispec[0]= metnoFieldFileIdent[0];
-    ispec[1]= metnoFieldFileIdent[1];
-    ispec[2]= 1;
-    int lopt=1;
-    int iopt=0;
-
-    crefelt(filename.c_str(), funit.Num(), itype, ltime, itime,
-        icode, lspec, ispec, lopt, &iopt, &ierror);
-    if (ierror) {
-      cerr << "FieldEdit::writeEditFieldFile CREFELT ERROR" << endl;
-      delete[] idata;
-      funit.Unlock();
-      return false;
-    }
-  }
-
-  // use automatic (best) scaling unless discontinuous/classes
-  const PlotOptions poptions= editfieldplot->getPlotOptions();
-  discontinuous= poptions.discontinuous!=0;
-
-  if (discontinuous){
-    idata[19]= 0;
-  } else {
-    idata[19]= -32767;
-  }
-
-  int mode= 10;
-  int ipack= 2;
-  float fscale= 1.0;
-
-  mwfelt(mode, filename.c_str(), funit.Num(),
-      ipack, nx*ny, editfield->data, fscale,
-      ldata, idata, &ierror);
-  if (ierror) {
-    mode= 0; // now printing error message
-    mwfelt(mode, filename.c_str(), funit.Num(),
-        ipack, nx*ny, editfield->data, fscale,
-        ldata, idata, &ierror);
-    if (ierror) {
-      cerr << "FieldEdit::writeEditFieldFile MWFELT ERROR above" << endl;
-      delete[] idata;
-      funit.Unlock();
-      return false;
-    }
-  }
-
-  funit.Unlock();
 
   int n= undofields.size();
   for (int i=0; i<n; i++) {
@@ -731,10 +618,6 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
   } else {
     delete[] idata;
   }
-
-  lastFileWritten= filename;
-
-  cerr<<"Wrote field to file "<<filename<<endl;
 
   return true;
 }

@@ -76,6 +76,13 @@ public:
   bool makeFields(const miutil::miString& pin, const miutil::miTime& ptime,
       vector<Field*>& vfout,bool toCache = false);
 
+  bool addGridCollection(const miutil::miString fileType,
+      const miutil::miString& modelName,
+      const std::vector<miutil::miString>& filenames,
+      const std::vector<std::string>& format,
+      std::vector<std::string> config,
+      const std::vector<miutil::miString>& option);
+
   /// return available times for the requested models and fields
   void makeFieldText(Field* fout, const miutil::miString& plotName);
 
@@ -84,6 +91,9 @@ public:
   /// return all field groups for one model/file (to FieldDialog)
   void getFieldGroups(const miutil::miString& modelNameRequest,
       miutil::miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
+
+  ///return referencetime given by refoffset and refhour or last referencetime for given model
+  std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
 
   /// return available times for the selceted models and fields
   vector<miutil::miTime> getFieldTime(const vector<miutil::miString>& pinfos,

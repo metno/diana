@@ -71,7 +71,7 @@ Controller::Controller()
   plotm= new PlotModule();
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
-  editm= new EditManager(plotm,objm);
+  editm= new EditManager(plotm,objm,fieldplotm);
   aream = new GridAreaManager();
   paintModeEnabled = false;
   scrollwheelZoom = false;

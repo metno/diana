@@ -45,6 +45,8 @@
 
 using namespace std;
 
+class FieldPlotManager;
+
 /// info about influence of field edit operations
 struct FieldInfluence {
   float posx,posy;
@@ -94,6 +96,8 @@ private:
 
   Plot splot;         // keep a Plot superclass for static members
 
+  FieldPlotManager* fieldPlotManager;
+
   Field*     workfield;
   Field*     editfield;
   FieldPlot* editfieldplot;
@@ -108,6 +112,10 @@ private:
 
   bool areaminimize;
   float minValue,maxValue; // used if not fieldUndef
+  miutil::miString inputFieldFormat;
+  miutil::miString inputFieldConfig;
+  miutil::miString plotName;
+  miutil::miString fieldUnit;
 
   miutil::miString lastFileWritten;
 
@@ -152,6 +160,7 @@ private:
 
   void cleanup();
   void makeWorkfield();
+  void changeGrid();
 
   void setFieldInfluence(const FieldInfluence& fi, bool geo);
   FieldInfluence getFieldInfluence(bool geo);
@@ -185,7 +194,7 @@ private:
   void drawInfluence();
 
 public:
-  FieldEdit();
+  FieldEdit(FieldPlotManager* fieldPlotManager);
   ~FieldEdit();
   // Assignment operator
   FieldEdit& operator=(const FieldEdit &rhs);
@@ -207,10 +216,11 @@ public:
   bool readEditFieldFile(const miutil::miString& filename,
                          const miutil::miString& fieldname,
 			 const miutil::miTime& tprod);
-  bool readEditfield(const miutil::miString& filename);
+  bool readEditfield(const miutil::miString& filename,
+      const miutil::miString& fieldname);
   bool writeEditFieldFile(const miutil::miString& filename, bool returndata,
 			  short int** fdata, int& fdatalength);
-
+  bool writeEditField(const miutil::miString& filename);
   void activate();
   void deactivate() { active= false; };
   bool activated() { return active; }

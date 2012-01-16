@@ -102,6 +102,7 @@ struct EditProductField {
   int vcoord,param,level,level2;    ///< fieldfile identification
   float minValue,maxValue;          ///< check min,max value if not fieldUndef
   vector<miutil::miString> editTools;       ///< standard/classes/numbers
+  miutil::miString unit;             ///< parameter unit (hectopascal)
 };
 
 
@@ -120,6 +121,8 @@ struct EditProduct {
   // only used by EditManager
   miutil::miString savedir;                 ///< directory for saved product
   vector<miutil::miString> inputdirs;       ///< savedir is always the first ???
+  miutil::miString inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
+  miutil::miString inputFieldConfig;        ///< fimex xml-config
   vector<miutil::miString> inputproducts;   ///< products for input objects/fields
   vector<miutil::miString> combinedirs;     ///< directory for combined product
   miutil::miString combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
