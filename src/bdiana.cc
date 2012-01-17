@@ -2498,7 +2498,7 @@ int dispatchWork(const std::string &file);
  BDIANA - BATCH PRODUCTION OF DIANA GRAPHICAL PRODUCTS
  =================================================================
  */
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   diOrderBook *orderbook = NULL;
   miString xhost = ":0.0"; // default DISPLAY
@@ -2513,6 +2513,10 @@ int main(int argc, char** argv)
     xhost = ctmp;
   }
 
+  application = new QApplication(_argc, _argv);
+  QStringList argv = application->arguments();
+  int argc = argv.size();
+
   // check command line arguments
   if (argc < 2) {
     printUsage(false);
@@ -2521,26 +2525,26 @@ int main(int argc, char** argv)
   vector<miString> ks;
   int ac = 1;
   while (ac < argc) {
-    sarg = argv[ac];
+    sarg = argv[ac].toStdString();
 //    cerr << "Checking arg:" << sarg << endl;
 
     if (sarg == "-display") {
       ac++;
       if (ac >= argc)
         printUsage(false);
-      xhost = argv[ac];
+      xhost = argv[ac].toStdString();
 
     } else if (sarg == "-input" || sarg == "-i") {
       ac++;
       if (ac >= argc)
         printUsage(false);
-      batchinput = argv[ac];
+      batchinput = argv[ac].toStdString();
 
     } else if (sarg == "-setup" || sarg == "-s") {
       ac++;
       if (ac >= argc)
         printUsage(false);
-      setupfile = argv[ac];
+      setupfile = argv[ac].toStdString();
       setupfilegiven = true;
 
     } else if (sarg == "-v") {
@@ -2649,14 +2653,12 @@ int main(int argc, char** argv)
   // prepare font-pack for display
   FontManager::set_display_name(xhost);
 
-  application = new QApplication(argc, argv);
-
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
   plog = milogger::LogHandler::initLogHandler( 4, "" );
   plog->setObjectName("diana.bdiana.main");
-  COMMON_LOG::getInstance("common").infoStream() << argv[0] << " : DIANA batch version " << VERSION;
+  COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
 #ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
