@@ -2248,7 +2248,9 @@ int parseAndProcess(istream &is)
           qfbuffer = new QGLFramebufferObject(xsize, ysize);
           qfbuffer->bind();
           //qfbuffer->release();
-
+#else
+      } else if (canvasType == qt_qimage) {
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
 #endif
       }
       glShadeModel(GL_FLAT);
