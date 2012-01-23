@@ -328,8 +328,13 @@ void glClear(GLbitfield mask)
 {
     ENSURE_CTX
 
-    if (mask & GL_COLOR_BUFFER_BIT)
-        ctx->clear = true;
+    if (mask & GL_COLOR_BUFFER_BIT) {
+        if (ctx->isPainting())
+            ctx->painter->fillRect(0, 0, ctx->painter->device()->width(),
+                                         ctx->painter->device()->height(), ctx->clearColor);
+        else
+            ctx->clear = true;
+    }
 }
 
 void glClearStencil(GLint s)
@@ -897,6 +902,21 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 }
 
 
+
+bool glText::testDefineFonts(std::string path)
+{
+    return true;
+}
+
+bool glText::defineFonts(const std::string pattern, const std::string family, const std::string psname)
+{
+    return true;
+}
+
+bool glText::defineFont(const std::string, const std::string, const glText::FontFace, const int, const std::string, const float, const float)
+{
+    return true;
+}
 
 bool glText::set(const std::string name, const glText::FontFace face, const float size)
 {

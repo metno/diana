@@ -188,13 +188,13 @@ public:
     ~glText() {}
 
     // fill fontpack for testing
-    virtual bool testDefineFonts(std::string path = "fonts") { return true; }
+    virtual bool testDefineFonts(std::string path = "fonts");
     // define all fonts matching pattern with family, face and ps-equiv
     virtual bool defineFonts(const std::string pattern, const std::string family,
-        const std::string psname = "") { return true; }
+        const std::string psname = "");
     // define new font (family,name,face,size, ps-equiv, ps-xscale, ps-yscale)
     virtual bool defineFont(const std::string, const std::string, const glText::FontFace,
-        const int, const std::string = "", const float = 1.0, const float = 1.0) { return true; }
+        const int, const std::string = "", const float = 1.0, const float = 1.0);
     // choose font, size and face
     virtual bool set(const std::string, const glText::FontFace, const float);
     virtual bool setFont(const std::string);
