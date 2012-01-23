@@ -109,6 +109,9 @@ common_cxx_sources = \
 # Qt sources
 common_qt_sources =
 
+if BDIANA_ONLY
+diana_qt_sources =
+else
 diana_qt_sources = \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
@@ -165,6 +168,7 @@ diana_qt_sources = \
 	qtVprofWidget.cc \
 	qtVprofWindow.cc \
 	qtWorkArea.cc
+endif
 
 bdiana_qt_sources = \
 	diOrderBook.cc \

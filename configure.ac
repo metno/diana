@@ -119,9 +119,14 @@ AC_ARG_ENABLE([xlib],
 AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 
 AC_ARG_ENABLE([embedded],
-    [AS_HELP_STRING([--enable-embedded], [enable embedded usage (removes X and OpenGL dependencies])],
+    [AS_HELP_STRING([--enable-embedded], [enable embedded usage (removes X and OpenGL dependencies)])],
 	[], [enable_embedded=no])
 AM_CONDITIONAL([WITH_EMBEDDED], [test x$enable_embedded = xyes])
+
+AC_ARG_ENABLE([batch-only],
+    [AS_HELP_STRING([--enable-batch-only], [only compile the batch version of diana (bdiana)])],
+	[], [bdiana_only=no])
+AM_CONDITIONAL([BDIANA_ONLY], [test x$bdiana_only = xyes])
 
 #
 # metlibs
