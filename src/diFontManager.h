@@ -34,7 +34,7 @@
 #include <qglobal.h>
 
 #include <puTools/miString.h>
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <glText/glText.h>
 #else
 #include "PaintGL/paintgl.h"

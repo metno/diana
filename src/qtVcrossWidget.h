@@ -34,7 +34,7 @@
 #include <qglobal.h>
 
 #include <iostream>
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
 #else
 #include <GL/gl.h>
@@ -64,7 +64,7 @@ class VcrossWidget : public QGLWidget
   Q_OBJECT
 
 public:
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
     VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
                 QWidget* parent = 0 );
 #else
@@ -81,7 +81,7 @@ public:
   void startHardcopy(const printOptions& po);
   void endHardcopy();
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
   bool isValid() { return true; }
   void makeCurrent() {}
   void swapBuffers() {}

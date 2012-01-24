@@ -44,7 +44,7 @@
 #include <diField/diColour.h>
 #include <diContouring.h>
 #include <GL/gl.h>
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <glp/glpfile.h>
 #endif
 

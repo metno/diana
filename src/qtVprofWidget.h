@@ -39,7 +39,7 @@
 #include <puTools/miString.h>
 #include <map>
 
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
 #else
 #include "PaintGL/paintgl.h"
@@ -63,7 +63,7 @@ class VprofWidget : public QGLWidget
   Q_OBJECT
 
 public:
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   VprofWidget(VprofManager *vpm, const QGLFormat fmt,
              QWidget* parent = 0);
 #else
@@ -74,7 +74,7 @@ public:
   		       const miutil::miString format,
 		       const int quality = -1);
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
   bool isValid() { return true; }
   void makeCurrent() {}
   void swapBuffers() {}

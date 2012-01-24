@@ -43,7 +43,7 @@
 #include "qtGLwidget.h"
 #include "diController.h"
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 #include <QPrinter>
 #endif
 
@@ -59,7 +59,7 @@
 #include <paint_forbidden_crusor.xpm>
 
 // GLwidget constructor
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 GLwidget::GLwidget(Controller* c, const QGLFormat fmt, QWidget* parent) :
   QGLWidget(fmt, parent), curcursor(keep_it), contr(c), fbuffer(0)
 #else
@@ -458,7 +458,7 @@ void GLwidget::endHardcopy()
   contr->endHardcopy();
 }
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 void GLwidget::print(QPrinter* device)
 {
   makeCurrent();

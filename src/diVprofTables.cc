@@ -35,7 +35,7 @@
 
 #include <diVprofTables.h>
 #include <diLocalSetupParser.h>
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <glp/glpfile.h>
 #endif
 #include <iostream>

@@ -43,7 +43,7 @@
 #include "diVprofManager.h"
 
 
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
                         QWidget* parent)
     : QGLWidget( fmt, parent ), vprofm(vpm)

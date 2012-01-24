@@ -45,7 +45,7 @@
 #include "diVcrossPlot.h"
 
 
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
                          QWidget* parent)
     : QGLWidget( fmt, parent),

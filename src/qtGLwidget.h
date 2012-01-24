@@ -33,7 +33,7 @@
 
 #include <qglobal.h>
 
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
 #else
 #include <QWidget>
@@ -50,7 +50,7 @@
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 #include <GL/gl.h>
 #include "PaintGL/paintgl.h"
 #endif
@@ -58,7 +58,7 @@
 using namespace std;
 
 class Controller;
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 class PaintGLContext;
 class QPrinter;
 #define QGLWidget PaintGLWidget
@@ -77,7 +77,7 @@ class GLwidget : public QGLWidget {
   Q_OBJECT
 
 public:
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   GLwidget(Controller*, const QGLFormat,
            QWidget*);
 #else
@@ -98,7 +98,7 @@ public:
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
   void endHardcopy();
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
   /// Print the visible contents of the widget.
   void print(QPrinter* device);
 #endif

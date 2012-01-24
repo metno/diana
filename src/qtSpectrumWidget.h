@@ -36,7 +36,7 @@
 #include <puTools/miString.h>
 #include <map>
 
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
 #else
 #include "PaintGL/paintgl.h"
@@ -60,7 +60,7 @@ class SpectrumWidget : public QGLWidget
   Q_OBJECT
 
 public:
-#ifndef Q_WS_QWS
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
              QWidget* parent = 0);
 #else
