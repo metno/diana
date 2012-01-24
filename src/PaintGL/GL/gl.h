@@ -23,6 +23,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+  Note: This is only a subset of the original gl.h file.
+ */
+
 #ifndef __gl_h__
 #define __gl_h__
 

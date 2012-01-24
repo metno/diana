@@ -2515,7 +2515,11 @@ int main(int _argc, char** _argv)
     xhost = ctmp;
   }
 
+#if defined(Q_WS_QWS)
+  application = new QApplication(_argc, _argv, QApplication::GuiServer);
+#else
   application = new QApplication(_argc, _argv);
+#endif
   QStringList argv = application->arguments();
   int argc = argv.size();
 
