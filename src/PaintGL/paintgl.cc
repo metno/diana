@@ -65,6 +65,7 @@ void PaintGLContext::begin(QPainter *painter)
         clear = false;
     }
 
+    useTexture = false;
     blend = false;
     blendMode = QPainter::CompositionMode_Source;
     pointSize = 1.0;
@@ -211,7 +212,8 @@ void PaintGLContext::renderPrimitive()
     }
     case GL_QUADS:
         // qDebug() << "  GL_QUADS";
-        setPolygonColor(attributes.color);
+        if (!blend)
+            setPolygonColor(attributes.color);
         for (int i = 0; i < points.size() - 3; i += 4) {
             QPolygonF poly = QPolygonF(points.mid(i, 4));
             if (useTexture) {
@@ -226,6 +228,8 @@ void PaintGLContext::renderPrimitive()
                     painter->restore();
                 }
             } else {
+                if (blend)
+                    setPolygonColor(colors[i]);
                 painter->drawPolygon(poly);
             }
         }
