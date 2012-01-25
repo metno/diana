@@ -2,7 +2,11 @@
 
 include $(top_srcdir)/diana.mk
 
+if WITH_BATCH_ONLY
+bin_PROGRAMS = bdiana
+else
 bin_PROGRAMS = diana.bin bdiana 
+endif
 noinst_LIBRARIES = libdiana.a
 
 # automake requires one = before the first +=
@@ -109,7 +113,7 @@ common_cxx_sources = \
 # Qt sources
 common_qt_sources =
 
-if BDIANA_ONLY
+if WITH_BATCH_ONLY
 diana_qt_sources =
 else
 diana_qt_sources = \
@@ -328,7 +332,7 @@ noinst_HEADERS = \
 	qtVprofWidget.h \
 	qtVprofWindow.h \
 	qtWorkArea.h \
-    signalhelper.h
+        signalhelper.h
 
 # xpm files needed to build
 common_xpm_sources= active_object.xpm \

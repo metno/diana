@@ -125,8 +125,8 @@ AM_CONDITIONAL([WITH_EMBEDDED], [test x$enable_embedded = xyes])
 
 AC_ARG_ENABLE([batch-only],
     [AS_HELP_STRING([--enable-batch-only], [only compile the batch version of diana (bdiana)])],
-	[], [bdiana_only=no])
-AM_CONDITIONAL([BDIANA_ONLY], [test x$bdiana_only = xyes])
+        [], [enable_batch_only=no])
+AM_CONDITIONAL([WITH_BATCH_ONLY], [test x$enable_batch_only = xyes])
 
 #
 # metlibs
