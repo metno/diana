@@ -1213,6 +1213,13 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
 
 int parseAndProcess(istream &is)
 {
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      if (canvasType == qt_qimage) {
+        painter.begin(&picture);
+        context.begin(&painter);
+      }
+#endif
+
   // unpack loops, make lists, merge lines etc.
   int res = prepareInput(is);
   if (res != 0)
@@ -2713,11 +2720,6 @@ int main(int _argc, char** _argv)
       //qwidget->doneCurrent(); // Probably not needed qwidget is deleted furthher down in the code
 
     }
-  }
-#else
-  if (canvasType == qt_qimage) {
-    painter.begin(&picture);
-    context.begin(&painter);
   }
 #endif
 
