@@ -210,6 +210,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   QPushButton* sathide = NormalPushButton( tr("Hide"), this );
   QPushButton* satapplyhide = NormalPushButton( tr("Apply+hide"), this );
   QPushButton* satapply = NormalPushButton( tr("Apply"), this);
+  satapply->setDefault( true );
 
   connect(  sathelp, SIGNAL(clicked()), SLOT( helpClicked()));
   connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() ));

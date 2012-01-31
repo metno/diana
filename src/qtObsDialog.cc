@@ -127,6 +127,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   obshide = NormalPushButton( tr("Hide"), this);
   obsapplyhide = NormalPushButton( tr("Apply + Hide"), this );
   obsapply = NormalPushButton( tr("Apply"), this);
+  obsapply->setDefault( true );
 
   connect( multiplotButton,
       SIGNAL( toggled(bool)), SLOT( multiplotClicked( bool) ));

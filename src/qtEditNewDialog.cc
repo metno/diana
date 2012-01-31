@@ -210,6 +210,7 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
   // lower buttons
   QHBoxLayout* hlayout = new QHBoxLayout();
   ok= NormalPushButton( tr("OK"), this);
+  ok->setDefault( true );
 
   help = NormalPushButton(tr("Help"), this );
 

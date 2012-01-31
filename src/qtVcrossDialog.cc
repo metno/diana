@@ -392,6 +392,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // apply
   fieldapply = NormalPushButton( tr("Apply"), this );
+  fieldapply->setDefault( true );
   connect( fieldapply, SIGNAL(clicked()), SLOT( applyClicked()));
 
   // layout

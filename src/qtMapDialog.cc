@@ -489,6 +489,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   maphide = new QPushButton(tr("Hide"), this);
   maphelp = new QPushButton(tr("Help"), this);
 
+  mapapply->setDefault( true );
   savefavorite->setToolTip(tr("Save this layout as your favorite") );
   usefavorite->setToolTip(tr("Use saved favorite layout") );
 
