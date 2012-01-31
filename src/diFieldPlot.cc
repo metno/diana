@@ -1184,15 +1184,20 @@ bool FieldPlot::plotValue(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
-  int npos = nx*ny;
-  int ii = 0;
-  while ( ii < npos && (fabsf(field[ii]) == fieldUndef || fabsf(field[ii]) < 1 )) {
-    ++ii;
-  }
-  bool smallvalues = ( ii == npos);
+  bool smallvalues = false;
+  if ( poptions.precision == 0 ) {
+    int npos = nx*ny;
+    int ii = 0;
+    while ( ii < npos && (fabsf(field[ii]) == fieldUndef || fabsf(field[ii]) < 1 )) {
+      ++ii;
+    }
+    smallvalues = ( ii == npos);
 
-  if (smallvalues) {
-    xstep *= 2;
+    if (smallvalues) {
+      xstep *= 2;
+    }
+  } else {
+    xstep *= poptions.precision;
   }
 
   float gx,gy;
@@ -1241,7 +1246,7 @@ bool FieldPlot::plotValue(){
           ostr.precision(1);
         } else {
           ostr.setf(ios::fixed);
-          ostr.precision(0);
+          ostr.precision( poptions.precision );
         }
         ostr<<value;
         miString str= ostr.str();
@@ -4176,10 +4181,15 @@ bool FieldPlot::plotNumbers(){
   float gx,gy,w,h;
   float hh= chy*0.5;
   float ww= chx*0.5;
-  int iprec= -int(log10(fields[0]->storageScaling));
-  if (iprec<0) iprec=0;
+  int iprec= 0;
+  if ( poptions.precision > 0 ) {
+    iprec = poptions.precision;
+  } else {
+    iprec = -int(log10(fields[0]->storageScaling));
+    if (iprec<0) iprec=0;
+  }
   miString str;
-
+  
   glColor3ubv(poptions.linecolour.RGB());
 
   for (iy=iy1; iy<iy2; iy++) {
