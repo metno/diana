@@ -402,21 +402,25 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1006:
     {
-      int index = int(values[j]) / 1000 - 1;
-      for (int k = 0; k < 6; k++) {
-        d.id += cvals[index][k];
+      if (! landStation) {
+        int index = int(values[j]) / 1000 - 1;
+        for (int k = 0; k < 6; k++) {
+          d.id += cvals[index][k];
+        }
+        landStation = false;
       }
-      landStation = false;
     }
     break;
 
     case 1011:
     {
-      int index = int(values[j]) / 1000 - 1;
-      for (int k = 0; k < 5; k++) {
-        d.id += cvals[index][k];
+      if ( !landStation ) {
+        int index = int(values[j]) / 1000 - 1;
+        for (int k = 0; k < 7; k++) {
+          d.id += cvals[index][k];
+        }
+        landStation = false;
       }
-      landStation = false;
     }
     break;
 
@@ -1080,14 +1084,16 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     case 1011:
     case 1194:
     {
-      int index = int(values[j]) / 1000 - 1;
-      //miString station;
-      for (int k = 0; k < 6; k++) {
-        station+= cvals[index][k];
-      }
-      if (station.exists()) {
-        landStation = false;
-        nn += 2;
+      if ( !landStation ) {
+        int index = int(values[j]) / 1000 - 1;
+        //miString station;
+        for (int k = 0; k < 6; k++) {
+          station+= cvals[index][k];
+        }
+        if (station.exists()) {
+          landStation = false;
+          nn += 2;
+        }
       }
     }
     break;
@@ -1219,12 +1225,14 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         //   001007 SATELLITE IDENTIFIER [CODE TABLE]
       case 1007:
       {
-        int index = int(values[j]) / 1000 - 1;
-        for (int k = 0; k < 4; k++) {
-          d.id += cvals[index][k];
-        }
-        if (d.id.exists()) {
-          landStation = false;
+        if ( !landStation ) {
+          int index = int(values[j]) / 1000 - 1;
+          for (int k = 0; k < 4; k++) {
+            d.id += cvals[index][k];
+          }
+          if (d.id.exists()) {
+            landStation = false;
+          }
         }
       }
       break;
@@ -1232,12 +1240,14 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
       case 1011:
       {
-        int index = int(values[j]) / 1000 - 1;
-        for (int k = 0; k < 4; k++) {
-          d.id += cvals[index][k];
-        }
-        if (d.id.exists()) {
-          landStation = false;
+        if ( !landStation ) {
+          int index = int(values[j]) / 1000 - 1;
+          for (int k = 0; k < 4; k++) {
+            d.id += cvals[index][k];
+          }
+          if (d.id.exists()) {
+            landStation = false;
+          }
         }
       }
       break;
@@ -1524,24 +1534,26 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
       case 1194:
 
       {
-        station.clear();
-        int iindex = int(values[j]) / 1000 - 1;
-        for (int k = 0; k < 6; k++) {
-          station += cvals[iindex][k];
+        if ( !found ) {
+          station.clear();
+          int iindex = int(values[j]) / 1000 - 1;
+          for (int k = 0; k < 6; k++) {
+            station += cvals[iindex][k];
+          }
+          strStation.trim();
+          station.trim();
+          if( strStation != station ) {
+            return false;
+          }
+          if( index != ii){
+            ii++;
+            return false;
+          }
+          if(station.exists()){
+            ii=0;
+          }
+          found = true;
         }
-        strStation.trim();
-        station.trim();
-        if( strStation != station ) {
-          return false;
-        }
-        if( index != ii){
-          ii++;
-          return false;
-        }
-        if(station.exists()){
-          ii=0;
-        }
-        found = true;
       }
       break;
 
