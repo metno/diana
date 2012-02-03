@@ -188,6 +188,7 @@ bool LocalSetupParser::parseBasics(const miutil::miString& sectname){
       vector<miutil::miString> part = value.split(",");
       if(part.size()==3){
 #ifdef __WIN32__
+        //TODO: This is broken, disregards third argument (replace option)
 	miutil::miString envst = part[0] + "=" + part[1];
 	putenv(envst.cStr());
 #else
