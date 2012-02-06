@@ -50,12 +50,11 @@ xratio=0.2 yratio=0.45
 
 
 MAP area=SKVbrief_soer map=Gshhs-Auto contour=on cont.colour=grey40 cont.linewidth=1\
-cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0\
-latlon=on frame=off
+cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0
 MAP map=Riksgrense contour=on cont.colour=grey40 cont.linewidth=1\
 cont.linetype=solid cont.zorder=1 land=off\
-latlon=on latlon.colour=grey40 \
-latlon.linewidth=1 latlon.linetype=solid latlon.density=15 \
+latlon=on latlon.colour=grey90 \
+latlon.linewidth=1 latlon.linetype=solid latlon.density=10 \
 latlon.zorder=0 frame=on frame.colour=black frame.linewidth=1 \
 frame.linetype=solid frame.zorder=2
 
