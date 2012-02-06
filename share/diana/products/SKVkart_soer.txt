@@ -1,0 +1,70 @@
+LABEL \
+anno=<image=wwwmet7,size=0.5><horalign=center> \
+anno=<text="SKV-brief Sør"><horalign=center> \
+anno=<text="Low-Level"><horalign=center> \
+anno=<text=" ______________"><horalign=center> \
+anno=<text="VALID"><text=><input=" tid ",name=time><text="Z "><horalign=center> \
+anno=<text="%d %Beng %Y"><horalign=center> \
+anno=<text=" ",size=0.5><horalign=center> \
+plotrequested=true \
+tcolour=black bcolour=black fcolour=white polystyle=both \
+halign=left valign=top xoffset=0.00002 yoffset=0.00002 \
+font=Helvetica fontsize=10 \
+margin=0.001 xratio=0.25 yratio=0.45
+
+
+LABEL \
+anno=<text="Selection of symbols:",size=0.7,face=bold> \
+
+anno=\
+<text="   "><image=fog,size=0.05> \
+anno=<text="Widespread FG/FZFG",size=0.7> \
+
+anno=<text="   "><symbol=93,font=Symbol,size=1.0,tcolour=red> \
+anno=<text="Freezing RA/DZ",size=0.7> \
+
+anno=<text="   "><image=sea10,size=0.04> \
+anno=<text="Sea Temp C.",size=0.7> \
+
+anno=<text="   "><image=wind30,size=0.04> \
+anno=<text="Mean SFC wind KT",size=0.7> \
+
+anno=<text="   "><image=seastate10,size=0.06> \
+anno=<text="Sea state",size=0.7> \
+
+anno=<text="   "><symbol=106,font=Symbol,size=0.6,tcolour=black> \
+anno=<text=" Mountain Obscuration",size=0.7> \
+
+anno=<image=reducedVis,size=0.2> \
+anno=<text="  TCU/CB implies MOD/SEV ICE/TURB",size=0.7> \
+anno=<text="  Further information:",size=0.5> \
+anno=<text="  See ICAO anex III",size=0.5> \
+anno=<text="  ",size=0.5> \
+plotrequested=true \
+tcolour=black bcolour=black fcolour=white polystyle=both \
+halign=left \
+font=Helvetica fontsize=10 \
+valign=bottom xoffset=0.00001 yoffset=0.00001 margin=0.01 \
+xratio=0.2 yratio=0.45
+
+
+
+MAP area=SKVbrief_soer map=Gshhs-Auto contour=on cont.colour=grey40 cont.linewidth=1\
+cont.linetype=solid cont.zorder=1 land=on land.colour=landgul land.zorder=0\
+latlon=on frame=off
+MAP map=Riksgrense contour=on cont.colour=grey40 cont.linewidth=1\
+cont.linetype=solid cont.zorder=1 land=off\
+latlon=on latlon.colour=grey40 \
+latlon.linewidth=1 latlon.linetype=solid latlon.density=15 \
+latlon.zorder=0 frame=on frame.colour=black frame.linewidth=1 \
+frame.linetype=solid frame.zorder=2
+
+
+
+
+
+
+
+
+
+
