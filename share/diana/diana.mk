@@ -1,6 +1,7 @@
 productsdir= $(datarootdir)/$(APP)/products
 dist_products_DATA= share/diana/products/swikart.txt \
 	share/diana/products/SKVkart.txt \
+	share/diana/products/SKVkart_soer.txt \
 	share/diana/products/sigkart.txt \
 	share/diana/products/sigkarta_SodraFlyg.txt \
 	share/diana/products/sigkarta_SodraArlanda.txt \
