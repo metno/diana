@@ -205,6 +205,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //push button to apply the selected command
   QPushButton* objapply = NormalPushButton( tr("Apply"), this );
+  objapply->setDefault( true );
   connect(objapply, SIGNAL(clicked()), SIGNAL( ObjApply()) );
 
 

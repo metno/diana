@@ -211,6 +211,7 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   l->addWidget(plothidebut);
 
   QPushButton* plotbut= new QPushButton(tr("&Apply"), frame );
+  plotbut->setDefault( true );
   connect(plotbut, SIGNAL(clicked()),SLOT(plotButton()));
   l->addWidget(plotbut);
 
