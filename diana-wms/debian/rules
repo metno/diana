@@ -81,7 +81,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	# Add here commands to install the package into debian/diana
-	$(MAKE) DESTDIR=$(CURDIR)/debian/diana-test install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/diana-wms install
 
 
 # Build architecture-independent files here.
