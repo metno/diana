@@ -1215,6 +1215,11 @@ int parseAndProcess(istream &is)
 {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       if (canvasType == qt_qimage) {
+        if (context.isPainting())
+          context.end();
+        if (painter.isActive())
+          painter.end();
+
         painter.begin(&picture);
         context.begin(&painter);
       }

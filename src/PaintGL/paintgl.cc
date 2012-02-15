@@ -52,6 +52,11 @@ PaintGLContext::PaintGLContext()
 {
 }
 
+PaintGLContext::~PaintGLContext()
+{
+    ctx = 0;
+}
+
 void PaintGLContext::begin(QPainter *painter)
 {
     // Allow this context to be implicitly made current.

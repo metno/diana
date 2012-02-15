@@ -36,6 +36,7 @@ struct RenderItem {
 class PaintGLContext {
 public:
     PaintGLContext();
+    virtual ~PaintGLContext();
 
     void begin(QPainter *painter);
     bool isPainting() const;
