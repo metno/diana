@@ -33,6 +33,9 @@ endif
 # Tell the configure script where the metlibs libraries are for this kind of build.
 confflags += PKG_CONFIG_PATH=/usr/share/metno-diana/lib/pkgconfig
 
+# Ensure that the executable searches for libraries under the /usr/share/metno-diana prefix.
+confflags += LDFLAGS="-Wl,-rpath=/usr/share/metno-diana/lib"
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
@@ -42,6 +45,7 @@ configure-stamp:
 	    --enable-obs-bufr \
 	    --enable-proddb \
 	    --enable-geotiff \
+	    --with-emos=/usr/share/metno-diana \
 	    --with-qt4=/usr/share/metno-diana \
 	    --with-qt4-includedir=/usr/share/metno-diana/include \
 	    --with-qt4-libdir=/usr/share/metno-diana/lib \
