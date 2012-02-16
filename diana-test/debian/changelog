@@ -1,3 +1,42 @@
+diana-test (3.27.2-ubuntu1) lucid; urgency=low
+
+  * Observations bugfix: bufr decoding
+  * Profet bugfix: Removing nearby points when drawing polygons 
+  * Using metlibs_trunk
+  * Using libfimex-0.35
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Feb 2012 12:34:59 +0100
+
+diana-test (3.27.1-ubuntu1) lucid; urgency=low
+
+  * Do not put computed fields in fieldCache
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 10 Feb 2012 14:35:17 +0100
+
+diana-test (3.27.0-ubuntu5) lucid; urgency=low
+
+  * Fields: new PlotOptions - precision
+  * Bugfix: CDM with several axes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 31 Jan 2012 20:12:34 +0100
+
+diana-test (3.27.0-ubuntu4) lucid; urgency=low
+
+  * Minor bugfixes
+  * Using metlibs_4.3
+  * Using libfimex-0.35
+
+ -- Lisbeth Bergholt <lisbethb@emet.no>  Tue, 10 Jan 2012 14:01:59 +0100
+
+diana-test (3.27.0-ubuntu3) lucid; urgency=low
+
+  * Using WDB/fimex
+  * Reading from KDVH
+  * Using metlibs_4.3
+  * Using libfimex-0.34  
+
+ -- Lisbeth Bergholt <lisbethb@.met.no>  Thu, 08 Dec 2011 14:38:58 +0100
+
 diana-test (3.27.0-ubuntu2) lucid; urgency=low
 
   * Testing wdb/fimex
