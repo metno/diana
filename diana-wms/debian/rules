@@ -45,7 +45,6 @@ configure-stamp:
 	    --enable-obs-bufr \
 	    --enable-proddb \
 	    --enable-geotiff \
-	    --with-emos=/usr/share/metno-diana \
 	    --with-qt4=/usr/share/metno-diana \
 	    --with-qt4-includedir=/usr/share/metno-diana/include \
 	    --with-qt4-libdir=/usr/share/metno-diana/lib \
