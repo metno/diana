@@ -51,6 +51,7 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QLineEdit>
 
 #include "qtFieldDialog.h"
 #include "qtUtility.h"
@@ -67,7 +68,7 @@
 #include "down20x20.xpm"
 #include "up12x12.xpm"
 #include "down12x12.xpm"
-#include "minus12x12.xpm"
+//#include "minus12x12.xpm"
 
 //#define DEBUGPRINT
 
@@ -336,7 +337,7 @@ nr_linewidths = 12;
   idnumLabel->setLineWidth(2);
   idnumLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-  idnumSlider = new QSlider(Qt::Horizontal, this);
+  idnumSlider = new QSlider(Qt::Vertical, this);
   idnumSlider->setMinimum(0);
   idnumSlider->setMaximum(1);
   idnumSlider->setPageStep(1);
@@ -352,13 +353,18 @@ nr_linewidths = 12;
   // sliderlabel
   QLabel *idnumsliderlabel = new QLabel(tr("Type"), this);
 
-  // deleteSelected
-  Delete = NormalPushButton(tr("Delete"), this);
-  connect(Delete, SIGNAL(clicked()), SLOT(deleteSelected()));
+  QLabel* unitlabel = new QLabel(tr("Unit"), this);
+  unitLineEdit = new QLineEdit(this);
+  connect( unitLineEdit, SIGNAL( returnPressed() ),
+      SLOT( unitEditingFinished() ) );
 
   // copyField
   copyField = NormalPushButton(tr("Copy"), this);
   connect(copyField, SIGNAL(clicked()), SLOT(copySelectedField()));
+
+  // deleteSelected
+  deleteButton = NormalPushButton(tr("Delete"), this);
+  connect(deleteButton, SIGNAL(clicked()), SLOT(deleteSelected()));
 
   // deleteAll
   deleteAll = NormalPushButton(tr("Delete all"), this);
@@ -374,17 +380,20 @@ nr_linewidths = 12;
   // historyBack
   historyBackButton = new QPushButton(QPixmap(up20x20_xpm), "", this);
   historyBackButton->setMaximumSize(width,height);
+  historyBackButton->hide();
   connect(historyBackButton, SIGNAL(clicked()), SLOT(historyBack()));
 
   // historyForward
   historyForwardButton = new QPushButton(QPixmap(down20x20_xpm), "", this);
   historyForwardButton->setMaximumSize(width,height);
+  historyForwardButton->hide();
   connect(historyForwardButton, SIGNAL(clicked()), SLOT(historyForward()));
 
   // historyOk
   historyOkButton = NormalPushButton("OK", this);
   historyOkButton->setMaximumSize(width*2,height);
   historyOkButton->setEnabled( false );
+  historyOkButton->hide();
   connect(historyOkButton, SIGNAL(clicked()), SLOT(historyOk()));
 
   // upField
@@ -398,13 +407,11 @@ nr_linewidths = 12;
   connect(downFieldButton, SIGNAL(clicked()), SLOT(downField()));
 
   // resetOptions
-  resetOptionsButton = NormalPushButton(tr("R"), this);
-  resetOptionsButton->setMaximumSize(width,height);
+  resetOptionsButton = NormalPushButton(tr("Default"), this);
   connect(resetOptionsButton, SIGNAL(clicked()), SLOT(resetOptions()));
 
   // minus
-  minusButton = new ToggleButton(this, QPixmap(minus12x12_xpm));
-  minusButton->setMaximumSize(width,height);
+  minusButton = new ToggleButton(this, "Minus");
   connect( minusButton, SIGNAL(toggled(bool)), SLOT(minusField(bool)));
 
   // plottype
@@ -479,6 +486,7 @@ nr_linewidths = 12;
 
   // apply
   fieldapply = NormalPushButton(tr("Apply"), this);
+  fieldapply->setDefault( true );
   connect(fieldapply, SIGNAL(clicked()), SLOT(applyClicked()));
 
   // layout
@@ -501,52 +509,54 @@ nr_linewidths = 12;
   v1layout->addWidget(selectedFieldlabel);
   v1layout->addWidget(selectedFieldbox, 2);
 
-  QVBoxLayout* h2layout = new QVBoxLayout();
-  h2layout->addWidget(upFieldButton);
-  h2layout->addWidget(downFieldButton);
-  h2layout->addWidget(resetOptionsButton);
-  h2layout->addWidget(minusButton);
-  h2layout->addStretch(1);
+//  QVBoxLayout* h2layout = new QVBoxLayout();
+//  h2layout->addStretch(1);
 
   QHBoxLayout* v1h4layout = new QHBoxLayout();
-  v1h4layout->addWidget(Delete);
+  v1h4layout->addWidget(upFieldButton);
+  v1h4layout->addWidget(deleteButton);
+  v1h4layout->addWidget(minusButton);
   v1h4layout->addWidget(copyField);
 
   QHBoxLayout* vxh4layout = new QHBoxLayout();
+  vxh4layout->addWidget(downFieldButton);
   vxh4layout->addWidget(deleteAll);
+  vxh4layout->addWidget(resetOptionsButton);
   vxh4layout->addWidget(changeModelButton);
 
   QVBoxLayout* v3layout = new QVBoxLayout();
   v3layout->addLayout(v1h4layout);
   v3layout->addLayout(vxh4layout);
 
-  QHBoxLayout* v1h5layout = new QHBoxLayout();
-  v1h5layout->addWidget(historyBackButton);
-  v1h5layout->addWidget(historyForwardButton);
-
-  QVBoxLayout* v4layout = new QVBoxLayout();
-  v4layout->addLayout(v1h5layout);
-  v4layout->addWidget(historyOkButton, 1);
+//  QHBoxLayout* v1h5layout = new QHBoxLayout();
+//  v1h5layout->addWidget(historyBackButton);
+//  v1h5layout->addWidget(historyForwardButton);
+//
+//  QVBoxLayout* v4layout = new QVBoxLayout();
+//  v4layout->addLayout(v1h5layout);
+//  v4layout->addWidget(historyOkButton, 1);
 
   QHBoxLayout* h3layout = new QHBoxLayout();
   h3layout->addLayout(v3layout);
-  h3layout->addLayout(v4layout);
+//  h3layout->addLayout(v4layout);
 
   QGridLayout* optlayout = new QGridLayout();
-  optlayout->addWidget(plottypelabel, 0, 0);
-  optlayout->addWidget(plottypeComboBox, 0, 1);
-  optlayout->addWidget(colorlabel, 1, 0);
-  optlayout->addWidget(colorCbox, 1, 1);
-  optlayout->addWidget(linewidthlabel, 2, 0);
-  optlayout->addWidget(lineWidthCbox, 2, 1);
-  optlayout->addWidget(linetypelabel, 3, 0);
-  optlayout->addWidget(lineTypeCbox, 3, 1);
-  optlayout->addWidget(lineintervallabel, 4, 0);
-  optlayout->addWidget(lineintervalCbox, 4, 1);
-  optlayout->addWidget(densitylabel, 5, 0);
-  optlayout->addWidget(densityCbox, 5, 1);
-  optlayout->addWidget(vectorunitlabel, 6, 0);
-  optlayout->addWidget(vectorunitCbox, 6, 1);
+  optlayout->addWidget(unitlabel, 0, 0);
+  optlayout->addWidget(unitLineEdit, 0, 1);
+  optlayout->addWidget(plottypelabel, 1, 0);
+  optlayout->addWidget(plottypeComboBox, 1, 1);
+  optlayout->addWidget(colorlabel, 2, 0);
+  optlayout->addWidget(colorCbox, 2, 1);
+  optlayout->addWidget(linewidthlabel, 3, 0);
+  optlayout->addWidget(lineWidthCbox, 3, 1);
+  optlayout->addWidget(linetypelabel, 4, 0);
+  optlayout->addWidget(lineTypeCbox, 4, 1);
+  optlayout->addWidget(lineintervallabel, 5, 0);
+  optlayout->addWidget(lineintervalCbox, 5, 1);
+  optlayout->addWidget(densitylabel, 6, 0);
+  optlayout->addWidget(densityCbox, 6, 1);
+  optlayout->addWidget(vectorunitlabel, 7, 0);
+  optlayout->addWidget(vectorunitCbox, 7, 1);
 
   QHBoxLayout* levelsliderlayout = new QHBoxLayout();
   levelsliderlayout->setAlignment(Qt::AlignHCenter);
@@ -561,15 +571,24 @@ nr_linewidths = 12;
   levellayout->addLayout(levelsliderlayout);
   levellayout->addLayout(levelsliderlabellayout);
 
+  QHBoxLayout* idnumsliderlayout = new QHBoxLayout();
+  idnumsliderlayout->setAlignment(Qt::AlignHCenter);
+  idnumsliderlayout->addWidget(idnumSlider);
+
+  QHBoxLayout* idnumsliderlabellayout = new QHBoxLayout();
+  idnumsliderlabellayout->setAlignment(Qt::AlignHCenter);
+  idnumsliderlabellayout->addWidget(idnumsliderlabel);
+
+  QVBoxLayout* idnumlayout = new QVBoxLayout();
+  idnumlayout->addWidget(idnumLabel);
+  idnumlayout->addLayout(idnumsliderlayout);
+  idnumlayout->addLayout(idnumsliderlabellayout);
+
   QHBoxLayout* h4layout = new QHBoxLayout();
-  h4layout->addLayout(h2layout);
+  //h4layout->addLayout(h2layout);
   h4layout->addLayout(optlayout);
   h4layout->addLayout(levellayout);
-
-  QHBoxLayout* idnumlayout = new QHBoxLayout();
-  idnumlayout->addWidget(idnumLabel);
-  idnumlayout->addWidget(idnumSlider);
-  idnumlayout->addWidget(idnumsliderlabel);
+  h4layout->addLayout(idnumlayout);
 
   QHBoxLayout* h5layout = new QHBoxLayout();
   h5layout->addWidget(fieldhelp);
@@ -590,7 +609,6 @@ nr_linewidths = 12;
   vlayout->addLayout(v1layout);
   vlayout->addLayout(h3layout);
   vlayout->addLayout(h4layout);
-  vlayout->addLayout(idnumlayout);
   vlayout->addLayout(v6layout);
 
   vlayout->activate();
@@ -617,7 +635,7 @@ void FieldDialog::toolTips()
   fieldGroupCheckBox->setToolTip(tr("Show predefined plots or all parameters from file"));
   upFieldButton->setToolTip(tr("move selected field up"));
   downFieldButton->setToolTip(tr("move selected field down"));
-  Delete->setToolTip(tr("delete selected field"));
+  deleteButton->setToolTip(tr("delete selected field"));
   deleteAll->setToolTip(tr("delete all selected fields"));
   copyField->setToolTip(tr("copy field"));
   resetOptionsButton->setToolTip(tr("reset plot options"));
@@ -627,10 +645,12 @@ void FieldDialog::toolTips()
   historyForwardButton->setToolTip(tr("history forward"));
   historyOkButton->setToolTip(tr("use history shown"));
   allTimeStepButton->setToolTip(tr("all time steps / only common time steps"));
-  valueLabelCheckBox->setToolTip(tr("numbers on the contour lines"));
 
   gridValueCheckBox->setToolTip(tr(
       "Grid values->setToolTip( but only when a few grid points are visible"));
+  valueLabelCheckBox->setToolTip(tr("numbers on the contour lines"));
+  labelSizeSpinBox->setToolTip(tr("Size of numbers on the countour lines and size of values in the plot type \"value\""));
+  valuePrecisionBox->setToolTip(tr("Value precision, used in the plot type \"value\""));
   gridLinesSpinBox->setToolTip(tr("Grid lines, 1=all"));
   undefColourCbox->setToolTip(tr("Undef colour"));
   undefLinewidthCbox->setToolTip(tr("Undef linewidth"));
@@ -722,6 +742,14 @@ void FieldDialog::CreateAdvanced()
   labelSizeSpinBox->setValue(100);
   connect( labelSizeSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( labelSizeChanged(int) ) );
+
+  valuePrecisionBox = new QComboBox(advFrame);
+  valuePrecisionBox->addItem("0");
+  valuePrecisionBox->addItem("1");
+  valuePrecisionBox->addItem("2");
+  valuePrecisionBox->addItem("3");
+  connect( valuePrecisionBox, SIGNAL( activated(int) ),
+      SLOT( valuePrecisionBoxActivated(int) ) );
 
   // grid values
   gridValueCheckBox = new QCheckBox(QString(tr("Grid value")), advFrame);
@@ -1015,6 +1043,7 @@ void FieldDialog::CreateAdvanced()
   line++;
   advLayout->addWidget(valueLabelCheckBox, line, 0 );
   advLayout->addWidget(labelSizeSpinBox, line, 1 );
+  advLayout->addWidget(valuePrecisionBox, line, 2 );
   line++;
   advLayout->setRowStretch(line,5);;
   advLayout->addWidget(line2, line,0, 1,3 );
@@ -1230,7 +1259,8 @@ void FieldDialog::updateFieldGroups()
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
   miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
 
-  getFieldGroups(model, refTimeComboBox->currentText().toStdString(), indexMGR, indexM, vfgi);
+  getFieldGroups(model, refTimeComboBox->currentText().toStdString(), indexMGR, indexM,
+      fieldGroupCheckBox->isChecked(), vfgi);
 
   int nvfgi = vfgi.size();
 
@@ -1691,8 +1721,11 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.zaxis = vfgi[indexFGR].zaxis;
       sf.extraaxis = vfgi[indexFGR].extraaxis;
       sf.grid = vfgi[indexFGR].grid;
+      if ( int(vfgi[indexFGR].units.size()) > indexF ) {
+        sf.unit = vfgi[indexFGR].units[indexF];
+      }
       sf.cdmSyntax = vfgi[indexFGR].cdmSyntax;
-      sf.plotDefinition = vfgi[indexFGR].plotDefinitions;
+      sf.plotDefinition = fieldGroupCheckBox->isChecked();
       sf.minus = false;
 
       if (!vfgi[indexFGR].defaultLevel.empty()) {
@@ -1822,7 +1855,7 @@ void FieldDialog::enableFieldOptions()
 
   if (selectedFields[index].inEdit) {
     changeModelButton->setEnabled(false);
-    Delete->setEnabled(false);
+    deleteButton->setEnabled(false);
     copyField->setEnabled(false);
   } else {
     upFieldButton->setEnabled((index > numEditFields));
@@ -1834,7 +1867,7 @@ void FieldDialog::enableFieldOptions()
       changeModelButton->setEnabled(false);
     else
       changeModelButton->setEnabled(true);
-    Delete->setEnabled(true);
+    deleteButton->setEnabled(true);
     copyField->setEnabled(true);
   }
 
@@ -1919,6 +1952,16 @@ void FieldDialog::enableFieldOptions()
   int nr_colors = colourInfo.size();
   int nr_linetypes = linetypes.size();
   enableWidgets("contour");
+
+  //unit
+  if ((nc = cp->findKey(vpcopt, "unit")) >= 0) {
+    updateFieldOptions("unit", vpcopt[nc].allValue, -1);
+    cerr <<"UNIT LINEEDIT:"<<vpcopt[nc].allValue<<endl;
+    unitLineEdit->setText(vpcopt[nc].allValue.c_str());
+  } else {
+    updateFieldOptions("unit", "remove");
+    unitLineEdit->clear();
+  }
 
   //dimension (1dim = contour,..., 2dim=wind,...)
     if ((nc = cp->findKey(vpcopt, "dim")) >= 0) {
@@ -2278,6 +2321,14 @@ void FieldDialog::enableFieldOptions()
     labelSizeSpinBox->setEnabled(false);
   }
 
+  if ((nc = cp->findKey(vpcopt, "precision")) >= 0) {
+    if (!vpcopt[nc].floatValue.empty() && vpcopt[nc].floatValue[0] < valuePrecisionBox->count() ) {
+      valuePrecisionBox->setCurrentIndex(vpcopt[nc].floatValue[0]);
+    } else {
+      valuePrecisionBox->setCurrentIndex(0);
+    }
+  }
+
   nc = cp->findKey(vpcopt, "grid.value");
   if (nc >= 0) {
     if (vpcopt[nc].allValue == "-1") {
@@ -2435,7 +2486,7 @@ void FieldDialog::setDefaultFieldOptions()
 
   currentFieldOpts.clear();
 
-  Delete->setEnabled( false );
+  deleteButton->setEnabled( false );
   deleteAll->setEnabled( false );
   copyField->setEnabled( false );
   changeModelButton->setEnabled( false );
@@ -2444,6 +2495,7 @@ void FieldDialog::setDefaultFieldOptions()
   resetOptionsButton->setEnabled( false );
   minusButton->setEnabled( false );
 
+  unitLineEdit->clear();
   plottypeComboBox->setCurrentIndex(0);
   colorCbox->setCurrentIndex(1);
   fieldSmoothSpinBox->setValue(0);
@@ -2487,6 +2539,7 @@ void FieldDialog::setDefaultFieldOptions()
 
   lineWidthCbox->setCurrentIndex(0);
   labelSizeSpinBox->setValue(0);
+  valuePrecisionBox->setCurrentIndex(0);
 
   densityCbox->setCurrentIndex(0);
 
@@ -2523,6 +2576,7 @@ void FieldDialog::enableWidgets(miutil::miString plottype)
   bool enable = (plottype != "none");
 
   //used for all plottypes
+  unitLineEdit->setEnabled(enable);
   plottypeComboBox->setEnabled(enable);
   colorCbox->setEnabled(enable);
   fieldSmoothSpinBox->setEnabled(enable);
@@ -2577,6 +2631,7 @@ void FieldDialog::enableWidgets(miutil::miString plottype)
 
   enable = enableMap[plottype].fontWidgets;
   labelSizeSpinBox->setEnabled(enable);
+  valuePrecisionBox->setEnabled(enable);
 
   enable = enableMap[plottype].densityWidgets;
   densityCbox->setEnabled(enable);
@@ -2707,6 +2762,11 @@ void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
   return;
 }
 
+void FieldDialog::unitEditingFinished()
+{
+  updateFieldOptions("unit", unitLineEdit->text().toStdString());
+}
+
 void FieldDialog::plottypeComboBoxActivated(int index)
 {
   updateFieldOptions("plottype", plottypes[index]);
@@ -2793,6 +2853,13 @@ void FieldDialog::labelSizeChanged(int value)
   miutil::miString str = miutil::miString(float(value) * 0.01);
   updateFieldOptions("label.size", str);
 }
+
+void FieldDialog::valuePrecisionBoxActivated( int index )
+{
+  miutil::miString str = miutil::miString(index);
+  updateFieldOptions("precision", str);
+}
+
 
 void FieldDialog::gridValueCheckBoxToggled(bool on)
 {
@@ -3174,7 +3241,7 @@ void FieldDialog::updateFieldOptions(const miutil::miString& name,
 }
 
 void FieldDialog::getFieldGroups(const miutil::miString& model, const std::string& refTime, int& indexMGR,
-    int& indexM, vector<FieldGroupInfo>& vfg)
+    int& indexM, bool plotOptions, vector<FieldGroupInfo>& vfg)
 {
 
 
@@ -3182,7 +3249,7 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, const std::strin
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  m_ctrl->getFieldGroups(model, modelName, refTime, fieldGroupCheckBox->isChecked(), vfg);
+  m_ctrl->getFieldGroups(model, modelName, refTime, plotOptions, vfg);
 
   QApplication::restoreOverrideCursor();
 
@@ -3811,8 +3878,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
           if ( selectedFields[i].cdmSyntax ) {
             if ( selectedFields[i].zaxis != vfgi[indexFGR].zaxis
                 || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis
-                || selectedFields[i].grid != vfgi[indexFGR].grid
-                || selectedFields[i].plotDefinition != vfgi[indexFGR].plotDefinitions) {
+                || selectedFields[i].grid != vfgi[indexFGR].grid ) {
               groupOK = false;
             }
           } else { //old syntax
@@ -3944,7 +4010,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
   //find index of modelgroup and model. Keep name of model and reuse info if same model
   int indexMGR = -1;
   int indexM = -1;
-  getFieldGroups(sf.modelName, sf.refTime, indexMGR, indexM, vfg);
+  getFieldGroups(sf.modelName, sf.refTime, indexMGR, indexM, sf.plotDefinition, vfg);
 
   //find index of fieldgroup and field
   bool fieldFound = false;
@@ -3954,8 +4020,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
 //         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis<<endl;
     if (sf.zaxis == vfg[indexFGR].zaxis
         && sf.extraaxis == vfg[indexFGR].extraaxis
-        && sf.grid == vfg[indexFGR].grid
-        && sf.plotDefinition == vfg[indexFGR].plotDefinitions) {
+        && sf.grid == vfg[indexFGR].grid ) {
       int m = vfg[indexFGR].fieldNames.size();
       int indexF = 0;
       while (indexF < m && vfg[indexFGR].fieldNames[indexF] != sf.fieldName){
@@ -4052,7 +4117,7 @@ bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, S
 
 //  if (model != vfg2_model) {
     indexMGR = indexM = -1;
-    getFieldGroups(model, "",indexMGR, indexM, vfg2);
+    getFieldGroups(model, "",indexMGR, indexM, true, vfg2);
 //    vfg2_model = model;
     nvfg = vfg2.size();
 //  }
@@ -4794,7 +4859,7 @@ void FieldDialog::changeModel()
         selectedFields[i].extraaxis = vfgi[indexFGR].extraaxis;
         selectedFields[i].grid = vfgi[indexFGR].grid;
         selectedFields[i].cdmSyntax = vfgi[indexFGR].cdmSyntax;
-        selectedFields[i].plotDefinition = vfgi[indexFGR].plotDefinitions;
+        selectedFields[i].plotDefinition = fieldGroupCheckBox->isChecked();
 
         miutil::miString str = selectedFields[i].modelName + " "
             + selectedFields[i].fieldName;
@@ -5162,29 +5227,45 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
     int indrm = -1;
     SelectedField sf;
 
-    for (  i = 0; i< selectedFieldbox->count(); ++i ) {
-      if( miutil::miString(selectedFieldbox->currentItem()->text().toStdString()) == str ) {
-        sf = selectedFields[i];
-        indrm = i;
-        found = true;
-        break;
+    vector<miutil::miString> vstr = str.split(' ');
+
+    if (vstr.size() == 1) {
+      // In original edit, str=fieldName if the field is not already read
+      sf.fieldName = vstr[0];
+    } else {
+      bool allTimeSteps;
+      bool decodeOK = false;
+      sf.cdmSyntax = str.contains("model=");
+      if ( sf.cdmSyntax ) {
+        decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
+      } else {
+        decodeOK = decodeString_oldSyntax(str, sf, allTimeSteps);
+      }
+      if (decodeOK) {
+        // new edit field
+        for (i = 0; i < n; i++) {
+          if (!selectedFields[i].inEdit) {
+            if (selectedFields[i].modelName == sf.modelName
+                && selectedFields[i].fieldName == sf.fieldName
+                && selectedFields[i].refTime == sf.refTime)
+              break;
+          }
+        }
+        if (i < n) {
+          sf = selectedFields[i];
+          indrm = i;
+          found = true;
+        }
       }
     }
 
-    vector<miutil::miString> vstr = str.split(' ');
-    if (vstr.size() == 1 || !found) {
-      // open/combine edit field
-      if (vstr.size() == 1) {
-        sf.fieldName = vstr[0];
-      }
-      map<miutil::miString, miutil::miString>::const_iterator pfo;
-      if ((pfo = editFieldOptions.find(sf.fieldName))
-          != editFieldOptions.end()) {
-        sf.fieldOpts = pfo->second;
-      } else if ((pfo = fieldOptions.find(sf.fieldName))
-          != fieldOptions.end()) {
-        sf.fieldOpts = pfo->second;
-      }
+    map<miutil::miString, miutil::miString>::const_iterator pfo;
+    if ((pfo = editFieldOptions.find(sf.fieldName))
+        != editFieldOptions.end()) {
+      sf.fieldOpts = pfo->second;
+    } else if ((pfo = fieldOptions.find(sf.fieldName))
+        != fieldOptions.end()) {
+      sf.fieldOpts = pfo->second;
     }
 
     // Searching for time=

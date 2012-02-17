@@ -31,15 +31,7 @@
 #ifndef _fielddialog_h
 #define _fielddialog_h
 
-#include <qdialog.h>
-#include <qfont.h>
-#include <qpalette.h>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QGridLayout>
-#include <QPixmap>
-#include <QFrame>
-#include <QVBoxLayout>
+#include <QDialog>
 
 #include <vector>
 #include <map>
@@ -66,6 +58,7 @@ class QSlider;
 class QSpinBox;
 class QCheckBox;
 class QRadioButton;
+class QLineEdit;
 
 class ToggleButton;
 class Controller;
@@ -111,6 +104,7 @@ private:
     std::string extraaxis;
     std::string taxis;
     std::string grid;
+    std::string unit;
     bool cdmSyntax;
     bool plotDefinition;
     bool levelmove;
@@ -180,7 +174,7 @@ private:
   void setLevel();
   void setIdnum();
   void getFieldGroups(const miutil::miString& model, const std::string& refTime, int& indexMGR, int& indexM,
-		      vector<FieldGroupInfo>& vfg);
+		      bool plotDefinitions, vector<FieldGroupInfo>& vfg);
   void showHistory(int step);
   miutil::miString checkFieldOptions(const miutil::miString& str, bool cdmSyntax);
   miutil::miString getFieldOptions(const miutil::miString& fieldName, bool reset, bool edit=false) const;
@@ -275,7 +269,7 @@ private:
   QPushButton*  upFieldButton;
   ToggleButton* minusButton;
   QPushButton*  downFieldButton;
-  QPushButton*  Delete;
+  QPushButton*  deleteButton;
   QPushButton*  deleteAll;
   QPushButton*  copyField;
   QPushButton*  resetOptionsButton;
@@ -286,6 +280,7 @@ private:
   QPushButton*  historyOkButton;
   int           historyPos;
 
+  QLineEdit* unitLineEdit;
   QComboBox* plottypeComboBox;
   QComboBox* colorCbox;
 
@@ -342,6 +337,7 @@ private slots:
   void historyBack();
   void historyForward();
   void historyOk();
+  void unitEditingFinished();
   void plottypeComboBoxActivated( int index );
   void colorCboxActivated( int index );
   void lineWidthCboxActivated( int index );
@@ -371,6 +367,7 @@ private slots:
   void lineSmoothChanged(int value);
   void fieldSmoothChanged(int value);
   void labelSizeChanged(int value);
+  void valuePrecisionBoxActivated( int index );
   void gridValueCheckBoxToggled(bool on);
   void gridLinesChanged(int value);
   //  void gridLinesMaxChanged(int value);
@@ -412,6 +409,7 @@ private:
   QSpinBox*  lineSmoothSpinBox;
   QSpinBox*  fieldSmoothSpinBox;
   QSpinBox*  labelSizeSpinBox;
+  QComboBox* valuePrecisionBox;
   QCheckBox* gridValueCheckBox;
   QSpinBox*  gridLinesSpinBox;
   QSpinBox*  hourOffsetSpinBox;
