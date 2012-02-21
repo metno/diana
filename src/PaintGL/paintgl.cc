@@ -83,6 +83,7 @@ void PaintGLContext::begin(QPainter *painter)
     attributes.polygonMode[GL_BACK] = GL_FILL;
 
     points.clear();
+    validPoints.clear();
     colors.clear();
     textureCoordinates.clear();
 
@@ -187,8 +188,10 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_TRIANGLES";
         setPolygonColor(attributes.color);
         for (int i = 0; i < points.size() - 2; i += 3) {
-            QPolygonF poly = QPolygonF(points.mid(i, 3));
-            painter->drawPolygon(poly);
+            if (validPoints[i] && validPoints[i + 1] && validPoints[i + 2]) {
+                QPolygonF poly = QPolygonF(points.mid(i, 3));
+                painter->drawPolygon(poly);
+            }
         }
         break;
     case GL_TRIANGLE_STRIP: {
@@ -220,6 +223,8 @@ void PaintGLContext::renderPrimitive()
         if (!blend)
             setPolygonColor(attributes.color);
         for (int i = 0; i < points.size() - 3; i += 4) {
+            if (!validPoints[i] || !validPoints[i] || !validPoints[i] || !validPoints[i])
+                continue;
             QPolygonF poly = QPolygonF(points.mid(i, 4));
             if (useTexture) {
                 QImage texture = textures[currentTexture];
@@ -257,20 +262,28 @@ void PaintGLContext::renderPrimitive()
                 quad[i % 4] = points[i];
                 quad[i % 4 + 1] = points[i + 1];
             }
-            painter->drawPolygon(quad, 4);
+            if (validPoints[i - 2] && validPoints[i - 1] && validPoints[i] && validPoints[i + 1])
+                painter->drawPolygon(quad, 4);
         }
         break;
     }
-    case GL_POLYGON:
+    case GL_POLYGON: {
         // qDebug() << "  GL_POLYGON";
         setPolygonColor(attributes.color);
-        painter->drawPolygon(QPolygonF(points));
+        QPolygonF poly;
+        for (int i = 0; i < points.size(); ++i) {
+            if (validPoints[i])
+                poly.append(points[i]);
+        }
+        painter->drawPolygon(poly);
         break;
+    }
     default:
         break;
     }
 
     points.clear();
+    validPoints.clear();
     colors.clear();
     textureCoordinates.clear();
 }
@@ -878,7 +891,9 @@ void glTranslatef(GLfloat x, GLfloat y, GLfloat z)
 void glVertex2dv(GLdouble *v)
 {
     ENSURE_CTX
-    ctx->points.append(ctx->transform * QPointF(v[0], v[1]));
+    QPointF p = ctx->transform * QPointF(v[0], v[1]);
+    ctx->points.append(p);
+    ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
     ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
@@ -886,7 +901,9 @@ void glVertex2dv(GLdouble *v)
 void glVertex2f(GLfloat x, GLfloat y)
 {
     ENSURE_CTX
-    ctx->points.append(ctx->transform * QPointF(x, y));
+    QPointF p = ctx->transform * QPointF(x, y);
+    ctx->points.append(p);
+    ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
     ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
@@ -895,7 +912,9 @@ void glVertex3f(GLfloat x, GLfloat y, GLfloat z)
 {
     Q_UNUSED(z)
     ENSURE_CTX
-    ctx->points.append(ctx->transform * QPointF(x, y));
+    QPointF p = ctx->transform * QPointF(x, y);
+    ctx->points.append(p);
+    ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
     ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }

@@ -72,6 +72,7 @@ public:
     GLenum mode;
     PaintAttributes attributes;
     QVector<QPointF> points;
+    QVector<bool> validPoints;
     QVector<QColor> colors;
     QVector<QPointF> textureCoordinates;
     QTransform transform;
