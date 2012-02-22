@@ -20,7 +20,7 @@ else
 	CFLAGS += -O2
 endif
 
-LDFLAGS += -L/usr/share/metno-diana/lib
+LDFLAGS += -L/usr/share/metno-bdiana/lib
 
 DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
@@ -31,30 +31,30 @@ else
 endif
 
 # Tell the configure script where the metlibs libraries are for this kind of build.
-confflags += PKG_CONFIG_PATH=/usr/share/metno-diana/lib/pkgconfig
+confflags += PKG_CONFIG_PATH=/usr/share/metno-bdiana/lib/pkgconfig
 
-# Ensure that the executable searches for libraries under the /usr/share/metno-diana prefix.
-confflags += LDFLAGS="-Wl,-rpath=/usr/share/metno-diana/lib"
+# Ensure that the executable searches for libraries under the /usr/share/metno-bdiana prefix.
+confflags += LDFLAGS="-Wl,-rpath=/usr/share/metno-bdiana/lib"
 
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	./configure $(confflags) \
-	    --prefix=/usr/share/metno-diana \
+	    --prefix=/usr/share/metno-bdiana \
 	    --enable-obs-bufr \
 	    --enable-proddb \
 	    --enable-geotiff \
-	    --with-emos=/usr/share/metno-diana \
-	    --with-qt4=/usr/share/metno-diana \
-	    --with-qt4-includedir=/usr/share/metno-diana/include \
-	    --with-qt4-libdir=/usr/share/metno-diana/lib \
-	    --with-qmake=/usr/share/metno-diana/bin/qmake-qt4 \
-	    --with-moc=/usr/share/metno-diana/bin/moc-qt4 \
-	    --with-rcc=/usr/share/metno-diana/bin/rcc \
-	    --with-uic=/usr/share/metno-diana/bin/uic-qt4 \
-	    --with-lupdate=/usr/share/metno-diana/bin/lupdate \
-	    --with-lrelease=/usr/share/metno-diana/bin/lrelease-qt4 \
+	    --with-emos=/usr/share/metno-bdiana \
+	    --with-qt4=/usr/share/metno-bdiana \
+	    --with-qt4-includedir=/usr/share/metno-bdiana/include \
+	    --with-qt4-libdir=/usr/share/metno-bdiana/lib \
+	    --with-qmake=/usr/share/metno-bdiana/bin/qmake-qt4 \
+	    --with-moc=/usr/share/metno-bdiana/bin/moc-qt4 \
+	    --with-rcc=/usr/share/metno-bdiana/bin/rcc \
+	    --with-uic=/usr/share/metno-bdiana/bin/uic-qt4 \
+	    --with-lupdate=/usr/share/metno-bdiana/bin/lupdate \
+	    --with-lrelease=/usr/share/metno-bdiana/bin/lrelease-qt4 \
 	    --enable-embedded \
 	    --enable-batch-only
 	touch configure-stamp
@@ -106,7 +106,7 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_installdeb
-	LD_LIBRARY_PATH=/usr/share/metno-diana/lib dh_shlibdeps
+	LD_LIBRARY_PATH=/usr/share/metno-bdiana/lib dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
