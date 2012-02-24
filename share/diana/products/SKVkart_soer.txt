@@ -3,7 +3,7 @@ anno=<image=wwwmet7,size=0.5><horalign=center> \
 anno=<text="SKV-brief Sør"><horalign=center> \
 anno=<text="Low-Level"><horalign=center> \
 anno=<text=" ______________"><horalign=center> \
-anno=<text="VALID"><text=><input=" tid ",name=time><text="Z "><horalign=center> \
+anno=<text="VALID 06 Z "><horalign=center> \
 anno=<text="%d %Beng %Y"><horalign=center> \
 anno=<text=" ",size=0.5><horalign=center> \
 plotrequested=true \
