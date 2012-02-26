@@ -46,6 +46,7 @@ public:
   //desc
   miutil::miString dataType;
   miutil::miString id;
+  miutil::miString name;
   float xpos;
   float ypos;
   int zone;

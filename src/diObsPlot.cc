@@ -2915,6 +2915,12 @@ void ObsPlot::plotList(int index)
       checkColourCriteria("Id", 0);
     printListString(dta.id.cStr(), xpos, ypos, align);
   }
+  if (pFlag.count("name")) {
+    ypos -= yStep;
+    if (ccriteria)
+      checkColourCriteria("Name", 0);
+    printListString(dta.name.cStr(), xpos, ypos, align);
+  }
   if (pFlag.count("zone")) {
     ypos -= yStep;
     if ((f_p = dta.fdata.find("Zone")) != dta.fdata.end()) {
