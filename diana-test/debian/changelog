@@ -1,8 +1,9 @@
 diana-test (3.27.2-ubuntu2) lucid; urgency=low
 
   * Some FieldDialog updates
+  * Bufr - decoding more messages
 
- -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 17 Feb 2012 15:43:35 +0100
+ -- Lisbeth Bergholt <lisbethb@vpn-116-99.met.no>  Sun, 26 Feb 2012 19:55:17 +0100
 
 diana-test (3.27.2-ubuntu1) lucid; urgency=low
 
