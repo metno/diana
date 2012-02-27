@@ -2088,6 +2088,9 @@ bool ObsManager::initHqcdata(int from,
   else
     obsdataType = "hqc_list";
 
+  hqcdata.clear();
+  hqc_synop_parameter = desc.split(",");
+
   for(unsigned int i=0; i<descstr.size();i++){
     if(descstr[i].downcase()=="time"){
       hqcTime = miTime(commonstr[i]);
