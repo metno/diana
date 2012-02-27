@@ -242,7 +242,12 @@ bool FontManager::parseSetup()
       enginefamilies[key_bitmap].insert(fontfam);
       if (fontengines[key_bitmap]) fontengines[key_bitmap]->defineFonts(fontname, fontfam, postscript);
 #else
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      enginefamilies[key_bitmap].insert(fontfam);
+      if (fontengines[key_bitmap]) fontengines[key_bitmap]->defineFonts(fontname, fontfam, postscript);
+#else
       std::cerr << "X-FONTS not supported!" << std::endl;
+#endif
 #endif
     } else if (fonttype.downcase() == key_scaleable) {
       enginefamilies[key_scaleable].insert(fontfam);
@@ -319,6 +324,9 @@ bool FontManager::parseSetup()
 
 bool FontManager::check_family(const miString& fam, miString& family)
 {
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+  current_engine = fontengines[key_scaleable];
+#else
   if (defaults.count(fam.downcase()) > 0)
     family = defaults[fam.downcase()];
   else
@@ -340,6 +348,7 @@ bool FontManager::check_family(const miString& fam, miString& family)
         << endl;
     return false;
   }
+#endif
 
   return true;
 }
