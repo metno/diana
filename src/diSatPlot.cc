@@ -153,6 +153,78 @@ bool SatPlot::plot(){
       (!satdata->approved))
     return false;
 
+  if(!area.P().isAlmostEqual(satdata->area.P()) ){
+   return plotFillcell();
+  }
+
+  return plotPixmap();
+
+}
+
+bool SatPlot::plotFillcell()
+{
+
+  int nx = satdata->nx;
+  int ny = satdata->ny;
+
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
+      area, maprect, true,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
+  if (ix1>ix2 || iy1>iy2) return false;
+
+  //todo: reduce resolution when zooming out
+//  int factor = fullrect.width()/nx/2000;
+//  if ( factor < 1 ) factor = 1;
+
+  int factor = 1;
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBegin(GL_QUADS);
+  vector<float>::iterator it;
+  for (int iy=iy1; iy<=iy2-factor; iy+=factor) {
+    for (int ix = ix1; ix <= ix2-factor; ix+=factor) {
+      float x1 = x[iy * (nx+1) + ix];
+      float x2 = x[iy * (nx+1) + (ix+factor)];
+      float x3 = x[(iy+factor) * (nx+1) + (ix+factor)];
+      float x4 = x[(iy+factor) * (nx+1) + ix];
+      float y1 = y[iy * (nx+1) +ix];
+      float y2 = y[(iy) * (nx+1) +(ix+factor)];
+      float y3 = y[(iy+factor) * (nx+1) +(ix+factor)];
+      float y4 = y[(iy+factor) * (nx+1) +(ix)];
+
+      char f1 = satdata->image[(ix + (iy * (nx)))*4];
+      char f2 = satdata->image[(ix + (iy * (nx)))*4+1];
+      char f3 = satdata->image[(ix + (iy * (nx)))*4+2];
+      char f4 = satdata->image[(ix + (iy * (nx)))*4+3];
+      if(int(f1)==0 && int(f2) == 0 && int(f3)== 0 ) {
+        continue;
+      }
+      glColor4ub(f1,f2,f3,f4);
+        glVertex2f(x1, y1);
+        // lower-right corner of gridcell
+        glVertex2f(x2, y2);
+        // upper-right corner of gridcell
+        glVertex2f(x3, y3);
+        // upper-left corner of gridcell
+        glVertex2f(x4, y4);
+
+      }
+    }
+
+  glEnd();
+  glDisable(GL_BLEND);
+
+  return true;
+
+
+}
+bool SatPlot::plotPixmap()
+{
+
   int nx = satdata->nx;
   int ny = satdata->ny;
 
@@ -181,8 +253,8 @@ bool SatPlot::plot(){
   // Corners of image shown (map coordinates)
   float grStartx = (maprect.x1>xmin) ? maprect.x1 : xmin;
   float grStarty = (maprect.y1>ymin) ? maprect.y1 : ymin;
-  float grStopx = (maprect.x2<xmin) ? maprect.x2 : xmax;
-  float grStopy = (maprect.y2<ymin) ? maprect.y2 : ymax;
+//  float grStopx = (maprect.x2<xmin) ? maprect.x2 : xmax;
+//  float grStopy = (maprect.y2<ymin) ? maprect.y2 : ymax;
 
   // Corners of total image (image coordinates)
   float x1= maprect.x1;
