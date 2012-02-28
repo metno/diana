@@ -804,7 +804,7 @@ void PlotModule::setAnnotations()
 }
 
 
-void PlotModule::updateFieldPlot(const vector<miString>& pin)
+bool PlotModule::updateFieldPlot(const vector<miString>& pin)
 {
   vector<Field*> fv;
   int i, n;
@@ -813,7 +813,9 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updatePinNeeded(pin[i])) {
-      fieldplotm->makeFields(pin[i], t, fv);
+      // Make the updated fields or return false.
+      if (!fieldplotm->makeFields(pin[i], t, fv))
+        return false;
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -837,11 +839,14 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
 
   // get annotations from all plots
   setAnnotations();
+
+  // Successful update
+  return true;
 }
 
 
 // update plots
-void PlotModule::updatePlots()
+bool PlotModule::updatePlots()
 {
 #ifdef DEBUGREDRAW
   cerr <<"PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea<<endl;
@@ -857,7 +862,8 @@ void PlotModule::updatePlots()
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
-      fieldplotm->makeFields(pin, t, fv);
+      if (!fieldplotm->makeFields(pin, t, fv))
+        return false;
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -1097,6 +1103,9 @@ void PlotModule::updatePlots()
   setAnnotations();
 
   PlotAreaSetup();
+
+  // Successful update
+  return true;
 }
 
 // start hardcopy plot

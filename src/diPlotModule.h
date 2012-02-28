@@ -213,9 +213,9 @@ public:
   const Area& getCurrentArea(){return splot.getMapArea();}
 
   /// update FieldPlots
-  void updateFieldPlot(const vector<miutil::miString>& pin);
-  /// update all plot objects
-  void updatePlots();
+  bool updateFieldPlot(const vector<miutil::miString>& pin);
+  /// update all plot objects, returning true if successful
+  bool updatePlots();
   /// toggle conservative map area
   void keepCurrentArea(bool b){keepcurrentarea= b;}
 

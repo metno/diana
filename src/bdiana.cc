@@ -1411,7 +1411,14 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- updatePlots" << endl;
-        main_controller->updatePlots();
+        if (!main_controller->updatePlots()) {
+            cerr << "Failed to update plots." << endl;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+            painter.end();
+            context.end();
+#endif
+            return 99;
+        }
         cout <<main_controller->getMapArea()<<endl;
 
         if (!raster && !shape && (!multiple_plots || multiple_newpage)) {
@@ -2951,11 +2958,10 @@ int dispatchWork(const std::string &file)
     return 99;
   }
   int res = parseAndProcess(is);
-  if (res != 0)
-    return 99;
-
-  //Prosessing of file done, remove it!
-  unlink(file.c_str());
+  if (res == 0) {
+    //Prosessing of file done, remove it!
+    unlink(file.c_str());
+  }
 
   // if fifo name set, write response to fifo
   if (!fifo_name.empty()) {
@@ -2979,7 +2985,10 @@ int dispatchWork(const std::string &file)
     } while (0);
 
     char buf[1];
-    buf[0] = 'r';
+    if (res == 0)
+        buf[0] = 'r';
+    else
+        buf[0] = 'e';
 
     if (write(fd, buf, 1) == -1) {
     	COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't write to fifo <" << fifo_name << ">!";
@@ -2991,6 +3000,9 @@ int dispatchWork(const std::string &file)
     close(fd);
     fifo_name = "";
   }
+
+  if (res != 0)
+      return 99;
 
   return 0;
 

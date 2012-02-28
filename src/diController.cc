@@ -283,8 +283,8 @@ void Controller::keepCurrentArea(bool b){
 }
 
 // update plot-classes with new data
-void Controller::updatePlots(){
-  plotm->updatePlots();
+bool Controller::updatePlots(){
+  return plotm->updatePlots();
 }
 
 void Controller::updateFieldPlot(const vector<miString>& pin){

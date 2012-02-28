@@ -156,7 +156,7 @@ public:
   /// set plottime
   bool setPlotTime(miutil::miTime&);
   /// update plots
-  void updatePlots();
+  bool updatePlots();
   /// update FieldPlots
   void updateFieldPlot(const vector<miutil::miString>& pin);
   /// toggle area conservatism
