@@ -539,8 +539,15 @@ bool FieldEdit::readEditFieldFile(const miString& filename,
 
 }
 
-bool FieldEdit::writeEditField(const miString& filename)
-{
+bool FieldEdit::writeEditFieldFile(const miString& filename,
+    bool returndata,
+    short int** fdata, int& fdatalength) {
+
+  // create and write a DNMI field file,
+  // and possibly return data for database
+
+  if (!editfield) return false;
+  if (!editfield->data) return false;
 
   editfield->gridnum = metnoFieldFileIdentSpec[1];
   editfield->dtype = metnoFieldFileIdentSpec[2];
@@ -551,6 +558,7 @@ bool FieldEdit::writeEditField(const miString& filename)
   editfield->vcoord = metnoFieldFileIdentSpec[4];
 
   FortranUnit funit;
+  short int *idata = NULL;
 
   //create file
   if (filename != lastFileWritten) {
@@ -566,7 +574,7 @@ bool FieldEdit::writeEditField(const miString& filename)
     cerr << "Error opening file:" << filename << endl;
     return false;
   }
-  if ( !MetnoFieldFile::writeField(editfield,filename, funit,metnoFieldFileIdentSpec[5]) ) {
+  if ( !MetnoFieldFile::writeFieldAndReturnData(editfield,filename, funit, &idata, metnoFieldFileIdentSpec[5] )) {
       cerr << "Error writing file:" << filename << endl;
       return false;
     }
@@ -575,30 +583,8 @@ bool FieldEdit::writeEditField(const miString& filename)
     return false;
   }
 
-  return true;
-}
-
-bool FieldEdit::writeEditFieldFile(const miString& filename,
-    bool returndata,
-    short int** fdata, int& fdatalength) {
-
-  // create and write a DNMI field file,
-  // and possibly return data for database
-
-  if (!editfield) return false;
-  if (!editfield->data) return false;
-
-  if ( !writeEditField(filename) ) return false;
-
   nx= editfield->nx;
   ny= editfield->ny;
-
-//  int ierror;
-  int ldata = 20 + nx*ny + 100;
-  short int *idata= new short int[ldata];
-
-  for (int i=0; i<20; i++) idata[i]= metnoFieldFileIdent[i];
-
 
   int n= undofields.size();
   for (int i=0; i<n; i++) {

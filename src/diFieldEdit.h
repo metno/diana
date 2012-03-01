@@ -220,7 +220,6 @@ public:
       const miutil::miString& fieldname);
   bool writeEditFieldFile(const miutil::miString& filename, bool returndata,
 			  short int** fdata, int& fdatalength);
-  bool writeEditField(const miutil::miString& filename);
   void activate();
   void deactivate() { active= false; };
   bool activated() { return active; }

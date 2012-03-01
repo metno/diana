@@ -1047,6 +1047,7 @@ ObsDialogInfo ObsManager::initDialog()
   plist.button.push_back(addButton("Time","hh.mm  ",0,0,true));
   plist.button.push_back(addButton("Height","height of station",0,5000));
   plist.button.push_back(addButton("Zone","Zone",1,99));
+  plist.button.push_back(addButton("Name","Name of station",0,0));
   plist.button.push_back(addButton("RRR_1","precipitation past hour",-1,100));
   plist.button.push_back(addButton("RRR_6","precipitation past 6 hours",-1,100));
   plist.button.push_back(addButton("RRR_12","precipitation past 12 hours",-1,100));
@@ -1717,7 +1718,7 @@ bool ObsManager::parseSetup()
   defProd["synop"].timeRangeMin=-30;
   defProd["synop"].timeRangeMax= 30;
   defProd["synop"].synoptic= true;
-  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24";
+  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Name,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24";
   defProd["synop"].parameter= parameter.split(",");
   defProd["aireps"].obsformat= ofmt_aireps;
   defProd["aireps"].timeRangeMin=-30;
@@ -2086,6 +2087,9 @@ bool ObsManager::initHqcdata(int from,
     obsdataType = "hqc_synop";
   else
     obsdataType = "hqc_list";
+
+  hqcdata.clear();
+  hqc_synop_parameter = desc.split(",");
 
   for(unsigned int i=0; i<descstr.size();i++){
     if(descstr[i].downcase()=="time"){

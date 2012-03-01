@@ -855,8 +855,7 @@ bool PlotModule::updatePlots()
   vector<Field*> fv;
   int i, n;
   miTime t = splot.getTime();
-  bool satOK = false;
-  Area satarea, plotarea, newarea;
+  Area plotarea, newarea;
 
   // prepare data for field plots
   n = vfp.size();
@@ -881,19 +880,14 @@ bool PlotModule::updatePlots()
   // prepare data for satellite plots
   n = vsp.size();
   for (i = 0; i < n; i++) {
-    if (satm->setData(vsp[i])) {
-      if (!satOK) {
-        satarea = vsp[i]->getSatArea();
-        satOK = true;
-      }
+    if (!satm->setData(vsp[i])) {
 #ifdef DEBUGPRINT
-    } else {
       cerr << "SatManager returned false from setData" << endl;
 #endif
     }
   }
 
-  // set maparea from sat, map spec. or fields
+  // set maparea from map spec., sat or fields
 
   //######################################################################
   //  Area aa;
@@ -911,66 +905,8 @@ bool PlotModule::updatePlots()
   //######################################################################
   mapdefined = false;
 
-  if (satOK) { // we have a raster image
-    plotarea = splot.getMapArea(); // current area on display
+  if (mapDefinedByUser) {     // area != "modell/sat-omr."
 
-    bool previousOK = false; // previous area ok to use
-    bool requestedOK = false; // requested area ok to use
-
-    // area == "modell/sat-omr."
-    if (!requestedarea.P().isDefined()) {
-      requestedarea = satarea; // choose requested-area if existing
-    }
-
-    // if first plot: getMapArea returns undefined area
-    if (!plotarea.P().isDefined()) {
-      if (mapDefinedByUser)
-        plotarea = requestedarea; // choose requested-area if existing
-      else
-        plotarea = satarea; // left with sat-area
-    }
-
-    // check if previous area ok to use
-    if (satarea.P() == plotarea.P()) {
-      previousOK = true;
-    }
-
-    // check if requested area (if any) ok to use
-    if (mapDefinedByUser) {
-      if (satarea.P() == requestedarea.P()) {
-        requestedOK = true;
-      }
-    }
-
-    // FIRST: forced change!
-    if (!keepcurrentarea || !previousOK) {
-      if (keepcurrentarea) {// but not similar enough
-        newarea = splot.findBestMatch(satarea);
-        // do not keep current area
-      } else if (requestedOK) {// change to requested
-        newarea = requestedarea;
-      } else {
-        // change to satarea
-        splot.setMapArea(requestedarea, keepcurrentarea);
-        newarea = splot.findBestMatch(satarea);
-      }
-      splot.setMapArea(newarea, keepcurrentarea);
-
-      // THEN: selected a new MAP-area
-      // (keepcurrentarea=previousOK=TRUE)
-    } else if (previousrequestedarea != requestedarea) {
-      if (requestedOK) {// try to use requested area
-        newarea = requestedarea;
-      } else { // find best match from satarea and requestedarea
-        newarea = splot.findBestMatch(satarea);
-      }
-      splot.setMapArea(newarea, keepcurrentarea);
-    }// ELSE: no change needed
-
-    mapdefined = mapDefinedByData = true;
-
-    // ----- NO raster images
-  } else if (mapDefinedByUser) { // area != "modell/sat-omr."
     plotarea = splot.getMapArea();
 
     if (!keepcurrentarea ){ // show def. area
@@ -983,6 +919,7 @@ bool PlotModule::updatePlots()
     } else {
       mapdefined = true;
     }
+
   } else if (keepcurrentarea && previousrequestedarea != requestedarea) {
     // change from specified area to model/sat area
     mapDefinedByData = false;
@@ -992,6 +929,18 @@ bool PlotModule::updatePlots()
 
   if (!mapdefined && keepcurrentarea && mapDefinedByData)
     mapdefined = true;
+
+  if (!mapdefined && vsp.size() > 0) {
+    Area a;
+    // set area equal to first EXISTING sat-area
+    a = vsp[0]->getSatArea();
+    if (keepcurrentarea)
+      newarea = splot.findBestMatch(a);
+    else
+      newarea = a;
+    splot.setMapArea(newarea, keepcurrentarea);
+    mapdefined = mapDefinedByData = true;
+  }
 
   if (!mapdefined && inEdit) {
     // set area equal to editfield-area
@@ -1010,7 +959,6 @@ bool PlotModule::updatePlots()
     while (i < n && !vfp[i]->getRealFieldArea(a))
       i++;
     if (i < n) {
-      // AC: should we find best match here???
       if (keepcurrentarea)
         newarea = splot.findBestMatch(a);
       else
@@ -2850,14 +2798,6 @@ void PlotModule::changeArea(const keyboardEvent& me)
     PlotAreaSetup();
   } else { //if projection has changed, updatePlots must be called
     splot.setMapArea(a, keepcurrentarea);
-
-    //If satellitte, use satellitte projection
-    int n = vsp.size();
-    if (n > 0) {
-      Area satarea = vsp[0]->getSatArea();
-      a = splot.findBestMatch(satarea);
-      splot.setMapArea(a, keepcurrentarea);
-    }
     PlotAreaSetup();
     updatePlots();
   }

@@ -38,6 +38,7 @@
 #include "diFieldPlot.h"
 #include "diContouring.h"
 #include "diFontManager.h"
+#include <diImageGallery.h>
 #include <diField/diPlotOptions.h>
 #include <diField/diColourShading.h>
 #include <iostream>
@@ -159,6 +160,7 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
   else if (plottype==fpt_wind_temp_fl)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
   else if (plottype==fpt_wind_value)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
   else if (plottype==fpt_value)           cerr<<"FieldPlot "<<fname<<" : "<<"plotValue"<<endl;
+  else if (plottype==fpt_symbol)           cerr<<"FieldPlot "<<fname<<" : "<<"plotValue"<<endl;
   else if (plottype==fpt_vector)           cerr<<"FieldPlot "<<fname<<" : "<<"plotVector"<<endl;
   else if (plottype==fpt_direction)        cerr<<"FieldPlot "<<fname<<" : "<<"plotDirection"<<endl;
   else if (plottype==fpt_alpha_shade)      cerr<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade"<<endl;
@@ -476,6 +478,7 @@ bool FieldPlot::plot(){
   else if (plottype==fpt_wind_temp_fl)     return plotWindAndValue(true);
   else if (plottype==fpt_wind_value)      return plotWindAndValue(false);
   else if (plottype==fpt_value)           return plotValue();
+  else if (plottype==fpt_symbol)           return plotValue();
   else if (plottype==fpt_vector)           return plotVector();
   else if (plottype==fpt_direction)        return plotDirection();
   else if (plottype==fpt_alpha_shade)      return plotAlpha_shade();
@@ -1138,7 +1141,7 @@ bool FieldPlot::plotWindColour(){
 
 /*
     ROUTINE:   FieldPlot::plotValue
-    PURPOSE:   plot field value as number
+    PURPOSE:   plot field value as number or symbol
     ALGORITHM:
  */
 
@@ -1156,6 +1159,26 @@ bool FieldPlot::plotValue(){
   if (n<1) return false;
   if (!fields[0]) return false;
   if (!fields[0]->data) return false;
+
+  // plot symbol
+  ImageGallery ig;
+  map<int, miString> classImages;
+  if (poptions.plottype==fpt_symbol &&  poptions.discontinuous == 1 && poptions.classSpecifications.exists()) {
+    vector<int>      classValues;
+    vector<miString> classNames;
+    vector<miString> classSpec = poptions.classSpecifications.split(",");
+    int nc = classSpec.size();
+    for (int i = 0; i < nc; i++) {
+      vector<miString> vstr = classSpec[i].split(":");
+      if (vstr.size() > 2) {
+        int value = atoi(vstr[0].cStr());
+        classValues.push_back(value);
+        classNames.push_back(vstr[1]);
+        classImages[value] =vstr[2];
+      }
+    }
+  }
+
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -1240,17 +1263,23 @@ bool FieldPlot::plotValue(){
           }
         }
 
-        ostringstream ostr;
-        if ( smallvalues ) {
-          ostr.setf(ios::scientific);
-          ostr.precision(1);
-        } else {
-          ostr.setf(ios::fixed);
-          ostr.precision( poptions.precision );
+        if(!classImages.empty()  ) { //plot symbol
+          if(classImages.count(int(value))) {
+            ig.plotImage(classImages[int(value)], gx, gy, true, poptions.labelSize*0.25);
+          }
+        } else { // plot value
+          ostringstream ostr;
+          if ( smallvalues ) {
+            ostr.setf(ios::scientific);
+            ostr.precision(1);
+          } else {
+            ostr.setf(ios::fixed);
+            ostr.precision( poptions.precision );
+          }
+          ostr<<value;
+          miString str= ostr.str();
+          fp->drawStr(str.c_str(),gx-chx/2,gy-chy/2,0.0);
         }
-        ostr<<value;
-        miString str= ostr.str();
-        fp->drawStr(str.c_str(),gx-chx/2,gy-chy/2,0.0);
       }
     }
   }
@@ -3168,14 +3197,14 @@ bool FieldPlot::plotFillCell(){
   int ix1, ix2, iy1, iy2;
   float *x, *y;
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false, //false
+      area, maprect, true,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   if (ix1>ix2 || iy1>iy2) return false;
 
   glLineWidth(poptions.linewidth);
   glColor3ubv(poptions.bordercolour.RGB());
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx+1,ny+1,x,y,2,NULL);
   }
 
   //auto -> 0
@@ -3183,8 +3212,8 @@ bool FieldPlot::plotFillCell(){
     poptions.density = 10;
   }
 
-  float dx = poptions.density*(0.1) * (x[1]-x[0]);
-  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
+//  float dx = poptions.density*(0.1) * (x[1]-x[0]);
+//  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
 
   if(poptions.alpha<255){
     for(size_t  i=0;i<poptions.palettecolours.size();i++) {
@@ -3199,11 +3228,17 @@ bool FieldPlot::plotFillCell(){
   vector<float>::iterator it;
   for (int iy=iy1; iy<=iy2; iy++) {
     for (int ix = ix1; ix <= ix2; ix++) {
-      int xx = x[iy * nx + ix];
-      int yy = y[iy * nx + ix];
-      float fvalue = fields[0]->data[ix + (iy * nx)];
-      if (fvalue >= poptions.minvalue && fvalue <= poptions.maxvalue) {
-        int value= (fvalue>=0.0f) ? int(fvalue+0.5f) : int(fvalue-0.5f);
+      float x1 = x[iy * (nx+1) + ix];
+      float x2 = x[iy * (nx+1) + (ix+1)];
+      float x3 = x[(iy+1) * (nx+1) + (ix+1)];
+      float x4 = x[(iy+1) * (nx+1) + ix];
+      float y1 = y[iy * (nx+1) +ix];
+      float y2 = y[(iy) * (nx+1) +(ix+1)];
+      float y3 = y[(iy+1) * (nx+1) +(ix+1)];
+      float y4 = y[(iy+1) * (nx+1) +(ix)];
+
+      float value = fields[0]->data[ix + (iy * (nx))];
+      if (value >= poptions.minvalue && value <= poptions.maxvalue) {
 
         // set fillcolor of cell
         if(poptions.linevalues.size() == 0){
@@ -3224,14 +3259,14 @@ bool FieldPlot::plotFillCell(){
           glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()].RGBA());
         }
 
-        glVertex2f(xx - dx, yy - dy);
+        // lower-left corner of gridcell
+        glVertex2f(x1, y1);
         // lower-right corner of gridcell
-        glVertex2f(xx + dx, yy - dy);
+        glVertex2f(x2, y2);
         // upper-right corner of gridcell
-        glVertex2f(xx + dx, yy + dy);
+        glVertex2f(x3, y3);
         // upper-left corner of gridcell
-        glVertex2f(xx - dx, yy + dy);
-
+        glVertex2f(x4, y4);
       }
     }
   }

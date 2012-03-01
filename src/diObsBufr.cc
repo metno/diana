@@ -424,6 +424,22 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     }
     break;
 
+    case 1019:
+    {
+      int index = int(values[j]) / 1000 - 1;
+      for (int k = 0; k < 10; k++) {
+        d.name += cvals[index][k];
+      }
+    }
+    break;
+
+    //   1002  WMO STATION NUMBER
+  case 1102:
+    if ( !landStation ) {
+      d.id = miString(int(values[j]));
+    }
+    break;
+
     case 1195:
     {
       int index = int(values[j]) / 1000 - 1;

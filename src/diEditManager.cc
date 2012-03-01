@@ -2950,28 +2950,28 @@ void EditManager::initEditTools(){
   //sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
   sigsymbols.push_back(newEditToolInfo("Tekst_1",1000,"black"));
   //Low
-  sigsymbols.push_back(newEditToolInfo("Sig19",1019,"black","black",1));
+  sigsymbols.push_back(newEditToolInfo("Sig19",1019,"black","black",2));
   sigsymbols.push_back(newEditToolInfo("Sig12",1012,"black","black"));
-  sigsymbols.push_back(newEditToolInfo("Sig22",1022,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig22",1022,"black","black",1));
   sigsymbols.push_back(newEditToolInfo("Sig11",1011,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig3",1003,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig6",1006,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig25",1025,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig25",1025,"black","black",1));
   sigsymbols.push_back(newEditToolInfo("Sig14",1014,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig23",1023,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig8",1008,"black"));
   //High
-  sigsymbols.push_back(newEditToolInfo("Sig20",1020,"black","black",1));
+  sigsymbols.push_back(newEditToolInfo("Sig20",1020,"black","black",2));
   sigsymbols.push_back(newEditToolInfo("Sig10",1010,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig16",1016,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig7",1007,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig4",1004,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig5",1005,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig26",1026,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig26",1026,"black","black",1));
   sigsymbols.push_back(newEditToolInfo("Sig15",1015,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig24",1024,"black"));
   sigsymbols.push_back(newEditToolInfo("Sig13",1013,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig21",1021,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig21",1021,"black","black",1));
   sigsymbols.push_back(newEditToolInfo("Sig9",1009,"black"));
   //all texts have index ending in 0
   sigsymbols.push_back(newEditToolInfo("Tekst_2",2000,"black"));
@@ -2984,27 +2984,27 @@ void EditManager::initEditTools(){
   //Mean SFC wind, red diamond
   sigsymbols.push_back(newEditToolInfo("Sig28",1028,"black", "red"));
   // Sea state, black flag
-  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",2));
+  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",3));
   // Freezing fog
-  sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
+  sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red",1));
   //Nuclear
-  sigsymbols.push_back(newEditToolInfo("Sig31",1031,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig31",1031,"black","black",1));
   //Visibility, black rectangular box
   //  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));
   //Vulcano box
-  sigsymbols.push_back(newEditToolInfo("Sig34",1034,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig34",1034,"black","black",1));
   //New cross
   sigsymbols.push_back(newEditToolInfo("Sig35",1035,"black"));
   //Freezing level (new)
   sigsymbols.push_back(newEditToolInfo("Sig36",1036,"black", "blue"));
   //BR
-  sigsymbols.push_back(newEditToolInfo("Sig_br",1037,"gulbrun"));
+  sigsymbols.push_back(newEditToolInfo("Sig_br",1037,"gulbrun","black",1));
   sigsymbols.push_back(newEditToolInfo("Sig38",1038,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig39",1039,"red"));
+  sigsymbols.push_back(newEditToolInfo("Sig39",1039,"red","black",1));
 
   sigsymbols.push_back(newEditToolInfo("Clouds",1040,"black"));
   //Fog
-  sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun"));
+  sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun","black",1));
 #ifdef SMHI
   //precipitation, green lines
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green4"));
@@ -3022,16 +3022,16 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Hails",118,"red","red",2));
 #else
   //precipitation, green lines
-  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green"));
+  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green","black",1));
   //snow
-  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green"));
+  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green","black",1));
   //snow showers
-  sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green","green",2));
+  sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green","green",3));
   //showers
-  sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green","green",2));
+  sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green","green",3));
 #endif
   //Freezing precip
-  sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red"));
+  sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red","black",1));
 
 
 

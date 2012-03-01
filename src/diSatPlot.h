@@ -48,6 +48,8 @@ private:
   unsigned char * imagedata; // dataarray for resampling
   int previrs;               // previous resampling coeff.
 
+  bool plotPixmap();
+  bool plotFillcell();
   unsigned char * resampleImage(int& currwid, int& currhei,
       int& bmStartx, int& bmStarty,
       float& scales, float& scaley, int& nx, int& ny);
