@@ -2051,6 +2051,16 @@ bool ObsPlot::plot()
       for (p = pbegin; p != pend; p++) {
         int i = *p;
         if (allObs || areaFree(i)) {
+          //Select parameter with correct accumulation/max value interval
+          if (pFlag.count("911ff")) {
+            checkGustTime(obsp[i]);
+          }
+          if (pFlag.count("rrr")) {
+            checkAccumulationTime(obsp[i]);
+          }
+          if (pFlag.count("fxfx")) {
+            checkMaxWindTime(obsp[i]);
+          }
           if (checkPlotCriteria(i)) {
             nextplot.push_back(i);
             list_plotnr[i] = plotnr;
@@ -2067,6 +2077,17 @@ bool ObsPlot::plot()
       for (p = pbegin; p != pend; p++) {
         int i = *p;
         if (allObs || positionFree(x[i], y[i], xdist, ydist)) {
+          //Select parameter with correct accumulation/max value interval
+          if (pFlag.count("911ff")) {
+            checkGustTime(obsp[i]);
+          }
+          if (pFlag.count("rrr")) {
+            checkAccumulationTime(obsp[i]);
+          }
+          if (pFlag.count("fxfx")) {
+            checkMaxWindTime(obsp[i]);
+          }
+
           if (checkPlotCriteria(i)) {
             nextplot.push_back(i);
             list_plotnr[i] = plotnr;
@@ -2389,17 +2410,6 @@ void ObsPlot::plotList(int index)
   //reset colour
   glColor4ubv(origcolour.RGBA());
   colour = origcolour;
-
-  //Select parameter with correct accumulation/max value interval
-  if (pFlag.count("911ff")) {
-    checkGustTime(dta);
-  }
-  if (pFlag.count("rrr")) {
-    checkAccumulationTime(dta);
-  }
-  if (pFlag.count("fxfx")) {
-    checkMaxWindTime(dta);
-  }
 
   if (tccriteria)
     checkTotalColourCriteria(index);
@@ -3936,16 +3946,6 @@ void ObsPlot::plotSynop(int index)
   bool timeFlag = (pFlag.count("time") && dta.zone == 99);
   bool precip = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
 
-  //Select parameter with correct accumulation/max value interval
-  if (pFlag.count("911ff")) {
-    checkGustTime(dta);
-  }
-  if (pFlag.count("rrr")) {
-    checkAccumulationTime(dta);
-  }
-  if (pFlag.count("fxfx")) {
-    checkMaxWindTime(dta);
-  }
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -5966,10 +5966,13 @@ bool ObsPlot::checkPlotCriteria(int index)
       value = atof(roadobsp[index][j].cStr());
 #endif
     } else {
-      if (obsp[index].fdata.count(p->first))
+      if (obsp[index].fdata.count(p->first)) {
         value = obsp[index].fdata[p->first];
-      else if (p->first.downcase() != obsp[index].dataType)
+      } else if (obsp[index].stringdata.count(p->first)){
+        value = atof(obsp[index].stringdata[p->first].c_str());
+      } else if (p->first.downcase() != obsp[index].dataType) {
         continue;
+      }
     }
 
     //RRR=-0.1 - Precipitation, but less than 0.1 mm (0.0)
@@ -6022,10 +6025,13 @@ void ObsPlot::checkTotalColourCriteria(int index)
       value = atof(roadobsp[index][j].cStr());
 #endif
     } else {
-      if (obsp[index].fdata.count(p->first))
+      if (obsp[index].fdata.count(p->first)){
         value = obsp[index].fdata[p->first];
-      else if (p->first.downcase() != obsp[index].dataType)
+      } else if (obsp[index].stringdata.count(p->first)) {
+        value = atof(obsp[index].stringdata[p->first].c_str());
+      } else if (p->first.downcase() != obsp[index].dataType) {
         continue;
+      }
     }
 
     //RRR=-0.1 - Precipitation, but less than 0.1 mm (0.0)
@@ -6072,10 +6078,13 @@ miString ObsPlot::checkMarkerCriteria(int index)
       value = atof(roadobsp[index][j].cStr());
 #endif
     } else {
-      if (obsp[index].fdata.count(p->first))
+      if (obsp[index].fdata.count(p->first)) {
         value = obsp[index].fdata[p->first];
-      else if (p->first.downcase() != obsp[index].dataType)
+      } else if (obsp[index].stringdata.count(p->first)) {
+        value = atof(obsp[index].stringdata[p->first].c_str());
+      } else if (p->first.downcase() != obsp[index].dataType) {
         continue;
+      }
     }
 
     for (int i = 0; i < ncrit; i++) {
