@@ -1219,16 +1219,20 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
-void getAnnotationsArea(int& ox, int& oy, int& xsize, int& ysize)
+void getAnnotationsArea(int& ox, int& oy, int& xsize, int& ysize, int number = -1)
 {
   QRectF cutout;
+  int i = 0;
+
   vector<Rectangle>::iterator it;
   for (it = annotationRectangles.begin(); it != annotationRectangles.end(); ++it) {
     QRectF r = annotationTransform.mapRect(QRectF(it->x1, it->y1, it->width(), it->height()));
-    if (cutout.isNull())
+    if (cutout.isNull() && (i == number || number == -1))
       cutout = r;
-    else if (!r.isNull())
+    else if (!r.isNull() && (i == number || number == -1))
       cutout = cutout.united(r);
+
+    i += 1;
   }
 
   if (!cutout.isNull()) {
