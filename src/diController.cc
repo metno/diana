@@ -169,6 +169,11 @@ void Controller::plot(bool under, bool over){
 #endif
 }
 
+vector<Rectangle> Controller::plotAnnotations()
+{
+  return plotm->plotAnnotations();
+}
+
 // receive rectangle..
 void Controller::PixelArea(const int x1, const int y1,
 			   const int x2, const int y2){

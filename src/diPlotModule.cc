@@ -1498,6 +1498,31 @@ void PlotModule::plotOver()
 
 }
 
+vector<Rectangle> PlotModule::plotAnnotations()
+{
+  Rectangle plotr = splot.getPlotSize();
+
+  // set correct worldcoordinates
+  glLoadIdentity();
+  glOrtho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
+
+  Colour cback(splot.getBgColour().cStr());
+
+  glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  vector<Rectangle> rectangles;
+
+  unsigned int n = vap.size();
+  for (unsigned int i = 0; i < n; i++) {
+    //	cerr <<"i:"<<i<<endl;
+    vap[i]->plot();
+    rectangles.push_back(vap[i]->getBoundingBox());
+  }
+
+  return rectangles;
+}
+
 void PlotModule::PlotAreaSetup()
 {
 #ifdef DEBUGPRINT

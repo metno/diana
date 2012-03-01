@@ -75,6 +75,8 @@
 #include <diVprofManager.h>
 #include <diVprofOptions.h>
 
+#include <diField/diRectangle.h>
+
 #include <diSpectrumManager.h>
 #include <diSpectrumOptions.h>
 
@@ -149,6 +151,7 @@ const miString com_addhour = "addhour";
 const miString com_addminute = "addminute";
 const miString com_archive = "archive";
 const miString com_keepplotarea = "keepplotarea";
+const miString com_plotannotationsonly = "plotannotationsonly";
 
 const miString com_multiple_plots = "multiple.plots";
 const miString com_plotcell = "plotcell";
@@ -280,6 +283,10 @@ bool shape = false; // false means postscript
 bool svg = false;
 bool pdf = false;
 int raster_type = image_png; // see enum image_type above
+
+bool plotAnnotationsOnly = false;
+vector<Rectangle> annotationRectangles;
+QTransform annotationTransform;
 
 /*
  more...
@@ -891,6 +898,7 @@ void printUsage(bool showexample)
             "filename=tmp_diana.ps    # output filename                        \n"
             "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
             "                         # plots                                  \n"
+            "plotAnnotationsOnly=NO   # YES=only plot annotations/legends      \n"
             "                                                                  \n"
             "# the following options for output=POSTSCRIPT or EPS only         \n"
             "toprinter=NO             # send output to printer (postscript)    \n"
@@ -1461,10 +1469,16 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
-        if (shape)
-        	main_controller->plot(true, false);
-        else
-          main_controller->plot(true, true);
+
+        if (plotAnnotationsOnly) {
+          annotationRectangles = main_controller->plotAnnotations();
+          annotationTransform = context.transform;
+        } else {
+          if (shape)
+            main_controller->plot(true, false);
+          else
+            main_controller->plot(true, true);
+        }
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
@@ -1767,6 +1781,21 @@ int parseAndProcess(istream &is)
           painter.begin(&image);
           painter.drawPicture(0, 0, picture);
           painter.end();
+
+          if (plotAnnotationsOnly) {
+            QRectF cutout;
+            vector<Rectangle>::iterator it;
+            for (it = annotationRectangles.begin(); it != annotationRectangles.end(); ++it) {
+              QRectF r = annotationTransform.mapRect(QRectF(it->x1, it->y1, it->width(), it->height()));
+              if (cutout.isNull())
+                cutout = r;
+              else if (!r.isNull())
+                cutout = cutout.united(r);
+            }
+
+            if (!cutout.isNull())
+              image = image.copy(cutout.toRect());
+          }
 
           image.save(QString::fromStdString(priop.fname));
         }
@@ -2396,6 +2425,9 @@ int parseAndProcess(istream &is)
 
     } else if (key == com_keepplotarea) {
       keeparea = (value.downcase() == "yes");
+
+    } else if (key == com_plotannotationsonly) {
+      plotAnnotationsOnly = (value.downcase() == "yes");
 
     } else if (key == com_multiple_plots) {
       if (raster) {

@@ -206,6 +206,8 @@ public:
   void prepareTrajectory(const vector<miutil::miString>&);
   /// handles annotation plot info strings
   void prepareAnnotation(const vector<miutil::miString>&);
+  /// plot annotations
+  vector<Rectangle> plotAnnotations();
 
   /// get annotations from all plots
   void setAnnotations();

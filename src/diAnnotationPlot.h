@@ -218,6 +218,8 @@ public:
   vector<vector<miutil::miString> > getAnnotationStrings();
   ///replace annotations
   bool setAnnotationStrings(vector<vector<miutil::miString> >& vstr);
+
+  Rectangle getBoundingBox() const {return bbox;}
 };
 
 #endif

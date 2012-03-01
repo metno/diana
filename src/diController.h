@@ -110,6 +110,8 @@ public:
   void plotCommands(const vector<miutil::miString>&);
   /// call PlotModule.plot()
   void plot(bool over =true, bool under =true);
+  /// plot annotations only
+  vector<Rectangle> plotAnnotations();
   /// get plotwindow corners in GL-coordinates
   void getPlotSize(float& x1, float& y1, float& x2, float& y2);
   /// get plot area (incl. projection)
