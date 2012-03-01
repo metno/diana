@@ -1219,6 +1219,26 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
+void getAnnotationsArea(int& ox, int& oy, int& xsize, int& ysize)
+{
+  QRectF cutout;
+  vector<Rectangle>::iterator it;
+  for (it = annotationRectangles.begin(); it != annotationRectangles.end(); ++it) {
+    QRectF r = annotationTransform.mapRect(QRectF(it->x1, it->y1, it->width(), it->height()));
+    if (cutout.isNull())
+      cutout = r;
+    else if (!r.isNull())
+      cutout = cutout.united(r);
+  }
+
+  if (!cutout.isNull()) {
+    ox = -cutout.x();
+    oy = -cutout.y();
+    xsize = cutout.width();
+    ysize = cutout.height();
+  }
+}
+
 int parseAndProcess(istream &is)
 {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
@@ -1777,25 +1797,15 @@ int parseAndProcess(istream &is)
           context.end();
           painter.end();
 
+          int ox = 0, oy = 0;
+          if (plotAnnotationsOnly) {
+            getAnnotationsArea(ox, oy, xsize, ysize);
+          }
+
           QImage image(xsize, ysize, QImage::Format_ARGB32);
           painter.begin(&image);
-          painter.drawPicture(0, 0, picture);
+          painter.drawPicture(ox, oy, picture);
           painter.end();
-
-          if (plotAnnotationsOnly) {
-            QRectF cutout;
-            vector<Rectangle>::iterator it;
-            for (it = annotationRectangles.begin(); it != annotationRectangles.end(); ++it) {
-              QRectF r = annotationTransform.mapRect(QRectF(it->x1, it->y1, it->width(), it->height()));
-              if (cutout.isNull())
-                cutout = r;
-              else if (!r.isNull())
-                cutout = cutout.united(r);
-            }
-
-            if (!cutout.isNull())
-              image = image.copy(cutout.toRect());
-          }
 
           image.save(QString::fromStdString(priop.fname));
         }
@@ -1858,12 +1868,17 @@ int parseAndProcess(istream &is)
           context.end();
           painter.end();
 
+          int ox = 0, oy = 0;
+          if (plotAnnotationsOnly) {
+            getAnnotationsArea(ox, oy, xsize, ysize);
+          }
+
           QSvgGenerator svgFile;
           svgFile.setFileName(QString::fromStdString(priop.fname));
           svgFile.setSize(QSize(xsize, ysize));
           svgFile.setViewBox(QRect(0, 0, xsize, ysize));
           painter.begin(&svgFile);
-          painter.drawPicture(0, 0, picture);
+          painter.drawPicture(ox, oy, picture);
           painter.end();
 
       } else if (pdf) {
@@ -1871,11 +1886,16 @@ int parseAndProcess(istream &is)
           context.end();
           painter.end();
 
+          int ox = 0, oy = 0;
+          if (plotAnnotationsOnly) {
+            getAnnotationsArea(ox, oy, xsize, ysize);
+          }
+
           QPrinter printer;
           printer.setOutputFileName(QString::fromStdString(priop.fname));
           printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
           painter.begin(&printer);
-          painter.drawPicture(0, 0, picture);
+          painter.drawPicture(ox, oy, picture);
           painter.end();
 #endif
       } else { // PostScript only
