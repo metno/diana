@@ -165,6 +165,11 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
     year = (year > 70) ? year + 1900 : year + 2000;
   }
   time = miTime(year, ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
+
+  if ( time.undef() ) {
+    return false;
+  }
+
   return true;
 
 }
