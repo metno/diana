@@ -38,7 +38,7 @@
 using namespace::miutil;
 
 // Default constructor
-TimeFilter::TimeFilter():OK(false){
+TimeFilter::TimeFilter():OK(false), nowtime(false) {
 }
 
 //find and remember position of time info,
@@ -91,15 +91,21 @@ bool TimeFilter::initFilter(miString &filename){
   dat = (findPos(filter,".dat*") != filter.npos) && dd==filter.npos
     && mm==filter.npos && yy==filter.npos && yyyy==filter.npos;
 
-  if(dat)
+  if(dat) {
+    OK=true;
+    nowtime = true;
+
+  } else if(dd!=filter.npos && mm!=filter.npos &&
+    (yy!=filter.npos || yyyy!=filter.npos) ) {
     OK=true;
 
-  else if(dd!=filter.npos && mm!=filter.npos &&
-	  (yy!=filter.npos || yyyy!=filter.npos) )
+  } else if(HH != filter.npos ) {
     OK=true;
+    nowtime = true;
 
-  else
+  } else {
     OK=false;
+  }
 
   if(advanced){
     //replace [...] with [??..??]
@@ -213,15 +219,7 @@ bool TimeFilter::getTime(miString name, miTime &time) {
   if(!getClock(name,clock))
     return false;
 
-  if (dat){
-
-    if(name.find(".dat") == name.npos)
-      return false;
-
-    miString endstr = name.substr(name.find(".dat"),name.size());
-    //return false if not  .dat or .dat-1, .dat-2 etc
-    if(endstr.size()!=4 && endstr.size()!=6)
-       return false;
+  if ( nowtime ) {
 
     miTime now=miTime::nowTime();
     miClock nowClock=now.clock();
@@ -230,20 +228,31 @@ bool TimeFilter::getTime(miString name, miTime &time) {
 
     bool after = nowClock < clock;
     time = miTime(nowDate,clock);                // this day
-    if(name.find(".dat-") == name.npos){
-      if(after)
-	time.addDay(-1);                           //last day
-    } else{
-      int x = atoi(name.substr(name.find_last_of("-"),name.size()-1).c_str());
-      if(after)
-	time.addDay(x-1);
-      else
-	time.addDay(x);
+    if(after) {
+      time.addDay(-1);                           //last day
     }
 
-    //Don't know if this file has been updated or not, time is set anyway
-    if(abs(miClock::minDiff(clock,nowClock))<15)
-      return false;
+    if ( dat ) {
+
+      if(name.find(".dat") == name.npos)
+        return false;
+
+      miString endstr = name.substr(name.find(".dat"),name.size());
+      //return false if not  .dat or .dat-1, .dat-2 etc
+      if(endstr.size()!=4 && endstr.size()!=6)
+         return false;
+
+      if(name.find(".dat-") == name.npos){
+        if(after)
+          time.addDay(-1);                           //last day
+      } else{
+        int x = atoi(name.substr(name.find_last_of("-"),name.size()-1).c_str());
+        if(after)
+          time.addDay(x-1);
+        else
+          time.addDay(x);
+      }
+    }
 
     return true;
   }
