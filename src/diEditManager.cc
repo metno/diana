@@ -2875,6 +2875,8 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Asklinje blå",AshLineBlue,"blue"));
 #else
   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
+  fronts.push_back(newEditToolInfo("Significant weather_red",SigweatherFront,"red"));
+  fronts.push_back(newEditToolInfo("Significant weather_blue",SigweatherFront,"blue"));
   fronts.push_back(newEditToolInfo("Black sharp line",BlackSharpLine,"black"));
   fronts.push_back(newEditToolInfo("Black smooth line",BlackSmoothLine,"black"));
   fronts.push_back(newEditToolInfo("Red sharp line",RedSharpLine,"red"));
@@ -2942,6 +2944,8 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Fog",Fog,"darkGray"));
   areas.push_back(newEditToolInfo("Ice",Ice,"darkYellow"));
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
+  areas.push_back(newEditToolInfo("Significant weather_red",Sigweather,"red"));
+  areas.push_back(newEditToolInfo("Significant weather_blue",Sigweather,"blue"));
   areas.push_back(newEditToolInfo("Reduced visibility",ReducedVisibility,"gulbrun"));
   areas.push_back(newEditToolInfo("Generic area",Genericarea,"red"));
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
