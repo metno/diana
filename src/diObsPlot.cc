@@ -1517,8 +1517,8 @@ bool ObsPlot::preparePlot() {
 
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
-  fp->set(poptions.fontname,poptions.fontface,10*Scale);
 
+  fp->set(poptions.fontname,poptions.fontface, 8 * Scale);
   // fontsizeScale != 1 when postscript font size != X font size
   if (hardcopy)
     fontsizeScale = fp->getSizeDiv();
@@ -1816,7 +1816,7 @@ bool ObsPlot::plot()
   else
     glLineWidth(3);
 
-  fp->set(poptions.fontname, poptions.fontface, 10 * Scale);
+  fp->set(poptions.fontname, poptions.fontface, 8 * Scale);
 
   // fontsizeScale != 1 when postscript font size != X font size
   if (hardcopy)
@@ -2393,7 +2393,7 @@ void ObsPlot::plotList(int index)
   float xshift = 0;
   float width, height;
   fp->getStringSize("0", width, height);
-  height *= fontsizeScale;
+  height *= fontsizeScale * 1.2;
   width *= fontsizeScale;
   float yStep = height / scale; //depend on character height
   miString align;
@@ -3217,7 +3217,7 @@ void ObsPlot::plotAscii(int index)
   float ypos = 0;
   float w, h;
   fp->getStringSize("0", w, h);
-  h *= fontsizeScale;
+  h *= fontsizeScale * 1.2;
   float yStep = h / scale; //depend on character height
   miString align;
   int num = numPar;
@@ -4015,7 +4015,7 @@ void ObsPlot::plotSynop(int index)
       checkColourCriteria("ww", dta.fdata["ww"]);
     weather((int16) f_p->second, ttt_p->second, dta.zone, iptab[lpos + 12],
         iptab[lpos + 13]);
-    VVxpos = iptab[lpos + 12] - 18;
+    VVxpos = iptab[lpos + 12] - 20;
   }
 
   //characteristics of pressure tendency - a
@@ -4026,7 +4026,7 @@ void ObsPlot::plotSynop(int index)
     if (ccriteria)
       checkColourCriteria("a", f_p->second);
     if (ppp_p != fend && ppp_p->second > 9)
-      symbol(itab[201 + (int) f_p->second], iptab[lpos + 42] + 10, iptab[lpos
+      symbol(itab[201 + (int) f_p->second], iptab[lpos + 42] + 12, iptab[lpos
                                                                          + 43], 0.8);
     else
       symbol(itab[201 + (int) f_p->second], iptab[lpos + 42], iptab[lpos + 43],
@@ -4092,19 +4092,19 @@ void ObsPlot::plotSynop(int index)
   // Pressure - PPPP
   if (devfield) {
     if ((f_p = dta.fdata.find("PPPP_mslp")) != fend) {
-      printAvvik(f_p->second, iptab[lpos + 44] + 2, iptab[lpos + 45] + 2);
+      printAvvik(f_p->second, iptab[lpos + 44] , iptab[lpos + 45] );
     }
   } else if (pFlag.count("pppp") && (f_p = dta.fdata.find("PPPP")) != fend) {
     if (ccriteria)
       checkColourCriteria("PPPP", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 44] + 2, iptab[lpos + 45] + 2, "PPPP");
+    printNumber(f_p->second, iptab[lpos + 44] , iptab[lpos + 45] , "PPPP");
   }
 
   // Pressure tendency over 3 hours - ppp
   if (pFlag.count("ppp") && ppp_p != fend) {
     if (ccriteria)
       checkColourCriteria("ppp", ppp_p->second);
-    printNumber(ppp_p->second, iptab[lpos + 40] + 2, iptab[lpos + 41] + 2,
+    printNumber(ppp_p->second, iptab[lpos + 40] , iptab[lpos + 41] ,
         "ppp");
   }
   // Clouds
@@ -4126,11 +4126,11 @@ void ObsPlot::plotSynop(int index)
       if (ccriteria && h != undef)
         checkColourCriteria("h", h);
       if (ClFlag) {
-        amountOfClouds((int16) Nh, (int16) h, iptab[lpos + 24] + 2, iptab[lpos
-                                                                          + 25] + 2);
+        amountOfClouds((int16) Nh, (int16) h, iptab[lpos + 24] , iptab[lpos
+                                                                          + 25] );
       } else {
-        amountOfClouds((int16) Nh, (int16) h, iptab[lpos + 24] + 2, iptab[lpos
-                                                                          + 25] + 2 + 10);
+        amountOfClouds((int16) Nh, (int16) h, iptab[lpos + 24] , iptab[lpos
+                                                                          + 25]  + 10);
       }
     }
   }
@@ -4142,11 +4142,11 @@ void ObsPlot::plotSynop(int index)
       if (ccriteria)
         checkColourCriteria("RRR", f_p->second);
       if (f_p->second < 0.0) //Precipitation, but less than 0.1 mm (0.0)
-        printString("0.0", iptab[lpos + 32] + 2, iptab[lpos + 33] + 2);
+        printString("0.0", iptab[lpos + 32] +2, iptab[lpos + 33] );
       else if (f_p->second < 0.1) //No precipitation (0.)
-        printString("0.", iptab[lpos + 32] + 2, iptab[lpos + 33] + 2);
+        printString("0.", iptab[lpos + 32] +2, iptab[lpos + 33] );
       else
-        printNumber(f_p->second, iptab[lpos + 32] + 2, iptab[lpos + 33] + 2,
+        printNumber(f_p->second, iptab[lpos + 32] +2, iptab[lpos + 33] ,
             "RRR");
     }
   }
@@ -4161,7 +4161,7 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("ttt") && ttt_p != fend) {
     if (ccriteria)
       checkColourCriteria("TTT", ttt_p->second);
-    printNumber(ttt_p->second, iptab[lpos + 10] + 2, iptab[lpos + 11] + 2,
+    printNumber(ttt_p->second, iptab[lpos + 10] , iptab[lpos + 11] ,
         "temp");
   }
 
@@ -4169,7 +4169,7 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("tdtdtd") && (f_p = dta.fdata.find("TdTdTd")) != fend) {
     if (ccriteria)
       checkColourCriteria("TdTdTd", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 16] + 2, iptab[lpos + 17] + 2, "temp");
+    printNumber(f_p->second, iptab[lpos + 16] , iptab[lpos + 17] , "temp");
   }
 
   // Max/min temperature - TxTxTx/TnTnTn
@@ -4177,7 +4177,7 @@ void ObsPlot::plotSynop(int index)
     if ((f_p = dta.fdata.find("TxTn")) != fend) {
       if (ccriteria)
         checkColourCriteria("TxTn", f_p->second);
-      printNumber(f_p->second, iptab[lpos + 8] + 2, iptab[lpos + 9] + 2, "temp");
+      printNumber(f_p->second, iptab[lpos + 8] , iptab[lpos + 9] , "temp");
     }
   }
 
@@ -4186,7 +4186,7 @@ void ObsPlot::plotSynop(int index)
       != 99) {
     if (ccriteria)
       checkColourCriteria("sss", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 46] + 2, iptab[lpos + 47] + 2);
+    printNumber(f_p->second, iptab[lpos + 46] , iptab[lpos + 47] );
   }
 
   // Maximum wind speed (gusts) - 911ff
@@ -4194,8 +4194,8 @@ void ObsPlot::plotSynop(int index)
     if((f_p = dta.fdata.find("911ff")) != fend) {
       if (ccriteria)
         checkColourCriteria("911ff", f_p->second);
-      printNumber(ms2knots(f_p->second), iptab[lpos + 38] + 2, iptab[lpos + 39]
-                                                                     + 2, "fill_2", true);
+      printNumber(ms2knots(f_p->second), iptab[lpos + 38] , iptab[lpos + 39]
+                                                                     , "fill_2", true);
     }
   }
 
@@ -4204,9 +4204,9 @@ void ObsPlot::plotSynop(int index)
     if (ccriteria)
       checkColourCriteria("s", f_p->second);
     if (TxTnFlag)
-      printNumber(f_p->second, iptab[lpos + 6] + 2, iptab[lpos + 7] + 2);
+      printNumber(f_p->second, iptab[lpos + 6] , iptab[lpos + 7] );
     else
-      printNumber(f_p->second, iptab[lpos + 6] + 2, iptab[lpos + 7] - 14);
+      printNumber(f_p->second, iptab[lpos + 6] , iptab[lpos + 7] - 14);
   }
 
   // Maximum wind speed
@@ -4216,10 +4216,10 @@ void ObsPlot::plotSynop(int index)
       if (ccriteria)
         checkColourCriteria("fxfx", f_p->second);
       if (TxTnFlag)
-        printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 12, iptab[lpos + 7]
-                                                                       + 2, "fill_2", true);
+        printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 10, iptab[lpos + 7]
+                                                                       , "fill_2", true);
       else
-        printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 12, iptab[lpos + 7]
+        printNumber(ms2knots(f_p->second), iptab[lpos + 6] + 10, iptab[lpos + 7]
                                                                        - 14, "fill_2", true);
     }
   }
@@ -4231,15 +4231,15 @@ void ObsPlot::plotSynop(int index)
       = dta.fdata.find("vs")) != fend) {
     if (ccriteria)
       checkColourCriteria("vs", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 32] + 18, iptab[lpos + 33] + 2);
+    printNumber(f_p->second, iptab[lpos + 32] + 18, iptab[lpos + 33] );
   }
 
   //Time
   if (timeFlag && !dta.obsTime.undef()) {
     if (ccriteria)
       checkColourCriteria("Time", 0);
-    printTime(dta.obsTime, float(iptab[lpos + 46] + 2), float(iptab[lpos + 47]
-                                                                    + 2), "left", "h.m");
+    printTime(dta.obsTime, float(iptab[lpos + 46] ), float(iptab[lpos + 47]
+                                                                    ), "left", "h.m");
   }
 
   // Ship or buoy identifier
@@ -4248,9 +4248,9 @@ void ObsPlot::plotSynop(int index)
       checkColourCriteria("Id", 0);
     miString kjTegn = dta.id;
     if (timeFlag)
-      printString(kjTegn.cStr(), iptab[lpos + 46] + 2, iptab[lpos + 47] + 15);
+      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
     else
-      printString(kjTegn.cStr(), iptab[lpos + 46] + 2, iptab[lpos + 47] + 2);
+      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] );
   }
 
   //Wmo block + station number - land stations
@@ -4264,16 +4264,16 @@ void ObsPlot::plotSynop(int index)
         checkColourCriteria("St.no(3)", 0);
     }
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
-      printString(kjTegn.cStr(), iptab[lpos + 46] + 2, iptab[lpos + 47] + 15);
+      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
     else
-      printString(kjTegn.cStr(), iptab[lpos + 46] + 2, iptab[lpos + 47] + 2);
+      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] );
   }
 
   //Sea temperature
   if (pFlag.count("twtwtw") && (f_p = dta.fdata.find("TwTwTw")) != fend) {
     if (ccriteria)
       checkColourCriteria("TwTwTw", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 18] + 2, iptab[lpos + 19] + 2,
+    printNumber(f_p->second, iptab[lpos + 18] , iptab[lpos + 19] ,
         "temp", true);
   }
 
@@ -4282,13 +4282,13 @@ void ObsPlot::plotSynop(int index)
       = dta.fdata.find("HwaHwa")) != fend) {
     if (ccriteria)
       checkColourCriteria("PwaHwa", 0);
-    wave(f_p->second, h_p->second, iptab[lpos + 20] + 2, iptab[lpos + 21] + 2);
+    wave(f_p->second, h_p->second, iptab[lpos + 20] , iptab[lpos + 21] );
   }
   if (pFlag.count("pw1hw1") && ((f_p = dta.fdata.find("Pw1Pw1")) != fend
       && (h_p = dta.fdata.find("Hw1Hw1")) != fend)) {
     if (ccriteria)
       checkColourCriteria("Pw1Hw1", 0);
-    wave(f_p->second, h_p->second, iptab[lpos + 28] + 2, iptab[lpos + 29] + 2);
+    wave(f_p->second, h_p->second, iptab[lpos + 28] , iptab[lpos + 29] );
   }
 
   if (!flaginfo) {
@@ -4301,12 +4301,12 @@ void ObsPlot::plotSynop(int index)
 
   if (pFlag.count("id")) {
     glColor4ubv(colour.RGBA());
-    int ypos = iptab[lpos + 47] + 2;
+    int ypos = iptab[lpos + 47];
     if (timeFlag)
       ypos += 13;
     if ((pFlag.count("sss") && dta.fdata.count("sss")))
       ypos += 13;
-    printString(dta.id.cStr(), iptab[lpos + 46] + 2, ypos);
+    printString(dta.id.cStr(), iptab[lpos + 46], ypos);
   }
 
   //Flag + red/yellow/green
@@ -4345,7 +4345,7 @@ void ObsPlot::plotSynop(int index)
       ypos += 15;
     if (pFlag.count("sss") && dta.fdata.count("sss"))
       ypos += 15; //if snow
-    printString(dta.flag[hqcFlag].cStr(), iptab[lpos + 46] + 2, ypos);
+    printString(dta.flag[hqcFlag].cStr(), iptab[lpos + 46], ypos);
   }
 
   //red circle
@@ -5146,14 +5146,17 @@ void ObsPlot::printTime(miTime time, float x, float y, miString align,
   x *= scale;
   y *= scale;
 
-  const char * c;
+  miString s;
   if (format == "h.m") {
-    c = time.format("%H.%M").cStr();
+     s = time.format("%H.%M");
   } else if (format == "dato") {
-    c = time.format("%m-%d").cStr();
+    s = time.format("%m-%d");
   } else {
-    c = time.isoTime().cStr();
+    s = time.isoTime();
   }
+
+  const char * c;
+  c = s.c_str();
 
   if (align == "right") {
     float w, h;
@@ -5231,12 +5234,12 @@ void ObsPlot::amountOfClouds(int16 Nh, int16 h, float x, float y)
   fp->drawStr(c, x * scale, y * scale, 0.0);
 
   x += 8;
-  y -= 2;
+  y -= 3;
   fp->drawStr("/", x * scale, y * scale, 0.0);
 
   ostringstream ostr;
   x += 6; // += 8;
-  y -= 2;
+  y -= 3;
   if (h > -1 && h < 10)
     ostr << h;
   else

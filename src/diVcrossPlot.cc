@@ -764,8 +764,7 @@ void VcrossPlot::plotText()
 
   fp->setFont("BITMAPFONT");
 
-  //fontsize= 12. * vcopt->fontSize;  // ???????????????????
-  fontsize = 12.;
+  fontsize = 10.;
   fp->setFontSize(fontsize);
 
   float wspace, w, h;
@@ -806,7 +805,7 @@ void VcrossPlot::plotText()
   float xtime = xfc + wfc + wspace;
   float xextreme = xtime + wtime + wspace;
 
-  float dy = chydef * 1.5;
+  float dy = chydef * 2;
   float y = yWindowmin + dy * n;
 
   for (int i = 0; i < n; i++) {
@@ -2240,7 +2239,7 @@ bool VcrossPlot::computeSize()
 
   float chx, chy, chxt, chyt, dchx, dchy;
 
-  float chystp = 1.5;
+  float chystp = 1.7;
   chx = 1.;
   chy = 1.;
   dchx = 0.;
@@ -2248,7 +2247,7 @@ bool VcrossPlot::computeSize()
 
   if (vcopt->pLevelNumbers) {
     // vertical scale marks and numbers
-    dchx = chx * 7.2;
+    dchx = chx * 10;
     dchy = chy * 0.6;
   } else if (vcopt->pFrame) {
     // horizontal marks)
@@ -2265,8 +2264,8 @@ bool VcrossPlot::computeSize()
     yframe2 = dchy;
 
   // below diagram (possibly overplotted by wind/current)
-  chxt = chx * 0.75;
-  chyt = chy * 0.75;
+  chxt = chx*1.2;
+  chyt = chy*1.2;
   if (!timeGraph) {
     // distance (from a reference position, default left end)
     if (vcopt->pDistance) {
@@ -2364,7 +2363,7 @@ bool VcrossPlot::computeSize()
   yframe2 += 1.0;
 
   //fontsize= 12. * vcopt->fontSize;  // ???????????????????
-  fontsize = 12.;
+  fontsize = 10.;
 
   fp->setVpSize(float(plotw), float(ploth));
   fp->setGlSize(float(plotw), float(ploth));
@@ -2602,7 +2601,7 @@ void VcrossPlot::plotTitle()
 
   int nn = markName.size();
   float y = yWindowmax - 1.25 * chy * chystp;
-  fp->setFontSize(fontscale * 1.25);
+  fp->setFontSize(fontscale);
   chxt = 1.25 * chx;
   chyt = 1.25 * chy;
   Colour c(vcopt->positionNamesColour);
@@ -2669,7 +2668,7 @@ void VcrossPlot::plotTitle()
         s = 0.75;
       chxt = chxt * s;
       chyt = chyt * s;
-      fp->setFontSize(fontscale * 1.25 * s);
+      fp->setFontSize(fontscale * s);
       for (int n = 0; n < nn; n++) {
         float dx, dy;
         fp->getStringSize(markName[n].cStr(), dx, dy);
@@ -2866,9 +2865,9 @@ void VcrossPlot::plotXLabels()
       if (c == backColour)
         c = contrastColour;
       glColor3ubv(c.RGB());
-      chxt = chx * 0.75;
-      chyt = chy * 0.75;
-      fp->setFontSize(fontscale * chyt / chy);
+      chxt = chx;
+      chyt = chy;
+      fp->setFontSize(fontscale * 0.75);
       float y1 = y - chyt * chystp;
       float y2 = y - chyt * chystp * 2.;
       y = y - chyt * chystp * 2.2;
@@ -2900,9 +2899,9 @@ void VcrossPlot::plotXLabels()
       if (c == backColour)
         c = contrastColour;
       glColor3ubv(c.RGB());
-      chxt = chx * 0.75;
-      chyt = chy * 0.75;
-      fp->setFontSize(fontscale * chyt / chy);
+      chxt = chx;
+      chyt = chy;
+      fp->setFontSize(fontscale * 0.75);
       float y1 = y - chyt * chystp;
       float y2 = y - chyt * chystp * 2.;
       y = y - chyt * chystp * 2.2;
@@ -4112,7 +4111,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     labfmt[2] = 0;
 
     if (labfmt[0] != 0) {
-      float fontsize = 12. * poptions.labelSize;
+      float fontsize = 10. * poptions.labelSize;
       fp->set(poptions.fontname, poptions.fontface, fontsize);
       fp->getCharSize('0', chxlab, chylab);
       // the real height for numbers 0-9 (width is ok)
