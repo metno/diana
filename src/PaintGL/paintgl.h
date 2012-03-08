@@ -43,8 +43,6 @@ public:
     void end();
 
     void renderPrimitive();
-    void setPen();
-    void setPolygonColor(const QColor &color);
     void setViewportTransform();
 
     QPainter *painter;
@@ -83,6 +81,11 @@ public:
 
     QRect viewport;
     QRectF window;
+
+private:
+    void plotSubdivided(QPointF quad[], QColor color[], int divisions = 4);
+    void setPen();
+    void setPolygonColor(const QColor &color);
 };
 
 class PaintGL {

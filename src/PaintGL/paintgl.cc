@@ -152,6 +152,48 @@ void PaintGLContext::setPolygonColor(const QColor &color)
         painter->setCompositionMode(QPainter::CompositionMode_Source);
 }
 
+#define COLOR_BLEND2(a, b) QColor((a.red() + b.red())/2.0, \
+                                  (a.green() + b.green())/2.0, \
+                                  (a.blue() + b.blue())/2.0, \
+                                  (a.alpha() + b.alpha())/2.0)
+
+#define COLOR_BLEND4(a, b, c, d) \
+    QColor((a.red() + b.red() + c.red() + d.red())/4.0, \
+           (a.green() + b.green() + c.green() + d.green())/4.0, \
+           (a.blue() + b.blue() + c.blue() + d.blue())/4.0, \
+           (a.alpha() + b.alpha() + c.alpha() + d.alpha())/4.0)
+
+void PaintGLContext::plotSubdivided(QPointF quad[], QColor color[], int divisions)
+{
+    if (divisions > 0) {
+        QPointF center = (quad[0] + quad[1] + quad[2] + quad[3])/4.0;
+        QColor centerColor = COLOR_BLEND4(color[0], color[1], color[2], color[3]);
+
+        for (int j = 0; j < 4; ++j) {
+            QPointF newQuad[4];
+            newQuad[0] = quad[j];
+            newQuad[1] = (quad[j] + quad[(j + 1) % 4])/2.0;
+            newQuad[2] = center;
+            newQuad[3] = (quad[j] + quad[(j + 3) % 4])/2.0;
+
+            QColor newColor[4];
+            newColor[0] = color[j];
+            newColor[1] = COLOR_BLEND2(color[j], color[(j + 1) % 4]);
+            newColor[2] = centerColor;
+            newColor[3] = COLOR_BLEND2(color[j], color[(j + 3) % 4]);
+
+            plotSubdivided(newQuad, newColor, divisions - 1);
+        }
+
+    } else {
+        painter->setBrush(QColor((color[0].red() + color[1].red() + color[2].red() + color[3].red())/4,
+                                 (color[0].green() + color[1].green() + color[2].green() + color[3].green())/4,
+                                 (color[0].blue() + color[1].blue() + color[2].blue() + color[3].blue())/4,
+                                 (color[0].alpha() + color[1].alpha() + color[2].alpha() + color[3].alpha())/4));
+        painter->drawPolygon(quad, 4);
+    }
+}
+
 void PaintGLContext::renderPrimitive()
 {
     if (points.size() == 0)
@@ -274,17 +316,7 @@ void PaintGLContext::renderPrimitive()
                 if (blend) {
                     if (smooth) {
                         painter->setPen(Qt::NoPen);
-                        QPointF center = (quad[0] + quad[1] + quad[2] + quad[3])/4.0;
-
-                        for (int j = 0; j < 4; ++j) {
-                            QPointF squad[4];
-                            squad[0] = quad[j];
-                            squad[1] = (quad[j] + quad[(j + 1) % 4])/2.0;
-                            squad[2] = center;
-                            squad[3] = (quad[j] + quad[(j + 3) % 4])/2.0;
-                            painter->setBrush(color[j]);
-                            painter->drawPolygon(squad, 4);
-                        }
+                        plotSubdivided(quad, color);
                     } else {
                         setPolygonColor(colors[i]);
                         painter->drawPolygon(quad, 4);
