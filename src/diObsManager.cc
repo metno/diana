@@ -1741,7 +1741,7 @@ bool ObsManager::parseSetup()
   defProd["temp"].obsformat= ofmt_temp;
   defProd["temp"].timeRangeMin=-30;
   defProd["temp"].timeRangeMax= 30;
-  defProd["temp"].synoptic= true;
+  defProd["temp"].synoptic= false;
   parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
   defProd["temp"].parameter= parameter.split(",");
   defProd["ocea"].obsformat= ofmt_ocea;
@@ -1755,7 +1755,7 @@ bool ObsManager::parseSetup()
   defProd["pilot"].obsformat= ofmt_pilot;
   defProd["pilot"].timeRangeMin=-30;
   defProd["pilot"].timeRangeMax= 30;
-  defProd["pilot"].synoptic= true;
+  defProd["pilot"].synoptic= false;
   parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
   defProd["pilot"].parameter= parameter.split(",");
   defProd["metar"].obsformat= ofmt_metar;
