@@ -55,6 +55,7 @@ public:
 
     bool blend;
     QPainter::CompositionMode blendMode;
+    bool smooth;
 
     bool useTexture;
     GLuint currentTexture;

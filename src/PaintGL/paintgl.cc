@@ -252,18 +252,46 @@ void PaintGLContext::renderPrimitive()
         QPointF quad[4];
         quad[0] = points[0];
         quad[1] = points[1];
+        QColor color[4];
+        color[0] = colors[0];
+        color[1] = colors[1];
+
         for (int i = 2; i < points.size() - 1; i += 2) {
-            if (blend)
-                setPolygonColor(colors[i]);
+
             if (i % 4 == 2) {
                 quad[i % 4] = points[i + 1];
                 quad[i % 4 + 1] = points[i];
+                color[i % 4] = colors[i + 1];
+                color[i % 4 + 1] = colors[i];
             } else {
                 quad[i % 4] = points[i];
                 quad[i % 4 + 1] = points[i + 1];
+                color[i % 4] = colors[i];
+                color[i % 4 + 1] = colors[i + 1];
             }
-            if (validPoints[i - 2] && validPoints[i - 1] && validPoints[i] && validPoints[i + 1])
-                painter->drawPolygon(quad, 4);
+
+            if (validPoints[i - 2] && validPoints[i - 1] && validPoints[i] && validPoints[i + 1]) {
+                if (blend) {
+                    if (smooth) {
+                        painter->setPen(Qt::NoPen);
+                        QPointF center = (quad[0] + quad[1] + quad[2] + quad[3])/4.0;
+
+                        for (int j = 0; j < 4; ++j) {
+                            QPointF squad[4];
+                            squad[0] = quad[j];
+                            squad[1] = (quad[j] + quad[(j + 1) % 4])/2.0;
+                            squad[2] = center;
+                            squad[3] = (quad[j] + quad[(j + 3) % 4])/2.0;
+                            painter->setBrush(color[j]);
+                            painter->drawPolygon(squad, 4);
+                        }
+                    } else {
+                        setPolygonColor(colors[i]);
+                        painter->drawPolygon(quad, 4);
+                    }
+                } else
+                    painter->drawPolygon(quad, 4);
+            }
         }
         break;
     }
@@ -330,7 +358,7 @@ void glBlendFunc(GLenum sfactor, GLenum dfactor)
 {
     ENSURE_CTX_AND_PAINTER
     if (sfactor == GL_SRC_ALPHA && dfactor == GL_ONE_MINUS_SRC_ALPHA)
-        ctx->blendMode = QPainter::CompositionMode_SourceAtop;
+        ctx->blendMode = QPainter::CompositionMode_SourceOver;
 }
 
 void glCallList(GLuint list)
@@ -840,8 +868,11 @@ void glShadeModel(GLenum mode)
 {
     switch (mode) {
     case GL_FLAT:
+        ctx->smooth = false;
+        break;
     case GL_SMOOTH:
     default:
+        ctx->smooth = true;
         break;
     }
 }
