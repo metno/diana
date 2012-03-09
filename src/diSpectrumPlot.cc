@@ -396,12 +396,12 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
     fp->setVpSize(pw,ph);
     fp->setGlSize(x2-x1,y2-y1);
 
-    float chx,chy,fontsize=12.;
+    float chx,chy,fontsize=8.;
     fp->setFontSize(fontsize);
     fp->getCharSize('0',chx,chy);
 
-    fontSize1= fontsize*(dytext1*0.8/chy);
-    fontSize2= fontsize*(dytext2*0.8/chy);
+    fontSize1= fontsize*(dytext1*0.5/chy);
+    fontSize2= fontsize*(dytext2*0.5/chy);
     fontSizeLabel= fontSize1*0.5;
     if (fontSizeLabel>14.) fontSizeLabel= 14.;
 

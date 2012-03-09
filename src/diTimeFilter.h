@@ -49,6 +49,7 @@ private:
   std::string::size_type yyyy,yy,mm,dd,HH,MM,M,XX;
   bool dat;
   bool OK;
+  bool nowtime;
   bool noSlash;
   vector<bool> legalPos;
   bool advanced;

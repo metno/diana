@@ -165,6 +165,11 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
     year = (year > 70) ? year + 1900 : year + 2000;
   }
   time = miTime(year, ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
+
+  if ( time.undef() ) {
+    return false;
+  }
+
   return true;
 
 }
@@ -342,7 +347,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   int day = 0;
   int hour = 0;
   int minute = 0;
-  bool landStation = false;
+  bool wmoNumber = false;
   float heightOfSensor = -1.0;
   float depth = -1.0;
   int timePeriodMissing = -9999;
@@ -381,49 +386,51 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   1002  WMO STATION NUMBER
     case 1002:
       wmoStation = int(values[j]);
-      landStation = true;
+      wmoNumber = true;
       break;
 
       //   1005 BUOY/PLATFORM IDENTIFIER
     case 1005:
       d.id = miString(values[j]);
-      landStation = false;
+      d.zone= 99;
       break;
 
-      // Not used in diana
-      //     case 1015:
-      //       c=0;
-      //       while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
-      // 	d.id += cvals[i][c];
-      // 	c++;
-      //       }
-      //     break;
-
-      //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
+      //001006 AIRCRAFT FLIGHT NUMBER
     case 1006:
     {
-      if (! landStation) {
+      if (! wmoNumber) {
         int index = int(values[j]) / 1000 - 1;
         for (int k = 0; k < 6; k++) {
           d.id += cvals[index][k];
         }
-        landStation = false;
       }
     }
     break;
 
+      //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
     {
-      if ( !landStation ) {
+      if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
         for (int k = 0; k < 7; k++) {
           d.id += cvals[index][k];
         }
-        landStation = false;
+        d.zone= 99;
       }
     }
     break;
 
+    //001015 STATION OR SITE NAME
+    // Not used in diana
+    //     case 1015:
+    //       c=0;
+    //       while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
+    //  d.id += cvals[i][c];
+    //  c++;
+    //       }
+    //     break;
+
+    //001019 LONG STATION OR SITE NAME
     case 1019:
     {
       int index = int(values[j]) / 1000 - 1;
@@ -433,30 +440,32 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     }
     break;
 
-    //   1002  WMO STATION NUMBER
-  case 1102:
-    if ( !landStation ) {
-      d.id = miString(int(values[j]));
-    }
-    break;
-
-    case 1195:
-    {
-      int index = int(values[j]) / 1000 - 1;
-      for (int k = 0; k < 5; k++) {
-        d.id += cvals[index][k];
-      }
-      landStation = false;
-    }
-    break;
-
+    //001063 ICAO LOCATION INDICATOR
     case 1063:
     {
       int index = int(values[j]) / 1000 - 1;
       for (int k = 0; k < 4; k++) {
         d.metarId += cvals[index][k];
       }
-      landStation = false;
+    }
+    break;
+
+    //001102 NATIONAL STATION NUMBER
+    case 1102:
+      if ( !wmoNumber ) {
+        d.id = miString(int(values[j]));
+      }
+    break;
+
+    //001195 MOBIL LAND STATION IDENTIFIER
+    case 1195:
+    {
+      if ( !wmoNumber ) {
+        int index = int(values[j]) / 1000 - 1;
+        for (int k = 0; k < 5; k++) {
+          d.id += cvals[index][k];
+        }
+      }
     }
     break;
 
@@ -1030,14 +1039,11 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   }
 
 
-  if (landStation) {
+  if (wmoNumber) {
     ostringstream ostr;
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
             << wmoStation;
     d.id = ostr.str();
-  } else {
-    d.fdata["stationHeight"] = 0.0;
-    d.zone = 99;
   }
 
   //Metar cloud
@@ -1077,7 +1083,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   int hour = 0;
   int minute = 0;
   miString station;
-  bool landStation = true;
+  bool wmoNumber = true;
   int nn = 0; //what is nn used for??
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
@@ -1093,6 +1099,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
       //   1002  WMO STATION NUMBER
     case 1002:
       wmoStation = int(values[j]);
+      wmoNumber = true;
       nn++;
       break;
 
@@ -1100,14 +1107,13 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     case 1011:
     case 1194:
     {
-      if ( !landStation ) {
+      if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
         //miString station;
         for (int k = 0; k < 6; k++) {
           station+= cvals[index][k];
         }
         if (station.exists()) {
-          landStation = false;
           nn += 2;
         }
       }
@@ -1159,7 +1165,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   }
 
   ostringstream ostr;
-  if (landStation) {
+  if (wmoNumber) {
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
             << wmoStation;
     station = ostr.str();
@@ -1199,7 +1205,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   int day = 0;
   int hour = 0;
   int minute = 0;
-  bool landStation = true;
+  bool wmoNumber = false;
 
   int levelmin = level - level/20;
   int levelmax = level + level/20;
@@ -1230,24 +1236,22 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         //   1002  WMO STATION NUMBER
       case 1002:
         wmoStation = int(values[j]);
+        wmoNumber = true;
         break;
 
         //   1005 BUOY/PLATFORM IDENTIFIER [NUMERIC]
       case 1005:
         d.id = miString(int(values[j]));
-        landStation = false;
+        d.zone = 99;
         break;
 
         //   001007 SATELLITE IDENTIFIER [CODE TABLE]
       case 1007:
       {
-        if ( !landStation ) {
+        if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
           for (int k = 0; k < 4; k++) {
             d.id += cvals[index][k];
-          }
-          if (d.id.exists()) {
-            landStation = false;
           }
         }
       }
@@ -1256,14 +1260,12 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
       case 1011:
       {
-        if ( !landStation ) {
+        if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
           for (int k = 0; k < 4; k++) {
             d.id += cvals[index][k];
           }
-          if (d.id.exists()) {
-            landStation = false;
-          }
+          d.zone = 99;
         }
       }
       break;
@@ -1425,14 +1427,11 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   if (!found){
     return false;
   }
-  if (landStation) {
+  if (wmoNumber) {
     ostringstream ostr;
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
                 << wmoStation;
     d.id = ostr.str();
-  } else {
-    d.fdata["stationHeight"] = 0.0;
-    d.zone = 99;
   }
 
   //TIME
@@ -1462,7 +1461,6 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   float fff, ddd;
   int dd, ff, bpart;
   float lat = 0., lon = 0.;
-  //  bool landStation = true;
   int ffmax = -1, kmax = -1;
 
   static int ii = 0;

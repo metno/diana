@@ -641,6 +641,7 @@ bool EditNewDialog::load_combine(){
         if (combinetime ==vt[i]) index=i; //selected time
       }
       cBox->setCurrentRow(index);
+      combineSelect(cBox->currentItem());
     } else {
       cerr << "EditNewDialog::load - no analyses found"<<endl;
       checkStatus();

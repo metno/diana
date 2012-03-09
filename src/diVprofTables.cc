@@ -135,9 +135,6 @@ void VprofTables::makeFontsizes(float wx, float wy, int vx, int vy)
 
   float size, scale= float(vy)/wy;
 
-  // scale to get the wanted height of characters
-  scale*=1.333333;
-
   fontsizes.clear();
 
   int n= charsizes.size();
