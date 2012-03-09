@@ -586,6 +586,9 @@ name=proj_obtran proj4string="+proj=ob_tran +o_proj=eqc +lon_0=0 +o_lat_p=25 +x_
 
 name=proj_lambert proj4string=" +proj=lcca +lat_0=45 +lon_0=35 +x_0=229966 +y_0=215145 +a=6.371e+06 +b=6.371e+06" rectangle=-2e+07:2e+07:-1.5e+07:6e+06
 
+name=EPSG-4326 proj4string=" +proj=longlat +datum=WGS84 +no_defs"
+name=EPSG-32661 proj4string=" +proj=stere +lat_0=90 +lat_ts=90 +lon_0=0 +k=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs"
+name=EPSG-32761 proj4string=" +proj=stere +lat_0=-90 +lat_ts=-90 +lon_0=0 +k=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs"
 
 </MAP_AREA>
 
