@@ -145,6 +145,7 @@ const miString com_output = "output";
 const miString com_colour = "colour";
 const miString com_drawbackground = "drawbackground";
 const miString com_orientation = "orientation";
+const miString com_antialiasing = "antialiasing";
 
 const miString com_settime = "settime";
 const miString com_addhour = "addhour";
@@ -864,7 +865,6 @@ void printUsage(bool showexample)
         "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
 #endif
         "-use_qimage       : use QImage as drawing medium                        \n"
-        "-antialias        : use anti-aliasing when using -use_qimage            \n"
 #if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         "-use_doublebuffer : use double buffering OpenGL (default)               \n"
         "-use_singlebuffer : use single buffering OpenGL                         \n"
@@ -899,6 +899,7 @@ void printUsage(bool showexample)
             "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
             "                         # plots                                  \n"
             "plotAnnotationsOnly=NO   # YES=only plot annotations/legends      \n"
+            "antialiasing=NO          # available when -use_qimage is set      \n"
             "                                                                  \n"
             "# the following options for output=POSTSCRIPT or EPS only         \n"
             "toprinter=NO             # send output to printer (postscript)    \n"
@@ -2453,6 +2454,9 @@ int parseAndProcess(istream &is)
     } else if (key == com_plotannotationsonly) {
       plotAnnotationsOnly = (value.downcase() == "yes");
 
+    } else if (key == com_antialiasing) {
+      antialias = (value.downcase() == "yes");
+
     } else if (key == com_multiple_plots) {
       if (raster) {
         cerr
@@ -2655,9 +2659,6 @@ int main(int _argc, char** _argv)
 
     } else if (sarg == "-use_qimage") {
       canvasType = qt_qimage;
-
-    } else if (sarg == "-antialias") {
-      antialias = true;
 
     } else if (sarg == "-use_singlebuffer") {
       use_double_buffer = false;
