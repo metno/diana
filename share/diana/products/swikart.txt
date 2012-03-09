@@ -3,7 +3,7 @@ anno=<text="Issued by ENVN",face=bold,size=0.5> \
 <horalign=center>\
 tcolour=black plotrequested=true \
 bcolour=black fcolour=white polystyle=fill halign=left valign=top \
-font=Helvetica fontsize=22 face=normal xoffset=0 yoffset=0 \
+font=BITMAPFONT fontsize=22 face=normal xoffset=0 yoffset=0 \
 margin=0.015 xratio=0.25 yratio=0.10
 
 
@@ -12,7 +12,7 @@ anno=<text="POLAR LOW/TROUGH INFORMATION CHART"><horalign=center> \
 anno=<text="NO "><input="...",name=number><text="issued at "><input="tid",name=time><text="UTC "><input="dato",name=date><horalign=center> \
 tcolour=black plotrequested=true \
 bcolour=black fcolour=white polystyle=fill halign=right valign=top \
-font=Helvetica fontsize=24 face=normal xoffset=0 yoffset=0 \
+font=BITMAPFONT fontsize=24 face=normal xoffset=0 yoffset=0 \
 margin=0.022 xratio=0.75 yratio=0.11
 
 
@@ -36,7 +36,7 @@ anno=<text="CB imply moderate or severe turbulence, icing and hail...",size=0.8>
 <horalign=left> \
 tcolour=black plotrequested=true \
 bcolour=black fcolour=white polystyle=both halign=center valign=bottom \
-font=Helvetica fontsize=16 face=normal xoffset=0 yoffset=0 \
+font=BITMAPFONT fontsize=16 face=normal xoffset=0 yoffset=0 \
 margin=0.015 xratio=0.99 yratio=0.26
 
 				

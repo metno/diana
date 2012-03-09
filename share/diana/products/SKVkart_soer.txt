@@ -9,7 +9,7 @@ anno=<text=" ",size=0.3><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
 halign=right valign=top xoffset=0.0001 yoffset=0.04 \
-font=Helvetica fontsize=9 \
+font=BITMAPFONT fontsize=9 \
 margin=0.001 xratio=0.20 yratio=0.40
 
 

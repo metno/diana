@@ -6,7 +6,7 @@ anno=<text=" ",size=0.5><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=white fcolour=white polystyle=both \
 halign=right valign=top xoffset=0.00002 yoffset=0.00002 \
-font=Helvetica fontsize=14 \
+font=BITMAPFONT fontsize=14 \
 margin=0.001 xratio=0.75 yratio=0.07 
 
 
@@ -20,7 +20,7 @@ anno=<text=" ",size=0.7><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=white fcolour=white polystyle=both \
 halign=left \
-font=Helvetica fontsize=10 \
+font=BITMAPFONT fontsize=10 \
 valign=top xoffset=0.00001 yoffset=0.0000001 margin=0.01 \
 xratio=0.25 yratio=0.35
 
@@ -36,13 +36,13 @@ anno=<text=" ",size=0.7><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
 halign=left valign=bottom xoffset=0.00002 yoffset=0.00002 \
-font=Helvetica fontsize=8 \
+font=BITMAPFONT fontsize=8 \
 margin=0.001 xratio=0.45 yratio=0.13 
 
 
 MAP map=Norden_wgs84 contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off lon=off lat=off frame=off
 MAP map=Norden_lakes contour=on cont.colour=darkgray cont.linewidth=1 cont.linetype=solid cont.zorder=1 land=off lon=off lat=off frame=off
-MAP map=fjällområde contour=off land=on land.colour=grey90 land.zorder=0 lon=off lat=off frame=off
+MAP map=fjï¿½llomrï¿½de contour=off land=on land.colour=grey90 land.zorder=0 lon=off lat=off frame=off
 MAP area=Norden2 backcolour=white map=Flygplatser contour=on cont.colour=grey25 cont.linewidth=2 cont.linetype=solid cont.zorder=1 land=on land.colour=grey land.zorder=0 lon=off lat=off frame=on frame.colour=black frame.linewidth=1 frame.linetype=solid frame.zorder=2
 LABEL data font=BITMAPFONT
 LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=12

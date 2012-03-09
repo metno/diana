@@ -1,5 +1,5 @@
 LABEL text="Subjektiv prognose +18 for %Y-%m-%d %H UTC" \
 tcolour=red bcolour=black fcolour=white:200 polystyle=both \
-halign=left valign=top font=Helvetica fontsize=12
+halign=left valign=top font=BITMAPFONT fontsize=12
 
 
