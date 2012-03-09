@@ -1,5 +1,5 @@
 LABEL \
-anno=<image=wwwmet7,size=0.4><horalign=center> \
+anno=<image=wwwmet7,size=0.3><horalign=center> \
 anno=<text="SKV-brief Sør",size=0.7><horalign=center> \
 anno=<text="SFC-FL150",size=0.7><horalign=center> \
 anno=<text=" ______________",size=0.7><horalign=center> \
@@ -8,7 +8,7 @@ anno=<text="%d %Beng %Y",size=0.7><horalign=center> \
 anno=<text=" ",size=0.3><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
-halign=right valign=top xoffset=0.0001 yoffset=0.04 \
+halign=right valign=top xoffset=0.0001 yoffset=0.0001 \
 font=BITMAPFONT fontsize=9 \
 margin=0.001 xratio=0.20 yratio=0.40
 
