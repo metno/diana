@@ -3788,7 +3788,7 @@ void VcrossPlot::plotFrame()
               fp->getStringSize(str.c_str(), dx, dy);
               fp->drawStr(str.c_str(), x1 - dx, y, 0.0);
               fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
+              y1 = y + chyt * 2;
             }
           }
           // needed after drawStr, otherwise colour change may not work
@@ -3832,7 +3832,7 @@ void VcrossPlot::plotFrame()
               string str = ostr.str();
               fp->drawStr(str.c_str(), x1, y, 0.0);
               fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
+              y1 = y + chyt * 2;
             }
           }
           // needed after drawStr, otherwise colour change may not work
@@ -3884,7 +3884,7 @@ void VcrossPlot::plotFrame()
               string str = ostr.str();
               fp->drawStr(str.c_str(), x1, y, 0.0);
               fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
+              y1 = y + chyt * 2;
             }
           }
           // needed after drawStr, otherwise colour change may not work
