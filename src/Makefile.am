@@ -512,15 +512,6 @@ if WITH_SMHI
 common_cppflags += -DSMHI
 endif
 
-# Additional source code for NetCDF support
-if WITH_NETCDF
-common_cppflags += -DNETCDF
-common_ldflags += \
-	${NETCDF_LDFLAGS}
-common_ldadd += \
-	${NETCDF_LIBS}
-endif
-
 # Additional source code for RoadOBS support
 if WITH_ROADOBS
 common_cppflags += -DROADOBS

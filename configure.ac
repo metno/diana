@@ -88,11 +88,6 @@ AC_ARG_ENABLE([profet],
     [], [enable_profet=no])
 AM_CONDITIONAL([WITH_PROFET], [test x$enable_profet = xyes])
 
-AC_ARG_ENABLE([netcdf],
-    [AS_HELP_STRING([--disable-netcdf], [disable NetCDF support])],
-    [], [enable_netcdf=yes])
-AM_CONDITIONAL([WITH_NETCDF], [test x$enable_netcdf = xyes])
-
 AC_ARG_ENABLE([hdf5],
     [AS_HELP_STRING([--enable-hdf5], [enable HDF5 support])],
     [], [enable_hdf5=no])
@@ -124,7 +119,6 @@ AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 # there must be a more elegant way to do this
 METNO_REQUIRE_PKG([DIFIELD], [diField])
 METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
-METNO_REQUIRE_PKG([DIWDB], [diWdb])
 METNO_REQUIRE_PKG([GLTEXT], [glText])
 METNO_REQUIRE_PKG([GLP], [glp])
 METNO_REQUIRE_PKG([LIBMI], [libmi])
