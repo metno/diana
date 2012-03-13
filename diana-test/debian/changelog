@@ -1,3 +1,9 @@
+diana-test (3.28.0-ubuntu4) lucid; urgency=low
+
+  * Substituting "Helvetica" with BITMAPFONT when reading old object files
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 13 Mar 2012 18:43:36 +0100
+
 diana-test (3.28.0-ubuntu3) lucid; urgency=low
 
   * Fonts - adjustments to use vera fonts

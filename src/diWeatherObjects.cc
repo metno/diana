@@ -329,13 +329,17 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
     // read file
     while (getline(file,str) && !file.eof()){
       if (str.exists() && str[0]!='#'){
+        // The font Helvetica is not supported if X-fonts are not enabled, use BITMAPFONT defined in setup
+        if (str.contains("Helvetica")) {
+          str.replace("Helvetica","BITMAPFONT");
+        }
         //check if this is a LABEL string
         if (str.substr(0,5)=="LABEL"){
           if (useobject["anno"])
             itsOldLabels.push_back(str);
-        }
-        else
+        } else {
           fileString+=str;
+        }
       }
     }
     file.close();
