@@ -83,7 +83,7 @@ public:
     QRectF window;
 
 private:
-    void plotSubdivided(QPointF quad[], QColor color[], int divisions = 4);
+    void plotSubdivided(QPointF quad[], QColor color[], int divisions = 0);
     void setPen();
     void setPolygonColor(const QColor &color);
 };

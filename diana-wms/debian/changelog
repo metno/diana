@@ -1,3 +1,10 @@
+diana-wms (3.27.0-3) lucid; urgency=low
+
+  * Disabled subdivision of smoothed quads.
+  * Enabled anti-aliasing support for all products.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 13 Mar 2012 13:02:00 +0100
+
 diana-wms (3.27.0-2) lucid; urgency=low
 
   * Added definitions for the EPSG projections (4326, 32661, 32761).

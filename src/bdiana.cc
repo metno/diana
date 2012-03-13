@@ -1571,6 +1571,13 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
+#endif
         vcrossmanager->plot();
 
         // --------------------------------------------------------
@@ -1640,6 +1647,13 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
+#endif
         vprofmanager->plot();
 
         // --------------------------------------------------------
@@ -1698,6 +1712,13 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
+#endif
         spectrummanager->plot();
 
       }
