@@ -1,3 +1,17 @@
+diana-test (3.28.0-ubuntu3) lucid; urgency=low
+
+  * Fonts - adjustments to use vera fonts
+  * Bufr - some more parameters decoded
+  * FieldDialog - some layout changes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 13 Mar 2012 10:25:14 +0100
+
+diana-test (3.28.0-ubuntu2) lucid; urgency=low
+
+  * added news
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 29 Feb 2012 15:08:01 +0100
+
 diana-test (3.28.0-ubuntu1) lucid; urgency=low
 
   * satellite - possible to reproject images
