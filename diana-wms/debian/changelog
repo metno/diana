@@ -1,3 +1,9 @@
+diana-wms (3.27.0-4) lucid; urgency=low
+
+  * Enabled support for specifying new fields in input files.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 15 Mar 2012 18:25:00 +0100
+
 diana-wms (3.27.0-3) lucid; urgency=low
 
   * Disabled subdivision of smoothed quads.
