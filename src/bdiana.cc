@@ -75,6 +75,7 @@
 #include <diVprofManager.h>
 #include <diVprofOptions.h>
 
+#include <diField/diFieldManager.h>
 #include <diField/diRectangle.h>
 
 #include <diSpectrumManager.h>
@@ -168,6 +169,9 @@ const miString com_time = "time";
 const miString com_endtime = "endtime";
 const miString com_level = "level";
 const miString com_endlevel = "endlevel";
+
+const miString com_field_files = "<field_files>";
+const miString com_field_files_end = "</field_files>";
 
 enum canvas {
   x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer, qt_qimage
@@ -1263,6 +1267,8 @@ int parseAndProcess(istream &is)
   if (res != 0)
     return res;
 
+  vector<miString> extra_field_lines;
+
   int linenum = lines.size();
 
   // parse input - and perform plots
@@ -1393,6 +1399,13 @@ int parseAndProcess(istream &is)
                 << "ERROR, an error occured while main_controller parsed setup: "
                 << setupfile << endl;
             return 99;
+          }
+
+          vector<miString> field_errors;
+          if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
+            cerr << "ERROR, an error occurred while adding new fields:" << endl;
+            for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
+              cerr << field_errors[kk] << endl;
           }
         }
 
@@ -2172,6 +2185,27 @@ int parseAndProcess(istream &is)
       cerr << "================ EXECUTING COMMANDS" << endl;
       continue;
       // =============================================================
+
+    } else if (lines[k].downcase() == com_field_files) {
+      // Read lines until </FIELD_FILES> is read.
+
+      int kk;
+      for (kk = k + 1; kk < linenum; ++kk) {
+        if (lines[kk].downcase() != com_field_files_end)
+           extra_field_lines.push_back(lines[kk]);
+        else
+          break;
+      }
+
+      k = kk;
+      if (k < linenum)
+        k += 1;         // skip the </FIELD_FILES> line
+      else
+        break;
+
+    } else if (lines[k].downcase() == com_field_files_end) {
+      cerr << "WARNING, " << com_field_files_end << " found:" << lines[k]
+           << " Linenumber:" << linenumbers[k] << endl;
     }
 
     // all other options on the form KEY=VALUE
