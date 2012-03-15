@@ -2197,11 +2197,13 @@ int parseAndProcess(istream &is)
           break;
       }
 
-      k = kk;
-      if (k < linenum)
-        k += 1;         // skip the </FIELD_FILES> line
-      else
-        break;
+      if (kk < linenum)
+        k = kk + 1;         // skip the </FIELD_FILES> line
+      else {
+          cerr << "ERROR, no " << com_field_files_end << " found:" << lines[k]
+               << " Linenumber:" << linenumbers[k] << endl;
+        return 1;
+      }
 
     } else if (lines[k].downcase() == com_field_files_end) {
       cerr << "WARNING, " << com_field_files_end << " found:" << lines[k]
@@ -2920,6 +2922,8 @@ int main(int _argc, char** _argv)
       return 99;
     }
     int res = parseAndProcess(is);
+    if (painter.isActive())
+        painter.end();
     if (res != 0)
       return 99;
   }
