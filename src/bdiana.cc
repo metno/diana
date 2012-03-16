@@ -2198,16 +2198,18 @@ int parseAndProcess(istream &is)
       }
 
       if (kk < linenum)
-        k = kk + 1;         // skip the </FIELD_FILES> line
+        k = kk;         // skip the </FIELD_FILES> line
       else {
           cerr << "ERROR, no " << com_field_files_end << " found:" << lines[k]
                << " Linenumber:" << linenumbers[k] << endl;
         return 1;
       }
+      continue;
 
     } else if (lines[k].downcase() == com_field_files_end) {
       cerr << "WARNING, " << com_field_files_end << " found:" << lines[k]
            << " Linenumber:" << linenumbers[k] << endl;
+      continue;
     }
 
     // all other options on the form KEY=VALUE
