@@ -57,6 +57,7 @@ Usage: bdiana -i {job-filename} [-s {setup-filename}] [-v] [-display xhost:displ
 -use_qtgl         : use QGLPixelBuffer as drawing medium (default)   
 -use_doublebuffer : use double buffering OpenGL (default)
 -use_singlebuffer : use single buffering OpenGL
+-use_qimage       : use QImage as drawing medium
 
 special key/value pairs:
  - TIME="YYYY-MM-DD hh:mm:ss"      plot-time
@@ -100,7 +101,9 @@ colour=COLOUR            # GREYSCALE/COLOUR
 filename=tmp_diana.ps    # output filename                        
 keepPlotArea=NO          # YES=try to keep plotarea for several   
                          # plots                                  
-                                                                  
+plotAnnotationsOnly=NO   # YES=only plot annotations/legends
+antialiasing=NO          # available when -use_qimage is set
+
 # the following options for output=POSTSCRIPT or EPS only         
 toprinter=NO             # send output to printer (postscript)    
                          # obsolete command! use PRINT_DOCUMENT instead
