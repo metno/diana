@@ -1297,8 +1297,8 @@ void createJsonAnnotation()
                       outputTextMap["labels"] += ", ";
                   }
               }
-              outputTextMap["colors"] += "]\n";
-              outputTextMap["labels"] += "]\n";
+              outputTextMap["colors"] += "]";
+              outputTextMap["labels"] += "]";
             } else {
               vector<miString> valuePieces = value.split(":");
               outputTextMap[name] = "\"" + valuePieces[0] + "\"";
@@ -2009,11 +2009,14 @@ int parseAndProcess(istream &is)
         QFile outputFile(QString::fromStdString(priop.fname));
         if (outputFile.open(QFile::WriteOnly)) {
           outputFile.write("{\n");
-          for (map<miString,miString>::iterator it = outputTextMap.begin(); it != outputTextMap.end(); ++it) {
-            outputFile.write("  ");
+          unsigned int i = 0;
+          for (map<miString,miString>::iterator it = outputTextMap.begin(); it != outputTextMap.end(); ++it, ++i) {
+            outputFile.write("  \"");
             outputFile.write(QString::fromStdString(it->first).toUtf8());
-            outputFile.write(": ");
+            outputFile.write("\": ");
             outputFile.write(QString::fromStdString(it->second).toUtf8());
+            if (i != outputTextMap.size() - 1)
+              outputFile.write(",");
             outputFile.write("\n");
           }
           outputFile.write("}\n");
