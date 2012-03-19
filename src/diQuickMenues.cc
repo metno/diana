@@ -230,6 +230,10 @@ int updateSyntax(miString& line)
     line.replace("(74,604)","(uk)");
     return 1;
   }
+  if( line.contains("font=Helvetica")){
+    line.replace("font=Helvetica","font=BITMAPFONT");
+    return 1;
+  }
 
 
   return 0;
