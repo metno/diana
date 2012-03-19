@@ -52,6 +52,7 @@
 
 using namespace std;
 
+class AnnotationPlot;
 class PlotModule;
 class FieldManager;
 class FieldPlotManager;
@@ -110,6 +111,8 @@ public:
   void plotCommands(const vector<miutil::miString>&);
   /// call PlotModule.plot()
   void plot(bool over =true, bool under =true);
+  /// get annotations
+  vector<AnnotationPlot*> getAnnotations();
   /// plot annotations only
   vector<Rectangle> plotAnnotations();
   /// get plotwindow corners in GL-coordinates

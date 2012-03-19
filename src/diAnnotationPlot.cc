@@ -1455,6 +1455,11 @@ void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno,
   }
 }
 
+const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
+{
+  return annotations;
+}
+
 vector<vector<miString> > AnnotationPlot::getAnnotationStrings()
 {
   //  cerr <<"AnnotationPlot::getAnnotationStrings():"<<annotations.size()<<endl;

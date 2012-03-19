@@ -1446,6 +1446,11 @@ void PlotModule::plotOver()
 
 }
 
+vector<AnnotationPlot*> PlotModule::getAnnotations()
+{
+  return vap;
+}
+
 vector<Rectangle> PlotModule::plotAnnotations()
 {
   Rectangle plotr = splot.getPlotSize();

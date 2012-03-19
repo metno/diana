@@ -56,6 +56,7 @@
 #include <QtOpenGL>
 #endif
 
+#include <diAnnotationPlot.h>
 #include <diController.h>
 
 #include <puCtools/sleep.h>
@@ -246,6 +247,7 @@ PaintGL wrapper;
 PaintGLContext context;
 #endif
 QPicture picture;
+map<miString,miString> outputTextMap; // output text for cases where output data is XML/JSON
 int xsize; // total pixmap width
 int ysize; // total pixmap height
 bool multiple_plots = false; // multiple plots per page
@@ -287,6 +289,7 @@ bool raster = false; // false means postscript
 bool shape = false; // false means postscript
 bool svg = false;
 bool pdf = false;
+bool json = false;
 int raster_type = image_png; // see enum image_type above
 
 bool plotAnnotationsOnly = false;
@@ -1253,6 +1256,60 @@ void getAnnotationsArea(int& ox, int& oy, int& xsize, int& ysize, int number = -
   }
 }
 
+void createJsonAnnotation()
+{
+  vector<AnnotationPlot*> annotationPlots = main_controller->getAnnotations();
+  for (vector<AnnotationPlot*>::iterator it = annotationPlots.begin(); it != annotationPlots.end(); ++it) {
+
+    vector<AnnotationPlot::Annotation> annotations = (*it)->getAnnotations();
+    for (vector<AnnotationPlot::Annotation>::iterator iti = annotations.begin(); iti != annotations.end(); ++iti) {
+
+      for (vector<miString>::iterator itj = iti->vstr.begin(); itj != iti->vstr.end(); ++itj) {
+
+        // Each string is a sequence of comma-separated assignments.
+        vector<miString> pieces = (*itj).split(",");
+
+        for (vector<miString>::iterator itp = pieces.begin(); itp != pieces.end(); ++itp) {
+          // Handle each assignment.
+          vector<miString> assignment = (*itp).split("=");
+          if (assignment.size() == 2) {
+            miString name = assignment[0];
+            miString value = assignment[1];
+
+            if (name == "table") {
+              // Remove leading and trailing quotes.
+              value = value.substr(1, value.size() - 2);
+              vector<miString> lines = value.split(";");
+              outputTextMap["title"] = "\"" + lines[0] + "\"";
+              outputTextMap["colors"] = "[";
+              outputTextMap["labels"] = "[";
+              for (unsigned int i = 1; i < lines.size(); i += 2) {
+                  Colour color = Colour(lines[i]);
+                  stringstream cs;
+                  cs.flags(ios::hex);
+                  cs.width(6);
+                  cs.fill('0');
+                  cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
+                  outputTextMap["colors"] += "\"" + cs.str() + "\"";
+                  outputTextMap["labels"] += "\"" + lines[i + 1] + "\"";
+                  if (i < lines.size() - 2) {
+                      outputTextMap["colors"] += ", ";
+                      outputTextMap["labels"] += ", ";
+                  }
+              }
+              outputTextMap["colors"] += "]\n";
+              outputTextMap["labels"] += "]\n";
+            } else {
+              vector<miString> valuePieces = value.split(":");
+              outputTextMap[name] = "\"" + valuePieces[0] + "\"";
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 int parseAndProcess(istream &is)
 {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
@@ -1514,8 +1571,14 @@ int parseAndProcess(istream &is)
           cout << "- plot" << endl;
 
         if (plotAnnotationsOnly) {
-          annotationRectangles = main_controller->plotAnnotations();
-          annotationTransform = context.transform;
+          // Plotting annotations only for the purpose of returning legends to a WMS
+          // server front end.
+          if (raster) {
+            annotationRectangles = main_controller->plotAnnotations();
+            annotationTransform = context.transform;
+          } else if (json) {
+            createJsonAnnotation();
+          }
         } else {
           if (shape)
             main_controller->plot(true, false);
@@ -1942,6 +2005,20 @@ int parseAndProcess(istream &is)
           painter.drawPicture(ox, oy, picture);
           painter.end();
 #endif
+      } else if (json) {
+        QFile outputFile(QString::fromStdString(priop.fname));
+        if (outputFile.open(QFile::WriteOnly)) {
+          outputFile.write("{\n");
+          for (map<miString,miString>::iterator it = outputTextMap.begin(); it != outputTextMap.end(); ++it) {
+            outputFile.write("  ");
+            outputFile.write(QString::fromStdString(it->first).toUtf8());
+            outputFile.write(": ");
+            outputFile.write(QString::fromStdString(it->second).toUtf8());
+            outputFile.write("\n");
+          }
+          outputFile.write("}\n");
+          outputFile.close();
+        }
       } else { // PostScript only
         if (toprinter) { // automatic print of each page
           // Note that this option works bad for multi-page output:
@@ -2450,14 +2527,17 @@ int parseAndProcess(istream &is)
         raster = true;
         raster_type = image_unknown;
       } else if (value == "shp") {
-          shape = true;
+        shape = true;
       } else if (value == "svg") {
-          svg = true;
+        svg = true;
       } else if (value == "pdf") {
-          pdf = true;
+        pdf = true;
       } else if (value == "avi") {
         raster = true;
         raster_type = image_avi;
+      } else if (value == "json") {
+        raster = false;
+        json = true;
       } else {
         cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
             << linenumbers[k] << endl;

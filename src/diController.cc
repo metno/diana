@@ -169,6 +169,11 @@ void Controller::plot(bool under, bool over){
 #endif
 }
 
+vector<AnnotationPlot*> Controller::getAnnotations()
+{
+  return plotm->getAnnotations();
+}
+
 vector<Rectangle> Controller::plotAnnotations()
 {
   return plotm->plotAnnotations();
