@@ -1,3 +1,9 @@
+diana-wms (3.27.0-5) lucid; urgency=low
+
+  * Introduced preliminary support for output of JSON format annotations.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 19 Mar 2012 14:29:00 +0100
+
 diana-wms (3.27.0-4) lucid; urgency=low
 
   * Enabled support for specifying new fields in input files.
