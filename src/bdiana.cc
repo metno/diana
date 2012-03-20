@@ -289,14 +289,18 @@ bool useArchive = false;
 bool toprinter = false;
 bool raster = false; // false means postscript
 bool shape = false; // false means postscript
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 bool svg = false;
 bool pdf = false;
 bool json = false;
+#endif
 int raster_type = image_png; // see enum image_type above
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 bool plotAnnotationsOnly = false;
 vector<Rectangle> annotationRectangles;
 QTransform annotationTransform;
+#endif
 
 /*
  more...
@@ -1235,6 +1239,7 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 void getAnnotationsArea(int& ox, int& oy, int& xsize, int& ysize, int number = -1)
 {
   QRectF cutout;
@@ -1312,6 +1317,7 @@ void createJsonAnnotation()
     }
   }
 }
+#endif
 
 int parseAndProcess(istream &is)
 {
@@ -1583,10 +1589,9 @@ int parseAndProcess(istream &is)
           } else if (json) {
             createJsonAnnotation();
           }
-        } else {
-#else
-        {
+        } else
 #endif
+        {
           if (shape)
             main_controller->plot(true, false);
           else
@@ -2011,7 +2016,6 @@ int parseAndProcess(istream &is)
           painter.begin(&printer);
           painter.drawPicture(ox, oy, picture);
           painter.end();
-#endif
       } else if (json) {
         QFile outputFile(QString::fromStdString(priop.fname));
         if (outputFile.open(QFile::WriteOnly)) {
@@ -2029,6 +2033,7 @@ int parseAndProcess(istream &is)
           outputFile.write("}\n");
           outputFile.close();
         }
+#endif
       } else { // PostScript only
         if (toprinter) { // automatic print of each page
           // Note that this option works bad for multi-page output:
@@ -2538,16 +2543,18 @@ int parseAndProcess(istream &is)
         raster_type = image_unknown;
       } else if (value == "shp") {
         shape = true;
+      } else if (value == "avi") {
+        raster = true;
+        raster_type = image_avi;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       } else if (value == "svg") {
         svg = true;
       } else if (value == "pdf") {
         pdf = true;
-      } else if (value == "avi") {
-        raster = true;
-        raster_type = image_avi;
       } else if (value == "json") {
         raster = false;
         json = true;
+#endif
       } else {
         cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
             << linenumbers[k] << endl;
