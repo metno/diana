@@ -1575,7 +1575,9 @@ int parseAndProcess(istream &is)
           // server front end.
           if (raster) {
             annotationRectangles = main_controller->plotAnnotations();
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
             annotationTransform = context.transform;
+#endif
           } else if (json) {
             createJsonAnnotation();
           }
@@ -3012,8 +3014,10 @@ int main(int _argc, char** _argv)
       return 99;
     }
     int res = parseAndProcess(is);
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
     if (painter.isActive())
         painter.end();
+#endif
     if (res != 0)
       return 99;
   }
