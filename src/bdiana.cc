@@ -154,7 +154,9 @@ const miString com_addhour = "addhour";
 const miString com_addminute = "addminute";
 const miString com_archive = "archive";
 const miString com_keepplotarea = "keepplotarea";
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 const miString com_plotannotationsonly = "plotannotationsonly";
+#endif
 
 const miString com_multiple_plots = "multiple.plots";
 const miString com_plotcell = "plotcell";
@@ -906,6 +908,7 @@ void printUsage(bool showexample)
             "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
             "                         # plots                                  \n"
             "plotAnnotationsOnly=NO   # YES=only plot annotations/legends      \n"
+            "                         # (only available with -use_qimage)      \n"
             "antialiasing=NO          # available when -use_qimage is set      \n"
             "                                                                  \n"
             "# the following options for output=POSTSCRIPT or EPS only         \n"
@@ -1570,18 +1573,20 @@ int parseAndProcess(istream &is)
         if (verbose)
           cout << "- plot" << endl;
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         if (plotAnnotationsOnly) {
           // Plotting annotations only for the purpose of returning legends to a WMS
           // server front end.
           if (raster) {
             annotationRectangles = main_controller->plotAnnotations();
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
             annotationTransform = context.transform;
-#endif
           } else if (json) {
             createJsonAnnotation();
           }
         } else {
+#else
+        {
+#endif
           if (shape)
             main_controller->plot(true, false);
           else
@@ -2600,8 +2605,10 @@ int parseAndProcess(istream &is)
     } else if (key == com_keepplotarea) {
       keeparea = (value.downcase() == "yes");
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
     } else if (key == com_plotannotationsonly) {
       plotAnnotationsOnly = (value.downcase() == "yes");
+#endif
 
     } else if (key == com_antialiasing) {
       antialias = (value.downcase() == "yes");
