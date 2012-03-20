@@ -1,3 +1,9 @@
+diana-wms (3.27.0-7) lucid; urgency=low
+
+  * Ensured separation of non-X code for compatibility with X systems.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 20 Mar 2012 17:46:00 +0100
+
 diana-wms (3.27.0-6) lucid; urgency=low
 
   * Fixed JSON format output for legends.
