@@ -96,13 +96,18 @@ buffersize=1696x1200     # plotbuffer (WIDTHxHEIGHT)
                                                                   
 #- Optional: values for each option below are default-values      
 setupfile=diana.setup    # use a standard setup-file              
-output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG                 
+output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI/SHP/
+                         # PDF/SVG/JSON
+                         #  RASTER: format from filename-suffix
+                         #  PDF/SVG/JSON (only with -use_qimage)
+                         #  JSON (only for annotations)
 colour=COLOUR            # GREYSCALE/COLOUR                       
 filename=tmp_diana.ps    # output filename                        
 keepPlotArea=NO          # YES=try to keep plotarea for several   
                          # plots                                  
 plotAnnotationsOnly=NO   # YES=only plot annotations/legends
-antialiasing=NO          # available when -use_qimage is set
+                         # (only available with -use_qimage)
+antialiasing=NO          # only available with -use_qimage
 
 # the following options for output=POSTSCRIPT or EPS only         
 toprinter=NO             # send output to printer (postscript)    
