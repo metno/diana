@@ -3228,17 +3228,21 @@ bool FieldPlot::plotFillCell(){
   vector<float>::iterator it;
   for (int iy=iy1; iy<=iy2; iy++) {
     for (int ix = ix1; ix <= ix2; ix++) {
-      float x1 = x[iy * (nx+1) + ix];
-      float x2 = x[iy * (nx+1) + (ix+1)];
-      float x3 = x[(iy+1) * (nx+1) + (ix+1)];
-      float x4 = x[(iy+1) * (nx+1) + ix];
-      float y1 = y[iy * (nx+1) +ix];
-      float y2 = y[(iy) * (nx+1) +(ix+1)];
-      float y3 = y[(iy+1) * (nx+1) +(ix+1)];
-      float y4 = y[(iy+1) * (nx+1) +(ix)];
 
       float value = fields[0]->data[ix + (iy * (nx))];
+      if ( value == fieldUndef ) continue;
       if (value >= poptions.minvalue && value <= poptions.maxvalue) {
+
+        float x1 = x[iy * (nx+1) + ix];
+        float x2 = x[iy * (nx+1) + (ix+1)];
+        float x3 = x[(iy+1) * (nx+1) + (ix+1)];
+        float x4 = x[(iy+1) * (nx+1) + ix];
+        float y1 = y[iy * (nx+1) +ix];
+        float y2 = y[(iy) * (nx+1) +(ix+1)];
+        float y3 = y[(iy+1) * (nx+1) +(ix+1)];
+        float y4 = y[(iy+1) * (nx+1) +(ix)];
+
+
 
         // set fillcolor of cell
         if(poptions.linevalues.size() == 0){
