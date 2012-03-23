@@ -3239,8 +3239,8 @@ void ObsPlot::plotAscii(int index)
   float yShift = ig.heightp(image) / 2;
 
   if (!windOK) {
-    if (dta.stringdata.count("Image")) {
-      miString thisImage = dta.stringdata["Image"];
+    if (dta.stringdata.count("image")) {
+      miString thisImage = dta.stringdata["image"];
       xShift = ig.widthp(thisImage) / 2;
       yShift = ig.heightp(thisImage) / 2;
       ig.plotImage(thisImage, x[index], y[index], true, Scale);

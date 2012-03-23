@@ -484,6 +484,9 @@ void ObsAscii::decodeData()
         if ( asciiColumn["dd"] == i ) {
           obsData.fdata["dd"] = atof(pstr[i].c_str());
         }
+        if ( asciiColumn["image"] == i ) {
+          obsData.stringdata["image"] = pstr[i];
+        }
       }
 
       if (useTime) {
