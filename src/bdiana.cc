@@ -249,7 +249,7 @@ PaintGL wrapper;
 PaintGLContext context;
 #endif
 QPicture picture;
-map<miString,miString> outputTextMap; // output text for cases where output data is XML/JSON
+map<miString, map<miString,miString> > outputTextMaps; // output text for cases where output data is XML/JSON
 int xsize; // total pixmap width
 int ysize; // total pixmap height
 bool multiple_plots = false; // multiple plots per page
@@ -1280,7 +1280,8 @@ void createJsonAnnotation()
         vector<miString> pieces = (*itj).split(",");
 
         for (vector<miString>::iterator itp = pieces.begin(); itp != pieces.end(); ++itp) {
-          // Handle each assignment.
+
+          // Handle each assignment by splitting it into a name and value.
           vector<miString> assignment = (*itp).split("=");
           if (assignment.size() == 2) {
             miString name = assignment[0];
@@ -1290,9 +1291,11 @@ void createJsonAnnotation()
               // Remove leading and trailing quotes.
               value = value.substr(1, value.size() - 2);
               vector<miString> lines = value.split(";");
-              outputTextMap["title"] = "\"" + lines[0] + "\"";
-              outputTextMap["colors"] = "[";
-              outputTextMap["labels"] = "[";
+
+              map<miString,miString> textMap;
+              textMap["title"] = "\"" + lines[0] + "\"";
+              textMap["colors"] = "[";
+              textMap["labels"] = "[";
               for (unsigned int i = 1; i < lines.size(); i += 2) {
                   Colour color = Colour(lines[i]);
                   stringstream cs;
@@ -1300,18 +1303,17 @@ void createJsonAnnotation()
                   cs.width(6);
                   cs.fill('0');
                   cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
-                  outputTextMap["colors"] += "\"" + cs.str() + "\"";
-                  outputTextMap["labels"] += "\"" + lines[i + 1] + "\"";
+                  textMap["colors"] += "\"" + cs.str() + "\"";
+                  textMap["labels"] += "\"" + lines[i + 1] + "\"";
                   if (i < lines.size() - 2) {
-                      outputTextMap["colors"] += ", ";
-                      outputTextMap["labels"] += ", ";
+                      textMap["colors"] += ", ";
+                      textMap["labels"] += ", ";
                   }
               }
-              outputTextMap["colors"] += "]";
-              outputTextMap["labels"] += "]";
-            } else {
-              vector<miString> valuePieces = value.split(":");
-              outputTextMap[name] = "\"" + valuePieces[0] + "\"";
+              textMap["colors"] += "]";
+              textMap["labels"] += "]";
+
+              outputTextMaps[lines[0]] = textMap;
             }
           }
         }
@@ -2023,12 +2025,23 @@ int parseAndProcess(istream &is)
         if (outputFile.open(QFile::WriteOnly)) {
           outputFile.write("{\n");
           unsigned int i = 0;
-          for (map<miString,miString>::iterator it = outputTextMap.begin(); it != outputTextMap.end(); ++it, ++i) {
+          for (map<miString, map<miString,miString> >::iterator iti = outputTextMaps.begin(); iti != outputTextMaps.end(); ++iti, ++i) {
             outputFile.write("  \"");
-            outputFile.write(QString::fromStdString(it->first).toUtf8());
-            outputFile.write("\": ");
-            outputFile.write(QString::fromStdString(it->second).toUtf8());
-            if (i != outputTextMap.size() - 1)
+            outputFile.write(QString::fromStdString(iti->first).toUtf8());
+            outputFile.write("\": {\n");
+            map<miString,miString> textMap = iti->second;
+            unsigned int j = 0;
+            for (map<miString,miString>::iterator itj = textMap.begin(); itj != textMap.end(); ++itj, ++j) {
+              outputFile.write("    \"");
+              outputFile.write(QString::fromStdString(itj->first).toUtf8());
+              outputFile.write("\": ");
+              outputFile.write(QString::fromStdString(itj->second).toUtf8());
+              if (j != textMap.size() - 1)
+                outputFile.write(",");
+              outputFile.write("\n");
+            }
+            outputFile.write("  }");
+            if (i != outputTextMaps.size() - 1)
               outputFile.write(",");
             outputFile.write("\n");
           }
