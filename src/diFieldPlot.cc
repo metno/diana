@@ -488,7 +488,7 @@ bool FieldPlot::plot(){
 }
 
 
-vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
+vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y, bool rotateVectors)
 {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::prepareVectors() ++" << endl;
@@ -499,7 +499,7 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
 
   int nf= tmpfields.size();
 
-  if (fields[0]->area.P() == area.P()) {
+  if ( !rotateVectors || fields[0]->area.P() == area.P() ) {
     u= fields[0]->data;
     v= fields[1]->data;
     if (nf==2) {
@@ -543,7 +543,7 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y)
 }
 
 
-vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* y)
+vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* y, bool rotateVectors )
 {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::prepareDirectionVectors() ++" << endl;
@@ -555,9 +555,9 @@ vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* 
   //tmpfields: fields in current projection
   int nf= tmpfields.size();
 
-  if (nf==2 &&
+  if ( !rotateVectors || (nf==2 &&
       tmpfields[0]->numSmoothed == fields[0]->numSmoothed &&
-      tmpfields[0]->area.P() == area.P()) {
+      tmpfields[0]->area.P() == area.P()) ) {
     //use fields in current projection
     u= tmpfields[0]->data;
     v= tmpfields[1]->data;
@@ -747,7 +747,7 @@ bool FieldPlot::plotWind(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(2,x,y);
+  vector<float*> uv= prepareVectors(2,x,y, poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -928,7 +928,7 @@ bool FieldPlot::plotWindColour(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
+  vector<float*> uv= prepareVectors(3,x,y,poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -1329,7 +1329,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
+  vector<float*> uv= prepareVectors(3,x,y,poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -1945,7 +1945,7 @@ bool FieldPlot::plotVector(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
-  vector<float*> uv= prepareVectors(2,x,y);
+  vector<float*> uv= prepareVectors(2,x,y,poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -2059,7 +2059,7 @@ bool FieldPlot::plotVectorColour(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y);
+  vector<float*> uv= prepareVectors(3,x,y, poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -2238,7 +2238,7 @@ bool FieldPlot::plotDirection(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
-  vector<float*> uv= prepareDirectionVectors(1,x,y);
+  vector<float*> uv= prepareDirectionVectors(1,x,y, poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -2347,7 +2347,7 @@ bool FieldPlot::plotDirectionColour(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
-  vector<float*> uv= prepareDirectionVectors(2,x,y);
+  vector<float*> uv= prepareDirectionVectors(2,x,y, poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
