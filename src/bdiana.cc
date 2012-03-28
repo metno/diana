@@ -1925,7 +1925,7 @@ int parseAndProcess(istream &is)
             getAnnotationsArea(ox, oy, xsize, ysize);
           }
 
-          QImage image(xsize, ysize, QImage::Format_ARGB32);
+          QImage image(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
           painter.begin(&image);
           painter.drawPicture(ox, oy, picture);
           painter.end();

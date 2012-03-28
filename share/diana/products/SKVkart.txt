@@ -3,7 +3,7 @@
 #anno=<text="VALID"><text=><input=" tid ",name=time><text="UTC "><input="dato",name=date><horalign=center> \
 #plotrequested=true tcolour=black \
 #bcolour=black fcolour=white polystyle=both halign=right valign=top \
-#font=Helvetica fontsize=10 face=bold xoffset=0.352 yoffset=0.002 margin=0.000 \
+#font=BITMAPFONT fontsize=10 face=bold xoffset=0.352 yoffset=0.002 margin=0.000 \
 #linewidth=3 xratio=0.392143 yratio=0.1037501
 
 #LABEL anno=<image=metno_sort_txt_big2,size=0.12><horalign=center> \
@@ -18,7 +18,7 @@
 #anno=<text="CIV. TWIL.:"><input="civstart",name=civstart><text="Z "> \
 #anno=<text="NAUT. TWIL.:"><input="nautstart",name=twilstart><text="Z "> \
 #plotrequested=true tcolour=black bcolour=black fcolour=white \
-#polystyle=both halign=right valign=bottom font=Helvetica fontsize=12 face=bold \
+#polystyle=both halign=right valign=bottom font=BITMAPFONT fontsize=12 face=bold \
 #xoffset=0.582 yoffset=0.052 margin=0.015 xratio=0.343214 yratio=0.205
 
 MAP map=Gshhs-Auto \

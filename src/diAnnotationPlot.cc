@@ -211,7 +211,7 @@ bool AnnotationPlot::prepare(const miString& pin)
   cmargin = 0.007;
   cxoffset = 0.01;
   cyoffset = 0.01;
-  cspacing = 0.1;
+  cspacing = 0.2;
   clinewidth = 1;
   cxratio = 0.0;
   cyratio = 0.0;

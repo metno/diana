@@ -1800,6 +1800,8 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
   float u, v, unitscale, s1;
   float *cwork1, *cwork2;
 
+  std::string unit;
+
   int no = addPar2d(999);
 
   int compute = 0;
@@ -1840,11 +1842,15 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     break;
 
   case vcf_tc_from_th:
-    if (compute == 0)
+    if (compute == 0){
       compute = 1;
+      unit = "celsius";
+    }
   case vcf_tk_from_th:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 2;
+      unit = "kelvin";
+    }
   case vcf_th_from_tk:
     if (compute == 0)
       compute = 3;
@@ -1858,7 +1864,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     if (npp < 0)
       return -1;
     if (!ffunc.aleveltemp(compute, nPoint, numLev, cdata2d[n1], cdata2d[npp],
-        cdata2d[no], allDefined, fieldUndef))
+        cdata2d[no], allDefined, fieldUndef, unit))
       return -1;
     break;
 
@@ -1890,35 +1896,51 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     if (compute == 0)
       compute = 4;
   case vcf_tdc_from_tk_q:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 5;
+      unit = "celsius";
+    }
   case vcf_tdc_from_th_q:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 6;
+      unit = "celsius";
+    }
   case vcf_tdc_from_tk_rh:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 7;
+      unit = "celsius";
+    }
   case vcf_tdc_from_th_rh:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 8;
+      unit = "celsius";
+    }
   case vcf_tdk_from_tk_q:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 9;
+      unit = "kelvin";
+    }
   case vcf_tdk_from_th_q:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 10;
+      unit = "kelvin";
+    }
   case vcf_tdk_from_tk_rh:
-    if (compute == 0)
+    if (compute == 0){
       compute = 11;
+      unit = "kelvin";
+    }
   case vcf_tdk_from_th_rh:
-    if (compute == 0)
+    if (compute == 0) {
       compute = 12;
+      unit = "kelvin";
+    }
     n1 = parloc[0];
     n2 = parloc[1];
     if (npp < 0)
       return -1;
     if (!ffunc.alevelhum(compute, nPoint, numLev, cdata2d[n1], cdata2d[n2],
-        cdata2d[npp], cdata2d[no], allDefined, fieldUndef))
+        cdata2d[npp], cdata2d[no], allDefined, fieldUndef, unit))
       return -1;
     break;
 
@@ -3792,7 +3814,7 @@ void VcrossPlot::plotFrame()
               fp->getStringSize(str.c_str(), dx, dy);
               fp->drawStr(str.c_str(), x1 - dx, y, 0.0);
               fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
+              y1 = y + chyt * 2;
             }
           }
           // needed after drawStr, otherwise colour change may not work
@@ -3836,7 +3858,7 @@ void VcrossPlot::plotFrame()
               string str = ostr.str();
               fp->drawStr(str.c_str(), x1, y, 0.0);
               fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
+              y1 = y + chyt * 2;
             }
           }
           // needed after drawStr, otherwise colour change may not work
@@ -3888,7 +3910,7 @@ void VcrossPlot::plotFrame()
               string str = ostr.str();
               fp->drawStr(str.c_str(), x1, y, 0.0);
               fp->drawStr(str.c_str(), x2, y, 0.0);
-              y1 = y + chyt * 1.2;
+              y1 = y + chyt * 2;
             }
           }
           // needed after drawStr, otherwise colour change may not work

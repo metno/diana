@@ -421,14 +421,14 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     break;
 
     //001015 STATION OR SITE NAME
-    // Not used in diana
-    //     case 1015:
-    //       c=0;
-    //       while (c<5 && int(cvals[i][c])!=0 && int(cvals[i][c])!=32) {
-    //  d.id += cvals[i][c];
-    //  c++;
-    //       }
-    //     break;
+    case 1015:
+    {
+      int index = int(values[j]) / 1000 - 1;
+      for (int k = 0; k < 10; k++) {
+        d.name += cvals[index][k];
+      }
+    }
+    break;
 
     //001019 LONG STATION OR SITE NAME
     case 1019:

@@ -5,6 +5,7 @@
 
 #include <QColor>
 #include <QHash>
+#include <QList>
 #include <QPainter>
 #include <QPair>
 #include <QPen>
@@ -21,7 +22,6 @@ struct PaintAttributes {
     QColor color;
     float width;
     QHash<GLenum,GLenum> polygonMode;
-    QPointF textureCoordinate;
     QVector<qreal> dashes;
     qreal dashOffset;
     bool stipple;
@@ -71,9 +71,8 @@ public:
     GLenum mode;
     PaintAttributes attributes;
     QVector<QPointF> points;
-    QVector<bool> validPoints;
-    QVector<QColor> colors;
-    QVector<QPointF> textureCoordinates;
+    QList<bool> validPoints;
+    QList<QColor> colors;
     QTransform transform;
 
     QHash<GLuint, QPicture> lists;

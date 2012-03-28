@@ -85,7 +85,6 @@ void PaintGLContext::begin(QPainter *painter)
     points.clear();
     validPoints.clear();
     colors.clear();
-    textureCoordinates.clear();
 
     stack.clear();
     renderStack.clear();
@@ -264,6 +263,11 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_QUADS";
         if (!blend)
             setPolygonColor(attributes.color);
+        else {
+            // Optimisation: Diana only ever draws filled, blended quads without edges.
+            painter->setPen(Qt::NoPen);
+        }
+
         for (int i = 0; i < points.size() - 3; i += 4) {
             if (!validPoints[i] || !validPoints[i] || !validPoints[i] || !validPoints[i])
                 continue;
@@ -280,8 +284,10 @@ void PaintGLContext::renderPrimitive()
                     painter->restore();
                 }
             } else {
-                if (blend)
-                    setPolygonColor(colors[i]);
+                if (blend) {
+                    // Optimisation: Diana only ever draws filled, blended quads without edges.
+                    painter->setBrush(colors[i]);
+                }
                 painter->drawPolygon(poly);
             }
         }
@@ -345,7 +351,6 @@ void PaintGLContext::renderPrimitive()
     points.clear();
     validPoints.clear();
     colors.clear();
-    textureCoordinates.clear();
 }
 
 void PaintGLContext::setViewportTransform()
@@ -558,7 +563,7 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     int sy = ctx->pixelStore[GL_UNPACK_SKIP_ROWS];
     int sr = ctx->pixelStore[GL_UNPACK_ROW_LENGTH];
 
-    QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32);
+    QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32).rgbSwapped();
 
     QPointF pos = ctx->rasterPos + ctx->bitmapMove;
 
@@ -920,7 +925,6 @@ void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 void glTexCoord2f(GLfloat s, GLfloat t)
 {
     ENSURE_CTX
-    ctx->attributes.textureCoordinate = QPointF(s, t);
 }
 
 void glTexEnvf(GLenum target, GLenum pname, GLfloat param)
@@ -958,7 +962,6 @@ void glVertex2dv(GLdouble *v)
     ctx->points.append(p);
     ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
-    ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
 
 void glVertex2f(GLfloat x, GLfloat y)
@@ -968,7 +971,6 @@ void glVertex2f(GLfloat x, GLfloat y)
     ctx->points.append(p);
     ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
-    ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
 
 void glVertex3f(GLfloat x, GLfloat y, GLfloat z)
@@ -979,7 +981,6 @@ void glVertex3f(GLfloat x, GLfloat y, GLfloat z)
     ctx->points.append(p);
     ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
-    ctx->textureCoordinates.append(ctx->attributes.textureCoordinate);
 }
 
 void glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
