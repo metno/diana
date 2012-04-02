@@ -1,3 +1,9 @@
+diana-wms (3.27.1-2) lucid; urgency=low
+
+  * Updated package dependencies.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 02 Apr 2012 14:20:00 +0200
+
 diana-wms (3.27.1-1) lucid; urgency=low
 
   * Changed the way that annotations are written in JSON format.
