@@ -2850,37 +2850,55 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Kallfront",Cold,"blue"));
   fronts.push_back(newEditToolInfo("Varmfront",Warm,"red"));
   fronts.push_back(newEditToolInfo("Ocklusion",Occluded,"purple"));
-  fronts.push_back(newEditToolInfo("Kall ocklusion",ColdOccluded,"blue"));
-  fronts.push_back(newEditToolInfo("Varm ocklusion",WarmOccluded,"red"));
+  fronts.push_back(newEditToolInfo("Kall ocklusion",Occluded,"blue"));
+  fronts.push_back(newEditToolInfo("Varm ocklusion",Occluded,"red"));
   fronts.push_back(newEditToolInfo("Stationär front",Stationary,"grey50"));
-  fronts.push_back(newEditToolInfo("Tråg",TroughLine2,"black"));
+  fronts.push_back(newEditToolInfo("Tråg",TroughLine,"black"));
 #else
   fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
   fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
   fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
-  fronts.push_back(newEditToolInfo("Cold occlusion",ColdOccluded,"blue"));
-  fronts.push_back(newEditToolInfo("Warm occlusion",WarmOccluded,"red"));
+  fronts.push_back(newEditToolInfo("Cold occlusion",Occluded,"blue"));
+  fronts.push_back(newEditToolInfo("Warm occlusion",Occluded,"red"));
   fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
-  fronts.push_back(newEditToolInfo("Trough",TroughLine,"blue"));
+  fronts.push_back(newEditToolInfo("Trough",Line,"blue"));
   fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
 #endif
 #ifdef SMHI
   //fronts.push_back(newEditToolInfo("Signifikant väder",SigweatherFront,"green"));
   fronts.push_back(newEditToolInfo("Molngräns",SigweatherFront,"green4"));
-  fronts.push_back(newEditToolInfo("VMC-linje",ShortDashedLine,"black"));
-  fronts.push_back(newEditToolInfo("CAT-linje",LongDashedLine,"black"));
-  fronts.push_back(newEditToolInfo("Jetström",Jetstream,"grey50"));
-  fronts.push_back(newEditToolInfo("Asklinje röd",AshLineRed,"red"));
-  fronts.push_back(newEditToolInfo("Asklinje grön",AshLineGreen,"green"));
-  fronts.push_back(newEditToolInfo("Asklinje blå",AshLineBlue,"blue"));
+  fronts.push_back(newEditToolInfo("VMC-linje",Line,"black","black",-2,true,"dash2"));
+  fronts.push_back(newEditToolInfo("CAT-linje",Line,"black","black",-2,true,"longlongdash"));
+  fronts.push_back(newEditToolInfo("Jetström",ArrowLine,"grey50"));
+  fronts.push_back(newEditToolInfo("Asklinje röd",Line,"red","red",0,false));
+  fronts.push_back(newEditToolInfo("Asklinje grön",Line,"green","green",0,false,"dash3"));
+  fronts.push_back(newEditToolInfo("Asklinje blå",Line,"blue","blue",0,false,"dot"));
 #else
   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
   fronts.push_back(newEditToolInfo("Significant weather_red",SigweatherFront,"red"));
   fronts.push_back(newEditToolInfo("Significant weather_blue",SigweatherFront,"blue"));
-  fronts.push_back(newEditToolInfo("Black sharp line",BlackSharpLine,"black"));
-  fronts.push_back(newEditToolInfo("Black smooth line",BlackSmoothLine,"black"));
-  fronts.push_back(newEditToolInfo("Red sharp line",RedSharpLine,"red"));
-  fronts.push_back(newEditToolInfo("Red smooth line",RedSmoothLine,"red"));
+  fronts.push_back(newEditToolInfo("Black sharp line",Line,"black","black",0,false));
+  fronts.push_back(newEditToolInfo("Black smooth line",Line,"black","black",0,true));
+  fronts.push_back(newEditToolInfo("Red sharp line",Line,"red","red",0,false));
+  fronts.push_back(newEditToolInfo("Red smooth line",Line,"red"));
+  fronts.push_back(newEditToolInfo("Blue sharp line",Line,"blue","blue",0,false));
+  fronts.push_back(newEditToolInfo("Blue smooth line",Line,"blue"));
+  fronts.push_back(newEditToolInfo("Green sharp line",Line,"green","green",0,false));
+  fronts.push_back(newEditToolInfo("Green smooth line",Line,"green"));
+  fronts.push_back(newEditToolInfo("Black sharp line stipple",Line,"black","black",0,false,"dash2"));
+  fronts.push_back(newEditToolInfo("Black smooth line stipple",Line,"black","black",0,true,"dash2"));
+  fronts.push_back(newEditToolInfo("Red sharp line stipple",Line,"red","red",0,false,"dash2"));
+  fronts.push_back(newEditToolInfo("Red smooth line stipple",Line,"red","red",0,true,"dash2"));
+  fronts.push_back(newEditToolInfo("Blue sharp line stipple",Line,"blue","blue",0,false,"dash2"));
+  fronts.push_back(newEditToolInfo("Blue smooth line stipple",Line,"blue","blue",0,true,"dash2"));
+  fronts.push_back(newEditToolInfo("Green sharp line stipple",Line,"green","green",0,false,"dash2"));
+  fronts.push_back(newEditToolInfo("Green smooth line stipple",Line,"green","green",0,true,"dash2"));
+  fronts.push_back(newEditToolInfo("Black sharp arrow",ArrowLine,"black","black",0,false));
+  fronts.push_back(newEditToolInfo("Black smooth arrow",ArrowLine,"black","black",0,true));
+  fronts.push_back(newEditToolInfo("Red sharp arrow",ArrowLine,"red","red",0,false));
+  fronts.push_back(newEditToolInfo("Red smooth arrow",ArrowLine,"red"));
+  fronts.push_back(newEditToolInfo("Blue sharp arrow",ArrowLine,"blue","blue",0,false));
+  fronts.push_back(newEditToolInfo("Blue smooth arrow",ArrowLine,"blue"));
 #endif
 
 
@@ -2932,22 +2950,34 @@ void EditManager::initEditTools(){
 #ifdef SMHI
   symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
   symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
-  areas.push_back(newEditToolInfo("Showers",Showers,"green2"));
-  areas.push_back(newEditToolInfo("Dis",Fog2,"red"));
-  areas.push_back(newEditToolInfo("Dimma",Mist,"red"));
-  areas.push_back(newEditToolInfo("Regnområde",Rainarea,"green4"));
+  areas.push_back(newEditToolInfo("Showers",Genericarea,"green2"));
+  areas.push_back(newEditToolInfo("Dis",Genericarea,"red","red",0,false));
+  areas.push_back(newEditToolInfo("Dimma",Genericarea,"red","red",0,false));
+  areas.push_back(newEditToolInfo("Regnområde",Genericarea,"white"));
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-3));
 #else
-  areas.push_back(newEditToolInfo("Precipitation",Rain,"green4"));
-  areas.push_back(newEditToolInfo("Showers",Showers,"green3"));
-  areas.push_back(newEditToolInfo("Clouds",Clouds,"orange"));
-  areas.push_back(newEditToolInfo("Fog",Fog,"darkGray"));
-  areas.push_back(newEditToolInfo("Ice",Ice,"darkYellow"));
+  areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4"));
+  areas.push_back(newEditToolInfo("Showers",Genericarea,"green3","green3",0,true,"dash2"));
+  areas.push_back(newEditToolInfo("Clouds",Genericarea,"orange","orange",0,true,"solid","diagleft"));
+  areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"dash2","zigzag"));
+  areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow",0,true,"solid","paralyse"));
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
   areas.push_back(newEditToolInfo("Significant weather_red",Sigweather,"red"));
   areas.push_back(newEditToolInfo("Significant weather_blue",Sigweather,"blue"));
-  areas.push_back(newEditToolInfo("Reduced visibility",ReducedVisibility,"gulbrun"));
-  areas.push_back(newEditToolInfo("Generic area",Genericarea,"red"));
+  areas.push_back(newEditToolInfo("Reduced visibility",Genericarea,"gulbrun","gulbrun",0,true,"dash2"));
+  areas.push_back(newEditToolInfo("Generic area",Genericarea,"red","red",0,false));
+  areas.push_back(newEditToolInfo("Black sharp area",Genericarea,"black","black",0,false));
+  areas.push_back(newEditToolInfo("Black smooth area",Genericarea,"black","black",0,true));
+  areas.push_back(newEditToolInfo("Red sharp area",Genericarea,"red","red",0,false));
+  areas.push_back(newEditToolInfo("Red smooth area",Genericarea,"red"));
+  areas.push_back(newEditToolInfo("Blue sharp area",Genericarea,"blue","blue",0,false));
+  areas.push_back(newEditToolInfo("Blue smooth area",Genericarea,"blue"));
+  areas.push_back(newEditToolInfo("Black sharp area stipple",Genericarea,"black","black",0,false,"dash2"));
+  areas.push_back(newEditToolInfo("Black smooth area stipple",Genericarea,"black","black",0,true,"dash2"));
+  areas.push_back(newEditToolInfo("Red sharp area stipple",Genericarea,"red","red",0,false,"dash2"));
+  areas.push_back(newEditToolInfo("Red smooth area stipple",Genericarea,"red","red",0,true,"dash2"));
+  areas.push_back(newEditToolInfo("Blue sharp area stipple",Genericarea,"blue","blue",0,false,"dash2"));
+  areas.push_back(newEditToolInfo("Blue smooth area stipple",Genericarea,"blue","blue",0,true,"dash2"));
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
 #endif
   //arrow
@@ -3176,13 +3206,19 @@ editToolInfo newEditToolInfo(const miString & newName,
     const int newIndex,
     const miString & newColour,
     const miString & newBorderColour,
-    const int & newsizeIncrement){
+    const int & newsizeIncrement,
+    const bool& newSpline,
+    const miString& newLinetype,
+    const miString& newFilltype){
   editToolInfo eToolInfo;
   eToolInfo.name=  newName;
   eToolInfo.index= newIndex;
   eToolInfo.colour= newColour;
   eToolInfo.borderColour= newBorderColour;
   eToolInfo.sizeIncrement= newsizeIncrement;
+  eToolInfo.spline=newSpline;
+  eToolInfo.linetype=newLinetype;
+  eToolInfo.filltype=newFilltype;
   return eToolInfo;
 }
 

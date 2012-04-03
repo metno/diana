@@ -257,6 +257,10 @@ struct editToolInfo {
   miutil::miString colour;
   miutil::miString borderColour;
   int sizeIncrement;
+  bool spline;
+  miutil::miString linetype;
+  miutil::miString filltype;
+
 };
 
 /**

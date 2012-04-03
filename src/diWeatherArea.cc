@@ -188,7 +188,6 @@ void WeatherArea::setState(const state s)
 {
   //cerr << "setState " << endl;
   currentState = s;
-  setPlotVariables();
 }
 
 bool WeatherArea::plot()
@@ -204,10 +203,7 @@ bool WeatherArea::plot()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
-    if (drawIndex == Rainarea) {
-      //glColor4ub(1.0, 1.0, 1.0, 1.0);
-      glColor3f(1.0, 1.0, 1.0);
-    }
+
     if (itsLinetype.stipple) {
       glEnable(GL_LINE_STIPPLE);
       glLineStipple(itsLinetype.factor, itsLinetype.bmap);
@@ -225,7 +221,7 @@ bool WeatherArea::plot()
 
     glLineWidth(lwidth);
     int end = 0;
-    if (!spline || s_length == 0) { // crude plotting: no splines or areafill
+    if (currentState == active || !spline || s_length == 0) { // crude plotting: no splines or areafill
       end = nodePoints.size();
       glBegin(GL_LINE_STRIP);
       for (int i = 0; i < end; i++)
@@ -237,7 +233,7 @@ bool WeatherArea::plot()
         plotRubber();
 
     } else { // full plot: spline-border
-      if (drawSig) {
+      if (drawIndex == Sigweather && currentState == passive) {
         drawSigweather();
       } else {
         end = s_length;
@@ -248,27 +244,16 @@ bool WeatherArea::plot()
       }
     }
 
-    if (fillArea && end > 2) {
+    //draw fillArea
+    if (fillArea && currentState == passive && end > 2) {
       int j = 0;
-      // int npos= end - 1;  // -1 for the tesselation
       int npos = end;
       GLdouble *gldata = new GLdouble[npos * 3];
 
       glShadeModel(GL_FLAT);
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-      // change this to: if (has_pattern) {....}
-      if (drawIndex == Clouds || drawIndex == Fog || drawIndex == Ice) {
-        glEnable(GL_POLYGON_STIPPLE);
-        if (drawIndex == Clouds)
-          glPolygonStipple(ldiagleft);
-        else if (drawIndex == Fog)
-          glPolygonStipple(zigzag);
-        else if (drawIndex == Ice)
-          glPolygonStipple(paralyse);
-        else
-          glPolygonStipple(heart);
-      }
+      glEnable(GL_POLYGON_STIPPLE);
+      glPolygonStipple(itsFilltype);
 
       if (!spline) {
         // check for identical end-points
@@ -311,54 +296,6 @@ bool WeatherArea::plot()
   return true;
 }
 
-/**
- * Algorithm for checking whether a point is on the areaborder
- * Uses straight line between spline points
- * HK ??? kommentert vekk denne, bruker funksjon i objectPlot
- bool WeatherArea::onLine(float x, float y){
- float lwid= linewidth*getDwidth();
- int size = s_length-1;
- if (size > 1){
- if (boundBox.isinside(x,y)){
- Rectangle box;
- for (int i = 0; i < size; i++){
- // make a box for each linesegment
- // x-coordinates
- if (x_s[i] < x_s[i+1]){
- box.x1=x_s[i]-lwid; box.x2=x_s[i+1]+lwid;}
- else{
- box.x1=x_s[i+1]-lwid; box.x2=x_s[i]+lwid;}
- // y-coordinates
- if (y_s[i] <y_s[i+1]){
- box.y1=y_s[i]-lwid; box.y2=y_s[i+1]+lwid;}
- else{
- box.y1=y_s[i+1]-lwid; box.y2=y_s[i]+lwid;}
-
- // if point inside box
- if (box.isinside(x,y)){
- // spline point location of point
- iSpline= i;
- // if narrow box: it's a hit
- if (fabsf(x_s[i+1]-x_s[i])<2*lwid){
- return true;
- }
- else{
- // check straight line
- float a=(y_s[i+1]-y_s[i])/(x_s[i+1]-x_s[i]); // gradient
- float b= y_s[i] - x_s[i]*a; // crosspoint
- if (fabsf(a*x+b-y)< 2*lwid){
- return true;
- }
- }
- }
- }
- return false;
- }
- return false;
- }
- return false;
- }
- */
 
 /**
  * Algorithm for marking points on line
@@ -417,28 +354,11 @@ void WeatherArea::setType(int ty)
     return;
   setIndex(allAreas[type].index);
   setBasisColor(allAreas[type].colour);
-  switch (drawIndex) {
-  case Showers:
-    itsLinetype.stipple = true;
-    itsLinetype.factor = 1;
-    //itsLinetype.bmap=0x3F3F;
-    itsLinetype.bmap = 0x00FF;
-    break;
-  case Fog:
-    itsLinetype.stipple = true;
-    itsLinetype.factor = 2;
-    //itsLinetype.bmap=0x0FFF;
-    itsLinetype.bmap = 0x00FF;
-    break;
-  case ReducedVisibility:
-    itsLinetype.stipple = true;
-    itsLinetype.factor = 2;
-    itsLinetype.bmap = 0x00FF;
-    break;
-  default:
-    itsLinetype.stipple = false;
-  }
-  setPlotVariables();
+  setSpline(allAreas[type].spline);
+  setLineType(allAreas[type].linetype);
+  setLineWidth(defaultLineWidth + allAreas[type].sizeIncrement);
+  setFillArea(allAreas[type].filltype);
+
 }
 
 bool WeatherArea::setType(miString tystring)
@@ -454,56 +374,6 @@ bool WeatherArea::setType(miString tystring)
   return false;
 }
 
-void WeatherArea::setPlotVariables()
-{
-  if (currentState == active) {
-    //cerr << "current state = active" << endl;
-    setSpline(false);
-    setFillArea(false);
-  } else if (currentState == passive) {
-    //cerr << "current state = passive"<< endl;
-    drawSig = false;
-    //change according to drawIndex
-    switch (drawIndex) {
-    case Rain:
-      setSpline(true);
-      setFillArea(false);
-      break;
-    case Showers:
-      setSpline(true);
-      setFillArea(false);
-      break;
-    case Clouds:
-      setSpline(true);
-      setFillArea(true);
-      break;
-    case Fog:
-      setSpline(true);
-      setFillArea(true);
-      break;
-    case Ice:
-      setSpline(true);
-      setFillArea(true);
-      break;
-    case ReducedVisibility:
-      setSpline(true);
-      setFillArea(false);
-      break;
-    case Genericarea:
-      setSpline(false);
-      if (isSelected)
-        setFillArea(true);
-      else
-        setFillArea(false);
-      break;
-    case Sigweather:
-      setSpline(true);
-      setFillArea(false);
-      drawSig = true;
-      break;
-    }
-  }
-}
 
 bool WeatherArea::setSpline(bool s)
 {
@@ -516,19 +386,24 @@ bool WeatherArea::setSpline(bool s)
   return false;
 }
 
-bool WeatherArea::setFillArea(bool f)
+void WeatherArea::setFillArea(const miString& filltype)
 {
-  if (fillArea != f) {
-    fillArea = f;
-    return true;
+  fillArea = false;
+  if ( filltype == "diagleft" ) {
+    itsFilltype = diagleft;
+    fillArea = true;
+  } else if( filltype == "zigzag" ) {
+    itsFilltype = zigzag;
+    fillArea = true;
+  } else if( filltype == "paralyse" ) {
+    itsFilltype = paralyse;
+    fillArea = true;
   }
-  return false;
 }
 
 void WeatherArea::setSelected(bool s)
 {
   isSelected = s;
-  setPlotVariables();
 }
 ;
 

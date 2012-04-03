@@ -92,7 +92,6 @@ WeatherFront::WeatherFront(const WeatherFront &rhs) : ObjectPlot(rhs){
     x_s[i] = rhs.x_s[i];
     y_s[i] = rhs.y_s[i];
   }
-  drawSig = rhs.drawSig;
 }
 
 // Destructor
@@ -162,7 +161,6 @@ void WeatherFront::recalculate(){
 void WeatherFront::setState(const state s)
 {
   currentState= s;
-  setPlotVariables();
 }
 
 // draws the weather front
@@ -195,7 +193,6 @@ bool WeatherFront::plot(){
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
-
       switch (drawIndex){
       case Cold:
         drawColds();
@@ -206,73 +203,42 @@ bool WeatherFront::plot(){
       case Occluded:
         drawOccluded();
         break;
-      case ColdOccluded:
-        drawColdOccluded();
-        break;
-      case WarmOccluded:
-        drawWarmOccluded();
-        break;
       case Stationary:
         drawStationary();
         break;
       case TroughLine:
-        //drawTroughLine(); // nothing to draw, only the line (below)
-        break;
-      case TroughLine2:
-        drawTroughLine2(); // nothing to draw, only the line (below)
+        drawTroughLine(); // nothing to draw, only the line (below)
         break;
       case SquallLine:
         drawSquallLine();
         break;
       case SigweatherFront:
-        if (drawSig) drawSigweather();
+        if (currentState == passive) drawSigweather();
         break;
-      case ShortDashedLine:
-        itsLinetype.stipple=true;
-        itsLinetype.factor=1;
-        itsLinetype.bmap=0x00FF;
-        break;
-      case LongDashedLine:
-        itsLinetype.stipple=true;
-        itsLinetype.factor=2;
-        itsLinetype.bmap=0x0FFF;
-        break;
-      case AshLineGreen:
-        itsLinetype.stipple=true;
-        itsLinetype.factor=1;
-        itsLinetype.bmap=0x3F3F;
-        break;
-      case AshLineBlue:
-        itsLinetype.stipple=true;
-        itsLinetype.factor=1;
-        itsLinetype.bmap=0x3333;
-        break;
-      case Jetstream:
-        drawJetstream();
+      case ArrowLine:
+        drawArrowLine();
         break;
       }
 
       // for PostScript generation
       UpdateOutput();
 
-      if (!drawSig){
+      //draw line
+      if ( currentState == active || drawIndex != SigweatherFront ) {
         glPushMatrix();
 
         //draw the line, first set colour and linewidth
         glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
         glLineWidth(scaledlinewidth);
         if (itsLinetype.stipple) {
-           if (drawIndex==AshLineGreen || drawIndex==AshLineBlue) glLineWidth(4.0);
-           else glLineWidth(2.0);
            glEnable(GL_LINE_STIPPLE);
            glLineStipple(itsLinetype.factor,itsLinetype.bmap);
         }
-        if (drawIndex==Jetstream) glLineWidth(4.0);
-        glBegin(GL_LINE_STRIP);        // Draws the smooth line
+        glBegin(GL_LINE_STRIP);        // Draw smooth line
         if (spline){
           for (int i=0; i<s_length; i++)
             glVertex2f((x_s[i]),(y_s[i]));
-        } else{
+        } else{                        //Draw unsmoothed line
           for (int i=0; i<end; i++)
             glVertex2f(nodePoints[i].x,nodePoints[i].y);
         }
@@ -777,23 +743,6 @@ void WeatherFront::drawOccluded(){
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-
-/*
-  For blue occlution
- */
-void WeatherFront::drawColdOccluded(){
-  //    cerr << "WeatherFront::drawColdOccluded" << endl;
-  drawOccluded();
-}
-
-/*
-  For red occlution
- */
-void WeatherFront::drawWarmOccluded(){
-  //    cerr << "WeatherFront::drawWarmOccluded" << endl;
-  drawOccluded();
-}
-
 /*
   Draws stationary front on smooth line
  */
@@ -1008,10 +957,9 @@ void WeatherFront::drawSquallLine(){
 
 
 /*
-  Draws jetstream 
+  Draws arrowline
  */
-void WeatherFront::drawJetstream(){
-  //  cerr << "WeatherFront::drawTroughLine2" << endl;
+void WeatherFront::drawArrowLine(){
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
   int ncount=0;
@@ -1105,7 +1053,7 @@ void WeatherFront::drawJetstream(){
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-}   //end of drawing Jetstream2
+}
 
 
 
@@ -1114,8 +1062,8 @@ void WeatherFront::drawJetstream(){
 /*
   Draws TroughLine
  */
-void WeatherFront::drawTroughLine2(){
-  //  cerr << "WeatherFront::drawTroughLine2" << endl;
+void WeatherFront::drawTroughLine(){
+  //  cerr << "WeatherFront::drawTroughLine" << endl;
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
   int ncount=0;
@@ -1271,9 +1219,13 @@ void WeatherFront::setType(int ty){
     type =allFronts.size()-1;
   else
     return;
+
   setIndex(allFronts[type].index);
   setBasisColor(allFronts[type].colour);
-  setPlotVariables();
+  setSpline(allFronts[type].spline);
+  setLineType(allFronts[type].linetype);
+  setLineWidth(defaultLineWidth + allFronts[type].sizeIncrement);
+
 }
 
 bool WeatherFront::setType(miString tystring){
@@ -1289,47 +1241,6 @@ bool WeatherFront::setType(miString tystring){
 }
 
 
-void WeatherFront::setPlotVariables(){
-  drawSig=false;
-  switch (drawIndex){
-  //significant weather - if active just a line, otherwise curls
-  case SigweatherFront:
-    if (currentState==active){
-      setSpline(false);
-    }
-    else{
-      setSpline(true);
-      drawSig=true;
-    }
-    break;
-  case BlackSharpLine:
-    setSpline(false);
-    break;
-  case BlackSmoothLine:
-    setSpline(true);
-    break;
-  case RedSharpLine:
-    setSpline(false);
-    break;
-  case RedSmoothLine:
-    setSpline(true);
-    break;
-  case AshLineRed:
-    setSpline(false);
-    break;
-  case AshLineGreen:
-    setSpline(false);
-    break;
-  case AshLineBlue:
-    setSpline(false);
-    break;
-  default:
-    // all fronts have spline interpolation
-    setSpline(true);
-  }
-}
-
-
 bool WeatherFront::setSpline(bool s){
   if (spline!=s){
     spline=s;
@@ -1338,10 +1249,6 @@ bool WeatherFront::setSpline(bool s){
   }
   return false;
 }
-
-
-
-
 
 miString WeatherFront::writeTypeString()
 {

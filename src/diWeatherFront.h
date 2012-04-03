@@ -55,24 +55,20 @@ private:
   float * xplot;
   float * yplot;
   bool first;
-  bool drawSig;                   // draw sig weather arcs.
 
   void drawColds();         // draws the blue triangles
   void drawWarms();         // draws the red arc
   void drawStationary();    // draws the red arc
-  void drawColdOccluded();  // draws the blue
-  void drawWarmOccluded();  // draws the red
   void drawOccluded();      // draws the occluded
   void drawSquallLine();    // draws the squall line crosses
   void drawSigweather();    // draws significant weather bubbles
-  void drawJetstream();          // draws jetstream line with arrow (smhi)
-  void drawTroughLine2();        // draws smhi-used troughline 
+  void drawArrowLine();          // draws line with arrow
+  void drawTroughLine();        // draws smhi-used troughline
   bool smooth();
   void recalculate();
   float getLineWidth(){return linewidth;}
   virtual void setLineWidth(float w){linewidth=w;}
   int hitPoint(float x,float y);
-  void setPlotVariables();
   bool setSpline(bool s);     // s=true if you want to spline
 
  public:
