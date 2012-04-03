@@ -106,8 +106,8 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_installdeb
-        LD_LIBRARY_PATH=/usr/share/metno-bdiana/lib dh_shlibdeps
-        dh_gencontrol
+	LD_LIBRARY_PATH=/usr/share/metno-bdiana/lib dh_shlibdeps
+	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
 
