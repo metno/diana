@@ -9,13 +9,9 @@ Standards-Version: 3.7.2
 
 Package: diana-wms
 Architecture: any
-Depends: libavcodec-extra-52, libavformat52 | libavformat-extra-52,
- libavutil-extra-49, libboost-date-time1.40.0, libboost-thread1.40.0,
- libc6, libcurl3-gnutls, libemos0d-wms, libfimex-0.37-0,
- libgcc1, libgeotiff1.2, libgfortran3, libgomp1, liblog4cpp5,
- libmysqlclient16, libpng12-0, libpqxx-2.6.9ldbl, libproj0,
- libqt4-network-qws, libqt4-svg-qws, libqtcore4-qws, libqtgui4-qws,
- libshp1, libstdc++6, libtiff4, qt4-qws-dummy-screen-plugin
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libqtcore4-qws, libqtgui4-qws, libqt4-network-qws, libqt4-svg-qws,
+ qt4-qws-dummy-screen-plugin
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
