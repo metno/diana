@@ -649,6 +649,7 @@ CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources)
 
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_es.ts \
+	$(top_srcdir)/share/diana/lang/diana_ru.ts \
 	$(top_srcdir)/share/diana/lang/diana_sv.ts
 
 languagedir= $(datarootdir)/$(APP)/lang
