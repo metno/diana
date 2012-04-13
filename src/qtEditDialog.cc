@@ -120,6 +120,8 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Trough"]=tr("Trough"); //Tråg
   editTranslations["Squall line"]=tr("Squall line"); //Bygelinje
   editTranslations["Significant weather"]=tr("Significant weather"); //Sig.vær
+  editTranslations["Significant weather TURB/VA/RC"]=tr("Significant weather TURB/VA/RC"); //Sig.vær
+  editTranslations["Significant weather ICE/TCU/CB"]=tr("Significant weather ICE/TCU/CB"); //Sig.vær
 
   editTranslations["Low pressure"]=tr("Low pressure"); //Lavtrykk
   editTranslations["High pressure"]=tr("High pressure"); //Høytrykk

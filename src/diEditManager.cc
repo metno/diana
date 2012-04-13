@@ -2875,8 +2875,8 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Asklinje blå",Line,"blue","blue",0,false,"dot"));
 #else
   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
-  fronts.push_back(newEditToolInfo("Significant weather_red",SigweatherFront,"red"));
-  fronts.push_back(newEditToolInfo("Significant weather_blue",SigweatherFront,"blue"));
+  fronts.push_back(newEditToolInfo("Significant weather TURB/VA/RC",SigweatherFront,"red"));
+  fronts.push_back(newEditToolInfo("Significant weather ICE/TCU/CB",SigweatherFront,"blue"));
   fronts.push_back(newEditToolInfo("Black sharp line",Line,"black","black",0,false));
   fronts.push_back(newEditToolInfo("Black smooth line",Line,"black","black",0,true));
   fronts.push_back(newEditToolInfo("Red sharp line",Line,"red","red",0,false));
