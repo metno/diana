@@ -39,6 +39,7 @@
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QPicture>
 
 #include "qtGLwidget.h"
 #include "diController.h"
