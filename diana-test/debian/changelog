@@ -1,3 +1,37 @@
+diana-test (3.28.0-ubuntu9) lucid; urgency=low
+
+  * Bugfix: fieldedit
+  * EditObjects: minor changes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 17 Apr 2012 15:22:41 +0200
+
+diana-test (3.28.0-ubuntu8) lucid; urgency=low
+
+  * using libfimex-0.37.2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 12 Apr 2012 08:30:29 +0200
+
+diana-test (3.28.0-ubuntu7) lucid; urgency=low
+
+  * using libfimex-0.37.1
+  * New plotOption: rotateVectors
+  * Projections: not adding +towgs84 in projections from felt files
+  * Edit Objects: New fronts and areas
+	
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 10 Apr 2012 09:06:22 +0200
+
+diana-test (3.28.0-ubuntu6) lucid; urgency=low
+
+  * Fonts - QuickMenus: Helvetica changed to BITMAPFONT
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 19 Mar 2012 08:34:27 +0100
+
+diana-test (3.28.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix: POSTGRESQL_LIBS
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 14 Mar 2012 07:35:50 +0100
+
 diana-test (3.28.0-ubuntu4) lucid; urgency=low
 
   * Substituting "Helvetica" with BITMAPFONT when reading old object files
