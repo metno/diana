@@ -116,6 +116,8 @@ private:
   miutil::miString inputFieldConfig;
   miutil::miString plotName;
   miutil::miString fieldUnit;
+  miutil::miString vcoord;
+  miutil::miString vlevel;
 
   miutil::miString lastFileWritten;
 

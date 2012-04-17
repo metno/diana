@@ -199,8 +199,12 @@ bool EditManager::parseSetup() {
               epf.maxValue= atof(vsub[1].c_str());
             } else if (vsub[0]=="tool") {
               epf.editTools= vsub[1].downcase().split('+',true);
+            } else if (vsub[0]=="vcoord") {
+              epf.vcoord_cdm= vsub[1];
+            } else if (vsub[0]=="vlevel") {
+              epf.vlevel_cdm= vsub[1];
             } else if (vsub[0]=="unit") {
-              epf.unit= vsub[1];
+              epf.unit_cdm= vsub[1];
             }
           }
         }
