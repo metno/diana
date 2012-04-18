@@ -70,7 +70,7 @@ private:
 public:
  /// default constructor
   WeatherSymbol();
-  /// constructor with integer symbol type as argumet
+  /// constructor with integer symbol type as argument
   WeatherSymbol(int ty);
   /// constructor with symbol name and type of object as argument
   WeatherSymbol(miutil::miString,int);

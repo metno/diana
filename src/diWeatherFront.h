@@ -78,9 +78,9 @@ private:
  public:
   /// constructor
   WeatherFront();
-  /// constructor with integer front type as argumet
+  /// constructor with integer front type as argument
   WeatherFront(int ty);
-  /// constructor with name of front type as argumet
+  /// constructor with name of front type as argument
   WeatherFront(miutil::miString tystring);
   /// copy constructor
   WeatherFront(const WeatherFront &rhs);
