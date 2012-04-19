@@ -58,6 +58,9 @@
 
 #include <diAnnotationPlot.h>
 #include <diController.h>
+#include <diFieldPlot.h>
+#include <diObsPlot.h>
+#include <diSatPlot.h>
 
 #include <puCtools/sleep.h>
 #include <puTools/miString.h>
@@ -175,6 +178,9 @@ const miString com_endlevel = "endlevel";
 
 const miString com_field_files = "<field_files>";
 const miString com_field_files_end = "</field_files>";
+
+const miString com_describe = "describe";
+const miString com_describe_end = "enddescribe";
 
 enum canvas {
   x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer, qt_qimage
@@ -331,6 +337,15 @@ printOptions priop;
 
 bool wait_for_signals = false;
 miString fifo_name;
+
+#define MAKE_CONTROLLER \
+    main_controller = new Controller; \
+    if (!main_controller->parseSetup()) { \
+      cerr \
+          << "ERROR, an error occured while main_controller parsed setup: " \
+          << setupfile << endl; \
+      return 99; \
+    }
 
 /*
  clean an input-string: remove preceding and trailing blanks,
@@ -1446,19 +1461,19 @@ int parseAndProcess(istream &is)
       for (int i = k + 1; i < linenum && lines[i].downcase() != com_endplot
           && lines[i].downcase() != com_plotend; i++, k++) {
         if (shape ) {
-        	if ( (lines[i].contains("OBS") || lines[i].contains("SAT") || lines[i].contains("OBJECTS") ||
-            		lines[i].contains("EDITFIELD") || lines[i].contains("TRAJECTORY"))) {
-        		cerr << "Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting" << endl;
-        		return 1;
-        	}
-        	if ( lines[i].contains("FIELD") ) {
-        		miString shapeFileName=priop.fname;
-        		lines[i]+= " shapefilename=" + shapeFileName;
-        		if ( lines[i].contains("shapefile=0") )
-        			lines[i].replace("shapefile=0","shapefile=1");
-        		else if ( !lines[i].contains("shapefile=") )
-        			lines[i]+=" shapefile=1";
-        	}
+                if ( (lines[i].contains("OBS") || lines[i].contains("SAT") || lines[i].contains("OBJECTS") ||
+                        lines[i].contains("EDITFIELD") || lines[i].contains("TRAJECTORY"))) {
+                        cerr << "Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting" << endl;
+                        return 1;
+                }
+                if ( lines[i].contains("FIELD") ) {
+                        miString shapeFileName=priop.fname;
+                        lines[i]+= " shapefilename=" + shapeFileName;
+                        if ( lines[i].contains("shapefile=0") )
+                                lines[i].replace("shapefile=0","shapefile=1");
+                        else if ( !lines[i].contains("shapefile=") )
+                                lines[i]+=" shapefile=1";
+                }
         }
         pcom.push_back(lines[i]);
       }
@@ -1468,13 +1483,7 @@ int parseAndProcess(istream &is)
         // -- normal plot
         // Make Controller
         if (!main_controller) {
-          main_controller = new Controller;
-          if (!main_controller->parseSetup()) {
-            cerr
-                << "ERROR, an error occured while main_controller parsed setup: "
-                << setupfile << endl;
-            return 99;
-          }
+          MAKE_CONTROLLER
 
           vector<miString> field_errors;
           if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
@@ -1607,13 +1616,7 @@ int parseAndProcess(istream &is)
 
         // Make Controller
         if (!main_controller) {
-          main_controller = new Controller;
-          if (!main_controller->parseSetup()) {
-            cerr
-                << "ERROR, an error occured while main_controller parsed setup: "
-                << setupfile << endl;
-            return 99;
-          }
+          MAKE_CONTROLLER
         }
 
         // -- vcross plot
@@ -1681,13 +1684,7 @@ int parseAndProcess(istream &is)
       } else if (plottype == plot_vprof) {
         // Make Controller
         if (!main_controller) {
-          main_controller = new Controller;
-          if (!main_controller->parseSetup()) {
-            cerr
-                << "ERROR, an error occured while main_controller parsed setup: "
-                << setupfile << endl;
-            return 99;
-          }
+          MAKE_CONTROLLER
         }
 
         // -- vprof plot
@@ -1975,11 +1972,11 @@ int parseAndProcess(istream &is)
 
       } else if (shape) { // Only shape output
 
-    	  if (priop.fname.contains("tmp_diana")) {
-    		  cout << "Using shape option without file name, it will be created automatically" << endl;
-    	  } else {
-    		  cout << "Using shape option with given file name : " << priop.fname << endl;
-		  }
+          if (priop.fname.contains("tmp_diana")) {
+                  cout << "Using shape option without file name, it will be created automatically" << endl;
+          } else {
+                  cout << "Using shape option with given file name : " << priop.fname << endl;
+                  }
           // first stop postscript-generation
           endHardcopy(plot_none);
 
@@ -2091,13 +2088,7 @@ int parseAndProcess(istream &is)
 
       // Make Controller
       if (!main_controller) {
-        main_controller = new Controller;
-        if (!main_controller->parseSetup()) {
-          cerr
-              << "ERROR, an error occured while main_controller parsed setup: "
-              << setupfile << endl;
-          return 99;
-        }
+        MAKE_CONTROLLER
       }
 
       if (lines[k].downcase() == com_time) {
@@ -2320,6 +2311,91 @@ int parseAndProcess(istream &is)
 
     } else if (lines[k].downcase() == com_field_files_end) {
       cerr << "WARNING, " << com_field_files_end << " found:" << lines[k]
+           << " Linenumber:" << linenumbers[k] << endl;
+      continue;
+
+    } else if (lines[k].downcase() == com_describe) {
+
+      //Find ENDDESCRIBE
+      vector<miString> pcom;
+      for (int i = k + 1; i < linenum && lines[i].downcase() != com_describe_end; i++, k++)
+        pcom.push_back(lines[i]);
+      k++;
+
+      // Make Controller
+      if (!main_controller) {
+        MAKE_CONTROLLER
+      }
+
+      if (verbose)
+        cout << "- sending plotCommands" << endl;
+      main_controller->plotCommands(pcom);
+
+      vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
+      main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
+          ptimes);
+
+      if (ptime.undef()) {
+        if (use_nowtime)
+          thetime = selectNowTime(fieldtimes, sattimes, obstimes, objtimes, ptimes);
+        else if (fieldtimes.size() > 0)
+          thetime = fieldtimes[fieldtimes.size() - 1];
+        else if (sattimes.size() > 0)
+          thetime = sattimes[sattimes.size() - 1];
+        else if (obstimes.size() > 0)
+          thetime = obstimes[obstimes.size() - 1];
+        else if (objtimes.size() > 0)
+          thetime = objtimes[objtimes.size() - 1];
+        else if (ptimes.size() > 0)
+          thetime = ptimes[ptimes.size() - 1];
+      } else
+        thetime = ptime;
+
+      if (verbose)
+        cout << "- plotting for time:" << thetime << endl;
+      main_controller->setPlotTime(thetime);
+
+      if (verbose)
+        cout << "- updatePlots" << endl;
+      if (main_controller->updatePlots()) {
+
+          // open filestream
+          ofstream file(priop.fname.c_str());
+          if (!file) {
+            cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+            return 1;
+          }
+          file << "FILES" << endl;
+
+          vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
+          for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
+              miutil::miString modelName = (*it)->getModelName();
+              FieldSource* fieldSource = main_controller->getFieldManager()->getFieldSource(modelName);
+              for (unsigned int i = 0; i < fieldSource->getFileNames().size(); ++i)
+                  file << fieldSource->getFileNames()[i] << endl;
+          }
+
+          vector<SatPlot*> satellitePlots = main_controller->getSatellitePlots();
+          for (vector<SatPlot*>::iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
+              Sat* sat = (*it)->satdata;
+              file << sat->actualfile << endl;
+          }
+
+          vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
+          for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
+              vector<miutil::miString> obsFileNames = (*it)->getFileNames();
+              for (vector<miutil::miString>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf)
+                file << *itf << endl;
+          }
+
+          cerr << endl;
+          file.close();
+      }
+
+      continue;
+
+    } else if (lines[k].downcase() == com_describe_end) {
+      cerr << "WARNING, " << com_describe_end << " found:" << lines[k]
            << " Linenumber:" << linenumbers[k] << endl;
       continue;
     }
@@ -2765,7 +2841,7 @@ int main(int _argc, char** _argv)
   int port;
   milogger::LogHandler * plog = NULL;
 
- 
+
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
   if (ctmp) {
@@ -2922,7 +2998,7 @@ int main(int _argc, char** _argv)
 
 #ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
-	  COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
+          COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
         << " WARNING !" << "\n"
         << " X pixmaps or GLX pixelbuffers not supported" << "\n"
         << " Forcing use of default canvas" << "\n"
@@ -2933,7 +3009,7 @@ int main(int _argc, char** _argv)
 
 #ifndef GLX_VERSION_1_3
   if (canvasType == glx_pixelbuffer) {
-	  COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
+          COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
         << " WARNING !" << "\n"
         << " This version of GLX does not support PixelBuffers." << "\n"
         << " Forcing use of default canvas" << "\n"
@@ -2975,7 +3051,7 @@ int main(int _argc, char** _argv)
 
     dpy = XOpenDisplay(xhost.cStr());
     if (!dpy) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
       return 1;
     }
 #endif
@@ -2987,7 +3063,7 @@ int main(int _argc, char** _argv)
     pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
         (use_double_buffer ? dblBuf : snglBuf));
     if (!pdvi) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
       return 1;
     }
 
@@ -2995,7 +3071,7 @@ int main(int _argc, char** _argv)
     cx = glXCreateContext(dpy, pdvi,// display and visual
         0, 0); // sharing and direct rendering
     if (!cx) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
       return 1;
     }
 #endif
@@ -3028,7 +3104,7 @@ int main(int _argc, char** _argv)
   if (setupfilegiven) {
     setupread = readSetup(setupfile, *printman);
     if (!setupread) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
       return 99;
     }
   }
@@ -3039,7 +3115,7 @@ int main(int _argc, char** _argv)
   if (!batchinput.empty()) {
     ifstream is(batchinput.c_str());
     if (!is) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
       return 99;
     }
     int res = parseAndProcess(is);
@@ -3062,12 +3138,12 @@ int main(int _argc, char** _argv)
     signalInit();
 
     if (verbose)
-    	COMMON_LOG::getInstance("common").infoStream() << "PID: " << getpid();
+        COMMON_LOG::getInstance("common").infoStream() << "PID: " << getpid();
 
     fs.open("bdiana.pid");
 
     if (!fs) {
-    	COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
+        COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
       return 1;
     }
 
@@ -3078,17 +3154,17 @@ int main(int _argc, char** _argv)
       application->processEvents(); // do we actually care in this case?
       switch (waitOnSignal(10, timeout)) {
       case -1:
-    	  COMMON_LOG::getInstance("common").infoStream() << "ERROR, a waitOnSignal error occured!";
+          COMMON_LOG::getInstance("common").infoStream() << "ERROR, a waitOnSignal error occured!";
         quit = true;
         break;
       case 0:
         if (verbose)
-        	COMMON_LOG::getInstance("common").infoStream() << "SIGUSR1: received!";
+                COMMON_LOG::getInstance("common").infoStream() << "SIGUSR1: received!";
         doWork();
         break;
       case 1:
         if (!timeout) {
-        	COMMON_LOG::getInstance("common").infoStream()<< "SIGTERM, SIGINT: received!";
+                COMMON_LOG::getInstance("common").infoStream()<< "SIGTERM, SIGINT: received!";
           quit = true;
         }
       }
@@ -3162,7 +3238,7 @@ int main(int _argc, char** _argv)
 void doWork()
 {
   if (!command_path.exists()) {
-	  COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
+          COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
     return;
   }
 
@@ -3174,7 +3250,7 @@ void doWork()
   number_of_files = globBuf.gl_pathc;
 
   if (number_of_files == 0) {
-	  COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
+          COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
     globfree_cache(&globBuf);
     return;
   }
@@ -3193,7 +3269,7 @@ int dispatchWork(const std::string &file)
   // commands in file
   ifstream is(file.c_str());
   if (!is) {
-	  COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
+          COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
     return 99;
   }
   int res = parseAndProcess(is);
@@ -3206,7 +3282,7 @@ int dispatchWork(const std::string &file)
   if (!fifo_name.empty()) {
     int fd = open(fifo_name.c_str(), O_WRONLY);
     if (fd == -1) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
       goto ERROR;
     }
     do {
@@ -3230,10 +3306,10 @@ int dispatchWork(const std::string &file)
         buf[0] = 'e';
 
     if (write(fd, buf, 1) == -1) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't write to fifo <" << fifo_name << ">!";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't write to fifo <" << fifo_name << ">!";
     } else {
       if (verbose)
-    	  COMMON_LOG::getInstance("common").infoStream() << "FIFO client <" << fifo_name << "> notified!";
+          COMMON_LOG::getInstance("common").infoStream() << "FIFO client <" << fifo_name << "> notified!";
     }
 
     close(fd);
@@ -3248,3 +3324,4 @@ int dispatchWork(const std::string &file)
   ERROR: unlink(file.c_str());
   return -1;
 }
+

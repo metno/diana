@@ -6149,3 +6149,7 @@ void ObsPlot::parameterDecode(miString parameter, bool add)
   pFlag[parameter.downcase()] = add;
 }
 
+vector<miutil::miString> ObsPlot::getFileNames() const
+{
+  return fileNames;
+}

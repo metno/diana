@@ -181,7 +181,7 @@ vector<Rectangle> Controller::plotAnnotations()
 
 // receive rectangle..
 void Controller::PixelArea(const int x1, const int y1,
-			   const int x2, const int y2){
+                           const int x2, const int y2){
   Rectangle r(x1,y1,x2,y2);
   plotm->PixelArea(r);
 }
@@ -216,7 +216,7 @@ void Controller::setPlotWindow(const int w, const int h){
 
 // return latitude,longitude from physical x,y
 bool Controller::PhysToGeo(const float x,const float y,
-			   float& lat,float& lon){
+                           float& lat,float& lon){
   return plotm->PhysToGeo(x,y,lat,lon);
 }
 
@@ -259,10 +259,10 @@ void Controller::getPlotTime(miTime& t){
 }
 
 void Controller::getPlotTimes(vector<miTime>& fieldtimes,
-			      vector<miTime>& sattimes,
-			      vector<miTime>& obstimes,
-			      vector<miTime>& objtimes,
-			      vector<miTime>& ptimes)
+                              vector<miTime>& sattimes,
+                              vector<miTime>& obstimes,
+                              vector<miTime>& objtimes,
+                              vector<miTime>& ptimes)
 {
   plotm->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes);
 }
@@ -331,24 +331,24 @@ void Controller::nextObs(bool next){
 
 //init hqcData from QSocket
 bool Controller::initHqcdata(int from,
-			     const miString& commondesc,
-			     const miString& common,
-			     const miString& desc,
-			     const vector<miString>& data){
+                             const miString& commondesc,
+                             const miString& common,
+                             const miString& desc,
+                             const vector<miString>& data){
    return obsm->initHqcdata(from,commondesc,common,desc,data);
 }
 
 //update hqcData from QSocket
 void Controller::updateHqcdata(const miString& commondesc,
-			       const miString& common,
-			       const miString& desc,
-			       const vector<miString>& data){
+                               const miString& common,
+                               const miString& desc,
+                               const vector<miString>& data){
   obsm->updateHqcdata(commondesc,common,desc,data);
 }
 
 //select obs parameter to flag from QSocket
 void Controller::processHqcCommand(const miString& command,
-				   const miString& str){
+                                   const miString& str){
   obsm->processHqcCommand(command, str);
 }
 
@@ -427,7 +427,7 @@ miString Controller::getMarkedAnnotation(){
 }
 
 void Controller::changeMarkedAnnotation(miString text,int cursor,
-					int sel1, int sel2){
+                                        int sel1, int sel2){
   plotm->changeMarkedAnnotation(text,cursor,sel1,sel2);
 }
 
@@ -477,7 +477,7 @@ void Controller::archiveMode(bool on){
 // (emitting mousemove or mouseclick signals etc.)
 //
 void Controller::sendMouseEvent(const mouseEvent& me,
-				EventResult& res){
+                                EventResult& res){
 #ifdef DEBUGREDRAW
   cerr<<"Controller::sendMouseEvent................................"<<endl;
 #endif
@@ -523,8 +523,8 @@ void Controller::sendMouseEvent(const mouseEvent& me,
       editm->sendMouseEvent(me,res);
 #ifdef DEBUGREDRAW
       cerr<<"Controller::sendMouseEvent editm res.repaint,bg,savebg,action: "
-	  <<res.repaint<<" "<<res.background<<" "<<res.savebackground<<" "
-	  <<res.action<<endl;
+          <<res.repaint<<" "<<res.background<<" "<<res.savebackground<<" "
+          <<res.action<<endl;
 #endif
     }
   }
@@ -562,7 +562,7 @@ void Controller::sendMouseEvent(const mouseEvent& me,
 // if repaint is required and if any action should be taken
 //
 void Controller::sendKeyboardEvent(const keyboardEvent& me,
-				   EventResult& res){
+                                   EventResult& res){
 
 
   bool keyoverride = false;
@@ -600,10 +600,10 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.modifier!=key_Alt &&
-	       (me.key==key_F2 || me.key==key_F3 ||
-	       me.key==key_F4 || me.key==key_F5 ||
-	       me.key==key_F6 || me.key==key_F7 ||
-	       me.key==key_F8)) {
+               (me.key==key_F2 || me.key==key_F3 ||
+               me.key==key_F4 || me.key==key_F5 ||
+               me.key==key_F6 || me.key==key_F7 ||
+               me.key==key_F8)) {
       plotm->changeArea(me);
       res.repaint= true;
       res.background= true;
@@ -620,7 +620,7 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       return;
       //####################################################################
     } else if ((me.key==key_Left && me.modifier==key_Shift) ||
-	       (me.key==key_Right && me.modifier==key_Shift) ){
+               (me.key==key_Right && me.modifier==key_Shift) ){
       plotm->obsTime(me,res);  // change observation time only
       res.repaint= true;
       res.background= true;
@@ -628,12 +628,12 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       return;
       //####################################################################
      } else if (me.modifier!=key_Control &&
-		(me.key==key_Left || me.key==key_Right ||
-		me.key==key_Down || me.key==key_Up    ||
-		me.key==key_Z    || me.key==key_X     ||
+                (me.key==key_Left || me.key==key_Right ||
+                me.key==key_Down || me.key==key_Up    ||
+                me.key==key_Z    || me.key==key_X     ||
 // 		me.key==key_A    || me.key==key_D     ||
 // 		me.key==key_S    || me.key==key_W     ||
-		me.key==key_Home)) {
+                me.key==key_Home)) {
       plotm->sendKeyboardEvent(me,res);
       res.repaint= true;
       res.background= true;
@@ -682,15 +682,15 @@ set <miString> Controller::getComplexList(){
 // return satfileinfo
 const vector<SatFileInfo>& Controller::getSatFiles(const miString& satellite,
                                                    const miString& file,
-						   bool update){
+                                                   bool update){
   return satm->getFiles(satellite,file,update);
 }
 
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-				     set<miTime>& constTimes,
-				     const vector<miString>& pinfos,
-				     bool allTimes)
+                                     set<miTime>& constTimes,
+                                     const vector<miString>& pinfos,
+                                     bool allTimes)
 {
   return plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes);
 
@@ -704,7 +704,7 @@ const vector<Colour>& Controller::getSatColours(const miString& satellite,
 
 const vector<miString>& Controller::getSatChannels(const miString& satellite,
                                                    const miString& file,
-						   int index){
+                                                   int index){
   return satm->getChannels(satellite,file,index);
 }
 
@@ -747,13 +747,13 @@ void Controller::obsTimeListUpdated(){
 
 
 void Controller::setSatAuto(bool autoFile,const miString& satellite,
-			    const miString& file){
+                            const miString& file){
   plotm->setSatAuto(autoFile,satellite,file);
 }
 
 
 void Controller::getUffdaClasses(vector <miString> & vUffdaClass,
-				 vector <miString> &vUffdaClassTip){
+                                 vector <miString> &vUffdaClassTip){
   vUffdaClass=satm->vUffdaClass;
   vUffdaClassTip=satm->vUffdaClassTip;
 }
@@ -790,8 +790,8 @@ vector<FieldDialogInfo> Controller::initFieldDialog(){
 }
 
 void Controller::getAllFieldNames(vector<miString> & fieldNames,
-				    set<std::string>& fieldprefixes,
-				    set<std::string>& fieldsuffixes)
+                                    set<std::string>& fieldprefixes,
+                                    set<std::string>& fieldsuffixes)
 {
   fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
 }
@@ -817,10 +817,10 @@ std::string Controller::getBestFieldReferenceTime(const std::string& model, int 
 }
 
 void Controller::getFieldGroups(const miString& modelNameRequest,
-				miString& modelName,
-				std::string refTime,
-				bool plotGroups,
-				vector<FieldGroupInfo>& vfgi)
+                                miString& modelName,
+                                std::string refTime,
+                                bool plotGroups,
+                                vector<FieldGroupInfo>& vfgi)
 {
 
   fieldplotm->getFieldGroups(modelNameRequest, modelName, refTime, plotGroups, vfgi);
@@ -861,7 +861,7 @@ void Controller::setObjAuto(bool autoFile){
 }
 
 vector<ObjFileInfo> Controller::getObjectFiles(miString objectname,
-					       bool refresh) {
+                                               bool refresh) {
   return objm->getObjectFiles(objectname,refresh);
 }
 
@@ -895,10 +895,10 @@ void Controller::putStations(StationPlot* stationPlot){
 }
 
 void Controller::makeStationPlot(const miString& commondesc,
-			 const miString& common,
-			 const miString& description,
-			 int from,
-			 const  vector<miString>& data)
+                         const miString& common,
+                         const miString& description,
+                         int from,
+                         const  vector<miString>& data)
 {
   plotm->makeStationPlot(commondesc,common,description,from,data);
 }
@@ -908,27 +908,27 @@ miString Controller::findStation(int x, int y, miString name, int id){
 }
 
 void Controller::findStations(int x, int y, bool add,
-			      vector<miString>& name,
-			      vector<int>& id,
-			      vector<miString>& station){
+                              vector<miString>& name,
+                              vector<int>& id,
+                              vector<miString>& station){
   plotm->findStations(x,y,add,name,id,station);
 }
 
 void Controller::getEditStation(int step,
-				miString& name, int& id,
-				vector<miString>& stations){
+                                miString& name, int& id,
+                                vector<miString>& stations){
   plotm->getEditStation(step,name,id,stations);
 }
 
 void Controller::stationCommand(const miString& command,
-				vector<miString>& data,
-				const miString& name, int id,
-				const miString& misc)
+                                vector<miString>& data,
+                                const miString& name, int id,
+                                const miString& misc)
 {
   plotm->stationCommand(command,data,name,id,misc);
 }
 void Controller::stationCommand(const miString& command,
-				const miString& name, int id)
+                                const miString& name, int id)
 {
   plotm->stationCommand(command,name,id);
 }
@@ -948,7 +948,7 @@ void Controller::makeAreas(const miString& name, miString areastring, int id){
 }
 
 void Controller::areaCommand(const miString& command,const miString& dataSet,
-			     const miString& data, int id ){
+                             const miString& data, int id ){
   //cerr << "Controller::areaCommand" << endl;
   plotm->areaCommand(command,dataSet,data,id);
 }
@@ -962,36 +962,36 @@ vector <selectArea> Controller::findAreas(int x, int y, bool newArea){
 //********** plotting and selecting locationPlots on the map **************
 void Controller::putLocation(const LocationData& locationdata){
 #ifdef DEBUGPRINT
-	cerr << "Controller::putLocation" << endl;
+        cerr << "Controller::putLocation" << endl;
 #endif
   plotm->putLocation(locationdata);
 }
 
 void Controller::updateLocation(const LocationData& locationdata){
 #ifdef DEBUGPRINT
-	cerr << "Controller::updateLocation" << endl;
+        cerr << "Controller::updateLocation" << endl;
 #endif
   plotm->updateLocation(locationdata);
 }
 
 void Controller::deleteLocation(const miString& name){
 #ifdef DEBUGPRINT
-	cerr << "Controller::deleteLocation: " << name << endl;
+        cerr << "Controller::deleteLocation: " << name << endl;
 #endif
   plotm->deleteLocation(name);
 }
 
 void Controller::setSelectedLocation(const miString& name,
-			           const miString& elementname){
+                                   const miString& elementname){
 #ifdef DEBUGPRINT
-	cerr << "Controller::setSelectedLocation: " << name << "," << elementname << endl;
+        cerr << "Controller::setSelectedLocation: " << name << "," << elementname << endl;
 #endif
   plotm->setSelectedLocation(name,elementname);
 }
 
 miString Controller::findLocation(int x, int y, const miString& name){
 #ifdef DEBUGPRINT
-	cerr << "Controller::findLocation: " << x << "," << y << "," << name << endl;
+        cerr << "Controller::findLocation: " << x << "," << y << "," << name << endl;
 #endif
   return plotm->findLocation(x,y,name);
 }
@@ -1022,14 +1022,14 @@ vector<miString> Controller::writeLog()
 }
 
 void Controller::readLog(const vector<miString>& vstr,
-			 const miString& thisVersion,
-			 const miString& logVersion)
+                         const miString& thisVersion,
+                         const miString& logVersion)
 {
   plotm->readLog(vstr,thisVersion,logVersion);
 }
 
 void Controller::setPaintModeEnabled(bool pm_enabled){
-	paintModeEnabled = pm_enabled;
+        paintModeEnabled = pm_enabled;
 }
 
 bool Controller::useScrollwheelZoom() {
@@ -1046,11 +1046,11 @@ bool Controller::initProfet(){
 }
 /*
 bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
-	if(profetController){
-		profetController->setGUI(gui);
-		return true;
-	}
-	return false;
+        if(profetController){
+                profetController->setGUI(gui);
+                return true;
+        }
+        return false;
 }
 
 bool Controller::profetConnect(const Profet::PodsUser & user,
@@ -1067,10 +1067,23 @@ void Controller::profetDisconnect(){
 }
 */
 Profet::ProfetController * Controller::getProfetController(){
-	return profetController;
+        return profetController;
 }
 
 #endif
 
+// Miscellaneous get methods
+vector<SatPlot*> Controller::getSatellitePlots() const
+{
+  return plotm->getSatellitePlots();
+}
 
+vector<FieldPlot*> Controller::getFieldPlots() const
+{
+  return plotm->getFieldPlots();
+}
 
+vector<ObsPlot*> Controller::getObsPlots() const
+{
+  return plotm->getObsPlots();
+}

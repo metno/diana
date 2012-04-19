@@ -337,6 +337,7 @@ public:
   static int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
   static float knots2ms(float ff) {return (ff*1852.0/3600.0);}
 
+  vector<miutil::miString> getFileNames() const; // Returns the file names containing observation data.
 
   //Dialog info: Name, tooltip and type of parameter buttons. Used in ascii files
   vector<miutil::miString> columnName;

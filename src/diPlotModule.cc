@@ -3162,3 +3162,19 @@ void PlotModule::readLog(const vector<miString>& vstr,
   areaIndex = areaQ.size() - 1;
 
 }
+
+// Miscellaneous get methods
+vector<SatPlot*> PlotModule::getSatellitePlots() const
+{
+  return vsp;
+}
+
+vector<FieldPlot*> PlotModule::getFieldPlots() const
+{
+  return vfp;
+}
+
+vector<ObsPlot*> PlotModule::getObsPlots() const
+{
+  return vop;
+}

@@ -249,12 +249,12 @@ public:
   void endHardcopy();
   /// set managers
   void setManagers(FieldManager*,
-		   FieldPlotManager*,
-		   ObsManager*,
-		   SatManager*,
-		   ObjectManager*,
-		   EditManager*,
-		   GridAreaManager*);
+                   FieldPlotManager*,
+                   ObsManager*,
+                   SatManager*,
+                   ObjectManager*,
+                   EditManager*,
+                   GridAreaManager*);
 
   /// return current plottime
   void getPlotTime(miutil::miString&);
@@ -262,13 +262,13 @@ public:
   void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(vector<miutil::miTime>& fieldtimes,vector<miutil::miTime>& sattimes,
-		    vector<miutil::miTime>& obstimes,vector<miutil::miTime>& objtimes,
-		    vector<miutil::miTime>& ptimes);
+                    vector<miutil::miTime>& obstimes,vector<miutil::miTime>& objtimes,
+                    vector<miutil::miTime>& ptimes);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(set<miutil::miTime>& okTimes,
-			   set<miutil::miTime>& constTimes,
-			   const vector<miutil::miString>& pinfos,
-			   bool allTimes=true);
+                           set<miutil::miTime>& constTimes,
+                           const vector<miutil::miString>& pinfos,
+                           bool allTimes=true);
 
   /// set plottime
   bool setPlotTime(miutil::miTime&);
@@ -294,25 +294,25 @@ public:
   void putStations(StationPlot*);
   ///make StationPlot and put it in list of StationPlots
   void makeStationPlot(const miutil::miString& commondesc, const miutil::miString& common,
-		       const miutil::miString& description, int from,
-		       const  vector<miutil::miString>& data);
+                       const miutil::miString& description, int from,
+                       const  vector<miutil::miString>& data);
   ///find station in position x,y in StationPlot with name and id
   miutil::miString findStation(int x, int y,miutil::miString name,int id=-1);
   ///look for station in position x,y in all StationPlots
   void findStations(int x, int y, bool add,
-		    vector<miutil::miString>& name,vector<int>& id,
-		    vector<miutil::miString>& station);
+                    vector<miutil::miString>& name,vector<int>& id,
+                    vector<miutil::miString>& station);
   ///get editable stations, returns name/id of StationPlot and stations
   void getEditStation(int step, miutil::miString& name, int& id,
-		      vector<miutil::miString>& stations);
+                      vector<miutil::miString>& stations);
   ///send command to StationPlot with name and id
   void stationCommand(const miutil::miString& Command,
-		      vector<miutil::miString>& data,
-		      const miutil::miString& name="", int id=-1,
-		      const miutil::miString& misc="");
+                      vector<miutil::miString>& data,
+                      const miutil::miString& name="", int id=-1,
+                      const miutil::miString& misc="");
   ///send command to StationPlot with name and id
   void stationCommand(const miutil::miString& Command,
-		      const miutil::miString& name="", int id=-1);
+                      const miutil::miString& name="", int id=-1);
   /**
    * This method is only sound as long as all Stations in all StationPlots have the same scale.
    * @return Current scale for the first Station in the first StationPlot
@@ -330,7 +330,7 @@ public:
   void makeAreas(miutil::miString name,miutil::miString areastring, int id);
   ///send command to right area object
   void areaCommand(const miutil::miString& command, const miutil::miString& dataSet,
-		   const miutil::miString& data, int id );
+                   const miutil::miString& data, int id );
   ///find areas in position x,y
   vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
@@ -339,7 +339,7 @@ public:
   void updateLocation(const LocationData& locationdata);
   void deleteLocation(const miutil::miString& name);
   void setSelectedLocation(const miutil::miString& name,
-			 const miutil::miString& elementname);
+                         const miutil::miString& elementname);
   miutil::miString findLocation(int x, int y, const miutil::miString& name);
 
   vector<miutil::miString> getFieldModels();
@@ -374,7 +374,7 @@ public:
   miutil::miString getMarkedAnnotation();
   /// change text of marked and editable annotationplot
   void changeMarkedAnnotation(miutil::miString text,int cursor=0,
-			      int sel1=0,int sel2=0);
+                              int sel1=0,int sel2=0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
   /// start editing annotations
@@ -389,7 +389,7 @@ public:
   vector <miutil::miString> writeAnnotations(miutil::miString prodname);
   /// put info from saved edit labels into new annotation
   void updateEditLabels(vector <miutil::miString> productLabelstrings,
-		    miutil::miString productName, bool newProduct);
+                    miutil::miString productName, bool newProduct);
 
   //Objects
   ///objects follow main plot time
@@ -420,8 +420,12 @@ public:
   vector<miutil::miString> writeLog();
   // read settings from log file data
   void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+               const miutil::miString& thisVersion, const miutil::miString& logVersion);
 
+  // Miscellaneous get methods
+  vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
+  vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
+  vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 };
 
 #endif
