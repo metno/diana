@@ -47,11 +47,9 @@ using namespace std;
 
 enum objectType{Anything,wFront,wSymbol,wArea,wText,Border,RegionName,ShapeXXX};
 
-enum frontType{ Cold,Warm,Occluded,ColdOccluded, WarmOccluded,Stationary,TroughLine,
-          TroughLine2,ShortDashedLine,LongDashedLine,Jetstream,SquallLine, SigweatherFront,
-          BlackSharpLine,BlackSmoothLine,RedSharpLine,RedSmoothLine,AshLineRed,AshLineGreen,AshLineBlue};
+enum frontType{ Cold,Warm,Occluded,Stationary,TroughLine,ArrowLine,SquallLine, SigweatherFront,Line};
 
-enum AreaType{ Rain, Rainarea, Showers, Clouds, Fog, Fog2, Mist, Ice, Sigweather,ReducedVisibility,Genericarea};
+enum AreaType{ Sigweather,Genericarea};
 
 //spline points for fronts/areas/borders
 const int divSpline= 5;
@@ -189,6 +187,7 @@ public:
   void   setColorAlpha(int alpha){ objectColour.set(Colour::alpha,alpha);}
   Colour::ColourInfo getObjectColor();            ///< gets actual colour of object
 
+  void setLineType(miutil::miString linetype){itsLinetype=Linetype(linetype);}
   void updateBoundBox();                          ///< finds the new bound box
   Rectangle getBoundBox(){return boundBox;}       ///< returns bound box
   virtual void addPoint(float,float);             ///< adds new point

@@ -90,6 +90,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   const miString key_fieldgroup = "fieldgroup";
   const miString key_plot = "plot";
   const miString key_plottype = "plottype";
+  const miString key_vcoord = "vcoord";
 
   // parse setup
 
@@ -148,6 +149,8 @@ bool FieldPlotManager::parseFieldPlotSetup()
         miString name;
         miString fieldgroup;
         vector<miString> input;
+        set<miString> vcoord;
+
         for (int i = firstLine; i < lastLine; i++) {
           str = lines[i];
           for (unsigned int il = 0; il < nl; il++) {
@@ -200,6 +203,11 @@ bool FieldPlotManager::parseFieldPlotSetup()
                                                        == '"') {
                   fieldgroup = fieldgroup.substr(1, fieldgroup.length() - 2);
                 }
+              } else if (key == key_vcoord && vstr[j + 1] == "=") {
+                vector<miString> vcoordTokens = vstr[j + 2].split(",");
+                for( size_t ii=0; ii<vcoordTokens.size(); ++ii ) {
+                  vcoord.insert(vcoordTokens[ii]);
+                }
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
                 option = vstr[j] + "=" + vstr[j + 2];
@@ -235,6 +243,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
             pf.name = name;
             pf.fieldgroup = fieldgroup;
             pf.input = input;
+            pf.vcoord = vcoord;
             vPlotField.push_back(pf);
           }
         }
@@ -843,6 +852,10 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
   //replace fieldnames with plotnames
   for (size_t i = 0; i < nvfgi; i++) {
 
+    std::string zaxis = vfgi[i].zaxis;
+    if( zaxis.empty() ) {
+      zaxis = "none";
+    }
 //    //Make copy with field names from file
 //    if(fieldManager->isGridCollection(modelName) && !plotGroups) {
 //      vfgi.push_back(vfgi[i]);
@@ -878,6 +891,9 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
         miString plotName = vPlotField[j].name;
         //check that all fields needed exist with same suffix
         map<std::string, unsigned int> suffixmap;
+        if (vPlotField[j].vcoord.size() > 0 && !vPlotField[j].vcoord.count(zaxis)  ) {
+          continue;
+        }
         for (unsigned int k = 0; k < vPlotField[j].input.size(); k++) {
           miString fieldName = miString(vPlotField[j].input[k]);
           vector<miString> vstr = fieldName.split(":");
@@ -904,11 +920,11 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
         //add plotNames without suffix
         if (suffixmap[""] >= vPlotField[j].input.size()) {
           plotNames.push_back(plotName);
-          vPlotField[j].vcoord.insert(vfgi[i].zaxis);
-          //old syntax, no zaxis
-          if( vfgi[i].zaxis.empty() && vfgi[i].levelNames.size()!=0 ) {
-            vPlotField[j].vcoord.insert(FieldSpecTranslation::getVcoorFromLevel(vfgi[i].levelNames[0]));
-          }
+//          vPlotField[j].vcoord.insert(vfgi[i].zaxis);
+//          //old syntax, no zaxis
+//          if( vfgi[i].zaxis.empty() && vfgi[i].levelNames.size()!=0 ) {
+//            vPlotField[j].vcoord.insert(FieldSpecTranslation::getVcoorFromLevel(vfgi[i].levelNames[0]));
+//          }
         }
 
         //add plotNames with suffix

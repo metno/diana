@@ -266,7 +266,9 @@ void FieldEdit::setSpec(const EditProduct& ep, int fnum) {
   inputFieldFormat = ep.inputFieldFormat;
   inputFieldConfig = ep.inputFieldConfig;
   plotName = ep.fields[fnum].name;
-  fieldUnit = ep.fields[fnum].unit;
+  fieldUnit = ep.fields[fnum].unit_cdm;
+  vcoord = ep.fields[fnum].vcoord_cdm;
+  vlevel = ep.fields[fnum].vlevel_cdm;
   specset= true;
 }
 
@@ -479,6 +481,12 @@ bool FieldEdit::readEditfield(const miString& filename,
   fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
   vector<Field*> vfout;
   miString pin = "FIELD model=" + modelName + " plot=" + plotName;
+  if ( !vcoord.empty() ) {
+    pin +=  (" vcoord=" + vcoord);
+  }
+  if ( !vlevel.empty() ) {
+    pin +=  (" vlevel=" + vlevel);
+  }
   if ( !fieldUnit.empty() ) {
     pin +=  (" unit=" + fieldUnit);
   }

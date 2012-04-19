@@ -48,8 +48,7 @@ private:
   float linewidth;                // width of border (PlotOptions?)
   static float defaultLineWidth;
   bool fillArea;                  // fill area with pattern
-  bool drawSig;                   // draw sig weather arcs.
-
+  const GLubyte* itsFilltype;
   static vector<editToolInfo>  allAreas;
   static map<miutil::miString,int> areaTypes;  //finds area type number from name
 
@@ -62,12 +61,11 @@ private:
   float * yplot;
   int npoints;
   bool first; //sigweather drawing
-  void setPlotVariables();
   float getLineWidth(){return linewidth;}
   virtual void setLineWidth(float w){linewidth=w;}
   bool setSpline(bool s);     // s=true if you want to spline
-  bool setFillArea(bool f);   // f=true if you want to fill Area
-
+  void setFillArea(const miutil::miString& filltype);   //set fillArea=true if !filltype.empty()
+  void setFilltype(const GLubyte* filltype){itsFilltype = filltype;}
 public:
   /// default constructor
   WeatherArea();

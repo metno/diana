@@ -102,7 +102,9 @@ struct EditProductField {
   int vcoord,param,level,level2;    ///< fieldfile identification
   float minValue,maxValue;          ///< check min,max value if not fieldUndef
   vector<miutil::miString> editTools;       ///< standard/classes/numbers
-  miutil::miString unit;             ///< parameter unit (hectopascal)
+  miutil::miString vcoord_cdm;       ///< vertical coordinat -  cdm syntax
+  miutil::miString vlevel_cdm;       ///< vertical level - cdm syntax
+  miutil::miString unit_cdm;             ///< parameter unit (hectopascal)
 };
 
 

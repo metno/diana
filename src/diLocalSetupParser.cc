@@ -480,8 +480,12 @@ bool LocalSetupParser::parseLineTypes(const miutil::miString& sectname){
         if (value[j]=='1') bm |= bmask[j];
       }
       Linetype::define(key,bm,factor);
+    } else { //0x00FF
+      bm = strtol(value.c_str(),NULL,0);
+      Linetype::define(key,bm,factor);
     }
   }
+
   return true;
 }
 

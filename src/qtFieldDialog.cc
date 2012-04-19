@@ -259,11 +259,9 @@ nr_linewidths = 12;
 
   //modelbox
   QLabel *modellabel = TitleLabel(tr("Models"), this);
-  modelbox = new QComboBox(this);
-  connect( modelbox, SIGNAL( activated( int ) ),
-        SLOT( modelboxClicked( int ) ) );
-//connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
-//      SLOT( modelboxClicked( QListWidgetItem * ) ) );
+  modelbox = new QListWidget(this);
+  connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
+      SLOT( modelboxClicked( QListWidgetItem * ) ) );
 
   // refTime
   QLabel *refTimelabel = TitleLabel(tr("Reference time"), this);
@@ -1213,17 +1211,12 @@ void FieldDialog::modelGRboxActivated(int index)
     modelbox->addItem(QString(m_modelgroup[indexMGR].modelNames[i].c_str()));
   }
 
-  //Activate first model
-  if ( nr_model > 0 ) {
-    modelboxClicked( 0 );
-  }
-
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::modelGRboxActivated returned"<<endl;
 #endif
 }
 
-void FieldDialog::modelboxClicked(int index)
+void FieldDialog::modelboxClicked(QListWidgetItem * item)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::modelboxClicked called"<<endl;
@@ -1233,7 +1226,7 @@ void FieldDialog::modelboxClicked(int index)
   fieldGRbox->clear();
   fieldbox->clear();
 
-  int indexM =index;//modelbox->row(item);
+  int indexM =modelbox->row(item);
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
 
   miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
@@ -1262,7 +1255,9 @@ void FieldDialog::updateFieldGroups()
   fieldGRbox->clear();
   fieldbox->clear();
 
-  int indexM =modelbox->currentIndex();
+  int indexM =modelbox->currentRow();
+  if ( indexM < 0 ) return;
+
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
   miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
 
@@ -1341,7 +1336,7 @@ void FieldDialog::fieldGRboxActivated(int index)
   if (vfgi.size() > 0) {
 
     int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
-    int indexM = modelbox->currentIndex();
+    int indexM = modelbox->currentRow();
     int indexRefTime = refTimeComboBox->currentIndex();
     int indexFGR = index;
 
@@ -1700,7 +1695,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 
   int i, j, jp, n;
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
-  int indexM = modelbox->currentIndex();
+  int indexM = modelbox->currentRow();
   int indexFGR = fieldGRbox->currentIndex();
 
   // Note: multiselection list, current item may only be the last...
@@ -1870,7 +1865,7 @@ void FieldDialog::enableFieldOptions()
     if (vfgi.size() == 0)
       changeModelButton->setEnabled(false);
     else if (selectedFields[index].indexMGR == modelGRbox->currentIndex()
-        && selectedFields[index].indexM == modelbox->currentIndex())
+        && selectedFields[index].indexM == modelbox->currentRow())
       changeModelButton->setEnabled(false);
     else
       changeModelButton->setEnabled(true);
@@ -3873,7 +3868,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
   if (m > 0) {
     if (vfgi.size() > 0) {
       indexMGR = indexMGRtable[modelGRbox->currentIndex()];
-      indexM = modelbox->currentIndex();
+      indexM = modelbox->currentRow();
       indexFGR = fieldGRbox->currentIndex();
       int n = vfgi[indexFGR].fieldNames.size();
       bool change = false;
@@ -4557,7 +4552,7 @@ void FieldDialog::deleteSelected()
 
   if (vfgi.size() > 0) {
     int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
-    int indexM = modelbox->currentIndex();
+    int indexM = modelbox->currentRow();
     int indexFGR = fieldGRbox->currentIndex();
     if (selectedFields[index].indexMGR == indexMGR
         && selectedFields[index].indexM == indexM) {
@@ -4697,7 +4692,7 @@ void FieldDialog::copySelectedField()
 
   if (vfgi.size() > 0) {
     int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
-    int indexM = modelbox->currentIndex();
+    int indexM = modelbox->currentRow();
     int indexFGR = fieldGRbox->currentIndex();
     if (selectedFields[index].indexMGR == indexMGR
         && selectedFields[index].indexM == indexM) {
@@ -4769,7 +4764,7 @@ void FieldDialog::changeModel()
     return;
 
   int indexMGR = modelGRbox->currentIndex();
-  int indexM = modelbox->currentIndex();
+  int indexM = modelbox->currentRow();
   if (indexMGR < 0 || indexM < 0)
     return;
   indexMGR = indexMGRtable[indexMGR];
@@ -5239,21 +5234,16 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
       // In original edit, str=fieldName if the field is not already read
       sf.fieldName = vstr[0];
     } else {
-      bool allTimeSteps;
-      bool decodeOK = false;
-      sf.cdmSyntax = str.contains("model=");
-      if ( sf.cdmSyntax ) {
-        decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
-      } else {
-        decodeOK = decodeString_oldSyntax(str, sf, allTimeSteps);
-      }
-      if (decodeOK) {
+      miutil::miString modelname;
+      miutil::miString fieldname;
+      if (vstr.size() >= 2) {
         // new edit field
+        modelname = vstr[0];
+        fieldname = vstr[1];
         for (i = 0; i < n; i++) {
           if (!selectedFields[i].inEdit) {
-            if (selectedFields[i].modelName == sf.modelName
-                && selectedFields[i].fieldName == sf.fieldName
-                && selectedFields[i].refTime == sf.refTime)
+            if (selectedFields[i].modelName == modelname
+                && selectedFields[i].fieldName == fieldname)
               break;
           }
         }
@@ -5263,6 +5253,7 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
           found = true;
         }
       }
+
     }
 
     map<miutil::miString, miutil::miString>::const_iterator pfo;

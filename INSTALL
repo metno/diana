@@ -11,49 +11,40 @@ On a clean stock Ubuntu Hardy install, you will first need to install build tool
     * autoconf
     * automake
     * libtool
+    * subversion
 
 Next, you will need to install various third-party libraries that Metlibs and Diana depend on:
 
+    * flex
+    * bison
     * ftgl-dev
     * libtiff4-dev
     * libqt4-dev
     * libqt4-opengl-dev
-    * proj
+    * libproj-dev
     * libboost-dev (*)
     * libboost-date-time-dev
     * libboost-serialization-dev
     * libboost-thread-dev
-    * libmysqlclient15-dev (*)
-    
-For wdb (database, see wdb.met.no) support in Metlibs and Diana
-
-    * libpqxx-dev (*)
+    * liblog4cpp5-dev
+    * libcurl4-gnutls-dev
+    * libshp-dev
+    * libavformat-dev (*)
+    * libxt-dev
+    * libfimex-dev (*)
 
 For HDF5 support in Metlibs and Diana
     *
       libhdf5-serial-dev (XXX actually optional)
 
 
-For observation buffer support in Diana:
+For bufr observation support in Diana:
 
     * EMOSLIB (no package; install manually from 
       http://www.ecmwf.int/products/data/software/interpolation.html)
 
-For GRIB support in Metlibs and Diana:
-
-    *GRIB API (no package; install manually from 
-     http://www.ecmwf.int/products/data/software/download/grib_api.html)
-
-For NetCDF support in Metlibs and Diana:
-
-    * libnetcdf-dev
-    * UDUNITS (no package; install manually from 
-    http://www.unidata.ucar.edu/software/udunits/udunits-1/index.html)
-
-For profet support (under development)
-
-    *libomniorb4-dev (XXX actually optional)
-    * omniidl4
+For fimex support:
+    * https://wiki.met.no/fimex/start
 
 
 Except for those marked with (*), configure will terminate 
@@ -64,11 +55,12 @@ Installation
 
 Metlibs
 
-By default, all modules are enabled except for GribAPI, pods, profet and proFunctions.
+By default, all modules are enabled except for fimex, GribAPI, pods, profet and proFunctions.
 
 Diana
 
-By default, support for profet and observation buffers is disabled, while HDF5 and video export is enabled.
+By default, support for bufr observation, geotiff and HDF5 are
+disabled, while video export is enabled.
 
 cd metlibs
 ./autogen.sh

@@ -1,3 +1,46 @@
+diana (3.28.0-ubuntu1) lucid; urgency=low
+
+  * using fimex 0.37.1
+  * using metlibs_trunk
+  * compiled without profet support
+	
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 29 Mar 2012 21:42:51 +0200
+
+diana (3.27.4-ubuntu1) lucid; urgency=low
+
+  * Observations - bugfix criterias
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 01 Mar 2012 18:55:51 +0100
+
+diana (3.27.3-ubuntu1) lucid; urgency=low
+
+  * HQC - bugfix
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Feb 2012 14:31:58 +0100
+
+diana (3.27.2-ubuntu1) lucid; urgency=low
+
+  * New EPS parameter - cluster representative
+  * Bugfix profet: computed fields (like FF) were not
+	changed when the original fields (u,v) were edited. 
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 14 Feb 2012 20:32:42 +0100
+
+diana (3.27.1-ubuntu1) lucid; urgency=low
+
+  * Minor fixes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 09 Feb 2012 14:48:14 +0100
+
+diana (3.27.0-ubuntu1) lucid; urgency=low
+
+  * Using metlibs_4.3
+  * Using libfimex-0.35
+  * Using WDB/fimex
+  * Reading from KDVH
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 26 Jan 2012 09:42:51 +0100
+
 diana (3.26.4-ubuntu3) lucid; urgency=low
 
   * bdiana: default canvas changed to QGLPixelBuffer

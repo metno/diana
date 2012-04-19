@@ -254,7 +254,7 @@ private:
   QColor* color;
 
   QComboBox* modelGRbox;
-  QComboBox*  modelbox;
+  QListWidget*  modelbox;
   QComboBox* refTimeComboBox;
   QComboBox* fieldGRbox;
   QCheckBox* fieldGroupCheckBox;
@@ -318,7 +318,7 @@ signals:
 
 private slots:
   void modelGRboxActivated( int index );
-  void modelboxClicked( int i);
+  void modelboxClicked( QListWidgetItem * item );
 
   void updateFieldGroups();
   void fieldGRboxActivated( int index );

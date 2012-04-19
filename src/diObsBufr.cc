@@ -152,12 +152,12 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
 
   //close file
   pbclose_(&iunit,&iret);
-
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
-  if (ksec1[5] > 1) {
-    return false;
-  }
+//  if (ksec1[5] > 1) {
+//    cerr <<"ksec1[5]: "<<ksec1[5]<<endl;
+//    return false;
+//  }
 
   //HACK if year has only two digits, files from year 1971 to 2070 is assumed
   int year = ksec1[8];

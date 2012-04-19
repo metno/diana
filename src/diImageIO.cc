@@ -98,8 +98,8 @@ bool imageIO::read_png(Image_data& img){
     return false;
   }
 
-  //   if (setjmp(png_jmpbuf(png_ptr))){
-  if (setjmp(png_ptr->jmpbuf)){
+     if (setjmp(png_jmpbuf(png_ptr))){
+  //if (setjmp(png_ptr->jmpbuf)){
     png_destroy_read_struct(&png_ptr, &info_ptr,
 			    &end_info);
     cerr << "read_png ERROR longjmp out of process" << endl;
@@ -268,7 +268,7 @@ bool imageIO::write_png(const Image_data& img){
     }
   }
 
-#ifdef THEHARDWAY
+//#ifdef THEHARDWAY
   // write info to file
   png_write_info(png_ptr, info_ptr);
 
@@ -283,13 +283,13 @@ bool imageIO::write_png(const Image_data& img){
   // write any trailing info-data
   png_write_end(png_ptr, info_ptr);
 
-#else
-
-  int png_transforms=0;
-  png_set_rows(png_ptr, info_ptr, row_pointers);
-  png_write_png(png_ptr, info_ptr, png_transforms, png_voidp_NULL);
-
-#endif
+//#else
+//
+//  int png_transforms=0;
+//  png_set_rows(png_ptr, info_ptr, row_pointers);
+//  png_write_png(png_ptr, info_ptr, png_transforms, png_voidp_NULL);
+//
+//#endif
 
   // clean up
   png_destroy_write_struct(&png_ptr, &info_ptr);

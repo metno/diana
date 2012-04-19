@@ -259,7 +259,10 @@ editToolInfo newEditToolInfo(const miutil::miString & newName,
 			     const int newIndex,
 			     const miutil::miString & newColour="black",
 			     const miutil::miString & newBorderColour="black",
-			     const int & newSizeIncrement=0);
+			     const int & newSizeIncrement=0,
+			     const bool & newSpline=true,
+			     const miutil::miString& newLinetype ="solid",
+			     const miutil::miString& newFilltype="");
 editModeInfo newEditModeInfo(const miutil::miString & newmode,
 			     const vector <editToolInfo> newtools);
 mapModeInfo newMapModeInfo(const miutil::miString & newmode,
