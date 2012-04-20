@@ -1,3 +1,9 @@
+diana-wms (3.27.2-0) lucid; urgency=low
+
+  * Added preliminary support for DESCRIBE sections in bdiana.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 20 Apr 2012 13:23:00 +0200
+
 diana-wms (3.27.1-4) lucid; urgency=low
 
   * Reverted package dependency changes.
