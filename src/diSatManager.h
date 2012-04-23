@@ -72,9 +72,9 @@
 
 */
 class SatManager {
-private:
 
-  struct subProdInfo {
+public:
+    struct subProdInfo {
     vector<miutil::miString> pattern;
     vector<bool> archive;
     vector<TimeFilter> filter;
@@ -96,7 +96,7 @@ private:
     bool mosaic; //ok to make mosaic
   };
 
-
+private:
   map<miutil::miString, map<miutil::miString,subProdInfo> > Prod;
   SatDialogInfo Dialog;
   map<miutil::miString,miutil::miString> channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
@@ -192,10 +192,7 @@ public:
   // Radar echo mesure
   map<float,float> radarecho;
 
+  map<miutil::miString, map<miutil::miString,subProdInfo> > getProductsInfo() const;
 };
 
 #endif
-
-
-
-

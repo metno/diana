@@ -2345,3 +2345,8 @@ void ObsManager::processHqcCommand(const miString& command,
       selectedStation = vstr[0];
   }
 }
+
+map<miutil::miString,ObsManager::ProdInfo> ObsManager::getProductsInfo() const
+{
+  return Prod;
+}

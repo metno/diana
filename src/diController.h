@@ -106,6 +106,8 @@ public:
   EditManager*   getEditManager()   { return editm; };
   ObjectManager* getObjectManager() { return objm; };
   FieldManager* getFieldManager() { return fieldm; };
+  SatManager* getSatelliteManager() { return satm; };
+  ObsManager* getObservationManager() { return obsm; };
   /// init static FontManager in class Plot
   void restartFontManager();
   /// parse setup

@@ -59,7 +59,9 @@
 #include <diAnnotationPlot.h>
 #include <diController.h>
 #include <diFieldPlot.h>
+#include <diObsManager.h>
 #include <diObsPlot.h>
+#include <diSatManager.h>
 #include <diSatPlot.h>
 
 #include <puCtools/sleep.h>
@@ -1185,11 +1187,12 @@ void printUsage(bool showexample)
             "#--------------------------------------------------------------        \n"
             "#* Get Capabilities *                                                  \n"
             "#  Developed for use in WMS                                            \n"
-            "#  The syntax of the TIME- and LEVEL-sections are equal to the         \n"
-            "#  PLOT-sections. The plot options will be ignored.                    \n"
+            "#  The syntax of the TIME-, LEVEL- and DESCRIBE-sections are equal to  \n"
+            "#  the PLOT-sections. The plot options will be ignored.                \n"
             "#  The TIME-sections give available times,                             \n"
             "#  both normal and constant times.                                     \n"
             "#  The LEVEL-sections give available levels.                           \n"
+            "#  The DESCRIBE-sections give information about the files read.        \n"
             "#  Valid options:                                                      \n"
             "#  Normal times common to all products and  all constant times:        \n"
             "#  time_options = intersection                                         \n"
@@ -2375,20 +2378,48 @@ int parseAndProcess(istream &is)
                   file << fieldSource->getFileNames()[i] << endl;
           }
 
+          map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
+          set<miutil::miString> satPatterns;
+
           vector<SatPlot*> satellitePlots = main_controller->getSatellitePlots();
           for (vector<SatPlot*>::iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
               Sat* sat = (*it)->satdata;
-              file << sat->actualfile << endl;
+              if (satProducts.find(sat->satellite) != satProducts.end() && satProducts[sat->satellite].find(sat->filetype) != satProducts[sat->satellite].end()) {
+                  SatManager::subProdInfo satInfo = satProducts[sat->satellite][sat->filetype];
+                  for (vector<SatFileInfo>::iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
+                    if (itsf->name == sat->actualfile) {
+                        for (vector<miutil::miString>::iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
+                            satPatterns.insert(*itp);
+                    }
+                  }
+              }
           }
+          for (set<miutil::miString>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
+            file << *it << endl;
+
+          map<miutil::miString,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
+          set<miutil::miString> obsPatterns;
 
           vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
           for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
               vector<miutil::miString> obsFileNames = (*it)->getFileNames();
-              for (vector<miutil::miString>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf)
-                file << *itf << endl;
+              for (vector<miutil::miString>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
+
+                  for (map<miutil::miString,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
+                      for (vector<ObsManager::FileInfo>::iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
+                          if (*itf == itof->filename) {
+                              for (vector<ObsManager::patternInfo>::iterator itp = ito->second.pattern.begin(); itp != ito->second.pattern.end(); ++itp)
+                                  obsPatterns.insert(itp->pattern);
+                          }
+
+                      }
+                  }
+              }
           }
 
-          cerr << endl;
+          for (set<miutil::miString>::iterator it = obsPatterns.begin(); it != obsPatterns.end(); ++it)
+            file << *it << endl;
+
           file.close();
       }
 

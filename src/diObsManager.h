@@ -74,6 +74,7 @@ private:
     ofmt_url
   };
 
+public:
   struct patternInfo {
     TimeFilter filter;
     miutil::miString pattern;
@@ -101,7 +102,7 @@ private:
     bool synoptic;
     miutil::miString headerfile;
     miutil::miString metaData;
-    #ifdef ROADOBS
+#ifdef ROADOBS
     miutil::miString stationfile;
     miutil::miString databasefile;
     int daysback;
@@ -110,6 +111,7 @@ private:
     vector<miutil::miString> parameter;
   };
 
+private:
   map<miutil::miString,ProdInfo> Prod;
   map< miutil::miString, ObsMetaData*> metaDataMap;
   ObsDialogInfo dialog;
@@ -208,8 +210,8 @@ public:
   void processHqcCommand(const miutil::miString&, const miutil::miString&);
   // Added for automatic updates
   bool timeListChanged;
+
+  map<miutil::miString,ProdInfo> getProductsInfo() const;
 };
 
 #endif
-
-
