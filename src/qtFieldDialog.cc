@@ -1761,7 +1761,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 
       countSelected[indexF]++;
 
-      miutil::miString text = sf.modelName + " " + sf.fieldName;
+      miutil::miString text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
       selectedFieldbox->addItem(QString(text.c_str()));
       last = selectedFields.size() - 1;
 
@@ -3837,7 +3837,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
 
       selectedFields.push_back(sf);
 
-      miutil::miString text = sf.modelName + " " + sf.fieldName;
+      miutil::miString text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
       selectedFieldbox->addItem(QString(text.c_str()));
 
       selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
@@ -4654,7 +4654,7 @@ void FieldDialog::deleteAllSelected()
   if (numEditFields > 0) {
     // show edit fields
     for (int i = 0; i < numEditFields; i++) {
-      miutil::miString str = editName + " " + selectedFields[i].fieldName;
+      miutil::miString str = editName + " " + selectedFields[i].fieldName + " " + selectedFields[i].refTime;
       selectedFieldbox->addItem(QString(str.c_str()));
     }
     selectedFieldbox->setCurrentRow(0);
