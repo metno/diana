@@ -95,6 +95,16 @@ StationPlot::StationPlot(const vector<miString> & names,
   defineCoordinates();
 }
 
+StationPlot::StationPlot(const vector <Station*> &stations)
+{
+  init();
+  for (unsigned int i = 0; i < stations.size(); ++i)
+    addStation(stations[i]);
+
+  useImage = false;
+  defineCoordinates();
+}
+
 StationPlot::StationPlot(const miString& commondesc, const miString& common,
     const miString& description, int from, const vector<miString>& data)
 {
@@ -189,6 +199,10 @@ StationPlot::StationPlot(const miString& commondesc, const miString& common,
 
 void StationPlot::init()
 {
+  // Add a default plot area.
+  StationArea area(-90.0, 90.0, -180.0, 180.0);
+  stationAreas.push_back(area);
+
   //coordinates to be plotted
   pi = acosf(-1.0);
   show();
@@ -216,6 +230,7 @@ StationPlot::~StationPlot()
     delete stations[i];
   }
   stations.clear();
+  stationAreas.clear();
 }
 
 // void StationPlot::addStation(const miString newname){
@@ -256,7 +271,16 @@ void StationPlot::addStation(const float lon, const float lat,
     newStation->image = newimage;
   }
   newStation->edit = false;
-  stations.push_back(newStation);
+
+  addStation(newStation);
+}
+
+void StationPlot::addStation(Station* station)
+{
+  stations.push_back(station);
+
+  // Add the station to the area tree.
+  stationAreas[0].addStation(station);
 }
 
 bool StationPlot::plot()
@@ -334,19 +358,20 @@ void StationPlot::plotStation(int i)
           h = 30 * fullrect.height() / (pheight > 0 ? pheight * 1.0 : 1.0);
         w = 30 * fullrect.width() / (pwidth > 0 ? pwidth * 1.0 : 1.0);
         //  	if(stations[i]->edit)
-        //  	  glPlot(redCircle,x,y,h,w);
+        //  	  glPlot(Station::redCircle,x,y,h,w);
         plotWind(i, x, y);
       } else {
         h = ig.height(stations[i]->image);
         w = ig.width(stations[i]->image);
         // 	if(stations[i]->edit)
-        // 	  glPlot(redCircle,x,y,h,w);
+        // 	  glPlot(Station::redCircle,x,y,h,w);
         if (!ig.plotImage(stations[i]->image, x, y, true, stations[i]->scale,
             stations[i]->alpha))
           plotted = false;
       }
       if (stations[i]->isSelected && stations[i]->image != "wind")
-        glPlot(redRectangle, x, y, w, h);
+        glColor3ub(255, 0, 0); //red
+        glPlot(Station::noStatus, x, y, w, h);
     } else if (!stations[i]->image.empty() && !stations[i]->image2.empty()) {
       float h1 = ig.height(stations[i]->image);
       float h2 = ig.height(stations[i]->image2);
@@ -360,7 +385,8 @@ void StationPlot::plotStation(int i)
         w = 2 * w1;
       else
         w = 2 * w2;
-      glPlot(greyRectangle, x, y, w, h);
+      glColor3ub(128, 128, 128); //grey
+      glPlot(Station::noStatus, x, y, w, h);
       if (!ig.plotImage(stations[i]->image, x - w1 / 2, y, true, stations[i]->scale,
           stations[i]->alpha))
         plotted = false;
@@ -368,7 +394,8 @@ void StationPlot::plotStation(int i)
           stations[i]->alpha))
         plotted = false;
       if (stations[i]->isSelected)
-        glPlot(redRectangle, x, y, w, h);
+        glColor3ub(255, 0, 0); //red
+        glPlot(Station::noStatus, x, y, w, h);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
       if (!ig.plotImage(imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
@@ -381,20 +408,17 @@ void StationPlot::plotStation(int i)
     } else {
       //if no image plot crosses and circles for selected/normal stations
       //cerr << "useImage=false" << endl;
-      glPlot(redCross, x, y, w, h);
-      if (stations[i]->isSelected)
-        glPlot(yellowCircle, x, y, w, h);
+      glPlot(Station::failed, x, y, w, h, stations[i]->isSelected);
     }
 
     //if something went wrong,
     //plot crosses and circles for selected/normal stations
     if (!plotted) {
-      glPlot(redCross, x, y, w, h);
+      glPlot(Station::failed, x, y, w, h, stations[i]->isSelected);
       plotted = true;
-      if (stations[i]->isSelected)
-        glPlot(yellowCircle, x, y, w, h);
     }
-
+  } else if (stations[i]->status != Station::noStatus) {
+    glPlot(stations[i]->status, x, y, w, h, stations[i]->isSelected);
   }
 
   if (useStationNameNormal && !stations[i]->isSelected) {
@@ -407,7 +431,8 @@ void StationPlot::plotStation(int i)
     float cw, ch;
     fp->set("BITMAPFONT", "normal", 10);
     fp->getStringSize(stations[i]->name.c_str(), cw, ch);
-    glPlot(whiteRectangle, x, y + h / 2 + ch * 0.1, cw * 0.6, ch * 1.1);
+    glColor3ub(255, 255, 255); //white
+    glPlot(Station::noStatus, x, y + h / 2 + ch * 0.1, cw * 0.6, ch * 1.1);
     glColor3ub(0, 0, 0); //black
     fp->drawStr(stations[i]->name.c_str(), x - cw / 2, y + h / 2 + ch * 0.35,
         0.0);
@@ -427,7 +452,8 @@ void StationPlot::plotStation(int i)
         fp->drawStr(text.c_str(), x - cw / 2, y + h / 2, 0.0);
       else if (stations[i]->vsText[it].hAlign == align_bottom) {
         if (stations[i]->isSelected)
-          glPlot(whiteRectangle, x, y - h / 1.9 - ch * 1.0, cw * 0.5 + 0.2 * w,
+          glColor3ub(255, 255, 255); //white
+          glPlot(Station::noStatus, x, y - h / 1.9 - ch * 1.0, cw * 0.5 + 0.2 * w,
               ch);
         glColor4ubv(textColour.RGBA());
         fp->drawStr(text.c_str(), x - cw / 2, y - h / 1.9 - ch * 0.7, 0.0);
@@ -559,58 +585,89 @@ bool StationPlot::changeProjection()
   return true;
 }
 
+vector<Station*> StationPlot::getStations() const
+{
+  return stations;
+}
+
+Station* StationPlot::stationAt(int x, int y)
+{
+  vector<Station*> found = stationsAt(x, y);
+
+  if (found.size() > 0) {
+    float xpos = x * fullrect.width() / pwidth + fullrect.x1;
+    float ypos = y * fullrect.height() / pheight + fullrect.y1;
+
+    float min_r = 10.0f * fullrect.width() / pwidth;
+    min_r = powf(min_r, 2);
+    int min_i = 0;
+
+    // Find the closest station to the point within a given radius.
+    for (unsigned int i = 0; i < found.size(); ++i) {
+      float sx = found[i]->lon, sy = found[i]->lat;
+      if (area.P().convertFromGeographic(1, &sx, &sy) == 0) {
+        float r = powf(xpos - sx, 2) + powf(ypos - sy, 2);
+        if (r < min_r) {
+          min_r = r;
+          min_i = i;
+        }
+      }
+    }
+
+    return found[min_i];
+  }
+
+  return 0;
+}
+
+vector<Station*> StationPlot::stationsAt(int x, int y)
+{
+  float xpos = x * fullrect.width() / pwidth + fullrect.x1;
+  float ypos = y * fullrect.height() / pheight + fullrect.y1;
+
+  float min_r = 10.0f * fullrect.width() / pwidth;
+  min_r = powf(min_r, 2);
+
+  vector<Station*> within;
+
+  float gx = xpos, gy = ypos;
+  if (!area.P().convertToGeographic(1, &gx, &gy)) {
+    vector<Station*> found = stationAreas[0].findStations(gy, gx);
+
+    for (unsigned int i = 0; i < found.size(); ++i) {
+      if (found[i]->isVisible) {
+        float sx = found[i]->lon, sy = found[i]->lat;
+        if (area.P().convertFromGeographic(1, &sx, &sy) == 0) {
+          float r = powf(xpos - sx, 2) + powf(ypos - sy, 2);
+          if (r < min_r)
+            within.push_back(found[i]);
+        }
+      }
+    }
+  }
+
+  return within;
+}
+
 vector<miString> StationPlot::findStation(int x, int y, bool add)
 {
-
   vector<miString> stationstring;
 
   if (!visible || !enabled)
     return stationstring;
 
-  float xpos = x * fullrect.width() / pwidth + fullrect.x1;
-  float ypos = y * fullrect.height() / pheight + fullrect.y1;
-#ifdef DEBUGPRINT
-  cerr << "StationPlot::findStation, xpos = " << xpos << " ypos = " << ypos << endl;
-#endif
-  //loop over station plotting coordinates
-  float min_r = 10.0f * fullrect.width() / pwidth;
-  min_r = powf(min_r, 2);
-  float r;
-  int min_i = -1;
-  int n = xplot.size();
-  for (int i = 0; i < n; i++) {
-    if (stations[i]->isVisible) {
-      r = powf(xpos - xplot[i], 2) + powf(ypos - yplot[i], 2);
-      if (r < min_r) {
-        min_r = r;
-        min_i = i;
-      }
-    }
-  }
-  //   if (min_i>-1 && !stations[min_i]->isSelected){
-  if (min_i > -1 && min_i != index) {
-    add = stations[min_i]->isSelected || add;
-    setSelectedStation(min_i, add);
+  Station* found = stationAt(x, y);
 
-    for (int i = 0; i < n; i++) {
+  if (found && found != stations[index]) {
+    add = found->isSelected || add;
+    setSelectedStation(found->name, add);
+
+    for (unsigned int i = 0; i < xplot.size(); i++) {
       if (stations[i]->isSelected)
         stationstring.push_back(stations[i]->name);
     }
   }
-  //if this station is an editstation, set editIndex
-  //   if(editStations.size() != 0){
-  //     int n=editStations.size();
-  //     for( int i=0; i<n; i++)
-  //       if(editStations[i]->name == stationstring){
-  // 	editIndex = i;
-  // 	break;
-  //       }
-  //   }
 
-#ifdef DEBUGPRINT
-  for (int q = 0; q < stationstring.size(); q++)
-  cerr << "findStation returning" << stationstring[q] << endl;
-#endif
   return stationstring;
 }
 
@@ -619,7 +676,17 @@ float StationPlot::getImageScale(int i)
   return stations[i]->scale;
 }
 
-void StationPlot::setSelectedStation(miString station, bool add)
+vector<Station*> StationPlot::getSelectedStations() const
+{
+  vector<Station*> selected;
+  for (unsigned int i = 0; i < stations.size(); ++i) {
+    if (stations[i]->isSelected)
+      selected.push_back(stations[i]);
+  }
+  return stations;
+}
+
+int StationPlot::setSelectedStation(miString station, bool add)
 {
 #ifdef DEBUGPRINT
   cerr << "StationPlot::setSelectedStation" << station << endl;
@@ -628,12 +695,20 @@ void StationPlot::setSelectedStation(miString station, bool add)
   int n = stations.size();
   for (int i = 0; i < n; i++)
     if (stations[i]->name == station) {
-      setSelectedStation(i);
-      return;
+      return setSelectedStation(i);
     }
+  return -1;
 }
 
-void StationPlot::setSelectedStation(int i, bool add)
+/**
+ Selects the station specified by its index \a i. If \a add is true then
+ the station will be added to the existing selection; otherwise, the
+ existing selection will be cleared before the station is added to it.
+
+ Returns the index of the station if it was added to the selection, or -1
+ if it could not be added.
+ */
+int StationPlot::setSelectedStation(int i, bool add)
 {
 #ifdef DEBUGPRINT
   cerr << "StationPlot::setSelectedStation: " << i << endl;
@@ -655,7 +730,10 @@ void StationPlot::setSelectedStation(int i, bool add)
     //edit
     if (stations[i]->edit)
       editIndex = i;
+
+    return i;
   }
+  return -1;
 }
 
 void StationPlot::getStationPlotAnnotation(miString &str, Colour &col)
@@ -1095,39 +1173,31 @@ miString StationPlot::stationRequest(const miString& command)
   return ost.str();
 }
 
-void StationPlot::glPlot(thingToPlot tp, float x, float y, float w, float h)
+void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h, bool selected)
 {
   //called from StationPlot::plotStation: Add GL things to plot here.
   float linewidth, scale, r;
   GLfloat xc, yc;
   GLfloat radius;
   switch (tp) {
-  case redRectangle:
-    //plot red square with lines
-    glLineWidth(3);
-    glColor3ub(255, 0, 0);//red
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(x - 0.5 * w, y - 0.5 * h);
-    glVertex2f(x - 0.5 * w, y + 0.5 * h);
-    glVertex2f(x + 0.5 * w, y + 0.5 * h);
-    glVertex2f(x + 0.5 * w, y - 0.5 * h);
-    glEnd();
-    break;
-  case greyRectangle:
+  case Station::unknown:
+    linewidth = 2;
+    scale = fullrect.width() / pwidth * 1.5;
+    r = linewidth * scale;
     //plot grey transparent square
     glColor4ub(100, 100, 100, 50);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBegin(GL_POLYGON);
-    glVertex2f(x - 0.5 * w, y - 0.5 * h);
-    glVertex2f(x - 0.5 * w, y + 0.5 * h);
-    glVertex2f(x + 0.5 * w, y + 0.5 * h);
-    glVertex2f(x + 0.5 * w, y - 0.5 * h);
+    glVertex2f(x - r, y - r);
+    glVertex2f(x - r, y + r);
+    glVertex2f(x + r, y + r);
+    glVertex2f(x + r, y - r);
     glEnd();
     glDisable(GL_BLEND);
     break;
-  case redCross:
+  case Station::failed:
     linewidth = 4;
     glLineWidth(linewidth);
     scale = fullrect.width() / pwidth * 1.5;
@@ -1142,14 +1212,49 @@ void StationPlot::glPlot(thingToPlot tp, float x, float y, float w, float h)
     glVertex2f(x - r, y + r);
     glEnd();
     break;
-  case yellowCircle:
+  case Station::underRepair:
+    linewidth = 4;
+    glLineWidth(linewidth);
+    scale = fullrect.width() / pwidth * 1.5;
+    r = linewidth * scale;
+    h = 1.5 * r;
+    //plot crosses
+    glColor3ub(255, 255, 0); //yellow
+    glBegin(GL_LINES);
+    glVertex2f(x - r, y - r);
+    glVertex2f(x + r, y + r);
+    glVertex2f(x + r, y - r);
+    glVertex2f(x - r, y + r);
+    glEnd();
+    break;
+  case Station::working:
+    linewidth = 4;
+    glLineWidth(linewidth);
+    scale = fullrect.width() / pwidth * 1.5;
+    r = linewidth * scale;
+    h = 1.5 * r;
+    //plot crosses
+    glColor3ub(0, 255, 0); //green
+    glBegin(GL_LINES);
+    glVertex2f(x - r, y - r);
+    glVertex2f(x + r, y + r);
+    glVertex2f(x + r, y - r);
+    glVertex2f(x - r, y + r);
+    glEnd();
+    break;
+  case Station::noStatus:
+  default:
+    ;
+  }
+
+  // Plot a yellow circle if the station is selected.
+  if (selected) {
     linewidth = 4;
     glLineWidth(linewidth);
     scale = fullrect.width() / pwidth * 1.5;
     r = linewidth * scale;
     radius = 1.5 * r;
-    glColor3ub(255, 255, 0);//yellow
-    //Circle
+    glColor3ub(255, 255, 0);
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < 100; i++) {
       xc = radius * cos(i * 2 * pi / 100.0);
@@ -1157,32 +1262,6 @@ void StationPlot::glPlot(thingToPlot tp, float x, float y, float w, float h)
       glVertex2f(x + xc, y + yc);
     }
     glEnd();
-    break;
-  case whiteRectangle:
-    glColor3ub(255, 255, 255); //white
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glBegin(GL_POLYGON);
-    glVertex2f(x - w, y);
-    glVertex2f(x - w, y + h);
-    glVertex2f(x + w, y + h);
-    glVertex2f(x + w, y);
-    glEnd();
-    break;
-  case redCircle:
-    radius = 0.55 * h;
-    glColor4ub(255, 0, 0, 80);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBegin(GL_POLYGON);
-    for (int i = 0; i < 100; i++) {
-      xc = radius * cos(i * 2 * pi / 100.0);
-      yc = radius * sin(i * 2 * pi / 100.0);
-      glVertex2f(x + xc, y + yc);
-    }
-    glDisable(GL_BLEND);
-    glEnd();
-    break;
   }
 }
 
@@ -1369,7 +1448,8 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
     fp->getStringSize(ddString[dd].c_str(), sW, sH);
     float sx = x - 0.45 * sW;
     float sy = y - 2.35 * sH;
-    glPlot(whiteRectangle, x, y - 2.5 * sH, sW * 0.6, sH * 1.1);
+    glColor3ub(255, 255, 255); //white
+    glPlot(Station::noStatus, x, y - 2.5 * sH, sW * 0.6, sH * 1.1);
     glColor4f(0.0, 0.0, 0.0, 1.0); //black
     fp->drawStr(ddString[dd].c_str(), sx, sy);
   }
@@ -1377,3 +1457,65 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
   glDisable(GL_BLEND);
 }
 
+StationArea::StationArea(float minLat, float maxLat, float minLon, float maxLon) :
+  minLat(minLat), maxLat(maxLat), minLon(minLon), maxLon(maxLon)
+{
+}
+
+vector<Station*> StationArea::findStations(float lat, float lon) const
+{
+  for (unsigned int i = 0; i < areas.size(); ++i) {
+    if (lat >= areas[i].minLat && lat < areas[i].maxLat && lon >= areas[i].minLon && lon < areas[i].maxLon)
+      return areas[i].findStations(lat, lon);
+  }
+  return stations;
+}
+
+Station* StationArea::findStation(float lat, float lon) const
+{
+  vector<Station*> found = findStations(lat, lon);
+  if (found.size() > 0)
+    return *(found.begin());
+  else
+    return 0;
+}
+
+void StationArea::addStation(Station* station)
+{
+  if (areas.size() == 0) {
+    stations.push_back(station);
+
+    if (stations.size() > 10) {
+      // If there are more than 10 stations in the area, split up the area and
+      // move each of the stations into the appropriate subarea.
+      StationArea topLeft((minLat + maxLat)/2, maxLat, minLon, (minLon + maxLon)/2);
+      areas.push_back(topLeft);
+
+      StationArea topRight((minLat + maxLat)/2, maxLat, (minLon + maxLon)/2, maxLon);
+      areas.push_back(topRight);
+
+      StationArea bottomLeft(minLat, (minLat + maxLat)/2, minLon, (minLon + maxLon)/2);
+      areas.push_back(bottomLeft);
+
+      StationArea bottomRight(minLat, (minLat + maxLat)/2, (minLon + maxLon)/2, maxLon);
+      areas.push_back(bottomRight);
+
+      // Move all the stations into the subareas.
+      for (unsigned int i = 0; i < stations.size(); ++i) {
+        for (unsigned int j = 0; j < areas.size(); ++j) {
+          if (stations[i]->lat >= areas[j].minLat && stations[i]->lat < areas[j].maxLat && stations[i]->lon >= areas[j].minLon && stations[i]->lon < areas[j].maxLon)
+            areas[j].stations.push_back(stations[i]);
+        }
+      }
+
+      // Clear the vector of stations in this area.
+      stations.clear();
+    }
+  } else {
+    // Find the appropriate subarea to store the station in.
+    for (unsigned int i = 0 ; i < areas.size(); ++i) {
+      if (station->lat >= areas[i].minLat && station->lat < areas[i].maxLat && station->lon >= areas[i].minLon && station->lon < areas[i].maxLon)
+        areas[i].addStation(station);
+    }
+  }
+}

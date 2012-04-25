@@ -64,6 +64,7 @@ class QuickMenu;
 class FieldDialog;
 class ObsDialog;
 class SatDialog;
+class StationDialog;
 class MapDialog;
 class ObjectDialog;
 class TrajectoryDialog;
@@ -126,6 +127,7 @@ protected:
   void focusInEvent ( QFocusEvent * );
   void closeEvent( QCloseEvent* );
 
+  bool event(QEvent* event);
 
 
 public slots:
@@ -150,6 +152,7 @@ private slots:
   void editMenu();
   void obsMenu();
   void satMenu();
+  void stationMenu();
   void uffMenu();
   void fieldMenu();
   void objMenu();
@@ -181,6 +184,7 @@ private slots:
   void catchMouseRightPos(const mouseEvent);
   void catchMouseMovePos(const mouseEvent,bool);
   void catchKeyPress(const keyboardEvent);
+  void catchMouseDoubleClick(const mouseEvent);
   void catchElement(const mouseEvent);
   void sendSelectedStations(const miutil::miString& command);
   void undo();
@@ -294,6 +298,7 @@ private:
   QAction * showFieldDialogAction;
   QAction * showObsDialogAction;
   QAction * showSatDialogAction;
+  QAction * showStationDialogAction;
   QAction * showEditDialogAction;
   QAction * showObjectDialogAction;
   QAction * showTrajecDialogAction;
@@ -376,6 +381,7 @@ private:
   FieldDialog       * fm;
   ObsDialog         * om;
   SatDialog         * sm;
+  StationDialog     * stm;
   ObjectDialog      * objm;
   TrajectoryDialog  * trajm;
   MeasurementsDialog   * measurementsm;

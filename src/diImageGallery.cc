@@ -790,7 +790,7 @@ void ImageGallery::printInfo() const
 
 void ImageGallery::ImageNames(vector<miString>& vnames,
     int type) const
-    {
+{
   vnames.clear();
 
   //   map<miString,image>::const_iterator p= Images.begin();
@@ -800,7 +800,7 @@ void ImageGallery::ImageNames(vector<miString>& vnames,
   int n=Type[type].size();
   for(int i=0; i<n; i++)
     vnames.push_back(Type[type][i]);
-    }
+}
 
 miString ImageGallery::getFilename(const miString& name, bool pattern)
 {

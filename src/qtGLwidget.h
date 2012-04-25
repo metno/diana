@@ -116,6 +116,8 @@ signals:
   void fieldsChanged();
   /// key press
   void keyPress(const keyboardEvent kev);
+  /// mouse double click
+  void mouseDoubleClick(const mouseEvent mev);
 
 protected:
 

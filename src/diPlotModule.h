@@ -55,6 +55,7 @@ class FieldPlotManager;
 class FieldPlot;
 class ObsManager;
 class SatManager;
+class StationManager;
 class ObjectManager;
 class EditManager;
 class GridAreaManager;
@@ -81,6 +82,7 @@ private:
 
   ObsManager *obsm;       // observation manager
   SatManager *satm;       // raster-data manager
+  StationManager *stam;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
   GridAreaManager *aream; // Polygon edit manager for continuous drwaing/editing
@@ -93,6 +95,7 @@ private:
 
   vector<ObsPlot*> vop;   // vector of observation plots
   vector<SatPlot*> vsp;   // vector of satellite plots
+  vector<StationPlot*> vstp; // vector of station plots
   vector<FieldPlot*> vfp; // vector of field plots
   vector<MapPlot*> vmp;   // vector of map plots
   vector<TrajectoryPlot*>vtp; // vector of trajectory plots
@@ -136,8 +139,6 @@ private:
   EditObjects editobjects;       // fronts,symbols,areas
   EditObjects combiningobjects;  // areaborders and textstrings
 
-  vector <StationPlot*> stationPlots;//stations to be plotted
-
   vector <LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
   // event-handling
@@ -179,14 +180,13 @@ private:
   void freeFields(FieldPlot *);
 
 
-protected:
-  void PlotAreaSetup();
-
 public:
   // Constructor
   PlotModule();
   // Destructor
   ~PlotModule();
+
+  void PlotAreaSetup();
 
   /// the main plot routine (plot for underlay, plot for overlay)
   void plot(bool under =true, bool over =true);
@@ -200,6 +200,8 @@ public:
   void prepareMap(const vector<miutil::miString>&);
   /// handles images plot info strings
   void prepareSat(const vector<miutil::miString>&);
+  /// handles stations plot info strings
+  void prepareStations(const vector<miutil::miString>&);
   /// handles met. objects plot info strings
   void prepareObjects(const vector<miutil::miString>&);
   /// handles trajectory plot info strings
@@ -252,6 +254,7 @@ public:
                    FieldPlotManager*,
                    ObsManager*,
                    SatManager*,
+                   StationManager*,
                    ObjectManager*,
                    EditManager*,
                    GridAreaManager*);
@@ -288,42 +291,6 @@ public:
   void obsTime(const keyboardEvent& me, EventResult& res);
   ///sets the step used in obsTime()
   void obsStepChanged(int step);
-
-  // Stations
-  ///put StationPlot in list of StationPlots
-  void putStations(StationPlot*);
-  ///make StationPlot and put it in list of StationPlots
-  void makeStationPlot(const miutil::miString& commondesc, const miutil::miString& common,
-                       const miutil::miString& description, int from,
-                       const  vector<miutil::miString>& data);
-  ///find station in position x,y in StationPlot with name and id
-  miutil::miString findStation(int x, int y,miutil::miString name,int id=-1);
-  ///look for station in position x,y in all StationPlots
-  void findStations(int x, int y, bool add,
-                    vector<miutil::miString>& name,vector<int>& id,
-                    vector<miutil::miString>& station);
-  ///get editable stations, returns name/id of StationPlot and stations
-  void getEditStation(int step, miutil::miString& name, int& id,
-                      vector<miutil::miString>& stations);
-  ///send command to StationPlot with name and id
-  void stationCommand(const miutil::miString& Command,
-                      vector<miutil::miString>& data,
-                      const miutil::miString& name="", int id=-1,
-                      const miutil::miString& misc="");
-  ///send command to StationPlot with name and id
-  void stationCommand(const miutil::miString& Command,
-                      const miutil::miString& name="", int id=-1);
-  /**
-   * This method is only sound as long as all Stations in all StationPlots have the same scale.
-   * @return Current scale for the first Station in the first StationPlot
-   */
-  float getStationsScale();
-
-  /**
-   * Set new scale for all Stations.
-   * @param new_scale New scale (1.0 original size)
-   */
-  void setStationsScale(float new_scale);
 
   //Area
   ///put area into list of area objects

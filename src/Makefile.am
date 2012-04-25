@@ -54,6 +54,7 @@ common_cxx_sources = \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
+	diLocalSetupParser.cc \
 	diLocationPlot.cc \
 	diMItiff.cc \
 	diMapManager.cc \
@@ -82,12 +83,12 @@ common_cxx_sources = \
 	diSat.cc \
 	diSatManager.cc \
 	diSatPlot.cc \
-	diLocalSetupParser.cc \
 	diShapeObject.cc \
 	diSpectrumFile.cc \
 	diSpectrumManager.cc \
 	diSpectrumOptions.cc \
 	diSpectrumPlot.cc \
+	diStationManager.cc \
 	diStationPlot.cc \
 	diTimeFilter.cc \
 	diTrajectoryPlot.cc \
@@ -151,6 +152,7 @@ diana_qt_sources = \
 	qtSpectrumSetupDialog.cc \
 	qtSpectrumWidget.cc \
 	qtSpectrumWindow.cc \
+	qtStationDialog.cc \
 	qtStatusGeopos.cc \
 	qtStatusPlotButtons.cc \
 	qtTextDialog.cc \
@@ -209,6 +211,7 @@ noinst_HEADERS = \
 	diImageIO.h \
 	diKeys.h \
 	diLegendPlot.h \
+	diLocalSetupParser.h \
 	diLocationPlot.h \
 	diMItiff.h \
 	diMapManager.h \
@@ -244,12 +247,12 @@ noinst_HEADERS = \
 	diSat.h \
 	diSatManager.h \
 	diSatPlot.h \
-	diLocalSetupParser.h \
 	diShapeObject.h \
 	diSpectrumFile.h \
 	diSpectrumManager.h \
 	diSpectrumOptions.h \
 	diSpectrumPlot.h \
+	diStationManager.h \
 	diStationPlot.h \
 	diTesselation.h \
 	diTimeFilter.h \
@@ -310,6 +313,7 @@ noinst_HEADERS = \
 	qtSpectrumSetupDialog.h \
 	qtSpectrumWidget.h \
 	qtSpectrumWindow.h \
+	qtStationDialog.h \
 	qtStatusGeopos.h \
 	qtStatusPlotButtons.h \
 	qtTextDialog.h \
@@ -333,6 +337,9 @@ noinst_HEADERS = \
 	qtVprofWindow.h \
 	qtWorkArea.h \
         signalhelper.h
+
+# diana_qt_forms= qtStationDialog.ui
+diana_qt_forms=
 
 # xpm files needed to build
 common_xpm_sources= active_object.xpm \
@@ -699,9 +706,15 @@ endif
 common_moc_sources = $(common_qt_sources:.cc=.moc.cc)
 diana_moc_sources = $(diana_qt_sources:.cc=.moc.cc)
 bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
-CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources)
+diana_uic_headers = $(diana_qt_forms:.ui=.ui.h)
+CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources) $(diana_uic_headers)
 %.moc.cc: %.h
 	$(MOC4) -o $@ $<
+
+%.ui.h: %.ui
+	$(UIC4) -o $@ $<
+
+BUILT_SOURCES = $(diana_uic_headers)
 
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_es.ts \

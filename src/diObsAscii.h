@@ -76,8 +76,6 @@ private:
   void decodeHeader();
   void decodeData();
 
-  void getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines);
-  void getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines);
   void addStationsToUrl(miutil::miString& filename);
 
 public:
@@ -87,6 +85,8 @@ public:
   ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
      const vector<miutil::miString> headerinfo);
 
+  static bool getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines);
+  static bool getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines);
   ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
      const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
      ObsPlot *oplot);

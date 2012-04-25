@@ -133,7 +133,8 @@ enum actiontype {
   objects_changed,
   fields_changed,
   keypressed,
-  grid_area_changed
+  grid_area_changed,
+  doubleclick
 };
 
 /// returned to GUI after sent keyboard/mouse-events

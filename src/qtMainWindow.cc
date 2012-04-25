@@ -91,12 +91,14 @@
 #include "diController.h"
 #include "diPrintOptions.h"
 #include "diLocalSetupParser.h"
+#include "diStationManager.h"
 #include "diStationPlot.h"
 #include "diLocationPlot.h"
 
 #include "qtQuickMenu.h"
 #include "qtObsDialog.h"
 #include "qtSatDialog.h"
+#include "qtStationDialog.h"
 #include "qtMapDialog.h"
 #include "qtFieldDialog.h"
 #include "qtEditDialog.h"
@@ -147,6 +149,7 @@
 #include <felt.xpm>
 #include <Tool_32_draw.xpm>
 #include <sat.xpm>
+#include <station.xpm>
 #include <clock.xpm>
 #include <levelUp.xpm>
 #include <levelDown.xpm>
@@ -311,6 +314,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showSatDialogAction->setShortcut(Qt::ALT+Qt::Key_S);
   showSatDialogAction->setCheckable(true);
   connect( showSatDialogAction, SIGNAL( triggered() ) ,  SLOT( satMenu() ) );
+  // --------------------------------------------------------------------
+  showStationDialogAction = new QAction( QPixmap(station_xpm), tr("&Stations"), this );
+  showStationDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  //showStationDialogAction->setShortcut(Qt::ALT+Qt::Key_S);
+  showStationDialogAction->setCheckable(true);
+  connect(showStationDialogAction, SIGNAL(triggered()), SLOT(stationMenu()));
   // --------------------------------------------------------------------
   showEditDialogAction = new QAction( QPixmap(editmode_xpm ),tr("&Product Editing"), this );
   showEditDialogAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -620,6 +629,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showmenu->addAction( showFieldDialogAction        );
   showmenu->addAction( showObsDialogAction          );
   showmenu->addAction( showSatDialogAction          );
+  showmenu->addAction( showStationDialogAction      );
   showmenu->addAction( showEditDialogAction         );
   showmenu->addAction( showObjectDialogAction       );
   showmenu->addAction( showTrajecDialogAction       );
@@ -740,6 +750,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   mainToolbar->addAction( showFieldDialogAction       );
   mainToolbar->addAction( showObsDialogAction         );
   mainToolbar->addAction( showSatDialogAction         );
+  mainToolbar->addAction( showStationDialogAction     );
   mainToolbar->addAction( showObjectDialogAction      );
   mainToolbar->addAction( showTrajecDialogAction      );
   mainToolbar->addAction( showMeasurementsDialogAction   );
@@ -812,6 +823,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   ig.addImageToGallery("LOCATION",location_img);
   QImage sp_img(spectrum_xpm);
   ig.addImageToGallery("spectrum_icon",sp_img);
+  QImage st_img(station_xpm);
+  ig.addImageToGallery("STATION",st_img);
 
   // Read the avatars to gallery
 
@@ -840,6 +853,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(w->Glw(), SIGNAL(keyPress(const keyboardEvent)),
       SLOT(catchKeyPress(const keyboardEvent)));
 
+  connect(w->Glw(), SIGNAL(mouseDoubleClick(const mouseEvent)),
+      SLOT(catchMouseDoubleClick(const mouseEvent)));
+
   // ----------- init dialog-objects -------------------
 
   qm= new QuickMenu(this, contr);
@@ -853,6 +869,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   sm= new SatDialog(this, contr);
   sm->hide();
+
+  stm= new StationDialog(this, contr);
+  stm->hide();
 
   mm= new MapDialog(this, contr);
   mm->hide();
@@ -940,6 +959,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( fm, SIGNAL(FieldApply()), SLOT(MenuOK()));
   connect( om, SIGNAL(ObsApply()),   SLOT(MenuOK()));
   connect( sm, SIGNAL(SatApply()),   SLOT(MenuOK()));
+  connect( stm, SIGNAL(StationApply()), SLOT(MenuOK()));
   connect( mm, SIGNAL(MapApply()),   SLOT(MenuOK()));
   connect( objm, SIGNAL(ObjApply()), SLOT(MenuOK()));
   connect( em, SIGNAL(editApply()),  SLOT(editApply()));
@@ -947,6 +967,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( fm, SIGNAL(FieldHide()),  SLOT(fieldMenu()));
   connect( om, SIGNAL(ObsHide()),    SLOT(obsMenu()));
   connect( sm, SIGNAL(SatHide()),    SLOT(satMenu()));
+  connect( stm, SIGNAL(StationHide()), SLOT(stationMenu()));
   connect( mm, SIGNAL(MapHide()),    SLOT(mapMenu()));
   connect( em, SIGNAL(EditHide()),   SLOT(editMenu()));
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
@@ -1205,7 +1226,7 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
   } else {
 
     // strings for each dialog
-    vector<miutil::miString> mapcom,fldcom,obscom,satcom,objcom,labelcom;
+    vector<miutil::miString> mapcom,fldcom,obscom,satcom,statcom,objcom,labelcom;
     int n= vstr.size();
     // sort strings..
     for (int i=0; i<n; i++){
@@ -1219,6 +1240,7 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
       else if (pre=="FIELD") fldcom.push_back(s);
       else if (pre=="OBS") obscom.push_back(s);
       else if (pre=="SAT") satcom.push_back(s);
+      else if (pre=="STATION") statcom.push_back(s);
       else if (pre=="OBJECTS") objcom.push_back(s);
       else if (pre=="LABEL") labelcom.push_back(s);
     }
@@ -1229,6 +1251,7 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
     if (replace || fldcom.size()) fm->putOKString(fldcom);
     if (replace || obscom.size()) om->putOKString(obscom);
     if (replace || satcom.size()) sm->putOKString(satcom);
+    if (replace || statcom.size()) stm->putOKString(statcom);
     if (replace || objcom.size()) objm->putOKString(objcom);
     if (replace ) vlabel=labelcom;
 
@@ -1299,6 +1322,11 @@ void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
   diagstr = sm->getOKString();
   pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
   shortnames.push_back(sm->getShortname());
+
+  // Stations
+  diagstr = stm->getOKString();
+  pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  shortnames.push_back(stm->getShortname());
 
   // objects
   diagstr = objm->getOKString();
@@ -1494,7 +1522,7 @@ void DianaMainWindow::addToMenu()
 
 void DianaMainWindow::toggleDialogs()
 {
-  const int numdialogs= 9;
+  const int numdialogs= 10;
   //const int numdialogs= 8;
   static bool visi[numdialogs];
 
@@ -1510,6 +1538,7 @@ void DianaMainWindow::toggleDialogs()
     if ((visi[6]= objm->isVisible()))  objMenu();
     if ((visi[7]= trajm->isVisible())) trajMenu();
     if ((visi[8]= measurementsm->isVisible())) measurementsMenu();
+    if ((visi[9]= stm->isVisible())) stationMenu();
   } else {
     if (visi[0]) quickMenu();
     if (visi[1]) mapMenu();
@@ -1520,6 +1549,7 @@ void DianaMainWindow::toggleDialogs()
     if (visi[6]) objMenu();
     if (visi[7]) trajMenu();
     if (visi[8]) measurementsMenu();
+    if (visi[9]) stationMenu();
   }
 }
 
@@ -1569,6 +1599,14 @@ void DianaMainWindow::satMenu()
     sm->show();
   }
   showSatDialogAction->setChecked( !b );
+}
+
+
+void DianaMainWindow::stationMenu()
+{
+  bool visible = stm->isVisible();
+  stm->setVisible(!visible);
+  showStationDialogAction->setChecked(!visible);
 }
 
 
@@ -3170,24 +3208,20 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
   int x = mev.x;
   int y = mev.y;
 
+  float lat=0,lon=0;
+  contr->PhysToGeo(x,y,lat,lon);
 
   if(markTrajPos){
-    float lat=0,lon=0;
-    contr->PhysToGeo(x,y,lat,lon);
     trajm->mapPos(lat,lon);
     w->updateGL(); // repaint window
   }
 
   if(markMeasurementsPos) {
-    float lat=0,lon=0;
-    contr->PhysToGeo(x,y,lat,lon);
     measurementsm->mapPos(lat,lon);
     w->updateGL(); // repaint window
   }
 
   if (markVcross) {
-    float lat=0,lon=0;
-    contr->PhysToGeo(x,y,lat,lon);
     vcWindow->mapPos(lat,lon);
     w->updateGL(); // repaint window
   }
@@ -3203,8 +3237,6 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
   }
   //send position to all clients
   if(qsocket){
-    float lat=0,lon=0;
-    contr->PhysToGeo(x,y,lat,lon);
     miutil::miString latstr(lat,6);
     miutil::miString lonstr(lon,6);
     miMessage letter;
@@ -3217,6 +3249,44 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     sendLetter(letter);
   }
 
+  vector<Station*> stations = contr->getStationManager()->findStations(mev.x, mev.y);
+  if (stations.size() > 0) {
+    QString stationsText;
+    for (unsigned int i = 0; i < stations.size(); ++i) {
+      if (!stations[i]->isVisible)
+        continue;
+
+      if (stations[i]->lat >= 0)
+        stationsText += tr("%1 N, ").arg(stations[i]->lat);
+      else
+        stationsText += tr("%1 S, ").arg(-stations[i]->lat);
+      if (stations[i]->lon >= 0)
+        stationsText += tr("%1 E<br>").arg(stations[i]->lon);
+      else
+        stationsText += tr("%1 W<br>").arg(-stations[i]->lon);
+
+      stationsText += QString("<a href=\"%1\">%2</a>").arg(QString::fromStdString(stations[i]->url))
+                                                      .arg(QString::fromStdString(stations[i]->name));
+
+      switch (stations[i]->status) {
+      case Station::failed:
+        stationsText += QString(" <span style=\"background: black; color: red\">X</span>");
+        break;
+      case Station::underRepair:
+        stationsText += QString(" <span style=\"background: black; color: yellow\">X</span>");
+        break;
+      case Station::working:
+        stationsText += QString(" <span style=\"background: black; color: lightgreen\">X</span>");
+        break;
+      default:
+        ;
+      }
+
+      if (i < stations.size() - 1)
+        stationsText += "<br>\n";
+    }
+    QWhatsThis::showText(w->mapToGlobal(QPoint(mev.x, w->height() - mev.y)), stationsText, w);
+  }
 }
 
 
@@ -3315,6 +3385,11 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
 }
 
 
+void DianaMainWindow::catchMouseDoubleClick(const mouseEvent mev)
+{
+}
+
+
 void DianaMainWindow::catchElement(const mouseEvent mev)
 {
 
@@ -3333,6 +3408,12 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
   if( contr->findObs(x,y) ){
     needupdate= true;
   }
+
+  // Perform general station selection, independent of tool-specific checks.
+  vector<miutil::miString> names;
+  vector<int> ids;
+  vector<miutil::miString> stations;
+  contr->findStations(x, y, false, names, ids, stations);
 
   //find the name of station we clicked/pointed
   //at (from plotModul->stationPlot)
@@ -4348,4 +4429,16 @@ void DianaMainWindow::inEdit(bool inedit)
 void DianaMainWindow::closeEvent(QCloseEvent * e)
 {
   filequit();
+}
+
+bool DianaMainWindow::event(QEvent* event)
+{
+  if (event->type() == QEvent::WhatsThisClicked) {
+    QWhatsThisClickedEvent* wtcEvent = static_cast<QWhatsThisClickedEvent*>(event);
+    QDesktopServices::openUrl(wtcEvent->href());
+    QWhatsThis::hideText();
+    return true;
+  }
+
+  return QMainWindow::event(event);
 }

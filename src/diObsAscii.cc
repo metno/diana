@@ -91,14 +91,13 @@ ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
   metaData->setObsData(mObsData);
 }
 
-void ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines)
+bool ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines)
 {
-
   // open filestream
   ifstream file(filename.cStr());
   if (!file) {
     cerr << "ObsAscii: " << filename << " not found" << endl;
-    return;
+    return false;
   }
 
   miString str;
@@ -107,7 +106,7 @@ void ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miSt
   }
 
   file.close();
-
+  return true;
 }
 
 size_t write_dataa(void *buffer, size_t size, size_t nmemb, void *userp)
@@ -119,9 +118,8 @@ size_t write_dataa(void *buffer, size_t size, size_t nmemb, void *userp)
 
 
 
-void ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines)
+bool ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines)
 {
-
   CURL *curl = NULL;
   CURLcode res;
   string data;
@@ -141,6 +139,7 @@ void ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>
   result = mdata.split("\n");
   lines.insert(lines.end(),result.begin(),result.end());
 
+  return (res == 0);
 }
 
 void ObsAscii::readHeaderInfo(const miString &filename, const miString &headerfile,
