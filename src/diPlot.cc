@@ -33,8 +33,12 @@
 #include "config.h"
 #endif
 
+#include <qglobal.h>
+
 #include <diPlot.h>
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <glp/glpfile.h>
+#endif
 #include <diFontManager.h>
 
 using namespace::miutil;

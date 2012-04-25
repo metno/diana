@@ -31,13 +31,21 @@
 #ifndef VPROFWIDGET_H
 #define VPROFWIDGET_H
 
+#include <qglobal.h>
+
 #include "diVprofDiagram.h"
 #include "diVprofData.h"
 #include "diVprofPlot.h"
 #include <puTools/miString.h>
 #include <map>
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
+#else
+#include "PaintGL/paintgl.h"
+#include <QWidget>
+#define QGLWidget PaintGLWidget
+#endif
 #include <QKeyEvent>
 
 using namespace std;
@@ -55,18 +63,31 @@ class VprofWidget : public QGLWidget
   Q_OBJECT
 
 public:
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   VprofWidget(VprofManager *vpm, const QGLFormat fmt,
-	      QWidget* parent = 0);
-
-  void initializeGL();
-  void paintGL();
-  void resizeGL( int w, int h );
+             QWidget* parent = 0);
+#else
+  VprofWidget(VprofManager *vpm, QWidget* parent = 0);
+#endif
 
   bool saveRasterImage(const miutil::miString fname,
   		       const miutil::miString format,
 		       const int quality = -1);
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+  bool isValid() { return true; }
+  void makeCurrent() {}
+  void swapBuffers() {}
+  void setAutoBufferSwap(bool enable) {}
+  void updateGL() { update(); }
+  QImage grabFrameBuffer(bool withAlpha = false) { return QImage(); }
+#endif
+
 protected:
+
+  void initializeGL();
+  void paintGL();
+  void resizeGL( int w, int h );
 
 private:
   VprofManager *vprofm;

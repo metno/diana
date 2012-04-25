@@ -804,7 +804,7 @@ void PlotModule::setAnnotations()
 }
 
 
-void PlotModule::updateFieldPlot(const vector<miString>& pin)
+bool PlotModule::updateFieldPlot(const vector<miString>& pin)
 {
   vector<Field*> fv;
   int i, n;
@@ -813,7 +813,9 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updatePinNeeded(pin[i])) {
-      fieldplotm->makeFields(pin[i], t, fv);
+      // Make the updated fields or return false.
+      if (!fieldplotm->makeFields(pin[i], t, fv))
+        return false;
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -837,11 +839,14 @@ void PlotModule::updateFieldPlot(const vector<miString>& pin)
 
   // get annotations from all plots
   setAnnotations();
+
+  // Successful update
+  return true;
 }
 
 
 // update plots
-void PlotModule::updatePlots()
+bool PlotModule::updatePlots()
 {
 #ifdef DEBUGREDRAW
   cerr <<"PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea<<endl;
@@ -856,7 +861,8 @@ void PlotModule::updatePlots()
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
-      fieldplotm->makeFields(pin, t, fv);
+      if (!fieldplotm->makeFields(pin, t, fv))
+        return false;
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -1045,6 +1051,9 @@ void PlotModule::updatePlots()
   setAnnotations();
 
   PlotAreaSetup();
+
+  // Successful update
+  return true;
 }
 
 // start hardcopy plot
@@ -1435,6 +1444,36 @@ void PlotModule::plotOver()
   if (hardcopy)
     splot.removeHCClipping();
 
+}
+
+vector<AnnotationPlot*> PlotModule::getAnnotations()
+{
+  return vap;
+}
+
+vector<Rectangle> PlotModule::plotAnnotations()
+{
+  Rectangle plotr = splot.getPlotSize();
+
+  // set correct worldcoordinates
+  glLoadIdentity();
+  glOrtho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
+
+  Colour cback(splot.getBgColour().cStr());
+
+  glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  vector<Rectangle> rectangles;
+
+  unsigned int n = vap.size();
+  for (unsigned int i = 0; i < n; i++) {
+    //	cerr <<"i:"<<i<<endl;
+    vap[i]->plot();
+    rectangles.push_back(vap[i]->getBoundingBox());
+  }
+
+  return rectangles;
 }
 
 void PlotModule::PlotAreaSetup()
@@ -3122,4 +3161,20 @@ void PlotModule::readLog(const vector<miString>& vstr,
 
   areaIndex = areaQ.size() - 1;
 
+}
+
+// Miscellaneous get methods
+vector<SatPlot*> PlotModule::getSatellitePlots() const
+{
+  return vsp;
+}
+
+vector<FieldPlot*> PlotModule::getFieldPlots() const
+{
+  return vfp;
+}
+
+vector<ObsPlot*> PlotModule::getObsPlots() const
+{
+  return vop;
 }

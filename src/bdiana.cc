@@ -34,6 +34,8 @@
 #include "config.h"
 #endif
 
+#include <qglobal.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -46,9 +48,21 @@
 #include <iostream>
 
 #include <QtCore>
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#include <QtGui>
+#include <QtSvg>
+#include "PaintGL/paintgl.h"
+#else
 #include <QtOpenGL>
+#endif
 
+#include <diAnnotationPlot.h>
 #include <diController.h>
+#include <diFieldPlot.h>
+#include <diObsManager.h>
+#include <diObsPlot.h>
+#include <diSatManager.h>
+#include <diSatPlot.h>
 
 #include <puCtools/sleep.h>
 #include <puTools/miString.h>
@@ -66,6 +80,9 @@
 
 #include <diVprofManager.h>
 #include <diVprofOptions.h>
+
+#include <diField/diFieldManager.h>
+#include <diField/diRectangle.h>
 
 #include <diSpectrumManager.h>
 #include <diSpectrumOptions.h>
@@ -135,12 +152,16 @@ const miString com_output = "output";
 const miString com_colour = "colour";
 const miString com_drawbackground = "drawbackground";
 const miString com_orientation = "orientation";
+const miString com_antialiasing = "antialiasing";
 
 const miString com_settime = "settime";
 const miString com_addhour = "addhour";
 const miString com_addminute = "addminute";
 const miString com_archive = "archive";
 const miString com_keepplotarea = "keepplotarea";
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+const miString com_plotannotationsonly = "plotannotationsonly";
+#endif
 
 const miString com_multiple_plots = "multiple.plots";
 const miString com_plotcell = "plotcell";
@@ -157,8 +178,14 @@ const miString com_endtime = "endtime";
 const miString com_level = "level";
 const miString com_endlevel = "endlevel";
 
+const miString com_field_files = "<field_files>";
+const miString com_field_files_end = "</field_files>";
+
+const miString com_describe = "describe";
+const miString com_describe_end = "enddescribe";
+
 enum canvas {
-  x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer
+  x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer, qt_qimage
 };
 
 enum image_type {
@@ -220,9 +247,17 @@ GLXPbuffer pbuf; // GLX Pixel Buffer
 #endif
 
 QApplication * application = 0; // The Qt Application object
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
 QGLFramebufferObject * qfbuffer = 0; // The Qt GLFrameBuffer used as canvas
 QGLWidget *qwidget = 0; // The rendering context used for Qt GLFrameBuffer
+#else
+QPainter painter;
+PaintGL wrapper;
+PaintGLContext context;
+#endif
+QPicture picture;
+map<miString, map<miString,miString> > outputTextMaps; // output text for cases where output data is XML/JSON
 int xsize; // total pixmap width
 int ysize; // total pixmap height
 bool multiple_plots = false; // multiple plots per page
@@ -233,9 +268,18 @@ int margin, spacing; // margin and spacing for multiple plots
 bool multiple_newpage = false; // start new page for multiple plots
 
 bool use_double_buffer = true; // use double buffering
+#ifdef USE_XLIB
+int default_canvas = x_pixmap;
+#else
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+int default_canvas = qt_qimage;
+#else
 int default_canvas = qt_glpixelbuffer;
+#endif
+#endif
 int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
+bool antialias = false;
 
 // replaceable values for plot-commands
 vector<keyvalue> keys;
@@ -253,7 +297,18 @@ bool useArchive = false;
 bool toprinter = false;
 bool raster = false; // false means postscript
 bool shape = false; // false means postscript
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+bool svg = false;
+bool pdf = false;
+bool json = false;
+#endif
 int raster_type = image_png; // see enum image_type above
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+bool plotAnnotationsOnly = false;
+vector<Rectangle> annotationRectangles;
+QTransform annotationTransform;
+#endif
 
 /*
  more...
@@ -284,6 +339,15 @@ printOptions priop;
 
 bool wait_for_signals = false;
 miString fifo_name;
+
+#define MAKE_CONTROLLER \
+    main_controller = new Controller; \
+    if (!main_controller->parseSetup()) { \
+      cerr \
+          << "ERROR, an error occured while main_controller parsed setup: " \
+          << setupfile << endl; \
+      return 99; \
+    }
 
 /*
  clean an input-string: remove preceding and trailing blanks,
@@ -796,7 +860,10 @@ void printUsage(bool showexample)
 #ifdef VIDEO_EXPORT
         " - as AVI (MS MPEG4-v2 video format)                            \n"
 #endif
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         " - using qtgl: all available raster formats in Qt               \n"
+#endif
+        " - using qimage: all available raster formats in Qt             \n"
         "***************************************************             \n"
         "                                                                \n"
         "Usage: bdiana -i <job-filename>"
@@ -804,7 +871,11 @@ void printUsage(bool showexample)
         " [-v]"
         " [-display xhost:display]"
         " [-example]"
-        " [-use_qtgl | -use_pbuffer | -use_pixmap ]"
+        " ["
+#ifdef USE_XLIB
+        "-use_pixmap | -use_pbuffer |"
+#endif
+        " -use_qimage ]"
         " [-use_doublebuffer | -use_singlebuffer]"
         " [key=value key=value] \n"
         "                                                                        \n"
@@ -822,11 +893,12 @@ void printUsage(bool showexample)
         "-use_pixmap       : use X Pixmap/GLXPixmap as drawing medium            \n"
         "-use_pbuffer      : use GLX v.1.3 PixelBuffers as drawing medium        \n"
         "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
-#else
-        "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
 #endif
+        "-use_qimage       : use QImage as drawing medium                        \n"
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         "-use_doublebuffer : use double buffering OpenGL (default)               \n"
         "-use_singlebuffer : use single buffering OpenGL                         \n"
+#endif
         "                                                                        \n"
         "special key/value pairs:                                                \n"
         " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time                          \n"
@@ -850,12 +922,17 @@ void printUsage(bool showexample)
             "                                                                  \n"
             "#- Optional: values for each option below are default-values      \n"
             "setupfile=diana.setup    # use a standard setup-file              \n"
-            "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI/SHP          \n"
+            "output=POSTSCRIPT        # POSTSCRIPT/EPS/PNG/RASTER/AVI/SHP      \n"
             "                         #  RASTER: format from filename-suffix   \n"
+            "                         #  PDF/SVG/JSON (only with -use_qimage)  \n"
+            "                         #  JSON (only for annotations)           \n"
             "colour=COLOUR            # GREYSCALE/COLOUR                       \n"
             "filename=tmp_diana.ps    # output filename                        \n"
             "keepPlotArea=NO          # YES=try to keep plotarea for several   \n"
             "                         # plots                                  \n"
+            "plotAnnotationsOnly=NO   # YES=only plot annotations/legends      \n"
+            "                         # (only available with -use_qimage)      \n"
+            "antialiasing=NO          # only available with -use_qimage        \n"
             "                                                                  \n"
             "# the following options for output=POSTSCRIPT or EPS only         \n"
             "toprinter=NO             # send output to printer (postscript)    \n"
@@ -869,6 +946,11 @@ void printUsage(bool showexample)
             "                         # (default here is really 'automatic'    \n"
             "                         # which sets orientation according to    \n"
             "                         # width/height-ratio of buffersize)      \n"
+            "                                                                  \n"
+            "# Extra fields: including field sources not in the setup file     \n"
+            "<FIELD_FILES>                                                     \n"
+            "m=Hirlam12 t=fimex f=hirlam12/hirlam12ml.nc format=netcdf         \n"
+            "</FIELD_FILES>                                                    \n"
             "                                                                  \n"
             "#--------------------------------------------------------------   \n"
             "# Product-examples:                                               \n"
@@ -1105,11 +1187,12 @@ void printUsage(bool showexample)
             "#--------------------------------------------------------------        \n"
             "#* Get Capabilities *                                                  \n"
             "#  Developed for use in WMS                                            \n"
-            "#  The syntax of the TIME- and LEVEL-sections are equal to the         \n"
-            "#  PLOT-sections. The plot options will be ignored.                    \n"
+            "#  The syntax of the TIME-, LEVEL- and DESCRIBE-sections are equal to  \n"
+            "#  the PLOT-sections. The plot options will be ignored.                \n"
             "#  The TIME-sections give available times,                             \n"
             "#  both normal and constant times.                                     \n"
             "#  The LEVEL-sections give available levels.                           \n"
+            "#  The DESCRIBE-sections give information about the files read.        \n"
             "#  Valid options:                                                      \n"
             "#  Normal times common to all products and  all constant times:        \n"
             "#  time_options = intersection                                         \n"
@@ -1176,12 +1259,108 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+void getAnnotationsArea(int& ox, int& oy, int& xsize, int& ysize, int number = -1)
+{
+  QRectF cutout;
+  int i = 0;
+
+  vector<Rectangle>::iterator it;
+  for (it = annotationRectangles.begin(); it != annotationRectangles.end(); ++it) {
+    QRectF r = annotationTransform.mapRect(QRectF(it->x1, it->y1, it->width(), it->height()));
+    if (cutout.isNull() && (i == number || number == -1))
+      cutout = r;
+    else if (!r.isNull() && (i == number || number == -1))
+      cutout = cutout.united(r);
+
+    i += 1;
+  }
+
+  if (!cutout.isNull()) {
+    ox = -cutout.x();
+    oy = -cutout.y();
+    xsize = cutout.width();
+    ysize = cutout.height();
+  }
+}
+
+void createJsonAnnotation()
+{
+  vector<AnnotationPlot*> annotationPlots = main_controller->getAnnotations();
+  for (vector<AnnotationPlot*>::iterator it = annotationPlots.begin(); it != annotationPlots.end(); ++it) {
+
+    vector<AnnotationPlot::Annotation> annotations = (*it)->getAnnotations();
+    for (vector<AnnotationPlot::Annotation>::iterator iti = annotations.begin(); iti != annotations.end(); ++iti) {
+
+      for (vector<miString>::iterator itj = iti->vstr.begin(); itj != iti->vstr.end(); ++itj) {
+
+        // Each string is a sequence of comma-separated assignments.
+        vector<miString> pieces = (*itj).split(",");
+
+        for (vector<miString>::iterator itp = pieces.begin(); itp != pieces.end(); ++itp) {
+
+          // Handle each assignment by splitting it into a name and value.
+          vector<miString> assignment = (*itp).split("=");
+          if (assignment.size() == 2) {
+            miString name = assignment[0];
+            miString value = assignment[1];
+
+            if (name == "table") {
+              // Remove leading and trailing quotes.
+              value = value.substr(1, value.size() - 2);
+              vector<miString> lines = value.split(";");
+
+              map<miString,miString> textMap;
+              textMap["title"] = "\"" + lines[0] + "\"";
+              textMap["colors"] = "[";
+              textMap["labels"] = "[";
+              for (unsigned int i = 1; i < lines.size(); i += 2) {
+                  Colour color = Colour(lines[i]);
+                  stringstream cs;
+                  cs.flags(ios::hex);
+                  cs.width(6);
+                  cs.fill('0');
+                  cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
+                  textMap["colors"] += "\"" + cs.str() + "\"";
+                  textMap["labels"] += "\"" + lines[i + 1] + "\"";
+                  if (i < lines.size() - 2) {
+                      textMap["colors"] += ", ";
+                      textMap["labels"] += ", ";
+                  }
+              }
+              textMap["colors"] += "]";
+              textMap["labels"] += "]";
+
+              outputTextMaps[lines[0]] = textMap;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+#endif
+
 int parseAndProcess(istream &is)
 {
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      if (canvasType == qt_qimage) {
+        if (context.isPainting())
+          context.end();
+        if (painter.isActive())
+          painter.end();
+
+        painter.begin(&picture);
+        context.begin(&painter);
+      }
+#endif
+
   // unpack loops, make lists, merge lines etc.
   int res = prepareInput(is);
   if (res != 0)
     return res;
+
+  vector<miString> extra_field_lines;
 
   int linenum = lines.size();
 
@@ -1285,19 +1464,19 @@ int parseAndProcess(istream &is)
       for (int i = k + 1; i < linenum && lines[i].downcase() != com_endplot
           && lines[i].downcase() != com_plotend; i++, k++) {
         if (shape ) {
-        	if ( (lines[i].contains("OBS") || lines[i].contains("SAT") || lines[i].contains("OBJECTS") ||
-            		lines[i].contains("EDITFIELD") || lines[i].contains("TRAJECTORY"))) {
-        		cerr << "Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting" << endl;
-        		return 1;
-        	}
-        	if ( lines[i].contains("FIELD") ) {
-        		miString shapeFileName=priop.fname;
-        		lines[i]+= " shapefilename=" + shapeFileName;
-        		if ( lines[i].contains("shapefile=0") )
-        			lines[i].replace("shapefile=0","shapefile=1");
-        		else if ( !lines[i].contains("shapefile=") )
-        			lines[i]+=" shapefile=1";
-        	}
+                if ( (lines[i].contains("OBS") || lines[i].contains("SAT") || lines[i].contains("OBJECTS") ||
+                        lines[i].contains("EDITFIELD") || lines[i].contains("TRAJECTORY"))) {
+                        cerr << "Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting" << endl;
+                        return 1;
+                }
+                if ( lines[i].contains("FIELD") ) {
+                        miString shapeFileName=priop.fname;
+                        lines[i]+= " shapefilename=" + shapeFileName;
+                        if ( lines[i].contains("shapefile=0") )
+                                lines[i].replace("shapefile=0","shapefile=1");
+                        else if ( !lines[i].contains("shapefile=") )
+                                lines[i]+=" shapefile=1";
+                }
         }
         pcom.push_back(lines[i]);
       }
@@ -1307,12 +1486,13 @@ int parseAndProcess(istream &is)
         // -- normal plot
         // Make Controller
         if (!main_controller) {
-          main_controller = new Controller;
-          if (!main_controller->parseSetup()) {
-            cerr
-                << "ERROR, an error occured while main_controller parsed setup: "
-                << setupfile << endl;
-            return 99;
+          MAKE_CONTROLLER
+
+          vector<miString> field_errors;
+          if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
+            cerr << "ERROR, an error occurred while adding new fields:" << endl;
+            for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
+              cerr << field_errors[kk] << endl;
           }
         }
 
@@ -1364,7 +1544,14 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- updatePlots" << endl;
-        main_controller->updatePlots();
+        if (!main_controller->updatePlots()) {
+            cerr << "Failed to update plots." << endl;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+            painter.end();
+            context.end();
+#endif
+            return 99;
+        }
         cout <<main_controller->getMapArea()<<endl;
 
         if (!raster && !shape && (!multiple_plots || multiple_newpage)) {
@@ -1398,25 +1585,41 @@ int parseAndProcess(istream &is)
           trajectory_started = false;
         }
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
+#endif
+
         if (verbose)
           cout << "- plot" << endl;
-        if (shape)
-        	main_controller->plot(true, false);
-        else
-        main_controller->plot(true, true);
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (plotAnnotationsOnly) {
+          // Plotting annotations only for the purpose of returning legends to a WMS
+          // server front end.
+          if (raster) {
+            annotationRectangles = main_controller->plotAnnotations();
+            annotationTransform = context.transform;
+          } else if (json) {
+            createJsonAnnotation();
+          }
+        } else
+#endif
+        {
+          if (shape)
+            main_controller->plot(true, false);
+          else
+            main_controller->plot(true, true);
+        }
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
 
         // Make Controller
         if (!main_controller) {
-          main_controller = new Controller;
-          if (!main_controller->parseSetup()) {
-            cerr
-                << "ERROR, an error occured while main_controller parsed setup: "
-                << setupfile << endl;
-            return 99;
-          }
+          MAKE_CONTROLLER
         }
 
         // -- vcross plot
@@ -1471,19 +1674,20 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
+#endif
         vcrossmanager->plot();
 
         // --------------------------------------------------------
       } else if (plottype == plot_vprof) {
         // Make Controller
         if (!main_controller) {
-          main_controller = new Controller;
-          if (!main_controller->parseSetup()) {
-            cerr
-                << "ERROR, an error occured while main_controller parsed setup: "
-                << setupfile << endl;
-            return 99;
-          }
+          MAKE_CONTROLLER
         }
 
         // -- vprof plot
@@ -1540,6 +1744,13 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
+#endif
         vprofmanager->plot();
 
         // --------------------------------------------------------
@@ -1598,6 +1809,13 @@ int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- plot" << endl;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (canvasType == qt_qimage && raster && antialias)
+          painter.setRenderHint(QPainter::Antialiasing);
+        else if (svg || pdf)
+          painter.setRenderHint(QPainter::Antialiasing);
+#endif
         spectrummanager->plot();
 
       }
@@ -1620,6 +1838,10 @@ int parseAndProcess(istream &is)
           glXSwapBuffers(dpy, pbuf);
 #endif
 #endif
+        } else if (canvasType == qt_glpixelbuffer) {
+          cerr
+              << "WARNING! double buffer swapping not implemented for qt_glpixelbuffer"
+              << endl;
         }
       }
 
@@ -1635,6 +1857,7 @@ int parseAndProcess(istream &is)
           cout << "- Preparing for raster output" << endl;
         glFlush();
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (canvasType == qt_glpixelbuffer) {
           if (qpbuffer == 0) {
             cerr << " ERROR. when saving image - qpbuffer is NULL" << endl;
@@ -1691,7 +1914,26 @@ int parseAndProcess(istream &is)
               cerr << " ERROR, saving image to:" << priop.fname << endl;
             }
           }
-        } else {
+        }
+#else
+        if (canvasType == qt_qimage && raster) {
+          context.end();
+          painter.end();
+
+          int ox = 0, oy = 0;
+          if (plotAnnotationsOnly) {
+            getAnnotationsArea(ox, oy, xsize, ysize);
+          }
+
+          QImage image(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+          painter.begin(&image);
+          painter.drawPicture(ox, oy, picture);
+          painter.end();
+
+          image.save(QString::fromStdString(priop.fname));
+        }
+#endif
+        else {
           imageIO::Image_data img;
           img.width = xsize;
           img.height = ysize;
@@ -1733,16 +1975,80 @@ int parseAndProcess(istream &is)
 
       } else if (shape) { // Only shape output
 
-    	  if (priop.fname.contains("tmp_diana")) {
-    		  cout << "Using shape option without file name, it will be created automatically" << endl;
-    	  } else {
-    		  cout << "Using shape option with given file name : " << priop.fname << endl;
-		  }
+          if (priop.fname.contains("tmp_diana")) {
+                  cout << "Using shape option without file name, it will be created automatically" << endl;
+          } else {
+                  cout << "Using shape option with given file name : " << priop.fname << endl;
+                  }
           // first stop postscript-generation
           endHardcopy(plot_none);
 
           // Anything more to be done here ???
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      } else if (svg) {
+
+          context.end();
+          painter.end();
+
+          int ox = 0, oy = 0;
+          if (plotAnnotationsOnly) {
+            getAnnotationsArea(ox, oy, xsize, ysize);
+          }
+
+          QSvgGenerator svgFile;
+          svgFile.setFileName(QString::fromStdString(priop.fname));
+          svgFile.setSize(QSize(xsize, ysize));
+          svgFile.setViewBox(QRect(0, 0, xsize, ysize));
+          painter.begin(&svgFile);
+          painter.drawPicture(ox, oy, picture);
+          painter.end();
+
+      } else if (pdf) {
+
+          context.end();
+          painter.end();
+
+          int ox = 0, oy = 0;
+          if (plotAnnotationsOnly) {
+            getAnnotationsArea(ox, oy, xsize, ysize);
+          }
+
+          QPrinter printer;
+          printer.setOutputFileName(QString::fromStdString(priop.fname));
+          printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
+          painter.begin(&printer);
+          painter.drawPicture(ox, oy, picture);
+          painter.end();
+      } else if (json) {
+        QFile outputFile(QString::fromStdString(priop.fname));
+        if (outputFile.open(QFile::WriteOnly)) {
+          outputFile.write("{\n");
+          unsigned int i = 0;
+          for (map<miString, map<miString,miString> >::iterator iti = outputTextMaps.begin(); iti != outputTextMaps.end(); ++iti, ++i) {
+            outputFile.write("  \"");
+            outputFile.write(QString::fromStdString(iti->first).toUtf8());
+            outputFile.write("\": {\n");
+            map<miString,miString> textMap = iti->second;
+            unsigned int j = 0;
+            for (map<miString,miString>::iterator itj = textMap.begin(); itj != textMap.end(); ++itj, ++j) {
+              outputFile.write("    \"");
+              outputFile.write(QString::fromStdString(itj->first).toUtf8());
+              outputFile.write("\": ");
+              outputFile.write(QString::fromStdString(itj->second).toUtf8());
+              if (j != textMap.size() - 1)
+                outputFile.write(",");
+              outputFile.write("\n");
+            }
+            outputFile.write("  }");
+            if (i != outputTextMaps.size() - 1)
+              outputFile.write(",");
+            outputFile.write("\n");
+          }
+          outputFile.write("}\n");
+          outputFile.close();
+        }
+#endif
       } else { // PostScript only
         if (toprinter) { // automatic print of each page
           // Note that this option works bad for multi-page output:
@@ -1785,13 +2091,7 @@ int parseAndProcess(istream &is)
 
       // Make Controller
       if (!main_controller) {
-        main_controller = new Controller;
-        if (!main_controller->parseSetup()) {
-          cerr
-              << "ERROR, an error occured while main_controller parsed setup: "
-              << setupfile << endl;
-          return 99;
-        }
+        MAKE_CONTROLLER
       }
 
       if (lines[k].downcase() == com_time) {
@@ -1991,6 +2291,144 @@ int parseAndProcess(istream &is)
       cerr << "================ EXECUTING COMMANDS" << endl;
       continue;
       // =============================================================
+
+    } else if (lines[k].downcase() == com_field_files) {
+      // Read lines until </FIELD_FILES> is read.
+
+      int kk;
+      for (kk = k + 1; kk < linenum; ++kk) {
+        if (lines[kk].downcase() != com_field_files_end)
+           extra_field_lines.push_back(lines[kk]);
+        else
+          break;
+      }
+
+      if (kk < linenum)
+        k = kk;         // skip the </FIELD_FILES> line
+      else {
+          cerr << "ERROR, no " << com_field_files_end << " found:" << lines[k]
+               << " Linenumber:" << linenumbers[k] << endl;
+        return 1;
+      }
+      continue;
+
+    } else if (lines[k].downcase() == com_field_files_end) {
+      cerr << "WARNING, " << com_field_files_end << " found:" << lines[k]
+           << " Linenumber:" << linenumbers[k] << endl;
+      continue;
+
+    } else if (lines[k].downcase() == com_describe) {
+
+      //Find ENDDESCRIBE
+      vector<miString> pcom;
+      for (int i = k + 1; i < linenum && lines[i].downcase() != com_describe_end; i++, k++)
+        pcom.push_back(lines[i]);
+      k++;
+
+      // Make Controller
+      if (!main_controller) {
+        MAKE_CONTROLLER
+      }
+
+      if (verbose)
+        cout << "- sending plotCommands" << endl;
+      main_controller->plotCommands(pcom);
+
+      vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
+      main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
+          ptimes);
+
+      if (ptime.undef()) {
+        if (use_nowtime)
+          thetime = selectNowTime(fieldtimes, sattimes, obstimes, objtimes, ptimes);
+        else if (fieldtimes.size() > 0)
+          thetime = fieldtimes[fieldtimes.size() - 1];
+        else if (sattimes.size() > 0)
+          thetime = sattimes[sattimes.size() - 1];
+        else if (obstimes.size() > 0)
+          thetime = obstimes[obstimes.size() - 1];
+        else if (objtimes.size() > 0)
+          thetime = objtimes[objtimes.size() - 1];
+        else if (ptimes.size() > 0)
+          thetime = ptimes[ptimes.size() - 1];
+      } else
+        thetime = ptime;
+
+      if (verbose)
+        cout << "- plotting for time:" << thetime << endl;
+      main_controller->setPlotTime(thetime);
+
+      if (verbose)
+        cout << "- updatePlots" << endl;
+      if (main_controller->updatePlots()) {
+
+          // open filestream
+          ofstream file(priop.fname.c_str());
+          if (!file) {
+            cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+            return 1;
+          }
+          file << "FILES" << endl;
+
+          vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
+          for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
+              miutil::miString modelName = (*it)->getModelName();
+              FieldSource* fieldSource = main_controller->getFieldManager()->getFieldSource(modelName);
+              for (unsigned int i = 0; i < fieldSource->getFileNames().size(); ++i)
+                  file << fieldSource->getFileNames()[i] << endl;
+          }
+
+          map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
+          set<miutil::miString> satPatterns;
+
+          vector<SatPlot*> satellitePlots = main_controller->getSatellitePlots();
+          for (vector<SatPlot*>::iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
+              Sat* sat = (*it)->satdata;
+              if (satProducts.find(sat->satellite) != satProducts.end() && satProducts[sat->satellite].find(sat->filetype) != satProducts[sat->satellite].end()) {
+                  SatManager::subProdInfo satInfo = satProducts[sat->satellite][sat->filetype];
+                  for (vector<SatFileInfo>::iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
+                    if (itsf->name == sat->actualfile) {
+                        for (vector<miutil::miString>::iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
+                            satPatterns.insert(*itp);
+                    }
+                  }
+              }
+          }
+          for (set<miutil::miString>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
+            file << *it << endl;
+
+          map<miutil::miString,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
+          set<miutil::miString> obsPatterns;
+
+          vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
+          for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
+              vector<miutil::miString> obsFileNames = (*it)->getFileNames();
+              for (vector<miutil::miString>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
+
+                  for (map<miutil::miString,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
+                      for (vector<ObsManager::FileInfo>::iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
+                          if (*itf == itof->filename) {
+                              for (vector<ObsManager::patternInfo>::iterator itp = ito->second.pattern.begin(); itp != ito->second.pattern.end(); ++itp)
+                                  obsPatterns.insert(itp->pattern);
+                          }
+
+                      }
+                  }
+              }
+          }
+
+          for (set<miutil::miString>::iterator it = obsPatterns.begin(); it != obsPatterns.end(); ++it)
+            file << *it << endl;
+
+          file.close();
+      }
+
+      continue;
+
+    } else if (lines[k].downcase() == com_describe_end) {
+      cerr << "WARNING, " << com_describe_end << " found:" << lines[k]
+           << " Linenumber:" << linenumbers[k] << endl;
+      continue;
     }
 
     // all other options on the form KEY=VALUE
@@ -2134,6 +2572,8 @@ int parseAndProcess(istream &is)
 #endif
 #endif
       } else if (canvasType == qt_glpixelbuffer) {
+
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         // delete old pixmaps
         if (buffermade && qpbuffer) {
           delete qpbuffer;
@@ -2159,7 +2599,10 @@ int parseAndProcess(istream &is)
           qfbuffer = new QGLFramebufferObject(xsize, ysize);
           qfbuffer->bind();
           //qfbuffer->release();
-
+#else
+      } else if (canvasType == qt_qimage) {
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+#endif
       }
       glShadeModel(GL_FLAT);
 
@@ -2221,10 +2664,19 @@ int parseAndProcess(istream &is)
         raster = true;
         raster_type = image_unknown;
       } else if (value == "shp") {
-          shape = true;
+        shape = true;
       } else if (value == "avi") {
         raster = true;
         raster_type = image_avi;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      } else if (value == "svg") {
+        svg = true;
+      } else if (value == "pdf") {
+        pdf = true;
+      } else if (value == "json") {
+        raster = false;
+        json = true;
+#endif
       } else {
         cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
             << linenumbers[k] << endl;
@@ -2281,6 +2733,14 @@ int parseAndProcess(istream &is)
 
     } else if (key == com_keepplotarea) {
       keeparea = (value.downcase() == "yes");
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+    } else if (key == com_plotannotationsonly) {
+      plotAnnotationsOnly = (value.downcase() == "yes");
+#endif
+
+    } else if (key == com_antialiasing) {
+      antialias = (value.downcase() == "yes");
 
     } else if (key == com_multiple_plots) {
       if (raster) {
@@ -2404,7 +2864,7 @@ int dispatchWork(const std::string &file);
  BDIANA - BATCH PRODUCTION OF DIANA GRAPHICAL PRODUCTS
  =================================================================
  */
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   diOrderBook *orderbook = NULL;
   miString xhost = ":0.0"; // default DISPLAY
@@ -2412,12 +2872,20 @@ int main(int argc, char** argv)
   int port;
   milogger::LogHandler * plog = NULL;
 
- 
+
   // get the DISPLAY variable
   char * ctmp = getenv("DISPLAY");
   if (ctmp) {
     xhost = ctmp;
   }
+
+#if defined(Q_WS_QWS)
+  application = new QApplication(_argc, _argv, QApplication::GuiServer);
+#else
+  application = new QApplication(_argc, _argv);
+#endif
+  QStringList argv = application->arguments();
+  int argc = argv.size();
 
   // check command line arguments
   if (argc < 2) {
@@ -2427,26 +2895,26 @@ int main(int argc, char** argv)
   vector<miString> ks;
   int ac = 1;
   while (ac < argc) {
-    sarg = argv[ac];
+    sarg = argv[ac].toStdString();
 //    cerr << "Checking arg:" << sarg << endl;
 
     if (sarg == "-display") {
       ac++;
       if (ac >= argc)
         printUsage(false);
-      xhost = argv[ac];
+      xhost = argv[ac].toStdString();
 
     } else if (sarg == "-input" || sarg == "-i") {
       ac++;
       if (ac >= argc)
         printUsage(false);
-      batchinput = argv[ac];
+      batchinput = argv[ac].toStdString();
 
     } else if (sarg == "-setup" || sarg == "-s") {
       ac++;
       if (ac >= argc)
         printUsage(false);
-      setupfile = argv[ac];
+      setupfile = argv[ac].toStdString();
       setupfilegiven = true;
 
     } else if (sarg == "-v") {
@@ -2473,6 +2941,9 @@ int main(int argc, char** argv)
 
     } else if (sarg == "-use_qtgl_fb") {
       canvasType = qt_glframebuffer;
+
+    } else if (sarg == "-use_qimage") {
+      canvasType = qt_qimage;
 
     } else if (sarg == "-use_singlebuffer") {
       use_double_buffer = false;
@@ -2549,18 +3020,16 @@ int main(int argc, char** argv)
   // prepare font-pack for display
   FontManager::set_display_name(xhost);
 
-  application = new QApplication(argc, argv);
-
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
   plog = milogger::LogHandler::initLogHandler( 4, "" );
   plog->setObjectName("diana.bdiana.main");
-  COMMON_LOG::getInstance("common").infoStream() << argv[0] << " : DIANA batch version " << VERSION;
+  COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
 #ifndef USE_XLIB
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
-	  COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
+          COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
         << " WARNING !" << "\n"
         << " X pixmaps or GLX pixelbuffers not supported" << "\n"
         << " Forcing use of default canvas" << "\n"
@@ -2571,7 +3040,7 @@ int main(int argc, char** argv)
 
 #ifndef GLX_VERSION_1_3
   if (canvasType == glx_pixelbuffer) {
-	  COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
+          COMMON_LOG::getInstance("common").warnStream() << "===================================================" << "\n"
         << " WARNING !" << "\n"
         << " This version of GLX does not support PixelBuffers." << "\n"
         << " Forcing use of default canvas" << "\n"
@@ -2580,38 +3049,40 @@ int main(int argc, char** argv)
   }
 #endif
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   if (canvasType == qt_glpixelbuffer) {
     cerr <<"qt_glpixelbuffer"<<endl;
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
-    	COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
+      COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
       return 1;
     }
   } else if (canvasType == qt_glframebuffer) {
-	if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
-	  cerr << "This system does not support OpenGL framebuffers." << endl;
-	  return 1;
-	} else {
-	  //Create QGL widget as a rendering context
+    if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
+      cerr << "This system does not support OpenGL framebuffers." << endl;
+      return 1;
+    } else {
+      //Create QGL widget as a rendering context
       QGLFormat format = QGLFormat::defaultFormat();
       format.setAlpha(true);
       format.setDirectRendering(true);
       if (use_double_buffer) {
-    	format.setDoubleBuffer(true);
+       format.setDoubleBuffer(true);
       }
       qwidget = new QGLWidget(format);
       qwidget->makeCurrent();
 
       //qwidget->doneCurrent(); // Probably not needed qwidget is deleted furthher down in the code
 
-	}
+    }
   }
+#endif
 
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
 #ifdef USE_XLIB
 
     dpy = XOpenDisplay(xhost.cStr());
     if (!dpy) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
       return 1;
     }
 #endif
@@ -2623,7 +3094,7 @@ int main(int argc, char** argv)
     pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
         (use_double_buffer ? dblBuf : snglBuf));
     if (!pdvi) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
       return 1;
     }
 
@@ -2631,7 +3102,7 @@ int main(int argc, char** argv)
     cx = glXCreateContext(dpy, pdvi,// display and visual
         0, 0); // sharing and direct rendering
     if (!cx) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
       return 1;
     }
 #endif
@@ -2664,7 +3135,7 @@ int main(int argc, char** argv)
   if (setupfilegiven) {
     setupread = readSetup(setupfile, *printman);
     if (!setupread) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
       return 99;
     }
   }
@@ -2675,10 +3146,14 @@ int main(int argc, char** argv)
   if (!batchinput.empty()) {
     ifstream is(batchinput.c_str());
     if (!is) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
       return 99;
     }
     int res = parseAndProcess(is);
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+    if (painter.isActive())
+        painter.end();
+#endif
     if (res != 0)
       return 99;
   }
@@ -2694,12 +3169,12 @@ int main(int argc, char** argv)
     signalInit();
 
     if (verbose)
-    	COMMON_LOG::getInstance("common").infoStream() << "PID: " << getpid();
+        COMMON_LOG::getInstance("common").infoStream() << "PID: " << getpid();
 
     fs.open("bdiana.pid");
 
     if (!fs) {
-    	COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
+        COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
       return 1;
     }
 
@@ -2710,17 +3185,17 @@ int main(int argc, char** argv)
       application->processEvents(); // do we actually care in this case?
       switch (waitOnSignal(10, timeout)) {
       case -1:
-    	  COMMON_LOG::getInstance("common").infoStream() << "ERROR, a waitOnSignal error occured!";
+          COMMON_LOG::getInstance("common").infoStream() << "ERROR, a waitOnSignal error occured!";
         quit = true;
         break;
       case 0:
         if (verbose)
-        	COMMON_LOG::getInstance("common").infoStream() << "SIGUSR1: received!";
+                COMMON_LOG::getInstance("common").infoStream() << "SIGUSR1: received!";
         doWork();
         break;
       case 1:
         if (!timeout) {
-        	COMMON_LOG::getInstance("common").infoStream()<< "SIGTERM, SIGINT: received!";
+                COMMON_LOG::getInstance("common").infoStream()<< "SIGTERM, SIGINT: received!";
           quit = true;
         }
       }
@@ -2763,6 +3238,7 @@ int main(int argc, char** argv)
   }
 #endif
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   if (qpbuffer) {
     delete qpbuffer;
   }
@@ -2772,6 +3248,7 @@ int main(int argc, char** argv)
   if (qwidget) {
     delete qwidget;
   }
+#endif
 
   if (vcrossmanager)
     delete vcrossmanager;
@@ -2792,7 +3269,7 @@ int main(int argc, char** argv)
 void doWork()
 {
   if (!command_path.exists()) {
-	  COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
+          COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
     return;
   }
 
@@ -2804,7 +3281,7 @@ void doWork()
   number_of_files = globBuf.gl_pathc;
 
   if (number_of_files == 0) {
-	  COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
+          COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
     globfree_cache(&globBuf);
     return;
   }
@@ -2823,21 +3300,20 @@ int dispatchWork(const std::string &file)
   // commands in file
   ifstream is(file.c_str());
   if (!is) {
-	  COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
+          COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
     return 99;
   }
   int res = parseAndProcess(is);
-  if (res != 0)
-    return 99;
-
-  //Prosessing of file done, remove it!
-  unlink(file.c_str());
+  if (res == 0) {
+    //Prosessing of file done, remove it!
+    unlink(file.c_str());
+  }
 
   // if fifo name set, write response to fifo
   if (!fifo_name.empty()) {
     int fd = open(fifo_name.c_str(), O_WRONLY);
     if (fd == -1) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
       goto ERROR;
     }
     do {
@@ -2855,21 +3331,28 @@ int dispatchWork(const std::string &file)
     } while (0);
 
     char buf[1];
-    buf[0] = 'r';
+    if (res == 0)
+        buf[0] = 'r';
+    else
+        buf[0] = 'e';
 
     if (write(fd, buf, 1) == -1) {
-    	COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't write to fifo <" << fifo_name << ">!";
+        COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't write to fifo <" << fifo_name << ">!";
     } else {
       if (verbose)
-    	  COMMON_LOG::getInstance("common").infoStream() << "FIFO client <" << fifo_name << "> notified!";
+          COMMON_LOG::getInstance("common").infoStream() << "FIFO client <" << fifo_name << "> notified!";
     }
 
     close(fd);
     fifo_name = "";
   }
 
+  if (res != 0)
+      return 99;
+
   return 0;
 
   ERROR: unlink(file.c_str());
   return -1;
 }
+

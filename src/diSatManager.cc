@@ -1731,3 +1731,8 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
     inFile.close();
   }
 }
+
+map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > SatManager::getProductsInfo() const
+{
+  return Prod;
+}

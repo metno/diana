@@ -1,0 +1,22 @@
+Source: diana-wms
+Section: science
+Priority: extra
+Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
+Build-Depends: debhelper (>= 5), autotools-dev,
+ qt4-qmake-qws, libqt4-qws-dev, metlibs-wms-dev, libemos-wms-dev
+Build-Conflicts: autoconf2.13, automake1.4
+Standards-Version: 3.7.2
+
+Package: diana-wms
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libqtcore4-qws, libqtgui4-qws, libqt4-network-qws, libqt4-svg-qws,
+ qt4-qws-dummy-screen-plugin
+Description: Meteorological visualisation tool
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL 
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.
+ This package provides a version of Diana for batched generation of
+ products to be used with a Web Map Service installation.

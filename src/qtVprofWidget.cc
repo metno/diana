@@ -43,9 +43,14 @@
 #include "diVprofManager.h"
 
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
-			 QWidget* parent )
+                        QWidget* parent)
     : QGLWidget( fmt, parent ), vprofm(vpm)
+#else
+VprofWidget::VprofWidget(VprofManager *vpm, QWidget* parent)
+    : PaintGLWidget(parent, true), vprofm(vpm)
+#endif
 {
 
   if ( !isValid() ) {

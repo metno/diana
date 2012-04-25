@@ -113,16 +113,34 @@ AC_ARG_ENABLE([xlib],
     [], [enable_xlib=no])
 AM_CONDITIONAL([WITH_XLIB], [test x$enable_xlib = xyes])
 
+AC_ARG_ENABLE([embedded],
+    [AS_HELP_STRING([--enable-embedded], [enable embedded usage (removes X and OpenGL dependencies)])],
+	[], [enable_embedded=no])
+AM_CONDITIONAL([WITH_EMBEDDED], [test x$enable_embedded = xyes])
+
+AC_ARG_ENABLE([batch-only],
+    [AS_HELP_STRING([--enable-batch-only], [only compile the batch version of diana (bdiana)])],
+        [], [enable_batch_only=no])
+AM_CONDITIONAL([WITH_BATCH_ONLY], [test x$enable_batch_only = xyes])
+
 #
 # metlibs
 #
 # there must be a more elegant way to do this
 METNO_REQUIRE_PKG([DIFIELD], [diField])
 METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
-METNO_REQUIRE_PKG([GLTEXT], [glText])
-METNO_REQUIRE_PKG([GLP], [glp])
+
+AS_IF([test x$enable_embedded != xyes], [
+    METNO_REQUIRE_PKG([GLTEXT], [glText])
+    METNO_REQUIRE_PKG([GLP], [glp])
+])
+
 METNO_REQUIRE_PKG([LIBMI], [libmi])
-METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
+
+AS_IF([test x$enable_embedded != xyes], [
+    METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
+])
+
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
 METNO_REQUIRE_PKG([MILIB], [milib])
 METNO_REQUIRE_PKG([PARAMETER], [parameter])
@@ -157,11 +175,23 @@ AS_IF([test x$enable_profet = xyes], [
 #
 # Other third-party dependencies
 #
-METNO_REQUIRE_QT4([
-    Core
-    Gui
-    Network
-    OpenGL
+AS_IF([test x$enable_embedded = xyes], [
+    METNO_REQUIRE_QT4([
+        Core
+        Gui
+        Network
+    	Svg
+    ])
+])
+
+AS_IF([test x$enable_embedded != xyes], [
+    METNO_REQUIRE_QT4([
+        Core
+        Gui
+        Network
+        OpenGL
+    	Svg
+    ])
 ])
 
 # libavformat for video production

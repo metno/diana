@@ -31,11 +31,19 @@
 #ifndef SPECTRUMWIDGET_H
 #define SPECTRUMWIDGET_H
 
+#include <qglobal.h>
+
 #include <puTools/miString.h>
 #include <map>
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
+#else
+#include "PaintGL/paintgl.h"
+#define QGLWidget PaintGLWidget
+#endif
 #include <QKeyEvent>
+#include <QWidget>
 
 using namespace std;
 
@@ -52,18 +60,22 @@ class SpectrumWidget : public QGLWidget
   Q_OBJECT
 
 public:
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
-	      QWidget* parent = 0);
-
-  void initializeGL();
-  void paintGL();
-  void resizeGL( int w, int h );
+             QWidget* parent = 0);
+#else
+  SpectrumWidget(SpectrumManager *spm, QWidget* parent = 0);
+#endif
 
   bool saveRasterImage(const miutil::miString fname,
   		       const miutil::miString format,
 		       const int quality = -1);
 
 protected:
+
+  void initializeGL();
+  void paintGL();
+  void resizeGL( int w, int h );
 
 private:
   SpectrumManager *spectrumm;

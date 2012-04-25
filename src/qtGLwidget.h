@@ -31,7 +31,13 @@
 #ifndef _qtGLwidget_h
 #define _qtGLwidget_h
 
+#include <qglobal.h>
+
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
+#else
+#include <QWidget>
+#endif
 
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -44,9 +50,19 @@
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#include <GL/gl.h>
+#include "PaintGL/paintgl.h"
+#endif
+
 using namespace std;
 
 class Controller;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+class PaintGLContext;
+class QPrinter;
+#define QGLWidget PaintGLWidget
+#endif
 
 /**
    \brief the map OpenGL widget
@@ -56,14 +72,17 @@ class Controller;
    - keyboard/mouse event translation to Diana types
 
 */
-
 class GLwidget : public QGLWidget {
 
   Q_OBJECT
 
 public:
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   GLwidget(Controller*, const QGLFormat,
-	   QWidget*);
+           QWidget*);
+#else
+  GLwidget(Controller*, QWidget*);
+#endif
   ~GLwidget();
 
   /// save contents of widget as raster image
@@ -79,8 +98,12 @@ public:
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
   void endHardcopy();
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+  /// Print the visible contents of the widget.
+  void print(QPrinter* device);
+#endif
 
-  signals:
+signals:
   /// single click signal
   void mouseGridPos(const mouseEvent mev);
   /// single click signal (right mouse button)
@@ -99,7 +122,7 @@ protected:
   void initializeGL();
   void paintGL();
   void editPaint(bool drawb= true);
-  void resizeGL(int w, int h);
+  void resizeGL(int width, int height);
 
   void buildKeyMap();
   void fillMouseEvent(const QMouseEvent*,mouseEvent&);
@@ -126,10 +149,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-

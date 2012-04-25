@@ -44,6 +44,7 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
     : QWidget( parent), contr(co)
 {
   QVBoxLayout* vlayout = new QVBoxLayout(this);
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   // Create an openGL widget
   QGLFormat fmt, ofmt;
   ofmt= QGLFormat::defaultOverlayFormat();
@@ -53,14 +54,21 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
   glw = new GLwidget(contr, fmt, this);
+#else
+  glw = new GLwidget(contr, this);
+#endif
   
   if ( !glw->isValid() ) {
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
     // Try without double-buffering
     fmt.setDoubleBuffer(false);
     glw->setFormat( fmt );
     if ( !glw->isValid() ){
       qCritical("Failed to create OpenGL rendering context on this display");
     }
+#else
+    qCritical("Failed to create OpenGL rendering context on this display");
+#endif
   }
   glw->setMinimumSize( 300, 200 );
   

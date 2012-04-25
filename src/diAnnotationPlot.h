@@ -214,10 +214,14 @@ public:
   {
     productname = prodname;
   }
+  //get raw annotation objects
+  const vector<Annotation>& getAnnotations();
   //get annotations, change them somewhere else, and put them back
   vector<vector<miutil::miString> > getAnnotationStrings();
   ///replace annotations
   bool setAnnotationStrings(vector<vector<miutil::miString> >& vstr);
+
+  Rectangle getBoundingBox() const {return bbox;}
 };
 
 #endif

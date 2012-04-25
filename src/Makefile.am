@@ -2,7 +2,11 @@
 
 include $(top_srcdir)/diana.mk
 
+if WITH_BATCH_ONLY
+bin_PROGRAMS = bdiana
+else
 bin_PROGRAMS = diana.bin bdiana 
+endif
 noinst_LIBRARIES = libdiana.a
 
 # automake requires one = before the first +=
@@ -25,7 +29,7 @@ common_cppflags += -DMETNOFIELDFILE -DMETNOOBS
 
 # C source code common to diana and bdiana
 common_c_sources = \
-	diTesselation.c
+        diTesselation.c
 
 # C++ source code common to diana and bdiana
 common_cxx_sources = \
@@ -104,11 +108,14 @@ common_cxx_sources = \
 	diWeatherArea.cc \
 	diWeatherFront.cc \
 	diWeatherObjects.cc \
-	diWeatherSymbol.cc
+        diWeatherSymbol.cc
 
 # Qt sources
 common_qt_sources =
 
+if WITH_BATCH_ONLY
+diana_qt_sources =
+else
 diana_qt_sources = \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
@@ -165,6 +172,7 @@ diana_qt_sources = \
 	qtVprofWidget.cc \
 	qtVprofWindow.cc \
 	qtWorkArea.cc
+endif
 
 bdiana_qt_sources = \
 	diOrderBook.cc \
@@ -324,7 +332,7 @@ noinst_HEADERS = \
 	qtVprofWidget.h \
 	qtVprofWindow.h \
 	qtWorkArea.h \
-	signalhelper.h
+        signalhelper.h
 
 # xpm files needed to build
 common_xpm_sources= active_object.xpm \
@@ -464,9 +472,6 @@ common_cppflags += \
 	$(DIMITIFF_CPPFLAGS) \
 	$(PUCTOOLS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
-	$(FTGL_CPPFLAGS) \
-	$(GLP_CPPFLAGS) \
-	$(GLTEXT_CPPFLAGS) \
 	$(PUDATATYPES_CPPFLAGS) \
 	$(QUTILITIES_CPPFLAGS) \
 	$(ROBS_CPPFLAGS) \
@@ -480,9 +485,6 @@ common_ldflags += \
 	$(DIMITIFF_LDFLAGS) \
 	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
-	$(FTGL_LDFLAGS) \
-	$(GLP_LDFLAGS) \
-	$(GLTEXT_LDFLAGS) \
 	$(PUDATATYPES_LDFLAGS) \
 	$(QUTILITIES_LDFLAGS) \
 	$(ROBS_LDFLAGS) \
@@ -496,9 +498,6 @@ common_ldadd += \
 	$(DIMITIFF_LIBS) \
 	$(PUCTOOLS_LIBS) \
 	$(EMOS_LIBS) \
-	$(FTGL_LIBS) \
-	$(GLP_LIBS) \
-	$(GLTEXT_LIBS) \
 	$(PUDATATYPES_LIBS) \
 	$(QUTILITIES_LIBS) \
 	$(ROBS_LIBS) \
@@ -637,6 +636,63 @@ endif
 # Use Xlib-specific routines
 if WITH_XLIB
 common_cppflags += -DUSE_XLIB
+endif
+
+# Embedded build support - remove X and OpenGL dependencies
+if WITH_EMBEDDED
+common_cppflags += \
+        -I$(top_srcdir)/src/PaintGL -I$(top_srcdir)/src/PaintGL/GL
+
+common_c_sources += \
+        PaintGL/GL/libtess/dict.c \
+        PaintGL/GL/libtess/geom.c \
+        PaintGL/GL/libtess/memalloc.c \
+        PaintGL/GL/libtess/mesh.c \
+        PaintGL/GL/libtess/normal.c \
+        PaintGL/GL/libtess/priorityq.c \
+        PaintGL/GL/libtess/render.c \
+        PaintGL/GL/libtess/sweep.c \
+        PaintGL/GL/libtess/tess.c \
+        PaintGL/GL/libtess/tessmono.c \
+        PaintGL/GL/libutil/error.c \
+        PaintGL/GL/libutil/glue.c
+
+common_cxx_sources += \
+        PaintGL/paintgl.cc
+
+noinst_HEADERS +=  \
+        PaintGL/GL/gl.h \
+        PaintGL/GL/glu.h \
+        PaintGL/GL/gluint.h \
+        PaintGL/GL/gluos.h \
+        PaintGL/GL/libtess/dict.h \
+        PaintGL/GL/libtess/dict-list.h \
+        PaintGL/GL/libtess/geom.h \
+        PaintGL/GL/libtess/memalloc.h \
+        PaintGL/GL/libtess/mesh.h \
+        PaintGL/GL/libtess/normal.h \
+        PaintGL/GL/libtess/priorityq.h \
+        PaintGL/GL/libtess/priorityq-sort.h \
+        PaintGL/GL/libtess/render.h \
+        PaintGL/GL/libtess/sweep.h \
+        PaintGL/GL/libtess/tess.h \
+        PaintGL/GL/libtess/tessmono.h \
+        PaintGL/paintgl.h
+else
+common_cppflags += \
+        $(FTGL_CPPFLAGS) \
+	    $(GLP_CPPFLAGS) \
+	    $(GLTEXT_CPPFLAGS)
+
+common_ldflags += \
+        $(FTGL_LDFLAGS) \
+	    $(GLP_LDFLAGS) \
+	    $(GLTEXT_LDFLAGS)
+
+common_ldadd += \
+        $(FTGL_LIBS) \
+	    $(GLP_LIBS) \
+	    $(GLTEXT_LIBS)
 endif
 
 # Generated Qt source code

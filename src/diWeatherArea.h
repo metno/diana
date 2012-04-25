@@ -69,9 +69,9 @@ private:
 public:
   /// default constructor
   WeatherArea();
-  /// constructor with integer area type as argumet
+  /// constructor with integer area type as argument
   WeatherArea(int ty);
-  /// constructor with name of area type as argumet
+  /// constructor with name of area type as argument
   WeatherArea(miutil::miString tystring);
   /// Destructor
   ~WeatherArea();

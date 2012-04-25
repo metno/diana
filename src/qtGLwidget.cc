@@ -39,9 +39,14 @@
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QPicture>
 
 #include "qtGLwidget.h"
 #include "diController.h"
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#include <QPrinter>
+#endif
 
 #include <math.h>
 #include <fstream>
@@ -55,9 +60,13 @@
 #include <paint_forbidden_crusor.xpm>
 
 // GLwidget constructor
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 GLwidget::GLwidget(Controller* c, const QGLFormat fmt, QWidget* parent) :
   QGLWidget(fmt, parent), curcursor(keep_it), contr(c), fbuffer(0)
-
+#else
+GLwidget::GLwidget(Controller* c, QWidget* parent) :
+  PaintGLWidget(parent), curcursor(keep_it), contr(c), fbuffer(0)
+#endif
 {
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -449,6 +458,34 @@ void GLwidget::endHardcopy()
   makeCurrent();
   contr->endHardcopy();
 }
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+void GLwidget::print(QPrinter* device)
+{
+  makeCurrent();
+  if (!initialized) {
+      initializeGL();
+      initialized = true;
+  }
+
+  QPicture picture;
+  QPainter painter;
+  painter.begin(&picture);
+  paint(&painter);
+  painter.end();
+
+  painter.begin(device);
+  painter.setRenderHint(QPainter::Antialiasing);
+  painter.translate(device->width()/2.0, device->height()/2.0);
+  double scale = qMin(device->width()/double(width()), device->height()/double(height()));
+  if (scale < 1.0)
+    painter.scale(scale, scale);
+  painter.translate(-width()/2, -height()/2);
+  painter.setClipRect(0, 0, width(), height());
+  painter.drawPicture(0, 0, picture);
+  painter.end();
+}
+#endif
 
 bool GLwidget::saveRasterImage(const miutil::miString fname, const miutil::miString format,
     const int quality)

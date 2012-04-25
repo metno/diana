@@ -31,8 +31,17 @@
 #ifndef VCROSSWIDGET_H
 #define VCROSSWIDGET_H
 
+#include <qglobal.h>
+
 #include <iostream>
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <qgl.h>
+#else
+#include <GL/gl.h>
+#include "PaintGL/paintgl.h"
+#include <QWidget>
+#define QGLWidget PaintGLWidget
+#endif
 
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -55,13 +64,14 @@ class VcrossWidget : public QGLWidget
   Q_OBJECT
 
 public:
-  VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-	       QWidget* parent = 0 );
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+    VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
+                QWidget* parent = 0 );
+#else
+  VcrossWidget(VcrossManager *vcm, QWidget* parent = 0 );
+#endif
   ~VcrossWidget();
 
-  void initializeGL();
-  void paintGL();
-  void resizeGL( int w, int h );
   void enableTimeGraph(bool on);
 
   bool saveRasterImage(const miutil::miString fname,
@@ -71,7 +81,20 @@ public:
   void startHardcopy(const printOptions& po);
   void endHardcopy();
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+  bool isValid() { return true; }
+  void makeCurrent() {}
+  void swapBuffers() {}
+  void setAutoBufferSwap(bool enable) {}
+  void updateGL() { update(); }
+  QImage grabFrameBuffer(bool withAlpha = false) { return QImage(); }
+#endif
+
 protected:
+
+  void initializeGL();
+  void paintGL();
+  void resizeGL( int w, int h );
 
 private:
   VcrossManager *vcrossm;

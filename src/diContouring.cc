@@ -46,7 +46,9 @@
 #include <diFontManager.h>
 #include <diField/diPlotOptions.h>
 #include <diField/diArea.h>
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <glp/glpfile.h>
+#endif
 #include <diContouring.h>
 #include <diTesselation.h>
 #include <diImageGallery.h>

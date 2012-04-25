@@ -31,8 +31,14 @@
 #ifndef _diFontManager_h
 #define _diFontManager_h
 
+#include <qglobal.h>
+
 #include <puTools/miString.h>
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <glText/glText.h>
+#else
+#include "PaintGL/paintgl.h"
+#endif
 #include <set>
 #include <map>
 

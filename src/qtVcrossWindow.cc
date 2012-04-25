@@ -67,12 +67,18 @@ VcrossWindow::VcrossWindow(Controller *co)
 
   setWindowTitle( tr("Diana Vertical Crossections") );
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
+#endif
   //central widget
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   vcrossw= new VcrossWidget(vcrossm, fmt, this);
+#else
+  vcrossw= new VcrossWidget(vcrossm, this);
+#endif
   setCentralWidget(vcrossw);
   connect(vcrossw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(vcrossw, SIGNAL(crossectionChanged(int)),SLOT(crossectionChangedSlot(int)));

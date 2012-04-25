@@ -833,12 +833,16 @@ bool FilledMap::plot(Area area, // current area
 void FilledMap::clipTriangles(int i1, int i2, float * x, float * y,
     float xylim[4], float jumplimit)
 {
-
   const float bigjump = 1000000;
   glBegin(GL_TRIANGLES);
   for (int iv = i1; iv < i2; iv += 3) {
     float x1 = x[iv], x2 = x[iv + 1], x3 = x[iv + 2];
     float y1 = y[iv], y2 = y[iv + 1], y3 = y[iv + 2];
+
+    // Discard triangles that face away from the viewer. This depends on
+    // the triangles having the correct winding.
+    if ((x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1) <= 0.0)
+      continue;
 
     if (jumplimit > bigjump || (fabsf(x1 - x2) < jumplimit && fabsf(x2 - x3)
         < jumplimit && fabsf(x1 - x3) < jumplimit && fabsf(y1 - y2) < jumplimit

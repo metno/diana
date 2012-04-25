@@ -33,11 +33,16 @@
 #include "config.h"
 #endif
 
+#include <qglobal.h>
+
 #include <diTesselation.h>
+#include <GL/gl.h>
 #include <GL/glu.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #ifndef GLCALLBACK
 #ifdef GLAPIENTRY
 #define GLCALLBACK GLAPIENTRY
@@ -45,6 +50,7 @@
 #define GLCALLBACK APIENTRY
 #endif
 #endif
+#endif /* Q_WS_QWS Q_WS_QPA */
 
 /************************
 define DEBUGEACHCALLBACK
@@ -74,14 +80,22 @@ typedef struct {
 
 
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 static void GLCALLBACK error_callback( GLenum err )
+#else
+static void error_callback( GLenum err )
+#endif
 {
   const GLubyte* errmsg;
   errmsg = gluErrorString( err );
   fprintf(stderr, "tesselation error_callback %d : %s\n",err,errmsg );
 }
 
-static void GLCALLBACK combineCallback(GLdouble coords[3], 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+static void GLCALLBACK combineCallback(GLdouble coords[3],
+#else
+static void combineCallback(GLdouble coords[3],
+#endif
                      VERTEX *vertex_data[4],
                      GLfloat weight[4], VERTEX **dataOut )
 {

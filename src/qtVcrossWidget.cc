@@ -45,9 +45,14 @@
 #include "diVcrossPlot.h"
 
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-			  QWidget* parent)
+                         QWidget* parent)
     : QGLWidget( fmt, parent),
+#else
+VcrossWidget::VcrossWidget(VcrossManager *vcm, QWidget* parent)
+    : PaintGLWidget(parent, true),
+#endif
       vcrossm(vcm), fbuffer(0), arrowKeyDirection(1),
       timeGraph(false), startTimeGraph(false)
 {
