@@ -69,8 +69,8 @@ bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
   //                - make a new SatPlot for each SAT entry in pinfo
-  //                -if similar plot alredy exists, just make a copy of the
-  //                 old one (satellite,filetype and channel the same)
+  //                - if similar plot already exists, just make a copy of the
+  //                  old one (satellite, filetype and channel the same)
 
 LogHandler::getInstance()->setObjectName("diana.SatManager.init");
 #ifdef DEBUGPRINT

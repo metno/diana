@@ -95,7 +95,6 @@ private:
 
   vector<ObsPlot*> vop;   // vector of observation plots
   vector<SatPlot*> vsp;   // vector of satellite plots
-  vector<StationPlot*> vstp; // vector of station plots
   vector<FieldPlot*> vfp; // vector of field plots
   vector<MapPlot*> vmp;   // vector of map plots
   vector<TrajectoryPlot*>vtp; // vector of trajectory plots
