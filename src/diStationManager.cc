@@ -36,6 +36,7 @@
 #include <diCommonTypes.h>
 #include <diStationManager.h>
 #include <diStationPlot.h>
+#include <diObsAscii.h>
 
 using namespace miutil;
 
@@ -73,25 +74,30 @@ bool StationManager::init(const vector<miutil::miString>& inp)
     name.join(pieces, " ");
 
     it = stationPlots.find(name);
+    StationPlot* plot;
 
-    if (it != stationPlots.end()) {
-      if (select == "hidden") {
-        (*it).second->hide();
-        m_info.chosen[url] = false;
-      } else {
-        (*it).second->show();
-        m_info.chosen[url] = true;
-      }
+    if (it == stationPlots.end()) {
+      plot = importStations(name, url);
+      putStations(plot);
+    } else
+      plot = it->second;
 
-      if (select == "selected") {
-        m_info.selected = (*it).first;
-        vector<Station*> stations = (*it).second->getStations();
-        for (unsigned int k = 0; k < stations.size(); ++k)
-          stations[k]->isSelected = true;
-
-      } else
-        (*it).second->unselect();
+    if (select == "hidden") {
+      plot->hide();
+      m_info.chosen[url] = false;
+    } else {
+      plot->show();
+      m_info.chosen[url] = true;
     }
+
+    if (select == "selected") {
+      m_info.selected = name;
+      vector<Station*> stations = plot->getStations();
+      for (unsigned int k = 0; k < stations.size(); ++k)
+        stations[k]->isSelected = true;
+
+    } else
+      plot->unselect();
   }
   return true;
 }
@@ -111,7 +117,7 @@ stationDialogInfo StationManager::initDialog()
  */
 bool StationManager::parseSetup()
 {
-  // Create StationPlotInfo objects to be stored for later retrieval by the StationDialog.
+  // Create stationSetInfo objects to be stored for later retrieval by the StationDialog.
   vector<miString> section;
 
   // Return true if there is no STATIONS section.
@@ -131,6 +137,67 @@ bool StationManager::parseSetup()
   }
 
   return true;
+}
+
+/**
+ * Imports the set of stations from the specified \a url.
+ */
+StationPlot* StationManager::importStations(miutil::miString& name, miutil::miString& url)
+{
+  vector<miutil::miString> lines;
+  bool success = false;
+
+  if (url.find("http://") == 0)
+    success = ObsAscii::getFromHttp(url, lines);
+  else
+    success = ObsAscii::getFromFile(url, lines);
+
+  if (!success) {
+#ifdef DEBUGPRINT
+    cerr << "*** Failed to open " << url << endl;
+#endif
+    return 0;
+  }
+
+  vector<Station*> stations;
+
+  for (unsigned int i = 0; i < lines.size(); ++i) {
+
+    vector<miutil::miString> pieces = lines[i].split(";");
+    if (pieces.size() >= 4) {
+
+      // Create a station with the latitude, longitude and a combination of the name and station number.
+      Station *station = new Station;
+      station->name = pieces[2] + " " + pieces[3];
+      station->lat = atof(pieces[0].c_str());
+      station->lon = atof(pieces[1].c_str());
+      station->url = pieces[5];
+      station->isVisible = true;
+      switch (atoi(pieces[4].c_str())) {
+      case 1:
+        station->status = Station::working;
+        break;
+      case 2:
+        station->status = Station::underRepair;
+        break;
+      case 3:
+        station->status = Station::failed;
+        break;
+      case 4:
+      default:
+        station->status = Station::unknown;
+        break;
+      }
+
+      stations.push_back(station);
+    }
+  }
+
+  // Construct a new StationPlot object.
+  StationPlot *plot = new StationPlot(stations);
+  plot->setName(name);
+
+  return plot;
 }
 
 float StationManager::getStationsScale()

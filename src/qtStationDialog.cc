@@ -37,7 +37,6 @@
 
 #include "qtUtility.h"
 
-#include <diObsAscii.h>
 #include <diStationManager.h>
 #include <diStationPlot.h>
 #include <qtStationDialog.h>
@@ -186,71 +185,9 @@ void StationDialog::reloadSets()
     QModelIndex nameIndex = chosenModel->index(index.row(), 0);
     miutil::miString name = nameIndex.data().toString().toStdString();
 
-    if (importStations(name, url))
+    if (m_ctrl->getStationManager()->importStations(name, url))
       selectionModel->select(index, QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
   }
-}
-
-/**
- * Imports the set of stations from the specified \a url.
- */
-bool StationDialog::importStations(miutil::miString& name, miutil::miString& url)
-{
-  vector<miutil::miString> lines;
-  bool success = false;
-
-  if (url.find("http://") == 0)
-    success = ObsAscii::getFromHttp(url, lines);
-  else
-    success = ObsAscii::getFromFile(url, lines);
-
-  if (!success) {
-#ifdef DEBUGPRINT
-    cerr << "*** Failed to open " << url << endl;
-#endif
-    return false;
-  }
-
-  vector<Station*> stations;
-
-  for (unsigned int i = 0; i < lines.size(); ++i) {
-
-    vector<miutil::miString> pieces = lines[i].split(";");
-    if (pieces.size() >= 4) {
-
-      // Create a station with the latitude, longitude and a combination of the name and station number.
-      Station *station = new Station;
-      station->name = pieces[2] + " " + pieces[3];
-      station->lat = atof(pieces[0].c_str());
-      station->lon = atof(pieces[1].c_str());
-      station->url = pieces[5];
-      station->isVisible = true;
-      switch (atoi(pieces[4].c_str())) {
-      case 1:
-        station->status = Station::working;
-        break;
-      case 2:
-        station->status = Station::underRepair;
-        break;
-      case 3:
-        station->status = Station::failed;
-        break;
-      case 4:
-      default:
-        station->status = Station::unknown;
-        break;
-      }
-
-      stations.push_back(station);
-    }
-  }
-
-  // Construct a new StationPlot object.
-  StationPlot *plot = new StationPlot(stations);
-  plot->setName(name);
-  m_ctrl->putStations(plot);
-
-  return true;
 }
 
 /**
@@ -266,7 +203,8 @@ vector<miutil::miString> StationDialog::getOKString()
   for (it = dialogInfo.sets.begin(); it != dialogInfo.sets.end(); ++it) {
 
     // Load the list of stations from the URL.
-    importStations(it->name, it->url);
+    StationPlot* plot = m_ctrl->getStationManager()->importStations(it->name, it->url);
+    m_ctrl->putStations(plot);
 
     dialogInfo.chosen[it->url] = false;
 

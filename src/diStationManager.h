@@ -44,6 +44,8 @@ public:
   stationDialogInfo initDialog();
   bool parseSetup();
 
+  StationPlot* importStations(miutil::miString& name, miutil::miString& url);
+
   // Stations
   /**
    * This method is only sound as long as all Stations in all StationPlots have the same scale.

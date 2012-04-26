@@ -99,8 +99,6 @@ private slots:
   void hideClicked();
 
 private:
-  bool importStations(miutil::miString& name, miutil::miString& url);
-
   Controller* m_ctrl;
 
   stationDialogInfo dialogInfo;
