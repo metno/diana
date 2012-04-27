@@ -90,7 +90,7 @@ protected:
   void closeEvent(QCloseEvent *event);
 
 private slots:
-  void chooseSet(const QItemSelection& current);
+  void chooseSet();
   void selectSet(const QItemSelection& current);
   void reloadSets();
 

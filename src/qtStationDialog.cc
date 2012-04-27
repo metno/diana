@@ -97,7 +97,7 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
 
   connect(stationPlotList->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-          this, SLOT(chooseSet(const QItemSelection &)));
+          this, SLOT(chooseSet()));
 
   connect(selectedStationPlotList->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -150,11 +150,16 @@ void StationDialog::updateDialog()
   }
 }
 
-void StationDialog::chooseSet(const QItemSelection& current)
+/**
+ * Populates the selected set model with the selected items from the set model.
+ *
+ * This is performed whenever the selection changes in the station set view.
+ */
+void StationDialog::chooseSet()
 {
   stationDialogInfo info;
 
-  foreach (QModelIndex index, current.indexes()) {
+  foreach (QModelIndex index, stationPlotList->selectionModel()->selection().indexes()) {
     if (index.column() != 0)
       continue;
 

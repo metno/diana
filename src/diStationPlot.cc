@@ -1485,6 +1485,8 @@ void StationArea::addStation(Station* station)
   if (areas.size() == 0) {
     stations.push_back(station);
 
+    // ### TODO: Handle the case where there are more than 10 stations at the same location.
+
     if (stations.size() > 10) {
       // If there are more than 10 stations in the area, split up the area and
       // move each of the stations into the appropriate subarea.
@@ -1503,8 +1505,11 @@ void StationArea::addStation(Station* station)
       // Move all the stations into the subareas.
       for (unsigned int i = 0; i < stations.size(); ++i) {
         for (unsigned int j = 0; j < areas.size(); ++j) {
-          if (stations[i]->lat >= areas[j].minLat && stations[i]->lat < areas[j].maxLat && stations[i]->lon >= areas[j].minLon && stations[i]->lon < areas[j].maxLon)
+          // If the station fits into the subarea, add it to it and ignore the other subareas.
+          if (stations[i]->lat >= areas[j].minLat && stations[i]->lat < areas[j].maxLat && stations[i]->lon >= areas[j].minLon && stations[i]->lon < areas[j].maxLon) {
             areas[j].stations.push_back(stations[i]);
+            break;
+          }
         }
       }
 
