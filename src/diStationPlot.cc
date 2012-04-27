@@ -313,7 +313,8 @@ bool StationPlot::plot()
   glEnd();
   glEndList();
 
-  vector<int> selected; //index of selected stations
+  map<Station::Status, vector<int> > selected; //index of selected stations for each status
+  map<Station::Status, vector<int> > unselected; //index of unselected stations for each status
 
   //first loop, only unselected stations
   int n = stations.size();
@@ -321,16 +322,19 @@ bool StationPlot::plot()
     if (!stations[i]->isVisible)
       continue;
     if (stations[i]->isSelected) {
-      selected.push_back(i);
+      selected[stations[i]->status].push_back(i);
       continue;
     }
-    plotStation(i);
+    unselected[stations[i]->status].push_back(i);
   }
 
-  //second loop, only selected stations
-  int m = selected.size();
-  for (int i = 0; i < m; i++) {
-    plotStation(selected[i]);
+  for (unsigned int i = Station::unknown; i > Station::noStatus; --i) {
+    for (vector<int>::iterator it = unselected[Station::Status(i)].begin(); it != unselected[Station::Status(i)].end(); it++) {
+      plotStation(*it);
+    }
+    for (vector<int>::iterator it = selected[Station::Status(i)].begin(); it != selected[Station::Status(i)].end(); it++) {
+      plotStation(*it);
+    }
   }
 
   return true;

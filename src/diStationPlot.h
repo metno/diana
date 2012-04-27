@@ -217,7 +217,7 @@ public:
 
 private:
 
-  vector <Station*> stations; //stations, name, lon, lat etc...
+  vector<Station*> stations; //stations, name, lon, lat etc...
   vector<StationArea> stationAreas;  // areas containing stations
 
   //  void addStation(const miutil::miString names);

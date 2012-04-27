@@ -3251,40 +3251,61 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 
   vector<Station*> stations = contr->getStationManager()->findStations(mev.x, mev.y);
   if (stations.size() > 0) {
-    QString stationsText;
+
+/*  map<miutil::miString, unsigned int> stationNames;
+    for (unsigned int i = 0; i < stations.size(); ++i) {
+      unsigned int number = stationNames.count(stations[i]->name);
+      stationNames[stations[i]->name] = number + 1;
+    }*/
+
+    QString stationsText = "<table>";
     for (unsigned int i = 0; i < stations.size(); ++i) {
       if (!stations[i]->isVisible)
         continue;
 
-      if (stations[i]->lat >= 0)
-        stationsText += tr("%1 N, ").arg(stations[i]->lat);
-      else
-        stationsText += tr("%1 S, ").arg(-stations[i]->lat);
-      if (stations[i]->lon >= 0)
-        stationsText += tr("%1 E<br>").arg(stations[i]->lon);
-      else
-        stationsText += tr("%1 W<br>").arg(-stations[i]->lon);
-
-      stationsText += QString("<a href=\"%1\">%2</a>").arg(QString::fromStdString(stations[i]->url))
-                                                      .arg(QString::fromStdString(stations[i]->name));
-
+      stationsText += "<tr>";
+      stationsText += "<td>";
       switch (stations[i]->status) {
       case Station::failed:
-        stationsText += QString(" <span style=\"background: black; color: red\">X</span>");
+        stationsText += tr("<span style=\"background: red; color: red\">X</span>");
         break;
       case Station::underRepair:
-        stationsText += QString(" <span style=\"background: black; color: yellow\">X</span>");
+        stationsText += tr("<span style=\"background: yellow; color: yellow\">X</span>");
         break;
       case Station::working:
-        stationsText += QString(" <span style=\"background: black; color: lightgreen\">X</span>");
+        stationsText += tr("<span style=\"background: lightgreen; color: lightgreen\">X</span>");
         break;
       default:
         ;
       }
+      stationsText += "</td>";
 
-      if (i < stations.size() - 1)
-        stationsText += "<br>\n";
+      stationsText += "<td>";
+      stationsText += QString("<a href=\"%1\">%2</a>").arg(
+          QString::fromStdString(stations[i]->url)).arg(QString::fromStdString(stations[i]->name));
+/*    if (stationNames[stations[i]->name] > 1) {
+        if (stations[i]->type == Station::automatic)
+          stationsText += tr("&nbsp;auto");
+        else
+          stationsText += tr("&nbsp;vis");
+      }*/
+      stationsText += "</td>";
+
+      stationsText += "<td>";
+      if (stations[i]->lat >= 0)
+        stationsText += tr("%1&nbsp;N,&nbsp;").arg(stations[i]->lat);
+      else
+        stationsText += tr("%1&nbsp;S,&nbsp;").arg(-stations[i]->lat);
+      if (stations[i]->lon >= 0)
+        stationsText += tr("%1&nbsp;E").arg(stations[i]->lon);
+      else
+        stationsText += tr("%1&nbsp;W").arg(-stations[i]->lon);
+      stationsText += "</td>";
+
+      stationsText += "</tr>";
     }
+    stationsText += "</table>";
+
     QWhatsThis::showText(w->mapToGlobal(QPoint(mev.x, w->height() - mev.y)), stationsText, w);
   }
 }
