@@ -34,6 +34,8 @@
 #include <QShowEvent>
 #include <QTreeView>
 #include <QVariant>
+#include <QGridLayout>
+#include <QVBoxLayout>
 
 #include "qtUtility.h"
 
