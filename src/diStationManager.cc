@@ -188,6 +188,10 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
         station->status = Station::unknown;
         break;
       }
+      if (station->url.rfind("&sauto=1") == station->url.length() - 8)
+        station->type = Station::automatic;
+      else
+        station->type = Station::visual;
 
       stations.push_back(station);
     }

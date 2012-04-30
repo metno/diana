@@ -3252,11 +3252,11 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
   vector<Station*> stations = contr->getStationManager()->findStations(mev.x, mev.y);
   if (stations.size() > 0) {
 
-/*  map<miutil::miString, unsigned int> stationNames;
+    map<miutil::miString, unsigned int> stationNames;
     for (unsigned int i = 0; i < stations.size(); ++i) {
       unsigned int number = stationNames.count(stations[i]->name);
       stationNames[stations[i]->name] = number + 1;
-    }*/
+    }
 
     QString stationsText = "<table>";
     for (unsigned int i = 0; i < stations.size(); ++i) {
@@ -3283,12 +3283,12 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
       stationsText += "<td>";
       stationsText += QString("<a href=\"%1\">%2</a>").arg(
           QString::fromStdString(stations[i]->url)).arg(QString::fromStdString(stations[i]->name));
-/*    if (stationNames[stations[i]->name] > 1) {
+      if (stationNames[stations[i]->name] > 1) {
         if (stations[i]->type == Station::automatic)
           stationsText += tr("&nbsp;auto");
         else
           stationsText += tr("&nbsp;vis");
-      }*/
+      }
       stationsText += "</td>";
 
       stationsText += "<td>";
