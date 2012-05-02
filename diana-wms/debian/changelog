@@ -1,3 +1,9 @@
+diana-wms (3.27.4-1) lucid; urgency=low
+
+  * Updated the package number to reflect new dependencies.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 02 May 2012 14:53:00 +0200
+
 diana-wms (3.27.4-0) lucid; urgency=low
 
   * Merged the Diana WMS features into the mainstream version.
