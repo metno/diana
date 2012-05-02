@@ -314,23 +314,38 @@
         <translation>Nivå ned</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3260"/>
-        <source>%1 N, </source>
+        <location filename="../../../src/qtMainWindow.cc" line="3270"/>
+        <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3262"/>
-        <source>%1 S, </source>
+        <location filename="../../../src/qtMainWindow.cc" line="3273"/>
+        <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3264"/>
-        <source>%1 E&lt;br&gt;</source>
+        <location filename="../../../src/qtMainWindow.cc" line="3276"/>
+        <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3266"/>
-        <source>%1 W&lt;br&gt;</source>
+        <location filename="../../../src/qtMainWindow.cc" line="3296"/>
+        <source>%1&amp;nbsp;N,&amp;nbsp;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="3298"/>
+        <source>%1&amp;nbsp;S,&amp;nbsp;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="3300"/>
+        <source>%1&amp;nbsp;E</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="3302"/>
+        <source>%1&amp;nbsp;W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4193,32 +4208,32 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="74"/>
+        <location filename="../../../src/qtStationDialog.cc" line="73"/>
         <source>Sets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="82"/>
+        <location filename="../../../src/qtStationDialog.cc" line="81"/>
         <source>Chosen Sets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="88"/>
+        <location filename="../../../src/qtStationDialog.cc" line="87"/>
         <source>Hide</source>
         <translation type="unfinished">Skjul</translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="89"/>
+        <location filename="../../../src/qtStationDialog.cc" line="88"/>
         <source>Apply+Hide</source>
         <translation type="unfinished">Utfør+Skjul</translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="90"/>
+        <location filename="../../../src/qtStationDialog.cc" line="89"/>
         <source>Apply</source>
         <translation type="unfinished">Utfør</translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="92"/>
+        <location filename="../../../src/qtStationDialog.cc" line="91"/>
         <source>Reload</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4226,12 +4241,12 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>StationDialog::Model</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="449"/>
+        <location filename="../../../src/qtStationDialog.cc" line="392"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="451"/>
+        <location filename="../../../src/qtStationDialog.cc" line="394"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
