@@ -52,6 +52,7 @@ dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/spectrum_normal.xpm \
 	share/diana/images/spectrum_normal.png \
 	share/diana/images/small_metno_sort.png \
+	share/diana/images/sigkart_legend.png \
 	share/diana/images/Sig_fzfg.png \
 	share/diana/images/Sig_fg.png \
 	share/diana/images/Sig_br.png \
