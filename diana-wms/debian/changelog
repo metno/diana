@@ -1,3 +1,9 @@
+diana-wms (3.27.4-2) lucid; urgency=low
+
+  * Updated the package dependencies to use the WMS version of libemos.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 02 May 2012 17:49:00 +0200
+
 diana-wms (3.27.4-1) lucid; urgency=low
 
   * Updated the package number to reflect new dependencies.
