@@ -32,6 +32,7 @@
 #endif
 
 #include <puTools/miSetupParser.h>
+#include <puTools/miTime.h>
 
 #include <diCommonTypes.h>
 #include <diStationManager.h>
@@ -172,6 +173,7 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
       station->lat = atof(pieces[0].c_str());
       station->lon = atof(pieces[1].c_str());
       station->url = pieces[5];
+      station->time = miutil::miTime(pieces[6].c_str());
       station->isVisible = true;
       switch (atoi(pieces[4].c_str())) {
       case 1:

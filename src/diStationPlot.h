@@ -90,6 +90,7 @@ struct Station {
   miutil::miString url;
   Status status;
   Type type;
+  miutil::miTime time;
 };
 
 class StationArea {
