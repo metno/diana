@@ -77,28 +77,25 @@ bool StationManager::init(const vector<miutil::miString>& inp)
     it = stationPlots.find(name);
     StationPlot* plot;
 
-    if (it == stationPlots.end()) {
-      plot = importStations(name, url);
-      putStations(plot);
-    } else
+    if (it != stationPlots.end()) {
       plot = it->second;
+      if (select == "hidden") {
+        plot->hide();
+        m_info.chosen[url] = false;
+      } else {
+        plot->show();
+        m_info.chosen[url] = true;
+      }
 
-    if (select == "hidden") {
-      plot->hide();
-      m_info.chosen[url] = false;
-    } else {
-      plot->show();
-      m_info.chosen[url] = true;
+      if (select == "selected") {
+        m_info.selected = name;
+        vector<Station*> stations = plot->getStations();
+        for (unsigned int k = 0; k < stations.size(); ++k)
+          stations[k]->isSelected = true;
+
+      } else
+        plot->unselect();
     }
-
-    if (select == "selected") {
-      m_info.selected = name;
-      vector<Station*> stations = plot->getStations();
-      for (unsigned int k = 0; k < stations.size(); ++k)
-        stations[k]->isSelected = true;
-
-    } else
-      plot->unselect();
   }
   return true;
 }
@@ -165,15 +162,16 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
   for (unsigned int i = 0; i < lines.size(); ++i) {
 
     vector<miutil::miString> pieces = lines[i].split(";");
-    if (pieces.size() >= 4) {
+    if (pieces.size() >= 7) {
 
-      // Create a station with the latitude, longitude and a combination of the name and station number.
+      // Create a station with the latitude, longitude and a combination of
+      // the name and station number. We also record the URL, status, type
+      // of station and update time.
       Station *station = new Station;
       station->name = pieces[2] + " " + pieces[3];
       station->lat = atof(pieces[0].c_str());
       station->lon = atof(pieces[1].c_str());
       station->url = pieces[5];
-      station->time = miutil::miTime(pieces[6].c_str());
       station->isVisible = true;
       switch (atoi(pieces[4].c_str())) {
       case 1:
@@ -194,6 +192,15 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
         station->type = Station::automatic;
       else
         station->type = Station::visual;
+
+      miutil::miString timeString = pieces[6];
+      vector<miutil::miString> timePieces = pieces[6].split(" ");
+      if (timePieces.size() == 2 && timePieces[0].countChar('-') == 2) {
+        if (timePieces[1].countChar(':') == 1)
+          timeString += ":00";
+        if (timePieces[1].countChar(':') == 2)
+          station->time = miutil::miTime(timeString.c_str());
+      }
 
       stations.push_back(station);
     }

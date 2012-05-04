@@ -209,16 +209,17 @@ vector<miutil::miString> StationDialog::getOKString()
 
   for (it = dialogInfo.sets.begin(); it != dialogInfo.sets.end(); ++it) {
 
-    // Load the list of stations from the URL.
-    StationPlot* plot = m_ctrl->getStationManager()->importStations(it->name, it->url);
-    m_ctrl->putStations(plot);
-
     dialogInfo.chosen[it->url] = false;
 
     vector<stationSetInfo>::iterator itC;
     for (itC = chosenInfo.sets.begin(); itC != chosenInfo.sets.end(); ++itC) {
       if (itC->url == it->url) {
         dialogInfo.chosen[it->url] = true;
+
+        // Load the list of stations from the URL.
+        StationPlot* plot = m_ctrl->getStationManager()->importStations(it->name, it->url);
+        m_ctrl->putStations(plot);
+
         break;
       }
     }
