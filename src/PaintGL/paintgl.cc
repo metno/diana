@@ -107,6 +107,7 @@ void PaintGLContext::setPen()
 {
     QPen pen = QPen(attributes.color, attributes.width);
     pen.setCapStyle(Qt::FlatCap);
+    pen.setCosmetic(true);
     if (attributes.stipple && !attributes.dashes.isEmpty()) {
         /* Set the dash pattern on the pen if defined, adjusting
            the length of each element to compensate for the line
@@ -402,7 +403,11 @@ void glCallList(GLuint list)
 {
     ENSURE_CTX_AND_PAINTER
     QPicture picture = ctx->lists[list];
+
+    ctx->painter->save();
+    ctx->painter->setTransform(ctx->listTransforms[list].inverted() * ctx->transform);
     ctx->painter->drawPicture(0, 0, picture);
+    ctx->painter->restore();
 }
 
 void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
@@ -515,8 +520,10 @@ void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha
 void glDeleteLists(GLuint list, GLsizei range)
 {
     ENSURE_CTX
-    for (GLuint i = list; i < list + range; ++i)
+    for (GLuint i = list; i < list + range; ++i) {
         ctx->lists.remove(i - 1);
+        ctx->listTransforms.remove(i - 1);
+    }
 }
 
 void glDeleteTextures(GLsizei n, const GLuint *textures)
@@ -640,6 +647,7 @@ GLuint glGenLists(GLsizei range)
         ++next;
 
     ctx->lists[next] = QPicture();
+    ctx->listTransforms[next] = ctx->transform;
     return next;
 }
 

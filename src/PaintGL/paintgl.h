@@ -75,7 +75,8 @@ public:
     QList<QColor> colors;
     QTransform transform;
 
-    QHash<GLuint, QPicture> lists;
+    QHash<GLuint,QPicture> lists;
+    QHash<GLuint,QTransform> listTransforms;
     QHash<GLuint,QImage> textures;
 
     QRect viewport;

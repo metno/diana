@@ -1,3 +1,9 @@
+diana-wms (3.27.5-0) lucid; urgency=low
+
+  * Used cosmetic pens to draw lines, fixing problems with display lists.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 04 May 2012 15:48:00 +0200
+
 diana-wms (3.27.4-2) lucid; urgency=low
 
   * Updated the package dependencies to use the WMS version of libemos.
