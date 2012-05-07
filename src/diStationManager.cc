@@ -75,10 +75,24 @@ bool StationManager::init(const vector<miutil::miString>& inp)
     name.join(pieces, " ");
 
     it = stationPlots.find(name);
-    StationPlot* plot;
+    StationPlot* plot = 0;
 
-    if (it != stationPlots.end()) {
+    if (it == stationPlots.end()) {
+      // No existing plot exists. If the select part of the plot command
+      // contains the word "hidden" then we ignore this set of stations.
+
+      if (select != "hidden") {
+        // Load the stations.
+        plot = importStations(name, url);
+        putStations(plot);
+      }
+
+    } else {
+      // An existing plot containing a loaded list of stations.
       plot = it->second;
+    }
+
+    if (plot) {
       if (select == "hidden") {
         plot->hide();
         m_info.chosen[url] = false;
@@ -122,14 +136,21 @@ bool StationManager::parseSetup()
   if (!SetupParser::getSection("STATIONS", section))
     return true;
 
+  set<miutil::miString> urls;
+
   for (unsigned int i = 0; i < section.size(); ++i) {
     vector<miString> pieces = section[i].split("=");
     if (pieces.size() == 2) {
-      stationSetInfo s_info;
-      s_info.name = pieces[0];
-      s_info.url = pieces[1];
-      m_info.chosen[s_info.url] = false;
-      m_info.sets.push_back(s_info);
+      if (urls.find(pieces[1]) == urls.end()) {
+        stationSetInfo s_info;
+        s_info.name = pieces[0];
+        s_info.url = pieces[1];
+        m_info.chosen[s_info.url] = false;
+        m_info.sets.push_back(s_info);
+
+        // Record the URL of the set to avoid potential duplication.
+        urls.insert(pieces[1]);
+      }
     } else
       cerr << __FUNCTION__ << ": Invalid line in setup file: " << section[i] << endl;
   }

@@ -992,6 +992,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       help,SLOT(showsource(const miutil::miString,const miutil::miString)));
   connect( sm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
       help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( stm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
+      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
   connect( mm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
       help,SLOT(showsource(const miutil::miString,const miutil::miString)));
   connect( em, SIGNAL(showsource(const miutil::miString,const miutil::miString)),

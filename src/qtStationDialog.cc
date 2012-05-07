@@ -86,6 +86,8 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
   selectedStationPlotList->setSelectionMode(QAbstractItemView::MultiSelection);
   selectedStationPlotList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+  QPushButton *helpButton = NormalPushButton(tr("Help"), this);
+
   fieldHide = NormalPushButton(tr("Hide"), this);
   fieldApplyHide = NormalPushButton(tr("Apply+Hide"), this);
   fieldApply = NormalPushButton(tr("Apply"), this);
@@ -93,6 +95,7 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
   reloadButton = NormalPushButton(tr("Reload"), this);
   reloadButton->setEnabled(false);
 
+  connect(helpButton, SIGNAL(clicked()), SLOT(helpClicked()));
   connect(fieldHide, SIGNAL(clicked()), SLOT(hideClicked()));
   connect(fieldApplyHide, SIGNAL(clicked()), SLOT(applyHideClicked()));
   connect(fieldApply, SIGNAL(clicked()), SLOT(applyClicked()));
@@ -109,9 +112,10 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
 
   QGridLayout* buttonLayout = new QGridLayout();
   buttonLayout->addWidget(reloadButton, 0, 2);
-  buttonLayout->addWidget(fieldHide, 1, 0);
-  buttonLayout->addWidget(fieldApplyHide, 1, 1);
-  buttonLayout->addWidget(fieldApply, 1, 2);
+  buttonLayout->addWidget(helpButton, 1, 0);
+  buttonLayout->addWidget(fieldHide, 2, 0);
+  buttonLayout->addWidget(fieldApplyHide, 2, 1);
+  buttonLayout->addWidget(fieldApply, 2, 2);
 
   QVBoxLayout* mainLayout = new QVBoxLayout();
   mainLayout->addWidget(stationPlotLabel);
@@ -267,6 +271,11 @@ void StationDialog::applyHideClicked()
   //  historyOk();
   emit StationHide();
   emit StationApply();
+}
+
+void StationDialog::helpClicked()
+{
+  emit showsource("ug_stationdialogue.html");
 }
 
 void StationDialog::hideClicked()

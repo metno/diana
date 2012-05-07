@@ -84,6 +84,7 @@ public:
 signals:
   void StationApply();
   void StationHide();
+  void showsource(const miutil::miString, const miutil::miString="");
 
 protected:
   void showEvent(QShowEvent *event);
@@ -96,6 +97,7 @@ private slots:
 
   void applyClicked();
   void applyHideClicked();
+  void helpClicked();
   void hideClicked();
 
 private:
