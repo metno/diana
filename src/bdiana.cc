@@ -3316,19 +3316,30 @@ int dispatchWork(const std::string &file)
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
       goto ERROR;
     }
-    do {
+    bool ok;
+    for (int tries = 0; tries < 10; ++tries) {
 #ifdef WIN32
       unsigned long o_nonblock = 1;
-      bool ok = (ioctlsocket(fd, FIONBIO, &o_nonblock) != SOCKET_ERROR);
+      ok = (ioctlsocket(fd, FIONBIO, &o_nonblock) != SOCKET_ERROR);
 #else
-      bool ok = (fcntl(fd, F_SETFL, O_NONBLOCK) == -1);
+      ok = (fcntl(fd, F_SETFL, O_NONBLOCK) == -1);
 #endif
-      if (!ok) {
-        cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
-        close(fd);
-        goto ERROR;
-      }
-    } while (0);
+      // If we try to make the FIFO non-blocking before the other process has opened it
+      // we get an error. So, we wait and try again; otherwise, we break out of the loop.
+      if (!ok)
+        usleep(50000);  // 50000 microseconds is 50 milliseconds
+      else
+        break;
+    }
+
+    if (!ok) {
+      // We couldn't make the FIFO non-blocking. Although it's possible that the other
+      // process is just running slow, we cannot take the chance of writing to a
+      // blocking FIFO because it could have timed out and given up on us.
+      cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
+      close(fd);
+      goto ERROR;
+    }
 
     char buf[1];
     if (res == 0)
