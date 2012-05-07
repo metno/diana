@@ -530,6 +530,8 @@ vector<PlotElement>& PlotModule::getPlotElements()
       str += "# " + miString(j);
       bool enabled = stam->plots()[j]->Enabled();
       miString icon = stam->plots()[j]->getIcon();
+      if (icon.empty())
+        icon = "STATION";
       miString ptype = "STATION";
       // add plotelement
       pel.push_back(PlotElement(ptype, str, icon, enabled));
