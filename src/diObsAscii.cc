@@ -121,7 +121,6 @@ size_t write_dataa(void *buffer, size_t size, size_t nmemb, void *userp)
 bool ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines)
 {
   CURL *curl = NULL;
-  CURLcode res;
   string data;
 
   curl = curl_easy_init();
@@ -129,17 +128,19 @@ bool ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_dataa);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
-    res = curl_easy_perform(curl);
+    CURLcode res = curl_easy_perform(curl);
 
     curl_easy_cleanup(curl);
+
+    miString mdata=data;
+    vector<miString> result;
+    result = mdata.split("\n");
+    lines.insert(lines.end(),result.begin(),result.end());
+
+    return (res == 0);
   }
 
-  miString mdata=data;
-  vector<miString> result;
-  result = mdata.split("\n");
-  lines.insert(lines.end(),result.begin(),result.end());
-
-  return (res == 0);
+  return false;
 }
 
 void ObsAscii::readHeaderInfo(const miString &filename, const miString &headerfile,
