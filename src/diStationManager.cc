@@ -84,7 +84,8 @@ bool StationManager::init(const vector<miutil::miString>& inp)
       if (select != "hidden") {
         // Load the stations.
         plot = importStations(name, url);
-        putStations(plot);
+        if (plot)
+          putStations(plot);
       }
 
     } else {
@@ -168,6 +169,8 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
 
   if (url.find("http://") == 0)
     success = ObsAscii::getFromHttp(url, lines);
+  else if (url.find("file://") == 0)
+    success = ObsAscii::getFromFile(url.substr(7), lines);
   else
     success = ObsAscii::getFromFile(url, lines);
 
