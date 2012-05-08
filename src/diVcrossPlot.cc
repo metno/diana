@@ -645,12 +645,12 @@ map<miString, miString> VcrossPlot::getAllFieldOptions()
       ostr << " line.smooth=" << po.lineSmooth << " value.label="
           << po.valueLabel << " label.size=" << po.labelSize;
       ostr << " base=" << po.base;
-      if (po.valuerange.size() > 0)
-        ostr << " minvalue=" << po.valuerange[0];
+      if (po.minvalue > -fieldUndef)
+        ostr << " minvalue=" << po.minvalue;
       else
         ostr << " minvalue=off";
-      if (po.valuerange.size() > 1)
-        ostr << " maxvalue=" << po.valuerange[1];
+      if (po.maxvalue < fieldUndef)
+        ostr << " maxvalue=" << po.maxvalue;
       else
         ostr << " maxvalue=off";
       if (!usebase) {
@@ -4409,17 +4409,10 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     zrange2[0] = +1.;
     zrange2[1] = -1.;
 
-    if (poptions.valuerange.size() == 1) {
-      zrange[0] = poptions.valuerange[0];
-      zrange[1] = fieldUndef * 0.95;
-    } else if (poptions.valuerange.size() == 2) {
-      if (poptions.valuerange[0] <= poptions.valuerange[1]) {
-        zrange[0] = poptions.valuerange[0];
-        zrange[1] = poptions.valuerange[1];
-      } else {
-        zrange[0] = fieldUndef * -0.95;
-        zrange[1] = poptions.valuerange[1];
-      }
+    if ( poptions.minvalue > -fieldUndef ||
+        poptions.maxvalue < fieldUndef ) {
+      zrange[0] = poptions.minvalue;
+      zrange[1] = poptions.maxvalue;
     }
 
     ncol = 1;
@@ -4551,18 +4544,10 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
         glColor3ubv(poptions.linecolour_2.RGB());
       }
 
-      //    if (idraw2==1 || idraw2==2) {
-      if (poptions.valuerange_2.size() == 1) {
-        zrange2[0] = poptions.valuerange_2[0];
-        zrange2[1] = fieldUndef * 0.95;
-      } else if (poptions.valuerange_2.size() == 2) {
-        if (poptions.valuerange_2[0] <= poptions.valuerange_2[1]) {
-          zrange2[0] = poptions.valuerange_2[0];
-          zrange2[1] = poptions.valuerange_2[1];
-        } else {
-          zrange2[0] = fieldUndef * -0.95;
-          zrange2[1] = poptions.valuerange_2[1];
-        }
+      if ( poptions.minvalue_2 > -fieldUndef ||
+          poptions.maxvalue_2 < fieldUndef ) {
+        zrange2[0] = poptions.minvalue_2;
+        zrange2[1] = poptions.maxvalue_2;
       }
 
       if (poptions.linewidths.size() == 1) {
