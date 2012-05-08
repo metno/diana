@@ -563,7 +563,7 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
   editfield->vcoord = metnoFieldFileIdentSpec[4];
   editfield->level = metnoFieldFileIdentSpec[6];
   editfield->idnum = metnoFieldFileIdentSpec[7];
-  editfield->vcoord = metnoFieldFileIdentSpec[4];
+
 
   FortranUnit funit;
   short int *idata = NULL;

@@ -118,13 +118,12 @@ private:
   vector<PlotField> vPlotField;
   set<std::string> fieldprefixes;
   set<std::string> fieldsuffixes;
-  map<std::string,std::string> standardNameMap;
 
   vector<miutil::miString>
       splitComStr(const miutil::miString& s, bool splitall);
 
   bool splitSuffix(std::string& plotName, std::string& suffix);
-  vector<std::string> getParamNames(std::string plotName, std::string vcoord);
+  vector<std::string> getParamNames(std::string plotName, std::string vcoord, bool& standard_name);
 
   bool splitDifferenceCommandString(miutil::miString pin, miutil::miString& fspec1, miutil::miString& fspec2);
 

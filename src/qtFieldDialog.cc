@@ -179,7 +179,7 @@ nr_linewidths = 12;
   cp->addKey("parameter", "", 1, CommandParser::cmdString);
   cp->addKey("vlevel", "", 1, CommandParser::cmdString);
   cp->addKey("elevel", "", 1, CommandParser::cmdString);
-  cp->addKey("vcoor", "", 1, CommandParser::cmdString);
+  cp->addKey("vcoord", "", 1, CommandParser::cmdString);
   cp->addKey("ecoor", "", 1, CommandParser::cmdString);
   cp->addKey("grid", "", 1, CommandParser::cmdString);
   cp->addKey("unit", "", 1, CommandParser::cmdString);
@@ -3452,7 +3452,7 @@ std::string FieldDialog::getParamString(int i)
     }
 
     if (selectedFields[i].level.exists()) {
-      ostr << " vcoor=" << selectedFields[i].zaxis;
+      ostr << " vcoord=" << selectedFields[i].zaxis;
       ostr << " vlevel=" << selectedFields[i].level;
     }
     if (selectedFields[i].idnum.exists()) {
@@ -3973,7 +3973,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
       sf.level = vpc[j].allValue;
     } else if (vpc[j].key == "idnum") {
       sf.idnum = vpc[j].allValue;
-    } else if (vpc[j].key == "vcoor") {
+    } else if (vpc[j].key == "vcoord") {
       sf.zaxis = vpc[j].allValue;
     } else if (vpc[j].key == "ecoor") {
       sf.extraaxis = vpc[j].allValue;
@@ -5234,32 +5234,37 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
       // In original edit, str=fieldName if the field is not already read
       sf.fieldName = vstr[0];
     } else {
-      miutil::miString modelname;
-      miutil::miString fieldname;
-      if (vstr.size() >= 2) {
+      miutil::miString modelName;
+      miutil::miString fieldName;
+      if ( str.contains("model=") ) {
+        //edit field from profet
+        bool allTimeSteps;
+        decodeString_cdmSyntax(str, sf, allTimeSteps);
+      } else if (vstr.size() >= 2) {
         // new edit field
-        modelname = vstr[0];
-        fieldname = vstr[1];
-        for (i = 0; i < n; i++) {
-          if (!selectedFields[i].inEdit) {
-            if (selectedFields[i].modelName == modelname
-                && selectedFields[i].fieldName == fieldname)
-              break;
-          }
-        }
-        if (i < n) {
-          sf = selectedFields[i];
-          indrm = i;
-          found = true;
+        sf.modelName = vstr[0];
+        sf.fieldName = vstr[1];
+      }
+      for (i = 0; i < n; i++) {
+        if (!selectedFields[i].inEdit) {
+          if (selectedFields[i].modelName == sf.modelName
+              && selectedFields[i].fieldName == sf.fieldName
+              && selectedFields[i].refTime == sf.refTime)
+            break;
         }
       }
-
+      if (i < n) {
+        sf = selectedFields[i];
+        indrm = i;
+        found = true;
+      }
     }
 
-    map<miutil::miString, miutil::miString>::const_iterator pfo;
-    if ((pfo = editFieldOptions.find(sf.fieldName))
-        != editFieldOptions.end()) {
-      sf.fieldOpts = pfo->second;
+
+  map<miutil::miString, miutil::miString>::const_iterator pfo;
+  if ((pfo = editFieldOptions.find(sf.fieldName))
+      != editFieldOptions.end()) {
+    sf.fieldOpts = pfo->second;
     } else if ((pfo = fieldOptions.find(sf.fieldName))
         != fieldOptions.end()) {
       sf.fieldOpts = pfo->second;
