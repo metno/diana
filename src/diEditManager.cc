@@ -2898,6 +2898,7 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Green sharp line stipple",Line,"green","green",0,false,"dash2"));
   fronts.push_back(newEditToolInfo("Green smooth line stipple",Line,"green","green",0,true,"dash2"));
   fronts.push_back(newEditToolInfo("Black sharp arrow",ArrowLine,"black","black",0,false));
+  fronts.push_back(newEditToolInfo("Black sharp thin arrow",ArrowLine,"black","black",-2,false));
   fronts.push_back(newEditToolInfo("Black smooth arrow",ArrowLine,"black","black",0,true));
   fronts.push_back(newEditToolInfo("Red sharp arrow",ArrowLine,"red","red",0,false));
   fronts.push_back(newEditToolInfo("Red smooth arrow",ArrowLine,"red"));
@@ -2966,10 +2967,9 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"dash2","zigzag"));
   areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow",0,true,"solid","paralyse"));
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
-  areas.push_back(newEditToolInfo("Significant weather_red",Sigweather,"red"));
-  areas.push_back(newEditToolInfo("Significant weather_blue",Sigweather,"blue"));
+  areas.push_back(newEditToolInfo("Significant weather  TURB/VA/RC",Sigweather,"red"));
+  areas.push_back(newEditToolInfo("Significant weather  ICE/TCU/CB",Sigweather,"blue"));
   areas.push_back(newEditToolInfo("Reduced visibility",Genericarea,"gulbrun","gulbrun",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Generic area",Genericarea,"red","red",0,false));
   areas.push_back(newEditToolInfo("Black sharp area",Genericarea,"black","black",0,false));
   areas.push_back(newEditToolInfo("Black smooth area",Genericarea,"black","black",0,true));
   areas.push_back(newEditToolInfo("Red sharp area",Genericarea,"red","red",0,false));
