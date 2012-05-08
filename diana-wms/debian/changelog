@@ -1,3 +1,9 @@
+diana-wms (3.27.6-1) lucid; urgency=low
+
+  * Repackage to address libemos0d-wms dependency.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 08 May 2012 15:31:00 +0200
+
 diana-wms (3.27.6-0) lucid; urgency=low
 
   * Try to make the FIFO non-blocking multiple times before failing.
