@@ -876,6 +876,13 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
       fieldName_suffix[fieldName].push_back(suffix);
     }
 
+    for (unsigned int l = 0; l < vfgi[i].standard_names.size(); l++) {
+      miString suffix;
+      miString fieldName = vfgi[i].standard_names[l];
+      splitSuffix(fieldName, suffix);
+      standardName_suffix[fieldName].push_back(suffix);
+    }
+
     //find plotNames
     vector<miString> plotNames;
     for (unsigned int j = 0; j < vPlotField.size(); j++) {
