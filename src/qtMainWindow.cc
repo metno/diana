@@ -3251,9 +3251,18 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     sendLetter(letter);
   }
 
-  vector<Station*> stations = contr->getStationManager()->findStations(mev.x, mev.y);
+  vector<Station*> allStations = contr->getStationManager()->findStations(mev.x, mev.y);
+  vector<Station*> stations;
+  for (unsigned int i = 0; i < allStations.size(); ++i) {
+    if (allStations[i]->status != Station::noStatus)
+      stations.push_back(allStations[i]);
+  }
+
   if (stations.size() > 0) {
 
+    // Count the number of times each station name appears in the list.
+    // This is used later to decide whether or not to show the "auto" or
+    // "vis" text.
     map<miutil::miString, unsigned int> stationNames;
     for (unsigned int i = 0; i < stations.size(); ++i) {
       unsigned int number = stationNames.count(stations[i]->name);

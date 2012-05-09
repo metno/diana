@@ -271,7 +271,7 @@ void StationPlot::addStation(const float lon, const float lat,
     newStation->image = newimage;
   }
   newStation->edit = false;
-  newStation->status = Station::unknown;
+  newStation->status = Station::noStatus;
 
   addStation(newStation);
 }
@@ -329,11 +329,13 @@ bool StationPlot::plot()
     unselected[stations[i]->status].push_back(i);
   }
 
-  for (unsigned int i = Station::unknown; i > Station::noStatus; --i) {
-    for (vector<int>::iterator it = unselected[Station::Status(i)].begin(); it != unselected[Station::Status(i)].end(); it++) {
+  static Station::Status plotOrder[5] = {Station::noStatus, Station::unknown, Station::working, Station::underRepair, Station::working};
+
+  for (unsigned int i = 0; i < 5; ++i) {
+    for (vector<int>::iterator it = unselected[plotOrder[i]].begin(); it != unselected[plotOrder[i]].end(); it++) {
       plotStation(*it);
     }
-    for (vector<int>::iterator it = selected[Station::Status(i)].begin(); it != selected[Station::Status(i)].end(); it++) {
+    for (vector<int>::iterator it = selected[plotOrder[i]].begin(); it != selected[plotOrder[i]].end(); it++) {
       plotStation(*it);
     }
   }
