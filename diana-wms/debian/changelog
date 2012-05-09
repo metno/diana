@@ -1,3 +1,10 @@
+diana-wms (3.27.6-2) lucid; urgency=low
+
+  * Fixed station handling when vertical profiles are shown.
+  * Enabled experimental resampling of satellite/radar images.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 09 May 2012 17:10:00 +0200
+
 diana-wms (3.27.6-1) lucid; urgency=low
 
   * Repackage to address libemos0d-wms dependency.
