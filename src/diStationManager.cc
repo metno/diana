@@ -401,6 +401,8 @@ void StationManager::stationCommand(const miutil::miString& command, const miuti
           (id == (*p).second->getId() && (name == (*p).second->getName() || !name.exists()))) {
         delete (*p).second;
         stationPlots.erase(p);
+        if (name != "all")
+          break;
       } else {
         p++;
       }

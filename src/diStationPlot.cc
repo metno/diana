@@ -271,6 +271,7 @@ void StationPlot::addStation(const float lon, const float lat,
     newStation->image = newimage;
   }
   newStation->edit = false;
+  newStation->status = Station::unknown;
 
   addStation(newStation);
 }

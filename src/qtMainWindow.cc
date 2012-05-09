@@ -3432,12 +3432,6 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
     needupdate= true;
   }
 
-  // Perform general station selection, independent of tool-specific checks.
-  vector<miutil::miString> names;
-  vector<int> ids;
-  vector<miutil::miString> stations;
-  contr->findStations(x, y, false, names, ids, stations);
-
   //find the name of station we clicked/pointed
   //at (from plotModul->stationPlot)
   miutil::miString station = contr->findStation(x,y,"vprof");
@@ -3533,6 +3527,12 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
       }
     }
   }
+
+  // Perform general station selection, independent of tool-specific checks.
+  vector<miutil::miString> names;
+  vector<int> ids;
+  vector<miutil::miString> stations;
+  contr->findStations(x, y, false, names, ids, stations);
 
   if (needupdate) w->updateGL();
 }
