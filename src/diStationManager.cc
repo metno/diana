@@ -403,6 +403,8 @@ void StationManager::stationCommand(const miutil::miString& command, const miuti
         stationPlots.erase(p);
         if (name != "all")
           break;
+        else
+          p++;
       } else {
         p++;
       }
