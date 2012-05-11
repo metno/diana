@@ -38,6 +38,7 @@ public:
     PaintGLContext();
     virtual ~PaintGLContext();
 
+    void makeCurrent();
     void begin(QPainter *painter);
     bool isPainting() const;
     void end();

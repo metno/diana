@@ -57,18 +57,10 @@ PaintGLContext::~PaintGLContext()
     ctx = 0;
 }
 
-void PaintGLContext::begin(QPainter *painter)
+void PaintGLContext::makeCurrent()
 {
-    // Allow this context to be implicitly made current.
+    // Make this context the current one.
     ctx = this;
-
-    // Use the painter supplied.
-    this->painter = painter;
-
-    if (clear) {
-        painter->fillRect(0, 0, painter->device()->width(), painter->device()->height(), clearColor);
-        clear = false;
-    }
 
     useTexture = false;
     blend = false;
@@ -91,6 +83,17 @@ void PaintGLContext::begin(QPainter *painter)
     transformStack.clear();
 
     transform = QTransform();
+}
+
+void PaintGLContext::begin(QPainter *painter)
+{
+    // Use the painter supplied.
+    this->painter = painter;
+
+    if (clear) {
+        painter->fillRect(0, 0, painter->device()->width(), painter->device()->height(), clearColor);
+        clear = false;
+    }
 }
 
 bool PaintGLContext::isPainting() const
@@ -190,7 +193,7 @@ void PaintGLContext::plotSubdivided(QPointF quad[], QColor color[], int division
                                  (color[0].green() + color[1].green() + color[2].green() + color[3].green())/4,
                                  (color[0].blue() + color[1].blue() + color[2].blue() + color[3].blue())/4,
                                  (color[0].alpha() + color[1].alpha() + color[2].alpha() + color[3].alpha())/4));
-        painter->drawPolygon(quad, 4);
+        painter->drawConvexPolygon(quad, 4);
     }
 }
 
@@ -232,7 +235,7 @@ void PaintGLContext::renderPrimitive()
         for (int i = 0; i < points.size() - 2; i += 3) {
             if (validPoints[i] && validPoints[i + 1] && validPoints[i + 2]) {
                 QPolygonF poly = QPolygonF(points.mid(i, 3));
-                painter->drawPolygon(poly);
+                painter->drawConvexPolygon(poly);
             }
         }
         break;
@@ -244,7 +247,7 @@ void PaintGLContext::renderPrimitive()
         tri[1] = points[1];
         for (int i = 2; i < points.size(); ++i) {
             tri[i % 3] = points[i];
-            painter->drawPolygon(tri, 3);
+            painter->drawConvexPolygon(tri, 3);
         }
         break;
     }
@@ -256,7 +259,7 @@ void PaintGLContext::renderPrimitive()
         tri[1] = points[1];
         for (int i = 2; i < points.size(); ++i) {
             tri[2 - (i % 2)] = points[i];
-            painter->drawPolygon(tri, 3);
+            painter->drawConvexPolygon(tri, 3);
         }
         break;
     }
@@ -289,7 +292,7 @@ void PaintGLContext::renderPrimitive()
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
                     painter->setBrush(colors[i]);
                 }
-                painter->drawPolygon(poly);
+                painter->drawConvexPolygon(poly);
             }
         }
         break;
@@ -326,10 +329,10 @@ void PaintGLContext::renderPrimitive()
                         plotSubdivided(quad, color);
                     } else {
                         setPolygonColor(colors[i]);
-                        painter->drawPolygon(quad, 4);
+                        painter->drawConvexPolygon(quad, 4);
                     }
                 } else
-                    painter->drawPolygon(quad, 4);
+                    painter->drawConvexPolygon(quad, 4);
             }
         }
         break;
@@ -911,6 +914,8 @@ void glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 
 void glShadeModel(GLenum mode)
 {
+    ENSURE_CTX
+
     switch (mode) {
     case GL_FLAT:
         ctx->smooth = false;
@@ -1212,6 +1217,7 @@ void PaintGLWidget::paintEvent(QPaintEvent* event)
 
     QPainter painter;
     painter.begin(this);
+    glContext->makeCurrent();
     glContext->begin(&painter);
     if (antialiasing)
         painter.setRenderHint(QPainter::Antialiasing);
@@ -1239,6 +1245,7 @@ void PaintGLWidget::setAutoBufferSwap(bool enable)
 
 void PaintGLWidget::paint(QPainter *painter)
 {
+    glContext->makeCurrent();
     glContext->begin(painter);
     paintGL();
     glContext->end();

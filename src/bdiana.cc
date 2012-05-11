@@ -257,6 +257,7 @@ PaintGL wrapper;
 PaintGLContext context;
 #endif
 QPicture picture;
+QImage image;
 map<miString, map<miString,miString> > outputTextMaps; // output text for cases where output data is XML/JSON
 int xsize; // total pixmap width
 int ysize; // total pixmap height
@@ -1349,10 +1350,9 @@ int parseAndProcess(istream &is)
           context.end();
         if (painter.isActive())
           painter.end();
-
-        painter.begin(&picture);
-        context.begin(&painter);
       }
+
+      context.makeCurrent();
 #endif
 
   // unpack loops, make lists, merge lines etc.
@@ -1923,12 +1923,8 @@ int parseAndProcess(istream &is)
           int ox = 0, oy = 0;
           if (plotAnnotationsOnly) {
             getAnnotationsArea(ox, oy, xsize, ysize);
+            image = image.copy(-ox, -oy, xsize, ysize);
           }
-
-          QImage image(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
-          painter.begin(&image);
-          painter.drawPicture(ox, oy, picture);
-          painter.end();
 
           image.save(QString::fromStdString(priop.fname));
         }
@@ -2601,7 +2597,6 @@ int parseAndProcess(istream &is)
           //qfbuffer->release();
 #else
       } else if (canvasType == qt_qimage) {
-        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
 #endif
       }
       glShadeModel(GL_FLAT);
@@ -2657,12 +2652,17 @@ int parseAndProcess(istream &is)
       } else if (value == "eps") {
         raster = false;
         priop.doEPS = true;
-      } else if (value == "png") {
+      } else if (value == "png" || value == "raster") {
         raster = true;
-        raster_type = image_png;
-      } else if (value == "raster") {
-        raster = true;
-        raster_type = image_unknown;
+        if (value == "png")
+          raster_type = image_png;
+        else
+          raster_type = image_unknown;
+
+        image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        painter.begin(&image);
+        context.begin(&painter);
+
       } else if (value == "shp") {
         shape = true;
       } else if (value == "avi") {
@@ -2671,11 +2671,20 @@ int parseAndProcess(istream &is)
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       } else if (value == "svg") {
         svg = true;
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
       } else if (value == "pdf") {
         pdf = true;
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
       } else if (value == "json") {
         raster = false;
         json = true;
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
 #endif
       } else {
         cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
