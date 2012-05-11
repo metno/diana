@@ -221,24 +221,29 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_LINE_LOOP";
         setPen();
         points.append(points[0]);
-        painter->drawPolyline(QPolygonF(points));
+        for (int i = 0; i < points.size() - 1; ++i)
+            painter->drawLine(points[i], points[i+1]);
         break;
     case GL_LINE_STRIP: {
         // qDebug() << "  GL_LINE_STRIP";
         setPen();
-        painter->drawPolyline(QPolygonF(points));
+        for (int i = 0; i < points.size() - 1; ++i)
+            painter->drawLine(points[i], points[i+1]);
         break;
     }
-    case GL_TRIANGLES:
+    case GL_TRIANGLES: {
         // qDebug() << "  GL_TRIANGLES";
         setPolygonColor(attributes.color);
+        QPointF tri[3];
         for (int i = 0; i < points.size() - 2; i += 3) {
             if (validPoints[i] && validPoints[i + 1] && validPoints[i + 2]) {
-                QPolygonF poly = QPolygonF(points.mid(i, 3));
-                painter->drawConvexPolygon(poly);
+                for (int j = 0; j < 3; ++j)
+                    tri[j] = points[i + j];
+                painter->drawConvexPolygon(tri, 3);
             }
         }
         break;
+    }
     case GL_TRIANGLE_STRIP: {
         // qDebug() << "  GL_TRIANGLE_STRIP";
         setPolygonColor(attributes.color);
@@ -263,7 +268,7 @@ void PaintGLContext::renderPrimitive()
         }
         break;
     }
-    case GL_QUADS:
+    case GL_QUADS: {
         // qDebug() << "  GL_QUADS";
         if (!blend)
             setPolygonColor(attributes.color);
@@ -272,15 +277,21 @@ void PaintGLContext::renderPrimitive()
             painter->setPen(Qt::NoPen);
         }
 
+        QPolygonF quad;
+        quad.resize(4);
+
         for (int i = 0; i < points.size() - 3; i += 4) {
             if (!validPoints[i] || !validPoints[i] || !validPoints[i] || !validPoints[i])
                 continue;
-            QPolygonF poly = QPolygonF(points.mid(i, 4));
+
+            for (int j = 0; j < 4; ++j)
+                quad[j] = points[i + j];
+
             if (useTexture) {
                 QImage texture = textures[currentTexture];
                 QTransform t;
                 QPolygonF source(QRectF(texture.rect()));
-                if (QTransform::quadToQuad(source, poly, t)) {
+                if (QTransform::quadToQuad(source, quad, t)) {
                     painter->save();
                     // No need to record this transformation.
                     painter->setTransform(transform * t);
@@ -292,10 +303,11 @@ void PaintGLContext::renderPrimitive()
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
                     painter->setBrush(colors[i]);
                 }
-                painter->drawConvexPolygon(poly);
+                painter->drawConvexPolygon(quad);
             }
         }
         break;
+    }
     case GL_QUAD_STRIP: {
         // qDebug() << "  GL_QUAD_STRIP";
         if (!blend)

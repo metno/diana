@@ -1340,19 +1340,25 @@ void createJsonAnnotation()
     }
   }
 }
+
+void ensureNewContext()
+{
+  if (canvasType == qt_qimage) {
+    if (context.isPainting())
+      context.end();
+    if (painter.isActive())
+      painter.end();
+  }
+
+  context.makeCurrent();
+}
+
 #endif
 
 int parseAndProcess(istream &is)
 {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-      if (canvasType == qt_qimage) {
-        if (context.isPainting())
-          context.end();
-        if (painter.isActive())
-          painter.end();
-      }
-
-      context.makeCurrent();
+  ensureNewContext();
 #endif
 
   // unpack loops, make lists, merge lines etc.
@@ -2658,6 +2664,10 @@ int parseAndProcess(istream &is)
           raster_type = image_png;
         else
           raster_type = image_unknown;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        ensureNewContext();
+#endif
 
         image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
         painter.begin(&image);

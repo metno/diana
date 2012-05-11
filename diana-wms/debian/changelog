@@ -1,3 +1,10 @@
+diana-wms (3.27.9-0) lucid; urgency=low
+
+  * Used fixed-size arrays instead of variable-length lists.
+  * Ensured that the painter is closed before starting to paint again.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 11 May 2012 17:40:00 +0200
+
 diana-wms (3.27.8-0) lucid; urgency=low
 
   * Enabled rendering directly to images to improve performance.
