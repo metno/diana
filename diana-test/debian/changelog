@@ -1,3 +1,10 @@
+diana-test (3.28.0-ubuntu12) lucid; urgency=low
+
+  * Using metlibs 4.4
+  * compiled with xfont-support
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 13 May 2012 20:19:15 +0200
+
 diana-test (3.28.0-ubuntu11) lucid; urgency=low
 
   * New station dialog
