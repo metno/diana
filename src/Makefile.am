@@ -449,6 +449,7 @@ common_xpm_sources= active_object.xpm \
 	spectrum.xpm \
 	start.xpm \
 	stopp.xpm \
+	station.xpm \
 	sun2.xpm \
 	synop_red.xpm \
 	synop.xpm \
