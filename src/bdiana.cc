@@ -2667,11 +2667,11 @@ int parseAndProcess(istream &is)
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
-#endif
 
         image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
         painter.begin(&image);
         context.begin(&painter);
+#endif
 
       } else if (value == "shp") {
         shape = true;
