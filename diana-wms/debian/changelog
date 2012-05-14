@@ -1,3 +1,10 @@
+diana-wms (3.27.10-0) lucid; urgency=low
+
+  * Shared fixed-size arrays for primitives.
+  * Added checks for undefined/missing field sources.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 14 May 2012 13:41:00 +0200
+
 diana-wms (3.27.9-0) lucid; urgency=low
 
   * Used fixed-size arrays instead of variable-length lists.

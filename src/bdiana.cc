@@ -2374,10 +2374,12 @@ int parseAndProcess(istream &is)
 
           vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
           for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
-              miutil::miString modelName = (*it)->getModelName();
-              FieldSource* fieldSource = main_controller->getFieldManager()->getFieldSource(modelName);
+            miutil::miString modelName = (*it)->getModelName();
+            FieldSource* fieldSource = main_controller->getFieldManager()->getFieldSource(modelName);
+            if (fieldSource) {
               for (unsigned int i = 0; i < fieldSource->getFileNames().size(); ++i)
-                  file << fieldSource->getFileNames()[i] << endl;
+                file << fieldSource->getFileNames()[i] << endl;
+            }
           }
 
           map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
