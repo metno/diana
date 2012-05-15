@@ -2605,6 +2605,11 @@ int parseAndProcess(istream &is)
           //qfbuffer->release();
 #else
       } else if (canvasType == qt_qimage) {
+        ensureNewContext();
+
+        image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        painter.begin(&image);
+        context.begin(&painter);
 #endif
       }
       glShadeModel(GL_FLAT);
