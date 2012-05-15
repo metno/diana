@@ -223,14 +223,12 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_LINE_LOOP";
         setPen();
         points.append(points[0]);
-        for (int i = 0; i < points.size() - 1; ++i)
-            painter->drawLine(points[i], points[i+1]);
+        painter->drawPolyline(QPolygonF(points.toVector()));
         break;
     case GL_LINE_STRIP: {
         // qDebug() << "  GL_LINE_STRIP";
         setPen();
-        for (int i = 0; i < points.size() - 1; ++i)
-            painter->drawLine(points[i], points[i+1]);
+        painter->drawPolyline(QPolygonF(points.toVector()));
         break;
     }
     case GL_TRIANGLES: {
