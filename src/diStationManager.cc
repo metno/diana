@@ -55,8 +55,12 @@ bool StationManager::init(const vector<miutil::miString>& inp)
   // Hide all the station plots to begin with so that we can later
   // show and select/unselect them.
 
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it)
-    (*it).second->hide();
+  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if (it->second->isVisible())
+      it->second->show();
+    else
+      it->second->hide();
+  }
 
   for (unsigned int i = 0; i < inp.size(); ++i) {
 
