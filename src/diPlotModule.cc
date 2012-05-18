@@ -44,6 +44,7 @@
 
 #include <diObsManager.h>
 #include <diSatManager.h>
+#include <diStationManager.h>
 #include <diObjectManager.h>
 #include <diEditManager.h>
 #include <diGridAreaManager.h>
@@ -110,7 +111,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   idnumCurrent.clear();
 
   // split up input into separate products
-  vector<miString> fieldpi, obspi, mappi, satpi, objectpi, trajectorypi,
+  vector<miString> fieldpi, obspi, mappi, satpi, statpi, objectpi, trajectorypi,
   labelpi, editfieldpi;
 
   int n = vpi.size();
@@ -129,6 +130,8 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
         mappi.push_back(vpi[i]);
       else if (type == "SAT")
         satpi.push_back(vpi[i]);
+      else if (type == "STATION")
+        statpi.push_back(vpi[i]);
       else if (type == "OBJECTS")
         objectpi.push_back(vpi[i]);
       else if (type == "TRAJECTORY")
@@ -149,6 +152,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   prepareFields(fieldpi);
   prepareObs(obspi);
   prepareSat(satpi);
+  prepareStations(statpi);
   prepareMap(mappi);
   prepareObjects(objectpi);
   prepareTrajectory(trajectorypi);
@@ -384,6 +388,19 @@ void PlotModule::prepareSat(const vector<miString>& inp)
   }
 }
 
+void PlotModule::prepareStations(const vector<miString>& inp)
+{
+#ifdef DEBUGPRINT
+  cerr << "++ PlotModule::prepareStations ++" << endl;
+#endif
+
+  if (!stam->init(inp)) {
+#ifdef DEBUGPRINT
+    cerr << "PlotModule::prepareStations.  init returned false" << endl;
+#endif
+  }
+}
+
 void PlotModule::prepareAnnotation(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
@@ -504,15 +521,17 @@ vector<PlotElement>& PlotModule::getPlotElements()
   }
 
   // get stationPlot names
-  m = stationPlots.size();
+  m = stam->plots().size();
   for (int j = 0; j < m; j++) {
-    if (!stationPlots[j]->isVisible())
+    if (!stam->plots()[j]->isVisible())
       continue;
-    stationPlots[j]->getPlotName(str);
+    stam->plots()[j]->getPlotName(str);
     if (str.exists()) {
       str += "# " + miString(j);
-      bool enabled = stationPlots[j]->Enabled();
-      miString icon = stationPlots[j]->getIcon();
+      bool enabled = stam->plots()[j]->Enabled();
+      miString icon = stam->plots()[j]->getIcon();
+      if (icon.empty())
+        icon = "STATION";
       miString ptype = "STATION";
       // add plotelement
       pel.push_back(PlotElement(ptype, str, icon, enabled));
@@ -593,11 +612,11 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
       }
     }
   } else if (pe.type == "STATION") {
-    for (unsigned int i = 0; i < stationPlots.size(); i++) {
-      stationPlots[i]->getPlotName(str);
+    for (unsigned int i = 0; i < stam->plots().size(); i++) {
+      stam->plots()[i]->getPlotName(str);
       str += "# " + miString(int(i));
       if (str == pe.str) {
-        stationPlots[i]->enable(pe.enabled);
+        stam->plots()[i]->enable(pe.enabled);
         break;
       }
     }
@@ -733,11 +752,11 @@ void PlotModule::setAnnotations()
   }
 
   // get stationPlot annotations
-  m = stationPlots.size();
+  m = stam->plots().size();
   for (int j = 0; j < m; j++) {
-    if (!stationPlots[j]->Enabled())
+    if (!stam->plots()[j]->Enabled())
       continue;
-    stationPlots[j]->getStationPlotAnnotation(str, col);
+    stam->plots()[j]->getStationPlotAnnotation(str, col);
     ann.str = str;
     ann.col = col;
     annotations.push_back(ann);
@@ -1018,9 +1037,9 @@ bool PlotModule::updatePlots()
   editobjects.changeProjection(splot.getMapArea());
   combiningobjects.changeProjection(splot.getMapArea());
 
-  n = stationPlots.size();
+  n = stam->plots().size();
   for (int i = 0; i < n; i++) {
-    stationPlots[i]->changeProjection();
+    stam->plots()[i]->changeProjection();
   }
 
   // Prepare/compute trajectories - change projection
@@ -1252,9 +1271,10 @@ void PlotModule::plotUnder()
     vareaobjects[i].plot();
   }
 
-  n = stationPlots.size();
+  // plot station plots
+  n = stam->plots().size();
   for (i = 0; i < n; i++) {
-    stationPlots[i]->plot();
+    stam->plots()[i]->plot();
   }
 
   // plot inactive edit fields/objects under observations
@@ -1582,7 +1602,7 @@ void PlotModule::cleanup()
   n = vfp.size();
 
   // Field deletion at the end is done in the cache. The cache destructor is called by
-  // FieldPlotManagers destructor, which comes before this destructor. Basocally we try to
+  // FieldPlotManagers destructor, which comes before this destructor. Basically we try to
   // destroy something in a dead pointer here....
   for (i = 0; i < n; i++) {
     freeFields(vfp[i]);
@@ -1594,6 +1614,11 @@ void PlotModule::cleanup()
   for (i = 0; i < n; i++)
     delete vsp[i];
   vsp.clear();
+
+  n = stam->plots().size();
+  for (i = 0; i < n; i++)
+    delete stam->plots()[i];
+  stam->plots().clear();
 
   n = vobsTimes.size();
   for (i = n - 1; i > -1; i--) {
@@ -1785,13 +1810,14 @@ float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1,
 
 // set managers
 void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
-    ObsManager* om, SatManager* sm, ObjectManager* obm, EditManager* edm,
+    ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm,
     GridAreaManager* gam)
 {
   fieldm = fm;
   fieldplotm = fpm;
   obsm = om;
   satm = sm;
+  stam = stm;
   objm = obm;
   editm = edm;
   aream = gam;
@@ -1804,6 +1830,8 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     cerr << "PlotModule::ERROR obsmanager==0" << endl;
   if (!satm)
     cerr << "PlotModule::ERROR satmanager==0" << endl;
+  if (!stam)
+    cerr << "PlotModule::ERROR stationmanager==0" << endl;
   if (!objm)
     cerr << "PlotModule::ERROR objectmanager==0" << endl;
   if (!editm)
@@ -2033,174 +2061,6 @@ bool PlotModule::getObsName(int x, int y, miString& name)
       return true;
 
   return false;
-}
-
-//********** plotting and selecting stations on the map***************
-
-void PlotModule::putStations(StationPlot* stationPlot)
-{
-#ifdef DEBUGPRINT
-  cerr << "PlotModule::putStations"<< endl;
-#endif
-
-  miString name = stationPlot->getName();
-  vector<StationPlot*>::iterator p = stationPlots.begin();
-  vector<StationPlot*>::iterator pend = stationPlots.end();
-
-  //delete old stationPlot
-  while (p != pend && name != (*p)->getName())
-    p++;
-  if (p != pend) {
-    if (!((*p)->isVisible()))
-      stationPlot->hide();
-    stationPlot->enable((*p)->Enabled());
-    delete (*p);
-    stationPlots.erase(p);
-  }
-
-  //put new stationPlot into vector (sorted by priority and number of stations)
-  p = stationPlots.begin();
-  pend = stationPlots.end();
-
-  int pri = stationPlot->getPriority();
-  while (p != pend && pri > (*p)->getPriority())
-    p++;
-  if (p != pend && pri == (*p)->getPriority())
-    while (p != pend && (*stationPlot) < (**p))
-      p++;
-  stationPlots.insert(p, stationPlot);
-
-  setAnnotations();
-}
-
-void PlotModule::makeStationPlot(const miString& commondesc,
-    const miString& common, const miString& description, int from,
-    const vector<miString>& data)
-{
-  StationPlot* stationPlot = new StationPlot(commondesc, common, description,
-      from, data);
-  putStations(stationPlot);
-
-}
-
-miString PlotModule::findStation(int x, int y, miString name, int id)
-{
-
-  int n = stationPlots.size();
-  for (int i = 0; i < n; i++) {
-    if ((id == -1 || id == stationPlots[i]->getId()) && (name
-        == stationPlots[i]->getName())) {
-      vector<miString> st = stationPlots[i]->findStation(x, y);
-      if (st.size() > 0)
-        return st[0];
-    }
-  }
-  return miString();
-}
-
-void PlotModule::findStations(int x, int y, bool add, vector<miString>& name,
-    vector<int>& id, vector<miString>& station)
-{
-
-  int n = stationPlots.size();
-  int ii;
-  for (int i = 0; i < n; i++) {
-    vector<miString> st = stationPlots[i]->findStation(x, y, add);
-    if ((ii = stationPlots[i]->getId()) > -1) {
-      for (unsigned int j = 0; j < st.size(); j++) {
-        name.push_back(stationPlots[i]->getName());
-        id.push_back(ii);
-        station.push_back(st[j]);
-      }
-    }
-  }
-
-}
-
-void PlotModule::getEditStation(int step, miString& name, int& id, vector<
-    miString>& stations)
-{
-
-  bool updateArea = false;
-  int n = stationPlots.size();
-  int i = 0;
-  while (i < n && !stationPlots[i]->getEditStation(step, name, id, stations,
-      updateArea))
-    i++;
-
-  if (updateArea)
-    PlotAreaSetup();
-
-}
-
-void PlotModule::stationCommand(const miString& command,
-    vector<miString>& data, const miString& name, int id, const miString& misc)
-{
-
-  int n = stationPlots.size();
-  if (command == "selected") {
-    for (int i = 0; i < n; i++) {
-      data.push_back(stationPlots[i]->stationRequest(command));
-    }
-  } else { // use stationPlot with name and id
-    for (int i = 0; i < n; i++) {
-      if ((id == -1 || id == stationPlots[i]->getId()) && (name
-          == stationPlots[i]->getName() || !name.exists())) {
-        stationPlots[i]->stationCommand(command, data, misc);
-        break;
-      }
-    }
-  }
-
-  if (command == "annotation")
-    setAnnotations();
-
-}
-
-void PlotModule::stationCommand(const miString& command, const miString& name,
-    int id)
-{
-  if (command == "delete") {
-    vector<StationPlot*>::iterator p = stationPlots.begin();
-
-    while (p != stationPlots.end()) {
-      if ((name == "all" && (*p)->getId() != -1) || (id == (*p)->getId()
-          && (name == (*p)->getName() || !name.exists()))) {
-        delete (*p);
-        stationPlots.erase(p);
-      } else {
-        p++;
-      }
-    }
-
-  } else {
-    int n = stationPlots.size();
-    for (int i = 0; i < n; i++) {
-      if ((id == -1 || id == stationPlots[i]->getId()) && (name
-          == stationPlots[i]->getName() || !name.exists()))
-        stationPlots[i]->stationCommand(command);
-    }
-  }
-
-  setAnnotations();
-
-}
-
-float PlotModule::getStationsScale()
-{
-  if(!stationPlots.empty())
-    return stationPlots[0]->getImageScale(0);
-  else
-    return .0;
-}
-void PlotModule::setStationsScale(float new_scale)
-{
-  vector<StationPlot*>::iterator p = stationPlots.begin();
-
-  while (p != stationPlots.end()) {
-    (*p)->setImageScale(new_scale);
-    ++p;
-  }
 }
 
 //areas
@@ -2959,6 +2819,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
   }
   // ** mousedoubleclick
   else if (me.type == mousedoubleclick) {
+    res.action = doubleclick;
   }
 }
 

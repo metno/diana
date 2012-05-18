@@ -33,6 +33,7 @@
 
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
+#include <set>
 #include <vector>
 #include <diField/diColour.h>
 #include <diField/diArea.h>
@@ -242,6 +243,32 @@ struct ObsPositions {
   float* values;
   bool convertToGrid;
   ObsPositions():numObs(0),xpos(0),ypos(0),values(0), convertToGrid(true){}
+};
+
+//--------------------------------------------------
+// Station structures
+//--------------------------------------------------
+
+/**
+   \brief GUI data for all stations
+*/
+
+struct stationInfo {
+    miutil::miString name;
+    miutil::miString url;
+    float lat;
+    float lon;
+};
+
+struct stationSetInfo {
+    miutil::miString name;
+    miutil::miString url;
+};
+
+struct stationDialogInfo {
+    vector<stationSetInfo> sets;
+    map<miutil::miString, bool> chosen;
+    miutil::miString selected;
 };
 
 //--------------------------------------------------

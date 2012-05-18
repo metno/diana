@@ -19,7 +19,8 @@ dist_doc_DATA= share/doc/diana/vprofWindow.png \
 	share/doc/diana/ug_shortcutkeys.html \
 	share/doc/diana/ug_setupfile.html \
 	share/doc/diana/ug_satdialogue.html \
-	share/doc/diana/ug_quickmenu.html \
+        share/doc/diana/ug_stationdialogue.html \
+        share/doc/diana/ug_quickmenu.html \
 	share/doc/diana/ug_profetdrawingtools.html \
 	share/doc/diana/ug_obsdialogue.html \
 	share/doc/diana/ug_objectdialogue.html \
@@ -61,6 +62,8 @@ dist_doc_DATA= share/doc/diana/vprofWindow.png \
 	share/doc/diana/satellitedialogue.png \
 	share/doc/diana/satellitedialogue_more.png \
 	share/doc/diana/sat_arrows.png \
+        share/doc/diana/station.png \
+        share/doc/diana/stationdialogue.png \
 	share/doc/diana/quick.png \
 	share/doc/diana/quickoptionsdialogue.png \
 	share/doc/diana/quickeditdialogue.png \

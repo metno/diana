@@ -53,13 +53,27 @@ struct stationText{
   Alignment hAlign;
 };
 
-
   /**
-     \brief properties for a stationplot point
+     \brief properties for each station held in a station plot object
 
-       coordinates, image and text to be shown etc.
+     This defines coordinates, image, text to be shown as a label, and other properties.
   */
-struct Station{
+struct Station {
+  enum Status
+  {
+    noStatus = 0,
+    failed = 1,
+    underRepair = 2,
+    working = 3,
+    unknown = 4
+  };
+
+  enum Type
+  {
+    automatic,
+    visual
+  };
+
   miutil::miString name;
   float lat;
   float lon;
@@ -73,8 +87,27 @@ struct Station{
   float scale;
   Colour colour;
   vector <stationText> vsText;
+  miutil::miString url;
+  Status status;
+  Type type;
+  miutil::miTime time;
 };
 
+class StationArea {
+public:
+  StationArea(float minLat, float maxLat, float minLon, float maxLon);
+  vector<Station*> findStations(float lat, float lon) const;
+  Station* findStation(float lat, float lon) const;
+  void addStation(Station* station);
+
+private:
+  float minLat;
+  float maxLat;
+  float minLon;
+  float maxLon;
+  vector<StationArea> areas;  // subareas of this area
+  vector<Station*> stations;  // pointers to stations are owned by the StationPlot
+};
 
 /**
    \brief Plot pickable stations/positions on the map
@@ -96,7 +129,9 @@ public:
 	      const vector <float> & lats);
   /// constructor with station names,longitudes,latitudes and images
   StationPlot(const vector <miutil::miString> & names,const vector <float> & lons,
-	      const vector <float> & lats, const vector <miutil::miString> images);
+        const vector <float> & lats, const vector <miutil::miString> images);
+  /// constructor with stations
+  StationPlot(const vector <Station*> &stations);
   StationPlot(const miutil::miString& commondesc,
 	      const miutil::miString& common,
 	      const miutil::miString& description,
@@ -119,12 +154,20 @@ public:
   bool isVisible();
   /// change stationplot projection
   bool changeProjection();
-  /// find stations in position x and y
+  /// Returns the stations in the plot object
+  vector<Station*> getStations() const;
+  /// Returns the station at position x and y
+  Station* stationAt(int x, int y);
+  /// Returns all stations at position x and y
+  vector<Station*> stationsAt(int x, int y);
+  /// Returns a vector containing the names of the stations at position x and y
   vector<miutil::miString> findStation(int x, int y, bool add=false);
+  /// Returns the selected stations in the plot object
+  vector<Station*> getSelectedStations() const;
   /// set station with name station to selected<br> if add is false, unselect all stations first
-  void setSelectedStation(miutil::miString station, bool add=false);
+  int setSelectedStation(miutil::miString station, bool add=false);
   /// set station number i to selected<br> if add is false, unselect all stations first
-  void setSelectedStation(int i, bool add=false);
+  int setSelectedStation(int i, bool add=false);
   /// get annotation
   void getStationPlotAnnotation(miutil::miString &str,Colour &col);
   /// set annotation
@@ -175,20 +218,19 @@ public:
 
 private:
 
-  enum thingToPlot{redRectangle,greyRectangle,redCross,
-		   yellowCircle,whiteRectangle,redCircle};
-
-  vector <Station*> stations; //stations, name, lon, lat etc...
+  vector<Station*> stations; //stations, name, lon, lat etc...
+  vector<StationArea> stationAreas;  // areas containing stations
 
   //  void addStation(const miutil::miString names);
   void addStation(const float lon, const float lat,
 		  const miutil::miString name="",
 		  const miutil::miString image="",
 		  int alpha=255, float scale=1.0);
+  void addStation(Station* station);
   void defineCoordinates();
   void init();
   void plotStation(int i);
-  void glPlot(thingToPlot tp,float x, float y, float w, float h);
+  void glPlot(Station::Status tp, float x, float y, float w, float h, bool selected = false);
   void plotWind(int i, float x, float y,
 		bool classic=false, float scale=1);
 
@@ -220,9 +262,3 @@ private:
  };
 
 #endif
-
-
-
-
-
-

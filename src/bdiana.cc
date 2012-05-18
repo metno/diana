@@ -257,6 +257,7 @@ PaintGL wrapper;
 PaintGLContext context;
 #endif
 QPicture picture;
+QImage image;
 map<miString, map<miString,miString> > outputTextMaps; // output text for cases where output data is XML/JSON
 int xsize; // total pixmap width
 int ysize; // total pixmap height
@@ -1339,20 +1340,25 @@ void createJsonAnnotation()
     }
   }
 }
+
+void ensureNewContext()
+{
+  if (canvasType == qt_qimage) {
+    if (context.isPainting())
+      context.end();
+    if (painter.isActive())
+      painter.end();
+  }
+
+  context.makeCurrent();
+}
+
 #endif
 
 int parseAndProcess(istream &is)
 {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-      if (canvasType == qt_qimage) {
-        if (context.isPainting())
-          context.end();
-        if (painter.isActive())
-          painter.end();
-
-        painter.begin(&picture);
-        context.begin(&painter);
-      }
+  ensureNewContext();
 #endif
 
   // unpack loops, make lists, merge lines etc.
@@ -1923,12 +1929,8 @@ int parseAndProcess(istream &is)
           int ox = 0, oy = 0;
           if (plotAnnotationsOnly) {
             getAnnotationsArea(ox, oy, xsize, ysize);
+            image = image.copy(-ox, -oy, xsize, ysize);
           }
-
-          QImage image(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
-          painter.begin(&image);
-          painter.drawPicture(ox, oy, picture);
-          painter.end();
 
           image.save(QString::fromStdString(priop.fname));
         }
@@ -2372,10 +2374,12 @@ int parseAndProcess(istream &is)
 
           vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
           for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
-              miutil::miString modelName = (*it)->getModelName();
-              FieldSource* fieldSource = main_controller->getFieldManager()->getFieldSource(modelName);
+            miutil::miString modelName = (*it)->getModelName();
+            FieldSource* fieldSource = main_controller->getFieldManager()->getFieldSource(modelName);
+            if (fieldSource) {
               for (unsigned int i = 0; i < fieldSource->getFileNames().size(); ++i)
-                  file << fieldSource->getFileNames()[i] << endl;
+                file << fieldSource->getFileNames()[i] << endl;
+            }
           }
 
           map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
@@ -2601,7 +2605,11 @@ int parseAndProcess(istream &is)
           //qfbuffer->release();
 #else
       } else if (canvasType == qt_qimage) {
-        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        ensureNewContext();
+
+        image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        painter.begin(&image);
+        context.begin(&painter);
 #endif
       }
       glShadeModel(GL_FLAT);
@@ -2657,12 +2665,21 @@ int parseAndProcess(istream &is)
       } else if (value == "eps") {
         raster = false;
         priop.doEPS = true;
-      } else if (value == "png") {
+      } else if (value == "png" || value == "raster") {
         raster = true;
-        raster_type = image_png;
-      } else if (value == "raster") {
-        raster = true;
-        raster_type = image_unknown;
+        if (value == "png")
+          raster_type = image_png;
+        else
+          raster_type = image_unknown;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        ensureNewContext();
+
+        image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        painter.begin(&image);
+        context.begin(&painter);
+#endif
+
       } else if (value == "shp") {
         shape = true;
       } else if (value == "avi") {
@@ -2671,11 +2688,20 @@ int parseAndProcess(istream &is)
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       } else if (value == "svg") {
         svg = true;
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
       } else if (value == "pdf") {
         pdf = true;
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
       } else if (value == "json") {
         raster = false;
         json = true;
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
 #endif
       } else {
         cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
@@ -3316,19 +3342,30 @@ int dispatchWork(const std::string &file)
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
       goto ERROR;
     }
-    do {
+    bool ok;
+    for (int tries = 0; tries < 10; ++tries) {
 #ifdef WIN32
       unsigned long o_nonblock = 1;
-      bool ok = (ioctlsocket(fd, FIONBIO, &o_nonblock) != SOCKET_ERROR);
+      ok = (ioctlsocket(fd, FIONBIO, &o_nonblock) != SOCKET_ERROR);
 #else
-      bool ok = (fcntl(fd, F_SETFL, O_NONBLOCK) == -1);
+      ok = (fcntl(fd, F_SETFL, O_NONBLOCK) == -1);
 #endif
-      if (!ok) {
-        cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
-        close(fd);
-        goto ERROR;
-      }
-    } while (0);
+      // If we try to make the FIFO non-blocking before the other process has opened it
+      // we get an error. So, we wait and try again; otherwise, we break out of the loop.
+      if (!ok)
+        usleep(50000);  // 50000 microseconds is 50 milliseconds
+      else
+        break;
+    }
+
+    if (!ok) {
+      // We couldn't make the FIFO non-blocking. Although it's possible that the other
+      // process is just running slow, we cannot take the chance of writing to a
+      // blocking FIFO because it could have timed out and given up on us.
+      cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
+      close(fd);
+      goto ERROR;
+    }
 
     char buf[1];
     if (res == 0)

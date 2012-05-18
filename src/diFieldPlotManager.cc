@@ -494,11 +494,10 @@ vector<miTime> FieldPlotManager::getFieldTime(
     vector<FieldRequest>& request, bool& constTimes)
 
 {
-
   vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
     if (request[i].plotDefinition ) {
-      vector<std::string> name = getParamNames(request[i].paramName,request[i].zaxis);
+      vector<std::string> name = getParamNames(request[i].paramName,request[i].zaxis, request[i].standard_name);
       if ( name.size()>0 ) {
         request[i].paramName = name[0];
       }
@@ -882,7 +881,6 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
       miString fieldName = vfgi[i].standard_names[l];
       splitSuffix(fieldName, suffix);
       standardName_suffix[fieldName].push_back(suffix);
-      standardNameMap[vfgi[i].standard_names[l]] = vfgi[i].fieldNames[l];
     }
 
     //find plotNames
@@ -1024,7 +1022,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
       }else if (key == "plot") {
         plotName = vtoken[1];
         fieldrequest.plotDefinition=true;
-      } else if (key == "vcoor") {
+      } else if (key == "vcoord") {
         fieldrequest.zaxis = vtoken[1];
       } else if (key == "tcoor") {
         fieldrequest.taxis = vtoken[1];
@@ -1076,7 +1074,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
   //  //plotName -> fieldName
   if ( fieldrequest.plotDefinition) {
-    paramNames = getParamNames(plotName,fieldrequest.zaxis);
+    paramNames = getParamNames(plotName,fieldrequest.zaxis, fieldrequest.standard_name);
   }
 
   for (size_t i = 0; i < paramNames.size(); i++) {
@@ -1088,7 +1086,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
 }
 
-vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::string vcoord)
+vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::string vcoord, bool& standard_name)
 {
 
   //search through vPlotField
@@ -1102,25 +1100,25 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::s
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
     //Do not remember why vcoord had to match,
     //Removed test in order to fix bdiana
-//    if ( vPlotField[i].name == plotName && vPlotField[i].vcoord.count(vcoord)) {
+    //    if ( vPlotField[i].name == plotName && vPlotField[i].vcoord.count(vcoord)) {
     if ( vPlotField[i].name == plotName ) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
         miString inputName = vPlotField[i].input[j];
         vector<miString> vstr = inputName.split(":");
         inputName = vstr[0];
         if (vstr.size() == 2 && vstr[1] == "standard_name" ){
-          if (standardNameMap.count(inputName)) {
-            inputName = standardNameMap[inputName];
-          }
+          standard_name = true;
+        } else {
+          standard_name = false;
         }
 
-        inputName += suffix;
-        paramNames.push_back(inputName);
-      }
-
-      return paramNames;
-
+      inputName += suffix;
+      paramNames.push_back(inputName);
     }
+
+    return paramNames;
+
+  }
 
   }
 

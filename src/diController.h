@@ -61,6 +61,7 @@ class SatManager;
 class EditManager;
 class GridAreaManager;
 class ObjectManager;
+class StationManager;
 class StationPlot;
 class MapManager;
 class FieldPlot;
@@ -87,6 +88,7 @@ private:
   FieldPlotManager  *fieldplotm;
   ObsManager    *obsm;
   SatManager    *satm;
+  StationManager    *stam;
   ObjectManager *objm;
   EditManager   *editm;
 #ifdef PROFET
@@ -106,6 +108,7 @@ public:
   EditManager*   getEditManager()   { return editm; };
   ObjectManager* getObjectManager() { return objm; };
   FieldManager* getFieldManager() { return fieldm; };
+  StationManager* getStationManager() { return stam; };
   SatManager* getSatelliteManager() { return satm; };
   ObsManager* getObservationManager() { return obsm; };
   /// init static FontManager in class Plot
@@ -278,6 +281,8 @@ public:
   miutil::miString getUffdaMailAddress();
   /// return button names for SatDialog
   SatDialogInfo initSatDialog();
+
+  stationDialogInfo initStationDialog();
 
   // Obs-dialog methods
   /// return button names for ObsDialog

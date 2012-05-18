@@ -317,6 +317,9 @@ void GLwidget::handleMouseEvents(QMouseEvent* me, const mouseEventType met)
     case grid_area_changed:
       emit gridAreaChanged();
       break;
+    case doubleclick:
+      emit mouseDoubleClick(mev);
+      break;
     case keypressed:
       break;
     case no_action:

@@ -2614,17 +2614,10 @@ bool FieldPlot::plotContour(){
   zrange2[0] = +1.;
   zrange2[1] = -1.;
 
-  if (poptions.valuerange.size()==1) {
-    zrange[0]= poptions.valuerange[0];
-    zrange[1]= fieldUndef*0.95;
-  } else if (poptions.valuerange.size()==2){
-    if( poptions.valuerange[0]<=poptions.valuerange[1]) {
-      zrange[0]= poptions.valuerange[0];
-      zrange[1]= poptions.valuerange[1];
-    } else {
-      zrange[0]= fieldUndef*-0.95;
-      zrange[1]= poptions.valuerange[1];
-    }
+  if ( poptions.minvalue > -fieldUndef ||
+      poptions.maxvalue < fieldUndef ) {
+    zrange[0] = poptions.minvalue;
+    zrange[1] = poptions.maxvalue;
   }
 
   ncol = 1;
@@ -2686,10 +2679,15 @@ bool FieldPlot::plotContour(){
   //Plot contour lines
   if (!poptions.options_1) idraw=0;
 
-  if (!poptions.options_2)
+  if (!poptions.options_2) {
     idraw2 = 0;
-  else
-    idraw2 = 1;
+  } else {
+    idraw2= 1;
+    if (poptions.zeroLine==0) {
+      idraw2 = 2;
+    }
+  }
+
 
   if(idraw>0 || idraw2>0){
 
@@ -2715,18 +2713,10 @@ bool FieldPlot::plotContour(){
       glIndexi(poptions.linecolour.Index());
     }
 
-    //    if (idraw2==1 || idraw2==2) {
-    if (poptions.valuerange_2.size()==1) {
-      zrange2[0]= poptions.valuerange_2[0];
-      zrange2[1]= fieldUndef*0.95;
-    } else if (poptions.valuerange_2.size()==2){
-      if(poptions.valuerange_2[0]<=poptions.valuerange_2[1]) {
-        zrange2[0]= poptions.valuerange_2[0];
-        zrange2[1]= poptions.valuerange_2[1];
-      } else {
-        zrange2[0]= fieldUndef*-0.95;
-        zrange2[1]= poptions.valuerange_2[1];
-      }
+    if ( poptions.minvalue_2 > -fieldUndef ||
+        poptions.maxvalue_2 < fieldUndef ) {
+      zrange2[0] = poptions.minvalue_2;
+      zrange2[1] = poptions.maxvalue_2;
     }
 
     if (poptions.linewidths.size()==1) {
@@ -2948,10 +2938,10 @@ bool FieldPlot::plotBox_alpha_shade(){
 
   //cmin=0.;  cmax=100.;
 
-  if (poptions.valuerange.size()==2 &&
-      poptions.valuerange[0]<=poptions.valuerange[1]) {
-    cmin = poptions.valuerange[0];
-    cmax = poptions.valuerange[1];
+  if ( poptions.minvalue > -fieldUndef &&
+      poptions.maxvalue < fieldUndef ) {
+    cmin = poptions.minvalue;
+    cmax = poptions.maxvalue;
   } else {
     //##### not nice in timeseries... !!!!!!!!!!!!!!!!!!!!!
     cmin=  fieldUndef;
@@ -3101,17 +3091,10 @@ bool FieldPlot::plotAlarmBox(){
 
     }
 
-  } else if (sf==0 && s1==0 && s2==0 &&
-      poptions.valuerange.size()==1) {
+  } else if (sf==0 && s1==0 && s2==0 ) {
 
-    vmin= poptions.valuerange[0];
-
-  } else if (sf==0 && s1==0 && s2==0 &&
-      poptions.valuerange.size()==2 &&
-      poptions.valuerange[0]<=poptions.valuerange[1]) {
-
-    vmin= poptions.valuerange[0];
-    vmax= poptions.valuerange[1];
+    vmin= poptions.minvalue;
+    vmax= poptions.maxvalue;
 
   } else {
 

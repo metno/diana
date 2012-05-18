@@ -176,9 +176,12 @@ bool SatPlot::plotFillcell()
 
   //todo: reduce resolution when zooming out
 //  int factor = fullrect.width()/nx/2000;
-//  if ( factor < 1 ) factor = 1;
 
-  int factor = 1;
+  double plotH = pow(pow(pwidth, 2) + pow(pheight, 2), 0.5);
+  double gridH = pow(pow(nx, 2) + pow(ny, 2), 0.5);
+  double fullH = pow(pow(fullrect.width(), 2) + pow(fullrect.height(), 2), 0.5);
+  int factor = (fullH/gridH) / (plotH * 2);
+  if ( factor < 1 ) factor = 1;
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_BLEND);

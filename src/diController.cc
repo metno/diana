@@ -44,6 +44,7 @@
 #include <diObjectManager.h>
 #include <diEditManager.h>
 #include <diGridAreaManager.h>
+#include <diStationManager.h>
 #include <diStationPlot.h>
 #include <diImageGallery.h>
 #include <diMapManager.h>
@@ -67,6 +68,7 @@ Controller::Controller()
   fieldplotm= new FieldPlotManager(fieldm);
   obsm=       new ObsManager;
   satm=       new SatManager;
+  stam=       new StationManager;
   // plot central
   plotm= new PlotModule();
   // edit- and drawing-manager
@@ -75,7 +77,7 @@ Controller::Controller()
   aream = new GridAreaManager();
   paintModeEnabled = false;
   scrollwheelZoom = false;
-  plotm->setManagers(fieldm,fieldplotm,obsm,satm,objm,editm,aream);
+  plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm,aream);
 //  profetController = new Profet::ProfetController(fieldm);
 }
 
@@ -89,6 +91,7 @@ Controller::~Controller(){
   delete fieldplotm;
   delete obsm;
   delete satm;
+  delete stam;
   delete objm;
   delete editm;
   delete aream;
@@ -138,6 +141,7 @@ bool Controller::parseSetup()
   if (!satm->parseSetup()) return false;
   if (!objm->parseSetup()) return false;
   if (!editm->parseSetup()) return false;
+  if (!stam->parseSetup()) return false;
 
   MapManager mapm;
   if (!mapm.parseSetup()) return false;
@@ -781,6 +785,10 @@ SatDialogInfo Controller::initSatDialog(){
   return satm->initDialog();
 }
 
+stationDialogInfo Controller::initStationDialog(){
+  return stam->initDialog();
+}
+
 EditDialogInfo Controller::initEditDialog(){
   return editm->getEditDialogInfo();
 }
@@ -891,7 +899,8 @@ vector<miTime> Controller::getObsTimes( vector<miString> name){
 //********** plotting and selecting stations on the map***************
 
 void Controller::putStations(StationPlot* stationPlot){
-  plotm->putStations(stationPlot);
+  stam->putStations(stationPlot);
+  plotm->setAnnotations();
 }
 
 void Controller::makeStationPlot(const miString& commondesc,
@@ -900,24 +909,25 @@ void Controller::makeStationPlot(const miString& commondesc,
                          int from,
                          const  vector<miString>& data)
 {
-  plotm->makeStationPlot(commondesc,common,description,from,data);
+  stam->makeStationPlot(commondesc,common,description,from,data);
 }
 
 miString Controller::findStation(int x, int y, miString name, int id){
-  return plotm->findStation(x,y,name,id);
+  return stam->findStation(x,y,name,id);
 }
 
 void Controller::findStations(int x, int y, bool add,
                               vector<miString>& name,
                               vector<int>& id,
                               vector<miString>& station){
-  plotm->findStations(x,y,add,name,id,station);
+  stam->findStations(x,y,add,name,id,station);
 }
 
 void Controller::getEditStation(int step,
                                 miString& name, int& id,
                                 vector<miString>& stations){
-  plotm->getEditStation(step,name,id,stations);
+  if (stam->getEditStation(step,name,id,stations))
+    plotm->PlotAreaSetup();
 }
 
 void Controller::stationCommand(const miString& command,
@@ -925,20 +935,25 @@ void Controller::stationCommand(const miString& command,
                                 const miString& name, int id,
                                 const miString& misc)
 {
-  plotm->stationCommand(command,data,name,id,misc);
+  stam->stationCommand(command,data,name,id,misc);
+
+  if (command == "annotation")
+    plotm->setAnnotations();
 }
 void Controller::stationCommand(const miString& command,
                                 const miString& name, int id)
 {
-  plotm->stationCommand(command,name,id);
+  stam->stationCommand(command,name,id);
+
+  plotm->setAnnotations();
 }
 float Controller::getStationsScale()
 {
-  return plotm->getStationsScale();
+  return stam->getStationsScale();
 }
 void Controller::setStationsScale(float new_scale)
 {
-  plotm->setStationsScale(new_scale);
+  stam->setStationsScale(new_scale);
 }
 
 //areas
