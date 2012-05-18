@@ -19,7 +19,7 @@
 #include "GL/gl.h"
 
 struct PaintAttributes {
-    QColor color;
+    QRgb color;
     float width;
     QHash<GLenum,GLenum> polygonMode;
     QVector<qreal> dashes;
@@ -71,9 +71,9 @@ public:
 
     GLenum mode;
     PaintAttributes attributes;
-    QList<QPointF> points;
+    QPolygonF points;
     QList<bool> validPoints;
-    QList<QColor> colors;
+    QList<QRgb> colors;
     QTransform transform;
 
     QHash<GLuint,QPicture> lists;
@@ -84,9 +84,9 @@ public:
     QRectF window;
 
 private:
-    void plotSubdivided(QPointF quad[], QColor color[], int divisions = 0);
+    void plotSubdivided(const QPointF quad[], const QRgb color[], int divisions = 0);
     void setPen();
-    void setPolygonColor(const QColor &color);
+    void setPolygonColor(const QRgb &color);
 };
 
 class PaintGL {
