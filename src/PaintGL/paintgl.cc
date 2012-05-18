@@ -237,9 +237,8 @@ void PaintGLContext::renderPrimitive()
 
         for (int i = 0; i < points.size() - 2; i += 3) {
             if (validPoints[i] && validPoints[i + 1] && validPoints[i + 2]) {
-                for (int j = 0; j < 3; ++j)
-                    poly[j] = points[i + j];
-                painter->drawConvexPolygon(poly, 3);
+                QPolygonF poly = QPolygonF(points.mid(i, 3).toVector());
+                painter->drawConvexPolygon(poly);
             }
         }
         break;
@@ -277,8 +276,7 @@ void PaintGLContext::renderPrimitive()
             painter->setPen(Qt::NoPen);
         }
 
-        QPolygonF quad;
-        quad.resize(4);
+        QPolygonF quad(4);
 
         for (int i = 0; i < points.size() - 3; i += 4) {
             if (!validPoints[i] || !validPoints[i] || !validPoints[i] || !validPoints[i])
