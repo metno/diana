@@ -329,7 +329,7 @@ bool StationPlot::plot()
     unselected[stations[i]->status].push_back(i);
   }
 
-  static Station::Status plotOrder[5] = {Station::noStatus, Station::unknown, Station::working, Station::underRepair, Station::working};
+  static Station::Status plotOrder[5] = {Station::noStatus, Station::unknown, Station::working, Station::underRepair, Station::failed};
 
   for (unsigned int i = 0; i < 5; ++i) {
     for (vector<int>::iterator it = unselected[plotOrder[i]].begin(); it != unselected[plotOrder[i]].end(); it++) {
