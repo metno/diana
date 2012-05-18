@@ -57,18 +57,10 @@ PaintGLContext::~PaintGLContext()
     ctx = 0;
 }
 
-void PaintGLContext::begin(QPainter *painter)
+void PaintGLContext::makeCurrent()
 {
-    // Allow this context to be implicitly made current.
+    // Make this context the current one.
     ctx = this;
-
-    // Use the painter supplied.
-    this->painter = painter;
-
-    if (clear) {
-        painter->fillRect(0, 0, painter->device()->width(), painter->device()->height(), clearColor);
-        clear = false;
-    }
 
     useTexture = false;
     blend = false;
@@ -93,6 +85,17 @@ void PaintGLContext::begin(QPainter *painter)
     transform = QTransform();
 }
 
+void PaintGLContext::begin(QPainter *painter)
+{
+    // Use the painter supplied.
+    this->painter = painter;
+
+    if (clear) {
+        painter->fillRect(0, 0, painter->device()->width(), painter->device()->height(), clearColor);
+        clear = false;
+    }
+}
+
 bool PaintGLContext::isPainting() const
 {
     return painter != 0;
@@ -107,6 +110,7 @@ void PaintGLContext::setPen()
 {
     QPen pen = QPen(attributes.color, attributes.width);
     pen.setCapStyle(Qt::FlatCap);
+    pen.setCosmetic(true);
     if (attributes.stipple && !attributes.dashes.isEmpty()) {
         /* Set the dash pattern on the pen if defined, adjusting
            the length of each element to compensate for the line
@@ -189,7 +193,7 @@ void PaintGLContext::plotSubdivided(QPointF quad[], QColor color[], int division
                                  (color[0].green() + color[1].green() + color[2].green() + color[3].green())/4,
                                  (color[0].blue() + color[1].blue() + color[2].blue() + color[3].blue())/4,
                                  (color[0].alpha() + color[1].alpha() + color[2].alpha() + color[3].alpha())/4));
-        painter->drawPolygon(quad, 4);
+        painter->drawConvexPolygon(quad, 4);
     }
 }
 
@@ -197,6 +201,8 @@ void PaintGLContext::renderPrimitive()
 {
     if (points.size() == 0)
         return;
+
+    static QPointF poly[4];
 
     switch (mode) {
     case GL_POINTS:
@@ -217,49 +223,51 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_LINE_LOOP";
         setPen();
         points.append(points[0]);
-        painter->drawPolyline(QPolygonF(points));
+        painter->drawPolyline(QPolygonF(points.toVector()));
         break;
     case GL_LINE_STRIP: {
         // qDebug() << "  GL_LINE_STRIP";
         setPen();
-        painter->drawPolyline(QPolygonF(points));
+        painter->drawPolyline(QPolygonF(points.toVector()));
         break;
     }
-    case GL_TRIANGLES:
+    case GL_TRIANGLES: {
         // qDebug() << "  GL_TRIANGLES";
         setPolygonColor(attributes.color);
+
         for (int i = 0; i < points.size() - 2; i += 3) {
             if (validPoints[i] && validPoints[i + 1] && validPoints[i + 2]) {
-                QPolygonF poly = QPolygonF(points.mid(i, 3));
-                painter->drawPolygon(poly);
+                QPolygonF poly = QPolygonF(points.mid(i, 3).toVector());
+                painter->drawConvexPolygon(poly);
             }
         }
         break;
+    }
     case GL_TRIANGLE_STRIP: {
         // qDebug() << "  GL_TRIANGLE_STRIP";
         setPolygonColor(attributes.color);
-        QPointF tri[3];
-        tri[0] = points[0];
-        tri[1] = points[1];
+
+        poly[0] = points[0];
+        poly[1] = points[1];
         for (int i = 2; i < points.size(); ++i) {
-            tri[i % 3] = points[i];
-            painter->drawPolygon(tri, 3);
+            poly[i % 3] = points[i];
+            painter->drawConvexPolygon(poly, 3);
         }
         break;
     }
     case GL_TRIANGLE_FAN: {
         // qDebug() << "  GL_TRIANGLE_FAN";
         setPolygonColor(attributes.color);
-        QPointF tri[3];
-        tri[0] = points[0];
-        tri[1] = points[1];
+
+        poly[0] = points[0];
+        poly[1] = points[1];
         for (int i = 2; i < points.size(); ++i) {
-            tri[2 - (i % 2)] = points[i];
-            painter->drawPolygon(tri, 3);
+            poly[2 - (i % 2)] = points[i];
+            painter->drawConvexPolygon(poly, 3);
         }
         break;
     }
-    case GL_QUADS:
+    case GL_QUADS: {
         // qDebug() << "  GL_QUADS";
         if (!blend)
             setPolygonColor(attributes.color);
@@ -268,15 +276,20 @@ void PaintGLContext::renderPrimitive()
             painter->setPen(Qt::NoPen);
         }
 
+        QPolygonF quad(4);
+
         for (int i = 0; i < points.size() - 3; i += 4) {
             if (!validPoints[i] || !validPoints[i] || !validPoints[i] || !validPoints[i])
                 continue;
-            QPolygonF poly = QPolygonF(points.mid(i, 4));
+
+            for (int j = 0; j < 4; ++j)
+                quad[j] = points[i + j];
+
             if (useTexture) {
                 QImage texture = textures[currentTexture];
                 QTransform t;
                 QPolygonF source(QRectF(texture.rect()));
-                if (QTransform::quadToQuad(source, poly, t)) {
+                if (QTransform::quadToQuad(source, quad, t)) {
                     painter->save();
                     // No need to record this transformation.
                     painter->setTransform(transform * t);
@@ -288,18 +301,18 @@ void PaintGLContext::renderPrimitive()
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
                     painter->setBrush(colors[i]);
                 }
-                painter->drawPolygon(poly);
+                painter->drawConvexPolygon(quad);
             }
         }
         break;
+    }
     case GL_QUAD_STRIP: {
         // qDebug() << "  GL_QUAD_STRIP";
         if (!blend)
             setPolygonColor(attributes.color);
 
-        QPointF quad[4];
-        quad[0] = points[0];
-        quad[1] = points[1];
+        poly[0] = points[0];
+        poly[1] = points[1];
         QColor color[4];
         color[0] = colors[0];
         color[1] = colors[1];
@@ -307,13 +320,13 @@ void PaintGLContext::renderPrimitive()
         for (int i = 2; i < points.size() - 1; i += 2) {
 
             if (i % 4 == 2) {
-                quad[i % 4] = points[i + 1];
-                quad[i % 4 + 1] = points[i];
+                poly[i % 4] = points[i + 1];
+                poly[i % 4 + 1] = points[i];
                 color[i % 4] = colors[i + 1];
                 color[i % 4 + 1] = colors[i];
             } else {
-                quad[i % 4] = points[i];
-                quad[i % 4 + 1] = points[i + 1];
+                poly[i % 4] = points[i];
+                poly[i % 4 + 1] = points[i + 1];
                 color[i % 4] = colors[i];
                 color[i % 4 + 1] = colors[i + 1];
             }
@@ -322,13 +335,13 @@ void PaintGLContext::renderPrimitive()
                 if (blend) {
                     if (smooth) {
                         painter->setPen(Qt::NoPen);
-                        plotSubdivided(quad, color);
+                        plotSubdivided(poly, color);
                     } else {
                         setPolygonColor(colors[i]);
-                        painter->drawPolygon(quad, 4);
+                        painter->drawConvexPolygon(poly, 4);
                     }
                 } else
-                    painter->drawPolygon(quad, 4);
+                    painter->drawConvexPolygon(poly, 4);
             }
         }
         break;
@@ -402,7 +415,11 @@ void glCallList(GLuint list)
 {
     ENSURE_CTX_AND_PAINTER
     QPicture picture = ctx->lists[list];
+
+    ctx->painter->save();
+    ctx->painter->setTransform(ctx->listTransforms[list].inverted() * ctx->transform);
     ctx->painter->drawPicture(0, 0, picture);
+    ctx->painter->restore();
 }
 
 void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
@@ -515,8 +532,10 @@ void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha
 void glDeleteLists(GLuint list, GLsizei range)
 {
     ENSURE_CTX
-    for (GLuint i = list; i < list + range; ++i)
+    for (GLuint i = list; i < list + range; ++i) {
         ctx->lists.remove(i - 1);
+        ctx->listTransforms.remove(i - 1);
+    }
 }
 
 void glDeleteTextures(GLsizei n, const GLuint *textures)
@@ -640,6 +659,7 @@ GLuint glGenLists(GLsizei range)
         ++next;
 
     ctx->lists[next] = QPicture();
+    ctx->listTransforms[next] = ctx->transform;
     return next;
 }
 
@@ -903,6 +923,8 @@ void glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 
 void glShadeModel(GLenum mode)
 {
+    ENSURE_CTX
+
     switch (mode) {
     case GL_FLAT:
         ctx->smooth = false;
@@ -1204,6 +1226,7 @@ void PaintGLWidget::paintEvent(QPaintEvent* event)
 
     QPainter painter;
     painter.begin(this);
+    glContext->makeCurrent();
     glContext->begin(&painter);
     if (antialiasing)
         painter.setRenderHint(QPainter::Antialiasing);
@@ -1231,6 +1254,7 @@ void PaintGLWidget::setAutoBufferSwap(bool enable)
 
 void PaintGLWidget::paint(QPainter *painter)
 {
+    glContext->makeCurrent();
     glContext->begin(painter);
     paintGL();
     glContext->end();

@@ -38,6 +38,7 @@ public:
     PaintGLContext();
     virtual ~PaintGLContext();
 
+    void makeCurrent();
     void begin(QPainter *painter);
     bool isPainting() const;
     void end();
@@ -70,12 +71,13 @@ public:
 
     GLenum mode;
     PaintAttributes attributes;
-    QVector<QPointF> points;
+    QList<QPointF> points;
     QList<bool> validPoints;
     QList<QColor> colors;
     QTransform transform;
 
-    QHash<GLuint, QPicture> lists;
+    QHash<GLuint,QPicture> lists;
+    QHash<GLuint,QTransform> listTransforms;
     QHash<GLuint,QImage> textures;
 
     QRect viewport;
