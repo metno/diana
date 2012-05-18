@@ -209,20 +209,20 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_POINTS";
         setPen();
         for (int i = 0; i < points.size(); ++i) {
-            painter->drawPoint(points[i]);
+            painter->drawPoint(points.at(i));
         }
         break;
     case GL_LINES:
         // qDebug() << "  GL_LINES";
         setPen();
         for (int i = 0; i < points.size() - 1; i += 2) {
-            painter->drawLine(points[i], points[i+1]);
+            painter->drawLine(points.at(i), points.at(i+1));
         }
         break;
     case GL_LINE_LOOP:
         // qDebug() << "  GL_LINE_LOOP";
         setPen();
-        points.append(points[0]);
+        points.append(points.at(0));
         painter->drawPolyline(QPolygonF(points.toVector()));
         break;
     case GL_LINE_STRIP: {
@@ -236,7 +236,7 @@ void PaintGLContext::renderPrimitive()
         setPolygonColor(attributes.color);
 
         for (int i = 0; i < points.size() - 2; i += 3) {
-            if (validPoints[i] && validPoints[i + 1] && validPoints[i + 2]) {
+            if (validPoints.at(i) && validPoints.at(i + 1) && validPoints.at(i + 2)) {
                 QPolygonF poly = QPolygonF(points.mid(i, 3).toVector());
                 painter->drawConvexPolygon(poly);
             }
@@ -247,10 +247,10 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_TRIANGLE_STRIP";
         setPolygonColor(attributes.color);
 
-        poly[0] = points[0];
-        poly[1] = points[1];
+        poly[0] = points.at(0);
+        poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
-            poly[i % 3] = points[i];
+            poly[i % 3] = points.at(i);
             painter->drawConvexPolygon(poly, 3);
         }
         break;
@@ -259,10 +259,10 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_TRIANGLE_FAN";
         setPolygonColor(attributes.color);
 
-        poly[0] = points[0];
-        poly[1] = points[1];
+        poly[0] = points.at(0);
+        poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
-            poly[2 - (i % 2)] = points[i];
+            poly[2 - (i % 2)] = points.at(i);
             painter->drawConvexPolygon(poly, 3);
         }
         break;
@@ -279,11 +279,11 @@ void PaintGLContext::renderPrimitive()
         QPolygonF quad(4);
 
         for (int i = 0; i < points.size() - 3; i += 4) {
-            if (!validPoints[i] || !validPoints[i] || !validPoints[i] || !validPoints[i])
+            if (!validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i))
                 continue;
 
             for (int j = 0; j < 4; ++j)
-                quad[j] = points[i + j];
+                quad[j] = points.at(i + j);
 
             if (useTexture) {
                 QImage texture = textures[currentTexture];
@@ -299,7 +299,7 @@ void PaintGLContext::renderPrimitive()
             } else {
                 if (blend) {
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
-                    painter->setBrush(colors[i]);
+                    painter->setBrush(colors.at(i));
                 }
                 painter->drawConvexPolygon(quad);
             }
@@ -310,34 +310,35 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_QUAD_STRIP";
         if (!blend)
             setPolygonColor(attributes.color);
+        else
+            painter->setPen(Qt::NoPen);
 
-        poly[0] = points[0];
-        poly[1] = points[1];
+        poly[0] = points.at(0);
+        poly[1] = points.at(1);
         QColor color[4];
-        color[0] = colors[0];
-        color[1] = colors[1];
+        color[0] = colors.at(0);
+        color[1] = colors.at(1);
 
         for (int i = 2; i < points.size() - 1; i += 2) {
 
             if (i % 4 == 2) {
-                poly[i % 4] = points[i + 1];
-                poly[i % 4 + 1] = points[i];
-                color[i % 4] = colors[i + 1];
-                color[i % 4 + 1] = colors[i];
+                poly[i % 4] = points.at(i + 1);
+                poly[i % 4 + 1] = points.at(i);
+                color[i % 4] = colors.at(i + 1);
+                color[i % 4 + 1] = colors.at(i);
             } else {
-                poly[i % 4] = points[i];
-                poly[i % 4 + 1] = points[i + 1];
-                color[i % 4] = colors[i];
-                color[i % 4 + 1] = colors[i + 1];
+                poly[i % 4] = points.at(i);
+                poly[i % 4 + 1] = points.at(i + 1);
+                color[i % 4] = colors.at(i);
+                color[i % 4 + 1] = colors.at(i + 1);
             }
 
-            if (validPoints[i - 2] && validPoints[i - 1] && validPoints[i] && validPoints[i + 1]) {
+            if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
                 if (blend) {
                     if (smooth) {
-                        painter->setPen(Qt::NoPen);
                         plotSubdivided(poly, color);
                     } else {
-                        setPolygonColor(colors[i]);
+                        setPolygonColor(colors.at(i));
                         painter->drawConvexPolygon(poly, 4);
                     }
                 } else
@@ -351,8 +352,8 @@ void PaintGLContext::renderPrimitive()
         setPolygonColor(attributes.color);
         QPolygonF poly;
         for (int i = 0; i < points.size(); ++i) {
-            if (validPoints[i])
-                poly.append(points[i]);
+            if (validPoints.at(i))
+                poly.append(points.at(i));
         }
         painter->drawPolygon(poly);
         break;
