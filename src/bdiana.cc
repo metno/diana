@@ -2699,6 +2699,7 @@ int parseAndProcess(istream &is)
       } else if (value == "json") {
         raster = false;
         json = true;
+        outputTextMaps.clear();
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
         context.begin(&painter);

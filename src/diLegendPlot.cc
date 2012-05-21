@@ -86,25 +86,25 @@ LegendPlot::LegendPlot(miString& str)
     vector<miString> tokens = vstr[1].split(";",false);
     int n=tokens.size();
     if(n>0){
-      titlestring = tokens[0];
+      if (poptions.tableHeader)
+        titlestring = tokens[0];
       for(int i=1;i<n;i+=3){
-	if(i+3>n) break;
-	ColourCode cc;
-	cc.colour = Colour(tokens[i]);
-	cc.pattern = tokens[i+1];
-	cc.colourstr = tokens[i+2];
-	//if string start with '|', do not plot colour/pattern box
-	if(cc.colourstr.find('|')==1){
-	  cc.plotBox = false;
-	  cc.colourstr.remove('|');
-	} else {
-	  cc.plotBox = true;
-	}
-	colourcodes.push_back(cc);
+        if(i+3>n) break;
+        ColourCode cc;
+        cc.colour = Colour(tokens[i]);
+        cc.pattern = tokens[i+1];
+        cc.colourstr = tokens[i+2];
+        //if string start with '|', do not plot colour/pattern box
+        if(cc.colourstr.find('|')==1){
+          cc.plotBox = false;
+          cc.colourstr.remove('|');
+        } else {
+          cc.plotBox = true;
+        }
+        colourcodes.push_back(cc);
       }
     }
   }
-
 }
 
 
@@ -523,10 +523,3 @@ float LegendPlot::width()
   if(titlewidth < tablewidth ) titlewidth = tablewidth;
   return titlewidth;
 }
-
-
-
-
-
-
-
