@@ -400,33 +400,33 @@
         <translation>Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1806"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
         <source>End Profet</source>
         <translatorcomment>Don&apos;t understand</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1807"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1809"/>
         <source>Do you want to stay connected to profet?</source>
         <translation>Вы хотите остаться на связи с profet?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
         <source>Quit and disconnect</source>
         <translation>Выйти и отсоединиться</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
         <source>Quit and stay connected </source>
         <translation>Выйти и остаться на связи</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Отмена</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -434,118 +434,128 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Diana - система 2-мерной демонстрации метеорологических данных, включая поля, наблюдения, спутники и радары, вертикальные профили и сечения. DIANA имеет инструменты для редактирования полей непосредственно на экране и дорисовки объектов: фронтов, областей, символов, и т.д.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation>Для сообщения об ошибки или предложения о улучшении, пожалуйста воспользуйтесь инструментарием для коррекции ошибок по адресу http://diana.bugs.met.no ( - только для норвежцев).</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>version:</source>
         <translation>версия:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>build:</source>
         <translation>создание:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2716"/>
         <source>about Diana</source>
         <translation>о Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2954"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2956"/>
         <source>Save plot as image</source>
         <translation>Сохранить изображение как картинку</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2956"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2958"/>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
         <translation>Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3002"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3004"/>
         <source>Save animation from current fields, satellite images, etc. (*.mpg or *.avi)</source>
         <translation>Сохранить анимацию из текущих полей, спутниковых изображений и т.д. (*.mpg или *.avi)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3004"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3006"/>
         <source>Movies (*.mpg *.avi);;All (*.*)</source>
         <translation>Видео (*.mpg *.avi);;Все (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3033"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3035"/>
         <source>Making animation</source>
         <translation>Подготовка анимации</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3034"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3036"/>
         <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
         <translation>Операция может занять некоторое время - в зависимости от числа и выбранной задержки. Пока процесс не завершится - Diana не может использоватся. По завершении процесса будет показано сообдение. Нажмите Ok для старта.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3048"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3050"/>
         <source>Creating animation...</source>
         <translation>Создание анимации...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3048"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3050"/>
         <source>Hide</source>
         <translation>Спрятать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3076"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3078"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3076"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3078"/>
         <source>Animation completed.</source>
         <translation>Анимация завершена.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3081"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3083"/>
         <source>Compiled without video export</source>
         <translation>Собрана без опции экспорта видео</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3081"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3083"/>
         <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
         <translation>Diana должна быть откомпилирована с определенной VIDEO_EXPORT для использования этой возможности.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3270"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3281"/>
         <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3273"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3284"/>
         <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3276"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3287"/>
         <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3296"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3299"/>
+        <source>&amp;nbsp;auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="3301"/>
+        <source>&amp;nbsp;vis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="3307"/>
         <source>%1&amp;nbsp;N,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3298"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3309"/>
         <source>%1&amp;nbsp;S,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3300"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3311"/>
         <source>%1&amp;nbsp;E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3302"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3313"/>
         <source>%1&amp;nbsp;W</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3941,32 +3951,37 @@ Do you want to run your changes first?</source>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="73"/>
+        <location filename="../../../src/qtStationDialog.cc" line="75"/>
         <source>Sets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="81"/>
+        <location filename="../../../src/qtStationDialog.cc" line="83"/>
         <source>Chosen Sets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="87"/>
+        <location filename="../../../src/qtStationDialog.cc" line="89"/>
+        <source>Help</source>
+        <translation type="unfinished">Помощь</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtStationDialog.cc" line="91"/>
         <source>Hide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="88"/>
+        <location filename="../../../src/qtStationDialog.cc" line="92"/>
         <source>Apply+Hide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="89"/>
+        <location filename="../../../src/qtStationDialog.cc" line="93"/>
         <source>Apply</source>
         <translation type="unfinished">Применить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="91"/>
+        <location filename="../../../src/qtStationDialog.cc" line="95"/>
         <source>Reload</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3974,12 +3989,12 @@ Do you want to run your changes first?</source>
 <context>
     <name>StationDialog::Model</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="392"/>
+        <location filename="../../../src/qtStationDialog.cc" line="406"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="394"/>
+        <location filename="../../../src/qtStationDialog.cc" line="408"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>

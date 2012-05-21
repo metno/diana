@@ -314,37 +314,47 @@
         <translation>Nivå ned</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3270"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3281"/>
         <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3273"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3284"/>
         <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3276"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3287"/>
         <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3296"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3299"/>
+        <source>&amp;nbsp;auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="3301"/>
+        <source>&amp;nbsp;vis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="3307"/>
         <source>%1&amp;nbsp;N,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3298"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3309"/>
         <source>%1&amp;nbsp;S,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3300"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3311"/>
         <source>%1&amp;nbsp;E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3302"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3313"/>
         <source>%1&amp;nbsp;W</source>
         <translation type="unfinished"></translation>
     </message>
@@ -406,22 +416,22 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>version:</source>
         <translation>versjon:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2716"/>
         <source>about Diana</source>
         <translation>om Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2956"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2958"/>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
         <translation>Bilder (*.png *.xpm *.bmp *.eps);;Alle (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2954"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2956"/>
         <source>Save plot as image</source>
         <translation>Lagre plott som bilde</translation>
     </message>
@@ -440,7 +450,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation type="obsolete">Lat/Lon i desimalgrader</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>build:</source>
         <translation>Bygget:</translation>
     </message>
@@ -464,7 +474,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation>Lagre &amp;animasjon...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -476,27 +486,27 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Uffda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1806"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
         <source>End Profet</source>
         <translation>Avslutt Profet</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1807"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1809"/>
         <source>Do you want to stay connected to profet?</source>
         <translation>Vil du fortsatt være logget inn på profet?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
         <source>Quit and disconnect</source>
         <translation>Avslutt og logg ut</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
         <source>Quit and stay connected </source>
         <translation>Avslutt men vær innlogget </translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Avbryt</translation>
     </message>
@@ -540,58 +550,58 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>&amp;Rapporter feil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2712"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3033"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3035"/>
         <source>Making animation</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3076"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3078"/>
         <source>Done</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3076"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3078"/>
         <source>Animation completed.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3081"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3083"/>
         <source>Compiled without video export</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3081"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3083"/>
         <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3004"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3006"/>
         <source>Movies (*.mpg *.avi);;All (*.*)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3002"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3004"/>
         <source>Save animation from current fields, satellite images, etc. (*.mpg or *.avi)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3034"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3036"/>
         <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3048"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3050"/>
         <source>Creating animation...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3048"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3050"/>
         <source>Hide</source>
         <translation>Skjul</translation>
     </message>
@@ -4208,32 +4218,37 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>StationDialog</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="73"/>
+        <location filename="../../../src/qtStationDialog.cc" line="75"/>
         <source>Sets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="81"/>
+        <location filename="../../../src/qtStationDialog.cc" line="83"/>
         <source>Chosen Sets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="87"/>
+        <location filename="../../../src/qtStationDialog.cc" line="89"/>
+        <source>Help</source>
+        <translation type="unfinished">Hjelp</translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtStationDialog.cc" line="91"/>
         <source>Hide</source>
         <translation type="unfinished">Skjul</translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="88"/>
+        <location filename="../../../src/qtStationDialog.cc" line="92"/>
         <source>Apply+Hide</source>
         <translation type="unfinished">Utfør+Skjul</translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="89"/>
+        <location filename="../../../src/qtStationDialog.cc" line="93"/>
         <source>Apply</source>
         <translation type="unfinished">Utfør</translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="91"/>
+        <location filename="../../../src/qtStationDialog.cc" line="95"/>
         <source>Reload</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4241,12 +4256,12 @@ Vil du kjøre dine endringer først?</translation>
 <context>
     <name>StationDialog::Model</name>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="392"/>
+        <location filename="../../../src/qtStationDialog.cc" line="406"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtStationDialog.cc" line="394"/>
+        <location filename="../../../src/qtStationDialog.cc" line="408"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>

@@ -17,13 +17,38 @@ margin=0.001 xratio=0.25 yratio=0.25
 
 
 LABEL \
-anno=<image=sigkart_legend> \
+anno=<text="Selection of symbols:",size=0.7,face=bold> \
+
+anno=\
+<text="   "><text="Significant weather:",size=0.7> \
+anno=\
+<text="   "><text="-ICE, TCU/CB",size=0.7><image=sigfront_blue,size=0.4> \\
+anno=\
+<text="   "><text="-TURB, VA, Radioa.cld.",size=0.7><image=sigfront_red,size=0.4> \\
+anno=\
+<text="   "><text="Widespread FG/FZFG",size=0.7><text="  "><image=fog,size=0.05> \
+
+anno=<text="   "><text="Freezing RA/DZ",size=0.7><text="  "><symbol=93,font=Symbol,size=1.0,tcolour=red> \
+
+anno=<text="   "><text="Sea Temp C.",size=0.7><text="  "><image=sea10,size=0.03> \
+
+anno=<text="   "><text="Mean SFC wind KT",size=0.7><text="  "><image=wind30,size=0.03> \
+
+anno=<text="   "><text="Sea state",size=0.7><text="  "><image=seastate10,size=0.04> \
+
+anno=<text="   "><text=" Mountain Obscuration",size=0.7><text="   "><symbol=106,font=Symbol,size=0.6,tcolour=black> \
+
+anno=<image=reducedVis,size=0.2> \
+anno=<text="  TCU/CB implies MOD/SEV ICE/TURB",size=0.7> \
+anno=<text="  Further information:",size=0.5> \
+anno=<text="  See ICAO anex III",size=0.5> \
+anno=<text="  ",size=0.5> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
 halign=left \
-font=BITMAPFONT fontsize=10 \
-valign=bottom xoffset=0.00001 yoffset=0.0000001 margin=0.01 \ 	 
-xratio=0.31 yratio=0.35
+font=BITMAPFONT fontsize=8 \
+valign=bottom xoffset=0.00001 yoffset=0.000001 margin=0.01 \
+xratio=0.31 yratio=0.33
 
 
 
