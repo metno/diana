@@ -3781,7 +3781,6 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     bool checkOptions, bool external)
 {
 #ifdef DEBUGPRINT
-  cerr << "FieldDialog::putOKString starts" << endl;
 #endif
 
   deleteAllSelected();
@@ -3833,6 +3832,33 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       decodeOK = decodeString_oldSyntax(str, sf, allTimeSteps);
     }
 
+    //old string from quickMenu or bdiana, rewrite string in new syntax
+    if( ! decodeOK && !sf.cdmSyntax) {
+      // First try - do not decode model string
+      std::string oldString = str;
+      str = FieldSpecTranslation::getNewFieldString(oldString, false);
+      sf.cdmSyntax = true;
+
+      if (checkOptions) {
+        str = checkFieldOptions(str, sf.cdmSyntax);
+        if (str.empty())
+          continue;
+      }
+      decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
+
+      if( ! decodeOK ) {
+        //Second try - decode model string - model + refhour + refoffset
+        str = FieldSpecTranslation::getNewFieldString(oldString,true);
+
+        if (checkOptions) {
+          str = checkFieldOptions(str, sf.cdmSyntax);
+          if (str.empty())
+            continue;
+        }
+        decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
+      }
+    }
+
     if ( decodeOK ) {
 
       selectedFields.push_back(sf);
@@ -3878,8 +3904,8 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
           bool groupOK = true;
           if ( selectedFields[i].cdmSyntax ) {
             if ( selectedFields[i].zaxis != vfgi[indexFGR].zaxis
-                || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis
-                || selectedFields[i].grid != vfgi[indexFGR].grid ) {
+                || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis ) {
+//                || selectedFields[i].grid != vfgi[indexFGR].grid ) {
               groupOK = false;
             }
           } else { //old syntax
@@ -4020,8 +4046,8 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
   while (indexFGR < nvfg) {
 //         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis<<endl;
     if (sf.zaxis == vfg[indexFGR].zaxis
-        && sf.extraaxis == vfg[indexFGR].extraaxis
-        && sf.grid == vfg[indexFGR].grid ) {
+        && sf.extraaxis == vfg[indexFGR].extraaxis ) {
+        //&& sf.grid == vfg[indexFGR].grid ) {
       int m = vfg[indexFGR].fieldNames.size();
       int indexF = 0;
       while (indexF < m && vfg[indexFGR].fieldNames[indexF] != sf.fieldName){
