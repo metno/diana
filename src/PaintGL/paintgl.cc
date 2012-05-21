@@ -108,7 +108,7 @@ void PaintGLContext::end()
 
 void PaintGLContext::setPen()
 {
-    QPen pen = QPen(QColor::fromRgb(attributes.color), attributes.width);
+    QPen pen = QPen(QColor::fromRgba(attributes.color), attributes.width);
     pen.setCapStyle(Qt::FlatCap);
     pen.setCosmetic(true);
     if (attributes.stipple && !attributes.dashes.isEmpty()) {
@@ -138,7 +138,7 @@ void PaintGLContext::setPolygonColor(const QRgb &color)
             setPen();
         } else
             painter->setPen(Qt::NoPen);
-        painter->setBrush(QColor::fromRgb(color));
+        painter->setBrush(QColor::fromRgba(color));
         break;
     case GL_LINE: {
         setPen();
@@ -299,7 +299,7 @@ void PaintGLContext::renderPrimitive()
             } else {
                 if (blend) {
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
-                    painter->setBrush(QColor::fromRgb(colors.at(i)));
+                    painter->setBrush(QColor::fromRgba(colors.at(i)));
                 }
                 painter->drawConvexPolygon(quad);
             }
