@@ -69,7 +69,7 @@ void PaintGLContext::makeCurrent()
 
     clearColor = QColor(0, 0, 0, 0);
 
-    attributes.color = QColor(255, 255, 255, 255);
+    attributes.color = qRgba(255, 255, 255, 255);
     attributes.width = 1.0;
     attributes.polygonMode[GL_FRONT] = GL_FILL;
     attributes.polygonMode[GL_BACK] = GL_FILL;
@@ -108,7 +108,7 @@ void PaintGLContext::end()
 
 void PaintGLContext::setPen()
 {
-    QPen pen = QPen(attributes.color, attributes.width);
+    QPen pen = QPen(QColor::fromRgb(attributes.color), attributes.width);
     pen.setCapStyle(Qt::FlatCap);
     pen.setCosmetic(true);
     if (attributes.stipple && !attributes.dashes.isEmpty()) {
@@ -130,7 +130,7 @@ void PaintGLContext::setPen()
     painter->setPen(pen);
 }
 
-void PaintGLContext::setPolygonColor(const QColor &color)
+void PaintGLContext::setPolygonColor(const QRgb &color)
 {
     switch (attributes.polygonMode[GL_FRONT]) {
     case GL_FILL:
@@ -138,7 +138,7 @@ void PaintGLContext::setPolygonColor(const QColor &color)
             setPen();
         } else
             painter->setPen(Qt::NoPen);
-        painter->setBrush(color);
+        painter->setBrush(QColor::fromRgb(color));
         break;
     case GL_LINE: {
         setPen();
@@ -155,22 +155,22 @@ void PaintGLContext::setPolygonColor(const QColor &color)
         painter->setCompositionMode(QPainter::CompositionMode_Source);
 }
 
-#define COLOR_BLEND2(a, b) QColor((a.red() + b.red())/2.0, \
-                                  (a.green() + b.green())/2.0, \
-                                  (a.blue() + b.blue())/2.0, \
-                                  (a.alpha() + b.alpha())/2.0)
+#define COLOR_BLEND2(a, b) qRgba((qRed(a) + qRed(b))/2.0, \
+                                 (qGreen(a) + qGreen(b))/2.0, \
+                                 (qBlue(a) + qBlue(b))/2.0, \
+                                 (qAlpha(a) + qAlpha(b))/2.0)
 
 #define COLOR_BLEND4(a, b, c, d) \
-    QColor((a.red() + b.red() + c.red() + d.red())/4.0, \
-           (a.green() + b.green() + c.green() + d.green())/4.0, \
-           (a.blue() + b.blue() + c.blue() + d.blue())/4.0, \
-           (a.alpha() + b.alpha() + c.alpha() + d.alpha())/4.0)
+    qRgba((qRed(a) + qRed(b) + qRed(c) + qRed(d))/4.0, \
+          (qGreen(a) + qGreen(b) + qGreen(c) + qGreen(d))/4.0, \
+          (qBlue(a) + qBlue(b) + qBlue(c) + qBlue(d))/4.0, \
+          (qAlpha(a) + qAlpha(b) + qAlpha(c) + qAlpha(d))/4.0)
 
-void PaintGLContext::plotSubdivided(QPointF quad[], QColor color[], int divisions)
+void PaintGLContext::plotSubdivided(const QPointF quad[], const QRgb color[], int divisions)
 {
     if (divisions > 0) {
         QPointF center = (quad[0] + quad[1] + quad[2] + quad[3])/4.0;
-        QColor centerColor = COLOR_BLEND4(color[0], color[1], color[2], color[3]);
+        QRgb centerColor = COLOR_BLEND4(color[0], color[1], color[2], color[3]);
 
         for (int j = 0; j < 4; ++j) {
             QPointF newQuad[4];
@@ -179,7 +179,7 @@ void PaintGLContext::plotSubdivided(QPointF quad[], QColor color[], int division
             newQuad[2] = center;
             newQuad[3] = (quad[j] + quad[(j + 3) % 4])/2.0;
 
-            QColor newColor[4];
+            QRgb newColor[4];
             newColor[0] = color[j];
             newColor[1] = COLOR_BLEND2(color[j], color[(j + 1) % 4]);
             newColor[2] = centerColor;
@@ -189,10 +189,10 @@ void PaintGLContext::plotSubdivided(QPointF quad[], QColor color[], int division
         }
 
     } else {
-        painter->setBrush(QColor((color[0].red() + color[1].red() + color[2].red() + color[3].red())/4,
-                                 (color[0].green() + color[1].green() + color[2].green() + color[3].green())/4,
-                                 (color[0].blue() + color[1].blue() + color[2].blue() + color[3].blue())/4,
-                                 (color[0].alpha() + color[1].alpha() + color[2].alpha() + color[3].alpha())/4));
+        painter->setBrush(QColor((qRed(color[0]) + qRed(color[1]) + qRed(color[2]) + qRed(color[3]))/4,
+                                 (qGreen(color[0]) + qGreen(color[1]) + qGreen(color[2]) + qGreen(color[3]))/4,
+                                 (qBlue(color[0]) + qBlue(color[1]) + qBlue(color[2]) + qBlue(color[3]))/4,
+                                 (qAlpha(color[0]) + qAlpha(color[1]) + qAlpha(color[2]) + qAlpha(color[3]))/4));
         painter->drawConvexPolygon(quad, 4);
     }
 }
@@ -209,26 +209,26 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_POINTS";
         setPen();
         for (int i = 0; i < points.size(); ++i) {
-            painter->drawPoint(points[i]);
+            painter->drawPoint(points.at(i));
         }
         break;
     case GL_LINES:
         // qDebug() << "  GL_LINES";
         setPen();
         for (int i = 0; i < points.size() - 1; i += 2) {
-            painter->drawLine(points[i], points[i+1]);
+            painter->drawLine(points.at(i), points.at(i+1));
         }
         break;
     case GL_LINE_LOOP:
         // qDebug() << "  GL_LINE_LOOP";
         setPen();
-        points.append(points[0]);
-        painter->drawPolyline(QPolygonF(points.toVector()));
+        points.append(points.at(0));
+        painter->drawPolyline(points);
         break;
     case GL_LINE_STRIP: {
         // qDebug() << "  GL_LINE_STRIP";
         setPen();
-        painter->drawPolyline(QPolygonF(points.toVector()));
+        painter->drawPolyline(points);
         break;
     }
     case GL_TRIANGLES: {
@@ -236,8 +236,8 @@ void PaintGLContext::renderPrimitive()
         setPolygonColor(attributes.color);
 
         for (int i = 0; i < points.size() - 2; i += 3) {
-            if (validPoints[i] && validPoints[i + 1] && validPoints[i + 2]) {
-                QPolygonF poly = QPolygonF(points.mid(i, 3).toVector());
+            if (validPoints.at(i) && validPoints.at(i + 1) && validPoints.at(i + 2)) {
+                QPolygonF poly = QPolygonF(points.mid(i, 3));
                 painter->drawConvexPolygon(poly);
             }
         }
@@ -247,10 +247,10 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_TRIANGLE_STRIP";
         setPolygonColor(attributes.color);
 
-        poly[0] = points[0];
-        poly[1] = points[1];
+        poly[0] = points.at(0);
+        poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
-            poly[i % 3] = points[i];
+            poly[i % 3] = points.at(i);
             painter->drawConvexPolygon(poly, 3);
         }
         break;
@@ -259,10 +259,10 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_TRIANGLE_FAN";
         setPolygonColor(attributes.color);
 
-        poly[0] = points[0];
-        poly[1] = points[1];
+        poly[0] = points.at(0);
+        poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
-            poly[2 - (i % 2)] = points[i];
+            poly[2 - (i % 2)] = points.at(i);
             painter->drawConvexPolygon(poly, 3);
         }
         break;
@@ -279,11 +279,11 @@ void PaintGLContext::renderPrimitive()
         QPolygonF quad(4);
 
         for (int i = 0; i < points.size() - 3; i += 4) {
-            if (!validPoints[i] || !validPoints[i] || !validPoints[i] || !validPoints[i])
+            if (!validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i))
                 continue;
 
             for (int j = 0; j < 4; ++j)
-                quad[j] = points[i + j];
+                quad[j] = points.at(i + j);
 
             if (useTexture) {
                 QImage texture = textures[currentTexture];
@@ -299,7 +299,7 @@ void PaintGLContext::renderPrimitive()
             } else {
                 if (blend) {
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
-                    painter->setBrush(colors[i]);
+                    painter->setBrush(QColor::fromRgb(colors.at(i)));
                 }
                 painter->drawConvexPolygon(quad);
             }
@@ -310,34 +310,35 @@ void PaintGLContext::renderPrimitive()
         // qDebug() << "  GL_QUAD_STRIP";
         if (!blend)
             setPolygonColor(attributes.color);
+        else
+            painter->setPen(Qt::NoPen);
 
-        poly[0] = points[0];
-        poly[1] = points[1];
-        QColor color[4];
-        color[0] = colors[0];
-        color[1] = colors[1];
+        poly[0] = points.at(0);
+        poly[1] = points.at(1);
+        QRgb color[4];
+        color[0] = colors.at(0);
+        color[1] = colors.at(1);
 
         for (int i = 2; i < points.size() - 1; i += 2) {
 
             if (i % 4 == 2) {
-                poly[i % 4] = points[i + 1];
-                poly[i % 4 + 1] = points[i];
-                color[i % 4] = colors[i + 1];
-                color[i % 4 + 1] = colors[i];
+                poly[i % 4] = points.at(i + 1);
+                poly[i % 4 + 1] = points.at(i);
+                color[i % 4] = colors.at(i + 1);
+                color[i % 4 + 1] = colors.at(i);
             } else {
-                poly[i % 4] = points[i];
-                poly[i % 4 + 1] = points[i + 1];
-                color[i % 4] = colors[i];
-                color[i % 4 + 1] = colors[i + 1];
+                poly[i % 4] = points.at(i);
+                poly[i % 4 + 1] = points.at(i + 1);
+                color[i % 4] = colors.at(i);
+                color[i % 4 + 1] = colors.at(i + 1);
             }
 
-            if (validPoints[i - 2] && validPoints[i - 1] && validPoints[i] && validPoints[i + 1]) {
+            if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
                 if (blend) {
                     if (smooth) {
-                        painter->setPen(Qt::NoPen);
                         plotSubdivided(poly, color);
                     } else {
-                        setPolygonColor(colors[i]);
+                        setPolygonColor(colors.at(i));
                         painter->drawConvexPolygon(poly, 4);
                     }
                 } else
@@ -351,8 +352,8 @@ void PaintGLContext::renderPrimitive()
         setPolygonColor(attributes.color);
         QPolygonF poly;
         for (int i = 0; i < points.size(); ++i) {
-            if (validPoints[i])
-                poly.append(points[i]);
+            if (validPoints.at(i))
+                poly.append(points.at(i));
         }
         painter->drawPolygon(poly);
         break;
@@ -448,7 +449,7 @@ void glClearStencil(GLint s)
 void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(red * 255, green * 255, blue * 255);
+    ctx->attributes.color = qRgb(red * 255, green * 255, blue * 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -456,7 +457,7 @@ void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
 void glColor3f(GLfloat red, GLfloat green, GLfloat blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(red * 255, green * 255, blue * 255);
+    ctx->attributes.color = qRgb(red * 255, green * 255, blue * 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -464,7 +465,7 @@ void glColor3f(GLfloat red, GLfloat green, GLfloat blue)
 void glColor3fv(const GLfloat *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(v[0] * 255, v[1] * 255, v[2] * 255);
+    ctx->attributes.color = qRgb(v[0] * 255, v[1] * 255, v[2] * 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -472,7 +473,7 @@ void glColor3fv(const GLfloat *v)
 void glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(red, green, blue);
+    ctx->attributes.color = qRgb(red, green, blue);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -480,7 +481,7 @@ void glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
 void glColor3ubv(const GLubyte *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(v[0], v[1], v[2]);
+    ctx->attributes.color = qRgb(v[0], v[1], v[2]);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -488,7 +489,7 @@ void glColor3ubv(const GLubyte *v)
 void glColor4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(red * 255, green * 255, blue * 255, alpha * 255);
+    ctx->attributes.color = qRgba(red * 255, green * 255, blue * 255, alpha * 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -496,7 +497,7 @@ void glColor4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha)
 void glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(red * 255, green * 255, blue * 255, alpha * 255);
+    ctx->attributes.color = qRgba(red * 255, green * 255, blue * 255, alpha * 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -504,7 +505,7 @@ void glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 void glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(red, green, blue, alpha);
+    ctx->attributes.color = qRgba(red, green, blue, alpha);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -512,7 +513,7 @@ void glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
 void glColor4fv(const GLfloat *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(v[0] * 255, v[1] * 255, v[2] * 255, v[3] * 255);
+    ctx->attributes.color = qRgba(v[0] * 255, v[1] * 255, v[2] * 255, v[3] * 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -520,7 +521,7 @@ void glColor4fv(const GLfloat *v)
 void glColor4ubv(const GLubyte *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = QColor(v[0], v[1], v[2], v[3]);
+    ctx->attributes.color = qRgba(v[0], v[1], v[2], v[3]);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -694,11 +695,11 @@ void glGetFloatv(GLenum pname, GLfloat *params)
     switch (pname) {
     case GL_CURRENT_COLOR:
     {
-        QColor c = ctx->attributes.color;
-        params[0] = c.red()/255.0;
-        params[1] = c.green()/255.0;
-        params[2] = c.blue()/255.0;
-        params[3] = c.alpha()/255.0;
+        QRgb c = ctx->attributes.color;
+        params[0] = qRed(c)/255.0;
+        params[1] = qGreen(c)/255.0;
+        params[2] = qBlue(c)/255.0;
+        params[3] = qAlpha(c)/255.0;
         break;
     }
     case GL_LINE_WIDTH:

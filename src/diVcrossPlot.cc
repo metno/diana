@@ -46,8 +46,8 @@
 #include <diCommandParser.h>
 #include <puTools/miSetupParser.h>
 #include <diField/diMetConstants.h>
-#include <diContouring.h>
 #include <GL/gl.h>
+#include <diContouring.h>
 #if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
 #include <glText/glText.h>
 #include <glp/glpfile.h>

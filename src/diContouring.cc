@@ -3976,7 +3976,10 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
 
 }
 
-
+/**
+ * Returns a vector of x positions indicating where the y values in
+ * the y array cross the value of ycross.
+ */
 vector<float> findCrossing(float ycross, int n, float *x, float *y)
 {
   vector<float> xcross;
@@ -4432,157 +4435,157 @@ void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind
   // START FINDING clindex
 
   for (jc=0; jc<ncl; jc++) {
-	if (contourlines[jc]->closed) {
-	  cl= contourlines[jc];
+    if (contourlines[jc]->closed) {
+      cl= contourlines[jc];
 
-	  ycross= fieldUndef;
+      ycross= fieldUndef;
 
-	  int lowIndex=  cl->ivalue;
-	  int highIndex= cl->ivalue;
-	  if (cl->highInside)
-	highIndex++;
-	  else
-	lowIndex--;
+      int lowIndex=  cl->ivalue;
+      int highIndex= cl->ivalue;
+      if (cl->highInside)
+        highIndex++;
+      else
+        lowIndex--;
 
-	  if (drawBorders) {
-	lowIndex=  -999999;
-	highIndex= +999999;
+      if (drawBorders) {
+        lowIndex=  -999999;
+        highIndex= +999999;
+      }
+
+      for (ic=0; ic<ncl; ic++) {
+        if (ic!=jc && contourlines[ic]->inner) {
+          cl2= contourlines[ic];
+          if ((cl2->ivalue >= lowIndex && cl2->ivalue <= highIndex) ||
+               cl2->undefLine || cl->undefLine) {
+            if (cl2->xmin >= cl->xmin && cl2->xmax <= cl->xmax &&
+                cl2->ymin >= cl->ymin && cl2->ymax <= cl->ymax) {
+              if (ycross <= cl2->ymin || ycross >= cl2->ymax) {
+                ycross= cl2->ymin + (cl2->ymax - cl2->ymin) * 0.55;
+                npos= cl->npos;
+                xcross= findCrossing(ycross, cl->npos, cl->xpos, cl->ypos);
+              }
+              nc= xcross.size();
+              if (nc>1) {
+                if (cl2->xmax > xcross[0] && cl2->xmin < xcross[nc-1]) {
+                  xcross2= findCrossing(ycross, cl2->npos, cl2->xpos, cl2->ypos);
+                  int nc2= xcross2.size();
+                  if (nc2>1) {
+                    bool search=true, inside=false, alleq=true;
+                    int c1=0, c2=0;
+                    while (search && c2<nc2) {
+                      if (c1<nc) {
+                        if (xcross[c1]<xcross2[c2]) {
+                          c1++;
+                        } else if (xcross[c1]>xcross2[c2]) {
+                          if (c1%2==0) {
+                            inside= false;
+                            search= false;
+                          } else {
+                            inside= true;
+                            search= false;
+                          }
+                          c2++;
+                          alleq=false;
+                        } else {
+                          if (c1%2 != c2%2) {
+                            inside= false;
+                            search= false;
+                          }
+                          c1++;
+                          c2++;
+                        }
+                      } else {
+                        c2++;
+                        if (c1%2 == c2%2) {
+                          inside= false;
+                          search= false;
+                        }
+                      }
+                    }
+                    if (search && alleq) {
+                      if (cl->ymin<cl2->ymin || cl->ymax>cl2->ymax ||
+                          cl->xmin<cl2->xmin || cl->xmax>cl2->xmax) {
+                        inside= true;
+                      } else {
+                        inside= true;
+                        int j1,nj1= cl->joined.size();
+                        int j2,nj2= cl2->joined.size();
+
+                        j2= 0;
+                        while (search && j2<nj2) {
+                          bool ok= true;
+                          for (int j1=0; j1<nj1; j1++)
+                            if (cl->joined[j1]==cl2->joined[j2]) ok= false;
+                          if (ok) {
+                            int kc= cl2->joined[j2];
+                            int nk= contourlines[kc]->npos;
+                            float xcp= contourlines[kc]->xpos[nk/2];
+                            float ycp= contourlines[kc]->ypos[nk/2];
+                            vector<float> xcross1;
+                            xcross1=  findCrossing(ycp, cl->npos, cl->xpos, cl->ypos);
+                            int nc1= xcross1.size();
+                            if (nc1>1) {
+                              i=0;
+                              while (i<nc1 && xcross1[i]<xcp) i++;
+                              if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
+                                inside=(i%2==1);
+                                search= false;
+                              }
+                            }
+                          }
+                          j2++;
+                        }
+                        j1= 0;
+                        while (search && j1<nj1) {
+                          bool ok= true;
+                          for (j2=0; j2<nj2; j2++)
+                            if (cl->joined[j1]==cl2->joined[j2]) ok= false;
+                          if (ok) {
+                            int kc= cl->joined[j1];
+                            int nk= contourlines[kc]->npos;
+                            float xcp= contourlines[kc]->xpos[nk/2];
+                            float ycp= contourlines[kc]->ypos[nk/2];
+                            vector<float> xcross1;
+                            xcross1=  findCrossing(ycp, cl2->npos, cl2->xpos, cl2->ypos);
+                            int nc1= xcross1.size();
+                            if (nc1>1) {
+                              i=0;
+                              while (i<nc1 && xcross1[i]<xcp) i++;
+                              if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
+                                inside=(i%2==0);
+                                search= false;
+                              }
+                            }
+                          }
+                          j1++;
+                        }
+                      }
+                    }
+                    if (inside) insiders[jc].push_back(ic);
+
+                  } else {
+
+                    if (!drawBorders && xcross2.size()>1)
+                      xtest= (xcross2[0]+xcross2[1])*0.5;
+                    else if (xcross2.size()>0)
+                      xtest= xcross2[0];
+                    else
+                      xtest= fieldUndef;
+                    n=0;
+                    while (n<nc && xcross[n]<=xtest) n++;
+                    if (n>0 && fabsf(xcross[n-1]-xtest)<0.0001) {
+                      if (!cl->undefLine && cl2->undefLine) n= 0;
+                    }
+                    if (n%2 == 1) {
+                      insiders[jc].push_back(ic);
+                    }
+                  }
+                }
+              }
+			}
+		  }
+        }
 	  }
-
-	  for (ic=0; ic<ncl; ic++) {
-	if (ic!=jc && contourlines[ic]->inner) {
-	  cl2= contourlines[ic];
-	  if ((cl2->ivalue >= lowIndex &&
-		   cl2->ivalue <= highIndex) || cl2->undefLine || cl->undefLine) {
-		if (cl2->xmin >= cl->xmin && cl2->xmax <= cl->xmax &&
-			cl2->ymin >= cl->ymin && cl2->ymax <= cl->ymax) {
-		  if (ycross <= cl2->ymin || ycross >= cl2->ymax) {
-		ycross= cl2->ymin + (cl2->ymax - cl2->ymin) * 0.55;
-				npos= cl->npos;
-		xcross= findCrossing(ycross, cl->npos, cl->xpos, cl->ypos);
-		  }
-		  nc= xcross.size();
-		  if (nc>1) {
-		if (cl2->xmax > xcross[0] && cl2->xmin < xcross[nc-1]) {
-			  xcross2= findCrossing(ycross, cl2->npos, cl2->xpos, cl2->ypos);
-		  int nc2= xcross2.size();
-		  if (nc2>1) {
-			bool search=true, inside=false, alleq=true;
-			int c1=0, c2=0;
-			while (search && c2<nc2) {
-			  if (c1<nc) {
-			if (xcross[c1]<xcross2[c2]) {
-			  c1++;
-			} else if (xcross[c1]>xcross2[c2]) {
-			  if (c1%2==0) {
-				inside= false;
-				search= false;
-			  } else {
-				inside= true;
-				search= false;
-			  }
-			  c2++;
-			  alleq=false;
-			} else {
-			  if (c1%2 != c2%2) {
-				inside= false;
-				search= false;
-			  }
-			  c1++;
-			  c2++;
-			}
-			  } else {
-			c2++;
-			if (c1%2 == c2%2) {
-			  inside= false;
-			  search= false;
-			}
-			  }
-			}
-			if (search && alleq) {
-			  if (cl->ymin<cl2->ymin || cl->ymax>cl2->ymax ||
-			  cl->xmin<cl2->xmin || cl->xmax>cl2->xmax) {
-			inside= true;
-			  } else {
-			inside= true;
-			int j1,nj1= cl->joined.size();
-			int j2,nj2= cl2->joined.size();
-			j2= 0;
-			while (search && j2<nj2) {
-			  bool ok= true;
-			  for (int j1=0; j1<nj1; j1++)
-				if (cl->joined[j1]==cl2->joined[j2]) ok= false;
-			  if (ok) {
-				int kc= cl2->joined[j2];
-				int nk= contourlines[kc]->npos;
-				float xcp= contourlines[kc]->xpos[nk/2];
-				float ycp= contourlines[kc]->ypos[nk/2];
-				vector<float> xcross1;
-				xcross1=  findCrossing(ycp, cl->npos, cl->xpos, cl->ypos);
-				int nc1= xcross1.size();
-				if (nc1>1) {
-				  i=0;
-				  while (i<nc1 && xcross1[i]<xcp) i++;
-				  if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
-				inside=(i%2==1);
-				search= false;
-				  }
-				}
-			  }
-			  j2++;
-			}
-			j1= 0;
-			while (search && j1<nj1) {
-			  bool ok= true;
-			  for (j2=0; j2<nj2; j2++)
-				if (cl->joined[j1]==cl2->joined[j2]) ok= false;
-			  if (ok) {
-				int kc= cl->joined[j1];
-				int nk= contourlines[kc]->npos;
-				float xcp= contourlines[kc]->xpos[nk/2];
-				float ycp= contourlines[kc]->ypos[nk/2];
-				vector<float> xcross1;
-				xcross1=  findCrossing(ycp, cl2->npos, cl2->xpos, cl2->ypos);
-				int nc1= xcross1.size();
-				if (nc1>1) {
-				  i=0;
-				  while (i<nc1 && xcross1[i]<xcp) i++;
-				  if (i==nc1 || (i<nc1 && xcross1[i]!=xcp)) {
-				inside=(i%2==0);
-				search= false;
-				  }
-				}
-			  }
-			  j1++;
-			}
-			  }
-			}
-			if (inside) insiders[jc].push_back(ic);
-
-		  } else {
-
-			if (!drawBorders && xcross2.size()>1)
-			  xtest= (xcross2[0]+xcross2[1])*0.5;
-			else if (xcross2.size()>0)
-			  xtest= xcross2[0];
-			else
-			  xtest= fieldUndef;
-			n=0;
-			while (n<nc && xcross[n]<=xtest) n++;
-			if (n>0 && fabsf(xcross[n-1]-xtest)<0.0001) {
-			  if (!cl->undefLine && cl2->undefLine) n= 0;
-			}
-			if (n%2 == 1) {
-			  insiders[jc].push_back(ic);
-			}
-		  }
-		}
-		  }
-			}
-		  }
-	}
-	  }
-
 	}
   }
   for (jc=0; jc<ncl; jc++) {
