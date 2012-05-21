@@ -1,3 +1,9 @@
+diana-wms (3.27.14-0) lucid; urgency=low
+
+  * Fixed handling of alpha channel.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 21 May 2012 18:26:00 +0200
+
 diana-wms (3.27.13-0) lucid; urgency=low
 
   * Ensured that JSON legends are cleared before new ones are written.
