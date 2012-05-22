@@ -875,13 +875,13 @@ bool PlotModule::updatePlots()
   int i, n;
   miTime t = splot.getTime();
   Area plotarea, newarea;
-
+  bool updateOk = true;
   // prepare data for field plots
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
       if (!fieldplotm->makeFields(pin, t, fv))
-        return false;
+        updateOk = false;
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -1072,7 +1072,7 @@ bool PlotModule::updatePlots()
   PlotAreaSetup();
 
   // Successful update
-  return true;
+  return updateOk;
 }
 
 // start hardcopy plot
