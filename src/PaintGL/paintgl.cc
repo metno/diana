@@ -237,8 +237,9 @@ void PaintGLContext::renderPrimitive()
 
         for (int i = 0; i < points.size() - 2; i += 3) {
             if (validPoints.at(i) && validPoints.at(i + 1) && validPoints.at(i + 2)) {
-                QPolygonF poly = QPolygonF(points.mid(i, 3));
-                painter->drawConvexPolygon(poly);
+                for (int j = 0; j < 3; ++j)
+                    poly[j] = points.at(i + j);
+                painter->drawConvexPolygon(poly, 3);
             }
         }
         break;
@@ -279,7 +280,7 @@ void PaintGLContext::renderPrimitive()
         QPolygonF quad(4);
 
         for (int i = 0; i < points.size() - 3; i += 4) {
-            if (!validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i))
+            if (!validPoints.at(i) || !validPoints.at(i + 1) || !validPoints.at(i + 2) || !validPoints.at(i + 3))
                 continue;
 
             for (int j = 0; j < 4; ++j)
@@ -301,7 +302,12 @@ void PaintGLContext::renderPrimitive()
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
                     painter->setBrush(QColor::fromRgba(colors.at(i)));
                 }
-                painter->drawConvexPolygon(quad);
+                // Optimisation: Assuming that the coordinates map exactly onto the output
+                // device, draw rectangles for quads that would fit inside a pixel.
+                if (quad.boundingRect().width() <= 1 && quad.boundingRect().height() <= 1) {
+                    painter->drawRect(QRect(quad[0].toPoint(), QSize(1, 1)));
+                } else
+                    painter->drawConvexPolygon(quad);
             }
         }
         break;

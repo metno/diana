@@ -87,6 +87,7 @@ typedef double		GLclampd;	/* double precision float in [0,1] */
 
 /* Gets */
 #define GL_CURRENT_COLOR			0x0B00
+#define GL_MODELVIEW_MATRIX			0x0BA6
 #define GL_VIEWPORT				0x0BA2
 
 /* Alpha testing */
