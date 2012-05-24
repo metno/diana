@@ -315,8 +315,19 @@ miutil::miString QuickMenu::getCurrentName()
 
 // Push a new command on the history-stack
 void QuickMenu::pushPlot(const miutil::miString& name,
-    const vector<miutil::miString>& pstr, int index)
+    vector<miutil::miString> pstr, int index)
 {
+
+  //replace reftime by refhour, refoffset must be set manually
+  for (size_t i=0; i<pstr.size(); i++){
+    if ( pstr[i].find("reftime=") != std::string::npos ) {
+      miutil::miString hourstr = pstr[i].substr(pstr[i].find("reftime=")+19,2);
+      miutil::miString str1 = pstr[i].substr(pstr[i].find("reftime="),27);
+      miutil::miString str2 = "refhour=" + hourstr;
+      pstr[i].replace(str1,str2);
+    }
+  }
+
   if (qm.size()==0) return;
   bool goon= true;
   int m= qm[index].menuitems.size();
@@ -352,6 +363,24 @@ void QuickMenu::pushPlot(const miutil::miString& name,
     prev_listindex= index;
   }
 }
+
+//bool QuickMenu::replacereferencetime( vector<miutil::miString>& pstr ){
+//
+//  for (size_t i=0; i<pstr.size(); i++){
+//  std::string str = pstr[i];
+//  if ( str.find_first_of("referencetime=") != str.npos ) {
+//    std::string timestr = str.substr(str.find_first_of("referencetime=")+14,17);
+//    cerr <<timestr<<endl;
+//  }
+////  vector<miutil::miString> tokens = pstr[i].split(('"', '"');
+////  for ( size_t j=0; j<tokens.size(); j++ ) {
+////    vector<miutil::miString> stokens = tokens[j].split("=");
+////    if ( stokens.size() && stokens[0]="referencetime" ) {
+////
+////    }
+////  }
+//
+//}
 
 // called from quick-quick menu (Browsing)
 bool QuickMenu::prevQPlot(){
