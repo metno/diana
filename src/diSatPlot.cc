@@ -36,6 +36,7 @@
 #include <sys/time.h>
 #include <diSatPlot.h>
 #include <GL/gl.h>
+#include <QtGlobal>
 
 #define NO_TEXTTURE
 using namespace::miutil;
@@ -176,12 +177,15 @@ bool SatPlot::plotFillcell()
 
   //todo: reduce resolution when zooming out
 //  int factor = fullrect.width()/nx/2000;
+  int factor = 1;
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
   double plotH = pow(pow(pwidth, 2) + pow(pheight, 2), 0.5);
   double gridH = pow(pow(nx, 2) + pow(ny, 2), 0.5);
   double fullH = pow(pow(fullrect.width(), 2) + pow(fullrect.height(), 2), 0.5);
-  int factor = (fullH/gridH) / (plotH * 2);
+  factor = (fullH/gridH) / (plotH * 2);
   if ( factor < 1 ) factor = 1;
+#endif
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_BLEND);

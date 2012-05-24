@@ -3179,15 +3179,57 @@ bool FieldPlot::plotFillCell(){
   // convert gridbox corners to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
+
+  int factor = 1;
+  int rnx = nx;
+  int rny = ny;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+
+  float cx[2], cy[2];
+  cx[0] = fields[0]->area.R().x1;
+  cy[0] = fields[0]->area.R().y1;
+  cx[1] = fields[0]->area.R().x2;
+  cy[1] = fields[0]->area.R().y2;
+  int npos = 2;
+  gc.getPoints(fields[0]->area.P(), area.P(), npos, cx, cy);
+
+  double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
+  double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
+  double resamplingF = min(gridW/pwidth, gridH/pheight);
+  factor = int(resamplingF);
+
+  if (factor >= 2) {
+    rnx = nx/factor;
+    rny = ny/factor;
+    gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * resamplingF, fields[0]->gridResolutionY * resamplingF,
+        area, maprect, true,
+        rnx, rny, &x, &y, ix1, ix2, iy1, iy2, false);
+  } else {
+    factor = 1;
+    gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+        area, maprect, true,
+        nx, ny, &x, &y, ix1, ix2, iy1, iy2, false);
+  }
+#else
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
       area, maprect, true,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
+#endif
   if (ix1>ix2 || iy1>iy2) return false;
 
   glLineWidth(poptions.linewidth);
   glColor3ubv(poptions.bordercolour.RGB());
   if ( poptions.frame ) {
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+    if (factor >= 2) {
+      plotFrame(rnx+1,rny+1,x,y,2,NULL);
+    } else {
+      plotFrame(nx+1,ny+1,x,y,2,NULL);
+    }
+#else
     plotFrame(nx+1,ny+1,x,y,2,NULL);
+#endif
   }
 
   //auto -> 0
@@ -3212,18 +3254,18 @@ bool FieldPlot::plotFillCell(){
   for (int iy=iy1; iy<=iy2; iy++) {
     for (int ix = ix1; ix <= ix2; ix++) {
 
-      float value = fields[0]->data[ix + (iy * (nx))];
+      float value = fields[0]->data[ix*factor + (iy * (nx)*factor)];
       if ( value == fieldUndef ) continue;
       if (value >= poptions.minvalue && value <= poptions.maxvalue) {
 
-        float x1 = x[iy * (nx+1) + ix];
-        float x2 = x[iy * (nx+1) + (ix+1)];
-        float x3 = x[(iy+1) * (nx+1) + (ix+1)];
-        float x4 = x[(iy+1) * (nx+1) + ix];
-        float y1 = y[iy * (nx+1) +ix];
-        float y2 = y[(iy) * (nx+1) +(ix+1)];
-        float y3 = y[(iy+1) * (nx+1) +(ix+1)];
-        float y4 = y[(iy+1) * (nx+1) +(ix)];
+        float x1 = x[iy * (rnx+1) + ix];
+        float x2 = x[iy * (rnx+1) + (ix+1)];
+        float x3 = x[(iy+1) * (rnx+1) + (ix+1)];
+        float x4 = x[(iy+1) * (rnx+1) + ix];
+        float y1 = y[iy * (rnx+1) +ix];
+        float y2 = y[(iy) * (rnx+1) +(ix+1)];
+        float y3 = y[(iy+1) * (rnx+1) +(ix+1)];
+        float y4 = y[(iy+1) * (rnx+1) +(ix)];
 
 
 
