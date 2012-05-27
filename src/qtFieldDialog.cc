@@ -3834,9 +3834,9 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
 
     //old string from quickMenu or bdiana, rewrite string in new syntax
     if( ! decodeOK && !sf.cdmSyntax) {
-      // First try - do not decode model string
+        //First try - decode model string - model + refhour + refoffset
       std::string oldString = str;
-      str = FieldSpecTranslation::getNewFieldString(oldString, false);
+      str = FieldSpecTranslation::getNewFieldString(oldString, true);
       sf.cdmSyntax = true;
 
       if (checkOptions) {
@@ -3847,8 +3847,8 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       decodeOK = decodeString_cdmSyntax(str, sf, allTimeSteps);
 
       if( ! decodeOK ) {
-        //Second try - decode model string - model + refhour + refoffset
-        str = FieldSpecTranslation::getNewFieldString(oldString,true);
+      // Second try - do not decode model string
+        str = FieldSpecTranslation::getNewFieldString(oldString,false);
 
         if (checkOptions) {
           str = checkFieldOptions(str, sf.cdmSyntax);
