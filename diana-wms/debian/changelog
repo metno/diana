@@ -1,3 +1,9 @@
+diana-wms (3.27.15-1) lucid; urgency=low
+
+  * Repackage to address libemos0d-wms dependency.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 28 May 2012 19:14:00 +0200
+
 diana-wms (3.27.15-0) lucid; urgency=low
 
   * Included fix for vertical coordinate handling.
