@@ -903,6 +903,7 @@ bool PlotModule::updatePlots()
 #ifdef DEBUGPRINT
       cerr << "SatManager returned false from setData" << endl;
 #endif
+      updateOk = false;
     }
   }
 
