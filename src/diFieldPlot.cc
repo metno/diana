@@ -3202,7 +3202,7 @@ bool FieldPlot::plotFillCell(){
   if (factor >= 2) {
     rnx = nx/factor;
     rny = ny/factor;
-    gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * resamplingF, fields[0]->gridResolutionY * resamplingF,
+    gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
         area, maprect, true,
         rnx, rny, &x, &y, ix1, ix2, iy1, iy2, false);
   } else {
