@@ -3171,6 +3171,7 @@ int main(int _argc, char** _argv)
    Read initial input and process commands...
    */
   if (!batchinput.empty()) {
+    cerr << "Reading input file: " << batchinput.c_str() << endl;
     ifstream is(batchinput.c_str());
     if (!is) {
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
@@ -3324,6 +3325,8 @@ void doWork()
 
 int dispatchWork(const std::string &file)
 {
+  cerr << "Reading input file: " << file << endl;
+
   // commands in file
   ifstream is(file.c_str());
   if (!is) {
