@@ -1,3 +1,10 @@
+diana-wms (3.27.17-0) lucid; urgency=low
+
+  * Added a debugging option to bdiana.
+  * Debugging includes the input file text in the output image metadata.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 01 Jun 2012 17:19:00 +0200
+
 diana-wms (3.27.16-0) lucid; urgency=low
 
   * Included logging information about files read by bdiana.

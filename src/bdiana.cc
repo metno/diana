@@ -111,6 +111,7 @@
 using namespace std; using namespace miutil;
 
 bool verbose = false;
+bool debug = false;
 
 // command-strings
 const miString com_liststart = "list.";
@@ -883,6 +884,7 @@ void printUsage(bool showexample)
         "-i                : job-control file. See example below                 \n"
         "-s                : setupfile for diana                                 \n"
         "-v                : (verbose) for more job-output                       \n"
+        "-d                : write debugging information                         \n"
         "-address=addr[:port]                                                    \n"
         "                  : production triggered by TCP connection              \n"
         "                    addr is a hostname or IP address                    \n"
@@ -1932,6 +1934,12 @@ int parseAndProcess(istream &is)
             image = image.copy(-ox, -oy, xsize, ysize);
           }
 
+          if (debug) {
+            QStringList imageText;
+            for (unsigned int i = 0; i < lines.size(); ++i)
+              image.setText(QString::number(i), QString::fromStdString(lines[i]));
+          }
+
           image.save(QString::fromStdString(priop.fname));
         }
 #endif
@@ -2946,6 +2954,9 @@ int main(int _argc, char** _argv)
 
     } else if (sarg == "-v") {
       verbose = true;
+
+    } else if (sarg == "-d") {
+      debug = true;
 
     } else if (sarg == "-signal") {
       if (orderbook != NULL) {
