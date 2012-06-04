@@ -278,13 +278,23 @@ void PaintGLContext::renderPrimitive()
         }
 
         QPolygonF quad(4);
+        int ok = 0;
 
-        for (int i = 0; i < points.size() - 3; i += 4) {
-            if (!validPoints.at(i) || !validPoints.at(i + 1) || !validPoints.at(i + 2) || !validPoints.at(i + 3))
+        for (int i = 0; i < points.size(); ++i) {
+            if (!validPoints.at(i)) {
+                ok = 0;
                 continue;
+            }
 
-            for (int j = 0; j < 4; ++j)
-                quad[j] = points.at(i + j);
+            quad[i % 4] = points.at(i);
+            ok++;
+
+            if (i % 4 != 3)     // Loop again for the first three points.
+                continue;
+            else if (ok != 4) {
+                ok = 0;         // If not enough points then reset the
+                continue;       // counter and examine the next quad.
+            }
 
             if (useTexture) {
                 QImage texture = textures[currentTexture];
@@ -300,15 +310,13 @@ void PaintGLContext::renderPrimitive()
             } else {
                 if (blend) {
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
-                    painter->setBrush(QColor::fromRgba(colors.at(i)));
+                    int j = (i / 4) * 4;
+                    painter->setBrush(QColor::fromRgba(colors.at(j)));
                 }
-                // Optimisation: Assuming that the coordinates map exactly onto the output
-                // device, draw rectangles for quads that would fit inside a pixel.
-                if (quad.boundingRect().width() <= 1 && quad.boundingRect().height() <= 1) {
-                    painter->drawRect(QRect(quad[0].toPoint(), QSize(1, 1)));
-                } else
-                    painter->drawConvexPolygon(quad);
+                painter->drawConvexPolygon(quad);
             }
+
+            ok = 0;
         }
         break;
     }
@@ -455,7 +463,7 @@ void glClearStencil(GLint s)
 void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(red * 255, green * 255, blue * 255);
+    ctx->attributes.color = qRgba(red * 255, green * 255, blue * 255, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -463,7 +471,7 @@ void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
 void glColor3f(GLfloat red, GLfloat green, GLfloat blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(red * 255, green * 255, blue * 255);
+    ctx->attributes.color = qRgba(red * 255, green * 255, blue * 255, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -471,7 +479,7 @@ void glColor3f(GLfloat red, GLfloat green, GLfloat blue)
 void glColor3fv(const GLfloat *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(v[0] * 255, v[1] * 255, v[2] * 255);
+    ctx->attributes.color = qRgba(v[0] * 255, v[1] * 255, v[2] * 255, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -479,7 +487,7 @@ void glColor3fv(const GLfloat *v)
 void glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(red, green, blue);
+    ctx->attributes.color = qRgba(red, green, blue, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -487,7 +495,7 @@ void glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
 void glColor3ubv(const GLubyte *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(v[0], v[1], v[2]);
+    ctx->attributes.color = qRgba(v[0], v[1], v[2], 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
