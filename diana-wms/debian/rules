@@ -43,7 +43,9 @@ configure-stamp:
 	./configure $(confflags) \
 	    --prefix=/usr/share/metno-bdiana \
 	    --enable-obs-bufr \
-	    --enable-proddb \
+	    --disable-proddb \
+	    --disable-profet \
+	    --disable-video-export \
 	    --enable-geotiff \
 	    --with-emos=/usr/share/metno-bdiana \
 	    --with-qt4=/usr/share/metno-bdiana \
