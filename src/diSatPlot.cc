@@ -45,7 +45,8 @@ using namespace::miutil;
 SatPlot::SatPlot()
 :Plot(), imagedata(0), previrs(1), satdata(0)
 {
-	texture =-1;
+    texture = 0;
+    hasTexture = false;
 }
 
 SatPlot::~SatPlot(){
@@ -53,7 +54,7 @@ SatPlot::~SatPlot(){
   satdata = 0;
   if (imagedata) delete[] imagedata;
   imagedata=0;
-  if (texture != -1) {
+  if (hasTexture) {
     glDeleteTextures( 1, &texture );
   }
 }
@@ -170,43 +171,66 @@ bool SatPlot::plotFillcell()
 
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
-      area, maprect, true,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
 
   //todo: reduce resolution when zooming out
 //  int factor = fullrect.width()/nx/2000;
   int factor = 1;
+  int rnx = nx;
+  int rny = ny;
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  double plotH = pow(pow(pwidth, 2) + pow(pheight, 2), 0.5);
-  double gridH = pow(pow(nx, 2) + pow(ny, 2), 0.5);
-  double fullH = pow(pow(fullrect.width(), 2) + pow(fullrect.height(), 2), 0.5);
-  factor = (fullH/gridH) / (plotH * 2);
-  if ( factor < 1 ) factor = 1;
+  float cx[2], cy[2];
+  cx[0] = satdata->area.R().x1;
+  cy[0] = satdata->area.R().y1;
+  cx[1] = satdata->area.R().x2;
+  cy[1] = satdata->area.R().y2;
+  int npos = 2;
+  gc.getPoints(satdata->area.P(), area.P(), npos, cx, cy);
+
+  double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
+  double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
+  double resamplingF = min(gridW/pwidth, gridH/pheight);
+  factor = int(resamplingF);
+
+  if (factor >= 2) {
+    rnx = nx/factor;
+    rny = ny/factor;
+    gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
+        area, maprect, true,
+        rnx, rny, &x, &y, ix1, ix2, iy1, iy2, false);
+  } else {
+    factor = 1;
+    gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
+        area, maprect, true,
+        nx, ny, &x, &y, ix1, ix2, iy1, iy2, false);
+  }
+#else
+  gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
+      area, maprect, true,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
 #endif
+  if (ix1>ix2 || iy1>iy2) return false;
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBegin(GL_QUADS);
   vector<float>::iterator it;
-  for (int iy=iy1; iy<=iy2-factor; iy+=factor) {
-    for (int ix = ix1; ix <= ix2-factor; ix+=factor) {
-      float x1 = x[iy * (nx+1) + ix];
-      float x2 = x[iy * (nx+1) + (ix+factor)];
-      float x3 = x[(iy+factor) * (nx+1) + (ix+factor)];
-      float x4 = x[(iy+factor) * (nx+1) + ix];
-      float y1 = y[iy * (nx+1) +ix];
-      float y2 = y[(iy) * (nx+1) +(ix+factor)];
-      float y3 = y[(iy+factor) * (nx+1) +(ix+factor)];
-      float y4 = y[(iy+factor) * (nx+1) +(ix)];
+  for (int iy=iy1; iy<=iy2-1; iy++) {
+    for (int ix = ix1; ix <= ix2-1; ix++) {
+      float x1 = x[iy * (rnx+1) + ix];
+      float x2 = x[iy * (rnx+1) + (ix+1)];
+      float x3 = x[(iy+1) * (rnx+1) + (ix+1)];
+      float x4 = x[(iy+1) * (rnx+1) + ix];
+      float y1 = y[iy * (rnx+1) +ix];
+      float y2 = y[(iy) * (rnx+1) +(ix+1)];
+      float y3 = y[(iy+1) * (rnx+1) +(ix+1)];
+      float y4 = y[(iy+1) * (rnx+1) +(ix)];
 
-      char f1 = satdata->image[(ix + (iy * (nx)))*4];
-      char f2 = satdata->image[(ix + (iy * (nx)))*4+1];
-      char f3 = satdata->image[(ix + (iy * (nx)))*4+2];
-      char f4 = satdata->image[(ix + (iy * (nx)))*4+3];
+      char f1 = satdata->image[(ix * factor + (iy * (nx) * factor))*4];
+      char f2 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+1];
+      char f3 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+2];
+      char f4 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+3];
       if(int(f1)==0 && int(f2) == 0 && int(f3)== 0 ) {
         continue;
       }
@@ -355,7 +379,7 @@ bool SatPlot::plotPixmap()
   bool wrap =true;
 
   // allocate a texture name
-  if (texture == -1) {
+  if (!hasTexture) {
     glGenTextures( 1, &texture );
     cerr << "Gentext: " << texture << endl;
   }
