@@ -1,3 +1,12 @@
+diana-wms (3.27.18-0) lucid; urgency=low
+
+  * Updated satellite resampling to use the same mechanism as for fields.
+  * Changed the way vertices are processed for GL_QUAD primitives.
+  * Ensured that RGB colour handling explicitly sets a full alpha value.
+  * Disabled dependencies on unnecessary features.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 05 Jun 2012 17:23:00 +0200
+
 diana-wms (3.27.17-0) lucid; urgency=low
 
   * Added a debugging option to bdiana.
