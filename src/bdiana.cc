@@ -2329,6 +2329,9 @@ int parseAndProcess(istream &is)
 
     } else if (lines[k].downcase() == com_describe) {
 
+      if (verbose)
+        cout << "- finding information about data sources" << endl;
+
       //Find ENDDESCRIBE
       vector<miString> pcom;
       for (int i = k + 1; i < linenum && lines[i].downcase() != com_describe_end; i++, k++)
@@ -2383,10 +2386,18 @@ int parseAndProcess(istream &is)
           vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
           for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
             miutil::miString modelName = (*it)->getModelName();
-            FieldSource* fieldSource = main_controller->getFieldManager()->getFieldSource(modelName);
+
+            FieldManager* fieldManager = main_controller->getFieldManager();
+            FieldSource* fieldSource = fieldManager->getFieldSource(modelName, true);
             if (fieldSource) {
               for (unsigned int i = 0; i < fieldSource->getFileNames().size(); ++i)
                 file << fieldSource->getFileNames()[i] << endl;
+            } else {
+              GridCollection* gridCollection = fieldManager->getGridCollection(modelName);
+              if (gridCollection) {
+                for (unsigned int i = 0; i < gridCollection->getRawSources().size(); ++i)
+                  file << gridCollection->getRawSources()[i] << endl;
+              }
             }
           }
 
