@@ -486,8 +486,7 @@ common_cppflags += \
 	$(SHP_CPPFLAGS) \
 	$(CURL_CPPFLAGS) \
 	$(PNG_CPPFLAGS) \
-	$(UU_CPPFLAGS) \
-	$(GLU_CPPFLAGS)
+        $(UU_CPPFLAGS)
 
 common_ldflags += \
 	$(DIFIELD_LDFLAGS) \
@@ -500,8 +499,7 @@ common_ldflags += \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
-	$(UU_LDFLAGS) \
-	$(GLU_LDFLAGS)
+        $(UU_LDFLAGS)
 
 common_ldadd += \
 	$(DIFIELD_LIBS) \
@@ -514,8 +512,7 @@ common_ldadd += \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
 	$(PNG_LIBS) \
-	$(UU_LIBS)\
-	$(GLU_LIBS)
+        $(UU_LIBS)
 
 # Additional source code for SMHI support
 if WITH_SMHI
@@ -692,18 +689,21 @@ noinst_HEADERS +=  \
 else
 common_cppflags += \
         $(FTGL_CPPFLAGS) \
-	    $(GLP_CPPFLAGS) \
-	    $(GLTEXT_CPPFLAGS)
+        $(GLP_CPPFLAGS) \
+        $(GLTEXT_CPPFLAGS) \
+        $(GLU_CPPFLAGS)
 
 common_ldflags += \
         $(FTGL_LDFLAGS) \
-	    $(GLP_LDFLAGS) \
-	    $(GLTEXT_LDFLAGS)
+        $(GLP_LDFLAGS) \
+        $(GLTEXT_LDFLAGS) \
+        $(GLU_LDFLAGS)
 
 common_ldadd += \
         $(FTGL_LIBS) \
-	    $(GLP_LIBS) \
-	    $(GLTEXT_LIBS)
+        $(GLP_LIBS) \
+        $(GLTEXT_LIBS) \
+        $(GLU_LIBS)
 endif
 
 # Generated Qt source code

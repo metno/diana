@@ -133,6 +133,7 @@ METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
 AS_IF([test x$enable_embedded != xyes], [
     METNO_REQUIRE_PKG([GLTEXT], [glText])
     METNO_REQUIRE_PKG([GLP], [glp])
+    METNO_REQUIRE_PKG([GLU],[glu])
 ])
 
 METNO_REQUIRE_PKG([LIBMI], [libmi])
@@ -150,9 +151,6 @@ METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
 METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
 METNO_REQUIRE_PKG([ROBS], [robs])
-
-
-METNO_REQUIRE_PKG([GLU],[glu])
 
 
 AS_IF([test x$enable_proddb = xyes], [
