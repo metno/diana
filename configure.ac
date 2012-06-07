@@ -151,6 +151,10 @@ METNO_REQUIRE_PKG([PUTOOLS], [puTools])
 METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
 METNO_REQUIRE_PKG([ROBS], [robs])
 
+
+METNO_REQUIRE_PKG([GLU],[glu])
+
+
 AS_IF([test x$enable_proddb = xyes], [
     METNO_REQUIRE_PKG([DISQL], [diSQL])
     METNO_REQUIRE_PKG([PUSQL], [puSQL])
@@ -197,9 +201,11 @@ AS_IF([test x$enable_embedded != xyes], [
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
     METNO_REQUIRE_C_LIBRARY([ZLIB], [z], [zlib.h], [zlibVersion])
-    METNO_REQUIRE_C_LIBRARY([PNG], [png], [png.h], [png_init_io], [${ZLIB_LIBS}])
     METNO_REQUIRE_AVFORMAT
 ])
+
+METNO_REQUIRE_C_LIBRARY([PNG], [png], [png.h], [png_init_io], [${ZLIB_LIBS}])
+
 
 # shapefile
 METNO_REQUIRE_C_LIBRARY([SHP], [shp], [shapefil.h], [SHPOpen])
