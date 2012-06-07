@@ -1504,6 +1504,9 @@ int parseAndProcess(istream &is)
           }
         }
 
+        // Perform a quick check for newly arrived data.
+        main_controller->getFieldManager()->updateSources();
+
         // turn on/off archive-mode (observations)
         main_controller->archiveMode(useArchive);
 
@@ -2115,6 +2118,9 @@ int parseAndProcess(istream &is)
           pcom.push_back(lines[i]);
         k++;
 
+        // Perform a quick check for newly arrived data.
+        main_controller->getFieldManager()->updateSources();
+
         // necessary to set time before plotCommands()..?
         thetime = miTime::nowTime();
         main_controller->setPlotTime(thetime);
@@ -2343,6 +2349,9 @@ int parseAndProcess(istream &is)
         MAKE_CONTROLLER
       }
 
+      // Perform a quick check for newly arrived data.
+      main_controller->getFieldManager()->updateSources();
+
       if (verbose)
         cout << "- sending plotCommands" << endl;
       main_controller->plotCommands(pcom);
@@ -2393,7 +2402,7 @@ int parseAndProcess(istream &is)
               for (unsigned int i = 0; i < fieldSource->getFileNames().size(); ++i)
                 file << fieldSource->getFileNames()[i] << endl;
             } else {
-              GridCollection* gridCollection = fieldManager->getGridCollection(modelName);
+              GridCollection* gridCollection = fieldManager->getGridCollection(modelName, "", true);
               if (gridCollection) {
                 for (unsigned int i = 0; i < gridCollection->getRawSources().size(); ++i)
                   file << gridCollection->getRawSources()[i] << endl;
