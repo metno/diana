@@ -90,7 +90,7 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
 
   AVCodecContext *video = output->videoStream->codec;
   video->codec_id = (CodecID) output->outputCtx->oformat->video_codec;
-  video->codec_type = CODEC_TYPE_VIDEO;
+  video->codec_type = AVMEDIA_TYPE_VIDEO;
   video->bit_rate = VIDEO_BITRATE;
   video->sample_aspect_ratio.den = 16;
   video->sample_aspect_ratio.num = 9;
@@ -127,14 +127,14 @@ AVFrame *MovieMaker::allocPicture(int pixFormat, int width, int height)
   if (!frame)
     return NULL;
 
-  int size = avpicture_get_size(pixFormat, width, height);
+  int size = avpicture_get_size(static_cast<PixelFormat>(pixFormat), width, height);
   uint8_t *buffer = (uint8_t*) av_malloc(size);
   if (!buffer) {
     av_free(frame);
     return NULL;
   }
 
-  avpicture_fill((AVPicture *) frame, buffer, pixFormat, width, height);
+  avpicture_fill((AVPicture *) frame, buffer, static_cast<PixelFormat>(pixFormat), width, height);
   return frame;
 }
 
@@ -178,11 +178,11 @@ bool MovieMaker::initOutputStream(OutputCtx *output)
 {
   AVOutputFormat *outputFormat = 0;
   if (!g_strOutputVideoFormat.compare("mpg")) {
-    outputFormat = guess_format("dvd", NULL, NULL);
+    outputFormat = av_guess_format("dvd", NULL, NULL);
     if (outputFormat)
         outputFormat->video_codec = CODEC_ID_MPEG2VIDEO;
   } else if (!g_strOutputVideoFormat.compare("avi")) {
-      outputFormat = guess_format("avi", NULL, NULL);
+      outputFormat = av_guess_format("avi", NULL, NULL);
       if (outputFormat)
           outputFormat->video_codec = CODEC_ID_MSMPEG4V2;
   }
@@ -343,7 +343,7 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
     pkt.pts = av_rescale_q(video->coded_frame->pts, video->time_base,
         output->videoStream->time_base);
     if (video->coded_frame->key_frame)
-      pkt.flags |= PKT_FLAG_KEY;
+      pkt.flags |= AV_PKT_FLAG_KEY;
 
     pkt.stream_index = output->videoStream->index;
     pkt.data = (uint8_t *) output->videoBuffer;
