@@ -2982,7 +2982,7 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Red smooth area stipple",Genericarea,"red","red",0,true,"dash2"));
   areas.push_back(newEditToolInfo("Blue sharp area stipple",Genericarea,"blue","blue",0,false,"dash2"));
   areas.push_back(newEditToolInfo("Blue smooth area stipple",Genericarea,"blue","blue",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Generic area",Genericarea,"blue","blue",0,true,"dash2"));
+  areas.push_back(newEditToolInfo("Generic area",Genericarea,"red","red",0,false,"solid"));
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
 #endif
   //arrow

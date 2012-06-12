@@ -49,7 +49,7 @@ float WeatherArea::defaultLineWidth = 4;
 
 // Default constructor
 WeatherArea::WeatherArea() :
-  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false)
+  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherArea default constructor" << endl;
@@ -59,7 +59,7 @@ WeatherArea::WeatherArea() :
 }
 
 WeatherArea::WeatherArea(int ty) :
-  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false)
+  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherArea(int) constructor" << endl;
@@ -69,7 +69,7 @@ WeatherArea::WeatherArea(int ty) :
 }
 
 WeatherArea::WeatherArea(miString tystring) :
-  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false)
+  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
 #ifdef DEBUGPRINT
   cerr << "WeatherArea(miString) constructor" << endl;
@@ -250,11 +250,12 @@ bool WeatherArea::plot()
       int npos = end;
       GLdouble *gldata = new GLdouble[npos * 3];
 
-      glShadeModel(GL_FLAT);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glEnable(GL_POLYGON_STIPPLE);
-      glPolygonStipple(itsFilltype);
-
+        glShadeModel(GL_FLAT);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      if ( itsFilltype != NULL ) {
+        glEnable(GL_POLYGON_STIPPLE);
+        glPolygonStipple(itsFilltype);
+      }
       if (!spline) {
         // check for identical end-points
         if (nodePoints[0] == nodePoints[npos - 1])
@@ -404,8 +405,11 @@ void WeatherArea::setFillArea(const miString& filltype)
 void WeatherArea::setSelected(bool s)
 {
   isSelected = s;
+  fillArea = s;
+  itsFilltype = NULL;
+
 }
-;
+
 
 bool WeatherArea::isInsideArea(float x, float y)
 {
