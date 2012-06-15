@@ -399,10 +399,15 @@ miutil::miString ObsDialog::getShortname()
 void ObsDialog::putOKString(const vector<miutil::miString>& vstr)
 {
 
-  //  if( multiplot )
-  obsWidget[m_selected]->setFalse();
+  //unselect everything
+  for (int i=0; i<nr_plot; i++) {
+    if ( obsWidget[i]->initialized() ) {
+      obsWidget[i]->setFalse();
+    }
+  }
   multiplotButton->setChecked(false);
   multiplot=false;
+
   //Emit empty time list
   vector<miutil::miTime> noTimes;
   emit emitTimes( "obs",noTimes );
