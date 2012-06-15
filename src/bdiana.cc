@@ -2390,28 +2390,30 @@ int parseAndProcess(istream &is)
             cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
             return 1;
           }
-          file << "FILES" << endl;
 
           vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
+          std::set<std::string> fieldPatterns;
+
           for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
             miutil::miString modelName = (*it)->getModelName();
 
             FieldManager* fieldManager = main_controller->getFieldManager();
             FieldSource* fieldSource = fieldManager->getFieldSource(modelName, true);
             if (fieldSource) {
-              for (unsigned int i = 0; i < fieldSource->getFileNames().size(); ++i)
-                file << fieldSource->getFileNames()[i] << endl;
+              std::vector<miutil::miString> fileNames = fieldSource->getFileNames();
+              fieldPatterns.insert(fileNames.begin(), fileNames.end());
             } else {
               GridCollection* gridCollection = fieldManager->getGridCollection(modelName, "", true);
               if (gridCollection) {
-                for (unsigned int i = 0; i < gridCollection->getRawSources().size(); ++i)
-                  file << gridCollection->getRawSources()[i] << endl;
+                std::vector<std::string> fileNames = gridCollection->getRawSources();
+                fieldPatterns.insert(fileNames.begin(), fileNames.end());
               }
             }
           }
 
           map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
           set<miutil::miString> satPatterns;
+          set<miutil::miString> satFiles;
 
           vector<SatPlot*> satellitePlots = main_controller->getSatellitePlots();
           for (vector<SatPlot*>::iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
@@ -2419,6 +2421,7 @@ int parseAndProcess(istream &is)
               if (satProducts.find(sat->satellite) != satProducts.end() && satProducts[sat->satellite].find(sat->filetype) != satProducts[sat->satellite].end()) {
                   SatManager::subProdInfo satInfo = satProducts[sat->satellite][sat->filetype];
                   for (vector<SatFileInfo>::iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
+                    satFiles.insert(itsf->name);
                     if (itsf->name == sat->actualfile) {
                         for (vector<miutil::miString>::iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
                             satPatterns.insert(*itp);
@@ -2426,16 +2429,16 @@ int parseAndProcess(istream &is)
                   }
               }
           }
-          for (set<miutil::miString>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
-            file << *it << endl;
 
           map<miutil::miString,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
           set<miutil::miString> obsPatterns;
+          set<miutil::miString> obsFiles;
 
           vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
           for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
               vector<miutil::miString> obsFileNames = (*it)->getFileNames();
               for (vector<miutil::miString>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
+                  obsFiles.insert(*itf);
 
                   for (map<miutil::miString,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
                       for (vector<ObsManager::FileInfo>::iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
@@ -2449,6 +2452,15 @@ int parseAndProcess(istream &is)
               }
           }
 
+          file << "FILES" << endl;
+          for (std::set<std::string>::iterator it = fieldPatterns.begin(); it != fieldPatterns.end(); ++it)
+            file << *it << endl;
+          for (set<miutil::miString>::iterator it = satFiles.begin(); it != satFiles.end(); ++it)
+            file << *it << endl;
+          for (set<miutil::miString>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
+            file << *it << endl;
+          for (set<miutil::miString>::iterator it = obsFiles.begin(); it != obsFiles.end(); ++it)
+            file << *it << endl;
           for (set<miutil::miString>::iterator it = obsPatterns.begin(); it != obsPatterns.end(); ++it)
             file << *it << endl;
 
