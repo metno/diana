@@ -2682,17 +2682,30 @@ bool FieldPlot::plotContour(){
   if (!poptions.options_2) {
     idraw2 = 0;
   } else {
-    idraw2= 1;
-    if (poptions.zeroLine==0) {
-      idraw2 = 2;
+    zstep2= poptions.lineinterval_2;
+    zoff2 = poptions.base_2;
+    if (poptions.linevalues_2.size()>0) {
+      nlines2 = poptions.linevalues_2.size();
+      for (int ii=0; ii<nlines2; ii++){
+        rlines2[ii]= poptions.linevalues_2[ii];
+      }
+      idraw2 = 3;
+    } else if (poptions.loglinevalues_2.size()>0) {
+      nlines2 = poptions.loglinevalues_2.size();
+      for (int ii=0; ii<nlines2; ii++){
+        rlines2[ii]= poptions.loglinevalues_2[ii];
+      }
+      idraw2 = 4;
+    } else {
+      idraw2= 1;
+      if (poptions.zeroLine==0) {
+        idraw2 = 2;
+        zoff2 = 0;
+      }
     }
   }
 
-
   if(idraw>0 || idraw2>0){
-
-    zstep2= poptions.lineinterval_2;
-    zoff2 = poptions.base_2;
 
     if (rgbmode){
       if(poptions.colours.size()>1){
