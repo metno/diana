@@ -280,7 +280,8 @@ bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
 
   editfield->numSmoothed= 0;
 
-  editfield->validFieldTime= tprod;
+  editfield->validFieldTime = tprod;
+  editfield->analysisTime = tprod;
 
   metnoFieldFileIdent[0]= editfield->producer;
   metnoFieldFileIdent[1]= editfield->gridnum;
