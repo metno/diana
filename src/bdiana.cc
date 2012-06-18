@@ -1297,46 +1297,84 @@ void createJsonAnnotation()
 
       for (vector<miString>::iterator itj = iti->vstr.begin(); itj != iti->vstr.end(); ++itj) {
 
-        // Each string is a sequence of comma-separated assignments.
-        vector<miString> pieces = (*itj).split(",");
+        // Find the table description in the string.
+        miString legend = (*itj);
+        size_t at = legend.find("table=\"");
 
-        for (vector<miString>::iterator itp = pieces.begin(); itp != pieces.end(); ++itp) {
+        if (at != string::npos) {
+          // Find the trailing quote.
+          at += 7;
+          size_t end = legend.find("\"", at);
+          if (end == string::npos)
+              end = legend.size();
 
-          // Handle each assignment by splitting it into a name and value.
-          vector<miString> assignment = (*itp).split("=");
-          if (assignment.size() == 2) {
-            miString name = assignment[0];
-            miString value = assignment[1];
+          // Remove leading and trailing quotes.
+          legend = legend.substr(at, end - at);
 
-            if (name == "table") {
-              // Remove leading and trailing quotes.
-              value = value.substr(1, value.size() - 2);
-              vector<miString> lines = value.split(";");
+          map<miString,miString> textMap;
+          miString title;
+          vector<miString> colors;
+          vector<miString> labels;
 
-              map<miString,miString> textMap;
-              textMap["title"] = "\"" + lines[0] + "\"";
-              textMap["colors"] = "[";
-              textMap["labels"] = "[";
-              for (unsigned int i = 1; i < lines.size(); i += 2) {
-                  Colour color = Colour(lines[i]);
-                  stringstream cs;
-                  cs.flags(ios::hex);
-                  cs.width(6);
-                  cs.fill('0');
-                  cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
-                  textMap["colors"] += "\"" + cs.str() + "\"";
-                  textMap["labels"] += "\"" + lines[i + 1] + "\"";
-                  if (i < lines.size() - 2) {
-                      textMap["colors"] += ", ";
-                      textMap["labels"] += ", ";
-                  }
+          bool first = true;
+          vector<miString> line;
+          miString current;
+          unsigned int i = 0;
+
+          while (i < legend.size()) {
+
+            bool publish;
+
+            if (legend[i] == ';') {
+              // Add the remaining characters in the current piece to the list.
+              line.push_back(current);
+              current.clear();
+              if (i < legend.size() - 1) {
+                if (legend[i + 1] == ';') {
+                  // End of a piece, so skip the next character.
+                  publish = false;
+                  i += 1;
+                } else {
+                  // End of a line.
+                  publish = true;
+                }
+              } else {
+                // End of the legend.
+                publish = true;
               }
-              textMap["colors"] += "]";
-              textMap["labels"] += "]";
+            } else {
+              current += legend[i];
+              publish = false;
+            }
 
-              outputTextMaps[lines[0]] = textMap;
+            ++i;
+
+            if (publish || i == legend.size()) {
+              if (first) {
+                title = line[0];
+                textMap["title"] = "\"" + title + "\"";
+                first = false;
+              } else {
+                Colour color = Colour(line[0]);
+                stringstream cs;
+                cs.flags(ios::hex);
+                cs.width(6);
+                cs.fill('0');
+                cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
+                colors.push_back("\"" + cs.str() + "\"");
+                labels.push_back("\"" + line[1] + "\"");
+              }
+              line.clear();
             }
           }
+          miString value = miString();
+          value.join(colors, ", ");
+          textMap["colors"] = "[" + value + "]";
+          value.join(labels, ", ");
+          textMap["labels"] = "[" + value + "]";
+
+          if (!title.empty())
+            outputTextMaps[title] = textMap;
         }
       }
     }
@@ -2001,8 +2039,7 @@ int parseAndProcess(istream &is)
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       } else if (svg) {
 
-          context.end();
-          painter.end();
+          ensureNewContext();
 
           int ox = 0, oy = 0;
           if (plotAnnotationsOnly) {
@@ -2019,8 +2056,7 @@ int parseAndProcess(istream &is)
 
       } else if (pdf) {
 
-          context.end();
-          painter.end();
+          ensureNewContext();
 
           int ox = 0, oy = 0;
           if (plotAnnotationsOnly) {
@@ -2727,16 +2763,19 @@ int parseAndProcess(istream &is)
         raster_type = image_avi;
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       } else if (value == "svg") {
+        ensureNewContext();
         svg = true;
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
         context.begin(&painter);
       } else if (value == "pdf") {
+        ensureNewContext();
         pdf = true;
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
         context.begin(&painter);
       } else if (value == "json") {
+        ensureNewContext();
         raster = false;
         json = true;
         outputTextMaps.clear();
