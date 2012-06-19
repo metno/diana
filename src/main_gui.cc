@@ -77,8 +77,8 @@ void printUsage(){
       << "Command line arguments:                                 "  << endl
       << "  -h            :  Show help  "                            <<  endl
       << "  -v            :  Version "                                << endl
-      << "  -s <filnavn>  :  name of setupfile (def. diana.setup)   " << endl
-      << "  -l <språk>    :  language                               " << endl
+      << "  -s <filename> :  name of setupfile (def. diana.setup)   " << endl
+      << "  -l <language> :  language used in dialogs                               " << endl
       << "  -L <logger>   :  loggerFile for debugging               " << endl
       << "  -p <profet>   :  profet test version                    " << endl
       << "  -S <server>   :  profet server host                     " << endl

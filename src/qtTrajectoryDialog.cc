@@ -95,7 +95,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   timeSpin->setMaximum(360);
   timeSpin->setSingleStep(30);
   timeSpin->setSpecialValueText(tr("Off"));
-  timeSpin->setSuffix("min");
+  timeSpin->setSuffix(tr("min"));
   timeSpin->setValue(0);
   timeSpin->setMaximumWidth(60);
   connect(timeSpin,SIGNAL(valueChanged(int)),SLOT(timeSpinSlot(int)));
@@ -115,7 +115,6 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   radiusSpin->setMaximum(500);
   radiusSpin->setSingleStep(10);
   radiusSpin->setValue(100);
-  radiusSpin->setMaximumWidth(60);
   radiusSpin->setSuffix(tr("km"));
   connect(radiusSpin,SIGNAL(valueChanged(int)),SLOT(radiusSpinChanged(int)));
 

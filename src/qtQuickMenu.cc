@@ -197,7 +197,7 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   interval->setMaximum(360);
   interval->setSingleStep(2);
   interval->setValue(timerinterval);
-  interval->setSuffix(" sek");
+  interval->setSuffix(" sec");
   connect(interval, SIGNAL(valueChanged(int)),SLOT(intervalChanged(int)));
   l->addWidget(interval);
 
