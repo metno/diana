@@ -1,3 +1,9 @@
+diana-wms (3.27.22-0) lucid; urgency=low
+
+  * Fixed table legend parsing to include the last table cell.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 19 Jun 2012 15:57:00 +0200
+
 diana-wms (3.27.21-0) lucid; urgency=low
 
   * Fixed table legend parsing issue.

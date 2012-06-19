@@ -1339,17 +1339,22 @@ void createJsonAnnotation()
                   publish = true;
                 }
               } else {
-                // End of the legend.
+                // End of the legend follows the semicolon.
                 publish = true;
               }
             } else {
               current += legend[i];
-              publish = false;
+              if (i == legend.size() - 1) {
+                // End of the legend.
+                line.push_back(current);
+                publish = true;
+              } else
+                publish = false;
             }
 
             ++i;
 
-            if (publish || i == legend.size()) {
+            if (publish) {
               if (first) {
                 title = line[0];
                 textMap["title"] = "\"" + title + "\"";
