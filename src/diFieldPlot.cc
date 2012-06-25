@@ -423,7 +423,7 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
       //       }
 
       miString str  = "arrow=" + miString (vectorAnnotationSize)
-          + ",tcolour=" + poptions.linecolour.Name() + endString;
+              + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
           + ",tcolour=" + poptions.linecolour.Name() + endString ;
@@ -3250,8 +3250,8 @@ bool FieldPlot::plotFillCell(){
     poptions.density = 10;
   }
 
-//  float dx = poptions.density*(0.1) * (x[1]-x[0]);
-//  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
+  //  float dx = poptions.density*(0.1) * (x[1]-x[0]);
+  //  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
 
   if(poptions.alpha<255){
     for(size_t  i=0;i<poptions.palettecolours.size();i++) {
@@ -3499,49 +3499,54 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     }
     drawx1= drawx2= (dxm>0.01 || dym>0.01);
 
-    vector<float> xpos;
-    vector<float> ypos;
-
     if (drawy1) {
+      glBegin(GL_LINE_STRIP);
       iy=0;
       for (ix=0; ix<nx; ix++) {
         int i=iy*nx+ix;
-        xpos.push_back(x[i]);
-        ypos.push_back(y[i]);
+        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+          glVertex2f(x[i], y[i]);
+        }
       }
+      glEnd();
     }
+
     if (drawx2) {
+      glBegin(GL_LINE_STRIP);
       ix=nx-1;
       for (iy=1; iy<ny; iy++) {
         int i=iy*nx+ix;
-        xpos.push_back(x[i]);
-        ypos.push_back(y[i]);
+        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+          glVertex2f(x[i], y[i]);
+        }
       }
+      glEnd();
     }
+
     if (drawy2) {
+      glBegin(GL_LINE_STRIP);
       iy=ny-1;
       for (ix=nx-1; ix>=0; ix--) {
         int i=iy*nx+ix;
-        xpos.push_back(x[i]);
-        ypos.push_back(y[i]);
+        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+          glVertex2f(x[i], y[i]);
+        }
       }
+      glEnd();
     }
+
     if (drawx1) {
+      glBegin(GL_LINE_STRIP);
       ix=0;
       for (iy=ny-1; iy>0; iy--) {
         int i=iy*nx+ix;
-        xpos.push_back(x[i]);
-        ypos.push_back(y[i]);
+        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+          glVertex2f(x[i], y[i]);
+        }
       }
+      glEnd();
     }
 
-    glBegin(GL_LINE_STRIP);
-    for (unsigned int i=0; i<xpos.size(); ++i) {
-      if( xpos[i]!=HUGE_VAL && ypos[i]!=HUGE_VAL ){
-        glVertex2f(xpos[i], ypos[i]);
-      }
-    }
-    glEnd();
   }
 
   // glDisable(GL_LINE_STIPPLE);
@@ -4266,7 +4271,7 @@ bool FieldPlot::plotNumbers(){
     if (iprec<0) iprec=0;
   }
   miString str;
-  
+
   glColor3ubv(poptions.linecolour.RGB());
 
   for (iy=iy1; iy<iy2; iy++) {
