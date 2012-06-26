@@ -3256,7 +3256,7 @@ void ObsPlot::plotAscii(int index)
     num--;
   }
 
-  if ( dta.id == selectedStation ) {
+  if ( dta.id.exists() && dta.id == selectedStation ) {
     Colour c("red");
     glColor4ubv(c.RGBA());
   }

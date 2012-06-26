@@ -465,26 +465,26 @@ void ObsAscii::decodeData()
         }
 
         obsData.stringdata[columnName[i]] = pstr[i];
-        if ( asciiColumn["x"] == i ) {
+        if ( asciiColumn.count( "x") && asciiColumn["x"] == i ) {
           obsData.xpos = atof( pstr[i].c_str() );
         }
-        if ( asciiColumn["y"] == i ) {
+        if ( asciiColumn.count( "y") && asciiColumn["y"] == i ) {
           obsData.ypos = atof( pstr[i].c_str() );
         }
-        if ( asciiColumn["Name"] == i ) {
+        if ( asciiColumn.count( "Name") && asciiColumn["Name"] == i ) {
           obsData.id = pstr[i];
         }
-        if ( asciiColumn["ff"] == i ) {
+        if ( asciiColumn.count( "ff") && asciiColumn["ff"] == i ) {
           if ( knots ) {
             obsData.fdata["ff"] = ObsPlot::knots2ms(atof(pstr[i].c_str()));
           } else {
             obsData.fdata["ff"] = atof(pstr[i].c_str());
           }
         }
-        if ( asciiColumn["dd"] == i ) {
+        if ( asciiColumn.count( "dd") && asciiColumn["dd"] == i ) {
           obsData.fdata["dd"] = atof(pstr[i].c_str());
         }
-        if ( asciiColumn["image"] == i ) {
+        if ( asciiColumn.count( "image") && asciiColumn["image"] == i ) {
           obsData.stringdata["image"] = pstr[i];
         }
       }
