@@ -211,7 +211,7 @@
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="318"/>
         <source>&amp;Stations</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Stasjonsnettet</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="324"/>
@@ -316,47 +316,47 @@
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3281"/>
         <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3284"/>
         <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3287"/>
         <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3299"/>
         <source>&amp;nbsp;auto</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3301"/>
         <source>&amp;nbsp;vis</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3307"/>
         <source>%1&amp;nbsp;N,&amp;nbsp;</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&amp;nbsp;N,&amp;nbsp;</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3309"/>
         <source>%1&amp;nbsp;S,&amp;nbsp;</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&amp;nbsp;S,&amp;nbsp;</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3311"/>
         <source>%1&amp;nbsp;E</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&amp;nbsp;E</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3313"/>
         <source>%1&amp;nbsp;W</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&amp;nbsp;W</translation>
     </message>
     <message>
         <source>Menuline</source>
@@ -588,7 +588,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3004"/>
         <source>Save animation from current fields, satellite images, etc. (*.mpg or *.avi)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre animasjon fra felter, bilder, osv. (*.mpg eller *.avi)</translation>
     </message>
     <message>
         <location filename="../../../src/qtMainWindow.cc" line="3036"/>
@@ -4220,37 +4220,37 @@ Vil du kjøre dine endringer først?</translation>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="75"/>
         <source>Sets</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett</translation>
     </message>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="83"/>
         <source>Chosen Sets</source>
-        <translation type="unfinished"></translation>
+        <translation>Valgt</translation>
     </message>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="89"/>
         <source>Help</source>
-        <translation type="unfinished">Hjelp</translation>
+        <translation>Hjelp</translation>
     </message>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="91"/>
         <source>Hide</source>
-        <translation type="unfinished">Skjul</translation>
+        <translation>Skjul</translation>
     </message>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="92"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Utfør+Skjul</translation>
+        <translation>Utfør+Skjul</translation>
     </message>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="93"/>
         <source>Apply</source>
-        <translation type="unfinished">Utfør</translation>
+        <translation>Utfør</translation>
     </message>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="95"/>
         <source>Reload</source>
-        <translation type="unfinished"></translation>
+        <translation>Les Igjen</translation>
     </message>
 </context>
 <context>
@@ -4258,12 +4258,12 @@ Vil du kjøre dine endringer først?</translation>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="406"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <location filename="../../../src/qtStationDialog.cc" line="408"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilde</translation>
     </message>
 </context>
 <context>
