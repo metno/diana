@@ -326,7 +326,7 @@ public:
   /// get name++ of current channels (with calibration)
   vector<miutil::miString> getCalibChannels();
   ///show pixel values in status bar
-  vector<SatValues> showValues(int, int);
+  vector<SatValues> showValues(float x, float y);
   ///get satellite name from all SatPlots
   vector <miutil::miString> getSatnames();
   ///satellite follows main plot time

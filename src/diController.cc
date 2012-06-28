@@ -397,7 +397,7 @@ vector<miString> Controller::getCalibChannels(){
 }
 
 // show values in grid position x,y
-vector<SatValues> Controller::showValues(int x, int y){
+vector<SatValues> Controller::showValues(float x, float y){
   return plotm->showValues(x,y);
 }
 

@@ -2422,7 +2422,7 @@ vector<miString> PlotModule::getCalibChannels()
   return channels;
 }
 
-vector<SatValues> PlotModule::showValues(int x, int y)
+vector<SatValues> PlotModule::showValues(float x, float y)
 {
 
   // return values of current channels (with calibration)
