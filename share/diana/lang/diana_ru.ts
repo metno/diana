@@ -2376,108 +2376,108 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="495"/>
+        <location filename="../../../src/qtObsDialog.cc" line="500"/>
         <source>List of Criteria</source>
         <translation>Список критериев</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="499"/>
+        <location filename="../../../src/qtObsDialog.cc" line="504"/>
         <source>Criteria</source>
         <translation>Критерий</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="502"/>
+        <location filename="../../../src/qtObsDialog.cc" line="507"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="503"/>
+        <location filename="../../../src/qtObsDialog.cc" line="508"/>
         <source>Delete all</source>
         <translation>Удалить все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="504"/>
+        <location filename="../../../src/qtObsDialog.cc" line="509"/>
         <source>Delete selected criteria</source>
         <translation>Удалить выбранный критерий</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="505"/>
+        <location filename="../../../src/qtObsDialog.cc" line="510"/>
         <source>Delete all criteria</source>
         <translation>Удалить все критерии</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="509"/>
+        <location filename="../../../src/qtObsDialog.cc" line="514"/>
         <source>Plot</source>
         <translation>Изобразить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="511"/>
+        <location filename="../../../src/qtObsDialog.cc" line="516"/>
         <source>Colour - parameter</source>
         <translation>Цвет - параметр</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="513"/>
+        <location filename="../../../src/qtObsDialog.cc" line="518"/>
         <source>Colour - observation</source>
         <translation>Цвет - наблюдение</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="515"/>
-        <location filename="../../../src/qtObsDialog.cc" line="533"/>
+        <location filename="../../../src/qtObsDialog.cc" line="520"/>
+        <location filename="../../../src/qtObsDialog.cc" line="538"/>
         <source>Marker</source>
         <translation>Знак</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="527"/>
+        <location filename="../../../src/qtObsDialog.cc" line="532"/>
         <source>Plot observations which meet all criteria of at least one parameter</source>
         <translation>Нарисовать наблюдения удовлетворяющие всем критериям по хотя бы одному параметру</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="528"/>
+        <location filename="../../../src/qtObsDialog.cc" line="533"/>
         <source>Plot a parameter in the colour specified if it meets any criteria of that parameter</source>
         <translation>Изобразить удовлетворяющий всем критериям параметр в выбранном цвете</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="529"/>
+        <location filename="../../../src/qtObsDialog.cc" line="534"/>
         <source>Plot observations in the colour specified if one parameter meet any criteria of that parameter </source>
         <translation>Нарисовать наблюдения в выбранном цвере если хотя бы один параметр удовлетворяет хотя бы одному критерию</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="530"/>
+        <location filename="../../../src/qtObsDialog.cc" line="535"/>
         <source>Plot marker specified if one parameter meets any criteria of that parameter </source>
         <translation>Нарисовать отметку если параметр удовлетворяет хотя бы одному критерию</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="532"/>
+        <location filename="../../../src/qtObsDialog.cc" line="537"/>
         <source>Colour</source>
         <translation>Цвет</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="534"/>
+        <location filename="../../../src/qtObsDialog.cc" line="539"/>
         <source>Limit</source>
         <translation>Ограничение</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="535"/>
+        <location filename="../../../src/qtObsDialog.cc" line="540"/>
         <source>Precision</source>
         <translation>Точность</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="543"/>
+        <location filename="../../../src/qtObsDialog.cc" line="548"/>
         <source>Precision of limit</source>
         <translation>Точность ограничений</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="568"/>
+        <location filename="../../../src/qtObsDialog.cc" line="573"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="569"/>
+        <location filename="../../../src/qtObsDialog.cc" line="574"/>
         <source>Save criteria list</source>
         <translation>Сохранить список критериев</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="571"/>
+        <location filename="../../../src/qtObsDialog.cc" line="576"/>
         <source>Name of list to save</source>
         <translation>Имя списка для сохранения</translation>
     </message>
@@ -3522,60 +3522,60 @@ Do you want to run your changes first?</source>
         <translation>&amp;Применить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="545"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="574"/>
         <source>History</source>
         <translation>История</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="551"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="580"/>
         <source>History-vcross</source>
         <translation>История-верт.сеч</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="618"/>
-        <location filename="../../../src/qtQuickMenu.cc" line="641"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="647"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="670"/>
         <source>Do you want to replace the content of this menuitem with current plot?</source>
         <translation>Вы хотите заменить содержимое этого пункта меню текущим изображением?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="620"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="649"/>
         <source>This is a static/official menuitem, which can be reset to default value.</source>
         <translation>Это статичный/официальный пункт меню, которые не может быть установлен по умолчанию.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="628"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="657"/>
         <source>Yes</source>
         <translation>Да</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="629"/>
-        <location filename="../../../src/qtQuickMenu.cc" line="652"/>
-        <location filename="../../../src/qtQuickMenu.cc" line="741"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="658"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="681"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="770"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="643"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="672"/>
         <source>The menu name can be automatically created from the underlying data in the plot</source>
         <translation>Имя меню может быть создано автоматически из данных на изображении</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="650"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="679"/>
         <source>Yes, make new menu name</source>
         <translation>Да, создать новое имя меню</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="651"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="680"/>
         <source>Yes, keep menu name</source>
         <translation>Да, сохранить имя меню</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="740"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="769"/>
         <source>Replace command with original copy?</source>
         <translation>Заменить команду исходной?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="741"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="770"/>
         <source>OK</source>
         <translatorcomment>No need to translate</translatorcomment>
         <translation type="unfinished"></translation>
@@ -4210,6 +4210,11 @@ Do you want to run your changes first?</source>
         <translation>Выкл</translation>
     </message>
     <message>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="98"/>
+        <source>min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/qtTrajectoryDialog.cc" line="104"/>
         <source>No. of positions</source>
         <translation>No позиций</translation>
@@ -4220,67 +4225,67 @@ Do you want to run your changes first?</source>
         <translation>Радиус</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="119"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="118"/>
         <source>km</source>
         <translation>км</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="125"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="124"/>
         <source>Select positions on map</source>
         <translation>Выбрать позиции на карте</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="129"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="128"/>
         <source>Write positions (Lat Lon):</source>
         <translation>Писать позиции (Шир Долг):</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="131"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="130"/>
         <source>Lat Lon (deg:min:sec or decimal)</source>
         <translation>Шир. Долг. (град:мин:сек или десятичн.)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="139"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="138"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="143"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="142"/>
         <source>Delete all</source>
         <translation>Удалить все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="147"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="146"/>
         <source>Start computation</source>
         <translation>Начать расчет</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="154"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="153"/>
         <source>Help</source>
         <translation>Помощь</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="158"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="157"/>
         <source>Print</source>
         <translation>Печать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="159"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="158"/>
         <source>Print calc. positions to file: trajectory.txt</source>
         <translation>Печать расч. позиций в файл: trajectory.txt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="163"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="162"/>
         <source>Hide</source>
         <translation>Убрать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="167"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="166"/>
         <source>Quit</source>
         <translation>Выход</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="358"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="357"/>
         <source>No field selected</source>
         <translation>Нет выбранных полей</translation>
     </message>

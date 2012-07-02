@@ -1,0 +1,55 @@
+Source: diana
+Section: science
+Priority: extra
+Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
+Build-Depends: metno-devscripts, autotools-dev, g++,
+ metlibs-dimitiff-dev, metlibs-difield-dev, metlibs-gltext-dev,
+ metlibs-parameter-dev, metlibs-qutilities-dev, metlibs-pusql-dev,
+ metlibs-robs-dev, metlibs-disql-dev, metlibs-pods-dev, metlibs-profet-dev,
+ libavformat-dev, libshp-dev, libfimex-dev
+Build-Conflicts: autoconf2.13, automake1.4
+Standards-Version: 3.7.2
+
+Package: diana-@METNO_VERSION@
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+X-MetnoConfig-precise_wms: ,
+ libqtcore4-qws, libqtgui4-qws, libqt4-network-qws, libqt4-svg-qws,
+ qt4-qws-dummy-screen-plugin
+Description: Meteorological visualisation tool
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL 
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.
+ .
+X-MetnoConfig-precise:
+ It uses OpenGL for the graphics and Trolltech Qt for the user
+ interface.  Diana shows fields, observations and satellite and radar
+ images on a map. 2D-trajectories can be computed from wind and ocean
+ current fields.  The tool also displays vertical profiles
+ (soundings), vertical crossections and wave spectrum data in separate
+ windows, all from preprocessed data. Preprocessing software is
+ however not a part of Diana.  The editor tools consist of a field
+ editor and a drawing tool for fronts, symbols and area types.
+X-MetnoConfig-precise_test:
+ It uses OpenGL for the graphics and Trolltech Qt for the user
+ interface.  Diana shows fields, observations and satellite and radar
+ images on a map. 2D-trajectories can be computed from wind and ocean
+ current fields.  The tool also displays vertical profiles
+ (soundings), vertical crossections and wave spectrum data in separate
+ windows, all from preprocessed data. Preprocessing software is
+ however not a part of Diana.  The editor tools consist of a field
+ editor and a drawing tool for fronts, symbols and area types.
+ .
+ This package contains the test version of diana.
+X-MetnoConfig-precise_wms:
+ This package provides a version of Diana for batched generation of
+ products to be used with a Web Map Service installation.
+
+#Package: diana-common
+#Architecture: all
+#Conflicts: diana (< 3.28)
+#Description: common files for all diana versions
+# at present, this package only contains the .desktop file to start the
+# diana version selected by update-alternatives

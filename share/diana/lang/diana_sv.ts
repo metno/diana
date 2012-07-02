@@ -2558,92 +2558,92 @@ Kan ikke starte produksjon</translation>
         <translation>Vis alle plottetyper</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="502"/>
+        <location filename="../../../src/qtObsDialog.cc" line="507"/>
         <source>Delete</source>
         <translation>Slett</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="503"/>
+        <location filename="../../../src/qtObsDialog.cc" line="508"/>
         <source>Delete all</source>
         <translation>Slett alt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="568"/>
+        <location filename="../../../src/qtObsDialog.cc" line="573"/>
         <source>Save</source>
         <translation>Lagre</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="569"/>
+        <location filename="../../../src/qtObsDialog.cc" line="574"/>
         <source>Save criteria list</source>
         <translation>Lagre kriterieliste</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="571"/>
+        <location filename="../../../src/qtObsDialog.cc" line="576"/>
         <source>Name of list to save</source>
         <translation>Navn på liste som skal lagres</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="532"/>
+        <location filename="../../../src/qtObsDialog.cc" line="537"/>
         <source>Colour</source>
         <translation>Farge</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="534"/>
+        <location filename="../../../src/qtObsDialog.cc" line="539"/>
         <source>Limit</source>
         <translation>Grense</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="535"/>
+        <location filename="../../../src/qtObsDialog.cc" line="540"/>
         <source>Precision</source>
         <translation>Presisjon</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="509"/>
+        <location filename="../../../src/qtObsDialog.cc" line="514"/>
         <source>Plot</source>
         <translation>Plot</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="511"/>
+        <location filename="../../../src/qtObsDialog.cc" line="516"/>
         <source>Colour - parameter</source>
         <translation>Farge - parameter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="513"/>
+        <location filename="../../../src/qtObsDialog.cc" line="518"/>
         <source>Colour - observation</source>
         <translation>Farge - observasjon</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="495"/>
+        <location filename="../../../src/qtObsDialog.cc" line="500"/>
         <source>List of Criteria</source>
         <translation>Kriterieliste</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="499"/>
+        <location filename="../../../src/qtObsDialog.cc" line="504"/>
         <source>Criteria</source>
         <translation>Kriterier</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="504"/>
+        <location filename="../../../src/qtObsDialog.cc" line="509"/>
         <source>Delete selected criteria</source>
         <translation>Slett valgt kriterie</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="505"/>
+        <location filename="../../../src/qtObsDialog.cc" line="510"/>
         <source>Delete all criteria</source>
         <translation>Slett alle kriterier i listen</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="527"/>
+        <location filename="../../../src/qtObsDialog.cc" line="532"/>
         <source>Plot observations which meet all criteria of at least one parameter</source>
         <translation>Plot observasjoner som tilfredstiller alle kriteriene for minst en parameter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="528"/>
+        <location filename="../../../src/qtObsDialog.cc" line="533"/>
         <source>Plot a parameter in the colour specified if it meets any criteria of that parameter</source>
         <translation>Plot en parameter i valgt farge hvis den tilfredstiller minst ett kriterie for den parameteren</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="529"/>
+        <location filename="../../../src/qtObsDialog.cc" line="534"/>
         <source>Plot observations in the colour specified if one parameter meet any criteria of that parameter </source>
         <translation>Plot hele observaasjonen i valgt farge hvis en av parameterene tilfredstiller minst ett av kriteriene for den parametereren</translation>
     </message>
@@ -2658,8 +2658,8 @@ Kan ikke starte produksjon</translation>
         <translation>Trykk</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="515"/>
-        <location filename="../../../src/qtObsDialog.cc" line="533"/>
+        <location filename="../../../src/qtObsDialog.cc" line="520"/>
+        <location filename="../../../src/qtObsDialog.cc" line="538"/>
         <source>Marker</source>
         <translation>Markør
 </translation>
@@ -2669,12 +2669,12 @@ Kan ikke starte produksjon</translation>
         <translation type="obsolete">Plot valgt par</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="543"/>
+        <location filename="../../../src/qtObsDialog.cc" line="548"/>
         <source>Precision of limit</source>
         <translation>Presisjon for grense</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="530"/>
+        <location filename="../../../src/qtObsDialog.cc" line="535"/>
         <source>Plot marker specified if one parameter meets any criteria of that parameter </source>
         <translation>Plot valgt markør hivis en parameter tilfredstiller minst ett av kriteriene for den parametereren</translation>
     </message>
@@ -3682,28 +3682,28 @@ Vil du kjøre dine endringer først?</translation>
         <translation>&amp;Utfør</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="545"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="574"/>
         <source>History</source>
         <translation>Historie</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="551"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="580"/>
         <source>History-vcross</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="618"/>
-        <location filename="../../../src/qtQuickMenu.cc" line="641"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="647"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="670"/>
         <source>Do you want to replace the content of this menuitem with current plot?</source>
         <translation>Vil du erstatte innholdet av menyvalget med det som vises på kartet nå?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="620"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="649"/>
         <source>This is a static/official menuitem, which can be reset to default value.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="643"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="672"/>
         <source>The menu name can be automatically created from the underlying data in the plot</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3712,14 +3712,14 @@ Vil du kjøre dine endringer først?</translation>
         <translation type="obsolete">Vær oppmerksom på at dette er et statisk/offisielt menyvalg, så du er ikke garantert at alle endringer vil godkjennes av systemet.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="628"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="657"/>
         <source>Yes</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="629"/>
-        <location filename="../../../src/qtQuickMenu.cc" line="652"/>
-        <location filename="../../../src/qtQuickMenu.cc" line="741"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="658"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="681"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="770"/>
         <source>Cancel</source>
         <translation>Avbryt</translation>
     </message>
@@ -3728,22 +3728,22 @@ Vil du kjøre dine endringer først?</translation>
         <translation type="obsolete">Navnet på menyvalget kan også endres til et som avspeiler datautvalget på plottet</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="650"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="679"/>
         <source>Yes, make new menu name</source>
         <translation>Ja, lag nytt menynavn</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="651"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="680"/>
         <source>Yes, keep menu name</source>
         <translation>Ja, behold menynavnet</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="740"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="769"/>
         <source>Replace command with original copy?</source>
         <translation>Ertstatt kommando med original kopi?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtQuickMenu.cc" line="741"/>
+        <location filename="../../../src/qtQuickMenu.cc" line="770"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -4487,6 +4487,11 @@ Vil du kjøre dine endringer først?</translation>
         <translation>Av</translation>
     </message>
     <message>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="98"/>
+        <source>min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../../src/qtTrajectoryDialog.cc" line="104"/>
         <source>No. of positions</source>
         <translation>Antall posisjoner</translation>
@@ -4497,67 +4502,67 @@ Vil du kjøre dine endringer først?</translation>
         <translation>Radius</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="119"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="118"/>
         <source>km</source>
         <translation>km</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="125"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="124"/>
         <source>Select positions on map</source>
         <translation>Velg posisjoner på kart</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="131"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="130"/>
         <source>Lat Lon (deg:min:sec or decimal)</source>
         <translation>Bredde Lengde (deg:min:sek eller desimalt)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="139"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="138"/>
         <source>Delete</source>
         <translation>Slett</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="143"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="142"/>
         <source>Delete all</source>
         <translation>Slett alt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="147"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="146"/>
         <source>Start computation</source>
         <translation>Start beregning</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="154"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="153"/>
         <source>Help</source>
         <translation>Hjelp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="163"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="162"/>
         <source>Hide</source>
         <translation>Skjul</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="167"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="166"/>
         <source>Quit</source>
         <translation>Avslutt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="129"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="128"/>
         <source>Write positions (Lat Lon):</source>
         <translation>Skriv posisjoner (Bredde Lengde):</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="158"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="157"/>
         <source>Print</source>
         <translation>Skriv ut</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="159"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="158"/>
         <source>Print calc. positions to file: trajectory.txt</source>
         <translation>Skriv beregnede posisjoner til fil: trajectory.txt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtTrajectoryDialog.cc" line="358"/>
+        <location filename="../../../src/qtTrajectoryDialog.cc" line="357"/>
         <source>No field selected</source>
         <translation>Ingen felt valgt</translation>
     </message>

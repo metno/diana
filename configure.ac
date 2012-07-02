@@ -2,13 +2,13 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.28.0], [diana@met.no])
+AC_INIT([diana], [3.28.1~a1], [diana@met.no])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
-METNO_SET_VERSION_INFO
+METNO_PVERSION
 METNO_PROGRAM_SUFFIX
 
 AC_LANG([C])
@@ -229,4 +229,5 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop])
 AC_OUTPUT

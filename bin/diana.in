@@ -37,9 +37,10 @@ test -d $home || mkdir $home
 test -d $home/work  || mkdir $home/work
 
 
-setup=$etcdir/diana$SUFFIX/diana.setup-${region} 
+setup=$etcdir/diana/@PVERSION@/diana.setup-${region}
+test -r $setup || setup=$etcdir/diana/diana.setup-${region}
 
-test -e $home/diana.setup  && setup=$home/diana.setup
+test -e $home/diana.setup && setup=$home/diana.setup
 
 
 cd $home
@@ -52,8 +53,13 @@ test -s mail.core  && mv -f mail.core mail.core.old
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
 tstart=`date`
-$prefix/bin/diana.bin$SUFFIX  -s $setup -T diana$SUFFIX -p -S profet$SUFFIX.met.no PROFFWDB=proffdb$SUFFIX.met.no PROFFDIR=$PROFFDIR APP_NAME=diana$SUFFIX $@ 
-
+$prefix/bin/diana.bin-@PVERSION@ \
+    -s $setup \
+    -T "diana-@PVERSION@" \
+    -p \
+    -S "profet$SUFFIX.met.no" \
+    PROFFWDB="proffdb$SUFFIX.met.no" PROFFDIR="$PROFFDIR" APP_NAME="diana-@PVERSION@" \
+    $@
 
 tstop=`date`
 

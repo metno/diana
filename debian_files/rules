@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+METNO_CONFIG = @METNO_CONFIG@
+METNO_SUFFIX = @METNO_SUFFIX@
+
+include /usr/share/metno-devscripts/metno_rules.mk
+
+do-configure:
+	./autogen.sh
+	./configure --enable-xlib --enable-profet --enable-proddb \
+	    --with-emos=/usr/local --enable-obs-bufr=yes --enable-geotiff \
+	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+	    --program-suffix=$(METNO_SUFFIX)

@@ -112,7 +112,7 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
       cerr << "filename:" << filename << endl;
       ifstream file2(filename.cStr());
       if (!file2) {
-        filename = "/etc/diana/diana.setup-COMMON";
+        filename = "/etc/diana/" PVERSION "/diana.setup-COMMON";
         filename_str += " or ";
         filename_str += filename;
         cerr << "filename:" << filename << endl;
@@ -120,7 +120,7 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
         if (!file3) {
           cerr << "LocalSetupParser::readSetup. cannot open default setupfile "
           << filename_str << endl;
-          cerr << "Try diana.bin -s setupfile" << endl;
+          cerr << "Try diana-" PVERSION ".bin -s setupfile" << endl;
           return false;
         }
       }
@@ -161,11 +161,11 @@ bool LocalSetupParser::parseBasics(const miutil::miString& sectname){
   // default values
   miutil::miString langpaths="lang:/metno/local/translations:${QTDIR}/translations";
   miutil::miString language="en";
-  basic_values[key_fontpath]   = "share/diana/fonts";
-  basic_values[key_docpath]    = "share/doc/diana";
-  basic_values[key_obspath]    = "share/diana";
+  basic_values[key_fontpath]   = "share/diana/" PVERSION "/fonts";
+  basic_values[key_docpath]    = "share/doc/diana-" PVERSION;
+  basic_values[key_obspath]    = "share/diana/" PVERSION;
   basic_values[key_qserver]    = "/usr/bin/coserver";
-  basic_values[key_imagepath]  = "share/diana/images";
+  basic_values[key_imagepath]  = "share/diana/" PVERSION "/images";
   basic_values[key_language]   = language;
 
   vector<miutil::miString> list,tokens;

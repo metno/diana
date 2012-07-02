@@ -725,7 +725,7 @@ language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_ru.ts \
 	$(top_srcdir)/share/diana/lang/diana_sv.ts
 
-languagedir= $(datarootdir)/$(APP)/lang
+languagedir= $(datarootdir)/diana/@PVERSION@/lang
 nodist_language_DATA=$(language_sources:.ts=.qm)
 
 CLEANFILES += $(nodist_language_DATA)
