@@ -2775,11 +2775,15 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 
         angle = atan2f(dyy,dxx) * 180. / 3.141592654;
 
+//        GLint *  params = new int[4];
+//        glGetIntegerv(GL_CURRENT_COLOR,  params);
+//        glColor3ubv(poptions.textcolour.RGB());
         const char * cnumber= strlabel.c_str();
         fp->drawStr(cnumber,xlab,ylab,angle);
 
         // needed after drawStr, otherwise colour change may not work
         glShadeModel(GL_FLAT);
+//        glColor4i(params[0],params[1],params[2],params[3]);
 
         // draw line from (xend,yend) to 'n3'
         xx[0] = xend;
