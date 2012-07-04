@@ -8,7 +8,7 @@ include /usr/share/metno-devscripts/metno_rules.mk
 
 do-configure:
 	./autogen.sh
-	./configure --enable-xlib --enable-profet --enable-proddb \
+	./configure --enable-profet --enable-proddb \
 	    --with-emos=/usr/local --enable-obs-bufr=yes --enable-geotiff \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --program-suffix=$(METNO_SUFFIX)
