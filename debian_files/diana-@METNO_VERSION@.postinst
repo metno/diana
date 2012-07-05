@@ -2,4 +2,5 @@
 
 set -e
 exec update-alternatives --install /usr/bin/diana diana /usr/bin/diana-@METNO_VERSION@ @PVERSION_NUMBER_MAJOR_MINOR@ \
+    --slave /usr/bin/diana.bin diana.bin /usr/bin/diana.bin-@METNO_VERSION@ \
     --slave /usr/bin/bdiana bdiana /usr/bin/bdiana-@METNO_VERSION@

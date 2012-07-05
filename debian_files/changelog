@@ -1,3 +1,9 @@
+diana (3.28.1~a1-2) unstable; urgency=low
+
+  * added update-alternative slave for diana.bin
+
+ -- Alexander BÃ¼rger <alexander.buerger@met.no>  Thu, 05 Jul 2012 13:22:11 +0200
+
 diana (3.28.1~a1-1) unstable; urgency=low
 
   * simultaneous installation of multiple diana versions

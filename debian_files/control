@@ -16,6 +16,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 X-MetnoConfig-precise_wms: ,
  libqtcore4-qws, libqtgui4-qws, libqt4-network-qws, libqt4-svg-qws,
  qt4-qws-dummy-screen-plugin
+Provides: diana
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
