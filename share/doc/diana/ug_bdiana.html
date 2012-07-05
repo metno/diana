@@ -556,9 +556,15 @@ FIELD HIRLAM.20KM.00 MSLP colour=blue linetype=solid linewidth=1
 	<tr><td>line type<td>linetype=solid<td><i>line type</i></td></tr>
 	<tr><td>line width<td>linewidth=1<td><i>number</i></td></tr>
 	<tr><td>line interval</td><td>line.interval=1</td><td><br></td></tr>
-	<tr><td>density of wind/vectors</td><td>density=0</td><td></td></tr>
-	<tr><td> unit (length) of vector</td><td>vector.unit=10</td><td></td></tr>
-	<tr><td>relative size of wind/vectors</td><td>rel.size=1</td><td></td></tr>
+	<tr><td>density of wind/vectors</td><td>density=0</td><td>1:
+	all arrows are plotted <br>0 or
+	auto: density automaticlly adjusts to fit the zoom level<br>
+	Auto(2):  density automaticlly adjusts to fit the zoom level,
+	but more arrows are plotted</td></tr>
+	<tr><td>density of
+	wind/vectors</td><td>density.factor=1</td><td>density.factor=2
+	is equivalent to density=Auto(2)</td></tr>
+	<tr><td> unit (length) of vector<br>or size ov wind arrows</td><td>vector.unit=10</td><td></td></tr>
 	<tr><td>extreme types</td><td>extreme.type=None</td><td>C/H, L/H</td></tr>
 	<tr><td>size of extreme labels</td><td>extreme.size=1</td><td><br></td></tr>
 	<tr><td>density of extreme labels</td><td>extreme.radius=1</td><td></td></tr>
@@ -597,7 +603,7 @@ FIELD HIRLAM.20KM.00 MSLP colour=blue linetype=solid linewidth=1
 	<tr><td>extra isolines</td><td>linetype_2=1</td><td></td></tr>
 	<tr><td>extra isolines</td><td>base_2=1</td><td></td></tr>
 	<tr><td>extra isolines</td><td>minvalue_2=off</td><td></td></tr>
-	<tr><td>extra isolines</td><td>maxvalue_2=off</td><td></td></tr>
+	<tr><td>unit</td><td></td><td>kelvin, celsius, hectopascal</td></tr>
     </TABLE><p>
   
     

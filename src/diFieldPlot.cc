@@ -751,7 +751,6 @@ bool FieldPlot::plotWind(){
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
-
   int step= poptions.density;
 
   // automatic wind/vector density
@@ -760,6 +759,9 @@ bool FieldPlot::plotWind(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -769,9 +771,10 @@ bool FieldPlot::plotWind(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
+  float unitlength  = poptions.vectorunit / 10;
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85;
+  float flagl = sdist * 0.85/unitlength;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -941,6 +944,9 @@ bool FieldPlot::plotWindColour(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -1009,10 +1015,10 @@ bool FieldPlot::plotWindColour(){
     }
   }
 
-
+  float unitlength  = poptions.vectorunit / 10;
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85;
+  float flagl = sdist * 0.85 / unitlength;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -1201,6 +1207,9 @@ bool FieldPlot::plotValue(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   if ( poptions.frame ) {
@@ -1342,6 +1351,9 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -1351,9 +1363,10 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
+  float unitlength  = poptions.vectorunit / 10;
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85;
+  float flagl = sdist * 0.85 / unitlength;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
@@ -1764,6 +1777,9 @@ bool FieldPlot::plotValues(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -1956,8 +1972,11 @@ bool FieldPlot::plotVector(){
   int autostep;
   float dist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
-  if (step<1) step= autostep;
+  if (poptions.density<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -2072,6 +2091,9 @@ bool FieldPlot::plotVectorColour(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -2251,6 +2273,9 @@ bool FieldPlot::plotDirection(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -2262,8 +2287,10 @@ bool FieldPlot::plotDirection(){
 
   // length if abs(vector) = 1
   float arrowlength = sdist;
+  float unitlength  = poptions.vectorunit;
 
-  float scale = arrowlength;
+  float scale = arrowlength / unitlength;
+
 
   // for arrow tip
   const float afac = -0.333333;
@@ -2360,6 +2387,9 @@ bool FieldPlot::plotDirectionColour(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
+  if ( step > poptions.densityFactor ) {
+    step /=(poptions.densityFactor);
+  }
   int xstep= step;
 
   //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
@@ -2432,8 +2462,8 @@ bool FieldPlot::plotDirectionColour(){
 
   // length if abs(vector) = 1
   float arrowlength = sdist;
-
-  float scale = arrowlength;
+  float unitlength  = poptions.vectorunit;
+  float scale = arrowlength / unitlength;
 
   // for arrow tip
   const float afac = -0.333333;

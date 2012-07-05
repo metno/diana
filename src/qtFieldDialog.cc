@@ -160,15 +160,23 @@ nr_linewidths = 12;
   linetypes = Linetype::getLinetypeNames();
 
   // density (of arrows etc, 0=automatic)
-  densityStringList << "Auto";
   QString qs;
-  for (i = 0; i < 10; i++) {
+  densityStringList << "Auto";
+  for (i = 1; i < 10; i++) {
     densityStringList << qs.setNum(i);
   }
   for (i = 10; i < 60; i += 10) {
     densityStringList << qs.setNum(i);
   }
   densityStringList << qs.setNum(100);
+  densityStringList <<  "auto(0.5)";
+  densityStringList <<  "auto(0.6)";
+  densityStringList <<  "auto(0.7)";
+  densityStringList <<  "auto(0.8)";
+  densityStringList <<  "auto(0.9)";
+  densityStringList <<  "auto(2)";
+  densityStringList <<  "auto(3)";
+  densityStringList <<  "auto(4)";
 
   //----------------------------------------------------------------
   cp = new CommandParser();
@@ -2656,9 +2664,9 @@ vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number)
 
   vector<miutil::miString> vnumber;
 
-  const int nenormal = 10;
+  const int nenormal = 18;
   const float enormal[nenormal] =
-  { 1., 2., 2.5, 3., 4., 5., 6., 7., 8., 9. };
+  { 1., 1.5,2., 2.5, 3.,3.5, 4.,4.5, 5.,5.5, 6.,6.5, 7.,7.5, 8.,8.5, 9.,9.5 };
   float e, elog, ex, d, dd;
   int i, j, k, n, ielog, nupdown;
 
