@@ -611,6 +611,7 @@ void startVideo(const printOptions priop)
   }
 
   delete movieMaker;
+  cout << "opening video stream |-->" << endl;
   movieMaker = new MovieMaker(output, format, 0.2f);
 }
 
@@ -620,13 +621,13 @@ bool addVideoFrame(const QImage &img)
     return false;
 
   // currently hardcoded requirements in MovieMaker
-  const QImage::Format format = QImage::Format_ARGB32;
-  const QSize size(720, 480);
+  const QImage::Format format = QImage::Format_RGB32;
+  const QSize size(1280, 720);
 
   QImage image = img;
 
   if (image.format() != format)
-    image = image.convertToFormat(QImage::Format_ARGB32);
+    image = image.convertToFormat(QImage::Format_RGB32);
 
   if (image.size() != size) {
     const qreal scaleWidth = qreal(size.width()) / image.width();
@@ -640,6 +641,7 @@ bool addVideoFrame(const QImage &img)
 
 void endVideo()
 {
+  cout << "-->| video stream closed" << endl;
   delete movieMaker;
   movieMaker = 0;
 }
@@ -1927,12 +1929,13 @@ int parseAndProcess(istream &is)
 
             if (raster_type == image_png || raster_type == image_unknown) {
               result = image.save(priop.fname.c_str());
+              cerr << "--------- write_png: " << priop.fname << endl;
 #ifdef VIDEO_EXPORT
             } else if (raster_type == image_avi) {
               result = addVideoFrame(image);
+              cerr << "--------- write_avi_frame: " << priop.fname << endl;
 #endif
             }
-            cerr << "--------- write_png: " << priop.fname << endl;
 
             if (verbose) {
               cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
@@ -3344,6 +3347,10 @@ int main(int _argc, char** _argv)
   }
 
   // clean up structures
+#ifdef VIDEO_EXPORT
+  if(movieMaker) endVideo();
+#endif // VIDEO_EXPORT
+
 #ifdef USE_XLIB
   if (pix) {
     glXDestroyGLXPixmap(dpy, pix);
