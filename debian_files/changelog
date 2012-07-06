@@ -1,3 +1,9 @@
+diana (3.28.1~a1-3) unstable; urgency=low
+
+  * include /etc/diana/setup*/ in update-alternatives
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 06 Jul 2012 14:49:33 +0200
+
 diana (3.28.1~a1-2) unstable; urgency=low
 
   * added update-alternative slave for diana.bin
