@@ -121,7 +121,7 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
   return true;
 }
 
-AVFrame *MovieMaker::allocPicture(int pixFormat, int width, int height)
+AVFrame *MovieMaker::allocPicture(PixelFormat pixFormat, int width, int height)
 {
   AVFrame *frame = avcodec_alloc_frame();
   if (!frame)
