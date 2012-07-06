@@ -918,11 +918,6 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
         //add plotNames without suffix
         if (suffixmap[""] >= vPlotField[j].input.size()) {
           plotNames.push_back(plotName);
-          vPlotField[j].vcoord.insert(vfgi[i].zaxis);
-          //old syntax, no zaxis
-          if( vfgi[i].zaxis.empty() && vfgi[i].levelNames.size()!=0 ) {
-            vPlotField[j].vcoord.insert(FieldSpecTranslation::getVcoorFromLevel(vfgi[i].levelNames[0]));
-          }
         }
 
         //add plotNames with suffix
@@ -986,7 +981,7 @@ bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
 
-  cerr <<"PIN: "<<pin<<endl;
+//  cerr <<"PIN: "<<pin<<endl;
 
   // if difference
   miString fspec1,fspec2;
@@ -997,7 +992,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   if (pin.find("model=") == std::string::npos ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
-  cerr <<"PIN NEW: "<<pin<<endl;
+//  cerr <<"PIN NEW: "<<pin<<endl;
 
   std::vector<std::string> tokens;
   //NB! what about ""
