@@ -620,23 +620,7 @@ bool addVideoFrame(const QImage &img)
   if (!movieMaker)
     return false;
 
-  // currently hardcoded requirements in MovieMaker
-  const QImage::Format format = QImage::Format_RGB32;
-  const QSize size(1280, 720);
-
-  QImage image = img;
-
-  if (image.format() != format)
-    image = image.convertToFormat(QImage::Format_RGB32);
-
-  if (image.size() != size) {
-    const qreal scaleWidth = qreal(size.width()) / image.width();
-    const qreal scaleHeight = qreal(size.height()) / image.height();
-    const QMatrix mat = QMatrix().scale(scaleWidth, scaleHeight);
-    image = image.transformed(mat);
-  }
-
-  return movieMaker->addImage(&image);
+  return movieMaker->addImage(img);
 }
 
 void endVideo()

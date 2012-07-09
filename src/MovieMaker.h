@@ -82,7 +82,7 @@ public:
   std::string outputFile() const;
   std::string outputFormat() const;
 
-  bool addImage(const QImage* image);
+  bool addImage(const QImage &image);
 
 private:
   float delay;
@@ -92,7 +92,7 @@ private:
 
   OutputCtx outputVideo;
 
-  //bool addImage(const QImage *image);
+  bool makeVideoFrame(const QImage *image);
   bool addVideoStream(OutputCtx *output);
   AVFrame* allocPicture(PixelFormat pixFormat, int width, int height);
   bool openVideoEncoder(OutputCtx *output);

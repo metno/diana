@@ -3060,7 +3060,7 @@ void DianaMainWindow::saveAnimation() {
 
       w->Glw()->resize(1280, 720);
       QImage image = w->Glw()->grabFrameBuffer(true);
-      moviemaker.addImage(&image);
+      moviemaker.addImage(image);
 
       /// go to next frame
       stepforward();

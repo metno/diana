@@ -92,10 +92,10 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
   video->codec_id = (CodecID) output->outputCtx->oformat->video_codec;
   video->codec_type = AVMEDIA_TYPE_VIDEO;
   video->bit_rate = VIDEO_BITRATE;
-  video->sample_aspect_ratio.den = 16;
-  video->sample_aspect_ratio.num = 9;
-  output->videoStream->sample_aspect_ratio.den = 16;
-  output->videoStream->sample_aspect_ratio.num = 9;
+  //video->sample_aspect_ratio.den = 16;
+  //video->sample_aspect_ratio.num = 9;
+  //output->videoStream->sample_aspect_ratio.den = 16;
+  //output->videoStream->sample_aspect_ratio.num = 9;
   //  video->dtg_active_format = FF_DTG_AFD_4_3; only used for decoding
   video->width = 1280;
   video->height = 720;
@@ -359,18 +359,27 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
   return true;
 }
 
-/*bool MovieMaker::addImage(QImage& image)
+bool MovieMaker::addImage(const QImage &image)
 {
-  // scale image to fit video format size
-  const QImage imageScaled = image.scaled(1280, 720, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  const QImage::Format format = QImage::Format_RGB32;
+  const QSize size(1280, 720);
 
-  addImage(&imageScaled);
+  QImage imageScaled = image;
 
-  return true;
+  if (imageScaled.format() != format)
+    imageScaled = imageScaled.convertToFormat(QImage::Format_RGB32);
 
-}*/
+  if (imageScaled.size() != size) {
+    const qreal scaleWidth = qreal(size.width()) / imageScaled.width();
+    const qreal scaleHeight = qreal(size.height()) / imageScaled.height();
+    const QMatrix mat = QMatrix().scale(scaleWidth, scaleHeight);
+    imageScaled = imageScaled.transformed(mat);
+  }
 
-bool MovieMaker::addImage(const QImage *image)
+  return makeVideoFrame(&imageScaled);
+}
+
+bool MovieMaker::makeVideoFrame(const QImage *image)
 {
   OutputCtx *output = &outputVideo;
 
