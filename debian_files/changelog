@@ -1,3 +1,9 @@
+diana-wms (3.27.28-0) unstable; urgency=low
+
+  * Updated version number in order to create a package for Ubuntu 12.04.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 10 Jul 2012 12:22:00 +0200
+
 diana (3.28.1~a1-3) unstable; urgency=low
 
   * include /etc/diana/setup*/ in update-alternatives
