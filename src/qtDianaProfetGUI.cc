@@ -61,7 +61,7 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 #endif
   logfile.setSection("PROFET.LOG");
 
-  sessionDialog = new ProfetSessionDialog(parent,controller.SERVER_HOST);
+  sessionDialog = new ProfetSessionDialog(parent);
   viewObjectDialog = new ProfetObjectDialog(parent,
       ProfetObjectDialog::VIEW_OBJECT_MODE);
   editObjectDialog = new ProfetObjectDialog(parent);

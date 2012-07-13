@@ -139,6 +139,7 @@ public:
    * Used when disconnecting from data manager
    */
   void resetStatus();
+  void setHostname(miutil::miString hostname){sessionDialog->setHostname(hostname);}
   void setCurrentSession(const fetSession & session);
   void setBaseObjects(vector<fetBaseObject> objects);
   void setUser(const Profet::PodsUser & user);

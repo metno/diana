@@ -100,8 +100,9 @@ protected:
   void closeEvent( QCloseEvent* );
 
 public:
-  ProfetSessionDialog(QWidget* parent,miutil::miString hostname);
+  ProfetSessionDialog(QWidget* parent);
 
+  void setHostname(miutil::miString hostname);
   void setModel(const fetModel & model);
   void setSessionModel(QAbstractItemModel * sessionModel);
   void setUserModel(QAbstractItemModel * userModel);

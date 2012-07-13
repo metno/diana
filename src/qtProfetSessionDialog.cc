@@ -41,12 +41,11 @@
 #include <QMessageBox>
 #include <QWindowsStyle>
 
-ProfetSessionDialog::ProfetSessionDialog( QWidget* parent,miutil::miString hostname)
+ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   : QDialog(parent )
   {
 
 
-  setWindowTitle(tr("Edit Field Session at: ")+QString(hostname.cStr()));
   setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
 
   QVBoxLayout * mainLayout   = new QVBoxLayout(this);
@@ -217,6 +216,13 @@ void ProfetSessionDialog::printSize(const QModelIndex &){
   cerr << "size: " << table->size().height() << endl;
   cerr << "minimumSize: " << table->minimumSize().height() << endl;
   cerr << "columnWidth: " << table->columnWidth(1) << endl;
+}
+
+void ProfetSessionDialog::setHostname(miutil::miString hostname)
+{
+
+  setWindowTitle(tr("Edit Field Session at: ")+QString(hostname.cStr()));
+
 }
 
 void ProfetSessionDialog::setUserModel(QAbstractItemModel * userModel){

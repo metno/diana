@@ -1728,6 +1728,9 @@ bool DianaMainWindow::profetConnect(){
   loginDialog.setRoles((QStringList() << "forecast" << "observer"));
 
   if(loginDialog.exec()){ // OK button pressed
+    if ( loginDialog.test() ) {
+      Profet::ProfetController::SERVER_HOST = "profet-test";
+    }
     while(retry) {
       retry = false;
       if(loginDialog.username().isEmpty())
@@ -1749,6 +1752,7 @@ bool DianaMainWindow::profetConnect(){
           if(dmt != perferredType)
             QMessageBox::warning(0,"Running disconnected mode",
                 "Distributed field editing system is not available.");
+          profetGUI->setHostname(Profet::ProfetController::SERVER_HOST);
           return true;
         }catch(Profet::ServerException & se){
           contr->getProfetController()->disconnect();
