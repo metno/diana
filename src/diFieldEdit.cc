@@ -318,7 +318,7 @@ bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
   editfield->name=     fieldname;
   editfield->text=     text;
   editfield->fulltext= fulltext;
-
+  editfield->producer = metnoFieldFileIdent[0];
   vector<Field*> vf;
   vf.push_back(editfield);
 
