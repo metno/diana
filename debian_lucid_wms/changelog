@@ -1,3 +1,9 @@
+diana-wms (3.28.0-1) unstable; urgency=low
+
+  * Lowered dependency versions in order to build on Ubuntu 10.04.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 20 Jul 2012 17:09:00 +0200
+
 diana-wms (3.28.0-0) unstable; urgency=low
 
   * Updated version number in order to create a package for Ubuntu 12.04.
