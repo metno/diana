@@ -80,13 +80,21 @@ QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors,
 		    bool Enabled=true, int defItem=0);
 
 QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>&,
-		     bool Enabled=true, int defItem=0,
-		     miutil::miString firstItem="", bool name=false);
+         bool Enabled=true, int defItem=0,
+         miutil::miString firstItem="", bool name=false);
+
+QComboBox* ColourBox(QWidget* parent,
+         bool Enabled=true, int defItem=0,
+         miutil::miString firstItem="", bool name=false);
+
+void ExpandColourBox( QComboBox* box, const Colour& col );
 
 QComboBox* PaletteBox(QWidget* parent,
 		      const vector<ColourShading::ColourShadingInfo>&,
 		      bool Enabled=true, int defItem=0,
 		      miutil::miString firstItem="", bool name=false);
+
+void ExpandPaletteBox( QComboBox* box, const ColourShading& palette );
 
 QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>&,
 		      bool Enabled=true, int defItem=0,
@@ -99,6 +107,9 @@ QComboBox* LinewidthBox(QWidget* parent,
 			bool Enabled=true,
 			int nr_linewidths=12,
 			int defItem=0);
+
+void ExpandLinewidthBox( QComboBox* box,
+    int new_nr_linewidths);
 
 QComboBox* PixmapBox(QWidget* parent, vector<miutil::miString>& markerName);
 
