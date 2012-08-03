@@ -614,13 +614,13 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.key==key_F9){
-//    cerr << "F9 - ikke definert" << endl;
+//    cerr << "F9 - not defined" << endl;
       return;
     } else if (me.key==key_F10){
-//    cerr << "Vis forrige plott(utf�r)" << endl;
+//    cerr << "Show previus plot (apply)" << endl;
       return;
     } else if (me.key==key_F11){
-//    cerr << "Vis neste plott (utf�r)" << endl;
+//    cerr << "Show next plot (apply)" << endl;
       return;
       //####################################################################
     } else if ((me.key==key_Left && me.modifier==key_Shift) ||
@@ -802,11 +802,6 @@ void Controller::getAllFieldNames(vector<miString> & fieldNames,
                                     set<std::string>& fieldsuffixes)
 {
   fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
-}
-
-miString Controller::getFieldClassSpecifications(const miString& fieldname)
-{
-  return fieldm->getFieldClassSpecifications(fieldname);
 }
 
 vector<miString> Controller::getFieldLevels(const miString& pinfo)
