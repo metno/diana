@@ -3327,8 +3327,12 @@ bool FieldPlot::plotFillCell(){
           if (index<0) index=0;
           glColor4ubv(poptions.palettecolours[index].RGBA());
         } else {
-          it = find(poptions.linevalues.begin(), poptions.linevalues.end(), value);
-          glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()].RGBA());
+          it=poptions.linevalues.begin();
+          while( *it < value && it!=poptions.linevalues.end()) {
+            it++;
+          }
+          if(it == poptions.linevalues.begin() ) continue; //less than first limit
+          glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()-1].RGBA());
         }
 
         // lower-left corner of gridcell
