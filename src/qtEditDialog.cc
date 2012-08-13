@@ -1593,7 +1593,12 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
     numFieldEditTools= n;
 
-    miutil::miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
+    miutil::miString str;
+    map<miutil::miString,PlotOptions>::iterator p;
+    if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
+        != PlotOptions::fieldPlotOptions.end()){
+      str = p->second.classSpecifications;;
+    }
 
     vector<miutil::miString> vclass= str.split(',');
     for (unsigned int i=0; i<vclass.size(); i++) {
@@ -1849,7 +1854,12 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     numFieldEditTools= n;
 
-    miutil::miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
+    miutil::miString str;
+    map<miutil::miString,PlotOptions>::iterator p;
+    if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
+        != PlotOptions::fieldPlotOptions.end()){
+      str = p->second.classSpecifications;;
+    }
 
     vector<miutil::miString> vclass= str.split(',');
     for (unsigned int i=0; i<vclass.size(); i++) {

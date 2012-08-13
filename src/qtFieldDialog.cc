@@ -129,7 +129,6 @@ QDialog(parent)
 
 
   // Colours
-  colourInfo = Colour::getColourInfo();
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
   map<miutil::miString, miutil::miString> enabledOptions = PlotOptions::getEnabledOptions();
@@ -152,9 +151,6 @@ QDialog(parent)
       }
     }
   }
-
-// linewidths
-nr_linewidths = 12;
 
   // linetypes
   linetypes = Linetype::getLinetypeNames();
@@ -431,7 +427,7 @@ nr_linewidths = 12;
 
   // colorCbox
   QLabel* colorlabel = new QLabel(tr("Line colour"), this);
-  colorCbox = ColourBox(this, colourInfo, false, 0, tr("off").toStdString(),true);
+  colorCbox = ColourBox(this, false, 0, tr("off").toStdString(),true);
   colorCbox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
   connect( colorCbox, SIGNAL( activated(int) ),
       SLOT( colorCboxActivated(int) ) );
@@ -816,7 +812,7 @@ void FieldDialog::CreateAdvanced()
       SLOT( undefMaskingActivated(int) ) );
 
   // Undefined masking colour
-  undefColourCbox = ColourBox(advFrame, colourInfo, false, 0);
+  undefColourCbox = ColourBox(advFrame, false, 0, "", true);
   connect( undefColourCbox, SIGNAL( activated(int) ),
       SLOT( undefColourActivated(int) ) );
 
@@ -866,8 +862,8 @@ void FieldDialog::CreateAdvanced()
   //  threeColoursCheckBox = new QCheckBox(tr("Three colours"), advFrame);
 
   for (int i = 0; i < 3; i++) {
-    threeColourBox.push_back(ColourBox(advFrame, colourInfo, true, 0,
-        tr("Off").toStdString()));
+    threeColourBox.push_back(ColourBox(advFrame, true, 0,
+        tr("Off").toStdString(),true));
     connect  ( threeColourBox[i], SIGNAL( activated(int) ),
         SLOT( threeColoursChanged() ) );
   }
@@ -912,7 +908,7 @@ void FieldDialog::CreateAdvanced()
       SLOT( patternComboBoxToggled(int) ) );
 
   //pattern colour
-  patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
+  patternColourBox = ColourBox(advFrame,false,0,tr("Auto").toStdString(),true);
   connect( patternColourBox, SIGNAL( activated(int) ),
       SLOT( patternColourBoxToggled(int) ) );
 
@@ -926,7 +922,7 @@ void FieldDialog::CreateAdvanced()
       SLOT( alphaChanged(int) ) );
 
   //colour
-  colour2ComboBox = ColourBox(advFrame,colourInfo,false,0,tr("Off").toStdString());
+  colour2ComboBox = ColourBox(advFrame, false,0,tr("Off").toStdString(),true);
   connect( colour2ComboBox, SIGNAL( activated(int) ),
       SLOT( colour2ComboBoxToggled(int) ) );
 
@@ -1959,7 +1955,6 @@ void FieldDialog::enableFieldOptions()
    }
    *******************************************************/
 
-  int nr_colors = colourInfo.size();
   int nr_linetypes = linetypes.size();
   enableWidgets("contour");
 
@@ -2009,47 +2004,58 @@ void FieldDialog::enableFieldOptions()
 
   // colour(s)
   if ((nc = cp->findKey(vpcopt, "colour_2")) >= 0) {
+    int nr_colours = colour2ComboBox->count();
     if (vpcopt[nc].allValue.downcase() == "off" ) {
       updateFieldOptions("colour_2", "off");
       colour2ComboBox->setCurrentIndex(0);
     } else {
+      QString col = vpcopt[nc].allValue.c_str();
       i = 0;
-      while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
+      while (i < nr_colours && col != colour2ComboBox->itemText(i) )
         i++;
-      if (i == nr_colors) {
-        i = 0;
+      if (i == nr_colours) {
+        Colour::defineColourFromString(vpcopt[nc].allValue);
+        ExpandColourBox(colour2ComboBox,Colour(vpcopt[nc].allValue));
       }
-      updateFieldOptions("colour_2", colourInfo[i].name);
-      colour2ComboBox->setCurrentIndex(i + 1);
+      updateFieldOptions("colour_2", vpcopt[nc].allValue);
+      colour2ComboBox->setCurrentIndex(i);
     }
   }
 
   if ((nc = cp->findKey(vpcopt, "colour")) >= 0) {
+    int nr_colours = colorCbox->count();
     if (vpcopt[nc].allValue.downcase() == "off" ) {
       updateFieldOptions("colour", "off");
       colorCbox->setCurrentIndex(0);
     } else {
-      i = 0;
-      while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
+      QString col = vpcopt[nc].allValue.c_str();
+      i = 1;
+      while (i < nr_colours && col != colorCbox->itemText(i))
         i++;
-      if (i == nr_colors) {
-        i = 0;
+      if (i == nr_colours) {
+        Colour::defineColourFromString(vpcopt[nc].allValue);
+        ExpandColourBox(colorCbox,Colour(vpcopt[nc].allValue));
       }
-      updateFieldOptions("colour", colourInfo[i].name);
-      colorCbox->setCurrentIndex(i + 1);
+      updateFieldOptions("colour", vpcopt[nc].allValue);
+      colorCbox->setCurrentIndex(i);
     }
   }
 
   // 3 colours
   if ((nc = cp->findKey(vpcopt, "colours")) >= 0) {
+    int nr_colours = threeColourBox[0]->count();
     vector<miutil::miString> colours = vpcopt[nc].allValue.split(",");
     if (colours.size() == 3) {
       for (int j = 0; j < 3; j++) {
-        i = 0;
-        while (i < nr_colors && colours[j] != colourInfo[i].name)
+        i = 1;
+        QString col = colours[j].c_str();
+        while (i < nr_colours && col != threeColourBox[j]->itemText(i) )
           i++;
-        if (i < nr_colors)
-          threeColourBox[j]->setCurrentIndex(i + 1);
+        if (i == nr_colours) {
+          Colour::defineColourFromString(colours[j]);
+          ExpandColourBox(threeColourBox[j], Colour(colours[j]));
+        }
+        threeColourBox[j]->setCurrentIndex(i);
       }
       threeColoursChanged();
     }
@@ -2057,54 +2063,34 @@ void FieldDialog::enableFieldOptions()
 
   //contour shading
   if ((nc = cp->findKey(vpcopt, "palettecolours")) >= 0) {
-    vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
-    vector<miutil::miString> stokens = tokens[0].split(";");
-    if (stokens.size() == 2)
-      shadingSpinBox->setValue(atoi(stokens[1].cStr()));
-    else
-      shadingSpinBox->setValue(0);
-    int nr_cs = csInfo.size();
-    miutil::miString str;
-    i = 0;
-    while (i < nr_cs && stokens[0] != csInfo[i].name)
-      i++;
-    if (i == nr_cs) {
-      str = "off";
+    if (vpcopt[nc].allValue.downcase() == "off" ) {
+      updateFieldOptions("palettecolours", "off");
       shadingComboBox->setCurrentIndex(0);
-      shadingcoldComboBox->setCurrentIndex(0);
     } else {
-      str = tokens[0];
-      shadingComboBox->setCurrentIndex(i + 1);
-    }
-    if (tokens.size() == 2) {
-      vector<miutil::miString> stokens = tokens[1].split(";");
+      vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
+      vector<miutil::miString> stokens = tokens[0].split(";");
       if (stokens.size() == 2)
-        shadingcoldSpinBox->setValue(atoi(stokens[1].cStr()));
+        shadingSpinBox->setValue(atoi(stokens[1].cStr()));
       else
-        shadingcoldSpinBox->setValue(0);
+        shadingSpinBox->setValue(0);
+      int nr_cs = csInfo.size();
+      miutil::miString str;
       i = 0;
       while (i < nr_cs && stokens[0] != csInfo[i].name)
         i++;
       if (i == nr_cs) {
-        shadingcoldComboBox->setCurrentIndex(0);
-      } else {
-        str += "," + tokens[1];
-        shadingcoldComboBox->setCurrentIndex(i + 1);
+        ColourShading::defineColourShadingFromString(vpcopt[nc].allValue);
+        ExpandPaletteBox(shadingComboBox,ColourShading(vpcopt[nc].allValue));
+        ColourShading::ColourShadingInfo info;
+        info.name=vpcopt[nc].allValue;
+        info.colour=ColourShading::getColourShading(vpcopt[nc].allValue);
+        csInfo.push_back(info);
       }
-    } else {
-      shadingcoldComboBox->setCurrentIndex(0);
+      str = vpcopt[nc].allValue;//tokens[0];
+      shadingComboBox->setCurrentIndex(i + 1);
+      updateFieldOptions("palettecolours", str, -1);
     }
-    updateFieldOptions("palettecolours", str, -1);
-  } else {
-    updateFieldOptions("palettecolours", "off", -1);
-    shadingComboBox->setCurrentIndex(0);
-    shadingcoldComboBox->setCurrentIndex(0);
-    updateFieldOptions("table", "remove");
-    updateFieldOptions("patterns", "remove");
-    updateFieldOptions("repeat", "remove");
-    updateFieldOptions("alpha", "remove");
   }
-
   //pattern
   if ((nc = cp->findKey(vpcopt, "patterns")) >= 0) {
     miutil::miString value = vpcopt[nc].allValue;
@@ -2128,16 +2114,17 @@ void FieldDialog::enableFieldOptions()
 
   //pattern colour
   if ((nc = cp->findKey(vpcopt, "patterncolour")) >= 0) {
+    int nr_colours = patternColourBox->count();
+    QString col = vpcopt[nc].allValue.c_str();
     i = 0;
-    while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
+    while (i < nr_colours && col != patternColourBox->itemText(i) )
       i++;
-    if (i == nr_colors) {
-      updateFieldOptions("patterncolour", "remove");
-      patternColourBox->setCurrentIndex(0);
-    } else {
-      updateFieldOptions("patterncolour", colourInfo[i].name);
-      patternColourBox->setCurrentIndex(i + 1);
+    if (i == nr_colours) {
+      Colour::defineColourFromString(vpcopt[nc].allValue);
+      ExpandColourBox(patternColourBox,Colour(vpcopt[nc].allValue));
     }
+    updateFieldOptions("patterncolour", vpcopt[nc].allValue);
+    patternColourBox->setCurrentIndex(i);
   }
 
   //table
@@ -2189,27 +2176,26 @@ void FieldDialog::enableFieldOptions()
   }
 
   // linewidth
-  if ((nc = cp->findKey(vpcopt, "linewidth")) >= 0) {
-    i = 0;
-    while (i < nr_linewidths && vpcopt[nc].allValue != miutil::miString(i + 1))
-      i++;
-    if (i == nr_linewidths)
-      i = 0;
-    updateFieldOptions("linewidth", miutil::miString(i + 1));
-    lineWidthCbox->setCurrentIndex(i);
-    if ((nc = cp->findKey(vpcopt, "linewidth_2")) >= 0) {
-      i = 0;
-      while (i < nr_linewidths && vpcopt[nc].allValue
-          != miutil::miString(i + 1))
-        i++;
-      if (i == nr_linewidths)
-        i = 0;
-      updateFieldOptions("linewidth_2", miutil::miString(i + 1));
-      linewidth2ComboBox->setCurrentIndex(i);
-    } else {
-      linewidth2ComboBox->setCurrentIndex(0);
+  if ((nc = cp->findKey(vpcopt, "linewidth")) >= 0  && !vpcopt[nc].intValue.empty()) {
+    i = vpcopt[nc].intValue[0];
+    int nr_linewidths = lineWidthCbox->count();
+    if (  i  > nr_linewidths )  {
+      ExpandLinewidthBox(lineWidthCbox, i);
     }
+    updateFieldOptions("linewidth", miutil::miString(i));
+    lineWidthCbox->setCurrentIndex(i-1);
   }
+
+  if ((nc = cp->findKey(vpcopt, "linewidth_2")) >= 0  && !vpcopt[nc].intValue.empty()) {
+    int nr_linewidths = linewidth2ComboBox->count();
+    i = vpcopt[nc].intValue[0];
+    if ( i  > nr_linewidths )  {
+      ExpandLinewidthBox(linewidth2ComboBox, i);
+    }
+    updateFieldOptions("linewidth_2", miutil::miString(i));
+    linewidth2ComboBox->setCurrentIndex(i-1);
+  }
+
 
   // line interval (isoline contouring)
   if ((nc = cp->findKey(vpcopt, "line.interval")) >= 0 || (nc = cp->findKey(
@@ -2223,7 +2209,6 @@ void FieldDialog::enableFieldOptions()
     if ((nc = cp->findKey(vpcopt, "line.interval_2")) >= 0) {
       if (!vpcopt[nc].floatValue.empty()){
         float ekv = vpcopt[nc].floatValue[0];
-        cerr <<"LIneint 2 :"<<ekv<<endl;
         numberList(interval2ComboBox, ekv);
       }
     }
@@ -2387,26 +2372,28 @@ void FieldDialog::enableFieldOptions()
 
   // undefined masking colour
   if ((nc = cp->findKey(vpcopt, "undef.colour")) >= 0) {
+    int nr_colours = undefColourCbox->count();
+    QString col = vpcopt[nc].allValue.c_str();
     i = 0;
-    while (i < nr_colors && vpcopt[nc].allValue != colourInfo[i].name)
+    while (i < nr_colours && col != undefColourCbox->itemText(i) )
       i++;
-    if (i == nr_colors) {
-      i = 0;
-      updateFieldOptions("undef.colour", colourInfo[i].name);
+    if (i == nr_colours) {
+      Colour::defineColourFromString(vpcopt[nc].allValue);
+      ExpandColourBox(undefColourCbox,Colour(vpcopt[nc].allValue));
     }
+    updateFieldOptions("undef.colour", vpcopt[nc].allValue);
     undefColourCbox->setCurrentIndex(i);
   }
 
   // undefined masking linewidth
-  if ((nc = cp->findKey(vpcopt, "undef.linewidth")) >= 0) {
-    i = 0;
-    while (i < nr_linewidths && vpcopt[nc].allValue != miutil::miString(i + 1))
-      i++;
-    if (i < nr_linewidths) {
-      i = 0;
-      updateFieldOptions("undef.linewidth", miutil::miString(i + 1));
+  if ((nc = cp->findKey(vpcopt, "undef.linewidth")) >= 0&& !vpcopt[nc].intValue.empty()) {
+    int nr_linewidths = undefLinewidthCbox->count();
+    i = vpcopt[nc].intValue[0];
+    if ( i  > nr_linewidths )  {
+      ExpandLinewidthBox(undefLinewidthCbox, i);
     }
-    undefLinewidthCbox->setCurrentIndex(i);
+    updateFieldOptions("undef.linewidth", miutil::miString(i));
+    undefLinewidthCbox->setCurrentIndex(i-1);
   }
 
   // undefined masking linetype
@@ -2787,7 +2774,7 @@ void FieldDialog::colorCboxActivated(int index)
   if (index == 0)
     updateFieldOptions("colour", "off");
   else
-    updateFieldOptions("colour", colourInfo[index - 1].name);
+    updateFieldOptions("colour",colorCbox->currentText().toStdString());
 }
 
 void FieldDialog::lineWidthCboxActivated(int index)
@@ -2915,7 +2902,7 @@ void FieldDialog::undefMaskingActivated(int index)
 
 void FieldDialog::undefColourActivated(int index)
 {
-  updateFieldOptions("undef.colour", colourInfo[index].name);
+  updateFieldOptions("undef.colour", undefColourCbox->currentText().toStdString());
 }
 
 void FieldDialog::undefLinewidthActivated(int index)
@@ -2959,7 +2946,7 @@ void FieldDialog::colour2ComboBoxToggled(int index)
     enableType2Options(false);
     colour2ComboBox->setEnabled(true);
   } else {
-    updateFieldOptions("colour_2", colourInfo[index - 1].name);
+    updateFieldOptions("colour_2", colour2ComboBox->currentText().toStdString());
     enableType2Options(true); //check if needed
     //turn of 3 colours (not possible to combine threeCols and col_2)
     threeColourBox[0]->setCurrentIndex(0);
@@ -2990,7 +2977,7 @@ void FieldDialog::patternColourBoxToggled(int index)
   if (index == 0) {
     updateFieldOptions("patterncolour", "remove");
   } else {
-    updateFieldOptions("patterncolour", colourInfo[index - 1].name);
+    updateFieldOptions("patterncolour", patternColourBox->currentText().toStdString());
   }
   updatePaletteString();
 }
@@ -3005,11 +2992,13 @@ void FieldDialog::repeatCheckBoxToggled(bool on)
 
 void FieldDialog::threeColoursChanged()
 {
-  int c1 = threeColourBox[0]->currentIndex();
-  int c2 = threeColourBox[1]->currentIndex();
-  int c3 = threeColourBox[2]->currentIndex();
-  if (c1 == 0 || c2 == 0 || c3 == 0) {
+
+  if (threeColourBox[0]->currentIndex() == 0
+      || threeColourBox[1]->currentIndex() == 0
+      || threeColourBox[2]->currentIndex() == 0) {
+
     updateFieldOptions("colours", "remove");
+
   } else {
 
     //turn of line colour
@@ -3020,8 +3009,9 @@ void FieldDialog::threeColoursChanged()
     colour2ComboBox->setCurrentIndex(0);
     colour2ComboBoxToggled(0);
 
-    miutil::miString str = colourInfo[c1 - 1].name + ","
-        + colourInfo[c2 - 1].name + "," + colourInfo[c3 - 1].name;
+    miutil::miString str = miutil::miString(threeColourBox[0]->currentText().toStdString()) + ","
+        + threeColourBox[1]->currentText().toStdString() + "," + threeColourBox[2]->currentText().toStdString();
+
     updateFieldOptions("colours", "remove");
     updateFieldOptions("colours", str);
   }
@@ -3468,7 +3458,7 @@ std::string FieldDialog::getParamString(int i)
       ostr << " elevel=" << selectedFields[i].idnum;
     }
     //    if (selectedFields[i].grid.exists()) {
-    ostr << " grid="<< selectedFields[i].grid;
+    //ostr << " grid="<< selectedFields[i].grid;
     //    }
     if (selectedFields[i].hourOffset != 0)
       ostr << " hour.offset=" << selectedFields[i].hourOffset;

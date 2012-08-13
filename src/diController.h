@@ -320,8 +320,6 @@ public:
   EditDialogInfo initEditDialog();
   /// get text list from complex weather symbol
   set <miutil::miString> getComplexList();
-  /// return class specifications from fieldplot setup to EditDialog
-  miutil::miString getFieldClassSpecifications(const miutil::miString& fieldName);
 
   // object-dialog methods
   /// get ObjectNames from setup file to be used in dialog etc.

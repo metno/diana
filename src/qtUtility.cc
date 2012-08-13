@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -109,7 +109,7 @@ QPushButton* NormalPushButton(const QString& name, QWidget* parent){
 
 /*********************************************/
 QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent,
-			  int deltaWidth, int deltaHeight ) {
+    int deltaWidth, int deltaHeight ) {
 
   QPushButton* b = new QPushButton( parent );
 
@@ -128,7 +128,7 @@ QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent,
 
 /*********************************************/
 QComboBox* ComboBox( QWidget* parent, vector<miutil::miString> vstr,
-		     bool Enabled, int defItem  ){
+    bool Enabled, int defItem  ){
 
   QComboBox* box = new QComboBox( parent );
 
@@ -149,7 +149,7 @@ QComboBox* ComboBox( QWidget* parent, vector<miutil::miString> vstr,
 
 /*********************************************/
 QComboBox* ComboBox( QWidget* parent, QColor* pixcolor, int nr_colors,
-		     bool Enabled, int defItem  ){
+    bool Enabled, int defItem  ){
   int t;
   QPixmap** pmap = new QPixmap*[nr_colors];
   for( t=0; t<nr_colors; t++ )
@@ -180,9 +180,19 @@ QComboBox* ComboBox( QWidget* parent, QColor* pixcolor, int nr_colors,
 }
 
 /*********************************************/
+QComboBox* ColourBox( QWidget* parent,
+    bool Enabled, int defItem,
+    miutil::miString firstItem, bool name ){
+
+  vector<Colour::ColourInfo> cInfo = Colour::getColourInfo();
+
+  return ColourBox(parent, cInfo, Enabled, defItem, firstItem, name);
+
+}
+
 QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
-		      bool Enabled, int defItem,
-		      miutil::miString firstItem, bool name ){
+    bool Enabled, int defItem,
+    miutil::miString firstItem, bool name ){
 
   QComboBox* box = new QComboBox( parent );
 
@@ -210,13 +220,29 @@ QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
   return box;
 }
 
+void ExpandColourBox( QComboBox* box, const Colour::Colour& col )
+{
+  QPixmap* pmap = new QPixmap( 20, 20 );
+
+  QColor pixcolor=QColor(col.R(),col.G(),col.B() );
+  pmap->fill( pixcolor );
+  QIcon qicon( *pmap );
+  QString qs;
+  //if(name)
+  qs = QString(col.Name().cStr());
+  box->addItem(qicon,qs);
+
+  delete pmap;
+  pmap=0;
+}
+
 /*********************************************/
 QComboBox* PaletteBox( QWidget* parent,
-		       const vector<ColourShading::ColourShadingInfo>& csInfo,
-		       bool Enabled,
-		       int defItem,
-		       miutil::miString firstItem,
-		       bool name ){
+    const vector<ColourShading::ColourShadingInfo>& csInfo,
+    bool Enabled,
+    int defItem,
+    miutil::miString firstItem,
+    bool name ){
 
   QComboBox* box = new QComboBox( parent );
 
@@ -238,8 +264,8 @@ QComboBox* PaletteBox( QWidget* parent,
     qp.begin( pmap );
     for( int j=0; j<nr_colours; j+=step ){
       QColor pixcolor=QColor(csInfo[i].colour[j].R(),
-				     csInfo[i].colour[j].G(),
-				     csInfo[i].colour[j].B() );
+          csInfo[i].colour[j].G(),
+          csInfo[i].colour[j].B() );
 
       qp.fillRect( j*factor,0,factor,20,pixcolor);
     }
@@ -261,13 +287,44 @@ QComboBox* PaletteBox( QWidget* parent,
   return box;
 }
 
+void ExpandPaletteBox( QComboBox* box, const ColourShading& palette )
+{
+  vector<Colour> colours = palette.getColourShading();
+
+  int nr_colours = colours.size();
+  if ( nr_colours == 0 )
+    return;
+  int maxwidth=20;
+  int step = nr_colours/maxwidth+1;
+  int factor = maxwidth/(nr_colours/step);
+  int width = (nr_colours/step) * factor;
+  QPixmap* pmap = new QPixmap( width, 20 );
+  QPainter qp;
+  qp.begin( pmap );
+  for( int j=0; j<nr_colours; j+=step ){
+    QColor pixcolor=QColor(colours[j].R(),
+        colours[j].G(),
+        colours[j].B() );
+
+    qp.fillRect( j*factor,0,factor,20,pixcolor);
+  }
+
+  qp.end();
+
+  QIcon qicon( *pmap );
+  QString qs = QString(palette.Name().cStr());
+  box->addItem(qicon,qs);
+  delete pmap;
+  pmap=0;
+}
+
 /*********************************************/
 QComboBox* PatternBox( QWidget* parent,
-		       const vector<Pattern::PatternInfo>& patternInfo,
-		       bool Enabled,
-		       int defItem,
-		       miutil::miString firstItem,
-		       bool name ){
+    const vector<Pattern::PatternInfo>& patternInfo,
+    bool Enabled,
+    int defItem,
+    miutil::miString firstItem,
+    bool name ){
 
   QComboBox* box = new QComboBox( parent );
 
@@ -296,8 +353,7 @@ QComboBox* PatternBox( QWidget* parent,
 }
 
 /*********************************************/
-QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem  )
-{
+QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem  ) {
 
   vector<miutil::miString> slinetypes = Linetype::getLinetypeInfo();
   int nr_linetypes= slinetypes.size();
@@ -332,39 +388,47 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem  )
 
 /*********************************************/
 QComboBox* LinewidthBox( QWidget* parent,
-			 bool Enabled,
-			 int nr_linewidths,
-			 int defItem  )
-{
+    bool Enabled,
+    int nr_linewidths,
+    int defItem  ) {
 
   QComboBox* box = new QComboBox( parent );
 
-  QPixmap**  pmapLinewidths = new QPixmap*[nr_linewidths];
-  vector<miutil::miString> linewidths;
-
-  for (int i=0; i<nr_linewidths; i++) {
-    ostringstream ostr;
-    ostr << i+1;
-    linewidths.push_back(ostr.str());
-    pmapLinewidths[i]= linePixmap("x",i+1);
-  }
-
   for( int i=0; i < nr_linewidths; i++){
+    QPixmap*  pmapLinewidth = new QPixmap;
+    pmapLinewidth= linePixmap("x",i+1);
     miutil::miString ss = "  " + miutil::miString(i+1);
-    box->addItem ( *pmapLinewidths[i], ss.cStr() );
-    delete pmapLinewidths[i];
-    pmapLinewidths[i] = NULL;
+    box->addItem ( *pmapLinewidth, ss.cStr() );
+    delete pmapLinewidth;
+    pmapLinewidth = NULL;
   }
-  box->setEnabled(true);
+  box->setEnabled(Enabled);
 
-  delete [] pmapLinewidths;
   return box;
+}
+
+/*********************************************/
+void ExpandLinewidthBox( QComboBox* box,
+    int new_nr_linewidths)
+{
+
+  int current_nr_linewidths = box->count();
+
+  for( int i=current_nr_linewidths; i < new_nr_linewidths; i++){
+    QPixmap*  pmapLinewidth = new QPixmap;
+    pmapLinewidth= linePixmap("x",i+1);
+    miutil::miString ss = "  " + miutil::miString(i+1);
+    box->addItem ( *pmapLinewidth, ss.cStr() );
+    delete pmapLinewidth;
+    pmapLinewidth = NULL;
+  }
+
 }
 
 /*********************************************/
 QComboBox* PixmapBox( QWidget* parent, vector<miutil::miString>& markerName){
 
-/* Image support in Qt
+  /* Image support in Qt
 BMP Windows Bitmap Read/write 
 GIF Graphic Interchange Format (optional) Read 
 JPG Joint Photographic Experts Group Read/write 
@@ -375,7 +439,7 @@ PGM Portable Graymap Read
 PPM Portable Pixmap Read/write 
 XBM X11 Bitmap Read/write 
 XPM X11 Pixmap Read/write
-*/
+   */
 
   QComboBox* box = new QComboBox( parent );
 
@@ -417,16 +481,16 @@ XPM X11 Pixmap Read/write
     else
       image.load(filename.c_str(),NULL);
     if (image.isNull())
-      {
-	cerr << "PixmapBox: problem loading image: " << filename << endl;
-	continue;
-      }
+    {
+      cerr << "PixmapBox: problem loading image: " << filename << endl;
+      continue;
+    }
     QPixmap p = QPixmap::fromImage(image);
     if (p.isNull())
-      {
-	cerr << "PixmapBox: problem converting from QImage to QPixmap" << filename << endl;
-	continue;
-      }
+    {
+      cerr << "PixmapBox: problem converting from QImage to QPixmap" << filename << endl;
+      continue;
+    }
     box->addItem (p, "" );
   }
 
@@ -437,15 +501,15 @@ XPM X11 Pixmap Read/write
 QLCDNumber* LCDNumber( uint numDigits, QWidget * parent ){
   QLCDNumber* lcdnum = new QLCDNumber( numDigits, parent );
   lcdnum->setSegmentStyle ( QLCDNumber::Flat );
-//   lcdnum->setMinimumSize( lcdnum->sizeHint() );
-//   lcdnum->setMaximumSize( lcdnum->sizeHint() );
+  //   lcdnum->setMinimumSize( lcdnum->sizeHint() );
+  //   lcdnum->setMaximumSize( lcdnum->sizeHint() );
   return lcdnum;
 }
 
 
 /*********************************************/
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
-		 Qt::Orientation orient, QWidget* parent, int width ){
+    Qt::Orientation orient, QWidget* parent, int width ){
   QSlider* slider = new QSlider(orient, parent);
   slider->setMinimum(minValue);
   slider->setMaximum(maxValue);
@@ -458,7 +522,7 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 
 /*********************************************/
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
-		 Qt::Orientation orient, QWidget* parent ){
+    Qt::Orientation orient, QWidget* parent ){
   QSlider* slider = new QSlider(orient, parent);
   slider->setMinimum(minValue);
   slider->setMaximum(maxValue);
@@ -486,9 +550,7 @@ void listWidget( QListWidget* listwidget, vector<miutil::miString> vstr, int def
 
 /*********************************************/
 QPixmap* linePixmap(const miutil::miString& pattern,
-				      int linewidth)
-{
-
+    int linewidth) {
   // make a 32x20 pixmap of a linepattern of length 16 (where ' ' is empty)
 
   miutil::miString xpmEmpty= "################################";
