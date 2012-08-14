@@ -41,8 +41,8 @@
 #include <puTools/miTime.h>
 #include <diField/diCommonFieldTypes.h>
 #include <diCommandParser.h>
-#include <diField/diColourShading.h>
-#include <diField/diPattern.h>
+#include <diColourShading.h>
+#include <diPattern.h>
 
 using namespace std;
 

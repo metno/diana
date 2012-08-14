@@ -34,8 +34,8 @@
 #include <puTools/miString.h>
 #include <vector>
 #include <diCommonTypes.h>
-#include <diField/diColourShading.h>
-#include <diField/diPattern.h>
+#include <diColourShading.h>
+#include <diPattern.h>
 #include <QPixmap>
 #include <QLabel>
 

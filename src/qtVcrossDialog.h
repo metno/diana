@@ -38,8 +38,8 @@
 #include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <diCommandParser.h>
-#include <diField/diColourShading.h>
-#include <diField/diPattern.h>
+#include <diColourShading.h>
+#include <diPattern.h>
 
 using namespace std;
 

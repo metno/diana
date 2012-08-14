@@ -33,7 +33,7 @@
 
 
 #include <diCommonTypes.h>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <diLocationPlot.h>
 #include <puTools/miTime.h>

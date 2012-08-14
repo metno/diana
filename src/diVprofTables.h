@@ -35,7 +35,7 @@
 
 #include <diFontManager.h>
 #include <diPrintOptions.h>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <vector>

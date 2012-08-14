@@ -37,7 +37,7 @@
  \brief Manager of maps and predefined areas/projections
  */
 
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diCommonTypes.h>
 
 using namespace std;

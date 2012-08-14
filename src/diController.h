@@ -42,7 +42,7 @@
 #include <diLocationPlot.h>
 #include <vector>
 #include <set>
-#include <diField/diColour.h>
+#include <diColour.h>
 
 #ifdef PROFET
 

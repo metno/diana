@@ -39,8 +39,8 @@
 #include "diContouring.h"
 #include "diFontManager.h"
 #include <diImageGallery.h>
-#include <diField/diPlotOptions.h>
-#include <diField/diColourShading.h>
+#include <diPlotOptions.h>
+#include <diColourShading.h>
 #include <iostream>
 #include <GL/gl.h>
 #include <sstream>

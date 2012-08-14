@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+  $Id: diPattern.cc 3273 2010-05-18 17:32:21Z dages $
 
   Copyright (C) 2006 met.no
 
@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,54 +23,62 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diObsData_h
-#define diObsData_h
 
-#include <diColour.h>
-#include <puTools/miTime.h>
-
-
-/**
-
-  \brief Observation data
-  
-*/
-class ObsData
-{
-public:
-  //desc
-  miutil::miString dataType;
-  miutil::miString id;
-  miutil::miString name;
-  float xpos;
-  float ypos;
-  int zone;
-  miutil::miTime obsTime;
-
-  //metar
-  miutil::miString metarId;
-  bool CAVOK;              
-  vector<miutil::miString> REww;   ///< Recent weather
-  vector<miutil::miString> ww;     ///< Significant weather
-  vector<miutil::miString> cloud;  ///< Clouds
-  miutil::miString appendix;       ///< For whatever remains
-  
-  map<miutil::miString,float> fdata;
-  map<miutil::miString,miutil::miString> stringdata;
-
-  //Hqc  
-  map<miutil::miString,miutil::miString> flag; 
-  map<miutil::miString,Colour> flagColour;
-
-};
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
 
+#include <diPattern.h>
+
+using namespace miutil;
+
+map<miString,Pattern::PatternInfo> Pattern::pmap;
 
 
+Pattern::Pattern( const miString& name, const vector<miString>& pattern)
+{
 
+  if(name.exists()){
+    pmap[name].name    = name;
+    pmap[name].pattern = pattern;
+  }
+
+}
+
+void Pattern::addPatternInfo(const PatternInfo& pi)
+{
+  if ( pi.name.exists() ){
+    pmap[pi.name] = pi;
+  }
+
+}
+
+vector<miString> Pattern::getPatternInfo(const miString& name)
+{
+
+  if(pmap.count(name)>0)
+    return pmap[name].pattern;
+
+  vector<miString> v;
+  return v;
+
+}
+
+vector<Pattern::PatternInfo> Pattern::getAllPatternInfo()
+{
+
+  vector<PatternInfo> pattern;
+
+  map<miString,PatternInfo>::iterator p= pmap.begin();
+  for(;p!=pmap.end();p++) {
+    pattern.push_back(p->second);
+  }
+
+  return pattern;
+
+}

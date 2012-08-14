@@ -34,7 +34,7 @@
 #endif
 
 #include <diFieldPlotManager.h>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
 #include <puTools/miSetupParser.h>
 #include <boost/algorithm/string.hpp>
@@ -59,6 +59,12 @@ void FieldPlotManager::getAllFieldNames(vector<miString>& fieldNames)
 
 bool FieldPlotManager::parseSetup()
 {
+
+  //field prefixes and field suffixes (used in EPS so far)
+  vector<miString> suffix;
+  suffix.push_back(".mean");
+  suffix.push_back(".std.dev.");
+  PlotOptions::setSuffix(suffix);
 
   if ( !parseFieldPlotSetup() ) {
     return false;

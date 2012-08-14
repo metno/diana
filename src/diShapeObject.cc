@@ -35,7 +35,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <diField/diColourShading.h>
+#include <diColourShading.h>
 #include <diTesselation.h>
 #include <diShapeObject.h>
 #include <diFontManager.h>

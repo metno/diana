@@ -39,8 +39,8 @@
 #include <GL/gl.h>
 
 #include <diField/diGridConverter.h>
-#include <diField/diColour.h>
-#include <diField/diPlotOptions.h>
+#include <diColour.h>
+#include <diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <diField/diField.h>
 #include <diField/diFieldFunctions.h>

@@ -35,7 +35,7 @@
 #include <puTools/miString.h>
 #include <set>
 #include <vector>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <diField/diArea.h>
 
 using namespace std;

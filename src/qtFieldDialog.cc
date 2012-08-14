@@ -58,7 +58,7 @@
 #include "qtToggleButton.h"
 #include "diController.h"
 #include <diField/diRectangle.h>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
 
 #include <iostream>

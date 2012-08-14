@@ -35,7 +35,7 @@
 #include <puTools/miSetupParser.h>
 #include <vector>
 #include <map>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diCommonTypes.h>
 #include <diField/diArea.h>
 

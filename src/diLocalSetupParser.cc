@@ -43,20 +43,12 @@
 #include <list>
 
 #include <diLocalSetupParser.h>
-#include <diField/diColourShading.h>
-#include <diField/diPattern.h>
+#include <diColourShading.h>
+#include <diPattern.h>
 #include <diImageGallery.h>
 #include <puCtools/mkdir.h>
 #include <puCtools/stat.h>
 
-
-/// PVERSION is defined due to debian packing using the metno-debuild tool
-
-#ifndef PVERSION
-
-#define PVERSION "0.0.0"
-
-#endif
 
 const miutil::miString SectColours=     "COLOURS";
 const miutil::miString SectPalettes=    "PALETTES";

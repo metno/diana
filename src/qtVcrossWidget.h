@@ -45,7 +45,7 @@
 
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <diPrintOptions.h>
 
 using namespace std;

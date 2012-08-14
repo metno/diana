@@ -40,7 +40,7 @@
 #include <profet/fetParameter.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <vector>
 #include <map>
 

@@ -36,6 +36,8 @@ common_cxx_sources = \
 	diAnnotationPlot.cc \
 	diAreaBorder.cc \
 	diAreaObjects.cc \
+	diColour.cc \
+	diColourShading.cc \
 	diCommandParser.cc \
 	diComplexSymbolPlot.cc \
 	diContouring.cc \
@@ -54,6 +56,7 @@ common_cxx_sources = \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
+	diLinetype.cc \
 	diLocalSetupParser.cc \
 	diLocationPlot.cc \
 	diMItiff.cc \
@@ -76,8 +79,10 @@ common_cxx_sources = \
 	diObsSynop.cc \
 	diObsTemp.cc \
 	diObsTide.cc \
+	diPattern.cc \
 	diPlot.cc \
 	diPlotModule.cc \
+	diPlotOptions.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
 	diSat.cc \
@@ -133,6 +138,7 @@ diana_qt_sources = \
 	qtFieldDialog.cc \
 	qtGLwidget.cc \
 	qtGeoPosLineEdit.cc \
+	diLinetype.h \
 	qtLoginDialog.cc \
 	qtMailDialog.cc \
 	qtMainWindow.cc \
@@ -188,6 +194,8 @@ noinst_HEADERS = \
 	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
+	diColour.h \
+	diColourShading.h \
 	diCommandParser.h \
 	diCommonTypes.h \
 	diComplexSymbolPlot.h \
@@ -240,8 +248,10 @@ noinst_HEADERS = \
 	diOrderClient.h \
 	diOrderListener.h \
 	diOrderQueue.h \
+	diPattern.h \
 	diPlot.h \
 	diPlotModule.h \
+	diPlotOptions.h \
 	diPrintOptions.h \
 	diQuickMenues.h \
 	diSat.h \
