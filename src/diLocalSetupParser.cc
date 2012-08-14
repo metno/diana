@@ -50,6 +50,13 @@
 #include <puCtools/stat.h>
 
 
+/// PVERSION is defined due to debian packing using the metno-debuild tool
+
+#ifndef PVERSION
+
+#define PVERSION "0.0.0"
+
+#endif
 
 const miutil::miString SectColours=     "COLOURS";
 const miutil::miString SectPalettes=    "PALETTES";
