@@ -39,7 +39,7 @@
 
 #include <diVprofDiagram.h>
 #include <diColour.h>
-#include <diField/diLinetype.h>
+#include <diLinetype.h>
 #include <sstream>
 #include <math.h>
 

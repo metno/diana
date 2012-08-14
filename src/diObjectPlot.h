@@ -39,7 +39,7 @@
 #include <diCommonTypes.h>
 #include <diColour.h>
 #include <diObjectPoint.h>
-#include <diField/diLinetype.h>
+#include <diLinetype.h>
 
 using namespace std;
 
