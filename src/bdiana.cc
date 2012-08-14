@@ -1585,12 +1585,12 @@ int parseAndProcess(istream &is)
         if (verbose)
           cout << "- updatePlots" << endl;
         if (!main_controller->updatePlots()) {
-            cerr << "Failed to update plots." << endl;
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+            cerr << "Failed to update plots." << endl;
             painter.end();
             context.end();
-#endif
             return 99;
+#endif
         }
         cout <<main_controller->getMapArea()<<endl;
 
