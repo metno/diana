@@ -220,7 +220,7 @@ QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
   return box;
 }
 
-void ExpandColourBox( QComboBox* box, const Colour::Colour& col )
+void ExpandColourBox( QComboBox* box, const Colour& col )
 {
   QPixmap* pmap = new QPixmap( 20, 20 );
 
