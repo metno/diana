@@ -2,7 +2,7 @@ Source: diana
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
-Build-Depends: metno-devscripts (>= 0.5.1), autotools-dev, g++,
+Build-Depends: metno-devscripts (>= 0.5.2), autotools-dev, g++,
  metlibs-dimitiff-dev, metlibs-difield-dev, metlibs-gltext-dev,
  metlibs-parameter-dev, metlibs-qutilities-dev, metlibs-pusql-dev,
  metlibs-robs-dev, metlibs-disql-dev, metlibs-pods-dev, metlibs-profet-dev,
@@ -44,9 +44,10 @@ Description: Meteorological visualisation tool
  products to be used with a Web Map Service installation.
 @metno_config_endif
 
-#Package: diana-common
-#Architecture: all
-#Conflicts: diana (< 3.28)
-#Description: common files for all diana versions
-# at present, this package only contains the .desktop file to start the
-# diana version selected by update-alternatives
+Package: diana-@METNO_VERSION@-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: diana-@METNO_VERSION@ (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for diana-@METNO_VERSION@
+ This package contains the debugging symbols for diana-@METNO_VERSION@.

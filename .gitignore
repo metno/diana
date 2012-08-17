@@ -43,3 +43,4 @@
 /src/test_diOrderBook-*.o
 /stamp-h1
 /debian
+/do-configure

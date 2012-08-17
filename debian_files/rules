@@ -12,3 +12,10 @@ do-configure:
 	    --with-emos=/usr/local --enable-obs-bufr=yes --enable-geotiff \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --program-suffix=$(METNO_SUFFIX)
+	touch $@
+
+.PHONY: override_dh_strip override_dh_auto_install
+override_dh_strip:
+	dh_strip --dbg-package=diana-@METNO_VERSION@-dbg
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/diana-@METNO_VERSION@
