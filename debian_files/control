@@ -44,10 +44,10 @@ Description: Meteorological visualisation tool
  products to be used with a Web Map Service installation.
 @metno_config_endif
 
-Package: diana-@METNO_VERSION@-dbg
-Architecture: any
-Section: debug
-Priority: extra
-Depends: diana-@METNO_VERSION@ (= ${binary:Version}), ${misc:Depends}
-Description: debugging symbols for diana-@METNO_VERSION@
- This package contains the debugging symbols for diana-@METNO_VERSION@.
+#Package: diana-@METNO_VERSION@-dbg
+#Architecture: any
+#Section: debug
+#Priority: extra
+#Depends: diana-@METNO_VERSION@ (= ${binary:Version}), ${misc:Depends}
+#Description: debugging symbols for diana-@METNO_VERSION@
+# This package contains the debugging symbols for diana-@METNO_VERSION@.
