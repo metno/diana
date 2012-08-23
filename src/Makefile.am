@@ -1,6 +1,5 @@
 # $Id$
 
-include $(top_srcdir)/diana.mk
 
 if WITH_BATCH_ONLY
 bin_PROGRAMS = bdiana
