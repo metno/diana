@@ -137,7 +137,6 @@ diana_qt_sources = \
 	qtFieldDialog.cc \
 	qtGLwidget.cc \
 	qtGeoPosLineEdit.cc \
-	diLinetype.h \
 	qtLoginDialog.cc \
 	qtMailDialog.cc \
 	qtMainWindow.cc \
@@ -218,6 +217,7 @@ noinst_HEADERS = \
 	diImageIO.h \
 	diKeys.h \
 	diLegendPlot.h \
+	diLinetype.h \
 	diLocalSetupParser.h \
 	diLocationPlot.h \
 	diMItiff.h \
