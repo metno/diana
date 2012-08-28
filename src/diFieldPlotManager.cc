@@ -1092,7 +1092,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
   // Try to parse old syntax once more, parse modelName
   if ( oldSyntax && !fieldManager->modelOK(fieldrequest.modelName) ) {
-    cerr <<"Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelNameendl;
+    cerr <<"Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelName<<endl;
     pin = FieldSpecTranslation::getNewFieldString(origPin, true);
     paramNames.clear();
     parseString(pin, fieldrequest, paramNames, plotName);
