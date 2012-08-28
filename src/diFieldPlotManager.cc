@@ -242,7 +242,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
               != name)
             i++;
           if (i < vPlotField.size()) {
-            cerr << "  replacing plot specs. for field " << name << endl;
+            //cerr << "  replacing plot specs. for field " << name << endl;
             vPlotField[i].input = input;
           } else {
             PlotField pf;
@@ -984,30 +984,21 @@ bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
   return false;
 }
 
-bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
+void FieldPlotManager::parseString( std::string& pin,
+    FieldRequest& fieldrequest,
+    vector<std::string>& paramNames,
+    std::string& plotName )
 {
 
 //  cerr <<"PIN: "<<pin<<endl;
 
-  // if difference
-  miString fspec1,fspec2;
-  if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
-    return parsePin(fspec1, vfieldrequest, plotName);
-  }
-
-  if (pin.find("model=") == std::string::npos ) {
-    pin = FieldSpecTranslation::getNewFieldString(pin);
-  }
-//  cerr <<"PIN NEW: "<<pin<<endl;
 
   std::vector<std::string> tokens;
   //NB! what about ""
   boost::algorithm::split(tokens, pin, boost::algorithm::is_space());
-
   size_t n = tokens.size();
   std::string str, key;
-  FieldRequest fieldrequest;
-  vector<std::string> paramNames;
+
 
   for (size_t k = 1; k < n; k++) {
     std::vector<std::string> vtoken;
@@ -1071,6 +1062,41 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
        }
      }
     }
+  }
+
+
+}
+
+bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
+{
+
+//  cerr <<"PIN: "<<pin<<endl;
+
+
+  // if difference
+  miString fspec1,fspec2;
+  if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
+    return parsePin(fspec1, vfieldrequest, plotName);
+  }
+
+  std::string  origPin = pin;
+  bool oldSyntax = (pin.find("model=") == std::string::npos);
+  if ( oldSyntax ) {
+    pin = FieldSpecTranslation::getNewFieldString(pin);
+  }
+//  cerr <<"PIN NEW: "<<pin<<endl;
+
+  FieldRequest fieldrequest;
+  vector<std::string> paramNames;
+  parseString(pin, fieldrequest, paramNames, plotName);
+
+  // Try to parse old syntax once more, parse modelName
+  if ( oldSyntax && !fieldManager->modelOK(fieldrequest.modelName) ) {
+    cerr <<"Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelNameendl;
+    pin = FieldSpecTranslation::getNewFieldString(origPin, true);
+    paramNames.clear();
+    parseString(pin, fieldrequest, paramNames, plotName);
+    cerr <<"New modelName: " <<fieldrequest.modelName<<endl;
   }
 
   //  //plotName -> fieldName
