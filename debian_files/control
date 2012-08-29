@@ -12,13 +12,13 @@ Standards-Version: 3.7.2
 
 Package: diana-@METNO_VERSION@
 Architecture: any
-Depends:
+Depends: diana@METNO_SUFFIX@-common,
 @metno_config_if ^precise_wms$
  libqtcore4-qws, libqtgui4-qws, libqt4-network-qws, libqt4-svg-qws,
  qt4-qws-dummy-screen-plugin,
 @metno_config_endif
  ${shlibs:Depends}, ${misc:Depends}
-Provides: diana
+Provides: diana@METNO_SUFFIX@
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
@@ -44,10 +44,10 @@ Description: Meteorological visualisation tool
  products to be used with a Web Map Service installation.
 @metno_config_endif
 
-#Package: diana-@METNO_VERSION@-dbg
-#Architecture: any
-#Section: debug
-#Priority: extra
-#Depends: diana-@METNO_VERSION@ (= ${binary:Version}), ${misc:Depends}
-#Description: debugging symbols for diana-@METNO_VERSION@
-# This package contains the debugging symbols for diana-@METNO_VERSION@.
+Package: diana@METNO_SUFFIX@-common
+Architecture: all
+Depends: diana@METNO_SUFFIX@, ${misc:Depends}
+Conflicts: diana@METNO_SUFFIX@ (<< 3.28.1)
+Description: common files for all versioned diana@METNO_SUFFIX@ packages
+ This package contains files shared between all versioned
+ diana-X.Y@METNO_SUFFIX@ packages.
