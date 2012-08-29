@@ -111,7 +111,6 @@
 using namespace std; using namespace miutil;
 
 bool verbose = false;
-bool debug = false;
 
 // command-strings
 const miString com_liststart = "list.";
@@ -870,7 +869,6 @@ void printUsage(bool showexample)
         "-i                : job-control file. See example below                 \n"
         "-s                : setupfile for diana                                 \n"
         "-v                : (verbose) for more job-output                       \n"
-        "-d                : write debugging information                         \n"
         "-address=addr[:port]                                                    \n"
         "                  : production triggered by TCP connection              \n"
         "                    addr is a hostname or IP address                    \n"
@@ -1967,10 +1965,11 @@ int parseAndProcess(istream &is)
             image = image.copy(-ox, -oy, xsize, ysize);
           }
 
-          if (debug) {
-            QStringList imageText;
-            for (unsigned int i = 0; i < lines.size(); ++i)
-              image.setText(QString::number(i), QString::fromStdString(lines[i]));
+          milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
+          QStringList imageText;
+          for (unsigned int i = 0; i < lines.size(); ++i) {
+            image.setText(QString::number(i), QString::fromStdString(lines[i]));
+            COMMON_LOG::getInstance("common").infoStream() << lines[i];
           }
 
           image.save(QString::fromStdString(priop.fname));
@@ -3018,9 +3017,6 @@ int main(int _argc, char** _argv)
     } else if (sarg == "-v") {
       verbose = true;
 
-    } else if (sarg == "-d") {
-      debug = true;
-
     } else if (sarg == "-signal") {
       if (orderbook != NULL) {
         cerr << "ERROR, can't have both -address and -signal" << endl;
@@ -3124,7 +3120,7 @@ int main(int _argc, char** _argv)
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
-  plog = milogger::LogHandler::initLogHandler( 4, "" );
+  plog = milogger::LogHandler::initLogHandler( 2, "" );
   plog->setObjectName("diana.bdiana.main");
   COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
