@@ -618,7 +618,7 @@ bool ObsManager::updateTimes(miString obsType)
     }
   }
 #ifdef ROADOBS
-  } // end´if obstype == roadobs
+  } // endï¿½if obstype == roadobs
 #endif
   // Check if timeLists are equal
   if (Prod[obsType].fileInfo.size() == oldfileInfo.size())
@@ -1690,6 +1690,9 @@ bool ObsManager::parseSetup()
   }
 
   // ********  Common to all plot types **********************
+  Prod.clear();
+  dialog.plottype.clear();
+  dialog.priority.clear();
 
   // Sliders and LCD-numbers
   dialog.density.minValue = 5;

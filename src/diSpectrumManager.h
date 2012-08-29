@@ -120,7 +120,6 @@ private:
 
   map<miutil::miString,miutil::miString> menuConst;
 
-  void parseSetup();
   miutil::miString getDefaultModel();
   void updateObsFileList();
   bool initSpectrumFile(miutil::miString file,miutil::miString model);
@@ -135,6 +134,7 @@ public:
   // destructor
   ~SpectrumManager();
 
+  void parseSetup();
   SpectrumOptions* getOptions() { return spopt; }
   void setPlotWindow(int w, int h);
 

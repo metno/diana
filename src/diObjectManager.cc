@@ -83,6 +83,10 @@ bool ObjectManager::parseSetup() {
     return true;
   }
 
+  //clear old setup info
+  objectNames.clear();
+  objectFiles.clear();
+
   miString key,value,error;
   int i,n,nv,nvstr=vstr.size();
 

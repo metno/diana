@@ -112,7 +112,6 @@ private:
   printOptions printoptions;
   bool hardcopystarted;
 
-  bool parseSetup();
   bool setModels();
 
 public:
@@ -123,6 +122,7 @@ public:
 
   void cleanup();
   void cleanupDynamicCrossSections();
+  bool parseSetup();
 
   VcrossOptions* getOptions() { return vcopt; }
 

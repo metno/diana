@@ -841,6 +841,10 @@ void VcrossWindow::parseQuickMenuStrings(const vector<miutil::miString>& vstr)
 }
 
 /***************************************************************************/
+void VcrossWindow::parseSetup()
+{
+  vcrossm->parseSetup();
+}
 
 vector<miutil::miString> VcrossWindow::writeLog(const miutil::miString& logpart)
 {

@@ -151,6 +151,7 @@ diana_qt_sources = \
 	qtQuickMenu.cc \
 	qtSatDialog.cc \
 	qtSatDialogAdvanced.cc \
+	qtSetupDialog.cc \
 	qtShowSatValues.cc \
 	qtSpectrumModelDialog.cc \
 	qtSpectrumSetupDialog.cc \
@@ -317,6 +318,7 @@ noinst_HEADERS = \
 	qtQuickMenu.h \
 	qtSatDialog.h \
 	qtSatDialogAdvanced.h \
+	qtSetupDialog.h \
 	qtShowSatValues.h \
 	qtSpectrumModelDialog.h \
 	qtSpectrumSetupDialog.h \

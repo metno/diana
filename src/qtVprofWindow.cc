@@ -233,8 +233,6 @@ void VprofWindow::rightStationClicked(){
 
 void VprofWindow::leftTimeClicked(){
   //called when the left time button is clicked
-  miutil::miTime t= vprofm->setTime(-1);
-  //update combobox
   timeChangedSlot(-1);
   vprofw->updateGL();
 }
@@ -243,7 +241,6 @@ void VprofWindow::leftTimeClicked(){
 
 void VprofWindow::rightTimeClicked(){
   //called when the right Station button is clicked
-  miutil::miTime t= vprofm->setTime(+1);
   timeChangedSlot(+1);
   vprofw->updateGL();
 }
@@ -797,6 +794,14 @@ void VprofWindow::startUp(const miutil::miTime& t){
 }
 
 /***************************************************************************/
+
+void VprofWindow::parseSetup()
+{
+
+  vprofm->parseSetup();
+  vpModelDialog->updateModelfileList();
+
+}
 
 vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
 {
