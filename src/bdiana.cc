@@ -2675,6 +2675,7 @@ int parseAndProcess(istream &is)
         ensureNewContext();
 
         image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        image.fill(qRgba(0, 0, 0, 0));
         painter.begin(&image);
         context.begin(&painter);
 #endif
@@ -2743,6 +2744,7 @@ int parseAndProcess(istream &is)
         ensureNewContext();
 
         image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        image.fill(qRgba(0, 0, 0, 0));
         painter.begin(&image);
         context.begin(&painter);
 #endif
