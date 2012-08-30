@@ -6,7 +6,7 @@ Build-Depends: metno-devscripts (>= 0.5.2), autotools-dev, g++,
  metlibs-dimitiff-dev, metlibs-difield-dev, metlibs-gltext-dev,
  metlibs-parameter-dev, metlibs-qutilities-dev, metlibs-pusql-dev,
  metlibs-robs-dev, metlibs-disql-dev, metlibs-pods-dev, metlibs-profet-dev,
- libavformat-dev, libshp-dev, libfimex-dev
+ libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.7.2
 
