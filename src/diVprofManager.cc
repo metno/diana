@@ -115,6 +115,12 @@ void VprofManager::parseSetup()
   cerr << "VprofManager::parseSetup" << endl;
 #endif
 
+  filenames.clear();
+  filetypes.clear();
+  dialogModelNames.clear();
+  dialogFileNames.clear();
+  filePaths.clear();
+
   const miString section2 = "VERTICAL_PROFILE_FILES";
   vector<miString> vstr;
 

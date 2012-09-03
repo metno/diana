@@ -8,7 +8,13 @@ include /usr/share/metno-devscripts/metno_rules.mk
 
 do-configure:
 	./autogen.sh
-	./configure --enable-profet --enable-proddb \
+	./configure --enable-proddb \
 	    --with-emos=/usr/local --enable-obs-bufr=yes --enable-geotiff \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --program-suffix=$(METNO_SUFFIX)
+	touch $@
+
+.PHONY: override_dh_strip
+override_dh_strip:
+	@echo "No stripping of debug info for met.no"
+#	dh_strip --dbg-package=diana-@METNO_VERSION@-dbg

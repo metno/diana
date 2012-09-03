@@ -105,6 +105,8 @@ int main(int argc, char **argv)
   bool useprojlib=true;
   map<miString,miString> user_variables;
 
+  user_variables["PVERSION"]= PVERSION;
+  user_variables["SYSCONFDIR"]= SYSCONFDIR;
     // parsing command line arguments
   int ac= 1;
   while (ac < argc){

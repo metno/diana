@@ -35,11 +35,11 @@
 #include <deque>
 #include <iostream>
 #include <diPlot.h>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <puTools/miString.h>
 #include <puDatatypes/miCoordinates.h>
 #include <diCommonTypes.h>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <diField/diArea.h>
 #include <diImageGallery.h>
 

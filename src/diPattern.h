@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diTrajectoryPlot.h 1 2007-09-12 08:06:42Z lisbethb $
+  $Id: diPattern.h 3779 2012-01-23 09:44:53Z davidb $
 
   Copyright (C) 2006 met.no
 
@@ -28,50 +28,55 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diMeasurementsPlot_h
-#define diMeasurementsPlot_h
+#ifndef diPattern_h
+#define diPattern_h
 
-#include <diPlot.h>
-#include <vector>
-#include <deque>
-#include <diLinetype.h>
+
+#include <puTools/miString.h>
+
+#include <map>
 
 using namespace std;
 
-
-
 /**
-   \brief plots positions used for distance and velocity measurements
+
+  \brief Pattern type
+
+  static list of defined sets of patterns, reachable by name
 
 */
-class MeasurementsPlot : public Plot {
+
+class Pattern {
+public:
+
+  /// Pattern data as strings
+  struct PatternInfo {
+    vector<miutil::miString> pattern;
+    miutil::miString name;
+  };
+
 
 private:
 
-  Colour colour;
-  int lineWidth;
-  Linetype lineType;
-  vector<float> x;
-  vector<float> y;
-  vector<float> lat;
-  vector<float> lon;
-  Area oldArea;
+  static map<miutil::miString,PatternInfo> pmap;
 
+  // Copy members
+  void memberCopy(const Pattern& rhs);
 
 public:
-  // Constructors
-  MeasurementsPlot();
-  // Destructor
-  ~MeasurementsPlot();
+  // Constructor
+  Pattern(const miutil::miString& name, const vector<miutil::miString>& pattern);
 
-  bool plot();
-  bool plot(const int){return false;}
-  ///change projection
-  bool prepare(void);
-  ///Start positions, colours, lines, field, etc
-  void measurementsPos(vector<miutil::miString>&);
-
+  // static functions for static pattern-map
+  /// add a new PatternInfo
+  static void addPatternInfo(const PatternInfo& pi);
+  /// return patterns
+  static vector<miutil::miString> getPatternInfo(const miutil::miString& name);
+  /// return all PatternInfos
+  static vector<PatternInfo> getAllPatternInfo();
 
 };
 
+
 #endif
+

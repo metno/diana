@@ -86,6 +86,10 @@ void SpectrumManager::parseSetup()
   cerr << "SpectrumManager::parseSetup" << endl;
 #endif
 
+  //clear old setupinfo
+  dialogModelNames.clear();
+  dialogFileNames.clear();
+
   //const miString section1 = "SPECTRUM_SETUP";
   const miString section2 = "SPECTRUM_FILES";
   vector<miString> vstr;
@@ -812,7 +816,7 @@ void SpectrumManager::updateObs()
 
 miString SpectrumManager::getAnnotationString()
 {
-  miString str = miString("Bølgespekter ");
+  miString str = miString("Bï¿½lgespekter ");
   if (onlyObs)
     str += plotTime.isoTime();
   else

@@ -618,7 +618,7 @@ bool ObsManager::updateTimes(miString obsType)
     }
   }
 #ifdef ROADOBS
-  } // end´if obstype == roadobs
+  } // endï¿½if obstype == roadobs
 #endif
   // Check if timeLists are equal
   if (Prod[obsType].fileInfo.size() == oldfileInfo.size())
@@ -1690,6 +1690,9 @@ bool ObsManager::parseSetup()
   }
 
   // ********  Common to all plot types **********************
+  Prod.clear();
+  dialog.plottype.clear();
+  dialog.priority.clear();
 
   // Sliders and LCD-numbers
   dialog.density.minValue = 5;
@@ -2225,9 +2228,8 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     } else {
       miString value;
       vector<miString> vstr  = data[i].split(";");
-      if(vstr.size() >2){
+      if(vstr.size() >= 2){
         value = vstr[0];
-        if(atoi(value.cStr()) == -32767) continue;
         odata.flag[key]=vstr[1];
         if(vstr.size() == 3)
           odata.flagColour[key]=Colour(vstr[2]);
@@ -2254,6 +2256,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         float ival = atof(value.c_str());
         if(ival >=0 && ival < 10)
           odata.fdata["a"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "ppp"){
         odata.fdata["ppp"]=atof(value.c_str());
       } else if(key == "RRR"){
@@ -2266,32 +2269,39 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         float ival = atof(value.c_str());
         if(ival >2 && ival < 10)
           odata.fdata["W1"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "W2"){
         float ival = atof(value.c_str());
         if(ival >2 && ival < 10)
           odata.fdata["W2"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Nh"){
         odata.fdata["Nh"]=atof(value.c_str());
       } else if(key == "Cl"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 10)
           odata.fdata["Cl"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Cm"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 10)
           odata.fdata["Cm"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Ch"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 10)
           odata.fdata["Ch"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "vs"){
         float ival = atof(value.c_str());
         if(ival >=0 && ival < 10)
           odata.fdata["vs"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "ds"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 9)
           odata.fdata["ds"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "TwTwTw"){
         odata.fdata["TwTwTw"]=atof(value.c_str());
       } else if(key == "PwaPwa"){
@@ -2302,6 +2312,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         float ival = atof(value.c_str());
         if(ival >0 && ival < 37)
           odata.fdata["dw1dw1"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Pw1Pw1"){
         odata.fdata["Pw1Pw1"]=atof(value.c_str());
       } else if(key == "Hw1Hw1"){

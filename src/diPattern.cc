@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diTrajectoryPlot.h 1 2007-09-12 08:06:42Z lisbethb $
+  $Id: diPattern.cc 3273 2010-05-18 17:32:21Z dages $
 
   Copyright (C) 2006 met.no
 
@@ -28,50 +28,57 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diMeasurementsPlot_h
-#define diMeasurementsPlot_h
 
-#include <diPlot.h>
-#include <vector>
-#include <deque>
-#include <diLinetype.h>
-
-using namespace std;
-
-
-
-/**
-   \brief plots positions used for distance and velocity measurements
-
-*/
-class MeasurementsPlot : public Plot {
-
-private:
-
-  Colour colour;
-  int lineWidth;
-  Linetype lineType;
-  vector<float> x;
-  vector<float> y;
-  vector<float> lat;
-  vector<float> lon;
-  Area oldArea;
-
-
-public:
-  // Constructors
-  MeasurementsPlot();
-  // Destructor
-  ~MeasurementsPlot();
-
-  bool plot();
-  bool plot(const int){return false;}
-  ///change projection
-  bool prepare(void);
-  ///Start positions, colours, lines, field, etc
-  void measurementsPos(vector<miutil::miString>&);
-
-
-};
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
+
+#include <diPattern.h>
+
+using namespace miutil;
+
+map<miString,Pattern::PatternInfo> Pattern::pmap;
+
+
+Pattern::Pattern( const miString& name, const vector<miString>& pattern)
+{
+
+  if(name.exists()){
+    pmap[name].name    = name;
+    pmap[name].pattern = pattern;
+  }
+
+}
+
+void Pattern::addPatternInfo(const PatternInfo& pi)
+{
+  if ( pi.name.exists() ){
+    pmap[pi.name] = pi;
+  }
+
+}
+
+vector<miString> Pattern::getPatternInfo(const miString& name)
+{
+
+  if(pmap.count(name)>0)
+    return pmap[name].pattern;
+
+  vector<miString> v;
+  return v;
+
+}
+
+vector<Pattern::PatternInfo> Pattern::getAllPatternInfo()
+{
+
+  vector<PatternInfo> pattern;
+
+  map<miString,PatternInfo>::iterator p= pmap.begin();
+  for(;p!=pmap.end();p++) {
+    pattern.push_back(p->second);
+  }
+
+  return pattern;
+
+}

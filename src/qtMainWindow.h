@@ -190,6 +190,7 @@ private slots:
   void undo();
   void redo();
   void save();
+  void parseSetup();
   void hardcopy();
   void saveraster();
   void saveRasterImage(QString filename);
@@ -277,6 +278,7 @@ private:
   QAction * emailPictureAction;
   QAction * saveAnimationAction;
   QAction * filePrintAction;
+  QAction * readSetupAction;
   QAction * fileQuitAction;
 
   QAction * optOnOffAction;

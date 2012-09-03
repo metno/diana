@@ -33,7 +33,7 @@
 
 
 #include <diCommonTypes.h>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <diLocationPlot.h>
 #include <puTools/miTime.h>
@@ -112,7 +112,6 @@ private:
   printOptions printoptions;
   bool hardcopystarted;
 
-  bool parseSetup();
   bool setModels();
 
 public:
@@ -123,6 +122,7 @@ public:
 
   void cleanup();
   void cleanupDynamicCrossSections();
+  bool parseSetup();
 
   VcrossOptions* getOptions() { return vcopt; }
 

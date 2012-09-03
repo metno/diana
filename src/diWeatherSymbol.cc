@@ -36,7 +36,7 @@
 #include <diWeatherSymbol.h>
 #include <diFontManager.h>
 #include <sstream>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <math.h>
 //#define DEBUGPRINT
 using namespace::miutil;

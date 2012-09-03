@@ -127,6 +127,8 @@ private:
 
   bool splitDifferenceCommandString(miutil::miString pin, miutil::miString& fspec1, miutil::miString& fspec2);
 
+  void parseString(std::string& pin, FieldRequest& fieldrequest, vector<std::string>& paramNames, std::string& plotName );
+
   map<miutil::miString, miutil::miString> groupNames;
 
 

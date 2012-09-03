@@ -1,6 +1,5 @@
 # $Id$
 
-include $(top_srcdir)/diana.mk
 
 if WITH_BATCH_ONLY
 bin_PROGRAMS = bdiana
@@ -36,6 +35,8 @@ common_cxx_sources = \
 	diAnnotationPlot.cc \
 	diAreaBorder.cc \
 	diAreaObjects.cc \
+	diColour.cc \
+	diColourShading.cc \
 	diCommandParser.cc \
 	diComplexSymbolPlot.cc \
 	diContouring.cc \
@@ -54,6 +55,7 @@ common_cxx_sources = \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
+	diLinetype.cc \
 	diLocalSetupParser.cc \
 	diLocationPlot.cc \
 	diMItiff.cc \
@@ -76,8 +78,10 @@ common_cxx_sources = \
 	diObsSynop.cc \
 	diObsTemp.cc \
 	diObsTide.cc \
+	diPattern.cc \
 	diPlot.cc \
 	diPlotModule.cc \
+	diPlotOptions.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
 	diSat.cc \
@@ -147,6 +151,7 @@ diana_qt_sources = \
 	qtQuickMenu.cc \
 	qtSatDialog.cc \
 	qtSatDialogAdvanced.cc \
+	qtSetupDialog.cc \
 	qtShowSatValues.cc \
 	qtSpectrumModelDialog.cc \
 	qtSpectrumSetupDialog.cc \
@@ -197,6 +202,8 @@ noinst_HEADERS = \
 	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
+	diColour.h \
+	diColourShading.h \
 	diCommandParser.h \
 	diCommonTypes.h \
 	diComplexSymbolPlot.h \
@@ -220,6 +227,7 @@ noinst_HEADERS = \
 	diImageIO.h \
 	diKeys.h \
 	diLegendPlot.h \
+	diLinetype.h \
 	diLocalSetupParser.h \
 	diLocationPlot.h \
 	diMItiff.h \
@@ -249,8 +257,10 @@ noinst_HEADERS = \
 	diOrderClient.h \
 	diOrderListener.h \
 	diOrderQueue.h \
+	diPattern.h \
 	diPlot.h \
 	diPlotModule.h \
+	diPlotOptions.h \
 	diPrintOptions.h \
 	diQuickMenues.h \
 	diSat.h \
@@ -317,6 +327,7 @@ noinst_HEADERS = \
 	qtQuickMenu.h \
 	qtSatDialog.h \
 	qtSatDialogAdvanced.h \
+	qtSetupDialog.h \
 	qtShowSatValues.h \
 	qtSpectrumModelDialog.h \
 	qtSpectrumSetupDialog.h \

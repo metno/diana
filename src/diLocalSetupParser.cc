@@ -43,13 +43,16 @@
 #include <list>
 
 #include <diLocalSetupParser.h>
-#include <diField/diColourShading.h>
-#include <diField/diPattern.h>
+#include <diColourShading.h>
+#include <diPattern.h>
 #include <diImageGallery.h>
 #include <puCtools/mkdir.h>
 #include <puCtools/stat.h>
 
-
+/// PVERSION is defined due to debian packing using the metno-debuild tool
+#ifndef PVERSION
+#define PVERSION
+#endif
 
 const miutil::miString SectColours=     "COLOURS";
 const miutil::miString SectPalettes=    "PALETTES";
@@ -60,6 +63,7 @@ const miutil::miString SectBasics=      "BASIC";
 const miutil::miString SectInfoFiles=   "TEXT_INFORMATION_FILES";
 
 // static members
+miutil::miString LocalSetupParser::setupFilename;
 vector<QuickMenuDefs>      LocalSetupParser::quickmenudefs;
 map<miutil::miString,miutil::miString>     LocalSetupParser::basic_values;
 map<miutil::miString,InfoFile>     LocalSetupParser::infoFiles;
@@ -85,7 +89,6 @@ bool LocalSetupParser::makeDirectory(const miutil::miString& filename, miutil::m
 bool LocalSetupParser::parse(miutil::miString & mainfilename){
 
   cerr << "LocalSetupParser::parse:" << mainfilename << endl;
-  miutil::miString filename=mainfilename;
 
   //find $HOME, and make homedir
   miutil::miString homedir=getenv("HOME");
@@ -99,24 +102,29 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
   }
   basic_values["homedir"]    = homedir;
 
+  //if no setupfile specified, use previus setupfile
+  if ( mainfilename.exists() ) {
+    setupFilename = mainfilename;
+  }
+
   //if no setupfile, use default
-  if (!filename.exists()) {
-    filename = "diana.setup";
-    miutil::miString filename_str = filename;
-    cerr << "filename:" << filename << endl;
-    ifstream file(filename.cStr());
+  if (!setupFilename.exists()) {
+    setupFilename = "diana.setup";
+    miutil::miString filename_str = setupFilename;
+    cerr << "filename:" << setupFilename << endl;
+    ifstream file(setupFilename.cStr());
     if (!file) {
-      filename = homedir + "/diana.setup";
+      setupFilename = homedir + "/diana.setup";
       filename_str += " or ";
-      filename_str += filename;
-      cerr << "filename:" << filename << endl;
-      ifstream file2(filename.cStr());
+      filename_str += setupFilename;
+      cerr << "filename:" << setupFilename << endl;
+      ifstream file2(setupFilename.cStr());
       if (!file2) {
-        filename = "/etc/diana/" PVERSION "/diana.setup-COMMON";
+        setupFilename = "/etc/diana/" PVERSION "/diana.setup-COMMON";
         filename_str += " or ";
-        filename_str += filename;
-        cerr << "filename:" << filename << endl;
-        ifstream file3(filename.cStr());
+        filename_str += setupFilename;
+        cerr << "filename:" << setupFilename << endl;
+        ifstream file3(setupFilename.cStr());
         if (!file3) {
           cerr << "LocalSetupParser::readSetup. cannot open default setupfile "
           << filename_str << endl;
@@ -127,7 +135,7 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
     }
   }
 
-  if (! miutil::SetupParser::parse( filename ) )
+  if (! miutil::SetupParser::parse( setupFilename ) )
     return false;
 
   if (!parseBasics(SectBasics)) return false;
@@ -138,8 +146,8 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
   if (!parseQuickMenus(SectQuickMenus)) return false;
   if (!parseTextInfoFiles(SectInfoFiles)) return false;
 
-  // return the filename (for profet setup parser)
-  mainfilename=filename;
+  // return the setupFilename (for profet setup parser)
+  mainfilename=setupFilename;
 
   return true;
 }

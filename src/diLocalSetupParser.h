@@ -35,7 +35,7 @@
 #include <puTools/miSetupParser.h>
 #include <vector>
 #include <map>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diCommonTypes.h>
 #include <diField/diArea.h>
 
@@ -56,6 +56,7 @@ class Controller;
 
 class LocalSetupParser {
 private:
+  static miutil::miString setupFilename;
   static vector<QuickMenuDefs>   quickmenudefs;
   static map<miutil::miString, miutil::miString> basic_values;
   static map<miutil::miString, InfoFile> infoFiles;
@@ -93,6 +94,9 @@ public:
   static vector<miutil::miString> languagePaths() {return langPaths;}
   /// Basic types
   static miutil::miString basicValue(const miutil::miString& key) { return basic_values[key];}
+  /// Setup filename
+  static miutil::miString getSetupFileName() { return setupFilename;}
+  static void setSetupFileName(const miutil::miString& sf) { setupFilename=sf;}
 };
 
 #endif

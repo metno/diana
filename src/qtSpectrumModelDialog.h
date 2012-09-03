@@ -59,6 +59,8 @@ public:
   //the constructor
   SpectrumModelDialog( QWidget* parent, SpectrumManager * vm );
   void setSelection();
+  void updateModelfileList();
+
 protected:
   void closeEvent( QCloseEvent* );
 
@@ -75,7 +77,6 @@ private:
   miutil::miString OBS;
 
   //functions
-  void updateModelfileList();
   void setModel();
 
 private slots:

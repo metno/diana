@@ -229,5 +229,5 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([src/Makefile])
-AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop])
+AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop share/applications/metno-diana.desktop])
 AC_OUTPUT

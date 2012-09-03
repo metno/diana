@@ -2,21 +2,23 @@ Source: diana
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
-Build-Depends: metno-devscripts (>= 0.4.1), autotools-dev, g++,
+Build-Depends: metno-devscripts (>= 0.5.2), autotools-dev, g++,
  metlibs-dimitiff-dev, metlibs-difield-dev, metlibs-gltext-dev,
  metlibs-parameter-dev, metlibs-qutilities-dev, metlibs-pusql-dev,
  metlibs-robs-dev, metlibs-disql-dev, metlibs-pods-dev, metlibs-profet-dev,
- libavformat-dev, libshp-dev, libfimex-dev
+ libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.7.2
 
 Package: diana-@METNO_VERSION@
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-X-MetnoConfig-precise_wms: ,
+Depends: diana@METNO_SUFFIX@-common,
+@metno_config_if ^precise_wms$
  libqtcore4-qws, libqtgui4-qws, libqt4-network-qws, libqt4-svg-qws,
- qt4-qws-dummy-screen-plugin
-Provides: diana
+ qt4-qws-dummy-screen-plugin,
+@metno_config_endif
+ ${shlibs:Depends}, ${misc:Depends}
+Provides: diana@METNO_SUFFIX@
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
@@ -24,7 +26,7 @@ Description: Meteorological visualisation tool
  Diana is a graphical viewer and editor developed for use with
  meteorological and oceanographic data.
  .
-X-MetnoConfig-precise:
+@metno_config_if ^precise(_test)?$
  It uses OpenGL for the graphics and Trolltech Qt for the user
  interface.  Diana shows fields, observations and satellite and radar
  images on a map. 2D-trajectories can be computed from wind and ocean
@@ -33,24 +35,19 @@ X-MetnoConfig-precise:
  windows, all from preprocessed data. Preprocessing software is
  however not a part of Diana.  The editor tools consist of a field
  editor and a drawing tool for fronts, symbols and area types.
-X-MetnoConfig-precise_test:
- It uses OpenGL for the graphics and Trolltech Qt for the user
- interface.  Diana shows fields, observations and satellite and radar
- images on a map. 2D-trajectories can be computed from wind and ocean
- current fields.  The tool also displays vertical profiles
- (soundings), vertical crossections and wave spectrum data in separate
- windows, all from preprocessed data. Preprocessing software is
- however not a part of Diana.  The editor tools consist of a field
- editor and a drawing tool for fronts, symbols and area types.
+@metno_config_if ^precise_test$
  .
  This package contains the test version of diana.
-X-MetnoConfig-precise_wms:
+@metno_config_endif
+@metno_config_elsif ^precise_wms$
  This package provides a version of Diana for batched generation of
  products to be used with a Web Map Service installation.
+@metno_config_endif
 
-#Package: diana-common
-#Architecture: all
-#Conflicts: diana (< 3.28)
-#Description: common files for all diana versions
-# at present, this package only contains the .desktop file to start the
-# diana version selected by update-alternatives
+Package: diana@METNO_SUFFIX@-common
+Architecture: all
+Depends: diana@METNO_SUFFIX@, ${misc:Depends}
+Conflicts: diana@METNO_SUFFIX@ (<< 3.28.1)
+Description: common files for all versioned diana@METNO_SUFFIX@ packages
+ This package contains files shared between all versioned
+ diana-X.Y@METNO_SUFFIX@ packages.

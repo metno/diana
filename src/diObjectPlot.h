@@ -37,9 +37,9 @@
 #include <diPlot.h>
 #include <puTools/miString.h>
 #include <diCommonTypes.h>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <diObjectPoint.h>
-#include <diField/diLinetype.h>
+#include <diLinetype.h>
 
 using namespace std;
 

@@ -40,8 +40,8 @@
 #include <diSpectrumPlot.h>
 #include <diSpectrumOptions.h>
 #include <diFontManager.h>
-#include <diField/diPlotOptions.h>
-#include <diField/diColour.h>
+#include <diPlotOptions.h>
+#include <diColour.h>
 #include <diContouring.h>
 #include <GL/gl.h>
 #if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)

@@ -38,7 +38,7 @@
 #include <diField/diProjectablePolygon.h>
 #include <diGridArea.h>
 #include <puTools/miString.h>
-#include <diField/diColour.h>
+#include <diColour.h>
 
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>

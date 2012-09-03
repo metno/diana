@@ -36,8 +36,8 @@
 #include <diField/diGridConverter.h>
 #include <puTools/miTime.h>
 #include <puTools/miString.h>
-#include <diField/diColour.h>
-#include <diField/diPlotOptions.h>
+#include <diColour.h>
+#include <diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <vector>
 

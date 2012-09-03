@@ -106,6 +106,7 @@
 #include "qtTrajectoryDialog.h"
 #include "qtMeasurementsDialog.h"
 #include "qUtilities/qtHelpDialog.h"
+#include "qtSetupDialog.h"
 #include "qtPrintManager.h"
 #include "qtBrowserBox.h"
 #include "qtAddtoMenu.h"
@@ -208,6 +209,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   filePrintAction->setShortcut(Qt::CTRL+Qt::Key_P);
   filePrintAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( filePrintAction, SIGNAL( triggered() ) , SLOT( hardcopy() ) );
+  // --------------------------------------------------------------------
+  // --------------------------------------------------------------------
+  readSetupAction = new QAction( tr("Read setupfile"),this );
+  //restartAction->setShortcut(Qt::CTRL+Qt::Key_P);
+  readSetupAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( readSetupAction, SIGNAL( triggered() ) , SLOT( parseSetup() ) );
   // --------------------------------------------------------------------
   fileQuitAction = new QAction( tr("&Quit..."), this );
   fileQuitAction->setShortcut(Qt::CTRL+Qt::Key_Q);
@@ -584,6 +591,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   optmenu->addAction( optAutoElementAction );
   optmenu->addAction( optAnnotationAction );
   optmenu->addAction( optScrollwheelZoomAction );
+  optmenu->addAction( readSetupAction );
   optmenu->addSeparator();
   optmenu->addAction( optFontAction );
 
@@ -2196,7 +2204,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
   //  cerr <<endl;
   //   cerr<<" Common: "<<letter.common<<"  ";
   //  cerr <<endl;
-  //   for(unsigned int i=0;i<letter.data.size();i++)
+  //   for(unsigned size_t i=0;i<letter.data.size();i++)
   //    if(letter.data[i].length()<80)
   //       cerr <<" data["<<i<<"]:"<<letter.data[i]<<endl;;
   //    cerr <<" From: "<<from<<endl;
@@ -2654,7 +2662,7 @@ void DianaMainWindow::sendLetter(miMessage& letter)
   //   cerr<<"Description: "<<letter.description<<endl;
   //   cerr<<"commonDesc: "<<letter.commondesc<<endl;
   //   cerr<<"Common: "<<letter.common<<endl;
-  //       for(int i=0;i<letter.data.size();i++)
+  //       for(size_t i=0;i<letter.data.size();i++)
   // 	cerr<<"data:"<<letter.data[i]<<endl;
   //   cerr <<"To: "<<letter.to<<endl;
 }
@@ -3112,6 +3120,25 @@ void DianaMainWindow::makeEPS(const miutil::miString& filename)
   QApplication::restoreOverrideCursor();
 }
 
+
+void DianaMainWindow::parseSetup()
+{
+  cerr<<" DianaMainWindow::parseSetup()"<<endl;
+  SetupDialog *setupDialog = new SetupDialog(this);
+
+  if( setupDialog->exec() ) {
+
+    LocalSetupParser sp;
+    miutil::miString filename;
+    if (!sp.parse(filename)){
+      cerr << "An error occured while re-reading setup " << endl;
+    }
+    contr->parseSetup();
+    vcWindow->parseSetup();
+    vpWindow->parseSetup();
+    spWindow->parseSetup();
+  }
+}
 
 void DianaMainWindow::hardcopy()
 {

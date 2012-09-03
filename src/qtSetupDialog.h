@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diTrajectoryPlot.h 1 2007-09-12 08:06:42Z lisbethb $
+  $Id: qtAddtoMenu.h 2934 2012-05-21 09:07:40Z davidb $
 
   Copyright (C) 2006 met.no
 
@@ -11,7 +11,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-
+  
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -23,55 +23,47 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-
+  
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diMeasurementsPlot_h
-#define diMeasurementsPlot_h
+#ifndef _qtSetupDialog_h
+#define _qtSetupDialog_h
 
-#include <diPlot.h>
-#include <vector>
-#include <deque>
-#include <diLinetype.h>
+#include <qdialog.h>
 
-using namespace std;
-
-
+class QLabel;
+class QLineEdit;
+class QPushButton;
 
 /**
-   \brief plots positions used for distance and velocity measurements
+   \brief Change setup
 
 */
-class MeasurementsPlot : public Plot {
 
+
+class SetupDialog : public QDialog {
+  Q_OBJECT
 private:
 
-  Colour colour;
-  int lineWidth;
-  Linetype lineType;
-  vector<float> x;
-  vector<float> y;
-  vector<float> lat;
-  vector<float> lon;
-  Area oldArea;
+  QLineEdit* setupLineEdit;
+  std::vector<QLabel*> options;
+  std::vector<QLineEdit*> values;
+  QPushButton* okButton;
 
+
+private slots:
+void okClicked();
+
+public slots:
 
 public:
-  // Constructors
-  MeasurementsPlot();
-  // Destructor
-  ~MeasurementsPlot();
-
-  bool plot();
-  bool plot(const int){return false;}
-  ///change projection
-  bool prepare(void);
-  ///Start positions, colours, lines, field, etc
-  void measurementsPos(vector<miutil::miString>&);
-
-
+  SetupDialog(QWidget* parent);
 };
 
 #endif
+
+
+
+

@@ -31,7 +31,7 @@
 #ifndef diObsData_h
 #define diObsData_h
 
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <puTools/miTime.h>
 
 
