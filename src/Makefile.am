@@ -174,6 +174,15 @@ diana_qt_sources = \
 	qtVprofWidget.cc \
 	qtVprofWindow.cc \
 	qtWorkArea.cc
+
+common_cppflags += \
+	$(QUTILITIES_CPPFLAGS)
+
+common_ldflags += \
+	$(QUTILITIES_LDFLAGS)
+
+common_ldadd += \
+	$(QUTILITIES_LIBS)
 endif
 
 bdiana_qt_sources = \
@@ -481,7 +490,6 @@ common_cppflags += \
 	$(PUCTOOLS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
 	$(PUDATATYPES_CPPFLAGS) \
-	$(QUTILITIES_CPPFLAGS) \
 	$(ROBS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
 	$(CURL_CPPFLAGS) \
@@ -494,7 +502,6 @@ common_ldflags += \
 	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(PUDATATYPES_LDFLAGS) \
-	$(QUTILITIES_LDFLAGS) \
 	$(ROBS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
@@ -507,7 +514,6 @@ common_ldadd += \
 	$(PUCTOOLS_LIBS) \
 	$(EMOS_LIBS) \
 	$(PUDATATYPES_LIBS) \
-	$(QUTILITIES_LIBS) \
 	$(ROBS_LIBS) \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
