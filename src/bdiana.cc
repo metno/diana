@@ -1966,12 +1966,31 @@ int parseAndProcess(istream &is)
           }
 
           milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
+
+          bool empty = true;
+          for (int py = 0; py < image.height(); ++py) {
+            QRgb *scanLine = (QRgb*)(image.scanLine(py));
+            for (int px = 0; px < image.width(); ++px) {
+              if (qAlpha(scanLine[px]) != 0) {
+                empty = false;
+                break;
+              }
+            }
+            if (!empty)
+              break;
+          }
+
+          if (empty)
+            COMMON_LOG::getInstance("common").infoStream() << "# vvv Empty plot (begin)";
+
           QStringList imageText;
           for (unsigned int i = 0; i < lines.size(); ++i) {
             image.setText(QString::number(i), QString::fromStdString(lines[i]));
             COMMON_LOG::getInstance("common").infoStream() << lines[i];
           }
 
+          if (empty)
+            COMMON_LOG::getInstance("common").infoStream() << "# ^^^ Empty plot (end)";
           image.save(QString::fromStdString(priop.fname));
         }
 #endif
