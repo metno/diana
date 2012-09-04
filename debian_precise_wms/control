@@ -1,4 +1,4 @@
-Source: diana-wms
+Source: diana-headless
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 7.4.15), autotools-dev,
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.2
 
-Package: diana-wms
+Package: diana-headless
 Architecture: any
 Depends: libemos0d (>= 000382+dfsg-metno0), libfimex-0.37.3-0, libfelt-0.37.3-0,
  libqtcore4-qws, libqtgui4-qws, libqt4-network-qws, libqt4-svg-qws,
