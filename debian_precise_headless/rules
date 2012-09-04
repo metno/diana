@@ -7,6 +7,9 @@ DESTDIR = debian/diana-headless-@PVERSION_MAJOR_DOT_MINOR@
 
 include /usr/share/metno-devscripts/metno_rules.mk
 
+# Ensure that the executable searches for libraries under the /opt/qt4-qws prefix.
+confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-qws/lib"
+
 do-configure:
 	./autogen.sh
 	./configure $(confflags) \
