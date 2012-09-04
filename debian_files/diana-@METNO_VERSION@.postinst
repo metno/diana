@@ -3,5 +3,4 @@
 set -e
 exec update-alternatives --install /usr/bin/diana@METNO_SUFFIX@ diana@METNO_SUFFIX@ /usr/bin/diana-@METNO_VERSION@ @PVERSION_NUMBER_MAJOR_MINOR@ \
     --slave /usr/bin/diana.bin@METNO_SUFFIX@ diana.bin@METNO_SUFFIX@ /usr/bin/diana.bin-@METNO_VERSION@ \
-    --slave /usr/bin/bdiana@METNO_SUFFIX@ bdiana@METNO_SUFFIX@ /usr/bin/bdiana-@METNO_VERSION@ \
     --slave /etc/diana/setup@METNO_SUFFIX@ diana-setup@METNO_SUFFIX@ /etc/diana/@METNO_VERSION@

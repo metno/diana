@@ -6,7 +6,9 @@ METNO_SUFFIX = @METNO_SUFFIX@
 
 include /usr/share/metno-devscripts/metno_rules.mk
 
-do-configure:
+do-configure: configure-stamp
+	@true
+configure-stamp:
 	./autogen.sh
 	./configure --enable-proddb \
 	    --with-emos=/usr/local --enable-obs-bufr=yes --enable-geotiff \

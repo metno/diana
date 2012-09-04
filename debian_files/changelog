@@ -1,3 +1,10 @@
+diana (3.28.1~a1-5) unstable; urgency=low
+
+  * Moved bdiana from package diana-X.Y to diana-headless-X.Y which is
+    built separately.
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 04 Sep 2012 16:51:00 +0200
+
 diana (3.28.1~a1-4) unstable; urgency=low
 
   * Updated version number in order to create a package for Ubuntu 12.04.
