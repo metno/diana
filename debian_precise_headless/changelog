@@ -1,4 +1,4 @@
-diana-headless (3.28.1-0) unstable; urgency=low
+diana-headless (3.28.1~a1-0) unstable; urgency=low
 
   * Repackaged the diana-wms package.
 
