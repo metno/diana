@@ -149,7 +149,7 @@ METNO_REQUIRE_PKG([PROPOLY],[propoly])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
-AS_IF([test x$batch_only != xyes], [
+AS_IF([test x$enable_batch_only != xyes], [
     METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
 ])
 METNO_REQUIRE_PKG([ROBS], [robs])
