@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.28.1~a1], [diana@met.no])
+AC_INIT([diana], [3.28.1~a2], [diana@met.no])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -149,7 +149,9 @@ METNO_REQUIRE_PKG([PROPOLY],[propoly])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
-METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
+AS_IF([test x$batch_only != xyes], [
+    METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
+])
 METNO_REQUIRE_PKG([ROBS], [robs])
 
 

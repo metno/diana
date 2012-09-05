@@ -3,7 +3,10 @@ Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 7.4.15), autotools-dev,
- qt4-qmake-qws, libqt4-qws-dev, metlibs-dev, libemos-dev
+ qt4-qmake-qws, libqt4-qws-dev, libemos-dev,
+ metlibs-difield-dev, metlibs-dimitiff-dev, metlibs-milib-dev,
+ metlibs-milogger-dev, metlibs-propoly-dev, metlibs-puctools-dev,
+ metlibs-pudatatypes-dev, metlibs-robs-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.2
 
