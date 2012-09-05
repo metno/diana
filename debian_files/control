@@ -12,7 +12,8 @@ Standards-Version: 3.7.2
 
 Package: diana-@METNO_VERSION@
 Architecture: any
-Depends: diana@METNO_SUFFIX@-common, ${shlibs:Depends}, ${misc:Depends}
+Depends: diana@METNO_SUFFIX@-common, diana-@METNO_VERSION@-common,
+ ${shlibs:Depends}, ${misc:Depends}
 Provides: diana@METNO_SUFFIX@
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
@@ -43,3 +44,10 @@ Conflicts: diana@METNO_SUFFIX@ (<< 3.28.1)
 Description: common files for all versioned diana@METNO_SUFFIX@ packages
  This package contains files shared between all versioned
  diana-X.Y@METNO_SUFFIX@ packages.
+
+Package: diana-@METNO_VERSION@-common
+Architecture: all
+Depends: ${misc:Depends}
+Description: common files for diana and diana-headless packages
+ This package contains files shared between versioned
+ diana-X.Y@METNO_SUFFIX@ and diana-headless-X.Y packages.

@@ -1,3 +1,10 @@
+diana (3.28.1~a1-6) unstable; urgency=low
+
+  * Moved some files in /usr/share/dianab to new package diana-X.Y-common,
+    shared with diana-headless-X.Y.
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 05 Sep 2012 16:21:00 +0200
+
 diana (3.28.1~a1-5) unstable; urgency=low
 
   * Moved bdiana from package diana-X.Y to diana-headless-X.Y which is

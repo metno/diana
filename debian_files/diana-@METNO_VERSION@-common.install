@@ -1,0 +1,13 @@
+usr/share/diana/@METNO_VERSION@/products
+usr/share/diana/@METNO_VERSION@/images
+usr/share/diana/@METNO_VERSION@/fonts
+usr/share/diana/3.28/UK_lyn.header
+usr/share/diana/3.28/UALF_diana.header
+usr/share/diana/3.28/obsflag.html
+usr/share/diana/3.28/VNNsynop.list
+usr/share/diana/3.28/printer.def
+usr/share/diana/3.28/priList.txt
+usr/share/diana/3.28/jason_swh.header
+usr/share/diana/3.28/metpltab.dat
+usr/share/diana/3.28/amdar.stations
+usr/share/diana/3.28/synpltab.dat
