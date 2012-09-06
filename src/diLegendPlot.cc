@@ -171,6 +171,7 @@ void LegendPlot::memberCopy(const LegendPlot& rhs){
   y2title = rhs.y2title;
   xRatio  = rhs.xRatio;
   yRatio  = rhs.yRatio;
+  suffix  = rhs.suffix;
   showplot = rhs.showplot;
 }
 
@@ -209,6 +210,7 @@ bool LegendPlot::plot(float x, float y)
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
+    colourcodes[i].colourstr += suffix;
     getStringSize(colourcodes[i].colourstr, width, height);
     if (width>maxwidth) maxwidth= width;
     if (height>maxheight) maxheight= height;
