@@ -2293,7 +2293,7 @@ int parseAndProcess(istream &is)
       glob_t globBuf;
       int number_of_files = 0;
       while (number_of_files == 0) {
-        glob_cache(pattern.c_str(), 0, 0, &globBuf);
+        glob(pattern.c_str(), 0, 0, &globBuf);
         number_of_files = globBuf.gl_pathc;
         if (number_of_files == 0) {
           globfree_cache(&globBuf);
@@ -3400,7 +3400,7 @@ void doWork()
   glob_t globBuf;
   int number_of_files = 0;
 
-  glob_cache(pattern.c_str(), 0, 0, &globBuf);
+  glob(pattern.c_str(), 0, 0, &globBuf);
   number_of_files = globBuf.gl_pathc;
 
   if (number_of_files == 0) {
