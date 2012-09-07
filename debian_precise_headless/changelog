@@ -1,3 +1,10 @@
+diana-headless (3.28.1~a3-0) unstable; urgency=low
+
+  * Fixed directory listing bug caused by using the glob_cache function.
+  * Updated build dependencies.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 07 Sep 2012 14:52:00 +0200
+
 diana-headless (3.28.1~a2-0) unstable; urgency=low
 
   * Removed unnecessary build dependencies; fixed autoconf information.
