@@ -815,19 +815,14 @@ void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 // return observation times for list of obsTypes
 vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
 {
-
-  vector<miTime> times;
   set<miTime> timeset;
 
   int n=obsTypes.size();
   for(int i=0; i<n; i++ ){
 
     miString obsType= obsTypes[i].downcase();
-    if(obsType.contains("hqc")) {
-      continue;
-    }
     if ( Prod[obsType].obsformat == ofmt_url ) {
-      //todo: move some of this to parseSetup
+      // TODO move some of this to parseSetup
       FileInfo finfo;
       if( !Prod[obsType].pattern.size() ) continue;
       finfo.filename = Prod[obsType].pattern[0].pattern;
@@ -857,27 +852,22 @@ vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
 
     } else {
 
-      if (updateTimes(obsType)) {
-        timeListChanged = true;
-      }
+        if(not obsType.contains("hqc")) {
+            if (updateTimes(obsType)) {
+                timeListChanged = true;
+            }
+            
+            if(Prod[obsType].timeInfo == "notime") continue;
+        }
 
-      if(Prod[obsType].timeInfo == "notime") continue;
-
-      vector<FileInfo>::iterator p= Prod[obsType].fileInfo.begin();
-      for (; p!=Prod[obsType].fileInfo.end(); p++)
-        timeset.insert((*p).time);
-
-
+        vector<FileInfo>::iterator p= Prod[obsType].fileInfo.begin();
+        for (; p!=Prod[obsType].fileInfo.end(); p++)
+            timeset.insert((*p).time);
     }
 
   }
 
-  if (timeset.size()>0) {
-    set<miTime>::iterator p= timeset.begin();
-    for (; p!=timeset.end(); p++) times.push_back(*p);
-  }
-
-  return times;
+  return vector<miTime>(timeset.begin(), timeset.end());
 }
 
 void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)

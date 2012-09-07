@@ -68,6 +68,7 @@ private:
   float xRatio,yRatio;
   // if showplot = true: show the whole table. if false: only title bar
   bool showplot;
+  miutil::miString suffix;
   static float xUsed; 
 
   // Copy members
@@ -100,6 +101,8 @@ public:
   void moveSatTable(int x1,int y1,int x2,int y2);
   /// sets background colour
   void setBackgroundColour(Colour c){poptions.fillcolour=c;}
+  ///sets suffix, usually unit (hPa, mm)
+  void setSuffix(const miutil::miString& suffix_){suffix = suffix_;}
   /// sets alignment
   void setAlignment(Alignment a){poptions.h_align=a;}
   /// calculates and returns total table height

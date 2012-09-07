@@ -2555,8 +2555,8 @@ bool FieldPlot::plotContour(){
   int ncol, icol[mmmUsed], ntyp, ityp[mmmUsed], nwid, iwid[mmmUsed];
   float zrange[2], zstep, zoff, rlines[mmmUsed], rlim[mmm];
   int idraw2, nlines2, nlim2;
-  int ncol2, icol2[mmm], ntyp2, ityp2[mmm], nwid2, iwid2[mmm];
-  float zrange2[2], zstep2=0, zoff2=0, rlines2[mmm], rlim2[mmm];
+  int ncol2, icol2[mmmUsed], ntyp2, ityp2[mmmUsed], nwid2, iwid2[mmmUsed];
+  float zrange2[2], zstep2=0, zoff2=0, rlines2[mmmUsed], rlim2[mmm];
   int   ibmap, lbmap, kbmap[mmm], nxbmap, nybmap;
   float rbmap[4];
 
@@ -2619,12 +2619,14 @@ bool FieldPlot::plotContour(){
 
   if (poptions.linevalues.size()>0) {
     nlines = poptions.linevalues.size();
+    if ( nlines > mmmUsed ) nlines = mmmUsed;
     for (int ii=0; ii<nlines; ii++){
       rlines[ii]= poptions.linevalues[ii];
     }
     idraw = 3;
   } else if (poptions.loglinevalues.size()>0) {
     nlines = poptions.loglinevalues.size();
+    if ( nlines > mmmUsed ) nlines = mmmUsed;
     for (int ii=0; ii<nlines; ii++){
       rlines[ii]= poptions.loglinevalues[ii];
     }
@@ -2716,12 +2718,14 @@ bool FieldPlot::plotContour(){
     zoff2 = poptions.base_2;
     if (poptions.linevalues_2.size()>0) {
       nlines2 = poptions.linevalues_2.size();
+      if ( nlines2 > mmmUsed ) nlines2 = mmmUsed;
       for (int ii=0; ii<nlines2; ii++){
         rlines2[ii]= poptions.linevalues_2[ii];
       }
       idraw2 = 3;
     } else if (poptions.loglinevalues_2.size()>0) {
       nlines2 = poptions.loglinevalues_2.size();
+      if ( nlines2 > mmmUsed ) nlines2 = mmmUsed;
       for (int ii=0; ii<nlines2; ii++){
         rlines2[ii]= poptions.loglinevalues_2[ii];
       }
@@ -2744,6 +2748,7 @@ bool FieldPlot::plotContour(){
           icol2[0]=1;
         } else {
           ncol=poptions.colours.size();
+          if ( ncol > mmmUsed ) ncol = mmmUsed;
           for (int i=0; i<ncol; ++i) icol[i]= i;
         }
       } else if(idraw>0) {
@@ -2770,6 +2775,7 @@ bool FieldPlot::plotContour(){
         iwid2[0]= 1;
       } else {      // one set of plot options, different lines
         nwid=poptions.linewidths.size();
+        if ( nwid > mmmUsed ) nwid = mmmUsed;
         for (int i=0; i<nwid; ++i) iwid[i]= i;
       }
     }
@@ -2782,6 +2788,7 @@ bool FieldPlot::plotContour(){
         ityp[0] =0;
         ityp2[0]=1;
       } else {      // one set of plot options, different lines
+        if ( ntyp > mmmUsed ) ntyp = mmmUsed;
         ntyp=poptions.linetypes.size();
         for (int i=0; i<ntyp; ++i) ityp[i]= i;
       }

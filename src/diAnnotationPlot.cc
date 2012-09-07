@@ -525,6 +525,9 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
           e.polystyle = poly_none;
       } else if (e.eType == table && subtokens[0] == "fcolour") {
         e.classplot->setBackgroundColour(Colour(subtokens[1]));
+      } else if (e.eType == table && subtokens[0] == "suffix") {
+        subtokens[1].remove('"');
+        e.classplot->setSuffix(subtokens[1]);
       }
     }
   }
@@ -765,7 +768,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       annoEl[j].x2 = x + wid;
       annoEl[j].y2 = y + hei;
       if (annoEl[j].inEdit) {
-        //Hvis* editeringstext,tegn strek for markør og for
+        //Hvis* editeringstext,tegn strek for markï¿½r og for
         //markert tekst
         float w, h;
         miString substring = astring.substr(0, annoEl[j].itsCursor);
