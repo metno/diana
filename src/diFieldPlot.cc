@@ -488,7 +488,7 @@ bool FieldPlot::plot(){
 }
 
 
-vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y, bool rotateVectors)
+vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
 {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::prepareVectors() ++" << endl;
@@ -543,7 +543,7 @@ vector<float*> FieldPlot::prepareVectors(int nfields, float* x, float* y, bool r
 }
 
 
-vector<float*> FieldPlot::prepareDirectionVectors(int nfields, float* x, float* y, bool rotateVectors )
+vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotateVectors )
 {
 #ifdef DEBUGPRINT
   cerr << "++ FieldPlot::prepareDirectionVectors() ++" << endl;
@@ -717,24 +717,27 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sd
   return xstep;
 }
 
-//  plot vector field as wind arrows
+
+// plot vector field as wind arrows
+// Fields u(0) v(1), optional- colorfield(2)
 bool FieldPlot::plotWind(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotWind" << endl;
+  cerr << "++ FieldPlot::plotWind.." << endl;
 #endif
+
   int n= fields.size();
-
-
-  if ( n==3) {
-    return plotWindColour();
+  if (n<2) return false;
+  bool colourwind = false;
+  if (!fields[0] || !fields[1] ) return false;
+  if (!fields[0]->data || !fields[1]->data) return false;
+  if ( n == 3 ) {
+    colourwind = true;
+    if ( !fields[2] ) return false;
+    if ( !fields[2]->data) return false;
   }
 
-  if (n<2) return false;
-  if (!fields[0] || !fields[1]) return false;
 
-  if (!fields[0]->data || !fields[1]->data) return false;
-
-  int ix,iy;
+  int ix,iy,l;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
 
@@ -747,10 +750,11 @@ bool FieldPlot::plotWind(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(2,x,y, poptions.rotateVectors);
+  vector<float*> uv= prepareVectors(x,y,poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
+
   int step= poptions.density;
 
   // automatic wind/vector density
@@ -759,7 +763,7 @@ bool FieldPlot::plotWind(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -771,15 +775,81 @@ bool FieldPlot::plotWind(){
     plotFrame(nx,ny,x,y,2,NULL);
   }
 
+  float* limits=0;
+  GLfloat* rgb=0;
+  int nlim= poptions.limits.size();
+  int ncol= poptions.colours.size();
+
+  if (colourwind ) {
+
+    if ( ncol>=2 ) {
+      rgb=    new GLfloat[ncol*3];
+      for (int i=0; i<ncol; i++) {
+        rgb[i*3+0]=  poptions.colours[i].fR();
+        rgb[i*3+1]=  poptions.colours[i].fG();
+        rgb[i*3+2]=  poptions.colours[i].fB();
+      }
+    } else {
+      const int maxdef= 4;
+      float rgbdef[maxdef][3]={{0.5,0.5,0.5},{0,0,0},{0,1,1},{1,0,0}};
+
+      ncol= maxdef;
+
+      rgb=    new GLfloat[ncol*3];
+      for (int i=0; i<ncol; i++) {
+        rgb[i*3+0]= rgbdef[i][0];
+        rgb[i*3+1]= rgbdef[i][1];
+        rgb[i*3+2]= rgbdef[i][2];
+      }
+    }
+
+    if (nlim>=1 ) {
+
+      if (nlim>ncol-1) nlim= ncol-1;
+      if (ncol>nlim+1) ncol= nlim+1;
+      limits= new float[nlim];
+      for (int i=0; i<nlim; i++) {
+        limits[i]= poptions.limits[i];
+      }
+
+    } else {
+
+      // default, should be handled when reading setup, if allowed...
+      const int maxdef= 4;
+      nlim= maxdef-1;
+
+      float fmin=fieldUndef, fmax=-fieldUndef;
+      for (int i=0; i<nx*ny; ++i) {
+        if (fields[2]->data[i]!=fieldUndef) {
+          if (fmin > fields[2]->data[i]) fmin=fields[2]->data[i];
+          if (fmax < fields[2]->data[i]) fmax=fields[2]->data[i];
+        }
+      }
+      if (fmin>fmax) return false;
+
+      limits= new float[nlim];
+      float dlim= (fmax-fmin)/float(ncol);
+
+      for (int i=0; i<nlim; i++) {
+        limits[i]= fmin + dlim*float(i+1);
+      }
+    }
+  }
+
   float unitlength  = poptions.vectorunit / 10;
   int   n50,n10,n05;
   float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85/unitlength;
+  float flagl = sdist * 0.85 / unitlength;
   float flagstep = flagl/10.;
   float flagw = flagl * 0.35;
   float hflagw = 0.6;
+  // for arrow tip
+  const float afac = -1.5;
+  const float sfac = afac * 0.5;
 
   vector<float> vx,vy; // keep vertices for 50-knot flags
+  vector<int>   vc;    // keep the colour too
+
   ix1-=step;     if (ix1<0)  ix1=0;
   iy1-=step;     if (iy1<0)  iy1=0;
   ix2+=(step+1); if (ix2>nx) ix2=nx;
@@ -790,7 +860,6 @@ bool FieldPlot::plotWind(){
   Projection geoProj;
   geoProj.setGeographic();
   Projection projection = area.P();
-
 
   glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
   glColor3ubv(poptions.linecolour.RGB());
@@ -813,10 +882,9 @@ bool FieldPlot::plotWind(){
       }
 
       gx= x[i]; gy= y[i];
-      if (u[i]!=fieldUndef &&
-          v[i]!=fieldUndef && maprect.isnear(gx,gy)){
+      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
         ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        if (ff>0.00001){
+        if (ff>0.00001 && (!colourwind || fields[2]->data[i]!=fieldUndef) ){
 
           gu= u[i]/ff;
           gv= v[i]/ff;
@@ -838,6 +906,12 @@ bool FieldPlot::plotWind(){
             n50 = 4;  n10 = 1;  n05 = 0;
           } else {
             n50 = 5;  n10 = 0;  n05 = 0;
+          }
+
+          if ( colourwind ) {
+            l=0;
+            while (l<nlim && fields[2]->data[i]>limits[l]) l++;
+            glColor3fv(&rgb[l*3]);
           }
 
           dx = flagstep*gu;
@@ -845,6 +919,15 @@ bool FieldPlot::plotWind(){
           dxf = -sign*flagw*gv - dx;
           dyf = sign*flagw*gu - dy;
 
+          if ( poptions.arrowstyle == arrow_wind_arrow ) {
+            // arrow (drawn as two lines)
+            vx.push_back(gx);
+            vy.push_back(gy);
+            vx.push_back(gx + afac*dx + sfac*dy);
+            vy.push_back(gy + afac*dy - sfac*dx);
+            vx.push_back(gx + afac*dx - sfac*dy);
+            vy.push_back(gy + afac*dy + sfac*dx);
+          }
           // direction
           glVertex2f(gx,gy);
           gx = gx - flagl*gu;
@@ -854,239 +937,9 @@ bool FieldPlot::plotWind(){
           // 50-knot flags, store for plot below
           if (n50>0) {
             for (n=0; n<n50; n++) {
-              vx.push_back(gx);
-              vy.push_back(gy);
-              gx+=dx*2.;  gy+=dy*2.;
-              vx.push_back(gx+dxf);
-              vy.push_back(gy+dyf);
-              vx.push_back(gx);
-              vy.push_back(gy);
-            }
-            gx+=dx; gy+=dy;
-          }
-          // 10-knot flags
-          for (n=0; n<n10; n++) {
-            glVertex2f(gx,gy);
-            glVertex2f(gx+dxf,gy+dyf);
-            gx+=dx; gy+=dy;
-          }
-          // 5-knot flag
-          if (n05>0) {
-            if (n50+n10==0) { gx+=dx; gy+=dy; }
-            glVertex2f(gx,gy);
-            glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
-          }
-        }
-      }
-    }
-  }
-  glEnd();
-
-  UpdateOutput();
-
-  // draw 50-knot flags
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int vi= vx.size();
-  if (vi>=3){
-    glBegin(GL_TRIANGLES);
-    for (int i=0; i<vi; i++)
-      glVertex2f(vx[i],vy[i]);
-    glEnd();
-  }
-
-  UpdateOutput();
-
-  glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWind() ++" << endl;
-#endif
-  return true;
-}
-
-
-// plot vector field as wind arrows
-// Fields u(0) v(1) colorfield(2)
-bool FieldPlot::plotWindColour(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotWindColour.." << endl;
-#endif
-  int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
-
-  int i,ix,iy,l;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
-
-  // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
-
-  // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y,poptions.rotateVectors);
-  if (uv.size()!=2) return false;
-  float *u= uv[0];
-  float *v= uv[1];
-
-  int step= poptions.density;
-
-  // automatic wind/vector density
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
-    step /=(poptions.densityFactor);
-  }
-  int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
-  if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
-  }
-
-  float* limits=0;
-  GLfloat* rgb=0;
-
-  int nlim= poptions.limits.size();
-  int ncol= poptions.colours.size();
-
-  if ( ncol>=2 ) {
-    rgb=    new GLfloat[ncol*3];
-    for (i=0; i<ncol; i++) {
-      rgb[i*3+0]=  poptions.colours[i].fR();
-      rgb[i*3+1]=  poptions.colours[i].fG();
-      rgb[i*3+2]=  poptions.colours[i].fB();
-    }
-  } else {
-    const int maxdef= 4;
-    float rgbdef[maxdef][3]={{0.5,0.5,0.5},{0,0,0},{0,1,1},{1,0,0}};
-
-    ncol= maxdef;
-
-    rgb=    new GLfloat[ncol*3];
-    for (i=0; i<ncol; i++) {
-      rgb[i*3+0]= rgbdef[i][0];
-      rgb[i*3+1]= rgbdef[i][1];
-      rgb[i*3+2]= rgbdef[i][2];
-    }
-  }
-
-  if (nlim>=1 ) {
-
-    if (nlim>ncol-1) nlim= ncol-1;
-    if (ncol>nlim+1) ncol= nlim+1;
-    limits= new float[nlim];
-    for (i=0; i<nlim; i++) {
-      limits[i]= poptions.limits[i];
-    }
-
-  } else {
-
-    // default, should be handled when reading setup, if allowed...
-    const int maxdef= 4;
-    nlim= maxdef-1;
-
-    float fmin=fieldUndef, fmax=-fieldUndef;
-    for (i=0; i<nx*ny; ++i) {
-      if (fields[2]->data[i]!=fieldUndef) {
-        if (fmin > fields[2]->data[i]) fmin=fields[2]->data[i];
-        if (fmax < fields[2]->data[i]) fmax=fields[2]->data[i];
-      }
-    }
-    if (fmin>fmax) return false;
-
-    limits= new float[nlim];
-    float dlim= (fmax-fmin)/float(ncol);
-
-    for (i=0; i<nlim; i++) {
-      limits[i]= fmin + dlim*float(i+1);
-    }
-  }
-
-  float unitlength  = poptions.vectorunit / 10;
-  int   n50,n10,n05;
-  float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85 / unitlength;
-  float flagstep = flagl/10.;
-  float flagw = flagl * 0.35;
-  float hflagw = 0.6;
-
-  vector<float> vx,vy; // keep vertices for 50-knot flags
-  vector<int>   vc;    // keep the colour too
-
-  ix1-=step;     if (ix1<0)  ix1=0;
-  iy1-=step;     if (iy1<0)  iy1=0;
-  ix2+=(step+1); if (ix2>nx) ix2=nx;
-  iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  maprect.setExtension( flagl );
-
-  glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
-
-  glBegin(GL_LINES);
-
-  for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-    for (ix=ix1; ix<ix2; ix+=xstep){
-      i= iy*nx+ix;
-      gx= x[i]; gy= y[i];
-      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        if (ff>0.00001 && fields[2]->data[i]!=fieldUndef){
-
-          gu= u[i]/ff;
-          gv= v[i]/ff;
-
-          ff *= 3600.0/1852.0;
-
-          // find no. of 50,10 and 5 knot flags
-          if (ff<182.49) {
-            n05  = int(ff*0.2 + 0.5);
-            n50  = n05/10;
-            n05 -= n50*10;
-            n10  = n05/2;
-            n05 -= n10*2;
-          } else if (ff<190.) {
-            n50 = 3;  n10 = 3;  n05 = 0;
-          } else if(ff<205.) {
-            n50 = 4;  n10 = 0;  n05 = 0;
-          } else if (ff<225.) {
-            n50 = 4;  n10 = 1;  n05 = 0;
-          } else {
-            n50 = 5;  n10 = 0;  n05 = 0;
-          }
-
-          l=0;
-          while (l<nlim && fields[2]->data[i]>limits[l]) l++;
-          glColor3fv(&rgb[l*3]);
-
-          dx = flagstep*gu;
-          dy = flagstep*gv;
-          dxf = -flagw*gv - dx;
-          dyf =  flagw*gu - dy;
-
-          // direction
-          glVertex2f(gx,gy);
-          gx = gx - flagl*gu;
-          gy = gy - flagl*gv;
-          glVertex2f(gx,gy);
-
-          // 50-knot flags, store for plot below
-          if (n50>0) {
-            for (n=0; n<n50; n++) {
-              vc.push_back(l);
+              if ( colourwind ) {
+                vc.push_back(l);
+              }
               vx.push_back(gx);
               vy.push_back(gy);
               gx+=dx*2.;  gy+=dy*2.;
@@ -1122,8 +975,10 @@ bool FieldPlot::plotWindColour(){
   int vi= vx.size(), j=0;
   if (vi>=3){
     glBegin(GL_TRIANGLES);
-    for (i=0; i<vi; i+=3){
-      glColor3fv(&rgb[vc[j++]*3]);
+    for (int i=0; i<vi; i+=3){
+      if ( colourwind ) {
+        glColor3fv(&rgb[vc[j++]*3]);
+      }
       glVertex2f(vx[i  ],vy[i  ]);
       glVertex2f(vx[i+1],vy[i+1]);
       glVertex2f(vx[i+2],vy[i+2]);
@@ -1139,7 +994,7 @@ bool FieldPlot::plotWindColour(){
   glDisable(GL_LINE_STIPPLE);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWindColour() ++" << endl;
+  cerr << "++ Returning from FieldPlot::plotWind() ++" << endl;
 #endif
   return true;
 }
@@ -1207,7 +1062,7 @@ bool FieldPlot::plotValue(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -1338,7 +1193,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y,poptions.rotateVectors);
+  vector<float*> uv= prepareVectors(x,y,poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -1351,7 +1206,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -1777,7 +1632,7 @@ bool FieldPlot::plotValues(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -1961,7 +1816,7 @@ bool FieldPlot::plotVector(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
-  vector<float*> uv= prepareVectors(2,x,y,poptions.rotateVectors);
+  vector<float*> uv= prepareVectors(x,y,poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -1974,7 +1829,7 @@ bool FieldPlot::plotVector(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
   if (poptions.density<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -2078,7 +1933,7 @@ bool FieldPlot::plotVectorColour(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert vectors to correct projection
-  vector<float*> uv= prepareVectors(3,x,y, poptions.rotateVectors);
+  vector<float*> uv= prepareVectors(x,y, poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -2091,7 +1946,7 @@ bool FieldPlot::plotVectorColour(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -2260,7 +2115,7 @@ bool FieldPlot::plotDirection(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
-  vector<float*> uv= prepareDirectionVectors(1,x,y, poptions.rotateVectors);
+  vector<float*> uv= prepareDirectionVectors(x,y, poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -2273,7 +2128,7 @@ bool FieldPlot::plotDirection(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -2374,7 +2229,7 @@ bool FieldPlot::plotDirectionColour(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
-  vector<float*> uv= prepareDirectionVectors(2,x,y, poptions.rotateVectors);
+  vector<float*> uv= prepareDirectionVectors(x,y, poptions.rotateVectors);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -2387,7 +2242,7 @@ bool FieldPlot::plotDirectionColour(){
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
   if (step<1) step= autostep;
   float sdist= dist*float(step);
-  if ( step > poptions.densityFactor ) {
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
     step /=(poptions.densityFactor);
   }
   int xstep= step;
@@ -2553,7 +2408,8 @@ bool FieldPlot::plotContour(){
   int ismooth, labfmt[3], ibcol;
   int idraw, nlines, nlim;
   int ncol, icol[mmmUsed], ntyp, ityp[mmmUsed], nwid, iwid[mmmUsed];
-  float zrange[2], zstep, zoff, rlines[mmmUsed], rlim[mmm];
+  float zrange[2], zstep, zoff, rlim[mmm];
+  float rlines[poptions.linevalues.size()];
   int idraw2, nlines2, nlim2;
   int ncol2, icol2[mmmUsed], ntyp2, ityp2[mmmUsed], nwid2, iwid2[mmmUsed];
   float zrange2[2], zstep2=0, zoff2=0, rlines2[mmmUsed], rlim2[mmm];
@@ -2830,7 +2686,7 @@ bool FieldPlot::plotContour(){
 
   glDisable(GL_LINE_STIPPLE);
 
-  //if (!res) cerr<<"Contour error"<<endl;
+  if (!res) cerr<<"FieldPlot::plotContour() -  Contour error"<<endl;
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotContour() ++" << endl;
@@ -3232,7 +3088,6 @@ bool FieldPlot::plotFillCell(){
 
   int factor = 1;
   int rnx = nx;
-  int rny = ny;
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 

@@ -54,6 +54,18 @@ enum polyStyle {
 };
 
 /**
+   \brief ways of drawing arrows
+*/
+enum arrowStyle {
+  arrow_wind,
+  arrow_wind_arrow,
+  arrow_wind_value,
+  arrow_wind_colour,
+  arrow_vector_colour,
+  arrow_vector
+};
+
+/**
    \brief alignment types
 */
 enum Alignment {
@@ -150,6 +162,7 @@ public:
   int      contourShading;
   miutil::miString classSpecifications; // "value:name,value:name,....." split when used
   polyStyle polystyle;
+  arrowStyle arrowstyle;
   Alignment h_align;
   Alignment v_align;
   int      alignX;       // shift position of plotted numbers with ex.alignX=10000
