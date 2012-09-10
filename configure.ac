@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.28.1~a3], [diana@met.no])
+AC_INIT([diana], [3.28.1~a4], [diana@met.no])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
