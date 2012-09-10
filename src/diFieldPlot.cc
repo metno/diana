@@ -2402,7 +2402,7 @@ bool FieldPlot::plotContour(){
   int ipart[4];
 
   const int mmm = 2;
-  const int mmmUsed = 100;
+  const int mmmUsed = 256;
 
   float xylim[4], chxlab, chylab;
   int ismooth, labfmt[3], ibcol;
