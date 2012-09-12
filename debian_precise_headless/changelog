@@ -1,3 +1,9 @@
+diana-headless (3.28.1~a5-0) unstable; urgency=low
+
+  * Rebuilt with current sources.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 12 Sep 2012 14:26:00 +0200
+
 diana-headless (3.28.1~a4-0) unstable; urgency=low
 
   * Removed unnecessary fifo handling code.
