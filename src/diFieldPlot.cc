@@ -3091,6 +3091,7 @@ bool FieldPlot::plotFillCell(){
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 
+  int rny = ny;
   float cx[2], cy[2];
   cx[0] = fields[0]->area.R().x1;
   cy[0] = fields[0]->area.R().y1;
