@@ -63,7 +63,7 @@ PlotOptions::PlotOptions():
   gridValue(0),gridLines(0), gridLinesMax(0),
   undefMasking(0), undefColour(WhiteC), undefLinewidth(1),
   plottype(fpt_contour), rotateVectors(1), discontinuous(0), contourShading(0),
-  polystyle(poly_fill), h_align(align_left), v_align(align_bottom),
+  polystyle(poly_fill), arrowstyle(arrow_wind), h_align(align_left), v_align(align_bottom),
   alignX(0), alignY(0),
   fontname("SCALEFONT"), fontface("NORMAL"), fontsize(10.0), precision(0),
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true)
@@ -267,6 +267,8 @@ bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
   const miString key_undefLinetype=  "undef.linetype";
   // polyStyle
   const miString key_polystyle= "polystyle";
+  // arrowStyle
+  const miString key_arrowstyle= "arrowstyle";
   // h_alignment
   const miString key_h_alignment= "halign";
   // v_alignment
@@ -756,6 +758,12 @@ bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
         else if (value=="border") po.polystyle= poly_border;
         else if (value=="both") po.polystyle= poly_both;
         else if (value=="none") po.polystyle= poly_none;
+
+      } else if (key==key_arrowstyle){ // warning: only arrow_wind_arrow implemented yet
+        if (value=="wind") po.arrowstyle= arrow_wind;
+        else if (value=="wind_arrow") po.arrowstyle= arrow_wind_arrow;
+        else if (value=="wind_colour") po.arrowstyle= arrow_wind_colour;
+        else if (value=="wind_value") po.arrowstyle= arrow_wind_value;
 
       } else if (key==key_h_alignment){
         if (value=="left") po.h_align= align_left;

@@ -101,15 +101,14 @@ private:
   float    vectorAnnotationSize;
   miutil::miString vectorAnnotationText;
 
-  vector<float*> prepareVectors(int nfields, float* x, float* y, bool rotateVectors);
-  vector<float*> prepareDirectionVectors(int nfields, float* x, float* y, bool rotateVectors);
+  vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
+  vector<float*> prepareDirectionVectors(float* x, float* y, bool rotateVectors);
   void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
 		   int maxElementsX, int& step, float& dist);
   int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);
 
   // plotting methods
   bool plotWind();
-  bool plotWindColour();
   bool plotWindAndValue(bool flightlevelChart=false);
   bool plotVector();
   bool plotValue();
