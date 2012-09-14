@@ -2984,8 +2984,6 @@ int dispatchWork(const std::string &file);
  */
 int main(int _argc, char** _argv)
 {
-  // Quit immediately for smoke testing.
-  return 1402;
   diOrderBook *orderbook = NULL;
   miString xhost = ":0.0"; // default DISPLAY
   miString sarg;

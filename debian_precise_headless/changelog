@@ -1,3 +1,9 @@
+diana-headless (3.28.1~b1-0) unstable; urgency=low
+
+  * Updated package version for a beta release.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 14 Sep 2012 16:08:10 +0200
+
 diana-headless (3.28.1~a5-0) unstable; urgency=low
 
   * Rebuilt with current sources.
