@@ -3,4 +3,4 @@ usr/bin/diana*
 usr/share/applications/metno-diana-@METNO_VERSION@.desktop
 usr/share/doc/diana-@METNO_VERSION@
 usr/share/pixmaps/diana-@METNO_VERSION@.png
-./usr/share/diana/3.28/lang/
+usr/share/diana/@METNO_VERSION@/lang
