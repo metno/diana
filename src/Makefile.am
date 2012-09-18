@@ -94,7 +94,6 @@ common_cxx_sources = \
 	diSpectrumPlot.cc \
 	diStationManager.cc \
 	diStationPlot.cc \
-	diTimeFilter.cc \
 	diTrajectoryPlot.cc \
 	diUndoFront.cc \
 	diVcrossField.cc \
@@ -265,7 +264,6 @@ noinst_HEADERS = \
 	diStationManager.h \
 	diStationPlot.h \
 	diTesselation.h \
-	diTimeFilter.h \
 	diTrajectoryPlot.h \
 	diUndoFront.h \
 	diVcrossField.h \

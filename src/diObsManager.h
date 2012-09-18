@@ -33,7 +33,7 @@
 
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
-#include <diTimeFilter.h>
+#include <diField/TimeFilter.h>
 #include <diCommonTypes.h>
 #include <puTools/miString.h>
 #include <set>

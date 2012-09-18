@@ -38,7 +38,7 @@
 #include <set>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
-#include <diTimeFilter.h>
+#include <diField/TimeFilter.h>
 #include <diController.h>
 
 using namespace std;

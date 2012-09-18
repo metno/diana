@@ -836,6 +836,11 @@ vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
   return fieldplotm->getFieldTime(request,constT);
 }
 
+void Controller::updateFieldSource(const std::string & modelName)
+{
+  fieldm->updateSource(modelName);
+}
+
 MapDialogInfo Controller::initMapDialog(){
   MapManager mapm;
   return mapm.getMapDialogInfo();
