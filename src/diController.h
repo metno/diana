@@ -310,6 +310,8 @@ public:
                       miutil::miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
+///update list of fieldsources (field files)
+  void updateFieldSource(const std::string & modelName);
 
   // Map-dialog methods
   MapDialogInfo initMapDialog();

@@ -42,7 +42,7 @@
 #include <diSat.h>
 #include <diSatPlot.h>
 #include <diCommonTypes.h>
-#include <diTimeFilter.h>
+#include <diField/TimeFilter.h>
 
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
