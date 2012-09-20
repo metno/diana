@@ -1592,7 +1592,7 @@ int parseAndProcess(istream &is)
         }
         cout <<main_controller->getMapArea()<<endl;
 
-        if (!raster && !shape && (!multiple_plots || multiple_newpage)) {
+        if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
           multiple_newpage = false;
 #ifdef VIDEO_EXPORT
