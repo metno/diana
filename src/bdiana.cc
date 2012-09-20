@@ -2080,6 +2080,9 @@ int parseAndProcess(istream &is)
           painter.drawPicture(ox, oy, picture);
           painter.end();
       } else if (json) {
+
+          ensureNewContext();
+
         QFile outputFile(QString::fromStdString(priop.fname));
         if (outputFile.open(QFile::WriteOnly)) {
           outputFile.write("{\n");
