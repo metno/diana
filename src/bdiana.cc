@@ -1372,6 +1372,8 @@ void createJsonAnnotation()
 
 void ensureNewContext()
 {
+  plotAnnotationsOnly = false;
+
   if (canvasType == qt_qimage) {
     if (context.isPainting())
       context.end();
@@ -2081,7 +2083,7 @@ int parseAndProcess(istream &is)
           painter.end();
       } else if (json) {
 
-          ensureNewContext();
+        ensureNewContext();
 
         QFile outputFile(QString::fromStdString(priop.fname));
         if (outputFile.open(QFile::WriteOnly)) {
