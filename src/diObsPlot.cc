@@ -548,6 +548,9 @@ bool ObsPlot::prepare(const miString& pin)
           left_alignment = false;
       } else if (key == "criteria") {
         decodeCriteria(tokens[i]);
+      } else if (key == "arrowstyle") {
+        if (value=="wind") poptions.arrowstyle= arrow_wind;
+        else if (value=="wind_arrow") poptions.arrowstyle= arrow_wind_arrow;
       } else if (key == "font") {
         poptions.fontname = orig_value;
       } else if (key == "face") {
@@ -2478,8 +2481,10 @@ void ObsPlot::plotList(int index)
     if (vertical_orientation)
       ypos += yShift;
     xpos += xShift;
-    if (wind)
-      printUndef(xpos, ypos, "left"); //undef wind
+    if (wind){
+      float xx = 0, yy = 0;
+      printUndef(xx,yy, "left"); //undef wind, station position
+    }
   }
 
   if (!vertical_orientation) {
@@ -5635,6 +5640,18 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius,
     }
     glEnd();
   }
+
+  //arrow
+  if (  poptions.arrowstyle == arrow_wind_arrow
+      && (plottype == "list" || plottype == "ascii") ) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBegin(GL_POLYGON);
+    glVertex2f( 0, 0);
+    glVertex2f( 3, 5);
+    glVertex2f(-3, 5);
+    glEnd();
+  }
+
   glPopMatrix();
 
 }

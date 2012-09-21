@@ -51,3 +51,13 @@ Depends: ${misc:Depends}
 Description: common files for diana and diana-headless packages
  This package contains files shared between versioned
  diana-X.Y@METNO_SUFFIX@ and diana-headless-X.Y packages.
+
+Package: diana-metno-@METNO_VERSION@
+Architecture: all
+Depends: dianaconfig, dianamaps,
+ diana-@METNO_VERSION@,
+ diana-headless-@PVERSION_MAJOR_DOT_MINOR@,
+ ${misc:Depends}
+Description: dependency package for met.no diana
+ This is a dependency package pulling in all diana packages used at
+ met.no's workstations.

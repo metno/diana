@@ -1,3 +1,16 @@
+diana (3.28.1~a1-8) unstable; urgency=low
+
+  * removed some fixed version numbers in .install files
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 17 Sep 2012 15:32:01 +0200
+
+diana (3.28.1~a1-7) unstable; urgency=low
+
+  * Added dependency package diana-metno-X.Y pulling in diana programs and
+    met.no-specific configuration files to simplify installation at met.no.
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 17 Sep 2012 14:21:00 +0200
+
 diana (3.28.1~a1-6) unstable; urgency=low
 
   * Moved some files in /usr/share/dianab to new package diana-X.Y-common,
