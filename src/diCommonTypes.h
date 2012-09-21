@@ -151,6 +151,7 @@ struct MapElementOption {
   bool showvalue;      ///< plot value string (latlon)
   miutil::miString value_pos;  ///< value position (0=left, 1=bottom, 2=both) (latlon)
   float fontsize;      ///< fontsize for value plotting (latlon)
+  MapElementOption() : ison(false) {}
 };
 
 /**
