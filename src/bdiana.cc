@@ -2989,7 +2989,6 @@ int dispatchWork(const std::string &file);
  */
 int main(int _argc, char** _argv)
 {
-  return 17; // simulate premature return to test Jenkins
   diOrderBook *orderbook = NULL;
   miString xhost = ":0.0"; // default DISPLAY
   miString sarg;
