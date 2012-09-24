@@ -1,3 +1,9 @@
+diana-headless (3.28.1~b2-1) unstable; urgency=low
+
+  * Rebuilt against a well-defined libemos0d library.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 24 Sep 2012 16:55:07 +0200
+
 diana-headless (3.28.1~b2-0) unstable; urgency=low
 
   * Updated package version for a beta release.
