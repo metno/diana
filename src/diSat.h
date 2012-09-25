@@ -149,7 +149,7 @@ public:
   bool alphaoperchanged;   ///< changes in alpha-operation params
   bool mosaicchanged;      ///< changes in mosaic parameters
 
-  vector<int> hideColor;   ///< colour values to hide
+  map<int,char> hideColour;   ///< colour values to blend
 
   /// set default values from a SatDialogInfo
   static void setDefaultValues(const SatDialogInfo &);

@@ -2445,21 +2445,12 @@ int parseAndProcess(istream &is)
           vector<FieldPlot*> fieldPlots = main_controller->getFieldPlots();
           std::set<std::string> fieldPatterns;
 
+          FieldManager* fieldManager = main_controller->getFieldManager();
           for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
             miutil::miString modelName = (*it)->getModelName();
+            std::vector<std::string> fileNames = fieldManager->getFileNames(modelName);
+            fieldPatterns.insert(fileNames.begin(), fileNames.end());
 
-            FieldManager* fieldManager = main_controller->getFieldManager();
-            FieldSource* fieldSource = fieldManager->getFieldSource(modelName, true);
-            if (fieldSource) {
-              std::vector<miutil::miString> fileNames = fieldSource->getFileNames();
-              fieldPatterns.insert(fileNames.begin(), fileNames.end());
-            } else {
-              GridCollection* gridCollection = fieldManager->getGridCollection(modelName, "", true);
-              if (gridCollection) {
-                std::vector<std::string> fileNames = gridCollection->getRawSources();
-                fieldPatterns.insert(fileNames.begin(), fileNames.end());
-              }
-            }
           }
 
           map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();

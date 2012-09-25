@@ -147,7 +147,7 @@ bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
           sdp->classtable= satdata->classtable;
           sdp->maxDiff = satdata->maxDiff;
           sdp->autoFile = satdata->autoFile;
-          sdp->hideColor=satdata->hideColor;
+          sdp->hideColour=satdata->hideColour;
           delete satdata; //deleting the new sat created
           // add a new satplot, which is a copy of the old one,
           // and contains a pointer to a sat(sdp), to the end of vector
@@ -428,23 +428,16 @@ void SatManager::setPalette(SatFileInfo &fInfo)
     fInfo.col.push_back(Colour(colmap[0][i], colmap[1][i], colmap[2][i]));
 
   //convert image from palette to RGBA
-  int nhide = satdata->hideColor.size();
   for (int j=0; j<ny; j++) {
     for (int i=0; i<nx; i++) {
       int rawIndex = (int)satdata->rawimage[0][j*nx+i]; //raw image index
-      bool hide = false;
-      for (int ic=0; ic<nhide; ic++)
-        if (rawIndex==satdata->hideColor[ic]) {
-          hide=true;
-          break;
-        }
       int index = (i+(ny-j-1)*nx)*4;//image index
-      if (!hide) {
-        for (int k=0; k<3; k++)
-          satdata->image[index+k] = colmap[k][rawIndex];
+      for (int k=0; k<3; k++)
+        satdata->image[index+k] = colmap[k][rawIndex];
+      if (!satdata->hideColour.count(rawIndex)) {
         satdata->image[index+3] = satdata->alpha;;
       } else {
-        satdata->image[index+3] = 0;
+        satdata->image[index+3] = satdata->hideColour[rawIndex];
       }
     }
   }
