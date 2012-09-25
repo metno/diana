@@ -301,8 +301,8 @@ bool shape = false; // false means postscript
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 bool svg = false;
 bool pdf = false;
-bool json = false;
 #endif
+bool json = false;
 int raster_type = image_png; // see enum image_type above
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
