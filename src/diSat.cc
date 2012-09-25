@@ -132,7 +132,12 @@ Sat::Sat (const miString &pin) :
         vector <miString> stokens=value.split(',');
         int m= stokens.size();
         for (int j=0; j<m; j++) {
-          hideColor.push_back(atoi(stokens[j].c_str()));
+          vector <miString> sstokens=stokens[j].split(':');
+          if(sstokens.size()==1) {
+            hideColour[atoi(sstokens[0].c_str())] = 0;
+          } else {
+            hideColour[atoi(sstokens[0].c_str())] = atoi(sstokens[1].c_str());
+          }
         }
       }
     }
@@ -192,7 +197,7 @@ void Sat::memberCopy(const Sat& rhs)
   alpha= rhs.alpha;
   maxDiff= rhs.maxDiff;
   classtable= rhs.classtable;
-  hideColor=rhs.hideColor;
+  hideColour=rhs.hideColour;
   nx = rhs.nx;
   ny = rhs.ny;
   area= rhs.area;
@@ -283,8 +288,7 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
         pvalue = rawimage[p->first][index];
       }
       //return if colour is hidden
-      for (unsigned int i=0; i<hideColor.size(); i++) {
-        if (hideColor[i] ==pvalue)
+      if ( hideColour.count(pvalue) && hideColour[pvalue] == 0) {
           return;
       }
       if (pvalue!=0) {
