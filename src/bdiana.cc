@@ -111,7 +111,6 @@
 using namespace std; using namespace miutil;
 
 bool verbose = false;
-bool debug = false;
 
 // command-strings
 const miString com_liststart = "list.";
@@ -870,7 +869,6 @@ void printUsage(bool showexample)
         "-i                : job-control file. See example below                 \n"
         "-s                : setupfile for diana                                 \n"
         "-v                : (verbose) for more job-output                       \n"
-        "-d                : write debugging information                         \n"
         "-address=addr[:port]                                                    \n"
         "                  : production triggered by TCP connection              \n"
         "                    addr is a hostname or IP address                    \n"
@@ -1374,6 +1372,8 @@ void createJsonAnnotation()
 
 void ensureNewContext()
 {
+  plotAnnotationsOnly = false;
+
   if (canvasType == qt_qimage) {
     if (context.isPainting())
       context.end();
@@ -1594,7 +1594,7 @@ int parseAndProcess(istream &is)
         }
         cout <<main_controller->getMapArea()<<endl;
 
-        if (!raster && !shape && (!multiple_plots || multiple_newpage)) {
+        if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
           multiple_newpage = false;
 #ifdef VIDEO_EXPORT
@@ -1967,12 +1967,32 @@ int parseAndProcess(istream &is)
             image = image.copy(-ox, -oy, xsize, ysize);
           }
 
-          if (debug) {
-            QStringList imageText;
-            for (unsigned int i = 0; i < lines.size(); ++i)
-              image.setText(QString::number(i), QString::fromStdString(lines[i]));
+          milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
+
+          bool empty = true;
+          for (int py = 0; py < image.height(); ++py) {
+            QRgb *scanLine = (QRgb*)(image.scanLine(py));
+            for (int px = 0; px < image.width(); ++px) {
+              if (qAlpha(scanLine[px]) != 0) {
+                empty = false;
+                break;
+              }
+            }
+            if (!empty)
+              break;
           }
 
+          if (empty)
+            COMMON_LOG::getInstance("common").infoStream() << "# vvv Empty plot (begin)";
+
+          QStringList imageText;
+          for (unsigned int i = 0; i < lines.size(); ++i) {
+            image.setText(QString::number(i), QString::fromStdString(lines[i]));
+            COMMON_LOG::getInstance("common").infoStream() << lines[i];
+          }
+
+          if (empty)
+            COMMON_LOG::getInstance("common").infoStream() << "# ^^^ Empty plot (end)";
           image.save(QString::fromStdString(priop.fname));
         }
 #endif
@@ -2062,6 +2082,9 @@ int parseAndProcess(istream &is)
           painter.drawPicture(ox, oy, picture);
           painter.end();
       } else if (json) {
+
+        ensureNewContext();
+
         QFile outputFile(QString::fromStdString(priop.fname));
         if (outputFile.open(QFile::WriteOnly)) {
           outputFile.write("{\n");
@@ -2275,7 +2298,7 @@ int parseAndProcess(istream &is)
       glob_t globBuf;
       int number_of_files = 0;
       while (number_of_files == 0) {
-        glob_cache(pattern.c_str(), 0, 0, &globBuf);
+        glob(pattern.c_str(), 0, 0, &globBuf);
         number_of_files = globBuf.gl_pathc;
         if (number_of_files == 0) {
           globfree_cache(&globBuf);
@@ -2667,6 +2690,7 @@ int parseAndProcess(istream &is)
         ensureNewContext();
 
         image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        image.fill(qRgba(0, 0, 0, 0));
         painter.begin(&image);
         context.begin(&painter);
 #endif
@@ -2735,6 +2759,7 @@ int parseAndProcess(istream &is)
         ensureNewContext();
 
         image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+        image.fill(qRgba(0, 0, 0, 0));
         painter.begin(&image);
         context.begin(&painter);
 #endif
@@ -3009,9 +3034,6 @@ int main(int _argc, char** _argv)
     } else if (sarg == "-v") {
       verbose = true;
 
-    } else if (sarg == "-d") {
-      debug = true;
-
     } else if (sarg == "-signal") {
       if (orderbook != NULL) {
         cerr << "ERROR, can't have both -address and -signal" << endl;
@@ -3115,7 +3137,7 @@ int main(int _argc, char** _argv)
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
-  plog = milogger::LogHandler::initLogHandler( 4, "" );
+  plog = milogger::LogHandler::initLogHandler( 2, "" );
   plog->setObjectName("diana.bdiana.main");
   COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
@@ -3374,7 +3396,7 @@ void doWork()
   glob_t globBuf;
   int number_of_files = 0;
 
-  glob_cache(pattern.c_str(), 0, 0, &globBuf);
+  glob(pattern.c_str(), 0, 0, &globBuf);
   number_of_files = globBuf.gl_pathc;
 
   if (number_of_files == 0) {
@@ -3413,30 +3435,6 @@ int dispatchWork(const std::string &file)
     int fd = open(fifo_name.c_str(), O_WRONLY);
     if (fd == -1) {
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, can't open the fifo <" << fifo_name << ">!";
-      goto ERROR;
-    }
-    bool ok;
-    for (int tries = 0; tries < 10; ++tries) {
-#ifdef WIN32
-      unsigned long o_nonblock = 1;
-      ok = (ioctlsocket(fd, FIONBIO, &o_nonblock) != SOCKET_ERROR);
-#else
-      ok = (fcntl(fd, F_SETFL, O_NONBLOCK) == -1);
-#endif
-      // If we try to make the FIFO non-blocking before the other process has opened it
-      // we get an error. So, we wait and try again; otherwise, we break out of the loop.
-      if (!ok)
-        usleep(50000);  // 50000 microseconds is 50 milliseconds
-      else
-        break;
-    }
-
-    if (!ok) {
-      // We couldn't make the FIFO non-blocking. Although it's possible that the other
-      // process is just running slow, we cannot take the chance of writing to a
-      // blocking FIFO because it could have timed out and given up on us.
-      cerr << "ERROR, can't make fifo <" << fifo_name << "> non-blocking!" << endl;
-      close(fd);
       goto ERROR;
     }
 
