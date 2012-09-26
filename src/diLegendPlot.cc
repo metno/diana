@@ -194,6 +194,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
     height*=fontsizeScale;
   }
 
+  height *= 1.2;
 }
 
 bool LegendPlot::plot(float x, float y)
@@ -264,7 +265,7 @@ bool LegendPlot::plot(float x, float y)
   float yborder;
   getStringSize("c",xborder,yborder);
   xborder /=2;
-  yborder /=4;
+  yborder /=2;
   titlewidth  = titlewidth + 2*xborder;
   float titleheight = maxheight*ntitle;
   float tablewidth  = maxwidth + 7*xborder;
