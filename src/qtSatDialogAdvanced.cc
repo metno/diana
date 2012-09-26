@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 //#define dSatDlg
 
 #ifdef HAVE_CONFIG_H
@@ -54,8 +54,8 @@
 #define HEIGHTLB 85
 
 SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
-				      SatDialogInfo info)
-    : QWidget(parent){
+    SatDialogInfo info)
+: QWidget(parent){
 
   m_cut = info.cut;
   m_alphacut = info.alphacut;
@@ -64,7 +64,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   m_alphacutscale=m_alphacut.scale;
   m_alphascale=m_alpha.scale;
 
-// Cut
+  // Cut
   cutCheckBox = new QCheckBox(tr("Use stretch from first picture"),this);
 
   cut = new ToggleButton( this,tr("Cut").toStdString() );
@@ -72,12 +72,12 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   cutlcd = LCDNumber( 4, this);
 
   scut  = Slider( m_cut.minValue, m_cut.maxValue, 1, m_cut.value,
-		  Qt::Horizontal, this);
+      Qt::Horizontal, this);
   connect( cutCheckBox, SIGNAL( toggled( bool )), SLOT( cutCheckBoxSlot( bool )));
   connect( cutCheckBox, SIGNAL( toggled( bool )), SIGNAL( SatChanged()));
 
   connect( scut, SIGNAL( valueChanged( int )),
-	   SLOT( cutDisplay( int )));
+      SLOT( cutDisplay( int )));
   connect(scut, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
 
   connect( cut, SIGNAL( toggled(bool)), SLOT( greyCut( bool) ));
@@ -91,10 +91,10 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   alphacutlcd = LCDNumber( 4, this);
 
   salphacut  = Slider( m_alphacut.minValue, m_alphacut.maxValue, 1,
-		      m_alphacut.value, Qt::Horizontal, this);
+      m_alphacut.value, Qt::Horizontal, this);
 
   connect( salphacut, SIGNAL( valueChanged( int )),
-	   SLOT( alphacutDisplay( int )));
+      SLOT( alphacutDisplay( int )));
   connect(salphacut, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
 
   // Alpha
@@ -107,10 +107,10 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   alphalcd = LCDNumber( 4, this);
 
   salpha  = Slider( m_alpha.minValue, m_alpha.maxValue, 1, m_alpha.value,
-		   Qt::Horizontal, this);
+      Qt::Horizontal, this);
 
   connect( salpha, SIGNAL( valueChanged( int )),
-	   SLOT( alphaDisplay( int )));
+      SLOT( alphaDisplay( int )));
   connect(salpha, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
 
 
@@ -129,7 +129,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   colourList = new QListWidget( this );
   colourList->setSelectionMode(QAbstractItemView::MultiSelection);
   connect(colourList, SIGNAL(itemClicked(QListWidgetItem *))
-   	  ,SIGNAL(SatChanged()));
+      ,SIGNAL(SatChanged()));
   connect(colourList, SIGNAL(itemSelectionChanged ()),SLOT(colourcutOn()));
 
   QGridLayout*sliderlayout = new QGridLayout( this );
@@ -162,66 +162,66 @@ void SatDialogAdvanced::cutCheckBoxSlot( bool on )
 }
 /*********************************************/
 void SatDialogAdvanced::greyCut( bool on ){
-    if( on ){
-	scut->setEnabled( true );
-	cutlcd->setEnabled( true );
-	cutlcd->display( m_cutnr );
-	cutCheckBox->setChecked(false);
-    }
-    else{
-	scut->setEnabled( false );
-	cutlcd->setEnabled( false );
-	cutlcd->display( "OFF" );
-    }
+  if( on ){
+    scut->setEnabled( true );
+    cutlcd->setEnabled( true );
+    cutlcd->display( m_cutnr );
+    cutCheckBox->setChecked(false);
+  }
+  else{
+    scut->setEnabled( false );
+    cutlcd->setEnabled( false );
+    cutlcd->display( "OFF" );
+  }
 }
 
 /*********************************************/
 void SatDialogAdvanced::greyAlphaCut( bool on ){
-    if( on ){
-	salphacut->setEnabled( true );
-	alphacutlcd->setEnabled( true );
-	alphacutlcd->display( m_alphacutnr );
-    }
-    else{
-	salphacut->setEnabled( false );
-	alphacutlcd->setEnabled( false );
-	alphacutlcd->display( "OFF" );
-    }
+  if( on ){
+    salphacut->setEnabled( true );
+    alphacutlcd->setEnabled( true );
+    alphacutlcd->display( m_alphacutnr );
+  }
+  else{
+    salphacut->setEnabled( false );
+    alphacutlcd->setEnabled( false );
+    alphacutlcd->display( "OFF" );
+  }
 }
 
 /*********************************************/
 void SatDialogAdvanced::greyAlpha( bool on ){
-    if( on ){
-	salpha->setEnabled( true );
-	alphalcd->setEnabled( true );
-	alphalcd->display( m_alphanr );
-    }
-    else{
-	salpha->setEnabled( false );
-	alphalcd->setEnabled( false );
-	alphalcd->display( "OFF" );
-    }
+  if( on ){
+    salpha->setEnabled( true );
+    alphalcd->setEnabled( true );
+    alphalcd->display( m_alphanr );
+  }
+  else{
+    salpha->setEnabled( false );
+    alphalcd->setEnabled( false );
+    alphalcd->display( "OFF" );
+  }
 }
 
 
 /*********************************************/
 void SatDialogAdvanced::cutDisplay( int number ){
-   m_cutnr= ((double)number)*m_cutscale;
-   cutlcd->display( m_cutnr );
+  m_cutnr= ((double)number)*m_cutscale;
+  cutlcd->display( m_cutnr );
 }
 
 
 /*********************************************/
 void SatDialogAdvanced::alphacutDisplay( int number ){
-   m_alphacutnr= ((double)number)*m_alphacutscale;
-   alphacutlcd->display( m_alphacutnr );
+  m_alphacutnr= ((double)number)*m_alphacutscale;
+  alphacutlcd->display( m_alphacutnr );
 }
 
 
 /*********************************************/
 void SatDialogAdvanced::alphaDisplay( int number ){
-   m_alphanr= ((double)number)*m_alphascale;
-   alphalcd->display( m_alphanr );
+  m_alphanr= ((double)number)*m_alphascale;
+  alphalcd->display( m_alphanr );
 }
 
 /*********************************************/
@@ -316,10 +316,14 @@ miutil::miString SatDialogAdvanced::getOKString()
       ostr << " hide=";
       int n =colourList->count();
       for (int i=0;i<n;i++){
-	if (colourList->item(i)!=0 &&
-	    colourList->item(i)->isSelected()){
-	  ostr << i<<",";
-	    }
+        if (colourList->item(i)!=0 &&
+            colourList->item(i)->isSelected()){
+          ostr << i;
+          if ( !colourList->item(i)->text().isEmpty() ) {
+            ostr <<":"<<colourList->item(i)->text().toStdString();
+          }
+          ostr <<",";
+        }
       }
     }
   }
@@ -414,59 +418,63 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
       key = stokens[0].downcase();
       value = stokens[1];
       if ( key=="cut" && ! palette){
-	m_cutnr = atof(value.c_str());
-	if (m_cutnr<0){
-	  if (m_cutnr==-0.5){
-	    cutCheckBox->setChecked(true);
-	    cutCheckBoxSlot(true);
-	  } else {
-	    cut->setChecked(false);
-	    greyCut(false);
-	  }
-	}else{
-	  int cutvalue = int(m_cutnr/m_cutscale+m_cutscale/2);
-	  scut->setValue(  cutvalue);
-	  cut->setChecked(true);
-	  greyCut( true );
-	}
+        m_cutnr = atof(value.c_str());
+        if (m_cutnr<0){
+          if (m_cutnr==-0.5){
+            cutCheckBox->setChecked(true);
+            cutCheckBoxSlot(true);
+          } else {
+            cut->setChecked(false);
+            greyCut(false);
+          }
+        }else{
+          int cutvalue = int(m_cutnr/m_cutscale+m_cutscale/2);
+          scut->setValue(  cutvalue);
+          cut->setChecked(true);
+          greyCut( true );
+        }
       }
       else if ( (key=="alphacut" || key=="alfacut") && !palette){
-	if (value!="0"){
-	  m_alphacutnr = atof(value.c_str());
-	  int m_alphacutvalue = int(m_alphacutnr/m_alphacutscale+m_alphacutscale/2);
-	  salphacut->setValue(  m_alphacutvalue );
-	  alphacut->setChecked(true); greyAlphaCut( true );
-	}else{
-	  alphacut->setChecked(false); greyAlphaCut(false);
-	}
+        if (value!="0"){
+          m_alphacutnr = atof(value.c_str());
+          int m_alphacutvalue = int(m_alphacutnr/m_alphacutscale+m_alphacutscale/2);
+          salphacut->setValue(  m_alphacutvalue );
+          alphacut->setChecked(true); greyAlphaCut( true );
+        }else{
+          alphacut->setChecked(false); greyAlphaCut(false);
+        }
       }
       else if ( key=="alpha" || key=="alfa"){
-	if (value!="1"){
-	  m_alphanr = atof(value.c_str());
-	  int m_alphavalue = int(m_alphanr/m_alphascale+m_alphascale/2);
-	  salpha->setValue(  m_alphavalue );
-	  alpha->setChecked(true); greyAlpha( true );
-	}else{
-	  alpha->setChecked(false); greyAlpha(false);
-	}
+        if (value!="1"){
+          m_alphanr = atof(value.c_str());
+          int m_alphavalue = int(m_alphanr/m_alphascale+m_alphascale/2);
+          salpha->setValue(  m_alphavalue );
+          alpha->setChecked(true); greyAlpha( true );
+        }else{
+          alpha->setChecked(false); greyAlpha(false);
+        }
       }else if ( key=="table" && palette){
-	if (atoi(value.c_str())!=0) legendButton->setChecked(true);
-	else legendButton->setChecked(false);
+        if (atoi(value.c_str())!=0) legendButton->setChecked(true);
+        else legendButton->setChecked(false);
       }
       else if (key=="hide" && palette){
-	colourcut->setChecked(true);
-	//set selected colours
-	vector <miutil::miString> stokens=value.split(',');
-	int m= stokens.size();
-	for (int j=0; j<m; j++){
-	  int icol=stokens[j].toInt();
-	  if(icol < colourList->count()){
-	    colourList->item(icol)->setSelected(true);
-	  }
-	}
+        colourcut->setChecked(true);
+        //set selected colours
+        vector <miutil::miString> stokens=value.split(',');
+        int m= stokens.size();
+        for (int j=0; j<m; j++){
+          vector <miutil::miString> sstokens=stokens[j].split(':');
+          int icol=sstokens[0].toInt();
+          if(icol < colourList->count()){
+            colourList->item(icol)->setSelected(true);
+          }
+          if ( sstokens.size() == 2 ) {
+            colourList->item(icol)->setText(sstokens[1].c_str());
+          }
+        }
       }else{
-	//anythig unknown, add to external string
-	external+=" " + tokens[i];
+        //anythig unknown, add to external string
+        external+=" " + tokens[i];
       }
     } else if (stokens.size() ==1 && stokens[0].downcase()=="hide"){
       //colourList should be visible
