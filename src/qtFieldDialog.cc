@@ -4049,7 +4049,7 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
       int m = vfg[indexFGR].fieldNames.size();
       int indexF = 0;
       while (indexF < m && vfg[indexFGR].fieldNames[indexF] != sf.fieldName){
-                  cout << " .. skipping field:" << vfg[indexFGR].fieldNames[indexF] << endl;
+//                  cout << " .. skipping field:" << vfg[indexFGR].fieldNames[indexF] << endl;
         indexF++;
       }
 
