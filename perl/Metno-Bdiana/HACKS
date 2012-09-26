@@ -1,0 +1,20 @@
+COMPILE AND LINK bdian_capi
+BUILD STATIC METLIBS AND DIANA WITH 
+CFLAGS=-fPIC CXXFLAGS=-fPIC FFLAGS=-fPIC ./configure ...
+(OR BUILD AND INSTALL SHARED)
+
+
+IN DIANA 'SRC':
+
+change static const diOrderListener::DEFAULT_PORT to preprocessor define diOrderListener_DEFAULT_PORT
+
+g++ -DHAVE_CONFIG_H -I. -I..  -I/disk1/heiko/local/dianaWms/include -DNOLOG4CXX -DMETNOFIELDFILE -DMETNOOBS  -I/disk1/heiko/local/metlibs/include   -I/disk1/heiko/local/metlibs/include   -I/disk1/heiko/local/metlibs/include    -I/disk1/heiko/local/metlibs/include   -I/disk1/heiko/local/metlibs/include   -I/usr/include -I/usr/include -I/usr/include            -I../src/PaintGL -I../src/PaintGL/GL  -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED -I/opt/qt4-qws/mkspecs/qws/linux-x86_64-g++ -I/opt/qt4-qws/include/QtCore -I/opt/qt4-qws/include/QtNetwork -I/opt/qt4-qws/include/QtGui -I/opt/qt4-qws/include/QtSvg -I/opt/qt4-qws/include    -Wl,-rpath,/opt/qt4-qws/lib -msse2 -march=core2 -Wall -fPIC -c bdiana_capi.cc
+
+
+
+ar cru libdiana.a libdiana_a-diTesselation.o libdiana_a-dict.o libdiana_a-geom.o libdiana_a-memalloc.o libdiana_a-mesh.o libdiana_a-normal.o libdiana_a-priorityq.o libdiana_a-render.o libdiana_a-sweep.o libdiana_a-tess.o libdiana_a-tessmono.o libdiana_a-error.o libdiana_a-glue.o libdiana_a-diAnnotationPlot.o libdiana_a-diAreaBorder.o libdiana_a-diAreaObjects.o libdiana_a-diColour.o libdiana_a-diColourShading.o libdiana_a-diCommandParser.o libdiana_a-diComplexSymbolPlot.o libdiana_a-diContouring.o libdiana_a-diController.o libdiana_a-diDisplayObjects.o libdiana_a-diEditManager.o libdiana_a-diEditObjects.o libdiana_a-diFieldEdit.o libdiana_a-diFieldPlot.o libdiana_a-diFieldPlotManager.o libdiana_a-diFilledMap.o libdiana_a-diFontManager.o libdiana_a-diFtnVfile.o libdiana_a-diGridArea.o libdiana_a-diGridAreaManager.o libdiana_a-diImageGallery.o libdiana_a-diImageIO.o libdiana_a-diLegendPlot.o libdiana_a-diLinetype.o libdiana_a-diLocalSetupParser.o libdiana_a-diLocationPlot.o libdiana_a-diMItiff.o libdiana_a-diMapManager.o libdiana_a-diMapPlot.o libdiana_a-diMeasurementsPlot.o libdiana_a-diObjectManager.o libdiana_a-diObjectPlot.o libdiana_a-diObjectPoint.o libdiana_a-diObsAireps.o libdiana_a-diObsAscii.o libdiana_a-diObsDribu.o libdiana_a-diObsManager.o libdiana_a-diObsMetaData.o libdiana_a-diObsMetar.o libdiana_a-diObsOcea.o libdiana_a-diObsPilot.o libdiana_a-diObsPlot.o libdiana_a-diObsSatob.o libdiana_a-diObsSynop.o libdiana_a-diObsTemp.o libdiana_a-diObsTide.o libdiana_a-diPattern.o libdiana_a-diPlot.o libdiana_a-diPlotModule.o libdiana_a-diPlotOptions.o libdiana_a-diPrintOptions.o libdiana_a-diQuickMenues.o libdiana_a-diSat.o libdiana_a-diSatManager.o libdiana_a-diSatPlot.o libdiana_a-diShapeObject.o libdiana_a-diSpectrumFile.o libdiana_a-diSpectrumManager.o libdiana_a-diSpectrumOptions.o libdiana_a-diSpectrumPlot.o libdiana_a-diStationManager.o libdiana_a-diStationPlot.o libdiana_a-diTrajectoryPlot.o libdiana_a-diUndoFront.o libdiana_a-diVcrossField.o libdiana_a-diVcrossFile.o libdiana_a-diVcrossManager.o libdiana_a-diVcrossOptions.o libdiana_a-diVcrossPlot.o libdiana_a-diVprofData.o libdiana_a-diVprofDiagram.o libdiana_a-diVprofManager.o libdiana_a-diVprofOptions.o libdiana_a-diVprofPilot.o libdiana_a-diVprofPlot.o libdiana_a-diVprofTables.o libdiana_a-diVprofTemp.o libdiana_a-diWeatherArea.o libdiana_a-diWeatherFront.o libdiana_a-diWeatherObjects.o libdiana_a-diWeatherSymbol.o        libdiana_a-paintgl.o    bdiana_capi.o  bdiana-diOrderBook.moc.o bdiana-diOrderBook.o  bdiana-diOrderClient.moc.o bdiana-diOrderClient.o bdiana-diOrderListener.moc.o bdiana-diOrderListener.o bdiana-diOrderQueue.moc.o bdiana-diOrderQueue.o bdiana-diWorkOrder.moc.o bdiana-diWorkOrder.o bdiana-signalhelper.o
+
+
+ranlib libdiana.a
+
+
