@@ -695,7 +695,7 @@ void EditManager::sendMouseEvent(const mouseEvent& me,
           if (objm->toDoCombine())
             editCombine();
         }
-        if (moved) { //HK ??? slår dette til?
+        if (moved) {
           res.action= objects_changed;
           res.repaint= true;
           moved = false;
@@ -1377,7 +1377,7 @@ bool EditManager::writeEditProduct(miString&  message,
       if (!gate.reportSave(mess,isapproved)){
         res= false;
         saveok= false;
-        message += "Kan ikke sluttføre database-lagring:" + mess + "\n";
+        message += "Kan ikke sluttfï¿½re database-lagring:" + mess + "\n";
       }
       // remember that saved product is sent -
       // but only if approved!
@@ -2856,8 +2856,8 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Ocklusion",Occluded,"purple"));
   fronts.push_back(newEditToolInfo("Kall ocklusion",Occluded,"blue"));
   fronts.push_back(newEditToolInfo("Varm ocklusion",Occluded,"red"));
-  fronts.push_back(newEditToolInfo("Stationär front",Stationary,"grey50"));
-  fronts.push_back(newEditToolInfo("Tråg",TroughLine,"black"));
+  fronts.push_back(newEditToolInfo("Stationï¿½r front",Stationary,"grey50"));
+  fronts.push_back(newEditToolInfo("Trï¿½g",TroughLine,"black"));
 #else
   fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
   fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
@@ -2869,14 +2869,14 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
 #endif
 #ifdef SMHI
-  //fronts.push_back(newEditToolInfo("Signifikant väder",SigweatherFront,"green"));
-  fronts.push_back(newEditToolInfo("Molngräns",SigweatherFront,"green4"));
+  //fronts.push_back(newEditToolInfo("Signifikant vï¿½der",SigweatherFront,"green"));
+  fronts.push_back(newEditToolInfo("Molngrï¿½ns",SigweatherFront,"green4"));
   fronts.push_back(newEditToolInfo("VMC-linje",Line,"black","black",-2,true,"dash2"));
   fronts.push_back(newEditToolInfo("CAT-linje",Line,"black","black",-2,true,"longlongdash"));
-  fronts.push_back(newEditToolInfo("Jetström",ArrowLine,"grey50"));
-  fronts.push_back(newEditToolInfo("Asklinje röd",Line,"red","red",0,false));
-  fronts.push_back(newEditToolInfo("Asklinje grön",Line,"green","green",0,false,"dash3"));
-  fronts.push_back(newEditToolInfo("Asklinje blå",Line,"blue","blue",0,false,"dot"));
+  fronts.push_back(newEditToolInfo("Jetstrï¿½m",ArrowLine,"grey50"));
+  fronts.push_back(newEditToolInfo("Asklinje rï¿½d",Line,"red","red",0,false));
+  fronts.push_back(newEditToolInfo("Asklinje grï¿½n",Line,"green","green",0,false,"dash3"));
+  fronts.push_back(newEditToolInfo("Asklinje blï¿½",Line,"blue","blue",0,false,"dot"));
 #else
   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
   fronts.push_back(newEditToolInfo("Significant weather TURB/VA/RC",SigweatherFront,"red"));
@@ -2909,12 +2909,12 @@ void EditManager::initEditTools(){
 
 #ifdef SMHI
   symbols.push_back(newEditToolInfo("Torrdis/Haze",88,"black"));
-  symbols.push_back(newEditToolInfo("Rök/Smoke",42,"black"));
-  symbols.push_back(newEditToolInfo("Snöblandad regn",78,"green4"));
-  symbols.push_back(newEditToolInfo("Snöblandad by",43,"green4"));
-  symbols.push_back(newEditToolInfo("Snöby",1043,"green4","green4",3));
-  symbols.push_back(newEditToolInfo("Kornsnö",44,"red"));
-  symbols.push_back(newEditToolInfo("Snödrev",46,"black"));
+  symbols.push_back(newEditToolInfo("Rï¿½k/Smoke",42,"black"));
+  symbols.push_back(newEditToolInfo("Snï¿½blandad regn",78,"green4"));
+  symbols.push_back(newEditToolInfo("Snï¿½blandad by",43,"green4"));
+  symbols.push_back(newEditToolInfo("Snï¿½by",1043,"green4","green4",3));
+  symbols.push_back(newEditToolInfo("Kornsnï¿½",44,"red"));
+  symbols.push_back(newEditToolInfo("Snï¿½drev",46,"black"));
   symbols.push_back(newEditToolInfo("Hagelbyar",118,"green4"));
   symbols.push_back(newEditToolInfo("Mountain waves",130,"black"));
   symbols.push_back(newEditToolInfo("Duggregn",79,"green4"));
@@ -2924,8 +2924,8 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo( "Snow",254,"green4"));
   symbols.push_back(newEditToolInfo( "Dimma",1041,"gulbrun"));
   symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
-  symbols.push_back(newEditToolInfo( "Lågtryck",1019,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Högtryck",1020,"black","black",1));
+  symbols.push_back(newEditToolInfo( "Lï¿½gtryck",1019,"black","black",1));
+  symbols.push_back(newEditToolInfo( "Hï¿½gtryck",1020,"black","black",1));
 #else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
@@ -2958,7 +2958,7 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Showers",Genericarea,"green2"));
   areas.push_back(newEditToolInfo("Dis",Genericarea,"red","red",0,false));
   areas.push_back(newEditToolInfo("Dimma",Genericarea,"red","red",0,false));
-  areas.push_back(newEditToolInfo("Regnområde",Genericarea,"white"));
+  areas.push_back(newEditToolInfo("Regnomrï¿½de",Genericarea,"white"));
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-3));
 #else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4"));
@@ -3023,7 +3023,7 @@ void EditManager::initEditTools(){
   //Mean SFC wind, red diamond
   sigsymbols.push_back(newEditToolInfo("Sig28",1028,"black", "red"));
   // Sea state, black flag
-  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",3));
+  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",2));
   // Freezing fog
   sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red",1));
   //Nuclear
@@ -3110,7 +3110,7 @@ void EditManager::setMapmodeinfo(){
       objectModes[emidx++]=front_drawing;
       dMode.push_back(newEditModeInfo("Symboler",symbols));
       objectModes[emidx++]=symbol_drawing;
-      dMode.push_back(newEditModeInfo("Område",areas));
+      dMode.push_back(newEditModeInfo("Omrï¿½de",areas));
       objectModes[emidx++]=area_drawing;
     }
     if (EdProd.drawtools[i]==OBJECTS_SIGMAPS){
