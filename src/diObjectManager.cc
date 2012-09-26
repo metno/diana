@@ -42,7 +42,7 @@
 #include <diEditObjects.h>
 #include <diDisplayObjects.h>
 #include <diWeatherSymbol.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
 #include <stdio.h>

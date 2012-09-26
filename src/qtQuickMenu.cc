@@ -34,7 +34,7 @@
 #endif
 
 #include <fstream>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 
 #include "qtQuickMenu.h"

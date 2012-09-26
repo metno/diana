@@ -64,7 +64,7 @@
 #endif
 
 #include <diObsManager.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
 

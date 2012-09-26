@@ -61,7 +61,7 @@
 #endif
 #include <diLocalSetupParser.h>
 
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
 #include <math.h>

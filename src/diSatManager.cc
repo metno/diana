@@ -37,7 +37,7 @@
 #include <diSatManager.h>
 #include <GL/gl.h>
 #include <puCtools/glob_cache.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
 #include <set>

@@ -71,7 +71,7 @@
 #include <diPrintOptions.h>
 #include <diFontManager.h>
 #include <diImageIO.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 
 #include <diVcrossManager.h>

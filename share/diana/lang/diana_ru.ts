@@ -102,331 +102,336 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="195"/>
+        <location filename="../../../src/qtMainWindow.cc" line="196"/>
         <source>&amp;Save picture...</source>
         <translation>&amp;Сохранить картинку...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="199"/>
+        <location filename="../../../src/qtMainWindow.cc" line="200"/>
         <source>&amp;Email picture...</source>
         <translation>&amp;Отправить картинку...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="203"/>
+        <location filename="../../../src/qtMainWindow.cc" line="204"/>
         <source>Save &amp;animation...</source>
         <translation>Сохранить &amp;анимацию...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="207"/>
+        <location filename="../../../src/qtMainWindow.cc" line="208"/>
         <source>&amp;Print...</source>
         <translation>&amp;Печать...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="212"/>
+        <location filename="../../../src/qtMainWindow.cc" line="214"/>
+        <source>Read setupfile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMainWindow.cc" line="219"/>
         <source>&amp;Quit...</source>
         <translation>&amp;Выход...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="220"/>
+        <location filename="../../../src/qtMainWindow.cc" line="227"/>
         <source>S&amp;peed buttons</source>
         <translation>&amp;Быстрые клавиши</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="225"/>
+        <location filename="../../../src/qtMainWindow.cc" line="232"/>
         <source>A&amp;rchive mode</source>
         <translation>&amp;Архивный режим</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="230"/>
+        <location filename="../../../src/qtMainWindow.cc" line="237"/>
         <source>&amp;Automatic element choice</source>
         <translation>&amp;Автоматический выбор элемента</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="236"/>
+        <location filename="../../../src/qtMainWindow.cc" line="243"/>
         <source>A&amp;nnotations</source>
         <translation>А&amp;ннотации</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="241"/>
+        <location filename="../../../src/qtMainWindow.cc" line="248"/>
         <source>Scrollw&amp;heel zooming</source>
         <translation>Масштабирование &amp;колесиком</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="246"/>
+        <location filename="../../../src/qtMainWindow.cc" line="253"/>
         <source>Select &amp;Font...</source>
         <translation>Выбрать &amp;шрифт...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="253"/>
+        <location filename="../../../src/qtMainWindow.cc" line="260"/>
         <source>Reset area and replot</source>
         <translation>Восстановить область и перерисовать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="257"/>
+        <location filename="../../../src/qtMainWindow.cc" line="264"/>
         <source>Reset all</source>
         <translation>Восстановить все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="261"/>
+        <location filename="../../../src/qtMainWindow.cc" line="268"/>
         <source>&amp;Apply plot</source>
         <translation>&amp;Применить область</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="266"/>
+        <location filename="../../../src/qtMainWindow.cc" line="273"/>
         <source>Add to q&amp;uickmenu</source>
         <translation>Добавить к &quot;&amp;быстрому меню&quot;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="271"/>
+        <location filename="../../../src/qtMainWindow.cc" line="278"/>
         <source>P&amp;revious plot</source>
         <translation>&amp;Предыдущее изображение</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="276"/>
+        <location filename="../../../src/qtMainWindow.cc" line="283"/>
         <source>&amp;Next plot</source>
         <translation>&amp;Следующее изображение</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="281"/>
+        <location filename="../../../src/qtMainWindow.cc" line="288"/>
         <source>&amp;Hide All</source>
         <translation>&amp;Спрятать все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="288"/>
+        <location filename="../../../src/qtMainWindow.cc" line="295"/>
         <source>&amp;Quickmenu</source>
         <translation>&amp;Быстрое меню</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="294"/>
+        <location filename="../../../src/qtMainWindow.cc" line="301"/>
         <source>Maps</source>
         <translation>Карты</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="300"/>
+        <location filename="../../../src/qtMainWindow.cc" line="307"/>
         <source>&amp;Fields</source>
         <translation>П&amp;оля</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="306"/>
+        <location filename="../../../src/qtMainWindow.cc" line="313"/>
         <source>&amp;Observations</source>
         <translation>&amp;Наблюдения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="312"/>
+        <location filename="../../../src/qtMainWindow.cc" line="319"/>
         <source>&amp;Satellites and Radar</source>
         <translation>Спутники и &amp;радар</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="318"/>
+        <location filename="../../../src/qtMainWindow.cc" line="325"/>
         <source>&amp;Stations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="324"/>
+        <location filename="../../../src/qtMainWindow.cc" line="331"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Редактирование продукции</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="330"/>
+        <location filename="../../../src/qtMainWindow.cc" line="337"/>
         <source>O&amp;bjects</source>
         <translation>О&amp;бъекты</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="336"/>
+        <location filename="../../../src/qtMainWindow.cc" line="343"/>
         <source>&amp;Trajectories</source>
         <translation>&amp;Траектории</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="342"/>
+        <location filename="../../../src/qtMainWindow.cc" line="349"/>
         <source>&amp;Vertical Profiles</source>
         <translation>Вертикальные &amp;профили</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="348"/>
+        <location filename="../../../src/qtMainWindow.cc" line="355"/>
         <source>Vertical &amp;Cross sections</source>
         <translation>Вертикальные &amp;сечения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="354"/>
+        <location filename="../../../src/qtMainWindow.cc" line="361"/>
         <source>&amp;Wave spectra</source>
         <translation>&amp;Волновой спектр</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="360"/>
+        <location filename="../../../src/qtMainWindow.cc" line="367"/>
         <source>Zoom out</source>
         <translation>Уменьшить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="364"/>
+        <location filename="../../../src/qtMainWindow.cc" line="371"/>
         <source>&amp;Uffda Service</source>
         <translatorcomment>Don&apos;t understand</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="370"/>
+        <location filename="../../../src/qtMainWindow.cc" line="377"/>
         <source>&amp;Measurements</source>
         <translation>&amp;Измерения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="395"/>
-        <location filename="../../../src/qtMainWindow.cc" line="398"/>
+        <location filename="../../../src/qtMainWindow.cc" line="402"/>
+        <location filename="../../../src/qtMainWindow.cc" line="405"/>
         <source>Field E&amp;dit</source>
         <translation>&amp;Редактирование поля</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="409"/>
+        <location filename="../../../src/qtMainWindow.cc" line="416"/>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="415"/>
+        <location filename="../../../src/qtMainWindow.cc" line="422"/>
         <source>&amp;Accelerators</source>
         <translation>&amp;Быстрые клавиши</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="420"/>
+        <location filename="../../../src/qtMainWindow.cc" line="427"/>
         <source>&amp;News</source>
         <translation>&amp;Новости</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="425"/>
+        <location filename="../../../src/qtMainWindow.cc" line="432"/>
         <source>&amp;Report bug</source>
         <translation>Сообщить об &amp;ошибке</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="430"/>
+        <location filename="../../../src/qtMainWindow.cc" line="437"/>
         <source>About Diana</source>
         <translation>О Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="439"/>
+        <location filename="../../../src/qtMainWindow.cc" line="446"/>
         <source>Run Backwards</source>
         <translation>Демонстрировать назад</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="445"/>
+        <location filename="../../../src/qtMainWindow.cc" line="452"/>
         <source>Run Forewards</source>
         <translation>Демонстрировать вперед</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="451"/>
+        <location filename="../../../src/qtMainWindow.cc" line="458"/>
         <source>Step Backwards</source>
         <translation>Шаг назад</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="457"/>
+        <location filename="../../../src/qtMainWindow.cc" line="464"/>
         <source>Step Forewards</source>
         <translatorcomment>Шаг назад</translatorcomment>
         <translation>Шаг вперед</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="463"/>
+        <location filename="../../../src/qtMainWindow.cc" line="470"/>
         <source>Stop</source>
         <translation>Стоп</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="469"/>
+        <location filename="../../../src/qtMainWindow.cc" line="476"/>
         <source>Run in loop</source>
         <translation>Демонстрировать в цикле</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="475"/>
+        <location filename="../../../src/qtMainWindow.cc" line="482"/>
         <source>Time control</source>
         <translation>Контроль времени</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="485"/>
+        <location filename="../../../src/qtMainWindow.cc" line="492"/>
         <source>Level up</source>
         <translation>На уровень вверх</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="492"/>
+        <location filename="../../../src/qtMainWindow.cc" line="499"/>
         <source>Level down</source>
         <translation>На уровень вниз</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="500"/>
+        <location filename="../../../src/qtMainWindow.cc" line="507"/>
         <source>EPS cluster/member etc up</source>
         <translation>EPS: на кластер/член вверх</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="508"/>
+        <location filename="../../../src/qtMainWindow.cc" line="515"/>
         <source>EPS cluster/member etc down</source>
         <translation>EPS: на кластер/член вниз</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="517"/>
+        <location filename="../../../src/qtMainWindow.cc" line="524"/>
         <source>Update observations</source>
         <translation>Обновить наблюдения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="523"/>
+        <location filename="../../../src/qtMainWindow.cc" line="530"/>
         <source>Automatic updates</source>
         <translation>Автоматические обновления</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="572"/>
+        <location filename="../../../src/qtMainWindow.cc" line="579"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="581"/>
+        <location filename="../../../src/qtMainWindow.cc" line="588"/>
         <source>O&amp;ptions</source>
         <translation>&amp;Опции</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="606"/>
+        <location filename="../../../src/qtMainWindow.cc" line="614"/>
         <source>Info</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="620"/>
+        <location filename="../../../src/qtMainWindow.cc" line="628"/>
         <source>Show</source>
         <translation>Показать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="652"/>
+        <location filename="../../../src/qtMainWindow.cc" line="660"/>
         <source>&amp;Help</source>
         <translation>&amp;Помощь</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="789"/>
+        <location filename="../../../src/qtMainWindow.cc" line="797"/>
         <source>ARCHIVE</source>
         <translation>АРХИВ</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="801"/>
+        <location filename="../../../src/qtMainWindow.cc" line="809"/>
         <source>Diana</source>
         <translation>Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1808"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1820"/>
         <source>End Profet</source>
         <translatorcomment>Don&apos;t understand</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1809"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1821"/>
         <source>Do you want to stay connected to profet?</source>
         <translation>Вы хотите остаться на связи с profet?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1822"/>
         <source>Quit and disconnect</source>
         <translation>Выйти и отсоединиться</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1822"/>
         <source>Quit and stay connected </source>
         <translation>Выйти и остаться на связи</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1810"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1822"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Отмена</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2726"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -434,128 +439,128 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Diana - система 2-мерной демонстрации метеорологических данных, включая поля, наблюдения, спутники и радары, вертикальные профили и сечения. DIANA имеет инструменты для редактирования полей непосредственно на экране и дорисовки объектов: фронтов, областей, символов, и т.д.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2726"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation>Для сообщения об ошибки или предложения о улучшении, пожалуйста воспользуйтесь инструментарием для коррекции ошибок по адресу http://diana.bugs.met.no ( - только для норвежцев).</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2726"/>
         <source>version:</source>
         <translation>версия:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2714"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2726"/>
         <source>build:</source>
         <translation>создание:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2716"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2728"/>
         <source>about Diana</source>
         <translation>о Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2956"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2968"/>
         <source>Save plot as image</source>
         <translation>Сохранить изображение как картинку</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2958"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2970"/>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
         <translation>Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3004"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3016"/>
         <source>Save animation from current fields, satellite images, etc. (*.mpg or *.avi)</source>
         <translation>Сохранить анимацию из текущих полей, спутниковых изображений и т.д. (*.mpg или *.avi)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3006"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3018"/>
         <source>Movies (*.mpg *.avi);;All (*.*)</source>
         <translation>Видео (*.mpg *.avi);;Все (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3035"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3047"/>
         <source>Making animation</source>
         <translation>Подготовка анимации</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3036"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3048"/>
         <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
         <translation>Операция может занять некоторое время - в зависимости от числа и выбранной задержки. Пока процесс не завершится - Diana не может использоватся. По завершении процесса будет показано сообдение. Нажмите Ok для старта.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3050"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3062"/>
         <source>Creating animation...</source>
         <translation>Создание анимации...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3050"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3062"/>
         <source>Hide</source>
         <translation>Спрятать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3078"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3090"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3078"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3090"/>
         <source>Animation completed.</source>
         <translation>Анимация завершена.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3083"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3095"/>
         <source>Compiled without video export</source>
         <translation>Собрана без опции экспорта видео</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3083"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3095"/>
         <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
         <translation>Diana должна быть откомпилирована с определенной VIDEO_EXPORT для использования этой возможности.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3281"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3312"/>
         <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3284"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3315"/>
         <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3287"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3318"/>
         <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3299"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3330"/>
         <source>&amp;nbsp;auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3301"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3332"/>
         <source>&amp;nbsp;vis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3307"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3338"/>
         <source>%1&amp;nbsp;N,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3309"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3340"/>
         <source>%1&amp;nbsp;S,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3311"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3342"/>
         <source>%1&amp;nbsp;E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3313"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3344"/>
         <source>%1&amp;nbsp;W</source>
         <translation type="unfinished"></translation>
     </message>
@@ -563,30 +568,20 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 <context>
     <name>DianaProfetGUI</name>
     <message>
-        <location filename="../../../src/qtDianaProfetGUI.cc" line="82"/>
         <source>Edit Object</source>
-        <translation>Редактировать объект</translation>
+        <translation type="obsolete">Редактировать объект</translation>
     </message>
     <message>
-        <location filename="../../../src/qtDianaProfetGUI.cc" line="85"/>
         <source>Delete Object</source>
-        <translation>Удалить объект</translation>
+        <translation type="obsolete">Удалить объект</translation>
     </message>
     <message>
-        <location filename="../../../src/qtDianaProfetGUI.cc" line="88"/>
         <source>Time smooth</source>
-        <translation>Сглаживание во времени</translation>
+        <translation type="obsolete">Сглаживание во времени</translation>
     </message>
     <message>
-        <location filename="../../../src/qtDianaProfetGUI.cc" line="1100"/>
-        <source>Diana / Profet</source>
-        <translatorcomment>Don&apos;t understand</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtDianaProfetGUI.cc" line="1101"/>
         <source>You have moved a set of objects to new locations. Would you like to save the changes?</source>
-        <translation>Вы переместили набор объектов на новые места. Желаете ли Вы сохранить изменения?</translation>
+        <translation type="obsolete">Вы переместили набор объектов на новые места. Желаете ли Вы сохранить изменения?</translation>
     </message>
 </context>
 <context>
@@ -1205,20 +1200,20 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Не &amp;отправлять</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1607"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1863"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1612"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1873"/>
         <source>Undefined</source>
         <translation>Неопределенный</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1612"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1868"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1617"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1878"/>
         <source>New value:</source>
         <translation>Новое значение:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtEditDialog.cc" line="1673"/>
-        <location filename="../../../src/qtEditDialog.cc" line="1903"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1678"/>
+        <location filename="../../../src/qtEditDialog.cc" line="1913"/>
         <source>Not saved</source>
         <translation>Не сохранен</translation>
     </message>
@@ -1426,7 +1421,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <name>FieldDialog</name>
     <message>
         <location filename="../../../src/qtFieldDialog.cc" line="87"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="285"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="289"/>
         <source>Fields</source>
         <translation>Поля</translation>
     </message>
@@ -1506,433 +1501,433 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Уровни модели океана</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="255"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="259"/>
         <source>Model group</source>
         <translation>Группа модели</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="261"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="265"/>
         <source>Models</source>
         <translation>Модели</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="267"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="271"/>
         <source>Reference time</source>
         <translation>Время для справки</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="273"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="277"/>
         <source>Field group</source>
         <translation>Группа полей</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="279"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="283"/>
         <source>Predefined plots</source>
         <translation>Выбранные изображения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="292"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="296"/>
         <source>Selected fields</source>
         <translation>Выбранные поля</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="326"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="330"/>
         <source>Level</source>
         <translation>Уровень</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="354"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="358"/>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="356"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="457"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="360"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="461"/>
         <source>Unit</source>
         <translation>Единица</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="362"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="366"/>
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="366"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="370"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="370"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="374"/>
         <source>Delete all</source>
         <translation>Удалить все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="374"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="378"/>
         <source>Model</source>
         <translation>Модель</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="410"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="414"/>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="418"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="422"/>
         <source>Plot type</source>
         <translation>Тип карты</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="425"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="837"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="429"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="841"/>
         <source>Line colour</source>
         <translation>Цвет линий</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="426"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="430"/>
         <source>off</source>
         <translation type="unfinished">выкл</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="432"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="845"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="436"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="849"/>
         <source>Line width</source>
         <translation>Ширина линии</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="438"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="846"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="442"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="850"/>
         <source>Line type</source>
         <translation>Тип линии</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="444"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="838"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="448"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="842"/>
         <source>Line interval</source>
         <translation>Интервал между линиями</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="450"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="454"/>
         <source>Density</source>
         <translation>Плотность</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="463"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="467"/>
         <source>Help</source>
         <translation>Помощь</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="468"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="472"/>
         <source>All time steps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="475"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="479"/>
         <source>&lt;&lt;Less</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="475"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="479"/>
         <source>More&gt;&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="480"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="484"/>
         <source>Hide</source>
         <translation>Убрать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="484"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="488"/>
         <source>Apply+Hide</source>
         <translation>Применить+убрать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="488"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="492"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="635"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="639"/>
         <source>Show predefined plots or all parameters from file</source>
         <translation>Показать выбранные характеристики или
  все параметры из файла</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="636"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="640"/>
         <source>move selected field up</source>
         <translation>переместить выбранное поле вверх</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="637"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="641"/>
         <source>move selected field down</source>
         <translation>переместить выбранное поле вниз</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="638"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="642"/>
         <source>delete selected field</source>
         <translation>удалить выбранное поле</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="639"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="643"/>
         <source>delete all selected fields</source>
         <translation>удалить все выбранные поля</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="640"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="644"/>
         <source>copy field</source>
         <translation>копировать поле</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="641"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="645"/>
         <source>reset plot options</source>
         <translation>Восстановить опции изображения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="642"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="646"/>
         <source>selected field minus the field above</source>
         <translation>Выбранное поле минус поле сверху</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="643"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="647"/>
         <source>change model/termin</source>
         <translation>сменить модель/термин</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="644"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="648"/>
         <source>history back</source>
         <translation>история назад</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="645"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="649"/>
         <source>history forward</source>
         <translation>история вперед</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="646"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="650"/>
         <source>use history shown</source>
         <translation>Использловать показанную историю</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="647"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="651"/>
         <source>all time steps / only common time steps</source>
         <translation>все шаги по времени/только обычные шаги по времени</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="649"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="653"/>
         <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
         <translation>Сеточные значения-&gt;setToolTip (но только когда видно не очень много точек сетки</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="651"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="655"/>
         <source>numbers on the contour lines</source>
         <translation>числа на контурных линиях</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="652"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="656"/>
         <source>Size of numbers on the countour lines and size of values in the plot type &quot;value&quot;</source>
         <translation>Размер чисел на контурных линиях и размер значений типа &quot;точность&quot;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="653"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="657"/>
         <source>Value precision, used in the plot type &quot;value&quot;</source>
         <translation>Точность значений, используемых в типе карты &quot;точность&quot;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="654"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="658"/>
         <source>Grid lines, 1=all</source>
         <translation>Линии сетки, 1=все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="655"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="659"/>
         <source>Undef colour</source>
         <translation>Неопределенный цвет</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="656"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="660"/>
         <source>Undef linewidth</source>
         <translation>Неопределенная толщина</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="657"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="661"/>
         <source>Undef linetype</source>
         <translation>Неопределенный тип</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="658"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="660"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="662"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="664"/>
         <source>number of colours in the palette</source>
         <translation>число цветов в палитре</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="659"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="663"/>
         <source>Palette for values below basis</source>
         <translation>Палитра для значения ниже базовых</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="661"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="665"/>
         <source>Colour of pattern</source>
         <translation>Цвета заливки</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="683"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="687"/>
         <source>Min,max</source>
         <translation>Мин,макс</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="692"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="696"/>
         <source>Size</source>
         <translation>Размер</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="703"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="707"/>
         <source>Radius</source>
         <translation>Радиус</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="715"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="719"/>
         <source>Smooth lines</source>
         <translation>Сгладить линии</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="720"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="731"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="766"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="862"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="869"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="884"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="900"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="921"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="2730"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="724"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="735"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="770"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="866"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="873"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="888"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="904"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="925"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="2725"/>
         <source>Off</source>
         <translation type="unfinished">Выкл</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="726"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="730"/>
         <source>Smooth fields</source>
         <translation>Сгладить поля</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="755"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="759"/>
         <source>Grid value</source>
         <translation>Сеточное значение</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="761"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="765"/>
         <source>Grid lines</source>
         <translation>Линии сетки</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="780"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="784"/>
         <source>Time offset</source>
         <translation>Время замещения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="785"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="795"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="789"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="799"/>
         <source> hour(s)</source>
         <translation> час(ы)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="790"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="794"/>
         <source>Time diff.</source>
         <translation>Разл. времени.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="802"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="806"/>
         <source>Undefined</source>
         <translation>Неопределенный</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="803"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="807"/>
         <source>Unmarked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="804"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="808"/>
         <source>Coloured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="805"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="809"/>
         <source>Lines</source>
         <translation>Линии</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="826"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="830"/>
         <source>Numbers</source>
         <translation>Числа</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="832"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="836"/>
         <source>Palette</source>
         <translation>Палитра</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="833"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="837"/>
         <source>Palette (-)</source>
         <translation>Палитра (-)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="834"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="838"/>
         <source>Pattern</source>
         <translation>Заливка</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="835"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="839"/>
         <source>Alpha</source>
         <translation>Альфа</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="836"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="840"/>
         <source>Extra contour lines</source>
         <translation>Дополнительные контурные линии</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="839"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="842"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="843"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="846"/>
         <source>Basis value</source>
         <translation>Базовое значение</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="840"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="843"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="844"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="847"/>
         <source>Min</source>
         <translation>Мин</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="841"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="844"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="845"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="848"/>
         <source>Max</source>
         <translation>Макс</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="847"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="851"/>
         <source>Three colours</source>
         <translation>Три цвета</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="849"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="853"/>
         <source>Table</source>
         <translation>Таблица</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="853"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="857"/>
         <source>Repeat</source>
         <translation>Повторить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="879"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="894"/>
-        <location filename="../../../src/qtFieldDialog.cc" line="907"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="883"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="898"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="911"/>
         <source>Auto</source>
         <translation type="unfinished">Авто</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="965"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="969"/>
         <source>Frame</source>
         <translation>Граница</translation>
     </message>
     <message>
-        <location filename="../../../src/qtFieldDialog.cc" line="971"/>
+        <location filename="../../../src/qtFieldDialog.cc" line="975"/>
         <source>Zero line</source>
         <translation>Нулевая линия</translation>
     </message>
@@ -2736,507 +2731,312 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 <context>
     <name>PolygonBookmarkDialog</name>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="19"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Копировать</translation>
+        <translation type="obsolete">&amp;Копировать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="20"/>
-        <source>Ctrl+C</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="21"/>
         <source>Copy polygon</source>
-        <translation>Копировать полигон</translation>
+        <translation type="obsolete">Копировать полигон</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="25"/>
         <source>Cut</source>
-        <translation>Вырезать</translation>
+        <translation type="obsolete">Вырезать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="26"/>
-        <source>Ctrl+X</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="27"/>
         <source>Cut polygon</source>
-        <translation>Вырезать полигон</translation>
+        <translation type="obsolete">Вырезать полигон</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="31"/>
         <source>&amp;Paste</source>
-        <translation>&amp;Вставить</translation>
+        <translation type="obsolete">&amp;Вставить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="32"/>
-        <source>Ctrl+V</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="33"/>
         <source>Paste polygon</source>
-        <translation>Вставить полигон</translation>
+        <translation type="obsolete">Вставить полигон</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="37"/>
         <source>&amp;Delete</source>
-        <translation>&amp;Удалить</translation>
+        <translation type="obsolete">&amp;Удалить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="38"/>
         <source>Delete</source>
-        <translation>Удалить</translation>
+        <translation type="obsolete">Удалить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="39"/>
         <source>Move to Trash</source>
-        <translation>Переместить в корзину</translation>
+        <translation type="obsolete">Переместить в корзину</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="43"/>
         <source>Collapse All</source>
-        <translation>Соединить все</translation>
+        <translation type="obsolete">Соединить все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="44"/>
-        <source>Ctrl+-</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="45"/>
         <source>Collapse the whole tree</source>
-        <translation>Соединить все дерево</translation>
+        <translation type="obsolete">Соединить все дерево</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="49"/>
         <source>expand All</source>
-        <translation>расширить все</translation>
+        <translation type="obsolete">расширить все</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="50"/>
-        <source>Ctrl++</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="51"/>
         <source>expand the whole tree</source>
-        <translation>расширить все дерево</translation>
+        <translation type="obsolete">расширить все дерево</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="55"/>
         <source>New Folder</source>
-        <translation>Новая папка</translation>
+        <translation type="obsolete">Новая папка</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="56"/>
-        <source>Ctrl+N</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="57"/>
         <source>Create a new folder</source>
-        <translation>Создать новую директорию</translation>
+        <translation type="obsolete">Создать новую директорию</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="60"/>
         <source>Rename</source>
-        <translation>Переименовать</translation>
+        <translation type="obsolete">Переименовать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="61"/>
-        <source>Ctrl+R</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="62"/>
         <source>Rename a Folder/Bookmark</source>
-        <translation>Переименовать папку/закладку</translation>
+        <translation type="obsolete">Переименовать папку/закладку</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="66"/>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="68"/>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="84"/>
         <source>Select</source>
-        <translation>Выбрать</translation>
+        <translation type="obsolete">Выбрать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="67"/>
         <source>Space</source>
-        <translation>Место</translation>
+        <translation type="obsolete">Место</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="72"/>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="74"/>
         <source>Select and exit</source>
-        <translation>Выбрать и выйти</translation>
+        <translation type="obsolete">Выбрать и выйти</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="73"/>
         <source>Return</source>
-        <translation>Назад</translation>
+        <translation type="obsolete">Назад</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="78"/>
         <source>&amp;Quit</source>
-        <translation>&amp;Выход</translation>
+        <translation type="obsolete">&amp;Выход</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="79"/>
-        <source>Ctrl+Q</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="80"/>
         <source>Quit</source>
-        <translation>Выход</translation>
+        <translation type="obsolete">Выход</translation>
     </message>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkDialog.cc" line="89"/>
         <source>Edit</source>
-        <translation>Редактировать</translation>
+        <translation type="obsolete">Редактировать</translation>
     </message>
 </context>
 <context>
     <name>PolygonBookmarkModel</name>
     <message>
-        <location filename="../../../src/qtPolygonBookmarkModel.cc" line="29"/>
         <source>Polygon Bookmarks</source>
-        <translation>Закладки для полигона</translation>
+        <translation type="obsolete">Закладки для полигона</translation>
     </message>
 </context>
 <context>
     <name>ProfetChatWidget</name>
     <message>
-        <location filename="../../../src/qtProfetChatWidget.cc" line="17"/>
         <source>Messages</source>
-        <translation>Сообщения</translation>
+        <translation type="obsolete">Сообщения</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetChatWidget.cc" line="26"/>
         <source>&amp;Send</source>
-        <translation>&amp;Отправить</translation>
+        <translation type="obsolete">&amp;Отправить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetChatWidget.cc" line="32"/>
         <source>Users</source>
-        <translation>Пользователи</translation>
+        <translation type="obsolete">Пользователи</translation>
     </message>
 </context>
 <context>
     <name>ProfetObjectDialog</name>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="48"/>
         <source>New Object</source>
-        <translation>Новый объект</translation>
+        <translation type="obsolete">Новый объект</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="49"/>
         <source>View Object</source>
-        <translation>Смотреть объект</translation>
+        <translation type="obsolete">Смотреть объект</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="50"/>
         <source>Current Object</source>
-        <translation>Текущий объект</translation>
+        <translation type="obsolete">Текущий объект</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="80"/>
         <source>Algorithm</source>
-        <translation>Алгоритм</translation>
+        <translation type="obsolete">Алгоритм</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="91"/>
         <source>Area</source>
-        <translation>Область</translation>
+        <translation type="obsolete">Область</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="105"/>
         <source>Parameters</source>
-        <translation>Параметры</translation>
+        <translation type="obsolete">Параметры</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="112"/>
         <source>Reason</source>
-        <translation>Причина</translation>
+        <translation type="obsolete">Причина</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="119"/>
         <source>Statistics</source>
-        <translation>Статистика</translation>
+        <translation type="obsolete">Статистика</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="131"/>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="134"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="obsolete">Сохранить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="132"/>
         <source>Close</source>
-        <translation>Закрыть</translation>
+        <translation type="obsolete">Закрыть</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="135"/>
         <source>Cancel</source>
-        <translation>Отмена</translation>
+        <translation type="obsolete">Отмена</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetObjectDialog.cc" line="303"/>
         <source>&lt;font color=red&gt;&lt;b&gt;EMPTY OBJECT - NOTHING TO EDIT!&lt;/b&gt;&lt;/font&gt;</source>
-        <translation>&lt;font шрифта=красный&gt;&lt;b&gt; ПУСТОЙ ОБЪЕКТ - НЕЧЕГО РЕДАКТИРОВАТЬ!&lt;/b&gt;&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;font шрифта=красный&gt;&lt;b&gt; ПУСТОЙ ОБЪЕКТ - НЕЧЕГО РЕДАКТИРОВАТЬ!&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
     <name>ProfetSessionDialog</name>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="49"/>
         <source>Edit Field Session at: </source>
-        <translation>Редактировать новую сессию как:</translation>
+        <translation type="obsolete">Редактировать новую сессию как:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="65"/>
-        <source>Time follows map</source>
-        <translatorcomment>Don&apos;t understand</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="98"/>
         <source>Objects</source>
-        <translation>Объекты</translation>
+        <translation type="obsolete">Объекты</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="110"/>
         <source>View</source>
-        <translation>Просмотр</translation>
+        <translation type="obsolete">Просмотр</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="112"/>
         <source>Auto Zoom</source>
-        <translation>Авто масштаб</translation>
+        <translation type="obsolete">Авто масштаб</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="114"/>
         <source>New</source>
-        <translation>Новый</translation>
+        <translation type="obsolete">Новый</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="115"/>
         <source>Edit</source>
-        <translation>Редактировать</translation>
+        <translation type="obsolete">Редактировать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="116"/>
         <source>Timesmooth</source>
-        <translation>Сглаживание во времени</translation>
+        <translation type="obsolete">Сглаживание во времени</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="117"/>
         <source>Delete</source>
-        <translation>Удалить</translation>
+        <translation type="obsolete">Удалить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="130"/>
         <source>Update</source>
-        <translation>Обновить</translation>
+        <translation type="obsolete">Обновить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="132"/>
         <source>Update view, color definitions etc</source>
-        <translation>Обновить вид, определения цветов, и т.д.</translation>
+        <translation type="obsolete">Обновить вид, определения цветов, и т.д.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="134"/>
         <source>Reconnect...</source>
-        <translation>Восстановление соединение...</translation>
+        <translation type="obsolete">Восстановление соединение...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="136"/>
         <source>Reconnect to PODS</source>
-        <translation>Восстановление соединения с PODS</translation>
+        <translation type="obsolete">Восстановление соединения с PODS</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetSessionDialog.cc" line="138"/>
         <source>Close</source>
-        <translation>Закрыть</translation>
+        <translation type="obsolete">Закрыть</translation>
     </message>
 </context>
 <context>
     <name>ProfetTimeSmoothDialog</name>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="60"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Отменить</translation>
+        <translation type="obsolete">&amp;Отменить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="61"/>
-        <source>Ctrl+Z</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="62"/>
         <source>Undo</source>
-        <translation>Отменить</translation>
+        <translation type="obsolete">Отменить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="66"/>
         <source>&amp;Redo</source>
-        <translation>&amp;Вернуть</translation>
+        <translation type="obsolete">&amp;Вернуть</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="67"/>
-        <source>Ctrl+Y</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="68"/>
         <source>redo</source>
-        <translation>вернуть</translation>
+        <translation type="obsolete">вернуть</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="73"/>
         <source>&amp;Run</source>
-        <translation>&amp;Запустить</translation>
+        <translation type="obsolete">&amp;Запустить</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="74"/>
-        <source>Ctrl+R</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="75"/>
         <source>Run the current objects</source>
-        <translation>Запустить текущие объекты</translation>
+        <translation type="obsolete">Запустить текущие объекты</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="79"/>
         <source>&amp;Quit</source>
-        <translation>&amp;Выход</translation>
+        <translation type="obsolete">&amp;Выход</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="80"/>
-        <source>Ctrl+Q</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="81"/>
         <source>Close this window</source>
-        <translation>Закрыть это окно</translation>
+        <translation type="obsolete">Закрыть это окно</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="85"/>
         <source>Action</source>
-        <translation>Действие</translation>
+        <translation type="obsolete">Действие</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="97"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Копировать</translation>
+        <translation type="obsolete">&amp;Копировать</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="98"/>
-        <source>F10</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="99"/>
         <source>Copy from the parent object </source>
-        <translation>Копировать из родительского объекта</translation>
+        <translation type="obsolete">Копировать из родительского объекта</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="105"/>
         <source>&amp;Linear</source>
-        <translation>&amp;Линейная</translation>
+        <translation type="obsolete">&amp;Линейная</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="106"/>
-        <source>F11</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="107"/>
         <source>Linear Interpolation</source>
-        <translation>Линейная интерполяция</translation>
+        <translation type="obsolete">Линейная интерполяция</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="112"/>
         <source>&amp;Reset Line</source>
-        <translation>&amp;Сбросить свойства линии</translation>
+        <translation type="obsolete">&amp;Сбросить свойства линии</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="113"/>
-        <source>F9</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="114"/>
-        <source>Reset from the parent to the choosen one </source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="119"/>
-        <source>Reset &amp;Single</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="120"/>
-        <source>F8</source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="121"/>
-        <source>Reset single column </source>
-        <translatorcomment>No need to translate</translatorcomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="134"/>
         <source>Method</source>
-        <translation>Метод</translation>
+        <translation type="obsolete">Метод</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="160"/>
         <source>Parameters</source>
-        <translation>Параметры</translation>
+        <translation type="obsolete">Параметры</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="254"/>
         <source>timesmooth</source>
-        <translation>сглаживание во времени</translation>
+        <translation type="obsolete">сглаживание во времени</translation>
     </message>
     <message>
-        <location filename="../../../src/qtProfetTimeSmoothDialog.cc" line="255"/>
         <source>There are changed and unprocessed objects.
 Do you want to run your changes first?</source>
-        <translation>Имеются измененные и необработанные объекты.
+        <translation type="obsolete">Имеются измененные и необработанные объекты.
 Вы не хотите сначала сохранить сделанные изменения?</translation>
     </message>
 </context>
 <context>
     <name>ProfetWaitDialog</name>
     <message>
-        <location filename="../../../src/qtProfetWaitDialog.cc" line="13"/>
         <source>Reconnecting..</source>
-        <translation>Восстановление соединения..</translation>
+        <translation type="obsolete">Восстановление соединения..</translation>
     </message>
 </context>
 <context>
@@ -3733,6 +3533,29 @@ Do you want to run your changes first?</source>
     </message>
 </context>
 <context>
+    <name>SetupDialog</name>
+    <message>
+        <location filename="../../../src/qtSetupDialog.cc" line="51"/>
+        <source>Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtSetupDialog.cc" line="59"/>
+        <source>Setupfile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtSetupDialog.cc" line="81"/>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtSetupDialog.cc" line="82"/>
+        <source>&amp;OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SpectrumModelDialog</name>
     <message>
         <location filename="../../../src/qtSpectrumModelDialog.cc" line="61"/>
@@ -3938,12 +3761,12 @@ Do you want to run your changes first?</source>
         <translation>Помощь</translation>
     </message>
     <message>
-        <location filename="../../../src/qtSpectrumWindow.cc" line="420"/>
+        <location filename="../../../src/qtSpectrumWindow.cc" line="417"/>
         <source>Save plot as image</source>
         <translation>Сохранить рисунок как картинку</translation>
     </message>
     <message>
-        <location filename="../../../src/qtSpectrumWindow.cc" line="422"/>
+        <location filename="../../../src/qtSpectrumWindow.cc" line="419"/>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
         <translation>Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
     </message>
@@ -5237,12 +5060,12 @@ Do you want to run your changes first?</source>
         <translation>Помощь</translation>
     </message>
     <message>
-        <location filename="../../../src/qtVprofWindow.cc" line="427"/>
+        <location filename="../../../src/qtVprofWindow.cc" line="424"/>
         <source>Save plot as image</source>
         <translation>Сохранить изображение как картинку</translation>
     </message>
     <message>
-        <location filename="../../../src/qtVprofWindow.cc" line="429"/>
+        <location filename="../../../src/qtVprofWindow.cc" line="426"/>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
         <translation>Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
     </message>

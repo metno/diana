@@ -42,7 +42,7 @@
 #include <set>
 
 #include <diLocalSetupParser.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 
 //#define DEBUGPRINT 1
 

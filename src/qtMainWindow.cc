@@ -59,7 +59,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <qmotifstyle.h>
 #include <qwindowsstyle.h>
 

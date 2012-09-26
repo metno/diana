@@ -51,7 +51,7 @@
 #include <math.h>
 #include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
 //#define DEBUGPRINT
