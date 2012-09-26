@@ -282,7 +282,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
       }
 
       if(nlines > 0 && nlines-1 < ncodes)
-        ncodes = nlines-1;
+        ncodes = nlines;
 
       for(int i=ncold-1; i>=0; i--){
         table.colour = poptions.palettecolours_cold[i].Name();
@@ -317,13 +317,17 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
         }
 
       } else if(nlines>0){
-        for(int i=0; i<ncodes; i++){
+        for(int i=0; i<ncodes-1; i++){
           float min = poptions.linevalues[i];
           float max = poptions.linevalues[i+1];
           ostringstream ostr;
           ostr <<min<<" - "<<max;
           vtable[i].text = ostr.str();
         }
+        float min = poptions.linevalues[ncodes-1];
+        ostringstream ostr;
+        ostr <<">"<<min;
+        vtable[ncodes-1].text = ostr.str();
 
       } else if(nloglines>0){
         vector<float> vlog;
@@ -332,13 +336,17 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           for (int i=0; i<nloglines; i++)
             vlog.push_back(slog*poptions.loglinevalues[i]);
         }
-        for(int i=0; i<ncodes; i++){
+        for(int i=0; i<ncodes-1; i++){
           float min = vlog[i];
           float max = vlog[i+1];
           ostringstream ostr;
           ostr <<min<<" - "<<max;
           vtable[i].text = ostr.str();
         }
+        float min = vlog[ncodes-1];
+        ostringstream ostr;
+        ostr <<">"<<min;
+        vtable[ncodes-1].text = ostr.str();
 
       } else {
 
@@ -353,6 +361,13 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           ostr <<min<<" - "<<max;
           max=min;
           vtable[i].text = ostr.str();
+          if ( max < poptions.minvalue) {
+            vector<aTable>::iterator it=vtable.begin();
+            it +=i;
+            vtable.erase(vtable.begin(),it);
+            ncold -= i;
+            break;
+          }
         }
 
         //colours
@@ -369,6 +384,12 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           ostr <<min<<" - "<<max;
           min=max;
           vtable[i].text = ostr.str();
+          if ( min > poptions.maxvalue) {
+            vector<aTable>::iterator it=vtable.begin();
+            it +=i;
+            vtable.erase(it,vtable.end());
+            break;
+          }
         }
       }
 
