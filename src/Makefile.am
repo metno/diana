@@ -354,7 +354,9 @@ noinst_HEADERS = \
 	qtVprofWidget.h \
 	qtVprofWindow.h \
 	qtWorkArea.h \
-        signalhelper.h
+    signalhelper.h \
+    bdiana_capi.h
+
 
 # diana_qt_forms= qtStationDialog.ui
 diana_qt_forms=
@@ -798,6 +800,7 @@ diana_bin_LDADD = $(common_ldadd)
 # bdiana-specific sources (the rest is in libdiana)
 bdiana_SOURCES = \
 	$(bdiana_qt_sources) \
+    bdiana_capi.cc \
 	bdiana.cc \
 	signalhelper.cc
 
