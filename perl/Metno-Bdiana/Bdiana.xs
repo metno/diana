@@ -10,20 +10,25 @@
 MODULE = Metno::Bdiana		PACKAGE = Metno::Bdiana		
 
 void
-init()
+init_(OUTLIST int ret)
   PREINIT:
     char* argv[] =  {"-v", "-use_qimage", "-use_singlebuffer"};
   CODE:
-    mi_di_init(3 , argv);
+    ret = diana_init(3 , argv);
+
+void
+free()
+  CODE:
+    diana_dealloc();
 
 void
 readSetupFile(const char* setupFilename, OUTLIST int ret)
   CODE:
-    ret = mi_di_readSetupFile(setupFilename);
+    ret = diana_readSetupFile(setupFilename);
 
 void
 parseAndProcessString(const char* str, OUTLIST int ret)
   CODE:
-    ret = mi_di_parseAndProcessString(str);
+    ret = diana_parseAndProcessString(str);
 
 

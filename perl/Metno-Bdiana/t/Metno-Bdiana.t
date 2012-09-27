@@ -19,7 +19,7 @@ Metno::Bdiana::init();
 #my $setup = "/disk1/WMS/usr/share/metno-wmsserver/etc/diana.setup-WMS";
 #my $setup = "/etc/diana/3.28/diana.setup-COMMON";
 my $setup = "/disk1/WMS/usr/share/metno-wmsservice/verportal/bdiana/diana.setup";
-is(OK(), readSetupFile($setup), "reading setup");
+is(DI_OK(), readSetupFile($setup), "reading setup");
 
 my $plot =<<'EOT';
 output = PNG
@@ -36,5 +36,5 @@ FIELD Proff_default NEDBOR.1T alpha=160 base=0 colour=off colour_2=off extreme.r
 
 ENDPLOT
 EOT
-is(OK(), parseAndProcessString($plot), "creating plot");
+is(DI_OK(), parseAndProcessString($plot), "creating plot");
 ok(-f "/tmp/test.png", "plot created");

@@ -18,8 +18,8 @@ our @ISA = qw(Exporter);
 our %EXPORT_TAGS = ( 'all' => [ qw(
 	readSetupFile
     parseAndProcessString
-    OK
-    ERROR
+    DI_OK
+    DI_ERROR
 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
@@ -30,13 +30,36 @@ our @EXPORT = qw(
 
 our $VERSION = '0.01';
 
-use constant OK => 1;
-use constant ERROR => 99;
+use constant DI_OK => 1;
+use constant OK => DI_OK(); # compatibility with old version
+use constant DI_ERROR => 99;
+use constant ERROR => DI_ERROR(); # compatibility with old version
 
 require XSLoader;
 XSLoader::load('Metno::Bdiana', $VERSION);
 
 # Preloaded methods go here.
+
+my $isInit = 0;
+sub init {
+    deInit_();
+    my $ret = init_();
+    if ($ret == DI_OK) {
+         $isInit++;
+    }
+    return $ret;
+}
+
+sub deInit_ {
+    if ($isInit) {
+        free();
+        $isInit = 0;
+    }
+}
+
+END {
+    deInit_();
+}
 
 1;
 __END__
