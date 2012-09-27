@@ -392,6 +392,7 @@ void PaintGLContext::setViewportTransform()
 
 #define ENSURE_CTX if (!globalGL || !ctx) return;
 #define ENSURE_CTX_BOOL if (!globalGL || !ctx) return false;
+#define ENSURE_CTX_INT if (!globalGL || !ctx) return 0;
 #define ENSURE_CTX_AND_PAINTER if (!globalGL || !ctx || !ctx->painter) return;
 #define ENSURE_CTX_AND_PAINTER_BOOL if (!globalGL || !ctx || !ctx->painter) return false;
 
@@ -664,8 +665,7 @@ void glFlush()
 
 GLuint glGenLists(GLsizei range)
 {
-    if (!ctx)
-        return 0;
+    ENSURE_CTX_INT
 
     // Diana only ever asks for one list at a time, so we can do something simple.
     GLuint next = 1;
@@ -750,8 +750,7 @@ void glIndexi(GLint c)
 
 GLboolean glIsList(GLuint list)
 {
-    if (!ctx)
-        return 0;
+    ENSURE_CTX_INT
 
     if (ctx->lists.contains(list))
         return 1;
