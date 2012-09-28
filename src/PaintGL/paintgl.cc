@@ -54,7 +54,8 @@ PaintGLContext::PaintGLContext()
 
 PaintGLContext::~PaintGLContext()
 {
-    ctx = 0;
+    if (globalGL)
+        ctx = 0;
 }
 
 void PaintGLContext::makeCurrent()
