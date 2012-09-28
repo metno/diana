@@ -770,15 +770,17 @@ common_ldadd += $(WIN32_LIBS)
 # Full set of source code for libdiana
 libdiana_a_SOURCES = \
 	$(common_c_sources) \
-	$(common_cxx_sources)
+        $(common_cxx_sources) \
+	$(bdiana_qt_sources) \
+	signalhelper.cc
 
 nodist_libdiana_a_SOURCES = \
-	$(common_moc_sources)
+        $(common_moc_sources) \
+        $(bdiana_moc_sources)
 
 libdiana_a_CPPFLAGS = \
 	$(common_cppflags)
 # no LDFLAGS / LDADD needed for libdiana
-
 
 # diana-specific sources (the rest is in libdiana)
 diana_bin_SOURCES = \
@@ -800,12 +802,11 @@ diana_bin_LDADD = $(common_ldadd)
 # bdiana-specific sources (the rest is in libdiana)
 bdiana_SOURCES = \
 	$(bdiana_qt_sources) \
-    bdiana_capi.cc \
+	bdiana_capi.cc \
 	bdiana.cc \
 	signalhelper.cc
 
-nodist_bdiana_SOURCES = \
-	$(bdiana_moc_sources)
+nodist_bdiana_SOURCES =
 
 bdiana_CPPFLAGS = $(common_cppflags)
 bdiana_LDFLAGS = $(common_ldflags)
