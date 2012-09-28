@@ -770,8 +770,9 @@ common_ldadd += $(WIN32_LIBS)
 # Full set of source code for libdiana
 libdiana_a_SOURCES = \
 	$(common_c_sources) \
-        $(common_cxx_sources) \
+	$(common_cxx_sources) \
 	$(bdiana_qt_sources) \
+	bdiana_capi.cc \
 	signalhelper.cc
 
 nodist_libdiana_a_SOURCES = \
@@ -801,10 +802,7 @@ diana_bin_LDADD = $(common_ldadd)
 
 # bdiana-specific sources (the rest is in libdiana)
 bdiana_SOURCES = \
-	$(bdiana_qt_sources) \
-	bdiana_capi.cc \
-	bdiana.cc \
-	signalhelper.cc
+	bdiana.cc
 
 nodist_bdiana_SOURCES =
 
