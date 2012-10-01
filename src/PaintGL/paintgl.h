@@ -138,14 +138,14 @@ public:
   virtual ~GLPcontext() {}
 
   virtual int StartPage(int mode = GLP_RGBA) { return GLP_SUCCESS; }
-  virtual int StartPage(int mode,
-                        int size,
-                        GLPrgba *rgba) { return 0; }
-  virtual int UpdatePage(GLboolean more) { return GLP_SUCCESS; }
+  virtual int StartPage(int /* mode */,
+                        int /* size */,
+                        GLPrgba * /* rgba */) { return 0; }
+  virtual int UpdatePage(GLboolean /* more */) { return GLP_SUCCESS; }
   virtual int EndPage() { return GLP_SUCCESS; }
 
   void addReset() {}
-  void setViewport(int x, int y, int width, int height) {}
+  void setViewport(int /* x */, int /* y */, int /* width */, int /* height */) {}
   // add image - x/y in pixel coordinates
   virtual bool AddImage(const GLvoid*,// pixels
                         GLint,GLint,GLint, // size,nx,ny
@@ -159,11 +159,11 @@ public:
   bool addClipPath(const int& size,
                    const float* x, const float* y,
                    const bool rect = false);
-  void addStencil(const int& size, const float* x, const float* y) {}
-  void addScissor(const double x0, const double y0,
-                  const double  w, const double  h) {}
-  void addScissor(const int x0, const int y0,
-                  const int  w, const int  h) {}
+  void addStencil(const int& /* size */, const float* /* x */, const float* /* y */) {}
+  void addScissor(const double /* x0 */, const double /* y0 */,
+                  const double /* w */, const double /* h */) {}
+  void addScissor(const int /* x0 */, const int /* y0 */,
+                  const int /* w */, const int /* h */) {}
 
   bool removeClipping() { return true; }
 };
