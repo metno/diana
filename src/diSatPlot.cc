@@ -178,7 +178,6 @@ bool SatPlot::plotFillcell()
   int rnx = nx;
   int rny = ny;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
   float cx[2], cy[2];
   cx[0] = satdata->area.R().x1;
   cy[0] = satdata->area.R().y1;
@@ -197,18 +196,13 @@ bool SatPlot::plotFillcell()
     rny = ny/factor;
     gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
         area, maprect, true,
-        rnx, rny, &x, &y, ix1, ix2, iy1, iy2, false);
+        rnx, rny, &x, &y, ix1, ix2, iy1, iy2);
   } else {
     factor = 1;
     gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
         area, maprect, true,
-        nx, ny, &x, &y, ix1, ix2, iy1, iy2, false);
+        nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   }
-#else
-  gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
-      area, maprect, true,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-#endif
   if (ix1>ix2 || iy1>iy2) return false;
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -231,7 +225,7 @@ bool SatPlot::plotFillcell()
       char f2 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+1];
       char f3 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+2];
       char f4 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+3];
-      if(int(f1)==0 && int(f2) == 0 && int(f3)== 0 ) {
+      if(int(f4)==0  ) {
         continue;
       }
       glColor4ub(f1,f2,f3,f4);

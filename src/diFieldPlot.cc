@@ -3109,9 +3109,6 @@ bool FieldPlot::plotFillCell(){
 
   int factor = 1;
   int rnx = nx;
-
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-
   int rny = ny;
   float cx[2], cy[2];
   cx[0] = fields[0]->area.R().x1;
@@ -3138,25 +3135,16 @@ bool FieldPlot::plotFillCell(){
         area, maprect, true,
         nx, ny, &x, &y, ix1, ix2, iy1, iy2, false);
   }
-#else
-  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-      area, maprect, true,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-#endif
   if (ix1>ix2 || iy1>iy2) return false;
 
   glLineWidth(poptions.linewidth);
   glColor3ubv(poptions.bordercolour.RGB());
   if ( poptions.frame ) {
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
     if (factor >= 2) {
       plotFrame(rnx+1,rny+1,x,y,2,NULL);
     } else {
       plotFrame(nx+1,ny+1,x,y,2,NULL);
     }
-#else
-    plotFrame(nx+1,ny+1,x,y,2,NULL);
-#endif
   }
 
   //auto -> 0
