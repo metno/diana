@@ -207,7 +207,6 @@ noinst_HEADERS = \
 	diCommonTypes.h \
 	diComplexSymbolPlot.h \
 	diContouring.h \
-	diController.h \
 	diDisplayObjects.h \
 	diDrawingTypes.h \
 	diEditManager.h \
@@ -227,7 +226,6 @@ noinst_HEADERS = \
 	diKeys.h \
 	diLegendPlot.h \
 	diLinetype.h \
-	diLocalSetupParser.h \
 	diLocationPlot.h \
 	diMItiff.h \
 	diMapManager.h \
@@ -357,6 +355,22 @@ noinst_HEADERS = \
     signalhelper.h \
     bdiana_capi.h
 
+if WITH_EMBEDDED
+if WITH_BATCH_ONLY
+# Headers
+include_HEADERS = \
+        diController.h \
+        diLocalSetupParser.h
+else
+noinst_HEADERS += \
+        diController.h \
+        diLocalSetupParser.h
+endif
+else
+noinst_HEADERS += \
+        diController.h \
+        diLocalSetupParser.h
+endif
 
 # diana_qt_forms= qtStationDialog.ui
 diana_qt_forms=
@@ -701,8 +715,14 @@ noinst_HEADERS +=  \
         PaintGL/GL/libtess/render.h \
         PaintGL/GL/libtess/sweep.h \
         PaintGL/GL/libtess/tess.h \
-        PaintGL/GL/libtess/tessmono.h \
-        PaintGL/paintgl.h
+        PaintGL/GL/libtess/tessmono.h
+
+if WITH_BATCH_ONLY
+include_HEADERS += PaintGL/paintgl.h
+else
+noinst_HEADERS += PaintGL/paintgl.h
+endif
+
 else
 common_cppflags += \
         $(FTGL_CPPFLAGS) \
