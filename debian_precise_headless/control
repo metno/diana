@@ -27,7 +27,7 @@ Description: Meteorological visualisation tool
 
 Package: diana-headless-dev
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: diana-headless-@PVERSION_MAJOR_DOT_MINOR@ ${shlibs:Depends}, ${misc:Depends}
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL

@@ -1,3 +1,9 @@
+diana-headless (3.29.0~b1-2) unstable; urgency=low
+
+  * Updated the packaging to make the development package depend on the regular package.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 01 Oct 2012 13:55:00 +0200
+
 diana-headless (3.29.0~b1-0) unstable; urgency=low
 
   * Updated the package version for compatibility with other packages.
