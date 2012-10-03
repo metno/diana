@@ -38,3 +38,7 @@ do-configure:
 override_dh_auto_install:
 	    mkdir -p $(DESTDIR)/usr/bin
 	    cp src/.libs/bdiana $(DESTDIR)/usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@
+	    mkdir -p $(DESTDIR)/usr/lib
+	    cp src/.libs/libdiana.so.@PVERSION_MAJOR_DOT_MINOR_DOT_PATCH@ $(DESTDIR)/usr/lib
+	    cp -P src/.libs/libdiana.so.@PVERSION_MAJOR@ $(DESTDIR)/usr/lib
+	    cp -P src/.libs/libdiana.so $(DESTDIR)/usr/lib
