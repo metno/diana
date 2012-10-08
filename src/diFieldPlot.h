@@ -131,9 +131,7 @@ private:
 
   bool plotAlpha_shade();
   void plotFrame(const int nx, const int ny,
-  		 float *x, float *y,
-		 const int mapconvert,
-		 float *cvfield2map);
+  		 float *x, float *y);
   bool markExtreme();
   bool plotGridLines();
 };

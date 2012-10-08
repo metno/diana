@@ -444,7 +444,7 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
       //       }
 
       miString str  = "arrow=" + miString (vectorAnnotationSize)
-              + ",tcolour=" + poptions.linecolour.Name() + endString;
+                                              + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
           + ",tcolour=" + poptions.linecolour.Name() + endString ;
@@ -793,7 +793,7 @@ bool FieldPlot::plotWind(){
   bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   float* limits=0;
@@ -1089,7 +1089,7 @@ bool FieldPlot::plotValue(){
   int xstep= step;
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   bool smallvalues = false;
@@ -1236,7 +1236,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   float unitlength  = poptions.vectorunit / 10;
@@ -1662,7 +1662,7 @@ bool FieldPlot::plotValues(){
   bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   ix1-=step;     if (ix1<0)  ix1=0;
@@ -1859,7 +1859,7 @@ bool FieldPlot::plotVector(){
   bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   float unitlength  = poptions.vectorunit;
@@ -1976,7 +1976,7 @@ bool FieldPlot::plotVectorColour(){
   bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   float* limits=0;
@@ -2158,7 +2158,7 @@ bool FieldPlot::plotDirection(){
   bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   // length if abs(vector) = 1
@@ -2272,7 +2272,7 @@ bool FieldPlot::plotDirectionColour(){
   bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   float* limits=0;
@@ -2437,31 +2437,22 @@ bool FieldPlot::plotContour(){
   int   ibmap, lbmap, kbmap[mmm], nxbmap, nybmap;
   float rbmap[4];
 
-  int   mapconvert, ix1, ix2, iy1, iy2;
-  float cvfield2map[6], cvmap2field[6];
+  int   ix1, ix2, iy1, iy2;
   bool  res= true;
-
-  // find gridpoint conversion method
-  if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-    return false;
 
   // convert gridpoints to correct projection
   float *x=0, *y=0;
-  if (mapconvert==2) {
-    if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-        area, maprect, false,
-        nx, ny, &x, &y, ix1, ix2, iy1, iy2)){
-      cerr <<"fieldPlot::plotContour() : getGridPoints returned false"<<endl;
-      return false;
-    }
+  if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+      area, maprect, false,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2)){
+    cerr <<"fieldPlot::plotContour() : getGridPoints returned false"<<endl;
+    return false;
   }
-
 
   if (ix1>=ix2 || iy1>=iy2) return false;
   if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0) return false;
 
-  if (rgbmode && poptions.frame) plotFrame(nx,ny,x,y,mapconvert,cvfield2map);
+  if (rgbmode && poptions.frame) plotFrame(nx,ny,x,y);
 
   ipart[0] = ix1;
   ipart[1] = ix2;
@@ -2566,7 +2557,7 @@ bool FieldPlot::plotContour(){
     int idraw2=0;
 
     res = contour(nx, ny, fields[0]->data, x, y,
-        ipart, mapconvert, cvfield2map, xylim,
+        ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,
         ncol, icol, ntyp, ityp,
@@ -2678,7 +2669,7 @@ bool FieldPlot::plotContour(){
     poptions.contourShading = 0;
 
     res = contour(nx, ny, fields[0]->data, x, y,
-        ipart, mapconvert, cvfield2map, xylim,
+        ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,
         ncol, icol, ntyp, ityp,
@@ -2744,7 +2735,7 @@ bool FieldPlot::plotBox_pattern(){
   int nxc = nx;
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   const int npattern=4;
@@ -2858,7 +2849,7 @@ bool FieldPlot::plotBox_alpha_shade(){
 
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   float cmin, cmax;
@@ -3031,7 +3022,7 @@ bool FieldPlot::plotAlarmBox(){
   }
 
   if ( poptions.frame ) {
-    plotFrame(nxc,ny+1,x,y,2,NULL);
+    plotFrame(nxc,ny+1,x,y);
   }
 
   glShadeModel(GL_FLAT);
@@ -3141,9 +3132,9 @@ bool FieldPlot::plotFillCell(){
   glColor3ubv(poptions.bordercolour.RGB());
   if ( poptions.frame ) {
     if (factor >= 2) {
-      plotFrame(rnx+1,rny+1,x,y,2,NULL);
+      plotFrame(rnx+1,rny+1,x,y);
     } else {
-      plotFrame(nx+1,ny+1,x,y,2,NULL);
+      plotFrame(nx+1,ny+1,x,y);
     }
   }
 
@@ -3254,7 +3245,7 @@ bool FieldPlot::plotAlpha_shade(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   if ( poptions.frame ) {
-    plotFrame(nx,ny,x,y,2,NULL);
+    plotFrame(nx,ny,x,y);
   }
 
   float cmin, cmax;
@@ -3319,9 +3310,7 @@ bool FieldPlot::plotAlpha_shade(){
 
 // plot frame for complete field area
 void FieldPlot::plotFrame(const int nx, const int ny,
-    float *x, float *y,
-    const int mapconvert,
-    float *cvfield2map){
+    float *x, float *y){
 #ifdef DEBUGPRINT
   cerr << "++ Plot frame.." << nx<<" : "<<ny<<endl;
 #endif
@@ -3335,125 +3324,93 @@ void FieldPlot::plotFrame(const int nx, const int ny,
   //glLineWidth(1);
   glLineWidth(poptions.linewidth);
 
-  //if (poptions.linetype.bmap!=0xFFFF){
-  //  glLineStipple(1,poptions.linetype.bmap);
-  //  glEnable(GL_LINE_STIPPLE);
-  //}
+  bool drawx1=true, drawx2=true, drawy1=true, drawy2=true;
+  int ix,iy,ixstep,iystep;
+  float x1,x2,y1,y2,dx,dy,dxm,dym;
+  ixstep= (nx>10) ? nx/10 : 1;
+  iystep= (ny>10) ? ny/10 : 1;
 
-  if (mapconvert==0) {
-
-    glBegin(GL_LINE_LOOP);
-
-    glVertex2f(0., 0.);
-    glVertex2f(float(nx-1), 0.);
-    glVertex2f(float(nx-1), float(ny-1));
-    glVertex2f(0., float(ny-1));
-
-    glEnd();
-
-  } else if (mapconvert==1) {
-
-    glBegin(GL_LINE_LOOP);
-
-    float xf[4], yf[4], x, y;
-    xf[0] = 0.; xf[1] = nx-1; xf[2] = nx-1; xf[3] = 0.;
-    yf[0] = 0.; yf[1] = 0.;   yf[2] = ny-1; yf[3] = ny-1;
-    for (int i=0; i<4; i++) {
-      x = cvfield2map[0] + cvfield2map[1]*xf[i] + cvfield2map[2]*yf[i];
-      y = cvfield2map[3] + cvfield2map[4]*xf[i] + cvfield2map[5]*yf[i];
-      glVertex2f(x, y);
-    }
-    glEnd();
-
-  } else {
-
-    bool drawx1=true, drawx2=true, drawy1=true, drawy2=true;
-    int ix,iy,ixstep,iystep;
-    float x1,x2,y1,y2,dx,dy,dxm,dym;
-    ixstep= (nx>10) ? nx/10 : 1;
-    iystep= (ny>10) ? ny/10 : 1;
-
-    iy=0;
-    x1=x2=x[iy*nx];
-    y1=y2=y[iy*nx];
-    for (int ix=0; ix<nx; ix+=ixstep) {
-      if (x1>x[iy*nx+ix]) x1= x[iy*nx+ix];
-      if (x2<x[iy*nx+ix]) x2= x[iy*nx+ix];
-      if (y1>y[iy*nx+ix]) y1= y[iy*nx+ix];
-      if (y2<y[iy*nx+ix]) y2= y[iy*nx+ix];
-    }
-    drawy1= (x1<x2 || y1<y2);
-
-    iy=ny-1;
-    x1=x2=x[iy*nx];
-    y1=y2=y[iy*nx];
-    for (int ix=0; ix<nx; ix+=ixstep) {
-      if (x1>x[iy*nx+ix]) x1= x[iy*nx+ix];
-      if (x2<x[iy*nx+ix]) x2= x[iy*nx+ix];
-      if (y1>y[iy*nx+ix]) y1= y[iy*nx+ix];
-      if (y2<y[iy*nx+ix]) y2= y[iy*nx+ix];
-    }
-    drawy2= (x1<x2-0.01 || y1<y2-0.01);
-
-    dxm= 0.;
-    dym= 0.;
-    for (int iy=0; iy<ny; iy+=iystep) {
-      dx= fabsf(x[iy*nx]-x[iy*nx+nx-1]);
-      dy= fabsf(y[iy*nx]-y[iy*nx+nx-1]);
-      if (dxm<dx) dxm= dx;
-      if (dym<dy) dym= dy;
-    }
-    drawx1= drawx2= (dxm>0.01 || dym>0.01);
-
-    if (drawy1) {
-      glBegin(GL_LINE_STRIP);
-      iy=0;
-      for (ix=0; ix<nx; ix++) {
-        int i=iy*nx+ix;
-        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-          glVertex2f(x[i], y[i]);
-        }
-      }
-      glEnd();
-    }
-
-    if (drawx2) {
-      glBegin(GL_LINE_STRIP);
-      ix=nx-1;
-      for (iy=1; iy<ny; iy++) {
-        int i=iy*nx+ix;
-        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-          glVertex2f(x[i], y[i]);
-        }
-      }
-      glEnd();
-    }
-
-    if (drawy2) {
-      glBegin(GL_LINE_STRIP);
-      iy=ny-1;
-      for (ix=nx-1; ix>=0; ix--) {
-        int i=iy*nx+ix;
-        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-          glVertex2f(x[i], y[i]);
-        }
-      }
-      glEnd();
-    }
-
-    if (drawx1) {
-      glBegin(GL_LINE_STRIP);
-      ix=0;
-      for (iy=ny-1; iy>0; iy--) {
-        int i=iy*nx+ix;
-        if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-          glVertex2f(x[i], y[i]);
-        }
-      }
-      glEnd();
-    }
-
+  iy=0;
+  x1=x2=x[iy*nx];
+  y1=y2=y[iy*nx];
+  for (int ix=0; ix<nx; ix+=ixstep) {
+    if (x1>x[iy*nx+ix]) x1= x[iy*nx+ix];
+    if (x2<x[iy*nx+ix]) x2= x[iy*nx+ix];
+    if (y1>y[iy*nx+ix]) y1= y[iy*nx+ix];
+    if (y2<y[iy*nx+ix]) y2= y[iy*nx+ix];
   }
+  drawy1= (x1<x2 || y1<y2);
+
+  iy=ny-1;
+  x1=x2=x[iy*nx];
+  y1=y2=y[iy*nx];
+  for (int ix=0; ix<nx; ix+=ixstep) {
+    if (x1>x[iy*nx+ix]) x1= x[iy*nx+ix];
+    if (x2<x[iy*nx+ix]) x2= x[iy*nx+ix];
+    if (y1>y[iy*nx+ix]) y1= y[iy*nx+ix];
+    if (y2<y[iy*nx+ix]) y2= y[iy*nx+ix];
+  }
+  drawy2= (x1<x2-0.01 || y1<y2-0.01);
+
+  dxm= 0.;
+  dym= 0.;
+  for (int iy=0; iy<ny; iy+=iystep) {
+    dx= fabsf(x[iy*nx]-x[iy*nx+nx-1]);
+    dy= fabsf(y[iy*nx]-y[iy*nx+nx-1]);
+    if (dxm<dx) dxm= dx;
+    if (dym<dy) dym= dy;
+  }
+  drawx1= drawx2= (dxm>0.01 || dym>0.01);
+
+  if (drawy1) {
+    glBegin(GL_LINE_STRIP);
+    iy=0;
+    for (ix=0; ix<nx; ix++) {
+      int i=iy*nx+ix;
+      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+        glVertex2f(x[i], y[i]);
+      }
+    }
+    glEnd();
+  }
+
+  if (drawx2) {
+    glBegin(GL_LINE_STRIP);
+    ix=nx-1;
+    for (iy=1; iy<ny; iy++) {
+      int i=iy*nx+ix;
+      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+        glVertex2f(x[i], y[i]);
+      }
+    }
+    glEnd();
+  }
+
+  if (drawy2) {
+    glBegin(GL_LINE_STRIP);
+    iy=ny-1;
+    for (ix=nx-1; ix>=0; ix--) {
+      int i=iy*nx+ix;
+      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+        glVertex2f(x[i], y[i]);
+      }
+    }
+    glEnd();
+  }
+
+  if (drawx1) {
+    glBegin(GL_LINE_STRIP);
+    ix=0;
+    for (iy=ny-1; iy>0; iy--) {
+      int i=iy*nx+ix;
+      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+        glVertex2f(x[i], y[i]);
+      }
+    }
+    glEnd();
+  }
+
+
 
   // glDisable(GL_LINE_STIPPLE);
 
@@ -3481,21 +3438,13 @@ bool FieldPlot::markExtreme(){
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
 
-  int   mapconvert, ix1, ix2, iy1, iy2;
-  float cvfield2map[6], cvmap2field[6];
-
-  // find gridpoint conversion method
-  if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-    return false;
+  int   ix1, ix2, iy1, iy2;
 
   // convert gridpoints to correct projection
   float *x, *y;
-  //####if (mapconvert==2) {
   if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
       area, maprect, false,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
-  //####}
 
   if (ix1>ix2 || iy1>iy2) return false;
 
@@ -3503,38 +3452,28 @@ bool FieldPlot::markExtreme(){
   float dx,dy,avgdist;
 
   //#### lag metode i GridConverter for dette (her + wind/vector) #########
-  if (mapconvert==0) {
-    avgdist= 1.;
-  } else if (mapconvert==1) {
-    dx= sqrtf( cvfield2map[1]*cvfield2map[1]
-                                          +cvfield2map[4]*cvfield2map[4]);
-    dy= sqrtf( cvfield2map[2]*cvfield2map[2]
-                                          +cvfield2map[5]*cvfield2map[5]);
-    avgdist= (dx+dy)*0.5;
-  } else {
-    int i1= (ix1>1)    ? ix1 : 1;
-    int i2= (ix2<nx-2) ? ix2 : nx-2;
-    int j1= (iy1>1)    ? iy1 : 1;
-    int j2= (iy2<ny-2) ? iy2 : ny-2;
-    int ixstp= (i2-i1)/5;  if (ixstp<1) ixstp=1;
-    int iystp= (j2-j1)/5;  if (iystp<1) iystp=1;
-    avgdist= 0.;
-    n= 0;
-    for (iy=j1; iy<j2; iy+=iystp) {
-      for (ix=i1; ix<i2; ix+=ixstp) {
-        i = iy*nx+ix;
-        dx = x[i+1]-x[i];
-        dy = y[i+1]-y[i];
-        avgdist+= sqrtf(dx*dx+dy*dy);
-        dx = x[i+nx]-x[i];
-        dy = y[i+nx]-y[i];
-        avgdist+= sqrtf(dx*dx+dy*dy);
-        n+=2;
-      }
+  int i1= (ix1>1)    ? ix1 : 1;
+  int i2= (ix2<nx-2) ? ix2 : nx-2;
+  int j1= (iy1>1)    ? iy1 : 1;
+  int j2= (iy2<ny-2) ? iy2 : ny-2;
+  int ixstp= (i2-i1)/5;  if (ixstp<1) ixstp=1;
+  int iystp= (j2-j1)/5;  if (iystp<1) iystp=1;
+  avgdist= 0.;
+  n= 0;
+  for (iy=j1; iy<j2; iy+=iystp) {
+    for (ix=i1; ix<i2; ix+=ixstp) {
+      i = iy*nx+ix;
+      dx = x[i+1]-x[i];
+      dy = y[i+1]-y[i];
+      avgdist+= sqrtf(dx*dx+dy*dy);
+      dx = x[i+nx]-x[i];
+      dy = y[i+nx]-y[i];
+      avgdist+= sqrtf(dx*dx+dy*dy);
+      n+=2;
     }
-    if (n>0) avgdist= avgdist/float(n);
-    else     avgdist= 1.;
   }
+  if (n>0) avgdist= avgdist/float(n);
+  else     avgdist= 1.;
 
   if (ix1<1)    ix1= 1;
   if (ix2>nx-2) ix2= nx-2;
@@ -3618,7 +3557,7 @@ bool FieldPlot::markExtreme(){
 
 
   float gx,gy,fpos,fmin,fmax,f,f1,f2,gbest,fgrad;
-  int   p,pp,i1,i2,j1,j2,l,iend,jend,ibest,jbest,ngrad,etype;
+  int   p,pp,l,iend,jend,ibest,jbest,ngrad,etype;
   bool  ok;
 
   maprect.setExtension( -size*0.5 );
@@ -3779,21 +3718,13 @@ bool FieldPlot::plotGridLines(){
 
   int nx= fields[0]->nx;
 
-  int   mapconvert, ix1, ix2, iy1, iy2;
-  float cvfield2map[6], cvmap2field[6];
-
-  // find gridpoint conversion method
-  if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-    return false;
+  int   ix1, ix2, iy1, iy2;
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (mapconvert==2) {
-    if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-        area, maprect, false,
-        fields[0]->nx, fields[0]->ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
-  }
+  if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+      area, maprect, false,
+      fields[0]->nx, fields[0]->ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
 
   if (ix1>ix2 || iy1>iy2) return false;
 
@@ -3815,73 +3746,24 @@ bool FieldPlot::plotGridLines(){
   int ix,iy;
   ix1=int(ix1/step)*step;
   iy1=int(iy1/step)*step;
-  if (mapconvert==0) {
-
-    float x1,x2,y1,y2;
-    glBegin(GL_LINES);
-    y1= float(iy1);
-    y2= float(iy2-1);
-    for (ix=ix1; ix<ix2; ix+=step) {
-      glVertex2f(float(ix),y1);
-      glVertex2f(float(ix),y2);
-    }
-    x1= float(ix1);
-    x2= float(ix2-1);
-    for (iy=iy1; iy<iy2; iy+=step) {
-      glVertex2f(x1,float(iy));
-      glVertex2f(x2,float(iy));
+  int i;
+  for (ix=ix1; ix<ix2; ix+=step) {
+    glBegin(GL_LINE_STRIP);
+    for (iy=iy1; iy<iy2; iy++) {
+      i= iy*nx+ix;
+      glVertex2f(x[i],y[i]);
     }
     glEnd();
-
-  } else if (mapconvert==1) {
-
-    float gx,gx1,gx2,gy,gy1,gy2,px,py;
-    glBegin(GL_LINES);
-    gy1= float(iy1);
-    gy2= float(iy2-1);
-    for (ix=ix1; ix<ix2; ix+=step) {
-      gx= float(ix);
-      px= cvfield2map[0] + cvfield2map[1]*gx + cvfield2map[2]*gy1;
-      py= cvfield2map[3] + cvfield2map[4]*gx + cvfield2map[5]*gy1;
-      glVertex2f(px, py);
-      px= cvfield2map[0] + cvfield2map[1]*gx + cvfield2map[2]*gy2;
-      py= cvfield2map[3] + cvfield2map[4]*gx + cvfield2map[5]*gy2;
-      glVertex2f(px, py);
-    }
-    gx1= float(ix1);
-    gx2= float(ix2-1);
-    for (iy=iy1; iy<iy2; iy+=step) {
-      gy= float(iy);
-      px= cvfield2map[0] + cvfield2map[1]*gx1 + cvfield2map[2]*gy;
-      py= cvfield2map[3] + cvfield2map[4]*gx1 + cvfield2map[5]*gy;
-      glVertex2f(px, py);
-      px= cvfield2map[0] + cvfield2map[1]*gx2 + cvfield2map[2]*gy;
-      py= cvfield2map[3] + cvfield2map[4]*gx2 + cvfield2map[5]*gy;
-      glVertex2f(px, py);
-    }
-    glEnd();
-
-  } else if (mapconvert==2) {
-
-    int i;
-    for (ix=ix1; ix<ix2; ix+=step) {
-      glBegin(GL_LINE_STRIP);
-      for (iy=iy1; iy<iy2; iy++) {
-        i= iy*nx+ix;
-        glVertex2f(x[i],y[i]);
-      }
-      glEnd();
-    }
-    for (iy=iy1; iy<iy2; iy+=step) {
-      glBegin(GL_LINE_STRIP);
-      for (ix=ix1; ix<ix2; ix++) {
-        i= iy*nx+ix;
-        glVertex2f(x[i],y[i]);
-      }
-      glEnd();
-    }
-
   }
+  for (iy=iy1; iy<iy2; iy+=step) {
+    glBegin(GL_LINE_STRIP);
+    for (ix=ix1; ix<ix2; ix++) {
+      i= iy*nx+ix;
+      glVertex2f(x[i],y[i]);
+    }
+    glEnd();
+  }
+
 
   UpdateOutput();
 
@@ -3901,21 +3783,13 @@ bool FieldPlot::plotUndefined(){
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
 
-  int   mapconvert, ix1, ix2, iy1, iy2;
-  float cvfield2map[6], cvmap2field[6];
-
-  // find gridpoint conversion method
-  if(!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-    return false;
+  int   ix1, ix2, iy1, iy2;
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (mapconvert==2) {
-    if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-        area, maprect, true,
-        nx, ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
-  }
+  if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+      area, maprect, true,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2)) return false;
 
   int nxc = nx + 1;
 
@@ -3939,17 +3813,9 @@ bool FieldPlot::plotUndefined(){
   glColor3ubv(poptions.undefColour.RGB());
 
   int ix,iy,ixbgn,ixend,iybgn,iyend;
-  float x1,x2,y1,y2;
 
   ix2++;
   iy2++;
-
-  if (mapconvert==0 || mapconvert==1) {
-    if (poptions.undefMasking==1)
-      glBegin(GL_QUADS);
-    else
-      glBegin(GL_LINES);
-  }
 
   for (iy=iy1; iy<iy2; iy++) {
 
@@ -3967,42 +3833,14 @@ bool FieldPlot::plotUndefined(){
 
         if (poptions.undefMasking==1) {
 
-          if (mapconvert==0) {
 
-            x1= float(ixbgn) - 0.5;
-            x2= float(ixend) - 0.5;
-            y1= float(iy) - 0.5;
-            y2= float(iy) + 0.5;
-            glVertex2f(x1,y2);
-            glVertex2f(x1,y1);
-            glVertex2f(x2,y1);
-            glVertex2f(x2,y2);
-
-          } else if (mapconvert==1) {
-
-            x1= float(ixbgn) - 0.5;
-            x2= float(ixend) - 0.5;
-            y1= float(iy) - 0.5;
-            y2= float(iy) + 0.5;
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y2,
-                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y1,
-                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y1,
-                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y2,
-                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
-
-          } else if (mapconvert==2) {
-
-            glBegin(GL_QUAD_STRIP);
-            for (ix=ixbgn; ix<=ixend; ix++) {
-              glVertex2f(x[(iy+1)*nxc+ix],y[(iy+1)*nxc+ix]);
-              glVertex2f(x[iy*nxc+ix],    y[iy*nxc+ix]);
-            }
-            glEnd();
-
+          glBegin(GL_QUAD_STRIP);
+          for (ix=ixbgn; ix<=ixend; ix++) {
+            glVertex2f(x[(iy+1)*nxc+ix],y[(iy+1)*nxc+ix]);
+            glVertex2f(x[iy*nxc+ix],    y[iy*nxc+ix]);
           }
+          glEnd();
+
 
         } else {
 
@@ -4011,40 +3849,12 @@ bool FieldPlot::plotUndefined(){
           // avoiding plot of many short lines that are connected
           // (but still drawing many "double" lines...)
 
-          if (mapconvert==0) {
 
-            x1= float(ixbgn) - 0.5;
-            x2= float(ixend) - 0.5;
-            y1= float(iy) - 0.5;
-            y2= float(iy) + 0.5;
-            glVertex2f(x1,y1);
-            glVertex2f(x2,y1);
-            glVertex2f(x1,y2);
-            glVertex2f(x2,y2);
-
-          } else if (mapconvert==1) {
-
-            x1= float(ixbgn) - 0.5;
-            x2= float(ixend) - 0.5;
-            y1= float(iy) - 0.5;
-            y2= float(iy) + 0.5;
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y1,
-                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y1,
-                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y2,
-                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y2,
-                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
-
-          } else if (mapconvert==2) {
-
-            for (int iyy=iy; iyy<=iy+1; iyy++) {
-              glBegin(GL_LINE_STRIP);
-              for (ix=ixbgn; ix<=ixend; ix++)
-                glVertex2f(x[iyy*nxc+ix],y[iyy*nxc+ix]);
-              glEnd();
-            }
+          for (int iyy=iy; iyy<=iy+1; iyy++) {
+            glBegin(GL_LINE_STRIP);
+            for (ix=ixbgn; ix<=ixend; ix++)
+              glVertex2f(x[iyy*nxc+ix],y[iyy*nxc+ix]);
+            glEnd();
           }
         }
         ix= ixend+1;
@@ -4070,40 +3880,12 @@ bool FieldPlot::plotUndefined(){
           while (iy<iy2 && fields[0]->data[iy*nx+ix]==fieldUndef) iy++;
           iyend= iy;
 
-          if (mapconvert==0) {
 
-            x1= float(ix) - 0.5;
-            x2= float(ix) + 0.5;
-            y1= float(iybgn) - 0.5;
-            y2= float(iyend) - 0.5;
-            glVertex2f(x1,y1);
-            glVertex2f(x1,y2);
-            glVertex2f(x2,y1);
-            glVertex2f(x2,y2);
-
-          } else if (mapconvert==1) {
-
-            x1= float(ix) - 0.5;
-            x2= float(ix) + 0.5;
-            y1= float(iybgn) - 0.5;
-            y2= float(iyend) - 0.5;
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y1,
-                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y1);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x1+cvfield2map[2]*y2,
-                cvfield2map[3]+cvfield2map[4]*x1+cvfield2map[5]*y2);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y1,
-                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y1);
-            glVertex2f(cvfield2map[0]+cvfield2map[1]*x2+cvfield2map[2]*y2,
-                cvfield2map[3]+cvfield2map[4]*x2+cvfield2map[5]*y2);
-
-          } else if (mapconvert==2) {
-
-            for (int ixx=ix; ixx<=ix+1; ixx++) {
-              glBegin(GL_LINE_STRIP);
-              for (iy=iybgn; iy<=iyend; iy++)
-                glVertex2f(x[iy*nxc+ixx],y[iy*nxc+ixx]);
-              glEnd();
-            }
+          for (int ixx=ix; ixx<=ix+1; ixx++) {
+            glBegin(GL_LINE_STRIP);
+            for (iy=iybgn; iy<=iyend; iy++)
+              glVertex2f(x[iy*nxc+ixx],y[iy*nxc+ixx]);
+            glEnd();
           }
           iy= iyend+1;
         }
@@ -4111,8 +3893,6 @@ bool FieldPlot::plotUndefined(){
     }
   }
 
-  if (mapconvert==0 || mapconvert==1)
-    glEnd();
 
   UpdateOutput();
 
@@ -4206,14 +3986,6 @@ bool FieldPlot::plotNumbers(){
 
   // draw lines/boxes at borders between gridpoints..............................
 
-  int   mapconvert;
-  float cvfield2map[6], cvmap2field[6];
-
-  // find gridpoint conversion method
-  if (!gc.getGridConversion(fields[0]->area, area, maprect, mapconvert,
-      cvfield2map, cvmap2field, ix1, ix2, iy1, iy2))
-    mapconvert= 2;
-
   // convert gridpoints to correct projection
   if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
       area, maprect, true,
@@ -4226,48 +3998,32 @@ bool FieldPlot::plotNumbers(){
 
   glLineWidth(1.0);
 
-  if (mapconvert==0 || mapconvert==1) {
+  ix2++;
+  iy2++;
 
-    glBegin(GL_LINES);
-    for (ix=ix1; ix<=ix2; ix++) {
-      glVertex2f(x[iy1*nx+ix],y[iy1*nx+ix]);
-      glVertex2f(x[iy2*nx+ix],y[iy2*nx+ix]);
-    }
-    for (iy=iy1; iy<=iy2; iy++) {
-      glVertex2f(x[iy*nx+ix1],y[iy*nx+ix1]);
-      glVertex2f(x[iy*nx+ix2],y[iy*nx+ix2]);
+  for (ix=ix1; ix<ix2; ix++) {
+    glBegin(GL_LINE_STRIP);
+    for (iy=iy1; iy<iy2; iy++) {
+      glVertex2f(x[iy*nx+ix],y[iy*nx+ix]);
     }
     glEnd();
-
-  } else if (mapconvert==2) {
-
-    ix2++;
-    iy2++;
-
-    for (ix=ix1; ix<ix2; ix++) {
-      glBegin(GL_LINE_STRIP);
-      for (iy=iy1; iy<iy2; iy++) {
-        glVertex2f(x[iy*nx+ix],y[iy*nx+ix]);
-      }
-      glEnd();
-    }
-    for (iy=iy1; iy<iy2; iy++) {
-      glBegin(GL_LINE_STRIP);
-      for (ix=ix1; ix<ix2; ix++) {
-        i= iy*nx+ix;
-        glVertex2f(x[iy*nx+ix],y[iy*nx+ix]);
-      }
-      glEnd();
-    }
-
   }
+  for (iy=iy1; iy<iy2; iy++) {
+    glBegin(GL_LINE_STRIP);
+    for (ix=ix1; ix<ix2; ix++) {
+      i= iy*nx+ix;
+      glVertex2f(x[iy*nx+ix],y[iy*nx+ix]);
+    }
+    glEnd();
+  }
+
 
   UpdateOutput();
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotNumbers() ++" << endl;
+cerr << "++ Returning from FieldPlot::plotNumbers() ++" << endl;
 #endif
-  return true;
+return true;
 }
 
 
