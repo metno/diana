@@ -1,3 +1,9 @@
+diana-headless (3.29.0~rc4-0) unstable; urgency=low
+
+  * Rebuilt against metlibs 4.6.4 and current sources.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 09 Oct 2012 13:48:47 +0200
+
 diana-headless (3.29.0~b1-2) unstable; urgency=low
 
   * Updated the packaging to make the development package depend on the regular package.
