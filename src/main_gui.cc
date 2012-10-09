@@ -48,7 +48,6 @@
 #endif
 #include <puTools/miCommandLine.h>
 #include <puTools/miString.h>
-#include <diField/diProjection.h>
 #include <iostream>
 
 #include <miLogger/logger.h>
@@ -102,7 +101,6 @@ int main(int argc, char **argv)
   miString profetServer;
   miString setupfile;
   miString lang;
-  bool useprojlib=true;
   map<miString,miString> user_variables;
 
   user_variables["PVERSION"]= PVERSION;
@@ -147,11 +145,6 @@ int main(int argc, char **argv)
       if (ac >= argc) printUsage();
       diana_title = miString(argv[ac]);
 
-    } else if (sarg=="--proj") {
-      ac++;
-      if (ac >= argc) printUsage();
-      useprojlib = (miString(argv[ac])=="true");
-
     } else {
       vector<miString> ks= sarg.split("=");
       if (ks.size()==2) {
@@ -162,9 +155,6 @@ int main(int argc, char **argv)
     }
     ac++;
   } // command line parameters
-
- //Set projection library (libmi or proj4)
-  Projection::setProjActive(useprojlib);
 
   // Fix logger
   // initLogHandler must always be done
