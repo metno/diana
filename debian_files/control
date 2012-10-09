@@ -54,7 +54,8 @@ Description: common files for diana and diana-headless packages
 
 Package: diana-metno-@METNO_VERSION@
 Architecture: all
-Depends: dianaconfig, dianamaps,
+Depends: dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, 
+ dianamaps,
  diana-@METNO_VERSION@,
  diana-headless-@PVERSION_MAJOR_DOT_MINOR@,
  ${misc:Depends}
