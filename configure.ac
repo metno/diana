@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.28.1~b2], [diana@met.no])
+AC_INIT([diana], [3.29.0~rc4], [diana@met.no])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -38,7 +38,7 @@ METNO_WIN32_WINSOCK
 AC_LANG_PUSH([C])
 
 METNO_WIN32_IFELSE([DEBUG_FLAGS=-gstabs], [DEBUG_FLAGS=-g])
-CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra -fPIC"
+CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra"
 METNO_WIN32_IFELSE([OPT_FLAGS="-msse2 -march=pentium4"], [OPT_FLAGS="-msse2 -march=core2"])
 CXXFLAGS="$CXXFLAGS ${OPT_FLAGS} -Wall -fPIC"
 AC_SYS_LARGEFILE

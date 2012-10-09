@@ -1,3 +1,23 @@
+diana (3.29.0~rc4-2) unstable; urgency=low
+
+  * resampling in satPlot and FieldPlot
+  * Call to getGridConversion removed 
+  * using libemos-dev=000382+dfsg-metno1
+	
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 11:50:29 +0200
+
+diana (3.29.0~rc4-1) unstable; urgency=low
+
+  * bugfix metlibs/diField
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 01 Oct 2012 15:09:02 +0200
+
+diana (3.29.0~rc3-1) unstable; urgency=low
+
+  * new upstream version
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 28 Sep 2012 20:44:16 +0200
+
 diana (3.28.1~a1-8) unstable; urgency=low
 
   * removed some fixed version numbers in .install files
