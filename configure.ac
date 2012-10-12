@@ -123,6 +123,12 @@ AC_ARG_ENABLE([batch-only],
         [], [enable_batch_only=no])
 AM_CONDITIONAL([WITH_BATCH_ONLY], [test x$enable_batch_only = xyes])
 
+AC_ARG_ENABLE([perl],
+    [AS_HELP_STRING([--enable-perl], [enable perl module)])],
+	    [], [enable_perl=no])
+AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
+
+
 #
 # metlibs
 #
@@ -231,5 +237,6 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([perl/Makefile])
 AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop share/applications/metno-diana.desktop])
 AC_OUTPUT
