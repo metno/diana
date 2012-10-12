@@ -63,45 +63,71 @@ END {
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-Metno::Bdiana - Perl extension for blah blah blah
+Metno::Bdiana - Perl version of met.no's DIANA
 
 =head1 SYNOPSIS
 
-  use Metno::Bdiana;
-  blah blah blah
+  use Metno::Bdiana qw(:all);
+
+  Metno::Bdiana::init(); # required once
+
+  my $setup = "/disk1/WMS/usr/share/metno-wmsservice/verportal/bdiana/diana.setup";
+  readSetupFile($setup) == DI_OK or die "cannot setup diana with $setup";
+
+  my $plot =<<'EOT';
+output = PNG
+colour = COLOUR
+buffersize = 256x256
+settime = 2012-09-13 13:00:00
+addhour = 00
+filename = /tmp/test.png
+PLOT
+MAP area=EPSG:3575 backcolour=255:255:255 xylimit=-640000,-320000,-2880000,-2560000
+
+FIELD Proff_default NEDBOR.1T alpha=160 base=0 colour=off colour_2=off extreme.radius=1 extreme.size=1 extreme.type=Ingen field.smooth=0 grid.lines=0 grid.lines.max=0 label.size=1 line.interval=40 line.smooth=0 value.label=0  line.values=0.1,0.2,0.5,1,2,4,6,10,15,20,25,30,...100 linetype=solid linewidth=1 maxvalue=off minvalue=off palettecolours=vp_nedbor patterns=off recursive=0 table=0 undef.colour=white undef.linetype=solid undef.linewidth=1 undef.masking=0 value.label=1
+
+
+ENDPLOT
+EOT
+
+  parseAndProcessString($plot) == DI_OK or die "cannot create plot";
+
+
 
 =head1 DESCRIPTION
 
-Stub documentation for Metno::Bdiana, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
+Metno::Bdiana gives perl-library access to the batch-diana functionality. The communication with diana follows with dianas own plotting syntax and works by simly
+sending a plot-string to the parseAndProcessString function.
 
-Blah blah blah.
+=head2 FUNCTIONS
+
+=over 8
+
+=item b<init()> must be called at least once before any other bdiana function. Currently, no options possible.
+
+=item b<readSetupFile($filename)> parses the setupFile given in the filename string.
+
+=item b<parseAndProcessString($string)> create a plot using a diana-plot commando as string.
+
+
+=back
 
 =head2 EXPORT
 
-None by default.
-
+None by default. ':all' gives 	readSetupFile, parseAndProcessString and the constants
+DI_OK and DI_ERROR
 
 
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
+L<diana>
 
 =head1 AUTHOR
 
-Heiko Klein, E<lt>heikok@E<gt>
+Heiko Klein, E<lt>heiko.klein@met.noE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
