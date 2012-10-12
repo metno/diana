@@ -1,3 +1,9 @@
+diana-headless (3.29.0~rc4-1) unstable; urgency=low
+
+  * Fixed legend plotting regression in bdiana.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 12 Oct 2012 17:06:48 +0200
+
 diana-headless (3.29.0~rc4-0) unstable; urgency=low
 
   * Rebuilt against metlibs 4.6.4 and current sources.
