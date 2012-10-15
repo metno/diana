@@ -33,6 +33,7 @@ do-configure:
 	    --with-lupdate=/opt/qt4-qws/bin/lupdate \
             --with-lrelease=/opt/qt4-qws/bin/lrelease \
 	    --enable-embedded \
+		--enable-perl \
 	    --enable-batch-only
 
 override_dh_auto_install:

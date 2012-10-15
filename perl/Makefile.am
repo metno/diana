@@ -117,6 +117,7 @@ PERL          = perl
 PERLMAKEFILE  = Metno-Bdiana/Makefile
 PERLDEPEND    = Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana.pm
 PERLCONFIG    =   PREFIX="$(prefix)" \
+				  INSTALLDIRS=vendor \
 				  INC="-Wall -I. -I$(top_srcdir)/../src" \
 				  LIBS="-L$(top_srcdir)/../src/ -ldiana $(common_ldflags) $(common_ldadd)"
 
@@ -142,11 +143,11 @@ install-exec-local:
 	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
 
 uninstall-local:
-	rm -f $(DESTDIR)$(prefix)/lib/*/site_perl/*/*/Metno/Bdiana.pm
-	rm -f $(DESTDIR)$(prefix)/lib/*/site_perl/*/*/auto/Metno/Bdiana/Bdiana.so
-	rm -f $(DESTDIR)$(prefix)/lib/*/site_perl/*/*/auto/Metno/Bdiana/Bdiana.bs
-	rm -f $(DESTDIR)$(prefix)/lib/*/site_perl/*/*/auto/Metno/Bdiana/autosplit.ix
-	rm -f $(DESTDIR)$(prefix)/lib/*/site_perl/*/*/auto/Metno/Bdiana/.packlist
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/Metno/Bdiana.pm
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/Bdiana.so
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/Bdiana.bs
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/autosplit.ix
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/.packlist
 	rm -f $(DESTDIR)$(prefix)/lib/*/*/*/perllocal.pod
 	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
 
@@ -159,10 +160,9 @@ endif
 EXTRA_DIST = \
         Metno-Bdiana/ppport.h \
         Metno-Bdiana/Bdiana.xs \
-        Metno-Bdiana/lib/Metno/Bdiana.pm \
+        Metno-Bdiana/lib/Metno/Bdiana.pm.in \
         Metno-Bdiana/Makefile.PL \
         Metno-Bdiana/README \
-        Metno-Bdiana/HACKS \
         Metno-Bdiana/t/Metno-Bdiana.t \
         Metno-Bdiana/Changes \
         Metno-Bdiana/MANIFEST \

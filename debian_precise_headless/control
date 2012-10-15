@@ -2,7 +2,7 @@ Source: diana-headless
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
-Build-Depends: debhelper (>= 7.4.15), autotools-dev,
+Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
  qt4-qmake-qws, libqt4-qws-dev, libemos-dev,
  metlibs-difield-dev, metlibs-dimitiff-dev, metlibs-milib-dev,
  metlibs-milogger-dev, metlibs-propoly-dev, metlibs-puctools-dev,
@@ -24,6 +24,19 @@ Description: Meteorological visualisation tool
  meteorological and oceanographic data.
  This package provides a version of Diana for batched generation of
  products.
+
+Package: libmetno-bdiana-perl
+Architecture: any
+Depends: ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Description: Meteorological visualisation tool, perl binding
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.
+ This package provides a version of Diana for batched generation of
+ products via perl.
+
 
 Package: diana-headless-dev
 Architecture: any
