@@ -27,6 +27,7 @@ Description: Meteorological visualisation tool
 
 Package: libmetno-bdiana-perl
 Architecture: any
+Section: perl
 Depends: ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: Meteorological visualisation tool, perl binding
  Diana is the core visualisation tool from met.no (Norwegian
@@ -40,6 +41,7 @@ Description: Meteorological visualisation tool, perl binding
 
 Package: diana-headless-dev
 Architecture: any
+Section: libdevel
 Depends: diana-headless-@PVERSION_MAJOR_DOT_MINOR@ ${shlibs:Depends}, ${misc:Depends}
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
