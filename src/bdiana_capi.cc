@@ -341,6 +341,8 @@ printerManager * printman;
 printOptions priop;
 
 bool wait_for_signals = false;
+bool wait_for_input = false; // if running as lib
+
 miString fifo_name;
 
 #define MAKE_CONTROLLER \
@@ -893,6 +895,7 @@ static void printUsage(bool showexample)
         "                    addr is a hostname or IP address                    \n"
         "                    port is an optional port number, default is 3190    \n" // diOrderListener::DEFAULT_PORT
         "-signal           : production triggered by SIGUSR1 signal (see example)\n"
+        "-libinput         : using bdiana_capi as library                        \n"
         "-example          : list example input-file and exit                    \n"
 #ifdef USE_XLIB
         "-display          : x-server to use (default: env DISPLAY)              \n"
@@ -3157,6 +3160,8 @@ int diana_init(int _argc, char** _argv)
       }
       wait_for_signals = true;
 
+    } else if (sarg == "-libinput") {
+      wait_for_input = true;
     } else if (sarg == "-example") {
       printUsage(true);
 
@@ -3455,6 +3460,8 @@ int diana_init(int _argc, char** _argv)
         application->processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
+  } else if (wait_for_input) {
+    // nothing to be done, just a dummy
   } else if (batchinput.empty()) {
     cerr << "Neither -address nor -signal was specified" << endl;
   }
