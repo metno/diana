@@ -1,3 +1,9 @@
+diana-headless (3.29.0~rc4-2) unstable; urgency=low
+
+  * Rebuilt with current sources.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 16 Oct 2012 13:34:52 +0200
+
 diana-headless (3.29.0~rc4-1) unstable; urgency=low
 
   * Fixed legend plotting regression in bdiana.
