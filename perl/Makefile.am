@@ -1,6 +1,6 @@
 # automake requires one = before the first +=
 common_ldflags = -L$(top_srcdir)/../src/
-common_ldadd = libdiana.a
+common_ldadd = -ldiana
 
 if WITH_BATCH_ONLY
 common_ldflags += 
@@ -119,7 +119,7 @@ PERLDEPEND    = Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana.pm
 PERLCONFIG    =   PREFIX="$(prefix)" \
 				  INSTALLDIRS=vendor \
 				  INC="-Wall -I. -I$(top_srcdir)/../src" \
-				  LIBS="-L$(top_srcdir)/../src/ -ldiana $(common_ldflags) $(common_ldadd)"
+				  LIBS="-L$(top_srcdir)/../src/ $(common_ldflags) $(common_ldadd)"
 
 #if DEBUG
 #PERLCONFIG    += OPTIMIZE=-g
