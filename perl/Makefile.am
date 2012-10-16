@@ -151,11 +151,11 @@ uninstall-local:
 	rm -f $(DESTDIR)$(prefix)/lib/*/*/*/perllocal.pod
 	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
 
-distclean-local:
+distclean-local: 
 	test -f Metno-Bdiana/.distclean
 	rm -f Makefile
 	rm -f Makefile.in
-	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) distclean
+	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) clean
 
 endif
 

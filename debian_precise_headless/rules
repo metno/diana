@@ -7,6 +7,8 @@ DESTDIR = debian/diana-headless-@PVERSION_MAJOR_DOT_MINOR@
 
 include /usr/share/metno-devscripts/metno_rules.mk
 
+export DH_VERBOSE=1
+
 # Support parallel building.
 %:
 	dh $@ --parallel
@@ -43,4 +45,5 @@ override_dh_auto_install:
 	    cp src/.libs/libdiana.so.@PVERSION_MAJOR_DOT_MINOR_DOT_PATCH@ $(DESTDIR)/usr/lib
 	    cp -P src/.libs/libdiana.so.@PVERSION_MAJOR@ $(DESTDIR)/usr/lib
 	    cp -P src/.libs/libdiana.so $(DESTDIR)/usr/lib
-	    cd perl && make install DESTDIR=$(DESTDIR)
+	    cd perl && make install DESTDIR=../../$(DESTDIR)
+
