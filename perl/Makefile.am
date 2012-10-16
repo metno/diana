@@ -153,9 +153,7 @@ uninstall-local:
 
 distclean-local: 
 	test -f Metno-Bdiana/.distclean
-	rm -f Makefile
-	rm -f Makefile.in
-	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) clean
+	rm -r Makefile
 
 endif
 
