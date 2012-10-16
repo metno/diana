@@ -3001,10 +3001,6 @@ void FieldDialog::threeColoursChanged()
 
   } else {
 
-    //turn of line colour
-    colorCbox->setCurrentIndex(0);
-    updateFieldOptions("colour", "off");
-
     //turn of colour_2 (not possible to combine threeCols and col_2)
     colour2ComboBox->setCurrentIndex(0);
     colour2ComboBoxToggled(0);
