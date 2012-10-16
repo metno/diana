@@ -106,11 +106,17 @@ sending a plot-string to the parseAndProcessString function.
 
 =over 8
 
-=item b<init()> must be called at least once before any other bdiana function. Currently, no options possible.
+=item init()
 
-=item b<readSetupFile($filename)> parses the setupFile given in the filename string.
+must be called at least once before any other bdiana function. Currently, no options possible.
 
-=item b<parseAndProcessString($string)> create a plot using a diana-plot commando as string.
+=item readSetupFile($filename)
+
+parses the setupFile given in the filename string.
+
+=item parseAndProcessString($string) 
+
+create a plot using a diana-plot commando as string.
 
 
 =back
