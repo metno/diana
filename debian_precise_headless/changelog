@@ -1,3 +1,9 @@
+diana-headless (3.29.0~rc4-3) unstable; urgency=low
+
+  * Included libdiana.a in the diana-headless-dev package.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 18 Oct 2012 15:00:07 +0200
+
 diana-headless (3.29.0~rc4-2) unstable; urgency=low
 
   * Rebuilt with current sources.
