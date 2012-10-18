@@ -1,3 +1,33 @@
+diana (3.29.1-1) unstable; urgency=low
+
+  * New version number
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 18 Oct 2012 09:57:33 +0200
+
+diana (3.29.0~rc5-2) unstable; urgency=low
+
+  * minor bugfixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 17 Oct 2012 08:41:19 +0200
+
+diana (3.29.0~rc5-1) unstable; urgency=low
+
+  * minor bugfixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 17 Oct 2012 08:40:30 +0200
+
+diana (3.29.0~rc4-4) unstable; urgency=low
+
+  * dependency fix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 15:15:53 +0200
+
+diana (3.29.0~rc4-3) unstable; urgency=low
+
+  * diana-metno depends on dianaconfig-@PVERSION_MAJOR_DOT_MINOR@
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 14:49:54 +0200
+
 diana (3.29.0~rc4-2) unstable; urgency=low
 
   * resampling in satPlot and FieldPlot
