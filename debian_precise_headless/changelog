@@ -1,5 +1,6 @@
-diana-headless (3.29.0~rc4-4) unstable; urgency=low
+diana-headless (3.29.1-0) unstable; urgency=low
 
+  * Rebuilt with latest sources.
   * Fixed Perl library package dependencies.
 
  -- David Boddie <david.boddie@met.no>  Fri, 19 Oct 2012 13:52:14 +0200
