@@ -1,0 +1,6 @@
+bdiana (3.29.2-0) unstable; urgency=low
+
+  * Renamed the diana-headless package.
+  * Made glText rendering consistent with the metlibs glText library.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 22 Oct 2012 15:40:52 +0200
