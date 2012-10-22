@@ -2,3 +2,4 @@ src/di*.h usr/include/diana
 src/PaintGL/paintgl.h usr/include/diana/PaintGL
 src/PaintGL/GL/gl.h usr/include/diana/PaintGL/GL
 src/libdiana.a usr/lib
+src/.libs/libdiana.so* usr/lib

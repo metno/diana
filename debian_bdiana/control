@@ -8,15 +8,13 @@ Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
  metlibs-milogger-dev, metlibs-propoly-dev, metlibs-puctools-dev,
  metlibs-pudatatypes-dev, metlibs-robs-dev,
  libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
- libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
- qt4-headless-dummy-screen-plugin
+ libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.2
 
 Package: bdiana-@PVERSION_MAJOR_DOT_MINOR@
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
- qt4-headless-dummy-screen-plugin
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 

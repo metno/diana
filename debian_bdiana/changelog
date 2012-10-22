@@ -2,5 +2,6 @@ bdiana (3.29.2-0) unstable; urgency=low
 
   * Renamed the diana-headless package.
   * Made glText rendering consistent with the metlibs glText library.
+  * Updated the dependencies to use a QPA build of Qt instead of QWS.
 
- -- David Boddie <david.boddie@met.no>  Mon, 22 Oct 2012 15:40:52 +0200
+ -- David Boddie <david.boddie@met.no>  Mon, 22 Oct 2012 15:59:47 +0200
