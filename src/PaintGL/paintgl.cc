@@ -1151,7 +1151,7 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     QFontMetricsF fm(ctx->font);
     QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
     w = rect.width();
-    h = rect.height() * 0.75;
+    h = rect.height();
     return true;
 }
 
