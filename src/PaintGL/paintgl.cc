@@ -1149,9 +1149,9 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
-    QRectF rect = ctx->transform.inverted().mapRect(fm.boundingRect(s));
+    QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
     w = rect.width();
-    h = rect.height();
+    h = rect.height() * 0.75;
     return true;
 }
 
