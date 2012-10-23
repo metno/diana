@@ -1269,6 +1269,11 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
 }
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+/*
+ * Returns the area covered in the requested annotation in the ox, oy, xsize and ysize
+ * variables passed as arguments. If the annotation number is -1 then the area covered
+ * by all annotations will be returned.
+*/
 static void getAnnotationsArea(int& ox, int& oy, int& xsize, int& ysize, int number = -1)
 {
   QRectF cutout;
