@@ -1401,12 +1401,10 @@ static void ensureNewContext()
 {
   plotAnnotationsOnly = false;
 
-  if (canvasType == qt_qimage) {
-    if (context.isPainting())
-      context.end();
-    if (painter.isActive())
-      painter.end();
-  }
+  if (context.isPainting())
+    context.end();
+  if (painter.isActive())
+    painter.end();
 
   context.makeCurrent();
 }
@@ -1621,6 +1619,7 @@ static int parseAndProcess(istream &is)
         }
         cout <<main_controller->getMapArea()<<endl;
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
           multiple_newpage = false;
@@ -1629,6 +1628,7 @@ static int parseAndProcess(istream &is)
             startVideo(priop);
 #endif
         }
+#endif
 
         if (multiple_plots) {
           glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
@@ -1725,6 +1725,7 @@ static int parseAndProcess(istream &is)
         if (crossection.exists())
           vcrossmanager->setCrossection(crossection);
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vcross, priop);
           multiple_newpage = false;
@@ -1733,6 +1734,7 @@ static int parseAndProcess(istream &is)
           startVideo(priop);
 #endif
         }
+#endif
 
         if (multiple_plots) {
           glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
@@ -1795,6 +1797,7 @@ static int parseAndProcess(istream &is)
         if (vprof_station.exists())
           vprofmanager->setStation(vprof_station);
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vprof, priop);
           multiple_newpage = false;
@@ -1803,6 +1806,7 @@ static int parseAndProcess(istream &is)
           startVideo(priop);
 #endif
         }
+#endif
 
         if (multiple_plots) {
           glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
@@ -1860,6 +1864,7 @@ static int parseAndProcess(istream &is)
         if (spectrum_station.exists())
           spectrummanager->setStation(spectrum_station);
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_spectrum, priop);
           multiple_newpage = false;
@@ -1868,6 +1873,7 @@ static int parseAndProcess(istream &is)
           startVideo(priop);
 #endif
         }
+#endif
 
         if (multiple_plots) {
           glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
@@ -2085,10 +2091,15 @@ static int parseAndProcess(istream &is)
             getAnnotationsArea(ox, oy, xsize, ysize);
           }
 
+          // For some reason, QPrinter can determine the correct resolution to use, but
+          // QSvgGenerator cannot manage that on its own, so we take the resolution from
+          // a QPrinter instance which we do not otherwise use.
+          QPrinter printer;
           QSvgGenerator svgFile;
           svgFile.setFileName(QString::fromStdString(priop.fname));
           svgFile.setSize(QSize(xsize, ysize));
           svgFile.setViewBox(QRect(0, 0, xsize, ysize));
+          svgFile.setResolution(printer.resolution());
           painter.begin(&svgFile);
           painter.drawPicture(ox, oy, picture);
           painter.end();
@@ -2105,6 +2116,7 @@ static int parseAndProcess(istream &is)
           QPrinter printer;
           printer.setOutputFileName(QString::fromStdString(priop.fname));
           printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
+          printer.setFullPage(true);
           painter.begin(&printer);
           painter.drawPicture(ox, oy, picture);
           painter.end();
@@ -2139,7 +2151,25 @@ static int parseAndProcess(istream &is)
           outputFile.write("}\n");
           outputFile.close();
         }
-#endif
+      } else { // Postscript
+
+          ensureNewContext();
+
+          int ox = 0, oy = 0;
+          if (plotAnnotationsOnly) {
+            getAnnotationsArea(ox, oy, xsize, ysize);
+          }
+
+          QPrinter printer;
+          printer.setOutputFormat(QPrinter::PostScriptFormat);
+          printer.setOutputFileName(QString::fromStdString(priop.fname));
+          printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
+          printer.setFullPage(true);
+          painter.begin(&printer);
+          painter.drawPicture(ox, oy, picture);
+          painter.end();
+      }
+#else
       } else { // PostScript only
         if (toprinter) { // automatic print of each page
           // Note that this option works bad for multi-page output:
@@ -2165,6 +2195,7 @@ static int parseAndProcess(istream &is)
             cout << " result:" << res << endl;
         }
       }
+#endif
 
       continue;
 
@@ -2770,9 +2801,21 @@ static int parseAndProcess(istream &is)
     } else if (key == com_output) {
       value = value.downcase();
       if (value == "postscript") {
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        ensureNewContext();
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
+#endif
         raster = false;
         priop.doEPS = false;
       } else if (value == "eps") {
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        ensureNewContext();
+        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+        painter.begin(&picture);
+        context.begin(&painter);
+#endif
         raster = false;
         priop.doEPS = true;
       } else if (value == "png" || value == "raster") {
