@@ -11,7 +11,7 @@ do-configure: configure-stamp
 configure-stamp:
 	./autogen.sh
 	./configure --enable-proddb \
-	    --with-emos=/usr/local --enable-obs-bufr=yes --enable-geotiff \
+	    --enable-profet --enable-obs-bufr --enable-geotiff \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --program-suffix=$(METNO_SUFFIX)
 	touch $@

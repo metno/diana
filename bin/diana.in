@@ -1,19 +1,6 @@
 #!/bin/sh
 set -x
 
-export LANG=en_US
-
-SUFFIX=@program_suffix@
-
-if [  "$SUFFIX" = "NONE" ] ; then
-SUFFIX=
-fi
-
-PROFFDIR="/proff"
-if [  "$SUFFIX" = "-test" ] ; then
-PROFFDIR="/proff_test"
-fi
-
 input=$0
 prefix="@prefix@"
 etcdir="@sysconfdir@"
@@ -57,8 +44,8 @@ $prefix/bin/diana.bin-@PVERSION@ \
     -s $setup \
     -T "diana-@PVERSION@" \
     -p \
-    -S "profet$SUFFIX.met.no" \
-    PROFFWDB="proffdb$SUFFIX.met.no" PROFFDIR="$PROFFDIR" APP_NAME="diana-@PVERSION@" \
+    -S "profet.met.no" \
+    PROFFWDB="proffdb.met.no" \
     $@
 
 tstop=`date`

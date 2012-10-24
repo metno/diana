@@ -1,3 +1,15 @@
+diana (3.29.2-3) unstable; urgency=low
+
+  * removed LANG=en_US from diana script
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 24 Oct 2012 10:55:12 +0200
+
+diana (3.29.2-2) unstable; urgency=low
+
+  * fixed conflicts
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 22 Oct 2012 09:28:45 +0200
+
 diana (3.29.2-1) unstable; urgency=low
 
   * Bugfix in metlibs (4.7.0)
