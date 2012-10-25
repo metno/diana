@@ -2307,8 +2307,10 @@ static int parseAndProcess(istream &is)
             << "  Printer not defined!" << endl;
         continue;
       }
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
       // first stop postscript-generation
       endHardcopy(plot_none);
+#endif
       multiple_newpage = true;
 
       miString command = printman->printCommand();
