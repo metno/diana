@@ -1,3 +1,18 @@
+bdiana (3.29.2-2) unstable; urgency=low
+
+  * Fixed Postscript printing for field plots.
+  * Fixed PDF and Postscript page limits.
+  * Ensured that SVG rendering uses the same resolution as a printer.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 25 Oct 2012 13:01:31 +0200
+
+bdiana (3.29.2-1) unstable; urgency=low
+
+  * Updated the package version to avoid a conflict with the existing
+    libmetno-bdiana-perl package.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 22 Oct 2012 18:56:14 +0200
+
 bdiana (3.29.2-0) unstable; urgency=low
 
   * Renamed the diana-headless package.
