@@ -2747,10 +2747,24 @@ static int parseAndProcess(istream &is)
       } else if (canvasType == qt_qimage) {
         ensureNewContext();
 
-        image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
-        image.fill(qRgba(0, 0, 0, 0));
-        painter.begin(&image);
-        context.begin(&painter);
+        if (raster) {
+          image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+          image.fill(qRgba(0, 0, 0, 0));
+          painter.begin(&image);
+          context.begin(&painter);
+
+        } else if (pdf || svg || json) {
+          picture = QPicture();
+          picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+          painter.begin(&picture);
+          context.begin(&painter);
+
+        } else { // Postscript
+          picture = QPicture();
+          picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+          painter.begin(&picture);
+          context.begin(&painter);
+        }
 #endif
       }
       glShadeModel(GL_FLAT);
@@ -2803,6 +2817,7 @@ static int parseAndProcess(istream &is)
       if (value == "postscript") {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
+        picture = QPicture();
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
         context.begin(&painter);
@@ -2812,6 +2827,7 @@ static int parseAndProcess(istream &is)
       } else if (value == "eps") {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
+        picture = QPicture();
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
         context.begin(&painter);
@@ -2827,7 +2843,6 @@ static int parseAndProcess(istream &is)
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
-
         image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
         image.fill(qRgba(0, 0, 0, 0));
         painter.begin(&image);
@@ -2840,23 +2855,19 @@ static int parseAndProcess(istream &is)
         raster = true;
         raster_type = image_avi;
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-      } else if (value == "svg") {
-        ensureNewContext();
-        svg = true;
-        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-        painter.begin(&picture);
-        context.begin(&painter);
-      } else if (value == "pdf") {
-        ensureNewContext();
-        pdf = true;
-        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-        painter.begin(&picture);
-        context.begin(&painter);
-      } else if (value == "json") {
+      } else if (value == "pdf" || value == "svg" || value == "json") {
         ensureNewContext();
         raster = false;
-        json = true;
-        outputTextMaps.clear();
+        if (value == "pdf")
+            pdf = true;
+        else if (value == "svg")
+            svg = true;
+        else {
+            json = true;
+            outputTextMaps.clear();
+        }
+
+        picture = QPicture();
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
         context.begin(&painter);
