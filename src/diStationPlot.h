@@ -77,6 +77,7 @@ struct Station {
   miutil::miString name;
   float lat;
   float lon;
+  float altitude;
   miutil::miString image;
   miutil::miString image2;
   bool isVisible;

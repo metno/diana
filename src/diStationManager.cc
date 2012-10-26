@@ -190,7 +190,7 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
   for (unsigned int i = 0; i < lines.size(); ++i) {
 
     vector<miutil::miString> pieces = lines[i].split(";");
-    if (pieces.size() >= 7) {
+    if (pieces.size() >= 8) {
 
       // Create a station with the latitude, longitude and a combination of
       // the name and station number. We also record the URL, status, type
@@ -230,6 +230,7 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
           station->time = miutil::miTime(timeString.c_str());
       }
 
+      station->altitude = atof(pieces[7].c_str());
       stations.push_back(station);
     }
   }
