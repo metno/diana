@@ -26,7 +26,7 @@ do-configure:
 	    --enable-obs-bufr \
 	    --disable-proddb \
 	    --disable-profet \
-	    --disable-video-export \
+	    --enable-video-export \
 	    --enable-geotiff \
 	    --with-qt4=/opt/qt4-headless \
 	    --with-qt4-includedir=/opt/qt4-headless/include \

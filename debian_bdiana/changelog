@@ -1,3 +1,10 @@
+bdiana (3.29.2-3) unstable; urgency=low
+
+  * Verified that printing works.
+  * Included support for video creation.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 26 Oct 2012 16:44:30 +0200
+
 bdiana (3.29.2-2) unstable; urgency=low
 
   * Fixed Postscript printing for field plots.
