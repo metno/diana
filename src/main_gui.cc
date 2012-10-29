@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     milogger::LogHandler::initLogHandler(logfilename);
   }
   else {
-    milogger::LogHandler::initLogHandler( 4, "");
+    milogger::LogHandler::initLogHandler( 1, "");
   }
   MI_LOG & log = MI_LOG::getInstance("diana.main_gui");
 

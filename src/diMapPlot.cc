@@ -40,6 +40,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <diFontManager.h>
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 
 #include <float.h>
 #include <math.h>
@@ -55,7 +57,7 @@ map<miString,Area> MapPlot::shapeareas;
 
 // Default constructor
 MapPlot::MapPlot() :
-      Plot(), mapchanged(true), haspanned(false), usedrawlists(true)
+          Plot(), mapchanged(true), haspanned(false), usedrawlists(true)
 {
 #ifdef DEBUGPRINT
   cerr << "++ MapPlot::Default Constructor" << endl;
@@ -90,6 +92,7 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
 #ifdef DEBUGPRINT
   cerr <<"MapPlot::prepare: "<<pinfo<<endl;
 #endif
+  milogger::LogHandler::getInstance()->setObjectName("diana.MapPlot.prepare");
 
   Area newarea;
   MapManager mapm;
@@ -130,9 +133,10 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
         miString key= stokens[0].downcase();
 
         if (key==key_name || key==key_areaname){
-          mapm.getMapAreaByName(stokens[1], newarea);
-          areadefined = true;
-          reqarea= newarea;
+          if ( mapm.getMapAreaByName(stokens[1], newarea) ) {
+            areadefined = true;
+            reqarea= newarea;
+          }
         } else if (key==key_proj){
           if ( proj.set_proj_definition(stokens[1]) ) {
             reqarea.setP(proj);
@@ -157,7 +161,9 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
         }
       }
     }
-
+    if ( !areadefined ) {
+      COMMON_LOG::getInstance("common").warnStream() << "Unknown AREA definition: << pinfo";
+    }
 
   } else if (tokens[0] == "MAP"){
 
