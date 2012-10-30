@@ -17,6 +17,8 @@ Package: bdiana-@PVERSION_MAJOR_DOT_MINOR@
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
+Replaces: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
+Recommends: dianamaps, dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, diana-@PVERSION_MAJOR_DOT_MINOR@-common
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
@@ -44,7 +46,8 @@ Package: bdiana-dev
 Architecture: any
 Section: libdevel
 Depends: bdiana-@PVERSION_MAJOR_DOT_MINOR@, ${shlibs:Depends}, ${misc:Depends}
-Conflicts: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
+Conflicts: diana-headless-dev
+Replaces: diana-headless-dev
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL
