@@ -4369,8 +4369,6 @@ void FieldDialog::readLog(const vector<miutil::miString>& vstr,
   vector<miutil::miString> hstr;
   size_t pos, end;
 
-  map<miutil::miString, miutil::miString>::iterator pfopt, pfend =
-      fieldOptions.end();
   int nopt, nlog;
   bool changed;
 
@@ -5244,7 +5242,6 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
   } else {
 
     // add edit field (and remove the original field)
-    bool found = false;
     int indrm = -1;
     SelectedField sf;
 
@@ -5276,7 +5273,6 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
       if (i < n) {
         sf = selectedFields[i];
         indrm = i;
-        found = true;
       }
     }
 
