@@ -1558,9 +1558,6 @@ static int parseAndProcess(istream &is)
           }
         }
 
-        // Perform a quick check for newly arrived data.
-        main_controller->getFieldManager()->updateSources();
-
         // turn on/off archive-mode (observations)
         main_controller->archiveMode(useArchive);
 
@@ -1585,7 +1582,7 @@ static int parseAndProcess(istream &is)
 
         vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
         main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
-            ptimes);
+            ptimes, true);
 
         if (ptime.undef()) {
           if (use_nowtime)
@@ -2227,9 +2224,6 @@ static int parseAndProcess(istream &is)
           pcom.push_back(lines[i]);
         k++;
 
-        // Perform a quick check for newly arrived data.
-        main_controller->getFieldManager()->updateSources();
-
         // necessary to set time before plotCommands()..?
         thetime = miTime::nowTime();
         main_controller->setPlotTime(thetime);
@@ -2241,7 +2235,7 @@ static int parseAndProcess(istream &is)
         set<miTime> okTimes;
         set<miTime> constTimes;
         main_controller->getCapabilitiesTime(okTimes, constTimes, pcom,
-            time_options == "union");
+            time_options == "union", true);
 
         // open filestream
         ofstream file(priop.fname.c_str());
@@ -2460,16 +2454,13 @@ static int parseAndProcess(istream &is)
         MAKE_CONTROLLER
       }
 
-      // Perform a quick check for newly arrived data.
-      main_controller->getFieldManager()->updateSources();
-
       if (verbose)
         cout << "- sending plotCommands" << endl;
       main_controller->plotCommands(pcom);
 
       vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
       main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
-          ptimes);
+          ptimes, true);
 
       if (ptime.undef()) {
         if (use_nowtime)

@@ -388,7 +388,7 @@ vector<miString> FieldPlotManager::getFields()
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
-    bool& constTimes)
+    bool& constTimes, bool updateSources)
 {
   vector<miTime> fieldtime;
 
@@ -417,11 +417,11 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
     return fieldtime;
   }
 
-  return getFieldTime(request, constTimes);
+  return getFieldTime(request, constTimes, updateSources);
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    miTime& constTimes, int& timediff, const miString& pinfo)
+    miTime& constTimes, int& timediff, const miString& pinfo, bool updateSources)
 {
   //Finding times from pinfo
   //TODO: find const time
@@ -441,7 +441,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 
   //getting times
   bool constT;
-  normalTimes = getFieldTime(pinfos, constT);
+  normalTimes = getFieldTime(pinfos, constT, updateSources);
   if (constT) {
     if (normalTimes.size()) {
       constTimes = normalTimes[0];
@@ -497,7 +497,7 @@ vector<miString> FieldPlotManager::getPlotFields()
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(
-    vector<FieldRequest>& request, bool& constTimes)
+    vector<FieldRequest>& request, bool& constTimes, bool updateSources)
 
 {
   vector<miTime> vtime;
@@ -509,7 +509,7 @@ vector<miTime> FieldPlotManager::getFieldTime(
       }
     }
   }
-  return fieldManager->getFieldTime(request, constTimes);
+  return fieldManager->getFieldTime(request, constTimes, updateSources);
 }
 
 bool FieldPlotManager::addGridCollection(const miutil::miString fileType,

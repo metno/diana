@@ -266,9 +266,10 @@ void Controller::getPlotTimes(vector<miTime>& fieldtimes,
                               vector<miTime>& sattimes,
                               vector<miTime>& obstimes,
                               vector<miTime>& objtimes,
-                              vector<miTime>& ptimes)
+                              vector<miTime>& ptimes,
+                              bool updateSources)
 {
-  plotm->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes);
+  plotm->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes,updateSources);
 }
 
 bool Controller::getProductTime(miTime& t){
@@ -694,9 +695,10 @@ const vector<SatFileInfo>& Controller::getSatFiles(const miString& satellite,
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
                                      set<miTime>& constTimes,
                                      const vector<miString>& pinfos,
-                                     bool allTimes)
+                                     bool allTimes,
+                                     bool updateSources)
 {
-  return plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes);
+  return plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes,updateSources);
 
 }
 

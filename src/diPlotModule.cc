@@ -1856,7 +1856,8 @@ void PlotModule::getPlotTime(miTime& t)
 
 void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     vector<miTime>& sattimes, vector<miTime>& obstimes,
-    vector<miTime>& objtimes, vector<miTime>& ptimes)
+    vector<miTime>& objtimes, vector<miTime>& ptimes,
+    bool updateSources)
 {
 
   fieldtimes.clear();
@@ -1878,7 +1879,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
   if (pinfos.size() > 0) {
     bool constT;
-    fieldtimes = fieldplotm->getFieldTime(pinfos, constT);
+    fieldtimes = fieldplotm->getFieldTime(pinfos, constT, updateSources);
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found fieldtimes:" << endl;
@@ -1927,7 +1928,8 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 
 //returns union or intersection of plot times from all pinfos
 void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
-    set<miTime>& constTimes, const vector<miString>& pinfos, bool allTimes)
+    set<miTime>& constTimes, const vector<miString>& pinfos,
+    bool allTimes, bool updateSources)
 {
   vector<miTime> normalTimes;
   miTime constTime;
@@ -1941,7 +1943,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
       miString type = tokens[0].upcase();
       if (type == "FIELD")
         fieldplotm->getCapabilitiesTime(normalTimes, constTime, timediff,
-            pinfos[i]);
+            pinfos[i], updateSources);
       else if (type == "SAT")
         satm->getCapabilitiesTime(normalTimes, constTime, timediff, pinfos[i]);
       else if (type == "OBS")
