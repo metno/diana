@@ -704,6 +704,11 @@ int SatManager::getFileName(miString &name)
       break;
     }
   }
+
+  if (fileno < 0 ) {
+    COMMON_LOG::getInstance("common").warnStream() << "Could not find "<<name<<" in inventory";
+  }
+
   return fileno;
 
 }
@@ -752,6 +757,10 @@ int SatManager::getFileName(const miTime &time)
   COMMON_LOG::getInstance("common").debugStream()<<"SatManager::getFileName: fileno: " << fileno;
 #endif
   //cerr<<"SatManager----> getFileName:  " << fileListChanged <<endl;
+
+  if (fileno < 0 ) {
+    COMMON_LOG::getInstance("common").warnStream() << "Could not find data from "<<time.isoTime("T")<<" in inventory";
+  }
   return fileno;
 }
 

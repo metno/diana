@@ -298,8 +298,8 @@ void Controller::keepCurrentArea(bool b){
 }
 
 // update plot-classes with new data
-bool Controller::updatePlots(){
-  return plotm->updatePlots();
+bool Controller::updatePlots(bool failOnMissingData){
+  return plotm->updatePlots( failOnMissingData );
 }
 
 void Controller::updateFieldPlot(const vector<miString>& pin){

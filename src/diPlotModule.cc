@@ -865,7 +865,7 @@ bool PlotModule::updateFieldPlot(const vector<miString>& pin)
 
 
 // update plots
-bool PlotModule::updatePlots()
+bool PlotModule::updatePlots(bool failOnMissingData)
 {
 #ifdef DEBUGREDRAW
   cerr <<"PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea<<endl;
@@ -875,13 +875,16 @@ bool PlotModule::updatePlots()
   int i, n;
   miTime t = splot.getTime();
   Area plotarea, newarea;
-  bool updateOk = true;
+
   // prepare data for field plots
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
-      if (!fieldplotm->makeFields(pin, t, fv))
-        updateOk = false;
+      if (!fieldplotm->makeFields(pin, t, fv)) {
+        if ( failOnMissingData ) {
+          return false;
+        }
+      }
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -903,7 +906,9 @@ bool PlotModule::updatePlots()
 #ifdef DEBUGPRINT
       cerr << "SatManager returned false from setData" << endl;
 #endif
-      updateOk = false;
+      if ( failOnMissingData ) {
+        return false;
+      }
     }
   }
 
@@ -1024,15 +1029,23 @@ bool PlotModule::updatePlots()
     vobsTimes.pop_back();
   }
   for (i = 0; i < n; i++) {
-    if (!obsm->prepare(vop[i], splot.getTime()))
+    if (!obsm->prepare(vop[i], splot.getTime())){
       cerr << "ObsManager returned false from prepare" << endl;
+      if ( failOnMissingData ) {
+        return false;
+      }
+    }
   }
 
   //update list of positions ( used in "PPPP-mslp")
   obsm->updateObsPositions(vop);
 
   // prepare met-objects
-  objm->prepareObjects(t, splot.getMapArea(), objects);
+  if ( !objm->prepareObjects(t, splot.getMapArea(), objects) ) {
+    if ( failOnMissingData ) {
+      return false;
+    }
+  }
 
   // prepare editobjects (projection etc.)
   editobjects.changeProjection(splot.getMapArea());
@@ -1073,7 +1086,7 @@ bool PlotModule::updatePlots()
   PlotAreaSetup();
 
   // Successful update
-  return updateOk;
+  return true;
 }
 
 // start hardcopy plot

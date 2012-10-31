@@ -165,6 +165,7 @@ const miString com_keepplotarea = "keepplotarea";
 const miString com_plotannotationsonly = "plotannotationsonly";
 #endif
 
+const miString com_fail_on_missing_data="failonmissingdata";
 const miString com_multiple_plots = "multiple.plots";
 const miString com_plotcell = "plotcell";
 
@@ -283,6 +284,7 @@ int default_canvas = qt_glpixelbuffer;
 int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
 bool antialias = false;
+bool failOnMissingData=false;
 
 // replaceable values for plot-commands
 vector<keyvalue> keys;
@@ -1606,13 +1608,13 @@ static int parseAndProcess(istream &is)
 
         if (verbose)
           cout << "- updatePlots" << endl;
-        if (!main_controller->updatePlots()) {
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (!main_controller->updatePlots(failOnMissingData)) {
             cerr << "Failed to update plots." << endl;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
             painter.end();
             context.end();
-            return 99;
 #endif
+            return 99;
         }
         cout <<main_controller->getMapArea()<<endl;
 
@@ -2484,7 +2486,7 @@ static int parseAndProcess(istream &is)
 
       if (verbose)
         cout << "- updatePlots" << endl;
-      if (main_controller->updatePlots()) {
+      if (main_controller->updatePlots(failOnMissingData)) {
 
           // open filestream
           ofstream file(priop.fname.c_str());
@@ -2929,6 +2931,9 @@ static int parseAndProcess(istream &is)
 
     } else if (key == com_antialiasing) {
       antialias = (value.downcase() == "yes");
+
+    } else if (key == com_fail_on_missing_data) {
+      failOnMissingData = (value.downcase() == "yes");
 
     } else if (key == com_multiple_plots) {
       if (raster) {

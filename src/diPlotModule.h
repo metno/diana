@@ -220,7 +220,7 @@ public:
   /// update FieldPlots
   bool updateFieldPlot(const vector<miutil::miString>& pin);
   /// update all plot objects, returning true if successful
-  bool updatePlots();
+  bool updatePlots(bool failOnMissingData=false);
   /// toggle conservative map area
   void keepCurrentArea(bool b){keepcurrentarea= b;}
 
