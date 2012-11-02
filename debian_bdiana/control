@@ -18,7 +18,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
 Replaces: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
-Recommends: dianamaps, dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, diana-@PVERSION_MAJOR_DOT_MINOR@-common
+Recommends: dianamaps, dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, diana-@PVERSION_MAJOR_DOT_MINOR@-common,
+ metno-bufrtables
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
