@@ -36,6 +36,7 @@
 #include <sys/time.h>
 #include <diSatPlot.h>
 
+#include <QtGlobal>
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 #include <QtGui>
 #include <QtSvg>
@@ -43,8 +44,6 @@
 #else
 #include <QtOpenGL>
 #endif
-
-#include <QtGlobal>
 
 #define NO_TEXTTURE
 using namespace::miutil;
