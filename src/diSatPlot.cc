@@ -35,7 +35,15 @@
 
 #include <sys/time.h>
 #include <diSatPlot.h>
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#include <QtGui>
+#include <QtSvg>
+#include "PaintGL/paintgl.h"
+#else
 #include <QtOpenGL>
+#endif
+
 #include <QtGlobal>
 
 #define NO_TEXTTURE
