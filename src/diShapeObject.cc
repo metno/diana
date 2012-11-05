@@ -319,6 +319,7 @@ bool ShapeObject::plot(Area area, // current area
 		   const uchar_t* bcolour)
 {
 	float x1, y1, x2, y2;
+        int symbol_rad = 0; 
 	//GLenum errCode;
   //const GLubyte *errString;
 	float scalefactor = gcd/7000000;
@@ -326,7 +327,12 @@ bool ShapeObject::plot(Area area, // current area
 
         //also scale according to windowheight and width (standard is 500)
         scalefactor = sqrtf(pheight*pheight+pwidth*pwidth)/500;
+//cerr << "scalefactor =" <<scalefactor  << endl; 
         fontSizeToPlot = int(fontSizeToPlot*scalefactor);
+        //symbol_rad = int(symbol * scalefactor);
+        symbol_rad = symbol;
+//cerr << "symbol_rad = " << symbol_rad << endl; 
+//cerr << "fontSizeToPlot = " << fontSizeToPlot << endl; 
 
 	x1= area.R().x1 -1.;
 	x2= area.R().x2 +1.;
@@ -446,14 +452,17 @@ bool ShapeObject::plot(Area area, // current area
                                miString astring = " "+tmpDesc[i];
                                fp->set(poptions.fontname,"NORMAL",fontSizeToPlot); //fp->set("Arial","BOLD",8);
                                fp->getStringSize(astring.cStr(),cw,ch);
-                               fp->drawStr(astring.cStr(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
-                               //fp->drawStr("SSS",shapes[i]->padfX[0], shapes[i]->padfY[0],0.0);
+                               //fp->drawStr(astring.cStr(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
+                               fp->drawStr("SSS",shapes[i]->padfX[0], shapes[i]->padfY[0],0.0);
+                               //glDrawPixels((GLint)10, (GLint)10,GL_RGBA, GL_UNSIGNED_BYTE,cimage);
+
                                glLineWidth(2);
 			       glColor4ubv(lcolour);
                                glBegin(GL_POLYGON);
+                                     
                                float PI       = acosf(-1.0);
                                GLfloat xc,yc;
-                               GLfloat radius=symbol;          //16271;
+                               GLfloat radius=symbol_rad;          //16271;
                                for(int j=0;j<150;j++){
                                    xc = radius*cos(j*2*PI/150.0);
                                    //xc = radius*cos(j*2*PI/100.0);
@@ -461,7 +470,7 @@ bool ShapeObject::plot(Area area, // current area
                                    //yc = radius*sin(j*2*PI/100.0);
                                    glVertex2f(shapes[i]->padfX[0]+xc,shapes[i]->padfY[0]+yc);
                                }
-                               glEnd();
+                               glEnd(); 
                            }
                            else {
 				// set the point size

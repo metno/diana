@@ -43,6 +43,7 @@
 
 using namespace std; using namespace miutil;
 
+//#define DEBUGPRINT 1
 
 // Default constructor
 VprofPlot::VprofPlot()
@@ -65,10 +66,14 @@ VprofPlot::~VprofPlot() {
 bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 {
 #ifdef DEBUGPRINT
-  //  cerr << "++ VprofPlot::plot " << text << endl;
+  cerr << "++ VprofPlot::plot " << nplot << endl;
 #endif
 
   if (!text.posName.exists()) return false;
+
+#ifdef DEBUGPRINT
+  cerr << "++ VprofPlot::plot start plotting " << text.posName << endl;
+#endif
 
   const float dptab=idptab;
   const float dpinv=1./dptab;
@@ -97,7 +102,13 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   // levels for T (always)
   if (ptt.size()>0) {
     nlevel= ptt.size();
-    for (unsigned int k=0; k<nlevel; k++) {
+#ifdef DEBUGPRINT
+	cerr << "ptt.size()," << nlevel << endl;
+#endif
+	for (unsigned int k=0; k<nlevel; k++) {
+#ifdef DEBUGPRINT
+	  cerr << ptt[k] << endl;
+#endif
       x= ptt[k]*dpinv;
       i= int(x);
       yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
@@ -116,7 +127,13 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   // levels for Td (if not same as T levels)
   if (vpopt->ptdtd && ptd.size()>0) {
     nlevel= ptd.size();
+#ifdef DEBUGPRINT
+	cerr << "ptd.size()," << nlevel << endl;
+#endif
     for (unsigned int k=0; k<nlevel; k++) {
+#ifdef DEBUGPRINT
+      cerr << ptd[k] << endl;
+#endif
       x= ptd[k]*dpinv;
       i= int(x);
       yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
@@ -140,7 +157,13 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   // levels for wind and significant levels (if not same as T levels)
   if ((vpopt->pwind || vpopt->pslwind) && puv.size()>0) {
     nlevel= puv.size();
+#ifdef DEBUGPRINT
+	cerr << "puv.size()," << nlevel << endl;
+#endif
     for (unsigned int k=0; k<nlevel; k++) {
+#ifdef DEBUGPRINT
+	  cerr << puv[k] << endl;
+#endif
       x= puv[k]*dpinv;
       i= int(x);
       yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);

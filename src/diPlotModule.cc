@@ -59,6 +59,7 @@
 #include <GL/gl.h>
 #include <sstream>
 //#define DEBUGPRINT
+//#define DEBUGREDRAW
 
 using namespace miutil;
 using namespace milogger;
@@ -1128,7 +1129,7 @@ void PlotModule::plot(bool under, bool over)
   cerr << "++ PlotModule.plot() ++" << endl;
 #endif
 #ifdef DEBUGREDRAW
-  cerr<<"PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+  cerr<<"++++++PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
 #endif
 
   Colour cback(splot.getBgColour().cStr());
@@ -1178,11 +1179,17 @@ void PlotModule::plot(bool under, bool over)
     plotOver();
   }
 
+#ifdef DEBUGREDRAW
+  cerr<<"++++++finished PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+#endif
 }
 
 // plot underlay ---------------------------------------
 void PlotModule::plotUnder()
 {
+#ifdef DEBUGREDRAW
+  cerr<<"++++++PlotModule::plotUnder  under,over: "<<endl;
+#endif
   int i, n, m;
 
   Rectangle plotr = splot.getPlotSize();
@@ -1364,6 +1371,9 @@ void PlotModule::plotUnder()
 // plot overlay ---------------------------------------
 void PlotModule::plotOver()
 {
+#ifdef DEBUGREDRAW
+  cerr<<"++++++PlotModule::plotOver  under,over: "<<endl;
+#endif
 
   int i, n;
 

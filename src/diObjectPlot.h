@@ -49,7 +49,7 @@ enum objectType{Anything,wFront,wSymbol,wArea,wText,Border,RegionName,ShapeXXX};
 
 enum frontType{ Cold,Warm,Occluded,Stationary,TroughLine,ArrowLine,SquallLine, SigweatherFront,Line};
 
-enum AreaType{ Sigweather,Genericarea};
+enum AreaType{ Sigweather,Genericarea, Genericarea_constline};
 
 //spline points for fronts/areas/borders
 const int divSpline= 5;

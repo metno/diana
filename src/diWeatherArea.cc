@@ -210,14 +210,16 @@ bool WeatherArea::plot()
     }
 
     float lwidth = 1.0;
-    //change the linewidth according to great circle distance
-    float scalefactor = gcd / 7000000;
-    if (scalefactor <= 1)
-      lwidth = linewidth;
-    else if (scalefactor > 1.0 && scalefactor < 4)
-      lwidth = linewidth / scalefactor;
-    else if (scalefactor >= 4)
-      lwidth = 1;
+    //change the linewidth of generricarea according to great circle distance
+    if (drawIndex == Genericarea ) {
+      float scalefactor = gcd / 7000000;
+      if (scalefactor <= 1)
+        lwidth = linewidth;
+      else if (scalefactor > 1.0 && scalefactor < 4)
+        lwidth = linewidth / scalefactor;
+      else if (scalefactor >= 4)
+        lwidth = 1;
+    }
 
     glLineWidth(lwidth);
     int end = 0;
@@ -250,8 +252,8 @@ bool WeatherArea::plot()
       int npos = end;
       GLdouble *gldata = new GLdouble[npos * 3];
 
-        glShadeModel(GL_FLAT);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glShadeModel(GL_FLAT);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       if ( itsFilltype != NULL ) {
         glEnable(GL_POLYGON_STIPPLE);
         glPolygonStipple(itsFilltype);

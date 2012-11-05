@@ -1778,7 +1778,7 @@ bool FieldPlot::plotValues(){
         }
 
         // ---
-        if(nfields == 5) {
+        if(nfields == 4 || nfields == 5) {
           ostringstream ostr;
           ostr<<"----";
           miString str= ostr.str();

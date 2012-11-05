@@ -358,7 +358,7 @@ vector<miutil::miString> TimeControl::deleteType(int id)
   vector<miutil::miString> type;
   miutil::miString currentDataname;
   if (dataBox->currentIndex() >=0) {
-    dataname[dataBox->currentIndex()];
+    currentDataname = dataname[dataBox->currentIndex()];
   }
 
   for(;q!=qend;q++){
@@ -374,11 +374,11 @@ vector<miutil::miString> TimeControl::deleteType(int id)
       dataname.erase(p);
       dataBox->removeItem(i);
       if (*p == currentDataname) {
-	currentDataname = "";
+        currentDataname = "";
       }
       if(id>-1){  //remove id from external_id
-	external_id.erase(q);
-	break;
+        external_id.erase(q);
+        break;
       }
     }
   }

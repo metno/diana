@@ -167,9 +167,7 @@ bool VcrossField::getInventory() {
 #endif
       iparam.push_back(pn->second);
     } else {
-#ifdef DEBUGPRINT
       cerr << "Parameter " << params[i] << " not defined in setup" << endl;
-#endif
       params.erase(params.begin()+i);
       i--;
     }

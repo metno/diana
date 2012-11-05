@@ -35,7 +35,7 @@
 
 #include <sys/time.h>
 #include <diSatPlot.h>
-#include <GL/gl.h>
+#include <QtOpenGL>
 #include <QtGlobal>
 
 #define NO_TEXTTURE
@@ -375,7 +375,7 @@ bool SatPlot::plotPixmap()
   // allocate a texture name
   if (!hasTexture) {
     glGenTextures( 1, &texture );
-    cerr << "Gentext: " << texture << endl;
+    //cerr << "Gentext: " << texture << endl;
   }
 
   // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -424,11 +424,11 @@ bool SatPlot::plotPixmap()
       float h = ny -1;
    
 
-     cerr << "nx " << nx << " ny " << ny << endl;
-     cerr << "grStartx " << grStartx << " grStarty " << grStarty << " grStopx " << grStopx << " grStopy " << grStopy << endl;
-     cerr << "bmStartx/nx bmStarty/ny bmStopx/nx bmStopy/ny" << endl;
-     cerr << bmStartx << " " << bmStarty << " " << bmStopx << " " << bmStopy << endl;
-     cerr << bmStartx/w << " " << bmStarty/h << " " << bmStopx/w << " " << bmStopy/h << endl;
+     //cerr << "nx " << nx << " ny " << ny << endl;
+     //cerr << "grStartx " << grStartx << " grStarty " << grStarty << " grStopx " << grStopx << " grStopy " << grStopy << endl;
+     //cerr << "bmStartx/nx bmStarty/ny bmStopx/nx bmStopy/ny" << endl;
+     //cerr << bmStartx << " " << bmStarty << " " << bmStopx << " " << bmStopy << endl;
+     //cerr << bmStartx/w << " " << bmStarty/h << " " << bmStopx/w << " " << bmStopy/h << endl;
    
 
       glTexCoord2f(bmStartx/w, bmStarty/h); glVertex3f(grStartx, grStarty, 0);

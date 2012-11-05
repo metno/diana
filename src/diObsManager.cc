@@ -70,6 +70,8 @@
 
 using namespace std; using namespace miutil;
 
+// #define DEBUGPRINT 1
+
 
 // Default constructor
 ObsManager::ObsManager(){
@@ -527,16 +529,22 @@ bool ObsManager::updateTimes(miString obsType)
   vector<FileInfo> oldfileInfo = Prod[obsType].fileInfo;
   Prod[obsType].fileInfo.clear();
 #ifdef ROADOBS
+  // WMO (synop) reports 1 time per hour. ICAO (metar) reports ever 30 minutes (x.20, x.50)
+  // Can we trust in obsType to select the right time intervall and obstime?
   if (Prod[obsType].obsformat == ofmt_roadobs)
   {
-	// Due to the fact that we have a database insteda of an archive,
+	// Due to the fact that we have a database instead of an archive,
 	// we maust fake the behavoir of anarchive
 	// Assume that all stations report every hour
 	// firt, get the current time.
 	miTime now = miTime::nowTime();
 	miClock nowClock = now.clock();
 	miDate nowDate = now.date();
-	nowClock.setClock(nowClock.hour(),0,0);
+	if (obsType.contains("wmo") || obsType.contains("ship"))
+		nowClock.setClock(nowClock.hour(),0,0);
+	else if (obsType.contains("icao"))
+		// if metar select startime +20 minutes.
+		nowClock.setClock(nowClock.hour(),20,0);
 	now.setTime(nowDate, nowClock);
 	// Check first if now already exists in oldfileInfo
 	int n = oldfileInfo.size();
@@ -561,13 +569,19 @@ bool ObsManager::updateTimes(miString obsType)
 		finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
 		finfo.filetype = Prod[obsType].pattern[j].fileType;
 		Prod[obsType].fileInfo.push_back(finfo);
-		time.addHour(-1);
+		if (obsType.contains("wmo") || obsType.contains("ship"))
+			time.addHour(-1);
+		else if (obsType.contains("icao"))
+			time.addMin(-30);
 		while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
 			finfo.time = time;
 			finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
 			finfo.filetype = Prod[obsType].pattern[j].fileType;
 			Prod[obsType].fileInfo.push_back(finfo);
-			time.addHour(-1);
+			if (obsType.contains("wmo") || obsType.contains("ship"))
+				time.addHour(-1);
+			else if (obsType.contains("icao"))
+				time.addMin(-30);
 		}
 	 }
   }
@@ -581,7 +595,7 @@ bool ObsManager::updateTimes(miString obsType)
 
       glob_t globBuf;
       glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
+      for (__size_t k=0; k < globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if(ok &&
@@ -703,7 +717,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
     if( !Prod[obsType].pattern[j].archive || useArchive ){
       glob_t globBuf;
       glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
+      for (__size_t k=0; k < globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if (Prod[obsType].pattern[j].fileType == "metnoobs") {
@@ -1171,6 +1185,7 @@ ObsDialogInfo ObsManager::initDialog()
 
       type.active.clear();
       type.name= pr->second.dialogName; // same name as the plot type
+	  //type.name = pr->second.plotFormat + ":" + pr->second.dialogName;
       proad.datatype.push_back(type);
       proad.criteriaList = criteriaList["roadobs"];
 
@@ -1431,32 +1446,24 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
 	Prod[oname].useFileTime= true;
   if (headerfound) {
     int nc= roplot->roadobsColumnName.size();
-    int nh= roplot->roadobsColumnHide.size();
-    int addWind= -1;
-    bool on= (nc-nh<7); // ????????
+    bool addWind= false;
     if (roplot->roadobsColumn.count("dd") && roplot->roadobsColumn.count("ff")) {
       addWind= (roplot->roadobsColumn["dd"] < roplot->roadobsColumn["ff"]) ?
                 roplot->roadobsColumn["dd"] : roplot->roadobsColumn["ff"];
     }
-    for (int c=0; c<nc; c++) {
-      if (c==addWind) {
+	else if (roplot->roadobsColumn.count("dd") && roplot->roadobsColumn.count("ffk")) {
+      addWind= (roplot->roadobsColumn["dd"] < roplot->roadobsColumn["ffk"]) ?
+                roplot->roadobsColumn["dd"] : roplot->roadobsColumn["ffk"];
+    }
+	if (addWind) {
         dialog.plottype[id].button.push_back(addButton("Wind",""));
-//         dialog.plottype[id].button.push_back("Wind");
-//         dialog.plottype[id].Default.push_back(true);
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-      }
-      int h= 0;
-      while (h<nh && roplot->roadobsColumnHide[h]!=
-		     roplot->roadobsColumnName[c]) h++;
-      if (h==nh) {
-        dialog.plottype[id].button.push_back
-	  (addButton(roplot->roadobsColumnName[c],
+    }
+    for (int c=0; c<nc; c++) {
+        dialog.plottype[id].button.push_back(addButton(roplot->roadobsColumnName[c],
 		     roplot->roadobsColumnTooltip[c],
-		     -100,100,on));
-//         dialog.plottype[id].button.push_back(roplot->roadobsColumnName[c]);
-//         dialog.plottype[id].Default.push_back(on);
+		     -100,100,true));
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-      }
     }
   }
 delete roplot;
@@ -1495,8 +1502,8 @@ delete roplot;
         bool found= false;
         glob_t globBuf;
         glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
-        unsigned int k= 0;
-        while (!found && int(k)<globBuf.gl_pathc) {
+        __size_t k= 0;
+        while (!found && k < globBuf.gl_pathc) {
           miString filename = globBuf.gl_pathv[k];
           ObsAscii obsAscii = ObsAscii(filename, headerfile, Prod[oname].headerinfo);
           found= obsAscii.asciiOK();

@@ -94,7 +94,11 @@ public:
 
 private:
   stationDialogInfo m_info;
-  map <miutil::miString,StationPlot*> stationPlots;//stations to be plotted
+  //stations to be plotted
+  map <miutil::miString,StationPlot*> stationPlots;
+
+  Station* parseSMHI(miutil::miString& miLine, miutil::miString& url);
+
 };
 
 #endif

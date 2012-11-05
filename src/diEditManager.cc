@@ -2908,24 +2908,31 @@ void EditManager::initEditTools(){
 
 
 #ifdef SMHI
-  symbols.push_back(newEditToolInfo("Torrdis/Haze",88,"black"));
-  symbols.push_back(newEditToolInfo("Rï¿½k/Smoke",42,"black"));
-  symbols.push_back(newEditToolInfo("Snï¿½blandad regn",78,"green4"));
-  symbols.push_back(newEditToolInfo("Snï¿½blandad by",43,"green4"));
-  symbols.push_back(newEditToolInfo("Snï¿½by",1043,"green4","green4",3));
-  symbols.push_back(newEditToolInfo("Kornsnï¿½",44,"red"));
-  symbols.push_back(newEditToolInfo("Snï¿½drev",46,"black"));
-  symbols.push_back(newEditToolInfo("Hagelbyar",118,"green4"));
-  symbols.push_back(newEditToolInfo("Mountain waves",130,"black"));
   symbols.push_back(newEditToolInfo("Duggregn",79,"green4"));
-  symbols.push_back(newEditToolInfo("Underkylt duggregn",83,"red"));
+  symbols.push_back(newEditToolInfo( "Snö",254,"green4"));
+  //symbols.push_back(newEditToolInfo( "Regnskurar",1044,"green4","green4",4));
+  symbols.push_back(newEditToolInfo( "Regnskurar",109,"green4"));
+  symbols.push_back(newEditToolInfo( "Åska",119,"red"));
+  symbols.push_back(newEditToolInfo( "Åska med hagel",122,"red"));
+  //symbols.push_back(newEditToolInfo("Torrdis",88,"black"));
+  //symbols.push_back(newEditToolInfo("Rök",42,"black"));
+  //symbols.push_back(newEditToolInfo("Snöblandad regn",78,"green4"));
+  symbols.push_back(newEditToolInfo( "Snöblandad by",43,"green4"));
+  symbols.push_back(newEditToolInfo( "Snöby",114,"green4","green4",4));
+  //symbols.push_back(newEditToolInfo( "Snöby",1043,"green4","green4",3));
+  symbols.push_back(newEditToolInfo( "Underkylt duggregn",83,"red"));
   symbols.push_back(newEditToolInfo( "Underkylt regn",93,"red"));
-  symbols.push_back(newEditToolInfo( "Showers",109,"green4"));
-  symbols.push_back(newEditToolInfo( "Snow",254,"green4"));
-  symbols.push_back(newEditToolInfo( "Dimma",1041,"gulbrun"));
+  symbols.push_back(newEditToolInfo( "Hagelbyar",118,"green4"));
+  symbols.push_back(newEditToolInfo( "Kornsnö",44,"red"));
+  symbols.push_back(newEditToolInfo( "Snödrev",46,"black"));
+  //symbols.push_back(newEditToolInfo("Mountain waves",130,"black"));
+  //symbols.push_back(newEditToolInfo( "Dimma",1041,"gulbrun"));
+  symbols.push_back(newEditToolInfo( "Dimma",62,"gulbrun"));
+  //symbols.push_back(newEditToolInfo( "Lågtryck",1019,"black","black",1));
+  symbols.push_back(newEditToolInfo( "Lågtryck",242,"black","black",1));
+  //symbols.push_back(newEditToolInfo( "Högtryck",1020,"black","black",1));
+  symbols.push_back(newEditToolInfo( "Högtryck",243,"black","black",1));
   symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
-  symbols.push_back(newEditToolInfo( "Lï¿½gtryck",1019,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Hï¿½gtryck",1020,"black","black",1));
 #else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
@@ -2953,13 +2960,10 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo("Text",0,"black"));
 
 #ifdef SMHI
-  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
-  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
-  areas.push_back(newEditToolInfo("Showers",Genericarea,"green2"));
-  areas.push_back(newEditToolInfo("Dis",Genericarea,"red","red",0,false));
-  areas.push_back(newEditToolInfo("Dimma",Genericarea,"red","red",0,false));
-  areas.push_back(newEditToolInfo("Regnomrï¿½de",Genericarea,"white"));
-  sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-3));
+  areas.push_back(newEditToolInfo("Dis",Genericarea_constline,"red"));
+  areas.push_back(newEditToolInfo("Dimma",Genericarea_constline,"red"));
+  areas.push_back(newEditToolInfo("Regnområde",Genericarea_constline,"green4"));
+  sigsymbols.push_back(newEditToolInfo("Sig18",247,"black","black",-1));
 #else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4"));
   areas.push_back(newEditToolInfo("Showers",Genericarea,"green3","green3",0,true,"dash2"));
@@ -2986,6 +2990,7 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
 #endif
   //arrow
+
   //sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
   sigsymbols.push_back(newEditToolInfo("Tekst_1",1000,"black"));
   //Low
@@ -3044,21 +3049,47 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Clouds",1040,"black"));
   //Fog
   sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun","black",1));
+
 #ifdef SMHI
+  //High
+  sigsymbols.push_back(newEditToolInfo("Sig20",243,"black","black",1));
+  //Low
+  sigsymbols.push_back(newEditToolInfo("Sig19",242,"black","black",1));
+  //BR
+  //sigsymbols.push_back(newEditToolInfo("Sig_br",1037,"gulbrun","gulbrun",2));
+  sigsymbols.push_back(newEditToolInfo("Sig_br",39,"gulbrun","gulbrun",2));
+  //sigsymbols.push_back(newEditToolInfo("Sig38",1038,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig38",106,"black"));
+  sigsymbols.push_back(newEditToolInfo("Sig39",1039,"red","black",1));
+  sigsymbols.push_back(newEditToolInfo("Clouds",1040,"black"));
+  //Fog
+  //sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun","gulbrun",2));
+  sigsymbols.push_back(newEditToolInfo("Sig_fg",62,"gulbrun","gulbrun",2));
   //precipitation, green lines
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green4"));
   //snow
-  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green4"));
+//ari  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green4"));
+  sigsymbols.push_back(newEditToolInfo( "Snow",254,"green4"));
   //snow showers
-  sigsymbols.push_back(newEditToolInfo( "Snow_showers",1043,"green4","green4",2));
+  //sigsymbols.push_back(newEditToolInfo( "Snow_showers",1043,"green4","green4",4));
+  sigsymbols.push_back(newEditToolInfo( "Snow_showers",114,"green4","green4",4));
+  // Freezing fog
+  sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
   //showers
-  sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green4","green4",2));
+  //sigsymbols.push_back(newEditToolInfo( "Rainshower",1044,"green4","green4",4));
+  sigsymbols.push_back(newEditToolInfo( "Rainshower",109,"green4","green4",4));
   sigsymbols.push_back(newEditToolInfo("Snow_rain",78,"green4","green4",2));
   sigsymbols.push_back(newEditToolInfo("Snow_rain_showers",43,"green4","green4",2));
   sigsymbols.push_back(newEditToolInfo("Drizzle",79,"green4","green4",2));
   sigsymbols.push_back(newEditToolInfo("Freezing_drizzle",83,"red","red",2));
   sigsymbols.push_back(newEditToolInfo("Corn_snow",44,"red","red",2));
   sigsymbols.push_back(newEditToolInfo("Hails",118,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo( "Thunderstorm",119,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo( "Thunderstorm_hail",122,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo("Drifting_snow",46,"black"));
+  sigsymbols.push_back(newEditToolInfo("Haze",88,"black"));
+  sigsymbols.push_back(newEditToolInfo("Smoke",42,"black"));
+  sigsymbols.push_back(newEditToolInfo( "FZRA",93,"red"));
 #else
   //precipitation, green lines
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green","black",1));
@@ -3071,7 +3102,6 @@ void EditManager::initEditTools(){
 #endif
   //Freezing precip
   sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red","black",1));
-
 
 
 
@@ -3110,7 +3140,7 @@ void EditManager::setMapmodeinfo(){
       objectModes[emidx++]=front_drawing;
       dMode.push_back(newEditModeInfo("Symboler",symbols));
       objectModes[emidx++]=symbol_drawing;
-      dMode.push_back(newEditModeInfo("Omrï¿½de",areas));
+      dMode.push_back(newEditModeInfo("Område",areas));
       objectModes[emidx++]=area_drawing;
     }
     if (EdProd.drawtools[i]==OBJECTS_SIGMAPS){

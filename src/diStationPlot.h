@@ -77,7 +77,6 @@ struct Station {
   miutil::miString name;
   float lat;
   float lon;
-  float altitude;
   miutil::miString image;
   miutil::miString image2;
   bool isVisible;
@@ -87,11 +86,18 @@ struct Station {
   int alpha;
   float scale;
   Colour colour;
+  int height; /**< station height */
+  int barHeight; /**< barometer height */
+  miutil::miString id; /**< WMO or climate number */
   vector <stationText> vsText;
   miutil::miString url;
   Status status;
   Type type;
   miutil::miTime time;
+
+  Station() {
+    scale = 1; alpha=255;
+  }
 };
 
 class StationArea {
@@ -173,6 +179,8 @@ public:
   void getStationPlotAnnotation(miutil::miString &str,Colour &col);
   /// set annotation
   void setStationPlotAnnotation(miutil::miString &str);
+  /// set UseImage
+  void setUseImage(bool _useImage) { useImage = _useImage;}
   /// set name/plotname
   void setName(miutil::miString nm);
   /// return name

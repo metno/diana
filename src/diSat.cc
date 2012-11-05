@@ -266,7 +266,6 @@ void Sat::setDefaultValues(const SatDialogInfo & Dialog)
  */
 void Sat::values(int x, int y, vector<SatValues>& satval)
 {
-
   if (x>=0 && x<nx && y>=0 && y<ny && approved) { // inside image/legal image
     int index = nx*(ny-y-1) + x;
 
@@ -430,6 +429,16 @@ void Sat::setCalibration()
       calibrationTable[1]=ct;
     cal_channels.push_back(ct.channel);
   }
+  else if (plotChannels == "IR") {
+      table_cal ct;
+      ct.channel = start + "Infrared (" + plotChannels + "):";
+      ct.a= AIr;
+      ct.b= BIr -273.0;
+      // Set in map 1, 0 is the image
+      calibrationTable[1]=ct;
+      cal_channels.push_back(ct.channel);
+
+    }
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setCalibration -- vch.size(): " << vch.size() << endl;
@@ -470,7 +479,7 @@ void Sat::setCalibration()
       calibrationTable[j]=ct;
       cal_channels.push_back(ct.channel);
     } else if (vis) {
-      ct.channel = start + "Visual (" + vch[j] + "):";;
+      ct.channel = start + "Visual (" + vch[j] + "):";
       ct.a= AVis;
       ct.b= BVis;
 

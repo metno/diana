@@ -33,10 +33,11 @@
 
 #include <robs/pilot.h>
 #include <puTools/miTime.h>
+#include <diVprofPlot.h>
 
 using namespace std;
 
-class VprofPlot;
+//friend class VprofPlot;
 
 /**
 

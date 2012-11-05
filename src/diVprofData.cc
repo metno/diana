@@ -82,20 +82,62 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   vector<station> stations;
   miString miLine;
   while (fgets(line, 1024, stationfile) != NULL) {
-    miLine = miString(line);
-    stationVector = miLine.split(",", false);
-    if (stationVector.size() == 7) {
-      station st;
-      st.id = stationVector[0];
-      st.name = stationVector[1];
-      st.lat = stationVector[2].toFloat();
-      st.lon = stationVector[3].toFloat();
-      st.height = stationVector[4].toInt(-1);
-      st.barHeight = stationVector[5].toInt(-1);
-      stations.push_back(st);
-    } else {
-      cerr << "Something is wrong with: " << miLine << endl;
-    }
+	  miLine = miString(line);
+	  // just skip the first line if present.
+	  if (miLine.contains("obssource"))
+		  continue;
+	  if (miLine.contains(";"))
+	  {
+		  // the new format
+		  stationVector = miLine.split(";", false);
+		  if (stationVector.size() == 7) {
+			  station st;
+			  char stid[10];
+			  int wmo_block = stationVector[0].toInt()*1000;
+			  int wmo_number = stationVector[1].toInt();
+			  int wmo_id = wmo_block + wmo_number;
+			  sprintf(stid, "%05d", wmo_id);
+			  st.id = stid;
+			  st.name = stationVector[2];
+			  st.lat = stationVector[3].toFloat();
+			  st.lon = stationVector[4].toFloat();
+			  st.height = stationVector[5].toInt(-1);
+			  st.barHeight = stationVector[6].toInt(-1);
+			  stations.push_back(st);
+		  } else {
+			  if (stationVector.size() == 6)
+			  {
+				  station st;
+				  st.id = stationVector[0];
+				  st.name = stationVector[1];
+				  st.lat = stationVector[2].toFloat();
+				  st.lon = stationVector[3].toFloat();
+				  st.height = stationVector[4].toInt(-1);
+				  st.barHeight = stationVector[5].toInt(-1);
+				  stations.push_back(st);
+			  }
+			  else {
+				  cerr << "Something is wrong with: " << miLine << endl;
+			  }
+		  }
+	  }
+	  else
+	  {
+		  // the old format
+		  stationVector = miLine.split(",", false);
+		  if (stationVector.size() == 7) {
+			  station st;
+			  st.id = stationVector[0];
+			  st.name = stationVector[1];
+			  st.lat = stationVector[2].toFloat();
+			  st.lon = stationVector[3].toFloat();
+			  st.height = stationVector[4].toInt(-1);
+			  st.barHeight = stationVector[5].toInt(-1);
+			  stations.push_back(st);
+		  } else {
+			  cerr << "Something is wrong with: " << miLine << endl;
+		  }
+	  }
   }
   for (size_t i = 0; i < stations.size(); i++) {
     posName.push_back(stations[i].name);
@@ -326,10 +368,14 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
   << "  " << modelName << endl;
 #endif
 
+  
+  
   VprofPlot *vp= 0;
 
   int iPos=0;
-  while (iPos<numPos && posName[iPos]!=name) iPos++;
+  // NOTE: It is safer to use the wmo number as 'name'
+  //while (iPos<numPos && posName[iPos]!=name) iPos++;
+  while (iPos<numPos && obsName[iPos]!=name) iPos++;
 
   int iTime=0;
   while (iTime<numTime && validTime[iTime]!=time) iTime++;

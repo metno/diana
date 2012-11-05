@@ -36,9 +36,9 @@
 #include "config.h"
 #endif
 
-#include <diPlotOptions.h>
-#include <diColourShading.h>
-#include <diPattern.h>
+#include "diPlotOptions.h"
+#include "diColourShading.h"
+#include "diPattern.h"
 #include <diField/diField.h>
 
 //#define DEBUGPRINT 
@@ -455,13 +455,9 @@ bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
         else result=false;
 
       } else if (key==key_linewidths){
-        stokens= value.split(',');
-        m= stokens.size();
-        for (j=0; j<m; j++){
-          if (stokens[j].isInt()){
-            po.linewidths.push_back(atoi(stokens[j].cStr()));
-          }
-        }
+        po.linewidths.clear();
+        po.linewidths= po.intVector(value);
+        if (po.linewidths.size()==0) result= false;
 
       } else if (key==key_patterns){
         if(value!="off") {
@@ -1112,6 +1108,4 @@ bool PlotOptions::getFieldPlotOptions(const miString& name, PlotOptions& po)
   }
   return true;
 
-};
-
-
+}

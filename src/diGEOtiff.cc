@@ -146,7 +146,6 @@ bool GEOtiff::readGEOtiff(const miutil::miString& filename, Sat& sd, int index)
   sd.cal_vis = ginfo.cal_vis;
   sd.cal_ir = ginfo.cal_ir;
   sd.cal_table = ginfo.cal_table;
-  sd.cut = -1;
 
   return true;
 }
