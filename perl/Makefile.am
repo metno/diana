@@ -119,7 +119,7 @@ PERLDEPEND    = Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana.pm
 PERLCONFIG    =   PREFIX="$(prefix)" \
 				  INSTALLDIRS=vendor \
 				  INC="-Wall -I. -I$(top_srcdir)/../src" \
-				  LIBS="-L$(top_srcdir)/../src/ $(common_ldflags) $(common_ldadd)"
+				  LIBS="-L$(top_srcdir)/../src/ $(common_ldflags) $(common_ldadd) -lboost_thread"
 
 #if DEBUG
 #PERLCONFIG    += OPTIMIZE=-g
