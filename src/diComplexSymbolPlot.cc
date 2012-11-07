@@ -1203,7 +1203,6 @@ void ComplexSymbolPlot::drawCircle(int index,
   glLineWidth(2);
   glBegin(GL_LINE_LOOP);
   glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
-  glBegin(GL_POLYGON);
     for(int i=0;i<50;i++){
       yc = sw/2+radius*sin(i*2*PI/100.0);
       xc = radius*cos(i*2*PI/100.0);
@@ -1248,7 +1247,6 @@ void ComplexSymbolPlot::drawDiamond(int index,float x, float y){
   glLineWidth(2);
   glBegin(GL_LINE_LOOP);
   glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
-  glBegin(GL_POLYGON);
     glVertex2f(0,y-sh);
     glVertex2f(x-sw,0);
     glVertex2f(0,y+sh);
