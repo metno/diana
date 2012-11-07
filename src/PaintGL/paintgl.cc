@@ -1042,8 +1042,19 @@ bool glText::defineFonts(const std::string pattern, const std::string family, co
     return true;
 }
 
-bool glText::defineFont(const std::string, const std::string, const glText::FontFace, const int, const std::string, const float, const float)
+bool glText::defineFont(const std::string font, const std::string fontfilename, const glText::FontFace, const int, const std::string, const float, const float)
 {
+    int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
+    if (handle == -1)
+        return false;
+
+    QStringList families = QFontDatabase::applicationFontFamilies(handle);
+    if (families.isEmpty())
+        return false;
+
+    foreach (QString family, families)
+        fontMap[QString::fromStdString(font)] = family;
+
     return true;
 }
 
@@ -1061,7 +1072,7 @@ bool glText::setFont(const std::string name)
 {
     ENSURE_CTX_BOOL
 
-    ctx->font.setFamily(QString::fromStdString(name));
+    ctx->font.setFamily(fontMap[QString::fromStdString(name)]);
     return true;
 }
 
@@ -1091,8 +1102,8 @@ bool glText::drawChar(const int c, const float x, const float y,
 
     QPointF sp = ctx->transform * QPointF(x, y);
 
-    ctx->painter->setFont(ctx->font);
     ctx->painter->save();
+    ctx->painter->setFont(ctx->font);
     // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(sp);
@@ -1110,8 +1121,8 @@ bool glText::drawStr(const char* s, const float x, const float y,
 
     QPointF sp = ctx->transform * QPointF(x, y);
 
-    ctx->painter->setFont(ctx->font);
     ctx->painter->save();
+    ctx->painter->setFont(ctx->font);
     // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(sp);

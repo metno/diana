@@ -294,6 +294,7 @@ private:
   int Sizes[glText::MAXFONTSIZES];
   int numFonts; // number of defined fonts
   int numSizes; // number of defined fontsizes
+  QHash<QString,QString> fontMap;
 
   int FontIndex; // current font index
   glText::FontFace Face; // current font face
