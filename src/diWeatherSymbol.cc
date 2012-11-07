@@ -661,9 +661,3 @@ void WeatherSymbol::replaceText(miString & tempString,bool writestring){
     tempString.replace("{slash}","/");
   }
 }
-
-
-
-
-
-

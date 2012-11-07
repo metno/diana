@@ -1325,12 +1325,3 @@ int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast
 
   return ns;
 }
-
-
-
-
-
-
-
-
-
