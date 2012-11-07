@@ -2113,12 +2113,14 @@ static int parseAndProcess(istream &is)
           }
 
           QPrinter printer;
+          printer.setOutputFormat(QPrinter::PdfFormat);
           printer.setOutputFileName(QString::fromStdString(priop.fname));
           printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
           printer.setFullPage(true);
           painter.begin(&printer);
           painter.drawPicture(ox, oy, picture);
           painter.end();
+
       } else if (json) {
 
         ensureNewContext();
@@ -2503,7 +2505,6 @@ static int parseAndProcess(istream &is)
             miutil::miString modelName = (*it)->getModelName();
             std::vector<std::string> fileNames = fieldManager->getFileNames(modelName);
             fieldPatterns.insert(fileNames.begin(), fileNames.end());
-
           }
 
           map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
