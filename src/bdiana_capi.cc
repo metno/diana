@@ -1918,9 +1918,8 @@ static int parseAndProcess(istream &is)
       }
 
 #ifdef VIDEO_EXPORT
-      if (!raster || !raster_type == image_avi) {
+      if (movieMaker)
         endVideo();
-      }
 #endif
 
       if (raster) {
