@@ -1073,6 +1073,7 @@ bool glText::setFont(const std::string name)
     ENSURE_CTX_BOOL
 
     ctx->font.setFamily(fontMap[QString::fromStdString(name)]);
+    ctx->font.setStyleStrategy(QFont::NoFontMerging);
     return true;
 }
 
@@ -1082,8 +1083,9 @@ bool glText::setFontFace(const glText::FontFace face)
 
     if (face & 1)
         ctx->font.setWeight(QFont::Bold);
-    if (face & 2)
-        ctx->font.setItalic(true);
+    else
+        ctx->font.setWeight(QFont::Normal);
+    ctx->font.setItalic((face & 2) != 0);
     return true;
 }
 
@@ -1162,7 +1164,7 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     QFontMetricsF fm(ctx->font);
     QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
     w = rect.width();
-    h = rect.height();
+    h = rect.height() * 0.8;
     return true;
 }
 
