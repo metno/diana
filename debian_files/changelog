@@ -1,3 +1,15 @@
+diana (3.30.0~rc2-1) unstable; urgency=low
+
+  * using fimex 0.40
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 11:48:42 +0100
+
+diana (3.30.0~rc1-1) unstable; urgency=low
+
+  * merge from smhi
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 09:37:43 +0100
+
 diana (3.29.2-4) unstable; urgency=low
 
   * made diana@METNO_SUFFIX@-common transition to diana-desktop
