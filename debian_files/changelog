@@ -1,3 +1,9 @@
+diana (3.29.2-4) unstable; urgency=low
+
+  * made diana@METNO_SUFFIX@-common transition to diana-desktop
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 08 Nov 2012 08:49:00 +0200
+
 diana (3.29.2-3) unstable; urgency=low
 
   * removed LANG=en_US from diana script

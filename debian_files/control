@@ -12,7 +12,7 @@ Standards-Version: 3.7.2
 
 Package: diana-@METNO_VERSION@
 Architecture: any
-Depends: diana@METNO_SUFFIX@-common, diana-@METNO_VERSION@-common,
+Depends: diana-@METNO_VERSION@-common,
  ${shlibs:Depends}, ${misc:Depends}
 Provides: diana@METNO_SUFFIX@
 Description: Meteorological visualisation tool
@@ -39,11 +39,9 @@ Description: Meteorological visualisation tool
 
 Package: diana@METNO_SUFFIX@-common
 Architecture: all
-Depends: diana@METNO_SUFFIX@, ${misc:Depends}
-Conflicts: diana@METNO_SUFFIX@ (<< 3.28.1)
-Description: common files for all versioned diana@METNO_SUFFIX@ packages
- This package contains files shared between all versioned
- diana-X.Y@METNO_SUFFIX@ packages.
+Depends: diana-desktop
+Description: transitional package for diana-desktop
+ This package should not be installed.
 
 Package: diana-@METNO_VERSION@-common
 Architecture: all
