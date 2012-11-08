@@ -1,4 +1,0 @@
-#!/bin/sh
-
-set -e
-exec update-alternatives --remove bdiana /usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@
