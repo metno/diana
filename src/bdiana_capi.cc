@@ -1401,7 +1401,8 @@ void createJsonAnnotation()
 
 static void ensureNewContext()
 {
-  plotAnnotationsOnly = false;
+  if (!json)
+    plotAnnotationsOnly = false;
 
   if (context.isPainting())
     context.end();
