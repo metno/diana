@@ -1672,7 +1672,7 @@ static int parseAndProcess(istream &is)
         {
           if (shape)
             main_controller->plot(true, false);
-          else
+          else if (!json)
             main_controller->plot(true, true);
         }
 
