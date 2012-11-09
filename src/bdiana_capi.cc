@@ -1401,9 +1401,6 @@ void createJsonAnnotation()
 
 static void ensureNewContext()
 {
-  if (!json)
-    plotAnnotationsOnly = false;
-
   if (context.isPainting())
     context.end();
   if (painter.isActive())
@@ -1669,8 +1666,6 @@ static int parseAndProcess(istream &is)
           if (raster) {
             annotationRectangles = main_controller->plotAnnotations();
             annotationTransform = context.transform;
-          } else if (json) {
-            createJsonAnnotation();
           }
         } else
 #endif
@@ -1680,6 +1675,10 @@ static int parseAndProcess(istream &is)
           else
             main_controller->plot(true, true);
         }
+
+        // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
+        if (json)
+          createJsonAnnotation();
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
