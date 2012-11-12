@@ -1,3 +1,15 @@
+bdiana (3.30.0~rc2-2) unstable; urgency=low
+
+  * Ensured that JSON legends are generated.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 12 Nov 2012 13:48:19 +0100
+
+bdiana (3.30.0~rc2-1) unstable; urgency=low
+
+  * Updated the package to match the new Diana release.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 08 Nov 2012 12:41:09 +0100
+
 bdiana (3.29.2-4) unstable; urgency=low
 
   * Updated package information to include Recommends and Replaces fields.
