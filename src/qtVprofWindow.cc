@@ -233,6 +233,7 @@ void VprofWindow::rightStationClicked(){
 
 void VprofWindow::leftTimeClicked(){
   //called when the left time button is clicked
+  vprofm->setTime(-1);
   timeChangedSlot(-1);
   vprofw->updateGL();
 }
@@ -241,6 +242,7 @@ void VprofWindow::leftTimeClicked(){
 
 void VprofWindow::rightTimeClicked(){
   //called when the right Station button is clicked
+  vprofm->setTime(+1);
   timeChangedSlot(+1);
   vprofw->updateGL();
 }
