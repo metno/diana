@@ -557,10 +557,11 @@ FIELD HIRLAM.20KM.00 MSLP colour=blue linetype=solid linewidth=1
 	<tr><td>line width<td>linewidth=1<td><i>number</i></td></tr>
 	<tr><td>line interval</td><td>line.interval=1</td><td><br></td></tr>
 	<tr><td>density of wind/vectors</td><td>density=0</td><td>1:
-	all arrows are plotted <br>0 or
-	auto: density automaticlly adjusts to fit the zoom level<br>
-	Auto(2):  density automaticlly adjusts to fit the zoom level,
-	but more arrows are plotted</td></tr>
+	all arrows are plotted <br>
+        0 or auto: density automaticlly adjusts to fit the zoom level<br>
+	Auto(2):  density automaticlly adjusts to fit the zoom level, but more arrows are plotted <br>
+        -1: auto, but all gridpoints are used to find best density, not only current rectangle. Ensures that all tiles have same density.
+        </td></tr>
 	<tr><td>density of
 	wind/vectors</td><td>density.factor=1</td><td>density.factor=2
 	is equivalent to density=Auto(2)</td></tr>

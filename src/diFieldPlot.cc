@@ -444,7 +444,7 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
       //       }
 
       miString str  = "arrow=" + miString (vectorAnnotationSize)
-                                              + ",tcolour=" + poptions.linecolour.Name() + endString;
+                                                      + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
           + ",tcolour=" + poptions.linecolour.Name() + endString ;
@@ -625,10 +625,17 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotat
 void FieldPlot::setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
     int maxElementsX, int& step, float& dist)
 {
-
   int i,ix,iy;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
+
+  // Use all grid point to make average step, not only current rectangle.
+  // This ensures that different tiles have the same vector density
+  if ( poptions.density == -1) {
+    ix1 = iy1 = 0;
+    ix2 = nx;
+    ix2 = ny;
+  }
 
   if (nx<3 || ny<3) {
     step= 1;
@@ -1304,7 +1311,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
 
   //Wind arrows are adjusted to lat=10 and Lon=10 if
   //poptions.density!=auto and proj=geographic
-  bool adjustToLatLon = poptions.density
+  bool adjustToLatLon = poptions.density > 0
       && fields[0]->area.P().isGeographic()
       && step > 0;
   if(adjustToLatLon) iy1 = (iy1/step)*step;
@@ -4021,9 +4028,9 @@ bool FieldPlot::plotNumbers(){
   UpdateOutput();
 
 #ifdef DEBUGPRINT
-cerr << "++ Returning from FieldPlot::plotNumbers() ++" << endl;
+  cerr << "++ Returning from FieldPlot::plotNumbers() ++" << endl;
 #endif
-return true;
+  return true;
 }
 
 
