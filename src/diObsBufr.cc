@@ -1083,7 +1083,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   int hour = 0;
   int minute = 0;
   miString station;
-  bool wmoNumber = true;
+  bool wmoNumber = false;
   int nn = 0; //what is nn used for??
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
