@@ -1,3 +1,15 @@
+bdiana (3.30.0-2) unstable; urgency=low
+
+  * Fixed code introduced in 3.30.0~rc2-2 that broke the Diana build.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 14 Nov 2012 12:24:38 +0100
+
+bdiana (3.30.0-1) unstable; urgency=low
+
+  * Regenerated package with a new version number.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 14 Nov 2012 11:05:43 +0100
+
 bdiana (3.30.0~rc2-2) unstable; urgency=low
 
   * Ensured that JSON legends are generated.
