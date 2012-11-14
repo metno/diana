@@ -1676,9 +1676,11 @@ static int parseAndProcess(istream &is)
             main_controller->plot(true, true);
         }
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
         if (json)
           createJsonAnnotation();
+#endif
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
