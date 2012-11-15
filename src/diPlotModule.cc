@@ -1042,7 +1042,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   obsm->updateObsPositions(vop);
 
   // prepare met-objects
-  if ( !objm->prepareObjects(t, splot.getMapArea(), objects) ) {
+  if ( objects.defined && !objm->prepareObjects(t, splot.getMapArea(), objects) ) {
     if ( failOnMissingData ) {
       return false;
     }
