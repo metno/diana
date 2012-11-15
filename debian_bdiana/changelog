@@ -1,3 +1,12 @@
+bdiana (3.30.0-3) unstable; urgency=low
+
+  * Fixed failonmissingdata handling in the case where no object plots
+    were defined.
+  * Updated the package description to depend on diana-3.30-common
+    instead of only recommending it.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 15 Nov 2012 12:18:13 +0100
+
 bdiana (3.30.0-2) unstable; urgency=low
 
   * Fixed code introduced in 3.30.0~rc2-2 that broke the Diana build.

@@ -15,11 +15,10 @@ Standards-Version: 3.9.2
 
 Package: bdiana-@PVERSION_MAJOR_DOT_MINOR@
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, diana-@PVERSION_MAJOR_DOT_MINOR@-common
 Conflicts: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
 Replaces: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
-Recommends: dianamaps, dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, diana-@PVERSION_MAJOR_DOT_MINOR@-common,
- metno-bufrtables
+Recommends: dianamaps, dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, metno-bufrtables
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL 
@@ -32,7 +31,8 @@ Description: Meteorological visualisation tool
 Package: libmetno-bdiana-perl
 Architecture: any
 Section: perl
-Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends},
+ diana-@PVERSION_MAJOR_DOT_MINOR@-common
 Description: Meteorological visualisation tool, perl binding
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL
