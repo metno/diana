@@ -1680,8 +1680,8 @@ static int parseAndProcess(istream &is)
         // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
         if (json)
           createJsonAnnotation();
-#endif
         plotAnnotationsOnly = false;
+#endif
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
