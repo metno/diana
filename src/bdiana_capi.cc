@@ -262,6 +262,8 @@ PaintGLContext context;
 QPicture picture;
 QImage image;
 map<miString, map<miString,miString> > outputTextMaps; // output text for cases where output data is XML/JSON
+vector<miString> outputTextMapOrder;                   // order of legends in output text
+
 int xsize; // total pixmap width
 int ysize; // total pixmap height
 bool multiple_plots = false; // multiple plots per page
@@ -1325,6 +1327,8 @@ void createJsonAnnotation()
           legend = legend.substr(at, end - at);
 
           map<miString,miString> textMap;
+          vector<miString> textMapOrder;
+          
           miString title;
           vector<miString> colors;
           vector<miString> labels;
@@ -1391,8 +1395,10 @@ void createJsonAnnotation()
           value.join(labels, ", ");
           textMap["labels"] = "[" + value + "]";
 
-          if (!title.empty())
+          if (!title.empty()) {
             outputTextMaps[title] = textMap;
+            outputTextMapOrder.push_back(title);
+          }
         }
       }
     }
@@ -2131,11 +2137,11 @@ static int parseAndProcess(istream &is)
         if (outputFile.open(QFile::WriteOnly)) {
           outputFile.write("{\n");
           unsigned int i = 0;
-          for (map<miString, map<miString,miString> >::iterator iti = outputTextMaps.begin(); iti != outputTextMaps.end(); ++iti, ++i) {
+          for (vector<miString>::iterator iti = outputTextMapOrder.begin(); iti != outputTextMapOrder.end(); ++iti, ++i) {
             outputFile.write("  \"");
-            outputFile.write(QString::fromStdString(iti->first).toUtf8());
+            outputFile.write(QString::fromStdString(*iti).toUtf8());
             outputFile.write("\": {\n");
-            map<miString,miString> textMap = iti->second;
+            map<miString,miString> textMap = outputTextMaps[*iti];
             unsigned int j = 0;
             for (map<miString,miString>::iterator itj = textMap.begin(); itj != textMap.end(); ++itj, ++j) {
               outputFile.write("    \"");
@@ -2870,6 +2876,7 @@ static int parseAndProcess(istream &is)
         else {
             json = true;
             outputTextMaps.clear();
+            outputTextMapOrder.clear();
         }
 
         picture = QPicture();
