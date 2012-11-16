@@ -2815,8 +2815,10 @@ static int parseAndProcess(istream &is)
       raster = false;
       shape = false;
       json = false;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       svg = false;
       pdf = false;
+#endif
       if (value == "postscript") {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
