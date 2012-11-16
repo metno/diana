@@ -1,8 +1,9 @@
 bdiana (3.30.0-4) unstable; urgency=low
 
-  * Enabled automatic enabling of full plots again for raster images.
+  * Ensured that the output format and annotations flag are reset for
+    each new plot.
 
- -- David Boddie <david.boddie@met.no>  Fri, 16 Nov 2012 12:19:17 +0100
+ -- David Boddie <david.boddie@met.no>  Fri, 16 Nov 2012 13:13:36 +0100
 
 bdiana (3.30.0-3) unstable; urgency=low
 

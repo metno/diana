@@ -1401,9 +1401,6 @@ void createJsonAnnotation()
 
 static void ensureNewContext()
 {
-  if (!json)
-    plotAnnotationsOnly = false;
-
   if (context.isPainting())
     context.end();
   if (painter.isActive())
@@ -1684,6 +1681,7 @@ static int parseAndProcess(istream &is)
         if (json)
           createJsonAnnotation();
 #endif
+        plotAnnotationsOnly = false;
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
@@ -2814,6 +2812,11 @@ static int parseAndProcess(istream &is)
 
     } else if (key == com_output) {
       value = value.downcase();
+      raster = false;
+      shape = false;
+      json = false;
+      svg = false;
+      pdf = false;
       if (value == "postscript") {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
