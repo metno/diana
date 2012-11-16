@@ -622,19 +622,22 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotat
 }
 
 
-void FieldPlot::setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
+void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1, int iy2,
     int maxElementsX, int& step, float& dist)
 {
   int i,ix,iy;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
+  int ix1 = ixx1;
+  int iy1 = iyy1;
 
   // Use all grid point to make average step, not only current rectangle.
   // This ensures that different tiles have the same vector density
   if ( poptions.density == -1) {
-    ix1 = iy1 = 0;
-    ix2 = nx;
-    ix2 = ny;
+    ix1 = nx/4;
+    iy1 = ny/4;
+    ix2 = nx-nx/4;
+    iy2 = ny-ny/4;
   }
 
   if (nx<3 || ny<3) {
@@ -691,8 +694,8 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int
   if (step<1) step=1;
 
   //adjust ix1,iy1 to make sure that same grid points are used when panning
-  ix1 = int(ix1/step)*step;
-  iy1 = int(iy1/step)*step;
+  ixx1 = int(ixx1/step)*step;
+  iyy1 = int(iyy1/step)*step;
 
 }
 
