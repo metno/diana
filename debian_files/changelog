@@ -1,3 +1,9 @@
+diana (3.30.0~rc2-2) unstable; urgency=low
+
+  * diana-metno depends on bdiana, not diana-headless 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 14:23:44 +0100
+
 diana (3.30.0~rc2-1) unstable; urgency=low
 
   * using fimex 0.40
