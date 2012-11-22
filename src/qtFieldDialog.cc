@@ -161,7 +161,10 @@ QDialog(parent)
   for (i = 1; i < 10; i++) {
     densityStringList << qs.setNum(i);
   }
-  for (i = 10; i < 60; i += 10) {
+  for (i = 10; i < 30; i += 5) {
+    densityStringList << qs.setNum(i);
+  }
+  for (i = 30; i < 60; i += 10) {
     densityStringList << qs.setNum(i);
   }
   densityStringList << qs.setNum(100);
@@ -173,6 +176,7 @@ QDialog(parent)
   densityStringList <<  "auto(2)";
   densityStringList <<  "auto(3)";
   densityStringList <<  "auto(4)";
+  densityStringList <<  "-1";
 
   //----------------------------------------------------------------
   cp = new CommandParser();
