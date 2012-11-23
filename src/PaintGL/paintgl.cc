@@ -572,6 +572,9 @@ void glDisable(GLenum cap)
     case GL_LINE_STIPPLE:
         ctx->attributes.stipple = false;
         break;
+    case GL_MULTISAMPLE:
+        ctx->painter->setRenderHint(QPainter::Antialiasing, false);
+        break;
     default:
         break;
     }
@@ -628,6 +631,9 @@ void glEnable(GLenum cap)
         break;
     case GL_LINE_STIPPLE:
         ctx->attributes.stipple = true;
+        break;
+    case GL_MULTISAMPLE:
+        ctx->painter->setRenderHint(QPainter::Antialiasing, true);
         break;
     default:
         break;
