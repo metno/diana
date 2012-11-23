@@ -2007,6 +2007,12 @@ static int parseAndProcess(istream &is)
             image = image.copy(-ox, -oy, xsize, ysize);
           }
 
+          // Add the input file text as meta-data in the image.
+          for (unsigned int i = 0; i < lines.size(); ++i)
+            image.setText(QString::number(i), QString::fromStdString(lines[i]));
+
+          image.save(QString::fromStdString(priop.fname));
+
           milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
 
           bool empty = true;
@@ -2025,15 +2031,12 @@ static int parseAndProcess(istream &is)
           if (empty)
             COMMON_LOG::getInstance("common").infoStream() << "# vvv Empty plot (begin)";
 
-          QStringList imageText;
-          for (unsigned int i = 0; i < lines.size(); ++i) {
-            image.setText(QString::number(i), QString::fromStdString(lines[i]));
+          // Write the input file text to the log.
+          for (unsigned int i = 0; i < lines.size(); ++i)
             COMMON_LOG::getInstance("common").infoStream() << lines[i];
-          }
 
           if (empty)
             COMMON_LOG::getInstance("common").infoStream() << "# ^^^ Empty plot (end)";
-          image.save(QString::fromStdString(priop.fname));
         }
 #endif
         else {
