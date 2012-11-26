@@ -184,6 +184,7 @@ public:
   miutil::miString  shapefilename;
   miutil::miString unit;
   bool      tableHeader; // whether each table is drawn with a header
+  bool      antialiasing;
 
   // Constructor
   PlotOptions();

@@ -490,6 +490,11 @@ bool FieldPlot::plot(){
     if (poptions.colours[i]==backgroundColour)
       poptions.colours[i]= backContrastColour;
 
+  if (poptions.antialiasing)
+      glEnable(GL_MULTISAMPLE);
+  else
+      glDisable(GL_MULTISAMPLE);
+
   // should be below all real fields
   if (poptions.gridLines>0) plotGridLines();
   if (poptions.gridValue>0) plotNumbers();

@@ -1,6 +1,3 @@
-
-
-
 /*
   Diana - A Free Meteorological Visualisation Tool
 
@@ -66,7 +63,8 @@ PlotOptions::PlotOptions():
   polystyle(poly_fill), arrowstyle(arrow_wind), h_align(align_left), v_align(align_bottom),
   alignX(0), alignY(0),
   fontname("SCALEFONT"), fontface("NORMAL"), fontsize(10.0), precision(0),
-  dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true)
+  dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
+  antialiasing(false)
 {
 
   limits.clear();
@@ -301,6 +299,8 @@ bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
   const miString key_shapefilename="shapefilename";
   //unit
   const miString key_unit="unit";
+  //anti-aliasing
+  const miString key_antialiasing="antialiasing";
 
   //------------------------------------------
 
@@ -812,6 +812,8 @@ bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
         po.shapefilename=value.cStr();
       } else if (key==key_unit){
         po.unit=value.cStr();
+      } else if (key==key_antialiasing){
+        po.antialiasing=(value == "true");
 
         //    } else {
         // 	cerr << "OptionParser: Unknown keyword : " << key << endl;
@@ -1082,6 +1084,9 @@ miString PlotOptions::toString()
   if( precision > 0 ) {
     ostr << " precision="  << precision;
   }
+
+  if (antialiasing)
+    ostr << " antialiasing=" << antialiasing;
 
   //   ost << " font="  << fontname
   //    << " face="  << fontface
