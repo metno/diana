@@ -2909,29 +2909,29 @@ void EditManager::initEditTools(){
 
 #ifdef SMHI
   symbols.push_back(newEditToolInfo("Duggregn",79,"green4"));
-  symbols.push_back(newEditToolInfo( "Snö",254,"green4"));
+  symbols.push_back(newEditToolInfo( "Snï¿½",254,"green4"));
   //symbols.push_back(newEditToolInfo( "Regnskurar",1044,"green4","green4",4));
   symbols.push_back(newEditToolInfo( "Regnskurar",109,"green4"));
-  symbols.push_back(newEditToolInfo( "Åska",119,"red"));
-  symbols.push_back(newEditToolInfo( "Åska med hagel",122,"red"));
+  symbols.push_back(newEditToolInfo( "ï¿½ska",119,"red"));
+  symbols.push_back(newEditToolInfo( "ï¿½ska med hagel",122,"red"));
   //symbols.push_back(newEditToolInfo("Torrdis",88,"black"));
-  //symbols.push_back(newEditToolInfo("Rök",42,"black"));
-  //symbols.push_back(newEditToolInfo("Snöblandad regn",78,"green4"));
-  symbols.push_back(newEditToolInfo( "Snöblandad by",43,"green4"));
-  symbols.push_back(newEditToolInfo( "Snöby",114,"green4","green4",4));
-  //symbols.push_back(newEditToolInfo( "Snöby",1043,"green4","green4",3));
+  //symbols.push_back(newEditToolInfo("Rï¿½k",42,"black"));
+  //symbols.push_back(newEditToolInfo("Snï¿½blandad regn",78,"green4"));
+  symbols.push_back(newEditToolInfo( "Snï¿½blandad by",43,"green4"));
+  symbols.push_back(newEditToolInfo( "Snï¿½by",114,"green4","green4",4));
+  //symbols.push_back(newEditToolInfo( "Snï¿½by",1043,"green4","green4",3));
   symbols.push_back(newEditToolInfo( "Underkylt duggregn",83,"red"));
   symbols.push_back(newEditToolInfo( "Underkylt regn",93,"red"));
   symbols.push_back(newEditToolInfo( "Hagelbyar",118,"green4"));
-  symbols.push_back(newEditToolInfo( "Kornsnö",44,"red"));
-  symbols.push_back(newEditToolInfo( "Snödrev",46,"black"));
+  symbols.push_back(newEditToolInfo( "Kornsnï¿½",44,"red"));
+  symbols.push_back(newEditToolInfo( "Snï¿½drev",46,"black"));
   //symbols.push_back(newEditToolInfo("Mountain waves",130,"black"));
   //symbols.push_back(newEditToolInfo( "Dimma",1041,"gulbrun"));
   symbols.push_back(newEditToolInfo( "Dimma",62,"gulbrun"));
-  //symbols.push_back(newEditToolInfo( "Lågtryck",1019,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Lågtryck",242,"black","black",1));
-  //symbols.push_back(newEditToolInfo( "Högtryck",1020,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Högtryck",243,"black","black",1));
+  //symbols.push_back(newEditToolInfo( "Lï¿½gtryck",1019,"black","black",1));
+  symbols.push_back(newEditToolInfo( "Lï¿½gtryck",242,"black","black",1));
+  //symbols.push_back(newEditToolInfo( "Hï¿½gtryck",1020,"black","black",1));
+  symbols.push_back(newEditToolInfo( "Hï¿½gtryck",243,"black","black",1));
   symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
 #else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
@@ -2962,7 +2962,7 @@ void EditManager::initEditTools(){
 #ifdef SMHI
   areas.push_back(newEditToolInfo("Dis",Genericarea_constline,"red"));
   areas.push_back(newEditToolInfo("Dimma",Genericarea_constline,"red"));
-  areas.push_back(newEditToolInfo("Regnområde",Genericarea_constline,"green4"));
+  areas.push_back(newEditToolInfo("Regnomrï¿½de",Genericarea_constline,"green4"));
   sigsymbols.push_back(newEditToolInfo("Sig18",247,"black","black",-1));
 #else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4"));
@@ -3094,11 +3094,11 @@ void EditManager::initEditTools(){
   //precipitation, green lines
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green","black",1));
   //snow
-  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green","black",1));
+  sigsymbols.push_back(newEditToolInfo( "Sig_snow",1042,"green","black",1));
   //snow showers
-  sigsymbols.push_back(newEditToolInfo( "Snow showers",1043,"green","green",3));
+  sigsymbols.push_back(newEditToolInfo( "Sig_snow_showers",1043,"green","green",3));
   //showers
-  sigsymbols.push_back(newEditToolInfo( "Showers",1044,"green","green",3));
+  sigsymbols.push_back(newEditToolInfo( "Sig_showers",1044,"green","green",3));
 #endif
   //Freezing precip
   sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red","black",1));
@@ -3140,7 +3140,7 @@ void EditManager::setMapmodeinfo(){
       objectModes[emidx++]=front_drawing;
       dMode.push_back(newEditModeInfo("Symboler",symbols));
       objectModes[emidx++]=symbol_drawing;
-      dMode.push_back(newEditModeInfo("Område",areas));
+      dMode.push_back(newEditModeInfo("Omrï¿½de",areas));
       objectModes[emidx++]=area_drawing;
     }
     if (EdProd.drawtools[i]==OBJECTS_SIGMAPS){

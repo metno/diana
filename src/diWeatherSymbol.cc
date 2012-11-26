@@ -509,7 +509,16 @@ miString WeatherSymbol::writeTypeString()
   if (objectIs(wSymbol) || objectIs(RegionName)){
     if (objectIs(wSymbol)){
       ret ="Object=Symbol;\n";
-      tstring = "Type=" + allSymbols[type].name + ";\n";
+      //HACK: bdiana do not know Sig_snow, Sig_showers, Sig_snow_showers yet
+      if( allSymbols[type].name == "Sig_snow" ) {
+        tstring = "Type=Snow;\n";
+      } else if( allSymbols[type].name == "Sig_showers" ) {
+          tstring = "Type=Showers;\n";
+      } else if( allSymbols[type].name == "Sig_snow_showers" ) {
+        tstring = "Type=Snow showers;\n";
+      } else {
+        tstring = "Type=" + allSymbols[type].name + ";\n";
+      }
     }
     if (objectIs(RegionName)){
       ret ="Object=RegionName;\n";
