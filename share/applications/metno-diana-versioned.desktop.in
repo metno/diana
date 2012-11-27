@@ -8,4 +8,4 @@ MimeType=
 ServiceTypes=
 Terminal=false
 Type=Application
-Categories=Meteorologisk;Meteorologisk-Test
+Categories=Science;Meteorologisk;Meteorologisk-VersionedPrograms
