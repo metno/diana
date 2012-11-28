@@ -660,6 +660,10 @@ void glEndList()
 
     ctx->painter = item.painter;
 
+    // Restore the transformation matrix to the one stored before
+    // the list began.
+    ctx->transform = ctx->listTransforms[item.list];
+
     if (item.mode == GL_COMPILE_AND_EXECUTE)
         glCallList(item.list);
 }
@@ -835,6 +839,11 @@ void glNewList(GLuint list, GLenum mode)
     ctx->painter->begin(&ctx->lists[list]);
     if (item.painter)
         ctx->painter->setRenderHints(item.painter->renderHints());
+
+    // For display lists, reset the transformation to the identity matrix.
+    // This works around issues with transformation errors in PDF, PS and
+    // SVG output when rendering circles defined as display lists in ObsPlot.
+    ctx->transform = QTransform();
 }
 
 void glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
@@ -1010,15 +1019,7 @@ void glVertex2dv(GLdouble *v)
 void glVertex2f(GLfloat x, GLfloat y)
 {
     ENSURE_CTX
-    // For display lists, do not pre-transform points.
-    // This works around issues with transformation errors in PDF,
-    // PS and SVG output when rendering circles defined as display
-    // lists in ObsPlot.
-    QPointF p;
-    if (ctx->renderStack.size() == 0)
-        p = ctx->transform * QPointF(x, y);
-    else
-        p = QPointF(x, y);
+    QPointF p = ctx->transform * QPointF(x, y);
     ctx->points.append(p);
     ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
