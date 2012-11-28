@@ -45,8 +45,8 @@ using namespace std; using namespace miutil;
 // Default constructor
 VprofData::VprofData(const miString& filename, const miString& modelname)
 : fileName(filename), modelName(modelname),readFromField(false), fieldManager(NULL),
-numPos(0), numTime(0), numParam(0), numLevel(0),
-dataBuffer(0)
+  numPos(0), numTime(0), numParam(0), numLevel(0),
+  dataBuffer(0)
 {
 #ifdef DEBUGPRINT
   cerr << "++ VprofData::Default Constructor" << endl;
@@ -82,62 +82,62 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   vector<station> stations;
   miString miLine;
   while (fgets(line, 1024, stationfile) != NULL) {
-	  miLine = miString(line);
-	  // just skip the first line if present.
-	  if (miLine.contains("obssource"))
-		  continue;
-	  if (miLine.contains(";"))
-	  {
-		  // the new format
-		  stationVector = miLine.split(";", false);
-		  if (stationVector.size() == 7) {
-			  station st;
-			  char stid[10];
-			  int wmo_block = stationVector[0].toInt()*1000;
-			  int wmo_number = stationVector[1].toInt();
-			  int wmo_id = wmo_block + wmo_number;
-			  sprintf(stid, "%05d", wmo_id);
-			  st.id = stid;
-			  st.name = stationVector[2];
-			  st.lat = stationVector[3].toFloat();
-			  st.lon = stationVector[4].toFloat();
-			  st.height = stationVector[5].toInt(-1);
-			  st.barHeight = stationVector[6].toInt(-1);
-			  stations.push_back(st);
-		  } else {
-			  if (stationVector.size() == 6)
-			  {
-				  station st;
-				  st.id = stationVector[0];
-				  st.name = stationVector[1];
-				  st.lat = stationVector[2].toFloat();
-				  st.lon = stationVector[3].toFloat();
-				  st.height = stationVector[4].toInt(-1);
-				  st.barHeight = stationVector[5].toInt(-1);
-				  stations.push_back(st);
-			  }
-			  else {
-				  cerr << "Something is wrong with: " << miLine << endl;
-			  }
-		  }
-	  }
-	  else
-	  {
-		  // the old format
-		  stationVector = miLine.split(",", false);
-		  if (stationVector.size() == 7) {
-			  station st;
-			  st.id = stationVector[0];
-			  st.name = stationVector[1];
-			  st.lat = stationVector[2].toFloat();
-			  st.lon = stationVector[3].toFloat();
-			  st.height = stationVector[4].toInt(-1);
-			  st.barHeight = stationVector[5].toInt(-1);
-			  stations.push_back(st);
-		  } else {
-			  cerr << "Something is wrong with: " << miLine << endl;
-		  }
-	  }
+    miLine = miString(line);
+    // just skip the first line if present.
+    if (miLine.contains("obssource"))
+      continue;
+    if (miLine.contains(";"))
+    {
+      // the new format
+      stationVector = miLine.split(";", false);
+      if (stationVector.size() == 7) {
+        station st;
+        char stid[10];
+        int wmo_block = stationVector[0].toInt()*1000;
+        int wmo_number = stationVector[1].toInt();
+        int wmo_id = wmo_block + wmo_number;
+        sprintf(stid, "%05d", wmo_id);
+        st.id = stid;
+        st.name = stationVector[2];
+        st.lat = stationVector[3].toFloat();
+        st.lon = stationVector[4].toFloat();
+        st.height = stationVector[5].toInt(-1);
+        st.barHeight = stationVector[6].toInt(-1);
+        stations.push_back(st);
+      } else {
+        if (stationVector.size() == 6)
+        {
+          station st;
+          st.id = stationVector[0];
+          st.name = stationVector[1];
+          st.lat = stationVector[2].toFloat();
+          st.lon = stationVector[3].toFloat();
+          st.height = stationVector[4].toInt(-1);
+          st.barHeight = stationVector[5].toInt(-1);
+          stations.push_back(st);
+        }
+        else {
+          cerr << "Something is wrong with: " << miLine << endl;
+        }
+      }
+    }
+    else
+    {
+      // the old format
+      stationVector = miLine.split(",", false);
+      if (stationVector.size() == 7) {
+        station st;
+        st.id = stationVector[0];
+        st.name = stationVector[1];
+        st.lat = stationVector[2].toFloat();
+        st.lon = stationVector[3].toFloat();
+        st.height = stationVector[4].toInt(-1);
+        st.barHeight = stationVector[5].toInt(-1);
+        stations.push_back(st);
+      } else {
+        cerr << "Something is wrong with: " << miLine << endl;
+      }
+    }
   }
   for (size_t i = 0; i < stations.size(); i++) {
     posName.push_back(stations[i].name);
@@ -161,7 +161,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   vProfPlot = 0;
 
   return success;
-    //return true;
+  //return true;
 }
 
 
@@ -365,17 +365,16 @@ bool VprofData::readFile() {
 VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
 #ifdef DEBUGPRINT
   cerr << "++ VprofData::getData  " << name << "  " << time
-  << "  " << modelName << endl;
+      << "  " << modelName << endl;
 #endif
 
-  
-  
+
+
   VprofPlot *vp= 0;
 
   int iPos=0;
-  // NOTE: It is safer to use the wmo number as 'name'
-  //while (iPos<numPos && posName[iPos]!=name) iPos++;
-  while (iPos<numPos && obsName[iPos]!=name) iPos++;
+
+  while (iPos<numPos && posName[iPos]!=name) iPos++;
 
   int iTime=0;
   while (iTime<numTime && validTime[iTime]!=time) iTime++;
@@ -483,32 +482,32 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
 #endif
   } else {
 
-  int j,k,n;
-  float scale;
+    int j,k,n;
+    float scale;
 
-  for (n=0; n<numParam; n++) {
-    j= iPos*numTime*numParam*numLevel + iTime*numParam*numLevel + n*numLevel;
-    scale= paramScale[n];
-    if (paramId[n]==8) {
-      for (k=0; k<numLevel; k++)
-        vp->ptt.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==4) {
-      for (k=0; k<numLevel; k++)
-        vp->tt.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==5) {
-      for (k=0; k<numLevel; k++)
-        vp->td.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==2) {
-      for (k=0; k<numLevel; k++)
-        vp->uu.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==3) {
-      for (k=0; k<numLevel; k++)
-        vp->vv.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==13) {
-      for (k=0; k<numLevel; k++)
-        vp->om.push_back(scale*dataBuffer[j++]);
+    for (n=0; n<numParam; n++) {
+      j= iPos*numTime*numParam*numLevel + iTime*numParam*numLevel + n*numLevel;
+      scale= paramScale[n];
+      if (paramId[n]==8) {
+        for (k=0; k<numLevel; k++)
+          vp->ptt.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==4) {
+        for (k=0; k<numLevel; k++)
+          vp->tt.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==5) {
+        for (k=0; k<numLevel; k++)
+          vp->td.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==2) {
+        for (k=0; k<numLevel; k++)
+          vp->uu.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==3) {
+        for (k=0; k<numLevel; k++)
+          vp->vv.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==13) {
+        for (k=0; k<numLevel; k++)
+          vp->om.push_back(scale*dataBuffer[j++]);
+      }
     }
-  }
 #ifdef DEBUGPRINT
     for (k=0; k<numLevel; k++) {
       cerr << "ptt["<<k<<"]" <<vp->ptt[k] << endl;
@@ -518,7 +517,7 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
       cerr << "vv["<<k<<"]" <<vp->vv[k] << endl;
       cerr << "om["<<k<<"]" <<vp->om[k] << endl;
     }
-  #endif
+#endif
   }
 
 
