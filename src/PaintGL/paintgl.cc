@@ -434,7 +434,7 @@ void glCallList(GLuint list)
     QPicture picture = ctx->lists[list];
 
     ctx->painter->save();
-    ctx->painter->setTransform(ctx->listTransforms[list].inverted() * ctx->transform);
+    ctx->painter->setTransform(ctx->transform);
     ctx->painter->drawPicture(0, 0, picture);
     ctx->painter->restore();
 }
@@ -1010,7 +1010,15 @@ void glVertex2dv(GLdouble *v)
 void glVertex2f(GLfloat x, GLfloat y)
 {
     ENSURE_CTX
-    QPointF p = ctx->transform * QPointF(x, y);
+    // For display lists, do not pre-transform points.
+    // This works around issues with transformation errors in PDF,
+    // PS and SVG output when rendering circles defined as display
+    // lists in ObsPlot.
+    QPointF p;
+    if (ctx->renderStack.size() == 0)
+        p = ctx->transform * QPointF(x, y);
+    else
+        p = QPointF(x, y);
     ctx->points.append(p);
     ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
