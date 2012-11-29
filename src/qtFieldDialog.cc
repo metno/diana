@@ -257,6 +257,7 @@ QDialog(parent)
   cp->addKey("forecast.hour.loop", "", 2, CommandParser::cmdInt);
 
   cp->addKey("allTimeSteps", "", 3, CommandParser::cmdString);
+  cp->addKey("dim", "", 1, CommandParser::cmdInt);
   //----------------------------------------------------------------
 
   // modelGRbox
@@ -3833,6 +3834,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     //old string from quickMenu or bdiana, rewrite string in new syntax
     if( ! decodeOK && !sf.cdmSyntax) {
         //First try - decode model string - model + refhour + refoffset
+      sf.fieldOpts.clear();
       std::string oldString = str;
       str = FieldSpecTranslation::getNewFieldString(oldString, true);
       sf.cdmSyntax = true;
@@ -3846,6 +3848,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
 
       if( ! decodeOK ) {
       // Second try - do not decode model string
+        sf.fieldOpts.clear();
         str = FieldSpecTranslation::getNewFieldString(oldString,false);
 
         if (checkOptions) {
