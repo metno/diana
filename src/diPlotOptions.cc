@@ -136,7 +136,7 @@ PlotOptions::PlotOptions():
 
 // parse a string (possibly) containing plotting options,
 // and fill a PlotOptions with appropriate values
-bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
+bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po){
   // defined keywords:
   //------------------------------------------
   // options1: off,isoline
@@ -310,6 +310,8 @@ bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
   int i,j,n,m,l;
   Colour c;
   Linetype linetype;
+
+  miString origStr;
 
   //float lw;
   bool result=true;
@@ -815,12 +817,16 @@ bool PlotOptions::parsePlotOption(const miString& optstr, PlotOptions& po){
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
 
-        //    } else {
-        // 	cerr << "OptionParser: Unknown keyword : " << key << endl;
+      } else {
+       origStr += " " + key + "=" + value;
       }
+    } else {
+      origStr += " " + etokens[0];
     }
+
   }
 
+  optstr = origStr + " " + po.toString();
   return result;
 }
 
@@ -832,14 +838,14 @@ bool PlotOptions::updateFieldPlotOptions(const miString& name,
   cerr<<":::::::::PlotOptions::updateFieldPlotOptions"<<endl;
   cerr<<":::::::::name: "<< name << "   *******  optstr: "<<optstr<<endl;
 #endif
-
-  return parsePlotOption(optstr,fieldPlotOptions[name]);
+  miString tmpOpt = optstr;
+  return parsePlotOption(tmpOpt,fieldPlotOptions[name]);
 }
 
 // fill a fieldplotoption from static map, and substitute values
 // from a string containing plotoptions
 bool PlotOptions::fillFieldPlotOptions(miString name,
-    const miString& optstr,
+    miString& optstr,
     PlotOptions& po)
 {
   removeSuffix(name);

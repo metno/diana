@@ -192,12 +192,12 @@ public:
   miutil::miString toString();
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */
-  static bool parsePlotOption(const miutil::miString&, PlotOptions&);
+  static bool parsePlotOption(miutil::miString&, PlotOptions&);
   /// update static fieldplotoptions
   static bool updateFieldPlotOptions(const miutil::miString& name, const miutil::miString& optstr);
   /** fill a fieldplotoption from static map, and substitute values
       from a string containing plotoptions */
-  static bool fillFieldPlotOptions(miutil::miString, const miutil::miString&,
+  static bool fillFieldPlotOptions(miutil::miString, miutil::miString&,
 			    PlotOptions&);
   static void setSuffix(vector<miutil::miString> suff){suffix = suff;}
   static void getAllFieldOptions(vector<miutil::miString>,

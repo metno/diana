@@ -699,7 +699,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
 
 //+++ poptions.contourShading= 1;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      PlotOptions::parsePlotOption("palettecolours=standard repeat=1",poptions);
+      miString optstr ="palettecolours=standard repeat=1";
+      PlotOptions::parsePlotOption(optstr,poptions);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       c= Colour("black");

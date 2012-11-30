@@ -146,12 +146,11 @@ void FieldPlot::getFieldAnnotation(miString& s, Colour& c)
 // Extract plotting-parameters from PlotInfo.
 bool FieldPlot::prepare(const miString& fname, const miString& pin)
 {
+
+  //merge current plotOptions (from pin) with plotOptions form setup
   pinfo= pin;
-  setPlotInfo(pin);
+  poptions.fillFieldPlotOptions(fname,pinfo,poptions);
 
-  vector<miString> tokens= pinfo.split();
-
-  poptions.fillFieldPlotOptions(fname,pin,poptions);
   plottype= poptions.plottype;
 
 #ifdef DEBUGPRINT
