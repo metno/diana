@@ -2862,9 +2862,6 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
   fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
   fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
-  fronts.push_back(newEditToolInfo("Cold occlusion",Occluded,"blue"));
-  fronts.push_back(newEditToolInfo("Warm occlusion",Occluded,"red"));
-  fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
   fronts.push_back(newEditToolInfo("Trough",Line,"blue"));
   fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
 #endif
@@ -2881,6 +2878,10 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
   fronts.push_back(newEditToolInfo("Significant weather TURB/VA/RC",SigweatherFront,"red"));
   fronts.push_back(newEditToolInfo("Significant weather ICE/TCU/CB",SigweatherFront,"blue"));
+  fronts.push_back(newEditToolInfo("Jet stream",ArrowLine,"black","black",0,true));
+  fronts.push_back(newEditToolInfo("Cold occlusion",Occluded,"blue"));
+  fronts.push_back(newEditToolInfo("Warm occlusion",Occluded,"red"));
+  fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
   fronts.push_back(newEditToolInfo("Black sharp line",Line,"black","black",0,false));
   fronts.push_back(newEditToolInfo("Black smooth line",Line,"black","black",0,true));
   fronts.push_back(newEditToolInfo("Red sharp line",Line,"red","red",0,false));
@@ -2899,7 +2900,6 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Green smooth line stipple",Line,"green","green",0,true,"dash2"));
   fronts.push_back(newEditToolInfo("Black sharp arrow",ArrowLine,"black","black",0,false));
   fronts.push_back(newEditToolInfo("Black sharp thin arrow",ArrowLine,"black","black",-2,false));
-  fronts.push_back(newEditToolInfo("Black smooth arrow",ArrowLine,"black","black",0,true));
   fronts.push_back(newEditToolInfo("Red sharp arrow",ArrowLine,"red","red",0,false));
   fronts.push_back(newEditToolInfo("Red smooth arrow",ArrowLine,"red"));
   fronts.push_back(newEditToolInfo("Blue sharp arrow",ArrowLine,"blue","blue",0,false));
@@ -2936,21 +2936,21 @@ void EditManager::initEditTools(){
 #else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
-  symbols.push_back(newEditToolInfo("Cold",244,"blue"));
-  symbols.push_back(newEditToolInfo("Warm",245,"red"));
   symbols.push_back(newEditToolInfo("Fog",62,"darkYellow"));
-  symbols.push_back(newEditToolInfo("Drizzle",80,"green"));
+  symbols.push_back(newEditToolInfo("Thunderstorm",119,"red"));
+  symbols.push_back(newEditToolInfo("Freezing rain",93,"red"));
   symbols.push_back(newEditToolInfo("Freezing drizzle",83,"red"));
-  symbols.push_back(newEditToolInfo( "Freezing rain",93,"red"));
   symbols.push_back(newEditToolInfo( "Showers",109,"green"));
-  symbols.push_back(newEditToolInfo( "Rain showers",110,"green"));
-  symbols.push_back(newEditToolInfo( "Sleet showers",126,"green"));
-  symbols.push_back(newEditToolInfo( "Hail showers",117,"green"));
   symbols.push_back(newEditToolInfo( "Snow showers",114,"green"));
-  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
-  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
+  symbols.push_back(newEditToolInfo( "Hail showers",117,"green"));
   symbols.push_back(newEditToolInfo( "Snow",254,"green"));
   symbols.push_back(newEditToolInfo( "Rain",89,"green"));
+  symbols.push_back(newEditToolInfo("Drizzle",80,"green"));
+  symbols.push_back(newEditToolInfo("Cold",244,"blue"));
+  symbols.push_back(newEditToolInfo("Warm",245,"red"));
+  symbols.push_back(newEditToolInfo( "Rain showers",110,"green"));
+  symbols.push_back(newEditToolInfo( "Sleet showers",126,"green"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
   symbols.push_back(newEditToolInfo( "Sleet",96,"green"));
   symbols.push_back(newEditToolInfo( "Hurricane",253,"black"));
   symbols.push_back(newEditToolInfo( "Disk",241,"red"));
@@ -2967,13 +2967,13 @@ void EditManager::initEditTools(){
 #else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4"));
   areas.push_back(newEditToolInfo("Showers",Genericarea,"green3","green3",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Clouds",Genericarea,"orange","orange",0,true,"solid","diagleft"));
   areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"dash2","zigzag"));
-  areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow",0,true,"solid","paralyse"));
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
   areas.push_back(newEditToolInfo("Significant weather  TURB/VA/RC",Sigweather,"red"));
   areas.push_back(newEditToolInfo("Significant weather  ICE/TCU/CB",Sigweather,"blue"));
   areas.push_back(newEditToolInfo("Reduced visibility",Genericarea,"gulbrun","gulbrun",0,true,"dash2"));
+  areas.push_back(newEditToolInfo("Clouds",Genericarea,"orange","orange",0,true,"solid","diagleft"));
+  areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow",0,true,"solid","paralyse"));
   areas.push_back(newEditToolInfo("Black sharp area",Genericarea,"black","black",0,false));
   areas.push_back(newEditToolInfo("Black smooth area",Genericarea,"black","black",0,true));
   areas.push_back(newEditToolInfo("Red sharp area",Genericarea,"red","red",0,false));
