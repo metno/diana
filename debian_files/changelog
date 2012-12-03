@@ -1,3 +1,24 @@
+diana (3.30.4-1) unstable; urgency=low
+
+  * Bugfix: sigkart, vertical profiles
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 03 Dec 2012 10:36:29 +0100
+
+diana (3.30.3-1) unstable; urgency=low
+
+  * Fixed verticalProfiles 
+  * Using metlibs with reverted postgres/mysql change
+  * Fixed some symbols/fronts/areas
+  * Reverted sigkart changes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Nov 2012 13:29:31 +0100
+
+diana (3.30.2-3) unstable; urgency=low
+
+  * new debian revision
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Nov 2012 13:28:58 +0100
+
 diana (3.30.2-2) unstable; urgency=low
 
   * Fixed Postscript and PDF rendering problems with observation plots.
