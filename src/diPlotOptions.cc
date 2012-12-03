@@ -136,7 +136,8 @@ PlotOptions::PlotOptions():
 
 // parse a string (possibly) containing plotting options,
 // and fill a PlotOptions with appropriate values
-bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po){
+bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
+    bool returnMergedOptionString){
   // defined keywords:
   //------------------------------------------
   // options1: off,isoline
@@ -826,7 +827,10 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po){
 
   }
 
-  optstr = origStr + " " + po.toString();
+  if ( returnMergedOptionString ) {
+    optstr = origStr + " " + po.toString();
+  }
+
   return result;
 }
 
@@ -858,7 +862,7 @@ bool PlotOptions::fillFieldPlotOptions(miString name,
   else
     fieldPlotOptions[name]= po;
 
-  parsePlotOption(optstr,po);
+  parsePlotOption(optstr,po,true);
 
   return true;
 }

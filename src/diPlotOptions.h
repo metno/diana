@@ -192,7 +192,7 @@ public:
   miutil::miString toString();
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */
-  static bool parsePlotOption(miutil::miString&, PlotOptions&);
+  static bool parsePlotOption(miutil::miString&, PlotOptions&, bool returnMergedOptionString=false);
   /// update static fieldplotoptions
   static bool updateFieldPlotOptions(const miutil::miString& name, const miutil::miString& optstr);
   /** fill a fieldplotoption from static map, and substitute values
