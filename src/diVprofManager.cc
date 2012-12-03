@@ -647,17 +647,7 @@ bool VprofManager::plot()
     int m= vpdata.size();
 
     for (int i=0; i<m; i++) {
-      // find wmono from plotStation...
-      int n= nameList.size();
-      int j= 0;
-      while (j<n && nameList[j]!=plotStation) j++;
-      VprofPlot *vp = NULL;
-      //Use obsList if it exists (observations), else use plotStaion (models)
-      if (j<n && obsList[j].exists()) {
-        vp= vpdata[i]->getData(obsList[j],plotTime);
-      } else {
-        vp= vpdata[i]->getData(plotStation,plotTime);
-      }
+      VprofPlot *vp= vpdata[i]->getData(plotStation,plotTime);
       if (vp) {
         vp->plot(vpopt,i);
         delete vp;
