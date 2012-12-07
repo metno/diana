@@ -320,8 +320,6 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
   tokens= optstr.split('"','"');
   n= tokens.size();
 
-  po.contourShading=0;
-
   for (i=0; i<n; i++){
 
     etokens= tokens[i].split("=");
