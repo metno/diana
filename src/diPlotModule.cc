@@ -263,7 +263,7 @@ void PlotModule::prepareFields(const vector<miString>& inp)
   // for now -- erase all fieldplots
   for (unsigned int i = 0; i < vfp.size(); i++) {
     // keep enable flag
-    str = vfp[i]->getPlotInfo(3);
+    str = vfp[i]->getPlotInfo("model,plot,parameter,reftime");
     plotenabled[str] = vfp[i]->Enabled();
     // free old fields
     freeFields(vfp[i]);
@@ -286,7 +286,7 @@ void PlotModule::prepareFields(const vector<miString>& inp)
       delete vfp[n];
       vfp.pop_back();
     } else {
-      str = vfp[n]->getPlotInfo(3);
+      str = vfp[n]->getPlotInfo("model,plot,parameter,reftime");
       if (plotenabled.count(str) == 0)
         plotenabled[str] = true;
       vfp[n]->enable(plotenabled[str] && vfp[n]->Enabled());

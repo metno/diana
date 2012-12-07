@@ -4281,8 +4281,6 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
           priop.orientation=d_print::ori_portrait;
         else
           priop.orientation=d_print::ori_landscape;
-      } else if (tokens[0]=="STATUSBUTTONS") {
-        showelem= (tokens[1]=="ON");
       } else if (tokens[0]=="AUTOSELECT") {
         autoselect = (tokens[1] == "ON");
       } else if (tokens[0] == "SCROLLWHEELZOOM") {

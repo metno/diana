@@ -258,6 +258,25 @@ miString Plot::getPlotInfo(int n)
   }
   return str;
 }
+miString Plot::getPlotInfo(miString return_tokens)
+{
+  //return n elements of current plot info string
+  vector<miString> return_token = return_tokens.split(",");
+  vector<miString> token = pinfo.split(" ");
+  miString str;
+  //  str.join(token," ");
+  for(unsigned int i=0;i<token.size();i++){
+    vector<miString> stoken = token[i].split("=");
+    if( stoken.size() == 2 ) {
+      int j=0;
+      while ( j<return_token.size() && return_token[j] != stoken[0] ) ++j;
+      if ( j < return_token.size() ) {
+        str += token[i] + " ";
+      }
+    }
+  }
+  return str;
+}
 
 bool Plot::startPSoutput(const printOptions& po){
   if (hardcopy) return false;

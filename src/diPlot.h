@@ -179,6 +179,9 @@ public:
   /// return n elements of the current plot info string
   miutil::miString getPlotInfo(int n=0);
 
+  /// return the elements given
+  miutil::miString getPlotInfo(miutil::miString str);
+
   /// return true if right plot string
   bool plotInfoOK(const miutil::miString& pin){return (pinfo == pin);}
 

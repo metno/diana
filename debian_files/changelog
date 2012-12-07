@@ -1,3 +1,10 @@
+diana (3.30.5-1) unstable; urgency=low
+
+  * Bugfix: statusPlotButtons
+  * MySQL/postgres fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 04 Dec 2012 15:51:51 +0100
+
 diana (3.30.4-1) unstable; urgency=low
 
   * Bugfix: sigkart, vertical profiles
