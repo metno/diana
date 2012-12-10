@@ -1007,7 +1007,7 @@ void glTranslatef(GLfloat x, GLfloat y, GLfloat z)
     ctx->transform = ctx->transform.translate(x, y);
 }
 
-void glVertex2dv(GLdouble *v)
+void glVertex2dv(const GLdouble *v)
 {
     ENSURE_CTX
     QPointF p = ctx->transform * QPointF(v[0], v[1]);

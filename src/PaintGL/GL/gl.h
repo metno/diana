@@ -208,7 +208,7 @@ void glIndexi(GLint c);
 void glRasterPos2f(GLfloat x, GLfloat y);
 void glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 void glTexCoord2f(GLfloat s, GLfloat t);
-void glVertex2dv(GLdouble *v);
+void glVertex2dv(const GLdouble *v);
 void glVertex2f(GLfloat x, GLfloat y);
 void glVertex3f(GLfloat x, GLfloat y, GLfloat z);
 
