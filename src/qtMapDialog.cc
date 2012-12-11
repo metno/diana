@@ -101,9 +101,9 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   cInfo = Colour::getColourInfo();
 
   // zorders
-  zorders.push_back(tr("lowest").toStdString()); // nederst
-  zorders.push_back(tr("auto").toStdString()); // auto
-  zorders.push_back(tr("highest").toStdString()); // øverst
+  zorders.push_back(tr("lowest").toStdString());
+  zorders.push_back(tr("auto").toStdString());
+  zorders.push_back(tr("highest").toStdString());
 
   // latlon densities (degrees)
   densities.push_back("0.5");
@@ -1456,9 +1456,11 @@ vector<miutil::miString> MapDialog::writeLog()
     ostringstream ostr;
     if (i == n - 1) { // common options for last map only
       // qt4 fix: added .toStdString()
-      ostr << "area="
-      << areabox->item(areabox->currentRow())->text().toStdString()
-      << " backcolour=" << cInfo[backcolorcbox->currentIndex()].name << " ";
+      if ( areabox->currentRow() >= 0 ) {
+        ostr << "area="
+            << areabox->item(areabox->currentRow())->text().toStdString()
+            << " backcolour=" << cInfo[backcolorcbox->currentIndex()].name << " ";
+      }
       // set lon options
       m_MapDI.maps[i].lon.ison = lonb;
       m_MapDI.maps[i].lon.linecolour = lonc;
