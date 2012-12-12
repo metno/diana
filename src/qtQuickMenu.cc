@@ -795,7 +795,7 @@ bool QuickMenu::itemChanged(int menu, int item)
 
   if (menu < i) return false; // not static menu
 
-  int oidx= menu-i; // in original list
+  int oidx= menu - i - 1; // in original list
   int msize= orig_qm[oidx].menuitems[item].command.size();
   if (msize != int(qm[menu].menuitems[item].command.size()))
     return true;
