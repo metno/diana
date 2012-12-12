@@ -700,8 +700,9 @@ void endHardcopy(const plot_type pt)
   }
   hardcopy_started[pt] = false;
 #else
-  // Guard against this function being called before printing occurs.
-  if (!painter.isActive())
+  // Guard against this function being called before printing occurs
+  // or in cases where it is unnecessary.
+  if (!painter.isActive() || svg || shape || raster)
     return;
 
   ensureNewContext();
