@@ -207,33 +207,28 @@ void PaintGLContext::renderPrimitive()
 
     switch (mode) {
     case GL_POINTS:
-        // qDebug() << "  GL_POINTS";
         setPen();
         for (int i = 0; i < points.size(); ++i) {
             painter->drawPoint(points.at(i));
         }
         break;
     case GL_LINES:
-        // qDebug() << "  GL_LINES";
         setPen();
         for (int i = 0; i < points.size() - 1; i += 2) {
             painter->drawLine(points.at(i), points.at(i+1));
         }
         break;
     case GL_LINE_LOOP:
-        // qDebug() << "  GL_LINE_LOOP";
         setPen();
         points.append(points.at(0));
         painter->drawPolyline(points);
         break;
     case GL_LINE_STRIP: {
-        // qDebug() << "  GL_LINE_STRIP";
         setPen();
         painter->drawPolyline(points);
         break;
     }
     case GL_TRIANGLES: {
-        // qDebug() << "  GL_TRIANGLES";
         setPolygonColor(attributes.color);
 
         for (int i = 0; i < points.size() - 2; i += 3) {
@@ -246,7 +241,6 @@ void PaintGLContext::renderPrimitive()
         break;
     }
     case GL_TRIANGLE_STRIP: {
-        // qDebug() << "  GL_TRIANGLE_STRIP";
         setPolygonColor(attributes.color);
 
         poly[0] = points.at(0);
@@ -258,7 +252,6 @@ void PaintGLContext::renderPrimitive()
         break;
     }
     case GL_TRIANGLE_FAN: {
-        // qDebug() << "  GL_TRIANGLE_FAN";
         setPolygonColor(attributes.color);
 
         poly[0] = points.at(0);
@@ -270,7 +263,6 @@ void PaintGLContext::renderPrimitive()
         break;
     }
     case GL_QUADS: {
-        // qDebug() << "  GL_QUADS";
         if (!blend)
             setPolygonColor(attributes.color);
         else {
@@ -322,7 +314,6 @@ void PaintGLContext::renderPrimitive()
         break;
     }
     case GL_QUAD_STRIP: {
-        // qDebug() << "  GL_QUAD_STRIP";
         if (!blend)
             setPolygonColor(attributes.color);
         else
@@ -363,7 +354,6 @@ void PaintGLContext::renderPrimitive()
         break;
     }
     case GL_POLYGON: {
-        // qDebug() << "  GL_POLYGON";
         setPolygonColor(attributes.color);
         QPolygonF poly;
         for (int i = 0; i < points.size(); ++i) {
@@ -573,7 +563,8 @@ void glDisable(GLenum cap)
         ctx->attributes.stipple = false;
         break;
     case GL_MULTISAMPLE:
-        ctx->painter->setRenderHint(QPainter::Antialiasing, false);
+        if (ctx->isPainting())
+            ctx->painter->setRenderHint(QPainter::Antialiasing, false);
         break;
     default:
         break;
@@ -633,7 +624,8 @@ void glEnable(GLenum cap)
         ctx->attributes.stipple = true;
         break;
     case GL_MULTISAMPLE:
-        ctx->painter->setRenderHint(QPainter::Antialiasing, true);
+        if (ctx->isPainting())
+            ctx->painter->setRenderHint(QPainter::Antialiasing, true);
         break;
     default:
         break;
@@ -1043,6 +1035,10 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
     ENSURE_CTX
     ctx->viewport = QRect(x, y, width, height);
+    ctx->setViewportTransform();
+
+    if (ctx->isPainting())
+        ctx->painter->setClipRect(ctx->viewport);
 }
 
 
