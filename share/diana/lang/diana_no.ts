@@ -4886,7 +4886,7 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="570"/>
         <source>Level high</source>
-        <translation>Laveste</translation>
+        <translation>Høyeste</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="593"/>
