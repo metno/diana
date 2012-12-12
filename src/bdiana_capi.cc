@@ -640,6 +640,7 @@ void endVideo()
 
 void startHardcopy(const plot_type pt, const printOptions priop)
 {
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   if (pt == plot_standard && main_controller) {
     if (verbose)
       cout << "- startHardcopy (standard)" << endl;
@@ -661,10 +662,18 @@ void startHardcopy(const plot_type pt, const printOptions priop)
       cout << "- startHardcopy failure (missing manager)" << endl;
   }
   hardcopy_started[pt] = true;
+#else
+#endif
 }
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+static void ensureNewContext();
+static void printPage(int ox, int oy);
+#endif
 
 void endHardcopy(const plot_type pt)
 {
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   // finish off postscript-sessions
   if (pt == plot_standard && hardcopy_started[pt] && main_controller) {
     if (verbose)
@@ -690,6 +699,15 @@ void endHardcopy(const plot_type pt)
     endHardcopy(plot_spectrum);
   }
   hardcopy_started[pt] = false;
+#else
+  // Guard against this function being called before printing occurs.
+  if (!painter.isActive())
+    return;
+
+  ensureNewContext();
+
+  printPage(0, 0);
+#endif
 }
 
 // VPROF-options with parser
@@ -1407,15 +1425,43 @@ void createJsonAnnotation()
 
 static void ensureNewContext()
 {
-  if (context.isPainting())
-    context.end();
-  if (painter.isActive())
-    painter.end();
+  if (!multiple_plots) {
+    if (context.isPainting())
+      context.end();
+    if (painter.isActive())
+      painter.end();
+  }
 
   context.makeCurrent();
 }
 
+static void printPage(int ox, int oy)
+{
+  QPrinter printer;
+  printer.setOutputFileName(QString::fromStdString(priop.fname));
+  if (pdf)
+    printer.setOutputFormat(QPrinter::PdfFormat);
+  else
+    printer.setOutputFormat(QPrinter::PostScriptFormat);
+  printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
+  printer.setFullPage(true);
+
+  painter.begin(&printer);
+  painter.drawPicture(ox, oy, picture);
+  painter.end();
+}
 #endif
+
+void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int spacing)
+{
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+  glViewport(margin + plotcol * (deltax + spacing), margin + plotrow * (deltay + spacing),
+             deltax, deltay);
+#else
+  glViewport(margin + plotcol * (deltax + spacing), ysize - (margin + (plotrow + 1) * (deltay + spacing)),
+             deltax, deltay);
+#endif
+}
 
 static int parseAndProcess(istream &is)
 {
@@ -1615,14 +1661,12 @@ static int parseAndProcess(istream &is)
         if (!main_controller->updatePlots(failOnMissingData)) {
             cerr << "Failed to update plots." << endl;
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-            painter.end();
-            context.end();
+            ensureNewContext();
 #endif
             return 99;
         }
         cout <<main_controller->getMapArea()<<endl;
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
           multiple_newpage = false;
@@ -1631,12 +1675,9 @@ static int parseAndProcess(istream &is)
             startVideo(priop);
 #endif
         }
-#endif
 
-        if (multiple_plots) {
-          glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
-              * (deltay + spacing), deltax, deltay);
-        }
+        if (multiple_plots)
+          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (plot_trajectory && !trajectory_started) {
           vector<miString> vstr;
@@ -1733,7 +1774,6 @@ static int parseAndProcess(istream &is)
         if (crossection.exists())
           vcrossmanager->setCrossection(crossection);
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vcross, priop);
           multiple_newpage = false;
@@ -1742,12 +1782,9 @@ static int parseAndProcess(istream &is)
           startVideo(priop);
 #endif
         }
-#endif
 
-        if (multiple_plots) {
-          glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
-              * (deltay + spacing), deltax, deltay);
-        }
+        if (multiple_plots)
+          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (verbose)
           cout << "- plot" << endl;
@@ -1805,7 +1842,6 @@ static int parseAndProcess(istream &is)
         if (vprof_station.exists())
           vprofmanager->setStation(vprof_station);
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vprof, priop);
           multiple_newpage = false;
@@ -1814,12 +1850,9 @@ static int parseAndProcess(istream &is)
           startVideo(priop);
 #endif
         }
-#endif
 
-        if (multiple_plots) {
-          glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
-              * (deltay + spacing), deltax, deltay);
-        }
+        if (multiple_plots)
+          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (verbose)
           cout << "- plot" << endl;
@@ -1872,7 +1905,6 @@ static int parseAndProcess(istream &is)
         if (spectrum_station.exists())
           spectrummanager->setStation(spectrum_station);
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_spectrum, priop);
           multiple_newpage = false;
@@ -1881,12 +1913,9 @@ static int parseAndProcess(istream &is)
           startVideo(priop);
 #endif
         }
-#endif
 
-        if (multiple_plots) {
-          glViewport(margin + plotcol * (deltax + spacing), margin + plotrow
-              * (deltay + spacing), deltax, deltay);
-        }
+        if (multiple_plots)
+          subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (verbose)
           cout << "- plot" << endl;
@@ -1998,8 +2027,7 @@ static int parseAndProcess(istream &is)
         }
 #else
         if (canvasType == qt_qimage && raster) {
-          context.end();
-          painter.end();
+          ensureNewContext();
 
           int ox = 0, oy = 0;
           if (plotAnnotationsOnly) {
@@ -2116,21 +2144,16 @@ static int parseAndProcess(istream &is)
 
       } else if (pdf) {
 
-          ensureNewContext();
+        ensureNewContext();
 
+        if (!multiple_plots) {
           int ox = 0, oy = 0;
           if (plotAnnotationsOnly) {
             getAnnotationsArea(ox, oy, xsize, ysize);
           }
 
-          QPrinter printer;
-          printer.setOutputFormat(QPrinter::PdfFormat);
-          printer.setOutputFileName(QString::fromStdString(priop.fname));
-          printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
-          printer.setFullPage(true);
-          painter.begin(&printer);
-          painter.drawPicture(ox, oy, picture);
-          painter.end();
+          printPage(ox, oy);
+        }
 
       } else if (json) {
 
@@ -2165,21 +2188,16 @@ static int parseAndProcess(istream &is)
         }
       } else { // Postscript
 
-          ensureNewContext();
+        ensureNewContext();
 
+        if (!multiple_plots) {
           int ox = 0, oy = 0;
           if (plotAnnotationsOnly) {
             getAnnotationsArea(ox, oy, xsize, ysize);
           }
 
-          QPrinter printer;
-          printer.setOutputFormat(QPrinter::PostScriptFormat);
-          printer.setOutputFileName(QString::fromStdString(priop.fname));
-          printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
-          printer.setFullPage(true);
-          painter.begin(&printer);
-          painter.drawPicture(ox, oy, picture);
-          painter.end();
+          printPage(ox, oy);
+        }
       }
 #else
       } else { // PostScript only
@@ -2316,10 +2334,8 @@ static int parseAndProcess(istream &is)
             << "  Printer not defined!" << endl;
         continue;
       }
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
       // first stop postscript-generation
       endHardcopy(plot_none);
-#endif
       multiple_newpage = true;
 
       miString command = printman->printCommand();
@@ -2767,6 +2783,7 @@ static int parseAndProcess(istream &is)
           context.begin(&painter);
 
         } else { // Postscript
+
           picture = QPicture();
           picture.setBoundingRect(QRect(0, 0, xsize, ysize));
           painter.begin(&picture);
@@ -2831,6 +2848,7 @@ static int parseAndProcess(istream &is)
       if (value == "postscript") {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
+
         picture = QPicture();
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
@@ -2841,6 +2859,7 @@ static int parseAndProcess(istream &is)
       } else if (value == "eps") {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
         ensureNewContext();
+
         picture = QPicture();
         picture.setBoundingRect(QRect(0, 0, xsize, ysize));
         painter.begin(&picture);
@@ -3464,8 +3483,7 @@ int diana_init(int _argc, char** _argv)
     }
     int res = parseAndProcess(is);
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-    if (painter.isActive())
-        painter.end();
+    ensureNewContext();
 #endif
     if (res != 0)
       return 99;
