@@ -195,6 +195,8 @@ public:
   void prepareFields(const vector<miutil::miString>&);
   /// handles observations plot info strings
   void prepareObs(const vector<miutil::miString>&);
+  /// handles area info strings
+  void prepareArea(const vector<miutil::miString>&);
   /// handles map plot info strings
   void prepareMap(const vector<miutil::miString>&);
   /// handles images plot info strings

@@ -70,10 +70,10 @@ GridConverter PlotModule::gc; // Projection-converter
 
 // Default constructor
 PlotModule::PlotModule() :
-       apEditmessage(0),plotw(0.),ploth(0.),resizezoom(true),
-       showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
-       mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
-       dopanning(false), keepcurrentarea(true), obsnr(0)
+           apEditmessage(0),plotw(0.),ploth(0.),resizezoom(true),
+           showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
+           mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
+           dopanning(false), keepcurrentarea(true), obsnr(0)
 {
 
   oldx = newx = oldy = newy = 0;
@@ -112,7 +112,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   idnumCurrent.clear();
 
   // split up input into separate products
-  vector<miString> fieldpi, obspi, mappi, satpi, statpi, objectpi, trajectorypi,
+  vector<miString> fieldpi, obspi, areapi, mappi, satpi, statpi, objectpi, trajectorypi,
   labelpi, editfieldpi;
 
   int n = vpi.size();
@@ -128,7 +128,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
       else if (type == "MAP")
         mappi.push_back(vpi[i]);
       else if (type == "AREA")
-        mappi.push_back(vpi[i]);
+        areapi.push_back(vpi[i]);
       else if (type == "SAT")
         satpi.push_back(vpi[i]);
       else if (type == "STATION")
@@ -154,6 +154,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   prepareObs(obspi);
   prepareSat(satpi);
   prepareStations(statpi);
+  prepareArea(areapi);
   prepareMap(mappi);
   prepareObjects(objectpi);
   prepareTrajectory(trajectorypi);
@@ -169,6 +170,56 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
 #ifdef DEBUGPRINT
   cerr << "++ Returning from PlotModule::preparePlots ++" << endl;
 #endif
+}
+
+void PlotModule::prepareArea(const vector<miutil::miString>& inp)
+{
+  milogger::LogHandler::getInstance()->setObjectName("diana.PotModule.prepareArea");
+  COMMON_LOG::getInstance("common").debugStream() << "++ PlotModule::prepareArea ++";
+
+  MapManager mapm;
+
+  if ( !inp.size() ) return;
+  if ( inp.size() > 1 ) cerr <<"More AREA definitions, using: "<<inp[0]<<endl;
+
+  const miString key_name=  "name";
+  const miString key_areaname=  "areaname"; //old syntax
+  const miString key_proj=  "proj4string";
+  const miString key_rectangle=  "rectangle";
+  const miString key_xypart=  "xypart";
+
+  Projection proj;
+  Rectangle rect;
+
+  vector<miString> tokens= inp[0].split('"','"'," ",true);
+
+  int n = tokens.size();
+  for (int i=0; i<n; i++){
+    vector<miString> stokens= tokens[i].split(1,'=');
+    if (stokens.size() > 1) {
+      miString key= stokens[0].downcase();
+
+      if (key==key_name || key==key_areaname){
+        if ( !mapm.getMapAreaByName(stokens[1], requestedarea) ) {
+          COMMON_LOG::getInstance("common").warnStream() << "Unknown AREA definition: "<< inp[0];
+        }
+      } else if (key==key_proj){
+        if ( proj.set_proj_definition(stokens[1]) ) {
+          requestedarea.setP(proj);
+        } else {
+          COMMON_LOG::getInstance("common").warnStream() << "Unknown proj definition: "<< stokens[1];
+        }
+      } else if (key==key_rectangle){
+        if ( rect.setRectangle(stokens[1],false) ) {
+          requestedarea.setR(rect);
+        } else {
+          COMMON_LOG::getInstance("common").warnStream() << "Unknown rectangle definition: "<< stokens[1];
+        }
+      }
+    }
+  }
+
+
 }
 
 void PlotModule::prepareMap(const vector<miString>& inp)
@@ -188,8 +239,8 @@ void PlotModule::prepareMap(const vector<miString>& inp)
   int n = inp.size();
 
   // keep requested areas
-  Area rarea;
-  bool arearequested = false;
+  Area rarea = requestedarea;
+  bool arearequested = requestedarea.P().isDefined();
 
   bool isok;
   for (int k = 0; k < n; k++) { // loop through all plotinfo's
