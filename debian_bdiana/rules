@@ -16,8 +16,9 @@ endif
 %:
 	dh $@ --parallel
 
-# Ensure that the executable searches for libraries under the /opt/qt4-headless prefix.
-confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib"
+# Ensure that the executable searches for libraries under the /opt/qt4-headless prefix
+# and work around missing linkage to the Boost threading library in metlibs.
+confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib -Wl,-lboost_thread"
 
 do-configure:
 	./autogen.sh
