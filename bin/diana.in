@@ -39,6 +39,11 @@ test -s mail.core  && mv -f mail.core mail.core.old
 # remove old lpr print files, left after failure...
 find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 
+# create a logfile with all output in /tmp
+random=`date +%N`
+logfile=/tmp/diana-$random.log
+
+
 tstart=`date`
 $prefix/bin/diana.bin-@PVERSION@ \
     -s $setup \
@@ -46,7 +51,7 @@ $prefix/bin/diana.bin-@PVERSION@ \
     -p \
     -S "profet.met.no" \
     PROFFWDB="proffdb.met.no" \
-    $@
+    $@  1>$logfile 2>&1
 
 tstop=`date`
 
@@ -76,6 +81,15 @@ echo "-------------" >>mail.core
 pwd                  >>mail.core
 ls -ltr core*        >>mail.core
 
+echo "===============================================" >>mail.core
+echo " "             >>mail.core
+echo "OUTPUT FROM LOGFILE: $logfile" >>mail.core
+echo " "             >>mail.core
+cat $logfile         >>mail.core
+echo " "             >>mail.core
+echo "===============================================" >>mail.core
+
+
 for corefile in core*
 do
 
@@ -102,5 +116,7 @@ adr="diana@met.no"
 Mail -s "DIANA CRASH" $adr < mail.core
 
 fi
+
+rm $logfile
 
 exit
