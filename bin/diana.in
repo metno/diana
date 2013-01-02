@@ -51,7 +51,7 @@ $prefix/bin/diana.bin-@PVERSION@ \
     -p \
     -S "profet.met.no" \
     PROFFWDB="proffdb.met.no" \
-    $@  1>$logfile 2>&1
+    $@  2>&1 | tee $logfile
 
 tstop=`date`
 
