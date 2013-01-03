@@ -1,3 +1,15 @@
+diana (3.30.7-2) unstable; urgency=low
+
+  *  Multithread problems possibly solved by calling XInitThreads()
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Jan 2013 10:33:05 +0100
+
+diana (3.30.7-1) unstable; urgency=low
+
+  * Bugfixing + logfile in core mail
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Jan 2013 09:15:20 +0100
+
 diana (3.30.6-1) unstable; urgency=low
 
   * Bugfix: Quickmenus, PlotOptions, MapDialog (logging)
