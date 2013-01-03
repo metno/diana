@@ -111,7 +111,7 @@ private:
     bool idnummove;
     SelectedField() : inEdit(false), external(false), forecastSpec(false), editPlot(false),
         hourOffset(0), hourDiff(0), minus(false),
-        cdmSyntax(false), plotDefinition(true), levelmove(true), idnummove(true)
+        cdmSyntax(true), plotDefinition(true), levelmove(true), idnummove(true)
     {
     }
   };
