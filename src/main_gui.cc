@@ -49,7 +49,6 @@
 #include <puTools/miCommandLine.h>
 #include <puTools/miString.h>
 #include <iostream>
-#include <X11/Xlib.h>
 
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
@@ -92,11 +91,6 @@ int main(int argc, char **argv)
 {
   cout << argv[0] << " : DIANA version: " << VERSION << "  build: "
       << build_string << endl;
-
-  if ( !XInitThreads() ) {
-    cerr <<"main: XInitThreads() returned 0"<<endl;
-    return 99;
-  }
 
   miString logfilename;
   miString ver_str= VERSION;
@@ -208,6 +202,7 @@ int main(int argc, char **argv)
   miTime x; x.setDefaultLanguage(lang);
 
   // gui init
+  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
   QApplication a( argc, argv );
 
   QTranslator qutil( 0 );
