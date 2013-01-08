@@ -87,6 +87,8 @@ private:
   miutil::miString priorityFile;
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
   bool parameterName; //parameter name printed in front of value (ascii only)
+  bool qualityFlag;
+  bool wmoFlag;
   bool allAirepsLevels;
   int timeDiff;
   bool moretimes; //if true, sort stations according to obsTime
@@ -106,6 +108,8 @@ private:
   //Name and last modification time of files used
   vector<miutil::miString> fileNames;
   vector<long> modificationTime;
+
+  enum flag {QUALITY_GOOD = 4};
 
   //Criteria
   enum Sign{

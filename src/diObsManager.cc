@@ -590,7 +590,8 @@ bool ObsManager::updateTimes(miString obsType)
 #endif
   int npattern = Prod[obsType].pattern.size();
   for( int j=0;j<npattern; j++) {
-    if( !Prod[obsType].pattern[j].archive || useArchive ){
+    if( (!Prod[obsType].pattern[j].archive && !useArchive) ||
+       (Prod[obsType].pattern[j].archive && useArchive)  ){
       bool ok = Prod[obsType].pattern[j].filter.ok();
 
       glob_t globBuf;
@@ -714,7 +715,8 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
   vector<miString> fname;
 
   for(unsigned int j=0;j<Prod[obsType].pattern.size(); j++) {
-    if( !Prod[obsType].pattern[j].archive || useArchive ){
+    if( (!Prod[obsType].pattern[j].archive && !useArchive ) ||
+      ( Prod[obsType].pattern[j].archive && useArchive ) ){
       glob_t globBuf;
       glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
       for (__size_t k=0; k < globBuf.gl_pathc; k++) {
@@ -953,7 +955,7 @@ ObsDialogInfo ObsManager::initDialog()
 
   ObsDialogInfo::PlotType psynop;
   psynop.name = "Synop";
-  psynop.misc = "dev_field_button=true tempPrecision=true more_times";
+  psynop.misc = "dev_field_button=true tempPrecision=true more_times qualityflag wmoflag";
   psynop.criteriaList = criteriaList["synop"];
 
   psynop.button.push_back(addButton("Wind","Wind (direction and speed)"));
@@ -1035,7 +1037,7 @@ ObsDialogInfo ObsManager::initDialog()
 
   plist.name="List";
   plist.misc =
-    "dev_field_button tempPrecision markerboxVisible orientation more_times";
+    "dev_field_button tempPrecision markerboxVisible orientation more_times qualityflag wmoflag";
   plist.criteriaList = criteriaList["list"];
 
   plist.button.push_back(addButton("Pos","Position",0,0,true));
@@ -1056,6 +1058,7 @@ ObsDialogInfo ObsManager::initDialog()
   plist.button.push_back(addButton("RRR_6","precipitation past 6 hours",-1,100));
   plist.button.push_back(addButton("RRR_12","precipitation past 12 hours",-1,100));
   plist.button.push_back(addButton("RRR_24","precipitation past 24 hours",-1,100));
+  plist.button.push_back(addButton("quality","quality",-1,100));
 
 
   obsformat.clear();
@@ -1718,7 +1721,7 @@ bool ObsManager::parseSetup()
   defProd["synop"].timeRangeMin=-30;
   defProd["synop"].timeRangeMax= 30;
   defProd["synop"].synoptic= true;
-  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Name,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24";
+  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Name,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24,quality";
   defProd["synop"].parameter= parameter.split(",");
   defProd["aireps"].obsformat= ofmt_aireps;
   defProd["aireps"].timeRangeMin=-30;

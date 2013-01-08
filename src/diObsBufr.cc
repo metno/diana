@@ -386,6 +386,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   1002  WMO STATION NUMBER
     case 1002:
       wmoStation = int(values[j]);
+      d.fdata["wmonumber"] = float(wmoStation);
       wmoNumber = true;
       break;
 
@@ -1035,6 +1036,10 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
         d.fdata["TE"] = values[j];
       break;
 
+    case 25053:
+      if (values[j] < bufrMissing)
+        d.fdata["quality"] = values[j];
+      break;
     }
   }
 

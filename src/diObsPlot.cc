@@ -121,6 +121,8 @@ ObsPlot::ObsPlot() : Plot()
   showOnlyPrioritized = false;
   flaginfo = false;
   parameterName = false;
+  qualityFlag = false;
+  wmoFlag = false;
   pcriteria = false; //plot criteria
   ccriteria = false; //colour criteria
   tccriteria = false; // total colour criteria
@@ -515,6 +517,10 @@ bool ObsPlot::prepare(const miString& pin)
         } else {
           parameterName = false;
         }
+      } else if (key == "qualityflag") {
+        qualityFlag = (value == "true");
+      } else if (key == "wmoflag") {
+        wmoFlag = (value == "true");
       } else if (key == "moretimes") {
         if (value == "true")
           moretimes = true;
@@ -2398,6 +2404,9 @@ void ObsPlot::plotList(int index)
 #ifdef DEBUGPRINT
   cerr << "++ ObsPlot::plotList( index: " << index << " ) ++" << endl;
 #endif
+
+
+
   GLfloat radius = 3.0;
   int printPos = -1;
   if( !left_alignment ) printPos=0;
@@ -2414,6 +2423,15 @@ void ObsPlot::plotList(int index)
   bool wind = pFlag.count("wind");
 
   ObsData &dta = obsp[index];
+
+  if ( qualityFlag && dta.fdata.count("quality") &&
+      !(int(dta.fdata["quality"])&QUALITY_GOOD) ) {
+    return;
+  }
+
+  if ( wmoFlag && !dta.fdata.count("wmonumber") ) {
+    return;
+  }
 
   map<miString, float>::iterator f_p;
   map<miString, float>::iterator q_p;
@@ -4782,6 +4800,15 @@ void ObsPlot::plotSynop(int index)
 #endif
   ObsData &dta = obsp[index];
 
+  if ( qualityFlag && dta.fdata.count("quality") &&
+      !(int(dta.fdata["quality"])&QUALITY_GOOD) ) {
+    return;
+  }
+
+  if ( wmoFlag && !dta.fdata.count("wmonumber") ) {
+    return;
+  }
+
   GLfloat radius = 7.0;
   GLfloat x1, x2, x3, y1, y2, y3;
   int lpos;
@@ -6614,8 +6641,7 @@ void ObsPlot::cloudCoverAuto(const float& fN, const float &radius)
 
   int N = float2int(fN);
 
-  int i;
-  float x, y;
+  float x;
   GLfloat x1,x2,x3,y1,y2,y3;
 
   // Total cloud cover N
