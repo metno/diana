@@ -184,7 +184,7 @@ private:
 
   void toolTips();
 
-  vector<miutil::miString> numberList( QComboBox* cBox, float number );
+  vector<miutil::miString> numberList( QComboBox* cBox, float number, bool onoff= false );
 
   void baseList( QComboBox* cBox, float base, bool onoff= false );
 
@@ -232,6 +232,7 @@ private:
 
   vector<miutil::miString> linetypes;
   vector<miutil::miString> lineintervals;
+  vector<miutil::miString> lineintervals2;
   QStringList      densityStringList;
   vector<miutil::miString> vectorunit;
   vector<miutil::miString> extremeType;

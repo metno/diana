@@ -2208,14 +2208,13 @@ void FieldDialog::enableFieldOptions()
     if ((nc = cp->findKey(vpcopt, "line.interval")) >= 0
         && (!vpcopt[nc].floatValue.empty())) {
       float ekv = vpcopt[nc].floatValue[0];
-      lineintervals = numberList(lineintervalCbox, ekv);
-      numberList(interval2ComboBox, ekv);
+      lineintervals = numberList(lineintervalCbox, ekv,true);
+      numberList(interval2ComboBox, ekv,true);
     }
-    if ((nc = cp->findKey(vpcopt, "line.interval_2")) >= 0) {
-      if (!vpcopt[nc].floatValue.empty()){
-        float ekv = vpcopt[nc].floatValue[0];
-        numberList(interval2ComboBox, ekv);
-      }
+    if ((nc = cp->findKey(vpcopt, "line.interval_2")) >= 0
+        && (!vpcopt[nc].floatValue.empty())) {
+      float ekv = vpcopt[nc].floatValue[0];
+      lineintervals2 = numberList(interval2ComboBox, ekv, true);
     }
   }
 
@@ -2248,7 +2247,7 @@ void FieldDialog::enableFieldOptions()
       e = vpcopt[nc].floatValue[0];
     else
       e = 5;
-    vectorunit = numberList(vectorunitCbox, e);
+    vectorunit = numberList(vectorunitCbox, e, false);
   }
 
   // extreme.type (L+H, C+W or none)
@@ -2502,8 +2501,6 @@ void FieldDialog::setDefaultFieldOptions()
   fieldSmoothSpinBox->setValue(0);
   gridValueCheckBox->setChecked(false);
   gridLinesSpinBox->setValue(0);
-  hourOffsetSpinBox->setValue(0);
-  hourDiffSpinBox->setValue(0);
   undefMaskingCbox->setCurrentIndex(0);
   undefColourCbox->setCurrentIndex(1);
   undefLinewidthCbox->setCurrentIndex(0);
@@ -2546,8 +2543,10 @@ void FieldDialog::setDefaultFieldOptions()
 
   vectorunitCbox->setCurrentIndex(0);
 
-  lineintervals = numberList(lineintervalCbox, 10);
+  lineintervals  = numberList(lineintervalCbox, 10, true);
+  lineintervals2 = numberList(interval2ComboBox, 10, true);
   lineintervalCbox->setCurrentIndex(0);
+  interval2ComboBox->setCurrentIndex(0);
   baseList(zero1ComboBox, 0);
   baseList(zero2ComboBox, 0);
   baseList(min2ComboBox, 0, true);
@@ -2559,8 +2558,14 @@ void FieldDialog::setDefaultFieldOptions()
   max1ComboBox->setCurrentIndex(0);
   max2ComboBox->setCurrentIndex(0);
 
+  //hour.offset and hour.diff are not plotOptions and signals must be blocked
+  //in order not to change the selectedField values of hour.offset and hour.diff
+  hourOffsetSpinBox->blockSignals(true);
   hourOffsetSpinBox->setValue(0);
+  hourOffsetSpinBox->blockSignals(false);
+  hourDiffSpinBox->blockSignals(true);
   hourDiffSpinBox->setValue(0);
+  hourDiffSpinBox->blockSignals(false);
 
 
 
@@ -2646,7 +2651,7 @@ void FieldDialog::enableWidgets(miutil::miString plottype)
 #endif
 }
 
-vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number)
+vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number, bool onoff)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::numberList called: "<<number<<endl;
@@ -2681,7 +2686,9 @@ vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number)
     }
   }
   nupdown = nenormal * 2 / 3;
-  vnumber.push_back("off");
+  if (onoff) {
+    vnumber.push_back("off");
+  }
   for (i = n - nupdown; i <= n + nupdown; ++i) {
     j = i / nenormal;
     k = i % nenormal;
@@ -2699,7 +2706,11 @@ vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number)
     cBox->addItem(QString(vnumber[i].cStr()));
   }
 
-  cBox->setCurrentIndex(nupdown + 1);
+
+  if (onoff)
+    cBox->setCurrentIndex(nupdown + 1);
+  else
+    cBox->setCurrentIndex(nupdown);
 
   return vnumber;
 }
@@ -2800,7 +2811,7 @@ void FieldDialog::lineintervalCboxActivated(int index)
     updateFieldOptions("line.interval", lineintervals[index]);
     // update the list (with selected value in the middle)
     float a = atof(lineintervals[index].c_str());
-    lineintervals = numberList(lineintervalCbox, a);
+    lineintervals = numberList(lineintervalCbox, a, true);
   }
 }
 
@@ -2817,7 +2828,7 @@ void FieldDialog::vectorunitCboxActivated(int index)
   updateFieldOptions("vector.unit", vectorunit[index]);
   // update the list (with selected value in the middle)
   float a = atof(vectorunit[index].c_str());
-  vectorunit = numberList(vectorunitCbox, a);
+  vectorunit = numberList(vectorunitCbox, a, false);
 }
 
 void FieldDialog::extremeTypeActivated(int index)
@@ -3064,11 +3075,14 @@ void FieldDialog::alphaChanged(int index)
 
 void FieldDialog::interval2ComboBoxToggled(int index)
 {
-  miutil::miString str = interval2ComboBox->currentText().toStdString();
-  updateFieldOptions("line.interval_2", str);
-  // update the list (with selected value in the middle)
-  float a = atof(str.c_str());
-  numberList(interval2ComboBox, a);
+  if (index == 0) {
+    updateFieldOptions("line.interval_2", "remove");
+  } else {
+    updateFieldOptions("line.interval_2", lineintervals2[index]);
+    // update the list (with selected value in the middle)
+    float a = atof(lineintervals2[index].c_str());
+    lineintervals2 = numberList(interval2ComboBox, a, true);
+  }
 }
 
 void FieldDialog::zero1ComboBoxToggled(int index)
