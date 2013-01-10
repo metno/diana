@@ -149,7 +149,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   cp->addKey("vector.unit",    "",0,CommandParser::cmdFloat);
   cp->addKey("extreme.type",   "",0,CommandParser::cmdString);
   cp->addKey("extreme.size",   "",0,CommandParser::cmdFloat);
-  //cp->addKey("extreme.radius", "",0,CommandParser::cmdFloat);
   cp->addKey("extreme.limits", "",0,CommandParser::cmdString);
   cp->addKey("line.smooth",    "",0,CommandParser::cmdInt);
   cp->addKey("zero.line",      "",0,CommandParser::cmdInt);
@@ -580,14 +579,6 @@ void VcrossDialog::CreateAdvanced() {
   extremeLayout->addWidget(extremeSizeSpinBox,      1, 0);
   extremeLayout->addWidget(extremeLimitMinComboBox, 1, 1);
   extremeLayout->addWidget(extremeLimitMaxComboBox, 1,2);
-  //QLabel* extremeRadiusLabel= new QLabel( "S�keradius", advFrame );
-  //extremeRadiusSpinBox= new QSpinBox( 5,300,5, advFrame );
-  //extremeRadiusSpinBox->setWrapping(true);
-  //extremeRadiusSpinBox->setSuffix("%");
-  //extremeRadiusSpinBox->setValue(100);
-  //extremeRadiusSpinBox->setEnabled( false );
-  //connect( extremeRadiusSpinBox, SIGNAL( valueChanged(int) ),
-  //	   SLOT( extremeRadiusChanged(int) ) );
 
   // line smoothing
   QLabel* lineSmoothLabel= new QLabel( tr("Smooth lines"), advFrame );
@@ -2481,7 +2472,7 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
 
   map<miutil::miString,miutil::miString>::iterator pfopt;
   miutil::miString fieldname;
-  int nopt,i,j;
+  int nopt;
 
   vector<ParsedCommand> vplog= cp->parse( str );
   int nlog= vplog.size();
@@ -2496,17 +2487,19 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
       nopt= vpopt.size();
       //##################################################################
       //    cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
-      //    for (j=0; j<nlog; j++)
+      //    for (int j=0; j<nlog; j++)
       //	cerr << "        log " << j << " : id " << vplog[j].idNumber
       //	     << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
       //##################################################################
       if (vcrossPrefix) newstr= "VCROSS ";
-      for (i=first; i<nlog; i++) {
+      for (int i=first; i<nlog; i++) {
         if (vplog[i].idNumber==1)
           newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
       }
-      for (j=0; j<nopt; j++) {
-        i=0;
+
+      //loop through current options, replace the value if the new string has same option with different value
+      for (int j=0; j<nopt; j++) {
+        int i=0;
         while (i<nlog && vplog[i].key!=vpopt[j].key) i++;
         if (i<nlog) {
           // there is no option with variable no. of values, YET...
@@ -2515,16 +2508,28 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
             cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
         }
       }
+
+      //loop through new options, add new option if it is not a part of current options
+       for (int i = 2; i < nlog; i++) {
+         int j = 0;
+         while (j < nopt && vpopt[j].key != vplog[i].key)
+           j++;
+         if (j == nopt) {
+           cp->replaceValue(vpopt, vplog[i].key, vplog[i].allValue);
+         }
+       }
+
+
       newstr+= " ";
       newstr+= cp->unParse(vpopt);
       if (vcrossPrefix) {
         // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
-        for (i=2+first; i<nlog; i++) {
+        for (int i=2+first; i<nlog; i++) {
           if (vplog[i].idNumber==4 || vplog[i].idNumber==-1)
             newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
         }
       }
-      for (i=2+first; i<nlog; i++) {
+      for (int i=2+first; i<nlog; i++) {
         if (vplog[i].idNumber==3)
           newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
       }
