@@ -57,7 +57,12 @@ map<miString,Area> MapPlot::shapeareas;
 
 // Default constructor
 MapPlot::MapPlot() :
-              Plot(), mapchanged(true), haspanned(false), usedrawlists(true)
+              Plot(), mapchanged(true), haspanned(false),
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+              usedrawlists(false)
+#else
+              usedrawlists(true)
+#endif
 {
 #ifdef DEBUGPRINT
   cerr << "++ MapPlot::Default Constructor" << endl;
