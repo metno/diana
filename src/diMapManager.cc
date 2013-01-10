@@ -108,7 +108,7 @@ bool MapManager::parseMapAreas()
 
     } else {
       SetupParser::errorMsg(SectMapAreas, i, "Incomplete maparea-specification");
-      return false;
+      return true;
     }
 
   }
@@ -123,11 +123,10 @@ bool MapManager::parseMapTypes()
   vector<miString> strlist;
   MapInfo mapinfo;
   unsigned int i, n, q;
-  int m;
+
   PlotOptions a, b, c, d, e;
 
   mapfiles.clear();
-  m = -1;
 
   if (!SetupParser::getSection(SectMapTypes, strlist))
     return true;
