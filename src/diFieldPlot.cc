@@ -691,11 +691,20 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1, i
 
   dist = (adx+ady)*0.5;
 
-  // 40 winds or 55 arrows if 1000 pixels
-  float numElements = float(maxElementsX)*float(pwidth)/1000.;
-  float elementSize = fullrect.width()/numElements;
-  step = int(elementSize/dist + 0.75);
-  if (step<1) step=1;
+  // automatic wind/vector density if step<1
+  if ( step < 1 ) {
+    // 40 winds or 55 arrows if 1000 pixels
+    float numElements = float(maxElementsX)*float(pwidth)/1000.;
+    float elementSize = fullrect.width()/numElements;
+    step = int(elementSize/dist + 0.75);
+    if (step<1) step=1;
+  }
+
+  dist *= float(step);
+
+  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
+    step /=(poptions.densityFactor);
+  }
 
   //adjust ix1,iy1 to make sure that same grid points are used when panning
   ixx1 = int(ixx1/step)*step;
@@ -704,11 +713,19 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1, i
 }
 
 
-int FieldPlot::xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist)
+int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy, float sdist)
 {
   int xstep;
   int i,ix;
   int nx= fields[0]->nx;
+  int ix1 = ixx1;
+
+  // Use all grid point to make average step, not only current rectangle.
+  // This ensures that different tiles have the same vector density
+  if ( poptions.density == -1) {
+    ix1 = nx/4;
+    ix2 = nx-nx/4;
+  }
 
   if (nx<3) {
     return 1;
@@ -747,7 +764,7 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sd
   }
 
   //adjust ix1 to make sure that same grid points are used when panning
-  ix1 = int(ix1/xstep)*xstep;
+  ixx1 = int(ixx1/xstep)*xstep;
 
   return xstep;
 }
@@ -791,20 +808,9 @@ bool FieldPlot::plotWind(){
   float *v= uv[1];
 
   int step= poptions.density;
-
-  // automatic wind/vector density
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
   int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y);
@@ -902,7 +908,7 @@ bool FieldPlot::plotWind(){
   glBegin(GL_LINES);
 
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
 
       int i= iy*nx+ix;
@@ -1090,16 +1096,8 @@ bool FieldPlot::plotValue(){
 
   float* field = fields[0]->data;
   int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
   int xstep= step;
 
   if ( poptions.frame ) {
@@ -1125,9 +1123,6 @@ bool FieldPlot::plotValue(){
   float gx,gy;
   float flagl = sdist * 0.85;
 
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
-
   ix1-=step;     if (ix1<0)  ix1=0;
   iy1-=step;     if (iy1<0)  iy1=0;
   ix2+=(step+1); if (ix2>nx) ix2=nx;
@@ -1144,7 +1139,7 @@ bool FieldPlot::plotValue(){
   chy *= 0.75;
 
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
@@ -1234,20 +1229,9 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   float *v= uv[1];
 
   int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
   int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y);
@@ -1267,15 +1251,6 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   iy1-=step;     if (iy1<0)  iy1=0;
   ix2+=(step+1); if (ix2>nx) ix2=nx;
   iy2+=(step+1); if (iy2>ny) iy2=ny;
-
-  if (xStepComp) {
-    // avoid double plotting of wind and number
-    iy=(iy1+iy2)/2;
-    int i1= iy*nx+ix1;
-    int i2= iy*nx+ix2-1;
-    if (fabsf(x[i1]-x[i2])<0.01 &&
-        fabsf(y[i1]-y[i2])<0.01) ix2--;
-  }
 
   maprect.setExtension( flagl );
   float fontsize= 7. * poptions.labelSize;
@@ -1323,15 +1298,13 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
       && step > 0;
   if(adjustToLatLon) iy1 = (iy1/step)*step;
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) {
-      xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-      if(adjustToLatLon){
-        xstep = (xstep/step)*step;
-        if(xstep==0) xstep=step;
-        ix1 = (ix1/xstep)*xstep;
-      }
-      vxstep.push_back(xstep);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    if(adjustToLatLon){
+      xstep = (xstep/step)*step;
+      if(xstep==0) xstep=step;
+      ix1 = (ix1/xstep)*xstep;
     }
+    vxstep.push_back(xstep);
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
@@ -1499,7 +1472,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   int ivx=0;
 
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
+    xstep= vxstep[ivx++];
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
@@ -1660,20 +1633,9 @@ bool FieldPlot::plotValues(){
   if (ix1>ix2 || iy1>iy2) return false;
 
   int step= poptions.density;
-
-  // automatic wind/vector density if step<1
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, step, sdist);
   int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y);
@@ -1747,21 +1709,19 @@ bool FieldPlot::plotValues(){
       && step > 0;
   if(adjustToLatLon) iy1 = (iy1/step)*step;
   for (int iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) {
-      xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-      if(adjustToLatLon){
-        xstep = (xstep/step)*step;
-        if(xstep==0) xstep=step;
-        ix1 = (ix1/xstep)*xstep;
-      }
-      vxstep.push_back(xstep);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    if(adjustToLatLon){
+      xstep = (xstep/step)*step;
+      if(xstep==0) xstep=step;
+      ix1 = (ix1/xstep)*xstep;
     }
+    vxstep.push_back(xstep);
   }
 
   float x1,x2,y1,y2,w,h;
   int ivx=0;
   for (int iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= vxstep[ivx++];
+    xstep= vxstep[ivx++];
     for (int ix=ix1; ix<ix2; ix+=xstep){
       int i= iy*nx+ix;
       float gx= x[i];
@@ -1857,20 +1817,9 @@ bool FieldPlot::plotVector(){
   float *v= uv[1];
 
   int step= poptions.density;
-
-  // automatic wind/vector density
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
-  if (poptions.density<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y);
@@ -1906,7 +1855,7 @@ bool FieldPlot::plotVector(){
   glBegin(GL_LINES);
 
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
@@ -1974,20 +1923,9 @@ bool FieldPlot::plotVectorColour(){
   float *v= uv[1];
 
   int step= poptions.density;
-
-  // automatic wind/vector density
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y);
@@ -2073,7 +2011,7 @@ bool FieldPlot::plotVectorColour(){
   glBegin(GL_LINES);
 
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
@@ -2156,20 +2094,9 @@ bool FieldPlot::plotDirection(){
   float *v= uv[1];
 
   int step= poptions.density;
-
-  // automatic wind/vector density
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y);
@@ -2201,7 +2128,7 @@ bool FieldPlot::plotDirection(){
   glBegin(GL_LINES);
 
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
@@ -2270,20 +2197,9 @@ bool FieldPlot::plotDirectionColour(){
   float *v= uv[1];
 
   int step= poptions.density;
-
-  // automatic wind/vector density
-  int autostep;
-  float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, autostep, dist);
-  if (step<1) step= autostep;
-  float sdist= dist*float(step);
-  if ( step > poptions.densityFactor && poptions.densityFactor > 0 ) {
-    step /=(poptions.densityFactor);
-  }
+  float sdist;
+  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep= step;
-
-  //adjust step in x-direction for each y-value, needed when plotting geo-grid data on non-geo-grid map
-  bool xStepComp = (fields[0]->area.P().isGeographic() && !area.P().isGeographic());
 
   if ( poptions.frame ) {
     plotFrame(nx,ny,x,y);
@@ -2373,7 +2289,7 @@ bool FieldPlot::plotDirectionColour(){
   glBegin(GL_LINES);
 
   for (iy=iy1; iy<iy2; iy+=step){
-    if (xStepComp) xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
+    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
     for (ix=ix1; ix<ix2; ix+=xstep){
       i= iy*nx+ix;
       gx= x[i]; gy= y[i];
