@@ -1447,9 +1447,10 @@ static void printPage(int ox, int oy)
   printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
   printer.setFullPage(true);
 
-  painter.begin(&printer);
-  painter.drawPicture(ox, oy, picture);
-  painter.end();
+  QPainter pagePainter;
+  pagePainter.begin(&printer);
+  pagePainter.drawPicture(ox, oy, picture);
+  pagePainter.end();
 }
 #endif
 
@@ -2041,7 +2042,7 @@ static int parseAndProcess(istream &is)
             image.setText(QString::number(i), QString::fromStdString(lines[i]));
 
           image.save(QString::fromStdString(priop.fname));
-
+    #if 0
           milogger::LogHandler::getInstance()->setObjectName("diana.bdiana.parseAndProcess");
 
           bool empty = true;
@@ -2066,6 +2067,7 @@ static int parseAndProcess(istream &is)
 
           if (empty)
             COMMON_LOG::getInstance("common").infoStream() << "# ^^^ Empty plot (end)";
+    #endif
         }
 #endif
         else {
