@@ -46,10 +46,10 @@ logfile=/tmp/diana-$random.log
 
 tstart=`date`
 $prefix/bin/diana.bin-@PVERSION@ \
-    -style cleanlooks
     -s $setup \
     -T "diana-@PVERSION@" \
     -p \
+    -style=cleanlooks \
     $@  2>&1 | tee $logfile
 
 tstop=`date`

@@ -1,3 +1,27 @@
+diana (3.31.0-5) unstable; urgency=low
+
+  * -style=cleanlooks
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 16 Jan 2013 12:56:03 +0100
+
+diana (3.31.0-4) unstable; urgency=low
+
+  * -style cleanlooks
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 16 Jan 2013 09:50:19 +0100
+
+diana (3.31.0-3) unstable; urgency=low
+
+  * -style cleanlooks
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Jan 2013 21:21:37 +0100
+
+diana (3.31.0-2) unstable; urgency=low
+
+  * Something is wrong with 3.31.0-1, try once more
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Jan 2013 13:55:51 +0100
+
 diana (3.31.0-1) unstable; urgency=low
 
   * Observations:  Possible to select only stations with wmo-number and/or good quality flag
