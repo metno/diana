@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <iostream>
 #include <set>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #ifdef METNOOBS
 #include <diObsSynop.h>
@@ -2040,10 +2042,10 @@ bool ObsManager::parseSetup()
 }
 
 bool ObsManager::initHqcdata(int from,
-    const miString& commondesc,
-    const miString& common,
-    const miString& desc,
-    const vector<miString>& data)
+    const string& commondesc,
+    const string& common,
+    const string& desc,
+    const vector<string>& data)
 
 {
   //  cerr <<"ObsManager::initHqc: "<<desc<<endl;
@@ -2068,7 +2070,7 @@ bool ObsManager::initHqcdata(int from,
 
     for(int i=0;i<n;i++){
       FileInfo finfo;
-      finfo.time = data[i];
+      finfo.time = miString(data[i]);
       Prod["hqc_synop"].fileInfo.push_back(finfo);
       Prod["hqc_list"].fileInfo.push_back(finfo);
     }
@@ -2078,26 +2080,30 @@ bool ObsManager::initHqcdata(int from,
 
 
   hqc_from = from;
-  vector<miString> descstr = commondesc.split(",");
-  vector<miString> commonstr = common.split(",");
+  vector<string> descstr;
+  boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
+  vector<string> commonstr;
+  boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
     cerr <<"ObsManager::initHqcdata: different size of commondesc and common"
     <<endl;
     return false;
   }
   miString obsdataType;
-  if(common.contains("synop"))
+  if(common.find("synop") != std::string::npos)
     obsdataType = "hqc_synop";
   else
     obsdataType = "hqc_list";
 
   hqcdata.clear();
-  hqc_synop_parameter = desc.split(",");
+  vector<string> hqc_synop_parameter;
+  boost::algorithm::split(hqc_synop_parameter, desc, boost::algorithm::is_any_of(","));
 
   for(unsigned int i=0; i<descstr.size();i++){
-    if(descstr[i].downcase()=="time"){
+    string value = boost::algorithm::to_lower_copy(descstr[i]);
+    if(value=="time"){
       hqcTime = miTime(commonstr[i]);
-    } else if(descstr[i].downcase()=="plottype"){
+    } else if(value=="plottype"){
       hqcPlotType = commonstr[i];
     }
   }
@@ -2106,7 +2112,8 @@ bool ObsManager::initHqcdata(int from,
   int numStations = data.size();
   for(int j=0; j<numStations; j++){
     //    cerr <<j<<":"<<data[j]<<endl;
-    vector<miString> tokens = data[j].split(",");
+    vector<string> tokens;
+    boost::algorithm::split(tokens, data[j], boost::algorithm::is_any_of(","));
     ObsData obsd;
     if( !changeHqcdata(obsd,hqc_synop_parameter,tokens)) return false;
     hqcdata.push_back(obsd);
@@ -2154,15 +2161,18 @@ Colour ObsManager::flag2colour(const miString& flag)
   return col;
 }
 
-bool ObsManager::updateHqcdata(const miString& commondesc,
-    const miString& common,
-    const miString& desc,
-    const vector<miString>& data)
+bool ObsManager::updateHqcdata(const string& commondesc,
+    const string& common,
+    const string& desc,
+    const vector<string>& data)
 
 {
+
   //  cerr <<"updateHqcdata desc:"<<desc<<endl;
-  vector<miString> descstr = commondesc.split(",");
-  vector<miString> commonstr = common.split(",");
+  vector<string> descstr;
+  boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
+  vector<string> commonstr;
+  boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
     cerr <<"ObsManager::updateHqcdata: different size of commondesc and common"
     <<endl;
@@ -2170,19 +2180,22 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
   }
   miString plotType;
   for(unsigned int i=0; i<descstr.size();i++){
-    if(descstr[i].downcase()=="time"){
+    string value = boost::algorithm::to_lower_copy(descstr[i]);
+    if ( value == "time" ) {
       miTime t(commonstr[i]);
       hqcTime = t;
       //  if( t != hqcTime ) return false; //time doesn't match
-    } else if(descstr[i].downcase()=="plottype"){
+    } else if ( value == "plottype" ) {
       plotType = commonstr[i];
     }
   }
-  vector<miString> param = desc.split(",");
+  vector<string> param;
+  boost::algorithm::split(param, desc, boost::algorithm::is_any_of(","));
   if( param.size() <2 ) return false;
   //  cerr <<"data.size:"<<data.size();
   for(unsigned int j=0; j<data.size(); j++){
-    vector<miString> datastr = data[j].split(",");
+    vector<string> datastr;
+    boost::algorithm::split(datastr, data[j], boost::algorithm::is_any_of(","));
     if( datastr.size() !=param.size() ) continue;
     //find station
     int i=0;
@@ -2197,8 +2210,8 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
 
 
 bool ObsManager::changeHqcdata(ObsData& odata,
-    const vector<miString>& param,
-    const vector<miString>& data)
+    const vector<string>& param,
+    const vector<string>& data)
 {
   //  cerr <<"ObsManager::changeHqcdata"<<endl;
   if( param.size() != data.size() ) {
@@ -2211,6 +2224,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     //     cerr <<"key:"<<param[i]<<endl;
     //        cerr <<"data:"<<data[i]<<endl;
     miString key = param[i];
+    string value = boost::algorithm::to_lower_copy(data[i]);
     if(key=="id"){
       odata.id=data[i];
     } else if(key == "lon"){
@@ -2218,16 +2232,17 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     } else if(key == "lat"){
       odata.ypos=atof(data[i].c_str());
     } else if(key == "auto"){
-      if(data[i].downcase()=="a")
+      if(value =="a")
         odata.fdata["ix"]=4.;
-      else if(data[i].downcase()=="n")
+      else if(value=="n")
         odata.fdata["ix"]=-1;
     } else if(key == "St.type" && data[i] != "none" && data[i] != "" ){
       odata.dataType=data[i];
       //      cerr <<"St.type:"<<data[i]<<endl;
     } else {
       miString value;
-      vector<miString> vstr  = data[i].split(";");
+      vector<string> vstr;
+      boost::algorithm::split(vstr, data[i], boost::algorithm::is_any_of(";"));
       if(vstr.size() >= 2){
         value = vstr[0];
         odata.flag[key]=vstr[1];

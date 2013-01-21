@@ -192,11 +192,11 @@ public:
   /// plot other observations
   void nextObs(bool);
   /// init hqcData from QSocket
-  bool initHqcdata(int from, const miutil::miString&, const miutil::miString&,
-                   const miutil::miString&, const vector<miutil::miString>&);
+  bool initHqcdata(int from, const std::string&, const std::string&,
+                   const std::string&, const vector<std::string>&);
   /// update hqcData from QSocket
-  void updateHqcdata(const miutil::miString&, const miutil::miString&,
-                     const miutil::miString&, const vector<miutil::miString>&);
+  void updateHqcdata(const std::string&, const std::string&,
+                     const std::string&, const vector<std::string>&);
   /// select obs parameter to flag from QSocket
   void processHqcCommand(const miutil::miString&, const miutil::miString& ="");
   /// plot trajectory position
@@ -340,9 +340,9 @@ public:
 
   //stations
   void putStations(StationPlot*);
-  void makeStationPlot(const miutil::miString& commondesc, const miutil::miString& common,
-                       const miutil::miString& description, int from,
-                       const  vector<miutil::miString>& data);
+  void makeStationPlot(const std::string& commondesc, const std::string& common,
+                       const std::string& description, int from,
+                       const  vector<std::string>& data);
   void deleteStations(miutil::miString name);
   void deleteStations(int id=-2);
   miutil::miString findStation(int, int,miutil::miString name,int id=-1);
@@ -350,12 +350,13 @@ public:
                     vector<miutil::miString>& station);
   void getEditStation(int step, miutil::miString& name, int& id,
                       vector<miutil::miString>& stations);
-  void stationCommand(const miutil::miString& Command,
-                      vector<miutil::miString>& data,
-                      const miutil::miString& name="", int id=-1,
-                      const miutil::miString& misc="");
-  void stationCommand(const miutil::miString& Command,
-                      const miutil::miString& name="", int id=-1);
+  void getStationData(vector<std::string>& data);
+  void stationCommand(const std::string& Command,
+                      const vector<std::string>& data,
+                      const std::string& name="", int id=-1,
+                      const std::string& misc="");
+  void stationCommand(const std::string& Command,
+                      const std::string& name="", int id=-1);
   float getStationsScale();
   void setStationsScale(float new_scale);
 

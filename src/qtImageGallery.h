@@ -57,7 +57,7 @@ public:
   /// add a new QImage with name to gallery
   bool addImageToGallery(const miutil::miString name, const QImage& image);
 
-  bool addImageToGallery(const miutil::miString name, miutil::miString& imageStr);
+  bool addImageToGallery(const std::string name, std::string& imageStr);
 
   void addImagesInDirectory(const miutil::miString& dir);
 

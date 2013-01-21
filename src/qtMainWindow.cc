@@ -39,6 +39,8 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include "qtTimeSlider.h"
 #include "qtTimeControl.h"
@@ -843,8 +845,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
   //   pluginB->setMinimumWidth( hpixbutton );
   //   pluginB->setMaximumWidth( hpixbutton );
-  connect(pluginB, SIGNAL(receivedMessage(miMessage&)),
-      SLOT(processLetter(miMessage&)));
+  connect(pluginB, SIGNAL(receivedMessage(const miMessage&)),
+      SLOT(processLetter(const miMessage&)));
   connect(pluginB, SIGNAL(connectionClosed()),SLOT(connectionClosed()));
   statusBar()->addPermanentWidget(pluginB);
 
@@ -2107,8 +2109,8 @@ void DianaMainWindow::stationChangedSlot(const QString& station)
   //cerr << "DianaMainWindow::stationChangedSlot to " << station << endl;
   cerr << "DianaMainWindow::stationChangedSlot" << endl;
 #endif
-  miutil::miString s =station.toStdString();
-  vector<miutil::miString> data;
+  string s =station.toStdString();
+  vector<string> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"vprof");
   w->updateGL();
@@ -2179,8 +2181,8 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
   //cerr << "DianaMainWindow::spectrumChangedSlot to " << name << endl;
   cerr << "DianaMainWindow::spectrumChangedSlot" << endl;
 #endif
-  miutil::miString s =station.toStdString();
-  vector<miutil::miString> data;
+  string s =station.toStdString();
+  vector<string> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"spectrum");
   //  contr->setSelectedStation(s, "spectrum");
@@ -2227,7 +2229,7 @@ void DianaMainWindow::connectionClosed()
 }
 
 
-void DianaMainWindow::processLetter(miMessage &letter)
+void DianaMainWindow::processLetter(const miMessage &letter)
 {
   miutil::miString from(letter.from);
   //  cerr<<"Command: "<<letter.command<<"  ";
@@ -2254,7 +2256,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
         letter.common,
         letter.description,
         letter.data) ){
-      if(letter.common.contains("synop"))
+      if(letter.common.find("synop") !=std::string::npos )
         om->setPlottype("Hqc_synop",true);
       else
         om->setPlottype("Hqc_list",true);
@@ -2292,7 +2294,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: lat:lon
     vprofMenu();
     if(letter.data.size()){
-      vector<miutil::miString> tmp= letter.data[0].split(":");
+      vector<string> tmp;
+      boost::algorithm::split(tmp, letter.data[0], boost::algorithm::is_any_of(":"));
       if(tmp.size()==2){
         float lat= atof(tmp[0].c_str());
         float lon= atof(tmp[1].c_str());
@@ -2324,7 +2327,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     int n = letter.data.size();
     for(int i=0; i<n; i++){
       // separate name and data
-      vector<miutil::miString> vs= letter.data[i].split(":");
+      vector<string> vs;
+      boost::algorithm::split(vs, letter.data[i], boost::algorithm::is_any_of(":"));
       if (vs.size()<2) continue;
       ig.addImageToGallery(vs[0], vs[1]);
     }
@@ -2339,17 +2343,22 @@ void DianaMainWindow::processLetter(miMessage &letter)
     if(letter.common == "diana") return;
 
     //obsolete -> new syntax
-    if(letter.description.contains(";")){
-      vector<miutil::miString> desc = letter.description.split(";");
+    string commondesc = letter.commondesc;
+    string common = letter.common;
+    string description = letter.description;
+
+    if(letter.description.find(";") != letter.description.npos){
+      vector<string> desc;
+      boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
       if( desc.size() < 2 ) return;
       miutil::miString dataSet = desc[0];
-      letter.description=desc[1];
-      letter.commondesc = "dataset:" + letter.commondesc;
-      letter.common = dataSet + ":" + letter.common;
+      description=desc[1];
+      commondesc = "dataset:" + letter.commondesc;
+      common = dataSet + ":" + letter.common;
     }
 
-    contr->makeStationPlot(letter.commondesc,letter.common,
-        letter.description,
+    contr->makeStationPlot(commondesc,common,
+        description,
         letter.from,letter.data);
 
     //    sendSelectedStations(qmstrings::selectposition);
@@ -2398,7 +2407,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //cerr << "Change text and image\n";
     //description: dataSet;stationname:image:text:alignment
     //find name of data set from description
-    vector<miutil::miString> desc = letter.description.split(";");
+    vector<string> desc;
+    boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
     if( desc.size() == 2 ) { //obsolete syntax
       contr->stationCommand("changeImageandText",
           letter.data,desc[0],letter.from,desc[1]);
@@ -2450,7 +2460,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::areacommand ){
     //commondesc command:dataSet
-    vector<miutil::miString> token = letter.common.split(":");
+    vector<string> token;
+    boost::algorithm::split(token, letter.common, boost::algorithm::is_any_of(":"));
     if(token.size()>1){
       int n = letter.data.size();
       if(n==0) 	contr->areaCommand(token[0],token[1],miutil::miString(),letter.from);
@@ -2496,7 +2507,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: station:text
     if(letter.data.size()){
       textview_id = letter.from;
-      vector<miutil::miString> token = letter.data[0].split(1,":",true);
+      vector<string> token;
+      boost::algorithm::split(token, letter.data[0], boost::algorithm::is_any_of(":"));
       if(token.size() == 2){
         miutil::miString name = pluginB->getClientName(letter.from);
         textview->setText(textview_id,name,token[1]);
@@ -2508,7 +2520,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
   else if (letter.command == qmstrings::enableshowtext ){
     //description: dataset:on/off
     if(letter.data.size()){
-      vector<miutil::miString> token = letter.data[0].split(":");
+      vector<string> token;
+      boost::algorithm::split(token, letter.data[0], boost::algorithm::is_any_of(":"));
       if(token.size() < 2) return;
       if(token[1] == "on"){
         textview->show();
@@ -2520,7 +2533,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::removeclient ){
     // commondesc = id:dataset
-    vector<miutil::miString> token = letter.common.split(":");
+    vector<string> token;
+    boost::algorithm::split(token, letter.common, boost::algorithm::is_any_of(":"));
     if(token.size()<2) return;
     int id =atoi(token[0].c_str());
     //remove stationPlots from this client
@@ -2536,7 +2550,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //     if(textview && id == textview_id )
     //       textview->hide();
     //remove observations from hqc
-    if(token[1].downcase()=="hqc"){
+    string value = boost::algorithm::to_lower_copy(token[1]);
+    if( value =="hqc"){
       contr->processHqcCommand("remove");
       om->setPlottype("Hqc_synop",false);
       om->setPlottype("Hqc_list",false);
@@ -2548,7 +2563,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::newclient ){
     qsocket = true;
-    autoredraw[atoi(letter.common.cStr())] = true;
+    autoredraw[atoi(letter.common.c_str())] = true;
     autoredraw[0] = true; //from server
   }
 
@@ -2567,7 +2582,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
       timecontrol->useData(letter.common,letter.from);
       vector<miutil::miTime> times;
       for(int i=0;i<n;i++)
-        times.push_back(letter.data[i]);
+        times.push_back(miutil::miString(letter.data[i]));
       tslider->insert(letter.common,times);
       contr->initHqcdata(letter.from,letter.commondesc,
           letter.common,letter.description,letter.data);
@@ -2588,7 +2603,9 @@ void DianaMainWindow::processLetter(miMessage &letter)
     miMessage l;
     l.to = letter.from;
     l.command = qmstrings::currentplotcommand;
-    l.data = v1;
+    for (size_t i = 0; i< v1.size(); ++i ) {
+      l.data.push_back(v1[i]);
+    }
     sendLetter(l);
     return; // no need to repaint
   }
@@ -2996,13 +3013,14 @@ void DianaMainWindow::idnumChange(int increment)
 void DianaMainWindow::saveraster()
 {
   static QString fname = "./"; // keep users preferred image-path for later
-
+cerr <<"saveraster"<<endl;
   QString s =
       QFileDialog::getSaveFileName(this,
           tr("Save plot as image"),
           fname,
           tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
-
+  cerr <<s.toStdString()<<endl;
+  cerr <<"ok so far"<<endl;
 
   if (!s.isNull()) {// got a filename
     fname= s;
@@ -3613,14 +3631,15 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
 
 void DianaMainWindow::sendSelectedStations(const miutil::miString& command)
 {
-  vector<miutil::miString> data;
-  contr->stationCommand("selected",data);
+  vector<std::string> data;
+  contr->getStationData(data);
   int n=data.size();
   for(int i=0;i<n;i++){
-    vector<miutil::miString> token = data[i].split(":");
+    vector<string> token;
+    boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
     int m = token.size();
     if(token.size()<2) continue;
-    int id=atoi(token[m-1].cStr());
+    int id=atoi(token[m-1].c_str());
     miutil::miString dataset = token[m-2];
     token.pop_back(); //remove id
     token.pop_back(); //remove dataset

@@ -166,8 +166,8 @@ void setAllActive(ObsDialogInfo::PlotType& dialogInfo,
 
 
 //  HQC
-  bool changeHqcdata(ObsData&, const vector<miutil::miString>& param,
-			const vector<miutil::miString>& data);
+  bool changeHqcdata(ObsData&, const vector<std::string>& param,
+			const vector<std::string>& data);
   Colour flag2colour(const miutil::miString& flag);
 
   void printProdInfo(const ProdInfo & pinfo);
@@ -200,12 +200,12 @@ public:
 //  HQC
   ObsDialogInfo updateHqcDialog(const miutil::miString& plotType);
   bool initHqcdata(int from, 
-		   const miutil::miString& commondesc, 
-		   const miutil::miString& common, 
-		   const miutil::miString& desc, 
-		   const vector<miutil::miString>&data);
-  bool updateHqcdata(const miutil::miString& commondesc, const miutil::miString& common,
-		     const miutil::miString& desc, const vector<miutil::miString>&data);
+		   const std::string& commondesc,
+		   const std::string& common,
+		   const std::string& desc,
+		   const vector<std::string>&data);
+  bool updateHqcdata(const std::string& commondesc, const std::string& common,
+		     const std::string& desc, const vector<std::string>&data);
   bool sendHqcdata(ObsPlot* oplot);
   void processHqcCommand(const miutil::miString&, const miutil::miString&);
   // Added for automatic updates

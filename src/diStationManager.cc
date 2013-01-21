@@ -388,9 +388,9 @@ void StationManager::putStations(StationPlot* stationPlot)
   stationPlots[stationPlot->getName()] = stationPlot;
 }
 
-void StationManager::makeStationPlot(const miutil::miString& commondesc,
-    const miutil::miString& common, const miutil::miString& description, int from,
-    const vector<miutil::miString>& data)
+void StationManager::makeStationPlot(const std::string& commondesc,
+    const std::string& common, const std::string& description, int from,
+    const vector<std::string>& data)
 {
   StationPlot* stationPlot = new StationPlot(commondesc, common, description,
       from, data);
@@ -466,27 +466,30 @@ bool StationManager::getEditStation(int step, miutil::miString& name, int& id, v
   return updateArea;
 }
 
-void StationManager::stationCommand(const miutil::miString& command,
-    vector<miutil::miString>& data, const miutil::miString& name, int id, const miutil::miString& misc)
+void StationManager::getStationData(vector<std::string>& data)
 {
   map <miutil::miString,StationPlot*>::iterator it;
 
-  if (command == "selected") {
-    for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-      data.push_back((*it).second->stationRequest(command));
-    }
-  } else { // use stationPlot with name and id
-    for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-      if ((id == -1 || id == (*it).second->getId()) &&
-          (name == (*it).second->getName() || !name.exists())) {
-        (*it).second->stationCommand(command, data, misc);
-        break;
-      }
+  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    data.push_back((*it).second->stationRequest("selected"));
+  }
+}
+
+void StationManager::stationCommand(const std::string& command,
+    const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
+{
+  map <miutil::miString,StationPlot*>::iterator it;
+
+  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if ((id == -1 || id == (*it).second->getId()) &&
+        (name == (*it).second->getName() || name.empty())) {
+      (*it).second->stationCommand(command, data, misc);
+      break;
     }
   }
 }
 
-void StationManager::stationCommand(const miutil::miString& command, const miutil::miString& name,
+void StationManager::stationCommand(const std::string& command, const std::string& name,
     int id)
 {
   if (command == "delete") {
@@ -494,7 +497,7 @@ void StationManager::stationCommand(const miutil::miString& command, const miuti
 
     while (p != stationPlots.end()) {
       if ((name == "all" && (*p).second->getId() != -1) ||
-          (id == (*p).second->getId() && (name == (*p).second->getName() || !name.exists()))) {
+          (id == (*p).second->getId() && (name == (*p).second->getName() || name.empty()))) {
         delete (*p).second;
         stationPlots.erase(p);
         if (name != "all")
@@ -511,7 +514,7 @@ void StationManager::stationCommand(const miutil::miString& command, const miuti
 
     for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
       if ((id == -1 || id == (*it).second->getId()) &&
-          (name == (*it).second->getName() || !name.exists()))
+          (name == (*it).second->getName() || name.empty()))
         (*it).second->stationCommand(command);
     }
   }

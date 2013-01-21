@@ -220,7 +220,7 @@ private slots:
   void spectrumSetChangedSlot();
 
   void connectionClosed();
-  void processLetter(miMessage&);
+  void processLetter(const miMessage&);
   void sendLetter(miMessage&);
 
   void updateObs();
