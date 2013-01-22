@@ -1018,7 +1018,7 @@ void FieldPlotManager::parseString( std::string& pin,
         fieldrequest.zaxis = vtoken[1];
       } else if (key == "tcoor") {
         fieldrequest.taxis = vtoken[1];
-      } else if (key == "ecoor") {
+      } else if (key == "ecoord") {
         fieldrequest.eaxis = vtoken[1];
       } else if (key == "vlevel") {
         fieldrequest.plevel = vtoken[1];

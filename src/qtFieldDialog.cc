@@ -188,7 +188,7 @@ QDialog(parent)
   cp->addKey("vlevel", "", 1, CommandParser::cmdString);
   cp->addKey("elevel", "", 1, CommandParser::cmdString);
   cp->addKey("vcoord", "", 1, CommandParser::cmdString);
-  cp->addKey("ecoor", "", 1, CommandParser::cmdString);
+  cp->addKey("ecoord", "", 1, CommandParser::cmdString);
   cp->addKey("grid", "", 1, CommandParser::cmdString);
   cp->addKey("unit", "", 1, CommandParser::cmdString);
   cp->addKey("reftime", "", 1, CommandParser::cmdString);
@@ -3469,7 +3469,7 @@ std::string FieldDialog::getParamString(int i)
       ostr << " vlevel=" << selectedFields[i].level;
     }
     if (selectedFields[i].idnum.exists()) {
-      ostr << " ecoor="<< selectedFields[i].extraaxis;
+      ostr << " ecoord="<< selectedFields[i].extraaxis;
       ostr << " elevel=" << selectedFields[i].idnum;
     }
     //    if (selectedFields[i].grid.exists()) {
@@ -4012,11 +4012,11 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
       sf.level = vpc[j].allValue;
     } else if (vpc[j].key == "vlevel") {
       sf.level = vpc[j].allValue;
-    } else if (vpc[j].key == "idnum") {
+    } else if (vpc[j].key == "elevel") {
       sf.idnum = vpc[j].allValue;
     } else if (vpc[j].key == "vcoord") {
       sf.zaxis = vpc[j].allValue;
-    } else if (vpc[j].key == "ecoor") {
+    } else if (vpc[j].key == "ecoord") {
       sf.extraaxis = vpc[j].allValue;
     } else if (vpc[j].key == "grid") {
       sf. grid = vpc[j].allValue;

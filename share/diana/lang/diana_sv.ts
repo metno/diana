@@ -101,22 +101,22 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="843"/>
+        <location filename="../../../src/qtMainWindow.cc" line="845"/>
         <source>Diana</source>
         <translation>Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="199"/>
+        <location filename="../../../src/qtMainWindow.cc" line="201"/>
         <source>&amp;Save picture...</source>
         <translation>&amp;Spara bild...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="211"/>
+        <location filename="../../../src/qtMainWindow.cc" line="213"/>
         <source>&amp;Print...</source>
         <translation>&amp;Skriv ut...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="222"/>
+        <location filename="../../../src/qtMainWindow.cc" line="224"/>
         <source>&amp;Quit...</source>
         <translation>&amp;Avsluta...</translation>
     </message>
@@ -125,67 +125,67 @@
         <translation type="obsolete">&amp;X,Y posisjoner</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="230"/>
+        <location filename="../../../src/qtMainWindow.cc" line="232"/>
         <source>S&amp;peed buttons</source>
         <translation>&amp;Snabbknappar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="235"/>
+        <location filename="../../../src/qtMainWindow.cc" line="237"/>
         <source>A&amp;rchive mode</source>
         <translation>A&amp;rkivläge</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="240"/>
+        <location filename="../../../src/qtMainWindow.cc" line="242"/>
         <source>&amp;Automatic element choice</source>
         <translation>&amp;Automatiskt elementval</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="246"/>
+        <location filename="../../../src/qtMainWindow.cc" line="248"/>
         <source>A&amp;nnotations</source>
         <translation>&amp;Kommentarer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="256"/>
+        <location filename="../../../src/qtMainWindow.cc" line="258"/>
         <source>Select &amp;Font...</source>
         <translation>Välj &amp;Font...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="263"/>
+        <location filename="../../../src/qtMainWindow.cc" line="265"/>
         <source>Reset area and replot</source>
         <translation>Återställ område och plotta på nytt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="268"/>
+        <location filename="../../../src/qtMainWindow.cc" line="270"/>
         <source>Reset all</source>
         <translation>Återställ allt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="273"/>
+        <location filename="../../../src/qtMainWindow.cc" line="275"/>
         <source>&amp;Apply plot</source>
         <translation>Utf&amp;ør plott</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="278"/>
+        <location filename="../../../src/qtMainWindow.cc" line="280"/>
         <source>Add to q&amp;uickmenu</source>
         <translation>&amp;Lägg till plott i snabbmeny</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="283"/>
+        <location filename="../../../src/qtMainWindow.cc" line="285"/>
         <source>P&amp;revious plot</source>
         <translation>Fö&amp;regående plott</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="288"/>
+        <location filename="../../../src/qtMainWindow.cc" line="290"/>
         <source>&amp;Next plot</source>
         <translation>&amp;Nästa plott</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="293"/>
+        <location filename="../../../src/qtMainWindow.cc" line="295"/>
         <source>&amp;Hide All</source>
         <translation>Döl&amp;j alla</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="300"/>
+        <location filename="../../../src/qtMainWindow.cc" line="302"/>
         <source>&amp;Quickmenu</source>
         <translation>&amp;Snabbmeny</translation>
     </message>
@@ -194,167 +194,167 @@
         <translation type="obsolete">&amp;Kartor</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="314"/>
+        <location filename="../../../src/qtMainWindow.cc" line="316"/>
         <source>&amp;Fields</source>
         <translation>&amp;Fält</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="321"/>
+        <location filename="../../../src/qtMainWindow.cc" line="323"/>
         <source>&amp;Observations</source>
         <translation>&amp;Observationer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="328"/>
+        <location filename="../../../src/qtMainWindow.cc" line="330"/>
         <source>&amp;Satellites and Radar</source>
         <translation>&amp;Satellit och Radar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="342"/>
+        <location filename="../../../src/qtMainWindow.cc" line="344"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Produkteditering</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="335"/>
+        <location filename="../../../src/qtMainWindow.cc" line="337"/>
         <source>&amp;Toggle Stations</source>
         <translation>&amp;Växla Stationer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="349"/>
+        <location filename="../../../src/qtMainWindow.cc" line="351"/>
         <source>O&amp;bjects</source>
         <translation>O&amp;bjekt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="356"/>
+        <location filename="../../../src/qtMainWindow.cc" line="358"/>
         <source>&amp;Trajectories</source>
         <translation>&amp;Trajektorier</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="363"/>
+        <location filename="../../../src/qtMainWindow.cc" line="365"/>
         <source>&amp;Vertical Profiles</source>
         <translation>&amp;Vertikalprofiler</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="370"/>
+        <location filename="../../../src/qtMainWindow.cc" line="372"/>
         <source>Vertical &amp;Cross sections</source>
         <translation>Vertik&amp;ala tvärrsnitt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="377"/>
+        <location filename="../../../src/qtMainWindow.cc" line="379"/>
         <source>&amp;Wave spectra</source>
         <translation>&amp;Vågspektrum</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="389"/>
+        <location filename="../../../src/qtMainWindow.cc" line="391"/>
         <source>&amp;Uffda Service</source>
         <translation>&amp;Uffda tjänst</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="395"/>
+        <location filename="../../../src/qtMainWindow.cc" line="397"/>
         <source>&amp;Measurements</source>
         <translation>&amp;Mätningar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="441"/>
+        <location filename="../../../src/qtMainWindow.cc" line="443"/>
         <source>&amp;Accelerators</source>
         <translation>&amp;Snabbval</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="446"/>
+        <location filename="../../../src/qtMainWindow.cc" line="448"/>
         <source>&amp;News</source>
         <translation>&amp;Nyheter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="456"/>
+        <location filename="../../../src/qtMainWindow.cc" line="458"/>
         <source>About Diana</source>
         <translation>Om Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="465"/>
+        <location filename="../../../src/qtMainWindow.cc" line="467"/>
         <source>Run Backwards</source>
         <translation>Kör Bakåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="472"/>
+        <location filename="../../../src/qtMainWindow.cc" line="474"/>
         <source>Run Forewards</source>
         <translation>Kör Framåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="479"/>
+        <location filename="../../../src/qtMainWindow.cc" line="481"/>
         <source>Step Backwards</source>
         <translation>Ett steg bakåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="486"/>
+        <location filename="../../../src/qtMainWindow.cc" line="488"/>
         <source>Step Forewards</source>
         <translation>Ett steg framåt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="493"/>
+        <location filename="../../../src/qtMainWindow.cc" line="495"/>
         <source>Stop</source>
         <translation>Stopp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="500"/>
+        <location filename="../../../src/qtMainWindow.cc" line="502"/>
         <source>Run in loop</source>
         <translation>Kör i loop</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="507"/>
+        <location filename="../../../src/qtMainWindow.cc" line="509"/>
         <source>Time control</source>
         <translation>Tidskontroll</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="518"/>
+        <location filename="../../../src/qtMainWindow.cc" line="520"/>
         <source>Level up</source>
         <translation>Nivå upp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="526"/>
+        <location filename="../../../src/qtMainWindow.cc" line="528"/>
         <source>Level down</source>
         <translation>Nivå ner</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3346"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3364"/>
         <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3349"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3367"/>
         <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3352"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3370"/>
         <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3364"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3382"/>
         <source>&amp;nbsp;auto</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3366"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3384"/>
         <source>&amp;nbsp;vis</source>
         <translation>&amp;nbsp;visa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3372"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3390"/>
         <source>%1&amp;nbsp;N,&amp;nbsp;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3374"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3392"/>
         <source>%1&amp;nbsp;S,&amp;nbsp;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3376"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3394"/>
         <source>%1&amp;nbsp;E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3378"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3396"/>
         <source>%1&amp;nbsp;W</source>
         <translation></translation>
     </message>
@@ -367,22 +367,22 @@
         <translation type="obsolete">&amp;Fil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="620"/>
+        <location filename="../../../src/qtMainWindow.cc" line="622"/>
         <source>O&amp;ptions</source>
         <translation>&amp;Inställningar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="385"/>
+        <location filename="../../../src/qtMainWindow.cc" line="387"/>
         <source>Zoom out</source>
         <translation>Zoom ut</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="660"/>
+        <location filename="../../../src/qtMainWindow.cc" line="662"/>
         <source>Show</source>
         <translation>Visa</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="692"/>
+        <location filename="../../../src/qtMainWindow.cc" line="694"/>
         <source>&amp;Help</source>
         <translation>&amp;Hjälp</translation>
     </message>
@@ -399,12 +399,12 @@
         <translation type="obsolete">vis informasjon...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="554"/>
+        <location filename="../../../src/qtMainWindow.cc" line="556"/>
         <source>Update observations</source>
         <translation>Uppdatera observationer</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="831"/>
+        <location filename="../../../src/qtMainWindow.cc" line="833"/>
         <source>ARCHIVE</source>
         <translation>ARKIV</translation>
     </message>
@@ -416,32 +416,32 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
 med verktøy for felteditering og tegning av fronter og symboler.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2760"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2777"/>
         <source>version:</source>
         <translation>version:</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2762"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2779"/>
         <source>about Diana</source>
         <translation>om Diana</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3004"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3021"/>
         <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
         <translation>Bilder (*.png *.xpm *.bmp *.eps);;Alla (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3002"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3019"/>
         <source>Save plot as image</source>
         <translation>Spara plott som bild</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="535"/>
+        <location filename="../../../src/qtMainWindow.cc" line="537"/>
         <source>EPS cluster/member etc up</source>
         <translation>EPS cluster/medlem mm. upp</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="544"/>
+        <location filename="../../../src/qtMainWindow.cc" line="546"/>
         <source>EPS cluster/member etc down</source>
         <translation>EPS cluster/medlem mm. ner</translation>
     </message>
@@ -450,7 +450,7 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation type="obsolete">Lat/Lon i desimalgrader</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2760"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2777"/>
         <source>build:</source>
         <translation>Bygge:</translation>
     </message>
@@ -459,22 +459,22 @@ med verktøy for felteditering og tegning av fronter og symboler.</translation>
         <translation type="obsolete">Felt &amp;Editering</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="611"/>
+        <location filename="../../../src/qtMainWindow.cc" line="613"/>
         <source>File</source>
         <translation>Fil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="646"/>
+        <location filename="../../../src/qtMainWindow.cc" line="648"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="207"/>
+        <location filename="../../../src/qtMainWindow.cc" line="209"/>
         <source>Save &amp;animation...</source>
         <translation>Spara &amp;animation...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2760"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2777"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -486,43 +486,43 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Uffda</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1854"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1856"/>
         <source>End Profet</source>
         <translation>Avsluta Profet</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1855"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1857"/>
         <source>Do you want to stay connected to profet?</source>
         <translation>Vill du fortsätta vara inloggad på profet?</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1856"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1858"/>
         <source>Quit and disconnect</source>
         <translation>Avsluta och logga ut</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1856"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1858"/>
         <source>Quit and stay connected </source>
         <translation>Avsluta men vara inloggad</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="1856"/>
+        <location filename="../../../src/qtMainWindow.cc" line="1858"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Avbryt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="420"/>
-        <location filename="../../../src/qtMainWindow.cc" line="423"/>
+        <location filename="../../../src/qtMainWindow.cc" line="422"/>
+        <location filename="../../../src/qtMainWindow.cc" line="425"/>
         <source>Field E&amp;dit</source>
         <translation>Fält E&amp;ditering</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="435"/>
+        <location filename="../../../src/qtMainWindow.cc" line="437"/>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="203"/>
+        <location filename="../../../src/qtMainWindow.cc" line="205"/>
         <source>&amp;Email picture...</source>
         <translation>Skicka bild som &amp;epost...</translation>
     </message>
@@ -535,83 +535,83 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="obsolete">Det oppsto problemer ved lagring av bilde til disk.</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="251"/>
+        <location filename="../../../src/qtMainWindow.cc" line="253"/>
         <source>Scrollw&amp;heel zooming</source>
         <translation>&amp;Rullhjul zoomning</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="451"/>
+        <location filename="../../../src/qtMainWindow.cc" line="453"/>
         <source>&amp;Report bug</source>
         <translation>&amp;Rapportera fel</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="2760"/>
+        <location filename="../../../src/qtMainWindow.cc" line="2777"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3081"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3099"/>
         <source>Making animation</source>
         <translation>Skapar animation</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3124"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3142"/>
         <source>Done</source>
         <translation>Klar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3124"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3142"/>
         <source>Animation completed.</source>
         <translation>Animation komplett</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3129"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3147"/>
         <source>Compiled without video export</source>
         <translation>Kompilerad utan video export</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3129"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3147"/>
         <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3052"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3070"/>
         <source>Movies (*.mpg *.avi);;All (*.*)</source>
         <translation>Filmer (*.mpg *.avi);;Alla (*.*)</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="217"/>
+        <location filename="../../../src/qtMainWindow.cc" line="219"/>
         <source>Read setupfile</source>
         <translation>Läs setupfil</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="307"/>
+        <location filename="../../../src/qtMainWindow.cc" line="309"/>
         <source>Maps</source>
         <translation>Kartor</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3050"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3068"/>
         <source>Save animation from current fields, satellite images, etc. (*.mpg or *.avi)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3082"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3100"/>
         <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3096"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3114"/>
         <source>Creating animation...</source>
         <translation>Skapa &amp;animation...</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3096"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3114"/>
         <source>Hide</source>
         <translation>Dölj</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="561"/>
+        <location filename="../../../src/qtMainWindow.cc" line="563"/>
         <source>Automatic updates</source>
         <translation>Automatisk uppdatering</translation>
     </message>
