@@ -233,6 +233,7 @@ void SpectrumWindow::rightStationClicked()
 void SpectrumWindow::leftTimeClicked()
 {
   //called when the left time button is clicked
+  miutil::miTime t= spectrumm->setTime(-1);
   timeChangedSlot(-1);
   spectrumw->updateGL();
 }
@@ -241,6 +242,7 @@ void SpectrumWindow::leftTimeClicked()
 void SpectrumWindow::rightTimeClicked()
 {
   //called when the right Station button is clicked
+  miutil::miTime t= spectrumm->setTime(+1);
   timeChangedSlot(+1);
   spectrumw->updateGL();
 }
