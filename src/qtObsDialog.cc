@@ -70,7 +70,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   setWindowTitle(tr("Observations"));
 
   m_ctrl=llctrl;
-  ObsDialogInfo dialog = llctrl->initObsDialog() ;
+  ObsDialogInfo dialog = m_ctrl->initObsDialog() ;
 
   vector<ObsDialogInfo::PlotType> &plt = dialog.plottype;
 
@@ -168,6 +168,67 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
 }
 
+void ObsDialog::updateDialog()
+{
+
+  //save selections
+  vector<miutil::miString> vstr = getOKString();
+
+  //remove old widgets
+  for( int i=0; i < nr_plot; i++){
+    stackedWidget->removeWidget(obsWidget[i]);
+    obsWidget[i]->close();
+    obsWidget[i] = NULL;
+  }
+  obsWidget.clear();
+  m_name.clear();
+
+  //Make new widgets
+  ObsDialogInfo dialog = m_ctrl->initObsDialog() ;
+
+  QStringList  dialog_name;
+  nr_plot = dialog.plottype.size();
+
+  for (int i=0; i<nr_plot; i++){
+    m_name.push_back(dialog.plottype[i].name);
+    //Possible to translate plot types for use in dialogues,
+    //but plot strings etc  will use english names
+    if(dialog.plottype[i].name=="Pressure")
+      dialog_name <<tr("Pressure");
+    else
+      dialog_name <<dialog.plottype[i].name.c_str();
+  }
+
+  m_selected = 0;
+
+  plotbox->clear();
+  plotbox->addItems(dialog_name);
+
+  for( int i=0; i < nr_plot; i++){
+    ObsWidget* ow = new ObsWidget( this );
+    obsWidget.push_back(ow);
+    if (dialog.plottype[i].button.size()>0) {
+      obsWidget[i]->setDialogInfo( m_ctrl, dialog, i );
+      connect(obsWidget[i],SIGNAL(getTimes()),
+          SLOT(getTimes()));
+      connect(obsWidget[i],SIGNAL(rightClicked(miutil::miString)),
+          SLOT(rightButtonClicked(miutil::miString)));
+      connect(obsWidget[i],SIGNAL(extensionToggled(bool)),
+          SLOT(extensionToggled(bool)));
+      connect(obsWidget[i],SIGNAL(criteriaOn()),
+          SLOT(criteriaOn()));
+    }
+    stackedWidget->addWidget(obsWidget[i]);
+  }
+
+  for( int i=1; i < nr_plot; i++)
+    if (obsWidget[i]) obsWidget[i]->hide();
+
+
+  //reset selections
+  putOKString( vstr );
+
+}
 
 void ObsDialog::plotSelected( int index, bool sendTimes )
 {

@@ -66,6 +66,8 @@ class ObsDialog: public QDialog
 public:
 
   ObsDialog( QWidget* parent, Controller* llctrl );
+  /// update dialog after re-reading setupfile
+  void updateDialog();
   ///return command strings
   vector<miutil::miString> getOKString();
   ///insert command strings
