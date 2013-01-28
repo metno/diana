@@ -1,3 +1,10 @@
+diana (3.31.2-1) unstable; urgency=low
+
+  * Bugfix: field - changeModel
+  * Bugfix: spectrum - changeTime
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 28 Jan 2013 07:47:15 +0100
+
 diana (3.31.1-1) unstable; urgency=low
 
   * Bugfix: eps membersin quickMenus

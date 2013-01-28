@@ -313,47 +313,47 @@
         <translation>Nivå ned</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3364"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3366"/>
         <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
         <translation>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3367"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3369"/>
         <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
         <translation>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3370"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3372"/>
         <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
         <translation>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3382"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3384"/>
         <source>&amp;nbsp;auto</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3384"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3386"/>
         <source>&amp;nbsp;vis</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3390"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3392"/>
         <source>%1&amp;nbsp;N,&amp;nbsp;</source>
         <translation>%1&amp;nbsp;N,&amp;nbsp;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3392"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3394"/>
         <source>%1&amp;nbsp;S,&amp;nbsp;</source>
         <translation>%1&amp;nbsp;S,&amp;nbsp;</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3394"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3396"/>
         <source>%1&amp;nbsp;E</source>
         <translation>%1&amp;nbsp;E</translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3396"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3398"/>
         <source>%1&amp;nbsp;W</source>
         <translation>%1&amp;nbsp;W</translation>
     </message>
@@ -2568,92 +2568,92 @@ Kan ikke starte produksjon</translation>
         <translation>Vis alle plottetyper</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="507"/>
+        <location filename="../../../src/qtObsDialog.cc" line="568"/>
         <source>Delete</source>
         <translation>Slett</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="508"/>
+        <location filename="../../../src/qtObsDialog.cc" line="569"/>
         <source>Delete all</source>
         <translation>Slett alt</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="573"/>
+        <location filename="../../../src/qtObsDialog.cc" line="634"/>
         <source>Save</source>
         <translation>Lagre</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="574"/>
+        <location filename="../../../src/qtObsDialog.cc" line="635"/>
         <source>Save criteria list</source>
         <translation>Lagre kriterieliste</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="576"/>
+        <location filename="../../../src/qtObsDialog.cc" line="637"/>
         <source>Name of list to save</source>
         <translation>Navn på liste som skal lagres</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="537"/>
+        <location filename="../../../src/qtObsDialog.cc" line="598"/>
         <source>Colour</source>
         <translation>Farge</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="539"/>
+        <location filename="../../../src/qtObsDialog.cc" line="600"/>
         <source>Limit</source>
         <translation>Grense</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="540"/>
+        <location filename="../../../src/qtObsDialog.cc" line="601"/>
         <source>Precision</source>
         <translation>Presisjon</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="514"/>
+        <location filename="../../../src/qtObsDialog.cc" line="575"/>
         <source>Plot</source>
         <translation>Plot</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="516"/>
+        <location filename="../../../src/qtObsDialog.cc" line="577"/>
         <source>Colour - parameter</source>
         <translation>Farge - parameter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="518"/>
+        <location filename="../../../src/qtObsDialog.cc" line="579"/>
         <source>Colour - observation</source>
         <translation>Farge - observasjon</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="500"/>
+        <location filename="../../../src/qtObsDialog.cc" line="561"/>
         <source>List of Criteria</source>
         <translation>Kriterieliste</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="504"/>
+        <location filename="../../../src/qtObsDialog.cc" line="565"/>
         <source>Criteria</source>
         <translation>Kriterier</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="509"/>
+        <location filename="../../../src/qtObsDialog.cc" line="570"/>
         <source>Delete selected criteria</source>
         <translation>Slett valgt kriterie</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="510"/>
+        <location filename="../../../src/qtObsDialog.cc" line="571"/>
         <source>Delete all criteria</source>
         <translation>Slett alle kriterier i listen</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="532"/>
+        <location filename="../../../src/qtObsDialog.cc" line="593"/>
         <source>Plot observations which meet all criteria of at least one parameter</source>
         <translation>Plot observasjoner som tilfredstiller alle kriteriene for minst en parameter</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="533"/>
+        <location filename="../../../src/qtObsDialog.cc" line="594"/>
         <source>Plot a parameter in the colour specified if it meets any criteria of that parameter</source>
         <translation>Plot en parameter i valgt farge hvis den tilfredstiller minst ett kriterie for den parameteren</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="534"/>
+        <location filename="../../../src/qtObsDialog.cc" line="595"/>
         <source>Plot observations in the colour specified if one parameter meet any criteria of that parameter </source>
         <translation>Plot hele observaasjonen i valgt farge hvis en av parameterene tilfredstiller minst ett av kriteriene for den parametereren</translation>
     </message>
@@ -2664,12 +2664,13 @@ Kan ikke starte produksjon</translation>
     </message>
     <message>
         <location filename="../../../src/qtObsDialog.cc" line="87"/>
+        <location filename="../../../src/qtObsDialog.cc" line="197"/>
         <source>Pressure</source>
         <translation>Trykk</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="520"/>
-        <location filename="../../../src/qtObsDialog.cc" line="538"/>
+        <location filename="../../../src/qtObsDialog.cc" line="581"/>
+        <location filename="../../../src/qtObsDialog.cc" line="599"/>
         <source>Marker</source>
         <translation>Markør
 </translation>
@@ -2679,12 +2680,12 @@ Kan ikke starte produksjon</translation>
         <translation type="obsolete">Plot valgt par</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="548"/>
+        <location filename="../../../src/qtObsDialog.cc" line="609"/>
         <source>Precision of limit</source>
         <translation>Presisjon for grense</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="535"/>
+        <location filename="../../../src/qtObsDialog.cc" line="596"/>
         <source>Plot marker specified if one parameter meets any criteria of that parameter </source>
         <translation>Plot valgt markør hivis en parameter tilfredstiller minst ett av kriteriene for den parametereren</translation>
     </message>

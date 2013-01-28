@@ -478,47 +478,47 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3364"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3366"/>
         <source>&lt;span style=&quot;background: red; color: red&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3367"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3369"/>
         <source>&lt;span style=&quot;background: yellow; color: yellow&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3370"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3372"/>
         <source>&lt;span style=&quot;background: lightgreen; color: lightgreen&quot;&gt;X&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3382"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3384"/>
         <source>&amp;nbsp;auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3384"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3386"/>
         <source>&amp;nbsp;vis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3390"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3392"/>
         <source>%1&amp;nbsp;N,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3392"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3394"/>
         <source>%1&amp;nbsp;S,&amp;nbsp;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3394"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3396"/>
         <source>%1&amp;nbsp;E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="3396"/>
+        <location filename="../../../src/qtMainWindow.cc" line="3398"/>
         <source>%1&amp;nbsp;W</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2357,6 +2357,7 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location filename="../../../src/qtObsDialog.cc" line="87"/>
+        <location filename="../../../src/qtObsDialog.cc" line="197"/>
         <source>Pressure</source>
         <translation>Presión</translation>
     </message>
@@ -2401,108 +2402,108 @@ como aprovado y listo.</translation>
         <translation>Aplicar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="500"/>
+        <location filename="../../../src/qtObsDialog.cc" line="561"/>
         <source>List of Criteria</source>
         <translation>Lista de Criterios</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="504"/>
+        <location filename="../../../src/qtObsDialog.cc" line="565"/>
         <source>Criteria</source>
         <translation>Criterios</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="507"/>
+        <location filename="../../../src/qtObsDialog.cc" line="568"/>
         <source>Delete</source>
         <translation>Borrar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="508"/>
+        <location filename="../../../src/qtObsDialog.cc" line="569"/>
         <source>Delete all</source>
         <translation>Borrar todo</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="509"/>
+        <location filename="../../../src/qtObsDialog.cc" line="570"/>
         <source>Delete selected criteria</source>
         <translation>Borrar criterios seleccionados</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="510"/>
+        <location filename="../../../src/qtObsDialog.cc" line="571"/>
         <source>Delete all criteria</source>
         <translation>Borrar todos los criterios</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="514"/>
+        <location filename="../../../src/qtObsDialog.cc" line="575"/>
         <source>Plot</source>
         <translation>Graficar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="516"/>
+        <location filename="../../../src/qtObsDialog.cc" line="577"/>
         <source>Colour - parameter</source>
         <translation>Color - parámetro</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="518"/>
+        <location filename="../../../src/qtObsDialog.cc" line="579"/>
         <source>Colour - observation</source>
         <translation>Color - observación</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="520"/>
-        <location filename="../../../src/qtObsDialog.cc" line="538"/>
+        <location filename="../../../src/qtObsDialog.cc" line="581"/>
+        <location filename="../../../src/qtObsDialog.cc" line="599"/>
         <source>Marker</source>
         <translation>Marcador</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="532"/>
+        <location filename="../../../src/qtObsDialog.cc" line="593"/>
         <source>Plot observations which meet all criteria of at least one parameter</source>
         <translation>Obsevacion de graficos que satisfacen todos los criterios por lo menos para un parametro</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="533"/>
+        <location filename="../../../src/qtObsDialog.cc" line="594"/>
         <source>Plot a parameter in the colour specified if it meets any criteria of that parameter</source>
         <translation>Grafica el parametro con el color espesificado si cumple con cualquien criterio de ese parametro</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="534"/>
+        <location filename="../../../src/qtObsDialog.cc" line="595"/>
         <source>Plot observations in the colour specified if one parameter meet any criteria of that parameter </source>
         <translation>Grafica las observaciones en el color espesificado si un parametro cumple con cualquier criterio de ese parametro</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="535"/>
+        <location filename="../../../src/qtObsDialog.cc" line="596"/>
         <source>Plot marker specified if one parameter meets any criteria of that parameter </source>
         <translation>Grafica el marcador espesificado si uno de los parametros cumple cualquie criterio de ese parametro</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="537"/>
+        <location filename="../../../src/qtObsDialog.cc" line="598"/>
         <source>Colour</source>
         <translation>Color</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="539"/>
+        <location filename="../../../src/qtObsDialog.cc" line="600"/>
         <source>Limit</source>
         <translation>Límite</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="540"/>
+        <location filename="../../../src/qtObsDialog.cc" line="601"/>
         <source>Precision</source>
         <translation>Precisión</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="548"/>
+        <location filename="../../../src/qtObsDialog.cc" line="609"/>
         <source>Precision of limit</source>
         <translation>Precisión del límite</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="573"/>
+        <location filename="../../../src/qtObsDialog.cc" line="634"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="574"/>
+        <location filename="../../../src/qtObsDialog.cc" line="635"/>
         <source>Save criteria list</source>
         <translation>Guardar lista de criterios</translation>
     </message>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="576"/>
+        <location filename="../../../src/qtObsDialog.cc" line="637"/>
         <source>Name of list to save</source>
         <translation>Nombre de la lista a guardar</translation>
     </message>
