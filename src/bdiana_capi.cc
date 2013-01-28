@@ -147,7 +147,7 @@ const miString com_command_path = "command_path";
 const miString com_buffersize = "buffersize";
 
 const miString com_papersize = "papersize";
-const miString com_filname = "filename";
+const miString com_filename = "filename";
 const miString com_toprinter = "toprinter";
 const miString com_printer = "printer";
 const miString com_output = "output";
@@ -1452,6 +1452,31 @@ static void printPage(int ox, int oy)
   pagePainter.drawPicture(ox, oy, picture);
   pagePainter.end();
 }
+
+void createPaintDevice()
+{
+  ensureNewContext();
+
+  if (raster) {
+    image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
+    image.fill(qRgba(0, 0, 0, 0));
+    painter.begin(&image);
+    context.begin(&painter);
+
+  } else if (pdf || svg || json) {
+    picture = QPicture();
+    picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+    painter.begin(&picture);
+    context.begin(&painter);
+
+  } else { // Postscript
+
+    picture = QPicture();
+    picture.setBoundingRect(QRect(0, 0, xsize, ysize));
+    painter.begin(&picture);
+    context.begin(&painter);
+  }
+}
 #endif
 
 void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int spacing)
@@ -1729,7 +1754,6 @@ static int parseAndProcess(istream &is)
         // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
         if (json)
           createJsonAnnotation();
-        plotAnnotationsOnly = false;
 #endif
 
         // --------------------------------------------------------
@@ -2035,6 +2059,7 @@ static int parseAndProcess(istream &is)
           if (plotAnnotationsOnly) {
             getAnnotationsArea(ox, oy, xsize, ysize);
             image = image.copy(-ox, -oy, xsize, ysize);
+            plotAnnotationsOnly = false;
           }
 
           // Add the input file text as meta-data in the image.
@@ -2771,27 +2796,7 @@ static int parseAndProcess(istream &is)
           //qfbuffer->release();
 #else
       } else if (canvasType == qt_qimage) {
-        ensureNewContext();
-
-        if (raster) {
-          image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
-          image.fill(qRgba(0, 0, 0, 0));
-          painter.begin(&image);
-          context.begin(&painter);
-
-        } else if (pdf || svg || json) {
-          picture = QPicture();
-          picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-          painter.begin(&picture);
-          context.begin(&painter);
-
-        } else { // Postscript
-
-          picture = QPicture();
-          picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-          painter.begin(&picture);
-          context.begin(&painter);
-        }
+        createPaintDevice();
 #endif
       }
       glShadeModel(GL_FLAT);
@@ -2825,13 +2830,17 @@ static int parseAndProcess(istream &is)
         }
       }
 
-    } else if (key == com_filname) {
+    } else if (key == com_filename) {
       if (!value.exists()) {
         cerr << "ERROR, illegal filename in:" << lines[k] << " Linenumber:"
             << linenumbers[k] << endl;
         return 1;
       } else
         priop.fname = value;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      createPaintDevice();
+#endif
 
     } else if (key == com_toprinter) {
       toprinter = (value.downcase() == "yes");
@@ -2849,25 +2858,9 @@ static int parseAndProcess(istream &is)
       pdf = false;
 #endif
       if (value == "postscript") {
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-        ensureNewContext();
-
-        picture = QPicture();
-        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-        painter.begin(&picture);
-        context.begin(&painter);
-#endif
         raster = false;
         priop.doEPS = false;
       } else if (value == "eps") {
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-        ensureNewContext();
-
-        picture = QPicture();
-        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-        painter.begin(&picture);
-        context.begin(&painter);
-#endif
         raster = false;
         priop.doEPS = true;
       } else if (value == "png" || value == "raster") {
@@ -2877,22 +2870,14 @@ static int parseAndProcess(istream &is)
         else
           raster_type = image_unknown;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-        ensureNewContext();
-        image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
-        image.fill(qRgba(0, 0, 0, 0));
-        painter.begin(&image);
-        context.begin(&painter);
-#endif
-
       } else if (value == "shp") {
         shape = true;
       } else if (value == "avi") {
         raster = true;
         raster_type = image_avi;
+
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       } else if (value == "pdf" || value == "svg" || value == "json") {
-        ensureNewContext();
         raster = false;
         if (value == "pdf")
             pdf = true;
@@ -2903,17 +2888,17 @@ static int parseAndProcess(istream &is)
             outputTextMaps.clear();
             outputTextMapOrder.clear();
         }
-
-        picture = QPicture();
-        picture.setBoundingRect(QRect(0, 0, xsize, ysize));
-        painter.begin(&picture);
-        context.begin(&painter);
 #endif
       } else {
         cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
             << linenumbers[k] << endl;
         return 1;
       }
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      createPaintDevice();
+#endif
+      
       if (raster && multiple_plots) {
         cerr
             << "ERROR, multiple plots and raster-output can not be used together: "
