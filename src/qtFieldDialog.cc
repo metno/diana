@@ -4895,9 +4895,6 @@ void FieldDialog::changeModel()
         selectedFields[i].levelOptions = vfgi[gbest].levelNames;
         selectedFields[i].idnumOptions = vfgi[gbest].idnumNames;
         selectedFields[i].refTime = vfgi[indexFGR].refTime;
-        selectedFields[i].zaxis = vfgi[indexFGR].zaxis;
-        selectedFields[i].extraaxis = vfgi[indexFGR].extraaxis;
-        selectedFields[i].grid = vfgi[indexFGR].grid;
         selectedFields[i].cdmSyntax = vfgi[indexFGR].cdmSyntax;
         selectedFields[i].plotDefinition = fieldGroupCheckBox->isChecked();
 
