@@ -194,9 +194,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
     height*=fontsizeScale;
   }
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   height *= 1.2;
-#endif
 }
 
 bool LegendPlot::plot(float x, float y)
@@ -267,11 +265,7 @@ bool LegendPlot::plot(float x, float y)
   float yborder;
   getStringSize("c",xborder,yborder);
   xborder /=2;
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   yborder /=2;
-#else
-  yborder /=4;
-#endif
   titlewidth  = titlewidth + 2*xborder;
   float titleheight = maxheight*ntitle;
   float tablewidth  = maxwidth + 7*xborder;
