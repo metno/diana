@@ -1625,6 +1625,10 @@ static int parseAndProcess(istream &is)
 
       if (plottype == plot_standard) {
         // -- normal plot
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        createPaintDevice();
+#endif
         // Make Controller
         if (!main_controller) {
           MAKE_CONTROLLER
@@ -1759,6 +1763,9 @@ static int parseAndProcess(istream &is)
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        createPaintDevice();
+#endif
         // Make Controller
         if (!main_controller) {
           MAKE_CONTROLLER
@@ -1825,6 +1832,10 @@ static int parseAndProcess(istream &is)
 
         // --------------------------------------------------------
       } else if (plottype == plot_vprof) {
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        createPaintDevice();
+#endif
         // Make Controller
         if (!main_controller) {
           MAKE_CONTROLLER
@@ -2269,6 +2280,9 @@ static int parseAndProcess(istream &is)
         }
       }
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      createPaintDevice();
+#endif
       // Make Controller
       if (!main_controller) {
         MAKE_CONTROLLER
@@ -2508,6 +2522,9 @@ static int parseAndProcess(istream &is)
         pcom.push_back(lines[i]);
       k++;
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+      createPaintDevice();
+#endif
       // Make Controller
       if (!main_controller) {
         MAKE_CONTROLLER
@@ -2895,10 +2912,6 @@ static int parseAndProcess(istream &is)
         return 1;
       }
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-      createPaintDevice();
-#endif
-      
       if (raster && multiple_plots) {
         cerr
             << "ERROR, multiple plots and raster-output can not be used together: "
