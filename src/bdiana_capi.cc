@@ -307,6 +307,7 @@ bool shape = false; // false means postscript
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 bool svg = false;
 bool pdf = false;
+bool postscript = false;
 #endif
 bool json = false;
 int raster_type = image_png; // see enum image_type above
@@ -707,7 +708,8 @@ void endHardcopy(const plot_type pt)
 
   ensureNewContext();
 
-  printPage(0, 0);
+  if (pdf || postscript)
+    printPage(0, 0);
 #endif
 }
 
@@ -1471,6 +1473,7 @@ void createPaintDevice()
 
   } else { // Postscript
 
+    postscript = true;
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
     painter.begin(&picture);
@@ -2522,9 +2525,6 @@ static int parseAndProcess(istream &is)
         pcom.push_back(lines[i]);
       k++;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-      createPaintDevice();
-#endif
       // Make Controller
       if (!main_controller) {
         MAKE_CONTROLLER
@@ -2555,12 +2555,16 @@ static int parseAndProcess(istream &is)
         thetime = ptime;
 
       if (verbose)
-        cout << "- plotting for time:" << thetime << endl;
+        cout << "- describing field for time: " << thetime << endl;
       main_controller->setPlotTime(thetime);
 
       if (verbose)
         cout << "- updatePlots" << endl;
+
       if (main_controller->updatePlots(failOnMissingData)) {
+
+          if (verbose)
+            cout << "- opening file " << priop.fname.c_str() << endl;
 
           // open filestream
           ofstream file(priop.fname.c_str());
@@ -3083,8 +3087,10 @@ static int parseAndProcess(istream &is)
     }
   }
 
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   // finish off any dangling postscript-sessions
   endHardcopy(plot_none);
+#endif
 
   return 0;
 }
