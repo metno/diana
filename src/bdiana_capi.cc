@@ -177,6 +177,7 @@ const miString com_setup_field_info = "setup_field_info";
 const miString com_time_opt = "time_options";
 const miString com_time_format = "time_format";
 const miString com_time = "time";
+const miString com_time_spectrum = "time.spectrum";
 const miString com_endtime = "endtime";
 const miString com_level = "level";
 const miString com_endlevel = "endlevel";
@@ -185,6 +186,7 @@ const miString com_field_files = "<field_files>";
 const miString com_field_files_end = "</field_files>";
 
 const miString com_describe = "describe";
+const miString com_describe_spectrum = "describe.spectrum";
 const miString com_describe_end = "enddescribe";
 
 enum canvas {
@@ -1493,6 +1495,11 @@ void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int s
 #endif
 }
 
+#define FIND_END_COMMAND(COMMAND) \
+  for (int i = k + 1; i < linenum && lines[i].downcase() != COMMAND; i++, k++) \
+    pcom.push_back(lines[i]); \
+  k++;
+
 static int parseAndProcess(istream &is)
 {
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
@@ -1907,6 +1914,11 @@ static int parseAndProcess(istream &is)
 
         // --------------------------------------------------------
       } else if (plottype == plot_spectrum) {
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        createPaintDevice();
+#endif
+
         // -- spectrum plot
         if (!spectrummanager) {
           spectrummanager = new SpectrumManager;
@@ -2283,9 +2295,6 @@ static int parseAndProcess(istream &is)
         }
       }
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-      createPaintDevice();
-#endif
       // Make Controller
       if (!main_controller) {
         MAKE_CONTROLLER
@@ -2298,9 +2307,7 @@ static int parseAndProcess(istream &is)
 
         //Find ENDTIME
         vector<miString> pcom;
-        for (int i = k + 1; i < linenum && lines[i].downcase() != com_endtime; i++, k++)
-          pcom.push_back(lines[i]);
-        k++;
+        FIND_END_COMMAND(com_endtime)
 
         // necessary to set time before plotCommands()..?
         thetime = miTime::nowTime();
@@ -2331,7 +2338,6 @@ static int parseAndProcess(istream &is)
         for (; p != constTimes.end(); p++) {
           file << (*p).format(time_format) << endl;
         }
-        cerr << endl;
         file.close();
 
       } else if (lines[k].downcase() == com_level) {
@@ -2366,6 +2372,80 @@ static int parseAndProcess(istream &is)
         file.close();
 
       }
+
+      continue;
+
+    } else if (lines[k].downcase() == com_time_spectrum) {
+
+      // read setup
+      if (!setupread) {
+        setupread = readSetup(setupfile, *printman);
+        if (!setupread) {
+          cerr << "ERROR, no setupinformation..exiting" << endl;
+          return 99;
+        }
+      }
+
+      // Make Controller
+      if (!main_controller) {
+        MAKE_CONTROLLER
+      }
+
+      if (verbose)
+        cout << "- finding times" << endl;
+
+      //Find ENDTIME
+      vector<miString> pcom;
+      FIND_END_COMMAND(com_endtime)
+
+      if (!spectrummanager)
+        spectrummanager = new SpectrumManager;
+
+      // extract options for plot
+      parse_spectrum_options(pcom);
+
+      if (spectrum_optionschanged)
+        spectrummanager->getOptions()->readOptions(spectrum_options);
+
+      spectrum_optionschanged = false;
+      spectrummanager->setSelectedModels(spectrum_models, spectrum_plotobs, false);
+      spectrummanager->setModel();
+
+      if (ptime.undef()) {
+        thetime = spectrummanager->getTime();
+        if (verbose)
+          cout << "SPECTRUM has default time:" << thetime << endl;
+      } else
+        thetime = ptime;
+      if (verbose)
+        cout << "- describing spectrum for time:" << thetime << endl;
+      spectrummanager->setTime(thetime);
+
+      if (verbose)
+        cout << "- setting station:" << spectrum_station << endl;
+      if (spectrum_station.exists())
+        spectrummanager->setStation(spectrum_station);
+
+      vector<miTime> okTimes = spectrummanager->getTimeList();
+      set<miTime> constTimes;
+
+      // open filestream
+      ofstream file(priop.fname.c_str());
+      if (!file) {
+        cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+        return 1;
+      }
+      file << "PROG" << endl;
+      vector<miTime>::iterator p = okTimes.begin();
+      for (; p != okTimes.end(); p++) {
+        file << (*p).format(time_format) << endl;
+      }
+      file << "CONST" << endl;
+/*      p = constTimes.begin();
+      for (; p != constTimes.end(); p++) {
+        file << (*p).format(time_format) << endl;
+      }*/
+      file.close();
 
       continue;
 
@@ -2521,9 +2601,7 @@ static int parseAndProcess(istream &is)
 
       //Find ENDDESCRIBE
       vector<miString> pcom;
-      for (int i = k + 1; i < linenum && lines[i].downcase() != com_describe_end; i++, k++)
-        pcom.push_back(lines[i]);
-      k++;
+      FIND_END_COMMAND(com_describe_end)
 
       // Make Controller
       if (!main_controller) {
@@ -2638,6 +2716,70 @@ static int parseAndProcess(istream &is)
 
           file.close();
       }
+
+      continue;
+
+    } else if (lines[k].downcase() == com_describe_spectrum) {
+
+      if (verbose)
+        cout << "- finding information about data sources" << endl;
+
+      //Find ENDDESCRIBE
+      vector<miString> pcom;
+      FIND_END_COMMAND(com_describe_end)
+
+      // Make Controller
+      if (!main_controller) {
+        MAKE_CONTROLLER
+      }
+
+      if (!spectrummanager)
+        spectrummanager = new SpectrumManager;
+
+      // extract options for plot
+      parse_spectrum_options(pcom);
+
+      if (verbose)
+        cout << "- sending plotCommands" << endl;
+
+      if (spectrum_optionschanged)
+        spectrummanager->getOptions()->readOptions(spectrum_options);
+
+      spectrum_optionschanged = false;
+      spectrummanager->setSelectedModels(spectrum_models, spectrum_plotobs, false);
+      spectrummanager->setModel();
+
+      if (ptime.undef()) {
+        thetime = spectrummanager->getTime();
+        if (verbose)
+          cout << "SPECTRUM has default time:" << thetime << endl;
+      } else
+        thetime = ptime;
+      if (verbose)
+        cout << "- describing spectrum for time:" << thetime << endl;
+      spectrummanager->setTime(thetime);
+
+      if (verbose)
+        cout << "- setting station:" << spectrum_station << endl;
+      if (spectrum_station.exists())
+        spectrummanager->setStation(spectrum_station);
+
+      if (verbose)
+        cout << "- opening file " << priop.fname.c_str() << endl;
+
+      // open filestream
+      ofstream file(priop.fname.c_str());
+      if (!file) {
+        cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+        return 1;
+      }
+
+      vector<miutil::miString> modelFiles = spectrummanager->getModelFiles();
+      file << "FILES" << endl;
+      for (vector<miutil::miString>::const_iterator it = modelFiles.begin(); it != modelFiles.end(); ++it)
+        file << *it << endl;
+
+      file.close();
 
       continue;
 
@@ -2815,9 +2957,6 @@ static int parseAndProcess(istream &is)
           qfbuffer = new QGLFramebufferObject(xsize, ysize);
           qfbuffer->bind();
           //qfbuffer->release();
-#else
-      } else if (canvasType == qt_qimage) {
-        createPaintDevice();
 #endif
       }
       glShadeModel(GL_FLAT);
@@ -2858,10 +2997,6 @@ static int parseAndProcess(istream &is)
         return 1;
       } else
         priop.fname = value;
-
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-      createPaintDevice();
-#endif
 
     } else if (key == com_toprinter) {
       toprinter = (value.downcase() == "yes");
