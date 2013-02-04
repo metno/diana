@@ -3012,15 +3012,15 @@ void DianaMainWindow::idnumChange(int increment)
 
 void DianaMainWindow::saveraster()
 {
+
+  cerr <<"DianaMainWindow::saveraster"<<endl;
+
   static QString fname = "./"; // keep users preferred image-path for later
-cerr <<"saveraster"<<endl;
   QString s =
       QFileDialog::getSaveFileName(this,
           tr("Save plot as image"),
           fname,
           tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
-  cerr <<s.toStdString()<<endl;
-  cerr <<"ok so far"<<endl;
 
   if (!s.isNull()) {// got a filename
     fname= s;
@@ -3191,11 +3191,13 @@ void DianaMainWindow::parseSetup()
     spWindow->parseSetup();
 
     om->updateDialog();
+
   }
 }
 
 void DianaMainWindow::hardcopy()
 {
+  cerr <<"DianaMainWindow::hardcopy()"<<endl;
   QPrinter qprt;
 
   miutil::miString command= pman.printCommand();
