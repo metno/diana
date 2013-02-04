@@ -702,7 +702,6 @@ common_cxx_sources += \
 noinst_HEADERS +=  \
         PaintGL/GL/gl.h \
         PaintGL/GL/glu.h \
-        PaintGL/GL/gluint.h \
         PaintGL/GL/gluos.h \
         PaintGL/GL/libtess/dict.h \
         PaintGL/GL/libtess/dict-list.h \
@@ -715,7 +714,8 @@ noinst_HEADERS +=  \
         PaintGL/GL/libtess/render.h \
         PaintGL/GL/libtess/sweep.h \
         PaintGL/GL/libtess/tess.h \
-        PaintGL/GL/libtess/tessmono.h
+        PaintGL/GL/libtess/tessmono.h \
+        PaintGL/GL/libutil/gluint.h
 
 if WITH_BATCH_ONLY
 include_HEADERS += PaintGL/paintgl.h

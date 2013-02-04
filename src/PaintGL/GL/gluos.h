@@ -40,7 +40,15 @@
 #define NOIME
 #define NOMINMAX
 
-#define _WIN32_WINNT 0x0400
+#ifdef __MINGW64_VERSION_MAJOR
+  #undef _WIN32_WINNT
+#endif
+
+#ifndef _WIN32_WINNT
+  /* XXX: Workaround a bug in mingw-w64's headers when NOGDI is set and
+   * _WIN32_WINNT >= 0x0600 */
+  #define _WIN32_WINNT 0x0400
+#endif
 #ifndef STRICT
   #define STRICT 1
 #endif
@@ -48,12 +56,18 @@
 #include <windows.h>
 
 /* Disable warnings */
+#if defined(_MSC_VER)
 #pragma warning(disable : 4101)
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4761)
+#endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1200 && _MSC_VER < 1300
 #pragma comment(linker, "/OPT:NOWIN98")
+#endif
+
+#ifndef WINGDIAPI
+#define WINGDIAPI
 #endif
 
 #elif defined(__OS2__)
