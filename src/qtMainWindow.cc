@@ -3190,6 +3190,7 @@ void DianaMainWindow::parseSetup()
     vpWindow->parseSetup();
     spWindow->parseSetup();
 
+    fm->updateModels();
     om->updateDialog();
 
   }
