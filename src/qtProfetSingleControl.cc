@@ -3,6 +3,7 @@
 #endif
 
 #include <QVBoxLayout>
+#include <QLabel>
 
 
 #include "qtProfetSingleControl.h"
