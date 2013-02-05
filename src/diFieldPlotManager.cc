@@ -601,23 +601,25 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
     progtext = "(" + ostr.str() + ")";
   }
 
-  miString sclock = fout->validFieldTime.isoClock();
-  miString shour = sclock.substr(0, 2);
-  miString smin = sclock.substr(3, 2);
   miString timetext;
-  if (smin == "00") {
-    timetext = fout->validFieldTime.isoDate() + " " + shour + " UTC";
-  } else {
-    timetext = fout->validFieldTime.isoDate() + " " + shour + ":" + smin
-        + " UTC";
+  if( !fout->validFieldTime.undef() ) {
+    miString sclock = fout->validFieldTime.isoClock();
+    miString shour = sclock.substr(0, 2);
+    miString smin = sclock.substr(3, 2);
+    if (smin == "00") {
+      timetext = fout->validFieldTime.isoDate() + " " + shour + " UTC";
+    } else {
+      timetext = fout->validFieldTime.isoDate() + " " + shour + ":" + smin
+          + " UTC";
+    }
   }
+
   fout->name = plotName;
   fout->text = fieldtext + " " + progtext;
   fout->fulltext = fieldtext + " " + progtext + " " + timetext;
   fout->fieldText = fieldtext;
   fout->progtext = progtext;
   fout->timetext = timetext;
-
 }
 
 bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
