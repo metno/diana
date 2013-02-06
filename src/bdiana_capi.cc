@@ -712,6 +712,9 @@ void endHardcopy(const plot_type pt)
 
   if (pdf || postscript)
     printPage(0, 0);
+
+  // If we have printed then we can no longer be making multiple plots.
+  multiple_plots = false;
 #endif
 }
 
@@ -1475,7 +1478,6 @@ void createPaintDevice()
 
   } else { // Postscript
 
-    postscript = true;
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
     painter.begin(&picture);
@@ -1637,7 +1639,8 @@ static int parseAndProcess(istream &is)
         // -- normal plot
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-        createPaintDevice();
+        if (!multiple_plots)
+          createPaintDevice();
 #endif
         // Make Controller
         if (!main_controller) {
@@ -1774,7 +1777,8 @@ static int parseAndProcess(istream &is)
       } else if (plottype == plot_vcross) {
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-        createPaintDevice();
+        if (!multiple_plots)
+          createPaintDevice();
 #endif
         // Make Controller
         if (!main_controller) {
@@ -1844,7 +1848,8 @@ static int parseAndProcess(istream &is)
       } else if (plottype == plot_vprof) {
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-        createPaintDevice();
+        if (!multiple_plots)
+          createPaintDevice();
 #endif
         // Make Controller
         if (!main_controller) {
@@ -1916,7 +1921,8 @@ static int parseAndProcess(istream &is)
       } else if (plottype == plot_spectrum) {
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-        createPaintDevice();
+        if (!multiple_plots)
+          createPaintDevice();
 #endif
 
         // -- spectrum plot
@@ -1981,6 +1987,8 @@ static int parseAndProcess(istream &is)
         spectrummanager->plot();
 
       }
+      // --------------------------------------------------------
+      // Write output to a file.
       // --------------------------------------------------------
 
       //expand filename
@@ -2078,6 +2086,7 @@ static int parseAndProcess(istream &is)
           }
         }
 #else
+        // QWS/QPA output
         if (canvasType == qt_qimage && raster) {
           ensureNewContext();
 
@@ -3009,11 +3018,13 @@ static int parseAndProcess(istream &is)
       raster = false;
       shape = false;
       json = false;
+      postscript = false;
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
       svg = false;
       pdf = false;
 #endif
       if (value == "postscript") {
+        postscript = true;
         raster = false;
         priop.doEPS = false;
       } else if (value == "eps") {
@@ -3124,6 +3135,9 @@ static int parseAndProcess(istream &is)
       if (value.downcase() == "off") {
         multiple_newpage = false;
         multiple_plots = false;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        endHardcopy(plot_none);
+#endif
         glViewport(0, 0, xsize, ysize);
 
       } else {
@@ -3170,6 +3184,11 @@ static int parseAndProcess(istream &is)
         if (verbose)
           cout << "Starting multiple_plot, rows:" << numrows << " , columns: "
               << numcols << endl;
+
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        // A new multiple plot needs a new paint device to be created.
+        createPaintDevice();
+#endif
       }
 
     } else if (key == com_plotcell) {
@@ -3222,10 +3241,8 @@ static int parseAndProcess(istream &is)
     }
   }
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   // finish off any dangling postscript-sessions
   endHardcopy(plot_none);
-#endif
 
   return 0;
 }
