@@ -306,10 +306,10 @@ bool useArchive = false;
 bool toprinter = false;
 bool raster = false; // false means postscript
 bool shape = false; // false means postscript
+bool postscript = false;
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
 bool svg = false;
 bool pdf = false;
-bool postscript = false;
 #endif
 bool json = false;
 int raster_type = image_png; // see enum image_type above
