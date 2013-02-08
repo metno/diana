@@ -1,3 +1,9 @@
+diana (3.31.3-1) unstable; urgency=low
+
+  * Fixed legend plotting and cropping in bdiana.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 05 Feb 2013 11:51:00 +0100
+
 diana (3.31.2-1) unstable; urgency=low
 
   * Bugfix: field - changeModel
