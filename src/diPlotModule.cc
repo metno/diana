@@ -174,13 +174,14 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
 
 void PlotModule::prepareArea(const vector<miutil::miString>& inp)
 {
-  milogger::LogHandler::getInstance()->setObjectName("diana.PotModule.prepareArea");
+  milogger::LogHandler::getInstance()->setObjectName("diana.PlotModule.prepareArea");
   COMMON_LOG::getInstance("common").debugStream() << "++ PlotModule::prepareArea ++";
 
   MapManager mapm;
 
   if ( !inp.size() ) return;
-  if ( inp.size() > 1 ) cerr <<"More AREA definitions, using: "<<inp[0]<<endl;
+  if ( inp.size() > 1 )
+    COMMON_LOG::getInstance("common").debugStream() << "More AREA definitions, using: " <<inp[0];
 
   const miString key_name=  "name";
   const miString key_areaname=  "areaname"; //old syntax
@@ -919,8 +920,11 @@ bool PlotModule::updateFieldPlot(const vector<miString>& pin)
 // update plots
 bool PlotModule::updatePlots(bool failOnMissingData)
 {
+#ifdef DEBUGREDRAW || DEBUGPRINT
+  milogger::LogHandler::getInstance()->setObjectName("diana.PlotModule.updatePlots");
+#endif
 #ifdef DEBUGREDRAW
-  cerr <<"PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea<<endl;
+  COMMON_LOG::getInstance("common").debugStream() << "PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea;
 #endif
   miString pin;
   vector<Field*> fv;
@@ -956,7 +960,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   for (i = 0; i < n; i++) {
     if (!satm->setData(vsp[i])) {
 #ifdef DEBUGPRINT
-      cerr << "SatManager returned false from setData" << endl;
+      COMMON_LOG::getInstance("common").debugStream() << "SatManager returned false from setData";
 #endif
       if ( failOnMissingData ) {
         return false;
@@ -1082,7 +1086,9 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   }
   for (i = 0; i < n; i++) {
     if (!obsm->prepare(vop[i], splot.getTime())){
-      cerr << "ObsManager returned false from prepare" << endl;
+#ifdef DEBUGPRINT
+      COMMON_LOG::getInstance("common").debugStream() << "ObsManager returned false from prepare";
+#endif
       if ( failOnMissingData ) {
         return false;
       }
