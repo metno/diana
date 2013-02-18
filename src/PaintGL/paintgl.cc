@@ -596,7 +596,9 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32).rgbSwapped();
 
     ctx->painter->save();
-    // No need to record the following transformation.
+    // It seems that we need to explicitly set the composition mode.
+    ctx->painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+    // No need to record the following transformation because we will only use it once.
     ctx->painter->resetTransform();
     ctx->painter->translate(ctx->rasterPos);
     ctx->painter->scale(ctx->pixelZoom.x(), -ctx->pixelZoom.y());
