@@ -595,15 +595,16 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
 
     QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32).rgbSwapped();
 
-    QPointF pos = ctx->rasterPos + ctx->bitmapMove;
-
     ctx->painter->save();
-    // No need to record this transformation.
+    // No need to record the following transformation.
     ctx->painter->resetTransform();
-    ctx->painter->translate(pos);
+    ctx->painter->translate(ctx->rasterPos);
     ctx->painter->scale(ctx->pixelZoom.x(), -ctx->pixelZoom.y());
     ctx->painter->drawImage(0, 0, image);
     ctx->painter->restore();
+
+    // Update the raster position.
+    ctx->rasterPos += ctx->bitmapMove;
 }
 
 void glEdgeFlag(GLboolean flag)
