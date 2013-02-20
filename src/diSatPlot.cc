@@ -45,6 +45,9 @@
 #include <QtOpenGL>
 #endif
 
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
+
 #define NO_TEXTTURE
 using namespace::miutil;
 
@@ -96,7 +99,8 @@ void SatPlot::getSatName(miString &str){
 
 void SatPlot::setData(Sat *data){
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::setData() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.setData");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::setData() ++";
 #endif
   delete imagedata;
   imagedata = NULL;
@@ -106,7 +110,8 @@ void SatPlot::setData(Sat *data){
 }
 void SatPlot::clearData(){
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::clearData() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.clearData");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::clearData() ++";
 #endif
   delete imagedata;
   imagedata = NULL;
@@ -151,7 +156,8 @@ bool SatPlot::plot(){
 #endif
 
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::plot() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plot");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::plot() ++";
 #endif
 
   if (!enabled)
@@ -464,12 +470,14 @@ bool SatPlot::plotPixmap()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from SatPlot::plot() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plotPixmap");
+  COMMON_LOG::getInstance("common").debugStream() << "++ Returning from SatPlot::plot() ++";
 #endif
 #ifdef M_TIME
   gettimeofday(&post, NULL);
   double s1 = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  cerr << "SatPlot::plot(): " << s1 << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plotPixmap");
+  COMMON_LOG::getInstance("common").debugStream() << "SatPlot::plot(): " << s1;
 #endif
   return true;
 }
@@ -484,7 +492,8 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
   gettimeofday(&pre, NULL);
 #endif
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::resampleImage() ++  " <<scalex<<" :" <<scaley<<endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.resampleImage");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::resampleImage() ++  " <<scalex<<" :" <<scaley;
 #endif
   unsigned char * cimage;
   int irs= 1;            // resample-size
@@ -537,7 +546,8 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
 #ifdef M_TIME
   gettimeofday(&post, NULL);
   double s1 = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  cerr << "SatPlot::resampleImage(): " << s1 << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.resampleImage");
+  COMMON_LOG::getInstance("common").debugStream() << "SatPlot::resampleImage(): " << s1;
 #endif
 
   return cimage;
