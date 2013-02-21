@@ -177,13 +177,21 @@ void VprofDiagram::plot()
     fpDrawStr(true);
   } else if (redraw) {
     drawlist = glGenLists(1);
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
     glNewList(drawlist, GL_COMPILE_AND_EXECUTE);
+#endif
     plotDiagram();
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
     glEndList();
+#endif
     fpDrawStr(true);
     diagramInList = true;
   } else if (glIsList(drawlist)) {
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
     glCallList(drawlist);
+#else
+    plotDiagram();
+#endif
     fpDrawStr(false);
   }
 

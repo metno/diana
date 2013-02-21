@@ -260,6 +260,8 @@ QGLWidget *qwidget = 0; // The rendering context used for Qt GLFrameBuffer
 QPainter painter;
 PaintGL wrapper;
 PaintGLContext context;
+QPrinter *printer = 0;
+QPainter pagePainter;
 #endif
 QPicture picture;
 QImage image;
@@ -664,9 +666,22 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     if (verbose)
       cout << "- startHardcopy failure (missing manager)" << endl;
   }
-  hardcopy_started[pt] = true;
 #else
+  if (!printer) {
+    printer = new QPrinter();
+    printer->setOutputFileName(QString::fromStdString(priop.fname));
+    if (pdf)
+      printer->setOutputFormat(QPrinter::PdfFormat);
+    else
+      printer->setOutputFormat(QPrinter::PostScriptFormat);
+    printer->setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
+    printer->setFullPage(true);
+
+    pagePainter.begin(printer);
+  } else
+      printer->newPage();
 #endif
+  hardcopy_started[pt] = true;
 }
 
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
@@ -701,7 +716,6 @@ void endHardcopy(const plot_type pt)
     endHardcopy(plot_vprof);
     endHardcopy(plot_spectrum);
   }
-  hardcopy_started[pt] = false;
 #else
   // Guard against this function being called before printing occurs
   // or in cases where it is unnecessary.
@@ -716,6 +730,7 @@ void endHardcopy(const plot_type pt)
   // If we have printed then we can no longer be making multiple plots.
   multiple_plots = false;
 #endif
+  hardcopy_started[pt] = false;
 }
 
 // VPROF-options with parser
@@ -1445,19 +1460,7 @@ static void ensureNewContext()
 
 static void printPage(int ox, int oy)
 {
-  QPrinter printer;
-  printer.setOutputFileName(QString::fromStdString(priop.fname));
-  if (pdf)
-    printer.setOutputFormat(QPrinter::PdfFormat);
-  else
-    printer.setOutputFormat(QPrinter::PostScriptFormat);
-  printer.setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
-  printer.setFullPage(true);
-
-  QPainter pagePainter;
-  pagePainter.begin(&printer);
   pagePainter.drawPicture(ox, oy, picture);
-  pagePainter.end();
 }
 
 void createPaintDevice()
@@ -2195,12 +2198,12 @@ static int parseAndProcess(istream &is)
           // For some reason, QPrinter can determine the correct resolution to use, but
           // QSvgGenerator cannot manage that on its own, so we take the resolution from
           // a QPrinter instance which we do not otherwise use.
-          QPrinter printer;
+          QPrinter sprinter;
           QSvgGenerator svgFile;
           svgFile.setFileName(QString::fromStdString(priop.fname));
           svgFile.setSize(QSize(xsize, ysize));
           svgFile.setViewBox(QRect(0, 0, xsize, ysize));
-          svgFile.setResolution(printer.resolution());
+          svgFile.setResolution(sprinter.resolution());
           painter.begin(&svgFile);
           painter.drawPicture(ox, oy, picture);
           painter.end();
@@ -3243,6 +3246,10 @@ static int parseAndProcess(istream &is)
 
   // finish off any dangling postscript-sessions
   endHardcopy(plot_none);
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+  pagePainter.end();
+  delete printer;
+#endif
 
   return 0;
 }
