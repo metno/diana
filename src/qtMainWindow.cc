@@ -3401,6 +3401,10 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
         stationsText += tr("%1&nbsp;W").arg(-stations[i]->lon);
       stationsText += "</td>";
 
+      stationsText += "<td>";
+      stationsText += tr("%1&nbsp;m").arg(stations[i]->height);
+      stationsText += "</td>";
+
       stationsText += "</tr>";
     }
     stationsText += "</table>";

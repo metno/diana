@@ -261,9 +261,12 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
           station->time = miutil::miTime(timeString.c_str());
       }
 
+      if (pieces.size() >= 8)
+        station->height = atof(pieces[7].c_str());
+
       stations.push_back(station);
-    }
-    else {
+
+    } else {
       Station *station = parseSMHI(lines[i], url);
       if (station != NULL) {
         useImage = true;
