@@ -722,13 +722,13 @@ void endHardcopy(const plot_type pt)
   if (!painter.isActive() || svg || shape || raster)
     return;
 
+  // If we have printed then we can no longer be making multiple plots.
+  multiple_plots = false;
+
   ensureNewContext();
 
   if (pdf || postscript)
     printPage(0, 0);
-
-  // If we have printed then we can no longer be making multiple plots.
-  multiple_plots = false;
 #endif
   hardcopy_started[pt] = false;
 }
@@ -3144,6 +3144,16 @@ static int parseAndProcess(istream &is)
         glViewport(0, 0, xsize, ysize);
 
       } else {
+        if (multiple_plots) {
+          cerr << "Multiple plots are already enabled at line " << linenumbers[k] << endl;
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+          endHardcopy(plot_none);
+          if (printer && pagePainter.isActive()) {
+            pagePainter.end();
+            delete printer;
+          }
+#endif
+        }
         vector<miString> v1 = value.split(",");
         if (v1.size() < 2) {
           cerr << "WARNING, illegal values to multiple.plots:" << lines[k]
@@ -3247,8 +3257,10 @@ static int parseAndProcess(istream &is)
   // finish off any dangling postscript-sessions
   endHardcopy(plot_none);
 #if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  pagePainter.end();
-  delete printer;
+  if (printer && pagePainter.isActive()) {
+    pagePainter.end();
+    delete printer;
+  }
 #endif
 
   return 0;
