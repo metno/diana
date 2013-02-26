@@ -221,6 +221,8 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           (poptions.palettecolours.size()==0 && poptions.patterns.size()==0))
         continue;;
 
+      miString unit = " " + poptions.unit;
+
       miString endString;
       miString startString;
       if(anno[j].contains(",")){
@@ -320,12 +322,12 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           float min = poptions.linevalues[i];
           float max = poptions.linevalues[i+1];
           ostringstream ostr;
-          ostr <<min<<" - "<<max;
+          ostr <<min<<" - "<<max << unit;
           vtable[i].text = ostr.str();
         }
         float min = poptions.linevalues[ncodes-1];
         ostringstream ostr;
-        ostr <<">"<<min;
+        ostr <<">"<<min << unit;
         vtable[ncodes-1].text = ostr.str();
 
       } else if(nloglines>0){
@@ -339,12 +341,12 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           float min = vlog[i];
           float max = vlog[i+1];
           ostringstream ostr;
-          ostr <<min<<" - "<<max;
+          ostr <<min<<" - "<< max << unit;
           vtable[i].text = ostr.str();
         }
         float min = vlog[ncodes-1];
         ostringstream ostr;
-        ostr <<">"<<min;
+        ostr <<">"<<min << unit;
         vtable[ncodes-1].text = ostr.str();
 
       } else {
@@ -357,7 +359,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           ostringstream ostr;
           if(fabs(min)<poptions.lineinterval/10) min=0.;
           if(fabs(max)<poptions.lineinterval/10) max=0.;
-          ostr <<min<<" - "<<max;
+          ostr <<min<<" - "<<max << unit;
           max=min;
           vtable[i].text = ostr.str();
           if ( max < poptions.minvalue) {
@@ -380,7 +382,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
         for(int i=ncold; i<ncodes+ncold; i++){
           max = min + poptions.lineinterval;
           ostringstream ostr;
-          ostr <<min<<" - "<<max;
+          ostr <<min<<" - "<< max << unit;
           min=max;
           vtable[i].text = ostr.str();
           if ( min > poptions.maxvalue) {

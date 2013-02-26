@@ -298,8 +298,10 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
   const miString key_contourShape="contourShape";
   //Shape filename for output
   const miString key_shapefilename="shapefilename";
-  //unit
+  //unit obsolete, use units
   const miString key_unit="unit";
+  //units
+  const miString key_units="units";
   //anti-aliasing
   const miString key_antialiasing="antialiasing";
 
@@ -811,7 +813,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.contourShape = (value == "true");
       } else if (key==key_shapefilename){
         po.shapefilename=value.cStr();
-      } else if (key==key_unit){
+      } else if (key==key_unit || key==key_units){
         po.unit=value.cStr();
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
