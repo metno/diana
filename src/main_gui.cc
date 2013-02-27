@@ -92,6 +92,16 @@ int main(int argc, char **argv)
   cout << argv[0] << " : DIANA version: " << VERSION << "  build: "
       << build_string << endl;
 
+#if defined(Q_WS_QWS)
+  QApplication a(argc, argv, QApplication::GuiServer);
+#endif
+#if defined(Q_WS_QPA)
+  QApplication a(argc, argv);
+#endif
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+  PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
+#endif
+
   miString logfilename;
   miString ver_str= VERSION;
   miString build_str= build_string;
@@ -202,8 +212,10 @@ int main(int argc, char **argv)
   miTime x; x.setDefaultLanguage(lang);
 
   // gui init
+#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
   QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
   QApplication a( argc, argv );
+#endif
 
   QTranslator qutil( 0 );
   QTranslator myapp( 0 );
@@ -237,14 +249,15 @@ int main(int argc, char **argv)
     a.installTranslator( &qutil );
   }
   DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title, profetEnabled);
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
-#endif
 
   mw->start();
 
 //  a.setMainWidget(mw);
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+  mw->showFullScreen();
+#else
   mw->show();
+#endif
 
   // news ?
   mw->checkNews();

@@ -49,6 +49,7 @@ PaintGL::~PaintGL()
 #define ctx globalGL->currentContext
 
 PaintGLContext::PaintGLContext()
+    : painter(0)
 {
 }
 
