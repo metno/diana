@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.31.3], [diana@met.no])
+AC_INIT([diana], [3.32.0], [diana@met.no])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -229,7 +229,6 @@ AS_IF([test x$enable_obs_bufr = xyes], [
 #
 AC_SUBST([program_suffix])
 
-AC_CONFIG_FILES([bin/diana])
 AC_CONFIG_FILES([bin/diana.bat])
 AC_CONFIG_FILES([bin/diana-zip.bat])
 AC_CONFIG_FILES([etc/diana/diana.setup])
