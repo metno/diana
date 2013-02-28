@@ -43,79 +43,19 @@ find . -name "prt_????-??-??_??:??:??.ps" -mtime +1 -exec rm {} \;
 random=`date +%N`
 logfile=/tmp/diana-$random.log
 
-
-tstart=`date`
-$prefix/bin/diana.bin-@PVERSION@ \
+CATCHCRASH="/usr/bin/catchcrash"
+EXE="$prefix/bin/diana.bin-@PVERSION@ \
     -s $setup \
     -T "diana-@PVERSION@" \
     -p \
     -style=cleanlooks \
-    $@  2>&1 | tee $logfile
+    $@"
 
-tstop=`date`
+if test -x "$CATCHCRASH"; then
+  exec "$CATCHCRASH" --mail-to lisbethb@met.no --subject DIANA_CRASH -- $EXE
+else
+  exec $EXE
+fi 
 
-corefound="no"
-for corefile in core*
-do
-    test -f $corefile || continue
-    test -s $corefile || continue
-    corefound="yes"
-done
-
-if [ $corefound = "yes" ] ; then
-
-echo "USER $USER"     >mail.core
-echo "-------------" >>mail.core
-uname -a             >>mail.core
-echo "-------------" >>mail.core
-echo "START $tstart" >>mail.core
-echo "STOP  $tstop"  >>mail.core
-
-echo "Diana$SUFFIX version:"              >>mail.core 
-$prefix/bin/diana.bin$SUFFIX --version  >>mail.core
-
-echo "Diana version (diana.news):" >>mail.core 
-cat diana.news       >>mail.core
-echo "-------------" >>mail.core
-pwd                  >>mail.core
-ls -ltr core*        >>mail.core
-
-echo "===============================================" >>mail.core
-echo " "             >>mail.core
-echo "OUTPUT FROM LOGFILE: $logfile" >>mail.core
-echo " "             >>mail.core
-cat $logfile         >>mail.core
-echo " "             >>mail.core
-echo "===============================================" >>mail.core
-
-
-for corefile in core*
-do
-
-test -f $corefile || continue
-test -s $corefile || continue
-
-#make gdb input:
-/bin/echo -e 'bt\nq\n' > /tmp/gdb.cmd.$$
-
-$debugger -batch -x /tmp/gdb.cmd.$$ $prefix/bin/diana.bin$SUFFIX $corefile 1>dbxresult 2>&1 
-
-rm -f /tmp/gdb.cmd.$$
-
-echo "===============================================" >>mail.core
-cat dbxresult        >>mail.core
-
-rm $corefile
-
-done
-
-echo "===============================================" >>mail.core
-
-adr="diana@met.no"
-Mail -s "DIANA CRASH" $adr < mail.core
-
-fi
-
-rm $logfile
 
 exit
