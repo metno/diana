@@ -1,3 +1,15 @@
+diana (3.32.0-2) unstable; urgency=low
+
+  * new debian revision
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 28 Feb 2013 12:54:14 +0100
+
+diana (3.32.0-1) unstable; urgency=low
+
+  * bdiana fixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 Feb 2013 10:16:15 +0100
+
 diana (3.31.3-1) unstable; urgency=low
 
   * Fixed legend plotting and cropping in bdiana.
