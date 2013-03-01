@@ -65,7 +65,7 @@ namespace Profet{
   public:
     enum UserListEventType {REPLACE_LIST, SET_USER, REMOVE_USER};
     UserListEventType type;
-    vector<Profet::PodsUser> users;
+    std::vector<Profet::PodsUser> users;
     Profet::PodsUser user;
     UserListEvent():QEvent(QEvent::Type(USER_LIST_EVENT)){}
   };
@@ -87,8 +87,8 @@ namespace Profet{
    */
   class ObjectListUpdateEvent : public QEvent {
   public:
-    vector<fetObject> objects;
-    ObjectListUpdateEvent(const vector<fetObject> & obj)
+    std::vector<fetObject> objects;
+    ObjectListUpdateEvent(const std::vector<fetObject> & obj)
       :QEvent(QEvent::Type(OBJECT_LIST_UPDATE_EVENT)),
       objects(obj){}
   };
@@ -111,8 +111,8 @@ namespace Profet{
    */
   class SignatureListUpdateEvent : public QEvent {
   public:
-    vector<fetObject::Signature> objects;
-    SignatureListUpdateEvent(const vector<fetObject::Signature> & s)
+    std::vector<fetObject::Signature> objects;
+    SignatureListUpdateEvent(const std::vector<fetObject::Signature> & s)
     :QEvent(QEvent::Type(SIGNATURE_LIST_UPDATE_EVENT)), objects(s){}
   };
 

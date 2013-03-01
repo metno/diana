@@ -61,7 +61,7 @@ public:
   SessionComboBox(QWidget * parent = 0) : QComboBox(parent){}
 private slots:
   void handleEmptySelection(const QString & text){
-    cerr << "******************* handleEmptySelection: " << text.toStdString() << endl;
+    std::cerr << "******************* handleEmptySelection: " << text.toStdString() << std::endl;
   }
 
 };

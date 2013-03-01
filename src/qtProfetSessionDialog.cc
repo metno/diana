@@ -41,6 +41,8 @@
 #include <QMessageBox>
 #include <QWindowsStyle>
 
+using namespace std;
+
 ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   : QDialog(parent )
   {
