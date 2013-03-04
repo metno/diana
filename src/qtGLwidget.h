@@ -98,10 +98,6 @@ public:
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
   void endHardcopy();
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  /// Print the visible contents of the widget.
-  void print(QPrinter* device);
-#endif
 
 signals:
   /// single click signal

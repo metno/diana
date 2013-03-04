@@ -74,15 +74,6 @@ public:
   		       const miutil::miString format,
 		       const int quality = -1);
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  bool isValid() { return true; }
-  void makeCurrent() {}
-  void swapBuffers() {}
-  void setAutoBufferSwap(bool enable) {}
-  void updateGL() { update(); }
-  QImage grabFrameBuffer(bool withAlpha = false) { return QImage(); }
-#endif
-
 protected:
 
   void initializeGL();

@@ -409,10 +409,14 @@ void VcrossWindow::printClicked(){
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+    vcrossw->print(&qprt);
+#else
     vcrossw->startHardcopy(priop);
     vcrossw->updateGL();
     vcrossw->endHardcopy();
     vcrossw->updateGL();
+#endif
 
     // if output to printer: call appropriate command
     if (qprt.outputFileName().isNull()){

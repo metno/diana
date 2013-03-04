@@ -81,15 +81,6 @@ public:
   void startHardcopy(const printOptions& po);
   void endHardcopy();
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  bool isValid() { return true; }
-  void makeCurrent() {}
-  void swapBuffers() {}
-  void setAutoBufferSwap(bool enable) {}
-  void updateGL() { update(); }
-  QImage grabFrameBuffer(bool withAlpha = false) { return QImage(); }
-#endif
-
 protected:
 
   void initializeGL();

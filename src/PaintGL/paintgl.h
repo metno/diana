@@ -328,6 +328,9 @@ public:
     void swapBuffers();
     virtual void updateGL();
 
+    /// Print the visible contents of the widget.
+    void print(QPrinter* device);
+
 protected:
     void paintEvent(QPaintEvent* event);
     void resizeEvent(QResizeEvent* event);

@@ -1302,3 +1302,28 @@ void PaintGLWidget::paint(QPainter *painter)
     paintGL();
     glContext->end();
 }
+
+void PaintGLWidget::print(QPrinter* device)
+{
+  makeCurrent();
+  if (!initialized) {
+      initializeGL();
+      initialized = true;
+  }
+
+  QPicture picture;
+  QPainter painter;
+  painter.begin(&picture);
+  paint(&painter);
+  painter.end();
+
+  painter.begin(device);
+  painter.translate(device->width()/2.0, device->height()/2.0);
+  double scale = qMin(device->width()/double(width()), device->height()/double(height()));
+  if (scale < 1.0)
+    painter.scale(scale, scale);
+  painter.translate(-width()/2, -height()/2);
+  painter.setClipRect(0, 0, width(), height());
+  painter.drawPicture(0, 0, picture);
+  painter.end();
+}

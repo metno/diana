@@ -3198,7 +3198,7 @@ void DianaMainWindow::parseSetup()
 
 void DianaMainWindow::hardcopy()
 {
-  cerr <<"DianaMainWindow::hardcopy()"<<endl;
+  //cerr <<"DianaMainWindow::hardcopy()"<<endl;
   QPrinter qprt;
 
   miutil::miString command= pman.printCommand();
