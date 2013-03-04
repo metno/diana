@@ -674,10 +674,22 @@ void startHardcopy(const plot_type pt, const printOptions priop)
       printer->setOutputFormat(QPrinter::PdfFormat);
     else
       printer->setOutputFormat(QPrinter::PostScriptFormat);
-    printer->setPaperSize(QSizeF(xsize, ysize), QPrinter::DevicePixel);
-    printer->setFullPage(true);
 
+    if (priop.usecustomsize) {
+      printer->setPaperSize(QSizeF(priop.papersize.hsize, priop.papersize.vsize), QPrinter::Millimeter);
+    } else {
+      // The pagesize option maps directly to QPrinter's PaperSize enum.
+      printer->setPaperSize(QPrinter::PaperSize(priop.pagesize));
+    }
+    printer->setFullPage(true);
+    
+    QSizeF size = printer->paperSize(QPrinter::DevicePixel);
+    double xscale = size.width()/xsize;
+    double yscale = size.height()/ysize;
+    double scale = qMin(qMin(xscale, yscale), 1.0);
     pagePainter.begin(printer);
+    pagePainter.setClipRect(QRectF(0, 0, size.width(), size.height()));
+    pagePainter.scale(scale, scale);
   } else
       printer->newPage();
 #endif
