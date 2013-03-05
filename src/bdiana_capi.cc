@@ -677,19 +677,33 @@ void startHardcopy(const plot_type pt, const printOptions priop)
 
     if (priop.usecustomsize) {
       printer->setPaperSize(QSizeF(priop.papersize.hsize, priop.papersize.vsize), QPrinter::Millimeter);
+
+      // According to QTBUG-23868, orientation and custom paper sizes do not
+      // play well together. Always use portrait.
+      printer->setOrientation(QPrinter::Portrait);
     } else {
       // The pagesize option maps directly to QPrinter's PaperSize enum.
       printer->setPaperSize(QPrinter::PaperSize(priop.pagesize));
+
+      if (priop.orientation == d_print::ori_landscape)
+        printer->setOrientation(QPrinter::Landscape);
+      else
+        printer->setOrientation(QPrinter::Portrait);
     }
+
     printer->setFullPage(true);
     
     QSizeF size = printer->paperSize(QPrinter::DevicePixel);
+    
     double xscale = size.width()/xsize;
     double yscale = size.height()/ysize;
     double scale = qMin(qMin(xscale, yscale), 1.0);
     pagePainter.begin(printer);
-    pagePainter.setClipRect(QRectF(0, 0, size.width(), size.height()));
-    pagePainter.scale(scale, scale);
+    pagePainter.translate(size.width()/2.0, size.height()/2.0);
+    if (scale != 1.0)
+      pagePainter.scale(scale, scale);
+    pagePainter.translate(-xsize/2.0, -ysize/2.0);
+    pagePainter.setClipRect(QRectF(0, 0, xsize, ysize));
   } else
       printer->newPage();
 #endif
