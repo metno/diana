@@ -601,7 +601,9 @@ void ObsDialog::makeExtension()
   QLabel* precLabel = TitleLabel(tr("Precision"),extension);
   signBox = new QComboBox( extension );
   signBox->addItem(">");
+  signBox->addItem(">=");
   signBox->addItem("<");
+  signBox->addItem("<=");
   signBox->addItem("=");
   signBox->addItem("");
   stepComboBox = new QComboBox(extension);
@@ -760,8 +762,8 @@ void ObsDialog::stepSlot( int number )
 //todo: smarter slider limits
   float scalesize = stepComboBox->currentText().toFloat();
   numberList(stepComboBox,scalesize);
-  limitSlider->setMaximum(100);
-  limitSlider->setMinimum(-100);
+  limitSlider->setMaximum(1000);
+  limitSlider->setMinimum(-1000);
   limitSlider->setValue(int(limitLcd->value()/scalesize));
   double scalednumber= limitSlider->value()*scalesize;
   limitLcd->display( scalednumber );

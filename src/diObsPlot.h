@@ -114,9 +114,11 @@ private:
   //Criteria
   enum Sign{
     less_than = 0,
-    more_than = 1,
-    equal_to  = 2,
-    no_sign   = 3
+    less_than_or_equal_to = 1,
+    more_than = 2,
+    more_than_or_equal_to = 3,
+    equal_to  = 4,
+    no_sign   = 5
   };
 
   struct plotCriteria{

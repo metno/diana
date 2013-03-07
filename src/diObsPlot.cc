@@ -7045,9 +7045,15 @@ void ObsPlot::decodeCriteria(miString critStr)
     Sign sign;
     miString parameter;
     float limit = 0.0;
-    if (vcrit[0].contains(">")) {
+    if (vcrit[0].contains(">=")) {
+      sep = ">=";
+      sign = more_than_or_equal_to;
+    } else if (vcrit[0].contains(">")) {
       sep = ">";
       sign = more_than;
+    } else if (vcrit[0].contains("<=")) {
+      sep = "<=";
+      sign = less_than_or_equal_to;
     } else if (vcrit[0].contains("<")) {
       sep = "<";
       sign = less_than;
@@ -7131,7 +7137,9 @@ void ObsPlot::checkColourCriteria(const miString& param, float value)
   for (int i = 0; i < n; i++) {
     float delta = fabsf(value) * 0.01;
     if ((p->second[i].sign == less_than && value < p->second[i].limit)
+        || (p->second[i].sign == less_than_or_equal_to && value <= p->second[i].limit+delta)
         || (p->second[i].sign == more_than && value > p->second[i].limit)
+        || (p->second[i].sign == more_than_or_equal_to && value >= p->second[i].limit-delta)
         || (p->second[i].sign == equal_to && (value > p->second[i].limit
             - delta && value < p->second[i].limit + delta))
             || (p->second[i].sign == no_sign)) {
@@ -7192,7 +7200,9 @@ bool ObsPlot::checkPlotCriteria(int index)
     for (int i = 0; i < ncrit; i++) {
       float delta = fabsf(value) * 0.01;
       if ((p->second[i].sign == less_than && value < p->second[i].limit)
+          || (p->second[i].sign == less_than_or_equal_to && value <= p->second[i].limit+delta)
           || (p->second[i].sign == more_than && value > p->second[i].limit)
+          || (p->second[i].sign == more_than_or_equal_to && value >= p->second[i].limit-delta)
           || (p->second[i].sign == equal_to && (value > p->second[i].limit
               - delta && value < p->second[i].limit + delta))
               || (p->second[i].sign == no_sign))
@@ -7247,10 +7257,14 @@ void ObsPlot::checkTotalColourCriteria(int index)
     }
 
     for (int i = 0; i < ncrit; i++) {
+      float delta = fabsf(value) * 0.01;
       if ((p->second[i].sign == less_than && value < p->second[i].limit)
+          || (p->second[i].sign == less_than_or_equal_to && value <= p->second[i].limit+delta)
           || (p->second[i].sign == more_than && value > p->second[i].limit)
-          || (p->second[i].sign == equal_to && value == p->second[i].limit)
-          || (p->second[i].sign == no_sign))
+          || (p->second[i].sign == more_than_or_equal_to && value >= p->second[i].limit-delta)
+          || (p->second[i].sign == equal_to && (value > p->second[i].limit
+              - delta && value < p->second[i].limit + delta))
+              || (p->second[i].sign == no_sign))
         colour = p->second[i].colour;
     }
   }
@@ -7289,10 +7303,14 @@ miString ObsPlot::checkMarkerCriteria(int index)
     }
 
     for (int i = 0; i < ncrit; i++) {
+      float delta = fabsf(value) * 0.01;
       if ((p->second[i].sign == less_than && value < p->second[i].limit)
+          || (p->second[i].sign == less_than_or_equal_to && value <= p->second[i].limit+delta)
           || (p->second[i].sign == more_than && value > p->second[i].limit)
-          || (p->second[i].sign == equal_to && value == p->second[i].limit)
-          || (p->second[i].sign == no_sign))
+          || (p->second[i].sign == more_than_or_equal_to && value >= p->second[i].limit-delta)
+          || (p->second[i].sign == equal_to && (value > p->second[i].limit
+              - delta && value < p->second[i].limit + delta))
+              || (p->second[i].sign == no_sign))
         marker = p->second[i].marker;
     }
   }
