@@ -35,7 +35,7 @@
 
 #include <diVprofTables.h>
 #include <diLocalSetupParser.h>
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 #include <glp/glpfile.h>
 #endif
 #include <iostream>

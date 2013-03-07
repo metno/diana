@@ -34,7 +34,7 @@
 #include <qglobal.h>
 
 #include <iostream>
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 #include <qgl.h>
 #else
 #include <GL/gl.h>
@@ -64,7 +64,7 @@ class VcrossWidget : public QGLWidget
   Q_OBJECT
 
 public:
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
                 QWidget* parent = 0 );
 #else

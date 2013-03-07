@@ -196,6 +196,11 @@ bdiana_qt_sources = \
 	diOrderQueue.cc \
 	diWorkOrder.cc
 
+if WITH_EMBEDDED
+bdiana_qt_sources += \
+	PaintGL/paintgl.cc
+endif
+
 noinst_HEADERS = \
 	MovieMaker.h \
 	diAnnotationPlot.h \
@@ -680,7 +685,8 @@ endif
 # Embedded build support - remove X and OpenGL dependencies
 if WITH_EMBEDDED
 common_cppflags += \
-        -I$(top_srcdir)/src/PaintGL -I$(top_srcdir)/src/PaintGL/GL
+        -I$(top_srcdir)/src/PaintGL -I$(top_srcdir)/src/PaintGL/GL \
+        -DUSE_PAINTGL
 
 common_c_sources += \
         PaintGL/GL/libtess/dict.c \
@@ -695,9 +701,6 @@ common_c_sources += \
         PaintGL/GL/libtess/tessmono.c \
         PaintGL/GL/libutil/error.c \
         PaintGL/GL/libutil/glue.c
-
-common_cxx_sources += \
-        PaintGL/paintgl.cc
 
 noinst_HEADERS +=  \
         PaintGL/GL/gl.h \

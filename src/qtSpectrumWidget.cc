@@ -43,11 +43,11 @@
 #include "qtSpectrumWidget.h"
 #include "diSpectrumManager.h"
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 #include "GL/gl.h"
 #endif
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
                         QWidget* parent)
     : QGLWidget( fmt, parent), spectrumm(spm)

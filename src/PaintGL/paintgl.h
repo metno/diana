@@ -318,6 +318,8 @@ private:
 
 class PaintGLWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
     PaintGLWidget(QWidget *parent, bool antialiasing = false);
     virtual ~PaintGLWidget();
@@ -328,6 +330,7 @@ public:
     void swapBuffers();
     virtual void updateGL();
 
+public slots:
     /// Print the visible contents of the widget.
     void print(QPrinter* device);
 

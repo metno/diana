@@ -177,17 +177,17 @@ void VprofDiagram::plot()
     fpDrawStr(true);
   } else if (redraw) {
     drawlist = glGenLists(1);
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     glNewList(drawlist, GL_COMPILE_AND_EXECUTE);
 #endif
     plotDiagram();
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     glEndList();
 #endif
     fpDrawStr(true);
     diagramInList = true;
   } else if (glIsList(drawlist)) {
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     glCallList(drawlist);
 #else
     plotDiagram();

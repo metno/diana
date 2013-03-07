@@ -37,7 +37,7 @@
 #include <diSatPlot.h>
 
 #include <QtGlobal>
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 #include <QtGui>
 #include <QtSvg>
 #include "PaintGL/paintgl.h"

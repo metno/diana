@@ -48,7 +48,7 @@
 #include <diField/diMetConstants.h>
 #include <GL/gl.h>
 #include <diContouring.h>
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 #include <glText/glText.h>
 #include <glp/glpfile.h>
 #endif

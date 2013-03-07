@@ -50,7 +50,7 @@
 #include <iostream>
 
 #include <QtCore>
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 #include <QtGui>
 #include <QtSvg>
 #include "PaintGL/paintgl.h"
@@ -161,7 +161,7 @@ const miString com_addhour = "addhour";
 const miString com_addminute = "addminute";
 const miString com_archive = "archive";
 const miString com_keepplotarea = "keepplotarea";
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 const miString com_plotannotationsonly = "plotannotationsonly";
 #endif
 
@@ -252,7 +252,7 @@ GLXPbuffer pbuf; // GLX Pixel Buffer
 #endif
 
 QApplication * application = 0; // The Qt Application object
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 QGLPixelBuffer * qpbuffer = 0; // The Qt GLPixelBuffer used as canvas
 QGLFramebufferObject * qfbuffer = 0; // The Qt GLFrameBuffer used as canvas
 QGLWidget *qwidget = 0; // The rendering context used for Qt GLFrameBuffer
@@ -281,7 +281,7 @@ bool use_double_buffer = true; // use double buffering
 #ifdef USE_XLIB
 int default_canvas = x_pixmap;
 #else
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 int default_canvas = qt_qimage;
 #else
 int default_canvas = qt_glpixelbuffer;
@@ -309,14 +309,14 @@ bool toprinter = false;
 bool raster = false; // false means postscript
 bool shape = false; // false means postscript
 bool postscript = false;
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 bool svg = false;
 bool pdf = false;
 #endif
 bool json = false;
 int raster_type = image_png; // see enum image_type above
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 bool plotAnnotationsOnly = false;
 vector<Rectangle> annotationRectangles;
 QTransform annotationTransform;
@@ -645,7 +645,7 @@ void endVideo()
 
 void startHardcopy(const plot_type pt, const printOptions priop)
 {
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   if (pt == plot_standard && main_controller) {
     if (verbose)
       cout << "- startHardcopy (standard)" << endl;
@@ -710,14 +710,14 @@ void startHardcopy(const plot_type pt, const printOptions priop)
   hardcopy_started[pt] = true;
 }
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 static void ensureNewContext();
 static void printPage(int ox, int oy);
 #endif
 
 void endHardcopy(const plot_type pt)
 {
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   // finish off postscript-sessions
   if (pt == plot_standard && hardcopy_started[pt] && main_controller) {
     if (verbose)
@@ -939,7 +939,7 @@ static void printUsage(bool showexample)
 #ifdef VIDEO_EXPORT
         " - as AVI (MS MPEG4-v2 video format)                            \n"
 #endif
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
         " - using qtgl: all available raster formats in Qt               \n"
 #endif
         " - using qimage: all available raster formats in Qt             \n"
@@ -975,7 +975,7 @@ static void printUsage(bool showexample)
         "-use_qtgl         : use QGLPixelBuffer as drawing medium (default)      \n"
 #endif
         "-use_qimage       : use QImage as drawing medium                        \n"
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
         "-use_doublebuffer : use double buffering OpenGL (default)               \n"
         "-use_singlebuffer : use single buffering OpenGL                         \n"
 #endif
@@ -1339,7 +1339,7 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 /*
  * Returns the area covered in the requested annotation in the ox, oy, xsize and ysize
  * variables passed as arguments. If the annotation number is -1 then the area covered
@@ -1517,7 +1517,7 @@ void createPaintDevice()
 
 void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int spacing)
 {
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   glViewport(margin + plotcol * (deltax + spacing), margin + plotrow * (deltay + spacing),
              deltax, deltay);
 #else
@@ -1533,7 +1533,7 @@ void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int s
 
 static int parseAndProcess(istream &is)
 {
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
   ensureNewContext();
 #endif
 
@@ -1667,7 +1667,7 @@ static int parseAndProcess(istream &is)
       if (plottype == plot_standard) {
         // -- normal plot
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
 #endif
@@ -1733,7 +1733,7 @@ static int parseAndProcess(istream &is)
           cout << "- updatePlots" << endl;
         if (!main_controller->updatePlots(failOnMissingData)) {
             cerr << "Failed to update plots." << endl;
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
             ensureNewContext();
 #endif
             return 99;
@@ -1769,7 +1769,7 @@ static int parseAndProcess(istream &is)
           trajectory_started = false;
         }
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
         else if (svg || pdf)
@@ -1779,7 +1779,7 @@ static int parseAndProcess(istream &is)
         if (verbose)
           cout << "- plot" << endl;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (plotAnnotationsOnly) {
           // Plotting annotations only for the purpose of returning legends to a WMS
           // server front end.
@@ -1796,7 +1796,7 @@ static int parseAndProcess(istream &is)
             main_controller->plot(true, true);
         }
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
         if (json)
           createJsonAnnotation();
@@ -1805,7 +1805,7 @@ static int parseAndProcess(istream &is)
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
 #endif
@@ -1865,7 +1865,7 @@ static int parseAndProcess(istream &is)
         if (verbose)
           cout << "- plot" << endl;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
         else if (svg || pdf)
@@ -1876,7 +1876,7 @@ static int parseAndProcess(istream &is)
         // --------------------------------------------------------
       } else if (plottype == plot_vprof) {
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
 #endif
@@ -1938,7 +1938,7 @@ static int parseAndProcess(istream &is)
         if (verbose)
           cout << "- plot" << endl;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
         else if (svg || pdf)
@@ -1949,7 +1949,7 @@ static int parseAndProcess(istream &is)
         // --------------------------------------------------------
       } else if (plottype == plot_spectrum) {
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (!multiple_plots)
           createPaintDevice();
 #endif
@@ -2007,7 +2007,7 @@ static int parseAndProcess(istream &is)
         if (verbose)
           cout << "- plot" << endl;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
         else if (svg || pdf)
@@ -2055,7 +2055,7 @@ static int parseAndProcess(istream &is)
           cout << "- Preparing for raster output" << endl;
         glFlush();
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
         if (canvasType == qt_glpixelbuffer) {
           if (qpbuffer == 0) {
             cerr << " ERROR. when saving image - qpbuffer is NULL" << endl;
@@ -2211,7 +2211,7 @@ static int parseAndProcess(istream &is)
 
           // Anything more to be done here ???
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
       } else if (svg) {
 
           ensureNewContext();
@@ -2969,7 +2969,7 @@ static int parseAndProcess(istream &is)
 #endif
       } else if (canvasType == qt_glpixelbuffer) {
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
         // delete old pixmaps
         if (buffermade && qpbuffer) {
           delete qpbuffer;
@@ -3048,7 +3048,7 @@ static int parseAndProcess(istream &is)
       shape = false;
       json = false;
       postscript = false;
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
       svg = false;
       pdf = false;
 #endif
@@ -3072,7 +3072,7 @@ static int parseAndProcess(istream &is)
         raster = true;
         raster_type = image_avi;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
       } else if (value == "pdf" || value == "svg" || value == "json") {
         raster = false;
         if (value == "pdf")
@@ -3143,7 +3143,7 @@ static int parseAndProcess(istream &is)
     } else if (key == com_keepplotarea) {
       keeparea = (value.downcase() == "yes");
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
     } else if (key == com_plotannotationsonly) {
       plotAnnotationsOnly = (value.downcase() == "yes");
 #endif
@@ -3164,7 +3164,7 @@ static int parseAndProcess(istream &is)
       if (value.downcase() == "off") {
         multiple_newpage = false;
         multiple_plots = false;
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         endHardcopy(plot_none);
 #endif
         glViewport(0, 0, xsize, ysize);
@@ -3172,7 +3172,7 @@ static int parseAndProcess(istream &is)
       } else {
         if (multiple_plots) {
           cerr << "Multiple plots are already enabled at line " << linenumbers[k] << endl;
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
           endHardcopy(plot_none);
           if (printer && pagePainter.isActive()) {
             pagePainter.end();
@@ -3224,7 +3224,7 @@ static int parseAndProcess(istream &is)
           cout << "Starting multiple_plot, rows:" << numrows << " , columns: "
               << numcols << endl;
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
         // A new multiple plot needs a new paint device to be created.
         createPaintDevice();
 #endif
@@ -3282,7 +3282,7 @@ static int parseAndProcess(istream &is)
 
   // finish off any dangling postscript-sessions
   endHardcopy(plot_none);
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
   if (printer && pagePainter.isActive()) {
     pagePainter.end();
     delete printer;
@@ -3584,7 +3584,7 @@ int diana_init(int _argc, char** _argv)
   }
 #endif
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   if (canvasType == qt_glpixelbuffer) {
     cerr <<"qt_glpixelbuffer"<<endl;
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
@@ -3686,7 +3686,7 @@ int diana_init(int _argc, char** _argv)
       return 99;
     }
     int res = parseAndProcess(is);
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
     ensureNewContext();
 #endif
     if (res != 0)
@@ -3783,7 +3783,7 @@ int diana_dealloc()
   }
 #endif
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   if (qpbuffer) {
     delete qpbuffer;
   }

@@ -43,7 +43,7 @@
 #include "diPrintOptions.h"
 #include "diController.h"
 #include "qtMainWindow.h"
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
 #endif
 #include <puTools/miCommandLine.h>
@@ -94,11 +94,12 @@ int main(int argc, char **argv)
 
 #if defined(Q_WS_QWS)
   QApplication a(argc, argv, QApplication::GuiServer);
+#else
+  #if defined(USE_PAINTGL) // either QPA or X11 without OpenGL
+    QApplication a(argc, argv);
+  #endif
 #endif
-#if defined(Q_WS_QPA)
-  QApplication a(argc, argv);
-#endif
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
   PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
 #endif
 
@@ -212,7 +213,7 @@ int main(int argc, char **argv)
   miTime x; x.setDefaultLanguage(lang);
 
   // gui init
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
   QApplication a( argc, argv );
 #endif
@@ -253,7 +254,7 @@ int main(int argc, char **argv)
   mw->start();
 
 //  a.setMainWidget(mw);
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(Q_WS_QWS)
   mw->showFullScreen();
 #else
   mw->show();

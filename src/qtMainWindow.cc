@@ -215,6 +215,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   filePrintAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( filePrintAction, SIGNAL( triggered() ) , SLOT( hardcopy() ) );
   // --------------------------------------------------------------------
+#if defined(USE_PAINTGL)
+  filePrintPreviewAction = new QAction( tr("Print pre&view..."),this );
+  filePrintPreviewAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( filePrintPreviewAction, SIGNAL( triggered() ) , SLOT( previewHardcopy() ) );
+#endif
   // --------------------------------------------------------------------
   readSetupAction = new QAction( tr("Read setupfile"),this );
   //restartAction->setShortcut(Qt::CTRL+Qt::Key_P);
@@ -615,6 +620,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   filemenu->addAction( emailPictureAction );
   filemenu->addAction( saveAnimationAction );
   filemenu->addAction( filePrintAction );
+#if defined(USE_PAINTGL)
+  filemenu->addAction( filePrintPreviewAction );
+#endif
   filemenu->addSeparator();
   filemenu->addAction( fileQuitAction );
 
@@ -3162,7 +3170,7 @@ void DianaMainWindow::makeEPS(const miutil::miString& filename)
   priop.drawbackground= true;
   priop.doEPS= true;
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   w->Glw()->startHardcopy(priop);
   w->updateGL();
   w->Glw()->endHardcopy();
@@ -3228,7 +3236,7 @@ void DianaMainWindow::hardcopy()
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
     //     contr->startHardcopy(priop);
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     w->Glw()->startHardcopy(priop);
     w->updateGL();
     w->Glw()->endHardcopy();
@@ -3262,6 +3270,17 @@ void DianaMainWindow::hardcopy()
     //     // reset number of copies (saves a lot of paper)
     //     qprt.setNumCopies(1);
   }
+}
+
+void DianaMainWindow::previewHardcopy()
+{
+#if defined(USE_PAINTGL)
+  QPrinter qprt;
+  QPrintPreviewDialog previewDialog(&qprt, this);
+  connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
+          w->Glw(), SLOT(print(QPrinter*)));
+  previewDialog.exec();
+#endif
 }
 
 // left mouse click -> mark trajectory position

@@ -44,7 +44,7 @@
 #include "qtGLwidget.h"
 #include "diController.h"
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 #include <QPrinter>
 #endif
 
@@ -60,7 +60,7 @@
 #include <paint_forbidden_crusor.xpm>
 
 // GLwidget constructor
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 GLwidget::GLwidget(Controller* c, const QGLFormat fmt, QWidget* parent) :
   QGLWidget(fmt, parent), curcursor(keep_it), contr(c), fbuffer(0)
 #else

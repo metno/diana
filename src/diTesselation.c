@@ -42,7 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 #ifndef GLCALLBACK
 #ifdef GLAPIENTRY
 #define GLCALLBACK GLAPIENTRY
@@ -80,7 +80,7 @@ typedef struct {
 
 
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 static void GLCALLBACK error_callback( GLenum err )
 #else
 static void error_callback( GLenum err )
@@ -91,7 +91,7 @@ static void error_callback( GLenum err )
   fprintf(stderr, "tesselation error_callback %d : %s\n",err,errmsg );
 }
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 static void GLCALLBACK combineCallback(GLdouble coords[3],
 #else
 static void combineCallback(GLdouble coords[3],

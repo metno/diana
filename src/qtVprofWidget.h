@@ -39,7 +39,7 @@
 #include <puTools/miString.h>
 #include <map>
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 #include <qgl.h>
 #else
 #include "PaintGL/paintgl.h"
@@ -63,7 +63,7 @@ class VprofWidget : public QGLWidget
   Q_OBJECT
 
 public:
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   VprofWidget(VprofManager *vpm, const QGLFormat fmt,
              QWidget* parent = 0);
 #else
