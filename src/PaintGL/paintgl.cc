@@ -343,6 +343,7 @@ void PaintGLContext::renderPrimitive()
             if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
                 if (blend) {
                     if (smooth) {
+                        painter->setCompositionMode(blendMode);
                         plotSubdivided(poly, color);
                     } else {
                         setPolygonColor(colors.at(i));
