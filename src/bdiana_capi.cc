@@ -1451,7 +1451,9 @@ void createJsonAnnotation()
                 cs.fill('0');
                 cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
                 colors.push_back("\"" + cs.str() + "\"");
-                labels.push_back("\"" + line[1] + "\"");
+                miString label = line[1];
+                label.trim();
+                labels.push_back("\"" + label + "\"");
               }
               line.clear();
             }
