@@ -130,8 +130,9 @@ private:
   bool plotFillCell();
 
   bool plotAlpha_shade();
+  bool plotFrameOnly();
   void plotFrame(const int nx, const int ny,
-  		 float *x, float *y);
+      float *x, float *y);
   bool markExtreme();
   bool plotGridLines();
 };

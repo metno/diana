@@ -86,11 +86,12 @@ PlotOptions::PlotOptions():
   plottypes_all.push_back(fpt_alpha_shade);
   plottypes_all.push_back(fpt_alarm_box);
   plottypes_all.push_back(fpt_fill_cell);
-  plottypes_all.push_back(fpt_direction       );
-  plottypes_all.push_back(fpt_wind            );
-  plottypes_all.push_back(fpt_vector          );
-  plottypes_all.push_back(fpt_wind_temp_fl    );
-  plottypes_all.push_back(fpt_wind_value    );
+  plottypes_all.push_back(fpt_direction);
+  plottypes_all.push_back(fpt_wind);
+  plottypes_all.push_back(fpt_vector);
+  plottypes_all.push_back(fpt_wind_temp_fl);
+  plottypes_all.push_back(fpt_wind_value);
+  plottypes_all.push_back(fpt_frame);
   plottypes.push_back(plottypes_all);
 
   vector< miString> plottypes_1dim;
@@ -101,12 +102,14 @@ PlotOptions::PlotOptions():
   plottypes_1dim.push_back(fpt_alarm_box);
   plottypes_1dim.push_back(fpt_fill_cell);
   plottypes_1dim.push_back(fpt_direction       );
+  plottypes_1dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_1dim);
 
   vector< miString> plottypes_2dim;
   plottypes_2dim.push_back(fpt_wind            );
   plottypes_2dim.push_back(fpt_vector          );
   plottypes_2dim.push_back(fpt_value);
+  plottypes_2dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_2dim);
 
   vector< miString> plottypes_3dim;
@@ -115,10 +118,12 @@ PlotOptions::PlotOptions():
   plottypes_3dim.push_back(fpt_value);
   plottypes_3dim.push_back(fpt_wind_temp_fl    );
   plottypes_3dim.push_back(fpt_wind_value    );
+  plottypes_3dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_3dim);
 
   vector< miString> plottypes_4dim;
   plottypes_4dim.push_back(fpt_value);
+  plottypes_4dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_4dim);
 
   enabledOptions[fpt_contour] = " extreme line shading contour font";
@@ -633,7 +638,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
             value==fpt_alarm_box       || value==fpt_fill_cell        ||
             value==fpt_wind            || value==fpt_vector          ||
             value==fpt_wind_temp_fl    || value==fpt_wind_value ||
-            value==fpt_direction) {
+            value==fpt_direction       || value==fpt_frame ) {
             po.plottype= value;
         } else if(value == "wind_colour") {
           po.plottype = fpt_wind;

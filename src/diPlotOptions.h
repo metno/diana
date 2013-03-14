@@ -82,15 +82,16 @@ enum Alignment {
 */
 const miutil::miString
   fpt_contour         = "contour",
-  fpt_value          = "value",
+  fpt_value           = "value",
   fpt_symbol          = "symbol",
   fpt_alpha_shade     = "alpha_shade",
   fpt_alarm_box       = "alarm_box",
   fpt_fill_cell       = "fill_cell",
   fpt_wind            = "wind",
   fpt_wind_temp_fl    = "wind_temp_fl",
-  fpt_wind_value     = "wind_value",
+  fpt_wind_value      = "wind_value",
   fpt_vector          = "vector",
+  fpt_frame           = "frame",
   fpt_direction       = "direction";
 
 /**

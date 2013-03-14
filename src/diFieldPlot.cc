@@ -500,17 +500,18 @@ bool FieldPlot::plot(){
   if (poptions.gridLines>0) plotGridLines();
   if (poptions.gridValue>0) plotNumbers();
 
-  if       (plottype==fpt_contour)          return plotContour();
+  if      (plottype==fpt_contour)          return plotContour();
   else if (plottype==fpt_wind)             return plotWind();
   else if (plottype==fpt_wind_temp_fl)     return plotWindAndValue(true);
-  else if (plottype==fpt_wind_value)      return plotWindAndValue(false);
-  else if (plottype==fpt_value)           return plotValue();
+  else if (plottype==fpt_wind_value)       return plotWindAndValue(false);
+  else if (plottype==fpt_value)            return plotValue();
   else if (plottype==fpt_symbol)           return plotValue();
   else if (plottype==fpt_vector)           return plotVector();
   else if (plottype==fpt_direction)        return plotDirection();
   else if (plottype==fpt_alpha_shade)      return plotAlpha_shade();
   else if (plottype==fpt_alarm_box)        return plotAlarmBox();
   else if (plottype==fpt_fill_cell)        return plotFillCell();
+  else if (plottype==fpt_frame)            return plotFrameOnly();
   else return false;
 }
 
@@ -3239,6 +3240,31 @@ bool FieldPlot::plotAlpha_shade(){
   return true;
 }
 
+bool FieldPlot::plotFrameOnly()
+{
+  int n= fields.size();
+  if (n<1) return false;
+  if (!fields[0]) return false;
+
+  if (!fields[0]->data) return false;
+
+  int ix,iy;
+  int nx= fields[0]->nx;
+  int ny= fields[0]->ny;
+
+  // convert gridpoints to correct projection
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+      area, maprect, false,
+      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
+  if (ix1>ix2 || iy1>iy2) return false;
+
+  if ( poptions.frame ) {
+    plotFrame(nx,ny,x,y);
+  }
+
+}
 
 // plot frame for complete field area
 void FieldPlot::plotFrame(const int nx, const int ny,
