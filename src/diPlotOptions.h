@@ -187,6 +187,7 @@ public:
   miutil::miString legendunits; //used in legends
   bool      tableHeader; // whether each table is drawn with a header
   bool      antialiasing;
+  bool      stencil;     // whether a field is used to mask out subsequent plotting
 
   // Constructor
   PlotOptions();

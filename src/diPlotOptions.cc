@@ -64,7 +64,7 @@ PlotOptions::PlotOptions():
   alignX(0), alignY(0),
   fontname("SCALEFONT"), fontface("NORMAL"), fontsize(10.0), precision(0),
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
-  antialiasing(false)
+  antialiasing(false), stencil(false)
 {
 
   limits.clear();
@@ -311,6 +311,8 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
   const miString key_legendunits="legendunits";
   //anti-aliasing
   const miString key_antialiasing="antialiasing";
+  //stencil
+  const miString key_stencil="stencil";
 
   //------------------------------------------
 
@@ -826,6 +828,8 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.legendunits=value.cStr();
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
+      } else if (key==key_stencil){
+        po.stencil=(value == "true");
 
       } else {
        origStr += " " + key + "=" + value;
@@ -1106,6 +1110,9 @@ miString PlotOptions::toString()
 
   if (antialiasing)
     ostr << " antialiasing=" << antialiasing;
+
+  if (stencil)
+    ostr << " stencil=" << stencil;
 
   //   ost << " font="  << fontname
   //    << " face="  << fontface

@@ -1264,6 +1264,9 @@ void PlotModule::plotUnder()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  // Set the default stencil buffer value.
+  glClearStencil(0);
+
   glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 

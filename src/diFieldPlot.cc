@@ -500,6 +500,16 @@ bool FieldPlot::plot(){
   if (poptions.gridLines>0) plotGridLines();
   if (poptions.gridValue>0) plotNumbers();
 
+  if (poptions.stencil) {
+    // Enable the stencil test.
+    glEnable(GL_STENCIL_TEST);
+
+    // Test the stencil buffer values against a value of 0.
+    glStencilFunc(GL_EQUAL, 0, 0x01);
+    // Do not update the stencil buffer when plotting.
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+  }
+
   if      (plottype==fpt_contour)          return plotContour();
   else if (plottype==fpt_wind)             return plotWind();
   else if (plottype==fpt_wind_temp_fl)     return plotWindAndValue(true);
@@ -1037,6 +1047,9 @@ bool FieldPlot::plotWind(){
 
   glDisable(GL_LINE_STIPPLE);
 
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotWind() ++" << endl;
 #endif
@@ -1184,6 +1197,8 @@ bool FieldPlot::plotValue(){
 
   UpdateOutput();
 
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotValue() ++" << endl;
@@ -1594,6 +1609,9 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
 
   glDisable(GL_LINE_STIPPLE);
 
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotWindAndValue() ++" << endl;
 #endif
@@ -1776,6 +1794,8 @@ bool FieldPlot::plotValues(){
 
   UpdateOutput();
 
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
 
   glDisable(GL_LINE_STIPPLE);
 
@@ -1887,6 +1907,9 @@ bool FieldPlot::plotVector(){
   UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
+
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotVector() ++" << endl;
@@ -2055,6 +2078,9 @@ bool FieldPlot::plotVectorColour(){
 
   glDisable(GL_LINE_STIPPLE);
 
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotVectorColour() ++" << endl;
 #endif
@@ -2160,6 +2186,9 @@ bool FieldPlot::plotDirection(){
   UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
+
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotDirection() ++" << endl;
@@ -2330,6 +2359,9 @@ bool FieldPlot::plotDirectionColour(){
   delete[] limits;
 
   glDisable(GL_LINE_STIPPLE);
+
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotDirectionColour() ++" << endl;
@@ -2633,6 +2665,9 @@ bool FieldPlot::plotContour(){
 
   if (!res) cerr<<"FieldPlot::plotContour() -  Contour error"<<endl;
 
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotContour() ++" << endl;
 #endif
@@ -2749,6 +2784,9 @@ bool FieldPlot::plotBox_pattern(){
 
   glDisable(GL_POLYGON_STIPPLE);
 
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotBox_pattern() ++" << endl;
 #endif
@@ -2859,6 +2897,9 @@ bool FieldPlot::plotBox_alpha_shade(){
   UpdateOutput();
 
   glDisable(GL_BLEND);
+
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotBox_alpha_shade() ++" << endl;
@@ -3001,6 +3042,9 @@ bool FieldPlot::plotAlarmBox(){
   }
 
   UpdateOutput();
+
+  if (poptions.stencil)
+      plotFrameStencil(nxc, ny+1, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotAlarmBox() ++" << endl;
@@ -3147,6 +3191,13 @@ bool FieldPlot::plotFillCell(){
 
   UpdateOutput();
 
+  if (poptions.stencil) {
+    if (factor >= 2)
+      plotFrameStencil(rnx+1, rny+1, x, y);
+    else
+      plotFrameStencil(nx+1, ny+1, x, y);
+  }
+
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::FillCell() ++" << endl;
 #endif
@@ -3233,6 +3284,9 @@ bool FieldPlot::plotAlpha_shade(){
 
   glDisable(GL_BLEND);
   glShadeModel(GL_FLAT);
+
+  if (poptions.stencil)
+      plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotAlpha_shade() ++" << endl;
@@ -3368,8 +3422,6 @@ void FieldPlot::plotFrame(const int nx, const int ny,
     glEnd();
   }
 
-
-
   // glDisable(GL_LINE_STIPPLE);
 
   UpdateOutput();
@@ -3380,6 +3432,65 @@ void FieldPlot::plotFrame(const int nx, const int ny,
   return;
 }
 
+void FieldPlot::plotFrameStencil(const int nx, const int ny, float *x, float *y)
+{
+  const int ix1 = 0;
+  const int ix2 = nx;
+  const int iy1 = 0;
+  const int iy2 = ny;
+  int ix,iy;
+
+  // Fill the frame in the stencil buffer with values.
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  glDepthMask(GL_FALSE);
+
+  // Fill the frame in the stencil buffer with non-zero values.
+  glStencilFunc(GL_ALWAYS, 1, 0x01);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  glBegin(GL_POLYGON);
+  iy=iy1;
+  for (ix=ix1; ix<ix2; ix++) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
+    }
+  }
+
+  ix=ix2-1;
+  for (iy=iy1+1; iy<iy2; iy++) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
+    }
+  }
+
+  iy=iy2-1;
+  for (ix=ix2-1; ix>=ix1; ix--) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
+    }
+  }
+
+  ix=ix1;
+  for (iy=iy2-1; iy>iy1; iy--) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
+    }
+  }
+
+  glEnd();
+
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); 
+  glDepthMask(GL_TRUE);
+
+  // Disable the stencil here because the plot function returns directly from
+  // each specialised plot function.
+  glDisable(GL_STENCIL_TEST);
+}
 
 /*
   Mark extremepoints in a field with L/H (Low/High), C/W (Cold/Warm) or value
