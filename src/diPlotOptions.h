@@ -183,7 +183,8 @@ public:
   static map<miutil::miString, miutil::miString> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
   bool      contourShape;
   miutil::miString  shapefilename;
-  miutil::miString unit;
+  miutil::miString unit;        // used to get data in right unit
+  miutil::miString legendunits; //used in legends
   bool      tableHeader; // whether each table is drawn with a header
   bool      antialiasing;
 

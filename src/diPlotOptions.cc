@@ -307,6 +307,8 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
   const miString key_unit="unit";
   //units
   const miString key_units="units";
+  //legend units
+  const miString key_legendunits="legendunits";
   //anti-aliasing
   const miString key_antialiasing="antialiasing";
 
@@ -820,6 +822,8 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.shapefilename=value.cStr();
       } else if (key==key_unit || key==key_units){
         po.unit=value.cStr();
+      } else if (key==key_legendunits){
+        po.legendunits=value.cStr();
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
 

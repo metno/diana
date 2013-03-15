@@ -221,7 +221,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
           (poptions.palettecolours.size()==0 && poptions.patterns.size()==0))
         continue;;
 
-      miString unit = " " + poptions.unit;
+      miString unit = " " + poptions.legendunits;
 
       miString endString;
       miString startString;
