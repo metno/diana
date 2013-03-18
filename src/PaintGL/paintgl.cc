@@ -840,7 +840,7 @@ void glLineStipple(GLint factor, GLushort pattern)
 void glLineWidth(GLfloat width)
 {
     ENSURE_CTX_AND_PAINTER
-    ctx->attributes.width = width/3.0;
+    ctx->attributes.width = width;
 }
 
 void glLoadIdentity()
