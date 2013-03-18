@@ -999,9 +999,6 @@ void glStencilFunc(GLenum func, GLint ref, GLuint mask)
 void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 {
     ENSURE_CTX
-    ctx->stencilOp_fail = fail;
-    ctx->stencilOp_zfail = zfail;
-    ctx->stencilOp_zpass = zpass;
 }
 
 void glTexCoord2f(GLfloat s, GLfloat t)
