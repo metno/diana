@@ -70,6 +70,9 @@ void PaintGLContext::makeCurrent()
     pointSize = 1.0;
 
     clearColor = QColor(0, 0, 0, 0);
+    stencilClear = 0;
+    colorMask = true;
+    stencil = QRegion();
 
     attributes.color = qRgba(255, 255, 255, 255);
     attributes.width = 1.0;
@@ -92,7 +95,7 @@ void PaintGLContext::begin(QPainter *painter)
     // Use the painter supplied.
     this->painter = painter;
 
-    if (clear) {
+    if (clear && colorMask) {
         painter->fillRect(0, 0, painter->device()->width(), painter->device()->height(), clearColor);
         clear = false;
     }
@@ -201,6 +204,9 @@ void PaintGLContext::plotSubdivided(const QPointF quad[], const QRgb color[], in
 
 void PaintGLContext::renderPrimitive()
 {
+    if (!colorMask)
+        return;
+
     if (points.size() == 0)
         return;
 
@@ -423,6 +429,8 @@ void glBlendFunc(GLenum sfactor, GLenum dfactor)
 void glCallList(GLuint list)
 {
     ENSURE_CTX_AND_PAINTER
+    if (!ctx->colorMask) return;
+
     QPicture picture = ctx->lists[list];
 
     ctx->painter->save();
@@ -442,16 +450,25 @@ void glClear(GLbitfield mask)
     ENSURE_CTX
 
     if (mask & GL_COLOR_BUFFER_BIT) {
-        if (ctx->isPainting())
+        if (ctx->isPainting() && ctx->colorMask)
             ctx->painter->fillRect(0, 0, ctx->painter->device()->width(),
                                          ctx->painter->device()->height(), ctx->clearColor);
         else
-            ctx->clear = true;
+            ctx->clear = true; // Is this used?
+    }
+    if (mask & GL_STENCIL_BUFFER_BIT) {
+        if (ctx->isPainting())
+            ctx->stencil = QRegion(0, 0, ctx->painter->device()->width(),
+                                         ctx->painter->device()->height());
+        else
+            ctx->clear = true; // Is this used?
     }
 }
 
 void glClearStencil(GLint s)
 {
+    ENSURE_CTX
+    ctx->stencilClear = s;
 }
 
 void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
@@ -536,6 +553,10 @@ void glColor4ubv(const GLubyte *v)
 
 void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
+    ENSURE_CTX
+
+    // These are only enabled or disabled together in Diana.
+    ctx->colorMask = red | green | blue | alpha;
 }
 
 void glDeleteLists(GLuint list, GLsizei range)
@@ -548,6 +569,10 @@ void glDeleteLists(GLuint list, GLsizei range)
 }
 
 void glDeleteTextures(GLsizei n, const GLuint *textures)
+{
+}
+
+void glDepthMask(GLboolean flag)
 {
 }
 
@@ -596,6 +621,8 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     int sr = ctx->pixelStore[GL_UNPACK_ROW_LENGTH];
 
     QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32).rgbSwapped();
+
+    if (!ctx->colorMask) return;
 
     ctx->painter->save();
     // It seems that we need to explicitly set the composition mode.
@@ -813,7 +840,7 @@ void glLineStipple(GLint factor, GLushort pattern)
 void glLineWidth(GLfloat width)
 {
     ENSURE_CTX_AND_PAINTER
-    ctx->attributes.width = width;
+    ctx->attributes.width = width/3.0;
 }
 
 void glLoadIdentity()
@@ -965,10 +992,16 @@ void glShadeModel(GLenum mode)
 
 void glStencilFunc(GLenum func, GLint ref, GLuint mask)
 {
+    ENSURE_CTX
+    
 }
 
 void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 {
+    ENSURE_CTX
+    ctx->stencilOp_fail = fail;
+    ctx->stencilOp_zfail = zfail;
+    ctx->stencilOp_zpass = zpass;
 }
 
 void glTexCoord2f(GLfloat s, GLfloat t)
@@ -1117,6 +1150,7 @@ bool glText::drawChar(const int c, const float x, const float y,
                       const float a)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
+    if (!ctx->colorMask) return true;
 
     QPointF sp = ctx->transform * QPointF(x, y);
 
@@ -1136,6 +1170,7 @@ bool glText::drawStr(const char* s, const float x, const float y,
                      const float a)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
+    if (!ctx->colorMask) return true;
 
     QPointF sp = ctx->transform * QPointF(x, y);
 

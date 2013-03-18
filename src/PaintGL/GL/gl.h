@@ -68,6 +68,7 @@ typedef double          GLclampd;   /* double precision float in [0,1] */
 /* Depth buffer */
 #define GL_ALWAYS               0x0207
 #define GL_DEPTH_TEST           0x0B71
+#define GL_EQUAL                0x0202
 #define GL_NOTEQUAL             0x0205
 
 /* Polygons */
@@ -288,6 +289,12 @@ void glPixelStorei(GLenum pname, GLint param);
 void glPixelZoom(GLfloat xfactor, GLfloat yfactor);
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
                   GLenum format, GLenum type, GLvoid *pixels);
+
+/*
+ * Depth Buffer
+ */
+
+void glDepthMask(GLboolean flag);
 
 /*
  * Stenciling

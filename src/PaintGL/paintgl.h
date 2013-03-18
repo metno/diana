@@ -68,6 +68,9 @@ public:
     QColor clearColor;
     bool clear;
     QFont font;
+    GLint stencilClear;
+    QRegion stencil;
+    bool colorMask;
 
     GLenum mode;
     PaintAttributes attributes;
