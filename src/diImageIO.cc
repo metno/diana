@@ -37,6 +37,7 @@
 #include <png.h>
 #include <map>
 #include <fstream>
+#include <iostream>
 
 using namespace imageIO;
 using namespace::miutil;
