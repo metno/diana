@@ -770,8 +770,11 @@ nodist_language_DATA=$(language_sources:.ts=.qm)
 
 CLEANFILES += $(nodist_language_DATA)
 
+lupdate:
+	$(LUPDATE4) $(diana_qt_sources) -ts $(language_sources)
+.PHONY: lupdate
+
 %.qm: %.ts  $(diana_qt_sources)
-	$(LUPDATE4)  $(diana_qt_sources) -ts $< ; \
 	$(LRELEASE4)  $<
 
 # Problem:
