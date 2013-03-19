@@ -27,6 +27,21 @@ struct PaintAttributes {
     bool stipple;
 };
 
+struct StencilAttributes {
+    GLint clear;
+    GLenum func;
+    GLint ref;
+    GLuint mask;
+    GLenum fail;
+    GLenum zfail;
+    GLenum zpass;
+    QPainterPath path;
+
+    bool clip;
+    bool update;
+    bool enabled;
+};
+
 struct RenderItem {
     GLenum mode;
     QPainter *painter;
@@ -68,12 +83,11 @@ public:
     QColor clearColor;
     bool clear;
     QFont font;
-    GLint stencilClear;
-    QRegion stencil;
     bool colorMask;
 
     GLenum mode;
     PaintAttributes attributes;
+    StencilAttributes stencil;
     QPolygonF points;
     QList<bool> validPoints;
     QList<QRgb> colors;

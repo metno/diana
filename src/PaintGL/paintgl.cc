@@ -70,9 +70,19 @@ void PaintGLContext::makeCurrent()
     pointSize = 1.0;
 
     clearColor = QColor(0, 0, 0, 0);
-    stencilClear = 0;
     colorMask = true;
-    stencil = QRegion();
+
+    stencil.clear = 0;
+    stencil.path = QPainterPath();
+    stencil.fail = GL_KEEP;
+    stencil.zfail = GL_KEEP;
+    stencil.zpass = GL_KEEP;
+    stencil.func = GL_ALWAYS;
+    stencil.ref = 0;
+    stencil.mask = ~0x0;
+    stencil.clip = false;
+    stencil.update = false;
+    stencil.enabled = false;
 
     attributes.color = qRgba(255, 255, 255, 255);
     attributes.width = 1.0;
@@ -204,9 +214,6 @@ void PaintGLContext::plotSubdivided(const QPointF quad[], const QRgb color[], in
 
 void PaintGLContext::renderPrimitive()
 {
-    if (!colorMask)
-        return;
-
     if (points.size() == 0)
         return;
 
@@ -215,24 +222,30 @@ void PaintGLContext::renderPrimitive()
     switch (mode) {
     case GL_POINTS:
         setPen();
-        for (int i = 0; i < points.size(); ++i) {
-            painter->drawPoint(points.at(i));
+        if (colorMask) {
+            for (int i = 0; i < points.size(); ++i) {
+                painter->drawPoint(points.at(i));
+            }
         }
         break;
     case GL_LINES:
         setPen();
-        for (int i = 0; i < points.size() - 1; i += 2) {
-            painter->drawLine(points.at(i), points.at(i+1));
+        if (colorMask) {
+            for (int i = 0; i < points.size() - 1; i += 2) {
+                painter->drawLine(points.at(i), points.at(i+1));
+            }
         }
         break;
     case GL_LINE_LOOP:
         setPen();
         points.append(points.at(0));
-        painter->drawPolyline(points);
+        if (colorMask)
+            painter->drawPolyline(points);
         break;
     case GL_LINE_STRIP: {
         setPen();
-        painter->drawPolyline(points);
+        if (colorMask)
+            painter->drawPolyline(points);
         break;
     }
     case GL_TRIANGLES: {
@@ -242,7 +255,8 @@ void PaintGLContext::renderPrimitive()
             if (validPoints.at(i) && validPoints.at(i + 1) && validPoints.at(i + 2)) {
                 for (int j = 0; j < 3; ++j)
                     poly[j] = points.at(i + j);
-                painter->drawConvexPolygon(poly, 3);
+                if (colorMask)
+                    painter->drawConvexPolygon(poly, 3);
             }
         }
         break;
@@ -254,7 +268,8 @@ void PaintGLContext::renderPrimitive()
         poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
             poly[i % 3] = points.at(i);
-            painter->drawConvexPolygon(poly, 3);
+            if (colorMask)
+                painter->drawConvexPolygon(poly, 3);
         }
         break;
     }
@@ -265,7 +280,8 @@ void PaintGLContext::renderPrimitive()
         poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
             poly[2 - (i % 2)] = points.at(i);
-            painter->drawConvexPolygon(poly, 3);
+            if (colorMask)
+                painter->drawConvexPolygon(poly, 3);
         }
         break;
     }
@@ -296,6 +312,7 @@ void PaintGLContext::renderPrimitive()
                 continue;       // counter and examine the next quad.
             }
 
+            if (colorMask) {
             if (useTexture) {
                 QImage texture = textures[currentTexture];
                 QTransform t;
@@ -314,6 +331,7 @@ void PaintGLContext::renderPrimitive()
                     painter->setBrush(QColor::fromRgba(colors.at(j)));
                 }
                 painter->drawConvexPolygon(quad);
+            }
             }
 
             ok = 0;
@@ -346,17 +364,19 @@ void PaintGLContext::renderPrimitive()
                 color[i % 4 + 1] = colors.at(i + 1);
             }
 
-            if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
-                if (blend) {
-                    if (smooth) {
-                        painter->setCompositionMode(blendMode);
-                        plotSubdivided(poly, color);
-                    } else {
-                        setPolygonColor(colors.at(i));
+            if (colorMask) {
+                if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
+                    if (blend) {
+                        if (smooth) {
+                            painter->setCompositionMode(blendMode);
+                            plotSubdivided(poly, color);
+                        } else {
+                            setPolygonColor(colors.at(i));
+                            painter->drawConvexPolygon(poly, 4);
+                        }
+                    } else
                         painter->drawConvexPolygon(poly, 4);
-                    }
-                } else
-                    painter->drawConvexPolygon(poly, 4);
+                }
             }
         }
         break;
@@ -368,7 +388,13 @@ void PaintGLContext::renderPrimitive()
             if (validPoints.at(i))
                 poly.append(points.at(i));
         }
-        painter->drawPolygon(poly);
+        if (colorMask)
+            painter->drawPolygon(poly);
+        else {
+            ctx->stencil.path.addPolygon(poly);
+            ctx->stencil.path.closeSubpath();
+        }
+
         break;
     }
     default:
@@ -458,8 +484,7 @@ void glClear(GLbitfield mask)
     }
     if (mask & GL_STENCIL_BUFFER_BIT) {
         if (ctx->isPainting())
-            ctx->stencil = QRegion(0, 0, ctx->painter->device()->width(),
-                                         ctx->painter->device()->height());
+            ctx->stencil.path = QPainterPath();
         else
             ctx->clear = true; // Is this used?
     }
@@ -468,7 +493,7 @@ void glClear(GLbitfield mask)
 void glClearStencil(GLint s)
 {
     ENSURE_CTX
-    ctx->stencilClear = s;
+    ctx->stencil.clear = s;
 }
 
 void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
@@ -593,6 +618,9 @@ void glDisable(GLenum cap)
         if (ctx->isPainting())
             ctx->painter->setRenderHint(QPainter::Antialiasing, false);
         break;
+    case GL_STENCIL_TEST:
+        ctx->stencil.enabled = false;
+        break;
     default:
         break;
     }
@@ -659,6 +687,9 @@ void glEnable(GLenum cap)
         if (ctx->isPainting())
             ctx->painter->setRenderHint(QPainter::Antialiasing, true);
         break;
+    case GL_STENCIL_TEST:
+        ctx->stencil.enabled = true;
+        break;
     default:
         break;
     }
@@ -671,7 +702,16 @@ void glEnableClientState(GLenum cap)
 void glEnd()
 {
     ENSURE_CTX_AND_PAINTER
+    if (ctx->stencil.enabled && ctx->stencil.clip && !ctx->stencil.path.isEmpty()) {
+        QPainterPath p;
+        p.addRect(ctx->viewport);
+        ctx->painter->setClipPath(p - ctx->stencil.path);
+    }
+    
     ctx->renderPrimitive();
+
+    if (ctx->stencil.enabled && ctx->stencil.clip)
+        ctx->painter->setClipRect(ctx->viewport);
     ctx->mode = ctx->stack.pop();
 }
 
@@ -993,12 +1033,39 @@ void glShadeModel(GLenum mode)
 void glStencilFunc(GLenum func, GLint ref, GLuint mask)
 {
     ENSURE_CTX
-    
+    ctx->stencil.func = func;
+    ctx->stencil.ref = ref;
+    ctx->stencil.mask = mask;
 }
 
 void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 {
     ENSURE_CTX
+    ctx->stencil.fail = fail;
+    ctx->stencil.zfail = zfail;
+    ctx->stencil.zpass = zpass;
+
+    // Special cases for Diana. We perform a test here because glStencilOp
+    // is typically called after glStencilFunc in Diana code. Both tend to
+    // be called with a limited range of input parameters.
+    if (ctx->stencil.func == GL_ALWAYS && ctx->stencil.ref == 1 &&
+        ctx->stencil.mask == 1 && zpass == GL_REPLACE) {
+
+        ctx->stencil.update = true;
+        ctx->stencil.clip = false;
+
+    } else if (ctx->stencil.func == GL_EQUAL && ctx->stencil.ref == 0 &&
+               zpass == GL_KEEP) {
+
+        ctx->stencil.update = false;
+        ctx->stencil.clip = true;
+
+    } else if (ctx->stencil.func == GL_NOTEQUAL && ctx->stencil.ref == 1 &&
+               zpass == GL_KEEP) {
+
+        ctx->stencil.update = false;
+        ctx->stencil.clip = true;
+    }
 }
 
 void glTexCoord2f(GLfloat s, GLfloat t)
