@@ -415,6 +415,21 @@ void PaintGLContext::setViewportTransform()
     transform = t;
 }
 
+void PaintGLContext::setClipPath()
+{
+    if (ctx->stencil.enabled && ctx->stencil.clip && !ctx->stencil.path.isEmpty()) {
+        QPainterPath p;
+        p.addRect(ctx->viewport);
+        ctx->painter->setClipPath(p - ctx->stencil.path);
+    }
+}
+
+void PaintGLContext::unsetClipPath()
+{
+    if (ctx->stencil.enabled && ctx->stencil.clip)
+        ctx->painter->setClipRect(ctx->viewport);
+}
+
 #define ENSURE_CTX if (!globalGL || !ctx) return;
 #define ENSURE_CTX_BOOL if (!globalGL || !ctx) return false;
 #define ENSURE_CTX_INT if (!globalGL || !ctx) return 0;
@@ -653,6 +668,9 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     if (!ctx->colorMask) return;
 
     ctx->painter->save();
+    // Set the clip path, but don't unset it - the state will be restored.
+    ctx->setClipPath();
+
     // It seems that we need to explicitly set the composition mode.
     ctx->painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
     // No need to record the following transformation because we will only use it once.
@@ -702,16 +720,11 @@ void glEnableClientState(GLenum cap)
 void glEnd()
 {
     ENSURE_CTX_AND_PAINTER
-    if (ctx->stencil.enabled && ctx->stencil.clip && !ctx->stencil.path.isEmpty()) {
-        QPainterPath p;
-        p.addRect(ctx->viewport);
-        ctx->painter->setClipPath(p - ctx->stencil.path);
-    }
-    
-    ctx->renderPrimitive();
 
-    if (ctx->stencil.enabled && ctx->stencil.clip)
-        ctx->painter->setClipRect(ctx->viewport);
+    ctx->setClipPath();
+    ctx->renderPrimitive();
+    ctx->unsetClipPath();
+
     ctx->mode = ctx->stack.pop();
 }
 
@@ -1219,6 +1232,9 @@ bool glText::drawChar(const int c, const float x, const float y,
     QPointF sp = ctx->transform * QPointF(x, y);
 
     ctx->painter->save();
+    // Set the clip path, but don't unset it - the state will be restored.
+    ctx->setClipPath();
+
     ctx->painter->setFont(ctx->font);
     // No need to record this transformation.
     ctx->painter->resetTransform();
@@ -1239,6 +1255,9 @@ bool glText::drawStr(const char* s, const float x, const float y,
     QPointF sp = ctx->transform * QPointF(x, y);
 
     ctx->painter->save();
+    // Set the clip path, but don't unset it - the state will be restored.
+    ctx->setClipPath();
+
     ctx->painter->setFont(ctx->font);
     // No need to record this transformation.
     ctx->painter->resetTransform();

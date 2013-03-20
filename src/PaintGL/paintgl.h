@@ -61,6 +61,9 @@ public:
     void renderPrimitive();
     void setViewportTransform();
 
+    void setClipPath();
+    void unsetClipPath();
+
     QPainter *painter;
 
     QStack<GLenum> stack;
