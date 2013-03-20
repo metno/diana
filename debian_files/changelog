@@ -3,6 +3,9 @@ diana (3.32.1-1) unstable; urgency=low
   * check if file has changed before reading field
   * Using metlibs 4.10.0
   * Using fimex 0.42-1
+  * Added clipping/masking of fields.
+  * New plotOption: legendunits - used in legends.
+  * Added <= and >= to criteria.
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 20 Mar 2013 13:13:02 +0100
 
