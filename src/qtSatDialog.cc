@@ -1144,7 +1144,7 @@ void SatDialog::updateFileListWidget(int in)
     //insert in fileListWidget the list of files.. Europa,N-Europa etc...
     int nfile = dialogInfo.image[in].file.size();
     for (int k = 0; k < nfile; k++) {
-      fileListWidget->addItem(dialogInfo.image[in].file[k].name.cStr());
+      fileListWidget->addItem(dialogInfo.image[in].file[k].name.c_str());
     }
 
   }

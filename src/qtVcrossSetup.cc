@@ -267,9 +267,9 @@ void VcrossSetup::defineValue(int low, int high, int step, int value,
     valuespinbox->setSingleStep(step);
     valuespinbox->setValue(value);
     if (prefix.exists())
-      valuespinbox->setPrefix(QString(prefix.cStr()));
+      valuespinbox->setPrefix(QString(prefix.c_str()));
     else if (suffix.exists())
-      valuespinbox->setSuffix(QString(suffix.cStr()));
+      valuespinbox->setSuffix(QString(suffix.c_str()));
     valuespinbox->setValue(value);
   }
 }
@@ -301,9 +301,9 @@ void VcrossSetup::defineMinValue(int low, int high, int step, int value,
     minvaluespinbox->setSingleStep(step);
     minvaluespinbox->setValue(value);
     if (prefix.exists())
-      minvaluespinbox->setPrefix(QString(prefix.cStr()));
+      minvaluespinbox->setPrefix(QString(prefix.c_str()));
     else if (suffix.exists())
-      minvaluespinbox->setSuffix(QString(suffix.cStr()));
+      minvaluespinbox->setSuffix(QString(suffix.c_str()));
     minvaluespinbox->setValue(value);
   }
 }
@@ -335,9 +335,9 @@ void VcrossSetup::defineMaxValue(int low, int high, int step, int value,
     maxvaluespinbox->setSingleStep(step);
     maxvaluespinbox->setValue(value);
     if (prefix.exists())
-      maxvaluespinbox->setPrefix(QString(prefix.cStr()));
+      maxvaluespinbox->setPrefix(QString(prefix.c_str()));
     else if (suffix.exists())
-      maxvaluespinbox->setSuffix(QString(suffix.cStr()));
+      maxvaluespinbox->setSuffix(QString(suffix.c_str()));
     maxvaluespinbox->setValue(value);
   }
 }
@@ -388,7 +388,7 @@ void VcrossSetup::defineTextChoice(const vector<miutil::miString>& vchoice, int 
     vTextChoice= vchoice;
     int m= vTextChoice.size();
     for (int i=0; i<m; i++){
-      textchoicebox->addItem(QString(vchoice[i].cStr()));
+      textchoicebox->addItem(QString(vchoice[i].c_str()));
     }
     textchoicebox->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
@@ -405,7 +405,7 @@ void VcrossSetup::defineTextChoice2(const vector<miutil::miString>& vchoice, int
     vTextChoice2= vchoice;
     int m= vTextChoice2.size();
     for (int i=0; i<m; i++)
-      textchoicebox2->addItem(QString(vTextChoice2[i].cStr()));
+      textchoicebox2->addItem(QString(vTextChoice2[i].c_str()));
     textchoicebox2->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
       textchoicebox2->setCurrentIndex(ndefault);

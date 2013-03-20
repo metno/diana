@@ -542,9 +542,9 @@ bool ObsPlot::prepare(const miString& pin)
           levelAsField = true;
           level = -1;
         } else
-          level = atoi(value.cStr());
+          level = atoi(value.c_str());
       } else if (key == "leveldiff") {
-        leveldiff = atoi(value.cStr());
+        leveldiff = atoi(value.c_str());
       } else if (key == "onlypos") {
         onlypos = true;
       } else if (key == "showonlyprioritized") {
@@ -2957,13 +2957,13 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if (ccriteria)
       checkColourCriteria("Id", 0);
-    printListString(dta.id.cStr(), xpos, ypos, align);
+    printListString(dta.id.c_str(), xpos, ypos, align);
   }
   if (pFlag.count("name")) {
     ypos -= yStep;
     if (ccriteria)
       checkColourCriteria("Name", 0);
-    printListString(dta.name.cStr(), xpos, ypos, align);
+    printListString(dta.name.c_str(), xpos, ypos, align);
   }
   if (pFlag.count("zone")) {
     ypos -= yStep;
@@ -3364,12 +3364,12 @@ void ObsPlot::plotAscii(int index)
       ypos -= yStep;
       miString str = dta.stringdata[param];
       str.remove('"');
-      float value = atof(str.cStr());
+      float value = atof(str.c_str());
       if (parameterName)
         str = param + " " + str;
       if (ccriteria)
         checkColourCriteria(param, value);
-      printListString(str.cStr(), xpos, ypos, align);
+      printListString(str.c_str(), xpos, ypos, align);
     }
   }
 
@@ -3458,239 +3458,239 @@ void ObsPlot::plotDBMetar(int index)
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        dxdxdx_value = atof(str.cStr());
+        dxdxdx_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "dndndn")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        dndndn_value = atof(str.cStr());
+        dndndn_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "fmfmk")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        fmfm_value = atof(str.cStr());
+        fmfm_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "fxfx")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        fxfx_value = atof(str.cStr());
+        fxfx_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "sss")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        sss_value = atof(str.cStr());
+        sss_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "VV")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        VV_value = atof(str.cStr());
+        VV_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "N")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        N_value = atof(str.cStr());
+        N_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ww")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        ww_value = atof(str.cStr());
+        ww_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "GWI")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        GWI_value = atof(str.cStr());
+        GWI_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "a")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        a_value = atof(str.cStr());
+        a_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TTT")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TTT_value = atof(str.cStr());
+        TTT_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TdTdTd")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TdTdTd_value = atof(str.cStr());
+        TdTdTd_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "PHPHPHPH")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        PHPHPHPH_value = atof(str.cStr());
+        PHPHPHPH_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ppp")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        ppp_value = atof(str.cStr());
+        ppp_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Nh")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Nh_value = atof(str.cStr());
+        Nh_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "h")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        h_value = atof(str.cStr());
+        h_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Ch")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Ch_value = atof(str.cStr());
+        Ch_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cm")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Cm_value = atof(str.cStr());
+        Cm_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cl")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Cl_value = atof(str.cStr());
+        Cl_value = atof(str.c_str());
     }
 
     if (roadobsColumnName[j] == "W1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        W1_value = atof(str.cStr());
+        W1_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "W2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        W2_value = atof(str.cStr());
+        W2_value = atof(str.c_str());
     }
     // Is the 24 and 12 hour values reported at the same time?
     if (roadobsColumnName[j].contains("TxTxTx"))
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TxTx_value = atof(str.cStr());
+        TxTx_value = atof(str.c_str());
     }
     if (roadobsColumnName[j].contains("TnTnTn"))
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TnTn_value = atof(str.cStr());
+        TnTn_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from automat stations
 	if (roadobsColumnName[j] == "NS_A1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A1_value = atof(str.cStr());
+        NS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A1_value = atof(str.cStr());
+        HS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A2_value = atof(str.cStr());
+        NS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A2_value = atof(str.cStr());
+        HS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A3_value = atof(str.cStr());
+        NS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A3_value = atof(str.cStr());
+        HS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A4_value = atof(str.cStr());
+        NS_A4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A4_value = atof(str.cStr());
+        HS_A4_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from manual stations
 	if (roadobsColumnName[j] == "NS1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS1_value = atof(str.cStr());
+        NS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS1_value = atof(str.cStr());
+        HS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS2_value = atof(str.cStr());
+        NS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS2_value = atof(str.cStr());
+        HS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS3_value = atof(str.cStr());
+        NS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS3_value = atof(str.cStr());
+        HS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS4_value = atof(str.cStr());
+        NS4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS4_value = atof(str.cStr());
+        HS4_value = atof(str.c_str());
     }
   }
 
@@ -3977,8 +3977,8 @@ void ObsPlot::plotDBMetar(int index)
   if (icao_value != "X") {
     if (ccriteria)
       checkColourCriteria("St.no(5)", 0);
-	printString(icao_value.cStr(),iptab[lpos+46]+2,iptab[lpos+47]+2);
-    //printString(icao_value.cStr(), xid, yid);
+	printString(icao_value.c_str(),iptab[lpos+46]+2,iptab[lpos+47]+2);
+    //printString(icao_value.c_str(), xid, yid);
   }
 
   glPopMatrix();
@@ -4090,7 +4090,7 @@ void ObsPlot::plotDBSynop(int index)
       miString str = roadobsp[stationid][j];
       if (str != "X")
 		 if (station_type == road::diStation::WMO)
-			wmono_value = atof(str.cStr());
+			wmono_value = atof(str.c_str());
 		 else if (station_type == road::diStation::SHIP)
 			call_sign = str;
     }
@@ -4098,228 +4098,228 @@ void ObsPlot::plotDBSynop(int index)
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        f911ff_value = atof(str.cStr());
+        f911ff_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "fxfx")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        fxfx_value = atof(str.cStr());
+        fxfx_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "sss")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        sss_value = atof(str.cStr());
+        sss_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "VV")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        VV_value = atof(str.cStr());
+        VV_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "N")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        N_value = atof(str.cStr());
+        N_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ww")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        ww_value = atof(str.cStr());
+        ww_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "a")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        a_value = atof(str.cStr());
+        a_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TTT")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TTT_value = atof(str.cStr());
+        TTT_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TdTdTd")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TdTdTd_value = atof(str.cStr());
+        TdTdTd_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "PPPP")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        PPPP_value = atof(str.cStr());
+        PPPP_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ppp")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        ppp_value = atof(str.cStr());
+        ppp_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Nh")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Nh_value = atof(str.cStr());
+        Nh_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "h")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        h_value = atof(str.cStr());
+        h_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Ch")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Ch_value = atof(str.cStr());
+        Ch_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cm")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Cm_value = atof(str.cStr());
+        Cm_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cl")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        Cl_value = atof(str.cStr());
+        Cl_value = atof(str.c_str());
     }
 
     if (roadobsColumnName[j] == "W1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        W1_value = atof(str.cStr());
+        W1_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "W2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        W2_value = atof(str.cStr());
+        W2_value = atof(str.c_str());
     }
     // Is the 24 and 12 hour values reported at the same time?
     if (roadobsColumnName[j].contains("TxTxTx"))
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TxTx_value = atof(str.cStr());
+        TxTx_value = atof(str.c_str());
     }
     if (roadobsColumnName[j].contains("TnTnTn"))
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        TnTn_value = atof(str.cStr());
+        TnTn_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from automat stations
 	if (roadobsColumnName[j] == "NS_A1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A1_value = atof(str.cStr());
+        NS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A1_value = atof(str.cStr());
+        HS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A2_value = atof(str.cStr());
+        NS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A2_value = atof(str.cStr());
+        HS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A3_value = atof(str.cStr());
+        NS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A3_value = atof(str.cStr());
+        HS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS_A4_value = atof(str.cStr());
+        NS_A4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS_A4_value = atof(str.cStr());
+        HS_A4_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from manual stations
 	if (roadobsColumnName[j] == "NS1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS1_value = atof(str.cStr());
+        NS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS1")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS1_value = atof(str.cStr());
+        HS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS2_value = atof(str.cStr());
+        NS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS2")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS2_value = atof(str.cStr());
+        HS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS3_value = atof(str.cStr());
+        NS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS3")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS3_value = atof(str.cStr());
+        HS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        NS4_value = atof(str.cStr());
+        NS4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS4")
     {
       miString str = roadobsp[stationid][j];
       if (str != "X")
-        HS4_value = atof(str.cStr());
+        HS4_value = atof(str.c_str());
     }
     // another special case, the RRR
     if(roadobsColumnName[j].contains("RRR")) {
       miString str = roadobsp[stationid][j];
       float value = undef;
       if (str != "X")
-        value = atof(str.cStr());
+        value = atof(str.c_str());
       if (value != undef)
       {
         // ALWAYS plot the value with the largest accumulation time.
@@ -5127,9 +5127,9 @@ void ObsPlot::plotSynop(int index)
       checkColourCriteria("Id", 0);
     miString kjTegn = dta.id;
     if (timeFlag)
-      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
+      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
     else
-      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] );
+      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] );
   }
 
   //Wmo block + station number - land stations
@@ -5143,9 +5143,9 @@ void ObsPlot::plotSynop(int index)
         checkColourCriteria("St.no(3)", 0);
     }
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
-      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
+      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
     else
-      printString(kjTegn.cStr(), iptab[lpos + 46] , iptab[lpos + 47] );
+      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] );
   }
 
   //Sea temperature
@@ -5185,7 +5185,7 @@ void ObsPlot::plotSynop(int index)
       ypos += 13;
     if ((pFlag.count("sss") && dta.fdata.count("sss")))
       ypos += 13;
-    printString(dta.id.cStr(), iptab[lpos + 46], ypos);
+    printString(dta.id.c_str(), iptab[lpos + 46], ypos);
   }
 
   //Flag + red/yellow/green
@@ -5224,7 +5224,7 @@ void ObsPlot::plotSynop(int index)
       ypos += 15;
     if (pFlag.count("sss") && dta.fdata.count("sss"))
       ypos += 15; //if snow
-    printString(dta.flag[hqcFlag].cStr(), iptab[lpos + 46], ypos);
+    printString(dta.flag[hqcFlag].c_str(), iptab[lpos + 46], ypos);
   }
 
   //red circle
@@ -5409,7 +5409,7 @@ void ObsPlot::plotMetar(int index)
     } else { //Clouds
       int ncl = dta.cloud.size();
       for (int i = 0; i < ncl; i++)
-        printString(dta.cloud[i].cStr(), iptab[lpos + 18 + i * 4] + 2,
+        printString(dta.cloud[i].c_str(), iptab[lpos + 18 + i * 4] + 2,
             iptab[lpos + 19 + i * 4] + 2);
     }
   }
@@ -5429,7 +5429,7 @@ void ObsPlot::plotMetar(int index)
   if (pFlag.count("id")) {
     if (ccriteria)
       checkColourCriteria("Id", 0);
-    printString(dta.metarId.cStr(), xid, yid);
+    printString(dta.metarId.c_str(), xid, yid);
   }
 
   glPopMatrix();
@@ -7069,7 +7069,7 @@ void ObsPlot::decodeCriteria(miString critStr)
       if (sstr.size() != 2)
         continue;
       parameter = sstr[0];
-      limit = atof(sstr[1].cStr());
+      limit = atof(sstr[1].c_str());
       if (knotParameters.count(parameter)) {
         limit = knots2ms(limit);
       }
@@ -7173,7 +7173,7 @@ bool ObsPlot::checkPlotCriteria(int index)
       int j=0;
       while(j<n && roadobsColumnName[j]!=p->first) j++;
       if(j==n) continue;
-      value = atof(roadobsp[index][j].cStr());
+      value = atof(roadobsp[index][j].c_str());
 #endif
     } else {
       if (obsp[index].fdata.count(p->first)) {
@@ -7234,7 +7234,7 @@ void ObsPlot::checkTotalColourCriteria(int index)
       int j=0;
       while(j<n && roadobsColumnName[j]!=p->first) j++;
       if(j==n) continue;
-      value = atof(roadobsp[index][j].cStr());
+      value = atof(roadobsp[index][j].c_str());
 #endif
     } else {
       if (obsp[index].fdata.count(p->first)){
@@ -7291,7 +7291,7 @@ miString ObsPlot::checkMarkerCriteria(int index)
       int j=0;
       while(j<n && roadobsColumnName[j]!=p->first) j++;
       if(j==n) continue;
-      value = atof(roadobsp[index][j].cStr());
+      value = atof(roadobsp[index][j].c_str());
 #endif
     } else {
       if (obsp[index].fdata.count(p->first)) {

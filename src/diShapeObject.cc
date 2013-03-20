@@ -176,7 +176,7 @@ bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
   SHPHandle hSHP;
   int nShapeType, nEntities, i;
   double adfMinBound[4], adfMaxBound[4];
-  hSHP = SHPOpen(filename.cStr(), "rb");
+  hSHP = SHPOpen(filename.c_str(), "rb");
 
   if (hSHP == NULL) {
     cerr<<"Unable to open: "<<filename<<endl;
@@ -451,8 +451,8 @@ bool ShapeObject::plot(Area area, // current area
                                float cw,ch;
                                miString astring = " "+tmpDesc[i];
                                fp->set(poptions.fontname,"NORMAL",fontSizeToPlot); //fp->set("Arial","BOLD",8);
-                               fp->getStringSize(astring.cStr(),cw,ch);
-                               //fp->drawStr(astring.cStr(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
+                               fp->getStringSize(astring.c_str(),cw,ch);
+                               //fp->drawStr(astring.c_str(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
                                fp->drawStr("SSS",shapes[i]->padfX[0], shapes[i]->padfY[0],0.0);
                                //glDrawPixels((GLint)10, (GLint)10,GL_RGBA, GL_UNSIGNED_BYTE,cimage);
 
@@ -1088,7 +1088,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
   /* -------------------------------------------------------------------- */
   /*      Open the file.                                                  */
   /* -------------------------------------------------------------------- */
-  hDBF = DBFOpen(filename.cStr(), "rb");
+  hDBF = DBFOpen(filename.c_str(), "rb");
   if (hDBF == NULL) {
     cerr<<"DBFOpen "<<filename<<" failed"<<endl;
     return 2;

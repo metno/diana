@@ -850,7 +850,7 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 	      oplot->roadobsColumnUndefined.push_back(vs[jmax]);
             }
 	  } else if (pstr[0]==key_skiplines && m>1) {
-	    oplot->roadobsSkipDataLines= atoi(pstr[1].cStr());
+	    oplot->roadobsSkipDataLines= atoi(pstr[1].c_str());
 
 	  } else if (pstr[0]==key_label) {
 	    oplot->setLabel(str);

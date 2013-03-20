@@ -393,7 +393,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   vector<miString> tmplines;
 
   // open filestream
-  ifstream file(ep.commandFilename.cStr());
+  ifstream file(ep.commandFilename.c_str());
   if (!file){
     cerr << "ERROR OPEN (READ) " << ep.commandFilename << endl;
     return;

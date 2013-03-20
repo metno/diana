@@ -142,7 +142,7 @@ void FilledMap::clearPolys()
 long FilledMap::gettimestamp()
 {
   pu_struct_stat buf;
-  const char *path = filename.cStr();
+  const char *path = filename.c_str();
   if (pu_stat(path, &buf) == 0) {
     return buf.st_ctime;
   }
@@ -152,7 +152,7 @@ long FilledMap::gettimestamp()
 bool FilledMap::readheader()
 {
   FILE *pfile;
-  if ((pfile = fopen(filename.cStr(), "rb")) == NULL) {
+  if ((pfile = fopen(filename.c_str(), "rb")) == NULL) {
     cerr << "Could not open file for read:" << filename << endl;
     return false;
   }
@@ -392,7 +392,7 @@ bool FilledMap::plot(Area area, // current area
   }
 
   FILE *pfile;
-  if ((pfile = fopen(filename.cStr(), "rb")) == NULL) {
+  if ((pfile = fopen(filename.c_str(), "rb")) == NULL) {
     cerr << "Could not open file for read:" << filename << endl;
     return false;
   }

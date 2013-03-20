@@ -1034,7 +1034,7 @@ void QuickMenu::fillMenuList()
 
   vector<QString> qnames;
   for (int i=0; i<n; i++){
-    qnames.push_back(qm[i].name.cStr());
+    qnames.push_back(qm[i].name.c_str());
   }
 
   for (int i=0; i<n; i++) menulist->addItem(qnames[i]);
@@ -1058,7 +1058,7 @@ void QuickMenu::menulistActivate(int idx)
     QStringList itemlist;
     for(int i=0; i<numitems; i++){
       // remove richtext tags
-      QString qstr= qm[idx].menuitems[i].name.cStr();
+      QString qstr= qm[idx].menuitems[i].name.c_str();
       qstr.replace(QRegExp("</*font[^>]*>"), "" );
       itemlist+= qstr;
     }
@@ -1082,13 +1082,13 @@ void QuickMenu::menulistActivate(int idx)
   if (n > maxoptions) n= maxoptions;
   if (n>0){
     for (int i=0; i<n; i++){
-      optionlabel[i]->setText(qm[idx].opt[i].key.cStr());
+      optionlabel[i]->setText(qm[idx].opt[i].key.c_str());
 
       int nopts= qm[idx].opt[i].options.size();
       int defidx= -1;
       if (nopts > 0){
         for(int j=0; j<nopts; j++){
-          optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].cStr()));
+          optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].c_str()));
           if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
             defidx= j;
         }
@@ -1136,7 +1136,7 @@ void QuickMenu::listClicked( QListWidgetItem * item)
     ts+= miutil::miString("\n");
   }
   // set command into command-edit
-  comedit->setText(QString(ts.cStr()));
+  comedit->setText(QString(ts.c_str()));
   comset= true;
   qm[activemenu].plotindex= idx;
   // enable/disable resetButton

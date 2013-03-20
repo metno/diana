@@ -79,11 +79,11 @@ Colour::Colour(const miString name_){
     memberCopy(cmap[vstr[0]]);
     v.rgba[alpha]= atoi(vstr[1].c_str());
   } else if(n<4){
-    set(atoi(vstr[0].cStr()),atoi(vstr[1].cStr()),atoi(vstr[2].cStr()));
+    set(atoi(vstr[0].c_str()),atoi(vstr[1].c_str()),atoi(vstr[2].c_str()));
     name = lname;
   } else {
-    set(atoi(vstr[0].cStr()),atoi(vstr[1].cStr()),
-	atoi(vstr[2].cStr()),atoi(vstr[3].cStr()));
+    set(atoi(vstr[0].c_str()),atoi(vstr[1].c_str()),
+	atoi(vstr[2].c_str()),atoi(vstr[3].c_str()));
     name = lname;
   }
 }
@@ -150,11 +150,11 @@ void Colour::defineColourFromString(const miString rgba_string)
   uchar_t r,g,b,a;
   vector<miString> stokens = rgba_string.split(":");
   if (stokens.size()>2 ) {
-    r= atoi(stokens[0].cStr());
-    g= atoi(stokens[1].cStr());
-    b= atoi(stokens[2].cStr());
+    r= atoi(stokens[0].c_str());
+    g= atoi(stokens[1].c_str());
+    b= atoi(stokens[2].c_str());
     if (stokens.size()>3) {
-      a= atoi(stokens[3].cStr());
+      a= atoi(stokens[3].c_str());
     } else {
       a= 255;
     }

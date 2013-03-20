@@ -100,7 +100,7 @@ void TextDialog::setSource(const InfoFile ifile){
 
   infofile= ifile;
   if (infofile.name.exists()){
-    setWindowTitle(infofile.name.cStr());
+    setWindowTitle(infofile.name.c_str());
 
     miutil::miString ext, file;
     path= "";
@@ -133,7 +133,7 @@ void TextDialog::setSource(const InfoFile ifile){
       //tb->unsetFont();
     }
 
-    tb->setSource(QString(infofile.filename.cStr()));
+    tb->setSource(QString(infofile.filename.c_str()));
 
     tb->update();
 
@@ -179,7 +179,7 @@ void TextDialog::openwild()
   QString filter= tr("Textfiles (*.txt *.text *.html);;All (*.*)");
   QString s(QFileDialog::getOpenFileName(this,
       tr("Open file"),
-      path.cStr(),
+      path.c_str(),
       filter));
   if ( s.isEmpty() )
     return;

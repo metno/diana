@@ -1933,8 +1933,8 @@ bool ObsManager::parseSetup()
     else if( key == "timerange" && newprod ){
       vector<miString> time = token[1].split(",");
       if(time.size()==2){
-        Prod[prod].timeRangeMin=atoi(time[0].cStr());
-        Prod[prod].timeRangeMax=atoi(time[1].cStr());
+        Prod[prod].timeRangeMin=atoi(time[0].c_str());
+        Prod[prod].timeRangeMax=atoi(time[1].c_str());
       }
     } else if( key == "synoptic" && newprod ){
       if(token[1]=="true")
@@ -1942,7 +1942,7 @@ bool ObsManager::parseSetup()
       else
         Prod[prod].synoptic=false;
     } else if( key == "current" && newprod ){
-      Prod[prod].current=atof(token[1].cStr());
+      Prod[prod].current=atof(token[1].c_str());
     } else if( key == "headerinfo" && newprod ){
       Prod[prod].headerinfo.push_back(token[1]);
     } else if( key == "metadata" && newprod ){

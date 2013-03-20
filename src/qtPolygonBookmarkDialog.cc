@@ -170,7 +170,7 @@ void PolygonBookmarkDialog::paste()
 
 void PolygonBookmarkDialog::warn(miutil::miString w)
 {
-  statusBar()->showMessage(w.cStr(),6000);
+  statusBar()->showMessage(w.c_str(),6000);
 }
 
 

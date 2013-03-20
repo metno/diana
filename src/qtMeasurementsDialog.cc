@@ -422,8 +422,8 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
     londir = "W";
   }
 
-  latstr.sprintf("%d°%d '%s", latdeg, latmin, latdir.cStr());
-  lonstr.sprintf("%d°%d '%s", londeg, lonmin, londir.cStr());
+  latstr.sprintf("%d°%d '%s", latdeg, latmin, latdir.c_str());
+  lonstr.sprintf("%d°%d '%s", londeg, lonmin, londir.c_str());
   datestr.sprintf("%s", t.isoDate().c_str());
   timestr.sprintf("%s", t.isoClock().c_str());
 

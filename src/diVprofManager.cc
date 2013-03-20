@@ -1439,7 +1439,7 @@ void VprofManager::checkObsTime(int hour) {
 
     // open filestream
     ifstream file;
-    file.open(amdarStationFile.cStr());
+    file.open(amdarStationFile.c_str());
     if (file.bad()) {
       cerr<<"Amdar station list  "<<amdarStationFile<<"  not found"<<endl;
       return;
@@ -1465,9 +1465,9 @@ void VprofManager::checkObsTime(int hour) {
             if (vstr2.size()==2) {
               str= vstr2[0].downcase();
               if (str=="latitude")
-                latitude= atof(vstr2[1].cStr());
+                latitude= atof(vstr2[1].c_str());
               else if (str=="longitude")
-                longitude= atof(vstr2[1].cStr());
+                longitude= atof(vstr2[1].c_str());
               else if (str=="name") {
                 name= vstr2[1];
                 if (name[0]=='"')

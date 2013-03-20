@@ -185,7 +185,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
     for(int i=0;i<n;i++) str+="-";
   }
 
-  fp->getStringSize(str.cStr(), width, height);
+  fp->getStringSize(str.c_str(), width, height);
 
   // fontsizeScale != 1 when postscript font size != X font size
   if (hardcopy){
@@ -305,7 +305,7 @@ bool LegendPlot::plot(float x, float y)
     glColor4ubv(poptions.textcolour.RGBA());
     float titley1 = y2title-yborder-maxheight/2;
     for (int i=0;i<ntitle;i++){
-      fp->drawStr(vtitlestring[i].cStr(),(x1title+xborder),titley1);
+      fp->drawStr(vtitlestring[i].c_str(),(x1title+xborder),titley1);
       titley1 -= maxheight;
     }
   }
@@ -375,7 +375,7 @@ bool LegendPlot::plot(float x, float y)
       //draw textstring
       glColor4ubv(poptions.textcolour.RGBA());
       miString cstring = colourcodes[i].colourstr;
-      fp->drawStr(cstring.cStr(),(x2box+xborder),(y1box+0.8*yborder));
+      fp->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
       UpdateOutput();

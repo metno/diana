@@ -937,7 +937,7 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
         name.replace("v.", "i.");
       else if (name.contains("i."))
         name.replace("i.", "v.");
-      ifstream inFile(name.cStr(), ios::in);
+      ifstream inFile(name.c_str(), ios::in);
       if (inFile)
         file.channel.push_back("IR+V");
     }
@@ -1665,7 +1665,7 @@ unsigned long SatManager::_modtime(const miString fname)
 /*********************************************************************/
 int SatManager::_filestat(const miString fname, pu_struct_stat& filestat)
 {
-  return pu_stat(fname.cStr(), &filestat);
+  return pu_stat(fname.c_str(), &filestat);
 }
 
 void SatManager::init_rgbindex(Sat& sd)
@@ -1706,7 +1706,7 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
   Sat sd2;
   if (name.contains("v.")) {
     name.replace("v.", "i.");
-    ifstream inFile(name.cStr(), ios::in);
+    ifstream inFile(name.c_str(), ios::in);
     miString cal=sd.cal_vis;
 
     if (inFile && MItiff::readMItiff(name, sd, tmpidx)) {
@@ -1726,7 +1726,7 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
   } else if (name.contains("i.")) {
     name.replace("i.", "v.");
     miString cal=sd.cal_ir;
-    ifstream inFile(name.cStr(), ios::in);
+    ifstream inFile(name.c_str(), ios::in);
 
     if (inFile && MItiff::readMItiff(name, sd, tmpidx)) {
       sd.cal_ir=cal;

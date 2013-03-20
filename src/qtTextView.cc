@@ -87,7 +87,7 @@ void TextView::setText(int id, const miutil::miString& name,
   if (idmap.count(id) == 0) {
     TextWidget* widget = new TextWidget(this, text, id);
     idmap[id] = widget;
-    tabwidget->addTab(widget, name.cStr());
+    tabwidget->addTab(widget, name.c_str());
   }
   idmap[id]->setText(text);
 }

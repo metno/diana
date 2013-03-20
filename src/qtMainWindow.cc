@@ -193,7 +193,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   build_string = build_str;
 
   setWindowIcon(QIcon(diana_icon_xpm));
-  setWindowTitle(tr(dianaTitle.cStr()));
+  setWindowTitle(tr(dianaTitle.c_str()));
 
 
   //-------- The Actions ---------------------------------
@@ -663,7 +663,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   if (infoFiles.size()>0){
     map<miutil::miString,InfoFile>::iterator p=infoFiles.begin();
     for (; p!=infoFiles.end(); p++){
-      infomenu->addAction(p->first.cStr());
+      infomenu->addAction(p->first.c_str());
     }
   }
   //  infoB->setAccel(Qt::ALT+Qt::Key_N);
@@ -1716,7 +1716,7 @@ bool DianaMainWindow::initProfet(){
   if(!paintToolBar) error += "PaintToolBar is NULL. ";
   if(!contr->getAreaManager()) error += "AreaManager is NULL. ";
   if(error.exists()){
-    QMessageBox::critical(0,"Init profet failed",error.cStr());
+    QMessageBox::critical(0,"Init profet failed",error.c_str());
     return false;
   }
 
@@ -1821,14 +1821,14 @@ bool DianaMainWindow::profetConnect(){
       if(error.exists()) {
         if(offerForcedConnection) {
           error += "<br><b>Do you want to connect anyway?<br>(Existing user will be disconnected)</b>";
-          int i = QMessageBox::warning(0,"Profet", error.cStr(), QMessageBox::Yes, QMessageBox::No);
+          int i = QMessageBox::warning(0,"Profet", error.c_str(), QMessageBox::Yes, QMessageBox::No);
           if (i == QMessageBox::Yes){
             error = "";
             retry = true;
             useForcedConnection = true;
           }
         } else {
-          QMessageBox::critical(0,"Profet",error.cStr());
+          QMessageBox::critical(0,"Profet",error.c_str());
         }
       } // end error handling
     } // end while retry
@@ -3465,7 +3465,7 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   if ( nAreas>0 ) {
     zoomOutAction->setVisible(true);
     for (int i=1; i<=nAreas && i<MaxSelectedAreas; i++){
-      selectAreaAction[i]->setText(vselectAreas[i-1].name.cStr());
+      selectAreaAction[i]->setText(vselectAreas[i-1].name.c_str());
       selectAreaAction[i]->setData(i-1);
       selectAreaAction[i]->setVisible(true);
     }
@@ -4344,7 +4344,7 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
         for(unsigned int i=2;i<tokens.size();i++)
           fontstr += " " + tokens[i];
         QFont font;
-        if (font.fromString(fontstr.cStr()))
+        if (font.fromString(fontstr.c_str()))
           qApp->setFont(font);
       }
     }

@@ -82,7 +82,7 @@ void PlotButton::setPlotElement(const PlotElement& pe)
 
   plotelement_= pe;
 
-  tipstr_= QString(str.cStr());
+  tipstr_= QString(str.c_str());
   setToolTip(tipstr_);
   setText(tipstr_.right(1));
   setCheckable(true);

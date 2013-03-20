@@ -182,7 +182,7 @@ bool printerManager::readPrinterInfo(const miString fname)
   if (!fname.exists()) return false;
 
   // open filestream
-  ifstream file(fname.cStr());
+  ifstream file(fname.c_str());
   if (!file){
     cerr << "printerManager ERROR: can't open printer definition file " <<
       fname << endl;

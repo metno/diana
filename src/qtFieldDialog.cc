@@ -2077,7 +2077,7 @@ void FieldDialog::enableFieldOptions()
       vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
       vector<miutil::miString> stokens = tokens[0].split(";");
       if (stokens.size() == 2)
-        shadingSpinBox->setValue(atoi(stokens[1].cStr()));
+        shadingSpinBox->setValue(atoi(stokens[1].c_str()));
       else
         shadingSpinBox->setValue(0);
       int nr_cs = csInfo.size();
@@ -2232,10 +2232,10 @@ void FieldDialog::enableFieldOptions()
     if (s == "0") {
       i = 0;
     } else {
-      i = densityStringList.indexOf(QString(s.cStr()));
+      i = densityStringList.indexOf(QString(s.c_str()));
       if (i == -1) {
-        densityStringList << QString(s.cStr());
-        densityCbox->addItem(QString(s.cStr()));
+        densityStringList << QString(s.c_str());
+        densityCbox->addItem(QString(s.c_str()));
         i = densityCbox->count() - 1;
       }
     }
@@ -2445,28 +2445,28 @@ void FieldDialog::enableFieldOptions()
 
   if (( nc = cp->findKey(vpcopt, "minvalue")) >= 0 ) {
     if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.cStr());
+      float value = atof(vpcopt[nc].allValue.c_str());
       baseList(min1ComboBox, value, true);
     }
   }
 
   if ((nc = cp->findKey(vpcopt, "minvalue_2")) >= 0) {
     if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.cStr());
+      float value = atof(vpcopt[nc].allValue.c_str());
       baseList(min2ComboBox, value, true);
     }
   }
 
   if (( nc = cp->findKey(vpcopt, "maxvalue")) >= 0 ) {
     if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.cStr());
+      float value = atof(vpcopt[nc].allValue.c_str());
       baseList(max1ComboBox, value, true);
     }
   }
 
   if ((nc = cp->findKey(vpcopt, "maxvalue_2")) >= 0) {
     if (vpcopt[nc].allValue != "off") {
-      float value = atof(vpcopt[nc].allValue.cStr());
+      float value = atof(vpcopt[nc].allValue.c_str());
       baseList(max2ComboBox, value, true);
     }
   }
@@ -2705,7 +2705,7 @@ vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number, 
 
   QString qs;
   for (i = 0; i < n; ++i) {
-    cBox->addItem(QString(vnumber[i].cStr()));
+    cBox->addItem(QString(vnumber[i].c_str()));
   }
 
 
@@ -2749,7 +2749,7 @@ void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
       cBox->addItem("0");
     else {
       miutil::miString estr(e);
-      cBox->addItem(estr.cStr());
+      cBox->addItem(estr.c_str());
     }
   }
 
@@ -3091,7 +3091,7 @@ void FieldDialog::zero1ComboBoxToggled(int index)
 {
   if (!zero1ComboBox->currentText().isNull()) {
     miutil::miString str = zero1ComboBox->currentText().toStdString();
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     baseList(zero1ComboBox, a);
     str = zero1ComboBox->currentText().toStdString();
     updateFieldOptions("base", str);
@@ -3103,7 +3103,7 @@ void FieldDialog::zero2ComboBoxToggled(int index)
   if (!zero2ComboBox->currentText().isNull()) {
     miutil::miString str = zero2ComboBox->currentText().toStdString();
     updateFieldOptions("base_2", str);
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     str = zero2ComboBox->currentText().toStdString();
     baseList(zero2ComboBox, a);
   }
@@ -3115,7 +3115,7 @@ void FieldDialog::min1ComboBoxToggled(int index)
     updateFieldOptions("minvalue", "off");
   else if (!min1ComboBox->currentText().isNull()) {
     miutil::miString str = min1ComboBox->currentText().toStdString();
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     baseList(min1ComboBox, a, true);
     updateFieldOptions("minvalue", min1ComboBox->currentText().toStdString());
   }
@@ -3127,7 +3127,7 @@ void FieldDialog::max1ComboBoxToggled(int index)
     updateFieldOptions("maxvalue", "off");
   else if (!max1ComboBox->currentText().isNull()) {
     miutil::miString str = max1ComboBox->currentText().toStdString();
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     baseList(max1ComboBox, a, true);
     updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
   }
@@ -3140,7 +3140,7 @@ void FieldDialog::min2ComboBoxToggled(int index)
     updateFieldOptions("minvalue_2", "remove");
   else if (!min2ComboBox->currentText().isNull()) {
     miutil::miString str = min2ComboBox->currentText().toStdString();
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     baseList(min2ComboBox, a, true);
     updateFieldOptions("minvalue_2", min2ComboBox->currentText().toStdString());
   }
@@ -3152,7 +3152,7 @@ void FieldDialog::max2ComboBoxToggled(int index)
     updateFieldOptions("maxvalue_2", "remove");
   else if (!max2ComboBox->currentText().isNull()) {
     miutil::miString str = max2ComboBox->currentText().toStdString();
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     baseList(max2ComboBox, a, true);
     updateFieldOptions("maxvalue_2", max2ComboBox->currentText().toStdString());
   }

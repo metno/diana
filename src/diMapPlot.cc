@@ -139,10 +139,10 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
         vector<miString> vstr= stokens[1].split(',');
         if (vstr.size()>=4) {
           xyLimit.clear();
-          xyLimit.push_back((atof(vstr[0].cStr()) - 1.0)*newarea.P().getGridResolutionX());
-          xyLimit.push_back((atof(vstr[1].cStr()) - 1.0)*newarea.P().getGridResolutionX());
-          xyLimit.push_back((atof(vstr[2].cStr()) - 1.0)*newarea.P().getGridResolutionY());
-          xyLimit.push_back((atof(vstr[3].cStr()) - 1.0)*newarea.P().getGridResolutionY());
+          xyLimit.push_back((atof(vstr[0].c_str()) - 1.0)*newarea.P().getGridResolutionX());
+          xyLimit.push_back((atof(vstr[1].c_str()) - 1.0)*newarea.P().getGridResolutionX());
+          xyLimit.push_back((atof(vstr[2].c_str()) - 1.0)*newarea.P().getGridResolutionY());
+          xyLimit.push_back((atof(vstr[3].c_str()) - 1.0)*newarea.P().getGridResolutionY());
           cerr <<"WARNING: using obsolete syntax xylimit"<<endl;
           cerr <<"New syntax:"<<endl;
           cerr <<"AREA "<<newarea.P()<<" rectangle="<<xyLimit[0]<<":"<<xyLimit[1]<<":"<<xyLimit[2]<<":"<<xyLimit[3]<<endl;
@@ -155,7 +155,7 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
         if (vstr.size()>=4) {
           xyPart.clear();
           for (int j=0; j<4; j++)
-            xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
+            xyPart.push_back(atof(vstr[j].c_str()) * 0.01);
           if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3])
             xyPart.clear();
         }
@@ -1159,9 +1159,9 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
       if (prevr.isinside(x,y)){
         continue;
       }
-      fp->drawStr(value_annotations[j].t.cStr(), x, y, 0);
+      fp->drawStr(value_annotations[j].t.c_str(), x, y, 0);
       float w,h;
-      fp->getStringSize(value_annotations[j].t.cStr(),w,h);
+      fp->getStringSize(value_annotations[j].t.c_str(),w,h);
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();
@@ -1233,9 +1233,9 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
       if (prevr.isinside(x,y)){
         continue;
       }
-      fp->drawStr(value_annotations[j].t.cStr(), x, y, 0);
+      fp->drawStr(value_annotations[j].t.c_str(), x, y, 0);
       float w,h;
-      fp->getStringSize(value_annotations[j].t.cStr(),w,h);
+      fp->getStringSize(value_annotations[j].t.c_str(),w,h);
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();

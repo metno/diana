@@ -45,7 +45,7 @@ ProfetTimeControl::ProfetTimeControl(QWidget* parent, vector<fetObject::TimeValu
       
       
       if (tim[col].day() != day || col==cols-1) {
-        QLabel * lab = new QLabel(dayname.cStr(),this);
+        QLabel * lab = new QLabel(dayname.c_str(),this);
         lab->setFrameStyle(QFrame::Panel | QFrame::Raised);
         lab->setAlignment(Qt::AlignCenter);
         lab->setFont(dfont);

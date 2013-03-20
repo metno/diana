@@ -466,58 +466,58 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
         else if (key=="geotext")      pgeotext=     (value.downcase()=="on");
         else if (key=="temptext")     temptext=     (value.downcase()=="on");
 
-        else if (key=="rvwind")     rvwind=     atof(value.cStr());
-        else if (key=="ductingMin") ductingMin= atof(value.cStr());
-        else if (key=="ductingMax") ductingMax= atof(value.cStr());
-        else if (key=="linetext")   linetext=   atoi(value.cStr());
+        else if (key=="rvwind")     rvwind=     atof(value.c_str());
+        else if (key=="ductingMin") ductingMin= atof(value.c_str());
+        else if (key=="ductingMax") ductingMax= atof(value.c_str());
+        else if (key=="linetext")   linetext=   atoi(value.c_str());
 
         else if (key=="backgroundColour") backgroundColour= value;
 
-        else if (key=="diagramtype") diagramtype= atoi(value.cStr());
-        else if (key=="tangle")      tangle=      atof(value.cStr());
+        else if (key=="diagramtype") diagramtype= atoi(value.c_str());
+        else if (key=="tangle")      tangle=      atof(value.c_str());
 
-        else if (key=="pminDiagram")   pminDiagram= atoi(value.cStr());
-        else if (key=="pmaxDiagram")   pmaxDiagram= atoi(value.cStr());
-        else if (key=="tminDiagram")   tminDiagram= atoi(value.cStr());
-        else if (key=="tmaxDiagram")   tmaxDiagram= atoi(value.cStr());
-        else if (key=="trangeDiagram") trangeDiagram= atoi(value.cStr());
+        else if (key=="pminDiagram")   pminDiagram= atoi(value.c_str());
+        else if (key=="pmaxDiagram")   pmaxDiagram= atoi(value.c_str());
+        else if (key=="tminDiagram")   tminDiagram= atoi(value.c_str());
+        else if (key=="tmaxDiagram")   tmaxDiagram= atoi(value.c_str());
+        else if (key=="trangeDiagram") trangeDiagram= atoi(value.c_str());
 
         else if (key=="plinesfl")  pplinesfl= (value.downcase()=="on");
 
         else if (key=="plines")      pplines= (value.downcase()=="on");
         else if (key=="pColour")     pColour= value;
         else if (key=="pLinetype")   pLinetype= value;
-        else if (key=="pLinewidth1") pLinewidth2= atof(value.cStr());
-        else if (key=="pLinewidth2") pLinewidth2= atof(value.cStr());
+        else if (key=="pLinewidth1") pLinewidth2= atof(value.c_str());
+        else if (key=="pLinewidth2") pLinewidth2= atof(value.c_str());
 
         else if (key=="tlines")      ptlines=     (value.downcase()=="on");
-        else if (key=="tStep")       tStep=       atoi(value.cStr());
+        else if (key=="tStep")       tStep=       atoi(value.c_str());
         else if (key=="tColour")     tColour=     value;
         else if (key=="tLinetype")   tLinetype=   value;
-        else if (key=="tLinewidth1") tLinewidth2= atof(value.cStr());
-        else if (key=="tLinewidth2") tLinewidth2= atof(value.cStr());
+        else if (key=="tLinewidth1") tLinewidth2= atof(value.c_str());
+        else if (key=="tLinewidth2") tLinewidth2= atof(value.c_str());
 
         else if (key=="dryadiabat")          pdryadiabat=    (value.downcase()=="on");
-        else if (key=="dryadiabatStep")      dryadiabatStep=      atoi(value.cStr());
+        else if (key=="dryadiabatStep")      dryadiabatStep=      atoi(value.c_str());
         else if (key=="dryadiabatColour")    dryadiabatColour=    value;
         else if (key=="dryadiabatLinetype")  dryadiabatLinetype=  value;
-        else if (key=="dryadiabatLinewidth") dryadiabatLinewidth= atof(value.cStr());
+        else if (key=="dryadiabatLinewidth") dryadiabatLinewidth= atof(value.c_str());
 
         else if (key=="wetadiabat")          pwetadiabat=    (value.downcase()=="on");
-        else if (key=="wetadiabatStep")      wetadiabatStep=      atoi(value.cStr());
+        else if (key=="wetadiabatStep")      wetadiabatStep=      atoi(value.c_str());
         else if (key=="wetadiabatColour")    wetadiabatColour=    value;
         else if (key=="wetadiabatLinetype")  wetadiabatLinetype=  value;
-        else if (key=="wetadiabatLinewidth") wetadiabatLinewidth= atof(value.cStr());
-        else if (key=="wetadiabatPmin")      wetadiabatPmin=      atoi(value.cStr());
-        else if (key=="wetadiabatTmin")      wetadiabatTmin=      atoi(value.cStr());
+        else if (key=="wetadiabatLinewidth") wetadiabatLinewidth= atof(value.c_str());
+        else if (key=="wetadiabatPmin")      wetadiabatPmin=      atoi(value.c_str());
+        else if (key=="wetadiabatTmin")      wetadiabatTmin=      atoi(value.c_str());
 
         else if (key=="mixingratio")          pmixingratio=    (value.downcase()=="on");
-        else if (key=="mixingratioSet")       mixingratioSet=   atoi(value.cStr());
+        else if (key=="mixingratioSet")       mixingratioSet=   atoi(value.c_str());
         else if (key=="mixingratioColour")    mixingratioColour=    value;
         else if (key=="mixingratioLinetype")  mixingratioLinetype=  value;
-        else if (key=="mixingratioLinewidth") mixingratioLinewidth= atof(value.cStr());
-        else if (key=="mixingratioPmin")      mixingratioPmin=      atoi(value.cStr());
-        else if (key=="mixingratioTmin")      mixingratioTmin=      atoi(value.cStr());
+        else if (key=="mixingratioLinewidth") mixingratioLinewidth= atof(value.c_str());
+        else if (key=="mixingratioPmin")      mixingratioPmin=      atoi(value.c_str());
+        else if (key=="mixingratioTmin")      mixingratioTmin=      atoi(value.c_str());
 
         else if (key=="labelp") plabelp= (value.downcase()=="on");
         else if (key=="labelt") plabelt= (value.downcase()=="on");
@@ -526,35 +526,35 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
         else if (key=="frame")          pframe= (value.downcase()=="on");
         else if (key=="frameColour")    frameColour= value;
         else if (key=="frameLinetype")  frameLinetype= value;
-        else if (key=="frameLinewidth") frameLinewidth= atof(value.cStr());
+        else if (key=="frameLinewidth") frameLinewidth= atof(value.c_str());
 
         else if (key=="textColour") textColour= value;
 
         else if (key=="flevels")           pflevels= (value.downcase()=="on");
         else if (key=="flevelsColour")     flevelsColour= value;
         else if (key=="flevelsLinetype")   flevelsLinetype= value;
-        else if (key=="flevelsLinewidth1") flevelsLinewidth1= atof(value.cStr());
-        else if (key=="flevelsLinewidth2") flevelsLinewidth2= atof(value.cStr());
+        else if (key=="flevelsLinewidth1") flevelsLinewidth1= atof(value.c_str());
+        else if (key=="flevelsLinewidth2") flevelsLinewidth2= atof(value.c_str());
 
         else if (key=="labelflevels") plabelflevels= (value.downcase()=="on");
 
-        else if (key=="rsvaxis")   rsvaxis=   atof(value.cStr());
-        else if (key=="rstext")    rstext=    atof(value.cStr());
-        else if (key=="rslabels")  rslabels=  atof(value.cStr());
-        else if (key=="rswind")    rswind=    atof(value.cStr());
-        else if (key=="rsvwind")   rsvwind=   atof(value.cStr());
-        else if (key=="rsrelhum")  rsrelhum=  atof(value.cStr());
-        else if (key=="rsducting") rsducting= atof(value.cStr());
+        else if (key=="rsvaxis")   rsvaxis=   atof(value.c_str());
+        else if (key=="rstext")    rstext=    atof(value.c_str());
+        else if (key=="rslabels")  rslabels=  atof(value.c_str());
+        else if (key=="rswind")    rswind=    atof(value.c_str());
+        else if (key=="rsvwind")   rsvwind=   atof(value.c_str());
+        else if (key=="rsrelhum")  rsrelhum=  atof(value.c_str());
+        else if (key=="rsducting") rsducting= atof(value.c_str());
 
         else if (key=="rangeLinetype")  rangeLinetype= value;
-        else if (key=="rangeLinewidth") rangeLinewidth= atof(value.cStr());
+        else if (key=="rangeLinewidth") rangeLinewidth= atof(value.c_str());
 
         else if (key=="cotrails")          pcotrails=    (value.downcase()=="on");
         else if (key=="cotrailsColour")    cotrailsColour=    value;
         else if (key=="cotrailsLinetype")  cotrailsLinetype=  value;
-        else if (key=="cotrailsLinewidth") cotrailsLinewidth= atof(value.cStr());
-        else if (key=="cotrailsPmin")      cotrailsPmin=      atoi(value.cStr());
-        else if (key=="cotrailsPmax")      cotrailsPmax=      atoi(value.cStr());
+        else if (key=="cotrailsLinewidth") cotrailsLinewidth= atof(value.c_str());
+        else if (key=="cotrailsPmin")      cotrailsPmin=      atoi(value.c_str());
+        else if (key=="cotrailsPmax")      cotrailsPmax=      atoi(value.c_str());
 
       }
 
@@ -574,11 +574,11 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
           } else if (key=="dataLinewidth") {
             if (nv>int(dataLinewidth.size())) dataLinewidth.resize(nv);
             for (int k=0; k<nv; k++)
-              dataLinewidth[k]= atof(vs[k].cStr());
+              dataLinewidth[k]= atof(vs[k].c_str());
           } else if (key=="windLinewidth") {
             if (nv>int(windLinewidth.size())) windLinewidth.resize(nv);
             for (int k=0; k<nv; k++)
-              windLinewidth[k]= atof(vs[k].cStr());
+              windLinewidth[k]= atof(vs[k].c_str());
           }
         }
       }

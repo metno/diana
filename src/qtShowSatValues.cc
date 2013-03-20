@@ -71,7 +71,7 @@ void ShowSatValues::channelChanged(int index)
 {
   if( index < int(tooltip.size()) && index > -1 ){
     miutil::miString tip = tooltip[index].replace('|',' ');
-    channelbox->setToolTip( QString(tip.cStr() ));
+    channelbox->setToolTip( QString(tip.c_str() ));
   }
 }
 
@@ -95,7 +95,7 @@ void ShowSatValues::SetChannels(const vector<miutil::miString>& channel)
     //    cerr <<"channel:"<<i<<"  "<<channel[i]<<endl;
     vector<miutil::miString> token = channel[i].split("|");
     if(token.size()==2){
-      channelbox->addItem(token[1].cStr());
+      channelbox->addItem(token[1].c_str());
       //if no currentItem, use channel"4"
       if(index == -1 && token[1].contains("4")) index = i;
     }

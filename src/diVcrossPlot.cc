@@ -1033,7 +1033,7 @@ bool VcrossPlot::startPSoutput(const printOptions& po)
   printman.checkSpecial(pro, extra);
 
   // make GLPfile object
-  psoutput = new GLPfile(const_cast<char*> (pro.fname.cStr()), print_options,
+  psoutput = new GLPfile(const_cast<char*> (pro.fname.c_str()), print_options,
       feedsize, &extra, pro.doEPS);
 
   // set line and point scale
@@ -2658,7 +2658,7 @@ void VcrossPlot::plotTitle()
         - float(i));
     if (x2 > xDatamin && x1 < xDatamax) {
       float dx,dy;
-      fp->getStringSize(markName[n].cStr(), dx, dy);
+      fp->getStringSize(markName[n].c_str(), dx, dy);
       float dxh = dx * 0.5 + chxt;
       xm = (x1 + x2) * 0.5;
       if (x1 < xWindowmin + dxh)
@@ -2697,7 +2697,7 @@ void VcrossPlot::plotTitle()
       fp->setFontSize(fontscale * s);
       for (int n = 0; n < nn; n++) {
         float dx, dy;
-        fp->getStringSize(markName[n].cStr(), dx, dy);
+        fp->getStringSize(markName[n].c_str(), dx, dy);
         vdx[n] = dx;
       }
     }
@@ -2741,7 +2741,7 @@ void VcrossPlot::plotTitle()
         x = (x1 + x2) * 0.5;
         vxm[n] = x;
         x -= vdx[n] * 0.5;
-        fp->drawStr(markName[vpos[n]].cStr(), x, y, 0.0);
+        fp->drawStr(markName[vpos[n]].c_str(), x, y, 0.0);
       }
     }
   }

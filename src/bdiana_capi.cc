@@ -2872,8 +2872,8 @@ static int parseAndProcess(istream &is)
             << " Linenumber:" << linenumbers[k] << endl;
         return 1;
       }
-      int tmp_xsize = atoi(vvs[0].cStr());
-      int tmp_ysize = atoi(vvs[1].cStr());
+      int tmp_xsize = atoi(vvs[0].c_str());
+      int tmp_ysize = atoi(vvs[1].c_str());
 
       // if requested buffersize identical to current: do nothing
       if (buffermade && tmp_xsize == xsize && tmp_ysize == ysize)
@@ -3022,8 +3022,8 @@ static int parseAndProcess(istream &is)
                 << lines[k] << " Linenumber:" << linenumbers[k] << endl;
             return 1;
           }
-          priop.papersize.hsize = atoi(vvs[0].cStr());
-          priop.papersize.vsize = atoi(vvs[1].cStr());
+          priop.papersize.hsize = atoi(vvs[0].c_str());
+          priop.papersize.vsize = atoi(vvs[1].c_str());
           priop.usecustomsize = true;
         } else {
           priop.pagesize = printman->getPage(vvvs[l]);
@@ -3125,13 +3125,13 @@ static int parseAndProcess(istream &is)
     } else if (key == com_addhour) {
       if (!fixedtime.undef()) {
         ptime = fixedtime;
-        ptime.addHour(atoi(value.cStr()));
+        ptime.addHour(atoi(value.c_str()));
       }
 
     } else if (key == com_addminute) {
       if (!fixedtime.undef()) {
         ptime = fixedtime;
-        ptime.addMin(atoi(value.cStr()));
+        ptime.addMin(atoi(value.c_str()));
       }
 
     } else if (key == com_settime) {
@@ -3189,8 +3189,8 @@ static int parseAndProcess(istream &is)
           multiple_plots = false;
           return 1;
         }
-        numrows = atoi(v1[0].cStr());
-        numcols = atoi(v1[1].cStr());
+        numrows = atoi(v1[0].c_str());
+        numcols = atoi(v1[1].c_str());
         if (numrows < 1 || numcols < 1) {
           cerr << "WARNING, illegal values to multiple.plots:" << lines[k]
               << " Linenumber:" << linenumbers[k] << endl;
@@ -3200,7 +3200,7 @@ static int parseAndProcess(istream &is)
         float fmargin = 0.0;
         float fspacing = 0.0;
         if (v1.size() > 2) {
-          fspacing = atof(v1[2].cStr());
+          fspacing = atof(v1[2].c_str());
           if (fspacing >= 100 || fspacing < 0) {
             cerr << "WARNING, illegal value for spacing:" << lines[k]
                 << " Linenumber:" << linenumbers[k] << endl;
@@ -3208,7 +3208,7 @@ static int parseAndProcess(istream &is)
           }
         }
         if (v1.size() > 3) {
-          fmargin = atof(v1[3].cStr());
+          fmargin = atof(v1[3].c_str());
           if (fmargin >= 100 || fmargin < 0) {
             cerr << "WARNING, illegal value for margin:" << lines[k]
                 << " Linenumber:" << linenumbers[k] << endl;
@@ -3244,8 +3244,8 @@ static int parseAndProcess(istream &is)
               << " Linenumber:" << linenumbers[k] << endl;
           return 1;
         }
-        plotrow = atoi(v1[0].cStr());
-        plotcol = atoi(v1[1].cStr());
+        plotrow = atoi(v1[0].c_str());
+        plotcol = atoi(v1[1].c_str());
         if (plotrow < 0 || plotrow >= numrows || plotcol < 0 || plotcol
             >= numcols) {
           cerr << "WARNING, illegal values to plotcell:" << lines[k]
@@ -3617,7 +3617,7 @@ int diana_init(int _argc, char** _argv)
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
 #ifdef USE_XLIB
 
-    dpy = XOpenDisplay(xhost.cStr());
+    dpy = XOpenDisplay(xhost.c_str());
     if (!dpy) {
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
       return 1;

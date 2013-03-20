@@ -273,7 +273,7 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
   if (miutil::miTime::isValid(s)){
     combinetime= miutil::miTime(s);
   }
-  cselectlabel->setText(s.cStr());
+  cselectlabel->setText(s.c_str());
   miutil::miString tmp;
   vector <miutil::miString> pids =
     m_editm->getCombineIds(combinetime,products[currprod],pid);
@@ -282,7 +282,7 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
   if ( n > 0 ) {
     tmp+=pids[n-1];
   }
-  cpid2label->setText(tmp.cStr());
+  cpid2label->setText(tmp.c_str());
 }
 
 
@@ -520,7 +520,7 @@ void EditNewDialog::setObjectLabel(){
       miutil::miString(" </font> ");
     }
   }
-  elab[0]->setText(tmp.cStr());
+  elab[0]->setText(tmp.c_str());
 }
 
 
@@ -543,7 +543,7 @@ void EditNewDialog::setFieldLabel(){
       savedProd2Str(products[currprod].fields[i].fromprod) +
       miutil::miString(" </font> ");
 
-    elab[i+1]->setText(s.cStr());
+    elab[i+1]->setText(s.c_str());
   }
 
 }
@@ -637,7 +637,7 @@ bool EditNewDialog::load_combine(){
     if (n>0) {
       for (int i=0; i<n; i++){
         miutil::miString tstr= vt[i].isoTime();
-        cBox->addItem(QString(tstr.cStr()));
+        cBox->addItem(QString(tstr.c_str()));
         if (combinetime ==vt[i]) index=i; //selected time
       }
       cBox->setCurrentRow(index);
@@ -696,7 +696,7 @@ void EditNewDialog::kill_clicked()
   miutil::miString message=tr("Are you sure you want to take over this product?\n").toStdString();
 
   QMessageBox *mb= new QMessageBox(tr("Warning!"),
-      message.cStr(),
+      message.c_str(),
       QMessageBox::Warning,
       QMessageBox::Yes,
       QMessageBox::Cancel | QMessageBox::Default,

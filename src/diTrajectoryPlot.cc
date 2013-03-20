@@ -953,7 +953,7 @@ bool TrajectoryPlot::printTrajectoryPositions(const miString& filename)
   //output
   ofstream fs;
 
-  fs.open(filename.cStr());
+  fs.open(filename.c_str());
 
   if(!fs){
     cerr << "ERROR  printTrajectoryPositions: can't open file: "

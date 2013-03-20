@@ -77,7 +77,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   MODELFIELDS = tr("Model fields").toStdString();
 
   miutil::miString txt= fieldname + " " + miutil::miString(tr("from:").toStdString());
-  QLabel* mainlabel= TitleLabel( txt.cStr(), this );
+  QLabel* mainlabel= TitleLabel( txt.c_str(), this );
 
   productNames=getProductNames();
   prodnamebox = ComboBox( this, productNames, true, 0);
@@ -260,13 +260,13 @@ void EditDefineFieldDialog::fillList()
   fBox->clearFocus();
   if (currentProductName==MODELFIELDS){
     for (unsigned int i=0; i<fields.size(); i++){
-      fBox->addItem(QString(fields[i].cStr()));
+      fBox->addItem(QString(fields[i].c_str()));
     }
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
     for (unsigned int i=0; i<splist.size(); i++){
       miutil::miString str = splist[i].pid + miutil::miString(" - ") +splist[i].ptime.isoTime();
-      QListWidgetItem* item = new QListWidgetItem(QString(str.cStr()));
+      QListWidgetItem* item = new QListWidgetItem(QString(str.c_str()));
       bool italic= (splist[i].source==data_local);
       QFont font = item->font();
       font.setItalic(italic);

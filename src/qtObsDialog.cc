@@ -707,9 +707,9 @@ void ObsDialog::criteriaListSelected(int index)
   int n = critList.criteria.size();
   if( n==0 ) return;
 
-  lineedit->setText(critList.name.cStr());
+  lineedit->setText(critList.name.c_str());
   for(int j=0; j<n; j++){
-    criteriaListbox->addItem(QString(critList.criteria[j].cStr()));
+    criteriaListbox->addItem(QString(critList.criteria[j].c_str()));
     markButton(critList.criteria[j]);
   }
   if(criteriaListbox->count()){
@@ -922,7 +922,7 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
     vector<miutil::miString> sstr = sub[0].split(sign);
     if(sstr.size()!=2) return;
     parameter = sstr[0];
-    value = atof(sstr[1].cStr());
+    value = atof(sstr[1].c_str());
   } else {
     parameter = sub[0];
   }
@@ -1035,7 +1035,7 @@ void ObsDialog::saveSlot( )
 
   bool newItem = obsWidget[m_selected]->saveCriteria(vstr,name);
   if( newItem ){
-    criteriaBox->addItem(name.cStr());
+    criteriaBox->addItem(name.c_str());
     int index = criteriaBox->count()-1;
     criteriaBox->setCurrentIndex(index);
     criteriaListSelected(index);
@@ -1117,7 +1117,7 @@ void ObsDialog::updateExtension()
     cList = obsWidget[m_selected]->getSavedCriteria();
   } else {
     for(unsigned int i=0;i<critName.size();i++) {
-      criteriaBox->addItem(critName[i].cStr());
+      criteriaBox->addItem(critName[i].c_str());
     }
     cList = obsWidget[m_selected]->getSavedCriteria();
   }
@@ -1128,7 +1128,7 @@ void ObsDialog::updateExtension()
 
   vector<miutil::miString> criteriaList = cList.criteria;
   for(unsigned int j=0; j<criteriaList.size(); j++){
-    criteriaListbox->addItem(QString(criteriaList[j].cStr()));
+    criteriaListbox->addItem(QString(criteriaList[j].c_str()));
     markButton(criteriaList[j]);
   }
   if(criteriaListbox->count()){

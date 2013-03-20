@@ -1079,7 +1079,7 @@ void VcrossDialog::enableFieldOptions(){
     vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
     vector<miutil::miString> stokens = tokens[0].split(";");
     if(stokens.size()==2)
-      shadingSpinBox->setValue(atoi(stokens[1].cStr()));
+      shadingSpinBox->setValue(atoi(stokens[1].c_str()));
     else
       shadingSpinBox->setValue(0);
     int nr_cs = csInfo.size();
@@ -1097,7 +1097,7 @@ void VcrossDialog::enableFieldOptions(){
     if(tokens.size()==2){
       vector<miutil::miString> stokens = tokens[1].split(";");
       if(stokens.size()==2)
-        shadingcoldSpinBox->setValue(atoi(stokens[1].cStr()));
+        shadingcoldSpinBox->setValue(atoi(stokens[1].c_str()));
       shadingcoldSpinBox->setValue(0);
       i=0;
       while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
@@ -1248,10 +1248,10 @@ void VcrossDialog::enableFieldOptions(){
     if (s=="0") {
       i=0;
     } else {
-      i = densityStringList.indexOf(QString(s.cStr()));
+      i = densityStringList.indexOf(QString(s.c_str()));
       if (i==-1) {
-        densityStringList <<QString(s.cStr());
-        densityCbox->addItem(QString(s.cStr()));
+        densityStringList <<QString(s.c_str());
+        densityCbox->addItem(QString(s.c_str()));
         i=densityCbox->count()-1;
       }
     }
@@ -1477,9 +1477,9 @@ void VcrossDialog::enableFieldOptions(){
     min1ComboBox->setEnabled(true);
     float value;
     if(vpcopt[nc].allValue=="off")
-      value=atof(base.cStr());
+      value=atof(base.c_str());
     else
-      value = atof(vpcopt[nc].allValue.cStr());
+      value = atof(vpcopt[nc].allValue.c_str());
     baseList(min1ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
       min1ComboBox->setCurrentIndex(0);
@@ -1492,9 +1492,9 @@ void VcrossDialog::enableFieldOptions(){
     max1ComboBox->setEnabled(true);
     float value;
     if(vpcopt[nc].allValue=="off")
-      value=atof(base.cStr());
+      value=atof(base.c_str());
     else
-      value = atof(vpcopt[nc].allValue.cStr());
+      value = atof(vpcopt[nc].allValue.c_str());
     baseList(max1ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
       max1ComboBox->setCurrentIndex(0);
@@ -1648,7 +1648,7 @@ vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number
 
   QString qs;
   for (i=0; i<n; ++i) {
-    cBox->addItem(QString(vnumber[i].cStr()));
+    cBox->addItem(QString(vnumber[i].c_str()));
   }
 
   cBox->setCurrentIndex(nupdown);
@@ -1686,7 +1686,7 @@ miutil::miString VcrossDialog::baseList( QComboBox* cBox,
       cBox->addItem("0");
     else{
       miutil::miString estr(e);
-      cBox->addItem(estr.cStr());
+      cBox->addItem(estr.c_str());
     }
   }
 
@@ -1927,7 +1927,7 @@ void VcrossDialog::zero1ComboBoxToggled(int index){
   if(!zero1ComboBox->currentText().isNull() ){
     miutil::miString str = zero1ComboBox->currentText().toStdString();
     updateFieldOptions("base",str);
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     float b = lineintervalCbox->currentText().toInt();
     baseList(zero1ComboBox,a,b,true);
   }
@@ -1939,7 +1939,7 @@ void VcrossDialog::min1ComboBoxToggled(int index){
   else if(!min1ComboBox->currentText().isNull() ){
     miutil::miString str = min1ComboBox->currentText().toStdString();
     updateFieldOptions("minvalue",str);
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
       b = lineintervalCbox->currentText().toInt();
@@ -1953,7 +1953,7 @@ void VcrossDialog::max1ComboBoxToggled(int index){
   else if(!max1ComboBox->currentText().isNull() ){
     miutil::miString str = max1ComboBox->currentText().toStdString();
     updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
       b = lineintervalCbox->currentText().toInt();

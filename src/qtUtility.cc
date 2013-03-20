@@ -197,7 +197,7 @@ QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
   QComboBox* box = new QComboBox( parent );
 
   if(firstItem.exists())
-    box->addItem ( firstItem.cStr() );
+    box->addItem ( firstItem.c_str() );
 
   int nr_colors= cInfo.size();
   QPixmap* pmap = new QPixmap( 20, 20 );
@@ -207,7 +207,7 @@ QComboBox* ColourBox( QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
     pmap->fill( pixcolor );
     QIcon qicon( *pmap );
     QString qs;
-    if(name) qs = QString(cInfo[t].name.cStr());
+    if(name) qs = QString(cInfo[t].name.c_str());
     box->addItem(qicon,qs);
   }
 
@@ -229,7 +229,7 @@ void ExpandColourBox( QComboBox* box, const Colour& col )
   QIcon qicon( *pmap );
   QString qs;
   //if(name)
-  qs = QString(col.Name().cStr());
+  qs = QString(col.Name().c_str());
   box->addItem(qicon,qs);
 
   delete pmap;
@@ -249,7 +249,7 @@ QComboBox* PaletteBox( QWidget* parent,
   int nr_palettes= csInfo.size();
 
   if(firstItem.exists())
-    box->addItem ( firstItem.cStr() );
+    box->addItem ( firstItem.c_str() );
 
   for( int i=0; i<nr_palettes; i++ ){
     int nr_colours = csInfo[i].colour.size();
@@ -274,7 +274,7 @@ QComboBox* PaletteBox( QWidget* parent,
 
     QIcon qicon( *pmap );
     QString qs;
-    if(name) qs = QString(csInfo[i].name.cStr());
+    if(name) qs = QString(csInfo[i].name.c_str());
     box->addItem(qicon,qs);
     delete pmap;
     pmap=0;
@@ -312,7 +312,7 @@ void ExpandPaletteBox( QComboBox* box, const ColourShading& palette )
   qp.end();
 
   QIcon qicon( *pmap );
-  QString qs = QString(palette.Name().cStr());
+  QString qs = QString(palette.Name().c_str());
   box->addItem(qicon,qs);
   delete pmap;
   pmap=0;
@@ -332,16 +332,16 @@ QComboBox* PatternBox( QWidget* parent,
   QColor pixcolor=QColor("black");
 
   if(firstItem.exists())
-    box->addItem ( firstItem.cStr() );
+    box->addItem ( firstItem.c_str() );
 
   int nr_patterns= patternInfo.size();
   for( int i=0; i<nr_patterns; i++ ){
     int index = patternInfo[i].pattern.size()-1;
     if(index<0) continue;
     miutil::miString filename = ig.getFilename(patternInfo[i].pattern[index],true);
-    QIcon qicon(QString(filename.cStr()));
+    QIcon qicon(QString(filename.c_str()));
     QString qs;
-    if(name) qs = QString(patternInfo[i].name.cStr());
+    if(name) qs = QString(patternInfo[i].name.c_str());
     box->addItem(qicon,qs);
   }
 
@@ -398,7 +398,7 @@ QComboBox* LinewidthBox( QWidget* parent,
     QPixmap*  pmapLinewidth = new QPixmap;
     pmapLinewidth= linePixmap("x",i+1);
     miutil::miString ss = "  " + miutil::miString(i+1);
-    box->addItem ( *pmapLinewidth, ss.cStr() );
+    box->addItem ( *pmapLinewidth, ss.c_str() );
     delete pmapLinewidth;
     pmapLinewidth = NULL;
   }
@@ -418,7 +418,7 @@ void ExpandLinewidthBox( QComboBox* box,
     QPixmap*  pmapLinewidth = new QPixmap;
     pmapLinewidth= linePixmap("x",i+1);
     miutil::miString ss = "  " + miutil::miString(i+1);
-    box->addItem ( *pmapLinewidth, ss.cStr() );
+    box->addItem ( *pmapLinewidth, ss.c_str() );
     delete pmapLinewidth;
     pmapLinewidth = NULL;
   }
@@ -541,7 +541,7 @@ void listWidget( QListWidget* listwidget, vector<miutil::miString> vstr, int def
     listwidget->clear();
 
   for( unsigned int i=0; i<vstr.size(); i++ ){
-    listwidget->addItem( QString(vstr[i].cStr()) );
+    listwidget->addItem( QString(vstr[i].c_str()) );
   }
 
   if( defItem> -1 ) listwidget->setCurrentRow( defItem );

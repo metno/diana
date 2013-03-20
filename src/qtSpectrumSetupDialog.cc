@@ -345,7 +345,7 @@ void SpectrumSetupDialog::applySetup()
 
     } else if (spSetups[i]->name== FREQUENCYMAX) {
       miutil::miString str= spSetups[i]->getTextChoice();
-      spopt->freqMax= atof(str.cStr());
+      spopt->freqMax= atof(str.c_str());
 
     } else if (spSetups[i]->name== BACKCOLOUR) {
       spopt->backgroundColour= spSetups[i]->getColour().name;

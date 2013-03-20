@@ -4061,7 +4061,7 @@ void fillContours(vector<ContourLine*>& contourlines,
     for (int i = 0; i < nc; i++) {
       vector<miString> vstr = classSpec[i].split(":");
       if (vstr.size() > 1) {
-        classValues.push_back(atoi(vstr[0].cStr()));
+        classValues.push_back(atoi(vstr[0].c_str()));
         classNames.push_back(vstr[1]);
         if (maxlen < vstr[1].length())
           maxlen = vstr[1].length();
@@ -4267,7 +4267,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
     for (int i=0; i<nc; i++) {
       vector<miString> vstr=classSpec[i].split(":");
       if (vstr.size()>1) {
-    	classValues.push_back(atoi(vstr[0].cStr()));
+    	classValues.push_back(atoi(vstr[0].c_str()));
 		classNames.push_back(vstr[1]);
 		if (maxlen<vstr[1].length())
 			maxlen= vstr[1].length();
@@ -4315,9 +4315,9 @@ void writeShapefile(vector<ContourLine*>& contourlines,
   int nSHPType= SHPT_POLYGON;
   int iShape= 0;
   SHPObject *psShape;
-  SHPHandle hSHP= SHPCreate( shapefileName.cStr(), nSHPType );
+  SHPHandle hSHP= SHPCreate( shapefileName.c_str(), nSHPType );
 
-  DBFHandle hDBF= DBFCreate( shapefileName.cStr() );
+  DBFHandle hDBF= DBFCreate( shapefileName.c_str() );
   int iField;
   if (nclass>0) {
     iField= DBFAddField( hDBF, "Value_str", FTString, maxlen, 0);
@@ -4401,7 +4401,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
 			ii=0;
 			while (ii<nclass && classValues[ii]!=ivalue) ii++;
 			if (ii<nclass) {
-				DBFWriteStringAttribute( hDBF, iShape, iField, classNames[ii].cStr() );
+				DBFWriteStringAttribute( hDBF, iShape, iField, classNames[ii].c_str() );
 			} else {
 				DBFWriteDoubleAttribute( hDBF, iShape, iField, cl->value );
 			}

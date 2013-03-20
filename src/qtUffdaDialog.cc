@@ -474,9 +474,9 @@ void UffdaDialog::send(const miutil::miString& to,
 {
    FILE* sendmail;
    sendmail=popen("/usr/lib/sendmail -t","w");
-   fprintf(sendmail,"To: %s\nSubject: %s\n\n",to.cStr(),subject.cStr());
+   fprintf(sendmail,"To: %s\nSubject: %s\n\n",to.c_str(),subject.c_str());
    fprintf(sendmail,"<DATA>\n");
-   fprintf(sendmail,"%s",body.cStr());
+   fprintf(sendmail,"%s",body.c_str());
    fprintf(sendmail,"\n</DATA>\n");
    pclose(sendmail);
 }

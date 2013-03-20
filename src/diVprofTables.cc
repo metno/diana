@@ -316,7 +316,7 @@ bool VprofTables::startPSoutput(const printOptions& po){
   printman.checkSpecial(pro,extra);
 
   // make GLPfile object
-  psoutput = new GLPfile(const_cast<char*>(pro.fname.cStr()),
+  psoutput = new GLPfile(const_cast<char*>(pro.fname.c_str()),
 			 print_options, feedsize, &extra,
 			 pro.doEPS);
 

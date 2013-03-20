@@ -549,17 +549,17 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
         miString key= vkeyvalue[0].downcase();
         if (key=="refpos") {
           // -1 : from fortran to C++
-          vcp->refPosition= atof(vkeyvalue[1].cStr()) - 1.;
+          vcp->refPosition= atof(vkeyvalue[1].c_str()) - 1.;
         } else if (key=="mark") {
           vector<miString> vs= vkeyvalue[1].split(',');
           if (vs.size()==2) {
-            float pos= atof(vs[0].cStr()) - 1.;
+            float pos= atof(vs[0].c_str()) - 1.;
             vcp->markNamePosMin.push_back(pos);
             vcp->markNamePosMax.push_back(pos);
             vcp->markName.push_back(vs[1]);
           } else if (vs.size()==3) {
-            float pos1= atof(vs[0].cStr()) - 1.;
-            float pos2= atof(vs[1].cStr()) - 1.;
+            float pos1= atof(vs[0].c_str()) - 1.;
+            float pos2= atof(vs[1].c_str()) - 1.;
             vcp->markNamePosMin.push_back(pos1);
             vcp->markNamePosMax.push_back(pos2);
             vcp->markName.push_back(vs[2]);

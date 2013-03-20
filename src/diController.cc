@@ -131,7 +131,7 @@ bool Controller::parseSetup()
   int nerror = errors.size();
   for( int i=0; i<nerror; i++){
     vector<miString> token = errors[i].split("|");
-    SetupParser::errorMsg(token[0],atoi(token[1].cStr()),token[2]);
+    SetupParser::errorMsg(token[0],atoi(token[1].c_str()),token[2]);
   }
 
   //parse some setup sections

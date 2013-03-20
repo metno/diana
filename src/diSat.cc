@@ -296,7 +296,7 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
             if (palette) {
               sv.text = p->second.val[(int)pvalue];
             } else {
-              sv.value = atof(p->second.val[(int)pvalue].cStr());
+              sv.value = atof(p->second.val[(int)pvalue].c_str());
               if (p->second.channel.contains("TEMP"))
                 sv.value -= 273.0;//use degrees celsius instead of Kelvin
             }

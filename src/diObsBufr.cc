@@ -65,7 +65,7 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
   // open for read
   int len_bufr_file = bufr_file.length();
   int len_bufr_access = bufr_access.length();
-  pbopen_(&iunit, bufr_file.cStr(), bufr_access.cStr(), &iret, len_bufr_file,
+  pbopen_(&iunit, bufr_file.c_str(), bufr_access.c_str(), &iret, len_bufr_file,
       len_bufr_access);
 
   if (iret != 0) {
@@ -121,7 +121,7 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
   // open for read
   int len_bufr_file = bufr_file.length();
   int len_bufr_access = bufr_access.length();
-  pbopen_(&iunit, bufr_file.cStr(), bufr_access.cStr(), &iret, len_bufr_file,
+  pbopen_(&iunit, bufr_file.c_str(), bufr_access.c_str(), &iret, len_bufr_file,
       len_bufr_access);
   if (iret != 0) {
     cerr << "PBOPEN failed for " << bufr_file << "   iret=" << iret << endl;
@@ -210,12 +210,12 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<miString>& bufr_file,
   //if station(no)
   vector<miString> token = station.split("(");
   if (token.size() == 2)
-    index = atoi(token[1].cStr());
+    index = atoi(token[1].c_str());
 
   strStation = token[0];
 
   if (token[0].isInt()) {
-    int ii = atoi(station.cStr());
+    int ii = atoi(station.c_str());
     izone = ii / 1000;
     istation = ii - izone * 1000;
   }

@@ -179,12 +179,12 @@ int main(int argc, char **argv)
 
   SetupParser::setUserVariables(user_variables);
   if (!LocalSetupParser::parse(setupfile)){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
     return 99;
   }
   printerManager printman;
   if (!printman.parseSetup()){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
     return 99;
   }
 
@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 
   // read setup
   if (!contr.parseSetup()){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
     return 99;
   }
 #ifdef PROFET
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 
   if(lang.exists()) {
 
-    log.infoStream() << "SYSTEM LANGUAGE: " << lang.cStr();
+    log.infoStream() << "SYSTEM LANGUAGE: " << lang.c_str();
 
     miString qtlang   = "qt_" +lang;
     miString dilang   = "diana_"+lang;
@@ -234,15 +234,15 @@ int main(int argc, char **argv)
     vector<miString> langpaths = LocalSetupParser::languagePaths();
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( qt.load(    qtlang.cStr(),langpaths[i].cStr()))
+      if( qt.load(    qtlang.c_str(),langpaths[i].c_str()))
 	break;
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( myapp.load( dilang.cStr(),langpaths[i].cStr()))
+      if( myapp.load( dilang.c_str(),langpaths[i].c_str()))
 	break;
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( qutil.load( qulang.cStr(),langpaths[i].cStr()))
+      if( qutil.load( qulang.c_str(),langpaths[i].c_str()))
 	break;
 
     a.installTranslator( &qt    );

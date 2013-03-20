@@ -607,8 +607,8 @@ void VprofSetupDialog::initDatatab(){
   //spinbox for pressure and temperature range
   //value of spinLow must not exceed value of spinHigh
 
-  QLabel * pressurelabel = new QLabel(QString(PRESSRANGE.cStr()),datatab);
-  QLabel * templabel = new QLabel(QString(TEMPRANGE.cStr()),datatab);
+  QLabel * pressurelabel = new QLabel(QString(PRESSRANGE.c_str()),datatab);
+  QLabel * templabel = new QLabel(QString(TEMPRANGE.c_str()),datatab);
   pressurelabel->setAlignment(Qt::AlignLeft);
   templabel->setAlignment(Qt::AlignLeft);
   //pressure range 10-1200, steps of 50, init value 100-1050

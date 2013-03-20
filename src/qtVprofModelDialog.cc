@@ -316,10 +316,10 @@ void VprofModelDialog::updateModelfileList()
     //make a string list with models to insert into modelfileList
     vector<miutil::miString> modelnames = vprofm->getModelNames();
     int nr_models = modelnames.size();
-    modelfileList->addItem(QString(OBSTEMP.cStr()));
-    modelfileList->addItem(QString(OBSPILOT.cStr()));
-    modelfileList->addItem(QString(OBSAMDAR.cStr()));
-    modelfileList->addItem(QString(ASFIELD.cStr()));
+    modelfileList->addItem(QString(OBSTEMP.c_str()));
+    modelfileList->addItem(QString(OBSPILOT.c_str()));
+    modelfileList->addItem(QString(OBSAMDAR.c_str()));
+    modelfileList->addItem(QString(ASFIELD.c_str()));
     for (int i = 0; i < nr_models; i++) {
       modelfileList->addItem(modelnames[i].c_str());
     }

@@ -297,7 +297,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     lond= m_MapDI.maps[nm].lon.density;
     lonz= m_MapDI.maps[nm].lon.zorder;
     lonshowvalue= m_MapDI.maps[nm].lon.showvalue;
-    lon_line= atoi(lonlw.cStr())-1;
+    lon_line= atoi(lonlw.c_str())-1;
     lon_linetype= getIndex( linetypes, lonlt );
     lon_col= getIndex( cInfo, lonc );
     lon_z= lonz;
@@ -317,7 +317,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     latd= m_MapDI.maps[nm].lat.density;
     latz= m_MapDI.maps[nm].lat.zorder;
     latshowvalue= m_MapDI.maps[nm].lat.showvalue;
-    lat_line= atoi(latlw.cStr())-1;
+    lat_line= atoi(latlw.c_str())-1;
     lat_linetype= getIndex( linetypes, latlt );
     lat_col= getIndex( cInfo, latc );
     lat_z= latz;
@@ -335,7 +335,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
     framelw= m_MapDI.maps[nm].frame.linewidth;
     framelt= m_MapDI.maps[nm].frame.linetype;
     framez= m_MapDI.maps[nm].frame.zorder;
-    ff_line= atoi(framelw.cStr())-1;
+    ff_line= atoi(framelw.c_str())-1;
     ff_linetype= getIndex( linetypes, framelt );
     ff_col= getIndex( cInfo, framec );
     ff_z= framez;
@@ -814,7 +814,7 @@ void MapDialog::selectedMapboxClicked(QListWidgetItem* item)
 
   bool ison = m_MapDI.maps[activemap].contour.ison;
   int m_colIndex = getIndex(cInfo, m_MapDI.maps[activemap].contour.linecolour);
-  int m_linewIndex = atoi(m_MapDI.maps[activemap].contour.linewidth.cStr()) - 1;
+  int m_linewIndex = atoi(m_MapDI.maps[activemap].contour.linewidth.c_str()) - 1;
   int m_linetIndex = getIndex(linetypes,
       m_MapDI.maps[activemap].contour.linetype);
   int m_zIndex = m_MapDI.maps[activemap].contour.zorder;
@@ -1329,7 +1329,7 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
 
     int m_colIndex = getIndex(cInfo, lonc);
-    int m_linewIndex = atoi(lonlw.cStr()) - 1;
+    int m_linewIndex = atoi(lonlw.c_str()) - 1;
     int m_linetIndex = getIndex(linetypes, lonlt);
     // find density index
     int m_densIndex = 0;
@@ -1364,7 +1364,7 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
 
     m_colIndex = getIndex(cInfo, latc);
-    m_linewIndex = atoi(latlw.cStr()) - 1;
+    m_linewIndex = atoi(latlw.c_str()) - 1;
     m_linetIndex = getIndex(linetypes, latlt);
     // find density index
     m_densIndex = 0;
@@ -1399,7 +1399,7 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
     framez = m_MapDI.maps[lastmap].frame.zorder;
 
     m_colIndex = getIndex(cInfo, framec);
-    m_linewIndex = atoi(framelw.cStr()) - 1;
+    m_linewIndex = atoi(framelw.c_str()) - 1;
     m_linetIndex = getIndex(linetypes, framelt);
     m_zIndex = framez;
 
@@ -1642,7 +1642,7 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     lonshowvalue = m_MapDI.maps[lastmap].lon.showvalue;
 
     int m_colIndex = getIndex(cInfo, lonc);
-    int m_linewIndex = atoi(lonlw.cStr()) - 1;
+    int m_linewIndex = atoi(lonlw.c_str()) - 1;
     int m_linetIndex = getIndex(linetypes, lonlt);
     // find density index
     int m_densIndex = 0;
@@ -1678,7 +1678,7 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     latshowvalue = m_MapDI.maps[lastmap].lat.showvalue;
 
     m_colIndex = getIndex(cInfo, latc);
-    m_linewIndex = atoi(latlw.cStr()) - 1;
+    m_linewIndex = atoi(latlw.c_str()) - 1;
     m_linetIndex = getIndex(linetypes, latlt);
     // find density index
     m_densIndex = 0;
@@ -1714,7 +1714,7 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     framez = m_MapDI.maps[lastmap].frame.zorder;
 
     m_colIndex = getIndex(cInfo, framec);
-    m_linewIndex = atoi(framelw.cStr()) - 1;
+    m_linewIndex = atoi(framelw.c_str()) - 1;
     m_linetIndex = getIndex(linetypes, framelt);
     m_zIndex = lonz;
 

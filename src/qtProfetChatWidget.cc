@@ -55,7 +55,7 @@ void ProfetChatWidget::setConnected(bool connected){
 
 void ProfetChatWidget::showMessage(const Profet::InstantMessage & msg){
   QString m = QString( "<b>%1</b>: %2" )
-                .arg(msg.sender.cStr(),msg.message.cStr());
+                .arg(msg.sender.c_str(),msg.message.c_str());
    textEdit->append(m);
 }
 

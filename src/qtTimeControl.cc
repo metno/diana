@@ -146,7 +146,7 @@ TimeControl::TimeControl(QWidget* parent)
   timeoutBox= new QComboBox(this);
   for(float f=0.2; f<2.1; f+=0.1){
     miutil::miString text(f,2);
-    timeoutBox->addItem(text.cStr());
+    timeoutBox->addItem(text.c_str());
   }
 
   connect(timeoutBox, SIGNAL( highlighted(int)), SLOT(timeoutSlot(int)));
@@ -340,7 +340,7 @@ void TimeControl::useData(miutil::miString type, int id){
   //new dataname
   external_id[id]=type;
   dataname.push_back(type);
-  dataBox->addItem(type.cStr());
+  dataBox->addItem(type.c_str());
   dataBox->setCurrentIndex(dataBox->count()-1);
   emit data(type);
 

@@ -112,19 +112,19 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
     setupFilename = "diana.setup";
     miutil::miString filename_str = setupFilename;
     cerr << "filename:" << setupFilename << endl;
-    ifstream file(setupFilename.cStr());
+    ifstream file(setupFilename.c_str());
     if (!file) {
       setupFilename = homedir + "/diana.setup";
       filename_str += " or ";
       filename_str += setupFilename;
       cerr << "filename:" << setupFilename << endl;
-      ifstream file2(setupFilename.cStr());
+      ifstream file2(setupFilename.c_str());
       if (!file2) {
         setupFilename = "/etc/diana/" PVERSION "/diana.setup-COMMON";
         filename_str += " or ";
         filename_str += setupFilename;
         cerr << "filename:" << setupFilename << endl;
-        ifstream file3(setupFilename.cStr());
+        ifstream file3(setupFilename.c_str());
         if (!file3) {
           cerr << "LocalSetupParser::readSetup. cannot open default setupfile "
           << filename_str << endl;
@@ -198,9 +198,9 @@ bool LocalSetupParser::parseBasics(const miutil::miString& sectname){
 #ifdef __WIN32__
         //TODO: This is broken, disregards third argument (replace option)
 	miutil::miString envst = part[0] + "=" + part[1];
-	putenv(envst.cStr());
+	putenv(envst.c_str());
 #else
-        setenv(part[0].cStr(),part[1].cStr(),part[2].toInt());
+        setenv(part[0].c_str(),part[1].c_str(),part[2].toInt());
 #endif
       }
     }
@@ -307,10 +307,10 @@ bool LocalSetupParser::parseColours(const miutil::miString& sectname){
   for (i=0; i<n; i++){
     miutil::SetupParser::splitKeyValue(list[i], key, stokens);
     if (stokens.size()>2){
-      r= atoi(stokens[0].cStr());
-      g= atoi(stokens[1].cStr());
-      b= atoi(stokens[2].cStr());
-      if (stokens.size()>3) a= atoi(stokens[3].cStr());
+      r= atoi(stokens[0].c_str());
+      g= atoi(stokens[1].c_str());
+      b= atoi(stokens[2].c_str());
+      if (stokens.size()>3) a= atoi(stokens[3].c_str());
       else a= 255;
       Colour::define(key,r,g,b,a);
       cinfo.rgb[0]= r;
@@ -481,7 +481,7 @@ bool LocalSetupParser::parseLineTypes(const miutil::miString& sectname){
       value = stokens[0];
       value2= stokens[1];
       if (value2.isInt())
-        factor= atoi(value2.cStr());
+        factor= atoi(value2.c_str());
     }
     if (value.length()==numbits){
       for (unsigned int j=0; j<numbits; j++){

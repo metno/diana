@@ -123,7 +123,7 @@ void AddtoMenu::fillMenu()
   vector<miutil::miString> vs= quick->getCustomMenus();
 
   for (unsigned int i=0; i<vs.size(); i++){
-    list->addItem(QString(vs[i].cStr()));
+    list->addItem(QString(vs[i].c_str()));
   }
   if (vs.size()>0){
     list->setCurrentRow(0);

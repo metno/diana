@@ -162,7 +162,7 @@ ProfetTimeSmoothDialog::ProfetTimeSmoothDialog(QWidget* parent, vector<fetObject
    if(!obj.empty()) {
      map<miutil::miString,float>::iterator itr=obj[0].parameters.begin();
      for(;itr!=obj[0].parameters.end();itr++) {
-       QString s = itr->first.cStr();
+       QString s = itr->first.c_str();
        QAction * act = new QAction(s, this);
        act->setCheckable(true);
        act->setChecked(true);
@@ -224,7 +224,7 @@ void ProfetTimeSmoothDialog::toggleParameters(const QString& pname)
 
 void ProfetTimeSmoothDialog::warn(miutil::miString w)
 {
-  statusBar()->showMessage(w.cStr(),6000);
+  statusBar()->showMessage(w.c_str(),6000);
 }
 
 

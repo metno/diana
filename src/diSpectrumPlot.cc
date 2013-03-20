@@ -186,7 +186,7 @@ bool SpectrumPlot::startPSoutput(const printOptions& po){
   printman.checkSpecial(pro,extra);
 
   // make GLPfile object
-  psoutput = new GLPfile(const_cast<char*>(pro.fname.cStr()),
+  psoutput = new GLPfile(const_cast<char*>(pro.fname.c_str()),
 			 print_options, feedsize, &extra,
 			 pro.doEPS);
 
@@ -544,20 +544,20 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
     miString str;
 
     str="F(f,dir) [m2/Hz/rad]";
-    fp->getStringSize(str.cStr(),dx,dy);
+    fp->getStringSize(str.c_str(),dx,dy);
     x=(xplot1+xplot2-dx)*0.5;
     y= yplot2-dytext2-dytext1+chy*0.25;
-    fp->drawStr(str.cStr(),x,y,0.0);
+    fp->drawStr(str.c_str(),x,y,0.0);
 
     str= "0.05 Hz/circle";
     x= specRadius*1.05f*cos(60.0f*rad);
     y= specRadius*1.05f*sin(60.0f*rad);
-    fp->drawStr(str.cStr(),x,y,0.0);
+    fp->drawStr(str.c_str(),x,y,0.0);
 
     str= "F(f) [m2/Hz]";
     x= xplot1 + dytext1*0.25;
     y= yefdiag + dyefdiag + chy*0.35;
-    fp->drawStr(str.cStr(),x,y,0.0);
+    fp->drawStr(str.c_str(),x,y,0.0);
     // tick labels
     for (int i=0; i<numyefdiag; i++) {
       int ivalue= i*incyefdiag;
@@ -565,13 +565,13 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
       y=yefdiag+v*dyefdiag/vyefdiag;
       str=miString(ivalue);
       float s= (ivalue<10) ? 1.2 : 2.2;
-      fp->drawStr(str.cStr(),xefdiag-dytext1*0.3-chx*s,y-chy*0.5,0.0);
+      fp->drawStr(str.c_str(),xefdiag-dytext1*0.3-chx*s,y-chy*0.5,0.0);
     }
 
     str= "freq.[Hz]";
     x= xefdiag + dxefdiag + chy*0.5;
     y= yefdiag - chy*0.5;
-    fp->drawStr(str.cStr(),x,y,0.0);
+    fp->drawStr(str.c_str(),x,y,0.0);
     // tick labels
     n= int(vxefdiag*10.-0.5);
     for (int i=0; i<=n; i++) {
@@ -579,14 +579,14 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
       x=xefdiag+v*dxefdiag/vxefdiag;
       if (i==0) str="0.0";
       else      str=miString(v);
-      fp->drawStr(str.cStr(),x-chx2*0.5,yefdiag-dytext1*0.3-chy*1.1,0.0);
+      fp->drawStr(str.c_str(),x-chx2*0.5,yefdiag-dytext1*0.3-chy*1.1,0.0);
     }
 
     str= "HMO[m]";
-    fp->getStringSize(str.cStr(),dx,dy);
+    fp->getStringSize(str.c_str(),dx,dy);
     x= xplot2 - dx - dytext1*0.25;
     y= yhmo - dy;
-    fp->drawStr(str.cStr(),x,y,0.0);
+    fp->drawStr(str.c_str(),x,y,0.0);
     // hmo tick labels
     n= int(vyhmo+0.1);
     for (int i=5; i<=n; i+=5) {
@@ -594,7 +594,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
       y=yhmo+v*dyhmo/vyhmo;
       str=miString(i);
       float s= (i<10) ? 1.0f : 2.0f;
-      fp->drawStr(str.cStr(),xhmo-dytext1*0.1-chx*s,y-chy*0.5,0.0);
+      fp->drawStr(str.c_str(),xhmo-dytext1*0.1-chx*s,y-chy*0.5,0.0);
     }
 
   }
@@ -958,15 +958,15 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
 
     fp->setFontSize(fontSize2);
     str=modelName + " SPECTRUM";
-    fp->getStringSize(str.cStr(),dx,dy);
+    fp->getStringSize(str.c_str(),dx,dy);
     if (dx>(xplot2-xplot1-dytext2*0.5)) {
       float fontsize= fontSize1*(xplot2-xplot1-dytext2*0.5)/dx;
       fp->setFontSize(fontsize);
-      fp->getStringSize(str.cStr(),dx,dy);
+      fp->getStringSize(str.c_str(),dx,dy);
     }
     x=(xplot1+xplot2-dx)*0.5;
     y= yplot2-dy;
-    fp->drawStr(str.cStr(),x,y,0.0);
+    fp->drawStr(str.c_str(),x,y,0.0);
 
     fp->setFontSize(fontSize1);
 
@@ -986,8 +986,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
 
     miString str1= ostr1.str();
     miString str2= ostr2.str();
-    fp->getStringSize(str1.cStr(),dx,dy);
-    fp->getStringSize(str2.cStr(), x,dy);
+    fp->getStringSize(str1.c_str(),dx,dy);
+    fp->getStringSize(str2.c_str(), x,dy);
     if (dx<x) dx=x;
     if (dx>xplot2-xplot1-dytext1*0.5) {
       float fontsize= int(fontSize1*(xplot2-xplot1-dytext1*0.5)/dx);
@@ -995,10 +995,10 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     }
     x=xplot1+dytext1*0.25;
     y=yplot1+dytext1+dy*0.30;
-    fp->drawStr(str1.cStr(),x,y,0.0);
+    fp->drawStr(str1.c_str(),x,y,0.0);
     x=xplot1+dytext1*0.25;
     y=yplot1+dy*0.30;
-    fp->drawStr(str2.cStr(),x,y,0.0);
+    fp->drawStr(str2.c_str(),x,y,0.0);
   }
 
   UpdateOutput();

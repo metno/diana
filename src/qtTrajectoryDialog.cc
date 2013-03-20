@@ -352,7 +352,7 @@ void TrajectoryDialog::startCalcButtonClicked(){
   miutil::miString fName;
   //using first field if there is any field
   if(nr_fields > 0){
-    fieldName->setText(QString(fields[0].cStr()));
+    fieldName->setText(QString(fields[0].c_str()));
     fName = fields[0];
   } else {
     fieldName->setText(tr("No field selected"));

@@ -583,7 +583,7 @@ bool ObjectManager::writeEditDrawFile(const miString filename,
   if (outputString.empty()) return false;
 
   // open filestream
-  ofstream file(filename.cStr());
+  ofstream file(filename.c_str());
   if (!file){
     cerr << "ERROR OPEN (WRITE) " << filename << endl;
     return false;
@@ -1244,7 +1244,7 @@ miString ObjectManager::stringFromTime(const miTime& t,bool addMinutes){
 
 bool ObjectManager::_isafile(const miString name){
   FILE *fp;
-  if ((fp=fopen(name.cStr(),"r"))){
+  if ((fp=fopen(name.c_str(),"r"))){
     fclose(fp);
     return true;
   } else return false;

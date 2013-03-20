@@ -187,7 +187,7 @@ options(opt), keynum(-1)
       list->clear();
       int n= options.size();
       for (int i=0; i<n; i++){
-        list->addItem(options[i].key.cStr());
+        list->addItem(options[i].key.c_str());
       }
       keynum= origkeynum;
 
@@ -235,7 +235,7 @@ options(opt), keynum(-1)
         s+= options[keynum].options[i];
         if (i!=n-1) s+= ",";
       }
-      choices->setText(s.cStr());
+      choices->setText(s.c_str());
     }
 
     void QuickEditOptions::chChanged(const QString& s)
@@ -290,7 +290,7 @@ options(opt), keynum(-1)
           tr("New name"),
           tr("Change key name:"),
           QLineEdit::Normal,
-          options[keynum].key.cStr(),
+          options[keynum].key.c_str(),
           &ok);
       if ( ok && !text.isEmpty() ){
         options[keynum].key= text.toStdString();

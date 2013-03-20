@@ -419,7 +419,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
             vector<miString> ntoken=stokens[0].split(";");
             ColourShading cs(ntoken[0]);
             if(ntoken.size()==2 && ntoken[1].isInt()){
-              po.palettecolours = cs.getColourShading(atoi(ntoken[1].cStr()));
+              po.palettecolours = cs.getColourShading(atoi(ntoken[1].c_str()));
             }
             else {
               po.palettecolours = cs.getColourShading();
@@ -429,7 +429,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
             vector<miString> ntoken=stokens[1].split(";");
             ColourShading cs(ntoken[0]);
             if(ntoken.size()==2 && ntoken[1].isInt())
-              po.palettecolours_cold = cs.getColourShading(atoi(ntoken[1].cStr()));
+              po.palettecolours_cold = cs.getColourShading(atoi(ntoken[1].c_str()));
             else
               po.palettecolours_cold = cs.getColourShading();
           }
@@ -453,16 +453,16 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_linewidth){
         if (value.isInt()){
-          po.linewidth= atoi(value.cStr());
+          po.linewidth= atoi(value.c_str());
           po.linewidths.clear();
-          po.linewidths.push_back(atoi(value.cStr()));
+          po.linewidths.push_back(atoi(value.c_str()));
         }
         else result=false;
 
       } else if (key==key_linewidth_2){
         if (value.isInt()){
-          po.linewidth_2= atoi(value.cStr());
-          po.linewidths.push_back(atoi(value.cStr()));
+          po.linewidth_2= atoi(value.c_str());
+          po.linewidths.push_back(atoi(value.c_str()));
         }
         else result=false;
 
@@ -484,7 +484,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_lineinterval){
         if (value.isNumber()) {
-          po.lineinterval= atof(value.cStr());
+          po.lineinterval= atof(value.c_str());
           po.linevalues.clear();
           po.loglinevalues.clear();
         } else {
@@ -493,7 +493,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_lineinterval_2){
         if (value.isNumber()) {
-          po.lineinterval_2= atof(value.cStr());
+          po.lineinterval_2= atof(value.c_str());
           po.linevalues_2.clear();
           po.loglinevalues_2.clear();
         } else {
@@ -502,27 +502,27 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_minvalue){
         if (value.isNumber()){
-          po.minvalue = atof(value.cStr());
+          po.minvalue = atof(value.c_str());
         }
 
       } else if (key==key_maxvalue){
         if (value.isNumber()){
-          po.maxvalue = atof(value.cStr());
+          po.maxvalue = atof(value.c_str());
         }
 
       } else if (key==key_minvalue_2){
         if (value.isNumber()) {
-          po.minvalue_2 = atof(value.cStr());
+          po.minvalue_2 = atof(value.c_str());
         }
 
       } else if (key==key_maxvalue_2){
         if (value.isNumber()){
-          po.maxvalue_2 = atof(value.cStr());
+          po.maxvalue_2 = atof(value.c_str());
         }
 
       } else if (key==key_colourcut){
         if (value.isNumber())
-          po.colourcut = atoi(value.cStr());
+          po.colourcut = atoi(value.c_str());
 
       } else if (key==key_linevalues){
         po.linevalues = po.autoExpandFloatVector(value);
@@ -566,12 +566,12 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_extremeSize){
         if (value.isNumber())
-          po.extremeSize= atof(value.cStr());
+          po.extremeSize= atof(value.c_str());
         else result=false;
 
       } else if (key==key_extremeRadius){
         if (value.isNumber())
-          po.extremeRadius= atof(value.cStr());
+          po.extremeRadius= atof(value.c_str());
         else result=false;
 
       } else if (key==key_extremeLimits){
@@ -580,58 +580,58 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_lineSmooth){
         if (value.isInt())
-          po.lineSmooth= atoi(value.cStr());
+          po.lineSmooth= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_fieldSmooth){
         if (value.isInt())
-          po.fieldSmooth= atoi(value.cStr());
+          po.fieldSmooth= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_frame){
         if (value.isInt()) {
-          po.frame= atoi(value.cStr());
+          po.frame= atoi(value.c_str());
           if (po.frame<0) po.frame=0;
           if (po.frame> 1) po.frame= 1;
         } else result=false;
 
       } else if (key==key_zeroLine){
         if (value.isInt()) {
-          po.zeroLine= atoi(value.cStr());
+          po.zeroLine= atoi(value.c_str());
           if (po.zeroLine<-1) po.zeroLine=-1;
           if (po.zeroLine> 1) po.zeroLine= 1;
         } else result=false;
 
       } else if (key==key_valueLabel){
         if (value.isInt()) {
-          po.valueLabel= atoi(value.cStr());
+          po.valueLabel= atoi(value.c_str());
           if (po.valueLabel<0) po.valueLabel= 0;
           if (po.valueLabel>1) po.valueLabel= 1;
         } else result=false;
 
       } else if (key==key_labelSize){
         if (value.isNumber()) {
-          po.labelSize= atof(value.cStr());
+          po.labelSize= atof(value.c_str());
           if (po.labelSize<0.2) po.labelSize= 0.2;
           if (po.labelSize>5.0) po.labelSize= 5.0;
         } else result=false;
 
       } else if (key==key_gridValue){
         if (value.isInt()) {
-          po.gridValue= atoi(value.cStr());
+          po.gridValue= atoi(value.c_str());
           if (po.gridValue<-1) po.gridValue=-1;
           if (po.gridValue> 1) po.gridValue= 1;
         } else result=false;
 
       } else if (key==key_gridLines){
         if (value.isInt()) {
-          po.gridLines= atoi(value.cStr());
+          po.gridLines= atoi(value.c_str());
           if (po.gridLines<0) po.gridLines= 0;
         } else result=false;
 
       } else if (key==key_gridLinesMax){
         if (value.isInt()) {
-          po.gridLinesMax= atoi(value.cStr());
+          po.gridLinesMax= atoi(value.c_str());
           if (po.gridLinesMax<0) po.gridLinesMax= 0;
         } else result=false;
 
@@ -666,44 +666,44 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_rotatevectors){
         if (value.isInt())
-          po.rotateVectors= atoi(value.cStr());
+          po.rotateVectors= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_discontinuous){
         if (value.isInt())
-          po.discontinuous= atoi(value.cStr());
+          po.discontinuous= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_table){
         if (value.isInt())
-          po.table= atoi(value.cStr());
+          po.table= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_alpha){
         if (value.isInt())
-          po.alpha= atoi(value.cStr());
+          po.alpha= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_repeat){
         if (value.isInt())
-          po.repeat= atoi(value.cStr());
+          po.repeat= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_classes){
         po.classSpecifications= value;
       } else if (key==key_basevalue){
         if (value.isNumber())
-          po.base= atof(value.cStr());
+          po.base= atof(value.c_str());
         else result=false;
 
       } else if (key==key_basevalue_2){
         if (value.isNumber())
-          po.base_2= atof(value.cStr());
+          po.base_2= atof(value.c_str());
         else result=false;
 
       } else if (key==key_density){
         if (value.isInt()) {
-          po.density= atoi(value.cStr());
+          po.density= atoi(value.c_str());
         } else {
           po.density=0;
           size_t pos1 = value.find_first_of("(")+1;
@@ -718,14 +718,14 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_densityfactor){
         if (value.isNumber()) {
-          po.densityFactor= atof(value.cStr());
+          po.densityFactor= atof(value.c_str());
         } else {
           result=false;
         }
 
       } else if (key==key_vectorunit){
         if (value.isNumber())
-          po.vectorunit= atof(value.cStr());
+          po.vectorunit= atof(value.c_str());
         else result=false;
 
       } else if (key==key_vectorunitname){
@@ -746,7 +746,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_undefMasking){
         if (value.isInt())
-          po.undefMasking= atoi(value.cStr());
+          po.undefMasking= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_undefColour){
@@ -755,7 +755,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_undefLinewidth){
         if (value.isInt())
-          po.undefLinewidth= atoi(value.cStr());
+          po.undefLinewidth= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_undefLinetype){
@@ -784,10 +784,10 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         else if (value=="center") po.v_align= align_center;
 
       } else if (key==key_alignX){
-        po.alignX= atoi(value.cStr());
+        po.alignX= atoi(value.c_str());
 
       } else if (key==key_alignY){
-        po.alignY= atoi(value.cStr());
+        po.alignY= atoi(value.c_str());
 
       } else if (key==key_fontname){
         po.fontname= value;
@@ -797,12 +797,12 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 
       } else if (key==key_fontsize){
         if (value.isNumber())
-          po.fontsize= atof(value.cStr());
+          po.fontsize= atof(value.c_str());
         else result=false;
 
       } else if (key==key_precision){
         if (value.isNumber())
-          po.precision= atof(value.cStr());
+          po.precision= atof(value.c_str());
         else result=false;
 
       } else if (key==key_dimension){
@@ -817,15 +817,15 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
       } else if (key==key_fname){
         po.fname=value;
       } else if (key==key_overlay){
-        po.overlay=atoi(value.cStr());
+        po.overlay=atoi(value.c_str());
       } else if (key==key_contourShape){
         po.contourShape = (value == "true");
       } else if (key==key_shapefilename){
-        po.shapefilename=value.cStr();
+        po.shapefilename=value.c_str();
       } else if (key==key_unit || key==key_units){
-        po.unit=value.cStr();
+        po.unit=value.c_str();
       } else if (key==key_legendunits){
-        po.legendunits=value.cStr();
+        po.legendunits=value.c_str();
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
       } else if (key==key_stencil){
@@ -925,13 +925,13 @@ vector<float> PlotOptions::autoExpandFloatVector(const miString& str) const {
 
   for (int j=0; j<m; j++){
     if (stokens[j].isNumber()){
-      v.push_back(atof(stokens[j].cStr()));
+      v.push_back(atof(stokens[j].c_str()));
     } else if (stokens[j].substr(0,2)==".." && v.size()>1){
       // add a whole interval (10,20,...50)
       stokens[j].replace("."," ");
       stokens[j].trim();
       if (stokens[j].isNumber()){
-        val= atof(stokens[j].cStr());
+        val= atof(stokens[j].c_str());
         k= v.size();
         delta= v[k-1]-v[k-2];
         // keep previous step, example above: 10,20,30,40,50

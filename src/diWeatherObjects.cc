@@ -304,7 +304,7 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
   }
 
   // open filestream
-  ifstream file(fn.cStr());
+  ifstream file(fn.c_str());
   if (!file){
     cerr << "ERROR OPEN (READ) " << fn << endl;
     return false;
@@ -479,7 +479,7 @@ bool WeatherObjects::readEditCommentFile(const miString fn){
 #endif
 
   // open filestream
-  ifstream file(fn.cStr());
+  ifstream file(fn.c_str());
   if (!file){
 #ifdef DEBUGPRINT
     cerr << "not found " << fn << endl;
@@ -550,7 +550,7 @@ bool WeatherObjects::readAreaBorders(const miString fn,
 #endif
 
   // open filestream
-  ifstream file(fn.cStr());
+  ifstream file(fn.c_str());
   if (!file){
     cerr << "ERROR OPEN (READ) " << fn << endl;
     return false;
@@ -577,7 +577,7 @@ bool WeatherObjects::writeAreaBorders(const miString fn){
   if (empty()) return false;
 
   // open filestream
-  ofstream file(fn.cStr());
+  ofstream file(fn.c_str());
   if (!file){
     cerr << "ERROR OPEN (WRITE) " << fn << endl;
     return false;

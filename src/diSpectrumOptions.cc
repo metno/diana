@@ -190,30 +190,30 @@ void SpectrumOptions::readOptions(const vector<miString>& vstr)
 
 	else if (key=="frame")          pFrame= (value.downcase()=="on");
 	else if (key=="frameColour")    frameColour= value;
-	else if (key=="frameLinewidth") frameLinewidth= atof(value.cStr());
+	else if (key=="frameLinewidth") frameLinewidth= atof(value.c_str());
 
 	else if (key=="spectrumLines")      pSpectrumLines= (value.downcase()=="on");
 	else if (key=="spectrumLineColour") spectrumLineColour= value;
-	else if (key=="spectrumLinewidth")  spectrumLinewidth= atof(value.cStr());
+	else if (key=="spectrumLinewidth")  spectrumLinewidth= atof(value.c_str());
 
 	else if (key=="spectrumColoured") pSpectrumColoured= (value.downcase()=="on");
 
 	else if (key=="energyLine")       pEnergyLine= (value.downcase()=="on");
 	else if (key=="energyLineColour") energyLineColour= value;
-	else if (key=="energyLinewidth")  energyLinewidth= atof(value.cStr());
+	else if (key=="energyLinewidth")  energyLinewidth= atof(value.c_str());
 
 	else if (key=="energyColoured")   pEnergyColoured= (value.downcase()=="on");
 	else if (key=="energyFillColour") energyFillColour= value;
 
 	else if (key=="wind")          pWind= (value.downcase()=="on");
 	else if (key=="windColour")    windColour= value;
-	else if (key=="windLinewidth") windLinewidth= atof(value.cStr());
+	else if (key=="windLinewidth") windLinewidth= atof(value.c_str());
 
 	else if (key=="peakDirection")          pPeakDirection= (value.downcase()=="on");
 	else if (key=="peakDirectionColour")    peakDirectionColour= value;
-	else if (key=="peakDirectionLinewidth") peakDirectionLinewidth= atof(value.cStr());
+	else if (key=="peakDirectionLinewidth") peakDirectionLinewidth= atof(value.c_str());
 
-	else if (key=="freqMax")        freqMax= atof(value.cStr());
+	else if (key=="freqMax")        freqMax= atof(value.c_str());
 
 	else if (key=="backgroundColour") backgroundColour= value;
 //####################################################################

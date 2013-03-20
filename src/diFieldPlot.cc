@@ -1090,7 +1090,7 @@ bool FieldPlot::plotValue(){
     for (int i = 0; i < nc; i++) {
       vector<miString> vstr = classSpec[i].split(":");
       if (vstr.size() > 2) {
-        int value = atoi(vstr[0].cStr());
+        int value = atoi(vstr[0].c_str());
         classValues.push_back(value);
         classNames.push_back(vstr[1]);
         classImages[value] =vstr[2];

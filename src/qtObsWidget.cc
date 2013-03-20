@@ -235,7 +235,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     //       vstr.push_back(miutil::miString(dialogInfo.pressureLevels[i]));
     for(int i=1; i<psize+1; i++){
       miutil::miString str(dialogInfo.pressureLevels[psize-i]);
-      pressureComboBox->addItem(str.cStr());
+      pressureComboBox->addItem(str.c_str());
       levelMap[str]=i;
     }
 
@@ -248,13 +248,13 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       for(int i=0;i<4;i++){
         int aa=(int)pow(10.0,i);
         miutil::miString tmp(aa);
-        leveldiffComboBox->addItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.c_str());
         leveldiffMap[tmp]=i*3;
         tmp = miutil::miString(aa*2);
-        leveldiffComboBox->addItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.c_str());
         leveldiffMap[tmp]=1*3+1;
         tmp = miutil::miString(aa*5);
-        leveldiffComboBox->addItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.c_str());
         leveldiffMap[tmp]=i*3+2;
       }
       pressureLayout->addWidget( leveldiffLabel );
@@ -1081,7 +1081,7 @@ void ObsWidget::updateDialog(bool setChecked){
     if( timediff_minutes == "alltimes"){
       number=time_slider2lcd.size();
     } else {
-      int iminutes = atoi(timediff_minutes.cStr());
+      int iminutes = atoi(timediff_minutes.c_str());
       if(iminutes<3*60){
         i=0;
         maxSliderValue = 13;

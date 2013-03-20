@@ -1189,7 +1189,7 @@ void PlotModule::plot(bool under, bool over)
   cerr<<"++++++PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
 #endif
 
-  Colour cback(splot.getBgColour().cStr());
+  Colour cback(splot.getBgColour().c_str());
 
   // make background colour and a suitable contrast colour available
   splot.setBackgroundColour(cback);
@@ -1251,7 +1251,7 @@ void PlotModule::plotUnder()
 
   Rectangle plotr = splot.getPlotSize();
 
-  Colour cback(splot.getBgColour().cStr());
+  Colour cback(splot.getBgColour().c_str());
 
   // set correct worldcoordinates
   glLoadIdentity();
@@ -1563,7 +1563,7 @@ vector<Rectangle> PlotModule::plotAnnotations()
   glLoadIdentity();
   glOrtho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
-  Colour cback(splot.getBgColour().cStr());
+  Colour cback(splot.getBgColour().c_str());
 
   glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
