@@ -360,7 +360,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   // vectorunit
   vectorunitlabel= new QLabel( tr("Unit"), this );
   vectorunitCbox=  new QComboBox(this );
-  vectorunitCbox->setEnabled( false );
 
   connect( vectorunitCbox, SIGNAL( activated(int) ),
       SLOT( vectorunitCboxActivated(int) ) );
@@ -1267,10 +1266,8 @@ void VcrossDialog::enableFieldOptions(){
     if (vpcopt[nc].floatValue.size()>0) e= vpcopt[nc].floatValue[0];
     else e=5;
     vectorunit= numberList( vectorunitCbox, e);
-    vectorunitCbox->setEnabled(true);
   } else if (vectorunitCbox->isEnabled()) {
     vectorunitCbox->clear();
-    vectorunitCbox->setEnabled(false);
   }
 
   if ((nc=cp->findKey(vpcopt,"extreme.size"))>=0) {
@@ -1554,7 +1551,6 @@ void VcrossDialog::disableFieldOptions(){
   densityCbox->setEnabled( false );
 
   vectorunitCbox->clear();
-  vectorunitCbox->setEnabled( false );
 
   extremeValueCheckBox->setChecked( false );
   extremeValueCheckBox->setEnabled( false );
