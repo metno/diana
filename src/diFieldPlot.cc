@@ -41,11 +41,12 @@
 #include <diImageGallery.h>
 #include <diPlotOptions.h>
 #include <diColourShading.h>
-#include <iostream>
 #include <GL/gl.h>
-#include <sstream>
-#include <math.h>
 #include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 using namespace std; using namespace miutil;
 

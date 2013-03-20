@@ -35,8 +35,9 @@
 
 #include <sys/types.h>
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
+#include <iomanip>
 #include <string.h>
 
 #include <fstream>

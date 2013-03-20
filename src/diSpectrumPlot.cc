@@ -35,6 +35,7 @@
 
 #include <qglobal.h>
 
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <diSpectrumPlot.h>

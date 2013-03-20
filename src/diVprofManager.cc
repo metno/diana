@@ -33,21 +33,20 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <diVprofManager.h>
+#include "diVprofManager.h"
 #include <diField/diFieldManager.h>
 
-#include <diVprofOptions.h>
-#include <diVprofData.h>
-#include <diVprofDiagram.h>
+#include "diVprofOptions.h"
+#include "diVprofData.h"
+#include "diVprofDiagram.h"
 #ifdef METNOOBS
-#include <diVprofPlot.h>
-#include <diVprofTemp.h>
-#include <diVprofPilot.h>
+#include "diVprofPlot.h"
+#include "diVprofTemp.h"
+#include "diVprofPilot.h"
 #include <robs/obs.h>
 #endif
 #ifdef BUFROBS
-#include <diObsBufr.h>
+#include "diObsBufr.h"
 #endif
 #ifdef ROADOBS
 #include <vector>
@@ -57,15 +56,17 @@
 #else
 #include <roadAPI/diStation.h>
 #endif
-#include <diVprofRTemp.h>
-#include <diVprofPilot.h>
+#include "diVprofRTemp.h"
+#include "diVprofPilot.h"
 #endif
-#include <diLocalSetupParser.h>
+#include "diLocalSetupParser.h"
 
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
-#include <math.h>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
 
 #ifdef ROADOBS
 using namespace std;

@@ -33,12 +33,13 @@
 #include "config.h"
 #endif
 
+#include "diVprofData.h"
+#include "diFtnVfile.h"
+
+#include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <diVprofData.h>
-#include <diFtnVfile.h>
-
-#include <math.h>
 
 using namespace std; using namespace miutil;
 

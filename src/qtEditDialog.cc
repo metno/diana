@@ -1268,7 +1268,7 @@ bool EditDialog::saveEverything(bool send)
   QString lcs(send ? " <font color=\"darkgreen\">"+tr("Saved") +"</font> "
       : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
-  QString(t.isoTime().cStr()) + QString("</font> ");
+  QString(t.isoTime().c_str()) + QString("</font> ");
   QString qs= lcs + tcs;
 
   if (send && approved){

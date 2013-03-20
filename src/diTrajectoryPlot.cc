@@ -33,13 +33,14 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <diTrajectoryPlot.h>
-#include <sstream>
-#include <math.h>
-#include <stdio.h>
+#include "diTrajectoryPlot.h"
 #include <diField/diField.h>
 #include <GL/gl.h>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 using namespace std; using namespace miutil;
 

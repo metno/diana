@@ -204,7 +204,7 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
     miutil::miTime mt = sessions[index.row()].modeltime();
 
     QString str = QString("%1: %2, %3").arg(
-        rt.isoTime().cStr()).arg(mn.cStr()).arg(mt.isoTime().cStr());
+        rt.isoTime().c_str()).arg(mn.c_str()).arg(mt.isoTime().c_str());
     return str;
 
   } else if (role == Qt::DecorationRole) {
@@ -341,7 +341,7 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
     miutil::miString user    = objects[index.row()].user();
     miutil::miString objname = objects[index.row()].name();
     miutil::miTime edittime  = objects[index.row()].editTime();
-    QString str = QString("%1: %2 - %3").arg(user.cStr()).arg(objname.cStr()).arg(edittime.isoTime().cStr());
+    QString str = QString("%1: %2 - %3").arg(user.cStr()).arg(objname.cStr()).arg(edittime.isoTime().c_str());
     return str;
   } else if (role == Qt::DecorationRole) {
     miutil::miString param = objects[index.row()].parameter();
@@ -439,7 +439,7 @@ QVariant FetObjectTableModel::headerData(int section,
         p = itr->second;
       return QString(p.description().cStr());
     } else
-    return QString(times[section].format("%a %k").cStr());
+    return QString(times[section].format("%a %k").c_str());
 
   } else if (role == Qt::DecorationRole && orientation == Qt::Vertical) {
     miutil::miString param = parameters[section];

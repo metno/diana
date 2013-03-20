@@ -34,13 +34,15 @@
 #include "config.h"
 #endif
 
-#include <fstream>
 #include <diWeatherObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
 #include <diShapeObject.h>
+
+#include <fstream>
+#include <iomanip>
 
 using namespace::miutil;
 

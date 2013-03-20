@@ -261,7 +261,7 @@ void TimeControl::StartValue( int v ){
   startSlider->setValue( v );
   if ( v > stopSlider->value() )
     StopValue(v);
-  startTimeLabel->setText(m_times[v].isoTime().cStr());
+  startTimeLabel->setText(m_times[v].isoTime().c_str());
 
   return;
 }
@@ -270,14 +270,14 @@ void TimeControl::StopValue( int v ){
   stopSlider->setValue( v );
   if ( v < startSlider->value())
     StartValue(v);
-  stopTimeLabel->setText(m_times[v].isoTime().cStr());
+  stopTimeLabel->setText(m_times[v].isoTime().c_str());
   return;
 }
 
 void TimeControl::OffsetValue( int v ){
   offsetSlider->setValue( v );
   int hour = miutil::miTime::hourDiff(m_times[v], m_times[0]);
-  offsetTimeLabel->setText(miutil::miString(hour).cStr());
+  offsetTimeLabel->setText(QString::number(hour));
   return;
 }
 

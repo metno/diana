@@ -51,7 +51,8 @@
 #include "qtGeoPosLineEdit.h"
 #include "qtTrajectoryDialog.h"
 
-#include <math.h>
+#include <cmath>
+#include <iomanip>
 #include <sstream>
 
 TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )

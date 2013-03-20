@@ -55,7 +55,8 @@
 #include <QVBoxLayout>
 
 #include <puTools/miString.h>
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 #include <iostream>
 #include <puTools/miTime.h>
 
@@ -1183,7 +1184,7 @@ void SatDialog::updateTimefileList()
   if (timeButton->isChecked()) {
 
     for (int i = 0; i < nr_file; i++) {
-      timefileList->addItem(QString(files[i].time.isoTime().cStr()));
+      timefileList->addItem(QString(files[i].time.isoTime().c_str()));
     }
 
   } else if (fileButton->isChecked()) {

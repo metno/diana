@@ -47,13 +47,16 @@
 #include <diFieldPlot.h>
 #include <diUndoFront.h>
 #include <diFieldEdit.h>
-#include <set>
-#include <math.h>
 #include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
+
+#include <iomanip>
+#include <set>
+#include <cmath>
+
 //#define DEBUGPRINT
 using namespace::miutil;
 

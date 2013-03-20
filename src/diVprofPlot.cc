@@ -33,13 +33,13 @@
 #include "config.h"
 #endif
 
+#include "diVprofPlot.h"
+#include "diColour.h"
+
+#include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <diVprofPlot.h>
-
-#include <diColour.h>
-
-#include <math.h>
 
 using namespace std; using namespace miutil;
 

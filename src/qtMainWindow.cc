@@ -135,6 +135,8 @@
 #include <miLogger/LogHandler.h>
 #include <qUtilities/miLogFile.h>
 
+#include <iomanip>
+
 #include <diana_icon.xpm>
 #include <pick.xpm>
 #include <earth3.xpm>
@@ -2590,7 +2592,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
       timecontrol->useData(letter.common,letter.from);
       vector<miutil::miTime> times;
       for(int i=0;i<n;i++)
-        times.push_back(miutil::miString(letter.data[i]));
+        times.push_back(miutil::miTime(letter.data[i]));
       tslider->insert(letter.common,times);
       contr->initHqcdata(letter.from,letter.commondesc,
           letter.common,letter.description,letter.data);

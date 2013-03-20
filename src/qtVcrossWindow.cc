@@ -713,7 +713,7 @@ void VcrossWindow::updateTimeBox(){
 
   int n =times.size();
   for (int i=0; i<n; i++){
-    timeBox->addItem(QString(times[i].isoTime(false,false).cStr()));
+    timeBox->addItem(QString(times[i].isoTime(false,false).c_str()));
   }
 
   emit emitTimes("vcross",times);

@@ -41,6 +41,8 @@
 #include <QStackedWidget>
 #include <qUtilities/miLogFile.h>
 
+#include <iomanip>
+
 using namespace std;
 
 ProfetObjectDialog::ProfetObjectDialog(QWidget * parent, OperationMode om)

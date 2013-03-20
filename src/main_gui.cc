@@ -210,7 +210,7 @@ int main(int argc, char **argv)
   if(cl_lang.exists())
     lang=cl_lang;
 
-  miTime x; x.setDefaultLanguage(lang);
+  miTime x; x.setDefaultLanguage(lang.c_str());
 
   // gui init
 #if !defined(USE_PAINTGL)

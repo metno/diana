@@ -45,7 +45,8 @@
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 
 
 using namespace::miutil;

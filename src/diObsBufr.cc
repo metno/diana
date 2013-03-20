@@ -33,15 +33,16 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <sstream>
-#include <map>
+#include "diObsBufr.h"
+#include "diObsData.h"
+#include "diVprofPlot.h"
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <diObsData.h>
-#include <diVprofPlot.h>
-#include <diObsBufr.h>
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <sstream>
 
 using namespace std;
 using namespace miutil;

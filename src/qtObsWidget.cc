@@ -53,10 +53,11 @@
 #include "qtUtility.h"
 
 
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 
 

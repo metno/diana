@@ -37,11 +37,12 @@
 #include "config.h"
 #endif
 
-#include <diVprofDiagram.h>
-#include <diColour.h>
-#include <diLinetype.h>
+#include "diVprofDiagram.h"
+#include "diColour.h"
+#include "diLinetype.h"
+#include <cmath>
+#include <iomanip>
 #include <sstream>
-#include <math.h>
 
 using namespace::miutil;
 

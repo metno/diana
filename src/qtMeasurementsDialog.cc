@@ -45,7 +45,8 @@
 #include "qtUtility.h"
 #include "qtMeasurementsDialog.h"
 
-#include <math.h>
+#include <cmath>
+#include <iomanip>
 #include <sstream>
 
 
@@ -423,8 +424,8 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
 
   latstr.sprintf("%d°%d '%s", latdeg, latmin, latdir.cStr());
   lonstr.sprintf("%d°%d '%s", londeg, lonmin, londir.cStr());
-  datestr.sprintf("%s", t.isoDate().cStr());
-  timestr.sprintf("%s", t.isoClock().cStr());
+  datestr.sprintf("%s", t.isoDate().c_str());
+  timestr.sprintf("%s", t.isoClock().c_str());
 
   switch (index) {
     case 1:

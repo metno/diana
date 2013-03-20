@@ -2070,7 +2070,7 @@ bool ObsManager::initHqcdata(int from,
 
     for(int i=0;i<n;i++){
       FileInfo finfo;
-      finfo.time = miString(data[i]);
+      finfo.time = miTime(data[i]);
       Prod["hqc_synop"].fileInfo.push_back(finfo);
       Prod["hqc_list"].fileInfo.push_back(finfo);
     }
