@@ -730,6 +730,8 @@ void VcrossWindow::crossectionBoxActivated(int index){
   vcrossw->updateGL();
   QString sq = cbs.c_str();
   emit crossectionChanged(sq); //name of current crossection (to mainWindow)
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+   emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
   //}
 }
 
