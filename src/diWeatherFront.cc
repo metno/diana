@@ -229,7 +229,7 @@ bool WeatherFront::plot(){
 
         //draw the line, first set colour and linewidth
         glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
-        glLineWidth(scaledlinewidth);
+        glLineWidth(scaledlinewidth/2);
         if (itsLinetype.stipple) {
            glEnable(GL_LINE_STIPPLE);
            glLineStipple(itsLinetype.factor,itsLinetype.bmap);
@@ -1290,7 +1290,7 @@ void WeatherFront::drawSigweather(){
   if (x_s != 0)  delete[] x_s;
   if (y_s != 0)  delete[] y_s;
   x_s= y_s= 0;
-  glLineWidth(siglinewidth);
+  glLineWidth(siglinewidth/2);
   for (int i = 0; i < npoints-1; i++){
     float deltay,deltax;
     deltay = yplot[i+1]-yplot[i];
