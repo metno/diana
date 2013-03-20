@@ -1728,7 +1728,9 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.fieldName = vfgi[indexFGR].fieldNames[indexF];
       sf.levelOptions = vfgi[indexFGR].levelNames;
       sf.idnumOptions = vfgi[indexFGR].idnumNames;
-      sf.refTime = vfgi[indexFGR].refTime;
+      if ( refTimeComboBox->count() > 1 ) {
+        sf.refTime = vfgi[indexFGR].refTime;
+      }
       sf.zaxis = vfgi[indexFGR].zaxis;
       sf.extraaxis = vfgi[indexFGR].extraaxis;
       sf.grid = vfgi[indexFGR].grid;
