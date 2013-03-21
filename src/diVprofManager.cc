@@ -34,46 +34,50 @@
 #endif
 
 #include "diVprofManager.h"
-#include <diField/diFieldManager.h>
 
 #include "diVprofOptions.h"
 #include "diVprofData.h"
 #include "diVprofDiagram.h"
+#include "diLocalSetupParser.h"
+
 #ifdef METNOOBS
 #include "diVprofPlot.h"
 #include "diVprofTemp.h"
 #include "diVprofPilot.h"
 #include <robs/obs.h>
-#endif
+#endif // METNOOBS
+
 #ifdef BUFROBS
 #include "diObsBufr.h"
-#endif
+#endif // BUFROBS
+
 #ifdef ROADOBS
-#include <vector>
-#include <map>
 #ifdef NEWARK_INC
 #include <newarkAPI/diStation.h>
-#else
+#else // !NEWARK_INC
 #include <roadAPI/diStation.h>
-#endif
+#endif // !NEWARK_INC
 #include "diVprofRTemp.h"
 #include "diVprofPilot.h"
-#endif
-#include "diLocalSetupParser.h"
+#endif // ROADOBS
 
+#include <diField/diFieldManager.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
+
 #include <cmath>
-#include <fstream>
 #include <iomanip>
+#include <fstream>
+#include <vector>
+#include <map>
 
 #ifdef ROADOBS
-using namespace std;
 using namespace road;
 #endif
 
-using namespace::miutil;
+using namespace std;
+using namespace miutil;
 
 //#define DEBUGPRINT 1
 
