@@ -391,8 +391,10 @@ void PaintGLContext::renderPrimitive()
         if (colorMask)
             painter->drawPolygon(poly);
         else {
-            ctx->stencil.path.addPolygon(poly);
-            ctx->stencil.path.closeSubpath();
+            QPainterPath newPath;
+            newPath.addPolygon(poly);
+            newPath.closeSubpath();
+            ctx->stencil.path += newPath;
         }
 
         break;
@@ -420,7 +422,9 @@ void PaintGLContext::setClipPath()
     if (ctx->stencil.enabled && ctx->stencil.clip && !ctx->stencil.path.isEmpty()) {
         QPainterPath p;
         p.addRect(ctx->viewport);
-        ctx->painter->setClipPath(p - ctx->stencil.path);
+        QPainterPath clipPath = p - ctx->stencil.path;
+        ctx->painter->setClipPath(clipPath);
+
     }
 }
 
