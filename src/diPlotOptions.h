@@ -187,7 +187,8 @@ public:
   miutil::miString legendunits; //used in legends
   bool      tableHeader; // whether each table is drawn with a header
   bool      antialiasing;
-  bool      stencil;     // whether a field is used to mask out subsequent plotting
+  bool      use_stencil;    // whether a stencil is used to mask out plotting of the current field
+  bool      update_stencil; // whether a stencil is updated with the plot area of the current field
 
   // Constructor
   PlotOptions();

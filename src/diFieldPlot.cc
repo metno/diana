@@ -501,29 +501,38 @@ bool FieldPlot::plot(){
   if (poptions.gridLines>0) plotGridLines();
   if (poptions.gridValue>0) plotNumbers();
 
-  if (poptions.stencil) {
-    // Enable the stencil test.
+  if (poptions.use_stencil || poptions.update_stencil) {
+    // Enable the stencil test for masking the field to be plotted or
+    // updating the stencil.
     glEnable(GL_STENCIL_TEST);
 
-    // Test the stencil buffer values against a value of 0.
-    glStencilFunc(GL_EQUAL, 0, 0x01);
-    // Do not update the stencil buffer when plotting.
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    if (poptions.use_stencil) {
+      // Test the stencil buffer values against a value of 0.
+      glStencilFunc(GL_EQUAL, 0, 0x01);
+      // Do not update the stencil buffer when plotting.
+      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    }
   }
 
-  if      (plottype==fpt_contour)          return plotContour();
-  else if (plottype==fpt_wind)             return plotWind();
-  else if (plottype==fpt_wind_temp_fl)     return plotWindAndValue(true);
-  else if (plottype==fpt_wind_value)       return plotWindAndValue(false);
-  else if (plottype==fpt_value)            return plotValue();
-  else if (plottype==fpt_symbol)           return plotValue();
-  else if (plottype==fpt_vector)           return plotVector();
-  else if (plottype==fpt_direction)        return plotDirection();
-  else if (plottype==fpt_alpha_shade)      return plotAlpha_shade();
-  else if (plottype==fpt_alarm_box)        return plotAlarmBox();
-  else if (plottype==fpt_fill_cell)        return plotFillCell();
-  else if (plottype==fpt_frame)            return plotFrameOnly();
-  else return false;
+  bool ok = false;
+
+  if      (plottype==fpt_contour)          ok = plotContour();
+  else if (plottype==fpt_wind)             ok = plotWind();
+  else if (plottype==fpt_wind_temp_fl)     ok = plotWindAndValue(true);
+  else if (plottype==fpt_wind_value)       ok = plotWindAndValue(false);
+  else if (plottype==fpt_value)            ok = plotValue();
+  else if (plottype==fpt_symbol)           ok = plotValue();
+  else if (plottype==fpt_vector)           ok = plotVector();
+  else if (plottype==fpt_direction)        ok = plotDirection();
+  else if (plottype==fpt_alpha_shade)      ok = plotAlpha_shade();
+  else if (plottype==fpt_alarm_box)        ok = plotAlarmBox();
+  else if (plottype==fpt_fill_cell)        ok = plotFillCell();
+  else if (plottype==fpt_frame)            ok = plotFrameOnly();
+
+  if (poptions.use_stencil || poptions.update_stencil)
+    glDisable(GL_STENCIL_TEST);
+
+  return ok;
 }
 
 
@@ -1048,7 +1057,7 @@ bool FieldPlot::plotWind(){
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -1198,7 +1207,7 @@ bool FieldPlot::plotValue(){
 
   UpdateOutput();
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -1610,7 +1619,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -1795,7 +1804,7 @@ bool FieldPlot::plotValues(){
 
   UpdateOutput();
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
   glDisable(GL_LINE_STIPPLE);
@@ -1909,7 +1918,7 @@ bool FieldPlot::plotVector(){
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -2079,7 +2088,7 @@ bool FieldPlot::plotVectorColour(){
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -2188,7 +2197,7 @@ bool FieldPlot::plotDirection(){
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -2361,7 +2370,7 @@ bool FieldPlot::plotDirectionColour(){
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -2666,7 +2675,7 @@ bool FieldPlot::plotContour(){
 
   if (!res) cerr<<"FieldPlot::plotContour() -  Contour error"<<endl;
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -2785,7 +2794,7 @@ bool FieldPlot::plotBox_pattern(){
 
   glDisable(GL_POLYGON_STIPPLE);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -2899,7 +2908,7 @@ bool FieldPlot::plotBox_alpha_shade(){
 
   glDisable(GL_BLEND);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -3044,7 +3053,7 @@ bool FieldPlot::plotAlarmBox(){
 
   UpdateOutput();
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nxc, ny+1, x, y);
 
 #ifdef DEBUGPRINT
@@ -3192,7 +3201,7 @@ bool FieldPlot::plotFillCell(){
 
   UpdateOutput();
 
-  if (poptions.stencil) {
+  if (poptions.update_stencil) {
     if (factor >= 2)
       plotFrameStencil(rnx+1, rny+1, x, y);
     else
@@ -3286,7 +3295,7 @@ bool FieldPlot::plotAlpha_shade(){
   glDisable(GL_BLEND);
   glShadeModel(GL_FLAT);
 
-  if (poptions.stencil)
+  if (poptions.update_stencil)
       plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
@@ -3487,10 +3496,6 @@ void FieldPlot::plotFrameStencil(const int nx, const int ny, float *x, float *y)
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); 
   glDepthMask(GL_TRUE);
-
-  // Disable the stencil here because the plot function returns directly from
-  // each specialised plot function.
-  glDisable(GL_STENCIL_TEST);
 }
 
 /*

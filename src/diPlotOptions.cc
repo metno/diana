@@ -64,7 +64,7 @@ PlotOptions::PlotOptions():
   alignX(0), alignY(0),
   fontname("SCALEFONT"), fontface("NORMAL"), fontsize(10.0), precision(0),
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
-  antialiasing(false), stencil(false)
+  antialiasing(false), use_stencil(false), update_stencil(false)
 {
 
   limits.clear();
@@ -311,8 +311,10 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
   const miString key_legendunits="legendunits";
   //anti-aliasing
   const miString key_antialiasing="antialiasing";
-  //stencil
-  const miString key_stencil="stencil";
+  //use_stencil
+  const miString key_use_stencil="use_stencil";
+  //update_stencil
+  const miString key_update_stencil="update_stencil";
 
   //------------------------------------------
 
@@ -828,8 +830,10 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.legendunits=value.c_str();
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
-      } else if (key==key_stencil){
-        po.stencil=(value == "true");
+      } else if (key==key_use_stencil){
+        po.use_stencil=(value == "true");
+      } else if (key==key_update_stencil){
+        po.update_stencil=(value == "true");
 
       } else {
        origStr += " " + key + "=" + value;
@@ -1111,8 +1115,11 @@ miString PlotOptions::toString()
   if (antialiasing)
     ostr << " antialiasing=" << antialiasing;
 
-  if (stencil)
-    ostr << " stencil=" << stencil;
+  if (use_stencil)
+    ostr << " use_stencil=" << use_stencil;
+
+  if (update_stencil)
+    ostr << " update_stencil=" << update_stencil;
 
   //   ost << " font="  << fontname
   //    << " face="  << fontface
