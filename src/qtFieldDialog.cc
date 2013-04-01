@@ -4562,8 +4562,7 @@ miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str, boo
       newstr += cp->unParse(vpopt);
       // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
       for (int i = 2; i < nlog; i++) {
-        if (vplog[i].idNumber == 2 || vplog[i].idNumber == 3
-            || vplog[i].idNumber == -1) {
+        if (vplog[i].idNumber == 2 || vplog[i].idNumber == 3) {
           newstr += (" " + vplog[i].key + "=" + vplog[i].allValue);
         }
       }
