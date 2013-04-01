@@ -70,7 +70,7 @@ public:
   bool setData(const vector<Field*>&, const miutil::miTime&);
   Area& getFieldArea();
   bool getRealFieldArea(Area&);
-  bool getShadePlot() const { return pshade; }
+  bool getShadePlot() const { return (pshade || poptions.plot_under); }
   bool getUndefinedPlot() const { return pundefined; }
   void getFieldAnnotation(miutil::miString&, Colour&);
   vector<Field*> getFields() {return fields; }

@@ -64,7 +64,7 @@ PlotOptions::PlotOptions():
   alignX(0), alignY(0),
   fontname("SCALEFONT"), fontface("NORMAL"), fontsize(10.0), precision(0),
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
-  antialiasing(false), use_stencil(false), update_stencil(false)
+  antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false)
 {
 
   limits.clear();
@@ -315,7 +315,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
   const miString key_use_stencil="use_stencil";
   //update_stencil
   const miString key_update_stencil="update_stencil";
-
+  const miString key_plot_under="plot_under";
   //------------------------------------------
 
 
@@ -834,6 +834,8 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.use_stencil=(value == "true");
       } else if (key==key_update_stencil){
         po.update_stencil=(value == "true");
+      } else if (key==key_plot_under){
+        po.plot_under=(value == "true");
 
       } else {
        origStr += " " + key + "=" + value;
