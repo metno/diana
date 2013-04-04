@@ -160,7 +160,7 @@ public:
 
 signals:
   void Apply(const vector<miutil::miString>& s, bool); ///< send plot-commands
-  void showsource(const miutil::miString, const miutil::miString=""); ///< activate help
+  void showsource(const std::string, const std::string=""); ///< activate help
 
 private slots:
   void menulistActivate(int);       // quick-menu combobox activated

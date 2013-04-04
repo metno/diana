@@ -135,7 +135,7 @@ private slots:
 
 signals:
   void VprofHide();
-  void showsource(const miutil::miString, const miutil::miString=""); // activate help
+  void showsource(const std::string, const std::string=""); // activate help
   void stationChanged(const QString& );
   void modelChanged();
   void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );

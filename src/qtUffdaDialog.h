@@ -157,7 +157,7 @@ private slots:
 
 signals:
   void uffdaHide();
-  void showsource(const miutil::miString, const miutil::miString=""); // activate help
+  void showsource(const std::string, const std::string=""); // activate help
   void stationPlotChanged();
 };
 

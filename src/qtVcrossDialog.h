@@ -140,7 +140,7 @@ private slots:
 signals:
   void VcrossDialogApply(bool modelChange);
   void VcrossDialogHide();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
   void emitVcrossTimes( vector<miutil::miTime> );
 
 private:

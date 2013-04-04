@@ -311,7 +311,7 @@ private:
 signals:
   void FieldApply();
   void FieldHide();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
   void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
   void fieldPlotOptionsChanged(map<miutil::miString,miutil::miString>&);
 

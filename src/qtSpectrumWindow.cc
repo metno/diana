@@ -173,15 +173,15 @@ SpectrumWindow::SpectrumWindow()
   spModelDialog = new SpectrumModelDialog(this,spectrumm);
   connect(spModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(spModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(spModelDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(spModelDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   spSetupDialog = new SpectrumSetupDialog(this,spectrumm);
   connect(spSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(spSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(spSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(spSetupDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   //initialize everything in startUp

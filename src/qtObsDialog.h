@@ -109,7 +109,7 @@ private slots:
 signals:
   void ObsApply();
   void ObsHide();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
   void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
   void setCriteria( miutil::miString, bool );
 

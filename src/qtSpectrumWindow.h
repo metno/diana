@@ -134,7 +134,7 @@ private slots:
 
 signals:
   void SpectrumHide();
-  void showsource(const miutil::miString, const miutil::miString=""); // activate help
+  void showsource(const std::string, const std::string=""); // activate help
   void spectrumChanged(const QString& );
   void spectrumSetChanged();
   void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );

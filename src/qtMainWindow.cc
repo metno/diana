@@ -1040,28 +1040,28 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       this, SLOT(winResize(int, int)));
 
   // HELP
-  connect( fm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( om, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( sm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( stm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( mm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( em, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( qm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( objm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( trajm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( uffm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( paintToolBar, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( fm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( om, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( sm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( stm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( mm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( em, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( qm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( objm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( trajm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( uffm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( paintToolBar, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
@@ -1070,8 +1070,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   vpWindow = new VprofWindow(contr);
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
-  connect(vpWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect(vpWindow,SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
   connect(vpWindow,SIGNAL(stationChanged(const QString &)),
       SLOT(stationChangedSlot(const QString &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
@@ -1080,8 +1080,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   vcWindow = new VcrossWindow(contr);
   connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
-  connect(vcWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect(vcWindow,SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
   connect(vcWindow,SIGNAL(crossectionChanged(const QString &)),
       SLOT(crossectionChangedSlot(const QString &)));
   connect(vcWindow,SIGNAL(crossectionSetChanged()),
@@ -1098,8 +1098,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   spWindow = new SpectrumWindow();
   connect(spWindow,SIGNAL(SpectrumHide()),SLOT(hideSpectrumWindow()));
-  connect(spWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect(spWindow,SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
   connect(spWindow,SIGNAL(spectrumChanged(const QString &)),
       SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),

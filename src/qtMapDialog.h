@@ -130,7 +130,7 @@ private slots:
   signals:
   void MapApply();
   void MapHide();
-  void showsource(const miutil::miString, const miutil::miString = "");
+  void showsource(const std::string, const std::string = "");
 
 private:
   MapDialogInfo m_MapDI; // all maps and areas

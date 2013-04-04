@@ -184,15 +184,15 @@ VcrossWindow::VcrossWindow(Controller *co)
   vcDialog = new VcrossDialog(this,vcrossm);
   connect(vcDialog, SIGNAL(VcrossDialogApply(bool)),SLOT(changeFields(bool)));
   connect(vcDialog, SIGNAL(VcrossDialogHide()),SLOT(hideDialog()));
-  connect(vcDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vcDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   vcSetupDialog = new VcrossSetupDialog(this,vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vcSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vcSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vcSetupDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
   // --------------------------------------------------------------------
   showPrevPlotAction = new QAction( tr("P&revious plot"), this );

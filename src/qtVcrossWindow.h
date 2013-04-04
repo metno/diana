@@ -141,7 +141,7 @@ private slots:
 
 signals:
   void VcrossHide();
-  void showsource(const miutil::miString, const miutil::miString=""); // activate help
+  void showsource(const std::string, const std::string=""); // activate help
   void crossectionChanged(const QString& );
   void crossectionSetChanged();
   void crossectionSetUpdate();

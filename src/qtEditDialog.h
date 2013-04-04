@@ -165,7 +165,7 @@ signals:
  /// send plot-commands
   void Apply(const vector<miutil::miString>& s, bool);
   /// show documentation
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
   /// emit edit times
   void emitTimes(const miutil::miString&,const vector<miutil::miTime>&);
   /// update field dialog

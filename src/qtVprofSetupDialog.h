@@ -140,7 +140,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
 };
 
 #endif

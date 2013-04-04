@@ -157,7 +157,7 @@ private slots:
 signals:
   void SatApply();
   void SatHide();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
   void emitTimes( const miutil::miString& ,const vector<miutil::miTime>&,bool );
 
 private:

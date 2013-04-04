@@ -171,15 +171,15 @@ VprofWindow::VprofWindow(Controller *co)
   vpModelDialog = new VprofModelDialog(this,vprofm);
   connect(vpModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(vpModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(vpModelDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vpModelDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   vpSetupDialog = new VprofSetupDialog(this,vprofm);
   connect(vpSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vpSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vpSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vpSetupDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
   //initialize everything in startUp
   firstTime = true;

@@ -97,7 +97,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showsource(const miutil::miString, const miutil::miString=""); // activate help
+  void showsource(const std::string, const std::string=""); // activate help
 };
 
 #endif
