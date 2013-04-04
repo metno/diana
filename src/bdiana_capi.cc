@@ -3560,7 +3560,7 @@ int diana_init(int _argc, char** _argv)
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
-  plog = milogger::LogHandler::initLogHandler( 2, "" );
+  plog = milogger::LogHandler::initLogHandler( 3, "" );
   plog->setObjectName("diana.bdiana.main");
   COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
