@@ -553,8 +553,9 @@ bool FieldPlotManager::makeFields(const miString& pin_const,
       vfieldrequest[i].ptime = const_ptime;
     }
 
-    if (vfieldrequest[i].hourOffset != 0) {
+    if (vfieldrequest[i].hourOffset != 0 || vfieldrequest[i].minOffset != 0) {
       vfieldrequest[i].ptime.addHour(vfieldrequest[i].hourOffset);
+      vfieldrequest[i].ptime.addMin(vfieldrequest[i].minOffset);
     }
     Field* fout;
     // we must try to use the cache, if specified...
@@ -1040,6 +1041,8 @@ void FieldPlotManager::parseString( std::string& pin,
         fieldrequest.refoffset = atoi(vtoken[1].c_str());
       } else if (key == "hour.offset") {
         fieldrequest.hourOffset = atoi(vtoken[1].c_str());
+      } else if (key == "min.offset") {
+        fieldrequest.minOffset = atoi(vtoken[1].c_str());
       } else if (key == "hour.diff") {
         fieldrequest.time_tolerance = atoi(vtoken[1].c_str()) * 60; //time_tolerance in minutes, hour.diff in hours
       } else if (key == "alltimesteps") {
