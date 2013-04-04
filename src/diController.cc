@@ -154,9 +154,9 @@ bool Controller::parseSetup()
 
 void Controller::plotCommands(const vector<miString>& inp){
 #ifdef DEBUGPRINT
+#endif
   for (int q = 0; q < inp.size(); q++)
   cerr << "++ Controller::plotCommands:" << inp[q] << endl;
-#endif
   plotm->preparePlots(inp);
 #ifdef DEBUGPRINT
   cerr << "++ Returning from Controller::plotCommands ++" << endl;
