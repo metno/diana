@@ -1099,7 +1099,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 //        return false;
 //      }
     } else {
-      nodata = false
+      nodata = false;
     }
 
   }
