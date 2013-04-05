@@ -932,14 +932,17 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   miTime t = splot.getTime();
   Area plotarea, newarea;
 
+  bool nodata=true; // false when data are found
+
   // prepare data for field plots
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
-      if (!fieldplotm->makeFields(pin, t, fv)) {
-        if ( failOnMissingData ) {
-          return false;
-        }
+      if (fieldplotm->makeFields(pin, t, fv)) {
+        nodata = false;
+        //        if ( failOnMissingData ) {
+        //          return false;
+        //        }
       }
       //free old fields
       freeFields(vfp[i]);
@@ -962,10 +965,13 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 #ifdef DEBUGPRINT
       COMMON_LOG::getInstance("common").debugStream() << "SatManager returned false from setData";
 #endif
-      if ( failOnMissingData ) {
-        return false;
-      }
+//      if ( failOnMissingData ) {
+//        return false;
+//      }
+    } else {
+      nodata = false;
     }
+
   }
 
   // set maparea from map spec., sat or fields
@@ -1089,10 +1095,13 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 #ifdef DEBUGPRINT
       COMMON_LOG::getInstance("common").debugStream() << "ObsManager returned false from prepare";
 #endif
-      if ( failOnMissingData ) {
-        return false;
-      }
+//      if ( failOnMissingData ) {
+//        return false;
+//      }
+    } else {
+      nodata = false
     }
+
   }
 
   //update list of positions ( used in "PPPP-mslp")
@@ -1100,9 +1109,11 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   // prepare met-objects
   if ( objects.defined && !objm->prepareObjects(t, splot.getMapArea(), objects) ) {
-    if ( failOnMissingData ) {
-      return false;
-    }
+//    if ( failOnMissingData ) {
+//      return false;
+//    }
+  } else {
+    nodata = false;
   }
 
   // prepare editobjects (projection etc.)
@@ -1112,6 +1123,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   n = stam->plots().size();
   for (int i = 0; i < n; i++) {
     stam->plots()[i]->changeProjection();
+    nodata = false;
   }
 
   // Prepare/compute trajectories - change projection
@@ -1131,6 +1143,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
         }
       }
     }
+    nodata = false;
   }
 
   // Prepare measurement positions - change projection
@@ -1144,7 +1157,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   PlotAreaSetup();
 
   // Successful update
-  return true;
+  return !(failOnMissingData && nodata);
 }
 
 // start hardcopy plot
