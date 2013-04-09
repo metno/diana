@@ -1,3 +1,11 @@
+diana (3.32.2-1) unstable; urgency=low
+
+  * Several wms fixes
+  * Using metlibs 4.10.4
+  * Using fimex 0.44-1
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Apr 2013 12:22:57 +0200
+
 diana (3.32.1-1) unstable; urgency=low
 
   * check if file has changed before reading field
