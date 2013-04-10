@@ -1394,7 +1394,6 @@ void createJsonAnnotation()
           legend = legend.substr(at, end - at);
 
           map<miString,miString> textMap;
-          vector<miString> textMapOrder;
           
           miString title;
           vector<miString> colors;
@@ -1472,6 +1471,15 @@ void createJsonAnnotation()
       }
     }
   }
+
+  // Add a metadata entry to describe the request that corresponds to this reply.
+  map<miString,miString> metaDataMap;
+
+  miString thetime;
+  main_controller->getPlotTime(thetime);
+  metaDataMap["request time"] = miString("\"") + thetime + miString("\"");
+  outputTextMaps["metadata"] = metaDataMap;
+  outputTextMapOrder.push_back("metadata");
 }
 
 static void ensureNewContext()
@@ -2256,6 +2264,7 @@ static int parseAndProcess(istream &is)
         QFile outputFile(QString::fromStdString(priop.fname));
         if (outputFile.open(QFile::WriteOnly)) {
           outputFile.write("{\n");
+
           unsigned int i = 0;
           for (vector<miString>::iterator iti = outputTextMapOrder.begin(); iti != outputTextMapOrder.end(); ++iti, ++i) {
             outputFile.write("  \"");
