@@ -275,11 +275,11 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
       if(cmin>poptions.base) ncold=0;
 
 
-      //discontinuous - no more entries than class specifications
       vector<miString> classSpec;
-      if(poptions.discontinuous == 1 &&
-          poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
-        classSpec = poptions.classSpecifications.split(",");
+      classSpec = poptions.classSpecifications.split(",");
+
+      // if class specification is given, do not plot more entries than class specifications
+      if ( classSpec.size() && ncodes > classSpec.size()) {
         ncodes = classSpec.size();
       }
 
@@ -309,46 +309,65 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
         vtable.push_back(table);
       }
 
-      if(poptions.discontinuous == 1 &&
+      if(poptions.discontinuous == 1 && classSpec.size() &&
           poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
         for (int i=0; i<ncodes; i++){
           vector<miString> tstr = classSpec[i].split(":");
           if(tstr.size()>1) {
             vtable[i].text = tstr[1];
+          } else {
+            vtable[i].text = tstr[0];
           }
         }
 
       } else if(nlines>0){
-        for(int i=0; i<ncodes-1; i++){
-          float min = poptions.linevalues[i];
-          float max = poptions.linevalues[i+1];
+        if ( !classSpec.size() ) {
+          for(int i=0; i<ncodes-1; i++){
+            float min = poptions.linevalues[i];
+            float max = poptions.linevalues[i+1];
+            ostringstream ostr;
+            ostr <<min<<" - "<<max << unit;
+            vtable[i].text = ostr.str();
+          }
+          float min = poptions.linevalues[ncodes-1];
           ostringstream ostr;
-          ostr <<min<<" - "<<max << unit;
-          vtable[i].text = ostr.str();
+          ostr <<">"<<min << unit;
+          vtable[ncodes-1].text = ostr.str();
+        } else {
+          for(int i=0; i<ncodes; i++){
+            ostringstream ostr;
+            ostr <<classSpec[i];
+            vtable[i].text = ostr.str();
+          }
         }
-        float min = poptions.linevalues[ncodes-1];
-        ostringstream ostr;
-        ostr <<">"<<min << unit;
-        vtable[ncodes-1].text = ostr.str();
 
       } else if(nloglines>0){
-        vector<float> vlog;
-        for (int n=0; n<ncodes; n++) {
-          float slog= powf(10.0,n);
-          for (int i=0; i<nloglines; i++)
-            vlog.push_back(slog*poptions.loglinevalues[i]);
-        }
-        for(int i=0; i<ncodes-1; i++){
-          float min = vlog[i];
-          float max = vlog[i+1];
+        if ( !classSpec.size() ) {
+          vector<float> vlog;
+          for (int n=0; n<ncodes; n++) {
+            float slog= powf(10.0,n);
+            for (int i=0; i<nloglines; i++) {
+              vlog.push_back(slog*poptions.loglinevalues[i]);
+            }
+          }
+          for(int i=0; i<ncodes-1; i++){
+            float min = vlog[i];
+            float max = vlog[i+1];
+            ostringstream ostr;
+            ostr <<min<<" - "<< max << unit;
+            vtable[i].text = ostr.str();
+          }
+          float min = vlog[ncodes-1];
           ostringstream ostr;
-          ostr <<min<<" - "<< max << unit;
-          vtable[i].text = ostr.str();
+          ostr <<">"<<min << unit;
+          vtable[ncodes-1].text = ostr.str();
+        } else {
+          for(int i=0; i<ncodes; i++){
+            ostringstream ostr;
+            ostr <<classSpec[i];
+            vtable[i].text = ostr.str();
+          }
         }
-        float min = vlog[ncodes-1];
-        ostringstream ostr;
-        ostr <<">"<<min << unit;
-        vtable[ncodes-1].text = ostr.str();
 
       } else {
 
@@ -446,7 +465,7 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
       //       }
 
       miString str  = "arrow=" + miString (vectorAnnotationSize)
-                                                      + ",tcolour=" + poptions.linecolour.Name() + endString;
+                                                          + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
           + ",tcolour=" + poptions.linecolour.Name() + endString ;
@@ -493,9 +512,9 @@ bool FieldPlot::plot(){
       poptions.colours[i]= backContrastColour;
 
   if (poptions.antialiasing)
-      glEnable(GL_MULTISAMPLE);
+    glEnable(GL_MULTISAMPLE);
   else
-      glDisable(GL_MULTISAMPLE);
+    glDisable(GL_MULTISAMPLE);
 
   // should be below all real fields
   if (poptions.gridLines>0) plotGridLines();
@@ -1058,7 +1077,7 @@ bool FieldPlot::plotWind(){
   glDisable(GL_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotWind() ++" << endl;
@@ -1208,7 +1227,7 @@ bool FieldPlot::plotValue(){
   UpdateOutput();
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotValue() ++" << endl;
@@ -1620,7 +1639,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   glDisable(GL_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotWindAndValue() ++" << endl;
@@ -1805,7 +1824,7 @@ bool FieldPlot::plotValues(){
   UpdateOutput();
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
   glDisable(GL_LINE_STIPPLE);
 
@@ -1919,7 +1938,7 @@ bool FieldPlot::plotVector(){
   glDisable(GL_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotVector() ++" << endl;
@@ -2089,7 +2108,7 @@ bool FieldPlot::plotVectorColour(){
   glDisable(GL_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotVectorColour() ++" << endl;
@@ -2198,7 +2217,7 @@ bool FieldPlot::plotDirection(){
   glDisable(GL_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotDirection() ++" << endl;
@@ -2371,7 +2390,7 @@ bool FieldPlot::plotDirectionColour(){
   glDisable(GL_LINE_STIPPLE);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotDirectionColour() ++" << endl;
@@ -2676,7 +2695,7 @@ bool FieldPlot::plotContour(){
   if (!res) cerr<<"FieldPlot::plotContour() -  Contour error"<<endl;
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotContour() ++" << endl;
@@ -2795,7 +2814,7 @@ bool FieldPlot::plotBox_pattern(){
   glDisable(GL_POLYGON_STIPPLE);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotBox_pattern() ++" << endl;
@@ -2909,7 +2928,7 @@ bool FieldPlot::plotBox_alpha_shade(){
   glDisable(GL_BLEND);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotBox_alpha_shade() ++" << endl;
@@ -3054,7 +3073,7 @@ bool FieldPlot::plotAlarmBox(){
   UpdateOutput();
 
   if (poptions.update_stencil)
-      plotFrameStencil(nxc, ny+1, x, y);
+    plotFrameStencil(nxc, ny+1, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotAlarmBox() ++" << endl;
@@ -3296,7 +3315,7 @@ bool FieldPlot::plotAlpha_shade(){
   glShadeModel(GL_FLAT);
 
   if (poptions.update_stencil)
-      plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
   cerr << "++ Returning from FieldPlot::plotAlpha_shade() ++" << endl;
