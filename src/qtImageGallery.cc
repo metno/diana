@@ -39,8 +39,6 @@
 #include <puCtools/glob_cache.h>
 #include <QDataStream>
 #include <QFileInfo>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/split.hpp>
 
 map<miutil::miString,QImage> QtImageGallery::Images;
 
@@ -96,8 +94,7 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
 bool QtImageGallery::addImageToGallery(const std::string name,
 				       std::string& imageStr)
 {
-  vector<string> vs;
-  boost::algorithm::split(vs, imageStr, boost::algorithm::is_any_of(" "));
+  vector<string> vs = miutil::split(imageStr," ");
   int n=vs.size();
   QByteArray a(n,' ');
   for (int i=0; i<n; i++)
