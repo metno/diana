@@ -1477,7 +1477,8 @@ void createJsonAnnotation()
 
   miString thetime;
   main_controller->getPlotTime(thetime);
-  metaDataMap["request time"] = miString("\"") + thetime + miString("\"");
+  metaDataMap["request time"] = miString("\"") + ptime.isoTime() + miString("\"");
+  metaDataMap["time used"] = miString("\"") + thetime + miString("\"");
   outputTextMaps["metadata"] = metaDataMap;
   outputTextMapOrder.push_back("metadata");
 }
