@@ -240,7 +240,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
         if( name[0]=='"' )
           name.remove('"');
         name.trim();
-        if(!fields[0]->fieldText.contains(name))	continue;
+        if(!miutil::contains(fields[0]->fieldText,name))	continue;
       }
 
       miString str  = "table=\"";
@@ -4158,7 +4158,7 @@ bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
 
   if ( !fields[0] ) return false;
 
-  if (fields[0]->name.downcase() != "mslp") return false;
+  if (miutil::to_lower(fields[0]->name) != "mslp") return false;
 
   if (!fields[0]->data) return false;
 

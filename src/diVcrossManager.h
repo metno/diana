@@ -95,7 +95,7 @@ private:
   //bool asField;
 
   miutil::miString masterFile;
-  vector<miutil::miString> nameList;
+  vector<std::string> nameList;
   vector<miutil::miTime>   timeList;
 
   vector<miutil::miString> usedModels;
@@ -140,11 +140,11 @@ public:
   void getCrossectionOptions(LocationData& locationdata);
   const miutil::miString getCrossection() { return plotCrossection; }
   const miutil::miString getLastCrossection(){return lastCrossection;}
-  const vector<miutil::miString>& getCrossectionList() { return nameList; }
+  const vector<std::string>& getCrossectionList() { return nameList; }
   const vector<miutil::miTime>&   getTimeList() { return timeList; }
   vector<miutil::miString> getAllModels();
   map<miutil::miString,miutil::miString> getAllFieldOptions();
-  vector<miutil::miString> getFieldNames(const miutil::miString& model);
+  vector<std::string> getFieldNames(const miutil::miString& model);
   vector<miutil::miString> getPlotStrings(){return plotStrings;}
 
   bool plot();

@@ -47,7 +47,7 @@ using namespace std;
 //#define DEBUGPRINT 1
 
 // Default constructor
-VcrossField::VcrossField(const miutil::miString& modelname, FieldManager* fieldm)
+VcrossField::VcrossField(const std::string& modelname, FieldManager* fieldm)
     : modelName(modelname), fieldManager(fieldm), lastVcross(-1), lastTgpos(-1),
     lastVcrossPlot(0)
 {
@@ -206,7 +206,7 @@ bool VcrossField::getInventory() {
 }
 
 
-vector<miutil::miString> VcrossField::getFieldNames()
+vector<std::string> VcrossField::getFieldNames()
 {
 #ifdef DEBUGPRINT
   cerr << "++ VcrossField::getFieldNames" << endl;
@@ -334,7 +334,7 @@ void VcrossField::getMapData(vector<LocationElement>& elements)
 /*
  * Get a crossection
  */
-VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
+VcrossPlot* VcrossField::getCrossection(const std::string& name,
     const miutil::miTime& time, int tgpos) {
 #ifdef DEBUGPRINT
   cerr << "++ VcrossField::getCrossection(" << name << "," <<
@@ -625,7 +625,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
   // Insert data into VcrossPlot
   map<miutil::miString, int>::iterator pn, pnend= vcp->vcParName.end();
   for(size_t i=0;i<params.size();i++) {
-    int param = params[i].toInt(0);
+    int param = miutil::to_int(params[i],0);
     if(param < 0) {
       if(multiLevel[i])
         vcp->addPar2d(param,crossData[i]);

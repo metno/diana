@@ -2221,7 +2221,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
 
   miutil::miString fields2_model,model,field,fOpts;
   int ic,i,j,m,n,hourOffset;
-  vector<miutil::miString> fields2;
+  vector<std::string> fields2;
   int nf2= 0;
   vector<ParsedCommand> vpc;
 

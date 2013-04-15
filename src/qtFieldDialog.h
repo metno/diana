@@ -94,8 +94,8 @@ private:
     int  hourOffset;
     int  hourDiff;
     miutil::miString fieldOpts;
-    vector<miutil::miString> levelOptions;
-    vector<miutil::miString> idnumOptions;
+    vector<std::string> levelOptions;
+    vector<std::string> idnumOptions;
     bool minus;
     miutil::miString time;
     //Used in gridio
@@ -249,8 +249,8 @@ private:
 
   miutil::miString lastLevel;
   miutil::miString lastIdnum;
-  vector<miutil::miString> currentLevels;
-  vector<miutil::miString> currentIdnums;
+  vector<std::string> currentLevels;
+  vector<std::string> currentIdnums;
 
   QColor* color;
 

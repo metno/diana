@@ -69,7 +69,7 @@ map<miString, int> VcrossPlot::vcParName; // name -> number
 map<int, miString> VcrossPlot::vcParNumber; // number -> name
 multimap<miString, vcFunction> VcrossPlot::vcFunctions;
 map<miString, vcField> VcrossPlot::vcFields;
-vector<miString> VcrossPlot::vcFieldNames; // setup/dialog sequence
+vector<std::string> VcrossPlot::vcFieldNames; // setup/dialog sequence
 map<miString, FileContents> VcrossPlot::fileContents;
 
 int VcrossPlot::plotw = 100;
@@ -566,7 +566,7 @@ void VcrossPlot::deleteContents(const miString& fileName)
 }
 
 // static function
-vector<miString> VcrossPlot::getFieldNames(const miString& fileName)
+vector<std::string> VcrossPlot::getFieldNames(const std::string& fileName)
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossPlot::getFieldNames for " << fileName << endl;
@@ -576,7 +576,7 @@ vector<miString> VcrossPlot::getFieldNames(const miString& fileName)
   if (p != fileContents.end()) {
     return p->second.fieldNames;
   } else {
-    vector<miString> vs;
+    vector<std::string> vs;
     return vs;
   }
 }
@@ -639,9 +639,6 @@ map<miString, miString> VcrossPlot::getAllFieldOptions()
         if (po.zeroLine >= 0)
           ostr << " zero.line=" << po.zeroLine;
       }
-      //    ostr << " extreme.type="   << po.extremeType
-      //	   << " extreme.size="   << po.extremeSize
-      //	   << " extreme.radius=" << po.extremeRadius
       ostr << " line.smooth=" << po.lineSmooth << " value.label="
           << po.valueLabel << " label.size=" << po.labelSize;
       ostr << " base=" << po.base;

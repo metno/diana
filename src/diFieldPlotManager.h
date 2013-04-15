@@ -61,7 +61,7 @@ public:
   void getAllFieldNames(vector<miutil::miString>& fieldNames);
 
   /// return lists of inputfields
-  vector<miutil::miString> getFields();
+  vector<std::string> getFields();
   vector<miutil::miString> getPlotFields();
 
   /// read setup section for field plots
@@ -76,12 +76,12 @@ public:
   bool makeFields(const miutil::miString& pin, const miutil::miTime& ptime,
       vector<Field*>& vfout,bool toCache = false);
 
-  bool addGridCollection(const miutil::miString fileType,
-      const miutil::miString& modelName,
-      const std::vector<miutil::miString>& filenames,
+  bool addGridCollection(const std::string fileType,
+      const std::string& modelName,
+      const std::vector<std::string>& filenames,
       const std::vector<std::string>& format,
       std::vector<std::string> config,
-      const std::vector<miutil::miString>& option);
+      const std::vector<std::string>& option);
 
   /// return available times for the requested models and fields
   void makeFieldText(Field* fout, const miutil::miString& plotName);
@@ -89,8 +89,8 @@ public:
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request, bool& constTimes, bool updateSources=false);
 
   /// return all field groups for one model/file (to FieldDialog)
-  void getFieldGroups(const miutil::miString& modelNameRequest,
-      miutil::miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const std::string& modelNameRequest,
+      std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
 
   ///return referencetime given by refoffset and refhour or last referencetime for given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);

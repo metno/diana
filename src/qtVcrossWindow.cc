@@ -691,7 +691,7 @@ void VcrossWindow::updateCrossectionBox(){
 #endif
 
   crossectionBox->clear();
-  vector<miutil::miString> crossections= vcrossm->getCrossectionList();
+  vector<std::string> crossections= vcrossm->getCrossectionList();
 
   int n =crossections.size();
   for (int i=0; i<n; i++){

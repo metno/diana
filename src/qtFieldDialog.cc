@@ -1499,7 +1499,7 @@ vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
   // called from MainWindow levelUp/levelDown
 
   miutil::miString level;
-  vector<miutil::miString> vlevels;
+  vector<std::string> vlevels;
   int n = selectedFields.size();
 
   //For some reason (?) vertical levels and extra levels are sorted i opposite directions
@@ -4176,10 +4176,10 @@ bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, S
 
     // Old syntax: Model, new syntax: Model(gridnr)
     miutil::miString modelName = vfg2[j].modelName;
-    if (vfg2[j].modelName.contains("(") && !model.contains("(")) {
+    if (miutil::contains(vfg2[j].modelName,"(") && !model.contains("(")) {
       modelName = modelName.substr(0, modelName.find(("(")));
     }
-    if (!vfg2[j].modelName.contains("(") && model.contains("(")) {
+    if (!miutil::contains(vfg2[j].modelName,"(") && model.contains("(")) {
       model = model.substr(0, model.find(("(")));
     }
 

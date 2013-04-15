@@ -49,18 +49,18 @@ class VcrossField
 {
 
 public:
-  VcrossField(const miutil::miString& modelname, FieldManager* fieldm);
+  VcrossField(const std::string& modelname, FieldManager* fieldm);
   ~VcrossField();
   void cleanup();
   bool update();
   bool getInventory();
   bool setLatLon(float lat,float lon);
-  vector<miutil::miString> getNames() { return names; }
+  vector<std::string> getNames() { return names; }
   vector<miutil::miTime> getTimes() { return validTime; }
-  vector<miutil::miString> getFieldNames();
+  vector<std::string> getFieldNames();
   void getMapData(vector<LocationElement>& elements);
 
-  VcrossPlot* getCrossection(const miutil::miString& name,
+  VcrossPlot* getCrossection(const std::string& name,
 			     const miutil::miTime& time, int tgpos);
 
   void cleanupCache();
@@ -68,14 +68,14 @@ public:
 
 private:
 
-  miutil::miString modelName;
+  std::string modelName;
   FieldManager* fieldManager;
 
-  vector<miutil::miString> names;
-  vector<miutil::miString> posOptions;
+  vector<std::string> names;
+  vector<std::string> posOptions;
   vector<miutil::miTime>   validTime;
   vector<int>      forecastHour;
-  vector<miutil::miString> params;
+  vector<std::string> params;
 
   // Holds active crossections
   vector<LocationElement> crossSections;

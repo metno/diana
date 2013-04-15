@@ -58,9 +58,9 @@ public:
   void cleanup();
   bool update();
   bool readFileHeader();
-  vector<miutil::miString> getNames() { return names; }
+  vector<std::string> getNames() { return names; }
   vector<miutil::miTime> getTimes() { return validTime; }
-  vector<miutil::miString> getFieldNames();
+  vector<std::string> getFieldNames();
   void getMapData(vector<LocationElement>& elements);
 
   VcrossPlot* getCrossection(const miutil::miString& name, const miutil::miTime& time,
@@ -97,7 +97,7 @@ private:
   float *xposmap;
   float *yposmap;
 
-  vector<miutil::miString> names;
+  vector<std::string> names;
   vector<miutil::miString> posOptions;
   vector<miutil::miTime>   validTime;
   vector<int>      forecastHour;

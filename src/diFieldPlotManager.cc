@@ -363,22 +363,22 @@ vector<miString> FieldPlotManager::splitComStr(const miString& s, bool splitall)
   return tmp;
 }
 
-vector<miString> FieldPlotManager::getFields()
+vector<std::string> FieldPlotManager::getFields()
 {
 
-  set<miString> paramSet;
+  set<std::string> paramSet;
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
     for (unsigned int j = 0; j < vPlotField[i].input.size(); j++) {
       //remove extra info like ":standard_name"
-      miString input = vPlotField[i].input[j];
-      vector<miString> vstr = input.split(":");
+      std::string input = vPlotField[i].input[j];
+      vector<std::string> vstr = miutil::split(input,":");
       paramSet.insert(vstr[0]);
       paramSet.insert(vstr[0]);
     }
   }
 
-  vector<miString> param;
-  set<miString>::iterator p = paramSet.begin();
+  vector<std::string> param;
+  set<std::string>::iterator p = paramSet.begin();
   for (; p != paramSet.end(); p++) {
     param.push_back(*p);
   }
@@ -512,12 +512,12 @@ vector<miTime> FieldPlotManager::getFieldTime(
   return fieldManager->getFieldTime(request, constTimes, updateSources);
 }
 
-bool FieldPlotManager::addGridCollection(const miutil::miString fileType,
-    const miutil::miString& modelName,
-    const std::vector<miutil::miString>& filenames,
+bool FieldPlotManager::addGridCollection(const std::string fileType,
+    const std::string& modelName,
+    const std::vector<std::string>& filenames,
     const std::vector<std::string>& format,
     std::vector<std::string> config,
-    const std::vector<miutil::miString>& option)
+    const std::vector<std::string>& option)
 {
 
 
@@ -748,7 +748,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   }
   if (ndiff == 1) {
     f1->fieldText = f1->modelName + " " + f1->name;
-    if (f1->leveltext.exists()) {
+    if (!f1->leveltext.empty()) {
       f1->fieldText += " " + f1->leveltext;
     }
     f1->text = f1->fieldText + " " + f1->progtext;
@@ -842,8 +842,8 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 
 }
 
-void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
-    miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
+void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
+    std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
 {
   //cerr <<__FUNCTION__<<endl;
 
@@ -893,7 +893,7 @@ void FieldPlotManager::getFieldGroups(const miString& modelNameRequest,
     }
 
     //find plotNames
-    vector<miString> plotNames;
+    vector<std::string> plotNames;
     for (unsigned int j = 0; j < vPlotField.size(); j++) {
         miString plotName = vPlotField[j].name;
         //check that all fields needed exist with same suffix

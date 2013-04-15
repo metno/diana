@@ -117,20 +117,24 @@ bool Controller::parseSetup()
   Plot::initFontManager();
 
   //Parse field sections
-  vector<miString> fieldSubSect = fieldm->subsections();
+  vector<std::string> fieldSubSect = fieldm->subsections();
   int nsect = fieldSubSect.size();
-  vector<miString> errors;
+  vector<std::string> errors;
   for( int i=0; i<nsect; i++){
-    vector<miString> lines;
+    vector<miutil::miString> lines;
     if (!SetupParser::getSection(fieldSubSect[i],lines)) {
       //      cerr<<"Missing section "<<fieldSubSect[i]<<" in setupfile."<<endl;
     }
-    fieldm->parseSetup(lines,fieldSubSect[i],errors,false);
+    vector<std::string> string_lines;
+    for (int j=0; j<lines.size(); j++) {
+      string_lines.push_back(lines[j]);
+    }
+    fieldm->parseSetup(string_lines,fieldSubSect[i],errors,false);
   }
   //Write error messages
   int nerror = errors.size();
   for( int i=0; i<nerror; i++){
-    vector<miString> token = errors[i].split("|");
+    vector<std::string> token = miutil::split(errors[i],"|");
     SetupParser::errorMsg(token[0],atoi(token[1].c_str()),token[2]);
   }
 

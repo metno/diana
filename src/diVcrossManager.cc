@@ -501,14 +501,14 @@ map<miString,miString> VcrossManager::getAllFieldOptions()
 }
 
 
-vector<miString> VcrossManager::getFieldNames(const miString& model)
+vector<std::string> VcrossManager::getFieldNames(const miString& model)
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossManager::getFields  model= " << model << endl;
   cerr << "filetypes[model]=" << filetypes[model] << endl;
 #endif
 
-  vector<miString> empty;
+  vector<std::string> empty;
 
   if(filetypes[model] == "standard") {
   map<miString,miString>::iterator p= filenames.find(model);
@@ -596,10 +596,10 @@ void VcrossManager::getCrossections(LocationData& locationdata){
         for (int i = 0; i < m; i++)
           annot += (" " + usedModels[i]);
 
-	Projection pgeo;
-	pgeo.setGeographic();
-	Rectangle rgeo(0,0,90,360);
-	Area geoArea(pgeo,rgeo);
+        Projection pgeo;
+        pgeo.setGeographic();
+        Rectangle rgeo(0,0,90,360);
+        Area geoArea(pgeo,rgeo);
 
         vfi->second->getMapData(locationdata.elements);
         locationdata.name = "vcross";

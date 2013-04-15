@@ -455,9 +455,9 @@ bool FieldEdit::readEditfield(const miString& filename,
     const miString& fieldname)
 {
 
-  miutil::miString fileType = "fimex";
-  miutil::miString modelName = filename;
-  std::vector<miutil::miString> filenames;
+  std::string fileType = "fimex";
+  std::string modelName = filename;
+  std::vector<std::string> filenames;
   filenames.push_back(filename);
 
   std::vector<std::string> format;
@@ -472,7 +472,7 @@ bool FieldEdit::readEditfield(const miString& filename,
     config.push_back(inputFieldConfig);
   }
 
-  std::vector<miutil::miString> option;
+  std::vector<std::string> option;
 
   fieldPlotManager->addGridCollection(fileType, modelName, filenames,
       format,config, option);

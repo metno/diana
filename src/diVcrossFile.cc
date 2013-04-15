@@ -431,7 +431,7 @@ bool VcrossFile::readFileHeader() {
 }
 
 
-vector<miString> VcrossFile::getFieldNames()
+vector<std::string> VcrossFile::getFieldNames()
 {
 #ifdef DEBUGPRINT
   cerr << "++ VcrossFile::getFieldNames" << endl;

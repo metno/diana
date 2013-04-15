@@ -187,7 +187,7 @@ struct vcField {
 
 /// Vertical Crossection data contents incl. possible computations
 struct FileContents {
-  vector<miutil::miString> fieldNames;
+  vector<std::string> fieldNames;
   map<miutil::miString,vcFunction> useFunctions;
 };
 //----------------------------------------------------
@@ -238,7 +238,7 @@ public:
   static void makeContents(const miutil::miString& fileName,
 			   const vector<int>& iparam, int vcoord);
   static void deleteContents(const miutil::miString& fileName);
-  static vector<miutil::miString> getFieldNames(const miutil::miString& fileName);
+  static vector<std::string> getFieldNames(const std::string& fileName);
   static map<miutil::miString,miutil::miString> getAllFieldOptions();
   static miutil::miString getFieldOptions(const miutil::miString& fieldname);
 
@@ -302,7 +302,7 @@ private:
   static multimap<miutil::miString,vcFunction> vcFunctions;
 
   static map<miutil::miString,vcField> vcFields;
-  static vector<miutil::miString> vcFieldNames;  // setup/dialog sequence
+  static vector<std::string> vcFieldNames;  // setup/dialog sequence
 
   static map<miutil::miString,FileContents> fileContents;
   //----------------------------------------------------

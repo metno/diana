@@ -1553,7 +1553,7 @@ static int parseAndProcess(istream &is)
   if (res != 0)
     return res;
 
-  vector<miString> extra_field_lines;
+  vector<std::string> extra_field_lines;
 
   int linenum = lines.size();
 
@@ -1686,7 +1686,7 @@ static int parseAndProcess(istream &is)
         if (!main_controller) {
           MAKE_CONTROLLER
 
-          vector<miString> field_errors;
+          vector<std::string> field_errors;
           if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
             cerr << "ERROR, an error occurred while adding new fields:" << endl;
             for (unsigned int kk = 0; kk < field_errors.size(); ++kk)

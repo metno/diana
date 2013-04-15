@@ -1617,7 +1617,7 @@ vector<miString> EditManager::getValidEditFields(const EditProduct& ep,
     vf=  plotm->vfp[i]->getFields();
     // for now, only accept scalar fields
     if (vf.size() == 1) {
-      miString s= vf[0]->name.downcase();
+      miString s= miutil::to_lower(vf[0]->name);
       if (s.find(fname)!=string::npos) {
         vstr.push_back(vf[0]->fieldText);
       }

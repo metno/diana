@@ -151,7 +151,7 @@ private:
   bool m_advanced;
 
   vector<miutil::miString> models;  // all models
-  vector<miutil::miString> fields;  // for current selected model
+  vector<std::string> fields;  // for current selected model
 
   CommandParser *cp;
   vector<ParsedCommand> vpcopt;
