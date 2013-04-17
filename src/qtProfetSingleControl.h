@@ -71,8 +71,8 @@ public:
   
 public slots:
   void buttonPressed();
-  void valueChanged(float,miutil::miString);
-  void valueChangedBySlider(float v, miutil::miString par);
+  void valueChanged(float,std::string);
+  void valueChangedBySlider(float v, std::string par);
 signals:
   void buttonAtPressed(int);
   void pushundo();
