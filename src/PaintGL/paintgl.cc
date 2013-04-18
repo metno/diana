@@ -394,6 +394,10 @@ void PaintGLContext::renderPrimitive()
             QPainterPath newPath;
             newPath.addPolygon(poly);
             newPath.closeSubpath();
+
+            QPainterPathStroker stroker;
+            stroker.setWidth(ctx->attributes.width);
+            newPath = stroker.createStroke(newPath).united(newPath);
             ctx->stencil.path += newPath;
         }
 
@@ -424,7 +428,6 @@ void PaintGLContext::setClipPath()
         p.addRect(ctx->viewport);
         QPainterPath clipPath = p - ctx->stencil.path;
         ctx->painter->setClipPath(clipPath);
-
     }
 }
 
