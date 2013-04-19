@@ -3347,6 +3347,8 @@ bool FieldPlot::plotFrameOnly()
     plotFrame(nx,ny,x,y);
   }
 
+  if (poptions.update_stencil)
+    plotFrameStencil(nx, ny, x, y);
 }
 
 // plot frame for complete field area
