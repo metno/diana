@@ -1477,7 +1477,9 @@ void createJsonAnnotation()
 
   miString thetime;
   main_controller->getPlotTime(thetime);
-  metaDataMap["request time"] = miString("\"") + ptime.isoTime() + miString("\"");
+  if ( !ptime.undef() ) {
+    metaDataMap["request time"] = miString("\"") + ptime.isoTime() + miString("\"");
+  }
   metaDataMap["time used"] = miString("\"") + thetime + miString("\"");
   outputTextMaps["metadata"] = metaDataMap;
   outputTextMapOrder.push_back("metadata");
@@ -3311,7 +3313,9 @@ int diana_parseAndProcessString(const char* string)
 {
     stringstream ss;
     ss << string;
-cerr << "start processing" << endl;
+    cerr << "start processing" << endl;
+    miTime undef;
+    ptime=fixedtime=undef;
     int retVal = parseAndProcess(ss);
     if (retVal == 0) return DIANA_OK;
 
