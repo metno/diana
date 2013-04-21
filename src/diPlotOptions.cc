@@ -1032,7 +1032,7 @@ miString PlotOptions::toString()
     } else if (loglinevalues.size() != 0 ) {
       miString str;
       str.join(loglinevalues,",");
-      ostr << " logline.values=" << str;
+      ostr << " log.line.values=" << str;
     }
 
     ostr << " extreme.type="   << extremeType
@@ -1093,7 +1093,7 @@ miString PlotOptions::toString()
     } else if (loglinevalues_2.size() != 0 ) {
       miString str;
       str.join(loglinevalues_2,",");
-      ostr << " logline.values_2=" << str;
+      ostr << " log.line.values_2=" << str;
     }
 
     if(minvalue_2>-fieldUndef) {

@@ -212,7 +212,7 @@ QDialog(parent)
   cp->addKey("linetype", "", 0, CommandParser::cmdString);
   cp->addKey("line.interval", "", 0, CommandParser::cmdFloat);
   cp->addKey("line.values", "", 0, CommandParser::cmdString);
-  cp->addKey("logline.values", "", 0, CommandParser::cmdString);
+  cp->addKey("log.line.values", "", 0, CommandParser::cmdString);
   cp->addKey("density", "", 0, CommandParser::cmdInt);
   cp->addKey("vector.unit", "", 0, CommandParser::cmdFloat);
   cp->addKey("extreme.type", "", 0, CommandParser::cmdString);
@@ -3467,6 +3467,9 @@ std::string FieldDialog::getParamString(int i)
     }
 
     if (selectedFields[i].level.exists()) {
+      if ( selectedFields[i].zaxis.empty() ) {
+        selectedFields[i].zaxis = FieldSpecTranslation::getVcoorFromLevel(selectedFields[i].level);
+      }
       ostr << " vcoord=" << selectedFields[i].zaxis;
       ostr << " vlevel=" << selectedFields[i].level;
     }
