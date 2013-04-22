@@ -125,9 +125,6 @@ VcrossWindow::VcrossWindow(Controller *co)
   //button for dynCross - pushbutton
   QPushButton * dynCrossButton = NormalPushButton(tr("Draw cross/Clear"),this);
   connect( dynCrossButton, SIGNAL(clicked()), SLOT(dynCrossClicked()) );
-#ifndef SMHI
-  dynCrossButton->hide();
-#endif
 
   QPushButton *leftCrossectionButton= new QPushButton(QPixmap(bakover_xpm),"",this);
   connect(leftCrossectionButton, SIGNAL(clicked()), SLOT(leftCrossectionClicked()) );

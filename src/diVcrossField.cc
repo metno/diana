@@ -34,6 +34,8 @@
 #include "diVcrossField.h"
 #include "diVcrossPlot.h"
 
+#include <puDatatypes/miCoordinates.h>
+
 #include <cmath>
 #include <set>
 
@@ -41,6 +43,11 @@
 #include <miLogger/miLogging.h>
 
 using namespace std;
+
+namespace /* anonymous */ {
+const int VCOORD_HYBRID = 10;
+const int VCOORD_OTHER = 1;
+} // namespace anonymous
 
 VcrossField::VcrossField(const std::string& modelname, FieldManager* fieldm)
     : modelName(modelname), fieldManager(fieldm), lastVcross(-1), lastTgpos(-1),
@@ -137,7 +144,7 @@ bool VcrossField::getInventory()
 
   const std::map<miutil::miString,int>::const_iterator pnend = VcrossPlot::vcParName.end();
   vector<int> iparam;
-  int vcoord = 10;
+  int vcoord = VCOORD_HYBRID;
 
   // For every parameter, check if it is specified in the setup file
   for (unsigned int i=0;i<params.size();i++) {
@@ -198,7 +205,7 @@ vector<std::string> VcrossField::getFieldNames()
  * The first time startL{atitude,ongitude} is set and the second
  * time stopL{atitude,ongitude}.
  */
-bool VcrossField::setLatLon(float lat,float lon)
+bool VcrossField::setLatLon(float lat, float lon)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
@@ -315,8 +322,10 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(name) << " time=" << time.format("%Y%m%d%H%M%S") << LOGVAL(tgpos));
 
-  if (crossSections.empty())
+  if (crossSections.empty()) {
+    METLIBS_LOG_DEBUG("no crossections, no plot");
     return 0;
+  }
 
   int vcross=-1;
   // Find crossection
@@ -324,7 +333,11 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
     if (name == crossSections[i].name)
       vcross = i;
   }
-  if (vcross < 0 or crossSections[vcross].xpos.size() <= 1)
+  METLIBS_LOG_DEBUG(LOGVAL(vcross));
+  if (vcross < 0)
+    return 0;
+  METLIBS_LOG_DEBUG(LOGVAL(crossSections[vcross].xpos.size()));
+  if (crossSections[vcross].xpos.size() <= 1)
     return 0;
 
   VcrossPlot *vcp = new VcrossPlot();
@@ -355,8 +368,7 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
   if(tgpos < 0) {
     // Check if crossection is cached (same time)
     if(VcrossDataMap[vcross].size() > 0) {
-      METLIBS_LOG_DEBUG("Using cached copy for " << crossSections[vcross].name <<
-          " time: " <<time.isoTime());
+      METLIBS_LOG_DEBUG("Using cached copy for " << crossSections[vcross].name << " time: " <<time.isoTime());
       vcp->alevel = VcrossPlotVector[vcross]->alevel;
       vcp->blevel = VcrossPlotVector[vcross]->blevel;
       vcp->nPoint = VcrossPlotVector[vcross]->nPoint;
@@ -388,12 +400,14 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
         }
       }
     } else {
-      // Get crossectiondata from diField (not cached)
+      METLIBS_LOG_DEBUG("fetching crossection data from diFieldManager (not cached)");
+      vector< boost::shared_array<float> > crossDataS;
       bool gotCrossection = fieldManager->makeVCross(modelName,time,
           crossSections[vcross].ypos,crossSections[vcross].xpos,params,
-          vcp->alevel,vcp->blevel,vcp->nPoint,crossData,multiLevel,vcp->iundef);
+          vcp->alevel,vcp->blevel,crossDataS,multiLevel,vcp->iundef);
 
       if (not gotCrossection) {
+        METLIBS_LOG_DEBUG("fetch failed, no plot");
         delete vcp;
         return 0;
       }
@@ -401,9 +415,9 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
       vcp->numLev = vcp->alevel.size();
       vcp->horizontalPosNum = vcp->nPoint;
       if (vcp->blevel.size())
-    	vcp->vcoord = 10;
+        vcp->vcoord = VCOORD_HYBRID;
       else
-    	vcp->vcoord = 1;
+        vcp->vcoord = VCOORD_OTHER;
       vcp->nTotal = (vcp->nPoint * vcp->numLev);
       vcp->validTime = miutil::miTime(time);
       vcp->forecastHour = 0;
@@ -411,6 +425,8 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
       vcp->timeGraph = false;
       vcp->vrangemin = 50;
       vcp->vrangemax = 1000;
+
+      METLIBS_LOG_DEBUG(LOGVAL(vcp->nPoint) << LOGVAL(vcp->nTotal));
 
       if(int(VcrossPlotVector.size()) < (vcross+1))
         VcrossPlotVector.push_back(new VcrossPlot());
@@ -430,20 +446,56 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
       VcrossPlotVector[vcross]->vrangemax = vcp->vrangemax;
       VcrossPlotVector[vcross]->iundef = vcp->iundef;
 
-      for(size_t i=0;i<crossData.size();i++) {
+      for(size_t i=0;i<crossDataS.size();i++) {
         VcrossMultiLevelMap[vcross].push_back(multiLevel[i]);
-        if(VcrossMultiLevelMap[vcross][i]) {
-          float* data = new float[VcrossPlotVector[vcross]->nPoint*VcrossPlotVector[vcross]->numLev];
-          for(int j=0;j<(VcrossPlotVector[vcross]->nPoint*VcrossPlotVector[vcross]->numLev);j++) {
-            data[j] = crossData[i][j];
+        const int ndata = multiLevel[i] ? vcp->nTotal : vcp->nPoint;
+        METLIBS_LOG_DEBUG(LOGVAL(params[i]) << LOGVAL(multiLevel[i]) << LOGVAL(ndata));
+          
+        float* data = new float[ndata];
+        const float dxy = 10000;
+        if (crossDataS[i]) {
+          METLIBS_LOG_DEBUG("values from crossDataS");
+          std::copy(crossDataS[i].get(), crossDataS[i].get() + ndata, data);
+        } else if ((params[i] == "-1001" or params[i] == "-1002" or params[i] == "-1003") and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("fake x/y/s grid data");
+          for(int j=0; j<ndata; j += 1)
+            data[j] = 0;//dxy*j;
+        } else if (params[i] == "-1005" and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("copying lat data");
+          std::copy(crossSections[vcross].ypos.begin(), crossSections[vcross].ypos.end(), data);
+        } else if (params[i] == "-1006" and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("copying lon data");
+          std::copy(crossSections[vcross].xpos.begin(), crossSections[vcross].xpos.end(), data);
+        } else if (params[i] == "-1007" and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("fake dx data");
+          const std::vector<float>& lons = crossSections[vcross].xpos, &lats = crossSections[vcross].ypos;
+          const size_t nPoint = lons.size();
+          if (nPoint >= 2) {
+            data[0] = 0;
+            miCoordinates c0(lons[0], lats[0]);
+            for (size_t c=1; c<nPoint; ++c) {
+              const miCoordinates c1(lons[c], lats[c]);
+              data[c] = c0.distanceTo(c1);
+              c0 = c1;
+            }
           }
-          VcrossDataMap[vcross].push_back(data);
+        } else if ((params[i] == "-1008" or params[i] == "-1009") and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("fake rot data");
+          std::fill(data, data+ndata, std::sqrt(2)/2);
         } else {
-          float* data = new float[VcrossPlotVector[vcross]->nPoint];
-          for(int j=0;j<VcrossPlotVector[vcross]->nPoint;j++) {
-            data[j] = crossData[i][j];
-          }
-          VcrossDataMap[vcross].push_back(data);
+          METLIBS_LOG_DEBUG("no crossdata for '" << params[i] << "', using 0s");
+          std::fill(data, data+ndata, 0);
+        }
+        VcrossDataMap[vcross].push_back(data);
+
+        // FIXME this copy is only to have something in crossdata (instead of crossDataS)
+        float* cdata = new float[ndata];
+        std::copy(data, data+ndata, cdata);
+        crossData.push_back(cdata);
+
+        { std::ostringstream debug;
+          std::copy(data, data+std::min(10, ndata), std::ostream_iterator<float>(debug, " << "));
+          METLIBS_LOG_DEBUG(LOGVAL(params[i]) << " values=" << debug.str());
         }
       }
     }
@@ -509,9 +561,9 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
       vcp->nTotal = vcp->nPoint*vcp->numLev;
       vcp->horizontalPosNum = forecastHours.size();
       if (vcp->blevel.size())
-    	vcp->vcoord = 10;
+        vcp->vcoord = VCOORD_HYBRID;
       else
-    	vcp->vcoord = 1;
+        vcp->vcoord = VCOORD_OTHER;
       vcp->validTimeSeries = validTimes;
       vcp->forecastHourSeries = forecastHours;
       vcp->refPosition=0.;
@@ -611,21 +663,25 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
   for(size_t i=0;i<params.size();i++)
     if(params[i] == "psurf")
       psurf=i;
+  METLIBS_LOG_DEBUG(LOGVAL(psurf) << LOGVAL(vcp->vcoord));
   float pressure=50;
   for(size_t i=0;i<vcp->alevel.size();i++) {
     for(int j=0;j<vcp->nPoint;j++) {
       if(crossData[psurf][j] < fieldUndef) {
-    	if (vcp->vcoord == 1)
-    	  pressure=vcp->alevel[i];
+        if (vcp->vcoord == VCOORD_OTHER)
+          pressure=vcp->alevel[i];
     	else
           pressure=vcp->alevel[i]+vcp->blevel[i]*crossData[psurf][j];
       }
-      if(pressure>vcp->vrangemax)
-        vcp->vrangemax=pressure;
-      if(pressure<vcp->vrangemin)
-        vcp->vrangemin=pressure;
+      if (pressure>0.1 and pressure < 1200) {
+        if(pressure>vcp->vrangemax)
+          vcp->vrangemax=pressure;
+        if(pressure<vcp->vrangemin)
+          vcp->vrangemin=pressure;
+      }
     }
   }
+  METLIBS_LOG_DEBUG(LOGVAL(vcp->vrangemin) << LOGVAL(vcp->vrangemax));
 
 #ifdef DEBUGPRINT
   cerr << "vcp->nPoint: " << vcp->nPoint << endl;
