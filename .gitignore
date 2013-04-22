@@ -46,3 +46,6 @@
 /debian
 /do-configure
 /configure-stamp
+/src/PaintGL/paintgl.moc.cc
+/src/libdiana.la
+/src/libdiana_la-*
