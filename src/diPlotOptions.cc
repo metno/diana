@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diPlotOptions.cc 3893 2012-07-05 12:09:33Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,16 +34,19 @@
 #include "diPlotOptions.h"
 #include "diColourShading.h"
 #include "diPattern.h"
+
 #include <diField/diField.h>
+
+#include <boost/algorithm/string/join.hpp>
 
 //#define DEBUGPRINT 
 using namespace std;
 using namespace miutil;
 
-map<miString,PlotOptions> PlotOptions::fieldPlotOptions;
-vector<miString> PlotOptions::suffix;
-vector< vector <miString> > PlotOptions::plottypes;
-map< miutil::miString, miutil::miString > PlotOptions::enabledOptions;
+map<std::string,PlotOptions> PlotOptions::fieldPlotOptions;
+vector<std::string> PlotOptions::suffix;
+vector< vector <std::string> > PlotOptions::plottypes;
+map< std::string, std::string > PlotOptions::enabledOptions;
 
 PlotOptions::PlotOptions():
   options_1(true),options_2(false),
@@ -79,7 +80,7 @@ PlotOptions::PlotOptions():
   extremeLimits.clear();
 
   //init plottypes
-  vector< miString> plottypes_all;
+  vector< std::string> plottypes_all;
   plottypes_all.push_back(fpt_contour);
   plottypes_all.push_back(fpt_value);
   plottypes_all.push_back(fpt_symbol);
@@ -94,7 +95,7 @@ PlotOptions::PlotOptions():
   plottypes_all.push_back(fpt_frame);
   plottypes.push_back(plottypes_all);
 
-  vector< miString> plottypes_1dim;
+  vector< std::string> plottypes_1dim;
   plottypes_1dim.push_back(fpt_contour);
   plottypes_1dim.push_back(fpt_value);
   plottypes_1dim.push_back(fpt_symbol);
@@ -105,14 +106,14 @@ PlotOptions::PlotOptions():
   plottypes_1dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_1dim);
 
-  vector< miString> plottypes_2dim;
+  vector< std::string> plottypes_2dim;
   plottypes_2dim.push_back(fpt_wind            );
   plottypes_2dim.push_back(fpt_vector          );
   plottypes_2dim.push_back(fpt_value);
   plottypes_2dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_2dim);
 
-  vector< miString> plottypes_3dim;
+  vector< std::string> plottypes_3dim;
   plottypes_3dim.push_back(fpt_wind            );
   plottypes_3dim.push_back(fpt_vector          );
   plottypes_3dim.push_back(fpt_value);
@@ -121,7 +122,7 @@ PlotOptions::PlotOptions():
   plottypes_3dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_3dim);
 
-  vector< miString> plottypes_4dim;
+  vector< std::string> plottypes_4dim;
   plottypes_4dim.push_back(fpt_value);
   plottypes_4dim.push_back(fpt_frame);
   plottypes.push_back(plottypes_4dim);
@@ -141,201 +142,201 @@ PlotOptions::PlotOptions():
 
 // parse a string (possibly) containing plotting options,
 // and fill a PlotOptions with appropriate values
-bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
+bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
     bool returnMergedOptionString){
   // defined keywords:
   //------------------------------------------
   // options1: off,isoline
-  const miString key_options_1 = "options.1";
+  const std::string key_options_1 = "options.1";
   // options1: off,isoline,shading
-  const miString key_options_2 = "options.2";
+  const std::string key_options_2 = "options.2";
   // colour:     main colour
-  const miString key_colour= "colour";
+  const std::string key_colour= "colour";
   // colour:     main colour
-  const miString key_colour_2= "colour_2";
+  const std::string key_colour_2= "colour_2";
   // tcolour:    text colour
-  const miString key_tcolour= "tcolour";
+  const std::string key_tcolour= "tcolour";
   // lcolour:    line colour
-  const miString key_lcolour= "lcolour";
+  const std::string key_lcolour= "lcolour";
   // lcolour:    line colour
-  const miString key_lcolour_2= "lcolour_2";
+  const std::string key_lcolour_2= "lcolour_2";
   // fcolour:    fill colour
-  const miString key_fcolour= "fcolour";
+  const std::string key_fcolour= "fcolour";
   // bcolour:    pattern colour
-  const miString key_pcolour= "patterncolour";
+  const std::string key_pcolour= "patterncolour";
   // bcolour:    border colour
-  const miString key_bcolour= "bcolour";
+  const std::string key_bcolour= "bcolour";
   // colours:    list of colours
-  const miString key_colours= "colours";
+  const std::string key_colours= "colours";
   // colours:    list of colours in palette
-  const miString key_palettecolours= "palettecolours";
+  const std::string key_palettecolours= "palettecolours";
   // linetype:   linetype
-  const miString key_linetype= "linetype";
+  const std::string key_linetype= "linetype";
   // linetype:   linetype
-  const miString key_linetype_2= "linetype_2";
+  const std::string key_linetype_2= "linetype_2";
   // linetypes:  list of linetypes
-  const miString key_linetypes= "linetypes";
+  const std::string key_linetypes= "linetypes";
   // linewidth:  linewidth
-  const miString key_linewidth= "linewidth";
+  const std::string key_linewidth= "linewidth";
   // linewidth:  linewidth
-  const miString key_linewidth_2= "linewidth_2";
+  const std::string key_linewidth_2= "linewidth_2";
   // linewidths: list of linewidths
-  const miString key_linewidths= "linewidths";
+  const std::string key_linewidths= "linewidths";
   // patterns:  list of patterns
-  const miString key_patterns= "patterns";
+  const std::string key_patterns= "patterns";
   // line.interval:
-  const miString key_lineinterval= "line.interval";
+  const std::string key_lineinterval= "line.interval";
   // line.interval:
-  const miString key_lineinterval_2= "line.interval_2";
+  const std::string key_lineinterval_2= "line.interval_2";
   // value.range: minValue
-  const miString key_minvalue= "minvalue";
+  const std::string key_minvalue= "minvalue";
   // value.range: maxValue
-  const miString key_maxvalue= "maxvalue";
+  const std::string key_maxvalue= "maxvalue";
   // value.range: minValue
-  const miString key_minvalue_2= "minvalue_2";
+  const std::string key_minvalue_2= "minvalue_2";
   // value.range: maxValue
-  const miString key_maxvalue_2= "maxvalue_2";
+  const std::string key_maxvalue_2= "maxvalue_2";
   // colourcut 0=off 1=on
-  const miString key_colourcut= "colourcut";
+  const std::string key_colourcut= "colourcut";
   // line.values
-  const miString key_linevalues= "line.values";
+  const std::string key_linevalues= "line.values";
   // logarithmic line.values
-  const miString key_loglinevalues= "log.line.values";
+  const std::string key_loglinevalues= "log.line.values";
   // limits:
-  const miString key_linevalues_2= "line.values_2";
+  const std::string key_linevalues_2= "line.values_2";
   // logarithmic line.values
-  const miString key_loglinevalues_2= "log.line.values_2";
+  const std::string key_loglinevalues_2= "log.line.values_2";
   // limits:
-  const miString key_limits= "limits";
+  const std::string key_limits= "limits";
   // values:
-  const miString key_values= "values";
+  const std::string key_values= "values";
   // extreme (min,max)
-  const miString key_extremeType= "extreme.type";
-  const miString key_extremeSize= "extreme.size";
-  const miString key_extremeRadius= "extreme.radius";
-  const miString key_extremeLimits= "extreme.limits";
+  const std::string key_extremeType= "extreme.type";
+  const std::string key_extremeSize= "extreme.size";
+  const std::string key_extremeRadius= "extreme.radius";
+  const std::string key_extremeLimits= "extreme.limits";
   // contour line smoothing
-  const miString key_lineSmooth= "line.smooth";
+  const std::string key_lineSmooth= "line.smooth";
   // field smoothing
-  const miString key_fieldSmooth= "field.smooth";
+  const std::string key_fieldSmooth= "field.smooth";
   // plot frame around complete field area  ( 0=off 1=on)
-  const miString key_frame= "frame";
+  const std::string key_frame= "frame";
   // zero line drawing (-1=no_option 0=off 1=on)
-  const miString key_zeroLine= "zero.line";
+  const std::string key_zeroLine= "zero.line";
   // labels on isolines (0=off 1=on)
-  const miString key_valueLabel= "value.label";
+  const std::string key_valueLabel= "value.label";
   // rel. label size
-  const miString key_labelSize= "label.size";
+  const std::string key_labelSize= "label.size";
   // show grid values (-1=no_option 0=off 1=on)
-  const miString key_gridValue= "grid.value";
+  const std::string key_gridValue= "grid.value";
   // show grid lines (0=off N=density)
-  const miString key_gridLines= "grid.lines";
+  const std::string key_gridLines= "grid.lines";
   // show max grid lines (0=no limit N=maximum, skip if more)
-  const miString key_gridLinesMax= "grid.lines.max";
+  const std::string key_gridLinesMax= "grid.lines.max";
   // field plottype:
-  const miString key_plottype= "plottype";
+  const std::string key_plottype= "plottype";
   // discontinuous field
-  const miString key_rotatevectors= "rotate.vectors";
+  const std::string key_rotatevectors= "rotate.vectors";
   // discontinuous field
-  const miString key_discontinuous= "discontinuous";
+  const std::string key_discontinuous= "discontinuous";
   // table
-  const miString key_table= "table";
+  const std::string key_table= "table";
   // alpha shading
-  const miString key_alpha= "alpha";
+  const std::string key_alpha= "alpha";
   // repeat palette
-  const miString key_repeat= "repeat";
+  const std::string key_repeat= "repeat";
   // class specifications
-  const miString key_classes= "classes";
+  const std::string key_classes= "classes";
   // base value
-  const miString key_basevalue= "base";
+  const std::string key_basevalue= "base";
   // base value
-  const miString key_basevalue_2= "base_2";
+  const std::string key_basevalue_2= "base_2";
   // (vector) density
-  const miString key_density= "density";
+  const std::string key_density= "density";
   // (vector) density - auto*factor
-  const miString key_densityfactor= "density.factor";
+  const std::string key_densityfactor= "density.factor";
   // vector unit
-  const miString key_vectorunit= "vector.unit";
+  const std::string key_vectorunit= "vector.unit";
   // vector unit name
-  const miString key_vectorunitname= "vector.unit.name";
+  const std::string key_vectorunitname= "vector.unit.name";
   // forecast length
-  const miString key_forecastLength= "forecast.length";
+  const std::string key_forecastLength= "forecast.length";
   // forecast value min
-  const miString key_forecastValueMin= "forecast.value.min";
+  const std::string key_forecastValueMin= "forecast.value.min";
   // forecast value max
-  const miString key_forecastValueMax= "forecast.value.max";
+  const std::string key_forecastValueMax= "forecast.value.max";
   // undefMasking and options
-  const miString key_undefMasking=   "undef.masking";
-  const miString key_undefColour=    "undef.colour";
-  const miString key_undefLinewidth= "undef.linewidth";
-  const miString key_undefLinetype=  "undef.linetype";
+  const std::string key_undefMasking=   "undef.masking";
+  const std::string key_undefColour=    "undef.colour";
+  const std::string key_undefLinewidth= "undef.linewidth";
+  const std::string key_undefLinetype=  "undef.linetype";
   // polyStyle
-  const miString key_polystyle= "polystyle";
+  const std::string key_polystyle= "polystyle";
   // arrowStyle
-  const miString key_arrowstyle= "arrowstyle";
+  const std::string key_arrowstyle= "arrowstyle";
   // h_alignment
-  const miString key_h_alignment= "halign";
+  const std::string key_h_alignment= "halign";
   // v_alignment
-  const miString key_v_alignment= "valign";
+  const std::string key_v_alignment= "valign";
   // alignment for plotted numbers
-  const miString key_alignX= "alignX";
+  const std::string key_alignX= "alignX";
   // alignment for plotted numbers
-  const miString key_alignY= "alignY";
+  const std::string key_alignY= "alignY";
   // fontname
-  const miString key_fontname= "font";
+  const std::string key_fontname= "font";
   // fontface
-  const miString key_fontface= "face";
+  const std::string key_fontface= "face";
   // fontsize
-  const miString key_fontsize= "fontsize";
+  const std::string key_fontsize= "fontsize";
   // value precision
-  const miString key_precision= "precision";
+  const std::string key_precision= "precision";
   // dinesion (scalar=1, vector=2)
-  const miString key_dimension= "dim";
+  const std::string key_dimension= "dim";
   // plot enabled
-  const miString key_enabled= "enabled";
+  const std::string key_enabled= "enabled";
   //field description used for plotting
-  const miString key_fdescr= "fdesc";
+  const std::string key_fdescr= "fdesc";
   //field names used for plotting
-  const miString key_fname= "fname";
+  const std::string key_fname= "fname";
   //plot in overlay buffer
-  const miString key_overlay="overlay";
+  const std::string key_overlay="overlay";
   //contour shape
-  const miString key_contourShape="contourShape";
+  const std::string key_contourShape="contourShape";
   //Shape filename for output
-  const miString key_shapefilename="shapefilename";
+  const std::string key_shapefilename="shapefilename";
   //unit obsolete, use units
-  const miString key_unit="unit";
+  const std::string key_unit="unit";
   //units
-  const miString key_units="units";
+  const std::string key_units="units";
   //legend units
-  const miString key_legendunits="legendunits";
+  const std::string key_legendunits="legendunits";
   //anti-aliasing
-  const miString key_antialiasing="antialiasing";
+  const std::string key_antialiasing="antialiasing";
   //use_stencil
-  const miString key_use_stencil="use_stencil";
+  const std::string key_use_stencil="use_stencil";
   //update_stencil
-  const miString key_update_stencil="update_stencil";
-  const miString key_plot_under="plot_under";
+  const std::string key_update_stencil="update_stencil";
+  const std::string key_plot_under="plot_under";
   //------------------------------------------
 
 
-  vector<miString> tokens,etokens,stokens;
-  miString key,value;
+  vector<std::string> tokens,etokens,stokens;
+  std::string key,value;
   int i,j,n,m,l;
   Colour c;
   Linetype linetype;
 
-  miString origStr;
+  std::string origStr;
 
   //float lw;
   bool result=true;
 
-  tokens= optstr.split('"','"');
+  tokens= miutil::split_protected(optstr, '"', '"');
   n= tokens.size();
 
   for (i=0; i<n; i++){
 
-    etokens= tokens[i].split("=");
+    etokens= miutil::split(tokens[i], 0, "=");
     l= etokens.size();
     if (l>1){
       key= etokens[0];
@@ -395,7 +396,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         // 	  po.options_1= false;
         // 	} else {
         po.options_1= true;
-        stokens= value.split(',');
+        stokens= miutil::split(value, 0, ",");
         m= stokens.size();
         for (j=0; j<m; j++){
           c= Colour(stokens[j]);
@@ -409,7 +410,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         if(value!="off")
           po.contourShading=1;
         po.palettename=value;
-        stokens= value.split(',');
+        stokens= miutil::split(value, 0, ",");
         m= stokens.size();
         if(m>2){
           for (j=0; j<m; j++){
@@ -418,9 +419,9 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
           }
         } else {
           if(m>0){
-            vector<miString> ntoken=stokens[0].split(";");
+            vector<std::string> ntoken=miutil::split(stokens[0], 0, ";");
             ColourShading cs(ntoken[0]);
-            if(ntoken.size()==2 && ntoken[1].isInt()){
+            if(ntoken.size()==2 && miutil::is_int(ntoken[1])){
               po.palettecolours = cs.getColourShading(atoi(ntoken[1].c_str()));
             }
             else {
@@ -428,9 +429,9 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
             }
           }
           if(m>1){
-            vector<miString> ntoken=stokens[1].split(";");
+            vector<std::string> ntoken=miutil::split(stokens[1], 0, ";");
             ColourShading cs(ntoken[0]);
-            if(ntoken.size()==2 && ntoken[1].isInt())
+            if(ntoken.size()==2 && miutil::is_int(ntoken[1]))
               po.palettecolours_cold = cs.getColourShading(atoi(ntoken[1].c_str()));
             else
               po.palettecolours_cold = cs.getColourShading();
@@ -440,21 +441,21 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
       } else if (key==key_linetype){
         po.linetype = Linetype(value);
         po.linetypes.clear();
-        po.linetypes.push_back(value);
+        po.linetypes.push_back(Linetype(value));
 
       } else if (key==key_linetype_2){
         po.linetype_2 = Linetype(value);
-        po.linetypes.push_back(value);
+        po.linetypes.push_back(Linetype(value));
 
       } else if (key==key_linetypes){
-        stokens= value.split(',');
+        stokens= miutil::split(value, 0, ",");
         m= stokens.size();
         for (j=0; j<m; j++){
           po.linetypes.push_back(Linetype(stokens[j]));
         }
 
       } else if (key==key_linewidth){
-        if (value.isInt()){
+        if (miutil::is_int(value)){
           po.linewidth= atoi(value.c_str());
           po.linewidths.clear();
           po.linewidths.push_back(atoi(value.c_str()));
@@ -462,7 +463,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         else result=false;
 
       } else if (key==key_linewidth_2){
-        if (value.isInt()){
+        if (miutil::is_int(value)){
           po.linewidth_2= atoi(value.c_str());
           po.linewidths.push_back(atoi(value.c_str()));
         }
@@ -478,14 +479,15 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
           po.patternname = value;
           po.contourShading=1;
         }
-        if(value.contains(","))
-          po.patterns = value.split(',');
-        else{
-          po.patterns = Pattern::getPatternInfo(value);
+        if(miutil::contains(value, ","))
+          po.patterns = miutil::split(value, 0, ",");
+        else {
+          std::vector<miString> p = Pattern::getPatternInfo(value);
+          po.patterns = std::vector<std::string>(p.begin(), p.end());
         }
 
       } else if (key==key_lineinterval){
-        if (value.isNumber()) {
+        if (miutil::is_number(value)) {
           po.lineinterval= atof(value.c_str());
           po.linevalues.clear();
           po.loglinevalues.clear();
@@ -494,7 +496,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         }
 
       } else if (key==key_lineinterval_2){
-        if (value.isNumber()) {
+        if (miutil::is_number(value)) {
           po.lineinterval_2= atof(value.c_str());
           po.linevalues_2.clear();
           po.loglinevalues_2.clear();
@@ -503,27 +505,27 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         }
 
       } else if (key==key_minvalue){
-        if (value.isNumber()){
+        if (miutil::is_number(value)){
           po.minvalue = atof(value.c_str());
         }
 
       } else if (key==key_maxvalue){
-        if (value.isNumber()){
+        if (miutil::is_number(value)){
           po.maxvalue = atof(value.c_str());
         }
 
       } else if (key==key_minvalue_2){
-        if (value.isNumber()) {
+        if (miutil::is_number(value)) {
           po.minvalue_2 = atof(value.c_str());
         }
 
       } else if (key==key_maxvalue_2){
-        if (value.isNumber()){
+        if (miutil::is_number(value)){
           po.maxvalue_2 = atof(value.c_str());
         }
 
       } else if (key==key_colourcut){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.colourcut = atoi(value.c_str());
 
       } else if (key==key_linevalues){
@@ -567,12 +569,12 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.extremeType= value;
 
       } else if (key==key_extremeSize){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.extremeSize= atof(value.c_str());
         else result=false;
 
       } else if (key==key_extremeRadius){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.extremeRadius= atof(value.c_str());
         else result=false;
 
@@ -581,64 +583,64 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         if (po.extremeLimits.size()==0) result= false;
 
       } else if (key==key_lineSmooth){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.lineSmooth= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_fieldSmooth){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.fieldSmooth= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_frame){
-        if (value.isInt()) {
+        if (miutil::is_int(value)) {
           po.frame= atoi(value.c_str());
           if (po.frame<0) po.frame=0;
           if (po.frame> 1) po.frame= 1;
         } else result=false;
 
       } else if (key==key_zeroLine){
-        if (value.isInt()) {
+        if (miutil::is_int(value)) {
           po.zeroLine= atoi(value.c_str());
           if (po.zeroLine<-1) po.zeroLine=-1;
           if (po.zeroLine> 1) po.zeroLine= 1;
         } else result=false;
 
       } else if (key==key_valueLabel){
-        if (value.isInt()) {
+        if (miutil::is_int(value)) {
           po.valueLabel= atoi(value.c_str());
           if (po.valueLabel<0) po.valueLabel= 0;
           if (po.valueLabel>1) po.valueLabel= 1;
         } else result=false;
 
       } else if (key==key_labelSize){
-        if (value.isNumber()) {
+        if (miutil::is_number(value)) {
           po.labelSize= atof(value.c_str());
           if (po.labelSize<0.2) po.labelSize= 0.2;
           if (po.labelSize>5.0) po.labelSize= 5.0;
         } else result=false;
 
       } else if (key==key_gridValue){
-        if (value.isInt()) {
+        if (miutil::is_int(value)) {
           po.gridValue= atoi(value.c_str());
           if (po.gridValue<-1) po.gridValue=-1;
           if (po.gridValue> 1) po.gridValue= 1;
         } else result=false;
 
       } else if (key==key_gridLines){
-        if (value.isInt()) {
+        if (miutil::is_int(value)) {
           po.gridLines= atoi(value.c_str());
           if (po.gridLines<0) po.gridLines= 0;
         } else result=false;
 
       } else if (key==key_gridLinesMax){
-        if (value.isInt()) {
+        if (miutil::is_int(value)) {
           po.gridLinesMax= atoi(value.c_str());
           if (po.gridLinesMax<0) po.gridLinesMax= 0;
         } else result=false;
 
       } else if (key==key_plottype){
-        value= value.downcase();
+        value= miutil::to_lower(value);
         if (value==fpt_contour         || value==fpt_value ||
             value==fpt_alpha_shade     || value==fpt_symbol ||
             value==fpt_alarm_box       || value==fpt_fill_cell        ||
@@ -667,72 +669,72 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         }
 
       } else if (key==key_rotatevectors){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.rotateVectors= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_discontinuous){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.discontinuous= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_table){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.table= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_alpha){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.alpha= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_repeat){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.repeat= atoi(value.c_str());
         else result=false;
 
       } else if (key==key_classes){
         po.classSpecifications= value;
       } else if (key==key_basevalue){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.base= atof(value.c_str());
         else result=false;
 
       } else if (key==key_basevalue_2){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.base_2= atof(value.c_str());
         else result=false;
 
       } else if (key==key_density){
-        if (value.isInt()) {
+        if (miutil::is_int(value)) {
           po.density= atoi(value.c_str());
         } else {
           po.density=0;
           size_t pos1 = value.find_first_of("(")+1;
           size_t pos2 = value.find_first_of(")");
           if ( pos2 > pos1 ) {
-          miString tmp = value.substr(pos1,(pos2-pos1));
-          if (tmp.isNumber() ) {
+          std::string tmp = value.substr(pos1,(pos2-pos1));
+          if (miutil::is_number(tmp) ) {
             po.densityFactor= atof(tmp.c_str());
           }
           }
         }
 
       } else if (key==key_densityfactor){
-        if (value.isNumber()) {
+        if (miutil::is_number(value)) {
           po.densityFactor= atof(value.c_str());
         } else {
           result=false;
         }
 
       } else if (key==key_vectorunit){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.vectorunit= atof(value.c_str());
         else result=false;
 
       } else if (key==key_vectorunitname){
         po.vectorunitname= value;
-        po.vectorunitname.remove('"');
+        miutil::remove(po.vectorunitname, '"');
 
       } else if (key==key_forecastLength){
         po.forecastLength= po.intVector(value);
@@ -747,7 +749,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         if (po.forecastValueMax.size()==0) result= false;
 
       } else if (key==key_undefMasking){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.undefMasking= atoi(value.c_str());
         else result=false;
 
@@ -756,7 +758,7 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.undefColour= c;
 
       } else if (key==key_undefLinewidth){
-        if (value.isInt())
+        if (miutil::is_int(value))
           po.undefLinewidth= atoi(value.c_str());
         else result=false;
 
@@ -798,24 +800,24 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
         po.fontface= value;
 
       } else if (key==key_fontsize){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.fontsize= atof(value.c_str());
         else result=false;
 
       } else if (key==key_precision){
-        if (value.isNumber())
+        if (miutil::is_number(value))
           po.precision= atof(value.c_str());
         else result=false;
 
       } else if (key==key_dimension){
-        if (value.isInt())
-          po.dimension= value.toInt();
+        if (miutil::is_int(value))
+          po.dimension= miutil::to_int(value);
         else result=false;
 
       } else if (key==key_enabled){
         po.enabled= (value == "true");
       } else if (key==key_fdescr){
-        po.fdescr=value.split(":");
+        po.fdescr=miutil::split(value, ":");
       } else if (key==key_fname){
         po.fname=value;
       } else if (key==key_overlay){
@@ -854,26 +856,26 @@ bool PlotOptions::parsePlotOption( miString& optstr, PlotOptions& po,
 }
 
 // update static fieldplotoptions
-bool PlotOptions::updateFieldPlotOptions(const miString& name,
-    const miString& optstr)
+bool PlotOptions::updateFieldPlotOptions(const std::string& name,
+    const std::string& optstr)
 {
 #ifdef DEBUGPRINT
   cerr<<":::::::::PlotOptions::updateFieldPlotOptions"<<endl;
   cerr<<":::::::::name: "<< name << "   *******  optstr: "<<optstr<<endl;
 #endif
-  miString tmpOpt = optstr;
+  std::string tmpOpt = optstr;
   return parsePlotOption(tmpOpt,fieldPlotOptions[name]);
 }
 
 // fill a fieldplotoption from static map, and substitute values
 // from a string containing plotoptions
-bool PlotOptions::fillFieldPlotOptions(miString name,
-    miString& optstr,
+bool PlotOptions::fillFieldPlotOptions(std::string name,
+    std::string& optstr,
     PlotOptions& po)
 {
   removeSuffix(name);
 
-  map<miString,PlotOptions>::iterator p;
+  map<std::string,PlotOptions>::iterator p;
   // if field-spec not found, simply add a new (for default CONTOUR plot)
   if ((p=fieldPlotOptions.find(name))
       != fieldPlotOptions.end())
@@ -887,13 +889,13 @@ bool PlotOptions::fillFieldPlotOptions(miString name,
 }
 
 // fill in values in an int vector
-vector<int> PlotOptions::intVector(const miString& str) const {
+vector<int> PlotOptions::intVector(const std::string& str) const {
   vector<int> v;
   bool error= false;
-  vector<miString> stokens= str.split(',');
+  vector<std::string> stokens= miutil::split(str, 0, ",");
   int m= stokens.size();
   for (int j=0; j<m; j++){
-    if (stokens[j].isInt())
+    if (miutil::is_int(stokens[j]))
       v.push_back(atoi(stokens[j].c_str()));
     else
       error= true;
@@ -904,13 +906,13 @@ vector<int> PlotOptions::intVector(const miString& str) const {
 
 
 // fill in values in a float vector
-vector<float> PlotOptions::floatVector(const miString& str) const {
+vector<float> PlotOptions::floatVector(const std::string& str) const {
   vector<float> v;
   bool error= false;
-  vector<miString> stokens= str.split(',');
+  vector<std::string> stokens= miutil::split(str, 0, ",");
   int m= stokens.size();
   for (int j=0; j<m; j++){
-    if (stokens[j].isNumber())
+    if (miutil::is_number(stokens[j]))
       v.push_back(atof(stokens[j].c_str()));
     else
       error= true;
@@ -920,23 +922,23 @@ vector<float> PlotOptions::floatVector(const miString& str) const {
 }
 
 // fill in values and "..." (1,2,3,...10) in a float vector
-vector<float> PlotOptions::autoExpandFloatVector(const miString& str) const {
+vector<float> PlotOptions::autoExpandFloatVector(const std::string& str) const {
   vector<float> v;
   bool error= false;
 
-  vector<miString> stokens= str.split(',');
+  vector<std::string> stokens= miutil::split(str, 0, ",");
   int m= stokens.size();
   int k;
   float val,delta,step;
 
   for (int j=0; j<m; j++){
-    if (stokens[j].isNumber()){
+    if (miutil::is_number(stokens[j])){
       v.push_back(atof(stokens[j].c_str()));
     } else if (stokens[j].substr(0,2)==".." && v.size()>1){
       // add a whole interval (10,20,...50)
-      stokens[j].replace("."," ");
-      stokens[j].trim();
-      if (stokens[j].isNumber()){
+      miutil::replace(stokens[j], "."," ");
+      miutil::trim(stokens[j]);
+      if (miutil::is_number(stokens[j])){
         val= atof(stokens[j].c_str());
         k= v.size();
         delta= v[k-1]-v[k-2];
@@ -954,18 +956,18 @@ vector<float> PlotOptions::autoExpandFloatVector(const miString& str) const {
   return v;
 }
 
-void PlotOptions::removeSuffix(miString& name)
+void PlotOptions::removeSuffix(std::string& name)
 {
 
   int n = suffix.size();
   for(int i=0; i<n; i++)
-    name.replace(suffix[i],"");
+    miutil::replace(name, suffix[i],"");
 
 }
 
 
-void PlotOptions::getAllFieldOptions(vector<miString> fieldNames,
-    map<miString,miString>& fieldoptions)
+void PlotOptions::getAllFieldOptions(vector<std::string> fieldNames,
+    map<std::string,std::string>& fieldoptions)
 {
 
   // The selected PlotOptions elements are used to activate elements
@@ -987,7 +989,7 @@ void PlotOptions::getAllFieldOptions(vector<miString> fieldNames,
 }
 
 
-miString PlotOptions::toString()
+std::string PlotOptions::toString()
 {
 
   Linetype defaultLinetype= Linetype::getDefaultLinetype();
@@ -1023,16 +1025,18 @@ miString PlotOptions::toString()
 
   if(dimension == 1){
 
-    if (linevalues.size()==0 && loglinevalues.size()==0) {
+    if (linevalues.empty() && loglinevalues.empty()) {
       ostr << " line.interval=" << lineinterval;
-    } else if (linevalues.size() != 0 ) {
-      miString str;
-      str.join(linevalues,",");
-      ostr << " line.values=" << str;
-    } else if (loglinevalues.size() != 0 ) {
-      miString str;
-      str.join(loglinevalues,",");
-      ostr << " log.line.values=" << str;
+    } else if (not linevalues.empty()) {
+      std::vector<float>::const_iterator it = linevalues.begin();
+      ostr << " line.values=" << *it++;
+      for (; it != linevalues.end(); ++it)
+        ostr << ',' << *it;
+    } else if (not loglinevalues.empty()) {
+      std::vector<float>::const_iterator it = loglinevalues.begin();
+      ostr << " log.line.values=" << *it++;
+      for (; it != loglinevalues.end(); ++it)
+        ostr << ',' << *it;
     }
 
     ostr << " extreme.type="   << extremeType
@@ -1087,13 +1091,15 @@ miString PlotOptions::toString()
     if (linevalues_2.size()==0 && loglinevalues_2.size()==0) {
       ostr << " line.interval_2=" << lineinterval_2;
     } else if (linevalues_2.size() != 0 ) {
-      miString str;
-      str.join(linevalues_2,",");
-      ostr << " line.values_2=" << str;
+      std::vector<float>::const_iterator it = linevalues_2.begin();
+      ostr << " line.values_2=" << *it++;
+      for (; it != linevalues_2.end(); ++it)
+        ostr << ',' << *it;
     } else if (loglinevalues_2.size() != 0 ) {
-      miString str;
-      str.join(loglinevalues_2,",");
-      ostr << " log.line.values_2=" << str;
+      std::vector<float>::const_iterator it = loglinevalues_2.begin();
+      ostr << " log.line.values_2=" << *it++;
+      for (; it != loglinevalues_2.end(); ++it)
+        ostr << ',' << *it;
     }
 
     if(minvalue_2>-fieldUndef) {
@@ -1135,10 +1141,10 @@ miString PlotOptions::toString()
 
 
 
-bool PlotOptions::getFieldPlotOptions(const miString& name, PlotOptions& po)
+bool PlotOptions::getFieldPlotOptions(const std::string& name, PlotOptions& po)
 {
 
-  map<miString,PlotOptions>::iterator p;
+  map<std::string,PlotOptions>::iterator p;
   if ((p=fieldPlotOptions.find(name))
       != fieldPlotOptions.end()){
     po= p->second;

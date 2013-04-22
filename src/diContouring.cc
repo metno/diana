@@ -4026,7 +4026,7 @@ void fillContours(vector<ContourLine*>& contourlines,
   int ncolours_cold= poptions.palettecolours_cold.size();
   colours_cold = poptions.palettecolours_cold;
 
-  vector<miString> patterns;
+  vector<std::string> patterns;
   int npatterns= poptions.patterns.size();
   patterns = poptions.patterns;
 
@@ -4054,9 +4054,9 @@ void fillContours(vector<ContourLine*>& contourlines,
   vector<miString> classNames;
   unsigned int maxlen=0;
 
-  if (poptions.discontinuous == 1 && poptions.classSpecifications.exists()) {
+  if (poptions.discontinuous == 1 && (not poptions.classSpecifications.empty())) {
     // discontinuous (classes)
-    vector<miString> classSpec = poptions.classSpecifications.split(",");
+    vector<miString> classSpec = miString(poptions.classSpecifications).split(",");
     int nc = classSpec.size();
     for (int i = 0; i < nc; i++) {
       vector<miString> vstr = classSpec[i].split(":");
@@ -4260,9 +4260,9 @@ void writeShapefile(vector<ContourLine*>& contourlines,
   vector<int>      classValues;
   vector<miString> classNames;
   unsigned int maxlen=0;
-  if (poptions.discontinuous==1 && poptions.classSpecifications.exists()) {
+  if (poptions.discontinuous==1 && (not poptions.classSpecifications.empty())) {
     // discontinuous (classes)
-    vector<miString> classSpec=poptions.classSpecifications.split(",");
+    vector<miString> classSpec=miString(poptions.classSpecifications).split(",");
     int nc = classSpec.size();
     for (int i=0; i<nc; i++) {
       vector<miString> vstr=classSpec[i].split(":");
@@ -4289,7 +4289,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
   }
 
   miString shapefileName;
-  if (poptions.shapefilename.size()>0 && !poptions.shapefilename.contains("tmp_diana") )
+  if (poptions.shapefilename.size()>0 && !miutil::contains(poptions.shapefilename, "tmp_diana") )
 	  shapefileName=poptions.shapefilename;
   else
 	  shapefileName= modelName + "_" + paramName + "_" + miString(fhour) + ".shp";

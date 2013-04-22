@@ -1594,7 +1594,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     numFieldEditTools= n;
 
     miutil::miString str;
-    map<miutil::miString,PlotOptions>::iterator p;
+    map<std::string,PlotOptions>::iterator p;
     if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
         != PlotOptions::fieldPlotOptions.end()){
       str = p->second.classSpecifications;;
@@ -1855,7 +1855,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     numFieldEditTools= n;
 
     miutil::miString str;
-    map<miutil::miString,PlotOptions>::iterator p;
+    map<std::string,PlotOptions>::iterator p;
     if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
         != PlotOptions::fieldPlotOptions.end()){
       str = p->second.classSpecifications;;

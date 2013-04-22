@@ -3662,7 +3662,7 @@ int diana_init(int _argc, char** _argv)
   priop.fname = "tmp_diana.ps";
   priop.colop = d_print::greyscale;
   priop.drawbackground = false;
-  priop.orientation = ori_automatic;
+  priop.orientation = d_print::ori_automatic;
   priop.pagesize = d_print::A4;
   // 1.4141
   priop.papersize.hsize = 297;

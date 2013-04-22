@@ -112,7 +112,7 @@ int main(int argc, char **argv)
   miString profetServer;
   miString setupfile;
   miString lang;
-  map<miString,miString> user_variables;
+  map<std::string, std::string> user_variables;
 
   user_variables["PVERSION"]= PVERSION;
   user_variables["SYSCONFDIR"]= SYSCONFDIR;

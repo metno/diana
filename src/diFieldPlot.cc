@@ -110,7 +110,7 @@ bool FieldPlot::getRealFieldArea(Area& a){
 // check if current data from plottime
 bool FieldPlot::updateNeeded(miString& pin){
   if (ftime.undef() ||
-      (ftime != ctime && !pinfo.contains(" time="))
+      (ftime != ctime && !miutil::contains(pinfo, " time="))
       || fields.size()==0){
     pin= pinfo;
     return true;
@@ -276,7 +276,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
 
 
       vector<miString> classSpec;
-      classSpec = poptions.classSpecifications.split(",");
+      classSpec = miString(poptions.classSpecifications).split(",");
 
       // if class specification is given, do not plot more entries than class specifications
       if ( classSpec.size() && ncodes > classSpec.size()) {
@@ -1110,10 +1110,10 @@ bool FieldPlot::plotValue(){
   // plot symbol
   ImageGallery ig;
   map<int, miString> classImages;
-  if (poptions.plottype==fpt_symbol &&  poptions.discontinuous == 1 && poptions.classSpecifications.exists()) {
+  if (poptions.plottype==fpt_symbol &&  poptions.discontinuous == 1 && (not poptions.classSpecifications.empty())) {
     vector<int>      classValues;
     vector<miString> classNames;
-    vector<miString> classSpec = poptions.classSpecifications.split(",");
+    vector<miString> classSpec = miString(poptions.classSpecifications).split(",");
     int nc = classSpec.size();
     for (int i = 0; i < nc; i++) {
       vector<miString> vstr = classSpec[i].split(":");
@@ -2684,9 +2684,9 @@ bool FieldPlot::plotContour(){
     poptions.contourShading = contourShading;
   }
 
-  if (poptions.extremeType.upcase()=="L+H" ||
-      poptions.extremeType.upcase()=="C+W" ||
-      poptions.extremeType.upcase()=="VALUE") markExtreme();
+  const std::string pexu = miutil::to_upper(poptions.extremeType);
+  if (pexu=="L+H" || pexu=="C+W" || pexu=="VALUE")
+    markExtreme();
 
   UpdateOutput();
 
@@ -3583,10 +3583,11 @@ bool FieldPlot::markExtreme(){
   float chrx[2], chry[2];
   bool plotValue = false;
 
-  if (poptions.extremeType.upcase()=="C+W") {
+  const std::string pexu = miutil::to_upper(poptions.extremeType);
+  if (pexu=="C+W") {
     marks[0]= 'C';  pmarks[0]= "C";
     marks[1]= 'W';  pmarks[1]= "W";
-  } else if (poptions.extremeType.upcase()=="L+H") {
+  } else if (pexu=="L+H") {
     marks[0]= 'L';  pmarks[0]= "L";
     marks[1]= 'H';  pmarks[1]= "H";
   } else {

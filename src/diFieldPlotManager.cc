@@ -61,7 +61,7 @@ bool FieldPlotManager::parseSetup()
 {
 
   //field prefixes and field suffixes (used in EPS so far)
-  vector<miString> suffix;
+  vector<std::string> suffix;
   suffix.push_back(".mean");
   suffix.push_back(".std.dev.");
   PlotOptions::setSuffix(suffix);

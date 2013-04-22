@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,15 +31,17 @@
 #include "config.h"
 #endif
 
-#include <qglobal.h>
+#include "diPlot.h"
 
-#include <diPlot.h>
+#include "diFontManager.h"
+
+#include <qglobal.h>
 #if !defined(USE_PAINTGL)
 #include <glp/glpfile.h>
 #endif
-#include <diFontManager.h>
 
-using namespace::miutil;
+using namespace ::miutil;
+using namespace d_print;
 
 // static class members
 Area Plot::area;           // chosen projec./area in gridcoordinates
@@ -59,7 +59,7 @@ GLPfile* Plot::psoutput=0; // PostScript module
 bool Plot::hardcopy=false; // producing postscript
 int Plot::pressureLevel=-1;// current pressure level
 int Plot::oceandepth=-1;   // current ocean depth
-miString Plot::bgcolour="";// name of background colour
+std::string Plot::bgcolour="";// name of background colour
 Colour Plot::backgroundColour;
 Colour Plot::backContrastColour;
 bool Plot::panning=false;  // panning in progress
@@ -234,7 +234,7 @@ void Plot::xyClear(){
   xyPart.clear();
 }
 
-void Plot::setPlotInfo(const miString& pin)
+void Plot::setPlotInfo(const std::string& pin)
 {
   pinfo= pin;
   // fill poptions with values from pinfo
@@ -243,14 +243,14 @@ void Plot::setPlotInfo(const miString& pin)
   enabled= poptions.enabled;
 }
 
-miString Plot::getPlotInfo(int n)
+std::string Plot::getPlotInfo(int n)
 {
   //return current plot info string
   if(n==0) return pinfo;
   //return n elements of current plot info string
-  vector<miString> token = pinfo.split(n," ",true);
+  vector<std::string> token = miutil::split(pinfo, n, " ", true);
   token.pop_back(); //remove last part
-  miString str;
+  std::string str;
   //  str.join(token," ");
   for(unsigned int i=0;i<token.size();i++){
     str+=token[i];
@@ -258,15 +258,15 @@ miString Plot::getPlotInfo(int n)
   }
   return str;
 }
-miString Plot::getPlotInfo(miString return_tokens)
+std::string Plot::getPlotInfo(std::string return_tokens)
 {
   //return n elements of current plot info string
-  vector<miString> return_token = return_tokens.split(",");
-  vector<miString> token = pinfo.split(" ");
-  miString str;
+  vector<std::string> return_token = miutil::split(return_tokens, 0, ",");
+  vector<std::string> token = miutil::split(pinfo, 0, " ");
+  std::string str;
   //  str.join(token," ");
   for(unsigned int i=0;i<token.size();i++){
-    vector<miString> stoken = token[i].split("=");
+    vector<std::string> stoken = miutil::split(token[i], 0, "=");
     if( stoken.size() == 2 ) {
       int j=0;
       while ( j<return_token.size() && return_token[j] != stoken[0] ) ++j;

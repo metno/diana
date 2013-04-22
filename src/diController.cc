@@ -129,7 +129,7 @@ bool Controller::parseSetup()
     for (int j=0; j<lines.size(); j++) {
       string_lines.push_back(lines[j]);
     }
-    fieldm->parseSetup(string_lines,fieldSubSect[i],errors,false);
+    fieldm->parseSetup(string_lines,fieldSubSect[i],errors);
   }
   //Write error messages
   int nerror = errors.size();

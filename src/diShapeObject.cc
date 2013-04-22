@@ -942,7 +942,7 @@ void ShapeObject::makeColourmap()
   colourmapMade=true;
   if (poptions.palettecolours.size())
     colours= poptions.palettecolours;
-  if (poptions.fname.exists())
+  if (not poptions.fname.empty())
     fname=poptions.fname;
   else if (dbfStringName.size())
     fname=dbfStringName[0];

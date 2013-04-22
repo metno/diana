@@ -65,8 +65,8 @@ SetupDialog::SetupDialog(QWidget* parent)
   v->addLayout(setuplayout);
 
   //more options
-  map<miutil::miString, miutil::miString> key_value = miutil::SetupParser::getUserVariables();
-  map<miutil::miString, miutil::miString>::iterator it = key_value.begin();
+  const map<std::string, std::string> key_value = miutil::SetupParser::getUserVariables();
+  map<std::string, std::string>::const_iterator it = key_value.begin();
   for (int i=0 ; it != key_value.end(); ++it,++i  ) {
     values.push_back( new QLineEdit(it->second.c_str(),this));
     options.push_back(new QLabel(it->first.c_str(), this));

@@ -49,3 +49,16 @@
 /src/PaintGL/paintgl.moc.cc
 /src/libdiana.la
 /src/libdiana_la-*
+/perl/Metno-Bdiana/*/.exists
+/perl/Metno-Bdiana/*/*/.exists
+/perl/Metno-Bdiana/Bdiana.o
+/perl/Metno-Bdiana/.distclean
+/perl/Metno-Bdiana/Makefile
+/perl/Metno-Bdiana/blib/arch/auto/Metno/Bdiana/.exists
+/perl/Metno-Bdiana/blib/arch/auto/Metno/Bdiana/Bdiana.bs
+/perl/Metno-Bdiana/blib/arch/auto/Metno/Bdiana/Bdiana.so
+/perl/Metno-Bdiana/blib/lib/Metno/.exists
+/perl/Metno-Bdiana/blib/lib/Metno/Bdiana.pm
+/perl/Metno-Bdiana/blib/lib/auto/Metno/Bdiana/.exists
+/perl/Metno-Bdiana/blib/man3/Metno::Bdiana.3pm
+/perl/Metno-Bdiana/Bdiana.bs

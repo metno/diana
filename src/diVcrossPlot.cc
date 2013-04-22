@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -37,23 +35,28 @@
 #include "config.h"
 #endif
 
+#include "diVcrossPlot.h"
+#include "diVcrossOptions.h"
+#include "diCommandParser.h"
+#include "diContouring.h"
+
 #include <qglobal.h>
 
-#include <iostream>
-#include <iomanip>
-#include <diVcrossPlot.h>
-#include <diVcrossOptions.h>
-#include <diCommandParser.h>
 #include <puTools/miSetupParser.h>
 #include <diField/diMetConstants.h>
+
 #include <GL/gl.h>
-#include <diContouring.h>
 #if !defined(USE_PAINTGL)
 #include <glText/glText.h>
 #include <glp/glpfile.h>
 #endif
 
-#include <math.h>
+#include <cmath>
+#include <iostream>
+#include <iomanip>
+
+#define MILOGGER_CATEGORY "diana.VcrossPlot"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 using namespace miutil;
@@ -115,9 +118,7 @@ VcrossPlot::VcrossPlot() :
       vcopt(0), timeGraph(false), horizontalPosNum(0), nPoint(0), numLev(0),
       nTotal(0)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::Default Constructor" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   // data pointers (cdata1d, single level data)
   nps = nxg = nyg = nxs = nsin = ncos = npy1 = npy2 = nlat = nlon = -1;
@@ -139,15 +140,11 @@ VcrossPlot::VcrossPlot() :
     fp->setFontFace(glText::F_NORMAL);
     fp->setScalingType(glText::S_FIXEDSIZE);
   }
-
 }
 
-// Destructor
 VcrossPlot::~VcrossPlot()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::Destructor" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int numPar1d = cdata1d.size();
   for (int n = 0; n < numPar1d; n++)
@@ -156,25 +153,20 @@ VcrossPlot::~VcrossPlot()
   int numPar2d = cdata2d.size();
   for (int n = 0; n < numPar2d; n++)
     delete[] cdata2d[n];
-
 }
 
 // static function
 bool VcrossPlot::parseSetup()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::parseSetup" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   if (numVcrossFunctions != vcf_no_function) {
-    cerr << "VcrossPlot::parseSetup "
-        << "PROGRAM ERROR: numVcrossFunctions !!!!!!!!";
+    METLIBS_LOG_ERROR("PROGRAM ERROR: numVcrossFunctions !!!!!!!!");
     return false;
   }
 
   if (numVcrossPlotTypes != vcpt_no_plot) {
-    cerr << "VcrossPlot::parseSetup "
-        << "PROGRAM ERROR: numVcrossPlotTypes !!!!!!!!";
+    METLIBS_LOG_ERROR("PROGRAM ERROR: numVcrossPlotTypes !!!!!!!!");
     return false;
   }
 
@@ -186,8 +178,7 @@ bool VcrossPlot::parseSetup()
     size_t k2 = vcrossFunctionDefs[f].rfind(')');
     size_t kl = vcrossFunctionDefs[f].length();
     if (k1 == string::npos || k2 == string::npos || k2 < k1 + 2 || k2 != kl - 1) {
-      cerr << "VcrossPlot::parseSetup "
-          << "PROGRAM ERROR IN vcrossFunctionDefs !!!!!!!!";
+      METLIBS_LOG_ERROR("PROGRAM ERROR IN vcrossFunctionDefs !!!!!!!!");
       return false;
     }
     int narg = 1;
@@ -206,8 +197,7 @@ bool VcrossPlot::parseSetup()
     size_t k2 = vcrossPlotDefs[p].rfind(')');
     size_t kl = vcrossPlotDefs[p].length();
     if (k1 == string::npos || k2 == string::npos || k2 < k1 + 2 || k2 != kl - 1) {
-      cerr << "VcrossPlot::parseSetup "
-          << "PROGRAM ERROR: vcrossPlotDefs !!!!!!!!";
+      METLIBS_LOG_ERROR("PROGRAM ERROR: vcrossPlotDefs !!!!!!!!");
       return false;
     }
     int narg = 1;
@@ -433,9 +423,8 @@ bool VcrossPlot::parseSetup()
 void VcrossPlot::makeContents(const miString& fileName,
     const vector<int>& iparam, int vcoord)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::makeContents for" << fileName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(fileName));
 
   FileContents fco;
 
@@ -450,7 +439,7 @@ void VcrossPlot::makeContents(const miString& fileName,
     if (pn == pnend) {
       // not warn if height or pressure (but keep it if defined)
       if (iparam[i] != 1 && iparam[i] != 8)
-        cerr << "VCROSS: parameter not defined in setup: " << iparam[i] << endl;
+        METLIBS_LOG_INFO("VCROSS: parameter not defined in setup: " << iparam[i]);
     } else {
       paramdef.insert(pn->second);
       //##############################################################
@@ -497,10 +486,7 @@ void VcrossPlot::makeContents(const miString& fileName,
       paramdef.insert(*pt);
       pt++;
     }
-#ifdef DEBUGPRINT
-    cerr<<"   numfound,params.size(): "
-        <<numfound<<" "<<paramdef.size()<<endl;
-#endif
+    METLIBS_LOG_DEBUG(LOGVAL(numfound));
   }
 #ifdef DEBUGPRINT
   pt= paramdef.begin();
@@ -556,37 +542,30 @@ void VcrossPlot::makeContents(const miString& fileName,
 // static function
 void VcrossPlot::deleteContents(const miString& fileName)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::deleteContents for " << fileName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(fileName));
 
-  map<miString, FileContents>::iterator p = fileContents.find(fileName);
-  if (p != fileContents.end())
-    fileContents.erase(p);
+  fileContents.erase(fileName);
 }
 
 // static function
 vector<std::string> VcrossPlot::getFieldNames(const std::string& fileName)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::getFieldNames for " << fileName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(fileName));
 
   map<miString, FileContents>::iterator p = fileContents.find(fileName);
   if (p != fileContents.end()) {
     return p->second.fieldNames;
   } else {
-    vector<std::string> vs;
-    return vs;
+    return vector<std::string>();
   }
 }
 
 // static function
 map<miString, miString> VcrossPlot::getAllFieldOptions()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::getAllFieldOptions" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   map<miString, miString> fieldopts;
 
@@ -715,26 +694,20 @@ map<miString, miString> VcrossPlot::getAllFieldOptions()
 // static function
 miString VcrossPlot::getFieldOptions(const miString& fieldname)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::getFieldOptions" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
-  miString fieldopts;
-
-  map<miString, vcField>::iterator vcf = vcFields.find(fieldname.downcase());
-
-  if (vcf != vcFields.end())
-    fieldopts = vcf->second.plotOpts;
-
-  return fieldopts;
+  const std::map<miString, vcField>::const_iterator vcf = vcFields.find(fieldname.downcase());
+  if (vcf == vcFields.end())
+    return miString();
+  
+  return vcf->second.plotOpts;
 }
 
 // static
 void VcrossPlot::startPlot(int numplots, VcrossOptions *vcoptions)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::startPlot  numplots="<<numplots << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(numplots));
 
   numplot = numplots;
   nplot = 0;
@@ -755,9 +728,7 @@ void VcrossPlot::startPlot(int numplots, VcrossOptions *vcoptions)
 // static
 void VcrossPlot::plotText()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::plotText" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int n = vcText.size();
   if (n == 0)
@@ -828,9 +799,8 @@ void VcrossPlot::plotText()
 bool VcrossPlot::plot(VcrossOptions *vcoptions, const miString& fieldname,
     PlotOptions& poptions)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::plot  fieldname= " << fieldname << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(fieldname));
 
   vcopt = vcoptions;
 
@@ -941,9 +911,8 @@ bool VcrossPlot::plot(VcrossOptions *vcoptions, const miString& fieldname,
 
 int VcrossPlot::addPar1d(int param, float *pdata)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::addPar1d param=" << param << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(param));
 
   if (pdata == 0)
     pdata = new float[nPoint];
@@ -957,9 +926,8 @@ int VcrossPlot::addPar1d(int param, float *pdata)
 
 int VcrossPlot::addPar2d(int param, float *pdata)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::addPar2d param=" << param << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(param));
 
   if (pdata == 0)
     pdata = new float[nTotal];
@@ -1091,9 +1059,8 @@ bool VcrossPlot::startPSnewpage()
   if (!hardcopy || !psoutput)
     return false;
   glFlush();
-  if (psoutput->EndPage() != 0) {
-    cerr << "startPSnewpage: EndPage BAD!!!" << endl;
-  }
+  if (psoutput->EndPage() != 0)
+    METLIBS_LOG_ERROR("startPSnewpage: EndPage BAD!!!");
   psoutput->StartPage();
   return true;
 }
@@ -1158,9 +1125,7 @@ void VcrossPlot::standardPart()
 
 bool VcrossPlot::prepareData(const miString& fileName)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::prepareData" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   // basic preparations after input of data,
   // may find data unplottable
@@ -1176,9 +1141,9 @@ bool VcrossPlot::prepareData(const miString& fileName)
 
 
   if (vcoord != 2 && vcoord != 10 && vcoord != 1 && vcoord != 4 && vcoord != 5
-      && vcoord != 11 && vcoord != 12) {
-    cerr << "VcrossPlot::prepareData : Unknown vertical coordinate " << vcoord
-        << endl;
+      && vcoord != 11 && vcoord != 12)
+  {
+    METLIBS_LOG_ERROR("prepareData: Unknown vertical coordinate " << vcoord);
     return false;
   }
 
@@ -1272,7 +1237,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
 
   // check if necessary parameters exist
   if ((vcoord == 2 || vcoord == 10) && nps < 0) {
-    cerr << "ps (single level parameter 8) g" << endl;
+    METLIBS_LOG_ERROR("ps (single level parameter 8) g");
     error = true;
   }
   //if (vcoord==5 && npss<0) {
@@ -1284,45 +1249,45 @@ bool VcrossPlot::prepareData(const miString& fileName)
   //  error=true;
   //}
   if (vcoord == 11 && ntopo < 0) {
-    cerr << "zs (single level parameter 101) missing" << endl;
+    METLIBS_LOG_ERROR("zs (single level parameter 101) missing");
     error = true;
   }
   if (nxg < 0) {
-    cerr << "x coordinate in grid (param. -1001) missing" << endl;
-    cerr << "             (error in preprocessing program)" << endl;
+    METLIBS_LOG_ERROR("x coordinate in grid (param. -1001) missing" );
+    METLIBS_LOG_ERROR("             (error in preprocessing program)" );
     error = true;
   }
   if (nyg < 0) {
-    cerr << "y coordinate in grid (param. -1002) missing" << endl;
-    cerr << "             (error in preprocessing program)" << endl;
+    METLIBS_LOG_ERROR("y coordinate in grid (param. -1002) missing" );
+    METLIBS_LOG_ERROR("             (error in preprocessing program)" );
     error = true;
   }
   if (nxs < 0 && nxds < 0) {
-    cerr << "length in meter (param. -1003 or -1007) missing" << endl;
-    cerr << "               (error in preprocessing program)" << endl;
+    METLIBS_LOG_ERROR("length in meter (param. -1003 or -1007) missing" );
+    METLIBS_LOG_ERROR("               (error in preprocessing program)" );
     error = true;
   }
   if (ncor < 0) {
-    cerr << "coriolis parameter (param. -1004) missing" << endl;
-    cerr << "               (error in preprocessing program)" << endl;
+    METLIBS_LOG_ERROR("coriolis parameter (param. -1004) missing" );
+    METLIBS_LOG_ERROR("               (error in preprocessing program)" );
     error = true;
   }
   if (nlat < 0) {
-    cerr << "latitude (param. -1005) missing" << endl;
-    cerr << "               (error in preprocessing program)" << endl;
+    METLIBS_LOG_ERROR("latitude (param. -1005) missing" );
+    METLIBS_LOG_ERROR("               (error in preprocessing program)" );
     error = true;
   }
   if (nlon < 0) {
-    cerr << "longitude (param. -1006) missing" << endl;
-    cerr << "               (error in preprocessing program)" << endl;
+    METLIBS_LOG_ERROR("longitude (param. -1006) missing" );
+    METLIBS_LOG_ERROR("               (error in preprocessing program)" );
     error = true;
   }
   if (vcoord == 4 && npp < 0) {
-    cerr << "pressure in isentropic surfaces (param. 8) missing" << endl;
+    METLIBS_LOG_ERROR("pressure in isentropic surfaces (param. 8) missing" );
     error = true;
   }
   if (vcoord == 12 && npp < 0) {
-    cerr << "pressure in sigma.MM5 surfaces (param. 8) missing" << endl;
+    METLIBS_LOG_ERROR("pressure in sigma.MM5 surfaces (param. 8) missing" );
     error = true;
   }
 
@@ -1501,9 +1466,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
 
 void VcrossPlot::prepareVertical()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::prepareVertical" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   // preparations due to change of output vertical coordinate,
   // always called before first plot
@@ -1735,7 +1698,7 @@ void VcrossPlot::prepareVertical()
           timeGraphReference);
 
       if (minutes < 0)
-        cerr << "!!!!!!!!! minutes= " << minutes << " !!!!!!!" << endl;
+        METLIBS_LOG_ERROR("!!!!!!!!! minutes= " << minutes << " !!!!!!!" );
       if (minutes < 0)
         minutes = -minutes;
 
@@ -1758,9 +1721,7 @@ void VcrossPlot::prepareVertical()
 
 int VcrossPlot::findParam(const miString& var)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::findParam " << var << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   map<miString, int>::iterator p = params.find(var);
 
@@ -1789,9 +1750,8 @@ int VcrossPlot::findParam(const miString& var)
 int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     vector<int> parloc)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::computer find " << var << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(var));
 
   int k, i, n, n1, n2, nu, nv, nrot1, nrot2, ntk, nth, nvn, compddz;
   float u, v, unitscale, s1;
@@ -2223,25 +2183,20 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc,
     break;
 
   default:
-    cerr << "VcrossPlot::computer ERROR function= " << vcfunc << endl;
+    METLIBS_LOG_ERROR("VcrossPlot::computer ERROR function= " << vcfunc );
     return -1;
     break;
 
   }
 
   params[var] = no;
-
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::computer computed: " << var << endl;
-#endif
+  METLIBS_LOG_DEBUG("computer computed: " << var << " = " << no);
   return no;
 }
 
 bool VcrossPlot::computeSize()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::computeSize" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   // Vertical coordinates handled:
   // vcoord:  2 = sigma (0.-1. with ps and ptop) ... Norlam
@@ -2524,9 +2479,7 @@ bool VcrossPlot::computeSize()
 
 int VcrossPlot::getNearestPos(int px)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::getNearestPos" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   int n = 0;
 
   if (nxs >= 0) {
@@ -2548,9 +2501,7 @@ int VcrossPlot::getNearestPos(int px)
 
 bool VcrossPlot::plotBackground(const vector<miString>& labels)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::plotBackground" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   // Vertical coordinates handled:
   // vcoord:  2 = sigma (0.-1. with ps and ptop) ... Norlam
@@ -3214,7 +3165,6 @@ void VcrossPlot::plotLevels()
 
 void VcrossPlot::plotSurfacePressure()
 {
-
   // horizontal part of total crossection
   int ipd1 = 0;
   int ipd2 = 1;
@@ -3294,7 +3244,6 @@ void VcrossPlot::plotSurfacePressure()
 
 void VcrossPlot::plotVerticalGridLines()
 {
-
   // horizontal part of total crossection
   int ipd1 = 0;
   int ipd2 = 1;
@@ -3330,7 +3279,6 @@ void VcrossPlot::plotVerticalGridLines()
 
 void VcrossPlot::plotMarkerLines()
 {
-
   // horizontal part of total crossection
   int ipd1 = 0;
   int ipd2 = 1;
@@ -3400,12 +3348,11 @@ void VcrossPlot::plotMarkerLines()
     UpdateOutput();
     glDisable(GL_LINE_STIPPLE);
   }
-
 }
+
 
 void VcrossPlot::plotVerticalMarkerLines()
 {
-
   // horizontal part of total crossection
   int ipd1 = 0;
   int ipd2 = 1;
@@ -3447,9 +3394,8 @@ void VcrossPlot::plotVerticalMarkerLines()
       glDisable(GL_LINE_STIPPLE);
     }
   }
-
-
 }
+
 
 void VcrossPlot::plotAnnotations(const vector<miutil::miString>& labels)
 {
@@ -3581,6 +3527,7 @@ void VcrossPlot::plotAnnotations(const vector<miutil::miString>& labels)
   }
   //end annotations
 }
+
 
 void VcrossPlot::plotFrame()
 {
@@ -3935,9 +3882,7 @@ void VcrossPlot::plotFrame()
 
 bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::plotData" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   // Vertical coordinates handled:
   // vcoord:  2 = sigma (0.-1. with ps and ptop) ... Norlam
@@ -4637,7 +4582,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
     }
 
     if (!res)
-      cerr << "VcrossPlot::plotData  Contour error" << endl;
+      METLIBS_LOG_ERROR("VcrossPlot::plotData  Contour error");
 
     UpdateOutput();
 
@@ -4781,8 +4726,9 @@ void VcrossPlot::plotMin(float x, float y, float scale)
   glVertex2f(x, y);
   glVertex2f(x-scale, y+scale);
   glEnd();
-
 }
+
+
 void VcrossPlot::plotMax(float x, float y, float scale)
 {
   glLineWidth(3);
@@ -4793,16 +4739,14 @@ void VcrossPlot::plotMax(float x, float y, float scale)
   glVertex2f(x+scale, y-scale);
   glVertex2f(x, y);
   glEnd();
-
 }
+
 
 bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
     float *ylim, float size, int hstepAuto, bool *uselevel,
     PlotOptions& poptions)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::plotWind" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int ix1 = part[0];
   int ix2 = part[1];
@@ -4943,12 +4887,7 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
     glEnd();
     UpdateOutput();
   }
-
   //glDisable(GL_LINE_STIPPLE);
-
-#ifdef DEBUGPRINT
-  cerr << "Returning from VcrossPlot::plotWind ++" << endl;
-#endif
 
   return true;
 }
@@ -4957,9 +4896,7 @@ bool VcrossPlot::vector2fixedLevel(float *u, float *v, float *x, float *y,
     int ix1, int ix2, float *ylim, int hstep, const vector<float> yfixed,
     int &kf1, int &kf2, float *uint, float *vint, float *xint, float *yint)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::vector2fixedLevel" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int nlev = yfixed.size();
   kf1 = kf2 = -1;
@@ -5116,9 +5053,7 @@ bool VcrossPlot::plotVector(float *u, float *v, float *x, float *y, int *part,
     float *ylim, float size, int hstepAuto, bool *uselevel,
     PlotOptions& poptions)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossPlot::plotVector" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int ix1 = part[0];
   int ix2 = part[1] + 1;
@@ -5195,7 +5130,6 @@ bool VcrossPlot::plotVector(float *u, float *v, float *x, float *y, int *part,
 //############### bottomExtrapolate ...
 void VcrossPlot::replaceUndefinedValues(int nx, int ny, float *f, bool fillAll)
 {
-
   const int nloop = 20;
 
   float *ftmp = new float[nx * ny];
@@ -5583,5 +5517,4 @@ void VcrossPlot::plotArrow(const float& x0, const float& y0, const float& dx,
     glEnd();
 
   }
-
 }

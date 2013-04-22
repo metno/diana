@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,9 +31,13 @@
 #include "config.h"
 #endif
 
-#include <diLocationPlot.h>
+#include "diLocationPlot.h"
+
+#include <cmath>
 #include <set>
-#include <math.h>
+
+#define MILOGGER_CATEGORY "diana.LocationPlot"
+#include <miLogger/miLogging.h>
 
 using namespace::miutil;
 
@@ -43,9 +45,8 @@ using namespace::miutil;
 LocationPlot::LocationPlot()
   : Plot()
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot constructor"<< endl;
-#endif
+  METLIBS_LOG_SCOPE();
+
   visible= false;
   locdata.locationType= location_unknown;
   numPos= 0;
@@ -57,18 +58,14 @@ LocationPlot::LocationPlot()
 // destructor
 LocationPlot::~LocationPlot()
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot destructor"<< endl;
-#endif
+  METLIBS_LOG_SCOPE();
   cleanup();
 }
 
 
 void LocationPlot::cleanup()
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot::cleanup"<< endl;
-#endif
+  METLIBS_LOG_SCOPE();
   if (px) delete[] px;
   if (py) delete[] py;
   px= py= 0;
@@ -86,9 +83,7 @@ void LocationPlot::cleanup()
 
 bool LocationPlot::setData(const LocationData& locationdata)
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot::setData"<< endl;
-#endif
+  METLIBS_LOG_SCOPE();
   cleanup();
 
   // check if sensible input data
@@ -100,7 +95,7 @@ bool LocationPlot::setData(const LocationData& locationdata)
     return false;
   }
 
-  set<miString> nameset;
+  set<std::string> nameset;
 
   for (int i = 0; i < nelem; i++) {
     if (locationdata.elements[i].name.empty()) {
@@ -158,9 +153,7 @@ bool LocationPlot::setData(const LocationData& locationdata)
 
 void LocationPlot::updateOptions(const LocationData& locationdata)
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot::updateOptions"<< endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   // change colour etc. (not positions, name,...)
   locdata.colour=            locationdata.colour;
@@ -174,9 +167,7 @@ void LocationPlot::updateOptions(const LocationData& locationdata)
 
 bool LocationPlot::changeProjection()
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot::changeProjection"<< endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   if (numPos<1 || posArea.P()==area.P()) return false;
 
@@ -228,14 +219,12 @@ bool LocationPlot::changeProjection()
 }
 
 
-miString LocationPlot::find(int x, int y)
+std::string LocationPlot::find(int x, int y)
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot::find"<< endl;
-#endif
+  METLIBS_LOG_SCOPE();
   const float maxdist= 10.0f;
 
-  miString name;
+  std::string name;
   float xpos= x*fullrect.width() /pwidth  + fullrect.x1;
   float ypos= y*fullrect.height()/pheight + fullrect.y1;
 
@@ -288,9 +277,7 @@ miString LocationPlot::find(int x, int y)
 
 bool LocationPlot::plot()
 {
-#ifdef DEBUGPRINT
-  cerr << "LocationPlot::plot " << locdata.name << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   if (!enabled) return false;
 
   if (numPos<1) return false;
@@ -357,7 +344,7 @@ bool LocationPlot::plot()
 }
 
 
-void LocationPlot::getAnnotation(miString &str, Colour &col)
+void LocationPlot::getAnnotation(std::string &str, Colour &col)
 {
   if (visible) {
     str = locdata.annotation;

@@ -768,7 +768,7 @@ void StationPlot::setStationPlotAnnotation(const string &str)
 void StationPlot::setName(miString nm)
 {
   name = nm;
-  if (!plotname.exists())
+  if (plotname.empty())
     plotname = name;
 }
 

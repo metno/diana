@@ -61,6 +61,8 @@
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
 
+#include <boost/foreach.hpp>
+
 #include <iostream>
 #include <math.h>
 
@@ -119,7 +121,9 @@ QDialog(parent)
   // get all field plot options from setup file
   vector<miutil::miString> fieldNames;
   m_ctrl->getAllFieldNames(fieldNames, fieldPrefixes, fieldSuffixes);
-  PlotOptions::getAllFieldOptions(fieldNames, setupFieldOptions);
+  { std::map<std::string, std::string> sfu;
+    PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
+    setupFieldOptions = std::map<miutil::miString, miutil::miString>(sfu.begin(), sfu.end()); }
 
   //#################################################################
   //  map<miutil::miString,miutil::miString>::iterator pfopt, pfend= setupFieldOptions.end();
@@ -131,8 +135,11 @@ QDialog(parent)
   // Colours
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
-  map<miutil::miString, miutil::miString> enabledOptions = PlotOptions::getEnabledOptions();
-  plottypes_dim = PlotOptions::getPlotTypes();
+  map<std::string, std::string> enabledOptions = PlotOptions::getEnabledOptions();
+  { const std::vector< std::vector<std::string> > ptd = PlotOptions::getPlotTypes();
+    plottypes_dim.clear();
+    BOOST_FOREACH(const std::vector<std::string>& v, ptd)
+        plottypes_dim.push_back(std::vector<miutil::miString>(v.begin(), v.end())); }
   if ( plottypes_dim.size() > 1 ) {
     plottypes = plottypes_dim[1];
   }
@@ -141,13 +148,14 @@ QDialog(parent)
   if ( plottypes_dim.size() > 1 ) {
     for ( size_t i = 0; i< plottypes_dim[0].size(); i++ ) {
       if(enabledOptions.count(plottypes_dim[0][i])) {
-        enableMap[plottypes_dim[0][i]].contourWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("contour") );
-        enableMap[plottypes_dim[0][i]].extremeWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("extreme") );
-        enableMap[plottypes_dim[0][i]].shadingWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("shading") );
-        enableMap[plottypes_dim[0][i]].lineWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("line") );
-        enableMap[plottypes_dim[0][i]].fontWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("font") );
-        enableMap[plottypes_dim[0][i]].densityWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("density") );
-        enableMap[plottypes_dim[0][i]].unitWidgets =  (enabledOptions[plottypes_dim[0][i]].contains("unit") );
+        const std::string& op = enabledOptions[plottypes_dim[0][i]];
+        enableMap[plottypes_dim[0][i]].contourWidgets = miutil::contains(op, "contour");
+        enableMap[plottypes_dim[0][i]].extremeWidgets = miutil::contains(op, "extreme");
+        enableMap[plottypes_dim[0][i]].shadingWidgets = miutil::contains(op, "shading");
+        enableMap[plottypes_dim[0][i]].lineWidgets = miutil::contains(op, "line");
+        enableMap[plottypes_dim[0][i]].fontWidgets = miutil::contains(op, "font");
+        enableMap[plottypes_dim[0][i]].densityWidgets = miutil::contains(op, "density");
+        enableMap[plottypes_dim[0][i]].unitWidgets = miutil::contains(op, "unit");
       }
     }
   }

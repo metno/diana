@@ -34,11 +34,7 @@
 #include "diColour.h"
 #include "diLinetype.h"
 
-#include <puTools/miString.h>
-
 #include <vector>
-
-using namespace std;
 
 const Colour WhiteC(255,255,255);
 const Colour BlackC(0,0,0);
@@ -80,7 +76,7 @@ enum Alignment {
 /**
    \brief string constants, field plot types
 */
-const miutil::miString
+const std::string
   fpt_contour         = "contour",
   fpt_value           = "value",
   fpt_symbol          = "symbol",
@@ -106,8 +102,8 @@ public:
   vector<Colour> colours;
   vector<Colour> palettecolours;
   vector<Colour> palettecolours_cold;
-  miutil::miString palettename;
-  miutil::miString patternname;
+  std::string palettename;
+  std::string patternname;
   int table;
   int alpha;
   int repeat;
@@ -117,7 +113,7 @@ public:
   int linewidth;
   int linewidth_2;
   vector<int> linewidths;
-  vector<miutil::miString> patterns;
+  vector<std::string> patterns;
   vector<float> limits;
   vector<float> values;
   vector<float> linevalues;
@@ -139,8 +135,8 @@ public:
   int   density;
   float densityFactor;
   float vectorunit;
-  miutil::miString vectorunitname;
-  miutil::miString extremeType;
+  std::string vectorunitname;
+  std::string extremeType;
   float    extremeSize;
   float    extremeRadius;
   vector<float> extremeLimits;
@@ -157,34 +153,34 @@ public:
   Colour   undefColour;
   int      undefLinewidth;
   Linetype undefLinetype;
-  miutil::miString plottype;
+  std::string plottype;
   int      rotateVectors;
   int      discontinuous;
   int      contourShading;
-  miutil::miString classSpecifications; // "value:name,value:name,....." split when used
+  std::string classSpecifications; // "value:name,value:name,....." split when used
   polyStyle polystyle;
   arrowStyle arrowstyle;
   Alignment h_align;
   Alignment v_align;
   int      alignX;       // shift position of plotted numbers with ex.alignX=10000
   int      alignY;       // shift position of plotted numbers with ex.alignY=10000
-  miutil::miString  fontname;
-  miutil::miString  fontface;
+  std::string  fontname;
+  std::string  fontface;
   float     fontsize;
   float     precision;
   int       dimension;
   bool      enabled;
-  miutil::miString  fname;
-  vector <miutil::miString> fdescr;
+  std::string  fname;
+  vector <std::string> fdescr;
   int       overlay; //plot in ovelay buffer
-  static map<miutil::miString,PlotOptions> fieldPlotOptions;
-  static vector<miutil::miString> suffix;
-  static vector< vector<miutil::miString> > plottypes;
-  static map<miutil::miString, miutil::miString> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
+  static map<std::string,PlotOptions> fieldPlotOptions;
+  static vector<std::string> suffix;
+  static vector< vector<std::string> > plottypes;
+  static map<std::string, std::string> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
   bool      contourShape;
-  miutil::miString  shapefilename;
-  miutil::miString unit;        // used to get data in right unit
-  miutil::miString legendunits; //used in legends
+  std::string  shapefilename;
+  std::string unit;        // used to get data in right unit
+  std::string legendunits; //used in legends
   bool      tableHeader; // whether each table is drawn with a header
   bool      antialiasing;
   bool      use_stencil;    // whether a stencil is used to mask out plotting of the current field
@@ -194,34 +190,31 @@ public:
   // Constructor
   PlotOptions();
 
-  miutil::miString toString();
+  std::string toString();
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */
-  static bool parsePlotOption(miutil::miString&, PlotOptions&, bool returnMergedOptionString=false);
+  static bool parsePlotOption(std::string&, PlotOptions&, bool returnMergedOptionString=false);
   /// update static fieldplotoptions
-  static bool updateFieldPlotOptions(const miutil::miString& name, const miutil::miString& optstr);
+  static bool updateFieldPlotOptions(const std::string& name, const std::string& optstr);
   /** fill a fieldplotoption from static map, and substitute values
       from a string containing plotoptions */
-  static bool fillFieldPlotOptions(miutil::miString, miutil::miString&,
+  static bool fillFieldPlotOptions(std::string, std::string&,
 			    PlotOptions&);
-  static void setSuffix(vector<miutil::miString> suff){suffix = suff;}
-  static void getAllFieldOptions(vector<miutil::miString>,
-				 map<miutil::miString,miutil::miString>& fieldoptions);
-  static bool getFieldPlotOptions(const miutil::miString& name, PlotOptions& po);
-  static vector< vector<miutil::miString> >& getPlotTypes(){return plottypes;}
-  static map< miutil::miString, miutil::miString > getEnabledOptions(){ return enabledOptions;}
+  static void setSuffix(vector<std::string> suff){suffix = suff;}
+  static void getAllFieldOptions(vector<std::string>,
+				 map<std::string,std::string>& fieldoptions);
+  static bool getFieldPlotOptions(const std::string& name, PlotOptions& po);
+  static vector< vector<std::string> >& getPlotTypes(){return plottypes;}
+  static map< std::string, std::string > getEnabledOptions(){ return enabledOptions;}
 
 private:
   // fill in values in an int vector (error if size==0)
-  vector<int> intVector(const miutil::miString&) const;
+  vector<int> intVector(const std::string&) const;
   // fill in values in a float vector (error if size==0)
-  vector<float> floatVector(const miutil::miString&) const;
+  vector<float> floatVector(const std::string&) const;
   // fill in values and "..." in a float vector (error if size==0)
-  vector<float> autoExpandFloatVector(const miutil::miString&) const;
-  static void removeSuffix(miutil::miString& name);
-
+  vector<float> autoExpandFloatVector(const std::string&) const;
+  static void removeSuffix(std::string& name);
 };
-
-
 
 #endif

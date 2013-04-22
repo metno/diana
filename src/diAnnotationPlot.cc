@@ -200,9 +200,10 @@ bool AnnotationPlot::prepare(const miString& pin)
   poptions.textcolour = Colour("black");
   PlotOptions::parsePlotOption(pinfo, poptions);
 
-  useAnaTime = pinfo.contains("@") || pinfo.contains("&");
+  useAnaTime = miutil::contains(pinfo, "@") || miutil::contains(pinfo, "&");
 
-  vector<miString> stokens, tokens = pinfo.split('"', '"');
+  const vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
+  vector<miString> stokens;
   miString key, value;
   int i, n = tokens.size();
   if (n < 2)
