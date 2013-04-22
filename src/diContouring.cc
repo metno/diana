@@ -332,6 +332,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 
   err = 0;
 
+  // Impose minimum and maximum limits on the size of the array used.
   if (nx<2 || nx>100000 ||
       ny<2 || ny>100000) {
     cerr << "CONTOUR ERROR. nx,ny: " << nx << " " << ny << endl;
@@ -1870,6 +1871,8 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     int nlp= vlp.size();
 
     if (drawBorders && !closed && lev<nundef) {
+      // ### We need to ensure that the ends connect correctly in datasets that
+      // ### wrap around.
       // connect loose ends (inside the frame)
       int ncl= contourlines.size();
       float px,py;
@@ -2390,13 +2393,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           space2 = 0.;
           n2=n;
           n3=n;
-          while (space2<=dxlab2 && n3<npos) {                            vector<miString> bstr1, bstr2;
+          while (space2<=dxlab2 && n3<npos) {
+            vector<miString> bstr1, bstr2;
 
-
-          n3++;
-          dxx = x[n3]-x[n];
-          dyy = y[n3]-y[n];
-          space2 = dxx*dxx+dyy*dyy;
+            n3++;
+            dxx = x[n3]-x[n];
+            dyy = y[n3]-y[n];
+            space2 = dxx*dxx+dyy*dyy;
           }
 
           // avoid vertical label (if not vertical straight line)
@@ -2486,24 +2489,24 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
                 dxx = (cxy[1]*dxx)*(cxy[1]*dxx) + (cxy[4]*dxx)*(cxy[4]*dxx);
                 dyy = (cxy[2]*dyy)*(cxy[2]*dyy) + (cxy[5]*dyy)*(cxy[5]*dyy);
               } else {
-                dxz = ( xz[iz2+jz1*nx]+xz[iz+1+jz1*nx]
-                                          -xz[iz1+jz1*nx]-xz[iz+jz1*nx]
-                                                             +xz[iz2+jz2*nx]+xz[iz+1+jz2*nx]
-                                                                                -xz[iz1+jz2*nx]-xz[iz+jz2*nx])*0.5;
-                dyz = ( yz[iz2+jz1*nx]+yz[iz+1+jz1*nx]
-                                          -yz[iz1+jz1*nx]-yz[iz+jz1*nx]
-                                                             +yz[iz2+jz2*nx]+yz[iz+1+jz2*nx]
-                                                                                -yz[iz1+jz2*nx]-yz[iz+jz2*nx])*0.5;
+                dxz = (xz[iz2+jz1*nx]+xz[iz+1+jz1*nx]
+                       -xz[iz1+jz1*nx]-xz[iz+jz1*nx]
+                       +xz[iz2+jz2*nx]+xz[iz+1+jz2*nx]
+                       -xz[iz1+jz2*nx]-xz[iz+jz2*nx])*0.5;
+                dyz = (yz[iz2+jz1*nx]+yz[iz+1+jz1*nx]
+                       -yz[iz1+jz1*nx]-yz[iz+jz1*nx]
+                       +yz[iz2+jz2*nx]+yz[iz+1+jz2*nx]
+                       -yz[iz1+jz2*nx]-yz[iz+jz2*nx])*0.5;
                 dxx = dxz*dxz+dyz*dyz;
                 if (dxx==0.) dxx=1.;
-                dxz = ( xz[iz1+jz2*nx]+xz[iz1+(jz+1)*nx]
-                                          -xz[iz1+jz1*nx]-xz[iz1+jz*nx]
-                                                             +xz[iz2+jz2*nx]+xz[iz2+(jz+1)*nx]
-                                                                                -xz[iz2+jz1*nx]-xz[iz2+jz*nx])*0.5;
-                dyz = ( yz[iz1+jz2*nx]+yz[iz1+(jz+1)*nx]
-                                          -yz[iz1+jz1*nx]-yz[iz1+jz*nx]
-                                                             +yz[iz2+jz2*nx]+yz[iz2+(jz+1)*nx]
-                                                                                -yz[iz2+jz1*nx]-yz[iz2+jz*nx])*0.5;
+                dxz = (xz[iz1+jz2*nx]+xz[iz1+(jz+1)*nx]
+                       -xz[iz1+jz1*nx]-xz[iz1+jz*nx]
+                       +xz[iz2+jz2*nx]+xz[iz2+(jz+1)*nx]
+                       -xz[iz2+jz1*nx]-xz[iz2+jz*nx])*0.5;
+                dyz = (yz[iz1+jz2*nx]+yz[iz1+(jz+1)*nx]
+                       -yz[iz1+jz1*nx]-yz[iz1+jz*nx]
+                       +yz[iz2+jz2*nx]+yz[iz2+(jz+1)*nx]
+                       -yz[iz2+jz1*nx]-yz[iz2+jz*nx])*0.5;
                 dyy = dxz*dxz+dyz*dyz;
                 if (dyy==0.) dyy=1.;
               }
@@ -2586,7 +2589,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
                   dyy = ye2-ys1;
                   space2 = dxx*dxx+dyy*dyy;
 
-                  // nspace2 test may bee needed due to precission problems
+                  // nspace2 test may be needed due to precision problems
                   nspace2 = 0;
                   while (space2>splim2 && nspace2<100) {
                     xs = (xs1+xs2)*0.5;
