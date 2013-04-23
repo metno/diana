@@ -174,8 +174,8 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
 
 void PlotModule::prepareArea(const vector<miutil::miString>& inp)
 {
-  milogger::LogHandler::getInstance()->setObjectName("diana.PlotModule.prepareArea");
-  COMMON_LOG::getInstance("common").debugStream() << "++ PlotModule::prepareArea ++";
+  MI_LOG & log = MI_LOG::getInstance("diana.PlotModule.prepareArea");
+  log.debugStream() << "++ PlotModule::prepareArea ++";
 
   MapManager mapm;
 

@@ -97,7 +97,6 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
 #ifdef DEBUGPRINT
   cerr <<"MapPlot::prepare: "<<pinfo<<endl;
 #endif
-  milogger::LogHandler::getInstance()->setObjectName("diana.MapPlot.prepare");
 
   Area newarea;
   MapManager mapm;
