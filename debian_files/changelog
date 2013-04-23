@@ -1,3 +1,13 @@
+diana (3.32.5-1) unstable; urgency=low
+
+  * Bugfix: profet
+  * Bugfix: vertical level and old syntax 
+  * Bugfix: FieldFunctions
+  * Using metlibs 4.10.7
+  * Using fimex 0.44-2
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 23 Apr 2013 15:16:57 +0200
+
 diana (3.32.4-1) unstable; urgency=low
 
   * Bugfix: log.line.values
