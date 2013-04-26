@@ -128,14 +128,14 @@ void fillContours(vector<ContourLine*>& contourlines,
 		  const PlotOptions& poptions, bool drawBorders,
                   GLPfile* psoutput, const Area& fieldArea,
 		  float zrange[], float zstep, float zoff,
-		  const float& fieldUndef);
+		  const float& fieldUndef, float xylim[]);
 
 /// replaces undefined values with relatively sensible values
 void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 			    const float& fieldUndef);
 
 /// draw part of contour line
-void drawLine(int start, int stop, float* x, float* y);
+void drawLine(int start, int stop, float* x, float* y, float xylim[]);
 /// write shapefile
 void writeShapefile(vector<ContourLine*>& contourlines,
 		    int nx, int ny,
