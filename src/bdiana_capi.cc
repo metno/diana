@@ -1473,16 +1473,17 @@ void createJsonAnnotation()
   }
 
   // Add a metadata entry to describe the request that corresponds to this reply.
-  map<miString,miString> metaDataMap;
-
-  miString thetime;
-  main_controller->getPlotTime(thetime);
-  if ( !ptime.undef() ) {
-    metaDataMap["request time"] = miString("\"") + ptime.isoTime() + miString("\"");
-  }
-  metaDataMap["time used"] = miString("\"") + thetime + miString("\"");
-  outputTextMaps["metadata"] = metaDataMap;
-  outputTextMapOrder.push_back("metadata");
+  // The wms clients did not accept metadata, temporarily removed until clients are fixed
+  //  map<miString,miString> metaDataMap;
+//
+//  miString thetime;
+//  main_controller->getPlotTime(thetime);
+//  if ( !ptime.undef() ) {
+//    metaDataMap["request time"] = miString("\"") + ptime.isoTime() + miString("\"");
+//  }
+//  metaDataMap["time used"] = miString("\"") + thetime + miString("\"");
+//  outputTextMaps["metadata"] = metaDataMap;
+//  outputTextMapOrder.push_back("metadata");
 }
 
 static void ensureNewContext()
