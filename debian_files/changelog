@@ -1,3 +1,9 @@
+diana (3.32.6-1) unstable; urgency=low
+
+  * he wms clients did not accept metadata, temporarily removed until clients are fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 29 Apr 2013 20:21:30 +0200
+
 diana (3.32.5-1) unstable; urgency=low
 
   * Bugfix: profet
