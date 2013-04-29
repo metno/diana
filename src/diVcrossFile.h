@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,17 +29,14 @@
 #ifndef diVcrossFile_h
 #define diVcrossFile_h
 
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-#include <vector>
 #include <diField/diGridConverter.h>
-#include <diLocationPlot.h>
+#include <puTools/miTime.h>
 
-using namespace std;
+#include <vector>
 
 class FtnVfile;
 class VcrossPlot;
-
+class LocationElement;
 
 /**
   \brief Vertical Crossection prognostic data from a met.no proprietary file
@@ -53,31 +48,33 @@ class VcrossFile
 {
 
 public:
-  VcrossFile(const miutil::miString& filename, const miutil::miString& modelname);
+  VcrossFile(const std::string& filename, const std::string& modelname);
   ~VcrossFile();
   void cleanup();
   bool update();
   bool readFileHeader();
-  vector<std::string> getNames() { return names; }
-  vector<miutil::miTime> getTimes() { return validTime; }
-  vector<std::string> getFieldNames();
-  void getMapData(vector<LocationElement>& elements);
+  const std::vector<std::string>& getNames() const
+    { return names; }
 
-  VcrossPlot* getCrossection(const miutil::miString& name, const miutil::miTime& time,
-			     int tgpos= -1);
+  const std::vector<miutil::miTime>& getTimes() const
+    { return validTime; }
+
+  std::vector<std::string> getFieldNames();
+  void getMapData(std::vector<LocationElement>& elements);
+
+  VcrossPlot* getCrossection(const std::string& name, const miutil::miTime& time, int tgpos= -1);
 
 private:
-
   static GridConverter gc;
 
-  miutil::miString fileName;
-  miutil::miString modelName;
+  std::string fileName;
+  std::string modelName;
 
   FtnVfile *vfile;
 
   long int modificationtime;
 
-  miutil::miString modelName2; // from file
+  std::string modelName2; // from file
   int vcoord;
   int numCross;
   int numTime;
@@ -87,9 +84,9 @@ private:
 
   int nlvlid;
 
-  vector<int> numPoint;
-  vector<int> identPar2d;
-  vector<int> identPar1d;
+  std::vector<int> numPoint;
+  std::vector<int> identPar2d;
+  std::vector<int> identPar1d;
 
   int nxgPar,nygPar,nxsPar,nxdsPar;
 
@@ -97,12 +94,12 @@ private:
   float *xposmap;
   float *yposmap;
 
-  vector<std::string> names;
-  vector<miutil::miString> posOptions;
-  vector<miutil::miTime>   validTime;
-  vector<int>      forecastHour;
-  vector<float>    vrangemin;
-  vector<float>    vrangemax;
+  std::vector<std::string> names;
+  std::vector<std::string> posOptions;
+  std::vector<miutil::miTime>   validTime;
+  std::vector<int>      forecastHour;
+  std::vector<float>    vrangemin;
+  std::vector<float>    vrangemax;
 
   // dataAddress[2][numCross][numTime]
   int *dataAddress;

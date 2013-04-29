@@ -36,16 +36,15 @@
 #include <diVcrossOptions.h>
 #include <iostream>
 
-using namespace::miutil;
+using namespace ::miutil;
+using namespace std;
 
-// default constructor
 VcrossOptions::VcrossOptions()
 {
   setDefaults();
 }
 
 
-// destructor
 VcrossOptions::~VcrossOptions()
 {
 }

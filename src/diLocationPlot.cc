@@ -91,37 +91,34 @@ bool LocationPlot::setData(const LocationData& locationdata)
 
   int nelem = locationdata.elements.size();
   if (nelem == 0) {
-    cerr << "LocationPlot::setData nelem==0!" << endl;
+    METLIBS_LOG_INFO("nelem==0!");
     return false;
   }
 
-  set<std::string> nameset;
+  std::set<std::string> nameset;
 
   for (int i = 0; i < nelem; i++) {
     if (locationdata.elements[i].name.empty()) {
-      cerr << "LocationPlot::setData " << i
-          << " locationdata.elements[i].name.empty()!" << endl;
+      METLIBS_LOG_INFO("i=" << i << " locationdata.elements[i].name.empty()!");
       return false;
     } else if (nameset.find(locationdata.elements[i].name) == nameset.end())
       nameset.insert(locationdata.elements[i].name);
     else {
-      cerr << "LocationPlot::setData duplicate name: " << i
-          << " locationdata.elements[i].name!" << locationdata.elements[i].name
-          << endl;
+      METLIBS_LOG_INFO("duplicate name: " << i
+          << " locationdata.elements[i].name!" << locationdata.elements[i].name);
       return false;
     }
     if (locationdata.elements[i].xpos.size() < 2) {
-      cerr << "LocationPlot::setData " << i
-          << " locationdata.elements[i].xpos.size()<2!"
-          << locationdata.elements[i].xpos.size() << endl;
+      METLIBS_LOG_INFO(i << " locationdata.elements[i].xpos.size()<2!"
+          << locationdata.elements[i].xpos.size());
       return false;
     }
     if (locationdata.elements[i].xpos.size()
         != locationdata.elements[i].ypos.size()) {
-      cerr << "LocationPlot::setData " << i
+      METLIBS_LOG_INFO("LocationPlot::setData " << i
           << " locationdata.elements[i].xpos.size()!=locationdata.elements[i].ypos.size()!"
           << locationdata.elements[i].xpos.size() << ","
-          << locationdata.elements[i].ypos.size() << endl;
+          << locationdata.elements[i].ypos.size());
       return false;
     }
   }
@@ -184,7 +181,7 @@ bool LocationPlot::changeProjection()
   }
 
   if (!gc.geo2xy(area,numPos,px,py)) {
-     cerr << "LocationPlot::changeProjection getPoints error" << endl;
+     METLIBS_LOG_INFO("getPoints error");
      return false;
   }
 

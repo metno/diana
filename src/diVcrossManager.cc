@@ -31,7 +31,7 @@
 #include "config.h"
 #endif
 
-#include <diVcrossManager.h>
+#include "diVcrossManager.h"
 
 #include <diVcrossOptions.h>
 #include <diVcrossFile.h>
@@ -126,8 +126,6 @@ bool VcrossManager::parseSetup()
   bool ok= true;
 
   if (SetupParser::getSection(section1,vstr)) {
-
-    set<miString> uniquemodels;
 
     miString model,filename;
     vector<miString> tokens,tokens1,tokens2;
@@ -529,17 +527,10 @@ void VcrossManager::getCrossections(LocationData& locationdata)
         annot+=(" "+usedModels[i]);
 
       vf->second->getMapData(locationdata.elements);
-
-      locationdata.name=         "vcross";
       locationdata.locationType= location_line;
       locationdata.area=         geoArea;
       locationdata.annotation=   annot;
-      locationdata.colour=            vcopt->vcOnMapColour;
-      locationdata.linetype=          vcopt->vcOnMapLinetype;
-      locationdata.linewidth=         vcopt->vcOnMapLinewidth;
-      locationdata.colourSelected=    vcopt->vcSelectedOnMapColour;
-      locationdata.linetypeSelected=  vcopt->vcSelectedOnMapLinetype;
-      locationdata.linewidthSelected= vcopt->vcSelectedOnMapLinewidth;
+      getCrossectionOptions(locationdata);
     }
     else {
       map<miString, VcrossField*>::iterator vfi = vcfields.find(masterFile);
@@ -557,16 +548,10 @@ void VcrossManager::getCrossections(LocationData& locationdata)
         Area geoArea(pgeo,rgeo);
 
         vfi->second->getMapData(locationdata.elements);
-        locationdata.name = "vcross";
         locationdata.locationType = location_line;
         locationdata.area = geoArea;
         locationdata.annotation = annot;
-        locationdata.colour = vcopt->vcOnMapColour;
-        locationdata.linetype = vcopt->vcOnMapLinetype;
-        locationdata.linewidth = vcopt->vcOnMapLinewidth;
-        locationdata.colourSelected = vcopt->vcSelectedOnMapColour;
-        locationdata.linetypeSelected = vcopt->vcSelectedOnMapLinetype;
-        locationdata.linewidthSelected = vcopt->vcSelectedOnMapLinewidth;
+        getCrossectionOptions(locationdata);
       }
     }
   }

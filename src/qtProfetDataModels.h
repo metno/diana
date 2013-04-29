@@ -69,7 +69,7 @@ public:
   static QIcon getUserIcon(const PodsUser& user);
 
 private:
-  vector<PodsUser> users;
+  std::vector<PodsUser> users;
   int getNextIconIndex();
 
 public:
@@ -91,7 +91,7 @@ public:
    * Setting all users in model
    * Connected views are updated
    */
-  void setUsers(const vector<PodsUser> & u);
+  void setUsers(const std::vector<PodsUser> & u);
   PodsUser setUser(const PodsUser & u);
   void removeUser(const PodsUser & u);
   void clearModel();
@@ -105,7 +105,7 @@ public:
 class SessionListModel : public QAbstractListModel {
   Q_OBJECT
 private:
-  vector<fetSession> sessions;
+  std::vector<fetSession> sessions;
 public:
   SessionListModel(QObject * parent): QAbstractListModel(parent){}
   int rowCount(const QModelIndex &parent = QModelIndex()) const{
@@ -130,7 +130,7 @@ public:
    * Setting all sessions in model
    * Connected sessions are updated
    */
-  void setSessions(const vector<fetSession> & s);
+  void setSessions(const std::vector<fetSession> & s);
   void setSession(const fetSession & s);
   void removeSession(const fetSession & s);
   QModelIndex getIndexByRefTime(const miutil::miTime & t);
@@ -147,7 +147,7 @@ public:
 class FetObjectListModel : public QAbstractListModel {
   Q_OBJECT
 private:
-  vector<fetObject> objects;
+  std::vector<fetObject> objects;
 public:
   FetObjectListModel(QObject * parent): QAbstractListModel(parent){}
   int rowCount(const QModelIndex &parent = QModelIndex()) const{
@@ -170,7 +170,7 @@ public:
    * Setting all objects in model
    * Connected views are updated
    */
-  void setObjects(const vector<fetObject> & obj);
+  void setObjects(const std::vector<fetObject> & obj);
   /**
    * Insert or replace object in model
    * Connected views are updated
@@ -196,24 +196,24 @@ public:
     PARAM_COLOUR_RECT = 4
   };
 private:
-  vector<fetObject::Signature> objects;
-  map<miutil::miString,fetParameter> name2par;
-  vector<miutil::miString> parameters;
-  vector<miutil::miTime> times;
+  std::vector<fetObject::Signature> objects;
+  std::map<miutil::miString,fetParameter> name2par;
+  std::vector<miutil::miString> parameters;
+  std::vector<miutil::miTime> times;
   QModelIndex lastSelected;
   miutil::miTime currentSessionRefTime;
-  map<QModelIndex, vector<PodsUser> > userLocationMap;
-  map<miutil::miString,int> paramIndexMap;
-  map<miutil::miTime,int> timeIndexMap;
+  std::map<QModelIndex, std::vector<PodsUser> > userLocationMap;
+  std::map<miutil::miString,int> paramIndexMap;
+  std::map<miutil::miTime,int> timeIndexMap;
   // map< timeIndex, map<paramIndex, signatureIndex> >
-  map< int, map< int, vector< int > > > signatureIndexMap;
-  map<miutil::miString,Colour> parameterColours;
+  std::map< int, std::map< int, std::vector< int > > > signatureIndexMap;
+  std::map<miutil::miString,Colour> parameterColours;
   int headerDisplayMask;
 
   // const access to signatureIndexMap
-  vector<int> getObjectIndexList(int timeIndex, int paramIndex) const;
+  std::vector<int> getObjectIndexList(int timeIndex, int paramIndex) const;
   QColor getCellBackgroundColor(CellType type, bool odd) const;
-  vector<PodsUser> getUsers( const QModelIndex & index,
+  std::vector<PodsUser> getUsers( const QModelIndex & index,
       const miutil::miTime & sessionRefTime) const;
 
 public:
@@ -229,11 +229,11 @@ public:
   QVariant headerData(int section, Qt::Orientation orientation,
       int role = Qt::DisplayRole) const;
   QVariant data(const QModelIndex &index, int role) const;
-  void initTable(const vector<miutil::miTime> & t, const vector<miutil::miString> & param);
+  void initTable(const std::vector<miutil::miTime> & t, const std::vector<miutil::miString> & param);
   bool inited(){ return (parameters.size() && times.size()); }
   void setLastSelectedIndex(const QModelIndex & lsi){ lastSelected = lsi; }
   void setCurrentSessionRefTime(const miutil::miTime & t) { currentSessionRefTime = t; }
-  void setObjectSignatures(const vector<fetObject::Signature> & objects);
+  void setObjectSignatures(const std::vector<fetObject::Signature> & objects);
   void setObjectSignature(const fetObject::Signature & obj);
   bool removeObjectSignature(const miutil::miString & id);
   miutil::miTime getTime(const QModelIndex &index) const
@@ -247,9 +247,9 @@ public:
   void clearModel();
   void customEvent(QEvent * e);
   QModelIndex getModelIndex(miutil::miTime time, miutil::miString param);
-  void setParamColours(map<miutil::miString,Colour>& paramCol);
+  void setParamColours(std::map<miutil::miString,Colour>& paramCol);
   void setHeaderDisplayMask(int mask);
-  void setParameters(const vector<fetParameter>& vp);
+  void setParameters(const std::vector<fetParameter>& vp);
 };
 
 }

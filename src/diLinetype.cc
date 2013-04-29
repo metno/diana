@@ -36,7 +36,7 @@
 #include <diLinetype.h>
 
 using namespace miutil;
-
+using namespace std;
 
 map<miString,Linetype> Linetype::linetypes;
 vector<miString>       Linetype::linetypeSequence;

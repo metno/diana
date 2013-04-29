@@ -55,22 +55,17 @@ public:
   //metar
   miutil::miString metarId;
   bool CAVOK;              
-  vector<miutil::miString> REww;   ///< Recent weather
-  vector<miutil::miString> ww;     ///< Significant weather
-  vector<miutil::miString> cloud;  ///< Clouds
+  std::vector<miutil::miString> REww;   ///< Recent weather
+  std::vector<miutil::miString> ww;     ///< Significant weather
+  std::vector<miutil::miString> cloud;  ///< Clouds
   miutil::miString appendix;       ///< For whatever remains
   
-  map<miutil::miString,float> fdata;
-  map<miutil::miString,miutil::miString> stringdata;
+  std::map<miutil::miString,float> fdata;
+  std::map<miutil::miString,miutil::miString> stringdata;
 
   //Hqc  
-  map<miutil::miString,miutil::miString> flag; 
-  map<miutil::miString,Colour> flagColour;
-
+  std::map<miutil::miString,miutil::miString> flag; 
+  std::map<miutil::miString,Colour> flagColour;
 };
 
 #endif
-
-
-
-

@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -35,6 +33,7 @@
 #include <diObsData.h>
 #include <GL/gl.h>
 #include <set>
+#include <vector>
 #ifdef ROADOBS
 #ifdef NEWARK_INC
 #include <newarkAPI/diStation.h>
@@ -55,8 +54,8 @@
 class ObsPlot : public Plot {
 
 private:
-  vector<ObsData> obsp;
-  map< miutil::miString, int > idmap; // maps obsData with id to index in obsp
+  std::vector<ObsData> obsp;
+  std::map< miutil::miString, int > idmap; // maps obsData with id to index in obsp
   //obs positions
   float *x, *y;
 
@@ -82,7 +81,7 @@ private:
   bool levelAsField;
   miutil::miString plottype;
   miutil::miString currentDatatype;
-  vector<miutil::miString> datatypes;
+  std::vector<miutil::miString> datatypes;
   bool priority;
   miutil::miString priorityFile;
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
@@ -96,7 +95,7 @@ private:
   bool localTime;  //Use Time, not ctime
   int undef;
   miutil::miString annotation;
-  vector<miutil::miString> labels;    // labels from ascii-files or PlotModule(edit)
+  std::vector<miutil::miString> labels;    // labels from ascii-files or PlotModule(edit)
   float fontsizeScale; //needed when postscript font != X font
   float current; //cuurent, not wind
   bool firstplot;
@@ -104,10 +103,10 @@ private:
 
   int startxy; //used in getposition/obs_mslp
 
-  set<miutil::miString> knotParameters;
+  std::set<miutil::miString> knotParameters;
   //Name and last modification time of files used
-  vector<miutil::miString> fileNames;
-  vector<long> modificationTime;
+  std::vector<miutil::miString> fileNames;
+  std::vector<long> modificationTime;
 
   enum flag {QUALITY_GOOD = 4};
 
@@ -139,10 +138,10 @@ private:
     miutil::miString marker;
   };
 
-  map<miutil::miString,vector<plotCriteria> > plotcriteria;
-  map<miutil::miString,vector<colourCriteria> > colourcriteria;
-  map<miutil::miString,vector<colourCriteria> > totalcolourcriteria;
-  map<miutil::miString,vector<markerCriteria> > markercriteria;
+  std::map<miutil::miString,std::vector<plotCriteria> > plotcriteria;
+  std::map<miutil::miString,std::vector<colourCriteria> > colourcriteria;
+  std::map<miutil::miString,std::vector<colourCriteria> > totalcolourcriteria;
+  std::map<miutil::miString,std::vector<markerCriteria> > markercriteria;
 
   bool pcriteria;
   bool ccriteria;
@@ -150,20 +149,20 @@ private:
   bool mcriteria;
 
   //which parameters to plot
-  map<miutil::miString,bool> pFlag;
+  std::map<miutil::miString,bool> pFlag;
 
 //Positions of plotted observations
   struct UsedBox {
     float x1,x2,y1,y2;
   };
   //  static
-  static vector<float> xUsed;
-  static vector<float> yUsed;
-  static vector<UsedBox> usedBox;
+  static std::vector<float> xUsed;
+  static std::vector<float> yUsed;
+  static std::vector<UsedBox> usedBox;
 
   // static priority file
   static miutil::miString currentPriorityFile;
-  static vector<miutil::miString> priorityList;
+  static std::vector<miutil::miString> priorityList;
 
   // static synop and metar plot tables
   static short *itabSynop;
@@ -183,8 +182,8 @@ private:
   struct metarww{
     int lww, lwwg;
   };
-  static map<miutil::miString,metarww> metarMap;
-  static map<int,int> lwwg2;
+  static std::map<miutil::miString,metarww> metarMap;
+  static std::map<int,int> lwwg2;
 
   //which obs will be plotted
   bool next;
@@ -193,14 +192,14 @@ private:
   int plotnr;
   int maxnr;
   bool fromFile;
-  vector<int> list_plotnr;    // list of all stations, value = plotnr
-  vector<int> nextplot;  // list of stations that will be plotted
-  vector<int> notplot;   // list of stations that will be plottet as x
-  vector<int> all_this_area; // all stations within area
-  vector<int> all_stations; // all stations, from last plot or from file
-  vector<int> all_from_file; // all stations, from file or priority list
+  std::vector<int> list_plotnr;    // list of all stations, value = plotnr
+  std::vector<int> nextplot;  // list of stations that will be plotted
+  std::vector<int> notplot;   // list of stations that will be plottet as x
+  std::vector<int> all_this_area; // all stations within area
+  std::vector<int> all_stations; // all stations, from last plot or from file
+  std::vector<int> all_from_file; // all stations, from file or priority list
   //id of all stations shown, sorted by plot type
-  static map< miutil::miString, vector<miutil::miString> > visibleStations;
+  static std::map< miutil::miString, std::vector<miutil::miString> > visibleStations;
 
   float areaFreeSpace,areaFreeWindSize;
   float areaFreeXsize,areaFreeYsize;
@@ -210,7 +209,7 @@ private:
   miutil::miString hqcFlag;  //which parameter is flagged
   bool flaginfo;
   Colour flagColour;
-  map<miutil::miString,Colour> paramColour;
+  std::map<miutil::miString,Colour> paramColour;
   miutil::miString selectedStation;
   miutil::miString mark_parameter;
 
@@ -303,20 +302,20 @@ public:
   void clear();
   static void clearPos();
   void getObsAnnotation(miutil::miString &, Colour &);
-  bool getDataAnnotations(vector<miutil::miString>& anno);
+  bool getDataAnnotations(std::vector<miutil::miString>& anno);
   void setObsAnnotation(miutil::miString &anno){annotation =anno;}
-  vector<miutil::miString> getObsExtraAnnotations(){return labels;}
+  std::vector<miutil::miString> getObsExtraAnnotations(){return labels;}
   void setLabel(const miutil::miString& pin){labels.push_back(pin);}
-  void setLabels(const vector<miutil::miString>& l){labels = l;}
-  bool getPositions(vector<float>&,vector<float>&);
+  void setLabels(const std::vector<miutil::miString>& l){labels = l;}
+  bool getPositions(std::vector<float>&, std::vector<float>&);
   int  getPositions(float*,float*,int);
   int  numPositions();
   void obs_mslp(float *);
   bool findObs(int,int);
   bool getObsName(int xx,int yy, miutil::miString& station);
   void nextObs(bool);
-  vector<miutil::miString> getStations();
-  void putStations(vector<miutil::miString>);
+  std::vector<miutil::miString> getStations();
+  void putStations(std::vector<miutil::miString>);
   miutil::miString getInfoStr(){return infostr;}
   bool mslp(){return devfield;}
   static int float2int(float f){return (int)(f > 0.0 ? f + 0.5 : f - 0.5);}
@@ -324,7 +323,7 @@ public:
 
   bool moreTimes(){return moretimes;}
   void setDataType(miutil::miString datatype){currentDatatype = datatype;}
-  vector<miutil::miString>& dataTypes(){return datatypes;}
+  std::vector<miutil::miString>& dataTypes(){return datatypes;}
   miutil::miTime getObsTime(){return Time;}
   void setObsTime(const miutil::miTime& t){Time=t;}
   int getTimeDiff(){return timeDiff;}
@@ -339,19 +338,19 @@ public:
   int sizeObs(){return obsp.size();}
   void removeObs(){obsp.pop_back();}
   ObsData& getNextObs();
-  void mergeMetaData(map<miutil::miString, ObsData>& metaData);
-  void setObsData( vector<ObsData> obs) { obsp = obs; }
-  void addObsVector(vector<ObsData> vdata){obsp = vdata;}
+  void mergeMetaData(std::map<miutil::miString, ObsData>& metaData);
+  void setObsData(const std::vector<ObsData>& obs) { obsp = obs; }
+  void addObsVector(const std::vector<ObsData>& vdata){obsp = vdata;}
   bool timeOK(const miutil::miTime& t);
   //get get pressure level etc from field (if needed)
   void updateLevel(const miutil::miString& dataType);
   static int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
   static float knots2ms(float ff) {return (ff*1852.0/3600.0);}
 
-  vector<miutil::miString> getFileNames() const; // Returns the file names containing observation data.
+  std::vector<miutil::miString> getFileNames() const; // Returns the file names containing observation data.
 
   //Dialog info: Name, tooltip and type of parameter buttons. Used in ascii files
-  vector<miutil::miString> columnName;
+  std::vector<miutil::miString> columnName;
 
   // observations from road
   bool roadobsData;
@@ -364,35 +363,35 @@ public:
   miutil::miTime   roadobsMainTime;
   miutil::miTime   roadobsStartTime;
   miutil::miTime   roadobsEndTime;
-  vector<miutil::miString> roadobsColumnName;
-  vector<miutil::miString> roadobsColumnTooltip;
-  vector<miutil::miString> roadobsColumnType;
-  vector<miutil::miString> roadobsColumnHide;
-  vector<miutil::miString> roadobsColumnUndefined;
+  std::vector<miutil::miString> roadobsColumnName;
+  std::vector<miutil::miString> roadobsColumnTooltip;
+  std::vector<miutil::miString> roadobsColumnType;
+  std::vector<miutil::miString> roadobsColumnHide;
+  std::vector<miutil::miString> roadobsColumnUndefined;
 
-  vector<miutil::miTime> roadobsTime;
+  std::vector<miutil::miTime> roadobsTime;
 
-  //vector< vector<miutil::miString> > roadobsp;
+  //vector< std::vector<miutil::miString> > roadobsp;
   // needed to get data from road ON DEMAND
   miutil::miString filename;
   miutil::miString databasefile;
   miutil::miString stationfile;
   miutil::miString headerfile;
   miutil::miTime filetime;
-  map <int, vector<miutil::miString> > roadobsp;
-  vector<road::diStation>  * stationlist;
-  vector<road::diStation> stations_to_plot;
+  map <int, std::vector<miutil::miString> > roadobsp;
+  std::vector<road::diStation>  * stationlist;
+  std::vector<road::diStation> stations_to_plot;
   bool preparePlot(void);
-  vector<int> roadobsLengthMax;
+  std::vector<int> roadobsLengthMax;
 
-  map<miutil::miString,int> roadobsColumn; //column index(time, x,y,dd,ff etc)
+  std::map<miutil::miString,int> roadobsColumn; //column index(time, x,y,dd,ff etc)
 
-  vector<miutil::miString> roadobsParameter;
-  vector<int>      roadobspar;
+  std::vector<miutil::miString> roadobsParameter;
+  std::vector<int>      roadobspar;
   bool             roadobsWind;
 
-  vector<int> roadobsdd;
-  vector<float> roadobsff;
+  std::vector<int> roadobsdd;
+  std::vector<float> roadobsff;
   static int ucount;
 #endif
 

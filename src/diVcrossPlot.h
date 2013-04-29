@@ -297,7 +297,7 @@ private:
   static std::map<miutil::miString,int> vcParName;    // name -> number
   static std::map<int,miutil::miString> vcParNumber;  // number -> name
 
-  static multimap<miutil::miString,vcFunction> vcFunctions;
+  static std::multimap<miutil::miString,vcFunction> vcFunctions;
 
   static std::map<miutil::miString,vcField> vcFields;
   static std::vector<std::string> vcFieldNames;  // setup/dialog sequence

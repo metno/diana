@@ -46,8 +46,8 @@
   /// Description of one location (name and position)
   struct LocationElement {
     std::string name;
-    vector<float> xpos;    // usually longitude
-    vector<float> ypos;    // usually latitude
+    std::vector<float> xpos;    // usually longitude
+    std::vector<float> ypos;    // usually latitude
   };
 
   /// Data and info for a set of locations
@@ -55,7 +55,7 @@
     std::string         name;
     LocationType     locationType; // for all elements
     Area             area;      // only Projection used (usually geo)
-    vector<LocationElement> elements;
+    std::vector<LocationElement> elements;
     std::string         annotation;
     std::string         colour;
     std::string         linetype;
@@ -113,7 +113,7 @@ private:
 
   LocationData locdata;
 
-  vector<InternalLocationInfo> locinfo;
+  std::vector<InternalLocationInfo> locinfo;
 
   std::string selectedName;
 

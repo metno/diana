@@ -99,9 +99,9 @@ public:
   bool options_1;
   bool options_2;
   Colour textcolour,linecolour,linecolour_2,fillcolour,bordercolour;
-  vector<Colour> colours;
-  vector<Colour> palettecolours;
-  vector<Colour> palettecolours_cold;
+  std::vector<Colour> colours;
+  std::vector<Colour> palettecolours;
+  std::vector<Colour> palettecolours_cold;
   std::string palettename;
   std::string patternname;
   int table;
@@ -109,21 +109,21 @@ public:
   int repeat;
   Linetype linetype;
   Linetype linetype_2;
-  vector<Linetype> linetypes;
+  std::vector<Linetype> linetypes;
   int linewidth;
   int linewidth_2;
-  vector<int> linewidths;
-  vector<std::string> patterns;
-  vector<float> limits;
-  vector<float> values;
-  vector<float> linevalues;
-  vector<float> loglinevalues;
-  vector<float> linevalues_2;
-  vector<float> loglinevalues_2;
+  std::vector<int> linewidths;
+  std::vector<std::string> patterns;
+  std::vector<float> limits;
+  std::vector<float> values;
+  std::vector<float> linevalues;
+  std::vector<float> loglinevalues;
+  std::vector<float> linevalues_2;
+  std::vector<float> loglinevalues_2;
   int colourcut;
-  vector<int>   forecastLength;
-  vector<float> forecastValueMin;
-  vector<float> forecastValueMax;
+  std::vector<int>   forecastLength;
+  std::vector<float> forecastValueMin;
+  std::vector<float> forecastValueMax;
   float lineinterval;
   float lineinterval_2;
   float base;
@@ -139,7 +139,7 @@ public:
   std::string extremeType;
   float    extremeSize;
   float    extremeRadius;
-  vector<float> extremeLimits;
+  std::vector<float> extremeLimits;
   int      lineSmooth;
   int      fieldSmooth;
   int      frame;  // 0=off 1=on
@@ -171,12 +171,12 @@ public:
   int       dimension;
   bool      enabled;
   std::string  fname;
-  vector <std::string> fdescr;
+  std::vector<std::string> fdescr;
   int       overlay; //plot in ovelay buffer
-  static map<std::string,PlotOptions> fieldPlotOptions;
-  static vector<std::string> suffix;
-  static vector< vector<std::string> > plottypes;
-  static map<std::string, std::string> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
+  static std::map<std::string,PlotOptions> fieldPlotOptions;
+  static std::vector<std::string> suffix;
+  static std::vector< std::vector<std::string> > plottypes;
+  static std::map<std::string, std::string> enabledOptions; //enabledoptions[plotmethod]="list of option groups"
   bool      contourShape;
   std::string  shapefilename;
   std::string unit;        // used to get data in right unit
@@ -200,20 +200,20 @@ public:
       from a string containing plotoptions */
   static bool fillFieldPlotOptions(std::string, std::string&,
 			    PlotOptions&);
-  static void setSuffix(vector<std::string> suff){suffix = suff;}
-  static void getAllFieldOptions(vector<std::string>,
-				 map<std::string,std::string>& fieldoptions);
+  static void setSuffix(const std::vector<std::string>& suff) { suffix = suff; }
+  static void getAllFieldOptions(std::vector<std::string>,
+				 std::map<std::string,std::string>& fieldoptions);
   static bool getFieldPlotOptions(const std::string& name, PlotOptions& po);
-  static vector< vector<std::string> >& getPlotTypes(){return plottypes;}
-  static map< std::string, std::string > getEnabledOptions(){ return enabledOptions;}
+  static std::vector< std::vector<std::string> >& getPlotTypes(){return plottypes;}
+  static std::map< std::string, std::string > getEnabledOptions(){ return enabledOptions;}
 
 private:
   // fill in values in an int vector (error if size==0)
-  vector<int> intVector(const std::string&) const;
+  std::vector<int> intVector(const std::string&) const;
   // fill in values in a float vector (error if size==0)
-  vector<float> floatVector(const std::string&) const;
+  std::vector<float> floatVector(const std::string&) const;
   // fill in values and "..." in a float vector (error if size==0)
-  vector<float> autoExpandFloatVector(const std::string&) const;
+  std::vector<float> autoExpandFloatVector(const std::string&) const;
   static void removeSuffix(std::string& name);
 };
 

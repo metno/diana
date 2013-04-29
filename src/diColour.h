@@ -3,7 +3,7 @@
 
   $Id: diColour.h 3903 2012-07-13 11:11:25Z lisbethb $
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,16 +36,13 @@
 #include <puCtools/porttypes.h>
 
 #include <map>
-
-using namespace std;
+#include <vector>
 
 /**
-
   \brief Colour type
 
   Colour definition, with R, G, B and alpha (translucency) component.
   - static list of defined colours, reachable by name
-
 */
 
 class Colour {
@@ -74,8 +71,8 @@ private:
   miutil::miString name;
   values v;
   uchar_t colourindex;
-  static map<miutil::miString,Colour> cmap;
-  static vector<ColourInfo> colours;
+  static std::map<miutil::miString,Colour> cmap;
+  static std::vector<ColourInfo> colours;
 
   // Copy members
   void memberCopy(const Colour& rhs);
@@ -104,7 +101,7 @@ public:
 
   // static functions for static vector <ColourInfo> colours
   static void addColourInfo(const ColourInfo& ci);
-  static vector<ColourInfo> getColourInfo(){return colours;}
+  static std::vector<ColourInfo> getColourInfo(){return colours;}
 
   void set(const uchar_t r, const uchar_t g,
 	   const uchar_t b, const uchar_t a =maxv){
@@ -134,8 +131,7 @@ public:
 
   void readColourMap(const miutil::miString fname);
 
-  friend ostream& operator<<(ostream& out, const Colour& rhs);
-
+  friend std::ostream& operator<<(std::ostream& out, const Colour& rhs);
 };
 
 

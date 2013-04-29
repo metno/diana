@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -37,11 +35,13 @@
 #include "diFtnVfile.h"
 
 #include <cmath>
+#include <cstdio>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 
 // Default constructor
 VprofData::VprofData(const miString& filename, const miString& modelname)

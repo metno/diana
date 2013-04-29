@@ -31,12 +31,10 @@
 #ifndef diLinetype_h
 #define diLinetype_h
 
-#include <vector>
-#include <map>
 #include <puTools/miString.h>
 #include <puCtools/porttypes.h>
-
-using namespace std;
+#include <vector>
+#include <map>
 
 /**
    \brief Line stippling for plotting
@@ -65,12 +63,12 @@ public:
   static Linetype getDefaultLinetype() { return defaultLinetype; }
 
   /// return names of defined line types
-  static vector<miutil::miString> getLinetypeNames() { return linetypeSequence; }
+  static std::vector<miutil::miString> getLinetypeNames() { return linetypeSequence; }
   /// return all line types in string code
-  static vector<miutil::miString> getLinetypeInfo();
+  static std::vector<miutil::miString> getLinetypeInfo();
   /// return all line names and types in string code
-  static void getLinetypeInfo(vector<miutil::miString>& name,
-			      vector<miutil::miString>& pattern);
+  static void getLinetypeInfo(std::vector<miutil::miString>& name,
+			      std::vector<miutil::miString>& pattern);
 
   miutil::miString name;     ///< name of line type
   bool     stipple;  ///< not solid
@@ -78,13 +76,12 @@ public:
   int      factor;   ///< repeat factor
 
 private:
-  static map<miutil::miString,Linetype> linetypes;
-  static vector<miutil::miString> linetypeSequence;
+  static std::map<miutil::miString,Linetype> linetypes;
+  static std::vector<miutil::miString> linetypeSequence;
   static Linetype defaultLinetype;
 
   // Copy members
   void memberCopy(const Linetype& rhs);
-
 };
 
 #endif

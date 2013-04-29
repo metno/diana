@@ -34,8 +34,6 @@
 #include <puTools/miString.h>
 #include <vector>
 
-using namespace std;
-
 /**
   \brief Vertical Crossection diagram settings
 
@@ -49,8 +47,8 @@ public:
   void setDefaults();
 
   // log and setup
-  vector<miutil::miString> writeOptions();
-  void readOptions(const vector<miutil::miString>& vstr);
+  std::vector<miutil::miString> writeOptions();
+  void readOptions(const std::vector<miutil::miString>& vstr);
 
 private:
   friend class VcrossSetupDialog;
@@ -139,7 +137,7 @@ private:
 
   miutil::miString backgroundColour;
 
-  vector<float> fixedPressureLevels;
+  std::vector<float> fixedPressureLevels;
 
   //-------------
 

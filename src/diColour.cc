@@ -38,6 +38,7 @@
 #include <iostream>
 #include <stdio.h>
 
+using namespace std;
 using namespace miutil;
 
 map<miString,Colour> Colour::cmap;

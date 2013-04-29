@@ -41,6 +41,7 @@
 #endif
 
 using namespace ::miutil;
+using namespace ::std;
 using namespace d_print;
 
 // static class members

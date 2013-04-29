@@ -29,14 +29,14 @@
 #ifndef diVcrossField_h
 #define diVcrossField_h
 
-#include "diLocationPlot.h"
-
-#include <diField/diFieldManager.h>
 #include <puTools/miTime.h>
 
+#include <map>
 #include <vector>
 
 class VcrossPlot;
+class LocationElement;
+class FieldManager;
 
 /**
   \brief Vertical Crossection prognostic data from a field source
@@ -79,8 +79,8 @@ private:
   // Holds active crossections
   std::vector<LocationElement> crossSections;
   miutil::miTime lastVcrossTime;
-  map<int,std::vector<float*> > VcrossDataMap;
-  map<int,std::vector<bool> > VcrossMultiLevelMap;
+  std::map<int,std::vector<float*> > VcrossDataMap;
+  std::map<int,std::vector<bool> > VcrossMultiLevelMap;
   std::vector<VcrossPlot*> VcrossPlotVector;
 
   // Holds the last timeGraph

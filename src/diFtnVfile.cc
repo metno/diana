@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,44 +34,43 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <math.h>
-#include <diFtnVfile.h>
+#include "diFtnVfile.h"
 
-using namespace::miutil;
+#include "diLocationPlot.h"
 
-// Default constructor
-FtnVfile::FtnVfile(miString filename, int bufferlength) :
+#include <cmath>
+#include <cstdio>
+#include <sstream>
+
+#define MILOGGER_CATEGORY "diana.FtnVfile"
+#include <miLogger/miLogging.h>
+
+FtnVfile::FtnVfile(const std::string& filename, int bufferlength) :
   bufferLength(bufferlength), fileName(filename),
   firstRead(true), swapFile(false), index(bufferlength), pfile(0)
-
-  {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::Default Constructor" << endl;
-#endif
+{
+  METLIBS_LOG_SCOPE();
   buffer= new short int[bufferlength];
-  }
+}
 
 
-// Destructor
-FtnVfile::~FtnVfile() {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::Destructor" << endl;
-#endif
-  if (pfile) fclose(pfile);
+FtnVfile::~FtnVfile()
+{
+  METLIBS_LOG_SCOPE();
+  if (pfile)
+    fclose(pfile);
   delete[] buffer;
 }
 
 
-void FtnVfile::init(){
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::init" << endl;
-#endif
+void FtnVfile::init()
+{
+  METLIBS_LOG_SCOPE();
 
   pfile = fopen(fileName.c_str(), "rb");
 
   if (!pfile) {
-    cerr << "FtnVfile::init error open " << fileName << endl;
+    METLIBS_LOG_WARN("FtnVfile::init error open " << fileName);
     throw VfileError();
   }
 
@@ -81,19 +78,18 @@ void FtnVfile::init(){
     readBuffer();
   }
   catch (...) {
-    cerr << "FtnVfile::init error reading " << fileName << endl;
+    METLIBS_LOG_WARN("FtnVfile::init error reading " << fileName);
     throw;
   }
 }
 
 
-void FtnVfile::readBuffer() {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::readBuffer" << endl;
-#endif
+void FtnVfile::readBuffer()
+{
+  METLIBS_LOG_SCOPE();
 
   if (int (fread(buffer, 2, bufferLength, pfile)) != bufferLength) {
-    cerr << "FtnVfile::readBuffer error reading " << fileName << endl;
+    METLIBS_LOG_WARN("FtnVfile::readBuffer error reading " << fileName);
     throw VfileError();
   }
 
@@ -116,19 +112,18 @@ void FtnVfile::readBuffer() {
 }
 
 
-bool FtnVfile::setFilePosition(int record, int word) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::setFilePosition" << endl;
-#endif
-  long offset = (record-1) * bufferLength * 2;
+bool FtnVfile::setFilePosition(int record, int word)
+{
+  METLIBS_LOG_SCOPE();
 
+  long offset = (record-1) * bufferLength * 2;
   if(offset<0){
-    cerr << "FtnVfile::setFilePosition ERROR " << fileName << endl;
+    METLIBS_LOG_ERROR("FtnVfile::setFilePosition ERROR " << fileName);
     return false;
   }
 
   if (fseek(pfile, offset, SEEK_SET) != 0) {
-    cerr << "FtnVfile::setFilePosition ERROR " << fileName << endl;
+    METLIBS_LOG_ERROR("FtnVfile::setFilePosition ERROR " << fileName);
     fclose(pfile);
     throw VfileError();
   }
@@ -137,7 +132,7 @@ bool FtnVfile::setFilePosition(int record, int word) {
     readBuffer();
   }
   catch (...) {
-    cerr << "FtnVfile::setFilePosition error reading " << fileName << endl;
+    METLIBS_LOG_ERROR("FtnVfile::setFilePosition error reading " << fileName);
     throw;
   }
 
@@ -146,23 +141,21 @@ bool FtnVfile::setFilePosition(int record, int word) {
 }
 
 
-int FtnVfile::getInt() {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getInt" << endl;
-#endif
+int FtnVfile::getInt()
+{
+  METLIBS_LOG_SCOPE();
 
-  if (index>=bufferLength) readBuffer();
+  if (index>=bufferLength)
+    readBuffer();
 
-  int idata= buffer[index++];
-
-  return idata;
+  return buffer[index++];
 }
 
 
-int* FtnVfile::getInt(int length) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getInt  length= " << length << endl;
-#endif
+int* FtnVfile::getInt(int length)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
   int* idata= new int[length];
 
@@ -178,10 +171,10 @@ int* FtnVfile::getInt(int length) {
 }
 
 
-int* FtnVfile::getIntDuo(int length) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getIntDuo  length= " << length << endl;
-#endif
+int* FtnVfile::getIntDuo(int length)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
   int* idata= new int[length];
 
@@ -201,12 +194,12 @@ int* FtnVfile::getIntDuo(int length) {
 }
 
 
-vector<int> FtnVfile::getIntVector(int length) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getIntVector length= " << length << endl;
-#endif
+std::vector<int> FtnVfile::getIntVector(int length)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
-  vector<int> idata(length);
+  std::vector<int> idata(length);
 
   int n, j, i=0;
 
@@ -220,10 +213,10 @@ vector<int> FtnVfile::getIntVector(int length) {
 }
 
 
-short int* FtnVfile::getShortInt(int length) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getShortInt  length= " << length << endl;
-#endif
+short int* FtnVfile::getShortInt(int length)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
   short int* idata= new short int[length];
 
@@ -239,10 +232,9 @@ short int* FtnVfile::getShortInt(int length) {
 }
 
 
-float FtnVfile::getFloat(int iscale, int iundef) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getFloat" << endl;
-#endif
+float FtnVfile::getFloat(int iscale, int iundef)
+{
+  METLIBS_LOG_SCOPE();
 
   if (index>=bufferLength) readBuffer();
 
@@ -259,10 +251,10 @@ float FtnVfile::getFloat(int iscale, int iundef) {
 }
 
 
-float* FtnVfile::getFloat(int length, int iscale, int iundef) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getFloat length= " << length << endl;
-#endif
+float* FtnVfile::getFloat(int length, int iscale, int iundef)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
   float* fdata= new float[length];
 
@@ -290,11 +282,10 @@ float* FtnVfile::getFloat(int length, int iscale, int iundef) {
 }
 
 
-void FtnVfile::getFloat(float *fdata, int length,
-    int iscale, int iundef) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getFloat length= " << length << endl;
-#endif
+void FtnVfile::getFloat(float *fdata, int length, int iscale, int iundef)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
   int n, j, i=0;
   float scale= powf(10.,iscale);
@@ -319,12 +310,12 @@ void FtnVfile::getFloat(float *fdata, int length,
 }
 
 
-vector<float> FtnVfile::getFloatVector(int length, int iscale, int iundef) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getFloatVector length= " << length << endl;
-#endif
+std::vector<float> FtnVfile::getFloatVector(int length, int iscale, int iundef)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
-  vector<float> fdata(length);
+  std::vector<float> fdata(length);
 
   int n, j, i=0;
   float scale= powf(10.,iscale);
@@ -350,10 +341,10 @@ vector<float> FtnVfile::getFloatVector(int length, int iscale, int iundef) {
 }
 
 
-miString FtnVfile::getString(int length) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::getString  length= " << length << endl;
-#endif
+std::string FtnVfile::getString(int length)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
   int lengthStr= length;
 
@@ -361,7 +352,7 @@ miString FtnVfile::getString(int length) {
 
   int c1, c2, n, j, i=0;
 
-  ostringstream ostr;
+  std::ostringstream ostr;
 
   while (i<length) {
     if (index>=bufferLength) readBuffer();
@@ -374,7 +365,7 @@ miString FtnVfile::getString(int length) {
     }
     i+=n;
   }
-  miString str= ostr.str().substr(0,lengthStr);
+  std::string str= ostr.str().substr(0,lengthStr);
 
   // files handled here often contains some strange norwegian characters
   n= str.length();
@@ -391,10 +382,10 @@ miString FtnVfile::getString(int length) {
 }
 
 
-void FtnVfile::skipData(int length) {
-#ifdef DEBUGPRINT
-  cerr << "++ FtnVfile::skipData  length= " << length << endl;
-#endif
+void FtnVfile::skipData(int length)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(length));
 
   int n, i=0;
 

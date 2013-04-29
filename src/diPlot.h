@@ -74,8 +74,8 @@ protected:
   static Colour backContrastColour; // suitable contrast colour
   static float gcd;          // great circle distance
   static bool panning;       // panning in progress
-  static vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
-  static vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
+  static std::vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
+  static std::vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
 
   bool enabled;              // plot enabled
   bool datachanged;          // plotdata has changed

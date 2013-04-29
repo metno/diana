@@ -33,7 +33,9 @@
 
 #include "diVcrossField.h"
 #include "diVcrossPlot.h"
+#include "diLocationPlot.h"
 
+#include <diField/diFieldManager.h>
 #include <puDatatypes/miCoordinates.h>
 
 #include <cmath>
