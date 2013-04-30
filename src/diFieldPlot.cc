@@ -3179,11 +3179,6 @@ bool FieldPlot::plotFillCell(){
         float y3 = y[(iy+1) * (rnx+1) +(ix+1)];
         float y4 = y[(iy+1) * (rnx+1) +(ix)];
 
-        // Discard quads that face away from the viewer. This depends on
-        // the quads having the correct winding.
-        if ((x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1) <= 0.0)
-          continue;
-
         // set fillcolor of cell
         if(poptions.linevalues.size() == 0){
           size_t index = 0;
