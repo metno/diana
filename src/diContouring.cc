@@ -2192,7 +2192,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           if (lev<nundef && !shading) {
             if      (iconv==1) posConvert(npos, &x[1], &y[1], cxy);
             else if (iconv==2) posConvert(npos, &x[1], &y[1], nx, ny, xz, yz);
-            drawLine(1,npos,x,y,xylim);
+            drawLine(1,npos,x,y);
           }
           if (shading) {
             ContourLine *cl= new ContourLine();
@@ -2278,7 +2278,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
             if (!shading) {
               if      (iconv==1) posConvert(l, xsmooth, ysmooth, cxy);
               else if (iconv==2) posConvert(l, xsmooth, ysmooth, nx, ny, xz, yz);
-              drawLine(0,l-1,xsmooth,ysmooth,xylim);
+              drawLine(0,l-1,xsmooth,ysmooth);
             }
             if (shading) {
               ContourLine *cl= new ContourLine();
@@ -2737,7 +2737,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         // draw line from position 'n1' to 'n2'
 
         if (ismooth<1) {
-          drawLine(n1,n2,x,y,xylim);
+          drawLine(n1,n2,x,y);
         } else {
           // line smoothing
           if (n1>np1) {
@@ -2755,7 +2755,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           l = smoothline(np,&x[ns],&y[ns],nfrst,nlast,
               ismooth,&xsmooth[0],&ysmooth[0]);
           if (l>1) {
-            drawLine(0,l-1,xsmooth,ysmooth,xylim);
+            drawLine(0,l-1,xsmooth,ysmooth);
           }
         }
 
@@ -2767,7 +2767,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         yy[0] = y[n2];
         xx[1] = xlabel;
         yy[1] = ylabel;
-        drawLine(0,1,xx,yy,xylim);
+        drawLine(0,1,xx,yy);
 
         if (ibcol>=0) {
           // blank background for label
@@ -2793,7 +2793,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         yy[0] = yend;
         xx[1] = x[n3];
         yy[1] = y[n3];
-        drawLine(0,1,xx,yy,xylim);
+        drawLine(0,1,xx,yy);
 
         // for next label
         dxx = x[n3]-xend;
@@ -3071,8 +3071,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 
     fillContours(contourlines, nx, ny, z,
         iconv, cxy, xz, yz, idraw, poptions, drawBorders,
-        psoutput, fieldArea,zrange,zstep,zoff,fieldUndef,
-        xylim);
+        psoutput, fieldArea,zrange,zstep,zoff,fieldUndef);
   }
 
   if (shape && contourlines.size()>0) {
@@ -4020,7 +4019,7 @@ void fillContours(vector<ContourLine*>& contourlines,
     const PlotOptions& poptions, bool drawBorders,
     GLPfile* psoutput, const Area& fieldArea,
     float zrange[], float zstep, float zoff,
-    const float& fieldUndef, float xylim[])
+    const float& fieldUndef)
 {
   vector<Colour> colours;
   int ncolours= poptions.palettecolours.size();
@@ -4041,10 +4040,6 @@ void fillContours(vector<ContourLine*>& contourlines,
     for(int i=0;i<ncolours_cold;i++)
       colours_cold[i].set(Colour::alpha,uchar_t(poptions.alpha));
   }
-
-  // Note the extent of the map area.
-  float maxX = fabs(xylim[1] - xylim[0]);
-  float maxY = fabs(xylim[3] - xylim[2]);
 
   int ncl= contourlines.size();
   if (ncl<1) return;
@@ -4193,46 +4188,35 @@ void fillContours(vector<ContourLine*>& contourlines,
             }
           }
 
+          int *countpos= new int[ncontours];
           GLdouble *gldata= new GLdouble[nposis*3];
 
           j= 0;
           for (n=0; n<ncontours; n++) {
             cl= contourlines[clindex[jc][n]];
             npos= cl->npos - 1;
-            if (npos == 0) continue;
-
             int kk=0;
-            float lastX = cl->xpos[0];
-            float lastY = cl->ypos[0];
-
             for (i=0; i<npos; i++) {
               if (cl->xpos[i]==HUGE_VAL || cl->ypos[i]==HUGE_VAL) {
                 continue;
-              } else if (fabs(cl->xpos[i] - lastX) > maxX || fabs(cl->ypos[i] - lastY) > maxY) {
-                if (kk > 0) {
-                  tesselation(gldata, 1, &kk);
-                  kk = 0;
-                  j = 0;
-                }
               }
               gldata[j]  = cl->xpos[i];
               gldata[j+1]= cl->ypos[i];
               gldata[j+2]= 0.0;
-              kk++;
               j+=3;
-
-              lastX = cl->xpos[i];
-              lastY = cl->ypos[i];
+              kk++;
             }
-
-            if (kk > 0) tesselation(gldata, 1, &kk);
+            countpos[n]=kk;
           }
+
+          tesselation(gldata, ncontours, countpos);
 
           if (psoutput) psoutput->UpdatePage(true);
 
           glDisable(GL_POLYGON_STIPPLE);
 
           delete[] gldata;
+          delete[] countpos;
         }
       }
     }
@@ -4843,38 +4827,21 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
   }
 }
 
-void drawLine(int start, int stop, float* x, float* y, float xylim[])
+void drawLine(int start, int stop, float* x, float* y)
 {
-  float maxX = fabs(xylim[1] - xylim[0]);
-  float maxY = fabs(xylim[3] - xylim[2]);
 
+//split line if position is undefined
   glBegin(GL_LINE_STRIP);
-  bool hasLast = false;
-  float lastX, lastY;
   for (int i=start; i<stop+1; ++i) {
     if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-      if (hasLast) {
-        float dx = x[i] - lastX;
-        float dy = y[i] - lastY;
-        if (fabs(dx) > maxX || fabs(dy) > maxY) {
-          // Split the line if the position spans the map area.
-          glEnd();
-          glBegin(GL_LINE_STRIP);
-        }
-      }
       glVertex2f(x[i], y[i]);
-
-      lastX = x[i];
-      lastY = y[i];
-      hasLast = true;
     } else {
-      // Split the line if the position is undefined.
       glEnd();
       while(x[i]==HUGE_VAL || y[i]==HUGE_VAL ) ++i;
       --i;
       glBegin(GL_LINE_STRIP);
-      hasLast = false;
     }
   }
   glEnd();
+
 }
