@@ -395,10 +395,8 @@ void PaintGLContext::renderPrimitive()
             newPath.addPolygon(poly);
             newPath.closeSubpath();
 
-            QPainterPathStroker stroker;
-            stroker.setWidth(ctx->attributes.width);
-            newPath = stroker.createStroke(newPath).united(newPath);
-            ctx->stencil.path += newPath;
+            newPath = newPath.united(newPath.translated(-ctx->attributes.width, -ctx->attributes.width));
+            ctx->stencil.path += newPath.translated(0.5*ctx->attributes.width, 0.5*ctx->attributes.width);
         }
 
         break;
